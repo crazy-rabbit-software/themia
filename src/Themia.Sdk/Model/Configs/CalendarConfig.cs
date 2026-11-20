@@ -49,8 +49,8 @@ public enum CalendarSetting
     /// <summary>[S-11540] Agenda: its rows and their lines.</summary>
     AgendaRows,
 
-    /// <summary>[S-11542] Year: its size.</summary>
-    YearSize,
+    /// <summary>[S-11542] Year: the day numbers, or squares.</summary>
+    YearNumbers,
 
     /// <summary>[S-11543] Day: the hours its grid shows.</summary>
     DayHours,

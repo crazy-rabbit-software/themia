@@ -7,7 +7,7 @@ using Themia.Sdk;
 namespace Themia.Core.Model;
 
 /// <summary>[S-3340] The screen-time donut: each app's share of the period, as a ring with the total in its hole.</summary>
-public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>, IReadoutSized, IScreenTimePeriod
+public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>, IScreenTimePeriod
 {
     /// <summary>[S-6074] The ring's total reads against the daily limit; no app's limit shows on it.</summary>
     [JsonIgnore]
@@ -15,8 +15,5 @@ public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenT
 
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;
 
-    /// <summary>[S-11515] The ring's size: Small, Medium (a new one's) or Large; the card follows it.</summary>
-    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
-
-    public override WidgetConfig Clone() => new ScreenTimeDonutConfig { Period = Period, Size = Size };
+    public override WidgetConfig Clone() => new ScreenTimeDonutConfig { Period = Period };
 }

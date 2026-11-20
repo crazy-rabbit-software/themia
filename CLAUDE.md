@@ -262,7 +262,13 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   (`GridFit`, [S-11807], [S-11875]; a ready-made group, or touching widgets in a picture, as one block, [S-11808], [S-11809]:
   `ReadyMadeGroups.Laid`, never member by member),
   so a kind states content's DIPs, never grid sizes. Inside its range a kind shows the
-  same parts: what it shows is config (rows, lines, facts, columns, Size S/M/L). A kit list states its
+  same parts: what it shows is config (rows, lines, facts, what the items are, a chart's span). **Size and item
+  counts follow the card** ([S-14410], owner 2026-11-20: "the size should not be settable, it is set by the size of
+  the widget"; "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's
+  size. What the items are (which facts, which span of time a chart covers) stays a setting."): no widget has a Size
+  line ([S-2449] retired; a face scales with its card), and no count line for identical items (days, hours, laps,
+  columns, tiles): their axis steps by one item and a resize stores the count its box holds (`SizeSets`). A list's
+  **Rows** stays a setting (it decides the natural height; the height steps follow it). A kit list states its
   rows (`IKitRows`, `KitSizing`). A view may measure its box to lay out those fixed parts
   (`IWidgetSizeAware.ApplySize(WidgetArea)`: a graph's length, where a text wraps, a grid's cells;
   `LayoutMath` for whole lines), never to choose them; costs are line heights, worst-case text lengths.
@@ -291,7 +297,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   leading it says (meters, graphs). Content stands one inset from every edge and reaches it: the card gives
   the top, the view the sides and foot. **A join is chrome, never layout** ([S-12483]; owner, 2026-11-17): a
   widget's content is laid out the same joined or alone; no view hears of its joins (no join hook, `CardContent`).
-  A one-readout face (clock, date) is planned at its Size's step and scaled up as one to fill its card ([S-12804]);
+  A one-readout face (clock, date, the timers) is planned on the family's one-readout step (no Size setting, [S-2449]
+  retired) and scaled up and down as one to fill its card ([S-12804], [S-12833]);
   the date is the Date widget's, never the clock's ([S-12805]); a quick toggle has no real minimum ([S-12806]).
 - **Concise first** ([S-666], user rule): a setting may only add more of the widget's own items (rows,
   columns, a larger number, a meter's history) or one closely related detail of them — never a control,
@@ -490,7 +497,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   `PickFolder`, a link row `LinkTo` (to the accounts only, [S-3749])), separators between its groups, and marks the line the Set up button
   opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` turns each into the page's row of its kind. An
   Ask or a Confirm is a page of its own. The desktop icon (an own icon's lines, `OwnIconMenu`) and Clock are the references; docs/WIDGET-KIT.md 15 is
-  the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Size, Rows) is an
+  the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Rows) is an
   entry of the SDK's `SharedSettings` over a config contract, and its standard line is marked with
   `WidgetMenuLines.Shared` ([S-11750]..[S-11753]); a new kind that holds one implements the contract and
   uses (or marks) that line. **The page of several** ([S-11754], [S-11755], `SelectionPage.Of` in Core,

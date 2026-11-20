@@ -8,9 +8,9 @@ namespace Themia.Core.Widgets;
 
 /// <summary>
 /// [S-11305] The focus widget on the timers' sized face ([S-11300]): the time a one-readout Readout on the
-/// step its Size names, centred, its status line under it, or with Ring on, one step under in the least
+/// family's one-readout step, centred, its status line under it, or with Ring on, one step under in the least
 /// ring that holds it; the Controls row under it (Start with − and + while idle, End session while it
-/// runs; at Small icon buttons). Sized for the widest reading of its length
+/// runs). Sized for the widest reading of its length
 /// (<see cref="FocusSessionRules.WidestClock"/>), so it never resizes as it counts.
 /// </summary>
 public static class FocusSessionLayout
@@ -22,8 +22,8 @@ public static class FocusSessionLayout
         return new ReadoutText(FocusSessionRules.WidestClock(config.Minutes), LineUnder: true, OneReadout: true);
     }
 
-    /// <summary>[S-11305] The face at the widget's Size, in its ring where Ring is on.</summary>
-    public static TimerSized Sized(FocusSessionConfig config) => TimerFace.Sized(config.Size, Worst(config), ring: config.Ring);
+    /// <summary>[S-11305] The face, in its ring where Ring is on.</summary>
+    public static TimerSized Sized(FocusSessionConfig config) => TimerFace.Sized(Worst(config), ring: config.Ring);
 
     /// <summary>
     /// [S-11305] The focus widget's sizing ([S-2438]): its face over the Controls row, as wide as the
@@ -34,8 +34,8 @@ public static class FocusSessionLayout
     {
         ArgumentNullException.ThrowIfNull(config);
         var controls = Math.Max(
-            TimerFace.ControlsWidth(config.Size, [FocusSessionStr.Panels_Focus_Start.Text(locale)], icons: 2),
-            TimerFace.ControlsWidth(config.Size, [FocusSessionStr.Panels_Focus_End.Text(locale)]));
+            TimerFace.ControlsWidth([FocusSessionStr.Panels_Focus_Start.Text(locale)], icons: 2),
+            TimerFace.ControlsWidth([FocusSessionStr.Panels_Focus_End.Text(locale)]));
         return TimerFace.Sizing(Sized(config), controls, header: false);
     }
 }

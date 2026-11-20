@@ -114,8 +114,8 @@ public static class CountdownLayout
     public static string CardFigures(CountdownConfig config) => new('8', DayFigures(config));
 
     /// <summary>
-    /// [S-11303] The face at <paramref name="config"/>'s Size: the Text style the reading on the Size's step
-    /// (40, 68, 96) with the target's date under it; Ring that reading one step under in the least ring
+    /// [S-11303] The face of <paramref name="config"/>: the Text style the reading on the family's one-readout step
+    /// (68) with the target's date under it; Ring that reading one step under in the least ring
     /// that holds it ([S-11300]); Flip the cards one step under, each as wide as three figures, their units
     /// under them. The progress bar is not part of the face.
     /// </summary>
@@ -127,13 +127,13 @@ public static class CountdownLayout
         {
             case CountdownStyle.Ring:
             {
-                var ring = TimerFace.Sized(config.Size, worst, ring: true);
+                var ring = TimerFace.Sized(worst, ring: true);
                 return new CountdownPlan(CountdownLook.Ring, ring.Step, ring.Ring, default, ring.Width, ring.Height);
             }
 
             case CountdownStyle.Flip:
             {
-                var step = TimerFace.RingStep(config.Size);
+                var step = TimerFace.RingStep;
                 var cards = WidestCards(config.Format);
                 var figures = CardFigures(config);
                 var flip = new FlipPlan(step, FlipRules.CardWidth(step, figures), Under: true);
@@ -142,14 +142,14 @@ public static class CountdownLayout
 
             default:
             {
-                var text = TimerFace.Sized(config.Size, worst);
+                var text = TimerFace.Sized(worst);
                 return new CountdownPlan(CountdownLook.Text, text.Step, 0, default, text.Width, text.Height);
             }
         }
     }
 
     /// <summary>
-    /// [S-11303] The countdown's sizing ([S-2438]): its face at its Size with the bar under it where it is
+    /// [S-11303] The countdown's sizing ([S-2438]): its face with the bar under it where it is
     /// on, no Controls row (a countdown has nothing to start or stop), [S-12481] the event's name over it
     /// where it has one (<see cref="NameCost"/>); one height, up to half again wider.
     /// </summary>

@@ -27,9 +27,12 @@ chip's times still shorten with the column, as text does).
   rows, [S-11541]): its height is 36 + the rows + 12, 260..520 wide (a new one 300), dragging the
   bottom edge sets Rows; one column at every width, the pages holding the rows the height was made
   for (a day's heading takes a row). Its Style lines add Rows and Lines after the range and the count.
-- **[S-11542]** **Year**: twelve months, 4 × 3, one size by **Size** (Small: a square a day, 8;
-  Medium: the day numbers under the weekday letters, a Caption line a day): 272 × 256 and 496 × 448,
-  no handle (`CalendarSizing.Year`).
+- **[S-11542]** **Year**: twelve months, 4 × 3, a square a day (8; a new one's) or, with **Day numbers** on (its
+  Style line, a mode, `YearNumbers`), the day numbers under the weekday letters (a Caption line a day): natural (and
+  least) 272 × 256 and 496 × 448 (`CalendarSizing.Year`, `YearSizing`). The card's size is the user's (owner,
+  2026-11-20: "the size should not be settable, it is set by the size of the widget"; the old Size line, [S-2449], is
+  gone): a larger card draws the twelve months larger as one block (`CalendarSizing.YearScale`, a `ScaleBox`, never
+  under 1), at the content's top-left in the inset. Tests `CalendarSizingTests.S11542_`.
 - **[S-11543]** **Day**: **Hours shown** (4..16, a new one 8; Style line), an hour a 28 row, over one
   band line for the all-day items (its item's bar, or chips shared among several, "+N"; a day without
   gives that line to its hours): 36 + the band's line and 4 + the hours + 12, 240..480 wide (a new one
@@ -96,7 +99,7 @@ chip's times still shorten with the column, as text does).
   **Date range** (Today, Today and tomorrow, 3, 7 or 30 days, and Custom…, which asks for 1 to 365
   days and holds the dot while the range is none of the others; the line shows the range) and
   **Agenda events** (1 to 100, asked for as text, [S-3726]), Rows and Lines ([S-11540]); the day's Hours
-  shown ([S-11543]); the month's Events as ([S-11544]) and, with Titles, Events a day ([S-11547]); the year's Size ([S-11542]); the week's Titles in
+  shown ([S-11543]); the month's Events as ([S-11544]) and, with Titles, Events a day ([S-11547]); the year's Day numbers ([S-11542]); the week's Titles in
   the week, then its Hours shown, or its Rows ([S-11545], [S-11546]). Then Appearance, the calendar widgets'
   **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and, after a divider,
   **Show contact birthdays**, offered only while a chosen account has contacts to read them from

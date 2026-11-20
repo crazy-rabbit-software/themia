@@ -385,10 +385,7 @@
             420,
             182
           ],
-          "bare": true,
-          "config": {
-            "size": "Large"
-          }
+          "bare": true
         },
         {
           "readyMade": "moon",
@@ -780,10 +777,7 @@
             80,
             420,
             182
-          ],
-          "config": {
-            "size": "Large"
-          }
+          ]
         }
       ]
     },
@@ -899,10 +893,7 @@
             420,
             182
           ],
-          "bare": true,
-          "config": {
-            "size": "Large"
-          }
+          "bare": true
         },
         {
           "id": "quote",
@@ -1215,10 +1206,7 @@
             60,
             420,
             182
-          ],
-          "config": {
-            "size": "Large"
-          }
+          ]
         },
         {
           "id": "pomodoro",

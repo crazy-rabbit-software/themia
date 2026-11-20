@@ -16,18 +16,21 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
 `Localization/Locales/` (its own `ScreenTimeDonutStr`, 30 languages). Tests:
 `Tests/ScreenTimeDonutTests.cs`, `Tests/ScreenTimeDonutMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-3340]** `ScreenTimeDonutConfig`: `Period` and `Size` ([S-11515]). One ring, the total in its hole.
+- **[S-3340]** `ScreenTimeDonutConfig`: `Period` ([S-11515]: no Size). One ring, the total in its hole.
 - **[S-3345]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
-  no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), **Size**
-  (`KitMenuLines.ReadoutSize`, [S-11515]), then the shared lines ([S-3323]: of the limits the day's).
+  no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), then the shared lines
+  ([S-3323]: of the limits the day's).
 - **[S-3341]** The wedges: the busiest seven apps and one Other, from cumulative seconds ([S-452]),
   each in its app's tone: the accent's ramp by rank, Other tertiary at the wash ([S-2272]).
   No legend: the list is its own widget ([S-666]); a wedge's tooltip names it.
-- **[S-3342]** *(Retired by [S-11515]: the ring's size is its Size, never the card's.)*
-- **[S-11515]** **A square by its Size** (owner decision 2026-11-12, [S-2438]): `Size` Small, Medium (a
-  new one's) or Large (`ReadoutSize`, set by the Size line) is a ring of 128, 168 or 216
-  (`ScreenTimeDonutLayout.Ring`), the card round it one size: 12 at the sides and the
-  foot, 12 and its day line (24, a tool line, [S-454], [S-12481]) over it (152 × 176, 192 × 216, 240 × 264). Its wedges stand in the family's track (4,
+- **[S-3342]** *(Retired by [S-11515]; since 2026-11-20 the ring is as large as the card holds.)*
+- **[S-11515]** **A ring as large as its card** (owner decision 2026-11-12, [S-2438]; 2026-11-20: "the size should
+  not be settable, it is set by the size of the widget", the Size line, [S-2449], is gone): a new one's ring is 168,
+  the least 128 (its figure on 28 with its line still fits the hole), the card round it 12 at the sides and the foot,
+  12 and its day line (24, a tool line, [S-454], [S-12481]) over it (192 × 216 natural, 152 × 176 least,
+  `ScreenTimeDonutLayout.Sizing`); a larger card draws a larger ring, as large as the view's slot holds under the day
+  line in that inset (`ScreenTimeDonutLayout.RingIn`, the view's `ApplySize`), at the content's top, centred across;
+  from 216 its figure may take 40. Tests `ScreenTimeDonutTests.S11515_`. Its wedges stand in the family's track (4,
   [S-6704]); the hole's figure is [S-1210]'s on 28 (40 may stand in a large ring's hole), centred, its
   line under (the day's "of 4h", a window's "2h 10m/day", or the focused app's share) where it fits,
   cut to the hole's width. Nothing to draw keeps the ring ([S-12813]): its track alone, and in the hole "--" while nothing records or none spent ("0m") in a period that recorded, disabled, why under it where the hole holds it and always as the ring's tooltip.

@@ -45,12 +45,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
     private readonly Button _longer;
     private readonly Button _end;
 
-    // [S-11305] At Small the rows are icon buttons: Start the accent's Play, End session Stop.
-    private readonly ControlsBlock _idleIcons = new() { HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly ControlsBlock _runningIcons = new() { HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly Button _shorterIcon;
-    private readonly Button _longerIcon;
-
     private FocusSessionConfig _config = new();
     private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
@@ -75,15 +69,11 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
         _shorter = _idleRow.Icon(Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text(), () => StepLength(-1));
         _longer = _idleRow.Icon(Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text(), () => StepLength(+1));
         _end = _runningRow.Button(FocusSessionStr.Panels_Focus_End.Text(), Toggle);
-        _idleIcons.MainIcon(Glyphs.Play, FocusSessionStr.Panels_Focus_Start.Text(), Toggle);
-        _shorterIcon = _idleIcons.Icon(Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text(), () => StepLength(-1));
-        _longerIcon = _idleIcons.Icon(Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text(), () => StepLength(+1));
-        _runningIcons.Icon(Glyphs.Stop, FocusSessionStr.Panels_Focus_End.Text(), Toggle);
 
         // [S-12808] The dial and its row of controls: one block, planned at the natural box and scaled up as one.
         _fit.Spacing = FamilySpace.S2;
         _fit.Parts.Add(_dial);
-        foreach (var row in new[] { _idleRow, _runningRow, _idleIcons, _runningIcons })
+        foreach (var row in new[] { _idleRow, _runningRow })
         {
             _fit.Parts.Add(row);
         }
@@ -177,11 +167,8 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
             _ring.Show(running ? snapshot.Session.Progress(now) : 0);
         }
 
-        var icons = TimerFace.IconControls(_config.Size);
-        _idleRow.Visibility = !icons && !running ? Visibility.Visible : Visibility.Collapsed;
-        _runningRow.Visibility = !icons && running ? Visibility.Visible : Visibility.Collapsed;
-        _idleIcons.Visibility = icons && !running ? Visibility.Visible : Visibility.Collapsed;
-        _runningIcons.Visibility = icons && running ? Visibility.Visible : Visibility.Collapsed;
+        _idleRow.Visibility = !running ? Visibility.Visible : Visibility.Collapsed;
+        _runningRow.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
         ControlsBlock.Relabel(_start, FocusSessionStr.Panels_Focus_Start.Text());
         ControlsBlock.Relabel(_end, FocusSessionStr.Panels_Focus_End.Text());
         ControlsBlock.Reglyph(_shorter, Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text());
@@ -189,9 +176,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
         ToolTipService.SetToolTip(_shorter, FocusSessionStr.Panels_Focus_Shorter.Text());
         ToolTipService.SetToolTip(_longer, FocusSessionStr.Panels_Focus_Longer.Text());
         _shorter.IsEnabled = _config.Minutes > FocusSessionRules.MinMinutes;
-        _shorterIcon.IsEnabled = _shorter.IsEnabled;
         _longer.IsEnabled = _config.Minutes < FocusSessionRules.MaxMinutes;
-        _longerIcon.IsEnabled = _longer.IsEnabled;
 
         var left = FocusSessionStr.Panels_Focus_Left.Format(("time", clock));
         AutomationProperties.SetName(this, running ? left : FocusSessionRules.Length(_config.Minutes));

@@ -64,9 +64,10 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
   Size's and the bar a setting, [S-11303].)* A reading's shape is its figures as 8s
   (`CountdownLayout.Shape`). No Controls row: there is nothing to start or stop. The whole instant is
   the tooltip.
-- **[S-11303]** **Its size and its bar are settings** (under its Style): **Size** (Small, Medium,
-  Large) puts the Text style's duration on 40, 68 or 96 with the target's date always under it, and
-  the Ring's readout and the Flip's cards one step under (28, 40, 68; [S-11300]); **Progress bar**
+- **[S-11303]** **Its bar is a setting** (under its Style; no Size since 2026-11-20, [S-2449] retired: the card's
+  size is the user's and the face scales with it, [S-11300]): the Text style's duration on the family's one-readout
+  step (68) with the target's date always under it, the Ring's readout and the Flip's cards one step under (40);
+  **Progress bar**
   (off for a new one; Text and Flip only, a ring is its own progress) stands the bar ([S-1448]) 8
   under the face, the content's width. The face is sized on the widest reading its format writes in
   the language for its own target's day count ([S-11803]), every figure an 8, ahead or gone by

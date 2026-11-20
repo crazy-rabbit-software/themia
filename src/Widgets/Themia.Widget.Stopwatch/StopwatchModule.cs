@@ -13,7 +13,7 @@ using Themia.Widget.Stopwatch;
 
 namespace Themia.Widget.Stopwatch;
 
-/// <summary>[S-4600] The stopwatch: the time at its Size, its controls, the laps it lists under them, running across restarts. SPEC.md beside this file.</summary>
+/// <summary>[S-4600] The stopwatch: the time, its controls, the laps it lists under them, running across restarts. SPEC.md beside this file.</summary>
 public sealed class StopwatchModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (Segoe "Stopwatch", U+E916).</summary>
@@ -44,7 +44,6 @@ public sealed class StopwatchModule : IWidgetModule
     {
         ArgumentNullException.ThrowIfNull(menu);
         var stopwatch = (StopwatchConfig)config;
-        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, stopwatch));
         menu.Lines.Add(KitMenuLines.Count(menu, LapGlyph, StopwatchStr.Stopwatch_Laps.Text(), StopwatchFace.LapRows(stopwatch), 0, StopwatchConfig.MostLapRows, 1, v => stopwatch.LapRows = v));
     }
 

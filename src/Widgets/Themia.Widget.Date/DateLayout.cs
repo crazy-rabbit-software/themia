@@ -10,9 +10,10 @@ namespace Themia.Core.Widgets;
 
 /// <summary>
 /// [S-10801]..[S-10804] The date widget's words and sizes, pure: what each style says of a day (through
-/// <see cref="LocaleFormat"/> only, never culture data), the step its Size draws it at, and the box that holds the
-/// language's widest day in that style. The view lays the face at that step and scales it to fill its box
-/// ([S-10803], as the clock, [S-12804]).
+/// <see cref="LocaleFormat"/> only, never culture data), the family's step it is planned at, and the box that holds
+/// the language's widest day in that style: the natural size. The view lays the face at that step and scales it up
+/// and down to fill its box ([S-10803], as the clock, [S-12804]): how big the date is is the card's (no Size setting,
+/// [S-2449] retired).
 /// </summary>
 public static class DateLayout
 {
@@ -23,19 +24,11 @@ public static class DateLayout
 
     private static readonly ConcurrentDictionary<(Locale, DateWidgetStyle, int), double> Widest = new();
 
-    /// <summary>
-    /// [S-10802] A one-line style's step at each size: Title (regular), 28, 40: a line of words, the Small one the size
-    /// of the line a 68 clock had under it, so the date stands under a clock as that line did.
-    /// </summary>
-    public static TypeStep LineStep(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
-    {
-        ReadoutSize.Small => FamilyType.Regular(FamilyType.Title),
-        ReadoutSize.Large => FamilyType.Big40,
-        _ => FamilyType.Big28,
-    };
+    /// <summary>[S-10802] A one-line style's step: 28, a line of words.</summary>
+    public static TypeStep LineStep => FamilyType.Big28;
 
-    /// <summary>[S-10802] The page's day number at each size: the readout's own step (40, 68, 96).</summary>
-    public static TypeStep NumberStep(ReadoutSize size) => ReadoutSizes.Step(ReadoutSizes.Normalise(size));
+    /// <summary>[S-10802] The page's day number: the family's one-readout step, 68.</summary>
+    public static TypeStep NumberStep => FamilyType.Hero68;
 
     /// <summary>[S-10801] What a one-line style says of <paramref name="day"/>; the page's parts are <see cref="Page"/>.</summary>
     public static string Line(DateWidgetStyle style, Locale locale, DateOnly day) => style switch
@@ -60,7 +53,7 @@ public static class DateLayout
     public static double SmallestText(DateConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return config.Style == DateWidgetStyle.Page ? FamilyType.Under(NumberStep(config.Size)).FontSize : LineStep(config.Size).FontSize;
+        return config.Style == DateWidgetStyle.Page ? FamilyType.Under(NumberStep).FontSize : LineStep.FontSize;
     }
 
     /// <summary>
@@ -72,19 +65,19 @@ public static class DateLayout
         ArgumentNullException.ThrowIfNull(config);
         if (config.Style == DateWidgetStyle.Page)
         {
-            var number = NumberStep(config.Size);
+            var number = NumberStep;
             var line = FamilyType.Under(number);
             var words = Math.Max(WidestOf(locale, DateWidgetStyle.Page, 0, line), WidestOf(locale, DateWidgetStyle.Page, 1, line));
             var digits = HeroFit.Ems("88") * number.FontSize;
             return new SizeDip(Math.Ceiling(Math.Max(words, digits)), number.LineHeight + (2 * line.LineHeight));
         }
 
-        var step = LineStep(config.Size);
+        var step = LineStep;
         return new SizeDip(Math.Ceiling(WidestOf(locale, config.Style, 0, step)), step.LineHeight);
     }
 
     /// <summary>
-    /// [S-10802] The sizing: the face in the card's inset of 12 on every side, one height by the style and Size, widened
+    /// [S-10802] The sizing: the face in the card's inset of 12 on every side, one height by the style, widened
     /// up to twice (beside a wider mate, under a clock); the host relaxes it ([S-12411]) and a larger box scales the face
     /// up to fill it ([S-10803]).
     /// </summary>

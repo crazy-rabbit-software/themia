@@ -7,10 +7,10 @@ namespace Themia.Core.Widgets;
 /// <summary>
 /// How a quote is set: on which family step, in how many lines, and how it is punctuated.
 /// <para>
-/// [S-11306] What a quote shows is its config: its Size names the step (Body, Title, 28), its Lines
-/// the most lines it takes (a longer quote ends in an ellipsis), the attribution its line under on the
-/// step's own line under, and the Marks style a large mark over it. The card follows; a wider or
-/// narrower card only rewraps the quote.
+/// [S-11306] What a quote shows is its config: its Lines the most lines it takes (a longer quote ends in an
+/// ellipsis), set on the family's Title step (no Size setting: [S-2449] retired), the attribution its line under on
+/// the step's own line under, and the Marks style a large mark over it. The card follows; a wider or narrower card
+/// only rewraps the quote.
 /// </para>
 /// </summary>
 public static class QuoteLayout
@@ -21,13 +21,8 @@ public static class QuoteLayout
     /// <summary>[S-11306] The card's width: from 200 to 520, a new one 320.</summary>
     public const double Narrowest = 200, NaturalWidth = 320, Widest = 520;
 
-    /// <summary>[S-11306] The quote's step at each size: Body, Title, Big 28.</summary>
-    public static TypeStep StepAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
-    {
-        ReadoutSize.Small => FamilyType.Body,
-        ReadoutSize.Large => FamilyType.Big28,
-        _ => FamilyType.Title,
-    };
+    /// <summary>[S-11306] The quote's step: Title.</summary>
+    public static TypeStep Step => FamilyType.Title;
 
     /// <summary>The lines the config gives the quote, held to <see cref="MinLines"/>..<see cref="MostLines"/>.</summary>
     public static int LinesOf(Model.QuoteConfig config)
@@ -40,18 +35,18 @@ public static class QuoteLayout
     public static double MarkOf(Model.QuoteConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return config.Style == Model.QuoteStyle.Marks ? MarkSize(StepAt(config.Size)) : 0;
+        return config.Style == Model.QuoteStyle.Marks ? MarkSize(Step) : 0;
     }
 
     /// <summary>
     /// [S-11306] The quote's sizing ([S-2438]): the inset, the mark and its 8 on the Marks style, the
-    /// lines on the Size's step, the attribution's line where it is shown, the inset; stepped by a line
+    /// lines on the Title step, the attribution's line where it is shown, the inset; stepped by a line
     /// and following <see cref="Model.QuoteConfig.Lines"/>, 200..520 wide.
     /// </summary>
     public static Sdk.WidgetSizing Sizing(Model.QuoteConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var step = StepAt(config.Size);
+        var step = Step;
         var mark = MarkOf(config);
         var top = FamilySpace.Inset + (mark > 0 ? mark + FamilySpace.S2 : 0);
         var author = config.ShowAuthor ? FamilyType.Under(step).LineHeight : 0;

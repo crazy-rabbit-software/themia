@@ -162,26 +162,6 @@ public static class KitMenuLines
         return WidgetMenuLines.Shared(SharedSettings.ListColumns, Count(menu, null, Str.Kit_Columns.Text(), KitSizing.ClampColumns(config.Columns), 1, KitSizing.MaxColumns, 1, v => config.Columns = v));
     }
 
-    /// <summary>
-    /// [S-2449] A one-readout widget's Size: Small, Medium or Large (the family's 40, 68, 96); its card
-    /// follows the size, never the other way round.
-    /// </summary>
-    public static ItemMenuEntry ReadoutSize(WidgetMenuLines menu, IReadoutSized config)
-    {
-        ArgumentNullException.ThrowIfNull(menu);
-        ArgumentNullException.ThrowIfNull(config);
-        return WidgetMenuLines.Shared(SharedSettings.ReadoutSize, menu.Choice(
-            null,
-            Str.Kit_Size.Text(),
-            [
-                (Themia.Core.Widgets.ReadoutSize.Small, Str.Kit_SizeSmall.Text()),
-                (Themia.Core.Widgets.ReadoutSize.Medium, Str.Kit_SizeMedium.Text()),
-                (Themia.Core.Widgets.ReadoutSize.Large, Str.Kit_SizeLarge.Text()),
-            ],
-            ReadoutSizes.Normalise(config.Size),
-            v => config.Size = v));
-    }
-
     /// <summary>[S-7063] One switch per optional field the widget offers ([S-6070]: only fields the current style draws).</summary>
     public static IEnumerable<ItemMenuEntry> Shows(WidgetMenuLines menu, IReadOnlyList<KitShowLine> fields)
     {

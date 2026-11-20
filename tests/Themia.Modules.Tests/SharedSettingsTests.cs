@@ -63,7 +63,6 @@ public sealed class SharedSettingsTests
         ["stockTimeframe"] = c => (((StockQuoteConfig)c).Range, ((StockQuoteConfig)c).ShowExtendedHours) = (QuoteRange.FiveYears, true),
         ["screenTimePeriod"] = c => ((IScreenTimePeriod)c).Period = ScreenTimePeriod.Month,
         ["historySpan"] = c => ((ISpansHistory)c).GraphSpanSeconds = 1800,
-        ["readoutSize"] = c => ((IReadoutSized)c).Size = (ReadoutSizes.Normalise(((IReadoutSized)c).Size) == ReadoutSize.Large ? ReadoutSize.Small : ReadoutSize.Large),
         ["listRows"] = c => ((IKitRows)c).Rows = 17,
         ["listLines"] = c => ((IKitRows)c).Lines = 3,
         ["listColumns"] = c => ((IKitColumns)c).Columns = 2,
@@ -100,9 +99,8 @@ public sealed class SharedSettingsTests
             }
         }
 
-        // The settings every list or every one-readout widget has are as many as those kinds are.
+        // The settings every list has are as many as those kinds are.
         Assert.True(HeldBy(SharedSettings.ListRows).Length >= 10);
-        Assert.True(HeldBy(SharedSettings.ReadoutSize).Length >= 8);
         Assert.Equal(SharedSettings.All.Count, SharedSettings.All.Select(s => s.Key).Distinct().Count());
         Assert.All(SharedSettings.All, s => Assert.Same(s, SharedSettings.Find(s.Key)));
     }

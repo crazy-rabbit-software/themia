@@ -6,7 +6,7 @@ sections (the keyboard lease [S-800], the shared ticker [S-155], the timers' siz
 
 Owning files: everything in this folder: `StopwatchModule.cs` (descriptor, view factory, JSON
 context, glyph), `StopwatchConfig.cs`, `StopwatchRules.cs` (the record, the state, the text and the
-key map `StopwatchKeys`), `StopwatchFace.cs` (the face at its Size, the sizing and its lap rows), `StopwatchView.cs`,
+key map `StopwatchKeys`), `StopwatchFace.cs` (the face, the sizing and its lap rows), `StopwatchView.cs`,
 `Preview/` (Debug renders), `Localization/Locales/` (its own `StopwatchStr`, 30 languages). Tests:
 `Tests/StopwatchTests.cs`, `Tests/StopwatchFaceTests.cs` (run by `tests/Themia.Modules.Tests`).
 
@@ -34,12 +34,11 @@ key map `StopwatchKeys`), `StopwatchFace.cs` (the face at its Size, the sizing a
   nothing moves as it counts; it stops at 99:59:59.9.
 - **[S-4604]** Keys (the lease, [S-800]): Space or Enter start and pause, Right takes a lap, Home resets;
   the letters L and R do the same (type-ahead, `StopwatchKeys.Letter`).
-- **[S-4605]** *(Retired: the face by the tile's size, the laps' column from an expanded width; the
-  face is the Size's and the laps are a setting, [S-11302].)*
-- **[S-11302]** **Its size and its laps are settings.** Each stopwatch widget is its own stopwatch (its
-  state is its config, [S-4602]; two widgets never share one), so its laps are a setting of the one
-  widget, not a widget of their own. Its menu: **Size** (Small, Medium, Large: the time on 40, 68, 96,
-  [S-11300]) and **Laps** (0 to 10, a new one 0): that many one-line fact rows (`RowBlock`, no lead,
+- **[S-4605]** *(Retired: the face by the tile's size, the laps' column from an expanded width; [S-11302].)*
+- **[S-11302]** **Its laps.** Each stopwatch widget is its own stopwatch (its state is its config, [S-4602]; two
+  widgets never share one), so its laps are the one widget's, not a widget of their own. The time on the family's
+  one-readout step (no Size since 2026-11-20, [S-2449] retired: the face scales with the card, [S-11300]). Its menu:
+  **Laps** (0 to 10, a new one 0): that many one-line fact rows (`RowBlock`, no lead,
   28 each) under the Controls row, edge to edge, newest first, "Lap N" and its length; "No laps yet" in
   the first row until the first lap. The card follows (`StopwatchFace.Sizing`): the inset, the face, 8,
   the row, the lap rows, the inset; one height for its config, stepped by a lap row (dragging its

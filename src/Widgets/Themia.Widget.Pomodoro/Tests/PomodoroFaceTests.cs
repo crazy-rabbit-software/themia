@@ -26,7 +26,6 @@ public sealed class PomodoroFaceTests
         Assert.Equal(PomodoroLook.Ring, ring.Look);
         Assert.Equal(FamilyType.Big40, ring.Step);
         Assert.True(ring.Ring > 0);
-        Assert.Equal(PomodoroLook.Ring, PomodoroFace.Plan(new PomodoroConfig { Size = ReadoutSize.Small }).Look);
 
         Assert.Equal(PomodoroLook.Bar, PomodoroFace.Plan(Of(PomodoroStyle.Bar)).Look);
         Assert.Equal(FamilyType.Hero68, PomodoroFace.Plan(Of(PomodoroStyle.Bar)).Step);
@@ -39,13 +38,9 @@ public sealed class PomodoroFaceTests
     {
         var digits = PomodoroFace.Sizing(Of(PomodoroStyle.Digits), Locale.En);
         var bar = PomodoroFace.Sizing(Of(PomodoroStyle.Bar), Locale.En);
-        var small = PomodoroFace.Sizing(new PomodoroConfig { Style = PomodoroStyle.Digits, Size = ReadoutSize.Small }, Locale.En);
 
-        Assert.True(digits.FixedHeight && !digits.FixedWidth);
+        Assert.True(digits.Natural.Height == digits.Max.Height && !digits.FixedWidth);
         Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, digits.Natural.Height);
         Assert.Equal(digits.Natural.Height + 12, bar.Natural.Height);
-
-        // At Small the five controls are icon buttons, wider than the 40 time.
-        Assert.Equal((5 * 28) + (4 * 8) + 24 + 2, small.Natural.Width);
     }
 }

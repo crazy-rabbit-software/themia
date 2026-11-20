@@ -39,14 +39,12 @@ public sealed class TimerFaceTests
     }
 
     [Fact]
-    public void S11300_the_face_is_on_the_step_its_size_names_and_a_ring_one_step_under_in_the_least_ring_that_holds_it()
+    public void S11300_the_face_is_on_the_one_readout_step_and_a_ring_one_step_under_in_the_least_ring_that_holds_it()
     {
-        Assert.Equal(FamilyType.Big40, TimerFace.Sized(ReadoutSize.Small, Timer).Step);
-        Assert.Equal(FamilyType.Hero68, TimerFace.Sized(ReadoutSize.Medium, Timer).Step);
-        Assert.Equal(FamilyType.Hero96, TimerFace.Sized(ReadoutSize.Large, Timer).Step);
-        Assert.Equal(0, TimerFace.Sized(ReadoutSize.Medium, Timer).Ring);
+        Assert.Equal(FamilyType.Hero68, TimerFace.Sized(Timer).Step);
+        Assert.Equal(0, TimerFace.Sized(Timer).Ring);
 
-        var ring = TimerFace.Sized(ReadoutSize.Medium, Timer, ring: true);
+        var ring = TimerFace.Sized(Timer, ring: true);
         Assert.Equal(FamilyType.Big40, ring.Step);
         Assert.Equal(0, ring.Ring % 4);
         var (holeWidth, holeHeight) = ChartRules.Hole(ring.Ring);
@@ -56,24 +54,39 @@ public sealed class TimerFaceTests
     }
 
     [Fact]
-    public void S11300_at_small_the_controls_are_icon_buttons_larger_the_worded_ones_at_their_longest_label()
+    public void S11300_the_controls_are_the_worded_ones_at_their_longest_label_and_the_icon_buttons()
     {
-        Assert.Equal((3 * 28) + (2 * 8), TimerFace.ControlsWidth(ReadoutSize.Small, ["Resume"], icons: 2));
-        Assert.Equal(TimerFace.WordedWidth("Resume") + (2 * 28) + (2 * 8), TimerFace.ControlsWidth(ReadoutSize.Medium, ["Resume"], icons: 2));
-        Assert.Equal(40, TimerFace.ControlsWidth(ReadoutSize.Large, [], aSwitch: true));
+        Assert.Equal(TimerFace.WordedWidth("Resume") + (2 * 28) + (2 * 8), TimerFace.ControlsWidth(["Resume"], icons: 2));
+        Assert.Equal(40, TimerFace.ControlsWidth([], aSwitch: true));
         Assert.Equal("Resume", TimerFace.Longest("Start", "Pause", "Resume"));
     }
 
     [Fact]
     public void S11300_the_card_is_the_face_and_its_row_in_the_inset_one_height_up_to_half_again_wider()
     {
-        var face = TimerFace.Sized(ReadoutSize.Medium, Timer);
+        var face = TimerFace.Sized(Timer);
         var sizing = TimerFace.Sizing(face, controls: 100, header: false, below: 28);
 
-        Assert.True(sizing.FixedHeight && !sizing.FixedWidth);
+        Assert.True(sizing.Natural.Height == sizing.Max.Height && !sizing.FixedWidth);
         Assert.Equal(12 + Math.Ceiling(face.Height) + 28 + 8 + 28 + 12 + 2, sizing.Natural.Height);
         Assert.Equal(Math.Ceiling(face.Width) + 24 + 2, sizing.Natural.Width);
         Assert.Equal(Math.Ceiling(sizing.Natural.Width * 1.5), sizing.Max.Width);
         Assert.Equal(sizing.Natural.Height, TimerFace.Sizing(face, 100, header: true, below: 28).Natural.Height);
+    }
+
+    [Fact]
+    public void S11300_S12833_the_card_scales_down_as_one_until_its_smallest_text_is_at_the_floor()
+    {
+        // Owner, 2026-11-20: "the size should not be settable, it is set by the size of the widget": the natural card is
+        // the face at the one-readout step; a smaller card draws it smaller, down to its Body text (the line under, the
+        // buttons) at 9 (WR-14).
+        var face = TimerFace.Sized(Timer);
+        var sizing = TimerFace.Sizing(face, controls: 100, header: false);
+        Assert.Equal(Math.Ceiling(sizing.Natural.Height * 9 / 14), sizing.Min.Height);
+        Assert.Equal(Math.Ceiling(sizing.Natural.Width * 9 / 14), sizing.Min.Width);
+
+        // A ring's readout is 40 with a Body line under it: the same floor.
+        var ring = TimerFace.Sizing(TimerFace.Sized(Timer, ring: true), controls: 0, header: false);
+        Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(ring.Natural.Height * 9 / 14)), ring.Min.Height);
     }
 }

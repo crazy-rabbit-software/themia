@@ -1,5 +1,5 @@
 {
-  "$englishOnly": ["calendar.hours", "calendar.monthEvents", "calendar.monthEvents.dots", "calendar.monthEvents.chips", "calendar.weekTitles", "calendar.monthLines", "calendar.moreCount"],
+  "$englishOnly": ["calendar.hours", "calendar.monthEvents", "calendar.monthEvents.dots", "calendar.monthEvents.chips", "calendar.weekTitles", "calendar.monthLines", "calendar.moreCount", "calendar.yearNumbers"],
   "calendar.agendaEvents.label": "Agenda events",
   "calendar.noEventsToday": "No events today",
   "calendar.noUpcoming": "No upcoming events.",
@@ -36,6 +36,7 @@
   "calendar.monthEvents.chips": "Titles",
   "calendar.weekTitles": "Titles in the week",
   "calendar.monthLines": "Events a day",
+  "calendar.yearNumbers": "Day numbers",
   "calendar.moreCount": {
     "one": "+{count} more",
     "other": "+{count} more"

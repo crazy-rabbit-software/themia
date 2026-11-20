@@ -16,7 +16,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Time left until one date the user cares about ([S-6036]): one widget, one target. [C-01]
 /// <para>
-/// [S-11303] The face is the timers' at its Size: the duration as the Readout on the Size's step with
+/// [S-11303] The face is the timers': the duration as the Readout on the family's one-readout step with
 /// the target's date under it, sized on the widest reading of its format (<see cref="CountdownLayout.Plan"/>),
 /// and where it is on the progress bar 8 under it; the event's name over it, in the widget's own content
 /// ([S-6037], [S-12481]: no card has a header). It sits where the widget's alignment puts it ([S-6580],
@@ -157,7 +157,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         _subscription = _ticker?.Subscribe(interval, OnTick);
     }
 
-    /// <summary>[S-11303] The face at the countdown's Size and style.</summary>
+    /// <summary>[S-11303] The face in the countdown's style.</summary>
     private void Lay()
     {
         // [S-1862] No target: the card shows its Set up row over this, so draw nothing.

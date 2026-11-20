@@ -18,17 +18,15 @@ public class QuoteLayoutTests
     // -----------------------------------------------------------------------------------------
 
     [Fact]
-    public void S11306_the_size_names_the_step_body_title_28()
+    public void S11306_S2449_retired_the_quote_is_set_on_title_with_no_size()
     {
-        Assert.Equal(FamilyType.Body, QuoteLayout.StepAt(ReadoutSize.Small));
-        Assert.Equal(FamilyType.Title, QuoteLayout.StepAt(ReadoutSize.Medium));
-        Assert.Equal(FamilyType.Big28, QuoteLayout.StepAt(ReadoutSize.Large));
-        Assert.Equal(ReadoutSize.Medium, new QuoteConfig().Size);
+        Assert.Equal(FamilyType.Title, QuoteLayout.Step);
+        Assert.Null(typeof(QuoteConfig).GetProperty("Size"));
         Assert.Equal(3, new QuoteConfig().Lines);
     }
 
     [Fact]
-    public void S11306_the_height_follows_the_lines_and_the_size_the_attribution_line_always_200_to_520_wide()
+    public void S11306_the_height_follows_the_lines_the_attribution_line_always_200_to_520_wide()
     {
         var sizing = QuoteLayout.Sizing(new QuoteConfig());
 
@@ -36,7 +34,7 @@ public class QuoteLayoutTests
         Assert.Equal(12 + (3 * 28) + 16 + 12, sizing.Natural.Height);
         Assert.Equal((200d, 320d, 520d), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
         Assert.Equal(3, sizing.HeightSteps!.Count);
-        Assert.Equal(12 + (6 * 36) + 16 + 12, QuoteLayout.Sizing(new QuoteConfig { Size = ReadoutSize.Large, Lines = 6 }).Natural.Height);
+        Assert.Equal(12 + (6 * 28) + 16 + 12, QuoteLayout.Sizing(new QuoteConfig { Lines = 6 }).Natural.Height);
         Assert.Equal(sizing.Natural.Height - 16, QuoteLayout.Sizing(new QuoteConfig { ShowAuthor = false }).Natural.Height);
     }
 
@@ -53,14 +51,14 @@ public class QuoteLayoutTests
     }
 
     [Fact]
-    public void S11306_lines_and_size_out_of_range_are_repaired_and_copied()
+    public void S11306_lines_out_of_range_are_repaired_and_copied()
     {
-        var config = new QuoteConfig { Lines = 40, Size = (ReadoutSize)7 };
+        var config = new QuoteConfig { Lines = 40 };
         Assert.NotEmpty(config.Repair());
-        Assert.Equal((6, ReadoutSize.Medium), (config.Lines, config.Size));
+        Assert.Equal(6, config.Lines);
 
-        var copy = (QuoteConfig)new QuoteConfig { Lines = 2, Size = ReadoutSize.Small }.Clone();
-        Assert.Equal((2, ReadoutSize.Small), (copy.Lines, copy.Size));
+        var copy = (QuoteConfig)new QuoteConfig { Lines = 2 }.Clone();
+        Assert.Equal(2, copy.Lines);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -79,12 +77,12 @@ public class QuoteLayoutTests
     [Fact]
     public void S11306_the_marks_style_puts_its_mark_and_8_over_the_quote()
     {
-        var plain = QuoteLayout.Sizing(new QuoteConfig { Size = ReadoutSize.Large });
-        var marked = QuoteLayout.Sizing(new QuoteConfig { Size = ReadoutSize.Large, Style = QuoteStyle.Marks });
+        var plain = QuoteLayout.Sizing(new QuoteConfig());
+        var marked = QuoteLayout.Sizing(new QuoteConfig { Style = QuoteStyle.Marks });
 
-        Assert.Equal(0, QuoteLayout.MarkOf(new QuoteConfig { Size = ReadoutSize.Large }));
-        Assert.Equal(28, QuoteLayout.MarkOf(new QuoteConfig { Size = ReadoutSize.Large, Style = QuoteStyle.Marks }));
-        Assert.Equal(plain.Natural.Height + 28 + 8, marked.Natural.Height);
+        Assert.Equal(0, QuoteLayout.MarkOf(new QuoteConfig()));
+        Assert.Equal(16, QuoteLayout.MarkOf(new QuoteConfig { Style = QuoteStyle.Marks }));
+        Assert.Equal(plain.Natural.Height + 16 + 8, marked.Natural.Height);
     }
 
     // -----------------------------------------------------------------------------------------

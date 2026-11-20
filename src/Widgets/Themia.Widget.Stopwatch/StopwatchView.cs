@@ -15,9 +15,9 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-4600]..[S-4606] A stopwatch (Karpo §84) on the timers' sized face ([S-11302]): the time as the
-/// Readout on the step its Size names, centred, the lap under way its line under, the Controls row under
+/// Readout on the family's one-readout step, centred, the lap under way its line under, the Controls row under
 /// it (Start, Pause or Resume as the one main action, Lap and Reset greyed, never gone, where they do
-/// nothing; at Small all three icon buttons) and under that the newest laps, as many rows as it lists.
+/// nothing) and under that the newest laps, as many rows as it lists.
 /// <para>
 /// The stopwatch is the widget's config ([S-4602]): written on every press, read back on attach, so
 /// it keeps running across a restart. In memory it counts on the monotonic clock; the shared ticker
@@ -35,13 +35,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
 
     private readonly ReadoutBlock _clock = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly ControlsBlock _controls = new() { HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly ControlsBlock _iconControls = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private readonly Button _startButton;
     private readonly Button _lapButton;
     private readonly Button _resetButton;
-    private readonly Button _startIcon;
-    private readonly Button _lapIcon;
-    private readonly Button _resetIcon;
     /// <summary>[S-12811] The laps as the rows every facts widget draws.</summary>
     private readonly FactList _laps = new();
 
@@ -58,14 +54,12 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         // [S-12808] The face, its controls and the laps: one block, planned at the natural box and scaled up as one.
         _controls.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
-        _iconControls.Margin = _controls.Margin;
 
         // A Row carries the side inset itself, so the laps reach the card's edges with their hover. [S-12834] The laps are
         // rows (WR-6: whole grid cells, never scaled with the face): under the block, to the card's foot edge.
         _laps.Margin = new Thickness(-FamilySpace.Inset, 0, -FamilySpace.Inset, -FamilySpace.Inset);
         _fit.Parts.Add(_clock);
         _fit.Parts.Add(_controls);
-        _fit.Parts.Add(_iconControls);
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         SetRow(_laps, 1);
@@ -76,9 +70,6 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         _startButton = _controls.Main(StopwatchStr.Stopwatch_Start.Text(), () => Act(state => state.Act(Now())));
         _lapButton = _controls.Icon(StopwatchModule.LapGlyph, StopwatchStr.Stopwatch_Lap.Text(), () => Act(state => state.Lap(Now())));
         _resetButton = _controls.Icon(Glyphs.Reset, StopwatchStr.Stopwatch_Reset.Text(), () => Act(_ => StopwatchState.None));
-        _startIcon = _iconControls.MainIcon(Glyphs.Play, StopwatchStr.Stopwatch_Start.Text(), () => Act(state => state.Act(Now())));
-        _lapIcon = _iconControls.Icon(StopwatchModule.LapGlyph, StopwatchStr.Stopwatch_Lap.Text(), () => Act(state => state.Lap(Now())));
-        _resetIcon = _iconControls.Icon(Glyphs.Reset, StopwatchStr.Stopwatch_Reset.Text(), () => Act(_ => StopwatchState.None));
     }
 
     /// <summary>The monotonic clock the stopwatch counts on: setting Windows' clock never moves it.</summary>
@@ -208,8 +199,6 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         ControlsBlock.Reglyph(_resetButton, Glyphs.Reset, StopwatchStr.Stopwatch_Reset.Text());
         ToolTipService.SetToolTip(_lapButton, StopwatchStr.Stopwatch_Lap.Text());
         ToolTipService.SetToolTip(_resetButton, StopwatchStr.Stopwatch_Reset.Text());
-        ToolTipService.SetToolTip(_lapIcon, StopwatchStr.Stopwatch_Lap.Text());
-        ToolTipService.SetToolTip(_resetIcon, StopwatchStr.Stopwatch_Reset.Text());
     }
 
     // ---- drawing ----------------------------------------------------------------------------
@@ -242,13 +231,10 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
 
         var main = (_state.Running ? StopwatchStr.Stopwatch_Pause : _state.Idle ? StopwatchStr.Stopwatch_Start : StopwatchStr.Stopwatch_Resume).Text();
         ControlsBlock.Relabel(_startButton, main);
-        ControlsBlock.Reglyph(_startIcon, _state.Running ? Glyphs.Pause : Glyphs.Play, main);
 
         // [S-4601] Greyed where they do nothing, never taken away: the row never moves.
         _lapButton.IsEnabled = _state.CanLap;
         _resetButton.IsEnabled = _state.CanReset;
-        _lapIcon.IsEnabled = _state.CanLap;
-        _resetIcon.IsEnabled = _state.CanReset;
 
         FillLaps();
     }
@@ -279,12 +265,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
 
     // ---- the face ---------------------------------------------------------------------------
 
-    /// <summary>[S-11302] The face at the stopwatch's Size, its controls worded or (at Small) icon buttons, and its lap rows.</summary>
+    /// <summary>[S-11302] The face, its controls and its lap rows.</summary>
     private void Lay()
     {
-        var icons = TimerFace.IconControls(_config.Size);
-        _controls.Visibility = icons ? Visibility.Collapsed : Visibility.Visible;
-        _iconControls.Visibility = icons ? Visibility.Visible : Visibility.Collapsed;
         var laps = StopwatchFace.LapRows(_config);
         _laps.Visibility = laps > 0 ? Visibility.Visible : Visibility.Collapsed;
         _clock.Use(StopwatchFace.Sized(_config).Step, centred: true);

@@ -19,9 +19,6 @@ internal static class ScreenTimeDonutMenu
         ArgumentNullException.ThrowIfNull(config);
 
         menu.Lines.Add(ScreenTimeMenuLines.Period(menu, config.Period, value => config.Period = value));
-
-        // [S-11515] The ring's size: the card follows it.
-        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, config));
         ScreenTimeMenuLines.AddShared(menu, config, source);
     }
 }

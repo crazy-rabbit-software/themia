@@ -209,8 +209,8 @@ public class GalleryLayoutTests
         Assert.Equal(new Themia.Sdk.SizeDip((3 * 96) + (2 * 4), (2 * 96) + 4), grid.Natural);
         Assert.Equal((3, 2), (grid.WidthSteps!.Count, grid.HeightSteps!.Count));
 
-        var small = new GalleryConfig { Style = GalleryStyle.Grid, CellSize = GalleryCellSize.Small, Columns = 6, Rows = 1 };
-        Assert.Equal(new Themia.Sdk.SizeDip((6 * 64) + (5 * 4), 64), GalleryPlan.Sizing(small).Natural);
+        var wide = new GalleryConfig { Style = GalleryStyle.Grid, Columns = 6, Rows = 1 };
+        Assert.Equal(new Themia.Sdk.SizeDip((6 * 96) + (5 * 4), 96), GalleryPlan.Sizing(wide).Natural);
 
         foreach (var free in new[] { Of(GalleryStyle.Slideshow), Of(GalleryStyle.Scatter), Of(GalleryStyle.Mosaic), new GalleryConfig { Source = GallerySource.Bing, Style = GalleryStyle.Grid } })
         {

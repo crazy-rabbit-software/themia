@@ -27,19 +27,14 @@ public sealed class StopwatchFaceTests
     }
 
     [Fact]
-    public void S11302_the_card_follows_the_size_one_height_without_laps_a_small_width_range()
+    public void S11302_S2449_retired_the_natural_card_is_the_one_readout_face_without_laps_a_small_width_range()
     {
-        var (small, medium, large) = (
-            Sizing(new StopwatchConfig { Size = ReadoutSize.Small }),
-            Sizing(new StopwatchConfig()),
-            Sizing(new StopwatchConfig { Size = ReadoutSize.Large }));
+        var medium = Sizing(new StopwatchConfig());
 
-        Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
-        Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
         Assert.Equal(FamilyType.Hero68, StopwatchFace.Sized(new StopwatchConfig()).Step);
         Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, medium.Natural.Height);
-        Assert.Equal(medium.Min.Height, medium.Natural.Height);
         Assert.False(medium.FixedWidth);
+        Assert.Null(typeof(StopwatchConfig).GetProperty("Size"));
     }
 
     [Fact]
@@ -60,22 +55,22 @@ public sealed class StopwatchFaceTests
     }
 
     [Fact]
-    public void S11302_size_and_lap_rows_are_repaired_into_range_and_copied()
+    public void S11302_lap_rows_are_repaired_into_range_and_copied()
     {
-        var config = new StopwatchConfig { LapRows = 40, Size = (ReadoutSize)9 };
+        var config = new StopwatchConfig { LapRows = 40 };
         Assert.NotEmpty(config.Repair());
-        Assert.Equal((10, ReadoutSize.Medium), (config.LapRows, config.Size));
+        Assert.Equal(10, config.LapRows);
 
-        var copy = (StopwatchConfig)new StopwatchConfig { LapRows = 3, Size = ReadoutSize.Large }.Clone();
-        Assert.Equal((3, ReadoutSize.Large), (copy.LapRows, copy.Size));
+        var copy = (StopwatchConfig)new StopwatchConfig { LapRows = 3 }.Clone();
+        Assert.Equal(3, copy.LapRows);
     }
 
     [Fact]
-    public void S11302_its_menu_is_size_then_laps()
+    public void S11302_its_menu_is_the_laps_and_no_size()
     {
         var menu = new WidgetMenuLines(() => { }, _ => { });
         new StopwatchModule().MenuLines(menu, new StopwatchConfig());
 
-        Assert.Equal([Str.Kit_Size.Text(), StopwatchStr.Stopwatch_Laps.Text()], menu.Lines.Select(l => l.Text));
+        Assert.Equal([StopwatchStr.Stopwatch_Laps.Text()], menu.Lines.Select(l => l.Text));
     }
 }

@@ -17,8 +17,8 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-2707] [S-11542] The year: twelve small months, 4 × 3, at the size its Size says (Small: squares;
-/// Medium: the day numbers under the weekday letters). A day that has something on it is marked (its
+/// [S-2707] [S-11542] The year: twelve small months, 4 × 3, as squares or the day numbers under the weekday letters,
+/// drawn as large as the card holds (one scale for the whole block, [S-12809]). A day that has something on it is marked (its
 /// first item's colour on a square, a strong number with a stripe under it); today is the accent.
 /// Each day's events are on its hover.
 /// </summary>
@@ -30,7 +30,7 @@ internal sealed partial class CalendarView
     private void DrawYear(double width, double height)
     {
         var gap = FamilySpace.S2;
-        var fit = Themia.Widget.Calendar.CalendarSizing.Year(_config.YearSize);
+        var fit = Themia.Widget.Calendar.CalendarSizing.Year(_config.YearNumbers);
         var start = _config.EffectiveWeekStart;
         var today = Today;
         var firstMonth = CalendarFit.FirstMonth(_anchor, fit.Months);
@@ -43,7 +43,6 @@ internal sealed partial class CalendarView
         {
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
-            Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
             ColumnSpacing = gap,
             RowSpacing = gap,
         };
@@ -72,7 +71,16 @@ internal sealed partial class CalendarView
             grid.Children.Add(mini);
         }
 
-        _content.Children.Add(grid);
+        // [S-11542] The block as large as the card holds, in the inset at the sides and the foot.
+        var inner = (Width: width - (2 * FamilySpace.Inset), Height: height - FamilySpace.Inset);
+        _content.Children.Add(new ScaleBox
+        {
+            Factor = Themia.Widget.Calendar.CalendarSizing.YearScale(fit, inner.Width, inner.Height),
+            Child = grid,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
+        });
     }
 
     /// <summary>One small month: its name, the weekday letters when there is room, and its six weeks of day cells.</summary>

@@ -5,7 +5,6 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Date;
 
 [assembly: ThemiaWidget("date", typeof(DateModule))]
@@ -38,17 +37,8 @@ public sealed class DateModule : IWidgetModule
         Add = new(AddFolderId.Time, 0, 4),
     };
 
+    /// <remarks>[S-10802] No lines of its own beside the style: how big the date is is the card's ([S-2449] retired).</remarks>
     public FrameworkElement CreateView(IWidgetHost host) => new DateView();
-
-    /// <summary>[S-10802] Its one line under the style: how big the date is; the card follows.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(menu);
-        if (config is DateConfig date)
-        {
-            menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, date));
-        }
-    }
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

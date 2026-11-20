@@ -32,9 +32,9 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   or 68; 16 over a quote on Title or Body, `QuoteLayout.MarkSize`); its row and its 8 stand over the
   quote's lines in the card ([S-11306]), and the quote then carries no inline marks.
 
-- **[S-11306]** **Its size and its lines are settings** (under its Style): **Size** (Small, Medium,
-  Large: the quote on Body, Title or 28) and **Lines** (2 to 6, a new one 3: the most lines the quote
-  takes, a longer one ends in an ellipsis on the last). The attribution is always its line under (the
+- **[S-11306]** **Its lines are a setting** (under its Style; no Size since 2026-11-20, [S-2449] retired): the
+  quote on Title, and **Lines** (2 to 6, a new one 3: the most lines the quote takes, a longer one ends in an
+  ellipsis on the last; like a list's Rows they decide the natural height). The attribution is always its line under (the
   step's line under, Caption under all three, secondary) while Show author is on, its line kept even
   for a quote without an author, so nothing moves as the quotes turn. The card follows
   (`QuoteLayout.Sizing`): the inset, the mark and its 8 on the Marks style, the lines, the attribution's

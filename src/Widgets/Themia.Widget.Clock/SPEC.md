@@ -34,10 +34,10 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   **Flip**, **Words** and **Minimal**, in that order (owner, 2026-11-17: "the clock widget should not have a
   date style as this should be moved into its own widget": the Date style, the date line and Show date are
   gone, root [S-12805]). Every style is one block in the card's inset of 12 (the clock has no header), placed
-  by the alignment, planned on the step its **Size** names (Small, Medium, Large: 40, 68, 96; the words 28,
-  40, 68; the dial 96, 144, 192; the first line under Style, [S-2449]). The clock is converted to the sizing
-  ([S-2438], `ClockFace.Sizing`): its card is its face at that size plus the inset (and 2 of slack for pixel
-  rounding), the height one size; Digital, Minimal, Stacked and Flip may be widened to twice their face (the
+  by the alignment, planned on the family's one-readout step (68; the words 40; the dial 144; no Size since
+  2026-11-20, owner: "the size should not be settable, it is set by the size of the widget", [S-2449] retired). The
+  clock is converted to the sizing ([S-2438], `ClockFace.Sizing`): its natural card is its face plus the inset (and 2
+  of slack for pixel rounding); Digital, Minimal, Stacked and Flip may be widened to twice their face (the
   line under then takes its longer form), Analog and Words are one size. **The face fills its card** (owner,
   2026-11-17: "the clock widget does not stretch out to fill the space properly, there is way too much spacing
   in it"; root [S-12804]): planned in its natural box, it is scaled up as one to the card (`Viewbox`, uniform,
@@ -128,7 +128,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   [S-665]). Not ported: an XL list of extra world-clock rows (each world clock is its own widget, as
   in the original).
 - **[S-1488]** The analog dial ([S-6743]) at every size of its range: its line under it (the card is
-  made for both, [S-2449]). The second hand still sweeps (S-51, deliberate).
+  made for both). The second hand still sweeps (S-51, deliberate).
 - **[S-1476]** *(Retired, group G5, 2026-10-29: the clock's own Label and date size, Small / Default /
   Large, `ClockConfig.TextSize`, its menu line and its strings. The line under the time is the
   readout's step's line under ([S-6701], [S-6741]), and the size of text is ⚙ › Appearance's text size
@@ -136,7 +136,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   not read, [S-1050].)*
 - **[S-1477]** *(Retired with [S-1476]: `ClockText` is gone.)*
 - **[S-1478]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Under Style, what the style draws ([S-6074]): Size and Seconds; then
+  has no settings page. Under Style, what the style draws ([S-6074]): Seconds (no Size, [S-2449] retired); then
   Appearance ([S-3723]), a divider, and **Timezone**, a search
   ([S-3722]): the machine's own zone first as "Current: …", the cities that match after it (40 at
   most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; after it

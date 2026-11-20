@@ -13,7 +13,7 @@ internal sealed partial class CountdownView : IWidgetSample
     {
         var now = SampleDay.Now;
         _clock = () => now;
-        _config = new CountdownConfig { Style = _config.Style, Label = "Launch", Size = _config.Size, ShowProgress = _config.ShowProgress, Format = _config.Format };
+        _config = new CountdownConfig { Style = _config.Style, Label = "Launch", ShowProgress = _config.ShowProgress, Format = _config.Format };
         _config.Retarget(SampleDay.At(SampleDay.Today.AddDays(3), new TimeOnly(16, 0), TimeZoneInfo.Local), now.AddDays(-2));
 
         // [S-6037] [S-12481] The name over the face.

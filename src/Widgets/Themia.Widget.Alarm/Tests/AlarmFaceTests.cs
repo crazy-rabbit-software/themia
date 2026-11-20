@@ -17,19 +17,20 @@ public sealed class AlarmFaceTests
         => Assert.Equal((value, unit), AlarmFace.Split(time));
 
     [Fact]
-    public void S11301_the_card_follows_the_size_setting_one_height_a_small_width_range()
+    public void S11301_S2449_retired_the_natural_card_is_the_one_readout_face_and_it_scales_down_to_its_floor()
     {
         var locale = Themia.Core.Localization.Locale.En;
-        Themia.Sdk.WidgetSizing At(ReadoutSize size) => AlarmFace.Sizing(new Themia.Core.Model.AlarmConfig { Size = size }, locale);
+        var sizing = AlarmFace.Sizing(new Themia.Core.Model.AlarmConfig(), locale);
 
-        var (small, medium, large) = (At(ReadoutSize.Small), At(ReadoutSize.Medium), At(ReadoutSize.Large));
-        Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
-        Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
-        Assert.True(medium.FixedHeight && !medium.FixedWidth);
-        Assert.Equal(medium.Min, medium.Natural);
+        Assert.True(sizing.Natural.Height == sizing.Max.Height && !sizing.FixedWidth);
 
         // The inset, the 68 line and its Body line under, 8, the Controls row, the inset, the slack.
-        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, medium.Natural.Height);
+        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, sizing.Natural.Height);
+
+        // [S-12833] Down as one until its Body text (the line under, the buttons) is at 9.
+        Assert.Equal(Math.Ceiling(sizing.Natural.Height * 9 / 14), sizing.Min.Height);
+        Assert.Equal(Math.Ceiling(sizing.Natural.Width * 9 / 14), sizing.Min.Width);
+        Assert.Null(typeof(Themia.Core.Model.AlarmConfig).GetProperty("Size"));
         Assert.Equal(FamilyType.Hero68, AlarmFace.Sized(new Themia.Core.Model.AlarmConfig(), locale).Step);
     }
 

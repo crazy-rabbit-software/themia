@@ -22,21 +22,21 @@ ladder), `FocusSessionMenu.cs` (its properties-menu lines), `Preview/` (Debug re
 - **[S-4426]** *(Retired: the ladder by the tile's size, the time alone on XS as its button and the
   ring from Expanded both ways; [S-11305].)*
 - **[S-11305]** The face is the timers' sized one ([S-11300], `FocusSessionLayout`): the time as a
-  Readout on the step its **Size** names (40, 68, 96), sized for the widest reading of its length
+  Readout on the family's one-readout step (no Size since 2026-11-20, [S-2449] retired), sized for the widest reading of its length
   ("00:00", "0:00:00" from an hour: a session started elsewhere longer than that is drawn as it
   comes), centred; the status line (do not disturb, Windows' focus, or what Start will do) always its
   line under; with **Ring** on (a setting, off for a new one; never a matter of size) the Chart block's
   ring of the time gone (stroke 2, its track in the Track role, the arc the accent; idle the track
   alone) around it, the time one step under in the least ring that holds it, the line cut at the
   hole's edge. The Controls row is always there: Start (the one main action) with − and + while idle,
-  End session (a standard button) while it runs; at Small icon buttons (Play, −, +; Stop). The card
+  End session (a standard button) while it runs. The card
   follows (`FocusSessionLayout.Sizing`): the inset, the face, 8, the wider of the two rows, the inset;
   one height, up to half again wider. It starts without a header. Tests `FocusSessionTests.S11305_`.
 - **[S-4427]** Keys: Space/Enter start or end; Up/Right/+ and Down/Left/− change the length while idle.
 - **[S-4428]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Length** (typed in minutes, 5–240, rounded to
   5-minute steps, [S-3726]; the length at the end of its line) and **Turn on do not disturb** (a
-  switch); under a divider **Size** and **Ring** ([S-11305]). (Tests `FocusSessionMenuTests`.)
+  switch); under a divider **Ring** ([S-11305]). (Tests `FocusSessionMenuTests`.)
 
 Needs a manual pass: the widget on a live desktop ([S-4420], [S-4427], [S-4428]: a session started and
 ended from two focus widgets, do not disturb turned on and handed back, Windows' own focus shown, the

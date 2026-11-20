@@ -35,8 +35,6 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     private readonly ControlsBlock _switchRow = new();
     private readonly ControlsBlock _ringRow = new();
     private readonly ControlsBlock _snoozedRow = new();
-    private readonly ControlsBlock _ringIcons = new();
-    private readonly ControlsBlock _snoozedIcons = new();
     private readonly ToggleSwitch _switch;
 
     private Ticker? _ticker;
@@ -61,14 +59,11 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         _ringRow.Main(Str.Alarm_Dismiss.Text(), Dismiss);
         _ringRow.Button(Str.Alarm_Snooze.Text(), Snooze);
         _snoozedRow.Main(Str.Alarm_Dismiss.Text(), Dismiss);
-        _ringIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
-        _ringIcons.Icon(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze);
-        _snoozedIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
         // [S-12808] The time, its line and its row of controls: one block, planned at the natural box and scaled up
         // as one.
         _fit.Spacing = FamilySpace.S2;
         _fit.Parts.Add(_time);
-        foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow, _ringIcons, _snoozedIcons })
+        foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow })
         {
             row.HorizontalAlignment = HorizontalAlignment.Center;
             _fit.Parts.Add(row);
@@ -221,14 +216,10 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         var hint = AlarmWords.Hint(locale, status, _config.Plan, now, zone);
         _time.Show(value, unit, string.IsNullOrWhiteSpace(_config.Label) ? hint : $"{_config.Label.Trim()} · {hint}", valueRole: role);
 
-        // [S-4628] While it rings (or waits out a snooze), the buttons that answer it stand where the switch
-        // was; [S-11301] at Small as icon buttons.
-        var icons = TimerFace.IconControls(_config.Size);
+        // [S-4628] While it rings (or waits out a snooze), the buttons that answer it stand where the switch was.
         Show(_switchRow, !ringing && !snoozed);
-        Show(_ringRow, ringing && !icons);
-        Show(_snoozedRow, snoozed && !icons);
-        Show(_ringIcons, ringing && icons);
-        Show(_snoozedIcons, snoozed && icons);
+        Show(_ringRow, ringing);
+        Show(_snoozedRow, snoozed);
 
         _switchRow.Set(_switch, _config.On);
         var name = AlarmWords.Name(locale, _config);

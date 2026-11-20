@@ -195,24 +195,23 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
-    public void S2449_the_clocks_card_follows_its_size_setting_and_never_the_other_way()
+    public void S2449_retired_the_clocks_size_is_its_cards_its_natural_the_one_readout_step()
     {
+        // Owner, 2026-11-20: "the size should not be settable, it is set by the size of the widget".
         var kind = ModuleCatalog.Of(new WidgetId("clock"));
-        WidgetSizing At(ReadoutSize size, ClockStyle style) => kind.Sizing(new ClockConfig { Size = size, Style = style });
+        WidgetSizing At(ClockStyle style) => kind.Sizing(new ClockConfig { Style = style });
 
-        var (small, medium, large) = (At(ReadoutSize.Small, ClockStyle.Digital), At(ReadoutSize.Medium, ClockStyle.Digital), At(ReadoutSize.Large, ClockStyle.Digital));
-        Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
-        Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
+        var digital = At(ClockStyle.Digital);
+        Assert.Equal(ClockFace.Step.LineHeight + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + ClockFace.Slack, digital.Natural.Height);
         // [S-12833] It scales down to its smallest text's floor: its least height under its natural one.
-        Assert.True(medium.Min.Height < medium.Natural.Height && !medium.FixedWidth);
+        Assert.True(digital.Min.Height < digital.Natural.Height && !digital.FixedWidth);
 
-        // [S-12411] Relaxed: no practical Max, the number stays its Size.
-        Assert.Equal(SizeStretch.Ceiling, medium.Max.Height);
-        var dial = At(ReadoutSize.Medium, ClockStyle.Analog);
-        Assert.Equal(dial.Min, dial.Natural);
+        // [S-12411] Relaxed: no practical Max; the face scales up with the card.
+        Assert.Equal(SizeStretch.Ceiling, digital.Max.Height);
+        var dial = At(ClockStyle.Analog);
+        Assert.Equal(ClockFace.DialSide + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + ClockFace.Slack, dial.Natural.Height);
         Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), dial.Max);
-        Assert.Equal(ReadoutSize.Medium, new ClockConfig().Size);
-        Assert.Equal(ReadoutSize.Large, ((ClockConfig)new ClockConfig { Size = ReadoutSize.Large }.Clone()).Size);
+        Assert.Null(typeof(ClockConfig).GetProperty("Size"));
     }
 
     [Theory]

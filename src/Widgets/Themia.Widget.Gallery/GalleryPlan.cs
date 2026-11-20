@@ -78,13 +78,8 @@ public sealed record GalleryPlan(
     private static GalleryPlan Single(WidgetArea area)
         => new(GalleryMode.Single, 1, false, area.Width, area.Height);
 
-    /// <summary>[S-11207] A grid cell's side for its Cell size: Small 64, Medium 96, Large 128.</summary>
-    public static double CellSide(GalleryCellSize size) => size switch
-    {
-        GalleryCellSize.Small => 2 * FamilyShape.IconLarge,
-        GalleryCellSize.Large => 4 * FamilyShape.IconLarge,
-        _ => 3 * FamilyShape.IconLarge,
-    };
+    /// <summary>[S-11207] A grid cell's side: 96 (no Cell size setting, [S-2449] retired).</summary>
+    public const double CellSide = 3 * FamilyShape.IconLarge;
 
     /// <summary>[S-11207] The gap between grid cells.</summary>
     public const double Gap = FamilySpace.S1;
@@ -93,12 +88,12 @@ public sealed record GalleryPlan(
     public static readonly SizeDip Least = new(160, 120), Natural = new(320, 240), Largest = new(800, 600);
 
     /// <summary>[S-11207] The grid's steps on one axis: a cell and its gap each, the config's count of them.</summary>
-    public static SizeSteps GridSteps(GalleryCellSize size, int count)
-        => new(-Gap, CellSide(size) + Gap, GalleryConfig.MinCells, GalleryConfig.MaxCells, count);
+    public static SizeSteps GridSteps(int count)
+        => new(-Gap, CellSide + Gap, GalleryConfig.MinCells, GalleryConfig.MaxCells, count);
 
     /// <summary>
-    /// [S-11207] The gallery's sizes (headerless, its default): the grid is its Columns × Rows cells at
-    /// its Cell size, 4 apart, full-bleed, both axes stepped by a cell and following the config;
+    /// [S-11207] The gallery's sizes (headerless, its default): the grid is its Columns × Rows cells of
+    /// 96, 4 apart, full-bleed, both axes stepped by a cell and following the config;
     /// everything else a free range, 160..800 × 120..600, a new one 320 × 240.
     /// </summary>
     public static WidgetSizing Sizing(GalleryConfig config)
@@ -107,8 +102,8 @@ public sealed record GalleryPlan(
         if (config.Style == GalleryStyle.Grid && !config.IsSingleSource)
         {
             return WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1))
-                .WithWidthSteps(GridSteps(config.EffectiveCellSize, config.EffectiveColumns))
-                .WithHeightSteps(GridSteps(config.EffectiveCellSize, config.EffectiveRows));
+                .WithWidthSteps(GridSteps(config.EffectiveColumns))
+                .WithHeightSteps(GridSteps(config.EffectiveRows));
         }
 
         return WidgetSizing.Range(Least, Natural, Largest) with { Room = StretchRoom.Picture };
@@ -123,8 +118,8 @@ public sealed record GalleryPlan(
             return config;
         }
 
-        var columns = GridSteps(config.EffectiveCellSize, config.EffectiveColumns).Nearest(size.Width);
-        var rows = GridSteps(config.EffectiveCellSize, config.EffectiveRows).Nearest(size.Height);
+        var columns = GridSteps(config.EffectiveColumns).Nearest(size.Width);
+        var rows = GridSteps(config.EffectiveRows).Nearest(size.Height);
         if (columns == config.EffectiveColumns && rows == config.EffectiveRows)
         {
             return config;

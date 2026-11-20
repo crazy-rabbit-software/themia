@@ -55,24 +55,24 @@ public static class AlarmFace
         return " " + (HeroFit.Ems(pm) > HeroFit.Ems(am) ? pm : am);
     }
 
-    /// <summary>[S-11301] The face at the alarm's Size: the time on 40, 68 or 96 with its line under.</summary>
+    /// <summary>[S-11301] The face: the time on the family's one-readout step with its line under.</summary>
     public static TimerSized Sized(AlarmConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return TimerFace.Sized(config.Size, Worst(Unit(locale)));
+        return TimerFace.Sized(Worst(Unit(locale)));
     }
 
     /// <summary>
-    /// [S-11301] The alarm's sizing ([S-2438]): its face at its Size over the Controls row, which holds the
-    /// switch, or Dismiss and Snooze while it rings (worded, icon buttons at Small); in the inset, the
-    /// width up to half again wider. No header by default.
+    /// [S-11301] The alarm's sizing ([S-2438]): its face over the Controls row, which holds the switch, or Dismiss
+    /// and Snooze (worded) while it rings; in the inset, the width up to half again wider, scaling down as one to its
+    /// floor ([S-11300]). No header by default.
     /// </summary>
     public static WidgetSizing Sizing(AlarmConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
         var controls = Math.Max(
-            TimerFace.ControlsWidth(config.Size, [], aSwitch: true),
-            TimerFace.ControlsWidth(config.Size, [Strings.Get(locale, Str.Alarm_Dismiss), Strings.Get(locale, Str.Alarm_Snooze)]));
+            TimerFace.ControlsWidth([], aSwitch: true),
+            TimerFace.ControlsWidth([Strings.Get(locale, Str.Alarm_Dismiss), Strings.Get(locale, Str.Alarm_Snooze)]));
         return TimerFace.Sizing(Sized(config, locale), controls, header: false);
     }
 }

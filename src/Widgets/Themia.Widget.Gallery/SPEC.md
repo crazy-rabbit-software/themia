@@ -48,8 +48,9 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   [S-666]; no file-name or "N of M" line, [S-2760]). Scatter and mosaic are dealt from the widget's
   own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
 - **[S-11207]** Converted to the sizing ([S-2438]), headerless by default: **Grid** (a folder's) is its
-  cells: Columns and Rows (1..6 each) and Cell size (Small 64, Medium 96, Large 128) under Style, each
-  axis stepped by a cell and following its count (dragging an edge sets Columns or Rows,
+  cells of 96 (no Cell size since 2026-11-20, owner: "the size should not be settable, it is set by the size of the
+  widget", [S-2449] retired): Columns and Rows (1..6 each) under Style, each axis stepped by a cell and following its
+  count (dragging an edge sets Columns or Rows,
   `GalleryPlan.SizeSets`); a new one 296 × 196. **Slideshow**, **Scatter**, **Mosaic** and a single
   picture (a file, the photo of the day) keep a free range, 160..800 × 120..600 (a new one 320 × 240);
   the picture fills it. Scatter and Mosaic show **Pictures shown** (1..12, a new one 6), never more

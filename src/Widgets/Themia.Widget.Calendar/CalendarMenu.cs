@@ -51,10 +51,8 @@ internal static class CalendarMenu
         // [S-11540] The agenda's rows and their lines (the kit's rows contract).
         CalendarSetting.AgendaRows => KitMenuLines.Rows(menu, config),
 
-        // [S-11542] The year's size: squares, or the day numbers.
-        CalendarSetting.YearSize => [menu.Choice(null, Str.Kit_Size.Text(),
-            [(ReadoutSize.Small, Str.Kit_SizeSmall.Text()), (ReadoutSize.Medium, Str.Kit_SizeMedium.Text())],
-            config.YearSize == ReadoutSize.Medium ? ReadoutSize.Medium : ReadoutSize.Small, value => config.YearSize = value)],
+        // [S-11542] The year's days: squares, or the day numbers (how large is the card's).
+        CalendarSetting.YearNumbers => [menu.Toggle(null, CalendarStr.Calendar_YearNumbers.Text(), config.YearNumbers, on => config.YearNumbers = on)],
 
         // [S-11543] The day's hours (the height follows).
         CalendarSetting.DayHours => [KitMenuLines.Count(menu, Glyphs.Hours, CalendarStr.Calendar_Hours.Text(), CalendarSizing.ClampHours(config.DayHours), CalendarSizing.MinHours, CalendarSizing.MaxHours, 1, v => config.DayHours = v)],

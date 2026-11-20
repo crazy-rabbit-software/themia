@@ -24,9 +24,6 @@ internal static class PomodoroMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        // [S-11304] Under the look: how big the time left is; the card follows.
-        menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, config));
-
         // [S-8101] Seeded from the clamped accessors, so a value out of range on disk shows as the one in use.
         menu.Lines.Add(menu.Number(PomodoroModule.Glyph, PomodoroStr.Pomodoro_FocusLength_Label.Text(),
             config.EffectiveWorkMinutes, 1, 180, 1, Minutes, value => config.WorkMinutes = value));

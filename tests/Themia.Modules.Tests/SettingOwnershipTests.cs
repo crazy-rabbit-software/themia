@@ -295,14 +295,10 @@ public sealed class SettingOwnershipTests
     /// <summary>
     /// [S-3592] A widget's own setting under words a higher level uses too, each for its reason: it is
     /// the widget's own and only shares a word (a focus session's Length is the session's, never an
-    /// animation's, ⚙ › Appearance › Motion's; [S-2449] a one-readout widget's Size is its face's,
-    /// Small, Medium or Large, never the text size or the scale a higher level sets; [S-9602] a Header widget's
-    /// Title is the words it shows, never a page's title).
+    /// animation's, ⚙ › Appearance › Motion's; [S-9602] a Header widget's Title is the words it shows, never a page's
+    /// title). No widget has a Size of its own ([S-2449] retired: its size is its card's).
     /// </summary>
-    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("clock", "Size"), ("screenTimeDonut", "Size"), ("header", "Title")];
-
-    /// <summary>[S-2449] [S-11300] Every one-readout widget's Size (<c>IReadoutSized</c>) is its face's, as the clock's.</summary>
-    private static bool OwnSize(WidgetConfig config, string words) => config is IReadoutSized && words == "Size";
+    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("header", "Title")];
 
     /// <summary>
     /// The kinds whose menus read a list only the running host installs (the displays with a brightness,
@@ -339,7 +335,7 @@ public sealed class SettingOwnershipTests
             foreach (var (words, where) in SettingLines(menu.StyleLines.Concat(menu.Lines), kind))
             {
                 seen++;
-                if (owned.Contains(words) && !OwnWords.Contains((kind, words)) && !OwnSize(module.Descriptor.CreateDefault(), words))
+                if (owned.Contains(words) && !OwnWords.Contains((kind, words)))
                 {
                     found.Add(where);
                 }

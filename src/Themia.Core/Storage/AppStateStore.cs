@@ -243,10 +243,11 @@ public sealed class AppStateStore : IAsyncDisposable
     }
 
     /// <summary>
-    /// [S-1050] The schema changes in place: a key the design, the preferences, a view or a widget does not have in this
-    /// build (a hand edit, or a key the app no longer writes, such as the groups that are gone, [S-2450], Over the edge,
-    /// [S-2330], or the assistants' server switch, [S-9960]) is taken out before the typed read, loudly, one line each,
-    /// never kept beside the state or read into anything.
+    /// [S-1050] The schema changes in place: a key the design, the preferences, a view, a widget or a widget's config does
+    /// not have in this build (a hand edit, or a key the app no longer writes, such as the groups that are gone, [S-2450],
+    /// Over the edge, [S-2330], the assistants' server switch, [S-9960], or a readout's size, [S-2449]) is taken out
+    /// before the typed read, loudly, one line each, never kept beside the state or read into anything. Runs after
+    /// <see cref="DropUnknownKinds"/>: every config left names a kind of this build.
     /// </summary>
     private static List<string> DropUnknownKeys(JsonNode? document)
     {
@@ -305,10 +306,42 @@ public sealed class AppStateStore : IAsyncDisposable
                     widget.Remove(key);
                     dropped.Add($"widget '{id}' in view '{viewName}': dropped the unknown key '{key}'");
                 }
+
+                if (widget["config"] is JsonObject config && ConfigKeys(config) is { } configKeys)
+                {
+                    foreach (var key in config.Select(p => p.Key).Where(k => !configKeys.Contains(k)).ToList())
+                    {
+                        config.Remove(key);
+                        dropped.Add($"widget '{id}' in view '{viewName}': dropped the unknown config key '{key}'");
+                    }
+                }
             }
         }
 
         return dropped;
+
+        // The keys a config of its kind has: its discriminator and its type's properties; null where the type is not
+        // read property by property (a converter of its own, extension data), which then keeps what it is given.
+        static HashSet<string>? ConfigKeys(JsonObject config)
+        {
+            if (!(config["kind"] is JsonValue discriminator
+                && discriminator.TryGetValue<string>(out var kind)
+                && WidgetId.TryParse(kind, out var id)
+                && ModuleCatalog.TryGet(id, out var descriptor)))
+            {
+                return null;
+            }
+
+            var info = StateJson.Options.GetTypeInfo(descriptor.ConfigType);
+            if (info.Kind != System.Text.Json.Serialization.Metadata.JsonTypeInfoKind.Object || info.Properties.Any(p => p.IsExtensionData))
+            {
+                return null;
+            }
+
+            var keys = Keys(info);
+            keys.Add("kind");
+            return keys;
+        }
 
         static HashSet<string> Keys(System.Text.Json.Serialization.Metadata.JsonTypeInfo info)
             => new(info.Properties.Select(p => p.Name), StringComparer.Ordinal);

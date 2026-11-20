@@ -14,9 +14,11 @@ words copied with their translations from `music`). Tests: `Tests/MusicCoverTest
 - **[S-11320]** **The cover alone** (add menu: Media): the current track's cover drawn to the card's
   edges (it owns its top edge, [S-5700]), cropped to fill the square; without one (no track, no art)
   the music glyph (32) on the control fill. It reads the same media session as the track atom, the art
-  fetched once per track. A square by its **Size** (Small 96, Medium 160, Large 240; `IReadoutSized`,
-  a new one Medium), fixed both ways (`MusicCoverFace.Sizing`). It starts without a header. Its menu:
-  Size, then **Hide when idle** ([S-1464], as the track atom's). A click opens the app that is playing,
+  fetched once per track. As large as its card (owner, 2026-11-20: "the size should not be settable, it is set by
+  the size of the widget"; the Size line, [S-2449], is gone): a new one a square of 160, the least the grid's least
+  widget (32, WR-14, which still holds the glyph), no practical largest ([S-12411]); the picture fills whatever
+  shape the card is (`MusicCoverFace.Sizing`). It starts without a header. Its menu: **Hide when idle** ([S-1464],
+  as the track atom's). A click opens the app that is playing,
   as the track atom's ([S-2030]). Tests `MusicCoverTests.S11320_`.
 
 Needs a manual pass: a live track's cover, a track without one, a change of track.

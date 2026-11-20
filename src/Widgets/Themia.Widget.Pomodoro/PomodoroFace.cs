@@ -46,7 +46,7 @@ public static class PomodoroFace
     public static PomodoroPlan Plan(PomodoroConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var face = TimerFace.Sized(config.Size, Worst(config), ring: config.DrawsRing);
+        var face = TimerFace.Sized(Worst(config), ring: config.DrawsRing);
         var look = config.DrawsRing ? PomodoroLook.Ring : config.DrawsBar ? PomodoroLook.Bar : PomodoroLook.Digits;
         return new PomodoroPlan(look, face.Ring, face.Step, face.Width, face.Height);
     }
@@ -61,7 +61,7 @@ public static class PomodoroFace
         ArgumentNullException.ThrowIfNull(config);
         var plan = Plan(config);
         var main = TimerFace.Longest(PomodoroStr.WidgetsC_Pomodoro_Start.Text(locale), PomodoroStr.WidgetsC_Pomodoro_Pause.Text(locale));
-        var controls = TimerFace.ControlsWidth(config.Size, [main], icons: 4);
+        var controls = TimerFace.ControlsWidth([main], icons: 4);
         return TimerFace.Sizing(new TimerSized(plan.Step, plan.Ring, plan.Width, plan.Height), controls, header: false, extra: plan.Look == PomodoroLook.Bar ? BarCost : 0);
     }
 }

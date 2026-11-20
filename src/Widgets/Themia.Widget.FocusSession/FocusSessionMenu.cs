@@ -27,9 +27,8 @@ internal static class FocusSessionMenu
         // [S-4423] Windows' Focus turns on do not disturb; so does this unless it is turned off.
         menu.Lines.Add(menu.Toggle(Glyphs.QuietHours, FocusSessionStr.Panels_Focus_QuietLabel.Text(), config.DoNotDisturb, on => config.DoNotDisturb = on));
 
-        // [S-11305] How big the time is, and whether it stands in its ring; the card follows.
+        // [S-11305] Whether the time stands in its ring; the card follows.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, config));
         menu.Lines.Add(menu.Toggle(null, FocusSessionStr.FocusSession_Ring.Text(), config.Ring, on => config.Ring = on));
     }
 

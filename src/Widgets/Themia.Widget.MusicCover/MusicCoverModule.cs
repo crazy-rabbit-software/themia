@@ -36,12 +36,11 @@ public sealed class MusicCoverModule : IWidgetModule
         Add = new(AddFolderId.Media, 0, 4),
     };
 
-    /// <summary>[S-11320] Its options: its Size, then when it hides ([S-1464]).</summary>
+    /// <summary>[S-11320] Its option: when it hides ([S-1464]); how big it is is the card's.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         var cover = (MusicCoverConfig)config;
-        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, cover));
         menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.HideWhenIdle, menu.Choice(Glyphs.Hide, MusicCoverStr.Music_HideWhenIdle_Label.Text(),
             [
                 (MusicHideWhenIdle.Never, MusicCoverStr.Music_HideWhenIdle_Never.Text()),

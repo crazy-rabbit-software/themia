@@ -320,7 +320,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         _face.Width = ringed ? _plan.Ring : double.NaN;
         _face.Height = ringed ? _plan.Ring : double.NaN;
         _bar.Visibility = _plan.Look == PomodoroLook.Bar ? Visibility.Visible : Visibility.Collapsed;
-        var icons = TimerFace.IconControls(_config.Size);
+        var icons = false;
         _controls.Visibility = icons ? Visibility.Collapsed : Visibility.Visible;
         _iconControls.Visibility = icons ? Visibility.Visible : Visibility.Collapsed;
     }

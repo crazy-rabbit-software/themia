@@ -25,7 +25,7 @@ public sealed class PomodoroMenuTests
     {
         var lines = Build(new PomodoroConfig());
 
-        Assert.Equal([Str.Kit_Size.Text()], lines.StyleLines.Select(l => l.Text));
+        Assert.Empty(lines.StyleLines);
         Assert.Equal(
             [
                 PomodoroStr.Pomodoro_FocusLength_Label.Text(), PomodoroStr.Pomodoro_BreakLength_Label.Text(),

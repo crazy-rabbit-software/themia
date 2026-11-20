@@ -48,11 +48,8 @@ public enum ClockSetting
     Offset,
 }
 
-public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>, IContentAligned, IDrawsItems, IReadoutSized
+public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>, IContentAligned, IDrawsItems
 {
-    /// <summary>[S-2449] How big the face is: Small, Medium, Large (40, 68, 96); the card follows it.</summary>
-    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
-
     /// <summary>[S-6573] Only the flip clock's cards are items (<c>FlipCard</c>); every other face is the card's own text.</summary>
     bool IDrawsItems.DrawsItems => Style == ClockStyle.Flip;
 
@@ -96,7 +93,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         ShowSeconds = ShowSeconds,
         TimeZoneId = TimeZoneId,
         OffsetMode = OffsetMode,
-        Size = Size,
     };
 
     /// <summary>
@@ -159,12 +155,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
-
-        if (!Enum.IsDefined(Size))
-        {
-            repairs.Add($"clock size {(int)Size} unknown; medium");
-            Size = ReadoutSizes.Default;
-        }
 
         if (!Enum.IsDefined(OffsetMode))
         {

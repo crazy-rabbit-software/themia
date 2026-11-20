@@ -35,10 +35,13 @@ public sealed class FocusSessionTests
     public void S11305_the_card_is_the_face_and_its_row_one_height_up_to_half_again_wider()
     {
         var sizing = FocusSessionLayout.Sizing(new FocusSessionConfig(), Locale.En);
-        Assert.True(sizing.FixedHeight && !sizing.FixedWidth);
+        Assert.True(sizing.Natural.Height == sizing.Max.Height && !sizing.FixedWidth);
         Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, sizing.Natural.Height);
 
-        var copy = (FocusSessionConfig)new FocusSessionConfig { Size = ReadoutSize.Large, Ring = true }.Clone();
-        Assert.Equal((ReadoutSize.Large, true), (copy.Size, copy.Ring));
+        // [S-2449] retired: no Size; [S-12833] the face scales down as one to its Body text's floor.
+        Assert.True(sizing.Min.Height < sizing.Natural.Height);
+        var copy = (FocusSessionConfig)new FocusSessionConfig { Ring = true }.Clone();
+        Assert.True(copy.Ring);
+        Assert.Null(typeof(FocusSessionConfig).GetProperty("Size"));
     }
 }

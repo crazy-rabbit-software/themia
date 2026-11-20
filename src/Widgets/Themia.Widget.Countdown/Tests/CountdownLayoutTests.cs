@@ -89,7 +89,7 @@ public sealed class CountdownLayoutTests
         var medium = CountdownLayout.Plan(new CountdownConfig(), Locale.En);
         Assert.Equal(CountdownLook.Text, medium.Look);
         Assert.Equal(FamilyType.Hero68, medium.Step);
-        Assert.Equal(FamilyType.Big40, CountdownLayout.Plan(new CountdownConfig { Size = ReadoutSize.Small }, Locale.En).Step);
+        Assert.Null(typeof(CountdownConfig).GetProperty("Size"));
     }
 
     [Fact]
@@ -145,8 +145,11 @@ public sealed class CountdownLayoutTests
         var named = CountdownLayout.Sizing(new CountdownConfig { Label = "Trip" }, Locale.En);
         var ring = new CountdownConfig { Style = CountdownStyle.Ring, ShowProgress = true };
 
-        Assert.True(plain.FixedHeight && !plain.FixedWidth);
+        Assert.True(plain.Natural.Height == plain.Max.Height && !plain.FixedWidth);
         Assert.Equal(12 + 92 + 20 + 12 + 2, plain.Natural.Height);
+
+        // [S-12833] The card's size is the user's ([S-2449] retired): it scales down as one to its Body line's floor.
+        Assert.Equal(System.Math.Ceiling(plain.Natural.Height * 9 / 14), plain.Min.Height);
         Assert.Equal(plain.Natural.Height + 12, barred.Natural.Height);
 
         // [S-12481] The event's name over the face costs what the card's header did: its line and 4.

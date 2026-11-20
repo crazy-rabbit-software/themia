@@ -190,12 +190,6 @@ public static class SharedSettings
             to.ShowExtendedHours = from.ShowExtendedHours;
         });
 
-    /// <summary>[S-2449] A one-readout widget's Size.</summary>
-    public static SharedSetting<IReadoutSized> ReadoutSize { get; } = new(
-        "readoutSize",
-        (a, b) => ReadoutSizes.Normalise(a.Size) == ReadoutSizes.Normalise(b.Size),
-        (from, to) => to.Size = ReadoutSizes.Normalise(from.Size));
-
     /// <summary>[S-2440] How many rows a list shows.</summary>
     public static SharedSetting<IKitRows> ListRows { get; } = new("listRows", (a, b) => a.Rows == b.Rows, (from, to) => to.Rows = from.Rows);
 
@@ -222,7 +216,7 @@ public static class SharedSettings
     public static IReadOnlyList<SharedSetting> All { get; } =
     [
         Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, PingHost, GpuAdapter, AudioOutput,
-        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, ReadoutSize, ListRows, ListLines, ListColumns, HideWhenIdle,
+        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, ListRows, ListLines, ListColumns, HideWhenIdle,
     ];
 
     /// <summary>The shared setting named <paramref name="key"/>, or null.</summary>

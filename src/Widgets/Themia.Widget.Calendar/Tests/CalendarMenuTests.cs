@@ -71,11 +71,14 @@ public sealed class CalendarMenuTests
         => Assert.Equal([CalendarStr.Calendar_Hours.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Day }).StyleLines.Select(l => l.Text));
 
     [Fact]
-    public void S11544_a_month_offers_chips_or_dots_and_a_year_its_size()
+    public void S11544_a_month_offers_chips_or_dots_and_a_year_its_day_numbers_never_a_size()
     {
         Assert.Equal([CalendarStr.Calendar_MonthEvents.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Month }).StyleLines.Select(l => l.Text));
-        Assert.Equal([Str.Kit_Size.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Year }).StyleLines.Select(l => l.Text));
-        Assert.Equal(2, Build(new CalendarWidgetConfig { Style = CalendarStyle.Year }).StyleLines[0].Children!.Count);
+        var config = new CalendarWidgetConfig { Style = CalendarStyle.Year };
+        var line = Assert.Single(Build(config).StyleLines);
+        Assert.Equal(CalendarStr.Calendar_YearNumbers.Text(), line.Text);
+        line.Action!();
+        Assert.True(config.YearNumbers);
     }
 
     [Fact]

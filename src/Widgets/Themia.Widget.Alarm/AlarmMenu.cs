@@ -32,10 +32,6 @@ internal static class AlarmMenu
 
         var locale = Strings.Current;
 
-        // [S-11301] How big the time is; the card follows.
-        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, alarm));
-        menu.Lines.Add(ItemMenuEntry.Separator);
-
         // When it rings: the time, the days and whether it is set at all.
         // [S-4621] Typed ([S-3738]), in either clock; the line shows it in the language's.
         // [S-2332] Typed in place in its box.

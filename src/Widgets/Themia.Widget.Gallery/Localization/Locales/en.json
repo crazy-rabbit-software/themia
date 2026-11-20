@@ -1,12 +1,10 @@
 {
   "$englishOnly": [
-    "gallery.cellSize",
     "gallery.columns",
     "gallery.shown",
     "gallery.menu.typePath"
   ],
   "ctxMenu.refreshImages": "Refresh images",
-  "gallery.cellSize": "Cell size",
   "gallery.columns": "Columns",
   "gallery.shown": "Pictures shown",
   "gallery.ctxOpen": "Open",

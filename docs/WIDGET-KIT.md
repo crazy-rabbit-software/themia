@@ -2969,11 +2969,12 @@ over it (the Solid role, radius 4, 28 icon buttons) follow the family. `RingFace
 
 ### 16.2d A timer, the clock and a transport (G5, 2026-10-29)
 
-A timer (alarm, countdown, stopwatch, pomodoro, focus session) takes its face from its Size
-(`TimerFace.Sized`, [S-11300]): the Readout on the Size's step (40, 68, 96), centred, its line under, and the
-`ControlsBlock` centred at the bottom inset, always (icon buttons at Small, `TimerFace.IconControls`); a
-ring is the Chart block's `ChartRing` with the readout one step under in its hole (`ChartRules.Hole`), the
-least ring that holds it. The card is that face (`TimerFace.Sizing`), never the face grown to the card. One main action: the start/pause toggle
+A timer (alarm, countdown, stopwatch, pomodoro, focus session) plans its face on the family's one-readout step
+(`TimerFace.Sized`, [S-11300]; no Size setting, SPEC [S-2449] retired): the Readout on 68, centred, its line under,
+and the `ControlsBlock` centred at the bottom inset, always; a ring is the Chart block's `ChartRing` with the
+readout one step under (40) in its hole (`ChartRules.Hole`), the least ring that holds it. That face is the card's
+natural size (`TimerFace.Sizing`); the card's size is the user's and the block scales up and down with it as one
+(`ReadingFit`), down to its Body text's floor (`ScalesDown`, [S-12833]). One main action: the start/pause toggle
 (`Main`, `Relabel` to Pause), an alarm's Dismiss; icon buttons for reset, lap, skip and steppers; an on/off
 state is the row's `Switch` (`Set` to show a state read back). The row never drops a button; the keys
 and the card menu reach them too. Split-flap cards are `FlipCard`s sized by `FlipRules.Plan` (the figures' widest
@@ -3081,8 +3082,13 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
    lays out its fixed parts in the box it is given (`IWidgetSizeAware.ApplySize` only where it measures
    the box: a graph's length, a grid's cells, a text's wrap; `LayoutMath` for whole lines). Text wraps or is cut with its ellipsis; a graph gets longer; nothing appears or
    disappears. A data widget's number is the family's 28 (`FamilyType.Big28`; 40 only where the kind
-   states it); a one-readout widget implements `IReadoutSized` (`Size`, `ReadoutSizes.Step`: 40, 68, 96; not the quick toggles and power buttons, whose box is free, SPEC [S-11882])
-   and adds `KitMenuLines.ReadoutSize(menu, config)` under its Style.
+   states it); a one-readout widget plans its face on the family's one-readout step (68) and has **no Size setting**
+   (SPEC [S-2449] retired, owner 2026-11-20: "the size should not be settable, it is set by the size of the
+   widget"): its natural size is that face, its Min the face scaled to its smallest text's floor (`ScalesDown`), and
+   its view scales the block with the card (`ReadingFit`, `InkFit`). How many of the same item it shows (days, hours,
+   laps, columns, tiles) is the card's too: the axis steps by one item and a resize stores the count its box holds
+   (`SizeSets`), with no count line in its menu; what the items are, a chart's span and a list's **Rows** stay
+   settings (SPEC [S-14410]).
 4. **A list**: on the kit, implement `IKitRows` on the config (`Rows` 1..20, default
    `KitSizing.DefaultRows`; `Lines` 1 or 2; copied in `Clone`, held to range in `Repair`), state
    `Sizing = c => KitSizing.Sizing(choice, addFooter)` and
@@ -3130,7 +3136,7 @@ block does it:
   | Kit list, custom row lists | one pitch: the room over the stated rows, from the view's top to the foot's inset (`KitPlanner.Reach`, `ItemStretch.Rows`, `RowsAbove`), headings with them | none: the rows touch |
   | Grid cell (calendar month) | never: the weeks reach the header and the foot's inset ([S-12807]) | spacing between the weeks |
   | Readout, Status, Controls, Header | never (text stays on the family's steps) | [S-12808] the block's parts together, planned at the natural box (`ReadingFit`) and scaled up as one until the card's height or width stops it (`BlockFit`); one line alone centred by its ink (`MeterView.CentringTop`) |
-  | Clock face (picks its step by its box) | one family step past its Size (`ReadoutSizes.Climb`) | spacing round it |
+  | Clock face (planned on its natural box) | scaled as one with the card, up and down to its floor (`InkFit`) | spacing round it |
   | Chart, dial, tile, picture | the box | none |
 
 - **No inset to the card's border.** The card has no padding ([S-6711]); each block decides: rows, list

@@ -25,7 +25,7 @@ public sealed class FocusSessionMenuTests
         var lines = Build(new FocusSessionConfig());
 
         Assert.Equal(
-            [FocusSessionStr.Panels_Focus_LengthLabel.Text(), FocusSessionStr.Panels_Focus_QuietLabel.Text(), "|", Str.Kit_Size.Text(), FocusSessionStr.FocusSession_Ring.Text()],
+            [FocusSessionStr.Panels_Focus_LengthLabel.Text(), FocusSessionStr.Panels_Focus_QuietLabel.Text(), "|", FocusSessionStr.FocusSession_Ring.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
         Assert.Empty(lines.StyleLines);
         Assert.Equal(FocusSessionMenu.Minutes(30), lines.Lines[0].Value);

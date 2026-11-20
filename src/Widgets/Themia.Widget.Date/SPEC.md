@@ -17,14 +17,15 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   ("Tue, Nov 17"), **Numbers** (the language's numeric date, "11/17/2026", "17.11.2026") and **Page** (a calendar
   page: the weekday over the day of the month, large, over the month). Words through `LocaleFormat` only, never
   culture data (`DateLayout.Line`, `.Page`).
-- **[S-10802]** **Size** (Small, Medium, Large, [S-2449]; the style's one line): a one-line style on Title
-  (regular), 28 or 40 (Small is the line a 68 clock had under it), the page's number on 40, 68 or 96 with its
-  words on the step's line under. The sizing (`DateLayout.Sizing`) is the face in the inset of 12: as wide as the
-  language's widest day in the style (measured over two whole years: every weekday with every month and day) and
-  one height; it may be widened to twice that (beside a wider mate, under a clock). Load repair turns a size that
-  is none of the three into Medium.
+- **[S-10802]** **No Size** (owner, 2026-11-20: "the size should not be settable, it is set by the size of the
+  widget"; [S-2449] retired): a one-line style is planned on 28, the page's number on 68 with its words on the
+  step's line under (`DateLayout.LineStep`, `NumberStep`). The natural size (`DateLayout.Sizing`) is the face in the
+  inset of 12: as wide as the language's widest day in the style (measured over two whole years: every weekday with
+  every month and day), widened up to twice that (beside a wider mate, under a clock); the card is the user's past
+  that, and down to where its smallest text is at the floor (`ScalesDown`, [S-12833]). It has no menu lines of its
+  own. A stored `size` is an unknown key, dropped loudly on load.
 - **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step in its natural box and
-  scaled up as one to the card (a `Viewbox`, uniform, never down), placed by the widget's alignment ([S-6581],
+  scaled as one to the card (`InkFit`, uniform, up and down to its floor), placed by the widget's alignment ([S-6581],
   centred by default); the family's inset at the sides and the foot, joined or alone
   ([S-12483]).
 - **[S-10804]** Its picture ([S-11850]) is the sample day ([S-2050]); the Debug state `longest` draws a long

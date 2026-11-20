@@ -4,17 +4,18 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-11300] A timer's face at its Size: the readout's step, the ring's diameter (0 without one) and the
-/// face's own width and height (the readout with its line under, or the ring holding it), the Controls
-/// row not included.
+/// [S-11300] A timer's face at the family's one-readout step: the readout's step, the ring's diameter (0 without one)
+/// and the face's own width and height (the readout with its line under, or the ring holding it), the Controls row not
+/// included.
 /// </summary>
 public readonly record struct TimerSized(TypeStep Step, double Ring, double Width, double Height);
 
 /// <summary>
 /// [S-6739] [S-11300] The face the timers share (Alarm, Countdown, Stopwatch, Pomodoro, Focus session),
-/// one-readout widgets ([S-6737]): the Readout on the step the widget's Size names with its line under,
-/// or one step under in the least ring that holds it, over the Controls row at the bottom inset, 8 under
-/// the face. The card is that face, never the face grown to the card.
+/// one-readout widgets ([S-6737]): the Readout on the family's step for one readout (<see cref="Step"/>, 68) with its
+/// line under, or one step under in the least ring that holds it, over the Controls row at the bottom inset, 8 under
+/// the face. That face is the card's natural size; the card's size is the user's (no Size setting, [S-2449] retired)
+/// and the face scales up and down with it as one ([S-12808]; down to its smallest text's floor, [S-12833]).
 /// </summary>
 public static class TimerFace
 {
@@ -32,58 +33,48 @@ public static class TimerFace
     /// <summary>[S-11300] How far a timer's card may be widened past its face: half again, the face staying centred.</summary>
     public const double WidthRange = 1.5;
 
+    /// <summary>[S-11300] The readout's step: the family's one-readout step, 68 ([S-6702]).</summary>
+    public static TypeStep Step => FamilyType.Hero68;
+
     /// <summary>
-    /// [S-11300] The readout's step inside a ring at each size, one step under the plain face's (28, 40,
-    /// 68), so a ring stays a widget's size: the ring is drawn round the number, never the number grown to the ring.
+    /// [S-11300] The readout's step inside a ring, one step under the plain face's (40), so a ring stays a widget's
+    /// size: the ring is drawn round the number, never the number grown to the ring.
     /// </summary>
-    public static TypeStep RingStep(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
-    {
-        ReadoutSize.Small => FamilyType.Big28,
-        ReadoutSize.Large => FamilyType.Hero68,
-        _ => FamilyType.Big40,
-    };
+    public static TypeStep RingStep => FamilyType.Big40;
 
     /// <summary>
     /// [S-11300] The least ring (in fours) whose hole (<see cref="ChartRules.Hole"/>) holds
     /// <paramref name="worst"/> on <see cref="RingStep"/> with its line under; never under <see cref="RingFloor"/>.
     /// </summary>
-    public static double RingAt(ReadoutSize size, ReadoutText worst)
+    public static double RingAt(ReadoutText worst)
     {
-        var step = RingStep(size);
+        var step = RingStep;
         var need = Math.Max(ReadoutRules.Width(step, worst) / 0.75, 2 * ReadoutRules.Height(step, worst)) + (2 * FamilyShape.Stroke);
         return Math.Max(RingFloor, Math.Ceiling(need / 4) * 4);
     }
 
     /// <summary>
-    /// [S-11300] The face <paramref name="size"/> names for <paramref name="worst"/> (the widest the
-    /// reading gets): the readout on <see cref="ReadoutSizes.Step"/> (40, 68, 96) with its line under,
-    /// or with <paramref name="ring"/> the ring of <see cref="RingAt"/> with the readout in its hole.
+    /// [S-11300] The face for <paramref name="worst"/> (the widest the reading gets): the readout on <see cref="Step"/>
+    /// with its line under, or with <paramref name="ring"/> the ring of <see cref="RingAt"/> with the readout in its hole.
     /// </summary>
-    public static TimerSized Sized(ReadoutSize size, ReadoutText worst, bool ring = false)
+    public static TimerSized Sized(ReadoutText worst, bool ring = false)
     {
         worst = worst with { OneReadout = true };
         if (ring)
         {
-            var diameter = RingAt(size, worst);
-            return new TimerSized(RingStep(size), diameter, diameter, diameter);
+            var diameter = RingAt(worst);
+            return new TimerSized(RingStep, diameter, diameter, diameter);
         }
 
-        var step = ReadoutSizes.Step(size);
-        return new TimerSized(step, 0, ReadoutRules.Width(step, worst), ReadoutRules.Height(step, worst));
+        return new TimerSized(Step, 0, ReadoutRules.Width(Step, worst), ReadoutRules.Height(Step, worst));
     }
 
     /// <summary>
-    /// [S-11300] Whether a timer's controls are icon buttons: at Small, where a worded button would be
-    /// wider than the number over it. The row itself is always there.
-    /// </summary>
-    public static bool IconControls(ReadoutSize size) => ReadoutSizes.Normalise(size) == ReadoutSize.Small;
-
-    /// <summary>
     /// [S-11300] How wide a timer's Controls row is: its <paramref name="worded"/> buttons (each at its
-    /// longest label: the main action, a Snooze) as text, or at Small as icon buttons, then
-    /// <paramref name="icons"/> icon buttons, 8 apart; a switch counts its own 40.
+    /// longest label: the main action, a Snooze) as text, then <paramref name="icons"/> icon buttons, 8 apart;
+    /// a switch counts its own 40.
     /// </summary>
-    public static double ControlsWidth(ReadoutSize size, IReadOnlyList<string> worded, int icons = 0, bool aSwitch = false)
+    public static double ControlsWidth(IReadOnlyList<string> worded, int icons = 0, bool aSwitch = false)
     {
         ArgumentNullException.ThrowIfNull(worded);
         var parts = new List<double>();
@@ -94,7 +85,7 @@ public static class TimerFace
 
         foreach (var label in worded)
         {
-            parts.Add(IconControls(size) ? FamilyShape.IconButton : WordedWidth(label));
+            parts.Add(WordedWidth(label));
         }
 
         for (var i = 0; i < icons; i++)
@@ -115,8 +106,10 @@ public static class TimerFace
     /// [S-11300] A timer's card from its face: the inset all round (the header's content top over it where
     /// the kind starts with one), the face and <paramref name="extra"/> under it (a progress bar), the
     /// Controls row and its 8 where it has one, <paramref name="below"/> under that (a stopwatch's laps),
-    /// as wide as the wider of the face and the row. One height; the width may grow to
-    /// <see cref="WidthRange"/> times, centred, nothing appearing.
+    /// as wide as the wider of the face and the row: its Natural. The width may grow to <see cref="WidthRange"/> times,
+    /// centred, nothing appearing; past that the card is the user's (the relaxed range, [S-12411]) and the face scales up
+    /// with it. [S-12833] It scales down as one too, to where its smallest text (the line under the readout, the buttons'
+    /// words) is at the legibility floor: that is its Min.
     /// </summary>
     public static WidgetSizing Sizing(TimerSized face, double controls, bool header, double extra = 0, double below = 0)
     {
@@ -124,6 +117,7 @@ public static class TimerFace
         var height = (header ? FamilySpace.ContentTop : FamilySpace.Inset)
             + Math.Ceiling(face.Height + extra) + (controls > 0 ? ControlsCost : 0) + below + FamilySpace.Inset + Slack;
         var box = new SizeDip(width, height);
-        return WidgetSizing.Range(box, box, box with { Width = Math.Ceiling(width * WidthRange) });
+        var smallest = Math.Min(FamilyType.Under(face.Step).FontSize, controls > 0 ? FamilyType.Body.FontSize : double.PositiveInfinity);
+        return WidgetSizing.Range(box, box, box with { Width = Math.Ceiling(width * WidthRange) }).ScalesDown(ScaleFloor.Least(smallest));
     }
 }

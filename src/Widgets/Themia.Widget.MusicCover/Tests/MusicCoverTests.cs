@@ -4,28 +4,27 @@ using Xunit;
 
 namespace Themia.Widget.MusicCover.Tests;
 
-/// <summary>[S-11320] The cover atom: a square by its Size, its settings repaired and copied.</summary>
+/// <summary>[S-11320] The cover atom: a picture as large as its card, its settings repaired and copied.</summary>
 public sealed class MusicCoverTests
 {
-    [Theory]
-    [InlineData(ReadoutSize.Small, 96)]
-    [InlineData(ReadoutSize.Medium, 160)]
-    [InlineData(ReadoutSize.Large, 240)]
-    public void S11320_the_cover_is_a_square_of_its_size_fixed_both_ways(ReadoutSize size, double side)
+    [Fact]
+    public void S11320_S2449_retired_a_new_cover_is_a_square_and_the_card_goes_down_to_the_grids_least_and_up_freely()
     {
-        var sizing = MusicCoverFace.Sizing(new MusicCoverConfig { Size = size });
-        Assert.Equal(new Themia.Sdk.SizeDip(side, side), sizing.Natural);
-        Assert.True(sizing.FixedWidth && sizing.FixedHeight);
+        var sizing = new MusicCoverModule().Descriptor.Sizing(new MusicCoverConfig());
+        Assert.Equal(new Themia.Sdk.SizeDip(MusicCoverFace.Side, MusicCoverFace.Side), sizing.Natural);
+        Assert.Equal(new Themia.Sdk.SizeDip(Themia.Sdk.WidgetSizing.LeastScaled, Themia.Sdk.WidgetSizing.LeastScaled), sizing.Min);
+        Assert.Equal(new Themia.Sdk.SizeDip(Themia.Sdk.SizeStretch.Ceiling, Themia.Sdk.SizeStretch.Ceiling), sizing.Max);
+        Assert.Null(typeof(MusicCoverConfig).GetProperty("Size"));
     }
 
     [Fact]
-    public void S11320_size_and_hiding_are_repaired_and_copied()
+    public void S11320_hiding_is_repaired_and_copied()
     {
-        var config = new MusicCoverConfig { Size = (ReadoutSize)9, HideWhenIdle = (MusicHideWhenIdle)9 };
-        Assert.Equal(2, config.Repair().Count);
-        Assert.Equal((ReadoutSize.Medium, MusicHideWhenIdle.Never), (config.Size, config.HideWhenIdle));
+        var config = new MusicCoverConfig { HideWhenIdle = (MusicHideWhenIdle)9 };
+        Assert.Single(config.Repair());
+        Assert.Equal(MusicHideWhenIdle.Never, config.HideWhenIdle);
 
-        var copy = Assert.IsType<MusicCoverConfig>(new MusicCoverConfig { Size = ReadoutSize.Small, HideWhenIdle = MusicHideWhenIdle.NotPlaying }.Clone());
-        Assert.Equal((ReadoutSize.Small, MusicHideWhenIdle.NotPlaying), (copy.Size, copy.HideWhenIdle));
+        var copy = Assert.IsType<MusicCoverConfig>(new MusicCoverConfig { HideWhenIdle = MusicHideWhenIdle.NotPlaying }.Clone());
+        Assert.Equal(MusicHideWhenIdle.NotPlaying, copy.HideWhenIdle);
     }
 }

@@ -13,12 +13,13 @@ public sealed class DateTests
     private static readonly DateOnly Day = new(2026, 11, 17);
 
     [Fact]
-    public void S10800_a_clone_keeps_the_style_and_the_size()
+    public void S10800_a_clone_keeps_the_style_and_there_is_no_size()
     {
-        var config = new DateConfig { Style = DateWidgetStyle.Page, Size = ReadoutSize.Large };
+        var config = new DateConfig { Style = DateWidgetStyle.Page };
         var copy = Assert.IsType<DateConfig>(config.Clone());
         Assert.NotSame(config, copy);
-        Assert.Equal((DateWidgetStyle.Page, ReadoutSize.Large), (copy.Style, copy.Size));
+        Assert.Equal(DateWidgetStyle.Page, copy.Style);
+        Assert.Null(typeof(DateConfig).GetProperty("Size"));
     }
 
     [Fact]
@@ -37,16 +38,14 @@ public sealed class DateTests
     [InlineData(DateWidgetStyle.Short)]
     [InlineData(DateWidgetStyle.Numeric)]
     [InlineData(DateWidgetStyle.Page)]
-    public void S10802_the_card_holds_the_languages_widest_day_and_grows_with_the_size(DateWidgetStyle style)
+    public void S10802_the_natural_card_holds_the_languages_widest_day_and_scales_down_to_its_floor(DateWidgetStyle style)
     {
-        SizeDip At(ReadoutSize size) => DateLayout.Sizing(new DateConfig { Style = style, Size = size }, Locale.En).Natural;
+        var sizing = DateLayout.Sizing(new DateConfig { Style = style }, Locale.En);
+        var medium = sizing.Natural;
+        Assert.Empty(sizing.Problems());
 
-        var small = At(ReadoutSize.Small);
-        var medium = At(ReadoutSize.Medium);
-        var large = At(ReadoutSize.Large);
-        Assert.True(small.Width <= medium.Width && medium.Width <= large.Width); // the page's words are Body under 40 and 68
-        Assert.True(small.Height < medium.Height && medium.Height < large.Height);
-        Assert.Empty(DateLayout.Sizing(new DateConfig { Style = style }, Locale.En).Problems());
+        // [S-12833] The card's size is the user's ([S-2449] retired): down until its smallest text is at 9.
+        Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(medium.Height * 9 / DateLayout.SmallestText(new DateConfig { Style = style }))), sizing.Min.Height);
 
         // The widest day of the two years measured fits the face: a long September Wednesday, every day of the month.
         var face = DateLayout.Face(new DateConfig { Style = style }, Locale.En);
@@ -55,7 +54,7 @@ public sealed class DateTests
         {
             var day = new DateOnly(2026, 1, 1).AddDays(i);
             var text = style == DateWidgetStyle.Page ? DateLayout.Page(Locale.En, day).Weekday : DateLayout.Line(style, Locale.En, day);
-            var step = style == DateWidgetStyle.Page ? FamilyType.Under(DateLayout.NumberStep(ReadoutSize.Medium)) : DateLayout.LineStep(ReadoutSize.Medium);
+            var step = style == DateWidgetStyle.Page ? FamilyType.Under(DateLayout.NumberStep) : DateLayout.LineStep;
             Assert.True(HeroFit.Ems(text) * step.FontSize <= face.Width + 0.5, $"{style}: {text}");
         }
     }
@@ -66,13 +65,5 @@ public sealed class DateTests
         var face = DateLayout.Face(new DateConfig { Style = DateWidgetStyle.Page }, Locale.En);
         var number = FamilyType.Hero68;
         Assert.Equal(number.LineHeight + (2 * FamilyType.Under(number).LineHeight), face.Height);
-    }
-
-    [Fact]
-    public void S10802_a_size_that_is_none_of_the_three_is_repaired_to_medium()
-    {
-        var config = new DateConfig { Size = (ReadoutSize)9 };
-        Assert.NotEmpty(config.Repair());
-        Assert.Equal(ReadoutSizes.Default, config.Size);
     }
 }

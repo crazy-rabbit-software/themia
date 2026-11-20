@@ -13,10 +13,6 @@
     "kit.linesTwo",
     "kit.linesThree",
     "kit.columns",
-    "kit.size",
-    "kit.sizeSmall",
-    "kit.sizeMedium",
-    "kit.sizeLarge",
     "kit.unitRows",
     "kit.unitColumns",
     "kit.unitLines",
@@ -39,10 +35,6 @@
   "kit.linesTwo": "Two",
   "kit.linesThree": "Three",
   "kit.columns": "Columns",
-  "kit.size": "Size",
-  "kit.sizeSmall": "Small",
-  "kit.sizeMedium": "Medium",
-  "kit.sizeLarge": "Large",
   "kit.unitRows": {
     "one": "{count} row",
     "other": "{count} rows"

@@ -104,7 +104,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
 
         if (_config.Style == DateWidgetStyle.Page)
         {
-            var number = DateLayout.NumberStep(_config.Size);
+            var number = DateLayout.NumberStep;
             Family.Step(_number, number);
             Family.Step(_weekday, FamilyType.Under(number));
             Family.Step(_month, FamilyType.Under(number));
@@ -116,7 +116,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
         }
         else
         {
-            Family.Step(_line, DateLayout.LineStep(_config.Size));
+            Family.Step(_line, DateLayout.LineStep);
             _line.TextAlignment = text;
             _face.Children.Add(_line);
         }

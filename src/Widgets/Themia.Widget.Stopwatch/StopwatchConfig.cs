@@ -6,15 +6,12 @@ namespace Themia.Core.Model;
 /// <summary>
 /// [S-4602] A stopwatch widget: what it holds is the stopwatch itself, kept here so a running
 /// stopwatch is still running after a restart (<see cref="StopwatchRecord"/>), and so each widget is a
-/// stopwatch of its own; [S-11302] its options are how big its time is and how many laps it lists.
+/// stopwatch of its own; [S-11302] how many laps it lists.
 /// </summary>
-public sealed class StopwatchConfig : WidgetConfig, IReadoutSized
+public sealed class StopwatchConfig : WidgetConfig
 {
     /// <summary>[S-11302] The most lap rows it lists.</summary>
     public const int MostLapRows = 10;
-
-    /// <summary>[S-11302] How big the time is: Small, Medium, Large (40, 68, 96); the card follows it.</summary>
-    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
 
     /// <summary>[S-11302] How many of the newest laps it lists under its controls, 0 to <see cref="MostLapRows"/>; a new one none.</summary>
     public int LapRows { get; set; }
@@ -51,12 +48,6 @@ public sealed class StopwatchConfig : WidgetConfig, IReadoutSized
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
-
-        if (!Enum.IsDefined(Size))
-        {
-            repairs.Add($"Stopwatch size {(int)Size} unknown; medium");
-            Size = ReadoutSizes.Default;
-        }
 
         if (LapRows is < 0 or > MostLapRows)
         {
@@ -97,7 +88,6 @@ public sealed class StopwatchConfig : WidgetConfig, IReadoutSized
         BankedMs = BankedMs,
         StartedAt = StartedAt,
         LapsMs = [.. LapsMs ?? []],
-        Size = Size,
         LapRows = LapRows,
     };
 }

@@ -26,10 +26,10 @@ public enum DateWidgetStyle
 }
 
 /// <summary>
-/// [S-10800] What one date widget remembers: its style and how big it is (the readout sizes, [S-2449]). Every
-/// property is stored; copied in <see cref="Clone"/>.
+/// [S-10800] What one date widget remembers: its style. How big it is is the card's (no Size, [S-2449] retired).
+/// Every property is stored; copied in <see cref="Clone"/>.
 /// </summary>
-public sealed class DateConfig : WidgetConfig, IStyled, IContentAligned, IReadoutSized
+public sealed class DateConfig : WidgetConfig, IStyled, IContentAligned
 {
     private static readonly StyleOption[] DateStyles =
     [
@@ -42,9 +42,6 @@ public sealed class DateConfig : WidgetConfig, IStyled, IContentAligned, IReadou
     /// <summary>[S-10801] The look.</summary>
     public DateWidgetStyle Style { get; set; } = DateWidgetStyle.Long;
 
-    /// <summary>[S-10802] How big the date is: Small, Medium, Large; the card follows it.</summary>
-    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
-
     IReadOnlyList<StyleOption> IStyled.Styles => DateStyles;
 
     int IStyled.StyleValue
@@ -56,17 +53,5 @@ public sealed class DateConfig : WidgetConfig, IStyled, IContentAligned, IReadou
     /// <summary>[S-6581] Its one block aligns; in the middle when nothing was chosen.</summary>
     ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
 
-    public override WidgetConfig Clone() => new DateConfig { Style = Style, Size = Size };
-
-    /// <summary>A size that is none of the three reads as the default.</summary>
-    public override IReadOnlyList<string> Repair()
-    {
-        if (Enum.IsDefined(Size))
-        {
-            return [];
-        }
-
-        Size = ReadoutSizes.Default;
-        return ["date: size unknown; medium"];
-    }
+    public override WidgetConfig Clone() => new DateConfig { Style = Style };
 }

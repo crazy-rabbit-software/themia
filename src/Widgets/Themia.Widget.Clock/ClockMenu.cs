@@ -3,7 +3,6 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Clock;
 using Themia.Sdk;
 
@@ -29,8 +28,7 @@ internal static class ClockMenu
 
         var look = menu.StyleLines;
 
-        // [S-2449] How big the face is; the card follows.
-        look.Add(KitMenuLines.ReadoutSize(menu, clock));
+        // How big the face is is the card's: no Size line ([S-2449], retired).
         if (clock.Offers(ClockSetting.Seconds))
         {
             look.Add(menu.Toggle(null, ClockStr.Clock_SecondsLabel.Text(), clock.ShowSeconds, on => clock.ShowSeconds = on));

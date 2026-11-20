@@ -16,7 +16,7 @@ internal sealed partial class AlarmView : IWidgetSample
     /// <summary>The sample's weekday alarm (switched <paramref name="on"/> or off) at the sample moment, doing what <paramref name="status"/> says.</summary>
     internal void HoldSample(bool on, Func<DateTime, AlarmStatus> status)
     {
-        _config = new AlarmConfig { Time = "06:45", Days = ["mon", "tue", "wed", "thu", "fri"], On = on, Label = "Wake up", Size = _config.Size };
+        _config = new AlarmConfig { Time = "06:45", Days = ["mon", "tue", "wed", "thu", "fri"], On = on, Label = "Wake up" };
 
         var now = SampleDay.Now.UtcDateTime;
         _clock = () => now;

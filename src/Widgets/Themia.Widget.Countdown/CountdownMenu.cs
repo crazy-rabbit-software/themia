@@ -35,8 +35,7 @@ internal static class CountdownMenu
 
         var locale = Strings.Current;
 
-        // [S-11303] Under the look: how big the time left is, and the bar under it where the style has one.
-        menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, config));
+        // [S-11303] Under the look: the bar under the time left where the style has one.
         if (config.Style != CountdownStyle.Ring)
         {
             menu.StyleLines.Add(menu.Toggle(null, CountdownStr.Countdown_Progress.Text(), config.ShowProgress, on => config.ShowProgress = on));

@@ -99,7 +99,7 @@ public static class ReadyMadeGroups
     public static ReadyMadeGroup MyDay { get; } = Headed(new("myDay", Str.Groups_Recipe_MyDay, Str.Groups_Recipe_MyDayAbout, Glyphs.Calendar, AddFolderId.CalendarMail,
     [
         new("clock", new(0, 0, 320, 118)),
-        new("date", new(0, 118, 320, 52), Config: """{ "size": "Small" }"""),
+        new("date", new(0, 118, 320, 52)),
         new("nextMeeting", new(0, 170, 320, 124)),
         new("upNext", new(0, 294, 320, 108)),
         new("tasks", new(0, 402, 320, 220)),
@@ -292,7 +292,7 @@ public static class ReadyMadeGroups
     /// <summary>[S-11340] Now playing: the cover at the side, the track beside it, the progress under both (the old card, tighter).</summary>
     public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.Media,
     [
-        new("musicCover", new(0, 0, 96, 96), Config: """{ "size": "Small" }"""),
+        new("musicCover", new(0, 0, 96, 96)),
         new("music", new(96, 0, 244, 96)),
         new("musicProgress", new(0, 96, 340, 40)),
     ]) { Starter = 4 });
@@ -300,7 +300,7 @@ public static class ReadyMadeGroups
     /// <summary>[S-11340] Now playing, large: the cover on top, the track and the progress under it.</summary>
     public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.Media,
     [
-        new("musicCover", new(0, 0, 240, 240), Config: """{ "size": "Large" }"""),
+        new("musicCover", new(0, 0, 240, 240)),
         new("music", new(0, 240, 240, 96)),
         new("musicProgress", new(0, 336, 240, 40)),
     ]), Str.Groups_Recipe_NowPlaying);

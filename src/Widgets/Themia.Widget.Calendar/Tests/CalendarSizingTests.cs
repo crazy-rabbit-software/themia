@@ -36,20 +36,26 @@ public sealed class CalendarSizingTests
     }
 
     [Theory]
-    [InlineData(ReadoutSize.Small, false)]
-    [InlineData(ReadoutSize.Medium, true)]
-    public void S11542_a_year_is_twelve_months_one_size_by_its_size(ReadoutSize size, bool numbers)
+    [InlineData(false)]
+    [InlineData(true)]
+    public void S11542_a_year_is_twelve_months_at_their_own_size_and_a_larger_card_draws_them_larger(bool numbers)
     {
-        var sizing = Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearSize = size });
+        var sizing = Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = numbers });
         Assert.Equal(sizing.Min, sizing.Natural);
 
-        // Relaxed, [S-12411]: twice its one size, the months stay their size.
+        // Relaxed, [S-12411]: the card's size is the user's ([S-2449] retired).
         Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), sizing.Max);
 
-        var fit = CalendarSizing.Year(size);
+        var fit = CalendarSizing.Year(numbers);
         Assert.Equal((12, 4, 3, numbers, numbers), (fit.Months, fit.Columns, fit.Rows, fit.Numbers, fit.Weekdays));
         Assert.Equal((2 * FamilySpace.Inset) + (4 * 7 * fit.DayCell) + (3 * CalendarSizing.YearGap), sizing.Natural.Width);
-        Assert.True(Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearSize = ReadoutSize.Medium }).Natural.Width > Of(new CalendarWidgetConfig { Style = CalendarStyle.Year }).Natural.Width);
+        Assert.True(Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = true }).Natural.Width > Of(new CalendarWidgetConfig { Style = CalendarStyle.Year }).Natural.Width);
+
+        // The months at their own size in a room their size; twice as large in a room twice as wide and tall; never smaller.
+        var block = CalendarSizing.YearBlock(fit);
+        Assert.Equal(1, CalendarSizing.YearScale(fit, block.Width, block.Height));
+        Assert.Equal(2, CalendarSizing.YearScale(fit, 2 * block.Width, 3 * block.Height));
+        Assert.Equal(1, CalendarSizing.YearScale(fit, block.Width / 2, block.Height));
     }
 
     [Fact]
@@ -146,9 +152,9 @@ public sealed class CalendarSizingTests
     [Fact]
     public void S11540_settings_out_of_range_are_repaired_and_a_copy_keeps_them()
     {
-        var config = new CalendarWidgetConfig { Rows = 40, Lines = 3, DayHours = 30, WeekHours = 1, WeekRows = 99, YearSize = ReadoutSize.Large, MonthLines = 0 };
+        var config = new CalendarWidgetConfig { Rows = 40, Lines = 3, DayHours = 30, WeekHours = 1, WeekRows = 99, MonthLines = 0 };
         Assert.NotEmpty(config.Repair());
-        Assert.Equal((20, 2, 16, 4, 12, ReadoutSize.Small, 1), (config.Rows, config.Lines, config.DayHours, config.WeekHours, config.WeekRows, config.YearSize, config.MonthLines));
+        Assert.Equal((20, 2, 16, 4, 12, 1), (config.Rows, config.Lines, config.DayHours, config.WeekHours, config.WeekRows, config.MonthLines));
 
         var copy = (CalendarWidgetConfig)new CalendarWidgetConfig { WeekTitles = true, MonthEvents = MonthEvents.Chips, DayHours = 12, MonthLines = 5 }.Clone();
         Assert.Equal((true, MonthEvents.Chips, 12, 5), (copy.WeekTitles, copy.MonthEvents, copy.DayHours, copy.MonthLines));

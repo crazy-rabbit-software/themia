@@ -138,7 +138,6 @@
           "scale": 1,
           "config": {
             "kind": "alarm",
-            "size": "Medium",
             "time": "07:30",
             "days": [
               "mon",
@@ -172,7 +171,6 @@
           "scale": 1,
           "config": {
             "kind": "focusSession",
-            "size": "Medium",
             "ring": false,
             "minutes": 50,
             "doNotDisturb": false
@@ -222,8 +220,7 @@
           "scale": 1,
           "config": {
             "kind": "screenTimeDonut",
-            "period": "Week",
-            "size": "Medium"
+            "period": "Week"
           }
         },
         {
@@ -284,7 +281,6 @@
             "maxImages": 12,
             "columns": 3,
             "rows": 2,
-            "cellSize": "Medium",
             "shown": 6,
             "rotation": 0,
             "outline": false,
@@ -323,7 +319,6 @@
             "maxImages": 24,
             "columns": 3,
             "rows": 2,
-            "cellSize": "Medium",
             "shown": 6,
             "rotation": -12,
             "outline": true,

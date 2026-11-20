@@ -53,21 +53,39 @@ public static class CalendarSizing
     /// <summary>[S-11542] A small year's day: a square.</summary>
     public const double YearSquare = FamilySpace.S2;
 
-    /// <summary>[S-11542] What a year of <paramref name="size"/> draws: always twelve months, 4 × 3; Small squares, Medium the numbers under the weekday letters.</summary>
-    public static YearFit Year(ReadoutSize size)
-        => size == ReadoutSize.Medium
+    /// <summary>[S-11542] What a year draws: always twelve months, 4 × 3; squares, or with <paramref name="numbers"/> the numbers under the weekday letters.</summary>
+    public static YearFit Year(bool numbers)
+        => numbers
             ? new YearFit(12, 4, 3, FamilyType.Caption.LineHeight, true, true)
             : new YearFit(12, 4, 3, YearSquare, false, false);
 
-    /// <summary>[S-11542] One size by the Size, its period's line over it: the months' title line and their weeks, in the inset.</summary>
-    public static WidgetSizing YearSizing(ReadoutSize size)
+    /// <summary>[S-11542] The twelve months' block at its own size, in the inset: its width and height.</summary>
+    public static SizeDip YearBlock(YearFit fit)
     {
-        var fit = Year(size);
+        ArgumentNullException.ThrowIfNull(fit);
         var mini = 7 * fit.DayCell;
         var miniHeight = FamilyType.Caption.LineHeight + ((fit.Weekdays ? 7 : 6) * fit.DayCell);
-        var width = (2 * FamilySpace.Inset) + (fit.Columns * mini) + ((fit.Columns - 1) * YearGap);
-        var height = ContentTop + (fit.Rows * miniHeight) + ((fit.Rows - 1) * YearGap) + FamilySpace.Inset;
-        return WidgetSizing.Fixed(new(width, height));
+        return new SizeDip((fit.Columns * mini) + ((fit.Columns - 1) * YearGap), (fit.Rows * miniHeight) + ((fit.Rows - 1) * YearGap));
+    }
+
+    /// <summary>
+    /// [S-11542] The year at its own size, its period's line over it, in the inset: its Natural and its Min. The card's
+    /// size is the user's (no Size setting, [S-2449] retired): a larger card draws the months larger, as one
+    /// (<see cref="YearScale"/>).
+    /// </summary>
+    public static WidgetSizing YearSizing(bool numbers)
+    {
+        var block = YearBlock(Year(numbers));
+        var box = new SizeDip(block.Width + (2 * FamilySpace.Inset), ContentTop + block.Height + FamilySpace.Inset);
+        return WidgetSizing.Fixed(box);
+    }
+
+    /// <summary>[S-11542] How much larger the months are drawn in a room of <paramref name="width"/> × <paramref name="height"/> (the inset's inside): never under 1.</summary>
+    public static double YearScale(YearFit fit, double width, double height)
+    {
+        var block = YearBlock(fit);
+        var scale = Math.Min(width / block.Width, height / block.Height);
+        return double.IsFinite(scale) ? Math.Max(1, scale) : 1;
     }
 
     // ---- [S-11543] day --------------------------------------------------------------------------------
@@ -195,7 +213,7 @@ public static class CalendarSizing
         return config.Style switch
         {
             CalendarStyle.Agenda => KitSizing.Sizing(AgendaShown(config), addFooter: false, AgendaWidths),
-            CalendarStyle.Year => YearSizing(config.YearSize),
+            CalendarStyle.Year => YearSizing(config.YearNumbers),
             CalendarStyle.Day => DaySizing(config.DayHours),
             CalendarStyle.Week => WeekSizing(config),
             _ => MonthSizing(config),

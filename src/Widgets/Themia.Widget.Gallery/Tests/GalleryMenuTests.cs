@@ -32,9 +32,9 @@ public sealed class GalleryMenuTests
     }
 
     [Fact]
-    public void S11207_the_grid_offers_its_columns_rows_and_cell_size_under_style()
+    public void S11207_the_grid_offers_its_columns_and_rows_under_style_never_a_cell_size()
         => Assert.Equal(
-            [GalleryStr.WidgetsB_Settings_Gallery_Fit_Label.Text(), GalleryStr.Gallery_Columns.Text(), Str.Kit_Rows.Text(), GalleryStr.Gallery_CellSize.Text()],
+            [GalleryStr.WidgetsB_Settings_Gallery_Fit_Label.Text(), GalleryStr.Gallery_Columns.Text(), Str.Kit_Rows.Text()],
             Build(new GalleryConfig { Style = GalleryStyle.Grid }).StyleLines.Select(l => l.Text));
 
     [Fact]

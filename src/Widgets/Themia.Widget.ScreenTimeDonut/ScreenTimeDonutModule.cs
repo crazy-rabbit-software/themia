@@ -29,7 +29,7 @@ public sealed class ScreenTimeDonutModule : IWidgetModule
         Label = ScreenTimeDonutStr.WidgetsC_ScreenTime_Donut_Label.Local(),
         Description = ScreenTimeDonutStr.WidgetsC_ScreenTime_Donut_Desc.Local(),
         Glyph = Glyphs.ScreenTimeDonut,
-        Sizing = c => ScreenTimeDonutLayout.Sizing(((ScreenTimeDonutConfig)c).Size, ((ScreenTimeDonutConfig)c).Period),
+        Sizing = c => ScreenTimeDonutLayout.Sizing(((ScreenTimeDonutConfig)c).Period),
         Traits = WidgetTraits.None,
         Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 2),

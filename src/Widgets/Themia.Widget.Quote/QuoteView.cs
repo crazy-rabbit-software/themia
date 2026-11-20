@@ -247,7 +247,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
     }
 
     /// <summary>
-    /// [S-11306] The quote on the step its Size names, in at most its Lines (a longer one ends in an
+    /// [S-11306] The quote on the Title step, in at most its Lines (a longer one ends in an
     /// ellipsis), the attribution on the step's line under while it is shown, the large mark on the
     /// Marks style ([S-6405]); nothing else at any size.
     /// </summary>
@@ -266,7 +266,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
         // [S-11306] The step, the lines and the mark are the config's; the attribution's line is kept
         // while it is shown, so a quote without an author moves nothing.
-        var step = QuoteLayout.StepAt(_config.Size);
+        var step = QuoteLayout.Step;
         var mark = QuoteLayout.MarkOf(_config);
         _mark.Visibility = Show(mark > 0);
         if (mark > 0)

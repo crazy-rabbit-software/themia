@@ -8,8 +8,8 @@ namespace Themia.Core.Widgets;
 
 /// <summary>
 /// [S-11302] The stopwatch on the timers' sized face ([S-11300]): the time a one-readout Readout on the
-/// step its Size names, centred, the lap under way its line under, the Controls row (Start, Pause or
-/// Resume as the one main action, Lap and Reset as icon buttons; at Small all three icon buttons) and
+/// family's one-readout step, centred, the lap under way its line under, the Controls row (Start, Pause or
+/// Resume as the one main action, Lap and Reset as icon buttons) and
 /// under it the newest laps, as many one-line rows as the config lists. The face is sized on the widest
 /// the time is drawn: under an hour with its tenth ("88:88.8"), from an hour without it ("88:88:88").
 /// </summary>
@@ -33,11 +33,11 @@ public static class StopwatchFace
         return HeroFit.Ems(over.Value) > HeroFit.Ems(under.Value) ? over : under;
     }
 
-    /// <summary>[S-11302] The face at the stopwatch's Size.</summary>
+    /// <summary>[S-11302] The face.</summary>
     public static TimerSized Sized(StopwatchConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return TimerFace.Sized(config.Size, Worst());
+        return TimerFace.Sized(Worst());
     }
 
     /// <summary>[S-11302] The lap rows the config lists, held to 0..<see cref="StopwatchConfig.MostLapRows"/>.</summary>
@@ -57,7 +57,7 @@ public static class StopwatchFace
         ArgumentNullException.ThrowIfNull(config);
         var main = TimerFace.Longest(
             StopwatchStr.Stopwatch_Start.Text(locale), StopwatchStr.Stopwatch_Pause.Text(locale), StopwatchStr.Stopwatch_Resume.Text(locale));
-        var controls = TimerFace.ControlsWidth(config.Size, [main], icons: 2);
+        var controls = TimerFace.ControlsWidth([main], icons: 2);
         var none = TimerFace.Sizing(Sized(config), controls, header: false);
         var rows = new SizeSteps(none.Natural.Height, FamilyShape.Row1, 0, StopwatchConfig.MostLapRows, LapRows(config));
         return WidgetSizing.Range(

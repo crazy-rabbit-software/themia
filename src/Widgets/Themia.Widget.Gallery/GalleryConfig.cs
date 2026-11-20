@@ -19,7 +19,7 @@ public enum GalleryStyle
     /// <summary>One picture at a time, filling the card, advancing on a timer.</summary>
     Slideshow = 0,
 
-    /// <summary>[S-11207] Its Columns × Rows tiles at its Cell size.</summary>
+    /// <summary>[S-11207] Its Columns × Rows tiles of 96.</summary>
     Grid = 1,
 
     /// <summary>[S-764] Prints dropped on a table: random place, size and tilt per picture.</summary>
@@ -27,17 +27,6 @@ public enum GalleryStyle
 
     /// <summary>[S-765] The card cut into rectangles of varied size, one picture each, no gaps.</summary>
     Mosaic = 3,
-}
-
-/// <summary>[S-11207] The grid's cell: Small 64, Medium 96, Large 128.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<GalleryCellSize>))]
-public enum GalleryCellSize
-{
-    Small = 0,
-
-    Medium = 1,
-
-    Large = 2,
 }
 
 /// <summary>What a picture does with a frame that is not its shape.</summary>
@@ -173,9 +162,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     /// <summary>[S-11207] The grid's rows; its height follows them.</summary>
     public int Rows { get; set; } = 2;
 
-    /// <summary>[S-11207] The grid's cell size.</summary>
-    public GalleryCellSize CellSize { get; set; } = GalleryCellSize.Medium;
-
     /// <summary>[S-11207] How many pictures the scatter and the mosaic show, 1..<see cref="MaxShown"/>.</summary>
     public int Shown { get; set; } = 6;
 
@@ -186,9 +172,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
 
     [JsonIgnore]
     public int EffectiveRows => Math.Clamp(Rows, MinCells, MaxCells);
-
-    [JsonIgnore]
-    public GalleryCellSize EffectiveCellSize => Enum.IsDefined(CellSize) ? CellSize : GalleryCellSize.Medium;
 
     [JsonIgnore]
     public int EffectiveShown => Math.Clamp(Shown, 1, MaxShown);
@@ -328,7 +311,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         OutlineWidth = OutlineWidth,
         Columns = Columns,
         Rows = Rows,
-        CellSize = CellSize,
         Shown = Shown,
     };
 }

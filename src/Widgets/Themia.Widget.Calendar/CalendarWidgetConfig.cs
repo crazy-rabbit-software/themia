@@ -69,8 +69,8 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     /// <summary>[S-11540] Agenda: one line a row, or two (the span, where and who on the second).</summary>
     public int Lines { get; set; } = 1;
 
-    /// <summary>[S-11542] Year: Small (squares) or Medium (the day numbers under the weekday letters).</summary>
-    public ReadoutSize YearSize { get; set; } = ReadoutSize.Small;
+    /// <summary>[S-11542] Year: the day numbers under the weekday letters, or squares (a new one's); how large is the card's.</summary>
+    public bool YearNumbers { get; set; }
 
     /// <summary>[S-11543] Day: the hours its grid shows, 4..16 (a new one 8); the height follows them.</summary>
     public int DayHours { get; set; } = CalendarSizing.DefaultHours;
@@ -119,7 +119,7 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
             ? [CalendarSetting.WeekFrom, CalendarSetting.WeekDays, CalendarSetting.WeekTitles]
             : [CalendarSetting.WeekFrom, CalendarSetting.WeekDays, CalendarSetting.WeekTitles, CalendarSetting.WeekRows],
         CalendarStyle.Agenda => [CalendarSetting.AgendaRange, CalendarSetting.AgendaCount, CalendarSetting.AgendaRows],
-        CalendarStyle.Year => [CalendarSetting.YearSize],
+        CalendarStyle.Year => [CalendarSetting.YearNumbers],
         CalendarStyle.Day => [CalendarSetting.DayHours],
         CalendarStyle.Month => [CalendarSetting.MonthEvents],
         _ => [],
@@ -158,12 +158,6 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
             Lines = KitSizing.ClampLines(Lines);
         }
 
-        if (YearSize is not (ReadoutSize.Small or ReadoutSize.Medium))
-        {
-            repairs.Add("calendar year size was not small or medium");
-            YearSize = ReadoutSize.Small;
-        }
-
         if (DayHours != CalendarSizing.ClampHours(DayHours) || WeekHours != CalendarSizing.ClampHours(WeekHours))
         {
             repairs.Add($"calendar hours {DayHours}, {WeekHours} were out of range");
@@ -200,7 +194,7 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
         copy.AgendaDays = AgendaDays;
         copy.Rows = Rows;
         copy.Lines = Lines;
-        copy.YearSize = YearSize;
+        copy.YearNumbers = YearNumbers;
         copy.DayHours = DayHours;
         copy.MonthEvents = MonthEvents;
         copy.MonthLines = MonthLines;

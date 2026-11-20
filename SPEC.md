@@ -973,11 +973,11 @@ module author's guide is docs/WIDGET-KIT.md 16.
   secondary) is 14 beside 28, 20 beside 40, 28 beside 68, 40 beside 96 and 136, 68 beside 192; the
   line under is Caption under 28, Body under 40 and 68, Title (400) under 96, 136 and 192.
 - **[S-6702]** The **Readout**'s step is stated, never computed and never the box's: a data widget's
-  number is the family's 28 (40 where its kind states it, [S-2220]), a one-readout widget's the step
-  its Size names (40, 68, 96; [S-2449]), and the kind's sizing is made from that step's widest text
-  (`ReadoutRules.Width`, `Height`, widths by `HeroFit.Ems`), so its box always holds it ([S-11800]).
-  `ReadoutRules.Step` measures which of a text's steps a box holds, never below 28 (the clock's faces
-  ask it of the card their Size made).
+  number is the family's 28 (40 where its kind states it, [S-2220]), a one-readout widget's the family's
+  one-readout step, 68 (no Size: [S-2449] retired; the card's size is the user's and the face scales with it,
+  [S-12804], [S-12833]), and the kind's natural size is made from that step's widest text (`ReadoutRules.Width`,
+  `Height`, widths by `HeroFit.Ems`), so its box always holds it ([S-11800]). `ReadoutRules.Step` measures which of a
+  text's steps a box holds, never below 28 (the clock's faces ask it of their natural box).
 - **[S-6703]** Space is one 4-based scale, **4 · 8 · 12 · 16 · 24**, and its sums: the card inset 12
   on every side at every size; the header one 20 line at 12, then 4, so the content starts at 36; a
   glyph 8 from its text; a name 12 from its value and a column 12 from the next; the text edge 36
@@ -1136,23 +1136,24 @@ module author's guide is docs/WIDGET-KIT.md 16.
   meter's history on fixed slots, a weather graph's cells, a price's bars evenly). A part's role, fraction and points
   are set again only when they change ([S-6330]).
 - **[S-6739]** **A timer's face** (Alarm, Countdown, Stopwatch, Pomodoro, Focus session; `TimerFace`):
-  a one-readout widget ([S-6737]) whose Readout is on the step its Size names, with its line under,
+  a one-readout widget ([S-6737]) whose Readout is on the family's one-readout step, with its line under,
   over its Controls row at the bottom inset; a ring face sets the readout in the Chart block's ring,
   in its hole, three quarters of the hole wide and half of it tall (`ChartRules.Hole`). *(The face by
   the box, the row given way on a short tile and the ring as large as the box are retired with the
   ladder: [S-11300].)*
-- **[S-11300]** **A timer's face at its Size** (owner decision 2026-11-12: content decides the size;
-  `TimerFace.Sized`, `.Sizing`): a timer converted to the sizing ([S-2438]) draws its Readout on the
-  step its **Size** names (Small, Medium, Large: 40, 68, 96, `IReadoutSized`, [S-2449]), never the
-  largest that fits, its line under always; a ring face draws the readout one step under (28, 40, 68)
-  in the least ring (in fours) whose hole holds it with its line under. The Controls row is always
-  there, 8 under the face at the bottom inset; at Small its buttons are icon buttons (the main action
-  too), larger the main action and the other worded buttons as text, the icon buttons after them
-  (`TimerFace.ControlsWidth`, each worded button at its longest label). The card is the inset all
-  round (the header's content top over it where the kind starts with one), the face, what the kind
-  adds under it (a bar, laps), the row and its 8, plus 2 of slack, as wide as the wider of the face
-  and the row: one height, the width up to half again wider with the face centred; nothing appears or
-  goes with the size. Tests `TimerFaceTests.S11300_`.
+- **[S-11300]** **A timer's face** (owner decision 2026-11-12: content decides the size; 2026-11-20: "the size
+  should not be settable, it is set by the size of the widget"; `TimerFace.Sized`, `.Sizing`): a timer converted to
+  the sizing ([S-2438]) plans its Readout on the family's one-readout step (68, `TimerFace.Step`), its line under
+  always; a ring face plans the readout one step under (40, `TimerFace.RingStep`) in the least ring (in fours) whose
+  hole holds it with its line under. The Controls row is always there, 8 under the face at the bottom inset: the main
+  action and the other worded buttons as text, the icon buttons after them (`TimerFace.ControlsWidth`, each worded
+  button at its longest label; the icon-button row of the old Small is gone). The natural card is the inset all round
+  (the header's content top over it where the kind starts with one), the face, what the kind adds under it (a bar,
+  laps), the row and its 8, plus 2 of slack, as wide as the wider of the face and the row, the width up to half again
+  wider with the face centred; the card's size past that is the user's ([S-12411]) and the block scales up with it
+  as one ([S-12808]); it scales down as one too, to where its Body text (the line under, the buttons) is at the floor
+  (`ScalesDown`, [S-12833], WR-14): that is its Min. Nothing appears or goes with the size. Tests
+  `TimerFaceTests.S11300_`.
 - **[S-6740]** **Split-flap cards** (the clock's Flip style, the Countdown's; `FlipCard`, `FlipRules`):
   one card per part of the time, 8 apart, each its figures' widest case on a family step with 12
   either side and the step's line tall, an item of the card's item layer in the one radius with a
@@ -4620,8 +4621,9 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
 - **[S-2443]** *(Retired by [S-11800] on 2026-11-12, once every kind was converted: `WidgetSizing.Legacy`,
   `IsLegacy`, `LegacyFloor`, `SizeDip.Unbounded` and the shrink-only list in `WidgetSizingTests` are gone.)*
 - **[S-11800]** **One path.** Every kind states a bounded range ([S-2438], relaxed by [S-12411]), never under the [S-08] floor,
-  and inside it shows the same parts: what a widget shows is its config (its rows, lines, facts, columns,
-  Size, style), never its box. A view may measure its box to lay out those fixed parts (a graph's length,
+  and inside it shows the same parts: what a widget shows is its config (its rows, lines, facts, what its items
+  are, a chart's span, style), never its box; how large a face is and how many of the same item stand in a row or
+  a column follow the card ([S-14410]; [S-2449] retired). A view may measure its box to lay out those fixed parts (a graph's length,
   where a text wraps, a grid's cells, a scroll ending on a whole line: `IWidgetSizeAware`, `WidgetArea`,
   `LayoutMath`), never to choose them. The old way is gone with everything that existed for it: the
   legacy sizing, the seven tiers (`WidgetTiers`, `--sizes tiers`, the showcase's tiers,
@@ -4631,6 +4633,21 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   and added columns, the header's shedding). `OnePathSizingTests` fail on a source that names any of them
   again, and on a kind whose range has no maximum or starts under the floor. Tests
   `OnePathSizingTests.S11800_`.
+- **[S-14410]** **Size and item counts follow the card** (owner, 2026-11-20: "the size should not be settable, it is
+  set by the size of the widget. do this for the other widgets too"; on the follow-ups: the list "Rows" setting stays,
+  "it decides the natural height; the card's height steps follow it"; "Anything that's just 'how many of the same
+  item' (days, hours, weeks, processes) follows the card's size. What the items are (which facts, which span of time a
+  chart covers) stays a setting."). No widget has a Size line ([S-2449] retired: a face is planned on the family's
+  default step, its natural and least size are its content's, and it scales with its card). A count of identical
+  items (a forecast's days, a calendar's hours, days and event lines, a week planner's days, a habit's history
+  days, a stopwatch's laps, a gallery's columns and pictures, a contacts grid's columns, a list's columns) has no
+  menu line: the axis it repeats along steps by one item (no leftover, WR-6) and a resize stores the count its box
+  holds ([S-2442], `SizeSets`; a free picture layout counts its box instead). What stays a setting: a list's
+  **Rows** (and where a kind's own rows line says Rows), lines per row, which facts or fields, what the items are, a
+  chart's span, sort orders, sources, and a mode a count also chose (hours or days stays, its count goes). How many
+  items a widget loads or keeps (a feed's articles, an agenda's events, the clipboard's entries, a gallery's
+  pictures taken from a folder, a search's results) is not a count of what the card shows and stays. Tests
+  `SizeFollowsCardTests.S14410_` (no count line for identical items in any menu).
 - **[S-2444]** **On a display** a sizing is DIPs times the card's content scale ([S-6532]: the display's
   and the widget's own) plus the gap, as fractions of that screen's cell (`SizeFit.Limits`,
   `SizeLimits`, `AxisLimits`). It is the kind's own: no card has a header to add or take away
@@ -4712,13 +4729,16 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   still show exactly the gap), so a card's edge and the grid's line share their pixels at gap 0
   (`GridFit.LineDip`). The box round touching cards (`CardJoins.Frame`) is what Liquid glass draws their one
   shape from ([S-2123]). Tests `CardPaintTests.S11810_the_box_round_several_cards_is_round_their_cells_on_the_grids_lines`.
-- **[S-2449]** **A big number's size is a setting.** A one-readout widget (the clock, the timers; not the
-  toggles and power buttons, whose box is free, [S-11882]) states its readout's size in its config (`IReadoutSized.Size`,
-  `ReadoutSize` Small, Medium, Large: the family's 40, 68 and 96, `ReadoutSizes.Step`; a new one
-  Medium), set by one menu line, Size (`KitMenuLines.ReadoutSize`), and its sizing follows from the
-  widest text at that step (`HeroFit` widths, [S-6702]); the number never grows with the card, but for
-  a face that fits its box (the clock), which climbs one family step past its Size at most in a relaxed
-  box ([S-12410], `ReadoutSizes.Climb`). A data
+- **[S-2449]** *(Retired 2026-11-20. Owner: "the size should not be settable, it is set by the size of the widget.
+  do this for the other widgets too". The readout size setting is gone with everything that existed for it:
+  `ReadoutSize`, `IReadoutSized`, `ReadoutSizes`, the shared setting `readoutSize`, `KitMenuLines.ReadoutSize`, the
+  timers' icon-button row at Small, the calendar year's Size (now its **Day numbers**, a mode, [S-11542]) and the
+  gallery grid's cell Size. Every face that had one (clock, date, alarm, countdown, stopwatch, pomodoro, focus
+  session, quote, album art, the screen-time donut) states its natural and least size from its content on the
+  family's default step and follows its card: the face scales up and down as one (`ReadingFit`, `InkFit`, [S-12804],
+  [S-12808]) to its smallest text's floor ([S-12833], WR-14); a picture (the cover) or a ring (the donut) is as large
+  as its card holds. A state file that still has a widget's `size` loads with the key dropped loudly
+  (`AppStateStore.DropUnknownKeys`); no migration. Tests `SizeFollowsCardTests.S2449_`.)* What stands: a data
   widget's number is the family's 28 ([S-2220]; the 40 step stays for a kind that states it).
 - **[S-2448]** **A kind is checked at its range**: its Min, its Natural and, with no practical Max ([S-12411]), a
   large size, twice its Natural fitted into its sizing (`SizeStretch.Large`; `SizeFit.CheckedAt`, `CheckedSize`
@@ -5729,7 +5749,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   before the focus (today: the next event still to end, else now; another day: its first event, else 08:00). Hours fill
   the box exactly; hour labels read "07:00", or "07" in a day under 160 px. Today has an accent
   now-line. Events outside the window are on the day's hover.
-- **[S-2707]** *(Its arrangements by size retired by [S-11542]: twelve months, 4 × 3, by its Size; the marks stand.)* Year (`CalendarFit.Year`): twelve small months in the arrangement of 4×3, 3×4, 6×2,
+- **[S-2707]** *(Its arrangements by size retired by [S-11542]: twelve months, 4 × 3, as large as the card; the marks stand.)* Year (`CalendarFit.Year`): twelve small months in the arrangement of 4×3, 3×4, 6×2,
   2×6, 12×1 or 1×12 with the largest day cell, preferring cells that hold numbers (a caption line)
   and then a weekday row; under 4 px it falls back to 6, 4, 3, 2 or 1 months around the current one
   (`FirstMonth`, inside the year). The current month's name is primary, the others secondary (never
@@ -7942,8 +7962,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   `ScreenTimeRulesTests.S12803_`.
 - **[S-12804]** **A one-readout face fills its card** (owner, 2026-11-17: "the clock widget does not stretch out to
   fill the space properly, there is way too much spacing in it"; 2026-11-19: "the clock widget has too big of a
-  space at the top and bottom"). The clock and the Date widget plan their face on the step their Size names in their
-  natural box and scale it up as one to the card (`InkFit`, the rule `BlockFit` of [S-12808]: uniform, up only) until
+  space at the top and bottom"). The clock and the Date widget plan their face on the family's step (no Size,
+  [S-2449] retired) in their natural box and scale it up as one to the card (`InkFit`, the rule `BlockFit` of [S-12808]: uniform, up only) until
   its ink, the digits' capitals and baseline rather than their line's leading, fills the card's height or the width
   stops it, as a display clock is: a larger card is a larger face, never a band round a small one; what is left is
   only what the card's other axis leaves, the face centred on its ink there, placed across by the alignment. The clock's dial is planned in
@@ -9061,7 +9081,7 @@ model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
   output device (`IAudioOutput`: Volume, Mixer); the currency pair (`ExchangePairConfig`); the stock
   symbol and its timeframe (`StockQuoteConfig`, two settings); the screen-time period
   (`IScreenTimePeriod`: Screen time, its apps, chart and donut); the history span (`ISpansHistory`: the
-  eight history atoms and the cores); a one-readout widget's Size (`IReadoutSized`); a list's Rows, its
+  eight history atoms and the cores); a list's Rows, its
   Lines where they are the user's (`IKitRows.OffersLines`) and its Columns (`IKitColumns`), shared only
   among lists; when the music atoms hide (`IHidesWhenIdle`: the track, the cover, the progress). Not
   shared: the units and formats, which the widgets follow ([S-3590]); the network adapter (no network atom

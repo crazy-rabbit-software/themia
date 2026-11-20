@@ -16,9 +16,10 @@ public readonly record struct ClockReadoutPlan(TypeStep Step, bool Stacked, bool
 public readonly record struct ClockDialPlan(double Dial, bool Line);
 
 /// <summary>
-/// The clock's faces on the family's steps (one-readout, [S-6737]): the step its Size names, which its
-/// sizing made the card for ([S-2449]), measured in the content box (the card less its inset of 12, the
-/// clock has no header). The box never changes what the face holds ([S-11800]).
+/// The clock's faces on the family's steps (one-readout, [S-6737]): the family's one-readout step, which its
+/// sizing made the card's natural size for (no Size setting: the card's size is the user's, [S-2449] retired),
+/// measured in the content box (the card less its inset of 12, the clock has no header). The box never changes what
+/// the face holds ([S-11800]).
 /// </summary>
 public static class ClockFace
 {
@@ -179,29 +180,21 @@ public static class ClockFace
     /// </summary>
     public const double Slack = 2;
 
-    /// <summary>[S-2449] The analog dial at each size: three times the readout's 32, 48 and 64 DIP grid.</summary>
-    public static double DialAt(ReadoutSize size) => size switch
-    {
-        ReadoutSize.Small => 96,
-        ReadoutSize.Large => 192,
-        _ => 144,
-    };
+    /// <summary>The time faces' step: the family's one-readout step, 68 ([S-6702]).</summary>
+    public static TypeStep Step => FamilyType.Hero68;
 
-    /// <summary>[S-2449] [S-6024] The words' step at each size: a sentence stops at 68, so one step below the readout's.</summary>
-    public static TypeStep WordsAt(ReadoutSize size) => size switch
-    {
-        ReadoutSize.Small => FamilyType.Big28,
-        ReadoutSize.Large => FamilyType.Hero68,
-        _ => FamilyType.Big40,
-    };
+    /// <summary>The analog dial: three times the readout's 48 DIP grid.</summary>
+    public const double DialSide = 144;
 
-    /// <summary>[S-2449] The words' column at each size: about a dozen characters of its step to a line.</summary>
-    public static double WordsWidth(ReadoutSize size) => FamilyType.EstimateWidth(WordsAt(size), 12);
+    /// <summary>[S-6024] The words' step: a sentence stops one step below the readout's.</summary>
+    public static TypeStep Words => FamilyType.Big40;
+
+    /// <summary>The words' column: about a dozen characters of its step to a line.</summary>
+    public static double WordsWidth => FamilyType.EstimateWidth(Words, 12);
 
     /// <summary>
-    /// [S-2449] The clock's sizing ([S-2438]): its face at the step its Size names (40, 68, 96; the words
-    /// 28, 40, 68; the dial 96, 144, 192), with the line under it where the face has one, in the card's
-    /// inset of 12. The time faces (Digital, Minimal, Stacked, Flip) may be widened to twice their face, the
+    /// The clock's sizing ([S-2438]): its face on the family's one-readout step (68; the words 40; the dial 144),
+    /// with the line under it where the face has one, in the card's inset of 12. The time faces (Digital, Minimal, Stacked, Flip) may be widened to twice their face, the
     /// line under cut to what fits, at the one height; the dial and the words are one size. A larger box (the
     /// relaxed range, [S-12411]) scales the face up as one to fill it ([S-12804]). <paramref name="meridiem"/> is the widest AM/PM of the language when the region writes
     /// 12-hour time, else empty: the face is as wide as its widest time.
@@ -210,8 +203,7 @@ public static class ClockFace
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        var size = ReadoutSizes.Normalise(config.Size);
-        var step = ReadoutSizes.Step(size);
+        var step = Step;
         var unit = string.IsNullOrEmpty(meridiem) ? string.Empty : " " + meridiem;
         var under = config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.OffsetMode != ClockOffsetMode.None);
         var underLine = under ? FamilyType.Under(step).LineHeight : 0;
@@ -227,8 +219,8 @@ public static class ClockFace
                 FlipRules.RowWidth(step, seconds ? 3 : 2, Figures) + (unit.Length == 0 ? 0 : FamilySpace.S2 + (HeroFit.Ems(meridiem) * FamilyType.Unit(step).FontSize)),
                 step.LineHeight + underLine,
                 true),
-            ClockStyle.Analog => (DialAt(size), DialAt(size) + (under ? DialGap + FamilyType.Body.LineHeight : 0), false),
-            ClockStyle.Word => Sentence(size, under),
+            ClockStyle.Analog => (DialSide, DialSide + (under ? DialGap + FamilyType.Body.LineHeight : 0), false),
+            ClockStyle.Word => Sentence(under),
             _ => (
                 ReadoutRules.Width(step, new ReadoutText(seconds ? "88:88:88" : "88:88", unit, OneReadout: true)),
                 step.LineHeight + underLine,
@@ -247,10 +239,10 @@ public static class ClockFace
     }
 
     /// <summary>[S-6024] The words' face: its column, as many of its lines as the language's longest sentence wraps to, the line under.</summary>
-    private static (double W, double H, bool Widens) Sentence(ReadoutSize size, bool under)
+    private static (double W, double H, bool Widens) Sentence(bool under)
     {
-        var step = WordsAt(size);
-        var width = WordsWidth(size);
+        var step = Words;
+        var width = WordsWidth;
         var longest = WordClock.Longest(Strings.Current);
         var height = (WordClock.Lines(longest, width * WordClock.WidthMargin, step) * step.LineHeight) + (under ? FamilyType.Under(step).LineHeight : 0);
         return (width, height, false);
