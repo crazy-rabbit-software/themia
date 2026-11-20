@@ -13,7 +13,8 @@ namespace Themia.Core.Geometry;
 /// [S-854] While the surface showing its view has not settled, the refit waits (the old sizing stays
 /// noted) and runs at the first refit on settled metrics. [S-14103] A widget loaded with a stepped axis
 /// (<see cref="NoteAll"/> with <c>fit</c>) has its stored rect fitted to its nearest step once, at that first
-/// refit, logged: a card stored before its steps were whole cells keeps no leftover cell in its stored rect.
+/// refit, logged: a card stored before its steps were whole cells keeps no leftover cell in its stored rect. [S-14104]
+/// Every refit moves the cards joined to the edge it moved with it (<see cref="RefitJoins"/>), so joins hold.
 /// </summary>
 public sealed class SizingNotes
 {
@@ -88,6 +89,9 @@ public sealed class SizingNotes
                         {
                             Log.Info(Scope, $"{widget.Config.Kind} {widget.Id} fitted to its steps: {stored.W:0.####}x{stored.H:0.####} -> {widget.Rect.W:0.####}x{widget.Rect.H:0.####}");
                         }
+
+                        // [S-14104] The cards it touched on the edge that moved move with it: what was joined stays joined.
+                        changed += Follow(view.Widgets, widget, stored, surface.Screen);
                     }
                 }
 
@@ -97,6 +101,27 @@ public sealed class SizingNotes
         }
 
         return changed;
+    }
+
+    /// <summary>[S-14104] Move the cards joined to <paramref name="refit"/>'s moved edge with it; one log line a group. Returns how many moved.</summary>
+    private static int Follow(IReadOnlyList<WidgetInstance> widgets, WidgetInstance refit, FracRect before, ScreenMetrics screen)
+    {
+        var moved = 0;
+        foreach (var shift in RefitJoins.Follow(widgets, refit, before, screen.Allowed))
+        {
+            var dip = shift.Delta * (shift.Vertical ? screen.Height : screen.Width);
+            var edge = shift.Vertical ? "bottom" : "right";
+            if (shift.Kept is { } why)
+            {
+                Log.Info(Scope, $"the cards joined to {refit.Config.Kind} {refit.Id}'s {edge} edge stay: moving them {dip:0.#} DIP would take them {why}");
+                continue;
+            }
+
+            moved += shift.Moved.Count;
+            Log.Info(Scope, $"{shift.Moved.Count} card(s) joined to {refit.Config.Kind} {refit.Id}'s {edge} edge moved {dip:0.#} DIP with it: {string.Join(", ", shift.Moved.Select(w => w.Id))}");
+        }
+
+        return moved;
     }
 
     /// <summary>[S-854] Whether a widget's refit is waiting: its sizing is not the one noted.</summary>

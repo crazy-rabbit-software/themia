@@ -4766,6 +4766,18 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   is fitted to its nearest step on the display that shows its view (`SizingNotes.NoteAll(state, fit: true)`, the
   existing refit, [S-2447]), one log line each ("… fitted to its steps: old -> new"); an undo still notes a widget as it
   is. Tests `SettledMetricsTests.S14103_`.
+- **[S-14104]** **A refit keeps joined cards joined** (owner, 2026-11-19: "the items have no spacing between them";
+  [S-2240]: cards whose cells meet join). A refit fits a card at its top-left ([S-2447]), so where its stepped axis
+  shrinks or grows (a loaded card fitted to its whole rows, [S-14103]; a config that changed its rows or days)
+  its bottom or right edge moves: every card of the view whose top (left) edge lay on that edge, overlapping along it,
+  and every card on the far edge of one of those, along the same axis, moves with it by the same amount, in the same
+  mutation and undo step (`RefitJoins.Follow`, from `SizingNotes.Refit`), so what was joined stays joined; nothing else
+  moves (a card beside the one that refit keeps its place). The moves are whole grid cells (the edge moved by whole
+  cells). A move that would take a card past the view's allowed area (the work area: never under a taskbar, [S-841]) or
+  into a card it did not overlap before is kept back whole, the cards staying where they were. One log line a group
+  (moved, or kept and why). A desktop icon never joins ([S-11880]) and never follows. Tests `RefitJoinsTests.S14104_`
+  (a clock under a forecast fitted from 170 to 150 moves up 20 and still touches; a card beside the week planner
+  follows its stepped width; a chain of three; a config's rows; a move past the work area or into a card kept back).
 - **[S-2449]** *(Retired 2026-11-20. Owner: "the size should not be settable, it is set by the size of the widget.
   do this for the other widgets too". The readout size setting is gone with everything that existed for it:
   `ReadoutSize`, `IReadoutSized`, `ReadoutSizes`, the shared setting `readoutSize`, `KitMenuLines.ReadoutSize`, the
