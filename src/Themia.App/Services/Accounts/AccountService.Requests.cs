@@ -214,14 +214,8 @@ internal sealed partial class AccountService
         var account = Require(accountId);
         var (kind, token, sealedToken) = await ProofAsync(account, cancellation).ConfigureAwait(false);
 
-        var reply = await AccountHttp.SendAsync(request, kind, r => Authorize(r, account, token), cancellation, ServerGrant(account)).ConfigureAwait(false);
-
-        if (reply.Status == 401 && AccountRules.AuthOf(account) == AccountAuth.OAuthRefresh)
-        {
-            // Rejected before its stored expiry (revoked, rotated elsewhere): renew once and retry once.
-            var (renewed, _) = await RefreshAsync(account.Id, sealedToken, cancellation).ConfigureAwait(false);
-            reply = await AccountHttp.SendAsync(request, kind, r => Authorize(r, account, renewed), cancellation, ServerGrant(account)).ConfigureAwait(false);
-        }
+        var reply = await SendRenewingAsync(account, token, sealedToken,
+            proof => AccountHttp.SendAsync(request, kind, r => Authorize(r, account, proof), cancellation, ServerGrant(account)), cancellation).ConfigureAwait(false);
 
         // A 304 answers the caller's own conditional request: its copy is current. [S-625]
         if (reply.IsSuccess || reply.IsNotModified)
@@ -255,6 +249,23 @@ internal sealed partial class AccountService
             ProviderMessage = said,
             RetryAt = throttled,
         };
+    }
+
+    /// <summary>
+    /// [S-531] [S-9903] The one renewal step of both send paths: send with the account's proof, and when an account
+    /// that can renew is answered 401 (rejected before its stored expiry: revoked, rotated elsewhere), renew once,
+    /// under its gate, and send once more with the new token.
+    /// </summary>
+    private async Task<AccountReply> SendRenewingAsync(Account account, string? token, string? sealedToken, Func<string?, Task<AccountReply>> send, CancellationToken cancellation)
+    {
+        var reply = await send(token).ConfigureAwait(false);
+        if (reply.Status == 401 && AccountRules.AuthOf(account) == AccountAuth.OAuthRefresh)
+        {
+            var (renewed, _) = await RefreshAsync(account.Id, sealedToken, cancellation).ConfigureAwait(false);
+            reply = await send(renewed).ConfigureAwait(false);
+        }
+
+        return reply;
     }
 
     /// <summary>An authorized GET; the body as text.</summary>
@@ -301,15 +312,12 @@ internal sealed partial class AccountService
         int maxItems,
         CancellationToken cancellation = default,
         params (string Name, string Value)[] headers)
-        => PagesAsync(accountId, first, "value", item, maxItems, headers, cancellation, static (_, root) =>
-            root.TryGetProperty("@odata.nextLink", out var next) && next.ValueKind == JsonValueKind.String
-                && Uri.TryCreate(next.GetString(), UriKind.Absolute, out var url)
-                    ? url
-                    : null);
+        => PagesAsync(accountId, first, "value", item, maxItems, headers, PagingKind.BodyLink, cancellation, static root =>
+            root.TryGetProperty("@odata.nextLink", out var next) && next.ValueKind == JsonValueKind.String ? next.GetString() : null);
 
     /// <summary>
     /// [S-532] A Google API list: every item under <paramref name="itemsProperty"/> (<c>items</c>,
-    /// <c>messages</c>, <c>connections</c>…) across pages, following <c>nextPageToken</c> by setting
+    /// <c>messages</c>, <c>connections</c>...) across pages, following <c>nextPageToken</c> by setting
     /// <c>pageToken</c> on the first URL, up to <paramref name="maxItems"/>.
     /// </summary>
     public Task<IReadOnlyList<T>> GetGooglePagesAsync<T>(
@@ -319,11 +327,8 @@ internal sealed partial class AccountService
         JsonTypeInfo<T> item,
         int maxItems,
         CancellationToken cancellation = default)
-        => PagesAsync(accountId, first, itemsProperty, item, maxItems, [], cancellation, static (firstUrl, root) =>
-            root.TryGetProperty("nextPageToken", out var next) && next.ValueKind == JsonValueKind.String
-                && next.GetString() is { Length: > 0 } pageToken
-                    ? WithQuery(firstUrl, "pageToken", pageToken)
-                    : null);
+        => PagesAsync(accountId, first, itemsProperty, item, maxItems, [], PagingKind.PageToken, cancellation, static root =>
+            root.TryGetProperty("nextPageToken", out var next) && next.ValueKind == JsonValueKind.String ? next.GetString() : null);
 
     /// <summary>
     /// [S-2683] A round of a provider's change list: every changed item and every removed id across
@@ -346,10 +351,9 @@ internal sealed partial class AccountService
         var removed = new List<string>();
         string? cursor = null;
         Uri? url = first;
-        var page = 0;
-        var stopped = false;
+        var pager = new ServicePager(dialect == DeltaDialect.Graph ? PagingKind.BodyLink : PagingKind.PageToken, maxItems, MaxPages, maxItems, 1, stopOnEmptyPage: false);
 
-        for (; url is not null && page < MaxPages; page++)
+        while (url is not null)
         {
             var reply = await SendAsync(accountId, Get(url, headers), cancellation).ConfigureAwait(false);
 
@@ -367,30 +371,16 @@ internal sealed partial class AccountService
             removed.AddRange(read.Removed);
             cursor = read.Cursor;
 
-            if (items.Count >= maxItems)
-            {
-                items.RemoveRange(maxItems, items.Count - maxItems);
-                stopped = true;
-                url = null;
-                break;
-            }
-
-            Uri? next = dialect == DeltaDialect.Graph
-                ? Uri.TryCreate(read.NextLink, UriKind.Absolute, out var link) ? link : null
-                : read.NextPageToken is { } token ? WithQuery(first, "pageToken", token) : null;
-
-            if (next is not null && !RedirectRules.IsSafeNextLink(first, next))
-            {
-                Log.Warn(Scope, $"not following a next change page on {next.Host}: the token stays on {first.Host}");
-                next = null;
-                stopped = true;
-            }
-
-            url = next;
+            url = NextPage(first, url, pager.Next(url, null, read.Items.Count, dialect == DeltaDialect.Graph ? read.NextLink : read.NextPageToken), pager);
         }
 
-        // Stopped at the bound, the page ceiling or an unsafe next page: the rest was never read.
-        var complete = url is null && !stopped;
+        if (items.Count > maxItems)
+        {
+            items.RemoveRange(maxItems, items.Count - maxItems);
+        }
+
+        // Stopped at the bound, the page ceiling, a loop or a next page elsewhere: the rest was never read.
+        var complete = pager.Stop == PageStop.End;
         return new DeltaRound<T>(items, removed, complete ? cursor : null, complete);
     }
 
@@ -500,6 +490,11 @@ internal sealed partial class AccountService
         _ => Str.Shell_Secret_UnreadablePassword.Text(),
     };
 
+    /// <summary>
+    /// [S-532] [S-9906] Every item of a list across its pages, through the one pager: it stops at
+    /// <paramref name="maxItems"/>, at the page ceiling, on an empty page, at the list's end, on a page that
+    /// repeats, and before a next page on another origin (the token stays on the first page's).
+    /// </summary>
     private async Task<IReadOnlyList<T>> PagesAsync<T>(
         string accountId,
         Uri first,
@@ -507,17 +502,20 @@ internal sealed partial class AccountService
         JsonTypeInfo<T> item,
         int maxItems,
         (string Name, string Value)[] headers,
+        PagingKind paging,
         CancellationToken cancellation,
-        Func<Uri, JsonElement, Uri?> nextPage)
+        Func<JsonElement, string?> nextPage)
     {
         var items = new List<T>();
+        var pager = new ServicePager(paging, maxItems, MaxPages, maxItems, 1);
         Uri? url = first;
 
-        for (var page = 0; url is not null && page < MaxPages && items.Count < maxItems; page++)
+        while (url is not null)
         {
             var reply = await SendAsync(accountId, Get(url, headers), cancellation).ConfigureAwait(false);
 
-            Uri? next;
+            int count;
+            string? next;
             try
             {
                 using var document = JsonDocument.Parse(reply.Body);
@@ -528,39 +526,46 @@ internal sealed partial class AccountService
                     throw new AccountException(AccountError.BadResponse, $"{url.Host} sent a page that is not an object.", reply.Status);
                 }
 
+                count = 0;
                 if (root.TryGetProperty(itemsProperty, out var array) && array.ValueKind == JsonValueKind.Array)
                 {
                     foreach (var element in array.EnumerateArray())
                     {
-                        if (element.Deserialize(item) is { } value)
+                        count++;
+                        if (items.Count < maxItems && element.Deserialize(item) is { } value)
                         {
                             items.Add(value);
-                        }
-
-                        if (items.Count >= maxItems)
-                        {
-                            break;
                         }
                     }
                 }
 
-                next = nextPage(first, root);
+                next = nextPage(root);
             }
             catch (JsonException ex)
             {
                 throw new AccountException(AccountError.BadResponse, $"{url.Host} sent a page that does not parse: {ex.Message}", reply.Status, ex);
             }
 
-            if (next is not null && !RedirectRules.IsSafeNextLink(first, next))
-            {
-                Log.Warn(Scope, $"not following a next page on {next.Host}: the token stays on {first.Host}");
-                next = null;
-            }
-
-            url = next;
+            url = NextPage(first, url, pager.Next(url, null, count, next), pager);
         }
 
         return items;
+    }
+
+    /// <summary>Where the pager says the next page is: an address as is, a page token on the first page's address.</summary>
+    private static Uri? NextPage(Uri first, Uri requested, PageAt? at, ServicePager pager)
+    {
+        if (pager.Stop == PageStop.Elsewhere)
+        {
+            Log.Warn(Scope, $"not following a next page off {requested.Host}: the token stays there");
+        }
+
+        return at switch
+        {
+            PageAt.Address address => address.Next,
+            PageAt.Cursor token => WithQuery(first, "pageToken", token.Value),
+            _ => null,
+        };
     }
 
     private static RequestTemplate Get(Uri url, (string Name, string Value)[] headers)

@@ -40,14 +40,8 @@ internal sealed partial class AccountService
         var scheme = AccountRules.MemberOf(account)?.Scheme ?? TokenScheme.Bearer;
         var (token, sealedToken) = await TokenAsync(account, cancellation).ConfigureAwait(false);
 
-        var reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, token), cancellation).ConfigureAwait(false);
-
-        if (reply.Status == 401 && AccountRules.AuthOf(account) == AccountAuth.OAuthRefresh && account.SealedRefreshToken is not null)
-        {
-            // Rejected before its stored expiry (revoked, rotated elsewhere): renew once and retry once.
-            var (renewed, _) = await RefreshAsync(account.Id, sealedToken, cancellation).ConfigureAwait(false);
-            reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, renewed), cancellation).ConfigureAwait(false);
-        }
+        var reply = await SendRenewingAsync(account, token, sealedToken,
+            proof => AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, proof ?? string.Empty), cancellation), cancellation).ConfigureAwait(false);
 
         if (reply.Status == 401)
         {
