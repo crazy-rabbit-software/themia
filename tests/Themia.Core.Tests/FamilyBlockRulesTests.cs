@@ -219,6 +219,17 @@ public sealed class FamilyBlockRulesTests
         => Assert.Equal(glyph, TileRules.RingGlyph(ring));
 
     [Theory]
+    [InlineData(16, 16)]
+    [InlineData(10, 10)]
+    [InlineData(6, 6)]
+    public void S14203_a_ringed_glyph_never_outgrows_its_ring(double ring, double glyph)
+    {
+        // A power button at the floor (10 x 10) has a 6 mark: the family's least glyph, 16, drew past the card and was cut.
+        Assert.Equal(glyph, TileRules.RingGlyph(ring));
+        Assert.Equal(TileRules.Face(10, 10, stateLine: false).MarkSize, TileRules.RingGlyph(TileRules.Face(10, 10, stateLine: false).MarkSize));
+    }
+
+    [Theory]
     [InlineData(88, true, false)]
     [InlineData(168, false, true)]
     [InlineData(176, true, true)]

@@ -86,9 +86,10 @@ public static class TileRules
     /// <summary>
     /// [S-6736] A ringed tile's glyph (a power button's, whose arm ring is drawn round it): the largest
     /// of the family's glyph sizes at most <see cref="RingShare"/> of the ring, 16 at least, so arming
-    /// draws the ring and moves nothing.
+    /// draws the ring without the glyph changing size. [S-14203] Never larger than the ring itself: a
+    /// mark smaller than 16 (a tile at the floor, [S-12806]) is the glyph's whole box.
     /// </summary>
-    public static double RingGlyph(double ring) => Largest(ring * RingShare);
+    public static double RingGlyph(double ring) => ring > 0 && double.IsFinite(ring) ? Math.Min(ring, Largest(ring * RingShare)) : Largest(ring * RingShare);
 
     /// <summary>
     /// [S-6736] The switch look's row in <paramref name="width"/>: [glyph 16] 8 [name over state] 12

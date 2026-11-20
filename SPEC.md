@@ -8344,6 +8344,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   `MetricRules.Default`) rather than nothing, so its face is the same block, centred on the same ink, before and after
   the answer; the tooltip and the item status still say what is known. Test
   `QuickToggleTests.S14202_`.
+- **[S-14203]** **A ringed glyph never outgrows its ring** ([S-12806]: a tile has no real minimum). A power button's
+  glyph is the largest family glyph within three quarters of its ring, 16 at least, but never larger than the ring
+  itself (`TileRules.RingGlyph`): at the floor (10 x 10, a 6 mark) the 16 glyph drew past the card and was cut to its
+  shackle; it is now the mark's whole box, as a toggle's glyph is. Test `FamilyBlockRulesTests.S14203_`.
 - **[S-12834]** **What stands over a list is whole cells, and the rows start right under it** (owner, 2026-11-19,
   docs/WIDGET-RULES.md WR-1: "there should not be a space at the top"; WR-5: "Empty stated rows / leftover whole cells
   may stand at the foot; never above the first item, never between items"; WR-6: "Every repeated item is a whole number
