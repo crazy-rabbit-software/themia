@@ -35,7 +35,9 @@ files' is the module host's `DeskInfoHostTests`.
   260..520 wide, a new one 320; it starts headerless ([S-2590]). Nothing appears or disappears with
   its size: the ladder ([S-4824], `NextMeetingLayout`), the following rows ([S-2160], [S-2161]) and
   the end column's move under the lines ([S-2591]'s narrow forms) are gone. Its menu: Place and
-  Organiser switches, then the calendar lines ([S-4826]). Tests `NextMeetingTests.S11407_`,
+  Organiser switches, then the calendar lines ([S-4826]). Its title and lines are cut at the width the block gives
+  them and keep at least their room in its least card beside the end column (`NextMeetingJoin.TextLeast`, [S-14261]),
+  so they never hold the block small. Tests `NextMeetingTests.S11407_`, `NextMeetingJoinTests.S11407_`,
   `NextMeetingMenuTests`.
 - **[S-2591]** Join beside the meeting, not under it (owner decision 2026-11-12; `NextMeetingJoin`,
   tests `NextMeetingJoinTests`): the meeting's lines are a column at the start of the content box and

@@ -63,11 +63,11 @@ public sealed class NextMeetingJoinTests
     }
 
     /// <summary>
-    /// [S-14261] The lines keep their least card's room however the block scales: in its least card at scale 1 they stand
+    /// [S-11407] [S-14261] The lines keep their least card's room however the block scales: in its least card at scale 1 they stand
     /// beside the end column whole; a long title is cut there, never holding the block small.
     /// </summary>
     [Fact]
-    public void S14261_the_lines_least_width_is_their_room_in_the_least_card()
+    public void S11407_the_lines_least_width_is_their_room_in_the_least_card()
     {
         var least = NextMeetingJoin.TextLeast;
 
