@@ -2426,7 +2426,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   of text: the field holding what it holds, selected, the keyboard in it; its hint while empty; why the check refuses
   what is typed under it in Caption, critical ([S-3721]: nothing said while it is only empty); the accept in its own
   words at the field's end, greyed while refused. A question: its words, what goes with it, its action (critical for a
-  danger) and Cancel, the keyboard on Cancel for a danger and on the action else ([S-3727]). Enter gives the text as the
+  danger) and Cancel, the keyboard on Cancel for a danger and on the action else ([S-3727]); opened from the keys (its
+  head or tool pressed with Enter or Space, a render's click standing for them) that keyboard focus is the keys' and draws
+  its ring, and so does the head a section closed from the keys gives the keyboard back to: the posted drawing ([S-2361])
+  makes the control anew, and a programmatic focus on it took the pointer's look (no ring), and every later drawing gives
+  the control it makes the focus as the keys left it (`FocusTag.Keys`). Enter gives the text as the
   accept does and closes it; Escape, Cancel, its head again or a press anywhere else on the page closes it, giving
   nothing; one section is open at a time per page, and one on the page itself is the card open there ([S-2308]); a tab, a
   deep link or the page going close it too. A tool that asks first (Delete, Sign out) opens its question in its thing's

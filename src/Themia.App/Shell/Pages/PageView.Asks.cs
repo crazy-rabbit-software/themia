@@ -50,6 +50,7 @@ internal sealed partial class PageView
         ArgumentNullException.ThrowIfNull(at);
         ArgumentNullException.ThrowIfNull(question);
         _model ??= _build();
+        var keys = FromKeys();
         _asks.Show(at);
         _question = question;
         _typed.Remove(at + "#ask");
@@ -75,7 +76,7 @@ internal sealed partial class PageView
             _unfolded.Clear();
         }
 
-        Opened(at);
+        Opened(at, keys);
     }
 
     /// <summary>
@@ -84,12 +85,13 @@ internal sealed partial class PageView
     /// </summary>
     private void ToggleAsk(string key, string holder, bool inside)
     {
+        var keys = FromKeys();
         _question = null;
         _typed.Remove(key + "#ask");
         if (!_asks.Toggle(key))
         {
             // [S-2361] Only the card that held it is drawn again, after the click.
-            Redraw(() => Refocus(new FocusTag(holder + "#head", 0)));
+            Redraw(() => Refocus(new FocusTag(holder + "#head", 0, keys)));
             return;
         }
 
@@ -99,17 +101,21 @@ internal sealed partial class PageView
             _unfolded.Clear();
         }
 
-        Opened(holder);
+        Opened(holder, keys);
     }
 
     /// <summary>
     /// [S-2351] A section just opened: [S-2361] its card drawn again (alone, after the event that asked), then scrolled into
-    /// sight as little as it takes ([S-2347]), the keyboard in it.
+    /// sight as little as it takes ([S-2347]), the keyboard in it, with its ring where the keys opened it (<paramref name="keys"/>).
     /// </summary>
-    private void Opened(string holder) => Redraw(() => Focused(holder));
+    private void Opened(string holder, bool keys) => Redraw(() => Focused(holder, keys));
 
-    /// <summary>[S-2351] The opened section's card, drawn: revealed, the keyboard in its field or on its answer.</summary>
-    private void Focused(string holder)
+    /// <summary>
+    /// [S-2351] The opened section's card, drawn: revealed, the keyboard in its field or on its answer. Opened from the keys,
+    /// the answer takes the keyboard's focus and its ring: the posted drawing made a new control, which a programmatic focus
+    /// would have drawn as the pointer left it (no ring), the head the keys pressed being gone with the card it stood in.
+    /// </summary>
+    private void Focused(string holder, bool keys)
     {
         Reveal(holder);
         if (AskedNow() is not { } asked)
@@ -119,14 +125,15 @@ internal sealed partial class PageView
 
         // [S-3727] A danger's keyboard on Cancel, so Enter straight after it keeps everything; any other question's on its action.
         var tag = asked.Key + (asked.Question is null ? "#field" : asked.Question.Danger ? "#cancel" : "#accept");
+        var how = keys ? FocusState.Keyboard : FocusState.Programmatic;
         switch (Tagged(this, tag))
         {
             case TextBox box:
-                box.Focus(FocusState.Programmatic);
+                box.Focus(how);
                 box.SelectAll();
                 break;
             case Control control:
-                control.Focus(FocusState.Programmatic);
+                control.Focus(how);
                 break;
         }
     }
@@ -135,6 +142,7 @@ internal sealed partial class PageView
     private bool CloseAsk()
     {
         var holder = AskedNow()?.Holder;
+        var keys = FromKeys();
         if (!_asks.Cancel())
         {
             return false;
@@ -145,7 +153,7 @@ internal sealed partial class PageView
         {
             if (holder is not null)
             {
-                Refocus(new FocusTag(holder + "#head", 0));
+                Refocus(new FocusTag(holder + "#head", 0, keys));
             }
         });
 
@@ -376,11 +384,12 @@ internal sealed partial class PageView
 
             _typed.Remove(key + "#ask");
             var holder = _model is { } model ? HolderOf(model, key)?.Key : null;
+            var keys = FromKeys();
             Do(() => edit.Commit(answer.Text));
             Show();
             if (holder is not null)
             {
-                Refocus(new FocusTag(holder + "#head", 0));
+                Refocus(new FocusTag(holder + "#head", 0, keys));
             }
         }
 

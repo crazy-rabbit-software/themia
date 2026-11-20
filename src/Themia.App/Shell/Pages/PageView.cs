@@ -419,9 +419,10 @@ internal sealed partial class PageView : ContentControl
         if (_open is not null)
         {
             var open = _open;
+            var keys = FromKeys();
             _open = null;
             _unfolded.Clear();
-            Redraw(() => Refocus(new FocusTag(open + "#head", 0)));
+            Redraw(() => Refocus(new FocusTag(open + "#head", 0, keys)));
             return true;
         }
 
@@ -725,7 +726,11 @@ internal sealed partial class PageView : ContentControl
     }
 
     /// <summary>Where the keyboard is on the page: its control's tag and a text box's caret.</summary>
-    private readonly record struct FocusTag(string Tag, int Caret);
+    /// <summary>
+    /// Where the keyboard stands in a drawing, kept to the next: the control's tag, a text box's caret and [S-2351] whether the
+    /// keys put it there (<paramref name="Keys"/>: its focus ring drawn, and drawn again on the control the next drawing makes).
+    /// </summary>
+    private readonly record struct FocusTag(string Tag, int Caret, bool Keys = false);
 
     private FocusTag? FocusedTag()
     {
@@ -734,8 +739,22 @@ internal sealed partial class PageView : ContentControl
             return null;
         }
 
-        return new FocusTag(tag, element is TextBox box ? box.SelectionStart : 0);
+        return new FocusTag(tag, element is TextBox box ? box.SelectionStart : 0, element is Control { FocusState: FocusState.Keyboard });
     }
+
+    /// <summary>
+    /// [S-2351] Whether what is being done now came from the keys: the page's focused control holds the keyboard's focus (a
+    /// head or a tool pressed with Enter or Space), or a render's click, which stands for the keys (<see cref="DebugClick"/>).
+    /// </summary>
+    private bool FromKeys()
+    {
+        var keys = _keyed || FocusedTag() is { Keys: true };
+        _keyed = false;
+        return keys;
+    }
+
+    /// <summary>[S-2351] A render's click stands for the keys (Enter on its row): what it asks shows the keyboard's ring.</summary>
+    private bool _keyed;
 
     private bool IsInside(DependencyObject element)
     {
@@ -760,7 +779,8 @@ internal sealed partial class PageView : ContentControl
         }
         else if (Tagged(this, focus.Tag) is Control control)
         {
-            control.Focus(FocusState.Programmatic);
+            // [S-2351] As the keys left it: its ring drawn again on the control this drawing made.
+            control.Focus(focus.Keys ? FocusState.Keyboard : FocusState.Programmatic);
             if (control is TextBox box)
             {
                 box.SelectionStart = Math.Min(focus.Caret, box.Text.Length);
@@ -795,6 +815,9 @@ internal sealed partial class PageView : ContentControl
         {
             return false;
         }
+
+        // [S-2351] Drawn as the keys would leave it: a section it asks puts the keyboard on its answer, its ring drawn.
+        _keyed = true;
 
         switch (row.Kind)
         {
