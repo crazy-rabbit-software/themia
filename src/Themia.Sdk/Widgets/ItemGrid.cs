@@ -1,10 +1,12 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-11807] The grid's one count of whole cells along an axis: a length that is <c>cells</c> of an axis's cells (its length
+/// [S-11807] The host's count of whole cells along an axis: a length that is <c>cells</c> of an axis's cells (its length
 /// over that axis's own pitch, the screen's DIPs along it over its lines) takes them rounded up, float noise forgiven, at
 /// least one. What the host lays a widget's box in (<c>GridFit</c>) and what a picture of a fence lays its title bar and
-/// icon boxes in (<c>FenceGrid.OnGrid</c>), so the picture is what the host lays.
+/// icon boxes in (<c>FenceGrid.OnGrid</c>), so the picture is what the host lays. An item's optimal length inside a card is
+/// counted by <see cref="ItemGrid.Cells"/> instead, on purpose (its slack); [S-14500] the items stretch to the card's
+/// actual height, so the two counts never leave room at the foot.
 /// </summary>
 public static class GridCells
 {
@@ -42,19 +44,16 @@ public readonly record struct ItemGrid(double Cell, double Scale = 1)
     public double Raster => double.IsFinite(Scale) && Scale > 0 ? Scale : 1;
 
     /// <summary>
-    /// [S-14500] How far past a whole cell a length may reach and still count as that cell: a fiftieth of one. A display's
-    /// pitch is its width over its columns, seldom exactly 10 (9.974 at 1536 wide): a row of 40 is 4.01 of those cells and
-    /// takes four, not five.
+    /// [S-14500] How far past a whole cell a length may reach and still count as that cell: a fiftieth of one. A view lays
+    /// its items on one pitch, its display's width over its columns ([S-12830]), seldom exactly 10 (9.974 at 1536 wide): a
+    /// row of 40 is 4.01 of those cells and takes four, not five. Only an item's optimal is counted so; the host's box is
+    /// <see cref="GridCells"/>'s (float noise alone), and the items stretch to fill whatever box it lays.
     /// </summary>
     public const double Slack = 0.02;
 
     /// <summary>The fewest whole cells that hold <paramref name="length"/> (at least one), within <see cref="Slack"/>.</summary>
     public int Cells(double length)
         => !double.IsFinite(length) || length <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling((length / Pitch) - Slack));
-
-    /// <summary>How many whole cells <paramref name="length"/> holds (rounded down).</summary>
-    public int Within(double length)
-        => !double.IsFinite(length) || length <= 0 ? 0 : (int)Math.Floor((length / Pitch) + 1e-6);
 
     /// <summary><paramref name="length"/> rounded up to whole cells.</summary>
     public double Whole(double length) => Cells(length) * Pitch;
