@@ -9969,9 +9969,9 @@ makes a composition one thing. Several widgets selected together are arranged an
 about (their place, account, drive, host, pair, symbol, period, Size), so a group acts as a container: one
 page where a setting the members share is set once. Owning files: SDK `Model/SharedSettings.cs` (the
 registry), `Model/Configs/SharedContracts.cs` (the contracts added), `Themia.Sdk.WinUI/Widgets/ItemMenu.cs`
-(`ItemMenuEntry.Shares`), `Modules/WidgetMenuLines.cs` (`Shared`); Core `Shell/SelectionPage.cs` (the
+(`ItemMenuEntry.Shares`), `Modules/WidgetMenuLines.cs` (`Shared`), `Shell/SharedRowLines.cs`; Core `Shell/SelectionPage.cs` (the
 model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
-`SharedRowLines.cs`, `DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`. Tests: `SharedSettingsTests`
+`DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`. Tests: `SharedSettingsTests`, `SharedRowLinesTests`
 (Modules), `EditBarLayoutTests.S11755_` (Core), `SettingOwnershipTests.S3592_a_shared_setting…`.
 
 - **[S-11750]** **Shared settings** (`SharedSettings.All`): a setting several kinds hold is one entry

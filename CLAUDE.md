@@ -543,7 +543,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   entry of the SDK's `SharedSettings` over a config contract, and its standard line is marked with
   `WidgetMenuLines.Shared` ([S-11750]..[S-11753]); a new kind that holds one implements the contract and
   uses (or marks) that line. **The page of several** ([S-11754], [S-11755], `SelectionPage.Of` in Core,
-  `SelectionRows` + `SharedRowLines` in the app): For all of them (each shared setting once: the first holder's
+  `SelectionRows` in the app, `SharedRowLines` in Sdk.WinUI): For all of them (each shared setting once: the first holder's
   own line over a scratch copy, every write set on every holder, Mixed while they disagree) and Appearance,
   never a widget one by one ([S-11755]).
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
