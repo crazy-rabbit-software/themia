@@ -157,7 +157,7 @@ internal static class ImageGallery
     /// </summary>
     private static async Task<Fetched<BingPhoto>> LoadBingAsync(CancellationToken token)
     {
-        var (status, wire, detail) = await WebFetch
+        var (status, wire, detail, retryAt) = await WebFetch
             .GetJsonAsync(BingPhoto.Endpoint, BingWireContext.Default.BingArchiveWire, token)
             .ConfigureAwait(false);
 
@@ -168,7 +168,7 @@ internal static class ImageGallery
                 Log.Warn(Scope, $"photo of the day: {status} {detail}");
             }
 
-            return Fetched<BingPhoto>.Failed(status, detail, DateTimeOffset.Now);
+            return Fetched<BingPhoto>.Failed(status, detail, DateTimeOffset.Now, retryAt);
         }
 
         if (BingPhoto.From(wire) is not { } photo)

@@ -3907,8 +3907,11 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
   `.well-known`; a collection is used verbatim, otherwise principal → home set → first usable
   collection (a calendar advertising components must include VEVENT). Credential failure on every
   candidate is reported as such; "signed in but nothing there" wins over a 404 from the fallback.
-- **[S-518]** A 429/503 on a repeatable request is retried at most three times, waiting what
-  `Retry-After` says (seconds or HTTP date) capped at 30 s, else 1/2/4 s. A POST is never retried.
+- **[S-518]** A throttle (a 429, or a 403 or 503 naming a `Retry-After`) is never waited out inside the
+  request: the answer comes back at once as `RateLimited` carrying `RetryAt` (the `Retry-After`, seconds or an
+  HTTP date, at most two hours; a 429 naming none waits a minute; `RateLimitRules.PlainThrottle`), a token renewal's
+  too, and the item's schedule waits for it ([S-2609], [S-9901]). Nothing is retried in the request, so a refresh
+  never hangs for minutes on a busy server.
 - **[S-519]** Redirects are followed by hand (the framework drops `Authorization` and rewrites
   PROPFIND): never to a non-http scheme, never https→http, never from a public host to a loopback or
   private address. A bearer token only follows to the same origin; a DAV password may follow an
@@ -13414,6 +13417,11 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   typed failure kept or taken back by `WriteQueue.Classify`, anything else kept and logged; the first attempt of a change
   at the head answers whoever queued it ([S-2624]), one queued behind answers at once; an owner that cannot send (its
   account needs signing in) sends nothing; the owner's cancellation stops it with its queue kept.
+- **[S-2694]** One HTTP send under the web's and the accounts' requests (`Services/Net/HttpCore.cs`): the scheme
+  check, the hand-followed redirects ([S-519], [S-966]), the body cap (4 MB for the web, 16 MB for accounts), the
+  `Retry-After` and one classifier of transport failures; `WebFetch` and `AccountHttp` are its two policies (deadline,
+  cap, clients). A throttled web answer keeps its `Retry-After` as the answer's `RetryAt` ([S-518]), and the web
+  answers' schedule waits for it as the accounts' do.
 - **Incremental sync.** Owning files: `Themia.Core/Sync/{DeltaSync,DeltaMerge}.cs`,
   `Core/Office/DavDelta.cs`, `Core/Mail/ImapDelta.cs`, `Services/Office/AccountOfficeSource.Delta.cs`,
   `AccountService.GetDeltaAsync`, `MailService.FetchGraphAsync`, `ImapMailClient.SyncAsync`,

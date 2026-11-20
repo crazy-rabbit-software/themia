@@ -94,8 +94,8 @@ internal static class MarketService
             WebJsonContext.Default.CoinSearchReply,
             token);
 
-        var (listedStatus, listedReply, listedDetail) = await listed.ConfigureAwait(false);
-        var (coinStatus, coinReply, coinDetail) = await coins.ConfigureAwait(false);
+        var (listedStatus, listedReply, listedDetail, _) = await listed.ConfigureAwait(false);
+        var (coinStatus, coinReply, coinDetail, _) = await coins.ConfigureAwait(false);
 
         if (listedStatus != FetchStatus.Ok)
         {
@@ -142,13 +142,13 @@ internal static class MarketService
             + $"?range={RangeParameter(range)}&interval={IntervalParameter(range)}"
             + (prePost ? "&includePrePost=true" : string.Empty));
 
-        var (status, reply, detail) = await WebFetch
+        var (status, reply, detail, retryAt) = await WebFetch
             .GetJsonAsync(uri, WebJsonContext.Default.YahooChartReply, token)
             .ConfigureAwait(false);
 
         if (status != FetchStatus.Ok || reply is null)
         {
-            return Fetched<TickerQuote>.Failed(status, detail, now);
+            return Fetched<TickerQuote>.Failed(status, detail, now, retryAt);
         }
 
         var result = reply.Chart?.Result is { Count: > 0 } results ? results[0] : null;
@@ -212,13 +212,13 @@ internal static class MarketService
         var escaped = Uri.EscapeDataString(id);
         var priceUri = new Uri($"{CoinPriceEndpoint}?ids={escaped}&vs_currencies=usd&include_24hr_change=true");
 
-        var (status, reply, detail) = await WebFetch
+        var (status, reply, detail, retryAt) = await WebFetch
             .GetJsonAsync(priceUri, WebJsonContext.Default.DictionaryStringCoinPrice, token)
             .ConfigureAwait(false);
 
         if (status != FetchStatus.Ok || reply is null)
         {
-            return Fetched<TickerQuote>.Failed(status, detail, now);
+            return Fetched<TickerQuote>.Failed(status, detail, now, retryAt);
         }
 
         // An unknown id answers 200 with {} rather than 404, so an empty object is how "no such
@@ -260,7 +260,7 @@ internal static class MarketService
     {
         var uri = new Uri($"{CoinChartEndpoint}{escapedId}/market_chart?vs_currency=usd&days={CoinDays(range)}");
 
-        var (status, reply, detail) = await WebFetch
+        var (status, reply, detail, _) = await WebFetch
             .GetJsonAsync(uri, WebJsonContext.Default.CoinChartReply, token)
             .ConfigureAwait(false);
 

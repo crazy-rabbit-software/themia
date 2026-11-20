@@ -135,7 +135,7 @@ internal static class OnlineService
 
                 if (response.Status != FetchStatus.Ok)
                 {
-                    return Fetched<T>.Failed(response.Status, response.Detail, now);
+                    return Fetched<T>.Failed(response.Status, response.Detail, now, response.RetryAt);
                 }
 
                 var parsed = parse(response.Body);

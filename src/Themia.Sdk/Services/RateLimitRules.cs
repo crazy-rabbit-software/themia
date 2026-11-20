@@ -101,6 +101,17 @@ public static class RateLimitRules
     }
 
     /// <summary>
+    /// [S-518] [S-2694] A plain HTTP answer's throttle (the host's own providers, the web): <c>Retry-After</c> only. Null
+    /// when the answer is no throttle; else when asking again is worth it (a 429 that names no time waits a minute),
+    /// never past <see cref="MaxWait"/>. The caller's schedule waits for it; nothing waits inside the request.
+    /// </summary>
+    public static DateTimeOffset? PlainThrottle(int status, IReadOnlyDictionary<string, string>? headers, DateTimeOffset now)
+    {
+        var state = Read(RateLimitScheme.RetryAfterOnly, headers, now, status);
+        return IsThrottle(RateLimitScheme.RetryAfterOnly, status, state) ? WaitUntil(RateLimitScheme.RetryAfterOnly, status, state, now) : null;
+    }
+
+    /// <summary>
     /// When asking again is worth it, or null when nothing says to wait. A throttle waits for
     /// <c>Retry-After</c>, else the reset, else a minute; a success that spent the last request
     /// waits for the reset too: the next request is already known to fail. Never past

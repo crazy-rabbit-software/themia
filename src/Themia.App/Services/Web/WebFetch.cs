@@ -15,7 +15,8 @@ namespace Themia.App.Services.Web;
 /// <param name="Status">The named outcome. <see cref="FetchStatus.Ok"/> means <paramref name="Body"/> is usable.</param>
 /// <param name="Body">The response text. Empty unless the status is Ok.</param>
 /// <param name="Detail">One line for the log: an HTTP status line, a socket error, a timeout.</param>
-internal readonly record struct WebResponse(FetchStatus Status, string Body, string? Detail);
+/// <param name="RetryAt">[S-2694] A throttle's own time (its <c>Retry-After</c>), for the answer's schedule.</param>
+internal readonly record struct WebResponse(FetchStatus Status, string Body, string? Detail, DateTimeOffset? RetryAt = null);
 
 /// <summary>
 /// The one HTTP client the whole app shares.
@@ -72,7 +73,7 @@ internal static class WebFetch
     /// </param>
     public static async Task<WebResponse> GetAsync(Uri uri, string accept, CancellationToken token, NetReach reach = NetReach.Internet, LocalGrant? grant = null)
     {
-        var (status, body, detail) = await FetchAsync(uri, accept, reach, grant, null, token).ConfigureAwait(false);
+        var (status, body, detail, retryAt) = await FetchAsync(uri, accept, reach, grant, null, token).ConfigureAwait(false);
 
         // UTF-8 with replacement, not with an exception: a feed declaring one encoding and serving
         // another is common, the app builds with InvariantGlobalization so most legacy code pages
@@ -80,21 +81,24 @@ internal static class WebFetch
         // is a far better outcome than the whole widget reporting a failure.
         return status == FetchStatus.Ok && body is not null
             ? new WebResponse(FetchStatus.Ok, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: false).GetString(body), null)
-            : new WebResponse(status, string.Empty, detail);
+            : new WebResponse(status, string.Empty, detail, retryAt);
     }
 
     /// <summary>
     /// Fetch a small binary resource (an icon), capped at <paramref name="maxBytes"/>. Same
     /// statuses and the same guard as <see cref="GetAsync"/>.
     /// </summary>
-    public static Task<(FetchStatus Status, byte[]? Body, string? Detail)> GetBytesAsync(
+    public static async Task<(FetchStatus Status, byte[]? Body, string? Detail)> GetBytesAsync(
         Uri uri,
         string accept,
         int maxBytes,
         CancellationToken token)
-        => FetchAsync(uri, accept, NetReach.Internet, grant: null, maxBytes, token);
+    {
+        var (status, body, detail, _) = await FetchAsync(uri, accept, NetReach.Internet, grant: null, maxBytes, token).ConfigureAwait(false);
+        return (status, body, detail);
+    }
 
-    private static async Task<(FetchStatus Status, byte[]? Body, string? Detail)> FetchAsync(
+    private static async Task<(FetchStatus Status, byte[]? Body, string? Detail, DateTimeOffset? RetryAt)> FetchAsync(
         Uri uri,
         string accept,
         NetReach reach,
@@ -114,11 +118,11 @@ internal static class WebFetch
         {
             var answer = await HttpCore.SendAsync(Policy, request, CredentialKind.None, null, grant, token, reach, maxBytes).ConfigureAwait(false);
 
-            if (answer.Status == 429)
+            // [S-2694] A throttle is its own status, because it is the one failure whose correct response is to stop
+            // asking for a while rather than to try again on the next tick, and its time is kept for the schedule.
+            if (RateLimitRules.PlainThrottle(answer.Status, answer.Headers, DateTimeOffset.UtcNow) is { } until)
             {
-                // Its own status, because it is the one failure whose correct response is to stop
-                // asking for a long time rather than to try again on the next tick.
-                return (FetchStatus.RateLimited, null, "HTTP 429 Too Many Requests");
+                return (FetchStatus.RateLimited, null, $"HTTP {answer.Status}", until);
             }
 
             if (!answer.IsSuccess)
@@ -126,10 +130,10 @@ internal static class WebFetch
                 // The status line, not the body: a 403 challenge page or a 404 HTML document would
                 // otherwise be handed to the parser and reported as "not a feed", which sends the
                 // reader looking in the wrong place.
-                return (FetchStatus.BadResponse, null, $"HTTP {answer.Status}");
+                return (FetchStatus.BadResponse, null, $"HTTP {answer.Status}", null);
             }
 
-            return (FetchStatus.Ok, answer.Body, null);
+            return (FetchStatus.Ok, answer.Body, null, null);
         }
         catch (AccountException ex)
         {
@@ -140,7 +144,7 @@ internal static class WebFetch
                 Log.Debug(Scope, $"refused: {ex.Message}");
             }
 
-            return (ex.ToFetchStatus(), null, ex.Message);
+            return (ex.ToFetchStatus(), null, ex.Message, ex.RetryAt);
         }
     }
 
@@ -152,7 +156,7 @@ internal static class WebFetch
     /// overload is trimmed away in the published build and fails at runtime rather than at build.
     /// </para>
     /// </summary>
-    public static async Task<(FetchStatus Status, T? Value, string? Detail)> GetJsonAsync<T>(
+    public static async Task<(FetchStatus Status, T? Value, string? Detail, DateTimeOffset? RetryAt)> GetJsonAsync<T>(
         Uri uri,
         JsonTypeInfo<T> contract,
         CancellationToken token)
@@ -162,7 +166,7 @@ internal static class WebFetch
 
         if (response.Status != FetchStatus.Ok)
         {
-            return (response.Status, null, response.Detail);
+            return (response.Status, null, response.Detail, response.RetryAt);
         }
 
         try
@@ -171,14 +175,14 @@ internal static class WebFetch
 
             // "null" is valid JSON and a perfectly good reply; it is not a payload.
             return value is null
-                ? (FetchStatus.BadResponse, null, "the reply held no object")
-                : (FetchStatus.Ok, value, null);
+                ? (FetchStatus.BadResponse, null, "the reply held no object", null)
+                : (FetchStatus.Ok, value, null, null);
         }
         catch (JsonException ex)
         {
             // The service answered with something that is not its own schema — an error document,
             // an HTML interstitial, a truncated body. Named separately from "did not answer".
-            return (FetchStatus.BadResponse, null, ex.Message);
+            return (FetchStatus.BadResponse, null, ex.Message, null);
         }
     }
 }

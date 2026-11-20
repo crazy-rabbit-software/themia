@@ -178,7 +178,11 @@ internal sealed partial class AccountService
         return new AccountException(
             error,
             Str.Shell_Accounts_RenewFailed.Format(("provider", account.Provider.Label()), ("reason", said ?? $"HTTP {reply.Status}")),
-            reply.Status);
+            reply.Status)
+        {
+            // [S-518] A throttled renewal waits what the token endpoint said, like any other request.
+            RetryAt = RateLimitRules.PlainThrottle(reply.Status, reply.Headers, Now),
+        };
     }
 
     // -----------------------------------------------------------------------------------------
@@ -228,10 +232,10 @@ internal sealed partial class AccountService
         var error = AccountException.FromStatus(reply.Status);
         var said = ErrorBody.Message(reply.Body);
 
-        // [S-9920] A throttle is a throttle with a known end, whatever status carried it, and nothing
+        // [S-518] [S-9920] A throttle is a throttle with a known end, whatever status carried it, and nothing
         // should ask again before that end. The host's own providers name no budget: Retry-After only.
-        var budget = RateLimitRules.Read(RateLimitScheme.RetryAfterOnly, reply.Headers, Now, reply.Status);
-        if (RateLimitRules.IsThrottle(RateLimitScheme.RetryAfterOnly, reply.Status, budget))
+        var throttled = RateLimitRules.PlainThrottle(reply.Status, reply.Headers, Now);
+        if (throttled is not null)
         {
             error = AccountError.RateLimited;
         }
@@ -249,7 +253,7 @@ internal sealed partial class AccountService
         throw new AccountException(error, message, reply.Status)
         {
             ProviderMessage = said,
-            RetryAt = error == AccountError.RateLimited ? RateLimitRules.WaitUntil(RateLimitScheme.RetryAfterOnly, reply.Status, budget, Now) : null,
+            RetryAt = throttled,
         };
     }
 

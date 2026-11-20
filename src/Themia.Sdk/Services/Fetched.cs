@@ -13,9 +13,12 @@ namespace Themia.App.Services.Web;
 public sealed record Fetched<T>(FetchStatus Status, T? Value, string? Detail, DateTimeOffset At)
     where T : class
 {
-    /// <summary>A failure with nothing to show for it.</summary>
-    public static Fetched<T> Failed(FetchStatus status, string? detail, DateTimeOffset at)
-        => new(status, null, detail, at);
+    /// <summary>A failure with nothing to show for it; <paramref name="retryAt"/> a throttle's own time ([S-2694]).</summary>
+    public static Fetched<T> Failed(FetchStatus status, string? detail, DateTimeOffset at, DateTimeOffset? retryAt = null)
+        => new(status, null, detail, at) { RetryAt = retryAt };
+
+    /// <summary>[S-2694] When the service said it may be asked again (a throttle's <c>Retry-After</c>), or null.</summary>
+    public DateTimeOffset? RetryAt { get; init; }
 
     /// <summary>
     /// The cached value, kept on screen, annotated with the failure that has just happened to it.
@@ -25,7 +28,7 @@ public sealed record Fetched<T>(FetchStatus Status, T? Value, string? Detail, Da
     /// the last attempt to improve on them failed.
     /// </para>
     /// </summary>
-    public Fetched<T> Stale(FetchStatus status, string? detail) => this with { Status = status, Detail = detail };
+    public Fetched<T> Stale(FetchStatus status, string? detail, DateTimeOffset? retryAt = null) => this with { Status = status, Detail = detail, RetryAt = retryAt };
 
     /// <summary>
     /// [S-729] Read back from the store at launch rather than fetched by this run. Drawn with its real

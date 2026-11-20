@@ -126,7 +126,7 @@ internal static class WeatherService
             + "&wind_speed_unit=kmh"
             + $"&temperature_unit={UnitParameter(unit)}");
 
-        var (status, reply, detail) = await WebFetch
+        var (status, reply, detail, retryAt) = await WebFetch
             .GetJsonAsync(uri, WebJsonContext.Default.OpenMeteoReply, token)
             .ConfigureAwait(false);
 
@@ -134,7 +134,7 @@ internal static class WeatherService
 
         if (status != FetchStatus.Ok || reply is null)
         {
-            return Fetched<CurrentWeather>.Failed(status, detail, now);
+            return Fetched<CurrentWeather>.Failed(status, detail, now, retryAt);
         }
 
         // open-meteo answers a bad request with 400 and a reason, but also carries one on some 200s.
@@ -194,7 +194,7 @@ internal static class WeatherService
             + "&timezone=auto"
             + $"&forecast_days={wanted.ToString(CultureInfo.InvariantCulture)}");
 
-        var (status, reply, detail) = await WebFetch
+        var (status, reply, detail, retryAt) = await WebFetch
             .GetJsonAsync(uri, WebJsonContext.Default.OpenMeteoReply, token)
             .ConfigureAwait(false);
 
@@ -202,7 +202,7 @@ internal static class WeatherService
 
         if (status != FetchStatus.Ok || reply is null)
         {
-            return Fetched<Forecast>.Failed(status, detail, now);
+            return Fetched<Forecast>.Failed(status, detail, now, retryAt);
         }
 
         if (!string.IsNullOrEmpty(reply.Reason))
@@ -374,7 +374,7 @@ internal static class WeatherService
             + $"&count={PlaceQuery.Requested.ToString(CultureInfo.InvariantCulture)}"
             + $"&language={PlaceQuery.LanguageCode(locale)}&format=json");
 
-        var (status, reply, detail) = await WebFetch
+        var (status, reply, detail, retryAt) = await WebFetch
             .GetJsonAsync(uri, WebJsonContext.Default.GeocodeReply, token)
             .ConfigureAwait(false);
 

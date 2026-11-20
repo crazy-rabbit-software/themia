@@ -21,36 +21,9 @@ public static class AccountFailures
     }
 }
 
-/// <summary>[S-518] Retrying a throttled request: how often, and how long to wait.</summary>
+/// <summary>[S-518] Reading a server's <c>Retry-After</c>: a throttle is never waited out inside a request ([S-2694]).</summary>
 public static class RetryRules
 {
-    /// <summary>At most this many retries after the first attempt.</summary>
-    public const int MaxRetries = 3;
-
-    /// <summary>
-    /// The longest any one wait may be, whatever the server asks. A garbage or hostile
-    /// <c>Retry-After</c> must not hang a widget's refresh for an hour.
-    /// </summary>
-    public static readonly TimeSpan MaxWait = TimeSpan.FromSeconds(30);
-
-    /// <summary>
-    /// Whether a response is worth asking again. Only 429 and 503 — the two statuses that mean "not
-    /// now" rather than "no" — and only for a request that can be repeated without doing anything
-    /// twice.
-    /// </summary>
-    public static bool ShouldRetry(int status, int retriesSoFar, bool idempotent)
-        => idempotent && retriesSoFar < MaxRetries && status is 429 or 503;
-
-    /// <summary>
-    /// How long to wait before retry number <paramref name="retriesSoFar"/> + 1: what the server said,
-    /// else 1 s, 2 s, 4 s; never more than <see cref="MaxWait"/>.
-    /// </summary>
-    public static TimeSpan Delay(int retriesSoFar, TimeSpan? retryAfter)
-    {
-        var wait = retryAfter ?? TimeSpan.FromSeconds(1 << Math.Clamp(retriesSoFar, 0, 5));
-        return wait < TimeSpan.Zero ? TimeSpan.Zero : wait > MaxWait ? MaxWait : wait;
-    }
-
     /// <summary>
     /// A <c>Retry-After</c> header: delta seconds (what Graph and Google send) or an HTTP date. Null
     /// when absent or unreadable, so the caller falls back to its own backoff.

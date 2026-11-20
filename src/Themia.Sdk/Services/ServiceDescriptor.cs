@@ -143,7 +143,7 @@ public sealed record RateLimitScheme(
     /// A service that names no budget and says "slow down" with a 429, or with a 403 carrying
     /// <c>Retry-After</c>: what the host's own account providers send.
     /// </summary>
-    public static RateLimitScheme RetryAfterOnly { get; } = new([], ResetUnit.EpochSeconds, null, new HashSet<int> { 403, 429 }, new HashSet<int>());
+    public static RateLimitScheme RetryAfterOnly { get; } = new([], ResetUnit.EpochSeconds, null, new HashSet<int> { 403, 429, 503 }, new HashSet<int>());
 }
 
 /// <summary>Where a service puts its error codes.</summary>

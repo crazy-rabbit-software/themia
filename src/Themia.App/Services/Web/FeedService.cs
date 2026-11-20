@@ -76,7 +76,7 @@ internal static class FeedService
 
         if (response.Status != FetchStatus.Ok)
         {
-            return Fetched<FeedDocument>.Failed(response.Status, response.Detail, now);
+            return Fetched<FeedDocument>.Failed(response.Status, response.Detail, now, response.RetryAt);
         }
 
         var parsed = FeedParser.Parse(response.Body, maxItems);

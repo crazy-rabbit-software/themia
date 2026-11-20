@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using Themia.App.Services.Net;
 using Themia.Core.Accounts;
-using Themia.Core.Diagnostics;
 using Themia.Core.Net;
 
 namespace Themia.App.Services.Accounts;
@@ -75,13 +74,6 @@ internal sealed class RequestTemplate
         return template;
     }
 
-    /// <summary>
-    /// Whether sending it twice does nothing twice. Only these are retried on a throttle; a POST that
-    /// created a task must not create two.
-    /// </summary>
-    public bool IsIdempotent => Method == HttpMethod.Get || Method == HttpMethod.Head || Method == HttpMethod.Delete
-        || Method == HttpMethod.Put || Method.Method is "PROPFIND" or "REPORT";
-
     internal HttpRequestMessage Build(Uri url)
     {
         var request = new HttpRequestMessage(Method, url);
@@ -118,15 +110,13 @@ internal sealed class RequestTemplate
 /// or the local network exactly when the user typed that server's address ([S-3843]). A DAV server's digest challenge
 /// is not answered; basic auth is what the classic app sent.
 /// <para>
-/// A 429 or 503 on a repeatable request is asked again, waiting exactly as long as the server's
-/// <c>Retry-After</c> says (capped), at most three times — server-directed, not a guess. Every
-/// failure leaves here as a typed <see cref="AccountException"/>; nothing returns a half answer.
+/// A throttle is never waited out here ([S-2694]): it comes back at once, and the account service turns it into a
+/// <see cref="AccountError.RateLimited"/> carrying its <c>RetryAt</c> for the item's schedule. Every failure leaves
+/// here as a typed <see cref="AccountException"/>; nothing returns a half answer.
 /// </para>
 /// </summary>
 internal static class AccountHttp
 {
-    private const string Scope = "accounts.http";
-
     /// <summary>[S-960]/[S-965] Every connection guarded; the deadline is per hop, so the clients never time out on their own.</summary>
     private static readonly HttpPolicy Policy = new(
         GuardedHttp.CreatePair(TimeSpan.FromSeconds(10), Timeout.InfiniteTimeSpan),
@@ -135,43 +125,22 @@ internal static class AccountHttp
         MaxBytes: 16 * 1024 * 1024);
 
     /// <summary>
-    /// Send a request, following redirects and retrying throttles, and return whatever status it
-    /// ended on. Throws only for a transport failure (no network, timeout, refused redirect).
+    /// Send a request, following redirects, and return whatever status it ended on. Throws only for a transport
+    /// failure (no network, timeout, refused redirect). A throttle comes back at once ([S-2694]).
     /// </summary>
     /// <param name="template">The request.</param>
     /// <param name="credentials">What kind of proof <paramref name="authorize"/> adds, for the redirect rule.</param>
     /// <param name="authorize">Adds the proof to a request; called again for every send.</param>
     /// <param name="grant">[S-3843] The leave the account's typed server earned, or null.</param>
-    /// <param name="retryThrottles">
-    /// False for a kit service's request ([S-9920]): its bucket's block is the one retry rule, so a
-    /// throttle comes back at once with its headers instead of being waited out here.
-    /// </param>
     public static async Task<AccountReply> SendAsync(
         RequestTemplate template,
         CredentialKind credentials,
         Action<HttpRequestMessage>? authorize,
         CancellationToken cancellation,
-        LocalGrant? grant = null,
-        bool retryThrottles = true)
+        LocalGrant? grant = null)
     {
         ArgumentNullException.ThrowIfNull(template);
-
-        var retries = 0;
-
-        while (true)
-        {
-            var answer = await HttpCore.SendAsync(Policy, template, credentials, authorize, grant, cancellation).ConfigureAwait(false);
-
-            if (!retryThrottles || !RetryRules.ShouldRetry(answer.Status, retries, template.IsIdempotent))
-            {
-                return Reply(answer);
-            }
-
-            var wait = RetryRules.Delay(retries, answer.RetryAfter);
-            retries++;
-            Log.Info(Scope, $"{template.Url.Host} answered {answer.Status}; asking again in {wait.TotalSeconds:F0}s ({retries}/{RetryRules.MaxRetries})");
-            await Task.Delay(wait, cancellation).ConfigureAwait(false);
-        }
+        return Reply(await HttpCore.SendAsync(Policy, template, credentials, authorize, grant, cancellation).ConfigureAwait(false));
     }
 
     private static AccountReply Reply(HttpAnswer answer)

@@ -26,7 +26,7 @@ internal sealed partial class AccountService
         if (accountId is null)
         {
             var anonymous = Template(descriptor, request, null, ifNoneMatch);
-            var plain = await AccountHttp.SendAsync(anonymous, CredentialKind.None, null, cancellation, retryThrottles: false).ConfigureAwait(false);
+            var plain = await AccountHttp.SendAsync(anonymous, CredentialKind.None, null, cancellation).ConfigureAwait(false);
             return Reply(plain);
         }
 
@@ -40,13 +40,13 @@ internal sealed partial class AccountService
         var scheme = AccountRules.MemberOf(account)?.Scheme ?? TokenScheme.Bearer;
         var (token, sealedToken) = await TokenAsync(account, cancellation).ConfigureAwait(false);
 
-        var reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, token), cancellation, retryThrottles: false).ConfigureAwait(false);
+        var reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, token), cancellation).ConfigureAwait(false);
 
         if (reply.Status == 401 && AccountRules.AuthOf(account) == AccountAuth.OAuthRefresh && account.SealedRefreshToken is not null)
         {
             // Rejected before its stored expiry (revoked, rotated elsewhere): renew once and retry once.
             var (renewed, _) = await RefreshAsync(account.Id, sealedToken, cancellation).ConfigureAwait(false);
-            reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, renewed), cancellation, retryThrottles: false).ConfigureAwait(false);
+            reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, renewed), cancellation).ConfigureAwait(false);
         }
 
         if (reply.Status == 401)
@@ -61,7 +61,7 @@ internal sealed partial class AccountService
     private static async Task<ServiceReply> SendWithTokenAsync(ServiceDescriptor descriptor, ServiceRequest request, string token, TokenScheme scheme, CancellationToken cancellation)
     {
         var template = Template(descriptor, request, null, null);
-        var reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, token), cancellation, retryThrottles: false).ConfigureAwait(false);
+        var reply = await AccountHttp.SendAsync(template, CredentialKind.Bearer, r => SetToken(r, scheme, token), cancellation).ConfigureAwait(false);
         return Reply(reply);
     }
 

@@ -11,31 +11,32 @@ public class AccountHttpRulesTests
     private static readonly DateTimeOffset Now = new(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
 
     [Theory]
-    [InlineData(429, 0, true, true)]
-    [InlineData(503, 2, true, true)]
-    [InlineData(503, 3, true, false)]
-    [InlineData(429, 0, false, false)]
-    [InlineData(500, 0, true, false)]
-    [InlineData(401, 0, true, false)]
-    [InlineData(200, 0, true, false)]
-    public void S518_only_throttles_of_repeatable_requests_are_retried(int status, int retries, bool idempotent, bool expected)
-        => Assert.Equal(expected, RetryRules.ShouldRetry(status, retries, idempotent));
-
-    [Fact]
-    public void S518_retry_after_is_honoured_but_capped()
+    [InlineData(429, null, 60)]
+    [InlineData(429, "120", 120)]
+    [InlineData(503, "30", 30)]
+    [InlineData(403, "45", 45)]
+    public void S518_a_throttle_comes_back_at_once_with_its_time(int status, string? retryAfter, int seconds)
     {
-        Assert.Equal(TimeSpan.FromSeconds(5), RetryRules.Delay(0, TimeSpan.FromSeconds(5)));
-        Assert.Equal(RetryRules.MaxWait, RetryRules.Delay(0, TimeSpan.FromHours(2)));
-        Assert.Equal(TimeSpan.Zero, RetryRules.Delay(0, TimeSpan.FromSeconds(-3)));
+        var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (retryAfter is not null)
+        {
+            headers["Retry-After"] = retryAfter;
+        }
+
+        Assert.Equal(Now.AddSeconds(seconds), RateLimitRules.PlainThrottle(status, headers, Now));
     }
 
+    [Theory]
+    [InlineData(503)]
+    [InlineData(500)]
+    [InlineData(403)]
+    [InlineData(200)]
+    public void S518_a_failure_that_names_no_wait_is_no_throttle(int status)
+        => Assert.Null(RateLimitRules.PlainThrottle(status, new Dictionary<string, string>(), Now));
+
     [Fact]
-    public void S518_without_retry_after_the_backoff_doubles()
-    {
-        Assert.Equal(TimeSpan.FromSeconds(1), RetryRules.Delay(0, null));
-        Assert.Equal(TimeSpan.FromSeconds(2), RetryRules.Delay(1, null));
-        Assert.Equal(TimeSpan.FromSeconds(4), RetryRules.Delay(2, null));
-    }
+    public void S518_a_throttles_wait_is_believed_two_hours_at_most()
+        => Assert.Equal(Now.AddHours(2), RateLimitRules.PlainThrottle(429, new Dictionary<string, string> { ["Retry-After"] = "86400" }, Now));
 
     [Theory]
     [InlineData("120", 120)]

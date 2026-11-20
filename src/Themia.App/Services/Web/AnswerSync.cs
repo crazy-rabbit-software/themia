@@ -73,7 +73,7 @@ internal sealed class AnswerSync<T> : IDisposable
 
         if (entry.Held() is { } held)
         {
-            return last is null ? held : held.Stale(last.Status, last.Detail);
+            return last is null ? held : held.Stale(last.Status, last.Detail, last.RetryAt);
         }
 
         return last;
@@ -221,7 +221,7 @@ internal sealed class AnswerSync<T> : IDisposable
             }
             else
             {
-                entry.Schedule.Failed(result.Status, result.Detail, now);
+                entry.Schedule.Failed(result.Status, result.Detail, now, result.RetryAt);
             }
 
             Note(entry, result.Status, result.Detail);
