@@ -48,6 +48,34 @@ public sealed class DesignNumbersTests
     }
 
     [Fact]
+    public void S825_a_design_number_held_to_its_range_is_said_one_line_each_and_one_inside_it_is_not()
+    {
+        foreach (var (number, get, set) in OnTheDesign())
+        {
+            var state = new AppState { Views = [ViewState.Create("Desk")] };
+            set(state.Design, number.Max + 1000);
+            Assert.Single(StateRepair.Repair(state), r => r.StartsWith("design '", StringComparison.Ordinal));
+
+            set(state.Design, number.Default);
+            Assert.Empty(StateRepair.Repair(state));
+        }
+    }
+
+    [Fact]
+    public void S44_a_design_value_of_a_closed_set_that_is_no_member_is_its_default_loudly()
+    {
+        var state = new AppState { Views = [ViewState.Create("Desk")] };
+        state.Design.BorderStyle = (WidgetBorderStyle)99;
+        state.Design.UnlockAnimation = (IntroAnimation)99;
+
+        var repairs = StateRepair.Repair(state);
+
+        Assert.Equal(WidgetBorderStyle.Solid, state.Design.BorderStyle);
+        Assert.Equal(IntroAnimation.Scale, state.Design.UnlockAnimation);
+        Assert.Equal(2, repairs.Count(r => r.StartsWith("design '", StringComparison.Ordinal) && r.Contains("99", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void S825_a_display_scale_is_held_to_the_tables_range()
     {
         var state = new AppState { Views = [ViewState.Create("Desk")] };
