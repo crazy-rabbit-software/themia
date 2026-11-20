@@ -169,9 +169,6 @@ public static class CalendarSizing
     /// <summary>[S-11546] The hour labels' column beside the week's grid: "07:00".</summary>
     public const double HourLabels = 44;
 
-    /// <summary>[S-11546] The widest a week's column with titles grows.</summary>
-    public const double WeekWidestColumn = 200;
-
     /// <summary>[S-11545] The most a day's marks take: three marks 4 apart, then a Caption line for its "+n".</summary>
     public static double MarksRoom => CalendarFit.MarksHeight([CalendarFit.WeekMarks + 1]);
 
@@ -189,19 +186,28 @@ public static class CalendarSizing
     public static SizeSteps WeekHourSteps(int hours)
         => new(ContentTop + WeekHead + CalendarFit.ChipLine + FamilySpace.Inset, Hour, MinHours, MaxHours, ClampHours(hours));
 
-    /// <summary>[S-11545] [S-11546] The week: the day strip 240..520 wide, or the titles' columns of at least 96 beside the hours.</summary>
+    /// <summary>[S-14410] A day's column in the day strip: its weekday's letters over its number and its marks.</summary>
+    public const double StripColumn = 40;
+
+    /// <summary>[S-14410] The day strip's width: the inset either side and a 40 column a day.</summary>
+    public static SizeSteps StripSteps(int days)
+        => new(2 * FamilySpace.Inset, StripColumn, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays, Math.Clamp(days, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays));
+
+    /// <summary>[S-14410] The week with titles' width: the inset either side, the hour labels and a 96 column a day.</summary>
+    public static SizeSteps TitleSteps(int days)
+        => new((2 * FamilySpace.Inset) + HourLabels, WeekTitleColumn, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays, Math.Clamp(days, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays));
+
+    /// <summary>
+    /// [S-11545] [S-11546] [S-14410] The week: the day strip a 40 column a day, or the titles' 96 columns beside the
+    /// hours; the width stepped by a day and following the days, which are the card's (a resize sets them).
+    /// </summary>
     public static WidgetSizing WeekSizing(CalendarWidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        if (!config.WeekTitles)
-        {
-            return WidgetSizing.Range(new(240, 1), new(300, 1), new(520, 1)).WithHeightSteps(WeekRowSteps(config.WeekRows));
-        }
-
         var days = config.EffectiveWeekDays;
-        var least = (2 * FamilySpace.Inset) + HourLabels + (days * WeekTitleColumn);
-        var most = (2 * FamilySpace.Inset) + HourLabels + (days * WeekWidestColumn);
-        return WidgetSizing.Range(new(least, 1), new(least, 1), new(most, 1)).WithHeightSteps(WeekHourSteps(config.WeekHours));
+        return config.WeekTitles
+            ? WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1)).WithWidthSteps(TitleSteps(days)).WithHeightSteps(WeekHourSteps(config.WeekHours))
+            : WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1)).WithWidthSteps(StripSteps(days)).WithHeightSteps(WeekRowSteps(config.WeekRows));
     }
 
     // ---- the kind ---------------------------------------------------------------------------------
@@ -233,11 +239,25 @@ public static class CalendarSizing
         {
             CalendarStyle.Agenda => KitSizing.SizeSets(calendar, size, AgendaShown(calendar), addFooter: false),
             CalendarStyle.Day => Counted(calendar, DaySteps(calendar.DayHours).Nearest(size.Height), calendar.DayHours, (c, n) => c.DayHours = n),
-            CalendarStyle.Week when calendar.WeekTitles => Counted(calendar, WeekHourSteps(calendar.WeekHours).Nearest(size.Height), calendar.WeekHours, (c, n) => c.WeekHours = n),
-            CalendarStyle.Week => Counted(calendar, WeekRowSteps(calendar.WeekRows).Nearest(size.Height), calendar.WeekRows, (c, n) => c.WeekRows = n),
+            CalendarStyle.Week when calendar.WeekTitles => Week(calendar, TitleSteps(calendar.WeekDays).Nearest(size.Width), WeekHourSteps(calendar.WeekHours).Nearest(size.Height), calendar.WeekHours, (c, n) => c.WeekHours = n),
+            CalendarStyle.Week => Week(calendar, StripSteps(calendar.WeekDays).Nearest(size.Width), WeekRowSteps(calendar.WeekRows).Nearest(size.Height), calendar.WeekRows, (c, n) => c.WeekRows = n),
             CalendarStyle.Month when calendar.MonthEvents == MonthEvents.Chips => Counted(calendar, MonthLineSteps(calendar.MonthLines).Nearest(size.Height), calendar.MonthLines, (c, n) => c.MonthLines = n),
             _ => config,
         };
+    }
+
+    /// <summary>[S-14410] A week's copy with the days its width holds and the rows or hours its height holds, else the same config.</summary>
+    private static WidgetConfig Week(CalendarWidgetConfig config, int days, int wanted, int current, Action<CalendarWidgetConfig, int> set)
+    {
+        if (days == config.EffectiveWeekDays && wanted == current)
+        {
+            return config;
+        }
+
+        var copy = (CalendarWidgetConfig)config.Clone();
+        copy.WeekDays = days;
+        set(copy, wanted);
+        return copy;
     }
 
     /// <summary>A copy with <paramref name="wanted"/> set where it differs from <paramref name="current"/>, else the same config.</summary>

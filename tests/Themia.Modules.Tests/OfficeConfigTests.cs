@@ -153,9 +153,9 @@ public sealed class OfficeConfigTests
     public static TheoryData<CalendarStyle, CalendarSetting[]> StyleSettings() => new()
     {
         { CalendarStyle.Month, [CalendarSetting.MonthEvents] },
-        { CalendarStyle.Day, [CalendarSetting.DayHours] },
+        { CalendarStyle.Day, [] },
         { CalendarStyle.Year, [CalendarSetting.YearNumbers] },
-        { CalendarStyle.Week, [CalendarSetting.WeekFrom, CalendarSetting.WeekDays, CalendarSetting.WeekTitles, CalendarSetting.WeekRows] },
+        { CalendarStyle.Week, [CalendarSetting.WeekFrom, CalendarSetting.WeekTitles, CalendarSetting.WeekRows] },
         { CalendarStyle.Agenda, [CalendarSetting.AgendaRange, CalendarSetting.AgendaCount, CalendarSetting.AgendaRows] },
     };
 

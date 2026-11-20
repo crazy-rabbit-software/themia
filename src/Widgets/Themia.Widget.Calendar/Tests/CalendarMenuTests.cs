@@ -67,13 +67,16 @@ public sealed class CalendarMenuTests
     }
 
     [Fact]
-    public void S11543_a_day_offers_its_hours_under_style()
-        => Assert.Equal([CalendarStr.Calendar_Hours.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Day }).StyleLines.Select(l => l.Text));
+    public void S11543_S14410_a_day_offers_nothing_under_style_its_hours_are_the_cards()
+        => Assert.Empty(Build(new CalendarWidgetConfig { Style = CalendarStyle.Day }).StyleLines);
 
     [Fact]
     public void S11544_a_month_offers_chips_or_dots_and_a_year_its_day_numbers_never_a_size()
     {
         Assert.Equal([CalendarStr.Calendar_MonthEvents.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Month }).StyleLines.Select(l => l.Text));
+
+        // [S-14410] With titles, how many events a day lists is the card's height: no line.
+        Assert.Equal([CalendarStr.Calendar_MonthEvents.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Month, MonthEvents = MonthEvents.Chips }).StyleLines.Select(l => l.Text));
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Year };
         var line = Assert.Single(Build(config).StyleLines);
         Assert.Equal(CalendarStr.Calendar_YearNumbers.Text(), line.Text);
@@ -82,13 +85,13 @@ public sealed class CalendarMenuTests
     }
 
     [Fact]
-    public void S11545_the_week_offers_its_first_column_its_days_its_titles_and_rows_or_hours_and_the_agenda_its_range_length_and_rows()
+    public void S11545_S14410_the_week_offers_its_first_column_its_titles_and_rows_never_its_days_or_hours_and_the_agenda_its_range_length_and_rows()
     {
         Assert.Equal(
-            [CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(), CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(), CalendarStr.Calendar_WeekTitles.Text(), Str.Kit_Rows.Text()],
+            [CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(), CalendarStr.Calendar_WeekTitles.Text(), Str.Kit_Rows.Text()],
             Build(new CalendarWidgetConfig { Style = CalendarStyle.Week }).StyleLines.Select(l => l.Text));
         Assert.Equal(
-            [CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(), CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(), CalendarStr.Calendar_WeekTitles.Text(), CalendarStr.Calendar_Hours.Text()],
+            [CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(), CalendarStr.Calendar_WeekTitles.Text()],
             Build(new CalendarWidgetConfig { Style = CalendarStyle.Week, WeekTitles = true }).StyleLines.Select(l => l.Text));
         Assert.Equal(
             [Range, CalendarStr.Calendar_AgendaEvents_Label.Text(), Str.Kit_Rows.Text(), Str.Kit_Lines.Text()],
@@ -114,19 +117,6 @@ public sealed class CalendarMenuTests
         Assert.DoesNotContain(Build(new CalendarWidgetConfig { AccountIds = ["dav"] }).Lines, l => l.Text == birthdays);
         Assert.DoesNotContain(Build(new CalendarWidgetConfig(), new Office([])).Lines, l => l.Text == birthdays);
         Assert.DoesNotContain(Build(new CalendarWidgetConfig { AccountIds = ["dav"] }).Lines, l => l.IsSeparator);
-    }
-
-    [Fact]
-    public void S7513_the_week_is_one_to_fourteen_days_in_a_number_box()
-    {
-        // [S-2370] Its number box, never fourteen dots.
-        var config = new CalendarWidgetConfig { Style = CalendarStyle.Week };
-        var days = Line(Build(config).StyleLines, CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text()).Slider!;
-
-        Assert.Equal((1d, (double)CalendarPeriod.WeekMaxDays), (days.Min, days.Max));
-        days.Commit(5);
-        Assert.Equal(5, config.WeekDays);
-        Assert.Equal(1, _saves);
     }
 
     [Fact]

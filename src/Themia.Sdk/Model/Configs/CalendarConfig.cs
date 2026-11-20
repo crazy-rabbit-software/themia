@@ -38,7 +38,7 @@ public enum CalendarSetting
     WeekFrom,
 
     /// <summary>[S-3637] Week: how many day columns.</summary>
-    WeekDays,
+    REMOVED_WEEKDAYS,
 
     /// <summary>[S-3636] Agenda: how many days ahead.</summary>
     AgendaRange,

@@ -131,22 +131,29 @@ public sealed class CalendarSizingTests
     }
 
     [Fact]
-    public void S11545_the_day_strip_is_its_strip_over_the_chosen_days_rows()
+    public void S11545_S14410_the_day_strip_is_a_40_column_a_day_over_the_chosen_days_rows()
     {
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Week };
         Assert.Equal(CalendarSizing.ContentTop + CalendarSizing.Strip + FamilySpace.S2 + (3 * FamilyShape.Row1) + FamilySpace.Inset, Of(config).Natural.Height);
-        Assert.Equal((240d, Themia.Sdk.SizeStretch.Ceiling), (Of(config).Min.Width, Of(config).Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.Equal(5, Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(300, CalendarSizing.ContentTop + CalendarSizing.Strip + FamilySpace.S2 + (5 * FamilyShape.Row1) + FamilySpace.Inset))).WeekRows);
+
+        // [S-14410] The days are the card's width: a 40 column a day, 1..14, a new one's seven.
+        Assert.Equal((2 * FamilySpace.Inset) + (7 * CalendarSizing.StripColumn), Of(config).Natural.Width);
+        Assert.Equal(((2 * FamilySpace.Inset) + CalendarSizing.StripColumn, (2 * FamilySpace.Inset) + (14 * CalendarSizing.StripColumn)), (Of(config).Min.Width, Of(config).Max.Width));
+        var set = Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip((2 * FamilySpace.Inset) + (5 * CalendarSizing.StripColumn), CalendarSizing.ContentTop + CalendarSizing.Strip + FamilySpace.S2 + (5 * FamilyShape.Row1) + FamilySpace.Inset)));
+        Assert.Equal((5, 5), (set.WeekRows, set.WeekDays));
+        Assert.Equal(7, config.WeekDays);
     }
 
     [Fact]
-    public void S11546_titles_in_the_week_need_96_a_column_and_the_height_follows_the_hours()
+    public void S11546_S14410_titles_in_the_week_are_96_a_column_and_the_days_and_hours_follow_the_card()
     {
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Week, WeekTitles = true, WeekDays = 5, WeekHours = 10 };
         var sizing = Of(config);
-        Assert.Equal((2 * FamilySpace.Inset) + CalendarSizing.HourLabels + (5 * 96), sizing.Min.Width);
+        Assert.Equal((2 * FamilySpace.Inset) + CalendarSizing.HourLabels + (5 * 96), sizing.Natural.Width);
+        Assert.Equal(5, sizing.WidthSteps!.Count);
         Assert.Equal(CalendarSizing.ContentTop + CalendarSizing.WeekHead + CalendarFit.ChipLine + (10 * CalendarSizing.Hour) + FamilySpace.Inset, sizing.Natural.Height);
-        Assert.Equal(6, Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(600, CalendarSizing.ContentTop + CalendarSizing.WeekHead + CalendarFit.ChipLine + (6 * CalendarSizing.Hour) + FamilySpace.Inset))).WeekHours);
+        var set = Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip((2 * FamilySpace.Inset) + CalendarSizing.HourLabels + (3 * 96), CalendarSizing.ContentTop + CalendarSizing.WeekHead + CalendarFit.ChipLine + (6 * CalendarSizing.Hour) + FamilySpace.Inset)));
+        Assert.Equal((6, 3), (set.WeekHours, set.WeekDays));
     }
 
     [Fact]

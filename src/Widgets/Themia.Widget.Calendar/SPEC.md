@@ -20,7 +20,10 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
 
 **Sizes** (owner decision 2026-11-12, [S-2438]): each style's size follows its own settings and never
 the box; no `Disclosure`, no tier, no width decides what a style shows (the weekday names and a
-chip's times still shorten with the column, as text does).
+chip's times still shorten with the column, as text does). How many of the same item a style shows (a day's or a
+week's hours, a week's days, the events a month day lists) is the card's (owner, 2026-11-20: "Anything that's just
+'how many of the same item' (days, hours, weeks, processes) follows the card's size", [S-14410]): its axis steps by
+one and a resize stores the count, no menu line sets it; a list's Rows stay a setting.
 
 - **[S-11540]** **Agenda**: `Rows` (1..20, a new one 6) and `Lines` (1, a new one, or 2: the span,
   where and who on the second) on the kit's rows contract ([S-2440], `IKitRows`; the schedule look's
@@ -33,7 +36,7 @@ chip's times still shorten with the column, as text does).
   2026-11-20: "the size should not be settable, it is set by the size of the widget"; the old Size line, [S-2449], is
   gone): a larger card draws the twelve months larger as one block (`CalendarSizing.YearScale`, a `ScaleBox`, never
   under 1), at the content's top-left in the inset. Tests `CalendarSizingTests.S11542_`.
-- **[S-11543]** **Day**: **Hours shown** (4..16, a new one 8; Style line), an hour a 28 row, over one
+- **[S-11543]** **Day**: its **hours** (4..16, a new one 8; the card's height, no line), an hour a 28 row, over one
   band line for the all-day items (its item's bar, or chips shared among several, "+N"; a day without
   gives that line to its hours): 36 + the band's line and 4 + the hours + 12, 240..480 wide (a new one
   300), dragging the bottom edge sets the hours. The hours are the wanted day (07-22 widened to its
@@ -45,8 +48,8 @@ chip's times still shorten with the column, as text does).
   content edge to edge, the first week under the weekday line and the last week's marks on the foot's inset ([S-12400], [S-12807], `ItemStretch.Reach`): a box taller than their cells spaces the weeks evenly.
   The day readout a narrow month fell back to is gone.
 - **[S-11547]** **Month with titles** (owner request 2026-11-15: "a size where he actually shows the
-  events", Outlook's and Windows' month view): each day cell its number over **Events a day** (1..6, a
-  new one 3; a Style line under Events as) chip lines, 20 each (`MonthPlan`, `CalendarFit.Bars`): a span
+  events", Outlook's and Windows' month view): each day cell its number over its **events a day** (1..6, a
+  new one 3; the card's height, no line) chip lines, 20 each (`MonthPlan`, `CalendarFit.Bars`): a span
   (all-day, several days, an overnight train, a birthday) one bar on the chip fill across its days,
   its calendar's colour as the 2 px bar at its start, squared off where it runs on into the next week's
   row; a meeting a line on no fill, its calendar's dot, its start (from a 100 column) and its title,
@@ -61,12 +64,13 @@ chip's times still shorten with the column, as text does).
 - **[S-11545]** **Week, the day strip** (a new one's): each column's head (its weekday, its number) over
   the room its marks take at most ([S-2282]: three, then "+n"), then 8, then the chosen day's **Rows**
   (1..12, a new one 3; Style line) as the agenda's one-line rows ([S-2285]): one height for the
-  config, 240..520 wide (a new one 300), dragging the bottom edge sets the rows.
+  config, a 40 column a day wide (`CalendarSizing.StripSteps`; a new one's seven days 304), dragging the bottom edge
+  sets the rows and a side edge the days ([S-14410]).
 - **[S-11546]** **Titles in the week** (a Style switch, off by default): the columns hold their events'
-  titles, each at least 96 wide ([S-2281]), so the card is at least the days × 96 + the hours' labels
-  (44) + the inset wide (at most 200 a column); one band line of all-day bars over an hour grid of
-  **Hours shown** (4..16, a new one 8), the height following the hours, dragging the bottom edge sets
-  them. The per-column chip lists the week drew between the two looks are gone.
+  titles, each 96 wide ([S-2281]), so the card is the days × 96 + the hours' labels (44) + the inset wide, stepped
+  by a day (`CalendarSizing.TitleSteps`); one band line of all-day bars over an hour grid of its **hours** (4..16, a
+  new one 8), the height following the hours; dragging the bottom edge sets the hours and a side edge the days
+  ([S-14410]: no line sets either). The per-column chip lists the week drew between the two looks are gone.
 
 - **[S-3650]** The agenda is the kit's paged list ([S-7035], [S-7036]): `AgendaSpec` gives its spec
   (the schedule look on the family's rows, two columns at most) and an agenda row as a kit item: its
@@ -95,12 +99,13 @@ chip's times still shorten with the column, as text does).
   show your calendar" ([S-1862]).
 - **[S-7513]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone). Under Style only what the style uses ([S-3601]): the week's **Starts on**
-  (the first day of the week, named, or Today) and **Days shown** (1 to 14, dots); the agenda's
+  (the first day of the week, named, or Today); the agenda's
   **Date range** (Today, Today and tomorrow, 3, 7 or 30 days, and Custom…, which asks for 1 to 365
   days and holds the dot while the range is none of the others; the line shows the range) and
-  **Agenda events** (1 to 100, asked for as text, [S-3726]), Rows and Lines ([S-11540]); the day's Hours
-  shown ([S-11543]); the month's Events as ([S-11544]) and, with Titles, Events a day ([S-11547]); the year's Day numbers ([S-11542]); the week's Titles in
-  the week, then its Hours shown, or its Rows ([S-11545], [S-11546]). Then Appearance, the calendar widgets'
+  **Agenda events** (1 to 100, asked for as text, [S-3726]), Rows and Lines ([S-11540]); the month's Events as
+  ([S-11544]); the year's Day numbers ([S-11542]); the week's Titles in the week, then (without them) its Rows
+  ([S-11545], [S-11546]). A day's and a week's hours, a week's days and a month day's events are the card's
+  ([S-14410]): no line. Then Appearance, the calendar widgets'
   **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and, after a divider,
   **Show contact birthdays**, offered only while a chosen account has contacts to read them from
   (`OfficeMenuLines.OffersBirthdays`, [S-575], [S-6070]: a CalDAV calendar has no address book, and

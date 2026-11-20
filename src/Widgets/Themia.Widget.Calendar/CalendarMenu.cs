@@ -54,20 +54,12 @@ internal static class CalendarMenu
         // [S-11542] The year's days: squares, or the day numbers (how large is the card's).
         CalendarSetting.YearNumbers => [menu.Toggle(null, CalendarStr.Calendar_YearNumbers.Text(), config.YearNumbers, on => config.YearNumbers = on)],
 
-        // [S-11543] The day's hours (the height follows).
-        CalendarSetting.DayHours => [KitMenuLines.Count(menu, Glyphs.Hours, CalendarStr.Calendar_Hours.Text(), CalendarSizing.ClampHours(config.DayHours), CalendarSizing.MinHours, CalendarSizing.MaxHours, 1, v => config.DayHours = v)],
+        // [S-11544] A month day's events: their titles as chips, or dots. [S-14410] How many a day lists, a day's or a
+        // week's hours and a week's days are the card's: a resize sets them, no line does.
+        CalendarSetting.MonthEvents => [MonthEventsLine(menu, config)],
 
-        // [S-11544] A month day's events: their titles as chips, or dots; [S-11547] with titles, how many a day lists (the height follows).
-        CalendarSetting.MonthEvents => config.MonthEvents == MonthEvents.Chips
-            ? [MonthEventsLine(menu, config),
-                KitMenuLines.Count(menu, Glyphs.Count, CalendarStr.Calendar_MonthLines.Text(), MonthPlan.Lines(config.MonthLines), MonthPlan.MinLines, MonthPlan.MaxLines, 1, v => config.MonthLines = v)]
-            : [MonthEventsLine(menu, config)],
-
-        // [S-11546] Titles in the week's columns (each at least 96), and then the hours of its grid.
-        CalendarSetting.WeekTitles => config.WeekTitles
-            ? [menu.Toggle(null, CalendarStr.Calendar_WeekTitles.Text(), true, on => config.WeekTitles = on),
-                KitMenuLines.Count(menu, Glyphs.Hours, CalendarStr.Calendar_Hours.Text(), CalendarSizing.ClampHours(config.WeekHours), CalendarSizing.MinHours, CalendarSizing.MaxHours, 1, v => config.WeekHours = v)]
-            : [menu.Toggle(null, CalendarStr.Calendar_WeekTitles.Text(), false, on => config.WeekTitles = on)],
+        // [S-11546] Titles in the week's columns (each 96).
+        CalendarSetting.WeekTitles => [menu.Toggle(null, CalendarStr.Calendar_WeekTitles.Text(), config.WeekTitles, on => config.WeekTitles = on)],
 
         // [S-11545] The chosen day's rows under the day strip (the height follows).
         CalendarSetting.WeekRows => [KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), CalendarSizing.ClampWeekRows(config.WeekRows), 1, CalendarSizing.MaxWeekRows, 1, v => config.WeekRows = v)],
@@ -91,10 +83,6 @@ internal static class CalendarMenu
                 (WeekFirstDay.Today, Str.Common_Today.Text()),
             ],
             config.WeekFrom, value => config.WeekFrom = value),
-
-        // [S-3637] How many columns there are.
-        CalendarSetting.WeekDays => menu.Number(Glyphs.Count, CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(),
-            config.EffectiveWeekDays, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays, 1, v => LocaleFormat.Integer(v), value => config.WeekDays = value),
 
         CalendarSetting.AgendaRange => AgendaRange(menu, config),
 

@@ -5840,8 +5840,9 @@ for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `Offic
   it. A value out of range is brought inside it at load and logged.
 - **[S-3637]** The week's own days (`CalendarWidgetConfig`): `weekDays` (1–14, 7) and `weekFrom`
   (`week`, the regional first day of the week, or `today`); a working week is 5 from the week
-  start, the next days any count from today ([S-2719]). Settings: "Starts on" (First day of the week
-  (Monday) or Today) and "Days shown". It overrides the regional week start for this widget only and
+  start, the next days any count from today ([S-2719]). Setting: "Starts on" (First day of the week
+  (Monday) or Today); how many days is the card's width (a resize sets `weekDays`, [S-14410]: no "Days shown"
+  line since 2026-11-20). It overrides the regional week start for this widget only and
   stores no `weekStart`; out-of-range or unknown values fall back at load (days clamped, an unknown
   first day the week start).
 - **[S-3640]** One kind, **Calendar** (`Calendar`, 71, `CalendarWidgetConfig`, discriminator
@@ -5859,7 +5860,7 @@ for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `Offic
 - **[S-3641]** The config holds what every style shares and the union of the styles' own fields
   (`weekDays`, `weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
   (`Period`: a month, day or year is the week start alone). The menu shows only the
-  current style's rows (`CalendarWidgetConfig.ShownSettings`, [S-6070]): Week: "Starts on" and "Days shown";
+  current style's rows (`CalendarWidgetConfig.ShownSettings`, [S-6070]): Week: "Starts on" (its days are the card's, [S-14410]);
   Agenda: its date range and "Agenda events"; Month, Day, Year: none; then birthdays for every style.
   Picking another style rebuilds the page ([S-6071]).
 
