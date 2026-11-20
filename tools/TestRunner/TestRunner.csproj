@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    [S-14343] The repository's test runner: xUnit's own engine (xunit.runner.utility's AssemblyRunner) in this process,
+    so no test host and no loopback socket (dotnet test's vstest hangs where loopback is blocked). Built and run by
+    scripts/test.py; not part of Themia.slnx.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Themia.TestRunner</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.runner.utility" Version="2.9.2" />
+  </ItemGroup>
+</Project>
