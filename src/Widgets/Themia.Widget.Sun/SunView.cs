@@ -55,8 +55,8 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
     private SunConfig _config = new();
 
     private Ticker? _ticker;
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
     private DateTimeOffset _now = DateTimeOffset.Now;
 
     private WidgetArea _area;
@@ -119,18 +119,9 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
 
     private void Resubscribe()
     {
-        var interval = _config.TickInterval;
-
         // Only when the cadence actually changed: remaking the subscription on every config touch
         // made dragging a settings slider stutter for every widget on the desktop.
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, Tick);
+        _ = _tick.Set(_ticker, _config.TickInterval, Tick);
     }
 
     private void Tick()
@@ -142,8 +133,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
     public void Detach()
     {
         Strings.Changed -= OnLanguage;
-        _subscription?.Dispose();
-        _subscription = null;
+        _tick.Dispose();
     }
 
     /// <summary>[S-11110] The graphic fills its box: the content in the inset, whatever the style.</summary>

@@ -47,8 +47,8 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     private QuoteConfig _config = new();
     private Ticker? _ticker;
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
 
     /// <summary>
     /// How many times the user has asked for the next one. Ephemeral on purpose: a reload comes back
@@ -126,21 +126,12 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
     /// </summary>
     private void Subscribe()
     {
-        var wanted = _config.TickInterval;
-
-        if (_detached || _ticker is null || wanted == _subscribedInterval)
+        if (_detached)
         {
             return;
         }
 
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = wanted;
-
-        if (wanted > TimeSpan.Zero)
-        {
-            _subscription = _ticker.Subscribe(wanted, Render);
-        }
+        _ = _tick.Set(_ticker, _config.TickInterval, Render);
     }
 
     /// <summary>
@@ -314,8 +305,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
         _detached = true;
         Strings.Changed -= OnLanguage;
-        _subscription?.Dispose();
-        _subscription = null;
+        _tick.Dispose();
         _ticker = null;
 
         Tapped -= OnTapped;

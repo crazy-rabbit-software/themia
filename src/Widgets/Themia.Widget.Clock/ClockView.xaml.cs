@@ -65,8 +65,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
 
     private Ticker? _ticker;
     private ClockConfig _config = new();
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
 
     // The analog face is rebuilt when its diameter changes, so the hands' transforms and the second
     // hand are held here.
@@ -471,16 +471,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     /// <summary>[S-52] Every second only while seconds are drawn (a readout that folded them away at a small size does not wake for them).</summary>
     private void Resubscribe()
     {
-        var wanted = _secondsDrawn ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1);
-        if (_subscription is not null && wanted == _subscribedInterval)
+        if (!_tick.Set(_ticker, _secondsDrawn ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1), Render))
         {
             Render();
-            return;
         }
-
-        _subscription?.Dispose();
-        _subscribedInterval = wanted;
-        _subscription = _ticker?.Subscribe(wanted, Render);
     }
 
     private void Render()
@@ -540,7 +534,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     public void Detach()
     {
         Strings.Changed -= OnLanguage;
-        _subscription?.Dispose();
-        _subscription = null;
+        _tick.Dispose();
     }
 }

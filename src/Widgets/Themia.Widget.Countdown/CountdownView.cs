@@ -52,8 +52,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
 
     /// <summary>[S-2050] The clock the countdown reads: the real one, or a preview's sample moment.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
     private bool _detached;
 
     public CountdownView()
@@ -139,24 +139,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     private void Resubscribe()
     {
         // [S-142] Nothing to re-letter means nothing to wake for.
-        if (_config.Target is null)
-        {
-            _subscription?.Dispose();
-            _subscription = null;
-            _subscribedInterval = TimeSpan.Zero;
-            return;
-        }
-
-        var interval = _config.TickInterval;
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, OnTick);
+        _ = _tick.Set(_ticker, _config.Target is null ? TimeSpan.Zero : _config.TickInterval, OnTick);
     }
 
     /// <summary>[S-11303] The face in the countdown's style.</summary>
@@ -316,7 +299,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
 
         _detached = true;
         Strings.Changed -= OnLanguage;
-        _subscription?.Dispose();
-        _subscription = null;
+        _tick.Dispose();
     }
 }

@@ -58,8 +58,7 @@ public sealed class SkyFeed<TWant, T>
     private readonly Func<TWant?> _wantOf;
     private readonly Action _changed;
     private SkyFeedSource<TWant, T>? _live;
-    private IDisposable? _tick;
-    private TimeSpan _interval;
+    private readonly Ticker.Slot _tick = new();
     private Ticker? _ticker;
     private bool _detached = true;
 
@@ -99,22 +98,14 @@ public sealed class SkyFeed<TWant, T>
     }
 
     /// <summary>The cadence of the redraw; remade only when it changed.</summary>
-    public void Cadence(TimeSpan interval)
-    {
-        if (_tick is not null && interval == _interval)
-        {
-            return;
-        }
+    public void Cadence(TimeSpan interval) => _ = _tick.Set(_ticker, interval, OnTick);
 
-        _tick?.Dispose();
-        _interval = interval;
-        _tick = _ticker?.Subscribe(interval, () =>
+    private void OnTick()
+    {
+        if (!_detached)
         {
-            if (!_detached)
-            {
-                _changed();
-            }
-        });
+            _changed();
+        }
     }
 
     /// <summary>
@@ -164,8 +155,7 @@ public sealed class SkyFeed<TWant, T>
     {
         _detached = true;
         Strings.Changed -= OnLanguage;
-        _tick?.Dispose();
-        _tick = null;
+        _tick.Dispose();
         _live?.Unsubscribe(OnUpdated);
         _live = null;
         _ticker = null;

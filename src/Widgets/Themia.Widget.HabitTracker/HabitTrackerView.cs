@@ -45,8 +45,8 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     private readonly IWidgetHost _host;
     private IHabitLists? _pool;
     private HabitTrackerConfig _config = new();
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
 
     private HabitList? _habitList;
     private WidgetArea _area;
@@ -175,17 +175,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     /// <summary>Only when the cadence changed; a new subscription ticks at once, so the caller is done.</summary>
     private bool Resubscribe()
     {
-        var interval = _config.TickInterval;
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return false;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, OnTick);
-        return _subscription is not null;
+        return _tick.Set(_ticker, _config.TickInterval, OnTick);
     }
 
     /// <summary>
@@ -344,9 +334,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             _pool.Changed -= OnPoolChanged;
         }
 
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = TimeSpan.Zero;
+        _tick.Dispose();
 
         foreach (var row in _rows)
         {

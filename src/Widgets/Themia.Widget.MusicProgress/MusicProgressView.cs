@@ -30,7 +30,8 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     private readonly NowPlayingFeed _feed;
 
     private Ticker? _ticker;
-    private IDisposable? _subscription;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
     private MusicProgressConfig _config = new();
     private IWidgetSurface? _surface;
     private bool _preview;
@@ -111,13 +112,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     /// <summary>The second's tick only while a track plays; nothing otherwise.</summary>
     private void Resubscribe(bool wanted)
     {
-        if (wanted == (_subscription is not null))
-        {
-            return;
-        }
-
-        _subscription?.Dispose();
-        _subscription = wanted ? _ticker?.Subscribe(TimeSpan.FromSeconds(1), UpdatePosition) : null;
+        _ = _tick.Set(_ticker, wanted ? TimeSpan.FromSeconds(1) : TimeSpan.Zero, UpdatePosition);
     }
 
     /// <summary>Advance the bar and the times from the anchor. Display only: the next snapshot overwrites it.</summary>
@@ -174,8 +169,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 
     public void Detach()
     {
-        _subscription?.Dispose();
-        _subscription = null;
+        _tick.Dispose();
         _ticker = null;
         _feed.Dispose();
     }

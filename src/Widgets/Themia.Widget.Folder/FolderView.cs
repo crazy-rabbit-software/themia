@@ -54,8 +54,8 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
     private readonly FolderHistory _history = new(string.Empty);
 
     private Ticker? _ticker;
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
     private FolderConfig _config;
 
     /// <summary>
@@ -163,17 +163,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
     {
         // [S-1333] The watcher is the refresh. Without one (a share that sends no notifications) the
         // original's 5 s fallback poll; with one, the slow backstop.
-        var interval = _watch is { Watching: false } ? TimeSpan.FromSeconds(5) : _config.TickInterval;
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return false;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, () => Reload(force: false));
-        return _subscription is not null;
+        return _tick.Set(_ticker, _watch is { Watching: false } ? TimeSpan.FromSeconds(5) : _config.TickInterval, () => Reload(force: false));
     }
 
     public void Detach()
@@ -186,8 +176,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
         _detached = true;
         _widgetHost.FileClipboard.Changed -= OnClipboardChanged;
 
-        _subscription?.Dispose();
-        _subscription = null;
+        _tick.Dispose();
         _watch?.Dispose();
         _watch = null;
         _watchedPath = string.Empty;

@@ -73,8 +73,8 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     /// the time a change arrives the "previous" config already holds the new values.
     /// </summary>
     private BluetoothConfig _applied = new();
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
     private CancellationTokenSource? _inFlight;
     private BluetoothSnapshot _snapshot = BluetoothSnapshot.Of(BluetoothStatus.Loading);
 
@@ -169,17 +169,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     /// </summary>
     private bool Resubscribe()
     {
-        var interval = _config.TickInterval;
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return false;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, Reload);
-        return _subscription is not null;
+        return _tick.Set(_ticker, _config.TickInterval, Reload);
     }
 
     /// <summary>
@@ -391,9 +381,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         ClearRows();
         _links.Leave();
 
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = TimeSpan.Zero;
+        _tick.Dispose();
 
         // Cancel but do not dispose: the in-flight pass owns its source and frees it on the way
         // out, so there is exactly one owner however many times this is called.

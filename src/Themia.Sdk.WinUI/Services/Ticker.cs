@@ -206,6 +206,55 @@ public sealed class Ticker : IDisposable
         _subscriptions.Clear();
     }
 
+    /// <summary>
+    /// One subscription a view keeps at a cadence that can change (a clock's seconds, a refresh setting): remade only
+    /// when the cadence changed, none at all for <see cref="TimeSpan.Zero"/> or without a ticker. Every view's
+    /// "resubscribe when the interval moved" is this. Safe against the immediate first tick calling back into it.
+    /// </summary>
+    public sealed class Slot : IDisposable
+    {
+        private IDisposable? _subscription;
+        private TimeSpan _interval;
+        private bool _armed;
+
+        /// <summary>The cadence asked for last.</summary>
+        public TimeSpan Interval => _interval;
+
+        /// <summary>
+        /// Call <paramref name="onTick"/> every <paramref name="interval"/> on <paramref name="ticker"/>. True when it subscribed now (a new
+        /// subscription ticks at once, so the caller has nothing left to draw); false when it held that cadence already
+        /// or ticks not at all.
+        /// </summary>
+        public bool Set(Ticker? ticker, TimeSpan interval, Action onTick)
+        {
+            var wanted = ticker is not null && interval > TimeSpan.Zero;
+            if (interval == _interval && wanted == _armed)
+            {
+                return false;
+            }
+
+            _subscription?.Dispose();
+            _subscription = null;
+            _interval = interval;
+            _armed = wanted;
+            if (wanted)
+            {
+                _subscription = ticker!.Subscribe(interval, onTick);
+            }
+
+            return wanted;
+        }
+
+        /// <summary>No more ticks; the next <see cref="Set"/> subscribes afresh.</summary>
+        public void Dispose()
+        {
+            _subscription?.Dispose();
+            _subscription = null;
+            _interval = TimeSpan.Zero;
+            _armed = false;
+        }
+    }
+
     private sealed class Subscription(Ticker owner, TimeSpan interval, Action onTick, Action<Exception>? onFault) : IDisposable
     {
         private long _lastPeriod = -1;

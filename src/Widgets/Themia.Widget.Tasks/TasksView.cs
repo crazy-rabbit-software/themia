@@ -58,8 +58,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     private ILocalTaskLists? _local;
     private Ticker? _ticker;
     private IWidgetSurface? _surface;
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval;
+    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
+    private readonly Ticker.Slot _tick = new();
     private TasksConfig _config = new();
 
     /// <summary>The account feed this widget holds, or null for a list on this PC or no list at all.</summary>
@@ -355,21 +355,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
             return;
         }
 
-        var interval = IsLocal ? TimeSpan.Zero : _config.RefreshInterval;
-
-        if (interval == _subscribedInterval && (_subscription is not null || interval == TimeSpan.Zero))
-        {
-            return;
-        }
-
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = interval;
-
-        if (interval > TimeSpan.Zero)
-        {
-            _subscription = _ticker?.Subscribe(interval, OnTick);
-        }
+        _ = _tick.Set(_ticker, IsLocal ? TimeSpan.Zero : _config.RefreshInterval, OnTick);
     }
 
     private void OnTick()
@@ -701,9 +687,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _state.Detach();
         _status.Detach();
 
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = TimeSpan.Zero;
+        _tick.Dispose();
 
         ReleaseFeed();
 
