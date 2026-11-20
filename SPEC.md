@@ -8149,11 +8149,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   that makes sense so you can still see the widget."; docs/WIDGET-RULES.md WR-14). A face that scales as one (a clock,
   a date, a reading on `ReadingFit` or `InkFit`) scales down as well as up, until its smallest text is 9 DIP or its
   smallest glyph 12 (`ScaleFloor`, one floor for every kind; `ScaleFloors.Of` reads a face's parts); its kind's least
-  size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`): the
-  one-reading kinds on `ReadingFit` (air quality, alarm, brightness, countdown, drive, exchange rate, focus session,
-  moon, music, music progress, next meeting, pomodoro, quote, recycle bin, screen time, volume, weather now) at the
-  family's Caption; a meter's reading alone at its unit. Rows and list items keep their whole-cell rule (a list's least
-  is one item). **The main reading sets the floor, its smaller parts give way** (owner, 2026-11-19: "the clock has a
+  size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`; pomodoro
+  and the drive's ring still at the family's Caption). Rows and list items keep their whole-cell rule (a list's least is
+  one item). **The main reading sets the floor, its smaller parts give way** (owner, 2026-11-19: "the clock has a
   min height that is way to big"; the clock's meridiem and line under at 9 had held its figures large: a world clock
   89 tall, a stacked one 208, the dial and the words not scaling down at all, 170 and 234; the date's page 101): a face
   that states its parts (`FaceFloor`: their text sizes and its plan with the parts of at least a size) goes down until
@@ -8170,7 +8168,25 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   size, never folded (never stacked, never without its seconds). Tests `BlockFitTests.S12833_` (the floor, scaling
   down, monotonic), `FaceFloorTests.S12833_` (the main reading's floor, parts giving way smallest first, never drawn
   under 9, the scale only falling), `ClockFaceTests.S6011_S12833_`, `.S6741_S12833_` (each style's least height, the figures at 9, every part at
-  the natural box, monotonic), `DateTests.S10802_S12833_`.
+  the natural box, monotonic), `DateTests.S10802_S12833_`. **Every one-reading face states its parts** (owner, 2026-11-19:
+  "do this for the other widgets too"): its kind's `FaceParts` (rows of pieces, each with the text size it gives way
+  at: a Readout's lead glyph as the text it reads like, `ScaleFloor.AsText`, a 16 glyph as 12, its unit and line under;
+  a Controls row at Body, `ControlsRules.Row`; a caption, a name, an end column), one set for its sizing
+  (`WidgetSizing.ScalesDownTo(FaceParts)`: the main reading alone at 9 in the inset) and its `ReadingFit` (`Face`: in
+  each room the fit works out what it draws and hides the rest, a Readout's own pieces through `IFacePieces`, a part
+  through `AddGivesWay`, `GivesWayBox` or `GivesWay`; with no text left drawn, a picture, it holds to the main reading's
+  floor). Weather now (39 × 32; the large icon stays, 57 × 36), air quality (40 × 32; the gauge, now in the fit, 76 × 51),
+  exchange rate (60 × 32), screen time (67 × 32 under its day line, which is whole cells and stays), recycle bin
+  (45 × 32; Empty gives way and stays on the card's menu), drive's bar (54 × 40), moon (52 × 36; the phase month's discs
+  are its reading, its month's name gives way), brightness and volume (40 × 32; the slider's row gives way), alarm and
+  focus session (48 × 32), countdown (text 82 × 32, ring 103 × 103, flip 76 × 36; its date or units and its name give
+  way, the bar stays), music (its lines are its reading, Body: 166 × 44; the transport gives way), music progress (its
+  times are its reading: nothing gives way, 156 × 32), next meeting (its title: 116 × 32; its lines and the end column
+  give way), quote (its words: 158 wide; its mark and author give way; its height steps by lines and keeps them), the
+  meters' Number look (cpu, gpu, memory, disk, ping, battery: 40 × 32, the kind's glyph and the unit giving way). Was:
+  each at its Caption's floor, three quarters of its natural box (a recycle bin 135 × 84, a countdown 345 × 104).
+  Tests `FaceFloorTests.S12833_` (a Readout's parts, a Controls row, a stated face only shrinking),
+  `ReadingFaceFloorTests.S12833_` (each kind's least height bound, every part at its natural box, monotonic).
 - **[S-12834]** **What stands over a list is whole cells, and the rows start right under it** (owner, 2026-11-19,
   docs/WIDGET-RULES.md WR-1: "there should not be a space at the top"; WR-5: "Empty stated rows / leftover whole cells
   may stand at the foot; never above the first item, never between items"; WR-6: "Every repeated item is a whole number
