@@ -41,9 +41,9 @@ internal static class InlineCheckRender
     /// </summary>
     private static readonly (string Kind, string? Style, string AtRest, string Open, Judged How)[] Cases =
     [
-        ("tasks", null, "tasks", "adding", Judged.Open),
-        ("tasks", null, "tasks", "typing", Judged.Open),
-        ("tasks", null, "tasks", "renaming", Judged.Open),
+        ("tasks", null, "sample", "adding", Judged.Open),
+        ("tasks", null, "sample", "typing", Judged.Open),
+        ("tasks", null, "sample", "renaming", Judged.Open),
         ("habitTracker", null, "sample", "adding", Judged.Open),
         ("habitTracker", null, "sample", "typing", Judged.Open),
         ("habitTracker", null, "sample", "renaming", Judged.Open),
