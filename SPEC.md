@@ -1234,8 +1234,9 @@ module author's guide is docs/WIDGET-KIT.md 16.
   high and the low, the times, the grid's values) a label that would touch one written before it is left out. The
   status's problem glyph keeps the inset over the plot (`KitStatus.Place`). Nothing moves on hover ([S-12831], WR-12):
   the stock's pointer readout, its crosshair and a linked moment's hairline are drawn over the plot, inside its text
-  box. The gap check judges it (`scripts/gap-check.py`: each chart's plot from `--layout-json`'s `plots` reaches the
-  card's edges; where it does it is the card's top and foot).
+  box. The gap check judges it (`scripts/gap-check.py`: each chart's plot from `--layout-json`'s `plots`, and a plot
+  drawn off the chart marked one, `PlotMark`, reaches the card's edges, its top right under the card's Set up line where
+  it shows one; where it does it is the card's top and foot).
 - **[S-6745]** **The shell's measurements** (`ShellMetrics`, `Themia.Sdk/Kit/Family/ShellTokens.cs`): the
   app's own chrome is drawn from the family's tokens like a widget, its own spacings on the scale; what
   Windows or Karpo measure for a piece of chrome and the family has no token for is named there, each

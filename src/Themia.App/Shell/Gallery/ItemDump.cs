@@ -139,8 +139,9 @@ internal static class ItemDump
                 return;
             }
 
-            // A curve its owner laid out on the chart's parts (the forecast's, over its day columns) is no plot of its own.
-            if (fe is Chart { Model.Laid: false })
+            // A curve its owner laid out on the chart's parts (the forecast's, over its day columns) is no plot of its own;
+            // a plot drawn off the chart (the screen-time chart's bars) is marked one.
+            if (fe is Chart { Model.Laid: false } || PlotMark.IsPlot(fe))
             {
                 plots.Add(shown.Value);
             }

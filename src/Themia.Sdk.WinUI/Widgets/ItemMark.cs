@@ -26,6 +26,26 @@ public static class ItemMark
 }
 
 /// <summary>
+/// [S-6754] A graph's plot drawn off the one <c>Chart</c> (the screen-time chart's bars), so the layout dump
+/// (<c>--layout-json</c>'s <c>plots</c>) and the gap check judge it as a chart's: it reaches the card's edges.
+/// </summary>
+public static class PlotMark
+{
+    private static readonly ConditionalWeakTable<FrameworkElement, object> Plots = [];
+    private static readonly object Marker = new();
+
+    /// <summary>Mark <paramref name="element"/> as its widget's plot.</summary>
+    public static void Mark(FrameworkElement element)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        Plots.AddOrUpdate(element, Marker);
+    }
+
+    /// <summary>Whether <paramref name="node"/> is a plot.</summary>
+    public static bool IsPlot(DependencyObject? node) => node is FrameworkElement element && Plots.TryGetValue(element, out _);
+}
+
+/// <summary>
 /// [S-12831] What an item does when the pointer is over it or presses it, for a render to show without a pointer
 /// (<c>--widget-png … --hover x,y</c>, <c>--pressed x,y</c>): the owner's rules on hover (WR-12: nothing changes size;
 /// WR-13: the item under the pointer lights, edge to edge) are checked on those renders. An item that lights itself

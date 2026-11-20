@@ -340,6 +340,9 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             VerticalAlignment = VerticalAlignment.Top,
         };
 
+        // [S-6754] The bars' grid is the widget's plot, the card's whole box: the gap check judges it as a chart's.
+        PlotMark.Mark(chart);
+
         chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(BarsTop) });
         chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(BarArea(height)) });
         chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
