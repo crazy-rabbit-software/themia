@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Daha fazla",
   "addMenu.family.screenTime": "Ekran süresi",
   "addMenu.family.powerButtons": "Güç düğmeleri",
-  "addMenu.family.weatherFacts": "Hava durumu bilgileri"
+  "addMenu.family.weatherFacts": "Hava durumu bilgileri",
+  "addMenu.family.airFacts": "Hava kalitesi bilgileri",
+  "addMenu.family.cpuFacts": "CPU bilgileri",
+  "addMenu.family.gpuFacts": "GPU bilgileri",
+  "addMenu.family.memoryFacts": "Bellek bilgileri",
+  "addMenu.family.networkFacts": "Ağ bilgileri",
+  "addMenu.family.pingFacts": "Ping bilgileri",
+  "addMenu.family.batteryFacts": "Pil bilgileri",
+  "addMenu.family.driveFacts": "Sürücü bilgileri",
+  "addMenu.family.sunTimes": "Güneş saatleri",
+  "addMenu.family.moonTimes": "Ay saatleri"
 }

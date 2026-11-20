@@ -112,10 +112,9 @@ public static class ReadyMadeGroups
     public static ReadyMadeGroup WeatherStation { get; } = Headed(new("weatherStation", Str.Groups_Recipe_WeatherStation, Str.Groups_Recipe_WeatherStationAbout, Glyphs.Weather, AddFolderId.Weather,
     [
         new("weatherNow", new(0, 0, 300, 76)),
-        new("weatherHighLow", new(0, 76, 300, 52)),
-        new("weatherWind", new(0, 128, 300, 52)),
-        new("weatherForecast", new(0, 180, 300, 164)),
-        new("rainNextHour", new(0, 344, 300, 148)),
+        .. Metrics(76, 300, "weatherHighLow", "weatherWind"),
+        new("weatherForecast", new(0, 76 + (2 * Row), 300, 164)),
+        new("rainNextHour", new(0, 240 + (2 * Row), 300, 148)),
     ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
 
     /// <summary>
@@ -144,11 +143,11 @@ public static class ReadyMadeGroups
         new("cpuCores", new(0, 60, 160, 64)),
     ]), Str.Groups_Recipe_Cpu);
 
-    /// <summary>[S-11090] CPU details: the reading over the processor's facts.</summary>
+    /// <summary>[S-11090] [S-14607] CPU details: the reading over the processor's facts, a single metric each (the old card's four).</summary>
     public static ReadyMadeGroup CpuDetails { get; } = Headed(new("cpuDetails", Str.Groups_Recipe_CpuDetails, Str.Groups_Recipe_CpuDetailsAbout, Glyphs.Cpu, AddFolderId.Processor,
     [
         new("cpu", new(0, 0, 240, 60)),
-        new("cpuFacts", new(0, 60, 240, 136)),
+        .. Metrics(60, 240, "cpuSpeed", "cpuBaseSpeed", "cpuCoreCount", "cpuLogical"),
     ]), Str.Groups_Recipe_Cpu);
 
     /// <summary>[S-11090] Memory: the reading over its history.</summary>
@@ -158,11 +157,11 @@ public static class ReadyMadeGroups
         new("memoryHistory", new(0, 60, 160, 64)),
     ]));
 
-    /// <summary>[S-11090] Memory details: the reading over its facts.</summary>
+    /// <summary>[S-11090] [S-14607] Memory details: the reading over its facts, a single metric each.</summary>
     public static ReadyMadeGroup MemoryDetails { get; } = Headed(new("memoryDetails", Str.Groups_Recipe_MemoryDetails, Str.Groups_Recipe_MemoryDetailsAbout, Glyphs.Memory, AddFolderId.MemoryReading,
     [
         new("memory", new(0, 0, 260, 60)),
-        new("memoryFacts", new(0, 60, 260, 136)),
+        .. Metrics(60, 260, "memoryInUse", "memoryAvailable", "memoryCommitted", "memoryCached"),
     ]), Str.Groups_Recipe_Memory);
 
     /// <summary>[S-11090] GPU: the reading over its history.</summary>
@@ -172,11 +171,11 @@ public static class ReadyMadeGroups
         new("gpuHistory", new(0, 60, 200, 64)),
     ]));
 
-    /// <summary>[S-11090] GPU details: the reading over its facts.</summary>
+    /// <summary>[S-11090] [S-14607] GPU details: the reading over its facts, a single metric each.</summary>
     public static ReadyMadeGroup GpuDetails { get; } = Headed(new("gpuDetails", Str.Groups_Recipe_GpuDetails, Str.Groups_Recipe_GpuDetailsAbout, Glyphs.Gpu, AddFolderId.Graphics,
     [
         new("gpu", new(0, 0, 260, 60)),
-        new("gpuFacts", new(0, 60, 260, 136)),
+        .. Metrics(60, 260, "gpuDedicatedMemory", "gpuSharedMemory", "gpuTemperature", "gpuFan"),
     ]), Str.Groups_Recipe_Gpu);
 
     /// <summary>[S-11090] Disk: the reading over its history.</summary>
@@ -197,8 +196,8 @@ public static class ReadyMadeGroups
     public static ReadyMadeGroup NetworkDetails { get; } = Headed(new("networkDetails", Str.Groups_Recipe_NetworkDetails, Str.Groups_Recipe_NetworkDetailsAbout, Glyphs.Network, AddFolderId.NetworkReading,
     [
         new("network", new(0, 0, 344, 60)),
-        new("networkFacts", new(0, 60, 344, 136)),
-        new("networkAdapters", new(0, 196, 344, 104), Config: """{ "rows": 2 }"""),
+        .. Metrics(60, 344, "networkLocalAddress", "networkReceived", "networkSent", "networkLinkSpeed"),
+        new("networkAdapters", new(0, 60 + (4 * Row), 344, 104), Config: """{ "rows": 2 }"""),
     ]), Str.Groups_Recipe_Network);
 
     /// <summary>[S-11090] Ping: the latency over its history.</summary>
@@ -208,11 +207,11 @@ public static class ReadyMadeGroups
         new("pingHistory", new(0, 60, 160, 64)),
     ]));
 
-    /// <summary>[S-11090] Ping details: the latency over its statistics.</summary>
+    /// <summary>[S-11090] [S-14607] Ping details: the latency over its statistics, a single metric each.</summary>
     public static ReadyMadeGroup PingDetails { get; } = Headed(new("pingDetails", Str.Groups_Recipe_PingDetails, Str.Groups_Recipe_PingDetailsAbout, Glyphs.Network, AddFolderId.PingReading,
     [
         new("ping", new(0, 0, 260, 60)),
-        new("pingFacts", new(0, 60, 260, 136)),
+        .. Metrics(60, 260, "pingAverage", "pingMinimum", "pingMaximum", "pingJitter"),
     ]), Str.Groups_Recipe_Ping);
 
     /// <summary>[S-11090] Battery: the charge over its history.</summary>
@@ -222,49 +221,59 @@ public static class ReadyMadeGroups
         new("batteryHistory", new(0, 60, 160, 64)),
     ]));
 
-    /// <summary>[S-11090] Battery details: the charge over the battery's facts.</summary>
+    /// <summary>[S-11090] [S-14607] Battery details: the charge over the battery's facts, a single metric each.</summary>
     public static ReadyMadeGroup BatteryDetails { get; } = Headed(new("batteryDetails", Str.Groups_Recipe_BatteryDetails, Str.Groups_Recipe_BatteryDetailsAbout, Glyphs.Battery, AddFolderId.BatteryReading,
     [
         new("battery", new(0, 0, 260, 60)),
-        new("batteryFacts", new(0, 60, 260, 136)),
+        .. Metrics(60, 260, "batteryStatus", "batteryTime", "batteryHealth", "batteryFullCapacity"),
     ]), Str.Groups_Recipe_Battery);
 
-    /// <summary>[S-11090] Drive: the used share over the drive's facts.</summary>
+    /// <summary>[S-11090] [S-14607] Drive: the used share over the drive's facts, a single metric each.</summary>
     public static ReadyMadeGroup Drive { get; } = Headed(new("drive", Str.Groups_Recipe_Drive, Str.Groups_Recipe_DriveAbout, Glyphs.Disk, AddFolderId.Devices,
     [
         new("drive", new(0, 0, 260, 88)),
-        new("driveFacts", new(0, 88, 260, 136)),
+        .. Metrics(88, 260, "driveUsed", "driveFree", "driveCapacity", "driveFileSystem"),
     ]));
 
     /// <summary>[S-11172] [S-13900] Weather: the reading over its facts, the old weather card as atoms (a widget a fact).</summary>
     public static ReadyMadeGroup Weather { get; } = Headed(new("weather", Str.Groups_Recipe_Weather, Str.Groups_Recipe_WeatherAbout, Glyphs.Weather, AddFolderId.Weather,
     [
         new("weatherNow", new(0, 0, 240, 76)),
-        new("weatherHighLow", new(0, 76, 240, 52)),
-        new("weatherFeelsLike", new(0, 128, 240, 52)),
-        new("weatherHumidity", new(0, 180, 240, 52)),
-        new("weatherWind", new(0, 232, 240, 52)),
+        .. Metrics(76, 240, "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind"),
     ]));
 
-    /// <summary>[S-11172] Sun: the sun's path across the sky and its times.</summary>
+    /// <summary>
+    /// [S-14607] Weather facts: every one of the weather's readings where you are, a single metric each, in the facts'
+    /// order (owner, 2026-11-20: "add premade groups for the air facts and weather facts").
+    /// </summary>
+    public static ReadyMadeGroup WeatherFacts { get; } = Headed(new("weatherFacts", Str.Groups_Recipe_WeatherFacts, Str.Groups_Recipe_WeatherFactsAbout, Glyphs.Thermometer, AddFolderId.WeatherFacts,
+    [
+        .. Metrics(0, 240, "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind", "weatherPrecipitation", "weatherPressure",
+            "weatherUv", "weatherCloudCover", "weatherGusts", "weatherSunrise", "weatherSunset"),
+    ]));
+
+    /// <summary>[S-11172] [S-14607] Sun: the sun's path across the sky and its times, a single metric each.</summary>
     public static ReadyMadeGroup Sun { get; } = Headed(new("sun", Str.Groups_Recipe_Sun, Str.Groups_Recipe_SunAbout, Glyphs.Sun, AddFolderId.Weather,
     [
         new("sun", new(0, 0, 280, 152)),
-        new("sunTimes", new(0, 152, 280, 108)),
+        .. Metrics(152, 280, "sunrise", "sunset", "daylight"),
     ]));
 
-    /// <summary>[S-11172] Moon: how much of the moon is lit, its rise, set and next full moon.</summary>
+    /// <summary>[S-11172] [S-14607] Moon: how much of the moon is lit, its rise, set and next full moon, a single metric each.</summary>
     public static ReadyMadeGroup Moon { get; } = Headed(new("moon", Str.Groups_Recipe_Moon, Str.Groups_Recipe_MoonAbout, Glyphs.Moon, AddFolderId.Weather,
     [
         new("moon", new(0, 0, 240, 76)),
-        new("moonTimes", new(0, 76, 240, 108)),
+        .. Metrics(76, 240, "moonrise", "moonset", "nextFullMoon"),
     ]));
 
-    /// <summary>[S-11172] Air quality: the air quality index, UV, fine dust and pollen.</summary>
+    /// <summary>
+    /// [S-11172] [S-14607] Air quality: the air quality index over its readings, a single metric each: UV, fine and coarse
+    /// dust, ozone and the worst pollen (owner, 2026-11-20: "add premade groups for the air facts and weather facts").
+    /// </summary>
     public static ReadyMadeGroup AirQuality { get; } = Headed(new("airQuality", Str.Groups_Recipe_AirQuality, Str.Groups_Recipe_AirQualityAbout, Glyphs.EnergySaver, AddFolderId.Weather,
     [
         new("airQuality", new(0, 0, 240, 76)),
-        new("airFacts", new(0, 76, 240, 136)),
+        .. Metrics(76, 240, "airUv", "airPm25", "airPm10", "airOzone", "airPollen"),
     ]));
 
     /// <summary>[S-12709] Weather graphs: the next day's temperature, rain and UV, hour by hour, stacked as one panel on one frame.</summary>
@@ -352,6 +361,13 @@ public static class ReadyMadeGroups
         new("screenTimeApps", new(0, 192, 300, 164), Config: """{ "period": "Week" }"""),
     ]) { Starter = 6 });
 
+    /// <summary>[S-14600] A single metric's height in a group: its one row, whole grid cells.</summary>
+    private static double Row => MetricRules.RowHeight;
+
+    /// <summary>[S-14607] Single metrics stacked from <paramref name="top"/>, <paramref name="width"/> wide, one row each, touching.</summary>
+    private static IEnumerable<ReadyMadeWidget> Metrics(double top, double width, params string[] kinds)
+        => kinds.Select((kind, i) => new ReadyMadeWidget(kind, new(0, top + (i * Row), width, Row)));
+
     /// <summary>[S-12485] The Header widget's height over a group: the inset, its one line and the header's gap (as a card's header took).</summary>
     public const double HeaderHeight = FamilySpace.Inset + FamilySpace.HeaderLine + FamilySpace.HeaderGap;
 
@@ -369,7 +385,7 @@ public static class ReadyMadeGroups
     }
 
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, WeatherGraphs, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, WeatherFacts, Sun, Moon, AirQuality, WeatherGraphs, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

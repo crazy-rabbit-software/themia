@@ -9,7 +9,11 @@ public sealed class ViewLinksDriveKindsTests
 {
     [Theory]
     [InlineData("drive")]
-    [InlineData("driveFacts")]
+    [InlineData("driveUsed")]
+    [InlineData("driveFree")]
+    [InlineData("driveCapacity")]
+    [InlineData("driveFileSystem")]
+    [InlineData("driveType")]
     [InlineData("disk")]
     [InlineData("diskHistory")]
     [InlineData("removableDrives")]

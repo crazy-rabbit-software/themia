@@ -2,11 +2,10 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>[S-11007] [S-11008] What a detail atom shows: its fact rows, or its list's rows, as its config states them.</summary>
-/// <param name="Facts">How many fact rows are shown (the atom's pick).</param>
+/// <summary>[S-11008] What a detail list atom shows: its list's rows, as its config states them.</summary>
 /// <param name="ListRows">How many list rows are shown at a time (the rows its config states; the list scrolls for the rest).</param>
 /// <param name="ListLines">How many lines each list row shows (its pitch follows: 28, 40, 56).</param>
-public readonly record struct DetailFacePlan(int Facts, int ListRows, int ListLines)
+public readonly record struct DetailFacePlan(int ListRows, int ListLines)
 {
     public bool List => ListRows > 0;
 

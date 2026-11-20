@@ -14,5 +14,15 @@
   "addMenu.subject.more": "နောက်ထပ်",
   "addMenu.family.screenTime": "မျက်နှာပြင် ကြည့်ချိန်",
   "addMenu.family.powerButtons": "ပါဝါ ခလုတ်များ",
-  "addMenu.family.weatherFacts": "ရာသီဥတု အချက်အလက်များ"
+  "addMenu.family.weatherFacts": "ရာသီဥတု အချက်အလက်များ",
+  "addMenu.family.airFacts": "လေ အချက်အလက်များ",
+  "addMenu.family.cpuFacts": "CPU အချက်အလက်များ",
+  "addMenu.family.gpuFacts": "GPU အချက်အလက်များ",
+  "addMenu.family.memoryFacts": "မှတ်ဉာဏ် အချက်အလက်များ",
+  "addMenu.family.networkFacts": "ကွန်ရက် အချက်အလက်များ",
+  "addMenu.family.pingFacts": "ping အချက်အလက်များ",
+  "addMenu.family.batteryFacts": "ဘက်ထရီ အချက်အလက်များ",
+  "addMenu.family.driveFacts": "ဒရိုက် အချက်အလက်များ",
+  "addMenu.family.sunTimes": "နေ အချိန်များ",
+  "addMenu.family.moonTimes": "လ အချိန်များ"
 }

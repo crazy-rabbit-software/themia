@@ -1,25 +1,19 @@
-# CPU facts (cpuFacts)
+# CPU facts (CPU-FACTS)
 
-The module `cpuFacts` ([S-6911]), which replaces CPU details: the processor's facts as fact rows. Its
-tags are this file's alone; the root `SPEC.md` holds what the facts atoms share ([S-11007]) and the
-sheet's rules, the SDK's `CpuDetailRules` with their root tags ([S-2405] the facts, [S-2406] the clock,
-[S-2434]..[S-2436] and [S-2407] the temperature), read by the host's processor source. The old card's
-look is the ready-made group "CPU details" ([S-11090]).
+The family project `Themia.Widget.CpuFacts` ([S-6901], `[assembly: ThemiaWidgetFamily]`): the processor's facts, **one widget a fact**, each a
+single metric on the one base (the root `SPEC.md`'s single metric, [S-14600]..[S-14607]: its one row, its default, its
+trend, its sizing). Its tags are this file's; the root holds the sheet's rules, the SDK's `CpuDetailRules` ([S-2405] the facts, [S-2406] the clock, [S-2434]..[S-2436] and [S-2407] the temperature).
 
-Owning files: everything in this folder: `CpuFactsModule.cs` (descriptor, menu line, JSON context),
-`CpuFactsConfig.cs` (the pick, what it asks the hub), `CpuFactsPart.cs` (its half of the shared
-`DetailView`: the three feeds held, the sheet built from one tick's figures), `Localization/Locales/`
-(its own `CpuFactsStr`). Tests: `Tests/CpuFactsTests.cs`.
+Owning files: everything in this folder: `CpuKinds.cs` (the kinds as data: id, key, glyph, history, the row's name, the
+name and description on the add page, search words, the removed card's row), `CpuMetric.cs` (the module and config
+bases, the part over the hub, the JSON context), `Localization/Locales/` (its own `CpuFactsStr`). Tests: `Tests/CpuMetricTests.cs`.
 
-- **[S-11012]** CPU facts reads the hub's load, counts and processor feeds (`SystemSource.Cpu`,
-  `Performance`, `Processor`, in the hub's read order, so one tick's figures go together, [S-2501]) and
-  charts nothing. Its facts, in the kind's order: Speed (the old hero, the effective clock), Base speed,
-  Cores, Logical processors, Processes, Threads, Handles, Up time, Thermal zone or CPU package; a new
-  one shows the first four. No hero: the load is the CPU reading's. The header's label names the
-  processor ([S-2260]).
-- **[S-2011]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`) (a row's click
-  stays the row's, [S-2004]); the module decides it (`CpuFactsModule.Opens`, through its part's `Opens`).
+- **[S-11012]** *(Retired by [S-14610]: no card of picked facts.)*
+- **[S-14610]** **A widget a fact** (owner, 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too. use the same base component for all of them. you should also have the option to show trendlines as well or just the trend with arrows."): `cpuSpeed` "CPU speed", `cpuBaseSpeed` "CPU base speed", `cpuCoreCount` "CPU core count", `cpuLogical` "Logical processors", `cpuProcesses` "Processes", `cpuThreads` "Threads", `cpuHandles` "Handles", `cpuUptime` "Up time", `cpuTemperature` "CPU temperature", in the old card's order, the family **CPU
+  facts** under System (`AddFolderId.CpuFacts`). Each reads the hub's load, counts and processor feeds (in the hub's read
+  order, one tick's figures, [S-2501]; the processor's read is a new reading) and draws its fact of the sheet; one this
+  read lacks is "--" dimmed. Trends ([S-14603]): CPU speed, processes, threads, handles and CPU temperature an arrow from the last two readings the card saw (no history kept); CPU base speed, CPU core count, logical processors and up time none (a text, a constant or a time: no Trend line). A placed `cpuFacts` card is replaced in place by
+  its rows ([S-14606]). Its options: Appearance and, where it moves, Trend.
+- **[S-2011]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); the module decides it (`CpuMetricModule.Opens`).
 
-Needs a manual pass: the widget on a live desktop (the clock moving with load, the temperature on a
-machine whose firmware reports a thermal zone, and on one running Core Temp or HWiNFO with Shared
-Memory Support on); the pick reordered by dragging in the menu.
+Needs a manual pass: the cards on a live desktop (the clock moving with load, a thermal zone or a tool's package sensor).

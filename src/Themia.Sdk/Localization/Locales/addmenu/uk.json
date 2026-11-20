@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Більше",
   "addMenu.family.screenTime": "Час використання",
   "addMenu.family.powerButtons": "Кнопки живлення",
-  "addMenu.family.weatherFacts": "Дані про погоду"
+  "addMenu.family.weatherFacts": "Дані про погоду",
+  "addMenu.family.airFacts": "Дані про повітря",
+  "addMenu.family.cpuFacts": "Дані ЦП",
+  "addMenu.family.gpuFacts": "Дані GPU",
+  "addMenu.family.memoryFacts": "Дані пам’яті",
+  "addMenu.family.networkFacts": "Дані мережі",
+  "addMenu.family.pingFacts": "Дані пінгу",
+  "addMenu.family.batteryFacts": "Дані батареї",
+  "addMenu.family.driveFacts": "Дані диска",
+  "addMenu.family.sunTimes": "Час сонця",
+  "addMenu.family.moonTimes": "Час місяця"
 }

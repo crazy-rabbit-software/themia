@@ -15,31 +15,6 @@ public sealed class SystemAtomsTests
 
     private static readonly ReadoutText Rate = ReadoutRules.Split("1023 KB/s");
 
-    private sealed class Facts : FactsConfig
-    {
-        public static readonly IReadOnlyList<FactOption> All =
-        [
-            new("a", Str.Details_Cpu_Speed.Local()),
-            new("b", Str.Details_Cpu_Cores.Local()),
-            new("c", Str.Details_Cpu_Threads.Local()),
-            new("d", Str.Details_Cpu_Handles.Local()),
-            new("e", Str.Details_Cpu_Uptime.Local()),
-            new("f", Str.Details_Cpu_Processes.Local()),
-        ];
-
-        public Facts()
-            : base(All)
-        {
-        }
-
-        public override WidgetConfig Clone()
-        {
-            var copy = new Facts();
-            CopyTo(copy);
-            return copy;
-        }
-    }
-
     public static TheoryData<MeterLook> ReadingLooks() =>
         [MeterLook.Number, MeterLook.Numbers, MeterLook.Gauge, MeterLook.Ring, MeterLook.Rows, MeterLook.Battery, MeterLook.Signal];
 
@@ -154,57 +129,5 @@ public sealed class SystemAtomsTests
 
         Assert.Equal(12 + (4 * 28) + 12, MeterSizing.ItemRows(4).Natural.Height);
         Assert.True(MeterSizing.ItemRows(4).FixedHeight);
-    }
-
-    [Fact]
-    public void S11007_facts_start_with_the_first_four_and_their_height_follows_the_pick()
-    {
-        var facts = new Facts();
-        Assert.Equal(["a", "b", "c", "d"], facts.Facts);
-
-        var sizing = FactsRules.Sizing(facts);
-        Assert.Empty(sizing.Problems());
-        Assert.Equal((12 + 28 + 12, 12 + (4 * 28) + 12, 12 + (6 * 28) + 12), (sizing.Min.Height, sizing.Natural.Height, sizing.Max.Height));
-        Assert.Equal((200, 260, 420), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-    }
-
-    [Fact]
-    public void S11007_a_dragged_height_keeps_the_first_facts_or_adds_the_next_in_the_kinds_order()
-    {
-        var facts = new Facts { Facts = ["e", "a"] };
-
-        var grown = Assert.IsType<Facts>(FactsRules.SizeSets(facts, new SizeDip(240, 12 + (4 * 28) + 12)));
-        Assert.Equal(["e", "a", "b", "c"], grown.Facts);
-        Assert.Equal(["e", "a"], facts.Facts);
-
-        var cut = Assert.IsType<Facts>(FactsRules.SizeSets(grown, new SizeDip(240, 10)));
-        Assert.Equal(["e"], cut.Facts);
-
-        Assert.Same(facts, FactsRules.SizeSets(facts, new SizeDip(400, 12 + (2 * 28) + 12)));
-        Assert.Equal(["a", "b", "c", "d", "e", "f"], FactsRules.Resize(["a"], Facts.All, 99));
-    }
-
-    [Fact]
-    public void S11007_the_pick_reads_the_sheet_by_key_and_keeps_a_row_for_a_fact_not_read()
-    {
-        var sheet = new DetailSheet(null, null, [new DetailFact("Cores", "8", Key: "b"), new DetailFact("Speed", "3 GHz", Key: "a")], []);
-        var rows = FactsRules.Pick(Locale.En, sheet, ["a", "c", "b", "zz"], Facts.All);
-
-        Assert.Equal(["3 GHz", "--", "8"], rows.Select(r => r.Value));
-        Assert.Equal([true, false, true], rows.Select(r => r.Available));
-        Assert.Equal("Threads", rows[1].Label);
-    }
-
-    [Fact]
-    public void S11007_unknown_and_repeated_keys_are_repaired_and_none_left_is_the_defaults()
-    {
-        var facts = new Facts { Facts = ["b", "zz", "b", "a"] };
-        Assert.NotEmpty(facts.Repair());
-        Assert.Equal(["b", "a"], facts.Facts);
-        Assert.Empty(facts.Repair());
-
-        var none = new Facts { Facts = ["zz"] };
-        Assert.NotEmpty(none.Repair());
-        Assert.Equal(["a", "b", "c", "d"], none.Facts);
     }
 }

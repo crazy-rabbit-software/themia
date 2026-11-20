@@ -1,7 +1,17 @@
 {
   "$englishOnly": [
-    "pingFacts.label",
-    "pingFacts.desc"
+    "pingFacts.pingAverage.label",
+    "pingFacts.pingAverage.desc",
+    "pingFacts.pingMinimum.label",
+    "pingFacts.pingMinimum.desc",
+    "pingFacts.pingMaximum.label",
+    "pingFacts.pingMaximum.desc",
+    "pingFacts.pingJitter.label",
+    "pingFacts.pingJitter.desc",
+    "pingFacts.pingLoss.label",
+    "pingFacts.pingLoss.desc",
+    "pingFacts.pingAnswered.label",
+    "pingFacts.pingAnswered.desc"
   ],
   "details.ping.answered": "Answered",
   "details.ping.answeredOf": "{answered} of {sent}",
@@ -12,6 +22,16 @@
   "details.ping.minimum": "Minimum",
   "details.settings.ping.window.label": "Statistics cover",
   "details.settings.ping.window.probes": "{count} probes",
-  "pingFacts.label": "Ping facts",
-  "pingFacts.desc": "Average, range, jitter and packet loss, as you pick them"
+  "pingFacts.pingAverage.label": "Average ping",
+  "pingFacts.pingAverage.desc": "The mean latency to a host over the latest pings",
+  "pingFacts.pingMinimum.label": "Fastest ping",
+  "pingFacts.pingMinimum.desc": "The fastest answer from a host over the latest pings",
+  "pingFacts.pingMaximum.label": "Slowest ping",
+  "pingFacts.pingMaximum.desc": "The slowest answer from a host over the latest pings",
+  "pingFacts.pingJitter.label": "Jitter",
+  "pingFacts.pingJitter.desc": "How much a host's latency varies over the latest pings",
+  "pingFacts.pingLoss.label": "Packet loss",
+  "pingFacts.pingLoss.desc": "How many of the latest pings went unanswered",
+  "pingFacts.pingAnswered.label": "Pings answered",
+  "pingFacts.pingAnswered.desc": "How many of the latest pings a host answered"
 }

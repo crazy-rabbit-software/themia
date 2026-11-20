@@ -14,5 +14,15 @@
   "addMenu.subject.more": "ಇನ್ನಷ್ಟು",
   "addMenu.family.screenTime": "ಪರದೆ ಸಮಯ",
   "addMenu.family.powerButtons": "ಪವರ್ ಬಟನ್‌ಗಳು",
-  "addMenu.family.weatherFacts": "ಹವಾಮಾನ ವಿವರಗಳು"
+  "addMenu.family.weatherFacts": "ಹವಾಮಾನ ವಿವರಗಳು",
+  "addMenu.family.airFacts": "ಗಾಳಿಯ ವಿವರಗಳು",
+  "addMenu.family.cpuFacts": "CPU ವಿವರಗಳು",
+  "addMenu.family.gpuFacts": "GPU ವಿವರಗಳು",
+  "addMenu.family.memoryFacts": "ಮೆಮೊರಿ ವಿವರಗಳು",
+  "addMenu.family.networkFacts": "ನೆಟ್‌ವರ್ಕ್ ವಿವರಗಳು",
+  "addMenu.family.pingFacts": "ಪಿಂಗ್ ವಿವರಗಳು",
+  "addMenu.family.batteryFacts": "ಬ್ಯಾಟರಿ ವಿವರಗಳು",
+  "addMenu.family.driveFacts": "ಡ್ರೈವ್ ವಿವರಗಳು",
+  "addMenu.family.sunTimes": "ಸೂರ್ಯನ ಸಮಯಗಳು",
+  "addMenu.family.moonTimes": "ಚಂದ್ರನ ಸಮಯಗಳು"
 }

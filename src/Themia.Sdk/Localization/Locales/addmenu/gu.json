@@ -14,5 +14,15 @@
   "addMenu.subject.more": "વધુ",
   "addMenu.family.screenTime": "સ્ક્રીન સમય",
   "addMenu.family.powerButtons": "પાવર બટન",
-  "addMenu.family.weatherFacts": "હવામાનની વિગતો"
+  "addMenu.family.weatherFacts": "હવામાનની વિગતો",
+  "addMenu.family.airFacts": "હવાની વિગતો",
+  "addMenu.family.cpuFacts": "CPUની વિગતો",
+  "addMenu.family.gpuFacts": "GPUની વિગતો",
+  "addMenu.family.memoryFacts": "મેમરીની વિગતો",
+  "addMenu.family.networkFacts": "નેટવર્કની વિગતો",
+  "addMenu.family.pingFacts": "પિંગની વિગતો",
+  "addMenu.family.batteryFacts": "બેટરીની વિગતો",
+  "addMenu.family.driveFacts": "ડ્રાઇવની વિગતો",
+  "addMenu.family.sunTimes": "સૂર્યના સમય",
+  "addMenu.family.moonTimes": "ચંદ્રના સમય"
 }

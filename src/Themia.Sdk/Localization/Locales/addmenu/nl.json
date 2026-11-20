@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Meer",
   "addMenu.family.screenTime": "Schermtijd",
   "addMenu.family.powerButtons": "Aan/uit-knoppen",
-  "addMenu.family.weatherFacts": "Weergegevens"
+  "addMenu.family.weatherFacts": "Weergegevens",
+  "addMenu.family.airFacts": "Luchtgegevens",
+  "addMenu.family.cpuFacts": "CPU-gegevens",
+  "addMenu.family.gpuFacts": "GPU-gegevens",
+  "addMenu.family.memoryFacts": "Geheugengegevens",
+  "addMenu.family.networkFacts": "Netwerkgegevens",
+  "addMenu.family.pingFacts": "Ping-gegevens",
+  "addMenu.family.batteryFacts": "Batterijgegevens",
+  "addMenu.family.driveFacts": "Stationgegevens",
+  "addMenu.family.sunTimes": "Zontijden",
+  "addMenu.family.moonTimes": "Maantijden"
 }

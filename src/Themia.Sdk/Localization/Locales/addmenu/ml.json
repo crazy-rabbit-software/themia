@@ -14,5 +14,15 @@
   "addMenu.subject.more": "കൂടുതൽ",
   "addMenu.family.screenTime": "സ്ക്രീൻ സമയം",
   "addMenu.family.powerButtons": "പവർ ബട്ടണുകൾ",
-  "addMenu.family.weatherFacts": "കാലാവസ്ഥാ വിവരങ്ങൾ"
+  "addMenu.family.weatherFacts": "കാലാവസ്ഥാ വിവരങ്ങൾ",
+  "addMenu.family.airFacts": "വായുവിന്റെ വിവരങ്ങൾ",
+  "addMenu.family.cpuFacts": "CPU വിവരങ്ങൾ",
+  "addMenu.family.gpuFacts": "GPU വിവരങ്ങൾ",
+  "addMenu.family.memoryFacts": "മെമ്മറി വിവരങ്ങൾ",
+  "addMenu.family.networkFacts": "നെറ്റ്‌വർക്ക് വിവരങ്ങൾ",
+  "addMenu.family.pingFacts": "പിംഗ് വിവരങ്ങൾ",
+  "addMenu.family.batteryFacts": "ബാറ്ററി വിവരങ്ങൾ",
+  "addMenu.family.driveFacts": "ഡ്രൈവ് വിവരങ്ങൾ",
+  "addMenu.family.sunTimes": "സൂര്യന്റെ സമയങ്ങൾ",
+  "addMenu.family.moonTimes": "ചന്ദ്രന്റെ സമയങ്ങൾ"
 }

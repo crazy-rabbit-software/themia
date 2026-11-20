@@ -14,5 +14,15 @@
   "addMenu.subject.more": "更多",
   "addMenu.family.screenTime": "螢幕使用時間",
   "addMenu.family.powerButtons": "電源按鈕",
-  "addMenu.family.weatherFacts": "天氣資訊"
+  "addMenu.family.weatherFacts": "天氣資訊",
+  "addMenu.family.airFacts": "空氣資訊",
+  "addMenu.family.cpuFacts": "CPU 資訊",
+  "addMenu.family.gpuFacts": "GPU 資訊",
+  "addMenu.family.memoryFacts": "記憶體資訊",
+  "addMenu.family.networkFacts": "網路資訊",
+  "addMenu.family.pingFacts": "Ping 資訊",
+  "addMenu.family.batteryFacts": "電池資訊",
+  "addMenu.family.driveFacts": "磁碟機資訊",
+  "addMenu.family.sunTimes": "太陽時間",
+  "addMenu.family.moonTimes": "月亮時間"
 }

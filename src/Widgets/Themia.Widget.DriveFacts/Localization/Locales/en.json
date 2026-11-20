@@ -1,5 +1,24 @@
 {
-  "$englishOnly": ["driveFacts.label", "driveFacts.desc"],
-  "driveFacts.label": "Drive facts",
-  "driveFacts.desc": "A drive's used, free and capacity, its file system and type"
+  "$englishOnly": [
+    "driveFacts.driveUsed.label",
+    "driveFacts.driveUsed.desc",
+    "driveFacts.driveFree.label",
+    "driveFacts.driveFree.desc",
+    "driveFacts.driveCapacity.label",
+    "driveFacts.driveCapacity.desc",
+    "driveFacts.driveFileSystem.label",
+    "driveFacts.driveFileSystem.desc",
+    "driveFacts.driveType.label",
+    "driveFacts.driveType.desc"
+  ],
+  "driveFacts.driveUsed.label": "Drive used",
+  "driveFacts.driveUsed.desc": "How much of a drive is used",
+  "driveFacts.driveFree.label": "Drive free",
+  "driveFacts.driveFree.desc": "How much room a drive has left",
+  "driveFacts.driveCapacity.label": "Drive capacity",
+  "driveFacts.driveCapacity.desc": "How much a drive holds",
+  "driveFacts.driveFileSystem.label": "File system",
+  "driveFacts.driveFileSystem.desc": "A drive's file system",
+  "driveFacts.driveType.label": "Drive type",
+  "driveFacts.driveType.desc": "What kind of drive it is"
 }

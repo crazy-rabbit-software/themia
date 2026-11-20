@@ -1,8 +1,32 @@
 {
   "$englishOnly": [
-    "memoryFacts.label",
-    "memoryFacts.desc"
+    "memoryFacts.memoryInUse.label",
+    "memoryFacts.memoryInUse.desc",
+    "memoryFacts.memoryAvailable.label",
+    "memoryFacts.memoryAvailable.desc",
+    "memoryFacts.memoryCommitted.label",
+    "memoryFacts.memoryCommitted.desc",
+    "memoryFacts.memoryCached.label",
+    "memoryFacts.memoryCached.desc",
+    "memoryFacts.memoryPagedPool.label",
+    "memoryFacts.memoryPagedPool.desc",
+    "memoryFacts.memoryNonPagedPool.label",
+    "memoryFacts.memoryNonPagedPool.desc",
+    "memoryFacts.memoryPageFile.label",
+    "memoryFacts.memoryPageFile.desc"
   ],
-  "memoryFacts.label": "Memory facts",
-  "memoryFacts.desc": "In use, available, committed and more, as you pick them"
+  "memoryFacts.memoryInUse.label": "Memory in use",
+  "memoryFacts.memoryInUse.desc": "How much memory is in use, of all there is",
+  "memoryFacts.memoryAvailable.label": "Available memory",
+  "memoryFacts.memoryAvailable.desc": "How much memory is free to use",
+  "memoryFacts.memoryCommitted.label": "Committed memory",
+  "memoryFacts.memoryCommitted.desc": "How much memory programs have committed, of the limit",
+  "memoryFacts.memoryCached.label": "Cached memory",
+  "memoryFacts.memoryCached.desc": "How much memory holds the file cache",
+  "memoryFacts.memoryPagedPool.label": "Paged pool",
+  "memoryFacts.memoryPagedPool.desc": "The kernel's memory that may be paged out",
+  "memoryFacts.memoryNonPagedPool.label": "Non-paged pool",
+  "memoryFacts.memoryNonPagedPool.desc": "The kernel's memory that stays in RAM",
+  "memoryFacts.memoryPageFile.label": "Page file",
+  "memoryFacts.memoryPageFile.desc": "How much of the page file is in use"
 }

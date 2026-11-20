@@ -14,5 +14,15 @@
   "addMenu.subject.more": "その他",
   "addMenu.family.screenTime": "スクリーンタイム",
   "addMenu.family.powerButtons": "電源ボタン",
-  "addMenu.family.weatherFacts": "天気の詳細"
+  "addMenu.family.weatherFacts": "天気の詳細",
+  "addMenu.family.airFacts": "空気の詳細",
+  "addMenu.family.cpuFacts": "CPU の詳細",
+  "addMenu.family.gpuFacts": "GPU の詳細",
+  "addMenu.family.memoryFacts": "メモリの詳細",
+  "addMenu.family.networkFacts": "ネットワークの詳細",
+  "addMenu.family.pingFacts": "Ping の詳細",
+  "addMenu.family.batteryFacts": "バッテリーの詳細",
+  "addMenu.family.driveFacts": "ドライブの詳細",
+  "addMenu.family.sunTimes": "太陽の時刻",
+  "addMenu.family.moonTimes": "月の時刻"
 }

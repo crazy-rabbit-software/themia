@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Lagi",
   "addMenu.family.screenTime": "Masa skrin",
   "addMenu.family.powerButtons": "Butang kuasa",
-  "addMenu.family.weatherFacts": "Butiran cuaca"
+  "addMenu.family.weatherFacts": "Butiran cuaca",
+  "addMenu.family.airFacts": "Butiran udara",
+  "addMenu.family.cpuFacts": "Butiran CPU",
+  "addMenu.family.gpuFacts": "Butiran GPU",
+  "addMenu.family.memoryFacts": "Butiran memori",
+  "addMenu.family.networkFacts": "Butiran rangkaian",
+  "addMenu.family.pingFacts": "Butiran ping",
+  "addMenu.family.batteryFacts": "Butiran bateri",
+  "addMenu.family.driveFacts": "Butiran pemacu",
+  "addMenu.family.sunTimes": "Waktu matahari",
+  "addMenu.family.moonTimes": "Waktu bulan"
 }

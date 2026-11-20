@@ -14,5 +14,15 @@
   "addMenu.subject.more": "更多",
   "addMenu.family.screenTime": "屏幕使用时间",
   "addMenu.family.powerButtons": "电源按钮",
-  "addMenu.family.weatherFacts": "天气信息"
+  "addMenu.family.weatherFacts": "天气信息",
+  "addMenu.family.airFacts": "空气信息",
+  "addMenu.family.cpuFacts": "CPU 信息",
+  "addMenu.family.gpuFacts": "GPU 信息",
+  "addMenu.family.memoryFacts": "内存信息",
+  "addMenu.family.networkFacts": "网络信息",
+  "addMenu.family.pingFacts": "Ping 信息",
+  "addMenu.family.batteryFacts": "电池信息",
+  "addMenu.family.driveFacts": "驱动器信息",
+  "addMenu.family.sunTimes": "太阳时间",
+  "addMenu.family.moonTimes": "月亮时间"
 }

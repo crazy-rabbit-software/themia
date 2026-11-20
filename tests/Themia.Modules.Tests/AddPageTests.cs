@@ -150,7 +150,7 @@ public sealed class AddPageTests
     [Fact]
     public void S13611_a_family_left_with_one_widget_is_that_widget_among_its_subjects_own()
     {
-        WidgetId[] gone = [new("cpuHistory"), new("cpuCores"), new("cpuFacts"), new("topProcesses")];
+        WidgetId[] gone = [new("cpuHistory"), new("cpuCores"), new("topProcesses")];
         var page = AddPage.Of([.. Every.Except(gone)], ReadyMadeGroups.Offered());
 
         var system = page.Sections(AddFolderId.System);

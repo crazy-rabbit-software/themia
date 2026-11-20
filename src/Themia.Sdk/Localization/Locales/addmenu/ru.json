@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Ещё",
   "addMenu.family.screenTime": "Экранное время",
   "addMenu.family.powerButtons": "Кнопки питания",
-  "addMenu.family.weatherFacts": "Сведения о погоде"
+  "addMenu.family.weatherFacts": "Сведения о погоде",
+  "addMenu.family.airFacts": "Сведения о воздухе",
+  "addMenu.family.cpuFacts": "Сведения о ЦП",
+  "addMenu.family.gpuFacts": "Сведения о GPU",
+  "addMenu.family.memoryFacts": "Сведения о памяти",
+  "addMenu.family.networkFacts": "Сведения о сети",
+  "addMenu.family.pingFacts": "Сведения о пинге",
+  "addMenu.family.batteryFacts": "Сведения о батарее",
+  "addMenu.family.driveFacts": "Сведения о диске",
+  "addMenu.family.sunTimes": "Время солнца",
+  "addMenu.family.moonTimes": "Время луны"
 }

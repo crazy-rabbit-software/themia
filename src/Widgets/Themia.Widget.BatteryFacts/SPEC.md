@@ -1,25 +1,20 @@
-# Battery facts (batteryFacts)
+# Battery facts (BATTERY-FACTS)
 
-The module `batteryFacts` ([S-6911]), which replaces batteryDetails: what the battery itself reports. Its tags are this file's
-alone; the root `SPEC.md` holds the host's sections and what the detail widgets share (the facts atoms
-[S-11007], the system hub [S-2500]..[S-2513], power events [S-2509]); the sheet's rules
-are the SDK's `BatteryDetailRules` with their root tags ([S-2423] the charge and status, [S-2424] the
-driver's structures, [S-2425] the status, times and health), read by the host's battery sources.
+The family project `Themia.Widget.BatteryFacts` ([S-6901], `[assembly: ThemiaWidgetFamily]`): what the battery itself reports, **one widget a fact**, each a
+single metric on the one base (the root `SPEC.md`'s single metric, [S-14600]..[S-14607]: its one row, its default, its
+trend, its sizing). Its tags are this file's; the root holds the sheet's rules, the SDK's `BatteryDetailRules` ([S-2423] the charge and status, [S-2424] the driver's structures, [S-2425] the times and health), and power events ([S-2509]).
 
-Owning files: everything in this folder: `BatteryFactsModule.cs` (descriptor, view factory, JSON
-context; no settings rows), `BatteryFactsConfig.cs` (what it asks the hub, `IReadsSystem`),
-`BatteryFactsPart.cs` (its half of the shared `DetailView`; a laptop's
-battery on a desktop is `--machine sample`, [S-1931]), `Localization/Locales/` (its own `BatteryFactsStr`, 30
-languages). Tests: `Tests/BatteryFactsTests.cs` (run by `tests/Themia.Modules.Tests`).
+Owning files: everything in this folder: `BatteryKinds.cs`, `BatteryMetric.cs` (module and config bases, the part over the
+hub's charge and battery pack feeds, the JSON context), `Localization/Locales/` (its own `BatteryFactsStr`). Tests:
+`Tests/BatteryMetricTests.cs`.
 
-- **[S-11025]** Battery facts: Status (the old caption), Time left or Full in, Health, Full charge
-  capacity, Design capacity, Cycle count, Charge or Discharge rate, Voltage, Temperature, Chemistry
-  and Manufacturer; a new one shows the first four. No hero: the charge is the Battery reading's. A
-  machine without a battery draws the pick, each "--", dimmed ([S-1942]).
-- **[S-9800]** *(Retired: Battery facts reads the hub's charge and battery pack feeds and has its pick as its one setting, [S-11025].)*
-- **[S-2023]** A click on the card ([S-2000]) opens Windows' Power & battery page
-  (`ms-settings:batterysaver`) (a row's click stays the row's, [S-2004]); the module decides it
-  (`BatteryFactsModule.Opens`, through its part's `Opens`).
+- **[S-11025]** *(Retired by [S-14660]: no card of picked facts.)*
+- **[S-9800]** *(Retired: battery facts read the hub's charge and battery pack feeds, [S-14660].)*
+- **[S-14660]** **A widget a fact** (owner, 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too. use the same base component for all of them. you should also have the option to show trendlines as well or just the trend with arrows."): `batteryStatus` "Battery status", `batteryTime` "Battery time", `batteryHealth` "Battery health", `batteryFullCapacity` "Full charge capacity", `batteryDesignCapacity` "Design capacity", `batteryCycles` "Cycle count", `batteryRate` "Charge rate", `batteryVoltage` "Battery voltage", `batteryTemperature` "Battery temperature", `batteryChemistry` "Battery chemistry", `batteryManufacturer` "Battery maker", the family **Battery facts** under Devices &
+  power (`AddFolderId.BatteryFacts`). Each draws its fact of the battery's sheet, named as the sheet names it ("Full in"
+  while charging, "Charge rate" or "Discharge rate"); a machine without a battery keeps the row, "--" dimmed, why its
+  tooltip ([S-1942]). Trends ([S-14603]): battery time, charge rate, battery voltage and battery temperature an arrow from the last two readings the card saw (no history kept); battery status, battery health, full charge capacity, design capacity, cycle count, battery chemistry and battery maker none (a text, a constant or a time: no Trend line). A placed `batteryFacts` card is replaced in place by
+  its rows ([S-14606]).
+- **[S-2023]** A click on the card ([S-2000]) opens Windows' Power & battery page (`ms-settings:batterysaver`); the module decides it (`BatteryMetricModule.Opens`).
 
-Needs a manual pass: the widget on a laptop (charging, discharging, full) and on a desktop with no
-battery (a battery's facts, each "--", dimmed, [S-1942]; `--state unavailable` renders it anywhere).
+Needs a manual pass: the cards on a laptop (charging, discharging, full) and on a desktop (each "--", dimmed; `--state unavailable` renders it anywhere).

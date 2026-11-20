@@ -14,5 +14,15 @@
   "addMenu.subject.more": "மேலும்",
   "addMenu.family.screenTime": "திரை நேரம்",
   "addMenu.family.powerButtons": "பவர் பொத்தான்கள்",
-  "addMenu.family.weatherFacts": "வானிலை விவரங்கள்"
+  "addMenu.family.weatherFacts": "வானிலை விவரங்கள்",
+  "addMenu.family.airFacts": "காற்று விவரங்கள்",
+  "addMenu.family.cpuFacts": "CPU விவரங்கள்",
+  "addMenu.family.gpuFacts": "GPU விவரங்கள்",
+  "addMenu.family.memoryFacts": "நினைவக விவரங்கள்",
+  "addMenu.family.networkFacts": "நெட்வொர்க் விவரங்கள்",
+  "addMenu.family.pingFacts": "பிங் விவரங்கள்",
+  "addMenu.family.batteryFacts": "பேட்டரி விவரங்கள்",
+  "addMenu.family.driveFacts": "டிரைவ் விவரங்கள்",
+  "addMenu.family.sunTimes": "சூரிய நேரங்கள்",
+  "addMenu.family.moonTimes": "சந்திர நேரங்கள்"
 }

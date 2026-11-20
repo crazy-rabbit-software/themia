@@ -44,8 +44,8 @@ public static class AddTree
 
     /// <summary>
     /// [S-3511] The tree's folders: the subjects under Browse, in the order a person looks for them,
-    /// and the families inside a subject (a reading's meter and its details, the screen time parts,
-    /// the power buttons, the weather's facts). The folders are the host's; the widgets place themselves in them ([S-6907],
+    /// and the families inside a subject (a reading's meter and its history, the screen time parts,
+    /// the power buttons, the single metrics of the weather, the air, the sky and each system reading, [S-14604]). The folders are the host's; the widgets place themselves in them ([S-6907],
     /// <see cref="AddPlacement"/>), so this names no widget.
     /// </summary>
     private static readonly Folder[] Folders =
@@ -54,19 +54,29 @@ public static class AddTree
         new(AddFolderId.CalendarMail, Str.AddMenu_Subject_Calendar, AddFolderId.Browse, 0, 1),
         new(AddFolderId.Weather, Str.AddMenu_Subject_Weather, AddFolderId.Browse, 0, 2),
         new(AddFolderId.WeatherFacts, Str.AddMenu_Family_WeatherFacts, AddFolderId.Weather, 0, 1),
+        new(AddFolderId.AirFacts, Str.AddMenu_Family_AirFacts, AddFolderId.Weather, 0, 5),
+        new(AddFolderId.SunTimes, Str.AddMenu_Family_SunTimes, AddFolderId.Weather, 1, 1),
+        new(AddFolderId.MoonTimes, Str.AddMenu_Family_MoonTimes, AddFolderId.Weather, 1, 3),
         new(AddFolderId.Markets, Str.AddMenu_Subject_Markets, AddFolderId.Browse, 0, 3),
         new(AddFolderId.Media, Str.AddMenu_Subject_Media, AddFolderId.Browse, 0, 4),
         new(AddFolderId.Notes, Str.AddMenu_Subject_Notes, AddFolderId.Browse, 0, 5),
         new(AddFolderId.Files, Str.AddMenu_Subject_Files, AddFolderId.Browse, 0, 6),
         new(AddFolderId.System, Str.AddMenu_Subject_System, AddFolderId.Browse, 0, 7),
         new(AddFolderId.Processor, null, AddFolderId.System, 0, 0),
+        new(AddFolderId.CpuFacts, Str.AddMenu_Family_CpuFacts, AddFolderId.System, 0, 0),
         new(AddFolderId.MemoryReading, null, AddFolderId.System, 0, 1),
+        new(AddFolderId.MemoryFacts, Str.AddMenu_Family_MemoryFacts, AddFolderId.System, 0, 1),
         new(AddFolderId.Graphics, null, AddFolderId.System, 0, 2),
+        new(AddFolderId.GpuFacts, Str.AddMenu_Family_GpuFacts, AddFolderId.System, 0, 2),
         new(AddFolderId.NetworkReading, null, AddFolderId.System, 0, 4),
+        new(AddFolderId.NetworkFacts, Str.AddMenu_Family_NetworkFacts, AddFolderId.System, 0, 4),
         new(AddFolderId.PingReading, null, AddFolderId.System, 0, 5),
+        new(AddFolderId.PingFacts, Str.AddMenu_Family_PingFacts, AddFolderId.System, 0, 5),
         new(AddFolderId.ScreenTime, Str.AddMenu_Family_ScreenTime, AddFolderId.System, 1, 0),
         new(AddFolderId.Devices, Str.AddMenu_Subject_Devices, AddFolderId.Browse, 0, 8),
         new(AddFolderId.BatteryReading, null, AddFolderId.Devices, 0, 0),
+        new(AddFolderId.BatteryFacts, Str.AddMenu_Family_BatteryFacts, AddFolderId.Devices, 0, 0),
+        new(AddFolderId.DriveFacts, Str.AddMenu_Family_DriveFacts, AddFolderId.Devices, 2, 1),
         new(AddFolderId.PowerButtons, Str.AddMenu_Family_PowerButtons, AddFolderId.Devices, 0, 1),
         new(AddFolderId.QuickSettings, Str.Toggles_Category, AddFolderId.Browse, 0, 9),
     ];

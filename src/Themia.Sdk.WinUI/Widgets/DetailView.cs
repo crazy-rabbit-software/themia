@@ -14,10 +14,9 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-2400] [S-11007] [S-11008] The face every system facts and list atom shares, built from the
-/// family's blocks: fact rows (the value primary, the name secondary, [S-6711]) as the config picks
-/// them, or a list of the config's rows (processes, adapters). Where the figures come from is the
-/// kind's <see cref="DetailPart"/>; nothing appears with size.
+/// [S-2400] [S-11008] The face every system list atom shares, built from the family's blocks: a list of the
+/// config's rows (processes, adapters). Where the figures come from is the kind's <see cref="DetailPart"/>;
+/// nothing appears with size. A system fact is a single metric of its own ([S-14604], <c>SystemMetricView</c>).
 /// Elements are kept and re-filled between reads, never rebuilt per tick ([S-6332]).
 /// <para>
 /// [S-2500] The figures are the system hub's: the part watches its feeds from Attach and lets go in
@@ -32,9 +31,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
-    /// <summary>[S-12807] The fact rows reach the view's top and the foot's inset (its margin).</summary>
-    /// <summary>[S-12811] The facts as the rows every facts widget draws.</summary>
-    private readonly FactList _facts = new();
     private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
 
     private WidgetConfig _config;
@@ -57,7 +53,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        Children.Add(_facts);
 
         BuildList();
 
@@ -160,26 +155,12 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     /// </summary>
     private bool ShowsEmpty => _sheet.Hero is null && _sheet.Facts.Count == 0 && _sheet.Rows.Count == 0 && _sheet.Note is not null;
 
-    /// <summary>[S-11007] The fact rows the tile shows: a facts atom's pick, else the sheet's own.</summary>
-    private IReadOnlyList<DetailFact> FactsOf(DetailSheet sheet)
-        => _part.Atom == DetailAtom.Facts && _config is FactsConfig facts
-            ? FactsRules.Pick(Strings.Current, sheet, facts.Facts, _part.FactOptions)
-            : sheet.Facts;
-
     /// <summary>[S-2402] The face <paramref name="sheet"/> gets in this tile.</summary>
     private DetailFacePlan PlanFor(DetailSheet sheet)
     {
-        // [S-11007] [S-11008] An atom shows what its config says at every size: its picked facts, or
-        // its list's rows (more scroll inside them, [S-11008]), from the view's top.
-        switch (_part.Atom)
-        {
-            case DetailAtom.Facts:
-                return new DetailFacePlan(FactsOf(sheet).Count, 0, 1);
-
-            default:
-                var rows = _config is Themia.Sdk.Kit.IKitRows list ? Themia.Sdk.Kit.KitSizing.ClampRows(list.Rows) : 1;
-                return new DetailFacePlan(0, sheet.Rows.Count == 0 ? 0 : rows, Math.Clamp(_part.ListLines, 1, 3));
-        }
+        // [S-11008] An atom shows what its config says at every size: its list's rows (more scroll inside them), from the view's top.
+        var rows = _config is Themia.Sdk.Kit.IKitRows list ? Themia.Sdk.Kit.KitSizing.ClampRows(list.Rows) : 1;
+        return new DetailFacePlan(sheet.Rows.Count == 0 ? 0 : rows, Math.Clamp(_part.ListLines, 1, 3));
     }
 
     /// <summary>[S-2402] Plan the face for the area and the sheet's shape, then fill it.</summary>
@@ -190,13 +171,11 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
             return;
         }
 
-        // [S-12813] A facts atom never trades its rows for the state: its picked facts stay, "--" where nothing was
-        // read, the note their tooltip. A list with no rows to draw says why in its Status row.
-        if (ShowsEmpty && _part.Atom != DetailAtom.Facts)
+        // [S-12813] A list with no rows to draw says why in its Status row.
+        if (ShowsEmpty)
         {
             _empty.Show(StatusKind.Empty, ModuleCatalog.Of(_kind).Glyph, _sheet.Note ?? string.Empty);
             _empty.Visibility = Visibility.Visible;
-            _facts.Visibility = Visibility.Collapsed;
             ShowList(null);
             _plan = null;
             return;
@@ -206,20 +185,9 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
 
         var plan = PlanFor(_sheet);
         _plan = plan;
-
-        // [S-12807] The rows from the view's top to the foot's inset, their text reaching both. They carry
-        // their own side inset.
-        _facts.Visibility = plan.Facts > 0 ? Visibility.Visible : Visibility.Collapsed;
-        SetRow(_facts, 1);
-        SetRowSpan(_facts, plan.List ? 1 : 2);
-        LayFacts(plan.Facts);
-
         ShowList(plan);
         Fill();
     }
-
-    /// <summary>[S-12807] The pick's rows fill the content; a fact this machine does not report leaves its row empty.</summary>
-    private void LayFacts(int count) => _facts.Rows = _config is FactsConfig picked ? picked.Facts.Count : count;
 
     /// <summary>Put the sheet's text into the elements the plan shows.</summary>
     private void Fill()
@@ -231,9 +199,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
 
         // [S-1940] Not on this machine: the whole tile says why, every part of it disabled.
         UnavailableLook.Say(this, _sheet.Absent || ShowsEmpty ? _sheet.Note : null);
-
-        _facts.Show([.. FactsOf(_sheet).Take(plan.Facts).Select(f => FactLine.Of(f) with { Available = f.Available && !_sheet.Absent })]);
-
         FillList();
     }
 }

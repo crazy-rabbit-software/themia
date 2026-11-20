@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Zaidi",
   "addMenu.family.screenTime": "Muda wa skrini",
   "addMenu.family.powerButtons": "Vitufe vya nishati",
-  "addMenu.family.weatherFacts": "Taarifa za hali ya hewa"
+  "addMenu.family.weatherFacts": "Taarifa za hali ya hewa",
+  "addMenu.family.airFacts": "Taarifa za hewa",
+  "addMenu.family.cpuFacts": "Taarifa za CPU",
+  "addMenu.family.gpuFacts": "Taarifa za GPU",
+  "addMenu.family.memoryFacts": "Taarifa za kumbukumbu",
+  "addMenu.family.networkFacts": "Taarifa za mtandao",
+  "addMenu.family.pingFacts": "Taarifa za ping",
+  "addMenu.family.batteryFacts": "Taarifa za betri",
+  "addMenu.family.driveFacts": "Taarifa za hifadhi",
+  "addMenu.family.sunTimes": "Nyakati za jua",
+  "addMenu.family.moonTimes": "Nyakati za mwezi"
 }

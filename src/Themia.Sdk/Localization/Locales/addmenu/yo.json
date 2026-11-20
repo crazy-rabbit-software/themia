@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Síwájú sí i",
   "addMenu.family.screenTime": "Àkókò ojú-ìbòjú",
   "addMenu.family.powerButtons": "Àwọn bọ́tìnnì agbára",
-  "addMenu.family.weatherFacts": "Àwọn àlàyé ojú ọjọ́"
+  "addMenu.family.weatherFacts": "Àwọn àlàyé ojú ọjọ́",
+  "addMenu.family.airFacts": "Àwọn àlàyé afẹ́fẹ́",
+  "addMenu.family.cpuFacts": "Àwọn àlàyé CPU",
+  "addMenu.family.gpuFacts": "Àwọn àlàyé GPU",
+  "addMenu.family.memoryFacts": "Àwọn àlàyé ìrántí",
+  "addMenu.family.networkFacts": "Àwọn àlàyé nẹ́tíwọ̀ọ̀kì",
+  "addMenu.family.pingFacts": "Àwọn àlàyé ping",
+  "addMenu.family.batteryFacts": "Àwọn àlàyé bátírì",
+  "addMenu.family.driveFacts": "Àwọn àlàyé díráìfù",
+  "addMenu.family.sunTimes": "Àwọn àkókò oòrùn",
+  "addMenu.family.moonTimes": "Àwọn àkókò òṣùpá"
 }

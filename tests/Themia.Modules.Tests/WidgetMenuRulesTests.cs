@@ -26,12 +26,11 @@ public sealed class WidgetMenuRulesTests
         "R14 fence › Roll up with a click on the title", // its title is cut (33 characters)
         "R14 fence › Open while the pointer is over it", // its title is cut (33 characters)
         "R13 gallery › Folder", // its icon is also Include subfolders's
-        "R8 moonTimes › Times › New Moon", // "Moon" in sentence case: the phase's name as the widget shows it
         "R13 nextMeeting › Organiser", // its icon is also Accounts's
     };
 
     /// <summary>The kinds whose lines read a list only the running host installs (as <c>SettingOwnershipTests</c>).</summary>
-    private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory"];
+    private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuHistory", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
 
     /// <summary>[S-2374] A widget's entry as the rules read it.</summary>
     internal static RuleRow RowOf(ItemMenuEntry entry)

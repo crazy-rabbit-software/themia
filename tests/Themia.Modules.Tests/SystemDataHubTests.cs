@@ -211,7 +211,7 @@ public sealed class SystemDataHubTests
         Assert.Equal(MeterTiming.MaxSpanSeconds, SeriesHistory.Capacity(SystemSource.Cpu));
         Assert.Equal(MeterTiming.Points(MeterTiming.SpanChoices.Max(), SystemCadence.TickSeconds), SeriesHistory.Capacity(SystemSource.Gpu));
         Assert.Equal(MeterTiming.Points(MeterTiming.SpanChoices.Max(), SystemCadence.PingSeconds), SeriesHistory.Capacity(SystemSource.Ping));
-        Assert.True(SeriesHistory.Capacity(SystemSource.Ping) >= PingFactsConfig.MaxWindow);
+        Assert.True(SeriesHistory.Capacity(SystemSource.Ping) >= Themia.Widget.PingFacts.PingMetricConfig.MaxWindow);
     }
 
     [Fact]
@@ -357,7 +357,7 @@ public sealed class SystemDataHubTests
     {
         var state = State(
             [new CpuConfig(), new ClockConfig()],
-            [new MemoryConfig(), new TopProcessesConfig(), new PingFactsConfig { Host = "Example.com" }]);
+            [new MemoryConfig(), new TopProcessesConfig(), new Themia.Widget.PingFacts.PingAverageConfig { Host = "Example.com" }]);
 
         var interests = SystemInterests.From(state, Root);
 
@@ -376,8 +376,8 @@ public sealed class SystemDataHubTests
     public void S2513_two_widgets_on_one_feed_want_it_once_and_a_ping_meter_shares_the_statistics_prober()
     {
         var state = State(
-            [new CpuConfig(), new CpuFactsConfig(), new PingConfig { Host = "1.1.1.1" }],
-            [new CpuConfig(), new PingFactsConfig { Host = " 1.1.1.1 " }]);
+            [new CpuConfig(), new Themia.Widget.CpuFacts.CpuSpeedConfig(), new PingConfig { Host = "1.1.1.1" }],
+            [new CpuConfig(), new Themia.Widget.PingFacts.PingJitterConfig { Host = " 1.1.1.1 " }]);
 
         var interests = SystemInterests.From(state, Root);
 
@@ -412,8 +412,8 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2513_the_public_address_is_asked_only_while_a_widget_wants_it()
     {
-        Assert.DoesNotContain(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkFactsConfig(), Root).Feeds);
-        Assert.Contains(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkFactsConfig { Facts = ["publicAddress"] }, Root).Feeds);
+        Assert.DoesNotContain(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new Themia.Widget.NetworkFacts.NetworkLocalAddressConfig(), Root).Feeds);
+        Assert.Contains(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new Themia.Widget.NetworkFacts.NetworkPublicAddressConfig(), Root).Feeds);
     }
 
     [Fact]
@@ -424,7 +424,7 @@ public sealed class SystemDataHubTests
             var config = WidgetConfig.CreateDefault(kind);
             var wants = SystemInterests.For(config, Root);
             // [S-11026] A drive's facts read the host's drive walk, not the hub.
-            var system = config is DetailConfig or ReadingConfig or HistoryConfig && config is IReadsSystem;
+            var system = config is DetailConfig or ReadingConfig or HistoryConfig or MetricConfig && config is IReadsSystem;
 
             Assert.Equal(system, wants.Feeds.Count > 0);
 
@@ -436,14 +436,14 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2513_a_change_that_wants_the_same_is_no_change()
     {
-        var state = State([new Themia.Widget.CpuHistory.CpuHistoryConfig(), new MemoryFactsConfig()]);
+        var state = State([new Themia.Widget.CpuHistory.CpuHistoryConfig(), new Themia.Widget.MemoryFacts.MemoryInUseConfig()]);
         var before = SystemInterests.From(state, Root);
 
         // Moving a widget or changing a span reads nothing new.
         ((Themia.Widget.CpuHistory.CpuHistoryConfig)state.Views[0].Widgets[0].Config).GraphSpanSeconds = 3600;
         Assert.True(before.SameAs(SystemInterests.From(state, Root)));
 
-        state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Config = new NetworkFactsConfig() });
+        state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Config = new Themia.Widget.NetworkFacts.NetworkDownloadConfig() });
         Assert.False(before.SameAs(SystemInterests.From(state, Root)));
     }
 

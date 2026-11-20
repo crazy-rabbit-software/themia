@@ -110,7 +110,6 @@ internal sealed class NetworkAdaptersPart : DetailPart
     public override WidgetId Kind => new("networkAdapters");
 
 
-    public override DetailAtom Atom => DetailAtom.List;
 
     public override int ListLines => 2;
 

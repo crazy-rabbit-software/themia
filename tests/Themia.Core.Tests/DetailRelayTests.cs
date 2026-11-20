@@ -15,7 +15,7 @@ public sealed class DetailRelayTests
 
     /// <summary>The plan a list atom stating <paramref name="rows"/> rows gets for a sheet, as the view plans it ([S-11008]).</summary>
     private static Func<DetailSheet, DetailFacePlan> ListPlan(int rows)
-        => sheet => new DetailFacePlan(0, sheet.Rows.Count == 0 ? 0 : rows, DetailFace.ListLines(sheet.Rows));
+        => sheet => new DetailFacePlan(sheet.Rows.Count == 0 ? 0 : rows, DetailFace.ListLines(sheet.Rows));
 
     [Theory]
     [InlineData(120, 121)]

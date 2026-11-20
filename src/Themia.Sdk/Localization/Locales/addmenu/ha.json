@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Ƙari",
   "addMenu.family.screenTime": "Lokacin allo",
   "addMenu.family.powerButtons": "Maɓallan wuta",
-  "addMenu.family.weatherFacts": "Bayanan yanayi"
+  "addMenu.family.weatherFacts": "Bayanan yanayi",
+  "addMenu.family.airFacts": "Bayanan iska",
+  "addMenu.family.cpuFacts": "Bayanan CPU",
+  "addMenu.family.gpuFacts": "Bayanan GPU",
+  "addMenu.family.memoryFacts": "Bayanan ƙwaƙwalwa",
+  "addMenu.family.networkFacts": "Bayanan hanyar sadarwa",
+  "addMenu.family.pingFacts": "Bayanan ping",
+  "addMenu.family.batteryFacts": "Bayanan batir",
+  "addMenu.family.driveFacts": "Bayanan faifai",
+  "addMenu.family.sunTimes": "Lokutan rana",
+  "addMenu.family.moonTimes": "Lokutan wata"
 }

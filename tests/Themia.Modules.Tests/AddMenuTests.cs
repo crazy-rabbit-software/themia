@@ -96,8 +96,12 @@ public sealed class AddMenuTests
     {
         var homes = AddPage.Of(Every, ReadyMadeGroups.Offered()).Homes;
 
-        var details = homes.Single(home => home.Kind == new WidgetId("cpuFacts"));
-        Assert.Equal([AddFolderId.System, AddFolderId.Processor], details.Path.Select(shelf => shelf.Id));
+        var history = homes.Single(home => home.Kind == new WidgetId("cpuHistory"));
+        Assert.Equal([AddFolderId.System, AddFolderId.Processor], history.Path.Select(shelf => shelf.Id));
+
+        // [S-14604] A single metric is at home in its own family beside its reading's.
+        var speed = homes.Single(home => home.Kind == new WidgetId("cpuSpeed"));
+        Assert.Equal([AddFolderId.System, AddFolderId.CpuFacts], speed.Path.Select(shelf => shelf.Id));
 
         var clock = homes.Single(home => home.Kind == new WidgetId("clock"));
         Assert.Equal([AddFolderId.Time], clock.Path.Select(shelf => shelf.Id));

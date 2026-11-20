@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Thêm",
   "addMenu.family.screenTime": "Thời gian sử dụng",
   "addMenu.family.powerButtons": "Nút nguồn",
-  "addMenu.family.weatherFacts": "Thông tin thời tiết"
+  "addMenu.family.weatherFacts": "Thông tin thời tiết",
+  "addMenu.family.airFacts": "Thông tin không khí",
+  "addMenu.family.cpuFacts": "Thông tin CPU",
+  "addMenu.family.gpuFacts": "Thông tin GPU",
+  "addMenu.family.memoryFacts": "Thông tin bộ nhớ",
+  "addMenu.family.networkFacts": "Thông tin mạng",
+  "addMenu.family.pingFacts": "Thông tin ping",
+  "addMenu.family.batteryFacts": "Thông tin pin",
+  "addMenu.family.driveFacts": "Thông tin ổ đĩa",
+  "addMenu.family.sunTimes": "Giờ mặt trời",
+  "addMenu.family.moonTimes": "Giờ mặt trăng"
 }

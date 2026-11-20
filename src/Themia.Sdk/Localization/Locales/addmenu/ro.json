@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Mai multe",
   "addMenu.family.screenTime": "Timp petrecut pe ecran",
   "addMenu.family.powerButtons": "Butoane de alimentare",
-  "addMenu.family.weatherFacts": "Date meteo"
+  "addMenu.family.weatherFacts": "Date meteo",
+  "addMenu.family.airFacts": "Date despre aer",
+  "addMenu.family.cpuFacts": "Date procesor",
+  "addMenu.family.gpuFacts": "Date GPU",
+  "addMenu.family.memoryFacts": "Date memorie",
+  "addMenu.family.networkFacts": "Date rețea",
+  "addMenu.family.pingFacts": "Date ping",
+  "addMenu.family.batteryFacts": "Date baterie",
+  "addMenu.family.driveFacts": "Date unitate",
+  "addMenu.family.sunTimes": "Orele soarelui",
+  "addMenu.family.moonTimes": "Orele lunii"
 }

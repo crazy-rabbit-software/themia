@@ -1,19 +1,18 @@
-# Memory facts (memoryFacts)
+# Memory facts (MEMORY-FACTS)
 
-The module `memoryFacts` ([S-6911]), which replaces Memory details: memory's facts as fact rows. Its
-tags are this file's alone; the root `SPEC.md` holds what the facts atoms share ([S-11007]) and the
-sheet's rules, the SDK's `MemoryDetailRules` ([S-2408] the facts, [S-2409] the page files), read by the
-host's performance source. The old card's look is the ready-made group "Memory details" ([S-11090]).
+The family project `Themia.Widget.MemoryFacts` ([S-6901], `[assembly: ThemiaWidgetFamily]`): the memory's facts, **one widget a fact**, each a
+single metric on the one base (the root `SPEC.md`'s single metric, [S-14600]..[S-14607]: its one row, its default, its
+trend, its sizing). Its tags are this file's; the root holds the sheet's rules, the SDK's `MemoryDetailRules` ([S-2408], [S-2409] the page files).
 
-Owning files: everything in this folder: `MemoryFactsModule.cs` (descriptor, menu line, JSON context),
-`MemoryFactsConfig.cs` (the pick, what it asks the hub), `MemoryFactsPart.cs` (its half of the shared
-`DetailView`), `Localization/Locales/` (its own `MemoryFactsStr`). Tests: `Tests/MemoryFactsTests.cs`.
+Owning files: everything in this folder: `MemoryKinds.cs`, `MemoryMetric.cs` (module and config bases, the part over the
+hub's performance feed and the memory's share series, the JSON context), `Localization/Locales/` (its own `MemoryFactsStr`).
+Tests: `Tests/MemoryMetricTests.cs`.
 
-- **[S-11017]** Memory facts reads the hub's performance feed (`SystemSource.Performance`) and charts
-  nothing. Its facts, in the kind's order: In use (the old hero, used of total), Available, Committed,
-  Cached, Paged pool, Non-paged pool, Page file; a new one shows the first four. No hero: the share is
-  the Memory reading's. Its one line is the pick ([S-11007]).
-- **[S-2013]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`) (a row's click
-  stays the row's, [S-2004]); the module decides it (`MemoryFactsModule.Opens`, through its part's `Opens`).
+- **[S-11017]** *(Retired by [S-14630]: no card of picked facts.)*
+- **[S-14630]** **A widget a fact** (owner, 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too. use the same base component for all of them. you should also have the option to show trendlines as well or just the trend with arrows."): `memoryInUse` "Memory in use", `memoryAvailable` "Available memory", `memoryCommitted` "Committed memory", `memoryCached` "Cached memory", `memoryPagedPool` "Paged pool", `memoryNonPagedPool` "Non-paged pool", `memoryPageFile` "Page file", the family **Memory facts** under System
+  (`AddFolderId.MemoryFacts`). Each reads the hub's performance figures and draws its fact; in use is used of total, its
+  number the bytes used. Trends ([S-14603]): memory in use an arrow and a line; available memory, committed memory, cached memory, paged pool, non-paged pool and page file an arrow from the last two readings the card saw (no history kept); in use's line is the memory reading's own share
+  series, read only while a line is drawn. A placed `memoryFacts` card is replaced in place by its rows ([S-14606]).
+- **[S-2013]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); the module decides it (`MemoryMetricModule.Opens`).
 
-Needs a manual pass: the widget on a live desktop (the figures moving as programs start and close).
+Needs a manual pass: the cards on a live desktop (memory moving under load, a machine without a page file).

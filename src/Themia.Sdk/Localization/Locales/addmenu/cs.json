@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Další",
   "addMenu.family.screenTime": "Čas u obrazovky",
   "addMenu.family.powerButtons": "Tlačítka napájení",
-  "addMenu.family.weatherFacts": "Údaje o počasí"
+  "addMenu.family.weatherFacts": "Údaje o počasí",
+  "addMenu.family.airFacts": "Údaje o ovzduší",
+  "addMenu.family.cpuFacts": "Údaje o procesoru",
+  "addMenu.family.gpuFacts": "Údaje o GPU",
+  "addMenu.family.memoryFacts": "Údaje o paměti",
+  "addMenu.family.networkFacts": "Údaje o síti",
+  "addMenu.family.pingFacts": "Údaje o pingu",
+  "addMenu.family.batteryFacts": "Údaje o baterii",
+  "addMenu.family.driveFacts": "Údaje o jednotce",
+  "addMenu.family.sunTimes": "Časy slunce",
+  "addMenu.family.moonTimes": "Časy měsíce"
 }

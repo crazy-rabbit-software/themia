@@ -1,12 +1,18 @@
 {
   "$englishOnly": [
-    "sunTimes.label",
-    "sunTimes.desc",
-    "sunTimes.menu.times"
+    "sunTimes.sunrise.label",
+    "sunTimes.sunrise.desc",
+    "sunTimes.sunset.label",
+    "sunTimes.sunset.desc",
+    "sunTimes.daylight.label",
+    "sunTimes.daylight.desc",
+    "sunTimes.solarNoon.label",
+    "sunTimes.solarNoon.desc",
+    "sunTimes.dawn.label",
+    "sunTimes.dawn.desc",
+    "sunTimes.dusk.label",
+    "sunTimes.dusk.desc"
   ],
-  "sunTimes.desc": "Sunrise, sunset and daylight as rows",
-  "sunTimes.label": "Sun times",
-  "sunTimes.menu.times": "Times",
   "widgetUi.daylight": "Daylight",
   "widgetsC.sunMoon.civil": "civil",
   "widgetsC.sunMoon.dawn": "Dawn",
@@ -14,5 +20,17 @@
   "widgetsC.sunMoon.short.daylight": "Daylight",
   "widgetsC.sunMoon.short.sunrise": "Sunrise",
   "widgetsC.sunMoon.short.sunset": "Sunset",
-  "widgetsC.sunMoon.solarNoon": "Solar noon"
+  "widgetsC.sunMoon.solarNoon": "Solar noon",
+  "sunTimes.sunrise.label": "Sunrise",
+  "sunTimes.sunrise.desc": "When the sun rises where you are, worked out from the sky",
+  "sunTimes.sunset.label": "Sunset",
+  "sunTimes.sunset.desc": "When the sun sets where you are, worked out from the sky",
+  "sunTimes.daylight.label": "Daylight",
+  "sunTimes.daylight.desc": "How long the sun is up today where you are",
+  "sunTimes.solarNoon.label": "Solar noon",
+  "sunTimes.solarNoon.desc": "When the sun stands highest where you are",
+  "sunTimes.dawn.label": "Dawn",
+  "sunTimes.dawn.desc": "When civil twilight begins where you are",
+  "sunTimes.dusk.label": "Dusk",
+  "sunTimes.dusk.desc": "When civil twilight ends where you are"
 }

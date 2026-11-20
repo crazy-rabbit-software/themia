@@ -14,5 +14,15 @@
   "addMenu.subject.more": "మరిన్ని",
   "addMenu.family.screenTime": "స్క్రీన్ సమయం",
   "addMenu.family.powerButtons": "పవర్ బటన్‌లు",
-  "addMenu.family.weatherFacts": "వాతావరణ వివరాలు"
+  "addMenu.family.weatherFacts": "వాతావరణ వివరాలు",
+  "addMenu.family.airFacts": "గాలి వివరాలు",
+  "addMenu.family.cpuFacts": "CPU వివరాలు",
+  "addMenu.family.gpuFacts": "GPU వివరాలు",
+  "addMenu.family.memoryFacts": "మెమరీ వివరాలు",
+  "addMenu.family.networkFacts": "నెట్‌వర్క్ వివరాలు",
+  "addMenu.family.pingFacts": "పింగ్ వివరాలు",
+  "addMenu.family.batteryFacts": "బ్యాటరీ వివరాలు",
+  "addMenu.family.driveFacts": "డ్రైవ్ వివరాలు",
+  "addMenu.family.sunTimes": "సూర్య సమయాలు",
+  "addMenu.family.moonTimes": "చంద్ర సమయాలు"
 }

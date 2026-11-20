@@ -14,5 +14,15 @@
   "addMenu.subject.more": "더 보기",
   "addMenu.family.screenTime": "스크린 타임",
   "addMenu.family.powerButtons": "전원 버튼",
-  "addMenu.family.weatherFacts": "날씨 정보"
+  "addMenu.family.weatherFacts": "날씨 정보",
+  "addMenu.family.airFacts": "대기 정보",
+  "addMenu.family.cpuFacts": "CPU 정보",
+  "addMenu.family.gpuFacts": "GPU 정보",
+  "addMenu.family.memoryFacts": "메모리 정보",
+  "addMenu.family.networkFacts": "네트워크 정보",
+  "addMenu.family.pingFacts": "핑 정보",
+  "addMenu.family.batteryFacts": "배터리 정보",
+  "addMenu.family.driveFacts": "드라이브 정보",
+  "addMenu.family.sunTimes": "해 시간",
+  "addMenu.family.moonTimes": "달 시간"
 }

@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Higit pa",
   "addMenu.family.screenTime": "Oras sa screen",
   "addMenu.family.powerButtons": "Mga power button",
-  "addMenu.family.weatherFacts": "Mga detalye ng panahon"
+  "addMenu.family.weatherFacts": "Mga detalye ng panahon",
+  "addMenu.family.airFacts": "Mga detalye ng hangin",
+  "addMenu.family.cpuFacts": "Mga detalye ng CPU",
+  "addMenu.family.gpuFacts": "Mga detalye ng GPU",
+  "addMenu.family.memoryFacts": "Mga detalye ng memory",
+  "addMenu.family.networkFacts": "Mga detalye ng network",
+  "addMenu.family.pingFacts": "Mga detalye ng ping",
+  "addMenu.family.batteryFacts": "Mga detalye ng baterya",
+  "addMenu.family.driveFacts": "Mga detalye ng drive",
+  "addMenu.family.sunTimes": "Mga oras ng araw",
+  "addMenu.family.moonTimes": "Mga oras ng buwan"
 }

@@ -69,7 +69,9 @@
     "groups.recipe.screenTime",
     "groups.recipe.screenTimeAbout",
     "groups.page.shared",
-    "groups.page.mixed"
+    "groups.page.mixed",
+    "groups.recipe.weatherFacts",
+    "groups.recipe.weatherFactsAbout"
   ],
   "groups.page.shared": "For all of them",
   "groups.page.mixed": "Mixed",
@@ -84,6 +86,8 @@
   "groups.recipe.myDayAbout": "The time, your next meeting and your tasks",
   "groups.recipe.weather": "Weather",
   "groups.recipe.weatherAbout": "Now, the days ahead and rain in the next hour",
+  "groups.recipe.weatherFacts": "Weather facts",
+  "groups.recipe.weatherFactsAbout": "Every weather reading where you are, one per row",
   "groups.recipe.myFiles": "My files",
   "groups.recipe.myFilesAbout": "Your documents, your shortcuts and the files you opened last",
   "groups.recipe.cpu": "CPU",
@@ -123,7 +127,7 @@
   "groups.recipe.moon": "Moon",
   "groups.recipe.moonAbout": "How much of the moon is lit, its rise, set and next full moon",
   "groups.recipe.airQuality": "Air quality",
-  "groups.recipe.airQualityAbout": "The air quality index, UV, fine dust and pollen",
+  "groups.recipe.airQualityAbout": "The air quality index over UV, fine dust, ozone and pollen",
   "groups.recipe.exchangeRates": "Exchange rates",
   "groups.recipe.exchangeRatesAbout": "A currency pair's rate today and its last 90 days",
   "groups.recipe.stocks": "Stocks",

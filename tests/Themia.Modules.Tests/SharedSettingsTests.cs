@@ -23,14 +23,14 @@ public sealed class SharedSettingsTests
     /// <summary>[S-11752] Which kinds carry each shared setting: the table the SPEC states, pinned.</summary>
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
-        ["place"] = ["airFacts", "airQuality", "airQualityGraph", "header", "humidityGraph", "moon", "moonTimes", "pressureGraph", "rainGraph", "rainNextHour", "sun", "sunTimes", "temperatureGraph", "uvGraph", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind", "windGraph"],
+        ["place"] = ["airAlder", "airBirch", "airGrass", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airQualityGraph", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "humidityGraph", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "pressureGraph", "rainGraph", "rainNextHour", "solarNoon", "sun", "sunrise", "sunset", "temperatureGraph", "uvGraph", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind", "windGraph"],
         ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],
         ["diskScope"] = ["disk", "diskHistory"],
-        ["drive"] = ["drive", "driveFacts"],
-        ["pingHost"] = ["ping", "pingFacts", "pingHistory"],
-        ["gpuAdapter"] = ["gpu", "gpuEngines", "gpuFacts", "gpuHistory"],
+        ["drive"] = ["drive", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed"],
+        ["pingHost"] = ["ping", "pingAnswered", "pingAverage", "pingHistory", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum"],
+        ["gpuAdapter"] = ["gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuHistory", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"],
         ["audioOutput"] = ["mixer", "volume"],
         ["exchangePair"] = ["exchangeHistory", "exchangeRate"],
         ["stockSymbol"] = ["stock", "stockHistory"],
@@ -38,6 +38,7 @@ public sealed class SharedSettingsTests
         ["screenTimePeriod"] = ["screenTime", "screenTimeApps", "screenTimeChart", "screenTimeDonut"],
         ["historySpan"] = ["batteryHistory", "cpuCores", "cpuHistory", "diskHistory", "gpuHistory", "memoryHistory", "networkHistory", "pingHistory"],
         ["hideWhenIdle"] = ["music", "musicCover", "musicProgress"],
+        ["metricTrend"] = ["airAlder", "airBirch", "airGrass", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airRagweed", "airUv", "batteryRate", "batteryTemperature", "batteryTime", "batteryVoltage", "cpuHandles", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "driveFree", "driveUsed", "gpuClock", "gpuDedicatedMemory", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature", "memoryAvailable", "memoryCached", "memoryCommitted", "memoryInUse", "memoryNonPagedPool", "memoryPageFile", "memoryPagedPool", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "weatherCloudCover", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherUv", "weatherWind"],
         ["chartType"] = ["airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "humidityGraph", "memoryHistory", "networkHistory", "pingHistory", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "windGraph"],
         ["chartDetail"] = ["airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "humidityGraph", "memoryHistory", "networkHistory", "pingHistory", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "windGraph"],
     };
@@ -67,6 +68,7 @@ public sealed class SharedSettingsTests
         ["listLines"] = c => ((IKitRows)c).Lines = 3,
         ["hideWhenIdle"] = c => ((IHidesWhenIdle)c).HideWhenIdle = MusicHideWhenIdle.NotPlaying,
         ["chartDetail"] = c => ((IChartLooks)c).Detail = ChartDetail.Detailed,
+        ["metricTrend"] = c => ((Themia.Core.Widgets.IMetricTrend)c).Trend = Themia.Core.Widgets.MetricTrend.Arrow,
     };
 
     /// <summary>
@@ -157,7 +159,7 @@ public sealed class SharedSettingsTests
     public void S11753_every_kind_that_holds_a_shared_setting_marks_the_line_that_sets_it()
     {
         // The kinds whose lines read a list only the running host installs: their helpers are checked below.
-        string[] hosted = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory"];
+        string[] hosted = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuHistory", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
 
         // A line offered only when it changes something (one output device), or only in a look (the calendar's
         // rows in its agenda, the cores' span in their graphs): the default look of these offers none.
@@ -275,7 +277,7 @@ public sealed class SharedSettingsTests
     {
         var (state, view) = Station();
         var a = Widget("sun", "sun");
-        var b = Widget("moonTimes", "moon");
+        var b = Widget("moonrise", "moon");
         view.Widgets.AddRange([a, b]);
 
         var several = SelectionPage.Of(state, Selecting(view, "sun", "moon"), view.Id)!;

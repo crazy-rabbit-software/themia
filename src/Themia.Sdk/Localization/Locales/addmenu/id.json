@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Lainnya",
   "addMenu.family.screenTime": "Waktu layar",
   "addMenu.family.powerButtons": "Tombol daya",
-  "addMenu.family.weatherFacts": "Detail cuaca"
+  "addMenu.family.weatherFacts": "Detail cuaca",
+  "addMenu.family.airFacts": "Detail udara",
+  "addMenu.family.cpuFacts": "Detail CPU",
+  "addMenu.family.gpuFacts": "Detail GPU",
+  "addMenu.family.memoryFacts": "Detail memori",
+  "addMenu.family.networkFacts": "Detail jaringan",
+  "addMenu.family.pingFacts": "Detail ping",
+  "addMenu.family.batteryFacts": "Detail baterai",
+  "addMenu.family.driveFacts": "Detail drive",
+  "addMenu.family.sunTimes": "Waktu matahari",
+  "addMenu.family.moonTimes": "Waktu bulan"
 }

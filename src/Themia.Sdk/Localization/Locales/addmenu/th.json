@@ -14,5 +14,15 @@
   "addMenu.subject.more": "เพิ่มเติม",
   "addMenu.family.screenTime": "เวลาหน้าจอ",
   "addMenu.family.powerButtons": "ปุ่มเปิด/ปิด",
-  "addMenu.family.weatherFacts": "ข้อมูลสภาพอากาศ"
+  "addMenu.family.weatherFacts": "ข้อมูลสภาพอากาศ",
+  "addMenu.family.airFacts": "ข้อมูลอากาศ",
+  "addMenu.family.cpuFacts": "ข้อมูล CPU",
+  "addMenu.family.gpuFacts": "ข้อมูล GPU",
+  "addMenu.family.memoryFacts": "ข้อมูลหน่วยความจำ",
+  "addMenu.family.networkFacts": "ข้อมูลเครือข่าย",
+  "addMenu.family.pingFacts": "ข้อมูล Ping",
+  "addMenu.family.batteryFacts": "ข้อมูลแบตเตอรี่",
+  "addMenu.family.driveFacts": "ข้อมูลไดรฟ์",
+  "addMenu.family.sunTimes": "เวลาของดวงอาทิตย์",
+  "addMenu.family.moonTimes": "เวลาของดวงจันทร์"
 }

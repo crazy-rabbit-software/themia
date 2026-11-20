@@ -748,11 +748,11 @@
                 "author": "Benjamin Franklin"
               },
               {
-                "text": "What we know is a drop, what we don\u2019t know is an ocean.",
+                "text": "What we know is a drop, what we don’t know is an ocean.",
                 "author": "Isaac Newton"
               },
               {
-                "text": "It always seems impossible until it\u2019s done.",
+                "text": "It always seems impossible until it’s done.",
                 "author": "Nelson Mandela"
               },
               {
@@ -760,7 +760,7 @@
                 "author": "Steve Jobs"
               },
               {
-                "text": "Whether you think you can or you can\u2019t, you\u2019re right.",
+                "text": "Whether you think you can or you can’t, you’re right.",
                 "author": "Henry Ford"
               },
               {
@@ -777,7 +777,7 @@
               },
               {
                 "text": "Perfection is achieved when there is nothing left to take away.",
-                "author": "Antoine de Saint-Exup\u00E9ry"
+                "author": "Antoine de Saint-Exupéry"
               },
               {
                 "text": "First, solve the problem. Then, write the code.",
@@ -1150,13 +1150,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "cpuFacts",
-            "facts": [
-              "speed",
-              "baseSpeed",
-              "cores",
-              "logical"
-            ]
+            "kind": "cpuSpeed"
           }
         },
         {
@@ -1179,13 +1173,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "memoryFacts",
-            "facts": [
-              "inUse",
-              "available",
-              "committed",
-              "cached"
-            ]
+            "kind": "memoryInUse"
           }
         },
         {
@@ -1234,13 +1222,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "networkFacts",
-            "facts": [
-              "localAddress",
-              "received",
-              "sent",
-              "linkSpeed"
-            ]
+            "kind": "networkDownload"
           }
         },
         {
@@ -1263,13 +1245,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "batteryFacts",
-            "facts": [
-              "status",
-              "time",
-              "health",
-              "fullCapacity"
-            ]
+            "kind": "batteryTime"
           }
         },
         {
@@ -1292,15 +1268,9 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "pingFacts",
+            "kind": "pingAverage",
             "host": "1.1.1.1",
-            "window": 60,
-            "facts": [
-              "average",
-              "minimum",
-              "maximum",
-              "jitter"
-            ]
+            "window": 60
           }
         },
         {
@@ -1323,14 +1293,8 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "gpuFacts",
-            "adapter": 0,
-            "facts": [
-              "dedicated",
-              "shared",
-              "temperature",
-              "fan"
-            ]
+            "kind": "gpuLoad",
+            "adapter": 0
           }
         },
         {

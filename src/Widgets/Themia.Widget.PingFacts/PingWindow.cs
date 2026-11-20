@@ -112,17 +112,6 @@ public static class PingDetailRules
     /// <summary>"999 ms".</summary>
     public const string HeroWorst = "999 ms";
 
-    /// <summary>[S-11023] Every fact the ping facts atom can show, in the kind's order; a new one shows the first four.</summary>
-    public static IReadOnlyList<FactOption> Facts { get; } =
-    [
-        new("average", PingFactsStr.Details_Ping_Average.Local()),
-        new("minimum", PingFactsStr.Details_Ping_Minimum.Local()),
-        new("maximum", PingFactsStr.Details_Ping_Maximum.Local()),
-        new("jitter", PingFactsStr.Details_Ping_Jitter.Local()),
-        new("loss", PingFactsStr.Details_Ping_Loss.Local()),
-        new("answered", PingFactsStr.Details_Ping_Answered.Local()),
-    ];
-
     /// <summary>
     /// [S-2429] The sheet: the latest latency as the hero (dimmed "--" while checking or after a lost
     /// probe) with the status (Online, Offline, Checking…) under it; then average, minimum, maximum, jitter, packet loss
@@ -138,11 +127,11 @@ public static class PingDetailRules
         {
             string Ms(double? value) => value is { } v ? Formatting.Latency(locale, v) : "--";
 
-            facts.Add(new(PingFactsStr.Details_Ping_Average.Text(locale), Ms(stats.Average), stats.Average is not null, "average"));
-            facts.Add(new(PingFactsStr.Details_Ping_Minimum.Text(locale), Ms(stats.Min), stats.Min is not null, "minimum"));
-            facts.Add(new(PingFactsStr.Details_Ping_Maximum.Text(locale), Ms(stats.Max), stats.Max is not null, "maximum"));
-            facts.Add(new(PingFactsStr.Details_Ping_Jitter.Text(locale), Ms(stats.Jitter), stats.Jitter is not null, "jitter"));
-            facts.Add(new(PingFactsStr.Details_Ping_Loss.Text(locale), Formatting.Percent(locale, stats.Loss ?? 0), Key: "loss"));
+            facts.Add(new(PingFactsStr.Details_Ping_Average.Text(locale), Ms(stats.Average), stats.Average is not null, "average", stats.Average));
+            facts.Add(new(PingFactsStr.Details_Ping_Minimum.Text(locale), Ms(stats.Min), stats.Min is not null, "minimum", stats.Min));
+            facts.Add(new(PingFactsStr.Details_Ping_Maximum.Text(locale), Ms(stats.Max), stats.Max is not null, "maximum", stats.Max));
+            facts.Add(new(PingFactsStr.Details_Ping_Jitter.Text(locale), Ms(stats.Jitter), stats.Jitter is not null, "jitter", stats.Jitter));
+            facts.Add(new(PingFactsStr.Details_Ping_Loss.Text(locale), Formatting.Percent(locale, stats.Loss ?? 0), Key: "loss", Number: stats.Loss ?? 0));
             facts.Add(new(PingFactsStr.Details_Ping_Answered.Text(locale), PingFactsStr.Details_Ping_AnsweredOf.Format(locale,
                 ("answered", LocaleFormat.Integer(locale, stats.Answered)), ("sent", LocaleFormat.Integer(locale, stats.Sent))), Key: "answered"));
         }

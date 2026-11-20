@@ -1,9 +1,33 @@
 {
   "$englishOnly": [
-    "networkFacts.label",
-    "networkFacts.desc"
+    "networkFacts.networkLocalAddress.label",
+    "networkFacts.networkLocalAddress.desc",
+    "networkFacts.networkReceived.label",
+    "networkFacts.networkReceived.desc",
+    "networkFacts.networkSent.label",
+    "networkFacts.networkSent.desc",
+    "networkFacts.networkLinkSpeed.label",
+    "networkFacts.networkLinkSpeed.desc",
+    "networkFacts.networkPublicAddress.label",
+    "networkFacts.networkPublicAddress.desc",
+    "networkFacts.networkDownload.label",
+    "networkFacts.networkDownload.desc",
+    "networkFacts.networkUpload.label",
+    "networkFacts.networkUpload.desc"
   ],
   "details.settings.network.public.desc": "Asks api.ipify.org, at most every {minutes} minutes",
-  "networkFacts.label": "Network facts",
-  "networkFacts.desc": "Addresses, data used, link speed and more, as you pick them"
+  "networkFacts.networkLocalAddress.label": "Local address",
+  "networkFacts.networkLocalAddress.desc": "This PC's address on its network",
+  "networkFacts.networkReceived.label": "Data received",
+  "networkFacts.networkReceived.desc": "What came in since Themia started",
+  "networkFacts.networkSent.label": "Data sent",
+  "networkFacts.networkSent.desc": "What went out since Themia started",
+  "networkFacts.networkLinkSpeed.label": "Link speed",
+  "networkFacts.networkLinkSpeed.desc": "How fast the connection is linked",
+  "networkFacts.networkPublicAddress.label": "Public address",
+  "networkFacts.networkPublicAddress.desc": "This connection's address on the internet",
+  "networkFacts.networkDownload.label": "Download speed",
+  "networkFacts.networkDownload.desc": "How fast data comes in now",
+  "networkFacts.networkUpload.label": "Upload speed",
+  "networkFacts.networkUpload.desc": "How fast data goes out now"
 }

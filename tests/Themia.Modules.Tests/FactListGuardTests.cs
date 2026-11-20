@@ -12,12 +12,12 @@ public sealed partial class FactListGuardTests
 {
     /// <summary>
     /// Where a fact row may still be made outside the list, and why: a meter's item row carries a bar (the meter's
-    /// look), the sky's event row is one row of its own (sun and moon times), the stock's two lines stand under its
-    /// chart (the graph widgets' own).
+    /// look), the stock's two lines stand under its chart (the graph widgets' own). A single metric's row is the list's
+    /// ([S-14601]: a list of one).
     /// </summary>
     private static readonly HashSet<string> Allowed = new(StringComparer.OrdinalIgnoreCase)
     {
-        "FactList.cs", "MeterView.Looks.cs", "SkyParts.cs", "StockView.cs",
+        "FactList.cs", "MeterView.Looks.cs", "StockView.cs",
     };
 
     [GeneratedRegex(@"new\s+RowBlock\s*\(\s*RowKind\.Fact|new\s*\(\s*RowKind\.Fact")]

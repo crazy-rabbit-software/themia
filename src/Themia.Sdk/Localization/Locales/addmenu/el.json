@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Περισσότερα",
   "addMenu.family.screenTime": "Χρόνος οθόνης",
   "addMenu.family.powerButtons": "Κουμπιά τροφοδοσίας",
-  "addMenu.family.weatherFacts": "Στοιχεία καιρού"
+  "addMenu.family.weatherFacts": "Στοιχεία καιρού",
+  "addMenu.family.airFacts": "Στοιχεία αέρα",
+  "addMenu.family.cpuFacts": "Στοιχεία CPU",
+  "addMenu.family.gpuFacts": "Στοιχεία GPU",
+  "addMenu.family.memoryFacts": "Στοιχεία μνήμης",
+  "addMenu.family.networkFacts": "Στοιχεία δικτύου",
+  "addMenu.family.pingFacts": "Στοιχεία ping",
+  "addMenu.family.batteryFacts": "Στοιχεία μπαταρίας",
+  "addMenu.family.driveFacts": "Στοιχεία μονάδας δίσκου",
+  "addMenu.family.sunTimes": "Ώρες ηλίου",
+  "addMenu.family.moonTimes": "Ώρες σελήνης"
 }

@@ -17,13 +17,6 @@ public interface IDetailHost
     void SampleNow();
 }
 
-/// <summary>[S-11007] [S-11008] A detail face that is an atom: fact rows alone, or a list alone.</summary>
-public enum DetailAtom
-{
-    Facts = 0,
-    List = 1,
-}
-
 /// <summary>
 /// [S-2400] One detail kind's half of a detail widget: which hub feeds its figures come from and what
 /// they mean. <see cref="DetailView"/> owns the other half — where the hero, the facts and the list go
@@ -39,15 +32,6 @@ public abstract class DetailPart
     protected const string Scope = "details";
 
     public abstract WidgetId Kind { get; }
-
-    /// <summary>
-    /// [S-11007] [S-11008] Which atom the face is: its kind's facts as a pick (<see cref="FactOptions"/>,
-    /// the config a <c>FactsConfig</c>), or its list of a set number of rows (the config an <c>IKitRows</c>).
-    /// </summary>
-    public abstract DetailAtom Atom { get; }
-
-    /// <summary>[S-11007] Every fact a facts atom can pick, in its kind's order.</summary>
-    public virtual IReadOnlyList<FactOption> FactOptions => [];
 
     /// <summary>[S-11008] How many lines a list atom's rows have (1 or 2): its pitch follows.</summary>
     public virtual int ListLines => 1;

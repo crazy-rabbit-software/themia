@@ -166,8 +166,8 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S11601_a_count_stepped_kind_is_held_at_its_min_and_max_with_the_config_each_size_means()
     {
-        var facts = new WidgetId("cpuFacts");
-        var view = Assert.Single(ShowcaseViews.Build([new(facts, "CPU facts", "x")], FullHd));
+        var facts = new WidgetId("networkAdapters");
+        var view = Assert.Single(ShowcaseViews.Build([new(facts, "Network adapters", "x")], FullHd));
 
         foreach (var tier in SizeFit.CheckedAt(SizeFit.Of(facts)))
         {

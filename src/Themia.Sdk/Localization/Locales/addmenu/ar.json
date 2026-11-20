@@ -14,5 +14,15 @@
   "addMenu.subject.more": "المزيد",
   "addMenu.family.screenTime": "وقت الشاشة",
   "addMenu.family.powerButtons": "أزرار الطاقة",
-  "addMenu.family.weatherFacts": "معلومات الطقس"
+  "addMenu.family.weatherFacts": "معلومات الطقس",
+  "addMenu.family.airFacts": "معلومات الهواء",
+  "addMenu.family.cpuFacts": "معلومات المعالج",
+  "addMenu.family.gpuFacts": "معلومات GPU",
+  "addMenu.family.memoryFacts": "معلومات الذاكرة",
+  "addMenu.family.networkFacts": "معلومات الشبكة",
+  "addMenu.family.pingFacts": "معلومات Ping",
+  "addMenu.family.batteryFacts": "معلومات البطارية",
+  "addMenu.family.driveFacts": "معلومات محرك الأقراص",
+  "addMenu.family.sunTimes": "أوقات الشمس",
+  "addMenu.family.moonTimes": "أوقات القمر"
 }

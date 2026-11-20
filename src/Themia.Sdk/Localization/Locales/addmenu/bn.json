@@ -14,5 +14,15 @@
   "addMenu.subject.more": "আরও",
   "addMenu.family.screenTime": "স্ক্রিন টাইম",
   "addMenu.family.powerButtons": "পাওয়ার বোতাম",
-  "addMenu.family.weatherFacts": "আবহাওয়ার তথ্য"
+  "addMenu.family.weatherFacts": "আবহাওয়ার তথ্য",
+  "addMenu.family.airFacts": "বাতাসের তথ্য",
+  "addMenu.family.cpuFacts": "CPU-এর তথ্য",
+  "addMenu.family.gpuFacts": "GPU-এর তথ্য",
+  "addMenu.family.memoryFacts": "মেমরির তথ্য",
+  "addMenu.family.networkFacts": "নেটওয়ার্কের তথ্য",
+  "addMenu.family.pingFacts": "পিং-এর তথ্য",
+  "addMenu.family.batteryFacts": "ব্যাটারির তথ্য",
+  "addMenu.family.driveFacts": "ড্রাইভের তথ্য",
+  "addMenu.family.sunTimes": "সূর্যের সময়",
+  "addMenu.family.moonTimes": "চাঁদের সময়"
 }

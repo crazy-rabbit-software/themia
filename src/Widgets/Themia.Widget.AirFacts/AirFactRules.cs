@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Services.Web;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Widget.AirFacts;
 
@@ -25,11 +26,8 @@ public enum AirFactKind
     Ragweed,
 }
 
-/// <summary>One labelled reading: "PM2.5" / "7.7 µg/m³".</summary>
-public readonly record struct AirFact(AirFactKind Kind, string Label, string Value);
-
 /// <summary>
-/// [S-5105] [S-5106] [S-11135] The air facts' readings from the air answer, through the SDK's
+/// [S-5105] [S-5106] [S-11135] [S-14680] The air's readings from the air answer, through the SDK's
 /// <see cref="AirQualityRules"/> (the index's own): UV "2.5 · Low", a concentration in µg/m³ (a whole
 /// number from 10, one decimal under it), the worst pollen "Grass · Moderate" or "None in the air", one
 /// pollen's level. A reading the service did not send (no pollen forecast outside Europe) is the em dash.
@@ -38,10 +36,10 @@ public static class AirFactRules
 {
     public static IReadOnlyList<AirFactKind> All { get; } = Enum.GetValues<AirFactKind>();
 
-    /// <summary>[S-11135] A new card's rows: UV, PM2.5, pollen, PM10.</summary>
-    public static IReadOnlyList<AirFactKind> Defaults { get; } = [AirFactKind.Uv, AirFactKind.Pm25, AirFactKind.Pollen, AirFactKind.Pm10];
-
     public const string Missing = "—";
+
+    /// <summary>The air's glyph (U+EC0A, a leaf): the index's, the pollen's.</summary>
+    public static readonly string Leaf = char.ConvertFromUtf32(0xEC0A);
 
     public static string Name(AirFactKind kind) => kind switch
     {
@@ -53,22 +51,45 @@ public static class AirFactRules
         _ => PollenName(Type(kind)),
     };
 
-    /// <summary>[S-11135] The picked readings, one per pick, in its order.</summary>
-    public static IReadOnlyList<AirFact> For(IReadOnlyList<AirFactKind> picked, AirReading air)
+    /// <summary>
+    /// [S-14603] What history a reading has: the pollutants the service sends hour by hour (PM2.5, PM10, ozone) a series,
+    /// an arrow and a line over the hours; UV and each pollen the readings the card saw; the worst pollen none (a name).
+    /// </summary>
+    public static MetricHistory History(AirFactKind kind) => kind switch
     {
-        ArgumentNullException.ThrowIfNull(picked);
-        ArgumentNullException.ThrowIfNull(air);
-        return [.. picked.Select(kind => new AirFact(kind, Name(kind), Value(kind, air)))];
+        AirFactKind.Pm25 or AirFactKind.Pm10 or AirFactKind.Ozone => MetricHistory.Series,
+        AirFactKind.Pollen => MetricHistory.None,
+        _ => MetricHistory.Readings,
+    };
+
+    /// <summary>[S-14603] A reading's figure in one of the service's hours, null where the hours carry none.</summary>
+    public static double? Hourly(AirFactKind kind, AirHour hour)
+    {
+        ArgumentNullException.ThrowIfNull(hour);
+        return kind switch
+        {
+            AirFactKind.Pm25 => hour.Pm25,
+            AirFactKind.Pm10 => hour.Pm10,
+            AirFactKind.Ozone => hour.Ozone,
+            _ => null,
+        };
     }
 
-    /// <summary>
-    /// [S-12813] Without an answer: every picked row, its label and "--" (the facts' default, drawn unavailable), so
-    /// the card keeps its rows and the state is only its status glyph's tooltip.
-    /// </summary>
-    public static IReadOnlyList<AirFact> Unread(IReadOnlyList<AirFactKind> picked)
+    /// <summary>[S-14603] [S-11135] A reading as a metric: its value and the number a trend compares.</summary>
+    public static MetricValue Metric(AirFactKind kind, AirReading air)
     {
-        ArgumentNullException.ThrowIfNull(picked);
-        return [.. picked.Select(kind => new AirFact(kind, Name(kind), DetailFact.Unavailable(string.Empty).Value))];
+        ArgumentNullException.ThrowIfNull(air);
+        var text = Value(kind, air);
+        double? number = kind switch
+        {
+            AirFactKind.Uv => air.Uv,
+            AirFactKind.Pm25 => air.Pm25,
+            AirFactKind.Pm10 => air.Pm10,
+            AirFactKind.Ozone => air.Ozone,
+            AirFactKind.Pollen => null,
+            _ => air.Pollen.TryGetValue(Type(kind), out var grains) ? grains : null,
+        };
+        return new MetricValue(text, text == Missing ? null : number);
     }
 
     public static string Value(AirFactKind kind, AirReading air)

@@ -14,5 +14,15 @@
   "addMenu.subject.more": "Mais",
   "addMenu.family.screenTime": "Tempo de ecrã",
   "addMenu.family.powerButtons": "Botões de energia",
-  "addMenu.family.weatherFacts": "Dados do tempo"
+  "addMenu.family.weatherFacts": "Dados do tempo",
+  "addMenu.family.airFacts": "Dados do ar",
+  "addMenu.family.cpuFacts": "Dados da CPU",
+  "addMenu.family.gpuFacts": "Dados da GPU",
+  "addMenu.family.memoryFacts": "Dados da memória",
+  "addMenu.family.networkFacts": "Dados da rede",
+  "addMenu.family.pingFacts": "Dados de ping",
+  "addMenu.family.batteryFacts": "Dados da bateria",
+  "addMenu.family.driveFacts": "Dados da unidade",
+  "addMenu.family.sunTimes": "Horas do sol",
+  "addMenu.family.moonTimes": "Horas da lua"
 }

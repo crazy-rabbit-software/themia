@@ -32,22 +32,6 @@ public static class NetworkDetailRules
     /// <summary>[S-11020] The public address's key: picking it is what asks the public service ([S-2417]).</summary>
     public const string PublicAddressKey = "publicAddress";
 
-    /// <summary>
-    /// [S-11020] Every fact the network facts atom can show, in the kind's order: the facts the details
-    /// listed after the rates (the rates are the Network reading's), then the public address (it asks a
-    /// third party, so it is never a default), then the two rates. A new one shows the first four.
-    /// </summary>
-    public static IReadOnlyList<FactOption> Facts { get; } =
-    [
-        new("localAddress", Str.Details_Network_LocalAddress.Local()),
-        new("received", Str.Details_Network_Received.Local()),
-        new("sent", Str.Details_Network_Sent.Local()),
-        new("linkSpeed", Str.Details_Network_LinkSpeed.Local()),
-        new(PublicAddressKey, Str.Details_Network_PublicAddress.Local()),
-        new("download", Str.Details_Network_Download.Local()),
-        new("upload", Str.Details_Network_Upload.Local()),
-    ];
-
     /// <summary>[S-2418] How long a public address is trusted before it is asked for again.</summary>
     public static readonly TimeSpan PublicAddressLifetime = TimeSpan.FromMinutes(10);
 
@@ -165,8 +149,8 @@ public static class NetworkDetailRules
         var facts = new List<DetailFact>(8)
         {
             // [S-11020] The download is a fact too: the facts atom has no hero.
-            new(Strings.Get(locale, Str.Details_Network_Download), Formatting.Rate(locale, sample.Down), Key: "download"),
-            new(Strings.Get(locale, Str.Details_Network_Upload), Formatting.Rate(locale, sample.Up), Key: "upload"),
+            new(Strings.Get(locale, Str.Details_Network_Download), Formatting.Rate(locale, sample.Down), Key: "download", Number: sample.Down),
+            new(Strings.Get(locale, Str.Details_Network_Upload), Formatting.Rate(locale, sample.Up), Key: "upload", Number: sample.Up),
         };
 
         if (busiest is { } top && addresses.TryGetValue(top.Id, out var local))
@@ -174,12 +158,12 @@ public static class NetworkDetailRules
             facts.Add(new(Strings.Get(locale, Str.Details_Network_LocalAddress), local, Key: "localAddress"));
         }
 
-        facts.Add(new(Strings.Get(locale, Str.Details_Network_Received), Formatting.Bytes(locale, sample.SessionDown), Key: "received"));
-        facts.Add(new(Strings.Get(locale, Str.Details_Network_Sent), Formatting.Bytes(locale, sample.SessionUp), Key: "sent"));
+        facts.Add(new(Strings.Get(locale, Str.Details_Network_Received), Formatting.Bytes(locale, sample.SessionDown), Key: "received", Number: sample.SessionDown));
+        facts.Add(new(Strings.Get(locale, Str.Details_Network_Sent), Formatting.Bytes(locale, sample.SessionUp), Key: "sent", Number: sample.SessionUp));
 
         if (busiest is { LinkBitsPerSecond: > 0 } link)
         {
-            facts.Add(new(Strings.Get(locale, Str.Details_Network_LinkSpeed), LinkSpeed(locale, link.LinkBitsPerSecond), Key: "linkSpeed"));
+            facts.Add(new(Strings.Get(locale, Str.Details_Network_LinkSpeed), LinkSpeed(locale, link.LinkBitsPerSecond), Key: "linkSpeed", Number: link.LinkBitsPerSecond));
         }
 
         switch (publicAddress.State)

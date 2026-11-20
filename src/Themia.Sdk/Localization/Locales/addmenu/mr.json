@@ -14,5 +14,15 @@
   "addMenu.subject.more": "अधिक",
   "addMenu.family.screenTime": "स्क्रीन टाइम",
   "addMenu.family.powerButtons": "पॉवर बटणे",
-  "addMenu.family.weatherFacts": "हवामान तपशील"
+  "addMenu.family.weatherFacts": "हवामान तपशील",
+  "addMenu.family.airFacts": "हवेचे तपशील",
+  "addMenu.family.cpuFacts": "CPU तपशील",
+  "addMenu.family.gpuFacts": "GPU तपशील",
+  "addMenu.family.memoryFacts": "मेमरी तपशील",
+  "addMenu.family.networkFacts": "नेटवर्क तपशील",
+  "addMenu.family.pingFacts": "पिंग तपशील",
+  "addMenu.family.batteryFacts": "बॅटरी तपशील",
+  "addMenu.family.driveFacts": "ड्राइव्ह तपशील",
+  "addMenu.family.sunTimes": "सूर्याच्या वेळा",
+  "addMenu.family.moonTimes": "चंद्राच्या वेळा"
 }

@@ -1,9 +1,33 @@
 {
   "$englishOnly": [
-    "gpuFacts.label",
-    "gpuFacts.desc"
+    "gpuFacts.gpuDedicatedMemory.label",
+    "gpuFacts.gpuDedicatedMemory.desc",
+    "gpuFacts.gpuSharedMemory.label",
+    "gpuFacts.gpuSharedMemory.desc",
+    "gpuFacts.gpuTemperature.label",
+    "gpuFacts.gpuTemperature.desc",
+    "gpuFacts.gpuFan.label",
+    "gpuFacts.gpuFan.desc",
+    "gpuFacts.gpuClock.label",
+    "gpuFacts.gpuClock.desc",
+    "gpuFacts.gpuMemoryClock.label",
+    "gpuFacts.gpuMemoryClock.desc",
+    "gpuFacts.gpuLoad.label",
+    "gpuFacts.gpuLoad.desc"
   ],
   "details.gpu.none": "No graphics adapter",
-  "gpuFacts.label": "GPU facts",
-  "gpuFacts.desc": "Video memory, temperature, clocks and more, as you pick them"
+  "gpuFacts.gpuDedicatedMemory.label": "GPU dedicated memory",
+  "gpuFacts.gpuDedicatedMemory.desc": "The graphics card's own memory in use",
+  "gpuFacts.gpuSharedMemory.label": "GPU shared memory",
+  "gpuFacts.gpuSharedMemory.desc": "The system memory the graphics adapter uses",
+  "gpuFacts.gpuTemperature.label": "GPU temperature",
+  "gpuFacts.gpuTemperature.desc": "How warm the graphics card is",
+  "gpuFacts.gpuFan.label": "GPU fan",
+  "gpuFacts.gpuFan.desc": "How fast the graphics card's fan turns",
+  "gpuFacts.gpuClock.label": "GPU clock",
+  "gpuFacts.gpuClock.desc": "How fast the graphics card's engine runs now",
+  "gpuFacts.gpuMemoryClock.label": "GPU memory clock",
+  "gpuFacts.gpuMemoryClock.desc": "How fast the graphics card's memory runs now",
+  "gpuFacts.gpuLoad.label": "GPU load",
+  "gpuFacts.gpuLoad.desc": "How busy the graphics card is"
 }

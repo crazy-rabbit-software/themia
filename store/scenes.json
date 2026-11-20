@@ -187,13 +187,43 @@
           ]
         },
         {
-          "id": "pingFacts",
-          "kind": "pingFacts",
+          "id": "pingAverage",
+          "kind": "pingAverage",
           "at": [
             660,
             436,
             280,
-            136
+            30
+          ]
+        },
+        {
+          "id": "pingMinimum",
+          "kind": "pingMinimum",
+          "at": [
+            660,
+            466,
+            280,
+            30
+          ]
+        },
+        {
+          "id": "pingMaximum",
+          "kind": "pingMaximum",
+          "at": [
+            660,
+            496,
+            280,
+            30
+          ]
+        },
+        {
+          "id": "pingJitter",
+          "kind": "pingJitter",
+          "at": [
+            660,
+            526,
+            280,
+            30
           ]
         },
         {
@@ -217,13 +247,43 @@
           ]
         },
         {
-          "id": "gpuFacts",
-          "kind": "gpuFacts",
+          "id": "gpuDedicatedMemory",
+          "kind": "gpuDedicatedMemory",
           "at": [
             964,
             172,
             262,
-            136
+            30
+          ]
+        },
+        {
+          "id": "gpuSharedMemory",
+          "kind": "gpuSharedMemory",
+          "at": [
+            964,
+            202,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "gpuTemperature",
+          "kind": "gpuTemperature",
+          "at": [
+            964,
+            232,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "gpuFan",
+          "kind": "gpuFan",
+          "at": [
+            964,
+            262,
+            262,
+            30
           ]
         },
         {
@@ -247,13 +307,43 @@
           ]
         },
         {
-          "id": "networkFacts",
-          "kind": "networkFacts",
+          "id": "networkLocalAddress",
+          "kind": "networkLocalAddress",
           "at": [
             964,
             516,
             262,
-            136
+            30
+          ]
+        },
+        {
+          "id": "networkReceived",
+          "kind": "networkReceived",
+          "at": [
+            964,
+            546,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "networkSent",
+          "kind": "networkSent",
+          "at": [
+            964,
+            576,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "networkLinkSpeed",
+          "kind": "networkLinkSpeed",
+          "at": [
+            964,
+            606,
+            262,
+            30
           ]
         },
         {
@@ -287,13 +377,43 @@
           ]
         },
         {
-          "id": "cpuFacts",
-          "kind": "cpuFacts",
+          "id": "cpuSpeed",
+          "kind": "cpuSpeed",
           "at": [
             1250,
             172,
             262,
-            136
+            30
+          ]
+        },
+        {
+          "id": "cpuBaseSpeed",
+          "kind": "cpuBaseSpeed",
+          "at": [
+            1250,
+            202,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "cpuCoreCount",
+          "kind": "cpuCoreCount",
+          "at": [
+            1250,
+            232,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "cpuLogical",
+          "kind": "cpuLogical",
+          "at": [
+            1250,
+            262,
+            262,
+            30
           ]
         },
         {
@@ -317,13 +437,43 @@
           ]
         },
         {
-          "id": "memoryFacts",
-          "kind": "memoryFacts",
+          "id": "memoryInUse",
+          "kind": "memoryInUse",
           "at": [
             1250,
             472,
             262,
-            136
+            30
+          ]
+        },
+        {
+          "id": "memoryAvailable",
+          "kind": "memoryAvailable",
+          "at": [
+            1250,
+            502,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "memoryCommitted",
+          "kind": "memoryCommitted",
+          "at": [
+            1250,
+            532,
+            262,
+            30
+          ]
+        },
+        {
+          "id": "memoryCached",
+          "kind": "memoryCached",
+          "at": [
+            1250,
+            562,
+            262,
+            30
           ]
         },
         {

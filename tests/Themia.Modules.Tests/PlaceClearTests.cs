@@ -15,8 +15,10 @@ public class PlaceClearTests
 {
     private static readonly WidgetId[] Placed =
     [
-        new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
-        new WidgetId("sun"), new WidgetId("sunTimes"), new WidgetId("moon"), new WidgetId("moonTimes"),
+        new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"),
+        new WidgetId("sun"), new WidgetId("moon"),
+        new WidgetId("airUv"), new WidgetId("airPm25"), new WidgetId("airPollen"), new WidgetId("airPm10"), new WidgetId("airOzone"), new WidgetId("airAlder"), new WidgetId("airBirch"), new WidgetId("airGrass"), new WidgetId("airMugwort"), new WidgetId("airOlive"), new WidgetId("airRagweed"),
+        new WidgetId("sunrise"), new WidgetId("sunset"), new WidgetId("daylight"), new WidgetId("solarNoon"), new WidgetId("dawn"), new WidgetId("dusk"), new WidgetId("moonrise"), new WidgetId("moonset"), new WidgetId("nextFullMoon"), new WidgetId("nextNewMoon"),
         new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"),
         new WidgetId("temperatureGraph"), new WidgetId("rainGraph"), new WidgetId("uvGraph"), new WidgetId("airQualityGraph"), new WidgetId("windGraph"), new WidgetId("humidityGraph"), new WidgetId("pressureGraph"),
     ];

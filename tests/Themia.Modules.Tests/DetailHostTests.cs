@@ -43,10 +43,10 @@ public sealed class DetailHostTests
         var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "sortBy": "Memory", "rows": 10, "groupByName": false }""");
         Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.Rows, processes.GroupByName));
 
-        var network = (NetworkFactsConfig)ConfigJson.Read("NetworkFacts", """{ "kind": "networkFacts", "facts": ["publicAddress"] }""");
+        var network = (Themia.Widget.NetworkFacts.NetworkMetricConfig)ConfigJson.Read("NetworkFacts", """{ "kind": "networkPublicAddress" }""");
         Assert.True(network.ShowsPublicAddress);
 
-        var gpu = (GpuFactsConfig)ConfigJson.Read("GpuFacts", """{ "kind": "gpuFacts", "adapter": 1 }""");
-        Assert.Equal(1, gpu.Adapter);
+        var gpu = (Themia.Widget.GpuFacts.GpuMetricConfig)ConfigJson.Read("GpuFacts", """{ "kind": "gpuLoad", "adapter": 1, "trend": "Line" }""");
+        Assert.Equal((1, MetricTrend.Line), (gpu.Adapter, gpu.Trend));
     }
 }

@@ -40,4 +40,16 @@ public enum AddFolderId
 
     /// <summary>[S-13900] The weather's readings, one widget a fact, under Weather.</summary>
     WeatherFacts,
+
+    // [S-14604] The single-metric families, one widget a fact, each under its subject.
+    AirFacts,
+    CpuFacts,
+    GpuFacts,
+    MemoryFacts,
+    NetworkFacts,
+    PingFacts,
+    BatteryFacts,
+    DriveFacts,
+    SunTimes,
+    MoonTimes,
 }

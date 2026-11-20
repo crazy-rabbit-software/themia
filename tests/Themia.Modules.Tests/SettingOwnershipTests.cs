@@ -305,7 +305,7 @@ public sealed class SettingOwnershipTests
     /// the drives, the graphics adapters, the app-layout editor a new desktop icon's Target offers): built with
     /// stand-ins by their own menu tests.
     /// </summary>
-    private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory"];
+    private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuHistory", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
 
     [Fact]
     public void S3592_no_widget_sets_what_a_higher_level_owns_nor_links_to_it()

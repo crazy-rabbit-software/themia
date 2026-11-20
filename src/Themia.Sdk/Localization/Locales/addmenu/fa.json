@@ -14,5 +14,15 @@
   "addMenu.subject.more": "بیشتر",
   "addMenu.family.screenTime": "زمان استفاده",
   "addMenu.family.powerButtons": "دکمه‌های برق",
-  "addMenu.family.weatherFacts": "اطلاعات آب‌وهوا"
+  "addMenu.family.weatherFacts": "اطلاعات آب‌وهوا",
+  "addMenu.family.airFacts": "اطلاعات هوا",
+  "addMenu.family.cpuFacts": "اطلاعات پردازنده",
+  "addMenu.family.gpuFacts": "اطلاعات GPU",
+  "addMenu.family.memoryFacts": "اطلاعات حافظه",
+  "addMenu.family.networkFacts": "اطلاعات شبکه",
+  "addMenu.family.pingFacts": "اطلاعات پینگ",
+  "addMenu.family.batteryFacts": "اطلاعات باتری",
+  "addMenu.family.driveFacts": "اطلاعات درایو",
+  "addMenu.family.sunTimes": "زمان‌های خورشید",
+  "addMenu.family.moonTimes": "زمان‌های ماه"
 }
