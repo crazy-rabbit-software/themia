@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services.Web;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -48,9 +49,11 @@ public partial class HourGraphPanel : Grid, IWidgetTopEdge
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(map);
+        // [S-6754] Nothing to draw keeps the frame's time line too: "Now" at its start (its end is the answer's).
+        var now = Str.WeatherGraph_Now.Text();
         var model = held is { Value: { } value }
-            ? map(value, PinnedNow ?? DateTimeOffset.Now) ?? HourGraphModel.Nothing(config, empty) with { Glyph = _glyph }
-            : HourGraphModel.Nothing(config, OnlineParts.Caption(status)) with { Glyph = _glyph };
+            ? map(value, PinnedNow ?? DateTimeOffset.Now) ?? HourGraphModel.Nothing(config, empty) with { Glyph = _glyph, StartLabel = now }
+            : HourGraphModel.Nothing(config, OnlineParts.Caption(status)) with { Glyph = _glyph, StartLabel = now };
         _graph.Problems(OnlineParts.Problems(held));
         _graph.Show(model);
     }

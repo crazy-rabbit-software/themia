@@ -1205,7 +1205,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   there is no cpu data available it should show the default values in the graph and not just not show the graph. for
   both cases. also for other widgets."): a series with no line to draw (no samples yet, a sensor that is not there,
   an answer still loading, failed or with nothing in its window) is the chart all the same: its frame, its grid and
-  times when Detailed, and a flat series at its baseline (`ChartModel.Baseline`, 0 or the scale's foot;
+  times when Detailed (a weather graph's time line when Simple, "Now" at its start), and a flat series at its baseline (`ChartModel.Baseline`, 0 or the scale's foot;
   `ChartPlot.Drawn`); an all-zero series is drawn as it is and keeps its axis. Why there is nothing is a Caption
   (secondary, at the plot's top left inset, under what its owner stands over the plot: "No data yet", the answer's
   sentence, "No forecast for the next hours"), never a Status row in the chart's place; the card menu's Refresh is the
