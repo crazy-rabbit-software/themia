@@ -38,7 +38,7 @@ internal sealed partial class AppHost
             StartDesk();
 
             // [S-884] [S-14320] And the one undo history, as it starts once the app's surfaces are built: a check's Ctrl+Z steps it.
-            _history ??= new LayoutHistory(State);
+            _writer.StartHistory();
         }
         else
         {

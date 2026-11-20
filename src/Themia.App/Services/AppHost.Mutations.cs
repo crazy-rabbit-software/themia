@@ -30,24 +30,38 @@ internal sealed partial class AppHost
     {
         ArgumentNullException.ThrowIfNull(change);
 
-        try
-        {
-            change(State);
+        _writer.Write(
+            state =>
+            {
+                change(state);
 
-            // [S-13022] [S-13023] Fences that show by a rule show it after every change, in the same step.
-            CollectFences(State);
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "a state mutation threw; state may be partially applied", ex);
-        }
+                // [S-13022] [S-13023] Fences that show by a rule show it after every change, in the same step.
+                CollectFences(state);
+            },
+            undo,
+            effect,
+            SettleChange);
 
+        HistoryChanged?.Invoke();
+
+        // [S-1583] A deleted or moved widget leaves the selection with the change that removed it.
+        ChangeSelection(Selection.Prune(State));
+
+        if (relayout)
+        {
+            StateChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// What follows every change in the same step, before its commit. True when the desktop's icons followed another
+    /// icon size or layout, a setting no undo takes back: the change is adopted without a step.
+    /// </summary>
+    private bool SettleChange()
+    {
         // [S-5593] [S-13972] Another desktop icon size or layout is in force before the sizings are read: every icon
         // refits below. The icons follow a setting, which no undo takes back: adopted without a step.
-        if (ApplyDesktopIconLook())
-        {
-            undo = null;
-        }
+        var adopted = ApplyDesktopIconLook();
 
         // [S-2447] A config the change gave another sizing refits its widget in this same mutation;
         // [S-854] on a display whose metrics have not settled, once they have.
@@ -70,25 +84,7 @@ internal sealed partial class AppHost
             Log.Error(Scope, "laying the fences threw; their icons stay where they were", ex);
         }
 
-        if (undo is { } step)
-        {
-            _history?.Commit(State, step, effect);
-        }
-        else
-        {
-            _history?.Rebase(State);
-        }
-
-        _writer.SaveSoon();
-        HistoryChanged?.Invoke();
-
-        // [S-1583] A deleted or moved widget leaves the selection with the change that removed it.
-        ChangeSelection(Selection.Prune(State));
-
-        if (relayout)
-        {
-            StateChanged?.Invoke();
-        }
+        return adopted;
     }
 
     /// <summary>The sizing each widget had at the last mutation, by instance: what a config change is compared with ([S-2447]).</summary>

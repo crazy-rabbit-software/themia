@@ -5,7 +5,8 @@ using Themia.Core.Model;
 namespace Themia.Core.Storage;
 
 /// <summary>
-/// [S-41] The live state's saves, all on the thread that owns the state (the UI thread, the only one that changes it).
+/// [S-884] [S-41] The live state's one write path, all on the thread that owns the state (the UI thread, the only one
+/// that changes it): a change applied and settled, committed to the undo history (<see cref="Write"/>), and saved.
 /// <para>
 /// A change asks for a save (<see cref="SaveSoon"/>); the owner's one-shot timer, restarted by every ask, calls
 /// <see cref="SaveNow"/> once the changes pause (<see cref="SaveDelay"/>: a burst of changes is one write); that takes
@@ -43,6 +44,49 @@ public sealed class StateWriter
 
     /// <summary>The live state, changed on the owner's thread only.</summary>
     public AppState State { get; }
+
+    /// <summary>[S-884] The desktop's undo history, from <see cref="StartHistory"/> on; null before.</summary>
+    public LayoutHistory? History { get; private set; }
+
+    /// <summary>[S-884] The undo history starts from the state as it is now (the desktop as built).</summary>
+    public void StartHistory() => History ??= new LayoutHistory(State);
+
+    /// <summary>
+    /// [S-884] Apply a change: <paramref name="change"/>, then the owner's <paramref name="settle"/> (what follows every
+    /// change in the same step; true when it changed something no undo takes back, so the change is adopted without a
+    /// step), then the commit to the undo history (a step named <paramref name="undo"/> when the arrangement changed;
+    /// a null <paramref name="undo"/> adopts the change without one, [S-5520]; <paramref name="effect"/> is what the
+    /// step did outside the state, [S-5597]), then a save asked for.
+    /// </summary>
+    public void Write(Action<AppState> change, UndoAction? undo = UndoAction.Change, IUndoEffect? effect = null, Func<bool>? settle = null)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+
+        try
+        {
+            change(State);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "a state mutation threw; state may be partially applied", ex);
+        }
+
+        if (settle?.Invoke() == true)
+        {
+            undo = null;
+        }
+
+        if (undo is { } step)
+        {
+            History?.Commit(State, step, effect);
+        }
+        else
+        {
+            History?.Rebase(State);
+        }
+
+        SaveSoon();
+    }
 
     /// <summary>Whether a save was asked for and not yet taken.</summary>
     public bool SaveDue => _due;

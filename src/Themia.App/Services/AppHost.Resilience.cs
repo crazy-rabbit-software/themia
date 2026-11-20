@@ -23,7 +23,8 @@ internal sealed partial class AppHost
     /// <summary>Notices that offer to undo replace one another, and the "Undid …" that follows them.</summary>
     private const string UndoNoticeKey = "undo";
 
-    private LayoutHistory? _history;
+    /// <summary>[S-884] The one undo history, the writer's (<see cref="StateWriter.History"/>).</summary>
+    private LayoutHistory? _history => _writer.History;
     private BootGuard? _bootGuard;
 
     /// <summary>[S-3509] What Undo and Redo can step may have changed (a change, a drag, a step, an import): the edit bars follow.</summary>
@@ -59,7 +60,7 @@ internal sealed partial class AppHost
     /// </summary>
     private void AfterSurfacesBuilt()
     {
-        _history = new LayoutHistory(State);
+        _writer.StartHistory();
 
         if (SafeMode)
         {
