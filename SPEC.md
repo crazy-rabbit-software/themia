@@ -2438,6 +2438,20 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   (no widget's line, nothing in the SDK), `WidgetMenuLinesTests.S2351_`; renders `select-*-fence*`, `-vocabulary-add*`,
   `-vocabulary-rename`, `-vocabulary-confirm*` and ⚙'s `page-*-views-delete`, `-accounts-signout`,
   `-general-backup-reset`, `-general-backup-import`, `-general-uninstall-*confirm`, `-appearance-replace`.
+- **[S-2360]** **What the edit mode's steps cost is measured** (owner, 2026-11-20: "when expanding or closing a section,
+  when opening or closing a settings page or also when doing other stuff, it lags a little bit"): Debug's
+  `--ui-bench <out.txt> [--frames n] [--repeat n]` drives each step `--repeat` times (8) on a real host and surface parked
+  off-screen (the drag bench's 21 widgets and two views more, a detached store), through the surface's own controls (the
+  bar's entries and the pages' heads clicked through their automation peers): edit mode in and out, a change of the
+  state, one and three widgets selected and cleared, the selection's page closed and opened by its entry and its tabs,
+  every page of the bar opened and closed, a view's card on Views and a section of Appearance expanded and collapsed,
+  Lock widgets on General and a setting on Appearance switched, the add page opened, closed and its subjects switched,
+  a card's menu opened. Per step, over the
+  step and `--frames` rendered frames after it (24): the UI thread's milliseconds of the step with its layout (median,
+  95th percentile), its CPU time (`QueryThreadCycleTime`, the idle frames' own taken off), the frames longer than 20 ms
+  (a 60 Hz frame past the idle frames' jitter) and the longest, the layout passes, the elements put in the tree, the
+  page drawings, the bytes allocated on the UI thread and the collections. The counts are the evidence; the times are a
+  Debug build's on a shared machine.
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the

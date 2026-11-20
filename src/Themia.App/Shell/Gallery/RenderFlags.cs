@@ -26,6 +26,7 @@ internal static class RenderFlags
         "--grid-png",
         "--drag-png",
         DragBench.Flag,
+        UiBench.Flag,
         "--switch-check",
         "--startup-check",
         "--drop-check",

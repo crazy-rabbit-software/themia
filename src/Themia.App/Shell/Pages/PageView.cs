@@ -657,6 +657,10 @@ internal sealed partial class PageView : ContentControl
     private static bool Holds(IReadOnlyList<PageRow> rows, string key)
         => rows.Any(r => r.Key == key || (r.Rows is { } inner && Holds(inner, key)));
 
+    /// <summary>[S-2360] A bench's cards to open: the keys of the page's own cards that open in place.</summary>
+    internal IReadOnlyList<string> DebugCards()
+        => [.. (_model ??= _build()).Sections.SelectMany(s => s.Rows).Where(r => r.Kind == SettingsRowKind.Expander).Select(r => r.Key)];
+
     /// <summary>[S-2328] A render's typing into the open lookup's box, or [S-2351] into the field of the section asked.</summary>
     internal void DebugType(string text)
     {

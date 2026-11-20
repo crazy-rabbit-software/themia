@@ -242,6 +242,12 @@ public partial class App : Application
             return;
         }
 
+        // [S-2360] What the edit mode's everyday steps cost (a page opened, a card expanded, a selection), on a real surface.
+        if (Shell.Gallery.UiBench.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And what a view switch costs, and whether it leaks ([S-1883]).
         if (Shell.Gallery.SwitchCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
