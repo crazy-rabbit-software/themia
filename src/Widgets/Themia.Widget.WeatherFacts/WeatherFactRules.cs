@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Widget.WeatherFacts;
 
@@ -23,9 +24,6 @@ public enum WeatherFactKind
     Sunset,
 }
 
-/// <summary>One labelled reading: "Humidity" / "63%".</summary>
-public readonly record struct WeatherFact(WeatherFactKind Kind, string Label, string Value);
-
 /// <summary>
 /// [S-722] [S-13900] The weather facts' readings: a fact's name and its value. A reading the service did not send is
 /// the em dash, never a row left out: the card is its one row ([S-13901]), so a row that came and went would leave it empty.
@@ -38,38 +36,61 @@ public static class WeatherFactRules
     /// <summary>What stands in a row whose reading the service did not send.</summary>
     public const string Missing = "—";
 
-    /// <summary>A fact's name in <paramref name="locale"/>.</summary>
-    public static string Name(WeatherFactKind kind, Locale locale) => kind switch
-    {
-        WeatherFactKind.Today => Strings.Get(locale, Str.Common_Today),
-        WeatherFactKind.FeelsLike => WeatherFactsStr.Weather_FeelsLike.Text(locale),
-        WeatherFactKind.Humidity => WeatherFactsStr.Weather_Humidity.Text(locale),
-        WeatherFactKind.Wind => WeatherFactsStr.Weather_Wind.Text(locale),
-        WeatherFactKind.Precipitation => WeatherFactsStr.WidgetsC_Weather_Fact_Precipitation.Text(locale),
-        WeatherFactKind.Pressure => WeatherFactsStr.WidgetsC_Weather_Fact_Pressure.Text(locale),
-        WeatherFactKind.Uv => WeatherFactsStr.WidgetsC_Weather_Fact_UvIndex.Text(locale),
-        WeatherFactKind.CloudCover => WeatherFactsStr.WidgetsC_Weather_Fact_CloudCover.Text(locale),
-        WeatherFactKind.Gusts => WeatherFactsStr.WidgetsC_Weather_Fact_Gusts.Text(locale),
-        WeatherFactKind.Sunrise => Strings.Get(locale, Str.WidgetUi_Sunrise),
-        _ => Strings.Get(locale, Str.WidgetUi_Sunset),
-    };
-
-    /// <summary>A fact's name in the app's language.</summary>
-    public static string Name(WeatherFactKind kind) => Name(kind, Strings.Current);
-
-    /// <summary>[S-722] The <paramref name="kind"/>'s reading, labelled and written in <paramref name="locale"/>.</summary>
-    public static WeatherFact For(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)
-    {
-        ArgumentNullException.ThrowIfNull(reading);
-        return new WeatherFact(kind, Name(kind, locale), Value(locale, kind, reading, unit));
-    }
+    /// <summary>A fact's name in <paramref name="locale"/>: its kind's row name.</summary>
+    public static string Name(WeatherFactKind kind, Locale locale) => WeatherFactKinds.Of(kind).Name.Text(locale);
 
     /// <summary>
-    /// [S-12813] [S-13902] Without a reading: the fact's row all the same, its label and "--" (the facts' default, drawn
-    /// unavailable), so the card keeps its row and the state is only its tooltip.
+    /// [S-14603] What history a fact has: the readings the service sends hour by hour (feels like, humidity, wind,
+    /// precipitation, pressure, UV, gusts) a series, an arrow and a line over the hours; cloud cover the readings the
+    /// card saw (the hours carry none); today's high and low and the sun's times none (no trend).
     /// </summary>
-    public static WeatherFact Unread(Locale locale, WeatherFactKind kind)
-        => new(kind, Name(kind, locale), DetailFact.Unavailable(string.Empty).Value);
+    public static MetricHistory History(WeatherFactKind kind) => kind switch
+    {
+        WeatherFactKind.FeelsLike or WeatherFactKind.Humidity or WeatherFactKind.Wind or WeatherFactKind.Precipitation
+            or WeatherFactKind.Pressure or WeatherFactKind.Uv or WeatherFactKind.Gusts => MetricHistory.Series,
+        WeatherFactKind.CloudCover => MetricHistory.Readings,
+        _ => MetricHistory.None,
+    };
+
+    /// <summary>[S-14603] A fact's figure in one of the service's hours (its base units), null where the hours carry none.</summary>
+    public static double? Hourly(WeatherFactKind kind, WeatherHour hour)
+    {
+        ArgumentNullException.ThrowIfNull(hour);
+        return kind switch
+        {
+            WeatherFactKind.FeelsLike => hour.FeelsLike,
+            WeatherFactKind.Humidity => hour.Humidity,
+            WeatherFactKind.Wind => hour.Wind,
+            WeatherFactKind.Precipitation => hour.Precipitation,
+            WeatherFactKind.Pressure => hour.Pressure,
+            WeatherFactKind.Uv => hour.Uv,
+            WeatherFactKind.Gusts => hour.Gusts,
+            _ => null,
+        };
+    }
+
+    /// <summary>[S-14603] The digits a fact is shown with: what a move under them is not (UV and an amount of rain one, the rest whole).</summary>
+    public static int Digits(WeatherFactKind kind) => kind is WeatherFactKind.Uv or WeatherFactKind.Precipitation ? 1 : 0;
+
+    /// <summary>[S-14603] [S-722] A fact's reading as a metric: its value and the number a trend compares.</summary>
+    public static MetricValue Metric(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)
+    {
+        ArgumentNullException.ThrowIfNull(reading);
+        var text = Value(locale, kind, reading, unit);
+        double? number = kind switch
+        {
+            WeatherFactKind.FeelsLike => reading.FeelsLike,
+            WeatherFactKind.Humidity => reading.Humidity,
+            WeatherFactKind.Wind => reading.WindKilometresPerHour,
+            WeatherFactKind.Precipitation => reading.Precipitation,
+            WeatherFactKind.Pressure => reading.Pressure,
+            WeatherFactKind.Uv => reading.UvIndex ?? reading.Today?.UvMax,
+            WeatherFactKind.CloudCover => reading.CloudCover,
+            WeatherFactKind.Gusts => reading.WindGusts,
+            _ => null,
+        };
+        return new MetricValue(text, text == Missing ? null : number);
+    }
 
     /// <summary>[S-722] One reading's value, or <see cref="Missing"/> where the service sent none.</summary>
     public static string Value(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)

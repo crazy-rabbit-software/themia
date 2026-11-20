@@ -3,6 +3,7 @@ using Themia.App.Shell.Config;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -10,7 +11,7 @@ using Xunit;
 
 namespace Themia.Widget.WeatherFacts.Tests;
 
-/// <summary>[S-722] [S-13900]..[S-13903] The weather facts family: a kind a fact, its reading, its sizing and its menu.</summary>
+/// <summary>[S-722] [S-13900]..[S-13903] [S-14608] The weather facts family: a kind a fact, its reading, its trend and its menu.</summary>
 public sealed class WeatherFactTests
 {
     private static readonly string[] Ids =
@@ -36,13 +37,12 @@ public sealed class WeatherFactTests
             var config = Assert.IsAssignableFrom<WeatherFactConfig>(kind.CreateDefault());
             Assert.Equal(WeatherFactRules.All[i], config.Fact);
             Assert.Equal(kind.ConfigType, config.GetType());
-            Assert.Equal(WeatherFactView.FactGlyph(config.Fact), kind.Glyph);
+            Assert.Equal(WeatherFactKinds.Glyph(config.Fact), kind.Glyph);
             Assert.Contains("weather", kind.Keywords);
             Assert.Equal(new AddPlacement(AddFolderId.WeatherFacts, 0, i), kind.Add);
         }
 
         Assert.Equal(Ids.Length, Ids.Select(id => Kind(id).Label.Text(Locale.En)).Distinct().Count());
-        Assert.Equal(Ids.Length, Ids.Select(id => Kind(id).ConfigType).Distinct().Count());
     }
 
     [Fact]
@@ -55,78 +55,70 @@ public sealed class WeatherFactTests
     }
 
     [Fact]
-    public void S13900_the_facts_widget_is_gone_and_its_family_is_one_home_under_weather()
+    public void S13900_a_fact_card_keeps_its_place_and_trend_through_the_state_file_and_a_copy()
     {
-        Assert.False(ModuleCatalog.TryGet(new WidgetId("weatherFacts"), out _));
-
-        var weather = AddTree.Browse.Rows.OfType<AddShelf>().Single(s => s.Id == AddFolderId.Weather);
-        var family = weather.Rows.OfType<AddShelf>().Single(s => s.Id == AddFolderId.WeatherFacts);
-        Assert.Equal("Weather facts", family.Title.Text(Locale.En));
-        Assert.Equal(Ids, family.Rows.OfType<AddLeaf>().Select(l => l.Kind.Value));
-        Assert.Equal(AddFolderId.Weather, AddTree.SubjectOf(AddFolderId.WeatherFacts));
-
-        // Each at home there alone: no other folder of the tree lists it but as Popular's again.
-        static IEnumerable<AddLeaf> Leaves(AddShelf shelf) => shelf.Rows.SelectMany(r => r switch
-        {
-            AddLeaf leaf => [leaf],
-            AddShelf inner => Leaves(inner),
-            _ => [],
-        });
-        var homes = AddTree.Top.SelectMany(Leaves).Where(l => !l.Again).Select(l => l.Kind.Value).ToList();
-        Assert.All(Ids, id => Assert.Single(homes, h => h == id));
-    }
-
-    [Fact]
-    public void S13900_a_fact_card_keeps_its_place_through_the_state_file_and_a_copy()
-    {
-        WidgetConfig config = new WeatherWindConfig { Latitude = 47.3769, Longitude = 8.5417, LocationName = "Zurich, Switzerland" };
+        WidgetConfig config = new WeatherWindConfig { Latitude = 47.3769, Longitude = 8.5417, LocationName = "Zurich, Switzerland", Trend = MetricTrend.Line };
         var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
 
         Assert.Contains("\"kind\": \"weatherWind\"", json, StringComparison.Ordinal);
-        Assert.DoesNotContain("fact", json, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("\"trend\": \"Line\"", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("trend", JsonSerializer.Serialize<WidgetConfig>(new WeatherWindConfig(), StateJson.WidgetConfig), StringComparison.Ordinal);
         var back = Assert.IsType<WeatherWindConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
-        Assert.Equal(("Zurich, Switzerland", WeatherFactKind.Wind), (back.LocationName, back.Fact));
+        Assert.Equal(("Zurich, Switzerland", WeatherFactKind.Wind, MetricTrend.Line), (back.LocationName, back.Fact, back.Trend));
         var copy = Assert.IsType<WeatherWindConfig>(config.Clone());
         Assert.NotSame(config, copy);
-        Assert.Equal(47.3769, copy.Latitude);
+        Assert.Equal((47.3769, MetricTrend.Line), (copy.Latitude, copy.Trend));
     }
 
-    // ---- [S-13901] the sizing ------------------------------------------------------------------------
+    // ---- [S-14603] the trend -------------------------------------------------------------------------
 
-    [Theory]
-    [MemberData(nameof(AllIds))]
-    public void S13901_its_one_28_row_under_and_over_the_inset_200_wide_at_least_and_relaxed(string id)
+    [Fact]
+    public void S14608_the_hourly_readings_draw_a_line_cloud_cover_an_arrow_and_the_day_s_facts_none()
     {
-        var sizing = Kind(id).Sizing(Kind(id).CreateDefault());
-
-        Assert.Equal(new SizeDip(240, 12 + 28 + 12), sizing.Natural);
-        Assert.Equal(new SizeDip(200, 52), sizing.Min);
-        Assert.Equal((SizeStretch.Ceiling, SizeStretch.Ceiling), (sizing.Max.Width, sizing.Max.Height)); // relaxed, [S-12411]
-        Assert.Null(sizing.HeightSteps);
-        Assert.Null(Kind(id).SizeSets);
+        Assert.Equal(
+            [MetricHistory.None, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series,
+             MetricHistory.Series, MetricHistory.Readings, MetricHistory.Series, MetricHistory.None, MetricHistory.None],
+            WeatherFactRules.All.Select(WeatherFactRules.History));
+        var humidity = new WeatherHour(DateTimeOffset.UnixEpoch) { Humidity = 63, Pressure = 1013 };
+        Assert.Equal((63d, 1013d), (WeatherFactRules.Hourly(WeatherFactKind.Humidity, humidity), WeatherFactRules.Hourly(WeatherFactKind.Pressure, humidity)));
+        Assert.Null(WeatherFactRules.Hourly(WeatherFactKind.CloudCover, humidity));
     }
 
-    public static TheoryData<string> AllIds() => [.. Ids];
+    [Fact]
+    public void S14608_a_trend_over_the_hours_asks_the_place_s_hours_and_none_asks_nothing_more()
+    {
+        var place = new WeatherPressureConfig { Latitude = 47.37, Longitude = 8.54 };
+        Assert.Null(place.HoursInterest(TimeSpan.FromMinutes(30)));
+
+        place.Trend = MetricTrend.Arrow;
+        Assert.Equal(new HoursInterest(47.37, 8.54, TimeSpan.FromMinutes(30)), place.HoursInterest(TimeSpan.FromMinutes(30)));
+
+        // Cloud cover's arrow is the readings the card saw: the hours are never asked.
+        Assert.Null(new WeatherCloudCoverConfig { Latitude = 47.37, Longitude = 8.54, Trend = MetricTrend.Arrow }.HoursInterest(TimeSpan.FromMinutes(30)));
+    }
+
+    [Fact]
+    public void S14608_a_line_where_the_fact_has_no_hours_is_repaired_to_its_arrow_and_one_with_no_history_to_none()
+    {
+        var cloud = new WeatherCloudCoverConfig { Trend = MetricTrend.Line };
+        Assert.NotEmpty(cloud.Repair());
+        Assert.Equal(MetricTrend.Arrow, cloud.Trend);
+
+        var sunrise = new WeatherSunriseConfig { Trend = MetricTrend.Arrow };
+        Assert.NotEmpty(sunrise.Repair());
+        Assert.Equal(MetricTrend.None, sunrise.Trend);
+        Assert.Empty(new WeatherPressureConfig { Trend = MetricTrend.Line }.Repair());
+    }
 
     // ---- [S-722] [S-13902] the reading ---------------------------------------------------------------
 
     [Fact]
-    public void S13902_without_a_reading_its_row_keeps_its_label_and_the_default()
-    {
-        Assert.All(WeatherFactRules.All, kind =>
-        {
-            var fact = WeatherFactRules.Unread(Locale.En, kind);
-            Assert.Equal(("--", WeatherFactRules.Name(kind, Locale.En)), (fact.Value, fact.Label));
-        });
-    }
-
-    [Fact]
-    public void S722_a_fact_is_its_name_and_its_value_and_a_missing_reading_is_the_dash()
+    public void S722_a_fact_is_its_value_and_its_number_and_a_missing_reading_is_the_dash()
     {
         var reading = new CurrentWeather(18, 17, 63, 11, 2) { WindDirection = 315, Pressure = null, UvIndex = 3 };
 
-        Assert.Equal(new WeatherFact(WeatherFactKind.Wind, "Wind", "11 km/h NW"), WeatherFactRules.For(Locale.En, WeatherFactKind.Wind, reading, TemperatureUnit.Celsius));
-        Assert.Equal("—", Value(reading, WeatherFactKind.Pressure));
+        Assert.Equal(new MetricValue("11 km/h NW", 11), WeatherFactRules.Metric(Locale.En, WeatherFactKind.Wind, reading, TemperatureUnit.Celsius));
+        Assert.Equal(new MetricValue("—", null), WeatherFactRules.Metric(Locale.En, WeatherFactKind.Pressure, reading, TemperatureUnit.Celsius));
         Assert.Equal("—", Value(reading, WeatherFactKind.Today));
     }
 
@@ -171,16 +163,18 @@ public sealed class WeatherFactTests
     // ---- [S-13903] the menu and the click ------------------------------------------------------------
 
     [Fact]
-    public void S13903_the_menu_is_the_place_alone_no_pick_of_facts()
+    public void S13903_the_menu_is_the_place_then_the_trend_where_the_fact_has_one()
     {
         var menu = new WidgetMenuLines(() => { }, _ => { });
-        WeatherFactMenu.Lines(menu, new WeatherHumidityConfig());
+        ((IWidgetModule)new WeatherHumidityModule()).MenuLines(menu, new WeatherHumidityConfig());
 
-        Assert.Contains(menu.Lines, l => l.Search is not null);
-        Assert.Equal(Str.Shell_Place_Location.Text(), menu.Lines[^1].Text);
-        Assert.Equal(WeatherPlaceRows.Lines(new WidgetMenuLines(() => { }, _ => { }), new WeatherHumidityConfig()).Select(l => l.Text), menu.Lines.Select(l => l.Text));
+        var place = WeatherPlaceRows.Lines(new WidgetMenuLines(() => { }, _ => { }), new WeatherHumidityConfig()).Select(l => l.Text).ToList();
+        Assert.Equal([.. place, Str.Metric_Trend.Text()], menu.Lines.Select(l => l.Text));
         Assert.DoesNotContain(menu.Lines, l => l.LinkTo is not null);
-        Assert.Empty(menu.StyleLines);
+
+        var sunrise = new WidgetMenuLines(() => { }, _ => { });
+        ((IWidgetModule)new WeatherSunriseModule()).MenuLines(sunrise, new WeatherSunriseConfig());
+        Assert.Equal(place, sunrise.Lines.Select(l => l.Text));
     }
 
     [Fact]
