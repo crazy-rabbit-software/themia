@@ -8183,7 +8183,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   way, the bar stays), music (its lines are its reading, Body: 166 × 44; the transport gives way), music progress (its
   times are its reading: nothing gives way, 156 × 32), next meeting (its title: 116 × 32; its lines and the end column
   give way), quote (its words: 158 wide; its mark and author give way; its height steps by lines and keeps them), the
-  meters' Number look (cpu, gpu, memory, disk, ping, battery: 40 × 32, the kind's glyph and the unit giving way). Was:
+  meters' Number look (cpu, gpu, memory, ping, battery 40 × 32, disk 48 × 32: the kind's glyph and the unit give way). Was:
   each at its Caption's floor, three quarters of its natural box (a recycle bin 135 × 84, a countdown 345 × 104).
   Tests `FaceFloorTests.S12833_` (a Readout's parts, a Controls row, a stated face only shrinking),
   `ReadingFaceFloorTests.S12833_` (each kind's least height bound, every part at its natural box, monotonic).
