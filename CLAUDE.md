@@ -61,6 +61,8 @@ Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass]
            # desktop's one selection through a real host and surface: --live drives it with real input (SendInput, over every
            # window), PASS or FAIL [S-12954]; host-level it also moves an icon into the fence and one on the free desktop, drawn
            # mid-move to <out>.move-fence.png / .move-free.png [S-13046]
+Themia.exe --first-drag-check <out.txt> [--locked] [--kinds a,b]   # every kind's first press on a row, a button, a track,
+           # a thumb, a text box, a chart, an empty spot, dragged through the card's own steps off-screen, PASS or FAIL [S-13060]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
 Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow]   # the edit bar (editbar-*: nothing,
@@ -431,7 +433,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   sample data (the meters over the sample PC) has none. The sample PC and a gallery service reach a
   picture's cards only through their host (`SampleWorld`, `PreviewCardHost.Samples`), never a static.
 - **The locked desktop** ([S-2008], [S-11874]..[S-11879]): outside edit mode a widget pressed and dragged moves
-  (with the selection it is in, [S-11879]), snapped, the local
+  (with the selection it is in, [S-11879]) on the first press whatever part is under it ([S-13060]: the card arms on
+  every press, handled ones too; parts act on the release, never the press), snapped, the local
   grid round where it lands (`LocalGrid`: a faint rectangle fading out of the box, [S-11886]) with the moving and nearby cards' corner
   marks ([S-11881]); edit mode never turns
   on by a drag; **Lock widgets** ([S-12950], [S-12951]; its home General › Desktop icons, the menus' line under Edit

@@ -11822,12 +11822,13 @@ power buttons, whose whole body is their button) open nothing.
   local grid shows round where the block lands ([S-11874]). The click that would have opened the widget ([S-2000])
   is dropped once the press moves; a press that does not move stays the widget's own click. A view that drags its
   own content says so (`IWidgetOwnsDrags`: the folder, the scratchpad, the habit tracker) and its card never moves
-  by a drag; a control inside a widget that takes the press (a slider, a list row) keeps it. **A widget that is one
+  by a drag; a slider's thumb keeps its drag, and every other part under the press gives its drag to the card, on the
+  first press ([S-13060]: a list row, a button, a slider's track, a text box at rest). **A widget that is one
   button from edge to edge** (`IWidgetButton`: a quick setting's tile, a power button) takes every press itself, so
-  its card arms the move where handled presses are heard too; when the move starts, the card first releases the
-  pointer from the button (and every element between it and the card: a held capture makes the card's own capture
-  fail, and the release would end as the button's click, a toggle flipped by a drag; found live 2026-11-14), then
-  takes it. Edit mode itself stays (the Edit mode line, the hotkey) for resizing, settings and adding. Not in a debug
+  its card arms the move where handled presses are heard too (every press is, [S-13060]); when the move starts, the
+  card first releases the pointer from the button (and every element between it and the card: a held capture makes
+  the card's own capture fail, and the release would end as the button's click, a toggle flipped by a drag; found
+  live 2026-11-14), then takes it. Edit mode itself stays (the Edit mode line, the hotkey) for resizing, settings and adding. Not in a debug
   render's preview. Tests `DesktopGridTests.S2008_` (the regression: the locked press starts no edit-mode press,
   only the move).
 - **[S-12950]** **Lock widgets** (owner, 2026-11-17: "you should be able to lock the desktop in which case you should
@@ -11871,6 +11872,35 @@ power buttons, whose whole body is their button) open nothing.
   selection, locked or not). Through the app's own wiring with real input: `--desk-select-check <out.txt> --live
   [--locked]` (Debug; a real host and surface, every gesture above, PASS or FAIL). Tests `DesktopGridTests.S12954_`,
   `ItemSelectionTests.S6621_a_redraw_`.
+- **[S-13060]** **The first press moves, whatever is under it** (owner, 2026-11-19: "sometimes when i hover over a widget an
+  try to drag it it does not work on the first try. it feels like that this could be because it selects the underlying item
+  in the list. this should not happen. you should make tests for this and fix all of those and similar issues."): with Lock
+  widgets off, outside edit mode, a left press anywhere on a widget moved past the drag threshold moves the widget
+  ([S-2008]) on that first press, whatever part is under the pointer (`PressPart`, read by `WidgetPress.Part` from the
+  element pressed up to the card): a list row or tile (`ItemMark`, `WidgetItems`), a button or a toggle (`ButtonBase`,
+  `IWidgetButton`), a slider's or the seek bar's track, a chart, a text box at rest (the press itself focused it), the
+  card's ground; the first press after another app had the foreground too (the lease's foreground waits for the release,
+  [S-13017]). The card arms its move where every press is heard, handled ones too (`CardGestures.MovesLocked` with the
+  part, `PressGesture.CardMayMove`), and hears the moves a part handles; past the threshold it takes the pointer from the
+  part (a button forgets its press and never clicks) and takes back a focus the press gave (a button's, a text box's).
+  **Not the card's**: a slider's thumb and a toggle switch's knob (a thumb), a text being typed in (focused before the
+  press: a drag selects), ground or an item that took the press for a drag of its own (a fence's body and items,
+  [S-13003]), a view that drags its own content (`IWidgetOwnsDrags`), Lock widgets ([S-12950]). **One threshold**
+  (`PressGesture.DragThreshold`, 3 DIPs on either axis; `CardGestures.DragThreshold` is it) for the card and every part
+  that waits for its release. A press let go without moving is the part's click as ever; **a press that becomes a drag
+  never also selects, focuses, opens or toggles** what it pressed: a row is focused on the tap, never the press (the
+  details' lists, the removable drives); a button clicks on its release, which the drag takes; a slider's or the seek
+  bar's track never acts on the press but waits (`TrackPress`): a click jumps to where it was pressed, on the release
+  (`SliderTrack.ValueAt`, where WinUI's slider puts it), a drag is the card's move, and one the card did not take (Lock
+  widgets, a preview) follows the pointer as a track always did (`TrackSlider`, the family's one slider; `MusicSeekBar`).
+  Before, the card armed its move only on a press no part took (or a widget that is one button) and heard only the moves
+  no part took: a press on a button of any other widget (the stopwatch's, the music's, a list's tool line, the notes'), on
+  a slider's track (which also set the volume), on a text box or on the seek bar never moved it. Tests
+  `FirstDragTests.S13060_`; `--first-drag-check <out.txt> [--locked] [--kinds a,b]` (Debug) presses every kind's row,
+  button, track, thumb, text box, chart and empty spot through the card's own press, move and release on a real host and
+  surface, PASS or FAIL per kind and spot (posted mouse messages reach no XAML event: WinUI reads pointer messages; what a
+  part does with a press is read from its type, as WinUI's controls route it). Real input: **not confirmed on a live
+  desktop**.
 - **[S-11874]** **The local grid** (`LocalGrid`, Core; `LocalGridOverlay`): while a block moves on the locked
   desktop the grid's lines are drawn **only round the box it lands in**, their strength falling with their place
   round it ([S-11886]: a rectangle grown evenly out of the box) to nothing at `LocalGrid.RadiusCells` (6 cells) past it, on
