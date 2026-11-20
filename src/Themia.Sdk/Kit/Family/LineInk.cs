@@ -29,6 +29,16 @@ public readonly record struct LineInk(double Over, double Under)
     public const double FaceDash = 0.31;
 
     /// <summary>
+    /// [S-14247] The room the face's figures, units and letters leave before their ink and after it, a fraction of the
+    /// font size: read off Segoe UI Variable's outlines (figures 0.042, "%" 0.035, "s" 0.034..0.040), the least of them,
+    /// so a line trimmed by it never reaches past its ink.
+    /// </summary>
+    public const double FaceSide = 0.034;
+
+    /// <summary>[S-14247] The room a dash ("--", a placeholder) leaves before its ink and after it: 0.06 of the font size.</summary>
+    public const double FaceDashSide = 0.06;
+
+    /// <summary>
     /// [S-12813] A line on <paramref name="step"/> that draws a placeholder of dashes and, beside it, a unit of
     /// <paramref name="unitSize"/> (0: none): its ink starts at the dash's top or the unit's capitals, whichever
     /// stands higher, not at the capitals the line's step would draw.

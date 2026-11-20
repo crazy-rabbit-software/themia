@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Documents;
 using Themia.App.Widgets;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
+using Windows.Foundation;
 
 namespace Themia.Sdk.WinUI.Kit;
 
@@ -70,8 +71,9 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
 
     /// <summary>
     /// [S-12808] The room in its box over its first ink and under its last: the value's capitals (or its lead
-    /// glyph, centred on the value's line, where that stands higher) and the line under's baseline, or the value's.
-    /// [S-12813] A placeholder value ("--") inks from its dashes' top (or its unit's capitals), lower than capitals.
+    /// glyph's ink, its box centred on the value's line, where that stands higher: [S-14240]) and the line under's
+    /// baseline, or the value's. [S-12813] A placeholder value ("--") inks from its dashes' top (or its unit's capitals),
+    /// lower than capitals.
     /// </summary>
     public LineInk Ink => Inked(LineInk.Capless(_value.Text) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : LineInk.Of(_step));
 
@@ -83,7 +85,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
 
     private LineInk Inked(LineInk line)
     {
-        var value = line.With(_lead.Visibility == Visibility.Visible ? _lead.Height : 0, _step.LineHeight);
+        var value = line.With(GlyphInk.Of(_leadGlyph), _lead.Visibility == Visibility.Visible ? _lead.Height : 0, _step.LineHeight);
         var under = _under.Visibility == Visibility.Visible ? LineInk.Of(FamilyType.Under(_step)).Under : value.Under;
         return new LineInk(value.Over, under);
     }
@@ -222,6 +224,37 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     }
 
     private bool Draws(double size) => size >= _floor - 1e-9;
+
+    /// <summary>
+    /// [S-14240] The lead glyph's ink, not its box, starts the line (WR-3: what stands on the start inset is ink, as a
+    /// text's is): its box reaches back over the room its glyph leaves on the start side (<see cref="GlyphInk"/>), the
+    /// gap to the value still from its box. Right to left the start is its right, the glyph drawn unmirrored.
+    /// </summary>
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        var ink = GlyphInk.Of(_leadGlyph);
+        var room = FlowDirection == FlowDirection.RightToLeft ? 1 - ink.Right : ink.Left;
+        var margin = new Thickness(-Math.Max(0, room) * _lead.Width, 0, FamilySpace.GlyphGap, 0);
+        if (_lead.Margin != margin)
+        {
+            _lead.Margin = margin;
+        }
+
+        // [S-14247] The line's ink, not its advance, at its ends: the room its first and last letters leave there (a
+        // figure's, a unit's, a placeholder's dashes'), so a block the width stops stands its ink on both side insets.
+        var dashes = LineInk.Capless(_value.Text);
+        var start = _lead.Visibility == Visibility.Visible ? 0 : (dashes ? LineInk.FaceDashSide : LineInk.FaceSide) * _step.FontSize;
+        var end = _delta.Text.Length > 0 ? LineInk.FaceSide * _delta.FontSize
+            : _unit.Text.Length > 0 ? LineInk.FaceSide * _unit.FontSize
+            : (dashes ? LineInk.FaceDashSide : LineInk.FaceSide) * _step.FontSize;
+        var line = new Thickness(-start, 0, -end, 0);
+        if (_line.Margin != line)
+        {
+            _line.Margin = line;
+        }
+
+        return base.MeasureOverride(availableSize);
+    }
 
     /// <summary>The roles' brushes: a missing part's unit and line under are disabled with its value.</summary>
     private void Paint()
