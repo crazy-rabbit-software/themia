@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Ilagay ang server bilang host name, gaya ng imap.example.com.",
   "shell.accounts.portRange": "Dapat nasa pagitan ng 1 at 65535 ang port (karaniwang 993).",
   "shell.accounts.enterCredentials": "Ilagay ang user name at password.",
-  "shell.accounts.serverRefused": "Tinanggihan ng server ang user name o password.",
-  "shell.accounts.serverRefusedReason": "Tinanggihan ng server ang user name o password: {reason}",
   "shell.accounts.providerRefusedPlain": "Tinanggihan ng provider ang pag-sign in.",
   "shell.accounts.foreignRedirect": "Hindi bumalik ang sign-in na iyon mula sa browser na binuksan ng Themia. Magsimula ulit.",
   "shell.accounts.pageSignedIn": "Naka-sign in ka na.",

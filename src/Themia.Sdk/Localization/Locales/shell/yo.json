@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "Tẹ sáfà náà bí orúkọ agbàlejò, bíi imap.example.com.",
   "shell.accounts.portRange": "Pọ́ọ̀tì gbọ́dọ̀ wà láàrín 1 àti 65535 (ní ọ̀pọ̀ ìgbà 993).",
   "shell.accounts.enterCredentials": "Tẹ orúkọ olùlò àti ọ̀rọ̀ aṣínà.",
-  "shell.accounts.serverRefused": "Sáfà kọ orúkọ olùlò tàbí ọ̀rọ̀ aṣínà.",
-  "shell.accounts.serverRefusedReason": "Sáfà kọ orúkọ olùlò tàbí ọ̀rọ̀ aṣínà: {reason}",
   "shell.accounts.providerRefusedPlain": "Olùpèsè kọ ìwọlé náà.",
   "shell.accounts.foreignRedirect": "Ìwọlé yẹn kò padà láti aṣàwákiri tí Themia ṣí. Bẹ̀rẹ̀ lẹ́ẹ̀kan sí i.",
   "shell.accounts.pageSignedIn": "O ti wọlé.",

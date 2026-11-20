@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "Masukkan pelayan sebagai nama hos, seperti imap.example.com.",
   "shell.accounts.portRange": "Port mestilah antara 1 dan 65535 (biasanya 993).",
   "shell.accounts.enterCredentials": "Masukkan nama pengguna dan kata laluan.",
-  "shell.accounts.serverRefused": "Pelayan menolak nama pengguna atau kata laluan.",
-  "shell.accounts.serverRefusedReason": "Pelayan menolak nama pengguna atau kata laluan: {reason}",
   "shell.accounts.providerRefusedPlain": "Penyedia menolak daftar masuk.",
   "shell.accounts.foreignRedirect": "Daftar masuk itu tidak kembali daripada pelayar yang dibuka oleh Themia. Mulakan semula.",
   "shell.accounts.pageSignedIn": "Kamu telah mendaftar masuk.",

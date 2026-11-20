@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "請以主機名稱輸入伺服器，例如 imap.example.com。",
   "shell.accounts.portRange": "連接埠必須介於 1 到 65535 之間（通常為 993）。",
   "shell.accounts.enterCredentials": "請輸入使用者名稱和密碼。",
-  "shell.accounts.serverRefused": "伺服器拒絕了使用者名稱或密碼。",
-  "shell.accounts.serverRefusedReason": "伺服器拒絕了使用者名稱或密碼：{reason}",
   "shell.accounts.providerRefusedPlain": "提供者拒絕了登入。",
   "shell.accounts.foreignRedirect": "此登入並非從 Themia 開啟的瀏覽器返回。請重新開始。",
   "shell.accounts.pageSignedIn": "您已登入。",

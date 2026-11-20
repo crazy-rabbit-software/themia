@@ -446,8 +446,6 @@
   "shell.accounts.hostName": "Введите сервер как имя узла, например imap.example.com.",
   "shell.accounts.portRange": "Порт должен быть от 1 до 65535 (обычно 993).",
   "shell.accounts.enterCredentials": "Введите имя пользователя и пароль.",
-  "shell.accounts.serverRefused": "Сервер отклонил имя пользователя или пароль.",
-  "shell.accounts.serverRefusedReason": "Сервер отклонил имя пользователя или пароль: {reason}",
   "shell.accounts.providerRefusedPlain": "Поставщик отклонил вход.",
   "shell.accounts.foreignRedirect": "Этот вход пришел не из браузера, который открыла Themia. Начните заново.",
   "shell.accounts.pageSignedIn": "Вход выполнен.",

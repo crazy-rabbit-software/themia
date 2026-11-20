@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "ใส่เซิร์ฟเวอร์เป็นชื่อโฮสต์ เช่น imap.example.com",
   "shell.accounts.portRange": "พอร์ตต้องอยู่ระหว่าง 1 ถึง 65535 (โดยปกติคือ 993)",
   "shell.accounts.enterCredentials": "ใส่ชื่อผู้ใช้และรหัสผ่าน",
-  "shell.accounts.serverRefused": "เซิร์ฟเวอร์ปฏิเสธชื่อผู้ใช้หรือรหัสผ่าน",
-  "shell.accounts.serverRefusedReason": "เซิร์ฟเวอร์ปฏิเสธชื่อผู้ใช้หรือรหัสผ่าน: {reason}",
   "shell.accounts.providerRefusedPlain": "ผู้ให้บริการปฏิเสธการลงชื่อเข้าใช้",
   "shell.accounts.foreignRedirect": "การลงชื่อเข้าใช้นั้นไม่ได้กลับมาจากเบราว์เซอร์ที่ Themia เปิด เริ่มใหม่อีกครั้ง",
   "shell.accounts.pageSignedIn": "คุณลงชื่อเข้าใช้แล้ว",

@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "سرور را به‌صورت نام میزبان وارد کنید، مانند imap.example.com.",
   "shell.accounts.portRange": "درگاه باید در محدوده مجاز باشد (معمولاً نهصد و نود و سه).",
   "shell.accounts.enterCredentials": "نام کاربری و گذرواژه را وارد کنید.",
-  "shell.accounts.serverRefused": "سرور نام کاربری یا گذرواژه را نپذیرفت.",
-  "shell.accounts.serverRefusedReason": "سرور نام کاربری یا گذرواژه را نپذیرفت: {reason}",
   "shell.accounts.providerRefusedPlain": "ارائه‌دهنده ورود را نپذیرفت.",
   "shell.accounts.foreignRedirect": "این ورود از مرورگری که Themia باز کرد برنگشت. دوباره شروع کنید.",
   "shell.accounts.pageSignedIn": "وارد شدید.",

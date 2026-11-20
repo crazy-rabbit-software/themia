@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "አገልጋዩን እንደ አስተናጋጅ ስም ያስገቡ፣ ለምሳሌ imap.example.com።",
   "shell.accounts.portRange": "ወደቡ ከ1 እስከ 65535 መሆን አለበት (ብዙውን ጊዜ 993)።",
   "shell.accounts.enterCredentials": "የተጠቃሚ ስሙንና የይለፍ ቃሉን ያስገቡ።",
-  "shell.accounts.serverRefused": "አገልጋዩ የተጠቃሚ ስሙን ወይም የይለፍ ቃሉን አልተቀበለም።",
-  "shell.accounts.serverRefusedReason": "አገልጋዩ የተጠቃሚ ስሙን ወይም የይለፍ ቃሉን አልተቀበለም፦ {reason}",
   "shell.accounts.providerRefusedPlain": "አቅራቢው መግባቱን አልተቀበለም።",
   "shell.accounts.foreignRedirect": "ያ መግባት Themia ከከፈተው አሳሽ አልተመለሰም። እንደገና ይጀምሩ።",
   "shell.accounts.pageSignedIn": "ገብተዋል።",

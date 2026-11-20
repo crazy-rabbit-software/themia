@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "Nhập máy chủ dưới dạng tên máy chủ, như imap.example.com.",
   "shell.accounts.portRange": "Cổng phải từ 1 đến 65535 (thường là 993).",
   "shell.accounts.enterCredentials": "Nhập tên người dùng và mật khẩu.",
-  "shell.accounts.serverRefused": "Máy chủ từ chối tên người dùng hoặc mật khẩu.",
-  "shell.accounts.serverRefusedReason": "Máy chủ từ chối tên người dùng hoặc mật khẩu: {reason}",
   "shell.accounts.providerRefusedPlain": "Nhà cung cấp từ chối đăng nhập.",
   "shell.accounts.foreignRedirect": "Lần đăng nhập đó không đến từ trình duyệt mà Themia đã mở. Hãy bắt đầu lại.",
   "shell.accounts.pageSignedIn": "Bạn đã đăng nhập.",

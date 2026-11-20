@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Sunucuyu imap.example.com gibi bir ana bilgisayar adı olarak girin.",
   "shell.accounts.portRange": "Bağlantı noktası 1 ile 65535 arasında olmalıdır (genellikle 993).",
   "shell.accounts.enterCredentials": "Kullanıcı adını ve parolayı girin.",
-  "shell.accounts.serverRefused": "Sunucu kullanıcı adını veya parolayı reddetti.",
-  "shell.accounts.serverRefusedReason": "Sunucu kullanıcı adını veya parolayı reddetti: {reason}",
   "shell.accounts.providerRefusedPlain": "Sağlayıcı oturum açmayı reddetti.",
   "shell.accounts.foreignRedirect": "Bu oturum açma, Themia'nın açtığı tarayıcıdan geri gelmedi. Yeniden başlayın.",
   "shell.accounts.pageSignedIn": "Oturum açtınız.",

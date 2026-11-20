@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Πληκτρολόγησε τον διακομιστή ως όνομα κεντρικού υπολογιστή, π.χ. imap.example.com.",
   "shell.accounts.portRange": "Η θύρα πρέπει να είναι από 1 έως 65535 (συνήθως 993).",
   "shell.accounts.enterCredentials": "Πληκτρολόγησε το όνομα χρήστη και τον κωδικό πρόσβασης.",
-  "shell.accounts.serverRefused": "Ο διακομιστής απέρριψε το όνομα χρήστη ή τον κωδικό πρόσβασης.",
-  "shell.accounts.serverRefusedReason": "Ο διακομιστής απέρριψε το όνομα χρήστη ή τον κωδικό πρόσβασης: {reason}",
   "shell.accounts.providerRefusedPlain": "Ο πάροχος απέρριψε τη σύνδεση.",
   "shell.accounts.foreignRedirect": "Αυτή η σύνδεση δεν επέστρεψε από το πρόγραμμα περιήγησης που άνοιξε το Themia. Ξεκίνα από την αρχή.",
   "shell.accounts.pageSignedIn": "Συνδέθηκες.",

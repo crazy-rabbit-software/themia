@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "सर्वर को होस्ट नाम के रूप में दर्ज करें, जैसे imap.example.com।",
   "shell.accounts.portRange": "पोर्ट 1 और 65535 के बीच होना चाहिए (आमतौर पर 993)।",
   "shell.accounts.enterCredentials": "उपयोगकर्ता नाम और पासवर्ड दर्ज करें।",
-  "shell.accounts.serverRefused": "सर्वर ने उपयोगकर्ता नाम या पासवर्ड अस्वीकार कर दिया।",
-  "shell.accounts.serverRefusedReason": "सर्वर ने उपयोगकर्ता नाम या पासवर्ड अस्वीकार कर दिया: {reason}",
   "shell.accounts.providerRefusedPlain": "प्रदाता ने साइन इन अस्वीकार कर दिया।",
   "shell.accounts.foreignRedirect": "वह साइन इन Themia द्वारा खोले गए ब्राउज़र से नहीं लौटा। फिर से शुरू करें।",
   "shell.accounts.pageSignedIn": "आप साइन इन हैं।",

@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "சேவையகத்தை imap.example.com போன்ற ஹோஸ்ட் பெயராக உள்ளிடவும்.",
   "shell.accounts.portRange": "போர்ட் 1 முதல் 65535 வரை இருக்க வேண்டும் (பொதுவாக 993).",
   "shell.accounts.enterCredentials": "பயனர்பெயரையும் கடவுச்சொல்லையும் உள்ளிடவும்.",
-  "shell.accounts.serverRefused": "சேவையகம் பயனர்பெயரை அல்லது கடவுச்சொல்லை மறுத்தது.",
-  "shell.accounts.serverRefusedReason": "சேவையகம் பயனர்பெயரை அல்லது கடவுச்சொல்லை மறுத்தது: {reason}",
   "shell.accounts.providerRefusedPlain": "வழங்குநர் உள்நுழைவை மறுத்தது.",
   "shell.accounts.foreignRedirect": "அந்த உள்நுழைவு Themia திறந்த உலாவியிலிருந்து திரும்பவில்லை. மீண்டும் தொடங்கவும்.",
   "shell.accounts.pageSignedIn": "நீங்கள் உள்நுழைந்துவிட்டீர்கள்.",

@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Voer de server in als hostnaam, zoals imap.example.com.",
   "shell.accounts.portRange": "De poort moet tussen 1 en 65535 liggen (meestal 993).",
   "shell.accounts.enterCredentials": "Voer de gebruikersnaam en het wachtwoord in.",
-  "shell.accounts.serverRefused": "De server weigerde de gebruikersnaam of het wachtwoord.",
-  "shell.accounts.serverRefusedReason": "De server weigerde de gebruikersnaam of het wachtwoord: {reason}",
   "shell.accounts.providerRefusedPlain": "De provider weigerde de aanmelding.",
   "shell.accounts.foreignRedirect": "Die aanmelding kwam niet terug uit de browser die Themia opende. Begin opnieuw.",
   "shell.accounts.pageSignedIn": "Je bent aangemeld.",

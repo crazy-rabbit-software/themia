@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "সার্ভারকে হোস্টের নাম হিসেবে লিখুন, যেমন imap.example.com।",
   "shell.accounts.portRange": "পোর্ট 1 থেকে 65535-এর মধ্যে হতে হবে (সাধারণত 993)।",
   "shell.accounts.enterCredentials": "ইউজার নেম ও পাসওয়ার্ড লিখুন।",
-  "shell.accounts.serverRefused": "সার্ভার ইউজার নেম বা পাসওয়ার্ড প্রত্যাখ্যান করেছে।",
-  "shell.accounts.serverRefusedReason": "সার্ভার ইউজার নেম বা পাসওয়ার্ড প্রত্যাখ্যান করেছে: {reason}",
   "shell.accounts.providerRefusedPlain": "প্রদানকারী সাইন-ইন প্রত্যাখ্যান করেছে।",
   "shell.accounts.foreignRedirect": "এই সাইন-ইন Themia-র খোলা ব্রাউজার থেকে ফেরেনি। আবার শুরু করুন।",
   "shell.accounts.pageSignedIn": "আপনি সাইন ইন করেছেন।",

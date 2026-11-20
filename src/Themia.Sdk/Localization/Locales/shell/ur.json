@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "سرور کو ہوسٹ نام کے طور پر درج کریں، جیسے imap.example.com۔",
   "shell.accounts.portRange": "پورٹ 1 اور 65535 کے درمیان ہونا چاہیے (عموماً 993)۔",
   "shell.accounts.enterCredentials": "صارف نام اور پاس ورڈ درج کریں۔",
-  "shell.accounts.serverRefused": "سرور نے صارف نام یا پاس ورڈ مسترد کر دیا۔",
-  "shell.accounts.serverRefusedReason": "سرور نے صارف نام یا پاس ورڈ مسترد کر دیا: {reason}",
   "shell.accounts.providerRefusedPlain": "فراہم کنندہ نے سائن ان مسترد کر دیا۔",
   "shell.accounts.foreignRedirect": "یہ سائن ان اس براؤزر سے واپس نہیں آیا جو Themia نے کھولا تھا۔ دوبارہ شروع کریں۔",
   "shell.accounts.pageSignedIn": "آپ سائن ان ہو گئے ہیں۔",

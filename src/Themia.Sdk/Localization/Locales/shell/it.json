@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Inserisci il server come nome host, ad esempio imap.example.com.",
   "shell.accounts.portRange": "La porta deve essere compresa tra 1 e 65535 (di solito 993).",
   "shell.accounts.enterCredentials": "Inserisci nome utente e password.",
-  "shell.accounts.serverRefused": "Il server ha rifiutato nome utente o password.",
-  "shell.accounts.serverRefusedReason": "Il server ha rifiutato nome utente o password: {reason}",
   "shell.accounts.providerRefusedPlain": "Il provider ha rifiutato l’accesso.",
   "shell.accounts.foreignRedirect": "Questo accesso non è tornato dal browser aperto da Themia. Ricomincia.",
   "shell.accounts.pageSignedIn": "Accesso effettuato.",

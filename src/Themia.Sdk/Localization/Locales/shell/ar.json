@@ -468,8 +468,6 @@
   "shell.accounts.hostName": "أدخل الخادم كاسم مضيف، مثل imap.example.com.",
   "shell.accounts.portRange": "يجب أن يكون المنفذ بين 1 و65535 (عادةً 993).",
   "shell.accounts.enterCredentials": "أدخل اسم المستخدم وكلمة المرور.",
-  "shell.accounts.serverRefused": "رفض الخادم اسم المستخدم أو كلمة المرور.",
-  "shell.accounts.serverRefusedReason": "رفض الخادم اسم المستخدم أو كلمة المرور: {reason}",
   "shell.accounts.providerRefusedPlain": "رفض الموفر تسجيل الدخول.",
   "shell.accounts.foreignRedirect": "لم يعد تسجيل الدخول هذا من المستعرض الذي فتحه Themia. ابدأ من جديد.",
   "shell.accounts.pageSignedIn": "تم تسجيل دخولك.",

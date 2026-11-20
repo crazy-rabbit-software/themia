@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "Masukkan server sebagai nama host, seperti imap.example.com.",
   "shell.accounts.portRange": "Port harus antara 1 dan 65535 (biasanya 993).",
   "shell.accounts.enterCredentials": "Masukkan nama pengguna dan kata sandi.",
-  "shell.accounts.serverRefused": "Server menolak nama pengguna atau kata sandi.",
-  "shell.accounts.serverRefusedReason": "Server menolak nama pengguna atau kata sandi: {reason}",
   "shell.accounts.providerRefusedPlain": "Penyedia menolak proses masuk.",
   "shell.accounts.foreignRedirect": "Proses masuk itu tidak kembali dari browser yang dibuka Themia. Mulai lagi.",
   "shell.accounts.pageSignedIn": "Anda sudah masuk.",

@@ -435,8 +435,6 @@
   "shell.accounts.hostName": "Introdu serverul ca nume de gazdă, de exemplu imap.example.com.",
   "shell.accounts.portRange": "Portul trebuie să fie între 1 și 65535 (de obicei 993).",
   "shell.accounts.enterCredentials": "Introdu numele de utilizator și parola.",
-  "shell.accounts.serverRefused": "Serverul a refuzat numele de utilizator sau parola.",
-  "shell.accounts.serverRefusedReason": "Serverul a refuzat numele de utilizator sau parola: {reason}",
   "shell.accounts.providerRefusedPlain": "Furnizorul a refuzat conectarea.",
   "shell.accounts.foreignRedirect": "Conectarea nu a revenit din browserul deschis de Themia. Începe din nou.",
   "shell.accounts.pageSignedIn": "Te-ai conectat.",

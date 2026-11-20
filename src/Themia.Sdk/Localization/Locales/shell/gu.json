@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "સર્વરને હોસ્ટ નામ તરીકે દાખલ કરો, જેમ કે imap.example.com.",
   "shell.accounts.portRange": "પોર્ટ 1 અને 65535 વચ્ચે હોવો જોઈએ (સામાન્ય રીતે 993).",
   "shell.accounts.enterCredentials": "યુઝર નામ અને પાસવર્ડ દાખલ કરો.",
-  "shell.accounts.serverRefused": "સર્વરે યુઝર નામ કે પાસવર્ડ નકાર્યો.",
-  "shell.accounts.serverRefusedReason": "સર્વરે યુઝર નામ કે પાસવર્ડ નકાર્યો: {reason}",
   "shell.accounts.providerRefusedPlain": "પ્રદાતાએ સાઇન-ઇન નકાર્યું.",
   "shell.accounts.foreignRedirect": "તે સાઇન-ઇન Themia એ ખોલેલા બ્રાઉઝરમાંથી પાછું આવ્યું નથી. ફરી શરૂ કરો.",
   "shell.accounts.pageSignedIn": "તમે સાઇન ઇન થઈ ગયા છો.",

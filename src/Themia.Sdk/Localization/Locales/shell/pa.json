@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "ਸਰਵਰ ਨੂੰ ਹੋਸਟ ਨਾਮ ਵਜੋਂ ਦਰਜ ਕਰੋ, ਜਿਵੇਂ imap.example.com।",
   "shell.accounts.portRange": "ਪੋਰਟ 1 ਅਤੇ 65535 ਦੇ ਵਿਚਕਾਰ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ (ਆਮ ਤੌਰ ਉੱਤੇ 993)।",
   "shell.accounts.enterCredentials": "ਯੂਜ਼ਰ ਨਾਮ ਅਤੇ ਪਾਸਵਰਡ ਦਰਜ ਕਰੋ।",
-  "shell.accounts.serverRefused": "ਸਰਵਰ ਨੇ ਯੂਜ਼ਰ ਨਾਮ ਜਾਂ ਪਾਸਵਰਡ ਨਾਮਨਜ਼ੂਰ ਕੀਤਾ।",
-  "shell.accounts.serverRefusedReason": "ਸਰਵਰ ਨੇ ਯੂਜ਼ਰ ਨਾਮ ਜਾਂ ਪਾਸਵਰਡ ਨਾਮਨਜ਼ੂਰ ਕੀਤਾ: {reason}",
   "shell.accounts.providerRefusedPlain": "ਪ੍ਰਦਾਤਾ ਨੇ ਸਾਈਨ ਇਨ ਨਾਮਨਜ਼ੂਰ ਕੀਤਾ।",
   "shell.accounts.foreignRedirect": "ਉਹ ਸਾਈਨ ਇਨ Themia ਵੱਲੋਂ ਖੋਲ੍ਹੇ ਬ੍ਰਾਊਜ਼ਰ ਤੋਂ ਵਾਪਸ ਨਹੀਂ ਆਇਆ। ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰੋ।",
   "shell.accounts.pageSignedIn": "ਤੁਸੀਂ ਸਾਈਨ ਇਨ ਹੋ।",

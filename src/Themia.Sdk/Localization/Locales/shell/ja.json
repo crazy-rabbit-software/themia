@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "サーバーはホスト名で入力してください (例: imap.example.com)。",
   "shell.accounts.portRange": "ポートは 1 から 65535 の間で指定してください (通常は 993)。",
   "shell.accounts.enterCredentials": "ユーザー名とパスワードを入力してください。",
-  "shell.accounts.serverRefused": "サーバーがユーザー名またはパスワードを拒否しました。",
-  "shell.accounts.serverRefusedReason": "サーバーがユーザー名またはパスワードを拒否しました: {reason}",
   "shell.accounts.providerRefusedPlain": "プロバイダーがサインインを拒否しました。",
   "shell.accounts.foreignRedirect": "そのサインインは Themia が開いたブラウザーから戻ってきませんでした。最初からやり直してください。",
   "shell.accounts.pageSignedIn": "サインインしました。",

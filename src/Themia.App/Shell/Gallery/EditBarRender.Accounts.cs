@@ -163,7 +163,7 @@ internal static partial class EditBarRender
             switch (Outcome)
             {
                 case RenderTry.Refused:
-                    form.End(Str.Shell_Accounts_ServerRefused.Text(), failed: true);
+                    form.End(Str.Shell_Mail_LoginRefused.Text(), failed: true);
                     break;
                 case RenderTry.Connects:
                     form.End(Str.SettingsAccounts_ConnectedTo.Format(("host", form.ServerTried)), failed: false);

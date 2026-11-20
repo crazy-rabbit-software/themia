@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "സെർവർ ഒരു ഹോസ്റ്റ് നാമമായി നൽകുക, ഉദാഹരണത്തിന് imap.example.com.",
   "shell.accounts.portRange": "പോർട്ട് 1-നും 65535-നും ഇടയിലായിരിക്കണം (സാധാരണ 993).",
   "shell.accounts.enterCredentials": "ഉപയോക്തൃനാമവും പാസ്‌വേഡും നൽകുക.",
-  "shell.accounts.serverRefused": "സെർവർ ഉപയോക്തൃനാമമോ പാസ്‌വേഡോ നിരസിച്ചു.",
-  "shell.accounts.serverRefusedReason": "സെർവർ ഉപയോക്തൃനാമമോ പാസ്‌വേഡോ നിരസിച്ചു: {reason}",
   "shell.accounts.providerRefusedPlain": "ദാതാവ് സൈൻ ഇൻ നിരസിച്ചു.",
   "shell.accounts.foreignRedirect": "Themia തുറന്ന ബ്രൗസറിൽ നിന്ന് ആ സൈൻ ഇൻ തിരികെ വന്നില്ല. വീണ്ടും തുടങ്ങുക.",
   "shell.accounts.pageSignedIn": "നിങ്ങൾ സൈൻ ഇൻ ചെയ്തു.",

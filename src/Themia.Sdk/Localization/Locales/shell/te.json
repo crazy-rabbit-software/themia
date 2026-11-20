@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "సర్వర్‌ను imap.example.com లాంటి హోస్ట్ పేరుగా నమోదు చేయండి.",
   "shell.accounts.portRange": "పోర్ట్ 1 మరియు 65535 మధ్య ఉండాలి (సాధారణంగా 993).",
   "shell.accounts.enterCredentials": "వినియోగదారు పేరు మరియు పాస్‌వర్డ్‌ను నమోదు చేయండి.",
-  "shell.accounts.serverRefused": "సర్వర్ వినియోగదారు పేరు లేదా పాస్‌వర్డ్‌ను తిరస్కరించింది.",
-  "shell.accounts.serverRefusedReason": "సర్వర్ వినియోగదారు పేరు లేదా పాస్‌వర్డ్‌ను తిరస్కరించింది: {reason}",
   "shell.accounts.providerRefusedPlain": "ప్రొవైడర్ సైన్-ఇన్‌ను తిరస్కరించింది.",
   "shell.accounts.foreignRedirect": "ఆ సైన్-ఇన్ Themia తెరిచిన బ్రౌజర్ నుండి తిరిగి రాలేదు. మళ్లీ ప్రారంభించండి.",
   "shell.accounts.pageSignedIn": "మీరు సైన్ ఇన్ అయ్యారు.",

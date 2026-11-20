@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "ಸರ್ವರ್ ಅನ್ನು ಹೋಸ್ಟ್ ಹೆಸರಾಗಿ ನಮೂದಿಸು, ಉದಾಹರಣೆಗೆ imap.example.com.",
   "shell.accounts.portRange": "ಪೋರ್ಟ್ 1 ರಿಂದ 65535 ರ ನಡುವೆ ಇರಬೇಕು (ಸಾಮಾನ್ಯವಾಗಿ 993).",
   "shell.accounts.enterCredentials": "ಬಳಕೆದಾರ ಹೆಸರು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸು.",
-  "shell.accounts.serverRefused": "ಸರ್ವರ್ ಬಳಕೆದಾರ ಹೆಸರು ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ನಿರಾಕರಿಸಿದೆ.",
-  "shell.accounts.serverRefusedReason": "ಸರ್ವರ್ ಬಳಕೆದಾರ ಹೆಸರು ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ನಿರಾಕರಿಸಿದೆ: {reason}",
   "shell.accounts.providerRefusedPlain": "ಪೂರೈಕೆದಾರರು ಸೈನ್ ಇನ್ ನಿರಾಕರಿಸಿದ್ದಾರೆ.",
   "shell.accounts.foreignRedirect": "ಆ ಸೈನ್ ಇನ್ Themia ತೆರೆದ ಬ್ರೌಸರ್‌ನಿಂದ ಹಿಂತಿರುಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಾರಂಭಿಸು.",
   "shell.accounts.pageSignedIn": "ನೀನು ಸೈನ್ ಇನ್ ಆಗಿದ್ದೀಯ.",

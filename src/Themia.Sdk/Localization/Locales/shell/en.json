@@ -453,8 +453,6 @@
   "shell.accounts.hostName": "Enter the server as a host name, such as imap.example.com.",
   "shell.accounts.portRange": "The port must be between 1 and 65535 (usually 993).",
   "shell.accounts.enterCredentials": "Enter the user name and password.",
-  "shell.accounts.serverRefused": "The server refused the user name or password.",
-  "shell.accounts.serverRefusedReason": "The server refused the user name or password: {reason}",
   "shell.accounts.providerRefusedPlain": "The provider refused the sign-in.",
   "shell.accounts.foreignRedirect": "That sign-in did not come back from the browser Themia opened. Start again.",
   "shell.accounts.pageSignedIn": "You are signed in.",

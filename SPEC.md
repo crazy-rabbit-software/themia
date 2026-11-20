@@ -4050,7 +4050,11 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
   port, answering one request; the browser wait gives up after five minutes ("did not come back within
   five minutes. Start again."). Google's redirect names `http://127.0.0.1:<port>`.
 - **[S-528]** An IMAP account is saved only after a TLS connect, greeting and LOGIN succeed (then
-  LOGOUT); nothing is selected or read.
+  LOGOUT); nothing is selected or read. The check is the mail sync's own session with no job
+  (`ImapMailClient.VerifyAsync`, the ID of [S-553] included), judged by the one verdict both share (`ImapVerdict`: a BYE
+  greeting is the server's trouble, an offline PC is offline, only a LOGIN refused for its credentials asks for a sign-in;
+  `ImapVerdictTests`); sign-in had a client of its own that judged the same server differently (audit 2026-11-20, ordered
+  by the owner: "actually do all of them one after the other. be thorough").
 - **[S-529]** `AccountService` (one, in `AppServices.Accounts`) lists, renames, signs out and adds;
   `AccountsChanged` is raised on the UI thread. A user action whose save fails changes nothing.
 - **[S-530]** Token refresh is single-flight per account; whoever waited re-reads the account and uses

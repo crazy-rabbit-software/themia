@@ -413,8 +413,6 @@
   "shell.accounts.hostName": "ဆာဗာကို host အမည်အဖြစ် ထည့်ပါ၊ ဥပမာ imap.example.com။",
   "shell.accounts.portRange": "ပေါ့တ်သည် 1 နှင့် 65535 ကြား ဖြစ်ရမည် (များသောအားဖြင့် 993)။",
   "shell.accounts.enterCredentials": "အသုံးပြုသူအမည်နှင့် စကားဝှက်ကို ထည့်ပါ။",
-  "shell.accounts.serverRefused": "ဆာဗာက အသုံးပြုသူအမည် သို့မဟုတ် စကားဝှက်ကို ငြင်းပယ်ခဲ့သည်။",
-  "shell.accounts.serverRefusedReason": "ဆာဗာက အသုံးပြုသူအမည် သို့မဟုတ် စကားဝှက်ကို ငြင်းပယ်ခဲ့သည်: {reason}",
   "shell.accounts.providerRefusedPlain": "ဝန်ဆောင်မှုပေးသူက ဝင်ရောက်မှုကို ငြင်းပယ်ခဲ့သည်။",
   "shell.accounts.foreignRedirect": "ထိုဝင်ရောက်မှုသည် Themia ဖွင့်ခဲ့သော ဘရောက်ဇာမှ ပြန်မလာခဲ့ပါ။ ပြန်စပါ။",
   "shell.accounts.pageSignedIn": "သင် ဝင်ရောက်ပြီးပါပြီ။",

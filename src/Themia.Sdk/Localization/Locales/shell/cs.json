@@ -435,8 +435,6 @@
   "shell.accounts.hostName": "Zadej server jako název hostitele, například imap.example.com.",
   "shell.accounts.portRange": "Port musí být mezi 1 a 65535 (obvykle 993).",
   "shell.accounts.enterCredentials": "Zadej uživatelské jméno a heslo.",
-  "shell.accounts.serverRefused": "Server odmítl uživatelské jméno nebo heslo.",
-  "shell.accounts.serverRefusedReason": "Server odmítl uživatelské jméno nebo heslo: {reason}",
   "shell.accounts.providerRefusedPlain": "Poskytovatel přihlášení odmítl.",
   "shell.accounts.foreignRedirect": "Toto přihlášení se nevrátilo z prohlížeče, který Themia otevřela. Začni znovu.",
   "shell.accounts.pageSignedIn": "Přihlášení proběhlo.",

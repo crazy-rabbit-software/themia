@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Shigar da sabar a matsayin sunan mai masauki, kamar imap.example.com.",
   "shell.accounts.portRange": "Tashar dole ta kasance tsakanin 1 da 65535 (yawanci 993).",
   "shell.accounts.enterCredentials": "Shigar da sunan mai amfani da kalmar sirri.",
-  "shell.accounts.serverRefused": "Sabar ta ƙi sunan mai amfani ko kalmar sirri.",
-  "shell.accounts.serverRefusedReason": "Sabar ta ƙi sunan mai amfani ko kalmar sirri: {reason}",
   "shell.accounts.providerRefusedPlain": "Mai bayarwa ya ƙi shiga.",
   "shell.accounts.foreignRedirect": "Wannan shigar bai dawo daga burauzar da Themia ta buɗe ba. Sake farawa.",
   "shell.accounts.pageSignedIn": "Ka shiga.",

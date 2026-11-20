@@ -315,8 +315,8 @@ internal sealed partial class AccountService
 
     /// <summary>
     /// [S-528] [S-3555] The one way a typed mail server is checked, for a test and an add alike: the
-    /// form's rule (<see cref="AccountRules.ImapServerProblem"/>), then a TLS connect, the greeting
-    /// and LOGIN. The credentials as they were signed in with.
+    /// form's rule (<see cref="AccountRules.ImapServerProblem"/>), then the mail sync's own session with no job (a TLS
+    /// connect, the greeting, LOGIN and ID, LOGOUT; one verdict for both). The credentials as they were signed in with.
     /// </summary>
     private static async Task<ImapCredentials> ProveImapAsync(string host, int port, string username, string password, CancellationToken cancellation)
     {
@@ -334,7 +334,7 @@ internal sealed partial class AccountService
         }
 
         var login = new ImapCredentials(cleanHost, port, cleanUser, password);
-        await ImapLogin.VerifyAsync(login, cancellation).ConfigureAwait(false);
+        await Mail.ImapMailClient.VerifyAsync(login, cancellation).ConfigureAwait(false);
         return login;
     }
 

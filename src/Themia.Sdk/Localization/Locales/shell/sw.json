@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Weka seva kama jina la seva pangishi, kama imap.example.com.",
   "shell.accounts.portRange": "Mlango lazima uwe kati ya 1 na 65535 (kwa kawaida 993).",
   "shell.accounts.enterCredentials": "Weka jina la mtumiaji na nenosiri.",
-  "shell.accounts.serverRefused": "Seva ilikataa jina la mtumiaji au nenosiri.",
-  "shell.accounts.serverRefusedReason": "Seva ilikataa jina la mtumiaji au nenosiri: {reason}",
   "shell.accounts.providerRefusedPlain": "Mtoa huduma alikataa kuingia.",
   "shell.accounts.foreignRedirect": "Kuingia huko hakukurudi kutoka kwenye kivinjari ambacho Themia ilifungua. Anza tena.",
   "shell.accounts.pageSignedIn": "Umeingia.",

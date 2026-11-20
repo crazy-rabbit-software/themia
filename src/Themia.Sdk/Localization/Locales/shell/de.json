@@ -424,8 +424,6 @@
   "shell.accounts.hostName": "Gib den Server als Hostnamen ein, z. B. imap.example.com.",
   "shell.accounts.portRange": "Der Port muss zwischen 1 und 65535 liegen (meist 993).",
   "shell.accounts.enterCredentials": "Gib Benutzername und Kennwort ein.",
-  "shell.accounts.serverRefused": "Der Server hat Benutzername oder Kennwort abgelehnt.",
-  "shell.accounts.serverRefusedReason": "Der Server hat Benutzername oder Kennwort abgelehnt: {reason}",
   "shell.accounts.providerRefusedPlain": "Der Anbieter hat die Anmeldung abgelehnt.",
   "shell.accounts.foreignRedirect": "Diese Anmeldung kam nicht aus dem Browser zurück, den Themia geöffnet hat. Beginne von vorn.",
   "shell.accounts.pageSignedIn": "Du bist angemeldet.",

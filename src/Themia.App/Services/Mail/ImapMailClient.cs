@@ -13,8 +13,9 @@ using Themia.Core.Sync;
 namespace Themia.App.Services.Mail;
 
 /// <summary>
-/// [S-553] One IMAP session for the Mail widget: connect with implicit TLS (as account sign-in
-/// proved it, <see cref="ImapLogin"/>), LOGIN, do one job, LOGOUT. A session per job rather than a
+/// [S-553] [S-528] One IMAP session for the Mail widget and for proving an account's sign-in alike: connect with implicit
+/// TLS, LOGIN (and ID where the server asks for it), do one job, LOGOUT; every failure judged by Core's one
+/// <see cref="ImapVerdict"/>. A session per job rather than a
 /// held connection: the list is fetched once every few minutes at most, and an idle connection per
 /// account is a socket, a TLS context and a server slot held for nothing.
 /// <para>
@@ -30,7 +31,12 @@ namespace Themia.App.Services.Mail;
 /// </summary>
 internal static class ImapMailClient
 {
-    private static readonly TimeSpan Deadline = TimeSpan.FromSeconds(45);
+    /// <summary>
+    /// [S-528] Prove a login before the account is saved: the session with no job. Nothing is selected and nothing is
+    /// read, so a check can never mark a message read or move one.
+    /// </summary>
+    public static Task VerifyAsync(ImapCredentials login, CancellationToken cancellation)
+        => RunAsync(login, cancellation, static _ => Task.FromResult(true));
 
     /// <summary>
     /// [S-2689] The newest <paramref name="count"/> messages of a folder, newest first, and the mark
@@ -141,7 +147,7 @@ internal static class ImapMailClient
     private static async Task<T> RunAsync<T>(ImapCredentials login, CancellationToken cancellation, Func<Session, Task<T>> job)
     {
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
-        deadline.CancelAfter(Deadline);
+        deadline.CancelAfter(ImapVerdict.Deadline);
         var token = deadline.Token;
 
         try
@@ -172,31 +178,33 @@ internal static class ImapMailClient
         }
         catch (OperationCanceledException ex)
         {
-            throw new AccountException(AccountError.TimedOut, $"{login.Host} did not answer within {Deadline.TotalSeconds:F0} seconds.", 0, ex);
+            throw ImapVerdict.Of(ImapFailure.TimedOut, login.Host, login.Port, inner: ex);
         }
         catch (AuthenticationException ex)
         {
-            throw new AccountException(AccountError.Unreachable, Str.Shell_Net_TlsFailed.Format(("host", $"{login.Host}:{login.Port}")), 0, ex);
+            throw ImapVerdict.Of(ImapFailure.Tls, login.Host, login.Port, inner: ex);
         }
         catch (SocketException ex)
         {
-            var error = ex.SocketErrorCode is SocketError.NetworkUnreachable or SocketError.NetworkDown or SocketError.HostNotFound or SocketError.TryAgain
-                && !System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()
-                    ? AccountError.Offline
-                    : AccountError.Unreachable;
-            throw new AccountException(error, Str.Shell_Net_CouldNotConnectCode.Format(("host", $"{login.Host}:{login.Port}"), ("code", ex.SocketErrorCode.ToString())), 0, ex);
+            throw ImapVerdict.Of(
+                ImapFailure.Socket,
+                login.Host,
+                login.Port,
+                socket: ex.SocketErrorCode,
+                networkAvailable: System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable(),
+                inner: ex);
         }
         catch (NetRefusedException ex)
         {
-            throw new AccountException(AccountError.Refused, ex.Message, 0, ex);
+            throw ImapVerdict.Of(ImapFailure.NetRefused, login.Host, login.Port, ex.Message, inner: ex);
         }
         catch (ProxyTunnelException ex)
         {
-            throw new AccountException(AccountError.Unreachable, ex.Message, 0, ex);
+            throw ImapVerdict.Of(ImapFailure.Proxy, login.Host, login.Port, ex.Message, inner: ex);
         }
         catch (IOException ex)
         {
-            throw new AccountException(AccountError.Unreachable, Str.Shell_Net_Dropped.Format(("host", login.Host)), 0, ex);
+            throw ImapVerdict.Of(ImapFailure.Dropped, login.Host, login.Port, inner: ex);
         }
     }
 
@@ -224,9 +232,9 @@ internal static class ImapMailClient
             switch (ImapProtocol.ParseGreeting(first))
             {
                 case ImapGreeting.Bye:
-                    throw new AccountException(AccountError.ServerError, $"{host} turned the connection away.");
+                    throw ImapVerdict.Of(ImapFailure.Bye, host, login.Port);
                 case ImapGreeting.NotImap:
-                    throw new AccountException(AccountError.BadResponse, $"{host} did not answer as a mail (IMAP) server.");
+                    throw ImapVerdict.Of(ImapFailure.NotImap, host, login.Port);
                 case ImapGreeting.PreAuth:
                     return;
             }
@@ -272,13 +280,7 @@ internal static class ImapMailClient
         }
 
         private static AccountException Refused(ImapResponse tagged)
-        {
-            var text = string.Join(' ', tagged.Values.Select(v => v.Text).OfType<string>().Skip(1));
-            var error = ImapRules.LoginRefusal(text);
-            return new AccountException(error, error == AccountError.SignInRequired
-                ? (text.Length > 0 ? Str.Shell_Mail_LoginRefusedReason.Format(("reason", text)) : Str.Shell_Mail_LoginRefused.Text())
-                : Str.Shell_Mail_NoLogins.Format(("reason", text)));
-        }
+            => ImapVerdict.LoginRefused(string.Join(' ', tagged.Values.Select(v => v.Text).OfType<string>().Skip(1)));
 
         /// <summary>The mailbox for a folder: INBOX directly, anything else through one LIST, cached for the session.</summary>
         public async Task<string> ResolveAsync(MailFolder folder)
