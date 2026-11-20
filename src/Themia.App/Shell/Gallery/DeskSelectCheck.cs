@@ -534,6 +534,30 @@ internal static partial class DeskSelectCheck
                     failures += handOk ? 0 : 1;
                     Say($"{(handOk ? "ok  " : "FAIL")} a move handed to the shell's drag: its picture carried {carried}, its cards back {back}");
                 }
+
+                // [S-13708] An icon dragged off the Unplaced icons page (the one placement session, edit mode): under the pointer
+                // it is the icon as the desktop draws it, with its corners, beside the desktop's own in edit mode. Drawn, then given up.
+                var loose = new DesktopItem(Path.Combine(Path.GetTempPath(), "themia-desk-select-check", "Placed from the page (Check).txt"), "Placed from the page (Check).txt", DesktopItemKind.File);
+                host.BeginPlacement([loose], metrics);
+                var placingOk = false;
+                if (host.Placing is { } placing)
+                {
+                    surface.ShowGhosts(placing.Outlines(0.30, 0.80, metrics, surface.SizesNow));
+                    await Task.Delay(1200).ConfigureAwait(true);
+                    var drawnAsIcon = surface.IconGhostsShown;
+                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".place-icon.png")).ConfigureAwait(true);
+                    host.CancelPlacement();
+                    var gone = surface.IconGhostsShown == 0;
+                    placingOk = drawnAsIcon == 1 && gone;
+                    Say($"{(placingOk ? "ok  " : "FAIL")} an icon placed from the page: drawn as the desktop draws it {drawnAsIcon}, gone with the placement {gone}");
+                }
+                else
+                {
+                    Say("FAIL an icon placed from the page: no placement began");
+                }
+
+                failures += placingOk ? 0 : 1;
+                host.SetEditMode(false);
             }
             else
             {

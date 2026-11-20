@@ -235,7 +235,8 @@ internal sealed partial class DesktopWindow
     /// [S-423]/[S-1585] Show widget-shaped outlines on this display: where the widgets being placed,
     /// or dragged in from another display, will land — one per widget, at its offset in the block.
     /// Each traces the painted card, inside the gap, because that is what the user will see once it
-    /// is there. Outlines are pooled: a ghost redraws on every pointer move.
+    /// is there. Outlines are pooled: a ghost redraws on every pointer move. [S-13708] A desktop icon
+    /// is drawn as the desktop draws it instead (<see cref="ShowIconGhosts"/>).
     /// </summary>
     public void ShowGhosts(IReadOnlyList<GhostOutline> outlines)
     {
@@ -247,6 +248,8 @@ internal sealed partial class DesktopWindow
             return;
         }
 
+        ShowIconGhosts([.. outlines.Where(o => o.Config is IDesktopItemConfig)], metrics);
+        outlines = [.. outlines.Where(o => o.Config is not IDesktopItemConfig)];
         while (_ghosts.Count < outlines.Count)
         {
             var ghost = new GhostCard(Brush("AccentFillColorDefaultBrush", Colors.DodgerBlue));
@@ -288,6 +291,8 @@ internal sealed partial class DesktopWindow
         {
             ghost.Root.Visibility = Visibility.Collapsed;
         }
+
+        HideIconGhosts();
     }
 
     /// <summary>
@@ -391,6 +396,7 @@ internal sealed partial class DesktopWindow
         _toolbar.Visibility = EditMode ? Visibility.Visible : Visibility.Collapsed;
         PlaceProperties();
         HideGhost();
+        DropIconGhosts();
         ReopenUnplacedAfterPlacing();
     }
 

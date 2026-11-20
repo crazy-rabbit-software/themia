@@ -29,11 +29,10 @@ internal sealed partial class DesktopWindow
         Place: keys => _host.PlaceDesktopItems(CurrentViewId, keys),
         PutIn: (fence, keys) => _host.PutDesktopItemsInFence(CurrentViewId, fence, keys),
         Drag: BeginUnplacedDrag,
-        Icon: HostDesktopItems.Instance.IconAsync,
-        Ground: () => Backdrop?.Picture));
+        Icon: HostDesktopItems.Instance.IconAsync));
 
     /// <summary>
-    /// [S-13700] What the page shows now: this display's view, what it does not place, and its fences; [S-13707] its icons in
+    /// [S-13700] What the page shows now: what this display's view does not place, and its fences; [S-13707] its icons in
     /// the box the desktop gives an icon on this display (the desktop's own, <c>DeskIconBox</c>: it follows the icon size).
     /// </summary>
     private UnplacedModel UnplacedNow()
@@ -41,7 +40,6 @@ internal sealed partial class DesktopWindow
         var view = ViewForThisMonitor(_host.State);
         var metrics = Metrics;
         return new UnplacedModel(
-            view.Name,
             DesktopViews.Holds(view),
             _host.UnplacedDesktopItems(view.Id),
             [.. UnplacedItems.Fences(view).Select(f => (f.Widget.Id, string.IsNullOrWhiteSpace(f.Fence.Name) ? ModuleCatalog.Of(f.Widget.Kind).Name : f.Fence.Name))])

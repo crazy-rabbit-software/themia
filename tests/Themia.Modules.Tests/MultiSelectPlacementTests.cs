@@ -285,6 +285,37 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
+    public void S13708_a_drag_off_the_unplaced_page_hands_each_icons_config_to_its_ghost_so_it_is_drawn_as_on_the_desktop()
+    {
+        // Owner, 2026-11-20: "when dragging a desktop item from the topbar of non placed items it should already look like
+        // the ones on the desktop". The placement as the host builds it: one item widget per icon, laid as one block.
+        string[] keys = [@"C:\Users\a\Desktop\a.txt", @"C:\Users\a\Desktop\b.txt", @"C:\Users\a\Desktop\c.txt"];
+        var block = Themia.Core.Desktop.UnplacedItems.Block(keys.Length, (0.08, 0.125));
+        var holder = new ViewState
+        {
+            Id = "desktop-item",
+            Name = string.Empty,
+            Widgets = [.. keys.Select((key, i) =>
+            {
+                var widget = WidgetInstance.Create(new WidgetId("desktopItem"), block[i]);
+                ((IDesktopItemConfig)widget.Config).Item = key;
+                return widget;
+            })],
+        };
+        var payload = PlacementPayload.FromView(holder, [.. holder.Widgets.Select(w => w.Id)], PlacementMode.Copy)!;
+
+        var outlines = payload.Outlines(0.5, 0.5, Screen);
+        var plan = payload.Plan(0.5, 0.5, Screen);
+
+        // Each outline carries its icon's config (the ghost draws it as the desktop draws that icon), where that icon lands.
+        Assert.Equal(keys, outlines.Select(o => Assert.IsAssignableFrom<IDesktopItemConfig>(o.Config).Item));
+        Assert.Equal(plan.Added.Select(w => w.Rect), outlines.Select(o => o.Rect));
+
+        // A new widget's ghost stays a frame: it has no config to draw.
+        Assert.Null(Assert.Single(PlacementPayload.ForNew(new WidgetId("clock"), 200, 100).Outlines(0.5, 0.5, Screen)).Config);
+    }
+
+    [Fact]
     public void S1587_a_new_widget_payload_lands_one_widget_of_its_kind_centred_and_counts_one()
     {
         var payload = PlacementPayload.ForNew(new WidgetId("clock"), 200, 100);

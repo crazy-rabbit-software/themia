@@ -7,6 +7,7 @@ using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
@@ -20,10 +21,9 @@ using P = Themia.Sdk.Kit.ShellMetrics.Page;
 
 namespace Themia.App.Shell;
 
-/// <summary>[S-13700] What the Unplaced icons page shows now: the view's name, its unplaced items and the fences they can go in.</summary>
-/// <param name="ViewName">The view shown on the page's display.</param>
-/// <param name="Holds">Whether the view shows desktop icons at all (<see cref="DesktopViews.Holds"/>).</param>
-internal sealed record UnplacedModel(string ViewName, bool Holds, IReadOnlyList<DesktopItem> Items, IReadOnlyList<(string Id, string Name)> Fences)
+/// <summary>[S-13700] What the Unplaced icons page shows now: the view's unplaced items and the fences they can go in.</summary>
+/// <param name="Holds">Whether the view shown on the page's display shows desktop icons at all (<see cref="DesktopViews.Holds"/>).</param>
+internal sealed record UnplacedModel(bool Holds, IReadOnlyList<DesktopItem> Items, IReadOnlyList<(string Id, string Name)> Fences)
 {
     /// <summary>
     /// [S-13707] The box the desktop gives an icon on the page's display, in DIPs (<see cref="UnplacedItems.Dips"/> of the
@@ -38,21 +38,20 @@ internal sealed record UnplacedModel(string ViewName, bool Holds, IReadOnlyList<
 /// <param name="PutIn">[S-13704] Put these items into the fence of that id.</param>
 /// <param name="Drag">[S-13705] These items were dragged off the page: their placement follows the pointer.</param>
 /// <param name="Icon">The shell's icon of an item at so many physical pixels.</param>
-/// <param name="Ground">[S-13707] What the icons stand on: the display's wallpaper (its blurred picture), or null for none.</param>
 internal sealed record UnplacedCommands(
     Func<UnplacedModel> Read,
     Action<IReadOnlyList<string>> Place,
     Action<string, IReadOnlyList<string>> PutIn,
     Action<IReadOnlyList<string>> Drag,
-    Func<DesktopItem, int, Task<ImageSource?>> Icon,
-    Func<ImageSource?> Ground);
+    Func<DesktopItem, int, Task<ImageSource?>> Icon);
 
 /// <summary>
 /// [S-13700]..[S-13707] The Unplaced icons page's live part (the page's one line, drawn as the Appearance's preview is,
-/// <see cref="IPagePreview"/>): under the words saying which view it is about, a search box once the list is long
-/// (<see cref="UnplacedItems.Searches"/>) and the selection's actions (Place on this view, Put in each fence), then the
-/// icons on a stretch of the display's wallpaper, each the desktop's own icon view (<c>.Icons.cs</c>) at the desktop's icon
-/// size in the box the desktop gives it, box against box in rows across the page as the desktop lays them
+/// <see cref="IPagePreview"/>): no words over it (owner, 2026-11-20: "remove the text from the on desktop not home page"), a
+/// search box once the list is long (<see cref="UnplacedItems.Searches"/>) and the selection's actions (Place on this view,
+/// Put in each fence), then the icons on the page's own ground, each the desktop's own icon view (<c>.Icons.cs</c>) at the
+/// desktop's icon size in the box the desktop gives it, with the corner marks the desktop's icons show in edit mode
+/// (<see cref="IconMarks"/>), box against box in rows across the page as the desktop lays them
 /// (<see cref="UnplacedItems.Cells"/>): what is seen is what is placed (owner, 2026-11-19: "it should show the icons
 /// exactly how they would look like on the desktop"). They are selected as files are (<see cref="ItemSelection"/>: click,
 /// Ctrl/Shift+click, the arrows across and down the rows, Ctrl+A), painted in the desktop icon's selection look, dragged
@@ -66,9 +65,12 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 
     private readonly UnplacedCommands _commands;
     private readonly ItemSelection _selection = new(DesktopItemKeys.Comparer);
-    private readonly TextBlock _caption = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
     private readonly TextBox _search;
     private readonly IconGrid _icons = new();
+
+    /// <summary>[S-13707] The icons' corner marks, as the desktop's icons show them in edit mode, over the icons.</summary>
+    private readonly IconMarks _marks = new();
+
     private readonly Border _desk;
     private readonly TextBlock _note = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
     private readonly Border _noteCard;
@@ -81,8 +83,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 
     /// <summary>[S-13707] The desktop icon's kind (the one whose config is an <see cref="IDesktopItemConfig"/>), or null in a build without it.</summary>
     private readonly WidgetDescriptor? _kind = ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
-    private UnplacedModel _model = new(string.Empty, true, [], []);
-    private ImageSource? _ground;
+    private UnplacedModel _model = new(true, [], []);
     private bool _disposed;
 
     /// <summary>The item a press is on and where it began.</summary>
@@ -100,10 +101,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         _iconHost = new IconPreviewHost(new CardWidgetHost(new PreviewCardHost(_ticker)), _iconDesk);
         Spacing = P.CardGap;
 
-        _caption.TextWrapping = TextWrapping.Wrap;
-        _caption.Margin = new Thickness(0, 0, 0, P.HeadingGap);
-        Children.Add(_caption);
-
         _search = new TextBox
         {
             PlaceholderText = Str.Unplaced_Page_Search.Text(),
@@ -120,13 +117,12 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         _foot.Margin = new Thickness(0, 0, 0, P.HeadingGap);
         Children.Add(_foot);
 
-        // [S-13707] The icons on the display's wallpaper, as they stand on the desktop: their names are drawn for it.
+        // [S-13707] The icons on the page's own ground (owner, 2026-11-20: "make the background of the icons area the same as
+        // the rest of the configuration page"), their corner marks over them; room round them for the marks' outer half.
+        _icons.Arranged = DrawMarks;
         _desk = new Border
         {
-            Child = _icons,
-            BorderBrush = ShellBrush.Of(ShellRole.CardStroke),
-            BorderThickness = new Thickness(FamilyShape.Hairline),
-            CornerRadius = new CornerRadius(P.CardRadius),
+            Child = new Grid { Children = { _icons, _marks.Halos, _marks.Inks } },
             Padding = new Thickness(Fluent.Space2),
             IsTabStop = true,
             UseSystemFocusVisuals = true,
@@ -164,12 +160,10 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         catch (Exception ex)
         {
             Log.Error(Scope, "the unplaced icons could not be read; the page shows none", ex);
-            _model = new(string.Empty, true, [], []);
+            _model = new(true, [], []);
         }
 
-        _caption.Text = Str.Unplaced_Page_Caption.Format(("view", _model.ViewName));
         _search.Visibility = UnplacedItems.Searches(_model.Items.Count) ? Visibility.Visible : Visibility.Collapsed;
-        PaintGround();
         Draw();
     }
 
@@ -213,31 +207,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 
     /// <summary>[S-6626] The selection is drawn active while the page has the keyboard or holds a selection.</summary>
     private bool Active => _desk.FocusState != FocusState.Unfocused || _selection.Count > 0;
-
-    /// <summary>[S-13707] The display's wallpaper under the icons, as on the desktop (its top under the page's); the cards' ground where there is none.</summary>
-    private void PaintGround()
-    {
-        ImageSource? ground;
-        try
-        {
-            ground = _commands.Ground();
-        }
-        catch (Exception ex)
-        {
-            Log.Warn(Scope, "the display's wallpaper could not be read for the page; its icons stand on the cards' ground", ex);
-            ground = null;
-        }
-
-        if (_desk.Background is not null && ReferenceEquals(ground, _ground))
-        {
-            return;
-        }
-
-        _ground = ground;
-        _desk.Background = ground is null
-            ? ShellBrush.Of(ShellRole.CardSecondary)
-            : new ImageBrush { ImageSource = ground, Stretch = Stretch.UniformToFill, AlignmentY = AlignmentY.Top };
-    }
 
     /// <summary>[S-13702] [S-13707] The icons of what the search matches, in their cells; the selection kept over them; the selection's actions.</summary>
     private void Draw()
@@ -463,7 +432,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
     }
 
-    /// <summary>[S-13707] Every icon paints the selection as the page has it, in the desktop icon's look; then the foot's actions for it.</summary>
+    /// <summary>[S-13707] Every icon paints the selection as the page has it, in the desktop icon's look, its marks too; then the foot's actions for it.</summary>
     private void Paint()
     {
         if (_disposed)
@@ -472,12 +441,34 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
 
         _iconDesk.Paint();
+        DrawMarks();
         DrawFoot();
     }
 
     /// <summary>
-    /// [S-13703] [S-13704] Over the icons: how many are selected and what to do with them (Place, Put in each fence), or
-    /// how to drag them while none is.
+    /// [S-13707] Each icon's corner marks round the box it is laid in, as the desktop draws an icon's in edit mode: neutral, a
+    /// selected one's in the accent (<see cref="IconMarks"/>).
+    /// </summary>
+    private void DrawMarks()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        var laid = _icons.Laid;
+        var boxes = new List<(PixelRect Box, bool Selected)>(Math.Min(laid.Count, _shown.Count));
+        for (var i = 0; i < laid.Count && i < _shown.Count; i++)
+        {
+            boxes.Add((laid[i], _selection.IsSelected(_shown[i].Key)));
+        }
+
+        _marks.Draw(boxes, XamlRoot?.RasterizationScale ?? 1.0);
+    }
+
+    /// <summary>
+    /// [S-13703] [S-13704] Over the icons: what to do with the selection (Place, its count in the button's words; Put in each
+    /// fence), no words of their own (owner, 2026-11-20).
     /// </summary>
     private void DrawFoot()
     {
@@ -489,11 +480,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
 
         var selected = _selection.Selected;
-        var said = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
-        said.TextWrapping = TextWrapping.Wrap;
-        said.Text = selected.Count > 0 ? Str.Unplaced_Page_Selected.Plural(selected.Count) : Str.Unplaced_Page_Hint.Text();
-        _foot.Children.Add(said);
-
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = P.FootGap };
         if (_model.Holds)
         {
@@ -569,11 +555,17 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
     /// <summary>
     /// [S-13707] The icons' cells as the desktop lays icons (<see cref="UnplacedItems.Cells"/>): each child in a desktop icon's
     /// box, box against box, as many to a row as the width holds, row after row; as tall as its rows. Measured at the width
-    /// it is given, so the flyout's height follows the bar's width.
+    /// it is given, so the flyout's height follows the bar's width. Each arrange hands its cells on (<see cref="Arranged"/>).
     /// </summary>
     private sealed partial class IconGrid : Panel
     {
         public SizeDip Box { get; set; }
+
+        /// <summary>The cells the children were last laid in, in their order.</summary>
+        public IReadOnlyList<PixelRect> Laid { get; private set; } = [];
+
+        /// <summary>Called after an arrange that laid the children in other cells, once <see cref="Laid"/> holds them.</summary>
+        public Action? Arranged { get; set; }
 
         protected override Windows.Foundation.Size MeasureOverride(Windows.Foundation.Size availableSize)
         {
@@ -596,6 +588,12 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
             {
                 var cell = cells[i];
                 Children[i].Arrange(new Windows.Foundation.Rect(cell.X, cell.Y, cell.Width, cell.Height));
+            }
+
+            if (!Laid.SequenceEqual(cells))
+            {
+                Laid = cells;
+                Arranged?.Invoke();
             }
 
             return finalSize;

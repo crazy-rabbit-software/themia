@@ -2678,27 +2678,36 @@ right-click cancelling); the keys of [S-13617]; the pictures drawing in the runn
 packaged Store build, their cache across openings, after a design or language change and dropped a minute
 after closing; a screen reader on the rail, the family heads and the tiles.
 
-#### Unplaced icons ([S-13700]..[S-13707])
+#### Unplaced icons ([S-13700]..[S-13708])
 
 The owner (2026-11-19): *"in edit mode there should be a page with the desktop icons that are on the physical desktop
 folder but are not placed on the given view, this should be a page in the settings too, own entry in the topbar."*
 And (2026-11-19): *"the on desktop not on home view should be as wide as the edit bar and it should show the icons
 exactly how they would look like on the desktop."*
+And (2026-11-20): *"remove the text from the on desktop not home page. make the background of the icons area the same
+as the rest of the configuration page. make sure that the icons look the same as they do on the desktop, right now the
+corners are not shown"*; *"when dragging a desktop item from the topbar of non placed items it should already look like
+the ones on the desktop"*.
 Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`SettingsPageId.DesktopItems`,
 `DesktopItems()`, `IconAlone`, `BarWide`), `Shell/EditBarLayout.cs` (`iconAlone`), `Geometry/FlyoutPlacement.cs`
-(`Wide`); App `Shell/Pages/UnplacedPageView.cs` (+ `.Icons.cs`: the icons' host), `Shell/DesktopWindow.UnplacedPage.cs`,
+(`Wide`), `Model/PlacementPayload.cs` (`GhostOutline.Config`); App `Shell/Pages/UnplacedPageView.cs` (+ `.Icons.cs`: the
+icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.cs` (their corners),
+`Shell/DesktopWindow.UnplacedPage.cs`, `DesktopWindow.IconGhosts.cs` (a placement's icons, [S-13708]),
 `DesktopWindow.BarMenus.cs` (`PlaceFlyout`), `PageFlyout.ContentHeightAt`, `AppHost.DesktopViews.cs`
 (`PlaceDesktopItems`, `PutDesktopItemsInFence`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
 `BeginPlacement(items, screen)`, `DesktopListed`), the entry's badge in `EditBar.cs`; render
-`Gallery/EditBarRender.Unplaced.cs`. Tests `UnplacedItemsTests`, `SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`.
+`Gallery/EditBarRender.Unplaced.cs`, `Gallery/DeskSelectCheck.cs` (`<out>.place-icon.png`). Tests `UnplacedItemsTests`,
+`SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`, `MultiSelectPlacementTests.S13708_`.
 
 - **[S-13700]** **The page** is a settings page like the others (`SettingsPageId.DesktopItems`, after Views in the
   bar's order), its one line a live part of the page host's (`SettingsPreview` with its `Name`, drawn as the
   Appearance's preview is, [S-2311]); it sets nothing. It is **per display**: it lists the items of the desktop's
   listing (the user's and the public desktop, the one listing desktop icons come from, [S-5510]) that **the view
   shown on that display** shows nowhere, neither a free icon of it nor in a fence of it (`UnplacedItems.Of`, the same
-  list Add widget's On the desktop offers, [S-5523]), in `DesktopItemOrder`. Under the words "On the desktop, not on
-  <view>" each item is **its desktop icon, drawn exactly as the desktop draws it** ([S-13707]: never a list row). A view
+  list Add widget's On the desktop offers, [S-5523]), in `DesktopItemOrder`. Each item is **its desktop icon, drawn
+  exactly as the desktop draws it** ([S-13707]: never a list row), with **no words over them** (owner, 2026-11-20:
+  "remove the text from the on desktop not home page"; before, "On the desktop, not on <view>" over the page and "n
+  selected" or a hint how to drag them over the icons): what is selected counts in the Place button's own words. A view
   that shows no desktop icons (None, [S-5525]) lists none and says so, pointing at Views › Desktop icons; with every
   icon placed the page says that.
 - **[S-13701]** **Its entry** on the edit bar is its icon alone at every width (`SettingsPages.IconAlone`; its name
@@ -2722,8 +2731,9 @@ Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`Set
 - **[S-13705]** **Dragged onto the desktop**: a press on an icon moved past the dead zone ([S-2008]'s `Travelled`) starts
   the one placement session ([S-421]) with what the press acts on, laid as one block of rows four wide
   (`UnplacedItems.Block`, `AppHost.BeginPlacement(items, screen)`); the page closes for it (posted after the
-  pointer's event, [S-2346]), the ghost follows the pointer, and **letting go places them there** (or a click, as any
-  placement; Escape or a right press gives it up). The page opens again when the placement is over.
+  pointer's event, [S-2346]), the icons follow the pointer as the desktop draws them ([S-13708]), and **letting go
+  places them there** (or a click, as any placement; Escape or a right press gives it up). The page opens again when
+  the placement is over.
 - **[S-13706]** **Live**: the page and the badge are read again whenever the state changes (an icon placed, removed
   from the view or hidden, a fence's items) and when a read of the desktop comes in (a file added or gone, even where
   no view changed: `AppHost.DesktopListed`), and when the desktop's icon size changes (the icons follow it, [S-13707]);
@@ -2740,13 +2750,29 @@ Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`Set
   in force, [S-11875], [S-5593]; `UnplacedItems.Dips`), never a cell of the page's own, so whatever the desktop's
   icon cell becomes the page's becomes too. They stand **box against box in rows across the page** as the desktop
   lays icons, in reading order, as many to a row as its width holds (`UnplacedItems.Columns`, `Cells`, `Height`: a
-  wider bar or a smaller icon size holds more), on a stretch of the display's wallpaper (its blurred picture, the
-  Appearance preview's, [S-2311], its top under the page's; the cards' ground where there is none), so what is seen is
-  what is placed. The icons' host is a preview's (`IsPreview`: they act on nothing themselves) whose desktop is the
-  page's: its items, and its selection painted ([S-13703]); the page takes their press, drag and keys.
+  wider bar or a smaller icon size holds more), each with **the corner marks the desktop's icons show in edit mode**
+  (owner, 2026-11-20: "right now the corners are not shown"; [S-11889]: an icon's four square-cornered brackets round its
+  box, [S-31b], no edge bar as its size is fixed, [S-2444]; neutral, a selected one's in the accent, [S-31c]; every halo
+  under every bar, so where boxes meet the marks are one line, a T or a cross, as on the desktop: `IconMarks`, the
+  card's own geometry and brushes), on **the page's own ground** (owner, 2026-11-20: "make the background of the icons
+  area the same as the rest of the configuration page"; before, a stretch of the display's blurred wallpaper in a card's
+  rim, the names' `WallpaperLabel` still the desktop's), so what is seen is what is placed. The icons' host is a
+  preview's (`IconPreviewHost`, `IsPreview`: they act on nothing themselves) whose desktop is the page's: its items, and
+  its selection painted ([S-13703]); the page takes their press, drag and keys.
+- **[S-13708]** **Dragged off the page, they look as on the desktop** (owner, 2026-11-20, quoted above): from the first
+  frame a placement draws each desktop icon it carries as the desktop draws it, never the dashed frame with the kind's
+  glyph and name the other widgets' ghosts are ([S-423]): the desktop's own icon view (made by its module as a card makes
+  it, `ModuleHost.CreateView`, over a preview host on the desktop's listing, `IconPreviewHost`) attached to the icon's own
+  config (`GhostOutline.Config`: a snapshot payload's outlines carry each widget's), in the box it lands in at the icon
+  size and layout in force, with the corner marks an icon shows in edit mode (`IconMarks`), at `SelectionLook.Landing` as
+  a moving icon's ghost where it lands ([S-13046]). The same for Add widget's On the desktop tile and a copy or move of
+  icons in edit mode. Made as the placement first shows them, moved with the pointer, let go when it ends
+  (`DesktopWindow.IconGhosts.cs`). `--desk-select-check` draws one placed beside the desktop's icons in edit mode
+  (`<out>.place-icon.png`, PASS or FAIL).
 
-Needs a live pass: the drag off the page onto the desktop (the release landing the icons, on another display too,
-and the page opening again), placing and putting in a fence with the real listing, the badge following files
+Needs a live pass: the drag off the page onto the desktop (the icons under the real pointer from its first frame, the
+release landing them, on another display too, and the page opening again), placing and putting in a fence with the real
+listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
 ### The edit bar's settings menu (SETTINGS-MENU)

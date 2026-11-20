@@ -228,6 +228,9 @@ internal sealed partial class DesktopWindow
         // [S-13028] A card gliding stops with the surface.
         StopGlides();
 
+        // [S-13708] A placement's icons drawn here let go of the desktop.
+        DropIconGhosts();
+
         DesktopZOrder.Forget(_hwnd);
         _host.StateChanged -= OnStateChanged;
         _host.EditModeChanged -= OnEditModeChanged;

@@ -16,8 +16,11 @@ public enum PlacementMode
     Move = 2,
 }
 
-/// <summary>One outline of a placement ghost: where a widget will be drawn, and what it is.</summary>
-public readonly record struct GhostOutline(FracRect Rect, WidgetId Kind);
+/// <summary>
+/// One outline of a placement ghost: where a widget will be drawn, and what it is. [S-13708] A snapshot's carries its config
+/// too, so a desktop icon's ghost is drawn as that icon is on the desktop; a new widget's and a ready-made group's have none.
+/// </summary>
+public readonly record struct GhostOutline(FracRect Rect, WidgetId Kind, WidgetConfig? Config = null);
 
 /// <summary>
 /// What a placement landing does, worked out before anything is mutated ([S-75]).
@@ -193,7 +196,7 @@ public sealed class PlacementPayload
         }
 
         var (drawn, at) = Layout(xFrac, yFrac, screen);
-        return [.. drawn.Select(w => new GhostOutline(BlockGeometry.Apply(w.Rect, at, screen), w.Kind))];
+        return [.. drawn.Select(w => new GhostOutline(BlockGeometry.Apply(w.Rect, at, screen), w.Kind, w.Config))];
     }
 
     /// <summary>

@@ -10,9 +10,9 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-13707] The host of a desktop icon drawn where nothing acts through it: the Unplaced icons page's icons. A preview
-/// card's host (<see cref="IsPreview"/>: the icon takes no gesture itself), but the desktop it reads is
-/// <paramref name="desk"/>: the page's.
+/// [S-13707] [S-13708] The host of a desktop icon drawn where nothing acts through it: the Unplaced icons page's icons and a
+/// placement's icons under the pointer. A preview card's host (<see cref="IsPreview"/>: the icon takes no gesture itself), but
+/// the desktop it reads is <paramref name="desk"/>: the page's, or the desktop's own for a placement.
 /// </summary>
 internal sealed class IconPreviewHost(IWidgetHost inner, IDesktopItems desk) : IWidgetHost
 {
@@ -22,7 +22,7 @@ internal sealed class IconPreviewHost(IWidgetHost inner, IDesktopItems desk) : I
 
     public IShellLauncher Launcher => inner.Launcher;
 
-    /// <summary>The icon acts on nothing itself: the page has its press, its drag and its keys.</summary>
+    /// <summary>The icon acts on nothing itself: the page (or the placement) has its press, its drag and its keys.</summary>
     public bool IsPreview => true;
 
     public bool ShowAccounts() => false;
