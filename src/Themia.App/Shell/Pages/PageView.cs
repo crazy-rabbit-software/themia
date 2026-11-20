@@ -807,6 +807,11 @@ internal sealed partial class PageView : ContentControl
         return found;
     }
 
+    /// <summary>[S-2308] The kinds of row that open in place: an expander and the inline pickers.</summary>
+    private static bool Opens(SettingsRowKind kind)
+        => kind is SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon;
+
+#if DEBUG
     /// <summary>[S-2328] A render's click on the row at <paramref name="key"/>, as a click would do it; false where there is none.</summary>
     internal bool DebugClick(string key)
     {
@@ -875,10 +880,6 @@ internal sealed partial class PageView : ContentControl
         Redraw();
     }
 
-    /// <summary>[S-2308] The kinds of row that open in place: an expander and the inline pickers.</summary>
-    private static bool Opens(SettingsRowKind kind)
-        => kind is SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon;
-
     /// <summary>The top-level expander of <paramref name="model"/> that <paramref name="key"/>'s row stands in; null for a row of a section's own.</summary>
     private static PageRow? CardOf(PageModel model, string key)
         => model.Sections.SelectMany(s => s.Rows).FirstOrDefault(r => r.Kind == SettingsRowKind.Expander && r.Key != key && r.Rows is { } inner && Holds(inner, key));
@@ -917,6 +918,7 @@ internal sealed partial class PageView : ContentControl
         UseTool(row, tools[index], inside: CardOf(_model, key) is not null);
         return true;
     }
+#endif
 
     private abstract record Step;
 

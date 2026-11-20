@@ -342,8 +342,15 @@ internal sealed partial class DesktopWindow
     private Action? _afterPress;
 
     /// <summary>[S-13017] Whether a mouse button is down now (the physical state, so the order of the press's handlers does not matter).</summary>
-    private bool PressHeld() => CheckButton is { } held ? held() : Win32.GetAsyncKeyState(0x01) < 0 || Win32.GetAsyncKeyState(0x02) < 0;
+#if DEBUG
+    private bool PressHeld() => CheckButton is { } held ? held() : ButtonDown();
+#else
+    private static bool PressHeld() => ButtonDown();
+#endif
 
+    private static bool ButtonDown() => Win32.GetAsyncKeyState(0x01) < 0 || Win32.GetAsyncKeyState(0x02) < 0;
+
+#if DEBUG
     /// <summary>
     /// A debug check that presses with input of its own (<c>--first-drag-check</c>): whether its button is down, in place
     /// of the physical mouse's; while set the surface never takes the foreground from the user's window, it counts the
@@ -372,6 +379,10 @@ internal sealed partial class DesktopWindow
 
         return Win32.SetForegroundWindow(_hwnd);
     }
+#else
+    /// <summary>The surface becomes the foreground window.</summary>
+    private bool TakeForegroundNow() => Win32.SetForegroundWindow(_hwnd);
+#endif
 
     /// <summary>
     /// [S-13017] The press let go (a release, or a move with no button down after a drag the shell ran): the surface

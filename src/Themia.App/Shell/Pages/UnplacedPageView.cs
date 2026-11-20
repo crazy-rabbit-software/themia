@@ -161,6 +161,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         Draw();
     }
 
+#if DEBUG
     /// <summary>A render's hand: these items selected as Ctrl+clicks select them.</summary>
     internal void DebugSelect(IReadOnlyList<string> keys)
     {
@@ -178,6 +179,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         _search.Text = text;
         Draw();
     }
+#endif
 
     /// <summary>The page goes: its icons let go of the desktop, and the ticker stops.</summary>
     public void Dispose()

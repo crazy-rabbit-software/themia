@@ -12,7 +12,7 @@ namespace Themia.App.Shell;
 /// [S-2008] [S-800] [S-13060] A press on the card outside edit mode: the keyboard lease it asks for, the desktop's selection
 /// a Ctrl or Shift press shapes, and the card's move it may become, armed on the first press whatever part is under the
 /// pointer. The pointer handlers hand over plain values, so a debug check can drive the same steps without a pointer of its
-/// own (<see cref="CheckPress"/>).
+/// own (<c>CheckPress</c>, Debug only).
 /// </summary>
 internal sealed partial class WidgetCard
 {
@@ -166,6 +166,7 @@ internal sealed partial class WidgetCard
         return false;
     }
 
+#if DEBUG
     // ---- debug checks ---------------------------------------------------------------------------
 
     /// <summary>
@@ -213,4 +214,5 @@ internal sealed partial class WidgetCard
             EndDrag();
         }
     }
+#endif
 }
