@@ -32,7 +32,10 @@ public sealed class StopwatchFaceTests
         var medium = Sizing(new StopwatchConfig());
 
         Assert.Equal(FamilyType.Hero68, StopwatchFace.Sized(new StopwatchConfig()).Step);
-        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, medium.Natural.Height);
+        // [S-14100] The inset and the face (92 + 20 + 8 + 28 + 2) as one band of whole cells: 162 grown to 170.
+        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, StopwatchFace.FaceHeight(new StopwatchConfig(), Locale.En) + 24);
+        Assert.Equal(170, medium.Natural.Height);
+        Assert.Equal(medium.Min.Height, medium.Natural.Height);
         Assert.False(medium.FixedWidth);
         Assert.Null(typeof(StopwatchConfig).GetProperty("Size"));
     }
@@ -43,12 +46,13 @@ public sealed class StopwatchFaceTests
         var none = Sizing(new StopwatchConfig());
         var four = Sizing(new StopwatchConfig { LapRows = 4 });
 
-        Assert.Equal(none.Natural.Height + (4 * 28), four.Natural.Height);
-        Assert.Equal(none.Natural.Height + (10 * 28), four.Max.Height);
+        // [S-14100] A lap row each, whole cells (30), under the face's band.
+        Assert.Equal(none.Natural.Height + (4 * 30), four.Natural.Height);
+        Assert.Equal(none.Natural.Height + (10 * 30), four.Max.Height);
         Assert.Equal(4, four.HeightSteps!.Count);
 
         var config = new StopwatchConfig { LapRows = 4 };
-        var three = Assert.IsType<StopwatchConfig>(StopwatchFace.SizeSets(config, four.Natural with { Height = none.Natural.Height + (3 * 28) }));
+        var three = Assert.IsType<StopwatchConfig>(StopwatchFace.SizeSets(config, four.Natural with { Height = none.Natural.Height + (3 * 30) }));
         Assert.Equal(3, three.LapRows);
         Assert.Equal(4, config.LapRows);
         Assert.Same(config, StopwatchFace.SizeSets(config, four.Natural));

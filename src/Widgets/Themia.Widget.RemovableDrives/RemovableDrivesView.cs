@@ -118,6 +118,14 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         if (_devices.Count == 0)
         {
+            // [S-14100] The state's row in the first row's place and the empty rows under it at the rows' pitch (two lines a
+            // row: four cells, the compact line alone three), so they end on the card's foot.
+            var pitch = (_area.IsMeasured
+                ? RemovableDrivesPlan.Reach(_area.Height, _rowCount, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+                : ItemStretch.Natural(RemovableDrivesPlan.Lines, _area.Grid())).Pitch;
+            _empty.Height = pitch;
+            _face.Pitch = pitch;
+            _face.Margin = new Thickness(0, pitch - FamilySpace.Inset, 0, 0);
             _empty.Show(StatusKind.Empty, Glyphs.Usb, RemovableDrivesStr.Drives_Nothing.Text());
             _face.Visibility = Visibility.Visible;
             _scroll.Visibility = Visibility.Collapsed;

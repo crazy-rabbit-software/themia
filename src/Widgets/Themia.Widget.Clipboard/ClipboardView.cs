@@ -186,6 +186,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
             // [S-6714] Each state says which it is, in one row where the first entry would be.
             // "Nothing copied yet" and "the listener never started" need very different things.
             var listening = _host.ClipboardHistory?.Listening == true || _surface?.IsPreview == true;
+            // [S-14100] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
+            _state.RowPitch = Reach.Pitch;
             _state.Show((listening ? ClipboardStr.WidgetsA_Clipboard_Empty : ClipboardStr.WidgetsA_Clipboard_NoListener).Text(), offerAccounts: false, problem: !listening);
             _scroll.Visibility = Visibility.Collapsed;
             _cursor = null;

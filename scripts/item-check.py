@@ -227,7 +227,8 @@ def leftover(card, groups):
     band = h - last
     if band <= TOL:
         return None
-    pitches = {round(v[0]['h'], 1) for v in groups.values() if axis_of(v) == 'column' and v[0]['h'] > TOL}
+    # A list's pitch: its items' height (a column's rows, a row or a grid's line of cells: the week planner's days).
+    pitches = {round(i['h'], 1) for i in items if i['h'] > TOL}
     for p in pitches:
         rows = round(band / p)
         if rows >= 1 and abs(band - rows * p) <= TOL:

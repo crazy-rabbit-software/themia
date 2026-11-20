@@ -55,16 +55,35 @@ public static class StopwatchFace
     public static WidgetSizing Sizing(StopwatchConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var main = TimerFace.Longest(
-            StopwatchStr.Stopwatch_Start.Text(locale), StopwatchStr.Stopwatch_Pause.Text(locale), StopwatchStr.Stopwatch_Resume.Text(locale));
-        var controls = TimerFace.ControlsWidth([main], icons: 2);
-        var none = TimerFace.Sizing(Sized(config), controls, header: false);
-        var rows = new SizeSteps(none.Natural.Height, FamilyShape.Row1, 0, StopwatchConfig.MostLapRows, LapRows(config));
+        var none = Face(config, locale);
+
+        // [S-14100] The face with the card's inset over it, one band of whole cells, then a lap row each, whole cells, to
+        // the card's foot: the card is exactly its face's band and its rows.
+        var rows = SizeSteps.InCells(FamilyShape.Row1, 0, StopwatchConfig.MostLapRows, LapRows(config), FamilySpace.Inset + FaceHeight(config, locale));
         return WidgetSizing.Range(
                 none.Min with { Height = rows.At(0) },
                 none.Natural with { Height = rows.At(LapRows(config)) },
                 none.Max with { Height = rows.At(StopwatchConfig.MostLapRows) })
             .WithHeightSteps(rows);
+    }
+
+    /// <summary>[S-11302] The face's card without laps: the reading over its Controls row, the inset round them.</summary>
+    private static WidgetSizing Face(StopwatchConfig config, Locale locale)
+    {
+        var main = TimerFace.Longest(
+            StopwatchStr.Stopwatch_Start.Text(locale), StopwatchStr.Stopwatch_Pause.Text(locale), StopwatchStr.Stopwatch_Resume.Text(locale));
+        var controls = TimerFace.ControlsWidth([main], icons: 2);
+        return TimerFace.Sizing(Sized(config), controls, header: false);
+    }
+
+    /// <summary>
+    /// [S-12834] [S-14100] The face's block over the laps as the sizing states it (the reading and its Controls row, the
+    /// card's inset off its top and foot): the view lays it in that band grown to a grid line, the laps under it.
+    /// </summary>
+    public static double FaceHeight(StopwatchConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return Face(config, locale).Natural.Height - (2 * FamilySpace.Inset);
     }
 
     /// <summary>[S-11302] The config a stopwatch dragged to <paramref name="size"/> means: as many lap rows as its height holds.</summary>

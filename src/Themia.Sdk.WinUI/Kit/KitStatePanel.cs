@@ -72,8 +72,30 @@ public sealed partial class KitStatePanel : Grid
         set
         {
             _empty.Pitch = value;
-            _row.Height = double.IsFinite(value) && value > 0 ? value : double.NaN;
+            ApplyRowHeight();
         }
+    }
+
+    /// <summary>
+    /// [S-14100] The state's row's own height where it stands in another row's place than the list's first (a check list's
+    /// add row: a row of one line, the card being its rows and that row); unset (NaN): the list's pitch.
+    /// </summary>
+    public double LineHeight
+    {
+        get => _lineHeight;
+        set
+        {
+            _lineHeight = value;
+            ApplyRowHeight();
+        }
+    }
+
+    private double _lineHeight = double.NaN;
+
+    private void ApplyRowHeight()
+    {
+        var pitch = _empty.Pitch;
+        _row.Height = double.IsFinite(_lineHeight) && _lineHeight > 0 ? _lineHeight : double.IsFinite(pitch) && pitch > 0 ? pitch : double.NaN;
     }
 
     /// <summary>

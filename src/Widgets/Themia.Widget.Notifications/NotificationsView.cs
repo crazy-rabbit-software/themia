@@ -184,6 +184,12 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _scroll.Visibility = Visibility.Collapsed;
         _state.Hide();
 
+        // [S-14100] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
+        _reach = _area.IsMeasured
+            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemStretch.Natural(_plan.Lines, _area.Grid());
+        _state.RowPitch = _reach.Pitch;
+
         if (snapshot.Access == NotificationAccess.Pending)
         {
             // Not answered yet: the frame, never a wrong "nothing" (§11).

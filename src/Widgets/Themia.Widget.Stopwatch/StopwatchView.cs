@@ -277,7 +277,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         RowDefinitions[0].Height = laps > 0 ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
         RowDefinitions[1].Height = laps > 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
         Render();
-        _fit.Height = laps > 0 ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, _fit.Natural()) : double.NaN;
+        // [S-14100] The band the sizing counts (the face as stated, never less than its natural lines), so the card is exactly
+        // the band and the lap rows.
+        _fit.Height = laps > 0 ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, Math.Max(StopwatchFace.FaceHeight(_config, Strings.Current), _fit.Natural())) : double.NaN;
     }
 
     public void Detach()

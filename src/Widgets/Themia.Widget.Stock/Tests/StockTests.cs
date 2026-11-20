@@ -31,8 +31,17 @@ public sealed class StockTests
         WidgetSizing Of(StockConfig c) => StockLayout.Sizing(c);
 
         Assert.Equal(12 + 36 + 16 + 12, Of(new StockConfig()).Natural.Height);
-        Assert.Equal(12 + 36 + 16 + 8 + 28 + 12, Of(new StockConfig { SharesOwned = 10 }).Natural.Height);
-        Assert.Equal(12 + 36 + 16 + 8 + 56 + 12, Of(new StockConfig { SharesOwned = 10, ShowExtendedHours = true, Range = QuoteRange.Day }).Natural.Height);
+        // [S-14100] With rows: the price's band (whole cells from the card's top edge) and its rows of whole cells, growing a
+        // cell each together; a new one the step nearest the price, 8 and a row of 28 a row.
+        double Rows(int rows, double stated)
+        {
+            var band = Themia.Core.Widgets.ItemGrid.Default().Whole(StockLayout.PriceBand);
+            return band + (rows * 30) + (Math.Round((stated - band - (rows * 30)) / (rows * 10), MidpointRounding.AwayFromZero) * rows * 10);
+        }
+
+        Assert.Equal(Rows(1, 12 + 36 + 16 + 8 + 28 + 12), Of(new StockConfig { SharesOwned = 10 }).Natural.Height);
+        Assert.Equal(Rows(2, 12 + 36 + 16 + 8 + 56 + 12), Of(new StockConfig { SharesOwned = 10, ShowExtendedHours = true, Range = QuoteRange.Day }).Natural.Height);
+        Assert.Equal(20, Of(new StockConfig { SharesOwned = 10, ShowExtendedHours = true, Range = QuoteRange.Day }).HeightSteps!.Step);
         Assert.Equal(12 + 36 + 16 + 12, Of(new StockConfig { ShowExtendedHours = true, Range = QuoteRange.Year }).Natural.Height);
         Assert.True(Of(new StockConfig()).FixedHeight);
         Assert.Equal((240.0, 240.0, 360.0), (Of(new StockConfig()).Min.Width, Of(new StockConfig()).Natural.Width, Of(new StockConfig()).Max.Width));

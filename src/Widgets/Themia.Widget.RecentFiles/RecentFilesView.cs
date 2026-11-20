@@ -164,6 +164,11 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         if (_files.Count == 0)
         {
             // [S-6714] One row where the first file would be: the folder unread is a problem, an empty one is not.
+            // [S-14100] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
+            var rows = _config.RowsShown;
+            _state.RowPitch = (_area.IsMeasured
+                ? ItemStretch.Rows(_area.Height, rows.Rows, rows.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+                : ItemStretch.Natural(rows.Lines, _area.Grid())).Pitch;
             _state.Show((_unreadable ? RecentFilesStr.RecentFiles_Unreadable : RecentFilesStr.RecentFiles_Empty).Text(), offerAccounts: false, problem: _unreadable);
             _scroll.Visibility = Visibility.Collapsed;
             _cursor = -1;

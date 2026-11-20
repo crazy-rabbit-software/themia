@@ -39,9 +39,10 @@ public static class KitChecks
 
         var sized = choices.Rows;
         var rowLines = choices.OneLine ? 1 : KitSizing.ClampLines(sized.Lines);
-        // [S-12807] The add row is the list's last: its text on the foot's inset, its band past it.
-        var reach = !choices.CanAdd ? KitPlanner.Reach(area, sized.Rows, rowLines)
-            : area.IsMeasured ? ItemStretch.RowsAbove(Math.Max(0, area.Height), KitSizing.ClampRows(sized.Rows), rowLines, area.Grid())
+        // [S-12807] The add row is the list's last: its text on the foot's inset, its band past it. [S-14100] A check list's
+        // card is its rows and the add row's place (KitSizing.Steps), so the rows keep their pitch where the list cannot add
+        // (a read-only list) and the add row's place stays empty at the foot, never stretched into a part cell.
+        var reach = area.IsMeasured ? ItemStretch.RowsAbove(Math.Max(0, area.Height), KitSizing.ClampRows(sized.Rows), rowLines, area.Grid())
             : ItemStretch.Natural(rowLines, area.Grid());
         return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), HeadingHeight: reach.Pitch)
         {

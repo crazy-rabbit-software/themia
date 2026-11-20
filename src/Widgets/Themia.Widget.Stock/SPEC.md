@@ -67,7 +67,8 @@ stay Core's (`StockWidgetTests`, `S1307_`, `S1308_`, `S1309_`, `S1310_`, `S2775_
   quote, [S-12481], the session after the name where Market hours is on; the sizing counted it only with Market
   hours while the view always held its place, so a stock without it ran 16 past its card, [S-12800]), then 8 down
   a 28 row for the holding where one is set and one for the extended print where it is asked for (a listed symbol
-  over one or five days), one height by those rows (76, 112, 140); 240..360 wide, a new one 240. A row with nothing to show yet keeps its place with the dash.
+  over one or five days), one height by those rows (76; with rows the price's band of whole cells and the rows of
+  whole cells under it, growing a cell each together, [S-14100]: 110, 140); 240..360 wide, a new one 240. A row with nothing to show yet keeps its place with the dash.
 - **[S-2778]** Its options are all on the properties menu ([S-3719]); it has no settings page: Appearance
   ([S-3723]), what it quotes: **Symbol** (the search of [S-1307]; the line Set up opens: until a symbol
   is chosen the card's Set up row says "Choose a symbol", [S-1862]) and **Shares owned** ([S-2776]);
