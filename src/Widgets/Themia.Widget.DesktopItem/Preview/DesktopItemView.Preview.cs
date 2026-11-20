@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -171,4 +170,3 @@ internal sealed partial class DesktopItemView : IWidgetPreviewState
         Assignment = new LayoutAssignment { Source = source, Target = target },
     };
 }
-#endif

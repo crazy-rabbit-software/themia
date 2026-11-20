@@ -73,7 +73,7 @@ public abstract class GpuMetricConfig(string key) : MetricConfig, IReadsSystem, 
 /// [S-2430]..[S-2432] [S-14620] One adapter's figures for one fact, from the GPU meter's own hub feed (one query a due
 /// tick for every GPU widget); the load's line is the adapter's series ([S-14603]). An adapter that is gone shows the first.
 /// </summary>
-internal sealed class GpuMetricPart(string key) : SystemMetricPart
+internal sealed partial class GpuMetricPart(string key) : SystemMetricPart
 {
     private readonly WatchSlot<GpuSnapshot> _gpu = new();
     private ISeriesWatch? _series;
@@ -128,11 +128,6 @@ internal sealed class GpuMetricPart(string key) : SystemMetricPart
         // [S-14703] The load's history is a share, written as one.
         host.Present(_series is { } series ? shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)p.First)], Figure = Formatting.Percent } : shown);
     }
-
-#if DEBUG
-    /// <summary>[S-1942] No adapter, on any machine.</summary>
-    public override MetricShown? Absent() => MetricRules.Pick(GpuDetailRules.Absent(Strings.Current, GpuFactsStr.Details_Gpu_None.Text()), key);
-#endif
 
     public override void Detach()
     {

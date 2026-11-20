@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Sdk.Devices;
 
@@ -33,4 +32,3 @@ internal sealed partial class DeviceBatteriesView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

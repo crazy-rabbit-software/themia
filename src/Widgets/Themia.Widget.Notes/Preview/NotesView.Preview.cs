@@ -1,4 +1,3 @@
-#if DEBUG
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -103,4 +102,3 @@ internal sealed partial class NotesView : IWidgetPreviewState
             : new Windows.Foundation.Point(_editor.Box.ActualWidth / 2, _editor.Box.ActualHeight / 3);
     }
 }
-#endif

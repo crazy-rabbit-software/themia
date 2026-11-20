@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.App.Widgets;
 
@@ -30,4 +29,3 @@ internal sealed partial class ScreenTimeView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

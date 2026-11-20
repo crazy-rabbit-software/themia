@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -53,4 +52,3 @@ public sealed partial class ClockView : IWidgetPreviewState
         return state is "sample" or "world" or "world12" ? ShowSampleAsync() : Task.CompletedTask;
     }
 }
-#endif

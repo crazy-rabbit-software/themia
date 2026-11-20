@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 
@@ -12,4 +11,3 @@ internal sealed partial class RecycleBinView : IWidgetPreviewState
     public Task ShowPreviewStateAsync(string state)
         => state == "sample" ? ShowSampleAsync() : ShowBin(new RecycleBinState(0, 0));
 }
-#endif

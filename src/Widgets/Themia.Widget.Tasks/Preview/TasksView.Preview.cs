@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Services.Tasks;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
@@ -161,4 +160,3 @@ internal sealed partial class TasksView : IWidgetPreviewState
         public IReadOnlyList<TaskListInfo>? Lists => null;
     }
 }
-#endif

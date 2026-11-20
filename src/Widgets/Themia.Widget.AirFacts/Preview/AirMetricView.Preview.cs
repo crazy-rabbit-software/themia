@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Services.Web;
 using Themia.Core.Widgets;
 
@@ -33,4 +32,3 @@ internal sealed partial class AirMetricView
         return Task.CompletedTask;
     }
 }
-#endif

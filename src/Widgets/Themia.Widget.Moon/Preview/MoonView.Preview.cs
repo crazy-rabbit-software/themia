@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 
 namespace Themia.App.Widgets;
@@ -11,4 +10,3 @@ internal sealed partial class MoonView : IWidgetPreviewState
     public Task ShowPreviewStateAsync(string state)
         => state == "sample" ? ShowSampleAsync() : Task.CompletedTask;
 }
-#endif

@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 
 namespace Themia.App.Widgets;
@@ -28,4 +27,3 @@ internal sealed partial class QuoteView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

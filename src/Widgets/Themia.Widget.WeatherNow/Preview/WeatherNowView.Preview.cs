@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
@@ -35,4 +34,3 @@ internal sealed partial class WeatherNowView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

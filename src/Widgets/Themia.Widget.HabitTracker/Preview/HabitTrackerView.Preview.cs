@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Habits;
 using Themia.Sdk.Samples;
@@ -75,4 +74,3 @@ internal sealed partial class HabitTrackerView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

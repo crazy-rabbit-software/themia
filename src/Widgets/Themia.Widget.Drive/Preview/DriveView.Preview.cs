@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 
@@ -31,4 +30,3 @@ internal sealed partial class DriveView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

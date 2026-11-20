@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.Sdk.WinUI;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
@@ -40,4 +39,3 @@ internal sealed partial class FocusSessionView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 
 namespace Themia.Widget.MusicProgress;
@@ -29,4 +28,3 @@ internal sealed partial class MusicProgressView : IWidgetPreviewState
         }
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if DEBUG
 
 namespace Themia.Widget.MoonTimes;
 
@@ -10,4 +9,3 @@ internal sealed partial class MoonMetricView
     protected override Task ShowOwnPreviewStateAsync(string state)
         => state == "sample" ? ShowSampleAsync() : Task.CompletedTask;
 }
-#endif

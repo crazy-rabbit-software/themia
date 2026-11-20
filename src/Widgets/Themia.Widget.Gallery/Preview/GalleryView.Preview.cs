@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -74,4 +73,3 @@ internal sealed partial class GalleryView : IWidgetPreviewState
         await ShowSamplePicturesAsync(chosen, layout).ConfigureAwait(true);
     }
 }
-#endif

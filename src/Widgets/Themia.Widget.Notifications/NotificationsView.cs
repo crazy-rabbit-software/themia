@@ -96,6 +96,9 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
+    /// <summary>A debug render attached: its notifications (Preview/; nothing in other builds).</summary>
+    partial void PreviewAttached();
+
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
@@ -107,12 +110,10 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         {
             _lease = _widgetHost.Notifications.Acquire(Render);
         }
-#if DEBUG
-        else if (_preview.Access == NotificationAccess.Pending)
+        else
         {
-            _preview = new NotificationSnapshot(NotificationAccess.Allowed, Sample(5));
+            PreviewAttached();
         }
-#endif
 
         _fade ??= new ScrollFade(_scroll, _list);
         _links.Join(_surface?.Links);

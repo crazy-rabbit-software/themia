@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Services;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
@@ -28,4 +27,3 @@ internal sealed partial class MusicView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

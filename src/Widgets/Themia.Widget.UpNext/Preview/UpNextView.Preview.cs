@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 
 namespace Themia.Widget.UpNext;
@@ -15,4 +14,3 @@ internal sealed partial class UpNextView : IWidgetPreviewState
         _ => Task.CompletedTask,
     };
 }
-#endif

@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 
 namespace Themia.App.Widgets;
@@ -31,4 +30,3 @@ internal sealed partial class ClipboardView : IWidgetPreviewState
         return Task.Delay(900);
     }
 }
-#endif

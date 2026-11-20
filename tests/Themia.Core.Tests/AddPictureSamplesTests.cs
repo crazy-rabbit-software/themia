@@ -62,6 +62,13 @@ public sealed partial class AddPictureSamplesTests
                 {
                     offending.Add($"{Relative(file)}: a preview state outside Preview/");
                 }
+
+                // The folder decides what is Debug only: no #if in a module, its Preview/ included (64 previews and
+                // four views carried one; a Debug-only member lives in a Preview/ partial).
+                if (code.Contains("#if", StringComparison.Ordinal))
+                {
+                    offending.Add($"{Relative(file)}: an #if; Debug-only code goes in Preview/");
+                }
             }
         }
 

@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Sdk;
 
@@ -68,4 +67,3 @@ internal sealed partial class FenceView : IWidgetPreviewState
         }
     }
 }
-#endif

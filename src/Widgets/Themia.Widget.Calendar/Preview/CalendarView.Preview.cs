@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Sdk.Samples;
@@ -64,4 +63,3 @@ internal sealed partial class CalendarView : IWidgetPreviewState
         }
     }
 }
-#endif

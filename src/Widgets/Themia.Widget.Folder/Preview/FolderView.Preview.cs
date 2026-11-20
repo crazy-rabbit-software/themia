@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 using Themia.Sdk.Samples;
@@ -136,4 +135,3 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         }
     }
 }
-#endif

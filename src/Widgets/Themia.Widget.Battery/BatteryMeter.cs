@@ -15,7 +15,7 @@ namespace Themia.App.Widgets.Meters;
 /// meter's when the graph is on ([S-1126]). A machine with no battery draws the same meter in the
 /// disabled look, the battery half full and the figure "--" ([S-1940], [S-1941]).
 /// </summary>
-internal sealed class BatteryMeter : MeterPart
+internal sealed partial class BatteryMeter : MeterPart
 {
     /// <summary>[S-11912] At a moment pointed at on a history of its subject, the reading shows its value then.</summary>
     public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
@@ -57,9 +57,4 @@ internal sealed class BatteryMeter : MeterPart
         { Absent: true } => Levels[BatteryRules.Level(Unavailable.Percent)],
         _ => null,
     };
-
-#if DEBUG
-    /// <summary>[S-1940] A desktop's reading, on any machine.</summary>
-    public override MeterReading? AbsentReading => MeterReading.Missing(Str.WidgetsB_Battery_None.Text());
-#endif
 }

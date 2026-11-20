@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Sdk.Samples;
 
@@ -37,4 +36,3 @@ internal sealed partial class NextMeetingView : IWidgetPreviewState
         }
     }
 }
-#endif

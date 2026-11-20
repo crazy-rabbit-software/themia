@@ -50,7 +50,7 @@ public abstract class BatteryMetricConfig(string key) : MetricConfig, IReadsSyst
 /// what the battery reports through the battery class driver; a machine without a battery shows its "--" dimmed, why the
 /// tooltip ([S-1942]). The device is asked only while Windows says there is a battery.
 /// </summary>
-internal sealed class BatteryMetricPart(string key) : SystemMetricPart
+internal sealed partial class BatteryMetricPart(string key) : SystemMetricPart
 {
     private readonly WatchSlot<BatteryPower?> _power = new();
     private readonly WatchSlot<BatteryPack?> _pack = new();
@@ -95,12 +95,6 @@ internal sealed class BatteryMetricPart(string key) : SystemMetricPart
 
         host.Present(MetricRules.Pick(BatteryDetailRules.Sheet(Strings.Current, power, power.HasBattery && _pack.HasValue ? _pack.Value : null), key) with { Reading = LastReading });
     }
-
-#if DEBUG
-    /// <summary>[S-1942] A desktop's read on any machine.</summary>
-    public override MetricShown? Absent()
-        => MetricRules.Pick(BatteryDetailRules.Sheet(Strings.Current, new BatteryPower(false, null, true, false, null), null), key);
-#endif
 
     public override void Detach()
     {

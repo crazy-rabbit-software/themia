@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
@@ -12,6 +11,14 @@ namespace Themia.App.Widgets;
 internal sealed partial class NotificationsView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["list", "many", "open", "empty", "denied", "unspecified", "unsupported"];
+
+    partial void PreviewAttached()
+    {
+        if (_preview.Access == NotificationAccess.Pending)
+        {
+            _preview = new NotificationSnapshot(NotificationAccess.Allowed, Sample(5));
+        }
+    }
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -32,4 +39,3 @@ internal sealed partial class NotificationsView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

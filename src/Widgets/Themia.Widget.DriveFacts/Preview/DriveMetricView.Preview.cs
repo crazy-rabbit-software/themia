@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.Core.Widgets;
 
 namespace Themia.Widget.DriveFacts;
@@ -24,4 +23,3 @@ internal sealed partial class DriveMetricView
         return Task.CompletedTask;
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 
@@ -34,4 +33,3 @@ internal sealed partial class ScratchpadView : IWidgetPreviewState
         return Task.Delay(900);
     }
 }
-#endif

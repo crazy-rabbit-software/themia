@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
@@ -41,4 +40,3 @@ internal sealed partial class WindGraphView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif

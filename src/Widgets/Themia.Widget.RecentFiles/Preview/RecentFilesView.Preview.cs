@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Shell.Gallery;
 using Themia.Sdk.Samples;
 
@@ -20,4 +19,3 @@ internal sealed partial class RecentFilesView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 }
-#endif
