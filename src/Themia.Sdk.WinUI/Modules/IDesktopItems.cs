@@ -52,6 +52,14 @@ public interface IDesktopItems
     string? DropTargetWidget { get; }
 
     /// <summary>
+    /// [S-13709] What the icons drawn through this desktop stand on: null for the wallpaper (the desktop itself, and an icon
+    /// being placed, which lands on it), else a surface of Themia's with its own text and ground (the Unplaced icons page).
+    /// An icon's picture, cell and box never follow it; its name and highlight do
+    /// (<see cref="SelectionLook.DesktopIconInk"/>).
+    /// </summary>
+    IconSurface? Ground { get; }
+
+    /// <summary>
     /// [S-5540] A left press on <paramref name="key"/>'s widget <paramref name="widgetId"/> outside edit mode (Ctrl toggles, Shift
     /// selects the range). The widget says which display the press is on: an item two displays show is ranged where it was pressed.
     /// </summary>
@@ -132,3 +140,9 @@ public interface IDesktopItems
     /// <summary>[S-5512] The shell's icon with its overlay (the shortcut arrow among them), or null.</summary>
     Task<ImageSource?> IconAsync(DesktopItem item, int pixels);
 }
+
+/// <summary>
+/// [S-13709] A surface of Themia's desktop icons are drawn on instead of the wallpaper: its words' brush (whose colour says
+/// whether it is light, <see cref="SelectionLook.DesktopIconInk"/>) and its ground's, under a name drawn past the icon's cell.
+/// </summary>
+public sealed record IconSurface(Brush Text, Brush Ground);

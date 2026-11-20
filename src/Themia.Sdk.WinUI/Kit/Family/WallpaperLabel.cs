@@ -96,6 +96,25 @@ public sealed partial class WallpaperLabel : Grid
         }
     }
 
+    /// <summary>
+    /// [S-13709] The name on another ground than the wallpaper: in <paramref name="text"/>, the ground's own words' brush, with no
+    /// shadow (a light surface of Themia's, <see cref="SelectionLook.DesktopIconInk"/>); null draws it on the wallpaper again.
+    /// </summary>
+    public void Ground(Brush? text)
+    {
+        if (ReferenceEquals(text, _ground))
+        {
+            return;
+        }
+
+        _ground = text;
+        _text.Foreground = text ?? Family.Brush(ColourRole.OnWallpaper);
+        _shadow.Visibility = text is null ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>[S-13709] The ground's words' brush the name is drawn in, or null on the wallpaper.</summary>
+    private Brush? _ground;
+
     /// <summary>Whether the text is cut (for the full name on hover or selection, [S-6627]).</summary>
     public bool IsTrimmed => _text.IsTextTrimmed;
 

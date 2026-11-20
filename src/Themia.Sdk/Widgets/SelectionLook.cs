@@ -23,6 +23,13 @@ public enum SelectionTone
 public readonly record struct SelectionInk(SelectionTone Tone, double Fill, double Stroke);
 
 /// <summary>
+/// [S-13709] How a desktop icon's name and highlight are drawn on what it stands on: the highlight's palette, and whether the
+/// name is in its ground's own text colour with no shadow (a light surface of Themia's, as Explorer draws icons in a light
+/// folder window) rather than the desktop's light name with its shadow (<see cref="SelectionLook.DesktopIconInk"/>).
+/// </summary>
+public readonly record struct IconInk(SelectionPalette Look, bool GroundText);
+
+/// <summary>
 /// [S-6627] What an item is, for its selection mark: selected, under the pointer, focused (the keys'
 /// item), whether the focus is shown (<see cref="ItemSelection.Cues"/>), whether the widget has the
 /// keyboard, and whether a drag is over it as a drop target.
@@ -165,6 +172,18 @@ public static class SelectionLook
 
     /// <summary>[S-13019] Whether a ground whose text is <paramref name="text"/> is light: its text is dark (relative luminance under a half).</summary>
     public static bool LightGround(RgbColor text) => ((0.2126 * text.R) + (0.7152 * text.G) + (0.0722 * text.B)) / 255.0 < 0.5;
+
+    /// <summary>
+    /// [S-13709] A desktop icon's name and highlight for its ground (2026-11-20, the Unplaced icons page in the light theme: its
+    /// white names hard to read, its selected icons with no fill to be seen): on the wallpaper
+    /// (<paramref name="surfaceText"/> null: the desktop, and an icon being placed, which lands on it) Explorer's desktop
+    /// look whatever the wallpaper, the light name over its shadow and the white wash; on a surface of Themia's whose text
+    /// (<paramref name="surfaceText"/>) is dark, so a light one, the name in that text colour with no shadow and the wash in
+    /// black (<see cref="DesktopIconOnLight"/>); on a dark surface as on the wallpaper. The icon's picture, cell and box are
+    /// never the ground's.
+    /// </summary>
+    public static IconInk DesktopIconInk(RgbColor? surfaceText)
+        => surfaceText is { } text && LightGround(text) ? new(DesktopIconOnLight, GroundText: true) : new(DesktopIcon, GroundText: false);
 
     /// <summary>[S-6624] The band's mark.</summary>
     public static SelectionInk Band { get; } = new(SelectionTone.Highlight, BandFill, BandStroke);

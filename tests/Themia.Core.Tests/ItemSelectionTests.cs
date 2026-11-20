@@ -623,4 +623,22 @@ public sealed class ItemSelectionTests
         Assert.Equal(SelectionLook.DesktopIcon.Radius, light.Radius);
         Assert.Equal(SelectionLook.Black, SelectionLook.Colour(SelectionTone.Dark, SelectionLook.DefaultHighlight));
     }
+
+    [Fact]
+    public void S13709_a_desktop_icons_name_and_highlight_follow_its_ground_and_the_wallpaper_keeps_the_desktops_look()
+    {
+        // The wallpaper (the desktop, an icon being placed): Explorer's desktop look, the light name over its shadow, the white wash.
+        Assert.Equal(new IconInk(SelectionLook.DesktopIcon, GroundText: false), SelectionLook.DesktopIconInk(null));
+
+        // A dark surface of Themia's (light words): as on the wallpaper.
+        Assert.Equal(new IconInk(SelectionLook.DesktopIcon, GroundText: false), SelectionLook.DesktopIconInk(new RgbColor(0xFF, 0xFF, 0xFF)));
+
+        // A light one (dark words): the name in the ground's words, no shadow; the same highlight in black, which shows there.
+        var light = SelectionLook.DesktopIconInk(new RgbColor(0x1A, 0x1A, 0x1A));
+        Assert.True(light.GroundText);
+        Assert.Same(SelectionLook.DesktopIconOnLight, light.Look);
+        var selected = SelectionLook.Ink(new SelectionCue(Selected: true, Hovered: false), light.Look);
+        Assert.Equal(SelectionTone.Dark, selected.Tone);
+        Assert.True(selected.Fill > 0);
+    }
 }

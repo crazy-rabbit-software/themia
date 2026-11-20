@@ -135,6 +135,9 @@ internal sealed class HostDesktopItems : IDesktopItems
     /// <inheritdoc />
     public string? DropTargetWidget => Desk?.DropTargetWidget;
 
+    /// <summary>[S-13709] The desktop's icons stand on the wallpaper, and so does one being placed: Explorer's look.</summary>
+    public IconSurface? Ground => null;
+
     /// <inheritdoc />
     public IDesktopFences Fences => Desk?.Fences ?? NoFences.Instance;
 
