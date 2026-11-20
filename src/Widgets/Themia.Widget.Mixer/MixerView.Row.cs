@@ -27,7 +27,6 @@ internal sealed partial class MixerView
         private readonly MixerView _owner;
         private readonly bool _leads;
         private readonly Grid _lead = new() { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
-        private readonly Image _image = new() { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Stretch = Stretch.Uniform };
         private readonly FontIcon _glyph = Family.Glyph(Glyphs.Apps, FamilyShape.Icon, ColourRole.TextSecondary);
         private readonly Grid _controls = new();
         private readonly Slider _slider = ControlsBlock.RailSlider(0, 100, 0);
@@ -37,8 +36,7 @@ internal sealed partial class MixerView
         private readonly PointerEventHandler _release;
 
         private MixerRow? _row;
-        private string? _iconPath;
-        private LogoTheme _iconTheme;
+        private AppIconLead? _appIcon;
         private MixerPlan? _plan;
         private bool _echoing;
         private bool _grabbed;
@@ -50,7 +48,10 @@ internal sealed partial class MixerView
             Host = new RowBlock(RowKind.List, leads ? FamilyShape.Icon : 0) { Interactive = true };
 
             _lead.Children.Add(_glyph);
-            _lead.Children.Add(_image);
+            _appIcon = new AppIconLead(_glyph, () => Host);
+            _appIcon.Image.Width = FamilyShape.Icon;
+            _appIcon.Image.Height = FamilyShape.Icon;
+            _lead.Children.Add(_appIcon.Image);
             if (leads)
             {
                 Host.Lead(_lead);
@@ -159,50 +160,12 @@ internal sealed partial class MixerView
             }
 
             _glyph.Glyph = row.IsSystem ? Glyphs.Bell : Glyphs.Apps;
-
-            if (row.Path is not { } path)
-            {
-                _iconPath = null;
-                _image.Source = null;
-                _glyph.Visibility = Visibility.Visible;
-                return;
-            }
-
-            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIconSource.ThemeOf(Host))
-            {
-                return;
-            }
-
-            _iconPath = path;
-            _image.Source = null;
-            _glyph.Visibility = Visibility.Visible;
-            _ = LoadIconAsync(path);
+            _appIcon?.Show(row.Path);
         }
 
         /// <summary>[S-3965] A packaged app's logo is chosen per theme: a theme change asks again.</summary>
-        private void OnThemeChanged(FrameworkElement sender, object args)
-        {
-            if (_iconPath is { } path && _iconTheme != AppIconSource.ThemeOf(Host))
-            {
-                _ = LoadIconAsync(path);
-            }
-        }
+        private void OnThemeChanged(FrameworkElement sender, object args) => _appIcon?.ThemeChanged();
 
-        private async Task LoadIconAsync(string path)
-        {
-            var theme = AppIconSource.ThemeOf(Host);
-            _iconTheme = theme;
-            var image = await AppIconSource.GetAsync(path, theme).ConfigureAwait(true);
-
-            // The row may show another app (or theme) by now.
-            if (!string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme || image is null)
-            {
-                return;
-            }
-
-            _image.Source = image;
-            _glyph.Visibility = Visibility.Collapsed;
-        }
 
         private void OnSliderChanged(object sender, RangeBaseValueChangedEventArgs args)
         {

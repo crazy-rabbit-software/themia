@@ -270,18 +270,21 @@ public sealed partial class DetailView : IWidgetKeys
     private sealed class ListRow
     {
         private readonly FontIcon _symbol = Family.Glyph(Glyphs.Program);
-        private readonly Image _image = new() { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Stretch = Stretch.Uniform };
         private readonly Grid _icon;
-        private string? _iconPath;
-        private LogoTheme _iconTheme;
+        private readonly AppIconLead _appIcon;
         private DetailRow? _shown;
         private int _lines;
         private bool _available = true;
 
         public ListRow()
         {
-            _icon = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Children = { _symbol, _image } };
             Block = new RowBlock(RowKind.List) { Interactive = true };
+
+            // Decoded at the row's size on this display, so a 16 DIP icon stays sharp at 200%.
+            _appIcon = new AppIconLead(_symbol, () => Block, () => (int)Math.Ceiling(FamilyShape.Icon * Math.Max(1, Block.XamlRoot?.RasterizationScale ?? 2)));
+            _appIcon.Image.Width = FamilyShape.Icon;
+            _appIcon.Image.Height = FamilyShape.Icon;
+            _icon = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Children = { _symbol, _appIcon.Image } };
             Block.Lead(_icon);
 
             // [S-814] A row is an item: a press on it is not a press on the background.
@@ -312,44 +315,12 @@ public sealed partial class DetailView : IWidgetKeys
         /// <summary>
         /// [S-2433] The row's symbol at once, and the file's own icon over it once it is extracted —
         /// asked only when the row shows another file than before (rows are reused by position and a
-        /// list reorders every read), cached by path and size in <see cref="AppIcons"/>.
+        /// list reorders every read), cached by path and size (<see cref="AppIconLead"/>).
         /// </summary>
         private void ShowIcon(DetailRow row)
         {
             _symbol.Glyph = Glyph(row.Symbol);
-
-            // [S-3965] A packaged app's logo is chosen per theme, so a theme change asks again.
-            if (string.Equals(_iconPath, row.IconPath, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIconSource.ThemeOf(Block))
-            {
-                return;
-            }
-
-            _iconPath = row.IconPath;
-            _image.Source = null;
-            _symbol.Visibility = Visibility.Visible;
-
-            if (row.IconPath is { } path)
-            {
-                _ = LoadIconAsync(path);
-            }
-        }
-
-        private async Task LoadIconAsync(string path)
-        {
-            // Decoded at the row's size on this display, so a 16 DIP icon stays sharp at 200%.
-            var scale = Block.XamlRoot?.RasterizationScale ?? 2;
-            var theme = AppIconSource.ThemeOf(Block);
-            _iconTheme = theme;
-            var image = await AppIconSource.GetAsync(path, (int)Math.Ceiling(FamilyShape.Icon * Math.Max(1, scale)), theme).ConfigureAwait(true);
-
-            // A row that has moved on to another process (or theme) while this was extracted keeps its own.
-            if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme)
-            {
-                return;
-            }
-
-            _image.Source = image;
-            _symbol.Visibility = Visibility.Collapsed;
+            _appIcon.Show(row.IconPath);
         }
 
         private static string Glyph(RowSymbol symbol) => symbol switch

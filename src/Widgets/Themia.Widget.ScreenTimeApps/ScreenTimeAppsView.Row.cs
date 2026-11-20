@@ -30,7 +30,6 @@ internal sealed partial class ScreenTimeAppsView
     {
         private readonly ScreenTimeAppsView _owner;
         private readonly Grid _icon = new() { VerticalAlignment = VerticalAlignment.Center };
-        private readonly Image _image = new() { Stretch = Stretch.Uniform };
 
         /// <summary>[S-2272] The app's tone as a dot: where it has no icon, and under it while the icon loads.</summary>
         private readonly Border _dot = new()
@@ -44,8 +43,7 @@ internal sealed partial class ScreenTimeAppsView
 
         private ScreenTimeSegment? _segment;
         private ScreenTimeGoal? _goal;
-        private string? _iconPath;
-        private LogoTheme _iconTheme;
+        private readonly AppIconLead _appIcon;
 
         /// <param name="lead">The lead's size (<see cref="ScreenTimeAppsPlan.Lead"/>): a row of another lead is a new row.</param>
         public AppRow(ScreenTimeAppsView owner, double lead)
@@ -54,10 +52,11 @@ internal sealed partial class ScreenTimeAppsView
             Lead = lead;
             _icon.Width = lead;
             _icon.Height = lead;
-            _image.Width = lead;
-            _image.Height = lead;
+            _appIcon = new AppIconLead(_dot, () => Host!);
+            _appIcon.Image.Width = lead;
+            _appIcon.Image.Height = lead;
             _icon.Children.Add(_dot);
-            _icon.Children.Add(_image);
+            _icon.Children.Add(_appIcon.Image);
 
             Host = new RowBlock(RowKind.List, lead);
             Host.Lead(_icon);
@@ -119,50 +118,11 @@ internal sealed partial class ScreenTimeAppsView
         }
 
         /// <summary>The app's icon at the lead's size; while it loads, or when it has none, the dot of its colour.</summary>
-        private void ShowIcon(ScreenTimeSegment segment)
-        {
-            if (segment.Path is not { } path)
-            {
-                _iconPath = null;
-                _image.Source = null;
-                _dot.Visibility = Visibility.Visible;
-                return;
-            }
-
-            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _image.Source is not null && _iconTheme == AppIconSource.ThemeOf(Host))
-            {
-                return;
-            }
-
-            _iconPath = path;
-            _image.Source = null;
-            _dot.Visibility = Visibility.Visible;
-            _ = LoadIconAsync(path);
-        }
+        private void ShowIcon(ScreenTimeSegment segment) => _appIcon.Show(segment.Path);
 
         /// <summary>[S-3965] A packaged app's logo is chosen per theme: a theme change asks again.</summary>
-        private void OnThemeChanged(FrameworkElement sender, object args)
-        {
-            if (_iconPath is { } path && _iconTheme != AppIconSource.ThemeOf(Host))
-            {
-                _ = LoadIconAsync(path);
-            }
-        }
+        private void OnThemeChanged(FrameworkElement sender, object args) => _appIcon.ThemeChanged();
 
-        private async Task LoadIconAsync(string path)
-        {
-            var theme = AppIconSource.ThemeOf(Host);
-            _iconTheme = theme;
-            var image = await AppIconSource.GetAsync(path, theme).ConfigureAwait(true);
-
-            if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme)
-            {
-                return;
-            }
-
-            _image.Source = image;
-            _dot.Visibility = Visibility.Collapsed;
-        }
 
         private void OnEntered(object sender, PointerRoutedEventArgs args)
         {
