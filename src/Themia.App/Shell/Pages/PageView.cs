@@ -6,6 +6,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
+using Themia.Core.Shell;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
@@ -23,7 +24,10 @@ namespace Themia.App.Shell;
 /// <para>
 /// The page is drawn again from its model on every change (<see cref="Show"/>): what is open, the
 /// sub-page, the scroll and the keyboard's place are kept by the rows' keys, so a change made while one
-/// is typing, dragging or picking leaves it where it was.
+/// is typing, dragging or picking leaves it where it was. [S-2361] A change of the page's own (what is
+/// open, unfolded, typed or shown: <see cref="Redraw"/>) draws the same rows again after the event that
+/// asked, in the panel that stands: every card that would be drawn the same stays where it is, untouched
+/// (<see cref="KeptCards"/>), and only the cards it changed are built and put in.
 /// </para>
 /// <para>
 /// [S-2346] A drawing is a new panel put in the old one's place, never the old one emptied: a drawing asked from
@@ -67,11 +71,40 @@ internal sealed partial class PageView : ContentControl
 
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? _lit;
 
-    /// <summary>[S-2346] The panel this drawing fills; the next drawing fills a new one and puts it in this one's place.</summary>
+    /// <summary>
+    /// [S-2346] The panel the page stands in: a drawing of new rows fills a new one and puts it in this one's place; [S-2361] a
+    /// drawing of the same rows (posted, never inside an event) puts what changed in this one.
+    /// </summary>
     private StackPanel _body = Body();
 
+    /// <summary>What this drawing puts on the page, in order.</summary>
+    private List<UIElement> _drawn = [];
+
+    /// <summary>[S-2361] The cards this drawing has put so far: one card is never put twice.</summary>
+    private readonly HashSet<UIElement> _used = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>[S-2361] A drawing of the same rows is posted; what is to be done once it is drawn (a reveal, the keyboard's place).</summary>
+    private bool _redrawPosted;
+
+    private readonly List<Action> _afterRedraw = [];
+
+    /// <summary>[S-3557] The page went: a posted drawing draws nothing.</summary>
+    private bool _closed;
+
+    /// <summary>[S-2361] The cards drawn over <see cref="_keptFor"/>'s rows, by their first row's key, with the marks they were drawn with.</summary>
+    private readonly Dictionary<string, (CardMarks Marks, FrameworkElement Card)> _kept = new(StringComparer.Ordinal);
+
+    /// <summary>[S-2361] The model whose cards <see cref="_kept"/> holds: a new model keeps none.</summary>
+    private PageModel? _keptFor;
+
+    /// <summary>[S-2361] How many answers each lookup has had, by its row's key: an answer draws its card anew.</summary>
+    private readonly Dictionary<string, int> _answered = new(StringComparer.Ordinal);
+
+    /// <summary>[S-2361] This drawing's marks (<see cref="KeptCards"/>).</summary>
+    private PageMarks? _marks;
+
     /// <summary>What this drawing has put on the page so far.</summary>
-    private UIElementCollection Children => _body.Children;
+    private List<UIElement> Children => _drawn;
 
     public PageView(Func<PageModel> build)
     {
@@ -101,32 +134,92 @@ internal sealed partial class PageView : ContentControl
     public bool Deep => _steps.Count > 0;
 
     /// <summary>
-    /// [S-3531] Draw the page as the state holds it now: the open card, the sub-page, the keyboard's
-    /// place kept by the rows' keys. Called from the rows' own events too (a tab, a back head, an answer): it
-    /// throws nothing.
+    /// [S-3531] Draw the page as the state holds it now: its rows built again, the open card, the sub-page, the
+    /// keyboard's place kept by the rows' keys. It throws nothing.
     /// </summary>
-    public void Show()
+    public void Show() => Draw(rebuild: true);
+
+    /// <summary>
+    /// [S-2361] Draw the same rows again for a change of the page's own (a card opened or closed, a picker unfolded, a
+    /// tab, a sub-page and back, a lookup's typing or answer), then do <paramref name="after"/> (a reveal, the keyboard
+    /// put somewhere). Asked from the rows' own events, it is drawn after the event, once however often it was asked
+    /// ([S-2346]: never inside the event that asked), in the panel that stands: every card that would be drawn the same
+    /// stays. It throws nothing.
+    /// </summary>
+    private void Redraw(Action? after = null)
     {
-        var focused = FocusedTag();
-        try
+        if (after is not null)
         {
-            _model = _build();
+            _afterRedraw.Add(after);
         }
-        catch (Exception ex)
+
+        if (_redrawPosted)
         {
-            Log.Error(Scope, "a page could not be built", ex);
             return;
         }
 
-        // [S-2346] A new panel, the old one left whole: the row under the pointer stays in it until XAML is done with it.
-        // Only the preview, kept from one drawing to the next ([S-2311]), comes out of it to go into the new one.
-        if (_preview is not null)
+        _redrawPosted = true;
+        if (!DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.High, Redrawn))
         {
-            // ignore: false where the last drawing did not show it (a sub-page, a question).
-            _ = _body.Children.Remove(_preview);
+            // The dispatcher is shutting down: the window goes with it, there is nothing to draw on.
+            _redrawPosted = false;
+            _afterRedraw.Clear();
+            Log.Warn(Scope, "a page's drawing could not be posted; the dispatcher is shutting down");
+        }
+    }
+
+    /// <summary>[S-2361] The posted drawing's turn: the same rows drawn in place, then what waited for it.</summary>
+    private void Redrawn()
+    {
+        _redrawPosted = false;
+        var after = _afterRedraw.ToList();
+        _afterRedraw.Clear();
+        if (_closed)
+        {
+            return;
         }
 
-        _body = Body();
+        try
+        {
+            Draw(rebuild: false);
+            foreach (var then in after)
+            {
+                then();
+            }
+        }
+        catch (Exception ex)
+        {
+            // A dispatcher callback: nothing may escape it. The page stays as last drawn.
+            Log.Error(Scope, "a page could not be drawn again", ex);
+        }
+    }
+
+    private void Draw(bool rebuild)
+    {
+        _closed = false;
+        var focused = FocusedTag();
+        if (rebuild || _model is null)
+        {
+            try
+            {
+                _model = _build();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, "a page could not be built", ex);
+                return;
+            }
+        }
+
+        if (!ReferenceEquals(_keptFor, _model))
+        {
+            _kept.Clear();
+            _keptFor = _model;
+        }
+
+        _marks = new PageMarks(_open, _unfolded, _typed, _refused, _answered);
+        _drawn = [];
+        _used.Clear();
         _grips.Clear();
         Drawings++;
         while (_steps.Count > 0 && _steps[^1] is SubStep { Key: var key } && Find(_model, key) is null)
@@ -160,7 +253,33 @@ internal sealed partial class PageView : ContentControl
 
         try
         {
-            Content = _body;
+            if (rebuild)
+            {
+                // [S-2346] A new panel, the old one left whole: the row under the pointer stays in it until XAML is done with
+                // it. Only the preview, kept from one drawing to the next ([S-2311]), comes out of it to go into the new one.
+                foreach (var element in _drawn)
+                {
+                    if (element is FrameworkElement { Parent: Panel old })
+                    {
+                        // ignore: it stands in that panel, so Remove's answer is true.
+                        _ = old.Children.Remove(element);
+                    }
+                }
+
+                _body = Body();
+                foreach (var element in _drawn)
+                {
+                    _body.Children.Add(element);
+                }
+
+                Content = _body;
+            }
+            else
+            {
+                // [S-2361] Posted, so no event is in the panel: what stays stays where it is, what changed is put in.
+                Lay(_body.Children, _drawn);
+            }
+
             if (focused is not null)
             {
                 Refocus(focused.Value);
@@ -295,8 +414,7 @@ internal sealed partial class PageView : ContentControl
         if (_steps.Count > 0)
         {
             _steps.RemoveAt(_steps.Count - 1);
-            Show();
-            FocusFirst();
+            Redraw(() => FocusFirst());
             return true;
         }
 
@@ -305,8 +423,7 @@ internal sealed partial class PageView : ContentControl
             var open = _open;
             _open = null;
             _unfolded.Clear();
-            Show();
-            Refocus(new FocusTag(open + "#head", 0));
+            Redraw(() => Refocus(new FocusTag(open + "#head", 0)));
             return true;
         }
 
@@ -324,6 +441,10 @@ internal sealed partial class PageView : ContentControl
             _typed.Remove(asked);
         }
 
+        _kept.Clear();
+        _keptFor = null;
+        _closed = true;
+        _afterRedraw.Clear();
         Cancel();
         DropPreview();
     }
@@ -347,7 +468,7 @@ internal sealed partial class PageView : ContentControl
     {
         if (model.Header is { } header)
         {
-            Children.Add(HeaderCard(header));
+            Children.Add(Kept("header#card", KeptCards.Of([], false, _marks!), () => HeaderCard(header)));
         }
 
         var first = model.Header is null;
@@ -364,7 +485,7 @@ internal sealed partial class PageView : ContentControl
                 _open = null;
                 _unfolded.Clear();
                 DropAsk();
-                Show();
+                Redraw();
             });
             strip.Margin = new Thickness(0, first ? 0 : P.TabsGap - P.CardGap, 0, P.TabsGap);
             Children.Add(strip);
@@ -429,7 +550,77 @@ internal sealed partial class PageView : ContentControl
             }
 
             feet = null;
-            Children.Add(card is [{ Kind: SettingsRowKind.Preview } preview] ? PreviewRow(preview) : Card(card, inside));
+            Children.Add(Kept(card, inside));
+        }
+    }
+
+    /// <summary>[S-2361] A card of this drawing: the one drawn last over the same rows where its marks are the same, else drawn now.</summary>
+    private FrameworkElement Kept(IReadOnlyList<PageRow> rows, bool inside)
+        => Kept(rows[0].Key, KeptCards.Of(Keys(rows), inside, _marks!), () => rows is [{ Kind: SettingsRowKind.Preview } preview] ? PreviewRow(preview) : Card(rows, inside));
+
+    /// <summary>[S-2361] The element kept under <paramref name="key"/> where it was drawn with <paramref name="marks"/> (and is not put yet), else <paramref name="draw"/>'s.</summary>
+    private FrameworkElement Kept(string key, CardMarks marks, Func<FrameworkElement> draw)
+    {
+        if (!_kept.TryGetValue(key, out var kept) || !kept.Marks.Equals(marks) || _used.Contains(kept.Card))
+        {
+            kept = (marks, draw());
+            _kept[key] = kept;
+        }
+
+        _used.Add(kept.Card);
+        return kept.Card;
+    }
+
+    /// <summary>
+    /// [S-2361] <paramref name="children"/> made <paramref name="wanted"/>, in its order: what goes is taken out, what is
+    /// new put in, and what stays is left where it stands (never taken out and put back: it is not laid out again).
+    /// </summary>
+    private static void Lay(UIElementCollection children, List<UIElement> wanted)
+    {
+        var keep = new HashSet<UIElement>(wanted, ReferenceEqualityComparer.Instance);
+        for (var i = children.Count - 1; i >= 0; i--)
+        {
+            if (!keep.Contains(children[i]))
+            {
+                children.RemoveAt(i);
+            }
+        }
+
+        for (var i = 0; i < wanted.Count; i++)
+        {
+            if (i < children.Count && ReferenceEquals(children[i], wanted[i]))
+            {
+                continue;
+            }
+
+            var at = children.IndexOf(wanted[i]);
+            if (at >= 0)
+            {
+                children.RemoveAt(at);
+            }
+            else if (wanted[i] is FrameworkElement { Parent: Panel old })
+            {
+                // A card kept from an earlier drawing (a tab shown before, the page under a sub-page) stood in a panel of its own.
+                _ = old.Children.Remove(wanted[i]);
+            }
+
+            children.Insert(i, wanted[i]);
+        }
+    }
+
+    /// <summary>[S-2361] The keys of <paramref name="rows"/> and of every row in them.</summary>
+    private static IEnumerable<string> Keys(IReadOnlyList<PageRow> rows)
+    {
+        foreach (var row in rows)
+        {
+            yield return row.Key;
+            if (row.Rows is { } inner)
+            {
+                foreach (var key in Keys(inner))
+                {
+                    yield return key;
+                }
+            }
         }
     }
 
@@ -617,13 +808,14 @@ internal sealed partial class PageView : ContentControl
                     _unfolded.Clear();
                 }
 
-                Show();
-                UpdateLayout();
-                if (Tagged(this, row.Key + "#row") is { } shown)
+                Redraw(() =>
                 {
-                    BringIntoView?.Invoke(shown);
-                }
-
+                    UpdateLayout();
+                    if (Tagged(this, row.Key + "#row") is { } shown)
+                    {
+                        BringIntoView?.Invoke(shown);
+                    }
+                });
                 break;
             case SettingsRowKind.Toggle:
                 Do(() => row.Toggle?.Invoke(!row.On));
@@ -643,7 +835,7 @@ internal sealed partial class PageView : ContentControl
         _open = null;
         _unfolded.Clear();
         DropAsk();
-        Show();
+        Redraw();
     }
 
     /// <summary>[S-2308] The kinds of row that open in place: an expander and the inline pickers.</summary>
@@ -672,7 +864,7 @@ internal sealed partial class PageView : ContentControl
         else if (_open is { } open)
         {
             _typed[open] = text;
-            Show();
+            Redraw();
         }
     }
 

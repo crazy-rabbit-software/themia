@@ -2452,6 +2452,15 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   (a 60 Hz frame past the idle frames' jitter) and the longest, the layout passes, the elements put in the tree, the
   page drawings, the bytes allocated on the UI thread and the collections. The counts are the evidence; the times are a
   Debug build's on a shared machine.
+- **[S-2361]** **A page drawn again for a change of its own keeps what did not change** (owner, as [S-2360]): opening
+  or closing a card, unfolding a picker in it, a tab, a sub-page and back, a lookup's typing or answer draw the same rows
+  again (`PageView.Redraw`): posted after the event that asked (never inside it, [S-2346]), once however often asked, in
+  the panel that stands, where every card whose marks are what it was drawn with (`KeptCards.Of`: the open card, the
+  pickers unfolded, what is typed, refused or answered, of its own rows at any depth, and whether it stands inside
+  another) stays where it is, untouched and not laid out again; only the cards it changed are built and put in (the
+  Appearance page's 55 rows: one card's, not every row's). What waited for the drawing (the reveal of what opened,
+  [S-2347]; the keyboard's place) follows it. New rows (any change of the state, a way in, [S-3534]) are drawn whole as
+  before, in a new panel. Tests `KeptCardsTests.S2361_`.
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the

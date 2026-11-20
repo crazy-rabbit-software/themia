@@ -125,8 +125,7 @@ internal sealed partial class PageView
         _steps.Add(new SubStep(row.Key));
         _open = null;
         _unfolded.Clear();
-        Show();
-        FocusFirst();
+        Redraw(() => FocusFirst());
     }
 
     /// <summary>
@@ -699,7 +698,7 @@ internal sealed partial class PageView
             if (edit.Reason(typed) is { } why)
             {
                 _refused[row.Key] = why;
-                Show();
+                Redraw();
                 return;
             }
 
