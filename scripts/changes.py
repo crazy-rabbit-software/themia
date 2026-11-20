@@ -243,8 +243,11 @@ def pick_tests(files, tags, index):
                 everything = f'unsure: {path} declares no type to follow'
                 break
             names = set(reached)
-            by(lambda i: i['tokens'] & names,
-               lambda i: why_reached(sorted(i['tokens'] & names)[0], reached[sorted(i['tokens'] & names)[0]], path).replace('uses', 'names', 1))
+            def why(info, names=names, reached=reached, path=path):
+                t = sorted(info['tokens'] & names)[0]
+                return why_reached(t, reached[t], path).replace('uses', 'names', 1)
+
+            by(lambda i: i['tokens'] & names, why)
             continue
         if path.startswith('src/') and not path.endswith('.cs'):
             changed_shared = True

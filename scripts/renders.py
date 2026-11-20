@@ -202,7 +202,8 @@ class Renders:
         return Result(job, png, layout, data.get('output', ''))
 
     def _keep(self, result):
-        """A finished render goes into the cache (a timeout or a crash does not: it may not happen again)."""
+        """A render that wrote its picture goes into the cache (a failure, a timeout or a crash does not: it may not
+        happen again)."""
         _, _, meta = self._paths(result.job)
         tmp = meta + '.tmp'
         with open(tmp, 'w', encoding='utf-8') as f:
@@ -351,7 +352,7 @@ class Renders:
                     current = None
                     png, layout, _ = self._paths(ids[i])
                     result = Result(ids[i], png, layout, '\n'.join(out), timed_out=what == 'timeout')
-                    if what == 'done':
+                    if what == 'done' and m.group(3) == 'ok':
                         self._keep(result)
                     finished(result)
                     out = []
@@ -378,7 +379,8 @@ class Renders:
         if current is not None and current not in seen:
             seen.add(current)
             png, layout, _ = self._paths(ids[current])
-            finished(Result(ids[current], png, layout, '\n'.join(out), crashed=f'the batch process ended (exit code {proc.returncode})'))
+            finished(Result(ids[current], png, layout, '\n'.join(out),
+                            crashed=f'the batch process ended (exit code {proc.returncode})'))
         return [job for i, job in ids.items() if i not in seen]
 
 
