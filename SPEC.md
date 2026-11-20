@@ -2463,6 +2463,12 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   before, in a new panel. Tests `KeptCardsTests.S2361_`.
 - **[S-2362]** **Opening General or Accounts draws the page once**: the read of start with Windows each opening makes
   ([S-936]) draws the open pages again only where Windows said something else than the last read (`AdoptStartup`).
+- **[S-2363]** **A change of the state lays the surface out with less**: every change lays every card out again
+  (`DesktopWindow.Relayout`); a card's edit-mode look paints its selection once (it was painted twice), a grip's and a
+  card's pointer shape is made only when it changes (eight grips a card were each given a new cursor three times a
+  change: a third of the change's cost), and the edit bar measures each line of its words once for its size (it measured
+  nine on every change and selection). Every card's own config is still applied again on every change (a widget's
+  menu lines write its config in place, so a change cannot be told from none: the largest part left).
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the

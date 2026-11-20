@@ -294,8 +294,8 @@ internal sealed partial class DesktopWindow
 
         foreach (var card in _cards)
         {
+            // [S-2363] Edit mode's look paints the selection too (ApplyEditMode runs ApplySelection): once.
             card.ApplyEditMode(EditMode);
-            card.ApplySelection();
             card.ApplyContentScale(ContentScale(card.Model));
             PositionCard(card, card.Model.Rect);
         }

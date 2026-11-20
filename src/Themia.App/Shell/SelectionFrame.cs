@@ -231,6 +231,18 @@ internal sealed partial class SelectionFrame
     /// <summary>A frame grip: a subclass only because <c>UIElement.ProtectedCursor</c> is protected (as a card's grip).</summary>
     private sealed partial class FrameGrip : Grid
     {
-        public void SetCursorShape(InputSystemCursorShape shape) => ProtectedCursor = InputSystemCursor.Create(shape);
+        private InputSystemCursorShape? _shape;
+
+        /// <summary>[S-2363] The pointer's shape over the grip, a cursor made only when it changes.</summary>
+        public void SetCursorShape(InputSystemCursorShape shape)
+        {
+            if (_shape == shape)
+            {
+                return;
+            }
+
+            _shape = shape;
+            ProtectedCursor = InputSystemCursor.Create(shape);
+        }
     }
 }

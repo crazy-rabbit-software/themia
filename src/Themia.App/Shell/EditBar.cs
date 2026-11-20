@@ -313,13 +313,27 @@ internal sealed partial class EditBar : Grid
         _done!.Width = done.Width;
     }
 
+    /// <summary>
+    /// [S-2363] How wide each line of Body words is, by its words and the type's size: the bar is laid out again on every
+    /// change of the state and the selection, and measuring its nine words each time was a tenth of a state change's cost.
+    /// </summary>
+    private readonly Dictionary<(string Words, double Size), double> _widths = [];
+
     /// <summary>One line of Body words: how wide.</summary>
-    private static double Measure(string words)
+    private double Measure(string words)
     {
+        var size = FamilyType.Body.FontSize;
+        if (_widths.TryGetValue((words, size), out var width))
+        {
+            return width;
+        }
+
         var text = Fluent.Text(FamilyType.Body);
         text.Text = words;
         text.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        return Math.Ceiling(text.DesiredSize.Width);
+        width = Math.Ceiling(text.DesiredSize.Width);
+        _widths[(words, size)] = width;
+        return width;
     }
 
     /// <summary>Add widget's width and its start from the bar's, for the render to hang the add menu under it.</summary>

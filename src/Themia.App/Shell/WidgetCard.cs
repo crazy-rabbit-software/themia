@@ -680,10 +680,17 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // long presses and hovers fall through to the card (its transparent background) and select,
         // drag or open the card menu. Each view guarding itself left Mail's message menu reachable.
         _surface.IsHitTestVisible = CardGestures.ContentTakesInput(editing);
-        ProtectedCursor = editing
-            ? InputSystemCursor.Create(InputSystemCursorShape.SizeAll)
-            : InputSystemCursor.Create(InputSystemCursorShape.Arrow);
+
+        // [S-2363] A cursor made only when edit mode changed for the card.
+        if (_cursorEditing != editing)
+        {
+            _cursorEditing = editing;
+            ProtectedCursor = InputSystemCursor.Create(editing ? InputSystemCursorShape.SizeAll : InputSystemCursorShape.Arrow);
+        }
     }
+
+    /// <summary>[S-2363] The edit mode the card's cursor was made for; null before the first.</summary>
+    private bool? _cursorEditing;
 
     public void ApplyConfig()
     {
@@ -1274,8 +1281,22 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     private sealed partial class ResizeHandleDot : Grid
     {
+        private InputSystemCursorShape? _shape;
+
+        /// <summary>
+        /// [S-2363] The pointer's shape over the grip, a cursor made only when it changes: every layout of the surface asks
+        /// each grip again (eight a card), and making a cursor each time was a third of a state change's cost.
+        /// </summary>
         public void SetCursorShape(InputSystemCursorShape shape)
-            => ProtectedCursor = InputSystemCursor.Create(shape);
+        {
+            if (_shape == shape)
+            {
+                return;
+            }
+
+            _shape = shape;
+            ProtectedCursor = InputSystemCursor.Create(shape);
+        }
     }
 
 
