@@ -6,11 +6,11 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only: one stick (the sample, <see cref="ShowSampleAsync"/>), three devices of each kind, or nothing plugged in.</summary>
 internal sealed partial class RemovableDrivesView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["one", "devices", "none"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "devices", "none"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "one")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

@@ -216,7 +216,7 @@ internal static class SceneRender
             var parts = pair.Split('=', 2, StringSplitOptions.TrimEntries);
             if (parts.Length != 2 || parts[0].Length == 0 || parts[1].Length == 0)
             {
-                problem = $"--states {pair}: kind=state, as tasks=tasks";
+                problem = $"--states {pair}: kind=state, as tasks=sample";
                 return null;
             }
 

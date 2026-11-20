@@ -11,7 +11,7 @@ Owning files: everything in this folder: `NotificationsModule.cs` (descriptor, g
 JSON context), `NotificationsConfig.cs` (its rows, lines and app headings, [S-11404]),
 `NotificationsView.cs` (the list through its host, the senders' icons through the installed
 `AppIconSource`, the keys), `NotificationsLayout.cs` (the plan from the config), `Preview/` (Debug renders:
-`--state list|many|open|empty|denied|unspecified|unsupported`), `Localization/Locales/` (its own
+`--state sample|many|open|empty|denied|unspecified|unsupported`), `Localization/Locales/` (its own
 `NotificationsStr`, 30 languages). Tests: `Tests/NotificationsTests.cs` (run by
 `tests/Themia.Modules.Tests`); that it asks no setting up is the module host's `WindowsPanelsHostTests`.
 

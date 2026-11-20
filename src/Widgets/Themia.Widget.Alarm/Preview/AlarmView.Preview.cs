@@ -6,7 +6,7 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only ([S-2050]): at the sample moment, a weekday alarm at 6:45 set (the sample, <see cref="ShowSampleAsync"/>), ringing, snoozed, or switched off.</summary>
 internal sealed partial class AlarmView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["set", "ringing", "snoozed", "off"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "ringing", "snoozed", "off"];
 
     public Task ShowPreviewStateAsync(string state)
     {

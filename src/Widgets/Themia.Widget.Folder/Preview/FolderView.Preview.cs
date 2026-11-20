@@ -8,7 +8,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Debug renders only ([S-4122], [S-2056]): point the widget at the sample day's folders, written
 /// under the temp folder (<see cref="SampleFiles"/>), so a render shows ordinary names, the shell's
-/// stock icons and thumbnails, and never a name, path or picture of this PC. "documents" is the
+/// stock icons and thumbnails, and never a name, path or picture of this PC. "sample" is the
 /// folder's sample (<see cref="ShowSampleAsync"/>), "pictures" the sample pictures (drawn in code),
 /// "selected" the documents with two items selected, a third under the pointer and the focus moved
 /// on by Ctrl+Right ([S-6627]), "inactive" the same selection after the widget lost the keyboard
@@ -27,7 +27,7 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         var file = MenuFor(_shown.FirstOrDefault(e => !e.IsDirectory));
         var openWith = _shown.FirstOrDefault(e => !e.IsDirectory) is { FullPath: { } path } ? OpenWithEntries(path) : [];
 
-        await ShowPreviewStateAsync("documents").ConfigureAwait(true);
+        await ShowPreviewStateAsync("sample").ConfigureAwait(true);
         var folder = MenuFor(_shown.FirstOrDefault(e => e.IsDirectory));
         _selection.Clear();
         return [("file", file), ("openwith", openWith), ("folder", folder), ("background", BackgroundEntries())];
@@ -44,11 +44,11 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         return ItemEntries();
     }
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["documents", "pictures", "selected", "inactive", "fullname", "renaming", "search", "searching", "searchClosed"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "pictures", "selected", "inactive", "fullname", "renaming", "search", "searching", "searchClosed"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
-        if (state == "documents")
+        if (state == "sample")
         {
             await ShowSampleAsync().ConfigureAwait(true);
             return;

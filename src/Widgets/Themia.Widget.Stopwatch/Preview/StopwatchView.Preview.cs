@@ -6,11 +6,11 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only: a stopwatch running (the sample, <see cref="ShowSampleAsync"/>), paused with laps, and past an hour with many laps.</summary>
 internal sealed partial class StopwatchView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["running", "paused", "laps", "hours"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "paused", "laps", "hours"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "running")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

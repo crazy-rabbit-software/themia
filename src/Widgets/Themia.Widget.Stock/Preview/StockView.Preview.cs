@@ -11,7 +11,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class StockView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["quote", "falling", "stale", "held"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "falling", "stale", "held"];
 
     /// <inheritdoc />
     public Themia.Core.Model.WidgetConfig? DrawnConfig { get; private set; }
@@ -27,7 +27,7 @@ internal sealed partial class StockView : IWidgetPreviewState
                 _feed.Preview(quote, FetchStatus.Ok);
                 break;
 
-            case "quote":
+            case "sample":
                 return ShowSampleAsync();
 
             case "falling":

@@ -3,7 +3,7 @@ using Themia.App.Shell.Gallery;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2711], [S-2056]): <c>--widget-png Email --state messages</c> draws the
+/// Debug renders only ([S-1917], [S-2711], [S-2056]): <c>--widget-png Email --state sample</c> draws the
 /// sample (<see cref="ShowSampleAsync"/>). <c>accounts</c> reads two accounts, so the compose button asks
 /// which; <c>empty</c> is an empty folder, which still offers compose. <c>focused</c> is the messages
 /// with the second row under the keyboard, so its quick actions show ([S-1284]). <c>stale</c> is the
@@ -12,7 +12,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class EmailView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["messages", "accounts", "empty", "focused", "stale", "offline"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "accounts", "empty", "focused", "stale", "offline"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -21,7 +21,7 @@ internal sealed partial class EmailView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        if (state == "messages")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

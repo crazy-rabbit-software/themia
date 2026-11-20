@@ -8651,7 +8651,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (`ControlsBlock.Switch`, the alarm's) stands at its template's own height, its track (20, `ControlsRules.SwitchTrack`)
   centred in it, and its ink is that track (`PartInk`, as a slider's is its thumb), so the block's last ink is the
   track's foot. Before, the switch was held to the Controls row's 32 and the template cut its track's foot flat at
-  every size. Renders `--widget-png alarm --state set|off|snoozed|ringing --sizes range`.
+  every size. Renders `--widget-png alarm --state sample|off|snoozed|ringing --sizes range`.
 - **[S-14261]** **A text the block cuts never holds it small** (owner, 2026-11-19, WR-4: "they should stretch if they dont
   reach all the way"; WR-7). A line of a one-readout block that its kind cuts with its ellipsis (the next meeting's title
   and its lines, [S-11407]) stands in a `CutLine`: measured unbounded (as `ReadingFit` measures its parts, [S-12814]) it

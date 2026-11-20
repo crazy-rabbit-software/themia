@@ -15,7 +15,7 @@ JSON context), `StockConfig.cs` (over the SDK's `StockQuoteConfig`: the instrume
 the chart shares), `StockView.cs` (the quote through `IWidgetHost.Quotes`, the SDK's `SkyFeed`),
 `StockLayout.cs` (its layout and size), `StockHolding.cs` (shares owned), `StockMenu.cs` (its lines: the
 SDK's `StockQuoteLines` for the symbol, the period and the link, the holding and the closed market its
-own), `Preview/` (`--state quote|falling|stale`: the SDK's `SampleQuote`), `Localization/Locales/` (its
+own), `Preview/` (`--state sample|falling|stale`: the SDK's `SampleQuote`), `Localization/Locales/` (its
 own `StockStr`; the symbol's, the period's and the states' words moved to the SDK's `stocks` area with
 their translations). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`); the quote rules' own tests
 stay Core's (`StockWidgetTests`, `S1307_`, `S1308_`, `S1309_`, `S1310_`, `S2775_`, and `MarketQuoteTests`).

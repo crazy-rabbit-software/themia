@@ -44,7 +44,7 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            [--machine sample]  # the system widgets read the sample laptop, not this PC [S-1931]; any render: SampleMachine.Install(ticker, dispatcher)
            [--wallpaper <image path>]   # the page is a screen with that wallpaper; the cards frost over it [S-2119]
            # a kind at its range (min, natural, max), side by side (or w×h);
-           # a wrong --state prints the kind's states (Stocks: quote|falling)
+           # a wrong --state prints the kind's states (Stocks: sample|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # and every look token by its key: vibrancy=1,frostSaturation=1.6,innerSurface=vibrant,rowDividers=inset,... [S-2142]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)

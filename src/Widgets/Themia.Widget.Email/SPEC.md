@@ -10,7 +10,7 @@ Owning files: everything in this folder: `EmailModule.cs` (descriptor, view fact
 `EmailConfig.cs` (the style, the folder, the fields and columns, `EmailFolders`), `MailSpec.cs` (a
 message as a kit item, its actions, the style's kit spec), `EmailView.cs` (over `IWidgetHost.Mail`,
 its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
-`--state messages|accounts|empty|hovered|focused|stale|offline`),
+`--state sample|accounts|empty|hovered|focused|stale|offline`),
 `Localization/Locales/` (its own `EmailStr`, 30 languages). Tests: `Tests/MailSpecTests.cs` and `Tests/EmailMenuTests.cs` (run by
 `tests/Themia.Modules.Tests`; the ladder's are the kit's, `KitLinedTests`); the config's and the screens' are the module host's (`MailFeedTests`).
 

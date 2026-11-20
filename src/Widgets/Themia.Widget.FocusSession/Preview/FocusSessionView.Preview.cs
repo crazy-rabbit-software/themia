@@ -7,11 +7,11 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only ([S-1917]): made-up sessions, never this PC's do not disturb; <c>idle</c> is the sample (<see cref="ShowSampleAsync"/>).</summary>
 internal sealed partial class FocusSessionView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["idle", "running", "quiet", "unavailable", "windows", "long"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "running", "quiet", "unavailable", "windows", "long"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "idle")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

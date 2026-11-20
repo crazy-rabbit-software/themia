@@ -10,13 +10,13 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class VolumeView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["level", "unavailable"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "unavailable"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         switch (state)
         {
-            case "level":
+            case "sample":
                 return ShowSampleAsync();
 
             case "unavailable":

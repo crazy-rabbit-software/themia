@@ -10,7 +10,7 @@ host's launcher's ([S-4661]'s verb).
 Owning files: everything in this folder: `RemovableDrivesModule.cs` (descriptor, view factory, JSON
 context; no settings rows, [S-1750]), `RemovableDrivesConfig.cs`, `RemovableDrivesPlan.cs` (the rows'
 look by the tier), `RemovableDrivesView.cs` (the rows, their menu and the keys), `Preview/` (Debug
-renders: `--state one|devices|none`), `Localization/Locales/` (its own `RemovableDrivesStr`, 30
+renders: `--state sample|devices|none`), `Localization/Locales/` (its own `RemovableDrivesStr`, 30
 languages). Tests: `Tests/RemovableDrivesTests.cs` (run by `tests/Themia.Modules.Tests`).
 
 - **[S-11027]** A list atom ([S-11008]): its rows are its one setting (`Rows`, 1..20, four by default,

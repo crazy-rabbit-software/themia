@@ -9,11 +9,11 @@ internal sealed partial class DriveView : IWidgetPreviewState
     private const string Share = @"\\nas\media";
     private const string Projects = @"\\server\projects";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["local", "full", "usb", "network", "disconnected", "pending", "missing"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "full", "usb", "network", "disconnected", "pending", "missing"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "local")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

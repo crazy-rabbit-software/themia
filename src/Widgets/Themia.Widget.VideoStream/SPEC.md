@@ -84,7 +84,7 @@ releases everything.
   secondary; the state dot a round 8 in the accent while live, caution while it waits, tertiary while
   paused (no critical red for a working stream, `StreamChromeRules.DotRole`); the strip's Pause,
   Rotate and Refresh the family's 28 icon buttons, clear on it, side by side. The acrylic fill is gone.
-  Debug renders draw stills only, never a camera: `--state live|paused|connecting|dropped|refused`
+  Debug renders draw stills only, never a camera: `--state sample|paused|connecting|dropped|refused`
   (a made-up frame, no address reached). (Tests `StreamStatusTests`.)
 
 Needs a live pass: a real MJPEG camera, a snapshot endpoint on an interval, an MP4 and an HLS stream

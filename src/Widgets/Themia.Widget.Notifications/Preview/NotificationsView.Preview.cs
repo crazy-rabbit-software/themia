@@ -10,7 +10,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class NotificationsView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["list", "many", "open", "empty", "denied", "unspecified", "unsupported"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "many", "open", "empty", "denied", "unspecified", "unsupported"];
 
     partial void PreviewAttached()
     {
@@ -22,7 +22,7 @@ internal sealed partial class NotificationsView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "list")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

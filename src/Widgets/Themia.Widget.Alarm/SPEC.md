@@ -11,7 +11,7 @@ Owning files: everything in this folder: `AlarmModule.cs` (descriptor, glyph, vi
 lines, JSON context), `AlarmConfig.cs` (the alarm, its repair, `IAlarm`), `AlarmFace.cs` (the face: the
 time split for the Readout, its widest case, the plan), `AlarmView.cs` (the readout, the switch, Snooze and
 Dismiss through its host, the keys), `AlarmMenu.cs` (its properties-menu lines),
-`Preview/` (Debug renders: `--state set|ringing|snoozed|off`), `Localization/Locales/` (its own
+`Preview/` (Debug renders: `--state sample|ringing|snoozed|off`), `Localization/Locales/` (its own
 `AlarmStr`, 30 languages). Tests: `Tests/AlarmConfigTests.cs`, `Tests/AlarmFaceTests.cs`, `Tests/AlarmMenuTests.cs` (run by `tests/Themia.Modules.Tests`); the
 rules and the book under its config are the module host's `AlarmTests`.
 

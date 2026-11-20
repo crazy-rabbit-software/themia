@@ -16,7 +16,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class TasksView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done", "stale", "failed", "nolocal", "caldav", "adding", "typing", "renaming"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "few", "empty", "done", "stale", "failed", "nolocal", "caldav", "adding", "typing", "renaming"];
 
     /// <summary>Words wider than any row, typed into a box: they scroll in it, never wrap it taller.</summary>
     private const string LongWords = "Pick up the parcel from the post office before it closes at six";
@@ -80,7 +80,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        if (state == "tasks")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

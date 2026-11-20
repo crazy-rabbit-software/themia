@@ -12,7 +12,7 @@ Owning files: everything in this folder: `DriveModule.cs` (descriptor, view fact
 JSON context), `DriveConfig.cs` (with its styles and its drive), `DriveFace.cs` (the two styles' sizes and
 the Status row's rule), `DriveView.cs` (the card: the figure, the bar, Open and Refresh
 through its host) and `DriveView.Ring.cs` (the Ring style), `DriveMenu.cs` (its properties menu: the
-drive), `Preview/` (Debug renders: `--state local|full|usb|network|disconnected|pending|missing`),
+drive), `Preview/` (Debug renders: `--state sample|full|usb|network|disconnected|pending|missing`),
 `Localization/Locales/` (its own `DriveStr`, 30 languages, its style names included). Tests:
 `Tests/DriveTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's drive rule is
 the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostTests`.

@@ -9,7 +9,7 @@ winning [S-4443]; the slider's look is the volume tile's (`VolumeRules`, [S-2731
 Owning files: everything in this folder: `BrightnessModule.cs` (descriptor, view factory, menu
 lines, JSON context), `BrightnessConfig.cs` (the screens it dims), `BrightnessView.cs` (the slider and
 the sun, the levels through `IWidgetHost.Brightness`, its own display through it too), `BrightnessMenu.cs`
-(its properties-menu lines), `Preview/` (Debug renders: `--state levels|dim|unavailable|pending`), `Localization/Locales/` (its own
+(its properties-menu lines), `Preview/` (Debug renders: `--state sample|dim|unavailable|pending`), `Localization/Locales/` (its own
 `BrightnessStr`, 30 languages). Tests: its config under the root's rules is the module host's
 `WindowsPanelsHostTests`, its menu `Tests/BrightnessMenuTests.cs`.
 
@@ -21,7 +21,7 @@ the sun, the levels through `IWidgetHost.Brightness`, its own display through it
   2026-11-12; the root's [S-2150], [S-11308], `LevelFace`): "70%" at the view's top on 28 at every size, following the slider while it is dragged; the reading and the slider are always both, the card 120 tall and 160 to 360 wide. It has no
   line under: the displays' names are not in the host's answer (`BrightnessDisplay` carries the GDI
   device name only), and a line would need a host contract change first. With several displays
-  (`--state levels`) it stays one widget with one Readout: the slider sets them together ([S-4442]),
+  (`--state sample`) it stays one widget with one Readout: the slider sets them together ([S-4442]),
   so the Readout is the level the slider shows (its own display's, else the first's), not a Row per
   display, which would be a value per display with no control of its own. No display to set
   ([S-4445]) keeps the Readout, "--" disabled, the reason its line under ([S-12813]).

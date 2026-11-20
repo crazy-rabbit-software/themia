@@ -11,7 +11,7 @@ service and its offline store ([S-590], [S-591], [S-596], [S-597]), due dates an
 Owning files: everything in this folder: `TasksModule.cs` (descriptor, view factory, JSON context),
 `TasksConfig.cs`, `TaskSpec.cs` (a task as a kit item, its actions, the check spec),
 `TaskFreshness.cs`, `TasksView*.cs` (over `IWidgetHost.Tasks`: the screens, the writes the kit's list
-hands back, the list picker), `TasksMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `--state tasks|few|empty|done|stale|failed|nolocal|caldav`,
+hands back, the list picker), `TasksMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `--state sample|few|empty|done|stale|failed|nolocal|caldav`,
 the lists on this PC in memory), `Localization/Locales/` (its own `TasksStr`, 30 languages). Tests:
 the config's are the module host's (`TasksConfigTests`, [S-611]); the rules' are Core's
 (`TaskRulesTests`, `TaskSyncTests`, `LocalTaskListsTests`, `TaskLayoutTests` over the kit's check

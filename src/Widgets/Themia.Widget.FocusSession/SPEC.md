@@ -11,7 +11,7 @@ Owning files: everything in this folder: `FocusSessionModule.cs` (descriptor, gl
 menu lines, JSON context), `FocusSessionConfig.cs` (length, do not disturb), `FocusSessionView.cs`
 (the time, the ring, the button and steppers through its host, the keys), `FocusSessionLayout.cs` (the
 ladder), `FocusSessionMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
-`--state idle|running|quiet|unavailable|windows|long`), `Localization/Locales/` (its own
+`--state sample|running|quiet|unavailable|windows|long`), `Localization/Locales/` (its own
 `FocusSessionStr`, 30 languages). Tests: `Tests/FocusSessionTests.cs`, `Tests/FocusSessionMenuTests.cs` (run by
 `tests/Themia.Modules.Tests`); its config under the root's length rule is the module host's
 `WindowsPanelsHostTests`.

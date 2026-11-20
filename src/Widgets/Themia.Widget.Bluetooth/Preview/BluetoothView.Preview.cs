@@ -11,13 +11,13 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class BluetoothView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["devices", "off"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "off"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         switch (state)
         {
-            case "devices":
+            case "sample":
                 return ShowSampleAsync();
             case "off":
                 HoldSample(BluetoothSnapshot.Of(BluetoothStatus.RadioOff));

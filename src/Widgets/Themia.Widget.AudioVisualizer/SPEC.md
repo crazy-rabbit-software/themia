@@ -10,7 +10,7 @@ Owning files: everything in this folder: `AudioVisualizerModule.cs` (descriptor,
 context; no settings rows, [S-1750]), `AudioVisualizerConfig.cs` (with its six styles),
 `AudioVisualizerView.cs` (the capture through its host, frames marshalled to the dispatcher),
 `SpectrumCanvas.cs` (the drawing per style), `VisualizerLayout.cs` (the plans: bars, LEDs, the ring,
-the wave and the waveform), `Preview/` (Debug renders: `--state playing|unavailable`),
+the wave and the waveform), `Preview/` (Debug renders: `--state sample|unavailable`),
 `Localization/Locales/` (its own `AudioVisualizerStr`, 30 languages, its style names included). Tests:
 `Tests/AudioVisualizerTests.cs` (run by `tests/Themia.Modules.Tests`).
 
@@ -46,8 +46,8 @@ the wave and the waveform), `Preview/` (Debug renders: `--state playing|unavaila
   over the spectrum, taking no pointer. The spectrum is the family's Chart drawn off the one chart, so it is reported as
   the card's plot (`PlotMark`): edge to edge, its bars standing at their levels inside it ([S-6754]). Before, the line was
   a tooltip alone and a render of the state showed nothing a reader could see. Renders `--widget-png audioVisualizer
-  --state unavailable|playing --sizes range`, judged by `scripts/gap-check.py`.
-- **[S-3207]** Debug renders cannot capture sound: `--widget-png AudioVisualizer --style <name> --state playing`
+  --state unavailable|sample --sizes range`, judged by `scripts/gap-check.py`.
+- **[S-3207]** Debug renders cannot capture sound: `--widget-png AudioVisualizer --style <name> --state sample`
   draws a still synthetic spectrum, `--state unavailable` the disabled baseline.
 - **[S-3211]** A frame writes numbers only, never allocates: a scale per bar or spoke, the fill (the
   accent or the track, two shared brushes) of the LED cells whose state changed, the wave's Bézier points. Shapes are placed once per layout

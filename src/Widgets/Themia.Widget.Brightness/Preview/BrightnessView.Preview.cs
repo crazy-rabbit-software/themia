@@ -7,11 +7,11 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only ([S-1917]): made-up displays, never this PC's; <c>levels</c> is the sample (<see cref="ShowSampleAsync"/>).</summary>
 internal sealed partial class BrightnessView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["levels", "dim", "unavailable", "pending"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "dim", "unavailable", "pending"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "levels")
+        if (state == "sample")
         {
             return ShowSampleAsync();
         }

@@ -76,6 +76,37 @@ public sealed partial class AddPictureSamplesTests
     }
 
     /// <summary>
+    /// [S-11850] A kind with a sample and render states names its sample's state "sample" ("their sample state calls the
+    /// sample"): 17 named it after what it showed ("quote", "documents", "tasks"), so `--state sample` failed on them.
+    /// </summary>
+    [Fact]
+    public void S11850_the_sample_state_is_named_sample()
+    {
+        var offending = new List<string>();
+        foreach (var module in RepoFiles.WidgetModules())
+        {
+            var files = RepoFiles.CSharp(module).ToList();
+            if (!files.Any(f => Under(f, "Samples")))
+            {
+                continue;
+            }
+
+            foreach (var preview in files.Where(f => Under(f, "Preview")))
+            {
+                var code = File.ReadAllText(preview);
+                if (code.Contains("PreviewStates", StringComparison.Ordinal)
+                    && !code.Contains("\"sample\"", StringComparison.Ordinal)
+                    && !code.Contains("SampleScreenTime.States", StringComparison.Ordinal))
+                {
+                    offending.Add(Relative(preview));
+                }
+            }
+        }
+
+        Assert.Empty(offending);
+    }
+
+    /// <summary>
     /// [S-11850] Every view a render can show in a state has its sample, shipped, so the add page draws
     /// it in every build; only the kinds that draw the sample world as it is (the meters and details over
     /// the sample PC) or whose states are not data (an "are you sure?", a pressed look) have none.

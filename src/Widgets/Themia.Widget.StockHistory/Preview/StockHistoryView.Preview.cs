@@ -7,13 +7,13 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only ([S-1917]): <c>quote</c> is the sample (<see cref="ShowSampleAsync"/>); <c>falling</c> the falling session; <c>stale</c> the sample through a failed refresh.</summary>
 internal sealed partial class StockHistoryView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["quote", "falling", "stale"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "falling", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         switch (state)
         {
-            case "quote":
+            case "sample":
                 return ShowSampleAsync();
 
             case "falling":
