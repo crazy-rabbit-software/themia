@@ -69,4 +69,20 @@ public class GlyphInkTests
         // Room that is no room (ink past its box: an italic's overhang) trims nothing.
         Assert.Equal((0, 0), InkRoom.Ends(new InkRoom(1, 1, -0.4, -0.2), null, rightToLeft: false, led: false));
     }
+
+    [Theory]
+    [InlineData("XamlAutoFontFamily", 28, "Segoe UI Variable Display")]
+    [InlineData("", 96, "Segoe UI Variable Display")]
+    [InlineData(null, 14, "Segoe UI Variable Text")]
+    [InlineData("Segoe UI Variable", 12, "Segoe UI Variable Text")]
+    [InlineData("xamlautofontfamily", 8, "Segoe UI Variable Small")]
+    [InlineData("Segoe Fluent Icons,Segoe MDL2 Assets", 28, "Segoe Fluent Icons")]
+    [InlineData(" Consolas ", 14, "Consolas")]
+    public void S14249_a_text_is_measured_in_the_face_xaml_draws_it_in(string? font, double size, string face)
+    {
+        // A family text names no family: XAML draws it in Segoe UI Variable at its optical size, whose "1" leaves 0.008
+        // of its size before its ink where Segoe UI's (DirectWrite's fallback for a name it lacks) leaves 0.040: measured
+        // there, a reading starting with a 1 stood its ink 6 past the inset of a 900 x 300 card.
+        Assert.Equal(face, InkMeter.FaceOf(font, size));
+    }
 }

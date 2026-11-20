@@ -8351,6 +8351,14 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   across follows their own direction, each side the least either run leaves there), so it never reaches past its ink;
   unmeasured, its box. Tests `GlyphInkTests.S14247_`. The fit's one DIP of room over its parts' width ([S-12814], `BlockFit.WidthSlack`) stays: a part laid
   at exactly its width would be trimmed by layout rounding; drawn, it is the block's scale in DIPs at its end.
+- **[S-14249]** **A text is measured in the face XAML draws it in** ([S-14200], [S-14247]). A family text names no
+  family of its own: XAML draws it in Segoe UI Variable at the optical size its size sets, and the meter (`InkMeter`,
+  DirectWrite) measures it in that face, the optical size's nearest named one (Small 8, Text 10.5, Display 36:
+  `InkMeter.FaceOf`), with the line's tracking after each character as XAML puts it. Its heights are Segoe UI's, its side
+  bearings are not (a "1" leaves 0.008 of its size before its ink, Segoe UI's 0.040). Was: XAML's family name reached
+  DirectWrite as a name it lacks and was measured in its fallback, Segoe UI, so a Readout's line trimmed by its first
+  letter's room stood a "1.0739" 6 past the start inset of a 900 × 300 exchange-rate card. Tests
+  `GlyphInkTests.S14249_`.
 - **[S-14200]** **A face stands on its ink as drawn** (docs/WIDGET-RULES.md, the exemptions: a tile's face and a one-line
   face "Centred is fine", the bands over and under it alike). Where a text's or a glyph's ink stands in its box is
   measured on the font, as the text is laid out (`InkMeter`, the host's DirectWrite meter `InkMeasure` installed at

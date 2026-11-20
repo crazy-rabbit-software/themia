@@ -270,10 +270,12 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
             _lead.Margin = margin;
         }
 
+        // The line's tracking moves where its box ends after its last ink, as XAML puts it after each character.
         var font = PartInk.FontOf(_line.FontFamily);
-        var value = InkMeter.Room(new InkText(_value.Text, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight));
+        var tracking = _line.CharacterSpacing;
+        var value = InkMeter.Room(new InkText(_value.Text, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight, Tracking: tracking));
         var run = _delta.Text.Length > 0 ? _delta : _unit.Text.Length > 0 ? _unit : null;
-        var last = run is null ? value : InkMeter.Room(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight));
+        var last = run is null ? value : InkMeter.Room(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight, Tracking: tracking));
         var (start, end) = InkRoom.Ends(value, last, rtl, leads);
         var line = new Thickness(-start, 0, -end, 0);
         if (_line.Margin != line)

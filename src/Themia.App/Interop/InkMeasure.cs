@@ -87,12 +87,9 @@ internal static unsafe partial class InkMeasure
         nint layout = 0;
         try
         {
-            // A family list ("Segoe Fluent Icons,Segoe MDL2 Assets") draws in its first; DirectWrite's fallback takes a font it lacks.
-            var font = (text.Font ?? string.Empty).Split(',')[0].Trim();
-            if (font.Length == 0)
-            {
-                font = "Segoe UI";
-            }
+            // A family list ("Segoe Fluent Icons,Segoe MDL2 Assets") draws in its first; XAML's own family in Segoe UI
+            // Variable at the size's optical size ([S-14249]); DirectWrite's fallback takes a font it lacks.
+            var font = InkMeter.FaceOf(text.Font, text.FontSize);
 
             var weight = Math.Clamp(text.Weight, 1, 999);
             int result;
@@ -126,8 +123,9 @@ internal static unsafe partial class InkMeasure
                 return (Failed($"no text layout (0x{result:X8})"), 0);
             }
 
-            // Tracking moves where a text wraps: the same spacing XAML puts after each character.
-            if (wraps && text.Tracking != 0 && !Track(layout, text))
+            // Tracking moves where a text wraps and where its box ends after its last ink ([S-14247]): the same spacing XAML
+            // puts after each character.
+            if (text.Tracking != 0 && !Track(layout, text))
             {
                 return (Failed("no character spacing"), 0);
             }

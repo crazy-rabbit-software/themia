@@ -76,6 +76,31 @@ public static class InkMeter
     public static LineInk Line(TypeStep step, string? text, string font, int weight, double width = double.PositiveInfinity, int tracking = 0, int maxLines = 0)
         => Measure(new InkText(text ?? string.Empty, font, step.FontSize, weight, step.LineHeight, width, tracking, maxLines)) ?? LineInk.Of(step);
 
+    /// <summary>
+    /// [S-14249] The face a text of <paramref name="font"/> (a family name as XAML names it, or a list of them) at
+    /// <paramref name="size"/> is drawn in, as DirectWrite names it: a list's first; XAML's own family (a text with no
+    /// family of its own: <c>XamlAutoFontFamily</c>) and Segoe UI Variable in the variable font's optical size nearest
+    /// its size (XAML sets the optical size by the size: Small 8, Text 10.5, Display 36), whose side bearings are its own
+    /// (a "1" leaves 0.008 of its size before its ink, Segoe UI's 0.040); nothing named, XAML's own.
+    /// </summary>
+    internal static string FaceOf(string? font, double size)
+    {
+        var first = (font ?? string.Empty).Split(',')[0].Trim();
+        if (first.Length > 0 && !first.Equals(XamlAuto, StringComparison.OrdinalIgnoreCase) && !first.Equals(Variable, StringComparison.OrdinalIgnoreCase))
+        {
+            return first;
+        }
+
+        var optical = double.IsFinite(size) && size > 0 ? size : 10.5;
+        return optical < (8 + 10.5) / 2 ? Variable + " Small" : optical < (10.5 + 36) / 2 ? Variable + " Text" : Variable + " Display";
+    }
+
+    /// <summary>XAML's own family, the one a text set on no family draws in.</summary>
+    private const string XamlAuto = "XamlAutoFontFamily";
+
+    /// <summary>The family XAML's own resolves to on Windows 11; its optical sizes are faces of their own to DirectWrite.</summary>
+    private const string Variable = "Segoe UI Variable";
+
     /// <summary>The host's meter. Once per process.</summary>
     internal static void Install(Func<InkText, InkRoom?> meter)
     {
