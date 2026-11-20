@@ -192,12 +192,12 @@ internal sealed partial class ScratchpadView
     {
         if (_fullUndo is not null)
         {
-            Enable(_fullUndo, _undo.Count > 0);
+            ToolLine.SetEnabled(_fullUndo, _undo.Count > 0);
         }
 
         if (_fullClear is not null)
         {
-            Enable(_fullClear, _config.Strokes.Count > 0);
+            ToolLine.SetEnabled(_fullClear, _config.Strokes.Count > 0);
         }
     }
 
@@ -231,7 +231,7 @@ internal sealed partial class ScratchpadView
             glyph.Glyph = IsFullScreen ? Glyphs.BackToWindow : Glyphs.FullScreen;
         }
 
-        Tip(_fullButton, FullScreenTip());
+        ToolLine.Retip(_fullButton, FullScreenTip());
         if (IsFullScreen)
         {
             LayBar();

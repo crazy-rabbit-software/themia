@@ -181,8 +181,8 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// <summary>[S-1110] Re-read the texts set once at construction; the drawing is untouched.</summary>
     private void OnLanguage(Locale locale)
     {
-        Tip(_undoButton, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text());
-        Tip(_fullButton, FullScreenTip());
+        ToolLine.Retip(_undoButton, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text());
+        ToolLine.Retip(_fullButton, FullScreenTip());
         _hint.Show(StatusKind.Empty, ScratchpadModule.Glyph, ScratchpadStr.Scratchpad_DrawHere.Text());
         ApplyBarTips();
         UpdateCommands();
@@ -618,9 +618,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     private void UpdateCommands()
     {
         // A tool with nothing to do now is drawn in the disabled role and ignores a tap.
-        Enable(_undoButton, _undo.Count > 0, ColourRole.TextSecondary);
+        ToolLine.SetEnabled(_undoButton, _undo.Count > 0, ColourRole.TextSecondary);
         UpdateFullScreenTools();
-        Tip(_barEraser, _eraserOn ? ScratchpadStr.WidgetsC_Scratchpad_Draw.Text() : ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text());
+        ToolLine.Retip(_barEraser, _eraserOn ? ScratchpadStr.WidgetsC_Scratchpad_Draw.Text() : ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text());
         UpdateBar();
     }
 

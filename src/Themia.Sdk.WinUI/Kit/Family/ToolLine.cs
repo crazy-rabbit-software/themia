@@ -138,18 +138,76 @@ public sealed partial class ToolLine : Grid, IInked
     {
         ArgumentNullException.ThrowIfNull(run);
 
+        var element = Tool(Family.Glyph(glyph), FamilyShape.LineButton, tooltip, run);
+        element.Margin = new Thickness(0, -FamilySpace.ButtonOverflow, 0, -FamilySpace.ButtonOverflow);
+        return element;
+    }
+
+    /// <summary>
+    /// [S-6704] [S-6710] Any widget's tool button, the line's and a tool bar's alike (the scratchpad's 32 tools): a
+    /// <paramref name="side"/> square holding <paramref name="content"/> centred, the one radius, no border, the subtle
+    /// fills on hover and press (a control's, never the item layer's); a tap runs <paramref name="run"/>, two quick taps
+    /// are two taps. A tool can be on (<see cref="SetOn"/>) or have nothing to do (<see cref="SetEnabled"/>).
+    /// </summary>
+    public static Border Tool(FrameworkElement content, double side, string tooltip, Action run)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(run);
+
+        content.HorizontalAlignment = HorizontalAlignment.Center;
+        content.VerticalAlignment = VerticalAlignment.Center;
         var element = new Border
         {
-            Child = Family.Glyph(glyph),
-            Width = FamilyShape.LineButton,
-            Height = FamilyShape.LineButton,
+            Child = content,
+            Width = side,
+            Height = side,
             CornerRadius = Family.Radius,
             Background = Family.Brush(ColourRole.Clear),
-            Margin = new Thickness(0, -FamilySpace.ButtonOverflow, 0, -FamilySpace.ButtonOverflow),
         };
 
         Acts(element, tooltip, run);
+        element.DoubleTapped += (_, args) => args.Handled = true;
         return element;
+    }
+
+    /// <summary>[S-6706] A toggled tool: on is the accent's fill with its glyph on it; the hover fills leave it be.</summary>
+    public static void SetOn(Border tool, bool on)
+    {
+        ArgumentNullException.ThrowIfNull(tool);
+        tool.Background = Family.Brush(on ? ColourRole.Accent : ColourRole.Clear);
+        if (tool.Child is FontIcon glyph)
+        {
+            glyph.Foreground = Family.Brush(on ? ColourRole.TextOnAccent : ColourRole.TextPrimary);
+        }
+    }
+
+    /// <summary>A tool with nothing to do now: its glyph in the disabled role (else <paramref name="rest"/>), a tap ignored.</summary>
+    public static void SetEnabled(Border tool, bool enabled, ColourRole rest = ColourRole.TextPrimary)
+    {
+        ArgumentNullException.ThrowIfNull(tool);
+        tool.Tag = enabled;
+        if (tool.Child is FontIcon glyph)
+        {
+            glyph.Foreground = Family.Brush(enabled ? rest : ColourRole.TextDisabled);
+        }
+    }
+
+    /// <summary>Retell a tool's tooltip (and what a screen reader says), in the language now current.</summary>
+    public static void Retip(FrameworkElement tool, string tooltip)
+    {
+        ArgumentNullException.ThrowIfNull(tool);
+        ToolTipService.SetToolTip(tool, tooltip);
+        AutomationProperties.SetName(tool, tooltip);
+    }
+
+    private static bool IsOn(Border tool) => ReferenceEquals(tool.Background, Family.Brush(ColourRole.Accent));
+
+    private static void Rest(Border tool, ColourRole role)
+    {
+        if (!IsOn(tool))
+        {
+            tool.Background = Family.Brush(role);
+        }
     }
 
     /// <summary>
@@ -191,16 +249,18 @@ public sealed partial class ToolLine : Grid, IInked
     /// <summary>[S-6710] A line button's name, its subtle fills on hover and press, and its one action on a tap.</summary>
     private static void Acts(Border element, string tooltip, Action run)
     {
-        ToolTipService.SetToolTip(element, tooltip);
-        AutomationProperties.SetName(element, tooltip);
-        element.PointerEntered += (_, _) => element.Background = Family.Brush(ColourRole.Subtle);
-        element.PointerExited += (_, _) => element.Background = Family.Brush(ColourRole.Clear);
-        element.PointerCanceled += (_, _) => element.Background = Family.Brush(ColourRole.Clear);
-        element.PointerPressed += (_, _) => element.Background = Family.Brush(ColourRole.SubtlePressed);
+        Retip(element, tooltip);
+        element.PointerEntered += (_, _) => Rest(element, ColourRole.Subtle);
+        element.PointerExited += (_, _) => Rest(element, ColourRole.Clear);
+        element.PointerCanceled += (_, _) => Rest(element, ColourRole.Clear);
+        element.PointerPressed += (_, _) => Rest(element, ColourRole.SubtlePressed);
         element.Tapped += (_, args) =>
         {
             args.Handled = true;
-            run();
+            if (element.Tag is not false)
+            {
+                run();
+            }
         };
     }
 

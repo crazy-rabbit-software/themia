@@ -100,7 +100,7 @@ internal sealed partial class ScratchpadView
     {
         foreach (var (button, tip) in _barTips)
         {
-            Tip(button, tip());
+            ToolLine.Retip(button, tip());
         }
     }
 
@@ -121,83 +121,12 @@ internal sealed partial class ScratchpadView
         return (Tool(mark, tooltip, run), ring);
     }
 
-    /// <summary>
-    /// One of the pad's tools: a 32 subtle button ([S-6704]), the subtle fills on hover and press
-    /// (a control's, as the header's buttons, never the item layer's), no border. A tap runs it.
-    /// </summary>
-    private static Border Tool(FrameworkElement content, string tooltip, Action run)
-    {
-        content.HorizontalAlignment = HorizontalAlignment.Center;
-        content.VerticalAlignment = VerticalAlignment.Center;
-
-        var button = new Border
-        {
-            Child = content,
-            Width = ScratchpadLayout.Tool,
-            Height = ScratchpadLayout.Tool,
-            CornerRadius = Family.Radius,
-            Background = Family.Brush(ColourRole.Clear),
-        };
-
-        Tip(button, tooltip);
-        button.PointerEntered += (_, _) => Rest(button, ColourRole.Subtle);
-        button.PointerExited += (_, _) => Rest(button, ColourRole.Clear);
-        button.PointerCanceled += (_, _) => Rest(button, ColourRole.Clear);
-        button.PointerPressed += (_, _) => Rest(button, ColourRole.SubtlePressed);
-        button.Tapped += (_, args) =>
-        {
-            args.Handled = true;
-            if (button.Tag is not false)
-            {
-                run();
-            }
-        };
-
-        // Two quick taps on a tool are two taps, not a double-click.
-        button.DoubleTapped += (_, args) => args.Handled = true;
-        return button;
-    }
+    /// <summary>One of the pad's tools: a 32 tool button ([S-6704], <see cref="ToolLine.Tool"/>).</summary>
+    private static Border Tool(FrameworkElement content, string tooltip, Action run) => ToolLine.Tool(content, ScratchpadLayout.Tool, tooltip, run);
 
     /// <summary>A glyph tool (the eraser, undo, clear, the way back from full screen).</summary>
     private static Border GlyphTool(string glyph, string tooltip, Action run)
         => Tool(Family.Glyph(glyph, FamilyShape.Icon, ColourRole.TextPrimary), tooltip, run);
-
-    /// <summary>A tool's fill at rest or under the pointer; a tool that is on keeps the accent.</summary>
-    private static void Rest(Border button, ColourRole role)
-    {
-        if (!IsOn(button))
-        {
-            button.Background = Family.Brush(role);
-        }
-    }
-
-    private static bool IsOn(Border button) => ReferenceEquals(button.Background, Family.Brush(ColourRole.Accent));
-
-    /// <summary>A toggled tool: on is the accent's fill with the glyph on it ([S-6706]).</summary>
-    private static void On(Border button, bool on)
-    {
-        button.Background = Family.Brush(on ? ColourRole.Accent : ColourRole.Clear);
-        if (button.Child is FontIcon glyph)
-        {
-            glyph.Foreground = Family.Brush(on ? ColourRole.TextOnAccent : ColourRole.TextPrimary);
-        }
-    }
-
-    /// <summary>A tool with nothing to do now: its glyph in the disabled role (else <paramref name="rest"/>), a tap ignored.</summary>
-    private static void Enable(Border button, bool enabled, ColourRole rest = ColourRole.TextPrimary)
-    {
-        button.Tag = enabled;
-        if (button.Child is FontIcon glyph)
-        {
-            glyph.Foreground = Family.Brush(enabled ? rest : ColourRole.TextDisabled);
-        }
-    }
-
-    private static void Tip(FrameworkElement element, string tip)
-    {
-        ToolTipService.SetToolTip(element, tip);
-        AutomationProperties.SetName(element, tip);
-    }
 
     private void PickInk(ColorPreset ink)
     {
@@ -257,7 +186,7 @@ internal sealed partial class ScratchpadView
             ring.Visibility = Shown(width == nearest);
         }
 
-        On(_barEraser, _eraserOn);
+        ToolLine.SetOn(_barEraser, _eraserOn);
     }
 
     private static Visibility Shown(bool shown)
