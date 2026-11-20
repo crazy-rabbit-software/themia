@@ -115,7 +115,7 @@ public class SunPathGeometryTests
         Assert.Equal(26, plot.X0, 9);
         Assert.Equal(174, plot.X1, 9);
         Assert.True(plot.HorizonY < 150, "the horizon must leave room for the night band");
-        Assert.True(plot.HorizonY - plot.AboveHeight > 0, "the curve must stay inside the drawing");
+        Assert.True(plot.HorizonY - plot.AboveHeight >= 0, "the curve must stay inside the drawing");
     }
 
     [Fact]
@@ -126,13 +126,26 @@ public class SunPathGeometryTests
         Assert.Equal(90, SunPathPlot.For(200, 150, 0, 0).AxisMaxDegrees, 9);                           // the tropics cap at overhead
         Assert.Equal(1, SunPathPlot.For(200, 150, 78, -23).AxisMaxDegrees, 9);                         // a polar night: no arc to scale
 
-        // Noon of any day stands just under the box's top, whatever the season: no empty sky over a winter arc.
+        // Noon of any day stands on the box's top, whatever the season: no empty sky over a winter arc.
         foreach (var (latitude, declination) in new[] { (47.37, 23.4), (47.37, -23.4), (69.6, 23.4), (69.6, -5), (-33.9, -23.4) })
         {
             var plot = SunPathPlot.For(256, 128, latitude, declination);
             var noon = plot.PointAt(new SkySample(0.5, plot.AxisMaxDegrees));
-            Assert.Equal(SunPathPlot.MarkerHalf, noon.Y, 9);
+            Assert.Equal(0, noon.Y, 9);
         }
+    }
+
+    [Theory]
+    [InlineData(176, 76)]    // the least card's box
+    [InlineData(256, 128)]   // a new card's
+    [InlineData(536, 268)]   // the large check's
+    public void S14242_the_arc_reaches_the_content_top_and_foot_so_no_band_stands_over_or_under_it(double width, double height)
+    {
+        // Owner, 2026-11-19 (WR-1): "there should not be a space at the top". The noon point is the content's top, the
+        // night's lowest point its foot; the marker reaches its half over either, into the card's inset.
+        var plot = SunPathPlot.For(width, height, 47.37, -19.9);
+        Assert.Equal(0, plot.PointAt(new SkySample(0.5, plot.AxisMaxDegrees)).Y, 9);
+        Assert.Equal(height, plot.HorizonY + plot.BelowHeight, 9);
     }
 
     [Fact]

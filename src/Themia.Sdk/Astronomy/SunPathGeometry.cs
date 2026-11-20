@@ -49,21 +49,21 @@ public readonly record struct SunPathPlot(
 
         var below = h * 0.16;
 
-        // [S-11806] The noon point stands the marker's half under the box's top: the curve uses the height.
-        var topPadding = Math.Min(h * 0.12, MarkerHalf);
+        // [S-11806] [S-14242] The noon point stands on the box's top: the curve uses the height (WR-1), the marker on it
+        // reaching its half over the top into the card's inset.
         var horizon = h - below;
 
         return new SunPathPlot(
             X0: w * 0.13,
             X1: w * 0.87,
             HorizonY: horizon,
-            AboveHeight: Math.Max(1, horizon - topPadding),
+            AboveHeight: Math.Max(1, horizon),
             AxisMaxDegrees: NoonAltitude(latitudeDegrees, sunDeclinationDegrees),
             BelowHeight: below,
             NightDepthDegrees: Math.Max(1, -SkyPath.AltitudeAtHourAngle(180, sunDeclinationDegrees, latitudeDegrees)));
     }
 
-    /// <summary>[S-11806] Half the sun's marker (12): the room over the curve's top.</summary>
+    /// <summary>[S-14242] Half the sun's marker (12): how far the marker at noon reaches over the curve's top, into the card's inset.</summary>
     public const double MarkerHalf = 6;
 
     /// <summary>

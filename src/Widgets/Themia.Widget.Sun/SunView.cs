@@ -194,8 +194,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
         var latitude = _config.EffectiveLatitude;
         var longitude = _config.EffectiveLongitude;
 
-        // A marker at the edge of the plot would otherwise bleed over the rows beneath it.
-        _canvas.Clip = new RectangleGeometry { Rect = new Rect(0, 0, width, height) };
+        // A marker at the edge of the plot reaches its half into the card's inset round it ([S-14242]: the noon point
+        // stands on the content's top), never further.
+        var half = SunPathPlot.MarkerHalf;
+        _canvas.Clip = new RectangleGeometry { Rect = new Rect(-half, -half, width + (2 * half), height + (2 * half)) };
 
         if (_config.Style == SunStyle.DayBar)
         {
