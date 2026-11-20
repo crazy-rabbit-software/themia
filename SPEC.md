@@ -1723,6 +1723,11 @@ The shared parts a list widget is built from, and the rules they keep (design an
   any other device).
 - **[S-7073]** *(Every width since [S-11580]: the time no longer gives way either.)* A spec whose value is a reading (`KitSpec.Readings`) keeps it at every width: it is
   the item's point, where a time gives way below a column of 180; the title ellipsises first.
+- **[S-14266]** **No line of a list in columns ends short of the edge** (owner, 2026-11-19, WR-4: "they should stretch if
+  they dont reach all the way"; WR-3). A list laid in columns read left to right whose items do not fill its last line
+  (seven in two) gives that line's last item the rest of the line (`KitPlanner.ColumnSpan`): its box, hover and menu
+  run to the card's end edge, its time at the end as every row's. Before, RSS's stale list at 600 wide ended its fourth
+  line at 300. Tests `KitRowsTests.S14266_`; renders `--widget-png rss --state stale --sizes 600x200`.
 - **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
   setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no

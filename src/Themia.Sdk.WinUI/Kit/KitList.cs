@@ -267,6 +267,9 @@ public sealed partial class KitList : Grid, IStatusRoom
             var row = BuildFamilyRow(_items[i], i, now);
             SetRow(row, i / columns);
             SetColumn(row, i % columns);
+
+            // [S-14266] The last item of a line the list does not fill takes the rest of it: no line ends short of the edge.
+            SetColumnSpan(row, KitPlanner.ColumnSpan(i, _items.Count, columns));
             _rows.Children.Add(row);
             _rowElements.Add(row);
         }
@@ -335,8 +338,9 @@ public sealed partial class KitList : Grid, IStatusRoom
             return _page.Children.Count > 0 && _page.Children[^1] is Panel { Children.Count: > 0 } column ? column.Children[0] as FrameworkElement : null;
         }
 
-        var columns = Math.Max(1, _plan.Columns);
-        return columns - 1 < _rowElements.Count ? _rowElements[columns - 1] : null;
+        // [S-14266] A first line the list does not fill: its last item spans to the end corner.
+        var end = Math.Min(Math.Max(1, _plan.Columns), _rowElements.Count) - 1;
+        return end >= 0 ? _rowElements[end] : null;
     }
 
     /// <summary>A row's (a heading's) end inset: the side inset and <paramref name="room"/> more.</summary>

@@ -148,4 +148,20 @@ public sealed class KitRowsTests
         // A schedule that names no rows of its own is the kit's default rows: one column too ([S-11580]).
         Assert.Equal(1, KitPlanner.Plan(new WidgetArea(900, 700), schedule, KitShow.None).Columns);
     }
+
+    /// <summary>
+    /// [S-14266] A list in columns whose last line it does not fill (seven items in two): that line's last item takes the rest
+    /// of it, so every line reaches the end edge; a list that fills its lines, and every other item, take one column.
+    /// </summary>
+    [Theory]
+    [InlineData(6, 7, 2, 2)]
+    [InlineData(5, 7, 2, 1)]
+    [InlineData(7, 8, 3, 2)]
+    [InlineData(6, 7, 3, 3)]
+    [InlineData(5, 6, 2, 1)]
+    [InlineData(5, 6, 3, 1)]
+    [InlineData(0, 1, 1, 1)]
+    [InlineData(0, 1, 2, 2)]
+    public void S14266_the_last_item_of_a_line_the_list_does_not_fill_takes_the_rest_of_it(int index, int count, int columns, int span)
+        => Assert.Equal(span, KitPlanner.ColumnSpan(index, count, columns));
 }

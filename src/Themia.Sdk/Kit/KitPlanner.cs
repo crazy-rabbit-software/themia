@@ -253,6 +253,18 @@ public static class KitPlanner
     /// </summary>
     public static double ListHeight(WidgetArea area) => Math.Max(0, area.Height + FamilySpace.Inset);
 
+    /// <summary>
+    /// [S-14266] How many columns item <paramref name="index"/> of <paramref name="count"/> takes in a list laid in
+    /// <paramref name="columns"/> read left to right: one, and the last item of a line the list does not fill the rest of that
+    /// line (owner, 2026-11-19, WR-4: "they should stretch if they dont reach all the way"; WR-3: "the items dont reach from
+    /// edge to edge"), so every line's items run from the card's start edge to its end edge.
+    /// </summary>
+    public static int ColumnSpan(int index, int count, int columns)
+    {
+        var across = Math.Max(1, columns);
+        return index == count - 1 && count % across != 0 ? across - (index % across) : 1;
+    }
+
     /// <summary>[S-6712] Whole rows of <paramref name="plan"/> (its rows and the gaps between them) in a list <paramref name="height"/> tall, under the table's column titles when it has them.</summary>
     public static int Fit(KitPlan plan, double height, ItemGrid? grid = null)
     {
