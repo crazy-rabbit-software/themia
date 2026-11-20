@@ -178,7 +178,7 @@ internal static partial class EditBarRender
             Delete: () => { },
             WidgetLines: id => lines is not null ? Stand(lines) : view.Find(id) is { } found ? Over(found.Kind, found.Config, () => { }) : null)
         {
-            SharedLines = row => SharedRowLines.Of(row, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id))], Over, _ => { }),
+            SharedLines = row => SharedRowLines.Of(row.Setting, row.Mixed, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id)).Select(w => (w.Kind, w.Config))], Over, _ => { }),
         };
 
         var kinds = view.Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();

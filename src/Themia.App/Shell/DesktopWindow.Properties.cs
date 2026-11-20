@@ -71,8 +71,9 @@ internal sealed partial class DesktopWindow
         try
         {
             return SharedRowLines.Of(
-                row,
-                holders,
+                row.Setting,
+                row.Mixed,
+                [.. holders.Select(h => (h.Kind, h.Config))],
                 (kind, config, save) => Services.ModuleHost.MenuLines(kind, config, save, link => RequestSetting(link)),
                 scratch => _host.SetShared(row.Setting, row.Holders, scratch),
                 built => Kept(built));

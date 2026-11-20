@@ -1,14 +1,13 @@
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
-using Themia.Core.Shell;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
 /// <summary>[S-11751] A kind's own lines built over a config, saved by <paramref name="save"/>: the module's.</summary>
-internal delegate WidgetMenuLines? LinesOver(WidgetId kind, WidgetConfig config, Action save);
+public delegate WidgetMenuLines? LinesOver(WidgetId kind, WidgetConfig config, Action save);
 
 /// <summary>
 /// [S-11751] [S-11753] A shared setting's lines on several widgets' page: the very lines one
@@ -17,38 +16,43 @@ internal delegate WidgetMenuLines? LinesOver(WidgetId kind, WidgetConfig config,
 /// once) is then set on every holder at once, as one change. While the holders disagree the lines read
 /// "Mixed": a choice holds no option, a value or a toggle's words say Mixed, and any pick makes them agree.
 /// </summary>
-internal static class SharedRowLines
+public static class SharedRowLines
 {
-    /// <param name="holders">The widgets that hold the setting, in view order: the first whose module offers its line builds it.</param>
+    /// <param name="setting">The setting the widgets share.</param>
+    /// <param name="mixed">Whether the holders disagree on it now.</param>
+    /// <param name="holders">The widgets that may hold the setting (their kind and config), in view order: the first whose module offers its line builds it.</param>
     /// <param name="spread">Sets what the scratch copy holds on every holder (the host's one mutation; nothing where they agree).</param>
     /// <param name="built">Told of the lines built, so a line still reading ([S-3746]) can ask for the page again.</param>
     public static IReadOnlyList<ItemMenuEntry> Of(
-        SharedRow row,
-        IReadOnlyList<WidgetInstance> holders,
+        SharedSetting setting,
+        bool mixed,
+        IReadOnlyList<(WidgetId Kind, WidgetConfig Config)> holders,
         LinesOver build,
         Action<WidgetConfig> spread,
         Action<WidgetMenuLines>? built = null)
     {
-        ArgumentNullException.ThrowIfNull(row);
+        ArgumentNullException.ThrowIfNull(setting);
         ArgumentNullException.ThrowIfNull(holders);
         ArgumentNullException.ThrowIfNull(build);
         ArgumentNullException.ThrowIfNull(spread);
 
-        var holding = holders.Where(h => row.Setting.Holds(h.Config)).ToList();
-        foreach (var holder in holding)
+        var holding = holders.Where(h => setting.Holds(h.Config)).ToList();
+        for (var at = 0; at < holding.Count; at++)
         {
+            var holder = holding[at];
             var scratch = holder.Config.Clone();
             void Spread() => spread(scratch);
             var lines = build(holder.Kind, scratch, Spread);
-            var marked = lines is null ? null : Marked(lines, row.Setting);
+            var marked = lines is null ? null : Marked(lines, setting);
             if (lines is null || marked is not { Count: > 0 })
             {
                 continue;
             }
 
             built?.Invoke(lines);
-            var differ = row.Mixed ? Differing(marked, holding.Where(h => !ReferenceEquals(h, holder)), row.Setting, build) : null;
-            return [.. marked.Select((line, at) => Wired(line, Spread, differ?[at] ?? false, top: true))];
+            var self = at;
+            var differ = mixed ? Differing(marked, holding.Where((_, i) => i != self), setting, build) : null;
+            return [.. marked.Select((line, i) => Wired(line, Spread, differ?[i] ?? false, top: true))];
         }
 
         return [];
@@ -62,7 +66,7 @@ internal static class SharedRowLines
     /// that holds): those say Mixed, a line all of them read alike does not (Use my location stays Off while
     /// only the places differ). Where no line shows the difference (two places under one name), all do.
     /// </summary>
-    private static bool[] Differing(List<ItemMenuEntry> marked, IEnumerable<WidgetInstance> others, SharedSetting setting, LinesOver build)
+    private static bool[] Differing(List<ItemMenuEntry> marked, IEnumerable<(WidgetId Kind, WidgetConfig Config)> others, SharedSetting setting, LinesOver build)
     {
         var differ = new bool[marked.Count];
         foreach (var other in others)
