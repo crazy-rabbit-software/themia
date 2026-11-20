@@ -83,8 +83,10 @@ internal sealed class LocaleData
 
     public required RelativeForms[] RelativeShort { get; init; }
 
+    /// <summary>The data of <paramref name="locale"/>: every locale has its own; an unknown one is a bug, never English.</summary>
     public static LocaleData For(Locale locale) => locale switch
     {
+        Locale.En => En,
         Locale.De => De,
         Locale.Es => Es,
         Locale.Fr => Fr,
@@ -124,7 +126,7 @@ internal sealed class LocaleData
         Locale.Am => Amharic,
         Locale.Yo => Yo,
         Locale.My => My,
-        _ => En,
+        _ => throw new ArgumentOutOfRangeException(nameof(locale), locale, "no locale data for this locale"),
     };
 
     // Relative-time helpers: P(one, other) for the two-form languages, Pl3 for Polish and Russian
