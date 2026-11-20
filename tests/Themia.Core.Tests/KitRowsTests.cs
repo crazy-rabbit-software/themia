@@ -29,6 +29,20 @@ public sealed class KitRowsTests
     }
 
     [Fact]
+    public void S14500_a_check_list_that_cannot_add_has_its_rows_take_the_add_rows_room()
+    {
+        // A CalDAV list 200 tall left its add row's place blank at the foot (33.3 under rows stretched to 41.3); its rows
+        // take that room too and end on the card's foot. One that can add keeps the add row under its rows.
+        var area = new WidgetArea(300, 200 - FamilySpace.Inset);
+        var readOnly = KitPlanner.Plan(area, Checks, new KitChoices(KitShow.None) { CanAdd = false, Rows = new KitRowsChoice(6, 1) });
+        var adds = KitPlanner.Plan(area, Checks, new KitChoices(KitShow.None) { CanAdd = true, Rows = new KitRowsChoice(6, 1) });
+
+        Assert.Equal((0d, 200d), (readOnly.FootHeight, readOnly.Reach.Room));
+        Assert.Equal(200, adds.Reach.Room + adds.FootHeight, 6);
+        Assert.True(adds.FootHeight > 0);
+    }
+
+    [Fact]
     public void S2440_a_check_list_shows_the_same_at_its_min_and_its_max()
     {
         var choices = new KitChoices(KitShow.Subtitle | KitShow.When) { Count = 30, CanAdd = true, Rows = new KitRowsChoice(6, 2) };
