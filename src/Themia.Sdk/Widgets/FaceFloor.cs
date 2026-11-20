@@ -8,16 +8,15 @@ public readonly record struct FacePlan(double Width, double Ink);
 
 /// <summary>
 /// [S-12833] How a face that scales stands in a room: the smallest text it draws (<see cref="Floor"/>: its parts smaller
-/// than that give way; 0 while none did, so a piece its kind did not state, a placeholder's reason, is drawn too), the
-/// scale it is drawn at keeping its size when a part goes (<see cref="Scale"/>, as its plan estimates it), the most that
-/// is (<see cref="Most"/>: unbounded while every part is drawn, else the scale the last part gave way at), and the scale
-/// at which the parts left fill the room (<see cref="Fill"/>: a block that fills its card, WR-1 and WR-4, grows back
-/// into the room a part left).
+/// than that give way; 0 while none did, so a piece its kind did not state, a placeholder's reason, is drawn too) and the
+/// scale at which the parts left fill the room (<see cref="Scale"/>, as its plan estimates it, never under the main
+/// reading's floor): [S-14318] a face grows back into the room a part left, a one-line face too, until one axis stops it
+/// (WR-3, WR-4; the owner's "Centred is fine" on the other axis alone).
 /// </summary>
-public readonly record struct FaceFit(double Floor, double Scale, double Most, double Fill)
+public readonly record struct FaceFit(double Floor, double Scale)
 {
     /// <summary>Every part drawn, the face as its fit draws it: a room not measured yet.</summary>
-    public static FaceFit All => new(0, 1, double.PositiveInfinity, 1);
+    public static FaceFit All => new(0, 1);
 
     /// <summary>Whether a part of text <paramref name="size"/> is drawn.</summary>
     public bool Draws(double size) => size >= Floor - 1e-9;
@@ -30,10 +29,10 @@ public readonly record struct FaceFit(double Floor, double Scale, double Most, d
 /// or its day's number) and smaller parts (a meridiem, the line under, a weekday). The main reading alone sets how small the
 /// face goes: until it is drawn at the legibility floor (<see cref="ScaleFloor.Text"/>, 9 DIP). A smaller part is drawn while
 /// the face's scale keeps it at that floor too and gives way under it, the smallest first, so no text is ever drawn under 9
-/// and none holds the reading large; a part that went never comes back in a smaller room. A one-line face the owner lets
-/// stand centred (the clock, the date) then keeps the size it had when the part went (<see cref="FaceFit.Most"/>: its scale
-/// only falls as the room shrinks); a block that fills its card (<c>ReadingFit</c>, WR-1, WR-4) grows back into the room
-/// the part left (<see cref="FaceFit.Fill"/>). The least box is the main reading alone at its floor in the card's inset
+/// and none holds the reading large; a part that went never comes back in a smaller room. [S-14318] What is left fills the
+/// room (<see cref="FaceFit.Scale"/>), a one-line face (the clock, the date) as a block (<c>ReadingFit</c>, WR-1, WR-4):
+/// the clock's world style at 350x70, its city line gone, was held at the scale the line went at and filled neither axis
+/// (83 either side, 70 tall). The least box is the main reading alone at its floor in the card's inset
 /// (<see cref="LeastBox"/>), never under the grid's least widget.
 /// </summary>
 public static class FaceFloor
@@ -55,23 +54,20 @@ public static class FaceFloor
 
         var main = levels[^1];
         var least = ScaleFloor.Least(main);
-        var most = double.PositiveInfinity;
         var none = true;
         foreach (var floor in levels)
         {
             var fill = Scale(width, height, plan(floor));
-            var scale = Math.Min(most, fill);
-            if (floor >= main || floor * scale >= ScaleFloor.Text - 1e-9)
+            if (floor >= main || floor * fill >= ScaleFloor.Text - 1e-9)
             {
-                return new FaceFit(none ? 0 : floor, Math.Max(least, scale), most, Math.Max(least, fill));
+                return new FaceFit(none ? 0 : floor, Math.Max(least, fill));
             }
 
-            // It gives way here: a face that keeps its size is never drawn larger at a smaller room than when it went.
-            most = Math.Min(most, ScaleFloor.Text / floor);
+            // It gives way here: the parts left are planned without it, and fill the room.
             none = false;
         }
 
-        return new FaceFit(main, least, most, least);
+        return new FaceFit(main, least);
     }
 
     /// <summary>

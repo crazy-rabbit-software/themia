@@ -34,7 +34,7 @@ public sealed class FaceFloorTests
         var fit = FaceFloor.Fit(230, 64, Sizes, Plan);
 
         // Nothing gave way: everything is drawn, a piece the face did not state too.
-        Assert.Equal(new FaceFit(0, 1, double.PositiveInfinity, 1), fit);
+        Assert.Equal(new FaceFit(0, 1), fit);
         Assert.True(fit.Draws(14) && fit.Draws(28) && fit.Draws(68));
         Assert.Equal(FaceFit.All, FaceFloor.Fit(0, 64, Sizes, Plan));
         Assert.Equal(FaceFit.All, FaceFloor.Fit(double.NaN, 64, Sizes, Plan));
@@ -46,31 +46,28 @@ public sealed class FaceFloorTests
         // Half the room: the line under would be 7, so it goes; the unit stays at 14.
         var half = FaceFloor.Fit(115, 32, Sizes, Plan);
         Assert.Equal(28, half.Floor);
-        Assert.Equal(9 / 14.0, half.Most, 6);
         Assert.False(half.Draws(14));
 
-        // A short room: the line under goes; kept to the scale it went at the face stands smaller than the room, filling it
-        // the reading and its unit grow back into the room the line left.
+        // [S-14318] A short room: the line under goes and the reading and its unit grow back into the room it left (WR-1,
+        // WR-4), a one-line face too: held at the scale it went at (9 / 14) the face filled neither axis.
         var shorter = FaceFloor.Fit(230, 40, Sizes, Plan);
         Assert.Equal(28, shorter.Floor);
-        Assert.Equal(9 / 14.0, shorter.Scale, 6);
-        Assert.Equal(40 / 48.0, shorter.Fill, 6);
+        Assert.Equal(40 / 48.0, shorter.Scale, 6);
 
         // A fifth: the unit would be under 9 too; the reading alone, at what the room gives it.
         var fifth = FaceFloor.Fit(46, 13, Sizes, Plan);
         Assert.Equal(68, fifth.Floor);
         Assert.InRange(fifth.Scale * 68, ScaleFloor.Text, 68);
-        Assert.True(fifth.Scale <= fifth.Most);
     }
 
     [Theory]
     [InlineData(1.0, 1.0)]
     [InlineData(1.0, 0.0)]
     [InlineData(0.0, 1.0)]
-    public void S12833_the_scale_and_the_parts_only_fall_as_the_room_shrinks(double byWidth, double byHeight)
+    public void S12833_S14318_the_parts_only_fall_as_the_room_shrinks_and_the_rest_fills_it(double byWidth, double byHeight)
     {
         // The room shrinks from the natural box towards nothing: proportionally, by its width alone or by its height
-        // alone (the other axis kept). Dropping the unit makes the face narrower; it is never drawn larger for that.
+        // alone (the other axis kept). A part that went never comes back; what is left fills the room on one axis.
         double lastScale = double.PositiveInfinity, lastFloor = 0;
         for (var t = 1.5; t >= 0.02; t -= 0.01)
         {
@@ -78,8 +75,8 @@ public sealed class FaceFloorTests
             var height = 64 * (byHeight > 0 ? t : 1.5);
             var fit = FaceFloor.Fit(width, height, Sizes, Plan);
 
-            Assert.True(fit.Scale <= lastScale + 1e-9, $"t {t:0.00}: {fit.Scale} over {lastScale}");
             Assert.True(fit.Floor >= lastFloor - 1e-9, $"t {t:0.00}: a part came back");
+            Assert.Equal(Math.Max(ScaleFloor.Least(68), FaceFloor.Scale(width, height, Plan(fit.Floor))), fit.Scale, 9);
             foreach (var size in Sizes.Where(fit.Draws))
             {
                 Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-6, $"t {t:0.00}: {size} drawn at {size * fit.Scale}");
@@ -107,21 +104,14 @@ public sealed class FaceFloorTests
     }
 
     [Fact]
-    public void S12833_a_block_is_never_drawn_over_its_most()
+    public void S12833_a_block_fills_its_room_and_is_never_drawn_under_its_least()
     {
         var free = BlockFit.Lay(468, 104, 156, 52, least: 0.1);
         Assert.Equal(2, free.Scale, 6);
 
-        var capped = BlockFit.Lay(468, 104, 156, 52, least: 0.1, most: 0.5);
-        Assert.Equal(0.5, capped.Scale, 6);
-        Assert.Equal((104 - 26) / 2.0, capped.Top, 6);
-
-        // Never under its least for all that.
-        Assert.Equal(0.3, BlockFit.Lay(10, 10, 156, 52, least: 0.3, most: 0.5).Scale, 6);
-
-        // A reading's block likewise.
-        Assert.Equal(0.5, BlockFit.Fill(468, 104, 156, 52, new LineInk(9.2, 4), least: 0.1, most: 0.5).Scale, 6);
-        Assert.Equal(0.3, BlockFit.Fill(10, 10, 156, 52, new LineInk(9.2, 4), least: 0.3, most: 0.5).Scale, 6);
+        // Never under its least.
+        Assert.Equal(0.3, BlockFit.Lay(10, 10, 156, 52, least: 0.3).Scale, 6);
+        Assert.Equal(0.3, BlockFit.Fill(10, 10, 156, 52, new LineInk(9.2, 4), least: 0.3).Scale, 6);
     }
 
     [Fact]
@@ -163,17 +153,17 @@ public sealed class FaceFloorTests
     }
 
     [Fact]
-    public void S12833_a_stated_face_only_gets_smaller_as_its_room_does()
+    public void S12833_S14318_a_stated_faces_parts_only_go_as_its_room_shrinks()
     {
         var face = FaceParts.Readout(FamilyType.Big28, new ReadoutText("100", "%", Lead: true, LineUnder: true), 140).Then(ControlsRules.Row(176));
         var natural = face.Plan(0);
-        double lastScale = double.PositiveInfinity, lastFloor = 0;
+        double lastFloor = 0;
         for (var t = 1.0; t >= 0.05; t -= 0.01)
         {
             var fit = face.Fit(natural.Width * t, natural.Ink * t);
-            Assert.True(fit.Scale <= lastScale + 1e-9 && fit.Floor >= lastFloor);
+            Assert.True(fit.Floor >= lastFloor);
             Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-6));
-            (lastScale, lastFloor) = (fit.Scale, fit.Floor);
+            lastFloor = fit.Floor;
         }
 
         Assert.Equal(28, lastFloor);
@@ -199,7 +189,7 @@ public sealed class FaceFloorTests
 
         // Drawn, every kept piece stays at the floor or over it; in its least card the time stands alone.
         var drawn = Countdown(171).Fit(276, 140);
-        Assert.True(14 * drawn.Fill >= ScaleFloor.Text);
+        Assert.True(14 * drawn.Scale >= ScaleFloor.Text);
         Assert.Equal(68, Countdown(171).Fit(58, 20).Floor);
     }
 }

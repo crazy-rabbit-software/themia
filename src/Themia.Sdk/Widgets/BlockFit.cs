@@ -29,18 +29,17 @@ public static class BlockFit
     /// <summary>
     /// A block planned <paramref name="naturalWidth"/> × <paramref name="naturalHeight"/>, its ink inside by
     /// <paramref name="ink"/>, in a room <paramref name="width"/> × <paramref name="height"/>, never drawn under
-    /// <paramref name="least"/> ([S-12833]: its smallest text at the legibility floor, <see cref="ScaleFloor"/>) and never over
-    /// <paramref name="most"/> (<see cref="FaceFit.Most"/>: the scale a part of it gave way at).
+    /// <paramref name="least"/> ([S-12833]: its smallest text at the legibility floor, <see cref="ScaleFloor"/>).
     /// </summary>
-    public static BlockLay Lay(double width, double height, double naturalWidth, double naturalHeight, LineInk ink = default, double least = 1, double most = double.PositiveInfinity)
+    public static BlockLay Lay(double width, double height, double naturalWidth, double naturalHeight, LineInk ink = default, double least = 1)
         => !(naturalHeight > 0) || !double.IsFinite(naturalHeight) ? new BlockLay(1, 0)
-            : Lay(width, height, naturalWidth, double.IsFinite(ink.Over) ? ink.Over : 0, naturalHeight - (double.IsFinite(ink.Under) ? ink.Under : 0), least, most);
+            : Lay(width, height, naturalWidth, double.IsFinite(ink.Over) ? ink.Over : 0, naturalHeight - (double.IsFinite(ink.Under) ? ink.Under : 0), least);
 
     /// <summary>
     /// A block planned <paramref name="naturalWidth"/> wide whose ink runs from <paramref name="inkTop"/> to
     /// <paramref name="inkBottom"/> in its plan (either may lie outside the plan's own box: parts that did not fit it).
     /// </summary>
-    public static BlockLay Lay(double width, double height, double naturalWidth, double inkTop, double inkBottom, double least = 1, double most = double.PositiveInfinity)
+    public static BlockLay Lay(double width, double height, double naturalWidth, double inkTop, double inkBottom, double least = 1)
     {
         if (!(naturalWidth > 0) || !double.IsFinite(naturalWidth) || !double.IsFinite(inkTop) || !double.IsFinite(inkBottom)
             || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
@@ -50,7 +49,7 @@ public static class BlockFit
 
         var span = inkBottom - inkTop;
         var fill = Math.Min(width / naturalWidth, span > 0 ? height / span : 1);
-        var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
+        var scale = Math.Max(ScaleFloor.Clamp(least), fill);
         var top = (height - (span * scale)) / 2;
 
         // Taller than the room even at its own size: its first ink on the top.
@@ -103,8 +102,7 @@ public static class BlockFit
     /// placed by the ink it draws, as any (WR-1, WR-4: its dashes, lower than capitals, on the top where the height stops it
     /// and its last ink on the foot; sized by the reading it stood for, it left the difference as a band at the foot).
     /// </summary>
-    /// <remarks>[S-12833] Never over <paramref name="most"/> (<see cref="FaceFit.Most"/>: the scale a part of it gave way at).</remarks>
-    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, double least = 1, double most = double.PositiveInfinity)
+    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, double least = 1)
     {
         static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
         var over = Room(ink.Over);
@@ -119,7 +117,7 @@ public static class BlockFit
         // room (Across), so the width-held block's ink reaches both side insets.
         var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / intrinsicWidth : double.PositiveInfinity;
         var fill = Math.Min(byWidth, height / span);
-        var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
+        var scale = Math.Max(ScaleFloor.Clamp(least), fill);
 
         // [S-14280] WR-7: laid in its parts' own height, never the room's, so nothing goes between them. The height the
         // scale leaves (the width stopped it) stands alike over the reading's first ink and under its last ([S-12808]);

@@ -109,7 +109,6 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
             : FaceFit.All;
         var lines = DateLayout.Lines(_config, fit.Floor);
         var face = DateLayout.Face(_config, locale, fit.Floor);
-        _fit.Most = fit.Most;
         _face.Children.Clear();
 
         // [S-14308] As wide as today's text: the fit scales today's line, not the widest day's box.

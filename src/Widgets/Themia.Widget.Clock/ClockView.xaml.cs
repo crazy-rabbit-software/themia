@@ -211,7 +211,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
         var wantsLine = style != ClockStyle.Minimal && (_label is not null || _config.OffsetMode != ClockOffsetMode.None);
         var fit = Fit(meridiem);
-        _fit.Most = fit.Most;
         _secondsDrawn = _config.DrawsSeconds;
         _underShown = false;
         _underWidth = width;

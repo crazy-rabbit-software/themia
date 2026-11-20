@@ -125,8 +125,7 @@ public sealed class ReadingFaceFloorTests
             var height = sizing.Min.Height + (t * (sizing.Natural.Height - sizing.Min.Height)) - 24 - over;
             var fit = face.Fit(width, height);
             Assert.True(fit.Floor >= lastFloor, $"{kind} {style} {width}x{height}: a part came back");
-            Assert.True(fit.Fill >= fit.Scale - 1e-9);
-            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Fill >= ScaleFloor.Text - 1e-6, $"{kind} {style}: {size} at {size * fit.Fill}"));
+            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-6, $"{kind} {style}: {size} at {size * fit.Scale}"));
             lastFloor = fit.Floor;
         }
 

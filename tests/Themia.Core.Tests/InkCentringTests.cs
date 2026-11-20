@@ -33,9 +33,9 @@ public class InkCentringTests
         // and the state line (20, its baseline 4 over its foot): 152 tall. Centred by its box it stood 28 from the inset's
         // top and foot, its ink 40 under the top and 32 over the foot (the gap check's 52 / 44 with the card's 12).
         var ink = new LineInk(12, 4);
-        var lay = BlockFit.Lay(208, 208, 208, 152, ink, most: 1);
+        var lay = BlockFit.Lay(208, 208, 208, 152, ink);
 
-        // On its ink: the same band over and under, and never drawn larger than its plan.
+        // On its ink: the same band over and under; its width stops it at its plan's size.
         Assert.Equal(1, lay.Scale);
         var over = lay.Top + ink.Over;
         var under = 208 - (lay.Top + 152 - ink.Under);
@@ -47,7 +47,7 @@ public class InkCentringTests
     public void S14201_a_face_too_tall_for_its_box_keeps_its_first_ink_on_the_top()
     {
         // Never above the box: a face taller than its room keeps its first ink on the top, as every one-readout block.
-        var lay = BlockFit.Lay(40, 40, 40, 60, new LineInk(5, 5), least: 1, most: 1);
+        var lay = BlockFit.Lay(40, 40, 40, 60, new LineInk(5, 5), least: 1);
         Assert.Equal(1, lay.Scale);
         Assert.Equal(-5, lay.Top, 6);
     }

@@ -190,7 +190,7 @@ public sealed partial class ReadingFit : Panel
     /// [S-12833] The face's parts as its kind states them (the same its sizing's least box is made of): in a room that
     /// would draw them under the floor the pieces give way, smallest first, judged on the block as it is drawn ([S-14243]):
     /// a block's own (<see cref="IFacePieces"/>, a Readout's unit, lead and line under) and the parts added with
-    /// <see cref="AddGivesWay"/>; the parts left fill the room (WR-1, WR-4: <see cref="FaceFit.Fill"/>, the block grows back
+    /// <see cref="AddGivesWay"/>; the parts left fill the room (WR-1, WR-4: <see cref="FaceFit.Scale"/>, the block grows back
     /// into the room a part left). Null: every part is drawn.
     /// </summary>
     public FaceParts? Face

@@ -8553,12 +8553,12 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-14306]** **A tile's face scales up as one** (WR-7: "A reading and its caption stay together and scale up";
   docs/WIDGET-RULES.md, tiles: "The bands over and under a tile's face are alike; nothing else of WR-1..WR-4 is
   relaxed"; decided 2026-11-20). The Tile block's face (the glyph or its circle or ring, the name, a toggle's state line)
-  is one block planned on the step its box holds (`TileRules.Face`) and scaled up by its `InkFit` (no `Most`) until its
+  is one block planned on the step its box holds (`TileRules.Face`) and scaled up by its `InkFit` until its
   ink fills the tile's height or the width stops it, then centred on the other axis; its words wrap at the inset's width
   as planned and the block is as wide as its widest part (`MaxWidth`, not the inset's width). The small end keeps
   [S-12806] (a 30x30 tile's glyph in its tight inset, WR-14). A glyph's and a one-cell grid's sides are their ink
   (`PartInk.Across`: a glyph's room in its em box). The gap check judges a tile's face that fills the height as centred
-  across ([S-14305]). Before, the face stood at its planned size (`Most` 1), 25 to 250 DIP in from the sides.
+  across ([S-14305]). Before, the face stood at its planned size (a cap of 1), 25 to 250 DIP in from the sides.
 - **[S-14307]** **The Header's line grows until the width stops it** (the owner's one-line exemption: "the Header widget,
   whose one line grows until the width stops it"). The Header block stands in an `InkFit`: scaled up as one until its
   ink fills the card's height or its width, centred top and foot, across where its alignment puts it. Its natural strip
@@ -8571,7 +8571,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   box the sizing made for the language's widest day (`DateLayout.Face`'s width), so today's line reaches the sides at
   its alignment where the width stops it; a shorter day is drawn larger, the day-to-day change accepted. `InkFit` fills
   and places by ink across too (`PartInk.Across`, unrounded). The clock's world style at 350x70 stays smaller: its city
-  line gave way and the face is held at the scale it gave way at ([S-12833], `FaceFit.Most`), a different rule.
+  line gave way and its figures fill the card as any face's parts left do ([S-14318]).
 - **[S-14311]** **A quote wraps at whole words in the card** (WR-3). The quote's text wraps at the width the card's inset
   gives it (`ApplySize`), at whole words, the last line cut after a whole word; the fit plans the block on those lines
   and scales it as one. Before, measured unbounded, the quote was one line held at its floor that ran past the inset to 4
@@ -8608,6 +8608,12 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   those letters. A reading placed by its ink at its room's end ([S-14301]) reaches past its letters with its box: the
   stale UV index's "1", its letters ending where the status glyph's room begins, ran under the glyph by 1 to 10 DIP of
   side bearing ("a FontIcon at 302,16 stands over an item's text"). A glyph over the letters is still a finding.
+- **[S-14318]** **What is left of a face fills its card** (WR-1, WR-3, WR-4; the one-line exemption: "Centred is fine",
+  on the axis the face does not fill). When a part of a face gives way ([S-12833]), the parts left are planned without it
+  and scale up until one axis stops them (`FaceFit.Scale`), a one-line face (the clock, the date) as any block. Was: the
+  clock and the date kept the scale the part went at (`Most`), so the world clock at 350x70, its city line gone, stood
+  83 from either side and short of its top and foot: it filled neither axis. Tests `FaceFloorTests.S12833_S14318_`,
+  `ClockFaceTests.S6741_S12833_a_world_clock_whose_city_line_gave_way_fills_its_card`.
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day
@@ -8638,9 +8644,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   A smaller part (a meridiem, the line under, the page's weekday and month) is drawn while the card keeps it at 9 and
   gives way under that, the smallest first (`FaceFloor.Fit`, `FaceFit.Floor`), so no drawn text is ever under 9 and
   none holds the reading large; a part that went never comes back in a smaller card, and while none went every piece
-  is drawn (`FaceFit.Floor` 0). The clock and the date, one-line faces the owner lets stand centred, then keep the size
-  they had when the part went (`FaceFit.Most`, `InkFit.Most`, `BlockFit.Lay`'s `most`), so they only get smaller as their
-  card does. Its least
+  is drawn (`FaceFit.Floor` 0). What is left fills the card ([S-14318], `FaceFit.Scale`): the clock and the date too,
+  one-line faces the owner lets stand centred on the axis they do not fill. Its least
   box is the main reading alone at 9 in the card's inset, which does not scale (`FaceFloor.LeastBox` + 24,
   `WidgetSizing.ScalesDownTo`), never under 32: the clock 48 × 32 (Digital, Minimal; 60 with seconds), Stacked 35 × 43
   (55 with seconds), Flip 51..58 × 36..37 (its cards' room), Words 87 × 66, whatever its meridiem and line under; the dial goes down

@@ -105,7 +105,6 @@ public sealed class ClockFaceTests
 
             var natural = ClockFace.Fit(sizing.Natural.Width - (2 * FamilySpace.Inset), sizing.Natural.Height - (2 * FamilySpace.Inset), config, meridiem);
             Assert.All(parts, size => Assert.True(natural.Draws(size), $"{config.Style}: {size} gave way at its natural box"));
-            Assert.Equal(double.PositiveInfinity, natural.Most);
 
             var least = ClockFace.Fit(sizing.Min.Width - (2 * FamilySpace.Inset), sizing.Min.Height - (2 * FamilySpace.Inset), config, meridiem);
             Assert.All(parts.Where(size => size < figures), size => Assert.False(least.Draws(size)));
@@ -118,28 +117,47 @@ public sealed class ClockFaceTests
     [InlineData(1.0, 1.0)]
     [InlineData(1.0, 0.0)]
     [InlineData(0.0, 1.0)]
-    public void S6741_S12833_the_face_only_gets_smaller_as_the_card_does_and_no_text_is_drawn_under_9(double byWidth, double byHeight)
+    public void S6741_S12833_as_the_card_gets_smaller_no_part_comes_back_none_is_under_9_and_the_rest_fills_it(double byWidth, double byHeight)
     {
         // A card made smaller from its natural box to its least: proportionally, by its width or by its height alone.
         foreach (var (config, meridiem) in Clocks().Where(c => c.Config.Style != ClockStyle.Analog))
         {
             var sizing = ClockFace.Sizing(config, meridiem);
             var parts = ClockFace.PartSizes(config, meridiem);
-            double lastScale = double.PositiveInfinity, lastFloor = 0;
+            var least = ScaleFloor.Least(parts.Max());
+            double lastFloor = 0;
             for (var t = 1.0; t >= 0; t -= 0.02)
             {
-                var width = byWidth > 0 ? sizing.Min.Width + (t * (sizing.Natural.Width - sizing.Min.Width)) : sizing.Natural.Width;
-                var height = byHeight > 0 ? sizing.Min.Height + (t * (sizing.Natural.Height - sizing.Min.Height)) : sizing.Natural.Height;
-                var fit = ClockFace.Fit(width - (2 * FamilySpace.Inset), height - (2 * FamilySpace.Inset), config, meridiem);
+                var width = (byWidth > 0 ? sizing.Min.Width + (t * (sizing.Natural.Width - sizing.Min.Width)) : sizing.Natural.Width) - (2 * FamilySpace.Inset);
+                var height = (byHeight > 0 ? sizing.Min.Height + (t * (sizing.Natural.Height - sizing.Min.Height)) : sizing.Natural.Height) - (2 * FamilySpace.Inset);
+                var fit = ClockFace.Fit(width, height, config, meridiem);
                 var name = $"{config.Style} {config.ShowSeconds} {config.OffsetMode} '{meridiem}' {width}x{height}";
 
-                Assert.True(fit.Scale <= lastScale + 1e-9, $"{name}: {fit.Scale} over {lastScale}");
                 Assert.True(fit.Floor >= lastFloor, $"{name}: a part came back");
                 Assert.All(parts.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-6, $"{name}: {size} at {size * fit.Scale}"));
-                lastScale = fit.Scale;
+
+                // [S-12833] What is drawn fills the room on one axis (or stands at the reading's floor).
+                var plan = ClockFace.Plan(config, meridiem, fit.Floor);
+                Assert.True(Math.Abs(fit.Scale - least) < 1e-9 || Math.Abs((fit.Scale * plan.Width) - width) < 1e-6 || Math.Abs((fit.Scale * plan.Ink) - height) < 1e-6, $"{name}: {fit.Scale} fills neither axis");
                 lastFloor = fit.Floor;
             }
         }
+    }
+
+    [Fact]
+    public void S6741_S12833_a_world_clock_whose_city_line_gave_way_fills_its_card()
+    {
+        // The world style at 350x70: the card gives the top inset, the view the sides and the foot, so the face's room is
+        // 326 x 46. The city line would be drawn under 9 and goes; held at the scale it went at (9 / 14) the figures stood
+        // 83 from either side and short of the top and foot. They grow back into its room until the height stops them.
+        var config = new ClockConfig { TimeZoneId = "Asia/Tokyo", OffsetMode = ClockOffsetMode.Utc, ShowSeconds = true };
+        Assert.True(config.IsWorldClock);
+        var fit = ClockFace.Fit(326, 46, config, "AM");
+        Assert.False(fit.Draws(FamilyType.Under(ClockFace.Step).FontSize));
+
+        var plan = ClockFace.Plan(config, "AM", fit.Floor);
+        Assert.Equal(Math.Min(326 / plan.Width, 46 / plan.Ink), fit.Scale, 6);
+        Assert.True(fit.Scale > 9 / 14.0 + 0.1);
     }
 
     [Fact]

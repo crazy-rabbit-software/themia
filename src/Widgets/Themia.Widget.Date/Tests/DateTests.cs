@@ -99,7 +99,6 @@ public sealed class DateTests
     {
         var config = new DateConfig { Style = DateWidgetStyle.Page };
         var sizing = DateLayout.Sizing(config, Locale.En);
-        double lastScale = double.PositiveInfinity;
         var lines = true;
         for (var t = 1.0; t >= 0; t -= 0.02)
         {
@@ -108,11 +107,9 @@ public sealed class DateTests
             var fit = DateLayout.Fit(width, height, config, Locale.En);
             var drawn = DateLayout.Lines(config, fit.Floor);
 
-            Assert.True(fit.Scale <= lastScale + 1e-9, $"{width}x{height}: {fit.Scale} over {lastScale}");
             Assert.True(lines || !drawn, $"{width}x{height}: the lines came back");
             Assert.True(!drawn || FamilyType.Under(DateLayout.NumberStep).FontSize * fit.Scale >= ScaleFloor.Text - 1e-6);
             Assert.Equal(drawn ? DateLayout.Face(config, Locale.En) : new SizeDip(Math.Ceiling(HeroFit.Ems("88") * DateLayout.NumberStep.FontSize), DateLayout.NumberStep.LineHeight), DateLayout.Face(config, Locale.En, fit.Floor));
-            lastScale = fit.Scale;
             lines = drawn;
         }
 
