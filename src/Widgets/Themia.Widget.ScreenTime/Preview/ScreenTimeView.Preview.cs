@@ -19,12 +19,12 @@ internal sealed partial class ScreenTimeView : IWidgetPreviewState
 
         if (state == "off")
         {
-            UseSource(null);
+            _feed.Use(null);
             Render();
             return Task.CompletedTask;
         }
 
-        UseSource(new SampleScreenTime(state));
+        _feed.Use(new SampleScreenTime(state));
         ScreenTimePreviewStates.Apply(_links, state);
         Render();
         return Task.CompletedTask;

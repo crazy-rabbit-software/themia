@@ -15,7 +15,7 @@ internal sealed partial class ScreenTimeChartView : IWidgetPreviewState
             return ShowSampleAsync();
         }
 
-        UseSource(new SampleScreenTime(state));
+        _feed.Use(new SampleScreenTime(state));
         ScreenTimePreviewStates.Apply(_links, state);
         Render();
         return Task.CompletedTask;

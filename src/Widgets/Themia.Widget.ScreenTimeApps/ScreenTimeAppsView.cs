@@ -38,7 +38,8 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
 
     private IWidgetSurface? _surface;
-    private IScreenTimeSource? _source;
+    /// <summary>[S-450] The tracker, followed as every screen-time widget follows it.</summary>
+    private readonly ScreenTimeFeed _feed;
     private ScreenTimeAppsConfig _config = new();
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
@@ -54,6 +55,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         _host = host;
         _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
+        _feed = new ScreenTimeFeed(Render, _nav);
 
         // [S-11928] A day selected on the view (a calendar's click) is the day a Day period shows.
         _dates.Follow(LinkTopics.SelectedDate, value =>
@@ -109,9 +111,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     {
         _detached = false;
         _config = config as ScreenTimeAppsConfig ?? new ScreenTimeAppsConfig();
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
-        UseSource(_host.ScreenTime);
+        _feed.Attach(_host.ScreenTime);
         _links.Join(_surface?.Links);
         _dates.Join(_surface?.Links);
         Render();
@@ -126,8 +126,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     public void Detach()
     {
         _detached = true;
-        Strings.Changed -= OnLanguage;
-        UseSource(null);
+        _feed.Detach();
         _links.Leave();
         _dates.Leave();
 
@@ -145,34 +144,6 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         _list.Children.Clear();
     }
 
-    private void UseSource(IScreenTimeSource? source)
-    {
-        if (ReferenceEquals(_source, source))
-        {
-            return;
-        }
-
-        if (_source is not null)
-        {
-            _source.Changed -= Render;
-        }
-
-        _source = source;
-
-        if (_source is not null)
-        {
-            _source.Changed += Render;
-        }
-
-        _nav.Today = source is null ? null : () => source.Today;
-    }
-
-    private void OnLanguage(Locale locale)
-    {
-        _nav.Retext();
-        Render();
-    }
-
     // ---- the list -----------------------------------------------------------------------------
 
     private void Render()
@@ -187,13 +158,13 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         // [S-12815] Under the day line the rows start under it; with none, on the card's top edge.
         _list.Margin = _nav.Line.Visibility == Visibility.Visible ? default : ListEdge.Margin;
 
-        if (_source is null)
+        if (_feed.Source is null)
         {
             ShowEmpty(Str.WidgetsC_ScreenTime_NotRecording.Text());
             return;
         }
 
-        _data = ScreenTimeData.Build(_source, _config.Period, _nav.Pinned);
+        _data = ScreenTimeData.Build(_feed.Source, _config.Period, _nav.Pinned);
 
         if (_data.Total <= 0)
         {
@@ -334,7 +305,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
             return ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day && _nav.StepKey(key == WidgetKey.Right);
         }
 
-        var used = _links.HandleKey(key, VisibleKeys(), app => _rows.Find(r => r.Key == app)?.Host, _source);
+        var used = _links.HandleKey(key, VisibleKeys(), app => _rows.Find(r => r.Key == app)?.Host, _feed.Source);
         if (used)
         {
             ApplyFocus();

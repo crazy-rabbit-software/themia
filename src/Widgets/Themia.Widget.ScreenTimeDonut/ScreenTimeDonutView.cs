@@ -55,7 +55,8 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     private readonly KeyedParts<Wedge> _wedges = new();
 
     private IWidgetSurface? _surface;
-    private IScreenTimeSource? _source;
+    /// <summary>[S-450] The tracker, followed as every screen-time widget follows it.</summary>
+    private readonly ScreenTimeFeed _feed;
     private ScreenTimeDonutConfig _config = new();
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
@@ -75,6 +76,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _host = host;
         _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
+        _feed = new ScreenTimeFeed(Render, _nav);
 
         // [S-11928] A day selected on the view (a calendar's click) is the day a Day period shows.
         _dates.Follow(LinkTopics.SelectedDate, value =>
@@ -117,11 +119,9 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     {
         _detached = false;
         _config = config as ScreenTimeDonutConfig ?? new ScreenTimeDonutConfig();
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
 
         // [S-450] No timer of its own: the tracker ticks, and says so.
-        UseSource(_host.ScreenTime);
+        _feed.Attach(_host.ScreenTime);
 
         // [S-3300] The view's links: what is selected there already shows at once.
         _links.Join(_surface?.Links);
@@ -138,39 +138,10 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     public void Detach()
     {
         _detached = true;
-        Strings.Changed -= OnLanguage;
-        UseSource(null);
+        _feed.Detach();
         _links.Leave();
         _dates.Leave();
         DropWedges();
-    }
-
-    private void UseSource(IScreenTimeSource? source)
-    {
-        if (ReferenceEquals(_source, source))
-        {
-            return;
-        }
-
-        if (_source is not null)
-        {
-            _source.Changed -= Render;
-        }
-
-        _source = source;
-
-        if (_source is not null)
-        {
-            _source.Changed += Render;
-        }
-
-        _nav.Today = source is null ? null : () => source.Today;
-    }
-
-    private void OnLanguage(Locale locale)
-    {
-        _nav.Retext();
-        Render();
     }
 
     // ---- drawing ----------------------------------------------------------------------------
@@ -184,13 +155,13 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
         _nav.Update(_config.Period);
 
-        if (_source is null)
+        if (_feed.Source is null)
         {
             ShowEmpty("--", Str.WidgetsC_ScreenTime_NotRecording.Text());
             return;
         }
 
-        _data = ScreenTimeData.Build(_source, _config.Period, _nav.Pinned);
+        _data = ScreenTimeData.Build(_feed.Source, _config.Period, _nav.Pinned);
 
         if (_data.Total <= 0)
         {
@@ -347,7 +318,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             _links.Toggle(key);
             ApplyFocus();
         };
-        ScreenTimeLook.AttachHideMenu(arc, key, () => _source);
+        ScreenTimeLook.AttachHideMenu(arc, key, () => _feed.Source);
         _canvas.Children.Add(arc);
         return wedge;
     }
@@ -453,7 +424,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             return ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day && _nav.StepKey(key == WidgetKey.Right);
         }
 
-        var used = _links.HandleKey(key, [.. _segments.Select(s => s.Key)], app => _wedges.Of(app)?.Path, _source);
+        var used = _links.HandleKey(key, [.. _segments.Select(s => s.Key)], app => _wedges.Of(app)?.Path, _feed.Source);
         if (used)
         {
             ApplyFocus();

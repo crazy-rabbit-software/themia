@@ -5,7 +5,7 @@ internal sealed partial class ScreenTimeAppsView : IWidgetSample
 {
     public Task ShowSampleAsync()
     {
-        UseSource(new SampleScreenTime());
+        _feed.Use(new SampleScreenTime());
         Render();
         return Task.CompletedTask;
     }

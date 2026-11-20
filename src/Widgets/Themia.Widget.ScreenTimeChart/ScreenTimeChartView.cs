@@ -71,7 +71,8 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     /// <summary>[S-3325] What the drawing on screen was built for; null when there is none.</summary>
     private Frame? _frame;
 
-    private IScreenTimeSource? _source;
+    /// <summary>[S-450] The tracker, followed as every screen-time widget follows it.</summary>
+    private readonly ScreenTimeFeed _feed;
     private IWidgetSurface? _surface;
     private ScreenTimeChartConfig _config = new();
     private ScreenTimeData? _data;
@@ -90,6 +91,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _host = host;
         _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
+        _feed = new ScreenTimeFeed(Render, _nav);
         _dates.Follow(LinkTopics.HoveredDate, value =>
         {
             _linkedDay = value;
@@ -135,9 +137,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     {
         _detached = false;
         _config = config as ScreenTimeChartConfig ?? new ScreenTimeChartConfig();
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
-        UseSource(_host.ScreenTime);
+        _feed.Attach(_host.ScreenTime);
         _links.Join(_surface?.Links);
         _dates.Join(_surface?.Links);
         Render();
@@ -152,40 +152,17 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     public void Detach()
     {
         _detached = true;
-        Strings.Changed -= OnLanguage;
-        UseSource(null);
+        _feed.Detach();
         _links.Leave();
         _dates.Leave();
         Clear();
     }
 
-    private void UseSource(IScreenTimeSource? source)
-    {
-        if (ReferenceEquals(_source, source))
-        {
-            return;
-        }
-
-        if (_source is not null)
-        {
-            _source.Changed -= Render;
-        }
-
-        _source = source;
-
-        if (_source is not null)
-        {
-            _source.Changed += Render;
-        }
-    }
-
-    private void OnLanguage(Locale locale) => Render();
-
     private ScreenTimePeriod Period => ScreenTimeRules.ChartPeriod(_config.Period);
 
     private ScreenTimeChartStyle ChartStyle => _config.Style;
 
-    private LocalDay Today => _source?.Today ?? LocalDay.From(DateTimeOffset.Now);
+    private LocalDay Today => _feed.Source?.Today ?? LocalDay.From(DateTimeOffset.Now);
 
     // ---- drawing ----------------------------------------------------------------------------
 
@@ -199,13 +176,13 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         // [S-454] The day line names the window, "Last 7 days".
         _nav.Update(Period);
 
-        if (_source is null)
+        if (_feed.Source is null)
         {
             ShowEmpty(Str.WidgetsC_ScreenTime_NotRecording.Text());
             return;
         }
 
-        _data = ScreenTimeData.Build(_source, Period, null);
+        _data = ScreenTimeData.Build(_feed.Source, Period, null);
 
         // [S-6753] A window with nothing in it is still the chart: its empty days on their foot, the sentence a caption.
         _note.Text = _data.Total <= 0 ? Str.WidgetsC_ScreenTime_NoActivityPeriod.Text() : string.Empty;
@@ -478,7 +455,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             _links.Toggle(key);
             ApplyFocus();
         };
-        ScreenTimeLook.AttachHideMenu(block, key, () => _source);
+        ScreenTimeLook.AttachHideMenu(block, key, () => _feed.Source);
         return block;
     }
 
@@ -747,12 +724,12 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         {
             _day = null;
             PublishDay();
-            _links.HandleKey(key, [], _ => null, _source);
+            _links.HandleKey(key, [], _ => null, _feed.Source);
             ApplyFocus();
             return true;
         }
 
-        var used = _links.HandleKey(key, [.. _segments.Select(s => s.Key)], app => _parts.Find(p => p.Key == app).Part, _source);
+        var used = _links.HandleKey(key, [.. _segments.Select(s => s.Key)], app => _parts.Find(p => p.Key == app).Part, _feed.Source);
         if (used)
         {
             ApplyFocus();

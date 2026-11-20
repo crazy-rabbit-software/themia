@@ -35,7 +35,8 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
     private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
-    private IScreenTimeSource? _source;
+    /// <summary>[S-450] The tracker, followed as every screen-time widget follows it.</summary>
+    private readonly ScreenTimeFeed _feed;
     private ScreenTimeConfig _config = new();
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
@@ -46,6 +47,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         _host = host;
         _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
+        _feed = new ScreenTimeFeed(Render, _nav);
 
         // [S-11928] A day selected on the view (a calendar's click) is the day a Day period shows.
         _dates.Follow(LinkTopics.SelectedDate, value =>
@@ -73,9 +75,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     {
         _detached = false;
         _config = config as ScreenTimeConfig ?? new ScreenTimeConfig();
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
-        UseSource(_host.ScreenTime);
+        _feed.Attach(_host.ScreenTime);
         _links.Join(_surface?.Links);
         _dates.Join(_surface?.Links);
         Render();
@@ -90,38 +90,9 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     public void Detach()
     {
         _detached = true;
-        Strings.Changed -= OnLanguage;
-        UseSource(null);
+        _feed.Detach();
         _links.Leave();
         _dates.Leave();
-    }
-
-    private void UseSource(IScreenTimeSource? source)
-    {
-        if (ReferenceEquals(_source, source))
-        {
-            return;
-        }
-
-        if (_source is not null)
-        {
-            _source.Changed -= Render;
-        }
-
-        _source = source;
-
-        if (_source is not null)
-        {
-            _source.Changed += Render;
-        }
-
-        _nav.Today = source is null ? null : () => source.Today;
-    }
-
-    private void OnLanguage(Locale locale)
-    {
-        _nav.Retext();
-        Render();
     }
 
     private void Render()
@@ -133,13 +104,13 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
         _nav.Update(_config.Period);
 
-        if (_source is null)
+        if (_feed.Source is null)
         {
             ShowEmpty("--", Str.WidgetsC_ScreenTime_NotRecording.Text());
             return;
         }
 
-        _data = ScreenTimeData.Build(_source, _config.Period, _nav.Pinned);
+        _data = ScreenTimeData.Build(_feed.Source, _config.Period, _nav.Pinned);
         if (_data.Total <= 0)
         {
             ShowEmpty(ScreenTimeRules.FormatDuration(0), (_data.Window ? Str.WidgetsC_ScreenTime_NoActivityPeriod : Str.Screentime_NoActivity).Text());

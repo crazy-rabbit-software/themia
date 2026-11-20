@@ -280,6 +280,61 @@ public static class ScreenTimeLook
 }
 
 /// <summary>
+/// [S-450] [S-1110] How a screen-time widget follows the tracker, the same for the four: it hears the tracker's changes
+/// (no timer of its own: the tracker ticks, and says so) and the language, hands its day navigation the tracker's today
+/// (so the two never disagree about midnight), and redraws. Owned by the view: <see cref="Attach"/> in its Attach,
+/// <see cref="Detach"/> in its Detach; a sample or preview hands its own source through <see cref="Use"/>.
+/// </summary>
+public sealed class ScreenTimeFeed(Action changed, ScreenTimeDayNav nav)
+{
+    /// <summary>The tracker followed now, or null while nothing records (or the view is detached).</summary>
+    public IScreenTimeSource? Source { get; private set; }
+
+    /// <summary>Follow <paramref name="source"/> (the host's tracker) and the language.</summary>
+    public void Attach(IScreenTimeSource? source)
+    {
+        Strings.Changed -= OnLanguage;
+        Strings.Changed += OnLanguage;
+        Use(source);
+    }
+
+    /// <summary>Let go of the tracker and the language.</summary>
+    public void Detach()
+    {
+        Strings.Changed -= OnLanguage;
+        Use(null);
+    }
+
+    /// <summary>Follow <paramref name="source"/> instead (a sample's or a preview's own); null follows nothing.</summary>
+    public void Use(IScreenTimeSource? source)
+    {
+        if (ReferenceEquals(Source, source))
+        {
+            return;
+        }
+
+        if (Source is not null)
+        {
+            Source.Changed -= changed;
+        }
+
+        Source = source;
+        if (source is not null)
+        {
+            source.Changed += changed;
+        }
+
+        nav.Today = source is null ? null : () => source.Today;
+    }
+
+    private void OnLanguage(Locale locale)
+    {
+        nav.Retext();
+        changed();
+    }
+}
+
+/// <summary>
 /// [S-454] [S-12481] The day navigation of a screen-time widget, its tool line ([S-6710]) at the top of its
 /// own content: the day ("Today", "Yesterday", "Mon 26 Oct") as the line's label and two line buttons, back
 /// and forward, for a day period; the window's name alone for a week or a month. A button with nowhere to

@@ -191,7 +191,7 @@ internal sealed partial class ScreenTimeAppsView
                 return;
             }
 
-            ItemMenu.Show(Host, args, [new ItemMenuEntry(Glyphs.Hide, Str.Screentime_HideApp.Text(), () => ScreenTimeLook.Hide(_owner._source, segment.Key))]);
+            ItemMenu.Show(Host, args, [new ItemMenuEntry(Glyphs.Hide, Str.Screentime_HideApp.Text(), () => ScreenTimeLook.Hide(_owner._feed.Source, segment.Key))]);
         }
 
         public void Detach()
