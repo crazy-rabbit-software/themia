@@ -516,7 +516,7 @@ internal static partial class DeskSelectCheck
                 host.ClearDeskSelection();
 
                 // [S-13047] A move that becomes the shell's drag (off the desktop, onto a free folder) hands it its picture and its
-                // press: the drag shows the very picture the move showed, heldIcon where the icon was grabbed, its cards back home.
+                // press: the drag shows the very picture the move showed, held where the icon was grabbed, its cards back home.
                 {
                     host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
                     var heldIcon = Card("iconA");
