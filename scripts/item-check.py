@@ -1,6 +1,7 @@
 """[S-12831] The item check: the owner's rules on a widget's items (docs/WIDGET-RULES.md WR-1..WR-6), measured on the
-item boxes the render lays out, every kind, every state its renders offer, at its range, at its first height steps
-(`--sizes steps`: what a resize lands on, [S-14100]) and at desktop sizes. Needs a Debug build of the app.
+item boxes the render lays out, every kind, every state its renders offer, at its range, cell by cell round its
+natural (`--sizes steps`: one to five cells more and fewer on each axis and odd heights of 11, 13 and 17 cells, the sizes
+whole-item steps once forbade, [S-14500]) and at desktop sizes. Needs a Debug build of the app.
 
 usage: python scripts/item-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a,b] [--sizes s1;s2] [--jobs 4]
                                     [--timeout 120]
@@ -15,14 +16,15 @@ the panel that lays them, and the ink outside every item. For every group of ite
 - WR-1 / WR-5 nothing above the first item: the first item of a column stands on the card's top edge, or directly
   under what stands over it in the card (a tool line, a search box: the ink outside the items right over it).
 - WR-5 nothing left over under the last item (owner, 2026-11-20: "now the weather forecast widget always has one block
-  space at the bottom. this should obviously not be"; "same for the task widget, there is also a one block space at the
-  bottom now. why is that?"): a card holding items is exactly as tall as its whole items. The band between the lowest
-  item (a row, an add row) and the card's foot is none, or whole rows of the list's pitch (its empty stated rows: "this
-  is fine if it happens"), never a part row or leftover cells; what stands under the last item outside every item (a
-  foot line, a control) takes that room as its own.
-- WR-6 whole cells: along the axis a column repeats, every item is a whole number of grid cells and all are alike;
-  along a row the items are whole cells and alike to a cell, the last taking what of the card's width is not a whole
-  cell (the coordinator's "the last item absorbing the remainder of the card when the card isn't whole cells").
+  space at the bottom. this should obviously not be"): the band between the lowest item (a row, an add row) and the
+  card's foot is none, or whole rows of the list's pitch (its empty rows: "this is fine if it happens"), never a part
+  row; what stands under the last item outside every item (a foot line, a control) takes that room as its own.
+- WR-6 optimal and stretched (owner, 2026-11-20: "the items should have an optimal size and then they may stretch a
+  little to fill up the remaining space"): the items of a group are alike, to a device pixel (they share the room evenly,
+  their edges on whole pixels); a family row (its optimal dumped as `o`: its natural in whole grid cells) is never
+  shorter than its optimal, and stretched less than one more row's worth: the room its column fills could not hold one
+  more row at the optimal. A fence's icon boxes are desktop icons ("Desktop icons keep Windows' look"): whole boxes from
+  the body's top-left, the sliver a box does not fill at its far edge and foot left empty.
 - no item is cut by its card or its list's viewport;
 - no mark outside the items (a status glyph, a busy ring) stands over an item's text (a stale facts list's warning
   over its first value).
@@ -41,6 +43,7 @@ import subprocess
 import sys
 
 TOL = 0.5  # DIP: layout rounding
+PX = 1.0 + TOL  # DIP: items sharing a room evenly on whole pixels differ by a pixel at most
 SIZES = ['range', 'steps', '330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300', '300x100,300x200,300x300']
 
 
@@ -91,16 +94,11 @@ def axis_of(items):
     return 'grid'
 
 
-def whole(length, cell):
-    cells = round(length / cell)
-    return cells >= 1 and abs(length - cells * cell) <= TOL
-
-
-def judge_column(items, card, ink, found):
-    w, h, cell = card['w'], card['h'], card['cell']
+def judge_column(items, card, ink, found, sliver=0.0):
+    w, h = card['w'], card['h']
     items = sorted(items, key=lambda i: i['y'])
     for i in items:
-        if i['x'] > TOL or i['x'] + i['w'] < w - TOL:
+        if i['x'] > TOL or i['x'] + i['w'] < w - TOL - sliver:
             found.append(f"WR-3 not edge to edge: {i['t']} spans {i['x']:.1f}..{i['x'] + i['w']:.1f} of {w:.1f}")
             break
     for a, b in zip(items, items[1:]):
@@ -115,44 +113,59 @@ def judge_column(items, card, ink, found):
         if first['y'] - under > TOL:
             found.append(f"WR-1 space of {first['y'] - under:.1f} above the first item")
     sizes = [i['h'] for i in items]
-    for s in sizes:
-        if not whole(s, cell):
-            found.append(f"WR-6 item {s:.1f} tall is not whole cells of {cell:.2f}")
-            break
-    if max(sizes) - min(sizes) > TOL:
+    if max(sizes) - min(sizes) > PX:
         found.append(f"WR-6 items unlike: {min(sizes):.1f}..{max(sizes):.1f}")
+    optimal(items, card, ink, found)
     last = items[-1]
     if last['y'] + last['h'] > h + TOL:
         found.append(f"item past the card's foot ({last['y'] + last['h']:.1f} of {h:.1f})")
 
 
-def judge_row(items, card, found, line=None):
-    w, cell = card['w'], card['cell']
+def optimal(items, card, ink, found):
+    """WR-6 (2026-11-20): a family row never under its optimal, stretched less than one more row's worth."""
+    opts = [i['o'] for i in items if 'o' in i]
+    if not opts:
+        return
+    o = max(opts)
+    sizes = [i['h'] for i in items if 'o' in i]
+    if min(sizes) < o - PX:
+        found.append(f"WR-6 a row {min(sizes):.1f} tall is under its optimal {o:.1f}")
+        return
+    # The room the column's rows fill: from its first row to the card's foot, less what stands under the last outside
+    # every item (a foot line), as many rows as it holds at the rows' share.
+    top = min(i['y'] for i in items)
+    last = max(i['y'] + i['h'] for i in items)
+    under = [k['y'] for k in ink if k['y'] >= last - TOL and k['h'] > TOL]
+    room = (min(under) if under else card['h']) - top
+    share = sum(sizes) / len(sizes)
+    slots = max(len(items), round(room / share)) if share > 0 else len(items)
+    if (slots + 1) * o <= room + TOL:
+        found.append(f"WR-6 rows of {share:.1f} stretched past one more row of {o:.1f}: {room:.1f} holds {slots + 1}")
+
+
+def judge_row(items, card, found, line=None, sliver=0.0):
+    w = card['w']
     items = sorted(items, key=lambda i: i['x'])
-    if items[0]['x'] > TOL or items[-1]['x'] + items[-1]['w'] < w - TOL:
+    if items[0]['x'] > TOL or items[-1]['x'] + items[-1]['w'] < w - TOL - sliver:
         found.append(f"WR-3 not edge to edge{line or ''}: {items[0]['x']:.1f}..{items[-1]['x'] + items[-1]['w']:.1f} of {w:.1f}")
     for a, b in zip(items, items[1:]):
         d = b['x'] - (a['x'] + a['w'])
         if abs(d) > TOL:
             found.append(f"WR-2 {'gap' if d > 0 else 'overlap'} of {abs(d):.1f} between items{line or ''}")
             break
+    # Across, the items share the card's width evenly: alike to a pixel.
     sizes = [i['w'] for i in items]
-    for s in sizes[:-1]:
-        if not whole(s, cell):
-            found.append(f"WR-6 item {s:.1f} wide is not whole cells of {cell:.2f}{line or ''}")
-            break
-    # Across, the card's whole cells shared among the items differ by a cell at most; the last takes the part cell.
-    if max(sizes[:-1] or sizes) - min(sizes[:-1] or sizes) > cell + TOL:
+    if max(sizes) - min(sizes) > PX:
         found.append(f"WR-6 items unlike: {min(sizes):.1f}..{max(sizes):.1f} wide{line or ''}")
 
 
-def judge_grid(items, card, ink, found):
+def judge_grid(items, card, ink, found, sliver=(0.0, 0.0)):
     rows = {}
     for i in items:
         rows.setdefault(round(i['y']), []).append(i)
     lines = [sorted(v, key=lambda i: i['x']) for _, v in sorted(rows.items())]
     for n, line in enumerate(lines):
-        judge_row(line, card, found, line=f' (line {n + 1})')
+        judge_row(line, card, found, line=f' (line {n + 1})', sliver=sliver[0])
     heads = [line[0] | {'w': card['w'], 'x': 0.0} for line in lines]
     judge_column(heads, card, ink, found)
 
@@ -176,7 +189,15 @@ def merge_rows(groups):
     return merged
 
 
-def judge(card):
+def sliver_of(items, kind):
+    """A fence's icon boxes stand on the desktop icon grid from the body's top-left ([S-14501]): the sliver a box does
+    not fill at the far edge and the foot is left empty, as Windows' icons leave it. Any other kind: none."""
+    if kind != 'fence' or not items:
+        return (0.0, 0.0)
+    return (max(i['w'] for i in items), max(i['h'] for i in items))
+
+
+def judge(card, kind=None):
     groups = {}
     for i in card.get('items', []):
         groups.setdefault(i['g'], []).append(i)
@@ -185,14 +206,15 @@ def judge(card):
     for g, items in sorted(groups.items()):
         found = []
         axis = axis_of(items)
+        sliver = sliver_of(items, kind)
         # What stands over a group: the ink outside the items and the other groups' items (a list over its add row).
         over = card.get('ink', []) + [i for k, v in groups.items() if k != g for i in v]
         if axis == 'column':
-            judge_column(items, card, over, found)
+            judge_column(items, card, over, found, sliver=sliver[0])
         elif axis == 'row':
-            judge_row(items, card, found)
+            judge_row(items, card, found, sliver=sliver[0])
         else:
-            judge_grid(items, card, over, found)
+            judge_grid(items, card, over, found, sliver=sliver)
         if any(i.get('cut') for i in items):
             found.append('an item is cut by its viewport')
         out.append({'group': g, 'axis': axis, 'items': len(items), 'findings': found})
@@ -208,15 +230,15 @@ def judge(card):
                 break
     if hidden:
         out.append({'group': 'marks', 'axis': '-', 'items': len(marks), 'findings': hidden})
-    left = leftover(card, groups)
+    left = leftover(card, groups, sliver_of(card.get('items', []), kind)[1])
     if left:
         out.append({'group': 'foot', 'axis': '-', 'items': len(card.get('items', [])), 'findings': [left]})
     return out
 
 
-def leftover(card, groups):
-    """WR-5 (2026-11-20): the band under the card's lowest item is none or its list's empty stated rows (whole rows of
-    the pitch of a column of items), never leftover cells; ink standing under the last item takes that room."""
+def leftover(card, groups, sliver=0.0):
+    """WR-5 (2026-11-20): the band under the card's lowest item is none or its list's empty rows (whole rows of the
+    pitch of a column of items, to a pixel a row), never a part row; ink standing under the last item takes that room."""
     items = card.get('items', [])
     if not items:
         return None
@@ -225,13 +247,16 @@ def leftover(card, groups):
     if any(k['y'] >= last - TOL and k['h'] > TOL for k in card.get('ink', [])):
         return None
     band = h - last
-    if band <= TOL:
+    # One device pixel is the layout's quantum: rows sharing a room on whole pixels at a fractional scale may end a pixel
+    # short of a card whose own box rounds the other way.
+    pixel = max(TOL, 1.0 / card.get('scale', 1) + 0.01)
+    if band <= pixel or band < sliver - TOL:
         return None
     # A list's pitch: its items' height (a column's rows, a row or a grid's line of cells: the week planner's days).
     pitches = {round(i['h'], 1) for i in items if i['h'] > TOL}
     for p in pitches:
         rows = round(band / p)
-        if rows >= 1 and abs(band - rows * p) <= TOL:
+        if rows >= 1 and abs(band - rows * p) <= TOL + rows:
             return None
     return f"WR-5 leftover of {band:.1f} under the last item ({band / cell:.1f} cells of {cell:.2f})"
 
@@ -254,7 +279,7 @@ def check(exe, kind, out, sizes, timeout):
                 continue
             with open(layout, encoding='utf-8') as f:
                 data = json.load(f)
-            row['cards'] = [{'tier': c['tier'], 'w': c['w'], 'h': c['h'], 'cell': c['cell'], 'groups': judge(c)} for c in data['cards']]
+            row['cards'] = [{'tier': c['tier'], 'w': c['w'], 'h': c['h'], 'cell': c['cell'], 'groups': judge(c, kind)} for c in data['cards']]
             results.append(row)
     return results
 
