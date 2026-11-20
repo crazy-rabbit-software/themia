@@ -422,6 +422,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>Debug only: the surface's content, for the switch check's picture ([S-1883]).</summary>
     internal FrameworkElement DebugRoot => _root;
 
+    /// <summary>Debug only: the selection's frame, for the desk select check's [S-14310] steps.</summary>
+    internal SelectionFrame DebugFrame => _markerLayer.Frame;
+
     /// <summary>Debug renders and checks: the surface's window.</summary>
     internal Window DebugWindow => _window;
 #endif

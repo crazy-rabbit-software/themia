@@ -9225,8 +9225,10 @@ makes a composition one thing. Several widgets selected together are arranged an
   its marks as a second is added and gets them back as one goes. Tests `GroupMarksTests.S14310_`; renders
   `--editbar-png --only marks` (`marks-*-multi`, `-block*`) and `--only select` (`select-*-two`, `-many`, `-touching`),
   `--drag-png` (`drag-group-*`: three cards and two icons selected on the locked desktop; `drag-groupmove-*`: two
-  selected cards moved). Not live-verified: a real pointer on a member's edge or corner inside the frame (its move area
-  takes the press), the corners on a real locked move.
+  selected cards moved); `--desk-select-check` checks it through a real host and surface (the locked desktop: Ctrl+A,
+  one card, a second added, an icon beside, a locked move and its cancel, one taken out; edit mode: two, one taken out,
+  one added, narrowed). Not live-verified: a real pointer on a member's edge or corner inside the frame (its move area
+  takes the press), the corners on a move driven by real input.
 - **[S-2459]** *(Retired 2026-11-17 with the groups, [S-2450].)*
 - **[S-2454]** *(Retired 2026-11-17: Group and Ungroup are gone, [S-2450].)*
 - **[S-2455]** **Copies and moves** carry widgets only: a copy of several lands as loose widgets with fresh ids,

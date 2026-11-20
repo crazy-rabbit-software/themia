@@ -190,6 +190,9 @@ internal sealed partial class WidgetCard
     /// <summary>Whether the marks show (<see cref="SelectionRules.MarksShown"/>); the field is read before the grip canvas exists.</summary>
     private bool _markersShown;
 
+    /// <summary>[S-14310] Whether this card draws marks of its own now (the checks read it).</summary>
+    internal bool MarksDrawn => _markersShown;
+
     /// <summary>[S-11881] The strength of this card's marks while a block moves on the locked desktop; null when none moves.</summary>
     private double? _moveMarks;
 

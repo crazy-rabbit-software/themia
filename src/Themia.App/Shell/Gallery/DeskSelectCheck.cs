@@ -28,7 +28,9 @@ namespace Themia.App.Shell.Gallery;
 /// Down, Ctrl+A, a click on one icon of a selection, and a drag of the selection by an icon. Before each press it checks the
 /// point is its own window (else it stops) and puts the pointer back at the end; keys are sent only while its surface has the
 /// foreground. Each step says what the selection holds against what Lock widgets wants (off: cards and icons alike; on: icons
-/// only) and the last line is PASS or FAIL. <c>--twice</c> adds a second display left of it; <c>--glass</c> draws Liquid glass.
+/// only) and the last line is PASS or FAIL. [S-14310] Without <c>--live</c> it also checks the marks of several cards selected:
+/// the selection's frame's four corners alone round them, none of their own, a card alone its own, through a locked move too.
+/// <c>--twice</c> adds a second display left of it; <c>--glass</c> draws Liquid glass.
 /// </summary>
 internal static partial class DeskSelectCheck
 {
@@ -290,6 +292,63 @@ internal static partial class DeskSelectCheck
                 host.Key(WidgetKey.SelectAll, shift: false, items[Index("iconA")].Widget.Id);
                 Expect("Ctrl+A", Allowed(names));
 
+                // [S-14310] Several cards selected: the selection's frame's four corners alone round them (no hairline, no grip)
+                // and none of their own; one card alone, icons beside it or not: its own corners and no frame. The count crosses
+                // 1 and 2 both ways. A locked move of several carries the frame's corners with the block.
+                PixelRect CellOf(WidgetCard card)
+                    => new(Microsoft.UI.Xaml.Controls.Canvas.GetLeft(card), Microsoft.UI.Xaml.Controls.Canvas.GetTop(card), card.Width, card.Height);
+                bool Round(IReadOnlyList<WidgetCard> members)
+                {
+                    var box = shown.DebugFrame.Box;
+                    var cells = members.Select(CellOf).ToList();
+                    return Math.Abs(box.X - cells.Min(c => c.X)) < 1 && Math.Abs(box.Y - cells.Min(c => c.Y)) < 1
+                        && Math.Abs(box.X + box.Width - cells.Max(c => c.X + c.Width)) < 1 && Math.Abs(box.Y + box.Height - cells.Max(c => c.Y + c.Height)) < 1;
+                }
+
+                void ExpectFrame(string step, IEnumerable<string> selectedNow)
+                {
+                    var allowed = Allowed(selectedNow);
+                    var wantFramed = allowed.Where(cards.Contains).ToList();
+                    wantFramed = wantFramed.Count >= SelectionRules.FrameMinimum ? wantFramed : [];
+                    var wantMarked = names.Where(n => cards.Contains(n) && allowed.Contains(n) && !wantFramed.Contains(n)).ToList();
+                    var framed = names.Where(n => shown.CardFor(items[Index(n)].Widget.Id) is { } card && shown.FramedWith(card) > 0).ToList();
+                    var marked = names.Where(n => shown.CardFor(items[Index(n)].Widget.Id) is { MarksDrawn: true }).ToList();
+                    var frame = shown.DebugFrame;
+                    var members = framed.Select(n => shown.CardFor(items[Index(n)].Widget.Id)!).ToList();
+                    var drawnRight = wantFramed.Count == 0 ? !frame.Shown : frame.Shown && frame.CornersOnly && Round(members);
+                    var ok = framed.SequenceEqual(names.Where(wantFramed.Contains)) && marked.SequenceEqual(wantMarked) && drawnRight;
+                    failures += ok ? 0 : 1;
+                    Say($"{(ok ? "ok  " : "FAIL")} {step}: framed [{string.Join(",", framed)}], own marks [{string.Join(",", marked)}], frame {(frame.Shown ? frame.CornersOnly ? "corners" : "edit look" : "none")}"
+                        + (ok ? string.Empty : $", wanted framed [{string.Join(",", wantFramed)}] own marks [{string.Join(",", wantMarked)}]"));
+                }
+
+                ExpectFrame("Ctrl+A: the cards framed", Allowed(names));
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                Pick("clock");
+                ExpectFrame("ctrl+press clock", ["clock"]);
+                Pick("tasks");
+                ExpectFrame("ctrl+press tasks with clock", ["clock", "tasks"]);
+                Click("iconA", ctrl: true);
+                ExpectFrame("ctrl+click iconA with clock and tasks", ["clock", "tasks", "iconA"]);
+                if (!locked)
+                {
+                    var clockCard = surface.CardFor(items[Index("clock")].Widget.Id)!;
+                    var tasksCard = surface.CardFor(items[Index("tasks")].Widget.Id)!;
+                    surface.BeginMove(clockCard, clockCard.TransformToVisual((UIElement)clockCard.Parent).TransformPoint(new Point(clockCard.ActualWidth / 2, clockCard.ActualHeight / 2)));
+                    surface.PreviewMove(clockCard, 0.03, 0.02);
+                    surface.FlushMove();
+                    var moveOk = !clockCard.MarksDrawn && !tasksCard.MarksDrawn && shown.DebugFrame is { Shown: true, CornersOnly: true } && Round([clockCard, tasksCard]);
+                    failures += moveOk ? 0 : 1;
+                    Say($"{(moveOk ? "ok  " : "FAIL")} a locked move of clock and tasks: own marks clock {clockCard.MarksDrawn}, tasks {tasksCard.MarksDrawn}; frame's corners round them where they land {shown.DebugFrame.Shown && Round([clockCard, tasksCard])}");
+                    surface.CancelMove(clockCard);
+                    ExpectFrame("the move called off", ["clock", "tasks", "iconA"]);
+                }
+
+                Pick("tasks");
+                ExpectFrame("ctrl+press tasks again (out)", ["clock", "iconA"]);
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                ExpectFrame("a press on empty desktop", []);
+
                 // [S-13046] A desktop icon's move: Explorer's picture of it under the pointer, the whole icon where it lands as
                 // its ghost, over every card (a fence included); whole again where it landed. Drawn mid-move.
                 async Task MoveAsync(string name, Func<WidgetCard, Point> to, string tag, Func<bool> landed)
@@ -323,6 +382,37 @@ internal static partial class DeskSelectCheck
                     () => Themia.Core.Desktop.DesktopFences.Holding(running.State.Views[0], twinKey) is not null).ConfigureAwait(true);
                 var before = Model(Index("iconA")).Rect;
                 await MoveAsync("iconA", held => new Point(metrics.Width * 0.79, metrics.Height * 0.16), "free", () => Model(Index("iconA")).Rect != before).ConfigureAwait(true);
+
+                // [S-14310] Edit mode, the same rule: two selected show no marks and no grips of their own and the frame in its
+                // edit look (hairline, markers, grips) round them; every card not selected keeps its own; one selected again
+                // (narrowed, or one of two taken out) shows its own and the frame goes.
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                host.SetEditMode(true);
+                var viewId = running.State.Views[0].Id;
+                WidgetCard CardOf(string name) => surface.CardFor(items[Index(name)].Widget.Id)!;
+                void ExpectEdit(string step, string[] framedWanted)
+                {
+                    var frame = shown.DebugFrame;
+                    var members = framedWanted.Select(CardOf).ToList();
+                    var framed = names.Where(n => shown.FramedWith(CardOf(n)) > 0).ToList();
+                    var ok = framed.SequenceEqual(framedWanted)
+                        && members.TrueForAll(c => !c.MarksDrawn)
+                        && cards.Where(n => !framedWanted.Contains(n)).All(n => CardOf(n).MarksDrawn)
+                        && (framedWanted.Length == 0 ? !frame.Shown : frame.Shown && !frame.CornersOnly && Round(members));
+                    failures += ok ? 0 : 1;
+                    Say($"{(ok ? "ok  " : "FAIL")} edit mode, {step}: framed [{string.Join(",", framed)}], own marks [{string.Join(",", cards.Where(n => CardOf(n).MarksDrawn))}], frame {(frame.Shown ? frame.CornersOnly ? "corners" : "edit look" : "none")}");
+                }
+
+                host.SelectMany(viewId, [CardOf("clock").Model.Id, CardOf("tasks").Model.Id]);
+                ExpectEdit("clock and tasks selected", ["clock", "tasks"]);
+                host.ToggleSelect(CardOf("tasks").Model.Id);
+                ExpectEdit("tasks taken out", []);
+                host.ToggleSelect(CardOf("notes").Model.Id);
+                ExpectEdit("notes added", ["clock", "notes"]);
+                host.Select(CardOf("clock").Model.Id);
+                ExpectEdit("narrowed to clock", []);
+                host.Select(null);
+                host.SetEditMode(false);
             }
             else
             {

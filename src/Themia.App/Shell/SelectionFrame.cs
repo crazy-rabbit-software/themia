@@ -73,6 +73,12 @@ internal sealed partial class SelectionFrame
     /// <summary>Whether the frame is drawn now.</summary>
     public bool Shown { get; private set; }
 
+    /// <summary>[S-14310] Whether it is drawn as its four corners alone (the locked desktop).</summary>
+    public bool CornersOnly { get; private set; }
+
+    /// <summary>The box it was last drawn round, in the surface's DIPs.</summary>
+    public PixelRect Box { get; private set; }
+
     /// <summary>[S-2460] A grip was pressed with the left button and holds the pointer: the block's resize by that handle starts.</summary>
     public event Action<ResizeHandle, PointerRoutedEventArgs>? Pressed;
 
@@ -96,6 +102,8 @@ internal sealed partial class SelectionFrame
             plate.Visibility = Visibility.Visible;
         }
 
+        Box = box;
+        CornersOnly = cornersOnly;
         Grips.Visibility = cornersOnly ? Visibility.Collapsed : Visibility.Visible;
         if (cornersOnly)
         {
