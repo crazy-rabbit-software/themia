@@ -207,10 +207,9 @@ public sealed partial class DockGuardTests
                 "src/Themia.App/Shell/WidgetCard.Fault.cs",
                 "src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs",
                 "src/Themia.Sdk.WinUI/Widgets/ItemMenu.cs",
+                "src/Themia.Sdk.WinUI/Widgets/RenameFlyout.cs",
                 "src/Widgets/Themia.Widget.Folder/FolderView.Commands.cs",
-                "src/Widgets/Themia.Widget.Notes/NotesView.Picker.cs",
                 "src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.FullScreen.cs",
-                "src/Widgets/Themia.Widget.Tasks/TasksView.Picker.cs",
             ],
             FilesWith(WindowedPopup()));
 

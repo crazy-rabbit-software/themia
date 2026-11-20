@@ -52,9 +52,8 @@ public sealed partial class SpecTagGuardTests
 
     private static IEnumerable<(string Name, int Tag)> TestMethods()
     {
-        var files = Directory.EnumerateFiles(RepoFiles.At("tests"), "*.cs", SearchOption.AllDirectories)
-            .Concat(RepoFiles.WidgetModules().SelectMany(m => Directory.Exists(Path.Combine(m, "Tests")) ? Directory.EnumerateFiles(Path.Combine(m, "Tests"), "*.cs", SearchOption.AllDirectories) : []))
-            .Where(f => !f.Split(Path.DirectorySeparatorChar).Any(p => p is "bin" or "obj"));
+        var files = RepoFiles.Sources("tests")
+            .Concat(RepoFiles.Sources("src", "Widgets").Where(f => RepoFiles.Relative(f).Contains("/Tests/", StringComparison.Ordinal)));
         foreach (var file in files)
         {
             foreach (Match m in TestName().Matches(File.ReadAllText(file)))

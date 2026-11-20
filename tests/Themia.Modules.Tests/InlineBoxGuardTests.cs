@@ -18,9 +18,11 @@ public sealed partial class InlineBoxGuardTests
     /// the desktop icon's rename box, Explorer's own (wider than the name, over the icons below as Windows draws it,
     /// [S-5607]; it moves nothing either).
     /// </summary>
-    private static readonly HashSet<string> Allowed = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> Allowed = new(StringComparer.Ordinal)
     {
-        "InlineBox.cs", "TasksView.Picker.cs", "NotesView.Picker.cs", "MarkdownEditor.cs", "DesktopItemView.cs",
+        "src/Themia.Sdk.WinUI/Widgets/RenameFlyout.cs",
+        "src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs",
+        "src/Widgets/Themia.Widget.DesktopItem/DesktopItemView.cs",
     };
 
     [GeneratedRegex(@"new\s+(TextBox|RichEditBox)\s*[({]")]
@@ -29,15 +31,10 @@ public sealed partial class InlineBoxGuardTests
     [Fact]
     public void S13950_no_widget_and_no_kit_part_builds_a_text_box_of_its_own()
     {
-        string[] roots = [Path.Combine(RepoFiles.Src, "Widgets"), Path.Combine(RepoFiles.Src, "Themia.Sdk.WinUI")];
-        var offenders = roots
-            .SelectMany(root => Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories))
-            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
-                && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
-            .Where(f => !Allowed.Contains(Path.GetFileName(f)) && NewTextBox().IsMatch(File.ReadAllText(f)))
-            .Select(Path.GetFileName)
-            .ToList();
+        var offenders = RepoFiles.Sources("src", "Widgets").Concat(RepoFiles.Sources("src", "Themia.Sdk.WinUI"))
+            .Where(f => !RepoFiles.Relative(f).Contains("/Tests/", StringComparison.Ordinal))
+            .Where(f => NewTextBox().IsMatch(File.ReadAllText(f)));
 
-        Assert.Empty(offenders);
+        Assert.Empty(RepoFiles.AllowList(offenders, Allowed));
     }
 }

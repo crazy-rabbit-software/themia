@@ -15,9 +15,9 @@ public sealed partial class FactListGuardTests
     /// look), the stock's two lines stand under its chart (the graph widgets' own). A single metric's row is the list's
     /// ([S-14601]: a list of one).
     /// </summary>
-    private static readonly HashSet<string> Allowed = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> Allowed = new(StringComparer.Ordinal)
     {
-        "FactList.cs", "MeterView.Looks.cs", "StockView.cs",
+        "src/Themia.Sdk.WinUI/Widgets/FactList.cs", "src/Themia.Sdk.WinUI/Widgets/MeterView.Looks.cs", "src/Widgets/Themia.Widget.Stock/StockView.cs",
     };
 
     [GeneratedRegex(@"new\s+RowBlock\s*\(\s*RowKind\.Fact|new\s*\(\s*RowKind\.Fact")]
@@ -26,14 +26,10 @@ public sealed partial class FactListGuardTests
     [Fact]
     public void S12811_no_widget_builds_fact_rows_of_its_own()
     {
-        var offenders = Directory.EnumerateFiles(RepoFiles.Src, "*.cs", SearchOption.AllDirectories)
-            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
-                && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
-                && !f.Contains($"{Path.DirectorySeparatorChar}Kit{Path.DirectorySeparatorChar}Family{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
-            .Where(f => !Allowed.Contains(Path.GetFileName(f)) && FactRow().IsMatch(File.ReadAllText(f)))
-            .Select(Path.GetFileName)
-            .ToList();
+        var offenders = RepoFiles.Sources("src")
+            .Where(f => !RepoFiles.Relative(f).Contains("/Tests/", StringComparison.Ordinal) && !RepoFiles.Relative(f).Contains("/Kit/Family/", StringComparison.Ordinal))
+            .Where(f => FactRow().IsMatch(File.ReadAllText(f)));
 
-        Assert.Empty(offenders);
+        Assert.Empty(RepoFiles.AllowList(offenders, Allowed));
     }
 }

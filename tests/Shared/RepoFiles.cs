@@ -39,6 +39,30 @@ internal static class RepoFiles
                 return !relative.Any(p => p is "bin" or "obj" or "Tests");
             });
 
+    /// <summary>Every C# source under <paramref name="folder"/> (a path under the root), tests included, build output left out.</summary>
+    public static IEnumerable<string> Sources(params string[] folder)
+    {
+        var root = At(folder);
+        return Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories)
+            .Where(f => !Path.GetRelativePath(root, f).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Any(p => p is "bin" or "obj" or "artifacts"));
+    }
+
+    /// <summary><paramref name="file"/>'s path from the root, with forward slashes: how an allow-list names a file.</summary>
+    public static string Relative(string file) => Path.GetRelativePath(Root, file).Replace('\\', '/');
+
+    /// <summary>
+    /// [S-7069] An allow-list by path, checked both ways: every offender must be on it, and every entry must still
+    /// exist and still offend (shrink only). Returns what is wrong, empty when nothing is.
+    /// </summary>
+    public static IReadOnlyList<string> AllowList(IEnumerable<string> offenders, IReadOnlyCollection<string> allowed)
+    {
+        var found = offenders.Select(Relative).ToHashSet(StringComparer.Ordinal);
+        return [
+            .. found.Where(f => !allowed.Contains(f)).Order(StringComparer.Ordinal).Select(f => $"{f}: not allowed"),
+            .. allowed.Where(a => !found.Contains(a)).Order(StringComparer.Ordinal).Select(a => $"{a}: allowed, but gone or no longer offending (take it off)"),
+        ];
+    }
+
     /// <summary>
     /// Every source a widget view may be built from: the app's widgets, the SDK's widget parts
     /// (<c>src/Themia.Sdk.WinUI/Widgets</c>), the kit's

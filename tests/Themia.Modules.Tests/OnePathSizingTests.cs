@@ -52,9 +52,7 @@ public sealed partial class OnePathSizingTests
             return !parts.Any(p => p is "bin" or "obj" or "artifacts") && !file.EndsWith(nameof(OnePathSizingTests) + ".cs", StringComparison.Ordinal);
         }
 
-        return Directory.EnumerateFiles(RepoFiles.At("src"), "*.cs", SearchOption.AllDirectories)
-            .Concat(Directory.EnumerateFiles(RepoFiles.At("tests"), "*.cs", SearchOption.AllDirectories))
-            .Where(Kept);
+        return RepoFiles.Sources("src").Concat(RepoFiles.Sources("tests")).Where(Kept);
     }
 
     [Fact]
