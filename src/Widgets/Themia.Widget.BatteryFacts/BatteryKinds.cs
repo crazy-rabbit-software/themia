@@ -23,11 +23,11 @@ namespace Themia.Widget.BatteryFacts;
 /// [S-14660] [S-14604] The family's kinds: what the battery itself reports, one widget a fact (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>batteryFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class BatteryKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("batteryFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("batteryStatus", "status", Glyphs.Battery, MetricHistory.None, Str.Details_Battery_Status.Local(), BatteryFactsStr.BatteryFacts_BatteryStatus_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryStatus_Desc.Local(),
             ["battery", "status", "charging", "plugged in"], () => new BatteryStatusConfig()),
@@ -51,7 +51,7 @@ internal static class BatteryKinds
             ["battery", "chemistry", "lithium", "li-ion"], () => new BatteryChemistryConfig()),
         new("batteryManufacturer", "manufacturer", Glyphs.Tag, MetricHistory.None, Str.Details_Battery_Manufacturer.Local(), BatteryFactsStr.BatteryFacts_BatteryManufacturer_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryManufacturer_Desc.Local(),
             ["battery", "manufacturer", "maker", "vendor"], () => new BatteryManufacturerConfig()),
-    ], ["status", "time", "health", "fullCapacity"]), MetricOpens.Battery);
+    ], MetricOpens.Battery);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

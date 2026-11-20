@@ -16,11 +16,11 @@ namespace Themia.Widget.MoonTimes;
 /// [S-14695] [S-14604] The family's kinds: the moon's times where the observer is, one widget a time (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>moonTimes</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class MoonKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("moonTimes",
+    public static IReadOnlyList<MetricKind> All { get; } =
     [
         new("moonrise", "Rise", Glyphs.Moon, MetricHistory.None, MoonTimesStr.WidgetsC_Moon_Rise.Local(), MoonTimesStr.MoonTimes_Moonrise_Label.Local(), MoonTimesStr.MoonTimes_Moonrise_Desc.Local(),
             ["moonrise", "moon", "rise"], () => new MoonriseConfig()),
@@ -30,7 +30,7 @@ internal static class MoonKinds
             ["full moon", "moon", "phase", "lunar"], () => new NextFullMoonConfig()),
         new("nextNewMoon", "NextNew", Glyphs.Moon, MetricHistory.None, MoonTimesStr.MoonTimes_NextNewMoon_Label.Local(), MoonTimesStr.MoonTimes_NextNewMoon_Label.Local(), MoonTimesStr.MoonTimes_NextNewMoon_Desc.Local(),
             ["new moon", "moon", "phase", "lunar"], () => new NextNewMoonConfig()),
-    ], ["Rise", "Set", "NextFull"]);
+    ];
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

@@ -23,11 +23,11 @@ namespace Themia.Widget.AirFacts;
 /// [S-14680] [S-14604] The family's kinds: the air's readings where the user says, one widget a reading (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>airFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class AirKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("airFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("airUv", "Uv", Glyphs.Sun, MetricHistory.Readings, AirFactsStr.Online_Air_Uv.Local(), AirFactsStr.AirFacts_AirUv_Label.Local(), AirFactsStr.AirFacts_AirUv_Desc.Local(),
             ["uv", "uv index", "sunburn", "sun", "air"], () => new AirUvConfig()),
@@ -51,7 +51,7 @@ internal static class AirKinds
             ["olive", "pollen", "allergy", "hay fever"], () => new AirOliveConfig()),
         new("airRagweed", "Ragweed", AirFactRules.Leaf, MetricHistory.Readings, AirFactsStr.Online_Air_PollenType_Ragweed.Local(), AirFactsStr.AirFacts_AirRagweed_Label.Local(), AirFactsStr.AirFacts_AirRagweed_Desc.Local(),
             ["ragweed", "pollen", "allergy", "hay fever"], () => new AirRagweedConfig()),
-    ], ["Uv", "Pm25", "Pollen", "Pm10"]), MetricOpens.Weather);
+    ], MetricOpens.Weather);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

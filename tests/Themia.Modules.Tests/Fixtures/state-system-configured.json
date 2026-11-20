@@ -170,11 +170,11 @@
           }
         },
         {
-          "id": "w07",
+          "id": "w07-cpuUptime",
           "x": 0.02,
           "y": 0.35,
           "w": 0.12,
-          "h": 0.25,
+          "h": 0.09375,
           "background": {
             "kind": "Default",
             "colour": "",
@@ -188,19 +188,15 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "cpuFacts",
-            "facts": [
-              "uptime",
-              "speed"
-            ]
+            "kind": "cpuUptime"
           }
         },
         {
-          "id": "w08",
-          "x": 0.15,
-          "y": 0.35,
+          "id": "w07-cpuSpeed",
+          "x": 0.02,
+          "y": 0.44375,
           "w": 0.12,
-          "h": 0.25,
+          "h": 0.09375,
           "background": {
             "kind": "Default",
             "colour": "",
@@ -214,11 +210,51 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "memoryFacts",
-            "facts": [
-              "pageFile",
-              "inUse"
-            ]
+            "kind": "cpuSpeed"
+          }
+        },
+        {
+          "id": "w08-memoryPageFile",
+          "x": 0.15,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.09375,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "memoryPageFile"
+          }
+        },
+        {
+          "id": "w08-memoryInUse",
+          "x": 0.15,
+          "y": 0.44375,
+          "w": 0.12,
+          "h": 0.09375,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "memoryInUse"
           }
         },
         {
@@ -247,11 +283,11 @@
           }
         },
         {
-          "id": "w10",
+          "id": "w10-networkPublicAddress",
           "x": 0.41000000000000003,
           "y": 0.35,
           "w": 0.12,
-          "h": 0.25,
+          "h": 0.09375,
           "background": {
             "kind": "Default",
             "colour": "",
@@ -265,19 +301,37 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "networkFacts",
-            "facts": [
-              "publicAddress",
-              "localAddress"
-            ]
+            "kind": "networkPublicAddress"
           }
         },
         {
-          "id": "w11",
+          "id": "w10-networkLocalAddress",
+          "x": 0.41000000000000003,
+          "y": 0.44375,
+          "w": 0.12,
+          "h": 0.09375,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "networkLocalAddress"
+          }
+        },
+        {
+          "id": "w11-batteryCycles",
           "x": 0.54,
           "y": 0.35,
           "w": 0.12,
-          "h": 0.25,
+          "h": 0.14423076923076922,
           "background": {
             "kind": "Default",
             "colour": "",
@@ -291,18 +345,15 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "batteryFacts",
-            "facts": [
-              "cycles"
-            ]
+            "kind": "batteryCycles"
           }
         },
         {
-          "id": "w12",
+          "id": "w12-pingLoss",
           "x": 0.67,
           "y": 0.35,
           "w": 0.12,
-          "h": 0.25,
+          "h": 0.09375,
           "background": {
             "kind": "Default",
             "colour": "",
@@ -316,21 +367,17 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "pingFacts",
+            "kind": "pingLoss",
             "host": "9.9.9.9",
-            "window": 120,
-            "facts": [
-              "loss",
-              "average"
-            ]
+            "window": 120
           }
         },
         {
-          "id": "w13",
-          "x": 0.8,
-          "y": 0.35,
+          "id": "w12-pingAverage",
+          "x": 0.67,
+          "y": 0.44375,
           "w": 0.12,
-          "h": 0.25,
+          "h": 0.09375,
           "background": {
             "kind": "Default",
             "colour": "",
@@ -344,11 +391,32 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "gpuFacts",
-            "adapter": 1,
-            "facts": [
-              "temperature"
-            ]
+            "kind": "pingAverage",
+            "host": "9.9.9.9",
+            "window": 120
+          }
+        },
+        {
+          "id": "w13-gpuTemperature",
+          "x": 0.8,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.14423076923076922,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gpuTemperature",
+            "adapter": 1
           }
         },
         {

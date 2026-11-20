@@ -18,11 +18,11 @@ namespace Themia.Widget.SunTimes;
 /// [S-14690] [S-14604] The family's kinds: the sun's times where the observer is, one widget a time (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>sunTimes</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class SunKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("sunTimes",
+    public static IReadOnlyList<MetricKind> All { get; } =
     [
         new("sunrise", "Sunrise", Glyphs.Sun, MetricHistory.None, Str.WidgetUi_Sunrise.Local(), SunTimesStr.SunTimes_Sunrise_Label.Local(), SunTimesStr.SunTimes_Sunrise_Desc.Local(),
             ["sunrise", "dawn", "morning", "sun"], () => new SunriseConfig()),
@@ -36,7 +36,7 @@ internal static class SunKinds
             ["dawn", "twilight", "first light", "sun"], () => new DawnConfig()),
         new("dusk", "Dusk", Glyphs.Moon, MetricHistory.None, SunTimesStr.WidgetsC_SunMoon_Dusk.Local(), SunTimesStr.SunTimes_Dusk_Label.Local(), SunTimesStr.SunTimes_Dusk_Desc.Local(),
             ["dusk", "twilight", "last light", "sun"], () => new DuskConfig()),
-    ], ["Sunrise", "Sunset", "Daylight"]);
+    ];
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

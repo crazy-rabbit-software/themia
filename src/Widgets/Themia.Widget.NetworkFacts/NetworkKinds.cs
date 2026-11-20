@@ -19,11 +19,11 @@ namespace Themia.Widget.NetworkFacts;
 /// [S-14640] [S-14604] The family's kinds: the connection's facts, one widget a fact (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>networkFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class NetworkKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("networkFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("networkLocalAddress", "localAddress", Glyphs.Network, MetricHistory.None, Str.Details_Network_LocalAddress.Local(), NetworkFactsStr.NetworkFacts_NetworkLocalAddress_Label.Local(), NetworkFactsStr.NetworkFacts_NetworkLocalAddress_Desc.Local(),
             ["ip address", "local address", "ipv4", "ipv6", "lan"], () => new NetworkLocalAddressConfig()),
@@ -39,7 +39,7 @@ internal static class NetworkKinds
             ["download", "download speed", "bandwidth", "throughput", "network"], () => new NetworkDownloadConfig()),
         new("networkUpload", "upload", Glyphs.Upload, MetricHistory.Series, Str.Details_Network_Upload.Local(), NetworkFactsStr.NetworkFacts_NetworkUpload_Label.Local(), NetworkFactsStr.NetworkFacts_NetworkUpload_Desc.Local(),
             ["upload", "upload speed", "bandwidth", "throughput", "network"], () => new NetworkUploadConfig()),
-    ], ["localAddress", "received", "sent", "linkSpeed"]), MetricOpens.Network);
+    ], MetricOpens.Network);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

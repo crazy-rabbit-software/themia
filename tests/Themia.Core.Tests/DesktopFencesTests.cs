@@ -371,22 +371,19 @@ public sealed class DesktopFencesTests
         var elsewhere = Fence("h", "a.txt");
         work.Widgets.Add(elsewhere);
 
-        var repairs = DesktopFences.Repair(state, (key, _) => Make(key));
+        var repairs = DesktopFences.Repair(state);
 
         Assert.NotEmpty(repairs);
         Assert.Equal(["a.txt", "b.txt"], Names(first));
         Assert.Equal(["c.txt"], Names(second));
         Assert.Equal(["d.txt"], FreeKeys(home));
 
-        // [S-13044] Stored before fences laid icons: each held item has its icon now, one per item; c.txt's is its own.
-        Assert.Equal(["a.txt", "b.txt", "c.txt", "d.txt"], home.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item.Replace(Desk, string.Empty, StringComparison.Ordinal)).Order());
-        Assert.Single(work.Widgets, w => w.Config is IDesktopItemConfig);
         Assert.Equal(["a.txt"], Names(elsewhere));
         Assert.Equal(0, F(second).OpenHeight);
         Assert.Null(F(second).Sort);
         Assert.Equal([".pdf", ".docx"], F(second).Rules.Extensions);
 
-        // Whole now: a second pass says nothing (the icons are made once).
-        Assert.Empty(DesktopFences.Repair(state, (key, _) => Make(key)));
+        // Whole now: a second pass says nothing.
+        Assert.Empty(DesktopFences.Repair(state));
     }
 }

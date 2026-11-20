@@ -17,11 +17,11 @@ namespace Themia.Widget.DriveFacts;
 /// [S-14670] [S-14604] The family's kinds: one drive's facts, one widget a fact (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>driveFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class DriveKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("driveFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("driveUsed", "used", Glyphs.Disk, MetricHistory.Readings, Str.Details_Drive_Used.Local(), DriveFactsStr.DriveFacts_DriveUsed_Label.Local(), DriveFactsStr.DriveFacts_DriveUsed_Desc.Local(),
             ["drive", "disk", "used", "storage"], () => new DriveUsedConfig()),
@@ -33,7 +33,7 @@ internal static class DriveKinds
             ["drive", "disk", "file system", "ntfs", "exfat", "fat32"], () => new DriveFileSystemConfig()),
         new("driveType", "type", Glyphs.Disk, MetricHistory.None, Str.Details_Drive_Type.Local(), DriveFactsStr.DriveFacts_DriveType_Label.Local(), DriveFactsStr.DriveFacts_DriveType_Desc.Local(),
             ["drive", "disk", "type", "usb", "network drive", "ssd"], () => new DriveTypeConfig()),
-    ], ["used", "free", "capacity", "fileSystem"]), MetricOpens.Drive);
+    ], MetricOpens.Drive);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

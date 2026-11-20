@@ -21,11 +21,11 @@ namespace Themia.Widget.CpuFacts;
 /// [S-14610] [S-14604] The family's kinds: the processor's facts, one widget a fact (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>cpuFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class CpuKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("cpuFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("cpuSpeed", "speed", Glyphs.Gauge, MetricHistory.Readings, Str.Details_Cpu_Speed.Local(), CpuFactsStr.CpuFacts_CpuSpeed_Label.Local(), CpuFactsStr.CpuFacts_CpuSpeed_Desc.Local(),
             ["cpu", "processor", "clock speed", "frequency", "ghz", "speed"], () => new CpuSpeedConfig()),
@@ -45,7 +45,7 @@ internal static class CpuKinds
             ["uptime", "up time", "since boot", "running time"], () => new CpuUptimeConfig()),
         new("cpuTemperature", "temperature", Glyphs.Thermometer, MetricHistory.Readings, Str.Details_Cpu_Temperature.Local(), CpuFactsStr.CpuFacts_CpuTemperature_Label.Local(), CpuFactsStr.CpuFacts_CpuTemperature_Desc.Local(),
             ["cpu", "processor", "temperature", "heat", "thermal", "celsius"], () => new CpuTemperatureConfig()),
-    ], ["speed", "baseSpeed", "cores", "logical"]), MetricOpens.TaskManager);
+    ], MetricOpens.TaskManager);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

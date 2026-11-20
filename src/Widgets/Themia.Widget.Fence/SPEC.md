@@ -96,8 +96,8 @@ desktop's own icons, laid by the host on the cells of its body; the view draws i
 - **[S-10918]** **Which items stand in a fence is the arrangement** ([S-13010]): moving items in or out is one undo step
   that puts every icon back where it stood, free or on its fence's cell, and its redo does it again. Tests `FenceTests.S10918_`.
 - **[S-10919]** **A removed fence's undo** brings it back with its items on their cells ([S-13009]). Tests `FenceTests.S10919_`.
-- **[S-10920]** **No item is both free and in a fence on one view**: its icon is the fence's; a fence stored before fences
-  laid icons gets them at load ([S-13001], [S-13044]). Tests `FenceTests.S10920_S13044_`.
+- **[S-10920]** **No item is both free and in a fence on one view**: its icon is the fence's ([S-13001]); an item held with
+  no icon leaves its fence when it is laid (`DesktopFences.Lay`).
 
 Needs a manual pass on the live desktop: its min, natural and max on the showcase views ([S-1810]); an icon moved into a
 fence, inside it and out of it with no jump at the edge; the fence moved with its icons; the band reaching into a fence;

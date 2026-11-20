@@ -19,11 +19,11 @@ namespace Themia.Widget.MemoryFacts;
 /// [S-14630] [S-14604] The family's kinds: the memory's facts, one widget a fact (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>memoryFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class MemoryKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("memoryFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("memoryInUse", "inUse", Glyphs.Memory, MetricHistory.Series, Str.Details_Memory_InUse.Local(), MemoryFactsStr.MemoryFacts_MemoryInUse_Label.Local(), MemoryFactsStr.MemoryFacts_MemoryInUse_Desc.Local(),
             ["memory", "ram", "in use", "used"], () => new MemoryInUseConfig()),
@@ -39,7 +39,7 @@ internal static class MemoryKinds
             ["memory", "non-paged pool", "nonpaged", "kernel"], () => new MemoryNonPagedPoolConfig()),
         new("memoryPageFile", "pageFile", Glyphs.Disk, MetricHistory.Readings, Str.Details_Memory_PageFile.Local(), MemoryFactsStr.MemoryFacts_MemoryPageFile_Label.Local(), MemoryFactsStr.MemoryFacts_MemoryPageFile_Desc.Local(),
             ["memory", "page file", "pagefile", "swap", "virtual memory"], () => new MemoryPageFileConfig()),
-    ], ["inUse", "available", "committed", "cached"]), MetricOpens.TaskManager);
+    ], MetricOpens.TaskManager);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

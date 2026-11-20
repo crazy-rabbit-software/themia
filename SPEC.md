@@ -10187,7 +10187,9 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
 - **[S-14605]** Debug renders: every family's own states (sample, stale, failed, unavailable, ...) and, for a metric with
   a history, `arrow` and (with a series) `line`: the sample with that trend, over a reading before and a history made up
   from the value where the sample holds none.
-- **[S-14606]** **A placed facts card is replaced in place** (owner, 2026-11-20, asked what becomes of one: "Each placed
+- **[S-14606]** *(Retired 2026-11-20: a one-time load conversion; the owner's state has loaded through it (owner, asked
+  whether to delete the load-time conversions now: yes). A stored facts card is an unknown kind now: dropped loudly,
+  [S-6908].)* **A placed facts card is replaced in place** (owner, 2026-11-20, asked what becomes of one: "Each placed
   facts widget becomes its shown rows as single-metric widgets stacked in the same spot, with the same settings (drive,
   adapter, place)"): on load, before the typed read (`KindSplits.Replace`), a widget of a removed kind of many rows
   becomes one widget a row it showed, in its stored pick's order (unknown and repeated rows left out; none stored: its
@@ -12485,7 +12487,9 @@ module's `FenceTests`.
   the grid; a thin thumb at its right edge says where it stands. An icon it does not show is drawn by no card, tucked in the
   fence's corner where it takes no room of the free desktop (`DesktopFences.Hidden`). A search fence scrolls its files the
   same way, in the view. Tests `FenceGridTests.S13043_`, `FenceRulesTests.S13043_`.
-- **[S-13044]** **Stored before fences laid icons** (when a fence drew its own items, none of them had an icon on its view):
+- **[S-13044]** *(Retired 2026-11-20: a one-time load conversion; the owner's state has loaded through it (owner, asked
+  whether to delete the load-time conversions now: yes). An item held with no icon leaves its fence by `DesktopFences.Lay`,
+  the one rule.)* **Stored before fences laid icons** (when a fence drew its own items, none of them had an icon on its view):
   load gives each held item its icon (`DesktopFences.Repair`, `DesktopFences.NewIcon`), once (a second load finds them),
   and the fence lays them on its cells when its display is known. Tests `DesktopFencesTests.S13002_S13044_`,
   `FenceTests.S10920_S13044_`.

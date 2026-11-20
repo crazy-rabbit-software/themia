@@ -12,8 +12,7 @@ GPU feed and the adapter's series, the menu's adapter line, the JSON context), `
 - **[S-14620]** **A widget a fact** (owner, 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too. use the same base component for all of them. you should also have the option to show trendlines as well or just the trend with arrows."): `gpuDedicatedMemory` "GPU dedicated memory", `gpuSharedMemory` "GPU shared memory", `gpuTemperature` "GPU temperature", `gpuFan` "GPU fan", `gpuClock` "GPU clock", `gpuMemoryClock` "GPU memory clock", `gpuLoad` "GPU load", the family **GPU facts** under System
   (`AddFolderId.GpuFacts`). Each reads the hub's GPU feed (one query a due tick for every GPU widget) and draws its fact of
   the adapter's sheet; no adapter keeps the row, "--" dimmed, why its tooltip ([S-1942]). Trends ([S-14603]):
-  GPU load an arrow and a line; GPU dedicated memory, GPU shared memory, GPU temperature, GPU fan, GPU clock and GPU memory clock an arrow from the last two readings the card saw (no history kept); the load's line is the adapter's own series, read only while a line is drawn. A placed
-  `gpuFacts` card is replaced in place by its rows, with its adapter ([S-14606]).
+  GPU load an arrow and a line; GPU dedicated memory, GPU shared memory, GPU temperature, GPU fan, GPU clock and GPU memory clock an arrow from the last two readings the card saw (no history kept); the load's line is the adapter's own series, read only while a line is drawn. 
 - **[S-2431]** `Adapter`: a DXGI position, as the GPU reading's ([S-433]: the primary display's adapter by default), offered
   with two or more adapters (the GPU atoms' shared line); one that is gone shows the first; one that is no position is the
   first, loudly. Its options are on the properties menu ([S-3719]): Appearance, Adapter, then Trend where it moves.

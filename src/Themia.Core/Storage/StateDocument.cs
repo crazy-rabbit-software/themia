@@ -81,9 +81,7 @@ public static class StateDocument
             return ParseResult.Refused(ParseRefusal.NotJson, "state file is not valid JSON", ex);
         }
 
-        // [S-14606] A placed widget of a kind split into single metrics becomes them first, in its place.
-        var dropped = KindSplits.Replace(document);
-        dropped.AddRange(DropUnknownKinds(document));
+        var dropped = DropUnknownKinds(document);
         dropped.AddRange(DropUnknownKeys(document));
         dropped.AddRange(ReplaceUnknownNames(document));
 

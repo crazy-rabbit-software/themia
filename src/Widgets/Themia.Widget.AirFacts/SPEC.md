@@ -21,7 +21,7 @@ the air hours, the JSON context), `AirFactRules.cs` (the readings and their word
   place is the index's to name. Trends ([S-14603]): PM2.5, PM10 and ozone an arrow and a line; UV level, alder pollen, birch pollen, grass pollen, mugwort pollen, olive pollen and ragweed pollen an arrow from the last two readings the card saw (no history kept); pollen none (a text, a constant or a time: no Trend line); a pollutant's arrow is this hour against the
   last and its line the hours from the last on, of the place's air hours (the air graph's one answer, asked only while a
   trend over them is drawn). Its options: Appearance, Location (the weather family's search, [S-3722]), Trend where it
-  moves; Refresh on its card menu. A placed `airFacts` card is replaced in place by its rows, with its place ([S-14606]). A click on the card, Enter and the card menu's first line ("Open on MSN Weather") open the forecast for its place, as
+  moves; Refresh on its card menu. A click on the card, Enter and the card menu's first line ("Open on MSN Weather") open the forecast for its place, as
   the air graph's ([S-14706], [S-14707], `MetricOpens.Weather`); while a pollutant's trend is Line its graph's Chart type
   (Area, Line, Bars) and Detail stand under Trend ([S-14703]).
 

@@ -18,11 +18,11 @@ namespace Themia.Widget.PingFacts;
 /// [S-14650] [S-14604] The family's kinds: a host's latency statistics, one widget a figure (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>pingFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class PingKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("pingFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("pingAverage", "average", Glyphs.Ping, MetricHistory.Series, PingFactsStr.Details_Ping_Average.Local(), PingFactsStr.PingFacts_PingAverage_Label.Local(), PingFactsStr.PingFacts_PingAverage_Desc.Local(),
             ["ping", "latency", "average", "ms", "connection quality"], () => new PingAverageConfig()),
@@ -36,7 +36,7 @@ internal static class PingKinds
             ["ping", "packet loss", "loss", "dropped"], () => new PingLossConfig()),
         new("pingAnswered", "answered", Glyphs.Ping, MetricHistory.None, PingFactsStr.Details_Ping_Answered.Local(), PingFactsStr.PingFacts_PingAnswered_Label.Local(), PingFactsStr.PingFacts_PingAnswered_Desc.Local(),
             ["ping", "answered", "replies"], () => new PingAnsweredConfig()),
-    ], ["average", "minimum", "maximum", "jitter"]), MetricOpens.Network);
+    ], MetricOpens.Network);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

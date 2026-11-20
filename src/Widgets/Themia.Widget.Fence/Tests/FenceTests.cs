@@ -223,22 +223,4 @@ public sealed class FenceTests
         Assert.Equal([Desk + "a.txt", Desk + "b.txt"], ((FenceConfig)back.Config).Items);
         Assert.Empty(DesktopViews.Free(home));
     }
-
-    [Fact]
-    public void S10920_S13044_load_gives_a_fences_items_their_icons_and_none_is_free_beside()
-    {
-        var home = ViewState.Create("Home");
-        var state = new AppState { Views = [home], ActiveViewId = home.Id };
-        var fence = WidgetInstance.Create(new WidgetId("fence"), new FracRect(0.5, 0.1, 0.3, 0.3));
-        ((FenceConfig)fence.Config).Items = [Desk + "a.txt", Desk + "b.txt"];
-        var item = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.01, 0.01, 0.08, 0.125));
-        ((IDesktopItemConfig)item.Config).Item = Desk + "a.txt";
-        home.Widgets.AddRange([fence, item]);
-
-        // Stored when a fence drew its own items: b.txt gets its icon (the real kind's), a.txt's is the fence's.
-        Assert.NotEmpty(DesktopFences.Repair(state));
-        Assert.Equal(3, home.Widgets.Count);
-        Assert.Empty(DesktopViews.Free(home));
-        Assert.Empty(DesktopFences.Repair(state));
-    }
 }

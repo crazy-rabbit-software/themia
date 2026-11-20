@@ -19,11 +19,11 @@ namespace Themia.Widget.GpuFacts;
 /// [S-14620] [S-14604] The family's kinds: one graphics adapter's facts, one widget a fact (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too"), in the removed card's order: each one's
 /// id, the metric's key, its glyph, its history (its trends), its row's name, its name and description on the add page,
-/// its search words and its config; each stands in for its row of a placed <c>gpuFacts</c> card ([S-14606]).
+/// its search words and its config.
 /// </summary>
 internal static class GpuKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("gpuFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
         new("gpuDedicatedMemory", "dedicated", Glyphs.Memory, MetricHistory.Readings, Str.Details_Gpu_Dedicated.Local(), GpuFactsStr.GpuFacts_GpuDedicatedMemory_Label.Local(), GpuFactsStr.GpuFacts_GpuDedicatedMemory_Desc.Local(),
             ["gpu", "graphics", "video memory", "vram", "dedicated memory"], () => new GpuDedicatedMemoryConfig()),
@@ -39,7 +39,7 @@ internal static class GpuKinds
             ["gpu", "graphics", "memory clock", "mhz"], () => new GpuMemoryClockConfig()),
         new("gpuLoad", "load", Glyphs.Gpu, MetricHistory.Series, Str.Details_Gpu_Load.Local(), GpuFactsStr.GpuFacts_GpuLoad_Label.Local(), GpuFactsStr.GpuFacts_GpuLoad_Desc.Local(),
             ["gpu", "graphics", "load", "usage", "utilization"], () => new GpuLoadConfig()),
-    ], ["dedicated", "shared", "temperature", "fan"]), MetricOpens.TaskManager);
+    ], MetricOpens.TaskManager);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

@@ -295,11 +295,10 @@ public static class DesktopFences
     /// [S-13002] Load: every fence's items made whole and no item in two places of one view. In each fence an invalid key
     /// (<see cref="DesktopItemKeys.IsValid"/>) and a repeat go; an item in two fences of one view stays in the first (the
     /// view's order) and leaves the others. Its rules are repaired (<see cref="FenceRules.Repair"/>), a negative scroll is
-    /// the top. [S-13044] An item held with no icon on its view gets one (<paramref name="icon"/>, else <see cref="NewIcon"/>):
-    /// its icon is the fence's (one per item, [S-13015]). Each repair is said. Items no longer on the desktop are the
-    /// reconcile's ([S-13003]): load has no listing.
+    /// the top. Each repair is said. An item held with no icon on its view leaves its fence when it is laid
+    /// (<see cref="Lay"/>, the one rule); items no longer on the desktop are the reconcile's ([S-13003]): load has no listing.
     /// </summary>
-    public static IReadOnlyList<string> Repair(AppState state, Func<string, FracRect, WidgetInstance?>? icon = null)
+    public static IReadOnlyList<string> Repair(AppState state)
     {
         ArgumentNullException.ThrowIfNull(state);
         var repairs = new List<string>();
@@ -357,57 +356,9 @@ public static class DesktopFences
                     repairs.Add($"fence '{on.Widget.Id}' had an unknown sort; it keeps its order");
                 }
             }
-
-            // [S-13044] A fence's items are icons of its view: one stored before they were (the fence drew its own) gets
-            // its icon, at the fence's corner till the fence lays it on its cell. Once: a second load finds them.
-            var icons = IconsByKey(view);
-            var made = 0;
-            foreach (var on in On(view).ToList())
-            {
-                foreach (var key in on.Fence.Items.ToList())
-                {
-                    if (icons.ContainsKey(key))
-                    {
-                        continue;
-                    }
-
-                    if ((icon ?? NewIcon)(key, new FracRect(on.Widget.X, on.Widget.Y, 0, 0)) is { } widget)
-                    {
-                        view.Widgets.Add(widget);
-                        icons[key] = widget;
-                        made++;
-                    }
-                }
-            }
-
-            if (made > 0)
-            {
-                repairs.Add($"view '{view.Id}': {made} fence item(s) stored without their icon got one (fences lay desktop icons now)");
-            }
         }
 
         return repairs;
-    }
-
-    /// <summary>
-    /// [S-13044] A desktop item's icon for <paramref name="key"/> at <paramref name="rect"/>: the build's one item kind
-    /// (<see cref="IDesktopItemConfig"/>), or null in a build without it.
-    /// </summary>
-    public static WidgetInstance? NewIcon(string key, FracRect rect)
-    {
-        if (!ModuleCatalog.IsInstalled || ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType)) is not { } kind)
-        {
-            return null;
-        }
-
-        var widget = WidgetInstance.Create(kind.Id, rect);
-        if (widget.Config is not IDesktopItemConfig config)
-        {
-            return null;
-        }
-
-        config.Item = key;
-        return widget;
     }
 
     /// <summary>
