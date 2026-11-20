@@ -80,8 +80,10 @@ public sealed partial class EmptyRows : StackPanel
 
     protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
     {
-        // [S-14500] Each row its share of the room, its edges on whole device pixels: they end on the room's end.
-        var reach = Reach;
+        // [S-14500] Each row its share of the room, its edges on whole device pixels: they end on the room's end. The room
+        // is the one this pass arranges in: the size the last pass reported comes after it, and a share of that stale
+        // room ran the last row past the slot's end (tasks "failed" at 300 x 190: 1.3 cut).
+        var reach = ReachIn(double.IsFinite(finalSize.Height) && finalSize.Height > 0 ? finalSize.Height : _room);
         for (var i = 0; i < Children.Count; i++)
         {
             var top = reach.Start(i);
@@ -91,9 +93,9 @@ public sealed partial class EmptyRows : StackPanel
         return finalSize;
     }
 
-    /// <summary>[S-14500] The rows laid: as many as stand, sharing the room evenly.</summary>
-    private RowReach Reach
-        => Children.Count > 0 && _room > 0 ? new RowReach(_room / Children.Count, Children.Count, XamlRoot?.RasterizationScale ?? 1) : new RowReach(0, 1);
+    /// <summary>[S-14500] The rows laid in <paramref name="room"/>: as many as stand, sharing it evenly.</summary>
+    private RowReach ReachIn(double room)
+        => Children.Count > 0 && room > 0 ? new RowReach(room / Children.Count, Children.Count, XamlRoot?.RasterizationScale ?? 1) : new RowReach(0, 1);
 
     private void Fill()
     {
@@ -109,8 +111,18 @@ public sealed partial class EmptyRows : StackPanel
         // [S-14500] As many as the room holds at the pitch, each stretched to its share of the room.
         var count = Fit(_room, pitch);
         var reach = new RowReach(count > 0 ? _room / count : pitch, Math.Max(1, count), XamlRoot?.RasterizationScale ?? 1);
-        if (count == Children.Count && (count == 0 || Children[0] is FrameworkElement { Height: var h } && h.Equals(reach.Height(0))))
+        if (count == Children.Count)
         {
+            // The same rows in another room: each takes its new share, so none stands past its slot into the next.
+            for (var i = 0; i < count; i++)
+            {
+                if (Children[i] is FrameworkElement row && !row.Height.Equals(reach.Height(i)))
+                {
+                    row.Height = reach.Height(i);
+                }
+            }
+
+            InvalidateArrange();
             return;
         }
 
