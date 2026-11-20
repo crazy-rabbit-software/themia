@@ -8066,7 +8066,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   card's height (its first ink on the content's top, its last on the foot's inset) or the card's width stops it,
   then it stands centred on its ink in the height left over (unavoidable). It never pulls its parts apart and never
   shrinks; at its natural box nothing scales. The sides' and the foot's insets do not scale (the fit's margin or its
-  view's padding); a line over the block (Screen time's day line) stands over its room. No cap beyond the card: the
+  view's padding); Screen time's day line is one of its parts ([S-14282]). No cap beyond the card: the
   user decides how large the card is ([S-12411]). Kept: toggles and power buttons ([S-5700], [S-12806]), pictures,
   graphs and charts ([S-12800]), Drive's ring style (its ring grows with the box), the Header, Next meeting's and
   Rain next hour's lines over their join or chart, Sun's picture. Tests `BlockFitTests.S12808_`; renders

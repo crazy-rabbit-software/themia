@@ -23,35 +23,30 @@ public sealed class ScreenTimeDonutTests
         Assert.Null(typeof(ScreenTimeDonutConfig).GetProperty("Size"));
     }
 
-    [Theory]
-    [InlineData(128)]
-    [InlineData(168)]
-    [InlineData(216)]
-    [InlineData(400)]
-    public void S11515_the_ring_is_as_large_as_the_card_holds_in_its_inset(double ring)
+    [Fact]
+    public void S14284_one_plan_the_natural_ring_its_figure_on_28_in_its_hole()
     {
-        // The view's slot is the card under its top inset.
-        var box = Box(ring);
-        var slot = (Width: box.Width, Height: box.Height - FamilySpace.ContentTop);
-        Assert.Equal(ring, ScreenTimeDonutLayout.RingIn(slot.Width, slot.Height, ScreenTimePeriod.Day));
+        var plan = ScreenTimeDonutLayout.Plan;
+        Assert.Equal((ScreenTimeDonutLayout.NaturalRing, FamilyShape.Track, ScreenTimeDonutLayout.NaturalRing - (2 * FamilyShape.Track)), (plan.Ring, plan.Thickness, plan.Hole));
+        Assert.Equal(FamilyType.Big28, plan.Largest);
 
-        // A wider card keeps the ring its height holds; a taller one its width's.
-        Assert.Equal(ring, ScreenTimeDonutLayout.RingIn(slot.Width + 100, slot.Height, ScreenTimePeriod.Day));
-        Assert.Equal(ring, ScreenTimeDonutLayout.RingIn(slot.Width, slot.Height + 100, ScreenTimePeriod.Day));
-
-        var plan = ScreenTimeDonutLayout.Donut(ring);
-        Assert.Equal((ring, FamilyShape.Track, ring - (2 * FamilyShape.Track)), (plan.Ring, plan.Thickness, plan.Hole));
+        // A day's "4h 37m" and its line stand whole in the hole.
+        var figure = ScreenTimeRules.Figure((4 * 3600) + (37 * 60), plan.Largest, plan.Hole, under: true);
+        Assert.Equal((FamilyType.Big28, true), (figure.Step, figure.Under));
     }
 
-    [Fact]
-    public void S11515_a_ring_is_never_under_its_least_its_figure_on_28_and_a_large_ring_may_take_40()
+    [Theory]
+    [InlineData(ScreenTimePeriod.Day)]
+    [InlineData(ScreenTimePeriod.Week)]
+    public void S14284_the_least_card_scales_the_block_no_further_than_its_smallest_text_reads(ScreenTimePeriod period)
     {
-        Assert.Equal(ScreenTimeDonutLayout.LeastRing, ScreenTimeDonutLayout.Donut(20).Ring);
-        Assert.Equal(FamilyType.Big28, ScreenTimeDonutLayout.Donut(ScreenTimeDonutLayout.NaturalRing).Largest);
-        Assert.Equal(FamilyType.Big40, ScreenTimeDonutLayout.Donut(ScreenTimeDonutLayout.LargeRing).Largest);
+        // [S-12833] WR-14: the block (the day line over the natural ring) scaled into the least card's inset still draws
+        // its smallest text, the figure's line under, at the floor.
+        var least = ScreenTimeDonutLayout.Sizing(period).Min;
+        var room = (Width: least.Width - (2 * FamilySpace.Inset), Height: least.Height - FamilySpace.ContentTop - FamilySpace.Inset);
+        var block = (Width: ScreenTimeDonutLayout.NaturalRing + BlockFit.WidthSlack, Height: ScreenTimeDonutLayout.DayLine(period) + ScreenTimeDonutLayout.NaturalRing);
+        var scale = Math.Min(room.Width / block.Width, room.Height / block.Height);
 
-        // A day's "4h 37m" and its line stand whole in a natural hole.
-        var figure = ScreenTimeRules.Figure((4 * 3600) + (37 * 60), FamilyType.Big28, ScreenTimeDonutLayout.Donut(ScreenTimeDonutLayout.NaturalRing).Hole, under: true);
-        Assert.Equal((FamilyType.Big28, true), (figure.Step, figure.Under));
+        Assert.True(scale >= ScaleFloor.Least(FamilyType.Under(FamilyType.Big28).FontSize), $"{period}: {scale}");
     }
 }

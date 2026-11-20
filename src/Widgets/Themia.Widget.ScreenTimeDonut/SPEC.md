@@ -28,12 +28,20 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
   not be settable, it is set by the size of the widget", the Size line, [S-2449], is gone): a new one's ring is 168,
   the least 128 (its figure on 28 with its line still fits the hole), the card round it 12 at the sides and the foot,
   12 and its day line (24, a tool line, [S-454], [S-12481]) over it (192 × 216 natural, 152 × 176 least,
-  `ScreenTimeDonutLayout.Sizing`); a larger card draws a larger ring, as large as the view's slot holds under the day
-  line in that inset (`ScreenTimeDonutLayout.RingIn`, the view's `ApplySize`), at the content's top, centred across;
-  from 216 its figure may take 40. Tests `ScreenTimeDonutTests.S11515_`. Its wedges stand in the family's track (4,
-  [S-6704]); the hole's figure is [S-1210]'s on 28 (40 may stand in a large ring's hole), centred, its
+  `ScreenTimeDonutLayout.Sizing`); a larger card draws a larger ring: the day line over the ring, the figure in its
+  hole, is one block planned at the natural ring and scaled as one to the card ([S-14284], WR-7, `ReadingFit`;
+  `ScreenTimeDonutLayout.Plan`), its track and its figure growing with it. Tests `ScreenTimeDonutTests.S11515_`,
+  `S14284_`. Its wedges stand in the family's track (4 in the plan,
+  [S-6704]); the hole's figure is [S-1210]'s on 28, centred, its
   line under (the day's "of 4h", a window's "2h 10m/day", or the focused app's share) where it fits,
   cut to the hole's width. Nothing to draw keeps the ring ([S-12813]): its track alone, and in the hole "--" while nothing records or none spent ("0m") in a period that recorded, disabled, why under it where the hole holds it and always as the ring's tooltip.
+- **[S-14284]** **The day line, the ring and its figure are one block** (owner, 2026-11-19, docs/WIDGET-RULES.md WR-7:
+  "A reading and its caption stay together and scale up"; "All together, scaled"; as the reading's [S-14282]). The day
+  and its arrows stand right over the ring, as wide as it; the block is planned once, at the natural ring (168, its
+  figure on 28 in the hole, `ScreenTimeDonutLayout.Plan`), and scaled as one to the card (`ReadingFit`, [S-14280]): a
+  larger card draws a larger ring with a larger figure and day line, the ring's track (4 in the plan) and the figure
+  growing with it. Before, the ring was sized to the card on its own (`RingIn`), the day line stood across the card's
+  top corners and the figure stayed on 28 or 40 in a ring of any size. Tests `ScreenTimeDonutTests.S14284_`.
 - **[S-3343]** Linked focus in the links' one look ([S-11902]): the wedge pointed at or picked is whole,
   every other at its tone times 0.6 (pointed) or 0.3 (picked) (the lit wedge's 1.3 times thicker stroke
   went: one track), and the hole names it ("Code · 41%"). An app

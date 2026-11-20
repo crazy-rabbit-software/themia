@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// kept per app across reads: a read moves its arc and its tip, and only a new app gets a new one.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetSizeAware
+internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
@@ -62,13 +62,10 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
     /// <summary>[S-2272] Each wedge's tone by its app's rank in the period.</summary>
     private IReadOnlyDictionary<string, ScreenTimeTone> _tones = new Dictionary<string, ScreenTimeTone>();
-    private ScreenTimeDonutPlan _plan = ScreenTimeDonutLayout.Donut(ScreenTimeDonutLayout.NaturalRing);
+    private readonly ScreenTimeDonutPlan _plan = ScreenTimeDonutLayout.Plan;
 
-    /// <summary>[S-11515] The ring the card holds: the card's size is the user's, the ring follows it.</summary>
-    private double _diameter = ScreenTimeDonutLayout.NaturalRing;
-
-    /// <summary>The view's slot, kept for a period change (the day line comes and goes).</summary>
-    private WidgetArea? _area;
+    /// <summary>[S-14284] The day line over the ring, its figure in the hole: one block, planned at the natural ring and scaled as one.</summary>
+    private readonly ReadingFit _fit = new();
     private bool _detached;
 
     private readonly IWidgetHost _host;
@@ -103,17 +100,12 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _ring.Children.Add(_canvas);
         _ring.Children.Add(_figure);
 
-        // [S-11515] The ring stands at the content's top, in the card's inset at the sides and the foot.
-        _ring.VerticalAlignment = VerticalAlignment.Top;
-        _ring.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-
-        // [S-454] [S-12481] The day and its arrows, the content's first line.
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _nav.Line.Margin = Family.SideInset;
-        SetRow(_ring, 1);
-        Children.Add(_nav.Line);
-        Children.Add(_ring);
+        // [S-14284] WR-7 (owner, 2026-11-19: "Keep them together"; "All together, scaled"): the day and its arrows
+        // ([S-454], [S-12481]) stand right over the ring, as wide as it, and the two with the figure in the hole are one
+        // block that the card scales as one (in the fit's inset at the sides and the foot).
+        _ring.HorizontalAlignment = HorizontalAlignment.Center;
+        _fit.Parts.Add(new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, Children = { _nav.Line, _ring } });
+        Children.Add(_fit);
     }
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
@@ -183,34 +175,6 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
     // ---- drawing ----------------------------------------------------------------------------
 
-    /// <summary>[S-11515] The ring as large as the slot holds under the day line, in the inset at the sides and the foot.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        _area = area;
-        if (Fit())
-        {
-            Render();
-        }
-    }
-
-    /// <summary>The ring for the slot and the period; whether it changed.</summary>
-    private bool Fit()
-    {
-        if (_area is not { } area)
-        {
-            return false;
-        }
-
-        var diameter = ScreenTimeDonutLayout.Donut(ScreenTimeDonutLayout.RingIn(area.Width, area.Height, ScreenTimeRules.ClampPeriod(_config.Period))).Ring;
-        if (diameter == _diameter)
-        {
-            return false;
-        }
-
-        _diameter = diameter;
-        return true;
-    }
-
     private void Render()
     {
         if (_detached)
@@ -219,7 +183,6 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         }
 
         _nav.Update(_config.Period);
-        Fit();
 
         if (_source is null)
         {
@@ -249,7 +212,6 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _data = null;
         _segments = [];
         DropWedges();
-        _plan = ScreenTimeDonutLayout.Donut(_diameter);
         SizeRing(showTrack: true);
         ToolTipService.SetToolTip(_ring, message);
 
@@ -278,7 +240,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
     /// <summary>
     /// [S-3341] [S-11515] The ring: the busiest seven apps and one "Other", one arc each, from
-    /// cumulative seconds so the edges meet without a seam, as large as the card holds.
+    /// cumulative seconds so the edges meet without a seam, at the natural ring the block is scaled from ([S-14284]).
     /// </summary>
     private void Draw()
     {
@@ -287,7 +249,6 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             return;
         }
 
-        _plan = ScreenTimeDonutLayout.Donut(_diameter);
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
         _tones = ScreenTimeRules.Tones(_segments);
 

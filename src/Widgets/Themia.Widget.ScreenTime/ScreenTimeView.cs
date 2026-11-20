@@ -27,7 +27,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
     private readonly WidgetLinks _dates = new();
-    /// <summary>[S-12410] One block, centred in the room under its day line with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
+    /// <summary>[S-12410] [S-14282] The reading under its day line: one block ([S-12483]: the same joined or alone).</summary>
     private readonly ReadoutBlock _readout = new() { HorizontalAlignment = HorizontalAlignment.Left };
 
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
@@ -57,13 +57,9 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         });
         _readout.Use(FamilyType.Big28);
 
-        // [S-454] [S-12481] The day and its arrows, the content's first line.
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _nav.Line.Margin = Family.SideInset;
-        SetRow(_fit, 1);
-        Children.Add(_nav.Line);
-        _fit.Parts.Add(_readout);
+        // [S-454] [S-12481] [S-14282] The day and its arrows stand right over the reading, as wide as it, one block with
+        // it that the card scales as one (WR-7, owner 2026-11-19: "Keep them together"; "All together, scaled").
+        _fit.Parts.Add(new StackPanel { HorizontalAlignment = HorizontalAlignment.Left, Children = { _nav.Line, _readout } });
         _fit.Face = ScreenTimeReading.Face();
         Children.Add(_fit);
     }
