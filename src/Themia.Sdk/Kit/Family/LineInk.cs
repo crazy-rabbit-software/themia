@@ -66,7 +66,14 @@ public readonly record struct LineInk(double Over, double Under)
     /// A part whose ink is this text's or a glyph's of <paramref name="glyph"/> centred on the text's
     /// <paramref name="height"/>, whichever reaches further (a row's lead beside its lines).
     /// </summary>
-    public LineInk With(double glyph, double height)
+    public LineInk With(double glyph, double height) => With(GlyphBox.Whole, glyph, height);
+
+    /// <summary>
+    /// [S-14240] A part whose ink is this text's or a glyph's whose box of <paramref name="glyph"/> is centred on the
+    /// text's <paramref name="height"/> and which inks <paramref name="ink"/> of that box (<see cref="GlyphInk"/>: the
+    /// memory chip an eighth inside it over and under), whichever reaches further.
+    /// </summary>
+    public LineInk With(GlyphBox ink, double glyph, double height)
     {
         if (!(glyph > 0) || !double.IsFinite(height))
         {
@@ -74,7 +81,7 @@ public readonly record struct LineInk(double Over, double Under)
         }
 
         var room = (height - glyph) / 2;
-        return new LineInk(Math.Min(Over, room), Math.Min(Under, room));
+        return new LineInk(Math.Min(Over, room + (ink.Top * glyph)), Math.Min(Under, room + ((1 - ink.Bottom) * glyph)));
     }
 
     /// <summary>The ink of a family row of <paramref name="lines"/> lines (a Body name, Captions under it) led by a <paramref name="lead"/> (0: none).</summary>
