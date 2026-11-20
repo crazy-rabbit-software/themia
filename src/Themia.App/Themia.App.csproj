@@ -1,15 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\WinUI.props" />
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>Themia.App</RootNamespace>
     <AssemblyName>Themia</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- [S-1850] The exe's own icon (Explorer, Start, uninstall entry); windows set the same file at run time. -->
     <ApplicationIcon>Assets\themia.ico</ApplicationIcon>
-    <UseWinUI>true</UseWinUI>
     <!-- Needed for the function-pointer Win32 callbacks (EnumDisplayMonitors, WndProc). -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!-- Must stay true even unpackaged: it is what wires up XAML (.xbf) and resources.pri
@@ -27,7 +25,6 @@
     <WindowsPackageType Condition="'$(ThemiaPackage)' == 'true'">MSIX</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 
     <!--
       Native AOT. This is the whole point of the port: no JIT, no CoreCLR, no warm-up, and a
@@ -50,14 +47,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
     <!--
       SettingsCard: the exact control Windows 11's Settings is drawn with ([S-1540]), the app-layout
       editor's rows ([S-1411]). Taken rather than re-drawn because a hand-made copy drifts from
       Windows on hover, press and narrow-width wrapping. Proven Native-AOT clean: publishes under
       IlcTreatWarningsAsErrors.
     -->
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
   </ItemGroup>
 
   <!--
@@ -106,8 +102,8 @@
 
   <!--
     [S-6901] The module registry: every [assembly: ThemiaWidget/ThemiaProvider] declaration (the
-    module projects', Core's providers, and the widgets still compiled inside the app,
-    Widgets/Modules/*.cs) becomes the generated, static ModuleRegistry in Themia.App.Modules.
+    module projects' and Core's providers; the app declares none, THEMIAMOD005) becomes the generated,
+    static ModuleRegistry in Themia.App.Modules.
     Build-time only; nothing of the generator ships.
   -->
   <ItemGroup>
