@@ -76,6 +76,14 @@ internal static class FamilyCheckRender
         var only = Option(args, "--kinds")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.Ordinal);
         var kinds = ModuleCatalog.Widgets.Select(d => d.Id).Where(id => only is null || only.Contains(id.Value)).ToList();
 
+        // [S-14342] A kind this build does not have is named and fails the walk: never "no finding" over nothing.
+        if (only?.Except(kinds.Select(k => k.Value), StringComparer.Ordinal).ToList() is { Count: > 0 } unknown)
+        {
+            Console.WriteLine($"family-check: no such kind in this build: {string.Join(", ", unknown)}");
+            Environment.Exit(64);
+            return true;
+        }
+
         _ = dispatcher.TryEnqueue(async () =>
         {
             Window? window = null;

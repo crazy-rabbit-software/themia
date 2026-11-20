@@ -33,7 +33,7 @@ namespace Themia.App.Shell.Gallery;
 internal static class WidgetRender
 {
     private const string Scope = "widget-render";
-    private const string Flag = "--widget-png";
+    internal const string Flag = "--widget-png";
 
     /// <summary>[S-6569] The cards' own background (<c>--background</c>), Default to follow the design.</summary>
     private static FillChoice _background = new();
@@ -57,6 +57,9 @@ internal static class WidgetRender
 
     private static string _ownItemText = string.Empty;
 
+    /// <summary>[S-14340] The arguments of the render being drawn (a batch job's, or the process's), for what reads them per card.</summary>
+    private static string[] _args = Environment.GetCommandLineArgs();
+
     /// <summary>Space between frames and around the page, in DIPs.</summary>
     private const double Gap = 24;
 
@@ -66,7 +69,7 @@ internal static class WidgetRender
     /// <summary>The application theme can only be chosen before the resources load: read by <c>App</c>.</summary>
     public static ApplicationTheme? RequestedTheme(string[] args)
     {
-        if (Array.IndexOf(args, Flag) < 0)
+        if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, WidgetBatch.Flag) < 0)
         {
             return null;
         }
@@ -81,21 +84,44 @@ internal static class WidgetRender
 
     public static bool TryRunFromCommandLine(Application app, string[] args)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
+        if (Array.IndexOf(args, Flag) < 0)
         {
             return false;
         }
 
-        if (at + 2 >= args.Length
+        _ = ExitAfter(app, Render(args));
+        return true;
+    }
+
+    /// <summary>[S-14340] The render's verdict is its exit code: 0 when the PNG was written, 1 when not.</summary>
+    private static async Task ExitAfter(Application app, Task<bool> drawn)
+    {
+        Environment.ExitCode = await drawn.ConfigureAwait(true) ? 0 : 1;
+        app.Exit();
+    }
+
+    /// <summary>
+    /// [S-1917] One render, on the UI thread: the widget drawn to its PNG (and what else <paramref name="args"/> ask for),
+    /// then its window closed and its services disposed. Never throws: a failure is logged and printed. True when the
+    /// PNG was written. [S-14340] The batch draws each of its jobs through it, one after another in one process, so a
+    /// job's picture is the one its own <c>--widget-png</c> process draws.
+    /// </summary>
+    internal static Task<bool> Render(string[] args)
+    {
+        var at = Array.IndexOf(args, Flag);
+        if (at < 0
+            || at + 2 >= args.Length
             || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
             Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree] [--layout-json out.json] [--hover fx,fy] [--pressed fx,fy]");
             Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
-            app.Exit();
-            return true;
+            return Task.FromResult(false);
         }
+
+        // [S-14340] What a render reads per card, and the stand-in device location a job before may have set, are this render's.
+        _args = args;
+        AppServices.DebugDeviceLocation = null;
 
         var kind = picked.Id;
         var outPath = System.IO.Path.GetFullPath(args[at + 2]);
@@ -158,13 +184,15 @@ internal static class WidgetRender
             ? [new CheckedSize($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
             : Sizes(Option(args, "--sizes"), sizing) is { Count: > 0 } sizes ? sizes : [.. SizeFit.CheckedAt(sizing)];
 
-        _ = dispatcher.TryEnqueue(async () =>
+        var drawn = new TaskCompletionSource<bool>();
+        var queued = dispatcher.TryEnqueue(async () =>
         {
             Window? window = null;
             Ticker? ticker = null;
             IDisposable? machine = null;
             IDisposable? wallpaper = null;
             var cards = new List<WidgetCard>();
+            var written = false;
 
             try
             {
@@ -325,6 +353,7 @@ internal static class WidgetRender
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
                 await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
                 Console.WriteLine($"widget: wrote {outPath}");
+                written = true;
 
                 // [S-6732] --tree: each card's visual tree beside the PNG, for the match against a mockup.
                 if (Array.IndexOf(args, "--tree") >= 0)
@@ -388,11 +417,11 @@ internal static class WidgetRender
                 wallpaper?.Dispose();
                 ticker?.Dispose();
                 window?.Close();
-                app.Exit();
+                drawn.TrySetResult(written);
             }
         });
 
-        return true;
+        return queued ? drawn.Task : Task.FromResult(false);
     }
 
     private static void SendKeys(WidgetCard card, string keys)
@@ -446,7 +475,7 @@ internal static class WidgetRender
             }
 
             // [S-2848] --place-cleared: a widget about a place, with its place cleared.
-            PlaceRender.Apply(model.Config);
+            PlaceRender.Apply(model.Config, _args);
             ChartLook(model.Config);
 
             if (_span is { } seconds && model.Config is HistoryConfig gauge)

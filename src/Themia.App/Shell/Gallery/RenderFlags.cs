@@ -21,6 +21,8 @@ internal static class RenderFlags
         "--notices-png",
         "--layout-editor-png",
         "--widget-png",
+        WidgetBatch.Flag,
+        CatalogDump.Flag,
         "--menu-png",
         "--motion-png",
         "--grid-png",

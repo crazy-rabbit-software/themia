@@ -200,6 +200,18 @@ public partial class App : Application
             return;
         }
 
+        // And many of those in one process, for the checks ([S-14340]).
+        if (Shell.Gallery.WidgetBatch.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
+        // And every kind the build has, with its states, for the checks ([S-14342]).
+        if (Shell.Gallery.CatalogDump.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And for the context menus ([S-1740]..[S-1744]).
         if (Shell.Gallery.MenuRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

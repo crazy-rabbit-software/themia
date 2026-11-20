@@ -54,13 +54,13 @@ internal static class PlaceRender
     /// <summary>
     /// [S-2848] <c>--place-cleared</c> on one widget's config; [S-2855] <c>--device
     /// locating|denied|unavailable|located</c> turns its Use my location on over that stand-in state
-    /// (located: Zurich), never Windows' own.
+    /// (located: Zurich), never Windows' own. <paramref name="args"/>: the render's own ([S-14340]: a batch job's).
     /// </summary>
-    public static void Apply(WidgetConfig config)
+    public static void Apply(WidgetConfig config, string[] args)
     {
         ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(args);
 
-        var args = Environment.GetCommandLineArgs();
         if (Array.IndexOf(args, "--place-cleared") >= 0 && config is IPlaced placed)
         {
             placed.ClearLocation();
