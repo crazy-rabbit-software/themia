@@ -184,7 +184,10 @@ references, the registry generator (THEMIAMOD001..005: the id is the folder's na
 and the module test host pick it up; nothing in the app, Core or the SDK is edited. A **family** of small
 widgets that share their code (a widget a reading, split from one that showed many: the weather facts, [S-13900])
 is one project marked `[assembly: ThemiaWidgetFamily]` that declares each kind with its own id, module and
-config ([S-6901]); its kinds share one add-page family (`AddFolderId`, `AddTree`). A module builds
+config ([S-6901]); its kinds share one add-page family (`AddFolderId`, `AddTree`). Every one-reading widget is a
+**single metric** on one base (SPEC METRICS, [S-14600]..[S-14607]): its kinds as data (`MetricKind`), a `MetricModule`
+each, the one face `MetricView` (one fact row that is the card, `MetricRules.Sizing`; the trend None/Arrow/Line), a
+system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,

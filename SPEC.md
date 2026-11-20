@@ -17,7 +17,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Fences on the desktop (FENCES); Windows' desktop parity (PARITY); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP, retired); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
+- **Look and layout.** Rows and the card edge; Single metrics (METRICS); Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, the Desktop icon and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Own desktop icons: drops and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
@@ -802,11 +802,10 @@ Sun & moon is split in two (user rule: one widget, one thing). Each is a module 
 shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their properties menus); tests `SkyWidgetsTests`
 (`S310x_`, the astronomy), the pair's in the module host's `SkyWidgetsHostTests`.
 
-- **[S-3100]** The sky is four atoms ([S-11170]): **Sun** (`sun`, the sun's day as a graphic: the
-  path or the day bar, headerless by default, [S-11110]), **Sun times** (`sunTimes`, its rows sunrise,
-  sunset, daylight, solar noon, dawn, dusk as a pick, [S-11115]), **Moon** (`moon`, the lit share and
-  the phase, or the month's phases, [S-11120]) and **Moon times** (`moonTimes`, moonrise, moonset, the
-  next full and new moon as a pick, [S-11125]); the ready-made groups "Sun" and "Moon" are the old
+- **[S-3100]** The sky is two atoms and two families ([S-14604]): **Sun** (`sun`, the sun's day as a graphic: the
+  path or the day bar, headerless by default, [S-11110]), **Sun times** (a widget a time: sunrise, sunset, daylight,
+  solar noon, dawn, dusk, [S-11115], [S-14690]), **Moon** (`moon`, the lit share and the phase, or the month's phases,
+  [S-11120]) and **Moon times** (moonrise, moonset, the next full and new moon, [S-11125], [S-14695]); the ready-made groups "Sun" and "Moon" are the old
   cards ([S-11172]). All sit in the add menu's Weather & sky subject ([S-3511]), name their place in
   the header's label where they show a header ([S-2260]), start at Zürich ([S-11801]), so they
   need setting up only once their place is cleared ([S-2848]), and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
@@ -831,7 +830,8 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
 - [S-3105], [S-6050], [S-6051]: moved with the Moon widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Moon/`).
 - **[S-3106]** A rise or set reads as the time alone when it falls today in the machine's zone, else
   with the short weekday before it ("Mon 9:55 AM"): the next one is often tomorrow.
-- **[S-6735]** The pair's shared parts are on the family's blocks (`SkyParts`, G3 2026-10-29): a row
+- **[S-6735]** *(Retired by [S-14604] as to the row: a sky time is a single metric, its row the facts' row; the moon's
+  disc stays `SkyParts`' `SkyMoonDisc`.)* The pair's shared parts are on the family's blocks (`SkyParts`, G3 2026-10-29): a row
   (`SkyEventRow`) is the fact row ([S-6711]): a 16 lead (a glyph, or the moon drawn at 16), the name
   secondary, the time at the end primary; the next event's name is BodyStrong, never in the accent,
   and its countdown, or a plain row's note ("civil", "35°", "−3m 20s"), is the row's second line where
@@ -6697,7 +6697,7 @@ The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKe
 
 The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `LinkKeys.Drive`, [S-11951]):
 
-- **[S-11950]** A drive is one thing across the view: the `drive` card, the `driveFacts` card, a `disk` reading and
+- **[S-11950]** A drive is one thing across the view: the `drive` card, a drive fact's card (`driveUsed`, ...), a `disk` reading and
   a `diskHistory` chart of one drive ([S-11953]) and a `folder` at its root ([S-11954]) are that drive as a whole card, a
   `removableDrives` row is its drive. The pointer on the card (or the row, or the list's keyboard cursor, [S-3307])
   publishes the drive, and while a drive is pointed at anywhere on the view every card that is it takes the item
@@ -6748,7 +6748,7 @@ Topics:
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | `contacts`, `nextMeeting` | `contacts` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |
-| `HoveredDrive` | Hover | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` |
+| `HoveredDrive` | Hover | `disk`, `diskHistory`, `drive`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` | `disk`, `diskHistory`, `drive`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` |
 | `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
 | `HoveredMessage` | Hover | `email` | `email` |
 <!-- /view-links:table -->
@@ -7044,13 +7044,13 @@ small widgets (atoms) that each show one part at a fixed content, composed side 
 the old big cards come back only as ready-made groups ([S-2470]). Shared code (one path, so atoms of
 one subject read the same source and agree to the digit): `MeterView` (the reading, history and items
 faces), `MeterPart.Atom`, `MeterLook`, `MeterSizing` and `MeterPlan` (the sizes and where the parts
-stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsConfig`/`FactsRules`
-(the pick), `AtomMenuLines`; configs `ReadingConfig`, `HistoryConfig`. Tests `SystemAtomsTests`
+stand), `DetailView` (the list face), `AtomMenuLines`; configs `ReadingConfig`, `HistoryConfig`. A fact is a
+single metric of its own (METRICS, [S-14604]). Tests `SystemAtomsTests`
 (Core), each atom's module tests.
 
 - **[S-11000]** **A subject's atoms.** Each of CPU, memory, GPU, disk, network, ping and battery is
   its **reading** (the kind id stays: `cpu`, `memory`, ...), its **history** (`cpuHistory`, ...), and
-  where it had details its **facts** (`cpuFacts`, ...); extra atoms: CPU cores, GPU engines, network
+  where it had details its **facts**, a single metric each (`cpuSpeed`, ..., [S-14604]); extra atoms: CPU cores, GPU engines, network
   adapters. Every atom of a subject reads the subject's one series or feed from the hub ([S-2504]).
   Inside its range an atom shows the same parts, nothing appearing with size ([S-11800]).
 - **[S-11001]** **A reading** keeps its header (the subject's name; the device as its label) and draws
@@ -7078,7 +7078,7 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   graph cell's figure stands over its history's top corner, so every cell draws both at every size.
 - **[S-11006]** **Rows of items** (the GPU's engines) keep the header: one 28 row per item at a fixed
   count, 200..420 wide (`MeterSizing.ItemRows`).
-- **[S-11007]** **Facts** keep the header and show fact rows alone, no hero (the reading atom is the
+- **[S-11007]** *(Retired by [S-14604]: a fact is a single metric of its own; no card of picked facts.)* **Facts** keep the header and show fact rows alone, no hero (the reading atom is the
   hero): which of the kind's facts and in what order is the config's pick (`FactsConfig.Facts`, keys;
   a new one the kind's first four). Its height is 36 + 28 a fact + 12, stepped by the count, 200..420
   wide, a new one 260 (`FactsRules.Sizing`); dragging the bottom edge keeps the first facts or adds the
@@ -7096,20 +7096,19 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
 - **[S-11090]** **The groups of the old cards** (`ReadyMadeGroups`, home: the subject's family): each
   old card is a group of its atoms, touching, the first with the header, the others headerless, about
   as wide as the old card and tighter: **CPU** (`cpu` 160 × 84 over `cpuHistory` 160 × 64), **CPU cores**
-  (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over `cpuFacts` 240 × 136), **Memory**
-  (`memory` over `memoryHistory`, 160 wide), **Memory details** (`memory` over `memoryFacts`, 260 wide),
-  **GPU** (`gpu` over `gpuHistory`, 200 wide), **GPU details** (`gpu` over `gpuFacts`, 260 wide),
+  (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over its four metrics, [S-14607]), **Memory**
+  (`memory` over `memoryHistory`, 160 wide), **Memory details** (`memory` over its four metrics, 260 wide),
+  **GPU** (`gpu` over `gpuHistory`, 200 wide), **GPU details** (`gpu` over its four metrics, 260 wide),
   **Disk** (`disk` over `diskHistory`, 160 wide), **Network** (`network` over `networkHistory`, 344 wide: its one line, [S-6264]),
-  **Network details** (`network` over `networkFacts` over `networkAdapters` of two rows, 344 wide),
-  **Ping** (`ping` over `pingHistory`), **Ping details** (`ping` over `pingFacts`), **Battery**
-  (`battery` over `batteryHistory`), **Battery details** (`battery` over `batteryFacts`), **Drive**
-  (`drive` over `driveFacts`, 260 wide).
+  **Network details** (`network` over its four metrics over `networkAdapters` of two rows, 344 wide),
+  **Ping** (`ping` over `pingHistory`), **Ping details** (`ping` over its four metrics), **Battery**
+  (`battery` over `batteryHistory`), **Battery details** (`battery` over its four metrics), **Drive**
+  (`drive` over its four metrics, 260 wide).
 
 ## System details (SYS-DETAILS)
 
-*Split into atoms (2026-11-12, [S-11007], [S-11008]): the six detail widgets are facts atoms (`cpuFacts`,
-`memoryFacts`, `gpuFacts`, `networkFacts`, `pingFacts`, `batteryFacts`, an ordered pick of facts, no hero:
-the reading atom is the hero), Top processes and Network adapters lists of rows; `DetailView` has no
+*Split into atoms (2026-11-12, [S-11007], [S-11008]), and the facts into single metrics (2026-11-20, [S-14604]):
+each detail fact is a widget of its own (`cpuSpeed`, `memoryInUse`, ...), Top processes and Network adapters lists of rows; `DetailView` has no
 ladder left. The ladder lines below ([S-2400]'s "shows more as it grows", [S-2402]) hold for no kind of
 this section any more; `DetailFace.Plan` is gone ([S-11800]).*
 
@@ -8043,12 +8042,12 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   same base"; "generally i feel like the widgets have to much variance in themselves. they should reuse more of the
   same components"). Every list of label and value lines (the CPU, GPU, memory, network, ping, battery and drive
   facts, a detail widget's facts, the weather and air facts, the stopwatch's laps) is drawn by one component,
-  `FactList` (a `FactLine` each: glyph, name, value, available): the family's fact rows ([S-6711]), the same anatomy,
+  `FactList` (a `FactLine` each: glyph, name, value, available; every single metric is a list of one, [S-14601]): the family's fact rows ([S-6711]), the same anatomy,
   type, roles and band as the weather facts', filling the content, touching ([S-12807]), so they cannot drift apart.
   A glyph is the line's own and optional: a list whose lines carry one leads every row with it (the slot kept for a
   line without, so the columns line up), a list without has no lead (the system facts have none). The inventory of
   the other families and their outliers is the plan for the next ones (docs: none; renders `--widget-png
-  cpuFacts|driveFacts|weatherHumidity|stopwatch --state sample --sizes range`).
+  cpuSpeed|driveFree|weatherHumidity|stopwatch --state sample --sizes range`).
 - **[S-12812]** **One section heading** (owner, 2026-11-19: "generally i feel like the widgets have to much variance in
   themselves. they should reuse more of the same components"). A heading inside a card over a section of rows (a day
   of the agenda and the schedule, a day of the week planner, a list's done group) is one kit part,
@@ -8058,8 +8057,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-12813]** **Missing data draws the default, never nothing** (owner, 2026-11-19: "even if there is no rain in the
   next two hours or even if there is no cpu data available it should show the default values in the graph and not
   just not show the graph. for both cases. also for other widgets"). A shared part never vanishes because its data is
-  missing or zero: a meter or bar stands at 0, a readout says "--", a facts list keeps every picked fact's row with
-  its label and "--", drawn unavailable (`FactsRules.Pick`); the state ("No data", "Not connected", "Set up") is only
+  missing or zero: a meter or bar stands at 0, a readout says "--", a single metric keeps its row with its label and
+  "--", drawn unavailable (`MetricRules.Pick`, [S-14602]); the state ("No data", "Not connected", "Set up") is only
   a caption or the tooltip over that visual, never in its place. A facts atom whose sheet is only a note keeps its
   rows ("--") and says the note as its tooltip; a list with no rows to draw (top processes, adapters) keeps its
   Status row. A one-reading widget without an answer (Weather now, Air quality, Exchange rate) keeps its readout,
@@ -9223,16 +9222,90 @@ Not live-verified: dragging several selected widgets, a selected widget's handle
 covers them ([S-1597]), a selection handed to another display, placing a recipe on a display with a taskbar or a
 scale other than 100 %.
 
+## Single metrics (METRICS)
+
+Owner, 2026-11-20: "the individual weather facts like pressure have a way to high height. the contents should also fit to
+the height so that the top and bottom spacing is the same as on other widgets." / "split the air facts into individual
+widgets too." / "add premade groups for the air facts and weather facts." / "split all the other widgets that are alike to
+the weather and air facts into individual metrics too. use the same base component for all of them. you should also have
+the option to show trendlines as well or just the trend with arrows." Every one-reading widget is a **single metric** on
+one base. Owning files: `Themia.Sdk/Widgets/Metrics.cs` (the pure rules: `MetricRules`, `MetricValue`, `MetricShown`,
+`MetricTrend`, `MetricHistory`, `MetricReadings`, `IMetricTrend`), `Themia.Sdk/Modules/MetricKind.cs` (a kind as data),
+`Themia.Sdk/Model/Configs/MetricConfig.cs`, `Themia.Sdk.WinUI/Widgets/MetricView.cs` (+ `.Preview.cs`, the one face),
+`Widgets/Details/SystemMetric.cs` (+ `.Preview.cs`, the system families' face over the hub), `Modules/MetricModule.cs`,
+`Shell/MetricMenuLines.cs` (the Trend line), `Themia.Core/Storage/KindSplits.cs` (the in-place replacement); the families
+are their projects: Weather facts, Air facts, CPU, GPU, Memory, Network, Ping, Battery and Drive facts, Sun times and Moon
+times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-6901], with its own `SPEC.md`). Tests:
+`MetricRulesTests` (Core), each family's, `SystemStateFixtureTests.S14606_`, `UnknownWidgetTests.S14606_`,
+`ReadyMadeGroupsTests`.
+
+- **[S-14600]** **Its size is its one row.** The card is one fact row in whole grid cells (WR-6) from its top edge to its
+  foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on the default grid), so its top and bottom spacing are
+  a list row's; its height has that one step (`MetricRules.HeightSteps`, never taller: the card hugs its content), its
+  width 200 at least, a new one 240, relaxed past 420 ([S-12411]), each widened by the trend's room beside the value
+  (an arrow 28, a line 52, `MetricRules.TrendRoom`), so the name and the value keep theirs. Every kind states
+  `MetricRules.SizingOf` its config.
+- **[S-14601]** **One face** (`MetricView`): the row is the facts' row (`FactList`, a list of one, [S-12811]): the kind's
+  16 glyph, the metric's name (the reading's own where its source names it more exactly, "Full in" while charging), its
+  value with its unit at the end, and the trend beside the value ([S-14603]); a name or value too long ends in its
+  ellipsis. A family subclasses it for its data and hands each read to it (`MetricShown`); the face, the trend and the
+  readings an arrow compares are the base's alone. A click opens the family's page (`IWidgetOpens`); Refresh, where the
+  source has one, is on the card menu.
+- **[S-14602]** **Defaults, never hidden** (WR-10): without a reading the row stays, its value "--" drawn unavailable and
+  why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
+  the glyph its room at its end so it never stands on the value ([S-12834]).
+- **[S-14603]** **Trend**, a widget's setting (`IMetricTrend.Trend`, stored only when not None): **None**, **Arrow** (up,
+  down or flat against the reading before) or **Line** (a sparkline of the metric's history, beside the value). What a kind
+  offers is its metric's history (`MetricHistory`): a series (the hub's charted series, a service's hours) None, Arrow and
+  Line; its readings only None and Arrow, from the last two readings the card saw (`MetricReadings`: a reading drawn again
+  is no move); none (a text, a constant, a time) no Trend line at all. A stored trend a kind cannot draw is the one it can,
+  loudly (a line without a series its arrow). The arrow says what the shown figure did: flat while its text is the same,
+  else up or down by the numbers (`MetricRules.Direction`), its room kept empty until there is a reading to compare. The
+  line is the shared chart's line (`Chart`, `MetricRules.Line`): the newest 24 values evenly across 40, oldest at the left
+  and the newest on the right edge, scaled to their own range, a gap breaking it, and with fewer than two values the
+  chart's baseline (never no trend). Over a service's hours (`MetricRules.Hours`) the arrow is the hour under way against
+  the last ("previous hour"), rounded as shown, and the line the hours from the last one on. A source's history is read only
+  while a trend needs it (the hub's series, the place's hours). Trend is a shared setting (`SharedSettings.MetricTrend`,
+  [S-11750]): several metrics selected set it once, each as it can draw it. Its line is on the widget's page after the
+  family's source line (the place, the drive, the adapter, the host), `MetricMenuLines.Trend`.
+- **[S-14604]** **A family a project, a kind a metric.** A family's kinds are data (`MetricKind`: id, the metric's key,
+  glyph, history, the row's name, the add page's name, description and search words, the config); each kind is a sealed
+  module (`MetricModule`) and config of its own, all at home in the family's add-page folder (each one home, in the
+  family's order) under the subject: Weather facts, Air facts, Sun times and Moon times under Weather; CPU, Memory, GPU,
+  Network and Ping facts under System; Battery and Drive facts under Devices. A system family's facts come from the
+  SDK's detail rules (the sheet, each fact with its key and its number, `MetricRules.Pick`) through its part
+  (`SystemMetricPart`) on `SystemMetricView`; the weather's, the air's, the sky's and the drive's through their own views.
+  The multi-row facts kinds (`airFacts`, `cpuFacts`, `gpuFacts`, `memoryFacts`, `networkFacts`, `pingFacts`,
+  `batteryFacts`, `driveFacts`, `sunTimes`, `moonTimes`) are gone, with their pick, its sizing (`FactsRules`, `SkyFacts`)
+  and its menu line.
+- **[S-14605]** Debug renders: every family's own states (sample, stale, failed, unavailable, ...) and, for a metric with
+  a history, `arrow` and (with a series) `line`: the sample with that trend, over a reading before and a history made up
+  from the value where the sample holds none.
+- **[S-14606]** **A placed facts card is replaced in place** (owner, 2026-11-20, asked what becomes of one: "Each placed
+  facts widget becomes its shown rows as single-metric widgets stacked in the same spot, with the same settings (drive,
+  adapter, place)"): on load, before the typed read (`KindSplits.Replace`), a widget of a removed kind of many rows
+  becomes one widget a row it showed, in its stored pick's order (unknown and repeated rows left out; none stored: its
+  kind's defaults), stacked top to bottom from its top edge, each one row of the old card tall (its height was the content
+  top, a 28 row a fact and the inset: a row's share of it, fitted to its one row of whole cells when painted), each a copy
+  of the widget with its look and its config's settings (the place, the drive, the adapter, the host and the window), its
+  pick left out, its id the old one and the kind's (`w07-cpuSpeed`), in the old one's place in the drawing order. Which
+  kind is which row the kinds declare (`WidgetDescriptor.Split`, `SplitFrom`). One logged line a replaced widget.
+- **[S-14607]** **The groups** (owner, 2026-11-20: "add premade groups for the air facts and weather facts"): **Weather
+  facts** (every weather reading, a metric each, in the facts' order) and **Air quality** (the index over UV, PM2.5,
+  PM10, ozone and the worst pollen); the old cards' groups are their reading over the old card's four metrics (**CPU
+  details**, **Memory details**, **GPU details**, **Network details** with its adapters, **Ping details**, **Battery
+  details**, **Drive**), **Sun** and **Moon** the graphic or reading over its three times, **Weather** and **Weather
+  station** the reading over its metrics; each starts with its Header ([S-12485]), every metric one row tall, touching.
+
 ## Weather, sky and money as atoms (ATOMS-SKY)
 
 Owner's decision 2026-11-12 ([S-2438]): the weather, sky and money widgets are split into atoms, each
 one thing at its own size, and the old cards come back as ready-made groups ([S-2470]). Owning files:
-`Themia.Sdk/Widgets/SkyFacts.cs` (the fact atoms' pick and sizing), `Themia.Sdk.WinUI/Widgets/SkyFeed.cs`
-(how an atom follows its answer), `SkyParts.cs` (`SkyEventRow`, `SkyMoonDisc`), `FactList.cs` (every facts widget's rows, [S-12811]),
-`Shell/SkyFactLines.cs` (the pick's menu line), `Themia.Core/Model/ReadyMadeGroups.cs` (the recipes);
-each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyMadeGroupsTests`.
+`Themia.Sdk.WinUI/Widgets/SkyFeed.cs` (how an atom follows its answer), `SkyParts.cs` (`SkyMoonDisc`), `FactList.cs`
+(every fact row, [S-12811]), `Themia.Core/Model/ReadyMadeGroups.cs` (the recipes); each atom's own `SPEC.md`; the facts
+are single metrics (METRICS). Tests: each module's, `ReadyMadeGroupsTests`.
 
-- **[S-11170]** **A fact atom** (weather facts, air facts, sun times, moon times) shows an ordered pick
+- **[S-11170]** *(Retired by [S-14604]: a fact is a single metric of its own.)* **A fact atom** (weather facts, air facts, sun times, moon times) shows an ordered pick
   of fact rows, which and in what order its config's own, one 28 row each ([S-6711]). Its height is
   the content top (36), its rows and the inset (12), stepped by a row and following the pick's count;
   its width 200..420, a new one 240 (`SkyFacts.Sizing`). Dragging its bottom edge keeps the first rows
@@ -9248,7 +9321,8 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
 - **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
   (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
-  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its facts), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
+  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its readings),
+  **Weather facts** (every weather fact, [S-14607]), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
   **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
   weather's none, the sky's Zürich); the previews and `--recipe-png` draw every atom at the one sample
