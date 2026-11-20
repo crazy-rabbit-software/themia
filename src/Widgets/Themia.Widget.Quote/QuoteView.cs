@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// per click for something that is supposed to come back to today's quote in the morning.
 /// </para>
 /// </summary>
-internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidgetAligned, IWidgetContextActions
+internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidgetAligned, IWidgetContextActions, IWidgetSizeAware
 {
     /// <summary>[S-1496] The quote: the information, primary, wrapping, on its step.</summary>
     private readonly TextBlock _text = Family.Text(FamilyType.Body);
@@ -64,7 +64,9 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     public QuoteView()
     {
-        _text.TextWrapping = TextWrapping.Wrap;
+        // [S-14311] Whole words on its lines, the last cut after a whole word: a quote is never broken mid-word.
+        _text.TextWrapping = TextWrapping.WrapWholeWords;
+        _text.TextTrimming = TextTrimming.WordEllipsis;
         _mark.HorizontalAlignment = HorizontalAlignment.Left;
         _mark.Margin = new Thickness(0, 0, 0, FamilySpace.S2);
         _mark.Visibility = Visibility.Collapsed;
@@ -229,6 +231,21 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
         _author.Text = QuoteLayout.Attribution(quote.Author);
 
         Lay();
+    }
+
+    /// <summary>
+    /// [S-14311] Where the quote wraps: at the width the card's inset gives it (CLAUDE.md: a view may measure its box to lay
+    /// out its fixed parts, where a text wraps), so the fit, which measures its parts unbounded across, plans the quote on
+    /// its wrapped lines and scales them as one into the card. Unwrapped, the fit took the quote as one line, held at its
+    /// floor it ran past the inset to 4 from the card's edge and the card cut it mid-word (300 to 330 wide).
+    /// </summary>
+    public void ApplySize(WidgetArea area)
+    {
+        var room = area.IsMeasured ? Math.Max(0, area.Width - (2 * FamilySpace.Inset)) : double.PositiveInfinity;
+        if (!_text.MaxWidth.Equals(room))
+        {
+            _text.MaxWidth = room;
+        }
     }
 
     /// <summary>[S-6583] Where the mark, the quote and its author sit: the widget's alignment, from the start by default ([S-6582]).</summary>

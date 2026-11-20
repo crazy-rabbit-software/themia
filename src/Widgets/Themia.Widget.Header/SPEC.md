@@ -18,7 +18,8 @@ Owning files: everything in this folder. Tests: `Tests/HeaderTests.cs` (run by
   (`HeaderLayout`): the card's inset over it, the line of 20, a Caption line with a caption, and the
   header's gap of 4 under it. Any width from 96 to 960, natural 240; the relaxed range lets it be stretched
   ([S-12411]). [S-12483] The block stands in the middle of the whole strip (the card's top inset given back),
-  joined to the cards under it or alone alike, so a header at 36 has 8 over and under its line.
+  joined to the cards under it or alone alike, the band over and under its line's ink alike (11 at 36). [S-14307] In a
+  larger card the line grows as one (`InkFit`) until the width stops it, centred top and foot.
 - **[S-9602]** Its page: Title and Caption, each typed in place in its box (owner, 2026-11-19: "the title and
   caption for example should show inline not under the additional menu"; `WidgetMenuLines.Text`, [S-2332]; empty
   clears it, kept as load repair keeps it), and Icon, the one icon picker ([S-1803]) inline in its card

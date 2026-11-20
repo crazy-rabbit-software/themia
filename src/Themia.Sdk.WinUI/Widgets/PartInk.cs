@@ -62,9 +62,11 @@ public static class PartInk
         var rows = panel is Grid grid ? Math.Max(1, grid.RowDefinitions.Count) : 1;
         double over = double.PositiveInfinity, under = double.PositiveInfinity;
 
-        // A picture or a glyph beside a text draws inside its box (its own margins): the text says where the ink is.
+        // A picture beside a text draws inside its box (its own margins): the text says where the ink is. [S-14307] A glyph
+        // the meter measures says where its own ink is (the Header's glyph stands over its title's capitals); one it cannot
+        // measure is left to the text, as a picture.
         var shown = panel.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
-        var pictures = shown.Where(c => c is Image or FontIcon).ToList();
+        var pictures = shown.Where(c => c is Image || (c is FontIcon icon && !Measured(icon))).ToList();
         if (pictures.Count < shown.Count)
         {
             shown = [.. shown.Except(pictures)];
@@ -103,6 +105,10 @@ public static class PartInk
         return double.IsFinite(over) && double.IsFinite(under) ? new LineInk(over, under) : LineInk.None;
     }
 
+    /// <summary>Whether the meter measures <paramref name="icon"/>'s glyph.</summary>
+    private static bool Measured(FontIcon icon)
+        => InkMeter.Measure(new InkText(icon.Glyph, FontOf(icon.FontFamily), icon.FontSize, icon.FontWeight.Weight, 0)) is not null;
+
     /// <summary>
     /// The thumb of a horizontal slider, its ring included, measured on the renders: the template's box is taller
     /// than it (32), and the thumb is the slider's first and last ink.
@@ -128,6 +134,26 @@ public static class PartInk
     private static LineInk Add(LineInk ink, double over, double under) => new(ink.Over + over, ink.Under + under);
 
     /// <summary>
+    /// [S-14301] Stand <paramref name="text"/>'s first ink, not its advance, where its box starts (WR-3): its margin at the
+    /// start reaches back over the room its first letter leaves there, as the meter measures it (a block scaled 2.5 times
+    /// grew a title's "D" to 4.7 past the start inset). The start does not move when the text is cut at its end.
+    /// Unmeasured (no meter, no text): no room.
+    /// </summary>
+    public static void InkStart(TextBlock text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        var room = string.IsNullOrEmpty(text.Text) || !(text.FontSize > 0) ? null
+            : InkMeter.Room(new InkText(text.Text, FontOf(text.FontFamily), text.FontSize, text.FontWeight.Weight, 0, Tracking: text.CharacterSpacing));
+        var rtl = text.FlowDirection == FlowDirection.RightToLeft;
+        var start = room is { } r && double.IsFinite(r.Start(rtl)) ? Math.Max(0, r.Start(rtl)) : 0;
+        var margin = rtl ? text.Margin with { Right = -start } : text.Margin with { Left = -start };
+        if (text.Margin != margin)
+        {
+            text.Margin = margin;
+        }
+    }
+
+    /// <summary>
     /// [S-14301] The room in <paramref name="element"/>'s measured box (its margin included) before its first ink and after
     /// its last, across, left and right as laid out: a text's side bearings as the meter measures them (<see cref="InkMeter.Room"/>),
     /// a column's least either side as its parts stand in it, a row's first part's start and last part's end. A family
@@ -150,6 +176,8 @@ public static class PartInk
             StackPanel { Orientation: Orientation.Vertical } stack => Pad(Column(stack.Children, stack.DesiredSize.Width - stack.Margin.Left - stack.Margin.Right - stack.Padding.Left - stack.Padding.Right), stack.Padding.Left, stack.Padding.Right),
             SpreadStack { Orientation: Orientation.Vertical } spread => Column(spread.Children, spread.DesiredSize.Width - spread.Margin.Left - spread.Margin.Right),
             StackPanel { Orientation: Orientation.Horizontal } row => Pad(Row(row.Children), row.Padding.Left, row.Padding.Right),
+            FontIcon icon => GlyphAcross(icon),
+            Grid grid => Pad(Columns(grid), grid.Padding.Left, grid.Padding.Right),
             _ => (0.0, 0.0),
         };
 
@@ -175,7 +203,10 @@ public static class PartInk
 
         var rtl = text.FlowDirection == FlowDirection.RightToLeft;
         var (start, end) = InkRoom.Ends(r, r, rtl, led: false);
-        var wraps = text.TextWrapping != TextWrapping.NoWrap;
+
+        // A wrapping text that stands on one line ends as one line does.
+        var line = text.LineHeight > 0 ? text.LineHeight : text.FontSize * 1.4;
+        var wraps = text.TextWrapping != TextWrapping.NoWrap && text.DesiredSize.Height - text.Margin.Top - text.Margin.Bottom > line * 1.5;
         return rtl ? (wraps ? 0 : end, start) : (start, wraps ? 0 : end);
     }
 
@@ -185,7 +216,9 @@ public static class PartInk
         double left = double.PositiveInfinity, right = double.PositiveInfinity;
         foreach (var child in children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible))
         {
-            var w = child.DesiredSize.Width;
+            // A part that stretches (a slider's row, a bar) is laid across the whole column, whatever it asked for; a text
+            // stretched draws from its start, as wide as it asked.
+            var w = child.HorizontalAlignment == HorizontalAlignment.Stretch && child is not TextBlock ? width : child.DesiredSize.Width;
             var x = child.HorizontalAlignment switch
             {
                 HorizontalAlignment.Right => width - w,
@@ -198,6 +231,61 @@ public static class PartInk
         }
 
         return double.IsFinite(left) && double.IsFinite(right) ? (left, right) : (0, 0);
+    }
+
+    /// <summary>[S-14306] A glyph's room in its em box either side (its em box centred in the icon's box), unmeasured none.</summary>
+    private static (double Left, double Right) GlyphAcross(FontIcon icon)
+    {
+        var size = icon.FontSize;
+        if (InkMeter.Room(new InkText(icon.Glyph, FontOf(icon.FontFamily), size, icon.FontWeight.Weight, 0)) is not { } room)
+        {
+            return (0, 0);
+        }
+
+        var box = double.IsFinite(icon.Width) && icon.Width > 0 ? icon.Width : size;
+        var em = Math.Max(0, (box - size) / 2);
+        return (Math.Max(0, room.Left) + em, Math.Max(0, room.Right) + em);
+    }
+
+    /// <summary>
+    /// [S-14306] A grid's sides: one column, its parts as they stand in it (a glyph centred in its mark); several, the parts
+    /// standing at the first column's start and at the last column's end (a part centred in a column between says nothing).
+    /// </summary>
+    private static (double Left, double Right) Columns(Grid grid)
+    {
+        var width = grid.DesiredSize.Width - grid.Margin.Left - grid.Margin.Right - grid.Padding.Left - grid.Padding.Right;
+        var columns = Math.Max(1, grid.ColumnDefinitions.Count);
+        if (columns == 1)
+        {
+            return Column(grid.Children, width);
+        }
+
+        // The first and last columns that hold a shown part (a collapsed glyph's column takes no room).
+        var shown = grid.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
+        if (shown.Count == 0)
+        {
+            return (0, 0);
+        }
+
+        var first = shown.Min(Grid.GetColumn);
+        var last = shown.Max(c => Grid.GetColumn(c) + Grid.GetColumnSpan(c));
+        double left = double.PositiveInfinity, right = double.PositiveInfinity;
+        foreach (var child in shown)
+        {
+            var (l, r) = Across(child);
+            var column = Grid.GetColumn(child);
+            if (column == first && child.HorizontalAlignment is HorizontalAlignment.Left or HorizontalAlignment.Stretch)
+            {
+                left = Math.Min(left, l);
+            }
+
+            if (column + Grid.GetColumnSpan(child) >= last && child.HorizontalAlignment is HorizontalAlignment.Right or HorizontalAlignment.Stretch)
+            {
+                right = Math.Min(right, r);
+            }
+        }
+
+        return (double.IsFinite(left) ? left : 0, double.IsFinite(right) ? right : 0);
     }
 
     /// <summary>A row's first shown part's start and its last's end.</summary>

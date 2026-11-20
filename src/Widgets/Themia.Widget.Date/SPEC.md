@@ -27,8 +27,9 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   card would draw them under 9 (owner, 2026-11-19: "for the widgets that can scale there should basically be no lower
   limit except for one that makes sense so you can still see the widget"). It has no menu lines of its own. A stored
   `size` is an unknown key, dropped loudly on load.
-- **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step in its natural box and
-  scaled up as one to the card (`InkFit`, uniform; down only as [S-12833] says), placed by the widget's alignment ([S-6581],
+- **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step, as wide as today's text
+  ([S-14308]: not the widest day's box), and scaled up as one to the card (`InkFit`, uniform; down only as [S-12833]
+  says), so today's line reaches the sides where the width stops it, placed by the widget's alignment ([S-6581],
   centred by default); the family's inset at the sides and the foot, joined or alone
   ([S-12483]).
 - **[S-10804]** Its picture ([S-11850]) is the sample day ([S-2050]); the Debug state `longest` draws a long

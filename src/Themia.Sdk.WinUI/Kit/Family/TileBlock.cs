@@ -16,8 +16,12 @@ namespace Themia.Sdk.WinUI.Kit;
 /// role ([S-1940]).
 /// <para>
 /// [S-14201] The face (the glyph or its circle or ring, the label and the state line) stands centred on its ink, not its
-/// box (<see cref="InkFit"/> at its own size: the glyph's room in its em box, the last line's room under its baseline or
-/// descender), so the bands over and under it are alike (owner, 2026-11-19: "Centred is fine").
+/// box (<see cref="InkFit"/>: the glyph's room in its em box, the last line's room under its baseline or descender), so
+/// the bands over and under it are alike (owner, 2026-11-19: "Centred is fine"). [S-14306] It is one block that scales up
+/// as one (WR-7: "A reading and its caption stay together and scale up") until its ink fills the tile's height or the
+/// width stops it, then stands centred on the other axis: the tile exemption relaxes only the bands over and under it
+/// being alike, never its reach ("nothing else of WR-1..WR-4 is relaxed"). Its words wrap at the inset's width as
+/// planned; the block is as wide as its widest part.
 /// </para>
 /// <para>
 /// [S-6736] It only draws: its owner keeps the whole tile as the hit target and tells it the
@@ -32,8 +36,8 @@ public sealed partial class TileBlock : Grid
     private readonly Border _overlay = new() { IsHitTestVisible = false };
     private readonly StackPanel _stack;
 
-    /// <summary>[S-14201] The face centred on its ink in the tile's inset, never scaled up.</summary>
-    private readonly InkFit _fit = new() { Most = 1 };
+    /// <summary>[S-14201] [S-14306] The face centred on its ink in the tile's inset, scaled up as one to fill it.</summary>
+    private readonly InkFit _fit = new();
     private readonly Grid _mark;
     private readonly Border _circle;
     private readonly Border _circleOverlay = new() { IsHitTestVisible = false };
@@ -304,8 +308,11 @@ public sealed partial class TileBlock : Grid
         _mark.Width = size;
         _mark.Height = size;
 
-        // [S-14201] Its words wrap at the inset's width, as they did in the tile's own box; a glyph alone is its own width.
-        _stack.Width = _planLabel || _planState ? Math.Max(size, _width) : double.NaN;
+        // [S-14201] Its words wrap at the inset's width, as they did in the tile's own box; [S-14306] the block is as wide as
+        // its widest part (the glyph, a wrapped name, the state line), so the fit scales it until the width stops it.
+        var wrap = _planLabel || _planState ? Math.Max(size, _width) : double.PositiveInfinity;
+        _label.MaxWidth = wrap;
+        _state.MaxWidth = wrap;
 
         // [S-14201] Its ink may have moved in a box of the same size (a sentence with a descender, the ring shown, "--"
         // for "Off"), which XAML does not arrange again on its own: the fit places it again.

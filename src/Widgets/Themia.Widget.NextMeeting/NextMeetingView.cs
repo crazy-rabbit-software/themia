@@ -293,6 +293,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
         _when.Text = NextMeetingRules.When(locale, item, now, zone);
         _title.Text = string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject;
+        PartInk.InkStart(_title);
         _range.Text.Text = NextMeetingRules.Range(locale, item, zone);
         _location.Text.Text = item.Location ?? string.Empty;
         _location.Row.Visibility = Show(_config.ShowPlace && !string.IsNullOrWhiteSpace(item.Location));
@@ -324,6 +325,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _when.Text = EmptyRows.Placeholder;
         _text.VerticalAlignment = VerticalAlignment.Top;
         _title.Text = EmptyRows.Placeholder;
+        PartInk.InkStart(_title);
         _range.Text.Text = EmptyRows.Placeholder;
         _location.Text.Text = EmptyRows.Placeholder;
         _location.Row.Visibility = Show(_config.ShowPlace);

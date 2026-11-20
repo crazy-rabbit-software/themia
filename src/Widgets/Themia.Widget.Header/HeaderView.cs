@@ -12,19 +12,45 @@ namespace Themia.Widget.Header;
 
 /// <summary>
 /// [S-9600] [S-9601] The Header widget's view: the family's Header block (glyph, name, caption) at the
-/// widget's alignment, at the card's side inset, the same at every width, the header's gap (4) under it.
-/// [S-12483] In the middle of the whole strip (the card's top inset given back), the same whether a card joins it or not.
+/// widget's alignment, in the card's inset. [S-14307] Its one line grows until the width stops it (owner, 2026-11-19, of
+/// the clock, the date and "the Header widget, whose one line grows until the width stops it": "Centred is fine"): the
+/// block scales up as one (<see cref="InkFit"/>) until its ink fills the card's height or its width, the height left
+/// shared alike over and under it, across where its alignment puts it. [S-12483] The same whether a card joins it or not.
 /// </summary>
-internal sealed partial class HeaderView : Grid, IWidgetView, IWidgetAligned
+internal sealed partial class HeaderView : Grid, IWidgetView, IWidgetAligned, IWidgetSizeAware
 {
-    private readonly HeaderBlock _block = new() { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, -FamilySpace.Inset, 0, 0) };
+    private readonly HeaderBlock _block = new();
+    private readonly InkFit _fit = new();
     private HeaderConfig _config = new();
     private ContentAlign _align = ContentAlign.Left;
 
     public HeaderView()
     {
+        // [S-14307] The line in the strip's middle at its own size in its natural strip, alike over and under (the card's
+        // top inset partly given back), and grown as one in a larger card, the same band over and under it.
         Padding = Family.SideInset;
-        Children.Add(_block);
+        _fit.Margin = new Thickness(0, Band - FamilySpace.Inset, 0, Band);
+        _fit.Child = _block;
+        Children.Add(_fit);
+    }
+
+    /// <summary>
+    /// [S-14307] The band over and under the line: what the natural strip (<see cref="HeaderLayout.Height"/>) leaves round a
+    /// line's ink (its title's size, its capitals over a descender), so the line stands at its own size there.
+    /// </summary>
+    private static double Band => (HeaderLayout.Height(caption: false) - FamilyType.BodyStrong.FontSize) / 2;
+
+    /// <summary>
+    /// [S-14307] The line's width: at most the card's inside, so a title longer than the strip is cut with its ellipsis at
+    /// its own size (the fit then scales it no larger) and a short one grows until the width stops it.
+    /// </summary>
+    public void ApplySize(WidgetArea area)
+    {
+        var room = area.IsMeasured ? Math.Max(0, area.Width - (2 * FamilySpace.Inset)) : double.PositiveInfinity;
+        if (!_block.MaxWidth.Equals(room))
+        {
+            _block.MaxWidth = room;
+        }
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -61,6 +87,7 @@ internal sealed partial class HeaderView : Grid, IWidgetView, IWidgetAligned
             title = $"{title} · {place}";
         }
 
+        _fit.Align = Aligned.Horizontal(_align);
         _block.Show(title, _config.Glyph, _config.Caption, Aligned.Horizontal(_align));
     }
 }

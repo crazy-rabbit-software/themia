@@ -8549,6 +8549,32 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   one-line face that fills the height instead stands across where its card's alignment puts it ([S-14301]). Which kinds
   are tiles, one-line faces, graphs or pictures is read in one place (`classify` in `scripts/gap-check.py`), so a
   catalog of the kinds' traits can replace the names there alone.
+- **[S-14306]** **A tile's face scales up as one** (WR-7: "A reading and its caption stay together and scale up";
+  docs/WIDGET-RULES.md, tiles: "The bands over and under a tile's face are alike; nothing else of WR-1..WR-4 is
+  relaxed"; decided 2026-11-20). The Tile block's face (the glyph or its circle or ring, the name, a toggle's state line)
+  is one block planned on the step its box holds (`TileRules.Face`) and scaled up by its `InkFit` (no `Most`) until its
+  ink fills the tile's height or the width stops it, then centred on the other axis; its words wrap at the inset's width
+  as planned and the block is as wide as its widest part (`MaxWidth`, not the inset's width). The small end keeps
+  [S-12806] (a 30x30 tile's glyph in its tight inset, WR-14). A glyph's and a one-cell grid's sides are their ink
+  (`PartInk.Across`: a glyph's room in its em box). The gap check judges a tile's face that fills the height as centred
+  across ([S-14305]). Before, the face stood at its planned size (`Most` 1), 25 to 250 DIP in from the sides.
+- **[S-14307]** **The Header's line grows until the width stops it** (the owner's one-line exemption: "the Header widget,
+  whose one line grows until the width stops it"). The Header block stands in an `InkFit`: scaled up as one until its
+  ink fills the card's height or its width, centred top and foot, across where its alignment puts it. Its natural strip
+  ([S-9601], `HeaderLayout.Height`) keeps the line at its own size: the band over and under the line is what that strip
+  leaves round the title's size (11). A title longer than the card is cut with its ellipsis at its own size (the
+  block's width is at most the card's inside, `ApplySize`). A glyph the meter measures says where its own ink is beside a
+  text (`PartInk`; the Header's glyph stands over its title's capitals). Before, the line stayed at its own size in any
+  card (a 900x300 header 12 from the start and 818 from the end).
+- **[S-14308]** **The date fills with today's text** (decided 2026-11-20). The face is as wide as today's line, not the
+  box the sizing made for the language's widest day (`DateLayout.Face`'s width), so today's line reaches the sides at
+  its alignment where the width stops it; a shorter day is drawn larger, the day-to-day change accepted. `InkFit` fills
+  and places by ink across too (`PartInk.Across`, unrounded). The clock's world style at 350x70 stays smaller: its city
+  line gave way and the face is held at the scale it gave way at ([S-12833], `FaceFit.Most`), a different rule.
+- **[S-14311]** **A quote wraps at whole words in the card** (WR-3). The quote's text wraps at the width the card's inset
+  gives it (`ApplySize`), at whole words, the last line cut after a whole word; the fit plans the block on those lines
+  and scales it as one. Before, measured unbounded, the quote was one line held at its floor that ran past the inset to 4
+  from the card's edge and was cut mid-word by the card (300 to 330 wide).
 - **[S-14312]** **No text stands in the inset** (WR-3: "the inset is padding inside the item"; the check's lower bound).
   The gap check measures each text the layout names (`ink`, `texts`) on the PNG within its own box, against its box's
   ground, and a text whose ink stands closer than the inset less the tolerance (8) to a card edge is a finding ("text in
@@ -8694,7 +8720,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   `InkCentringTests.S14200_`.
 - **[S-14201]** **A tile's face is centred on its ink** (owner, 2026-11-19, of a quick toggle's or a power button's icon
   and name: "Centred is fine"). The Tile block's face (the glyph, its circle or arm ring, the name and a toggle's state
-  line) stands in an `InkFit` at its own size (`Most` 1: never drawn larger than planned) in the tile's inset, so its
+  line) stands in an `InkFit` in the tile's inset (since 2026-11-20 scaled up as one, [S-14306]), so its
   first ink (the glyph's top, the ring's, the circle's) and its last (the last line's baseline or descender) stand as far
   from the top as from the foot; it stood centred by its box, 8 to 15 DIP more room over the glyph than under the words
   (the Wi-Fi tile at 232: 52 over, 44 under). A face whose ink changes in a box of the same size (a sentence with a
