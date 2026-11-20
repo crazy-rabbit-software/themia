@@ -17,11 +17,11 @@ public sealed class NetworkMetricTests
         Assert.DoesNotContain(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkLocalAddressConfig(), @"C:\").Feeds);
         Assert.Contains(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkPublicAddressConfig(), @"C:\").Feeds);
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new NetworkPublicAddressModule()).MenuLines(menu, new NetworkPublicAddressConfig());
         Assert.True(Assert.Single(menu.Lines).Note);
 
-        var local = new WidgetMenuLines(() => { }, _ => { });
+        var local = new WidgetMenuLines(() => { });
         ((IWidgetModule)new NetworkLocalAddressModule()).MenuLines(local, new NetworkLocalAddressConfig());
         Assert.Empty(local.Lines);
     }

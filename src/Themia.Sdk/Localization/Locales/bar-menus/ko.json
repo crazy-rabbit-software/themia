@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "크기",
   "barMenus.viewBar.hidden": "숨김",
   "barMenus.viewBar.views": "보기",
-  "barMenus.view.renameTitle": "보기 이름 바꾸기",
   "barMenus.view.deleteQuestion": "“{name}”을(를) 삭제할까요?",
   "barMenus.view.deleteDetail": "이 보기의 위젯도 함께 삭제됩니다({widgets}). 실행 취소하면 모두 되돌아옵니다."
 }

@@ -137,7 +137,7 @@ public static partial class SettingsMenu
         foreach (var preset in DesignPresets.All)
         {
             var id = preset.Id;
-            options.Add(new SettingsRadio(key + "/" + id, preset.Label, match == id, () => PickPreset(host, id)));
+            options.Add(new SettingsRadio(key + "/" + id, preset.Label, match == id, () => PickPreset(host, key, id)));
         }
 
         if (match is null)
@@ -148,8 +148,11 @@ public static partial class SettingsMenu
         return new SettingsChoice(key, Str.Settings_Nav_Style.Text(), Glyphs.Palette, options);
     }
 
-    /// <summary>[S-6483] Apply a preset; asked first where it would overwrite a look of the user's own.</summary>
-    private static void PickPreset(ISettingsMenuHost host, DesignPresetId id)
+    /// <summary>
+    /// [S-6483] Apply a preset; asked first where it would overwrite a look of the user's own, [S-2351] in place in the
+    /// Style card (<paramref name="key"/>'s).
+    /// </summary>
+    private static void PickPreset(ISettingsMenuHost host, string key, DesignPresetId id)
     {
         var design = host.State.Design;
         if (DesignPresets.Match(design) == id)
@@ -161,7 +164,7 @@ public static partial class SettingsMenu
 
         if (DesignPresets.ReplacesCustomLook(design, id))
         {
-            host.Confirm(new SettingsConfirm(
+            host.Confirm(key, new SettingsConfirm(
                 Str.Shell_Appearance_ReplaceLook_Title.Text(),
                 Str.Shell_Appearance_ReplaceLook_Action.Text(),
                 Apply,

@@ -54,7 +54,14 @@ public enum SettingsRowKind
     /// <summary>A group of rows opened inside its card (the one second level a card has).</summary>
     Expander,
 
-    /// <summary>A page of its own under this one, behind a back head (an account).</summary>
+    /// <summary>
+    /// [S-2351] One line of text or one question asked in place (Rename…, Add…, Clear history, Reset all): a card's head
+    /// with its words, what it holds and the expand chevron, whose one inner level is the field and its accept, or the
+    /// question and its answers (<see cref="AskInPlace"/>). Never a page of its own.
+    /// </summary>
+    Ask,
+
+    /// <summary>A page of its own under this one, behind a back head (a view's list of desktop icons): many lines, never one input.</summary>
     SubPage,
 
     /// <summary>Where one card ends and the next begins.</summary>
@@ -80,6 +87,9 @@ public static class SettingsRows
             SettingsToggle => SettingsRowKind.Toggle,
             SettingsSlider => SettingsRowKind.Number,
             SettingsField or SettingsAsk => SettingsRowKind.Text,
+
+            // [S-2351] A command asked first asks in place, in its own card.
+            SettingsCommand { Confirm: not null } => SettingsRowKind.Ask,
             SettingsCommand => SettingsRowKind.Action,
             SettingsItem => SettingsRowKind.Item,
             SettingsNote or SettingsReading => SettingsRowKind.Note,

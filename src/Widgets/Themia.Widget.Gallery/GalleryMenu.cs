@@ -172,14 +172,14 @@ internal static class GalleryMenu
 
         var title = picture ? GalleryStr.Gallery_ImageLabel.Text() : GalleryStr.Gallery_FolderLabel.Text();
         var none = picture ? GalleryStr.WidgetsB_Settings_Gallery_NoPicture.Text() : GalleryStr.WidgetsB_Settings_Gallery_NoFolder.Text();
-        var typePath = new ItemMenuEntry(Glyphs.Edit, GalleryStr.Gallery_Menu_TypePath.Text(), () => menu.Ask(new WidgetTextAsk(
+        var typePath = WidgetMenuLines.Ask(Glyphs.Edit, GalleryStr.Gallery_Menu_TypePath.Text(), new WidgetTextAsk(
             title,
             none,
             Str.Common_Save.Text(),
             typed => PathRefusal(typed, picture),
             typed => Store(typed.Trim().Length == 0 ? string.Empty : FolderPath.Validate(typed).Path),
             Initial: current,
-            AllowEmpty: true)), Asks: true);
+            AllowEmpty: true));
 
         var shown = current.Trim().Length == 0 ? none : FolderPath.DisplayName(current);
         return WidgetMenuLines.Submenu(picture ? Glyphs.File : Glyphs.Folder, title, [browse, typePath]) with { Value = shown };

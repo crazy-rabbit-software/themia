@@ -42,7 +42,7 @@ public sealed class DiskHistoryTests
     [Fact]
     public void S11018_its_lines_are_the_drive_then_the_span()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         DiskHistoryModule.Lines(menu, new DiskHistoryConfig(), []);
         Assert.Equal(2, menu.Lines.Count);
     }

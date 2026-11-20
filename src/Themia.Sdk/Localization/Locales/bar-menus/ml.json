@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "വലുപ്പം",
   "barMenus.viewBar.hidden": "മറച്ചത്",
   "barMenus.viewBar.views": "കാഴ്ചകൾ",
-  "barMenus.view.renameTitle": "കാഴ്ചയുടെ പേരുമാറ്റുക",
   "barMenus.view.deleteQuestion": "“{name}” ഇല്ലാതാക്കണോ?",
   "barMenus.view.deleteDetail": "അതിന്റെ വിജറ്റുകളും ഒപ്പം പോകും ({widgets}). പഴയപടിയാക്കിയാൽ എല്ലാം തിരികെ വരും."
 }

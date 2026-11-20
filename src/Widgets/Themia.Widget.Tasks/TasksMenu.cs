@@ -288,7 +288,7 @@ internal static class TasksMenu
         if (shown is not null)
         {
             var shownId = shown.Id;
-            lines.Add(new(Glyphs.Rename, TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text(), () => menu.Ask(new WidgetTextAsk(
+            lines.Add(WidgetMenuLines.Ask(Glyphs.Rename, TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text(), new WidgetTextAsk(
                 TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text().TrimEnd('…'),
                 TasksStr.Todo_LocalLists_NamePlaceholder.Text(),
                 Str.Common_Rename.Text(),
@@ -300,7 +300,7 @@ internal static class TasksMenu
                     menu.Outdate();
                 },
                 Initial: shown.Name,
-                AllowEmpty: true)), Disabled: !pool.Writable, Asks: true));
+                AllowEmpty: true), disabled: !pool.Writable));
 
             // [S-604] Always asked, empty or not: it takes every task in it.
             var detail = shown.Tasks.Count == 0

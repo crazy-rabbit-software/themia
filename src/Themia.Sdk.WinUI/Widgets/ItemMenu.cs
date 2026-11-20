@@ -57,10 +57,13 @@ namespace Themia.App.Widgets;
 /// </param>
 /// <param name="Slider">[S-3731] The properties menu's inline slider (words, slider, value in one line); item menus have none.</param>
 /// <param name="Order">[S-3732] The properties menu's ordered list item: its line is dragged up and down among the list's; item menus have none.</param>
-/// <param name="Asks">
-/// [S-3736] Its <paramref name="Action"/> asks (a line of text, <see cref="Themia.Sdk.WinUI.WidgetMenuLines.Ask"/>, or an
-/// "are you sure?", <see cref="Themia.Sdk.WinUI.WidgetMenuLines.Confirm"/>): on the properties menu its click opens
-/// that question as a level of its own, so the line has a chevron; item menus ignore it.
+/// <param name="Ask">
+/// [S-2351] [S-3721] The properties menu's line of text asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Ask"/>:
+/// Rename…, Add…, a path typed): its card opens on the field and its accept, never a page of its own; item menus have none.
+/// </param>
+/// <param name="Confirm">
+/// [S-2351] [S-3727] The properties menu's "are you sure?" asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Confirm"/>):
+/// its card opens on the question and its answers; only the answer does it. Item menus have none.
 /// </param>
 /// <param name="LinkTo">
 /// [S-3749] A link row: its <paramref name="Action"/> closes the menu and opens another menu at the level that owns
@@ -97,7 +100,8 @@ public readonly record struct ItemMenuEntry(
     bool SetsUp = false,
     Themia.Sdk.WinUI.MenuSlider? Slider = null,
     Themia.Sdk.WinUI.MenuOrder? Order = null,
-    bool Asks = false,
+    Themia.Sdk.WinUI.WidgetTextAsk? Ask = null,
+    Themia.Sdk.WinUI.WidgetConfirm? Confirm = null,
     string? LinkTo = null,
     string? Shares = null,
     Themia.Sdk.WinUI.MenuIcon? Icon = null,
@@ -107,7 +111,10 @@ public readonly record struct ItemMenuEntry(
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
 
-    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && Icon is null && Field is null && !Note;
+    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && Icon is null && Field is null && !Asks && !Note;
+
+    /// <summary>[S-2351] It asks in place (a line of text or a question): its card opens on what it asks.</summary>
+    public bool Asks => Ask is not null || Confirm is not null;
 
     /// <summary>[S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow.</summary>
     internal MenuLine Line => IsSeparator ? MenuLine.Separator : MenuLine.Entry(Checked is null && Children is null ? Quick : null);

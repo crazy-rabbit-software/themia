@@ -56,7 +56,7 @@ public sealed class TasksMenuTests
 
     private WidgetMenuLines Build(TasksConfig config, ITaskSource? service)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask, confirm => _confirm = confirm);
+        var lines = new WidgetMenuLines(() => _saves++);
         TasksMenu.Lines(lines, config, service);
         return lines;
     }
@@ -240,11 +240,11 @@ public sealed class TasksMenuTests
         Line(lists, "Errands").Action!();
         Assert.Equal("p2", config.LocalListId);
 
-        Line(Line(Build(config, service).Lines, ListLabel).Children!, TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text()).Action!();
+        _asked = Typed.Ask(Line(Line(Build(config, service).Lines, ListLabel).Children!, TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text()));
         _asked!.Done(" Shop ");
         Assert.Equal("Shop", pool.Find("p2")!.Name);
 
-        Line(Line(Build(config, service).Lines, ListLabel).Children!, TasksStr.WidgetsC_Tasks_Settings_DeleteList.Text() + "…").Action!();
+        _confirm = (Line(Line(Build(config, service).Lines, ListLabel).Children!, TasksStr.WidgetsC_Tasks_Settings_DeleteList.Text() + "…")).Confirm;
         Assert.NotNull(pool.Find("p2"));
         Assert.Equal(TasksStr.WidgetsC_Tasks_Settings_DeleteListConfirm.Text(), _confirm!.Question);
         Assert.Equal(TasksStr.WidgetsC_Tasks_Settings_DeleteListEmpty.Format(("name", "Shop")), _confirm.Detail);

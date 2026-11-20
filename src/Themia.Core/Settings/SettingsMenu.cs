@@ -205,11 +205,11 @@ public sealed record SettingsPreview(string Key) : SettingsLine(Key)
 public sealed record SettingsOrder(int Index, int Count, Action<int, int> Move);
 
 /// <summary>
-/// [S-3721] [S-3736] A line that asks for a line of text on a level of its own (Rename…): the level's
-/// name, the field's hint, the words of the row that gives it, what the field starts with, why a typed
-/// text cannot be used (null when it can) and what is done with it.
+/// [S-2302] [S-2351] A line of text typed in its box at the line's end (a view's Name, an account's Nickname): the
+/// field's hint, what it starts with, why a typed text cannot be kept (null when it can) and what keeping it does.
+/// Enter or leaving keeps it, Escape restores it; never a page of its own.
 /// </summary>
-public sealed record SettingsAsk(string Key, string Text, string? Glyph, string Title, string Placeholder, string Accept, string Initial, Func<string, string?> Refuse, Action<string> Done) : SettingsLine(Key)
+public sealed record SettingsAsk(string Key, string Text, string? Glyph, string Placeholder, string Initial, Func<string, string?> Refuse, Action<string> Done) : SettingsLine(Key)
 {
     /// <summary>[S-3551] An empty box may be given (a nickname cleared back to the account's own name).</summary>
     public bool AllowEmpty { get; init; }
@@ -236,6 +236,22 @@ public sealed record SettingsCommand(string Key, string Text, string? Glyph, Act
 
     /// <summary>[S-2312] A line under its name (what a way to add an account brings).</summary>
     public string? Caption { get; init; }
+
+    /// <summary>
+    /// [S-2351] [S-3727] It asks first, in place: its card opens on <see cref="SettingsConfirm.Question"/> and its
+    /// answers, and only the answer does it (<see cref="SettingsConfirm.Done"/>). Null for a command that just does it.
+    /// </summary>
+    public SettingsConfirm? Confirm { get; init; }
+
+    /// <summary>
+    /// [S-2351] A command asked first, in place in its card: only <paramref name="confirm"/>'s answer does it; its own
+    /// <see cref="Run"/> does nothing (refusing beats destroying something unasked).
+    /// </summary>
+    public static SettingsCommand Asking(string key, string text, string? glyph, SettingsConfirm confirm)
+    {
+        ArgumentNullException.ThrowIfNull(confirm);
+        return new SettingsCommand(key, text, glyph, static () => { }) { Confirm = confirm };
+    }
 }
 
 /// <summary>
@@ -262,23 +278,24 @@ public enum SettingsToolKey
 }
 
 /// <summary>
-/// [S-3549] A tool at an item's end: its glyph and its name (the tooltip), its key, and what it does:
-/// a line of text asked on a level of its own (<see cref="Ask"/>: Rename) or a command (<see cref="Run"/>,
-/// which may ask "are you sure?" through its host: Delete).
+/// [S-3549] A tool at a thing's head (a view's Duplicate and Delete, an account's Sign out): its glyph and its name (the
+/// tooltip), its key, and what it does: a command (<see cref="Run"/>), or [S-2351] a question asked first in place
+/// (<see cref="Confirm"/>: its card opens on the question, keyed by the tool's <see cref="Key"/>; only the answer does it).
 /// </summary>
 public sealed record SettingsTool(string Key, string Glyph, string Name, SettingsToolKey Shortcut)
 {
-    public SettingsAsk? Ask { get; init; }
-
     public Action? Run { get; init; }
+
+    /// <summary>[S-2351] [S-3727] Asked first, in its thing's card; null for a tool that just does it.</summary>
+    public SettingsConfirm? Confirm { get; init; }
 
     public bool Disabled { get; init; }
 }
 
 /// <summary>
-/// [S-3727] [S-3737] An "are you sure?" asked on a level of the menu's own: the question, the words of
-/// the row that does it (in the critical colour where <paramref name="Danger"/>), what it does, and
-/// what goes with it.
+/// [S-3727] [S-2351] An "are you sure?" asked in place, in the card of what asks it: the question, the words of the
+/// button that does it (the critical colour where <paramref name="Danger"/>), what it does, and what goes with it.
+/// Cancel, Escape or a press elsewhere do nothing.
 /// </summary>
 public sealed record SettingsConfirm(string Question, string Accept, Action Done, string? Detail = null, bool Danger = false);
 
@@ -333,8 +350,12 @@ public interface ISettingsMenuHost
     /// <summary>[S-3572] [S-3576] How what the lines of Themia Pro and Back up &amp; reset started went, under each.</summary>
     SettingsOutcomes Outcomes { get; }
 
-    /// <summary>[S-3727] Ask beside the menu; only the answer runs it.</summary>
-    void Confirm(SettingsConfirm confirm);
+    /// <summary>
+    /// [S-2351] [S-3727] Ask, after a step of its own (a preset picked over a look of one's own), in place in the card of
+    /// the line keyed <paramref name="at"/>; only the answer runs it. A line that always asks first says so itself
+    /// (<see cref="SettingsCommand.Confirm"/>, <see cref="SettingsTool.Confirm"/>).
+    /// </summary>
+    void Confirm(string at, SettingsConfirm confirm);
 }
 
 /// <summary>

@@ -16,7 +16,7 @@ public sealed class PingMenuTests
 
     private WidgetMenuLines Build(PingConfig config)
     {
-        var menu = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var menu = new WidgetMenuLines(() => _saves++);
         PingMenu.Lines(menu, config);
         return menu;
     }

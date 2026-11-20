@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Größe",
   "barMenus.viewBar.hidden": "Ausgeblendet",
   "barMenus.viewBar.views": "Ansichten",
-  "barMenus.view.renameTitle": "Ansicht umbenennen",
   "barMenus.view.deleteQuestion": "„{name}“ löschen?",
   "barMenus.view.deleteDetail": "Ihre Widgets werden mitgelöscht ({widgets}). „Rückgängig“ holt alles zurück."
 }

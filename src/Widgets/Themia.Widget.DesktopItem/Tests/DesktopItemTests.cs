@@ -167,7 +167,7 @@ public sealed class DesktopItemTests
     {
         var config = new DesktopItemConfig { Item = @"C:\Users\a\Desktop\Report.docx", LabelLines = lines };
         var saves = 0;
-        var menu = new Themia.Sdk.WinUI.WidgetMenuLines(() => saves++, _ => { });
+        var menu = new Themia.Sdk.WinUI.WidgetMenuLines(() => saves++);
 
         new DesktopItemModule().MenuLines(menu, config);
 
@@ -190,9 +190,9 @@ public sealed class DesktopItemTests
     [Fact]
     public void S11204_both_sources_share_the_one_name_lines_line()
     {
-        var item = new Themia.Sdk.WinUI.WidgetMenuLines(() => { }, _ => { });
+        var item = new Themia.Sdk.WinUI.WidgetMenuLines(() => { });
         new DesktopItemModule().MenuLines(item, new DesktopItemConfig { Item = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" });
-        var own = new Themia.Sdk.WinUI.WidgetMenuLines(() => { }, _ => { });
+        var own = new Themia.Sdk.WinUI.WidgetMenuLines(() => { });
         var line = DesktopItemModule.NameLines(own, new DesktopItemConfig { Target = "https://example.com/" });
 
         Assert.Equal(Assert.Single(item.Lines).Text, line.Text);

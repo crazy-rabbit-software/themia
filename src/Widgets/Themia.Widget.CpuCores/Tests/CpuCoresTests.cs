@@ -36,11 +36,11 @@ public sealed class CpuCoresTests
     [Fact]
     public void S11011_only_the_graphs_offer_a_span_and_a_style_survives_a_save()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new CpuCoresModule()).MenuLines(menu, new CpuCoresConfig());
         Assert.Empty(menu.StyleLines);
 
-        menu = new WidgetMenuLines(() => { }, _ => { });
+        menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new CpuCoresModule()).MenuLines(menu, new CpuCoresConfig { Style = CpuCoresStyle.Graphs });
         Assert.Equal(2, menu.StyleLines.Count); // [S-6752] the span and the chart type (no Detail: the cells are too small to write on)
 

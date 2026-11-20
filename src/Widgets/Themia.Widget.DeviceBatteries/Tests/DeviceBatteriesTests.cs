@@ -174,7 +174,7 @@ public sealed class DeviceBatteriesTests
     {
         var saves = 0;
         var config = new DeviceBatteriesConfig();
-        var menu = new WidgetMenuLines(() => saves++, _ => { });
+        var menu = new WidgetMenuLines(() => saves++);
         DeviceBatteriesMenu.Lines(menu, config);
 
         Assert.Equal(

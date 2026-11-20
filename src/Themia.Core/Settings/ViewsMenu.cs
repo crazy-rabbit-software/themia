@@ -42,9 +42,6 @@ public interface IViewsMenuHost
     /// <summary>[S-2313] [S-19] Show a view on this display, as a click on its chip in the view bar does.</summary>
     void Show(string viewId);
 
-    /// <summary>[S-3727] Ask on a page of its own; only the answer runs it.</summary>
-    void Confirm(SettingsConfirm confirm);
-
     /// <summary>[S-5529] The desktop's items as last read ([S-5510]): the lines of a Chosen view's list.</summary>
     IReadOnlyList<DesktopItem> DesktopItems { get; }
 
@@ -108,8 +105,8 @@ public static class ViewsMenu
         List<SettingsLine> lines =
         [
             // [S-1707] Its name, kept trimmed as it is typed in its box.
-            new SettingsAsk(Keys.Name(id), Str.View_Name_Label.Text(), Glyphs.Rename, Str.BarMenus_View_RenameTitle.Text(), Str.View_Name_Label.Text(),
-                Str.Common_Rename.Text(), view.Name, _ => null, name => host.Mutate(s => ViewOps.Rename(s, id, name))),
+            new SettingsAsk(Keys.Name(id), Str.View_Name_Label.Text(), Glyphs.Rename, Str.View_Name_Label.Text(),
+                view.Name, _ => null, name => host.Mutate(s => ViewOps.Rename(s, id, name))),
 
             // [S-903] Its mark: a glyph, or its initials.
             new SettingsIcon(Keys.Icon(id), Str.View_Icon_Label.Text(), Mark(view),
@@ -158,15 +155,15 @@ public static class ViewsMenu
                 // [S-900] A copy of it, shown here.
                 new SettingsTool(key + "/duplicate", Glyphs.Duplicate, Str.App_DuplicateView.Text(), SettingsToolKey.None) { Run = () => host.Duplicate(id) },
 
-                // [S-902] [S-12] Asked first with what goes with it; greyed on the last view.
+                // [S-902] [S-12] Asked first with what goes with it, in place in its card ([S-2351]); greyed on the last view.
                 new SettingsTool(key + "/delete", Glyphs.Delete, Str.App_DeleteView.Text(), SettingsToolKey.Delete)
                 {
-                    Run = () => host.Confirm(new SettingsConfirm(
+                    Confirm = new SettingsConfirm(
                         Str.BarMenus_View_DeleteQuestion.Format(("name", view.Name)),
                         Str.Common_Delete.Text(),
                         () => host.Delete(id),
                         Str.BarMenus_View_DeleteDetail.Format(("widgets", widgets)),
-                        Danger: true)),
+                        Danger: true),
                     Disabled = last,
                 },
             ],

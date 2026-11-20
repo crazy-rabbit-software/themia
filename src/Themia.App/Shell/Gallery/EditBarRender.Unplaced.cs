@@ -107,7 +107,7 @@ internal static partial class EditBarRender
 
         UnplacedPageView? part = null;
         var commands = new UnplacedCommands(() => model, _ => { }, (_, _) => { }, _ => { }, HostDesktopItems.Instance.IconAsync);
-        var view = new PageView(() => PageRows.Of(SettingsPages.DesktopItems(), _ => { }, () => part = new UnplacedPageView(commands)));
+        var view = new PageView(() => PageRows.Of(SettingsPages.DesktopItems(), () => part = new UnplacedPageView(commands)));
         UiLanguage.ApplyFlow(view);
         var area = new PixelRect(0, 0, width, OpenHeight);
         var flyout = new PageFlyout(view);

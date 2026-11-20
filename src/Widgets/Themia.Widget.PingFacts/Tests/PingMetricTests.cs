@@ -84,7 +84,7 @@ public sealed class PingMetricTests
     [Fact]
     public void S14650_its_menu_is_the_host_the_window_then_the_trend()
     {
-        var menu = new Themia.Sdk.WinUI.WidgetMenuLines(() => { }, _ => { });
+        var menu = new Themia.Sdk.WinUI.WidgetMenuLines(() => { });
         ((Themia.Sdk.WinUI.IWidgetModule)new PingJitterModule()).MenuLines(menu, new PingJitterConfig());
 
         Assert.Equal(3, menu.Lines.Count);

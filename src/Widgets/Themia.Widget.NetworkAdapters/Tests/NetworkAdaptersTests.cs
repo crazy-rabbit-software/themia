@@ -27,7 +27,7 @@ public sealed class NetworkAdaptersTests
     {
         Assert.Equal([FeedKey.Create(SystemSource.LocalAddresses), FeedKey.Create(SystemSource.Network)], SystemInterests.For(new NetworkAdaptersConfig(), @"C:\").Feeds);
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new NetworkAdaptersModule()).MenuLines(menu, new NetworkAdaptersConfig());
         Assert.Single(menu.Lines);
 

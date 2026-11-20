@@ -45,12 +45,12 @@ internal sealed partial class DesktopWindow
         SharedLines = SharedLinesOf,
     };
 
-    /// <summary>[S-3719] One widget's own lines over its live config, asking on the flyout.</summary>
+    /// <summary>[S-3719] One widget's own lines over its live config; [S-2351] what they ask they ask in place on the page.</summary>
     private WidgetMenuLines? WidgetLinesOf(string id)
     {
         try
         {
-            return Kept(_host.WidgetMenuLines(id, AskOnPage, ConfirmOnPage, link => RequestSetting(link)));
+            return Kept(_host.WidgetMenuLines(id, link => RequestSetting(link)));
         }
         catch (Exception ex)
         {
@@ -73,9 +73,7 @@ internal sealed partial class DesktopWindow
             return SharedRowLines.Of(
                 row,
                 holders,
-                (kind, config, save, ask, confirm) => Services.ModuleHost.MenuLines(kind, config, save, ask, confirm, link => RequestSetting(link)),
-                AskOnPage,
-                ConfirmOnPage,
+                (kind, config, save) => Services.ModuleHost.MenuLines(kind, config, save, link => RequestSetting(link)),
                 scratch => _host.SetShared(row.Setting, row.Holders, scratch),
                 built => Kept(built));
         }
@@ -104,17 +102,6 @@ internal sealed partial class DesktopWindow
         });
         return built;
     }
-
-    private void AskOnPage(WidgetTextAsk ask) => AskOnFlyout(new PageEdit(ask.Placeholder, ask.Initial ?? string.Empty, ask.Done)
-    {
-        Refuse = ask.Refuse,
-        AllowEmpty = ask.AllowEmpty,
-        Accept = ask.Accept,
-        Title = ask.Title,
-    });
-
-    private void ConfirmOnPage(WidgetConfirm confirm)
-        => _flyout?.Page.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
 
     /// <summary>
     /// [S-2340] The selection's page as the selection is now: every line built again on every change

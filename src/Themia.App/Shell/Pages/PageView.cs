@@ -17,9 +17,9 @@ namespace Themia.App.Shell;
 /// [S-2305] A page of the edit bar drawn as Windows' settings page, after Karpo's (karpo-app,
 /// docs/widgets.md §575, §594, §670): its sections, a BodyStrong heading 24 after the last group and 8
 /// over its cards; its cards 4 apart; a row 48 tall (60 with a caption), its icon at 16, its name at 48,
-/// its control 16 from the card's end. A card opens one level inside it (an expander, an inline picker:
-/// one at a time, scrolled into view); a page of its own (an account, a line of text asked, an "are you
-/// sure?") stands in the page's place behind a back head.
+/// its control 16 from the card's end. A card opens one level inside it (an expander, an inline picker,
+/// [S-2351] a line of text or a question asked in place: one at a time, scrolled into view); a page of its own
+/// (a view's list of desktop icons: many lines, never one input) stands in the page's place behind a back head.
 /// <para>
 /// The page is drawn again from its model on every change (<see cref="Show"/>): what is open, the
 /// sub-page, the scroll and the keyboard's place are kept by the rows' keys, so a change made while one
@@ -37,7 +37,7 @@ internal sealed partial class PageView : ContentControl
 
     private readonly Func<PageModel> _build;
 
-    /// <summary>The sub-pages, asks and questions opened, deepest last.</summary>
+    /// <summary>The sub-pages opened, deepest last.</summary>
     private readonly List<Step> _steps = [];
 
     /// <summary>The one card opened inside (an expander, a picker), by its row's key.</summary>
@@ -52,10 +52,10 @@ internal sealed partial class PageView : ContentControl
     /// <summary>[S-2345] The tab chosen, by its key, kept while the page lives; null: the first.</summary>
     private string? _tab;
 
-    /// <summary>[S-3736] Why a text typed into a box was not kept, by the box's key.</summary>
+    /// <summary>[S-2302] Why a text typed into a box was not kept, by the box's key.</summary>
     private readonly Dictionary<string, string> _refused = new(StringComparer.Ordinal);
 
-    /// <summary>[S-2308] What is typed in a lookup's box, by its row's key.</summary>
+    /// <summary>[S-2308] What is typed in a lookup's box, by its row's key; [S-2351] in an open section's field, by its key and "#ask".</summary>
     private readonly Dictionary<string, string> _typed = new(StringComparer.Ordinal);
 
     /// <summary>[S-2308] A lookup's last answer, by its row's key, with what it was asked for.</summary>
@@ -85,6 +85,10 @@ internal sealed partial class PageView : ContentControl
             Cancel();
             DropPreview();
         };
+
+        // [S-2351] A press anywhere else on the page closes the section open, handled presses too (a head, a box).
+        AddHandler(PointerPressedEvent, new PointerEventHandler(PressedOnPage), handledEventsToo: true);
+        AddHandler(PointerReleasedEvent, new PointerEventHandler(ReleasedOnPage), handledEventsToo: true);
     }
 
     /// <summary>The page's key (its id, or the selection's).</summary>
@@ -93,7 +97,7 @@ internal sealed partial class PageView : ContentControl
     /// <summary>[S-2347] Asked to scroll an element whole into sight, as little as it takes (the opened card with its rows, a deep link's row).</summary>
     public event Action<FrameworkElement>? BringIntoView;
 
-    /// <summary>Whether a sub-page, a line of text asked or a question stands in the page's place.</summary>
+    /// <summary>Whether a sub-page stands in the page's place.</summary>
     public bool Deep => _steps.Count > 0;
 
     /// <summary>
@@ -130,6 +134,12 @@ internal sealed partial class PageView : ContentControl
             _steps.RemoveAt(_steps.Count - 1);
         }
 
+        // [S-2351] A section whose row went (a view deleted, a list's item removed) goes with it.
+        if (_asks.Open is { } asked && HolderOf(_model, asked) is null)
+        {
+            DropAsk();
+        }
+
         try
         {
             switch (_steps.LastOrDefault())
@@ -137,14 +147,6 @@ internal sealed partial class PageView : ContentControl
                 case SubStep sub when Find(_model, sub.Key) is { } row:
                     Children.Add(BackHead(row.Text));
                     AddCards(row.Rows ?? [], false);
-                    break;
-                case AskStep ask:
-                    Children.Add(BackHead(ask.Edit.Title ?? string.Empty));
-                    Children.Add(AskCard(ask.Edit));
-                    break;
-                case QuestionStep question:
-                    Children.Add(BackHead(question.Question.Question));
-                    Children.Add(QuestionCard(question.Question));
                     break;
                 default:
                     DrawRoot(_model);
@@ -189,6 +191,7 @@ internal sealed partial class PageView : ContentControl
         _steps.Clear();
         _open = null;
         _unfolded.Clear();
+        DropAsk();
         _model ??= _build();
 
         // [S-2345] A way in lands on the tab its section stands on.
@@ -208,9 +211,19 @@ internal sealed partial class PageView : ContentControl
                 break;
             }
 
-            // Every card along the way opens, the row itself too where it opens (a deep link to a choice shows its options).
+            // Every card along the way opens, the row itself too where it opens (a deep link to a choice shows its options;
+            // [S-2351] to a line that asks, its section).
             target = row.Key;
-            if (row.Kind == SettingsRowKind.SubPage)
+            if (row.Kind == SettingsRowKind.Ask)
+            {
+                _asks.Show(row.Key);
+                if (!inCard)
+                {
+                    _open = null;
+                    _unfolded.Clear();
+                }
+            }
+            else if (row.Kind == SettingsRowKind.SubPage)
             {
                 _steps.Add(new SubStep(row.Key));
                 _open = null;
@@ -268,36 +281,20 @@ internal sealed partial class PageView : ContentControl
         return false;
     }
 
-    /// <summary>[S-3736] A line of text asked on a page of its own (Rename…).</summary>
-    public void Ask(PageEdit edit)
-    {
-        ArgumentNullException.ThrowIfNull(edit);
-        _steps.Add(new AskStep(edit));
-        Show();
-        Refocus(new FocusTag("ask#box", edit.Initial.Length));
-    }
-
-    /// <summary>[S-3737] An "are you sure?" on a page of its own; only its button does it.</summary>
-    public void Confirm(PageQuestion question)
-    {
-        ArgumentNullException.ThrowIfNull(question);
-        _steps.Add(new QuestionStep(question));
-        Show();
-        Refocus(new FocusTag("question#cancel", 0));
-    }
-
-    /// <summary>[S-2327] Escape and the back head: the page it stands on, or the open card closed; false with nothing to go back from.</summary>
+    /// <summary>
+    /// [S-2327] Escape and the back head: [S-2351] the section asked closed first (nothing kept), then the page it stands
+    /// on, then the open card closed; false with nothing to go back from.
+    /// </summary>
     public bool Back()
     {
+        if (CloseAsk())
+        {
+            return true;
+        }
+
         if (_steps.Count > 0)
         {
-            var step = _steps[^1];
             _steps.RemoveAt(_steps.Count - 1);
-            if (step is AskStep { Edit.Wipe: { } wipe })
-            {
-                wipe();
-            }
-
             Show();
             FocusFirst();
             return true;
@@ -316,15 +313,17 @@ internal sealed partial class PageView : ContentControl
         return false;
     }
 
-    /// <summary>[S-3557] The page goes: what a password's box held is wiped, a search stops.</summary>
+    /// <summary>[S-3557] The page goes: a search stops; [S-2351] a section asked closes, nothing kept.</summary>
     public void Close()
     {
-        foreach (var step in _steps.OfType<AskStep>())
+        _steps.Clear();
+        DropAsk();
+        _closedAt = null;
+        foreach (var asked in _typed.Keys.Where(k => k.EndsWith("#ask", StringComparison.Ordinal)).ToList())
         {
-            step.Edit.Wipe?.Invoke();
+            _typed.Remove(asked);
         }
 
-        _steps.Clear();
         Cancel();
         DropPreview();
     }
@@ -364,6 +363,7 @@ internal sealed partial class PageView : ContentControl
                 _tab = key;
                 _open = null;
                 _unfolded.Clear();
+                DropAsk();
                 Show();
             });
             strip.Margin = new Thickness(0, first ? 0 : P.TabsGap - P.CardGap, 0, P.TabsGap);
@@ -403,7 +403,7 @@ internal sealed partial class PageView : ContentControl
         StackPanel? feet = null;
         foreach (var card in SettingsRows.Cards(rows, r => r.Kind))
         {
-            if (card[0] is var lead && Foot(lead) && card.Skip(1).All(r => r.Kind == SettingsRowKind.Note))
+            if (card[0] is var lead && Foot(lead) && AskOf(lead) is null && card.Skip(1).All(r => r.Kind == SettingsRowKind.Note))
             {
                 if (feet is null)
                 {
@@ -589,6 +589,21 @@ internal sealed partial class PageView : ContentControl
             case SettingsRowKind.SubPage:
                 Push(row);
                 break;
+            case SettingsRowKind.Ask:
+                // [S-2351] Its cards opened as a click on the way would, its section asked in place.
+                var path = PathTo(_model, key);
+                if (path.Count > 1)
+                {
+                    _open = path[0];
+                    _unfolded.Clear();
+                    foreach (var on in path.Skip(1).Take(path.Count - 2))
+                    {
+                        _unfolded.Add(on);
+                    }
+                }
+
+                ToggleAsk(row.Key, row.Key, inside: path.Count > 1);
+                break;
             case var kind when Opens(kind):
                 // [S-2303] A picker inside a card: its card opened, it unfolded in it.
                 if (CardOf(_model, key) is { } card)
@@ -626,6 +641,7 @@ internal sealed partial class PageView : ContentControl
         _tab = key;
         _open = null;
         _unfolded.Clear();
+        DropAsk();
         Show();
     }
 
@@ -640,10 +656,15 @@ internal sealed partial class PageView : ContentControl
     private static bool Holds(IReadOnlyList<PageRow> rows, string key)
         => rows.Any(r => r.Key == key || (r.Rows is { } inner && Holds(inner, key)));
 
-    /// <summary>[S-2328] A render's typing into the open lookup's box.</summary>
+    /// <summary>[S-2328] A render's typing into the open lookup's box, or [S-2351] into the field of the section asked.</summary>
     internal void DebugType(string text)
     {
-        if (_open is { } open)
+        if (_asks.Open is { } asked)
+        {
+            _typed[asked + "#ask"] = text;
+            Show();
+        }
+        else if (_open is { } open)
         {
             _typed[open] = text;
             Show();
@@ -654,22 +675,18 @@ internal sealed partial class PageView : ContentControl
     internal bool DebugTool(string key, int index)
     {
         _model ??= _build();
-        if (Find(_model, key) is not { Tools: { } tools } || index >= tools.Count)
+        if (Find(_model, key) is not { Tools: { } tools } row || index >= tools.Count)
         {
             return false;
         }
 
-        Do(tools[index].Run);
+        UseTool(row, tools[index], inside: CardOf(_model, key) is not null);
         return true;
     }
 
     private abstract record Step;
 
     private sealed record SubStep(string Key) : Step;
-
-    private sealed record AskStep(PageEdit Edit) : Step;
-
-    private sealed record QuestionStep(PageQuestion Question) : Step;
 
     /// <summary>The words a row is said by (a tooltip, a screen reader).</summary>
     private static string Said(PageRow row) => row.Value is { Length: > 0 } value ? row.Text + ", " + value : row.Text;

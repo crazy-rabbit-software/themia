@@ -47,6 +47,9 @@ public sealed partial class SettingsMenuTests
 
         public List<SettingsConfirm> Asked { get; } = [];
 
+        /// <summary>[S-2351] The row each question was asked at, in place in its card.</summary>
+        public List<string> AskedAt { get; } = [];
+
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
             change(State);
@@ -72,7 +75,11 @@ public sealed partial class SettingsMenuTests
             Mutate(s => s.Preferences.Language = language, relayout: false);
         }
 
-        public void Confirm(SettingsConfirm confirm) => Asked.Add(confirm);
+        public void Confirm(string at, SettingsConfirm confirm)
+        {
+            AskedAt.Add(at);
+            Asked.Add(confirm);
+        }
 
         public FakeLicence FakeLicence { get; } = new();
 
@@ -444,6 +451,9 @@ public sealed partial class SettingsMenuTests
         style.Options.Single(o => o.Key == "appearance/style/" + target.Id).Pick();
 
         var asked = Assert.Single(host.Asked);
+
+        // [S-2351] In place in the Style card.
+        Assert.Equal(["appearance/style"], host.AskedAt);
         Assert.Equal(Str.Shell_Appearance_ReplaceLook_Title.Text(), asked.Question);
         Assert.Contains(target.Label, asked.Detail, StringComparison.Ordinal);
         Assert.Equal(0, host.Mutations);

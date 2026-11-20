@@ -2787,8 +2787,8 @@ settings cards by the one page view (`src/Themia.App/Shell/Pages/`) that draws t
 Cut / Copy / Remove), then **What it shows** (the Style picker, the widget's `StyleLines`, its
 `Lines`), **Header** and **Appearance** (the card's own look). A row is 48 tall (60 with a caption); a
 card opens one level inside it (a choice, a colour, a lookup, a group of lines), never a third; a line
-of text asked or an "are you sure?" is a page of its own behind a back head. A widget writes lines,
-never a layout.
+of text asked or an "are you sure?" opens in place in its own card, never a page of its own ([S-2351]). A
+widget writes lines, never a layout.
 
 ### 15.1 The vocabulary
 
@@ -2802,17 +2802,18 @@ change, so a closure may keep the value it was built with.
 |---|---|---|
 | bool | `menu.Toggle(glyph, text, on, set)` | On / Off and Windows' toggle switch at the row's end; a click anywhere on the row flips it ([S-2302]) |
 | enum, any closed set | `menu.Choice(glyph, text, [(value, words)…], current, set)` | an inline picker: its radio rows open in the card, more than six in columns ([S-2308]); the head shows the one that holds |
-| number | `menu.Number(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | ticks up to `MaxNumberSteps` (20) steps, else a text level, range-checked and rounded to a step; the value at the end |
+| number | `menu.Number(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | the page's number box, 240 × 32 with − and + inside, its value in its unit; a typed number held to the range and rounded to a step ([S-2370]) |
 | number set by feel (a volume, a size) | `menu.Slider(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | a 240 × 32 number box with − and + inside; a typed value is read in the box's units and held to the range and step ([S-2309]) |
 | colour `#RRGGBB` or empty | `menu.Colour(text, current, set, options?)` (`ColorChoiceOptions`: `DefaultLabel` null when a colour is required, `Presets` `ColorPresets.Surfaces` by default or `ColorPresets.Windows`, `AllowCustom`) | the one inline colour picker, as Appearance's Item text: swatches, the custom picker, the eyedropper; the head shows the swatch and its words |
 | `FillChoice` | `menu.Fill(text, current, set, options?)` (`FillChoiceOptions`) | the same level as Appearance › Background |
-| text | `new ItemMenuEntry(glyph, text, () => menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:)), Value: …, Asks: true)` | a page of its own holding the box, the reason under it, `accept`'s button ([S-2303]); `Asks` gives the row its chevron; `refuse` is the trust boundary (validate as typed) |
+| text the widget holds (a title, an address) | `menu.Text(glyph, text, current, set, placeholder?, refuse?, allowEmpty:)` | its box at the line's end, typed in place ([S-2332]) |
+| text asked once (Rename…, Add…, a path typed) | `WidgetMenuLines.Ask(glyph, text, new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:), value?, disabled:)` | a section in its own card ([S-2351]): the row says what it holds and the expand chevron; opened, the field (selected), why it is refused under it, `accept`'s button greyed while refused; Enter gives it, Escape or a press elsewhere closes it; `refuse` is the trust boundary (validate as typed) |
 | a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | an inline lookup: the box over at most eight answers and a status line, fixed rows under them ([S-2308]) |
 | a folder | `menu.PickFolder(glyph, text, path, set)` | Windows' folder picker; the folder's name at the end |
 | the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`: a link row to ⚙ › Accounts, [S-3745], [S-3749]) |
 | something read asynchronously (an account's calendars, its lists) | a static `MenuLoads<T>` keyed per source, `Read(key, menu, read)` | what is held now ("Looking…" note until it comes); an answer that differs outdates the menu (`WidgetMenuLines.Outdated`) and the host builds it again ([S-3746]) |
 | a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a level of items (each a level: Rename…, own lines, Remove greyed at `Min`), Add…; the item rows are dragged up and down to reorder, or Ctrl+Up / Down (`ItemMenuEntry.Order`, [S-3732], [S-3748]) |
-| a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | its "are you sure?" page first ([S-2303]); danger rows in the critical colour |
+| a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:, detail:)` | its "are you sure?" first, in place in its own card ([S-2351]): the question, `detail`, the action and Cancel; danger rows in the critical colour |
 | a change, a command | `menu.Command(glyph, text, change, disabled:)` or a plain `new ItemMenuEntry(glyph, text, action)` | runs on a click (a plain command does not save) |
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
 | where setup happens | `WidgetMenuLines.SetsUp(line)` around the line that sets what the widget waits for (`ISetupRule`) | the card's Set up button opens the menu at it, as a click would ([S-1862]); one per widget |
@@ -2833,8 +2834,9 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
   by the config's `Offers(setting)` ([S-6070], `IShownSettings<T>`), so a style that does not draw it
   never shows it (Clock: seconds and the date; Folder: its columns in Details).
 - **Every option is one row.** There is nowhere else for one to go, and no row is ever more than one
-  row high: a value typed is a text level, a choice a level of ticks, a long explanation a `Note`
-  or nothing. A line whose action asks is marked `Asks: true`.
+  row high: a value typed is a box in its row or asked in place in its card, a choice an inline picker, a long
+  explanation a `Note` or nothing. A line that asks carries what it asks (`ItemMenuEntry.Ask`, `.Confirm`) and has
+  no action of its own; nothing opens a page of its own for one input ([S-2351]).
 - **One setting, one level** ([S-3590]). A setting is a widget's, a view's (View ▾), a display's
   (Display ▾) or Themia's as a whole (⚙), and that level's menu alone sets it, so the user always
   knows whether they are changing this widget or every widget. A widget that follows a higher

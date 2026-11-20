@@ -50,11 +50,11 @@ public sealed class CpuMetricTests
     [Fact]
     public void S14610_its_menu_is_the_trend_alone_where_it_has_one()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new CpuSpeedModule()).MenuLines(menu, new CpuSpeedConfig());
         Assert.Equal([Str.Metric_Trend.Text()], menu.Lines.Select(l => l.Text));
 
-        var none = new WidgetMenuLines(() => { }, _ => { });
+        var none = new WidgetMenuLines(() => { });
         ((IWidgetModule)new CpuCoreCountModule()).MenuLines(none, new CpuCoreCountConfig());
         Assert.Empty(none.Lines);
     }

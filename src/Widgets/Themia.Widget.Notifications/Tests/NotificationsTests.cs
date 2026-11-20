@@ -34,7 +34,7 @@ public sealed class NotificationsTests
     public void S11404_the_menu_offers_rows_lines_and_the_headings_switch()
     {
         var config = new NotificationsConfig();
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         new NotificationsModule().MenuLines(menu, config);
 
         Assert.Equal(

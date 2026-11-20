@@ -16,7 +16,7 @@ public sealed class SunMenuTests
 
     private WidgetMenuLines Build(SunConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         SunMenu.Lines(lines, config);
         return lines;
     }

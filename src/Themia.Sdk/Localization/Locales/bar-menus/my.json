@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "အရွယ်အစား",
   "barMenus.viewBar.hidden": "ဝှက်ထား",
   "barMenus.viewBar.views": "မြင်ကွင်းများ",
-  "barMenus.view.renameTitle": "မြင်ကွင်း အမည်ပြောင်းရန်",
   "barMenus.view.deleteQuestion": "“{name}” ကို ဖျက်မလား။",
   "barMenus.view.deleteDetail": "၎င်း၏ ဝစ်ဂျက်များလည်း အတူ ပါသွားမည် ({widgets})။ နောက်ပြန်ရန်ဖြင့် အားလုံး ပြန်ရမည်။"
 }

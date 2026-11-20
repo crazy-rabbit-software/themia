@@ -14,7 +14,7 @@ public sealed class FocusSessionMenuTests
 
     private WidgetMenuLines Build(FocusSessionConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         FocusSessionMenu.Lines(lines, config);
         return lines;
     }

@@ -9,7 +9,6 @@
   "barMenus.viewBar.size": "Velikost",
   "barMenus.viewBar.hidden": "Skrytá",
   "barMenus.viewBar.views": "Pohledy",
-  "barMenus.view.renameTitle": "Přejmenovat pohled",
   "barMenus.view.deleteQuestion": "Odstranit „{name}“?",
   "barMenus.view.deleteDetail": "Odstraní se i jeho widgety ({widgets}). Akcí Zpět vše vrátíš."
 }

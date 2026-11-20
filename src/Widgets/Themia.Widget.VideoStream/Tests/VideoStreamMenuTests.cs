@@ -16,7 +16,7 @@ public sealed class VideoStreamMenuTests
 
     private WidgetMenuLines Build(VideoStreamConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         VideoStreamMenu.Lines(lines, config);
         return lines;
     }

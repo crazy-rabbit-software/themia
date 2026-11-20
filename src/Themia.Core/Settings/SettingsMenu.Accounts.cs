@@ -103,9 +103,7 @@ public static partial class SettingsMenu
             key + "/nickname",
             Str.Connect_Field_Nickname.Text(),
             Glyphs.Rename,
-            Str.Connect_Field_Nickname.Text(),
             account.DisplayName.Length > 0 ? account.DisplayName : account.Address,
-            Str.Common_Save.Text(),
             account.Nickname ?? string.Empty,
             _ => null,
             typed => host.Rename(id, typed, key + "/nickname"))
@@ -127,14 +125,15 @@ public static partial class SettingsMenu
             Value = account.NeedsSignIn ? Str.Shell_Accounts_Reconnect.Text() : holds.Length > 0 ? holds : null,
             Tools =
             [
+                // [S-2351] Asked first, in place in its card.
                 new SettingsTool(key + "/signout", Glyphs.SignOut, Str.Account_SignOut.Text(), SettingsToolKey.Delete)
                 {
-                    Run = () => settings.Confirm(new SettingsConfirm(
+                    Confirm = new SettingsConfirm(
                         Str.Shell_Accounts_SignOutConfirm.Format(("name", account.Label)),
                         Str.Account_SignOut.Text(),
                         () => host.SignOut(id, key + "/signout"),
                         Str.Shell_Accounts_SignOutBody.Format(("provider", provider)),
-                        Danger: true)),
+                        Danger: true),
                 },
             ],
         };

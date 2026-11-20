@@ -17,7 +17,7 @@ public sealed class FolderPropertiesMenuTests
 
     private WidgetMenuLines Build(FolderConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         FolderPropertiesMenu.Lines(lines, config);
         return lines;
     }
@@ -84,7 +84,7 @@ public sealed class FolderPropertiesMenuTests
     public void S1337_a_typed_path_is_stored_once_and_empty_means_the_user_folder()
     {
         var config = new FolderConfig { Path = @"C:\Old" };
-        FolderOf(Build(config)).Children![1].Action!();
+        _asked = Typed.Ask(FolderOf(Build(config)).Children![1]);
 
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.True(ask.AllowEmpty);
@@ -94,7 +94,7 @@ public sealed class FolderPropertiesMenuTests
         Assert.Equal(@"C:\Work", config.Path);
         Assert.Equal(1, _saves);
 
-        FolderOf(Build(config)).Children![1].Action!();
+        _asked = Typed.Ask(FolderOf(Build(config)).Children![1]);
         _asked!.Done(string.Empty);
         Assert.Equal(string.Empty, config.Path);
         Assert.Equal(2, _saves);

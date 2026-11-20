@@ -95,7 +95,7 @@ internal static class NotesMenu
         if (current is not null)
         {
             var currentId = current.Id;
-            lines.Add(new ItemMenuEntry(Glyphs.Rename, Str.Menu_Rename.Text(), () => menu.Ask(new WidgetTextAsk(
+            lines.Add(WidgetMenuLines.Ask(Glyphs.Rename, Str.Menu_Rename.Text(), new WidgetTextAsk(
                 Str.Common_Rename.Text(),
                 NotesStr.Notes_NamePlaceholder.Text(),
                 Str.Common_Rename.Text(),
@@ -108,7 +108,7 @@ internal static class NotesMenu
                         menu.Save();
                     }
                 },
-                Initial: current.Title)), Asks: true));
+                Initial: current.Title)));
         }
 
         lines.Add(menu.Command(Glyphs.Add, NotesStr.Notes_NewNote.Text(), () => config.NoteId = pool.Create(NotesStr.Notes_NewName.Text())));

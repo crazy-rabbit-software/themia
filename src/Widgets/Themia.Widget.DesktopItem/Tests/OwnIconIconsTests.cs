@@ -204,12 +204,11 @@ public sealed class OwnIconsTests
         }
     }
 
-    private static (WidgetMenuLines Lines, List<WidgetTextAsk> Asked, Func<int> Saves) Menu()
+    private static (WidgetMenuLines Lines, Func<int> Saves) Menu()
     {
         var saves = 0;
-        var asked = new List<WidgetTextAsk>();
-        var lines = new WidgetMenuLines(() => saves++, asked.Add);
-        return (lines, asked, () => saves);
+        var lines = new WidgetMenuLines(() => saves++);
+        return (lines, () => saves);
     }
 
     [Fact]
@@ -220,7 +219,7 @@ public sealed class OwnIconsTests
 
         foreach (var config in new[] { Item(), layout })
         {
-            var lines = new WidgetMenuLines(() => { }, _ => { });
+            var lines = new WidgetMenuLines(() => { });
             OwnIconMenu.Lines(lines, config, new NoLayouts());
             Assert.Single(lines.Lines, l => l.Text == DesktopItemStr.WidgetsC_Shortcuts_Icon_Label.Text() && l.Children is not null);
         }
@@ -230,7 +229,7 @@ public sealed class OwnIconsTests
     public void S9503_the_icon_submenu_offers_picture_emoji_and_reset_off_while_automatic()
     {
         var item = Item();
-        var (lines, _, _) = Menu();
+        var (lines, _) = Menu();
         var icon = OwnIconMenu.Icon(lines, item);
 
         Assert.Equal(
@@ -244,13 +243,12 @@ public sealed class OwnIconsTests
     public void S9503_emoji_asks_refuses_a_word_and_saves_one_emoji()
     {
         var item = Item();
-        var (lines, asked, saves) = Menu();
+        var (lines, saves) = Menu();
 
         var emoji = Assert.Single(OwnIconMenu.Icon(lines, item).Children!, l => l.Text == DesktopItemStr.WidgetsC_Shortcuts_Icon_Emoji.Text());
         Assert.True(emoji.Asks);
-        emoji.Action!();
-
-        var ask = Assert.Single(asked);
+        Assert.Null(emoji.Action);
+        var ask = Assert.IsType<WidgetTextAsk>(emoji.Ask);
         Assert.Equal(DesktopItemStr.WidgetsC_Shortcuts_Icon_EmojiRefused.Text(), ask.Refuse("word"));
         Assert.Null(ask.Refuse("🚀"));
 
@@ -263,7 +261,7 @@ public sealed class OwnIconsTests
     public void S9503_the_icon_line_shows_the_choice_and_reset_goes_back_to_automatic()
     {
         var item = Item(emoji: "🚀");
-        var (lines, _, saves) = Menu();
+        var (lines, saves) = Menu();
         var icon = OwnIconMenu.Icon(lines, item);
 
         Assert.Equal("🚀", icon.Value);

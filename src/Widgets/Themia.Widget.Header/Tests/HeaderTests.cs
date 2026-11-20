@@ -48,9 +48,8 @@ public sealed class HeaderTests
     public void S9602_title_and_caption_are_typed_in_place_S9604_and_the_place_is_its_location_alone()
     {
         var saves = 0;
-        var asked = 0;
         var header = new HeaderConfig { Text = "Weather" };
-        var menu = new Themia.Sdk.WinUI.WidgetMenuLines(() => saves++, _ => asked++);
+        var menu = new Themia.Sdk.WinUI.WidgetMenuLines(() => saves++);
         new HeaderModule().MenuLines(menu, header);
 
         // Title, Caption, Icon; then the Location alone: no Show the place, no Use my location (owner, 2026-11-19).
@@ -69,7 +68,7 @@ public sealed class HeaderTests
         title.Keep("Weather");
         Assert.Equal(("Weather now", "Zürich"), (header.Text, header.Caption));
         Assert.Equal(2, saves);
-        Assert.Equal(0, asked);
+        Assert.DoesNotContain(menu.Lines, l => l.Asks);
     }
 
     [Fact]

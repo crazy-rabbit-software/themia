@@ -12,7 +12,7 @@ public sealed class MusicMenuTests
 
     private WidgetMenuLines Build(MusicConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         MusicMenu.Lines(lines, config);
         return lines;
     }

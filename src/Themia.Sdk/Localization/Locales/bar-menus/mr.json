@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "आकार",
   "barMenus.viewBar.hidden": "लपवलेले",
   "barMenus.viewBar.views": "दृश्ये",
-  "barMenus.view.renameTitle": "दृश्याचे नाव बदला",
   "barMenus.view.deleteQuestion": "“{name}” हटवायचे?",
   "barMenus.view.deleteDetail": "त्याचे विजेटही सोबत जातील ({widgets}). पूर्ववत केल्यास सर्व परत येते."
 }

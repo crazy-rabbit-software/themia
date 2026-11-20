@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "ขนาด",
   "barMenus.viewBar.hidden": "ซ่อน",
   "barMenus.viewBar.views": "มุมมอง",
-  "barMenus.view.renameTitle": "เปลี่ยนชื่อมุมมอง",
   "barMenus.view.deleteQuestion": "ลบ “{name}” ไหม",
   "barMenus.view.deleteDetail": "วิดเจ็ตในมุมมองนี้จะถูกลบไปด้วย ({widgets}) เลิกทำจะนำทุกอย่างกลับมา"
 }

@@ -143,8 +143,9 @@ public sealed partial class SettingsMenuTests
         Assert.Equal(SettingsRowKind.Toggle, SettingsRows.KindOf(new SettingsToggle("t", "T", null, true, _ => { })));
         Assert.Equal(SettingsRowKind.Number, SettingsRows.KindOf(new SettingsSlider("n", "N", null, 1, 0, 2, 1, v => v.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { })));
         Assert.Equal(SettingsRowKind.Text, SettingsRows.KindOf(new SettingsField("f", "F", null, string.Empty, _ => { })));
-        Assert.Equal(SettingsRowKind.Text, SettingsRows.KindOf(new SettingsAsk("a", "A", null, "T", string.Empty, "OK", string.Empty, _ => null, _ => { })));
+        Assert.Equal(SettingsRowKind.Text, SettingsRows.KindOf(new SettingsAsk("a", "A", null, string.Empty, string.Empty, _ => null, _ => { })));
         Assert.Equal(SettingsRowKind.Action, SettingsRows.KindOf(new SettingsCommand("c", "C", null, Nothing)));
+        Assert.Equal(SettingsRowKind.Ask, SettingsRows.KindOf(SettingsCommand.Asking("q", "Q", null, new SettingsConfirm("Sure?", "Do", Nothing))));
         Assert.Equal(SettingsRowKind.Item, SettingsRows.KindOf(new SettingsItem("i", "I", null, [])));
         Assert.Equal(SettingsRowKind.Note, SettingsRows.KindOf(new SettingsNote("n", "N")));
         Assert.Equal(SettingsRowKind.Note, SettingsRows.KindOf(new SettingsReading("r", "R", null, "1")));

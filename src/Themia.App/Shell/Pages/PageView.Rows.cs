@@ -47,11 +47,18 @@ internal sealed partial class PageView
             SettingsRowKind.Heading => HeadingRow(row),
             SettingsRowKind.Radio => RadioRow(row),
             SettingsRowKind.SubPage => SubPageRow(row),
-            SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon or SettingsRowKind.Expander
+            SettingsRowKind.Ask or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon or SettingsRowKind.Expander
                 => Expander(row, inside),
             SettingsRowKind.Preview => PreviewRow(row),
             _ => new Border(),
         };
+
+        // [S-2351] A row that does not open (an action, a sub-page's row, an item) holds what is asked at it (a question after
+        // a step of its own, one of its tools') under it, in place: its hairline, then the section.
+        if (row.Kind != SettingsRowKind.Ask && !Opens(row.Kind) && AskOf(row) is { } asked)
+        {
+            body = new StackPanel { Children = { body, Hairline(), AskSection(asked, row.Text, inside) } };
+        }
 
         return new Border { Child = body, Tag = row.Key + "#row", CornerRadius = new CornerRadius(P.CardRadius) };
     }
@@ -68,7 +75,7 @@ internal sealed partial class PageView
             {
                 if (tools.FirstOrDefault(t => t.Shortcut == e.Key && !t.Disabled) is { } keyed)
                 {
-                    Do(keyed.Run);
+                    UseTool(row, keyed, inside: false);
                     e.Handled = true;
                 }
             };
@@ -84,7 +91,7 @@ internal sealed partial class PageView
         var at = 0;
         foreach (var tool in row.Tools ?? [])
         {
-            var button = ToolButton(row, tool);
+            var button = ToolButton(row, tool, inside: false);
             button.Margin = new Thickness(0, 0, Fluent.Space1, 0);
             end.Children.Insert(at++, button);
         }
@@ -92,8 +99,8 @@ internal sealed partial class PageView
         return end;
     }
 
-    /// <summary>[S-3549] An icon button at a row's end: its words the tooltip and its name.</summary>
-    private static Button ToolButton(PageRow row, PageTool tool)
+    /// <summary>[S-3549] An icon button at a row's end: its words the tooltip and its name; [S-2351] one that asks first asks in its card.</summary>
+    private Button ToolButton(PageRow row, PageTool tool, bool inside)
     {
         var button = Plain(new Button
         {
@@ -108,8 +115,7 @@ internal sealed partial class PageView
         button.HorizontalAlignment = HorizontalAlignment.Right;
         ToolTipService.SetToolTip(button, tool.Name);
         AutomationProperties.SetName(button, tool.Name);
-        var run = tool.Run;
-        button.Click += (_, e) => Do(run);
+        button.Click += (_, _) => UseTool(row, tool, inside);
         return button;
     }
 
@@ -343,8 +349,8 @@ internal sealed partial class PageView
 
     /// <summary>
     /// [S-2318] A row that says what it does (Karpo's §521): a card, its icon and what it does in Body before a
-    /// standard button at its end whose words are the row's (12 either side, 120 to 240 wide; a chevron after
-    /// them where its click asks first), its value in Caption 12 before the button.
+    /// standard button at its end whose words are the row's (12 either side, 120 to 240 wide), its value in Caption
+    /// 12 before the button. [S-2351] A row that asks first is no action: it asks in place (an expander's head).
     /// </summary>
     private FrameworkElement ActionRow(PageRow row)
     {
@@ -356,7 +362,7 @@ internal sealed partial class PageView
             end.Children.Add(said);
         }
 
-        end.Children.Add(RowButton(row, row.Text, row.Asks ? Glyphs.ChevronRight : null, row.Run, row.Key + "#head"));
+        end.Children.Add(RowButton(row, row.Text, null, row.Run, row.Key + "#head"));
         return Lay(row with { Caption = null }, end, null, text: row.Caption);
     }
 
@@ -390,8 +396,8 @@ internal sealed partial class PageView
     /// <summary>
     /// [S-2318] A row that only acts, its button alone (Karpo's §578 foot): no card, a hyperlink button's look —
     /// no fill nor rim until pointed at, its glyph and its words in the accent's text colour (the critical colour
-    /// for a danger), a chevron after its words where its click asks first; on a page from the cards' start, in
-    /// a card's opened level its glyph where its rows' names start. Its value is its tooltip.
+    /// for a danger); on a page from the cards' start, in a card's opened level its glyph where its rows' names
+    /// start. Its value is its tooltip.
     /// </summary>
     private Button FootButton(PageRow row, bool inside)
     {
@@ -413,12 +419,6 @@ internal sealed partial class PageView
         words.VerticalAlignment = VerticalAlignment.Center;
         words.TextTrimming = TextTrimming.CharacterEllipsis;
         content.Children.Add(words);
-        if (row.Asks)
-        {
-            var chevron = new FontIcon { Glyph = Glyphs.ChevronRight, FontSize = Chevron, VerticalAlignment = VerticalAlignment.Center, Foreground = ink };
-            content.Children.Add(UiLanguage.Mirrored(chevron));
-        }
-
         var button = Plain(new Button
         {
             Content = content,
@@ -647,7 +647,7 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2302] [S-3736] A text box: 240 × 32; Enter or leaving it keeps what is typed (unless it cannot
+    /// [S-2302] A text box: 240 × 32; Enter or leaving it keeps what is typed (unless it cannot
     /// be kept: why, under the name, in the critical colour), Escape restores it; a form's field hands on
     /// every letter; a password's box never shows what it holds.
     /// </summary>
@@ -826,7 +826,7 @@ internal sealed partial class PageView
         var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
         foreach (var tool in row.Tools ?? [])
         {
-            tools.Children.Add(ToolButton(row, tool));
+            tools.Children.Add(ToolButton(row, tool, inside: false));
         }
 
         var item = new ContentControl
@@ -857,7 +857,7 @@ internal sealed partial class PageView
 
             if (row.Tools?.FirstOrDefault(t => t.Shortcut == e.Key && !t.Disabled) is { } keyed)
             {
-                Do(keyed.Run);
+                UseTool(row, keyed, inside: false);
                 e.Handled = true;
             }
         };
@@ -980,98 +980,6 @@ internal sealed partial class PageView
         AutomationProperties.SetName(head, Str.Common_Back.Text());
         head.Click += (_, _) => Back();
         return head;
-    }
-
-    /// <summary>[S-3736] A line of text asked on a page of its own: its box, the button that keeps it, why not under it.</summary>
-    private Border AskCard(PageEdit edit)
-    {
-        var box = new TextBox
-        {
-            Text = edit.Initial,
-            PlaceholderText = edit.Placeholder,
-            MinHeight = P.Control,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            Tag = "ask#box",
-        };
-        var why = CaptionText(string.Empty, critical: true);
-        var accept = new Button { Content = edit.Accept ?? Str.Common_Done.Text(), MinWidth = P.ActionLeast, Height = P.Control, Tag = "ask#accept" };
-        FluentLayout.ApplyStyle(accept, "AccentButtonStyle");
-
-        void Keep()
-        {
-            var typed = box.Text.Trim();
-            if (edit.Reason(typed) is { } reason)
-            {
-                why.Text = reason;
-                return;
-            }
-
-            _steps.RemoveAll(s => s is AskStep a && ReferenceEquals(a.Edit, edit));
-            Do(() => edit.Commit(typed));
-            Show();
-        }
-
-        accept.Click += (_, _) => Keep();
-        box.KeyDown += (_, e) =>
-        {
-            if (e.Key == VirtualKey.Enter)
-            {
-                Keep();
-                e.Handled = true;
-            }
-        };
-        box.Loaded += (_, _) => box.SelectAll();
-
-        return new Border
-        {
-            Background = ShellBrush.Of(ShellRole.CardFill),
-            BorderBrush = ShellBrush.Of(ShellRole.CardStroke),
-            BorderThickness = new Thickness(FamilyShape.Hairline),
-            CornerRadius = new CornerRadius(P.CardRadius),
-            Padding = new Thickness(P.IconAt),
-            Child = new StackPanel { Spacing = Fluent.Space2, Children = { box, why, accept } },
-        };
-    }
-
-    /// <summary>[S-3737] An "are you sure?": the question and what goes with it, the button that does it (the critical colour for a danger) and Cancel.</summary>
-    private Border QuestionCard(PageQuestion question)
-    {
-        var accept = new Button { Content = question.Accept, MinWidth = P.ActionLeast, Height = P.Control, Tag = "question#accept" };
-        FluentLayout.ApplyStyle(accept, "AccentButtonStyle");
-        if (question.Danger)
-        {
-            var critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
-            accept.Resources["AccentButtonBackground"] = critical;
-            accept.Resources["AccentButtonBackgroundPointerOver"] = critical;
-            accept.Resources["AccentButtonBackgroundPressed"] = critical;
-        }
-
-        var cancel = new Button { Content = Str.Common_Cancel.Text(), MinWidth = P.ActionLeast, Height = P.Control, Tag = "question#cancel" };
-        accept.Click += (_, _) =>
-        {
-            _steps.RemoveAll(s => s is QuestionStep q && ReferenceEquals(q.Question, question));
-            Do(question.Done);
-            Show();
-        };
-        cancel.Click += (_, _) => Back();
-
-        // The question is the page's head; its card says what goes with it.
-        var words = new StackPanel { Spacing = Fluent.Space2 };
-        if (question.Detail is { Length: > 0 } detail)
-        {
-            words.Children.Add(CaptionText(detail));
-        }
-
-        words.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, Margin = new Thickness(0, Fluent.Space2, 0, 0), Children = { accept, cancel } });
-        return new Border
-        {
-            Background = ShellBrush.Of(ShellRole.CardFill),
-            BorderBrush = ShellBrush.Of(ShellRole.CardStroke),
-            BorderThickness = new Thickness(FamilyShape.Hairline),
-            CornerRadius = new CornerRadius(P.CardRadius),
-            Padding = new Thickness(P.IconAt),
-            Child = words,
-        };
     }
 
     /// <summary>

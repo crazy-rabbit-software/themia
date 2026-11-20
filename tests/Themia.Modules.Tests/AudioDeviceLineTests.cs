@@ -76,7 +76,7 @@ public sealed class AudioDeviceLineTests
     [Fact]
     public void S1236_a_line_not_offered_is_not_built()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
 
         Assert.Null(AudioDeviceLine.Line(menu, new([Devices[0]], false), null, null, Pick));
         Assert.NotNull(AudioDeviceLine.Line(menu, new(Devices, false), null, null, Pick));

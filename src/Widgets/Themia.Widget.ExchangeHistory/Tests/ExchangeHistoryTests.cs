@@ -33,7 +33,7 @@ public sealed class ExchangeHistoryTests
     [Fact]
     public void S11157_the_menu_is_the_pair_and_the_source()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         new ExchangeHistoryModule().MenuLines(menu, new ExchangeHistoryConfig());
 
         Assert.Equal(

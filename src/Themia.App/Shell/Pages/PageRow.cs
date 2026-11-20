@@ -54,8 +54,11 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
     /// <summary>A number's range, grain, words and store.</summary>
     public MenuSlider? Number { get; init; }
 
-    /// <summary>A text box's.</summary>
+    /// <summary>A text box's; [S-2351] an asking row's line of text (its field and its accept, in place).</summary>
     public PageEdit? Edit { get; init; }
+
+    /// <summary>[S-2351] An asking row's question (an "are you sure?"), asked in place in its card.</summary>
+    public PageQuestion? Question { get; init; }
 
     /// <summary>A colour's or a fill's.</summary>
     public MenuColour? Colour { get; init; }
@@ -81,9 +84,6 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
     /// <summary>A link's owner (its tooltip: "Opens Accounts").</summary>
     public string? Owner { get; init; }
 
-    /// <summary>Its click asks first (a line of text, an "are you sure?"): a chevron at its end.</summary>
-    public bool Asks { get; init; }
-
     /// <summary>[S-1862] The row the card's Set up button opens the page at.</summary>
     public bool SetsUp { get; init; }
 
@@ -98,8 +98,8 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
 /// [S-2302] A text box's: its hint, what it starts with, what keeping it does; why a text cannot be kept
 /// (null when it can), whether an empty box may be kept, what each letter does as it is typed (a form's
 /// field), whether it is a password's (its box never shows what it holds: <see cref="Fill"/> gives it
-/// again, <see cref="Wipe"/> runs as its page closes), digits only, and the words of the button that keeps
-/// it and the title of the page it is asked on, where it is asked on a page of its own.
+/// again, <see cref="Wipe"/> runs as its page closes), digits only, and [S-2351] where it is asked in place
+/// (an asking row), the words of the button that gives it.
 /// </summary>
 internal sealed record PageEdit(string Placeholder, string Initial, Action<string> Commit)
 {
@@ -119,17 +119,21 @@ internal sealed record PageEdit(string Placeholder, string Initial, Action<strin
 
     public string? Accept { get; init; }
 
-    public string? Title { get; init; }
-
-    /// <summary>Why <paramref name="typed"/> cannot be kept; null when it can.</summary>
-    public string? Reason(string typed) => !AllowEmpty && string.IsNullOrWhiteSpace(typed) ? string.Empty : Refuse?.Invoke(typed);
+    /// <summary>[S-3721] Why <paramref name="typed"/> cannot be kept (empty words: nothing said); null when it can.</summary>
+    public string? Reason(string typed) => AskInPlace.Reason(typed, AllowEmpty, Refuse);
 }
 
-/// <summary>[S-2302] An "are you sure?" on a page of its own: the question, the words of the button that does it, what it does.</summary>
+/// <summary>
+/// [S-2351] An "are you sure?" asked in place, in the card of what asks it: the question, the words of the button that
+/// does it, what it does, whether it destroys something, and what goes with it.
+/// </summary>
 internal sealed record PageQuestion(string Question, string Accept, Action Done, bool Danger, string? Detail);
 
-/// <summary>[S-2302] An icon button at an item's end (Rename, Delete), its key while the item has the keyboard.</summary>
-internal sealed record PageTool(string Key, string Glyph, string Name, Windows.System.VirtualKey? Shortcut, Action Run, bool Disabled = false);
+/// <summary>
+/// [S-2302] An icon button at a thing's head or an item's end (Duplicate, Delete, Sign out), its key while the row has the
+/// keyboard; [S-2351] one that asks first opens its <see cref="Question"/> in place in its card (keyed by its own key).
+/// </summary>
+internal sealed record PageTool(string Key, string Glyph, string Name, Windows.System.VirtualKey? Shortcut, Action Run, bool Disabled = false, PageQuestion? Question = null);
 
 /// <summary>[S-2301] A section of a page as drawn: its heading over its rows.</summary>
 internal sealed record PageSection(string Key, string? Heading, IReadOnlyList<PageRow> Rows);

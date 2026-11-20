@@ -155,7 +155,7 @@ internal static class HabitTrackerMenu
         if (current is not null)
         {
             var currentId = current.Id;
-            lines.Add(new ItemMenuEntry(Glyphs.Rename, Str.Menu_Rename.Text(), () => menu.Ask(new WidgetTextAsk(
+            lines.Add(WidgetMenuLines.Ask(Glyphs.Rename, Str.Menu_Rename.Text(), new WidgetTextAsk(
                 Str.Common_Rename.Text(),
                 HabitTrackerStr.HabitTracker_Lists_NamePlaceholder.Text(),
                 Str.Common_Rename.Text(),
@@ -169,7 +169,7 @@ internal static class HabitTrackerMenu
                         menu.Save();
                     }
                 },
-                Initial: current.Name)), Disabled: !pool.Writable, Asks: true));
+                Initial: current.Name), disabled: !pool.Writable));
         }
 
         lines.Add(menu.Command(Glyphs.Add, HabitTrackerStr.WidgetsB_Settings_Habits_AddList.Text(), () =>

@@ -14,7 +14,7 @@ public sealed class ClipboardMenuTests
 
     private WidgetMenuLines Build(ClipboardConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         ClipboardMenu.Lines(lines, config);
         return lines;
     }

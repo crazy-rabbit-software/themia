@@ -447,6 +447,9 @@ internal static partial class EditBarRender
         ];
         PropsCard[] countdown = [new(new WidgetId("countdown"), 140, 160, 280, 180, true)];
 
+        // [S-2351] A fence: its name and its rules' texts asked in place, in their own cards.
+        PropsCard[] fence = [new(new WidgetId("fence"), 140, 160, 300, 240, true, Config: """{"name":"Work"}""")];
+
         // [S-2332] [S-9602] A header: its title and caption typed in place, its place its Location alone.
         PropsCard[] header = [new(new WidgetId("header"), 140, 160, 300, 52, true, Config: """{"text":"Weather","caption":"This week"}""")];
         PropsCard[] alarm = [new(new WidgetId("alarm"), 140, 160, 280, 160, true)];
@@ -519,6 +522,18 @@ internal static partial class EditBarRender
             (countdown, "vocabulary-colour", "w/Accent", null, Vocabulary),
             (countdown, "vocabulary-feeds", "w/Feeds", null, Vocabulary),
             (countdown, "vocabulary-confirm", "w/Clear history", null, Vocabulary),
+            (countdown, "vocabulary-confirm-end", "w/Clear history", null, Vocabulary),
+
+            // [S-2351] What a line asks, asked in place in its own card: the fence's name shut and open, typed into, a rule's
+            // text inside its card, a list's Add… refused and given, a list item's Rename….
+            (fence, "fence", null, null, null),
+            (fence, "fence-name", "w/" + FenceName, null, null),
+            (fence, "fence-name-typed", "w/" + FenceName, "Projects 2026", null),
+            (fence, "fence-rules-name", "w/" + FenceRules + "/" + FenceRulesName, null, null),
+            (countdown, "vocabulary-add", "w/Feeds/" + Str.Menu_Add.Text(), null, Vocabulary),
+            (countdown, "vocabulary-add-refused", "w/Feeds/" + Str.Menu_Add.Text(), "feed", Vocabulary),
+            (countdown, "vocabulary-add-typed", "w/Feeds/" + Str.Menu_Add.Text(), "https://example.com/feed", Vocabulary),
+            (countdown, "vocabulary-rename", "w/Feeds/Blog feed/" + Str.Menu_Rename.Text(), null, Vocabulary),
         ];
 
         foreach (var (layout, name, click, type, lines) in cases)
@@ -581,10 +596,12 @@ internal static partial class EditBarRender
         menu.Lines.Add(menu.List(Glyphs.Rss, "Feeds", feeds, new MenuList<string>(f => f, "No feeds yet")
         {
             Rename = new MenuListRename<string>((_, _) => false),
-            Add = new MenuListAdd<string>("Add a feed", "https://…", _ => null, f => f),
+
+            // [S-2351] A check that refuses: why under the field, the accept greyed.
+            Add = new MenuListAdd<string>("Add a feed", "https://…", t => t.Contains("://", StringComparison.Ordinal) ? null : "Type a web address, such as https://example.com/feed", f => f),
         }));
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(new WidgetMenuLines(() => { }, _ => { }) { OpenSetting = _ => { } }.AccountsLine(Glyphs.Contact, "Manage accounts"));
+        menu.Lines.Add(new WidgetMenuLines(() => { }) { OpenSetting = _ => { } }.AccountsLine(Glyphs.Contact, "Manage accounts"));
         menu.Lines.Add(menu.Confirm(Glyphs.Delete, "Clear history", "Clear the whole history?", "Clear", () => { }, detail: "Every entry goes, and it cannot be undone."));
         menu.Lines.Add(WidgetMenuLines.Note("Weather data by Open-Meteo.com, under CC BY 4.0, with a long credit that wraps onto a second line"));
     }
@@ -630,6 +647,13 @@ internal static partial class EditBarRender
 
     /// <summary>[S-1862] The click that opens the page as the card's Set up button does.</summary>
     private const string SetupOpen = "<setup>";
+
+    /// <summary>[S-2351] The fence's lines a render clicks, by their words (the fence module's own: English in a render).</summary>
+    private const string FenceName = "Fence name";
+
+    private const string FenceRules = "New items";
+
+    private const string FenceRulesName = "Name contains";
 
     /// <summary>
     /// [S-2340] [S-2343] The selection's page as edit mode shows it: real cards in edit mode, the bar with the

@@ -31,7 +31,7 @@ public sealed class PingHistoryTests
         var back = (PingHistoryConfig)((PingHistoryConfig)JsonSerializer.Deserialize(json, StateJson.WidgetConfig)!).Clone();
         Assert.Equal(("example.com", 300), (back.Host, back.GraphSpanSeconds));
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new PingHistoryModule()).MenuLines(menu, back);
         Assert.Equal(2, menu.Lines.Count);
     }

@@ -28,7 +28,7 @@ public sealed class BatteryHistoryTests
         var back = Assert.IsType<BatteryHistoryConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(1800, ((BatteryHistoryConfig)back.Clone()).GraphSpanSeconds);
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new BatteryHistoryModule()).MenuLines(menu, back);
         Assert.Single(menu.Lines);
     }

@@ -41,12 +41,12 @@ public sealed class GpuMetricTests
     public void S2431_the_adapter_is_offered_with_two_or_more_only_then_the_trend()
     {
         GpuAdapter[] two = [new(0, "Radeon RX 7800", "a", 0, 0), new(1, "Intel Arc", "b", 0, 0)];
-        var one = new WidgetMenuLines(() => { }, _ => { });
+        var one = new WidgetMenuLines(() => { });
         GpuMetricModule.Lines(one, new GpuLoadConfig(), [two[0]]);
         Assert.Empty(one.Lines);
 
         var config = new GpuLoadConfig();
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         GpuMetricModule.Lines(menu, config, two);
         Assert.Single(menu.Lines);
         menu.Lines[0].Children![1].Action!();

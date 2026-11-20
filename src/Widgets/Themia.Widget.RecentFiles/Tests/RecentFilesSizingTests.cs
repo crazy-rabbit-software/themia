@@ -37,7 +37,7 @@ public sealed class RecentFilesSizingTests
     [Fact]
     public void S11200_its_menu_is_rows_and_lines_per_row()
     {
-        var lines = new Themia.Sdk.WinUI.WidgetMenuLines(() => { }, _ => { });
+        var lines = new Themia.Sdk.WinUI.WidgetMenuLines(() => { });
         new RecentFilesModule().MenuLines(lines, new RecentFilesConfig());
 
         Assert.Equal([Str.Kit_Rows.Text(), Str.Kit_Lines.Text()], lines.Lines.Select(l => l.Text));

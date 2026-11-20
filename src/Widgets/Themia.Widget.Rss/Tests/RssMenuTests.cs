@@ -15,7 +15,7 @@ public sealed class RssMenuTests
 
     private WidgetMenuLines Build(RssConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         RssMenu.Lines(lines, config);
         return lines;
     }
@@ -70,7 +70,7 @@ public sealed class RssMenuTests
     [InlineData("ftp://a.example/feed")]
     public void S7510_add_refuses_what_the_feed_gate_refuses_and_says_why(string typed)
     {
-        Line(Build(new RssConfig()).Lines[0].Children!, Str.Menu_Add.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(new RssConfig()).Lines[0].Children!, Str.Menu_Add.Text()));
 
         Assert.NotNull(_asked!.Refuse(typed));
     }
@@ -79,7 +79,7 @@ public sealed class RssMenuTests
     public void S7510_add_takes_a_web_address_trimmed_and_saves_once()
     {
         var config = new RssConfig();
-        Line(Build(config).Lines[0].Children!, Str.Menu_Add.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(config).Lines[0].Children!, Str.Menu_Add.Text()));
 
         Assert.Null(_asked!.Refuse("https://a.example/feed.xml"));
         _asked.Done("  https://a.example/feed.xml ");
@@ -101,7 +101,7 @@ public sealed class RssMenuTests
     {
         var config = Two();
         var feed = Build(config).Lines[0].Children![0];
-        Line(feed.Children!, RssStr.WidgetsC_Rss_Menu_ChangeAddress.Text()).Action!();
+        _asked = Typed.Ask(Line(feed.Children!, RssStr.WidgetsC_Rss_Menu_ChangeAddress.Text()));
 
         Assert.Equal("https://a.example/feed.xml", _asked!.Initial);
         Assert.NotNull(_asked.Refuse("javascript:alert(1)"));

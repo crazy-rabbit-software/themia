@@ -165,14 +165,14 @@ public sealed class WeatherFactTests
     [Fact]
     public void S13903_the_menu_is_the_place_then_the_trend_where_the_fact_has_one()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new WeatherHumidityModule()).MenuLines(menu, new WeatherHumidityConfig());
 
-        var place = WeatherPlaceRows.Lines(new WidgetMenuLines(() => { }, _ => { }), new WeatherHumidityConfig()).Select(l => l.Text).ToList();
+        var place = WeatherPlaceRows.Lines(new WidgetMenuLines(() => { }), new WeatherHumidityConfig()).Select(l => l.Text).ToList();
         Assert.Equal([.. place, Str.Metric_Trend.Text()], menu.Lines.Select(l => l.Text));
         Assert.DoesNotContain(menu.Lines, l => l.LinkTo is not null);
 
-        var sunrise = new WidgetMenuLines(() => { }, _ => { });
+        var sunrise = new WidgetMenuLines(() => { });
         ((IWidgetModule)new WeatherSunriseModule()).MenuLines(sunrise, new WeatherSunriseConfig());
         Assert.Equal(place, sunrise.Lines.Select(l => l.Text));
     }

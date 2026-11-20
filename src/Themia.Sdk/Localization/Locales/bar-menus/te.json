@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "పరిమాణం",
   "barMenus.viewBar.hidden": "దాచబడింది",
   "barMenus.viewBar.views": "వీక్షణలు",
-  "barMenus.view.renameTitle": "వీక్షణ పేరు మార్చు",
   "barMenus.view.deleteQuestion": "“{name}”ను తొలగించాలా?",
   "barMenus.view.deleteDetail": "దాని విడ్జెట్‌లు కూడా దానితో పాటు పోతాయి ({widgets}). అన్‌డూ అన్నింటినీ తిరిగి తెస్తుంది."
 }

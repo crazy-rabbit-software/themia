@@ -21,7 +21,7 @@ public sealed class MoonMetricTests
     public void S14695_a_time_card_is_its_kind_and_its_menu_the_place()
     {
         Assert.Equal(MoonTimeKind.Set, new MoonsetConfig().Time);
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new MoonriseModule()).MenuLines(menu, new MoonriseConfig());
         Assert.NotEmpty(menu.Lines);
     }

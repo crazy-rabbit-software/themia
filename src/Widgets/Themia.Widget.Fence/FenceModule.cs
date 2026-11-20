@@ -186,9 +186,9 @@ public sealed class FenceModule : IWidgetModule
         _ => FenceStr.Fence_Type_Folders,
     }).Text();
 
-    /// <summary>A line of text asked beside the page; an empty one clears it.</summary>
+    /// <summary>[S-2351] A line of text asked in place, in its own card; an empty one clears it.</summary>
     private static ItemMenuEntry Ask(WidgetMenuLines menu, string? glyph, string text, string current, string? hint, Action<string> set)
-        => new(glyph, text, () => menu.Ask(new WidgetTextAsk(
+        => WidgetMenuLines.Ask(glyph, text, new WidgetTextAsk(
             text,
             hint ?? text,
             Str.Common_Save.Text(),
@@ -202,7 +202,7 @@ public sealed class FenceModule : IWidgetModule
                 }
             },
             Initial: current,
-            AllowEmpty: true)), Asks: true, Value: current);
+            AllowEmpty: true), current);
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

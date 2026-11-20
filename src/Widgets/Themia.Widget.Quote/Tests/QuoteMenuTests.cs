@@ -16,7 +16,7 @@ public sealed class QuoteMenuTests
 
     private WidgetMenuLines Build(QuoteConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         QuoteMenu.Lines(lines, config);
         return lines;
     }
@@ -71,7 +71,7 @@ public sealed class QuoteMenuTests
         var list = Quotes(config).Children!;
         Assert.Equal(["First", "Second"], list.Where(l => l.Children is not null).Select(l => l.Text));
 
-        list.Single(l => l.Text == Str.Menu_Add.Text()).Action!();
+        _asked = Typed.Ask(list.Single(l => l.Text == Str.Menu_Add.Text()));
         _asked!.Done("  Third  ");
 
         Assert.Equal("Third", config.Quotes[^1].Text);
@@ -91,12 +91,12 @@ public sealed class QuoteMenuTests
         var config = Two();
         var first = Quotes(config).Children!.Single(l => l.Text == "First").Children!;
 
-        first.Single(l => l.Text == Str.Menu_Rename.Text()).Action!();
+        _asked = Typed.Ask(first.Single(l => l.Text == Str.Menu_Rename.Text()));
         Assert.Equal("First", _asked!.Initial);
         _asked.Done("Changed");
         Assert.Equal("Changed", config.Quotes[0].Text);
 
-        first.Single(l => l.Text == QuoteStr.WidgetsC_Quote_Menu_Author.Text()).Action!();
+        _asked = Typed.Ask(first.Single(l => l.Text == QuoteStr.WidgetsC_Quote_Menu_Author.Text()));
         Assert.True(_asked!.AllowEmpty);
         _asked.Done(" ");
         Assert.Equal(string.Empty, config.Quotes[0].Author);

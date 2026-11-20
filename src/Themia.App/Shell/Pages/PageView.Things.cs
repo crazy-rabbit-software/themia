@@ -61,7 +61,7 @@ internal sealed partial class PageView
     /// [S-2310] [S-3732] A thing's head with the keyboard: Ctrl+Up / Down moves it in its list, its icon buttons' keys
     /// (Delete) work on it.
     /// </summary>
-    private void ThingKeys(Button head, PageRow row)
+    private void ThingKeys(Button head, PageRow row, bool inside)
     {
         if (row.Order is null && row.Tools is not { Count: > 0 })
         {
@@ -86,7 +86,7 @@ internal sealed partial class PageView
 
             if (row.Tools?.FirstOrDefault(t => t.Shortcut == e.Key && !t.Disabled) is { } keyed)
             {
-                Do(keyed.Run);
+                UseTool(row, keyed, inside);
                 e.Handled = true;
             }
         };

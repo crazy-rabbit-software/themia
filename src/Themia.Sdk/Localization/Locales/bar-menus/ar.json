@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "الحجم",
   "barMenus.viewBar.hidden": "مخفي",
   "barMenus.viewBar.views": "المشاهد",
-  "barMenus.view.renameTitle": "إعادة تسمية المشهد",
   "barMenus.view.deleteQuestion": "حذف «{name}»؟",
   "barMenus.view.deleteDetail": "تُحذف أدواته معه ({widgets}). التراجع يعيد كل شيء."
 }

@@ -77,7 +77,7 @@ internal static class QuoteMenu
                 },
                 Extra = item =>
                 [
-                    new(Glyphs.Contact, QuoteStr.WidgetsC_Quote_Menu_Author.Text(), () => menu.Ask(new WidgetTextAsk(
+                    WidgetMenuLines.Ask(Glyphs.Contact, QuoteStr.WidgetsC_Quote_Menu_Author.Text(), new WidgetTextAsk(
                         QuoteStr.WidgetsC_Quote_Menu_Author.Text().TrimEnd('…'),
                         QuoteStr.WidgetsC_Quote_Settings_AuthorPlaceholder.Text(),
                         Str.Common_Save.Text(),
@@ -90,7 +90,7 @@ internal static class QuoteMenu
                             }
                         },
                         Initial: item.Author,
-                        AllowEmpty: true)), Value: item.Author.Length > 0 ? item.Author : null, Asks: true),
+                        AllowEmpty: true)),
                 ],
                 Add = new MenuListAdd<QuoteItem>(
                     QuoteStr.WidgetsC_Quote_Settings_Add_Title.Text(),

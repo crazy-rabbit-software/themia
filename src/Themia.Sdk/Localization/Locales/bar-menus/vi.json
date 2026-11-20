@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Kích thước",
   "barMenus.viewBar.hidden": "Ẩn",
   "barMenus.viewBar.views": "Dạng xem",
-  "barMenus.view.renameTitle": "Đổi tên dạng xem",
   "barMenus.view.deleteQuestion": "Xóa “{name}”?",
   "barMenus.view.deleteDetail": "Các tiện ích của nó cũng bị xóa theo ({widgets}). Hoàn tác sẽ khôi phục tất cả."
 }

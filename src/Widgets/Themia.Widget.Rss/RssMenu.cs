@@ -58,13 +58,13 @@ internal static class RssMenu
                 Glyph = _ => Glyphs.Link,
                 Extra = feed =>
                 [
-                    new(Glyphs.Edit, RssStr.WidgetsC_Rss_Menu_ChangeAddress.Text(), () => menu.Ask(new WidgetTextAsk(
+                    WidgetMenuLines.Ask(Glyphs.Edit, RssStr.WidgetsC_Rss_Menu_ChangeAddress.Text(), new WidgetTextAsk(
                         RssStr.WidgetsC_Rss_Menu_ChangeAddress.Text().TrimEnd('…'),
                         Example,
                         Str.Common_Save.Text(),
                         Refusal,
                         typed => Readdress(feed, typed, menu),
-                        Initial: feed.Url)), Asks: true),
+                        Initial: feed.Url)),
                 ],
                 Add = new MenuListAdd<RssFeed>(RssStr.WidgetsC_Rss_Settings_Add_Title.Text(), Example, Refusal, typed => new RssFeed { Url = typed.Trim() }),
                 Max = RssConfig.MaxFeeds,

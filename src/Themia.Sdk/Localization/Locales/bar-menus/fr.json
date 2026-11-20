@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Taille",
   "barMenus.viewBar.hidden": "Masquée",
   "barMenus.viewBar.views": "Vues",
-  "barMenus.view.renameTitle": "Renommer la vue",
   "barMenus.view.deleteQuestion": "Supprimer « {name} » ?",
   "barMenus.view.deleteDetail": "Ses widgets partent avec elle ({widgets}). Annuler rétablit le tout."
 }

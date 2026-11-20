@@ -71,13 +71,13 @@ internal static class OwnIconMenu
         {
             new(Glyphs.File, DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_File.Text(), () => _ = FolderBrowse.PickFileAsync(["*"], Set)),
             new(Glyphs.Folder, DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_Folder.Text(), () => _ = FolderBrowse.PickAsync(Set)),
-            new(Glyphs.Link, DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLink.Text(), () => menu.Ask(new WidgetTextAsk(
+            WidgetMenuLines.Ask(Glyphs.Link, DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLink.Text(), new WidgetTextAsk(
                 DesktopItemStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text().TrimEnd('…'),
                 TargetExamples,
                 Str.Common_Save.Text(),
                 Refusal,
                 Set,
-                Initial: config.IsLayout ? null : config.Target)), Asks: true),
+                Initial: config.IsLayout ? null : config.Target)),
             Locations(config, Set),
             ItemMenuEntry.Separator,
             config.IsLayout
@@ -122,9 +122,9 @@ internal static class OwnIconMenu
         return WidgetMenuLines.Submenu(Glyphs.Folder, text, lines);
     }
 
-    /// <summary>[S-9507] The Name line: asked beside the menu; the target's own name (or nothing) clears the label.</summary>
+    /// <summary>[S-9507] The Name line: asked in place in its card ([S-2351]); the target's own name (or nothing) clears the label.</summary>
     private static ItemMenuEntry Name(WidgetMenuLines menu, DesktopItemConfig config)
-        => new(Glyphs.Rename, Str.Folder_ColName.Text(), () => menu.Ask(new WidgetTextAsk(
+        => WidgetMenuLines.Ask(Glyphs.Rename, Str.Folder_ColName.Text(), new WidgetTextAsk(
             Str.Folder_ColName.Text(),
             OwnIconRules.DerivedName(config),
             Str.Common_Save.Text(),
@@ -137,7 +137,7 @@ internal static class OwnIconMenu
                 }
             },
             Initial: OwnIconRules.Name(config),
-            AllowEmpty: true)), Asks: true, Value: OwnIconRules.Name(config));
+            AllowEmpty: true), OwnIconRules.Name(config));
 
     /// <summary>
     /// [S-9503] The Icon submenu: Picture… (the shell's picker over the picture types), Emoji… (one typed,
@@ -156,7 +156,7 @@ internal static class OwnIconMenu
                     menu.Save();
                 }
             })),
-            new(Glyphs.Emoji, DesktopItemStr.WidgetsC_Shortcuts_Icon_Emoji.Text(), () => menu.Ask(new WidgetTextAsk(
+            WidgetMenuLines.Ask(Glyphs.Emoji, DesktopItemStr.WidgetsC_Shortcuts_Icon_Emoji.Text(), new WidgetTextAsk(
                 DesktopItemStr.WidgetsC_Shortcuts_Icon_Emoji.Text().TrimEnd('…'),
                 DesktopItemStr.WidgetsC_Shortcuts_Icon_EmojiPlaceholder.Text(),
                 Str.Common_Save.Text(),
@@ -168,7 +168,7 @@ internal static class OwnIconMenu
                         menu.Save();
                     }
                 },
-                Initial: config.IconEmoji)), Asks: true),
+                Initial: config.IconEmoji)),
             ItemMenuEntry.Separator,
             new(Glyphs.Reset, DesktopItemStr.WidgetsC_Shortcuts_Icon_Automatic.Text(), () =>
             {

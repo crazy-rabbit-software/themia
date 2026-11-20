@@ -28,7 +28,7 @@ public sealed class MemoryHistoryTests
         var back = Assert.IsType<MemoryHistoryConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(1800, ((MemoryHistoryConfig)back.Clone()).GraphSpanSeconds);
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new MemoryHistoryModule()).MenuLines(menu, back);
         Assert.Single(menu.Lines);
     }

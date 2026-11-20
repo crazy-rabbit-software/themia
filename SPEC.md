@@ -1979,15 +1979,17 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   a **link** (what it is set to in Caption and a chevron, its tooltip "Opens …"); an **item** (the user's own thing: its icon buttons at
   its end, their keys F2 and Delete while it has the keyboard, dragged or Ctrl+Up / Down to reorder); a
   **note** (words; a reading with its value at the end); the **pickers** (choice, lookup, colour, font,
-  icon, [S-2308]); an **expander**; a **sub-page**.
+  icon, [S-2308]); an **expander**; an **ask** (a line of text or a question asked in place in its own card,
+  [S-2351]); a **sub-page** (many lines, never one input).
 - **[S-2303]** At most **two levels** (Karpo's §594): a card, and one level opened inside it (an
   expander, a picker). A submenu marked a page of its own (`SettingsSubmenu.Page`: an account, Add
   account) or one whose lines open further is a **sub-page**: it stands in the page's place behind a
   32-DIP back head (the back arrow and its title in BodyStrong; the whole head goes back). Inside an
   expander a picker is **folded** ([S-2348]): its head as any picker's, its body unfolding under its line on a
-  click. A line of text asked on its own (a view's Rename tool,
-  a list's Add… or Rename…) and an "are you sure?" (a preset over one's own look, deleting a view, an import, a
-  widget's Confirm) are pages of their own too, the question their head; only their button does it.
+  click. A line of text asked on its own (a list's Add… or Rename…, a path typed, a fence's name) and an "are you
+  sure?" (a preset over one's own look, deleting a view, signing out, an import, a reset, an uninstall, a widget's
+  Confirm) are **never** pages of their own: they are asked in place, in their own card ([S-2351]); only their
+  button does it. *(Until 2026-11-20 they were pages of their own behind a back head, the question their head.)*
 - **[S-2304]** **Cards** (`SettingsRows.Cards`), Windows' settings cards: each row a card of its own,
   with the notes under it (what holds against it, how a try went); options of a choice standing open,
   and the things of one list, share one card; a heading's card holds the rows under it to the next
@@ -2071,7 +2073,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 - **[S-2312]** **Accounts** (Karpo's Accounts page, `Karpo.Core/OptionAccountRows.cs` `Page`): under **Your accounts**
   every account a card (its provider's icon, or the warning while it needs signing in again; its name; its address
   and provider under it, its provider alone where its name is its address; at its end while shut what it holds
-  ("1,240 messages · 386 events") or Sign in again; **Sign out** its icon button, asked first). Opened: what holds
+  ("1,240 messages · 386 events") or Sign in again; **Sign out** its icon button, asked first in place in its card,
+  [S-2351]). Opened: what holds
   against it and the way back in (the sign-in or the form, in the card), a reading per kind, the grant page, its
   Nickname, how a sign-out went. "No account yet" where there is none. Under **Add an account** each way: "Add a
   Microsoft account" a row that starts the browser's sign-in, its kinds under it ("Mail, Calendar, Contacts,
@@ -2080,7 +2083,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 - **[S-2313]** **Views** (Karpo's Layouts, `LayoutsRows`): under **Your views** every view in the user's order a card:
   its mark in its colour, its name, under it where it is shown ("Shown on this display, LG HDR WQHD"; "Not shown on a
   display") and its widgets; at its head's end **Duplicate view** ([S-900]) and **Delete view** (Delete; asked first
-  with what goes with it, [S-3737]; greyed on the last view, [S-12]) and the grip ([S-901]: dragged or Ctrl+Up / Down,
+  with what goes with it, in place in its card, [S-2351]; greyed on the last view, [S-12]) and the grip ([S-901]: dragged or Ctrl+Up / Down,
   `AppHost.ReorderView`). Opened: **Name** (a text box, `ViewOps.Rename`, [S-1707]), **Icon** (the icon picker, its
   default the initials, [S-903]), **Colour** ([S-3810]), **Desktop icons** (All, Chosen, None; while Chosen the list of
   the desktop's items to tick, [S-5529]) and **Show on this display** (a command as the view bar's
@@ -2123,6 +2126,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   | header card (§529 `LayHeader`) | `HeaderCard` | 80 tall: 48 tile 16 in, glyph 24, name 20/28 semibold over Caption 16 after it, 32 icon buttons 4 apart |
   | tab strip (§592, SelectorBar) | `PageTabButton.Strip` | 40 tall, words 12 in, 4 apart, 3 × 16 accent pill, 8 under the card before and over the cards after |
   | inline picker (§670) | `Body` | under a hairline on the secondary card fill, 12 in; options 36 tall |
+  | (an inline picker's body) | `AskSection` ([S-2351]) | under a hairline on the secondary card fill, 12 in, its parts from the names' column (48) to 16 from the end: a 32 field and its accept (a standard accent button, 120..240) 8 after it, why in Caption under the field; or the question in Body, what goes with it in Caption, its action and Cancel 8 apart |
 
   Not Karpo's: a number's slider row ([S-3731]) is a 240 number box, as Karpo's steppers; Karpo's popups (§633), its
   value resets (§613) and a mixed row's own values (§529) have no Themia counterpart (every picker is inline, no
@@ -2131,9 +2135,10 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   §638): a row that says what it does (`Caption`) is a card, its icon and those words before a standard button
   whose words are the row's (its value in Caption 12 before the button); one with nothing to say is its button
   alone, no card: a hyperlink button's look (its glyph and words in the accent's text colour, the critical colour
-  for a danger, a chevron after its words where it asks first), on a page from the cards' start 8 under the card
+  for a danger), on a page from the cards' start 8 under the card
   before it and the next such 8 beside it, in an opened card its glyph where the rows' names start; how it went
-  under it in Caption. A reading may carry a button in its line (`SettingsReading.Beside`: a site).
+  under it in Caption. A reading may carry a button in its line (`SettingsReading.Beside`: a site). A row that asks
+  first is no action row: it is an ask, its card opening in place on its question ([S-2351]).
 - **[S-2319]** **Formats** (Karpo's Formats card, `Karpo.Core/KarpoMenu.Formats.cs`): a card under the language,
   Windows' date-and-time glyph, saying at its end "Default (Windows)" while every format follows Windows, else
   "Custom"; opened, Time format, First day of week and Temperature (each Windows' first, [S-3771]), **Windows region
@@ -2233,7 +2238,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   cards under their page seen through it, [S-2344]; `select-<theme>-one`, `-style`, `-header`,
   `-background`, `-appearance-end`, `-two`, `-many`, `-toggle`, `-weather`, `-weather-location`,
   `-setup-weather`, `-desktop-icon`, `-vocabulary`, `-vocabulary-colour`, `-vocabulary-feeds`,
-  `-vocabulary-confirm`), over stand-in hosts that reach neither Windows nor the user's state; then the
+  `-vocabulary-confirm`, `-vocabulary-confirm-end`, [S-2351]'s `-fence`, `-fence-name`, `-fence-name-typed`,
+  `-fence-rules-name`, `-vocabulary-add`, `-vocabulary-add-refused`, `-vocabulary-add-typed`, `-vocabulary-rename`),
+  over stand-in hosts that reach neither Windows nor the user's state; then the
   edit markers ([S-31b]). `--editbar-png` writes no `settings-*`, `views-*`, `display-*` or `props-*`
   pictures any more.
 - **[S-2331]** **Every choice shows what holds** (owner, 2026-11-19: "the selects dont all show as selected. fix that
@@ -2251,8 +2258,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   shares owned, a video stream's address, the tasks' words filter, a ping host and a sun's or moon's coordinates (a
   number is its number box, [S-2370]). On the page of several the box sets every holder
   (`SharedRowLines`, empty with the hint Mixed while they differ). A line asked once to make or rename something (a
-  list's Add…, an item's Rename…, a path typed beside a folder picker) still asks on its own page. Not yet: a fence's
-  title and rules (the fence's own code, under other work), a desktop icon's Name. Tests `WidgetMenuLinesTests.S2332_`,
+  list's Add…, an item's Rename…, a path typed beside a folder picker), a fence's name and rules' texts and a desktop
+  icon's Name ask in place, in their own card ([S-2351]). Tests `WidgetMenuLinesTests.S2332_`,
   `HeaderTests.S9602_`, the modules' menu tests (through `Typed.Ask`).
 - **[S-2348]** **Inside a card, pickers are folded** (owner, 2026-11-19: "in the settings the second level of select
   sections should not be extended, right now in the display settings for example all of those are always extended.
@@ -2396,6 +2403,37 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   its head, unfolds and folds its icon picker, closes the card by its head and by Escape, opens Work's sub-page (shorter
   than the list) and leaves it, and says each height (PASS where the flyout stands at its page's height after every
   step and every closed step is as tall as the page was before it opened; `page-*-follow-*.png`).
+- **[S-2351]** **No page of its own for one input, anywhere in the settings** (owner, 2026-11-20: "fence name setting
+  opens a new subpage where i can enter the name, this should be a section not an own page. this type of settings
+  component should not exist anywhere in themia settings. implement and replace everywhere."): a line that asks for one
+  line of text (a widget's `Ask`: a fence's name and rules' texts, a list's Add… and an item's Rename…, a desktop icon's
+  Name, target and emoji, a folder's or a gallery's path typed, a feed's address, a quote's author, a note's, a habit
+  list's or a task list's Rename…, the calendar's custom range) or one question (a widget's `Confirm`, ⚙'s Reset all
+  and Uninstall…, a view's Delete, an account's Sign out, an import's question, a preset over one's own look) is a
+  **section in its own card**: its row (`SettingsRowKind.Ask`) its words, what it holds at its end as a picker's head
+  says it, and the expand chevron (down, up while open; never a sub-page's); a click opens it in place as the card's
+  one inner level ([S-2303], under a hairline on the secondary card fill, [S-2317]'s `AskSection`), scrolled into sight
+  as little as it takes ([S-2347]), the cards under it gliding down as a card opening does, nothing else moving. A line
+  of text: the field holding what it holds, selected, the keyboard in it; its hint while empty; why the check refuses
+  what is typed under it in Caption, critical ([S-3721]: nothing said while it is only empty); the accept in its own
+  words at the field's end, greyed while refused. A question: its words, what goes with it, its action (critical for a
+  danger) and Cancel, the keyboard on Cancel for a danger and on the action else ([S-3727]). Enter gives the text as the
+  accept does and closes it; Escape, Cancel, its head again or a press anywhere else on the page closes it, giving
+  nothing; one section is open at a time per page, and one on the page itself is the card open there ([S-2308]); a tab, a
+  deep link or the page going close it too. A tool that asks first (Delete, Sign out) opens its question in its thing's
+  card; a question that comes after a step of its own (an import's once its file is read, a preset over a look of one's
+  own) opens at the line it belongs to (`ISettingsMenuHost.Confirm(at, …)`, `PageView.ConfirmAt`). What is typed lives
+  through a drawing of the page. The rules are Core's (`AskInPlace`: open, one at a time, a press outside, accept,
+  refuse, answer); what a line asks it carries (`ItemMenuEntry.Ask`/`.Confirm`, `SettingsCommand.Asking`,
+  `SettingsTool.Confirm`): the SDK has no callback that asks anywhere else, and the old page-of-its-own path (the page's
+  ask and question steps, `PageView.Ask`/`Confirm`, a tool's `Ask`, the hosts' ask callbacks) is gone. A text the widget
+  holds stays a box at its line's end ([S-2332]); a search stays its inline lookup ([S-3722]); a page of its own holds
+  many lines (a view's chosen desktop icons, [S-5529]), never one input. Rename on the desktop (F2) and a widget's own
+  inline boxes ([S-13950]) are not settings and are untouched. Tests `AskInPlaceTests.S2351_`,
+  `SettingsMenuTests.S2351_` (no line of any page opens a page of its own for one input), `AskInPlaceGuardTests.S2351_`
+  (no widget's line, nothing in the SDK), `WidgetMenuLinesTests.S2351_`; renders `select-*-fence*`, `-vocabulary-add*`,
+  `-vocabulary-rename`, `-vocabulary-confirm*` and ⚙'s `page-*-views-delete`, `-accounts-signout`,
+  `-general-backup-reset`, `-general-backup-import`, `-general-uninstall-*confirm`, `-appearance-replace`.
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the
@@ -2856,8 +2894,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   live ([S-822]); a slider stores once, on the release ([S-3731]); the option that holds changes nothing.
 - **[S-3527]** **Style ›** lists the presets, the tick on the one the design matches, and Custom
   (greyed, with the tick) while it matches none ([S-834]). A preset picked over a look of the user's
-  own asks first, on a level of its own ([S-6483]: the app's one "are you sure?", [S-3737], "Replace
-  your custom look?", what it replaces and what stays under it, Replace and Cancel); only Replace writes it.
+  own asks first, in place in the Style card ([S-6483], [S-2351]: "Replace your custom look?", what it replaces and
+  what stays under it, Replace and Cancel); only Replace writes it.
 - **[S-3528]** **Text and size › Font ›**: its level holds the font picker (`FontPicker`, [S-1723]:
   its search box over the presets and every installed family, each drawn in its own font, the chosen
   one ticked, [S-6440]..[S-6442]), then **Add fonts** ([S-6443]). The Font line's value is the chosen
@@ -3047,9 +3085,9 @@ place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
   (`SyncStats.Summarize`): its name and count ("Mail · 1,240 messages") and under it "in 3 folders ·
   synced 5 min. ago · 2 changes waiting to sync", or "Nothing stored on this PC yet"; where a service
   grants access per resource, **Choose what it may read** ([S-9919]); **Nickname**, its value the
-  nickname, a line of text on a level of its own ([S-3736]) with the one there and the account's own
+  nickname, a line of text typed in its box in its row ([S-2302]) with the one there and the account's own
   name as the hint, an empty field clearing it (`AccountService.RenameAsync`); and **Sign out**, its head's icon button,
-  asked first as a destructive question on a level of its own ([S-3737]: "Sign out of Alex Wilber?", what
+  asked first as a destructive question in place in its card ([S-2351]: "Sign out of Alex Wilber?", what
   goes and that nothing changes at the provider, Sign out and Cancel). What a rename or a sign-out
   could not do stands under its line in the critical colour. There are no switches for an account's
   parts and no colours: the page had none, and nothing behind it turns a part off.
@@ -3079,7 +3117,7 @@ place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
   Gmail itself can still be added as a mail server with an app password ([S-522]).
 - **[S-3554]** The forms, a draft each (`AccountForm`, one per kind, the same wherever it is opened
   from, kept while menus come and go), each a level of one-row rows as Karpo's (§338): every field a
-  row with what it holds as its value whose level is the field alone ([S-3736]), every letter written
+  row with its box at the line's end ([S-2302]), every letter written
   into the form as it is typed: the mail server's **Email address**, **Password** (masked,
   [S-3556]; under it "Some providers want an app password here" where Themia knows no provider for
   the address), **Set the server myself** and, while it is on, **Server**, **Port** (empty for 993,
@@ -3125,13 +3163,13 @@ place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
 - **[S-3559]** While ⚙ is open it follows the accounts and their numbers (`AccountsChanged`,
   `SyncHost.StatsChanged`) and every flow's progress, written into its lines in place ([S-3531]).
 - **[S-3560]** Debug renders (`--editbar-png`, [S-2328]): `page-<theme>-accounts`,
-  `-accounts-account` (a page of its own), `-account-again`, `-signout` (its "are you sure?" page),
+  `-accounts-account`, `-account-again`, `-signout` (its "are you sure?" in place in its card, [S-2351]),
   `-add`, `-signin`, `-imap`, `-imap-filled`, `-imap-testing`, `-imap-failed`, `-caldav`, over a stand-in host with three made-up
   accounts and their numbers; no sign-in, server or account file is reached, and the password drawn
   is made up for the picture.
 - **[S-3561]** The vocabulary of [S-3524] grows what forms need, for every menu: `SettingsReading`
-  (words and a value, nothing to do), `SettingsField` (a row whose level is a line of text typed in
-  the menu, [S-3736], each letter handed on as it is typed, Enter going back; `Numeric`, `Masked`), a
+  (words and a value, nothing to do), `SettingsField` (a row with its box at the line's end, [S-2302], each letter
+  handed on as it is typed; `Numeric`, `Masked`), a
   note's `Critical` (the critical colour) and `Busy` (a ring), a note without words taking no room,
   and a `SettingsAsk` that may be given empty and says its value. The engine writes notes, the
   reason under a field and whether a row is greyed in place (a danger row aside), so a level is not
@@ -3195,8 +3233,9 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   Themia Pro and Back up & reset is one for the app (`SettingsOutcomes`, every display's ⚙ says the
   same) and goes when the last settings menu closes, but what is still out, which says so again
   when ⚙ opens.
-- **[S-3577]** An import's file, once read ([S-495]), asks on a level of the menu's own before anything changes
-  ([S-3737], Import and Cancel): "Import these settings?", then **What changes** (a line
+- **[S-3577]** An import's file, once read ([S-495]), asks in place under Import settings, in the Back up & reset card,
+  before anything changes ([S-2351], `ISettingsMenuHost.Confirm(at, …)`, Import and Cancel): "Import these settings?",
+  then **What changes** (a line
   each, "Nothing: the settings are the same" when it holds what is there now) and **Good to know**
   (the repairs, the displays not here, Start with Windows staying, where the current settings are
   kept), each cut at twelve lines with "and N more" (`SettingsMenu.ImportQuestion` over
@@ -3268,7 +3307,8 @@ removed, `%LOCALAPPDATA%\Packages\<family>` gone); Narrator on the pictures.
 Since 2026-11-12 the selection's options are its page (EDITBAR-PAGES, [S-2340]..[S-2343]); the menu
 beside the selection, its engine and its placement are gone. What a line of a widget is and does
 ([S-3719]..[S-3733], [S-3744]..[S-3749]) stands, drawn as the rows of [S-2302]; "the menu" below is the
-selection's page and "a level" a card opened inside it or a page of its own.
+selection's page and "a level" a card opened inside it (a line of text or a question asked: in place in its own
+card, [S-2351]).
 
 How a widget's card looks — its header, its background, its title — is set where the widget is, in
 edit mode, not in a window, and not on the edit bar: on a small panel that stands beside
@@ -3330,7 +3370,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   submenu, which holds the styles only), `Lines` after the Header row; the card's look is never among
   them: it is the pinned Appearance foot ([S-3739]). They are the one menu vocabulary, `ItemMenuEntry`:
   `Toggle` (a switch, [S-3741]), `Choice` (a level of ticks, any value type), `Submenu`, `Search`
-  ([S-3722]), `Command` (a change and its save), `Ask` ([S-3721], its line `Asks`), `Colour` and
+  ([S-3722]), `Command` (a change and its save), `Ask` ([S-3721], `ItemMenuEntry.Ask`, asked in place, [S-2351]), `Colour` and
   `Fill` ([S-3724]), `Number` ([S-3726]), `Slider` ([S-3731]), `Confirm` ([S-3727]), `Note`
   ([S-3728]), `List` ([S-3729]), `PickFolder` ([S-3730]), `AccountsLine` (a link, [S-3749]) or a plain
   command, every one a row one row high. The lines are built again on every selection and state change over the live config (a
@@ -3338,14 +3378,15 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   option a widget has (user request 2026-10-19): there is no widget settings page ([S-6536]). A
   module without lines (the default) is a widget with no options of its own: its menu is the
   card's lines. [S-1862] The one line Set up opens is marked `WidgetMenuLines.SetsUp`.
-- **[S-3721]** A row may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`; its
-  line marked `ItemMenuEntry.Asks`, so it has its chevron): its click opens the text level of
-  [S-3736], the field holding `Initial` (selected), its hint `Placeholder`, the reason under it while
-  the widget's check refuses what is typed (nothing while it is empty, and an empty field is refused
-  unless `AllowEmpty`), and under a rule the row that gives it (`Accept`'s words), greyed while
-  refused; Enter gives it too, and both go back. Escape or going back any other way drops it.
+- **[S-3721]** A row may **ask for one line of text** (`WidgetMenuLines.Ask`, a `WidgetTextAsk` the line carries,
+  `ItemMenuEntry.Ask`): its row says its words and what it holds at its end with the expand chevron, and its click
+  opens it **in place in its own card** ([S-2351]): the field holding `Initial` (selected), its hint `Placeholder`,
+  the reason under it while the widget's check refuses what is typed (nothing while it is empty, and an empty field
+  is refused unless `AllowEmpty`), and the accept at the field's end (`Accept`'s words), greyed while refused; Enter
+  gives it too, and both close it. Escape, a press elsewhere or its head again close it and give nothing.
 - **[S-3722]** A row may be a **search** (`WidgetMenuLines.Search`, `MenuSearch`): what is chosen at
-  the end of its row; its level has the search's field pinned under its head, every answer as a row
+  the end of its row; its card opens in place on the inline lookup ([S-2308], never a page of its own, [S-2351]):
+  the search's field pinned under its head, every answer as a row
   under it (one row each, scrolled where there are more than the rectangle holds) and the search's
   fixed rows after a rule (clear the choice, edit what was chosen; user request
   2026-10-19: a switch or a choice of what the widget shows stands on the first level after the
@@ -3380,26 +3421,26 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   ([S-2370]; until 2026-11-19 up to twenty steps were a choice of ticks and more a box that refused what lay outside
   the range): a typed number read in the box's unit, held to the range and rounded to the nearest step. A number
   asked once on its own (the calendar's custom range in days) still says its range in its own words.
-- **[S-3727]** A **confirmed** row (`WidgetMenuLines.Confirm`, its line `Asks`) asks first, on the
-  "are you sure?" level of [S-3737]: the question, and under it what goes with it where the row says
-  (`detail`: the habits and streaks of a habit list, a note's text for every widget showing it, a
-  task list's tasks), then the action and Cancel; only the action runs it and saves (and goes back),
-  Cancel, Escape or going back change nothing, and with nothing to ask nothing runs. A danger row's
-  words and icon are the critical colour, and so is its question's action, the keyboard on Cancel
-  so Enter straight after it keeps everything; any other question's keyboard is on its action.
-  (Karpo asks in Windows' task dialog and closes its menu; Themia's menu stands on a no-activate
-  desktop surface where a dialog cannot be owned reliably, so the question stays in the one
-  rectangle, as everything else the menu asks does.) Tests `ConfirmLookTests` (the widgets' own
+- **[S-3727]** A **confirmed** row (`WidgetMenuLines.Confirm`, a `WidgetConfirm` the line carries,
+  `ItemMenuEntry.Confirm`; ⚙'s `SettingsCommand.Asking`, `SettingsTool.Confirm`) asks first, **in place in its own
+  card** ([S-2351]): the question, and under it what goes with it where the row says (`detail`: the habits and
+  streaks of a habit list, a note's text for every widget showing it, a task list's tasks), then the action and
+  Cancel; only the action runs it and saves (and closes it), Cancel, Escape, a press elsewhere or its head again
+  change nothing; the line has no action of its own, so nothing runs it unasked. A danger row's words and icon are the
+  critical colour, and so is its question's action, the keyboard on Cancel so Enter straight after it keeps
+  everything; any other question's keyboard is on its action. (Karpo asks in Windows' task dialog and closes its
+  menu; Themia's page stands on a no-activate desktop surface where a dialog cannot be owned reliably, so the
+  question stays in its card, as everything else the page asks does.) Tests `ConfirmLookTests` (the widgets' own
   questions, which still stand beside what they ask about).
 - **[S-3728]** A **note** (`WidgetMenuLines.Note`) is words only, in the tertiary colour and the 12-DIP
   size, where a row's words start, wrapped in full within the menu's width (a data source's credit);
   never lit, never picked, skipped by the keys.
 - **[S-3729]** An **editable list** (`WidgetMenuLines.List` over a `MenuList<T>`: feeds, symbols,
-  hosts) is a level of its items, each a level of its own: Rename… (a text level, starting
+  hosts) is a level of its items, each a level of its own: Rename… (asked in place, [S-2351], starting
   from the name; saved only when it changed), the list's own rows for it and Remove; the items' rows
   are dragged up and down to reorder ([S-3732]; not for a list whose order means nothing), so there
   is no Move up or Move down (user request 2026-10-19); while there are none, its
-  empty sentence as a note; then Add… (a text level, checked as it is typed) or the caller's add
+  empty sentence as a note; then Add… (asked in place, checked as it is typed) or the caller's add
   rows, greyed at the list's limit; Remove is greyed at its fewest (`Min`: a table's last column).
   Every change is made in the list and saved.
 - **[S-3730]** A **folder** (`WidgetMenuLines.PickFolder`) is a line with the folder's name at its
@@ -3433,8 +3474,8 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   stands beside another and nothing places one; `SubmenuPlacement` and `MenuRoom` are gone.)*
 - **[S-3734]** *(Retired by [S-2325]: the flyout is as tall as its page up to 70 % of the work area.)*
 - **[S-3735]** *(Retired by [S-2342]: What it shows, Header, Appearance.)*
-- **[S-3736]** *(Retired by [S-2302], [S-2303]: a text is a box in its row; a widget's Ask is a page of its own.)*
-- **[S-3737]** *(Retired by [S-2303]: an "are you sure?" is a page of its own.)*
+- **[S-3736]** *(Retired by [S-2302], [S-2351]: a text is a box in its row, or asked in place in its own card; never a page of its own.)*
+- **[S-3737]** *(Retired by [S-2351]: an "are you sure?" is asked in place in its own card.)*
 - **[S-3738]** *(Retired by [S-2303]: nothing slides; a sub-page stands in the page's place.)* A level's rows (and its head) slid in 16 DIPs over 167 ms, decelerating
   (cubic-bezier (0, 0)–(0, 1)): entering from the end, going back from the start, right to left
   mirrored; only their offset moves, never their opacity, and not at all while Windows' animations

@@ -17,7 +17,7 @@ public sealed class GalleryMenuTests
 
     private WidgetMenuLines Build(GalleryConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         GalleryMenu.Lines(lines, config);
         return lines;
     }
@@ -106,7 +106,7 @@ public sealed class GalleryMenuTests
         var folder = Own(Build(config))[1];
         Assert.Equal(GalleryStr.WidgetsB_Settings_Gallery_NoFolder.Text(), folder.Value);
 
-        folder.Children![1].Action!();
+        _asked = Typed.Ask(folder.Children![1]);
         _asked!.Done(@" D:\Photos ");
 
         Assert.Equal(@"D:\Photos", config.Path);

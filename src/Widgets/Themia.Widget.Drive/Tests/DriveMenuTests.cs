@@ -23,7 +23,7 @@ public sealed class DriveMenuTests
 
     private ItemMenuEntry Drive(DriveConfig config)
     {
-        var menu = new WidgetMenuLines(() => _saves++, _ => { });
+        var menu = new WidgetMenuLines(() => _saves++);
         DriveMenu.Lines(menu, config, Drives);
         Assert.True(menu.Lines[0].IsSeparator);
         return Assert.Single(menu.Lines, l => !l.IsSeparator);

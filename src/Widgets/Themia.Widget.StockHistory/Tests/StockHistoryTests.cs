@@ -76,7 +76,7 @@ public sealed class StockHistoryTests
     [Fact]
     public void S11167_the_menu_is_the_symbol_then_the_period_and_the_markers_then_the_link()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         var config = new StockHistoryConfig { Symbol = "MSFT" };
         StockHistoryModule.Lines(menu, config, (_, _) => Task.FromResult<IReadOnlyList<SymbolHit>>([]));
 

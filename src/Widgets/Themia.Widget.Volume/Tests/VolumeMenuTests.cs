@@ -18,7 +18,7 @@ public sealed class VolumeMenuTests
 
     private WidgetMenuLines Build(VolumeConfig config, MenuLoaded<IReadOnlyList<AudioDevice>>? outputs = null)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         VolumeMenu.Lines(lines, config, outputs ?? Two);
         return lines;
     }

@@ -40,7 +40,7 @@ public sealed class DriveMetricTests
     [Fact]
     public void S14670_its_source_line_is_the_drive_and_only_a_figure_that_moves_has_a_trend()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         DriveMetricModule.Lines(menu, new DriveFreeConfig(), []);
         Assert.Equal([Str.Details_Disk_Drive.Text()], menu.Lines.Select(l => l.Text));
         Assert.Equal(MetricHistory.Readings, new DriveFreeConfig().History);

@@ -20,7 +20,7 @@ public sealed class ContactsMenuTests
 
     private WidgetMenuLines Build(ContactsConfig config, IReadOnlyList<AccountInfo>? accounts = null)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         ContactsMenu.Lines(lines, config, accounts ?? Work);
         return lines;
     }

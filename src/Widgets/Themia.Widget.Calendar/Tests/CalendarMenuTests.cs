@@ -27,7 +27,7 @@ public sealed class CalendarMenuTests
 
     private WidgetMenuLines Build(CalendarWidgetConfig config, IOfficeSource? office = null)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         CalendarMenu.Lines(lines, config, office ?? new Office(Accounts));
         return lines;
     }
@@ -142,7 +142,7 @@ public sealed class CalendarMenuTests
     public void S7513_a_custom_range_refuses_what_is_not_one_to_365_days(string typed)
     {
         var range = Line(Build(new CalendarWidgetConfig { Style = CalendarStyle.Agenda }).StyleLines, Range).Children!;
-        range[^1].Action!();
+        _asked = Typed.Ask(range[^1]);
 
         Assert.NotNull(_asked!.Refuse(typed));
     }
@@ -151,7 +151,7 @@ public sealed class CalendarMenuTests
     public void S7513_a_custom_range_is_stored_and_then_holds_the_dot()
     {
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Agenda };
-        Line(Build(config).StyleLines, Range).Children![^1].Action!();
+        _asked = Typed.Ask(Line(Build(config).StyleLines, Range).Children![^1]);
         _asked!.Done("45");
 
         Assert.Equal(45, config.AgendaDays);

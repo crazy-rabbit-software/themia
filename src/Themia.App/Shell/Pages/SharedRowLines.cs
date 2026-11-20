@@ -7,8 +7,8 @@ using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
-/// <summary>[S-11751] A kind's own lines built over a config, saved by <paramref name="save"/>: the module's, with the host's asks.</summary>
-internal delegate WidgetMenuLines? LinesOver(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm);
+/// <summary>[S-11751] A kind's own lines built over a config, saved by <paramref name="save"/>: the module's.</summary>
+internal delegate WidgetMenuLines? LinesOver(WidgetId kind, WidgetConfig config, Action save);
 
 /// <summary>
 /// [S-11751] [S-11753] A shared setting's lines on several widgets' page: the very lines one
@@ -26,8 +26,6 @@ internal static class SharedRowLines
         SharedRow row,
         IReadOnlyList<WidgetInstance> holders,
         LinesOver build,
-        Action<WidgetTextAsk> ask,
-        Action<WidgetConfirm> confirm,
         Action<WidgetConfig> spread,
         Action<WidgetMenuLines>? built = null)
     {
@@ -41,12 +39,7 @@ internal static class SharedRowLines
         {
             var scratch = holder.Config.Clone();
             void Spread() => spread(scratch);
-            var lines = build(
-                holder.Kind,
-                scratch,
-                Spread,
-                question => ask(question with { Done = typed => After(() => question.Done(typed), Spread) }),
-                sure => confirm(sure with { Done = () => After(sure.Done, Spread) }));
+            var lines = build(holder.Kind, scratch, Spread);
             var marked = lines is null ? null : Marked(lines, row.Setting);
             if (lines is null || marked is not { Count: > 0 })
             {
@@ -74,7 +67,7 @@ internal static class SharedRowLines
         var differ = new bool[marked.Count];
         foreach (var other in others)
         {
-            var theirs = build(other.Kind, other.Config.Clone(), () => { }, _ => { }, _ => { }) is { } lines ? Marked(lines, setting) : [];
+            var theirs = build(other.Kind, other.Config.Clone(), () => { }) is { } lines ? Marked(lines, setting) : [];
             for (var i = 0; i < marked.Count; i++)
             {
                 differ[i] |= i >= theirs.Count || Reading(marked[i]) != Reading(theirs[i]);
@@ -112,6 +105,10 @@ internal static class SharedRowLines
 
             // [S-2332] A text typed in place is set on every holder; while they disagree its box is empty, its hint Mixed.
             Field = line.Field is { } field ? Wired(field, spread, mixed && top) : null,
+
+            // [S-2351] What a line asks in place, given or answered, is set on every holder too.
+            Ask = line.Ask is { } ask ? ask with { Done = typed => After(() => ask.Done(typed), spread) } : null,
+            Confirm = line.Confirm is { } sure ? sure with { Done = () => After(sure.Done, spread) } : null,
         };
 
         if (!mixed)

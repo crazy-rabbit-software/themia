@@ -19,7 +19,7 @@ public sealed class HabitTrackerMenuTests
 
     private WidgetMenuLines Build(HabitTrackerConfig config, IHabitLists? pool)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask, confirm => _confirm = confirm);
+        var lines = new WidgetMenuLines(() => _saves++);
         HabitTrackerMenu.Lines(lines, config, pool, path => _opened = path);
         return lines;
     }
@@ -98,7 +98,7 @@ public sealed class HabitTrackerMenuTests
     public void S1429_rename_renames_the_list_shown_in_the_pool()
     {
         var pool = Two();
-        Line(Build(new HabitTrackerConfig { ListId = "b" }, pool), ListTitle).Children!.Single(l => l.Text == Str.Menu_Rename.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(new HabitTrackerConfig { ListId = "b" }, pool), ListTitle).Children!.Single(l => l.Text == Str.Menu_Rename.Text()));
         Assert.Equal("Reading", _asked!.Initial);
 
         _asked.Done(" Books ");
@@ -114,7 +114,7 @@ public sealed class HabitTrackerMenuTests
             .Single(l => l.Text == HabitTrackerStr.WidgetsB_Settings_Habits_DeleteList.Text());
         Assert.True(delete.Danger);
 
-        delete.Action!();
+        _confirm = delete.Confirm;
         Assert.Equal(2, pool.Lists.Count);
         var confirm = Assert.IsType<WidgetConfirm>(_confirm);
         Assert.Equal(HabitTrackerStr.WidgetsB_Settings_Habits_DeleteQuestion.Text(), confirm.Question);

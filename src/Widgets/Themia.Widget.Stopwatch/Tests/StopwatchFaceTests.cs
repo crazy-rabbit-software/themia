@@ -64,7 +64,7 @@ public sealed class StopwatchFaceTests
     {
         // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows
         // the card's size": the laps a stopwatch lists are what its height holds; dragging the bottom edge sets them.
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new StopwatchModule()).MenuLines(menu, new StopwatchConfig());
 
         Assert.Empty(menu.Lines);

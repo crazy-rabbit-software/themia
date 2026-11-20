@@ -54,7 +54,7 @@ public sealed class ScreenTimeTests
         Assert.Equal(ScreenTimePeriod.Week, config.Period);
         Assert.Equal(ScreenTimePeriod.Month, ((ScreenTimeConfig)new ScreenTimeConfig { Period = ScreenTimePeriod.Month }.Clone()).Period);
 
-        var lines = new WidgetMenuLines(() => { }, _ => { });
+        var lines = new WidgetMenuLines(() => { });
         new ScreenTimeModule().MenuLines(lines, config);
         Assert.Equal(Str.Screentime_Cfg_Period.Text(), lines.Lines[0].Text);
         Assert.Equal(3, lines.Lines[0].Children!.Count);

@@ -65,7 +65,7 @@ public sealed class SettingOwnershipTests
 
         public SettingsOutcomes Outcomes { get; } = new();
 
-        public void Confirm(SettingsConfirm confirm)
+        public void Confirm(string at, SettingsConfirm confirm)
         {
             // ignore: nothing is run here.
         }
@@ -187,11 +187,6 @@ public sealed class SettingOwnershipTests
         public void Reorder(string viewId, string targetId)
         {
             // ignore: a command.
-        }
-
-        public void Confirm(SettingsConfirm confirm)
-        {
-            // ignore: a command's question.
         }
 
         public IReadOnlyList<Themia.Sdk.DesktopItem> DesktopItems => [];
@@ -318,7 +313,7 @@ public sealed class SettingOwnershipTests
         foreach (var module in ModuleRegistry.Widgets)
         {
             var kind = module.Descriptor.Id.Value;
-            var menu = new WidgetMenuLines(() => { }, _ => { }) { OpenSetting = _ => { } };
+            var menu = new WidgetMenuLines(() => { }) { OpenSetting = _ => { } };
             try
             {
                 module.MenuLines(menu, module.Descriptor.CreateDefault());

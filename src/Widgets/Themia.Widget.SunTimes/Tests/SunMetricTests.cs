@@ -38,7 +38,7 @@ public sealed class SunMetricTests
         Assert.Equal(SunTimeKind.Noon, ((SolarNoonConfig)back.Clone()).Time);
         Assert.DoesNotContain(typeof(IMetricTrend), config.GetType().GetInterfaces());
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new SunriseModule()).MenuLines(menu, new SunriseConfig());
         Assert.NotEmpty(menu.Lines);
         Assert.DoesNotContain(menu.Lines, l => l.Text == Str.Metric_Trend.Text());

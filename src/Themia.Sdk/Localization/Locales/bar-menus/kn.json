@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "ಗಾತ್ರ",
   "barMenus.viewBar.hidden": "ಮರೆಮಾಡಲಾಗಿದೆ",
   "barMenus.viewBar.views": "ವೀಕ್ಷಣೆಗಳು",
-  "barMenus.view.renameTitle": "ವೀಕ್ಷಣೆ ಮರುಹೆಸರಿಸು",
   "barMenus.view.deleteQuestion": "“{name}” ಅಳಿಸಬೇಕೇ?",
   "barMenus.view.deleteDetail": "ಅದರ ವಿಜೆಟ್‌ಗಳೂ ಹೋಗುತ್ತವೆ ({widgets}). ರದ್ದುಗೊಳಿಸಿದರೆ ಎಲ್ಲವೂ ಮರಳಿ ಬರುತ್ತದೆ."
 }

@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "سائز",
   "barMenus.viewBar.hidden": "پوشیدہ",
   "barMenus.viewBar.views": "مناظر",
-  "barMenus.view.renameTitle": "منظر کا نام بدلیں",
   "barMenus.view.deleteQuestion": "“{name}” حذف کریں؟",
   "barMenus.view.deleteDetail": "اس کے ویجیٹس بھی ساتھ حذف ہوں گے ({widgets})۔ کالعدم کرنے سے سب واپس آ جاتا ہے۔"
 }

@@ -178,7 +178,7 @@ public sealed class SharedSettingsTests
             }
 
             var config = module.Descriptor.CreateDefault();
-            var menu = new WidgetMenuLines(() => { }, _ => { }) { OpenSetting = _ => { } };
+            var menu = new WidgetMenuLines(() => { }) { OpenSetting = _ => { } };
             module.MenuLines(menu, config);
             var marked = menu.StyleLines.Concat(menu.Lines).Select(l => l.Shares).OfType<string>().ToHashSet(StringComparer.Ordinal);
             foreach (var setting in SharedSettings.All.Where(s => s.Holds(config)))
@@ -195,7 +195,7 @@ public sealed class SharedSettingsTests
 
         Assert.True(missing.Count == 0, "a shared setting's line is not marked: " + string.Join("; ", missing));
 
-        var menuOf = new WidgetMenuLines(() => { }, _ => { });
+        var menuOf = new WidgetMenuLines(() => { });
         Assert.Equal(SharedSettings.DiskScope.Key, DiskMenuLines.Drive(menuOf, new DiskConfig(), []).Shares);
         Assert.Equal(SharedSettings.Drive.Key, DriveMenuLines.Drive(menuOf, string.Empty, _ => { }, []).Shares);
         Assert.Equal(SharedSettings.GpuAdapter.Key, GpuAdapterLine.Line(menuOf, 0, _ => { }, [new GpuAdapter(0, "One", "1", 0, 0), new GpuAdapter(1, "Two", "2", 0, 0)])?.Shares);

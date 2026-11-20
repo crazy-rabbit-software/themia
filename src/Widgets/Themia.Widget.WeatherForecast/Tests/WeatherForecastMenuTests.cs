@@ -13,7 +13,7 @@ public sealed class WeatherForecastMenuTests
 
     private WidgetMenuLines Build(WeatherForecastConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         WeatherForecastMenu.Lines(lines, config);
         return lines;
     }

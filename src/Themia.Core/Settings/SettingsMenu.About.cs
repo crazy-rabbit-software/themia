@@ -142,12 +142,13 @@ public static partial class SettingsMenu
 
         lines.Add(new SettingsSeparator(key + "/-now"));
         var detail = deleteData ? what + "\n" + Str.SettingsMenu_UninstallDataGoes.Text() : what;
-        lines.Add(new SettingsCommand(key + "/now", Str.SettingsMenu_UninstallEllipsis.Text(), Glyphs.Delete, () => host.Confirm(new SettingsConfirm(
+        // [S-2351] Asked first, in place in its card; only the answer uninstalls.
+        lines.Add(SettingsCommand.Asking(key + "/now", Str.SettingsMenu_UninstallEllipsis.Text(), Glyphs.Delete, new SettingsConfirm(
             Str.Shell_Uninstall_Confirm.Text(),
             Str.Shell_Uninstall_Action.Text(),
             () => about.UninstallNow(deleteData),
             detail,
-            Danger: true)))
+            Danger: true)) with
         {
             Danger = true,
         });

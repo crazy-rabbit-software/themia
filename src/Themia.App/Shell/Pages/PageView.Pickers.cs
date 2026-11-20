@@ -33,19 +33,35 @@ internal sealed partial class PageView
     /// [S-2308] A card that opens: its head (icon, name, what holds, a chevron) and, open, what it opens. [S-2303]
     /// <paramref name="inside"/> an opened card (Karpo's picker head in its expander, §682 <c>PanelRow.Folded</c>) it is
     /// folded until its head is clicked, its body unfolding under its line; the card's other rows stay as they are.
+    /// [S-2351] A line that asks opens what it asks in place, the same way; a card asked at (a tool's question, a
+    /// question after a step of its own) shows the question as its inner level until it is answered or closed.
     /// </summary>
     private StackPanel Expander(PageRow row, bool inside = false)
     {
-        var open = inside ? _unfolded.Contains(row.Key) : _open == row.Key;
+        var asked = AskOf(row);
+        var open = asked is not null || (row.Kind != SettingsRowKind.Ask && (inside ? _unfolded.Contains(row.Key) : _open == row.Key));
         var head = Plain(new Button
         {
-            Content = Lay(row, HeadEnd(row, open), row.Caption, lead: row.Order is not null ? Grip(row) : null),
+            Content = Lay(row, HeadEnd(row, open, inside), row.Caption, lead: row.Order is not null ? Grip(row) : null),
             IsEnabled = !row.Disabled,
             Tag = row.Key + "#head",
         });
         AutomationProperties.SetName(head, Said(row));
         head.Click += (_, _) =>
         {
+            if (row.Kind == SettingsRowKind.Ask)
+            {
+                ToggleAsk(row.Key, row.Key, inside);
+                return;
+            }
+
+            // [S-2351] A card asked at: its head closes the question, keeping nothing.
+            if (asked is not null)
+            {
+                CloseAsk();
+                return;
+            }
+
             if (inside)
             {
                 // ignore: Remove's answer; Add after it only where it was not there.
@@ -58,6 +74,9 @@ internal sealed partial class PageView
             {
                 _open = open ? null : row.Key;
                 _unfolded.Clear();
+
+                // [S-2351] Another card opened on the page: the section asked closes (one open at a time).
+                DropAsk();
             }
 
             Show();
@@ -67,13 +86,13 @@ internal sealed partial class PageView
                 BringIntoView?.Invoke(shown);
             }
         };
-        ThingKeys(head, row);
+        ThingKeys(head, row, inside);
 
         var card = new StackPanel { Children = { head } };
         if (open)
         {
             card.Children.Add(Hairline());
-            card.Children.Add(Body(row, inside));
+            card.Children.Add(asked is { } section ? AskSection(section, row.Text, inside) : Body(row, inside));
         }
 
         return card;
@@ -83,9 +102,10 @@ internal sealed partial class PageView
     /// [S-2308] [S-2317] A picker's head's end, as Karpo's <c>PickerHead</c>: what holds in Body and the secondary
     /// colour (a colour's swatch or a choice's picture 8 before its words), 12 before the chevron's room; the
     /// chevron, up while open. [S-2310] An expander's (a thing's) head: what it holds in Caption while shut (open,
-    /// its rows say it: Karpo's §638), 12 before its icon buttons, those 4 apart before the chevron's room.
+    /// its rows say it: Karpo's §638), 12 before its icon buttons, those 4 apart before the chevron's room. [S-2351] A
+    /// line that asks says what it holds as a picker's head does.
     /// </summary>
-    private StackPanel HeadEnd(PageRow row, bool open)
+    private StackPanel HeadEnd(PageRow row, bool open, bool inside)
     {
         var end = new StackPanel { Orientation = Orientation.Horizontal };
         var expander = row.Kind == SettingsRowKind.Expander;
@@ -111,7 +131,7 @@ internal sealed partial class PageView
 
         for (var i = 0; i < tools.Count; i++)
         {
-            var button = ToolButton(row, tools[i]);
+            var button = ToolButton(row, tools[i], inside);
             button.Margin = i == tools.Count - 1 ? ToChevronRoom : new Thickness(0, 0, Fluent.Space1, 0);
             end.Children.Add(button);
         }

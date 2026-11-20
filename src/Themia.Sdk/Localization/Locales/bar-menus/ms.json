@@ -9,7 +9,6 @@
   "barMenus.viewBar.size": "Saiz",
   "barMenus.viewBar.hidden": "Tersembunyi",
   "barMenus.viewBar.views": "Paparan",
-  "barMenus.view.renameTitle": "Namakan semula paparan",
   "barMenus.view.deleteQuestion": "Padam “{name}”?",
   "barMenus.view.deleteDetail": "Widgetnya turut dipadam ({widgets}). Buat asal akan mengembalikan semuanya."
 }

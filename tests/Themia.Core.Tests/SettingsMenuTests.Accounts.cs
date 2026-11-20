@@ -174,10 +174,12 @@ public sealed partial class SettingsMenuTests
     {
         var (host, fake) = WithAccounts(Microsoft);
         var key = SettingsMenu.AccountKey("ms-1");
-        At<SettingsSubmenu>(host, "accounts", key).Tools.Single(t => t.Key == key + "/signout").Run!();
+        // [S-2351] Asked in place in the account's card: the tool carries its question and runs nothing of its own.
+        var signOut = At<SettingsSubmenu>(host, "accounts", key).Tools.Single(t => t.Key == key + "/signout");
+        Assert.Null(signOut.Run);
 
         Assert.Empty(fake.SignedOut);
-        var asked = Assert.Single(host.Asked);
+        var asked = Assert.IsType<SettingsConfirm>(signOut.Confirm);
         Assert.True(asked.Danger);
         Assert.Equal("Sign out of Alex Wilber?", asked.Question);
         Assert.Equal(Str.Account_SignOut.Text(), asked.Accept);

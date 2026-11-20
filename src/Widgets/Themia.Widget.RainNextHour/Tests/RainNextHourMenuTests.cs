@@ -14,7 +14,7 @@ public sealed class RainNextHourMenuTests
 
     private WidgetMenuLines Build(RainNextHourConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         RainNextHourMenu.Lines(lines, config);
         return lines;
     }

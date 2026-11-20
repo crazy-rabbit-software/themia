@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Grootte",
   "barMenus.viewBar.hidden": "Verborgen",
   "barMenus.viewBar.views": "Weergaven",
-  "barMenus.view.renameTitle": "Naam van weergave wijzigen",
   "barMenus.view.deleteQuestion": "“{name}” verwijderen?",
   "barMenus.view.deleteDetail": "De widgets erop gaan mee ({widgets}). Ongedaan maken zet alles terug."
 }

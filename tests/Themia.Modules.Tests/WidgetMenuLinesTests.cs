@@ -17,11 +17,7 @@ public sealed class WidgetMenuLinesTests
 {
     private int _saves;
 
-    private WidgetTextAsk? _asked;
-
-    private WidgetConfirm? _confirm;
-
-    private WidgetMenuLines Lines() => new(() => _saves++, ask => _asked = ask, confirm => _confirm = confirm);
+    private WidgetMenuLines Lines() => new(() => _saves++);
 
     [Fact]
     public void S3718_a_choice_is_a_submenu_of_one_group_with_the_current_option_marked()
@@ -86,17 +82,20 @@ public sealed class WidgetMenuLinesTests
             Add = new MenuListAdd<string>("Add a feed", "https://", _ => null, f => f),
         });
 
-        // An item's Rename… and the list's Add… open a field's level; a confirmed line its question's.
+        // [S-2351] An item's Rename… and the list's Add… ask a line of text in place; a confirmed line its question.
         // [S-2332] [S-2370] A number's box and a line of text the widget holds are typed in place: they ask nothing.
         var typed = menu.Number<int>(null, "Every", 30, 5, 600, 5, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { });
         Assert.False(typed.Asks);
         Assert.NotNull(typed.Slider);
         Assert.False(menu.Text(null, "Title", "Weather", _ => { }).Asks);
-        Assert.True(list.Children![0].Children![0].Asks);
-        Assert.True(list.Children!.Last().Asks);
-        Assert.True(menu.Confirm(null, "Clear", "Clear it?", "Clear", () => { }).Asks);
+        Assert.NotNull(list.Children![0].Children![0].Ask);
+        Assert.NotNull(list.Children!.Last().Ask);
+        Assert.NotNull(menu.Confirm(null, "Clear", "Clear it?", "Clear", () => { }).Confirm);
 
-        // What does not ask has no level of its own to open.
+        // [S-2351] What asks does nothing else on a click: no action of its own, never a page; what does not ask carries nothing.
+        Assert.Null(list.Children![0].Children![0].Action);
+        Assert.Null(list.Children!.Last().Action);
+        Assert.Null(menu.Confirm(null, "Clear", "Clear it?", "Clear", () => { }).Action);
         Assert.False(menu.Toggle(null, "On", true, _ => { }).Asks);
         Assert.False(menu.Command(null, "Do", () => { }).Asks);
         Assert.False(menu.Number<int>(null, "Rows", 4, 1, 10, 1, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { }).Asks);
@@ -107,7 +106,7 @@ public sealed class WidgetMenuLinesTests
     {
         var saves = 0;
         var kept = new List<string>();
-        var menu = new WidgetMenuLines(() => saves++, _ => throw new InvalidOperationException("a text line asks nothing"));
+        var menu = new WidgetMenuLines(() => saves++);
         var line = menu.Text(null, "Title", "Weather", kept.Add, "A title", t => t.Length > 5 ? "too long" : null, allowEmpty: false);
 
         var field = Assert.IsType<MenuField>(line.Field);
@@ -129,7 +128,7 @@ public sealed class WidgetMenuLinesTests
     public void S3749_the_accounts_line_is_a_link_to_accounts_and_greyed_without_an_edit_bar()
     {
         var opened = 0;
-        var menu = new WidgetMenuLines(() => _saves++, ask => _asked = ask) { OpenSetting = link => { Assert.Equal(OwnedSetting.Accounts, link.Setting); opened++; } };
+        var menu = new WidgetMenuLines(() => _saves++) { OpenSetting = link => { Assert.Equal(OwnedSetting.Accounts, link.Setting); opened++; } };
         var line = menu.AccountsLine(null, "Manage accounts");
 
         Assert.Equal(Str.Shell_Settings_Nav_Accounts.Text(), line.LinkTo);
@@ -409,8 +408,8 @@ public sealed class WidgetMenuLinesTests
         var line = Lines().Confirm(null, "Clear history", "Clear the whole history?", "Clear", () => cleared++);
 
         Assert.True(line.Danger);
-        line.Action!();
-        var confirm = Assert.IsType<WidgetConfirm>(_confirm);
+        Assert.Null(line.Action);
+        var confirm = Assert.IsType<WidgetConfirm>(line.Confirm);
         Assert.Equal("Clear the whole history?", confirm.Question);
         Assert.Null(confirm.Detail);
         Assert.Equal("Clear", confirm.Accept);
@@ -425,22 +424,46 @@ public sealed class WidgetMenuLinesTests
     [Fact]
     public void S3727_a_confirmed_line_may_say_what_goes_under_its_question()
     {
-        Lines().Confirm(null, "Delete this list", "Delete this list?", "Delete", () => { }, detail: "Its 4 habits go too.").Action!();
-
-        var confirm = Assert.IsType<WidgetConfirm>(_confirm);
+        var confirm = Assert.IsType<WidgetConfirm>(Lines().Confirm(null, "Delete this list", "Delete this list?", "Delete", () => { }, detail: "Its 4 habits go too.").Confirm);
         Assert.Equal("Delete this list?", confirm.Question);
         Assert.Equal("Its 4 habits go too.", confirm.Detail);
     }
 
     [Fact]
-    public void S3727_with_nobody_to_ask_a_confirmed_line_does_nothing()
+    public void S2351_a_confirmed_line_runs_nothing_until_its_question_is_answered()
     {
         var cleared = 0;
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
-        lines.Confirm(null, "Clear history", "Sure?", "Clear", () => cleared++).Action!();
+        var line = Lines().Confirm(null, "Clear history", "Sure?", "Clear", () => cleared++, disabled: true);
 
+        // Its row asks in place; a line that only does something is no question: nothing can run it unasked.
+        Assert.True(line.Asks);
+        Assert.False(line.IsSeparator);
+        Assert.Null(line.Action);
+        Assert.True(line.Disabled);
         Assert.Equal(0, cleared);
         Assert.Equal(0, _saves);
+    }
+
+    [Fact]
+    public void S2351_a_line_of_text_asked_in_place_says_what_it_holds_and_gives_it_through_its_ask()
+    {
+        var given = new List<string>();
+        var ask = new WidgetTextAsk("Name", "A name", "Save", t => t.Length > 3 ? "too long" : null, given.Add, Initial: "Bee", AllowEmpty: true);
+        var line = WidgetMenuLines.Ask(Glyphs.Rename, "Name", ask);
+
+        // The row: its words, what it holds at its end (what the field starts with), no action and never a separator.
+        Assert.Equal(("Name", "Bee"), (line.Text, line.Value));
+        Assert.Same(ask, line.Ask);
+        Assert.Null(line.Action);
+        Assert.True(line.Asks);
+        Assert.False(line.IsSeparator);
+
+        // A value of its own overrides; nothing held says nothing.
+        Assert.Equal("B", WidgetMenuLines.Ask(null, "Name", ask, "B").Value);
+        Assert.Null(WidgetMenuLines.Ask(null, "Add…", ask with { Initial = null }).Value);
+        Assert.True(WidgetMenuLines.Ask(null, "Add…", ask, disabled: true).Disabled);
+        line.Ask!.Done("Cee");
+        Assert.Equal(["Cee"], given);
     }
 
     [Fact]
@@ -547,9 +570,11 @@ public sealed class WidgetMenuLinesTests
     {
         var renamed = new List<(string Item, string Typed)>();
         var list = Feeds() with { Rename = new MenuListRename<string>((item, typed) => { renamed.Add((item, typed)); return typed != "keep"; }) { AllowEmpty = true } };
-        Lines().List(null, "Feeds", new List<string> { "a" }, list).Children![0].Children![0].Action!();
+        var rename = Lines().List(null, "Feeds", new List<string> { "a" }, list).Children![0].Children![0];
 
-        var ask = Assert.IsType<WidgetTextAsk>(_asked);
+        // [S-2351] Asked in place; the name it starts from is its item's head's, not said again.
+        var ask = Assert.IsType<WidgetTextAsk>(rename.Ask);
+        Assert.Null(rename.Value);
         Assert.Equal("A", ask.Initial);
         Assert.True(ask.AllowEmpty);
         ask.Done("keep");
@@ -565,8 +590,8 @@ public sealed class WidgetMenuLinesTests
         var items = new List<string> { "https://a.example/" };
         var add = Lines().List(null, "Feeds", items, Feeds()).Children!.Single(l => l.Text == Str.Menu_Add.Text());
 
-        add.Action!();
-        var ask = Assert.IsType<WidgetTextAsk>(_asked);
+        Assert.Null(add.Action);
+        var ask = Assert.IsType<WidgetTextAsk>(add.Ask);
         Assert.NotNull(ask.Refuse("feed"));
         Assert.Null(ask.Refuse("https://b.example/"));
         ask.Done("https://b.example/");

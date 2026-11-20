@@ -46,24 +46,20 @@ internal sealed partial class DesktopWindow
         var views = new SurfaceViewsHost(this);
         return page switch
         {
-            SettingsPageId.General => () => PageRows.Of(SettingsPages.General(settings), AskOnFlyout),
-            SettingsPageId.Accounts => () => PageRows.Of(SettingsPages.Accounts(settings), AskOnFlyout),
-            SettingsPageId.Display => () => PageRows.Of(SettingsPages.Display(display), AskOnFlyout),
-            SettingsPageId.Views => () => PageRows.Of(SettingsPages.Views(views), AskOnFlyout),
+            SettingsPageId.General => () => PageRows.Of(SettingsPages.General(settings)),
+            SettingsPageId.Accounts => () => PageRows.Of(SettingsPages.Accounts(settings)),
+            SettingsPageId.Display => () => PageRows.Of(SettingsPages.Display(display)),
+            SettingsPageId.Views => () => PageRows.Of(SettingsPages.Views(views)),
 
             // [S-13700] Its list: this display's view's unplaced desktop icons.
-            SettingsPageId.DesktopItems => () => PageRows.Of(SettingsPages.DesktopItems(), AskOnFlyout, UnplacedPart),
+            SettingsPageId.DesktopItems => () => PageRows.Of(SettingsPages.DesktopItems(), UnplacedPart),
             // [S-2311] Its preview: this display's wallpaper and real cards in the design as it stands.
-            _ => () => PageRows.Of(SettingsPages.Appearance(settings), AskOnFlyout, () => new AppearancePreview(Backdrop, Metrics, () => _host.State.Design)),
+            _ => () => PageRows.Of(SettingsPages.Appearance(settings), () => new AppearancePreview(Backdrop, Metrics, () => _host.State.Design)),
         };
     }
 
-    /// <summary>[S-3736] A line of text asked on a page of its own in the open flyout.</summary>
-    private void AskOnFlyout(PageEdit edit) => _flyout?.Page.Ask(edit);
-
-    /// <summary>[S-3737] An "are you sure?" on a page of its own in the open flyout.</summary>
-    private void ConfirmOnFlyout(SettingsConfirm confirm)
-        => _flyout?.Page.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
+    /// <summary>[S-2351] An "are you sure?" asked after a step of its own, in place in the card of the open flyout's row keyed <paramref name="at"/>.</summary>
+    private void ConfirmOnFlyout(string at, SettingsConfirm confirm) => _flyout?.Page.ConfirmAt(at, PageRows.QuestionOf(confirm));
 
     /// <summary>[S-2327] A page's entry opens its flyout, or closes it again; another open closes first.</summary>
     private void TogglePage(SettingsPageId page)

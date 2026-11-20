@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Ukuran",
   "barMenus.viewBar.hidden": "Tersembunyi",
   "barMenus.viewBar.views": "Tampilan",
-  "barMenus.view.renameTitle": "Ganti nama tampilan",
   "barMenus.view.deleteQuestion": "Hapus “{name}”?",
   "barMenus.view.deleteDetail": "Widget di dalamnya ikut terhapus ({widgets}). Urungkan mengembalikan semuanya."
 }

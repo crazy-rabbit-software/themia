@@ -7,6 +7,7 @@ namespace Themia.Sdk.WinUI;
 /// [S-2332] A line's box typed into as the page types into it: what is typed trimmed, kept where the line's refusal
 /// takes it (an empty box only where it may be empty). Read as the question a line used to ask on a page of its own,
 /// so a module's test reads its box's hint, what it holds, its refusal and what typing does the one way.
+/// [S-2351] A line that asks in place (Rename…, Add…, a path typed) is read as the line of text it carries.
 /// [S-2370] A number's box as the page's number box takes it: what is typed read in the box's unit ([S-2309]), held to
 /// the range and the step; only words that read as no number are refused (the box puts back what it said).
 /// </summary>
@@ -14,6 +15,11 @@ internal static class Typed
 {
     public static WidgetTextAsk Ask(ItemMenuEntry line)
     {
+        if (line.Ask is { } asked)
+        {
+            return asked;
+        }
+
         if (line.Slider is { } box)
         {
             string? Refuse(string typed) => NumberEntry.Value(typed, box.Max != 0 ? box.Max : box.Min, box.Format) is null ? line.Text : null;

@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Rozmiar",
   "barMenus.viewBar.hidden": "Ukryty",
   "barMenus.viewBar.views": "Widoki",
-  "barMenus.view.renameTitle": "Zmień nazwę widoku",
   "barMenus.view.deleteQuestion": "Usunąć „{name}”?",
   "barMenus.view.deleteDetail": "Jego widżety zostaną usunięte razem z nim ({widgets}). Cofnij przywróci wszystko."
 }

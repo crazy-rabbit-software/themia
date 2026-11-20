@@ -11,7 +11,7 @@ public sealed class AirQualityMenuTests
 {
     private static WidgetMenuLines Build(AirQualityConfig config)
     {
-        var lines = new WidgetMenuLines(() => { }, _ => { });
+        var lines = new WidgetMenuLines(() => { });
         AirQualityMenu.Lines(lines, config);
         return lines;
     }

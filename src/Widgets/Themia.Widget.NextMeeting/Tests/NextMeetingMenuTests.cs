@@ -12,7 +12,7 @@ public sealed class NextMeetingMenuTests
     [Fact]
     public void S4826_the_menu_is_appearance_then_the_calendar_accounts_and_no_birthdays()
     {
-        var lines = new WidgetMenuLines(() => { }, _ => { });
+        var lines = new WidgetMenuLines(() => { });
         NextMeetingMenu.Lines(lines, new NextMeetingConfig(), office: null);
 
         Assert.Equal(

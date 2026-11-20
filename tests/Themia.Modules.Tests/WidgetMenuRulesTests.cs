@@ -113,7 +113,7 @@ public sealed class WidgetMenuRulesTests
                 continue;
             }
 
-            var menu = new WidgetMenuLines(() => { }, _ => { }) { OpenSetting = _ => { } };
+            var menu = new WidgetMenuLines(() => { }) { OpenSetting = _ => { } };
             module.MenuLines(menu, module.Descriptor.CreateDefault());
             var rows = menu.StyleLines.Concat(menu.Lines).Select(RowOf).ToList();
             found.AddRange(MenuRules.Check(rows).Select(o => o with { Path = kind + " › " + o.Path }));

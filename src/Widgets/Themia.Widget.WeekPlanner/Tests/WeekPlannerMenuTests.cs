@@ -21,7 +21,7 @@ public sealed class WeekPlannerMenuTests
 
     private WidgetMenuLines Build(WeekPlannerConfig config, IReadOnlyList<TaskAccount>? taskAccounts = null, IOfficeSource? office = null)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         WeekPlannerMenu.Lines(lines, config, office ?? new Office([new("work", HostProviders.Microsoft, "work@example.com", "Work", null, null, null)]), taskAccounts ?? Work);
         return lines;
     }

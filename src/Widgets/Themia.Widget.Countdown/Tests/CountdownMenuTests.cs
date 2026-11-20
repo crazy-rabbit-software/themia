@@ -17,7 +17,7 @@ public sealed class CountdownMenuTests
 
     private WidgetMenuLines Build(CountdownConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         CountdownMenu.Lines(lines, config, TimeZoneInfo.Utc, () => Now);
         return lines;
     }

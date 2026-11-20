@@ -30,7 +30,7 @@ public sealed class CpuHistoryTests
         Assert.Equal(900, ((CpuHistoryConfig)back.Clone()).GraphSpanSeconds);
         Assert.Equal(60, new CpuHistoryConfig().GraphSpanSeconds);
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new CpuHistoryModule()).MenuLines(menu, config);
         Assert.Single(menu.Lines);
         Assert.Equal(MeterTiming.SpanChoices.Count, menu.Lines[0].Children!.Count);

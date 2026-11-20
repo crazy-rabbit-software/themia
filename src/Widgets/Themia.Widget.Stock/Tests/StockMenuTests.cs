@@ -20,7 +20,7 @@ public sealed class StockMenuTests
 
     private WidgetMenuLines Build(StockConfig config, params SymbolHit[] hits)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         StockMenu.Lines(lines, config, (_, _) => Task.FromResult<IReadOnlyList<SymbolHit>>(hits));
         return lines;
     }
@@ -84,7 +84,7 @@ public sealed class StockMenuTests
     public async Task S1307_issue_187_a_search_no_service_answered_says_why_and_still_offers_the_typed_symbol()
     {
         var config = new StockConfig();
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         StockMenu.Lines(lines, config, (_, _) => throw new SymbolSearchFailedException(FetchStatus.TimedOut));
         var search = lines.Lines[0].Search!;
 

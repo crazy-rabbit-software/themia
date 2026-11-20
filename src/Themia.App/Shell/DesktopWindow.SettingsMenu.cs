@@ -173,7 +173,7 @@ internal sealed partial class DesktopWindow
 
         public void SetLanguage(AppLanguage language) => Host.SetLanguage(language);
 
-        public void Confirm(SettingsConfirm confirm) => surface.ConfirmOnFlyout(confirm);
+        public void Confirm(string at, SettingsConfirm confirm) => surface.ConfirmOnFlyout(at, confirm);
 
         public ILicenceMenuHost Licence => this;
 
@@ -205,10 +205,10 @@ internal sealed partial class DesktopWindow
 
         public void Import() => Host.Backup.Import(surface.WindowId, confirm =>
         {
-            // Asked beside this display's menu, open again at Back up & reset if it closed meanwhile.
+            // [S-2351] Asked in place under Import settings, this display's menu open again at Back up & reset if it closed meanwhile.
             if (surface.SettingsOpenAt(SettingsMenu.Keys.Backup))
             {
-                Confirm(confirm);
+                Confirm(SettingsMenu.Keys.BackupImport, confirm);
             }
             else
             {

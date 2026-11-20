@@ -37,8 +37,6 @@ internal sealed partial class DesktopWindow
 
         public void Reorder(string viewId, string targetId) => Host.ReorderView(viewId, targetId);
 
-        public void Confirm(SettingsConfirm confirm) => surface.ConfirmOnFlyout(confirm);
-
         public IReadOnlyList<Themia.Sdk.DesktopItem> DesktopItems => Services.Files.HostDesktopItems.Instance.Items;
 
         public void SetDesktopIcons(string viewId, ViewDesktopIcons value) => Host.SetViewDesktopIcons(viewId, value);

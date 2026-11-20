@@ -185,11 +185,6 @@ public sealed partial class SettingsMenuTests
             // ignore: a command, not a setting.
         }
 
-        public void Confirm(SettingsConfirm confirm)
-        {
-            // ignore: only commands ask, and commands are not run here.
-        }
-
         public IReadOnlyList<Themia.Sdk.DesktopItem> DesktopItems => [];
 
         public void SetDesktopIcons(string viewId, ViewDesktopIcons value)
@@ -279,13 +274,9 @@ public sealed partial class SettingsMenuTests
             case SettingsIcon icon:
                 icon.Set(Glyphs.Home);
                 return true;
-            case SettingsItem item:
-                foreach (var tool in item.Tools)
-                {
-                    tool.Ask?.Done("Owned");
-                }
-
-                return item.Tools.Any(t => t.Ask is not null);
+            case SettingsItem:
+                // A thing's tools are commands (asked first or not), not settings.
+                return false;
             default:
                 return false;
         }

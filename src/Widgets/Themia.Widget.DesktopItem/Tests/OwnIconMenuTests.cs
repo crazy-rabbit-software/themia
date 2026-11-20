@@ -27,15 +27,13 @@ public sealed class OwnIconMenuTests
     {
         public int Saves { get; set; }
 
-        public WidgetTextAsk? Asked { get; set; }
-
         public WidgetMenuLines Lines { get; set; } = null!;
     }
 
     private static Built Build(DesktopItemConfig config, IAppLayouts? layouts = null)
     {
         var built = new Built();
-        built.Lines = new WidgetMenuLines(() => built.Saves++, ask => built.Asked = ask);
+        built.Lines = new WidgetMenuLines(() => built.Saves++);
         OwnIconMenu.Lines(built.Lines, config, layouts ?? new Layouts(canEdit: true));
         return built;
     }
@@ -103,8 +101,8 @@ public sealed class OwnIconMenuTests
 
         var line = Line(Target(built).Children!, DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLink.Text());
         Assert.True(line.Asks);
-        line.Action!();
-        var ask = Assert.IsType<WidgetTextAsk>(built.Asked);
+        Assert.Null(line.Action);
+        var ask = Assert.IsType<WidgetTextAsk>(line.Ask);
 
         Assert.NotNull(ask.Refuse("example"));
         Assert.NotNull(ask.Refuse("relative\\path"));
@@ -122,8 +120,7 @@ public sealed class OwnIconMenuTests
         var config = new DesktopItemConfig { Target = "https://b.example/" };
         var built = Build(config);
 
-        Line(Target(built).Children!, DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLink.Text()).Action!();
-        var ask = Assert.IsType<WidgetTextAsk>(built.Asked);
+        var ask = Assert.IsType<WidgetTextAsk>(Line(Target(built).Children!, DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLink.Text()).Ask);
         Assert.Equal("https://b.example/", ask.Initial);
 
         ask.Done("https://b.example/");
@@ -191,8 +188,8 @@ public sealed class OwnIconMenuTests
 
         Assert.Equal("Bee", line.Value);
         Assert.True(line.Asks);
-        line.Action!();
-        var ask = Assert.IsType<WidgetTextAsk>(built.Asked);
+        Assert.Null(line.Action);
+        var ask = Assert.IsType<WidgetTextAsk>(line.Ask);
         Assert.Equal("Bee", ask.Initial);
         Assert.Equal("b.example", ask.Placeholder);
         Assert.True(ask.AllowEmpty);

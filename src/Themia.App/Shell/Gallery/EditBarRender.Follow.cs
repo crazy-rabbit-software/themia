@@ -34,7 +34,7 @@ internal static partial class EditBarRender
         var barRect = PlaceBar(canvas, bar, ScreenWidth);
         // Two views: the page with a card opened stays under 70 % of the work area, so only the trigger can shrink it back.
         var host = new RenderViewsHost(2);
-        var view = new PageView(() => PageRows.Of(SettingsPages.Views(host), edit => host.Page?.Ask(edit)));
+        var view = new PageView(() => PageRows.Of(SettingsPages.Views(host)));
         host.Page = view;
         UiLanguage.ApplyFlow(view);
         var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);

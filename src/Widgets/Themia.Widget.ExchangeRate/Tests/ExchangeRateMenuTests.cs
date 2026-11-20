@@ -14,7 +14,7 @@ public sealed class ExchangeRateMenuTests
 
     private WidgetMenuLines Build(ExchangeRateConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         new ExchangeRateModule().MenuLines(lines, config);
         return lines;
     }

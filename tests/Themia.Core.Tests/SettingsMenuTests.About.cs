@@ -286,8 +286,11 @@ public sealed partial class SettingsMenuTests
         Assert.True(reset.Danger);
         Assert.Equal("Reset all settings…", reset.Text);
 
+        // [S-2351] Asked in place in its card: its row asks, its own run does nothing.
+        Assert.Equal(SettingsRowKind.Ask, SettingsRows.KindOf(reset));
         reset.Run();
-        var asked = Assert.Single(host.Asked);
+        Assert.Empty(host.FakeBackup.Asked);
+        var asked = Assert.IsType<SettingsConfirm>(reset.Confirm);
         Assert.True(asked.Danger);
         Assert.Equal(Str.Shell_About_ResetConfirm.Text(), asked.Question);
         Assert.Equal("Reset", asked.Accept);
@@ -400,9 +403,11 @@ public sealed partial class SettingsMenuTests
         Assert.Equal(["uninstall/what", "-", "uninstall/now"], KeysOf(uninstall));
         Assert.Equal(Str.Shell_Uninstall_Package.Text(), Assert.IsType<SettingsNote>(uninstall.Lines[0]).Text);
 
-        At<SettingsCommand>(host, "uninstall", "uninstall/now").Run();
+        var now = At<SettingsCommand>(host, "uninstall", "uninstall/now");
+        Assert.Equal(SettingsRowKind.Ask, SettingsRows.KindOf(now));
+        now.Run();
         Assert.Empty(host.FakeAbout.Uninstalled);
-        var asked = Assert.Single(host.Asked);
+        var asked = Assert.IsType<SettingsConfirm>(now.Confirm);
         Assert.True(asked.Danger);
         Assert.Equal(Str.Shell_Uninstall_Confirm.Text(), asked.Question);
         Assert.Equal(Str.Shell_Uninstall_Action.Text(), asked.Accept);
@@ -430,8 +435,7 @@ public sealed partial class SettingsMenuTests
             @"C:\Users\Alex\AppData\Roaming\Themia" + "\n" + @"C:\Users\Alex\AppData\Local\Themia",
             At<SettingsNote>(host, "uninstall", "uninstall/data/folders").Text);
 
-        At<SettingsCommand>(host, "uninstall", "uninstall/now").Run();
-        var asked = Assert.Single(host.Asked);
+        var asked = Assert.IsType<SettingsConfirm>(At<SettingsCommand>(host, "uninstall", "uninstall/now").Confirm);
         Assert.Contains(Str.SettingsMenu_UninstallDataGoes.Text(), asked.Detail, StringComparison.Ordinal);
         Assert.Empty(host.FakeAbout.Uninstalled);
 

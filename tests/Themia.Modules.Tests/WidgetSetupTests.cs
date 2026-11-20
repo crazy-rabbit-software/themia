@@ -179,7 +179,7 @@ public class WidgetSetupTests
     /// <summary>Every line of the widget's menu marked as where Set up opens it, at any depth.</summary>
     private static List<ItemMenuEntry> SetupLines(WidgetConfig config)
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ModuleRegistry.Widgets.Single(m => m.Descriptor.Id == config.Kind).MenuLines(menu, config);
 
         var marked = new List<ItemMenuEntry>();

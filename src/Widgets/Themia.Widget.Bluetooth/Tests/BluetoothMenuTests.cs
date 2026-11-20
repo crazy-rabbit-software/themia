@@ -13,7 +13,7 @@ public sealed class BluetoothMenuTests
 
     private WidgetMenuLines Build(BluetoothConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         BluetoothMenu.Lines(lines, config);
         return lines;
     }

@@ -50,7 +50,7 @@ public sealed class ScreenTimeAppsMenuTests
 
     private WidgetMenuLines Build(ScreenTimeAppsConfig config, IScreenTimeSource? source)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         ScreenTimeAppsMenu.Lines(lines, config, source);
         return lines;
     }

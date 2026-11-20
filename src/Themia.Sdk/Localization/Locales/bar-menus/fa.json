@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "اندازه",
   "barMenus.viewBar.hidden": "پنهان",
   "barMenus.viewBar.views": "نماها",
-  "barMenus.view.renameTitle": "تغییر نام نما",
   "barMenus.view.deleteQuestion": "«{name}» حذف شود؟",
   "barMenus.view.deleteDetail": "ابزارک‌هایش هم با آن حذف می‌شوند ({widgets}). واگرد همه را برمی‌گرداند."
 }

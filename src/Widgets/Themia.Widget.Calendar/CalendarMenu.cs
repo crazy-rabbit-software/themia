@@ -120,7 +120,7 @@ internal static class CalendarMenu
             ("min", CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Days.Plural(CalendarPeriod.AgendaMinDays)),
             ("max", CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Days.Plural(CalendarPeriod.AgendaMaxDays)));
         lines.Add(ItemMenuEntry.Separator);
-        lines.Add(new(null, custom + "…", () => menu.Ask(new WidgetTextAsk(
+        lines.Add(WidgetMenuLines.Ask(null, custom + "…", new WidgetTextAsk(
             CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(),
             reason,
             Str.Common_Save.Text(),
@@ -133,7 +133,7 @@ internal static class CalendarMenu
                     menu.Save();
                 }
             },
-            Initial: LocaleFormat.Integer(days))), Checked: !preset, Group: text, Value: preset ? null : DaysText(days), Asks: true));
+            Initial: LocaleFormat.Integer(days))) with { Checked = !preset, Group = text, Value = preset ? null : DaysText(days) });
 
         return WidgetMenuLines.Submenu(Glyphs.Calendar, text, lines) with { Value = DaysText(days) };
     }

@@ -28,7 +28,7 @@ public sealed class NetworkHistoryTests
         var back = Assert.IsType<NetworkHistoryConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(1800, ((NetworkHistoryConfig)back.Clone()).GraphSpanSeconds);
 
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new NetworkHistoryModule()).MenuLines(menu, back);
         Assert.Single(menu.Lines);
     }

@@ -38,11 +38,11 @@ public sealed class GpuHistoryTests
     public void S11014_one_adapter_offers_only_the_span_two_offer_the_adapter_first()
     {
         GpuAdapter[] two = [new(0, "Radeon RX 7800", "a", 0, 0), new(1, "Intel Arc", "b", 0, 0)];
-        var one = new WidgetMenuLines(() => { }, _ => { });
+        var one = new WidgetMenuLines(() => { });
         GpuHistoryModule.Lines(one, new GpuHistoryConfig(), [two[0]]);
         Assert.Single(one.Lines);
 
-        var both = new WidgetMenuLines(() => { }, _ => { });
+        var both = new WidgetMenuLines(() => { });
         GpuHistoryModule.Lines(both, new GpuHistoryConfig(), two);
         Assert.Equal(2, both.Lines.Count);
     }

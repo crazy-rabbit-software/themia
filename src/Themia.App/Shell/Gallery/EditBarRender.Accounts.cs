@@ -15,7 +15,7 @@ namespace Themia.App.Shell.Gallery;
 /// [S-3560] ⚙ › Accounts open on the stand-in display over three stand-in accounts (a Microsoft one
 /// with numbers, a mail server that needs signing in again, a calendar server): <c>-accounts</c>,
 /// <c>-account</c> (one account's card opened), <c>-account-again</c> (the one needing a sign-in),
-/// <c>-signout</c> (its Sign out's "are you sure?" page), <c>-add</c> (Add an account),
+/// <c>-signout</c> (its Sign out's "are you sure?" in place in its card, [S-2351]), <c>-add</c> (Add an account),
 /// <c>-signin</c> (Microsoft's browser sign-in waiting, Cancel under it), <c>-imap</c> (the mail
 /// server's form, empty: Test and Add greyed with what is missing), <c>-imap-filled</c> (the address,
 /// the password as bullets, the server set by hand), <c>-imap-address</c> (the address's field level),

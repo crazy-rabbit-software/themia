@@ -16,7 +16,7 @@ public sealed class GpuMenuTests
 
     private WidgetMenuLines Build(GpuConfig config, IReadOnlyList<GpuAdapter> adapters)
     {
-        var menu = new WidgetMenuLines(() => _saves++, _ => { });
+        var menu = new WidgetMenuLines(() => _saves++);
         GpuMenu.Lines(menu, config, adapters);
         return menu;
     }

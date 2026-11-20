@@ -16,7 +16,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-2302] The settings' lines and the selection's entries as a page's rows: one mapping each, the kinds
-/// Core's. What a line asks on a page of its own (a tool's Rename) goes to <c>ask</c>.
+/// Core's. [S-2351] What a line asks (a line of text, an "are you sure?") it carries to its row, which asks it in place.
 /// </summary>
 internal static class PageRows
 {
@@ -28,22 +28,22 @@ internal static class PageRows
     /// [S-2301] A settings page's sections as drawn; [S-2311] its preview (the Appearance's) built by
     /// <paramref name="preview"/>, the page's host's: real cards on its display's wallpaper.
     /// </summary>
-    public static PageModel Of(SettingsPage page, Action<PageEdit> ask, Func<FrameworkElement>? preview = null)
+    public static PageModel Of(SettingsPage page, Func<FrameworkElement>? preview = null)
     {
         ArgumentNullException.ThrowIfNull(page);
-        return new PageModel(page.Id.ToString(), [.. page.Sections.Select(s => new PageSection(s.Key, s.Heading, [.. s.Lines.Select(l => Of(l, ask, preview))]))]);
+        return new PageModel(page.Id.ToString(), [.. page.Sections.Select(s => new PageSection(s.Key, s.Heading, [.. s.Lines.Select(l => Of(l, preview))]))]);
     }
 
     /// <summary>[S-2302] One settings line as a row; a line with a picture shows it as its icon ([S-3581]).</summary>
-    public static PageRow Of(SettingsLine line, Action<PageEdit> ask, Func<FrameworkElement>? preview = null)
+    public static PageRow Of(SettingsLine line, Func<FrameworkElement>? preview = null)
     {
         ArgumentNullException.ThrowIfNull(line);
-        var row = RowOf(line, ask, preview) with { Disabled = line.Disabled, Marked = line.Marked || line.GlyphColour is not null || line.Picture is not null };
+        var row = RowOf(line, preview) with { Disabled = line.Disabled, Marked = line.Marked || line.GlyphColour is not null || line.Picture is not null };
         row = Greyed(row, line.Disabled, line.Why);
         return line.Picture is { } picture ? row with { Icon = () => MenuPictures.Create(picture) } : row;
     }
 
-    private static PageRow RowOf(SettingsLine line, Action<PageEdit> ask, Func<FrameworkElement>? preview)
+    private static PageRow RowOf(SettingsLine line, Func<FrameworkElement>? preview)
     {
         var kind = SettingsRows.KindOf(line);
         var row = new PageRow(line.Key, kind);
@@ -58,7 +58,7 @@ internal static class PageRows
                 Value = reading.Value,
                 Caption = reading.Caption,
                 Icon = IconOf(reading.Glyph, null),
-                Beside = reading.Beside is { } beside ? Of(beside, ask) : null,
+                Beside = reading.Beside is { } beside ? Of(beside) : null,
             },
 
             // [S-3556] A form's field, every letter handed to the form as it is typed; a password's masked.
@@ -88,7 +88,7 @@ internal static class PageRows
                 Text = choice.Text,
                 Value = choice.Value,
                 Icon = IconOf(choice.Glyph, null),
-                Rows = [.. choice.Options.Select(o => Of(o, ask))],
+                Rows = [.. choice.Options.Select(o => Of(o))],
                 Filter = choice.Filter,
             },
             SettingsSlider slider => row with
@@ -148,13 +148,13 @@ internal static class PageRows
                 Text = submenu.Text,
                 Value = submenu.Value,
                 Icon = IconOf(submenu.Glyph, submenu.GlyphColour),
-                Rows = [.. submenu.Lines.Select(l => Of(l, ask, preview))],
+                Rows = [.. submenu.Lines.Select(l => Of(l, preview))],
                 Run = submenu.Run,
                 Order = submenu.Order is { } order ? new MenuOrder(order.Index, order.Count, order.Move) : null,
 
                 // [S-2310] A thing's card: its line under its name, its icon buttons at its head's end.
                 Caption = submenu.Caption,
-                Tools = submenu.Tools.Count > 0 ? [.. submenu.Tools.Select(t => ToolOf(t, ask))] : null,
+                Tools = submenu.Tools.Count > 0 ? [.. submenu.Tools.Select(ToolOf)] : null,
             },
             SettingsCommand command => row with
             {
@@ -164,9 +164,12 @@ internal static class PageRows
                 Icon = IconOf(command.Glyph, command.GlyphColour),
                 Danger = command.Danger,
                 Run = command.Run,
+
+                // [S-2351] Asked first, in place in its card (its kind Ask, Core's).
+                Question = command.Confirm is { } confirm ? QuestionOf(confirm) : null,
             },
 
-            // [S-3736] A line of text kept in its box: Enter or leaving keeps it, Escape restores it.
+            // [S-2302] A line of text kept in its box: Enter or leaving keeps it, Escape restores it.
             SettingsAsk text => row with
             {
                 Text = text.Text,
@@ -182,7 +185,7 @@ internal static class PageRows
                 Text = item.Text,
                 Icon = IconOf(item.Glyph, item.GlyphColour),
                 Order = item.Order is { } order ? new MenuOrder(order.Index, order.Count, order.Move) : null,
-                Tools = [.. item.Tools.Select(t => ToolOf(t, ask))],
+                Tools = [.. item.Tools.Select(ToolOf)],
             },
             _ => throw new ArgumentOutOfRangeException(nameof(line), line.GetType().Name, "a settings line no page draws"),
         };
@@ -192,12 +195,17 @@ internal static class PageRows
     {
         Refuse = ask.Refuse,
         AllowEmpty = ask.AllowEmpty,
-        Accept = ask.Accept,
-        Title = ask.Title,
     };
 
-    /// <summary>[S-3549] A tool: a line of text asked on a page of its own (Rename), or a command (Delete, asked first by its host).</summary>
-    private static PageTool ToolOf(SettingsTool tool, Action<PageEdit> ask) => new(
+    /// <summary>[S-2351] [S-3727] An "are you sure?" as its row or tool asks it in place.</summary>
+    internal static PageQuestion QuestionOf(SettingsConfirm confirm)
+    {
+        ArgumentNullException.ThrowIfNull(confirm);
+        return new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail);
+    }
+
+    /// <summary>[S-3549] A tool: a command (Duplicate), or [S-2351] a question asked first in place in its card (Delete, Sign out).</summary>
+    private static PageTool ToolOf(SettingsTool tool) => new(
         tool.Key,
         tool.Glyph,
         tool.Name,
@@ -207,13 +215,14 @@ internal static class PageRows
             SettingsToolKey.Delete => Windows.System.VirtualKey.Delete,
             _ => null,
         },
-        tool.Ask is { } text ? () => ask(EditOf(text)) : tool.Run ?? (() => { }),
-        tool.Disabled);
+        tool.Run ?? (() => { }),
+        tool.Disabled,
+        tool.Confirm is { } confirm ? QuestionOf(confirm) : null);
 
     /// <summary>
     /// [S-2302] [S-3719] A widget's own entries (and the card's) as rows: a submenu of choices a choice, any
-    /// other submenu an expander, a search a lookup, a toggle a toggle, a link a link, a line that asks an
-    /// action with a chevron, an ordered entry an item.
+    /// other submenu an expander, a search a lookup, a toggle a toggle, a link a link, [S-2351] a line that asks
+    /// (a line of text, an "are you sure?") a card asking it in place, an ordered entry an item.
     /// </summary>
     public static List<PageRow> Of(IReadOnlyList<ItemMenuEntry> entries, string prefix)
     {
@@ -288,6 +297,36 @@ internal static class PageRows
             };
         }
 
+        // [S-2351] A line of text or a question asked in place: its card's head (what it holds, the expand chevron) and,
+        // opened, the field and its accept or the question and its answers. Never a page of its own.
+        if (entry.Ask is { } ask)
+        {
+            return new PageRow(key, SettingsRowKind.Ask)
+            {
+                Text = entry.Text,
+                Value = entry.Value,
+                Icon = icon,
+                Edit = new PageEdit(ask.Placeholder, ask.Initial ?? string.Empty, ask.Done) { Refuse = ask.Refuse, AllowEmpty = ask.AllowEmpty, Accept = ask.Accept },
+                Danger = entry.Danger,
+                Disabled = entry.Disabled,
+                SetsUp = entry.SetsUp,
+            };
+        }
+
+        if (entry.Confirm is { } confirm)
+        {
+            return new PageRow(key, SettingsRowKind.Ask)
+            {
+                Text = entry.Text,
+                Value = entry.Value,
+                Icon = icon,
+                Question = new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail),
+                Danger = entry.Danger,
+                Disabled = entry.Disabled,
+                SetsUp = entry.SetsUp,
+            };
+        }
+
         if (entry.Slider is { } slider)
         {
             return new PageRow(key, SettingsRowKind.Number) { Text = entry.Text, Value = entry.Value, Icon = icon, Number = slider, Disabled = entry.Disabled, SetsUp = entry.SetsUp };
@@ -347,7 +386,6 @@ internal static class PageRows
             Run = action,
             Danger = entry.Danger,
             Disabled = entry.Disabled,
-            Asks = entry.Asks,
             Order = entry.Order,
             SetsUp = entry.SetsUp,
         };

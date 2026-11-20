@@ -169,23 +169,20 @@ internal static partial class EditBarRender
     internal static PageView SelectionPageOf(ViewState view, WidgetSelection selection, Action<WidgetMenuLines>? lines = null)
     {
         var state = new AppState { Views = [view] };
-        PageView? page = null;
-        void Ask(WidgetTextAsk ask) => page?.Ask(new PageEdit(ask.Placeholder, ask.Initial ?? string.Empty, ask.Done) { Title = ask.Title, Accept = ask.Accept });
-        void Confirm(WidgetConfirm confirm) => page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
-        WidgetMenuLines? Over(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
-            => Services.ModuleHost.MenuLines(kind, config, save, ask, confirm, openSetting: _ => { });
+        WidgetMenuLines? Over(WidgetId kind, WidgetConfig config, Action save)
+            => Services.ModuleHost.MenuLines(kind, config, save, openSetting: _ => { });
 
         var commands = new SelectionCommands(_ => { }, _ => { }, _ => { }, _ => { }, _ => { },
             Cut: () => { },
             Copy: () => { },
             Delete: () => { },
-            WidgetLines: id => lines is not null ? Stand(lines, Ask, Confirm) : view.Find(id) is { } found ? Over(found.Kind, found.Config, () => { }, Ask, Confirm) : null)
+            WidgetLines: id => lines is not null ? Stand(lines) : view.Find(id) is { } found ? Over(found.Kind, found.Config, () => { }) : null)
         {
-            SharedLines = row => SharedRowLines.Of(row, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id))], Over, Ask, Confirm, _ => { }),
+            SharedLines = row => SharedRowLines.Of(row, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id))], Over, _ => { }),
         };
 
         var kinds = view.Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
-        page = new PageView(() => SelectionPage.Of(state, selection, view.Id) is { } model
+        var page = new PageView(() => SelectionPage.Of(state, selection, view.Id) is { } model
             ? SelectionRows.Of(model, commands, kinds)
             : new PageModel("selection", []));
         UiLanguage.ApplyFlow(page);
@@ -208,9 +205,9 @@ internal static partial class EditBarRender
     }
 
     /// <summary>A stand-in widget's lines.</summary>
-    private static WidgetMenuLines Stand(Action<WidgetMenuLines> build, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
+    private static WidgetMenuLines Stand(Action<WidgetMenuLines> build)
     {
-        var menu = new WidgetMenuLines(() => { }, ask, confirm);
+        var menu = new WidgetMenuLines(() => { });
         build(menu);
         return menu;
     }

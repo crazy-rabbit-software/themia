@@ -23,7 +23,7 @@ public sealed class DiskMenuTests
 
     private WidgetMenuLines Build(DiskConfig disk)
     {
-        var menu = new WidgetMenuLines(() => _saves++, _ => { });
+        var menu = new WidgetMenuLines(() => _saves++);
         DiskMenu.Lines(menu, disk, Drives);
         return menu;
     }

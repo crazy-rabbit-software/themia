@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Boyut",
   "barMenus.viewBar.hidden": "Gizli",
   "barMenus.viewBar.views": "Görünümler",
-  "barMenus.view.renameTitle": "Görünümü yeniden adlandır",
   "barMenus.view.deleteQuestion": "“{name}” silinsin mi?",
   "barMenus.view.deleteDetail": "Widget'ları da onunla birlikte silinir ({widgets}). Geri al hepsini geri getirir."
 }

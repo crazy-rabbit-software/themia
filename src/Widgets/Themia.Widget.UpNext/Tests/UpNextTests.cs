@@ -96,7 +96,7 @@ public sealed class UpNextTests
     [Fact]
     public void S11408_the_menu_is_rows_then_the_calendar_accounts()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         new UpNextModule().MenuLines(menu, new UpNextConfig());
         Assert.Equal(Str.Kit_Rows.Text(), menu.Lines[0].Text);
         Assert.DoesNotContain(menu.Lines, l => l.Text == Str.Kit_Lines.Text());

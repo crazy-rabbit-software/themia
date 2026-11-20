@@ -391,7 +391,11 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   the app draws them as Karpo's/Windows' settings cards (`Shell/Pages/PageView`, Karpo's components one to one:
   the table in [S-2317]; a row that acts a card with a button of its words, one with nothing to say its button
   alone, [S-2318]): a row 48 tall (60 with a caption), at most two levels (a card and one level opened inside it; deeper is a sub-page behind a back
-  head), every choice, colour, font, icon and lookup an inline picker in its card, never a popup. Every way
+  head), every choice, colour, font, icon and lookup an inline picker in its card, never a popup. **No page of its own
+  for one input, anywhere** ([S-2351]; owner, 2026-11-20: "this type of settings component should not exist anywhere in
+  themia settings"): a line of text asked or an "are you sure?" is a section in its own card (`SettingsRowKind.Ask`,
+  Core's `AskInPlace`, `PageView.Asks`), its row its words, what it holds and the expand chevron; a sub-page holds many
+  lines, never one input. Every way
   into settings lands on its row (`RequestSettings(key)`, [S-3534]). The pages follow Karpo's (`karpo-app`
   origin/master): every view, display and account is a **thing**, a card that opens in place
   (`SettingsSubmenu.Card`, its `Caption`, its head's `Tools`, dragged by its grip, [S-2310]); what opens is scrolled
@@ -511,10 +515,10 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines, config)` adds
   `Lines` and `StyleLines` (under the Style picker, what `config.Offers` says the look draws) as
   `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`,
-  `Ask` (its line `Asks: true`), `Confirm`, `Note`, `List` (its items dragged or Ctrl+Up/Down to reorder),
+  `Ask` (`WidgetMenuLines.Ask`: the line carries its `WidgetTextAsk`), `Confirm`, `Note`, `List` (its items dragged or Ctrl+Up/Down to reorder),
   `PickFolder`, a link row `LinkTo` (to the accounts only, [S-3749])), separators between its groups, and marks the line the Set up button
   opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` turns each into the page's row of its kind. An
-  Ask or a Confirm is a page of its own. The desktop icon (an own icon's lines, `OwnIconMenu`) and Clock are the references; docs/WIDGET-KIT.md 15 is
+  Ask or a Confirm is asked in place, in its own card ([S-2351]): never a page of its own. The desktop icon (an own icon's lines, `OwnIconMenu`) and Clock are the references; docs/WIDGET-KIT.md 15 is
   the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Rows) is an
   entry of the SDK's `SharedSettings` over a config contract, and its standard line is marked with
   `WidgetMenuLines.Shared` ([S-11750]..[S-11753]); a new kind that holds one implements the contract and

@@ -58,8 +58,6 @@ public sealed class ViewsMenuTests
 
         public List<string> Log { get; } = [];
 
-        public List<SettingsConfirm> Asked { get; } = [];
-
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
             change(State);
@@ -75,8 +73,6 @@ public sealed class ViewsMenuTests
         public void Reorder(string viewId, string targetId) => Log.Add($"reorder {viewId} {targetId}");
 
         public void Show(string viewId) => Log.Add("show " + viewId);
-
-        public void Confirm(SettingsConfirm confirm) => Asked.Add(confirm);
 
         public IReadOnlyList<DesktopItem> DesktopItems { get; set; } = [];
 
@@ -225,8 +221,9 @@ public sealed class ViewsMenuTests
         tools[0].Run!();
         Assert.Equal(["duplicate work"], host.Log);
 
-        tools[1].Run!();
-        var asked = Assert.Single(host.Asked);
+        // [S-2351] Delete asks in place in the view's card: the tool carries its question and runs nothing of its own.
+        Assert.Null(tools[1].Run);
+        var asked = Assert.IsType<SettingsConfirm>(tools[1].Confirm);
         Assert.True(asked.Danger);
         Assert.Contains("Work", asked.Question, StringComparison.Ordinal);
         Assert.Equal(["duplicate work"], host.Log);

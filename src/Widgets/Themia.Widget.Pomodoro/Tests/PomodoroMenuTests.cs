@@ -16,7 +16,7 @@ public sealed class PomodoroMenuTests
 
     private WidgetMenuLines Build(PomodoroConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         PomodoroMenu.Lines(lines, config);
         return lines;
     }
@@ -109,7 +109,7 @@ public sealed class PomodoroMenuTests
     public void S8112_rename_gives_a_phase_its_own_name_and_a_blank_one_gives_the_kinds_back()
     {
         var config = new PomodoroConfig();
-        Items(PhasesLine(config))[0].Children!.Single(l => l.Text == Str.Menu_Rename.Text()).Action!();
+        _asked = Typed.Ask(Items(PhasesLine(config))[0].Children!.Single(l => l.Text == Str.Menu_Rename.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.Equal(string.Empty, ask.Initial);
 

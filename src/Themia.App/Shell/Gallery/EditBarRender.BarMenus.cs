@@ -19,7 +19,7 @@ namespace Themia.App.Shell.Gallery;
 /// wallpaper, hung as the surface hangs them: <c>page-&lt;theme&gt;-views.png</c> (five views, every one a card),
 /// <c>-views-open</c> (Work's card opened), <c>-views-icon</c> (scrolled to its icon picker), <c>-views-colour</c>,
 /// <c>-views-icons</c> (its Desktop icons choice open: Work shows Chosen ones), <c>-views-chosen</c> (Work's list of the
-/// desktop's items, three of seven on, [S-5529]), <c>-views-delete</c> (its Delete's "are you sure?" page), <c>-views-many</c> (40 views: the page scrolls),
+/// desktop's items, three of seven on, [S-5529]), <c>-views-delete</c> (its Delete's "are you sure?" in place in its card, [S-2351]), <c>-views-many</c> (40 views: the page scrolls),
 /// <c>-views-many-end</c>; <c>page-&lt;theme&gt;-display.png</c> (three displays, one switched off, every one a card),
 /// <c>-display-open</c> (this display's card opened), <c>-display-bar</c> (scrolled to its view bar),
 /// <c>-display-second</c>, <c>-display-off</c>, <c>-display-new</c> and <c>-display-end</c>. Stand-in hosts:
@@ -46,7 +46,7 @@ internal static partial class EditBarRender
         foreach (var (name, count, key, click) in views)
         {
             var host = new RenderViewsHost(count);
-            var view = new PageView(() => PageRows.Of(SettingsPages.Views(host), edit => host.Page?.Ask(edit)));
+            var view = new PageView(() => PageRows.Of(SettingsPages.Views(host)));
             host.Page = view;
             await PageShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-views{name}.png"), SettingsPageId.Views, view, () => SettingsPages.Views(host), key, page =>
             {
@@ -90,7 +90,7 @@ internal static partial class EditBarRender
         foreach (var (name, key) in display)
         {
             var host = new RenderDisplayHost();
-            var view = new PageView(() => PageRows.Of(SettingsPages.Display(host), _ => { }));
+            var view = new PageView(() => PageRows.Of(SettingsPages.Display(host)));
             host.Page = view;
             await PageShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-display{name}.png"), SettingsPageId.Display, view, () => SettingsPages.Display(host), key,
                 after: name == "-end" ? f => f.Scroll(Windows.System.VirtualKey.End) : null).ConfigureAwait(true);
@@ -191,8 +191,6 @@ internal static partial class EditBarRender
         }
 
         public void Reorder(string viewId, string targetId) => Mutate(s => ViewOps.Reorder(s.Views, viewId, targetId));
-
-        public void Confirm(SettingsConfirm confirm) => Page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
 
         /// <summary>[S-5529] A stand-in desktop: two shell items, a folder, a shortcut and three files.</summary>
         public IReadOnlyList<DesktopItem> DesktopItems { get; } =

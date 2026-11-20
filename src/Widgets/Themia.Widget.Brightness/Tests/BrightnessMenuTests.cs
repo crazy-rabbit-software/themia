@@ -18,7 +18,7 @@ public sealed class BrightnessMenuTests
 
     private WidgetMenuLines Build(BrightnessConfig config, BrightnessSnapshot? displays = null)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         BrightnessMenu.Lines(lines, config, displays ?? Two);
         return lines;
     }

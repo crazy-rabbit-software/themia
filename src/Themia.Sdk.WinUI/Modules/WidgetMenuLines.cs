@@ -3,7 +3,6 @@ using System.Numerics;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
@@ -16,26 +15,20 @@ namespace Themia.Sdk.WinUI;
 /// (<see cref="StyleLines"/>: what only the look draws with), and the save to call after a change.
 /// The card's own lines are the menu's pinned Appearance foot ([S-3739]), never among these. The lines are the one menu
 /// vocabulary (<see cref="ItemMenuEntry"/>): a switch, a choice of one (a submenu of dots), a
-/// submenu, a search, a command, a colour or a fill, a number, a slider, a confirmed command, a note,
-/// an editable list and a folder. The host builds them again after every change, so a line says what
-/// the widget holds now and a closure may keep the value it was built with.
+/// submenu, a search, a command, a colour or a fill, a number, a slider, a line of text or a question
+/// asked in place, a note, an editable list and a folder. The host builds them again after every change,
+/// so a line says what the widget holds now and a closure may keep the value it was built with.
+/// [S-2351] Nothing here opens a page of its own: what a line asks it carries (<see cref="ItemMenuEntry.Ask"/>,
+/// <see cref="ItemMenuEntry.Confirm"/>), and the page asks it in place, in the line's card.
 /// </summary>
 public sealed class WidgetMenuLines
 {
-    private const string Scope = "menu-lines";
-
     private readonly Action _save;
-    private readonly Action<WidgetTextAsk> _ask;
-    private readonly Action<WidgetConfirm>? _confirm;
 
     /// <param name="save">Stores the config after a change (the live widget's, through the host's store).</param>
-    /// <param name="ask">[S-3721] Shows a question for one line of text beside the menu.</param>
-    /// <param name="confirm">[S-3727] Shows an "are you sure?" beside the menu; without one a confirmed line does nothing.</param>
-    public WidgetMenuLines(Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm>? confirm = null)
+    public WidgetMenuLines(Action save)
     {
         _save = save ?? throw new ArgumentNullException(nameof(save));
-        _ask = ask ?? throw new ArgumentNullException(nameof(ask));
-        _confirm = confirm;
     }
 
     /// <summary>
@@ -105,14 +98,16 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3721] Ask for one line of text (a web address, a path, a name): the properties menu opens it
-    /// as a level of its own holding the field ([S-3736]). The line whose click asks says so
-    /// (<see cref="ItemMenuEntry.Asks"/>), so it is drawn with its chevron.
+    /// [S-2351] [S-3721] A line that asks for one line of text (a web address, a path, a name, Rename…, Add…), in place:
+    /// its row says <paramref name="text"/> and what it holds at its end (<paramref name="value"/>, else what the field
+    /// starts with) with the expand chevron, and opens in its own card on the field (holding <see cref="WidgetTextAsk.Initial"/>,
+    /// selected), why it is refused under it, and the accept in <see cref="WidgetTextAsk.Accept"/>'s words, greyed while refused.
+    /// Enter gives it too; Escape or a press elsewhere closes it, keeping nothing. Never a page of its own.
     /// </summary>
-    public void Ask(WidgetTextAsk ask)
+    public static ItemMenuEntry Ask(string? glyph, string text, WidgetTextAsk ask, string? value = null, bool disabled = false)
     {
         ArgumentNullException.ThrowIfNull(ask);
-        _ask(ask);
+        return new(glyph, text, null, Ask: ask, Value: value ?? (string.IsNullOrEmpty(ask.Initial) ? null : ask.Initial), Disabled: disabled);
     }
 
     /// <summary>
@@ -375,11 +370,10 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3727] A command that destroys something (clear a history): its click asks first, on a level
-    /// of the menu's own ([S-3737]) — <paramref name="question"/>, under it <paramref name="detail"/> (what goes with it,
-    /// when there is more to say than the question), Cancel and <paramref name="confirmWords"/> — and
-    /// only the answer runs <paramref name="action"/> and saves. Danger lines are drawn in the
-    /// critical colour.
+    /// [S-3727] [S-2351] A command that destroys something (clear a history): its click asks first, in place in its own
+    /// card — <paramref name="question"/>, under it <paramref name="detail"/> (what goes with it, when there is more to say
+    /// than the question), <paramref name="confirmWords"/> and Cancel — and only the answer runs
+    /// <paramref name="action"/> and saves. Danger lines are drawn in the critical colour.
     /// </summary>
     public ItemMenuEntry Confirm(string? glyph, string text, string question, string confirmWords, Action action, bool danger = true, bool disabled = false, string? detail = null)
     {
@@ -390,18 +384,7 @@ public sealed class WidgetMenuLines
             _save();
         }, danger, detail);
 
-        return new(glyph, text, () =>
-        {
-            if (_confirm is { } ask)
-            {
-                ask(confirm);
-            }
-            else
-            {
-                // Refusing beats destroying something unasked.
-                Log.Warn(Scope, "a confirmed line was clicked with nothing to ask; nothing was changed");
-            }
-        }, Danger: danger, Disabled: disabled, Asks: true);
+        return new(glyph, text, null, Danger: danger, Disabled: disabled, Confirm: confirm);
     }
 
     /// <summary>[S-3728] A line of words only (a data source's credit): greyed, never clickable.</summary>
@@ -446,7 +429,7 @@ public sealed class WidgetMenuLines
             var actions = new List<ItemMenuEntry>();
             if (list.Rename is { } rename)
             {
-                actions.Add(new(Glyphs.Rename, Str.Menu_Rename.Text(), () => _ask(new WidgetTextAsk(
+                actions.Add(Ask(Glyphs.Rename, Str.Menu_Rename.Text(), new WidgetTextAsk(
                     Str.Common_Rename.Text(),
                     rename.Placeholder?.Invoke(item) ?? list.Name(item),
                     Str.Common_Rename.Text(),
@@ -459,7 +442,11 @@ public sealed class WidgetMenuLines
                         }
                     },
                     Initial: rename.Current?.Invoke(item) ?? list.Name(item),
-                    AllowEmpty: rename.AllowEmpty)), Asks: true));
+                    AllowEmpty: rename.AllowEmpty)) with
+                {
+                    // [S-2351] The name it starts from is the item's head's, right above it: not said twice.
+                    Value = null,
+                });
             }
 
             if (list.Extra?.Invoke(item) is { } extra)
@@ -487,7 +474,7 @@ public sealed class WidgetMenuLines
         if (list.Add is { } add)
         {
             lines.Add(ItemMenuEntry.Separator);
-            lines.Add(new(Glyphs.Add, Str.Menu_Add.Text(), () => _ask(new WidgetTextAsk(
+            lines.Add(Ask(Glyphs.Add, Str.Menu_Add.Text(), new WidgetTextAsk(
                 add.Title,
                 add.Placeholder,
                 Str.Common_Add.Text(),
@@ -496,7 +483,7 @@ public sealed class WidgetMenuLines
                 {
                     items.Add(add.Create(typed));
                     _save();
-                })), Disabled: full, Asks: true));
+                }), disabled: full));
         }
 
         if (list.AddLines is { Count: > 0 } addLines)
@@ -622,21 +609,20 @@ public sealed record MenuListRename<T>(Func<T, string, bool> Set)
 public sealed record MenuListAdd<T>(string Title, string Placeholder, Func<string, string?> Refuse, Func<string, T> Create);
 
 /// <summary>
-/// [S-3721] [S-3736] One line of text asked for on the properties menu, on a level of its own: its
-/// heading (the level's name), the field's placeholder, the words of the row that gives it, the check
-/// run as it is typed (the reason it cannot be used, or null) and what is done with it. Enter or the
-/// row gives it; Escape puts the text back and goes back; going back any other way gives what was
-/// typed where the check takes it.
+/// [S-3721] [S-2351] One line of text asked for on the properties menu, in place in its line's card: what it asks for
+/// (its field's name for a screen reader), the field's placeholder, the words of the accept that gives it, the check run
+/// as it is typed (the reason it cannot be used, or null) and what is done with it. Enter or the accept gives it;
+/// Escape or a press elsewhere closes it and gives nothing.
 /// <paramref name="Initial"/> is what the box starts with (a name being changed);
 /// <paramref name="AllowEmpty"/> lets an empty box be given (a name cleared).
 /// </summary>
 public sealed record WidgetTextAsk(string Title, string Placeholder, string Accept, Func<string, string?> Refuse, Action<string> Done, string? Initial = null, bool AllowEmpty = false);
 
 /// <summary>
-/// [S-3727] [S-3737] An "are you sure?" on the properties menu, on a level of its own: the question,
-/// the words of the row that does it (in the critical colour where <paramref name="Danger"/>), what it
-/// does, and optionally <paramref name="Detail"/> under the question (what goes with it: "Its 4 habits
-/// and their streaks go too"). Cancel, Escape or going back do nothing.
+/// [S-3727] [S-2351] An "are you sure?" on the properties menu, in place in its line's card: the question, the words of
+/// the button that does it (in the critical colour where <paramref name="Danger"/>), what it does, and optionally
+/// <paramref name="Detail"/> under the question (what goes with it: "Its 4 habits and their streaks go too"). Cancel,
+/// Escape or a press elsewhere do nothing.
 /// </summary>
 public sealed record WidgetConfirm(string Question, string Accept, Action Done, bool Danger = true, string? Detail = null);
 

@@ -16,7 +16,7 @@ public sealed class MixerMenuTests
 
     private WidgetMenuLines Build(MixerConfig config, MenuLoaded<IReadOnlyList<AudioDevice>>? outputs = null)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         MixerMenu.Lines(lines, config, outputs ?? Two);
         return lines;
     }

@@ -27,16 +27,16 @@ internal static class ModuleHost
     /// [S-3719] A widget's own lines on its properties menu, built by <paramref name="kind"/>'s module over
     /// <paramref name="config"/> (the live one: the lines change it in place and <paramref name="save"/>
     /// stores it; or [S-11751] a scratch copy whose save sets what it holds on every widget selected that holds it),
-    /// asking for text and confirmations beside the menu. A module that throws is logged and has none.
+    /// what they ask asked in place ([S-2351]). A module that throws is logged and has none.
     /// [S-3749] <paramref name="openSetting"/> opens the level a link row leads to (⚙ › Accounts,
     /// [S-3558]; a format; an update interval).
     /// </summary>
-    public static WidgetMenuLines? MenuLines(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action<SettingLink>? openSetting = null)
+    public static WidgetMenuLines? MenuLines(WidgetId kind, WidgetConfig config, Action save, Action<SettingLink>? openSetting = null)
     {
         ArgumentNullException.ThrowIfNull(config);
 
         // [S-2851] Where Windows' location stands, and its settings page where there is a host to open it.
-        var lines = new WidgetMenuLines(save, ask, confirm)
+        var lines = new WidgetMenuLines(save)
         {
             OpenSetting = openSetting,
             Device = AppServices.DeviceLocationNow,

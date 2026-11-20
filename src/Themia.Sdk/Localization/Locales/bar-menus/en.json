@@ -9,7 +9,6 @@
   "barMenus.viewBar.size": "Size",
   "barMenus.viewBar.hidden": "Hidden",
   "barMenus.viewBar.views": "Views",
-  "barMenus.view.renameTitle": "Rename view",
   "barMenus.view.deleteQuestion": "Delete “{name}”?",
   "barMenus.view.deleteDetail": "Its widgets go with it ({widgets}). Undo brings it all back."
 }

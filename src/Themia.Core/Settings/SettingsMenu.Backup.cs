@@ -61,13 +61,13 @@ public static partial class SettingsMenu
             new SettingsNote(Keys.BackupOpen + "/path", backup.StatePath),
             new SettingsSeparator(Keys.Backup + "/-reset"),
 
-            // [S-892] Asked first, as Windows asks before it destroys something: the page's words.
-            new SettingsCommand(Keys.BackupReset, Str.SettingsMenu_ResetAll.Text(), Glyphs.Reset, () => host.Confirm(new SettingsConfirm(
+            // [S-892] Asked first, as Windows asks before it destroys something: the page's words, in place ([S-2351]).
+            SettingsCommand.Asking(Keys.BackupReset, Str.SettingsMenu_ResetAll.Text(), Glyphs.Reset, new SettingsConfirm(
                 Str.Shell_About_ResetConfirm.Text(),
                 Str.SettingsMenu_Reset.Text(),
                 backup.Reset,
                 Str.Shell_About_ResetBody.Format(("file", stateName)),
-                Danger: true)))
+                Danger: true)) with
             {
                 Danger = true,
                 Disabled = busy,

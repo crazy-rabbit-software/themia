@@ -14,7 +14,7 @@ public sealed class ScratchpadMenuTests
 
     private WidgetMenuLines Build(ScratchpadConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         ScratchpadMenu.Lines(lines, config);
         return lines;
     }

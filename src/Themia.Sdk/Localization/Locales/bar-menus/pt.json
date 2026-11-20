@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Tamanho",
   "barMenus.viewBar.hidden": "Oculta",
   "barMenus.viewBar.views": "Visualizações",
-  "barMenus.view.renameTitle": "Renomear visualização",
   "barMenus.view.deleteQuestion": "Excluir “{name}”?",
   "barMenus.view.deleteDetail": "Os widgets dela são excluídos junto ({widgets}). Desfazer traz tudo de volta."
 }

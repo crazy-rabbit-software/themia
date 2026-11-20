@@ -110,7 +110,7 @@ internal static class FolderPropertiesMenu
                     config.Path = result.Path;
                 }
             }) with { Value = null },
-            new(Glyphs.Edit, FolderStr.Folder_Menu_TypePath.Text(), () => menu.Ask(new WidgetTextAsk(
+            WidgetMenuLines.Ask(Glyphs.Edit, FolderStr.Folder_Menu_TypePath.Text(), new WidgetTextAsk(
                 FolderStr.Folder_Label_Label.Text(),
                 ProfileFolder(),
                 Str.Common_Save.Text(),
@@ -124,7 +124,7 @@ internal static class FolderPropertiesMenu
                     }
                 },
                 Initial: current,
-                AllowEmpty: true)), Asks: true),
+                AllowEmpty: true)),
         };
 
         var shown = WidgetMenuLines.FolderName(current) ?? WidgetMenuLines.FolderName(ProfileFolder());

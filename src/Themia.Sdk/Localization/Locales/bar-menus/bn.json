@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "আকার",
   "barMenus.viewBar.hidden": "লুকানো",
   "barMenus.viewBar.views": "ভিউ",
-  "barMenus.view.renameTitle": "ভিউয়ের নাম বদলান",
   "barMenus.view.deleteQuestion": "“{name}” মুছবেন?",
   "barMenus.view.deleteDetail": "এর উইজেটগুলোও সঙ্গে মুছে যাবে ({widgets})। পূর্বাবস্থায় ফেরালে সব ফিরে আসে।"
 }

@@ -14,7 +14,7 @@ public sealed class WeatherNowMenuTests
 
     private WidgetMenuLines Build(WeatherNowConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         WeatherNowMenu.Lines(lines, config);
         return lines;
     }

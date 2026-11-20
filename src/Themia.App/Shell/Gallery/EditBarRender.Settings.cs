@@ -19,7 +19,7 @@ namespace Themia.App.Shell.Gallery;
 /// row as a deep link opens it, its picker open (<c>-appearance-style</c>, <c>-theme</c>, <c>-accent</c> (a colour),
 /// <c>-background</c> (a fill), <c>-border</c>, <c>-font</c>, <c>-general-motion</c> (an expander), <c>-online-weather</c>,
 /// <c>-language</c> (a lookup), <c>-language-find</c> ("deu" typed), <c>-temperature</c> (a deep link
-/// lands), <c>-advice</c>, <c>-replace</c> (an "are you sure?" page), Pro's, Back up's and About's,
+/// lands), <c>-advice</c>, <c>-replace</c> (an "are you sure?" asked in place in the Style card, [S-2351]), Pro's, Back up's and About's,
 /// and Accounts'. A stand-in host: nothing reaches Windows or the user's state.
 /// </summary>
 internal static partial class EditBarRender
@@ -89,7 +89,7 @@ internal static partial class EditBarRender
         advice.State.Preferences.GameModeSuspend = true;
         await SettingsShot(screen, outDir, theme, "general-advice", advice, null).ConfigureAwait(true);
 
-        // [S-3527] A preset picked over a look of one's own asks first, on a page of its own.
+        // [S-3527] A preset picked over a look of one's own asks first, [S-2351] in place in the Style card.
         var custom = new RenderSettingsHost();
         custom.State.Design.CornerRadiusPx = 17;
         custom.State.Design.PrimaryColor = "#3A6EA5";
@@ -119,7 +119,7 @@ internal static partial class EditBarRender
             : pages.FirstOrDefault(p => SettingsPages.PathTo(p(), key) is not null) ?? pages[0];
         var page = core().Id;
         // [S-2311] The Appearance's preview: real cards on the render's stand-in wallpaper, in the host's design.
-        var view = new PageView(() => PageRows.Of(core(), edit => host.Page?.Ask(edit), () => new AppearancePreview(RenderWallpaper.Backdrop, RenderWallpaper.Screen ?? new Core.Geometry.ScreenMetrics(1920, 1080), () => host.State.Design)));
+        var view = new PageView(() => PageRows.Of(core(), () => new AppearancePreview(RenderWallpaper.Backdrop, RenderWallpaper.Screen ?? new Core.Geometry.ScreenMetrics(1920, 1080), () => host.State.Design)));
         host.Page = view;
         return PageShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-{name}.png"), page, view, core, key, then, after);
     }
@@ -185,7 +185,7 @@ internal static partial class EditBarRender
 
         public void SetLanguage(AppLanguage language) => Mutate(s => s.Preferences.Language = language);
 
-        public void Confirm(SettingsConfirm confirm) => Page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
+        public void Confirm(string at, SettingsConfirm confirm) => Page?.ConfirmAt(at, PageRows.QuestionOf(confirm));
 
         public ILicenceMenuHost Licence => this;
 

@@ -12,7 +12,7 @@ public sealed class MoonMenuTests
 {
     private static WidgetMenuLines Build(MoonConfig config)
     {
-        var lines = new WidgetMenuLines(() => { }, _ => { });
+        var lines = new WidgetMenuLines(() => { });
         MoonMenu.Lines(lines, config);
         return lines;
     }

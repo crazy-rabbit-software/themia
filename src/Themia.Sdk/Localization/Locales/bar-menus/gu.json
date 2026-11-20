@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "કદ",
   "barMenus.viewBar.hidden": "છુપાયેલું",
   "barMenus.viewBar.views": "વ્યૂ",
-  "barMenus.view.renameTitle": "વ્યૂનું નામ બદલો",
   "barMenus.view.deleteQuestion": "“{name}” કાઢી નાખીએ?",
   "barMenus.view.deleteDetail": "તેના વિજેટ પણ સાથે જશે ({widgets}). પૂર્વવત્ કરવાથી બધું પાછું આવે છે."
 }

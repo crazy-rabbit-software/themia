@@ -63,7 +63,7 @@ public sealed class AirMetricTests
     [Fact]
     public void S14680_its_menu_is_the_place_then_the_trend_and_a_copy_keeps_both()
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { });
+        var menu = new WidgetMenuLines(() => { });
         ((IWidgetModule)new AirOzoneModule()).MenuLines(menu, new AirOzoneConfig());
         Assert.Contains(menu.Lines, l => l.Search is not null);
         Assert.Equal(Str.Metric_Trend.Text(), menu.Lines[^1].Text);

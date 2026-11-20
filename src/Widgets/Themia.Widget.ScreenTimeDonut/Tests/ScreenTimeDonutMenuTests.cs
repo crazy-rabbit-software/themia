@@ -41,7 +41,7 @@ public sealed class ScreenTimeDonutMenuTests
 
     private WidgetMenuLines Build(ScreenTimeDonutConfig config, IScreenTimeSource? source)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         ScreenTimeDonutMenu.Lines(lines, config, source);
         return lines;
     }

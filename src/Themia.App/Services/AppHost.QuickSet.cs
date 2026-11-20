@@ -59,8 +59,8 @@ internal sealed partial class AppHost
     /// make in place is stored through the host's one state write. Null for a widget that is gone.
     /// [S-3749] <paramref name="openSetting"/> opens a link row's level on the display the menu is on.
     /// </summary>
-    public WidgetMenuLines? WidgetMenuLines(string widgetId, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action<SettingLink>? openSetting)
-        => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget.Kind, widget.Config, () => Mutate(_ => { }), ask, confirm, openSetting) : null;
+    public WidgetMenuLines? WidgetMenuLines(string widgetId, Action<SettingLink>? openSetting)
+        => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget.Kind, widget.Config, () => Mutate(_ => { }), openSetting) : null;
 
     /// <summary>The selection's view, the widgets of <paramref name="ids"/> in it changed by <paramref name="change"/> in one step.</summary>
     private void Change(IReadOnlyList<string> ids, Func<ViewState, IReadOnlyList<string>, int> change)

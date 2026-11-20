@@ -70,7 +70,7 @@ internal static partial class EditBarRender
         incoming.Design.Theme = AppTheme.Light;
         var preview = SettingsTransfer.Compare(asking.State, incoming, [], ["\\\\.\\DISPLAY1"]);
         await SettingsShot(screen, outDir, theme, "general-backup-import", asking, b, view =>
-            asking.Confirm(SettingsMenu.ImportQuestion(preview, "state.json", "state.before-import-20261025-104200.json", () => { }))).ConfigureAwait(true);
+            asking.Confirm(SettingsMenu.Keys.BackupImport, SettingsMenu.ImportQuestion(preview, "state.json", "state.before-import-20261025-104200.json", () => { }))).ConfigureAwait(true);
 
         await SettingsShot(screen, outDir, theme, "general-backup-reset", new RenderSettingsHost(), b, view => Click(view, SettingsMenu.Keys.BackupReset)).ConfigureAwait(true);
     }

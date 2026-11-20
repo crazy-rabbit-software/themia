@@ -60,7 +60,7 @@ public sealed class SizeFollowsCardTests
         foreach (var (kind, config) in Configs())
         {
             var module = ModuleRegistry.Widgets.Single(m => kind == m.Descriptor.Id.Value || kind.StartsWith(m.Descriptor.Id.Value + " (", StringComparison.Ordinal));
-            var menu = new WidgetMenuLines(() => { }, _ => { }) { OpenSetting = _ => { } };
+            var menu = new WidgetMenuLines(() => { }) { OpenSetting = _ => { } };
             try
             {
                 module.MenuLines(menu, config);

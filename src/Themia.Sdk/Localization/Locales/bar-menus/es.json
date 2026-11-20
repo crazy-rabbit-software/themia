@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Tamaño",
   "barMenus.viewBar.hidden": "Oculta",
   "barMenus.viewBar.views": "Vistas",
-  "barMenus.view.renameTitle": "Renombrar vista",
   "barMenus.view.deleteQuestion": "¿Eliminar «{name}»?",
   "barMenus.view.deleteDetail": "Sus widgets se eliminan con ella ({widgets}). Deshacer lo recupera todo."
 }

@@ -16,7 +16,7 @@ public sealed class AlarmMenuTests
 
     private WidgetMenuLines Build(AlarmConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         AlarmMenu.Lines(lines, config);
         return lines;
     }
@@ -105,7 +105,7 @@ public sealed class AlarmMenuTests
     public void S4631_the_days_start_on_the_start_of_the_week_language_and_region_sets(WeekStartDay start, DayOfWeek first)
     {
         // Regression: the days started on the language's first day, whatever ⚙ › Language & region said.
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        var lines = new WidgetMenuLines(() => _saves++);
         AlarmMenu.Lines(lines, new AlarmConfig(), start);
 
         var days = Line(lines, AlarmStr.Alarm_Settings_Repeat.Text()).Children!.Where(l => !l.IsSeparator && !l.Note).Select(l => l.Text).ToList();

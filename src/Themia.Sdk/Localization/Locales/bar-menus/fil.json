@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "Laki",
   "barMenus.viewBar.hidden": "Nakatago",
   "barMenus.viewBar.views": "Mga view",
-  "barMenus.view.renameTitle": "Palitan ang pangalan ng view",
   "barMenus.view.deleteQuestion": "Burahin ang “{name}”?",
   "barMenus.view.deleteDetail": "Kasama nitong mabubura ang mga widget nito ({widgets}). Ibinabalik lahat ng I-undo."
 }

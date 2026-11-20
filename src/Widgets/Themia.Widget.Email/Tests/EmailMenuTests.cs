@@ -22,7 +22,7 @@ public sealed class EmailMenuTests
 
     private WidgetMenuLines Build(EmailConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         EmailMenu.Lines(lines, config, Mail);
         return lines;
     }

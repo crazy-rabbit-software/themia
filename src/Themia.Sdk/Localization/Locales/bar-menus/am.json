@@ -8,7 +8,6 @@
   "barMenus.viewBar.size": "መጠን",
   "barMenus.viewBar.hidden": "የተደበቀ",
   "barMenus.viewBar.views": "እይታዎች",
-  "barMenus.view.renameTitle": "እይታውን ዳግም ሰይም",
   "barMenus.view.deleteQuestion": "«{name}» ይሰረዝ?",
   "barMenus.view.deleteDetail": "ዊጀቶቹ አብረውት ይሄዳሉ ({widgets})። ቀልብስ ሁሉንም ይመልሳል።"
 }

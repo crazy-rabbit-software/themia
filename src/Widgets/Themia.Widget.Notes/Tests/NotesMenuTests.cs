@@ -19,7 +19,7 @@ public sealed class NotesMenuTests
 
     private WidgetMenuLines Build(NotesConfig config, INotes? pool)
     {
-        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask, confirm => _confirm = confirm);
+        var lines = new WidgetMenuLines(() => _saves++);
         NotesMenu.Lines(lines, config, pool, Now);
         return lines;
     }
@@ -73,7 +73,7 @@ public sealed class NotesMenuTests
     public void S1349_rename_retitles_the_note_shown_in_the_pool()
     {
         var pool = Two();
-        Line(Build(new NotesConfig { NoteId = "b" }, pool), NoteTitle).Children!.Single(l => l.Text == Str.Menu_Rename.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(new NotesConfig { NoteId = "b" }, pool), NoteTitle).Children!.Single(l => l.Text == Str.Menu_Rename.Text()));
         Assert.Equal("Ideas", _asked!.Initial);
 
         _asked.Done("Later");
@@ -85,7 +85,7 @@ public sealed class NotesMenuTests
     public void S1349_delete_is_always_asked_and_names_the_note()
     {
         var pool = Two();
-        Line(Build(new NotesConfig { NoteId = "a" }, pool), NoteTitle).Children!.Single(l => l.Text == NotesStr.Notes_DeleteTitle.Text()).Action!();
+        _confirm = (Line(Build(new NotesConfig { NoteId = "a" }, pool), NoteTitle).Children!.Single(l => l.Text == NotesStr.Notes_DeleteTitle.Text())).Confirm;
         Assert.Equal(2, pool.Notes.Count);
 
         var confirm = Assert.IsType<WidgetConfirm>(_confirm);
@@ -110,7 +110,7 @@ public sealed class NotesMenuTests
         var pool = Two();
         Assert.True(Line(Build(new NotesConfig { NoteId = "b" }, pool), Clear).Disabled);
 
-        Line(Build(new NotesConfig { NoteId = "a" }, pool), Clear).Action!();
+        _confirm = (Line(Build(new NotesConfig { NoteId = "a" }, pool), Clear)).Confirm;
         Assert.Equal("Milk, eggs", pool.Bodies["a"]);
 
         _confirm!.Done();

@@ -14,7 +14,7 @@ public sealed class ClockMenuTests
 
     private WidgetMenuLines Build(ClockConfig config)
     {
-        var lines = new WidgetMenuLines(() => _saves++, _ => { });
+        var lines = new WidgetMenuLines(() => _saves++);
         ClockMenu.Lines(lines, config);
         return lines;
     }

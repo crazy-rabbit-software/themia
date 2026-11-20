@@ -13,7 +13,7 @@ public sealed class TopProcessesMenuTests
 
     private WidgetMenuLines Build(TopProcessesConfig config)
     {
-        var menu = new WidgetMenuLines(() => _saves++, _ => { });
+        var menu = new WidgetMenuLines(() => _saves++);
         TopProcessesMenu.Lines(menu, config);
         return menu;
     }
