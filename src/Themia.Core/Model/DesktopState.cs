@@ -21,6 +21,18 @@ public sealed class DesktopState
     /// Explorer's dot. Name in a new state, the order new items are laid out in ([S-5521]).
     /// </summary>
     public Themia.Core.Desktop.DesktopSortBy Sort { get; set; }
+
+    /// <summary>[S-5596] Bring a read desktop memory back inside its invariants: a number that names no sort is the order new items are laid out in.</summary>
+    public IReadOnlyList<string> Repair()
+    {
+        if (Enum.IsDefined(Sort))
+        {
+            return [];
+        }
+
+        Sort = Themia.Core.Desktop.DesktopSortBy.Name;
+        return ["unknown desktop sort; by name"];
+    }
 }
 
 /// <summary>

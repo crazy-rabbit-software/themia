@@ -6,7 +6,7 @@ using Themia.Sdk;
 namespace Themia.Core.Model;
 
 /// <summary>One placed widget. Geometry is fractional ([S-01]); config is typed ([S-13]).</summary>
-public sealed class WidgetInstance
+public sealed partial class WidgetInstance
 {
     public required string Id { get; set; }
 
@@ -153,7 +153,7 @@ public sealed class WidgetInstance
 }
 
 /// <summary>A named desktop layout. Views are switched as a whole; each holds its own widgets.</summary>
-public sealed class ViewState
+public sealed partial class ViewState
 {
     public required string Id { get; set; }
 
@@ -210,7 +210,7 @@ public sealed class ViewState
 /// account. Colours are hex strings; <b>empty means "use the theme's own"</b>, which is what lets a
 /// user override one colour without pinning all the others.
 /// </summary>
-public sealed class DesignState
+public sealed partial class DesignState
 {
     public AppTheme Theme { get; set; } = AppTheme.System;
 

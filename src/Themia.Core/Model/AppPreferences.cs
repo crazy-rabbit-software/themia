@@ -9,7 +9,7 @@ namespace Themia.Core.Model;
 /// game mode by accident.
 /// </para>
 /// </summary>
-public sealed class AppPreferences
+public sealed partial class AppPreferences
 {
     public AppLanguage Language { get; set; } = AppLanguage.System;
 

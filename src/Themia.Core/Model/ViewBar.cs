@@ -104,6 +104,55 @@ public sealed class ViewBarSettings
         Hidden = Hidden,
         VisibleViews = [.. VisibleViews],
     };
+
+    /// <summary>
+    /// [S-906] Bring a read bar back inside its invariants, saying what changed: an unknown anchor, size, type or labels
+    /// is its default, and the whitelist keeps only views that exist (<paramref name="isView"/>), once each. A whitelist
+    /// that ends up empty means "all views", never an empty bar.
+    /// </summary>
+    public IReadOnlyList<string> Repair(string monitorId, Func<string, bool> isView)
+    {
+        ArgumentNullException.ThrowIfNull(isView);
+        var repairs = new List<string>();
+
+        if (!Enum.IsDefined(Anchor))
+        {
+            Anchor = ViewBarAnchor.BottomLeft;
+            repairs.Add($"view bar on '{monitorId}' had an unknown position");
+        }
+
+        if (!Enum.IsDefined(Size))
+        {
+            Size = ViewBarSize.Medium;
+            repairs.Add($"view bar on '{monitorId}' had an unknown size");
+        }
+
+        if (!Enum.IsDefined(Type))
+        {
+            // [S-5400] Inline, the bar as it always was.
+            Type = ViewBarType.Inline;
+            repairs.Add($"view bar on '{monitorId}' had an unknown type");
+        }
+
+        if (!Enum.IsDefined(Labels))
+        {
+            // [S-5405] Icon and text.
+            Labels = ViewBarLabels.IconAndText;
+            repairs.Add($"view bar on '{monitorId}' had unknown labels");
+        }
+
+        var visible = (VisibleViews ?? [])
+            .Where(isView)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        if (VisibleViews is null || visible.Count != VisibleViews.Count)
+        {
+            repairs.Add($"view bar on '{monitorId}' listed missing or repeated views");
+        }
+
+        VisibleViews = visible;
+        return repairs;
+    }
 }
 
 /// <summary>
