@@ -152,4 +152,78 @@ public sealed class PomodoroFaceTests
     [Fact]
     public void S8117_the_face_scales_down_to_its_body_text_at_9_and_its_glyphs_at_12()
         => Assert.Equal(ScaleFloor.Least(FamilyType.Body.FontSize, FamilyShape.Icon), PomodoroFace.Least);
+
+    private const double Caption = FamilyType.BodyLine;
+    private static readonly double CaptionOver = LineInk.Of(FamilyType.Body).Over;
+
+    [Fact]
+    public void S14281_side_by_side_the_columns_parts_touch_and_stand_centred_beside_a_taller_ring()
+    {
+        // The Ring style's 330x140 card (owner, 2026-11-20: "not all in just one column"; WR-7: "Keep them together"):
+        // the ring is taller than the caption over the controls. The column's parts stand right under one another, the
+        // column centred on the ring, never its caption on the band's top and its controls on its foot.
+        var plan = Plan(PomodoroStyle.Ring);
+        var at = PomodoroFace.Stand(PomodoroArrangement.Wide, plan.Ring, LineInk.None, Caption, CaptionOver, 0, FamilyShape.Button);
+
+        Assert.Equal(at.Caption + Caption + FamilySpace.S2, at.Controls, 6);
+        var column = Caption + FamilySpace.S2 + FamilyShape.Button - CaptionOver;
+        var over = at.Caption + CaptionOver - CaptionOver;
+        var under = at.Height - (at.Controls + FamilyShape.Button);
+        Assert.True(plan.Ring > column);
+        Assert.Equal(over, under, 6);
+        Assert.Equal(CaptionOver, at.Face, 6);
+        Assert.Equal(CaptionOver + plan.Ring, at.Height, 6);
+    }
+
+    [Fact]
+    public void S14281_a_regression_the_side_by_side_column_was_spread_over_the_rings_height()
+    {
+        // Before: the caption stood on the block's top and the controls on its foot, a band between them.
+        var plan = Plan(PomodoroStyle.Ring);
+        var at = PomodoroFace.Stand(PomodoroArrangement.Wide, plan.Ring, LineInk.None, Caption, CaptionOver, 0, FamilyShape.Button);
+        Assert.True(at.Caption > 1, $"caption at {at.Caption}");
+        Assert.True(at.Controls + FamilyShape.Button < at.Height - 1, $"controls end at {at.Controls + FamilyShape.Button} of {at.Height}");
+    }
+
+    [Theory]
+    [InlineData(PomodoroStyle.Bar)]
+    [InlineData(PomodoroStyle.Digits)]
+    public void S14281_side_by_side_the_time_and_the_column_share_one_band_as_planned(PomodoroStyle style)
+    {
+        var plan = Plan(style);
+        var step = plan.WideStep;
+        var bar = style == PomodoroStyle.Bar ? FamilyShape.Track : 0;
+        var at = PomodoroFace.Stand(PomodoroArrangement.Wide, step.LineHeight, LineInk.Of(step), Caption, CaptionOver, bar, FamilyShape.Button);
+
+        Assert.Equal(CaptionOver + plan.Wide.Height, at.Height, 6);
+        Assert.Equal(at.Caption + Caption + (bar > 0 ? FamilySpace.S2 + bar : 0) + FamilySpace.S2, at.Controls, 6);
+        if (bar > 0)
+        {
+            Assert.Equal(at.Caption + Caption + FamilySpace.S2, at.Bar, 6);
+        }
+
+        // The time's capitals and the column's ink centred on the one band.
+        var caps = step.LineHeight - LineInk.Of(step).Over - LineInk.Of(step).Under;
+        var faceInk = at.Face + LineInk.Of(step).Over;
+        Assert.Equal(at.Height - (faceInk + caps), faceInk - CaptionOver, 6);
+    }
+
+    [Theory]
+    [InlineData(PomodoroStyle.Ring)]
+    [InlineData(PomodoroStyle.Bar)]
+    [InlineData(PomodoroStyle.Digits)]
+    public void S14281_stacked_every_part_stands_right_under_the_one_before(PomodoroStyle style)
+    {
+        var plan = Plan(style);
+        var ring = style == PomodoroStyle.Ring;
+        var face = ring ? plan.Ring : plan.Step.LineHeight;
+        var gap = ring ? FamilySpace.S2 : 0;
+        var bar = style == PomodoroStyle.Bar ? FamilyShape.Track : 0;
+        var at = PomodoroFace.Stand(PomodoroArrangement.Tall, face, ring ? LineInk.None : LineInk.Of(plan.Step), Caption, CaptionOver, bar, FamilyShape.Button, gap);
+
+        Assert.Equal(0, at.Face);
+        Assert.Equal(face + gap, at.Caption, 6);
+        Assert.Equal(at.Caption + Caption + (bar > 0 ? FamilySpace.S2 + bar : 0) + FamilySpace.S2, at.Controls, 6);
+        Assert.Equal(at.Controls + FamilyShape.Button, at.Height, 6);
+    }
 }

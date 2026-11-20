@@ -36,6 +36,9 @@ public readonly record struct PomodoroPlan(PomodoroLook Look, TypeStep Step, Typ
     public TypeStep StepIn(PomodoroArrangement arrangement) => arrangement == PomodoroArrangement.Wide ? WideStep : Step;
 }
 
+/// <summary>[S-14281] The block's parts as they stand: its height and each part's top in it, before the scale.</summary>
+public readonly record struct PomodoroStand(double Height, double Face, double Caption, double Bar, double Controls);
+
 /// <summary>
 /// [S-1466] [S-8117] The pomodoro's face (owner, 2026-11-20: "the pomodoro timer should be designed more fluently not all
 /// in just one column. especially the bar style."; "the size should not be settable, it is set by the size of the
@@ -130,6 +133,39 @@ public static class PomodoroFace
         var column = FamilyType.BodyLine + bar + under - LineInk.Of(FamilyType.Body).Over;
         var wide = new SizeDip(wideW + ColumnGap + Math.Max(caption, controls), Math.Max(wideInk, column));
         return new PomodoroPlan(look, step, wideStep, ring, tall, wide);
+    }
+
+    /// <summary>
+    /// [S-14281] Where the block's parts stand (WR-7, owner 2026-11-19: "Keep them together"; 2026-11-20: "the pomodoro
+    /// timer should be designed more fluently not all in just one column"), each part's top in the block and the block's
+    /// height, before the scale. Stacked: the face, the caption <paramref name="captionGap"/> under it, the bar 8 under
+    /// that (a <paramref name="bar"/> of 0: none), the controls 8 under the last, each right under the one before.
+    /// Side by side: the face's ink (<paramref name="faceInk"/> inside its box of <paramref name="face"/>) and the
+    /// column's (the caption's capitals, <paramref name="captionOver"/> under its line's top, to the controls' foot) are
+    /// one band as tall as the taller, the shorter centred on it; the column's parts right under one another, never
+    /// spread over the band. The block's box starts at the caption's line.
+    /// </summary>
+    public static PomodoroStand Stand(
+        PomodoroArrangement arrangement, double face, LineInk faceInk, double caption, double captionOver, double bar, double controls, double captionGap = 0)
+    {
+        var barPart = bar > 0 ? FamilySpace.S2 + bar : 0;
+        if (arrangement == PomodoroArrangement.Tall)
+        {
+            var under = face + captionGap;
+            var controlsTop = under + caption + barPart + FamilySpace.S2;
+            return new PomodoroStand(controlsTop + controls, 0, under, under + caption + FamilySpace.S2, controlsTop);
+        }
+
+        var faceSpan = Math.Max(0, face - faceInk.Over - faceInk.Under);
+        var columnSpan = caption + barPart + FamilySpace.S2 + controls - captionOver;
+        var band = Math.Max(faceSpan, columnSpan);
+        var top = (band - columnSpan) / 2;
+        return new PomodoroStand(
+            captionOver + band,
+            captionOver + ((band - faceSpan) / 2) - faceInk.Over,
+            top,
+            top + caption + FamilySpace.S2,
+            top + caption + barPart + FamilySpace.S2);
     }
 
     /// <summary>

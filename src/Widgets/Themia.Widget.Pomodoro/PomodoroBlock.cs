@@ -10,10 +10,11 @@ namespace Themia.App.Widgets;
 /// [S-8117] The pomodoro's one block (the part its <see cref="ReadingFit"/> scales as one, [S-12808]): the face (the
 /// time, or the ring with the time in it), the caption, the sectioned bar and the Controls row, stacked or side by side
 /// (<see cref="PomodoroArrangement"/>, chosen by its view from the card's aspect). Stacked: the face, the caption under
-/// it, the bar 8 under that, the controls on the foot, all centred, the bar the block's width. Side by side: the face on
-/// the left, centred on the height; 24 right of it a column as tall as the block, the caption on its top, the bar 8
-/// under it as wide as the column, the controls on its foot. What the block is given past its parts goes between them,
-/// never over the first ink or under the last (WR-1, WR-4): it says where its ink stands (<see cref="IInked"/>).
+/// it, the bar 8 under that, the controls 8 under the last, all centred, the bar the block's width. Side by side: the
+/// face on the left; 24 right of it a column of the caption, the bar 8 under it as wide as the column and the controls 8
+/// under that, the face's ink and the column's centred on one band. [S-14281] Its parts always touch, where they stand
+/// is <see cref="PomodoroFace.Stand"/> (WR-7): the block is its parts' size and its fit scales it, never a room spread
+/// between them; it says where its ink stands (<see cref="IInked"/>).
 /// </summary>
 internal sealed partial class PomodoroBlock : Panel, IInked
 {
@@ -81,9 +82,19 @@ internal sealed partial class PomodoroBlock : Panel, IInked
 
     public bool Grows => false;
 
-    private double BarPart => _bar.Visibility == Visibility.Visible ? FamilySpace.S2 + _bar.DesiredSize.Height : 0;
-
     private double CaptionGap => _ringFace ? FamilySpace.S2 : 0;
+
+    /// <summary>[S-14281] The parts as they stand in the block (<see cref="PomodoroFace.Stand"/>), from their measured sizes.</summary>
+    private PomodoroStand Stand()
+        => PomodoroFace.Stand(
+            _arrangement,
+            _face.DesiredSize.Height,
+            _faceInk,
+            _caption.DesiredSize.Height,
+            PartInk.Of(_caption).Over,
+            _bar.Visibility == Visibility.Visible ? _bar.DesiredSize.Height : 0,
+            _controls.DesiredSize.Height,
+            CaptionGap);
 
     protected override Size MeasureOverride(Size availableSize)
     {
@@ -95,49 +106,40 @@ internal sealed partial class PomodoroBlock : Panel, IInked
         }
 
         var (face, caption, controls) = (_face.DesiredSize, _caption.DesiredSize, _controls.DesiredSize);
-        var foot = FamilySpace.S2 + controls.Height;
+        var stand = Stand();
         if (_arrangement == PomodoroArrangement.Tall)
         {
             _ink = new LineInk(_faceInk.Over, 0);
-            return new Size(
-                Math.Max(face.Width, Math.Max(caption.Width, controls.Width)),
-                face.Height + CaptionGap + caption.Height + BarPart + foot);
+            return new Size(Math.Max(face.Width, Math.Max(caption.Width, controls.Width)), stand.Height);
         }
 
-        // Side by side the face's ink and the column's (the caption's capitals to the controls' foot) are one band, as
-        // tall as the taller; the block's box starts at the caption's line, so its first ink is the caption's capitals.
-        var over = PartInk.Of(_caption).Over;
-        var band = Math.Max(FaceSpan(face.Height), caption.Height + BarPart + foot - over);
-        _ink = new LineInk(over, 0);
-        return new Size(face.Width + PomodoroFace.ColumnGap + Math.Max(caption.Width, controls.Width), over + band);
+        // Side by side the block's box starts at the caption's line, so its first ink is the caption's capitals (or the
+        // face's, level with them).
+        _ink = new LineInk(PartInk.Of(_caption).Over, 0);
+        return new Size(face.Width + PomodoroFace.ColumnGap + Math.Max(caption.Width, controls.Width), stand.Height);
     }
-
-    /// <summary>The face's ink from its first to its last: a ring's whole box, a time's capitals to its baseline.</summary>
-    private double FaceSpan(double height) => Math.Max(0, height - _faceInk.Over - _faceInk.Under);
 
     protected override Size ArrangeOverride(Size finalSize)
     {
         var (face, caption, controls) = (_face.DesiredSize, _caption.DesiredSize, _controls.DesiredSize);
-        var (w, h) = (finalSize.Width, finalSize.Height);
+        var w = finalSize.Width;
         var bar = _bar.DesiredSize.Height;
+        var at = Stand();
         if (_arrangement == PomodoroArrangement.Tall)
         {
-            _face.Arrange(new Rect((w - face.Width) / 2, 0, face.Width, face.Height));
-            var y = face.Height + CaptionGap;
-            _caption.Arrange(new Rect(0, y, w, caption.Height));
-            _bar.Arrange(new Rect(0, y + caption.Height + FamilySpace.S2, w, bar));
-            _controls.Arrange(new Rect((w - controls.Width) / 2, h - controls.Height, controls.Width, controls.Height));
+            _face.Arrange(new Rect((w - face.Width) / 2, at.Face, face.Width, face.Height));
+            _caption.Arrange(new Rect(0, at.Caption, w, caption.Height));
+            _bar.Arrange(new Rect(0, at.Bar, w, bar));
+            _controls.Arrange(new Rect((w - controls.Width) / 2, at.Controls, controls.Width, controls.Height));
             return finalSize;
         }
 
-        // The face's ink centred on the band under the caption's line (a time's leading reaches past the box, empty).
-        var top = PartInk.Of(_caption).Over;
-        _face.Arrange(new Rect(0, top + ((h - top - FaceSpan(face.Height)) / 2) - _faceInk.Over, face.Width, face.Height));
+        _face.Arrange(new Rect(0, at.Face, face.Width, face.Height));
         var left = face.Width + PomodoroFace.ColumnGap;
         var width = Math.Max(0, w - left);
-        _caption.Arrange(new Rect(left, 0, width, caption.Height));
-        _bar.Arrange(new Rect(left, caption.Height + FamilySpace.S2, width, bar));
-        _controls.Arrange(new Rect(left, h - controls.Height, controls.Width, controls.Height));
+        _caption.Arrange(new Rect(left, at.Caption, width, caption.Height));
+        _bar.Arrange(new Rect(left, at.Bar, width, bar));
+        _controls.Arrange(new Rect(left, at.Controls, controls.Width, controls.Height));
         return finalSize;
     }
 }

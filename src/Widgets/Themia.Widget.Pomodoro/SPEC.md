@@ -88,8 +88,8 @@ from the tests that pinned them under those numbers, which are the root's geomet
   as tall as the column; the ring), 24 from a column of the caption on its top, the bar 8 under it as
   wide as the column and the Controls row on its foot; the face's ink (the time's capitals to its
   baseline, the ring's box) and the column's (the caption's capitals to the controls' foot) are one band,
-  the shorter centred on it, so the face is level with the caption and the controls. What the block is
-  given past its parts goes between them, never over its first ink or under its last (WR-1, WR-4).
+  the shorter centred on it, so the face is level with the caption and the controls. Its parts always
+  touch ([S-14281]): the block is its parts' size and its fit scales it ([S-14280]).
   **The card's aspect chooses** (`PomodoroFace.Choose`): side by side where the room is wider than
   the geometric mean of the two arrangements' aspects, stacked where not; the other where the chosen
   one would fall under the floor and the other less far. The parts keep their size whatever they read
@@ -99,6 +99,14 @@ from the tests that pinned them under those numbers, which are the root's geomet
   shorter than the least card); the least card is the stacked block at its floor in its inset, so every
   card the person can make holds one arrangement at a scale it is read at; the descriptor relaxes the
   most ([S-12411]). No Size setting: there is no `IReadoutSized` here. Tests `PomodoroFaceTests`.
+- **[S-14281]** **The column beside the face is one block** (owner, 2026-11-20: "the pomodoro timer should be designed
+  more fluently not all in just one column. especially the bar style."; docs/WIDGET-RULES.md WR-7: "Keep them
+  together"). Side by side, the caption, the bar 8 under it and the Controls row 8 under that stand right under one
+  another, the column centred on the band beside the face (a ring taller than it, or the time's capitals), never its
+  caption on the band's top and its controls on its foot with a band between; stacked, each part right under the one
+  before (`PomodoroFace.Stand`, `PomodoroStand`). The whole block is scaled as one to the card ([S-14280]). Before, at
+  330x140 on the Ring style, "Focus · 3 of 8" stood on the card's top and the controls on its foot beside the ring.
+  Tests `PomodoroFaceTests.S14281_`.
 - **[S-1466]** The face's words and controls: the time left (`M:SS`, never coloured), the caption
   ([S-8116]), "Next: …" its tooltip; Start (Pause while it runs) as the one main action, worded, and −,
   +, Reset and Skip as 28 icon buttons after it, always all of them. Skip loads the next phase in full,
