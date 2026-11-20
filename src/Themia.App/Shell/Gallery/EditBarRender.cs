@@ -193,7 +193,7 @@ internal static partial class EditBarRender
     {
         var clockKind = ModuleCatalog.Of(new WidgetId("clock"));
         var clock = new BarSelection(clockKind.Name, clockKind.Glyph);
-        var two = new BarSelection(Core.Shell.SelectionPage.Words(new QuickSetOffer(2, null, null, null, null, null) { CommonKind = new WidgetId("clock") }, id => ModuleCatalog.Of(id).Name)!, clock.Glyph);
+        var two = new BarSelection(Core.Shell.SelectionPage.Words(new QuickSetOffer(2, null, null, null) { CommonKind = new WidgetId("clock") }, id => ModuleCatalog.Of(id).Name)!, clock.Glyph);
         var mixed = new BarSelection(Str.Shell_Views_WidgetCount.Plural(3), Glyphs.Apps);
         var wide = ScreenWidth - (2 * ShellMetricsBarTop);
 
@@ -409,13 +409,13 @@ internal static partial class EditBarRender
     private static bool _countingErrors;
 
     /// <summary>One widget of a selection shot: its kind, where its card is, its name, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
+    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, bool Selected, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
 
     /// <summary>[S-2340]..[S-2343] The selection's page beside real cards, each case on the stand-in display.</summary>
     private static async Task SelectionShots(Grid screen, Ticker ticker, string outDir, string theme)
     {
-        PropsCard[] clock = [new(new WidgetId("clock"), 140, 160, 300, 200, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")];
-        PropsCard[] covered = [new(new WidgetId("clock"), 700, 140, 300, 200, true, "Zürich", "flip", "#2A3248", 1.0, "#FFFFFF")];
+        PropsCard[] clock = [new(new WidgetId("clock"), 140, 160, 300, 200, true, "flip", "#2A3248", 1.25, "#FFFFFF")];
+        PropsCard[] covered = [new(new WidgetId("clock"), 700, 140, 300, 200, true, "flip", "#2A3248", 1.0, "#FFFFFF")];
         PropsCard[] coveredGroup =
         [
             new(new WidgetId("clock"), 620, 200, 220, 160, true),
@@ -672,7 +672,6 @@ internal static partial class EditBarRender
         foreach (var spec in layout)
         {
             var model = WidgetInstance.Create(spec.Kind, new FracRect(0, 0, 0.1, 0.1));
-            model.Label = spec.Label;
             model.ItemBackground = spec.Items?.Clone() ?? (spec.ItemColor is { } items ? FillChoice.Of(items, 0.8) : new FillChoice());
             model.Background = spec.Background?.Clone() ?? new FillChoice();
             model.Scale = spec.Scale;

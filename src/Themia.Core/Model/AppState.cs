@@ -25,26 +25,23 @@ public sealed partial class WidgetInstance
 
     public double H { get; set; }
 
-    /// <summary>Optional user-set title shown in the widget header. Null means "use the catalogue label".</summary>
-    public string? Label { get; set; }
-
     /// <summary>
     /// [S-6562] This widget's own background ([S-6560]): Default follows the app-wide one
     /// (<see cref="DesignState.Background"/>), Transparent drops the card ([S-32]), a colour is that
-    /// colour at its opacity. Set on the properties panel ([S-6520]).
+    /// colour at its opacity. Set on the selection's page ([S-6520]).
     /// </summary>
     public FillChoice Background { get; set; } = new();
 
     /// <summary>
     /// [S-6590] This widget's own background image: a picture file's full path, or null (the default)
     /// for none, which is not written. It covers the card's body behind the content; <see cref="Background"/> then tints it
-    /// ([S-6592]). Set on the properties panel ([S-6593]).
+    /// ([S-6592]). Set on the selection's page ([S-6593]).
     /// </summary>
     public string? BackgroundImage { get; set; }
 
     /// <summary>
     /// [S-6512] This widget's own item background ([S-6560]): Default (the default) follows the
-    /// app-wide one (<see cref="DesignState.ItemBackground"/>). Set on the properties panel ([S-6520]).
+    /// app-wide one (<see cref="DesignState.ItemBackground"/>). Set on the selection's page ([S-6520]).
     /// </summary>
     public FillChoice ItemBackground { get; set; } = new();
 
@@ -66,7 +63,7 @@ public sealed partial class WidgetInstance
     /// <summary>
     /// [S-6580] Where this widget's content sits across its card, or null (the default) for where the
     /// kind draws it (<see cref="Themia.Core.Widgets.ContentAlignment.Default"/>), so a widget that was
-    /// never given one does not move. Set on the properties panel ([S-6584]); read through
+    /// never given one does not move. Set on the selection's page ([S-6584]); read through
     /// <see cref="Themia.Core.Widgets.ContentAlignment.Shown"/>.
     /// </summary>
     public ContentAlign? Align { get; set; }
@@ -115,7 +112,7 @@ public sealed partial class WidgetInstance
 
     /// <summary>
     /// [S-886] Take every stored property of <paramref name="source"/> but its id and its config: the widget's
-    /// whole arrangement (its place and size, its title and its own look). The one hand-written copy of a widget:
+    /// whole arrangement (its place and size and its own look). The one hand-written copy of a widget:
     /// <see cref="Clone"/>, the undo snapshot and its restore all go through it, and a guard test fails on a stored
     /// property it leaves out.
     /// </summary>
@@ -127,7 +124,6 @@ public sealed partial class WidgetInstance
         Y = source.Y;
         W = source.W;
         H = source.H;
-        Label = source.Label;
         Background = source.Background.Clone();
         BackgroundImage = source.BackgroundImage;
         ItemBackground = source.ItemBackground.Clone();
@@ -142,7 +138,6 @@ public sealed partial class WidgetInstance
         ArgumentNullException.ThrowIfNull(other);
 
         return X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
-            && string.Equals(Label, other.Label, StringComparison.Ordinal)
             && Background.SameAs(other.Background)
             && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
             && ItemBackground.SameAs(other.ItemBackground)

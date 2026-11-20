@@ -35,7 +35,6 @@ public static class ReadyMadeScene
             new WidgetId(w.Kind),
             new SceneRect(Origin + w.Box.X, Origin + w.Box.Y, w.Box.Width, w.Box.Height),
             State: states.TryGetValue(w.Kind, out var state) ? state : null,
-            Label: w.Label,
             Config: w.Fragment,
             Selected: edit)).ToList();
 

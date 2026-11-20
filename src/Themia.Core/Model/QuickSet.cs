@@ -4,7 +4,7 @@ using Themia.Sdk;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-3701] What the selected widget's properties strip ([S-3707]) offers for the selection on one
+/// [S-3701] What the selection's page ([S-2340]) offers for the selection on one
 /// display: how many widgets it acts on, their background (null where they differ), and for exactly one
 /// widget which one it is (its own lines are on the page).
 /// <see cref="None"/> hides the strip.
@@ -13,7 +13,6 @@ namespace Themia.Core.Model;
 /// <param name="Background">[S-6566] Their own background, or null when they differ.</param>
 /// <param name="TitleWidgetId">The one widget the page is about (its own lines); null with several.</param>
 /// <param name="TitleKind">That widget's kind.</param>
-/// <param name="Label">That widget's own name, null for the kind's.</param>
 /// <param name="StyleKind">[S-6007] The one kind whose style the Style choice sets: every selected widget is of it and it has styles. Null hides the choice.</param>
 /// <param name="Style">[S-6007] Their style, or null when they differ.</param>
 /// <param name="Items">[S-6521] The own item background the widgets with items share, or null when they differ.</param>
@@ -32,7 +31,6 @@ public sealed record QuickSetOffer(
     FillChoice? Background,
     string? TitleWidgetId,
     WidgetId? TitleKind,
-    string? Label,
     WidgetId? StyleKind = null,
     int? Style = null,
     FillChoice? Items = null,
@@ -47,7 +45,7 @@ public sealed record QuickSetOffer(
     WidgetId? CommonKind = null,
     bool CanScale = true)
 {
-    public static readonly QuickSetOffer None = new(0, null, null, null, null);
+    public static readonly QuickSetOffer None = new(0, null, null, null);
 
     /// <summary>[S-6007] The Style choice shows.</summary>
     public bool HasStyle => StyleKind is not null;
@@ -60,7 +58,7 @@ public sealed record QuickSetOffer(
 }
 
 /// <summary>
-/// [S-3701]..[S-3711] The rules behind the properties strip: which controls show for a
+/// [S-3701]..[S-3711] The rules behind the selection's page: which controls show for a
 /// selection, what a mixed selection reads as, what a typed title stores, and applying a choice to
 /// every selected widget. Pure; the host runs the writes through its one mutation path.
 /// </summary>
@@ -126,10 +124,10 @@ public static class QuickSet
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, background, only.Id, only.Kind, only.Label, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, kind, canScale);
+            return new QuickSetOffer(1, background, only.Id, only.Kind, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, kind, canScale);
         }
 
-        return new QuickSetOffer(widgets.Count, background, null, null, null, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, widgets.TrueForAll(w => w.Kind == kind) ? kind : null, canScale);
+        return new QuickSetOffer(widgets.Count, background, null, null, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, widgets.TrueForAll(w => w.Kind == kind) ? kind : null, canScale);
     }
 
     /// <summary>

@@ -926,8 +926,9 @@ actually touch each other, there is still a little space vertically which i dont
   card's inset (`FamilySpace.ContentTop` is the inset), so every kind that showed a header by default is
   24 shorter than it was. The schema changed in place: a widget has no `header`, the design no
   `headerBackgroundColor`/`headerOpacity`, the look tokens no `headerTone`/`headerCase`; `--design` and
-  `--widget-png` lost their header keys. Tests `CardContentTests.S12480_`, `SizeFitTests`,
-  `HeaderTests` (the module's).
+  `--widget-png` lost their header keys; a widget has no title of its own either (no `label`, nor in a scene or a
+  ready-made group): a file that still stores one loads with it dropped loudly (`AppStateStoreTests.S12480_`). Tests
+  `CardContentTests.S12480_`, `SizeFitTests`, `HeaderTests` (the module's).
 - **[S-12481]** **What a header carried besides a name moved into the widget's own content**, decided per
   kind and kept concise ([S-666]):
   - the sources' state, the problem glyph and the busy ring ([S-7042], [S-2661]): `KitStatus`, over the

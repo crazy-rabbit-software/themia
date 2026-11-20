@@ -156,7 +156,7 @@ public static class SceneParser
 
         if (scene.Edit is { Open: not null } && !scene.Selected.Any())
         {
-            throw Refuse(path, "\"edit.open\" opens a submenu of the properties menu, but no widget is selected");
+            throw Refuse(path, "\"edit.open\" opens a submenu of the selection's page, but no widget is selected");
         }
     }
 
@@ -417,7 +417,7 @@ public static class SceneParser
 
     /// <summary>
     /// [S-11860] A ready-made group in a scene: every widget of the recipe at its box from the entry's
-    /// point, with the recipe's config and label, named <c>id-kind</c> (a second of a kind
+    /// point, with the recipe's config, named <c>id-kind</c> (a second of a kind
     /// <c>id-kind-n</c>; the id is the entry's, else the recipe's), loose widgets as placing leaves them
     /// ([S-2475]); <c>selected</c> selects all of them. <c>states</c> gives a kind its preview state. So a
     /// picture of a group is the group the add page places, never a copy of its boxes.
@@ -481,7 +481,6 @@ public static class SceneParser
                 new WidgetId(part.Kind),
                 rect,
                 State: states.TryGetValue(part.Kind, out var chosen) ? chosen : null,
-                Label: part.Label,
                 Config: part.Fragment,
                 Selected: selected));
         }
@@ -492,7 +491,7 @@ public static class SceneParser
     private static SceneWidget Widget(JsonElement element, string path, SceneScreen screen)
     {
         var props = Properties(element, path,
-            "id", "kind", "at", "state", "style", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected");
+            "id", "kind", "at", "state", "style", "background", "items", "itemText", "scale", "align", "bare", "config", "selected");
 
         if (!props.TryGetValue("kind", out var kindElement))
         {
@@ -524,7 +523,6 @@ public static class SceneParser
             ItemText: props.TryGetValue("itemText", out var itemText) ? Colour(itemText, path + ".itemText") : null,
             Scale: props.TryGetValue("scale", out var scale) ? Scale(scale, path + ".scale") : null,
             Align: props.TryGetValue("align", out var align) ? Named<ContentAlign>(align, path + ".align") : null,
-            Label: props.TryGetValue("label", out var label) ? Text(label, path + ".label") : null,
             Bare: props.TryGetValue("bare", out var bare) && Bool(bare, path + ".bare"),
             Config: props.TryGetValue("config", out var config) ? Config(config, path + ".config") : null,
             Selected: props.TryGetValue("selected", out var selected) && Bool(selected, path + ".selected"));

@@ -20,7 +20,7 @@ public sealed class SceneParserTests
               "widgets": [
                 { "kind": "clock", "at": [40, 40, 480, 240], "state": "sample", "style": "flip",
                   "background": "transparent", "items": "#2A3248@60%", "itemText": "#ffffff",
-                  "scale": 1.5, "align": "center", "label": "Zürich", "bare": true,
+                  "scale": 1.5, "align": "center", "bare": true,
                   "config": { "showDate": false }, "selected": true },
                 { "kind": "weatherNow", "at": [520, 40, 300, 200] }
               ],
@@ -73,7 +73,6 @@ public sealed class SceneParserTests
         Assert.Equal("#FFFFFF", clock.ItemText);
         Assert.Equal(1.5, clock.Scale);
         Assert.Equal(ContentAlign.Center, clock.Align);
-        Assert.Equal("Zürich", clock.Label);
         Assert.True(clock.Bare);
         Assert.True(clock.Selected);
         Assert.Contains("showDate", clock.Config, StringComparison.Ordinal);

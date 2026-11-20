@@ -22,7 +22,7 @@ public readonly record struct ReadyMadeBox(double X, double Y, double Width, dou
 /// its box, and what differs from its kind's defaults: a config fragment in the state file's own shape
 /// (merged over the default, property by property) and a name.
 /// </summary>
-public sealed record ReadyMadeWidget(string Kind, ReadyMadeBox Box, string? Config = null, string? Label = null)
+public sealed record ReadyMadeWidget(string Kind, ReadyMadeBox Box, string? Config = null)
 {
     /// <summary>
     /// [S-12485] The group's Header widget ([S-9600]): its title, written in the language the group is
@@ -457,7 +457,6 @@ public static class ReadyMadeGroups
                 return null;
             }
 
-            widget.Label = part.Label ?? widget.Label;
             widgets.Add(widget);
         }
 

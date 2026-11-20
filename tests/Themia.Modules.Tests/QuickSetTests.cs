@@ -66,14 +66,12 @@ public sealed class QuickSetTests
     {
         var clock = Widget(new WidgetId("clock"), "a");
         clock.Background = FillChoice.Of("#202020", 0.6);
-        clock.Label = "Zürich";
         var (state, view, _) = State(clock);
 
         var offer = QuickSet.For(state, Selecting(view, "a"), view.Id);
 
         Assert.True(offer.HasTitle);
         Assert.Equal(new WidgetId("clock"), offer.TitleKind);
-        Assert.Equal("Zürich", offer.Label);
         Assert.True(FillChoice.Of("#202020", 0.6).SameAs(offer.Background));
     }
 

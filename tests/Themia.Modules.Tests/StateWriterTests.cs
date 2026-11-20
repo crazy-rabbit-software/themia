@@ -126,7 +126,7 @@ public sealed class StateWriterTests : IDisposable
         var writer = Writer(state, store);
 
         // A widget writes its last words into its config as its surface closes; no save is asked for.
-        state.Views[0].Widgets[1].Label = "written on detach";
+        state.Views[0].Widgets[1].ItemTextColor = "#123456";
 
         await writer.FlushAsync();
 

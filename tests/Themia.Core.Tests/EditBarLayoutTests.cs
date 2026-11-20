@@ -255,16 +255,16 @@ public sealed class EditBarLayoutTests
         static string Name(WidgetId kind) => kind == Clock ? "Clock" : "Other";
 
         Assert.Null(SelectionPage.Words(QuickSetOffer.None, Name));
-        Assert.Equal("Clock", SelectionPage.Words(new QuickSetOffer(1, null, "w", Clock, "Kitchen") { CommonKind = Clock }, Name));
-        Assert.Equal("2 × Clock", SelectionPage.Words(new QuickSetOffer(2, null, null, null, null) { CommonKind = Clock }, Name));
-        Assert.Equal("3 widgets", SelectionPage.Words(new QuickSetOffer(3, null, null, null, null), Name));
+        Assert.Equal("Clock", SelectionPage.Words(new QuickSetOffer(1, null, "w", Clock) { CommonKind = Clock }, Name));
+        Assert.Equal("2 × Clock", SelectionPage.Words(new QuickSetOffer(2, null, null, null) { CommonKind = Clock }, Name));
+        Assert.Equal("3 widgets", SelectionPage.Words(new QuickSetOffer(3, null, null, null), Name));
     }
 
     [Fact]
     public void S2342_the_selection_page_shows_what_the_selection_shares()
     {
-        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, null, "w", Clock, null), []);
-        var many = new SelectionModel(SelectionKind.Several, new QuickSetOffer(3, null, null, null, null), []);
+        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, null, "w", Clock), []);
+        var many = new SelectionModel(SelectionKind.Several, new QuickSetOffer(3, null, null, null), []);
 
         Assert.Equal([SelectionSection.Shows, SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: true, styleLines: false));
         Assert.Equal([SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: false, styleLines: false));
@@ -276,7 +276,7 @@ public sealed class EditBarLayoutTests
     public void S11755_several_widgets_page_is_what_they_share_and_their_look_never_a_widget_alone()
     {
         SharedRow[] place = [new(SharedSettings.Place, ["a", "b"], Mixed: false)];
-        var offer = new QuickSetOffer(2, null, null, null, null);
+        var offer = new QuickSetOffer(2, null, null, null);
         var several = new SelectionModel(SelectionKind.Several, offer, place);
         var bare = new SelectionModel(SelectionKind.Several, offer, []);
 
@@ -293,9 +293,9 @@ public sealed class EditBarLayoutTests
     public void S2345_the_selection_page_has_a_settings_tab_and_an_appearance_tab()
     {
         SharedRow[] place = [new(SharedSettings.Place, ["a", "b"], Mixed: false)];
-        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, null, "w", Clock, null), []);
-        var group = new SelectionModel(SelectionKind.Several, new QuickSetOffer(2, null, null, null, null), place);
-        var bare = new SelectionModel(SelectionKind.Several, new QuickSetOffer(2, null, null, null, null), []);
+        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, null, "w", Clock), []);
+        var group = new SelectionModel(SelectionKind.Several, new QuickSetOffer(2, null, null, null), place);
+        var bare = new SelectionModel(SelectionKind.Several, new QuickSetOffer(2, null, null, null), []);
 
         // One widget: what it shows on Settings, its look on Appearance.
         var tabs = SelectionPage.Tabs(SelectionPage.Sections(one, ownLines: true, styleLines: false));
@@ -316,7 +316,7 @@ public sealed class EditBarLayoutTests
     [Fact]
     public void S2341_the_entry_says_the_kind_or_how_many()
     {
-        var two = new SelectionModel(SelectionKind.Several, new QuickSetOffer(4, null, null, null, null), []);
+        var two = new SelectionModel(SelectionKind.Several, new QuickSetOffer(4, null, null, null), []);
         Assert.Equal(Glyphs.Apps, SelectionPage.Glyph(two));
         Assert.Null(SelectionPage.Words((SelectionModel?)null, _ => "?"));
     }

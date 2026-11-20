@@ -154,12 +154,12 @@ internal sealed partial class AppHost : IDesktopDesk
     private string? DeskKey(WidgetInstance widget)
         => DesktopPicks.KeyOf(widget, key => HostDesktopItems.Instance.Find(key) is not null, State.Preferences.LockWidgets);
 
-    /// <summary>The name type-to-find and a sort read of <paramref name="key"/>: the listing's, an own icon's as drawn, a card's title.</summary>
+    /// <summary>The name type-to-find and a sort read of <paramref name="key"/>: the listing's, an own icon's as drawn, a card's kind's.</summary>
     private string? DeskName(string key)
         => HostDesktopItems.Instance.Find(key)?.Name
             ?? (DeskPlace(key) is { } at
                 ? at.Widget.Config is IDesktopItemConfig { Item.Length: 0 } own ? own.OwnName
-                    : at.Widget.Config is not IDesktopItemConfig ? (string.IsNullOrWhiteSpace(at.Widget.Label) ? ModuleCatalog.Of(at.Widget.Kind).Name : at.Widget.Label)
+                    : at.Widget.Config is not IDesktopItemConfig ? ModuleCatalog.Of(at.Widget.Kind).Name
                     : null
                 : null);
 

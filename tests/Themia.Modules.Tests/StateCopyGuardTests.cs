@@ -65,7 +65,6 @@ public sealed class StateCopyGuardTests
     private static WidgetInstance VariedWidget()
     {
         var widget = WidgetInstance.Create(Clock, new FracRect(0.11, 0.12, 0.13, 0.14));
-        widget.Label = "Bedside";
         widget.Background = FillChoice.Of("#102030", 0.5);
         widget.BackgroundImage = @"C:\walls\lake.png";
         widget.ItemBackground = FillChoice.Of("#405060", 0.7);

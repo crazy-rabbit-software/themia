@@ -78,7 +78,6 @@ public static class SceneWidgets
         model.ItemTextColor = widget.ItemText ?? model.ItemTextColor;
         model.Scale = widget.Scale ?? model.Scale;
         model.Align = widget.Align ?? model.Align;
-        model.Label = widget.Label ?? model.Label;
         return model;
     }
 

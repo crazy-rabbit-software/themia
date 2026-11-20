@@ -75,12 +75,12 @@ public class WidgetTransferTests
 
         // Changed after the snapshot was taken: the live widget is what lands.
         ((ClockConfig)widget.Config).ShowSeconds = true;
-        widget.Label = "Bedside";
+        widget.ItemTextColor = "#123456";
         state.ApplyPlacement(plan, right.Id);
 
         var moved = right.Widgets[0];
         Assert.Equal(widget.Id, moved.Id);
-        Assert.Equal("Bedside", moved.Label);
+        Assert.Equal("#123456", moved.ItemTextColor);
         Assert.True(((ClockConfig)moved.Config).ShowSeconds);
     }
 

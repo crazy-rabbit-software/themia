@@ -545,7 +545,7 @@ internal static partial class DeskSelectCheck
                 // icon, Lock widgets on the icon alone; no file is in it; Ctrl+Z puts them back where they were, with their config.
                 bool Present(string name) => running.State.Views[0].Find(items[Index(name)].Widget.Id) is not null;
                 string Shape(string name) => running.State.Views[0].Find(items[Index(name)].Widget.Id) is { } w
-                    ? $"{w.Kind}@{w.Rect} '{w.Label}' {w.Config.GetType().Name}"
+                    ? $"{w.Kind}@{w.Rect} {w.Config.GetType().Name}"
                     : "gone";
                 foreach (var permanent in new[] { false, true })
                 {

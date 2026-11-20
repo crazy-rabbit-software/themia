@@ -83,14 +83,13 @@ public sealed record SceneWidget(
     string? ItemText = null,
     double? Scale = null,
     ContentAlign? Align = null,
-    string? Label = null,
     bool Bare = false,
     string? Config = null,
     bool Selected = false);
 
 /// <summary>
 /// [S-1077] Edit mode as a scene draws it: the edit bar (<see cref="Bar"/>), a submenu path opened
-/// in the selection's properties menu (<see cref="Open"/>), the add menu open under the bar
+/// in the selection's page (<see cref="Open"/>), the add menu open under the bar
 /// (<see cref="Add"/>), and always the grid, as the desktop's edit mode draws it ([S-06]).
 /// </summary>
 public sealed record SceneEdit(bool Bar = true, string? Open = null, bool Add = false);

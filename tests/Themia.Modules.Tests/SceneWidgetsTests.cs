@@ -28,7 +28,6 @@ public sealed class SceneWidgetsTests
             ItemText = "#FFFFFF",
             Scale = 1.5,
             Align = ContentAlign.Right,
-            Label = "Zürich",
         };
 
         var model = SceneWidgets.Build(widget, Screen, out var refusal);
@@ -47,7 +46,6 @@ public sealed class SceneWidgetsTests
         Assert.Equal("#FFFFFF", model.ItemTextColor);
         Assert.Equal(1.5, model.Scale);
         Assert.Equal(ContentAlign.Right, model.Align);
-        Assert.Equal("Zürich", model.Label);
         Assert.Equal(WidgetStyles.Find(new WidgetId("clock"), "flip")?.Value, WidgetStyles.Current(model.Config));
         Assert.Contains("\"showSeconds\": false", System.Text.Json.JsonSerializer.Serialize(model.Config, StateJson.WidgetConfig), StringComparison.Ordinal);
     }

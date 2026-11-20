@@ -121,13 +121,12 @@ internal static class SelectionRows
 
         var kind = offer.TitleKind ?? offer.CommonKind;
         var kindName = kind is { } named ? ModuleCatalog.Of(named).Name : null;
-        var name = offer is { HasTitle: true } && !string.IsNullOrWhiteSpace(offer.Label) ? offer.Label! : kindName ?? Str.Shell_Views_WidgetCount.Plural(offer.Count);
+        var name = kindName ?? Str.Shell_Views_WidgetCount.Plural(offer.Count);
 
-        // Under a title of its own the kind; under the kind's name what the kind is; under several of one kind how many,
-        // under several kinds which.
+        // Under the kind's name what the kind is; under several of one kind how many, under several kinds which.
         var caption = offer.Count != 1
             ? offer.CommonKind is not null ? SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) ?? string.Empty : string.Join(", ", kinds.Select(k => ModuleCatalog.Of(k).Name))
-            : name != kindName ? kindName ?? string.Empty : kind is { } described ? ModuleCatalog.Of(described).Describe() : string.Empty;
+            : kind is { } described ? ModuleCatalog.Of(described).Describe() : string.Empty;
         return new PageHeader(SelectionPage.Glyph(model), name, caption, tools);
     }
 

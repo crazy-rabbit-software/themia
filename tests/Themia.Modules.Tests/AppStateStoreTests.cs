@@ -92,7 +92,6 @@ public sealed class AppStateStoreTests : IDisposable
         var view = state.ActiveView();
         var widget = view.Widgets[0];
         widget.Rect = new FracRect(0.11, 0.22, 0.33, 0.44);
-        widget.Label = "Bedside";
         widget.Background = FillChoice.Transparent();
         ((ClockConfig)widget.Config).ShowSeconds = true;
         ((ClockConfig)widget.Config).OffsetMode = ClockOffsetMode.Utc;
@@ -109,7 +108,6 @@ public sealed class AppStateStoreTests : IDisposable
         Assert.Equal(LoadOutcome.Loaded, loaded.Outcome);
         var reloaded = loaded.State.ActiveView().Widgets[0];
         Assert.Equal(new FracRect(0.11, 0.22, 0.33, 0.44), reloaded.Rect);
-        Assert.Equal("Bedside", reloaded.Label);
         Assert.Equal(FillKind.Transparent, reloaded.Background.Kind);
         var config = Assert.IsType<ClockConfig>(reloaded.Config);
         Assert.True(config.ShowSeconds);
@@ -117,6 +115,25 @@ public sealed class AppStateStoreTests : IDisposable
         Assert.Equal(ClockHours.Twelve, loaded.State.Preferences.Region.Clock);
         Assert.Equal(60, loaded.State.Preferences.Refresh["weather"]);
         Assert.Equal(12, loaded.State.Design.CornerRadiusPx);
+    }
+
+    [Fact]
+    public void S12480_a_stored_widget_title_is_dropped_loudly_and_the_widget_loads()
+    {
+        // [S-12480] A widget has no title of its own (the Header widget is the title): a file that still stores one
+        // loads with the key dropped, said in the log (AppStateStore.DropUnknownKeys), and never writes it again.
+        var state = AppState.CreateDefault();
+        var widget = state.ActiveView().Widgets[0];
+        var json = System.Text.Json.Nodes.JsonNode.Parse(SettingsTransfer.Serialize(state))!;
+        var stored = json["views"]![0]!["widgets"]![0]!.AsObject();
+        stored["label"] = "Bedside";
+
+        var parsed = AppStateStore.Parse(json.ToJsonString());
+
+        Assert.Equal(ParseRefusal.None, parsed.Refusal);
+        Assert.Contains(parsed.Repairs, r => r.Contains($"widget '{widget.Id}'", StringComparison.Ordinal) && r.Contains("dropped the unknown key 'label'", StringComparison.Ordinal));
+        Assert.Equal(widget.Rect, parsed.State!.ActiveView().Widgets[0].Rect);
+        Assert.DoesNotContain("\"label\"", SettingsTransfer.Serialize(parsed.State), StringComparison.Ordinal);
     }
 
     [Fact]
