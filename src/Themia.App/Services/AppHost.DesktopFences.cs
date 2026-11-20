@@ -133,9 +133,13 @@ internal sealed partial class AppHost : IDesktopFences
     internal static IEnumerable<string> FenceIconsOf(ViewState view, string fenceId)
         => DesktopFences.Members(view).Where(m => string.Equals(m.Value.Fence.Widget.Id, fenceId, StringComparison.Ordinal)).Select(m => m.Key);
 
-    /// <summary>[S-13041] Whether a shell drag of the desktop's icons over <paramref name="widgetId"/> is the desktop's drop: a fence (it takes the icons by their cells).</summary>
-    internal bool FenceTakesDeskDrag(string widgetId)
-        => DesktopFences.Find(State, widgetId) is { } at && at.Fence.Fence.Source != FenceSource.Search;
+    /// <summary>
+    /// [S-13041] [S-13047] Whether a shell drag of the desktop's icons over <paramref name="widgetId"/> of <paramref name="view"/> is
+    /// the desktop's drop: a fence, or an icon a fence holds (<see cref="DesktopFences.FenceAt"/>: the fence takes the icons by its
+    /// cells, as the move does), unless it is a search's.
+    /// </summary>
+    internal static bool FenceTakesDeskDrag(ViewState view, string widgetId)
+        => DesktopFences.FenceAt(view, widgetId) is { } fence && fence.Fence.Source != FenceSource.Search;
 
     /// <summary>
     /// [S-13012] Roll a fence up to its title bar (its height kept to unroll to) or unroll it. Not an undo step: a look,

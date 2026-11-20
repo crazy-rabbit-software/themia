@@ -70,6 +70,9 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-13026] [S-13046] Whether the drag's picture shows on this surface now (a check's question).</summary>
     internal bool ShowsDragPicture => _dragImage is { Visibility: Visibility.Visible };
 
+    /// <summary>[S-13047] The picture shown under the pointer now, or null (a check's question: the same one throughout a move).</summary>
+    internal DragPicture? ShownDragPicture => ShowsDragPicture ? _dragImageOf : null;
+
     /// <summary>[S-13026] The drag left this surface or ended: its picture goes.</summary>
     private void HideDragPicture()
     {

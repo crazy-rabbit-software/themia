@@ -60,6 +60,22 @@ public static class DesktopFences
         return null;
     }
 
+    /// <summary>
+    /// [S-13041] [S-13047] The fence the widget <paramref name="widgetId"/> of <paramref name="view"/> stands for to the desktop's
+    /// own icons: that fence itself, or the fence that holds that icon (its cell); null for any other widget. A move or a drag of
+    /// the desktop's icons over either lands on the fence's cells, never in a fenced icon as a drop target.
+    /// </summary>
+    public static FenceOn? FenceAt(ViewState view, string widgetId)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        if (view.Find(widgetId) is { Config: IHoldsDesktopItems fence } widget)
+        {
+            return new FenceOn(widget, fence);
+        }
+
+        return Members(view).TryGetValue(widgetId, out var member) ? member.Fence : null;
+    }
+
     /// <summary>The fence widget <paramref name="fenceId"/> and its view, or null.</summary>
     public static (ViewState View, FenceOn Fence)? Find(AppState state, string fenceId)
     {

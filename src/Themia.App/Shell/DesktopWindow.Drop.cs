@@ -332,8 +332,9 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     {
         var point = ToContent(drag.ScreenX, drag.ScreenY);
         var (hit, card) = DropHitAt(point);
-        // [S-13041] Over a fence the desktop's own icons land by the one drop computation too: on its cells.
-        if (DesktopCommands.MovesIcons(_host.DeskDragRunning, EditMode, hit, card is not null && (_host.DeskDragHolds(card.Model.Id) || _host.FenceTakesDeskDrag(card.Model.Id))))
+        // [S-13041] Over a fence (its icons too, [S-13047]) the desktop's own icons land by the one drop computation: on its cells.
+        if (DesktopCommands.MovesIcons(_host.DeskDragRunning, EditMode, hit, card is not null
+            && (_host.DeskDragHolds(card.Model.Id) || Services.AppHost.FenceTakesDeskDrag(ViewForThisMonitor(_host.State), card.Model.Id))))
         {
             return (DropRoute.Desktop, null, point, true);
         }
@@ -351,19 +352,15 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     }
 
     /// <summary>
-    /// [S-5549] [S-5564] The picture a drag of the desktop's icons shows, as Explorer's: the held icon
-    /// (<paramref name="held"/>, its widget) in front, up to two more of the dragged icons of this
-    /// display (<paramref name="widgetIds"/>) stacked behind it, and for several the number of dragged
-    /// icons (<paramref name="count"/>) in a badge; no name, no highlight, nothing in its desktop place.
-    /// The pointer (a physical screen point) holds the front icon where it grabbed it. Composed at once
-    /// from the pictures the icons' views keep (<see cref="IDesktopIconView.DragIcon"/>), at this
-    /// display's scale: nothing is rendered here. Null when the held icon has no picture yet; the drag
-    /// then shows the pressed icon as it is drawn.
+    /// [S-5549] [S-5564] [S-13046] The picture a move of the desktop's icons shows under the pointer, as Explorer's drag: the
+    /// held icon (<paramref name="held"/>, its widget) in front, up to two more of the moving icons of this display
+    /// (<paramref name="widgetIds"/>) stacked behind it, and for several their number (<paramref name="count"/>) in a badge; no
+    /// name, no highlight, nothing in its desktop place. The pointer (<paramref name="pointer"/>, the root's DIPs: the move's
+    /// press) holds the front icon where it grabbed it. Composed at once from the pictures the icons' views keep
+    /// (<see cref="IDesktopIconView.DragIcon"/>), at this display's scale: nothing is rendered here. [S-13047] The shell's drag
+    /// the move becomes shows this same picture (<see cref="HandedMove"/>). Null when the held icon has no picture yet; the
+    /// drag then shows the pressed icon as it is drawn.
     /// </summary>
-    public DragPicture? DeskDragPicture(IReadOnlySet<string> widgetIds, string held, int count, int screenX, int screenY)
-        => DeskDragPicture(widgetIds, held, count, ToContent(screenX, screenY));
-
-    /// <summary>[S-13046] The same picture with the pointer at <paramref name="pointer"/>, in the root's DIPs (a move's press).</summary>
     internal DragPicture? DeskDragPicture(IReadOnlySet<string> widgetIds, string held, int count, Point pointer)
     {
         ArgumentNullException.ThrowIfNull(widgetIds);
@@ -484,15 +481,29 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     /// <summary>A physical screen point in the root's DIPs.</summary>
     private Point ToContent(int screenX, int screenY)
     {
-        var origin = default(Win32.Point);
+        var origin = ScreenOrigin();
+        var scale = RasterScale;
+        return new Point((screenX - origin.X) / scale, (screenY - origin.Y) / scale);
+    }
 
+    /// <summary>[S-13047] A point in the root's DIPs as a physical screen point: <see cref="ToContent"/> the other way.</summary>
+    private Win32.Point ToScreen(Point dip)
+    {
+        var origin = ScreenOrigin();
+        var scale = RasterScale;
+        return new Win32.Point { X = origin.X + (int)Math.Round(dip.X * scale), Y = origin.Y + (int)Math.Round(dip.Y * scale) };
+    }
+
+    /// <summary>Where the root's top left is on the screen, in physical pixels.</summary>
+    private Win32.Point ScreenOrigin()
+    {
+        var origin = default(Win32.Point);
         if (!Win32.ClientToScreen(_hwnd, ref origin))
         {
             origin = new Win32.Point { X = _monitor.Bounds.Left, Y = _monitor.Bounds.Top };
         }
 
-        var scale = RasterScale;
-        return new Point((screenX - origin.X) / scale, (screenY - origin.Y) / scale);
+        return origin;
     }
 
     /// <summary>The user's Desktop folder (wherever it is redirected), or null (logged) when Windows names none.</summary>

@@ -362,8 +362,10 @@ internal static partial class DeskSelectCheck
                 ExpectFrame("a press on empty desktop", []);
 
                 // [S-13046] A desktop icon's move: Explorer's picture of it under the pointer, the whole icon where it lands as
-                // its ghost, over every card (a fence included); whole again where it landed. Drawn mid-move.
-                async Task MoveAsync(string name, Func<WidgetCard, Point> to, string tag, Func<bool> landed)
+                // its ghost, over every card (a fence included); whole again where it landed. Drawn mid-move. [S-13047] Over a fence
+                // and the icons it holds it stays the move (never handed to the shell's drag, whose picture is another): the same
+                // picture under the pointer throughout.
+                async Task MoveAsync(string name, Func<WidgetCard, Point> to, string tag, Func<bool> landed, Func<WidgetCard, Point>? via = null)
                 {
                     host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
                     var held = surface.CardFor(items[Index(name)].Widget.Id)!;
@@ -371,27 +373,60 @@ internal static partial class DeskSelectCheck
                     var press = held.TransformToVisual(layer).TransformPoint(new Point(held.ActualWidth / 2, held.ActualHeight * 0.3));
                     var target = to(held);
                     var others = items.Where(i => i.Widget.Id != held.Model.Id).Select(i => surface.CardFor(i.Widget.Id)).OfType<WidgetCard>().ToList();
+                    bool Handed(Point at) => surface.DropTargetUnder(layer.TransformToVisual(surface.DebugRoot).TransformPoint(at), new HashSet<WidgetCard> { held });
                     surface.BeginMove(held, press);
+
+                    // A stop on the way (a fence's title bar): the picture there is the one shown where the move ends.
+                    var handed = false;
+                    Themia.Core.Files.DragPicture? first = null;
+                    if (via?.Invoke(held) is { } stop)
+                    {
+                        surface.PreviewMove(held, (stop.X - press.X) / metrics.Width, (stop.Y - press.Y) / metrics.Height);
+                        surface.FlushMove();
+                        first = surface.ShownDragPicture;
+                        handed = Handed(stop);
+                    }
+
                     surface.PreviewMove(held, (target.X - press.X) / metrics.Width, (target.Y - press.Y) / metrics.Height);
                     surface.FlushMove();
                     await Task.Delay(500).ConfigureAwait(true);
                     var ghost = Math.Abs(held.Opacity - Themia.Core.Widgets.SelectionLook.Landing) < 0.001;
                     var lifted = others.TrueForAll(o => Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(held) > Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(o));
                     var picture = surface.ShowsDragPicture;
+                    var same = via is null || (first is not null && ReferenceEquals(first, surface.ShownDragPicture));
+                    handed |= Handed(target);
                     await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-{tag}.png")).ConfigureAwait(true);
                     surface.CommitMove(held);
                     await Task.Delay(400).ConfigureAwait(true);
                     var after = surface.CardFor(items[Index(name)].Widget.Id);
                     var whole = after is { Opacity: 1 } && !surface.ShowsDragPicture;
-                    var ok = ghost && lifted && picture && whole && landed();
+                    var ok = ghost && lifted && picture && same && !handed && whole && landed();
                     failures += ok ? 0 : 1;
-                    Say($"{(ok ? "ok  " : "FAIL")} move {name} ({tag}): ghost where it lands {ghost}, over every card {lifted}, picture under the pointer {picture}, whole after {whole}, landed {landed()}");
+                    Say($"{(ok ? "ok  " : "FAIL")} move {name} ({tag}): ghost where it lands {ghost}, over every card {lifted}, picture under the pointer {picture}"
+                        + (via is null ? string.Empty : $", the same picture all the way {same}")
+                        + $", handed to the shell's drag {handed}, whole after {whole}, landed {landed()}");
                 }
+
+                // [S-11878] A free desktop item takes a move over it as a drop target (the shell's drag onto a folder or an app):
+                // what keeps the move over a fenced one is the fence ([S-13047]), not an icon that takes nothing.
+                WidgetCard Card(string name) => surface.CardFor(items[Index(name)].Widget.Id)!;
+                Point CentreOf(WidgetCard card) => card.TransformToVisual(surface.DebugRoot).TransformPoint(new Point(card.ActualWidth / 2, card.ActualHeight * 0.3));
+                var freeTakes = surface.DropTargetUnder(CentreOf(Card("twinU")), new HashSet<WidgetCard> { Card("iconA") });
+                failures += freeTakes ? 0 : 1;
+                Say($"{(freeTakes ? "ok  " : "FAIL")} a move over the free twinU is handed to the shell's drag: {freeTakes}");
 
                 var fenceCard = surface.CardFor(items[Index("fence")].Widget.Id)!;
                 var twinKey = KeyOf("twinP");
                 await MoveAsync("twinP", held => fenceCard.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(fenceCard.ActualWidth * 0.25, fenceCard.ActualHeight * 0.55)), "fence",
                     () => Themia.Core.Desktop.DesktopFences.Holding(running.State.Views[0], twinKey) is not null).ConfigureAwait(true);
+
+                // [S-13047] The regression: twinU moved onto twinP in the fence (an icon there that takes drops) was handed to the
+                // shell's drag halfway in, its picture swapped; now it lands on twinP's cell by the move, the picture the same.
+                var fenced = Card("twinP");
+                var twinUKey = KeyOf("twinU");
+                await MoveAsync("twinU", held => fenced.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(fenced.ActualWidth * 0.8, fenced.ActualHeight * 0.55)), "fence-icon",
+                    () => Themia.Core.Desktop.DesktopFences.Holding(running.State.Views[0], twinUKey) is not null,
+                    via: held => fenceCard.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(fenceCard.ActualWidth * 0.5, 12))).ConfigureAwait(true);
                 var before = Model(Index("iconA")).Rect;
                 await MoveAsync("iconA", held => new Point(metrics.Width * 0.79, metrics.Height * 0.16), "free", () => Model(Index("iconA")).Rect != before).ConfigureAwait(true);
 
@@ -479,6 +514,26 @@ internal static partial class DeskSelectCheck
                 Say($"{(menuOk ? "ok  " : "FAIL")} right-click notes: selected [{string.Join(",", held)}], the desktop's keys {keysNow} (an empty press: {emptyKeys}), Delete widget {hasDelete}"
                     + $", ends with the desktop's {deskLines.Count} lines {endsWithDesk}: [{string.Join(" | ", cardLines)}]");
                 host.ClearDeskSelection();
+
+                // [S-13047] A move that becomes the shell's drag (off the desktop, onto a free folder) hands it its picture and its
+                // press: the drag shows the very picture the move showed, heldIcon where the icon was grabbed, its cards back home.
+                {
+                    host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                    var heldIcon = Card("iconA");
+                    var layer = (UIElement)heldIcon.Parent;
+                    var press = heldIcon.TransformToVisual(layer).TransformPoint(new Point(heldIcon.ActualWidth / 2, heldIcon.ActualHeight * 0.3));
+                    var home = heldIcon.LiveRect;
+                    surface.BeginMove(heldIcon, press);
+                    surface.PreviewMove(heldIcon, -0.1, 0.1);
+                    surface.FlushMove();
+                    var showing = surface.ShownDragPicture;
+                    surface.CancelMove(heldIcon);
+                    var carried = showing is not null && surface.HandedMove is { } handedOver && ReferenceEquals(handedOver.Picture, showing);
+                    var back = heldIcon.LiveRect == home;
+                    var handOk = carried && back;
+                    failures += handOk ? 0 : 1;
+                    Say($"{(handOk ? "ok  " : "FAIL")} a move handed to the shell's drag: its picture carried {carried}, its cards back {back}");
+                }
             }
             else
             {

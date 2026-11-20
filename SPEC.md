@@ -11816,6 +11816,24 @@ module's `FenceTests`.
   (`<out>.move-fence.png`, `<out>.move-free.png`; `--icon-layout below|beside|icononly`) and checks the ghost, the lift,
   the picture and where the icon lands. Needs a live check: the real pointer dragging an icon over a fence and back, two
   displays.
+- **[S-13047]** **One picture under the pointer, into a fence and out** (the owner, 2026-11-20: "when moving an item
+  into a fence the preview in my mouse changes, this should still not be. same preview under my mouse"): the picture a
+  desktop icon's move shows under the pointer ([S-13046]) is the same from the press to the release: over the free
+  desktop, a fence's title bar and body and the icons it holds, and leaving it; the fence still shows where it lands. **A
+  fence and every icon it holds are never a drop target the move is handed to** (`DesktopDragOut.DropTarget` over
+  `DesktopFences.FenceAt`): a fence's icons are cards of their own drawn over it, and one that takes files (every desktop
+  item does: a folder, an app, a shortcut, [S-5587]) turned the move into the shell's drag ([S-11878]) as the pointer
+  reached it, so the move was given up halfway into the fence (its cards back home, its landing ghost gone) and Windows'
+  drag picture with its glyph and caption took over. Now a move over a fenced icon lands on its cell as anywhere in the
+  fence ([S-13041]), and a shell drag of the desktop's icons over one does too (`AppHost.FenceTakesDeskDrag`). **Where the
+  move does become the shell's drag** (off the desktop, onto a free folder or app) the drag shows the move's own picture
+  held at the move's own grab (`DesktopWindow.HandedMove`; `AppHost.DragPicture`, `BeginDrag`), and its icons land by that
+  grab ([S-5546]): before, the picture was composed again with the icons back home and the grab clamped to the icon's
+  corner, so it jumped under the pointer. Windows' own glyph and caption over a real drop target stay, as Explorer's.
+  Tests `FenceGridTests.S13047_`; `--desk-select-check` moves twinU onto twinP in the fence by way of the fence's title bar
+  (`<out>.move-fence-icon.png`: the same picture all the way, never handed over; a move over the free twinU is) and hands
+  a move to the shell's drag (its picture carried). Needs a live pass: the real pointer moving an icon across a full fence
+  and out again, and off the desktop onto an app's window.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

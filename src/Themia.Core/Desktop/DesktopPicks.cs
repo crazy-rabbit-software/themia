@@ -107,4 +107,16 @@ public static class DesktopDragOut
     /// <param name="overDropTarget">The pointer is over a widget on the desktop that takes a drop of files and is not moving itself.</param>
     public static bool Starts(bool heldIsIcon, bool carriesFiles, bool overDesktop, bool overDropTarget)
         => heldIsIcon && carriesFiles && (!overDesktop || overDropTarget);
+
+    /// <summary>
+    /// [S-11878] [S-13041] [S-13047] Whether the widget under the pointer is a drop target the move is handed to: one that
+    /// takes a drop of files (a folder icon, the Recycle Bin's, an app's shortcut), but never a fence nor an icon a fence holds
+    /// (owner, 2026-11-20: "when moving an item into a fence the preview in my mouse changes, this should still not be. same
+    /// preview under my mouse"). A fence's icons are its cells to the desktop's own icons: a move over them lands on their cell
+    /// by the move itself, the same picture under the pointer throughout. Before, each of them, a card of its own drawn over the
+    /// fence, took the move as a drop target when it took files, so the move became the shell's drag halfway into the fence.
+    /// </summary>
+    /// <param name="takesDrops">The widget takes a drop of files.</param>
+    /// <param name="fenced">It is a fence or an icon a fence holds (<see cref="DesktopFences.FenceAt"/>).</param>
+    public static bool DropTarget(bool takesDrops, bool fenced) => takesDrops && !fenced;
 }

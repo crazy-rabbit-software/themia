@@ -285,4 +285,37 @@ public sealed class FenceGridTests
         Assert.Equal(FenceGrid.TitleCells * odd.Pitch, oddTitle, 9);
         Assert.Equal((8 * odd.Pitch, 11 * odd.Pitch), (oddBox.Width, oddBox.Height));
     }
+
+    [Fact]
+    public void S13047_a_fence_and_the_icons_it_holds_never_take_a_move_of_the_desktops_icons_over_as_a_drop_target()
+    {
+        // A fence holding a folder and an app's shortcut (each takes a drop of files), a free folder beside it, and a card.
+        var (view, fence, _) = Fenced(40, 10, 3, 2, "folder", "app");
+        DesktopFences.Lay(view, Screen, Box);
+        var free = Icon("loose", new FracRect(0.1, 0.1, Box.W, Box.H));
+        var card = new WidgetInstance { Id = "card", Config = new OtherConfig(), Rect = new FracRect(0.5, 0.1, 0.1, 0.1) };
+        view.Widgets.Add(free);
+        view.Widgets.Add(card);
+
+        // The fence and every icon it holds stand for the fence; a free icon and a card for none.
+        Assert.Same(fence, DesktopFences.FenceAt(view, fence.Id)?.Widget);
+        Assert.Same(fence, DesktopFences.FenceAt(view, IconOf(view, "folder").Id)?.Widget);
+        Assert.Same(fence, DesktopFences.FenceAt(view, IconOf(view, "app").Id)?.Widget);
+        Assert.Null(DesktopFences.FenceAt(view, free.Id));
+        Assert.Null(DesktopFences.FenceAt(view, card.Id));
+
+        // The regression: an icon moved over a fenced folder became the shell's drag (another picture under the pointer)
+        // halfway into the fence. Now it stays the move there; over a free folder it is handed over as before.
+        bool HandsOver(string id) => DesktopDragOut.Starts(heldIsIcon: true, carriesFiles: true, overDesktop: true,
+            overDropTarget: DesktopDragOut.DropTarget(takesDrops: true, fenced: DesktopFences.FenceAt(view, id) is not null));
+        Assert.False(HandsOver(IconOf(view, "folder").Id));
+        Assert.False(HandsOver(IconOf(view, "app").Id));
+        Assert.False(HandsOver(fence.Id));
+        Assert.True(HandsOver(free.Id));
+        Assert.True(HandsOver(card.Id));
+
+        // Off the desktop it is the shell's drag wherever it went; a widget that takes no files is no target.
+        Assert.False(DesktopDragOut.DropTarget(takesDrops: false, fenced: false));
+        Assert.True(DesktopDragOut.Starts(heldIsIcon: true, carriesFiles: true, overDesktop: false, overDropTarget: false));
+    }
 }

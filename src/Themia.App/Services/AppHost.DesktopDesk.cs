@@ -959,7 +959,10 @@ internal sealed partial class AppHost : IDesktopDesk
             StringComparer.Ordinal);
         var drag = DesktopCommands.Drag(DeskIcons(keys));
         var offer = new ItemDragOffer(drag.Paths, DesktopCommands.DragEffects(drag));
-        _deskDrag = new DeskDragState(offer, new HashSet<string>(keys, DesktopItemKeys.Comparer), widgets, source, key, Win32.GetCursorPos(out var pointer) ? pointer : (Win32.Point?)null);
+
+        // [S-13047] Where the move it came from was pressed (its cards are back where they started): the icon held where it was grabbed.
+        var pressed = source?.HandedMove is { } handed ? handed.Press : Win32.GetCursorPos(out var pointer) ? pointer : (Win32.Point?)null;
+        _deskDrag = new DeskDragState(offer, new HashSet<string>(keys, DesktopItemKeys.Comparer), widgets, source, key, pressed);
         _dropTargetWidget = null;
         RepaintDesk();
         Log.Debug(Scope, $"{keys.Count} desktop icon(s) dragged ({offer.Paths.Count} file(s), {offer.Effects})");
@@ -967,19 +970,12 @@ internal sealed partial class AppHost : IDesktopDesk
     }
 
     /// <summary>
-    /// [S-5549] [S-5564] The ghost of the dragged icons (<see cref="DesktopWindow.DeskDragPicture"/>): the
-    /// held icon in front, the badge counting every icon in the drag, the pointer where the drag began.
+    /// [S-5549] [S-5564] [S-13047] The ghost of the dragged icons: the picture the move it came from showed under the pointer
+    /// (<see cref="DesktopWindow.HandedMove"/>, composed by <see cref="DesktopWindow.DeskDragPicture"/> as the move began), the
+    /// same bitmap held at the same grab, so the picture does not change as the move becomes the shell's drag. Null for none.
     /// </summary>
     public DragPicture? DragPicture(ItemDragOffer drag)
-    {
-        if (_deskDrag is not { } running || !ReferenceEquals(running.Offer, drag) || running.Source is not { } source || running.Pointer is not { } pointer
-            || DeskPlace(running.Held) is not { } held)
-        {
-            return null;
-        }
-
-        return source.DeskDragPicture(running.Widgets, held.Widget.Id, running.Keys.Count, pointer.X, pointer.Y);
-    }
+        => _deskDrag is { } running && ReferenceEquals(running.Offer, drag) ? running.Source?.HandedMove?.Picture : null;
 
     /// <summary>[S-5549] The drag is over, however it ended: its state goes and the icons are drawn at rest. A drag that was replaced meanwhile clears nothing.</summary>
     public void EndDrag(ItemDragOffer drag)

@@ -61,6 +61,14 @@ internal sealed partial class DesktopWindow
 
     private MoveSession? _move;
 
+    /// <summary>
+    /// [S-13047] The move that became the shell's drag ([S-11878]): where it was pressed (physical screen pixels) and the picture
+    /// it showed under the pointer. The drag shows that picture, held where the icon was grabbed, and lands the icons by that
+    /// grab, so nothing under the pointer changes as the move hands over (owner, 2026-11-20: "same preview under my mouse").
+    /// Null until a move hands over; a new move clears it.
+    /// </summary>
+    internal (Interop.Win32.Point Press, Themia.Core.Files.DragPicture? Picture)? HandedMove { get; private set; }
+
     private Rectangle? _lassoBand;
     private Point _lassoStart;
     private bool _lassoing;
@@ -164,6 +172,7 @@ internal sealed partial class DesktopWindow
         var apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card), skipFences: cell is not null) : null;
 
         // [S-13046] Held by a desktop icon: the picture of the moving icons under the pointer, held where the icon was grabbed.
+        HandedMove = null;
         var heldByIcon = card.View is IDesktopIconView;
         var pressAt = _widgetLayer.TransformToVisual(_root).TransformPoint(press);
         var icons = heldByIcon ? cards.Where(c => c.Card.View is IDesktopIconView).Select(c => c.Card.Model.Id).ToHashSet(StringComparer.Ordinal) : [];
@@ -398,8 +407,12 @@ internal sealed partial class DesktopWindow
             overDropTarget: DropTargetUnder(ToContent(at.X, at.Y), moving));
     }
 
-    /// <summary>[S-11878] A widget under <paramref name="point"/> that takes a drop of files, the moving cards looked through.</summary>
-    private bool DropTargetUnder(Point point, IReadOnlySet<WidgetCard> moving)
+    /// <summary>
+    /// [S-11878] A widget under <paramref name="point"/> that takes a drop of files, the moving cards looked through. [S-13041]
+    /// [S-13047] Never a fence nor an icon a fence holds (<see cref="Themia.Core.Desktop.DesktopDragOut.DropTarget"/>): the
+    /// desktop's own icons land on its cells by the move, the picture under the pointer the same.
+    /// </summary>
+    internal bool DropTargetUnder(Point point, IReadOnlySet<WidgetCard> moving)
     {
         foreach (var element in VisualTreeHelper.FindElementsInHostCoordinates(point, _root))
         {
@@ -412,9 +425,9 @@ internal sealed partial class DesktopWindow
                         break;
                     }
 
-                    // [S-13041] A fence is no drop target for the desktop's own icons: they land on its cells by the move.
-                    return card.View is IDesktopIconView icon ? icon.TakesDrops
-                        : card.Model.Config is not IHoldsDesktopItems && card.View is Themia.App.Widgets.IWidgetDropTarget;
+                    return Themia.Core.Desktop.DesktopDragOut.DropTarget(
+                        takesDrops: card.View is IDesktopIconView icon ? icon.TakesDrops : card.View is Themia.App.Widgets.IWidgetDropTarget,
+                        fenced: Themia.Core.Desktop.DesktopFences.FenceAt(ViewForThisMonitor(_host.State), card.Model.Id) is not null);
                 }
             }
         }
@@ -422,7 +435,10 @@ internal sealed partial class DesktopWindow
         return false;
     }
 
-    /// <summary>[S-11878] The move became the shell's drag: every moving card back where it started, nothing stored, nothing handed off.</summary>
+    /// <summary>
+    /// [S-11878] The move became the shell's drag: every moving card back where it started, nothing stored, nothing handed off.
+    /// [S-13047] Its press and its picture are kept for the drag (<see cref="HandedMove"/>).
+    /// </summary>
     public void CancelMove(WidgetCard card)
     {
         ArgumentNullException.ThrowIfNull(card);
@@ -432,6 +448,7 @@ internal sealed partial class DesktopWindow
         }
 
         _move = null;
+        HandedMove = (ToScreen(move.Press), move.Picture);
         CompositionTarget.Rendering -= OnMoveFrame;
         _host.EndHandOffPreview();
         ShowLocalGrid(null);
