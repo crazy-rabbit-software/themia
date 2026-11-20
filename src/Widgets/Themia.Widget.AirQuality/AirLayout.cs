@@ -22,6 +22,26 @@ public static class AirLayout
 
     public const double Widest = 320;
 
+    /// <summary>
+    /// [S-12833] The index's parts (<see cref="FaceParts"/>): the index its main reading, at 9 in its least card; its band
+    /// and its scale's unit give way on the way down; the gauge's half ring scales with its index.
+    /// </summary>
+    public static FaceParts Face(AirQualityConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Style != AirQualityStyle.Gauge)
+        {
+            return FaceParts.Readout(FamilyType.Big28, Worst, 200 - (2 * FamilySpace.Inset));
+        }
+
+        var unit = FamilyType.Unit(FamilyType.Big28).FontSize;
+        return new FaceParts(FamilyType.Big28.FontSize,
+        [
+            new FaceRow([FacePiece.Box(Diameter, ChartRules.GaugeHeight(Diameter)), new FacePiece(0, 0, unit)]),
+            new FaceRow([FacePiece.Text(FamilyType.Caption, Diameter, FamilyType.Caption.FontSize)]),
+        ]);
+    }
+
     /// <summary>[S-11131] The index's sizing.</summary>
     public static WidgetSizing Sizing(AirQualityConfig config)
     {

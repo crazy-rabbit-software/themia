@@ -32,7 +32,7 @@ public sealed class AirQualityModule : IWidgetModule
         Label = AirQualityStr.Online_Air_Label.Local(),
         Description = AirQualityStr.Online_Air_Desc.Local(),
         Glyph = Glyph,
-        Sizing = c => AirLayout.Sizing((AirQualityConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
+        Sizing = c => AirLayout.Sizing((AirQualityConfig)c).ScalesDownTo(AirLayout.Face((AirQualityConfig)c)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Weather, 0, 4),
     };

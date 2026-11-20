@@ -95,6 +95,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as WeatherNowConfig ?? new WeatherNowConfig();
+
+        // [S-12833] Its parts: in a smaller card the condition, the unit and the glyph give way, the temperature stays.
+        _fit.Face = WeatherNowStyles.Face(_config);
         _feed.Cadence(_config.TickInterval);
         _feed.Reload();
     }

@@ -33,7 +33,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
     private readonly ChartRing _dial = new(half: true);
     private readonly ReadoutBlock _gaugeReading = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom };
     private readonly TextBlock _gaugeBand = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly StackPanel _gauge;
+    private readonly Grid _gauge;
 
     /// <summary>[S-6734] Without a reading: why, in one row at the top.</summary>
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
@@ -60,14 +60,16 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
         _gaugeBand.TextAlignment = TextAlignment.Center;
         _gaugeBand.TextTrimming = TextTrimming.CharacterEllipsis;
         _gaugeBand.MaxWidth = AirLayout.Diameter;
-        var box = new Grid { Width = AirLayout.Diameter, Height = ChartRules.GaugeHeight(AirLayout.Diameter), Children = { _dial, _gaugeReading } };
-        _gauge = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = Family.SideInset with { Bottom = FamilySpace.Inset }, Children = { box, _gaugeBand } };
+        _gauge = new Grid { Width = AirLayout.Diameter, Height = ChartRules.GaugeHeight(AirLayout.Diameter), Children = { _dial, _gaugeReading } };
 
+        // [S-12833] The gauge is the fit's too: its half ring and its index scale as one, its band's words give way.
         _hero.Visibility = Visibility.Collapsed;
         _gauge.Visibility = Visibility.Collapsed;
+        _gaugeBand.Visibility = Visibility.Collapsed;
         _fit.Parts.Add(_hero);
+        _fit.Parts.Add(_gauge);
+        _fit.AddGivesWay(_gaugeBand, FamilyType.Caption.FontSize);
         Children.Add(_fit);
-        Children.Add(_gauge);
         Children.Add(_empty);
         _status.Place(this);
     }
@@ -86,6 +88,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as AirQualityConfig ?? new AirQualityConfig();
+        _fit.Face = AirLayout.Face(_config);
         _feed.Reload();
     }
 
@@ -109,6 +112,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
             // [S-12813] The index stays: "--", the reason its caption.
             _empty.Hide();
             _gauge.Visibility = Visibility.Collapsed;
+            _gaugeBand.Visibility = Visibility.Collapsed;
             OnlineParts.ShowDefault(_hero, _feed.Held is not null ? FetchStatus.Empty : _feed.Status);
             _status.Clear();
             return;
@@ -127,9 +131,11 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
         var gauge = _config.Style == AirQualityStyle.Gauge;
         _hero.Visibility = gauge ? Visibility.Collapsed : Visibility.Visible;
         _gauge.Visibility = gauge ? Visibility.Visible : Visibility.Collapsed;
+        _gaugeBand.Visibility = _gauge.Visibility;
         if (gauge)
         {
             _gauge.HorizontalAlignment = Aligned.Horizontal(_align);
+            _gaugeBand.HorizontalAlignment = Aligned.Horizontal(_align);
             _dial.Show(AirQualityRules.ScalePosition(scale, index));
             _dial.Role(AirQualityRules.ArcRole(tone));
             _gaugeReading.Show(value, unit, valueRole: role);

@@ -38,17 +38,37 @@ public static class WeatherNowStyles
         _ => ReadoutRules.Height(FamilyType.Big28, Worst),
     };
 
+    /// <summary>[S-11101] A style's natural width.</summary>
+    public static double NaturalWidth(WeatherNowStyle style) => style switch
+    {
+        WeatherNowStyle.LargeIcon => 200,
+        WeatherNowStyle.Minimal => 140,
+        _ => 180,
+    };
+
     /// <summary>[S-11101] The reading's sizing: one height (the inset, the content, the inset), 140..320 wide.</summary>
     public static WidgetSizing Sizing(WeatherNowConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         var height = FamilySpace.ContentTop + Content(config.Style) + FamilySpace.Inset;
-        var natural = config.Style switch
+        return WidgetSizing.Range(new(Narrowest, height), new(NaturalWidth(config.Style), height), new(Widest, height));
+    }
+
+    /// <summary>
+    /// [S-12833] The reading's parts (<see cref="FaceParts"/>): the temperature its main reading, at 9 in its least card;
+    /// the condition under it, its unit and its glyph give way on the way down (the large icon is larger than the reading
+    /// and stays).
+    /// </summary>
+    public static FaceParts Face(WeatherNowConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var room = NaturalWidth(config.Style) - (2 * FamilySpace.Inset);
+        return config.Style switch
         {
-            WeatherNowStyle.LargeIcon => 200,
-            WeatherNowStyle.Minimal => 140,
-            _ => 180,
+            WeatherNowStyle.Minimal => FaceParts.Readout(FamilyType.Big28, Bare),
+            WeatherNowStyle.LargeIcon => FaceParts.Readout(FamilyType.Big28, Beside, room - LargeGlyph - FamilySpace.GlyphGap)
+                .Led(FacePiece.Box(LargeGlyph + FamilySpace.GlyphGap, FamilyType.Big28.LineHeight)),
+            _ => FaceParts.Readout(FamilyType.Big28, Worst, room),
         };
-        return WidgetSizing.Range(new(Narrowest, height), new(natural, height), new(Widest, height));
     }
 }

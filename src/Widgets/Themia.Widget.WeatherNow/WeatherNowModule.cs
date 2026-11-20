@@ -32,7 +32,7 @@ public sealed class WeatherNowModule : IWidgetModule
         Label = WeatherNowStr.Widget_WeatherCurrent_Label.Local(),
         Description = WeatherNowStr.WidgetsA_Catalog_Weather_Description.Local(),
         Glyph = Glyphs.Weather,
-        Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
+        Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c).ScalesDownTo(WeatherNowStyles.Face((WeatherNowConfig)c)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
     };

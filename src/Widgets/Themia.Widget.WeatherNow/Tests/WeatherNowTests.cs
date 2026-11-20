@@ -30,13 +30,15 @@ public sealed class WeatherNowTests
         foreach (var style in Enum.GetValues<WeatherNowStyle>())
         {
             var sizing = Of(style);
-            // [S-12833] One height at its natural size; it scales down as one to its Caption's floor.
+            // [S-12833] One height at its natural size; it scales down as one to its temperature at 9, the rest giving way.
             Assert.True(sizing.Min.Height < sizing.Natural.Height && !sizing.FixedWidth, $"{style}");
 
             // Relaxed, [S-12411]: twice its natural on each axis, never under the content's 320; its least the lesser of
-            // 140 and its natural width scaled down ([S-12833]).
-            var scaled = Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(sizing.Natural.Width * ScaleFloor.Least(FamilyType.Caption.FontSize)));
+            // 140 and its parts' least box in the inset ([S-12833]).
+            var least = WeatherNowStyles.Face(new WeatherNowConfig { Style = style }).LeastBox();
+            var scaled = Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(least.Width + 24));
             Assert.Equal((Math.Min(140.0, scaled), Math.Max(320.0, SizeStretch.Ceiling)), (sizing.Min.Width, sizing.Max.Width));
+            Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(least.Height + 24)), sizing.Min.Height);
             Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
             Assert.Empty(sizing.Problems());
         }
