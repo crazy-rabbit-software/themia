@@ -13400,6 +13400,20 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 - **[S-2653]** A task change waits in the queue ([S-2610]) with its optimistic edit on screen; a
   restored queue is shown again on start. An added task keeps its temporary row (pinned at the
   bottom, [S-599]) until the provider confirms it.
+- **[S-2691]** One sync engine (`Themia.Core/Sync/SyncEngine.cs`, tested in `SyncEngineTests`) under every host sync:
+  a table of entries (`SyncEntries`: a `SyncEntry` each, its `SyncSchedule`, whether a widget reads it, whether the user
+  asked), a minute's tick on the shared ticker while it holds any, the due wanted entries run through the owner's fetch
+  (single-flight; a Refresh while one is out runs once more after it), the network back and the user's Refresh as above,
+  and one line in the log per change of an entry's state, never one per attempt. A run's outcome is the one vocabulary
+  (`SyncRun`: a `FetchStatus`, a line for the log, the provider's "not before"); a typed account failure is its outcome,
+  anything else is logged as a bug and backs off. The clock is handed in. Disposing the owner cancels every run in flight
+  (the token reaches the provider's request) and drops what it brings back; an entry let go mid-run (its account left)
+  is abandoned the same way. The owner maps what came back onto its entry; the engine never decides what an entry holds.
+- **[S-2692]** One drain of a write-back queue (`WriteDrain`, tested in `WriteDrainTests`) for mail and tasks: the
+  queue's rules as [S-2610] and [S-2611], one send at a time, head first, until it is empty or the head must wait; a
+  typed failure kept or taken back by `WriteQueue.Classify`, anything else kept and logged; the first attempt of a change
+  at the head answers whoever queued it ([S-2624]), one queued behind answers at once; an owner that cannot send (its
+  account needs signing in) sends nothing; the owner's cancellation stops it with its queue kept.
 - **Incremental sync.** Owning files: `Themia.Core/Sync/{DeltaSync,DeltaMerge}.cs`,
   `Core/Office/DavDelta.cs`, `Core/Mail/ImapDelta.cs`, `Services/Office/AccountOfficeSource.Delta.cs`,
   `AccountService.GetDeltaAsync`, `MailService.FetchGraphAsync`, `ImapMailClient.SyncAsync`,
