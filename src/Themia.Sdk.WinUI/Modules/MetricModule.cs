@@ -40,8 +40,8 @@ public abstract class MetricModule : IWidgetModule
         };
     }
 
-    /// <summary>The kind this module is.</summary>
-    protected MetricKind Kind { get; }
+    /// <summary>The kind this module is: its data (its glyph, its history, its names).</summary>
+    public MetricKind Kind { get; }
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; }

@@ -102,7 +102,7 @@ internal sealed partial class AirMetricView : MetricView
     private Func<DateTimeOffset> _clock = () => DateTimeOffset.Now;
 
     public AirMetricView(IWidgetHost host, AirFactKind fact)
-        : base(host, AirKinds.Of(fact.ToString()).Glyph, AirFactRules.History(fact))
+        : base(host, AirKinds.Of(fact.ToString()))
     {
         _fact = fact;
         _config = (AirMetricConfig)AirKinds.Of(fact.ToString()).Create();

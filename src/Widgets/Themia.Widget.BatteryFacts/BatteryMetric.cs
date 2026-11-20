@@ -24,7 +24,7 @@ public abstract class BatteryMetricModule(string key)
     internal static CardOpen? Opens => CardOpen.Settings("batterysaver");
 
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind.Glyph, Kind.History, () => Kind.Name.Text(), new BatteryMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, new BatteryMetricPart(Kind.Key));
 }
 
 /// <summary>[S-14660] What a battery fact card remembers: its trend; its fact is its kind's.</summary>

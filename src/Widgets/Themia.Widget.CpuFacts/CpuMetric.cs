@@ -24,7 +24,7 @@ public abstract class CpuMetricModule(string key)
     internal static CardOpen? Opens => CardOpen.TaskManager;
 
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind.Glyph, Kind.History, () => Kind.Name.Text(), new CpuMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, new CpuMetricPart(Kind.Key));
 }
 
 /// <summary>[S-14610] What a CPU fact card remembers: its trend; its fact is its kind's. It reads the hub's load, counts and processor feeds.</summary>

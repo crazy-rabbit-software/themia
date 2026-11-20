@@ -34,7 +34,7 @@ public abstract class NetworkMetricModule(string key)
     }
 
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind.Glyph, Kind.History, () => Kind.Name.Text(), new NetworkMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, new NetworkMetricPart(Kind.Key));
 }
 
 /// <summary>[S-14640] What a network fact card remembers: its trend; its fact is its kind's.</summary>

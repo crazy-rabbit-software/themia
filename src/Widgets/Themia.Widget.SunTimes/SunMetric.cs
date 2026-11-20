@@ -48,7 +48,7 @@ internal sealed partial class SunMetricView : MetricView
     private DateTimeOffset _now = DateTimeOffset.Now;
 
     public SunMetricView(IWidgetHost host, SunTimeKind time)
-        : base(host, SunKinds.Of(time.ToString()).Glyph, MetricHistory.None)
+        : base(host, SunKinds.Of(time.ToString()))
     {
         _time = time;
         _config = (SunMetricConfig)SunKinds.Of(time.ToString()).Create();

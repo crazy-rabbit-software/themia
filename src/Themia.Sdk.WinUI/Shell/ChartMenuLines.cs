@@ -1,4 +1,5 @@
 using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.Kit;
@@ -16,10 +17,22 @@ public static class ChartMenuLines
     public static void Add(WidgetMenuLines menu, IChartLooks looks)
     {
         ArgumentNullException.ThrowIfNull(menu);
+        menu.StyleLines.AddRange(Lines(menu, looks));
+    }
+
+    /// <summary>
+    /// The chart look's lines (Chart type where the kind offers two or more, Detail where it offers it), each the shared
+    /// setting's ([S-11750]), for a page that stands them where its kind draws its chart (a single metric's under its Trend
+    /// line, [S-14703]).
+    /// </summary>
+    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, IChartLooks looks)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(looks);
+        var lines = new List<ItemMenuEntry>();
         if (looks.ChartTypes.Count > 1)
         {
-            menu.StyleLines.Add(WidgetMenuLines.Shared(SharedSettings.ChartType, menu.Choice(Glyphs.ChartType, Str.Chart_Type.Text(),
+            lines.Add(WidgetMenuLines.Shared(SharedSettings.ChartType, menu.Choice(Glyphs.ChartType, Str.Chart_Type.Text(),
                 [.. looks.ChartTypes.Select(type => (type, Label(type)))],
                 ChartLooks.Effective(looks),
                 type => looks.Chart = type)));
@@ -27,11 +40,13 @@ public static class ChartMenuLines
 
         if (looks.OffersDetail)
         {
-            menu.StyleLines.Add(WidgetMenuLines.Shared(SharedSettings.ChartDetail, menu.Choice(Glyphs.Grid, Str.Chart_Detail.Text(),
+            lines.Add(WidgetMenuLines.Shared(SharedSettings.ChartDetail, menu.Choice(Glyphs.Grid, Str.Chart_Detail.Text(),
                 [(ChartDetail.Simple, Str.Chart_Detail_Simple.Text()), (ChartDetail.Detailed, Str.Chart_Detail_Detailed.Text())],
                 ChartLooks.EffectiveDetail(looks),
                 detail => looks.Detail = detail)));
         }
+
+        return lines;
     }
 
     /// <summary>A type's name on the page.</summary>

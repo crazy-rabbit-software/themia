@@ -65,24 +65,18 @@ public sealed partial class SystemMetricView : MetricView, ISystemMetricHost
 
     private readonly IWidgetHost _host;
     private readonly SystemMetricPart _part;
-    private readonly Func<string> _name;
     private WidgetConfig? _config;
     private bool _attached;
 
     /// <param name="host">The card's host: its hub.</param>
-    /// <param name="glyph">The kind's glyph.</param>
-    /// <param name="history">What history the kind's metric has.</param>
-    /// <param name="name">The metric's name in the current language.</param>
+    /// <param name="kind">The kind.</param>
     /// <param name="part">The family's part for the kind.</param>
-    public SystemMetricView(IWidgetHost host, string glyph, MetricHistory history, Func<string> name, SystemMetricPart part)
-        : base(host, glyph, history)
+    public SystemMetricView(IWidgetHost host, MetricKind kind, SystemMetricPart part)
+        : base(host, kind)
     {
         _host = host;
-        _name = name ?? throw new ArgumentNullException(nameof(name));
         _part = part ?? throw new ArgumentNullException(nameof(part));
     }
-
-    protected override string MetricName => _name();
 
     /// <inheritdoc />
     public override CardOpen? Opens => _config is { } config ? _part.Opens(config) : null;

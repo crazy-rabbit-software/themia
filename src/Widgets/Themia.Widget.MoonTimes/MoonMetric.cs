@@ -48,7 +48,7 @@ internal sealed partial class MoonMetricView : MetricView
     private DateTimeOffset _now = DateTimeOffset.Now;
 
     public MoonMetricView(IWidgetHost host, MoonTimeKind time)
-        : base(host, MoonKinds.Of(time.ToString()).Glyph, MetricHistory.None)
+        : base(host, MoonKinds.Of(time.ToString()))
     {
         _time = time;
         _config = (MoonMetricConfig)MoonKinds.Of(time.ToString()).Create();

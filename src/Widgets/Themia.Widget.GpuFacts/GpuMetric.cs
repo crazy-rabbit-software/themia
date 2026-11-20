@@ -40,7 +40,7 @@ public abstract class GpuMetricModule(string key)
     }
 
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind.Glyph, Kind.History, () => Kind.Name.Text(), new GpuMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, new GpuMetricPart(Kind.Key));
 }
 
 /// <summary>[S-14620] What a GPU fact card remembers: its adapter and its trend; its fact is its kind's.</summary>

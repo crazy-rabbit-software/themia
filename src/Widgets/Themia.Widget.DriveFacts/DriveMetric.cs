@@ -103,14 +103,12 @@ internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
     private DriveEntry? _previewDrive;
 
     public DriveMetricView(IWidgetHost host, MetricKind kind)
-        : base(host, kind.Glyph, kind.History)
+        : base(host, kind)
     {
         _host = host;
         _kind = kind;
         _config = (DriveMetricConfig)kind.Create();
     }
-
-    protected override string MetricName => _kind.Name.Text();
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 

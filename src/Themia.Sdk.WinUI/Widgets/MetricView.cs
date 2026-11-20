@@ -31,7 +31,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
 
     /// <summary>[S-12811] Its one row is the facts' row, the one component every fact row is (a list of one).</summary>
     private readonly FactList _row = new();
-    private readonly string _glyph;
+    private readonly MetricKind _kind;
     private readonly MetricReadings _readings = new();
     private FontIcon? _arrow;
     private SparkBand? _band;
@@ -40,25 +40,23 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private WidgetConfig? _config;
 
     /// <param name="host">The card's host: the status glyph's account link.</param>
-    /// <param name="glyph">The kind's glyph, leading the row.</param>
-    /// <param name="history">What history the kind's metric has: which trends it can draw.</param>
-    protected MetricView(IWidgetHost host, string glyph, MetricHistory history)
+    /// <param name="kind">The kind: its glyph leading the row, its history (which trends it can draw) and its name.</param>
+    protected MetricView(IWidgetHost host, MetricKind kind)
     {
-        History = history;
-        _glyph = glyph;
+        _kind = kind ?? throw new ArgumentNullException(nameof(kind));
         _status = new KitStatus(host);
         Children.Add(_row);
         _status.Place(this);
     }
 
     /// <summary>[S-14603] What history the kind's metric has.</summary>
-    protected MetricHistory History { get; }
+    protected MetricHistory History => _kind.History;
 
     /// <summary>[S-14603] The trend drawn now (the config's, as the kind can draw it).</summary>
     protected MetricTrend Trend => _trend;
 
-    /// <summary>The metric's name in the row, in the current language.</summary>
-    protected abstract string MetricName { get; }
+    /// <summary>The metric's name in the row, in the current language: the kind's row name unless the family says it otherwise.</summary>
+    protected virtual string MetricName => _kind.Name.Text();
 
     /// <inheritdoc />
     public virtual CardOpen? Opens => null;
@@ -137,7 +135,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     {
         var shown = _shown ?? new MetricShown(MetricValue.Unread);
         var value = shown.Value;
-        _row.Show([new FactLine(_glyph, shown.Name ?? MetricName, value.Text, value.Available)]);
+        _row.Show([new FactLine(_kind.Glyph, shown.Name ?? MetricName, value.Text, value.Available)]);
 
         // [S-14602] "--" says there is no reading; why is the row's tooltip (a status glyph would stand over the value).
         // A reading kept through a failed refresh stays, and the status's problem glyph says so, its room at the row's end.

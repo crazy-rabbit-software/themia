@@ -24,7 +24,7 @@ public abstract class MemoryMetricModule(string key)
     internal static CardOpen? Opens => CardOpen.TaskManager;
 
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind.Glyph, Kind.History, () => Kind.Name.Text(), new MemoryMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, new MemoryMetricPart(Kind.Key));
 }
 
 /// <summary>[S-14630] What a memory fact card remembers: its trend; its fact is its kind's.</summary>

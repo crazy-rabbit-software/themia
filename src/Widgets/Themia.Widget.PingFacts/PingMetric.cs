@@ -41,7 +41,7 @@ public abstract class PingMetricModule(string key)
     }
 
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind.Glyph, Kind.History, () => Kind.Name.Text(), new PingMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, new PingMetricPart(Kind.Key));
 }
 
 /// <summary>[S-2426] [S-14650] What a ping statistic card remembers: its host, its window and its trend; its statistic is its kind's.</summary>

@@ -29,7 +29,7 @@ internal sealed partial class WeatherFactView : MetricView
     private Func<DateTimeOffset> _clock = () => DateTimeOffset.Now;
 
     public WeatherFactView(IWidgetHost host, WeatherFactKind fact)
-        : base(host, WeatherFactKinds.Of(fact).Glyph, WeatherFactRules.History(fact))
+        : base(host, WeatherFactKinds.Of(fact))
     {
         _fact = fact;
         _config = (WeatherFactConfig)WeatherFactKinds.Of(fact).Create();
