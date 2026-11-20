@@ -14,8 +14,14 @@ namespace Themia.Modules.Generator;
 /// provider is a module project, or Core's for the host's own providers (THEMIAMOD005). Ids are
 /// checked here, so a malformed one (THEMIAMOD001), one declared twice (THEMIAMOD002), a type that
 /// is not a module (THEMIAMOD003) or a module project declaring another id than its name
-/// (THEMIAMOD004) fails the build instead of a start. A widget project marked a family
-/// (<c>[assembly: ThemiaWidgetFamily]</c>) declares several widgets of ids of their own.
+/// (THEMIAMOD004) fails the build instead of a start, and so does a declaration that cannot be read (THEMIAMOD006: it
+/// was skipped in silence). A widget project marked a family (<c>[assembly: ThemiaWidgetFamily]</c>) declares several
+/// widgets of ids of their own.
+/// <para>
+/// Incremental per reference: each referenced assembly's declarations are read into a value
+/// (<see cref="Declared"/>), so the registry is written again only when what some reference declares changed, not on
+/// every edit of the host.
+/// </para>
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed class ModuleRegistryGenerator : IIncrementalGenerator
@@ -28,6 +34,9 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
 
     /// <summary>The same rule as <c>Themia.Sdk.ModuleIds.IsValid</c> ([S-6900]).</summary>
     public const int MaxIdLength = 64;
+
+    /// <summary>The tracked step of what the references declare (the generator's tests see it cached across host edits).</summary>
+    public const string DeclaredStep = "Declared";
 
     private static readonly DiagnosticDescriptor BadId = new(
         "THEMIAMOD001", "Bad module id",
@@ -52,6 +61,11 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor InTheHost = new(
         "THEMIAMOD005", "The host declares a module",
         "{0} declares the module '{1}' itself; a module is its own project (src/Widgets/Themia.Widget.<Name>, src/Providers/Themia.Provider.<Name>) that the host references",
+        "Modules", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor Unreadable = new(
+        "THEMIAMOD006", "A module declaration that cannot be read",
+        "{0} declares a {1} the registry cannot read: it takes an id (a string) and a module type (typeof(...))",
         "Modules", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
     /// <summary>The assembly name prefix of a widget module project and of a provider module project.</summary>
@@ -81,7 +95,19 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
     {
         var ns = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
             options.GlobalOptions.TryGetValue("build_property.RootNamespace", out var value) && !string.IsNullOrEmpty(value) ? value : "Themia");
-        context.RegisterSourceOutput(context.CompilationProvider.Combine(ns), (spc, pair) => Emit(spc, pair.Left, pair.Right));
+
+        // What the host's compilation is: its name, whether the two contracts exist, what it declares itself.
+        var host = context.CompilationProvider.Select((compilation, _) => Host.Of(compilation));
+
+        // Per reference: what each referenced assembly declares, as a value.
+        var declared = context.MetadataReferencesProvider
+            .Combine(context.CompilationProvider)
+            .Select((pair, _) => pair.Right.GetAssemblyOrModuleSymbol(pair.Left) is IAssemblySymbol assembly ? Declared.Of(assembly) : null)
+            .Where(d => d is not null)
+            .Collect()
+            .WithTrackingName(DeclaredStep);
+
+        context.RegisterSourceOutput(declared.Combine(host).Combine(ns), (spc, all) => Emit(spc, all.Left.Left, all.Left.Right, all.Right));
     }
 
     public static bool IsValidId(string? id)
@@ -118,83 +144,200 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
         public string By { get; }
     }
 
-    private static void Emit(SourceProductionContext context, Compilation compilation, string ns)
+    /// <summary>One <c>[assembly: ThemiaWidget/ThemiaProvider]</c> as a value: the id and type (null: it cannot be read).</summary>
+    private sealed class Declaration : IEquatable<Declaration>
     {
-        var widgetContract = compilation.GetTypeByMetadataName(WidgetContract);
-        var providerContract = compilation.GetTypeByMetadataName(ProviderContract);
-        var widgets = new List<Found>();
-        var providers = new List<Found>();
-
-        foreach (var attribute in compilation.Assembly.GetAttributes())
+        public Declaration(bool widget, string? id, string? type, string? typeName, bool fits, Location where)
         {
-            var name = attribute.AttributeClass?.ToDisplayString();
-            if (name == WidgetAttribute || name == ProviderAttribute)
-            {
-                var location = attribute.ApplicationSyntaxReference is { } syntax
-                    ? Location.Create(syntax.SyntaxTree, syntax.Span)
-                    : Location.None;
-                var id = attribute.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0].Value as string : null;
-                context.ReportDiagnostic(Diagnostic.Create(InTheHost, location, compilation.AssemblyName, id ?? ""));
-            }
+            Widget = widget;
+            Id = id;
+            Type = type;
+            TypeName = typeName;
+            Fits = fits;
+            Where = where;
         }
 
-        foreach (var assembly in compilation.SourceModule.ReferencedAssemblySymbols.OrderBy(a => a.Name, StringComparer.Ordinal))
+        public bool Widget { get; }
+
+        public string? Id { get; }
+
+        public string? Type { get; }
+
+        public string? TypeName { get; }
+
+        public bool Fits { get; }
+
+        public Location Where { get; }
+
+        public bool Equals(Declaration? other)
+            => other is not null && Widget == other.Widget && Id == other.Id && Type == other.Type && Fits == other.Fits && Where.Equals(other.Where);
+
+        public override bool Equals(object? obj) => Equals(obj as Declaration);
+
+        public override int GetHashCode() => (Id ?? "").GetHashCode() ^ (Type ?? "").GetHashCode();
+    }
+
+    /// <summary>What one referenced assembly declares: its name, whether it is a family, its declarations in order.</summary>
+    private sealed class Declared : IEquatable<Declared>
+    {
+        private Declared(string assembly, bool family, Declaration[] declarations)
         {
-            // [S-6901] A family project's widgets are its kinds, each its own id; its name is the family's.
-            var family = assembly.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == FamilyAttribute);
+            Assembly = assembly;
+            Family = family;
+            Declarations = declarations;
+        }
+
+        public string Assembly { get; }
+
+        public bool Family { get; }
+
+        public Declaration[] Declarations { get; }
+
+        public static Declared? Of(IAssemblySymbol assembly)
+        {
+            var family = false;
+            var found = new List<Declaration>();
             foreach (var attribute in assembly.GetAttributes())
             {
                 var name = attribute.AttributeClass?.ToDisplayString();
-                var isWidget = name == WidgetAttribute;
-                if (!isWidget && name != ProviderAttribute)
+                family |= name == FamilyAttribute;
+                if (name != WidgetAttribute && name != ProviderAttribute)
                 {
                     continue;
                 }
 
-                var location = attribute.ApplicationSyntaxReference is { } syntax
-                    ? Location.Create(syntax.SyntaxTree, syntax.Span)
-                    : Location.None;
+                var where = attribute.ApplicationSyntaxReference is { } syntax ? Location.Create(syntax.SyntaxTree, syntax.Span) : Location.None;
+                var widget = name == WidgetAttribute;
                 if (attribute.ConstructorArguments.Length != 2
                     || attribute.ConstructorArguments[0].Value is not string id
                     || attribute.ConstructorArguments[1].Value is not INamedTypeSymbol type)
                 {
+                    found.Add(new Declaration(widget, null, null, null, false, where));
+                    continue;
+                }
+
+                found.Add(new Declaration(widget, id, "global::" + type.ToDisplayString(), type.ToDisplayString(), Fits(type, widget), where));
+            }
+
+            return found.Count == 0 && !family ? null : new Declared(assembly.Name, family, [.. found]);
+        }
+
+        private static bool Fits(INamedTypeSymbol type, bool widget)
+        {
+            var contract = widget ? WidgetContract : ProviderContract;
+            return type.TypeKind == TypeKind.Class
+                && !type.IsAbstract
+                && type.DeclaredAccessibility == Accessibility.Public
+                && type.AllInterfaces.Any(i => i.ToDisplayString() == contract)
+                && type.InstanceConstructors.Any(k => k.Parameters.Length == 0 && k.DeclaredAccessibility == Accessibility.Public);
+        }
+
+        public bool Equals(Declared? other)
+            => other is not null && Assembly == other.Assembly && Family == other.Family && Declarations.SequenceEqual(other.Declarations);
+
+        public override bool Equals(object? obj) => Equals(obj as Declared);
+
+        public override int GetHashCode() => Assembly.GetHashCode() ^ Declarations.Length;
+    }
+
+    /// <summary>The host's compilation as a value: its name, which contracts it has, and what it declares itself (THEMIAMOD005).</summary>
+    private sealed class Host : IEquatable<Host>
+    {
+        private Host(string name, bool widgets, bool providers, (string Id, Location Where)[] own)
+        {
+            Name = name;
+            Widgets = widgets;
+            Providers = providers;
+            Own = own;
+        }
+
+        public string Name { get; }
+
+        public bool Widgets { get; }
+
+        public bool Providers { get; }
+
+        public (string Id, Location Where)[] Own { get; }
+
+        public static Host Of(Compilation compilation)
+        {
+            var own = new List<(string, Location)>();
+            foreach (var attribute in compilation.Assembly.GetAttributes())
+            {
+                var name = attribute.AttributeClass?.ToDisplayString();
+                if (name == WidgetAttribute || name == ProviderAttribute)
+                {
+                    var where = attribute.ApplicationSyntaxReference is { } syntax ? Location.Create(syntax.SyntaxTree, syntax.Span) : Location.None;
+                    var id = attribute.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0].Value as string : null;
+                    own.Add((id ?? "", where));
+                }
+            }
+
+            return new Host(
+                compilation.AssemblyName ?? "",
+                compilation.GetTypeByMetadataName(WidgetContract) is not null,
+                compilation.GetTypeByMetadataName(ProviderContract) is not null,
+                [.. own]);
+        }
+
+        public bool Equals(Host? other)
+            => other is not null && Name == other.Name && Widgets == other.Widgets && Providers == other.Providers && Own.SequenceEqual(other.Own);
+
+        public override bool Equals(object? obj) => Equals(obj as Host);
+
+        public override int GetHashCode() => Name.GetHashCode();
+    }
+
+    private static void Emit(SourceProductionContext context, System.Collections.Immutable.ImmutableArray<Declared?> declared, Host host, string ns)
+    {
+        var widgets = new List<Found>();
+        var providers = new List<Found>();
+
+        foreach (var (id, where) in host.Own)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(InTheHost, where, host.Name, id));
+        }
+
+        foreach (var assembly in declared.OfType<Declared>().OrderBy(a => a.Assembly, StringComparer.Ordinal))
+        {
+            foreach (var d in assembly.Declarations)
+            {
+                var kind = d.Widget ? "widget" : "provider";
+                if (d.Id is not { } id || d.Type is not { } type)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Unreadable, d.Where, assembly.Assembly, kind));
                     continue;
                 }
 
                 if (!IsValidId(id))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(BadId, location, id, assembly.Name));
+                    context.ReportDiagnostic(Diagnostic.Create(BadId, d.Where, id, assembly.Assembly));
                     continue;
                 }
 
-                if (IdOfProject(assembly.Name) is { } named && (named.Widget != isWidget || (named.Id != id && !(family && named.Widget))))
+                // [S-6901] A family project's widgets are its kinds, each its own id; its name is the family's.
+                if (IdOfProject(assembly.Assembly) is { } named && (named.Widget != d.Widget || (named.Id != id && !(assembly.Family && named.Widget))))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(NotItsName, location,
-                        assembly.Name, isWidget ? "widget" : "provider", id, named.Widget ? "widget" : "provider", named.Id));
+                    context.ReportDiagnostic(Diagnostic.Create(NotItsName, d.Where,
+                        assembly.Assembly, kind, id, named.Widget ? "widget" : "provider", named.Id));
                     continue;
                 }
 
-                var contract = isWidget ? widgetContract : providerContract;
-                if (contract is null
-                    || type.TypeKind != TypeKind.Class
-                    || type.IsAbstract
-                    || type.DeclaredAccessibility != Accessibility.Public
-                    || !type.AllInterfaces.Contains(contract, SymbolEqualityComparer.Default)
-                    || !type.InstanceConstructors.Any(k => k.Parameters.Length == 0 && k.DeclaredAccessibility == Accessibility.Public))
+                if (!(d.Widget ? host.Widgets : host.Providers) || !d.Fits)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(WrongType, location, type.ToDisplayString(), id, isWidget ? WidgetContract : ProviderContract));
+                    context.ReportDiagnostic(Diagnostic.Create(WrongType, d.Where, d.TypeName, id, d.Widget ? WidgetContract : ProviderContract));
                     continue;
                 }
 
-                var list = isWidget ? widgets : providers;
+                var list = d.Widget ? widgets : providers;
                 var clash = list.FirstOrDefault(m => m.Id == id);
                 if (clash is not null)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Duplicate, location, id, clash.By, type.ToDisplayString()));
+                    context.ReportDiagnostic(Diagnostic.Create(Duplicate, d.Where, id, clash.By, d.TypeName));
                     continue;
                 }
 
-                list.Add(new Found(id, "global::" + type.ToDisplayString(), type.ToDisplayString()));
+                list.Add(new Found(id, type, d.TypeName!));
             }
         }
 
@@ -206,12 +349,12 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
         sb.AppendLine("/// <summary>Every module compiled into this build, in id order. Generated; never edited by hand.</summary>");
         sb.AppendLine("internal static class ModuleRegistry");
         sb.AppendLine("{");
-        if (widgetContract is not null)
+        if (host.Widgets)
         {
             Append(sb, "Widgets", "global::" + WidgetContract, widgets);
         }
 
-        if (providerContract is not null)
+        if (host.Providers)
         {
             Append(sb, "Providers", "global::" + ProviderContract, providers);
         }

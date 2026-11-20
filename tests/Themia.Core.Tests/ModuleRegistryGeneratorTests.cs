@@ -103,6 +103,44 @@ public sealed class ModuleRegistryGeneratorTests
             "modules are emitted in id order");
     }
 
+    [Fact]
+    public void S6901_a_declaration_that_cannot_be_read_is_THEMIAMOD006_never_skipped_in_silence()
+    {
+        var odd = Library("Themia.Widget.Odd", """
+            [assembly: Themia.Sdk.ThemiaWidget(null, typeof(Odd.OddModule))]
+            namespace Odd { public sealed class OddModule : Themia.Sdk.WinUI.IWidgetModule; }
+            """);
+
+        var result = Run("namespace App { }", odd);
+
+        Assert.Equal(["THEMIAMOD006"], result.Ids);
+        Assert.DoesNotContain("OddModule", result.Registry, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void S6901_an_edit_of_the_host_reads_no_reference_again()
+    {
+        var clock = Library("Themia.Widget.Clock", """
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(Clock.ClockModule))]
+            namespace Clock { public sealed class ClockModule : Themia.Sdk.WinUI.IWidgetModule; }
+            """);
+        var compilation = CSharpCompilation.Create(
+            "App",
+            [CSharpSyntaxTree.ParseText("namespace App { }")],
+            [.. Framework, Sdk, clock],
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(
+            [new ModuleRegistryGenerator().AsSourceGenerator()],
+            driverOptions: new GeneratorDriverOptions(IncrementalGeneratorOutputKind.None, trackIncrementalGeneratorSteps: true));
+        driver = driver.RunGenerators(compilation);
+
+        var edited = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText("namespace App { internal sealed class Edited; }"));
+        driver = driver.RunGenerators(edited);
+
+        var step = driver.GetRunResult().Results.Single().TrackedSteps[ModuleRegistryGenerator.DeclaredStep];
+        Assert.All(step.SelectMany(s => s.Outputs), o => Assert.True(o.Reason is IncrementalStepRunReason.Cached or IncrementalStepRunReason.Unchanged, o.Reason.ToString()));
+    }
+
     [Theory]
     [InlineData("Clock")]
     [InlineData("weather-now")]
