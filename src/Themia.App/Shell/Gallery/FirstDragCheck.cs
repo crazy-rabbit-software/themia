@@ -67,13 +67,15 @@ internal static partial class FirstDragCheck
 
     private static async Task RunAsync(Application app, string outPath, HashSet<string>? only, bool locked, bool probe)
     {
-        var lines = new List<string>();
         var failures = 0;
+        Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
+        File.Delete(outPath);
 
+        // Each line lands at once: a run cut short by its timeout still says how far it came.
         void Say(string line)
         {
             Console.WriteLine(line);
-            lines.Add(line);
+            File.AppendAllText(outPath, line + Environment.NewLine);
         }
 
         Log.AddSink(static record =>
@@ -101,6 +103,7 @@ internal static partial class FirstDragCheck
                 await using var desk = await Desk.StartAsync(kinds.Skip(start).Take(Batch).ToList(), locked).ConfigureAwait(true);
                 foreach (var (kind, card) in desk.Cards)
                 {
+                    Console.WriteLine($"  pressing {kind.Id.Value}");
                     var results = new List<string>();
                     var sign = 1;
                     foreach (var spot in Enum.GetValues<Spot>())
@@ -146,8 +149,6 @@ internal static partial class FirstDragCheck
         finally
         {
             Say(failures == 0 ? "first-drag-check: PASS" : $"first-drag-check: FAIL ({failures})");
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
             app.Exit();
         }
     }
@@ -265,10 +266,17 @@ internal static partial class FirstDragCheck
     {
         for (var at = source as DependencyObject; at is not null && !ReferenceEquals(at, card); at = VisualTreeHelper.GetParent(at))
         {
+            if (at is UIElement marked && PressParts.Marked(marked, out var part) && part == Themia.Core.Widgets.PressPart.Thumb)
+            {
+                return new(true, true, false, true, "a seek bar's thumb scrubs");
+            }
+
             switch (at)
             {
                 case Thumb:
                     return new(true, true, false, true, "a thumb drags itself");
+                case Themia.Sdk.WinUI.Kit.TrackSlider { IsEnabled: true }:
+                    return new(true, false, false, false, "the family slider's track waits for its release");
                 case ButtonBase { IsEnabled: true } button:
                     return new(true, false, button.IsTabStop, false, "a button takes the press");
                 case ToggleSwitch { IsEnabled: true }:
@@ -278,7 +286,7 @@ internal static partial class FirstDragCheck
                 case TextBox or RichEditBox or PasswordBox:
                     return new(true, true, true, false, "a text box takes the press and selects by the moves");
                 case MusicSeekBar { CanSeek: true }:
-                    return new(true, true, false, false, "the seek bar scrubs from the press");
+                    return new(true, false, false, false, "the seek bar's track waits for its release");
                 case FrameworkElement fe when fe.GetType().Name is "FenceView" or "FolderView":
                     return new(true, false, false, true, "its own band and drags");
                 case IWidgetButton when at is UIElement { IsHitTestVisible: true }:
@@ -318,8 +326,9 @@ internal static partial class FirstDragCheck
                     continue;
                 }
 
-                // A row is pressed where its press reaches an item: the row's band, or the row it stands in.
-                if (!Within(top, part) && !(spot == Spot.Row && ItemOf(top, card) is not null))
+                // A row is pressed where its press reaches an item: the row's band, or the row it stands in. A chart's ink
+                // is thin: a press over it lands on what is under its lines, which is the press on a chart.
+                if (!Within(top, part) && !(spot == Spot.Row && ItemOf(top, card) is not null) && spot != Spot.Chart)
                 {
                     continue;
                 }
@@ -390,7 +399,8 @@ internal static partial class FirstDragCheck
         Spot.Row => ItemMark.IsItem(part),
         Spot.Button => part is ButtonBase or ToggleSwitch || (part is IWidgetButton && part.IsHitTestVisible),
         Spot.Track => part is Slider or MusicSeekBar { CanSeek: true },
-        Spot.Thumb => part is Thumb && Ancestor<Slider>(part) is not null,
+        Spot.Thumb => (part is Thumb && Ancestor<Slider>(part) is not null)
+            || (PressParts.Marked(part, out var marked) && marked == Themia.Core.Widgets.PressPart.Thumb),
         Spot.Text => part is TextBox or RichEditBox or PasswordBox,
         Spot.Chart => IsChart(part),
         _ => false,
