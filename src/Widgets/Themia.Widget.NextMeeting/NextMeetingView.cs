@@ -65,6 +65,9 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
     private readonly StackPanel _text = new() { Spacing = NextMeetingJoin.LineGap, VerticalAlignment = VerticalAlignment.Center };
 
+    /// <summary>[S-14261] The lines, cut at the width the block gives them, keeping their least card's room beside the end column.</summary>
+    private readonly CutLine _cut;
+
     /// <summary>[S-5710] The end column: the countdown over Join, one unit (how long, then the action), end-aligned.</summary>
     private readonly StackPanel _end = new() { Spacing = NextMeetingJoin.Stack, HorizontalAlignment = HorizontalAlignment.Right };
 
@@ -119,6 +122,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _join.Loaded += OnJoinLoaded;
         _controls.HorizontalAlignment = HorizontalAlignment.Right;
 
+        _cut = new CutLine(_text);
+
         // [S-12833] In a smaller card the meeting's lines and the end column give way before its title.
         _text.Children.Add(_title);
         _text.Children.Add(_fit.GivesWayBox(_range.Row, FamilyType.Body.FontSize));
@@ -133,7 +138,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         SetColumn(end, 1);
 
         // [S-14261] The lines are cut with their ellipsis at the width the block gives them, never stopping its scale.
-        _content.Children.Add(new CutLine(_text) { Least = NextMeetingJoin.TextLeast });
+        _content.Children.Add(_cut);
         _content.Children.Add(end);
         _content.Background = Family.Brush(ColourRole.Clear);
         _content.PointerEntered += OnPointerEntered;
@@ -273,6 +278,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
         // [S-5710] The end column is as wide as the countdown's widest wording in its form, so it never moves.
         _end.MinWidth = NextMeetingJoin.EndWidth(CountdownWidth(NextMeetingJoin.Wordings(locale, item, now, zone)), hasJoin ? JoinWidth() : 0, hasJoin);
+        _cut.Least = NextMeetingJoin.TextLeast(_end.MinWidth);
         _end.VerticalAlignment = hasJoin ? VerticalAlignment.Center : VerticalAlignment.Top;
         _when.Margin = hasJoin ? new Thickness(0) : new Thickness(0, NextMeetingJoin.TitleLineOffset, 0, 0);
 
@@ -306,6 +312,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         SetShown(null);
         Paint(available: false);
         _end.MinWidth = 0;
+        _cut.Least = NextMeetingJoin.TextLeast(0);
         _end.VerticalAlignment = VerticalAlignment.Top;
         _when.Margin = new Thickness(0, NextMeetingJoin.TitleLineOffset, 0, 0);
         _when.Text = EmptyRows.Placeholder;

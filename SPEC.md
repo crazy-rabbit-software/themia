@@ -8171,9 +8171,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-14261]** **A text the block cuts never holds it small** (owner, 2026-11-19, WR-4: "they should stretch if they dont
   reach all the way"; WR-7). A line of a one-readout block that its kind cuts with its ellipsis (the next meeting's title
   and its lines, [S-11407]) stands in a `CutLine`: measured unbounded (as `ReadingFit` measures its parts, [S-12814]) it
-  asks for no more than its least (the room the lines have in the kind's least card, `NextMeetingJoin.TextLeast`, so a
-  block scaled up never squeezes them to nothing), laid out it is measured again at the width it is given and its text
-  is cut there. So the block scales to fill the card's height and the cut lines take what width is left; before, the
+  asks for no more than its least (the room the lines have in the kind's least card beside the end column as it stands,
+  `NextMeetingJoin.TextLeast`, so a block scaled up never squeezes them to nothing), laid out it is measured again at
+  the width it is given and its text is cut there. So the block scales to fill the card's height and the cut lines take what width is left; before, the
   next meeting's whole title held the block at 0.82 of its natural size in its natural card, leaving 39 under it
   (320x124). A card far taller than the block is wide still leaves the height the width does not let it fill (WR-7:
   "until its ink fills the height or the width stops it").

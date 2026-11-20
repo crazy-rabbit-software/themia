@@ -69,10 +69,13 @@ public sealed class NextMeetingJoinTests
     [Fact]
     public void S11407_the_lines_least_width_is_their_room_in_the_least_card()
     {
-        var least = NextMeetingJoin.TextLeast;
+        // Beside the countdown: the least card's content box less the column and the gap, so at scale 1 the block fits it.
+        var least = NextMeetingJoin.TextLeast(Countdown);
+        Assert.Equal(NextMeetingJoin.Widths.Min - 24 - Countdown - NextMeetingJoin.Gap, least);
+        Assert.Equal(NextMeetingJoin.Widths.Min - 24, least + NextMeetingJoin.Gap + Countdown);
 
-        Assert.Equal(NextMeetingJoin.Widths.Min - 24 - NextMeetingJoin.EndEstimate - NextMeetingJoin.Gap, least);
-        Assert.True(least > 0);
-        Assert.True(least + NextMeetingJoin.Gap + Countdown <= NextMeetingJoin.Widths.Min - 24);
+        // A wider column ("Now · ends 11:45 AM" over Join) leaves the lines less, never below nothing.
+        Assert.True(NextMeetingJoin.TextLeast(Countdown + 60) < least);
+        Assert.Equal(0, NextMeetingJoin.TextLeast(400));
     }
 }

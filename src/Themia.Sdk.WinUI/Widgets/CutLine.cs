@@ -19,7 +19,20 @@ public sealed partial class CutLine : Panel
     private double _width = double.NaN;
 
     /// <summary>The width the lines ask of their block at most, unscaled: what the block keeps for them however it scales.</summary>
-    public double Least { get; set; }
+    public double Least
+    {
+        get => _least;
+        set
+        {
+            if (!value.Equals(_least))
+            {
+                _least = value;
+                InvalidateMeasure();
+            }
+        }
+    }
+
+    private double _least;
 
     public CutLine(UIElement part)
     {
