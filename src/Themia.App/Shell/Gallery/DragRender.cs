@@ -108,7 +108,7 @@ internal static class DragRender
                         screen.Background = wall;
                         await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-move-{tag}-{wallName}.png"), several: false).ConfigureAwait(true);
                         await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-groupmove-{tag}-{wallName}.png"), several: true).ConfigureAwait(true);
-                        await LassoAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-lasso-{tag}-{wallName}.png")).ConfigureAwait(true);
+                        await LassoAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-lasso-{tag}-{wallName}.png")).ConfigureAwait(true);
                         await GroupAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-group-{tag}-{wallName}.png")).ConfigureAwait(true);
                         await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-{tag}-{wallName}.png")).ConfigureAwait(true);
                         foreach (var size in new[] { DesktopIconSize.Small, DesktopIconSize.Medium, DesktopIconSize.Large })
@@ -215,12 +215,12 @@ internal static class DragRender
 
         var clock = GridGeometry.Settle(new FracRect(0.42, 0.33, 0.3, 0.24), metrics);
         var moving = new List<WidgetCard> { new(host, WidgetInstance.Create(new WidgetId("clock"), clock)) };
-        Place(layer, moving[0], clock, metrics);
+        Place(layer, moving[0], clock, metrics, scale);
         if (several)
         {
             var date = GridGeometry.Settle(new FracRect(clock.Right, clock.Y, 0.14, clock.H), metrics);
             moving.Add(new WidgetCard(host, WidgetInstance.Create(new WidgetId("date"), date)));
-            Place(layer, moving[1], date, metrics);
+            Place(layer, moving[1], date, metrics, scale);
             selected.UnionWith(moving.Select(c => c.Model.Id));
         }
 
@@ -230,14 +230,14 @@ internal static class DragRender
         {
             var rect = GridGeometry.Settle(at, metrics);
             var card = new WidgetCard(host, WidgetInstance.Create(new WidgetId(kind), rect));
-            Place(layer, card, rect, metrics);
+            Place(layer, card, rect, metrics, scale);
             standing.Add(card);
         }
 
-        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.04, 0, 0), "app").ConfigureAwait(true);
+        await IconAsync(layer, host, metrics, scale, new FracRect(0.02, 0.04, 0, 0), "app").ConfigureAwait(true);
 
         // [S-11889] An icon just below where the clock lands: its corners fade in with the grid like a card's.
-        standing.Add(await IconAsync(layer, host, metrics, new FracRect(0.36, 0.6, 0, 0), "app").ConfigureAwait(true));
+        standing.Add(await IconAsync(layer, host, metrics, scale, new FracRect(0.36, 0.6, 0, 0), "app").ConfigureAwait(true));
 
         // The marks on their plates over every card, at the strengths the locked move gives them.
         var markers = new EditMarkerLayer();
@@ -250,7 +250,7 @@ internal static class DragRender
         }
 
         // [S-14310] Several moving: the frame's corners round them, none of their own.
-        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics)))], selected, editing: false, scale, [host]);
+        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics, scale)))], selected, editing: false, scale, [host]);
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 
@@ -261,7 +261,7 @@ internal static class DragRender
     }
 
     /// <summary>[S-11877] A mixed selection under the band: two icons selected (their look), a clock selected (its corners), one icon and one card not.</summary>
-    private static async Task LassoAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, string path)
+    private static async Task LassoAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, string path)
     {
         screen.Children.Clear();
         DesktopCell.Apply(DesktopIconSize.Medium);
@@ -272,12 +272,12 @@ internal static class DragRender
         var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
         screen.Children.Add(layer);
 
-        Place(layer, new WidgetCard(host, clock), clock.Rect, metrics);
-        Place(layer, new WidgetCard(host, other), other.Rect, metrics);
+        Place(layer, new WidgetCard(host, clock), clock.Rect, metrics, scale);
+        Place(layer, new WidgetCard(host, other), other.Rect, metrics, scale);
         // [S-11889] The selected icons in the desktop's one selection: their corners over their highlight.
-        selected.Add((await IconAsync(layer, host, metrics, new FracRect(0.02, 0.04, 0, 0), "selected").ConfigureAwait(true)).Model.Id);
-        selected.Add((await IconAsync(layer, host, metrics, new FracRect(0.02, 0.26, 0, 0), "ownSelected").ConfigureAwait(true)).Model.Id);
-        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.6, 0, 0), "app").ConfigureAwait(true);
+        selected.Add((await IconAsync(layer, host, metrics, scale, new FracRect(0.02, 0.04, 0, 0), "selected").ConfigureAwait(true)).Model.Id);
+        selected.Add((await IconAsync(layer, host, metrics, scale, new FracRect(0.02, 0.26, 0, 0), "ownSelected").ConfigureAwait(true)).Model.Id);
+        await IconAsync(layer, host, metrics, scale, new FracRect(0.02, 0.6, 0, 0), "app").ConfigureAwait(true);
 
         // The band from empty desktop over both icons into the clock.
         var band = new Border { Width = 0.3 * ScreenWidth, Height = 0.4 * ScreenHeight, IsHitTestVisible = false };
@@ -323,12 +323,12 @@ internal static class DragRender
 
         foreach (var widget in new[] { clock, date, countdown, other })
         {
-            Place(layer, new WidgetCard(host, widget), widget.Rect, metrics);
+            Place(layer, new WidgetCard(host, widget), widget.Rect, metrics, scale);
         }
 
-        selected.Add((await IconAsync(layer, host, metrics, new FracRect(0.02, 0.04, 0, 0), "selected").ConfigureAwait(true)).Model.Id);
-        selected.Add((await IconAsync(layer, host, metrics, new FracRect(0.02, 0.26, 0, 0), "ownSelected").ConfigureAwait(true)).Model.Id);
-        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.6, 0, 0), "app").ConfigureAwait(true);
+        selected.Add((await IconAsync(layer, host, metrics, scale, new FracRect(0.02, 0.04, 0, 0), "selected").ConfigureAwait(true)).Model.Id);
+        selected.Add((await IconAsync(layer, host, metrics, scale, new FracRect(0.02, 0.26, 0, 0), "ownSelected").ConfigureAwait(true)).Model.Id);
+        await IconAsync(layer, host, metrics, scale, new FracRect(0.02, 0.6, 0, 0), "app").ConfigureAwait(true);
 
         // The cards' marks on their plates, over every card, and the frame's corners with them, as the surface draws them.
         var markers = new EditMarkerLayer();
@@ -338,7 +338,7 @@ internal static class DragRender
             markers.Add(card);
         }
 
-        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics)))], selected, editing: false, scale, [host]);
+        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics, scale)))], selected, editing: false, scale, [host]);
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 
@@ -430,7 +430,7 @@ internal static class DragRender
         foreach (var widget in DesktopFences.PaintOrder(view).Where(w => !hidden.Contains(w.Id)))
         {
             var card = new WidgetCard(host, widget);
-            Place(layer, card, widget.Rect, metrics);
+            Place(layer, card, widget.Rect, metrics, scale);
             if (states.TryGetValue(widget.Id, out var state) && card.View is IWidgetPreviewState preview)
             {
                 await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
@@ -464,7 +464,7 @@ internal static class DragRender
         screen.Children.Add(layer);
 
         var clockRect = GridGeometry.Settle(new FracRect(0.25, 0.0, 0.3, 0.24), metrics);
-        Place(layer, new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), clockRect)), clockRect, metrics);
+        Place(layer, new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), clockRect)), clockRect, metrics, scale);
 
         var box = DesktopGrid.IconSize(DesktopCell.Grid(size), metrics);
         var packed = DesktopGrid.Pack([.. Enumerable.Range(0, 12).Select(i => new FracRect(i * 0.001, 0.9, box.W, box.H))], [clockRect], box, metrics);
@@ -473,7 +473,7 @@ internal static class DragRender
         {
             if (packed[i] is { } at)
             {
-                await IconAsync(layer, host, metrics, at, states[i]).ConfigureAwait(true);
+                await IconAsync(layer, host, metrics, scale, at, states[i]).ConfigureAwait(true);
             }
         }
 
@@ -487,14 +487,14 @@ internal static class DragRender
     }
 
     /// <summary>One desktop icon at <paramref name="at"/>'s corner, in its box on the grid, in a preview state.</summary>
-    private static async Task<WidgetCard> IconAsync(Canvas layer, IWidgetCardHost host, ScreenMetrics metrics, FracRect at, string state)
+    private static async Task<WidgetCard> IconAsync(Canvas layer, IWidgetCardHost host, ScreenMetrics metrics, double scale, FracRect at, string state)
     {
         var kind = ModuleCatalog.Widgets.First(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
         var (w, h) = DesktopGrid.IconSize(DesktopCell.Grid(DesktopCell.Current), metrics);
         var rect = GridGeometry.Settle(new FracRect(at.X, at.Y, w, h), metrics);
         rect = rect with { W = w, H = h };
         var card = new WidgetCard(host, WidgetInstance.Create(kind.Id, rect));
-        Place(layer, card, rect, metrics);
+        Place(layer, card, rect, metrics, scale);
         if (card.View is IWidgetPreviewState preview)
         {
             await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
@@ -503,9 +503,9 @@ internal static class DragRender
         return card;
     }
 
-    private static void Place(Canvas layer, WidgetCard card, FracRect rect, ScreenMetrics metrics)
+    private static void Place(Canvas layer, WidgetCard card, FracRect rect, ScreenMetrics metrics, double scale)
     {
-        var cell = GridGeometry.ToPixels(rect, metrics);
+        var cell = GridGeometry.ToPixels(rect, metrics, scale);
         card.Width = cell.Width;
         card.Height = cell.Height;
         card.SetLiveRect(rect);

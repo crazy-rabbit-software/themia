@@ -84,11 +84,11 @@ public class WorkAreaGeometryTests
         // Rendering resolves against the whole monitor: the same fraction is the same pixels however
         // big the taskbar is, auto-hidden or on any edge.
         var widget = new FracRect(0.25, 0.9, 0.2, 0.08);
-        var expected = GridGeometry.ToPixels(widget, WithTaskbar(Monitor, rasterScale));
+        var expected = GridGeometry.ToPixels(widget, WithTaskbar(Monitor, rasterScale), rasterScale);
 
         foreach (var work in new[] { BottomTaskbar, TopTaskbar, LeftTaskbar, RightTaskbar, new PixelRect(0, 0, 1920, 900) })
         {
-            Assert.Equal(expected, GridGeometry.ToPixels(widget, WithTaskbar(work, rasterScale)));
+            Assert.Equal(expected, GridGeometry.ToPixels(widget, WithTaskbar(work, rasterScale), rasterScale));
         }
     }
 

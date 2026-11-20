@@ -120,8 +120,8 @@ public class GridGeometryTests
         var small = new ScreenMetrics(1280, 720);
         var large = new ScreenMetrics(3840, 2160);
 
-        var onSmall = GridGeometry.ToPixels(rect, small);
-        var onLarge = GridGeometry.ToPixels(rect, large);
+        var onSmall = GridGeometry.ToPixels(rect, small, 1);
+        var onLarge = GridGeometry.ToPixels(rect, large, 1);
 
         Assert.Equal(onLarge.Width / onSmall.Width, large.Width / small.Width, 3);
         Assert.Equal(onLarge.X / onSmall.X, large.Width / small.Width, 3);
@@ -146,8 +146,8 @@ public class GridGeometryTests
         var left = new FracRect(0.0, 0.0, 0.5, 1.0);
         var right = new FracRect(0.5, 0.0, 0.5, 1.0);
 
-        var l = GridGeometry.ToPixels(left, Screen);
-        var r = GridGeometry.ToPixels(right, Screen);
+        var l = GridGeometry.ToPixels(left, Screen, 1);
+        var r = GridGeometry.ToPixels(right, Screen, 1);
 
         Assert.Equal(l.X + l.Width, r.X, 9);
     }
@@ -177,7 +177,6 @@ public class GridGeometryTests
 
         Assert.Equal(a.Y + a.Height, b.Y);
         Assert.Equal(b.Y + b.Height, c.Y);
-        Assert.Equal(GridGeometry.ToPixels(upper, screen), GridGeometry.ToPixels(upper, screen, 1));
     }
 
     [Fact]

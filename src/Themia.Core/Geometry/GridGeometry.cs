@@ -565,7 +565,7 @@ public static class GridGeometry
     /// same whole DIP, so a side two cards share is the same device pixel in both.
     /// </para>
     /// </summary>
-    public static PixelRect ToPixels(FracRect r, ScreenMetrics screen, double rasterScale = 1)
+    public static PixelRect ToPixels(FracRect r, ScreenMetrics screen, double rasterScale)
     {
         var scale = double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1;
         double Edge(double dip) => DevicePixel(WholeDip(dip), scale);

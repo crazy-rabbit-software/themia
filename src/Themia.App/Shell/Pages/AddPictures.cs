@@ -285,7 +285,7 @@ internal sealed class AddPictures : IDisposable
             {
                 var model = models[i];
                 var shown = boxes[i];
-                var cell = Core.Geometry.GridGeometry.ToPixels(shown, metrics);
+                var cell = Core.Geometry.GridGeometry.ToPixels(shown, metrics, 1);
                 var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
                 card.SetLiveRect(shown);
                 card.ApplyEditMode(false);

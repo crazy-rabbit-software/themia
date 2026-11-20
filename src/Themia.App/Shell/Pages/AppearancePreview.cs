@@ -135,7 +135,7 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
             try
             {
                 var rect = new FracRect((left + box.X) / (double)cols, (top + box.Y) / (double)rows, box.Width / (double)cols, box.Height / (double)rows);
-                var cell = GridGeometry.ToPixels(rect, _metrics);
+                var cell = GridGeometry.ToPixels(rect, _metrics, 1);
                 var model = WidgetInstance.Create(tile.Id, rect);
 
                 var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };

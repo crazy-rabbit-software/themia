@@ -318,7 +318,7 @@ public sealed class ReadyMadeGroupsTests
             ],
         };
 
-        var laid = ReadyMadeGroups.Laid(recipe, Screen, new PlacementSizes(1)).Select(r => GridGeometry.ToPixels(r, Screen)).ToList();
+        var laid = ReadyMadeGroups.Laid(recipe, Screen, new PlacementSizes(1)).Select(r => GridGeometry.ToPixels(r, Screen, 1)).ToList();
 
         Assert.Equal([2 * row, row, 2 * row], laid.Select(r => Math.Round(r.Height, 6)));
         Assert.Equal(laid[0].Y + laid[0].Height, laid[1].Y, 6);
@@ -360,8 +360,8 @@ public sealed class ReadyMadeGroupsTests
 
         Assert.Equal(ghost.Select(g => g.Rect), plan.Added.Select(w => w.Rect));
         Assert.Equal(ReadyMadeGroups.MyDay.Widgets.Select(w => new WidgetId(w.Kind)), ghost.Select(g => g.Kind));
-        var clock = GridGeometry.ToPixels(plan.Added[1].Rect, Screen);
-        var meeting = GridGeometry.ToPixels(plan.Added[2].Rect, Screen);
+        var clock = GridGeometry.ToPixels(plan.Added[1].Rect, Screen, 1);
+        var meeting = GridGeometry.ToPixels(plan.Added[2].Rect, Screen, 1);
         Assert.Equal(clock.Y + clock.Height, meeting.Y, 6);
         Assert.Equal(320, clock.Width, 6);
     }

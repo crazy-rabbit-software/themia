@@ -95,7 +95,7 @@ public sealed class ShowcaseViewsTests
                 var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(kinds[k].Kind, tier));
 
                 // The painted card is the whole cell ([S-11884]): exactly the size.
-                var painted = GridGeometry.ToPixels(widget.Rect, screen);
+                var painted = GridGeometry.ToPixels(widget.Rect, screen, 1);
                 Assert.Equal(tier.Width, painted.Width, 3);
                 Assert.Equal(tier.Height, painted.Height, 3);
             }
@@ -157,7 +157,7 @@ public sealed class ShowcaseViewsTests
         foreach (var tier in range)
         {
             var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(clock, tier));
-            var painted = GridGeometry.ToPixels(widget.Rect, FullHd);
+            var painted = GridGeometry.ToPixels(widget.Rect, FullHd, 1);
             Assert.Equal(tier.Width, painted.Width, 3);
             Assert.Equal(tier.Height, painted.Height, 3);
         }
