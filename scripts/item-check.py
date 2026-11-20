@@ -35,48 +35,15 @@ and exits 1 on any finding. A kind whose face is a picture or a video filling th
 "Exemptions") has no items to judge.
 """
 import argparse
-import concurrent.futures as futures
-import glob
 import json
 import os
-import re
-import subprocess
 import sys
+
+import renders
 
 TOL = 0.5  # DIP: layout rounding
 PX = 1.0 + TOL  # DIP: items sharing a room evenly on whole pixels differ by a pixel at most
 SIZES = ['range', 'steps', '330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300', '300x100,300x200,300x300']
-
-
-def kinds_in(root):
-    """Every kind the modules declare (`[assembly: ThemiaWidget("id", ...)]`), a family's each (the weather facts' eleven)."""
-    names = []
-    for d in sorted(glob.glob(os.path.join(root, 'src', 'Widgets', 'Themia.Widget.*'))):
-        if not glob.glob(os.path.join(d, '*.csproj')):
-            continue
-        declared = []
-        for f in sorted(glob.glob(os.path.join(d, '*.cs'))):
-            with open(f, encoding='utf-8') as src:
-                declared += re.findall(r'\[assembly: ThemiaWidget\("(\w+)"', src.read())
-        if not declared:
-            n = os.path.basename(d)[len('Themia.Widget.'):]
-            declared = [n[0].lower() + n[1:]]
-        names += [k for k in declared if k not in names]
-    return names
-
-
-def run(cmd, timeout):
-    try:
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        return p.stdout + p.stderr
-    except subprocess.TimeoutExpired:
-        return 'TIMEOUT'
-
-
-def states(exe, kind, out, timeout):
-    text = run([exe, '--widget-png', kind, os.path.join(out, '_probe.png'), '--state', '__none__'], timeout)
-    m = re.search(r'\(has: ([^)]*)\)', text)
-    return [s.strip() for s in m.group(1).split(',')] if m else ['']
 
 
 def near(a, b):
@@ -253,20 +220,19 @@ def leftover(card, groups, sliver=0.0):
     return f"WR-5 leftover of {band:.1f} under the last item ({band / cell:.1f} cells of {cell:.2f})"
 
 
-def check(exe, kind, out, sizes, timeout):
+def check(kind, states, drawn, out, sizes):
+    """[S-14341] Judges a kind's renders, drawn once for every check (scripts/renders.py), linked into <out>/png."""
     results = []
-    for state in states(exe, kind, out, timeout):
+    for state in states:
         for n, size in enumerate(sizes):
             label = size if size in ('range', 'steps') else f'set{n}'
             png = os.path.join(out, 'png', f'{kind}.{state or "default"}.{label}.png')
             layout = png + '.layout.json'
-            cmd = [exe, '--widget-png', kind, png, '--theme', 'dark', '--sizes', size, '--transparent', '--layout-json', layout]
-            if state:
-                cmd += ['--state', state]
-            text = run(cmd, timeout)
+            result = drawn[renders.Job(kind, state, size)]
+            renders.place(result, png)
             row = {'kind': kind, 'state': state or 'default', 'sizes': size}
-            if text == 'TIMEOUT' or not os.path.exists(layout):
-                row['error'] = 'render timed out' if text == 'TIMEOUT' else 'render failed'
+            if result.timed_out or not os.path.exists(layout):
+                row['error'] = 'render timed out' if result.timed_out else 'render failed'
                 results.append(row)
                 continue
             with open(layout, encoding='utf-8') as f:
@@ -279,27 +245,19 @@ def check(exe, kind, out, sizes, timeout):
 def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ap = argparse.ArgumentParser()
-    ap.add_argument('--exe')
+    renders.add_arguments(ap)
     ap.add_argument('--out', default=os.path.join(root, 'TestResults', 'item-check'))
-    ap.add_argument('--kinds')
     ap.add_argument('--sizes', help='size sets separated by ";" (default: range and desktop sizes)')
-    ap.add_argument('--jobs', type=int, default=4)
-    ap.add_argument('--timeout', type=int, default=120)
     a = ap.parse_args()
-    exe = a.exe
-    if not exe:
-        found = sorted(glob.glob(os.path.join(root, 'artifacts', '**', 'debug_win-x64', 'Themia.exe'), recursive=True),
-                       key=os.path.getmtime, reverse=True)
-        if not found:
-            sys.exit('No Debug Themia.exe found: build src/Themia.App/Themia.App.csproj -c Debug, or pass --exe.')
-        exe = found[0]
+    shared = renders.open_renders(a)
+    kinds, _ = renders.pick(a, shared)
     os.makedirs(os.path.join(a.out, 'png'), exist_ok=True)
-    kinds = a.kinds.split(',') if a.kinds else kinds_in(root)
     sizes = a.sizes.split(';') if a.sizes else SIZES
+    states = shared.states(kinds)
+    drawn = shared.render([renders.Job(k, s, size) for k in kinds for s in states[k] for size in sizes])
     results = []
-    with futures.ThreadPoolExecutor(max_workers=a.jobs) as pool:
-        for rows in pool.map(lambda k: check(exe, k, a.out, sizes, a.timeout), kinds):
-            results.extend(rows)
+    for k in kinds:
+        results.extend(check(k, states[k], drawn, a.out, sizes))
     with open(os.path.join(a.out, 'items.json'), 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=1)
     lines, total, kinds_hit = [], 0, set()
@@ -318,9 +276,11 @@ def main():
     with open(os.path.join(a.out, 'items.md'), 'w', encoding='utf-8') as f:
         f.write('| kind | state | card | group | axis | finding |\n|---|---|---|---|---|---|\n')
         f.write('\n'.join(lines) + '\n')
-    print(f'item-check: {total} findings in {len(kinds_hit)} of {len(kinds)} kinds')
+    print(f'item-check: {total} findings in {len(kinds_hit)} of {len(kinds)} kinds'
+          f' ({shared.drawn} renders drawn in {shared.seconds:.0f} s, the rest from the cache)')
     for line in lines[:200]:
         print(' ', line)
+    renders.swept(a)
     sys.exit(1 if total else 0)
 
 
