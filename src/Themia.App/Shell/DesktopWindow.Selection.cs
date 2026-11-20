@@ -76,7 +76,10 @@ internal sealed partial class DesktopWindow
     /// </summary>
     internal bool Draws(string widgetId) => CardFor(widgetId) is not { } card || (card.Visibility == Visibility.Visible && card.IsShown(EditMode));
 
-    /// <summary>[S-11877] The desktop's one selection changed: every card on the locked desktop draws whether it is in it.</summary>
+    /// <summary>
+    /// [S-11877] The desktop's one selection changed: every card on the locked desktop draws whether it is in it;
+    /// [S-14310] several cards selected here, the frame's corners round them instead of theirs.
+    /// </summary>
     internal void RepaintDeskSelection()
     {
         if (_closed || EditMode)
@@ -88,6 +91,8 @@ internal sealed partial class DesktopWindow
         {
             card.ApplySelection();
         }
+
+        SyncFrame();
     }
 
     /// <summary>The ids of the cards on this surface that are collapsed, so draw nothing.</summary>
@@ -264,7 +269,7 @@ internal sealed partial class DesktopWindow
                 moving.FollowMove(GridGeometry.ToPixels(at, metrics, RasterScale));
             }
 
-            // [S-2460] The selection's frame goes with the block.
+            // [S-2460] The selection's frame goes with the block ([S-14310]: on the locked desktop its corners).
             SyncFrame();
         }
 

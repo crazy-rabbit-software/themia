@@ -697,8 +697,8 @@ internal static partial class EditBarRender
         canvas.Children.Add(markers.Halos);
         canvas.Children.Add(markers.Inks);
 
-        // [S-2460] Several selected: the frame round them.
-        FrameRound(markers, [.. cards.Zip(widgets).Where(c => c.Second.Spec.Selected).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], screen);
+        // [S-2460] Several selected: the frame round them, [S-14310] and no marks of their own.
+        RenderFrame.Round(markers, [.. cards.Zip(widgets).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
 
         var page = SelectionPageOf(view, selected, lines);
         var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);
@@ -752,7 +752,8 @@ internal static partial class EditBarRender
     /// <summary>
     /// [S-31b]/[S-31c] The edit markers on real cards: <c>marks-&lt;theme&gt;-r4.png</c> and <c>-r16.png</c>
     /// (a selected card, an unselected one and an XS tile at that corner radius), <c>-multi.png</c>
-    /// (three selected beside one that is not) and <c>-neighbours.png</c> (cells meeting on their edges:
+    /// (three selected beside one that is not: the selection's frame round them, no marks of their own, [S-14310]) and
+    /// <c>-neighbours.png</c> (cells meeting on their edges:
     /// their marks are one line where they meet).
     /// </summary>
     private static async Task MarkerShots(Grid screen, Ticker ticker, string outDir, string theme)
@@ -781,7 +782,7 @@ internal static partial class EditBarRender
             new(new WidgetId("clock"), 120, 100, 240, 150, true),
             new(new WidgetId("countdown"), 360, 100, 240, 150, false),
             new(new WidgetId("countdown"), 120, 250, 240, 150, false),
-            new(new WidgetId("clock"), 360, 250, 240, 150, true),
+            new(new WidgetId("clock"), 360, 250, 240, 150, false), // [S-14310] one selected: two would be framed, no accent marks of their own
             new(new WidgetId("wifiToggle"), 600, 100, 120, 120, false),
         ];
         await MarkerShot(screen, ticker, neighbours, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-neighbours.png")).ConfigureAwait(true);
@@ -837,20 +838,6 @@ internal static partial class EditBarRender
         }
     }
 
-    /// <summary>[S-2460] The selection's frame round the selected cards of a shot (their boxes in the shot's DIPs), as the surface draws it: two or more.</summary>
-    private static void FrameRound(EditMarkerLayer markers, IReadOnlyList<(WidgetCard Card, PixelRect Box)> selected, FrameworkElement screen)
-    {
-        if (selected.Count < 2)
-        {
-            markers.Frame.Hide();
-            return;
-        }
-
-        var box = PixelRect.FromEdges(selected.Min(s => s.Box.X), selected.Min(s => s.Box.Y), selected.Max(s => s.Box.X + s.Box.Width), selected.Max(s => s.Box.Y + s.Box.Height));
-        var (width, height) = BlockResize.Free([.. selected.Select(s => s.Card.Limits)], selected.Count);
-        markers.Frame.Show(box, screen.XamlRoot?.RasterizationScale ?? 1, width, height);
-    }
-
     private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path, double height = 420)
     {
         screen.Children.Clear();
@@ -887,8 +874,8 @@ internal static partial class EditBarRender
         canvas.Children.Add(markers.Halos);
         canvas.Children.Add(markers.Inks);
 
-        // [S-2460] Several selected: the frame round them.
-        FrameRound(markers, [.. cards.Zip(models).Where(c => c.Second.Spec.Selected).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], screen);
+        // [S-2460] Several selected: the frame round them, [S-14310] and no marks of their own.
+        RenderFrame.Round(markers, [.. cards.Zip(models).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
 
         await Task.Delay(800).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);

@@ -23,7 +23,9 @@ namespace Themia.App.Shell.Gallery;
 /// wallpaper: <c>drag-move-…</c> a clock moved on the locked desktop, the local grid round where it lands;
 /// <c>drag-icons-&lt;size&gt;-…</c> desktop icons at each icon size on the widget grid, beside a clock, packed by
 /// Auto arrange's rule, with the edit-mode grid drawn faintly to judge the cells; <c>drag-lasso-…</c> a mixed
-/// lasso selection (icons in their selection look with their corners, [S-11889], cards with their corners) under the band.
+/// lasso selection (icons in their selection look with their corners, [S-11889], cards with their corners) under the band;
+/// [S-14310] <c>drag-group-…</c> several cards selected beside selected icons (the selection's frame's four corners round the
+/// cards, none of their own) and <c>drag-groupmove-…</c> two of them moved together (the frame's corners with the block).
 /// [S-13970] <c>--icon-layout below|beside|icononly</c> draws instead, on a larger screen, the icons and the fences in that
 /// icon layout at medium and large icons (<c>drag-icons-&lt;layout&gt;-&lt;size&gt;-…</c>, <c>drag-fences-&lt;layout&gt;-&lt;size&gt;-…</c>),
 /// dark over the dark wallpaper and light over the light one, an icon pointed at and one focused among them (icon only's
@@ -104,8 +106,10 @@ internal static class DragRender
                     foreach (var (wallName, wall) in Wallpapers())
                     {
                         screen.Background = wall;
-                        await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-move-{tag}-{wallName}.png")).ConfigureAwait(true);
+                        await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-move-{tag}-{wallName}.png"), several: false).ConfigureAwait(true);
+                        await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-groupmove-{tag}-{wallName}.png"), several: true).ConfigureAwait(true);
                         await LassoAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-lasso-{tag}-{wallName}.png")).ConfigureAwait(true);
+                        await GroupAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-group-{tag}-{wallName}.png")).ConfigureAwait(true);
                         await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-{tag}-{wallName}.png")).ConfigureAwait(true);
                         foreach (var size in new[] { DesktopIconSize.Small, DesktopIconSize.Medium, DesktopIconSize.Large })
                         {
@@ -194,21 +198,33 @@ internal static class DragRender
     /// <summary>
     /// [S-11874] [S-11881] [S-11886] A clock mid-move on the locked desktop: the card where it lands, the round
     /// local grid round it, its corner marks and the marks of the cards near it fading with the grid (one
-    /// touching it, one a little apart, one past the fade without any), a desktop icon beside.
+    /// touching it, one a little apart, one past the fade without any), a desktop icon beside. [S-14310]
+    /// <paramref name="several"/>: a date beside it, both selected, move with it: the selection's frame's four corners go
+    /// round the two where they land, neither shows its own; the neighbours' marks fade as before.
     /// </summary>
-    private static async Task MoveAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, string path)
+    private static async Task MoveAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, string path, bool several)
     {
         screen.Children.Clear();
         DesktopCell.Apply(DesktopIconSize.Medium);
-        var host = new NoticeRender.RenderCardHost(ticker);
+        var selected = new HashSet<string>(StringComparer.Ordinal);
+        var host = new NoticeRender.RenderCardHost(ticker) { Selected = selected };
         var local = new LocalGridOverlay();
         screen.Children.Add(local);
         var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
         screen.Children.Add(layer);
 
         var clock = GridGeometry.Settle(new FracRect(0.42, 0.33, 0.3, 0.24), metrics);
-        var moving = new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), clock));
-        Place(layer, moving, clock, metrics);
+        var moving = new List<WidgetCard> { new(host, WidgetInstance.Create(new WidgetId("clock"), clock)) };
+        Place(layer, moving[0], clock, metrics);
+        if (several)
+        {
+            var date = GridGeometry.Settle(new FracRect(clock.Right, clock.Y, 0.14, clock.H), metrics);
+            moving.Add(new WidgetCard(host, WidgetInstance.Create(new WidgetId("date"), date)));
+            Place(layer, moving[1], date, metrics);
+            selected.UnionWith(moving.Select(c => c.Model.Id));
+        }
+
+        var target = BlockGeometry.Bounds([.. moving.Select(c => c.LiveRect)]);
         var standing = new List<WidgetCard>();
         foreach (var (kind, at) in new[] { ("countdown", new FracRect(0.17, 0.33, 0.25, 0.24)), ("wifiToggle", new FracRect(0.5, 0.66, 0.13, 0.22)), ("clock", new FracRect(0.76, 0.02, 0.22, 0.2)) })
         {
@@ -225,17 +241,20 @@ internal static class DragRender
 
         // The marks on their plates over every card, at the strengths the locked move gives them.
         var markers = new EditMarkerLayer();
-        var borders = LocalGrid.Borders(clock, [moving.Model.Id], standing.Select(c => (c.Model.Id, c.LiveRect)), metrics);
-        foreach (var card in layer.Children.OfType<WidgetCard>().ToList())
+        var borders = LocalGrid.Borders(target, moving.Select(c => c.Model.Id), standing.Select(c => (c.Model.Id, c.LiveRect)), metrics);
+        var cards = layer.Children.OfType<WidgetCard>().ToList();
+        foreach (var card in cards)
         {
             markers.Add(card);
             card.ShowMoveMarks(borders.TryGetValue(card.Model.Id, out var alpha) ? alpha : null);
         }
 
+        // [S-14310] Several moving: the frame's corners round them, none of their own.
+        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics)))], selected, editing: false, scale, [host]);
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 
-        local.Show(clock, metrics, scale);
+        local.Show(target, metrics, scale);
         await Task.Delay(700).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"drag: wrote {path}");
@@ -275,6 +294,51 @@ internal static class DragRender
             card.ApplySelection();
         }
 
+        screen.Children.Add(markers.Halos);
+        screen.Children.Add(markers.Inks);
+
+        await Task.Delay(900).ConfigureAwait(true);
+        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
+        Console.WriteLine($"drag: wrote {path}");
+    }
+
+    /// <summary>
+    /// [S-14310] Several cards selected on the locked desktop beside selected icons: a clock, a date touching it and a
+    /// countdown under them in the desktop's one selection draw no corners of their own; the selection's frame's four corners
+    /// (a locked selected card's look) go round the three; the two selected icons keep their highlight alone ([S-11889]) and
+    /// are not in the frame; one icon and one card are not selected.
+    /// </summary>
+    private static async Task GroupAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, string path)
+    {
+        screen.Children.Clear();
+        DesktopCell.Apply(DesktopIconSize.Medium);
+        var clock = WidgetInstance.Create(new WidgetId("clock"), GridGeometry.Settle(new FracRect(0.2, 0.08, 0.3, 0.24), metrics));
+        var date = WidgetInstance.Create(new WidgetId("date"), GridGeometry.Settle(new FracRect(clock.Rect.Right, clock.Rect.Y, 0.14, clock.Rect.H), metrics));
+        var countdown = WidgetInstance.Create(new WidgetId("countdown"), GridGeometry.Settle(new FracRect(clock.Rect.X, clock.Rect.Bottom, 0.25, 0.24), metrics));
+        var other = WidgetInstance.Create(new WidgetId("clock"), GridGeometry.Settle(new FracRect(0.68, 0.6, 0.28, 0.24), metrics));
+        var selected = new HashSet<string>(StringComparer.Ordinal) { clock.Id, date.Id, countdown.Id };
+        var host = new NoticeRender.RenderCardHost(ticker) { Selected = selected };
+        var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+        screen.Children.Add(layer);
+
+        foreach (var widget in new[] { clock, date, countdown, other })
+        {
+            Place(layer, new WidgetCard(host, widget), widget.Rect, metrics);
+        }
+
+        selected.Add((await IconAsync(layer, host, metrics, new FracRect(0.02, 0.04, 0, 0), "selected").ConfigureAwait(true)).Model.Id);
+        selected.Add((await IconAsync(layer, host, metrics, new FracRect(0.02, 0.26, 0, 0), "ownSelected").ConfigureAwait(true)).Model.Id);
+        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.6, 0, 0), "app").ConfigureAwait(true);
+
+        // The cards' marks on their plates, over every card, and the frame's corners with them, as the surface draws them.
+        var markers = new EditMarkerLayer();
+        var cards = layer.Children.OfType<WidgetCard>().ToList();
+        foreach (var card in cards)
+        {
+            markers.Add(card);
+        }
+
+        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics)))], selected, editing: false, scale, [host]);
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 

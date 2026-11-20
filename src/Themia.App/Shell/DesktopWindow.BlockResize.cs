@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -41,35 +42,43 @@ internal sealed partial class DesktopWindow
 
     private bool _frameHooked;
 
-    /// <summary>The selected cards drawn on this display in edit mode, in the view's order: what the frame goes round.</summary>
-    private List<WidgetCard> SelectedHere()
-    {
-        var cards = new List<WidgetCard>();
-        if (_closed || !EditMode)
-        {
-            return cards;
-        }
-
-        var view = ViewForThisMonitor(_host.State);
-        if (!string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal))
-        {
-            return cards;
-        }
-
-        foreach (var id in SelectionRules.InView(view, _host.Selection.Ids))
-        {
-            if (CardFor(id) is { Visibility: Visibility.Visible } card && card.IsShown(editMode: true))
-            {
-                cards.Add(card);
-            }
-        }
-
-        return cards;
-    }
+    /// <summary>[S-14310] The cards the frame was last drawn round (none without a frame): they show no marks of their own.</summary>
+    private List<WidgetCard> _framed = [];
 
     /// <summary>
-    /// [S-2460] The frame round the selection as it stands now: round two or more selected cards of this display in edit
-    /// mode, where they are drawn (a move's or a resize's step included); none otherwise, nor while a widget is placed.
+    /// [S-2460] [S-14310] The cards the selection's frame goes round on this display now, in the view's order
+    /// (<see cref="SelectionRules.Framed{T}"/>): of the cards drawn here, the selected ones (edit mode: its selection's,
+    /// every widget; the locked desktop: the desktop's one selection's cards, never an icon); none when fewer than two are,
+    /// nor while a widget is placed.
+    /// </summary>
+    private List<WidgetCard> FrameMembers()
+    {
+        if (_closed || !Metrics.IsUsable || _host.Placing is not null)
+        {
+            return [];
+        }
+
+        if (_blockResize is { } session)
+        {
+            return session.Cards.ConvertAll(c => c.Card);
+        }
+
+        var editing = EditMode;
+        var ofThisView = !editing || string.Equals(_host.Selection.ViewId, ViewForThisMonitor(_host.State).Id, StringComparison.Ordinal);
+        return SelectionRules.Framed(
+            editing,
+            _cards.Where(c => c.Visibility == Visibility.Visible && c.IsShown(editing))
+                .Select(c => (c, ofThisView && IsSelected(c), c.View is IDesktopIconView)));
+    }
+
+    /// <inheritdoc />
+    public int FramedWith(WidgetCard card) => _framed.Contains(card) ? _framed.Count : 0;
+
+    /// <summary>
+    /// [S-2460] The frame round the selection as it stands now: round two or more selected cards of this display
+    /// (<see cref="FrameMembers"/>), where they are drawn (a move's or a resize's step included); in edit mode its hairline,
+    /// markers and grips, [S-14310] on the locked desktop its four corners alone. A card that joins or leaves the frame
+    /// draws its own marks again, so a card alone selected loses them as a second is added and gets them back as one goes.
     /// </summary>
     private void SyncFrame()
     {
@@ -81,24 +90,34 @@ internal sealed partial class DesktopWindow
             _markerLayer.Frame.Released += EndBlockResize;
         }
 
-        var metrics = Metrics;
-        var cards = _blockResize is { } session ? session.Cards.ConvertAll(c => c.Card) : SelectedHere();
-        if (cards.Count < 2 || !EditMode || !metrics.IsUsable || _host.Placing is not null)
+        var cards = FrameMembers();
+        var before = _framed;
+        _framed = cards;
+        if (before.Count != cards.Count || !before.SequenceEqual(cards))
+        {
+            foreach (var card in before.Union(cards).Where(_cards.Contains).ToList())
+            {
+                card.ApplySelection();
+            }
+        }
+
+        if (cards.Count == 0)
         {
             _markerLayer.Frame.Hide();
             return;
         }
 
-        var box = GridGeometry.ToPixels(BlockGeometry.Bounds([.. cards.Select(c => c.LiveRect)]), metrics, RasterScale);
-        var (width, height) = BlockResize.Free([.. cards.Select(c => c.Limits)], cards.Count);
-        _markerLayer.Frame.Show(box, RasterScale, width, height);
+        var box = GridGeometry.ToPixels(BlockGeometry.Bounds([.. cards.Select(c => c.LiveRect)]), Metrics, RasterScale);
+        var editing = EditMode;
+        var (width, height) = editing ? BlockResize.Free([.. cards.Select(c => c.Limits)], cards.Count) : (false, false);
+        _markerLayer.Frame.Show(box, RasterScale, width, height, cornersOnly: !editing);
     }
 
     /// <summary>[S-2460] A grip of the frame pressed: the selection's resize as a block starts.</summary>
     private void OnFramePressed(ResizeHandle handle, PointerRoutedEventArgs e)
     {
-        var cards = SelectedHere();
-        if (_blockResize is not null || _move is not null || cards.Count < 2 || !Metrics.IsUsable)
+        var cards = FrameMembers();
+        if (!EditMode || _blockResize is not null || _move is not null || cards.Count < 2 || !Metrics.IsUsable)
         {
             _markerLayer.Frame.ReleaseHeld();
             return;

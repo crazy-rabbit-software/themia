@@ -186,9 +186,30 @@ public static class SelectionRules
     /// the block lands), and while it is selected (its four corners) unless it is a desktop <paramref name="icon"/>: a
     /// selected, hovered or highlighted icon shows its highlight alone (owner, 2026-11-16: "when highlighting a folder it
     /// should not show the corners"), its corners only where a widget's are about placing (edit mode, a move).
+    /// [S-14310] Never while it is one of a selection's frame of several (<paramref name="framed"/>: how many widgets the
+    /// frame it is in goes round, <see cref="Framed{T}"/>; 0 in none): the frame alone marks the block (owner, 2026-11-20:
+    /// "when mutliple widgets are selected the individual widgets corners in the group should not be highlighted / show
+    /// up").
     /// </summary>
-    public static bool MarksShown(bool editing, bool selected, double? moveAlpha, bool icon)
-        => editing || moveAlpha is not null || (selected && !icon);
+    public static bool MarksShown(bool editing, bool selected, double? moveAlpha, bool icon, int framed)
+        => framed < FrameMinimum && (editing || moveAlpha is not null || (selected && !icon));
+
+    /// <summary>[S-2460] [S-14310] The fewest widgets a selection's frame goes round: one selected shows its own marks.</summary>
+    public const int FrameMinimum = 2;
+
+    /// <summary>
+    /// [S-2460] [S-14310] The widgets the selection's frame goes round on one display, in the order given: of the widgets
+    /// <paramref name="drawn"/> there, the selected ones; in edit mode every one, on the locked desktop its cards and never a
+    /// desktop icon (an icon's highlight is its mark there, [S-11889]). None when fewer than <see cref="FrameMinimum"/> are:
+    /// no frame then, and every one keeps its own marks. The surface counts "several" by this alone, so the frame and the
+    /// members' missing marks always agree.
+    /// </summary>
+    public static List<T> Framed<T>(bool editing, IEnumerable<(T Widget, bool Selected, bool Icon)> drawn)
+    {
+        ArgumentNullException.ThrowIfNull(drawn);
+        var members = drawn.Where(d => d.Selected && (editing || !d.Icon)).Select(d => d.Widget).ToList();
+        return members.Count >= FrameMinimum ? members : [];
+    }
 
     /// <summary>
     /// [S-1581] The widgets a rubber band touches: every widget whose cell overlaps it by any area,

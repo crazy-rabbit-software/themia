@@ -69,6 +69,12 @@ internal interface IWidgetCardHost
 
     bool IsSelected(WidgetCard card);
 
+    /// <summary>
+    /// [S-14310] How many widgets the selection's frame this card is one of goes round (<see cref="SelectionRules.Framed{T}"/>:
+    /// two or more), 0 when no frame holds it: a member of a frame of several shows no marks of its own.
+    /// </summary>
+    int FramedWith(WidgetCard card) => 0;
+
     void RequestSelect(WidgetCard card);
 
     void RequestCopy(WidgetCard card);
@@ -636,9 +642,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-11877] On the locked desktop a selected card shows its four corners alone, in the accent: light,
         // no handles, no grips. [S-11881] A locked move shows the corners of the moving cards and of the ones
         // near where they land. [S-11889] A desktop icon too, round its grid box, over its highlight, but only in edit mode and in a move:
-        // selected on the locked desktop it shows its highlight alone.
-        _markersShown = SelectionRules.MarksShown(editing, selected, editing ? null : _moveMarks, icon: _view is IDesktopIconView);
-        _markers.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
+        // selected on the locked desktop it shows its highlight alone. [S-14310] One of a selection's frame of several shows
+        // none and its grips take no press: the frame marks and resizes the block.
+        _markersShown = SelectionRules.MarksShown(editing, selected, editing ? null : _moveMarks, icon: _view is IDesktopIconView, framed: _host.FramedWith(this));
+        _markers.Visibility = editing && _markersShown ? Visibility.Visible : Visibility.Collapsed;
 
         // [S-1597] A selected card's grips and move area stand above every card, so one under another keeps all of them.
         Lift(editing && selected);

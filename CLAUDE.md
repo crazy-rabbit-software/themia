@@ -55,7 +55,8 @@ Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
 Themia.exe --desktop-png <outDir> [--icon-size small|medium|large] [--icon-layout below|beside|icononly]   # a stand-in desktop
            # of icons of both sources, their states, the band and the tips [S-5605]; the desktop's icon size [S-5593] and layout [S-13970]
 Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local grid, icons on the widget grid at each icon
-           # size, a mixed lasso selection (icons and cards), both themes [S-11874]..[S-11879]; --icon-layout below|beside|icononly
+           # size, a mixed lasso selection (icons and cards), several cards selected and moved (the frame's corners,
+           # drag-group-*, drag-groupmove-*, [S-14310]), both themes [S-11874]..[S-11879]; --icon-layout below|beside|icononly
            # instead: that layout's icons and fences at medium and large [S-13970]..[S-13976]
 Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass] [--icon-layout below|beside|icononly]   # the locked
            # desktop's one selection through a real host and surface: --live drives it with real input (SendInput, over every
@@ -412,9 +413,15 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   move as one block (snapped, whole device pixels, [S-11873]; kept apart, [S-11959]), resize as one block by the
   selection's frame round them or Shift+arrows (`BlockResize`: scaled about the opposite edge, every edge on a grid line,
   on a common step, each member in its own sizing, [S-2460]..[S-2465]) and are set together on the page
-  of several ("For all of them" and Appearance, [S-11754], [S-11755]). Every selected card shows its marks; a selected
+  of several ("For all of them" and Appearance, [S-11754], [S-11755]). One selected card shows its marks; **two or more
+  show none of their own** ([S-14310], owner 2026-11-20: "when mutliple widgets are selected the individual widgets
+  corners in the group should not be highlighted / show up"): the selection's frame alone marks them (edit mode: its
+  hairline, markers and grips, the members' grips inert; the locked desktop: its four corners round the display's
+  selected cards, never an icon, moving with a locked move), counted by one rule (`SelectionRules.Framed`, the marks by
+  `SelectionRules.MarksShown(…, framed)`, re-applied by `DesktopWindow.SyncFrame`); a selected
   card's grips and move area are lifted over every card (`WidgetCard.MarkerLift` on `EditMarkerLayer.Lifts`,
-  `SelectionRules.PressTarget`, [S-1597]) so one under another keeps all its handles; the drawing order stays.
+  `SelectionRules.PressTarget`, [S-1597]; a member of several its move area alone) so one under another keeps all its
+  handles; the drawing order stays.
   **Any two cards whose cells meet join** (`CardJoins.Paint`: neighbours by cells, [S-2240], [S-2248], [S-2249]):
   square inner corners, one outline with no line at the seam ([S-11870], `CardOutline.Seams`), in Liquid glass one
   body (`CardJoins.Bodies`, [S-2123]); a desktop icon never joins (`WidgetTraits.NeverJoins`, [S-11880]); there is
@@ -448,7 +455,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   (with the selection it is in, [S-11879]) on the first press whatever part is under it ([S-13060]: the card arms on
   every press, handled ones too; parts act on the release, never the press), snapped, the local
   grid round where it lands (`LocalGrid`: a faint rectangle fading out of the box, [S-11886]) with the moving and nearby cards' corner
-  marks ([S-11881]); edit mode never turns
+  marks ([S-11881]; several selected moving: the selection's frame's corners instead of theirs, [S-14310]); edit mode never turns
   on by a drag; **Lock widgets** ([S-12950], [S-12951]; its home General › Desktop icons, the menus' line under Edit
   mode flips it) keeps every widget where it is outside edit mode, icons alone move (`WidgetLock`: a mixed selection
   moves its icons; edit mode moves everything); with Keep widgets from overlapping on, every move (both modes, keys too) goes through

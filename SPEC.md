@@ -137,8 +137,9 @@ Sections, grouped by area (file order below; search for the heading).
   the keyboard resize are unchanged. (Tests `S31b_`.)
 - **[S-31c]** Every widget in edit mode shows its markers: a selected one in the accent
   (`AccentFillColorDefault`), every other one in the neutral strong stroke (`ControlStrongFillColorDefault`).
-  Each widget of a multi-selection shows accent markers. `--editbar-png` (`--only marks`) writes `marks-<theme>-r4.png`,
-  `-r16.png` and `-multi.png`.
+  Two or more selected on a display show none of their own: the selection's frame round them alone marks them
+  ([S-14310], [S-2460]). `--editbar-png` (`--only marks`) writes `marks-<theme>-r4.png`, `-r16.png` (one selected) and
+  `-multi.png` (three selected: the frame, no member's brackets).
 
 ## Defaults & placement
 
@@ -9080,7 +9081,8 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   Shift held at the press it adds to the selection on that display; without, it starts from nothing
   (a click on empty surface clears the selection). A card that draws nothing is not picked.
 - **[S-1582]** **Ctrl+A** selects every widget on the display under the pointer.
-- **[S-1583]** Every selected card shows it (accent markers, [S-31c]). A widget that is
+- **[S-1583]** Every selected card shows it: one alone by its accent markers ([S-31c]), several by the selection's
+  frame round them, with no markers of their own ([S-14310]). A widget that is
   deleted or leaves the view leaves the selection with the change. Escape clears the selection
   before a second Escape leaves edit mode.
 - **[S-1584]** Dragging a selected card moves **every selected widget on that display** (a selected
@@ -9090,7 +9092,8 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
   each rect is then kept in reach ([S-09]). Offsets between the widgets never change. That is where the block
   **lands**, and while it is dragged it is drawn there, on the grid ([S-11891]). A card's own grip resizes that card
-  alone and narrows the selection to it ([S-2451]); the selection's frame resizes them all as one block ([S-2460]).
+  alone and narrows the selection to it ([S-2451]); the selection's frame resizes them all as one block ([S-2460]); a
+  member of a selection of several has no grip of its own ([S-14310]).
 - **[S-11879]** **A mixed block on the locked desktop** (owner, 2026-11-15: "the widgets in the desktop should also
   be selected with the lasso, and also moved with everything as well then"): outside edit mode a press on any selected
   widget, icon or card, moves **every selected widget of that display's view** as one block
@@ -9112,11 +9115,13 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   Ctrl toggles, Shift adds ([S-6625]); Escape or a press on empty desktop clears both (`ClearDeskSelection`). The
   host's desktop selection is the one model (`DesktopSelection`; a card under its card key, [S-5540]); a card asks
   it (`DesktopWindow.IsSelected` outside edit mode, `AppHost.DeskSelects`) and draws its **four corners in the accent,
-  no handles, no grips, no edge bars** (`WidgetCard.ApplySelection`: the corners' ink alone on the locked desktop); an
+  no handles, no grips, no edge bars** (`WidgetCard.ApplySelection`: the corners' ink alone on the locked desktop);
+  two or more cards selected on a display draw none of their own, the selection's frame's four corners go round them
+  instead ([S-14310]); an
   icon draws its own selection look ([S-6627]) alone, no corners ([S-11889]). Delete, Cut, Copy, Enter and F2 keep their meaning per kind: on the
   icons the file commands ([S-5545]), on cards nothing outside edit mode. Edit mode keeps its own selection
   (`WidgetSelection`, [S-2451]), started empty. Tests `DesktopGridTests.S11877_`; `--drag-png` draws it
-  (`drag-lasso-*`).
+  (`drag-lasso-*`; several cards: `drag-group-*`).
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
 - **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste),
@@ -9198,10 +9203,30 @@ makes a composition one thing. Several widgets selected together are arranged an
   cut, paste, delete and are layered together ([S-1592]); the arrow keys nudge them whole ([S-1970]). Their page is **For all of them** (each shared setting once, [S-11751]) and the Appearance tab, set on
   every one ([S-11754], [S-11755]). Tests `NoGroupsTests.S1584_`, `BlockMoveTests.S11873_`,
   `WidgetCollisionsTests.S11959_a_selection_moves_as_one_block_its_touching_widgets_never_holding_each_other`.
-- **[S-2453]** **Every selected widget shows its marks**: in edit mode each card draws its eight markers (a
-  selected one in the accent, every other neutral, [S-31c]) and its handles; several selected show theirs each, and
-  the selection's frame round them all ([S-2460]).
+- **[S-2453]** **Every selected widget is marked**: in edit mode each card draws its eight markers (a
+  selected one in the accent, every other neutral, [S-31c]) and its handles; several selected draw none of their own,
+  the selection's frame round them all marks them ([S-2460], [S-14310]).
   *(The group's corners-only marks, [S-2459], are gone with the groups.)*
+- **[S-14310]** **Several selected are marked by their frame alone** (owner, 2026-11-20: "when mutliple widgets are
+  selected the individual widgets corners in the group should not be highlighted / show up ."). **Edit mode**, two or
+  more selected on a display: the members draw no marks of their own (no brackets, no edge bars, no halos) and their
+  own grips take no press; the selection's frame alone marks and resizes the block ([S-2460]). Their lifted move area
+  stays ([S-1597]), so the block moves from any member. Every card not selected keeps its neutral marks. **The locked
+  desktop**, two or more cards selected on a display: none draws its corners; the frame goes round them as **four
+  accent corners alone**, a locked selected card's look ([S-11877]) on the block's box: no hairline, no edge bars, no
+  grips (`SelectionFrame.Show(…, cornersOnly)`, the one frame). It goes round that display's selected **cards** only:
+  a selected icon keeps its highlight alone and is never in it ([S-11889]). **A locked move** of them: the moving
+  members show no marks of their own and the frame's corners go with the block where it lands; the neighbours' fading
+  marks are unchanged ([S-11881]). One selected is unchanged in every mode: its own marks. "Several" is counted by one
+  rule, the frame's (`SelectionRules.Framed`: of the cards drawn on the display, the selected ones, in edit mode
+  every one and on the locked desktop the cards; two or more, else none; none while a widget is placed), and a card's
+  marks follow it (`SelectionRules.MarksShown(…, framed)`); the surface marks again every card that joins or leaves the
+  frame (`DesktopWindow.SyncFrame`, after every selection change, move step and layout), so a card alone selected loses
+  its marks as a second is added and gets them back as one goes. Tests `GroupMarksTests.S14310_`; renders
+  `--editbar-png --only marks` (`marks-*-multi`, `-block*`) and `--only select` (`select-*-two`, `-many`, `-touching`),
+  `--drag-png` (`drag-group-*`: three cards and two icons selected on the locked desktop; `drag-groupmove-*`: two
+  selected cards moved). Not live-verified: a real pointer on a member's edge or corner inside the frame (its move area
+  takes the press), the corners on a real locked move.
 - **[S-2459]** *(Retired 2026-11-17 with the groups, [S-2450].)*
 - **[S-2454]** *(Retired 2026-11-17: Group and Ungroup are gone, [S-2450].)*
 - **[S-2455]** **Copies and moves** carry widgets only: a copy of several lands as loose widgets with fresh ids,
@@ -9218,11 +9243,12 @@ makes a composition one thing. Several widgets selected together are arranged an
   selection this should be done"). In edit mode two or more selected widgets of a display show **the selection's
   frame** (`SelectionFrame` on the surface's `EditMarkerLayer`): an accent hairline one device pixel outside the box
   round all of them, and that box's eight markers and grips in a single card's look ([S-31b]: brackets at the corners,
-  bars at the edges' centres, each over its halo, on the same plates as the cards' marks, so where it meets a member's
-  marks they are one line). Its grips stand over every card's lifted grips ([S-1597]), so a press on the frame's edge or
-  corner is the block's even over a member's own grip; the members keep their own grips elsewhere ([S-2451]). An axis
+  bars at the edges' centres, each over its halo, on the same plates as the cards' marks, so where it meets a
+  neighbour's marks they are one line). The members show no marks and no grips of their own ([S-14310]): the frame is
+  the block's one mark and its grips its one resize; they stand over every card's lifted grips ([S-1597]). An axis
   no member may resize (every member fixed on it, desktop icons) has no grip there (`BlockResize.Free`). The frame goes
-  with the block while it moves, follows a resize, and is not drawn while a widget is placed. Dragging a grip
+  with the block while it moves, follows a resize, and is not drawn while a widget is placed. On the locked desktop
+  the same frame is the block's four corners alone ([S-14310]). Dragging a grip
   **scales the whole block about the opposite edge or corner**: every member's rect, positions and sizes alike, then
   settled (`BlockResize.Resize`, Core):
   each axis the handle moves is laid on its own; the members' distinct edges, measured in whole cells from the
@@ -9272,7 +9298,8 @@ makes a composition one thing. Several widgets selected together are arranged an
   ink), so a press on a selected card's edge, corner or body goes to it first even where another card is drawn
   over it; the cards' drawing order stays (`SelectionRules.PressTarget`: the topmost selected card whose box, grown
   by its grips' reach, holds the point, else the topmost card there). A widget that is not selected keeps its grips
-  on its own card. To reach the card on top where a selected one lies under it, select it elsewhere, or press
+  on its own card. A member of a selection of several lifts its move area alone: its grips are the frame's
+  ([S-14310], [S-2460]). To reach the card on top where a selected one lies under it, select it elsewhere, or press
   Escape first. Tests `SelectedHandlesTests.S1597_`; render `--editbar-png --only select`
   (`select-*-under-another`).
 - **[S-11860]** **A ready-made group in a scene**: an entry of a scene's `widgets` may be
@@ -12364,22 +12391,26 @@ power buttons, whose whole body is their button) open nothing.
   `DragPipelineTests.S11891_`.
 - **[S-11881]** **A locked move shows the borders** (owner, 2026-11-15: "when moving the widgets around in non edit
   mode it should show the borders too"): while a block moves on the locked desktop the moving cards show their
-  corner marks (edit mode's look, [S-31b], on the surface's marker plates), and every other card near where it lands
+  corner marks (edit mode's look, [S-31b], on the surface's marker plates; several selected cards moving show none of
+  their own, the selection's frame's four corners go with them, [S-14310]), and every other card near where it lands
   shows its own at the local grid's strength where it comes nearest the target (`LocalGrid.Borders`: `Strength` at
   the point of its box nearest the target's centre, 1 where it touches it; past the fade none), so the neighbours'
   marks fade as the grid does (`WidgetCard.ShowMoveMarks`, `DesktopWindow.ShowMoveBorders`). Gone as the block
   lands or the move becomes the shell's drag. A desktop icon draws them too ([S-11889]). Tests
   `DesktopGridTests.S11881_`; `--drag-png` draws it (`drag-move-*`: the clock moving, a card touching it at full
-  strength, one below it fainter, one past the fade without marks).
+  strength, one below it fainter, one past the fade without marks; `drag-groupmove-*`: a clock and a date moving, the
+  frame's corners round them).
 - **[S-11889]** **Desktop icons show the corners where placing is going on** (owner, 2026-11-15: "the desktop
   icons should also show the corners"; 2026-11-16: "when highlighting a folder it should not show the corners"): an
   icon draws the same corner marks as a widget round its grid box (its cell, [S-11875]) and over its highlight in
   edit mode (selected and as a neighbour, [S-31b]) and in a locked move, moving and near where the block lands,
   fading with the local grid ([S-11881]); **hovered, selected or highlighted on the locked desktop it shows its
   highlight alone** ([S-6627]), never the corners a selected card shows there ([S-11877]). One rule
-  (`SelectionRules.MarksShown(editing, selected, moveAlpha, icon)`: edit mode, a move's strength, or selected and
-  not an icon). Tests `DesktopGridTests.S11889_`; `--drag-png` draws it (`drag-lasso-*`: the two selected icons in
-  their highlight alone, the selected cards with their corners; `drag-move-*`: an icon below the landing, fainter).
+  (`SelectionRules.MarksShown(editing, selected, moveAlpha, icon, framed)`: edit mode, a move's strength, or selected
+  and not an icon; never one of a selection's frame of several, [S-14310], which an icon is only in edit mode). Tests
+  `GroupMarksTests.S11889_`; `--drag-png` draws it (`drag-lasso-*`: the two selected icons in their highlight alone,
+  the selected card with its corners; `drag-group-*`: the icons outside the cards' frame; `drag-move-*`: an icon below
+  the landing, fainter).
 - **[S-11878]** **When an icon's move leaves the desktop** (`DesktopDragOut.Starts`, Core): a move held by a desktop
   icon becomes the shell's drag of the selection ([S-5549]: XAML's item drag, from the icon, with the press still
   down) only when what it carries gives another target something (`DesktopCommands.Drag`'s files) and the pointer is

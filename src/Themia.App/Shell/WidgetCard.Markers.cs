@@ -20,7 +20,8 @@ namespace Themia.App.Shell;
 /// card, every halo under every bar, so where two widgets meet their marks are one line. [S-1597] A
 /// selected card's grips and its move area are lifted onto a third plate above every card
 /// (<see cref="MarkerLift"/>), so a selected card under another is still resized and moved by all of it
-/// (<see cref="SelectionRules.PressTarget"/>); the cards' drawing order stays.
+/// (<see cref="SelectionRules.PressTarget"/>); the cards' drawing order stays. [S-14310] A card that is one of a selection's
+/// frame of several shows no marks and no grips (the frame's are the block's); its move area stays lifted.
 /// </summary>
 internal sealed partial class WidgetCard
 {
@@ -147,10 +148,14 @@ internal sealed partial class WidgetCard
         return canvas;
     }
 
-    /// <summary>Place both plates on the card and show them exactly while its grips show.</summary>
+    /// <summary>
+    /// Place the plates on the card: the ink exactly while its marks show; [S-1597] the lift plate while it is lifted,
+    /// [S-14310] its move area too when it is one of a frame of several and shows no marks (its grips are not shown then).
+    /// </summary>
     private void FollowPlates()
     {
-        var shown = Visibility == Visibility.Visible && _markersShown ? Visibility.Visible : Visibility.Collapsed;
+        var drawn = Visibility == Visibility.Visible;
+        var shown = drawn && _markersShown ? Visibility.Visible : Visibility.Collapsed;
         foreach (var plate in new[] { MarkerHalos, MarkerInks })
         {
             Canvas.SetLeft(plate, Canvas.GetLeft(this));
@@ -161,7 +166,7 @@ internal sealed partial class WidgetCard
 
         Canvas.SetLeft(MarkerLift, Canvas.GetLeft(this));
         Canvas.SetTop(MarkerLift, Canvas.GetTop(this));
-        MarkerLift.Visibility = _lifted && shown == Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
+        MarkerLift.Visibility = _lifted && drawn ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>
@@ -182,7 +187,7 @@ internal sealed partial class WidgetCard
         FollowPlates();
     }
 
-    /// <summary>Whether the marks show (edit mode); the field is read before the grip canvas exists.</summary>
+    /// <summary>Whether the marks show (<see cref="SelectionRules.MarksShown"/>); the field is read before the grip canvas exists.</summary>
     private bool _markersShown;
 
     /// <summary>[S-11881] The strength of this card's marks while a block moves on the locked desktop; null when none moves.</summary>

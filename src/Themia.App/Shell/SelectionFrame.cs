@@ -11,7 +11,7 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-2460] The frame round a selection of several widgets in edit mode (owner, 2026-11-20: "when multiple ones are
+/// [S-2460] The frame round a selection of several widgets (owner, 2026-11-20: "when multiple ones are
 /// selected and you basically grab the edge of the selection this should be done"): one accent hairline round the
 /// block's box and its eight resize grips, a single card's look (<see cref="EditMarkers"/>: a bracket at each corner, a
 /// bar at the centre of each edge, each over its halo). Its halos and bars stand on the marker layer's plates with every
@@ -19,6 +19,8 @@ namespace Themia.App.Shell;
 /// (<see cref="EditMarkerLayer.Lifts"/>), so a press on the frame's edge or corner is the block's even where a member's
 /// own grip lies under it. An axis no member may resize has no grip (<see cref="BlockResize.Free"/>), as a single card's
 /// fixed axis has none. It draws and reports presses; the surface does the resize (<see cref="BlockResize"/>).
+/// [S-14310] On the locked desktop it is the block's four corners alone, a locked selected card's look round the selected
+/// cards of several (no hairline, no edge bars, no grips), and the members show no marks of their own in either mode.
 /// </summary>
 internal sealed partial class SelectionFrame
 {
@@ -82,15 +84,22 @@ internal sealed partial class SelectionFrame
 
     /// <summary>
     /// [S-2460] Draw the frame round <paramref name="box"/> (the surface's DIPs, on device pixels: the members' cells'
-    /// own edges) at <paramref name="scale"/>, its grips on the axes the block may resize.
+    /// own edges) at <paramref name="scale"/>, its grips on the axes the block may resize. [S-14310] With
+    /// <paramref name="cornersOnly"/> (the locked desktop) its four corners alone: no hairline, no edge bars, no grip.
     /// </summary>
-    public void Show(PixelRect box, double scale, bool freeWidth, bool freeHeight)
+    public void Show(PixelRect box, double scale, bool freeWidth, bool freeHeight, bool cornersOnly)
     {
         foreach (var plate in new[] { Halos, Inks, Grips })
         {
             Canvas.SetLeft(plate, box.X);
             Canvas.SetTop(plate, box.Y);
             plate.Visibility = Visibility.Visible;
+        }
+
+        Grips.Visibility = cornersOnly ? Visibility.Collapsed : Visibility.Visible;
+        if (cornersOnly)
+        {
+            (freeWidth, freeHeight) = (false, false);
         }
 
         // The hairline a device pixel wide, just outside the box, so it never covers a member's own pixels.
@@ -101,6 +110,7 @@ internal sealed partial class SelectionFrame
         _outline.Width = box.Width + (2 * line);
         _outline.Height = box.Height + (2 * line);
         _outline.StrokeThickness = line;
+        _outline.Visibility = cornersOnly ? Visibility.Collapsed : Visibility.Visible;
 
         var layout = EditMarkers.For(box.Width, box.Height, s).ToDictionary(m => m.Handle);
         foreach (var part in _parts)
@@ -132,7 +142,7 @@ internal sealed partial class SelectionFrame
         Shown = true;
     }
 
-    /// <summary>Take the frame away (fewer than two selected, edit mode left, a placement under way).</summary>
+    /// <summary>Take the frame away (fewer than two framed, [S-14310]; a placement under way).</summary>
     public void Hide()
     {
         foreach (var plate in new[] { Halos, Inks, Grips })

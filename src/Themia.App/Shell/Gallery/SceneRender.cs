@@ -364,6 +364,8 @@ internal static class SceneRender
         // [S-1076] Each card where the desktop puts it: its whole cell, the design's gap inside it,
         // its own content scale; each on a host of its own so it replays its own preview state.
         var placed = new List<(SceneWidget Spec, PixelRect Cell)>(job.Widgets.Count);
+        var hosts = new List<PreviewCardHost>(job.Widgets.Count);
+        var drawn = new List<(WidgetCard Card, PixelRect Cell)>(job.Widgets.Count);
 
         // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop; [S-11809] touching
         // widgets fitted as one block, so the edges they share stay shared; [S-11807] on whole
@@ -387,6 +389,7 @@ internal static class SceneRender
             var cell = GridGeometry.ToPixels(shown, metrics, job.Scale);
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
             placed.Add((spec, cell));
+            hosts.Add(host);
             card.SetLiveRect(shown);
             card.ApplyEditMode(edit is not null);
             card.ApplySelection();
@@ -399,6 +402,7 @@ internal static class SceneRender
             if (edit is not null)
             {
                 markers.Add(card);
+                drawn.Add((card, cell));
             }
         }
 
@@ -410,6 +414,8 @@ internal static class SceneRender
 
         if (edit is not null)
         {
+            // [S-2460] [S-14310] Several selected: the selection's frame round them, as the desktop draws it, and no marks of their own.
+            RenderFrame.Round(markers, drawn, selected, editing: true, job.Scale, hosts);
             canvas.Children.Add(markers.Halos);
             canvas.Children.Add(markers.Inks);
         }

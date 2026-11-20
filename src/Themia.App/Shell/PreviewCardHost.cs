@@ -79,6 +79,11 @@ internal class PreviewCardHost(Ticker ticker) : IWidgetCardHost
 
     public bool IsSelected(WidgetCard card) => Selected.Contains(card.Model.Id);
 
+    /// <summary>[S-14310] The ids a render's selection frame goes round (two or more, <see cref="SelectionRules.Framed{T}"/>); none elsewhere.</summary>
+    public IReadOnlySet<string> Framed { get; set; } = new HashSet<string>();
+
+    public int FramedWith(WidgetCard card) => Framed.Contains(card.Model.Id) ? Framed.Count : 0;
+
     public void RequestSelect(WidgetCard card)
     {
         // ignore: nothing to select into
