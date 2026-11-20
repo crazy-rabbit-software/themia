@@ -417,6 +417,22 @@ public sealed partial class SettingsMenuTests
         Assert.Equal(LocaleFormat.Percent(Strings.Current, 50), Slider("cards", "borderOpacity").Format(0.5));
     }
 
+    [Fact]
+    public void S825_the_design_sliders_offer_the_ranges_the_load_holds_to()
+    {
+        // [S-825] One table: the slider and the repair of a loaded design read the same range and step.
+        var host = new FakeHost();
+        SettingsSlider Slider(string group, string name) => At<SettingsSlider>(host, "appearance", "appearance/" + group, "appearance/" + group + "/" + name);
+        static (double, double, double) Range(DesignNumber n) => (n.Min, n.Max, n.Step);
+        static (double, double, double) Offered(SettingsSlider s) => (s.Min, s.Max, s.Step);
+
+        Assert.Equal(Range(DesignNumbers.CornerRadius), Offered(Slider("cards", "radius")));
+        Assert.Equal(Range(DesignNumbers.BorderWidth), Offered(Slider("cards", "borderWidth")));
+        Assert.Equal(Range(DesignNumbers.BorderOpacity), Offered(Slider("cards", "borderOpacity")));
+        Assert.Equal(Range(DesignNumbers.FontScale), Offered(Slider("text", "size")));
+        Assert.Equal(Range(DesignNumbers.AnimationMs), Offered(At<SettingsSubmenu>(host, "motion", "motion/startup").Lines.OfType<SettingsSlider>().Single()));
+    }
+
     // ---- [S-3527] Style ----------------------------------------------------------------------------
 
     [Fact]

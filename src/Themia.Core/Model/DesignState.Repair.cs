@@ -1,4 +1,3 @@
-using Themia.Core.Motion;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
@@ -14,11 +13,11 @@ public sealed partial class DesignState
     {
         var repairs = new List<string>();
 
-        CornerRadiusPx = Math.Clamp(Sanitise(CornerRadiusPx, DefaultCornerRadiusPx), 0, 32);
-        FontScale = Math.Clamp(Sanitise(FontScale, 1), 0.5, 2.0);
-        BorderWidthPx = Math.Clamp(Sanitise(BorderWidthPx, 1), 0, 8);
-        BorderOpacity = Math.Clamp(Sanitise(BorderOpacity, 1), 0, 1);
-        IntroAnimationMs = IntroMotion.ClampMs(Sanitise(IntroAnimationMs, IntroMotion.DefaultMs));
+        CornerRadiusPx = DesignNumbers.CornerRadius.Clamp(CornerRadiusPx);
+        FontScale = DesignNumbers.FontScale.Clamp(FontScale);
+        BorderWidthPx = DesignNumbers.BorderWidth.Clamp(BorderWidthPx);
+        BorderOpacity = DesignNumbers.BorderOpacity.Clamp(BorderOpacity);
+        IntroAnimationMs = DesignNumbers.AnimationMs.Clamp(IntroAnimationMs);
 
         // A malformed colour becomes empty, which means "use the theme's own" - the one value that
         // is always renderable. Keeping the bad string would leave the widget with no fill at all.
@@ -70,8 +69,8 @@ public sealed partial class DesignState
         }
 
         // [S-704] The transition/unlock animations, on the same terms as the rest.
-        TransitionAnimationMs = IntroMotion.ClampMs(Sanitise(TransitionAnimationMs, IntroMotion.DefaultMs));
-        UnlockAnimationMs = IntroMotion.ClampMs(Sanitise(UnlockAnimationMs, IntroMotion.DefaultMs));
+        TransitionAnimationMs = DesignNumbers.AnimationMs.Clamp(TransitionAnimationMs);
+        UnlockAnimationMs = DesignNumbers.AnimationMs.Clamp(UnlockAnimationMs);
 
         if (!Enum.IsDefined(TransitionAnimation))
         {
@@ -85,7 +84,4 @@ public sealed partial class DesignState
 
         return repairs;
     }
-
-    private static double Sanitise(double value, double fallback)
-        => double.IsFinite(value) ? value : fallback;
 }

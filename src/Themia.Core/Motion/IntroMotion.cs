@@ -67,7 +67,7 @@ public static class IntroMotion
     }
 
     /// <summary>A length from a file or a control, made playable: non-finite becomes the default.</summary>
-    public static double ClampMs(double ms) => double.IsFinite(ms) ? Math.Clamp(ms, MinMs, MaxMs) : DefaultMs;
+    public static double ClampMs(double ms) => DesignNumbers.AnimationMs.Clamp(ms);
 
     /// <summary>
     /// [S-1010] Whether anything plays at all: never for <see cref="IntroAnimation.None"/>, and never

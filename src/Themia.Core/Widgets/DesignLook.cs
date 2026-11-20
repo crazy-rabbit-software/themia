@@ -256,7 +256,7 @@ public static class DesignLook
 
     /// <summary>[S-825] A corner radius from the setting: 0..32, not finite is the default ([S-6482], 8).</summary>
     public static double CornerRadius(double radiusPx)
-        => Math.Clamp(double.IsFinite(radiusPx) ? radiusPx : DesignState.DefaultCornerRadiusPx, 0, 32);
+        => DesignNumbers.CornerRadius.Clamp(radiusPx);
 
     /// <summary>
     /// [S-826] The font family to draw widget text in, or null for the system's own (Segoe UI

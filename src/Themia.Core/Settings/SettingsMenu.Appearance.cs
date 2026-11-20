@@ -236,15 +236,15 @@ public static partial class SettingsMenu
             Choice(host, key + "/material", Str.SettingsPages_Appearance_Material.Text(), Glyphs.Surface,
                 [(CardMaterial.Solid, Str.SettingsPages_Appearance_Solid.Text()), (CardMaterial.LiquidGlass, Str.Settings_Style_Preset_Name_LiquidGlass.Text())],
                 design.Material, (s, v) => s.Design.Material = v),
-            new SettingsSlider(key + "/radius", Str.Settings_Style_CornerRadius_Label.Text(), Glyphs.Surface, design.CornerRadiusPx, 0, 32, 1, v => Unit(v, "px"),
+            new SettingsSlider(key + "/radius", Str.Settings_Style_CornerRadius_Label.Text(), Glyphs.Surface, design.CornerRadiusPx, DesignNumbers.CornerRadius.Min, DesignNumbers.CornerRadius.Max, DesignNumbers.CornerRadius.Step, v => Unit(v, "px"),
                 v => host.Mutate(s => s.Design.CornerRadiusPx = v)),
             new SettingsSeparator(key + "/-border"),
             border,
-            new SettingsSlider(key + "/borderWidth", Str.Settings_Style_BorderWidth_Label.Text(), Glyphs.Fit, design.BorderWidthPx, 0, 8, 1, v => Unit(v, "px"),
+            new SettingsSlider(key + "/borderWidth", Str.Settings_Style_BorderWidth_Label.Text(), Glyphs.Fit, design.BorderWidthPx, DesignNumbers.BorderWidth.Min, DesignNumbers.BorderWidth.Max, DesignNumbers.BorderWidth.Step, v => Unit(v, "px"),
                 v => host.Mutate(s => s.Design.BorderWidthPx = v)),
             new SettingsColour(key + "/borderColour", Str.Shell_Appearance_BorderColour.Text(), design.BorderColor,
                 v => host.Mutate(s => s.Design.BorderColor = v), Str.Shell_Appearance_ThemeColour.Text(), ColorPresets.Surfaces),
-            new SettingsSlider(key + "/borderOpacity", Str.Settings_Style_BorderOpacity_Label.Text(), Glyphs.Opacity, design.BorderOpacity, 0, 1, 0.05, Percent,
+            new SettingsSlider(key + "/borderOpacity", Str.Settings_Style_BorderOpacity_Label.Text(), Glyphs.Opacity, design.BorderOpacity, DesignNumbers.BorderOpacity.Min, DesignNumbers.BorderOpacity.Max, DesignNumbers.BorderOpacity.Step, Percent,
                 v => host.Mutate(s => s.Design.BorderOpacity = v)),
         ]) { Value = border.Value };
     }
@@ -262,7 +262,7 @@ public static partial class SettingsMenu
         [
             new SettingsFont(key + "/font", Str.Settings_Font_FamilyLabel.Text(), Glyphs.Font, design.FontFamily,
                 v => host.Mutate(s => s.Design.FontFamily = v)),
-            new SettingsSlider(key + "/size", Str.Shell_Appearance_TextSize.Text(), Glyphs.TextSize, design.FontScale, FamilyType.MinTextScale, FamilyType.MaxTextScale, 0.05, Percent,
+            new SettingsSlider(key + "/size", Str.Shell_Appearance_TextSize.Text(), Glyphs.TextSize, design.FontScale, DesignNumbers.FontScale.Min, DesignNumbers.FontScale.Max, DesignNumbers.FontScale.Step, Percent,
                 v => host.Mutate(s => s.Design.FontScale = v)),
             TokenSlider(host, key, "vibrancy", Str.SettingsPages_Look_Vibrancy, Glyphs.Opacity, Percent),
             TokenChoice(host, key + "/headerWeight", Str.SettingsPages_Look_HeaderWeight, Glyphs.Bold, Weights, t => t.HeaderWeight, (t, v) => t.HeaderWeight = v),

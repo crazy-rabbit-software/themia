@@ -299,9 +299,7 @@ internal sealed partial class AppHost
     {
         ArgumentNullException.ThrowIfNull(id);
 
-        var clamped = double.IsFinite(scale)
-            ? Math.Clamp(scale, StateRepair.MinMonitorScale, StateRepair.MaxMonitorScale)
-            : 1.0;
+        var clamped = DesignNumbers.DisplayScale.Clamp(scale);
 
         Mutate(state =>
         {

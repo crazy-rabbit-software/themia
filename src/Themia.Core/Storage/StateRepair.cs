@@ -115,11 +115,12 @@ public static class StateRepair
                 continue;
             }
 
-            var clamped = Math.Clamp(scale, MinMonitorScale, MaxMonitorScale);
+            var range = DesignNumbers.DisplayScale;
+            var clamped = range.Clamp(scale);
             if (clamped != scale)
             {
                 state.MonitorScales[monitorId] = clamped;
-                repairs.Add($"display scale for '{monitorId}' was outside {MinMonitorScale:0.#}–{MaxMonitorScale:0.#}");
+                repairs.Add($"display scale for '{monitorId}' was outside {range.Min:0.#}–{range.Max:0.#}");
             }
         }
 
@@ -147,9 +148,4 @@ public static class StateRepair
         repairs.AddRange(Desktop.DesktopDisplays.RepairFallbacks(state));
         return repairs;
     }
-
-    /// <summary>The per-display scale range, as in the original's display settings (50 % to 200 %).</summary>
-    public const double MinMonitorScale = 0.5;
-
-    public const double MaxMonitorScale = 2.0;
 }

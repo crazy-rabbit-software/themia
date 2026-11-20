@@ -83,7 +83,7 @@ public static partial class SettingsMenu
         }
 
         lines.Add(new SettingsSeparator(key + "/-length"));
-        lines.Add(new SettingsSlider(key + "/length", Str.Shell_Motion_Length.Text(), Glyphs.Timer, IntroMotion.MsFor(design, mode), IntroMotion.MinMs, IntroMotion.MaxMs, 100,
+        lines.Add(new SettingsSlider(key + "/length", Str.Shell_Motion_Length.Text(), Glyphs.Timer, IntroMotion.MsFor(design, mode), DesignNumbers.AnimationMs.Min, DesignNumbers.AnimationMs.Max, DesignNumbers.AnimationMs.Step,
             Seconds, v => Set(d => SetLength(d, mode, v))));
         lines.Add(new SettingsCommand(key + "/play", Str.Shell_Motion_PlayNow.Text(), Glyphs.Play, () => host.ReplayIntro(mode)));
 

@@ -240,8 +240,8 @@ public sealed class ShellSettingsTests : IDisposable
 
         Assert.Null(state.DefaultViewForNewDisplays);
         Assert.Equal(["A", "B"], state.DisabledMonitors);
-        Assert.Equal(StateRepair.MaxMonitorScale, state.MonitorScales["A"]);
-        Assert.Equal(StateRepair.MinMonitorScale, state.MonitorScales["B"]);
+        Assert.Equal(DesignNumbers.DisplayScale.Max, state.MonitorScales["A"]);
+        Assert.Equal(DesignNumbers.DisplayScale.Min, state.MonitorScales["B"]);
         Assert.Equal(1.25, state.MonitorScales["C"]);
     }
 
