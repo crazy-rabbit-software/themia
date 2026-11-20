@@ -303,10 +303,11 @@ class Renders:
         listing = os.path.join(self.dir, f'_batch-{threading.get_ident()}-{time.monotonic_ns()}.json')
         with open(listing, 'w', encoding='utf-8') as f:
             json.dump({'jobs': [{'id': i, 'args': job.args(self._paths(job)[0])} for i, job in ids.items()]}, f)
-        for job in jobs:
-            for path in self._paths(job)[:2]:
-                if os.path.exists(path):
-                    os.remove(path)
+        # What an earlier, unfinished render of these jobs left: their pictures, layouts and popups.
+        stems = tuple(os.path.basename(self._paths(job)[0])[:-len('.png')] for job in jobs)
+        for name in os.listdir(self.dir):
+            if name.startswith(stems):
+                os.remove(os.path.join(self.dir, name))
         cmd = [self.exe, '--widget-batch', listing, '--theme', self.theme, '--timeout', str(self.timeout)]
         lines = queue.Queue()
         try:
@@ -384,10 +385,20 @@ class Renders:
         return [job for i, job in ids.items() if i not in seen]
 
 
+def popups(result):
+    """The popups a render drew beside its picture (a confirmation a state opens: <name>-popup<n>.png), as it said."""
+    folder = os.path.dirname(result.png)
+    return [os.path.join(folder, os.path.basename(p))
+            for p in re.findall(r'^widget: wrote (.+-popup\d+\.png)$', result.output, re.M)]
+
+
 def place(result, png):
-    """The cached picture and its layout under <png> too (a hard link, or a copy where none can be made)."""
+    """The cached picture, its layout and its popups under <png> too (a hard link, or a copy where none can be made)."""
     os.makedirs(os.path.dirname(png), exist_ok=True)
-    for source, target in ((result.png, png), (result.layout, png + '.layout.json')):
+    stem, cached = png[:-len('.png')], result.png[:-len('.png')]
+    pairs = [(result.png, png), (result.layout, png + '.layout.json')]
+    pairs += [(p, stem + p[len(cached):]) for p in popups(result)]
+    for source, target in pairs:
         if os.path.exists(target):
             os.remove(target)
         if not os.path.exists(source):
