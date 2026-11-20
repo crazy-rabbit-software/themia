@@ -448,7 +448,14 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         var focus = _fixture.On ? _fixture.Focused : desk.ShowsFocus(key);
         var active = _fixture.On ? !_fixture.Inactive : desk.Active;
         var dropTarget = _fixture.On ? _fixture.DropTarget : WidgetId is { } id && string.Equals(desk.DropTargetWidget, id, StringComparison.Ordinal);
-        SelectionChrome.Paint(_chrome, new SelectionCue(selected, _hovered || LinkedElsewhere, focus, focus, active, dropTarget), SelectionLook.DesktopIcon);
+
+        // [S-13709] The name and the highlight follow what the icon stands on: the wallpaper (Explorer's look), or a surface of
+        // Themia's, whose own words name it on a light one; its picture, cell and box never do.
+        var ground = desk.Ground;
+        var ink = SelectionLook.DesktopIconInk(ground?.Text is SolidColorBrush words ? new RgbColor(words.Color.R, words.Color.G, words.Color.B) : null);
+        SelectionChrome.Paint(_chrome, new SelectionCue(selected, _hovered || LinkedElsewhere, focus, focus, active, dropTarget), ink.Look);
+        _name.Ground(ink.GroundText ? ground?.Text : null);
+        _scrim.Background = ink.GroundText && ground is not null ? ground.Ground : Family.Brush(ColourRole.OnWallpaperShadow);
 
         var faded = _fixture.On ? _fixture.Faded : !Own && (desk.IsCut(key) || Item?.Hidden == true);
         _iconHost.Opacity = faded ? SelectionLook.Faded : 1;

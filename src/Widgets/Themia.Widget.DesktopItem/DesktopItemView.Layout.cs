@@ -26,7 +26,10 @@ internal sealed partial class DesktopItemView : IWidgetOverhang
     /// <summary>[S-13974] Icon only's name column under the icon, centred on it: the plate, or the rename box in its place.</summary>
     private readonly Grid _hang = new() { Visibility = Visibility.Collapsed };
 
-    /// <summary>[S-13974] Icon only's name on its plate: the name's shadow colour under its light text, so it reads over the icons it covers.</summary>
+    /// <summary>
+    /// [S-13974] Icon only's name on its plate: the name's shadow colour under its light text, so it reads over the icons it
+    /// covers; [S-13709] on a light surface of Themia's, that surface's ground under its own words (<c>Paint</c>).
+    /// </summary>
     private readonly Grid _plate = new()
     {
         HorizontalAlignment = HorizontalAlignment.Center,

@@ -2678,7 +2678,7 @@ right-click cancelling); the keys of [S-13617]; the pictures drawing in the runn
 packaged Store build, their cache across openings, after a design or language change and dropped a minute
 after closing; a screen reader on the rail, the family heads and the tiles.
 
-#### Unplaced icons ([S-13700]..[S-13708])
+#### Unplaced icons ([S-13700]..[S-13709])
 
 The owner (2026-11-19): *"in edit mode there should be a page with the desktop icons that are on the physical desktop
 folder but are not placed on the given view, this should be a page in the settings too, own entry in the topbar."*
@@ -2697,7 +2697,8 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
 (`PlaceDesktopItems`, `PutDesktopItemsInFence`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
 `BeginPlacement(items, screen)`, `DesktopListed`), the entry's badge in `EditBar.cs`; render
 `Gallery/EditBarRender.Unplaced.cs`, `Gallery/DeskSelectCheck.cs` (`<out>.place-icon.png`). Tests `UnplacedItemsTests`,
-`SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`, `MultiSelectPlacementTests.S13708_`.
+`SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`, `MultiSelectPlacementTests.S13708_`,
+`ItemSelectionTests.S13709_`.
 
 - **[S-13700]** **The page** is a settings page like the others (`SettingsPageId.DesktopItems`, after Views in the
   bar's order), its one line a live part of the page host's (`SettingsPreview` with its `Name`, drawn as the
@@ -2744,8 +2745,8 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   (`PageFlyout.ContentHeightAt`) up to 70 % of the work area, and still hung from its entry: its beak's tip over the
   entry's middle. Its icons are **the desktop's own icon view** (the desktop item kind's `IDesktopIconView`, made by its
   module as the desktop makes it, `ModuleHost.CreateView`): the shell's icon with its overlay at the display's pixels
-  ([S-5512], [S-5563]), the name under it on the wallpaper (`WallpaperLabel`, wrapped on two lines and cut with an
-  ellipsis, [S-6733]), the hover and the selection in the desktop icon's look, a cut item faded; each in **the box the
+  ([S-5512], [S-5563]), the name under it (`WallpaperLabel`, drawn for the page's ground, [S-13709], wrapped on two
+  lines and cut with an ellipsis, [S-6733]), the hover and the selection in the desktop icon's look, a cut item faded; each in **the box the
   desktop gives an icon on that display** (`AppHost.DeskIconBox`, whole grid cells round the icon cell at the icon size
   in force, [S-11875], [S-5593]; `UnplacedItems.Dips`), never a cell of the page's own, so whatever the desktop's
   icon cell becomes the page's becomes too. They stand **box against box in rows across the page** as the desktop
@@ -2756,7 +2757,7 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   under every bar, so where boxes meet the marks are one line, a T or a cross, as on the desktop: `IconMarks`, the
   card's own geometry and brushes), on **the page's own ground** (owner, 2026-11-20: "make the background of the icons
   area the same as the rest of the configuration page"; before, a stretch of the display's blurred wallpaper in a card's
-  rim, the names' `WallpaperLabel` still the desktop's), so what is seen is what is placed. The icons' host is a
+  rim), so what is seen is what is placed. The icons' host is a
   preview's (`IconPreviewHost`, `IsPreview`: they act on nothing themselves) whose desktop is the page's: its items, and
   its selection painted ([S-13703]); the page takes their press, drag and keys.
 - **[S-13708]** **Dragged off the page, they look as on the desktop** (owner, 2026-11-20, quoted above): from the first
@@ -2769,6 +2770,16 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   icons in edit mode. Made as the placement first shows them, moved with the pointer, let go when it ends
   (`DesktopWindow.IconGhosts.cs`). `--desk-select-check` draws one placed beside the desktop's icons in edit mode
   (`<out>.place-icon.png`, PASS or FAIL).
+- **[S-13709]** **On the page, the name and the highlight follow its ground** (2026-11-20, the page in the light theme:
+  its white names hard to read, its selected icons with no fill to be seen): the icon's picture, cell, box and corner
+  marks stay exactly the desktop's ([S-13707]); its name and its highlight follow what it stands on, one rule
+  (`SelectionLook.DesktopIconInk`) the icon view itself applies to the ground its desktop names (`IDesktopItems.Ground`:
+  null for the wallpaper, an `IconSurface` of its words' and its ground's brushes for a surface of Themia's). On the
+  wallpaper (the desktop, and an icon being placed, [S-13708], which lands on it) Explorer's desktop look whatever the
+  wallpaper: the light name over its shadow and the white wash. On a light surface (its words dark: the page in the light
+  theme) the name in the page's own words' colour with no shadow, as Explorer draws icons in a light folder window, and
+  the desktop icon's highlight in black (`DesktopIconOnLight`, [S-13019]: every strength the desktop's), icon only's name
+  plate the page's ground; on a dark one (the page in the dark theme) as on the wallpaper.
 
 Needs a live pass: the drag off the page onto the desktop (the icons under the real pointer from its first frame, the
 release landing them, on another display too, and the page opening again), placing and putting in a fence with the real
