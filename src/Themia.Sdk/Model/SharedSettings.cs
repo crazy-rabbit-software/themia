@@ -196,9 +196,6 @@ public static class SharedSettings
     /// <summary>[S-2440] How many lines each row of a list has.</summary>
     public static SharedSetting<IKitRows> ListLines { get; } = new("listLines", (a, b) => a.Lines == b.Lines, (from, to) => to.Lines = from.Lines, rows => rows.OffersLines);
 
-    /// <summary>[S-11400] How many columns a list's rows stand in.</summary>
-    public static SharedSetting<IKitColumns> ListColumns { get; } = new("listColumns", (a, b) => a.Columns == b.Columns, (from, to) => to.Columns = from.Columns);
-
     /// <summary>[S-1464] When the music atoms paint nothing.</summary>
     public static SharedSetting<IHidesWhenIdle> HideWhenIdle { get; } = new("hideWhenIdle", (a, b) => a.HideWhenIdle == b.HideWhenIdle, (from, to) => to.HideWhenIdle = from.HideWhenIdle);
 
@@ -216,7 +213,7 @@ public static class SharedSettings
     public static IReadOnlyList<SharedSetting> All { get; } =
     [
         Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, PingHost, GpuAdapter, AudioOutput,
-        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, ListRows, ListLines, ListColumns, HideWhenIdle,
+        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, ListRows, ListLines, HideWhenIdle,
     ];
 
     /// <summary>The shared setting named <paramref name="key"/>, or null.</summary>

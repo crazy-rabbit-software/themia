@@ -4592,12 +4592,15 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   row by the card's height and width (`KitLadder`'s legacy branch, the schedule's two columns from 720,
   `KitChecks`' tiers and Huge-wide columns, `AddFooter.Show`) is gone with its tests; `RowRules.Lines`
   went with the legacy kinds ([S-11800]). Tests `KitRowsTests`.
-- **[S-11400]** **Three lines and two columns, as settings.** A kit list whose rows have a preview may
+- **[S-11400]** **Three lines, as a setting, and two columns, the card's.** A kit list whose rows have a preview may
   offer three lines a row (the title, the subtitle, the preview; 56 a row, `KitMenuLines.Rows(..,
-  mostLines: 3)`, `KitSizing.ClampLines(lines, most)`); a list that grew columns with its width offers
-  **Columns** instead (`IKitColumns`, 1 or 2, `KitMenuLines.Columns`): two columns double its width
-  range (440..1040, a new one 600) and split the width evenly; its rows count down each column, the
-  height follows them as before. No width ever adds a column. Tests `KitRowsTests.S11400_`.
+  mostLines: 3)`, `KitSizing.ClampLines(lines, most)`); a list that grew columns with its width has
+  **columns** (`IKitColumns`, 1 or 2) that are the card's width (owner, 2026-11-20: "Anything that's just 'how many
+  of the same item' ... follows the card's size", [S-14410]; the Columns line is gone): a width that holds two
+  columns' least (440 for the kit's 220) shows two, split evenly, a narrower one one (`KitSizing.ColumnsFor`, stored
+  by a resize, `KitSizing.SizeSets`); two columns' natural is twice one's (600), the least stays one column's so a
+  narrower drag goes back; its rows count down each column, the height follows them as before. Tests
+  `KitRowsTests.S11400_`.
 - **[S-11401]** **A table that states its rows** (`KitRowLook.Table` with `KitChoices.Rows`): one line
   a row, every one of the user's columns in the user's order (`KitPlanner.TableColumns`: the title, the
   time and the badge at their widths, the subtitle and the preview sharing the rest), its column titles
@@ -5690,8 +5693,8 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
   step as the streak; each dot's tooltip names its period in the cadence's units ("Week of Monday
   28 Sep 2026", "14:00, …", "September 2026"). A dot is 8 and round, 4 from the next, done in the
   accent and open in the track role (the Chart block's two, [S-6717]); they are the habit row's
-  inline meter ([S-6711]). A narrow tile shows fewer, dropping the oldest, and fewer than three none;
-  the name never yields to them.
+  inline meter ([S-6711]). A narrower card shows fewer, dropping the oldest, and fewer than three none;
+  the name keeps its room (120) before them (`HabitSizing.HistoryFor`).
 - Not ported: original S-10 compact header default (no compact header mode here), S-12 equal-slice
   rows (Fluent fixed rows, S-213), S-13 drag reorder (above), S-21 legacy migration (no backwards
   compatibility).
@@ -9083,7 +9086,7 @@ model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
   symbol and its timeframe (`StockQuoteConfig`, two settings); the screen-time period
   (`IScreenTimePeriod`: Screen time, its apps, chart and donut); the history span (`ISpansHistory`: the
   eight history atoms and the cores); a list's Rows, its
-  Lines where they are the user's (`IKitRows.OffersLines`) and its Columns (`IKitColumns`), shared only
+  Lines where they are the user's (`IKitRows.OffersLines`), shared only
   among lists; when the music atoms hide (`IHidesWhenIdle`: the track, the cover, the progress). Not
   shared: the units and formats, which the widgets follow ([S-3590]); the network adapter (no network atom
   chooses one); a list's own source (a feed, a folder, a task list).

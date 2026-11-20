@@ -67,11 +67,13 @@ public sealed class KitRowsTests
         Assert.Equal(1, KitSizing.ClampLines(-1));
     }
     [Fact]
-    public void S11400_two_columns_double_the_width_range_and_split_the_width()
+    public void S11400_two_columns_double_the_natural_and_largest_width_and_split_the_width()
     {
         var one = KitSizing.Sizing(new KitRowsChoice(5, 2), addFooter: false);
         var two = KitSizing.Sizing(new KitRowsChoice(5, 2, Columns: 2), addFooter: false);
-        Assert.Equal(2 * one.Min.Width, two.Min.Width);
+
+        // [S-14410] The least stays one column's, so a narrower drag goes back to one.
+        Assert.Equal(one.Min.Width, two.Min.Width);
         Assert.Equal(2 * one.Natural.Width, two.Natural.Width);
         Assert.Equal(2 * one.Max.Width, two.Max.Width);
         Assert.Equal(one.Natural.Height, two.Natural.Height);
@@ -79,6 +81,20 @@ public sealed class KitRowsTests
         var plan = KitPlanner.Plan(new WidgetArea(600, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(5, 2, Columns: 2) });
         Assert.Equal(2, plan.Columns);
         Assert.Equal(300, plan.ColumnWidth);
+    }
+
+    [Fact]
+    public void S11400_S14410_the_columns_are_the_cards_width_two_where_it_holds_two_columns_least()
+    {
+        // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows
+        // the card's size": no Columns line; the width a resize lands on decides them.
+        Assert.Equal(1, KitSizing.ColumnsFor(300));
+        Assert.Equal(1, KitSizing.ColumnsFor(439));
+        Assert.Equal(2, KitSizing.ColumnsFor(440));
+        Assert.Equal(2, KitSizing.ColumnsFor(1200));
+        Assert.Equal(2, KitSizing.ColumnsFor(600, new KitWidths(300, 400, 600)));
+        Assert.Equal(1, KitSizing.ColumnsFor(599, new KitWidths(300, 400, 600)));
+        Assert.Equal(1, KitSizing.ColumnsFor(double.NaN));
     }
 
     [Fact]

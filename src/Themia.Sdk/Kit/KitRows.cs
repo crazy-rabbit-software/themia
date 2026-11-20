@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.Sdk.Kit;
 
@@ -25,8 +26,9 @@ public interface IKitRows
 }
 
 /// <summary>
-/// [S-11400] A kit list that may show its rows in two columns side by side: the user's choice, never the
-/// width's. Two columns double the width range; the rows count down each column.
+/// [S-11400] [S-14410] A kit list that may show its rows in two columns side by side: the card's width's, never a
+/// setting (owner, 2026-11-20: "Anything that's just 'how many of the same item' ... follows the card's size"): a width
+/// that holds two columns' least shows two (<see cref="KitSizing.ColumnsFor"/>); the rows count down each column.
 /// </summary>
 public interface IKitColumns
 {
@@ -106,22 +108,27 @@ public static class KitSizing
     /// <summary>
     /// [S-2440] The sizing of a kit list showing <paramref name="shown"/> (the config's rows and the lines
     /// its rows really have: a one-line style has one): its width range (the kit's, or the look's own
-    /// <paramref name="widths"/>; times its columns, [S-11400]), its height in rows.
+    /// <paramref name="widths"/>; its natural and largest times its columns, its least one column's so a narrower card
+    /// goes back to one, [S-11400], [S-14410]), its height in rows.
     /// </summary>
     public static WidgetSizing Sizing(KitRowsChoice shown, bool addFooter, KitWidths? widths = null)
     {
         var w = widths ?? new KitWidths(MinWidth, NaturalWidth, MaxWidth);
         var columns = ClampColumns(shown.Columns);
-        return (WidgetSizing.Range(new(w.Min * columns, 1), new(w.Natural * columns, 1), new(w.Max * columns, 1)) with { Room = StretchRoom.List })
+        return (WidgetSizing.Range(new(w.Min, 1), new(w.Natural * columns, 1), new(w.Max * columns, 1)) with { Room = StretchRoom.List })
             .WithHeightSteps(Steps(shown, addFooter));
     }
 
+    /// <summary>[S-11400] [S-14410] The columns a list <paramref name="width"/> wide shows: two where it holds two columns' least, else one.</summary>
+    public static int ColumnsFor(double width, KitWidths? widths = null)
+        => double.IsFinite(width) && width + LayoutMath.Tolerance >= MaxColumns * (widths ?? new KitWidths(MinWidth, NaturalWidth, MaxWidth)).Min ? MaxColumns : 1;
+
     /// <summary>
     /// [S-2442] The config a list of <paramref name="size"/> means: the rows that height holds, its rows
-    /// being as <paramref name="shown"/> says. A copy when they change, the same config otherwise; never
-    /// the given one changed.
+    /// being as <paramref name="shown"/> says, and where it has columns the columns that width holds ([S-14410],
+    /// <see cref="ColumnsFor"/>). A copy when they change, the same config otherwise; never the given one changed.
     /// </summary>
-    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size, KitRowsChoice shown, bool addFooter)
+    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size, KitRowsChoice shown, bool addFooter, KitWidths? widths = null)
     {
         ArgumentNullException.ThrowIfNull(config);
         if (config is not IKitRows rows)
@@ -130,13 +137,19 @@ public static class KitSizing
         }
 
         var wanted = Steps(shown, addFooter).Nearest(size.Height);
-        if (wanted == rows.Rows)
+        var columns = config is IKitColumns c ? (Now: ClampColumns(c.Columns), Wanted: ColumnsFor(size.Width, widths)) : (Now: 1, Wanted: 1);
+        if (wanted == rows.Rows && columns.Wanted == columns.Now)
         {
             return config;
         }
 
         var copy = config.Clone();
         ((IKitRows)copy).Rows = wanted;
+        if (copy is IKitColumns set)
+        {
+            set.Columns = columns.Wanted;
+        }
+
         return copy;
     }
 }

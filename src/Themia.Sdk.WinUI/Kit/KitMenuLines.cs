@@ -154,14 +154,6 @@ public static class KitMenuLines
         }
     }
 
-    /// <summary>[S-11400] How many columns the rows stand in, side by side (1 or 2): the user's, never the width's.</summary>
-    public static ItemMenuEntry Columns(WidgetMenuLines menu, IKitColumns config)
-    {
-        ArgumentNullException.ThrowIfNull(menu);
-        ArgumentNullException.ThrowIfNull(config);
-        return WidgetMenuLines.Shared(SharedSettings.ListColumns, Count(menu, null, Str.Kit_Columns.Text(), KitSizing.ClampColumns(config.Columns), 1, KitSizing.MaxColumns, 1, v => config.Columns = v));
-    }
-
     /// <summary>[S-7063] One switch per optional field the widget offers ([S-6070]: only fields the current style draws).</summary>
     public static IEnumerable<ItemMenuEntry> Shows(WidgetMenuLines menu, IReadOnlyList<KitShowLine> fields)
     {

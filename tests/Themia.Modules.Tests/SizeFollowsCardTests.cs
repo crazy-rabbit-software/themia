@@ -50,9 +50,12 @@ public sealed class SizeFollowsCardTests
     }
 
     /// <summary>Every setting line of every kind's menu (its Style lines and its own), submenus walked, as "kind › words".</summary>
-    internal static List<string> MenuLines(out int built)
+    internal static List<string> MenuLines(out int built) => [.. MenuEntries(out built).Select(e => $"{e.Kind} › {e.Line.Text}")];
+
+    /// <summary>Every setting line of every kind's menu (its Style lines and its own), submenus walked, with its kind.</summary>
+    private static List<(string Kind, ItemMenuEntry Line)> MenuEntries(out int built)
     {
-        var lines = new List<string>();
+        var lines = new List<(string Kind, ItemMenuEntry Line)>();
         built = 0;
         foreach (var (kind, config) in Configs())
         {
@@ -68,7 +71,7 @@ public sealed class SizeFollowsCardTests
             }
 
             built++;
-            lines.AddRange(Walk(menu.StyleLines.Concat(menu.Lines)).Select(l => $"{kind} › {l.Text}"));
+            lines.AddRange(Walk(menu.StyleLines.Concat(menu.Lines)).Select(l => (kind, l)));
         }
 
         return lines;
@@ -76,6 +79,36 @@ public sealed class SizeFollowsCardTests
         // A submenu's lines are settings too; a choice's options (checked or not: a sort's "Size", a file's) are not.
         static IEnumerable<ItemMenuEntry> Walk(IEnumerable<ItemMenuEntry> entries)
             => entries.Where(e => !e.IsSeparator).SelectMany(e => new[] { e }.Concat(e.Children is { } children ? Walk(children.Where(c => c.Checked is null)) : []));
+    }
+
+    /// <summary>
+    /// [S-14410] The words of the count lines that are gone, in English: a forecast's and a calendar week's days, a week
+    /// planner's days, a calendar's hours and its month's events a day, a habit's history, a stopwatch's laps, a
+    /// gallery's and a list's columns and a gallery's pictures shown.
+    /// </summary>
+    private static readonly string[] CountWords = ["Days shown", "Days", "Hours shown", "Events a day", "History", "Laps", "Columns", "Pictures shown"];
+
+    [Fact]
+    public void S14410_no_widget_menu_sets_how_many_of_the_same_item_it_shows()
+    {
+        // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the
+        // card's size. What the items are (which facts, which span of time a chart covers) stays a setting." A count line
+        // is a number box or a choice of numbers; a submenu of which columns a table shows (what the items are) is not.
+        var found = MenuEntries(out var built)
+            .Where(e => CountWords.Contains(e.Line.Text) && (e.Line.Slider is not null || (e.Line.Children is { Count: > 0 } options && options.All(o => o.Checked is not null))))
+            .Select(e => $"{e.Kind} › {e.Line.Text}")
+            .ToList();
+
+        Assert.True(built > 100, $"only {built} menus built");
+        Assert.True(found.Count == 0, "a widget's menu sets how many of the same item it shows (the card's size does): " + string.Join("; ", found));
+    }
+
+    [Fact]
+    public void S14410_a_lists_rows_stay_a_setting()
+    {
+        // Owner, 2026-11-20, on the follow-ups: the list "Rows" setting stays; it decides the natural height.
+        var rows = MenuEntries(out _).Where(e => e.Line.Text == "Rows" && e.Line.Slider is not null).Select(e => e.Kind).Distinct().ToList();
+        Assert.True(rows.Count >= 10, "a list lost its Rows line: " + string.Join(", ", rows));
     }
 
     [Fact]

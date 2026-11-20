@@ -41,10 +41,10 @@ internal static class RssMenu
         ]));
         menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Count, RssStr.WidgetsC_Rss_Settings_Articles.Text(), config.EffectiveMaxItems, 5, 50, 5, value => config.MaxItems = value));
 
-        // [S-11403] How many headlines, their lines where a headline has more than one, and the columns.
+        // [S-11403] How many headlines and their lines where a headline has more than one; the columns are the card's
+        // width ([S-14410]).
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(KitMenuLines.Rows(menu, config, mostLines: config.MostLines));
-        menu.Lines.Add(KitMenuLines.Columns(menu, config));
     }
 
     /// <summary>

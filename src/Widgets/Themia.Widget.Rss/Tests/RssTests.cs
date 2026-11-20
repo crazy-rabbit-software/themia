@@ -146,7 +146,23 @@ public sealed class RssTests
 
         Assert.True(plan.Preview);
         Assert.Equal(2, plan.Columns);
-        Assert.Equal((440, 600, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // relaxed, [S-12411]: 600 x 2.5, held to the ceiling
+        Assert.Equal((220, 600, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // relaxed, [S-12411]: 600 x 2.5, held to the ceiling
+    }
+
+    [Fact]
+    public void S11403_its_columns_are_the_cards_width_a_drag_sets_them()
+    {
+        // [S-14410] No Columns line: a card that holds two columns' least (440) shows two, a narrower one one.
+        var kind = new RssModule().Descriptor;
+        var config = new RssConfig();
+        var natural = kind.Sizing(config).Natural;
+
+        var wide = Assert.IsType<RssConfig>(kind.SizeSets!(config, natural with { Width = 600 }));
+        Assert.Equal((2, config.Rows), (wide.Columns, wide.Rows));
+        var narrow = Assert.IsType<RssConfig>(kind.SizeSets(wide, natural with { Width = 300 }));
+        Assert.Equal(1, narrow.Columns);
+        Assert.Same(config, kind.SizeSets(config, natural));
+        Assert.Equal(1, config.Columns);
     }
 
     [Fact]

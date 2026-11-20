@@ -65,7 +65,6 @@ public sealed class SharedSettingsTests
         ["historySpan"] = c => ((ISpansHistory)c).GraphSpanSeconds = 1800,
         ["listRows"] = c => ((IKitRows)c).Rows = 17,
         ["listLines"] = c => ((IKitRows)c).Lines = 3,
-        ["listColumns"] = c => ((IKitColumns)c).Columns = 2,
         ["hideWhenIdle"] = c => ((IHidesWhenIdle)c).HideWhenIdle = MusicHideWhenIdle.NotPlaying,
         ["chartDetail"] = c => ((IChartLooks)c).Detail = ChartDetail.Detailed,
     };
