@@ -10,28 +10,56 @@ namespace Themia.App.Shell;
 /// <summary>[S-5501] [S-5502] [S-5544] [S-5548] The surface as the desktop itself, outside edit mode, whether its icons show or not.</summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>
-    /// [S-5544] The band on empty desktop, on the surface the press landed on: where it started, whether
-    /// it has left the dead zone, its modifiers. The band itself is the host's, one rectangle in screen
-    /// space; <see cref="_deskBand"/> is the shape every surface it reaches draws its part with.
-    /// </summary>
-    private Point _deskBandStart;
-    private bool _deskBandArmed;
-    private bool _deskBanding;
-    private bool _deskBandCtrl;
-    private bool _deskBandShift;
-    private Border? _deskBand;
+    /// <summary>Which band a press on empty surface draws.</summary>
+    private enum BandKind
+    {
+        /// <summary>[S-5544] The desktop's band (a left press on empty desktop or a fence's empty body): the host's, in screen space.</summary>
+        Desktop,
+
+        /// <summary>[S-13007] The right button's rectangle a fence is made on.</summary>
+        Fence,
+
+        /// <summary>[S-1581] The edit-mode lasso over this display's widgets.</summary>
+        Lasso,
+    }
 
     /// <summary>
-    /// [S-13007] A rectangle drawn with the right button on empty desktop, as Fences makes a fence: where it started,
-    /// whether it is armed (the press captured) and drawing (past the dead zone), and its shape on the ghost layer. Its
-    /// release opens "Create fence here" instead of the background menu.
+    /// [S-5544] [S-13007] [S-1581] The one rubber band of this surface: its kind, its gesture (<see cref="BandGesture"/>: where
+    /// it was pressed, whether it left the 5-DIP dead zone, [S-6624]), the modifiers at its press, and for the lasso the
+    /// selection it adds to and how many widgets it touches. Null while no band is armed (the press captured).
     /// </summary>
-    private Point _fenceStart;
-    private bool _fenceArmed;
-    private bool _fenceDrawing;
+    private sealed class RubberBand(BandKind kind, BandGesture gesture)
+    {
+        public BandKind Kind { get; } = kind;
+
+        public BandGesture Gesture { get; set; } = gesture;
+
+        public bool Ctrl { get; init; }
+
+        public bool Shift { get; init; }
+
+        /// <summary>[S-13020] The desktop's band began on empty body of a fence: it offers no area at its release.</summary>
+        public bool InFence { get; init; }
+
+        /// <summary>[S-1581] What the lasso adds to (Ctrl or Shift at its press).</summary>
+        public IReadOnlyList<string> Base { get; init; } = [];
+
+        /// <summary>[S-13018] The widgets the lasso touches now.</summary>
+        public int Caught { get; set; }
+
+        public Point Start => new(Gesture.StartX, Gesture.StartY);
+    }
+
+    private RubberBand? _band;
+
+    /// <summary>[S-6627] Every band's shape on this surface, in the SDK's one look (<see cref="SelectionChrome.PaintBand"/>).</summary>
+    private Border? _bandShape;
+
+    /// <summary>[S-13007] A fence's rectangle was let go: its menu opened instead of the background menu.</summary>
     private bool _fenceMenuShown;
-    private Border? _fenceBand;
+
+    /// <summary>The band, armed when the press is captured (then the pointer is reported past this surface's edges too).</summary>
+    private RubberBand? Arm(PointerRoutedEventArgs e, RubberBand band) => _root.CapturePointer(e.Pointer) ? band : null;
 
     /// <summary>
     /// [S-5502] [S-5544] [S-5550] A press on empty desktop outside edit mode: the surface covers the
@@ -52,28 +80,20 @@ internal sealed partial class DesktopWindow
         var shift = left && IsDown(Windows.System.VirtualKey.Shift);
         _host.DesktopEmptyPressed(this, point.Position, ctrl, shift);
 
+        var at = new BandGesture(point.Position.X, point.Position.Y);
         if (left)
         {
-            _deskBandStart = point.Position;
-            _deskBandCtrl = ctrl;
-            _deskBandShift = shift;
-            _deskBanding = false;
-            _deskBandArmed = _root.CapturePointer(e.Pointer);
+            _band = Arm(e, new RubberBand(BandKind.Desktop, at) { Ctrl = ctrl, Shift = shift });
         }
         else if (point.Properties.IsRightButtonPressed)
         {
             // [S-13007] A right press may become the rectangle a fence is made on.
-            _fenceStart = point.Position;
-            _fenceDrawing = false;
             _fenceMenuShown = false;
-            _fenceArmed = _root.CapturePointer(e.Pointer);
+            _band = Arm(e, new RubberBand(BandKind.Fence, at));
         }
 
         e.Handled = true;
     }
-
-    /// <summary>[S-13020] The running band began on empty body of a fence: it offers no area at its release.</summary>
-    private bool _deskBandInFence;
 
     /// <summary>
     /// [S-13020] A left press on empty body of a fence (handed over by its host): the desktop's band from that point, as a
@@ -96,86 +116,8 @@ internal sealed partial class DesktopWindow
         var ctrl = press.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control);
         var shift = press.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Shift);
         _host.DesktopEmptyPressed(this, point.Position, ctrl, shift, inFence: true);
-        _deskBandStart = point.Position;
-        _deskBandCtrl = ctrl;
-        _deskBandShift = shift;
-        _deskBanding = false;
-        _deskBandInFence = true;
-        _deskBandArmed = _root.CapturePointer(press.Pointer);
-        _deskBandInFence = _deskBandArmed;
-        return _deskBandArmed;
-    }
-
-    /// <summary>[S-13007] The pointer moved with the right button down on empty desktop: past the dead zone it draws the fence's rectangle.</summary>
-    private void UpdateFenceBand(Point now)
-    {
-        if (!_fenceArmed)
-        {
-            return;
-        }
-
-        if (!_fenceDrawing && !SelectionBand.PastThreshold(now.X - _fenceStart.X, now.Y - _fenceStart.Y))
-        {
-            return;
-        }
-
-        _fenceDrawing = true;
-        var shape = EnsureFenceBand();
-        Canvas.SetLeft(shape, Math.Min(_fenceStart.X, now.X));
-        Canvas.SetTop(shape, Math.Min(_fenceStart.Y, now.Y));
-        shape.Width = Math.Abs(now.X - _fenceStart.X);
-        shape.Height = Math.Abs(now.Y - _fenceStart.Y);
-        shape.Visibility = Visibility.Visible;
-    }
-
-    /// <summary>
-    /// [S-13007] The right button came up (or the capture went): a rectangle drawn opens Fences' small menu at the release
-    /// ("Create fence here"); a plain right click goes on to the background menu.
-    /// </summary>
-    private bool EndFenceBand(PointerRoutedEventArgs? e)
-    {
-        if (!_fenceArmed)
-        {
-            return false;
-        }
-
-        _fenceArmed = false;
-        if (e is not null)
-        {
-            _root.ReleasePointerCapture(e.Pointer);
-        }
-
-        HideBand(_fenceBand);
-        if (!_fenceDrawing)
-        {
-            return false;
-        }
-
-        _fenceDrawing = false;
-        if (e is not null)
-        {
-            _fenceMenuShown = true;
-            if (_host.FenceRectDrawn(this, _fenceStart, e.GetCurrentPoint(_root).Position, ReleaseHeldBand))
-            {
-                HoldBand(_fenceBand);
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>[S-13007] The rectangle in the band's one look, on the ghost layer (never hit-testable).</summary>
-    private Border EnsureFenceBand()
-    {
-        if (_fenceBand is not null)
-        {
-            return _fenceBand;
-        }
-
-        _fenceBand = new Border { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
-        SelectionChrome.PaintBand(_fenceBand);
-        _ghostLayer.Children.Add(_fenceBand);
-        return _fenceBand;
+        _band = Arm(press, new RubberBand(BandKind.Desktop, new BandGesture(point.Position.X, point.Position.Y)) { Ctrl = ctrl, Shift = shift, InFence = true });
+        return _band is not null;
     }
 
     /// <summary>
@@ -223,28 +165,45 @@ internal sealed partial class DesktopWindow
         e.Handled = true;
     }
 
-    /// <summary>[S-5544] The pointer moved with the left button down on empty desktop: past the dead zone it is a band, live.</summary>
-    private void UpdateDesktopBand(Point now)
+    /// <summary>
+    /// [S-5544] [S-13007] [S-1581] The pointer moved while a band is armed: past the dead zone it is drawn, and from then on
+    /// it follows the pointer until it is let go, however small (<see cref="BandGesture.Moved"/>).
+    /// </summary>
+    private void UpdateBand(Point now)
     {
-        if (!_deskBandArmed)
+        if (_band is not { } band)
         {
             return;
         }
 
-        if (!_deskBanding)
+        var wasDrawn = band.Gesture.Drawn;
+        band.Gesture = band.Gesture.Moved(now.X, now.Y);
+        if (!band.Gesture.Drawn)
         {
-            if (!SelectionBand.PastThreshold(now.X - _deskBandStart.X, now.Y - _deskBandStart.Y))
-            {
-                return;
-            }
-
-            _deskBanding = true;
-            _host.DesktopBandBegin(_deskBandCtrl, _deskBandShift);
+            return;
         }
 
-        // The pointer is captured here, so it is reported past this surface's edges too: the host
-        // makes the one band of it and hands every display its part.
-        _host.DesktopBand(this, _deskBandStart, now);
+        switch (band.Kind)
+        {
+            case BandKind.Desktop:
+                if (!wasDrawn)
+                {
+                    _host.DesktopBandBegin(band.Ctrl, band.Shift);
+                }
+
+                // The pointer is captured here, so it is reported past this surface's edges too: the host
+                // makes the one band of it and hands every display its part.
+                _host.DesktopBand(this, band.Start, now);
+                break;
+
+            case BandKind.Fence:
+                ShowBand(band.Gesture.To(now.X, now.Y));
+                break;
+
+            case BandKind.Lasso:
+                UpdateLasso(band, now);
+                break;
+        }
     }
 
     /// <summary>
@@ -255,51 +214,74 @@ internal sealed partial class DesktopWindow
     {
         if (part is not { } band || _closed)
         {
-            HideBand(_deskBand);
+            HideBand(_bandShape);
 
             return;
         }
 
-        var shape = EnsureDesktopBand();
-        Canvas.SetLeft(shape, band.Left);
-        Canvas.SetTop(shape, band.Top);
-        shape.Width = band.Width;
-        shape.Height = band.Height;
-        shape.Visibility = Visibility.Visible;
+        ShowBand(band);
     }
 
     /// <summary>The DIP-to-pixel factor this surface draws at, for the host's screen-space band.</summary>
     public double BandScale => RasterScale;
 
     /// <summary>
-    /// [S-5544] The left button came up, or the capture went: what the band selected stays. [S-13018] A band let go
-    /// over empty desktop (it touched nothing) offers its area's menu at the release.
+    /// [S-5544] [S-13007] [S-1581] The button came up, or the capture went (<paramref name="e"/> null): what a band selected
+    /// stays. [S-13018] A desktop band or lasso let go over empty desktop offers its area's menu at the release; a fence's
+    /// rectangle opens "Create fence here" ([S-13007]). False for a right press that drew nothing: the background menu is
+    /// its release's.
     /// </summary>
-    private bool EndDesktopBand(PointerRoutedEventArgs? e)
+    private bool EndBand(PointerRoutedEventArgs? e)
     {
-        if (!_deskBandArmed)
+        if (_band is not { } band)
         {
             return false;
         }
 
-        _deskBandArmed = false;
-        var inFence = _deskBandInFence;
-        _deskBandInFence = false;
+        _band = null;
         if (e is not null)
         {
             _root.ReleasePointerCapture(e.Pointer);
         }
 
-        if (_deskBanding)
+        HideBand(_bandShape);
+        if (!band.Gesture.Drawn)
         {
-            _deskBanding = false;
-            var caught = _host.BandCaught;
-            _host.DesktopBandEnd();
-            if (e is not null && !inFence
-                && _host.LassoReleased(this, _deskBandStart, e.GetCurrentPoint(_root).Position, caught, ReleaseHeldBand))
-            {
-                HoldBand(_deskBand);
-            }
+            return band.Kind != BandKind.Fence;
+        }
+
+        var end = e?.GetCurrentPoint(_root).Position;
+        switch (band.Kind)
+        {
+            case BandKind.Desktop:
+                var caught = _host.BandCaught;
+                _host.DesktopBandEnd();
+                if (end is { } at && !band.InFence && _host.LassoReleased(this, band.Start, at, caught, ReleaseHeldBand))
+                {
+                    HoldBand(_bandShape);
+                }
+
+                break;
+
+            case BandKind.Fence:
+                if (end is { } corner)
+                {
+                    _fenceMenuShown = true;
+                    if (_host.FenceRectDrawn(this, band.Start, corner, ReleaseHeldBand))
+                    {
+                        HoldBand(_bandShape);
+                    }
+                }
+
+                break;
+
+            case BandKind.Lasso:
+                if (end is { } released && _host.LassoReleased(this, band.Start, released, band.Caught, ReleaseHeldBand))
+                {
+                    HoldBand(_bandShape);
+                }
+
+                break;
         }
 
         return true;
@@ -332,7 +314,7 @@ internal sealed partial class DesktopWindow
         }
 
         _heldBand = null;
-        if (!_deskBandArmed && !_fenceArmed && !_lassoing)
+        if (_band is null)
         {
             band.Visibility = Visibility.Collapsed;
         }
@@ -347,18 +329,29 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-6627] The band in the SDK's one look, on the ghost layer (never hit-testable).</summary>
-    private Border EnsureDesktopBand()
+    /// <summary>[S-6627] <paramref name="rect"/> (this surface's DIPs) drawn as the band.</summary>
+    private void ShowBand(BandRect rect)
     {
-        if (_deskBand is not null)
+        var shape = EnsureBandShape();
+        Canvas.SetLeft(shape, rect.Left);
+        Canvas.SetTop(shape, rect.Top);
+        shape.Width = rect.Width;
+        shape.Height = rect.Height;
+        shape.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>[S-6627] The band in the SDK's one look, on the ghost layer (never hit-testable).</summary>
+    private Border EnsureBandShape()
+    {
+        if (_bandShape is not null)
         {
-            return _deskBand;
+            return _bandShape;
         }
 
-        _deskBand = new Border { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
-        SelectionChrome.PaintBand(_deskBand);
-        _ghostLayer.Children.Add(_deskBand);
-        return _deskBand;
+        _bandShape = new Border { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+        SelectionChrome.PaintBand(_bandShape);
+        _ghostLayer.Children.Add(_bandShape);
+        return _bandShape;
     }
 
     /// <summary>[S-5548] A right-click on empty desktop outside edit mode: the desktop's own background menu.</summary>

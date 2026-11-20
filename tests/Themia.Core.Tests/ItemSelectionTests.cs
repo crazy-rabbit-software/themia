@@ -352,6 +352,32 @@ public sealed class ItemSelectionTests
 
     // ---- the band: how it combines ([S-6625]) -------------------------------------------------
 
+    [Fact]
+    public void S1581_a_band_stays_drawn_when_drawn_back_inside_the_dead_zone()
+    {
+        // Regression: the edit-mode lasso froze (band and selection stuck at their last size) when the pointer came back
+        // inside 3 x 3 DIPs of its press. One gesture for every band: past the dead zone once, a band until it is let go.
+        var press = new BandGesture(100, 100);
+        Assert.False(press.Moved(103, 102).Drawn);
+
+        var drawn = press.Moved(140, 130);
+        Assert.True(drawn.Drawn);
+
+        var back = drawn.Moved(101, 101);
+        Assert.True(back.Drawn);
+        Assert.Equal(new BandRect(100, 100, 101, 101), back.To(101, 101));
+        Assert.Equal((1d, 1d), (back.To(101, 101).Width, back.To(101, 101).Height));
+    }
+
+    [Fact]
+    public void S6624_the_gesture_leaves_the_dead_zone_at_the_desktops_threshold_on_any_axis()
+    {
+        var press = new BandGesture(0, 0);
+        Assert.False(press.Moved(3, 3).Drawn); // 4.2 DIPs: the old lasso's 3 x 3 counted it a band
+        Assert.True(press.Moved(SelectionBand.Threshold, 0).Drawn);
+        Assert.True(press.Moved(-4, -3).Drawn);
+    }
+
     [Theory]
     [InlineData(false, false, BandMode.Replace)]
     [InlineData(false, true, BandMode.Add)]

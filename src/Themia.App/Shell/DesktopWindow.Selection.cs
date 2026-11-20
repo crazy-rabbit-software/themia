@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
@@ -22,9 +23,6 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>DIPs a rubber band must span before it is a band rather than a click on empty surface.</summary>
-    private const double LassoThreshold = 3;
-
     /// <summary>A move of one or more cards that started on this surface.</summary>
     private sealed class MoveSession(WidgetCard anchor, List<(WidgetCard Card, FracRect Start)> cards, PlacementPayload? payload, BlockMove block)
     {
@@ -68,15 +66,6 @@ internal sealed partial class DesktopWindow
     /// Null until a move hands over; a new move clears it.
     /// </summary>
     internal (Interop.Win32.Point Press, Themia.Core.Files.DragPicture? Picture)? HandedMove { get; private set; }
-
-    private Rectangle? _lassoBand;
-    private Point _lassoStart;
-    private bool _lassoing;
-
-    /// <summary>[S-13018] Whether the edit-mode lasso is drawn (past its dead zone), and how many widgets it touches now.</summary>
-    private bool _lassoDrawn;
-    private int _lassoCaught;
-    private List<string> _lassoBase = [];
 
     /// <summary>
     /// [S-11877] Whether the widget <paramref name="widgetId"/> is drawn on this surface now (a card that hides itself, [S-873],
@@ -531,7 +520,7 @@ internal sealed partial class DesktopWindow
         var additive = IsDown(Windows.System.VirtualKey.Control) || IsDown(Windows.System.VirtualKey.Shift);
         var viewId = CurrentViewId;
 
-        _lassoBase = additive && string.Equals(_host.Selection.ViewId, viewId, StringComparison.Ordinal)
+        List<string> kept = additive && string.Equals(_host.Selection.ViewId, viewId, StringComparison.Ordinal)
             ? [.. _host.Selection.Ids]
             : [];
 
@@ -540,106 +529,39 @@ internal sealed partial class DesktopWindow
             _host.Select(null);
         }
 
-        _lassoStart = at;
-        _lassoDrawn = false;
-        _lassoCaught = 0;
-        _lassoing = _root.CapturePointer(e.Pointer);
+        _band = Arm(e, new RubberBand(BandKind.Lasso, new BandGesture(at.X, at.Y)) { Base = kept });
     }
 
-    /// <summary>[S-1581] The band follows the pointer, and the selection follows the band live.</summary>
-    private void UpdateLasso(Point now)
+    /// <summary>[S-1581] The drawn lasso follows the pointer, and the selection follows the lasso live.</summary>
+    private void UpdateLasso(RubberBand band, Point now)
     {
-        if (!_lassoing)
-        {
-            return;
-        }
-
         var metrics = Metrics;
-        var left = Math.Min(_lassoStart.X, now.X);
-        var top = Math.Min(_lassoStart.Y, now.Y);
-        var width = Math.Abs(now.X - _lassoStart.X);
-        var height = Math.Abs(now.Y - _lassoStart.Y);
-
-        if (!metrics.IsUsable || (width < LassoThreshold && height < LassoThreshold))
+        if (!metrics.IsUsable)
         {
             return;
         }
 
-        var band = EnsureLassoBand();
-        Microsoft.UI.Xaml.Controls.Canvas.SetLeft(band, left);
-        Microsoft.UI.Xaml.Controls.Canvas.SetTop(band, top);
-        band.Width = width;
-        band.Height = height;
-        band.Visibility = Visibility.Visible;
+        var rect = band.Gesture.To(now.X, now.Y);
+        ShowBand(rect);
 
         var view = ViewForThisMonitor(_host.State);
         var hits = SelectionRules.Lasso(
             view,
-            new FracRect(left / metrics.Width, top / metrics.Height, width / metrics.Width, height / metrics.Height),
+            new FracRect(rect.Left / metrics.Width, rect.Top / metrics.Height, rect.Width / metrics.Width, rect.Height / metrics.Height),
             HiddenIds());
-        _lassoDrawn = true;
-        _lassoCaught = hits.Count;
-        _host.SelectMany(view.Id, _lassoBase.Concat(hits));
+        band.Caught = hits.Count;
+        _host.SelectMany(view.Id, band.Base.Concat(hits));
     }
 
     private void OnRootPointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        if (EndDesktopBand(e) || EndFenceBand(e))
+        if (EndBand(e))
         {
             e.Handled = true;
-            return;
-        }
-
-        if (_lassoing)
-        {
-            _root.ReleasePointerCapture(e.Pointer);
-            var (drawn, caught) = (_lassoDrawn, _lassoCaught);
-            EndLasso();
-            e.Handled = true;
-
-            // [S-13018] A lasso let go over empty desktop offers its area's menu.
-            if (drawn && _host.LassoReleased(this, _lassoStart, e.GetCurrentPoint(_root).Position, caught, ReleaseHeldBand))
-            {
-                HoldBand(_lassoBand);
-            }
         }
     }
 
-    private void OnRootPointerCaptureLost(object sender, PointerRoutedEventArgs e)
-    {
-        EndDesktopBand(null);
-        EndFenceBand(null);
-        EndLasso();
-    }
-
-    /// <summary>Take the band down. What it selected stays selected.</summary>
-    private void EndLasso()
-    {
-        _lassoing = false;
-        _lassoDrawn = false;
-        _lassoBase = [];
-        HideBand(_lassoBand);
-    }
-
-    private Rectangle EnsureLassoBand()
-    {
-        if (_lassoBand is not null)
-        {
-            return _lassoBand;
-        }
-
-        // The ghost's look, solid rather than dashed: an accent outline over a faint accent wash.
-        _lassoBand = new Rectangle
-        {
-            Stroke = Themia.Sdk.WinUI.Kit.Family.Brush(ColourRole.Accent),
-            StrokeThickness = FamilyShape.Hairline,
-            Fill = HexBrush.Wash(ColourRole.Accent),
-            IsHitTestVisible = false,
-            Visibility = Visibility.Collapsed,
-        };
-        _ghostLayer.Children.Add(_lassoBand);
-        return _lassoBand;
-    }
+    private void OnRootPointerCaptureLost(object sender, PointerRoutedEventArgs e) => EndBand(null);
 
     /// <summary>[S-1582] Ctrl+A: select every widget the grid places on this display.</summary>
     public void SelectAll()

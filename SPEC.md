@@ -9700,7 +9700,12 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
 - **[S-1581]** A left-button drag on empty surface draws a **rubber band** on that display; every
   widget whose cell it touches is selected, live, as the band changes. With Ctrl or
   Shift held at the press it adds to the selection on that display; without, it starts from nothing
-  (a click on empty surface clears the selection). A card that draws nothing is not picked.
+  (a click on empty surface clears the selection). A card that draws nothing is not picked. It is the desktop's one band
+  ([S-5544], [S-6624]): the same 5-DIP dead zone, the same look (`SelectionChrome.PaintBand`), and once past the dead zone
+  it follows the pointer until it is let go, however small it is drawn back (`BandGesture`; it froze when drawn back
+  inside 3 × 3 DIPs). The fence's right-button rectangle ([S-13007]) is that band too: one `_band` per surface
+  (audit 2026-11-20, ordered by the owner: "actually do all of them one after the other. be thorough";
+  `ItemSelectionTests.S1581_`).
 - **[S-1582]** **Ctrl+A** selects every widget on the display under the pointer.
 - **[S-1583]** Every selected card shows it: one alone by its accent markers ([S-31c]), several by the selection's
   frame round them, with no markers of their own ([S-14310]). A widget that is

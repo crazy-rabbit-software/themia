@@ -29,6 +29,21 @@ public enum BandMode
     Toggle,
 }
 
+/// <summary>
+/// [S-6624] [S-1581] [S-13007] One rubber band's gesture, from its press: the desktop's band, the fence's rectangle and the
+/// edit-mode lasso alike. It stays a press inside <see cref="SelectionBand.Threshold"/>'s dead zone; once it has left it,
+/// it is a band until it is let go, however small it is drawn back (the edit lasso froze when drawn back inside 3 × 3 DIPs).
+/// </summary>
+public readonly record struct BandGesture(double StartX, double StartY, bool Drawn = false)
+{
+    /// <summary>The gesture with the pointer at (<paramref name="x"/>, <paramref name="y"/>): drawn once past the dead zone, and from then on.</summary>
+    public BandGesture Moved(double x, double y)
+        => Drawn || SelectionBand.PastThreshold(x - StartX, y - StartY) ? this with { Drawn = true } : this;
+
+    /// <summary>The band from the press to (<paramref name="x"/>, <paramref name="y"/>).</summary>
+    public BandRect To(double x, double y) => new(StartX, StartY, x, y);
+}
+
 /// <summary>An item's box, in the same DIPs as the band.</summary>
 public readonly record struct ItemBox(double X, double Y, double Width, double Height);
 

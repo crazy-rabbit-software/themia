@@ -213,7 +213,7 @@ internal sealed partial class DesktopWindow
         _closed = true;
 
         // [S-5544] A band this surface holds the pointer for ends with it, on every display.
-        EndDesktopBand(null);
+        EndBand(null);
 
         // [S-802] A surface going away takes a lease one of its widgets held with it.
         _host.KeyboardEndOn(this);

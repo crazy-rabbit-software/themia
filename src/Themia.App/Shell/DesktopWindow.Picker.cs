@@ -371,7 +371,7 @@ internal sealed partial class DesktopWindow
 
         if (placing is not null)
         {
-            EndLasso();
+            EndBand(null);
             _placementHintText.Text = Str.Shell_Place_Hint.Format(("action", PlacementHint.Verb(placing)));
             _placementHint.Visibility = Visibility.Visible;
             _editBar.Visibility = Visibility.Collapsed;
@@ -430,9 +430,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        UpdateLasso(position);
-        UpdateDesktopBand(position);
-        UpdateFenceBand(position);
+        UpdateBand(position);
     }
 
     /// <summary>The pointer went to another display: the ghost goes with it, so it leaves here.</summary>
