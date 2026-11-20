@@ -19,7 +19,19 @@ namespace Themia.Widget.Contacts;
 public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Columns, double ColumnWidth, int Lines, bool Avatar, bool Aside, double Icon, double Pitch, int Rows)
 {
     /// <summary>[S-12807] [S-14500] The rows laid as <paramref name="reach"/> says: as many as the room holds at their optimal, its pitch, touching.</summary>
-    public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch, Rows = reach.Shown };
+    public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch, Rows = reach.Shown, Reach = reach };
+
+    /// <summary>[S-14500] How the rows share the room: each one's edges on whole device pixels; none before the card is measured.</summary>
+    public RowReach Reach { get; init; }
+
+    /// <summary>
+    /// [S-14500] Row <paramref name="index"/>'s height: its share of the room on whole device pixels (<see cref="RowReach.Height"/>),
+    /// so the rows shown end exactly on the room's end and none peeks in under them; the pitch before it is laid.
+    /// </summary>
+    public double RowAt(int index) => Reach.Pitch > 0 ? Reach.Height(index) : Pitch;
+
+    /// <summary>[S-14500] The length <paramref name="count"/> rows take from the first: as <see cref="RowAt"/> lays them.</summary>
+    public double Span(int count) => count <= 0 ? 0 : Reach.Pitch > 0 ? Reach.Start(count) : count * Pitch;
 }
 
 /// <summary>

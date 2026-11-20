@@ -589,7 +589,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         {
             // [S-13950] The line takes the list's first line (a row, or a line of cells): the rows under it keep their places,
             // and while nothing is typed the people of that line are under it, the rest where they were.
-            _searchSlot.Height = plan.Pitch;
+            _searchSlot.Height = plan.RowAt(0);
             _lineSearch.LeadWidth = plan.Avatar ? FamilyShape.IconLarge : FamilyShape.Icon;
             if (_query.Length == 0)
             {
@@ -615,7 +615,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             {
                 SetRow(_state, 2);
                 SetRowSpan(_state, 1);
-                _state.Margin = line ? new Thickness(0, plan.Pitch, 0, 0) : default;
+                _state.Margin = line ? new Thickness(0, plan.RowAt(0), 0, 0) : default;
             }
 
             _state.Show((_contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
@@ -641,7 +641,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         // [S-12815] Without a field over it the list stands on the card's top edge; [S-13950] under the line, one line
         // down: each row stands where it stood.
-        _scroll.Margin = showSearch ? default : ListEdge.Margin with { Top = ListEdge.Margin.Top + (line ? plan.Pitch : 0) };
+        _scroll.Margin = showSearch ? default : ListEdge.Margin with { Top = ListEdge.Margin.Top + (line ? plan.RowAt(0) : 0) };
 
         if (_selectedId is { } id)
         {
@@ -674,7 +674,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private void StatedRows(int lines, ContactsLayoutPlan plan)
     {
         var shown = Math.Max(0, Math.Min(lines, plan.Rows));
-        _scroll.Height = lines > shown ? shown * plan.Pitch : double.NaN;
+        _scroll.Height = lines > shown ? plan.Span(shown) : double.NaN;
 
         // [S-12834] No room for a row under what stands over the rows: none is drawn (never a row cut to nothing).
         _scroll.Visibility = shown > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -700,7 +700,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
 
-            var block = new RowBlock(RowKind.List, plan.Avatar ? FamilyShape.IconLarge : 0) { Lines = plan.Lines, Height = plan.Pitch };
+            var block = new RowBlock(RowKind.List, plan.Avatar ? FamilyShape.IconLarge : 0) { Lines = plan.Lines, Height = plan.RowAt(i / plan.Columns) };
             if (compact)
             {
                 block.Show(contact.Name, plan.Aside ? ContactRules.CompactDetail(contact) : null);
@@ -752,8 +752,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         var list = new StackPanel();
-        foreach (var contact in contacts)
+        for (var i = 0; i < contacts.Count; i++)
         {
+            var contact = contacts[i];
             var cells = new Grid();
             AddColumns(cells, columns);
 
@@ -765,7 +766,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 cells.Children.Add(cell);
             }
 
-            var block = new RowBlock(RowKind.List, lead: 0) { Height = plan.Pitch };
+            var block = new RowBlock(RowKind.List, lead: 0) { Height = plan.RowAt(i) };
             block.Cells(cells);
             list.Children.Add(Item(block, contact));
         }
