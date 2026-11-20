@@ -77,7 +77,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
     private readonly List<Cell> _shown = [];
     private readonly Ticker _ticker;
     private readonly IconDesk _iconDesk;
-    private readonly IconHost _iconHost;
+    private readonly IconPreviewHost _iconHost;
 
     /// <summary>[S-13707] The desktop icon's kind (the one whose config is an <see cref="IDesktopItemConfig"/>), or null in a build without it.</summary>
     private readonly WidgetDescriptor? _kind = ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
@@ -97,7 +97,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread() ?? throw new InvalidOperationException("the page is built on the UI thread");
         _ticker = new Ticker(dispatcher);
         _iconDesk = new IconDesk(this, Services.Files.HostDesktopItems.Instance);
-        _iconHost = new IconHost(new CardWidgetHost(new PreviewCardHost(_ticker)), _iconDesk);
+        _iconHost = new IconPreviewHost(new CardWidgetHost(new PreviewCardHost(_ticker)), _iconDesk);
         Spacing = P.CardGap;
 
         _caption.TextWrapping = TextWrapping.Wrap;

@@ -1,8 +1,4 @@
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Services;
-using Themia.App.Services.Toggles;
-using Themia.App.Services.Web;
 using Themia.Core.Files;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -20,99 +16,6 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class UnplacedPageView
 {
-    /// <summary>[S-13707] A preview card's host, but the desktop it reads is the page's (<see cref="IconDesk"/>).</summary>
-    private sealed class IconHost(IWidgetHost inner, IDesktopItems desk) : IWidgetHost
-    {
-        public Ticker Ticker => inner.Ticker;
-
-        public DispatcherQueue Dispatcher => inner.Dispatcher;
-
-        public IShellLauncher Launcher => inner.Launcher;
-
-        /// <summary>The icons act on nothing themselves: the page has their press, their drag and their keys.</summary>
-        public bool IsPreview => true;
-
-        public bool ShowAccounts() => false;
-
-        public IReadOnlyList<Themia.App.Services.Accounts.AccountInfo> AccountsWith(FeatureId feature) => inner.AccountsWith(feature);
-
-        public IRecycleBin RecycleBin => inner.RecycleBin;
-
-        public IPowerBackend Power => inner.Power;
-
-        public IQuickToggles Toggles => inner.Toggles;
-
-        public IWeatherAnswers Weather => inner.Weather;
-
-        public IQuoteAnswers Quotes => inner.Quotes;
-
-        public IRateAnswers Rates => inner.Rates;
-
-        public IFeedAnswers Feeds => inner.Feeds;
-
-        public Themia.App.Services.Office.IOfficeSource? Office => inner.Office;
-
-        public Themia.App.Services.Mail.IMailSource? Mail => inner.Mail;
-
-        public Themia.App.Services.Tasks.ITaskSource? Tasks => inner.Tasks;
-
-        public IServiceSources Services => inner.Services;
-
-        public ISystemFeeds? System => inner.System;
-
-        public IDrives Drives => inner.Drives;
-
-        public IDeviceBatteries DeviceBatteries => inner.DeviceBatteries;
-
-        public IAudioOutputs Audio => inner.Audio;
-
-        public IBrightness Brightness => inner.Brightness;
-
-        public IMediaSessions Media => inner.Media;
-
-        public IAudioCapture Loopback => inner.Loopback;
-
-        public IClipboardHistory? ClipboardHistory => inner.ClipboardHistory;
-
-        public IAlarms? Alarms => inner.Alarms;
-
-        public IFocusSession Focus => inner.Focus;
-
-        public INotifications Notifications => inner.Notifications;
-
-        public INotes? Notes => inner.Notes;
-
-        public IHabitLists? Habits => inner.Habits;
-
-        public IScreenTimeSource? ScreenTime => inner.ScreenTime;
-
-        public IGalleries? Gallery => inner.Gallery;
-
-        public bool CopyText(string text) => false;
-
-        public IFileIcons FileIcons => inner.FileIcons;
-
-        public IDesktopItems DesktopItems => desk;
-
-        public IFileClipboard FileClipboard => inner.FileClipboard;
-
-        public IFolders Folders => inner.Folders;
-
-        public IShellFileOps FileOps => inner.FileOps;
-
-        public IExplorerMenus ExplorerMenus => inner.ExplorerMenus;
-
-        public IRecentItems RecentFiles => inner.RecentFiles;
-
-        public IAppLayouts AppLayouts => inner.AppLayouts;
-
-        public IVideoStreams Streams => inner.Streams;
-
-        public IInstalledApps InstalledApps => inner.InstalledApps;
-
-        public IFavicons Favicons => inner.Favicons;
-    }
-
     /// <summary>
     /// [S-13707] The desktop as the page's icons read it: its items the page's (named and iconed as the shell has them),
     /// a cut item faded as on the desktop, and the page's selection painted in the desktop icon's look. No gesture reaches
