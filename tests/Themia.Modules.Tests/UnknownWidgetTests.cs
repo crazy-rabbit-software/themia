@@ -105,4 +105,24 @@ public sealed class UnknownWidgetTests
         Assert.Contains("'w03'", repair, StringComparison.Ordinal);
         Assert.Contains("'w07'", repair, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void S14606_a_split_kind_with_no_pick_stored_becomes_its_defaults_and_a_sky_card_its_times_with_its_place()
+    {
+        var root = JsonNode.Parse(Fixture())!.AsObject();
+        var widgets = root["views"]![0]!["widgets"]!.AsArray();
+        var count = widgets.Count;
+        widgets.Single(w => (string?)w!["id"] == "w03")!["config"] = JsonNode.Parse("""{ "kind": "airFacts", "latitude": 47.37, "longitude": 8.54, "locationName": "Zurich" }""");
+        widgets.Single(w => (string?)w!["id"] == "w07")!["config"] = JsonNode.Parse("""{ "kind": "sunTimes", "times": ["Dusk", "nope", "Dusk"] }""");
+
+        var result = AppStateStore.Parse(root.ToJsonString());
+
+        Assert.Equal(ParseRefusal.None, result.Refusal);
+        var placed = Assert.Single(result.State!.Views).Widgets;
+        Assert.Equal(count - 2 + 4 + 1, placed.Count);
+        Assert.Equal(["w03-airUv", "w03-airPm25", "w03-airPollen", "w03-airPm10"], placed.Where(w => w.Id.StartsWith("w03", StringComparison.Ordinal)).Select(w => w.Id));
+        Assert.All(placed.Where(w => w.Id.StartsWith("w03-", StringComparison.Ordinal)), w => Assert.Equal(47.37, ((Themia.Core.Model.WeatherConfig)w.Config).Latitude));
+        Assert.Equal("w07-dusk", Assert.Single(placed, w => w.Id.StartsWith("w07", StringComparison.Ordinal)).Id);
+        Assert.Equal(2, result.Repairs.Count(r => r.StartsWith("replaced ", StringComparison.Ordinal)));
+    }
 }
