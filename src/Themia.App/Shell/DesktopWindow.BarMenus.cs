@@ -156,7 +156,8 @@ internal sealed partial class DesktopWindow
         _flyout.Pressed += _redraws.Pressed;
         _flyout.LetGo += _redraws.LetGo;
 
-        page.SizeChanged += (_, _) => PlaceFlyout();
+        // [S-2350] Hung again whenever its page grows or shrinks.
+        _flyout.PageResized += PlaceFlyout;
         _flyoutLayer.Children.Add(_flyout);
     }
 

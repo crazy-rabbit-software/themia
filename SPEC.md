@@ -2327,6 +2327,18 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   while Windows' animation effects are off; the user's own wheel, press or Page keys take over from a glide. A tab
   switch moves nothing. Tests `PageRevealTests.S2347_`; `--editbar-png --only pages` draws pages opened at their
   rows (`page-*-general-temperature`, `-appearance-*`).
+- **[S-2350]** **A page's flyout follows its page both ways** (owner, 2026-11-20: "the settings height does not change
+  back when i close a section again"): the flyout is as tall as its page up to 70 % of the work area ([S-2325]) after
+  every change of the page's rows, a card or picker opened **and closed again** (by its head, Escape's way back, a tab, a
+  sub-page), never latched at the tallest it has been (the add page's own rule, [S-11707], is its alone). The page stands
+  in the flyout's scroll at its rows' height (`VerticalAlignment.Top`), never stretched to the viewport: stretched, the
+  page closed again kept the opened card's height, its size never changed, and nothing hung the flyout again. The
+  flyout says when its page grew or shrank (`PageFlyout.PageResized`) and the surface hangs it again from that, the
+  one trigger. The height changes at once both ways (neither way animates; the opened item's reveal glides, [S-2347]).
+  Tests `EditBarLayoutTests.S2350_`; `--editbar-png --only follow` opens the Desktop view's card on the Views page by
+  its head, unfolds and folds its icon picker, closes the card by its head and by Escape, opens Work's sub-page (shorter
+  than the list) and leaves it, and says each height (PASS where the flyout stands at its page's height after every
+  step and every closed step is as tall as the page was before it opened; `page-*-follow-*.png`).
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the

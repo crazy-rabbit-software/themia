@@ -61,10 +61,11 @@ Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass]
            # through a real host and surface: --live drives it with real input (SendInput, over every window), PASS or FAIL [S-12954]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
-Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced]   # the edit bar (editbar-*: nothing,
+Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced|follow]   # the edit bar (editbar-*: nothing,
            # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*); the selection's page
-           # beside real cards (select-*) [S-2328]. --picker-png takes --theme too. There is no settings window [S-3585]
+           # beside real cards (select-*) [S-2328]; a flyout following its page as a card opens and closes (-follow-*, PASS or
+           # FAIL, [S-2350]). --picker-png takes --theme too. There is no settings window [S-3585]
 Themia.exe --displays-check <outDir>   # one view on two stand-in displays, the taskbar left on one and right on the other,
            # through a real host and surfaces: every card clear of both taskbars, placement at the far edges, PASS or FAIL [S-855]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]

@@ -65,6 +65,12 @@ internal sealed partial class PageFlyout : Grid
     {
         Page = page ?? throw new ArgumentNullException(nameof(page));
         Width = F.Width;
+
+        // [S-2350] The page as tall as its rows, never stretched to the flyout's room: the scroll viewer arranges its
+        // content at least as tall as its viewport, so a card closed again shrank the rows but not the page, no size
+        // change was heard and the flyout kept the opened card's height (owner, 2026-11-20).
+        page.VerticalAlignment = VerticalAlignment.Top;
+        page.SizeChanged += (_, _) => PageResized?.Invoke();
         _scroll.Content = page;
         _scroll.Margin = new Thickness(0, F.BeakHeight, 0, 0);
         _scroll.CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
@@ -249,6 +255,12 @@ internal sealed partial class PageFlyout : Grid
 
     /// <summary>[S-2346] The press on the flyout let go: released, lost, cancelled, or the pointer seen with no button down.</summary>
     public event Action? LetGo;
+
+    /// <summary>
+    /// [S-2350] The page's rows grew or shrank (a card opened or closed, a picker unfolded, a sub-page): the flyout is
+    /// to be hung again at the page's height (<see cref="ContentHeight"/>), both ways.
+    /// </summary>
+    public event Action? PageResized;
 
     /// <summary>How tall the page wants to be at the flyout's width, before the room cuts it.</summary>
     public double ContentHeight => ContentHeightAt(F.Width);

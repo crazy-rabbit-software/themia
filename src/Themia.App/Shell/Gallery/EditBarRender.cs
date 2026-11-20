@@ -22,7 +22,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2328] Debug only: draw the real edit bar ([S-2320]) and its flyouts off-screen to PNGs.
-/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|select|unplaced] [--raster 100]</c> writes the bar
+/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|select|unplaced|follow] [--raster 100]</c> writes the bar
 /// (<c>editbar-&lt;theme&gt;.png</c>: nothing selected; <c>-widget</c>, one widget; <c>-many</c>, two of a kind;
 /// <c>-mixed</c>, three of several; <c>-errors</c>, the problems' button; <c>-open</c>, General's entry lit;
 /// <c>-narrow</c> and <c>-narrowest</c>, 900- and 640-wide displays; <c>-add</c>, the add menu; <c>-placing</c>,
@@ -79,7 +79,7 @@ internal static partial class EditBarRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced] [--raster 100]");
+            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced|follow] [--raster 100]");
             app.Exit();
             return true;
         }
@@ -151,6 +151,12 @@ internal static partial class EditBarRender
                 if (only is null or "pages" or "unplaced")
                 {
                     await UnplacedShots(screen, outDir, theme).ConfigureAwait(true);
+                }
+
+                // [S-2350] A page's flyout following its page as a card opens and closes again.
+                if (only is null or "pages" or "follow")
+                {
+                    await FollowShots(screen, outDir, theme).ConfigureAwait(true);
                 }
 
                 if (only is null or "select")

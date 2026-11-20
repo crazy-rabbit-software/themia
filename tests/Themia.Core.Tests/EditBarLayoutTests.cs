@@ -141,6 +141,19 @@ public sealed class EditBarLayoutTests
     }
 
     [Fact]
+    public void S2350_hung_again_after_a_card_closes_the_flyout_is_as_tall_as_its_page_again()
+    {
+        // The Views page (420 tall), Work's card opened (640), closed again (420): each hanging is the page's height,
+        // never the tallest it has been; past 70 % of the work area it stops there and scrolls, and shrinks back from it.
+        var area = new PixelRect(0, 0, 1920, 1000);
+        var (entry, bar) = (new PixelRect(800, 16, 80, 32), new PixelRect(400, 8, 1000, 48));
+
+        var heights = new[] { 420.0, 640, 420, 900, 420 }.Select(page => FlyoutPlacement.Place(entry, bar, area, page).Height).ToList();
+
+        Assert.Equal([420.0, 640, 420, 700, 420], heights);
+    }
+
+    [Fact]
     public void S2326_pushed_in_at_a_screen_edge_the_beak_stays_over_its_entry()
     {
         var area = new PixelRect(0, 0, 900, 1000);
