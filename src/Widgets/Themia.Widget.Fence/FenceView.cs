@@ -42,7 +42,8 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
     private readonly TextBlock _title = Family.Text(FamilyType.BodyStrong);
     private readonly TextBlock _count = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly FontIcon _chevron = Family.Glyph(Glyphs.ChevronDown, FamilyShape.Icon, ColourRole.TextSecondary);
-    private readonly Border _divider = new() { Height = FamilyShape.Hairline, VerticalAlignment = VerticalAlignment.Bottom };
+    /// <summary>[S-14263] The hairline under the title bar, on its foot: ink the layout dump sees (a shape), so nothing reads as room under the title.</summary>
+    private readonly Microsoft.UI.Xaml.Shapes.Rectangle _divider = new() { Height = FamilyShape.Hairline, VerticalAlignment = VerticalAlignment.Bottom };
 
     /// <summary>The body: the cells drawn here (a search's files, a picture's items) on a canvas clipped to it.</summary>
     private readonly Grid _body = new() { Background = Fluent.Clear() };
@@ -95,7 +96,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _titleBar.Children.Add(_title);
         _titleBar.Children.Add(_count);
         _titleBar.Children.Add(_chevron);
-        _divider.Background = Family.Brush(ColourRole.Track);
+        _divider.Fill = Family.Brush(ColourRole.Track);
         _titleBar.Children.Add(_divider);
         SetColumnSpan(_divider, 3);
 
@@ -154,12 +155,22 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     /// <summary>
     /// [S-13040] The title bar's height and an icon box, in DIPs: the host's for the fence's display (whole grid rows, a desktop
-    /// icon's box on the grid); in a picture the title bar as the sizing states it and the desktop's plain cell.
+    /// icon's box on the grid); [S-14263] in a picture the same on the card's grid (<see cref="FenceGrid.OnGrid"/>), so its
+    /// body starts on a grid line and its boxes are whole cells, as on the desktop.
     /// </summary>
     private FenceCellsDip Cells
-        => WidgetId is { } id && !_fixture.On && !_host.IsPreview
-            ? Fences.Cells(id)
-            : new FenceCellsDip(FenceGrid.TitleDip, DesktopCell.Grid(DesktopCell.Current));
+    {
+        get
+        {
+            if (WidgetId is { } id && !_fixture.On && !_host.IsPreview)
+            {
+                return Fences.Cells(id);
+            }
+
+            var (title, box) = FenceGrid.OnGrid(DesktopCell.Grid(DesktopCell.Current), ItemGrids.Of(this));
+            return new FenceCellsDip(title, box);
+        }
+    }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 

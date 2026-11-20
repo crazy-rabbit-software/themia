@@ -48,20 +48,21 @@ public sealed class FenceModule : IWidgetModule
     /// [S-10901] A fence holds a few rows of the desktop's cells under its title bar and grows as the user makes it
     /// (relaxed, [S-12411]); [S-13012] rolled up, its height is the title bar's alone (a stepped axis the relax keeps).
     /// [S-13040] At least two icon boxes across (one of text beside's wide ones, [S-13976]) and one down, its title bar grid-fitted to exactly
-    /// <see cref="FenceGrid.TitleCells"/> rows; the host lays it to whole boxes on its display's grid.
+    /// <see cref="FenceGrid.TitleCells"/> rows; the host lays it to whole boxes on its display's grid, [S-14263] and its axes step
+    /// by those boxes (<see cref="FenceGrid.Steps"/>), so a picture of it is its title bar and whole rows of boxes too.
     /// </summary>
     internal static WidgetSizing Sizing(FenceConfig config)
     {
         var cell = DesktopCell.Grid(DesktopCell.Current);
         var natural = FenceGrid.Around(6, cell);
         var min = new SizeDip(FenceGrid.MinAcross(cell) * cell.Width, FenceGrid.TitleDip + cell.Height);
-        if (config.RolledUp)
-        {
-            return WidgetSizing.Range(min with { Height = FenceGrid.TitleDip }, natural with { Height = FenceGrid.TitleDip }, new SizeDip(natural.Width * 2, FenceGrid.TitleDip))
-                with { HeightSteps = new SizeSteps(FenceGrid.TitleDip, 1, 0, 0), Room = StretchRoom.Picture };
-        }
 
-        return WidgetSizing.Range(min, natural, new SizeDip(natural.Width * 2, natural.Height * 2)) with { Room = StretchRoom.Picture };
+        // [S-14263] Whole boxes under whole title rows, every part whole cells as the host lays them: its card is its title bar
+        // and whole rows of boxes, on the desktop and in a picture.
+        var (across, down) = FenceGrid.Steps(cell, config.RolledUp);
+        return (WidgetSizing.Range(min, natural, new SizeDip(natural.Width * 2, natural.Height * 2)) with { Room = StretchRoom.Picture })
+            .WithWidthSteps(across)
+            .WithHeightSteps(down);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new FenceView(host);

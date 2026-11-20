@@ -1,6 +1,7 @@
 using Themia.Core.Desktop;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
 
@@ -245,5 +246,43 @@ public sealed class FenceGridTests
                 Assert.True(DesktopGrid.Free(icons[i].Rect, [icons[j].Rect]), $"{icons[i].Id} on {icons[j].Id}");
             }
         }
+    }
+
+    [Fact]
+    public void S14263_a_fence_steps_by_the_hosts_icon_boxes_under_its_title_rows()
+    {
+        var cell = new SizeDip(76, 100);
+        var (across, down) = FenceGrid.Steps(cell, rolledUp: false);
+
+        // On the default grid: two boxes of eight cells across and more; the title bar's three rows and boxes of ten down.
+        Assert.Equal((0.0, 80.0, 2), (across.Base, across.Step, across.MinCount));
+        Assert.Equal((30.0, 100.0, 1), (down.Base, down.Step, down.MinCount));
+        Assert.True(across.At(across.MaxCount) >= SizeStretch.Ceiling);
+        Assert.True(down.At(down.MaxCount) >= SizeStretch.Ceiling);
+
+        // On a display whose cells are no whole DIP (9.974 across, 10.047 down): the title bar its rows and every step one of
+        // the host's icon boxes ([S-14269]: counted as the host counts).
+        var sizing = WidgetSizing.Range(new SizeDip(152, 128), new SizeDip(228, 228), new SizeDip(456, 456)).WithWidthSteps(across).WithHeightSteps(down);
+        var limits = SizeFit.Limits(sizing, Screen, 1)!;
+        Assert.Equal(Title, limits.Height.StepBase, 9);
+        Assert.Equal(Box.H, limits.Height.Step, 9);
+        Assert.Equal(Box.W, limits.Width.Step, 9);
+        Assert.Equal(2 * Box.W, limits.Width.Min, 9);
+
+        // Rolled up: the title bar alone, its rows.
+        var (_, rolled) = FenceGrid.Steps(cell, rolledUp: true);
+        Assert.Equal((30.0, 30.0), (rolled.At(rolled.MinCount), rolled.At(rolled.MaxCount)));
+    }
+
+    [Fact]
+    public void S14263_a_picture_of_a_fence_lays_its_title_bar_and_boxes_in_whole_cells_of_its_card()
+    {
+        var (title, box) = FenceGrid.OnGrid(new SizeDip(76, 100), ItemGrid.Default());
+        Assert.Equal((30.0, 80.0, 100.0), (title, box.Width, box.Height));
+
+        var odd = new ItemGrid(9.974);
+        var (oddTitle, oddBox) = FenceGrid.OnGrid(new SizeDip(76, 100), odd);
+        Assert.Equal(FenceGrid.TitleCells * odd.Pitch, oddTitle, 9);
+        Assert.Equal((8 * odd.Pitch, 11 * odd.Pitch), (oddBox.Width, oddBox.Height));
     }
 }

@@ -11648,15 +11648,20 @@ module's `FenceTests`.
   whole boxes across and down, at least one) and stands each item's icon on its cell in the fence's order (reading order,
   as many to a row as the body holds, `FenceGrid.Layout`, the one layout). There is no layout of a fence's items of its own.
   Tests `FenceGridTests.S13040_`, `FenceRulesTests.S13040_`.
-- **[S-14263]** **A fence's boxes are its items** (owner, 2026-11-19, WR-5: "no this is fine if it happens, but there should
-  not be a space at the top"; WR-6). Every cell a fence draws (a picture's items, a search's files) is one of its items
-  (`ItemMark`), so the layout dump reports its body's boxes and the item check judges a fence by them: nothing over its
-  first row but the title bar, the room under its last row whole rows of boxes. Before, it reported none and the gap check
-  read a fence holding fewer icons than its body has cells as a band under its ink (456 square: 341). Its boxes are
-  desktop icons' cells (Windows' look, [S-13970], the owner's exemption), so a last row it does not fill is Windows'
-  icon grid's. On the desktop the host lays it to whole boxes of whole cells ([S-13040]); a picture draws its sizing's
-  DIPs (the title bar 28, boxes 76 × 100) as they are. Renders `--widget-png fence --state sample|empty|many|rolledUp
-  --sizes range`, judged by `scripts/item-check.py`.
+- **[S-14263]** **A fence is its title bar and whole rows of boxes, a picture too** (owner, 2026-11-20, WR-5: "now the
+  weather forecast widget always has one block space at the bottom. this should obviously not be"; 2026-11-19: "no this
+  is fine if it happens, but there should not be a space at the top"; [S-14100]). Its sizing steps by its icon boxes in
+  whole cells (`FenceGrid.Steps`, `SizeSteps.InCells`): across `MinAcross` boxes and more, down the title bar's rows and
+  one box and more (rolled up the title bar alone), the most past `SizeStretch.Ceiling`; counted as the host counts an
+  axis's cells ([S-14269]), every step is the host's whole boxes ([S-13040], `DesktopGrid.IconSize`) on any display. A
+  picture lays its cells on the card's grid as the host lays them on a display (`FenceGrid.OnGrid`: the title bar its
+  rows, a box whole cells), every cell it draws is one of its items (`ItemMark`) and the hairline under its title bar is
+  ink (a shape), so the item check judges a fence by its boxes: nothing over its first row but the title bar, the room
+  under its last row whole rows of boxes. Before, it reported no item and the gap check read a fence holding fewer icons
+  than its body has cells as a band under its ink (456 square: 341); a picture drew the title bar 28 and boxes 76 × 100.
+  Its boxes are desktop icons' cells (Windows' look, [S-13970], the owner's exemption), so a last row it does not fill is
+  Windows' icon grid's. Tests `FenceGridTests.S14263_`, `FenceTests.S10901_`; renders `--widget-png fence --state
+  sample|empty|many|rolledUp --sizes range`, judged by `scripts/item-check.py`.
 - **[S-13041]** **One move, one drop computation** (the same quote): an icon moving over, into or out of a fence is the
   desktop's one move ([S-2008]: the card follows the pointer on the grid, the local grid lights where it lands; the icon's
   picture under the pointer and its whole ghost where it lands, drawn over the fence, [S-13046]); crossing
