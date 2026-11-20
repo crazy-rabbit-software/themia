@@ -48,8 +48,12 @@ public static class NotesLayout
     /// <summary>[S-14771] The longest the note's name stands in the pill: a title of a few words; a longer one ends in an ellipsis.</summary>
     public const double NameMax = 160;
 
-    /// <summary>[S-14771] Of the text's first line, what the pill always leaves standing beside it on a narrow card.</summary>
-    public const double TextKept = 40;
+    /// <summary>
+    /// [S-14771] Of the text's first line, the share the pill always leaves standing beside it: half, so at the least size
+    /// (160) the pill is its chevron and "…" alone and the title reads (a name in it there covered all of "# Groceries" but
+    /// "# Grc").
+    /// </summary>
+    public const double TextKept = 0.5;
 
     /// <summary>[S-14771] Under this the name says nothing ("…" alone): the picker is its chevron.</summary>
     public const double NameLeast = 32;
@@ -59,9 +63,9 @@ public static class NotesLayout
 
     /// <summary>
     /// [S-14771] How wide the note's name may stand in the pill on a card <paramref name="cardWidth"/> wide: at most
-    /// <see cref="NameMax"/>, never so wide that less than <see cref="TextKept"/> of the text's first line stands beside the
-    /// pill (the problem glyph's room too, while it stands: <paramref name="problem"/>); none where that leaves less than
-    /// <see cref="NameLeast"/> (the chevron alone picks).
+    /// <see cref="NameMax"/>, never so wide that the pill (the problem glyph's room too, while it stands:
+    /// <paramref name="problem"/>) takes more than the share of the text's first line <see cref="TextKept"/> leaves it; none
+    /// where that leaves less than <see cref="NameLeast"/> (the chevron alone picks).
     /// </summary>
     public static double NameWidth(double cardWidth, bool problem = false)
     {
@@ -70,8 +74,38 @@ public static class NotesLayout
             return 0;
         }
 
-        var room = Math.Min(NameMax, cardWidth - (2 * FamilySpace.Inset) - PillParts - (problem ? ProblemPart : 0) - TextKept);
+        var line = cardWidth - (2 * FamilySpace.Inset);
+        var room = Math.Min(NameMax, (line * (1 - TextKept)) - PillParts - (problem ? ProblemPart : 0));
         return room < NameLeast ? 0 : room;
+    }
+
+    /// <summary>
+    /// [S-14773] Whole lines at the foot (owner's rule for the note at its least: no line cut mid-height at the foot). The
+    /// room the text's lines have under the top inset is <paramref name="room"/> (the card's height less the inset over and
+    /// under them); <paramref name="bottoms"/> are where its lines end, from the first line's top, in order. What the foot
+    /// takes besides its inset: the part of the room under the last line that ends inside it, so the line it would cut is
+    /// not drawn; none where every line ends inside the room, or where not even the first does (it is drawn as it can be).
+    /// </summary>
+    public static double CutLine(double room, IReadOnlyList<double> bottoms)
+    {
+        ArgumentNullException.ThrowIfNull(bottoms);
+        if (!double.IsFinite(room) || room <= 0 || bottoms.Count == 0 || bottoms[^1] <= room + 0.5)
+        {
+            return 0;
+        }
+
+        var whole = 0.0;
+        foreach (var bottom in bottoms)
+        {
+            if (bottom > room + 0.5)
+            {
+                break;
+            }
+
+            whole = bottom;
+        }
+
+        return whole > 0 ? Math.Max(0, room - whole) : 0;
     }
 }
 

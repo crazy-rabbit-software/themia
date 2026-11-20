@@ -124,6 +124,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         _editor.TextEdited += OnTextEdited;
         _editor.TextEdited += OnFirstLine;
+
+        // [S-14773] Whole lines at the foot: measured once the text or the box is laid out again.
+        _editor.Box.TextChanged += (_, _) => FitLinesSoon();
+        _editor.Box.SizeChanged += (_, _) => FitLinesSoon();
         _editor.Keyed += OnKeyed;
         _editor.Box.GotFocus += OnEditorGotFocus;
         _editor.Box.LostFocus += OnEditorLostFocus;
@@ -452,6 +456,42 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
     /// <summary>[S-14771] The first line may have become a title or stopped being one: the pill covers it whole.</summary>
     private void OnFirstLine(string text) => _pill.Height = NotesLayout.PillHeight(_editor.FirstLine);
+
+    /// <summary>[S-14773] A fit of the foot is asked: one, after the layout the change asks for.</summary>
+    private bool _fitPosted;
+
+    private void FitLinesSoon()
+    {
+        if (_fitPosted || _detached)
+        {
+            return;
+        }
+
+        _fitPosted = DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, FitLines);
+    }
+
+    /// <summary>
+    /// [S-14773] No line cut mid-height at the foot: the line the inset's foot would cut is not drawn, the foot's padding
+    /// taking the room down to where the last whole line ends (<see cref="NotesLayout.CutLine"/>); scrolled, the lines
+    /// under the room are the text's, as any field's.
+    /// </summary>
+    private void FitLines()
+    {
+        _fitPosted = false;
+        var box = _editor.Box;
+        if (_detached || !(box.ActualHeight > 0))
+        {
+            return;
+        }
+
+        var inset = FamilySpace.Inset;
+        var room = box.ActualHeight - inset - inset;
+        var foot = inset + NotesLayout.CutLine(room, _editor.LineBottoms(room));
+        if (Math.Abs(box.Padding.Bottom - foot) > 0.01)
+        {
+            box.Padding = new Thickness(inset, inset, inset, foot);
+        }
+    }
 
     /// <summary>
     /// Ask the surface for the keyboard. Outside edit mode it is unfocusable, so without this the

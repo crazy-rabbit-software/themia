@@ -139,7 +139,8 @@ store's are Core's `NoteStoreTests` and `LocalStoreFixtureTests`.
   parts (`ToolLine`): the problem glyph while a write failed ([S-1362]); the **picker**, the shown note's name (Body,
   secondary, "Choose a note" while none is shown, the placeholder for a blank title) and its chevron as one line button
   (`ToolLine.Dropdown`), the name cut with an ellipsis at what the card leaves it (`NotesLayout.NameWidth`: at most 160,
-  never so wide that less than 40 of the first line stands beside the pill; none under 32, the chevron alone); and
+  never so wide that the pill takes more than half of the first line; none under 32, the chevron alone: at the least
+  size, 160, the pill is its chevron and "…", and "# Groceries" reads beside it, where a name in it left "# Grc"); and
   **"…"** (`ToolLine.Button`: Rename… and Delete note…, `NoteMenus.More`; what acts on the note itself; Clear note stays
   the widget's page's, [S-130], and nothing is on the card menu twice). **When it shows** (`NotesPill`): while the pointer
   is over the card, until a key is typed in the text (the text under it is then what the user needs) and again when the
@@ -148,6 +149,12 @@ store's are Core's `NoteStoreTests` and `LocalStoreFixtureTests`.
   lines: a RichEdit cannot wrap round a box, and nothing changes size, WR-12). It fades in and out (Windows' fast fade,
   167 ms; none with animations off) and takes no pointer while gone. A render's `--hover` over the note draws it shown.
   (Tests `NotesLayoutTests`, `NoteMenusTests`.)
+- **[S-14773]** **Whole lines at the foot** (WR-5: no part row). The text's lines under the top inset end on a whole line:
+  where the inset's foot would cut a line mid-height, that line is not drawn and the foot's padding takes the room down to
+  where the last whole line ends (`NotesLayout.CutLine`, measured on the laid-out lines whenever the text or the box
+  changes). At the least size (160 × 80: 56 under the inset) the title (28) and one line (20) stand whole and the third,
+  which showed 8 of its 20, does not. Scrolled, the text is the field's (the lines past the room are its scrolling).
+  (Tests `NotesLayoutTests.S14773_`.)
 - **[S-14772]** **The selection's menu at the pointer**: letting go of the left button over text it selected (a drag, a
   double-click; not a click, which places the caret or ticks a box, [S-1358]; not in a note that cannot be typed in)
   opens the selection's bar where the pointer let go, down and to the right of it ([S-1748]): the one menu look

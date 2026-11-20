@@ -53,10 +53,11 @@ public sealed class NotesLayoutTests
 
     [Theory]
     [InlineData(600, 160)]
-    [InlineData(300, 160)]
-    [InlineData(260, 136)]
-    [InlineData(200, 76)]
-    [InlineData(160, 36)]
+    [InlineData(400, 128)]
+    [InlineData(300, 78)]
+    [InlineData(260, 58)]
+    [InlineData(200, 0)]
+    [InlineData(160, 0)]
     [InlineData(150, 0)]
     [InlineData(0, 0)]
     [InlineData(double.NaN, 0)]
@@ -64,9 +65,10 @@ public sealed class NotesLayoutTests
         => Assert.Equal(name, NotesLayout.NameWidth(cardWidth));
 
     [Theory]
-    [InlineData(400, 160)]
-    [InlineData(300, 152)]
-    [InlineData(200, 52)]
+    [InlineData(500, 154)]
+    [InlineData(400, 104)]
+    [InlineData(300, 54)]
+    [InlineData(200, 0)]
     [InlineData(160, 0)]
     public void S14771_the_problem_glyph_takes_its_room_from_the_name(double cardWidth, double name)
         => Assert.Equal(name, NotesLayout.NameWidth(cardWidth, problem: true));
@@ -82,10 +84,26 @@ public sealed class NotesLayoutTests
                 var pill = name + NotesLayout.PillParts + (problem ? NotesLayout.ProblemPart : 0);
                 Assert.True(name is 0 or >= NotesLayout.NameLeast, $"{width}: {name}");
                 Assert.True(name <= NotesLayout.NameMax, $"{width}: {name}");
-                Assert.True(width - (2 * FamilySpace.Inset) - pill >= NotesLayout.TextKept - 0.001, $"{width}, {problem}: {pill}");
+                var line = width - (2 * FamilySpace.Inset);
+                Assert.True(name == 0 || line - pill >= (line * NotesLayout.TextKept) - 0.001, $"{width}, {problem}: {pill}");
             }
         }
     }
+
+    [Fact]
+    public void S14771_at_the_least_size_the_pill_is_its_chevron_and_more_alone()
+        => Assert.Equal(0, NotesLayout.NameWidth(NotesLayout.Sizing.Min.Width));
+
+    [Theory]
+    // The least note (160 x 80): a title of 28 and a line of 20 in the 56 under the inset; the third line would show 8 of its 20.
+    [InlineData(56, new[] { 28.0, 48, 68 }, 8)]
+    [InlineData(56, new[] { 28.0, 48 }, 0)]
+    [InlineData(56, new[] { 20.0, 40, 60, 80 }, 16)]
+    [InlineData(48, new[] { 28.0, 48, 68 }, 0)]
+    [InlineData(20, new[] { 28.0, 48 }, 0)]
+    [InlineData(56, new double[0], 0)]
+    public void S14773_the_foot_takes_the_line_it_would_cut(double room, double[] bottoms, double cut)
+        => Assert.Equal(cut, NotesLayout.CutLine(room, bottoms), 6);
 
     [Theory]
     [InlineData(20, 20)]

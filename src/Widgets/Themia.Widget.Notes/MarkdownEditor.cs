@@ -124,6 +124,37 @@ internal sealed class MarkdownEditor
     /// <summary>The note as it stands, with <c>\n</c> line endings.</summary>
     public string Text => _text;
 
+    /// <summary>
+    /// [S-14773] Where the text's lines end as laid out now, in DIPs from the top of the text's room (inside the box's
+    /// padding; each wrapped line its own), from the first on until one ends past <paramref name="limit"/>.
+    /// </summary>
+    public List<double> LineBottoms(double limit)
+    {
+        var bottoms = new List<double>();
+        var range = Box.Document.GetRange(0, 0);
+        var last = -1;
+        for (var i = 0; i < 1000 && range.StartPosition > last; i++)
+        {
+            last = range.StartPosition;
+            range.Expand(TextRangeUnit.Line);
+            range.GetRect(PointOptions.ClientCoordinates, out var rect, out _);
+            if (!(rect.Height > 0))
+            {
+                break;
+            }
+
+            bottoms.Add(rect.Bottom);
+            if (rect.Bottom > limit)
+            {
+                break;
+            }
+
+            range.Collapse(false);
+        }
+
+        return bottoms;
+    }
+
     /// <summary>[S-14771] How tall the note's first line stands (a title's 28, a body line's 20): the pill stands over it.</summary>
     public double FirstLine => LineOf(_lines.Count > 0 ? _lines[0] : NoteMarkdown.Parse(string.Empty)[0]);
 
