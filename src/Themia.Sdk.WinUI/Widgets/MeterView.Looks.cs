@@ -63,10 +63,11 @@ public sealed partial class MeterView
             Build(look);
         }
 
-        // [S-12833] The Number look's parts: in a smaller card its glyph and unit give way before its figures.
+        // [S-12833] The Number look's parts: in a smaller card its glyph and unit give way before its figures. The Numbers
+        // look's two readings never go under their own size ([S-6264]): every part is drawn.
         if (_fit is not null)
         {
-            _fit.Face = MeterSizing.Face(Worst);
+            _fit.Face = _look == MeterLook.Number ? MeterSizing.Face(Worst) : null;
         }
 
         WatchItems();
@@ -148,13 +149,17 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Numbers:
+                // [S-14241] The two readings are one block in the fit, as the Number look's one is (WR-7, owner 2026-11-19:
+                // "All together, scaled"): scaled up as one until their ink fills the height or the width stops them.
                 _second = new ReadoutBlock { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-                _box = new Grid { Margin = Family.SideInset, ColumnSpacing = MeterSizing.NumbersGap, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-                SetRowSpan(_box, 2);
+                _box = new Grid { ColumnSpacing = MeterSizing.NumbersGap, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
                 Move(_reading, _box);
                 _reading.Margin = default;
                 _box.Children.Add(_second);
-                Children.Add(_box);
+                _fit = new ReadingFit();
+                SetRowSpan(_fit, 2);
+                _fit.Parts.Add(_box);
+                Children.Add(_fit);
                 break;
 
             case MeterLook.Columns:
@@ -639,7 +644,7 @@ public sealed partial class MeterView
         {
             MeterLook.Battery => MeterSizing.PartTop + MeterSizing.BatteryIn(width, height).Height,
             MeterLook.Signal => MeterSizing.PartTop + MeterSizing.SignalIn(width, height),
-            MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Graph or MeterLook.History or MeterLook.Number => height,
+            MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Graph or MeterLook.History or MeterLook.Number or MeterLook.Numbers => height,
             _ => 0,
         };
 
