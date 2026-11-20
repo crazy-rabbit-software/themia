@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "เสียงปลุก",
   "pomodoro.alarmVolume.label": "ระดับเสียงปลุก",
-  "pomodoro.breakLength.label": "ระยะเวลาพัก",
-  "pomodoro.focusLength.label": "ระยะเวลาโฟกัส",
   "pomodoro.reset": "รีเซ็ต",
   "styles.pomodoro.bar": "แถบ",
   "styles.pomodoro.digits": "ตัวเลข",
   "styles.pomodoro.ring": "วงแหวน",
-  "widgetUi.break": "พัก",
   "widgetUi.focus": "โฟกัส",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "ตัวจับเวลาโฟกัสและพัก",

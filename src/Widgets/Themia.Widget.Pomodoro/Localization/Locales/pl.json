@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Dźwięk alarmu",
   "pomodoro.alarmVolume.label": "Głośność alarmu",
-  "pomodoro.breakLength.label": "Długość przerwy",
-  "pomodoro.focusLength.label": "Długość skupienia",
   "pomodoro.reset": "Wyzeruj",
   "styles.pomodoro.bar": "Pasek",
   "styles.pomodoro.digits": "Cyfry",
   "styles.pomodoro.ring": "Pierścień",
-  "widgetUi.break": "Przerwa",
   "widgetUi.focus": "Skupienie",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Minutnik skupienia i przerw",

@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "နှိုးစက် အသံ",
   "pomodoro.alarmVolume.label": "နှိုးစက် အသံအတိုးအကျယ်",
-  "pomodoro.breakLength.label": "အနားယူချိန် ကြာချိန်",
-  "pomodoro.focusLength.label": "အာရုံစိုက်ချိန် ကြာချိန်",
   "pomodoro.reset": "ပြန်စရန်",
   "styles.pomodoro.bar": "ဘား",
   "styles.pomodoro.digits": "ဂဏန်းများ",
   "styles.pomodoro.ring": "ကွင်း",
-  "widgetUi.break": "အနားယူ",
   "widgetUi.focus": "အာရုံစိုက်",
   "widget.pomodoro.label": "ပိုမိုဒိုရို",
   "widgetsA.catalog.pomodoro.description": "အာရုံစိုက်ချိန်နှင့် အနားယူချိန် တိုင်မာ",

@@ -356,8 +356,41 @@
           "config": {
             "kind": "pomodoro",
             "style": "ring",
-            "workMinutes": 25,
-            "breakMinutes": 5,
+            "phases": [
+              {
+                "kind": "focus",
+                "minutes": 25
+              },
+              {
+                "kind": "shortBreak",
+                "minutes": 5
+              },
+              {
+                "kind": "focus",
+                "minutes": 25
+              },
+              {
+                "kind": "shortBreak",
+                "minutes": 5
+              },
+              {
+                "kind": "focus",
+                "minutes": 25
+              },
+              {
+                "kind": "shortBreak",
+                "minutes": 5
+              },
+              {
+                "kind": "focus",
+                "minutes": 25
+              },
+              {
+                "kind": "longBreak",
+                "minutes": 15
+              }
+            ],
+            "repeat": true,
             "sound": "chime",
             "volume": 70
           }

@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "ਅਲਾਰਮ ਧੁਨੀ",
   "pomodoro.alarmVolume.label": "ਅਲਾਰਮ ਦੀ ਆਵਾਜ਼",
-  "pomodoro.breakLength.label": "ਬ੍ਰੇਕ ਦੀ ਮਿਆਦ",
-  "pomodoro.focusLength.label": "ਫੋਕਸ ਦੀ ਮਿਆਦ",
   "pomodoro.reset": "ਰੀਸੈੱਟ ਕਰੋ",
   "styles.pomodoro.bar": "ਪੱਟੀ",
   "styles.pomodoro.digits": "ਅੰਕ",
   "styles.pomodoro.ring": "ਛੱਲਾ",
-  "widgetUi.break": "ਬ੍ਰੇਕ",
   "widgetUi.focus": "ਫੋਕਸ",
   "widget.pomodoro.label": "ਪੋਮੋਡੋਰੋ",
   "widgetsA.catalog.pomodoro.description": "ਫੋਕਸ ਅਤੇ ਬ੍ਰੇਕ ਟਾਈਮਰ",

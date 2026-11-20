@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "அலார ஒலி",
   "pomodoro.alarmVolume.label": "அலார ஒலியளவு",
-  "pomodoro.breakLength.label": "இடைவேளை நேரம்",
-  "pomodoro.focusLength.label": "கவன நேரம்",
   "pomodoro.reset": "மீட்டமை",
   "styles.pomodoro.bar": "பட்டை",
   "styles.pomodoro.digits": "இலக்கங்கள்",
   "styles.pomodoro.ring": "வளையம்",
-  "widgetUi.break": "இடைவேளை",
   "widgetUi.focus": "கவனம்",
   "widget.pomodoro.label": "பொமோடோரோ",
   "widgetsA.catalog.pomodoro.description": "கவனம் மற்றும் இடைவேளை டைமர்",

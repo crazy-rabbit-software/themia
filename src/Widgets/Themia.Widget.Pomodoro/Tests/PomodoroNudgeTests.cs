@@ -10,22 +10,22 @@ public sealed class PomodoroNudgeTests
     [Fact]
     public void S8111_an_idle_phase_starts_five_minutes_longer_or_shorter()
     {
-        var fresh = new PomodoroState(PomodoroPhase.Work, 1500);
+        var fresh = new PomodoroState(0, 1500);
 
-        Assert.Equal(new PomodoroNudged(new PomodoroState(PomodoroPhase.Work, 1800), 1800), PomodoroNudge.Apply(fresh, 1500, +1));
-        Assert.Equal(new PomodoroNudged(new PomodoroState(PomodoroPhase.Work, 1200), 1200), PomodoroNudge.Apply(fresh, 1500, -1));
+        Assert.Equal(new PomodoroNudged(new PomodoroState(0, 1800), 1800), PomodoroNudge.Apply(fresh, 1500, +1));
+        Assert.Equal(new PomodoroNudged(new PomodoroState(0, 1200), 1200), PomodoroNudge.Apply(fresh, 1500, -1));
     }
 
     [Fact]
     public void S8111_a_running_phase_moves_the_time_left_and_keeps_the_time_gone()
     {
         // 15 of 25 minutes gone, 10 left.
-        var running = new PomodoroState(PomodoroPhase.Break, 600);
+        var running = new PomodoroState(1, 600);
 
         var longer = PomodoroNudge.Apply(running, 1500, +1)!.Value;
         Assert.Equal(900, longer.State.RemainingSeconds);
         Assert.Equal(900, longer.LengthSeconds - longer.State.RemainingSeconds);
-        Assert.Equal(PomodoroPhase.Break, longer.State.Phase);
+        Assert.Equal(1, longer.State.Index);
 
         var shorter = PomodoroNudge.Apply(running, 1500, -1)!.Value;
         Assert.Equal(300, shorter.State.RemainingSeconds);
@@ -39,7 +39,7 @@ public sealed class PomodoroNudgeTests
     [InlineData(61, 1500, false)]
     public void S8111_shorter_never_leaves_less_than_a_minute(int remaining, int length, bool can)
     {
-        var state = new PomodoroState(PomodoroPhase.Work, remaining);
+        var state = new PomodoroState(0, remaining);
 
         Assert.Equal(can, PomodoroNudge.Can(state, length, -1));
         Assert.Equal(can, PomodoroNudge.Apply(state, length, -1) is not null);
@@ -52,7 +52,7 @@ public sealed class PomodoroNudgeTests
     [InlineData(10501, 10501, false)]
     public void S8111_longer_never_passes_the_menus_most(int remaining, int length, bool can)
     {
-        var state = new PomodoroState(PomodoroPhase.Work, remaining);
+        var state = new PomodoroState(0, remaining);
 
         Assert.Equal(can, PomodoroNudge.Can(state, length, +1));
         Assert.Equal(can, PomodoroNudge.Apply(state, length, +1) is not null);
@@ -61,13 +61,13 @@ public sealed class PomodoroNudgeTests
     [Fact]
     public void S8111_the_bounds_are_the_menus()
     {
-        Assert.Equal(PomodoroNudge.LeastSeconds, PomodoroCycle.PhaseSeconds(PomodoroPhase.Work, new PomodoroConfig { WorkMinutes = 0 }));
-        Assert.Equal(PomodoroNudge.MostSeconds, PomodoroCycle.PhaseSeconds(PomodoroPhase.Work, new PomodoroConfig { WorkMinutes = 9999 }));
+        Assert.Equal(PomodoroNudge.LeastSeconds, PomodoroCycle.Seconds(new PomodoroPhaseSpec { Minutes = 0 }));
+        Assert.Equal(PomodoroNudge.MostSeconds, PomodoroCycle.Seconds(new PomodoroPhaseSpec { Minutes = 9999 }));
     }
 
     [Fact]
     public void S8111_no_direction_does_nothing()
-        => Assert.Null(PomodoroNudge.Apply(new PomodoroState(PomodoroPhase.Work, 1500), 1500, 0));
+        => Assert.Null(PomodoroNudge.Apply(new PomodoroState(0, 1500), 1500, 0));
 
     [Theory]
     [InlineData(WidgetKey.Plus, 1)]

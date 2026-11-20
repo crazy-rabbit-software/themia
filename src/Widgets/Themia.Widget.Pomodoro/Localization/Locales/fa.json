@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "صدای هشدار",
   "pomodoro.alarmVolume.label": "بلندی هشدار",
-  "pomodoro.breakLength.label": "مدت استراحت",
-  "pomodoro.focusLength.label": "مدت تمرکز",
   "pomodoro.reset": "بازنشانی",
   "styles.pomodoro.bar": "نوار",
   "styles.pomodoro.digits": "ارقام",
   "styles.pomodoro.ring": "حلقه",
-  "widgetUi.break": "استراحت",
   "widgetUi.focus": "تمرکز",
   "widget.pomodoro.label": "پومودورو",
   "widgetsA.catalog.pomodoro.description": "زمان‌سنج تمرکز و استراحت",

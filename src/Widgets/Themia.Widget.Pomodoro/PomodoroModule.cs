@@ -15,7 +15,7 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Pomodoro;
 
-/// <summary>[S-150] The pomodoro: a focus and break timer, its cue on the flip. SPEC.md beside this file.</summary>
+/// <summary>[S-150] [S-8112] The pomodoro: a focus and break timer running through its phases, its cue on each flip. SPEC.md beside this file.</summary>
 public sealed class PomodoroModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+E945); the break phase shows the timer's.</summary>
@@ -32,7 +32,8 @@ public sealed class PomodoroModule : IWidgetModule
         Label = PomodoroStr.Widget_Pomodoro_Label.Local(),
         Description = PomodoroStr.WidgetsA_Catalog_Pomodoro_Description.Local(),
         Glyph = Glyph,
-        Sizing = c => PomodoroFace.Sizing((PomodoroConfig)c, Strings.Current).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
+        // [S-8117] [S-12833] The card is the face's size: stacked or side by side, scaled down to its floor, never a Size setting.
+        Sizing = c => PomodoroFace.Sizing((PomodoroConfig)c, Strings.Current),
         Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 0),
     };

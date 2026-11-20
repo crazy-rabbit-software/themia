@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "صوت المنبه",
   "pomodoro.alarmVolume.label": "مستوى صوت المنبه",
-  "pomodoro.breakLength.label": "مدة الاستراحة",
-  "pomodoro.focusLength.label": "مدة التركيز",
   "pomodoro.reset": "إعادة تعيين",
   "styles.pomodoro.bar": "شريط",
   "styles.pomodoro.digits": "أرقام",
   "styles.pomodoro.ring": "حلقة",
-  "widgetUi.break": "استراحة",
   "widgetUi.focus": "التركيز",
   "widget.pomodoro.label": "بومودورو",
   "widgetsA.catalog.pomodoro.description": "مؤقت للتركيز والاستراحة",

@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Alarm sesi",
   "pomodoro.alarmVolume.label": "Alarm ses düzeyi",
-  "pomodoro.breakLength.label": "Mola süresi",
-  "pomodoro.focusLength.label": "Odak süresi",
   "pomodoro.reset": "Sıfırla",
   "styles.pomodoro.bar": "Çubuk",
   "styles.pomodoro.digits": "Rakamlar",
   "styles.pomodoro.ring": "Halka",
-  "widgetUi.break": "Mola",
   "widgetUi.focus": "Odak",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Odak ve mola zamanlayıcısı",

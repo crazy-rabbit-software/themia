@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "알람 소리",
   "pomodoro.alarmVolume.label": "알람 볼륨",
-  "pomodoro.breakLength.label": "휴식 시간",
-  "pomodoro.focusLength.label": "집중 시간",
   "pomodoro.reset": "초기화",
   "styles.pomodoro.bar": "막대",
   "styles.pomodoro.digits": "숫자",
   "styles.pomodoro.ring": "링",
-  "widgetUi.break": "휴식",
   "widgetUi.focus": "집중",
   "widget.pomodoro.label": "뽀모도로",
   "widgetsA.catalog.pomodoro.description": "집중 및 휴식 타이머",

@@ -5,71 +5,116 @@ using Themia.Widget.Pomodoro;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>Where a pomodoro is right now.</summary>
-public readonly record struct PomodoroState(PomodoroPhase Phase, int RemainingSeconds);
+/// <summary>[S-8112] Where a pomodoro is right now: which phase of the cycle (0-based) and its seconds left.</summary>
+public readonly record struct PomodoroState(int Index, int RemainingSeconds);
 
 /// <summary>
-/// The result of one second passing.
+/// The result of one second passing (or a skip).
 /// </summary>
 /// <param name="Flipped">
-/// True only on the tick that rolled into the next phase. This is what the alarm hangs off ([S-06]):
+/// True only on the tick that rolled into the next phase. This is what the cue hangs off ([S-152]):
 /// nothing sounds on start, pause or reset, because none of those go through here.
 /// </param>
-public readonly record struct PomodoroTick(PomodoroPhase Phase, int RemainingSeconds, bool Flipped);
+/// <param name="Stopped">[S-8114] True where the flip ended the cycle and Repeat is off: the first phase is loaded and the timer stops.</param>
+public readonly record struct PomodoroTick(int Index, int RemainingSeconds, bool Flipped, bool Stopped = false);
 
 /// <summary>
-/// The pomodoro countdown, as pure arithmetic.
+/// The pomodoro's cycle, as pure arithmetic: the phases in order ([S-8112]), the flip from one to the next
+/// ([S-151]), the end of the cycle ([S-8114]), the time left and the words the face says.
 /// <para>
 /// Separated from the view so the phase flip is reachable without running a widget for 25 minutes.
-/// Durations are passed in rather than read from config here, so a test can flip a two-second phase.
+/// Lengths are passed in rather than read from config here, so a test can flip a two-second phase.
 /// </para>
 /// </summary>
 public static class PomodoroCycle
 {
-    /// <summary>A fresh cycle: the start of a work phase, stopped. [S-02]</summary>
-    public static PomodoroState Fresh(PomodoroConfig config)
+    /// <summary>[S-8112] The phases a config runs through: its own, or the classic cycle where it holds none (an unrepaired config).</summary>
+    public static IReadOnlyList<PomodoroPhaseSpec> Phases(PomodoroConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return new PomodoroState(PomodoroPhase.Work, config.EffectiveWorkMinutes * 60);
+        return config.Phases is { Count: > 0 } phases && phases.All(p => p is not null) ? phases : PomodoroConfig.Classic();
+    }
+
+    /// <summary>[S-8101] How long a phase runs, in seconds, from its clamped length.</summary>
+    public static int Seconds(PomodoroPhaseSpec phase)
+    {
+        ArgumentNullException.ThrowIfNull(phase);
+        return phase.EffectiveMinutes * 60;
+    }
+
+    /// <summary>[S-8112] Every phase's length in seconds, in order.</summary>
+    public static int[] Lengths(PomodoroConfig config) => [.. Phases(config).Select(Seconds)];
+
+    /// <summary>[S-8112] An index held to the cycle: one past its end (fewer phases after an edit) is its first.</summary>
+    public static int Normalise(int index, int count) => count <= 0 || index < 0 || index >= count ? 0 : index;
+
+    /// <summary>[S-8102] A fresh cycle: the first phase in full, stopped.</summary>
+    public static PomodoroState Fresh(PomodoroConfig config) => At(config, 0);
+
+    /// <summary>[S-8112] Phase <paramref name="index"/> (held to the cycle) in full.</summary>
+    public static PomodoroState At(PomodoroConfig config, int index)
+    {
+        var lengths = Lengths(config);
+        var at = Normalise(index, lengths.Length);
+        return new PomodoroState(at, lengths[at]);
     }
 
     /// <summary>
-    /// How long a phase runs, in seconds, from the clamped config. [S-01]
-    /// </summary>
-    public static int PhaseSeconds(PomodoroPhase phase, PomodoroConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return (phase == PomodoroPhase.Work ? config.EffectiveWorkMinutes : config.EffectiveBreakMinutes) * 60;
-    }
-
-    /// <summary>
-    /// Advance by one second. On reaching zero the phase flips and the new phase's <b>full</b>
-    /// duration is loaded, so the timer keeps running without a pause at the boundary. [S-03]
+    /// [S-151] [S-8114] Advance by one second. On reaching zero the next phase in the cycle loads in
+    /// <b>full</b>, so the timer keeps running without a pause at the boundary; after the last phase the
+    /// cycle starts again with <paramref name="repeat"/>, or loads its first phase and stops without it.
     /// <para>
-    /// One second remaining is the last second, not a spare one: a tick from 1 is the flip. A state
-    /// that somehow arrived at zero or below — a config edit while stopped, say — also flips rather
-    /// than counting downwards for ever.
+    /// One second remaining is the last second, not a spare one: a tick from 1 is the flip. A state that
+    /// somehow arrived at zero or below (a config edit while stopped, say) also flips rather than
+    /// counting downwards for ever.
     /// </para>
     /// </summary>
-    public static PomodoroTick Advance(PomodoroState state, int workSeconds, int breakSeconds)
+    public static PomodoroTick Advance(PomodoroState state, IReadOnlyList<int> lengths, bool repeat)
     {
-        if (state.RemainingSeconds > 1)
+        ArgumentNullException.ThrowIfNull(lengths);
+        if (lengths.Count == 0)
         {
-            return new PomodoroTick(state.Phase, state.RemainingSeconds - 1, Flipped: false);
+            return new PomodoroTick(0, Math.Max(0, state.RemainingSeconds - 1), Flipped: false);
         }
 
-        var next = state.Phase == PomodoroPhase.Work ? PomodoroPhase.Break : PomodoroPhase.Work;
-        var loaded = next == PomodoroPhase.Work ? workSeconds : breakSeconds;
+        var index = Normalise(state.Index, lengths.Count);
+        if (state.RemainingSeconds > 1)
+        {
+            return new PomodoroTick(index, state.RemainingSeconds - 1, Flipped: false);
+        }
 
-        // A duration of zero would flip again on the very next tick and alarm at 1 Hz for ever.
-        return new PomodoroTick(next, Math.Max(1, loaded), Flipped: true);
+        return Next(index, lengths, repeat);
     }
 
     /// <summary>
-    /// How much of the current phase has gone, 0 at the start and 1 at the flip. [S-04]
+    /// [S-1466] [S-8114] Skip to the next phase now, with its full length loaded. A skip is the user's own
+    /// flip, so it never sounds; the caller keeps the running state as it was, unless the skip ended a
+    /// cycle that does not repeat.
+    /// </summary>
+    public static PomodoroTick Skip(PomodoroState state, IReadOnlyList<int> lengths, bool repeat)
+    {
+        ArgumentNullException.ThrowIfNull(lengths);
+        return lengths.Count == 0 ? new PomodoroTick(0, 0, Flipped: false) : Next(Normalise(state.Index, lengths.Count), lengths, repeat);
+    }
+
+    private static PomodoroTick Next(int index, IReadOnlyList<int> lengths, bool repeat)
+    {
+        var next = index + 1;
+        var wrapped = next >= lengths.Count;
+        if (wrapped)
+        {
+            next = 0;
+        }
+
+        // A length of zero would flip again on the very next tick and sound at 1 Hz for ever.
+        return new PomodoroTick(next, Math.Max(1, lengths[next]), Flipped: true, Stopped: wrapped && !repeat);
+    }
+
+    /// <summary>
+    /// [S-8104] How much of the current phase has gone, 0 at the start and 1 at the flip.
     /// <para>
     /// Clamped, because <c>remaining</c> and <c>total</c> can disagree for one tick after the
-    /// durations are changed in settings while the timer is running.
+    /// lengths are changed in settings while the timer is running.
     /// </para>
     /// </summary>
     public static double Progress(PomodoroState state, int totalSeconds)
@@ -91,37 +136,60 @@ public static class PomodoroCycle
         return $"{minutes.ToString(CultureInfo.InvariantCulture)}:{(seconds % 60):D2}";
     }
 
-    /// <summary>The word for a phase, as the widget says it.</summary>
-    public static string PhaseLabel(PomodoroPhase phase) => PhaseLabel(Strings.Current, phase);
+    /// <summary>[S-8112] The word for a kind of phase: Focus, Short break, Long break.</summary>
+    public static string KindLabel(Locale locale, PomodoroPhaseKind kind) => (kind switch
+    {
+        PomodoroPhaseKind.ShortBreak => PomodoroStr.Pomodoro_Phase_ShortBreak,
+        PomodoroPhaseKind.LongBreak => PomodoroStr.Pomodoro_Phase_LongBreak,
+        _ => PomodoroStr.WidgetUi_Focus,
+    }).Text(locale);
 
-    /// <summary><see cref="PhaseLabel(PomodoroPhase)"/> in an explicit language.</summary>
-    public static string PhaseLabel(Locale locale, PomodoroPhase phase)
-        => (phase == PomodoroPhase.Work ? PomodoroStr.WidgetUi_Focus : PomodoroStr.WidgetUi_Break).Text(locale);
+    /// <summary>[S-8112] A phase's name: the person's own, or its kind's.</summary>
+    public static string Label(PomodoroPhaseSpec phase) => Label(Strings.Current, phase);
 
-    /// <summary>The phase after <paramref name="phase"/>.</summary>
-    public static PomodoroPhase Other(PomodoroPhase phase) => phase == PomodoroPhase.Work ? PomodoroPhase.Break : PomodoroPhase.Work;
+    /// <summary><see cref="Label(PomodoroPhaseSpec)"/> in an explicit language.</summary>
+    public static string Label(Locale locale, PomodoroPhaseSpec phase)
+    {
+        ArgumentNullException.ThrowIfNull(phase);
+        return string.IsNullOrWhiteSpace(phase.Name) ? KindLabel(locale, phase.Kind) : phase.Name.Trim();
+    }
 
     /// <summary>
-    /// [S-1466] Skip to the next phase now, with its full length loaded. A skip is the user's own
-    /// flip, so it never sounds; the caller keeps the running state as it was.
+    /// [S-8116] The caption by the progress: the current phase's name and where it stands in the cycle
+    /// ("Focus · 3 of 8"); a cycle of one phase says its name alone.
     /// </summary>
-    public static PomodoroState Skip(PomodoroState state, PomodoroConfig config)
+    public static string Caption(Locale locale, IReadOnlyList<PomodoroPhaseSpec> phases, int index)
     {
-        ArgumentNullException.ThrowIfNull(config);
-        var next = Other(state.Phase);
-        return new PomodoroState(next, PhaseSeconds(next, config));
+        ArgumentNullException.ThrowIfNull(phases);
+        if (phases.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var at = Normalise(index, phases.Count);
+        var name = Label(locale, phases[at]);
+        return phases.Count == 1 ? name : PomodoroStr.WidgetsC_Pomodoro_Position.Format(locale,
+            ("phase", name),
+            ("index", (at + 1).ToString(CultureInfo.InvariantCulture)),
+            ("count", phases.Count.ToString(CultureInfo.InvariantCulture)));
     }
 
-    /// <summary>[S-1466] "Next: Break 5:00" — what the flip will load.</summary>
-    public static string NextLine(PomodoroPhase phase, PomodoroConfig config) => NextLine(Strings.Current, phase, config);
+    /// <summary><see cref="Caption(Locale, IReadOnlyList{PomodoroPhaseSpec}, int)"/> in the current language.</summary>
+    public static string Caption(IReadOnlyList<PomodoroPhaseSpec> phases, int index) => Caption(Strings.Current, phases, index);
 
-    /// <summary><see cref="NextLine(PomodoroPhase, PomodoroConfig)"/> in an explicit language.</summary>
-    public static string NextLine(Locale locale, PomodoroPhase phase, PomodoroConfig config)
+    /// <summary>[S-1466] "Next: Short break 5:00": what the flip after phase <paramref name="index"/> loads.</summary>
+    public static string NextLine(PomodoroConfig config, int index) => NextLine(Strings.Current, config, index);
+
+    /// <summary><see cref="NextLine(PomodoroConfig, int)"/> in an explicit language.</summary>
+    public static string NextLine(Locale locale, PomodoroConfig config, int index)
     {
-        ArgumentNullException.ThrowIfNull(config);
-        var next = Other(phase);
-        return PomodoroStr.WidgetsC_Pomodoro_Next.Format(locale, ("phase", PhaseLabel(locale, next)), ("time", Clock(PhaseSeconds(next, config))));
+        var phases = Phases(config);
+        var next = phases[(Normalise(index, phases.Count) + 1) % phases.Count];
+        return PomodoroStr.WidgetsC_Pomodoro_Next.Format(locale, ("phase", Label(locale, next)), ("time", Clock(Seconds(next))));
     }
+
+    /// <summary>[S-152] The cue that enters a phase of <paramref name="kind"/>: ascending into focus, descending into a break.</summary>
+    public static PomodoroPhase Entering(PomodoroPhaseKind kind) => kind == PomodoroPhaseKind.Focus ? PomodoroPhase.Work : PomodoroPhase.Break;
 }
 
 /// <summary>[S-8111] The phase after a nudge: where it is now and how long the phase runs in all.</summary>
@@ -130,9 +198,9 @@ public readonly record struct PomodoroNudged(PomodoroState State, int LengthSeco
 /// <summary>
 /// [S-8111] The − and + nudge (issue 186): the current phase 5 minutes shorter or longer, without the
 /// menu. One rule whether the timer runs or not: the time left and the phase's length move together,
-/// so the time already gone (and the ring's share of it) stays where it was, and an idle phase simply
+/// so the time already gone (and its section's share of it) stays where it was, and an idle phase simply
 /// starts that much shorter or longer. The nudge is this phase's alone, run state like the rest
-/// ([S-150]): the menu's lengths stay the standard every new phase loads ([S-8101]), so a flip, a
+/// ([S-150]): the phases' lengths stay the standard every new phase loads ([S-8112]), so a flip, a
 /// skip or a reset forgets it. A press that would leave less than a minute, or make the phase longer
 /// than the menu's most, does nothing: a nudge is 5 minutes or nothing, never a part step.
 /// </summary>

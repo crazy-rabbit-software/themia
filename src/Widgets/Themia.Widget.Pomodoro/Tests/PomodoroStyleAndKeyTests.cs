@@ -11,10 +11,10 @@ namespace Themia.Widget.Pomodoro.Tests;
 public sealed class PomodoroStyleAndKeyTests
 {
     [Fact]
-    public void S6035_the_pomodoro_ring_style_alone_draws_a_ring_and_digits_draws_neither()
+    public void S6035_the_ring_style_alone_draws_the_ring_the_bar_style_alone_the_bar_and_digits_neither()
     {
         Assert.True(new PomodoroConfig().DrawsRing);
-        Assert.True(new PomodoroConfig().DrawsBar);
+        Assert.False(new PomodoroConfig().DrawsBar);
         Assert.False(new PomodoroConfig { Style = PomodoroStyle.Bar }.DrawsRing);
         Assert.True(new PomodoroConfig { Style = PomodoroStyle.Bar }.DrawsBar);
         Assert.False(new PomodoroConfig { Style = PomodoroStyle.Digits }.DrawsRing);

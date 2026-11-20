@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Tunog ng alarm",
   "pomodoro.alarmVolume.label": "Volume ng alarm",
-  "pomodoro.breakLength.label": "Haba ng pahinga",
-  "pomodoro.focusLength.label": "Haba ng focus",
   "pomodoro.reset": "I-reset",
   "styles.pomodoro.bar": "Bar",
   "styles.pomodoro.digits": "Mga digit",
   "styles.pomodoro.ring": "Singsing",
-  "widgetUi.break": "Pahinga",
   "widgetUi.focus": "Focus",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Timer para sa focus at pahinga",

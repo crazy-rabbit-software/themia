@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "అలారం ధ్వని",
   "pomodoro.alarmVolume.label": "అలారం వాల్యూమ్",
-  "pomodoro.breakLength.label": "విరామ వ్యవధి",
-  "pomodoro.focusLength.label": "ఫోకస్ వ్యవధి",
   "pomodoro.reset": "రీసెట్ చేయి",
   "styles.pomodoro.bar": "పట్టీ",
   "styles.pomodoro.digits": "అంకెలు",
   "styles.pomodoro.ring": "వలయం",
-  "widgetUi.break": "విరామం",
   "widgetUi.focus": "ఫోకస్",
   "widget.pomodoro.label": "పోమోడోరో",
   "widgetsA.catalog.pomodoro.description": "ఫోకస్ మరియు విరామ టైమర్",

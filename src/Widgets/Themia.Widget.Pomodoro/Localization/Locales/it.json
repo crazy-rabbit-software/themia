@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Suono della sveglia",
   "pomodoro.alarmVolume.label": "Volume della sveglia",
-  "pomodoro.breakLength.label": "Durata della pausa",
-  "pomodoro.focusLength.label": "Durata del focus",
   "pomodoro.reset": "Azzera",
   "styles.pomodoro.bar": "Barra",
   "styles.pomodoro.digits": "Cifre",
   "styles.pomodoro.ring": "Anello",
-  "widgetUi.break": "Pausa",
   "widgetUi.focus": "Concentrazione",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Un timer per concentrazione e pause",

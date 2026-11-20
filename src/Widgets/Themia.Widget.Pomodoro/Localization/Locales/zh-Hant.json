@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "鬧鐘音效",
   "pomodoro.alarmVolume.label": "鬧鐘音量",
-  "pomodoro.breakLength.label": "休息時長",
-  "pomodoro.focusLength.label": "專注時長",
   "pomodoro.reset": "重設",
   "styles.pomodoro.bar": "進度列",
   "styles.pomodoro.digits": "數字",
   "styles.pomodoro.ring": "圓環",
-  "widgetUi.break": "休息",
   "widgetUi.focus": "專注",
   "widget.pomodoro.label": "番茄鐘",
   "widgetsA.catalog.pomodoro.description": "專注與休息計時器",

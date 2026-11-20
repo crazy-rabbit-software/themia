@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "अलार्म ध्वनि",
   "pomodoro.alarmVolume.label": "अलार्म वॉल्यूम",
-  "pomodoro.breakLength.label": "ब्रेक अवधि",
-  "pomodoro.focusLength.label": "फ़ोकस अवधि",
   "pomodoro.reset": "रीसेट करें",
   "styles.pomodoro.bar": "पट्टी",
   "styles.pomodoro.digits": "अंक",
   "styles.pomodoro.ring": "वलय",
-  "widgetUi.break": "ब्रेक",
   "widgetUi.focus": "फ़ोकस",
   "widget.pomodoro.label": "पोमोडोरो",
   "widgetsA.catalog.pomodoro.description": "फ़ोकस और ब्रेक टाइमर",

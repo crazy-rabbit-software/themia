@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Suara alarm",
   "pomodoro.alarmVolume.label": "Volume alarm",
-  "pomodoro.breakLength.label": "Durasi istirahat",
-  "pomodoro.focusLength.label": "Durasi fokus",
   "pomodoro.reset": "Atur ulang",
   "styles.pomodoro.bar": "Bilah",
   "styles.pomodoro.digits": "Angka",
   "styles.pomodoro.ring": "Cincin",
-  "widgetUi.break": "Istirahat",
   "widgetUi.focus": "Fokus",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Timer fokus dan istirahat",

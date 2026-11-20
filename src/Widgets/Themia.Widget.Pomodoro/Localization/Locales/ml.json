@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "അലാറം ശബ്‌ദം",
   "pomodoro.alarmVolume.label": "അലാറം വോളിയം",
-  "pomodoro.breakLength.label": "ഇടവേളയുടെ ദൈർഘ്യം",
-  "pomodoro.focusLength.label": "ഫോക്കസ് ദൈർഘ്യം",
   "pomodoro.reset": "റീസെറ്റ് ചെയ്യുക",
   "styles.pomodoro.bar": "ബാർ",
   "styles.pomodoro.digits": "അക്കങ്ങൾ",
   "styles.pomodoro.ring": "വളയം",
-  "widgetUi.break": "ഇടവേള",
   "widgetUi.focus": "ഫോക്കസ്",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "ഒരു ഫോക്കസ്, ഇടവേള ടൈമർ",

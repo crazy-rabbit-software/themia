@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Sauti ya kengele",
   "pomodoro.alarmVolume.label": "Sauti ya kengele",
-  "pomodoro.breakLength.label": "Urefu wa mapumziko",
-  "pomodoro.focusLength.label": "Urefu wa umakini",
   "pomodoro.reset": "Weka upya",
   "styles.pomodoro.bar": "Upau",
   "styles.pomodoro.digits": "Tarakimu",
   "styles.pomodoro.ring": "Pete",
-  "widgetUi.break": "Mapumziko",
   "widgetUi.focus": "Umakini",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Kipima muda cha umakini na mapumziko",

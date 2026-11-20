@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Alarmgeluid",
   "pomodoro.alarmVolume.label": "Alarmvolume",
-  "pomodoro.breakLength.label": "Pauzeduur",
-  "pomodoro.focusLength.label": "Focusduur",
   "pomodoro.reset": "Opnieuw instellen",
   "styles.pomodoro.bar": "Balk",
   "styles.pomodoro.digits": "Cijfers",
   "styles.pomodoro.ring": "Ring",
-  "widgetUi.break": "Pauze",
   "widgetUi.focus": "Focus",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Een timer voor focus en pauze",

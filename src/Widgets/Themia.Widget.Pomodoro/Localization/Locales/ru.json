@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Звук сигнала",
   "pomodoro.alarmVolume.label": "Громкость сигнала",
-  "pomodoro.breakLength.label": "Длительность перерыва",
-  "pomodoro.focusLength.label": "Длительность работы",
   "pomodoro.reset": "Сбросить",
   "styles.pomodoro.bar": "Полоса",
   "styles.pomodoro.digits": "Цифры",
   "styles.pomodoro.ring": "Кольцо",
-  "widgetUi.break": "Перерыв",
   "widgetUi.focus": "Работа",
   "widget.pomodoro.label": "Помидор",
   "widgetsA.catalog.pomodoro.description": "Таймер работы и перерывов",

@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Son de l’alarme",
   "pomodoro.alarmVolume.label": "Volume de l’alarme",
-  "pomodoro.breakLength.label": "Durée de pause",
-  "pomodoro.focusLength.label": "Durée de concentration",
   "pomodoro.reset": "Réinitialiser",
   "styles.pomodoro.bar": "Barre",
   "styles.pomodoro.digits": "Chiffres",
   "styles.pomodoro.ring": "Anneau",
-  "widgetUi.break": "Pause",
   "widgetUi.focus": "Concentration",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Un minuteur de concentration et de pause",

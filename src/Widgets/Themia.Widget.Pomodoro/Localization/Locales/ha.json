@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Sautin ƙararrawa",
   "pomodoro.alarmVolume.label": "Ƙarar ƙararrawa",
-  "pomodoro.breakLength.label": "Tsawon hutu",
-  "pomodoro.focusLength.label": "Tsawon mai da hankali",
   "pomodoro.reset": "Sake saitawa",
   "styles.pomodoro.bar": "Sanda",
   "styles.pomodoro.digits": "Lambobi",
   "styles.pomodoro.ring": "Zobe",
-  "widgetUi.break": "Hutu",
   "widgetUi.focus": "Mai da hankali",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Mai ƙidayar lokaci don mai da hankali da hutu",

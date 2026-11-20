@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Som do alarme",
   "pomodoro.alarmVolume.label": "Volume do alarme",
-  "pomodoro.breakLength.label": "Duração da pausa",
-  "pomodoro.focusLength.label": "Duração do foco",
   "pomodoro.reset": "Repor",
   "styles.pomodoro.bar": "Barra",
   "styles.pomodoro.digits": "Dígitos",
   "styles.pomodoro.ring": "Anel",
-  "widgetUi.break": "Pausa",
   "widgetUi.focus": "Foco",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Um temporizador de foco e pausa",

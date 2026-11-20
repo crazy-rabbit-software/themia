@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "अलार्म ध्वनी",
   "pomodoro.alarmVolume.label": "अलार्म व्हॉल्यूम",
-  "pomodoro.breakLength.label": "विश्रांती कालावधी",
-  "pomodoro.focusLength.label": "फोकस कालावधी",
   "pomodoro.reset": "रीसेट करा",
   "styles.pomodoro.bar": "पट्टी",
   "styles.pomodoro.digits": "अंक",
   "styles.pomodoro.ring": "वलय",
-  "widgetUi.break": "विश्रांती",
   "widgetUi.focus": "फोकस",
   "widget.pomodoro.label": "पोमोडोरो",
   "widgetsA.catalog.pomodoro.description": "फोकस आणि विश्रांती टायमर",

@@ -1,13 +1,10 @@
 {
   "pomodoro.alarmSound.label": "Âm báo",
   "pomodoro.alarmVolume.label": "Âm lượng báo",
-  "pomodoro.breakLength.label": "Thời lượng nghỉ",
-  "pomodoro.focusLength.label": "Thời lượng tập trung",
   "pomodoro.reset": "Đặt lại",
   "styles.pomodoro.bar": "Thanh",
   "styles.pomodoro.digits": "Chữ số",
   "styles.pomodoro.ring": "Vòng",
-  "widgetUi.break": "Nghỉ",
   "widgetUi.focus": "Tập trung",
   "widget.pomodoro.label": "Pomodoro",
   "widgetsA.catalog.pomodoro.description": "Bộ hẹn giờ tập trung và nghỉ",
