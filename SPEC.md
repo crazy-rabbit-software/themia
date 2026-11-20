@@ -2461,6 +2461,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   Appearance page's 55 rows: one card's, not every row's). What waited for the drawing (the reveal of what opened,
   [S-2347]; the keyboard's place) follows it. New rows (any change of the state, a way in, [S-3534]) are drawn whole as
   before, in a new panel. Tests `KeptCardsTests.S2361_`.
+- **[S-2362]** **Opening General or Accounts draws the page once**: the read of start with Windows each opening makes
+  ([S-936]) draws the open pages again only where Windows said something else than the last read (`AdoptStartup`).
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the

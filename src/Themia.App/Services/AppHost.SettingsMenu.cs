@@ -103,15 +103,22 @@ internal sealed partial class AppHost
         }
     }
 
-    /// <summary>[S-935] What Windows said, shown; the stored value follows a state that could be read.</summary>
+    /// <summary>
+    /// [S-935] What Windows said, shown; the stored value follows a state that could be read. [S-2362] The open menus are
+    /// drawn again only when it said something else: the read every opening makes found the same answer the last time.
+    /// </summary>
     private void AdoptStartup(AutostartStatus status)
     {
+        var changed = StartupStatus != status;
         StartupStatus = status;
         if (status.State != AutostartState.Unknown && State.Design.RunAtStartup != status.WillStart)
         {
             Mutate(s => s.Design.RunAtStartup = status.WillStart, relayout: false);
         }
 
-        SettingsOutdated?.Invoke();
+        if (changed)
+        {
+            SettingsOutdated?.Invoke();
+        }
     }
 }
