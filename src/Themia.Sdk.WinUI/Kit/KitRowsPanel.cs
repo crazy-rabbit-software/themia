@@ -245,7 +245,24 @@ public sealed partial class KitListHost : Panel
         _scroll.Measure(availableSize);
         return new Size(
             double.IsFinite(availableSize.Width) ? availableSize.Width : _scroll.DesiredSize.Width,
-            double.IsFinite(availableSize.Height) ? availableSize.Height : _scroll.DesiredSize.Height);
+            double.IsFinite(availableSize.Height) ? availableSize.Height : WholeLines());
+    }
+
+    /// <summary>
+    /// [S-14500] The height its lines ask under the viewer's cap: the lines that fit whole, to the DIP, never the viewer's own
+    /// desired height, which a fractional display scale rounds down a device pixel under a cap that ends on one, cutting the
+    /// last whole line (and fading it out) at a box the rows were stretched to fill.
+    /// </summary>
+    private double WholeLines()
+    {
+        var lines = _rows.LineBottoms;
+        if (lines.Count == 0)
+        {
+            return _scroll.DesiredSize.Height;
+        }
+
+        var cap = double.IsFinite(_scroll.MaxHeight) ? KitChecks.WholeLineCap(lines, _scroll.MaxHeight, _rows.LineHeadings) : lines[^1];
+        return Math.Min(lines[^1], cap) + _scroll.Padding.Top + _scroll.Padding.Bottom;
     }
 
     protected override Size ArrangeOverride(Size finalSize)
