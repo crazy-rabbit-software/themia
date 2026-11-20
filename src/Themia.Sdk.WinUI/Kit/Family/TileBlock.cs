@@ -15,6 +15,11 @@ namespace Themia.Sdk.WinUI.Kit;
 /// tile (or the circle) is the item layer's ([S-6513]). Missing on this PC, every part is the disabled
 /// role ([S-1940]).
 /// <para>
+/// [S-14201] The face (the glyph or its circle or ring, the label and the state line) stands centred on its ink, not its
+/// box (<see cref="InkFit"/> at its own size: the glyph's room in its em box, the last line's room under its baseline or
+/// descender), so the bands over and under it are alike (owner, 2026-11-19: "Centred is fine").
+/// </para>
+/// <para>
 /// [S-6736] It only draws: its owner keeps the whole tile as the hit target and tells it the
 /// pointer's state (<see cref="Face"/>): the item layer's hover and press, or over the accent the
 /// subtle fills laid on it. A ringed tile (a power button's) keeps its glyph inside the ring
@@ -26,6 +31,9 @@ public sealed partial class TileBlock : Grid
 {
     private readonly Border _overlay = new() { IsHitTestVisible = false };
     private readonly StackPanel _stack;
+
+    /// <summary>[S-14201] The face centred on its ink in the tile's inset, never scaled up.</summary>
+    private readonly InkFit _fit = new() { Most = 1 };
     private readonly Grid _mark;
     private readonly Border _circle;
     private readonly Border _circleOverlay = new() { IsHitTestVisible = false };
@@ -105,8 +113,9 @@ public sealed partial class TileBlock : Grid
         _switchRow.Children.Add(_switchLines);
         _switchRow.Children.Add(_switch);
 
+        _fit.Child = _stack;
         Children.Add(_overlay);
-        Children.Add(_stack);
+        Children.Add(_fit);
         Children.Add(_switchRow);
         CornerRadius = Family.Radius;
         _overlay.CornerRadius = Family.Radius;
@@ -294,5 +303,12 @@ public sealed partial class TileBlock : Grid
         _glyph.Foreground = Family.Brush(roles.Glyph);
         _mark.Width = size;
         _mark.Height = size;
+
+        // [S-14201] Its words wrap at the inset's width, as they did in the tile's own box; a glyph alone is its own width.
+        _stack.Width = _planLabel || _planState ? Math.Max(size, _width) : double.NaN;
+
+        // [S-14201] Its ink may have moved in a box of the same size (a sentence with a descender, the ring shown, "--"
+        // for "Off"), which XAML does not arrange again on its own: the fit places it again.
+        _fit.InvalidateArrange();
     }
 }
