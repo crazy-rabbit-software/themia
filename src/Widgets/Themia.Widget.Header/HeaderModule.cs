@@ -20,7 +20,7 @@ namespace Themia.Widget.Header;
 public sealed class HeaderModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+E8D2, Text), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE8D2);
+    internal static readonly string Glyph = Glyphs.Font;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

@@ -20,7 +20,7 @@ internal static class PomodoroMenu
     private const int VolumeStep = 10;
 
     /// <summary>[S-8114] The Repeat line's glyph (Segoe Fluent's repeat-all).</summary>
-    private static readonly string RepeatGlyph = char.ConvertFromUtf32(0xE8EE);
+    private static readonly string RepeatGlyph = Glyphs.Repeat;
 
     public static void Lines(WidgetMenuLines menu, PomodoroConfig config)
     {

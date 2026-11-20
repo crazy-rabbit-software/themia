@@ -19,7 +19,7 @@ namespace Themia.Widget.ExchangeHistory;
 public sealed class ExchangeHistoryModule : IWidgetModule
 {
     /// <summary>Its glyph: a chart (U+E9D2), the rate's old chart style's.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE9D2);
+    internal static readonly string Glyph = Glyphs.Motion;
 
     /// <summary>[S-11156] The chart's band: its least, a new card's and its most.</summary>
     public const double BandMin = FamilyShape.IconHuge;

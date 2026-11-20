@@ -24,7 +24,7 @@ public sealed class RecentFilesModule : IWidgetModule
     internal static CardOpen? Opens => CardOpen.Place("shell:Recent");
 
     /// <summary>Its glyph, the module's own (U+E81C).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE81C);
+    internal static readonly string Glyph = Glyphs.History;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

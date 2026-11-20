@@ -20,7 +20,7 @@ namespace Themia.Widget.ExchangeRate;
 public sealed class ExchangeRateModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+E9A1, two arrows round a coin; checked on a rendered sheet of SegoeIcons.ttf).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE9A1);
+    internal static readonly string Glyph = Glyphs.CurrencyExchange;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

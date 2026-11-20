@@ -18,7 +18,7 @@ namespace Themia.Widget.MusicProgress;
 public sealed class MusicProgressModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+E7A5, a bar), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE7A5);
+    internal static readonly string Glyph = Glyphs.ProgressBar;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

@@ -19,7 +19,7 @@ namespace Themia.Widget.Pomodoro;
 public sealed class PomodoroModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+E945); the break phase shows the timer's.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE945);
+    internal static readonly string Glyph = Glyphs.ChargingBolt;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

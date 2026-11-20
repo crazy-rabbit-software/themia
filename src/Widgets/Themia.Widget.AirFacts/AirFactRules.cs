@@ -3,6 +3,7 @@ using Themia.App.Services.Web;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.App.Shell;
 
 namespace Themia.Widget.AirFacts;
 
@@ -39,7 +40,7 @@ public static class AirFactRules
     public const string Missing = "—";
 
     /// <summary>The air's glyph (U+EC0A, a leaf): the index's, the pollen's.</summary>
-    public static readonly string Leaf = char.ConvertFromUtf32(0xEC0A);
+    public static readonly string Leaf = Glyphs.EnergySaver;
 
     public static string Name(AirFactKind kind) => kind switch
     {

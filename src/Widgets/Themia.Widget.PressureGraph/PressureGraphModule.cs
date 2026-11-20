@@ -7,6 +7,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.PressureGraph;
+using Themia.App.Shell;
 
 [assembly: ThemiaWidget("pressureGraph", typeof(PressureGraphModule))]
 
@@ -16,7 +17,7 @@ namespace Themia.Widget.PressureGraph;
 public sealed class PressureGraphModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+EC4A, the gauge), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xEC4A);
+    internal static readonly string Glyph = Glyphs.Gauge;
 
     /// <summary>[S-2037] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
     internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);

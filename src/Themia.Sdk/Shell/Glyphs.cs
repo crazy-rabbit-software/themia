@@ -424,5 +424,35 @@ public static class Glyphs
     /// <summary>[S-4670] An optical drive (Segoe "CD").</summary>
     public static readonly string Disc = From(0xE958);
 
+    /// <summary>[S-1400] A video (Segoe "Video"): the video stream.</summary>
+    public static readonly string Video = From(0xE714);
+
+    /// <summary>A handset (Segoe "Phone"): a contact's call.</summary>
+    public static readonly string Call = From(0xE717);
+
+    /// <summary>A progress bar (Segoe "DataSenseBar"): the music's progress.</summary>
+    public static readonly string ProgressBar = From(0xE7A5);
+
+    /// <summary>A flag (Segoe "Flag"): a stopwatch's lap.</summary>
+    public static readonly string Flag = From(0xE7C1);
+
+    /// <summary>Repeat (Segoe "RepeatAll"): the pomodoro's rounds.</summary>
+    public static readonly string Repeat = From(0xE8EE);
+
+    /// <summary>An album (Segoe "MusicAlbum"): the music's cover.</summary>
+    public static readonly string MusicAlbum = From(0xE93C);
+
+    /// <summary>Two arrows across (Segoe "TapAndSend"): the exchange rate.</summary>
+    public static readonly string CurrencyExchange = From(0xE9A1);
+
+    /// <summary>An alarm clock (Segoe "DevUpdate"): the alarm.</summary>
+    public static readonly string AlarmClock = From(0xECC5);
+
+    /// <summary>A bullseye (Segoe "Bullseye"): the focus session.</summary>
+    public static readonly string Bullseye = From(0xF272);
+
+    /// <summary>A cloud (Segoe "Cloud"): a Microsoft account.</summary>
+    public static readonly string Cloud = From(0xE753);
+
     private static string From(int codePoint) => char.ConvertFromUtf32(codePoint);
 }

@@ -7,6 +7,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.DesktopItem;
+using Themia.App.Shell;
 
 [assembly: ThemiaWidget("desktopItem", typeof(DesktopItemModule))]
 
@@ -23,7 +24,7 @@ namespace Themia.Widget.DesktopItem;
 public sealed class DesktopItemModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+E71B, a link), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE71B);
+    internal static readonly string Glyph = Glyphs.Link;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

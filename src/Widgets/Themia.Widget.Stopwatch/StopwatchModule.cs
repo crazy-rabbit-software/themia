@@ -8,6 +8,7 @@ using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Stopwatch;
+using Themia.App.Shell;
 
 [assembly: ThemiaWidget("stopwatch", typeof(StopwatchModule))]
 
@@ -17,10 +18,10 @@ namespace Themia.Widget.Stopwatch;
 public sealed class StopwatchModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (Segoe "Stopwatch", U+E916).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE916);
+    internal static readonly string Glyph = Glyphs.Timer;
 
     /// <summary>[S-4601] A lap (Segoe "Flag", U+E7C1), as Windows' Clock marks one.</summary>
-    internal static readonly string LapGlyph = char.ConvertFromUtf32(0xE7C1);
+    internal static readonly string LapGlyph = Glyphs.Flag;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

@@ -19,7 +19,7 @@ namespace Themia.Widget.AirQuality;
 public sealed class AirQualityModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+EC0A, a leaf: air quality and pollen; checked on a rendered sheet of SegoeIcons.ttf).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xEC0A);
+    internal static readonly string Glyph = Glyphs.EnergySaver;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

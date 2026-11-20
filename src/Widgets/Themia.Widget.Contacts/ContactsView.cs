@@ -45,8 +45,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>Contacts change rarely; the sync service keeps them fresher than this anyway.</summary>
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(15);
 
-    private static readonly string PhoneGlyph = char.ConvertFromUtf32(0xE717);
-    private static readonly string MessageGlyph = char.ConvertFromUtf32(0xE8BD);
+    private static readonly string PhoneGlyph = Glyphs.Call;
+    private static readonly string MessageGlyph = Glyphs.Unread;
 
     private readonly SearchBox _search = new(ContactsStr.Contacts_SearchPlaceholder.Text());
 

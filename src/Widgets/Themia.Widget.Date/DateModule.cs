@@ -6,6 +6,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Date;
+using Themia.App.Shell;
 
 [assembly: ThemiaWidget("date", typeof(DateModule))]
 
@@ -18,7 +19,7 @@ namespace Themia.Widget.Date;
 public sealed class DateModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+E787, Calendar day), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE787);
+    internal static readonly string Glyph = Glyphs.Calendar;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

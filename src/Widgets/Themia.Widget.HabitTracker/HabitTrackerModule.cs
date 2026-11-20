@@ -20,7 +20,7 @@ namespace Themia.Widget.HabitTracker;
 public sealed class HabitTrackerModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+E73E).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE73E);
+    internal static readonly string Glyph = Glyphs.Done;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

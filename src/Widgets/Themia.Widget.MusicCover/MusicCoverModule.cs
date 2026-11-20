@@ -18,7 +18,7 @@ namespace Themia.Widget.MusicCover;
 public sealed class MusicCoverModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+E93C, a picture), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE93C);
+    internal static readonly string Glyph = Glyphs.MusicAlbum;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

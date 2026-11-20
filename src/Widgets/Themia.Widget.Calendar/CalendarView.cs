@@ -48,8 +48,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);
 
-    private static readonly string ChevronLeft = char.ConvertFromUtf32(0xE76B);
-    private static readonly string ChevronRight = char.ConvertFromUtf32(0xE76C);
+    private static readonly string ChevronLeft = Glyphs.ChevronLeft;
+    private static readonly string ChevronRight = Glyphs.ChevronRight;
 
     private readonly Grid _content = new();
     private readonly KitStatePanel _state;

@@ -344,7 +344,7 @@ public sealed class ScreenTimeFeed(Action changed, ScreenTimeDayNav nav)
 /// </summary>
 public sealed class ScreenTimeDayNav
 {
-    private static readonly string ChevronLeft = char.ConvertFromUtf32(0xE76B);
+    private static readonly string ChevronLeft = Glyphs.ChevronLeft;
     private static readonly string ChevronRight = Glyphs.ChevronRight;
 
     private readonly ToolLine _line = new();

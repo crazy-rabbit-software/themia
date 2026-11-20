@@ -18,7 +18,7 @@ namespace Themia.Widget.Gallery;
 public sealed class GalleryModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+E91B).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE91B);
+    internal static readonly string Glyph = Glyphs.Photo;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

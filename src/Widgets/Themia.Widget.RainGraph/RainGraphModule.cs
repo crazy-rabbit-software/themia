@@ -7,6 +7,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.RainGraph;
+using Themia.App.Shell;
 
 [assembly: ThemiaWidget("rainGraph", typeof(RainGraphModule))]
 
@@ -16,7 +17,7 @@ namespace Themia.Widget.RainGraph;
 public sealed class RainGraphModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+EA91, the rain), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xEA91);
+    internal static readonly string Glyph = Glyphs.Rain;
 
     /// <summary>[S-2037] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
     internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);

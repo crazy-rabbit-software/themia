@@ -7,6 +7,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.HumidityGraph;
+using Themia.App.Shell;
 
 [assembly: ThemiaWidget("humidityGraph", typeof(HumidityGraphModule))]
 
@@ -16,7 +17,7 @@ namespace Themia.Widget.HumidityGraph;
 public sealed class HumidityGraphModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+EB42, the droplet), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xEB42);
+    internal static readonly string Glyph = Glyphs.Droplet;
 
     /// <summary>[S-2037] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
     internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);

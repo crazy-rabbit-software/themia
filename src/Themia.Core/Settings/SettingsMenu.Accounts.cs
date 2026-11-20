@@ -429,7 +429,7 @@ public static partial class SettingsMenu
     /// <summary>A provider's glyph: Microsoft's cloud, Google's globe, a server's kind.</summary>
     public static string ProviderGlyph(ProviderId provider) => provider switch
     {
-        var pid when pid == HostProviders.Microsoft => char.ConvertFromUtf32(0xE753),
+        var pid when pid == HostProviders.Microsoft => Glyphs.Cloud,
         var pid when pid == HostProviders.Google => Glyphs.Globe,
         var pid when pid == HostProviders.Imap => Glyphs.Mail,
         var pid when pid == HostProviders.CalDav => Glyphs.Calendar,

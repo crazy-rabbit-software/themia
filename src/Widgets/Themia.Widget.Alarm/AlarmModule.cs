@@ -22,7 +22,7 @@ public sealed class AlarmModule : IWidgetModule
     internal static CardOpen? Opens => CardOpen.ClockApp;
 
     /// <summary>[S-4620] Its glyph, the module's own (U+ECC5): Segoe has no alarm clock, so the clock with its arrow round (Karpo's choice); the bell is the notifications'.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xECC5);
+    internal static readonly string Glyph = Glyphs.AlarmClock;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

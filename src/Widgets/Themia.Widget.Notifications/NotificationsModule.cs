@@ -21,7 +21,7 @@ namespace Themia.Widget.Notifications;
 public sealed class NotificationsModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+EA8F).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xEA8F);
+    internal static readonly string Glyph = Glyphs.Bell;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

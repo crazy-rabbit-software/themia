@@ -22,7 +22,7 @@ public sealed class WeatherForecastModule : IWidgetModule
     internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);
 
     /// <summary>Its glyph, the module's own (U+E9CA, the weather set's thermometer, checked against the font, [S-652]).</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE9CA);
+    internal static readonly string Glyph = Glyphs.Thermometer;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()

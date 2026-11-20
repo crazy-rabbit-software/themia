@@ -22,7 +22,7 @@ namespace Themia.Widget.Fence;
 public sealed class FenceModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+F168, a group of boxes), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xF168);
+    internal static readonly string Glyph = Glyphs.Group;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
