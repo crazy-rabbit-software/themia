@@ -8536,6 +8536,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   inset as its own padding (WR-3: "the inset is padding inside the item, never a margin round the items"; it stood 8 in
   from the sides and the foot). Was: a short note (416 under its last line at 520x600) and a stroke drawn low on the pad
   (34 over it) were read as one-readout faces off centre.
+- **[S-14304]** **A cut line's end is the cut's** ([S-14261]: a line the block cuts with its ellipsis at the width it is
+  given). Cut, a text ends where its last whole letter and the ellipsis fit: the room after its ink is less than the next
+  letter, not a band. The layout dump writes each text cut (`cuts`: `IsTextTrimmed`) and the gap check reads the end side
+  of a card whose ink a cut text ends as on the inset. Was: the next meeting's title alone at 350x70
+  ("Design review:...", the next word's letter and the ellipsis not fitting) stood 39 from the end and was "off centre".
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day

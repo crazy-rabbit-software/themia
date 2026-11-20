@@ -37,6 +37,9 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   toolbar) is judged by its ink as any card's.
 - [S-14302] a mark over the content (`marks`: the sources' problem glyph, KitStatus, over the content's top end) is no
   ink of the content's: it is left out of the measure.
+- [S-14304] a text cut with its ellipsis at the width it was given (`cuts`) ends where its last whole letter and the
+  ellipsis fit: where it ends the card's ink, the room after it is the cut's (less than the next letter), not a band, and
+  the end side is read as on the inset.
 
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
@@ -171,6 +174,10 @@ def judge(kind, card, layout):
         return found
     found = []
     limit = INSET + TOLERANCE
+    # [S-14304] A text cut to the width it was given that ends the content's ink: the room after it is the cut's.
+    cw = (layout or {}).get('w', w)
+    if any(c['x'] + c['w'] >= cw - right - TOLERANCE for c in (layout or {}).get('cuts', [])):
+        right = min(right, INSET)
     items = (layout or {}).get('items', [])
     on_top = any(i['y'] <= 0.5 for i in items)
     # [S-6754] A graph's plot reaches every edge of its card; where it does, it is the card's top and foot.
@@ -293,6 +300,10 @@ def self_test():
         ('a drawing low on its pad', card(384, 160, 34, 14, 8, 12.7, fields=[{'x': 0, 'y': 0, 'w': 384, 'h': 160}]), [], False),
         ('a pad over its toolbar', card(384, 160, 34, 14, 8, 12.7, fields=[{'x': 0, 'y': 0, 'w': 384, 'h': 120}]), [], False),
         ('an editor 8 in from the sides', card(330, 130, 12, 12, 12, 14, fields=[{'x': 8, 'y': 32, 'w': 314, 'h': 98}]), [], True),
+        # [S-14304] The next meeting's title cut at the width it was given: "Design review:..." 39 from the end.
+        ('a title cut to its width', card(350, 70, 12, 12, 15.3, 39.3, cuts=[{'x': 12, 'y': 0, 'w': 301.7, 'h': 56}]), [], False),
+        ('a cut line under a wider one', card(350, 70, 12, 12, 15.3, 39.3, cuts=[{'x': 12, 'y': 0, 'w': 200, 'h': 56}]), [], True),
+        ('a short title, not cut', card(350, 70, 12, 12, 15.3, 39.3), [], True),
         ('an editor short of the foot', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 400}]), [], True),
     ]
     failed = 0

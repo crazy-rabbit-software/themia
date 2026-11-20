@@ -62,9 +62,10 @@ internal static class ItemDump
             var plots = new List<Rect>();
             var fields = new List<Rect>();
             var marks = new List<Rect>();
+            var cuts = new List<Rect>();
             if (card.View is { } view)
             {
-                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks);
+                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks, cuts);
             }
 
             var groups = new Dictionary<DependencyObject, int>();
@@ -153,6 +154,17 @@ internal static class ItemDump
             }
 
             w.WriteEndArray();
+
+            // [S-14304] Each text cut with its ellipsis at the width it was given, as it shows in the card.
+            w.WriteStartArray("cuts");
+            foreach (var box in cuts)
+            {
+                w.WriteStartObject();
+                Box(w, box);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
             w.WriteEndObject();
         }
 
@@ -178,7 +190,7 @@ internal static class ItemDump
     }
 
     /// <summary>The items and the free ink under <paramref name="node"/>, each as it shows inside <paramref name="clip"/> (card coordinates).</summary>
-    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks)
+    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks, List<Rect> cuts)
     {
         if (node is UIElement { Visibility: not Visibility.Visible } || node is UIElement { Opacity: <= 0 })
         {
@@ -210,6 +222,11 @@ internal static class ItemDump
                 marks.Add(shown.Value);
             }
 
+            if (fe is TextBlock { IsTextTrimmed: true })
+            {
+                cuts.Add(shown.Value);
+            }
+
             if (!insideItem && ItemMark.IsItem(fe))
             {
                 var cut = shown.Value.Width < box.Width - 0.5 || shown.Value.Height < box.Height - 0.5;
@@ -235,7 +252,7 @@ internal static class ItemDump
         var n = VisualTreeHelper.GetChildrenCount(node);
         for (var i = 0; i < n; i++)
         {
-            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots, fields, marks);
+            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots, fields, marks, cuts);
         }
     }
 
