@@ -14,7 +14,6 @@ internal sealed partial class WeatherForecastView : IWidgetSample
     public Task ShowSampleAsync()
     {
         HoldSampleWeek();
-        Render();
         return Task.CompletedTask;
     }
 
@@ -27,8 +26,6 @@ internal sealed partial class WeatherForecastView : IWidgetSample
         sample.LocationName = SamplePlace.LocationName;
         _config = sample;
 
-        _applied = (WeatherForecastConfig)_config.Clone();
-        _want = null;
-        _forecast = new Fetched<Forecast>(FetchStatus.Ok, new Forecast(SampleWeather.Days(WeatherForecastConfig.MostDays)), null, SampleDay.MinutesAgo(4));
+        _feed.Preview(new Fetched<Forecast>(FetchStatus.Ok, new Forecast(SampleWeather.Days(WeatherForecastConfig.MostDays)), null, SampleDay.MinutesAgo(4)), FetchStatus.Ok);
     }
 }

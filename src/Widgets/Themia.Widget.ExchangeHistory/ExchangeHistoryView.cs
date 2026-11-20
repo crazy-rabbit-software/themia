@@ -6,6 +6,7 @@ using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
@@ -27,34 +28,27 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
     private readonly KitStatus _mark;
     /// <summary>[S-6717] [S-11002] [S-6754] A history band: the card's edge to edge, its top edge too, as the stock's.</summary>
     private readonly Chart _chart = new() { FlowDirection = FlowDirection.LeftToRight };
-    private readonly IWidgetHost _host;
-    private IRateAnswers? _web;
+    /// <summary>[S-11171] The rates table the exchange rate reads too, followed as every sky and money atom follows its answer.</summary>
+    private readonly SkyFeed<RatesInterest, RateTable> _feed;
     private IWidgetSurface? _surface;
     private ExchangeHistoryConfig _config = new();
-    private Fetched<RateTable>? _table;
-    private FetchStatus _status = FetchStatus.Loading;
-    private bool _detached;
 
     public ExchangeHistoryView(IWidgetHost host)
     {
-        _host = host;
         _mark = new KitStatus(host);
+        _feed = new(() => SkyFeeds.Rates(host.Rates), () => new RatesInterest(OnlineCadence.Rates), Render);
         Children.Add(_chart);
         _mark.Place(this);
         JoinInstants();
     }
 
     public IReadOnlyList<WidgetAction> ContextActions =>
-        [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_table), () => Reload(force: true))];
+        [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _detached = false;
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
-        _web?.Updated -= OnWebUpdated;
-        _web = _host.Rates;
-        _web.Updated += OnWebUpdated;
+        // [S-7042] The problem glyph's staleness moves between fetches; a minute is fine enough for it.
+        _feed.Attach(ticker, TimeSpan.FromMinutes(1));
         ApplyConfig(config);
         _links.Join(_surface?.Links);
     }
@@ -64,58 +58,20 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ExchangeHistoryConfig ?? new ExchangeHistoryConfig();
-        Reload(force: false);
+        _feed.Reload();
     }
 
     public void Detach()
     {
-        _detached = true;
         _links.Leave();
-        Strings.Changed -= OnLanguage;
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web = null;
-        }
-    }
-
-    private void OnLanguage(Locale locale)
-    {
-        Reload(force: false);
-    }
-
-    private void Reload(bool force)
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        _web?.Show(force);
-        Take();
-    }
-
-    private void OnWebUpdated(string key)
-    {
-        if (!_detached && _web is { } web && key == web.Key)
-        {
-            Take();
-        }
-    }
-
-    private void Take()
-    {
-        var answer = _web?.Rates();
-        _table = answer?.Value is not null ? answer : null;
-        _status = answer?.Status ?? FetchStatus.Loading;
-        Render();
+        _feed.Detach();
     }
 
     private void Render()
     {
-        var rate = _table?.Value is { } table ? ExchangeRules.Cross(table, _config.EffectiveBase, _config.EffectiveQuote) : null;
+        var rate = _feed.Held?.Value is { } table ? ExchangeRules.Cross(table, _config.EffectiveBase, _config.EffectiveQuote) : null;
         _shownRate = rate;
-        if (_table is { } held)
+        if (_feed.Held is { } held)
         {
             _mark.Show(OnlineParts.Problems(held), busy: false);
         }
@@ -126,7 +82,7 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
 
         // [S-6753] With no table yet, or no rate for the pair, the chart is drawn at its baseline with why as its caption.
         var caption = rate is { History.Count: >= 2 } ? string.Empty
-            : _table is null ? OnlineParts.Caption(_status) : Str.Online_Rates_Missing.Text();
+            : _feed.Held is null ? OnlineParts.Caption(_feed.Status) : Str.Online_Rates_Missing.Text();
         _chart.Role(rate?.ChangePercent < 0 ? ColourRole.Critical : ColourRole.Accent);
         var history = rate is { History.Count: >= 2 } ? rate.History : [];
         var days = rate?.Days is { } known && known.Count == history.Count ? known : null;

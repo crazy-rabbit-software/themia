@@ -35,22 +35,19 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     /// <summary>[S-6734] No rate to draw: the Status row at the top.</summary>
     private readonly StatusBlock _state = new();
 
-    private Ticker? _ticker;
+    /// <summary>[S-11171] The rates table the background sync keeps, followed as every sky and money atom follows its answer.</summary>
+    private readonly SkyFeed<RatesInterest, RateTable> _feed;
+
     private IWidgetSurface? _surface;
     private ExchangeRateConfig _config = new();
-    private IDisposable? _subscription;
-    private readonly IWidgetHost _host;
-    private IRateAnswers? _web;
-    private FetchStatus _status = FetchStatus.Loading;
-    private Fetched<RateTable>? _table;
     private WidgetArea _area;
     private bool _detached;
 
     public ExchangeRateView(IWidgetHost host)
     {
         FollowInstants();
-        _host = host;
         _mark = new KitStatus(host);
+        _feed = new(() => SkyFeeds.Rates(host.Rates), () => new RatesInterest(OnlineCadence.Rates), Render);
         _rate.Use(FamilyType.Big28);
 
         // Collapsed until a state is said: a view waiting for setup is never attached.
@@ -64,29 +61,14 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     }
 
     public IReadOnlyList<WidgetAction> ContextActions =>
-        [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_table), () => Reload(force: true))];
+        [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
         _detached = false;
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
-
-        _web?.Updated -= OnWebUpdated;
-        _web = _host.Rates;
-        _web.Updated += OnWebUpdated;
 
         // Only the rate's day and the problem glyph move between fetches; a minute is fine enough for them.
-        _subscription?.Dispose();
-        _subscription = _ticker.Subscribe(TimeSpan.FromMinutes(1), () =>
-        {
-            if (!_detached)
-            {
-                Stamp();
-            }
-        });
-
+        _feed.Attach(ticker, TimeSpan.FromMinutes(1));
         ApplyConfig(config);
         _links.Join(_surface?.Links);
     }
@@ -100,7 +82,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ExchangeRateConfig ?? new ExchangeRateConfig();
-        Reload(force: false);
+        _feed.Reload();
     }
 
     /// <summary>[S-6583] The Number style's rate across the card: the widget's alignment, from the start by default ([S-6582]).</summary>
@@ -112,39 +94,9 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
         Render();
     }
 
-    /// <summary>[S-3770] A language change, or a Windows region change that moves the default base.</summary>
-    private void OnLanguage(Locale locale) => Reload(force: false);
-
-    private void Reload(bool force)
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        _web?.Show(force);
-        Take();
-    }
-
-    private void OnWebUpdated(string key)
-    {
-        if (!_detached && _web is { } web && key == web.Key)
-        {
-            Take();
-        }
-    }
-
-    private void Take()
-    {
-        var answer = _web?.Rates();
-        _table = answer?.Value is not null ? answer : null;
-        _status = answer?.Status ?? FetchStatus.Loading;
-        Render();
-    }
-
     private void Stamp()
     {
-        if (_table is not { Value: { } table } held)
+        if (_feed.Held is not { Value: { } table } held)
         {
             ToolTipService.SetToolTip(_rate, null);
             _mark.Clear();
@@ -163,7 +115,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
             return;
         }
 
-        var rate = _table?.Value is { } table ? ExchangeRules.Cross(table, _config.EffectiveBase, _config.EffectiveQuote) : null;
+        var rate = _feed.Held?.Value is { } table ? ExchangeRules.Cross(table, _config.EffectiveBase, _config.EffectiveQuote) : null;
         Stamp();
 
         // [S-5145] [S-6734] No table yet: how the sync went; the latest day lacks one of the two: said as a state.
@@ -171,7 +123,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
         {
             // [S-12813] The rate stays: "--", the reason its caption.
             _state.Hide();
-            OnlineParts.ShowDefault(_rate, _status, sentence: _table is null ? null : Str.Online_Rates_Missing.Text());
+            OnlineParts.ShowDefault(_rate, _feed.Status, sentence: _feed.Held is null ? null : Str.Online_Rates_Missing.Text());
 
             return;
         }
@@ -211,16 +163,6 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
         _detached = true;
         _links.Leave();
         _standsAt = null;
-        Strings.Changed -= OnLanguage;
-        _subscription?.Dispose();
-        _subscription = null;
-
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web = null;
-        }
-
-        _ticker = null;
+        _feed.Detach();
     }
 }

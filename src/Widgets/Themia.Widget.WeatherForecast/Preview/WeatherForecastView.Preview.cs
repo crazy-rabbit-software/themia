@@ -24,9 +24,7 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
         if (state == "failed")
         {
             HoldSampleWeek();
-            _forecast = null;
-            _status = FetchStatus.Unreachable;
-            Render();
+            _feed.Preview(null, FetchStatus.Unreachable);
             return Task.CompletedTask;
         }
 
@@ -38,8 +36,7 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
         HoldSampleWeek();
 
         // [S-7042] The answer on screen, and the last refresh failed: the status's problem glyph.
-        _forecast = _forecast!.Stale(FetchStatus.Offline, null);
-        Render();
+        _feed.Preview(_feed.Held!.Stale(FetchStatus.Offline, null), FetchStatus.Ok);
         return Task.CompletedTask;
     }
 }

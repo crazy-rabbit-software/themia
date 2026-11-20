@@ -1,7 +1,9 @@
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.Core.Localization;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -17,7 +19,28 @@ public sealed record SkyFeedSource<TWant, T>(
     Func<TWant, Fetched<T>?> Read,
     Action<TWant, bool> Show)
     where TWant : class
-    where T : class;
+    where T : class
+{
+    /// <summary>
+    /// Whether an update under a key concerns the want; by default its own key alone. The forecast answers under the
+    /// reading's key as well ([S-2663]: they are synced together).
+    /// </summary>
+    public Func<TWant, string, bool>? Hears { get; init; }
+}
+
+/// <summary>[S-11171] Sources a feed is built on that are the same for every atom that reads them.</summary>
+public static class SkyFeeds
+{
+    /// <summary>
+    /// [S-5145] The rates table (one for every pair, asked on the rates' cadence): the exchange rate's and the exchange
+    /// history's source.
+    /// </summary>
+    public static SkyFeedSource<RatesInterest, RateTable> Rates(IRateAnswers rates)
+    {
+        ArgumentNullException.ThrowIfNull(rates);
+        return new(h => rates.Updated += h, h => rates.Updated -= h, _ => rates.Key, _ => rates.Rates(), (_, refresh) => rates.Show(refresh));
+    }
+}
 
 /// <summary>
 /// [S-11171] [S-2663] The one way an atom of the weather, sky and money family follows its answer: it
@@ -153,7 +176,7 @@ public sealed class SkyFeed<TWant, T>
 
     private void OnUpdated(string key)
     {
-        if (!_detached && Want is { } want && _live is { } live && live.Key(want) == key)
+        if (!_detached && Want is { } want && _live is { } live && (live.Hears?.Invoke(want, key) ?? live.Key(want) == key))
         {
             Take();
         }

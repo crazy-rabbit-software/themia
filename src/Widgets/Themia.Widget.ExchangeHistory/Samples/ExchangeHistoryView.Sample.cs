@@ -21,8 +21,6 @@ internal sealed partial class ExchangeHistoryView : IWidgetSample
         sample.BaseCurrency = "CHF";
         sample.QuoteCurrency = "EUR";
         _config = sample;
-        _table = table;
-        _web = null;
-        Render();
+        _feed.Preview(table, FetchStatus.Ok);
     }
 }

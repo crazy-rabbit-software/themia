@@ -43,27 +43,13 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     private readonly Grid _body = new();
 
 
-    private Ticker? _ticker;
     private WeatherForecastConfig _config = new();
 
     /// <summary>
-    /// [S-13a] A copy of the settings this view last acted on, which is what a change is measured
-    /// against. Not <c>_config</c>: the selection's page edits the live config object in place.
+    /// [S-11171] [S-2663] The forecast the background sync keeps, followed as every sky atom follows its answer: what it
+    /// asks for (null without a place), the newest forecast (kept through a failure) or the state to say.
     /// </summary>
-    private WeatherForecastConfig _applied = new();
-
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private readonly IWidgetHost _host;
-    private IWeatherAnswers? _web;
-
-    /// <summary>What the widget asks for now, or null without a place ([S-2663]).</summary>
-    private WeatherInterest? _want;
-
-    /// <summary>The state to say when there is no forecast: not set up, or how the last sync went.</summary>
-    private FetchStatus _status = FetchStatus.Loading;
-
-    private Fetched<Forecast>? _forecast;
+    private readonly SkyFeed<WeatherInterest, Forecast> _feed;
 
     /// <summary>[S-12813] Without a forecast: its days with nothing read, drawn in the style ("--").</summary>
     private IReadOnlyList<ForecastDay>? _unread;
@@ -75,8 +61,16 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
 
     public WeatherForecastView(IWidgetHost host)
     {
-        _host = host;
         _mark = new KitStatus(host);
+
+        // [S-2663] The forecast comes with the reading: its answer is heard under the reading's key too.
+        _feed = new(
+            () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Forecast, host.Weather.Show)
+            {
+                Hears = (want, key) => key == host.Weather.Key(want) || key == host.Weather.Key(want with { ForecastDays = null }),
+            },
+            () => WeatherInterests.For(_config),
+            Render);
         _days = new LinkLights<DateLink>(_links, LinkTopics.HoveredDate, LinkTopics.SelectedDate);
 
         Children.Add(_body);
@@ -87,57 +81,28 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// [S-730] Refresh. The style is chosen on the selection's page ([S-6007]).
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_forecast), () => Reload(force: true))] : [];
+        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)] : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
         _detached = false;
 
-        // [S-1110] The texts follow the app's language. A static event: Detach unsubscribes.
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
-
-        // [S-2663] The forecast comes from the background sync; the widget only hears it.
-        _web?.Updated -= OnWebUpdated;
-        _web = _host.Weather;
-        _web.Updated += OnWebUpdated;
+        // [S-1110] [S-2663] The forecast from the background sync and the texts in the app's language: the feed hears both.
+        _feed.Attach(ticker, _config.TickInterval);
         _links.Join(_surface?.Links);
 
         ApplyConfig(config);
     }
 
-    /// <summary>The language changed: the days are rebuilt from the forecast in hand.</summary>
-    /// <para>
-    /// [S-3770] [S-3780] It is also how a change to the shared temperature scale or cadence arrives:
-    /// the reading is asked for again under the new scale (the sync holds both, keyed apart).
-    /// </para>
-    private void OnLanguage(Locale locale)
-    {
-        Resubscribe();
-        Reload(force: false);
-    }
-
     public void ApplyConfig(WidgetConfig config)
     {
         var next = config as WeatherForecastConfig ?? new WeatherForecastConfig();
-        var previous = _applied;
         _config = next;
-        _applied = (WeatherForecastConfig)next.Clone();
 
-        // Only the fields that change what comes back make another forecast. Toggling the
-        // precipitation column or the style redraws the days already in hand.
-        var placeChanged = previous.Latitude != next.Latitude
-            || previous.Longitude != next.Longitude;
-
-        if (placeChanged)
-        {
-            _forecast = null;
-        }
-
-        // [S-2663] Always through the sync: it asks nothing for a forecast already held and fresh.
-        Resubscribe();
-        Reload(force: false);
+        // [S-2663] Always through the sync: it asks nothing for a forecast already held and fresh. Another place is
+        // another want, so the forecast in hand goes with it; the precipitation column or the style redraws what is held.
+        _feed.Cadence(_config.TickInterval);
+        _feed.Reload();
     }
 
     /// <summary>[S-663] The card's word on how much room the widget has.</summary>
@@ -147,80 +112,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         Lay();
     }
 
-    /// <summary>Rebuild the ticker subscription only when the cadence actually changed.</summary>
-    private void Resubscribe()
-    {
-        var interval = _config.TickInterval;
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, OnTick);
-    }
-
-    /// <summary>
-    /// A tick only redraws: the day labels and the freshness line move on their own ("Today" has to
-    /// become "Wed" at midnight). [S-2663] The forecast is kept fresh by the sync service.
-    /// </summary>
-    private void OnTick()
-    {
-        if (!_detached)
-        {
-            Render();
-        }
-    }
-
-    /// <summary>
-    /// [S-2663] Tell the sync what is on screen and draw what it holds. Nothing is fetched for a
-    /// forecast already held and fresh; <paramref name="force"/> (the user's Refresh) asks now.
-    /// </summary>
-    private void Reload(bool force)
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        _want = WeatherInterests.For(_config);
-        if (_want is null)
-        {
-            _status = FetchStatus.NotConfigured;
-            _forecast = null;
-            Render();
-            return;
-        }
-
-        _web?.Show(_want, force);
-        Take();
-    }
-
-    /// <summary>[S-2663] A forecast's answer or state changed in the sync service.</summary>
-    private void OnWebUpdated(string key)
-    {
-        if (!_detached && _want is { } want && _web is { } web && (web.Key(want) == key || web.Key(want with { ForecastDays = null }) == key))
-        {
-            Take();
-        }
-    }
-
-    /// <summary>What the sync holds: the newest forecast (kept through a failure, annotated with it), or the state to say.</summary>
-    private void Take()
-    {
-        if (_want is not { ForecastDays: not null } want)
-        {
-            return;
-        }
-
-        var answer = _web?.Forecast(want);
-        _forecast = answer?.Value is not null ? answer : null;
-        _status = answer?.Status ?? FetchStatus.Loading;
-        Render();
-    }
-
     private void Render()
     {
         if (_detached)
@@ -228,18 +119,17 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             return;
         }
 
-        var held = _forecast;
+        var held = _feed.Held;
         var days = held?.Value?.Days;
 
         if (days is null || days.Count == 0)
         {
             // [S-12813] The days stay in the style, "--" and the unknown sky; why is their tooltip (not set up is the
             // card's Set up row, [S-1862]); a status glyph would stand over the first day's "--".
-            _forecast = null;
             _unread = ForecastDefaults.Unread(DateOnly.FromDateTime(DateTime.Now), WeatherForecastConfig.MostDays);
             _body.Visibility = Visibility.Visible;
             _mark.Clear();
-            ToolTipService.SetToolTip(_body, OnlineParts.Caption(_status) is { Length: > 0 } why ? why : null);
+            ToolTipService.SetToolTip(_body, OnlineParts.Caption(_feed.Status) is { Length: > 0 } why ? why : null);
             _built = null;
             Lay();
             return;
@@ -258,7 +148,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// <summary>Pick the style's plan for the current area, and rebuild only if it changed.</summary>
     private void Lay()
     {
-        if (_detached || (_forecast?.Value?.Days ?? _unread) is not { Count: > 0 } days || !_area.IsMeasured)
+        if (_detached || (_feed.Held?.Value?.Days is { Count: > 0 } held ? held : _unread) is not { Count: > 0 } days || !_area.IsMeasured)
         {
             return;
         }
@@ -344,22 +234,10 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     public void Detach()
     {
         _detached = true;
-        Strings.Changed -= OnLanguage;
         _links.Leave();
 
         ClearBody();
-
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = TimeSpan.Zero;
-
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web = null;
-        }
-
-        _ticker = null;
+        _feed.Detach();
     }
 
 }
