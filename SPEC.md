@@ -1152,8 +1152,10 @@ module author's guide is docs/WIDGET-KIT.md 16.
   laps), the row and its 8, plus 2 of slack, as wide as the wider of the face and the row, the width up to half again
   wider with the face centred; the card's size past that is the user's ([S-12411]) and the block scales up with it
   as one ([S-12808]); it scales down as one too, to where its Body text (the line under, the buttons) is at the floor
-  ([S-12833], WR-14), the insets kept (`TimerFace.Least`): that is its Min. Nothing appears or goes with the size. Tests
-  `TimerFaceTests.S11300_`.
+  ([S-12833], WR-14), the insets kept (`TimerFace.Least`): that is its Min. A timer whose face states its parts (alarm,
+  countdown, focus session: `TimerFace.Face`, [S-12833]) goes further, to its time left alone at 9 in the inset, its
+  line under and Controls row giving way on the way down; nothing else appears or goes with the size. Tests
+  `TimerFaceTests.S11300_`, `ReadingFaceFloorTests.S12833_`.
 - **[S-6740]** **Split-flap cards** (the clock's Flip style, the Countdown's; `FlipCard`, `FlipRules`):
   one card per part of the time, 8 apart, each its figures' widest case on a family step with 12
   either side and the step's line tall, an item of the card's item layer in the one radius with a
@@ -4739,7 +4741,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   gallery grid's cell Size. Every face that had one (clock, date, alarm, countdown, stopwatch, pomodoro, focus
   session, quote, album art, the screen-time donut) states its natural and least size from its content on the
   family's default step and follows its card: the face scales up and down as one (`ReadingFit`, `InkFit`, [S-12804],
-  [S-12808]) to its smallest text's floor ([S-12833], WR-14); a picture (the cover) or a ring (the donut) is as large
+  [S-12808]) to its floor ([S-12833], WR-14: its main reading at 9 where the face states its parts, its smaller parts
+  giving way; else its smallest text); a picture (the cover) or a ring (the donut) is as large
   as its card holds. A state file that still has a widget's `size` loads with the key dropped loudly
   (`AppStateStore.DropUnknownKeys`); no migration. Tests `SizeFollowsCardTests.S2449_`.)* What stands: a data
   widget's number is the family's 28 ([S-2220]; the 40 step stays for a kind that states it).

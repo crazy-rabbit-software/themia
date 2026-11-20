@@ -2969,12 +2969,13 @@ over it (the Solid role, radius 4, 28 icon buttons) follow the family. `RingFace
 
 ### 16.2d A timer, the clock and a transport (G5, 2026-10-29)
 
-A timer (alarm, countdown, stopwatch, pomodoro, focus session) plans its face on the family's one-readout step
+A timer (alarm, countdown, stopwatch, focus session; the pomodoro plans its own, [S-8117]) plans its face on the family's one-readout step
 (`TimerFace.Sized`, [S-11300]; no Size setting, SPEC [S-2449] retired): the Readout on 68, centred, its line under,
 and the `ControlsBlock` centred at the bottom inset, always; a ring is the Chart block's `ChartRing` with the
 readout one step under (40) in its hole (`ChartRules.Hole`), the least ring that holds it. That face is the card's
 natural size (`TimerFace.Sizing`); the card's size is the user's and the block scales up and down with it as one
-(`ReadingFit`), down to its Body text's floor (`TimerFace.Least`, the insets kept, [S-12833]). One main action: the start/pause toggle
+(`ReadingFit`), down to its Body text's floor (`TimerFace.Least`, the insets kept, [S-12833]); one that states its parts
+(`TimerFace.Face`: alarm, countdown, focus session) to its time left alone at 9, the rest giving way. One main action: the start/pause toggle
 (`Main`, `Relabel` to Pause), an alarm's Dismiss; icon buttons for reset, lap, skip and steppers; an on/off
 state is the row's `Switch` (`Set` to show a state read back). The row never drops a button; the keys
 and the card menu reach them too. Split-flap cards are `FlipCard`s sized by `FlipRules.Plan` (the figures' widest
