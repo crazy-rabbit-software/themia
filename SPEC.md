@@ -89,7 +89,7 @@ Sections, grouped by area (file order below; search for the heading).
   propagating NaN into storage. A widget is also held to its sizing: painted fitted into it
   ([S-2446]), resized within it ([S-2445]); its Max may be larger than the work area allows, and the
   work area wins.
-- **[S-6608]** A widget may always hang over **any edge** of its display (no setting, [S-2330]), but always keeps at least
+- **[S-6608]** A widget may always hang over **the monitor's own edges** (no setting, [S-2330]; never a taskbar's, below), but always keeps at least
   `MinVisiblePx` (**32 DIP**, a grab's worth; the [S-08] floor was 32 until 2026-11-17 and is one grid cell now) of
   itself on the allowed area on each axis: a widget no larger is never cut at all, a bigger one always leaves 32 DIP
   to see, grab and drag back. Pushed further, it slides back just that far, keeping its size; a
