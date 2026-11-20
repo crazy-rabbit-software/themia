@@ -284,7 +284,9 @@ public static class BlockResize
             var far = spans.Select(s => Index(fromEnd ? s.Start : s.End)).ToArray();
             AxisLimits? Own(int i) => i < limits.Count && limits[i] is { } l ? (horizontal ? l.Width : l.Height) : null;
             var own = rects.Select((_, i) => Own(i)).ToArray();
-            var size = spans.Select(s => (s.End - s.Start) * lines).ToArray();
+            // In whole cells where it is on them: a fixed member keeps this size, and float noise in it would land the member
+            // off the size its sizing paints.
+            var size = spans.Select(s => Whole((s.End - s.Start) * lines)).ToArray();
 
             return new Axis(lo, hi, fromEnd, lines, d, near, far, own, size, screen, horizontal);
         }

@@ -203,6 +203,26 @@ public sealed class BlockResizeTests
     }
 
     [Fact]
+    public void S2462_a_fixed_member_lands_on_exactly_its_own_size_as_the_desktop_paints_it()
+    {
+        // A single metric (one row of 3 cells, its height fixed) under the drive's reading, as the Drive group lays them:
+        // grown by the corner, the metric moves down and keeps exactly its 3 cells, bit for bit the size its sizing paints
+        // (it once landed on 3 cells plus float noise, which the desktop painted 3 cells: not where it landed).
+        FracRect[] column = [C(45, 29, 26, 9), C(45, 38, 26, 3), C(45, 41, 26, 3)];
+        var metric = new SizeLimits(Free(20, 192).Width, new AxisLimits(3.0 / Rows, 3.0 / Rows, 0, 3.0 / Rows, Lines: Rows));
+        SizeLimits?[] limits = [Free(), metric, metric];
+
+        var grown = Drag(column, ResizeHandle.BottomRight, 10, 4, limits);
+
+        Assert.True(Cells(grown[0]).H > 9);
+        for (var i = 1; i < grown.Count; i++)
+        {
+            Assert.Equal(3.0 / Rows, grown[i].H);
+            Assert.Equal(grown[i], SizeFit.Shown(grown[i], metric, Screen));
+        }
+    }
+
+    [Fact]
     public void S2460_an_axis_every_member_is_fixed_on_has_no_handle_and_does_not_resize()
     {
         FracRect[] icons = [C(10, 10, 8, 10), C(18, 10, 8, 10)];
