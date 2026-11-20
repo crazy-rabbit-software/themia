@@ -100,7 +100,7 @@ public sealed class PomodoroConfigTests
 
     [Fact]
     public void S8117_the_pomodoro_holds_no_size_setting()
-        => Assert.IsNotAssignableFrom<IReadoutSized>(new PomodoroConfig());
+        => Assert.Null(typeof(PomodoroConfig).GetProperty("Size"));
 
     [Fact]
     public void S8112_a_copy_holds_its_own_phases()
