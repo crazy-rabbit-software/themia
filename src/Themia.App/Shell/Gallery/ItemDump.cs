@@ -21,7 +21,7 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class ItemDump
 {
-    public static void Write(IReadOnlyList<WidgetCard> cards, IReadOnlyList<Themia.Core.Geometry.CheckedSize> tiers, string kind, string? state, string path)
+    public static void Write(IReadOnlyList<WidgetCard> cards, IReadOnlyList<Themia.Core.Geometry.CheckedSize> tiers, string kind, string? state, UIElement page, string path)
     {
         using var stream = File.Create(path);
         using var w = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false });
@@ -34,6 +34,12 @@ internal static class ItemDump
             var card = cards[i];
             w.WriteStartObject();
             w.WriteString("tier", i < tiers.Count ? tiers[i].Name : "?");
+
+            // [S-14300] Where the card stands in the picture (the page's DIPs), so a check crops the card itself: never a
+            // card found by its alpha, which merges a size label over it and skips a card under 20 px.
+            var at = card.TransformToVisual(page).TransformPoint(default);
+            w.WriteNumber("x", Math.Round(at.X, 2));
+            w.WriteNumber("y", Math.Round(at.Y, 2));
             w.WriteNumber("w", Math.Round(card.ActualWidth, 2));
             w.WriteNumber("h", Math.Round(card.ActualHeight, 2));
             w.WriteNumber("cell", Math.Round(card.CellPitch, 4));

@@ -185,14 +185,16 @@ internal static class WidgetRender
                     width += tiers[0].Width + Gap;
                 }
                 // [S-1917] --transparent: the page draws nothing, so the PNG keeps the cards' own alpha
-                // (a transparent card, the corners) for compositing a render onto a picture.
+                // (a transparent card, the corners) for compositing a render onto a picture. [S-14300] It paints a
+                // clear brush, never none: a page with no background is drawn from its first child's corner, so the PNG
+                // would not start where the layout dump's card places (the page's DIPs) start.
                 var transparent = Array.IndexOf(args, "--transparent") >= 0;
                 var page = new Canvas
                 {
                     Width = width,
                     Height = height,
                     Background = transparent
-                        ? null
+                        ? new SolidColorBrush(Colors.Transparent)
                         : DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
                 };
 
@@ -335,7 +337,7 @@ internal static class WidgetRender
                 if (Option(args, "--layout-json") is { } layoutPath)
                 {
                     var full = System.IO.Path.GetFullPath(layoutPath);
-                    ItemDump.Write(cards, tiers, kind.ToString(), state, full);
+                    ItemDump.Write(cards, tiers, kind.ToString(), state, page, full);
                     Console.WriteLine($"widget: wrote {full}");
                 }
 

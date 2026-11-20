@@ -6,8 +6,8 @@ usage: python scripts/gap-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a
 
 For each kind it asks the render for the kind's states (`--state` with an unknown name lists them), draws each state
 with `--widget-png <kind> <png> --state <s> --sizes range --transparent --layout-json <json>` and again at the desktop
-sizes below, finds every card in the PNG by its alpha, its first and last row of ink (a pixel off the card's own
-colour), and judges:
+sizes below, crops every card at the box the render laid it in (the layout's x, y, w, h: [S-14300]), finds its first and
+last row and column of ink (a pixel off the card's own colour), and judges:
 
 - WR-1 top: the band over the first ink is at most the inset (12, the padding inside an item, WR-3) and the 4 DIP the
   measure may be off by (antialiasing, a glyph's own room in its box). Where the card's items stand on its top edge
@@ -121,45 +121,34 @@ def states(exe, kind, out, timeout):
     return [s.strip() for s in m.group(1).split(',')] if m else ['']
 
 
-def cards(alpha):
-    cols = (alpha > 200).any(axis=0)
-    spans, x, w = [], 0, len(cols)
-    while x < w:
-        if cols[x]:
-            s = x
-            while x < w and cols[x]:
-                x += 1
-            spans.append((s, x))
-        else:
-            x += 1
-    found = []
-    for s, e in spans:
-        if e - s < 20:
-            continue
-        rows = np.where((alpha[:, s:e] > 200).any(axis=1))[0]
-        found.append((s, e, rows[0], rows[-1] + 1))
-    return found
-
-
-def measure(path):
+def measure(path, layouts):
+    """[S-14300] Each card's bands, measured inside the card's own box as the render laid it (the layout's x, y, w, h in
+    the page's DIPs): never a card found by its alpha, which took a size label over a card for its top rows and skipped a
+    card under 20 px (a quick toggle's least, 10x10), pairing every later card with the wrong layout."""
     im = np.asarray(Image.open(path).convert('RGBA')).astype(int)
     out = []
-    for (l, r, t, b) in cards(im[:, :, 3]):
-        edge = 6
+    for card in layouts:
+        scale = card.get('scale', SCALE)
+        l, t = int(round(card['x'] * scale)), int(round(card['y'] * scale))
+        r, b = int(round((card['x'] + card['w']) * scale)), int(round((card['y'] + card['h']) * scale))
+        w, h = card['w'], card['h']
+        # The card's own rim (its outline and its antialiased corners) is not ink: a band of 4 DIP, at most a third of
+        # a small card's side so the least cards are measured too.
+        edge = max(1, min(int(round(4 * scale)), (r - l) // 3, (b - t) // 3))
         sub = im[t + edge:b - edge, l + edge:r - edge, :3]
         if sub.size == 0:
+            out.append((w, h, None, None, None, None))
             continue
         vals, counts = np.unique(sub.reshape(-1, 3), axis=0, return_counts=True)
         bg = vals[counts.argmax()]
         mask = np.abs(sub - bg).sum(axis=2) > 30
         rows = np.where(mask.any(axis=1))[0]
         cols = np.where(mask.any(axis=0))[0]
-        w, h = (r - l) / SCALE, (b - t) / SCALE
         if len(rows) == 0:
             out.append((w, h, None, None, None, None))
             continue
-        out.append((w, h, (rows[0] + edge) / SCALE, ((b - t) - (rows[-1] + 1 + edge)) / SCALE,
-                    (cols[0] + edge) / SCALE, ((r - l) - (cols[-1] + 1 + edge)) / SCALE))
+        out.append((w, h, (rows[0] + edge) / scale, ((b - t) - (rows[-1] + 1 + edge)) / scale,
+                    (cols[0] + edge) / scale, ((r - l) - (cols[-1] + 1 + edge)) / scale))
     return out
 
 
@@ -224,15 +213,15 @@ def check(exe, kind, out, timeout):
             if text == 'TIMEOUT' or not os.path.exists(png):
                 lines.append((kind, state, label, '-', '-', '-', ['render failed' if text != 'TIMEOUT' else 'render timed out']))
                 continue
-            layouts = []
-            if os.path.exists(layout_path):
-                with open(layout_path, encoding='utf-8') as f:
-                    layouts = json.load(f).get('cards', [])
-            for n, card in enumerate(measure(png)):
+            if not os.path.exists(layout_path):
+                lines.append((kind, state, label, '-', '-', '-', ['render wrote no layout']))
+                continue
+            with open(layout_path, encoding='utf-8') as f:
+                layouts = json.load(f).get('cards', [])
+            for card, layout in zip(measure(png, layouts), layouts):
                 w, h, top, foot = card[:4]
                 box = f'{w:.0f}x{h:.0f}'
                 fmt = lambda v: '-' if v is None else f'{v:.1f}'
-                layout = layouts[n] if n < len(layouts) else None
                 lines.append((kind, state, label, box, fmt(top), fmt(foot), judge(kind, card, layout)))
     return lines
 

@@ -8236,6 +8236,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its one exemption is the owner's: a picture or a video filling the card. `--hover fx,fy` and `--pressed fx,fy` show
   the item (`PointerPreview`: what lights a row) or control under that point of every card as under the pointer, for
   WR-12 and WR-13 to be judged on renders.
+- **[S-14300]** **The checks measure each card at its own box.** The layout dump gives every card's place in the
+  picture (`x`, `y` in the page's DIPs, beside `w`, `h`), and `scripts/gap-check.py` crops each card there, pairing it
+  with its own layout entry: it never finds cards by their alpha, which merged a size label over a card into its top
+  rows and skipped a card under 20 px (a quick toggle's least, 10x10), so every later card was judged with the layout
+  of the one before it (126 "centred face off centre" findings on tiles that were centred).
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day
