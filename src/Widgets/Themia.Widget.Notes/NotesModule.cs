@@ -15,7 +15,7 @@ using Themia.Widget.Notes;
 
 namespace Themia.Widget.Notes;
 
-/// <summary>[S-1346] One markdown note from the notes kept on this PC, edited in place with its formatting bar on its first line. SPEC.md beside this file.</summary>
+/// <summary>[S-1346] One markdown note from the notes kept on this PC, edited in place, its picker and "…" a pill over its text ([S-14771]), its formats the text's own menus ([S-14772]). SPEC.md beside this file.</summary>
 public sealed class NotesModule : IWidgetModule
 {
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>

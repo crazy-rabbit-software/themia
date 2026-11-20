@@ -15,17 +15,23 @@ using Themia.Widget.Notes;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1364] Choosing, creating, renaming and deleting notes from the widget itself: the picker on
-/// its first line. The widget never lists the notes beside the text; it shows the one note. The picker
-/// acts on the device-wide pool, so a note renamed or deleted here is renamed or deleted for every
-/// widget showing it; only which note this widget shows is its own.
+/// [S-1364] [S-14771] Choosing, creating, renaming and deleting notes from the widget itself: the pill's picker (the note's
+/// name and its chevron: every note, New note) and its "…" (Rename…, Delete note…). The widget never lists the notes beside
+/// the text; it shows the one note. They act on the device-wide pool, so a note renamed or deleted here is renamed or
+/// deleted for every widget showing it; only which note this widget shows is its own.
 /// </summary>
 internal sealed partial class NotesView
 {
-    private Button _picker = null!;
+    private Border _picker = null!;
 
-    /// <summary>The open rename box (the picker's flyout), or null.</summary>
+    /// <summary>[S-14771] The picker's words: the shown note's name, cut to the room the card leaves it.</summary>
+    private TextBlock _pickerName = null!;
+
+    /// <summary>The open rename box (the pill's flyout), or null.</summary>
     private TextBox? _renaming;
+
+    /// <summary>[S-14268] A picture's note name (its sample's), with no pool to read one from.</summary>
+    private string? _pictureName;
 
     // -----------------------------------------------------------------------------------------
     // The picker
@@ -33,68 +39,84 @@ internal sealed partial class NotesView
 
     private void BuildPicker()
     {
-        // [S-6710] A line button: 24, a 16 glyph in the secondary role, the one radius.
-        _picker = new Button
-        {
-            Content = Family.Glyph(Glyphs.ChevronDown),
-            Width = NotesLayout.PickerWidth,
-            Height = NotesLayout.ButtonSize,
-            Padding = new Thickness(0),
-            MinWidth = 0,
-            MinHeight = 0,
-            BorderThickness = new Thickness(0),
-            CornerRadius = Family.Radius,
-            Background = Family.Brush(ColourRole.Clear),
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
-
+        _pickerName = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+        _picker = ToolLine.Dropdown(_pickerName, NotesStr.WidgetsC_Notes_ChooseNote.Text(), OnPickerClick);
+        _picker.Visibility = Visibility.Collapsed;
         ApplyPickerTexts();
-        _picker.Click += OnPickerClick;
     }
 
     private void ApplyPickerTexts()
     {
-        ToolTipService.SetToolTip(_picker, NotesStr.Notes_NotesLabel.Text());
+        ToolTipService.SetToolTip(_picker, NotesStr.WidgetsC_Notes_ChooseNote.Text());
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_picker, NotesStr.WidgetsC_Notes_ChooseNote.Text());
+        UpdatePicker();
     }
 
     /// <summary>
-    /// [S-11206] The picker shows wherever there is a pool to pick from, at every size (on the note's
-    /// first line, [S-12481]); [S-14268] and in a picture of the note (its sample, a render: unbound), which shows the
-    /// widget as it stands on the desktop, its first line holding the picker rather than standing empty over the text
-    /// (WR-1). A picture's picker opens nothing: there is no pool behind it.
+    /// [S-11206] The picker stands wherever there is a pool to pick from, at every size; [S-14268] and in a picture of the
+    /// note (its sample, a render: unbound), which shows the widget as it stands on the desktop; a picture's picker opens
+    /// nothing. [S-14771] It says the shown note's name (<see cref="NoteMenus.PickerName"/>), cut with an ellipsis at the
+    /// room the card's width leaves it (<see cref="NotesLayout.NameWidth"/>; none on a card too narrow: the chevron alone).
     /// </summary>
     private void UpdatePicker()
-        => _picker.Visibility = _pool is not null || _state == NoteState.Unbound ? Visibility.Visible : Visibility.Collapsed;
+    {
+        _picker.Visibility = _pool is not null || _state == NoteState.Unbound ? Visibility.Visible : Visibility.Collapsed;
 
-    private void OnPickerClick(object sender, RoutedEventArgs args)
+        var title = _state switch
+        {
+            NoteState.Ready or NoteState.Unreadable => _pool?.Find(_shownId)?.Title,
+            NoteState.Unbound => _pictureName,
+            _ => null,
+        };
+
+        var name = NoteMenus.PickerName(title, title is not null, NotesStr.Notes_NamePlaceholder.Text(), NotesStr.WidgetsC_Notes_ChooseNote.Text());
+        var room = NotesLayout.NameWidth(_area.IsMeasured ? _area.Width : NotesLayout.Sizing.Natural.Width, _notSavedGlyph.Visibility == Visibility.Visible);
+
+        _pickerName.Text = name;
+        _pickerName.MaxWidth = room;
+        _pickerName.Visibility = room > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        // With no name the picker is its chevron's square alone, as a line button is.
+        _picker.Padding = room > 0 ? new Thickness(FamilySpace.S2, 0, 0, 0) : default;
+        ToolTipService.SetToolTip(_picker, room > 0 ? NotesStr.WidgetsC_Notes_ChooseNote.Text() : name);
+    }
+
+    private void OnPickerClick()
     {
         if (_pool is null || _detached)
         {
+            // A picture's picker opens nothing: there is no pool behind it.
             return;
         }
 
-        var entries = new List<ItemMenuEntry>();
-        foreach (var note in _pool.Notes)
-        {
-            var id = note.Id;
-            entries.Add(new ItemMenuEntry(null, note.Title, () => Pick(id), Checked: id == _shownId));
-        }
-
-        entries.Add(ItemMenuEntry.Separator);
-        entries.Add(new ItemMenuEntry(Glyphs.Add, NotesStr.Notes_NewNote.Text(), NewNote));
-
-        if (_state == NoteState.Ready && _shownId is { } shown)
-        {
-            entries.Add(new ItemMenuEntry(Glyphs.Rename, NotesStr.WidgetsC_Notes_RenameEllipsis.Text(), () => RenameInFlyout(shown)));
-            entries.Add(new ItemMenuEntry(Glyphs.Delete, NotesStr.WidgetsC_Notes_DeleteNoteEllipsis.Text(), () => _ = DeleteAsync(shown), Danger: true));
-        }
-
-        ItemMenu.Open(_picker, entries);
+        OpenPicker(_pool.Notes, _shownId);
     }
 
-    /// <summary>Rename the shown note in a small box under the picker: Enter or leaving it commits, Escape does not.</summary>
+    /// <summary>[S-1364] [S-14771] The picker's menu under it: every note (the shown one checked), then New note.</summary>
+    private void OpenPicker(IReadOnlyList<NoteMeta> notes, string? shownId)
+    {
+        var entries = new List<ItemMenuEntry>();
+        foreach (var pick in NoteMenus.Picker(notes, shownId, NotesStr.Notes_NamePlaceholder.Text(), NotesStr.Notes_NewNote.Text()))
+        {
+            if (pick.Id is { } id)
+            {
+                entries.Add(new ItemMenuEntry(null, pick.Title, () => Pick(id), Checked: pick.Shown));
+            }
+            else
+            {
+                entries.Add(ItemMenuEntry.Separator);
+                entries.Add(new ItemMenuEntry(Glyphs.Add, pick.Title, NewNote));
+            }
+        }
+
+        PillMenu(true);
+        if (!ItemMenu.Open(_picker, entries, () => PillMenu(false)))
+        {
+            PillMenu(false);
+        }
+    }
+
+    /// <summary>Rename the shown note in a small box under the pill's "…": Enter or leaving it commits, Escape does not.</summary>
     private void RenameInFlyout(string id)
     {
         if (_pool?.Find(id) is not { } note)
@@ -134,9 +156,11 @@ internal sealed partial class NotesView
 
             _renaming = null;
             UpdateKeyboard();
+            PillMenu(false);
         };
 
-        flyout.ShowAt(_picker);
+        PillMenu(true);
+        flyout.ShowAt(_more);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -185,7 +209,16 @@ internal sealed partial class NotesView
                 return;
             }
 
-            var confirmed = await AskToDeleteAsync(note.Title).ConfigureAwait(true);
+            PillMenu(true);
+            bool confirmed;
+            try
+            {
+                confirmed = await AskToDeleteAsync(note.Title).ConfigureAwait(true);
+            }
+            finally
+            {
+                PillMenu(false);
+            }
 
             if (confirmed && !_detached)
             {
@@ -206,14 +239,12 @@ internal sealed partial class NotesView
     }
 
     /// <summary>
-    /// [S-1500] The question beside the picker, which is where the delete was chosen; under the
-    /// widget when it has no picker.
+    /// [S-1500] The question beside the pill's "…", which is where the delete was chosen; under the widget when the pill
+    /// has no "…" standing.
     /// </summary>
     private Task<bool> AskToDeleteAsync(string title) => ConfirmFlyout.AskAsync(
-        _picker.XamlRoot is not null && _picker.Visibility == Visibility.Visible && _picker.ActualWidth > 0 ? _picker : this,
+        _more.XamlRoot is not null && _more.Visibility == Visibility.Visible && _more.ActualWidth > 0 ? _more : this,
         NotesStr.WidgetsC_Notes_DeleteConfirmTitle.Text(),
         Str.Common_Delete.Text(),
         NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", title)));
-
-    private void DetachPicker() => _picker.Click -= OnPickerClick;
 }

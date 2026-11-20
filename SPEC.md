@@ -931,7 +931,8 @@ actually touch each other, there is still a little space vertically which i dont
     `LineRules`) as the content's first row, counted in the kind's sizing where it shows: the calendar's
     period and its back and forward (every style but the agenda), the folder's name with back, up,
     search, sort, its git badge and ring, the screen time widgets' day and its arrows
-    (`ScreenTimeDayNav.Line`), the note's formatting bar;
+    (`ScreenTimeDayNav.Line`); the note has no first row: its picker and "…" are a pill over its text's top end,
+    shown under the pointer, its formats the text's own menus ([S-14770]..[S-14772]);
   - commands that act on the whole widget go to its card menu: Mail's compose (one per account), the
     contacts' search, Clear all notifications, the clipboard's Clear history, the quote's Show another,
     the task list picker (one line per other list, and Rename…), the agenda's Previous and Next; the
@@ -6479,9 +6480,9 @@ Ports the original `widgets/others/notes` (SPEC S-01..S-38, `src/lib.rs`, `markd
   continuations still work, and the right-click menu still edits. A header at the bottom carries the
   bar there.
 
-Not ported, deliberately: the pop-out window (original S-11..S-13, user decision); the selection
-bubble (S-26: the bar and Ctrl+B/I cover it); the original's choice of where the bar goes (S-29: it
-is always the header's, [S-3963], and goes where the header goes); the "On this
+Not ported, deliberately: the pop-out window (original S-11..S-13, user decision); the original's choice
+of where the bar goes (S-29: there is no bar, [S-14770]). The selection bubble (S-26) came back as the selection's
+menu at the pointer ([S-14772], owner, 2026-11-20); the "On this
 device" source row (S-35: there is no other source); a comfortable-measure cap at L (a 560-wide card
 is about 80 characters already, and a cap would leave the empty band the ladder exists to avoid).
 

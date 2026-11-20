@@ -1,8 +1,11 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.App.Shell.Motion;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -25,14 +28,14 @@ namespace Themia.App.Widgets;
 /// rather than quietly showing another ([S-1347]).
 /// </para>
 /// <para>
-/// The editing itself is <see cref="MarkdownEditor"/>; this view binds it to the pool, saves on a
-/// debounce and on blur and detach, and draws the text alone in the card's inset (<see cref="NotesLayout"/>);
-/// a failed write is the problem glyph on its first line, a note it cannot show the Status row. The formatting bar
-/// stands on that line while the note is being edited ([S-3963], [S-12481]), beside the note picker. It shows the
-/// one note at every size; another note is picked from the line's picker, never from a list beside the text.
+/// The editing itself is <see cref="MarkdownEditor"/> (its formats are the text's own menus, [S-14772]); this view binds it to
+/// the pool, saves on a debounce and on blur and detach, and draws the text alone from the card's top inset
+/// (<see cref="NotesLayout"/>, [S-14770]) with the pill over its top end ([S-14771]: the note's name with the picker, its
+/// "…", the problem glyph while a write failed), shown while the pointer is over the card. A note it cannot show is the
+/// Status row. It shows the one note at every size; another note is picked from the pill, never from a list beside the text.
 /// </para>
 /// </summary>
-internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware
+internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetTopEdge
 {
     private const string Scope = "notes";
 
@@ -63,17 +66,16 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     }
 
     private readonly MarkdownEditor _editor = new();
-    private readonly Grid _body = new();
 
     /// <summary>[S-1347] [S-6714] What the widget says instead of the note it cannot show: the Status row at the top.</summary>
     private readonly StatusBlock _message = new();
 
-    /// <summary>[S-1362] The line's problem glyph while the note's last write failed.</summary>
+    /// <summary>[S-1362] The pill's problem glyph while the note's last write failed.</summary>
     private readonly FontIcon _notSavedGlyph;
 
-    /// <summary>[S-3963] [S-12481] The note's first line: the problem glyph, the formatting bar, its "More" button, the picker, at its end.</summary>
-    private readonly StackPanel _bar;
-    private readonly Button _more;
+    /// <summary>[S-14771] Over the text's top end: the problem glyph, the picker (the note's name and its chevron) and "…".</summary>
+    private readonly Border _pill;
+    private readonly Border _more;
     private readonly DispatcherQueueTimer? _saveTimer;
 
     private IWidgetSurface? _surface;
@@ -87,69 +89,49 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private bool _resolving;
     private bool _editorFocused;
 
-    // [S-1362] The note's last write failed: the line's problem glyph says so.
-    private bool _notSaved;
+    /// <summary>[S-14771] When the pill shows: the pointer over the card, typing, its menus, a failed write.</summary>
+    private NotesPill _shows;
 
-    /// <summary>[S-3963] The "More" menu is open: the bar stays while the note's focus is in it.</summary>
-    private bool _moreOpen;
-
-    /// <summary>A debug render's "editing" state: the bar as it stands while the note has the caret.</summary>
-#if DEBUG
-    private bool _previewEditing;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private bool _previewEditing => false;
-#endif
     private bool _detached;
 
     public NotesView(IWidgetHost host)
     {
         _host = host;
-        // [S-6703] The text under the note's line, in the card's inset either side and under it, as the editor's own
-        // padding: [S-14303] the editor is the card's free field from its left edge to its right and down to its foot
-        // (WR-3: "the inset is padding inside the item, never a margin round the items"). The Status row carries its own
-        // side inset.
 
         BuildEditor();
 
+        // [S-14770] The text from the card's top edge, the inset its own padding on all four sides (the view owns the
+        // edge, IWidgetTopEdge); [S-12815] without a note the Status row stands on the card's top edge in its place.
         _message.Visibility = Visibility.Collapsed;
-        _body.Children.Add(_editor.Box);
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(NotesLayout.LineHeight) });
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        SetRow(_body, 1);
-
-        // [S-12815] Without a note the Status row stands on the card's top edge, over the note's line (its picker
-        // stands over the row's end, as the bar does over the note's first line).
-        SetRowSpan(_message, 2);
-        Children.Add(_body);
+        _message.Margin = default;
+        Children.Add(_editor.Box);
         Children.Add(_message);
+
+        // [S-14771] Pointer anywhere over the card: the view takes it over its whole box (a clear fill), however the text
+        // and the pill handle it.
+        Background = Family.Brush(ColourRole.Clear);
+
+        _notSavedGlyph = ToolLine.Problem(NotesStr.WidgetsC_Notes_NotSaved.Text());
+        _notSavedGlyph.Margin = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0);
+        _notSavedGlyph.Visibility = Visibility.Collapsed;
 
         BuildPicker();
 
-        _more = BuildMore();
+        _more = ToolLine.Button(Glyphs.More, NotesStr.WidgetsC_Notes_MoreOptions.Text(), OnMoreClick);
 
-        _notSavedGlyph = ToolLine.Problem(NotesStr.WidgetsC_Notes_NotSaved.Text());
-        _notSavedGlyph.Margin = new Thickness(0, 0, FamilySpace.S1, 0);
-        _notSavedGlyph.Visibility = Visibility.Collapsed;
-
-        // [S-3963] [S-12481] The bar on the note's own first line, at its end, its buttons side by side as a tool
-        // line's are: the line keeps its 20 (and 4 under it) whether or not the bar stands, so focusing the
-        // note never moves the text, and the last one's glyph sits on the inset ([S-6710]).
-        _bar = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = NotesLayout.ButtonGap,
-            Height = FamilySpace.HeaderLine,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset - LineRules.ButtonOverhang, 0),
-            Children = { _notSavedGlyph, _editor.Toolbar, _more, _picker },
-        };
-        Children.Add(_bar);
+        _pill = BuildPill();
+        Children.Add(_pill);
 
         _editor.TextEdited += OnTextEdited;
+        _editor.TextEdited += OnFirstLine;
+        _editor.Keyed += OnKeyed;
         _editor.Box.GotFocus += OnEditorGotFocus;
         _editor.Box.LostFocus += OnEditorLostFocus;
+        AddHandler(PointerMovedEvent, new PointerEventHandler(OnPointerMoved), handledEventsToo: true);
+        AddHandler(PointerExitedEvent, new PointerEventHandler(OnPointerExited), handledEventsToo: true);
+
+        // [S-12831] A render's --hover over the note stands for the pointer over the card: the pill shows.
+        PointerPreview.Register(_editor.Box, _ => Pill(_shows.Moved()));
 
         // The dispatcher timer is the debounce. Where there is no dispatcher queue (a design-time or
         // test host) the note is still handed over on blur and on detach; only save-as-you-type is lost.
@@ -168,6 +150,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         Lay();
     }
+
+    /// <summary>[S-14770] The editor pads all four sides itself: the card gives its top no inset.</summary>
+    public bool OwnsTopEdge => true;
 
     /// <summary>
     /// [S-129] A Windows 11 text field with no chrome at rest, so the note reads as writing on the
@@ -205,10 +190,11 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         box.BorderThickness = new Thickness(0);
         box.CornerRadius = Family.Radius;
 
-        // [S-14303] The words stand where the inset puts them, inside the field: the field reaches the card's sides and
-        // foot, and its top reaches back one grid unit under the note's line (clipped by its row) as it always did.
-        box.Padding = new Thickness(FamilySpace.Inset, FamilySpace.S1, FamilySpace.Inset, FamilySpace.Inset);
-        box.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
+        // [S-14770] [S-14303] The field is the card's whole box, edge to edge and top to foot (WR-3: "the inset is padding
+        // inside the item, never a margin round the items"); the words stand in the inset on all four sides, so the
+        // text starts at the card's top inset with no row over it (WR-1).
+        box.Padding = new Thickness(FamilySpace.Inset);
+        box.Margin = default;
         box.MinHeight = 0;
         box.HorizontalAlignment = HorizontalAlignment.Stretch;
         box.VerticalAlignment = VerticalAlignment.Stretch;
@@ -217,6 +203,38 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         ScrollViewer.SetVerticalScrollBarVisibility(box, ScrollBarVisibility.Auto);
         ScrollViewer.SetHorizontalScrollBarVisibility(box, ScrollBarVisibility.Disabled);
+    }
+
+    /// <summary>
+    /// [S-14771] The pill over the text's top end (owner, 2026-11-20: "the edit row should bascially be overlayed on the
+    /// topright with the text"): the first line's box at the line's end, its buttons standing 2 over and under it as a tool
+    /// line's do, its last glyph on the inset, in the card's own opaque base so the text under it is hidden and it reads as
+    /// the card, the one radius. The parts are the tool line's (the problem glyph, the choice, a line button); it is shown
+    /// by <see cref="NotesPill"/> and fades, taking no pointer while gone.
+    /// </summary>
+    private Border BuildPill()
+    {
+        var pill = new Border
+        {
+            Child = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center,
+                Children = { _notSavedGlyph, _picker, _more },
+            },
+            Height = FamilySpace.HeaderLine,
+            Padding = new Thickness(FamilySpace.S1, 0, 0, 0),
+            CornerRadius = Family.Radius,
+            Background = ThemeBrush.Of(ColourRoles.CardBase, default),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, NotesLayout.PillTop, NotesLayout.PillEnd, 0),
+            Opacity = 0,
+            IsHitTestVisible = false,
+        };
+
+        Canvas.SetZIndex(pill, 1);
+        return pill;
     }
 
     /// <inheritdoc />
@@ -242,7 +260,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _editor.RefreshTexts();
         ApplyPickerTexts();
-        ApplyMoreTexts(_more);
+        ToolTipService.SetToolTip(_more, NotesStr.WidgetsC_Notes_MoreOptions.Text());
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_more, NotesStr.WidgetsC_Notes_MoreOptions.Text());
         UpdateMessage();
         UpdateStatus();
     }
@@ -369,8 +388,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         }
 
         UpdateMessage();
-
-        UpdatePicker();
         UpdateStatus();
     }
 
@@ -395,12 +412,12 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         if (sentence is null)
         {
             _message.Hide();
-            _body.Visibility = Visibility.Visible;
+            _editor.Box.Visibility = Visibility.Visible;
             return;
         }
 
         _message.Show(_state == NoteState.Unreadable ? StatusKind.Problem : StatusKind.Empty, Glyphs.Note, sentence);
-        _body.Visibility = Visibility.Collapsed;
+        _editor.Box.Visibility = Visibility.Collapsed;
     }
 
     private void OnPoolChanged(string? id)
@@ -433,6 +450,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         _saveTimer?.Start(); // restarts the countdown, so a run of keystrokes is one write
     }
 
+    /// <summary>[S-14771] The first line may have become a title or stopped being one: the pill covers it whole.</summary>
+    private void OnFirstLine(string text) => _pill.Height = NotesLayout.PillHeight(_editor.FirstLine);
+
     /// <summary>
     /// Ask the surface for the keyboard. Outside edit mode it is unfocusable, so without this the
     /// caret blinks here while the letters go to whatever window actually has focus.
@@ -441,7 +461,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _editorFocused = true;
         UpdateKeyboard();
-        UpdateBar();
     }
 
     private void OnEditorLostFocus(object sender, RoutedEventArgs args)
@@ -449,10 +468,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         _editorFocused = false;
         Flush();
         UpdateKeyboard();
-        UpdateBar();
     }
 
-    /// <summary>Typing asks for the keyboard: the editor, and the picker's rename box.</summary>
+    /// <summary>Typing asks for the keyboard: the editor, and the pill's rename box.</summary>
     private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_editorFocused || _renaming is not null));
 
     private void OnSaveTick(DispatcherQueueTimer sender, object args) => Flush();
@@ -489,22 +507,24 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     }
 
     /// <summary>
-    /// [S-1362] "Not saved" while the note's last write failed, as the line's problem glyph (its
-    /// tooltip says it), and nothing at all otherwise: no word or character count, no "Saved" (user
+    /// [S-1362] "Not saved" while the note's last write failed, as the pill's problem glyph (its tooltip says it; the pill
+    /// stands while it does, [S-14771]), and nothing at all otherwise: no word or character count, no "Saved" (user
     /// requirement). The text keeps all its room.
     /// </summary>
     private void UpdateStatus()
     {
-        _notSaved = _state == NoteState.Ready && _pool?.WriteFailed == true;
-        _notSavedGlyph.Visibility = _notSaved ? Visibility.Visible : Visibility.Collapsed;
+        var failed = _state == NoteState.Ready && _pool?.WriteFailed == true;
+        _notSavedGlyph.Visibility = failed ? Visibility.Visible : Visibility.Collapsed;
         ToolTipService.SetToolTip(_notSavedGlyph, NotesStr.WidgetsC_Notes_NotSaved.Text());
+        UpdatePicker();
+        Pill(_shows.WithProblem(failed));
     }
 
     // -----------------------------------------------------------------------------------------
-    // Layout
+    // The pill
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>[S-1363] [S-3963] The picker and the formatting bar for the card's width. Cheap: nothing is rebuilt here.</summary>
+    /// <summary>[S-14771] The pill's parts and its name's room for the card's width. Cheap: nothing is rebuilt here.</summary>
     private void Lay()
     {
         if (_detached)
@@ -513,88 +533,97 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         }
 
         UpdatePicker();
-        UpdateBar();
+        _more.Visibility = NoteMenus.More(_state is NoteState.Ready or NoteState.Unbound).Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _pill.Height = NotesLayout.PillHeight(_editor.FirstLine);
+        Pill(_shows);
+    }
+
+    /// <summary>[S-14771] The pointer moved over the card (or came onto it): the pill shows again, if a key had sent it away.</summary>
+    private void OnPointerMoved(object sender, PointerRoutedEventArgs args)
+    {
+        if (!_shows.Pointer || _shows.Typing)
+        {
+            Pill(_shows.Moved());
+        }
     }
 
     /// <summary>
-    /// [S-3963] The formatting bar on the note's line, while the note is being edited: the caret is in it,
-    /// or its "More" menu is open. At rest the line holds the picker; the bar comes with the caret, where
-    /// formatting is wanted. As many buttons as the line holds (<see cref="NotesLayout.Bar"/>), the rest
-    /// behind "More"; the keyboard shortcuts still work.
+    /// [S-14771] The pointer left the card. Read by where it is, not by which part it left: the exits of the text and of the
+    /// pill's buttons bubble here too while the pointer is still over the card.
     /// </summary>
-    private void UpdateBar()
+    private void OnPointerExited(object sender, PointerRoutedEventArgs args)
     {
+        var at = args.GetCurrentPoint(this).Position;
+        if (at.X < 0 || at.Y < 0 || at.X >= ActualWidth || at.Y >= ActualHeight)
+        {
+            Pill(_shows.Left());
+        }
+    }
+
+    /// <summary>[S-14771] A key in the text: the pill leaves the text to the keys until the pointer moves again.</summary>
+    private void OnKeyed()
+    {
+        if (!_shows.Typing)
+        {
+            Pill(_shows.Typed());
+        }
+    }
+
+    /// <summary>[S-14771] The pill as <paramref name="shows"/> says: faded in or out (opacity alone, WR-12), taking the pointer only while shown.</summary>
+    private void Pill(NotesPill shows)
+    {
+        _shows = shows;
         if (_detached)
         {
             return;
         }
 
-        var bar = NotesLayout.Bar(_area.IsMeasured ? _area.Width : 0, _picker.Visibility == Visibility.Visible);
-        var editing = Editable && !_editor.IsReadOnly && (_editorFocused || _moreOpen || _previewEditing);
-
-        _editor.VisibleButtons = bar.Inline;
-        _editor.Toolbar.Visibility = editing && bar.Inline > 0 ? Visibility.Visible : Visibility.Collapsed;
-        _more.Visibility = editing && bar.Overflow ? Visibility.Visible : Visibility.Collapsed;
-
-        if (_editor.Toolbar.Visibility == Visibility.Visible)
-        {
-            // The marks moved while the bar was away; light it for the caret now.
-            _editor.RefreshMarks();
-        }
-    }
-
-    /// <summary>[S-3963] The "More" button: the commands the line had no room for, as a menu.</summary>
-    private Button BuildMore()
-    {
-        // [S-6710] A line button: 24, a 16 glyph in the secondary role, the one radius.
-        var more = new Button
-        {
-            Content = Family.Glyph(Glyphs.More),
-            Width = NotesLayout.ButtonSize,
-            Height = NotesLayout.ButtonSize,
-            Padding = new Thickness(0),
-            BorderThickness = new Thickness(0),
-            CornerRadius = Family.Radius,
-            Background = Family.Brush(ColourRole.Clear),
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-
-            // [S-1365] Like the bar's buttons: the note keeps the focus and its selection.
-            IsTabStop = false,
-            AllowFocusOnInteraction = false,
-        };
-
-        ApplyMoreTexts(more);
-        more.Click += OnMoreClick;
-        return more;
-    }
-
-    private static void ApplyMoreTexts(Button more)
-    {
-        ToolTipService.SetToolTip(more, NotesStr.WidgetsC_Notes_Editor_MoreFormatting.Text());
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(more, NotesStr.WidgetsC_Notes_Editor_MoreFormatting.Text());
-    }
-
-    private void OnMoreClick(object sender, RoutedEventArgs args)
-    {
-        if (_detached || !Editable)
+        var parts = _picker.Visibility == Visibility.Visible || _more.Visibility == Visibility.Visible || _notSavedGlyph.Visibility == Visibility.Visible;
+        var shown = shows.Shown && parts;
+        if (shown == _pill.IsHitTestVisible && _pill.Visibility == (parts ? Visibility.Visible : Visibility.Collapsed))
         {
             return;
         }
 
-        // Set before the menu takes the focus, so the note's blur leaves the bar (and this anchor) standing.
-        _moreOpen = true;
-
-        if (!ItemMenu.Open(_more, _editor.ShedCommands(), OnMoreClosed))
+        var fades = SystemMotion.AnimationsEnabled;
+        if ((_pill.OpacityTransition is not null) != fades)
         {
-            _moreOpen = false;
+            _pill.OpacityTransition = fades ? new ScalarTransition { Duration = NotesLayout.Fade } : null;
         }
+
+        _pill.Opacity = shown ? 1 : 0;
+        _pill.IsHitTestVisible = shown;
+        _pill.Visibility = parts ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void OnMoreClosed()
+    /// <summary>A menu of the pill opened or closed: it stands while one is open (its anchor stays).</summary>
+    private void PillMenu(bool open) => Pill(_shows.WithMenu(open));
+
+    /// <summary>[S-14771] "…": what acts on the note shown (<see cref="NoteMenus.More"/>), as a menu under it.</summary>
+    private void OnMoreClick()
     {
-        _moreOpen = false;
-        UpdateBar();
+        if (_detached || _state != NoteState.Ready || _shownId is not { } shown)
+        {
+            // A picture's "…" opens nothing: there is no note behind it.
+            return;
+        }
+
+        OpenMore(shown);
+    }
+
+    private void OpenMore(string shown)
+    {
+        var entries = NoteMenus.More(noteShown: true).Select(item => item switch
+        {
+            NoteMenuItem.Rename => new ItemMenuEntry(Glyphs.Rename, NotesStr.WidgetsC_Notes_RenameEllipsis.Text(), () => RenameInFlyout(shown)),
+            _ => new ItemMenuEntry(Glyphs.Delete, NotesStr.WidgetsC_Notes_DeleteNoteEllipsis.Text(), () => _ = DeleteAsync(shown), Danger: true),
+        });
+
+        PillMenu(true);
+        if (!ItemMenu.Open(_more, entries, () => PillMenu(false)))
+        {
+            PillMenu(false);
+        }
     }
 
     public void Detach()
@@ -622,11 +651,14 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         }
 
         _editor.TextEdited -= OnTextEdited;
+        _editor.TextEdited -= OnFirstLine;
+        _editor.Keyed -= OnKeyed;
         _editor.Box.GotFocus -= OnEditorGotFocus;
         _editor.Box.LostFocus -= OnEditorLostFocus;
+        RemoveHandler(PointerMovedEvent, new PointerEventHandler(OnPointerMoved));
+        RemoveHandler(PointerExitedEvent, new PointerEventHandler(OnPointerExited));
+        PointerPreview.Forget(_editor.Box);
         _editor.Detach();
-        _more.Click -= OnMoreClick;
-        DetachPicker();
         _surface?.RequestTextInput(false);
     }
 }

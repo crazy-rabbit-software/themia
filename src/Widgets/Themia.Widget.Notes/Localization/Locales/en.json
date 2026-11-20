@@ -1,5 +1,7 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "widgetsC.notes.moreOptions"
+  ],
   "common.cut": "Cut",
   "common.paste": "Paste",
   "notes.deleteTitle": "Delete note",
@@ -24,10 +26,9 @@
   "widgetsC.notes.deleteConfirmTitle": "Delete this note?",
   "widgetsC.notes.deleteNoteEllipsis": "Delete note…",
   "widgetsC.notes.editor.headingTip": "Heading (H1, H2, H3, body)",
-  "widgetsC.notes.editor.moreFormatting": "More formatting",
   "widgetsC.notes.editor.redo": "Redo",
   "widgetsC.notes.editor.undo": "Undo",
-  "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
+  "widgetsC.notes.moreOptions": "More options",
   "widgetsC.notes.notSaved": "Not saved",
   "widgetsC.notes.renameEllipsis": "Rename…",
   "widgetsC.notes.settings.clear.confirmBody": "Everything written in it is deleted. This cannot be undone.",

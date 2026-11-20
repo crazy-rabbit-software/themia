@@ -23,20 +23,6 @@ using Themia.Widget.Notes;
 
 namespace Themia.App.Widgets;
 
-/// <summary>One button of the formatting bar.</summary>
-internal enum NoteCommand
-{
-    Heading,
-    Bold,
-    Italic,
-    Strike,
-    Code,
-    Bullet,
-    Ordered,
-    Task,
-    Quote,
-}
-
 /// <summary>
 /// [S-1366] The note editor: markdown edited in place over a <see cref="RichEditBox"/>, with the
 /// markdown source as the one truth. Syntax markers stay on screen, dimmed; their effect (weight,
@@ -48,13 +34,17 @@ internal enum NoteCommand
 /// ([S-1354]..[S-1359]); the control only applies the returned text as the smallest replacement
 /// (<see cref="NoteText.Diff"/>) and places the caret. Undo is <see cref="NoteHistory"/>, with the
 /// control's own stack switched off: that stack would also hold every formatting pass ([S-1360]).
-/// Paste is plain text only ([S-1357]); the rich-text accelerators, the selection flyout and the
+/// Paste is plain text only ([S-1357]); the rich-text accelerators, the stock selection flyout and the
 /// stock context menu (with its Bold/Italic/Underline) are gone, so no formatting the parser does
 /// not know about can get in. An IME composition is never redrawn mid-way.
 /// </para>
 /// <para>
-/// A composition, not a subclass: the view places <see cref="Box"/> and <see cref="Toolbar"/> where
-/// its ladder says, and this class owns their behaviour.
+/// [S-14772] The formats are the text's own menus: the selection's bar, opened at the pointer when it lets go over text it
+/// selected, and the text's menu (a right-click, Shift+F10, the Menu key), both through <see cref="ItemMenu"/> from the
+/// rules of <see cref="NoteMenus.Text"/>.
+/// </para>
+/// <para>
+/// A composition, not a subclass: the view places <see cref="Box"/>, and this class owns its behaviour.
 /// </para>
 /// </summary>
 internal sealed class MarkdownEditor
@@ -67,23 +57,13 @@ internal sealed class MarkdownEditor
     /// <summary>VK_PROCESSKEY: a key an input method editor is consuming. Never intercepted.</summary>
     private const int ImeProcessKey = 0xE5;
 
-    /// <summary>The bar in display order, with the order buttons are shed in as it narrows (0 = last to go).</summary>
-    private static readonly (NoteCommand Command, string? Glyph, string? Label, Func<string> Tip, int Rank)[] BarButtons =
-    [
-        (NoteCommand.Heading, null, "H", () => NotesStr.WidgetsC_Notes_Editor_HeadingTip.Text(), 4),
-        (NoteCommand.Bold, Glyphs.Bold, null, () => WithShortcut(NotesStr.Widget_Notes_Fmt_Bold, KeyChord.Ctrl(ChordKey.B)), 0),
-        (NoteCommand.Italic, Glyphs.Italic, null, () => WithShortcut(NotesStr.Widget_Notes_Fmt_Italic, KeyChord.Ctrl(ChordKey.I)), 1),
-        (NoteCommand.Strike, Glyphs.Strikethrough, null, () => NotesStr.Widget_Notes_Fmt_Strike.Text(), 5),
-        (NoteCommand.Code, Glyphs.Code, null, () => NotesStr.Widget_Notes_Fmt_Code.Text(), 6),
-        (NoteCommand.Bullet, Glyphs.BulletList, null, () => NotesStr.Widget_Notes_Fmt_Bullet.Text(), 3),
-        (NoteCommand.Ordered, null, "1.", () => NotesStr.Widget_Notes_Fmt_Numbered.Text(), 7),
-        (NoteCommand.Task, Glyphs.Checklist, null, () => NotesStr.Widget_Notes_Fmt_Task.Text(), 2),
-        (NoteCommand.Quote, Glyphs.Quote, null, () => NotesStr.Widget_Notes_Fmt_Quote.Text(), 8),
-    ];
-
     private readonly Dictionary<FormatKey, ITextCharacterFormat> _formats = [];
-    private readonly List<(NoteCommand Command, Button Button, int Rank)> _buttons = [];
+
+    /// <summary>[S-14772] The text's menu (a right-click, Shift+F10, the Menu key): filled from the rules each time it opens.</summary>
     private readonly CommandBarFlyout _menu = new() { AlwaysExpanded = true };
+
+    /// <summary>[S-14772] The selection's bar while it is open, so typing or a click in the text closes it.</summary>
+    private FlyoutBase? _bar;
 
     private string _text = string.Empty;
     private List<NoteLine> _lines = NoteMarkdown.Parse(string.Empty);
@@ -101,7 +81,6 @@ internal sealed class MarkdownEditor
     private bool _composing;
     private bool _readOnly;
     private bool _detached;
-    private int _visibleButtons = NotesLayout.AllButtons;
 
     public MarkdownEditor()
     {
@@ -125,7 +104,6 @@ internal sealed class MarkdownEditor
         _finalMark = probe.Length > 1;
         Box.Document.SetText(TextSetOptions.None, string.Empty);
 
-        Toolbar = BuildToolbar();
         BuildMenu();
 
         Box.TextChanged += OnTextChanged;
@@ -135,20 +113,25 @@ internal sealed class MarkdownEditor
         Box.TextCompositionStarted += OnCompositionStarted;
         Box.TextCompositionEnded += OnCompositionEnded;
         Box.ActualThemeChanged += OnThemeChanged;
+        Box.LostFocus += OnLostFocus;
+        Box.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnPointerPressed), handledEventsToo: true);
         Box.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(OnPointerReleased), handledEventsToo: true);
     }
 
     /// <summary>The text control. The view places it and gives it its chrome.</summary>
     public RichEditBox Box { get; }
 
-    /// <summary>[S-1365] The formatting bar. The view places it (the note's first line, [S-3963], [S-12481]); <see cref="VisibleButtons"/> sheds it.</summary>
-    public StackPanel Toolbar { get; }
-
     /// <summary>The note as it stands, with <c>\n</c> line endings.</summary>
     public string Text => _text;
 
+    /// <summary>[S-14771] How tall the note's first line stands (a title's 28, a body line's 20): the pill stands over it.</summary>
+    public double FirstLine => LineOf(_lines.Count > 0 ? _lines[0] : NoteMarkdown.Parse(string.Empty)[0]);
+
     /// <summary>Raised after every edit the user made (typing, a command, undo, paste) — never for <see cref="Load"/>.</summary>
     public event Action<string>? TextEdited;
+
+    /// <summary>[S-14771] A key was pressed in the text (a modifier alone excepted): the user is at the keyboard.</summary>
+    public event Action? Keyed;
 
     /// <summary>Base text size in DIPs; headings are drawn larger than this.</summary>
     public double FontSize
@@ -184,53 +167,12 @@ internal sealed class MarkdownEditor
         {
             _readOnly = value;
             Box.IsReadOnly = value;
-            foreach (var (_, button, _) in _buttons)
+            if (value)
             {
-                button.IsEnabled = !value;
+                CloseBar();
             }
         }
     }
-
-    /// <summary>[S-1365] How many buttons the bar shows; the rest are shed by rank, most used kept.</summary>
-    public int VisibleButtons
-    {
-        get => _visibleButtons;
-        set
-        {
-            _visibleButtons = value;
-            foreach (var (_, button, rank) in _buttons)
-            {
-                button.Visibility = rank < value ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-    }
-
-    /// <summary>
-    /// [S-3963] The commands the bar has shed (rank at or past <see cref="VisibleButtons"/>), in the
-    /// bar's order, as menu entries for its "More" button: each runs on the note's selection.
-    /// </summary>
-    public IReadOnlyList<ItemMenuEntry> ShedCommands()
-    {
-        var (start, end) = Selection();
-        var marks = NoteEditing.ActiveMarks(_text, start, end);
-        var entries = new List<ItemMenuEntry>();
-
-        foreach (var (command, glyph, label, tip, rank) in BarButtons)
-        {
-            if (rank < _visibleButtons)
-            {
-                continue;
-            }
-
-            var run = command;
-            entries.Add(new ItemMenuEntry(glyph, tip(), () => Run(run), Disabled: _readOnly, Checked: IsOn(command, marks)));
-        }
-
-        return entries;
-    }
-
-    /// <summary>[S-1359] Light the bar for the caret now: it was hidden while the marks moved.</summary>
-    public void RefreshMarks() => UpdateMarks();
 
     /// <summary>
     /// [S-1348] Show <paramref name="text"/> as it is in the store — another note, or this note
@@ -268,10 +210,9 @@ internal sealed class MarkdownEditor
         WithWritable(() => Replace(clean));
         Box.Document.Selection.SetRange(0, 0);
         Commit(record: false, raise: false);
-        UpdateMarks();
     }
 
-    /// <summary>[S-1359] Run a bar command on the selection, focusing the note first so the caret lands where the command left it.</summary>
+    /// <summary>[S-1359] Run a format on the selection, focusing the note first so the caret lands where the command left it.</summary>
     public void Run(NoteCommand command)
     {
         if (_readOnly || _detached)
@@ -314,7 +255,10 @@ internal sealed class MarkdownEditor
         Box.TextCompositionStarted -= OnCompositionStarted;
         Box.TextCompositionEnded -= OnCompositionEnded;
         Box.ActualThemeChanged -= OnThemeChanged;
+        Box.LostFocus -= OnLostFocus;
+        Box.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnPointerPressed));
         Box.RemoveHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(OnPointerReleased));
+        CloseBar();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -402,10 +346,10 @@ internal sealed class MarkdownEditor
             _history.Record(now, start, end);
         }
 
-        UpdateMarks();
-
         if (raise)
         {
+            // [S-14772] The text was typed in (or a command ran): the selection's bar has done its work.
+            CloseBar();
             TextEdited?.Invoke(now);
         }
     }
@@ -600,7 +544,6 @@ internal sealed class MarkdownEditor
 
         var (start, end) = Selection();
         _history.Record(_text, start, end);
-        UpdateMarks();
     }
 
     private static bool Down(VirtualKey key) => InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(CoreVirtualKeyStates.Down);
@@ -614,7 +557,27 @@ internal sealed class MarkdownEditor
     /// </summary>
     private void OnPreviewKeyDown(object sender, KeyRoutedEventArgs args)
     {
-        if (_composing || _readOnly || _detached || (int)args.Key == ImeProcessKey)
+        if (_detached)
+        {
+            return;
+        }
+
+        if (!IsModifier(args.Key))
+        {
+            // [S-14772] Back at the keyboard: the selection's bar goes (Escape closes it and nothing else), [S-14771] and the
+            // view hears it (the pill leaves the text to the keys).
+            if (_bar is not null && args.Key == VirtualKey.Escape)
+            {
+                args.Handled = true;
+                CloseBar();
+                return;
+            }
+
+            CloseBar();
+            Keyed?.Invoke();
+        }
+
+        if (_composing || _readOnly || (int)args.Key == ImeProcessKey)
         {
             return;
         }
@@ -728,16 +691,35 @@ internal sealed class MarkdownEditor
         }
     }
 
-    /// <summary>[S-1358] A click on a task's <c>[ ]</c> ticks it; length-preserving, so the caret stays put.</summary>
+    private static bool IsModifier(VirtualKey key) => key is VirtualKey.Control or VirtualKey.LeftControl or VirtualKey.RightControl
+        or VirtualKey.Shift or VirtualKey.LeftShift or VirtualKey.RightShift or VirtualKey.Menu or VirtualKey.LeftMenu or VirtualKey.RightMenu
+        or VirtualKey.LeftWindows or VirtualKey.RightWindows;
+
+    /// <summary>[S-14772] A press in the text (to place the caret, to select again, a right-click) closes the selection's bar.</summary>
+    private void OnPointerPressed(object sender, PointerRoutedEventArgs args) => CloseBar();
+
+    /// <summary>
+    /// [S-1358] A click on a task's <c>[ ]</c> ticks it; length-preserving, so the caret stays put. [S-14772] Letting go over
+    /// text the pointer selected opens the selection's bar there (<see cref="NoteMenus.OpensOnRelease"/>).
+    /// </summary>
     private void OnPointerReleased(object sender, PointerRoutedEventArgs args)
     {
-        if (_readOnly || _detached || args.GetCurrentPoint(Box).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonReleased)
+        if (_readOnly || _detached)
         {
             return;
         }
 
+        var point = args.GetCurrentPoint(Box);
+        var left = point.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased;
         var (start, end) = Selection();
-        if (start != end || NoteEditing.TaskBoxAt(_text, start) is not { } line || NoteEditing.ToggleTaskLine(_text, line) is not { } toggled)
+
+        if (NoteMenus.OpensOnRelease(left, start, end, _readOnly))
+        {
+            OpenBar(point.Position);
+            return;
+        }
+
+        if (!left || start != end || NoteEditing.TaskBoxAt(_text, start) is not { } line || NoteEditing.ToggleTaskLine(_text, line) is not { } toggled)
         {
             return;
         }
@@ -745,156 +727,136 @@ internal sealed class MarkdownEditor
         Apply(new NoteEdit(toggled, start, end));
     }
 
-    // -----------------------------------------------------------------------------------------
-    // Toolbar and menu
-    // -----------------------------------------------------------------------------------------
-
-    private StackPanel BuildToolbar()
-    {
-        var bar = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = NotesLayout.ButtonGap,
-            Height = NotesLayout.ButtonSize,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        foreach (var (command, glyph, label, tip, rank) in BarButtons)
-        {
-            object content = glyph is not null
-                ? Family.Glyph(glyph)
-                : LabelFor(label ?? string.Empty);
-
-            // [S-6710] A line button: 24, a 16 glyph (or its letters in BodyStrong), the one radius.
-            var button = new Button
-            {
-                Content = content,
-                Width = FamilyShape.LineButton,
-                Height = FamilyShape.LineButton,
-                Padding = new Thickness(0),
-                BorderThickness = new Thickness(0),
-                CornerRadius = Family.Radius,
-                Background = Family.Brush(ColourRole.Clear),
-
-                // [S-1365] The note keeps the focus and its selection; the command runs on that.
-                IsTabStop = false,
-                AllowFocusOnInteraction = false,
-            };
-
-            ToolTipService.SetToolTip(button, tip());
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, tip());
-            button.Click += (_, _) => Run(command);
-
-            _buttons.Add((command, button, rank));
-            bar.Children.Add(button);
-        }
-
-        return bar;
-    }
-
-    /// <summary>"Bold (Ctrl+B)": a command's name with its key, in the language's word order.</summary>
-    private static string WithShortcut(NotesStr name, KeyChord keys)
-        => NotesStr.WidgetsC_Notes_Editor_WithShortcut.Format(("name", name.Text()), ("keys", KeyChordText.Format(keys)));
-
     /// <summary>
-    /// [S-1110] Re-read the texts this editor set once (the bar's tooltips, the placeholder) after
-    /// the language changed. The context menu is built on every open, so it follows by itself.
+    /// [S-14772] Focus that leaves the text for anything but a menu (the bar's own buttons may take it while they are
+    /// pressed) closes the selection's bar.
     /// </summary>
-    public void RefreshTexts()
+    private void OnLostFocus(object sender, RoutedEventArgs args)
     {
-        Box.PlaceholderText = NotesStr.Notes_Placeholder.Text();
-        foreach (var (command, button, _) in _buttons)
-        {
-            foreach (var entry in BarButtons)
-            {
-                if (entry.Command == command)
-                {
-                    var tip = entry.Tip();
-                    ToolTipService.SetToolTip(button, tip);
-                    Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, tip);
-                }
-            }
-        }
-    }
-
-    private static TextBlock LabelFor(string label)
-    {
-        var text = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, label);
-        text.HorizontalAlignment = HorizontalAlignment.Center;
-        text.VerticalAlignment = VerticalAlignment.Center;
-        return text;
-    }
-
-    /// <summary>A bar button's glyph or letters in <paramref name="role"/>.</summary>
-    private static void Paint(object content, ColourRole role)
-    {
-        switch (content)
-        {
-            case FontIcon icon:
-                icon.Foreground = Family.Brush(role);
-                break;
-            case TextBlock text:
-                text.Foreground = Family.Brush(role);
-                break;
-        }
-    }
-
-    /// <summary>[S-1359] Light the buttons for what is in force at the caret.</summary>
-    private void UpdateMarks()
-    {
-        if (Toolbar.Visibility != Visibility.Visible)
+        if (_bar is null || Box.XamlRoot is not { } root)
         {
             return;
         }
 
-        var (start, end) = Selection();
-        var marks = NoteEditing.ActiveMarks(_text, start, end);
-
-        foreach (var (command, button, _) in _buttons)
+        if (FocusManager.GetFocusedElement(root) is DependencyObject focused && InPopup(root, focused))
         {
-            var on = IsOn(command, marks);
-
-            // [S-6706] A mark in force is the subtle fill and the primary role, never the accent.
-            button.Background = Family.Brush(on ? ColourRole.Subtle : ColourRole.Clear);
-            Paint(button.Content, on ? ColourRole.TextPrimary : ColourRole.TextSecondary);
+            return;
         }
+
+        CloseBar();
     }
 
-    private static bool IsOn(NoteCommand command, NoteMarks marks) => command switch
+    /// <summary>Whether <paramref name="element"/> stands in one of the open popups (a menu) of <paramref name="root"/>.</summary>
+    private static bool InPopup(XamlRoot root, DependencyObject element)
     {
-        NoteCommand.Heading => marks.Heading > 0,
-        NoteCommand.Bold => marks.Bold,
-        NoteCommand.Italic => marks.Italic,
-        NoteCommand.Strike => marks.Strike,
-        NoteCommand.Code => marks.Code,
-        NoteCommand.Bullet => marks.Block == NoteBlock.Bullet,
-        NoteCommand.Ordered => marks.Block == NoteBlock.Ordered,
-        NoteCommand.Task => marks.Block == NoteBlock.Task,
-        _ => marks.Block == NoteBlock.Quote,
-    };
+        foreach (var popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(root))
+        {
+            for (var node = element; node is not null; node = VisualTreeHelper.GetParent(node))
+            {
+                if (ReferenceEquals(node, popup.Child))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // -----------------------------------------------------------------------------------------
+    // The text's menus
+    // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// The note's own right-click menu, in place of the control's: that one carries Bold, Italic and
-    /// Underline, which would put formatting into the note that its markdown does not hold.
+    /// [S-14772] Open the selection's bar at <paramref name="at"/> (a point of <see cref="Box"/>: where the pointer let go):
+    /// the formats alone, lit for what is in force at the selection, without taking the keyboard.
+    /// </summary>
+    public void OpenBar(Windows.Foundation.Point at)
+    {
+        CloseBar();
+
+        // Closed comes later than a hide: a bar closed for this one must not forget this one when it reports.
+        FlyoutBase? shown = null;
+        shown = ItemMenu.ShowBar(Box, at, Entries(NoteMenuOpening.Selected), () =>
+        {
+            if (ReferenceEquals(_bar, shown))
+            {
+                _bar = null;
+            }
+        });
+        _bar = shown;
+    }
+
+    private void CloseBar()
+    {
+        var bar = _bar;
+        _bar = null;
+        bar?.Hide();
+    }
+
+    /// <summary>[S-14772] The text's menu (<paramref name="opening"/>) as menu entries, from the rules (<see cref="NoteMenus.Text"/>).</summary>
+    private List<ItemMenuEntry> Entries(NoteMenuOpening opening)
+    {
+        var (start, end) = Selection();
+        var lines = NoteMenus.Text(opening, start != end, _readOnly, _history.CanUndo, _history.CanRedo, NoteEditing.ActiveMarks(_text, start, end));
+        return [.. lines.Select(Entry)];
+    }
+
+    private ItemMenuEntry Entry(NoteMenuLine line)
+    {
+        if (line.Divider)
+        {
+            return ItemMenuEntry.Separator;
+        }
+
+        return line.Item switch
+        {
+            NoteMenuItem.Cut => new(Glyphs.Cut, NotesStr.Common_Cut.Text(), () => Box.Document.Selection.Cut(), Disabled: line.Disabled, Quick: line.Quick, Shortcut: KeyChord.Ctrl(ChordKey.X)),
+            NoteMenuItem.Copy => new(Glyphs.Copy, Str.Common_Copy.Text(), () => Box.Document.Selection.Copy(), Disabled: line.Disabled, Quick: line.Quick, Shortcut: KeyChord.Ctrl(ChordKey.C)),
+            NoteMenuItem.Paste => new(Glyphs.Paste, NotesStr.Common_Paste.Text(), () => _ = PasteAsync(), Disabled: line.Disabled, Quick: line.Quick, Shortcut: KeyChord.Ctrl(ChordKey.V)),
+            NoteMenuItem.Undo => new(Glyphs.Undo, NotesStr.WidgetsC_Notes_Editor_Undo.Text(), () => Step(redo: false), Disabled: line.Disabled, Shortcut: KeyChord.Ctrl(ChordKey.Z)),
+            NoteMenuItem.Redo => new(Glyphs.Reset, NotesStr.WidgetsC_Notes_Editor_Redo.Text(), () => Step(redo: true), Disabled: line.Disabled, Shortcut: KeyChord.Ctrl(ChordKey.Y)),
+            NoteMenuItem.SelectAll => new(null, Str.Folder_SelectAll.Text(), () => Box.Document.Selection.SetRange(0, _text.Length), Shortcut: KeyChord.Ctrl(ChordKey.A)),
+            _ => Format(line),
+        };
+    }
+
+    /// <summary>
+    /// [S-1365] A format's line: its icon (Segoe Fluent's where the font has one, checked against it; "H" and "1." where it has
+    /// none), its name, its key where it has one, lit while in force ([S-1359]).
+    /// </summary>
+    private ItemMenuEntry Format(NoteMenuLine line)
+    {
+        var command = line.Format ?? NoteCommand.Bold;
+        var (glyph, name, keys) = command switch
+        {
+            NoteCommand.Bold => (Glyphs.Bold, NotesStr.Widget_Notes_Fmt_Bold.Text(), KeyChord.Ctrl(ChordKey.B)),
+            NoteCommand.Italic => (Glyphs.Italic, NotesStr.Widget_Notes_Fmt_Italic.Text(), KeyChord.Ctrl(ChordKey.I)),
+            NoteCommand.Strike => (Glyphs.Strikethrough, NotesStr.Widget_Notes_Fmt_Strike.Text(), (KeyChord?)null),
+            NoteCommand.Code => (Glyphs.Code, NotesStr.Widget_Notes_Fmt_Code.Text(), null),
+            NoteCommand.Heading => ("H", NotesStr.WidgetsC_Notes_Editor_HeadingTip.Text(), null),
+            NoteCommand.Bullet => (Glyphs.BulletList, NotesStr.Widget_Notes_Fmt_Bullet.Text(), null),
+            NoteCommand.Ordered => ("1.", NotesStr.Widget_Notes_Fmt_Numbered.Text(), null),
+            NoteCommand.Task => (Glyphs.Checklist, NotesStr.Widget_Notes_Fmt_Task.Text(), null),
+            _ => (Glyphs.Quote, NotesStr.Widget_Notes_Fmt_Quote.Text(), null),
+        };
+
+        return new ItemMenuEntry(glyph, name, () => Run(command), Disabled: line.Disabled, Checked: line.On, Quick: line.Quick, Shortcut: keys);
+    }
+
+    /// <summary>[S-1110] Re-read the texts this editor set once (the placeholder) after the language changed; the menus are built on every open.</summary>
+    public void RefreshTexts() => Box.PlaceholderText = NotesStr.Notes_Placeholder.Text();
+
+    /// <summary>
+    /// [S-14772] The text's own menu, in place of the control's: that one carries Bold, Italic and Underline, which would put
+    /// formatting into the note that its markdown does not hold. Opened by a right-click, Shift+F10 or the Menu key.
     /// </summary>
     private void BuildMenu()
     {
         _menu.Opening += (_, _) =>
         {
-            var (start, end) = Selection();
-            var selected = start != end;
-
-            ItemMenu.Fill(_menu,
-            [
-                new ItemMenuEntry(Glyphs.Undo, NotesStr.WidgetsC_Notes_Editor_Undo.Text(), () => Step(redo: false), Disabled: _readOnly || !_history.CanUndo),
-                new ItemMenuEntry(Glyphs.Reset, NotesStr.WidgetsC_Notes_Editor_Redo.Text(), () => Step(redo: true), Disabled: _readOnly || !_history.CanRedo),
-                ItemMenuEntry.Separator,
-                new ItemMenuEntry(Glyphs.Cut, NotesStr.Common_Cut.Text(), () => Box.Document.Selection.Cut(), Disabled: _readOnly || !selected, Quick: QuickCommand.Cut),
-                new ItemMenuEntry(Glyphs.Copy, Str.Common_Copy.Text(), () => Box.Document.Selection.Copy(), Disabled: !selected, Quick: QuickCommand.Copy),
-                new ItemMenuEntry(Glyphs.Paste, NotesStr.Common_Paste.Text(), () => _ = PasteAsync(), Disabled: _readOnly, Quick: QuickCommand.Paste),
-                ItemMenuEntry.Separator,
-                new ItemMenuEntry(null, Str.Folder_SelectAll.Text(), () => Box.Document.Selection.SetRange(0, _text.Length)),
-            ]);
+            CloseBar();
+            ItemMenu.Fill(_menu, Entries(NoteMenuOpening.Context));
         };
 
         Box.ContextFlyout = _menu;

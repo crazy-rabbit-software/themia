@@ -5,92 +5,104 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Notes;
 
 /// <summary>
-/// [S-3963] [S-12481] The formatting bar on the note's own first line: how many buttons stand in it, and
-/// whether the rest are behind a "More" button.
+/// [S-1363] [S-14770] The note widget's body: the text alone, from the card's top inset (the editor's own padding on all
+/// four sides, [S-6703]; no row over it, WR-1), at every size, with the pill over its top end ([S-14771]) and nothing else.
+/// A larger tile gives the text more room, never a note list beside it (switching notes is the pill's picker, [S-1364]).
 /// </summary>
-/// <param name="Inline">Buttons shown on the line, in rank order (most used first).</param>
-/// <param name="Overflow">A "More" button holds the buttons that did not fit.</param>
-public readonly record struct NotesBar(int Inline, bool Overflow)
+public static class NotesLayout
 {
-    /// <summary>Anything of the bar is on the line.</summary>
-    public bool Shown => Inline > 0 || Overflow;
+    /// <summary>
+    /// [S-11206] [S-14770] The note's sizes: the text alone, a free range 160..600 × 80..600 (a new one 300 × 200). The least
+    /// is the inset over and under a title's line and one line of text (12 + 28 + 20 + 12, in whole cells); with no row over
+    /// the text the range is that row's 20 lower than it was. The text wraps and scrolls; nothing else appears with the size.
+    /// </summary>
+    public static WidgetSizing Sizing { get; } = WidgetSizing.Range(new(160, 80), new(300, 200), new(600, 600));
 
-    /// <summary>The line's width the bar takes, its buttons and the gaps between them.</summary>
-    public double Width
+    /// <summary>The rename box under the pill: room for a title of a few words.</summary>
+    public const double RenameWidth = 200;
+
+    /// <summary>[S-14771] Where the pill stands from the card's top: on the text's first line, at the inset.</summary>
+    public const double PillTop = FamilySpace.Inset;
+
+    /// <summary>
+    /// [S-14771] How tall the pill stands over a first line <paramref name="firstLine"/> tall (a body line's 20, a title's
+    /// 28): that line's box, never less than a line of 20, so it hides the whole of the words under it (a title's lower
+    /// half showed under a pill of a body line's height) and none of the next line's; its buttons stand centred on it, 2
+    /// over and under a line of 20 as a tool line's do ([S-6710]).
+    /// </summary>
+    public static double PillHeight(double firstLine)
+        => double.IsFinite(firstLine) ? Math.Max(FamilySpace.HeaderLine, firstLine) : FamilySpace.HeaderLine;
+
+    /// <summary>[S-14771] Where the pill ends from the card's right edge: its last button's glyph on the inset ([S-6710]).</summary>
+    public const double PillEnd = FamilySpace.Inset - LineRules.ButtonOverhang;
+
+    /// <summary>
+    /// [S-14771] The pill's room besides the note's name: its lead (4, between the text cut under it and the picker), the
+    /// picker's 8 before the name and its chevron's 24, and the "…" button's 24.
+    /// </summary>
+    public const double PillParts = FamilySpace.S1 + FamilySpace.S2 + FamilyShape.LineButton + FamilyShape.LineButton;
+
+    /// <summary>[S-14771] [S-1362] The problem glyph's room in the pill while the note's last write failed: its 16 and 4 either side.</summary>
+    public const double ProblemPart = FamilyShape.Icon + (2 * FamilySpace.S1);
+
+    /// <summary>[S-14771] The longest the note's name stands in the pill: a title of a few words; a longer one ends in an ellipsis.</summary>
+    public const double NameMax = 160;
+
+    /// <summary>[S-14771] Of the text's first line, what the pill always leaves standing beside it on a narrow card.</summary>
+    public const double TextKept = 40;
+
+    /// <summary>[S-14771] Under this the name says nothing ("…" alone): the picker is its chevron.</summary>
+    public const double NameLeast = 32;
+
+    /// <summary>[S-14771] How long the pill takes to come and go: Windows' fast control fade.</summary>
+    public static TimeSpan Fade { get; } = TimeSpan.FromMilliseconds(167);
+
+    /// <summary>
+    /// [S-14771] How wide the note's name may stand in the pill on a card <paramref name="cardWidth"/> wide: at most
+    /// <see cref="NameMax"/>, never so wide that less than <see cref="TextKept"/> of the text's first line stands beside the
+    /// pill (the problem glyph's room too, while it stands: <paramref name="problem"/>); none where that leaves less than
+    /// <see cref="NameLeast"/> (the chevron alone picks).
+    /// </summary>
+    public static double NameWidth(double cardWidth, bool problem = false)
     {
-        get
+        if (!double.IsFinite(cardWidth) || cardWidth <= 0)
         {
-            var buttons = Inline + (Overflow ? 1 : 0);
-            return buttons == 0 ? 0 : (buttons * NotesLayout.ButtonSize) + ((buttons - 1) * NotesLayout.ButtonGap);
+            return 0;
         }
+
+        var room = Math.Min(NameMax, cardWidth - (2 * FamilySpace.Inset) - PillParts - (problem ? ProblemPart : 0) - TextKept);
+        return room < NameLeast ? 0 : room;
     }
 }
 
 /// <summary>
-/// [S-1363] The note widget's body: its tool line ([S-12481]: the problem glyph, the formatting bar while the
-/// note is being edited, the picker), then the text and nothing else, at every size, in the card's inset (12
-/// either side and under it, [S-6703]). A failed write is the line's problem glyph ([S-1362]), never a line of
-/// the text. The widget is the one note at every size: a larger tile gives the text more room, never a note
-/// list beside it (switching notes is the line's picker, [S-1364]).
+/// [S-14771] When the note's pill (its picker and "…" over the text's top end) shows: while the pointer is over the card,
+/// until a key is typed (the text under it is then what the user needs; the pointer moving again brings it back); while
+/// one of its menus, its rename box or its question is open (their anchor stays); and while the note's last write failed
+/// (the problem glyph in it says so, [S-1362]). At rest it is not there: the text is wholly seen. It fades in and out
+/// (opacity alone: nothing changes size, WR-12) and takes no pointer while it is not shown.
 /// </summary>
-public static class NotesLayout
+/// <param name="Pointer">The pointer is over the card.</param>
+/// <param name="Typing">A key was typed since the pointer last moved.</param>
+/// <param name="Menu">A menu, the rename box or the delete question of the pill is open.</param>
+/// <param name="Problem">The note's last write failed.</param>
+public readonly record struct NotesPill(bool Pointer = false, bool Typing = false, bool Menu = false, bool Problem = false)
 {
-    /// <summary>Every button the bar can show.</summary>
-    public const int AllButtons = 9;
+    /// <summary>The pill is shown (and takes the pointer).</summary>
+    public bool Shown => Menu || Problem || (Pointer && !Typing);
 
-    /// <summary>The bar's buttons: line buttons, 24, side by side on the note's first line ([S-6710]).</summary>
-    public const double ButtonSize = FamilyShape.LineButton;
+    /// <summary>The pointer came onto the card or moved over it.</summary>
+    public NotesPill Moved() => this with { Pointer = true, Typing = false };
 
-    public const double ButtonGap = 0;
+    /// <summary>The pointer left the card.</summary>
+    public NotesPill Left() => this with { Pointer = false };
 
-    /// <summary>[S-12481] The line's height and the gap under it, over the text: there whether or not the bar is.</summary>
-    public const double LineHeight = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+    /// <summary>A key was typed in the text.</summary>
+    public NotesPill Typed() => this with { Typing = true };
 
-    /// <summary>The gap between the bar and the picker.</summary>
-    public const double PickerGap = FamilySpace.S2;
+    /// <summary>One of the pill's menus (or its rename box, its question) opened or closed.</summary>
+    public NotesPill WithMenu(bool open) => this with { Menu = open };
 
-    /// <summary>The note picker's chevron button (side by side with the bar's).</summary>
-    public const double PickerWidth = FamilyShape.LineButton;
-
-    /// <summary>
-    /// [S-11206] The note's sizes: the text alone, a free range 160..600 × 100..600 (a new one 300 × 220).
-    /// The text wraps and scrolls; nothing else appears with the size.
-    /// </summary>
-    public static WidgetSizing Sizing { get; } = WidgetSizing.Range(new(160, 100), new(300, 220), new(600, 600));
-
-    /// <summary>The rename box under the picker: room for a title of a few words.</summary>
-    public const double RenameWidth = 200;
-
-    /// <summary>[S-3963] What of the line a bar may not take: the insets and the picker with its gap.</summary>
-    public static double Reserve(bool picker)
-        => (2 * FamilySpace.Inset) + (picker ? PickerWidth + PickerGap : 0);
-
-    /// <summary>
-    /// [S-3963] The bar on a line <paramref name="cardWidth"/> wide: every button where they all fit;
-    /// else as many as fit beside a "More" button that holds the rest; nothing where not even that
-    /// fits (the keyboard shortcuts still work).
-    /// </summary>
-    public static NotesBar Bar(double cardWidth, bool picker)
-    {
-        if (!double.IsFinite(cardWidth) || cardWidth <= 0)
-        {
-            return default;
-        }
-
-        var room = cardWidth - Reserve(picker);
-        var all = (AllButtons * ButtonSize) + ((AllButtons - 1) * ButtonGap);
-
-        if (room >= all)
-        {
-            return new NotesBar(AllButtons, false);
-        }
-
-        if (room < ButtonSize)
-        {
-            return default;
-        }
-
-        var inline = Math.Clamp((int)Math.Floor((room - ButtonSize + LayoutMath.Tolerance) / (ButtonSize + ButtonGap)), 0, AllButtons - 1);
-        return new NotesBar(inline, true);
-    }
+    /// <summary>The note's last write failed, or a write succeeded again.</summary>
+    public NotesPill WithProblem(bool problem) => this with { Problem = problem };
 }
