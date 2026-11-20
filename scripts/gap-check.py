@@ -15,8 +15,9 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   measure may be off by (antialiasing, a glyph's own room in its box). Where the card's items stand on its top edge
   (the layout's item boxes, `ItemMark`), the band over the ink is the item's own padding and the item check
   (scripts/item-check.py) judges the boxes instead.
-- WR-4 / WR-7 foot: the band under the last ink is at most the inset and the 4 DIP, but in a card with items: their
-  empty rows may stand at the foot (WR-5), judged by the item check.
+- WR-4 / WR-7 foot: the band under the last ink is at most the inset and the 4 DIP, but in a card with items: the room
+  under the last item is theirs (the last cut by the foot, or empty under a short list: WR-4, WR-5, [S-14810]), judged by
+  the item check.
 - sides: the band beside the ink, either side, is at most the inset and the 4 DIP. Where the card's item boxes reach
   both its edges (a list's rows), the band beside the ink is the items' own padding and a short title's room, and the
   item check judges the boxes instead (WR-3: "An item's box (its row band, cell, hover area) runs from the card's left
@@ -254,7 +255,7 @@ def judge(kind, card, layout):
             return found + ([] if abs(top - foot) <= TOLERANCE else [f'reading off centre top/foot {top:.1f}/{foot:.1f}'])
     if top > limit and not on_top and not plot_top and not field_top:
         found.append(f'WR-1 top {top:.1f}')
-    # Under a card's items the room left is theirs: empty rows at the foot (WR-5), judged by the item check.
+    # Under a card's items the room left is theirs (WR-4, WR-5: the last cut, or empty under a short list): the item check's.
     if foot > limit and not items and not plot_foot and not field_foot:
         found.append(f'WR-4 foot {foot:.1f}')
     # Item boxes from the card's left edge to its right: the item check's box rule judges them (WR-3), not their ink.

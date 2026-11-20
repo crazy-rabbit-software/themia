@@ -1,10 +1,11 @@
-"""[S-12831] The item check: the owner's rules on a widget's items (docs/WIDGET-RULES.md WR-1..WR-6), measured on the
-item boxes the render lays out, every kind, every state its renders offer, at its range, cell by cell round its
-natural (`--sizes steps`: one to five cells more and fewer on each axis and odd heights of 11, 13 and 17 cells, the sizes
-whole-item steps once forbade, [S-14500]) and at desktop sizes. Needs a Debug build of the app.
+"""[S-12831] [S-14813] The item check: the owner's rules on a widget's items (docs/WIDGET-RULES.md WR-1..WR-6), measured
+on the item boxes the render lays out, every kind, every state its renders offer, at its range, cell by cell round its
+natural (`--sizes steps`: one to five cells more and fewer on each axis and odd heights of 11, 13 and 17 cells, [S-14500])
+and at desktop sizes. Needs a Debug build of the app.
 
 usage: python scripts/item-check.py --exe <Themia.exe> [--changed [range] | --kinds a,b | --all] [--out <dir>]
                                     [--sizes s1;s2] [--jobs 2] [--timeout 120] [--cache <dir>]
+       python scripts/item-check.py --self-test   # the judge's rules on made-up cards, no render
 
 The kinds: what a change touches (`--changed`, the default), `--kinds` or `--all`, their states from the build's
 catalog; the renders come from the one cached pass every check shares (scripts/renders.py, [S-14341] [S-14342]).
@@ -13,22 +14,21 @@ JSON holds every card's box, its grid pitch, its items (rows, cells, tiles: `Ite
 the panel that lays them, and the ink outside every item. For every group of items it judges:
 
 - WR-3 edge to edge: the items of a column (a list) run from the card's left edge to its right edge; the items of a
-  row (a strip, a week's days) run from the left edge to the right edge together; a grid's rows do both.
+  row (a strip, a week's days) start on the card's left edge (WR-4: the last one its right edge reaches is cut by it,
+  fewer leave the room past the last empty); a grid's rows do both.
 - WR-2 touching: along the axis they repeat, each item starts where the one before it ends (no gap, no overlap).
 - WR-1 / WR-5 nothing above the first item: the first item of a column stands on the card's top edge, or directly
   under what stands over it in the card (a tool line, a search box: the ink outside the items right over it).
-- WR-5 nothing left over under the last item (owner, 2026-11-20: "now the weather forecast widget always has one block
-  space at the bottom. this should obviously not be"): the band between the lowest item (a row, an add row) and the
-  card's foot is none, or whole rows of the list's pitch (its empty rows: "this is fine if it happens"), never a part
-  row; what stands under the last item outside every item (a foot line, a control) takes that room as its own.
-- WR-6 optimal and stretched (owner, 2026-11-20: "the items should have an optimal size and then they may stretch a
-  little to fill up the remaining space"): the items of a group are alike, to a device pixel (they share the room evenly,
-  their edges on whole pixels); a family row (its optimal dumped as `o`: its natural in whole grid cells) is never
-  shorter than its optimal. How far rows stretch is the views' (one row of a single metric fills its card; a list shows
-  as many rows as its room holds at their optimal), held by the unit tests, not judged here. A fence's icon boxes are
-  desktop icons ("Desktop icons keep Windows' look"): whole boxes from the body's top-left, the cells past its icons
-  (the sliver a box does not fill, the boxes no icon stands in) the desktop's empty grid.
-- no item is cut by its card or its list's viewport;
+- WR-4 / WR-6 one fixed size (owner, 2026-11-20: "the widget items should actually have a fixed size. then when you
+  change the height of a widget the items should not grow or shrink to fit all the way from the top to the bottom, they
+  should just keep their size and the last item will be cutoff to some extent then."): the items of a group are alike,
+  to a device pixel (a cut item by its whole box, the dump's `fw`/`fh`); a family row (its optimal dumped as `o`: its
+  natural in whole grid cells) is its optimal to a device pixel, never stretched and never shrunk. A fence's icon
+  boxes are desktop icons ("Desktop icons keep Windows' look"): whole boxes from the body's top-left, the cells past its
+  icons (the sliver a box does not fill, the boxes no icon stands in) the desktop's empty grid.
+- WR-4 / WR-5 only the last item is cut: along the axis they repeat, the last item may be cut by the card's foot (its
+  right edge for a row of items) or by its list's viewport; any other item cut is a finding. The band under the last
+  item is the card's: empty room (a list shorter than its card) or the cut item, never judged as leftover.
 - no mark outside the items (a status glyph, a busy ring) stands over an item's text (a stale facts list's warning
   over its first value); [S-14317] the text is its letters' box where the dump writes it (`ink`), not the side bearings
   and leading round them.
@@ -45,7 +45,7 @@ import sys
 import renders
 
 TOL = 0.5  # DIP: layout rounding
-PX = 1.0 + TOL  # DIP: items sharing a room evenly on whole pixels differ by a pixel at most
+PX = 1.0 + TOL  # DIP: items on whole pixels at a fractional scale differ by a pixel at most
 SIZES = ['range', 'steps', '330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300', '300x100,300x200,300x300']
 
 
@@ -63,6 +63,15 @@ def axis_of(items):
     if len(ys) == 1 and all(near(i['h'], items[0]['h']) for i in items):
         return 'row'
     return 'grid'
+
+
+def full_h(i):
+    """An item's whole height: a cut item's box before its clip (the dump's `fh`), else its shown height."""
+    return i.get('fh', i['h'])
+
+
+def full_w(i):
+    return i.get('fw', i['w'])
 
 
 def judge_column(items, card, ink, found, sliver=0.0):
@@ -83,40 +92,50 @@ def judge_column(items, card, ink, found, sliver=0.0):
         under = max((k['y'] + k['h'] for k in over), default=0.0)
         if first['y'] - under > TOL:
             found.append(f"WR-1 space of {first['y'] - under:.1f} above the first item")
-    sizes = [i['h'] for i in items]
+    sizes = [full_h(i) for i in items]
     if max(sizes) - min(sizes) > PX:
         found.append(f"WR-6 items unlike: {min(sizes):.1f}..{max(sizes):.1f}")
-    optimal(items, card, ink, found)
+    optimal(items, found)
+    cut(items, found)
     last = items[-1]
     if last['y'] + last['h'] > h + TOL:
         found.append(f"item past the card's foot ({last['y'] + last['h']:.1f} of {h:.1f})")
 
 
-def optimal(items, card, ink, found):
-    """WR-6 (2026-11-20): a family row never under its optimal."""
-    opts = [i['o'] for i in items if 'o' in i]
-    if not opts:
+def optimal(items, found):
+    """WR-4 / WR-6 (2026-11-20): a family row is its optimal, its one fixed size: never stretched, never shrunk."""
+    rows = [i for i in items if 'o' in i]
+    if not rows:
         return
-    o = max(opts)
-    sizes = [i['h'] for i in items if 'o' in i]
-    if min(sizes) < o - PX:
-        found.append(f"WR-6 a row {min(sizes):.1f} tall is under its optimal {o:.1f}")
+    for i in rows:
+        if abs(full_h(i) - i['o']) > PX:
+            found.append(f"WR-6 a row {full_h(i):.1f} tall is not its fixed size {i['o']:.1f}")
+            break
+
+
+def cut(items, found):
+    """WR-4 (2026-11-20: "the last item will be cutoff to some extent then"): the last item along the axis may be cut
+    (by the card or its list's viewport); any other is a finding."""
+    for i in items[:-1]:
+        if i.get('cut'):
+            found.append(f"an item other than the last is cut ({i['t']} at {i['x']:.0f},{i['y']:.0f})")
+            break
 
 
 def judge_row(items, card, found, line=None, sliver=0.0):
-    w = card['w']
     items = sorted(items, key=lambda i: i['x'])
-    if items[0]['x'] > TOL or items[-1]['x'] + items[-1]['w'] < w - TOL - sliver:
-        found.append(f"WR-3 not edge to edge{line or ''}: {items[0]['x']:.1f}..{items[-1]['x'] + items[-1]['w']:.1f} of {w:.1f}")
+    # WR-3 / WR-4: the first on the card's left edge; the last the right edge reaches is cut by it, fewer leave room.
+    if items[0]['x'] > TOL:
+        found.append(f"WR-3 not from the left edge{line or ''}: the first at {items[0]['x']:.1f}")
     for a, b in zip(items, items[1:]):
         d = b['x'] - (a['x'] + a['w'])
         if abs(d) > TOL:
             found.append(f"WR-2 {'gap' if d > 0 else 'overlap'} of {abs(d):.1f} between items{line or ''}")
             break
-    # Across, the items share the card's width evenly: alike to a pixel.
-    sizes = [i['w'] for i in items]
+    sizes = [full_w(i) for i in items]
     if max(sizes) - min(sizes) > PX:
         found.append(f"WR-6 items unlike: {min(sizes):.1f}..{max(sizes):.1f} wide{line or ''}")
+    cut(items, found)
 
 
 def judge_grid(items, card, ink, found, sliver=(0.0, 0.0)):
@@ -126,7 +145,7 @@ def judge_grid(items, card, ink, found, sliver=(0.0, 0.0)):
     lines = [sorted(v, key=lambda i: i['x']) for _, v in sorted(rows.items())]
     for n, line in enumerate(lines):
         judge_row(line, card, found, line=f' (line {n + 1})', sliver=sliver[0])
-    heads = [line[0] | {'w': card['w'], 'x': 0.0} for line in lines]
+    heads = [line[0] | {'w': card['w'], 'x': 0.0, 'cut': line[0].get('cut') and line is lines[-1]} for line in lines]
     judge_column(heads, card, ink, found)
 
 
@@ -177,15 +196,10 @@ def judge(card, kind=None):
             judge_row(items, card, found, sliver=sliver[0])
         else:
             judge_grid(items, card, over, found, sliver=sliver)
-        if any(i.get('cut') for i in items):
-            found.append('an item is cut by its viewport')
         out.append({'group': g, 'axis': axis, 'items': len(items), 'findings': found})
     hidden = covered(card)
     if hidden:
         out.append({'group': 'marks', 'axis': '-', 'items': len(marks), 'findings': hidden})
-    left = leftover(card, groups, sliver_of(card, kind)[1])
-    if left:
-        out.append({'group': 'foot', 'axis': '-', 'items': len(card.get('items', [])), 'findings': [left]})
     return out
 
 
@@ -205,50 +219,6 @@ def covered(card):
                 hidden.append(f"a {m['t']} at {m['x']:.0f},{m['y']:.0f} stands over an item's text")
                 break
     return hidden
-
-
-def self_test():
-    """[S-14317] The marks rule on made-up cards."""
-    glyph = {'t': 'FontIcon', 'x': 302, 'y': 16, 'w': 16, 'h': 16}
-    box = {'x': 268, 'y': 11, 'w': 50, 'h': 110}
-    cases = [
-        ('a glyph over a text box with no letters known', {'ink': [glyph], 'texts': [dict(box)]}, True),
-        ('a glyph over the box of a reading beside its letters',
-         {'ink': [glyph], 'texts': [dict(box, ink={'x': 280, 'y': 36, 'w': 22, 'h': 70})]}, False),
-        ('a glyph over the letters', {'ink': [glyph], 'texts': [dict(box, ink={'x': 280, 'y': 20, 'w': 30, 'h': 70})]}, True),
-    ]
-    failed = 0
-    for name, card, finds in cases:
-        if bool(covered(card)) != finds:
-            failed += 1
-            print(f'FAIL {name}')
-    print(f'item-check self-test: {len(cases) - failed} of {len(cases)} passed')
-    sys.exit(1 if failed else 0)
-
-
-def leftover(card, groups, sliver=0.0):
-    """WR-5 (2026-11-20): the band under the card's lowest item is none or its list's empty rows (whole rows of the
-    pitch of a column of items, to a pixel a row), never a part row; ink standing under the last item takes that room."""
-    items = card.get('items', [])
-    if not items:
-        return None
-    h, cell = card['h'], card['cell']
-    last = max(i['y'] + i['h'] for i in items)
-    if any(k['y'] >= last - TOL and k['h'] > TOL for k in card.get('ink', [])):
-        return None
-    band = h - last
-    # One device pixel is the layout's quantum: rows sharing a room on whole pixels at a fractional scale may end a pixel
-    # short of a card whose own box rounds the other way.
-    pixel = max(TOL, 1.0 / card.get('scale', 1) + 0.01)
-    if band <= pixel or band < sliver - TOL:
-        return None
-    # A list's pitch: its items' height (a column's rows, a row or a grid's line of cells: the week planner's days).
-    pitches = {round(i['h'], 1) for i in items if i['h'] > TOL}
-    for p in pitches:
-        rows = round(band / p)
-        if rows >= 1 and abs(band - rows * p) <= TOL + rows:
-            return None
-    return f"WR-5 leftover of {band:.1f} under the last item ({band / cell:.1f} cells of {cell:.2f})"
 
 
 def check(kind, states, drawn, out, sizes):
@@ -271,6 +241,59 @@ def check(kind, states, drawn, out, sizes):
             row['cards'] = [{'tier': c['tier'], 'w': c['w'], 'h': c['h'], 'cell': c['cell'], 'groups': judge(c, kind)} for c in data['cards']]
             results.append(row)
     return results
+
+
+def self_test():
+    """The judge's rules on made-up cards, each a case the owner's rules decide."""
+    def row(y, h=30.0, o=30.0, w=300.0, **k):
+        return dict({'t': 'RowBlock', 'g': 0, 'x': 0.0, 'y': y, 'w': w, 'h': h, 'o': o}, **k)
+
+    def col(x, w=60.0, **k):
+        return dict({'t': 'Border', 'g': 0, 'x': x, 'y': 0.0, 'w': w, 'h': 100.0}, **k)
+
+    def card(items, h=110.0):
+        return {'w': 300.0, 'h': h, 'cell': 10.0, 'scale': 1, 'items': items, 'ink': [], 'texts': []}
+
+    def findings(c):
+        return [f for g in judge(c) for f in g['findings']]
+
+    cases = [
+        # Owner, 2026-11-20: "they should just keep their size and the last item will be cutoff to some extent then".
+        ('rows of 30 in 110, the fourth cut after 20', card([row(0), row(30), row(60), row(90, h=20, fh=30, cut=True)]), True),
+        ('a short list: two rows, the room under them empty', card([row(0), row(30)]), True),
+        ('rows stretched to 36.7 to fill 110', card([row(0, h=36.67), row(36.67, h=36.67), row(73.33, h=36.67)]), False),
+        ('rows squeezed under their 30', card([row(0, h=27.5), row(27.5, h=27.5), row(55, h=27.5), row(82.5, h=27.5)]), False),
+        ('a row other than the last cut', card([row(0, h=20, fh=30, cut=True), row(20)]), False),
+        ('a space over the first row', card([row(10), row(40)]), False),
+        ('a gap between rows', card([row(0), row(34)]), False),
+        ('columns of 60 from the left edge, the last cut by the right edge',
+         dict(card([col(x) for x in (0.0, 60.0, 120.0, 180.0, 240.0)] + [col(300.0, w=10.0, fw=60.0, cut=True)]), w=310.0), True),
+        ('columns of 60 from the left edge, fewer than the width', card([col(x) for x in (0.0, 60.0, 120.0)]), True),
+        ('a column other than the last cut', card([col(0.0, w=30.0, fw=60.0, cut=True), col(30.0)]), False),
+    ]
+    failed = 0
+    for name, c, ok in cases:
+        got = findings(c)
+        if (not got) != ok:
+            failed += 1
+            print(f'FAIL {name}: {got}')
+
+    # [S-14317] The marks rule: a glyph over an item's text is a finding, judged by its letters where the dump has them.
+    glyph = {'t': 'FontIcon', 'x': 302, 'y': 16, 'w': 16, 'h': 16}
+    box = {'x': 268, 'y': 11, 'w': 50, 'h': 110}
+    marks = [
+        ('a glyph over a text box with no letters known', {'ink': [glyph], 'texts': [dict(box)]}, True),
+        ('a glyph over the box of a reading beside its letters',
+         {'ink': [glyph], 'texts': [dict(box, ink={'x': 280, 'y': 36, 'w': 22, 'h': 70})]}, False),
+        ('a glyph over the letters', {'ink': [glyph], 'texts': [dict(box, ink={'x': 280, 'y': 20, 'w': 30, 'h': 70})]}, True),
+    ]
+    for name, c, finds in marks:
+        if bool(covered(c)) != finds:
+            failed += 1
+            print(f'FAIL {name}')
+    cases += marks
+    print(f'item-check self-test: {len(cases) - failed} of {len(cases)} passed')
+    sys.exit(1 if failed else 0)
 
 
 def main():
