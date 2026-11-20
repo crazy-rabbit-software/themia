@@ -118,19 +118,21 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _join.Loaded += OnJoinLoaded;
         _controls.HorizontalAlignment = HorizontalAlignment.Right;
 
+        // [S-12833] In a smaller card the meeting's lines and the end column give way before its title.
         _text.Children.Add(_title);
-        _text.Children.Add(_range.Row);
-        _text.Children.Add(_location.Row);
-        _text.Children.Add(_organizer.Row);
+        _text.Children.Add(_fit.GivesWayBox(_range.Row, FamilyType.Body.FontSize));
+        _text.Children.Add(_fit.GivesWayBox(_location.Row, FamilyType.Body.FontSize));
+        _text.Children.Add(_fit.GivesWayBox(_organizer.Row, FamilyType.Body.FontSize));
 
         _when.HorizontalAlignment = HorizontalAlignment.Right;
         _when.TextAlignment = TextAlignment.Right;
         _end.Children.Add(_when);
         _end.Children.Add(_controls);
-        SetColumn(_end, 1);
+        var end = _fit.GivesWayBox(_end, FamilyType.BodyStrong.FontSize);
+        SetColumn(end, 1);
 
         _content.Children.Add(_text);
-        _content.Children.Add(_end);
+        _content.Children.Add(end);
         _content.Background = Family.Brush(ColourRole.Clear);
         _content.PointerEntered += OnPointerEntered;
         _content.PointerExited += OnPointerExited;
@@ -150,6 +152,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     {
         _detached = false;
         _config = config as NextMeetingConfig ?? new NextMeetingConfig();
+        _fit.Face = NextMeetingJoin.Face(_config);
         _feed.Start();
         _feed.Use(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
         Strings.Changed += OnLanguage;
@@ -166,6 +169,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as NextMeetingConfig ?? new NextMeetingConfig();
+        _fit.Face = NextMeetingJoin.Face(_config);
         Render();
         _ = _feed.RefreshAsync(force: false);
     }

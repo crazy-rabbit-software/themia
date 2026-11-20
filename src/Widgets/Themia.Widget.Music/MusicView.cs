@@ -62,7 +62,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         // [S-12808] The track, its artist and the transport: one block, planned at the natural box and scaled up as one.
         _fit.Parts.Add(_lines);
-        _fit.Parts.Add(_controls);
+
+        // [S-12833] In a smaller card the transport gives way before the track's lines (the media keys still play).
+        _fit.AddGivesWay(_controls, ScaleFloor.AsText(FamilyShape.Icon));
+        _fit.Face = MusicFace.Face();
         Children.Add(_fit);
         _lines.Visibility = Visibility.Collapsed;
         _controls.Visibility = Visibility.Collapsed;

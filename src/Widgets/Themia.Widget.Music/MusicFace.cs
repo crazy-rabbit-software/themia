@@ -1,3 +1,4 @@
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 
@@ -22,6 +23,21 @@ public static class MusicFace
     /// (96: a Small cover's side, so the two stand side by side as one panel).
     /// </summary>
     public const double Height = FamilySpace.Inset + FamilyType.BodyLine + FamilyType.BodyLine + TransportGap + FamilyShape.IconButton + FamilySpace.Inset;
+
+    /// <summary>
+    /// [S-12833] The track's parts (<see cref="FaceParts"/>): its title and artist the main reading (Body), at 9 in its
+    /// least card; the transport gives way on the way down (its 16 glyphs read like 12).
+    /// </summary>
+    public static FaceParts Face()
+    {
+        var width = NaturalWidth - (2 * FamilySpace.Inset);
+        return new FaceParts(FamilyType.Body.FontSize,
+        [
+            new FaceRow([FacePiece.Text(FamilyType.BodyStrong, width)]),
+            new FaceRow([FacePiece.Text(FamilyType.Body, width)]),
+            new FaceRow([FacePiece.Box(0, FamilyShape.IconButton, ScaleFloor.AsText(FamilyShape.Icon))], GapOver: TransportGap),
+        ]);
+    }
 
     /// <summary>[S-11311] The track atom's sizing ([S-2438]): one height, 200..420 wide; no header by default.</summary>
     public static WidgetSizing Sizing()

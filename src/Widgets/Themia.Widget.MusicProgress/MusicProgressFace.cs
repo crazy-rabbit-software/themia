@@ -20,6 +20,13 @@ public static class MusicProgressFace
     /// <summary>[S-11330] The card's height without a header: the inset, the row, the inset (40).</summary>
     public static double Height => FamilySpace.Inset + Row + FamilySpace.Inset;
 
+    /// <summary>
+    /// [S-12833] The row's parts (<see cref="FaceParts"/>): its times are its reading (Caption), the seek bar between them;
+    /// nothing smaller gives way, the row scales down as one to its times at 9.
+    /// </summary>
+    public static FaceParts Face()
+        => new(FamilyType.Caption.FontSize, [new FaceRow([FacePiece.Text(FamilyType.Caption, Narrowest - (2 * FamilySpace.Inset))])]);
+
     /// <summary>[S-11330] The progress atom's sizing ([S-2438]): one height, 200..520 wide; no header by default.</summary>
     public static WidgetSizing Sizing()
         => WidgetSizing.Range(new SizeDip(Narrowest, Height), new SizeDip(NaturalWidth, Height), new SizeDip(Widest, Height));

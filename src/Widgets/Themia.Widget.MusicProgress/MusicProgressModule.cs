@@ -31,7 +31,7 @@ public sealed class MusicProgressModule : IWidgetModule
         Label = MusicProgressStr.MusicProgress_Label.Local(),
         Description = MusicProgressStr.MusicProgress_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => MusicProgressFace.Sizing().ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
+        Sizing = _ => MusicProgressFace.Sizing().ScalesDownTo(MusicProgressFace.Face()),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 5),
     };

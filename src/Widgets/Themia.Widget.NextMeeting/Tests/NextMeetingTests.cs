@@ -31,9 +31,9 @@ public sealed class NextMeetingTests
 
         // The title (28) and three lines of 20, 4 apart, in the inset: 12 + 100 + 12.
         Assert.Equal(new Themia.Sdk.SizeDip(320, 124), all.Natural);
-        Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(all.Natural.Height * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize))), all.Min.Height); // [S-12833] scales down as one
+        Assert.Equal(32, all.Min.Height); // [S-12833] scales down as one to its title at 9, its lines and end column giving way
         Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, all.Max.Height); // relaxed, [S-12411]: no practical Max
-        Assert.Equal((Math.Min(260d, Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(320d * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize)))), Themia.Sdk.SizeStretch.Ceiling), (all.Min.Width, all.Max.Width)); // relaxed, [S-12411]: no practical Max
+        Assert.Equal((Math.Ceiling(((320d - 24 - NextMeetingJoin.EndEstimate - NextMeetingJoin.Gap) * 9 / 20) + 24), Themia.Sdk.SizeStretch.Ceiling), (all.Min.Width, all.Max.Width)); // relaxed, [S-12411]: no practical Max; [S-12833] the title's column at 9
 
         // The title and the time alone: the end column (the countdown over Join, 52) is the taller.
         Assert.Equal(12 + NextMeetingJoin.EndHeight(hasJoin: true) + 12, title.Natural.Height);

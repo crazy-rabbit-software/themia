@@ -39,6 +39,33 @@ public static class QuoteLayout
     }
 
     /// <summary>
+    /// [S-12833] The quote's parts (<see cref="FaceParts"/>): its words the main reading, at 9 in its least card; its large
+    /// mark and its author give way on the way down. Its height steps by lines and stays them.
+    /// </summary>
+    public static FaceParts Face(Model.QuoteConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var step = StepAt(config.Size);
+        var mark = MarkOf(config);
+        var width = NaturalWidth - (2 * FamilySpace.Inset);
+        var line = LineInk.Of(step);
+        var rows = new List<FaceRow>(3);
+        if (mark > 0)
+        {
+            rows.Add(new FaceRow([FacePiece.Box(mark, mark, ScaleFloor.AsText(FamilyShape.Icon))]));
+        }
+
+        rows.Add(new FaceRow([new FacePiece(width, LinesOf(config) * step.LineHeight, 0, line.Over, line.Under)], GapOver: mark > 0 ? FamilySpace.S2 : 0));
+        if (config.ShowAuthor)
+        {
+            var under = FamilyType.Under(step);
+            rows.Add(new FaceRow([FacePiece.Text(under, width, under.FontSize)]));
+        }
+
+        return new FaceParts(step.FontSize, rows);
+    }
+
+    /// <summary>
     /// [S-11306] The quote's sizing ([S-2438]): the inset, the mark and its 8 on the Marks style, the
     /// lines on the Title step, the attribution's line where it is shown, the inset; stepped by a line
     /// and following <see cref="Model.QuoteConfig.Lines"/>, 200..520 wide.

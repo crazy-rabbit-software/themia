@@ -37,7 +37,7 @@ public sealed class NextMeetingModule : IWidgetModule
         Label = NextMeetingStr.Meeting_Label.Local(),
         Description = NextMeetingStr.Meeting_Desc.Local(),
         Glyph = Glyphs.Meeting,
-        Sizing = c => NextMeetingJoin.Sizing((NextMeetingConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
+        Sizing = c => NextMeetingJoin.Sizing((NextMeetingConfig)c).ScalesDownTo(NextMeetingJoin.Face((NextMeetingConfig)c)),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredEvent, LinkTopicId.HoveredPerson], [LinkTopicId.HoveredEvent]),
         Add = new(AddFolderId.CalendarMail, 0, 1),

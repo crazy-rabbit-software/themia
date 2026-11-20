@@ -60,6 +60,30 @@ public static class NextMeetingJoin
         return FamilyType.Title.LineHeight + (more * (LineGap + FamilyType.Body.LineHeight));
     }
 
+    /// <summary>[S-12833] The end column's width as the parts estimate it: "in 59 min." over Join.</summary>
+    public const double EndEstimate = 80;
+
+    /// <summary>
+    /// [S-12833] The block's parts (<see cref="FaceParts"/>): its title the main reading (Title), at 9 in its least card; the
+    /// meeting's lines under it and the end column (how long until it, over Join) give way on the way down.
+    /// </summary>
+    public static FaceParts Face(NextMeetingConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var text = Widths.Natural - (2 * FamilySpace.Inset) - EndEstimate - Gap;
+        var rows = new List<FaceRow>
+        {
+            new([FacePiece.Text(FamilyType.Title, text), FacePiece.Box(EndEstimate + Gap, FamilyType.Title.LineHeight, FamilyType.BodyStrong.FontSize)]),
+        };
+        var more = 1 + (config.ShowPlace ? 1 : 0) + (config.ShowOrganizer ? 1 : 0);
+        for (var i = 0; i < more; i++)
+        {
+            rows.Add(new([FacePiece.Text(FamilyType.Body, text, FamilyType.Body.FontSize)], GapOver: LineGap));
+        }
+
+        return new FaceParts(FamilyType.Title.FontSize, rows);
+    }
+
     /// <summary>
     /// [S-11407] The block's sizing: the inset over and under the taller of its lines and its end column
     /// (Join included: the size never depends on the meeting), one height; 260..520 wide, a new one 320.

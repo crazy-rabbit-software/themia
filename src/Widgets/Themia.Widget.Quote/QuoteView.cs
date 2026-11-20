@@ -74,7 +74,8 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
         _body = new SpreadStack
         {
             Justify = true,
-            Children = { _mark, _text, _author },
+            // [S-12833] In a smaller card the mark and the author give way before the words.
+            Children = { _fit.GivesWayBox(_mark, ScaleFloor.AsText(FamilyShape.Icon)), _text, _fit.GivesWayBox(_author, FamilyType.Caption.FontSize) },
         };
 
         _fit.Parts.Add(_body);
@@ -113,6 +114,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as QuoteConfig ?? new QuoteConfig();
+        _fit.Face = QuoteLayout.Face(_config);
 
         Subscribe();
         Render();
