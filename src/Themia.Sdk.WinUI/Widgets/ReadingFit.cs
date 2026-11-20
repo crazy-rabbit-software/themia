@@ -20,19 +20,51 @@ namespace Themia.App.Widgets;
 /// </summary>
 public sealed partial class ReadingFit : Panel
 {
-    private readonly SpreadStack _plan = new() { Justify = true };
+    private readonly Plan _plan;
     private readonly ScaleTransform _scale = new();
     private BlockFill _fill = new(1, 0, 0);
-    private FaceFit _faceFit = FaceFit.All;
     private FaceParts? _face;
     private readonly List<(UIElement Part, Border Holder, double Size)> _givesWay = [];
     private readonly List<(UIElement Piece, double Size)> _pieces = [];
 
+    // [S-12833] [S-14243] The floor the face is drawn at (its pieces under it give way) and the room it was decided for.
+    private double _floor;
+    private Size _decided = Size.Empty;
+
+    // [S-14244] Inside this fit's own measure: the plan measured from here is not a part's change.
+    private bool _measuring;
+
     public ReadingFit()
     {
+        _plan = new Plan(this) { Justify = true };
         Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         _plan.RenderTransform = _scale;
         Children.Add(_plan);
+    }
+
+    /// <summary>
+    /// [S-14244] The block's parts, laid in its height. A part measured again on its own (its text changed: a reading
+    /// becoming "--", a placeholder its reading) measures the plan again, and the plan has its fit fit the block again:
+    /// the scale and where the first ink stands follow the part's new width and ink even where the plan's own size stays
+    /// (a Controls row wider than the reading kept it, and a brightness card's "--" stood 25 under the top, its fit
+    /// still placing the "0%" it had replaced).
+    /// </summary>
+    private sealed partial class Plan : SpreadStack
+    {
+        private readonly ReadingFit _fit;
+
+        public Plan(ReadingFit fit) => _fit = fit;
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            var size = base.MeasureOverride(availableSize);
+            if (!_fit._measuring)
+            {
+                _fit.InvalidateMeasure();
+            }
+
+            return size;
+        }
     }
 
     /// <summary>
@@ -60,8 +92,8 @@ public sealed partial class ReadingFit : Panel
     public UIElementCollection Parts => _plan.Children;
 
     /// <summary>
-    /// [S-12833] The face's parts as its kind states them (the same its sizing's least box is made of): in a room smaller
-    /// than its natural box the pieces under the floor the room draws give way, smallest first (<see cref="FaceParts.Fit"/>):
+    /// [S-12833] The face's parts as its kind states them (the same its sizing's least box is made of): in a room that
+    /// would draw them under the floor the pieces give way, smallest first, judged on the block as it is drawn ([S-14243]):
     /// a block's own (<see cref="IFacePieces"/>, a Readout's unit, lead and line under) and the parts added with
     /// <see cref="AddGivesWay"/>; the parts left fill the room (WR-1, WR-4: <see cref="FaceFit.Fill"/>, the block grows back
     /// into the room a part left). Null: every part is drawn.
@@ -75,6 +107,7 @@ public sealed partial class ReadingFit : Panel
             {
                 _face = value;
                 _held = Size.Empty;
+                _decided = Size.Empty;
                 InvalidateMeasure();
             }
         }
@@ -189,17 +222,62 @@ public sealed partial class ReadingFit : Panel
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        // [S-12833] What the room draws of the face: the same in every pass for one room, so hiding a piece settles.
-        if (!_hold || _held != availableSize)
+        _measuring = true;
+        try
         {
-            _faceFit = _face is { } face && double.IsFinite(availableSize.Width) && double.IsFinite(availableSize.Height)
-                ? face.Fit(availableSize.Width, availableSize.Height)
-                : FaceFit.All;
+            var finite = double.IsFinite(availableSize.Width) && double.IsFinite(availableSize.Height);
+            if (_face is null || !finite)
+            {
+                _floor = 0;
+                _decided = Size.Empty;
+            }
+            else if (_decided != availableSize && (!_hold || _held != availableSize))
+            {
+                // [S-12833] [S-14243] What the room draws of the face: decided once for a room, so hiding a piece settles.
+                Decide(availableSize, _face);
+            }
+
+            Keep(_floor);
+            var block = Measured(availableSize);
+
+            // [S-14243] A text grown since (a longer reading) that would draw a kept piece under the floor: it gives way now.
+            if (_face is { } face && finite && !_hold && Kept(face) * block.Raw < ScaleFloor.Text - 1e-9)
+            {
+                Decide(availableSize, face);
+                Keep(_floor);
+                block = Measured(availableSize);
+            }
+
+            if (!_hold || _held != availableSize)
+            {
+                // [S-12833] Down to its smallest text's floor, up to what fills the room.
+                _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, block.Intrinsic, block.Packed, block.Held, block.Ink, block.Least);
+                _held = availableSize;
+            }
+
+            _scale.ScaleX = _fill.Scale;
+            _scale.ScaleY = _fill.Scale;
+
+            // [S-12814] The plan is measured unbounded across, as its parts were: a part whose text changes is measured again
+            // at that same width, so its new width reaches this fit and the scale follows it (a measure at the scaled width
+            // would clamp a grown text and the change would stop there, the old scale cutting the new text).
+            _plan.Measure(new Size(double.PositiveInfinity, _fill.Height));
+            return new Size(
+                double.IsFinite(availableSize.Width) ? availableSize.Width : _plan.DesiredSize.Width,
+                double.IsFinite(availableSize.Height) ? availableSize.Height : _plan.DesiredSize.Height);
         }
+        finally
+        {
+            _measuring = false;
+        }
+    }
 
-        Keep(_faceFit.Floor);
+    /// <summary>The block's shown parts at their own size, and the scale that fills the room with them (<see cref="Raw"/>: no floor).</summary>
+    private readonly record struct Block(double Intrinsic, double Packed, LineInk Held, LineInk Ink, double Least, double Raw);
 
-        // The parts at their own size: what has a width of its own, and the parts packed.
+    /// <summary>Measure the shown parts unbounded: what has a width of its own, the parts packed, their ink.</summary>
+    private Block Measured(Size room)
+    {
         var shown = _plan.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
         var intrinsic = 0.0;
         var packed = 0.0;
@@ -216,23 +294,40 @@ public sealed partial class ReadingFit : Panel
         // [S-12813] Sized by the reading's ink (a placeholder keeps its reading's size), placed by the ink drawn.
         var held = shown.Count == 0 ? LineInk.None : new LineInk(PartInk.Held(shown[0]).Over, PartInk.Held(shown[^1]).Under);
         var ink = shown.Count == 0 ? LineInk.None : new LineInk(PartInk.Of(shown[0]).Over, PartInk.Of(shown[^1]).Under);
-        if (!_hold || _held != availableSize)
+        var least = _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown);
+        var raw = BlockFit.Fill(room.Width, room.Height, intrinsic, packed, held, ink, least: NoFloor).Scale;
+        return new Block(intrinsic, packed, held, ink, least, raw);
+    }
+
+    /// <summary>A least scale so small it never holds the block: the scale the room alone gives it.</summary>
+    private const double NoFloor = 1e-6;
+
+    /// <summary>
+    /// [S-14243] The face's floor in <paramref name="room"/>, decided on the parts as they are drawn (owner, 2026-11-19, WR-7:
+    /// "Keep them together"; CLAUDE.md: size never decides content): its pieces give way smallest first only where the
+    /// scale the drawn block fills the room at would draw them under the legibility floor (<see cref="FaceFloor"/>'s rule
+    /// on the measured block). The stated plan is sized on the face's widest reading, so a countdown's "3d 5h" in a 300 ×
+    /// 164 card had dropped its name and its date (its "88 days ago" would have drawn them at 8.9) while the time itself
+    /// was drawn more than twice that large.
+    /// </summary>
+    private void Decide(Size room, FaceParts face)
+    {
+        _decided = room;
+        _floor = FaceFloor.Fit(room.Width, room.Height, face.Sizes, floor =>
         {
-            // [S-12833] Down to its smallest text's floor, up to what fills the room.
-            _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink, _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown));
-            _held = availableSize;
-        }
+            Keep(floor);
+            var block = Measured(room);
+            return new FacePlan(block.Intrinsic + BlockFit.WidthSlack, Math.Max(0, block.Packed - Room(block.Held.Over) - Room(block.Held.Under)));
+        }).Floor;
 
-        _scale.ScaleX = _fill.Scale;
-        _scale.ScaleY = _fill.Scale;
+        static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
+    }
 
-        // [S-12814] The plan is measured unbounded across, as its parts were: a part whose text changes is measured again
-        // at that same width, so its new width reaches this fit and the scale follows it (a measure at the scaled width
-        // would clamp a grown text and the change would stop there, the old scale cutting the new text).
-        _plan.Measure(new Size(double.PositiveInfinity, _fill.Height));
-        return new Size(
-            double.IsFinite(availableSize.Width) ? availableSize.Width : _plan.DesiredSize.Width,
-            double.IsFinite(availableSize.Height) ? availableSize.Height : _plan.DesiredSize.Height);
+    /// <summary>The smallest text size the face draws at the decided floor (its main reading's where only that is left).</summary>
+    private double Kept(FaceParts face)
+    {
+        var kept = face.Sizes.Where(s => s > 0 && double.IsFinite(s) && s >= _floor - 1e-9).DefaultIfEmpty(face.Main).Min();
+        return kept >= face.Main ? double.PositiveInfinity : kept;
     }
 
     protected override Size ArrangeOverride(Size finalSize)

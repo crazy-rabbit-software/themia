@@ -180,4 +180,28 @@ public sealed class FaceFloorTests
 
         Assert.Equal(28, lastFloor);
     }
+
+    /// <summary>A countdown's face: its name (14) over its time (68, <paramref name="time"/> wide) over its date (14).</summary>
+    private static FaceParts Countdown(double time) => new(68,
+    [
+        new FaceRow([FacePiece.Text(FamilyType.BodyStrong, 50, 14)]),
+        new FaceRow([FacePiece.Text(FamilyType.Hero68, time)], GapOver: FamilySpace.S1),
+        new FaceRow([FacePiece.Text(FamilyType.Body, 110, 14)]),
+    ]);
+
+    [Fact]
+    public void S14243_pieces_give_way_by_the_block_as_drawn_not_by_its_widest_reading()
+    {
+        // The countdown's 300 x 164 card (its content 276 x 140): planned on its widest wording (436 wide) the name and the
+        // date would be drawn at 8.9 and gave way, while the "3d 5h" it shows (171 wide) draws them at 15 (owner, WR-7:
+        // "Keep them together"). Its 330 x 140 neighbour (306 x 116) kept all three either way.
+        Assert.Equal(68, Countdown(436).Fit(276, 140).Floor);
+        Assert.Equal(0, Countdown(171).Fit(276, 140).Floor);
+        Assert.Equal(0, Countdown(436).Fit(306, 116).Floor);
+
+        // Drawn, every kept piece stays at the floor or over it; in its least card the time stands alone.
+        var drawn = Countdown(171).Fit(276, 140);
+        Assert.True(14 * drawn.Fill >= ScaleFloor.Text);
+        Assert.Equal(68, Countdown(171).Fit(58, 20).Floor);
+    }
 }
