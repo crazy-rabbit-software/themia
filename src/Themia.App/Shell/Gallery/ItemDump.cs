@@ -9,7 +9,6 @@ using Themia.App.Widgets;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI.Kit;
-using Themia.Core.Widgets;
 using Windows.Foundation;
 
 namespace Themia.App.Shell.Gallery;
