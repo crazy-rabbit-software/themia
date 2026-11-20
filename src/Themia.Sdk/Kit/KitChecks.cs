@@ -39,12 +39,12 @@ public static class KitChecks
 
         var sized = choices.Rows;
         var rowLines = choices.OneLine ? 1 : KitSizing.ClampLines(sized.Lines);
-        // [S-12807] The add row is the list's last: its text on the foot's inset, its band past it. [S-14500] A check list's
-        // card is its rows and the add row's place (KitSizing.Parts), rows and add row stretched alike to fill it; where the
-        // list cannot add (a read-only list) the rows take the add row's room too, so nothing is left at the foot (WR-5).
-        var reach = !area.IsMeasured ? ItemStretch.Natural(rowLines, area.Grid()) with { Foot = choices.CanAdd ? ItemStretch.Optimal(FamilyShape.Row1, area.Grid()) : 0 }
-            : choices.CanAdd ? ItemStretch.RowsAbove(Math.Max(0, area.Height), rowLines, area.Grid())
-            : ItemStretch.Rows(Math.Max(0, area.Height), rowLines, area.Grid());
+        // [S-12807] The add row is the list's last. [S-14811] A check list's card is its rows and the add row's place
+        // (KitSizing.Parts), each at its one size, the add row right under the rows; where the list cannot add (a read-only
+        // list) the rows take the add row's room too.
+        var reach = !area.IsMeasured ? ItemSize.Natural(rowLines, area.Grid()) with { Foot = choices.CanAdd ? ItemSize.Optimal(FamilyShape.Row1, area.Grid()) : 0 }
+            : choices.CanAdd ? ItemSize.RowsAbove(Math.Max(0, area.Height), rowLines, area.Grid())
+            : ItemSize.Rows(Math.Max(0, area.Height), rowLines, area.Grid());
         return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), HeadingHeight: reach.Pitch)
         {
             AddRow = choices.CanAdd,
@@ -61,31 +61,25 @@ public static class KitChecks
         => count <= 0 ? 0 : (int)Math.Ceiling(count / (double)Math.Max(1, columns));
 
     /// <summary>
-    /// [S-781] The viewport height that ends on a row boundary: the bottom of the last line that fits
-    /// whole in <paramref name="room"/> — never a heading line, which would announce rows that are not
-    /// there ([S-639]) — or the room itself when not even one does.
+    /// [S-781] [S-14810] The viewport's height: the room, the last line in it cut by its end (owner, 2026-11-20: "they
+    /// should just keep their size and the last item will be cutoff to some extent then"), unless the line the room ends in
+    /// is a heading, which would announce rows that are not there ([S-639]): then the list ends over that heading.
     /// </summary>
     /// <param name="headings">Per line, whether it holds only a heading; null when there are none.</param>
-    public static double WholeLineCap(IReadOnlyList<double> lineBottoms, double room, IReadOnlyList<bool>? headings = null)
+    public static double ViewEnd(IReadOnlyList<double> lineBottoms, double room, IReadOnlyList<bool>? headings = null)
     {
         ArgumentNullException.ThrowIfNull(lineBottoms);
-        var cap = 0.0;
-
-        for (var i = 0; i < lineBottoms.Count; i++)
+        var top = 0.0;
+        var last = -1;
+        var lastTop = 0.0;
+        for (var i = 0; i < lineBottoms.Count && top < room - LayoutMath.Tolerance; i++)
         {
-            var bottom = lineBottoms[i];
-            if (bottom > room + LayoutMath.Tolerance)
-            {
-                break;
-            }
-
-            if (headings is null || i >= headings.Count || !headings[i])
-            {
-                cap = bottom;
-            }
+            last = i;
+            lastTop = top;
+            top = lineBottoms[i];
         }
 
-        return cap > 0 ? cap : room;
+        return last >= 0 && headings is not null && last < headings.Count && headings[last] ? lastTop : room;
     }
 
     /// <summary>

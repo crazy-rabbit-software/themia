@@ -138,8 +138,8 @@ internal sealed partial class CalendarView
             byDay[c] = CalendarRules.DayItems(_events, _birthdays, start.AddDays(c), zone);
         }
 
-        // [S-11545] [S-14502] The chosen day's rows: as many as the card holds under the strip, to its foot, stretched to fill
-        // it (its WeekRows a new card's).
+        // [S-11545] [S-14502] [S-14810] The chosen day's rows under the strip at their one size, as many as the card reaches,
+        // the last cut by its foot (its WeekRows a new card's).
         var under = Math.Max(0, height - (CalendarSizing.Strip + FamilySpace.S2));
         var rowsArea = _area.IsMeasured
             ? new WidgetArea(width, Math.Max(0, under - FamilySpace.Inset), _area.Cell, XamlRoot?.RasterizationScale ?? 1)
@@ -316,7 +316,8 @@ internal sealed partial class CalendarView
 
         var focusDay = today >= start && today < start.AddDays(days) ? today : start;
         var focus = CalendarFit.FocusHour(all.Where(e => CalendarRules.StartDay(e, zone) >= focusDay), focusDay, today, _clock(), zone);
-        var window = CalendarFit.HoursOf(CalendarSizing.HoursIn(height, _area.Grid(XamlRoot?.RasterizationScale ?? 1)), height, earliest, latest, focus);
+        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var window = CalendarFit.HoursOf(CalendarSizing.HoursIn(height, cells), ItemSize.Optimal(CalendarSizing.Hour, cells), earliest, latest, focus);
 
         var labels = HourLabels(window, long_: true);
         SetRow(labels, body);

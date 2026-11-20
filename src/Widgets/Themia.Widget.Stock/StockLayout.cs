@@ -41,7 +41,7 @@ public static class StockLayout
         if (rows > 0)
         {
             var grid = ItemGrid.Default();
-            height = ItemStretch.Optimal(PriceBand, grid) + (rows * ItemStretch.Optimal(FamilyShape.Row1, grid));
+            height = ItemSize.Optimal(PriceBand, grid) + (rows * ItemSize.Optimal(FamilyShape.Row1, grid));
         }
 
         return WidgetSizing.Range(new(Narrowest, height), new(Narrowest, height), new(Widest, height));

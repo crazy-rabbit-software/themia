@@ -7,7 +7,7 @@ namespace Themia.App.Widgets;
 /// [S-12815] A list whose rows are the first thing in its card stands the card's inset over its view's top, so its first
 /// row's band reaches the card's top edge and its text stands about the inset under it, as every list's first row does
 /// (owner, 2026-11-19: "there should not be a space at the top"); its rows run to the card's foot edge
-/// (<c>ItemStretch.Rows</c>). The one place a list sets that margin.
+/// (<c>ItemSize.Rows</c>). The one place a list sets that margin.
 /// </summary>
 public static class ListEdge
 {

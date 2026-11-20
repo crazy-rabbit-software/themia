@@ -65,7 +65,7 @@ public static class LineRules
 
     /// <summary>
     /// [S-14500] A tool line with the card's inset over it, as one natural length from the card's top edge: what a sizing
-    /// counts for it in whole cells (<c>ItemStretch.Optimal</c>), <see cref="Band"/> and the inset on every grid.
+    /// counts for it in whole cells (<c>ItemSize.Optimal</c>), <see cref="Band"/> and the inset on every grid.
     /// </summary>
     public const double BandOver = FamilySpace.Inset + FamilySpace.HeaderLine + FamilySpace.HeaderGap;
 

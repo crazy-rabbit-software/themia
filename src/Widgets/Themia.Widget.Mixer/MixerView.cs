@@ -48,7 +48,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
     private IWidgetSurface? _surface;
     private WidgetArea _area;
 
-    /// <summary>[S-12410] A row's height: its lines' natural one stretched to fill the card down to its edge.</summary>
+    /// <summary>[S-12410] [S-14810] A row's height: its lines' natural one in whole cells, its one fixed size.</summary>
     private RowReach _reach = new(FamilyShape.Row1, 1);
     private AudioSnapshot? _snapshot;
     private Dictionary<string, double> _overrides = new(StringComparer.Ordinal);
@@ -195,12 +195,12 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         _status.Hide();
         _scroller.Visibility = Visibility.Visible;
 
-        // [S-12807] [S-14500] The rows the card holds at their optimal reach its top and foot edges, stretched to fill it,
+        // [S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the last its foot reaches cut by it,
         // the first one's band over the top.
         var lines = Math.Clamp(_config.Lines, 1, 2);
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(lines, _area.Grid());
+            ? ItemSize.Rows(_area.Height, lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemSize.Natural(lines, _area.Grid());
 
         // [S-449] [S-11309] Those rows: the playing apps, then the quiet ones under them while rows are left.
         var rows = _area.IsMeasured ? _reach.Shown : MixerLayout.ClampRows(_config.Rows);

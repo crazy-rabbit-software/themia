@@ -111,11 +111,11 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         if (_devices.Count == 0)
         {
-            // [S-14500] The state's row in the first row's place and the empty rows under it at the rows' pitch (two lines a
-            // row: four cells, the compact line alone three), so they end on the card's foot.
+            // [S-14810] The state's row in the first row's place and the empty rows under it at the rows' one size (two lines a
+            // row: four cells).
             var pitch = (_area.IsMeasured
                 ? RemovableDrivesPlan.Reach(_area.Height, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-                : ItemStretch.Natural(RemovableDrivesPlan.Lines, _area.Grid())).Pitch;
+                : ItemSize.Natural(RemovableDrivesPlan.Lines, _area.Grid())).Pitch;
             _empty.Height = pitch;
             _face.Pitch = pitch;
             _face.Margin = new Thickness(0, pitch - FamilySpace.Inset, 0, 0);
@@ -155,7 +155,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         var picture = !(_surface?.IsPreview ?? false) && _previewDevices is null;
         var reach = _area.IsMeasured
             ? RemovableDrivesPlan.Reach(_area.Height, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(RemovableDrivesPlan.Lines, _area.Grid());
+            : ItemSize.Natural(RemovableDrivesPlan.Lines, _area.Grid());
         for (var i = 0; i < _rows.Count; i++)
         {
             var shown = i < _devices.Count;

@@ -299,13 +299,13 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         _scroll.Visibility = count == 0 || heat ? Visibility.Collapsed : Visibility.Visible;
         LayHeatmap(count);
 
-        // [S-11530] [S-14500] The rows the card holds at the top and the add footer under them ([S-3850]); fewer habits
-        // leave their rows empty. Whole rows in the viewport: the rest scroll. [S-12807] The rows reach the card's top
-        // edge and the add footer on its foot, rows and footer stretched alike to fill it.
+        // [S-11530] [S-14810] The rows at their one fixed size from the card's top edge and the add footer right under them
+        // at its own ([S-3850], [S-14811]); a longer list's viewport is the card less the add row, its last row in sight cut
+        // by the add row, the rest a scroll away; a shorter one leaves the room under the add row empty.
         var reach = _area.IsMeasured
-            ? ItemStretch.RowsAbove(_area.Height, plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(plan.Lines, _area.Grid());
-        _scroll.Height = _area.IsMeasured && reach.Shown < count ? reach.Room : double.NaN;
+            ? ItemSize.RowsAbove(_area.Height, plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemSize.Natural(plan.Lines, _area.Grid());
+        _scroll.Height = _area.IsMeasured ? reach.Span(count) : double.NaN;
         ListEdge.Apply(_scroll);
 
         for (var i = 0; i < _rows.Count; i++)
@@ -319,8 +319,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             _addRow.Element.Height = reach.Foot;
         }
 
-        // [S-6714] [S-14500] The Status row stands in the first habit's place, stretched as the rows are, so the add row
-        // under it and the empty rows under that end on the card's foot (WR-5).
+        // [S-6714] [S-14810] The Status row stands in the first habit's place, at the rows' size, the add row under it.
         _status.Height = count == 0 && _area.IsMeasured ? reach.Height(0) : double.NaN;
 
         FitAddRow(plan);

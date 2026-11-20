@@ -41,7 +41,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
     private readonly StackPanel _list = new();
-    private RowReach _reach = ItemStretch.Natural(1, ItemGrid.Default());
+    private RowReach _reach = ItemSize.Natural(1, ItemGrid.Default());
     private readonly ScrollViewer _scroll;
     private ScrollFade? _fade;
     private readonly KitStatePanel _state;
@@ -184,10 +184,10 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _scroll.Visibility = Visibility.Collapsed;
         _state.Hide();
 
-        // [S-14500] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
+        // [S-14810] The state's row and the empty rows under it at the list's one row size, from the card's top edge.
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(_plan.Lines, _area.Grid());
+            ? ItemSize.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemSize.Natural(_plan.Lines, _area.Grid());
         _state.RowPitch = _reach.Pitch;
 
         if (snapshot.Access == NotificationAccess.Pending)
@@ -212,11 +212,11 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _scroll.Visibility = Visibility.Visible;
         var now = _clock();
 
-        // [S-12807] [S-14500] The rows the card holds at their optimal reach its top and foot edges, stretched to fill it; a
-        // heading or a fold line is one row of 28 stretched alike.
+        // [S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the last its foot reaches cut by it; a
+        // heading or a fold line is one row of 28 at its own.
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(_plan.Lines, _area.Grid());
+            ? ItemSize.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemSize.Natural(_plan.Lines, _area.Grid());
         ListEdge.Apply(_scroll);
 
         if (_plan.Grouped)
@@ -246,29 +246,29 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
             }
         }
 
-        // [S-6712] As tall as the whole lines that fit, never ending on a heading.
+        // [S-6712] [S-14810] As tall as the lines, at most the room (the last line in it cut), never ending in a heading.
         var room = _area.Height + FamilySpace.Inset;
         var bottoms = _lines.Select(l => l.Bottom).ToList();
         var content = bottoms.Count > 0 ? bottoms[^1] : 0;
         _scroll.Height = !_area.IsMeasured ? double.NaN
             : content <= room + LayoutMath.Tolerance ? content
-            : KitChecks.WholeLineCap(bottoms, room, [.. _lines.Select(l => l.Heading)]);
+            : KitChecks.ViewEnd(bottoms, room, [.. _lines.Select(l => l.Heading)]);
 
         _cursor = _cursor is { } cursor && cursor < _rows.Count ? cursor : null;
         ShowCursor();
         _fade?.Refresh();
     }
 
-    /// <summary>[S-12807] A heading's or a fold line's height: one row of 28, stretched as the rows are.</summary>
-    private double LinePitch => FamilyShape.Row1 * (_reach.Pitch / _plan.RowHeight);
+    /// <summary>[S-12807] [S-14810] A heading's or a fold line's height: one row of 28 at its optimal, whole cells.</summary>
+    private double LinePitch => ItemSize.Optimal(FamilyShape.Row1, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
 
-    /// <summary>[S-14500] A line under the ones before: its edges on whole device pixels, so the lines end on the room's end.</summary>
+    /// <summary>[S-14810] A line under the ones before: its edges on whole device pixels.</summary>
     private void AddLine(FrameworkElement line, double height, bool heading)
     {
         var scale = XamlRoot?.RasterizationScale ?? 1;
         var top = _lines.Count > 0 ? _lines[^1].Bottom : 0;
         _laid += height;
-        var bottom = ItemStretch.OnPixels(_laid, scale);
+        var bottom = ItemSize.OnPixels(_laid, scale);
         line.Height = bottom - top;
         _list.Children.Add(line);
         _lines.Add((bottom, heading));

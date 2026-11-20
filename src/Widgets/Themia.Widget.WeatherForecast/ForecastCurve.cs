@@ -72,17 +72,16 @@ public static class ForecastCurve
         => FamilyType.Body.LineHeight + Gap + FamilyShape.Icon + Gap + (precipitation ? FamilyType.Caption.LineHeight + Gap : 0);
 
     /// <summary>
-    /// [S-6164] [S-11146] [S-14502] The curve for the box: as many days as its width holds columns, each a column of the
-    /// content's width shared; the day, its glyph, the highs and the lows with their figures and the rain (if on) always;
+    /// [S-6164] [S-11146] [S-14502] [S-14810] The curve for the box: every day its width reaches at a column's one width
+    /// (<see cref="ColumnStart"/> in whole cells) from the card's left edge, the last cut by its right edge; the day, its glyph, the highs and the lows with their figures and the rain (if on) always;
     /// the chart takes the height they leave.
     /// </summary>
     public static ForecastCurvePlan Plan(WidgetArea area, WeatherForecastConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         var days = WeatherForecastLayout.DaysIn(area, config);
-        var width = WeatherForecastLayout.ContentWidth(area);
         var chart = Math.Max(ChartMin, WeatherForecastLayout.ContentHeight(area) - Parts(config.ShowPrecipitation));
-        return new ForecastCurvePlan(days, width / days, true, true, config.ShowPrecipitation, chart);
+        return new ForecastCurvePlan(days, ItemSize.Optimal(ColumnStart, area.Grid()), true, true, config.ShowPrecipitation, chart);
     }
 
     /// <summary>

@@ -3086,10 +3086,10 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
    (SPEC [S-2449] retired, owner 2026-11-20: "the size should not be settable, it is set by the size of the
    widget"): its natural size is that face, its Min the face scaled to its smallest text's floor (`ScalesDown`), and
    its view scales the block with the card (`ReadingFit`, `InkFit`). How many of the same item it shows (days, hours,
-   laps, columns, tiles) is the card's too: the view shows as many as its box holds at their optimal (their natural
-   in whole cells, `ItemStretch.Optimal`, `Count`), stretched evenly to fill it, with no count line in its menu and
-   nothing stored by a resize; what the items are, a chart's span and a list's **Rows** (its natural height) stay
-   settings (SPEC [S-14410], [S-14500], [S-14502]).
+   laps, columns, tiles) is the card's too: the view shows every one its box reaches at their one fixed size (their
+   natural in whole cells, `ItemSize.Optimal`, `Count`), the last cut by the card's edge, with no count line in its menu
+   and nothing stored by a resize; what the items are, a chart's span and a list's **Rows** (its natural height) stay
+   settings (SPEC [S-14410], [S-14500], [S-14502], [S-14810]).
 4. **A list**: on the kit, implement `IKitRows` on the config (`Rows` 1..20, default
    `KitSizing.DefaultRows`; `Lines` 1 or 2; copied in `Clone`, held to range in `Repair`), state
    `Sizing = c => KitSizing.Sizing(choice, addFooter)` where `choice` is the rows as
@@ -3097,7 +3097,8 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
    true unless its look draws one line or its lines are fixed) and add `KitMenuLines.Rows(menu, config)`
    to its lines. An `IKitConfig` passes its rows to the plan by itself (`IKitConfig.Choices`); a view that
    plans itself passes `KitChoices.Rows`. The kit then plans one column, its lines, every field it has
-   on, at every size; the card shows the rows it holds at their optimal, stretched; more items scroll inside them.
+   on, at every size; the rows keep their one size, the last one the card reaches cut by its foot; more items scroll
+   inside them (SPEC [S-14810]).
 5. **Test it at its range** (`SizeFit.CheckedAt`: its min, natural and max): what it shows is the same
    at each, and the box holds it.
 6. **Renders**: `--widget-png <Kind> <out.png> --theme dark|light` (its range, every style) before and
@@ -3111,11 +3112,12 @@ planner that picks "the largest that fits" on an exact box picks a smaller step 
 give 2 DIPs of slack (`ClockFace.Slack`) or plan from the config, not the box. A value that changes
 the sizing must live in the config (or be ambient), or the refit never runs.
 
-### 17.4 The relaxed range and the stretch (SPEC [S-12410], [S-12411])
+### 17.4 The relaxed range and items of one size (SPEC [S-12410], [S-12411], [S-14810])
 
-Owner, 2026-11-15: relax the size limits, fill the space by stretching what is there (never by adding
-content), never overstretch, and run the items to the card's edge. One rule, no per-widget code where a
-block does it:
+Owner, 2026-11-15: relax the size limits and run the items to the card's edge. Owner, 2026-11-20: "the widget
+items should actually have a fixed size. then when you change the height of a widget the items should not grow
+or shrink to fit all the way from the top to the bottom, they should just keep their size and the last item
+will be cutoff to some extent then." One rule, no per-widget code where a block does it:
 
 - **The range is relaxed for you.** A kind states the range its *content* needs (17.3). The descriptor
   hands out `SizeStretch.Relax` of it (`WidgetDescriptor.Sizing`): no practical maximum, Max on every axis
@@ -3126,15 +3128,16 @@ block does it:
   `MeterSizing.History/Columns/Tiles/Graphs`, `TileRules.Sizing`), `None` (the desktop icon's cell: not
   relaxed); a height the kind keeps (`KeepsHeight`: a fence rolled up) neither. Renders check a kind at its
   min, natural and a large size, twice the natural (`SizeStretch.Large`).
-- **Items stretch to their caps, the rest is spacing** (`ItemStretch` in `Themia.Sdk/Widgets`, whole
-  device pixels): `Reach(available, items, grid)` for a stack, `Reach(available, natural, grid)` and `Rows` for
-  like rows (as many as hold their optimal, `Optimal`, `Count`, sharing the room, SPEC [S-14500]). The caps per block:
+- **Repeated items keep one size, the last is cut** (`ItemSize` in `Themia.Sdk/Widgets`, whole device pixels):
+  `Lay(available, items, grid)` for a stack, `Reach(available, natural, grid)` and `Rows` for like rows (each at its
+  optimal, `Optimal`, as many as the room reaches, `Count`, the last cut by its end; `RowReach.Span` a list's viewport,
+  SPEC [S-14810]). Per block:
 
-  | Block | Stretches to | Beyond it |
+  | Block | Its size | Beyond it |
   |---|---|---|
-  | Row (`RowBlock`) | any height its list gives it (`MinHeight` its natural), texts centred; the rows touch and fill the content ([S-12807]) | none: the rows take it (`SpreadStack`, `ItemStretch.Reach`) |
-  | Kit list, custom row lists | as many rows as the room holds at their optimal, sharing it on whole device pixels, from the card's top edge to its foot edge (`KitPlanner.Reach`, `ItemStretch.Rows`, `RowsAbove`, [S-14500]), headings and the add row with them | none: the rows touch |
-  | Grid cell (calendar month) | its share of the card: the weeks from under the weekday line to the foot, the columns edge to edge ([S-14101], [S-14500]) | none: the cells touch |
+  | Row (`RowBlock`) | its optimal: its natural in whole cells, at every card size, texts centred; the rows touch from the content's top ([S-12807], [S-14810]) | empty room under the last, or the last cut by the card's foot (`SpreadStack`, `ItemSize.Lay`) |
+  | Kit list, custom row lists | rows at their optimal from the card's top edge, as many as it reaches (`KitPlanner.Reach`, `ItemSize.Rows`, `RowsAbove`, [S-14810]), headings and the add row at their own ([S-14811]) | the last row cut by the card's foot or the add row; a shorter list leaves the room under it empty |
+  | Grid cell (calendar month) | its share of the card, the month being a grid of the card and not a list: the weeks from under the weekday line to the foot, the columns edge to edge ([S-14101], [S-14500], WR-9) | none: the cells touch |
   | Readout, Status, Controls, Header | never (text stays on the family's steps) | [S-12808] the block's parts together, planned at the natural box (`ReadingFit`) and scaled up as one until the card's height or width stops it (`BlockFit`); one line alone centred by its ink (`MeterView.CentringTop`) |
   | Clock face (planned on its natural box) | scaled as one with the card, up and down to its floor (`InkFit`) | spacing round it |
   | Chart, dial, tile, picture | the box | none |

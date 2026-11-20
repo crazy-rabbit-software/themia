@@ -19,8 +19,9 @@ public readonly record struct FactLine(string Glyph, string Name, string Value, 
 /// <see cref="Beside"/>), the stopwatch's laps, the next meeting's lines. The family's fact rows ([S-6711]), one line
 /// each, exactly as many as the pick, in its order; a list whose facts have glyphs leads every row with one (the slot
 /// kept for a fact without, so the columns line up), a list without has no lead; a name or a value too long for the
-/// width ends in its ellipsis; a fact that cannot be read now is drawn unavailable. [S-12807] The rows fill the content from its top to the foot's inset (its margin), touching;
-/// <see cref="SpreadStack.Rows"/> the pick's count, so fewer facts leave the rest empty.
+/// width ends in its ellipsis; a fact that cannot be read now is drawn unavailable. [S-14810] The rows stand at their one
+/// fixed size from the card's top edge (its margin), touching; the room under the last stays empty, and a row the card's
+/// foot reaches is cut by it.
 /// </summary>
 public partial class FactList : RowStack
 {
@@ -73,6 +74,19 @@ public partial class FactList : RowStack
         }
 
         ApplyRoom();
+    }
+
+    /// <summary>
+    /// [S-14705] [S-14601] A single metric's one row is its whole face, one item from the card's edge to its edge: the row
+    /// <paramref name="height"/> tall (the face's box, or the reading's share over its graph); NaN gives the rows back their
+    /// one fixed size ([S-14810]).
+    /// </summary>
+    public void Face(double height)
+    {
+        foreach (var row in _rows)
+        {
+            row.Height = height;
+        }
     }
 
     /// <summary>

@@ -47,13 +47,13 @@ public static class MixerLayout
 
     /// <summary>
     /// [S-11309] [S-14500] The mixer's sizing ([S-2438]): its rows (one or two lines each) at their optimal from the card's
-    /// top edge to its foot edge, one at least, its config's rows a new one's natural height, every cell between (the rows
-    /// the card holds stretched to fill it), 240..520 wide.
+    /// top edge, one at least, its config's rows a new one's natural height, every cell between (the rows keep their size,
+    /// the last the card reaches cut, [S-14810]), 240..520 wide.
     /// </summary>
     public static Sdk.WidgetSizing Sizing(Model.MixerConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var row = Themia.Core.Widgets.ItemStretch.Optimal(FamilyShape.RowHeight(Math.Clamp(config.Lines, 1, 2)), Themia.Core.Widgets.ItemGrid.Default());
+        var row = Themia.Core.Widgets.ItemSize.Optimal(FamilyShape.RowHeight(Math.Clamp(config.Lines, 1, 2)), Themia.Core.Widgets.ItemGrid.Default());
         return Sdk.WidgetSizing.Range(new(Narrowest, row), new(NaturalWidth, ClampRows(config.Rows) * row), new(Widest, MaxRows * row));
     }
 

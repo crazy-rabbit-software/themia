@@ -58,11 +58,12 @@ public sealed class CalendarSizingTests
     [Fact]
     public void S11543_S14502_a_day_is_its_band_line_over_its_hours_and_its_hours_what_the_card_holds()
     {
-        // A new one's eight hours at their optimal (30); the hours shown after are what its timeline holds, 4..16.
+        // A new one's eight hours at their optimal (30); [S-14810] the hours shown after are every one its timeline reaches,
+        // the last cut by the card's foot, 4..16.
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Day };
         Assert.Equal(CalendarSizing.ContentTop + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30) + FamilySpace.Inset, Of(config).Natural.Height);
         var grid = Themia.Core.Widgets.ItemGrid.Default();
-        Assert.Equal((4, 8, 8, 16), (CalendarSizing.HoursIn(10, grid), CalendarSizing.HoursIn(240, grid), CalendarSizing.HoursIn(269, grid), CalendarSizing.HoursIn(2000, grid)));
+        Assert.Equal((4, 8, 9, 16), (CalendarSizing.HoursIn(10, grid), CalendarSizing.HoursIn(240, grid), CalendarSizing.HoursIn(269, grid), CalendarSizing.HoursIn(2000, grid)));
         Assert.Equal(new DayBandFit(0, 0, false), CalendarSizing.DayBand(0));
         Assert.Equal(new DayBandFit(1, CalendarFit.DayBar, true), CalendarSizing.DayBand(3));
     }
@@ -70,10 +71,11 @@ public sealed class CalendarSizingTests
     [Fact]
     public void S11543_the_hours_are_the_counts_around_the_focus_or_the_wanted_day_grown_evenly()
     {
-        var focused = CalendarFit.HoursOf(4, 112, earliestHour: 9, latestHour: 17, focusHour: 14);
-        Assert.Equal((13, 4, 28.0), (focused.First, focused.Count, focused.HourHeight));
+        // [S-14810] Every hour at its one fixed size, whatever the timeline's height.
+        var focused = CalendarFit.HoursOf(4, 30, earliestHour: 9, latestHour: 17, focusHour: 14);
+        Assert.Equal((13, 4, 30.0), (focused.First, focused.Count, focused.HourHeight));
 
-        var whole = CalendarFit.HoursOf(16, 448, 9, 17, 14);
+        var whole = CalendarFit.HoursOf(16, 30, 9, 17, 14);
         Assert.Equal((6, 16), (whole.First, whole.Count));
         Assert.True(whole.End <= 24);
     }

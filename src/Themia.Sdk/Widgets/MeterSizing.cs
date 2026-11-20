@@ -224,13 +224,13 @@ public static class MeterSizing
     public static WidgetSizing Graphs { get; } = WidgetSizing.Range(new(200, 128), new(280, 200), new(640, 400)) with { Room = StretchRoom.Picture };
 
     /// <summary>
-    /// [S-11006] [S-14500] <paramref name="rows"/> rows of items (the engines): one 28 row each at its optimal (whole grid
-    /// cells) from the card's top edge to its foot edge; the height takes every cell from them up, the rows stretched to
-    /// fill it and, where it holds more rows, the rest empty rows at the foot (<c>SpreadStack</c>).
+    /// [S-11006] [S-14810] <paramref name="rows"/> rows of items (the engines): one 28 row each at its optimal (whole grid
+    /// cells), its one fixed size, from the card's top edge; the height takes every cell from them up, the room under the
+    /// last empty, a row the card's foot reaches cut by it (<c>SpreadStack</c>).
     /// </summary>
     public static WidgetSizing ItemRows(int rows)
     {
-        var h = Math.Max(1, rows) * ItemStretch.Optimal(FamilyShape.Row1, ItemGrid.Default());
+        var h = Math.Max(1, rows) * ItemSize.Optimal(FamilyShape.Row1, ItemGrid.Default());
         return WidgetSizing.Range(new(200, h), new(240, h), new(420, h));
     }
 }

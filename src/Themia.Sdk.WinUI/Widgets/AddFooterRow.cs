@@ -44,13 +44,13 @@ public sealed class AddFooterRow
         ItemMark.Mark(Element);
         ItemFill.Paint(Element, ItemRole.Row);
 
-        // [S-12830] [S-14500] A row of the list's: at its optimal until its list lays it, then stretched as the rows over it
-        // (ItemStretch.RowsAbove; the list sets its height).
+        // [S-12830] [S-14811] A row of the list's: at its optimal, its one fixed size (ItemSize.RowsAbove's foot; the list
+        // sets its height).
         Element.Loaded += (_, _) =>
         {
             if (double.IsNaN(Element.Height))
             {
-                Element.Height = ItemStretch.Optimal(FamilyShape.RowHeight(1), ItemGrids.Of(Element));
+                Element.Height = ItemSize.Optimal(FamilyShape.RowHeight(1), ItemGrids.Of(Element));
             }
         };
         Element.Tapped += OnTapped;

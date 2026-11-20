@@ -158,10 +158,10 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
 
     private WidgetArea _area;
 
-    /// <summary>[S-12807] [S-14500] The rows the card holds at their optimal, reaching its top and foot edges, stretched to fill it.</summary>
+    /// <summary>[S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the last its foot reaches cut by it.</summary>
     private RowReach Reach => _area.IsMeasured
-        ? ItemStretch.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-        : ItemStretch.Natural(_plan.Lines, _area.Grid());
+        ? ItemSize.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+        : ItemSize.Natural(_plan.Lines, _area.Grid());
 
     private void Redraw()
     {
@@ -210,8 +210,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
             _list.Children.Add(row);
         }
 
-        // [S-2440] [S-14500] As tall as the rows the card holds: never a part of one at its foot; fewer leave whole rows there.
-        _scroll.Height = _area.IsMeasured ? reach.Start(Math.Min(_rows.Count, reach.Shown)) : double.NaN;
+        // [S-2440] [S-14810] As tall as the rows, at most the card: the last row in sight cut by its foot, the rest a scroll away.
+        _scroll.Height = _area.IsMeasured ? reach.Span(_rows.Count) : double.NaN;
         ListEdge.Apply(_scroll);
 
         _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;

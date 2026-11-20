@@ -127,7 +127,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     }
 
     /// <inheritdoc />
-    public bool Grows => false;
+    public bool IsRow => false;
 
     /// <summary>The line under the value.</summary>
     public TextBlock UnderText => _under;

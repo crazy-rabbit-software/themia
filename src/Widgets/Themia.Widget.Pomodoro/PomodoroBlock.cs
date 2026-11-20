@@ -80,7 +80,7 @@ internal sealed partial class PomodoroBlock : Panel, IInked
 
     public LineInk Ink => _ink;
 
-    public bool Grows => false;
+    public bool IsRow => false;
 
     private double CaptionGap => _ringFace ? FamilySpace.S2 : 0;
 

@@ -97,7 +97,7 @@ public sealed partial class ToolLine : Grid, IInked
         }
     }
 
-    public bool Grows => false;
+    public bool IsRow => false;
 
     /// <summary>The line stands while it has a label or a part to show; collapsed it takes no room.</summary>
     private void Decide() => Visibility = _label.Text.Length > 0 || Parts.Any ? Visibility.Visible : Visibility.Collapsed;

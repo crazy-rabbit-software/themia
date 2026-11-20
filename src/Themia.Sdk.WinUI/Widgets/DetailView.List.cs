@@ -44,7 +44,7 @@ public sealed partial class DetailView : IWidgetKeys
     private string? _focusKey;
     private int _lines = 1;
 
-    /// <summary>[S-12807] A list row's height: its lines' natural one, stretched so the rows reach the view's ends, up to half again.</summary>
+    /// <summary>[S-12807] [S-14810] A list row's height: its lines' natural one in whole cells, its one fixed size.</summary>
     private RowReach _reach = new(FamilyShape.Row1, 1);
 
     private void BuildList()
@@ -81,10 +81,10 @@ public sealed partial class DetailView : IWidgetKeys
             return;
         }
 
-        // [S-6712] As tall as its whole rows: never a part of one at its foot. [S-12807] [S-14500] The rows reach the
-        // card's top edge and its foot, as many as it holds at their optimal, stretched to fill it.
+        // [S-6712] [S-14810] The rows at their one fixed size from the card's top edge; the viewport is the card's room, the
+        // last row in sight cut by its foot.
         _lines = p.ListLines;
-        _reach = ItemStretch.Rows(_area.Height, _lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
+        _reach = ItemSize.Rows(_area.Height, _lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
         _scroll.Height = _reach.Room;
         ListEdge.Apply(_scroll);
         SetRow(_scroll, 2);

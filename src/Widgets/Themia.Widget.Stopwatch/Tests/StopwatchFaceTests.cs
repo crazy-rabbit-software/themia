@@ -85,16 +85,16 @@ public sealed class StopwatchFaceTests
     }
 
     [Fact]
-    public void S11302_S14500_the_laps_take_the_room_under_the_face_to_the_cards_foot()
+    public void S11302_S14810_the_laps_keep_their_size_under_the_face_the_last_cut_by_the_cards_foot()
     {
-        // A view 208 tall (a card of 220) under a face band of 158 has 50 under it: one lap row, stretched to fill it. The
-        // render of 2026-11-20 counted the card's inset twice (62), asked for two rows, showed one of 30 and left 20 empty
-        // at the foot.
+        // [S-14810] A view 208 tall (a card of 220) under a face band of 158 has 50 under it: one lap row of 30 and part of
+        // a second, cut by the card's foot; 22 under it part of one.
         var grid = ItemGrid.Default();
-        Assert.Equal(1, StopwatchFace.LapRowsIn(208, 158, grid));
+        Assert.Equal(2, StopwatchFace.LapRowsIn(208, 158, grid));
         Assert.Equal(2, StopwatchFace.LapRowsIn(218, 158, grid));
-        Assert.Equal(5, StopwatchFace.LapRowsIn(328, 158, grid));
-        Assert.Equal(0, StopwatchFace.LapRowsIn(180, 158, grid));
+        Assert.Equal(6, StopwatchFace.LapRowsIn(328, 158, grid));
+        Assert.Equal(1, StopwatchFace.LapRowsIn(180, 158, grid));
+        Assert.Equal(0, StopwatchFace.LapRowsIn(158, 158, grid));
         Assert.Equal(0, StopwatchFace.LapRowsIn(double.NaN, 158, grid));
         Assert.Equal(StopwatchFace.MostLapRows, StopwatchFace.LapRowsIn(2000, 158, grid));
     }

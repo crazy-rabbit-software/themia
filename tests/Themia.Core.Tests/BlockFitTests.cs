@@ -324,11 +324,11 @@ public class BlockFitTests
     [Fact]
     public void S12814_justified_parts_take_the_room_between_them_and_one_part_takes_it_all()
     {
-        var two = ItemStretch.Reach(100, [StretchItem.Fixed(36), StretchItem.Fixed(28)], ItemGrid.Default(), justify: true);
+        var two = ItemSize.Lay(100, [StackItem.Fixed(36), StackItem.Fixed(28)], ItemGrid.Default(), justify: true);
         Assert.Equal(new ItemSlot(0, 36), two[0]);
         Assert.Equal(new ItemSlot(72, 28), two[1]);
 
-        var one = ItemStretch.Reach(100, [StretchItem.Fixed(36)], ItemGrid.Default(), justify: true);
+        var one = ItemSize.Lay(100, [StackItem.Fixed(36)], ItemGrid.Default(), justify: true);
         Assert.Equal(new ItemSlot(0, 100), one[0]);
     }
 

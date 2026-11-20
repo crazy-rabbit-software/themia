@@ -63,9 +63,8 @@ public sealed partial class KitStatePanel : Grid
     public StatusBlock Row => _row;
 
     /// <summary>
-    /// [S-12835] The pitch of the list's rows the face keeps under the row (unset: a one-line row's whole cells). [S-14500]
-    /// The state's row stands in the first stated row's place, at that pitch, so the rows under it end on the card's foot
-    /// (a row of two lines is four cells, the compact line alone three: one would be left over).
+    /// [S-12835] The pitch of the list's rows the face keeps under the row (unset: a one-line row's whole cells). [S-14810]
+    /// The state's row stands in the first row's place at that one size, the rows under it at it too.
     /// </summary>
     public double RowPitch
     {
@@ -78,7 +77,7 @@ public sealed partial class KitStatePanel : Grid
     }
 
     /// <summary>
-    /// [S-14500] The state's row's own height where it stands in another row's place than the list's first (a check list's
+    /// [S-14811] The state's row's own height where it stands in another row's place than the list's first (a check list's
     /// add row: a row of one line, the card being its rows and that row); unset (NaN): the list's pitch.
     /// </summary>
     public double LineHeight
@@ -104,21 +103,9 @@ public sealed partial class KitStatePanel : Grid
             return;
         }
 
-        // [S-14500] The state's row is the first of the rows the panel's room holds at the list's pitch (unset: a one-line
-        // row's optimal), stretched alike with the empty rows under it so they end on the card's foot; a room short of a
-        // second row is the state's row's alone (WR-5: nothing left over under the last item).
+        // [S-14810] The state's row is the first of the list's rows at their one size (unset: a one-line row's optimal).
         var pitch = _empty.Pitch;
-        var at = double.IsFinite(pitch) && pitch > 0 ? pitch : LineRules.EdgeRow(ItemGrids.Of(this));
-        // The row stands on the card's top edge (its margin reaches over the view's inset): that much more room is the rows'.
-        var room = _height - _row.Margin.Top - _row.Margin.Bottom;
-        if (_height > 0 && room > 0)
-        {
-            var count = Math.Max(1, EmptyRows.Fit(room, at));
-            _row.Height = new Themia.Core.Widgets.RowReach(room / count, count, XamlRoot?.RasterizationScale ?? 1).Height(0);
-            return;
-        }
-
-        _row.Height = double.IsFinite(pitch) && pitch > 0 ? pitch : double.NaN;
+        _row.Height = double.IsFinite(pitch) && pitch > 0 ? pitch : LineRules.EdgeRow(ItemGrids.Of(this));
     }
 
     /// <summary>

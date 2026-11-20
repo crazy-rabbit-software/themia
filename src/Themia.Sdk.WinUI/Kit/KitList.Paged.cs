@@ -127,7 +127,7 @@ public sealed partial class KitList
                 _rowElements[i] = row;
             }
 
-            // [S-14500] Each line of the page its share of the room on whole device pixels, so the lines end on its foot.
+            // [S-14810] Each line of the page its one fixed size on whole device pixels; a page is whole lines, the room under its last empty.
             for (var k = 0; k < stack.Children.Count; k++)
             {
                 var height = _plan.RowAt(k);

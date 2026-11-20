@@ -7,14 +7,14 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-14500] Items have an optimal size and stretch a little; widgets step by one cell (owner, 2026-11-20: "if the widgets
-/// only have steps in increments of four or six for example, you cannot properly align them. lets not limit the user in
-/// the alignment. the items should have an optimal size and then they may stretch a little to fill up the remaining
-/// space. the widgets should not have the size increments anymore but should be incrementable in steps of one"): a
-/// card takes every whole grid cell, and its rows (laid by <see cref="ItemStretch.Rows"/>, the one rule the views use)
-/// are as many as it holds at their optimal, sharing it evenly to its foot, nothing left over.
+/// [S-14810] [S-14500] Items have one fixed size; widgets step by one cell (owner, 2026-11-20: "the widget items should
+/// actually have a fixed size. then when you change the height of a widget the items should not grow or shrink to fit all
+/// the way from the top to the bottom, they should just keep their size and the last item will be cutoff to some extent
+/// then."; "the widgets should not have the size increments anymore but should be incrementable in steps of one"): a card
+/// takes every whole grid cell, and its rows (laid by <see cref="ItemSize.Rows"/>, the one rule the views use) stand at
+/// their optimal from its top edge, the last one its foot reaches cut by it.
 /// </summary>
-public class OptimalStretchTests
+public class FixedItemTests
 {
     private static readonly ItemGrid Grid = ItemGrid.Default();
 
@@ -32,41 +32,32 @@ public class OptimalStretchTests
     };
 
     [Fact]
-    public void S14500_a_list_ten_cells_tall_shows_three_rows_of_ten_thirds_with_nothing_left_over()
+    public void S14810_a_list_ten_cells_tall_shows_three_rows_of_three_cells_and_a_third_of_a_fourth()
     {
-        // The owner's own case of 2026-11-19, now stretched: three rows of three cells (their optimal) in ten cells, each a
-        // third of the card, never four squeezed in and never a cell at the foot.
-        var reach = ItemStretch.Rows(100 - FamilySpace.Inset, 1, Grid);
+        // The owner's case: the rows keep their three cells; the fourth row stands at its size, its last cell in the card.
+        var reach = ItemSize.Rows(100 - FamilySpace.Inset, 1, Grid);
 
-        Assert.Equal(3, reach.Shown);
-        Assert.Equal(100.0 / 3, reach.Pitch, 9);
+        Assert.Equal(4, reach.Shown);
+        Assert.Equal(30, reach.Pitch, 9);
         Assert.Equal(100, reach.Room, 9);
-        Assert.Equal(100, reach.Start(3), 9);
-        Assert.Equal(0, 100 - Enumerable.Range(0, 3).Sum(reach.Height), 9);
+        Assert.All(Enumerable.Range(0, 4), i => Assert.Equal(30, reach.Height(i), 9));
+        Assert.Equal(90, reach.Start(3), 9);
     }
 
     [Fact]
-    public void S14500_a_list_eleven_cells_tall_shows_three_rows_of_eleven_thirds()
-    {
-        // A size whole-row steps forbade: eleven cells hold three rows of three, each 11/3 cells, nothing at the foot.
-        var reach = ItemStretch.Rows(110 - FamilySpace.Inset, 1, Grid);
-
-        Assert.Equal(3, reach.Shown);
-        Assert.Equal(110.0 / 3, reach.Pitch, 9);
-        Assert.Equal(110, Enumerable.Range(0, 3).Sum(reach.Height), 9);
-    }
-
-    [Fact]
-    public void S14500_rows_stretch_less_than_one_more_row_and_never_under_their_optimal()
+    public void S14810_one_cell_more_or_less_never_changes_a_rows_size()
     {
         for (var cells = 3; cells <= 60; cells++)
         {
             var room = cells * Grid.Pitch;
-            var reach = ItemStretch.Reach(room, FamilyShape.Row1, Grid);
+            var reach = ItemSize.Reach(room, FamilyShape.Row1, Grid);
 
-            Assert.True(reach.Pitch >= 30 - 1e-9, $"{cells} cells: {reach.Pitch} is under its optimal");
-            Assert.True((reach.Shown + 1) * 30 > room + 1e-9, $"{cells} cells hold one more row than {reach.Shown}");
+            Assert.Equal(30, reach.Pitch, 9);
+            Assert.Equal((int)Math.Ceiling(cells / 3.0), reach.Shown);
             Assert.Equal(room, reach.Room, 9);
+
+            // The rows the room reaches end at or past its end, less than one row past it.
+            Assert.InRange(reach.Start(reach.Shown) - room, 0, 30 - 1e-9);
         }
     }
 
@@ -75,64 +66,57 @@ public class OptimalStretchTests
     [InlineData(1.25)]
     [InlineData(1.5)]
     [InlineData(1.75)]
-    public void S14500_a_rows_edges_are_whole_device_pixels_ending_on_the_rooms_end(double scale)
+    public void S14810_a_rows_edges_are_whole_device_pixels_and_alike_to_a_pixel(double scale)
     {
         var grid = new ItemGrid(10, scale);
         foreach (var cells in new[] { 10, 11, 13, 17, 23, 31 })
         {
-            // A card is whole device pixels: its room too.
             var room = Math.Round(cells * 10 * scale) / scale;
-            var reach = ItemStretch.Reach(room, FamilyShape.Row1, grid);
+            var reach = ItemSize.Reach(room, FamilyShape.Row1, grid);
             for (var i = 0; i <= reach.Shown; i++)
             {
                 var px = reach.Start(i) * scale;
                 Assert.Equal(Math.Round(px), px, 6);
             }
 
-            Assert.Equal(room, reach.Start(reach.Shown), 6);
             var heights = Enumerable.Range(0, reach.Shown).Select(reach.Height).ToList();
-            Assert.True((heights.Max() - heights.Min()) * scale <= 1 + 1e-6, $"{cells} cells at {scale}: rows differ by more than a pixel");
-
-            // Scrolled by any number of rows, as many rows as are shown fill the room again.
-            Assert.Equal(room, reach.Start(reach.Shown + 2) - reach.Start(2), 6);
+            Assert.All(heights, h => Assert.True(Math.Abs(h - 30) * scale <= 1 + 1e-6, $"{cells} cells at {scale}: a row of {h}"));
         }
     }
 
     [Fact]
-    public void S14500_rows_over_an_add_row_stretch_alike_and_fill_the_card()
+    public void S14811_rows_over_an_add_row_keep_their_size_the_add_row_its_own()
     {
-        // Tasks of one line at 11 cells (98 under the card's inset): two rows and the add row, each 11/3 cells.
-        var one = ItemStretch.RowsAbove(110 - FamilySpace.Inset, 1, Grid);
-        Assert.Equal(2, one.Shown);
-        Assert.True(Math.Abs(one.Pitch - one.Foot) <= 1, $"rows {one.Pitch} and the add row {one.Foot} differ by more than a pixel");
-        Assert.Equal(110, one.Room + one.Foot, 9);
+        // Tasks of one line at 11 cells (98 under the card's inset): two rows whole, the third cut by the add row, 30 each.
+        var one = ItemSize.RowsAbove(110 - FamilySpace.Inset, 1, Grid);
+        Assert.Equal((30.0, 3, 30.0, 80.0), (one.Pitch, one.Shown, one.Foot, one.Room));
 
-        // Rows of two lines (40, four cells) over the one-line add row (three cells) at 16 cells: stretched by one share.
-        var two = ItemStretch.RowsAbove(160 - FamilySpace.Inset, 2, Grid);
-        Assert.Equal(3, two.Shown);
-        Assert.Equal(160, two.Room + two.Foot, 9);
-        Assert.Equal(40.0 / 30, two.Pitch / two.Foot, 2);
+        // Rows of two lines (40, four cells) over the one-line add row (three cells) at 16 cells: 40 and 30, never stretched.
+        var two = ItemSize.RowsAbove(160 - FamilySpace.Inset, 2, Grid);
+        Assert.Equal((40.0, 4, 30.0, 130.0), (two.Pitch, two.Shown, two.Foot, two.Room));
     }
 
     [Fact]
-    public void S14500_columns_share_the_width_evenly_edge_to_edge()
+    public void S14810_a_lists_viewport_is_its_rows_up_to_the_room()
     {
-        var columns = ItemStretch.Columns(355, 7, Grid);
+        var reach = ItemSize.Rows(110 - FamilySpace.Inset, 1, Grid);
 
-        Assert.Equal(355, columns.Sum(), 9);
-        Assert.True(columns.Max() - columns.Min() <= 1 + 1e-9);
-        Assert.All(columns, c => Assert.Equal(Math.Round(c), c, 9));
+        // Two items: their two rows, the room under them empty; ten: the whole room, the fourth row cut by its foot.
+        Assert.Equal(60, reach.Span(2), 9);
+        Assert.Equal(110, reach.Span(10), 9);
+        Assert.Equal(0, reach.Span(0), 9);
     }
 
     [Fact]
-    public void S14500_a_count_that_follows_the_card_is_what_it_holds_at_the_optimal()
+    public void S14810_a_count_that_follows_the_card_is_every_item_the_card_reaches()
     {
-        Assert.Equal(3, ItemStretch.Count(100, FamilyShape.Row1, Grid));
-        Assert.Equal(3, ItemStretch.Count(119, FamilyShape.Row1, Grid));
-        Assert.Equal(4, ItemStretch.Count(120, FamilyShape.Row1, Grid));
-        Assert.Equal(1, ItemStretch.Count(10, FamilyShape.Row1, Grid));
-        Assert.Equal(0, ItemStretch.Count(10, FamilyShape.Row1, Grid, least: 0));
-        Assert.Equal(14, ItemStretch.Count(9999, FamilyShape.Row1, Grid, most: 14));
+        Assert.Equal(4, ItemSize.Count(100, FamilyShape.Row1, Grid));
+        Assert.Equal(4, ItemSize.Count(119, FamilyShape.Row1, Grid));
+        Assert.Equal(4, ItemSize.Count(120, FamilyShape.Row1, Grid));
+        Assert.Equal(5, ItemSize.Count(121, FamilyShape.Row1, Grid));
+        Assert.Equal(1, ItemSize.Count(10, FamilyShape.Row1, Grid));
+        Assert.Equal(0, ItemSize.Count(0, FamilyShape.Row1, Grid, least: 0));
+        Assert.Equal(14, ItemSize.Count(9999, FamilyShape.Row1, Grid, most: 14));
     }
 
     [Theory]
@@ -152,15 +136,16 @@ public class OptimalStretchTests
             Assert.Equal((minW + k) / (double)cols, limits.Width.Range((minW + k) / (double)cols), 9);
         }
 
-        // The rows in the card at any of those heights fill it from its top edge to its foot, none left over.
+        // The rows in the card at any of those heights keep their one size: the card's height never reaches them.
         var grid = SizeFit.Grid(screen, scale);
+        var row = ItemSize.Optimal(FamilyShape.Row1, grid);
         for (var k = 0; k < 30; k++)
         {
             var card = (minH + k) / (double)rows * h / scale;
-            var reach = ItemStretch.RowsAbove(card - FamilySpace.Inset, 1, grid);
+            var reach = ItemSize.RowsAbove(card - FamilySpace.Inset, 1, grid);
+            Assert.Equal(row, reach.Pitch, 9);
+            Assert.Equal(row, reach.Foot, 9);
             Assert.Equal(card, reach.Room + reach.Foot, 6);
-            // At least its optimal where the card holds it (every display at a content scale of one and more), its natural always.
-            Assert.True(reach.Pitch >= (scale >= 1 ? grid.Whole(FamilyShape.Row1) : FamilyShape.Row1) - 0.5);
         }
     }
 

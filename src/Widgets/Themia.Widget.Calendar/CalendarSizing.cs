@@ -99,10 +99,10 @@ public static class CalendarSizing
         => items <= 0 ? new DayBandFit(0, 0, false) : new DayBandFit(1, CalendarFit.DayBar, items > 1);
 
     /// <summary>
-    /// [S-11543] [S-14502] The hours a timeline <paramref name="available"/> tall shows: as many as it holds at an hour's
-    /// optimal (a row's, whole cells), <see cref="MinHours"/>..<see cref="MaxHours"/>, each its share of the room.
+    /// [S-11543] [S-14502] [S-14810] The hours a timeline <paramref name="available"/> tall shows: every one it reaches at an
+    /// hour's one fixed size (a row's optimal, whole cells), the last cut by the card's foot, <see cref="MinHours"/>..<see cref="MaxHours"/>.
     /// </summary>
-    public static int HoursIn(double available, ItemGrid grid) => ItemStretch.Count(available, Hour, grid, MinHours, MaxHours);
+    public static int HoursIn(double available, ItemGrid grid) => ItemSize.Count(available, Hour, grid, MinHours, MaxHours);
 
     /// <summary>[S-11543] The day's height over its hours: the inset and the period's line, the band's line and 4, the inset.</summary>
     public static double DayOver => ContentTop + CalendarFit.DayBar + FamilySpace.S1 + FamilySpace.Inset;
@@ -110,7 +110,7 @@ public static class CalendarSizing
     /// <summary>[S-11543] [S-14500] The day: 240..480 wide (a new one 300), its height <see cref="DefaultHours"/> hours, 4..16 at least and most.</summary>
     public static WidgetSizing DaySizing()
     {
-        var hour = ItemStretch.Optimal(Hour, ItemGrid.Default());
+        var hour = ItemSize.Optimal(Hour, ItemGrid.Default());
         return WidgetSizing.Range(new(240, DayOver + (MinHours * hour)), new(300, DayOver + (DefaultHours * hour)), new(480, DayOver + (MaxHours * hour)));
     }
 
@@ -152,7 +152,7 @@ public static class CalendarSizing
     /// line.
     /// </summary>
     public static double MonthOver
-        => ItemStretch.Optimal(LineRules.BandOver, ItemGrid.Default()) + ItemStretch.Optimal(FamilyType.Caption.LineHeight, ItemGrid.Default());
+        => ItemSize.Optimal(LineRules.BandOver, ItemGrid.Default()) + ItemSize.Optimal(FamilyType.Caption.LineHeight, ItemGrid.Default());
 
     /// <summary>
     /// [S-11544] The month with dots: seven columns of 260 / 7 at least (a new one the least), its weekday letters and six
@@ -167,14 +167,14 @@ public static class CalendarSizing
         var grid = ItemGrid.Default();
         if (config.MonthEvents == MonthEvents.Chips)
         {
-            double Weeks(int lines) => MonthOver + (MonthWeeks * ItemStretch.Optimal(MonthNumberLine + (lines * CalendarFit.ChipLine), grid));
+            double Weeks(int lines) => MonthOver + (MonthWeeks * ItemSize.Optimal(MonthNumberLine + (lines * CalendarFit.ChipLine), grid));
             return WidgetSizing.Range(
                 new(7 * MonthTitleColumn, Weeks(MonthPlan.MinLines)),
                 new(7 * MonthNaturalColumn, Weeks(MonthPlan.DefaultLines)),
                 new(7 * MonthWidestColumn, Weeks(MonthPlan.MaxLines)));
         }
 
-        var week = MonthOver + (MonthWeeks * ItemStretch.Optimal(MonthCell(MonthEvents.Dots), grid));
+        var week = MonthOver + (MonthWeeks * ItemSize.Optimal(MonthCell(MonthEvents.Dots), grid));
         return WidgetSizing.Range(new(260, week), new(300, week), new(420, week));
     }
 
@@ -234,14 +234,14 @@ public static class CalendarSizing
         double Width(int days) => WeekWidth(days, titles);
         if (titles)
         {
-            var hour = ItemStretch.Optimal(Hour, grid);
+            var hour = ItemSize.Optimal(Hour, grid);
             return WidgetSizing.Range(
                 new(Width(CalendarPeriod.WeekMinDays), WeekHoursOver + (MinHours * hour)),
                 new(Width(CalendarPeriod.WeekDefaultDays), WeekHoursOver + (DefaultHours * hour)),
                 new(Width(CalendarPeriod.WeekMaxDays), WeekHoursOver + (MaxHours * hour)));
         }
 
-        var row = ItemStretch.Optimal(FamilyShape.Row1, grid);
+        var row = ItemSize.Optimal(FamilyShape.Row1, grid);
         return WidgetSizing.Range(
             new(Width(CalendarPeriod.WeekMinDays), WeekRowsOver + row),
             new(Width(CalendarPeriod.WeekDefaultDays), WeekRowsOver + (ClampWeekRows(config.WeekRows) * row)),

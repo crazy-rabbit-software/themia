@@ -323,9 +323,11 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         if (!readout)
         {
             // One row: the card's, or the reading's share over the graph.
-            _row.Rows = 1;
+            // [S-14705] The one row is the whole face (one item, the card edge to edge), not a repeated item: it is the box.
+            var face = graphs ? (look.Graph > 0 ? look.Reading : height / 2) : height;
             _row.VerticalAlignment = graphs ? VerticalAlignment.Top : VerticalAlignment.Stretch;
-            _row.Height = graphs ? (look.Graph > 0 ? look.Reading : height / 2) : double.NaN;
+            _row.Height = graphs ? face : double.NaN;
+            _row.Face(_area.IsMeasured && face > 0 ? face : double.NaN);
             return;
         }
 

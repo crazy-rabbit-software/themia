@@ -64,21 +64,25 @@ public sealed class TaskLayoutTests
     }
 
     [Fact]
-    public void S781_the_viewport_ends_on_the_last_whole_line()
+    public void S781_S14810_the_viewport_is_the_room_its_last_line_cut_by_it()
     {
+        // Owner, 2026-11-20: "they should just keep their size and the last item will be cutoff to some extent then."
         double[] bottoms = [44, 88, 120, 164];
-        Assert.Equal(88, KitChecks.WholeLineCap(bottoms, 106));
-        Assert.Equal(120, KitChecks.WholeLineCap(bottoms, 120.4));
-        Assert.Equal(30, KitChecks.WholeLineCap(bottoms, 30));
+        Assert.Equal(106, KitChecks.ViewEnd(bottoms, 106));
+        Assert.Equal(120.4, KitChecks.ViewEnd(bottoms, 120.4));
+        Assert.Equal(30, KitChecks.ViewEnd(bottoms, 30));
     }
 
     [Fact]
-    public void S781_the_viewport_never_ends_on_a_section_heading()
+    public void S781_S14810_the_viewport_never_ends_in_a_section_heading()
     {
+        // [S-639] A heading would announce rows that are not there: the list ends over the heading the room ends in.
         double[] bottoms = [44, 88, 112, 156];
         bool[] headings = [false, false, true, false];
-        Assert.Equal(88, KitChecks.WholeLineCap(bottoms, 130, headings));
-        Assert.Equal(156, KitChecks.WholeLineCap(bottoms, 160, headings));
+        Assert.Equal(88, KitChecks.ViewEnd(bottoms, 100, headings));
+        Assert.Equal(88, KitChecks.ViewEnd(bottoms, 112, headings));
+        Assert.Equal(130, KitChecks.ViewEnd(bottoms, 130, headings));
+        Assert.Equal(160, KitChecks.ViewEnd(bottoms, 160, headings));
     }
 
     [Fact]

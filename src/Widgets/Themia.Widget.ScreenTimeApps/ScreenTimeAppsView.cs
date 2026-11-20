@@ -81,8 +81,8 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         SetRow(_list, 1);
         SetRow(_empty, 1);
 
-        // [S-11510] [S-14500] How many rows stand is what the list's room holds at their optimal, stretched to fill it: a
-        // size that holds another count lays them again.
+        // [S-11510] [S-14810] How many rows stand is every one the list's room reaches at their size, the last cut: a size
+        // that reaches another count lays them again.
         _list.SizeChanged += (_, args) =>
         {
             var held = ScreenTimeAppsLayout.RowsIn(args.NewSize.Height, _config.RowsShown.Lines, ItemGrids.Of(this));
@@ -226,7 +226,6 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         var named = ScreenTimeRules.ListNamed(plan.Rows, data.Apps.Count);
         _segments = plan.Rows == 0 ? [] : ScreenTimeRules.Segments(data.Apps, data.Total, named, Str.Screentime_Other.Text());
         var rows = Math.Min(plan.Rows, _segments.Count);
-        _list.Rows = plan.Rows;
         var tones = ScreenTimeRules.Tones(_segments);
 
         // A row's lead is made for its size: rows of another lead are made again.

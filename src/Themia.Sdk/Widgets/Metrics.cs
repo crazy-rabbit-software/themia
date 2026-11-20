@@ -188,7 +188,7 @@ public static class MetricRules
     public static double RowHeight => RowOn(ItemGrid.Default());
 
     /// <summary>[S-14600] The one row's optimal height on <paramref name="grid"/>: the 28 row in its whole cells.</summary>
-    public static double RowOn(ItemGrid grid) => ItemStretch.Optimal(FamilyShape.Row1, grid);
+    public static double RowOn(ItemGrid grid) => ItemSize.Optimal(FamilyShape.Row1, grid);
 
     /// <summary>[S-14600] The sizing of a single metric drawing no trend: 200..420 wide (relaxed), one row tall.</summary>
     public static WidgetSizing Sizing { get; } = SizingFor(MetricTrend.None);

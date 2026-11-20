@@ -36,9 +36,9 @@ public static class RemovableDrivesPlan
     }
 
     /// <summary>
-    /// [S-12807] [S-14500] The rows in a view <paramref name="height"/> tall: two lines' 40 each at their optimal, as many
-    /// as the card holds, from its top edge to its foot, stretched to fill it (<see cref="Themia.Core.Widgets.ItemStretch.Rows"/>).
+    /// [S-12807] [S-14810] The rows in a view <paramref name="height"/> tall: two lines' 40 each, their one fixed size, from
+    /// the card's top edge, as many as it reaches, the last cut by its foot (<see cref="Themia.Core.Widgets.ItemSize.Rows"/>).
     /// </summary>
     public static Themia.Core.Widgets.RowReach Reach(double height, Themia.Core.Widgets.ItemGrid grid)
-        => Themia.Core.Widgets.ItemStretch.Rows(height, Lines, grid);
+        => Themia.Core.Widgets.ItemSize.Rows(height, Lines, grid);
 }

@@ -6,7 +6,7 @@ namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
 /// [S-12812] A section's heading inside a card (a day of the agenda, the schedule or the week planner, a list's done
-/// group): one row of 28 stretched as its list's rows are, BodyStrong in the secondary role (primary for the current
+/// group): one row of its list's rows' size ([S-14810]), BodyStrong in the secondary role (primary for the current
 /// one: today, the chosen day), the row's side inset. One part, so every list heads its sections alike.
 /// [S-12834] The heading is one of the rows that tile its list (owner, WR-6: "all items of a widget are the same size"):
 /// as tall as its list's rows (<c>KitPlan.HeadingHeight</c>, whole grid cells), an item of the list's (<c>ItemMark</c>),

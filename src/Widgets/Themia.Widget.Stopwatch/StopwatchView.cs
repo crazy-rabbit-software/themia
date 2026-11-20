@@ -288,7 +288,6 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
             }
         }
 
-        _laps.Rows = rows;
         _laps.Show(lines);
     }
 

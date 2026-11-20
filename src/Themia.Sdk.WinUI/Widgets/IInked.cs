@@ -11,6 +11,6 @@ public interface IInked
     /// <summary>The room in its box over its first ink and under its last.</summary>
     LineInk Ink { get; }
 
-    /// <summary>[S-12807] Whether it grows with its stack's room (a row: its texts stay centred in it), or keeps its height (a readout).</summary>
-    bool Grows { get; }
+    /// <summary>[S-14810] Whether it is a repeated item (a family row: laid at its optimal, its fixed size), or a part that keeps its own height (a readout).</summary>
+    bool IsRow { get; }
 }

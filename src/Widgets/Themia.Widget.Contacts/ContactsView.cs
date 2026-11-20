@@ -596,16 +596,16 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 _visible = [.. _visible.Skip(plan.Columns)];
             }
 
-            // [S-12834] A card whose room holds one line has none left under the line: no row is cut by its foot (WR-6).
+            // [S-13950] The line takes the first line's place: the rows under it keep theirs.
             plan = plan with { Rows = Math.Max(0, plan.Rows - 1), First = 1 };
         }
 
-        // [S-12834] WR-6: no more rows than the card holds whole under what stands over them (the field, the line).
+        // [S-14810] The rows the card reaches under what stands over them (the field, the line), the last cut by its foot.
         if (_area.IsMeasured && plan.Layout != ContactsLayout.Grid && plan.Pitch > 0)
         {
             var top = showSearch ? FamilySpace.Inset + LineRules.Under(_area.Grid(XamlRoot?.RasterizationScale ?? 1), FamilySpace.Inset, FamilyShape.Button) : line ? plan.Pitch : 0;
-            var fit = (int)Math.Floor((_area.Height + FamilySpace.Inset - top + LayoutMath.Tolerance) / plan.Pitch);
-            plan = plan with { Rows = Math.Max(0, Math.Min(plan.Rows, fit)) };
+            var reaches = (int)Math.Ceiling((_area.Height + FamilySpace.Inset - top - LayoutMath.Tolerance) / plan.Pitch);
+            plan = plan with { Rows = Math.Max(0, Math.Min(plan.Rows, reaches)) };
         }
 
         if (_visible.Count == 0)
@@ -670,11 +670,12 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _columnHeader.Visibility = Visibility.Collapsed;
     }
 
-    /// <summary>[S-11406] [S-14500] The list is as tall as the rows its card holds; the rest is a scroll away.</summary>
+    /// <summary>[S-11406] [S-14810] The list is as tall as its rows, at most its room (the last row in sight cut by the card's foot); the rest is a scroll away.</summary>
     private void StatedRows(int lines, ContactsLayoutPlan plan)
     {
         var shown = Math.Max(0, Math.Min(lines, plan.Rows));
-        _scroll.Height = lines > shown ? plan.Span(shown) : double.NaN;
+        var span = plan.Span(shown);
+        _scroll.Height = lines > shown || span > plan.ListRoom ? Math.Min(span, plan.ListRoom) : double.NaN;
 
         // [S-12834] No room for a row under what stands over the rows: none is drawn (never a row cut to nothing).
         _scroll.Visibility = shown > 0 ? Visibility.Visible : Visibility.Collapsed;

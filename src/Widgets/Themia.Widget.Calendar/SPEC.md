@@ -48,7 +48,7 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   line and six weeks at their optimal, every cell between, the weeks and the columns stretched to fill the card, 280
   wide new, [S-14101], [S-14500]) or
   Titles ([S-11547]). The weeks fill the
-  content edge to edge, the first week under the weekday line and the last week's marks on the foot's inset ([S-12400], [S-12807], `ItemStretch.Reach`): a box taller than their cells spaces the weeks evenly.
+  content edge to edge, the first week under the weekday line and the last week's marks on the foot's inset ([S-12400], [S-12807]): a box taller than their cells spaces the weeks evenly (the month is a grid of the card, not a list: it keeps filling it under [S-14810], WR-9).
   The day readout a narrow month fell back to is gone.
 - **[S-11547]** **Month with titles** (owner request 2026-11-15: "a size where he actually shows the
   events", Outlook's and Windows' month view): each day cell its number over its **events a day** (1..6, a

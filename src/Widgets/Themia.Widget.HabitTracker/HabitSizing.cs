@@ -97,8 +97,8 @@ public static class HabitSizing
 
         // [S-14500] The habits' rows and the add row under them at their optimal, from the card's top edge to its foot edge.
         var grid = ItemGrid.Default();
-        var row = ItemStretch.Optimal(FamilyShape.RowHeight(Lines(config)), grid);
-        var add = ItemStretch.Optimal(FamilyShape.Row1, grid);
+        var row = ItemSize.Optimal(FamilyShape.RowHeight(Lines(config)), grid);
+        var add = ItemSize.Optimal(FamilyShape.Row1, grid);
         return WidgetSizing.Range(new(least, add + row), new(Math.Max(least, NaturalWidth), add + (rows * row)), new(Math.Max(least, Widest), add + (MaxRows * row)));
     }
 }

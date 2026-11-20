@@ -246,7 +246,7 @@ public sealed class FolderBrowserTests
     /// what stands over them (each a band of whole cells) to the card's foot, none left over.
     /// </summary>
     [Fact]
-    public void S14102_S14500_the_rows_run_from_under_the_bands_to_the_cards_foot_at_every_cell()
+    public void S14102_S14810_the_rows_stand_under_the_bands_at_their_size_their_room_the_cards_foot_at_every_cell()
     {
         var grid = ItemGrid.Default();
         foreach (var config in new[] { new FolderConfig(), new FolderConfig { ShowPath = true, SearchBox = true }, new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true } })
@@ -259,7 +259,7 @@ public sealed class FolderBrowserTests
                 var height = FolderLayout.ItemsHeight(area, config.SearchBox, header, config.ShowPath, rows: true);
                 var reach = FolderLayout.Reach(height, grid);
 
-                Assert.True(reach.Pitch >= FolderLayout.RowHeight);
+                Assert.Equal(grid.Whole(FolderLayout.RowHeight), reach.Pitch, 6);
                 Assert.Equal(card, FolderLayout.Over(grid, config.SearchBox, header, config.ShowPath) + reach.Room, 6);
             }
         }

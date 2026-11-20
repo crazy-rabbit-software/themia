@@ -25,10 +25,10 @@ public static class ScreenTimeAppsLayout
     }
 
     /// <summary>
-    /// [S-11510] [S-14500] How many rows of <paramref name="lines"/> a list <paramref name="height"/> tall holds at their
-    /// optimal (owner, 2026-11-20: "the items should have an optimal size and then they may stretch a little to fill up the
-    /// remaining space"), at least one; none before it is measured.
+    /// [S-11510] [S-14810] How many rows of <paramref name="lines"/> a list <paramref name="height"/> tall reaches at their
+    /// one fixed size (owner, 2026-11-20: "the last item will be cutoff to some extent then"), at least one; none before it
+    /// is measured.
     /// </summary>
     public static int RowsIn(double height, int lines, ItemGrid grid)
-        => double.IsFinite(height) && height > 0 ? ItemStretch.Count(height, FamilyShape.RowHeight(lines), grid, KitSizing.MinRows, KitSizing.MaxRows) : 0;
+        => double.IsFinite(height) && height > 0 ? ItemSize.Count(height, FamilyShape.RowHeight(lines), grid, KitSizing.MinRows, KitSizing.MaxRows) : 0;
 }

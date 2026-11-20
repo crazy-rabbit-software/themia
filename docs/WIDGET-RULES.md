@@ -20,26 +20,39 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   edge. how did you miss that? you might have missed this for others too." An item's box (its row band, cell, hover
   area) runs from the card's left edge to its right edge, the first from the card's top; the inset is padding inside
   the item, never a margin round the items.
-- **WR-4 Items stretch to fill.** 2026-11-19: "the weather forecast widget and others too the items still dont reach
-  to the top and bottom. they still have a little / small gap. they should stretch if they dont reach all the way."
-- **WR-5 Empty room only at the foot, and only as empty rows.** 2026-11-19, of a list with fewer items than its stated
-  rows: "no this is fine if it happens, but there should not be a space at the top". 2026-11-20: "now the weather
-  forecast widget always has one block space at the bottom. this should obviously not be"; "same for the task widget,
-  there is also a one block space at the bottom now. why is that?"; "right now all of the widgets have a space on the
-  bottom, this means their size steps are not in sync with the item heights. fix this if you are not already fixing
-  it."; "the calendar does not always stretch the contents to the top and bottom although it would be easily
-  possible." Empty stated rows may stand at the foot, as rows; never above the first item, never between items, and
-  never a part row or leftover room under the last item: the items stretch to fill the card to its foot (WR-6).
-- **WR-6 Items have an optimal size and stretch a little; widgets step by one cell.** 2026-11-20: "actually, the
-  multiple of its children size should be relaxed, also that the size of the items can only be a defined block size,
-  in general they should try to have a fixed block size but dont have to. for you to understand why i am changing this
-  back again, if the widgets only have steps in increments of four or six for example, you cannot properly align them.
-  lets not limit the user in the alignment. the items should have an optimal size and then they may stretch a little to
-  fill up the remaining space. the widgets should not have the size increments anymore but should be incrementable in
-  steps of one. does this make sense?" Every repeated item has an optimal size, a whole number of desktop grid cells
-  along the axis it repeats; a card shows as many items as hold that size and they stretch evenly to fill it, never
-  smaller than their optimal size; all items of a widget are the same size. A widget resizes by one grid cell on each
-  axis, whatever its items.
+- **WR-4 Items keep their fixed size; the last one is cut.** 2026-11-20: "the widget items should actually have a fixed
+  size. then when you change the height of a widget the items should not grow or shrink to fit all the way from the top
+  to the bottom, they should just keep their size and the last item will be cutoff to some extent then." A repeated item
+  never grows or shrinks with its card: the items stand from the content's top (WR-1), touching (WR-2), and the last one
+  the card reaches is cut by its foot (or, for items side by side, its right edge).
+  Replaced 2026-11-20, the earlier WR-4 "Items stretch to fill", 2026-11-19: "the weather forecast widget and others too
+  the items still dont reach to the top and bottom. they still have a little / small gap. they should stretch if they
+  dont reach all the way."
+- **WR-5 Empty room only at the foot.** 2026-11-19, of a list with fewer items than its stated rows: "no this is fine if
+  it happens, but there should not be a space at the top". Never a space above the first item or between items. Under
+  the last item: a list with more items than its card holds has its last item cut by the card's foot (WR-4, 2026-11-20:
+  "the last item will be cutoff to some extent then"); one with fewer items than room leaves the room under its last
+  item empty.
+  Replaced 2026-11-20, the earlier WR-5's "never a part row or leftover room under the last item: the items stretch to
+  fill the card to its foot", from 2026-11-20: "now the weather forecast widget always has one block space at the
+  bottom. this should obviously not be"; "same for the task widget, there is also a one block space at the bottom now.
+  why is that?"; "right now all of the widgets have a space on the bottom, this means their size steps are not in sync
+  with the item heights. fix this if you are not already fixing it."; "the calendar does not always stretch the contents
+  to the top and bottom although it would be easily possible."
+- **WR-6 Items have one fixed size; widgets step by one cell.** 2026-11-20: "the widget items should actually have a
+  fixed size. then when you change the height of a widget the items should not grow or shrink to fit all the way from
+  the top to the bottom, they should just keep their size and the last item will be cutoff to some extent then." And, of
+  the widget's size, 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in
+  steps of one." Every repeated item has one size, its optimal: its natural length in whole desktop grid cells along the
+  axis it repeats; it is that size at every size of its card; all items of a widget are the same size. A widget resizes
+  by one grid cell on each axis, whatever its items.
+  Replaced 2026-11-20, the WR-6 "Items have an optimal size and stretch a little", 2026-11-20: "actually, the multiple
+  of its children size should be relaxed, also that the size of the items can only be a defined block size, in general
+  they should try to have a fixed block size but dont have to. for you to understand why i am changing this back again,
+  if the widgets only have steps in increments of four or six for example, you cannot properly align them. lets not
+  limit the user in the alignment. the items should have an optimal size and then they may stretch a little to fill up
+  the remaining space. the widgets should not have the size increments anymore but should be incrementable in steps of
+  one. does this make sense?"
   Replaced 2026-11-20, the earlier WR-6 "Items are whole grid cells", 2026-11-19: "items inside widgets should be
   designed in a way that they match the size of the grid on the desktop, for example they should be designed so that
   they are 3 blocks high or wide, that means that a widget that is 10 blocks hight should not show 4 items because then
@@ -51,13 +64,14 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
 - **WR-9 Calendar cells and numbers fill the card.** 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; answer "Bigger numbers too"; "the calendar does not match the fucking design rules i told
   you." 2026-11-20: "the calendar shows the individual events too early, the items should stay small for a little
-  longer." A day cell keeps its small marks until it clearly holds a readable chip line.
+  longer." A day cell keeps its small marks until it clearly holds a readable chip line. The month is a grid of the
+  card, not a list: its day cells share the card (WR-4 and WR-6 are about a widget's repeated list items).
 
 - **WR-14 A face that scales scales down too.** 2026-11-19: "you should be able to make the clock even smaller than it
   is right now. for the widgets that can scale there should basically be no lower limit except for one that makes
   sense so you can still see the widget." A face that scales as one (a clock, a date, a reading) is sized down to where
   its smallest text is still read (9 DIP; a glyph 12) and never under the grid's least widget (32 DIP); rows and list
-  items keep their optimal size (WR-6; a list's least is one item).
+  items keep their one fixed size (WR-6; a list's least is one item).
 - **WR-15 A running reading never moves.** 2026-11-20: "the clock right now changes its layout depending on the time
   that it shows because not all of the chars have the same width." (SPEC [S-14319]; the gap check judges a held reading
   by its template, `holds`.)

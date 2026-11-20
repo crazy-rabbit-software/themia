@@ -21,9 +21,9 @@ public sealed class ContactsPlanTests
 
         Assert.Equal((ContactsLayout.List, 1, 2, true, 5), (plan.Layout, plan.Columns, plan.Lines, plan.Avatar, plan.Rows));
         // [S-14500] The search box with the card's inset over it, one band of whole cells (40), and five rows of 40: a new
-        // one's; a taller card shows the rows it holds (400: nine).
+        // one's; [S-14810] a taller card shows every row it reaches (400: nine whole and part of a tenth).
         Assert.Equal(new Themia.Sdk.SizeDip(300, 40 + (5 * 40)), sizing.Natural);
-        Assert.Equal(9, Plan(config).Rows);
+        Assert.Equal(10, Plan(config).Rows);
         Assert.Equal((220, 520), (sizing.Min.Width, sizing.Max.Width));
         Assert.Empty(sizing.Problems());
     }
@@ -66,8 +66,8 @@ public sealed class ContactsPlanTests
         var natural = ContactsPlan.Of(new WidgetArea(sizing.Natural.Width, sizing.Natural.Height - 12), config);
         Assert.Equal((48.0, 3, 2), (natural.Icon, natural.Columns, natural.Rows));
         var wider = ContactsPlan.Of(new WidgetArea(24 + (5 * 96) + (4 * 12) + 20, sizing.Natural.Height - 12), config);
-        Assert.Equal((5, 2), (wider.Columns, wider.Rows));
-        Assert.True(wider.ColumnWidth > 96);
+        Assert.Equal(5, wider.Columns);
+        Assert.Equal(96, wider.ColumnWidth); // [S-14810] a cell keeps its size
     }
 
     [Fact]

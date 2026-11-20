@@ -211,16 +211,17 @@ public sealed partial class KitList
             headings.Add(heading);
         }
 
-        // [S-12807] [S-14500] Less the add row under them, on the foot's inset (ItemStretch.RowsAbove: stretched as they are).
+        // [S-14811] Less the add row under them, at its own size.
         var room = KitPlanner.ListHeight(_area) - (_addRow?.Element.Visibility == Visibility.Visible ? _plan.FootHeight : 0);
-        // [S-14500] The lines end on whole device pixels: the cap a hair past its last one, so a layout rounding the bound
-        // down at a fractional scale never cuts that line by a pixel.
-        _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings) + 0.1;
+
+        // [S-14810] The lines keep their size: a longer list's viewport is the room, the last line in it cut by its end, never
+        // ending in a heading ([S-639], KitChecks.ViewEnd).
+        _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.ViewEnd(bottoms, room, headings);
     }
 
     /// <summary>
-    /// [S-12834] [S-14500] The rows and headings standing take the plan's pitch (built, or a new size under an editor or a
-    /// drag): each line its share of the room on whole device pixels (<see cref="KitPlan.RowAt"/>), the add row the foot's.
+    /// [S-12834] [S-14810] The rows and headings standing take the plan's pitch (built, or a new size under an editor or a
+    /// drag): each line its one fixed size on whole device pixels (<see cref="KitPlan.RowAt"/>), the add row its own.
     /// </summary>
     private void Repitch()
     {
@@ -230,7 +231,6 @@ public sealed partial class KitList
         }
 
         var columns = Math.Max(1, panel.Columns);
-        BeforeTrailingHeading(panel, columns);
         for (var k = 0; k < panel.Children.Count; k++)
         {
             var height = _plan.RowAt(k / columns);
@@ -254,25 +254,7 @@ public sealed partial class KitList
         CapToWholeLines();
     }
 
-    /// <summary>
-    /// [S-639] [S-14500] Where the last line the room holds is a heading (the done group's, more lines under it), the list
-    /// never ends on it, so the lines before it share the room it would have taken: the rows stretch to the add row and
-    /// the foot (WR-5: no room left over under the last item), rather than ending a line short of it.
-    /// </summary>
-    private void BeforeTrailingHeading(KitRowsPanel panel, int columns)
-    {
-        var reach = _plan.Reach;
-        var lines = KitChecks.LinesFor(panel.Children.Count, columns);
-        if (columns != 1 || reach.Pitch <= 0 || reach.Shown is <= 1 or int.MaxValue || lines <= reach.Shown || panel.Children[reach.Shown - 1] is Border)
-        {
-            return;
-        }
-
-        var shown = reach.Shown - 1;
-        _plan = _plan.With(new RowReach(reach.Room / shown, shown, reach.Scale) { Foot = reach.Foot });
-    }
-
-    /// <summary>[S-784] A group's heading (the done ones): one row of 28 (stretched as the rows are, [S-12410]), BodyStrong, secondary.</summary>
+    /// <summary>[S-784] A group's heading (the done ones): one row of 28 (at the rows' fixed size, [S-14810]), BodyStrong, secondary.</summary>
     private Grid CheckHeading(string text) => SectionHeading.Make(text, _plan.HeadingHeight);
 
     /// <summary>

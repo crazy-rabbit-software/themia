@@ -33,33 +33,36 @@ public class WeatherLayoutTests
     }
 
     [Fact]
-    public void S11146_columns_are_a_56_column_a_day_every_cell_wide_at_one_height_new()
+    public void S11146_S14810_columns_are_a_60_column_a_day_from_the_cards_edge_every_cell_wide_at_one_height_new()
     {
+        // [S-14810] A day's column is its 56 in whole cells, 60, its one fixed size, from the card's left edge.
         var sizing = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns });
         var dry = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns, ShowPrecipitation = false });
 
-        Assert.Equal(24 + (5 * 56), sizing.Natural.Width);
+        Assert.Equal(5 * 60, sizing.Natural.Width);
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(24 + 56, sizing.Min.Width);
+        Assert.Equal(60, sizing.Min.Width);
         Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]
         Assert.Equal(12 + WeatherForecastLayout.ColumnHeight(true) + 12, sizing.Natural.Height);
         Assert.Equal(20, sizing.Natural.Height - dry.Natural.Height);
     }
 
     [Fact]
-    public void S11146_S14502_the_days_are_as_many_as_the_box_holds_never_stored()
+    public void S11146_S14502_S14810_the_days_are_every_one_the_box_reaches_never_stored()
     {
         // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the
-        // card's size": a rows card ten cells and a bit tall (its view 98 under the inset) shows three days, eleven cells
-        // three too, twelve four; a columns card three columns wide three.
+        // card's size"; "they should just keep their size and the last item will be cutoff to some extent then": a rows card
+        // ten cells tall shows three days of three cells and a third of a fourth, eleven cells two thirds of it, twelve four
+        // whole; a columns card three columns wide three, a cell more a sliver of a fourth.
         var rows = new WeatherForecastConfig();
         var columns = new WeatherForecastConfig { Style = ForecastStyle.Columns };
 
-        Assert.Equal(3, WeatherForecastLayout.DaysIn(new WidgetArea(300, 100 - 12), rows));
-        Assert.Equal(3, WeatherForecastLayout.DaysIn(new WidgetArea(300, 110 - 12), rows));
+        Assert.Equal(4, WeatherForecastLayout.DaysIn(new WidgetArea(300, 100 - 12), rows));
+        Assert.Equal(4, WeatherForecastLayout.DaysIn(new WidgetArea(300, 110 - 12), rows));
         Assert.Equal(4, WeatherForecastLayout.DaysIn(new WidgetArea(300, 120 - 12), rows));
         Assert.Equal(14, WeatherForecastLayout.DaysIn(new WidgetArea(300, 2000), rows));
-        Assert.Equal(3, WeatherForecastLayout.DaysIn(new WidgetArea(24 + (3 * 56) + 20, 200), columns));
+        Assert.Equal(3, WeatherForecastLayout.DaysIn(new WidgetArea(3 * 60, 200), columns));
+        Assert.Equal(4, WeatherForecastLayout.DaysIn(new WidgetArea((3 * 60) + 10, 200), columns));
         Assert.Equal(14, rows.ForecastDays);
     }
 
@@ -68,8 +71,8 @@ public class WeatherLayoutTests
     {
         var plan = WeatherForecastLayout.Rows(new WidgetArea(320, 200), new WeatherForecastConfig { Lines = 2 });
 
-        // [S-14502] 212 from the card's top edge holds five rows of two lines (40).
-        Assert.Equal((5, 2, false), (plan.Days, plan.Lines, plan.Compact));
+        // [S-14502] [S-14810] 212 from the card's top edge: five rows of two lines (40) and part of a sixth.
+        Assert.Equal((6, 2, false), (plan.Days, plan.Lines, plan.Compact));
         Assert.Equal(Math.Floor((320 - 24) * WeatherForecastLayout.MeterShare), plan.Meter);
         Assert.Equal(WeatherForecastLayout.MeterMax, WeatherForecastLayout.Rows(new WidgetArea(800, 200), new WeatherForecastConfig()).Meter);
     }
@@ -90,11 +93,12 @@ public class WeatherLayoutTests
         => Assert.Equal(0, WeatherForecastLayout.MeterWidth(40, 24, 60, 45, 0));
 
     [Fact]
-    public void S726_columns_share_the_content_and_draw_every_part()
+    public void S726_S14810_columns_keep_their_width_and_draw_every_part()
     {
         var plan = WeatherForecastLayout.Columns(new WidgetArea(304, 180), new WeatherForecastConfig { Style = ForecastStyle.Columns });
 
-        Assert.Equal(56, plan.ColumnWidth, 6);
+        Assert.Equal(60, plan.ColumnWidth, 6);
+        Assert.Equal(6, plan.Days);
         Assert.Equal(FamilyShape.IconLarge, plan.Icon);
         Assert.True(plan.Low && plan.Bar && plan.Precipitation);
     }

@@ -5,8 +5,8 @@ namespace Themia.Core.Widgets;
 /// over that axis's own pitch, the screen's DIPs along it over its lines) takes them rounded up, float noise forgiven, at
 /// least one. What the host lays a widget's box in (<c>GridFit</c>) and what a picture of a fence lays its title bar and
 /// icon boxes in (<c>FenceGrid.OnGrid</c>), so the picture is what the host lays. An item's optimal length inside a card is
-/// counted by <see cref="ItemGrid.Cells"/> instead, on purpose (its slack); [S-14500] the items stretch to the card's
-/// actual height, so the two counts never leave room at the foot.
+/// counted by <see cref="ItemGrid.Cells"/> instead, on purpose (its slack); [S-14810] the items keep that size in any
+/// box the host lays, the last cut by its foot.
 /// </summary>
 public static class GridCells
 {
@@ -23,11 +23,11 @@ public static class GridCells
 }
 
 /// <summary>
-/// [S-12830] [S-14500] The desktop grid a widget's items lay on (owner, 2026-11-20: "the items should have an optimal size
-/// and then they may stretch a little to fill up the remaining space"). <see cref="Cell"/> is the grid's drawn pitch on
+/// [S-12830] [S-14810] The desktop grid a widget's items lay on (owner, 2026-11-20: "the widget items should actually have
+/// a fixed size"). <see cref="Cell"/> is the grid's drawn pitch on
 /// the widget's display in DIPs ([S-06b]: about 10, screen / columns), <see cref="Scale"/> the display's raster scale. A
-/// repeated item's optimal length is its natural length in whole cells (<see cref="Whole"/>, a row of 28 three); the
-/// items stretch from it to fill their room (<see cref="ItemStretch"/>).
+/// repeated item's optimal length is its natural length in whole cells (<see cref="Whole"/>, a row of 28 three), its one
+/// fixed size (<see cref="ItemSize"/>).
 /// </summary>
 public readonly record struct ItemGrid(double Cell, double Scale = 1)
 {
@@ -47,7 +47,7 @@ public readonly record struct ItemGrid(double Cell, double Scale = 1)
     /// [S-14500] How far past a whole cell a length may reach and still count as that cell: a fiftieth of one. A view lays
     /// its items on one pitch, its display's width over its columns ([S-12830]), seldom exactly 10 (9.974 at 1536 wide): a
     /// row of 40 is 4.01 of those cells and takes four, not five. Only an item's optimal is counted so; the host's box is
-    /// <see cref="GridCells"/>'s (float noise alone), and the items stretch to fill whatever box it lays.
+    /// <see cref="GridCells"/>'s (float noise alone), and the items keep their size in whatever box it lays.
     /// </summary>
     public const double Slack = 0.02;
 

@@ -18,27 +18,29 @@ namespace Themia.Widget.Contacts;
 /// <param name="Rows">How many rows (grid lines) show: what the card holds; the rest is a scroll away.</param>
 public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Columns, double ColumnWidth, int Lines, bool Avatar, bool Aside, double Icon, double Pitch, int Rows)
 {
-    /// <summary>[S-12807] [S-14500] The rows laid as <paramref name="reach"/> says: as many as the room holds at their optimal, its pitch, touching.</summary>
+    /// <summary>[S-12807] [S-14810] The rows laid as <paramref name="reach"/> says: at their one fixed size, touching, as many as the room reaches.</summary>
     public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch, Rows = reach.Shown, Reach = reach };
 
-    /// <summary>[S-14500] How the rows share the room: each one's edges on whole device pixels; none before the card is measured.</summary>
+    /// <summary>[S-14810] How the rows stand in the room: each one's edges on whole device pixels; none before the card is measured.</summary>
     public RowReach Reach { get; init; }
 
     /// <summary>[S-13950] The lines of the room over the list's first row: the search line that takes the first line, else none.</summary>
     public int First { get; init; }
 
     /// <summary>
-    /// [S-14500] Row <paramref name="index"/>'s height: its share of the room on whole device pixels (<see cref="RowReach.Height"/>,
-    /// counted past <see cref="First"/>), so the rows shown end exactly on the room's end and none peeks in under them; the
-    /// pitch before it is laid.
+    /// [S-14810] Row <paramref name="index"/>'s height: its one fixed size on whole device pixels (<see cref="RowReach.Height"/>,
+    /// counted past <see cref="First"/>); the pitch before it is laid.
     /// </summary>
     public double RowAt(int index) => Reach.Pitch > 0 ? Reach.Height(index + First) : Pitch;
 
-    /// <summary>[S-14500] Where the list's first row starts down the room: under the <see cref="First"/> lines over it.</summary>
+    /// <summary>[S-14810] Where the list's first row starts down the room: under the <see cref="First"/> lines over it.</summary>
     public double Top => Reach.Pitch > 0 ? Reach.Start(First) : First * Pitch;
 
-    /// <summary>[S-14500] The length <paramref name="count"/> rows take from the list's first: as <see cref="RowAt"/> lays them.</summary>
+    /// <summary>[S-14810] The length <paramref name="count"/> rows take from the list's first: as <see cref="RowAt"/> lays them.</summary>
     public double Span(int count) => count <= 0 ? 0 : Reach.Pitch > 0 ? Reach.Start(count + First) - Reach.Start(First) : count * Pitch;
+
+    /// <summary>[S-14810] The room the list's rows stand in from its first: the card's to its foot, the last row cut by it.</summary>
+    public double ListRoom => Reach.Pitch > 0 ? Math.Max(0, Reach.Room - Top) : double.PositiveInfinity;
 }
 
 /// <summary>
@@ -88,9 +90,9 @@ public static class ContactsPlan
     }
 
     /// <summary>
-    /// [S-11406] [S-14410] [S-14500] The grid in <paramref name="area"/>: as many cells a line as its width holds and as many
-    /// lines as its height holds (2..<see cref="ContactsConfig.MaxGrid"/> a line, one line at least), each cell and line
-    /// stretched to share the room, the gaps kept; before the box is measured, a new one's grid.
+    /// [S-11406] [S-14410] [S-14810] The grid in <paramref name="area"/>: its cells at their one fixed size, as many a line as
+    /// its width holds whole (2..<see cref="ContactsConfig.MaxGrid"/>) and as many lines as its height reaches, the last cut by
+    /// the card's foot, the gaps kept; before the box is measured, a new one's grid.
     /// </summary>
     private static ContactsLayoutPlan Cells(WidgetArea area, ContactsConfig config)
     {
@@ -103,27 +105,26 @@ public static class ContactsPlan
         var across = Math.Max(0, area.Width - (2 * FamilySpace.Inset)) + gap;
         var columns = Math.Clamp((int)Math.Floor((across + LayoutMath.Tolerance) / (CellWidth + gap)), 2, ContactsConfig.MaxGrid);
         var down = Math.Max(0, area.Height - (config.SearchBox ? SearchHeight : 0) - FamilySpace.Inset) + gap;
-        var lines = Math.Max(1, (int)Math.Floor((down + LayoutMath.Tolerance) / (CellHeight + gap)));
-        return new ContactsLayoutPlan(ContactsLayout.Grid, columns, Math.Max(CellWidth, (across / columns) - gap), 1, false, false, CellIcon, Math.Max(CellHeight + gap, down / lines), lines);
+        var lines = Math.Max(1, (int)Math.Ceiling((down - LayoutMath.Tolerance) / (CellHeight + gap)));
+        return new ContactsLayoutPlan(ContactsLayout.Grid, columns, CellWidth, 1, false, false, CellIcon, CellHeight + gap, lines);
     }
 
     /// <summary>
-    /// [S-12807] [S-14500] The rows under <paramref name="over"/> (the search box, the column titles): as many as the card
-    /// holds at their optimal, touching, from the card's top edge or right under what stands over them (its whole cells,
-    /// with the card's inset over it) to the card's foot, stretched to fill it; one at its optimal before the box is
-    /// measured.
+    /// [S-12807] [S-14810] The rows under <paramref name="over"/> (the search box, the column titles): at their one fixed
+    /// size, touching, from the card's top edge or right under what stands over them (its whole cells, with the card's inset
+    /// over it), as many as the card reaches, the last cut by its foot; one before the box is measured.
     /// </summary>
     private static RowReach Reach(WidgetArea area, double over, int lines, double scale)
         => area.IsMeasured
-            ? ItemStretch.Rows(area.Height, lines, area.Grid(scale), over > 0 ? FamilySpace.Inset + over : 0)
-            : ItemStretch.Natural(lines, area.Grid(scale));
+            ? ItemSize.Rows(area.Height, lines, area.Grid(scale), over > 0 ? FamilySpace.Inset + over : 0)
+            : ItemSize.Natural(lines, area.Grid(scale));
 
     /// <summary>
     /// [S-11406] Each layout's own sizes, with the search box where it is on: List and Compact the
     /// kit's widths (220..520, a new one 300), their height the rows; Details as wide as its columns
     /// need (88 a column) to 720, its height the column titles and the rows; the Grid its cells, a new one
     /// <see cref="ContactsConfig.DefaultGridColumns"/> a line (the card's: [S-14410]) and its rows down. [S-14500] Every
-    /// cell between: what the card holds stretches to fill it.
+    /// cell between; [S-14810] the items keep their size at every one.
     /// </summary>
     public static WidgetSizing Sizing(ContactsConfig config)
     {
@@ -156,7 +157,7 @@ public static class ContactsPlan
     }
 
     /// <summary>
-    /// [S-14500] What stands over the rows (the search box, the column titles, with the card's inset over them: one part of
+    /// [S-14810] What stands over the rows (the search box, the column titles, with the card's inset over them: one part of
     /// whole cells from the card's top edge, as <see cref="Reach"/> lays it) and a row's optimal, on the default grid.
     /// </summary>
     private static (double Over, double Row) Parts(ContactsConfig config)
@@ -165,7 +166,7 @@ public static class ContactsPlan
         var grid = ItemGrid.Default();
         var row = layout == ContactsLayout.List ? FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)) : FamilyShape.Row1;
         var over = (config.SearchBox ? SearchHeight : 0) + (layout == ContactsLayout.Details ? HeaderHeight : 0);
-        return (over > 0 ? ItemStretch.Optimal(FamilySpace.Inset + over, grid) : 0, ItemStretch.Optimal(row, grid));
+        return (over > 0 ? ItemSize.Optimal(FamilySpace.Inset + over, grid) : 0, ItemSize.Optimal(row, grid));
     }
 
     /// <summary>

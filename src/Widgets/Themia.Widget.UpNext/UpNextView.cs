@@ -200,17 +200,17 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
             ToolTipService.SetToolTip(row, $"{(string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject)}{Environment.NewLine}{NextMeetingRules.Range(locale, item, zone)}");
         }
 
-        // [S-2440] [S-14500] As tall as the rows the card holds; the rest a scroll away. [S-12807] The rows reach the
-        // card's top and foot edges, stretched to fill it, the first one's band over the top.
+        // [S-2440] [S-14810] As tall as the rows, at most the card: the last row in sight cut by its foot, the rest a scroll
+        // away. [S-12807] The rows at their one fixed size from the card's top edge, the first one's band over the top.
         var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(1, _area.Grid());
+            ? ItemSize.Rows(_area.Height, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemSize.Natural(1, _area.Grid());
         for (var i = 0; i < _rows.Count; i++)
         {
             _rows[i].Height = reach.Height(i);
         }
 
-        _scroll.Height = _area.IsMeasured && after.Count > reach.Shown ? reach.Room : double.NaN;
+        _scroll.Height = _area.IsMeasured ? reach.Span(after.Count) : double.NaN;
         ListEdge.Apply(_scroll);
         _scroll.Visibility = Visibility.Visible;
         _fade?.Refresh();

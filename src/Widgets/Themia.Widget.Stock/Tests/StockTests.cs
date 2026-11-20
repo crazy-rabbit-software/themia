@@ -32,7 +32,7 @@ public sealed class StockTests
 
         Assert.Equal(12 + 36 + 16 + 12, Of(new StockConfig()).Natural.Height);
         // [S-14500] With rows: the price's band (whole cells from the card's top edge) and its rows at their optimal (30), a
-        // new one exactly those; every cell taller too, the rows stretched to fill it.
+        // new one exactly those; every cell taller too, the rows at their size ([S-14810]).
         double Rows(int rows) => Themia.Core.Widgets.ItemGrid.Default().Whole(StockLayout.PriceBand) + (rows * 30);
 
         Assert.Equal(Rows(1), Of(new StockConfig { SharesOwned = 10 }).Natural.Height);

@@ -129,22 +129,22 @@ public static class WeekPlannerRules
     /// <see cref="DefaultDays"/> of them; the height a day's heading (28) and its rows (28 each) at their optimal from the
     /// card's top edge to its foot edge, its <paramref name="rows"/> a new one's. Both axes take every cell (owner,
     /// 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps of one"):
-    /// the days are as many as the width holds (<see cref="DaysIn"/>) and the rows as many as the height holds, each
-    /// stretched to fill it.
+    /// [S-14810] the days and the rows keep their one size: as many as the width and the height reach (<see cref="DaysIn"/>),
+    /// the last cut by the card's edge.
     /// </summary>
     public static WidgetSizing Sizing(int rows)
     {
         var grid = ItemGrid.Default();
-        var column = ItemStretch.Optimal(ColumnWidth, grid);
-        var row = ItemStretch.Optimal(FamilyShape.Row1, grid);
+        var column = ItemSize.Optimal(ColumnWidth, grid);
+        var row = ItemSize.Optimal(FamilyShape.Row1, grid);
         return WidgetSizing.Range(
             new(column, row + row),
             new(DefaultDays * column, row + (Math.Clamp(rows, 1, MaxRows) * row)),
             new(Days * column, row + (MaxRows * row)));
     }
 
-    /// <summary>[S-11410] [S-14410] [S-14500] The days a planner <paramref name="width"/> wide shows: as many columns as it holds at their optimal, 1..<see cref="Days"/>.</summary>
-    public static int DaysIn(double width, ItemGrid grid) => ItemStretch.Count(width, ColumnWidth, grid, 1, Days);
+    /// <summary>[S-11410] [S-14410] [S-14810] The days a planner <paramref name="width"/> wide shows: every column at its optimal it reaches, the last cut by its right edge, 1..<see cref="Days"/>.</summary>
+    public static int DaysIn(double width, ItemGrid grid) => ItemSize.Count(width, ColumnWidth, grid, 1, Days);
 
     /// <summary>A day's rows in <paramref name="fit"/> whole rows: all of them, or all but one and a "+N" row; in one row its first item.</summary>
     private static (int Shown, int Hidden) Cut(int count, int fit)

@@ -291,17 +291,17 @@ public static class CalendarFit
     public const double MaxHour = 48;
 
     /// <summary>
-    /// [S-11543] The window of <paramref name="count"/> hours a timeline the config sized draws, each
-    /// <paramref name="available"/> / count tall: the wanted day (07–22 widened to every timed event)
+    /// [S-11543] [S-14810] The window of <paramref name="count"/> hours a timeline draws, each <paramref name="hour"/> tall
+    /// (an hour's one fixed size, its optimal; the last hour the card's foot reaches cut by it): the wanted day (07–22 widened to every timed event)
     /// when it is no longer, grown evenly toward midnight where the count is longer; else the count's
     /// hours from just before <paramref name="focusHour"/> (the next event, or now) without leaving it.
     /// </summary>
-    public static HourWindow HoursOf(int count, double available, int earliestHour, int latestHour, int focusHour)
+    public static HourWindow HoursOf(int count, double hour, int earliestHour, int latestHour, int focusHour)
     {
         var hours = Math.Clamp(count, 1, 24);
         var first = Math.Clamp(Math.Min(CalendarRules.TimelineFirstHour, earliestHour), 0, 23);
         var end = Math.Clamp(Math.Max(CalendarRules.TimelineEndHour, latestHour), first + 1, 24);
-        var height = available > 0 && double.IsFinite(available) ? available / hours : MinHour;
+        var height = hour > 0 && double.IsFinite(hour) ? hour : MinHour;
 
         if (hours >= end - first)
         {

@@ -59,7 +59,8 @@ internal sealed partial class CalendarView
         }
 
         var (earliest, latest) = CalendarFit.EventHours(timed, day, zone);
-        var window = CalendarFit.HoursOf(CalendarSizing.HoursIn(available, _area.Grid(XamlRoot?.RasterizationScale ?? 1)), available, earliest, latest, CalendarFit.FocusHour(timed, day, Today, _clock(), zone));
+        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var window = CalendarFit.HoursOf(CalendarSizing.HoursIn(available, cells), ItemSize.Optimal(CalendarSizing.Hour, cells), earliest, latest, CalendarFit.FocusHour(timed, day, Today, _clock(), zone));
 
         var labels = HourLabels(window, long_: gutter == HourLabelWidth);
         SetRow(labels, 1);

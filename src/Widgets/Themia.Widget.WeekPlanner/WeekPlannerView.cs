@@ -360,12 +360,12 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     private WidgetArea _area;
 
     /// <summary>
-    /// [S-12807] [S-14500] A line's height (a day's heading's too): 28 at its optimal, as many lines as the card holds from
-    /// its top edge to its foot, stretched to fill it; the first line's band over the top.
+    /// [S-12807] [S-14810] A line's height (a day's heading's too): 28 at its optimal, its one fixed size, as many lines as the
+    /// card reaches from its top edge, the last cut by its foot; the first line's band over the top.
     /// </summary>
     private RowReach Reach => _area.IsMeasured
-        ? ItemStretch.Rows(_area.Height, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-        : ItemStretch.Natural(1, _area.Grid());
+        ? ItemSize.Rows(_area.Height, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+        : ItemSize.Natural(1, _area.Grid());
 
     private void Render()
     {
@@ -415,11 +415,10 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         var slots = WeekPlannerRules.Columns(counts, shownDays, rows);
         var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
 
-        // [S-12834] [S-14500] The days are columns of one grid of cells (WR-3: "items reach from edge to edge"): from the
-        // card's left edge to its right, sharing its width evenly, every line of them as tall as the lines' share, a day
-        // with fewer lines than the card holds keeping its place with empty cells, so every line of the week runs across
-        // the card and the lines touch from its top edge to its foot.
-        var widths = _area.IsMeasured ? ItemStretch.Columns(_area.Width, slots.Count, grid) : null;
+        // [S-12834] [S-14810] The days are columns of one grid of cells, each at its one fixed width from the card's left
+        // edge, the last the card's right edge reaches cut by it; every line of them at the lines' size, a day with fewer
+        // lines keeping its place with empty cells, so every line of the week runs across the card from its top edge.
+        var widths = _area.IsMeasured ? Enumerable.Repeat(ItemSize.Optimal(WeekPlannerRules.ColumnWidth, grid), slots.Count).ToArray() : null;
         for (var c = 0; c < slots.Count; c++)
         {
             _content.ColumnDefinitions.Add(new ColumnDefinition { Width = widths is null ? new GridLength(1, GridUnitType.Star) : new GridLength(widths[c]) });

@@ -13,7 +13,7 @@ public readonly record struct SizeDip(double Width, double Height);
 /// handle. Content decides the size; the size never decides the content ([S-2445]): inside its range a
 /// kind shows the same parts, and what it shows is its config ([S-11800]). [S-14500] Every axis takes every whole grid
 /// cell between its Min and its Max (owner, 2026-11-20: "the widgets should not have the size increments anymore but
-/// should be incrementable in steps of one"): no sizing states a step; its items stretch to the box ([S-12410]).
+/// should be incrementable in steps of one"): no sizing states a step; its items keep their size ([S-14810]).
 /// </summary>
 public sealed record WidgetSizing
 {
@@ -161,7 +161,7 @@ public enum StretchRoom
 /// the work area holds (the host stops a resize there, <c>SizeFit.Limits</c>). Min and Natural stay the content's, a
 /// height the kind keeps (<see cref="WidgetSizing.KeepsHeight"/>: a fence rolled up) its own, a kind of
 /// <see cref="StretchRoom.None"/> (a desktop icon) its own. In the larger box the parts stretch to their caps and the rest is spacing ([S-12410],
-/// <c>ItemStretch</c>); what the widget shows is still its config ([S-11800]).
+/// <c>ItemSize</c>); what the widget shows is still its config ([S-11800]).
 /// </summary>
 public static class SizeStretch
 {

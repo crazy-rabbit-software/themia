@@ -49,25 +49,25 @@ public static class StopwatchFace
 
     /// <summary>
     /// [S-11302] [S-14500] The lap rows a view <paramref name="height"/> tall lists under the face's <paramref name="band"/>
-    /// (both in the view, which reaches the card's foot edge): as many one-line rows as that room holds at their optimal,
-    /// up to <see cref="MostLapRows"/>, stretched to the foot; none in a view not measured yet.
+    /// (both in the view, which reaches the card's foot edge): every one-line row that room reaches at its one size, the last cut,
+    /// up to <see cref="MostLapRows"/>; none in a view not measured yet.
     /// </summary>
     public static int LapRowsIn(double height, double band, ItemGrid grid)
-        => double.IsFinite(height) && height > 0 ? ItemStretch.Count(height - band, FamilyShape.Row1, grid, 0, MostLapRows) : 0;
+        => double.IsFinite(height) && height > 0 ? ItemSize.Count(height - band, FamilyShape.Row1, grid, 0, MostLapRows) : 0;
 
     /// <summary>
     /// [S-11302] [S-14500] The stopwatch's sizing ([S-2438]): its face over the Controls row (the main action at
     /// its longest label, Lap and Reset) with the card's inset over it, one band of whole cells, a new one no laps; every
-    /// cell taller lists the laps the room under the face holds, one-line rows (28) at their optimal stretched to the
-    /// card's foot, up to <see cref="MostLapRows"/>; up to half again wider. No header by default.
+    /// cell taller lists the laps the room under the face reaches, one-line rows (28) at their optimal, the last cut by the
+    /// card's foot ([S-14810]), up to <see cref="MostLapRows"/>; up to half again wider. No header by default.
     /// </summary>
     public static WidgetSizing Sizing(StopwatchConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
         var none = Face(config, locale);
         var grid = ItemGrid.Default();
-        var band = ItemStretch.Optimal(FamilySpace.Inset + FaceHeight(config, locale), grid);
-        var row = ItemStretch.Optimal(FamilyShape.Row1, grid);
+        var band = ItemSize.Optimal(FamilySpace.Inset + FaceHeight(config, locale), grid);
+        var row = ItemSize.Optimal(FamilyShape.Row1, grid);
         return WidgetSizing.Range(
             none.Min with { Height = band },
             none.Natural with { Height = band },

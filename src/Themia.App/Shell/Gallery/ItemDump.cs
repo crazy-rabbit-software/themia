@@ -17,8 +17,8 @@ namespace Themia.App.Shell.Gallery;
 /// [S-12831] Debug only: every card's item boxes beside a render (<c>--widget-png … --layout-json &lt;out.json&gt;</c>), for
 /// the item check (<c>scripts/item-check.py</c>, the owner's WR-2..WR-6): the card's box and its grid pitch, each item
 /// (<see cref="ItemMark"/>) as the box it shows in the card (cut by the scroll viewer or clip it stands in), grouped by
-/// the panel that lays it, [S-14500] a family row's optimal height on the card's grid (<c>o</c>: its natural in whole
-/// cells, what it may stretch from and never shrink under), and the ink that stands in the card outside every item (texts,
+/// the panel that lays it, [S-14813] a family row's optimal height on the card's grid (<c>o</c>: its natural in whole
+/// cells, its one fixed size), a cut item's whole box (<c>fw</c>, <c>fh</c>), and the ink that stands in the card outside every item (texts,
 /// glyphs, pictures, shapes), so the check can tell what stands over a list from a band over it. [S-6754] And every graph's plot (the one
 /// <see cref="Chart"/>'s box), for the gap check (<c>scripts/gap-check.py</c>): a plot reaches the card's edges.
 /// </summary>
@@ -85,15 +85,21 @@ internal static class ItemDump
                 w.WriteNumber("g", group);
                 Box(w, box);
 
-                // [S-14500] A family row's optimal height: its lines' natural in whole cells of the card's grid.
+                // [S-14813] A family row's optimal height: its lines' natural in whole cells of the card's grid.
                 if ((item as RowBlock ?? (item as Border)?.Child as RowBlock) is { } row)
                 {
-                    w.WriteNumber("o", Math.Round(ItemStretch.Optimal(Themia.Sdk.Kit.FamilyShape.RowHeight(row.Lines), new ItemGrid(card.CellPitch)), 2));
+                    w.WriteNumber("o", Math.Round(ItemSize.Optimal(Themia.Sdk.Kit.FamilyShape.RowHeight(row.Lines), new ItemGrid(card.CellPitch)), 2));
                 }
 
                 if (cut)
                 {
+                    // [S-14813] The cut item's whole box, so the check holds it to the fixed size.
                     w.WriteBoolean("cut", true);
+                    if (Place(card, item) is { } whole)
+                    {
+                        w.WriteNumber("fw", Math.Round(whole.Width, 2));
+                        w.WriteNumber("fh", Math.Round(whole.Height, 2));
+                    }
                 }
 
                 w.WriteEndObject();

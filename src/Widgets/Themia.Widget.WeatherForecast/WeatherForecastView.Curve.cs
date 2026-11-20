@@ -20,7 +20,9 @@ internal sealed partial class WeatherForecastView
         var shown = days.Take(plan.Days).ToList();
         var grid = new Grid
         {
-            Margin = ContentInset,
+            // [S-14810] The days' columns from the card's left edge at their one width, the last cut by its right edge.
+            Margin = ColumnsInset,
+            HorizontalAlignment = HorizontalAlignment.Left,
             RowSpacing = ForecastCurve.Gap,
             FlowDirection = FlowDirection.LeftToRight,
         };
@@ -40,7 +42,7 @@ internal sealed partial class WeatherForecastView
 
         for (var i = 0; i < shown.Count; i++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.ColumnWidth) });
             var day = shown[i];
 
             // A hit target per column for the day's summary; the chart itself is not hit-testable. It is the

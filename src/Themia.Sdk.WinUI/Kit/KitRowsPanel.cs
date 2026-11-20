@@ -249,9 +249,9 @@ public sealed partial class KitListHost : Panel
     }
 
     /// <summary>
-    /// [S-14500] The height its lines ask under the viewer's cap: the lines that fit whole, to the DIP, never the viewer's own
-    /// desired height, which a fractional display scale rounds down a device pixel under a cap that ends on one, cutting the
-    /// last whole line (and fading it out) at a box the rows were stretched to fill.
+    /// [S-14810] The height its lines ask under the viewer's cap: the lines to the cap (the last one cut by it, never a
+    /// heading, <see cref="KitChecks.ViewEnd"/>), to the DIP, never the viewer's own desired height, which a fractional
+    /// display scale rounds down a device pixel.
     /// </summary>
     private double WholeLines()
     {
@@ -261,7 +261,7 @@ public sealed partial class KitListHost : Panel
             return _scroll.DesiredSize.Height;
         }
 
-        var cap = double.IsFinite(_scroll.MaxHeight) ? KitChecks.WholeLineCap(lines, _scroll.MaxHeight, _rows.LineHeadings) : lines[^1];
+        var cap = double.IsFinite(_scroll.MaxHeight) ? KitChecks.ViewEnd(lines, _scroll.MaxHeight, _rows.LineHeadings) : lines[^1];
         return Math.Min(lines[^1], cap) + _scroll.Padding.Top + _scroll.Padding.Bottom;
     }
 
@@ -272,8 +272,8 @@ public sealed partial class KitListHost : Panel
         var lines = _rows.LineBottoms;
         var content = lines.Count > 0 ? lines[^1] : 0;
 
-        // All of it when it fits; otherwise down to the last whole line.
-        _viewHeight = content <= room + 0.5 ? content : KitChecks.WholeLineCap(lines, room, _rows.LineHeadings);
+        // All of it when it fits; otherwise the room, its last line cut by it ([S-14810]), never ending in a heading.
+        _viewHeight = content <= room + 0.5 ? content : KitChecks.ViewEnd(lines, room, _rows.LineHeadings);
         var height = Math.Min(finalSize.Height, _viewHeight + padding);
 
         _scroll.Arrange(new Rect(0, 0, finalSize.Width, height));

@@ -202,12 +202,12 @@ public static class FolderLayout
     public static int Rows(double height) => Math.Max(1, RowRules.Fit(height, 1));
 
     /// <summary>
-    /// [S-12807] [S-14500] The list's rows in the items' <paramref name="height"/> (<see cref="ItemsHeight"/>, down to the
-    /// card's foot): as many rows of 28 as it holds at their optimal, stretched to fill it, touching (the cells of the grid
-    /// and the icons keep the inset: their marks stand inside it).
+    /// [S-12807] [S-14810] The list's rows in the items' <paramref name="height"/> (<see cref="ItemsHeight"/>, down to the
+    /// card's foot): rows of 28 at their one fixed size (three cells), touching, as many as it reaches, the last cut by the
+    /// card's foot (the cells of the grid and the icons keep the inset: their marks stand inside it).
     /// </summary>
     public static RowReach Reach(double height, ItemGrid grid)
-        => ItemStretch.Reach(height, RowHeight, grid);
+        => ItemSize.Reach(height, RowHeight, grid);
 
     /// <summary>
     /// [S-1326] The tool line's parts ([S-6710]: at most two buttons): Back and Up in navigate mode, else

@@ -4,9 +4,9 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk.Kit;
 
 /// <summary>
-/// [S-2440] [S-14500] A kit list that states its rows: its config states how many rows a new card stands (its natural
-/// height, [S-2438]) and how many lines each has; the card's height shows as many rows as it holds at their optimal,
-/// stretched to fill it. Any kit list adopts it by implementing this on its config, stating <see cref="KitSizing.Sizing"/>
+/// [S-2440] [S-14810] A kit list that states its rows: its config states how many rows a new card stands (its natural
+/// height, [S-2438]) and how many lines each has; the card's height shows every row it reaches at their one size, the
+/// last cut by its foot. Any kit list adopts it by implementing this on its config, stating <see cref="KitSizing.Sizing"/>
 /// on its descriptor and adding <c>KitMenuLines.Rows</c> to its menu.
 /// </summary>
 public interface IKitRows
@@ -39,9 +39,8 @@ public readonly record struct KitWidths(double Min, double Natural, double Max);
 /// [S-2440] [S-14500] The size of a kit list that states its rows: its rows (28 or 40 each by its lines) at their optimal
 /// (whole grid cells, three a row of 28 on the default grid) from the card's top edge to its foot edge, under a table's
 /// column titles and over the add row where it has them, each part whole cells; its Rows decide its natural height, and
-/// its height takes every cell from one row up, the rows as many as it holds, stretched to fill it (owner, 2026-11-20:
-/// "the items should have an optimal size and then they may stretch a little to fill up the remaining space"). The width
-/// in its range. Pure, so every kit list shares it.
+/// its height takes every cell from one row up, the rows keeping their size, as many as it reaches ([S-14810], owner,
+/// 2026-11-20: "the widget items should actually have a fixed size"). The width in its range. Pure, so every kit list shares it.
 /// </summary>
 public static class KitSizing
 {
@@ -94,12 +93,12 @@ public static class KitSizing
     /// </summary>
     public static double Parts(KitRowsChoice choice, bool addFooter, double over = 0)
     {
-        static double Part(double length) => length > 0 && double.IsFinite(length) ? ItemStretch.Optimal(length, ItemGrid.Default()) : 0;
+        static double Part(double length) => length > 0 && double.IsFinite(length) ? ItemSize.Optimal(length, ItemGrid.Default()) : 0;
         return Part(over) + Part(choice.ColumnTitles ? KitPlanner.TitlesOver : 0) + Part(addFooter ? FamilyShape.Row1 : 0);
     }
 
     /// <summary>[S-14500] A row's optimal height on the default grid: its natural (28 or 40 by its lines) in whole cells.</summary>
-    public static double RowOptimal(int lines) => ItemStretch.Optimal(FamilyShape.RowHeight(lines), ItemGrid.Default());
+    public static double RowOptimal(int lines) => ItemSize.Optimal(FamilyShape.RowHeight(lines), ItemGrid.Default());
 
     /// <summary>
     /// [S-2440] [S-14500] The sizing of a kit list showing <paramref name="shown"/> (the config's rows and the lines

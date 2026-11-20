@@ -279,7 +279,7 @@ public sealed partial class KitList : Grid, IStatusRoom
             Mark(_cursorIndex, true);
         }
 
-        FitWholeRows(columns);
+        FitRows(columns);
         _fade?.Refresh();
         ApplyRoom();
     }
@@ -362,10 +362,10 @@ public sealed partial class KitList : Grid, IStatusRoom
     }
 
     /// <summary>
-    /// [S-639] [S-6712] The list is given the height of the rows that fit whole (each of the plan's one
-    /// height); the rest is a scroll away.
+    /// [S-639] [S-6712] [S-14810] The list is given its rows' height (each of the plan's one fixed size), at most its room:
+    /// a longer list's last row in sight is cut by the card's foot, the rest a scroll away.
     /// </summary>
-    private void FitWholeRows(int columns)
+    private void FitRows(int columns)
     {
         if (!_area.IsMeasured || _rowElements.Count == 0)
         {
@@ -374,8 +374,7 @@ public sealed partial class KitList : Grid, IStatusRoom
         }
 
         var lines = (_rowElements.Count + columns - 1) / columns;
-        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area), _area.Grid())));
-        _scroll.Height = _plan.LineStart(shown);
+        _scroll.Height = Math.Min(_plan.LineStart(lines), KitPlanner.ListRoom(_plan, KitPlanner.ListHeight(_area), _area.Grid()));
     }
 
     /// <summary>[S-1304] The site's own icon (the host's one cache), with a globe in its place until it arrives or when the site has none.</summary>

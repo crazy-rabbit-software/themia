@@ -69,11 +69,11 @@ public static class MonthLayouts
     {
         var need = chips ?? MonthChipRoom.Dots;
         width = double.IsFinite(width) ? Math.Max(0, width) : 0;
-        var columns = ItemStretch.Columns(width, 7, grid);
+        var columns = ItemSize.Columns(width, 7, grid);
 
         var headerEnd = grid.Whole(top + FamilyType.Caption.LineHeight);
         var room = Math.Max(0, cardHeight - headerEnd);
-        var least = ItemStretch.Optimal(LeastRow, grid);
+        var least = ItemSize.Optimal(LeastRow, grid);
         var rows = Math.Clamp((int)Math.Floor((room + LayoutMath.Tolerance) / least), 1, CalendarSizing.MonthWeeks);
         var rowHeight = Math.Max(least, room / rows);
         var first = rows < CalendarSizing.MonthWeeks ? Math.Clamp(anchorRow - ((rows - 1) / 2), 0, CalendarSizing.MonthWeeks - rows) : 0;

@@ -264,8 +264,8 @@ internal sealed partial class FolderView
         }
         else
         {
-            // [S-12807] [S-14500] The list's rows reach the items' top and the card's foot, as many as it holds at their
-            // optimal, stretched to fill it; each its share on whole device pixels.
+            // [S-12807] [S-14810] The list's rows at their one fixed size from the items' top, the viewport the card's room,
+            // the last row in sight cut by its foot; each on whole device pixels.
             var reach = FolderLayout.Reach(height, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
             if (reach != _rowReach)
             {
@@ -424,10 +424,10 @@ internal sealed partial class FolderView
         }
     }
 
-    /// <summary>[S-12807] [S-14500] A list row's height: 28 at its optimal, stretched so the rows reach the items' top and the card's foot.</summary>
+    /// <summary>[S-12807] [S-14810] A list row's height: 28 at its optimal, its one fixed size.</summary>
     private double _rowPitch = FolderLayout.RowHeight;
 
-    /// <summary>[S-14500] The list's rows as laid: each row's share of the room on whole device pixels.</summary>
+    /// <summary>[S-14810] The list's rows as laid: each at its size on whole device pixels.</summary>
     private RowReach _rowReach = new(FolderLayout.RowHeight);
 
 

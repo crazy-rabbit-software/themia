@@ -153,7 +153,7 @@ public sealed class KitRowsTests
 
                 // [S-12807] [S-14500] Its rows stand as many as the box holds at their optimal and share it to its foot, a
                 // heading with them.
-                var reach = ItemStretch.Rows(area.Height, lines, area.Grid());
+                var reach = ItemSize.Rows(area.Height, lines, area.Grid());
                 Assert.Equal(reach.Pitch, plan.RowHeight, 6);
                 Assert.True(plan.RowHeight >= area.Grid().Whole(FamilyShape.RowHeight(lines)) - 1e-6);
                 // [S-12834] A heading is one of the rows that tile the list: as tall as they are, whole cells (WR-6: "all items

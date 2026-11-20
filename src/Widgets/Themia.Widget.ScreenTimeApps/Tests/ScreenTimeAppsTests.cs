@@ -60,14 +60,14 @@ public sealed class ScreenTimeAppsTests
     }
 
     [Fact]
-    public void S11510_S14500_the_list_shows_the_rows_its_room_holds_at_their_optimal()
+    public void S11510_S14810_the_list_shows_every_row_its_room_reaches_at_their_size()
     {
-        // The render of 2026-11-20 stood the config's five rows in any card: under the day line of a card 150 tall the
-        // fifth was cut to 20, at 180 twenty were left under the last. The rows its room holds stand, stretched to fill it.
+        // [S-14810] Owner, 2026-11-20: "they should just keep their size and the last item will be cutoff to some extent
+        // then": 110 shows three rows of 30 and part of a fourth.
         var grid = ItemGrid.Default();
-        Assert.Equal(3, ScreenTimeAppsLayout.RowsIn(110, 1, grid));
-        Assert.Equal(4, ScreenTimeAppsLayout.RowsIn(140, 1, grid));
-        Assert.Equal(2, ScreenTimeAppsLayout.RowsIn(110, 2, grid));
+        Assert.Equal(4, ScreenTimeAppsLayout.RowsIn(110, 1, grid));
+        Assert.Equal(5, ScreenTimeAppsLayout.RowsIn(140, 1, grid));
+        Assert.Equal(3, ScreenTimeAppsLayout.RowsIn(110, 2, grid));
         Assert.Equal(1, ScreenTimeAppsLayout.RowsIn(20, 1, grid));
         Assert.Equal(0, ScreenTimeAppsLayout.RowsIn(0, 1, grid));
 

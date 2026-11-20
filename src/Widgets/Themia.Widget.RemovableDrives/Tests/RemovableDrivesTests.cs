@@ -22,7 +22,7 @@ public sealed class RemovableDrivesTests
     [Fact]
     public void S11027_S14500_its_rows_are_a_new_cards_height_every_cell_from_one_row_up()
     {
-        Assert.Equal(4 * 40, RemovableDrivesPlan.Reach((4 * 40) - 12, ItemGrid.Default()).Length(4));
+        Assert.Equal(4 * 40, RemovableDrivesPlan.Reach((4 * 40) - 12, ItemGrid.Default()).Start(4));
         var sizing = Kind.SizingOf();
         Assert.Equal(4 * 40, sizing.Natural.Height);
         Assert.Equal(40, sizing.Min.Height);
@@ -30,11 +30,12 @@ public sealed class RemovableDrivesTests
     }
 
     [Fact]
-    public void S12452_its_rows_fill_the_view_touching()
+    public void S12452_S14810_its_rows_keep_their_size_touching_from_the_cards_top_edge()
     {
-        // [S-14500] The view at a box: as many rows of four cells as it holds from the card's top edge to its foot, sharing it.
-        Assert.Equal(new RowReach(46, 4), RemovableDrivesPlan.Reach((4 * 40) + 12, ItemGrid.Default()));
-        Assert.Equal(new RowReach(912.0 / 22, 22), RemovableDrivesPlan.Reach(900, ItemGrid.Default()));
-        Assert.Equal(new RowReach(56, 2), RemovableDrivesPlan.Reach(100, ItemGrid.Default()));
+        // [S-14810] The view at a box: rows of four cells from the card's top edge, as many as it reaches, the last cut.
+        static (double, int, double) Of(RowReach r) => (r.Pitch, r.Shown, r.Room);
+        Assert.Equal((40.0, 5, 184.0), Of(RemovableDrivesPlan.Reach((4 * 40) + 12, ItemGrid.Default())));
+        Assert.Equal((40.0, 23, 912.0), Of(RemovableDrivesPlan.Reach(900, ItemGrid.Default())));
+        Assert.Equal((40.0, 3, 112.0), Of(RemovableDrivesPlan.Reach(100, ItemGrid.Default())));
     }
 }

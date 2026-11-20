@@ -101,13 +101,14 @@ public class WeekPlannerTests
     }
 
     [Fact]
-    public void S14410_S14502_the_days_are_as_many_as_the_width_holds()
+    public void S14410_S14502_S14810_the_days_are_as_many_as_the_width_reaches_the_last_cut()
     {
+        // [S-14810] A day's column keeps its 200: a width of 610 shows three whole and a sliver of a fourth.
         var grid = Themia.Core.Widgets.ItemGrid.Default();
         Assert.Equal(1, WeekPlannerRules.DaysIn(150, grid));
-        Assert.Equal(1, WeekPlannerRules.DaysIn(399, grid));
+        Assert.Equal(2, WeekPlannerRules.DaysIn(399, grid));
         Assert.Equal(2, WeekPlannerRules.DaysIn(400, grid));
-        Assert.Equal(3, WeekPlannerRules.DaysIn(610, grid));
+        Assert.Equal(4, WeekPlannerRules.DaysIn(610, grid));
         Assert.Equal(WeekPlannerRules.Days, WeekPlannerRules.DaysIn(5000, grid));
     }
 }

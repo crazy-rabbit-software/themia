@@ -273,10 +273,10 @@ public sealed class KitTests
         var area = new WidgetArea(width, height);
         var plan = KitPlanner.Plan(area, Rich, KitShow.All);
 
-        Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(area)) >= 1, tier);
+        Assert.True(KitPlanner.ListRoom(plan, KitPlanner.ListHeight(area)) > 0, tier);
 
-        // [S-12807] The rows grow to fill the box, never under their natural height.
-        Assert.True(plan.RowHeight >= FamilyShape.RowHeight(plan.Lines), tier);
+        // [S-14810] The rows keep their one size, their natural in whole cells, at every tier.
+        Assert.Equal(ItemGrid.Default().Whole(FamilyShape.RowHeight(plan.Lines)), plan.RowHeight, 6);
     }
 
     [Theory]
@@ -284,22 +284,23 @@ public sealed class KitTests
     [InlineData(6, 1)]
     [InlineData(6, 2)]
     [InlineData(20, 3)]
-    public void S12807_a_lists_rows_touch_and_fill_the_view_down_to_the_foot_s_inset(int rows, int lines)
+    public void S12807_S14810_a_lists_rows_touch_at_their_fixed_size_from_the_cards_top_edge(int rows, int lines)
     {
-        // [S-14500] The rows run from the card's top edge down, touching, as many as the card holds at their optimal (a
-        // natural card holds its stated rows), sharing it to the foot: nothing left over.
+        // [S-14810] The rows run from the card's top edge down, touching, at their optimal whatever the card's height (a
+        // natural card holds its stated rows whole); the last one the card's foot reaches is cut by it.
         var choices = new KitChoices(KitShow.All) { Rows = new KitRowsChoice(rows, lines) };
+        var optimal = ItemGrid.Default().Whole(FamilyShape.RowHeight(lines));
         foreach (var extra in new[] { 0.0, 37, 300 })
         {
             var height = KitSizing.Sizing(choices.Rows, addFooter: false).Natural.Height - FamilySpace.ContentTop + extra;
             var plan = KitPlanner.Plan(new WidgetArea(300, height), Rich, choices);
 
-            Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
+            Assert.Equal(optimal, plan.RowHeight, 6);
             var room = height + FamilySpace.Inset;
-            var shown = ItemStretch.Rows(height, lines, ItemGrid.Default()).Shown;
-            Assert.True(shown >= (extra == 0 ? rows : 1));
-            Assert.Equal(room, shown * plan.RowHeight, 6);
-            Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))) >= shown);
+            Assert.Equal(room, plan.Reach.Room, 6);
+            Assert.Equal((int)Math.Ceiling((room - 0.5) / optimal), plan.Reach.Shown);
+            Assert.True(plan.Reach.Shown >= rows);
+            Assert.Equal(room, KitPlanner.ListRoom(plan, KitPlanner.ListHeight(new WidgetArea(300, height))), 6);
         }
     }
 

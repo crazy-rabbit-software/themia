@@ -75,13 +75,13 @@ public sealed class ForecastCurveTests
     }
 
     [Fact]
-    public void S11146_the_curve_shows_the_days_its_width_holds_each_a_column_of_the_content_and_every_part()
+    public void S11146_S14810_the_curve_shows_the_days_its_width_reaches_each_a_column_of_its_one_width_and_every_part()
     {
         var config = new WeatherForecastConfig { Style = ForecastStyle.Curve };
-        var plan = ForecastCurve.Plan(new WidgetArea(304, 160), config);
+        var plan = ForecastCurve.Plan(new WidgetArea(300, 160), config);
 
         Assert.Equal(5, plan.Days);
-        Assert.Equal(280 / 5.0, plan.ColumnWidth, 6);
+        Assert.Equal(60, plan.ColumnWidth, 6);
         Assert.True(plan.Icon && plan.Low && plan.Precipitation);
         Assert.Equal(148 - ForecastCurve.Parts(true), plan.ChartHeight, 6);
         Assert.False(ForecastCurve.Plan(new WidgetArea(304, 160), new WeatherForecastConfig { Style = ForecastStyle.Curve, ShowPrecipitation = false }).Precipitation);
@@ -92,17 +92,17 @@ public sealed class ForecastCurveTests
     }
 
     [Fact]
-    public void S11146_S14410_the_curve_is_a_56_day_a_new_one_five_and_its_days_what_its_width_holds()
+    public void S11146_S14410_the_curve_is_a_60_day_a_new_one_five_and_its_days_what_its_width_reaches()
     {
         var config = new WeatherForecastConfig { Style = ForecastStyle.Curve };
         var sizing = WeatherForecastLayout.Sizing(config);
 
-        Assert.Equal((24 + 56.0, 24 + (5 * 56.0), 24 + (14 * 56.0)), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal((60.0, 5 * 60.0, 14 * 60.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
         Assert.Equal(12 + ForecastCurve.Parts(true) + 96 + 12, sizing.Natural.Height);
         Assert.Equal(sizing.Natural.Height - 96 + 72, sizing.Min.Height);
 
         // [S-14502] A card two days wider shows seven days; its height is the chart's, never a count.
-        Assert.Equal(7, ForecastCurve.Plan(new WidgetArea(24 + (7 * 56) + 10, 300), config).Days);
+        Assert.Equal(7, ForecastCurve.Plan(new WidgetArea(7 * 60, 300), config).Days);
     }
 
     [Fact]

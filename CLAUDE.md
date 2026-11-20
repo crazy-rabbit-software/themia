@@ -275,11 +275,15 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   setting, no Alt, no free path) and it fits every sizing, a desktop icon's too, to whole grid cells first
   (`GridFit`, [S-11807], [S-11875]; a ready-made group, or touching widgets in a picture, as one block, [S-11808], [S-11809]:
   `ReadyMadeGroups.Laid`, never member by member),
-  so a kind states content's DIPs, never grid sizes; repeated items have an **optimal size** (their natural in whole
-  cells, `ItemStretch.Optimal`): the card shows as many as hold it and they stretch evenly to fill it, never under it,
-  nothing left over ([S-14500], owner 2026-11-20: "the items should have an optimal size and then they may stretch a
-  little to fill up the remaining space. the widgets should not have the size increments anymore but should be
-  incrementable in steps of one"; no `SizeSteps`, `OnePathSizingTests.S14500_`). Inside its range a kind shows the
+  so a kind states content's DIPs, never grid sizes; a widget resizes by one grid cell ([S-14500], owner 2026-11-20:
+  "the widgets should not have the size increments anymore but should be incrementable in steps of one"; no
+  `SizeSteps`, `OnePathSizingTests.S14500_`). Repeated items have **one fixed size** (their natural in whole cells,
+  `ItemSize.Optimal`) at every card size: they stand from the content's top, touching, as many as the card reaches,
+  and the last is cut by its foot (its right edge for columns); a shorter list leaves the room under its last empty
+  ([S-14810], owner 2026-11-20: "the widget items should actually have a fixed size. then when you change the height
+  of a widget the items should not grow or shrink to fit all the way from the top to the bottom, they should just keep
+  their size and the last item will be cutoff to some extent then."; no `ItemStretch`, `OnePathSizingTests.S14810_`).
+  Inside its range a kind shows the
   same parts: what it shows is config (rows, lines, facts, what the items are, a chart's span). **Size and item
   counts follow the card** ([S-14410], owner 2026-11-20: "the size should not be settable, it is set by the size of
   the widget"; "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's
@@ -292,17 +296,17 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   `LayoutMath` for whole lines), never to choose them; costs are line heights, worst-case text lengths.
   There is no legacy sizing, no tier, no ladder, no size class: `OnePathSizingTests` fail on their
   names. Clock, Memory and Tasks are the references. Check a kind at its min, natural and max (renders,
-  the showcase views; "max" is the large check, twice the natural, `SizeStretch.Large`). **Relaxed and stretched**
-  ([S-12410], [S-12411], docs/WIDGET-KIT.md 17.4): the descriptor relaxes the stated range to no practical
+  the showcase views; "max" is the large check, twice the natural, `SizeStretch.Large`). **Relaxed, items of one size**
+  ([S-12410], [S-12411], [S-14810], docs/WIDGET-KIT.md 17.4): the descriptor relaxes the stated range to no practical
   maximum (`SizeStretch.Relax`: Max = `SizeStretch.Ceiling` on every axis; the work
-  area is the bound; the user decides how large); in a larger box items
-  stretch (`ItemStretch`: rows and charts fill, text never);
-  rows and fills run to the card's edge (no content inset; text keeps the item's own); items have no spacing
-  between them and fill the box top to bottom and left to right (owner, 2026-11-19): a list's rows grow until they
-  touch (`ItemStretch.Rows`, `SpreadStack`, [S-12807]); a one-readout block keeps its parts together and scales up as
-  one until its ink fills the height or the width stops it (`ReadingFit`/`InkFit`, `BlockFit`, `LineInk`/`PartInk`,
-  [S-12808], [S-12804]); the month's cells fill and their type grows (`ScaleBox`, [S-12809]). Never a per-widget
-  stretch of its own.
+  area is the bound; the user decides how large); in a larger box a repeated item keeps its size and more of them
+  show (`ItemSize`: `Rows`, `RowsAbove` with an add row under them, `Lay` for a stack, `RowReach.Span` a list's
+  viewport; `SpreadStack` lays a family row, `IInked.IsRow`, at its optimal); rows and fills run to the card's edge (no
+  content inset; text keeps the item's own); items have no spacing between them (owner, 2026-11-19); what fills the box
+  is a one-readout block, which keeps its parts together and scales up as one until its ink fills the height or the
+  width stops it (`ReadingFit`/`InkFit`, `BlockFit`, `LineInk`/`PartInk`, [S-12808], [S-12804]), a graph's plot, a
+  single metric's one row (its whole face, [S-14705]) and the month, a grid of the card, not a list, whose cells fill and
+  whose type grows (`ScaleBox`, [S-12809], WR-9). Never a per-widget stretch of its own.
 - **No card header** ([S-12480], [S-12481]; owner 2026-11-16): a card draws its view and nothing over it,
   no title row, at any size. A title is the **Header** widget (`src/Widgets/Themia.Widget.Header`, [S-9600]),
   placed like any widget; every ready-made group starts with one ([S-12485]). What a header

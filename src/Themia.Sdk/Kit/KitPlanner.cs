@@ -171,7 +171,7 @@ public sealed record KitSpec(
 /// <param name="Badges">[S-7032] The first badge after the subtitle.</param>
 /// <param name="ColumnHeader">[S-7034] The table's column titles over its rows.</param>
 /// <param name="Table">[S-7034] The table's columns at their widths, in the user's order; null for any other look.</param>
-/// <param name="RowHeight">The rows' one height: <see cref="FamilyShape.RowHeight"/> of <see cref="Lines"/>, stretched so the rows reach the list's ends ([S-12807], <see cref="KitPlanner.Reach"/>).</param>
+/// <param name="RowHeight">The rows' one height: <see cref="FamilyShape.RowHeight"/> of <see cref="Lines"/> in whole cells, its one fixed size ([S-14810], <see cref="KitPlanner.Reach"/>).</param>
 /// <param name="HeadingHeight">[S-7035] [S-12834] A group heading's height: one of the rows that tile the list, as tall as they are (whole cells, WR-6).</param>
 public readonly record struct KitPlan(
     KitRowLook Look,
@@ -201,25 +201,24 @@ public readonly record struct KitPlan(
     public bool LongWhen { get; init; }
 
     /// <summary>
-    /// [S-14500] The rows as laid (<see cref="ItemStretch.Rows"/>): how many the room shows, their even share of it and the
-    /// raster their edges fall on (<see cref="RowAt"/>), so rows of a pitch the pixels cannot share evenly still end exactly
-    /// on the list's end.
+    /// [S-14810] The rows as laid (<see cref="ItemSize.Rows"/>): their one fixed size, how many the room reaches (the last
+    /// cut by its end), the room and the raster their edges fall on (<see cref="RowAt"/>).
     /// </summary>
     public RowReach Reach { get; init; }
 
-    /// <summary>[S-14500] The add row's height under the rows, stretched as they are (<see cref="ItemStretch.RowsAbove"/>); 0 where none.</summary>
+    /// <summary>[S-14811] The add row's height under the rows, its own optimal (<see cref="ItemSize.RowsAbove"/>); 0 where none.</summary>
     public double FootHeight => Reach.Foot;
 
-    /// <summary>[S-12807] [S-14500] The plan's rows laid as <paramref name="reach"/> says: their pitch, touching, the add row under them.</summary>
+    /// <summary>[S-12807] [S-14810] The plan's rows laid as <paramref name="reach"/> says: their pitch, touching, the add row under them.</summary>
     public KitPlan With(RowReach reach) => this with { RowHeight = reach.Pitch, Reach = reach };
 
     /// <summary>
-    /// [S-14500] Line <paramref name="index"/>'s height down the list: the rows' even share of the room, its edges on whole
-    /// device pixels (<see cref="RowReach.Height"/>), so the rows fill it to the pixel; the plan's pitch before it is laid.
+    /// [S-14810] Line <paramref name="index"/>'s height down the list: the rows' one fixed size, its edges on whole device
+    /// pixels (<see cref="RowReach.Height"/>); the plan's pitch before it is laid.
     /// </summary>
     public double RowAt(int index) => Reach.Pitch > 0 ? Reach.Height(index) : RowHeight;
 
-    /// <summary>[S-14500] Where line <paramref name="index"/> starts down the list: the lines before it, as <see cref="RowAt"/> lays them.</summary>
+    /// <summary>[S-14810] Where line <paramref name="index"/> starts down the list: the lines before it, as <see cref="RowAt"/> lays them.</summary>
     public double LineStart(int index) => Reach.Pitch > 0 ? Reach.Start(index) : Math.Max(0, index) * RowHeight;
 }
 
@@ -275,8 +274,8 @@ public static class KitPlanner
     /// <summary>
     /// [S-14266] How many columns item <paramref name="index"/> of <paramref name="count"/> takes in a list laid in
     /// <paramref name="columns"/> read left to right: one, and the last item of a line the list does not fill the rest of that
-    /// line (owner, 2026-11-19, WR-4: "they should stretch if they dont reach all the way"; WR-3: "the items dont reach from
-    /// edge to edge"), so every line's items run from the card's start edge to its end edge.
+    /// line (owner, 2026-11-19, WR-3: "the items dont reach from edge to edge"), so every line's items run from the card's
+    /// start edge to its end edge.
     /// </summary>
     public static int ColumnSpan(int index, int count, int columns)
     {
@@ -284,20 +283,23 @@ public static class KitPlanner
         return index == count - 1 && count % across != 0 ? across - (index % across) : 1;
     }
 
-    /// <summary>[S-6712] Whole rows of <paramref name="plan"/> (its rows and the gaps between them) in a list <paramref name="height"/> tall, under the table's column titles when it has them.</summary>
-    public static int Fit(KitPlan plan, double height, ItemGrid? grid = null)
+    /// <summary>
+    /// [S-6712] [S-14810] The room <paramref name="plan"/>'s rows stand in down a list <paramref name="height"/> tall: under the
+    /// table's column titles when it has them; the rows at their fixed size from its top, the last one its end reaches cut.
+    /// </summary>
+    public static double ListRoom(KitPlan plan, double height, ItemGrid? grid = null)
     {
         var room = height - (plan.ColumnHeader ? FamilySpace.Inset + TitlesBand(grid ?? ItemGrid.Default()) : 0);
-        return double.IsFinite(room) && room > 0 && plan.RowHeight > 0 ? (int)Math.Floor((room + LayoutMath.Tolerance) / plan.RowHeight) : 0;
+        return double.IsFinite(room) ? Math.Max(0, room) : 0;
     }
 
     /// <summary>
-    /// [S-12807] [S-14500] Rows of <paramref name="lines"/> lines in <paramref name="area"/> (less
-    /// <paramref name="reserved"/>: a table's titles, an add row): as many as it holds at their optimal, touching, from the
-    /// view's top to the card's foot (<see cref="ItemStretch.Rows"/>); one at its optimal before the box is measured.
+    /// [S-12807] [S-14810] Rows of <paramref name="lines"/> lines in <paramref name="area"/> (less
+    /// <paramref name="reserved"/>: a table's titles, an add row): at their one fixed size, touching, from the view's top,
+    /// as many as the card reaches (<see cref="ItemSize.Rows"/>); one before the box is measured.
     /// </summary>
     public static RowReach Reach(WidgetArea area, int lines, double reserved = 0, bool edge = true)
-        => area.IsMeasured ? ItemStretch.Rows(Math.Max(0, area.Height), lines, area.Grid(), reserved, edge) : ItemStretch.Natural(lines, area.Grid());
+        => area.IsMeasured ? ItemSize.Rows(Math.Max(0, area.Height), lines, area.Grid(), reserved, edge) : ItemSize.Natural(lines, area.Grid());
 
 
     private static KitPlan Rows(WidgetArea area, KitSpec spec, KitChoices choices)

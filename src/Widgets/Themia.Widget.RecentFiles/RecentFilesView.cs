@@ -167,8 +167,8 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
             // [S-14500] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
             var rows = _config.RowsShown;
             _state.RowPitch = (_area.IsMeasured
-                ? ItemStretch.Rows(_area.Height, rows.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-                : ItemStretch.Natural(rows.Lines, _area.Grid())).Pitch;
+                ? ItemSize.Rows(_area.Height, rows.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+                : ItemSize.Natural(rows.Lines, _area.Grid())).Pitch;
             _state.Show((_unreadable ? RecentFilesStr.RecentFiles_Unreadable : RecentFilesStr.RecentFiles_Empty).Text(), offerAccounts: false, problem: _unreadable);
             _scroll.Visibility = Visibility.Collapsed;
             _cursor = -1;
@@ -186,18 +186,18 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
             _list.Children.Add(row);
         }
 
-        // [S-11200] As tall as the rows the card holds: never a part of one at its foot. [S-12807] [S-14500] The rows
-        // reach the card's top and foot edges, as many as it holds at their optimal, stretched to fill it.
+        // [S-11200] [S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the viewport as tall as
+        // they are, at most the card: the last row in sight cut by its foot.
         var shown = _config.RowsShown;
         var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, shown.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(shown.Lines, _area.Grid());
+            ? ItemSize.Rows(_area.Height, shown.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemSize.Natural(shown.Lines, _area.Grid());
         for (var i = 0; i < _rows.Count; i++)
         {
             _rows[i].Height = reach.Height(i);
         }
 
-        _scroll.Height = _area.IsMeasured ? reach.Start(Math.Min(_rows.Count, reach.Shown)) : double.NaN;
+        _scroll.Height = _area.IsMeasured ? reach.Span(_rows.Count) : double.NaN;
         ListEdge.Apply(_scroll);
 
         _cursor = _cursor < _rows.Count ? _cursor : -1;

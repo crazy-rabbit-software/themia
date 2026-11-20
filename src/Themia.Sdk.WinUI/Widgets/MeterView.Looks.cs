@@ -169,7 +169,7 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Rows:
-                // [S-12807] Rows of items under the reading reach the foot's inset (stretched up to half again, then spaced).
+                // [S-12807] [S-14810] Rows of items under the reading at their one size, the last the card's foot reaches cut by it.
                 Body(new SpreadStack { Margin = new Thickness(0, FamilySpace.S2, 0, 0) });
                 break;
 

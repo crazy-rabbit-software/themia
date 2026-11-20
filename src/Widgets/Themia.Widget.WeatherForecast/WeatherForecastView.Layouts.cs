@@ -12,6 +12,9 @@ internal sealed partial class WeatherForecastView
     /// <summary>The content's box: the inset either side and at the foot, joined or alone ([S-12483]).</summary>
     private Thickness ContentInset => new(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
 
+    /// <summary>[S-14810] Columns of days stand from the card's left edge (their own padding inside them), the foot's inset under them.</summary>
+    private static Thickness ColumnsInset => new(0, 0, 0, FamilySpace.Inset);
+
     // ---- Rows [S-725] ------------------------------------------------------------------------
 
     /// <summary>
@@ -107,18 +110,18 @@ internal sealed partial class WeatherForecastView
     // ---- Columns [S-726] ---------------------------------------------------------------------
 
     /// <summary>
-    /// The days that have a column's floor, side by side in equal columns across the content: the day,
-    /// the sky's glyph, the high, the range standing up, the low and the precipitation, as the plan has
-    /// them. Never a scroller: a day that does not fit whole is left out ([S-726]).
+    /// The days side by side, each a column of its one fixed width from the card's left edge ([S-14810]): the day, the
+    /// sky's glyph, the high, the range standing up, the low and the precipitation, as the plan has them. Never a
+    /// scroller: the last day the card's right edge reaches is cut by it.
     /// </summary>
     private Grid BuildColumns(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastColumnsPlan plan)
     {
         var count = Math.Min(plan.Days, days.Count);
-        var grid = new Grid { Margin = ContentInset, FlowDirection = FlowDirection.LeftToRight };
+        var grid = new Grid { Margin = ColumnsInset, FlowDirection = FlowDirection.LeftToRight, HorizontalAlignment = HorizontalAlignment.Left };
 
         for (var i = 0; i < count; i++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.ColumnWidth) });
             var column = BuildColumn(days[i], today, range, plan);
             Grid.SetColumn(column, i);
             grid.Children.Add(column);

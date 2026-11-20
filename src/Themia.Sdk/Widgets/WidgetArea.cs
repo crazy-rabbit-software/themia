@@ -8,7 +8,7 @@ namespace Themia.Core.Widgets;
 /// <param name="Width">Usable width in DIPs.</param>
 /// <param name="Height">Usable height in DIPs.</param>
 /// <param name="Cell">[S-12830] The desktop grid's pitch on the card's display, in DIPs: what its items' optimal lengths are whole numbers of.</param>
-/// <param name="Scale">[S-14500] The display's raster scale: the pixels the items' edges fall on as they stretch.</param>
+/// <param name="Scale">[S-14810] The display's raster scale: the pixels the items' edges fall on.</param>
 public readonly record struct WidgetArea(double Width, double Height, double Cell = ItemGrid.DefaultCell, double Scale = 1)
 {
     /// <summary>[S-12830] The grid the view's items lay on, at <paramref name="scale"/> (none given: the area's own).</summary>

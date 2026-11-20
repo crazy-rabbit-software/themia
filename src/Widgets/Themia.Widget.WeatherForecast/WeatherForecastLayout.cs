@@ -22,9 +22,10 @@ public sealed record ForecastColumnsPlan(int Days, double ColumnWidth, double Ic
 
 /// <summary>
 /// [S-724]..[S-726] [S-11145] [S-11146] [S-14410] [S-14502] The forecast as an atom: its days (1..14, a new one 5) are
-/// the card's, as many as its box holds at their optimal and stretched to fill it, never stored (no menu line); every
-/// axis takes every grid cell ([S-14500]). Rows: a row a day (28 or 40, its optimal whole cells), 220..420 wide.
-/// Columns: a 56 column a day across, one height. Curve: a 56 column a day across, the chart's band 72..144 tall. Grid:
+/// the card's, every one its box reaches at their one fixed size, the last cut ([S-14810], [S-14812]), never stored (no
+/// menu line); every axis takes every grid cell ([S-14500]). Rows: a row a day (28 or 40, its optimal whole cells),
+/// 220..420 wide. Columns: a 60 column a day (its 56 in whole cells) from the card's left edge, one height. Curve: a 60
+/// column a day, the chart's band 72..144 tall. Grid:
 /// the days in their arrangement (one row up to four days, two up to eight, three past), as many 64 cells across and
 /// cells down as the box holds (<see cref="ForecastGrid.DaysFor"/>). Nothing else sheds or appears with the box: a bar
 /// or a chart gets longer.
@@ -66,8 +67,9 @@ public static class WeatherForecastLayout
 
     /// <summary>
     /// [S-14502] The days a forecast shows in <paramref name="area"/> (its view's box): as many rows (the Rows style, from
-    /// the card's top edge to its foot) or columns (Columns: <see cref="ColumnMin"/> each; Curve:
-    /// <see cref="ForecastCurve.ColumnStart"/>) as it holds at their optimal, the grid's arrangement its cells hold
+    /// the card's top edge) or columns (Columns: <see cref="ColumnMin"/> each; Curve: <see cref="ForecastCurve.ColumnStart"/>;
+    /// from the card's left edge) as it reaches at their one fixed size, the last cut by the card's foot or right edge
+    /// ([S-14810]), the grid's arrangement its cells hold
     /// (<see cref="ForecastGrid.DaysFor"/>); 1..<see cref="WeatherForecastConfig.MostDays"/>. Before the box is measured, a
     /// new one's days.
     /// </summary>
@@ -79,13 +81,13 @@ public static class WeatherForecastLayout
             return WeatherForecastConfig.DefaultDays;
         }
 
-        int Across(double column) => Math.Clamp((int)Math.Floor((ContentWidth(area) + LayoutMath.Tolerance) / column), 1, WeatherForecastConfig.MostDays);
+        int Across(double column) => ItemSize.Count(area.Width, column, area.Grid(), 1, WeatherForecastConfig.MostDays);
         return config.Style switch
         {
             ForecastStyle.Columns => Across(ColumnMin),
             ForecastStyle.Curve => Across(ForecastCurve.ColumnStart),
             ForecastStyle.Grid => ForecastGrid.DaysFor(ForecastGrid.CellsAcross(area), ForecastGrid.CellsDown(area)),
-            _ => ItemStretch.Count(area.Height + FamilySpace.Inset, FamilyShape.RowHeight(config.EffectiveLines), area.Grid(), 1, WeatherForecastConfig.MostDays),
+            _ => ItemSize.Count(area.Height + FamilySpace.Inset, FamilyShape.RowHeight(config.EffectiveLines), area.Grid(), 1, WeatherForecastConfig.MostDays),
         };
     }
 
@@ -103,12 +105,12 @@ public static class WeatherForecastLayout
         return Math.Max(Math.Max(0, floor), Math.Floor(left));
     }
 
-    /// <summary>[S-726] [S-14502] The columns for the box's width: as many days as it holds columns, sharing it, every part drawn.</summary>
+    /// <summary>[S-726] [S-14502] [S-14810] The columns for the box's width: every day it reaches at a column's one width (its 56 in whole cells), the last cut by the card's right edge, every part drawn.</summary>
     public static ForecastColumnsPlan Columns(WidgetArea area, WeatherForecastConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         var days = DaysIn(area, config);
-        return new ForecastColumnsPlan(days, ContentWidth(area) / days, FamilyShape.IconLarge, true, true, config.ShowPrecipitation);
+        return new ForecastColumnsPlan(days, ItemSize.Optimal(ColumnMin, area.Grid()), FamilyShape.IconLarge, true, true, config.ShowPrecipitation);
     }
 
     /// <summary>[S-726] A column's parts top to bottom: the day, the 32 glyph, the high, the bar, the low, the rain if on, 4 apart.</summary>
@@ -120,27 +122,28 @@ public static class WeatherForecastLayout
     }
 
     /// <summary>
-    /// [S-11146] [S-14500] Each style's sizing from the config: a new one <see cref="WeatherForecastConfig.DefaultDays"/>
-    /// days, one day at least, every cell between (the days the card holds stretch to fill it).
+    /// [S-11146] [S-14500] [S-14810] Each style's sizing from the config: a new one <see cref="WeatherForecastConfig.DefaultDays"/>
+    /// days, one day at least, every cell between (the days keep their size; the last one the card reaches is cut).
     /// </summary>
     public static WidgetSizing Sizing(WeatherForecastConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         const int days = WeatherForecastConfig.DefaultDays, most = WeatherForecastConfig.MostDays;
-        var inset = 2 * FamilySpace.Inset;
+        var grid = ItemGrid.Default();
         var chrome = FamilySpace.ContentTop + FamilySpace.Inset;
         switch (config.Style)
         {
             case ForecastStyle.Columns:
             {
                 var height = chrome + ColumnHeight(config.ShowPrecipitation);
-                return WidgetSizing.Range(new(inset + ColumnMin, height), new(inset + (days * ColumnMin), height), new(inset + (most * ColumnMin), height));
+                var column = ItemSize.Optimal(ColumnMin, grid);
+                return WidgetSizing.Range(new(column, height), new(days * column, height), new(most * column, height));
             }
 
             case ForecastStyle.Curve:
             {
                 var parts = ForecastCurve.Parts(config.ShowPrecipitation);
-                double Across(int n) => inset + (n * ForecastCurve.ColumnStart);
+                double Across(int n) => n * ItemSize.Optimal(ForecastCurve.ColumnStart, grid);
                 return WidgetSizing.Range(
                     new(Across(1), chrome + parts + ForecastCurve.ChartMin),
                     new(Across(days), chrome + parts + ForecastCurve.ChartStart),
@@ -157,9 +160,9 @@ public static class WeatherForecastLayout
             }
 
             default:
-                // [S-14500] A row a day at its optimal, from the card's top edge to its foot edge (owner, 2026-11-20: "the
-                // items should have an optimal size and then they may stretch a little to fill up the remaining space").
-                var row = ItemStretch.Optimal(FamilyShape.RowHeight(config.EffectiveLines), ItemGrid.Default());
+                // [S-14810] A row a day at its one fixed size, from the card's top edge (owner, 2026-11-20: "the widget items
+                // should actually have a fixed size").
+                var row = ItemSize.Optimal(FamilyShape.RowHeight(config.EffectiveLines), grid);
                 return WidgetSizing.Range(new(RowsNarrowest, row), new(300, days * row), new(RowsWidest, most * row));
         }
     }

@@ -393,7 +393,7 @@ public sealed partial class RowBlock : Grid, IInked
     }
 
     /// <inheritdoc />
-    public bool Grows => true;
+    public bool IsRow => true;
 
     /// <summary>[S-12807] The room inside its text over its first ink and under its last: its lines' leading, or its lead's room where that reaches further.</summary>
     public LineInk Ink => LineInk.Row(_lines, _lead.Visibility == Visibility.Visible && _lead.Child is not null ? _lead.Width : 0);

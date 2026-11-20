@@ -39,6 +39,10 @@ public sealed partial class OnePathSizingTests
     [GeneratedRegex(@"\b(SizeSteps|WholeCells|InCells|HeightSteps|WidthSteps|WithHeightSteps|WithWidthSteps|SizeSets|ConfigFor|CheckedSteps|FollowsConfig|HeightStepsFor|MonthLineSteps|MostRowSteps)\b")]
     private static partial Regex WholeItemSteps();
 
+    /// <summary>[S-14810] The items' stretch, gone with the owner's fixed size: its names (the rule, its pieces, the spare rows).</summary>
+    [GeneratedRegex(@"\b(ItemStretch|StretchItem|SpareRows|WholeLineCap|OptimalStretch\w*)\b")]
+    private static partial Regex ItemStretchNames();
+
     /// <summary>Every C# source of the repository: src and tests, build output left out, this guard too.</summary>
     private static IEnumerable<string> Sources()
     {
@@ -89,6 +93,27 @@ public sealed partial class OnePathSizingTests
         }
 
         Assert.True(found.Count == 0, "The whole-item steps are named again ([S-14500]):\n" + string.Join("\n", found));
+    }
+
+    [Fact]
+    public void S14810_no_source_names_the_items_stretch()
+    {
+        // Owner, 2026-11-20: "the widget items should actually have a fixed size. then when you change the height of a widget
+        // the items should not grow or shrink to fit all the way from the top to the bottom".
+        var found = new List<string>();
+        foreach (var file in Sources())
+        {
+            var lines = File.ReadAllLines(file);
+            for (var i = 0; i < lines.Length; i++)
+            {
+                foreach (Match match in ItemStretchNames().Matches(lines[i]))
+                {
+                    found.Add($"{Path.GetRelativePath(RepoFiles.Root, file).Replace('\\', '/')}:{i + 1}: {match.Value}");
+                }
+            }
+        }
+
+        Assert.True(found.Count == 0, "The items' stretch is named again ([S-14810]):\n" + string.Join("\n", found));
     }
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

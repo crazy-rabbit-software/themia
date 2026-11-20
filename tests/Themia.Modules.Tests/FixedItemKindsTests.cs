@@ -9,18 +9,16 @@ using Xunit;
 namespace Themia.Modules.Tests;
 
 /// <summary>
-/// [S-14500] The kinds whose content is repeated items, at every cell (owner, 2026-11-20: "the items should have an optimal
-/// size and then they may stretch a little to fill up the remaining space. the widgets should not have the size increments
-/// anymore but should be incrementable in steps of one"): at any height a resize lands on, on displays of several
-/// pitches, the items the view lays (the one rule, <see cref="ItemStretch"/>) are as many as the card holds at their
-/// optimal and end exactly on its foot.
+/// [S-14810] The kinds whose content is repeated items, at every cell (owner, 2026-11-20: "the widget items should actually
+/// have a fixed size. then when you change the height of a widget the items should not grow or shrink to fit all the way
+/// from the top to the bottom, they should just keep their size and the last item will be cutoff to some extent then."):
+/// at any height a resize lands on, on displays of several pitches, the items the view lays (the one rule,
+/// <see cref="ItemSize"/>) keep their one size from the card's top edge, as many as the card reaches.
 /// </summary>
-public sealed class OptimalStretchKindsTests
+public sealed class FixedItemKindsTests
 {
     /// <summary>A 1080p display, 1920 at 125 % (pitch 9.974 across, 10.047 down) and a content scale of 1.25 (pitch 8).</summary>
     private static readonly (ScreenMetrics Screen, double Scale)[] Displays = [(new(1920, 1080), 1), (new(1536, 864), 1), (new(1920, 1080), 1.25)];
-
-    private static readonly ItemGrid Grid = ItemGrid.Default();
 
     /// <summary>The heights, in the card's content DIPs, a resize lands a kind's card on: its least and the next 30 cells.</summary>
     private static IEnumerable<double> Heights(WidgetConfig config, ScreenMetrics screen, double scale)
@@ -39,30 +37,30 @@ public sealed class OptimalStretchKindsTests
     }
 
     [Fact]
-    public void S14500_a_list_ten_cells_tall_shows_three_rows_of_ten_thirds_with_nothing_left_over()
+    public void S14810_a_list_ten_cells_tall_shows_three_rows_of_three_cells_and_a_third_of_a_fourth()
     {
-        // A feed's headlines of one line (28: three cells, their optimal) in a card of ten cells: three, each a third.
+        // A feed's headlines of one line (28: three cells, their optimal) in a card of ten cells: four, each 30, the fourth
+        // cut by the card's foot after its first cell.
         var plan = Rss(100);
-        var reach = plan.Reach;
 
-        Assert.Equal(3, reach.Shown);
-        Assert.Equal(100.0 / 3, plan.RowHeight, 9);
-        Assert.Equal(100, Enumerable.Range(0, 3).Sum(plan.RowAt), 9);
-        Assert.True(Enumerable.Range(0, 3).Select(plan.RowAt).Max() - Enumerable.Range(0, 3).Select(plan.RowAt).Min() <= 1);
+        Assert.Equal(4, plan.Reach.Shown);
+        Assert.Equal(30, plan.RowHeight, 9);
+        Assert.All(Enumerable.Range(0, 4), i => Assert.Equal(30, plan.RowAt(i), 9));
+        Assert.Equal(90, plan.LineStart(3), 9);
     }
 
     [Fact]
-    public void S14500_a_list_eleven_cells_tall_shows_three_rows_of_eleven_thirds()
+    public void S14810_one_cell_taller_or_shorter_never_resizes_a_row()
     {
-        var plan = Rss(110);
-
-        Assert.Equal(3, plan.Reach.Shown);
-        Assert.Equal(110.0 / 3, plan.RowHeight, 9);
-        Assert.Equal(110, Enumerable.Range(0, 3).Sum(plan.RowAt), 9);
+        foreach (var card in new[] { 90.0, 100, 110, 120, 170 })
+        {
+            Assert.Equal(30, Rss(card).RowHeight, 9);
+            Assert.Equal(40, Rss(card, 2).RowHeight, 9);
+        }
     }
 
     [Fact]
-    public void S14500_the_forecast_shows_the_days_its_card_holds_each_stretched_less_than_a_day_more()
+    public void S14810_the_forecast_shows_every_day_its_card_reaches_each_at_its_size()
     {
         foreach (var (screen, scale) in Displays)
         {
@@ -72,22 +70,22 @@ public sealed class OptimalStretchKindsTests
                 var config = new WeatherForecastConfig { Lines = lines };
                 foreach (var card in Heights(config, screen, scale))
                 {
-                    // The rows style's RowStack (SpreadStack): a row a day from the card's top edge to its foot.
+                    // The rows style's RowStack (SpreadStack): a row a day from the card's top edge, at its optimal.
                     var days = WeatherForecastLayout.DaysIn(new WidgetArea(300, card - FamilySpace.Inset, grid.Pitch), config);
-                    var slots = ItemStretch.Reach(card, [.. Enumerable.Repeat(StretchItem.Row(lines), days)], grid);
+                    var slots = ItemSize.Lay(card, [.. Enumerable.Repeat(StackItem.Row(lines), days)], grid);
                     var optimal = grid.Whole(FamilyShape.RowHeight(lines));
                     var why = $"{days} days of {lines} lines in {card:0.##} on {screen.Width}x{screen.Height} at {scale}";
 
-                    Assert.Equal(card, slots[^1].End, 6);
-                    Assert.All(slots, s => Assert.True(s.Length >= optimal - 1, why));
-                    Assert.True(days == WeatherForecastConfig.MostDays || (days + 1) * optimal > card + 1e-6, why);
+                    Assert.All(slots, s => Assert.True(Math.Abs(s.Length - optimal) <= 1, why));
+                    Assert.True(days == WeatherForecastConfig.MostDays || slots[^1].End >= card - 1, why);
+                    Assert.True(slots[^1].Start < card, why);
                 }
             }
         }
     }
 
     [Fact]
-    public void S14500_tasks_rows_and_add_row_fill_the_card_at_every_cell()
+    public void S14811_tasks_rows_and_add_row_keep_their_size_at_every_cell()
     {
         foreach (var (screen, scale) in Displays)
         {
@@ -98,9 +96,11 @@ public sealed class OptimalStretchKindsTests
                 foreach (var card in Heights(config, screen, scale))
                 {
                     // KitChecks.Plan: the rows over the add row, from the card's top edge (the view less the card's inset).
-                    var reach = ItemStretch.RowsAbove(card - FamilySpace.Inset, config.RowsShown.Lines, grid);
+                    var reach = ItemSize.RowsAbove(card - FamilySpace.Inset, config.RowsShown.Lines, grid);
+                    var why = $"{card:0.##} on {screen.Width}x{screen.Height} at {scale}";
+                    Assert.Equal(grid.Whole(FamilyShape.RowHeight(config.RowsShown.Lines)), reach.Pitch, 6);
+                    Assert.Equal(grid.Whole(FamilyShape.Row1), reach.Foot, 6);
                     Assert.Equal(card, reach.Room + reach.Foot, 6);
-                    Assert.True(reach.Pitch >= grid.Whole(FamilyShape.RowHeight(config.RowsShown.Lines)) - 1, $"{card:0.##} on {screen.Width}x{screen.Height} at {scale}");
                 }
             }
         }
@@ -113,21 +113,11 @@ public sealed class OptimalStretchKindsTests
     [InlineData("sunrise")]
     [InlineData("airUv")]
     [InlineData("weatherPressure")]
-    public void S14500_S14600_a_single_metrics_one_row_fills_its_card_at_every_cell(string kind)
+    public void S14600_a_single_metric_is_one_row_new(string kind)
     {
-        // The facts lists are single metrics ([S-14604]): one fact row a card at its optimal new, stretched to any height.
-        foreach (var (screen, scale) in Displays)
-        {
-            var grid = SizeFit.Grid(screen, scale);
-            var config = WidgetConfig.CreateDefault(new WidgetId(kind));
-            Assert.Equal(MetricRules.RowHeight, SizeFit.Of(config).Natural.Height);
-            foreach (var card in Heights(config, screen, scale))
-            {
-                // FactList (SpreadStack, its one stated row): from the card's top edge to its foot.
-                var slots = ItemStretch.Reach(card, [StretchItem.Row(1)], grid);
-                Assert.Equal(card, slots[^1].End, 6);
-            }
-        }
+        // A single metric is one item, its whole face ([S-14705]): its natural is one fact row at its optimal.
+        var config = WidgetConfig.CreateDefault(new WidgetId(kind));
+        Assert.Equal(MetricRules.RowHeight, SizeFit.Of(config).Natural.Height);
     }
 
     [Fact]

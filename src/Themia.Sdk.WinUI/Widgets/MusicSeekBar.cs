@@ -153,7 +153,7 @@ public sealed partial class MusicSeekBar : Grid, IInked
     public LineInk Ink => SeekBarFace.Ink;
 
     /// <summary>A bar keeps its height in a stack.</summary>
-    public bool Grows => false;
+    public bool IsRow => false;
 
     /// <summary>The pointer over the bar, or gone from it (a render's hovered state stands in for it): the thumb shows over a seekable track.</summary>
     public void Point(bool over)
