@@ -4754,8 +4754,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   card's inset over it, `LineRules.BandOver`; column titles, `KitPlanner.TitlesOver`; a search box; an add row), each
   grown to whole cells of the card's grid as its view lays it, the rows from the card's top edge to its foot edge with
   no inset over or under them; the sizing's DIPs are those on the default grid (a row step 30), and the host lays the
-  axis on its display's grid (`SizeFit.Limits`: the parts and the item counted in cells of the card's pitch,
-  `SizeFit.Grid`, each step that many of the screen's lines), so on any pitch the card is exactly its parts and n whole
+  axis on its display's grid (`SizeFit.Limits`: the parts and the item counted in cells of the axis's own pitch by the
+  host's one count, [S-14269], each step that many of the screen's lines), so on any pitch the card is exactly its parts and n whole
   items, and a resize lands only there (`AxisLimits.Range`, `Holds`; the config a resize stores counts the items its
   cells hold, `SizeFit.ConfigFor`). Items that grow together (a month's weeks and days) step
   by one cell for each of them (`SizeSteps.Growing`), the month with titles by a chip line in every week
@@ -4769,6 +4769,21 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   pitches 10, 9.974 and 8, every step whole items; a resize's config), the modules' `NoLeftoverTests.S14100_` (the
   forecast at every day count and lines, tasks, a single metric, a ready-made group), `WidgetSizingTests`; renders judged by
   `scripts/item-check.py` (its leftover rule and the `steps` size set, `SizeFit.CheckedSteps`).
+- **[S-14269]** **A step in cells is what the host lays, axis by axis** (owner, 2026-11-19, WR-6: "they should be designed
+  so that they are 3 blocks high or wide"; the coordinator, 2026-11-20). One count of an axis's whole cells
+  (`GridCells.Up`: a length over the axis's own pitch, rounded up, float noise forgiven, at least one) is what the host lays
+  a widget's box in (`GridFit.Up`, `GridFit.Cells`) and what a sizing's step in cells takes on that axis on a display
+  (`SizeFit.Limits`: the length over the screen's DIPs along the axis times its lines) and on the default grid (the
+  sizing's DIPs, `WholeCells.On`). Before, both axes of a step were counted in the columns' pitch with a fiftieth of a
+  cell's slack while the host counted each axis in its own with none: on 1536 × 864 a box 100 tall was eleven cells for a
+  step and ten rows for the host, on 1366 × 768 a small icon's 60 across six cells for a step and seven columns for the
+  host, so a fence's whole boxes could not be stated as steps ([S-14263]). Unchanged where the pitches are 10 (1080p, the
+  owner's 2560 × 1440 at 100 %) and on the owner's 2560 × 1440 at 150 % (9.98 across, 10 down) for every kind's parts; a
+  display whose rows are under 10 DIPs (1366 × 768, 1024 × 768, 2880 × 1800 at 175 %: 9.97 to 9.99) lays a row of two
+  lines (40) in five of its rows, as the host lays a box of 40, where it took four. A view still lays its items in its
+  card's one pitch (`ItemGrid`, its width over its columns, `SizeFit.Grid`) with a fiftieth's slack and stretches them to
+  the card's whole cells. Tests `StepCellsTests.S14269_` (the two displays above, the owner's two, 4:3, 16:10 and 3:2,
+  each length a kind steps by against the host's box of it).
 - **[S-14103]** **A loaded card is fitted to its steps** ([S-14100]): a card stored before its kind's steps were whole
   cells is painted fitted to them ([S-2446]) and, at the first refit on settled metrics after a start, its stored rect
   is fitted to its nearest step on the display that shows its view (`SizingNotes.NoteAll(state, fit: true)`, the

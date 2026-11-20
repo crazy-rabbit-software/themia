@@ -1,3 +1,5 @@
+using Themia.Core.Widgets;
+
 namespace Themia.Core.Geometry;
 
 /// <summary>
@@ -27,9 +29,6 @@ public readonly record struct PlacementSizes(double Scale);
 /// </summary>
 public static class GridFit
 {
-    /// <summary>How far under a whole cell a size may be and still count as on it (float noise).</summary>
-    private const double Slack = 1e-6;
-
     /// <summary>
     /// [S-11807] Where grid line <paramref name="index"/> of <paramref name="count"/> across a screen of
     /// <paramref name="screenDip"/> is drawn: the whole DIP a card edge standing on that line is put on
@@ -41,11 +40,18 @@ public static class GridFit
 
     /// <summary>[S-11807] <paramref name="frac"/> rounded up to whole cells of <c>1 / lines</c>, at least one cell. No grid (lines ≤ 0): unchanged.</summary>
     public static double Up(double frac, int lines)
-        => lines > 0 && double.IsFinite(frac) ? Math.Max(1, Math.Ceiling((frac * lines) - Slack)) / lines : frac;
+        => lines > 0 && double.IsFinite(frac) ? Cells(frac, lines) / (double)lines : frac;
+
+    /// <summary>
+    /// [S-11807] [S-14269] How many whole cells of <c>1 / lines</c> hold <paramref name="frac"/> of the screen along an axis:
+    /// the grid's one count (<see cref="GridCells.Up"/>), what the host lays a widget's box in (<see cref="Up"/>) and what
+    /// a sizing's step in cells takes on that axis (<c>SizeFit</c>), so a step is exactly what the host lays.
+    /// </summary>
+    public static int Cells(double frac, int lines) => lines > 0 && double.IsFinite(frac) ? GridCells.Up(frac * lines) : 1;
 
     /// <summary>[S-11807] <paramref name="frac"/> rounded down to whole cells, at least one cell. No grid: unchanged.</summary>
     public static double Down(double frac, int lines)
-        => lines > 0 && double.IsFinite(frac) ? Math.Max(1, Math.Floor((frac * lines) + Slack)) / lines : frac;
+        => lines > 0 && double.IsFinite(frac) ? GridCells.Down(frac * lines) / (double)lines : frac;
 
     /// <summary>
     /// [S-11807] One axis of a sizing, stated in content (<see cref="SizeFit.Limits(Sdk.WidgetSizing, ScreenMetrics, double, double, bool)"/>

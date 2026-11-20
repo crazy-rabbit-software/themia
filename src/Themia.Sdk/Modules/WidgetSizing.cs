@@ -101,20 +101,34 @@ public sealed record WholeCells(double Item, IReadOnlyList<double> Over)
     /// <summary>[S-14100] The least of each of the <see cref="Grows"/> items, in the base (a week's number line); 0: none.</summary>
     public double Least { get; init; }
 
-    /// <summary>The fixed parts' and the item's lengths on <paramref name="grid"/>: each part whole cells of its own (none for a part of nothing).</summary>
+    /// <summary>
+    /// The fixed parts' and the item's lengths on <paramref name="grid"/>: each part whole cells of its own (none for a part of
+    /// nothing), [S-14269] counted as the host counts an axis's cells (<see cref="GridCells.Up"/>).
+    /// </summary>
     public (double Base, double Step) On(ItemGrid grid)
     {
-        var (b, step) = Count(grid);
-        return (b * grid.Pitch, step * grid.Pitch);
+        var pitch = grid.Pitch;
+        var (b, step) = Count(length => GridCells.Up(length / pitch));
+        return (b * pitch, step * pitch);
     }
 
-    /// <summary>[S-14100] The cells the fixed parts (and the items' least) and one step take on <paramref name="grid"/>.</summary>
-    public (int Base, int Step) Count(ItemGrid grid)
+    /// <summary>
+    /// [S-14100] The cells the fixed parts (and the items' least) and one step take on <paramref name="grid"/> as a view lays
+    /// them (<see cref="ItemGrid.Cells"/>).
+    /// </summary>
+    public (int Base, int Step) Count(ItemGrid grid) => Count(grid.Cells);
+
+    /// <summary>
+    /// [S-14269] The cells the fixed parts (and the items' least) and one step take, each length counted by
+    /// <paramref name="cells"/> (an axis's own count: its display's pitch along it, the host's rounding).
+    /// </summary>
+    public (int Base, int Step) Count(Func<double, int> cells)
     {
+        ArgumentNullException.ThrowIfNull(cells);
         static bool Some(double length) => length > 0 && double.IsFinite(length);
         var items = Math.Max(1, Grows);
-        var over = Over.Where(Some).Sum(grid.Cells) + (Some(Least) ? items * grid.Cells(Least) : 0);
-        return (over, items * (Some(Item) ? grid.Cells(Item) : 1));
+        var over = Over.Where(Some).Sum(cells) + (Some(Least) ? items * cells(Least) : 0);
+        return (over, items * (Some(Item) ? cells(Item) : 1));
     }
 
     public bool Equals(WholeCells? other)

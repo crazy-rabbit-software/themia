@@ -113,7 +113,7 @@ public static class SizeFit
             double Cell(double dip) => dip * s / screenPx;
             if (steps is { Cells: { } cells })
             {
-                return InCells(steps, cells, Grid(screen, s), lines);
+                return InCells(steps, cells, dip => GridFit.Cells(Cell(dip), lines), lines);
             }
 
             // [S-12411] A free axis no larger than the screen: its Max is the ceiling, the work area the bound.
@@ -129,19 +129,24 @@ public static class SizeFit
 
     /// <summary>
     /// [S-14100] The grid a card's view lays its items on, on <paramref name="screen"/> at content scale <paramref name="scale"/>:
-    /// the grid's pitch in the card's content DIPs (<c>WidgetCard.CellPitch</c>, [S-12830]).
+    /// the grid's pitch in the card's content DIPs (<c>WidgetCard.CellPitch</c>, [S-12830]: its width over its columns, on
+    /// both axes). A sizing's steps in cells are counted on each axis's own pitch instead ([S-14269]).
     /// </summary>
     public static ItemGrid Grid(ScreenMetrics screen, double scale)
         => new(GridGeometry.CellPitch(screen) / (double.IsFinite(scale) && scale > 0 ? scale : 1));
 
     /// <summary>
-    /// [S-14100] An axis of whole cells part by part on its display: its fixed parts and its item counted in cells of the
-    /// card's <paramref name="grid"/> (what its view lays), each step that many of the screen's <paramref name="lines"/>,
-    /// so the card is exactly its parts and n whole items: no cell left over under the last (owner, 2026-11-20).
+    /// [S-14100] An axis of whole cells part by part on its display: its fixed parts and its item each counted in whole
+    /// cells, each step that many of the screen's <paramref name="lines"/>, so the card is exactly its parts and n whole
+    /// items: no cell left over under the last (owner, 2026-11-20). [S-14269] Counted by <paramref name="cellsOf"/>: the
+    /// axis's own pitch (the screen's DIPs along it over its lines, at the content scale) and the host's one count
+    /// (<see cref="GridFit.Cells"/>), so a step is exactly what the host lays a box of that length in on that axis (a fence's
+    /// icon box, a desktop icon's): before, both axes were counted in the columns' pitch with a fiftieth of a cell's slack,
+    /// and on 1536 × 864 a box 100 tall was eleven cells for a step and ten rows for the host.
     /// </summary>
-    private static AxisLimits InCells(SizeSteps steps, WholeCells cells, ItemGrid grid, int lines)
+    private static AxisLimits InCells(SizeSteps steps, WholeCells cells, Func<double, int> cellsOf, int lines)
     {
-        var (b, step) = cells.Count(grid);
+        var (b, step) = cells.Count(cellsOf);
         double At(int n) => (b + (Math.Clamp(n, steps.MinCount, Math.Max(steps.MinCount, steps.MaxCount)) * step)) / (double)lines;
         return new AxisLimits(At(steps.MinCount), At(steps.MaxCount), b / (double)lines, step / (double)lines, steps.Count is { } count ? At(count) : null);
     }

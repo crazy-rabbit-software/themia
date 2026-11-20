@@ -1,6 +1,27 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
+/// [S-11807] [S-14269] The grid's one count of whole cells along an axis (the coordinator's ask, 2026-11-20, for the owner's
+/// WR-6: "they should be designed so that they are 3 blocks high or wide"): a length that is <c>cells</c> of an axis's
+/// cells (its length over that axis's own pitch, the screen's DIPs along it over its lines) takes them rounded up, float
+/// noise forgiven, at least one. What the host lays a widget's box in (<c>GridFit</c>) and what a size step in cells takes
+/// (<c>SizeFit</c>, <see cref="Themia.Sdk.WholeCells.On"/>) are this one count, so a step is exactly what the host lays.
+/// </summary>
+public static class GridCells
+{
+    /// <summary>How far past a whole number of cells a length may be and still count as it: float noise only.</summary>
+    public const double Noise = 1e-6;
+
+    /// <summary>The whole cells <paramref name="cells"/> of them take: rounded up, at least one.</summary>
+    public static int Up(double cells)
+        => double.IsFinite(cells) ? (int)Math.Max(1, Math.Ceiling(cells - Noise)) : 1;
+
+    /// <summary>The whole cells <paramref name="cells"/> of them hold: rounded down, at least one.</summary>
+    public static int Down(double cells)
+        => double.IsFinite(cells) ? (int)Math.Max(1, Math.Floor(cells + Noise)) : 1;
+}
+
+/// <summary>
 /// [S-12830] The desktop grid a widget's items lay on (owner, 2026-11-19: "items inside widgets should be designed in a
 /// way that they match the size of the grid on the desktop, for example they should be designed so that they are 3
 /// blocks high or wide, that means that a widget that is 10 blocks hight should not show 4 items because then the items
