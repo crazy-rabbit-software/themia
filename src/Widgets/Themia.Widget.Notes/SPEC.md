@@ -94,6 +94,10 @@ body and the bar), `NotesMenu.cs` (its properties-menu lines), `Preview/` (Debug
   task, code and a quote secondary, everything else primary, given to the RichEdit as the roles' opaque
   colours on the card ([S-6738]). A note it cannot show (deleted, unreadable, no notes on this PC) is the
   Status row at the top ([S-6714]; the warning for an unreadable one).
+- **[S-14268]** A picture of the note (its sample on the add page, a render: unbound, no pool) shows the picker on its
+  first line as the desktop does ([S-1364], [S-11206]: at every size), opening nothing; before, the line stood empty over
+  the text (WR-1: "there should not be a space at the top"). Renders `--widget-png notes --state sample|confirm --sizes
+  range`.
 - **[S-1364]** A chevron at the end of the note's first line ([S-12481]: no card header, so no title
   beside it) opens the note picker (every note, New note, Rename…, Delete note…), at every
   size ([S-11206]).

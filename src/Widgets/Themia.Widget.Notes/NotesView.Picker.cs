@@ -61,10 +61,12 @@ internal sealed partial class NotesView
 
     /// <summary>
     /// [S-11206] The picker shows wherever there is a pool to pick from, at every size (on the note's
-    /// first line, [S-12481]).
+    /// first line, [S-12481]); [S-14268] and in a picture of the note (its sample, a render: unbound), which shows the
+    /// widget as it stands on the desktop, its first line holding the picker rather than standing empty over the text
+    /// (WR-1). A picture's picker opens nothing: there is no pool behind it.
     /// </summary>
     private void UpdatePicker()
-        => _picker.Visibility = _pool is not null ? Visibility.Visible : Visibility.Collapsed;
+        => _picker.Visibility = _pool is not null || _state == NoteState.Unbound ? Visibility.Visible : Visibility.Collapsed;
 
     private void OnPickerClick(object sender, RoutedEventArgs args)
     {
