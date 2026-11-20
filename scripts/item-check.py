@@ -22,9 +22,10 @@ the panel that lays them, and the ink outside every item. For every group of ite
 - WR-6 optimal and stretched (owner, 2026-11-20: "the items should have an optimal size and then they may stretch a
   little to fill up the remaining space"): the items of a group are alike, to a device pixel (they share the room evenly,
   their edges on whole pixels); a family row (its optimal dumped as `o`: its natural in whole grid cells) is never
-  shorter than its optimal, and stretched less than one more row's worth: the room its column fills could not hold one
-  more row at the optimal. A fence's icon boxes are desktop icons ("Desktop icons keep Windows' look"): whole boxes from
-  the body's top-left, the sliver a box does not fill at its far edge and foot left empty.
+  shorter than its optimal. How far rows stretch is the views' (one row of a single metric fills its card; a list shows
+  as many rows as its room holds at their optimal), held by the unit tests, not judged here. A fence's icon boxes are
+  desktop icons ("Desktop icons keep Windows' look"): whole boxes from the body's top-left, the cells past its icons
+  (the sliver a box does not fill, the boxes no icon stands in) the desktop's empty grid.
 - no item is cut by its card or its list's viewport;
 - no mark outside the items (a status glyph, a busy ring) stands over an item's text (a stale facts list's warning
   over its first value).
@@ -122,7 +123,7 @@ def judge_column(items, card, ink, found, sliver=0.0):
 
 
 def optimal(items, card, ink, found):
-    """WR-6 (2026-11-20): a family row never under its optimal, stretched less than one more row's worth."""
+    """WR-6 (2026-11-20): a family row never under its optimal."""
     opts = [i['o'] for i in items if 'o' in i]
     if not opts:
         return
@@ -130,17 +131,6 @@ def optimal(items, card, ink, found):
     sizes = [i['h'] for i in items if 'o' in i]
     if min(sizes) < o - PX:
         found.append(f"WR-6 a row {min(sizes):.1f} tall is under its optimal {o:.1f}")
-        return
-    # The room the column's rows fill: from its first row to the card's foot, less what stands under the last outside
-    # every item (a foot line), as many rows as it holds at the rows' share.
-    top = min(i['y'] for i in items)
-    last = max(i['y'] + i['h'] for i in items)
-    under = [k['y'] for k in ink if k['y'] >= last - TOL and k['h'] > TOL]
-    room = (min(under) if under else card['h']) - top
-    share = sum(sizes) / len(sizes)
-    slots = max(len(items), round(room / share)) if share > 0 else len(items)
-    if (slots + 1) * o <= room + TOL:
-        found.append(f"WR-6 rows of {share:.1f} stretched past one more row of {o:.1f}: {room:.1f} holds {slots + 1}")
 
 
 def judge_row(items, card, found, line=None, sliver=0.0):
@@ -189,12 +179,14 @@ def merge_rows(groups):
     return merged
 
 
-def sliver_of(items, kind):
-    """A fence's icon boxes stand on the desktop icon grid from the body's top-left ([S-14501]): the sliver a box does
-    not fill at the far edge and the foot is left empty, as Windows' icons leave it. Any other kind: none."""
-    if kind != 'fence' or not items:
+def sliver_of(card, kind):
+    """A fence's icon boxes stand on the desktop icon grid from the body's top-left ([S-14501], "Desktop icons keep
+    Windows' look"): past its icons the body is the desktop's empty grid, the sliver a box does not fill at the far edge
+    and the foot and the boxes no icon stands in alike. What may stand empty past the last box across and down: for a
+    fence the card's whole width and height, any other kind none."""
+    if kind != 'fence':
         return (0.0, 0.0)
-    return (max(i['w'] for i in items), max(i['h'] for i in items))
+    return (card['w'], card['h'])
 
 
 def judge(card, kind=None):
@@ -206,7 +198,7 @@ def judge(card, kind=None):
     for g, items in sorted(groups.items()):
         found = []
         axis = axis_of(items)
-        sliver = sliver_of(items, kind)
+        sliver = sliver_of(card, kind)
         # What stands over a group: the ink outside the items and the other groups' items (a list over its add row).
         over = card.get('ink', []) + [i for k, v in groups.items() if k != g for i in v]
         if axis == 'column':
@@ -230,7 +222,7 @@ def judge(card, kind=None):
                 break
     if hidden:
         out.append({'group': 'marks', 'axis': '-', 'items': len(marks), 'findings': hidden})
-    left = leftover(card, groups, sliver_of(card.get('items', []), kind)[1])
+    left = leftover(card, groups, sliver_of(card, kind)[1])
     if left:
         out.append({'group': 'foot', 'axis': '-', 'items': len(card.get('items', [])), 'findings': [left]})
     return out
