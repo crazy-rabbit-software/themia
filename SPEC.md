@@ -8390,8 +8390,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   drives, the screen time apps, habits, the mixer's sessions) keeps its one Status row on its top edge, its stated
   rows empty under it ([S-12800]); a picture's or a stream's (Gallery, Video stream) stands on its own top, the view
   owning the card's edge ([S-5700]). A placeholder's dashes ink lower than capitals: a readout showing one is sized
-  as its reading (`IInked.Held`) and placed by its dashes' ink (`LineInk.Placeholder`), so its first ink still
-  stands on the top ([S-12814]). Brightness and volume without a display or device keep their readout, "--"
+  and placed by the ink it draws, measured as any text ([S-14200]; `LineInk.Placeholder` without a meter), so its first
+  ink stands on the top and its last on the foot ([S-12814], WR-1, WR-4). *Was* (to 2026-11-20): sized as the reading it
+  stood for and placed by its dashes, which left the difference as a band under its last ink (the drive's "--%" and "Not
+  connected" 13 over and 33 under at 330x140, the battery's "--" 32 over and 69 under at 300x164). Brightness and volume without a display or device keep their readout, "--"
   disabled, the reason its line under, over the disabled slider; brightness draws the same before the displays are
   read. Tests `FactsDefaultsTests.S12813_`, `BlockFitTests.S12813_`, the modules' own.
 - **[S-12814]** **A block has no band over its first ink or under its last** (owner, 2026-11-19: "the drive widget
@@ -8417,13 +8419,14 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   height, never the room's: the reading, its caption, its bar and its controls stand at their natural spacing, touching,
   at every size and in every state, and the block scales as one, controls included. Where the height stops the scale,
   its first ink stands on the content's top and its last on the foot's inset ([S-12814]); where the width stops it, the
-  height left stands alike over its first ink and under its last ([S-12808]: centred on its ink); a placeholder's dashes
-  stand where the reading's capitals would ([S-12813]). Replaces [S-12814]'s spread (`SpreadStack.Justify` in the fit:
+  height left stands alike over its first ink and under its last ([S-12808]: centred on its ink); a placeholder is sized
+  and placed by the dashes it draws ([S-12813]). Replaces [S-12814]'s spread (`SpreadStack.Justify` in the fit:
   the room the scale left went between the parts, so a width-held block tore apart, its reading on the card's top edge
   and its caption on the foot, the exchange rate's 600x200 "1.0739 EUR" over an empty band over "per CHF", the focus
   session's controls on the foot under a band). Where the leftover band of the axis the scale does not fill goes
-  (centred, at the start, or a reflow that fills it) is the owner's open question; today it is centred down, as
-  above, and across each part stands where its alignment puts it (a price at the start, a timer centred). The pomodoro's side-by-side column ([S-14281]) and the screen-time day line ([S-14282], [S-14284]) follow.
+  (centred, at the start, or a reflow that fills it) was the owner's open question, answered 2026-11-20 ([S-14301]:
+  "Centred is fine"): centred down, as above, and across where the card's alignment puts it, centred for a kind that
+  does not align. The pomodoro's side-by-side column ([S-14281]) and the screen-time day line ([S-14282], [S-14284]) follow.
   Tests `BlockFitTests.S14280_`; renders `--widget-png stock|exchangeRate|screenTime|music|focusSession|alarm|moon|
   airQuality --sizes range` and `--sizes 330x140,300x164,600x200`.
 - **[S-14283]** **A Controls row's switch is drawn whole** (WR-7: the controls are the block's). The switch
@@ -8502,7 +8505,20 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its left band within the inset and its right side free; Right, mirrored. Any other kind has no alignment to follow and
   stands centred, the owner's words. Down, a reading that fills the width is always centred. The layout dump writes each
   card's `align` (`ItemDump`: `ContentAlignment.Shown` where the kind aligns in its style, else `center`) and the check
-  judges by it (`python scripts/gap-check.py --self-test` holds the cases).
+  judges by it (`python scripts/gap-check.py --self-test` holds the cases). The faces follow the same rule through the one
+  fit (`ReadingFit.Align`, `BlockFit.Across`): every part of a one-readout block with a width of its own stands where the
+  card's alignment puts it (a view that aligns hands the fit the alignment it draws, [S-6583]; a view that does not
+  leaves it centred), a part that takes the width it is given (a bar, a slider's row, a line cut to its room:
+  `ReadingFit.Span`, or a part that asks for no width) runs across the content; no view sets a fit's part's alignment of
+  its own. Before, every block stood from the start (the recycle bin's "1.2 GB" 12 from the start and 424 from the end of
+  a 600x200 card; the CPU's, the music's, the pomodoro's, the screen time's alike). Each part stands its ink, not its
+  box, where the alignment puts it, and the block's width is its parts' ink (`PartInk.Across`: a text's side bearings, a
+  column's or a row's ends), placed once in the plan's one arrange (`SpreadStack.Lay`); the plan is laid no narrower than
+  its widest part's box, so nothing of it is clipped. The plan, drawn scaled, is laid out unrounded: a pixel of rounding
+  in its own units was the scale's pixels drawn (the GPU's "--" 2.6 off the middle at 600x200). A line with nothing to say
+  takes no room (the music's artist line while nothing plays stood a band under "Nothing playing", 37 at 350x70), and a
+  gap that belongs to a part that gives way goes with it (the next meeting's end column: its grid spacing stayed, so the
+  cut title stood 40 short of the end at 350x70). Tests `BlockFitTests.S14301_`.
 - **[S-14302]** **A mark over the content is no ink of the content's.** The sources' problem glyph (`KitStatus`, [S-7042],
   over the content's top end) stands over a reading, not in it: the layout dump writes each mark's box (`marks`) and the
   gap check leaves it out of the measure, as the item check leaves a status glyph over a row's value. Was: a stale
@@ -8514,7 +8530,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   writes its box (`fields`), and the gap check judges the box: it runs from the card's left edge to its right (short of
   either is a finding) and is the card's sides; reaching the card's foot it is the foot, starting on the card's top the
   top; what stands over or under it (the note's bar, the pad's toolbar) is judged by its ink as any card's. The text or
-  the strokes in it are not judged by their bands. Was: a short note (416 under its last line at 520x600) and a stroke drawn low on the pad
+  the strokes in it are not judged by their bands. The note's editor reaches the card's sides and foot, its words in the
+  inset as its own padding (WR-3: "the inset is padding inside the item, never a margin round the items"; it stood 8 in
+  from the sides and the foot). Was: a short note (416 under its last line at 520x600) and a stroke drawn low on the pad
   (34 over it) were read as one-readout faces off centre.
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
@@ -8624,7 +8642,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   it on the text drawn ([S-14200]: `InkMeter.Room`, the rule `InkRoom.Ends`; right to left, where the runs' order
   across follows their own direction, each side the least either run leaves there), so it never reaches past its ink;
   unmeasured, its box. Tests `GlyphInkTests.S14247_`. The fit's one DIP of room over its parts' width ([S-12814], `BlockFit.WidthSlack`) stays: a part laid
-  at exactly its width would be trimmed by layout rounding; drawn, it is the block's scale in DIPs at its end.
+  at exactly its width would be trimmed by layout rounding. Since 2026-11-20 ([S-14301]) it is laid beyond the room, on
+  the side the alignment leaves free (`BlockFit.Across`), never in the scale: before, drawn, it was the block's scale in
+  DIPs at its end (the stock's 900x300 price 17.3 from the end against 12.7 from the start). The line under is stood on
+  its ink at its ends too (the weather's "Can't reach the service" stood 4.7 short of the end's inset).
 - **[S-14249]** **A text is measured in the face XAML draws it in** ([S-14200], [S-14247]). A family text names no
   family of its own: XAML draws it in Segoe UI Variable at the optical size its size sets, and the meter (`InkMeter`,
   DirectWrite) measures it in that face, the optical size's nearest named one (Small 8, Text 10.5, Display 36:

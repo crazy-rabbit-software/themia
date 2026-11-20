@@ -122,6 +122,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
         // [S-12833] In a smaller card the slider's row gives way before the level does.
         _fit.AddGivesWay(_controls, ControlsRules.GivesWayAt);
+
+        // [S-14301] The slider runs across the content; the reading stands over it where the fit puts it.
+        _fit.Span(_controls);
         _fit.Face = LevelFace.Face(under: true);
         Children.Add(_fit);
     }

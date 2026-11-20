@@ -27,7 +27,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     private readonly KitStatus _mark;
 
     /// <summary>[S-12410] The rate is one block, centred in the room with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
-    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left };
+    private readonly ReadoutBlock _rate = new();
 
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
@@ -104,7 +104,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     }
 
     /// <summary>[S-6583] The Number style's rate across the card: the widget's alignment, from the start by default ([S-6582]).</summary>
-    public void ApplyAlign(ContentAlign align) => _rate.HorizontalAlignment = Aligned.Horizontal(align);
+    public void ApplyAlign(ContentAlign align) => _fit.Align = align;
 
     public void ApplySize(WidgetArea area)
     {

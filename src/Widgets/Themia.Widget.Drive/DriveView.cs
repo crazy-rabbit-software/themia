@@ -61,6 +61,9 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         _status.Hide();
         _fit.Parts.Add(_figure);
+
+        // [S-14301] The bar runs across the content, the share and its line over it from the start.
+        _fit.Span(_figure);
         Children.Add(_fit);
         Children.Add(_status);
     }

@@ -237,6 +237,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
     /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
     public void ApplyAlign(ContentAlign align)
     {
+        _fit.Align = align;
         if (align == _align)
         {
             return;

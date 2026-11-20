@@ -105,9 +105,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     public NotesView(IWidgetHost host)
     {
         _host = host;
-        // [S-6703] The text under the note's line, in the card's inset either side and under it; the Status
-        // row carries its own side inset.
-        _body.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
+        // [S-6703] The text under the note's line, in the card's inset either side and under it, as the editor's own
+        // padding: [S-14303] the editor is the card's free field from its left edge to its right and down to its foot
+        // (WR-3: "the inset is padding inside the item, never a margin round the items"). The Status row carries its own
+        // side inset.
 
         BuildEditor();
 
@@ -204,10 +205,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         box.BorderThickness = new Thickness(0);
         box.CornerRadius = Family.Radius;
 
-        // The fill is inset from the text by one grid unit and the field pulled back out by the same,
-        // so the focus fill has room to breathe while the words stay where the inset put them.
-        box.Padding = new Thickness(FamilySpace.S1);
-        box.Margin = new Thickness(-FamilySpace.S1);
+        // [S-14303] The words stand where the inset puts them, inside the field: the field reaches the card's sides and
+        // foot, and its top reaches back one grid unit under the note's line (clipped by its row) as it always did.
+        box.Padding = new Thickness(FamilySpace.Inset, FamilySpace.S1, FamilySpace.Inset, FamilySpace.Inset);
+        box.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
         box.MinHeight = 0;
         box.HorizontalAlignment = HorizontalAlignment.Stretch;
         box.VerticalAlignment = VerticalAlignment.Stretch;

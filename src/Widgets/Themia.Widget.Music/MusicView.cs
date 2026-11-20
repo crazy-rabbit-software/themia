@@ -49,7 +49,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         _track.TextTrimming = TextTrimming.CharacterEllipsis;
         _subtitle.TextTrimming = TextTrimming.CharacterEllipsis;
-        _subtitle.MinHeight = FamilyType.BodyLine;
         _lines.Children.Add(_track);
         _lines.Children.Add(_subtitle);
 
@@ -113,6 +112,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _track.Text = track ? now.Title : MusicRules.StatusMessage(now.State);
         _track.Foreground = Family.Brush(track ? ColourRole.TextPrimary : ColourRole.TextDisabled);
         _subtitle.Text = track ? now.Subtitle : string.Empty;
+
+        // [S-14301] A line with nothing to say takes no room: kept empty, it stood a band between "Nothing playing" and the
+        // transport, and under the title where the transport gave way (37 at 350x70).
+        _subtitle.Visibility = _subtitle.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         if (!track)
         {
             ControlsBlock.Reglyph(_playPause, Glyphs.Play, MusicStr.WidgetsB_Music_Play.Text());

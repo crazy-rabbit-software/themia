@@ -48,9 +48,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     private readonly SkyFeed<WeatherInterest, CurrentWeather> _feed;
     private WeatherNowConfig _config = new();
 
-    /// <summary>[S-6583] Where the reading sits: the widget's alignment.</summary>
-    private ContentAlign _align = ContentAlign.Left;
-
     public WeatherNowView(IWidgetHost host)
     {
         _status = new KitStatus(host);
@@ -103,11 +100,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     }
 
     /// <summary>[S-6583] The reading at the start, the middle or the end of the card.</summary>
-    public void ApplyAlign(ContentAlign align)
-    {
-        _align = align;
-        _face.HorizontalAlignment = Aligned.Horizontal(_align);
-    }
+    public void ApplyAlign(ContentAlign align) => _fit.Align = align;
 
     public void Detach() => _feed.Detach();
 
@@ -134,7 +127,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         var sky = WeatherGlyph.Of(WeatherReport.Look(reading.Code));
 
         _face.Visibility = Visibility.Visible;
-        _face.HorizontalAlignment = Aligned.Horizontal(_align);
         _bigGlyph.Visibility = _config.Style == WeatherNowStyle.LargeIcon ? Visibility.Visible : Visibility.Collapsed;
         _bigGlyph.Glyph = sky;
         switch (_config.Style)

@@ -24,7 +24,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
 {
     /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end.</summary>
     private readonly KitStatus _status;
-    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left };
+    private readonly ReadoutBlock _hero = new();
 
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
@@ -39,9 +39,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<AirInterest, AirReading> _feed;
     private AirQualityConfig _config = new();
-
-    /// <summary>[S-6583] Where the index sits: from the start in the number style, centred on the gauge by default.</summary>
-    private ContentAlign _align = ContentAlign.Left;
 
     public AirQualityView(IWidgetHost host)
     {
@@ -93,11 +90,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
     }
 
     /// <summary>[S-6583] The index (or the gauge) at the start, the middle or the end of the card.</summary>
-    public void ApplyAlign(ContentAlign align)
-    {
-        _align = align;
-        Render();
-    }
+    public void ApplyAlign(ContentAlign align) => _fit.Align = align;
 
     public void Detach() => _feed.Detach();
 
@@ -134,8 +127,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
         _gaugeBand.Visibility = _gauge.Visibility;
         if (gauge)
         {
-            _gauge.HorizontalAlignment = Aligned.Horizontal(_align);
-            _gaugeBand.HorizontalAlignment = Aligned.Horizontal(_align);
             _dial.Show(AirQualityRules.ScalePosition(scale, index));
             _dial.Role(AirQualityRules.ArcRole(tone));
             _gaugeReading.Show(value, unit, valueRole: role);
@@ -143,7 +134,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
             return;
         }
 
-        _hero.HorizontalAlignment = Aligned.Horizontal(_align);
         _hero.Show(value, unit, words, valueRole: role);
     }
 }

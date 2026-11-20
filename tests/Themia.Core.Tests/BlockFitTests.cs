@@ -1,3 +1,4 @@
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -121,7 +122,7 @@ public class BlockFitTests
         Assert.True(fill.Scale >= 1);
         Assert.True(first >= -1e-6 && last <= Math.Max(height, (80 - 9.2) * fill.Scale) + 1e-6, $"{width}x{height}: {first}..{last}");
         var fillsHeight = Math.Abs(first) < 1e-6 && Math.Abs(last - height) < 1e-6;
-        var fillsWidth = Math.Abs((156 + BlockFit.WidthSlack) * fill.Scale - width) < 1e-6;
+        var fillsWidth = Math.Abs((156 * fill.Scale) - width) < 1e-6;
         Assert.True(fillsHeight || fillsWidth || fill.Scale == 1, $"{width}x{height}: scale {fill.Scale}, ink {first}..{last}");
     }
 
@@ -135,7 +136,7 @@ public class BlockFitTests
         var ink = new LineInk(9.2, 4);
         var fill = BlockFit.Fill(576, 188, 180, 52, ink);
 
-        Assert.Equal(576 / (180 + BlockFit.WidthSlack), fill.Scale, 6);
+        Assert.Equal(576.0 / 180, fill.Scale, 6);
         Assert.Equal(52, fill.Height, 6);
         var over = fill.Top + (ink.Over * fill.Scale);
         var under = 188 - (fill.Top + ((fill.Height - ink.Under) * fill.Scale));
@@ -153,34 +154,91 @@ public class BlockFitTests
     }
 
     [Fact]
-    public void S12813_a_placeholder_keeps_its_readings_size_and_stands_its_dashes_on_the_top()
+    public void S12813_a_placeholder_is_sized_and_placed_by_the_ink_it_draws()
     {
-        // The drive card without its drive: "--" and "%" on the 28 readout (36 line), its reason under it, its bar.
-        // The dashes ink lower than figures would; sized by the figures, placed by the dashes.
+        // The drive card without its drive (330x140: 306 x 128 inside the insets): "--" and "%" on the 28 readout (36
+        // line), its reason under it, its bar. The dashes ink lower than figures would; the block is sized and placed by
+        // the ink it draws, so its dashes stand on the top and its bar's foot on the foot (WR-1, WR-4).
         var step = new TypeStep(28, 36, true);
-        var held = LineInk.Of(step);
         var drawn = LineInk.Placeholder(step, 0);
-        Assert.True(drawn.Over > held.Over);
+        Assert.True(drawn.Over > LineInk.Of(step).Over);
 
-        var reading = BlockFit.Fill(306, 106, 60, 64, held);
-        var fill = BlockFit.Fill(306, 106, 60, 64, held, drawn);
+        var fill = BlockFit.Fill(306, 128, 60, 64, drawn);
 
-        Assert.Equal(reading.Scale, fill.Scale, 6);
+        Assert.Equal(128 / (64 - drawn.Over - drawn.Under), fill.Scale, 6);
         Assert.Equal(0, fill.Top + (drawn.Over * fill.Scale), 6);
-
-        // [S-14280] Its parts stay together: its line under stays right under the dashes, the dashes' lower ink the foot's.
-        Assert.Equal(reading.Height, fill.Height, 6);
-        Assert.Equal(106 - ((drawn.Over - held.Over) * fill.Scale), fill.Top + ((fill.Height - drawn.Under) * fill.Scale), 6);
+        Assert.Equal(128, fill.Top + ((fill.Height - drawn.Under) * fill.Scale), 6);
     }
 
     [Fact]
-    public void S12814_a_width_held_block_keeps_a_pixel_over_its_text_so_rounding_never_trims_it()
+    public void S12813_a_regression_sized_by_the_reading_it_stood_for_the_placeholder_left_a_band_at_the_foot()
     {
-        // The weather's "--" over "Can't reach the service" (150 wide) in a tall card: the width holds the scale.
-        var fill = BlockFit.Fill(306, 400, 150, 52, new LineInk(9.2, 4));
+        // Before: the fit sized the block by the capitals of the reading the dashes stood for and placed it by the dashes,
+        // so the difference stood under its last ink: 20 DIP at the owner's 330x140 drive card ("Not connected": 13.3 over
+        // it, 32.7 under it). Sized by the ink it draws, the foot band is gone.
+        var step = new TypeStep(28, 36, true);
+        var reading = LineInk.Of(step);
+        var drawn = LineInk.Placeholder(step, 0);
 
-        Assert.Equal(306 / (150 + BlockFit.WidthSlack), fill.Scale, 6);
-        Assert.True((306 / fill.Scale) - 150 >= BlockFit.WidthSlack - 1e-9);
+        var old = BlockFit.Fill(306, 128, 60, 64, reading);
+        var oldTop = old.Top + ((reading.Over - drawn.Over) * old.Scale);
+        var oldFoot = 128 - (oldTop + ((old.Height - drawn.Under) * old.Scale));
+        Assert.True(oldFoot > 10, $"{oldFoot}");
+
+        var fill = BlockFit.Fill(306, 128, 60, 64, drawn);
+        Assert.Equal(0, 128 - (fill.Top + ((fill.Height - drawn.Under) * fill.Scale)), 6);
+    }
+
+    [Theory]
+    [InlineData(ContentAlign.Left)]
+    [InlineData(ContentAlign.Center)]
+    [InlineData(ContentAlign.Right)]
+    public void S14301_a_width_held_block_reaches_both_side_insets_its_slack_laid_beyond_the_room(ContentAlign align)
+    {
+        // The weather's "--" over "Can't reach the service" (150 wide) in a tall card: the width holds the scale, at
+        // exactly the room over the parts' width, and the plan still has a pixel over its text so rounding never trims
+        // it: laid beyond the room, where the alignment leaves it free.
+        var fill = BlockFit.Fill(306, 400, 150, 52, new LineInk(9.2, 4));
+        Assert.Equal(306.0 / 150, fill.Scale, 6);
+
+        var (left, width) = BlockFit.Across(306, fill.Scale, align);
+        Assert.True(width - 150 >= BlockFit.WidthSlack - 1e-9);
+
+        // The parts, 150 wide where the alignment puts them in the plan, stand from the room's start to its end.
+        var start = align switch { ContentAlign.Left => 0, ContentAlign.Right => width - 150, _ => (width - 150) / 2 };
+        Assert.Equal(0, left + (start * fill.Scale), 6);
+        Assert.Equal(306, left + ((start + 150) * fill.Scale), 6);
+    }
+
+    [Fact]
+    public void S14301_a_regression_the_slack_in_the_scale_stood_a_width_held_block_short_of_the_end()
+    {
+        // Before: the scale held a pixel over the parts' width, so a block the width held stood that pixel, scaled, short
+        // of the end's inset: 4.5 DIP at the exchange rate's 900x300 card (876 wide inside its insets, "1.0739 EUR +0.13%"
+        // 180 wide), its right band 16.7 against the 12 the left one had.
+        var fill = BlockFit.Fill(876, 288, 180, 52, new LineInk(9.2, 4));
+        var (left, width) = BlockFit.Across(876, fill.Scale, ContentAlign.Left);
+        Assert.Equal(0, left, 6);
+        Assert.Equal(876, 180 * fill.Scale, 6);
+        Assert.True((width - 180) * fill.Scale > 4, "the slack lies beyond the room's end");
+    }
+
+    [Fact]
+    public void S14301_a_block_that_does_not_fill_the_width_stands_where_its_alignment_puts_it()
+    {
+        // The recycle bin's 600x200 card (576 x 188): its parts 100 wide, held by the height at 2. Centred, the band left
+        // over stands alike either side; at the start the parts start the room; at the end they end it.
+        const double parts = 100;
+        const double scale = 2;
+        var (cl, cw) = BlockFit.Across(576, scale, ContentAlign.Center);
+        var centreStart = cl + (((cw - parts) / 2) * scale);
+        Assert.Equal(576 - (centreStart + (parts * scale)), centreStart, 6);
+
+        var (ll, _) = BlockFit.Across(576, scale, ContentAlign.Left);
+        Assert.Equal(0, ll, 6);
+
+        var (rl, rw) = BlockFit.Across(576, scale, ContentAlign.Right);
+        Assert.Equal(576, rl + (rw * scale), 6);
     }
 
     [Theory]
@@ -219,7 +277,7 @@ public class BlockFitTests
 
         var most = BlockFit.Fill(140, 52, 156, 52, new LineInk(9.2, 4), least: least);
         Assert.InRange(most.Scale, least, 1);
-        Assert.Equal(140 / (156 + BlockFit.WidthSlack), most.Scale, 6);
+        Assert.Equal(140.0 / 156, most.Scale, 6);
     }
 
     [Fact]

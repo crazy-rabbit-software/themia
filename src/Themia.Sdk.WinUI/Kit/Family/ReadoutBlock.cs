@@ -73,22 +73,18 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     /// [S-12808] The room in its box over its first ink and under its last: the value's (or its lead glyph's ink, its
     /// box centred on the value's line, where that stands higher: [S-14240]) and the line under's, or the value's.
     /// [S-14200] As they are drawn (<see cref="InkMeter"/>: the figures' own height, a descender, the unit beside the
-    /// value on its baseline). [S-12813] A placeholder value ("--") inks from its dashes' top (or its unit's capitals),
-    /// lower than capitals.
+    /// value on its baseline). [S-12813] A placeholder value ("--") as it is drawn too, its dashes lower than capitals (no
+    /// meter: the model, <see cref="LineInk.Placeholder"/>), so a block scaled to fit (<see cref="ReadingFit"/>) stands its
+    /// dashes on the top and its last ink on the foot.
     /// </summary>
-    public LineInk Ink => Inked(LineInk.Capless(_value.Text) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : Drawn(), drawn: true);
-
-    /// <summary>
-    /// [S-12813] The ink of the reading it stands for: the value's capitals even while a placeholder is shown, so a
-    /// block scaled to fit (<see cref="ReadingFit"/>) keeps the size its readings draw at; a reading, as drawn.
-    /// </summary>
-    public LineInk Held => LineInk.Capless(_value.Text) ? Inked(LineInk.Of(_step), drawn: false) : Ink;
+    public LineInk Ink => Inked(Drawn());
 
     /// <summary>[S-14200] The value's line as drawn: the value and, on its baseline, the unit and the delta beside its last line.</summary>
     private LineInk Drawn()
     {
         var font = PartInk.FontOf(_line.FontFamily);
-        var value = InkMeter.Line(_step, _value.Text, font, _line.FontWeight.Weight);
+        var value = InkMeter.Measure(new InkText(_value.Text, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight))
+            ?? (LineInk.Capless(_value.Text) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : LineInk.Of(_step));
         var oneLine = !_value.Text.Contains('\n', StringComparison.Ordinal);
         foreach (var run in new[] { _unit, _delta })
         {
@@ -101,15 +97,14 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         return value;
     }
 
-    private LineInk Inked(LineInk line, bool drawn)
+    private LineInk Inked(LineInk line)
     {
         // [S-14240] The lead glyph's ink in its box, measured as every glyph's is (PartInk): its whole box where unmeasured.
         var leads = _lead.Visibility == Visibility.Visible;
         var value = line.With(leads ? PartInk.Of(_lead) : LineInk.None, leads ? _lead.Height : 0, _step.LineHeight);
         var step = FamilyType.Under(_step);
         var under = _under.Visibility != Visibility.Visible ? value.Under
-            : drawn ? InkMeter.Line(step, _under.Text, PartInk.FontOf(_under.FontFamily), _under.FontWeight.Weight).Under
-            : LineInk.Of(step).Under;
+            : InkMeter.Line(step, _under.Text, PartInk.FontOf(_under.FontFamily), _under.FontWeight.Weight).Under;
         return new LineInk(value.Over, under);
     }
 
@@ -281,6 +276,19 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         if (_line.Margin != line)
         {
             _line.Margin = line;
+        }
+
+        // [S-14301] The line under too: its ink, not its advance, at its ends (a block the width holds by its caption, the
+        // weather's "Can't reach the service", stood 4.7 short of the end's inset).
+        var step = FamilyType.Under(_step);
+        var under = _under.Visibility == Visibility.Visible
+            ? InkMeter.Room(new InkText(_under.Text, PartInk.FontOf(_under.FontFamily), step.FontSize, _under.FontWeight.Weight, step.LineHeight, Tracking: _under.CharacterSpacing))
+            : null;
+        var (underStart, underEnd) = InkRoom.Ends(under, under, rtl, led: false);
+        var below = new Thickness(-underStart, 0, -underEnd, 0);
+        if (_under.Margin != below)
+        {
+            _under.Margin = below;
         }
 
         return base.MeasureOverride(availableSize);

@@ -62,6 +62,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 
         // [S-12808] One line: planned at the natural box (its ink centred there) and scaled up as one.
         _fit.Parts.Add(_row);
+        _fit.Span(_row);
         Children.Add(_fit);
 
         _seek.Scrubbing += OnScrubbing;

@@ -16,16 +16,11 @@ namespace Themia.App.Widgets;
 /// </summary>
 public static class PartInk
 {
-    /// <summary>The room in <paramref name="element"/>'s box (its margin included) over its first ink and under its last; measured parts only.</summary>
-    public static LineInk Of(UIElement element) => Of(element, held: false);
-
     /// <summary>
-    /// [S-12813] The ink <paramref name="element"/> is sized by: <see cref="Of(UIElement)"/>, but a part showing a
-    /// placeholder reads as what it stands for (<see cref="IInked.Held"/>).
+    /// The room in <paramref name="element"/>'s box (its margin included) over its first ink and under its last; measured
+    /// parts only. [S-12813] A placeholder ("--") as it is drawn, as any text.
     /// </summary>
-    public static LineInk Held(UIElement element) => Of(element, held: true);
-
-    private static LineInk Of(UIElement element, bool held)
+    public static LineInk Of(UIElement element)
     {
         ArgumentNullException.ThrowIfNull(element);
         if (element.Visibility != Visibility.Visible)
@@ -36,15 +31,15 @@ public static class PartInk
         var margin = element is FrameworkElement fe ? fe.Margin : default;
         var inner = element switch
         {
-            IInked part => held ? part.Held : part.Ink,
+            IInked part => part.Ink,
             Slider { Orientation: Orientation.Horizontal } slider => Thumb(slider),
             ToggleSwitch toggle => Track(toggle),
-            TextBlock text => Text(text, held),
+            TextBlock text => Text(text),
             FontIcon icon => Glyph(icon),
-            Border border when border.Child is { } child => Add(Of(child, held), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
-            StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children, held), stack.Padding.Top, stack.Padding.Bottom),
-            SpreadStack { Orientation: Orientation.Vertical } spread => Stacked(spread.Children, held),
-            Panel panel => Beside(panel, held),
+            Border border when border.Child is { } child => Add(Of(child), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
+            StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children), stack.Padding.Top, stack.Padding.Bottom),
+            SpreadStack { Orientation: Orientation.Vertical } spread => Stacked(spread.Children),
+            Panel panel => Beside(panel),
             _ => LineInk.None,
         };
 
@@ -52,14 +47,14 @@ public static class PartInk
     }
 
     /// <summary>A vertical stack: its first shown part's room over and its last's under.</summary>
-    private static LineInk Stacked(UIElementCollection children, bool held)
+    private static LineInk Stacked(UIElementCollection children)
     {
         var shown = children.Where(c => c.Visibility == Visibility.Visible).ToList();
-        return shown.Count == 0 ? LineInk.None : new LineInk(Of(shown[0], held).Over, Of(shown[^1], held).Under);
+        return shown.Count == 0 ? LineInk.None : new LineInk(Of(shown[0]).Over, Of(shown[^1]).Under);
     }
 
     /// <summary>Parts side by side (a grid, a row): the least room over and under any of them, where each stands in the panel's height.</summary>
-    private static LineInk Beside(Panel panel, bool held)
+    private static LineInk Beside(Panel panel)
     {
         // Its own box: what it measured less its own margin (each part's slot holds the part's).
         var own = panel is FrameworkElement self ? self.Margin.Top + self.Margin.Bottom : 0;
@@ -93,7 +88,7 @@ public static class PartInk
                 VerticalAlignment.Bottom => room,
                 _ => room / 2,
             };
-            var ink = Of(part, held);
+            var ink = Of(part);
             if (row == 0)
             {
                 over = Math.Min(over, top + ink.Over);
@@ -133,11 +128,91 @@ public static class PartInk
     private static LineInk Add(LineInk ink, double over, double under) => new(ink.Over + over, ink.Under + under);
 
     /// <summary>
-    /// [S-14200] A family text (its block line height): the room over its first ink and under its last as it is drawn,
-    /// wrapped where it wraps and cut where its lines run out; a planned line saying nothing yet is the model's capitals on the baseline, and so is a
-    /// placeholder read as what it stands for (<paramref name="held"/>, [S-12813]). A text on the font's own line: none.
+    /// [S-14301] The room in <paramref name="element"/>'s measured box (its margin included) before its first ink and after
+    /// its last, across, left and right as laid out: a text's side bearings as the meter measures them (<see cref="InkMeter.Room"/>),
+    /// a column's least either side as its parts stand in it, a row's first part's start and last part's end. A family
+    /// part that stands its own ink at its ends (<see cref="IInked"/>: a Readout, [S-14247]) and anything else: none, its box.
     /// </summary>
-    private static LineInk Text(TextBlock text, bool held)
+    public static (double Left, double Right) Across(UIElement element)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        if (element.Visibility != Visibility.Visible)
+        {
+            return (0, 0);
+        }
+
+        var margin = element is FrameworkElement fe ? fe.Margin : default;
+        var (left, right) = element switch
+        {
+            IInked => (0.0, 0.0),
+            TextBlock text => TextAcross(text),
+            Border { Child: { } child } border => Pad(Across(child), border.Padding.Left + border.BorderThickness.Left, border.Padding.Right + border.BorderThickness.Right),
+            StackPanel { Orientation: Orientation.Vertical } stack => Pad(Column(stack.Children, stack.DesiredSize.Width - stack.Margin.Left - stack.Margin.Right - stack.Padding.Left - stack.Padding.Right), stack.Padding.Left, stack.Padding.Right),
+            SpreadStack { Orientation: Orientation.Vertical } spread => Column(spread.Children, spread.DesiredSize.Width - spread.Margin.Left - spread.Margin.Right),
+            StackPanel { Orientation: Orientation.Horizontal } row => Pad(Row(row.Children), row.Padding.Left, row.Padding.Right),
+            _ => (0.0, 0.0),
+        };
+
+        return (Math.Max(0, left + margin.Left), Math.Max(0, right + margin.Right));
+    }
+
+    private static (double Left, double Right) Pad((double Left, double Right) room, double left, double right) => (room.Left + left, room.Right + right);
+
+    /// <summary>A text's side bearings (one line as it measures unbounded; a wrapping text its start alone), unmeasured none.</summary>
+    private static (double Left, double Right) TextAcross(TextBlock text)
+    {
+        var words = text.Text;
+        if (string.IsNullOrEmpty(words) || !(text.FontSize > 0))
+        {
+            return (0, 0);
+        }
+
+        var room = InkMeter.Room(new InkText(words, FontOf(text.FontFamily), text.FontSize, text.FontWeight.Weight, 0, Tracking: text.CharacterSpacing));
+        if (room is not { } r)
+        {
+            return (0, 0);
+        }
+
+        var rtl = text.FlowDirection == FlowDirection.RightToLeft;
+        var (start, end) = InkRoom.Ends(r, r, rtl, led: false);
+        var wraps = text.TextWrapping != TextWrapping.NoWrap;
+        return rtl ? (wraps ? 0 : end, start) : (start, wraps ? 0 : end);
+    }
+
+    /// <summary>A column's parts as they stand in its <paramref name="width"/>: the least room either side over them.</summary>
+    private static (double Left, double Right) Column(UIElementCollection children, double width)
+    {
+        double left = double.PositiveInfinity, right = double.PositiveInfinity;
+        foreach (var child in children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible))
+        {
+            var w = child.DesiredSize.Width;
+            var x = child.HorizontalAlignment switch
+            {
+                HorizontalAlignment.Right => width - w,
+                HorizontalAlignment.Center => (width - w) / 2,
+                _ => 0,
+            };
+            var (l, r) = Across(child);
+            left = Math.Min(left, x + l);
+            right = Math.Min(right, width - x - w + r);
+        }
+
+        return double.IsFinite(left) && double.IsFinite(right) ? (left, right) : (0, 0);
+    }
+
+    /// <summary>A row's first shown part's start and its last's end.</summary>
+    private static (double Left, double Right) Row(UIElementCollection children)
+    {
+        var shown = children.Where(c => c.Visibility == Visibility.Visible).ToList();
+        return shown.Count == 0 ? (0, 0) : (Across(shown[0]).Left, Across(shown[^1]).Right);
+    }
+
+    /// <summary>
+    /// [S-14200] A family text (its block line height): the room over its first ink and under its last as it is drawn,
+    /// wrapped where it wraps and cut where its lines run out; a planned line saying nothing yet is the model's capitals on the
+    /// baseline. A text on the font's own line: none.
+    /// </summary>
+    private static LineInk Text(TextBlock text)
     {
         if (!(text.LineHeight > 0))
         {
@@ -145,9 +220,7 @@ public static class PartInk
         }
 
         var step = new TypeStep(text.FontSize, text.LineHeight, false);
-        return held && LineInk.Capless(text.Text)
-            ? LineInk.Of(step)
-            : InkMeter.Line(step, text.Text, FontOf(text.FontFamily), text.FontWeight.Weight, WrapWidth(text), text.CharacterSpacing, text.MaxLines);
+        return InkMeter.Line(step, text.Text, FontOf(text.FontFamily), text.FontWeight.Weight, WrapWidth(text), text.CharacterSpacing, text.MaxLines);
     }
 
     /// <summary>

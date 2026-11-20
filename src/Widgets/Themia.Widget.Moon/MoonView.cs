@@ -39,9 +39,6 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private IDisposable? _subscription;
     private DateTimeOffset _now = DateTimeOffset.Now;
 
-    /// <summary>[S-6583] Where the readout sits: the widget's alignment, at the start by default.</summary>
-    private ContentAlign _align = ContentAlign.Left;
-
     /// <summary>[S-6050] The Phase month style: the month's name over a disc a day.</summary>
     private readonly SpreadStack _month = new() { Visibility = Visibility.Collapsed };
     private readonly TextBlock _monthName = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
@@ -77,6 +74,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
 
         _fit.Parts.Add(_readout);
         _fit.Parts.Add(_month);
+        _fit.Span(_month);
 
         // [S-12833] The phase's name and the month's give way where the card would draw them under the floor.
         _fit.GivesWay(_name, FamilyType.Under(FamilyType.Big28).FontSize);
@@ -117,9 +115,8 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     /// <summary>[S-6583] The widget's alignment, from the properties panel: where the readout sits.</summary>
     public void ApplyAlign(ContentAlign align)
     {
-        _align = align;
-        _readout.HorizontalAlignment = Aligned.Horizontal(_align);
-        _name.TextAlignment = Aligned.Text(_align);
+        _fit.Align = align;
+        _name.TextAlignment = Aligned.Text(align);
     }
 
     public void Detach()

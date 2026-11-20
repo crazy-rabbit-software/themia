@@ -115,6 +115,12 @@ public partial class SpreadStack : Panel
         return Down ? new Size(across, along) : new Size(along, across);
     }
 
+    /// <summary>
+    /// [S-14301] Where a shown part stands in its slot along the stack: the slot itself. A block's plan places its parts
+    /// across instead (<see cref="ReadingFit"/>), once, in the one arrange.
+    /// </summary>
+    protected virtual Rect Lay(UIElement part, Rect slot) => slot;
+
     protected override Size ArrangeOverride(Size finalSize)
     {
         var shown = Children.Where(c => c.Visibility == Visibility.Visible).ToList();
@@ -141,9 +147,9 @@ public partial class SpreadStack : Panel
         {
             shown[i].Arrange(!whole[i]
                 ? new Rect(Down ? finalSize.Width : 0, Down ? 0 : finalSize.Height, 0, 0)
-                : Down
+                : Lay(shown[i], Down
                 ? new Rect(0, slots[i].Start, finalSize.Width, slots[i].Length)
-                : new Rect(slots[i].Start, 0, slots[i].Length, finalSize.Height));
+                : new Rect(slots[i].Start, 0, slots[i].Length, finalSize.Height)));
         }
 
         foreach (var child in Children.Where(c => c.Visibility != Visibility.Visible))

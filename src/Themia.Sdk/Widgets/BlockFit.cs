@@ -1,3 +1,4 @@
+using Themia.Core.Model;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
@@ -56,8 +57,37 @@ public static class BlockFit
         return new BlockLay(scale, Math.Max(0, top) - (inkTop * scale));
     }
 
-    /// <summary>The DIP a block's parts are given over their width when the width holds its scale.</summary>
+    /// <summary>
+    /// The DIP a block's parts are given over their width (before the scale): laid out at exactly their width, layout
+    /// rounding would trim a text to its ellipsis (the weather's "Can't reach the servi..."). [S-14301] It is laid beyond
+    /// the room (<see cref="Across"/>), never in the scale, so a block the width holds reaches both side insets with its ink.
+    /// </summary>
     public const double WidthSlack = 1;
+
+    /// <summary>
+    /// [S-14301] Where a block's plan stands across a room <paramref name="width"/> wide drawn at <paramref name="scale"/>:
+    /// its box's <c>Left</c> in the room (DIPs) and its <c>Width</c> in the plan's own units. The plan is the room's width
+    /// and <see cref="WidthSlack"/> more, the slack laid outside the room on the side its alignment leaves free (after the
+    /// end for Left, before the start for Right, half each side centred), so a part at the start stands on the room's start,
+    /// one at the end on its end and one centred on its middle (owner, 2026-11-20, of a reading that fills one axis:
+    /// "Centred is fine"; WR-3 on the axis it fills: a block the width holds, its ink on both side insets).
+    /// </summary>
+    public static (double Left, double Width) Across(double width, double scale, ContentAlign align)
+    {
+        if (!(width > 0) || !double.IsFinite(width) || !(scale > 0) || !double.IsFinite(scale))
+        {
+            return (0, Math.Max(0, double.IsFinite(width) ? width : 0) + WidthSlack);
+        }
+
+        var over = WidthSlack * scale;
+        var left = align switch
+        {
+            ContentAlign.Left => 0,
+            ContentAlign.Right => -over,
+            _ => -over / 2,
+        };
+        return (left, (width / scale) + WidthSlack);
+    }
 
     /// <summary>
     /// [S-12814] The rule for a one-readout block (owner, 2026-11-19: "the drive widget still has a fucking space at the
@@ -69,34 +99,32 @@ public static class BlockFit
     /// top and its last on its foot. [S-14280] WR-7 (owner, 2026-11-19: "Keep them together"; "All together, scaled"):
     /// it is laid out in its parts' own height, so they always touch; where the width stops it, the height left stands
     /// alike over its first ink and under its last ([S-12808]), never between its parts. A room shorter than the parts
-    /// keeps them packed from the top, the first ink on it. [S-12813] A block showing a placeholder ("--") is sized by
-    /// the ink of the reading it stands for (<paramref name="ink"/>) and placed by the ink it draws
-    /// (<paramref name="drawn"/>, the dashes' top lower than capitals): the same size as its readings, its dashes where
-    /// the reading's capitals would stand.
+    /// keeps them packed from the top, the first ink on it. [S-12813] A block showing a placeholder ("--") is sized and
+    /// placed by the ink it draws, as any (WR-1, WR-4: its dashes, lower than capitals, on the top where the height stops it
+    /// and its last ink on the foot; sized by the reading it stood for, it left the difference as a band at the foot).
     /// </summary>
     /// <remarks>[S-12833] Never over <paramref name="most"/> (<see cref="FaceFit.Most"/>: the scale a part of it gave way at).</remarks>
-    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, LineInk? drawn = null, double least = 1, double most = double.PositiveInfinity)
+    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, double least = 1, double most = double.PositiveInfinity)
     {
         static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
         var over = Room(ink.Over);
         var under = Room(ink.Under);
-        var placedOver = Room((drawn ?? ink).Over);
         if (!(packedHeight > 0) || !double.IsFinite(packedHeight) || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
         {
-            return new BlockFill(1, double.IsFinite(packedHeight) ? Math.Max(0, packedHeight) : 0, -placedOver);
+            return new BlockFill(1, double.IsFinite(packedHeight) ? Math.Max(0, packedHeight) : 0, -over);
         }
 
         var span = Math.Max(1e-6, packedHeight - over - under);
-        // A whole pixel of slack over the parts' width: laid out at exactly their width, layout rounding would trim a
-        // text to its ellipsis (the weather's "Can't reach the servi...").
-        var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / (intrinsicWidth + WidthSlack) : double.PositiveInfinity;
+        // [S-14301] Held by the parts' own width: the slack that keeps rounding from trimming a text is laid beyond the
+        // room (Across), so the width-held block's ink reaches both side insets.
+        var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / intrinsicWidth : double.PositiveInfinity;
         var fill = Math.Min(byWidth, height / span);
         var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
 
         // [S-14280] WR-7: laid in its parts' own height, never the room's, so nothing goes between them. The height the
         // scale leaves (the width stopped it) stands alike over the reading's first ink and under its last ([S-12808]);
-        // a room shorter than the parts keeps them from the top. A placeholder's first ink stands where the reading's would.
+        // a room shorter than the parts keeps them from the top.
         var top = Math.Max(0, (height - (span * scale)) / 2);
-        return new BlockFill(scale, packedHeight, top - (placedOver * scale));
+        return new BlockFill(scale, packedHeight, top - (over * scale));
     }
 }

@@ -70,6 +70,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         _fit.Parts.Add(_face);
         _fit.Parts.Add(_flipRow);
         _fit.Parts.Add(_bar);
+        _fit.Span(_bar);
 
         // The content in the card's inset; the top is the card's.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
@@ -81,7 +82,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     {
         _name.Text = CountdownLayout.Named(_config) ? _config.Label.Trim() : string.Empty;
         _name.Visibility = _name.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-        _name.HorizontalAlignment = Aligned.Horizontal(_align);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -107,13 +107,13 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
     public void ApplyAlign(ContentAlign align)
     {
+        _fit.Align = align;
         if (align == _align)
         {
             return;
         }
 
         _align = align;
-        ShowName();
         Rebuild();
     }
 
@@ -174,12 +174,10 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         var cards = CountdownLayout.Cards(target, now, _config.Format == CountdownFormat.DaysHoursMinutesSeconds);
         _plan = CountdownLayout.Plan(_config, Strings.Current);
 
-        // [S-6583] The face where the widget's alignment puts it; the bar keeps the content's width.
+        // [S-6583] The face where the widget's alignment puts it (the fit places the name, the face and the cards: [S-14301]);
+        // the bar keeps the content's width.
         var ringed = _plan.Look == CountdownLook.Ring;
-        var place = Aligned.Horizontal(_align);
-        _face.HorizontalAlignment = place;
-        _flipRow.HorizontalAlignment = place;
-        _readout.HorizontalAlignment = ringed ? HorizontalAlignment.Center : place;
+        _readout.HorizontalAlignment = ringed ? HorizontalAlignment.Center : Aligned.Horizontal(_align);
         _readout.Use(_plan.Step, centred: ringed || _align == ContentAlign.Center);
         _readout.MaxWidth = ringed ? ChartRules.Hole(_plan.Ring).Width : double.PositiveInfinity;
 

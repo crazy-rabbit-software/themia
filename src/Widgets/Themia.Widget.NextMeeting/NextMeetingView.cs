@@ -50,7 +50,6 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     /// </summary>
     private readonly Grid _content = new()
     {
-        ColumnSpacing = NextMeetingJoin.Gap,
         VerticalAlignment = VerticalAlignment.Top,
         Visibility = Visibility.Collapsed,
         ColumnDefinitions =
@@ -137,6 +136,10 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         var end = _fit.GivesWayBox(_end, FamilyType.BodyStrong.FontSize);
         SetColumn(end, 1);
 
+        // [S-14301] The gap is the end column's own: where the column gives way its gap goes with it and the title takes
+        // the whole width (a grid's column spacing stayed, so the cut title stood 40 short of the end at 350x70).
+        end.Margin = new Thickness(NextMeetingJoin.Gap, 0, 0, 0);
+
         // [S-14261] The lines are cut with their ellipsis at the width the block gives them, never stopping its scale.
         _content.Children.Add(_cut);
         _content.Children.Add(end);
@@ -149,6 +152,9 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _organizer.Row.PointerExited += OnOrganizerExited;
 
         _fit.Parts.Add(_content);
+
+        // [S-14301] Its lines are cut to the width they are given and the end column stands at the end: the row runs across.
+        _fit.Span(_content);
         Children.Add(_fit);
         Children.Add(_state);
     }

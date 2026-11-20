@@ -102,7 +102,20 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     /// <summary>[S-6583] The price across the card: the widget's alignment, from the start by default ([S-6582]).</summary>
-    public void ApplyAlign(ContentAlign align) => _price.HorizontalAlignment = Aligned.Horizontal(align);
+    public void ApplyAlign(ContentAlign align)
+    {
+        _block.Align = align;
+        Across();
+    }
+
+    /// <summary>[S-14301] Over rows the price stands where the card's alignment puts it; in the block the fit places it.</summary>
+    private void Across()
+    {
+        if (!_block.Parts.Contains(_price))
+        {
+            _price.HorizontalAlignment = Aligned.Horizontal(_block.Align);
+        }
+    }
 
     /// <summary>The box's width only decides the fold of the change and the holding's move.</summary>
     public void ApplySize(WidgetArea area)
@@ -201,6 +214,8 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
             _head.Children.Remove(_price);
             _block.Parts.Add(_price);
         }
+
+        Across();
 
         // In the block its value and its line under stand together, the block scaled as one ([S-14280]).
         _price.VerticalAlignment = rows ? VerticalAlignment.Top : VerticalAlignment.Stretch;
