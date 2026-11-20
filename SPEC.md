@@ -8149,8 +8149,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   that makes sense so you can still see the widget."; docs/WIDGET-RULES.md WR-14). A face that scales as one (a clock,
   a date, a reading on `ReadingFit` or `InkFit`) scales down as well as up, until its smallest text is 9 DIP or its
   smallest glyph 12 (`ScaleFloor`, one floor for every kind; `ScaleFloors.Of` reads a face's parts); its kind's least
-  size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`; pomodoro
-  and the drive's ring still at the family's Caption). Rows and list items keep their whole-cell rule (a list's least is
+  size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`; pomodoro,
+  the drive's ring and the quote still at the family's Caption: the quote's words are measured as one unwrapped line in
+  its fit, so it runs off its card at every size and cannot scale as one until that is fixed). Rows and list items keep their whole-cell rule (a list's least is
   one item). **The main reading sets the floor, its smaller parts give way** (owner, 2026-11-19: "the clock has a
   min height that is way to big"; the clock's meridiem and line under at 9 had held its figures large: a world clock
   89 tall, a stacked one 208, the dial and the words not scaling down at all, 170 and 234; the date's page 101): a face
@@ -8182,8 +8183,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   focus session (48 × 32), countdown (text 82 × 32, ring 103 × 103, flip 76 × 36; its date or units and its name give
   way, the bar stays), music (its lines are its reading, Body: 166 × 44; the transport gives way), music progress (its
   times are its reading: nothing gives way, 156 × 32), next meeting (its title: 116 × 32; its lines and the end column
-  give way), quote (its words: 158 wide; its mark and author give way; its height steps by lines and keeps them), the
-  meters' Number look (cpu, gpu, memory, ping, battery 40 × 32, disk 48 × 32: the kind's glyph and the unit give way). Was:
+  give way), the meters' Number look (cpu, gpu, memory, ping, battery 40 × 32, disk 48 × 32: the kind's glyph and the unit give way). Was:
   each at its Caption's floor, three quarters of its natural box (a recycle bin 135 × 84, a countdown 345 × 104).
   Tests `FaceFloorTests.S12833_` (a Readout's parts, a Controls row, a stated face only shrinking),
   `ReadingFaceFloorTests.S12833_` (each kind's least height bound, every part at its natural box, monotonic).

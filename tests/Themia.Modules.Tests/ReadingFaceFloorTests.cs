@@ -49,7 +49,6 @@ public sealed class ReadingFaceFloorTests
         "music" => MusicFace.Face(),
         "musicProgress" => MusicProgressFace.Face(),
         "nextMeeting" => NextMeetingJoin.Face((NextMeetingConfig)config),
-        "quote" => QuoteLayout.Face((QuoteConfig)config),
         _ => null,
     };
 
@@ -80,8 +79,6 @@ public sealed class ReadingFaceFloorTests
         { "music", "default", 48, 72 },
         { "musicProgress", "default", 32, 32 },
         { "nextMeeting", "default", 32, 93 },
-        { "quote", "plain", 96, 96 },
-        { "quote", "marks", 120, 120 },
         { "cpu", "number", 32, 45 },
         { "gpu", "number", 32, 45 },
         { "memory", "number", 32, 45 },
