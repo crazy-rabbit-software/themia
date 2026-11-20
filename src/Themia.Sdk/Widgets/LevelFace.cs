@@ -26,6 +26,13 @@ public static class LevelFace
     public const double MinWidth = 160, NaturalWidth = 200, MaxWidth = 360;
 
     /// <summary>
+    /// [S-12833] A level widget's parts (<see cref="FaceParts"/>): the level its main reading, at 9 in its least card; its
+    /// unit, its line under and the Controls row give way on the way down (the wheel and the menu still set it).
+    /// </summary>
+    public static FaceParts Face(bool under)
+        => FaceParts.Readout(Step, Worst with { LineUnder = under }, NaturalWidth - (2 * FamilySpace.Inset)).Then(ControlsRules.Row(0));
+
+    /// <summary>
     /// [S-11308] A level widget's sizing ([S-2438]), with its header (on by default): the content top, the
     /// Readout on 28 and its line under where <paramref name="under"/>, 8, the Controls row, the inset;
     /// one height, 160..360 wide.

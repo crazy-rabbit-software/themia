@@ -76,7 +76,10 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
         // [S-12808] The level and the slider: one block, planned at the natural box and scaled up as one.
         _fit.Parts.Add(_reading);
-        _fit.Parts.Add(_controls);
+
+        // [S-12833] In a smaller card the slider's row gives way before the level does.
+        _fit.AddGivesWay(_controls, ControlsRules.GivesWayAt);
+        _fit.Face = LevelFace.Face(under: false);
         Children.Add(_fit);
 
         // The wheel anywhere on the tile, as on the volume tile.

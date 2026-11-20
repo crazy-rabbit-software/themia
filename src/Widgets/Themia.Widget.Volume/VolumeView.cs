@@ -119,7 +119,10 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         // [S-12808] The level, its device, the mute and the slider: one block, planned at the natural box and scaled
         // up as one.
         _fit.Parts.Add(_reading);
-        _fit.Parts.Add(_controls);
+
+        // [S-12833] In a smaller card the slider's row gives way before the level does.
+        _fit.AddGivesWay(_controls, ControlsRules.GivesWayAt);
+        _fit.Face = LevelFace.Face(under: true);
         Children.Add(_fit);
     }
 
