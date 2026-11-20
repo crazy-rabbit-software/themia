@@ -48,5 +48,5 @@ public sealed class NetworkMetricTests
 
     [Fact]
     public void S2019_a_click_opens_its_settings_page()
-        => Assert.Equal("ms-settings:network-status", NetworkMetricModule.Opens!.Value);
+        => Assert.All(NetworkKinds.All, kind => Assert.Equal("ms-settings:network-status", kind.Opens!.Target(kind.Create())!.Value));
 }

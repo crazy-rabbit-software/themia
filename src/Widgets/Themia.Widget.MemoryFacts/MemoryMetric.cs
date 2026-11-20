@@ -20,9 +20,6 @@ namespace Themia.Widget.MemoryFacts;
 public abstract class MemoryMetricModule(string key)
     : MetricModule(MemoryKinds.Of(key), MemoryFactsJsonContext.Default, AddFolderId.MemoryFacts, MemoryKinds.Rank(key))
 {
-    /// <summary>[S-2013] A click on the card opens Task Manager.</summary>
-    internal static CardOpen? Opens => CardOpen.TaskManager;
-
     public override FrameworkElement CreateView(IWidgetHost host)
         => new SystemMetricView(host, Kind, new MemoryMetricPart(Kind.Key));
 }
@@ -68,9 +65,6 @@ internal sealed class MemoryMetricPart(string key) : SystemMetricPart
     private ISeriesWatch? _series;
     private ISystemMetricHost? _host;
 
-    /// <inheritdoc />
-    public override CardOpen? Opens(WidgetConfig config) => MemoryMetricModule.Opens;
-
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {
         _host = host;
@@ -103,7 +97,8 @@ internal sealed class MemoryMetricPart(string key) : SystemMetricPart
         }
 
         var shown = MetricRules.Pick(MemoryDetailRules.Sheet(Strings.Current, _figures.Value.Figures, _figures.Value.Pagefile), key) with { Reading = LastReading };
-        host.Present(_series is { } series ? shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)p.First)] } : shown);
+        // [S-14703] The history is the share in use (the memory meter's), written as one.
+        host.Present(_series is { } series ? shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)p.First)], Figure = Formatting.Percent } : shown);
     }
 
     public override void Detach()

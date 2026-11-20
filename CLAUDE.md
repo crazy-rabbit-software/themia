@@ -188,7 +188,9 @@ widgets that share their code (a widget a reading, split from one that showed ma
 is one project marked `[assembly: ThemiaWidgetFamily]` that declares each kind with its own id, module and
 config ([S-6901]); its kinds share one add-page family (`AddFolderId`, `AddTree`). Every one-reading widget is a
 **single metric** on one base (SPEC METRICS, [S-14600]..[S-14607]): its kinds as data (`MetricKind`), a `MetricModule`
-each, the one face `MetricView` (one fact row that is the card, `MetricRules.Sizing`; the trend None/Arrow/Line), a
+each, the one face `MetricView` (one row at its least, every cell taller too, the face fitting its box by one rule:
+`MetricRules.Look`, the row or the readout over the graph, [S-14700]; the trend None/Arrow/Line, the graph in the chart look
+`IChartLooks` sets, [S-14703]; one item that lights and opens its kind's source, `MetricKind.Opens`, [S-14706]), a
 system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the

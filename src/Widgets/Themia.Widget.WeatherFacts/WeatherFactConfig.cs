@@ -3,6 +3,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Widget.WeatherFacts;
 
@@ -12,7 +13,7 @@ namespace Themia.Widget.WeatherFacts;
 /// place is one request ([S-2663]); a trend over the service's hours asks the place's hours too (the weather graphs'
 /// one answer), only while it draws one.
 /// </summary>
-public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, IInterests, IMetricTrend
+public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, IInterests, IMetricTrend, IChartLooks
 {
     /// <summary>[S-13900] The one reading its kind shows.</summary>
     [JsonIgnore]
@@ -28,6 +29,24 @@ public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, I
     /// <inheritdoc />
     [JsonIgnore]
     public MetricHistory History => WeatherFactRules.History(Fact);
+
+    /// <summary>[S-14703] How its graph over the hours is drawn; Area (the look until now) by default.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public ChartType Chart { get; set; }
+
+    /// <summary>[S-14703] Simple by default.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public ChartDetail Detail { get; set; }
+
+    /// <summary>[S-14703] The weather graphs' types (the line with its wash, the line alone, a column per hour) where it has a series; none without.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<ChartType> ChartTypes => History == MetricHistory.Series ? ChartLooks.Hours : [];
+
+    [JsonIgnore]
+    public ChartType DefaultChart => ChartType.Area;
+
+    [JsonIgnore]
+    public bool OffersDetail => History == MetricHistory.Series;
 
     /// <summary>[S-14603] Whether it reads the place's hours: a trend over them is drawn.</summary>
     [JsonIgnore]
@@ -55,13 +74,14 @@ public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, I
 
     /// <summary>[S-14603] A trend its fact cannot draw is the one it can, loudly.</summary>
     public override IReadOnlyList<string> Repair()
-        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>()];
+        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>(), .. ChartLooks.Repair(this, GetType().Name)];
 
     public override WidgetConfig Clone()
     {
         var copy = (WeatherFactConfig)WeatherFactKinds.Of(Fact).Create();
         CopyTo(copy);
         copy.Trend = Trend;
+        ChartLooks.Copy(this, copy);
         return copy;
     }
 }

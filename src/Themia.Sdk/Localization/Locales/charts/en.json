@@ -12,7 +12,12 @@
     "metric.trend",
     "metric.trend.none",
     "metric.trend.arrow",
-    "metric.trend.line"
+    "metric.trend.line",
+    "metric.open.taskManager",
+    "metric.open.network",
+    "metric.open.battery",
+    "metric.open.weather",
+    "metric.open.drive"
   ],
   "chart.type": "Chart type",
   "chart.type.area": "Area",
@@ -26,5 +31,10 @@
   "metric.trend": "Trend",
   "metric.trend.none": "None",
   "metric.trend.arrow": "Arrow",
-  "metric.trend.line": "Line"
+  "metric.trend.line": "Line",
+  "metric.open.taskManager": "Open Task Manager",
+  "metric.open.network": "Open Network & internet",
+  "metric.open.battery": "Open Power & battery",
+  "metric.open.weather": "Open on MSN Weather",
+  "metric.open.drive": "Open in File Explorer"
 }

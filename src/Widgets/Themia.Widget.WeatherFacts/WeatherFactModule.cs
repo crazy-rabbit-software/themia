@@ -19,9 +19,6 @@ namespace Themia.Widget.WeatherFacts;
 public abstract class WeatherFactModule(WeatherFactKind fact)
     : MetricModule(WeatherFactKinds.Of(fact), WeatherFactJsonContext.Default, AddFolderId.WeatherFacts, (int)fact)
 {
-    /// <summary>[S-2035] A click on the card opens MSN Weather's forecast for its place, as the reading's does; nothing with no place.</summary>
-    internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);
-
     /// <summary>[S-13903] The place's search ([S-3722]); the fact is its kind, never a setting.</summary>
     protected override void SourceLines(WidgetMenuLines menu, WidgetConfig config)
         => menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, (WeatherFactConfig)config));

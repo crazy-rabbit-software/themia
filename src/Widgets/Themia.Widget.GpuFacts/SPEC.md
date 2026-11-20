@@ -17,6 +17,6 @@ GPU feed and the adapter's series, the menu's adapter line, the JSON context), `
 - **[S-2431]** `Adapter`: a DXGI position, as the GPU reading's ([S-433]: the primary display's adapter by default), offered
   with two or more adapters (the GPU atoms' shared line); one that is gone shows the first; one that is no position is the
   first, loudly. Its options are on the properties menu ([S-3719]): Appearance, Adapter, then Trend where it moves.
-- **[S-2015]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); the module decides it (`GpuMetricModule.Opens`).
+- **[S-2015]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); every kind declares it (`GpuKinds`, `MetricKind.Opens`, [S-14706]), as do the card menu's first line and Enter ([S-14707]).
 
 Needs a manual pass: the cards on a live desktop (video memory under a game, a WDDM 2.4+ driver's sensors, two adapters).

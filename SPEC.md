@@ -1215,7 +1215,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   (owner: "like now"): Area and Simple, but the pressure and wind graphs' Line and the UV and rain graphs' Bars, so no
   widget changes unasked. A type the kind does not offer (a hand-edited file) is repaired to its own and a detail it
   does not offer to Simple, both loudly. The weather graphs' former Area/Line/Bars styles are this one setting now (one
-  look, one home); the rain graph keeps its style, Hours or Next 2 hours. `--widget-png … --chart
+  look, one home); the rain graph keeps its style, Hours or Next 2 hours. A single metric's trend graph takes the same two
+  settings on its page, under its Trend line ([S-14703]). `--widget-png … --chart
   area|line|bars|candles --detail simple|detailed` draws a kind in a look.
 - **[S-6753]** **A chart is always drawn** (owner, 2026-11-19: "even if there is no rain in the next two hours or even if
   there is no cpu data available it should show the default values in the graph and not just not show the graph. for
@@ -9632,33 +9633,38 @@ one base. Owning files: `Themia.Sdk/Widgets/Metrics.cs` (the pure rules: `Metric
 `MetricTrend`, `MetricHistory`, `MetricReadings`, `IMetricTrend`), `Themia.Sdk/Modules/MetricKind.cs` (a kind as data),
 `Themia.Sdk/Model/Configs/MetricConfig.cs`, `Themia.Sdk.WinUI/Widgets/MetricView.cs` (+ `.Preview.cs`, the one face),
 `Widgets/Details/SystemMetric.cs` (+ `.Preview.cs`, the system families' face over the hub), `Modules/MetricModule.cs`,
-`Shell/MetricMenuLines.cs` (the Trend line), `Themia.Core/Storage/KindSplits.cs` (the in-place replacement); the families
+`Shell/MetricMenuLines.cs` (the Trend line and, under it, the graph's chart look through `ChartMenuLines`),
+`Themia.Core/Storage/KindSplits.cs` (the in-place replacement); the families
 are their projects: Weather facts, Air facts, CPU, GPU, Memory, Network, Ping, Battery and Drive facts, Sun times and Moon
 times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-6901], with its own `SPEC.md`). Tests:
-`MetricRulesTests` (Core), each family's, `SystemStateFixtureTests.S14606_`, `UnknownWidgetTests.S14606_`,
+`MetricRulesTests` (Core), `MetricFitTests` (every kind: its chart look, its page, its source), each family's, `SystemStateFixtureTests.S14606_`, `UnknownWidgetTests.S14606_`,
 `ReadyMadeGroupsTests`.
 
-- **[S-14600]** **Its size is its one row.** The card is one fact row at its optimal (WR-6, [S-14500]) from its top
-  edge to its foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on the default grid), so its top and
-  bottom spacing are a list row's; its natural and least height are that row, every cell taller too, the row stretched
-  to fill it (`MetricRules.SizingFor`); a metric drawing Line stands two such rows, its reading's and its line's
-  (`MetricRules.Rows`, [S-14220]), stretched alike; its width 200 at least, a new one 240, relaxed past 420 ([S-12411]), each widened by the trend's room beside
-  the value (an arrow 28, `MetricRules.TrendRoom`; a line none, it is the band under the row, [S-14220]), so the name and
-  the value keep theirs. Every kind states `MetricRules.SizingOf` its config; a placed metric switched to Line or back
-  refits on the config change, and a ready-made group placed with Line metrics lays them two rows each, still touching
-  (`ReadyMadeGroups.Laid` as one block).
-- **[S-14601]** **One face** (`MetricView`): the row is the facts' row (`FactList`, a list of one, [S-12811]): the kind's
-  16 glyph, the metric's name (the reading's own where its source names it more exactly, "Full in" while charging), its
-  value with its unit at the end, and the trend beside the value ([S-14603]); a name or value too long ends in its
-  ellipsis. A family subclasses it for its data and hands each read to it (`MetricShown`); the face, the trend and the
-  readings an arrow compares are the base's alone. A click opens the family's page (`IWidgetOpens`); Refresh, where the
-  source has one, is on the card menu.
+- **[S-14600]** **Its size is its one row, and every cell taller.** The card's least and natural height is one fact row at
+  its optimal (WR-6, [S-14500]) from its top edge to its foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on
+  the default grid), so its top and bottom spacing are a list row's; a metric drawing Line stands its row and its graph's
+  least under it (`MetricRules.GraphLeast`: a row; Detailed, the room the chart writes in more, [S-14703]). Every cell taller
+  is its too, with no most ([S-14700]: owner, 2026-11-20, "the widgets like the PM2.5 one should be resizable in height and
+  change its style so that it fits"; relaxed, [S-12411]; steps of one cell, [S-14500]), the face arranging the same parts
+  to fit ([S-14701], [S-14702]) (`MetricRules.SizingFor`); its width 200 at least, a new one 240, relaxed past 420
+  ([S-12411]), each widened by the trend's room beside the value (an arrow 28, `MetricRules.TrendRoom`; a graph none, it
+  is under the reading), so the name and the value keep theirs. Every kind states `MetricRules.SizingOf` its config; a
+  placed metric switched to Line or back, or to Detailed, refits on the config change, and a ready-made group placed with
+  Line metrics lays them at their least, still touching (`ReadyMadeGroups.Laid` as one block).
+- **[S-14601]** **One face** (`MetricView`): the kind's 16 glyph, the metric's name (the reading's own where its source names
+  it more exactly, "Full in" while charging), its value with its unit at the end, and its trend ([S-14603]), the same parts
+  at every size, arranged by the box ([S-14701]): one row tall the facts' row (`FactList`, a list of one, [S-12811]; a name
+  or value too long ends in its ellipsis), taller the readout. The whole metric is one item, the card edge to edge
+  ([S-14705]). A family subclasses it for its data and hands each read to it (`MetricShown`); the face, the trend, the
+  readings an arrow compares and what a click opens are the base's alone. A click opens the kind's source ([S-14706]);
+  Refresh, where the source has one, is on the card menu after the line that opens it ([S-14707]).
 - **[S-14602]** **Defaults, never hidden** (WR-10): without a reading the row stays, its value "--" drawn unavailable and
   why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
   the glyph its room at its end so it never stands on the value ([S-12834]).
 - **[S-14603]** **Trend**, a widget's setting (`IMetricTrend.Trend`, stored only when not None): **None**, **Arrow** (up,
-  down or flat against the reading before, beside the value) or **Line** (the metric's history on the band under the
-  row, the card two rows tall, [S-14220]). What a kind
+  down or flat against the reading before, beside the value: in the row's inline slot, beside the readout's value inside its
+  block) or **Line** (the metric's history as a graph at the card's foot under the reading, [S-14220], [S-14702], in the
+  chart look its page sets, [S-14703]). What a kind
   offers is its metric's history (`MetricHistory`): a series (the hub's charted series, a service's hours) None, Arrow and
   Line; its readings only None and Arrow, from the last two readings the card saw (`MetricReadings`: a reading drawn again
   is no move); none (a text, a constant, a time) no Trend line at all. A stored trend a kind cannot draw is the one it can,
@@ -9668,25 +9674,25 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   the last ("previous hour"), rounded as shown, and the line the hours from the last one on. A source's history is read only
   while a trend needs it (the hub's series, the place's hours). Trend is a shared setting (`SharedSettings.MetricTrend`,
   [S-11750]): several metrics selected set it once, each as it can draw it. Its line is on the widget's page after the
-  family's source line (the place, the drive, the adapter, the host), `MetricMenuLines.Trend`.
-- **[S-14220]** **The trend line is the meters' history band under the reading** (owner, 2026-11-19, asked whether a graph's
+  family's source line (the place, the drive, the adapter, the host), `MetricMenuLines.Trend`; while it is Line the graph's
+  chart look stands under it ([S-14703]).
+- **[S-14220]** **The trend line is a graph on the one chart under the reading** (owner, 2026-11-19, asked whether a graph's
   plot should reach the card's edges: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand
   inside it, over the plot; WR-11: "they should reuse the same base … they should reuse more of the same components"). A
-  metric drawing Line has no sparkline of its own: its line is the history band every meter draws (`SparkBand` on the one
-  `Chart`, [S-6750]), in its look (Area, Simple: the line at 2 over its 16 % wash), with no caption. A metric drawing
-  Line stands **two rows** (coordinator's decision 2026-11-20, after a line squeezed under the text of a one-row card
-  moved 3 DIP and read as a divider, not the "trendlines" the owner asked for): its reading row exactly as ever at the
-  top (the list's first of two rows, `FactList.Rows`) and the line's row under it, each a 28 row in whole cells
-  ([S-14600]). The band is the card's whole box, on its top edge, down to its foot, side to side, so its plot is the
-  card's box ([S-6754]); the reading row is the owner's part over the plot's top (`SparkBand.Over`, `ChartModel.Over`,
-  `MetricRules.LineOver`: the first of the card's two alike rows, 30 on the 60 card), so the line moves in the whole
-  second row (28 DIP on the default grid) and never runs through a glyph, its wash down to the card's foot, as a meter's
-  history stands under its figure. It takes no room beside the value ([S-14600]). Its points (`MetricRules.Band`) are the newest 24 values of the metric's history, oldest
-  first, each its share of their own range (the low at the band's foot, the high at its top; a flat history level
-  through the middle) on a share scale; a gap is left out, as the band leaves out a sample not read; the band lays them
-  on its slots, the newest on the right edge, a history still filling growing in from the right ([S-6331]); with fewer
-  than two values it lies at its baseline (never no trend, WR-10). Its role is the accent, disabled while the value is
-  unavailable.
+  metric drawing Line has no sparkline of its own: its graph is the one `Chart` ([S-6750]) over a model of the rules'
+  (`MetricRules.Graph`), in its chart look ([S-14703]; by default the histories' look until now, Area and Simple: the line at
+  2 over its 16 % wash), with no caption. It stands at least **two rows** (coordinator's decision 2026-11-20, after a line
+  squeezed under the text of a one-row card moved 3 DIP and read as a divider, not the "trendlines" the owner asked for):
+  the reading's share at the top and the graph's at the foot, the graph never less than a row ([S-14702]). The chart is the
+  card's whole box, on its top edge, down to its foot, side to side, so its plot is the card's box ([S-6754]); the reading
+  is the owner's part over the plot's top (`ChartModel.Over`: the reading's share), so the line moves in the graph's share
+  and never runs through a glyph, its wash down to the card's foot, as a meter's history stands under its figure. It takes
+  no room beside the value ([S-14600]). Its points are the newest 24 values of the metric's history, oldest first, on their
+  own range (the low at the band's foot, the high at its top; a flat history level through the middle); a line's on the
+  band's slots (`SparkSlots`, the newest on the right edge, a history still filling growing in from the right, [S-6331]), a
+  column's a slot each from the right (its foot a third of the range under the low, so the lowest is a short column, never
+  none); a gap is left out; with fewer than two values it lies at its baseline (never no trend, WR-10). Its role is the
+  accent, disabled while the value is unavailable.
 - **[S-14604]** **A family a project, a kind a metric.** A family's kinds are data (`MetricKind`: id, the metric's key,
   glyph, history, the row's name, the add page's name, description and search words, the config); each kind is a sealed
   module (`MetricModule`) and config of its own, all at home in the family's add-page folder (each one home, in the
@@ -9715,6 +9721,57 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   details**, **Memory details**, **GPU details**, **Network details** with its adapters, **Ping details**, **Battery
   details**, **Drive**), **Sun** and **Moon** the graphic or reading over its three times, **Weather** and **Weather
   station** the reading over its metrics; each starts with its Header ([S-12485]), every metric one row tall, touching.
+- **[S-14700]** **A metric fits its box** (owner, 2026-11-20: "the widgets like the PM2.5 one should be resizable in height
+  and change its style so that it fits."): every single metric's height is resizable from its least ([S-14600]) by one
+  cell, with no most, and its face changes its look to fit the box: the same parts (the glyph, the name, the value, its
+  arrow, its graph), arranged by one pure rule (`MetricRules.Look` on the card's height, the trend and the graph's detail,
+  on the card's grid; `MetricRules.Arrange` for the readout), the view measuring its box (`ApplySize`) to arrange them,
+  never to choose what they are ([S-2445]). Tests `MetricRulesTests.S14700_`..`S14703_`.
+- **[S-14701]** **Row or readout.** Under two whole rows the face is the facts' row (today's row, stretched to the card).
+  Two rows or more (and no graph) it is the **readout**, the whole card: the value as the reading (a Readout at Big28, its
+  unit smaller after it, `ReadoutRules.Split`; the arrow beside the value) and the glyph and the name as its caption
+  (Caption, secondary), one block scaled up together until the height or the width stops it (WR-7, "All together, scaled";
+  `ReadingFit`/`BlockFit`, the family's inset off the card's edges), down to its legibility floor (WR-14: the 16 glyph and
+  the Caption alike, 0.75); the cross axis stands centred (owner, 2026-11-19: "Centred is fine"). The caption stands
+  **beside** the value on one line where that block scales larger in the room, else **over** it (narrow or tall boxes:
+  the name over the value), on the parts' own boxes (`MetricRules.Arrange`). Without a reading the same look with "--",
+  the caption drawn unavailable too ([S-14602]); while the status's problem glyph shows, the block leaves it its room at
+  the end, as the row does ([S-12813]).
+- **[S-14702]** **With the graph** (trend Line): the graph takes the foot, never less than its least
+  (`MetricRules.GraphLeast`), and the reading the top. On whole cells the reading grows first, to half the card (the half
+  rounded up), the graph taking the rest: at 60 a 30 row over a 30 graph, at 70 a 40 row over 30, at 90 a 50 readout over
+  a 40 graph, at 120 60 over 60, then alike. The reading is the row while the card is under three rows or its share is
+  one row, else the readout over the graph, a gap of 8 between them; the graph's plot is still the whole card ([S-14220]).
+- **[S-14703]** **The graph's style is settable** (owner, 2026-11-20: "for the trendline you should also be able to set its
+  style"): through the graph widgets' own chart look, one path ([S-6752]: `IChartLooks`, `ChartMenuLines`, the shared
+  settings `chartType` and `chartDetail`), on every metric with a series: **Chart type**, the types its history's graphs
+  offer (the hub's series: Area or Line, as the meters' histories; a place's hours: Area, Line or Bars, as the weather
+  graphs), and **Detail**, Simple or Detailed. Its lines stand on the page under the Trend line, only while the trend is
+  Line (`MetricMenuLines.Add`). The default is today's look (Area, Simple; neither stored, a new widget's file as before);
+  a stored type or detail the metric does not draw is repaired to Area or Simple, loudly; a copy and the state file keep
+  them. Detailed writes the chart's values (its grid, its low, its high, its latest) as the shown figure is written
+  (`MetricShown.Figure`: the place's hours in their unit, a concentration in µg/m³, a rate, a latency, a share), and no
+  times (a metric's history has none); its graph keeps a row for its line and the room it writes in, so its least is
+  taller (100 on the default grid) and its card too (130 at the least).
+- **[S-14705]** **The metric lights under the pointer** (owner, 2026-11-20: "the metrics should also have a hover effect. they
+  should open the datasource when clicked / page that shows that metric"): the whole metric is one item, the card edge to
+  edge (its row, its readout and its graph inside it, `ItemMark`), in the card's corners (`IWidgetCorners`); where it opens
+  something it takes the item layer's row fill at rest, hover and pressed (`ItemFill`, as every row that opens; WR-13:
+  exactly the item under the pointer; WR-12: only its fill changes). A metric that opens nothing (its kind has no source,
+  a place not set yet) lights nothing. A drive's card lights through the same item while its drive is pointed at
+  elsewhere on the view ([S-11903]): one fill, never two. `--hover`/`--pressed` renders show it.
+- **[S-14706]** **A click opens its source**, declared on its kind (`MetricKind.Opens`, a `MetricOpen`: the target for the
+  card's config and the card menu's words), one path for every metric, the page its family's own widgets open
+  (`MetricOpens`): the processor's, the memory's and the graphics' facts Task Manager ([S-2011]); the network's and the
+  ping's Settings' network status ([S-2019]); the battery's Settings' Power & battery ([S-2023]); the weather's and the
+  air's MSN Weather's forecast for the card's place ([S-2006], as the weather and air graphs; no place, nothing); a drive's
+  its drive in File Explorer ([S-2032]). The sun's and the moon's times open nothing (the Sun and Moon widgets open
+  nothing). Opened through `IWidgetHost.Launcher` only; a click is the release without a move ([S-13060]: a drag never
+  opens, [S-2000]). Tests `MetricFitTests.S14706_` (every kind declares one or is listed with none).
+- **[S-14707]** **Enter and the card menu open it too**: a metric that opens something takes the keyboard on a click and
+  opens its source on Enter (`IWidgetKeys`); its card menu's own lines start with the line that opens it, worded as the
+  app or the page ("Open Task Manager", "Open Network & internet", "Open Power & battery", "Open on MSN Weather", "Open in
+  File Explorer"), then the family's (Refresh).
 
 ## Weather, sky and money as atoms (ATOMS-SKY)
 

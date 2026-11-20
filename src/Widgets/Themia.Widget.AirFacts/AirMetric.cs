@@ -10,6 +10,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 
 namespace Themia.Widget.AirFacts;
@@ -34,7 +35,7 @@ public abstract class AirMetricModule(string key)
 /// kind's. It asks for the same air answer as the index (<c>airQuality</c>, [S-5101]); a trend over the hours asks the
 /// place's air hours too (the air graph's one answer), only while it draws one.
 /// </summary>
-public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, IMetricTrend
+public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, IMetricTrend, IChartLooks
 {
     /// <summary>The reading its kind shows.</summary>
     [JsonIgnore]
@@ -47,6 +48,24 @@ public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, I
     /// <inheritdoc />
     [JsonIgnore]
     public MetricHistory History => AirFactRules.History(Fact);
+
+    /// <summary>[S-14703] How its graph over the hours is drawn; Area (the look until now) by default.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public ChartType Chart { get; set; }
+
+    /// <summary>[S-14703] Simple by default.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public ChartDetail Detail { get; set; }
+
+    /// <summary>[S-14703] The weather graphs' types (the line with its wash, the line alone, a column per hour) where it has a series; none without.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<ChartType> ChartTypes => History == MetricHistory.Series ? ChartLooks.Hours : [];
+
+    [JsonIgnore]
+    public ChartType DefaultChart => ChartType.Area;
+
+    [JsonIgnore]
+    public bool OffersDetail => History == MetricHistory.Series;
 
     /// <summary>[S-14603] Whether it reads the place's air hours: a trend over them is drawn.</summary>
     [JsonIgnore]
@@ -74,13 +93,14 @@ public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, I
 
     /// <summary>[S-14603] A trend its reading cannot draw is the one it can, loudly.</summary>
     public override IReadOnlyList<string> Repair()
-        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>()];
+        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>(), .. ChartLooks.Repair(this, GetType().Name)];
 
     public override WidgetConfig Clone()
     {
         var copy = (AirMetricConfig)AirKinds.Of(Fact.ToString()).Create();
         CopyTo(copy);
         copy.Trend = Trend;
+        ChartLooks.Copy(this, copy);
         return copy;
     }
 }
@@ -119,7 +139,7 @@ internal sealed partial class AirMetricView : MetricView
     protected override string MetricName => AirFactRules.Name(_fact);
 
     /// <summary>[S-730] Refresh: the network now.</summary>
-    public override IReadOnlyList<WidgetAction> ContextActions =>
+    protected override IReadOnlyList<WidgetAction> OwnActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), Refresh)] : [];
 
     protected override void OnAttach(Ticker ticker, WidgetConfig config)
@@ -175,7 +195,8 @@ internal sealed partial class AirMetricView : MetricView
         if (History == MetricHistory.Series && _hours.Held is { Value: { } hours })
         {
             var (direction, series) = MetricRules.Hours(hours.Hours, h => h.At, h => AirFactRules.Hourly(_fact, h), 1, _clock());
-            shown = shown with { Direction = direction, Series = series };
+            // [S-14703] The pollutants' hours are concentrations, written as the reading is.
+            shown = shown with { Direction = direction, Series = series, Figure = AirFactRules.Concentration };
         }
 
         Present(shown);

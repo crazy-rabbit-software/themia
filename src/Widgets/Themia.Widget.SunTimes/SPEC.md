@@ -16,6 +16,7 @@ Owning files: everything in this folder: `SunKinds.cs`, `SunMetric.cs` (module, 
 - **[S-14690]** **A widget a time** (owner, 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too. use the same base component for all of them. you should also have the option to show trendlines as well or just the trend with arrows."): `sunrise` "Sunrise", `sunset` "Sunset", `daylight` "Daylight", `solarNoon` "Solar noon", `dawn` "Dawn", `dusk` "Dusk", the family **Sun times** under Weather
   (`AddFolderId.SunTimes`), worked out again each minute. A time has no trend (no Trend line). Its options: Appearance and
   the sky's shared Location ([S-3101]). With the graphic (`sun`) its rise, set and daylight make the ready-made group "Sun"
-  ([S-11172]). A placed `sunTimes` card is replaced in place by its rows, with its place ([S-14606]).
+  ([S-11172]). A placed `sunTimes` card is replaced in place by its rows, with its place ([S-14606]). A sun time opens nothing on a
+  click and lights nothing under the pointer: the Sun widget opens nothing either ([S-14706]).
 
 Needs a live pass: the cards on a live desktop at a far northern place.

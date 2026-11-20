@@ -14,6 +14,6 @@ bases, the part over the hub, the JSON context), `Localization/Locales/` (its ow
   order, one tick's figures, [S-2501]; the processor's read is a new reading) and draws its fact of the sheet; one this
   read lacks is "--" dimmed. Trends ([S-14603]): CPU speed, processes, threads, handles and CPU temperature an arrow from the last two readings the card saw (no history kept); CPU base speed, CPU core count, logical processors and up time none (a text, a constant or a time: no Trend line). A placed `cpuFacts` card is replaced in place by
   its rows ([S-14606]). Its options: Appearance and, where it moves, Trend.
-- **[S-2011]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); the module decides it (`CpuMetricModule.Opens`).
+- **[S-2011]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); every kind declares it (`CpuKinds`, `MetricKind.Opens`, [S-14706]), as do the card menu's first line and Enter ([S-14707]).
 
 Needs a manual pass: the cards on a live desktop (the clock moving with load, a thermal zone or a tool's package sensor).

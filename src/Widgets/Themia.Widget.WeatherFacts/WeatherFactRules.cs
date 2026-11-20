@@ -69,6 +69,21 @@ public static class WeatherFactRules
         };
     }
 
+    /// <summary>
+    /// [S-14703] How a fact's value in one of the hours (<see cref="Hourly"/>, its base units) is written as its reading is
+    /// ("1,013 hPa", "84%", "12 km/h"): what a Detailed graph writes for its low, its high and its latest.
+    /// </summary>
+    public static Func<double, string> Figure(Locale locale, WeatherFactKind kind, TemperatureUnit unit) => kind switch
+    {
+        WeatherFactKind.FeelsLike => v => WeatherReport.Temperature(v, unit),
+        WeatherFactKind.Humidity => v => WeatherReport.Humidity(locale, v),
+        WeatherFactKind.Wind or WeatherFactKind.Gusts => v => WeatherReport.Wind(v),
+        WeatherFactKind.Precipitation => v => WeatherReport.Precipitation(locale, v),
+        WeatherFactKind.Pressure => v => WeatherReport.Pressure(v),
+        WeatherFactKind.Uv => v => WeatherReport.Uv(v),
+        _ => v => LocaleFormat.Number(locale, v, Digits(kind)),
+    };
+
     /// <summary>[S-14603] The digits a fact is shown with: what a move under them is not (UV and an amount of rain one, the rest whole).</summary>
     public static int Digits(WeatherFactKind kind) => kind is WeatherFactKind.Uv or WeatherFactKind.Precipitation ? 1 : 0;
 

@@ -13,6 +13,6 @@ Tests: `Tests/MemoryMetricTests.cs`.
   (`AddFolderId.MemoryFacts`). Each reads the hub's performance figures and draws its fact; in use is used of total, its
   number the bytes used. Trends ([S-14603]): memory in use an arrow and a line; available memory, committed memory, cached memory, paged pool, non-paged pool and page file an arrow from the last two readings the card saw (no history kept); in use's line is the memory reading's own share
   series, read only while a line is drawn. A placed `memoryFacts` card is replaced in place by its rows ([S-14606]).
-- **[S-2013]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); the module decides it (`MemoryMetricModule.Opens`).
+- **[S-2013]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`); every kind declares it (`MemoryKinds`, `MetricKind.Opens`, [S-14706]), as do the card menu's first line and Enter ([S-14707]).
 
 Needs a manual pass: the cards on a live desktop (memory moving under load, a machine without a page file).

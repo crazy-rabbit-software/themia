@@ -21,6 +21,6 @@ host's prober, the JSON context), `PingWindow.cs` (the window's statistics and t
   (a loss between two does not break the pair; under two answers, none); loss the unanswered share of every probe.
 - **[S-2429]** The sheet keeps the latest latency and the status for the note: before any probe is back a card's row is "--"
   with the status ("Checking…") its tooltip; no line names the host ([S-12801]: a group's Header widget does).
-- **[S-2021]** A click on the card ([S-2000]) opens Windows' network status page (`ms-settings:network-status`); the module decides it (`PingMetricModule.Opens`).
+- **[S-2021]** A click on the card ([S-2000]) opens Windows' network status page (`ms-settings:network-status`); every kind declares it (`PingKinds`, `MetricKind.Opens`, [S-14706]), as do the card menu's first line and Enter ([S-14707]).
 
 Needs a manual pass: the cards on a live desktop (a host answering, a lossy one, the network going away, a window of 300 filling).

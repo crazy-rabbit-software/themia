@@ -21,7 +21,7 @@ namespace Themia.Widget.DriveFacts;
 /// </summary>
 internal static class DriveKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("driveFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("driveFacts",
     [
         new("driveUsed", "used", Glyphs.Disk, MetricHistory.Readings, Str.Details_Drive_Used.Local(), DriveFactsStr.DriveFacts_DriveUsed_Label.Local(), DriveFactsStr.DriveFacts_DriveUsed_Desc.Local(),
             ["drive", "disk", "used", "storage"], () => new DriveUsedConfig()),
@@ -33,7 +33,7 @@ internal static class DriveKinds
             ["drive", "disk", "file system", "ntfs", "exfat", "fat32"], () => new DriveFileSystemConfig()),
         new("driveType", "type", Glyphs.Disk, MetricHistory.None, Str.Details_Drive_Type.Local(), DriveFactsStr.DriveFacts_DriveType_Label.Local(), DriveFactsStr.DriveFacts_DriveType_Desc.Local(),
             ["drive", "disk", "type", "usb", "network drive", "ssd"], () => new DriveTypeConfig()),
-    ], ["used", "free", "capacity", "fileSystem"]);
+    ], ["used", "free", "capacity", "fileSystem"]), MetricOpens.Drive);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

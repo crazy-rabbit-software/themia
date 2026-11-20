@@ -55,7 +55,7 @@ public sealed class GpuMetricTests
 
     [Fact]
     public void S2015_a_click_opens_task_manager()
-        => Assert.Equal(System.IO.Path.Combine(System.Environment.SystemDirectory, "Taskmgr.exe"), GpuMetricModule.Opens!.Value);
+        => Assert.Equal(System.IO.Path.Combine(System.Environment.SystemDirectory, "Taskmgr.exe"), GpuKinds.All.Select(kind => kind.Opens!.Target(kind.Create())!.Value).Distinct().Single());
 
     [Fact]
     public void S14620_no_adapter_keeps_the_row_its_default_dimmed()

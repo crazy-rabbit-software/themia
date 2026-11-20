@@ -23,7 +23,7 @@ namespace Themia.Widget.MemoryFacts;
 /// </summary>
 internal static class MemoryKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("memoryFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("memoryFacts",
     [
         new("memoryInUse", "inUse", Glyphs.Memory, MetricHistory.Series, Str.Details_Memory_InUse.Local(), MemoryFactsStr.MemoryFacts_MemoryInUse_Label.Local(), MemoryFactsStr.MemoryFacts_MemoryInUse_Desc.Local(),
             ["memory", "ram", "in use", "used"], () => new MemoryInUseConfig()),
@@ -39,7 +39,7 @@ internal static class MemoryKinds
             ["memory", "non-paged pool", "nonpaged", "kernel"], () => new MemoryNonPagedPoolConfig()),
         new("memoryPageFile", "pageFile", Glyphs.Disk, MetricHistory.Readings, Str.Details_Memory_PageFile.Local(), MemoryFactsStr.MemoryFacts_MemoryPageFile_Label.Local(), MemoryFactsStr.MemoryFacts_MemoryPageFile_Desc.Local(),
             ["memory", "page file", "pagefile", "swap", "virtual memory"], () => new MemoryPageFileConfig()),
-    ], ["inUse", "available", "committed", "cached"]);
+    ], ["inUse", "available", "committed", "cached"]), MetricOpens.TaskManager);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

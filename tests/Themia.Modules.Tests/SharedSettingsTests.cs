@@ -39,8 +39,10 @@ public sealed class SharedSettingsTests
         ["historySpan"] = ["batteryHistory", "cpuCores", "cpuHistory", "diskHistory", "gpuHistory", "memoryHistory", "networkHistory", "pingHistory"],
         ["hideWhenIdle"] = ["music", "musicCover", "musicProgress"],
         ["metricTrend"] = ["airAlder", "airBirch", "airGrass", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airRagweed", "airUv", "batteryRate", "batteryTemperature", "batteryTime", "batteryVoltage", "cpuHandles", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "driveFree", "driveUsed", "gpuClock", "gpuDedicatedMemory", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature", "memoryAvailable", "memoryCached", "memoryCommitted", "memoryInUse", "memoryNonPagedPool", "memoryPageFile", "memoryPagedPool", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "weatherCloudCover", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherUv", "weatherWind"],
-        ["chartType"] = ["airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "humidityGraph", "memoryHistory", "networkHistory", "pingHistory", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "windGraph"],
-        ["chartDetail"] = ["airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "humidityGraph", "memoryHistory", "networkHistory", "pingHistory", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "windGraph"],
+        // [S-14703] And every single metric with a series: its trend graph's look.
+        ["chartType"] = ["airOzone", "airPm10", "airPm25", "airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "gpuLoad", "humidityGraph", "memoryHistory", "memoryInUse", "networkDownload", "networkHistory", "networkUpload", "pingAverage", "pingHistory", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherUv", "weatherWind", "windGraph"],
+        // [S-14703] And every single metric with a series: its trend graph's look.
+        ["chartDetail"] = ["airOzone", "airPm10", "airPm25", "airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "gpuLoad", "humidityGraph", "memoryHistory", "memoryInUse", "networkDownload", "networkHistory", "networkUpload", "pingAverage", "pingHistory", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherUv", "weatherWind", "windGraph"],
     };
 
     /// <summary>A value of each setting no kind starts with: written on one config, it differs from every default.</summary>
@@ -168,6 +170,11 @@ public sealed class SharedSettingsTests
             ("mixer", "audioOutput"), ("volume", "audioOutput"), ("calendar", "listRows"), ("calendar", "listLines"), ("cpuCores", "historySpan"),
         ];
 
+        // [S-14703] A single metric's chart look stands under its Trend line only while the trend is Line (MetricFitTests
+        // checks those lines marked then): its default, None, offers none.
+        static bool TrendGraph(IWidgetModule module, SharedSetting setting)
+            => module is Themia.Sdk.WinUI.MetricModule && (setting == SharedSettings.ChartType || setting == SharedSettings.ChartDetail);
+
         var missing = new List<string>();
         foreach (var module in ModuleRegistry.Widgets)
         {
@@ -183,7 +190,7 @@ public sealed class SharedSettingsTests
             var marked = menu.StyleLines.Concat(menu.Lines).Select(l => l.Shares).OfType<string>().ToHashSet(StringComparer.Ordinal);
             foreach (var setting in SharedSettings.All.Where(s => s.Holds(config)))
             {
-                if (!marked.Contains(setting.Key) && !conditional.Contains((kind, setting.Key)))
+                if (!marked.Contains(setting.Key) && !conditional.Contains((kind, setting.Key)) && !TrendGraph(module, setting))
                 {
                     missing.Add($"{kind}: {setting}");
                 }

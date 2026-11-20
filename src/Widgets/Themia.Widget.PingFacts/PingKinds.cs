@@ -22,7 +22,7 @@ namespace Themia.Widget.PingFacts;
 /// </summary>
 internal static class PingKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("pingFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("pingFacts",
     [
         new("pingAverage", "average", Glyphs.Ping, MetricHistory.Series, PingFactsStr.Details_Ping_Average.Local(), PingFactsStr.PingFacts_PingAverage_Label.Local(), PingFactsStr.PingFacts_PingAverage_Desc.Local(),
             ["ping", "latency", "average", "ms", "connection quality"], () => new PingAverageConfig()),
@@ -36,7 +36,7 @@ internal static class PingKinds
             ["ping", "packet loss", "loss", "dropped"], () => new PingLossConfig()),
         new("pingAnswered", "answered", Glyphs.Ping, MetricHistory.None, PingFactsStr.Details_Ping_Answered.Local(), PingFactsStr.PingFacts_PingAnswered_Label.Local(), PingFactsStr.PingFacts_PingAnswered_Desc.Local(),
             ["ping", "answered", "replies"], () => new PingAnsweredConfig()),
-    ], ["average", "minimum", "maximum", "jitter"]);
+    ], ["average", "minimum", "maximum", "jitter"]), MetricOpens.Network);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

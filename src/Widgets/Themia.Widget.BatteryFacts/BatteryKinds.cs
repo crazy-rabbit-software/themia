@@ -27,7 +27,7 @@ namespace Themia.Widget.BatteryFacts;
 /// </summary>
 internal static class BatteryKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("batteryFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("batteryFacts",
     [
         new("batteryStatus", "status", Glyphs.Battery, MetricHistory.None, Str.Details_Battery_Status.Local(), BatteryFactsStr.BatteryFacts_BatteryStatus_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryStatus_Desc.Local(),
             ["battery", "status", "charging", "plugged in"], () => new BatteryStatusConfig()),
@@ -51,7 +51,7 @@ internal static class BatteryKinds
             ["battery", "chemistry", "lithium", "li-ion"], () => new BatteryChemistryConfig()),
         new("batteryManufacturer", "manufacturer", Glyphs.Tag, MetricHistory.None, Str.Details_Battery_Manufacturer.Local(), BatteryFactsStr.BatteryFacts_BatteryManufacturer_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryManufacturer_Desc.Local(),
             ["battery", "manufacturer", "maker", "vendor"], () => new BatteryManufacturerConfig()),
-    ], ["status", "time", "health", "fullCapacity"]);
+    ], ["status", "time", "health", "fullCapacity"]), MetricOpens.Battery);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

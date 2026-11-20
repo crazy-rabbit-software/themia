@@ -38,5 +38,5 @@ public sealed class MemoryMetricTests
 
     [Fact]
     public void S2013_a_click_opens_task_manager()
-        => Assert.Equal(System.IO.Path.Combine(System.Environment.SystemDirectory, "Taskmgr.exe"), MemoryMetricModule.Opens!.Value);
+        => Assert.Equal(System.IO.Path.Combine(System.Environment.SystemDirectory, "Taskmgr.exe"), MemoryKinds.All.Select(kind => kind.Opens!.Target(kind.Create())!.Value).Distinct().Single());
 }

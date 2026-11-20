@@ -75,7 +75,7 @@ public sealed class PingMetricTests
         Assert.True(SystemInterests.Chart(FeedKey.Create(SystemSource.Ping, "1.1.1.1")).SameAs(average.SystemWants(@"C:\")));
         Assert.Equal(MetricHistory.Series, average.History);
         Assert.Equal(MetricHistory.None, new PingAnsweredConfig().History);
-        Assert.Equal(CardOpenKind(), PingMetricModule.Opens!.Value);
+        Assert.All(PingKinds.All, kind => Assert.Equal(CardOpenKind(), kind.Opens!.Target(kind.Create())!.Value));
 
         var copy = Assert.IsType<PingAverageConfig>(new PingAverageConfig { Host = "9.9.9.9", Window = 120, Trend = MetricTrend.Line }.Clone());
         Assert.Equal(("9.9.9.9", 120, MetricTrend.Line), (copy.Host, copy.Window, copy.Trend));

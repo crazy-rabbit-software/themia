@@ -112,7 +112,7 @@ internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
-    private LinkCard<DriveLink> Card => _card ??= new LinkCard<DriveLink>(_links, LinkTopics.HoveredDrive, this);
+    private LinkCard<DriveLink> Card => _card ??= new LinkCard<DriveLink>(_links, LinkTopics.HoveredDrive, Item);
 
     protected override void OnAttach(Ticker ticker, WidgetConfig config)
     {

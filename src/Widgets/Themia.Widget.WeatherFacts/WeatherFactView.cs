@@ -45,11 +45,8 @@ internal sealed partial class WeatherFactView : MetricView
 
     protected override string MetricName => WeatherFactRules.Name(_fact, Strings.Current);
 
-    /// <inheritdoc />
-    public override CardOpen? Opens => WeatherFactModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
-
     /// <summary>[S-730] "Refresh": the network now.</summary>
-    public override IReadOnlyList<WidgetAction> ContextActions =>
+    protected override IReadOnlyList<WidgetAction> OwnActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), Refresh)] : [];
 
     protected override void OnAttach(Ticker ticker, WidgetConfig config)
@@ -111,7 +108,7 @@ internal sealed partial class WeatherFactView : MetricView
         if (History == MetricHistory.Series && _hours.Held is { Value: { } hours })
         {
             var (direction, series) = MetricRules.Hours(hours.Hours, h => h.At, h => WeatherFactRules.Hourly(_fact, h), WeatherFactRules.Digits(_fact), _clock());
-            shown = shown with { Direction = direction, Series = series };
+            shown = shown with { Direction = direction, Series = series, Figure = WeatherFactRules.Figure(Strings.Current, _fact, _feed.Want?.Unit ?? RegionFormat.Current.Temperature) };
         }
 
         Present(shown);

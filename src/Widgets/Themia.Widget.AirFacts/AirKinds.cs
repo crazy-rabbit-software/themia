@@ -27,7 +27,7 @@ namespace Themia.Widget.AirFacts;
 /// </summary>
 internal static class AirKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("airFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("airFacts",
     [
         new("airUv", "Uv", Glyphs.Sun, MetricHistory.Readings, AirFactsStr.Online_Air_Uv.Local(), AirFactsStr.AirFacts_AirUv_Label.Local(), AirFactsStr.AirFacts_AirUv_Desc.Local(),
             ["uv", "uv index", "sunburn", "sun", "air"], () => new AirUvConfig()),
@@ -51,7 +51,7 @@ internal static class AirKinds
             ["olive", "pollen", "allergy", "hay fever"], () => new AirOliveConfig()),
         new("airRagweed", "Ragweed", AirFactRules.Leaf, MetricHistory.Readings, AirFactsStr.Online_Air_PollenType_Ragweed.Local(), AirFactsStr.AirFacts_AirRagweed_Label.Local(), AirFactsStr.AirFacts_AirRagweed_Desc.Local(),
             ["ragweed", "pollen", "allergy", "hay fever"], () => new AirRagweedConfig()),
-    ], ["Uv", "Pm25", "Pollen", "Pm10"]);
+    ], ["Uv", "Pm25", "Pollen", "Pm10"]), MetricOpens.Weather);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

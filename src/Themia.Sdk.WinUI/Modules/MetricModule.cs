@@ -8,9 +8,9 @@ namespace Themia.Sdk.WinUI;
 
 /// <summary>
 /// [S-14604] One kind of a single-metric family as a module: its descriptor made from its <see cref="MetricKind"/> (the
-/// one sizing, <see cref="MetricRules.Sizing"/>; at home in its family's add-page folder, in the family's order), its
-/// menu (the family's source line, then the trend's, [S-14603]) and its view (the family's, over the base face). A
-/// family's kinds are sealed modules of this, one per id.
+/// one sizing, <see cref="MetricRules.SizingOf"/>; at home in its family's add-page folder, in the family's order), its
+/// menu (the family's source line, then the trend's and, while it draws its graph, the graph's chart look, [S-14603],
+/// [S-14703]) and its view (the family's, over the base face). A family's kinds are sealed modules of this, one per id.
 /// </summary>
 public abstract class MetricModule : IWidgetModule
 {
@@ -40,7 +40,7 @@ public abstract class MetricModule : IWidgetModule
         };
     }
 
-    /// <summary>The kind this module is: its data (its glyph, its history, its names).</summary>
+    /// <summary>The kind this module is: its data (what it shows, its history, what a click opens, [S-14706]).</summary>
     public MetricKind Kind { get; }
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>

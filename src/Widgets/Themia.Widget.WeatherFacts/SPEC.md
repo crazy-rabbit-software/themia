@@ -50,7 +50,9 @@ with their translations). Tests: `Tests/WeatherFactTests.cs` (run by `tests/Them
 - **[S-13903]** Its options are all on the properties menu ([S-3719]): Appearance, **Location** (the weather
   family's search, [S-3722]) and, where its fact has a history, **Trend** ([S-14608]); its fact is its kind, never a setting; the temperature unit and the update interval are
   ⚙'s, followed, no link row ([S-3749]). A click on the card opens the forecast for its place, as the reading's
-  ([S-2035]); Refresh is on its card menu ([S-730]).
+  ([S-2035]; every kind declares it, `MetricOpens.Weather`, [S-14706]), and so do Enter and the card menu's first line, "Open on MSN
+  Weather" ([S-14707]); Refresh is on its card menu ([S-730]). While its trend is Line, its graph's **Chart type** (Area, Line,
+  Bars) and **Detail** stand under Trend ([S-14703]).
 
 - **[S-14608]** **Trend** ([S-14603]; owner, 2026-11-20: "you should also have the option to show trendlines as well or
   just the trend with arrows."): feels like, humidity, wind, precipitation, pressure, UV and gusts draw an arrow and a

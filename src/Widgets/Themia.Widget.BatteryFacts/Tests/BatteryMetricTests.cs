@@ -41,5 +41,5 @@ public sealed class BatteryMetricTests
 
     [Fact]
     public void S2023_a_click_opens_its_settings_page()
-        => Assert.Equal("ms-settings:batterysaver", BatteryMetricModule.Opens!.Value);
+        => Assert.All(BatteryKinds.All, kind => Assert.Equal("ms-settings:batterysaver", kind.Opens!.Target(kind.Create())!.Value));
 }

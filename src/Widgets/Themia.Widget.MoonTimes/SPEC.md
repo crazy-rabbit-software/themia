@@ -15,6 +15,7 @@ Owning files: everything in this folder: `MoonKinds.cs`, `MoonMetric.cs` (module
 - **[S-14695]** **A widget a time** (owner, 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too. use the same base component for all of them. you should also have the option to show trendlines as well or just the trend with arrows."): `moonrise` "Moonrise", `moonset` "Moonset", `nextFullMoon` "Next full moon", `nextNewMoon` "Next new moon", the family **Moon times** under Weather
   (`AddFolderId.MoonTimes`), worked out again each minute, each led by the family's moon glyph. A time has no trend. Its
   options: Appearance and the sky's shared Location ([S-3101]). With the reading (`moon`) its rise, set and next full moon
-  make the ready-made group "Moon" ([S-11172]). A placed `moonTimes` card is replaced in place by its rows ([S-14606]).
+  make the ready-made group "Moon" ([S-11172]). A placed `moonTimes` card is replaced in place by its rows ([S-14606]). A moon time opens
+  nothing on a click and lights nothing under the pointer: the Moon widget opens nothing either ([S-14706]).
 
 Needs a live pass: the cards on a live desktop.

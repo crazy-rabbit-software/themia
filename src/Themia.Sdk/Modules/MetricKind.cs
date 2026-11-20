@@ -28,6 +28,20 @@ public sealed record MetricKind(
     public SplitFrom? Split { get; init; }
 
     /// <summary>
+    /// [S-14706] What a click on the card opens and its card menu's line: its family's source, the page its own widgets
+    /// open (<see cref="MetricOpens"/>); null for a kind with no source to open (it lights nothing under the pointer).
+    /// </summary>
+    public MetricOpen? Opens { get; init; }
+
+    /// <summary>[S-14706] <paramref name="kinds"/>, each opening <paramref name="open"/>: a family's one source.</summary>
+    public static IReadOnlyList<MetricKind> Opening(IReadOnlyList<MetricKind> kinds, MetricOpen open)
+    {
+        ArgumentNullException.ThrowIfNull(kinds);
+        ArgumentNullException.ThrowIfNull(open);
+        return [.. kinds.Select(kind => kind with { Opens = open })];
+    }
+
+    /// <summary>
     /// [S-14606] <paramref name="kinds"/> as the rows of the removed kind <paramref name="removed"/>, in its order: those
     /// whose keys are in <paramref name="defaults"/> were a new one's.
     /// </summary>

@@ -182,7 +182,10 @@ public sealed class WeatherFactTests
     {
         var config = new WeatherUvConfig { Latitude = 47.3769, Longitude = 8.5417, LocationName = "Zurich, Switzerland" };
 
-        Assert.StartsWith("https://www.msn.com/en-us/weather/forecast/in-Zurich?loc=", WeatherFactModule.Opens(config, TemperatureUnit.Celsius, Locale.En)!.Value, StringComparison.Ordinal);
-        Assert.Null(WeatherFactModule.Opens(new WeatherUvConfig(), TemperatureUnit.Celsius, Locale.En));
+        // [S-14706] Every fact's kind opens it, one target for the family.
+        Assert.All(WeatherFactKinds.All, kind => Assert.Same(MetricOpens.Weather, kind.Opens));
+        Assert.StartsWith("https://www.msn.com/", MetricOpens.Weather.Target(config)!.Value, StringComparison.Ordinal);
+        Assert.Contains("/weather/forecast/in-Zurich?loc=", MetricOpens.Weather.Target(config)!.Value, StringComparison.Ordinal);
+        Assert.Null(MetricOpens.Weather.Target(new WeatherUvConfig()));
     }
 }

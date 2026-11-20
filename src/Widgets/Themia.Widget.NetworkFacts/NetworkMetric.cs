@@ -20,9 +20,6 @@ namespace Themia.Widget.NetworkFacts;
 public abstract class NetworkMetricModule(string key)
     : MetricModule(NetworkKinds.Of(key), NetworkFactsJsonContext.Default, AddFolderId.NetworkFacts, NetworkKinds.Rank(key))
 {
-    /// <summary>[S-2019] A click on the card opens Windows' network status page.</summary>
-    internal static CardOpen? Opens => CardOpen.Settings("network-status");
-
     /// <summary>[S-2417] The public address asks a third party: whom, and how often, is said on its page.</summary>
     protected override void SourceLines(WidgetMenuLines menu, WidgetConfig config)
     {
@@ -88,9 +85,6 @@ internal sealed class NetworkMetricPart(string key) : SystemMetricPart
     private ISeriesWatch? _series;
     private ISystemMetricHost? _host;
 
-    /// <inheritdoc />
-    public override CardOpen? Opens(WidgetConfig config) => NetworkMetricModule.Opens;
-
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {
         _host = host;
@@ -143,7 +137,8 @@ internal sealed class NetworkMetricPart(string key) : SystemMetricPart
         if (_series is { } series)
         {
             var upload = key == "upload";
-            shown = shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)(upload ? p.Second : p.First))] };
+            // [S-14703] The throughput's history in bytes a second, written as a rate.
+            shown = shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)(upload ? p.Second : p.First))], Figure = Formatting.Rate };
         }
 
         host.Present(shown);

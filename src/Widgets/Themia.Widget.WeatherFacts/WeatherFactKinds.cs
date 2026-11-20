@@ -56,7 +56,7 @@ internal static class WeatherFactKinds
     public static MetricKind Of(WeatherFactKind fact) => All[(int)fact];
 
     private static MetricKind Kind(WeatherFactKind fact, string id, LocalText name, LocalText label, LocalText description, string[] keywords, Func<WeatherFactConfig> create)
-        => new(id, fact.ToString(), Glyph(fact), WeatherFactRules.History(fact), name, label, description, keywords, create);
+        => new(id, fact.ToString(), Glyph(fact), WeatherFactRules.History(fact), name, label, description, keywords, create) { Opens = MetricOpens.Weather };
 
     /// <summary>The glyph for a reading, checked against the font ([S-733]): its row's lead and its kind's.</summary>
     internal static string Glyph(WeatherFactKind kind) => kind switch

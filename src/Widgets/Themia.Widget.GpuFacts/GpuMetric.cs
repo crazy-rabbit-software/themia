@@ -23,9 +23,6 @@ namespace Themia.Widget.GpuFacts;
 public abstract class GpuMetricModule(string key)
     : MetricModule(GpuKinds.Of(key), GpuFactsJsonContext.Default, AddFolderId.GpuFacts, GpuKinds.Rank(key))
 {
-    /// <summary>[S-2015] A click on the card opens Task Manager.</summary>
-    internal static CardOpen? Opens => CardOpen.TaskManager;
-
     /// <summary>[S-2431] The adapter, offered with two or more ([S-433]).</summary>
     protected override void SourceLines(WidgetMenuLines menu, WidgetConfig config) => Lines(menu, (GpuMetricConfig)config, GpuAdapters.List());
 
@@ -83,9 +80,6 @@ internal sealed class GpuMetricPart(string key) : SystemMetricPart
     private GpuMetricConfig? _config;
     private ISystemMetricHost? _host;
 
-    /// <inheritdoc />
-    public override CardOpen? Opens(WidgetConfig config) => GpuMetricModule.Opens;
-
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {
         _host = host;
@@ -131,7 +125,8 @@ internal sealed class GpuMetricPart(string key) : SystemMetricPart
         var adapter = _config?.Adapter ?? 0;
         var detail = snapshot.Details[adapter < snapshot.Details.Count ? adapter : 0];
         var shown = MetricRules.Pick(GpuDetailRules.Sheet(Strings.Current, detail), key) with { Reading = LastReading };
-        host.Present(_series is { } series ? shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)p.First)] } : shown);
+        // [S-14703] The load's history is a share, written as one.
+        host.Present(_series is { } series ? shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)p.First)], Figure = Formatting.Percent } : shown);
     }
 
 #if DEBUG

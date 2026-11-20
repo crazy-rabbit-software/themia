@@ -32,8 +32,10 @@ public sealed class ChartLooksTests
         ["windGraph"] = ChartType.Line,
     };
 
+    /// <summary>The graph kinds; a single metric's graph is its trend's, its look checked with the metrics (<c>MetricFitTests</c>).</summary>
     private static IEnumerable<(string Kind, IChartLooks Looks)> Graphs()
         => ModuleRegistry.Widgets
+            .Where(m => m is not Themia.Sdk.WinUI.MetricModule)
             .Select(m => (m.Descriptor.Id.Value, m.Descriptor.CreateDefault()))
             .Where(d => d.Item2 is IChartLooks)
             .Select(d => (d.Item1, (IChartLooks)d.Item2));

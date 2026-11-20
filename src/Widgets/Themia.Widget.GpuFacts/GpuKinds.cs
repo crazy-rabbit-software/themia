@@ -23,7 +23,7 @@ namespace Themia.Widget.GpuFacts;
 /// </summary>
 internal static class GpuKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("gpuFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("gpuFacts",
     [
         new("gpuDedicatedMemory", "dedicated", Glyphs.Memory, MetricHistory.Readings, Str.Details_Gpu_Dedicated.Local(), GpuFactsStr.GpuFacts_GpuDedicatedMemory_Label.Local(), GpuFactsStr.GpuFacts_GpuDedicatedMemory_Desc.Local(),
             ["gpu", "graphics", "video memory", "vram", "dedicated memory"], () => new GpuDedicatedMemoryConfig()),
@@ -39,7 +39,7 @@ internal static class GpuKinds
             ["gpu", "graphics", "memory clock", "mhz"], () => new GpuMemoryClockConfig()),
         new("gpuLoad", "load", Glyphs.Gpu, MetricHistory.Series, Str.Details_Gpu_Load.Local(), GpuFactsStr.GpuFacts_GpuLoad_Label.Local(), GpuFactsStr.GpuFacts_GpuLoad_Desc.Local(),
             ["gpu", "graphics", "load", "usage", "utilization"], () => new GpuLoadConfig()),
-    ], ["dedicated", "shared", "temperature", "fan"]);
+    ], ["dedicated", "shared", "temperature", "fan"]), MetricOpens.TaskManager);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

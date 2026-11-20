@@ -20,9 +20,6 @@ namespace Themia.Widget.CpuFacts;
 public abstract class CpuMetricModule(string key)
     : MetricModule(CpuKinds.Of(key), CpuFactsJsonContext.Default, AddFolderId.CpuFacts, CpuKinds.Rank(key))
 {
-    /// <summary>[S-2011] A click on the card opens Task Manager.</summary>
-    internal static CardOpen? Opens => CardOpen.TaskManager;
-
     public override FrameworkElement CreateView(IWidgetHost host)
         => new SystemMetricView(host, Kind, new CpuMetricPart(Kind.Key));
 }
@@ -59,9 +56,6 @@ internal sealed class CpuMetricPart(string key) : SystemMetricPart
     private readonly WatchSlot<PerformanceSnapshot> _counts = new();
     private readonly WatchSlot<CpuFigures> _processor = new();
     private ISystemMetricHost? _host;
-
-    /// <inheritdoc />
-    public override CardOpen? Opens(WidgetConfig config) => CpuMetricModule.Opens;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {

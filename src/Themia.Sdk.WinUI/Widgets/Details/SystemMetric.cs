@@ -39,9 +39,6 @@ public abstract class SystemMetricPart
     /// <summary>[S-2510] Read now: a Refresh line on the card menu where the part offers one.</summary>
     public virtual Action? Refresh => null;
 
-    /// <summary>[S-2001] What a click on the card opens for this config; null for nothing.</summary>
-    public virtual CardOpen? Opens(WidgetConfig config) => null;
-
     /// <summary>The stamp of the reading a hub callback brought: one more than the last.</summary>
     protected long NextReading() => ++_reading;
 
@@ -65,7 +62,6 @@ public sealed partial class SystemMetricView : MetricView, ISystemMetricHost
 
     private readonly IWidgetHost _host;
     private readonly SystemMetricPart _part;
-    private WidgetConfig? _config;
     private bool _attached;
 
     /// <param name="host">The card's host: its hub.</param>
@@ -79,10 +75,7 @@ public sealed partial class SystemMetricView : MetricView, ISystemMetricHost
     }
 
     /// <inheritdoc />
-    public override CardOpen? Opens => _config is { } config ? _part.Opens(config) : null;
-
-    /// <inheritdoc />
-    public override IReadOnlyList<WidgetAction> ContextActions
+    protected override IReadOnlyList<WidgetAction> OwnActions
         => _part.Refresh is { } refresh ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), refresh)] : [];
 
     /// <inheritdoc />
@@ -106,10 +99,6 @@ public sealed partial class SystemMetricView : MetricView, ISystemMetricHost
         {
             Watch(config);
         }
-        else
-        {
-            _config = config;
-        }
     }
 
     protected override void OnDetach()
@@ -122,7 +111,6 @@ public sealed partial class SystemMetricView : MetricView, ISystemMetricHost
 
     private void Watch(WidgetConfig config)
     {
-        _config = config;
         if (_host.System is not { } hub)
         {
             // Only before the host has started: there is nothing to read from yet.

@@ -20,9 +20,6 @@ namespace Themia.Widget.BatteryFacts;
 public abstract class BatteryMetricModule(string key)
     : MetricModule(BatteryKinds.Of(key), BatteryFactsJsonContext.Default, AddFolderId.BatteryFacts, BatteryKinds.Rank(key))
 {
-    /// <summary>[S-2023] A click on the card opens Windows' Power &amp; battery page.</summary>
-    internal static CardOpen? Opens => CardOpen.Settings("batterysaver");
-
     public override FrameworkElement CreateView(IWidgetHost host)
         => new SystemMetricView(host, Kind, new BatteryMetricPart(Kind.Key));
 }
@@ -59,9 +56,6 @@ internal sealed class BatteryMetricPart(string key) : SystemMetricPart
     private readonly WatchSlot<BatteryPack?> _pack = new();
     private ISystemFeeds? _hub;
     private ISystemMetricHost? _host;
-
-    /// <inheritdoc />
-    public override CardOpen? Opens(WidgetConfig config) => BatteryMetricModule.Opens;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {

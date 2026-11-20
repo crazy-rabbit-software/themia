@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Sdk;
@@ -10,7 +11,7 @@ namespace Themia.Core.Widgets;
 /// <summary>
 /// [S-14603] What a single-metric widget draws with its value (owner, 2026-11-20: "you should also have the option to
 /// show trendlines as well or just the trend with arrows"): nothing, an arrow beside the value (up, down or flat against
-/// the reading before), or a trend line (the metric's own history on the meters' history band under the row, [S-14220]).
+/// the reading before), or a trend line (the metric's own history as a graph on the one chart under the reading, [S-14220]).
 /// A widget's setting, None by default.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<MetricTrend>))]
@@ -77,6 +78,71 @@ public sealed record MetricShown(MetricValue Value)
 
     /// <summary>[S-14604] The reading's own name where its source says it more exactly ("Full in" while charging); null: the kind's.</summary>
     public string? Name { get; init; }
+
+    /// <summary>
+    /// [S-14703] How a value of <see cref="Series"/> is written as the shown figure is (a Detailed graph's values, its low,
+    /// its high and its latest: "1,013 hPa"); null where the family writes none (plain numbers).
+    /// </summary>
+    public Func<double, string>? Figure { get; init; }
+}
+
+/// <summary>[S-14701] How a single metric's reading stands in its box: the facts' row, or the readout block.</summary>
+public enum MetricFace
+{
+    /// <summary>One row tall: the fact row (glyph, name, value, the arrow beside it).</summary>
+    Row,
+
+    /// <summary>Taller: the value as the reading and the name as its caption, one block scaled up together.</summary>
+    Readout,
+}
+
+/// <summary>[S-14701] How a readout's caption (the glyph and the name) stands to its value.</summary>
+public enum MetricArrangement
+{
+    /// <summary>On one line, the caption before the value: a wide, short box.</summary>
+    Beside,
+
+    /// <summary>The caption over the value: a narrow or tall box.</summary>
+    Stacked,
+}
+
+/// <summary>
+/// [S-14700] [S-14702] What a single metric's box holds (<see cref="MetricRules.Look"/>): the reading's face and its height
+/// from the card's top edge, and the graph's height under it at the card's foot (0: no graph). DIPs of the card's box.
+/// </summary>
+public readonly record struct MetricLook(MetricFace Face, double Reading, double Graph);
+
+/// <summary>
+/// [S-14706] What a click on a single metric opens (owner, 2026-11-20: "they should open the datasource when clicked /
+/// page that shows that metric"), declared on its kind (<see cref="MetricKind.Opens"/>): the target for a card's config
+/// (null: nothing now, a place not set) and the card menu's line that opens it ("Open Task Manager", "Open on MSN Weather").
+/// </summary>
+public sealed record MetricOpen(LocalText Label, Func<WidgetConfig, CardOpen?> Target);
+
+/// <summary>
+/// [S-14706] The targets the single metrics' families open, each the one their family's own widgets open ([S-2006],
+/// [S-2011], [S-2019], [S-2023], [S-2032]): Task Manager (the processor, the memory, the graphics), Settings' Network &amp;
+/// internet (the network, the ping), Settings' Power &amp; battery (the battery), MSN Weather's forecast for the card's
+/// place (the weather, the air), the drive in File Explorer (a drive's facts).
+/// </summary>
+public static class MetricOpens
+{
+    /// <summary>[S-2011] Task Manager.</summary>
+    public static MetricOpen TaskManager { get; } = new(Str.Metric_Open_TaskManager.Local(), _ => CardOpen.TaskManager);
+
+    /// <summary>[S-2019] Settings' Network &amp; internet.</summary>
+    public static MetricOpen Network { get; } = new(Str.Metric_Open_Network.Local(), _ => CardOpen.Settings("network-status"));
+
+    /// <summary>[S-2023] Settings' Power &amp; battery.</summary>
+    public static MetricOpen Battery { get; } = new(Str.Metric_Open_Battery.Local(), _ => CardOpen.Settings("batterysaver"));
+
+    /// <summary>[S-2006] MSN Weather's forecast for the card's place, in the language's market and the unit shown; no place, nothing.</summary>
+    public static MetricOpen Weather { get; } = new(Str.Metric_Open_Weather.Local(),
+        config => config is WeatherConfig weather ? WeatherPages.Forecast(weather, RegionFormat.Current.Temperature, Strings.Current) : null);
+
+    /// <summary>[S-2032] The card's drive in File Explorer (the system drive while none is chosen), as the Drive widget opens it.</summary>
+    public static MetricOpen Drive { get; } = new(Str.Metric_Open_Drive.Local(),
+        config => config is IDriveChoice drive ? CardOpen.Place(DiskRules.Root(drive.Drive) ?? DiskRules.Root(SystemDrive.Root)) : null);
 }
 
 /// <summary>[S-14603] A config whose metric can draw a trend: the setting and what the kind's history allows.</summary>
@@ -91,10 +157,11 @@ public interface IMetricTrend
 }
 
 /// <summary>
-/// [S-14600]..[S-14605] The single-metric widget's rules, pure, one base for every one-reading widget (owner,
-/// 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too.
-/// use the same base component for all of them"): its size (one fact row, a line's two, whole grid cells, the card hugging it), the
-/// default without a reading, the trends a history allows, the arrow's direction and the trend line's chart.
+/// [S-14600]..[S-14605] [S-14700]..[S-14703] The single-metric widget's rules, pure, one base for every one-reading widget
+/// (owner, 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too.
+/// use the same base component for all of them"): its size (one fact row at its least, a graph's least under it, every
+/// cell taller too), how its face fits its box, the default without a reading, the trends a history allows, the arrow's
+/// direction and the trend graph's model.
 /// </summary>
 public static class MetricRules
 {
@@ -118,37 +185,47 @@ public static class MetricRules
     /// the card's top edge to its foot edge, so the card's top and bottom spacing is a list row's (owner, 2026-11-20: "the
     /// individual weather facts like pressure have a way to high height. the contents should also fit to the height").
     /// </summary>
-    public static double RowHeight => ItemStretch.Optimal(FamilyShape.Row1, ItemGrid.Default());
+    public static double RowHeight => RowOn(ItemGrid.Default());
+
+    /// <summary>[S-14600] The one row's optimal height on <paramref name="grid"/>: the 28 row in its whole cells.</summary>
+    public static double RowOn(ItemGrid grid) => ItemStretch.Optimal(FamilyShape.Row1, grid);
 
     /// <summary>[S-14600] The sizing of a single metric drawing no trend: 200..420 wide (relaxed), one row tall.</summary>
     public static WidgetSizing Sizing { get; } = SizingFor(MetricTrend.None);
 
     /// <summary>
-    /// [S-14220] How many rows a metric drawing a line stands: its reading row, and the line's row under it (the line gets a
-    /// whole row to move in, as a meter's history band under its figure).
+    /// [S-14702] [S-6751] The least height a metric's graph takes at the card's foot, on <paramref name="grid"/>: a whole row
+    /// for its line to move in (as a meter's history under its figure, [S-14220]) and, <paramref name="detail"/> Detailed,
+    /// the room the one chart keeps for what it writes over and under its line (<see cref="ChartPlot.Keeps"/>: the high's
+    /// figure over it, the low's and the foot's line under it), in whole cells, so the line keeps its row whatever is written.
     /// </summary>
-    public const int LineRows = 2;
-
-    /// <summary>[S-14600] [S-14220] The rows a single metric drawing <paramref name="trend"/> stands: a line's two, else its one.</summary>
-    public static int Rows(MetricTrend trend) => trend == MetricTrend.Line ? LineRows : 1;
+    public static double GraphLeast(ChartDetail detail, ItemGrid grid)
+    {
+        // What the chart keeps under an owner's part over its plot (one DIP stands for it) and at its foot.
+        var (top, bottom) = ChartPlot.Keeps(new ChartModel { Detail = detail, Over = 1 });
+        return grid.Whole(RowOn(grid) + Math.Max(0, top - 1) + Math.Max(0, bottom));
+    }
 
     /// <summary>
-    /// [S-14600] [S-14603] [S-14500] The sizing of a single metric drawing <paramref name="trend"/>: its rows tall at their
-    /// optimal (one; a line's two, [S-14220]), every cell taller too, its rows stretched alike to fill it (owner,
-    /// 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps of one");
-    /// 200..420 wide and, beside the value, the arrow's room with its gap, so the name and the value keep theirs (content
-    /// decides the size, [S-2445]); a line takes none beside it, it is the band under the row.
+    /// [S-14600] [S-14603] [S-14700] [S-14500] The sizing of a single metric drawing <paramref name="trend"/> in
+    /// <paramref name="detail"/>: its least and natural height its one row, and a graph's least under it where it draws one
+    /// (<see cref="GraphLeast"/>: a row, a Detailed graph's room more); every cell taller too (owner, 2026-11-20: "the widgets
+    /// like the PM2.5 one should be resizable in height and change its style so that it fits"; the descriptor relaxes the
+    /// height, [S-12411]), its face changing its look to fit the box (<see cref="Look"/>); 200..420 wide and, beside the
+    /// value, the arrow's room with its gap, so the name and the value keep theirs (content decides the size, [S-2445]); a
+    /// graph takes none beside it, it is under the reading.
     /// </summary>
-    public static WidgetSizing SizingFor(MetricTrend trend)
+    public static WidgetSizing SizingFor(MetricTrend trend, ChartDetail detail = ChartDetail.Simple)
     {
         var room = TrendRoom(trend);
-        var height = Rows(trend) * RowHeight;
+        var grid = ItemGrid.Default();
+        var height = RowOn(grid) + (trend == MetricTrend.Line ? GraphLeast(detail, grid) : 0);
         return WidgetSizing.Range(new(MinWidth + room, height), new(NaturalWidth + room, height), new(MaxWidth + room, height));
     }
 
     /// <summary>
     /// [S-14603] The width a trend takes beside the value: the arrow its own and the gap before the value; a line none, it
-    /// is the band under the row ([S-14220]).
+    /// is the graph under the reading ([S-14220]).
     /// </summary>
     public static double TrendRoom(MetricTrend trend) => trend switch
     {
@@ -156,9 +233,9 @@ public static class MetricRules
         _ => 0,
     };
 
-    /// <summary>[S-14600] The sizing of <paramref name="config"/>: by the trend it draws (none for a config without one).</summary>
+    /// <summary>[S-14600] [S-14703] The sizing of <paramref name="config"/>: by the trend it draws (none for a config without one) and its graph's detail.</summary>
     public static WidgetSizing SizingOf(WidgetConfig config)
-        => SizingFor(config is IMetricTrend trend ? Effective(trend) : MetricTrend.None);
+        => SizingFor(config is IMetricTrend trend ? Effective(trend) : MetricTrend.None, config is IChartLooks looks ? ChartLooks.EffectiveDetail(looks) : ChartDetail.Simple);
 
     /// <summary>[S-14603] The trends <paramref name="history"/> allows, in the menu's order: none for a metric without one.</summary>
     public static IReadOnlyList<MetricTrend> Offered(MetricHistory history) => history switch
@@ -220,31 +297,105 @@ public static class MetricRules
     }
 
     /// <summary>
-    /// [S-14220] How far down a metric's card <paramref name="height"/> tall the line's room starts (its band's <c>Over</c>):
-    /// under the reading row, the first of its <see cref="LineRows"/> alike rows, so the line moves in the whole row under it
-    /// and never through a glyph, and the band's plot and wash stay the card's whole box; a stroke's room at least.
+    /// [S-14700] [S-14701] [S-14702] How a single metric fills a card <paramref name="height"/> tall (DIPs of the card's box,
+    /// its top edge to its foot edge) on <paramref name="grid"/> (owner, 2026-11-20: "the widgets like the PM2.5 one should be
+    /// resizable in height and change its style so that it fits"): the same parts at every size (the name, the value, its
+    /// arrow, its graph), arranged by the box, never chosen by it ([S-2445]).
+    /// <list type="bullet">
+    /// <item>No graph: one row tall (under two whole rows) the facts' row; two rows or more the readout, the whole card.</item>
+    /// <item>A graph (<paramref name="trend"/> Line): it takes the foot, never less than <see cref="GraphLeast"/>; the reading
+    /// takes the top, growing first, on whole cells, to about half the card (the half rounded up), the graph the rest. The
+    /// reading is the row while the card is under three rows or the reading's share is one row, else the readout.</item>
+    /// </list>
+    /// A box not laid out yet (no height) is the row with no graph.
     /// </summary>
-    public static double LineOver(double height)
-        => height > 0 && double.IsFinite(height) ? Math.Clamp(height / LineRows, 0, Math.Max(0, height - FamilyShape.Stroke)) : 0;
+    public static MetricLook Look(double height, MetricTrend trend, ChartDetail detail, ItemGrid grid)
+    {
+        if (!(height > 0) || !double.IsFinite(height))
+        {
+            return new MetricLook(MetricFace.Row, 0, 0);
+        }
+
+        var pitch = grid.Pitch;
+        var row = grid.Cells(RowOn(grid));
+        // The card's whole cells on the view's pitch, a fiftieth's slack as an item's (the host lays it on its own axis pitch).
+        var cells = (int)Math.Floor((height / pitch) + ItemGrid.Slack);
+        var rows = cells / Math.Max(1, row);
+        if (trend != MetricTrend.Line)
+        {
+            return new MetricLook(rows >= 2 ? MetricFace.Readout : MetricFace.Row, height, 0);
+        }
+
+        var graph = grid.Cells(GraphLeast(detail, grid));
+        var half = (cells + 1) / 2;
+        var reading = Math.Max(Math.Min(row, cells), Math.Min(half, cells - graph));
+        var top = Math.Min(height, reading * pitch);
+        var face = rows >= 3 && reading > row ? MetricFace.Readout : MetricFace.Row;
+        return new MetricLook(face, top, Math.Max(0, height - top));
+    }
 
     /// <summary>
-    /// [S-14220] The trend line's points on the meters' history band (<c>SparkBand</c>, a share scale): the newest
-    /// <see cref="LinePoints"/> values of <paramref name="series"/>, oldest first, each as its share of their own range (the
-    /// low at the band's foot, the high at its top; a flat history a level line through the middle). A gap is left out,
-    /// as the band leaves out a sample not read; with fewer than two values the band draws its baseline, never nothing
-    /// (WR-10).
+    /// [S-14701] How a readout's caption stands to its value in a room <paramref name="width"/> × <paramref name="height"/>
+    /// (the block's room: the card's less its insets): the arrangement whose block, its parts at their own size
+    /// (<paramref name="caption"/>, <paramref name="value"/> and <paramref name="gap"/> between them beside each other), scales
+    /// up larger in it; beside only where it is strictly larger, so a narrow or tall box stands the name over the value.
     /// </summary>
-    public static IReadOnlyList<SeriesPoint> Band(IReadOnlyList<double?>? series)
+    public static MetricArrangement Arrange(double width, double height, SizeDip caption, SizeDip value, double gap)
     {
-        var values = (series ?? []).TakeLast(LinePoints).Where(v => v is { } x && double.IsFinite(x)).Select(v => v!.Value).ToList();
-        if (values.Count == 0)
+        static double Scale(double w, double h, double bw, double bh)
+            => bw > 0 && bh > 0 ? Math.Min(w / bw, h / bh) : 0;
+
+        if (!(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
         {
-            return [];
+            return MetricArrangement.Stacked;
+        }
+
+        var beside = Scale(width, height, caption.Width + Math.Max(0, gap) + value.Width, Math.Max(caption.Height, value.Height));
+        var stacked = Scale(width, height, Math.Max(caption.Width, value.Width), caption.Height + value.Height);
+        return beside > stacked + 1e-9 ? MetricArrangement.Beside : MetricArrangement.Stacked;
+    }
+
+    /// <summary>
+    /// [S-14220] [S-14703] The metric's graph on the one chart ([S-6750]) <paramref name="width"/> wide, in its chart look
+    /// (<paramref name="type"/>, <paramref name="detail"/>): the newest <see cref="LinePoints"/> values of
+    /// <paramref name="series"/>, oldest first, on their own range (the low at the band's foot, the high at its top; a flat
+    /// history a level line through the middle; a column's foot a third of the range under the low, so the lowest is a
+    /// short column, never none). A line's points stand on the band's slots, the newest on the right edge, a history still
+    /// filling growing in from the right ([S-6331]); a column a slot each, the newest the rightmost. A gap is left out; with
+    /// fewer than two values the chart lies at its baseline, never nothing (WR-10). The reading stands over the plot's top
+    /// (<paramref name="over"/>, the line kept under it); the values a Detailed graph writes are the shown figure's
+    /// (<paramref name="figure"/>).
+    /// </summary>
+    public static ChartModel Graph(IReadOnlyList<double?>? series, double width, ChartType type, ChartDetail detail, double over, Func<double, string>? figure = null)
+    {
+        var model = new ChartModel { Type = type, Detail = detail, Over = double.IsFinite(over) ? Math.Max(0, over) : 0, Format = figure };
+        var values = (series ?? []).TakeLast(LinePoints).Where(v => v is { } x && double.IsFinite(x)).Select(v => v!.Value).ToList();
+        if (values.Count < 2 || !(width > 0) || !double.IsFinite(width))
+        {
+            return model;
         }
 
         var low = values.Min();
-        var span = values.Max() - low;
-        return [.. values.Select(v => new SeriesPoint(span > 1e-9 ? (v - low) / span : 0.5))];
+        var high = values.Max();
+        var span = high - low;
+        double[] xs;
+        if (type == ChartType.Bars)
+        {
+            var cell = width / LinePoints;
+            xs = [.. values.Select((_, i) => width - ((values.Count - i - 0.5) * cell))];
+        }
+        else
+        {
+            xs = SparkSlots.Layout(values.Count, values.Count, 1, LinePoints, width, FamilyShape.Stroke).X;
+        }
+
+        var foot = type == ChartType.Bars && span > 1e-9 ? low - (span / 3) : low;
+        return model with
+        {
+            Low = foot,
+            High = span > 1e-9 ? high : low,
+            Series = [.. values.Select((v, i) => new ChartSample(xs[i], v))],
+        };
     }
 
     /// <summary>

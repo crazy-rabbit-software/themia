@@ -25,7 +25,7 @@ namespace Themia.Widget.CpuFacts;
 /// </summary>
 internal static class CpuKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.SplitOf("cpuFacts",
+    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(MetricKind.SplitOf("cpuFacts",
     [
         new("cpuSpeed", "speed", Glyphs.Gauge, MetricHistory.Readings, Str.Details_Cpu_Speed.Local(), CpuFactsStr.CpuFacts_CpuSpeed_Label.Local(), CpuFactsStr.CpuFacts_CpuSpeed_Desc.Local(),
             ["cpu", "processor", "clock speed", "frequency", "ghz", "speed"], () => new CpuSpeedConfig()),
@@ -45,7 +45,7 @@ internal static class CpuKinds
             ["uptime", "up time", "since boot", "running time"], () => new CpuUptimeConfig()),
         new("cpuTemperature", "temperature", Glyphs.Thermometer, MetricHistory.Readings, Str.Details_Cpu_Temperature.Local(), CpuFactsStr.CpuFacts_CpuTemperature_Label.Local(), CpuFactsStr.CpuFacts_CpuTemperature_Desc.Local(),
             ["cpu", "processor", "temperature", "heat", "thermal", "celsius"], () => new CpuTemperatureConfig()),
-    ], ["speed", "baseSpeed", "cores", "logical"]);
+    ], ["speed", "baseSpeed", "cores", "logical"]), MetricOpens.TaskManager);
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

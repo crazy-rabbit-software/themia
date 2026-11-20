@@ -45,7 +45,7 @@ public sealed class CpuMetricTests
 
     [Fact]
     public void S2011_a_click_opens_task_manager()
-        => Assert.Equal(System.IO.Path.Combine(System.Environment.SystemDirectory, "Taskmgr.exe"), CpuMetricModule.Opens!.Value);
+        => Assert.Equal(System.IO.Path.Combine(System.Environment.SystemDirectory, "Taskmgr.exe"), CpuKinds.All.Select(kind => kind.Opens!.Target(kind.Create())!.Value).Distinct().Single());
 
     [Fact]
     public void S14610_its_menu_is_the_trend_alone_where_it_has_one()

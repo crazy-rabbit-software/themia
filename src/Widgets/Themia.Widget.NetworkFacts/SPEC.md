@@ -16,6 +16,6 @@ Tests: `Tests/NetworkMetricTests.cs`.
   replaced in place by its rows ([S-14606]).
 - **[S-2417]** The public address asks `api.ipify.org` through the host's one lookup only for the public address's own card,
   a widget the user adds for it; its page says whom it asks and how often ([S-3719]): the note, then Appearance.
-- **[S-2019]** A click on the card ([S-2000]) opens Windows' network status page (`ms-settings:network-status`); the module decides it (`NetworkMetricModule.Opens`).
+- **[S-2019]** A click on the card ([S-2000]) opens Windows' network status page (`ms-settings:network-status`); every kind declares it (`NetworkKinds`, `MetricKind.Opens`, [S-14706]), as do the card menu's first line and Enter ([S-14707]).
 
 Needs a manual pass: the cards on a live desktop (an adapter coming and going, the public address card, offline).

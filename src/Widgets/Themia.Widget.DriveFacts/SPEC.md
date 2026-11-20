@@ -15,6 +15,9 @@ the JSON context), `Samples/` (a made-up system disk), `Preview/` (Debug renders
   Trends ([S-14603]): drive used and drive free an arrow from the last two readings the card saw (no history kept); drive capacity, file system and drive type none (a text, a constant or a time: no Trend line). Its options: which drive (the drive atoms' shared line, [S-4674]), then
   Trend where it moves. A placed `driveFacts` card is replaced in place by its rows, with its drive ([S-14606]). View links:
   the card is its drive; the pointer on it publishes the drive pointed at, and the whole card takes the hover fill under the
-  pointer and while its drive is pointed at elsewhere on the view ([S-11950], [S-11962], [S-11963]).
+  pointer and while its drive is pointed at elsewhere on the view ([S-11950], [S-11962], [S-11963]). That fill is the metric's one
+  item's ([S-14705]): one fill, never two over each other. A click on the card, Enter and the card menu's first line ("Open
+  in File Explorer") open its drive (the system drive while none is chosen), as the Drive widget's ([S-2032], [S-14706],
+  `MetricOpens.Drive`).
 
 Needs a manual pass: a USB drive chosen then removed, a mapped share disconnected.

@@ -25,9 +25,6 @@ public abstract class PingMetricModule(string key)
     /// <summary>[S-2427] The windows offered, in probes; one not among them shows as the default.</summary>
     internal static readonly int[] Windows = [10, 30, 60, 120, 300];
 
-    /// <summary>[S-2021] A click on the card opens Windows' network status page.</summary>
-    internal static CardOpen? Opens => CardOpen.Settings("network-status");
-
     /// <summary>[S-2426] [S-2427] The host ([S-109]), then how many of the latest pings the statistics cover.</summary>
     protected override void SourceLines(WidgetMenuLines menu, WidgetConfig config)
     {
@@ -110,9 +107,6 @@ internal sealed class PingMetricPart(string key) : SystemMetricPart
     private ISystemMetricHost? _host;
 
     /// <inheritdoc />
-    public override CardOpen? Opens(WidgetConfig config) => PingMetricModule.Opens;
-
-    /// <inheritdoc />
     public override Action? Refresh => () => _watch?.Refresh();
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
@@ -157,7 +151,12 @@ internal sealed class PingMetricPart(string key) : SystemMetricPart
         if (PingKinds.Of(key).History == MetricHistory.Series)
         {
             var first = Math.Max(1, points.Length - MetricRules.LinePoints + 1);
-            shown = shown with { Series = [.. Enumerable.Range(first, points.Length - first + 1).Select(end => Figure(Stats(points, end, window)))] };
+            // [S-14703] Written as the reading is: a share for the loss, milliseconds for the rest.
+            shown = shown with
+            {
+                Series = [.. Enumerable.Range(first, points.Length - first + 1).Select(end => Figure(Stats(points, end, window)))],
+                Figure = key == "loss" ? Formatting.Percent : Formatting.Latency,
+            };
         }
 
         host.Present(shown);
