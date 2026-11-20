@@ -21,12 +21,15 @@ desktop's own icons, laid by the host on the cells of its body; the view draws i
   bar rolls it up (`RollUpOnClick`, `HoverPeek`, both on in a new fence), what it shows (`Source`, [S-13022]) and a search's
   query (`Query`: folder, recency, count, [S-13023]). A clone copies all of it, the lists anew. Tests `FenceTests.S10900_`.
 - **[S-10901]** **Its size is the user's** (the kind's sizing, relaxed, [S-12411]): at least two icon boxes across and one
-  under its title bar, naturally the size that shows six items without scrolling (`FenceGrid.Around`), as large as the work
-  area holds; on the desktop the host lays it to whole boxes ([S-13040]). Rolled up its height is its title bar's alone
-  (`FenceGrid.TitleDip`, which grid-fits to exactly its three rows on every display; a stepped axis the relax keeps), its
+  under its title bar, naturally the size that shows six items without scrolling (`FenceGrid.Around`), both its title bar
+  and its boxes on the grid's whole cells as a picture lays them (`FenceGrid.OnGrid`, [S-14500]: 160 x 130 and 240 x 230
+  with the medium icons), as large as the work area holds, every cell between ([S-14501]); on the desktop the host lays
+  it to whole boxes ([S-13040]). Rolled up its height is its title bar's alone
+  (`FenceGrid.TitleDip`, which grid-fits to exactly its three rows on every display; a height the relax keeps,
+  `WidgetSizing.KeepsHeight`), its
   width as it was. It joins no widget it touches (`WidgetTraits.NeverJoins`): its title bar is its own edge. The title bar
   is the card's top edge (`IWidgetTopEdge`): the card adds no inset above it. Its tile is in Add widget's Files, beside the
-  desktop icon. Tests `FenceTests.S10901_`.
+  desktop icon. Tests `FenceTests.S10901_`, `FenceTests.S10901_S14501_`.
 - **[S-10902]** **Its body is cells of the desktop icon grid** (`FenceGrid.Layout`, the SDK's one layout, tested in
   `FenceRulesTests`): under the title bar (`IDesktopFences.Cells`: whole grid rows, and one desktop icon's box on the widget
   grid of the fence's display, [S-5593], [S-11875]) the items stand in reading order, as many to a row as the body holds,

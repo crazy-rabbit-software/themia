@@ -51,13 +51,18 @@ public sealed class FenceModule : IWidgetModule
     /// [S-13976]) and one down, its title bar grid-fitted to exactly <see cref="FenceGrid.TitleCells"/> rows. [S-14501] Both
     /// axes take every whole cell (owner, 2026-11-20: "lets not limit the user in the alignment"): its icons stay on the
     /// desktop icon grid, whole boxes from the body's top-left, the sliver a box does not fill at its far edge and foot
-    /// empty.
+    /// empty. Its least and natural are its parts on the grid's whole cells, so a picture of it holds whole boxes there.
     /// </summary>
     internal static WidgetSizing Sizing(FenceConfig config)
     {
         var cell = DesktopCell.Grid(DesktopCell.Current);
-        var natural = FenceGrid.Around(6, cell);
-        var min = new SizeDip(FenceGrid.MinAcross(cell) * cell.Width, FenceGrid.TitleDip + cell.Height);
+
+        // [S-14500] Its parts at their optimal: the title bar and the icon boxes as a picture lays them, whole cells of the
+        // grid (FenceGrid.OnGrid), so at its least and its natural the body holds its boxes whole, none under the title bar cut.
+        var (title, box) = FenceGrid.OnGrid(cell, ItemGrid.Default());
+        var around = FenceGrid.Around(6, box);
+        var natural = around with { Height = around.Height - FenceGrid.TitleDip + title };
+        var min = new SizeDip(FenceGrid.MinAcross(cell) * box.Width, title + box.Height);
         if (config.RolledUp)
         {
             return WidgetSizing.Range(min with { Height = FenceGrid.TitleDip }, natural with { Height = FenceGrid.TitleDip }, new SizeDip(natural.Width * 2, FenceGrid.TitleDip))

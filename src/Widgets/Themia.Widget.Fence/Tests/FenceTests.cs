@@ -112,6 +112,24 @@ public sealed class FenceTests
     }
 
     [Fact]
+    public void S10901_S14501_its_least_and_natural_hold_whole_boxes_under_its_title_bar_as_a_picture_lays_them()
+    {
+        // [S-14500] Its parts at their optimal: a picture lays the title bar and the icon boxes in whole cells of its grid
+        // (FenceGrid.OnGrid), so drawn at its least or its natural a fence holds its whole boxes under its title bar. The
+        // render of 2026-11-20 drew the least 152 x 128: a body of 98 under a title bar of 30 held no box of 100 at all.
+        var cell = DesktopCell.Grid(DesktopCell.Current);
+        var (title, box) = FenceGrid.OnGrid(cell, Themia.Core.Widgets.ItemGrid.Default());
+        var open = Kind.SizingOf(new FenceConfig());
+
+        Assert.Equal((FenceGrid.MinAcross(cell) * box.Width, title + box.Height), (open.Min.Width, open.Min.Height));
+        var across = open.Natural.Width / box.Width;
+        var down = (open.Natural.Height - title) / box.Height;
+        Assert.Equal(Math.Round(across), across, 9);
+        Assert.Equal(Math.Round(down), down, 9);
+        Assert.True(Math.Round(across) * Math.Round(down) >= 6, $"{across} x {down} boxes hold fewer than six items");
+    }
+
+    [Fact]
     public void S10901_a_fence_grows_as_made_and_rolled_up_is_its_title_bar_alone()
     {
         var open = Kind.SizingOf(new FenceConfig());
