@@ -29,13 +29,21 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   bottom, this means their size steps are not in sync with the item heights. fix this if you are not already fixing
   it."; "the calendar does not always stretch the contents to the top and bottom although it would be easily
   possible." Empty stated rows may stand at the foot, as rows; never above the first item, never between items, and
-  never a part row or leftover cells under the last item: a card holding items is exactly as tall as its whole items,
-  its size steps in sync with them.
-- **WR-6 Items are whole grid cells.** 2026-11-19: "items inside widgets should be designed in a way that they match
-  the size of the grid on the desktop, for example they should be designed so that they are 3 blocks high or wide,
-  that means that a widget that is 10 blocks hight should not show 4 items because then the items would have an
-  uneven size which i dont want. do this for all the widgets." Every repeated item is a whole number of desktop grid
-  cells along the axis it repeats; all items of a widget are the same size.
+  never a part row or leftover room under the last item: the items stretch to fill the card to its foot (WR-6).
+- **WR-6 Items have an optimal size and stretch a little; widgets step by one cell.** 2026-11-20: "actually, the
+  multiple of its children size should be relaxed, also that the size of the items can only be a defined block size,
+  in general they should try to have a fixed block size but dont have to. for you to understand why i am changing this
+  back again, if the widgets only have steps in increments of four or six for example, you cannot properly align them.
+  lets not limit the user in the alignment. the items should have an optimal size and then they may stretch a little to
+  fill up the remaining space. the widgets should not have the size increments anymore but should be incrementable in
+  steps of one. does this make sense?" Every repeated item has an optimal size, a whole number of desktop grid cells
+  along the axis it repeats; a card shows as many items as hold that size and they stretch evenly to fill it, never
+  smaller than their optimal size; all items of a widget are the same size. A widget resizes by one grid cell on each
+  axis, whatever its items.
+  Replaced 2026-11-20, the earlier WR-6 "Items are whole grid cells", 2026-11-19: "items inside widgets should be
+  designed in a way that they match the size of the grid on the desktop, for example they should be designed so that
+  they are 3 blocks high or wide, that means that a widget that is 10 blocks hight should not show 4 items because then
+  the items would have an uneven size which i dont want. do this for all the widgets."
 - **WR-7 A reading and its caption stay together and scale up.** 2026-11-19, answers: Readouts "All together,
   scaled"; "Keep them together". The reading, its caption and its controls are one block that grows to fill.
 - **WR-8 Clock without top and bottom space.** 2026-11-19: "the clock widget has too big of a space at the top and
@@ -49,7 +57,7 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   is right now. for the widgets that can scale there should basically be no lower limit except for one that makes
   sense so you can still see the widget." A face that scales as one (a clock, a date, a reading) is sized down to where
   its smallest text is still read (9 DIP; a glyph 12) and never under the grid's least widget (32 DIP); rows and list
-  items keep WR-6 (a list's least is one item).
+  items keep their optimal size (WR-6; a list's least is one item).
 
 ## Content
 
