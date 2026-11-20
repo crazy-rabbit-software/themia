@@ -26,7 +26,7 @@ public sealed class MetricFitTests
 
     private static IReadOnlyList<MetricModule> Metrics() => [.. ModuleRegistry.Widgets.OfType<MetricModule>()];
 
-    private static WidgetMenuLines Menu() => new(() => { }, _ => { });
+    private static WidgetMenuLines Menu() => new(() => { });
 
     [Fact]
     public void S14706_every_metric_kind_opens_its_source_or_is_one_with_none()
