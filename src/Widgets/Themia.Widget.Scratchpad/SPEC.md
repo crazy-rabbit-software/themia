@@ -28,6 +28,13 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   Violet and Chalk; a stroke keeps the colour it was drawn in). Picking an ink or a nib leaves the
   eraser. An empty pad says "Draw here" in the Status row at its top ([S-6714]), never taking the
   pointer. Not ported: export as PNG.
+- **[S-14267]** **The pad from the top edge, the bar across** (owner, 2026-11-19, WR-1: "there should not be a space at
+  the top"; WR-3). The pad owns the card's top edge (`IWidgetTopEdge`, as the spectrum does): the card gives it no inset
+  there, so it is drawn on from the edge, its "Draw here" line on that edge. The ink bar runs across the card on its
+  bottom inset: the inks, the nibs and the eraser from its start, undo and full screen at its end, its spare room between
+  them, its first and last glyphs on the side insets (`ScratchpadLayout.Overhang`, as a line's buttons, [S-6710]); before,
+  the bar stood at its start at its own width and left the rest of a wide card's foot (152 at 768) and 18.7 at its end.
+  Full screen's toolbar holds the same bar packed. Renders `--widget-png scratchpad --state confirm --sizes range`.
 - **[S-1498]** The eraser (user requirement: an erasing stylus) is a tool of the ink bar, after the
   nibs, drawn with Windows' eraser glyph, on in the accent's fill with its glyph on it ([S-6706]);
   it is on screen while the bar shows (and on full screen's toolbar). A hidden eraser never leaves

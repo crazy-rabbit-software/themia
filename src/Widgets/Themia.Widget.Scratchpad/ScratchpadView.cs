@@ -46,8 +46,14 @@ namespace Themia.App.Widgets;
 /// actually saw: a press it never sees the end of was a widget being dragged, and is discarded.
 /// </para>
 /// </summary>
-internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetOwnsDrags
+internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetOwnsDrags, IWidgetTopEdge
 {
+    /// <summary>
+    /// [S-14267] [S-5700] The pad is the card from its top edge (owner, 2026-11-19, WR-1: "there should not be a space at the
+    /// top"): the card gives it no inset there, as it gives a picture or the spectrum none.
+    /// </summary>
+    public bool OwnsTopEdge => true;
+
     private const string Scope = "scratchpad";
 
     /// <summary>How many steps back the pad remembers. Enough to undo a bad minute, not a session.</summary>
@@ -103,6 +109,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         // [S-07] The hint never intercepts the pointer: the first stroke has to land on the pad
         // even when it starts on top of the words.
         _hint.IsHitTestVisible = false;
+
+        // [S-14267] On the card's top edge, which the pad owns: no inset over it to stand into.
+        _hint.Margin = default;
 
         Children.Add(_pad);
         Children.Add(_hint);

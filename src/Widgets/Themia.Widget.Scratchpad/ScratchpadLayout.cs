@@ -18,6 +18,12 @@ public static class ScratchpadLayout
     /// <summary>Between the bar's groups (the inks, the nibs, the eraser).</summary>
     public const double GroupGap = FamilySpace.S2;
 
+    /// <summary>
+    /// [S-14267] How far a tool's own room reaches past its glyph (or dot) either side: the bar stands that much past the
+    /// card's inset, so its first and last glyphs stand on the inset as a line's buttons do ([S-6710]).
+    /// </summary>
+    public const double Overhang = (Tool - FamilyShape.Icon) / 2;
+
     /// <summary>The inks, a gap and the eraser.</summary>
     public static double InksWidth(int inks) => (inks * Tool) + GroupGap + Tool;
 

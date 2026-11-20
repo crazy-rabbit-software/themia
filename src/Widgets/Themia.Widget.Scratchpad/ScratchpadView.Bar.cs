@@ -32,7 +32,11 @@ internal sealed partial class ScratchpadView
     /// <summary>The ring round the chosen ink or nib.</summary>
     private const double ChoiceRing = FamilySpace.S6;
 
-    private readonly StackPanel _bar = new() { Orientation = Orientation.Horizontal, Spacing = ScratchpadLayout.GroupGap };
+    /// <summary>
+    /// [S-14267] The bar: the inks, the nibs and the eraser from its start, undo and full screen at its end (its spare room
+    /// between them), so it runs across the card, its first and last glyphs on the inset.
+    /// </summary>
+    private readonly Grid _bar = new();
     private readonly StackPanel _inks = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
     private readonly StackPanel _nibs = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
     private readonly Border _barEraser;
@@ -60,13 +64,26 @@ internal sealed partial class ScratchpadView
             _nibs.Children.Add(button);
         }
 
-        _bar.Children.Add(_inks);
-        _bar.Children.Add(_nibs);
-        _bar.Children.Add(_barEraser);
-        _bar.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Children = { _undoButton, _fullButton } });
+        var commands = new StackPanel { Orientation = Orientation.Horizontal, Children = { _undoButton, _fullButton } };
+        var gap = new Thickness(ScratchpadLayout.GroupGap, 0, 0, 0);
+        _nibs.Margin = gap;
+        _barEraser.Margin = gap;
+        commands.Margin = gap;
+        foreach (var width in new[] { GridLength.Auto, GridLength.Auto, GridLength.Auto, new GridLength(1, GridUnitType.Star), GridLength.Auto })
+        {
+            _bar.ColumnDefinitions.Add(new ColumnDefinition { Width = width });
+        }
 
-        // [S-6716] On the card's bottom inset, from its start.
-        _barRow.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
+        FrameworkElement[] parts = [_inks, _nibs, _barEraser, commands];
+        int[] columns = [0, 1, 2, 4];
+        for (var i = 0; i < parts.Length; i++)
+        {
+            Grid.SetColumn(parts[i], columns[i]);
+            _bar.Children.Add(parts[i]);
+        }
+
+        // [S-6716] [S-14267] On the card's bottom inset, across it: the first and last glyphs on the side insets.
+        _barRow.Margin = new Thickness(FamilySpace.Inset - ScratchpadLayout.Overhang, 0, FamilySpace.Inset - ScratchpadLayout.Overhang, FamilySpace.Inset);
         _barRow.Visibility = Visibility.Collapsed;
         _barRow.Children.Add(_bar);
 
