@@ -8602,6 +8602,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   chevron) is a band from the card's left edge to its right on its top, three grid rows tall, marked as the fence's item
   (`ItemMark`): its name stands in its own padding (12 at the sides, centred down in its rows as a row's text is in its
   band), so a rolled-up fence (its title bar alone, 28 tall) is a row, not a text 6.7 off the card's foot.
+- **[S-14316]** **A Header preview state is sized by its own config** ([S-11603]). The `plain`, `long` and `bare` states
+  swap in a config of their own (`DrawnConfig`), so a render sizes the strip by what it draws: the long state's caption is
+  a second line, and its strip is the one a header with a caption states (52 tall), never the 36 of one without. Was:
+  the caption drawn in a 36 strip, "centred face off centre 11.3/4.0; text in the inset foot 4.0".
 - **[S-14317]** **A mark stands over a text's letters, or not at all** (the item check's marks rule, [S-12831]). The layout
   dump writes each text in an item with its letters' box (`ink`: its box less its side bearings, `PartInk.Across`, and the
   leading over and under its line, `PartInk.Of`), and the item check finds a status glyph or ring over an item's text by

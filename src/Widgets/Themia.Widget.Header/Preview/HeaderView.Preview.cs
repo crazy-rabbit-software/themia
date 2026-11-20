@@ -12,23 +12,29 @@ internal sealed partial class HeaderView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "plain", "long", "bare"];
 
+    /// <summary>
+    /// [S-11603] The state's own config: a render sizes the card by it (the long state's caption is a second line, so its
+    /// strip is taller than the one a header without a caption states).
+    /// </summary>
+    public Themia.Core.Model.WidgetConfig? DrawnConfig { get; private set; }
+
     public Task ShowPreviewStateAsync(string state)
     {
-        switch (state)
+        HeaderConfig? shown = state switch
         {
-            case "plain":
-                ApplyConfig(new HeaderConfig { Text = "This PC", Glyph = Glyphs.Display });
-                break;
-            case "long":
-                ApplyConfig(new HeaderConfig { Text = "The weather where the family lives, this week and next", Glyph = Glyphs.Weather, Caption = "Zürich, Bern and Lucerne, refreshed every fifteen minutes" });
-                break;
-            case "bare":
-                ApplyConfig(new HeaderConfig { Text = "Inbox" });
-                break;
-            default:
-                return ShowSampleAsync();
+            "plain" => new HeaderConfig { Text = "This PC", Glyph = Glyphs.Display },
+            "long" => new HeaderConfig { Text = "The weather where the family lives, this week and next", Glyph = Glyphs.Weather, Caption = "Zürich, Bern and Lucerne, refreshed every fifteen minutes" },
+            "bare" => new HeaderConfig { Text = "Inbox" },
+            _ => null,
+        };
+
+        if (shown is null)
+        {
+            return ShowSampleAsync();
         }
 
+        DrawnConfig = shown;
+        ApplyConfig(shown);
         return Task.CompletedTask;
     }
 }
