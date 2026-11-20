@@ -121,19 +121,21 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _join.Loaded += OnJoinLoaded;
         _controls.HorizontalAlignment = HorizontalAlignment.Right;
 
-        _cut = new CutLine(_text);
+        // [S-14791] The title is cut to its room, but the block never grows past where it stands whole.
+        _cut = new CutLine(_text) { Holds = _title };
 
-        // [S-12833] In a smaller card the meeting's lines and the end column give way before its title.
+        // [S-12833] [S-14792] In a smaller card the meeting's lines and the end column give way before its title, one at a
+        // time: the organiser, the place, the end column, the time last.
         _text.Children.Add(_title);
-        _text.Children.Add(_fit.GivesWayBox(_range.Row, FamilyType.Body.FontSize));
-        _text.Children.Add(_fit.GivesWayBox(_location.Row, FamilyType.Body.FontSize));
-        _text.Children.Add(_fit.GivesWayBox(_organizer.Row, FamilyType.Body.FontSize));
+        _text.Children.Add(_fit.GivesWayBox(_range.Row, NextMeetingJoin.GivesWay.Time));
+        _text.Children.Add(_fit.GivesWayBox(_location.Row, NextMeetingJoin.GivesWay.Place));
+        _text.Children.Add(_fit.GivesWayBox(_organizer.Row, NextMeetingJoin.GivesWay.Organizer));
 
         _when.HorizontalAlignment = HorizontalAlignment.Right;
         _when.TextAlignment = TextAlignment.Right;
         _end.Children.Add(_when);
         _end.Children.Add(_controls);
-        var end = _fit.GivesWayBox(_end, FamilyType.BodyStrong.FontSize);
+        var end = _fit.GivesWayBox(_end, NextMeetingJoin.GivesWay.End);
         SetColumn(end, 1);
 
         // [S-14301] The gap is the end column's own: where the column gives way its gap goes with it and the title takes
@@ -286,12 +288,11 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _end.MinWidth = NextMeetingJoin.EndWidth(CountdownWidth(NextMeetingJoin.Wordings(locale, item, now, zone)), hasJoin ? JoinWidth() : 0, hasJoin);
         _cut.Least = NextMeetingJoin.TextLeast(_end.MinWidth);
         _end.VerticalAlignment = hasJoin ? VerticalAlignment.Center : VerticalAlignment.Top;
-        _when.Margin = hasJoin ? new Thickness(0) : new Thickness(0, NextMeetingJoin.TitleLineOffset, 0, 0);
 
         // Without Join the lines start at the top too, so the countdown stands on the title's line.
         _text.VerticalAlignment = hasJoin ? VerticalAlignment.Center : VerticalAlignment.Top;
 
-        _when.Text = NextMeetingRules.When(locale, item, now, zone);
+        SetWhen(NextMeetingRules.When(locale, item, now, zone), hasJoin ? 0 : NextMeetingJoin.TitleLineOffset);
         _title.Text = string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject;
         PartInk.InkStart(_title);
         _range.Text.Text = NextMeetingRules.Range(locale, item, zone);
@@ -321,8 +322,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _end.MinWidth = 0;
         _cut.Least = NextMeetingJoin.TextLeast(0);
         _end.VerticalAlignment = VerticalAlignment.Top;
-        _when.Margin = new Thickness(0, NextMeetingJoin.TitleLineOffset, 0, 0);
-        _when.Text = EmptyRows.Placeholder;
+        SetWhen(EmptyRows.Placeholder, NextMeetingJoin.TitleLineOffset);
         _text.VerticalAlignment = VerticalAlignment.Top;
         _title.Text = EmptyRows.Placeholder;
         PartInk.InkStart(_title);
@@ -382,23 +382,51 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     private void OnJoinLoaded(object sender, RoutedEventArgs args) => Render();
 
     /// <summary>
-    /// [S-5710] The countdown's widest wording in its form, measured on the countdown's own step and font
-    /// (the text size may have changed it), so the end column does not move as the minutes go.
+    /// [S-5710] [S-14793] The countdown's widest wording in its form by its ink, measured on the countdown's own step and font
+    /// (the text size may have changed it), so the end column does not move as the minutes go and starts at its first ink.
     /// </summary>
     private double CountdownWidth(IReadOnlyList<string> wordings)
+    {
+        var widest = 0.0;
+        foreach (var wording in wordings)
+        {
+            var (box, left, right) = Probe(wording);
+            widest = Math.Max(widest, Math.Ceiling(box - left - right));
+        }
+
+        return widest;
+    }
+
+    /// <summary>A wording on the countdown's step and font: its box and its side bearings (left and right as drawn).</summary>
+    private (double Box, double Left, double Right) Probe(string wording)
     {
         _whenProbe.FontSize = _when.FontSize;
         _whenProbe.FontWeight = _when.FontWeight;
         _whenProbe.FontFamily = _when.FontFamily;
-        var widest = 0.0;
-        foreach (var wording in wordings)
-        {
-            _whenProbe.Text = wording;
-            _whenProbe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            widest = Math.Max(widest, Math.Ceiling(_whenProbe.DesiredSize.Width));
-        }
+        _whenProbe.FlowDirection = _when.FlowDirection;
+        _whenProbe.Text = wording;
+        _whenProbe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        var (left, right) = PartInk.Across(_whenProbe);
+        return (_whenProbe.DesiredSize.Width, left, right);
+    }
 
-        return widest;
+    /// <summary>
+    /// [S-14793] The countdown says <paramref name="wording"/>, <paramref name="top"/> down: its box reaches back over its side
+    /// bearings, so it asks the end column for its ink alone and its ink, not its advance, stands on the column's end (Join's
+    /// end, the inset) and inside its start (the gap from the title's cut).
+    /// </summary>
+    private void SetWhen(string wording, double top)
+    {
+        _when.Text = wording;
+        var (_, left, right) = Probe(wording);
+
+        // Across names the sides as drawn; a right-to-left text's margins are mirrored with it.
+        var rtl = _when.FlowDirection == FlowDirection.RightToLeft;
+        var margin = rtl ? new Thickness(-right, top, -left, 0) : new Thickness(-left, top, -right, 0);
+        if (_when.Margin != margin)
+        {
+            _when.Margin = margin;
+        }
     }
 
     private void SetShown(CalendarEvent? item)

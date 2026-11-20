@@ -46,6 +46,26 @@ files' is the module host's `DeskInfoHostTests`.
   is cut with its ellipsis before it would run under it. Right to left mirrors.
 - **[S-2592]** A meeting with no join link has no Join: the end column is the countdown alone, on the
   title's line (the lines top-aligned, the countdown 4 down so the two lines' middles meet).
+- **[S-14793]** **The time never runs into the title** (owner, 2026-11-20: "the next meeting clips the time into the
+  title"; his card 370 × 90, place and organiser on). The title and the lines are cut at their column
+  (`NextMeetingJoin.TextWidth`): the content less the end column and the family's column gap (12, before the scale), so
+  the title's cut stands that gap before the end column's first ink at every size and state (sample, running, none,
+  nolink), never in or under it. The end column is measured by its ink: the countdown's widest wording without its side
+  bearings, Join's box (`NextMeetingJoin.EndWidth`), and the countdown's box reaches back over its bearings, so its ink
+  stands on the column's end (Join's end, the inset) and its first ink on the column's start. The block never grows past
+  where its title stands whole beside the end column, and cuts it only at its floor (the lines' glyphs at 12, 0.75: root
+  [S-14791]). Renders at 200 × 60 .. 600 × 200, both themes: the title's last ink and the end column's first are 13 or more
+  apart before the scale. Tests `NextMeetingJoinTests.S14793_`.
+- **[S-14792]** **It gives way one part at a time, the time last** (owner, 2026-11-20: "the next meeting clips the time
+  into the title"). The meeting's lines were all Body and gave way together, so at 370 × 80, 300 × 80, 350 × 70 and
+  200 × 60 the card showed its title alone, scaled huge and cut. Now the organiser goes first, then the place, then the
+  end column (the countdown over Join, which needs the width beside the title), and the time last: the title and its
+  time are the block's last two lines (`NextMeetingJoin.GivesWay`, root [S-14790]). A line leads with its 16 glyph, read
+  like 12 text (its floor 0.75), so a line goes where its glyph would be under 12; the end column goes with them, since
+  the block's least scale is the glyphs' and a column kept under it ran past the room's end (200 × 60: "AM" cut at the
+  card's edge). So the owner's 370 × 90 draws the title, the time and the place beside the end column, its organiser
+  given way (four lines need 0.72, under the glyphs' 0.75; before, they were drawn at 0.75 and ran into the foot's inset).
+  Tests `NextMeetingJoinTests.S14792_`.
 - **[S-5710]** **It stands without a header** (owner decision 2026-11-12: "it should be designed in a
   way that it looks good without header … the in x minutes should be moved somewhere else than the
   top"; it starts headerless, [S-2590]). The title is the first line. How long until it (the

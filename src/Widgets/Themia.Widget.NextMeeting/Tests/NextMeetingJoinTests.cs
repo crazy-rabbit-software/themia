@@ -1,5 +1,8 @@
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.NextMeeting.Tests;
@@ -77,5 +80,84 @@ public sealed class NextMeetingJoinTests
         // A wider column ("Now · ends 11:45 AM" over Join) leaves the lines less, never below nothing.
         Assert.True(NextMeetingJoin.TextLeast(Countdown + 60) < least);
         Assert.Equal(0, NextMeetingJoin.TextLeast(400));
+    }
+
+    /// <summary>The desktop sizes the block is judged at, the owner's 370 x 90 among them.</summary>
+    private static readonly (double W, double H)[] Cards =
+        [(200, 60), (240, 90), (300, 80), (350, 70), (370, 80), (370, 90), (370, 120), (330, 130), (300, 164), (600, 200), (320, 124), (520, 600)];
+
+    /// <summary>
+    /// [S-14792] The block gives way one part at a time, the organiser first, then the place, the end column, the time last
+    /// (owner, 2026-11-20: "the next meeting clips the time into the title"). Its lines were all Body and went together: at
+    /// 370 x 80, 300 x 80, 350 x 70 and 200 x 60 the card showed its title alone, scaled huge and cut ("Design re…").
+    /// </summary>
+    [Fact]
+    public void S14792_the_block_gives_way_organiser_place_end_column_then_time_never_its_title_alone_first()
+    {
+        var order = new[] { NextMeetingJoin.GivesWay.Organizer, NextMeetingJoin.GivesWay.Place, NextMeetingJoin.GivesWay.End, NextMeetingJoin.GivesWay.Time };
+        Assert.Equal(order.Order(), order);
+        Assert.Equal(order.Length, order.Distinct().Count());
+
+        // The lines lead with their 16 glyph, read like 12 text: they go where the glyph would be under its floor (0.75).
+        Assert.Equal(12, NextMeetingJoin.GivesWay.Time);
+
+        var face = NextMeetingJoin.Face(new NextMeetingConfig());
+        Assert.Equal(order.Order(), face.Sizes.Where(s => s < face.Main).Order());
+
+        // 370 x 80: the time and the place stay beside the end column; the organiser alone gave way.
+        var eighty = face.Fit(370 - 24, 80 - 24);
+        Assert.True(eighty.Draws(NextMeetingJoin.GivesWay.Time) && eighty.Draws(NextMeetingJoin.GivesWay.Place) && eighty.Draws(NextMeetingJoin.GivesWay.End));
+        Assert.False(eighty.Draws(NextMeetingJoin.GivesWay.Organizer));
+
+        foreach (var (w, h) in Cards.Concat([(370.0, 50.0), (260, 56), (200, 40)]))
+        {
+            var fit = face.Fit(w - 24, h - 24);
+
+            // In the order: nothing is drawn while a part after it in the order has gone, and the time goes last.
+            for (var i = 1; i < order.Length; i++)
+            {
+                Assert.True(!fit.Draws(order[i - 1]) || fit.Draws(order[i]), $"{w}x{h}: {order[i - 1]} drawn without {order[i]}");
+            }
+
+            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Fill >= ScaleFloor.Text - 1e-4, $"{w}x{h}: {size} at {size * fit.Fill}"));
+        }
+    }
+
+    /// <summary>
+    /// [S-14791] [S-14793] The title's cut stands the family's column gap before the end column's first ink at every size and
+    /// state, and the block never grows past where the title stands whole (owner, 2026-11-20: "the next meeting clips the time
+    /// into the title"). The end column is measured by its ink (none, "--", "in 59 min.", "Now · ends 11:45 AM" over Join); the
+    /// title short, the sample's (280 whole at Title) or a sentence. Laid at the block's scale, the title's column and the gap
+    /// and the end column never pass the content, and the title is cut only where the block is at its floor.
+    /// </summary>
+    [Fact]
+    public void S14793_the_titles_cut_stands_the_gap_before_the_end_column_at_every_size_and_state()
+    {
+        var least = ScaleFloor.Least(FamilyType.Body.FontSize, FamilyShape.Icon);
+        var ink = new LineInk(LineInk.Of(FamilyType.Title).Over, LineInk.Of(FamilyType.Body).Under);
+        var packed = NextMeetingJoin.LinesHeight(new NextMeetingConfig());
+        foreach (var (w, h) in Cards)
+        {
+            foreach (var end in new[] { 0.0, 15, Countdown, 140 })
+            {
+                foreach (var title in new[] { 60.0, 280, 600 })
+                {
+                    var room = w - 24;
+                    var beside = end > 0 ? NextMeetingJoin.Gap + end : 0;
+                    var asked = Math.Min(title, NextMeetingJoin.TextLeast(end)) + beside;
+                    var scale = BlockFit.Fill(room, h - 24, asked, packed, ink, least, BlockFit.Uncut(room, title + beside)).Scale;
+                    var content = room / scale;
+                    var cut = end > 0 ? NextMeetingJoin.TextWidth(content, end) : content;
+                    var at = $"{w}x{h} end {end} title {title}: scale {scale:0.###}";
+
+                    // Never into or under the end column: the cut, the gap, the column within the content.
+                    Assert.True(cut >= 0, at);
+                    Assert.True(cut + beside <= content + 1e-9, at);
+
+                    // Never grown past the whole title: cut only at the floor.
+                    Assert.True(title <= cut + 1e-6 || Math.Abs(scale - least) < 1e-9, at);
+                }
+            }
+        }
     }
 }

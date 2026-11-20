@@ -47,11 +47,18 @@ public static class NextMeetingJoin
     /// </summary>
     public static double TitleLineOffset => (FamilyType.Title.LineHeight - CountdownLine) / 2;
 
-    /// <summary>[S-5710] The end column's width: the wider of the countdown's widest wording and Join (none without a link).</summary>
+    /// <summary>
+    /// [S-5710] [S-14793] The end column's width: the wider of the countdown's widest wording and Join (none without a link),
+    /// each by its ink (a text's side bearings are no part of it; Join's box is its ink), so its first ink is its start.
+    /// </summary>
     public static double EndWidth(double countdownWidth, double joinWidth, bool hasJoin)
         => Math.Max(Finite(countdownWidth), hasJoin ? Finite(joinWidth) : 0);
 
-    /// <summary>[S-2591] The lines' column: the content box less the end column and the gap.</summary>
+    /// <summary>
+    /// [S-2591] [S-14793] The lines' column, where the title is cut: the content box less the end column's ink and the gap
+    /// (owner, 2026-11-20: "the next meeting clips the time into the title"). The title's cut stands the family's column gap
+    /// before the end column's first ink at every width and state, never in or under it; a column with no room left is none.
+    /// </summary>
     public static double TextWidth(double contentWidth, double endWidth)
         => Math.Max(0, Finite(contentWidth) - Finite(endWidth) - Gap);
 
@@ -71,8 +78,33 @@ public static class NextMeetingJoin
     public const double EndEstimate = 80;
 
     /// <summary>
-    /// [S-12833] The block's parts (<see cref="FaceParts"/>): its title the main reading (Title), at 9 in its least card; the
-    /// meeting's lines under it and the end column (how long until it, over Join) give way on the way down.
+    /// [S-14792] The order the block gives way in, last kept first (owner, 2026-11-20: "the next meeting clips the time into
+    /// the title"): the title, then its time (when it is, the most important fact after what), the end column (how long until
+    /// it, over Join) beside them while there is room, then the place, then the organiser. Each is the size it gives way at
+    /// (<see cref="FaceFloor.Before"/>: one at a time in this order, never all at once leaving the title alone). A line leads
+    /// with its 16 glyph, which reads like 12 text (<see cref="ScaleFloor.AsText"/>: under 0.75 the glyph would be under its
+    /// floor), so the lines go at 12; the end column goes with them, before the time: the block's least scale is the lines'
+    /// glyphs', and a column kept under it would run past the room's end.
+    /// </summary>
+    public static class GivesWay
+    {
+        /// <summary>The time range, the last line to go: a Body line led by its glyph.</summary>
+        public static double Time => ScaleFloor.AsText(FamilyShape.Icon);
+
+        /// <summary>The end column (the countdown over Join): before the time, after the place.</summary>
+        public static double End => FaceFloor.Before(Time, 1);
+
+        /// <summary>The place.</summary>
+        public static double Place => FaceFloor.Before(Time, 2);
+
+        /// <summary>The organiser, the first to go.</summary>
+        public static double Organizer => FaceFloor.Before(Time, 3);
+    }
+
+    /// <summary>
+    /// [S-12833] [S-14792] The block's parts (<see cref="FaceParts"/>): its title the main reading (Title), at 9 in its least
+    /// card; the end column (how long until it, over Join) and the meeting's lines under it give way on the way down, one at
+    /// a time in <see cref="GivesWay"/>'s order.
     /// </summary>
     public static FaceParts Face(NextMeetingConfig config)
     {
@@ -80,12 +112,18 @@ public static class NextMeetingJoin
         var text = Widths.Natural - (2 * FamilySpace.Inset) - EndEstimate - Gap;
         var rows = new List<FaceRow>
         {
-            new([FacePiece.Text(FamilyType.Title, text), FacePiece.Box(EndEstimate + Gap, FamilyType.Title.LineHeight, FamilyType.BodyStrong.FontSize)]),
+            new([FacePiece.Text(FamilyType.Title, text), FacePiece.Box(EndEstimate + Gap, FamilyType.Title.LineHeight, GivesWay.End)]),
+            new([FacePiece.Text(FamilyType.Body, text, GivesWay.Time)], GapOver: LineGap),
         };
-        var more = 1 + (config.ShowPlace ? 1 : 0) + (config.ShowOrganizer ? 1 : 0);
-        for (var i = 0; i < more; i++)
+
+        if (config.ShowPlace)
         {
-            rows.Add(new([FacePiece.Text(FamilyType.Body, text, FamilyType.Body.FontSize)], GapOver: LineGap));
+            rows.Add(new([FacePiece.Text(FamilyType.Body, text, GivesWay.Place)], GapOver: LineGap));
+        }
+
+        if (config.ShowOrganizer)
+        {
+            rows.Add(new([FacePiece.Text(FamilyType.Body, text, GivesWay.Organizer)], GapOver: LineGap));
         }
 
         return new FaceParts(FamilyType.Title.FontSize, rows);
