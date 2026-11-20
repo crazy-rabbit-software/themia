@@ -15,6 +15,9 @@ public enum PagingKind
     /// <summary>As <see cref="BodyCursor"/>, the cursor named a page token by the query.</summary>
     PageToken,
 
+    /// <summary>An absolute next address the body names (Graph's <c>@odata.nextLink</c>), followed only on the page's https origin.</summary>
+    BodyLink,
+
     /// <summary><c>offset += limit</c> until a short page.</summary>
     OffsetLimit,
 }
@@ -116,6 +119,9 @@ public enum PageStop
 
     /// <summary>A cursor or address seen before: the service loops, a bad response, never an endless fetch.</summary>
     Loop,
+
+    /// <summary>A next address on another origin: not followed (the token would go with it); what was read stands, the rest was never seen.</summary>
+    Elsewhere,
 }
 
 /// <summary>
@@ -127,8 +133,10 @@ public sealed class ServicePager
 {
     private readonly HashSet<string> _seen = new(StringComparer.Ordinal);
 
-    public ServicePager(PagingKind paging, int wanted, int maxPages, int itemBound, int pageSize)
+    /// <param name="stopOnEmptyPage">False for a change round, whose pages may be empty before its end.</param>
+    public ServicePager(PagingKind paging, int wanted, int maxPages, int itemBound, int pageSize, bool stopOnEmptyPage = true)
     {
+        StopOnEmptyPage = stopOnEmptyPage;
         Paging = paging;
         Wanted = Math.Max(1, wanted);
         MaxPages = Math.Max(1, maxPages);
@@ -145,6 +153,8 @@ public sealed class ServicePager
     public int ItemBound { get; }
 
     public int PageSize { get; }
+
+    public bool StopOnEmptyPage { get; }
 
     /// <summary>Pages taken so far.</summary>
     public int Pages { get; private set; }
@@ -163,18 +173,27 @@ public sealed class ServicePager
     /// <param name="chunk">The page as the rules mapped it.</param>
     public PageAt? Next(Uri requested, string? link, KitChunk chunk)
     {
-        ArgumentNullException.ThrowIfNull(requested);
         ArgumentNullException.ThrowIfNull(chunk);
+        return Next(requested, link, chunk.Items.Count, chunk.NextCursor);
+    }
+
+    /// <summary>
+    /// The same after a page of any items (an account's list or change round): how many it held, and the cursor or
+    /// next address its body named.
+    /// </summary>
+    public PageAt? Next(Uri requested, string? link, int count, string? next)
+    {
+        ArgumentNullException.ThrowIfNull(requested);
 
         Pages++;
-        Items += chunk.Items.Count;
+        Items += count;
 
         if (Paging == PagingKind.None)
         {
             return Stopped(PageStop.End);
         }
 
-        if (chunk.Items.Count == 0)
+        if (count == 0 && StopOnEmptyPage)
         {
             return Stopped(PageStop.EmptyPage);
         }
@@ -189,20 +208,26 @@ public sealed class ServicePager
             return Stopped(PageStop.Bound);
         }
 
-        PageAt? next = Paging switch
+        PageAt? nextPage = Paging switch
         {
             PagingKind.LinkHeader => LinkPaging.Next(link, requested) is { } address ? new PageAt.Address(address) : null,
-            PagingKind.BodyCursor or PagingKind.PageToken => chunk.NextCursor is { Length: > 0 } cursor ? new PageAt.Cursor(cursor) : null,
-            PagingKind.OffsetLimit => chunk.Items.Count < PageSize ? null : new PageAt.Offset(Items),
+            PagingKind.BodyCursor or PagingKind.PageToken => next is { Length: > 0 } cursor ? new PageAt.Cursor(cursor) : null,
+            PagingKind.BodyLink => next is { Length: > 0 } && Uri.TryCreate(next, UriKind.Absolute, out var address) ? new PageAt.Address(address) : null,
+            PagingKind.OffsetLimit => count < PageSize ? null : new PageAt.Offset(Items),
             _ => null,
         };
 
-        if (next is null)
+        if (nextPage is null)
         {
             return Stopped(PageStop.End);
         }
 
-        var mark = next switch
+        if (nextPage is PageAt.Address { Next: var to } && Paging == PagingKind.BodyLink && !LinkPaging.SameHttpsOrigin(requested, to))
+        {
+            return Stopped(PageStop.Elsewhere);
+        }
+
+        var mark = nextPage switch
         {
             PageAt.Address a => "a:" + a.Next.AbsoluteUri,
             PageAt.Cursor c => "c:" + c.Value,
@@ -210,13 +235,13 @@ public sealed class ServicePager
             _ => string.Empty,
         };
 
-        if (!_seen.Add(mark) || (next is PageAt.Address again && again.Next == requested))
+        if (!_seen.Add(mark) || (nextPage is PageAt.Address again && again.Next == requested))
         {
             return Stopped(PageStop.Loop);
         }
 
         Stop = PageStop.More;
-        return next;
+        return nextPage;
     }
 
     private PageAt? Stopped(PageStop why)

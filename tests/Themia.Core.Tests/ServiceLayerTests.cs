@@ -281,6 +281,29 @@ public sealed partial class ServiceLayerTests
     }
 
     [Fact]
+    public void S9906_a_next_address_in_the_body_is_followed_on_the_same_https_origin_only()
+    {
+        var pager = new ServicePager(PagingKind.BodyLink, 100, 10, 200, 2);
+        Assert.Equal(new PageAt.Address(new Uri("https://api.hub.example/search?skip=2")), pager.Next(FirstPage, null, 2, "https://api.hub.example/search?skip=2"));
+
+        Assert.Null(pager.Next(FirstPage, null, 2, "https://elsewhere.example/search?skip=4"));
+        Assert.Equal(PageStop.Elsewhere, pager.Stop);
+
+        var end = new ServicePager(PagingKind.BodyLink, 100, 10, 200, 2);
+        Assert.Null(end.Next(FirstPage, null, 2, null));
+        Assert.Equal(PageStop.End, end.Stop);
+    }
+
+    [Fact]
+    public void S9906_a_change_round_reads_past_an_empty_page()
+    {
+        var round = new ServicePager(PagingKind.PageToken, 100, 10, 200, 2, stopOnEmptyPage: false);
+        Assert.Equal(new PageAt.Cursor("t2"), round.Next(FirstPage, null, 0, "t2"));
+        Assert.Null(round.Next(FirstPage, null, 0, null));
+        Assert.Equal(PageStop.End, round.Stop);
+    }
+
+    [Fact]
     public void S9906_offsets_step_by_what_came_and_stop_at_a_short_page()
     {
         var pager = new ServicePager(PagingKind.OffsetLimit, 100, 10, 200, 2);
