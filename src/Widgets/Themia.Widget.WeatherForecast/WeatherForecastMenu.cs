@@ -32,7 +32,7 @@ internal static class WeatherForecastMenu
         }
 
         // The look (Style, Appearance), then behind a divider each: the place; what each day shows. [S-14410] How many
-        // days is the card's: a resize stores the days its box holds.
+        // days is the card's: what its box holds, never stored ([S-14502]).
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
         menu.Lines.Add(ItemMenuEntry.Separator);

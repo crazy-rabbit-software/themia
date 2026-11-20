@@ -130,7 +130,7 @@ public sealed class ReadyMadePlacementTests
 
                 foreach (var w in plan.Added)
                 {
-                    // Within float noise: a stepped axis recomputes its step.
+                    // Within float noise: the painted box recomputes its whole cells.
                     var shown = SizeFit.Shown(w.Rect, SizeFit.Limits(w, screen, scale), screen);
                     Assert.True(Math.Abs(shown.X - w.Rect.X) + Math.Abs(shown.Y - w.Rect.Y) + Math.Abs(shown.W - w.Rect.W) + Math.Abs(shown.H - w.Rect.H) < 1e-9, $"{what}: {w.Kind.Value} is painted at {shown}, not where it landed ({w.Rect})");
                 }

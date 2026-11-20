@@ -242,7 +242,7 @@ public sealed class FolderBrowserTests
 
     /// <summary>
     /// [S-14102] (owner, 2026-11-20: "right now all of the widgets have a space on the bottom, this means their size steps are
-    /// not in sync with the item heights"): at every height step the list's and the table's rows run from right under
+    /// not in sync with the item heights"; [S-14500]): at every height the list's and the table's rows run from right under
     /// what stands over them (each a band of whole cells) to the card's foot, none left over.
     /// </summary>
     [Fact]

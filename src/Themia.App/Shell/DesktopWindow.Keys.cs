@@ -185,7 +185,7 @@ internal sealed partial class DesktopWindow
 
         for (var i = 0; i < cards.Count; i++)
         {
-            // [S-2442] A resize by keys lands as a drag does: a list's rows follow its height.
+            // [S-2445] [S-14502] A resize by keys lands as a drag does: the rect alone, its config as it was.
             if (action.Command == EditCommand.Move)
             {
                 cards[i].Model.Rect = rects[i];

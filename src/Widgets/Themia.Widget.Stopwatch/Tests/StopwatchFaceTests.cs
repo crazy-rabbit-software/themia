@@ -32,7 +32,7 @@ public sealed class StopwatchFaceTests
         var medium = Sizing(new StopwatchConfig());
 
         Assert.Equal(FamilyType.Hero68, StopwatchFace.Sized(new StopwatchConfig()).Step);
-        // [S-14100] The inset and the face (92 + 20 + 8 + 28 + 2) as one band of whole cells: 162 grown to 170.
+        // [S-14500] The inset and the face (92 + 20 + 8 + 28 + 2) as one band of whole cells: 162 grown to 170.
         Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, StopwatchFace.FaceHeight(new StopwatchConfig(), Locale.En) + 24);
         Assert.Equal(170, medium.Natural.Height);
         Assert.Equal(medium.Min.Height, medium.Natural.Height);

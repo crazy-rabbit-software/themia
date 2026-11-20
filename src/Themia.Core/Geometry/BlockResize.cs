@@ -94,7 +94,7 @@ public static class BlockResize
             return moved;
         }
 
-        // A press that changed nothing (a stepped member between its steps): on to the first length that does.
+        // A press that changed nothing (a member's next whole cell not yet reached): on to the first length that does.
         var far = grow ? double.PositiveInfinity : double.NegativeInfinity;
         return across ? Solve(start, axis, far, null, 0, apart, untilChanged: true) : Solve(start, null, 0, axis, far, apart, untilChanged: true);
     }

@@ -19,7 +19,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-6731] Debug only: the family's render walk. <c>Themia.exe --family-check &lt;out.json&gt;
 /// [--theme light|dark] [--kinds a,b]</c> draws every kind (or those named) at its min, natural and max
-/// ([S-2448], each box with the config that size means), in its
+/// ([S-2448], each box fitted into its sizing), in its
 /// default state, each of its preview states (not the interaction ones: a hover, a press, a lasso)
 /// and each of its styles (at its first data state), off-screen as <c>--widget-png</c> does, walks
 /// what each card's header, view and Set up row draw (<see cref="FamilyWalk"/>) and judges every

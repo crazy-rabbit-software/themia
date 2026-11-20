@@ -133,7 +133,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-2460] The pointer moved: the block is laid again from where it started and every member drawn where it lands,
-    /// showing the config its size means ([S-2442]); the members join among themselves ([S-2457]).
+    /// at the size it lands, its config as it was ([S-14502]); the members join among themselves ([S-2457]).
     /// </summary>
     private void OnFrameDragged(PointerRoutedEventArgs e)
     {

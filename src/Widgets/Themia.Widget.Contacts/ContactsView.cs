@@ -670,10 +670,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _columnHeader.Visibility = Visibility.Collapsed;
     }
 
-    /// <summary>[S-11406] The list is as tall as the rows its config states; the rest is a scroll away.</summary>
+    /// <summary>[S-11406] [S-14500] The list is as tall as the rows its card holds; the rest is a scroll away.</summary>
     private void StatedRows(int lines, ContactsLayoutPlan plan)
     {
-        // A resize being dragged hands the view the config that size means ([S-2447]): never the box's own count.
         var shown = Math.Max(0, Math.Min(lines, plan.Rows));
         _scroll.Height = lines > shown ? shown * plan.Pitch : double.NaN;
 

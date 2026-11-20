@@ -277,8 +277,8 @@ public static class GridGeometry
     /// </para>
     /// <para>
     /// [S-2445] A resize passes the widget's sizing's <paramref name="limits"/> too: the moved edge
-    /// also stops at the sizing's Min and Max, and on a stepped axis lands on the nearest step (the
-    /// steps, not the grid, are its snap); a fixed axis does not move.
+    /// also stops at the sizing's Min and Max and lands on the grid between, a cell at a time ([S-14500]); a fixed
+    /// axis does not move.
     /// </para>
     /// </summary>
     public static FracRect Settle(FracRect r, ScreenMetrics screen, ResizeHandle? resizing = null, SizeLimits? limits = null)
