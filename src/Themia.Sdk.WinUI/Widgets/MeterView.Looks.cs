@@ -163,8 +163,9 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Columns:
-                // [S-1113] The first core on the left in every language.
-                Body(new Grid { FlowDirection = FlowDirection.LeftToRight, Margin = Family.Inset with { Top = FamilySpace.S2 } });
+                // [S-1113] The first core on the left in every language. [S-14246] The first column on the start inset and
+                // the last on the end's, the room between them alike (WR-3: "the items dont reach from edge to edge").
+                Body(new SpreadStack { Orientation = Orientation.Horizontal, Justify = true, FlowDirection = FlowDirection.LeftToRight, Margin = Family.Inset with { Top = FamilySpace.S2 } });
                 break;
 
             case MeterLook.Rows:
@@ -387,17 +388,8 @@ public sealed partial class MeterView
     {
         switch (_look)
         {
-            case MeterLook.Columns when _body is Grid grid:
-                Resize(_columns, count, grid, () => new ChartBar(vertical: true), (bar, i) =>
-                {
-                    grid.ColumnDefinitions.Add(new ColumnDefinition());
-                    SetColumn(bar, i);
-                });
-                while (grid.ColumnDefinitions.Count > count)
-                {
-                    grid.ColumnDefinitions.RemoveAt(grid.ColumnDefinitions.Count - 1);
-                }
-
+            case MeterLook.Columns when _body is SpreadStack columns:
+                Resize(_columns, count, columns, () => new ChartBar(vertical: true), (_, _) => { });
                 break;
 
             case MeterLook.Rows when _body is SpreadStack stack:
