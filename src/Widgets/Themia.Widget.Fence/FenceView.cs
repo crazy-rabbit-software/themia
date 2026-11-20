@@ -49,6 +49,12 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
     private readonly Canvas _canvas = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = true };
     private readonly TextBlock _empty = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
 
+    /// <summary>
+    /// [S-14264] The empty sentence's row: the body's first row of boxes, edge to edge, the sentence centred in it, so an
+    /// empty fence's room stands under it as whole rows (WR-1, WR-5), as a list's empty sentence is its first row.
+    /// </summary>
+    private readonly Border _emptyRow = new() { VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false };
+
     /// <summary>[S-13043] Where the body stands in its rows when it has more than it shows: a thin thumb at its right edge.</summary>
     private readonly Border _thumb = new() { Width = FamilySpace.S1, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false };
 
@@ -105,7 +111,9 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _empty.IsHitTestVisible = false;
         _thumb.Background = Family.Brush(ColourRole.TextTertiary);
         _body.Children.Add(_canvas);
-        _body.Children.Add(_empty);
+        _emptyRow.Child = _empty;
+        ItemMark.Mark(_emptyRow);
+        _body.Children.Add(_emptyRow);
         _body.Children.Add(_thumb);
         SetRow(_body, 1);
         Children.Add(_body);
@@ -545,7 +553,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _shownRolled = _config.RolledUp;
         _body.Visibility = !_config.RolledUp || _rolling ? Visibility.Visible : Visibility.Collapsed;
         _empty.Text = Searches && !_fixture.On ? SearchEmptyText() : FenceStr.Fence_Empty.Text();
-        _empty.Visibility = count == 0 && !_config.RolledUp ? Visibility.Visible : Visibility.Collapsed;
+        _emptyRow.Visibility = count == 0 && !_config.RolledUp ? Visibility.Visible : Visibility.Collapsed;
         SyncCells(items);
         Layout();
         PaintCells();
@@ -585,6 +593,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
             }
         }
 
+        _emptyRow.Height = layout.CellHeight;
         _canvas.Width = Math.Max(0, ActualWidth);
         _canvas.Height = Math.Max(0, layout.Height);
         _canvas.Clip = new Microsoft.UI.Xaml.Media.RectangleGeometry { Rect = new Windows.Foundation.Rect(0, 0, _canvas.Width, _canvas.Height) };

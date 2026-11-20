@@ -34,6 +34,10 @@ desktop's own icons, laid by the host on the cells of its body; the view draws i
   laid there by the host ([S-13040]); the view draws only what is no desktop icon (a search's files, a picture's items) in
   the same cells. More items than it shows: whole rows from its scroll, the mouse wheel a row a notch, a thin thumb at the
   body's right edge ([S-13043]); "Drag desktop icons here" stands in an empty one.
+- **[S-14264]** **An empty fence's sentence is its first row** (owner, 2026-11-19, WR-1: "there should not be a space at
+  the top"; WR-5). "Drag desktop icons here" stands centred in the body's first row of boxes, edge to edge (one of its
+  items, `ItemMark`), so the room of an empty fence stands under it as whole rows, as a list's empty sentence is its first
+  row; before, it stood in the middle of the whole body. Renders `--widget-png fence --state empty --sizes range`.
 - **[S-10903]** **An item is a desktop icon**: on the desktop each item is the desktop's own icon card ([S-13042]), so its
   icon, name, highlight, hover, focus cue, cut and hidden fades are a free icon's, exactly. What the fence draws itself (a
   search's files, a picture's items) looks the same: the shell's icon with its overlay ([S-5512], at the display's pixels,

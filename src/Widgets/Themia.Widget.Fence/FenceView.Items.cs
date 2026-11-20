@@ -125,6 +125,9 @@ internal sealed partial class FenceView
         stack.Children.Add(name);
         var chrome = SelectionChrome.Wrap(null, Look);
         var root = new Grid { Background = Fluent.Clear() };
+
+        // [S-14263] A cell of the body is one of the fence's items (its box on the icon grid), reported as one.
+        ItemMark.Mark(root);
         root.Children.Add(chrome);
         root.Children.Add(stack);
         var cell = new Cell { Key = key, Root = root, Chrome = chrome, IconHost = iconHost, Image = image, Name = name, Stack = stack };

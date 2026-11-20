@@ -15,6 +15,9 @@ internal sealed partial class FenceView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "empty", "selected", "inactive", "title", "rolledUp", "many", "cut", "sorted"];
 
+    /// <summary>[S-11603] The state's own config sizes the card: rolled up, the title bar alone.</summary>
+    public Themia.Core.Model.WidgetConfig? DrawnConfig => _fixture.On ? _config : null;
+
     public async Task ShowPreviewStateAsync(string state)
     {
         var name = FenceStr.Fence_SampleName.Text();
