@@ -6901,8 +6901,8 @@ there: Themia never takes a key from the app the user is typing in.
   first control, as F6 reaches it, where the widget's options are (decided 2026-10-19: there is no
   widget page to open); nothing while the menu is away, and Escape there hands the keyboard back.
   The **Menu key** or
-  **Shift+F10** opens the selection's card menu on its card ([S-1743]), or the surface menu
-  ([S-1744]) at the work area's centre when nothing is selected.
+  **Shift+F10** opens the selection's card menu at its card ([S-1743], through the surface's menu anchor, [S-14321]), or
+  the surface menu ([S-1744]) at the work area's centre when nothing is selected.
 - **[S-1975]** **F6 / Shift+F6** moves the keyboard round the surface's panes: the widgets (the
   selected card, else the surface), the toolbar's first button, the view bar (when it shows) and the
   notices (while one has a button). This is how the toolbar is reached without the mouse.
@@ -11298,8 +11298,11 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   options**. Explorer draws its own inside its process and no other program can open that one, so Themia
   draws it: the one `ItemMenu` every Themia menu is ([S-1740]: `CommandBarFlyout`, Explorer's two-tone
   pictures, [S-1754], keys right-aligned, [S-1753]), opened as its own popup window at the pointer and kept
-  inside the display's work area by the framework ([S-1748], [S-1500]). What an icon's menu holds is
-  [S-5582]. **Empty desktop's menu** (`DesktopBackground.Menu`, tested): **View ›** ([S-5557]), **Sort by ›**
+  inside the display's work area by the framework ([S-1748], [S-1500]), always through the surface's menu anchor
+  (`DesktopWindow.OpenMenuAt`), a widget card's menu too ([S-14321]). What an icon's menu holds is
+  [S-5582]; a widget card's outside edit mode is the widget's lines, Delete and then this whole menu ([S-14321]). **Empty
+  desktop's menu** (`DesktopBackground.Menu`, tested; worded by `AppHost.DesktopMenuLines`, the one builder for it and a
+  card's): **View ›** ([S-5557]), **Sort by ›**
   and **Refresh** ([S-5554]); then **Paste** and **Paste shortcut** while the clipboard holds files (Paste is
   Ctrl+V's own paste, [S-5545]; Paste shortcut the shell's own `pastelink` on the desktop root's menu) and
   **New ›**: Folder, Shortcut (Windows' Create Shortcut wizard, the shell's `NewLink`), then the shell's New
@@ -11968,8 +11971,8 @@ Every right-click menu in the app — a widget's card, an item inside a widget, 
 mode, a view chip — and how a click on a card in edit mode is told from a drag.
 Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMenus`, `CardGestures`);
 `Widgets/ItemMenu.cs` (the one builder), `WidgetCard.cs` (card menu, click), `DesktopWindow.Menu.cs`
-(surface menu), `Gallery/MenuRender.cs`; `Shell/KeyChord.cs`, `Shell/MenuArt.cs` (Core) and `Shell/MenuArtIcons.cs`.
-Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
+(surface menu; every card menu opens there, `OpenCardMenu`), `Gallery/MenuRender.cs`; `Shell/KeyChord.cs`, `Shell/MenuArt.cs` (Core) and `Shell/MenuArtIcons.cs`.
+Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
 
 - Every one of these menus closes on a press anywhere else on screen, the desktop and other apps
   included ([S-816]).
@@ -11992,14 +11995,41 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   properties menu's beside it ([S-6536]); the list is the view's own
   commands, Bring to front / Send to back, and Edit mode, checked ([S-65]). There is no Move:
   dragging and the arrow keys move a widget. There is no
-  Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough.
+  Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough. It opens where the right-click was
+  (the Menu key and Shift+F10: at the selected card) through the surface's menu anchor, as every desktop menu ([S-14321]).
 - **[S-1758]** Outside edit mode the card menu is for using the widget, not arranging it: the view's own
-  commands (Refresh, Pause, which folder, [S-1746]) and Edit mode, unchecked ([S-65]), the way to the widget's options
-  ([S-6536]); no Settings. No Cut, Copy, Paste, Delete, layering or icon row: with no
-  selection shown and nowhere to paste outside edit mode they did nothing the user could see (user report
-  2026-10-17: "I right click and cut a widget, nothing happens"). Item menus inside a widget (a file's
-  Explorer commands, [S-6416]) are the widget's own and unchanged; empty surface stays click-through ([S-1744]).
-  `ShellMenus.ForCard`; tests `S1758_`.
+  commands (Refresh, Pause, which folder, [S-1746]), then **Delete** while Lock widgets is off, then the desktop's whole
+  background menu, whose Edit mode (unchecked, [S-65]) is the way to the widget's options ([S-6536]) ([S-14321]); no
+  Settings. No Cut, Copy or Paste of widgets, no layering and no icon row: with nowhere to paste a widget outside edit
+  mode they did nothing the user could see (user report 2026-10-17: "I right click and cut a widget, nothing happens").
+  *(Until 2026-11-20 it was the view's own commands, Edit mode and Lock widgets alone, and no Delete.)* Item menus inside
+  a widget (a file's Explorer commands, [S-6416]) are the widget's own and unchanged; empty surface stays click-through
+  ([S-1744]). `ShellMenus.ForCard`; tests `S1758_`, `S14321_`.
+- **[S-14321]** **A widget's menu is the widget's and the desktop's** (owner, 2026-11-20: "the right click menu that
+  appears when over a widget should be extended and look (in terms of style) the same as the one on the desktop"; asked
+  what "extended" holds, the owner picked "Widget + desktop menu"). Outside edit mode a right-click on a widget card (the
+  Menu key on a focused card on the desktop's keys) opens: the widget's own commands as today, its plain Refresh worded
+  **Refresh widget** beside the desktop's Refresh (`ShellMenus.WidgetLine`; a kit's "Refresh · updated …" keeps its
+  words); **Delete widget** / **Delete N widgets** (Explorer's **Delete** while a desktop file is in the selection), its
+  key right-aligned, only while Lock widgets is off: what Delete does on the desktop's one selection ([S-14320],
+  `DesktopDelete.Words`), a line of the list (never the icon row); then the desktop's background menu exactly as
+  [S-5548] gives it (`DesktopBackground.Menu` through `AppHost.DesktopMenuLines`, the one builder: View ›, Sort by ›,
+  Refresh, Paste and Paste shortcut when the desktop's would show them, Undo …, New ›, Display settings, Personalise,
+  Open in Terminal, Edit mode, Lock widgets, Add widget, Show more options = the desktop background's classic menu,
+  Shift+F10 the same from the keys), so a right-click on a widget never loses the desktop's menu; Edit mode, Lock widgets
+  and Add widget are that menu's, once (`ShellCommand.DesktopMenu`, `.DeleteOnDesktop`). What its lines bring lands at the
+  click ([S-5591]). The right-click puts the card in the desktop's one selection as a right-click on an icon does (a
+  selection that holds it is kept; a card Lock widgets holds is in none, [S-12953]) and gives the desktop the keys as a
+  right-click on empty desktop does ([S-5550]). **One path, one look**: every card menu, in and outside edit mode (edit
+  mode's content as [S-1743]), opens as the desktop's menus do, through the surface's menu anchor at the pointer
+  (`DesktopWindow.OpenCardMenu`, `OpenMenuAt`), never on the card. Why they looked different: a flyout takes its theme
+  from the element it is opened on (its nearest ancestor with one; `--menu-png` showed it, the same menu on a card and on
+  an anchor beside it pixel for pixel alike, on another element in another theme not), and the card's right press, unlike
+  the desktop's, left the keys and the foreground with no one when the widget takes no keys (a press on a card ends the
+  desktop's hold of them), so its menu opened over a surface in the background while the desktop's opened over the
+  foreground one. Tests `ContextMenuTests.S14321_`, `DesktopDeleteTests.S14321_`; `--menu-png` (`card-desktop-actions`,
+  `-3`, `-locked`, `-withfile`, `-glass`, beside `desk-background`). Live pass still needed: the real right-click on a
+  widget on the desktop, its look against the background menu's, the keys in it.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu, a list with no icon row (Paste is its one row command, and one is
   none, [S-1741]), an action menu that holds no setting ([S-3590]): **Add widget** (opens the add page under the bar, [S-11707], whose tile then
@@ -12314,7 +12344,8 @@ power buttons, whose whole body is their button) open nothing.
   icon size, [S-3590]); the menus' line ([S-12951]) is a command that flips it. Tests `DesktopGridTests.S12950_` (the
   regression: a locked widget's drag moved it), `SettingsMenuTests.S12950_`, `ShellSettingsTests.S12950_`.
 - **[S-12951]** **The Lock widgets line** stands right under **Edit mode** on the desktop's background menu
-  ([S-5548]), a desktop icon's menu ([S-5582]) and a widget card's menu (both modes, [S-1743], [S-1758]), checked while
+  ([S-5548]), a desktop icon's menu ([S-5582]) and a widget card's menu (in edit mode its own, [S-1743]; outside it the
+  background menu's, which the card menu holds whole, [S-1758], [S-14321]), checked while
   on; a click flips the setting (`ShellMenus.LockLine`, `DesktopMenuCommand.LockWidgets`, `FileCommand.LockWidgets`).
   Not on edit mode's empty-surface menu, an action menu that holds no setting ([S-1744], [S-3590]). Tests
   `ContextMenuTests.S12951_`, `DesktopCommandsTests`.

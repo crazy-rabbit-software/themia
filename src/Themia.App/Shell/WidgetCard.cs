@@ -154,6 +154,18 @@ internal interface IWidgetCardHost
     bool DeleteRemovesFromView(WidgetCard card) => Themia.Core.Desktop.DesktopBackground.RemovesFromView([card.Model.Config]);
 
     /// <summary>
+    /// [S-14321] Open this card's menu at <paramref name="at"/> (a point of the card; null: from the keys) the way the
+    /// desktop's own menus open (the surface's menu anchor, at the pointer). False where there is no surface (a render).
+    /// </summary>
+    bool OpenCardMenu(WidgetCard card, Point? at) => false;
+
+    /// <summary>[S-14321] Outside edit mode: how the card menu's Delete line reads (what Del does to the desktop's one selection); None: no line.</summary>
+    (Themia.Core.Desktop.DeleteWords Words, int Count) DeskDeleteLine(WidgetCard card) => (Themia.Core.Desktop.DeleteWords.None, 0);
+
+    /// <summary>[S-14321] Outside edit mode: the desktop's background menu's lines, for a card menu at <paramref name="at"/> (surface DIPs).</summary>
+    IReadOnlyList<ItemMenuEntry> DesktopLines(WidgetCard card, Point at) => [];
+
+    /// <summary>
     /// [S-2343] The pointer that pressed this card let go (a click, the end of a move or of a resize), or
     /// its press could not be held after all: nothing moves under the pointer any more, and in edit mode the
     /// host opens the selection's page.
@@ -1162,17 +1174,18 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     }
 
     /// <summary>
-    /// [S-1743] The card's menu, Windows 11 style: Cut, Copy, Paste, Settings and Delete
-    /// as a row of icons, the rest as a list. Which commands apply is <see cref="ShellMenus.ForCard"/>'s;
-    /// this only words them and wires them up.
+    /// [S-1743] [S-14321] The card's menu, Windows 11 style, opened where the right-click was through the surface, as the
+    /// desktop's own menus (<see cref="IWidgetCardHost.OpenCardMenu"/>). Which commands apply is
+    /// <see cref="ShellMenus.ForCard"/>'s; <see cref="CardMenu"/> only words them and wires them up.
     /// </summary>
     private void OnRightTapped(object sender, RightTappedRoutedEventArgs e)
     {
         try
         {
-            // [S-1592] Right-click on a selected card keeps the selection: the commands below act on
-            // all of it. On any other card it selects just that one first.
-            if (!_host.IsSelected(this))
+            // [S-1592] In edit mode a right-click on a selected card keeps the selection: the commands act on all of it. On
+            // any other card it selects just that one first. [S-14321] Outside edit mode the surface puts it in the desktop's
+            // one selection, as a right-click on an icon.
+            if (_host.EditMode && !_host.IsSelected(this))
             {
                 // ignore: whether it changed; the menu acts on what is selected now
                 _ = _host.RequestPress(this, onHandle: false);
@@ -1182,7 +1195,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                 _host.PressEnded(this);
             }
 
-            ItemMenu.Show(this, e, CardMenu());
+            if (!_host.OpenCardMenu(this, e.GetPosition(this)))
+            {
+                Log.Debug(Scope, $"{Model.Kind}: no card menu here");
+            }
+
             e.Handled = true;
         }
         catch (Exception ex)
@@ -1191,8 +1208,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
     }
 
-    /// <summary>[S-1743] The card menu's entries, read when it opens.</summary>
-    internal List<ItemMenuEntry> CardMenu()
+    /// <summary>
+    /// [S-1743] [S-14321] The card menu's entries, read when it opens at <paramref name="at"/> (surface DIPs: where what the
+    /// desktop's lines bring lands, outside edit mode).
+    /// </summary>
+    internal List<ItemMenuEntry> CardMenu(Point at)
     {
         var cards = _host.ViewForCards;
         var facts = new CardMenuFacts(
@@ -1206,23 +1226,58 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var entries = new List<ItemMenuEntry>();
         foreach (var item in ShellMenus.ForCard(facts))
         {
-            if (item.Command == ShellCommand.WidgetActions)
+            switch (item.Command)
             {
-                // The view's own commands — pause a camera, refresh a page — read fresh each time so
-                // their text can follow the state they toggle. [S-1746] None of them changes how the
-                // widget looks: that is its settings' job.
-                if (_running && _view is IWidgetContextActions { ContextActions: { Count: > 0 } actions })
-                {
-                    entries.AddRange(actions.Select(action => new ItemMenuEntry(action.Glyph, action.Text, action.Invoke)));
-                }
+                case ShellCommand.WidgetActions:
+                    // The view's own commands — pause a camera, refresh a page — read fresh each time so
+                    // their text can follow the state they toggle. [S-1746] None of them changes how the
+                    // widget looks: that is its settings' job. [S-14321] Beside the desktop's lines its Refresh says it is the widget's.
+                    if (_running && _view is IWidgetContextActions { ContextActions: { Count: > 0 } actions })
+                    {
+                        entries.AddRange(actions.Select(action => new ItemMenuEntry(
+                            action.Glyph,
+                            facts.EditMode ? action.Text : ShellMenus.WidgetLine(action.Text, Str.Desktop_Menu_Refresh.Text(), Str.Shell_Card_RefreshWidget.Text()),
+                            action.Invoke)));
+                    }
 
-                continue;
+                    continue;
+
+                case ShellCommand.DeleteOnDesktop:
+                    if (DeskDeleteEntry() is { } delete)
+                    {
+                        entries.Add(delete);
+                    }
+
+                    continue;
+
+                case ShellCommand.DesktopMenu:
+                    // [S-14321] The desktop's background menu whole, as a right-click on empty desktop opens it.
+                    entries.AddRange(_host.DesktopLines(this, at));
+                    continue;
             }
 
             entries.Add(CardEntry(item, facts.SelectionCount));
         }
 
         return entries;
+    }
+
+    /// <summary>
+    /// [S-14320] [S-14321] The Delete line outside edit mode: what Del does to the desktop's one selection, worded by what it
+    /// does ("Delete widget", "Delete 3 widgets", or Explorer's "Delete" while a file goes to the shell's delete), its key
+    /// right-aligned; none while it would do nothing.
+    /// </summary>
+    private ItemMenuEntry? DeskDeleteEntry()
+    {
+        var (words, count) = _host.DeskDeleteLine(this);
+        var text = words switch
+        {
+            Themia.Core.Desktop.DeleteWords.Delete => Str.Common_Delete.Text(),
+            Themia.Core.Desktop.DeleteWords.OneWidget => Str.Shell_Card_DeleteWidget.Text(),
+            Themia.Core.Desktop.DeleteWords.Widgets => Str.Shell_Card_DeleteMany.Plural(count),
+            _ => null,
+        };
+        return text is null ? null : new(Glyphs.Delete, text, () => _host.RequestDelete(this), Danger: true, Shortcut: KeyChord.Plain(ChordKey.Delete));
     }
 
     /// <summary>One of the card's own commands, worded and wired.</summary>

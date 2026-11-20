@@ -160,7 +160,8 @@ public sealed class ContextMenuTests
     [Fact]
     public void S1758_outside_edit_mode_the_card_menu_has_no_editing_commands()
     {
-        // User report 2026-10-17: Cut and Copy on a widget outside edit mode did nothing visible.
+        // User report 2026-10-17: Cut and Copy on a widget outside edit mode did nothing visible. [S-14321] Its Delete is the
+        // desktop's (DeleteOnDesktop), not edit mode's.
         foreach (var paste in new[] { false, true })
         {
             var items = ShellMenus.ForCard(Card(edit: false, paste: paste, count: 3));
@@ -169,14 +170,54 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S1758_outside_edit_mode_the_card_menu_is_the_view_actions_and_edit_layout()
+    public void S14321_outside_edit_mode_the_card_menu_is_the_widgets_lines_delete_then_the_desktop_menu()
     {
+        // Owner, 2026-11-20, asked what "extended" holds: "Widget + desktop menu".
         var items = ShellMenus.ForCard(Card(edit: false));
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
         // [S-6536] No Settings: a widget's options are on its properties menu, in edit mode.
-        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.ToggleEditMode, ShellCommand.ToggleLockWidgets], Commands(items));
+        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.DeleteOnDesktop, ShellCommand.Separator, ShellCommand.DesktopMenu], Commands(items));
+
+        // No icon row: Delete is a line of the list, as on the desktop's own menus (the desktop menu's Paste stays a line).
         Assert.Empty(split.Row);
+        Assert.All(items, i => Assert.Null(i.Quick));
+    }
+
+    [Fact]
+    public void S14321_with_lock_widgets_on_the_card_menu_has_no_delete()
+    {
+        var items = ShellMenus.ForCard(Card(edit: false) with { WidgetsLocked = true });
+
+        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.DesktopMenu], Commands(items));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void S14321_edit_mode_lock_widgets_and_add_widget_appear_once_the_desktop_menus(bool locked)
+    {
+        // The card's own part holds none of them; the desktop's background menu, which follows whole, holds each once.
+        var card = ShellMenus.ForCard(Card(edit: false) with { WidgetsLocked = locked });
+        Assert.DoesNotContain(card, i => i.Command is ShellCommand.ToggleEditMode or ShellCommand.ToggleLockWidgets or ShellCommand.AddWidget);
+
+        var desktop = Desktop.DesktopBackground.Menu(new(ClipboardHasFiles: true, HasTerminal: true, WidgetsLocked: locked));
+        foreach (var command in new[] { Desktop.DesktopMenuCommand.EditMode, Desktop.DesktopMenuCommand.LockWidgets, Desktop.DesktopMenuCommand.AddWidget })
+        {
+            Assert.Single(desktop, l => l.Command == command);
+        }
+
+        Assert.Single(card, i => i.Command == ShellCommand.DesktopMenu);
+    }
+
+    [Fact]
+    public void S14321_a_widgets_own_refresh_says_it_is_the_widgets_beside_the_desktops()
+    {
+        Assert.Equal("Refresh widget", ShellMenus.WidgetLine("Refresh", "Refresh", "Refresh widget"));
+
+        // Any other line keeps its words; a kit's line with the age already differs.
+        Assert.Equal("Open C: in Explorer", ShellMenus.WidgetLine("Open C: in Explorer", "Refresh", "Refresh widget"));
+        Assert.Equal("Refresh · updated 5 min ago", ShellMenus.WidgetLine("Refresh · updated 5 min ago", "Refresh", "Refresh widget"));
     }
 
     [Fact]
@@ -257,20 +298,14 @@ public sealed class ContextMenuTests
     [InlineData(true)]
     public void S12951_lock_widgets_stands_under_edit_mode_on_the_card_menus_checked_while_on(bool locked)
     {
-        IReadOnlyList<ShellMenuItem>[] menus =
-        [
-            ShellMenus.ForCard(Card(edit: false) with { WidgetsLocked = locked }),
-            ShellMenus.ForCard(Card(edit: true) with { WidgetsLocked = locked }),
-        ];
-
-        foreach (var items in menus)
-        {
-            var commands = Commands(items);
-            var at = commands.IndexOf(ShellCommand.ToggleLockWidgets);
-            Assert.Equal(ShellCommand.ToggleEditMode, commands[at - 1]);
-            Assert.Equal(locked, items[at].Checked);
-            Assert.Null(items[at].Quick);
-        }
+        // Edit mode's card menu holds its own line; [S-14321] outside edit mode the card menu holds the desktop's whole, and its line.
+        var items = ShellMenus.ForCard(Card(edit: true) with { WidgetsLocked = locked });
+        var commands = Commands(items);
+        var at = commands.IndexOf(ShellCommand.ToggleLockWidgets);
+        Assert.Equal(ShellCommand.ToggleEditMode, commands[at - 1]);
+        Assert.Equal(locked, items[at].Checked);
+        Assert.Null(items[at].Quick);
+        Assert.Contains(ShellCommand.DesktopMenu, Commands(ShellMenus.ForCard(Card(edit: false) with { WidgetsLocked = locked })));
 
         // The desktop's background menu ([S-5548]) and a desktop icon's ([S-5582]): the same line under Edit mode.
         var background = Desktop.DesktopBackground.Menu(new(ClipboardHasFiles: false, HasTerminal: false, WidgetsLocked: locked));

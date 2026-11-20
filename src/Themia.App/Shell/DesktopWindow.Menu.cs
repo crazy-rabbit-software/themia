@@ -72,6 +72,42 @@ internal sealed partial class DesktopWindow
     internal bool OpenMenuAt(Point at, IEnumerable<ItemMenuEntry> entries, Action? closed = null)
         => !_closed && ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), entries, closed);
 
+    /// <summary>
+    /// [S-14321] [S-1743] [S-1758] A widget card's menu at <paramref name="at"/> (a point of the card; null: from the keys, at
+    /// its centre), in and outside edit mode, opened as the desktop's own menus are (<see cref="OpenMenuAt"/>: this surface's
+    /// menu anchor at the pointer, its own popup), never on the card (owner, 2026-11-20: the card's menu should "look (in terms
+    /// of style) the same as the one on the desktop"). Outside edit mode the card is the desktop's first: its one selection and
+    /// the keys, as a right-click on an icon or on empty desktop gives them ([S-5550]).
+    /// </summary>
+    public bool OpenCardMenu(WidgetCard card, Point? at)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+        if (_closed)
+        {
+            return false;
+        }
+
+        var point = at is { } on ? card.TransformToVisual(_root).TransformPoint(on) : CentreOf(card);
+        if (!EditMode)
+        {
+            _host.CardMenuOpening(this, card.Model);
+        }
+
+        return OpenMenuAt(point, card.CardMenu(point));
+    }
+
+    /// <summary>[S-14321] Where a menu from the keys stands at <paramref name="card"/>: its centre, on this surface.</summary>
+    internal Point CentreOf(WidgetCard card)
+        => card.TransformToVisual(_root).TransformPoint(new Point(card.ActualWidth / 2, card.ActualHeight / 2));
+
+    /// <summary>[S-14321] Outside edit mode: how the card menu's Delete line reads (what Del does to the desktop's one selection).</summary>
+    public (Core.Desktop.DeleteWords Words, int Count) DeskDeleteLine(WidgetCard card)
+        => EditMode || _closed ? (Core.Desktop.DeleteWords.None, 0) : _host.DeskDeleteLine();
+
+    /// <summary>[S-14321] Outside edit mode: the desktop's background menu's lines for a card's menu at <paramref name="at"/> on this surface.</summary>
+    public IReadOnlyList<ItemMenuEntry> DesktopLines(WidgetCard card, Point at)
+        => EditMode || _closed ? [] : _host.DesktopMenuLines(this, at);
+
     /// <summary>[S-5582] <see cref="OpenMenuAt"/> for a screen point (physical pixels) over this surface.</summary>
     internal bool OpenMenuAtScreen(int screenX, int screenY, IEnumerable<ItemMenuEntry> entries)
     {

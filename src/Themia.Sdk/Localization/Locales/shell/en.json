@@ -7,7 +7,9 @@
     "shell.color.spectrum",
     "shell.color.hue",
     "shell.color.hex",
-    "shell.color.recent"
+    "shell.color.recent",
+    "shell.card.deleteWidget",
+    "shell.card.refreshWidget"
   ],
   "shell.time.justNow": "Just now",
   "shell.fetch.notConfigured": "Not set up yet",
@@ -134,6 +136,8 @@
     "one": "Delete {count} widget",
     "other": "Delete {count} widgets"
   },
+  "shell.card.deleteWidget": "Delete widget",
+  "shell.card.refreshWidget": "Refresh widget",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

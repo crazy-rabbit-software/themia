@@ -6,6 +6,7 @@ using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -158,6 +159,17 @@ internal static partial class DeskSelectCheck
                 second = new DesktopWindow(host, new MonitorTarget(DisplayId + "-2", IdResolved: true, "desk-select-check-2", left, left with { Bottom = left.Bottom - 48 }, IsPrimary: false));
                 host.AdoptSurfaceForCheck(second);
                 second.ShowSurface();
+            }
+
+            // [S-14320] The host's gestures never take the foreground from the user's window (the picks now give the desktop the
+            // keys as a press on empty desktop does): the surfaces only count the times they would have, their button the check's.
+            if (!live)
+            {
+                surface.CheckButton = static () => false;
+                if (second is not null)
+                {
+                    second.CheckButton = static () => false;
+                }
             }
 
             // The desk follows the host as at the app's start: the icons' presses reach it, the listing and state relay it ([S-5540]).
@@ -413,6 +425,60 @@ internal static partial class DeskSelectCheck
                 ExpectEdit("narrowed to clock", []);
                 host.Select(null);
                 host.SetEditMode(false);
+
+                // [S-14320] Delete on widgets picked by hand outside edit mode (owner, 2026-11-20: "deleting widgets with delete does
+                // not work in non edit mode without the lock enabled"): the pick hands the desktop the keys as a press on empty desktop
+                // does (before, the press on a card left them with no one); Delete (and Shift+Delete) removes the cards and an own
+                // icon, Lock widgets on the icon alone; no file is in it; Ctrl+Z puts them back where they were, with their config.
+                bool Present(string name) => running.State.Views[0].Find(items[Index(name)].Widget.Id) is not null;
+                string Shape(string name) => running.State.Views[0].Find(items[Index(name)].Widget.Id) is { } w
+                    ? $"{w.Kind}@{w.Rect} '{w.Label}' {w.Config.GetType().Name}"
+                    : "gone";
+                foreach (var permanent in new[] { false, true })
+                {
+                    host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                    var emptyTakes = ReferenceEquals(host.DesktopKeysSurface, surface);
+                    host.DesktopKeysEnd(giveBack: false, keepActive: true);
+                    string[] chosen = ["clock", "notes", "iconB"];
+                    var shapes = chosen.ToDictionary(n => n, Shape);
+                    Pick("clock");
+                    Pick("notes");
+                    var pickTakes = ReferenceEquals(host.DesktopKeysSurface, surface);
+                    Click("iconB", ctrl: true);
+                    host.Key(permanent ? WidgetKey.PermanentDelete : WidgetKey.Delete, shift: permanent, widgetId: null);
+                    var gone = chosen.Where(n => !Present(n)).ToList();
+                    List<string> wanted = locked ? ["iconB"] : [.. chosen];
+                    var kept = names.Except(chosen).All(Present);
+                    host.Key(WidgetKey.Undo, shift: false, widgetId: null);
+                    var back = chosen.All(n => Shape(n) == shapes[n]);
+                    // The keys as an empty press gets them: an off-screen stand-in display may be refused the foreground (it reads
+                    // as covered), and then neither has them; the check asks that the pick does what the press on empty desktop does.
+                    var deleteOk = gone.SequenceEqual(wanted) && kept && back && (locked || pickTakes == emptyTakes);
+                    failures += deleteOk ? 0 : 1;
+                    Say($"{(deleteOk ? "ok  " : "FAIL")} ctrl+press clock and notes, ctrl+click iconB, {(permanent ? "Shift+Delete" : "Delete")}: gone [{string.Join(",", gone)}]"
+                        + $", the rest kept {kept}, Ctrl+Z put them back as they were {back}, the desktop's keys after an empty press {emptyTakes}, after the picks {pickTakes}");
+                }
+
+                // [S-14321] A card's menu outside edit mode, host-level (built, never shown: its popup would stand on the user's
+                // screen): the right-click puts the card alone in the desktop's one selection (Lock widgets on: none) and gives the
+                // desktop the keys; its lines are the widget's, Delete (not while locked), then the desktop's background menu whole.
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                var emptyKeys = ReferenceEquals(host.DesktopKeysSurface, surface);
+                host.DesktopKeysEnd(giveBack: false, keepActive: true);
+                var notesCard = surface.CardFor(items[Index("notes")].Widget.Id)!;
+                host.CardMenuOpening(surface, notesCard.Model);
+                var menuAt = surface.CentreOf(notesCard);
+                var cardLines = notesCard.CardMenu(menuAt).ConvertAll(e => e.Text);
+                var deskLines = host.DesktopMenuLines(surface, menuAt).ConvertAll(e => e.Text);
+                var held = names.Where(n => running.DeskSelects(Model(Index(n)))).ToList();
+                var keysNow = ReferenceEquals(host.DesktopKeysSurface, surface);
+                var hasDelete = cardLines.Contains(Str.Shell_Card_DeleteWidget.Text());
+                var endsWithDesk = deskLines.Count > 0 && cardLines.Count > deskLines.Count && cardLines.Skip(cardLines.Count - deskLines.Count).SequenceEqual(deskLines);
+                var menuOk = held.SequenceEqual(locked ? [] : ["notes"]) && keysNow == emptyKeys && hasDelete != locked && endsWithDesk;
+                failures += menuOk ? 0 : 1;
+                Say($"{(menuOk ? "ok  " : "FAIL")} right-click notes: selected [{string.Join(",", held)}], the desktop's keys {keysNow} (an empty press: {emptyKeys}), Delete widget {hasDelete}"
+                    + $", ends with the desktop's {deskLines.Count} lines {endsWithDesk}: [{string.Join(" | ", cardLines)}]");
+                host.ClearDeskSelection();
             }
             else
             {

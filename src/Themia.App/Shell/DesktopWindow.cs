@@ -354,8 +354,21 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         }
     }
 
-    /// <summary>[S-1592] Delete the selection (the right-clicked card is in it).</summary>
-    public void RequestDelete(WidgetCard card) => _host.DeleteSelected();
+    /// <summary>
+    /// [S-1592] Delete the selection (the right-clicked card is in it): in edit mode its own; [S-14320] outside it the desktop's
+    /// one selection, as Del there does.
+    /// </summary>
+    public void RequestDelete(WidgetCard card)
+    {
+        if (EditMode)
+        {
+            _host.DeleteSelected();
+        }
+        else
+        {
+            _host.DeleteSelection(permanent: false);
+        }
+    }
 
     public void RequestEditMode(bool enabled) => _host.SetEditMode(enabled);
 

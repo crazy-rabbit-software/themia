@@ -275,7 +275,8 @@ internal sealed partial class DesktopWindow
         {
             if (SelectedCardHere() is { Visibility: Visibility.Visible } card)
             {
-                return ItemMenu.ShowAt(card, null, card.CardMenu());
+                // [S-14321] Through the surface's menu anchor, as every desktop menu.
+                return OpenCardMenu(card, null);
             }
 
             var area = WorkArea;

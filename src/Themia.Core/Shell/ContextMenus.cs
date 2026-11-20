@@ -37,6 +37,19 @@ public enum ShellCommand
 
     /// <summary>[S-1744] The edit bar's settings menu (⚙), opened on this display ([S-3520]).</summary>
     Settings,
+
+    /// <summary>
+    /// [S-14320] [S-14321] Delete on the card menu outside edit mode: what Del does on the desktop's one selection
+    /// (<see cref="Desktop.DesktopDelete"/>), a line of the list as the desktop's own menus have it, never the icon row.
+    /// </summary>
+    DeleteOnDesktop,
+
+    /// <summary>
+    /// [S-14321] Where the desktop's background menu goes on the card menu outside edit mode: its lines exactly as
+    /// <see cref="Desktop.DesktopBackground.Menu"/> gives them (View, Sort by, Refresh, Paste, New, …, Edit mode, Lock
+    /// widgets, Add widget, Show more options); the host supplies them.
+    /// </summary>
+    DesktopMenu,
 }
 
 /// <summary>One line of a shell menu: what it does, whether it can be clicked, and a toggle's state.</summary>
@@ -118,16 +131,35 @@ public static class ShellMenus
     }
 
     /// <summary>
-    /// [S-1758] A widget card's menu outside edit mode, while the widget is being used rather than
-    /// arranged: the view's own commands and the way into edit mode, where its options are. No Cut,
-    /// Copy, Paste, Delete or layering: those arrange the desktop, and outside edit mode there is
-    /// nowhere to paste and no selection shown, so they did nothing the user could see.
+    /// [S-1758] [S-14321] A widget card's menu outside edit mode, while the widget is being used rather than arranged
+    /// (owner, 2026-11-20: "the right click menu that appears when over a widget should be extended and look (in terms of
+    /// style) the same as the one on the desktop"; asked, "Widget + desktop menu"): the view's own commands, then Delete
+    /// (what Del does on the desktop's one selection, [S-14320]; not while Lock widgets holds the widgets), then the
+    /// desktop's background menu whole ([S-5548]), so a right-click on a widget never loses the desktop's menu. Its Edit
+    /// mode, Lock widgets and Add widget are the desktop menu's, once. No Cut, Copy or Paste of widgets and no layering:
+    /// those arrange the desktop, and outside edit mode there is nowhere to paste a widget (user report 2026-10-17: "I
+    /// right click and cut a widget, nothing happens"). No icon row: Delete is a line of the list, as on the desktop's menus.
     /// </summary>
     private static List<ShellMenuItem> ForCardInUse(bool widgetsLocked)
-        => [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.ToggleEditMode), LockLine(widgetsLocked)];
+        => widgetsLocked
+            ? [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.DesktopMenu)]
+            : [new(ShellCommand.WidgetActions), new(ShellCommand.DeleteOnDesktop), ShellMenuItem.Divider, new(ShellCommand.DesktopMenu)];
 
     /// <summary>
-    /// [S-12951] Lock widgets, right under Edit mode on the card menus (and the desktop's own, [S-5548], [S-5582]): a
+    /// [S-14321] A widget's own line on the card menu outside edit mode, worded beside the desktop's: a line that reads
+    /// exactly as the desktop menu's Refresh (<paramref name="desktopRefresh"/>, which reads the desktop again) says it is
+    /// the widget's (<paramref name="widgetRefresh"/>, "Refresh widget"); any other line keeps its words (a kit's
+    /// "Refresh · updated 5 min ago" already differs).
+    /// </summary>
+    public static string WidgetLine(string text, string desktopRefresh, string widgetRefresh)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        return string.Equals(text, desktopRefresh, StringComparison.Ordinal) ? widgetRefresh : text;
+    }
+
+    /// <summary>
+    /// [S-12951] Lock widgets, right under Edit mode on edit mode's card menu (and the desktop's own, [S-5548], [S-5582],
+    /// which the card menu outside edit mode holds whole, [S-14321]): a
     /// command that flips the one setting (its home is General › Desktop icons, [S-3590]), checked while it is on, as
     /// Windows' View toggles. Not on edit mode's empty-surface menu, an action menu that holds no setting ([S-1744]).
     /// </summary>

@@ -321,15 +321,11 @@ internal sealed partial class AppHost
     /// </summary>
     public void DesktopBackgroundMenu(DesktopWindow surface, Point dip, bool classic)
     {
-        var metrics = surface.Metrics;
-        if (!metrics.IsUsable)
+        if (!DeskMenuAt(surface, dip))
         {
             return;
         }
 
-        var scale = surface.Monitor.Bounds.Width / metrics.Width;
-        var (x, y) = ShellContextMenu.ToScreen(surface.Hwnd, (int)Math.Round(dip.X * scale), (int)Math.Round(dip.Y * scale));
-        _deskMenuAt = (x, y, surface.Hwnd);
         if (classic)
         {
             ShowClassicDesktopMenu(surface, dip);
@@ -338,15 +334,7 @@ internal sealed partial class AppHost
 
         try
         {
-            var facts = DesktopBackgroundFacts.Of(State, HostFileClipboard.Instance.HasFiles, ShellFileOps.TerminalPath() is not null, DesktopUndoOffered());
-            var templates = ShellNewTemplates.GetAsync() is { IsCompletedSuccessfully: true } read ? read.Result : [];
-            var entries = DesktopBackgroundEntries(
-                DesktopBackground.Menu(facts),
-                templates,
-                command => RunDesktopMenuCommand(surface, dip, command),
-                template => NewOnDesktop(surface, dip, desktop => HostFileOps.Instance.NewFile(desktop, template)),
-                facts.Undo);
-            if (!surface.OpenMenuAt(dip, entries))
+            if (!surface.OpenMenuAt(dip, DesktopMenuLines(surface, dip)))
             {
                 Log.Warn(Scope, "the desktop's background menu did not open");
             }
@@ -355,6 +343,75 @@ internal sealed partial class AppHost
         {
             Log.Error(Scope, "the desktop's background menu failed", ex);
         }
+    }
+
+    /// <summary>[S-5548] A desktop menu opens at <paramref name="dip"/> on <paramref name="surface"/>: Show more options opens the classic menu there. False while the surface has no size.</summary>
+    private bool DeskMenuAt(DesktopWindow surface, Point dip)
+    {
+        var metrics = surface.Metrics;
+        if (!metrics.IsUsable)
+        {
+            return false;
+        }
+
+        var scale = surface.Monitor.Bounds.Width / metrics.Width;
+        var (x, y) = ShellContextMenu.ToScreen(surface.Hwnd, (int)Math.Round(dip.X * scale), (int)Math.Round(dip.Y * scale));
+        _deskMenuAt = (x, y, surface.Hwnd);
+        return true;
+    }
+
+    /// <summary>
+    /// [S-5548] [S-14321] The background menu's lines (<see cref="DesktopBackground.Menu"/>, worded by
+    /// <see cref="DesktopBackgroundEntries"/>) for a menu at <paramref name="dip"/> on <paramref name="surface"/>: empty
+    /// desktop's own, and the second half of a widget card's outside edit mode, the one builder for both. What a command
+    /// brings lands there ([S-5591]).
+    /// </summary>
+    internal List<ItemMenuEntry> DesktopMenuLines(DesktopWindow surface, Point dip)
+    {
+        if (!DeskMenuAt(surface, dip))
+        {
+            return [];
+        }
+
+        var facts = DesktopBackgroundFacts.Of(State, HostFileClipboard.Instance.HasFiles, ShellFileOps.TerminalPath() is not null, DesktopUndoOffered());
+        var templates = ShellNewTemplates.GetAsync() is { IsCompletedSuccessfully: true } read ? read.Result : [];
+        return DesktopBackgroundEntries(
+            DesktopBackground.Menu(facts),
+            templates,
+            command => RunDesktopMenuCommand(surface, dip, command),
+            template => NewOnDesktop(surface, dip, desktop => HostFileOps.Instance.NewFile(desktop, template)),
+            facts.Undo);
+    }
+
+    /// <summary>
+    /// [S-14321] A widget card's menu opens outside edit mode on <paramref name="surface"/>: the card joins the desktop's one
+    /// selection as a right-click on an icon does (a selection that holds it is kept, [S-5540]; a card Lock widgets holds is
+    /// in none, [S-12953]), and the desktop takes the keys as a right-click on empty desktop does ([S-5550]). So the menu opens
+    /// on the foreground surface, as the desktop's own menus do, and the keys reach it; before, a card whose view takes no
+    /// keys left the surface in the background (its press ends the desktop's hold of the keys), and its menu opened on an
+    /// inactive window, unlike the desktop's.
+    /// </summary>
+    public void CardMenuOpening(DesktopWindow surface, WidgetInstance widget)
+    {
+        CloseRenameFor(null);
+        _landings.ClearOpen();
+        GestureOn(surface);
+        LayoutDesk();
+        if (DeskKey(widget) is { } key)
+        {
+            _desk.Context(key);
+        }
+
+        DesktopTakeKeys(surface);
+        _deskActive = true;
+        RepaintDesk();
+    }
+
+    /// <summary>[S-14321] How the card menu's Delete line reads outside edit mode: what Del would do to the desktop's one selection now.</summary>
+    public (DeleteWords Words, int Count) DeskDeleteLine()
+    {
+        var removal = DeskRemovalNow();
+        return (DesktopDelete.Words(removal), removal.Widgets.Count);
     }
 
     /// <summary>
@@ -639,6 +696,22 @@ internal sealed partial class AppHost
         // [S-5540] The menu stands at the focused icon where the user is: its box and its surface on the display of the last gesture.
         if (_desk.Selected.Count > 0 && _desk.PlaceOf(_desk.Focus) is { } box)
         {
+            // [S-14321] A widget card focused: its own menu at it (the widget's lines, Delete, the desktop's menu); Shift+F10 the
+            // desktop's classic menu, which is its Show more options.
+            if (DeskIconOf(box.Key) is null && DeskPlace(box.Key) is { } held && held.Surface.CardFor(held.Widget.Id) is { } card)
+            {
+                if (classic)
+                {
+                    DesktopBackgroundMenu(held.Surface, held.Surface.CentreOf(card), classic: true);
+                }
+                else if (!held.Surface.OpenCardMenu(card, null))
+                {
+                    Log.Warn(Scope, "a widget's menu did not open from the keys");
+                }
+
+                return;
+            }
+
             var on = DeskPlace(box.Key)?.Surface ?? surface;
             ShowDeskMenu((int)box.CenterX, (int)box.CenterY, on.Hwnd, classic);
             return;
