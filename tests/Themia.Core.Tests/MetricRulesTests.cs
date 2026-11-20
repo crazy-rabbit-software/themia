@@ -159,6 +159,26 @@ public sealed class MetricRulesTests
     }
 
     [Fact]
+    public void S14220_the_line_keeps_to_the_room_under_the_row_s_text_and_glyph_never_through_them()
+    {
+        var body = FamilyType.StepsAt(1)[1];
+        Assert.Equal(new TypeStep(FamilyType.BodySize, FamilyType.BodyLine, false), body);
+
+        // The 30 row: its Body line (20) centred stands 5 to 25, the descenders inside it; the line's room is 25 to 30.
+        Assert.Equal(25, MetricRules.LineOver(MetricRules.RowHeight, body));
+        Assert.True(MetricRules.LineOver(MetricRules.RowHeight, body) >= (MetricRules.RowHeight + FamilyShape.Icon) / 2);
+
+        // A taller row on another grid's pitch keeps the line under its centred text all the same.
+        Assert.Equal(28, MetricRules.LineOver(36, body));
+
+        // A larger text size: under its taller line, but never less than a stroke's room at the foot.
+        Assert.Equal(30 - FamilyShape.Stroke, MetricRules.LineOver(30, FamilyType.StepsAt(1.5)[1]));
+
+        // Not laid out yet: nothing over the plot.
+        Assert.Equal(0, MetricRules.LineOver(0, body));
+    }
+
+    [Fact]
     public void S14220_the_band_s_points_are_oldest_first_each_its_share_of_their_own_range_a_gap_left_out()
     {
         var points = MetricRules.Band([1, 3, null, 2, double.NaN, 5]);

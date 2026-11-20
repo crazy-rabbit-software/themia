@@ -185,6 +185,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
             case MetricTrend.Line:
                 _row.Beside(0, null, 0);
                 var band = Band();
+                band.Over = MetricRules.LineOver(band.ActualHeight, FamilyType.Body);
                 band.Role(shown.Value.Available ? ColourRole.Accent : ColourRole.TextDisabled);
                 band.Load(MetricRules.Band(shown.Series));
                 break;
@@ -199,15 +200,19 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     /// [S-14220] The line's band, built the first time a line is drawn: the meters' history band (owner, 2026-11-19: "they
     /// should reuse more of the same components") with no caption of its own (the row is what is written over it), behind
     /// the row and standing where it stands, on the card's top edge and down to its foot, side to side ("Plot edge to
-    /// edge": the plot and its fill reach the card's edges, the labels stand inside it, over the plot).
+    /// edge": the plot and its fill reach the card's edges, the labels stand inside it, over the plot). The row stands
+    /// over the plot's top as its owner's part (<see cref="SparkBand.Over"/>): the line keeps to the room under the row's
+    /// text at its foot, so it never runs through a glyph and is seen as this row's, not the one above.
     /// </summary>
     private SparkBand Band()
     {
         if (_band is null)
         {
-            _band = new SparkBand(MetricRules.LinePoints) { Captions = false };
-            ListEdge.Apply(_band);
-            Children.Insert(0, _band);
+            var band = new SparkBand(MetricRules.LinePoints) { Captions = false };
+            ListEdge.Apply(band);
+            band.SizeChanged += (_, args) => band.Over = MetricRules.LineOver(args.NewSize.Height, FamilyType.Body);
+            Children.Insert(0, band);
+            _band = band;
         }
 
         return _band;

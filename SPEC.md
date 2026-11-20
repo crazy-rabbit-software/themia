@@ -9472,7 +9472,11 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   metric drawing Line has no sparkline of its own: its line is the history band every meter draws (`SparkBand` on the one
   `Chart`, [S-6750]), in its look (Area, Simple: the line at 2 over its 16 % wash), with no caption, behind the whole row
   and standing where the row stands: on the card's top edge, down to its foot, side to side, so its plot is the card's
-  box ([S-6754]) and the row (glyph, name, value, the status's glyph) stands inside it, over the plot. It takes no room
+  box ([S-6754]) and the row (glyph, name, value, the status's glyph) stands inside it, over the plot. The row is the
+  owner's part over the plot's top (`SparkBand.Over`, `ChartModel.Over`): the line keeps to the room under the row's text
+  line (a Body line centred on the row, the descenders inside it) and its lead glyph, at the row's foot
+  (`MetricRules.LineOver`: 25 to 30 on the 30 row, a stroke's room at least), so it never runs through a glyph and reads
+  as its own row's, not the one above it in a group; its wash runs from the line to the foot. It takes no room
   beside the value ([S-14600]). Its points (`MetricRules.Band`) are the newest 24 values of the metric's history, oldest
   first, each its share of their own range (the low at the band's foot, the high at its top; a flat history level
   through the middle) on a share scale; a gap is left out, as the band leaves out a sample not read; the band lays them

@@ -216,6 +216,23 @@ public static class MetricRules
     }
 
     /// <summary>
+    /// [S-14220] How far down a row <paramref name="height"/> tall the trend line's room starts (its band's <c>Over</c>): under
+    /// the row's text line (<paramref name="body"/>, the name's and the value's line, centred on the row with the descenders
+    /// inside it) and its lead glyph, so the line runs in the room under them at the row's foot and never through a glyph,
+    /// a stroke's room at least; the band and its wash stay the row's whole box behind the text.
+    /// </summary>
+    public static double LineOver(double height, TypeStep body)
+    {
+        if (!(height > 0))
+        {
+            return 0;
+        }
+
+        var text = Math.Max(double.IsFinite(body.LineHeight) ? body.LineHeight : 0, FamilyShape.Icon);
+        return Math.Clamp((height + text) / 2, 0, Math.Max(0, height - FamilyShape.Stroke));
+    }
+
+    /// <summary>
     /// [S-14220] The trend line's points on the meters' history band (<c>SparkBand</c>, a share scale): the newest
     /// <see cref="LinePoints"/> values of <paramref name="series"/>, oldest first, each as its share of their own range (the
     /// low at the band's foot, the high at its top; a flat history a level line through the middle). A gap is left out,
