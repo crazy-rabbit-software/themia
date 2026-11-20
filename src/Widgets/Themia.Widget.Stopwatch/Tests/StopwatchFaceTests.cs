@@ -70,4 +70,19 @@ public sealed class StopwatchFaceTests
         Assert.Empty(menu.Lines);
         Assert.Empty(menu.StyleLines);
     }
+
+    [Fact]
+    public void S11302_S14500_the_laps_take_the_room_under_the_face_to_the_cards_foot()
+    {
+        // A view 208 tall (a card of 220) under a face band of 158 has 50 under it: one lap row, stretched to fill it. The
+        // render of 2026-11-20 counted the card's inset twice (62), asked for two rows, showed one of 30 and left 20 empty
+        // at the foot.
+        var grid = ItemGrid.Default();
+        Assert.Equal(1, StopwatchFace.LapRowsIn(208, 158, grid));
+        Assert.Equal(2, StopwatchFace.LapRowsIn(218, 158, grid));
+        Assert.Equal(5, StopwatchFace.LapRowsIn(328, 158, grid));
+        Assert.Equal(0, StopwatchFace.LapRowsIn(180, 158, grid));
+        Assert.Equal(0, StopwatchFace.LapRowsIn(double.NaN, 158, grid));
+        Assert.Equal(StopwatchFace.MostLapRows, StopwatchFace.LapRowsIn(2000, 158, grid));
+    }
 }

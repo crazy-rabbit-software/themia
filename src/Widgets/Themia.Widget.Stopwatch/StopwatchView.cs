@@ -93,14 +93,8 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     /// </summary>
     private int LapRowsIn(double height)
     {
-        if (!double.IsFinite(height) || height <= 0)
-        {
-            return 0;
-        }
-
         var grid = ItemGrids.Of(this);
-        var band = LineRules.Under(grid, FamilySpace.Inset, Math.Max(StopwatchFace.FaceHeight(_config, Strings.Current), _fit.Natural()));
-        return ItemStretch.Count(height + FamilySpace.Inset - band, FamilyShape.Row1, grid, 0, StopwatchFace.MostLapRows);
+        return StopwatchFace.LapRowsIn(height, LineRules.Under(grid, FamilySpace.Inset, Math.Max(StopwatchFace.FaceHeight(_config, Strings.Current), _fit.Natural())), grid);
     }
 
     /// <summary>The monotonic clock the stopwatch counts on: setting Windows' clock never moves it.</summary>

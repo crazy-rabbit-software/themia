@@ -44,6 +44,14 @@ public static class StopwatchFace
     public const int MostLapRows = 10;
 
     /// <summary>
+    /// [S-11302] [S-14500] The lap rows a view <paramref name="height"/> tall lists under the face's <paramref name="band"/>
+    /// (both in the view, which reaches the card's foot edge): as many one-line rows as that room holds at their optimal,
+    /// up to <see cref="MostLapRows"/>, stretched to the foot; none in a view not measured yet.
+    /// </summary>
+    public static int LapRowsIn(double height, double band, ItemGrid grid)
+        => double.IsFinite(height) && height > 0 ? ItemStretch.Count(height - band, FamilyShape.Row1, grid, 0, MostLapRows) : 0;
+
+    /// <summary>
     /// [S-11302] [S-14500] The stopwatch's sizing ([S-2438]): its face over the Controls row (the main action at
     /// its longest label, Lap and Reset) with the card's inset over it, one band of whole cells, a new one no laps; every
     /// cell taller lists the laps the room under the face holds, one-line rows (28) at their optimal stretched to the
