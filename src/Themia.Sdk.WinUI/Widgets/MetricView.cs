@@ -16,9 +16,10 @@ namespace Themia.App.Widgets;
 /// [S-14600]..[S-14603] The one face of every single-metric widget (owner, 2026-11-20: "split all the other widgets
 /// that are alike to the weather and air facts into individual metrics too. use the same base component for all of
 /// them"): one fact row that is the card, from its top edge to its foot edge (<see cref="MetricRules.Sizing"/>): the
-/// kind's 16 glyph, the metric's name, its value with its unit at the end and, as the widget's trend says, an arrow or
-/// a small trend line beside the value (in the row's inline slot, <see cref="RowBlock.Meter"/>). Without a reading
-/// the row stays with "--" drawn unavailable and why as its tooltip ([S-14602]); a reading kept through a failed
+/// kind's 16 glyph, the metric's name, its value with its unit at the end and, as the widget's trend says, an arrow
+/// beside the value (in the row's inline slot, <see cref="RowBlock.Meter"/>) or the trend line: the meters' history band
+/// (<see cref="SparkBand"/>) behind the whole row, the card edge to edge, the row standing over it ([S-14220]). Without a
+/// reading the row stays with "--" drawn unavailable and why as its tooltip ([S-14602]); a reading kept through a failed
 /// refresh stays and the status's problem glyph says so, the row leaving the glyph its room at its end. A family
 /// subclasses it for its data and hands each read to <see cref="Present"/>; the face, the trend and the readings an
 /// arrow compares are this base's alone.
@@ -32,7 +33,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private readonly string _glyph;
     private readonly MetricReadings _readings = new();
     private FontIcon? _arrow;
-    private Chart? _line;
+    private SparkBand? _band;
     private MetricShown? _shown;
     private MetricTrend _trend;
     private WidgetConfig? _config;
@@ -158,12 +159,18 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     partial void PreviewTrend(ref MetricShown shown, ref MetricTrend trend);
 
     /// <summary>
-    /// [S-14603] The trend beside the value: the arrow against the reading before (as the source says, or against the last
-    /// this widget saw), the line over the metric's history; with nothing to compare the arrow's room stays empty and the line lies
-    /// flat at its baseline (never no trend, WR-10, never a row that shifts when one arrives, WR-12).
+    /// [S-14603] The trend: the arrow beside the value against the reading before (as the source says, or against the last
+    /// this widget saw), the line over the metric's history on the band behind the row ([S-14220]); with nothing to compare
+    /// the arrow's room stays empty and the band lies flat at its baseline (never no trend, WR-10, never a row that shifts
+    /// when one arrives, WR-12).
     /// </summary>
     private void DrawTrend(MetricShown shown, MetricTrend trend)
     {
+        if (_band is not null)
+        {
+            _band.Visibility = trend == MetricTrend.Line ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         switch (trend)
         {
             case MetricTrend.Arrow:
@@ -176,16 +183,33 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
                 break;
 
             case MetricTrend.Line:
-                _line ??= new Chart { Height = MetricRules.LineHeight };
-                var series = shown.Series;
-                _line.Role(shown.Value.Available ? ColourRole.Accent : ColourRole.TextDisabled);
-                _line.Show(size => MetricRules.Line(series, size.Width));
-                _row.Beside(0, _line, MetricRules.LineWidth);
+                _row.Beside(0, null, 0);
+                var band = Band();
+                band.Role(shown.Value.Available ? ColourRole.Accent : ColourRole.TextDisabled);
+                band.Load(MetricRules.Band(shown.Series));
                 break;
 
             default:
                 _row.Beside(0, null, 0);
                 break;
         }
+    }
+
+    /// <summary>
+    /// [S-14220] The line's band, built the first time a line is drawn: the meters' history band (owner, 2026-11-19: "they
+    /// should reuse more of the same components") with no caption of its own (the row is what is written over it), behind
+    /// the row and standing where it stands, on the card's top edge and down to its foot, side to side ("Plot edge to
+    /// edge": the plot and its fill reach the card's edges, the labels stand inside it, over the plot).
+    /// </summary>
+    private SparkBand Band()
+    {
+        if (_band is null)
+        {
+            _band = new SparkBand(MetricRules.LinePoints) { Captions = false };
+            ListEdge.Apply(_band);
+            Children.Insert(0, _band);
+        }
+
+        return _band;
     }
 }

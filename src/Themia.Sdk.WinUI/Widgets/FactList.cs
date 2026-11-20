@@ -15,7 +15,7 @@ public readonly record struct FactLine(string Glyph, string Name, string Value, 
 /// <summary>
 /// [S-11170] [S-12811] Every facts widget's rows, one component (owner, 2026-11-19: "the drive facts and similar
 /// widgets should also show their entries like the items"; "they dont need to have an icon neccsarily, but they should
-/// reuse the same base"): every single metric's one row ([S-14601], a list of one, its trend beside the value,
+/// reuse the same base"): every single metric's one row ([S-14601], a list of one, its trend arrow beside the value,
 /// <see cref="Beside"/>), the stopwatch's laps, the next meeting's lines. The family's fact rows ([S-6711]), one line
 /// each, exactly as many as the pick, in its order; a list whose facts have glyphs leads every row with one (the slot
 /// kept for a fact without, so the columns line up), a list without has no lead; a name or a value too long for the
@@ -76,8 +76,9 @@ public partial class FactList : RowStack
     }
 
     /// <summary>
-    /// [S-14603] An element inline beside the value of the row at <paramref name="index"/> (a single metric's trend: its
-    /// arrow or its line), <paramref name="width"/> wide, 12 from the name and the value; null takes it away.
+    /// [S-14603] An element inline beside the value of the row at <paramref name="index"/> (a single metric's trend
+    /// arrow; its line is the band behind the row, [S-14220]), <paramref name="width"/> wide, 12 from the name and the
+    /// value; null takes it away.
     /// </summary>
     public void Beside(int index, FrameworkElement? element, double width)
     {

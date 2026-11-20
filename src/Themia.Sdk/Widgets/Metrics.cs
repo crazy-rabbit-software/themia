@@ -1,15 +1,17 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-14603] What a single-metric widget draws beside its value (owner, 2026-11-20: "you should also have the option to
-/// show trendlines as well or just the trend with arrows"): nothing, an arrow (up, down or flat against the reading
-/// before), or a small trend line (a sparkline of the metric's own history). A widget's setting, None by default.
+/// [S-14603] What a single-metric widget draws with its value (owner, 2026-11-20: "you should also have the option to
+/// show trendlines as well or just the trend with arrows"): nothing, an arrow beside the value (up, down or flat against
+/// the reading before), or a trend line (the metric's own history on the meters' history band behind the row, [S-14220]).
+/// A widget's setting, None by default.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<MetricTrend>))]
 public enum MetricTrend
@@ -108,12 +110,6 @@ public static class MetricRules
     /// <summary>[S-14600] The widest the content asks for (relaxed past it, [S-12411]).</summary>
     public const double MaxWidth = 420;
 
-    /// <summary>[S-14603] The trend line's width beside the value.</summary>
-    public const double LineWidth = 40;
-
-    /// <summary>[S-14603] The trend line's height: the row's text line.</summary>
-    public const double LineHeight = FamilyShape.Icon;
-
     /// <summary>[S-14603] The most points a trend line draws: the newest of its history.</summary>
     public const int LinePoints = 24;
 
@@ -136,8 +132,8 @@ public static class MetricRules
 
     /// <summary>
     /// [S-14600] [S-14603] The sizing of a single metric drawing <paramref name="trend"/>: its one row tall; 200..420 wide
-    /// and, beside the value, the arrow's or the line's room with its gap, so the name and the value keep theirs (content
-    /// decides the size, [S-2445]).
+    /// and, beside the value, the arrow's room with its gap, so the name and the value keep theirs (content decides the
+    /// size, [S-2445]); a line takes none, it is the band behind the row ([S-14220]).
     /// </summary>
     public static WidgetSizing SizingFor(MetricTrend trend)
     {
@@ -146,10 +142,12 @@ public static class MetricRules
             .WithHeightSteps(HeightSteps);
     }
 
-    /// <summary>[S-14603] The width a trend takes beside the value: its own and the gap before the value.</summary>
+    /// <summary>
+    /// [S-14603] The width a trend takes beside the value: the arrow its own and the gap before the value; a line none, it
+    /// runs behind the whole row ([S-14220]).
+    /// </summary>
     public static double TrendRoom(MetricTrend trend) => trend switch
     {
-        MetricTrend.Line => LineWidth + FamilySpace.ColumnGap,
         MetricTrend.Arrow => FamilyShape.Icon + FamilySpace.ColumnGap,
         _ => 0,
     };
@@ -218,31 +216,23 @@ public static class MetricRules
     }
 
     /// <summary>
-    /// [S-14603] The trend line of <paramref name="series"/> in a box <paramref name="width"/> wide: its newest
-    /// <see cref="LinePoints"/> values evenly across (oldest at the left, the newest on the right edge), scaled between
-    /// their own low and high (a flat history a level line through the middle), a gap breaking the line. Fewer than two
-    /// values draw the chart's baseline, never nothing (WR-10).
+    /// [S-14220] The trend line's points on the meters' history band (<c>SparkBand</c>, a share scale): the newest
+    /// <see cref="LinePoints"/> values of <paramref name="series"/>, oldest first, each as its share of their own range (the
+    /// low at the band's foot, the high at its top; a flat history a level line through the middle). A gap is left out,
+    /// as the band leaves out a sample not read; with fewer than two values the band draws its baseline, never nothing
+    /// (WR-10).
     /// </summary>
-    public static ChartModel Line(IReadOnlyList<double?>? series, double width)
+    public static IReadOnlyList<SeriesPoint> Band(IReadOnlyList<double?>? series)
     {
-        var values = (series ?? []).TakeLast(LinePoints).ToList();
-        var finite = values.Where(v => v is { } x && double.IsFinite(x)).Select(v => v!.Value).ToList();
-        var w = double.IsFinite(width) && width > 0 ? width : LineWidth;
-        if (finite.Count < 2)
+        var values = (series ?? []).TakeLast(LinePoints).Where(v => v is { } x && double.IsFinite(x)).Select(v => v!.Value).ToList();
+        if (values.Count == 0)
         {
-            return new ChartModel { Type = ChartType.Line, Low = 0, High = 1, Baseline = 0.5 };
+            return [];
         }
 
-        var low = finite.Min();
-        var high = finite.Max();
-        if (high - low < 1e-9)
-        {
-            (low, high) = (low - 1, high + 1);
-        }
-
-        var step = values.Count > 1 ? w / (values.Count - 1) : 0;
-        var samples = values.Select((v, i) => new ChartSample(i * step, v is { } x && double.IsFinite(x) ? x : double.NaN)).ToList();
-        return new ChartModel { Type = ChartType.Line, Series = samples, Low = low, High = high, Baseline = low };
+        var low = values.Min();
+        var span = values.Max() - low;
+        return [.. values.Select(v => new SeriesPoint(span > 1e-9 ? (v - low) / span : 0.5))];
     }
 
     /// <summary>

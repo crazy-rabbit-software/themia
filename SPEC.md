@@ -9442,8 +9442,8 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on the default grid), so its top and bottom spacing are
   a list row's; its height has that one step (`MetricRules.HeightSteps`, never taller: the card hugs its content), its
   width 200 at least, a new one 240, relaxed past 420 ([S-12411]), each widened by the trend's room beside the value
-  (an arrow 28, a line 52, `MetricRules.TrendRoom`), so the name and the value keep theirs. Every kind states
-  `MetricRules.SizingOf` its config.
+  (an arrow 28, `MetricRules.TrendRoom`; a line none, it is the band behind the row, [S-14220]), so the name and the
+  value keep theirs. Every kind states `MetricRules.SizingOf` its config.
 - **[S-14601]** **One face** (`MetricView`): the row is the facts' row (`FactList`, a list of one, [S-12811]): the kind's
   16 glyph, the metric's name (the reading's own where its source names it more exactly, "Full in" while charging), its
   value with its unit at the end, and the trend beside the value ([S-14603]); a name or value too long ends in its
@@ -9454,19 +9454,31 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
   the glyph its room at its end so it never stands on the value ([S-12834]).
 - **[S-14603]** **Trend**, a widget's setting (`IMetricTrend.Trend`, stored only when not None): **None**, **Arrow** (up,
-  down or flat against the reading before) or **Line** (a sparkline of the metric's history, beside the value). What a kind
+  down or flat against the reading before, beside the value) or **Line** (the metric's history on the band behind the
+  row, [S-14220]). What a kind
   offers is its metric's history (`MetricHistory`): a series (the hub's charted series, a service's hours) None, Arrow and
   Line; its readings only None and Arrow, from the last two readings the card saw (`MetricReadings`: a reading drawn again
   is no move); none (a text, a constant, a time) no Trend line at all. A stored trend a kind cannot draw is the one it can,
   loudly (a line without a series its arrow). The arrow says what the shown figure did: flat while its text is the same,
   else up or down by the numbers (`MetricRules.Direction`), its room kept empty until there is a reading to compare. The
-  line is the shared chart's line (`Chart`, `MetricRules.Line`): the newest 24 values evenly across 40, oldest at the left
-  and the newest on the right edge, scaled to their own range, a gap breaking it, and with fewer than two values the
-  chart's baseline (never no trend). Over a service's hours (`MetricRules.Hours`) the arrow is the hour under way against
+  line is drawn as [S-14220] says. Over a service's hours (`MetricRules.Hours`) the arrow is the hour under way against
   the last ("previous hour"), rounded as shown, and the line the hours from the last one on. A source's history is read only
   while a trend needs it (the hub's series, the place's hours). Trend is a shared setting (`SharedSettings.MetricTrend`,
   [S-11750]): several metrics selected set it once, each as it can draw it. Its line is on the widget's page after the
   family's source line (the place, the drive, the adapter, the host), `MetricMenuLines.Trend`.
+- **[S-14220]** **The trend line is the meters' history band behind the row** (owner, 2026-11-19, asked whether a graph's
+  plot should reach the card's edges: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand
+  inside it, over the plot; WR-11: "they should reuse the same base … they should reuse more of the same components"). A
+  metric drawing Line has no sparkline of its own: its line is the history band every meter draws (`SparkBand` on the one
+  `Chart`, [S-6750]), in its look (Area, Simple: the line at 2 over its 16 % wash), with no caption, behind the whole row
+  and standing where the row stands: on the card's top edge, down to its foot, side to side, so its plot is the card's
+  box ([S-6754]) and the row (glyph, name, value, the status's glyph) stands inside it, over the plot. It takes no room
+  beside the value ([S-14600]). Its points (`MetricRules.Band`) are the newest 24 values of the metric's history, oldest
+  first, each its share of their own range (the low at the band's foot, the high at its top; a flat history level
+  through the middle) on a share scale; a gap is left out, as the band leaves out a sample not read; the band lays them
+  on its slots, the newest on the right edge, a history still filling growing in from the right ([S-6331]); with fewer
+  than two values it lies at its baseline (never no trend, WR-10). Its role is the accent, disabled while the value is
+  unavailable.
 - **[S-14604]** **A family a project, a kind a metric.** A family's kinds are data (`MetricKind`: id, the metric's key,
   glyph, history, the row's name, the add page's name, description and search words, the config); each kind is a sealed
   module (`MetricModule`) and config of its own, all at home in the family's add-page folder (each one home, in the

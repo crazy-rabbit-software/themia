@@ -39,14 +39,13 @@ public sealed class MetricRulesTests
     }
 
     [Fact]
-    public void S14600_a_trend_widens_the_card_by_its_room_beside_the_value_and_never_its_height()
+    public void S14600_an_arrow_widens_the_card_by_its_room_beside_the_value_and_never_its_height()
     {
         Assert.Equal(0, MetricRules.TrendRoom(MetricTrend.None));
         Assert.Equal(16 + 12, MetricRules.TrendRoom(MetricTrend.Arrow));
-        Assert.Equal(40 + 12, MetricRules.TrendRoom(MetricTrend.Line));
 
-        var line = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Line });
-        Assert.Equal((252d, 292d, 30d), (line.Min.Width, line.Natural.Width, line.Natural.Height));
+        var arrow = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Arrow });
+        Assert.Equal((228d, 268d, 30d), (arrow.Min.Width, arrow.Natural.Width, arrow.Natural.Height));
 
         // A line the metric cannot draw is its arrow, sized as one.
         Assert.Equal(228, MetricRules.SizingOf(new Metric(MetricHistory.Readings) { Trend = MetricTrend.Line }).Min.Width);
@@ -150,32 +149,42 @@ public sealed class MetricRulesTests
         Assert.Null(readings.Previous);
     }
 
-    [Fact]
-    public void S14603_the_line_spans_its_box_oldest_left_newest_on_the_right_edge_scaled_to_its_own_range()
-    {
-        var model = MetricRules.Line([1, 3, null, 2], 30);
+    // ---- [S-14220] the line on the history band ------------------------------------------------------
 
-        Assert.Equal(ChartType.Line, model.Type);
-        Assert.Equal([0d, 10, 20, 30], model.Series.Select(s => s.X));
-        Assert.Equal((1d, 3d), (model.Low, model.High));
-        Assert.True(double.IsNaN(model.Series[2].Value)); // a gap breaks the line
-        Assert.Equal(2, model.Series[^1].Value);
+    [Fact]
+    public void S14220_a_line_takes_no_room_beside_the_value_it_is_the_band_behind_the_row()
+    {
+        Assert.Equal(0, MetricRules.TrendRoom(MetricTrend.Line));
+        Assert.Equal(MetricRules.Sizing, MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Line }));
     }
 
     [Fact]
-    public void S14603_the_line_keeps_its_newest_points_a_flat_history_a_level_line_and_none_its_baseline()
+    public void S14220_the_band_s_points_are_oldest_first_each_its_share_of_their_own_range_a_gap_left_out()
     {
-        var long_ = MetricRules.Line([.. Enumerable.Range(0, 40).Select(i => (double?)i)], 46);
-        Assert.Equal(MetricRules.LinePoints, long_.Series.Count);
-        Assert.Equal(39, long_.Series[^1].Value);
-        Assert.Equal(16, long_.Series[0].Value);
+        var points = MetricRules.Band([1, 3, null, 2, double.NaN, 5]);
 
-        var flat = MetricRules.Line([5, 5, 5], 40);
-        Assert.True(flat.Low < 5 && flat.High > 5);
+        // The low at the band's foot, the high at its top, the newest last (the band's right edge).
+        Assert.Equal([0d, 0.5, 0.25, 1], points.Select(p => p.First));
+        Assert.All(points, p => Assert.True(double.IsNaN(p.Second)));
+    }
 
-        // [WR-10] Nothing to draw yet: the chart's baseline, never no line.
-        Assert.Empty(MetricRules.Line([7], 40).Series);
-        Assert.Empty(MetricRules.Line(null, 40).Series);
+    [Fact]
+    public void S14220_the_band_keeps_the_newest_points_a_flat_history_a_level_line_and_too_few_its_baseline()
+    {
+        var long_ = MetricRules.Band([.. Enumerable.Range(0, 40).Select(i => (double?)i)]);
+        Assert.Equal(MetricRules.LinePoints, long_.Count);
+        Assert.Equal((0d, 1d), (long_[0].First, long_[^1].First));
+
+        // Shares of the newest 24 (16..39), not of the whole history.
+        Assert.Equal(1d / 23, long_[1].First, 9);
+
+        // A flat history lies level through the middle.
+        Assert.All(MetricRules.Band([1013, 1013, 1013]), p => Assert.Equal(0.5, p.First));
+
+        // [WR-10] Fewer than two values: the band draws its baseline (it needs two to draw a line), never nothing.
+        Assert.Single(MetricRules.Band([7]));
+        Assert.Empty(MetricRules.Band([null, null]));
+        Assert.Empty(MetricRules.Band(null));
     }
 
     [Fact]
