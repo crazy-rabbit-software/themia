@@ -1,3 +1,5 @@
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
@@ -135,8 +137,18 @@ internal sealed class HostDesktopItems : IDesktopItems
     /// <inheritdoc />
     public string? DropTargetWidget => Desk?.DropTargetWidget;
 
-    /// <summary>[S-13709] The desktop's icons stand on the wallpaper, and so does one being placed: Explorer's look.</summary>
-    public IconSurface? Ground => null;
+    /// <summary>
+    /// [S-13709] A free icon stands on the wallpaper, and so does one being placed: Explorer's look. One a fence holds stands
+    /// on the fence's card: on a light one its name is the card's words, its highlight the black wash ([S-13019]).
+    /// </summary>
+    public IconSurface? GroundOf(string? widgetId)
+        => widgetId is not null && Fenced.Contains(widgetId) ? new IconSurface(Family.Brush(ColourRole.TextPrimary), Family.Brush(ColourRole.Solid)) : null;
+
+    /// <summary>
+    /// [S-13709] The widget ids of the icons a fence holds now (<c>DesktopFences.Members</c> of every view), set by the host
+    /// with every change of the state (and by a render of fences): what <see cref="GroundOf"/> reads.
+    /// </summary>
+    public IReadOnlySet<string> Fenced { get; set; } = new HashSet<string>(StringComparer.Ordinal);
 
     /// <inheritdoc />
     public IDesktopFences Fences => Desk?.Fences ?? NoFences.Instance;

@@ -450,8 +450,9 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         var dropTarget = _fixture.On ? _fixture.DropTarget : WidgetId is { } id && string.Equals(desk.DropTargetWidget, id, StringComparison.Ordinal);
 
         // [S-13709] The name and the highlight follow what the icon stands on: the wallpaper (Explorer's look), or a surface of
-        // Themia's, whose own words name it on a light one; its picture, cell and box never do.
-        var ground = desk.Ground;
+        // Themia's (the fence that holds it, the Unplaced page), whose own words name it on a light one; its picture, cell
+        // and box never do.
+        var ground = desk.GroundOf(WidgetId);
         var ink = SelectionLook.DesktopIconInk(ground?.Text is SolidColorBrush words ? new RgbColor(words.Color.R, words.Color.G, words.Color.B) : null);
         SelectionChrome.Paint(_chrome, new SelectionCue(selected, _hovered || LinkedElsewhere, focus, focus, active, dropTarget), ink.Look);
         _name.Ground(ink.GroundText ? ground?.Text : null);

@@ -52,12 +52,12 @@ public interface IDesktopItems
     string? DropTargetWidget { get; }
 
     /// <summary>
-    /// [S-13709] What the icons drawn through this desktop stand on: null for the wallpaper (the desktop itself, and an icon
-    /// being placed, which lands on it), else a surface of Themia's with its own text and ground (the Unplaced icons page).
-    /// An icon's picture, cell and box never follow it; its name and highlight do
-    /// (<see cref="SelectionLook.DesktopIconInk"/>).
+    /// [S-13709] What the icon of <paramref name="widgetId"/> stands on: null for the wallpaper (a free icon on the desktop, and
+    /// one being placed, which lands on it), else a surface of Themia's with its own text and ground: the fence that holds it,
+    /// the Unplaced icons page. An icon's picture, cell and box never follow it; its name and highlight do
+    /// (<see cref="SelectionLook.DesktopIconInk"/>: a light fence's icons are named dark, their highlight the black wash).
     /// </summary>
-    IconSurface? Ground { get; }
+    IconSurface? GroundOf(string? widgetId);
 
     /// <summary>
     /// [S-5540] A left press on <paramref name="key"/>'s widget <paramref name="widgetId"/> outside edit mode (Ctrl toggles, Shift

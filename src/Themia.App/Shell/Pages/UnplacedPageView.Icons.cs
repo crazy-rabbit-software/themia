@@ -73,7 +73,9 @@ internal sealed partial class UnplacedPageView
         /// [S-13709] The page's own ground: its icons' names in the page's words' colour on a light page, their highlight
         /// the desktop's in black there (<see cref="SelectionLook.DesktopIconInk"/>); the picture, cell and box the desktop's.
         /// </summary>
-        public IconSurface? Ground { get; } = new(ThemeBrush.Of("TextFillColorPrimaryBrush", default), ShellBrush.Of(ShellRole.Flyout));
+        public IconSurface? GroundOf(string? widgetId) => Ground;
+
+        private IconSurface Ground { get; } = new(ThemeBrush.Of("TextFillColorPrimaryBrush", default), ShellBrush.Of(ShellRole.Flyout));
 
         public void Press(string key, bool ctrl, bool shift, string? widgetId)
         {

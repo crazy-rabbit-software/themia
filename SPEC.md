@@ -2910,7 +2910,10 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   wallpaper: the light name over its shadow and the white wash. On a light surface (its words dark: the page in the light
   theme) the name in the page's own words' colour with no shadow, as Explorer draws icons in a light folder window, and
   the desktop icon's highlight in black (`DesktopIconOnLight`, [S-13019]: every strength the desktop's), icon only's name
-  plate the page's ground; on a dark one (the page in the dark theme) as on the wallpaper.
+  plate the page's ground; on a dark one (the page in the dark theme) as on the wallpaper. An icon a fence holds stands on the
+  fence's card the same way (`IDesktopItems.GroundOf`: the card's words and ground): in a light fence its name dark and its
+  highlight the black wash, as the fence's own cells already were ([S-13019]); in a dark fence and on the free desktop as
+  on the wallpaper (owner's call 2026-11-20 on the audit, "Light fence: dark names and highlight").
 - **[S-13710]** **The hint names what is placed**: while icons dragged off the page (or Add widget's On the desktop tile)
   are placed, the line that takes the bar's place ([S-3500]) names one by its own name ("Click to place Report.docx")
   and several by their count ("Click to place 2 icons"), never "a copy of": placing an unplaced icon on a view copies
