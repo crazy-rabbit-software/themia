@@ -94,7 +94,7 @@ public class WorkAreaGeometryTests
 
     [Theory]
     [MemberData(nameof(Edges))]
-    public void S6608_a_widget_dragged_onto_any_taskbar_keeps_the_visible_minimum_off_it(string edge, PixelRect work)
+    public void S6608_S855_a_widget_dragged_onto_any_taskbar_stops_clear_of_it_and_keeps_the_minimum_on_the_other_edges(string edge, PixelRect work)
     {
         var screen = WithTaskbar(work);
         var a = screen.Allowed;
@@ -116,6 +116,16 @@ public class WorkAreaGeometryTests
             Assert.True(overlapY >= GridGeometry.MinVisiblePx - 1e-6, edge);
             Assert.Equal(pushed.W, settled.W, 6);
             Assert.Equal(pushed.H, settled.H, 6);
+
+            // [S-855] Never under the taskbar: its edge holds the widget whole.
+            var clear = edge switch
+            {
+                "bottom" => settled.Bottom <= a.Bottom + Eps,
+                "top" => settled.Y >= a.Y - Eps,
+                "left" => settled.X >= a.X - Eps,
+                _ => settled.Right <= a.Right + Eps,
+            };
+            Assert.True(clear, $"{edge}: {settled}");
         }
     }
 
@@ -132,13 +142,13 @@ public class WorkAreaGeometryTests
     }
 
     [Fact]
-    public void S11_S6608_placing_a_widget_on_the_taskbar_keeps_the_visible_minimum_above_it()
+    public void S11_S855_placing_a_widget_on_the_taskbar_lands_it_wholly_above_it()
     {
         var screen = WithTaskbar(BottomTaskbar);
 
         var placed = GridGeometry.PlaceAt(0.5, 1.0, 200, 150, screen);
 
-        Assert.Equal(screen.Allowed.Bottom - (GridGeometry.MinVisiblePx / 1080), placed.Y, 9);
+        Assert.Equal(screen.Allowed.Bottom - (150.0 / 1080), placed.Y, 9);
         Assert.Equal(150.0 / 1080, placed.H, 9);
     }
 
@@ -185,7 +195,7 @@ public class WorkAreaGeometryTests
     }
 
     [Fact]
-    public void S31a_S6608_dragging_the_bottom_edge_past_the_taskbar_moves_only_that_edge()
+    public void S31a_S855_dragging_the_bottom_edge_onto_the_taskbar_stops_it_on_the_taskbars_edge()
     {
         var screen = WithTaskbar(BottomTaskbar);
         var start = new FracRect(0.2, 0.7, 0.2, 0.15);
@@ -194,10 +204,14 @@ public class WorkAreaGeometryTests
         var settled = GridGeometry.Settle(dragged, screen, ResizeHandle.Bottom);
 
         Assert.Equal(start.Y, settled.Y, 12);
-        Assert.Equal(1.05, settled.Bottom, 2);
-        Assert.True(settled.Bottom > screen.Allowed.Bottom);
+        Assert.Equal(screen.Allowed.Bottom, settled.Bottom, 9);
         Assert.Equal(start.X, settled.X, 12);
         Assert.Equal(start.W, settled.W, 12);
+
+        // [S-6608] The monitor's own edge (a taskbar on the top) is still passed.
+        var top = WithTaskbar(TopTaskbar);
+        var past = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, 0.2, top), top, ResizeHandle.Bottom);
+        Assert.Equal(1.05, past.Bottom, 2);
     }
 
     [Theory]

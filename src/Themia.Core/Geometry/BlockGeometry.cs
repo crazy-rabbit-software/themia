@@ -139,10 +139,12 @@ public static class BlockGeometry
         return new Delta(GridGeometry.Between(x - box.X, loX, hiX), GridGeometry.Between(y - box.Y, loY, hiY));
     }
 
-    /// <summary>[S-6608] How far the block may move each way before one of its rects keeps less than the visible minimum.</summary>
+    /// <summary>
+    /// [S-6608] How far the block may move each way before one of its rects keeps less than the visible minimum;
+    /// [S-855] or, against a taskbar's edge, before one of them reaches under it.
+    /// </summary>
     private static (double LoX, double HiX, double LoY, double HiY) Reach(IReadOnlyList<FracRect> rects, ScreenMetrics screen)
     {
-        var a = screen.Allowed;
         double loX = double.NegativeInfinity, hiX = double.PositiveInfinity;
         double loY = double.NegativeInfinity, hiY = double.PositiveInfinity;
         foreach (var r in rects)
@@ -152,11 +154,11 @@ public static class BlockGeometry
                 continue;
             }
 
-            var (keepX, keepY) = GridGeometry.Keep(screen, r.W, r.H);
-            loX = Math.Max(loX, a.X + keepX - r.Right);
-            hiX = Math.Min(hiX, a.Right - keepX - r.X);
-            loY = Math.Max(loY, a.Y + keepY - r.Bottom);
-            hiY = Math.Min(hiY, a.Bottom - keepY - r.Y);
+            var (startLoX, startHiX, startLoY, startHiY) = GridGeometry.Reach(screen, r.W, r.H);
+            loX = Math.Max(loX, startLoX - r.X);
+            hiX = Math.Min(hiX, startHiX - r.X);
+            loY = Math.Max(loY, startLoY - r.Y);
+            hiY = Math.Min(hiY, startHiY - r.Y);
         }
 
         return (loX, hiX, loY, hiY);

@@ -53,6 +53,10 @@ internal sealed partial class AppHost
         // [S-854] on a display whose metrics have not settled, once they have.
         _sizings.Refit(State, SurfacesNow());
 
+        // [S-855] Every widget clear of the taskbars of every display that shows its view, in the same step: a view
+        // shown on another display, a layout made against another work area ([S-854]: on settled metrics only).
+        SettleOnWorkAreas();
+
         // [S-13040] [S-13042] Every fence laid on its display's icon grid, its icons on its cells, in the same step.
         try
         {
@@ -87,6 +91,26 @@ internal sealed partial class AppHost
     /// <summary>The sizing each widget had at the last mutation, by instance: what a config change is compared with ([S-2447]).</summary>
     private readonly SizingNotes _sizings = new();
 
+    /// <summary>[S-855] The widgets of every shown view moved clear of the taskbars of the displays showing it (<see cref="WorkAreaSettle"/>).</summary>
+    private void SettleOnWorkAreas()
+    {
+        if (WorkAreaSettle.Apply(State, SurfacesNow()) is var moved and > 0)
+        {
+            Log.Info(Scope, $"{moved} widget(s) moved clear of the taskbar of a display that shows their view");
+        }
+    }
+
+    /// <summary>
+    /// [S-855] The area new geometry of <paramref name="viewId"/> may use: the part of the screen every live display
+    /// showing it holds in its work area (<paramref name="own"/>, the asking display's, among them), so what is placed,
+    /// moved or resized on one display is never under another's taskbar.
+    /// </summary>
+    internal FracRect SharedAllowed(string viewId, FracRect own)
+        => GridGeometry.SharedAllowed(_windows
+            .Where(w => w.IsAlive && string.Equals(w.CurrentViewId, viewId, StringComparison.Ordinal))
+            .Select(w => w.OwnAllowed)
+            .Append(own));
+
     /// <summary>
     /// [S-854] The live surfaces, the primary first, as what writes geometry sees them: each with whether
     /// its metrics have settled.
@@ -107,8 +131,10 @@ internal sealed partial class AppHost
             return;
         }
 
-        // [S-13040] A fence is laid on its display's icon grid at the real metrics (a start, another resolution or scale).
-        if (_sizings.Waits(State) || State.Views.Exists(v => v.Widgets.Exists(w => w.Config is IHoldsDesktopItems)))
+        // [S-13040] A fence is laid on its display's icon grid at the real metrics (a start, another resolution or scale);
+        // [S-855] a widget a taskbar now covers on a display showing its view moves clear of it.
+        if (_sizings.Waits(State) || State.Views.Exists(v => v.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
+            || WorkAreaSettle.Waits(State, SurfacesNow()))
         {
             Mutate(_ => { }, undo: null);
         }

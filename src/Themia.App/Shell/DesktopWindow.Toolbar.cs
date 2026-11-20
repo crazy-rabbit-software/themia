@@ -33,7 +33,7 @@ internal sealed partial class DesktopWindow
         }
 
         var metrics = Metrics;
-        var widest = metrics.IsUsable ? GridGeometry.AllowedPixels(metrics).Width - (2 * Sdk.Kit.ShellMetrics.Bar.Top) : double.PositiveInfinity;
+        var widest = metrics.IsUsable ? WorkArea.Width - (2 * Sdk.Kit.ShellMetrics.Bar.Top) : double.PositiveInfinity;
         return new EditBarState(selection, 0, _openPage, _selectionOpen, widest)
         {
             AddOpen = _addPage is not null,

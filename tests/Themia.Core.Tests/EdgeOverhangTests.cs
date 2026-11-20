@@ -117,13 +117,13 @@ public class EdgeOverhangTests
     }
 
     [Fact]
-    public void S6608_the_minimum_is_kept_on_the_work_area_so_nothing_hides_under_the_taskbar()
+    public void S6608_S855_nothing_hangs_under_the_taskbar_its_edge_holds_the_whole_widget()
     {
         var screen = Screen with { Allowed = new FracRect(0, 0, 1, 1032.0 / 1080) };
 
         var settled = GridGeometry.Clamp(new FracRect(0.4, 0.99, 0.2, 0.2), screen);
 
-        Assert.Equal((1032.0 - 32) / 1080, settled.Y, 9);
+        Assert.Equal((1032.0 / 1080) - 0.2, settled.Y, 9);
     }
 
     [Fact]

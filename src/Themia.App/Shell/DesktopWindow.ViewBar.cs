@@ -56,7 +56,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         // [S-917] The chips that fit along this display's work area at this anchor; the rest go
         // behind the overflow chip. Refit on every refresh: a resize, a DPI or work-area change, a
         // drag to another anchor, the toolbar coming and going, a view added.
-        var area = GridGeometry.AllowedPixels(metrics);
+        var area = WorkArea;
         var room = ViewBarRules.Room(area, anchor, EditMode ? ToolbarRect(area) : null, settings.Type);
 
         _viewBar.Update(
@@ -79,7 +79,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
 
         _viewBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = _viewBar.DesiredSize;
-        var area = GridGeometry.AllowedPixels(metrics);
+        var area = WorkArea;
         var (x, y) = ViewBarRules.Place(area, size.Width, size.Height, anchor, EditMode ? ToolbarRect(area) : null);
 
         Canvas.SetLeft(_viewBar, x);
@@ -158,7 +158,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         }
 
         var side = ViewBarRules.MenuSide(_barDragAnchor ?? ViewBarRules.For(_host.State, _monitor.Id).Anchor);
-        var menu = ViewBar.ViewMenu(views, labels, SwitchTo, ViewBarRules.MenuHeight(GridGeometry.AllowedPixels(metrics), bar, side));
+        var menu = ViewBar.ViewMenu(views, labels, SwitchTo, ViewBarRules.MenuHeight(WorkArea, bar, side));
         menu.ShowAt(button, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard, Placement = ViewBar.MenuPlacement(side) });
     }
 
@@ -171,7 +171,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
             return;
         }
 
-        var anchor = ViewBarRules.PickAnchor(GridGeometry.AllowedPixels(metrics), at.X, at.Y);
+        var anchor = ViewBarRules.PickAnchor(WorkArea, at.X, at.Y);
         if (anchor != _barDragAnchor)
         {
             _barDragAnchor = anchor;
@@ -187,7 +187,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
 
         if (moved && metrics.IsUsable)
         {
-            var anchor = ViewBarRules.PickAnchor(GridGeometry.AllowedPixels(metrics), at.X, at.Y);
+            var anchor = ViewBarRules.PickAnchor(WorkArea, at.X, at.Y);
             var monitorId = _monitor.Id;
             _host.Mutate(state => ViewBarRules.Update(state, monitorId, bar => bar.Anchor = anchor));
             return;

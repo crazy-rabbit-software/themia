@@ -147,7 +147,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var allowed = GridGeometry.AllowedPixels(metrics);
+        var allowed = WorkArea;
         layer.Margin = new Thickness(
             0,
             0,

@@ -65,6 +65,8 @@ Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appeara
            # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*); the selection's page
            # beside real cards (select-*) [S-2328]. --picker-png takes --theme too. There is no settings window [S-3585]
+Themia.exe --displays-check <outDir>   # one view on two stand-in displays, the taskbar left on one and right on the other,
+           # through a real host and surfaces: every card clear of both taskbars, placement at the far edges, PASS or FAIL [S-855]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at its min, natural and max; quit Themia first
 Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets

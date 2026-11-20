@@ -209,13 +209,20 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// content without changing the client's pixel size, so no SizeChanged ever corrected it — and
     /// every widget rendered 1.5x too far right and down, with the far edge off-screen.
     /// </para>
+    /// <para>
+    /// [S-855] Its allowed area is the part of the screen every display showing this view holds in its work area: a
+    /// view on a display whose taskbar is on the left and on one whose taskbar is on the right takes new geometry
+    /// only where both show it. This display's own chrome stands in its own work area (<see cref="WorkArea"/>).
+    /// </para>
     /// </summary>
-    public ScreenMetrics Metrics
+    public ScreenMetrics Metrics => OwnMetrics with { Allowed = _host.SharedAllowed(CurrentViewId, OwnAllowed) };
+
+    /// <summary>[S-841] This display's metrics with its own work area as the allowed area.</summary>
+    private ScreenMetrics OwnMetrics
     {
         get
         {
-            var info = _monitor.Info;
-            var allowed = GridGeometry.AllowedArea(info.Bounds, info.WorkArea);
+            var allowed = OwnAllowed;
             var scale = RasterScale;
 
             if (Win32.GetClientRect(_hwnd, out var client) && client.Width > 0 && client.Height > 0)
@@ -227,6 +234,15 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             return new ScreenMetrics(_monitor.Bounds.Width / scale, _monitor.Bounds.Height / scale) { Allowed = allowed, HoldsWhole = !Design.OverEdge };
         }
     }
+
+    /// <summary>[S-841] This display's work area as a fraction of its whole monitor.</summary>
+    internal FracRect OwnAllowed => GridGeometry.AllowedArea(_monitor.Info.Bounds, _monitor.Info.WorkArea);
+
+    /// <summary>
+    /// [S-852] [S-855] This display's own work area in its DIPs: where its chrome stands (the edit bar, its flyouts and the
+    /// add page, the view bar, the notices, the placement line), whatever another display showing the view reserves.
+    /// </summary>
+    private PixelRect WorkArea => GridGeometry.AllowedPixels(OwnMetrics);
 
     public DesignState Design => _host.State.Design;
 

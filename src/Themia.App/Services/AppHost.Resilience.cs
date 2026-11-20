@@ -180,6 +180,9 @@ internal sealed partial class AppHost
         // [S-5520] A widget the step brought back whose item has gone from the desktop goes again ([S-5597]: one being put back stays).
         ForgetSurvivors();
         ReconcileDesktopAfterStep();
+
+        // [S-855] What the step brought back is clear of the taskbars of the displays showing it now.
+        SettleOnWorkAreas();
         _sizings.NoteAll(State);
         _history.Rebase(State);
         HistoryChanged?.Invoke();

@@ -191,15 +191,15 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1584_S6608_the_work_area_stops_a_block_at_its_first_widget_to_reach_the_minimum()
+    public void S1584_S855_a_taskbar_stops_a_block_where_its_first_widget_reaches_it()
     {
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 0.9) };
         FracRect[] start = [new(0.1, 0.5, 0.1, 0.1), new(0.1, 0.7, 0.1, 0.1)];
 
         var delta = BlockGeometry.Move(start, 0, 0.5, screen);
 
-        Assert.Equal(0.9 - 0.032, BlockGeometry.Apply(start[1], delta, screen).Y, 9);
-        Assert.Equal(0.7 - 0.032, BlockGeometry.Apply(start[0], delta, screen).Y, 9);
+        Assert.Equal(0.9 - 0.1, BlockGeometry.Apply(start[1], delta, screen).Y, 9);
+        Assert.Equal(0.7 - 0.1, BlockGeometry.Apply(start[0], delta, screen).Y, 9);
     }
 
     [Fact]
@@ -301,13 +301,13 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1587_S6608_a_new_widget_on_the_taskbar_keeps_the_visible_minimum_above_it()
+    public void S1587_S855_a_new_widget_on_the_taskbar_lands_wholly_above_it()
     {
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 0.95) };
 
         var rect = PlacementPayload.ForNew(new WidgetId("clock"), 200, 100).Plan(0.5, 0.99, screen).Added[0].Rect;
 
-        Assert.Equal(0.95 - 0.032, rect.Y, 9);
+        Assert.Equal(0.95 - 0.1, rect.Y, 9);
         Assert.Equal(0.1, rect.H, 9);
     }
 

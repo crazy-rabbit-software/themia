@@ -308,7 +308,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var area = GridGeometry.AllowedPixels(metrics);
+        var area = WorkArea;
         var bar = ToolbarRect(area);
         var entry = _toolbar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new PixelRect(bar.X, bar.Y, bar.Width, bar.Height);
 

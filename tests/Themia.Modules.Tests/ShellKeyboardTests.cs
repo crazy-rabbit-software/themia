@@ -199,12 +199,16 @@ public sealed class ShellKeyboardTests
     }
 
     [Fact]
-    public void S1970_S6608_a_move_past_the_work_area_keeps_the_visible_minimum_on_it()
+    public void S1970_S855_a_move_onto_the_taskbar_stops_on_its_edge_and_past_the_screens_keeps_the_minimum()
     {
         var screen = Screen with { Allowed = new FracRect(0, 0, 1, 0.9) };
-        var moved = KeyboardNudge.Move([new FracRect(0.2, 0.8, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, screen);
+        var moved = KeyboardNudge.Move([new FracRect(0.2, 0.7, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, screen);
 
-        Near(0.9 - (32.0 / 500), moved[0].Y);
+        Near(0.9 - 0.1, moved[0].Y);
+
+        // [S-6608] The monitor's own edge is hung over, the visible minimum kept on it.
+        var over = KeyboardNudge.Move([new FracRect(0.2, 0.8, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, Screen);
+        Near(1 - (32.0 / 500), over[0].Y);
     }
 
     [Fact]

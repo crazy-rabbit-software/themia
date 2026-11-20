@@ -329,7 +329,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var allowed = GridGeometry.AllowedPixels(metrics);
+        var allowed = WorkArea;
         var margin = new Thickness(
             allowed.X,
             allowed.Y + ChromeTopMargin,

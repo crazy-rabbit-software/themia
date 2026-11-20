@@ -123,12 +123,29 @@ public static class GridGeometry
 
         var w = Math.Clamp(r.W, minW, Math.Max(minW, a.W));
         var h = Math.Clamp(r.H, minH, Math.Max(minH, a.H));
-        var (keepX, keepY) = Keep(screen, w, h);
+        var (loX, hiX, loY, hiY) = Reach(screen, w, h);
 
-        var x = Between(r.X, a.X + keepX - w, a.Right - keepX);
-        var y = Between(r.Y, a.Y + keepY - h, a.Bottom - keepY);
+        var x = Between(r.X, loX, hiX);
+        var y = Between(r.Y, loY, hiY);
 
         return new FracRect(x, y, w, h);
+    }
+
+    /// <summary>
+    /// [S-6608] [S-855] Where a rect of this size may start on each axis and still be in reach: on a side that holds
+    /// it (<see cref="Holds"/>: a taskbar's, or every side with Over the edge off) wholly inside the allowed area; on
+    /// any other side over the edge by all but the visible minimum (<see cref="Keep"/>).
+    /// </summary>
+    public static (double LoX, double HiX, double LoY, double HiY) Reach(ScreenMetrics screen, double w, double h)
+    {
+        var a = screen.Allowed;
+        var (keepX, keepY) = Keep(screen, w, h);
+        var held = Holds(screen);
+        return (
+            held.Left ? a.X : a.X + keepX - w,
+            held.Right ? a.Right - w : a.Right - keepX,
+            held.Top ? a.Y : a.Y + keepY - h,
+            held.Bottom ? a.Bottom - h : a.Bottom - keepY);
     }
 
     /// <summary>
@@ -141,6 +158,60 @@ public static class GridGeometry
         var a = screen.Allowed;
         var (px, py) = screen.HoldsWhole ? (w, h) : screen.IsUsable ? (MinVisiblePx / screen.Width, MinVisiblePx / screen.Height) : (0.01, 0.01);
         return (Math.Max(0, Math.Min(px, Math.Min(w, a.W))), Math.Max(0, Math.Min(py, Math.Min(h, a.H))));
+    }
+
+    /// <summary>
+    /// [S-855] How far in from the monitor's edge (a fraction) an allowed area's edge must be to be a strip's: an edge
+    /// nearer is the monitor's own (rounding of a work area that reserves nothing there).
+    /// </summary>
+    private const double StripEdge = 1e-7;
+
+    /// <summary>
+    /// [S-855] The sides of the allowed area a rect stays wholly inside. A side where the allowed area ends inside
+    /// the monitor ends at a strip another program reserved (the taskbar, a dock registered as an appbar), on this
+    /// display or on another that shows the same view: what lies past it is hidden there, so nothing hangs over it,
+    /// Over the edge or not (owner, 2026-11-20: "hidden widgets on both screens"). A side that is the monitor's own
+    /// edge lets a rect hang over it while Over the edge is on ([S-6608]); with it off every side holds ([S-2330]).
+    /// An auto-hidden taskbar reserves nothing, so its edge is the monitor's.
+    /// </summary>
+    public static EdgeHolds Holds(ScreenMetrics screen)
+        => screen.HoldsWhole ? new EdgeHolds(true, true, true, true) : Strips(screen.Allowed);
+
+    /// <summary>[S-855] The sides of <paramref name="allowed"/> that end at a reserved strip (inside the monitor).</summary>
+    public static EdgeHolds Strips(FracRect allowed)
+        => new(allowed.X > StripEdge, allowed.Y > StripEdge, allowed.Right < 1 - StripEdge, allowed.Bottom < 1 - StripEdge);
+
+    /// <summary>
+    /// [S-855] The allowed area of a view shown on several displays: the part of the screen every one of their
+    /// allowed areas holds. Stored fractions resolve on each display against its own whole monitor ([S-840]), so a
+    /// rect inside this part is inside each display's work area, whichever edge each one's taskbar is on. None
+    /// given: the whole screen; areas that share nothing (no real displays do): the first, never an empty area.
+    /// </summary>
+    public static FracRect SharedAllowed(IEnumerable<FracRect> areas)
+    {
+        ArgumentNullException.ThrowIfNull(areas);
+        FracRect? first = null;
+        double left = 0, top = 0, right = 1, bottom = 1;
+        foreach (var area in areas)
+        {
+            if (NormaliseAllowed(area) is not { } a)
+            {
+                continue;
+            }
+
+            first ??= a;
+            left = Math.Max(left, a.X);
+            top = Math.Max(top, a.Y);
+            right = Math.Min(right, a.Right);
+            bottom = Math.Min(bottom, a.Bottom);
+        }
+
+        if (first is not { } any)
+        {
+            return FracRect.Full;
+        }
+
+        return right > left && bottom > top ? FracRect.FromEdges(left, top, right, bottom) : any;
     }
 
     /// <summary>A clamp that cannot throw: a range left empty by a rounding error yields its low end.</summary>
@@ -233,8 +304,8 @@ public static class GridGeometry
         var (minW, minH) = MinFraction(screen);
         var (keepX, keepY) = Keep(screen with { HoldsWhole = false }, double.PositiveInfinity, double.PositiveInfinity);
 
-        // [S-2330] Over the edge off: a moved edge stops on the allowed area's edge.
-        var whole = screen.HoldsWhole;
+        // [S-2330] Over the edge off: a moved edge stops on the allowed area's edge; [S-855] on a taskbar's, always.
+        var held = Holds(screen);
 
         double left = r.X, top = r.Y, right = r.Right, bottom = r.Bottom;
 
@@ -247,7 +318,7 @@ public static class GridGeometry
             left = snapX ? SnapEdge(left, a.X, a.Right, cols, screen.Width) : left;
             left = limits is null ? left : right - limits.Width.Range(right - left);
             left = Math.Min(Math.Max(left, right - a.W), a.Right - keepX);
-            left = whole ? Math.Max(left, a.X) : left;
+            left = held.Left ? Math.Max(left, a.X) : left;
             left = Math.Min(left, right - minW);
         }
 
@@ -256,7 +327,7 @@ public static class GridGeometry
             right = snapX ? SnapEdge(right, a.X, a.Right, cols, screen.Width) : right;
             right = limits is null ? right : left + limits.Width.Range(right - left);
             right = Math.Max(Math.Min(right, left + a.W), a.X + keepX);
-            right = whole ? Math.Min(right, a.Right) : right;
+            right = held.Right ? Math.Min(right, a.Right) : right;
             right = Math.Max(right, left + minW);
         }
 
@@ -265,7 +336,7 @@ public static class GridGeometry
             top = snapY ? SnapEdge(top, a.Y, a.Bottom, rows, screen.Height) : top;
             top = limits is null ? top : bottom - limits.Height.Range(bottom - top);
             top = Math.Min(Math.Max(top, bottom - a.H), a.Bottom - keepY);
-            top = whole ? Math.Max(top, a.Y) : top;
+            top = held.Top ? Math.Max(top, a.Y) : top;
             top = Math.Min(top, bottom - minH);
         }
 
@@ -274,7 +345,7 @@ public static class GridGeometry
             bottom = snapY ? SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height) : bottom;
             bottom = limits is null ? bottom : top + limits.Height.Range(bottom - top);
             bottom = Math.Max(Math.Min(bottom, top + a.H), a.Y + keepY);
-            bottom = whole ? Math.Min(bottom, a.Bottom) : bottom;
+            bottom = held.Bottom ? Math.Min(bottom, a.Bottom) : bottom;
             bottom = Math.Max(bottom, top + minH);
         }
 

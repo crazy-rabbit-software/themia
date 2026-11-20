@@ -123,7 +123,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var area = GridGeometry.AllowedPixels(Metrics);
+        var area = WorkArea;
         page.Place(ToolbarRect(area), area);
     }
 

@@ -275,7 +275,7 @@ internal sealed partial class DesktopWindow
                 return ItemMenu.ShowAt(card, null, card.CardMenu());
             }
 
-            var area = GridGeometry.AllowedPixels(Metrics);
+            var area = WorkArea;
             return OpenSurfaceMenu(new Windows.Foundation.Point(area.X + (area.Width / 2), area.Y + (area.Height / 2)));
         }
         catch (Exception ex)

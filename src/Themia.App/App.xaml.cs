@@ -258,6 +258,12 @@ public partial class App : Application
             return;
         }
 
+        // And one view on two stand-in displays whose taskbars are on opposite sides: every widget clear of both ([S-855]).
+        if (Shell.Gallery.DisplaysCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And the surface's drop plumbing, exercised off-screen ([S-1026]).
         if (Shell.Gallery.DropCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
