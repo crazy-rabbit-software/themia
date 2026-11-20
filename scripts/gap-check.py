@@ -30,6 +30,13 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   where its value is, its plot still reaches the edges) and, where it reaches the card's left and right edges, its sides
   too (WR-3: a flat zero line with only a status text over it is a plot edge to edge); a graph kind drawn with no plot is
   a finding (WR-10).
+- [S-14303] a free field (`fields` in the layout: the note's editor, the scratchpad's pad) holds what its person put in
+  it where they put it: it runs from the card's left edge to its right (a field short of either is a finding) and is the
+  card's sides; where it reaches the card's foot it is the foot, and where it starts on the card's top the top, so the
+  text or strokes in it are not judged by their bands there; what stands over or under it (a tool line, a pad's
+  toolbar) is judged by its ink as any card's.
+- [S-14302] a mark over the content (`marks`: the sources' problem glyph, KitStatus, over the content's top end) is no
+  ink of the content's: it is left out of the measure.
 
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
@@ -94,6 +101,15 @@ def plot_box(layout):
             max(p['x'] + p['w'] for p in plots), max(p['y'] + p['h'] for p in plots))
 
 
+def field_box(layout):
+    """[S-14303] The free fields' union in the card (DIPs), or None without one."""
+    fields = (layout or {}).get('fields', [])
+    if not fields:
+        return None
+    return (min(f['x'] for f in fields), min(f['y'] for f in fields),
+            max(f['x'] + f['w'] for f in fields), max(f['y'] + f['h'] for f in fields))
+
+
 def centred(kind):
     return bool(TILE.search(kind)) or kind in POWER or kind in ONE_LINE
 
@@ -101,7 +117,8 @@ def centred(kind):
 def measure(path, layouts):
     """[S-14300] Each card's bands, measured inside the card's own box as the render laid it (the layout's x, y, w, h in
     the page's DIPs): never a card found by its alpha, which took a size label over a card for its top rows and skipped a
-    card under 20 px (a quick toggle's least, 10x10), pairing every later card with the wrong layout."""
+    card under 20 px (a quick toggle's least, 10x10), pairing every later card with the wrong layout. [S-14302] Its marks
+    (the problem glyph over the content's top end) left out."""
     im = np.asarray(Image.open(path).convert('RGBA')).astype(int)
     out = []
     for card in layouts:
@@ -123,6 +140,11 @@ def measure(path, layouts):
         top = keys[counts.argmax()]
         bg = np.array([top >> 16, (top >> 8) & 255, top & 255])
         mask = np.abs(sub - bg).sum(axis=2) > 30
+        # [S-14302] A mark over the content (the problem glyph) is not the content's ink.
+        for m in card.get('marks', []):
+            y0, x0 = int(m['y'] * scale) - edge, int(m['x'] * scale) - edge
+            y1, x1 = int(np.ceil((m['y'] + m['h']) * scale)) - edge, int(np.ceil((m['x'] + m['w']) * scale)) - edge
+            mask[max(0, y0):max(0, y1), max(0, x0):max(0, x1)] = False
         rows = np.where(mask.any(axis=1))[0]
         cols = np.where(mask.any(axis=0))[0]
         if len(rows) == 0:
@@ -166,23 +188,35 @@ def judge(kind, card, layout):
         plot_top, plot_foot = t <= top_edge, b >= ch - EDGE
         # [S-6754] A plot from the card's left edge to its right is the card's sides, as it is its top and foot (WR-3).
         plot_sides = l <= EDGE and r >= cw - EDGE
+    # [S-14303] A free field (an editor, a drawing pad) is the card's content: what stands in it is its person's, where
+    # they put it. Where the field reaches the card's sides and foot it is them (and its top where it starts there).
+    field = field_box(layout)
+    field_top = field_sides = field_foot = False
+    if field is not None:
+        l, t, r, b = field
+        cw, ch = layout['w'], layout['h']
+        field_sides = l <= EDGE and r >= cw - EDGE
+        field_foot = b >= ch - EDGE
+        field_top = t <= layout.get('setup', 0) + EDGE
+        if not field_sides:
+            found.append(f'field not edge to edge {l:.1f}..{r:.1f} x {t:.1f}..{b:.1f} of {cw:.0f}x{ch:.0f}')
     # [S-14301] A reading (no item, no plot) that fills one axis stands centred on the other (owner, 2026-11-20:
     # "Centred is fine"): that axis's bands alike, not within the inset; across, where its card's alignment puts it.
-    if not items and plot is None:
+    if not items and plot is None and field is None:
         tall = top <= limit and foot <= limit
         wide = left <= limit and right <= limit
         if tall and not wide:
             return found + across(left, right, (layout or {}).get('align', 'center'), limit)
         if wide and not tall:
             return found + ([] if abs(top - foot) <= TOLERANCE else [f'reading off centre top/foot {top:.1f}/{foot:.1f}'])
-    if top > limit and not on_top and not plot_top:
+    if top > limit and not on_top and not plot_top and not field_top:
         found.append(f'WR-1 top {top:.1f}')
     # Under a card's items the room left is theirs: empty rows at the foot (WR-5), judged by the item check.
-    if foot > limit and not items and not plot_foot:
+    if foot > limit and not items and not plot_foot and not field_foot:
         found.append(f'WR-4 foot {foot:.1f}')
     # Item boxes from the card's left edge to its right: the item check's box rule judges them (WR-3), not their ink.
     width = (layout or {}).get('w', w)
-    if not (items and spans(items, width)) and not plot_sides and (left > limit or right > limit):
+    if not (items and spans(items, width)) and not plot_sides and not field_sides and (left > limit or right > limit):
         found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
     return found
 
@@ -254,10 +288,16 @@ def self_test():
                                                    plots=[{'x': 0, 'y': 0, 'w': 330, 'h': 130}]), [], False),
         ('a graph whose plot stops short', card(330, 130, 12.7, 0, 12.7, 254.7,
                                                 plots=[{'x': 0, 'y': 0, 'w': 300, 'h': 130}]), [], True),
+        # [S-14303] A note's text from the top of its editor, the editor the card's sides and foot.
+        ('a short note in its editor', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 566}]), [], False),
+        ('a drawing low on its pad', card(384, 160, 34, 14, 8, 12.7, fields=[{'x': 0, 'y': 0, 'w': 384, 'h': 160}]), [], False),
+        ('a pad over its toolbar', card(384, 160, 34, 14, 8, 12.7, fields=[{'x': 0, 'y': 0, 'w': 384, 'h': 120}]), [], False),
+        ('an editor 8 in from the sides', card(330, 130, 12, 12, 12, 14, fields=[{'x': 8, 'y': 32, 'w': 314, 'h': 98}]), [], True),
+        ('an editor short of the foot', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 400}]), [], True),
     ]
     failed = 0
     for name, (measured, layout), _, finds in cases:
-        found = judge('cpuHistory' if layout['plots'] else 'recycleBin', measured, layout)
+        found = judge('cpuHistory' if layout['plots'] else 'notes' if layout.get('fields') else 'recycleBin', measured, layout)
         if bool(found) != finds:
             failed += 1
             print(f'FAIL {name}: {found}')

@@ -8503,6 +8503,19 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   stands centred, the owner's words. Down, a reading that fills the width is always centred. The layout dump writes each
   card's `align` (`ItemDump`: `ContentAlignment.Shown` where the kind aligns in its style, else `center`) and the check
   judges by it (`python scripts/gap-check.py --self-test` holds the cases).
+- **[S-14302]** **A mark over the content is no ink of the content's.** The sources' problem glyph (`KitStatus`, [S-7042],
+  over the content's top end) stands over a reading, not in it: the layout dump writes each mark's box (`marks`) and the
+  gap check leaves it out of the measure, as the item check leaves a status glyph over a row's value. Was: a stale
+  quote's, rate's or weather's glyph at 16 from the top was read as the reading's first ink, so the reading centred under
+  it was "off centre" (16 over, 237 under at 520x600).
+- **[S-14303]** **A free field is judged by its box** (WR-1..WR-4 on the box, as a list's rows are, [S-12831]). A widget's
+  free field holds what its person put in it where they put it: the note's editor (its text from the top as written, its
+  room under the last line), the scratchpad's pad (its strokes where drawn). It is marked (`FieldMark`), the layout dump
+  writes its box (`fields`), and the gap check judges the box: it runs from the card's left edge to its right (short of
+  either is a finding) and is the card's sides; reaching the card's foot it is the foot, starting on the card's top the
+  top; what stands over or under it (the note's bar, the pad's toolbar) is judged by its ink as any card's. The text or
+  the strokes in it are not judged by their bands. Was: a short note (416 under its last line at 520x600) and a stroke drawn low on the pad
+  (34 over it) were read as one-readout faces off centre.
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day

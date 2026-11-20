@@ -104,6 +104,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         // all, and the pad would never see a pointer. The card does the same thing for its own drag area.
         _pad.Background = Family.Brush(ColourRole.Clear);
 
+        // [S-14303] The pad is the card's free field: its strokes stand where they were drawn.
+        FieldMark.Mark(_pad);
+
         _hint.Show(StatusKind.Empty, ScratchpadModule.Glyph, ScratchpadStr.Scratchpad_DrawHere.Text());
 
         // [S-07] The hint never intercepts the pointer: the first stroke has to land on the pad

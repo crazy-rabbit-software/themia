@@ -184,6 +184,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private void BuildEditor()
     {
         var box = _editor.Box;
+
+        // [S-14303] The editor is the card's free field: the note's text stands from its top as written.
+        FieldMark.Mark(box);
         var clear = Family.Brush(ColourRole.Clear);
 
         box.Resources["TextControlBackground"] = clear;

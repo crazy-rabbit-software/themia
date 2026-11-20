@@ -60,9 +60,11 @@ internal static class ItemDump
             var ink = new List<(FrameworkElement Part, Rect Box)>();
             var texts = new List<(FrameworkElement Part, Rect Box)>();
             var plots = new List<Rect>();
+            var fields = new List<Rect>();
+            var marks = new List<Rect>();
             if (card.View is { } view)
             {
-                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots);
+                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks);
             }
 
             var groups = new Dictionary<DependencyObject, int>();
@@ -129,6 +131,28 @@ internal static class ItemDump
             }
 
             w.WriteEndArray();
+
+            // [S-14303] Each free field (an editor's box, a drawing pad) as it shows in the card.
+            w.WriteStartArray("fields");
+            foreach (var box in fields)
+            {
+                w.WriteStartObject();
+                Box(w, box);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+
+            // [S-14302] Each mark over the content (the sources' problem glyph, KitStatus): no ink of the content's own.
+            w.WriteStartArray("marks");
+            foreach (var box in marks)
+            {
+                w.WriteStartObject();
+                Box(w, box);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
             w.WriteEndObject();
         }
 
@@ -154,7 +178,7 @@ internal static class ItemDump
     }
 
     /// <summary>The items and the free ink under <paramref name="node"/>, each as it shows inside <paramref name="clip"/> (card coordinates).</summary>
-    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots)
+    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks)
     {
         if (node is UIElement { Visibility: not Visibility.Visible } || node is UIElement { Opacity: <= 0 })
         {
@@ -174,6 +198,16 @@ internal static class ItemDump
             if (fe is Chart { Model.Laid: false } || PlotMark.IsPlot(fe))
             {
                 plots.Add(shown.Value);
+            }
+
+            if (FieldMark.IsField(fe))
+            {
+                fields.Add(shown.Value);
+            }
+
+            if (fe is KitStatus)
+            {
+                marks.Add(shown.Value);
             }
 
             if (!insideItem && ItemMark.IsItem(fe))
@@ -201,7 +235,7 @@ internal static class ItemDump
         var n = VisualTreeHelper.GetChildrenCount(node);
         for (var i = 0; i < n; i++)
         {
-            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots);
+            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots, fields, marks);
         }
     }
 
