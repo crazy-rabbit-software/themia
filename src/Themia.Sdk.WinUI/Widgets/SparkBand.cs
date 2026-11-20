@@ -55,7 +55,6 @@ public sealed partial class SparkBand : Grid
     private int _capacity;
     private long _added;
     private ChartScale _scale;
-    private double _over;
 
     // [S-6331] Points arrived while the band was not shown: it draws them when it is shown again.
     private bool _stale;
@@ -138,26 +137,6 @@ public sealed partial class SparkBand : Grid
 
     /// <summary>[S-6753] Whether a band with nothing yet writes its caption with its baseline (a core's small cell does not: no room).</summary>
     public bool Captions { get; init; } = true;
-
-    /// <summary>
-    /// [S-6754] [S-14220] What its owner stands over the plot's top, DIPs from the band's top (<see cref="ChartModel.Over"/>):
-    /// the line keeps under it, the plot and its wash still run to the band's edges behind it. 0, a meter's: none.
-    /// </summary>
-    public double Over
-    {
-        get => _over;
-        set
-        {
-            var over = double.IsFinite(value) ? Math.Max(0, value) : 0;
-            if (over == _over)
-            {
-                return;
-            }
-
-            _over = over;
-            Redraw();
-        }
-    }
 
     /// <summary>
     /// [S-6752] The chart look: its type and detail, the series' spacing (a Detailed chart's times) and how a value
@@ -296,7 +275,6 @@ public sealed partial class SparkBand : Grid
             Type = _type,
             Detail = _detail,
             High = _scale.Floor,
-            Over = _over,
             Format = _format,
             Times = _detail == ChartDetail.Detailed ? Times(width) : [],
         };
