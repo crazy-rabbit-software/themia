@@ -2,15 +2,23 @@ namespace Themia.Core.Shell;
 
 /// <summary>
 /// [S-2361] What a settings page's own drawing state is, apart from its rows: the card opened in it, the pickers unfolded
-/// inside that card, what is typed in a lookup's box, why a text was refused, how many answers each lookup has had.
-/// Every map is by the row's key.
+/// inside that card, what is typed in a lookup's box, why a text was refused, how many answers each lookup has had, and
+/// [S-2351] the section asked in place (<see cref="Asked"/>). Every map is by the row's key.
 /// </summary>
 public sealed record PageMarks(
     string? Open,
     IReadOnlySet<string> Unfolded,
     IReadOnlyDictionary<string, string> Typed,
     IReadOnlyDictionary<string, string> Refused,
-    IReadOnlyDictionary<string, int> Answered);
+    IReadOnlyDictionary<string, int> Answered,
+    PageAsked? Asked = null);
+
+/// <summary>
+/// [S-2351] [S-2361] The one section asked in place on a page (<see cref="Settings.AskInPlace"/>): the key of what asked it (a
+/// row's, or a tool's at a card's head) and what it holds that the card is drawn with: a question asked after a step of its
+/// own, what is typed in its field. Its card is drawn anew when it opens, closes or holds something else; no other card is.
+/// </summary>
+public sealed record PageAsked(string Key, string? Question, string? Typed);
 
 /// <summary>
 /// [S-2361] A page drawn again over the same rows (a card opened or closed, a picker unfolded, a tab, a sub-page and back,
@@ -22,7 +30,7 @@ public sealed record PageMarks(
 public static class KeptCards
 {
     /// <summary>
-    /// The marks a card holding the rows keyed <paramref name="keys"/> (its rows at every depth) is drawn with:
+    /// The marks a card holding the rows keyed <paramref name="keys"/> (its rows at every depth, and their tools) is drawn with:
     /// <paramref name="inside"/> another card (a sub-page's card is not), and each mark of <paramref name="page"/> that
     /// names one of its rows.
     /// </summary>
@@ -57,6 +65,13 @@ public static class KeptCards
             if (page.Answered.TryGetValue(key, out var answered))
             {
                 marks.Add((4, key, answered.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            }
+
+            // [S-2351] The section asked in place stands in the card of what asked it: opened, closed, a question or a
+            // text in it draws that card anew.
+            if (page.Asked is { } asked && string.Equals(asked.Key, key, StringComparison.Ordinal))
+            {
+                marks.Add((5, key, $"{asked.Question}\n{asked.Typed}"));
             }
         }
 

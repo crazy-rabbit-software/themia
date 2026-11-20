@@ -13,13 +13,15 @@ public sealed class KeptCardsTests
         IEnumerable<string>? unfolded = null,
         Dictionary<string, string>? typed = null,
         Dictionary<string, string>? refused = null,
-        Dictionary<string, int>? answered = null)
+        Dictionary<string, int>? answered = null,
+        PageAsked? asked = null)
         => new(
             open,
             new HashSet<string>(unfolded ?? [], StringComparer.Ordinal),
             typed ?? [],
             refused ?? [],
-            answered ?? []);
+            answered ?? [],
+            asked);
 
     [Fact]
     public void S2361_a_card_whose_marks_did_not_change_is_kept()
@@ -87,5 +89,29 @@ public sealed class KeptCardsTests
         Assert.Equal(one, two);
         Assert.Equal(one.GetHashCode(), two.GetHashCode());
         Assert.Equal(3, one.Count);
+    }
+
+    [Fact]
+    public void S2351_a_section_asked_in_place_draws_its_own_card_anew_and_no_other()
+    {
+        // Opening, typing in or closing the fence's name draws the fence's card alone, never the page whole.
+        string[] fence = ["fence", "fence/name"];
+        var closed = KeptCards.Of(fence, false, Marks());
+        var opened = KeptCards.Of(fence, false, Marks(asked: new PageAsked("fence/name", null, null)));
+        var typed = KeptCards.Of(fence, false, Marks(asked: new PageAsked("fence/name", null, "Work")));
+
+        Assert.NotEqual(closed, opened);
+        Assert.NotEqual(opened, typed);
+        Assert.Equal(typed, KeptCards.Of(fence, false, Marks(asked: new PageAsked("fence/name", null, "Work"))));
+        Assert.NotEqual(opened, KeptCards.Of(fence, false, Marks(asked: new PageAsked("fence/name", "Replace your look?", null))));
+        Assert.Equal(KeptCards.Of(Theme, false, Marks()), KeptCards.Of(Theme, false, Marks(asked: new PageAsked("fence/name", null, "Work"))));
+    }
+
+    [Fact]
+    public void S2351_a_tools_question_is_its_cards()
+    {
+        // A tool that asks first (a view's Delete) is keyed by the tool: its card holds the tool's key among its rows'.
+        string[] view = ["views/home", "views/home#delete"];
+        Assert.NotEqual(KeptCards.Of(view, false, Marks()), KeptCards.Of(view, false, Marks(asked: new PageAsked("views/home#delete", null, null))));
     }
 }

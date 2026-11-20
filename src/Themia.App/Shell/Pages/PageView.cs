@@ -226,7 +226,6 @@ internal sealed partial class PageView : ContentControl
             _ = _body.Children.Remove(_preview);
         }
 
-        _marks = new PageMarks(_open, _unfolded, _typed, _refused, _answered);
         _drawn = [];
         _used.Clear();
         _grips.Clear();
@@ -237,10 +236,14 @@ internal sealed partial class PageView : ContentControl
         }
 
         // [S-2351] A section whose row went (a view deleted, a list's item removed) goes with it.
-        if (_asks.Open is { } asked && HolderOf(_model, asked) is null)
+        if (_asks.Open is { } gone && HolderOf(_model, gone) is null)
         {
             DropAsk();
         }
+
+        // [S-2361] [S-2351] What this drawing's cards are drawn with: the section asked in place is its card's.
+        var asked = _asks.Open is { } open ? new PageAsked(open, _question?.Question, _typed.GetValueOrDefault(open + "#ask")) : null;
+        _marks = new PageMarks(_open, _unfolded, _typed, _refused, _answered, asked);
 
         try
         {
@@ -370,16 +373,13 @@ internal sealed partial class PageView : ContentControl
             return false;
         }
 
-        UpdateLayout();
-        if ((Tagged(this, target + "#row") ?? Tagged(this, target + "#section")) is not { } found)
+        // [S-2347] The row with what it opened, as a click opens it: scrolled only as far as it takes.
+        if (Reveal(target, section: true) is not { } found)
         {
             return _steps.Count > 0;
         }
 
         Light(found);
-
-        // [S-2347] The row with what it opened, as a click opens it: scrolled only as far as it takes.
-        BringIntoView?.Invoke(found);
         return true;
     }
 
@@ -603,12 +603,19 @@ internal sealed partial class PageView : ContentControl
         }
     }
 
-    /// <summary>[S-2361] The keys of <paramref name="rows"/> and of every row in them.</summary>
+    /// <summary>[S-2361] The keys of <paramref name="rows"/> and of every row in them, [S-2351] their tools' too.</summary>
     private static IEnumerable<string> Keys(IReadOnlyList<PageRow> rows)
     {
         foreach (var row in rows)
         {
             yield return row.Key;
+
+            // [S-2351] A tool that asks first holds its section in this card.
+            foreach (var tool in row.Tools ?? [])
+            {
+                yield return tool.Key;
+            }
+
             if (row.Rows is { } inner)
             {
                 foreach (var key in Keys(inner))
@@ -761,6 +768,25 @@ internal sealed partial class PageView : ContentControl
         }
     }
 
+    /// <summary>
+    /// [S-2347] The one way a row is brought into sight: the row keyed <paramref name="key"/> (or, with <paramref name="section"/>,
+    /// the section keyed so) as the drawing just made laid it out (laid out first: until then the tree may still hold the
+    /// drawing before, whose row is gone), scrolled only as far as it takes to stand whole in sight. Called once the drawing
+    /// is made ([S-2346]: a drawing asked from an event is posted, <see cref="Redraw"/>, and this waits for it); null where
+    /// the row is not on the page.
+    /// </summary>
+    private FrameworkElement? Reveal(string key, bool section = false)
+    {
+        UpdateLayout();
+        if ((Tagged(this, key + "#row") ?? (section ? Tagged(this, key + "#section") : null)) is not { } found)
+        {
+            return null;
+        }
+
+        BringIntoView?.Invoke(found);
+        return found;
+    }
+
     /// <summary>[S-2328] A render's click on the row at <paramref name="key"/>, as a click would do it; false where there is none.</summary>
     internal bool DebugClick(string key)
     {
@@ -803,14 +829,7 @@ internal sealed partial class PageView : ContentControl
                     _unfolded.Clear();
                 }
 
-                Redraw(() =>
-                {
-                    UpdateLayout();
-                    if (Tagged(this, row.Key + "#row") is { } shown)
-                    {
-                        BringIntoView?.Invoke(shown);
-                    }
-                });
+                Redraw(() => Reveal(row.Key));
                 break;
             case SettingsRowKind.Toggle:
                 Do(() => row.Toggle?.Invoke(!row.On));
@@ -854,7 +873,7 @@ internal sealed partial class PageView : ContentControl
         if (_asks.Open is { } asked)
         {
             _typed[asked + "#ask"] = text;
-            Show();
+            Redraw();
         }
         else if (_open is { } open)
         {

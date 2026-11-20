@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Widgets;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
 using Themia.Sdk.Kit;
@@ -89,8 +88,8 @@ internal sealed partial class PageView
         _typed.Remove(key + "#ask");
         if (!_asks.Toggle(key))
         {
-            Show();
-            Refocus(new FocusTag(holder + "#head", 0));
+            // [S-2361] Only the card that held it is drawn again, after the click.
+            Redraw(() => Refocus(new FocusTag(holder + "#head", 0)));
             return;
         }
 
@@ -103,18 +102,16 @@ internal sealed partial class PageView
         Opened(holder);
     }
 
-    /// <summary>[S-2351] A section just opened: drawn, its card scrolled into sight as little as it takes ([S-2347]), the keyboard in it.</summary>
-    private void Opened(string holder)
+    /// <summary>
+    /// [S-2351] A section just opened: [S-2361] its card drawn again (alone, after the event that asked), then scrolled into
+    /// sight as little as it takes ([S-2347]), the keyboard in it.
+    /// </summary>
+    private void Opened(string holder) => Redraw(() => Focused(holder));
+
+    /// <summary>[S-2351] The opened section's card, drawn: revealed, the keyboard in its field or on its answer.</summary>
+    private void Focused(string holder)
     {
-        Show();
-
-        // Laid out first: until then the tree still holds the drawing before, whose row is about to go.
-        UpdateLayout();
-        if (Tagged(this, holder + "#row") is { } shown)
-        {
-            BringIntoView?.Invoke(shown);
-        }
-
+        Reveal(holder);
         if (AskedNow() is not { } asked)
         {
             return;
@@ -144,11 +141,13 @@ internal sealed partial class PageView
         }
 
         _question = null;
-        Show();
-        if (holder is not null)
+        Redraw(() =>
         {
-            Refocus(new FocusTag(holder + "#head", 0));
-        }
+            if (holder is not null)
+            {
+                Refocus(new FocusTag(holder + "#head", 0));
+            }
+        });
 
         return true;
     }
@@ -284,9 +283,10 @@ internal sealed partial class PageView
         }
 
         _closedAt = null;
-        if (Drawings == at && !DispatcherQueue.TryEnqueue(Show))
+        if (Drawings == at)
         {
-            Log.Warn(Scope, "a closed section could not be drawn away; it goes with the next drawing");
+            // [S-2361] Its card alone, drawn after this event.
+            Redraw();
         }
     }
 

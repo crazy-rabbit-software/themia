@@ -2463,7 +2463,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   Appearance page's 55 rows: one card's, not every row's). What waited for the drawing (the reveal of what opened,
   [S-2347]; the keyboard's place) follows it: a card opened by a click is now revealed (until 2026-11-20 the reveal
   looked for the opened row before the new drawing was laid out, found none and scrolled nothing). New rows (any change of the state, a way in, [S-3534]) are drawn whole as
-  before, in a new panel. Tests `KeptCardsTests.S2361_`.
+  before, in a new panel. A section asked in place ([S-2351]) is a mark of the card that holds it (`PageAsked`: what
+  asked it, a question asked after a step of its own, what is typed in its field): opening it, closing it by its head,
+  Escape, Cancel or a press elsewhere draws that card alone, the same way; what it gives or answers changes the state
+  and draws the page whole. The reveal after any of them is the one path (`PageView.Reveal`: laid out, then the row
+  scrolled as little as it takes), a deep link's too. Tests `KeptCardsTests.S2361_`, `KeptCardsTests.S2351_`.
 - **[S-2362]** **Opening General or Accounts draws the page once**: the read of start with Windows each opening makes
   ([S-936]) draws the open pages again only where Windows said something else than the last read (`AdoptStartup`).
 - **[S-2363]** **A change of the state lays the surface out with less**: every change lays every card out again

@@ -79,17 +79,12 @@ internal sealed partial class PageView
                 DropAsk();
             }
 
-            // [S-2347] The card with what it opened, scrolled only as far as it takes to stand whole in sight: its row as
-            // this drawing laid it out.
+            // [S-2347] The card with what it opened, scrolled only as far as it takes to stand whole in sight.
             Redraw(() =>
             {
                 if (!open)
                 {
-                    UpdateLayout();
-                    if (Tagged(this, row.Key + "#row") is { } shown)
-                    {
-                        BringIntoView?.Invoke(shown);
-                    }
+                    Reveal(row.Key);
                 }
             });
         };
