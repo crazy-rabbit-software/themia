@@ -107,17 +107,49 @@ public class BlockFitTests
     [InlineData(600, 200)]
     [InlineData(520, 600)]
     [InlineData(900, 300)]
-    public void S12814_at_every_desktop_size_the_ink_spans_the_room_top_to_foot(double width, double height)
+    public void S14280_at_every_desktop_size_the_parts_stay_together_and_the_block_fills_one_axis(double width, double height)
     {
-        // A reading and its caption (156 wide, 52 tall) with a control row (28): whatever limits the scale, the room
-        // left goes between the parts, never over the first ink or under the last.
+        // A reading and its caption (156 wide, 52 tall) with a control row (28), WR-7 (owner, 2026-11-19: "Keep them
+        // together"; "All together, scaled"): the block is laid in its parts' own height, never in the room's, so nothing
+        // goes between them; it scales until its ink fills the height or its parts fill the width.
         var ink = new LineInk(9.2, 0);
         var fill = BlockFit.Fill(width, height, 156, 80, ink);
+        var first = fill.Top + (ink.Over * fill.Scale);
+        var last = fill.Top + ((fill.Height - ink.Under) * fill.Scale);
 
+        Assert.Equal(80, fill.Height, 6);
         Assert.True(fill.Scale >= 1);
-        Assert.True(156 * fill.Scale <= width + 1e-6 || fill.Scale == 1);
-        Assert.Equal(0, fill.Top + (ink.Over * fill.Scale), 6);
-        Assert.Equal(Math.Max(height, (80 - 9.2) * fill.Scale), fill.Top + ((fill.Height - ink.Under) * fill.Scale), 6);
+        Assert.True(first >= -1e-6 && last <= Math.Max(height, (80 - 9.2) * fill.Scale) + 1e-6, $"{width}x{height}: {first}..{last}");
+        var fillsHeight = Math.Abs(first) < 1e-6 && Math.Abs(last - height) < 1e-6;
+        var fillsWidth = Math.Abs((156 + BlockFit.WidthSlack) * fill.Scale - width) < 1e-6;
+        Assert.True(fillsHeight || fillsWidth || fill.Scale == 1, $"{width}x{height}: scale {fill.Scale}, ink {first}..{last}");
+    }
+
+    [Fact]
+    public void S14280_where_the_width_stops_it_the_block_keeps_its_parts_together_centred_on_its_ink()
+    {
+        // The exchange rate's 600x200 card (576 x 188 in its insets): "1.0739 EUR +0.13%" over "per CHF" (180 wide,
+        // 52 tall, 9.2 of leading over the figures, 4 under the caption's baseline). The width stops the scale; the
+        // parts stay packed and the height left stands alike over the first ink and under the last ([S-12808]), never
+        // between the reading and its caption (WR-7).
+        var ink = new LineInk(9.2, 4);
+        var fill = BlockFit.Fill(576, 188, 180, 52, ink);
+
+        Assert.Equal(576 / (180 + BlockFit.WidthSlack), fill.Scale, 6);
+        Assert.Equal(52, fill.Height, 6);
+        var over = fill.Top + (ink.Over * fill.Scale);
+        var under = 188 - (fill.Top + ((fill.Height - ink.Under) * fill.Scale));
+        Assert.True(over > 1, $"{over}");
+        Assert.Equal(over, under, 6);
+    }
+
+    [Fact]
+    public void S14280_a_regression_the_old_fill_laid_a_width_held_block_in_the_whole_height()
+    {
+        // Before: a block the width held was laid in the room's height divided by the scale, its caption pushed to the
+        // foot ("1.0739 EUR" on the top edge, "per CHF" on the foot, a band between them).
+        var fill = BlockFit.Fill(576, 188, 180, 52, new LineInk(9.2, 4));
+        Assert.True(fill.Height * fill.Scale < 188 - 1, $"laid {fill.Height} at {fill.Scale}");
     }
 
     [Fact]
@@ -135,7 +167,10 @@ public class BlockFitTests
 
         Assert.Equal(reading.Scale, fill.Scale, 6);
         Assert.Equal(0, fill.Top + (drawn.Over * fill.Scale), 6);
-        Assert.Equal(106, fill.Top + ((fill.Height - drawn.Under) * fill.Scale), 6);
+
+        // [S-14280] Its parts stay together: its line under stays right under the dashes, the dashes' lower ink the foot's.
+        Assert.Equal(reading.Height, fill.Height, 6);
+        Assert.Equal(106 - ((drawn.Over - held.Over) * fill.Scale), fill.Top + ((fill.Height - drawn.Under) * fill.Scale), 6);
     }
 
     [Fact]

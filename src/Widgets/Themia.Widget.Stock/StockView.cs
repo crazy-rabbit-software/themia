@@ -202,7 +202,7 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
             _block.Parts.Add(_price);
         }
 
-        // In the block its value stands on the block's top and its line under on its foot ([S-12814]).
+        // In the block its value and its line under stand together, the block scaled as one ([S-14280]).
         _price.VerticalAlignment = rows ? VerticalAlignment.Top : VerticalAlignment.Stretch;
         _block.Visibility = rows ? Visibility.Collapsed : Visibility.Visible;
         _head.Visibility = rows ? Visibility.Visible : Visibility.Collapsed;

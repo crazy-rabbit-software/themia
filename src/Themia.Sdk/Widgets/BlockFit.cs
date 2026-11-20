@@ -6,9 +6,9 @@ namespace Themia.Core.Widgets;
 public readonly record struct BlockLay(double Scale, double Top);
 
 /// <summary>
-/// [S-12814] How a block of parts fills its room: the <see cref="Scale"/> it is drawn at, the <see cref="Height"/> it is
-/// laid out in (before the scale: the room's, shrunk by it, plus the first part's leading over its ink and the last
-/// part's under it) and where its box's <see cref="Top"/> goes (the leading over the first ink above the room).
+/// [S-12814] [S-14280] How a block of parts fills its room: the <see cref="Scale"/> it is drawn at, the
+/// <see cref="Height"/> it is laid out in (before the scale: its parts packed, never the room's, so they stay together)
+/// and where its box's <see cref="Top"/> goes (the leading over the first ink above the room, or the band the width leaves).
 /// </summary>
 public readonly record struct BlockFill(double Scale, double Height, double Top);
 
@@ -65,12 +65,14 @@ public static class BlockFit
     /// their own count against the room's width (<paramref name="intrinsicWidth"/>: the reading, its caption, an icon;
     /// a bar, a slider, a graph spans whatever it is given). The block scales up as one to the largest size at which
     /// those parts fit the width and the parts packed together (<paramref name="packedHeight"/>, their ink
-    /// <paramref name="ink"/> inside it) fit the height. It is then laid out in the whole height the scale leaves it,
-    /// its first ink on the room's top and its last on its foot: what the parts do not take goes between them, never
-    /// over the first ink or under the last. Never smaller than its own size: a room shorter than the parts keeps them
-    /// packed from the top, the first ink on it. [S-12813] A block showing a placeholder ("--") is sized by the ink
-    /// of the reading it stands for (<paramref name="ink"/>) and placed by the ink it draws (<paramref name="drawn"/>,
-    /// the dashes' top lower than capitals): the same size as its readings, its dashes on the top.
+    /// <paramref name="ink"/> inside it) fit the height: where the height stops it, its first ink stands on the room's
+    /// top and its last on its foot. [S-14280] WR-7 (owner, 2026-11-19: "Keep them together"; "All together, scaled"):
+    /// it is laid out in its parts' own height, so they always touch; where the width stops it, the height left stands
+    /// alike over its first ink and under its last ([S-12808]), never between its parts. A room shorter than the parts
+    /// keeps them packed from the top, the first ink on it. [S-12813] A block showing a placeholder ("--") is sized by
+    /// the ink of the reading it stands for (<paramref name="ink"/>) and placed by the ink it draws
+    /// (<paramref name="drawn"/>, the dashes' top lower than capitals): the same size as its readings, its dashes where
+    /// the reading's capitals would stand.
     /// </summary>
     /// <remarks>[S-12833] Never over <paramref name="most"/> (<see cref="FaceFit.Most"/>: the scale a part of it gave way at).</remarks>
     public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, LineInk? drawn = null, double least = 1, double most = double.PositiveInfinity)
@@ -79,7 +81,6 @@ public static class BlockFit
         var over = Room(ink.Over);
         var under = Room(ink.Under);
         var placedOver = Room((drawn ?? ink).Over);
-        var placedUnder = Room((drawn ?? ink).Under);
         if (!(packedHeight > 0) || !double.IsFinite(packedHeight) || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
         {
             return new BlockFill(1, double.IsFinite(packedHeight) ? Math.Max(0, packedHeight) : 0, -placedOver);
@@ -91,7 +92,11 @@ public static class BlockFit
         var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / (intrinsicWidth + WidthSlack) : double.PositiveInfinity;
         var fill = Math.Min(byWidth, height / span);
         var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
-        var laid = Math.Max(packedHeight, (height / scale) + placedOver + placedUnder);
-        return new BlockFill(scale, laid, -placedOver * scale);
+
+        // [S-14280] WR-7: laid in its parts' own height, never the room's, so nothing goes between them. The height the
+        // scale leaves (the width stopped it) stands alike over the reading's first ink and under its last ([S-12808]);
+        // a room shorter than the parts keeps them from the top. A placeholder's first ink stands where the reading's would.
+        var top = Math.Max(0, (height - (span * scale)) / 2);
+        return new BlockFill(scale, packedHeight, top - (placedOver * scale));
     }
 }

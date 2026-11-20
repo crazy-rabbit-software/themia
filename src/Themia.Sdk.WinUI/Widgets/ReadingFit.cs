@@ -10,10 +10,10 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-12808] [S-12814] A one-readout view's block in its room (<see cref="BlockFit.Fill"/>): its parts (a reading and
 /// its caption, its controls, a bar) stand together and the block scales up as one to the largest size at which the
-/// parts with a width of their own fit the room's width and the parts packed together fit its height; then it is laid
-/// out in the whole height left (a <see cref="SpreadStack"/> that justifies: the room between its parts, one part
-/// taking it all), its first ink on the room's top and its last on its foot, never a band over or under them. A bar,
-/// a slider or a graph spans the width it is given and never limits the scale. The sides' and the foot's insets are
+/// parts with a width of their own fit the room's width and the parts packed together fit its height. [S-14280] WR-7:
+/// it is laid out in its parts' own height (a <see cref="SpreadStack"/>, nothing between them), its first ink on the
+/// room's top and its last on its foot where the height stops it, centred on its ink in the height left where the width
+/// does. A bar, a slider or a graph spans the width it is given and never limits the scale. The sides' and the foot's insets are
 /// this panel's margin (or its view's padding), so they never scale. [S-12833] A smaller room scales it down as one,
 /// to its smallest drawn text's legibility floor (<see cref="ScaleFloor"/>); with its kind's parts stated
 /// (<see cref="Face"/>) its main reading sets that floor and its smaller pieces give way first (<see cref="FaceFloor"/>).
@@ -36,7 +36,7 @@ public sealed partial class ReadingFit : Panel
 
     public ReadingFit()
     {
-        _plan = new Plan(this) { Justify = true };
+        _plan = new Plan(this);
         Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         _plan.RenderTransform = _scale;
         Children.Add(_plan);

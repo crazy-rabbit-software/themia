@@ -8128,10 +8128,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   still has a fucking space at the top, maybe also at the bottom. make sure that this does not happen anywhere"). A
   one-readout block ([S-12808], `ReadingFit`, the rule `BlockFit.Fill`) scales up as one to the largest size at which
   the parts with a width of their own (the reading, its caption, an icon) fit the content's width and the parts packed
-  together fit its height: a bar, a slider or a graph spans any width and never holds the block small. It is then laid
-  out in the whole height the scale leaves it, its first ink on the content's top and its last on the foot's inset;
-  what the parts do not take goes between them (`SpreadStack.Justify`; one part takes it all, a readout's value on its
-  top and its line under on its foot), never over the first ink or under the last. What holds the width holds the scale whole:
+  together fit its height: a bar, a slider or a graph spans any width and never holds the block small. Where the height
+  stops it, its first ink stands on the content's top and its last on the foot's inset; its parts always stand together
+  ([S-14280]: the room the scale leaves never goes between them). What holds the width holds the scale whole:
   a Controls row asks for the width its controls need unfolded (a slider at its least, so scaling never folds it
   away), a seek bar beside its times its natural width; a slider's ink is its thumb. The fit measures its parts and its
   plan unbounded across, so a part whose text changes is measured again at that width and its new width reaches the fit
@@ -8142,6 +8141,21 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   ([S-12833]); a room shorter than its parts at that floor keeps them packed from the top. A drive, a reading or a facts list without data draws its
   default ([S-12813]: the drive's "--", its reason under it and its empty bar), never a status line at the top of an
   empty card. Tests `BlockFitTests.S12814_` (the owner's 330x130 drive card among them).
+- **[S-14280]** **A block's parts stay together** (owner, 2026-11-19, docs/WIDGET-RULES.md WR-7: "A reading and its
+  caption stay together and scale up", answers "All together, scaled", "Keep them together"; WR-2: "the items have no
+  spacing between them"). A one-readout block (`ReadingFit`, the rule `BlockFit.Fill`) is laid out in its parts' own
+  height, never the room's: the reading, its caption, its bar and its controls stand at their natural spacing, touching,
+  at every size and in every state, and the block scales as one, controls included. Where the height stops the scale,
+  its first ink stands on the content's top and its last on the foot's inset ([S-12814]); where the width stops it, the
+  height left stands alike over its first ink and under its last ([S-12808]: centred on its ink); a placeholder's dashes
+  stand where the reading's capitals would ([S-12813]). Replaces [S-12814]'s spread (`SpreadStack.Justify` in the fit:
+  the room the scale left went between the parts, so a width-held block tore apart, its reading on the card's top edge
+  and its caption on the foot, the exchange rate's 600x200 "1.0739 EUR" over an empty band over "per CHF", the focus
+  session's controls on the foot under a band). Where the leftover band of the axis the scale does not fill goes
+  (centred, at the start, or a reflow that fills it) is the owner's open question; today it is centred down, as
+  above, and across each part stands where its alignment puts it (a price at the start, a timer centred). The pomodoro's side-by-side column ([S-14281]) and the screen-time day line ([S-14282], [S-14284]) follow.
+  Tests `BlockFitTests.S14280_`; renders `--widget-png stock|exchangeRate|screenTime|music|focusSession|alarm|moon|
+  airQuality --sizes range` and `--sizes 330x140,300x164,600x200`.
 - **[S-12815]** **A list's first row stands on the card's top edge, and the gap check** (owner, 2026-11-19: "or the
   stick too. audit all the widgets and make sure that this shit does not happen anywhere. test this properly"; "no
   this is fine if it happens, but there should not be a space at the top"). A list whose rows are the first thing in
