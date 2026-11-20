@@ -8518,7 +8518,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   in its own units was the scale's pixels drawn (the GPU's "--" 2.6 off the middle at 600x200). A line with nothing to say
   takes no room (the music's artist line while nothing plays stood a band under "Nothing playing", 37 at 350x70), and a
   gap that belongs to a part that gives way goes with it (the next meeting's end column: its grid spacing stayed, so the
-  cut title stood 40 short of the end at 350x70). Tests `BlockFitTests.S14301_`.
+  cut title stood 40 short of the end at 350x70). A tool line in a block (the screen-time day line, [S-14284]) inks
+  where its words and its buttons' glyphs are drawn (`ToolLine.Ink`, measured): a chevron's points stand over the
+  capitals, and read as the capitals they stood the donut's block 6 off centre at 520x600. Tests `BlockFitTests.S14301_`.
 - **[S-14302]** **A mark over the content is no ink of the content's.** The sources' problem glyph (`KitStatus`, [S-7042],
   over the content's top end) stands over a reading, not in it: the layout dump writes each mark's box (`marks`) and the
   gap check leaves it out of the measure, as the item check leaves a status glyph over a row's value. Was: a stale

@@ -71,15 +71,29 @@ public sealed partial class ToolLine : Grid, IInked
 
     /// <summary>
     /// [S-14284] Where its ink stands, read by a block that scales the line with its reading (the screen-time day line,
-    /// <c>ReadingFit</c>): its words' capitals on the line's top and their baseline on the line, the band's gap under it;
-    /// a part beside the words (a 16 glyph in a 24 button standing 2 over the line) inks no higher than their capitals.
+    /// <c>ReadingFit</c>): its words as drawn on the line's top (<see cref="InkMeter"/>; unmeasured, their capitals) and their
+    /// baseline on the line, the band's gap under it. [S-14301] A button's glyph (16 in a 24 button standing 2 over the
+    /// line) where it inks higher than the words: a chevron's points stand over the capitals, and read as the capitals
+    /// they stood the screen-time donut's block 6 off centre at 520x600.
     /// </summary>
     public LineInk Ink
     {
         get
         {
-            var words = LineInk.Of(FamilyType.Body);
-            return new LineInk(words.Over, Math.Max(0, DesiredSize.Height - FamilySpace.HeaderLine) + words.Under);
+            var model = LineInk.Of(FamilyType.Body);
+            var over = _label.Text.Length > 0
+                ? InkMeter.Line(FamilyType.Body, _label.Text, PartInk.FontOf(_label.FontFamily), _label.FontWeight.Weight).Over
+                : model.Over;
+            foreach (var button in Parts.Children.OfType<Border>().Where(b => b.Visibility == Visibility.Visible))
+            {
+                if (button.Child is FontIcon { Visibility: Visibility.Visible } glyph && double.IsFinite(button.Height)
+                    && InkMeter.Measure(new InkText(glyph.Glyph, PartInk.FontOf(glyph.FontFamily), glyph.FontSize, glyph.FontWeight.Weight, 0)) is { } ink)
+                {
+                    over = Math.Min(over, button.Margin.Top + ((button.Height - glyph.FontSize) / 2) + ink.Over);
+                }
+            }
+
+            return new LineInk(Math.Max(0, over), Math.Max(0, DesiredSize.Height - FamilySpace.HeaderLine) + model.Under);
         }
     }
 
