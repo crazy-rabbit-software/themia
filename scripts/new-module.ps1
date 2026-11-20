@@ -363,4 +363,4 @@ if ($text -notlike "*src/$parent/$project/*") {
 
 Write-Host "Created $project in src\$parent (id '$id', SPEC block [S-$tag]..[S-$tagEnd])." -ForegroundColor Green
 Write-Host '  Build:  dotnet build src/Themia.App/Themia.App.csproj -c Debug'
-Write-Host '  Test:   dotnet test tests/Themia.Modules.Tests/Themia.Modules.Tests.csproj'
+Write-Host '  Test:   python scripts/test.py   (the tests the new module touches; --all for both suites)'

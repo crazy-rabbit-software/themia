@@ -5802,7 +5802,56 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   `IWidgetPreviewState` for an interaction state a render cannot click into — for the power widgets
   `hover`, `pressed`, `armed`, `failed`, `unavailable`. States, not sample data ([S-1863]).
   `--style tile|round` draws either style ([S-6006]). `--sizes 100x100,160x100[,range]` draws several
-  in-between sizes on one page (with `range`, the min, natural and max as well).
+  in-between sizes on one page (with `range`, the min, natural and max as well). It exits 0 when it wrote its PNG and
+  1 when it did not ([S-14340]).
+- **[S-14340]** **Many renders in one process** (owner, 2026-11-20: "right now all the checks take a long time. try to
+  optimize the checks and the usage of them as well. you dont have to test everything everytime"). Debug:
+  `Themia.exe --widget-batch <jobs.json> [--theme light|dark] [--timeout s]` draws a list of jobs
+  (`{"jobs": [{"id", "args"}]}`, a job's args what follows `--widget-png` on its own command line) one after another
+  through the same render (`WidgetRender.Render`), so WinUI starts once for them all: the same layout dump as each
+  render's own process and the same pixels but the antialiasing of a few card-corner rim pixels and a unit of some
+  glyph edges, which differ from one batch run to the next as well (`scripts/pngdiff.py`). What a process takes whole
+  (the theme, `--lang`, `--icon-census`) is the batch's command line; a job naming one fails. Each job reports on
+  stdout (`batch: start <id>`, its render's lines, `batch: done <id> ok|failed`); a job still drawing at the timeout
+  ends the process (`batch: timeout <id>`, exit 3), and the caller goes on in a new process from the next job, as it
+  does when a job holds the UI thread and the process prints nothing more.
+- **[S-14341]** **One render pass, many judges** (`scripts/renders.py`). The item check, the gap check and the widget
+  audit read the same pictures: each is drawn once a build, through batches of 40 jobs, two processes at a time
+  (`--jobs`; the PC hard-hung under ~16 renders at once) and one sweep at a time on the PC (an OS lock on
+  `~/.themia-renders.lock`: a second sweep waits, saying whose it waits for), and kept in a cache keyed by the build
+  (a stamp of its binaries' paths, sizes and times) and the job (kind, state, sizes, theme, flags), under
+  `TestResults/renders` (`--cache`), the newest four builds kept: a second check on the same build draws nothing.
+  A check links the pictures into its `--out` as before. Without `--exe` a check takes the one Debug build under
+  `artifacts/` and refuses to pick among several (other branches' builds land there too).
+- **[S-14342]** **The kinds a check judges.** The kinds and their states are the build's own:
+  `Themia.exe --catalog-json <out.json>` writes every kind (`id`, the module `project`, `traits`, `styles` and the
+  `states` its renders offer, read from each kind's card on a preview host as a render builds it: the states
+  `--widget-png … --state <unknown>` lists, for every kind), never a folder name (which missed the 84 kinds the
+  family projects declare) or a regex over the sources; a kind the build does not have fails the check, the family
+  walk too (exit 64). `--changed [range]` (the default; no range: the branch against winui, uncommitted and untracked
+  files included; `since-sweep`: since this checkout's last full sweep, `TestResults/last-full-sweep.txt`) picks the
+  kinds a diff touches and prints why each (`scripts/changes.py`): a module's folder (its Tests/ and SPEC.md aside)
+  its project's kinds; shared code (the SDKs, Core, the app, a provider) the kinds whose module names a top-level type
+  (or an extension method) the changed file declares or a type of a file that names one (one step out), never a word
+  that is also a namespace's; every kind where the card or the render path names one, for the checks' own scripts
+  and `docs/WIDGET-RULES.md`, the shared build (Directory.Build.*, a csproj, the generators), a shared file that is
+  not C# and a file with no type to follow; nothing for docs, SPEC.md, tests and other scripts. `--kinds a,b` and
+  `--all` stay. Tests `scripts/tests/test_changes.py` (`python -m unittest discover -s scripts/tests`).
+- **[S-14343]** **The tests' own runner.** `python scripts/test.py` builds the test projects and runs them in
+  `tools/TestRunner` (xUnit's `AssemblyRunner` in-process, the test collections in parallel as `dotnet test` runs
+  them, with the product's invariant globalization: no test host and no loopback socket, which `dotnet test` needs and
+  a blocked loopback hangs). `--changed [range]` (the default) runs the classes a change touches, each printed with
+  why: a changed test file's classes; a module's own Tests/ and the host tests naming its types; for shared code the
+  classes naming the types `--changed` follows, the tests named after a SPEC tag on a changed line (`S1480_`), and the
+  source-scanning guards; for a file that is not code the classes naming it; everything for the test projects' shared
+  code, a csproj or Directory.Build.*. `--all` both suites whole; `--filter` and `--spec` narrow. A run that finishes
+  no test for `--hang` seconds names the tests still running and ends (exit 2).
+- **[S-14344]** **Not everything every time** (CLAUDE.md, Definition of done 4): while working, the build, the tests a
+  change touches and the checks and audit over the kinds it touches; before an install or a merge, both test suites and
+  the checks over every kind changed since the checkout's last full sweep; a full sweep of every kind only when shared
+  layout code or the check rules change (`--changed` then picks every kind itself and says why). The widget audit
+  (`.claude/workflows/widget-audit.js`) takes `kinds` (a list, `'all'`, or by default what the branch changed) and the
+  rules it judges from `docs/WIDGET-RULES.md` itself.
 - **[S-11802]** **The sample machine's drives** (`SamplePc.Drives`): System (C:), 931 GB with 419 GB free;
   Data (D:), 1.8 TB with 1.1 TB free; one USB stick (E:, "STICK"), 58 GB with 31 GB free. On the sample
   machine every drive widget reads them through `AppServices.Drives` (`SampleMachine.Install` sets it, as

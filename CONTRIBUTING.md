@@ -14,12 +14,12 @@ Report security problems privately to themia@nathaniel-walser.com, not in a publ
 
 ## Building from source
 
-Needs the .NET 10 SDK, Windows 10 1809 or later (Windows 11 recommended), and for the AOT build the
-Visual Studio Build Tools with the C++ workload.
+Needs the .NET 10 SDK, Windows 10 1809 or later (Windows 11 recommended), Python 3 for the scripts, and for
+the AOT build the Visual Studio Build Tools with the C++ workload.
 
 ```powershell
 dotnet build src/Themia.App/Themia.App.csproj -c Release
-dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj
+python scripts/test.py --all                                   # both test suites, in the repo's own runner
 powershell -ExecutionPolicy Bypass -File scripts/publish.ps1   # single native binary, unpackaged
 powershell -ExecutionPolicy Bypass -File scripts/package.ps1   # unsigned Store package
 ```
@@ -94,7 +94,7 @@ lifts both limits. Packaging and the manual test plan are in [docs/STORE.md](doc
   with your change, and name tests after the tags.
 - Build and test before you open the pull request:
   `dotnet build src/Themia.App/Themia.App.csproj -c Debug` (warnings are errors) and
-  `dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj`.
+  `python scripts/test.py --all` (while you work, `python scripts/test.py` runs the tests your change touches).
 - For UI changes, render the result with the Debug `--editbar-png`, `--widget-png` (and other) render flags described
   in CLAUDE.md and attach the PNG. Widgets must hold up at every size tier of the showcase views
   (`--add-showcase-views`), down to 120 by 120; attach a screenshot of the widget's showcase view.

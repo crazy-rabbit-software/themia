@@ -444,7 +444,7 @@ combined options.
 - **One module test host**, `tests/Themia.Modules.Tests` (`net10.0-windows`, xUnit), references
   every module by the same globs as the app, compiles every module's own tests
   (`<Compile Include="..\..\src\Widgets\*\Tests\**\*.cs" />`, the same for providers), and runs the
-  registry generator. So a module keeps its tests in its folder (`Tests/`), one `dotnet test`
+  registry generator. So a module keeps its tests in its folder (`Tests/`), one test run
   covers all modules, and the conformance tests iterate exactly the modules that ship. Adding a
   module adds no test project. Spike: the host ran a module's own tests and three registry
   theories (7 passed); pure types of a WinUI library load in the test process without the Windows
@@ -1258,8 +1258,8 @@ section 13 walks them for Linear and Todoist.
    `$englishOnly` until translated, Q8).
 7. **SPEC**: the module's `SPEC.md` with tagged lines for every behaviour (its own block), owning
    files and tests, and what needs a manual pass.
-8. **Check**: `dotnet build` (Debug, warnings as errors), `dotnet test tests/Themia.Modules.Tests`
-   (the module's tests and the conformance over the registry, section 9), the render checklist
+8. **Check**: `dotnet build` (Debug, warnings as errors), `python scripts/test.py`
+   (the module's tests and the host tests that name its types; `--all` adds the conformance over the registry, section 9), the render checklist
    (section 10), `publish.ps1` once (AOT, source-generated JSON), and say what still needs a live
    pass (a real account, each sign-in member of the descriptor, rate limits on the wire).
 
@@ -2986,7 +2986,7 @@ row's meter place is `ControlsBlock.RailSlider`.
 
 ### 16.3 The guard
 
-- **Source** (`FamilyGuardTests`, in `dotnet test`): a number given for a type size, weight, spacing,
+- **Source** (`FamilyGuardTests`, in the Modules tests): a number given for a type size, weight, spacing,
   thickness, radius, size, stroke or opacity; a second ramp or an old helper (`FluentType.*`,
   `HeroLayout.*`, `HeroFit.*` but `Ems`, `Fluent.Space5`, `OverlayRadius`, `RowHeight`,
   `EmptyState`); a colour made from numbers outside `HexBrush` and `ShellColours`, a `Colors.*` that is

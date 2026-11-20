@@ -10,16 +10,19 @@ Elastic License 2.0 (`LICENSE`). Unreleased: nothing here has users yet.
 
 ```powershell
 dotnet build src/Themia.App/Themia.App.csproj -c Debug            # Debug builds include the render flags below
-dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj      # Core and the SDK's rules (xUnit)
-dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj --filter "FullyQualifiedName~Clock"   # scoped run
-dotnet test tests/Themia.Modules.Tests/Themia.Modules.Tests.csproj   # every module's own Tests/ + conformance + the state fixture
+python scripts/test.py                 # the test classes a change touches (--changed [range], the default), each with why
+python scripts/test.py --all           # Core.Tests (Core, the SDK's rules) and Modules.Tests (every module's Tests/, conformance) whole
+python scripts/test.py --spec 1480     # or --filter Clock: tests named after a SPEC tag, or holding a name (both suites)
 powershell -ExecutionPolicy Bypass -File scripts/new-module.ps1 -Kind widget -Name <Name> -Label "<English name>"   # or -Kind provider
 powershell -ExecutionPolicy Bypass -File scripts/publish.ps1      # Native AOT, unpackaged (-Run to start it)
 powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Store .msixupload, see docs/STORE.md
 ```
 
 - Several builds at once (agents, parallel work): pass `--artifacts-path <own folder>` so they do not
-  fight over locks. `artifacts/` is git-ignored.
+  fight over locks (`scripts/test.py --artifacts <own folder>`). `artifacts/` is git-ignored.
+- The tests run in the repo's runner (`tools/TestRunner`, built by `scripts/test.py`: xUnit's engine in-process, the
+  test collections in parallel, both suites in about 12 s), not `dotnet test`, whose test host talks over a loopback
+  socket and hangs where loopback is blocked (this PC). Visual Studio's Test Explorer still works through the adapter.
 - AOT publish needs the MSVC linker; `publish.ps1` puts `vswhere` on PATH for the ILCompiler. A build
   that passes in Debug can still fail or misbehave only when published (compiled XAML is not a
   publish item by default; the `PublishCompiledXaml` target in the csproj fixes that). Run
@@ -48,7 +51,10 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            [--chart area|line|bars|candles] [--detail simple|detailed]   # a graph kind in a chart look [S-6752]
            [--layout-json <out.json>]   # every card's item boxes, grid pitch and the ink outside its items [S-12831]
            [--hover fx,fy] [--pressed fx,fy]   # the item or control at that point of every card (fractions) as under the pointer [S-12831]
-           # scripts/item-check.py and scripts/gap-check.py judge every kind against docs/WIDGET-RULES.md (exit 1 on a finding)
+           # scripts/item-check.py and scripts/gap-check.py judge the kinds against docs/WIDGET-RULES.md (exit 1 on a finding)
+Themia.exe --widget-batch <jobs.json> [--theme dark] [--timeout s]   # many --widget-png renders in one process [S-14340]:
+           # {"jobs": [{"id", "args": [<what follows --widget-png>]}]}; the checks' renders go through it (scripts/renders.py)
+Themia.exe --catalog-json <out.json>   # every kind of the build: id, project, traits, styles, states [S-14342]
 Themia.exe --picker-png <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
 Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
@@ -537,16 +543,29 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 
 ## Definition of done
 
-1. `dotnet build` (Debug) is green with warnings as errors, and the scoped tests pass.
+1. `dotnet build` (Debug) is green with warnings as errors, and the tests pass at the tier below.
 2. New behaviour has a test; a fixed bug has a regression test.
 3. UI work: rendered through `--editbar-png`, `--widget-png` (and the other render flags) and looked at. Widget layout is
    checked at its min, natural and max on the showcase views (`--add-showcase-views`) on the live desktop: a manual pass, say so.
    **Any change to a widget, the kit, widget layout or the gap check ends with the widget audit** (the saved workflow
-   `.claude/workflows/widget-audit.js`, args `{repo, out}`): every kind × every owner rule in `docs/WIDGET-RULES.md`
-   gets a verdict from a reviewer who did not build the change, failures are re-measured by a skeptic, and a critic
-   lists exemptions the owner never granted. Not done until it returns `pass: true`; report its verdict, not "looked
-   fine". The rules file is the owner's words only; a check script or SPEC entry that allows less is the bug.
-4. Touched interop, focus, z-order, displays, autostart, Store or sign-in code that cannot run in CI:
+   `.claude/workflows/widget-audit.js`, args `{repo, out, exe?, kinds?}`): every kind it audits × every owner rule in
+   `docs/WIDGET-RULES.md` gets a verdict from a reviewer who did not build the change, failures are re-measured by a
+   skeptic, and a critic lists exemptions the owner never granted. Not done until it returns `pass: true`; report its
+   verdict, not "looked fine". The rules file is the owner's words only; a check script or SPEC entry that allows less is the bug.
+4. **Check tiers** (owner, 2026-11-20: "you dont have to test everything everytime"; [S-14344]). The checks
+   (`scripts/item-check.py`, `scripts/gap-check.py`, the audit) share one cached render pass a build ([S-14341]: a second
+   check on the same build draws nothing) and take `--changed [range]` (the default: the branch against winui, uncommitted
+   files included), `--kinds a,b` or `--all`; each kind picked is printed with why (`scripts/changes.py`, [S-14342]).
+   Always pass `--exe` (your own build) and `--artifacts`/`--artifacts-path` your own folder.
+   - **While working:** `python scripts/test.py` (the tests the change touches); for widget work
+     `python scripts/item-check.py --exe <exe>` and `python scripts/gap-check.py --exe <exe>` (the kinds it touches); the
+     audit with its default kinds.
+   - **Before an install or a merge:** `python scripts/test.py --all`, and both checks with `--changed since-sweep`
+     (every kind changed since this checkout's last full sweep; no sweep recorded: `--all`).
+   - **A full sweep (`--all`)** only when shared layout code or the check rules change: `--changed` then picks every kind
+     itself and says why (the card, the render path, the scripts, `docs/WIDGET-RULES.md`, the shared build); the audit
+     with `kinds: 'all'`. A full sweep is recorded (`TestResults/last-full-sweep.txt`) for `since-sweep`.
+5. Touched interop, focus, z-order, displays, autostart, Store or sign-in code that cannot run in CI:
    say exactly what still needs a manual pass (multi-monitor, mixed DPI, a live account, the
    packaged build). Never imply it was verified.
-5. `SPEC.md` matches the behaviour.
+6. `SPEC.md` matches the behaviour.
