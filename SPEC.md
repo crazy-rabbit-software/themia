@@ -9440,10 +9440,13 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
 
 - **[S-14600]** **Its size is its one row.** The card is one fact row in whole grid cells (WR-6) from its top edge to its
   foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on the default grid), so its top and bottom spacing are
-  a list row's; its height has that one step (`MetricRules.HeightSteps`, never taller: the card hugs its content), its
-  width 200 at least, a new one 240, relaxed past 420 ([S-12411]), each widened by the trend's room beside the value
-  (an arrow 28, `MetricRules.TrendRoom`; a line none, it is the band behind the row, [S-14220]), so the name and the
-  value keep theirs. Every kind states `MetricRules.SizingOf` its config.
+  a list row's; its height has that one step (`MetricRules.HeightSteps`, never taller: the card hugs its content); a
+  metric drawing Line stands two such rows, its reading's and its line's (`MetricRules.HeightStepsFor`, `Rows`,
+  [S-14220]); its width 200 at least, a new one 240, relaxed past 420 ([S-12411]), each widened by the trend's room beside
+  the value (an arrow 28, `MetricRules.TrendRoom`; a line none, it is the band under the row, [S-14220]), so the name and
+  the value keep theirs. Every kind states `MetricRules.SizingOf` its config; a placed metric switched to Line or back
+  refits on the config change, and a ready-made group placed with Line metrics lays them two rows each, still touching
+  (`ReadyMadeGroups.Laid` as one block).
 - **[S-14601]** **One face** (`MetricView`): the row is the facts' row (`FactList`, a list of one, [S-12811]): the kind's
   16 glyph, the metric's name (the reading's own where its source names it more exactly, "Full in" while charging), its
   value with its unit at the end, and the trend beside the value ([S-14603]); a name or value too long ends in its
@@ -9454,8 +9457,8 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
   the glyph its room at its end so it never stands on the value ([S-12834]).
 - **[S-14603]** **Trend**, a widget's setting (`IMetricTrend.Trend`, stored only when not None): **None**, **Arrow** (up,
-  down or flat against the reading before, beside the value) or **Line** (the metric's history on the band behind the
-  row, [S-14220]). What a kind
+  down or flat against the reading before, beside the value) or **Line** (the metric's history on the band under the
+  row, the card two rows tall, [S-14220]). What a kind
   offers is its metric's history (`MetricHistory`): a series (the hub's charted series, a service's hours) None, Arrow and
   Line; its readings only None and Arrow, from the last two readings the card saw (`MetricReadings`: a reading drawn again
   is no move); none (a text, a constant, a time) no Trend line at all. A stored trend a kind cannot draw is the one it can,
@@ -9466,18 +9469,19 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   while a trend needs it (the hub's series, the place's hours). Trend is a shared setting (`SharedSettings.MetricTrend`,
   [S-11750]): several metrics selected set it once, each as it can draw it. Its line is on the widget's page after the
   family's source line (the place, the drive, the adapter, the host), `MetricMenuLines.Trend`.
-- **[S-14220]** **The trend line is the meters' history band behind the row** (owner, 2026-11-19, asked whether a graph's
+- **[S-14220]** **The trend line is the meters' history band under the reading** (owner, 2026-11-19, asked whether a graph's
   plot should reach the card's edges: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand
   inside it, over the plot; WR-11: "they should reuse the same base … they should reuse more of the same components"). A
   metric drawing Line has no sparkline of its own: its line is the history band every meter draws (`SparkBand` on the one
-  `Chart`, [S-6750]), in its look (Area, Simple: the line at 2 over its 16 % wash), with no caption, behind the whole row
-  and standing where the row stands: on the card's top edge, down to its foot, side to side, so its plot is the card's
-  box ([S-6754]) and the row (glyph, name, value, the status's glyph) stands inside it, over the plot. The row is the
-  owner's part over the plot's top (`SparkBand.Over`, `ChartModel.Over`): the line keeps to the room under the row's text
-  line (a Body line centred on the row, the descenders inside it) and its lead glyph, at the row's foot
-  (`MetricRules.LineOver`: 25 to 30 on the 30 row, a stroke's room at least), so it never runs through a glyph and reads
-  as its own row's, not the one above it in a group; its wash runs from the line to the foot. It takes no room
-  beside the value ([S-14600]). Its points (`MetricRules.Band`) are the newest 24 values of the metric's history, oldest
+  `Chart`, [S-6750]), in its look (Area, Simple: the line at 2 over its 16 % wash), with no caption. A metric drawing
+  Line stands **two rows** (coordinator's decision 2026-11-20, after a line squeezed under the text of a one-row card
+  moved 3 DIP and read as a divider, not the "trendlines" the owner asked for): its reading row exactly as ever at the
+  top (the list's first of two rows, `FactList.Rows`) and the line's row under it, each a 28 row in whole cells
+  ([S-14600]). The band is the card's whole box, on its top edge, down to its foot, side to side, so its plot is the
+  card's box ([S-6754]); the reading row is the owner's part over the plot's top (`SparkBand.Over`, `ChartModel.Over`,
+  `MetricRules.LineOver`: the first of the card's two alike rows, 30 on the 60 card), so the line moves in the whole
+  second row (28 DIP on the default grid) and never runs through a glyph, its wash down to the card's foot, as a meter's
+  history stands under its figure. It takes no room beside the value ([S-14600]). Its points (`MetricRules.Band`) are the newest 24 values of the metric's history, oldest
   first, each its share of their own range (the low at the band's foot, the high at its top; a flat history level
   through the middle) on a share scale; a gap is left out, as the band leaves out a sample not read; the band lays them
   on its slots, the newest on the right edge, a history still filling growing in from the right ([S-6331]); with fewer

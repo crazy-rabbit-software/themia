@@ -299,6 +299,33 @@ public sealed class ReadyMadeGroupsTests
         Assert.Equal(recipe.Widgets[1].Box.Height, recipe.Widgets[2].Box.Height);
     }
 
+    /// <summary>
+    /// [S-14220] A group placed with metrics drawing a line lays each of them two rows tall (its sizing's, through the
+    /// block's fit), the others one, all still touching: the recipe's one-row boxes grow, never overlap.
+    /// </summary>
+    [Fact]
+    public void S14220_a_group_placed_with_line_metrics_lays_each_two_rows_still_touching()
+    {
+        const string line = """{ "trend": "Line" }""";
+        var row = MetricRules.RowHeight;
+        var recipe = ReadyMadeGroups.WeatherFacts with
+        {
+            Widgets =
+            [
+                new("weatherPressure", new(0, 0, 240, row), Config: line),
+                new("weatherHumidity", new(0, row, 240, row)),
+                new("weatherUv", new(0, 2 * row, 240, row), Config: line),
+            ],
+        };
+
+        var laid = ReadyMadeGroups.Laid(recipe, Screen, new PlacementSizes(1)).Select(r => GridGeometry.ToPixels(r, Screen)).ToList();
+
+        Assert.Equal([2 * row, row, 2 * row], laid.Select(r => Math.Round(r.Height, 6)));
+        Assert.Equal(laid[0].Y + laid[0].Height, laid[1].Y, 6);
+        Assert.Equal(laid[1].Y + laid[1].Height, laid[2].Y, 6);
+        Assert.All(laid, r => Assert.Equal(240, r.Width, 6));
+    }
+
     // ---- [S-2471] placing one ---------------------------------------------------------------------
 
     [Fact]

@@ -17,10 +17,11 @@ namespace Themia.App.Widgets;
 /// that are alike to the weather and air facts into individual metrics too. use the same base component for all of
 /// them"): one fact row that is the card, from its top edge to its foot edge (<see cref="MetricRules.Sizing"/>): the
 /// kind's 16 glyph, the metric's name, its value with its unit at the end and, as the widget's trend says, an arrow
-/// beside the value (in the row's inline slot, <see cref="RowBlock.Meter"/>) or the trend line: the meters' history band
-/// (<see cref="SparkBand"/>) behind the whole row, the card edge to edge, the row standing over it ([S-14220]). Without a
-/// reading the row stays with "--" drawn unavailable and why as its tooltip ([S-14602]); a reading kept through a failed
-/// refresh stays and the status's problem glyph says so, the row leaving the glyph its room at its end. A family
+/// beside the value (in the row's inline slot, <see cref="RowBlock.Meter"/>) or the trend line: the card two rows tall,
+/// the row on top and the meters' history band (<see cref="SparkBand"/>) the card edge to edge, its line in the row under
+/// the reading ([S-14220]). Without a reading the row stays with "--" drawn unavailable and why as its tooltip
+/// ([S-14602]); a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
+/// the glyph its room at its end. A family
 /// subclasses it for its data and hands each read to <see cref="Present"/>; the face, the trend and the readings an
 /// arrow compares are this base's alone.
 /// </summary>
@@ -160,12 +161,14 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
 
     /// <summary>
     /// [S-14603] The trend: the arrow beside the value against the reading before (as the source says, or against the last
-    /// this widget saw), the line over the metric's history on the band behind the row ([S-14220]); with nothing to compare
+    /// this widget saw), the line over the metric's history on the band under the row ([S-14220]); with nothing to compare
     /// the arrow's room stays empty and the band lies flat at its baseline (never no trend, WR-10, never a row that shifts
     /// when one arrives, WR-12).
     /// </summary>
     private void DrawTrend(MetricShown shown, MetricTrend trend)
     {
+        // [S-14220] A line's card is two rows: the reading keeps the first, the line's row under it is the list's empty one.
+        _row.Rows = MetricRules.Rows(trend);
         if (_band is not null)
         {
             _band.Visibility = trend == MetricTrend.Line ? Visibility.Visible : Visibility.Collapsed;
@@ -185,7 +188,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
             case MetricTrend.Line:
                 _row.Beside(0, null, 0);
                 var band = Band();
-                band.Over = MetricRules.LineOver(band.ActualHeight, FamilyType.Body);
+                band.Over = MetricRules.LineOver(band.ActualHeight);
                 band.Role(shown.Value.Available ? ColourRole.Accent : ColourRole.TextDisabled);
                 band.Load(MetricRules.Band(shown.Series));
                 break;
@@ -200,9 +203,9 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     /// [S-14220] The line's band, built the first time a line is drawn: the meters' history band (owner, 2026-11-19: "they
     /// should reuse more of the same components") with no caption of its own (the row is what is written over it), behind
     /// the row and standing where it stands, on the card's top edge and down to its foot, side to side ("Plot edge to
-    /// edge": the plot and its fill reach the card's edges, the labels stand inside it, over the plot). The row stands
-    /// over the plot's top as its owner's part (<see cref="SparkBand.Over"/>): the line keeps to the room under the row's
-    /// text at its foot, so it never runs through a glyph and is seen as this row's, not the one above.
+    /// edge": the plot and its fill reach the card's edges, the labels stand inside it, over the plot). The reading row
+    /// stands over the plot's top as its owner's part (<see cref="SparkBand.Over"/>): the line moves in the whole row under
+    /// it, never through a glyph, as a meter's history under its figure.
     /// </summary>
     private SparkBand Band()
     {
@@ -210,7 +213,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         {
             var band = new SparkBand(MetricRules.LinePoints) { Captions = false };
             ListEdge.Apply(band);
-            band.SizeChanged += (_, args) => band.Over = MetricRules.LineOver(args.NewSize.Height, FamilyType.Body);
+            band.SizeChanged += (_, args) => band.Over = MetricRules.LineOver(args.NewSize.Height);
             Children.Insert(0, band);
             _band = band;
         }

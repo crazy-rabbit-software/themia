@@ -77,7 +77,7 @@ public partial class FactList : RowStack
 
     /// <summary>
     /// [S-14603] An element inline beside the value of the row at <paramref name="index"/> (a single metric's trend
-    /// arrow; its line is the band behind the row, [S-14220]), <paramref name="width"/> wide, 12 from the name and the
+    /// arrow; its line is the band under the row, [S-14220]), <paramref name="width"/> wide, 12 from the name and the
     /// value; null takes it away.
     /// </summary>
     public void Beside(int index, FrameworkElement? element, double width)

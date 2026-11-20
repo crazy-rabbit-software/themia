@@ -10,7 +10,7 @@ namespace Themia.Core.Widgets;
 /// <summary>
 /// [S-14603] What a single-metric widget draws with its value (owner, 2026-11-20: "you should also have the option to
 /// show trendlines as well or just the trend with arrows"): nothing, an arrow beside the value (up, down or flat against
-/// the reading before), or a trend line (the metric's own history on the meters' history band behind the row, [S-14220]).
+/// the reading before), or a trend line (the metric's own history on the meters' history band under the row, [S-14220]).
 /// A widget's setting, None by default.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<MetricTrend>))]
@@ -93,7 +93,7 @@ public interface IMetricTrend
 /// <summary>
 /// [S-14600]..[S-14605] The single-metric widget's rules, pure, one base for every one-reading widget (owner,
 /// 2026-11-20: "split all the other widgets that are alike to the weather and air facts into individual metrics too.
-/// use the same base component for all of them"): its size (one fact row, whole grid cells, the card hugging it), the
+/// use the same base component for all of them"): its size (one fact row, a line's two, whole grid cells, the card hugging it), the
 /// default without a reading, the trends a history allows, the arrow's direction and the trend line's chart.
 /// </summary>
 public static class MetricRules
@@ -131,20 +131,39 @@ public static class MetricRules
     public static WidgetSizing Sizing { get; } = SizingFor(MetricTrend.None);
 
     /// <summary>
-    /// [S-14600] [S-14603] The sizing of a single metric drawing <paramref name="trend"/>: its one row tall; 200..420 wide
-    /// and, beside the value, the arrow's room with its gap, so the name and the value keep theirs (content decides the
-    /// size, [S-2445]); a line takes none, it is the band behind the row ([S-14220]).
+    /// [S-14220] How many rows a metric drawing a line stands: its reading row, and the line's row under it (the line gets a
+    /// whole row to move in, as a meter's history band under its figure).
+    /// </summary>
+    public const int LineRows = 2;
+
+    /// <summary>[S-14600] [S-14220] The rows a single metric drawing <paramref name="trend"/> stands: a line's two, else its one.</summary>
+    public static int Rows(MetricTrend trend) => trend == MetricTrend.Line ? LineRows : 1;
+
+    /// <summary>
+    /// [S-14600] [S-14220] The height's one step for <paramref name="trend"/>: its rows (<see cref="Rows"/>), each a 28 row
+    /// in whole grid cells of the card's own grid (<see cref="SizeSteps.InCells"/>), never taller, so on any pitch the card
+    /// is exactly its rows, no cell left over (WR-6).
+    /// </summary>
+    public static SizeSteps HeightStepsFor(MetricTrend trend)
+        => trend == MetricTrend.Line ? SizeSteps.InCells(FamilyShape.Row1, LineRows, LineRows) : HeightSteps;
+
+    /// <summary>
+    /// [S-14600] [S-14603] The sizing of a single metric drawing <paramref name="trend"/>: its rows tall (one; a line's two,
+    /// [S-14220]); 200..420 wide and, beside the value, the arrow's room with its gap, so the name and the value keep theirs
+    /// (content decides the size, [S-2445]); a line takes none beside it, it is the band under the row.
     /// </summary>
     public static WidgetSizing SizingFor(MetricTrend trend)
     {
         var room = TrendRoom(trend);
-        return WidgetSizing.Range(new(MinWidth + room, RowHeight), new(NaturalWidth + room, RowHeight), new(MaxWidth + room, RowHeight))
-            .WithHeightSteps(HeightSteps);
+        var steps = HeightStepsFor(trend);
+        var height = steps.At(Rows(trend));
+        return WidgetSizing.Range(new(MinWidth + room, height), new(NaturalWidth + room, height), new(MaxWidth + room, height))
+            .WithHeightSteps(steps);
     }
 
     /// <summary>
     /// [S-14603] The width a trend takes beside the value: the arrow its own and the gap before the value; a line none, it
-    /// runs behind the whole row ([S-14220]).
+    /// is the band under the row ([S-14220]).
     /// </summary>
     public static double TrendRoom(MetricTrend trend) => trend switch
     {
@@ -216,21 +235,12 @@ public static class MetricRules
     }
 
     /// <summary>
-    /// [S-14220] How far down a row <paramref name="height"/> tall the trend line's room starts (its band's <c>Over</c>): under
-    /// the row's text line (<paramref name="body"/>, the name's and the value's line, centred on the row with the descenders
-    /// inside it) and its lead glyph, so the line runs in the room under them at the row's foot and never through a glyph,
-    /// a stroke's room at least; the band and its wash stay the row's whole box behind the text.
+    /// [S-14220] How far down a metric's card <paramref name="height"/> tall the line's room starts (its band's <c>Over</c>):
+    /// under the reading row, the first of its <see cref="LineRows"/> alike rows, so the line moves in the whole row under it
+    /// and never through a glyph, and the band's plot and wash stay the card's whole box; a stroke's room at least.
     /// </summary>
-    public static double LineOver(double height, TypeStep body)
-    {
-        if (!(height > 0))
-        {
-            return 0;
-        }
-
-        var text = Math.Max(double.IsFinite(body.LineHeight) ? body.LineHeight : 0, FamilyShape.Icon);
-        return Math.Clamp((height + text) / 2, 0, Math.Max(0, height - FamilyShape.Stroke));
-    }
+    public static double LineOver(double height)
+        => height > 0 && double.IsFinite(height) ? Math.Clamp(height / LineRows, 0, Math.Max(0, height - FamilyShape.Stroke)) : 0;
 
     /// <summary>
     /// [S-14220] The trend line's points on the meters' history band (<c>SparkBand</c>, a share scale): the newest

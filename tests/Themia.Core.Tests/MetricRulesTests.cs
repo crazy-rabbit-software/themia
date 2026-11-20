@@ -152,30 +152,51 @@ public sealed class MetricRulesTests
     // ---- [S-14220] the line on the history band ------------------------------------------------------
 
     [Fact]
-    public void S14220_a_line_takes_no_room_beside_the_value_it_is_the_band_behind_the_row()
+    public void S14220_none_and_an_arrow_stand_one_row_a_line_two_whole_rows_and_no_room_beside_the_value()
     {
+        var none = MetricRules.SizingOf(new Metric(MetricHistory.Series));
+        var arrow = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Arrow });
+        var line = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Line });
+
+        Assert.Equal((1, 1, MetricRules.LineRows), (MetricRules.Rows(MetricTrend.None), MetricRules.Rows(MetricTrend.Arrow), MetricRules.Rows(MetricTrend.Line)));
+        Assert.Equal(2, MetricRules.LineRows);
+        Assert.Equal((30d, 30d, 30d), (none.Min.Height, none.Natural.Height, none.Max.Height));
+        Assert.Equal((30d, 30d, 30d), (arrow.Min.Height, arrow.Natural.Height, arrow.Max.Height));
+
+        // A line: its reading row and the line's row, each a 28 row in whole cells, the card exactly those two (WR-6).
+        Assert.Equal((60d, 60d, 60d), (line.Min.Height, line.Natural.Height, line.Max.Height));
+        Assert.Equal(2 * MetricRules.RowHeight, line.Natural.Height);
+        Assert.True(line.FixedHeight);
+        Assert.Empty(line.Problems());
+        Assert.Equal(60, SizeStretch.Relax(line).FitHeight(52));
+        Assert.Equal(60, SizeStretch.Relax(line).FitHeight(90));
+
+        // Its steps are whole rows on any pitch: two 28 rows on an 8 grid are 32 each.
+        var (start, step) = MetricRules.HeightStepsFor(MetricTrend.Line).On(new ItemGrid(8));
+        Assert.Equal(64, start + (2 * step));
+
+        // No room beside the value: the line is the band under and behind the row.
         Assert.Equal(0, MetricRules.TrendRoom(MetricTrend.Line));
-        Assert.Equal(MetricRules.Sizing, MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Line }));
+        Assert.Equal((200d, 240d), (line.Min.Width, line.Natural.Width));
+
+        // A line the metric cannot draw is its arrow: one row.
+        Assert.Equal(30, MetricRules.SizingOf(new Metric(MetricHistory.Readings) { Trend = MetricTrend.Line }).Natural.Height);
     }
 
     [Fact]
-    public void S14220_the_line_keeps_to_the_room_under_the_row_s_text_and_glyph_never_through_them()
+    public void S14220_the_line_moves_in_the_whole_row_under_the_reading_never_through_it()
     {
-        var body = FamilyType.StepsAt(1)[1];
-        Assert.Equal(new TypeStep(FamilyType.BodySize, FamilyType.BodyLine, false), body);
+        // The 60 card: the reading row 0 to 30 is the owner's part over the plot; the line moves in 30 to 60.
+        Assert.Equal(MetricRules.RowHeight, MetricRules.LineOver(2 * MetricRules.RowHeight));
+        Assert.True(MetricRules.LineOver(60) >= MetricRules.RowHeight);
 
-        // The 30 row: its Body line (20) centred stands 5 to 25, the descenders inside it; the line's room is 25 to 30.
-        Assert.Equal(25, MetricRules.LineOver(MetricRules.RowHeight, body));
-        Assert.True(MetricRules.LineOver(MetricRules.RowHeight, body) >= (MetricRules.RowHeight + FamilyShape.Icon) / 2);
+        // On another grid's pitch the card's two rows are alike: the line's row is the second.
+        Assert.Equal(32, MetricRules.LineOver(64));
 
-        // A taller row on another grid's pitch keeps the line under its centred text all the same.
-        Assert.Equal(28, MetricRules.LineOver(36, body));
-
-        // A larger text size: under its taller line, but never less than a stroke's room at the foot.
-        Assert.Equal(30 - FamilyShape.Stroke, MetricRules.LineOver(30, FamilyType.StepsAt(1.5)[1]));
-
-        // Not laid out yet: nothing over the plot.
-        Assert.Equal(0, MetricRules.LineOver(0, body));
+        // A card never shorter than a stroke keeps a stroke's room; not laid out yet, nothing over the plot.
+        Assert.Equal(1, MetricRules.LineOver(3));
+        Assert.Equal(0, MetricRules.LineOver(0));
+        Assert.Equal(0, MetricRules.LineOver(double.NaN));
     }
 
     [Fact]
