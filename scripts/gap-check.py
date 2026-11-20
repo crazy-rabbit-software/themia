@@ -40,14 +40,20 @@ last row and column of ink (a pixel off the card's own colour), and judges:
 - [S-14304] a text cut with its ellipsis at the width it was given (`cuts`) ends where its last whole letter and the
   ellipsis fit: where it ends the card's ink, the room after it is the cut's (less than the next letter), not a band, and
   the end side is read as on the inset.
+- [S-14312] a lower bound: no text's ink stands inside the inset. Each text the layout names (`ink` and `texts`: every
+  TextBlock, outside items and in them) is measured on the PNG within its own box (its ink against the box's own ground),
+  and ink closer than the inset less the tolerance to a card edge is a finding ("text in the inset"); a text in a plot or
+  a free field, and a picture's or a desktop icon's card, are not judged (the plot, the field, the picture own the edge),
+  nor a text in an item against a card edge the item's own box is (its padding stands there in the inset's place, WR-3:
+  the item check judges the box). A text whose box reaches the edge but whose ink does not is fine.
 
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
 Windows' icon cell (not judged); a tile (quick toggles, power buttons) and a one-line face (clock, date, header) may
 stand centred: the bands over and under the face alike (within the tolerance), and [S-14305] its sides judged as any
-card's (WR-3: each band beside it within the inset; tiles: "nothing else of WR-1..WR-4 is relaxed"); a one-line face
-that fills the height (its line grows until the height stops it) stands across where its card's alignment puts it, as
-a reading does ([S-14301]); a reading (a card
+card's (WR-3: each band beside it within the inset; tiles: "nothing else of WR-1..WR-4 is relaxed"); a one-line face or
+[S-14306] a tile's face that fills the height (it grows as one until the height stops it) stands across where its
+card's alignment puts it (a tile: centred), as a reading does ([S-14301]); a reading (a card
 with no item and no plot) whose ink reaches the edges of one axis may stand centred on the other ([S-14301], owner
 2026-11-20: "Centred is fine"): the two bands of that axis alike, not within the inset. Across, a reading that fills the
 height stands where its card's alignment puts it (the layout's `align`, [S-6583]: a kind that aligns in its style draws
@@ -186,16 +192,17 @@ def judge(kind, card, layout):
     # [S-14304] A text cut to the width it was given that ends the content's ink: the room after it is the cut's.
     cw = (layout or {}).get('w', w)
     if any(c['x'] + c['w'] >= cw - right - TOLERANCE for c in (layout or {}).get('cuts', [])):
-        right = min(right, INSET)
+        # Read as no more than the start's band, or the inset: a centred cut line leaves its room alike either side.
+        right = min(right, max(INSET, left))
     if kind_class in ('tile', 'one-line'):
         # Centred, as the owner granted: the bands over and under the face alike. [S-14305] Its sides as any card's (tiles:
-        # "nothing else of WR-1..WR-4 is relaxed"); a one-line face that fills the height stands across where its
-        # alignment puts it, as a reading ([S-14301]).
+        # "nothing else of WR-1..WR-4 is relaxed"): it reaches them, or [S-14306] it fills the height (a one-line face, a
+        # tile's face scaled up as one, WR-7) and stands across where its alignment puts it, as a reading ([S-14301]).
         if abs(top - foot) > TOLERANCE:
             found.append(f'centred face off centre {top:.1f}/{foot:.1f}')
         if left <= limit and right <= limit:
             return found
-        if kind_class == 'one-line' and top <= limit and foot <= limit:
+        if top <= limit and foot <= limit:
             return found + across(left, right, (layout or {}).get('align', 'center'), limit)
         return found + [f'WR-3 sides {left:.1f}/{right:.1f}']
     items = (layout or {}).get('items', [])
@@ -263,6 +270,74 @@ def spans(items, width):
     return any(i['x'] <= 0.5 for i in items) and any(i['x'] + i['w'] >= width - 0.5 for i in items)
 
 
+def texts_in_inset(path, layouts, kind):
+    """[S-14312] Per card, the texts whose ink stands inside the inset: each text box measured on the PNG within its box."""
+    if classify(kind) in ('picture', 'windows'):
+        return [[] for _ in layouts]
+    im = np.asarray(Image.open(path).convert('RGBA')).astype(int)
+    out = []
+    for card in layouts:
+        scale = card.get('scale', SCALE)
+        owners = (card.get('plots', []) or []) + (card.get('fields', []) or [])
+        inks = []
+        # A glyph's own text (the FontIcon's template draws it in a TextBlock of its box) is no text.
+        glyphs = [g for g in (card.get('ink', []) or []) if g.get('t') == 'FontIcon']
+        # The card's own rim (its outline, its antialiased corners) is no ink, as in the measure.
+        rim = max(1, min(int(round(4 * scale)), int(card['w'] * scale) // 3, int(card['h'] * scale) // 3))
+        cl, ct = int(round(card['x'] * scale)) + rim, int(round(card['y'] * scale)) + rim
+        cr, cb = int(round((card['x'] + card['w']) * scale)) - rim, int(round((card['y'] + card['h']) * scale)) - rim
+        for t in (card.get('ink', []) or []) + (card.get('texts', []) or []):
+            if t.get('t') != 'TextBlock' or t['w'] <= 0 or t['h'] <= 0:
+                continue
+            if any(inside(t, o) for o in owners):
+                continue
+            if any(all(abs(t[k] - g[k]) <= EDGE for k in ('x', 'y', 'w', 'h')) for g in glyphs):
+                continue
+            # An item's own box edge on a card edge is the item's: its padding stands there in the inset's place (a row centres
+            # its text in its band, a month's cell holds its number in its corner).
+            held = [i for i in (card.get('items', []) or []) if inside(t, i)]
+            free = {'left': not any(i['x'] <= EDGE for i in held), 'top': not any(i['y'] <= EDGE for i in held),
+                    'right': not any(i['x'] + i['w'] >= card['w'] - EDGE for i in held),
+                    'foot': not any(i['y'] + i['h'] >= card['h'] - EDGE for i in held)}
+            x0, y0 = int(round((card['x'] + t['x']) * scale)), int(round((card['y'] + t['y']) * scale))
+            x1, y1 = int(round((card['x'] + t['x'] + t['w']) * scale)), int(round((card['y'] + t['y'] + t['h']) * scale))
+            x0, y0, x1, y1 = max(x0, cl), max(y0, ct), min(x1, cr), min(y1, cb)
+            sub = im[max(0, y0):max(0, y1), max(0, x0):max(0, x1), :3]
+            if sub.size == 0 or x1 <= x0 or y1 <= y0:
+                continue
+            vals, counts = np.unique(sub.reshape(-1, 3), axis=0, return_counts=True)
+            ground = vals[counts.argmax()]
+            mask = np.abs(sub - ground).sum(axis=2) > 30
+            rows = np.where(mask.any(axis=1))[0]
+            cols = np.where(mask.any(axis=0))[0]
+            if len(rows) == 0:
+                continue
+            inks.append((max(0, x0) / scale - card['x'] + cols[0] / scale, max(0, y0) / scale - card['y'] + rows[0] / scale,
+                         max(0, x0) / scale - card['x'] + (cols[-1] + 1) / scale, max(0, y0) / scale - card['y'] + (rows[-1] + 1) / scale,
+                         free))
+        out.append(inset_findings(card['w'], card['h'], inks))
+    return out
+
+
+def inside(box, owner):
+    """Whether a text's box stands within an owner's (a plot's, a field's), its edges included."""
+    return (box['x'] >= owner['x'] - EDGE and box['y'] >= owner['y'] - EDGE
+            and box['x'] + box['w'] <= owner['x'] + owner['w'] + EDGE and box['y'] + box['h'] <= owner['y'] + owner['h'] + EDGE)
+
+
+def inset_findings(w, h, inks):
+    """[S-14312] The texts' ink boxes (left, top, right, bottom in the card's DIPs) that stand inside the inset."""
+    floor = INSET - TOLERANCE
+    found = []
+    for l, t, r, b, *rest in inks:
+        free = rest[0] if rest else {}
+        bands = {'left': l, 'top': t, 'right': w - r, 'foot': h - b}
+        near = [f'{edge} {band:.1f}' for edge, band in bands.items() if band < floor and free.get(edge, True)]
+        if near:
+            found.append('text in the inset ' + ', '.join(near))
+    return sorted(set(found))
+
+
 def sets():
     """The size sets every state is drawn at, by their labels."""
     return [('range', 'range')] + [(f'desk{i}', group) for i, group in enumerate(SIZES)]
@@ -285,11 +360,11 @@ def check(kind, states, drawn, out):
                 continue
             with open(layout_path, encoding='utf-8') as f:
                 layouts = json.load(f).get('cards', [])
-            for card, layout in zip(measure(png, layouts), layouts):
+            for card, layout, inset in zip(measure(png, layouts), layouts, texts_in_inset(png, layouts, kind)):
                 w, h, top, foot = card[:4]
                 box = f'{w:.0f}x{h:.0f}'
                 fmt = lambda v: '-' if v is None else f'{v:.1f}'
-                lines.append((kind, state, label, box, fmt(top), fmt(foot), judge(kind, card, layout)))
+                lines.append((kind, state, label, box, fmt(top), fmt(foot), judge(kind, card, layout) + inset))
     return lines
 
 
@@ -324,17 +399,38 @@ def self_test():
         ('a title cut to its width', card(350, 70, 12, 12, 15.3, 39.3, cuts=[{'x': 12, 'y': 0, 'w': 301.7, 'h': 56}]), [], False),
         ('a cut line under a wider one', card(350, 70, 12, 12, 15.3, 39.3, cuts=[{'x': 12, 'y': 0, 'w': 200, 'h': 56}]), [], True),
         ('a short title, not cut', card(350, 70, 12, 12, 15.3, 39.3), [], True),
+        ('a centred name cut on its second line', card(200, 200, 12, 12, 36.7, 36.0, cuts=[{'x': 30, 'y': 120, 'w': 140, 'h': 60}]), ['hibernate'], False),
         ('an editor short of the foot', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 400}]), [], True),
         # [S-14305] A tile and a one-line face: centred down, their sides judged as any card's.
         ('a tile centred both ways', card(100, 100, 30, 30, 30, 30), ['wifiToggle'], True),
         ('a tile whose face fills its width', card(160, 100, 30, 31, 12, 12), ['wifiToggle'], False),
+        ('a tile whose face fills its height, centred', card(116, 116, 12, 12, 34.7, 36.7), ['wifiToggle'], False),
+        ('a tile whose face fills its height, off centre', card(232, 232, 12, 12.7, 60.7, 50), ['sleep'], True),
         ('a clock line the width stops', card(600, 200, 50, 51, 12, 13), ['clock'], False),
         ('a clock line the height stops, centred', card(900, 160, 12, 12, 200, 201, align='center'), ['clock'], False),
         ('a clock line the height stops, aligned left but centred', card(900, 160, 12, 12, 200, 201, align='left'), ['clock'], True),
         ('a short date line in a wide card', card(600, 200, 50, 50, 150, 150), ['date'], True),
     ]
+    # [S-14312] The lower bound: a text's ink inside the inset; a box reaching the edge with its ink inset is fine.
+    for name, inks, finds in [
+        ('the quote cut at 4 from the edge', [(12, 60, 326, 76)], True),
+        ('a title on its inset', [(12, 12, 200, 30)], False),
+        ('a label 6 under the top', [(40, 6, 120, 20)], True),
+        ('a text whose ink stands 9 from the foot', [(12, 100, 80, 121)], False),
+        ('a row of 30 whose text stands 7 from the top, the row on the edge', [(12, 7, 120, 23, {'top': False, 'foot': False})], False),
+        ('a row text 4 from the start, the row short of the start', [(4, 7, 120, 23, {'top': False, 'foot': False})], True),
+        ('a month cell number 4 from the start, the cell on the edge', [(4, 7, 20, 23, {'left': False, 'top': False})], False),
+    ]:
+        cases.append((name, None, inks, finds))
     failed = 0
-    for name, (measured, layout), kinds, finds in cases:
+    for name, card_layout, kinds, finds in cases:
+        if card_layout is None:
+            found = inset_findings(330, 130, kinds)
+            if bool(found) != finds:
+                failed += 1
+                print(f'FAIL {name}: {found}')
+            continue
+        measured, layout = card_layout
         kind = kinds[0] if kinds else 'cpuHistory' if layout['plots'] else 'notes' if layout.get('fields') else 'recycleBin'
         found = judge(kind, measured, layout)
         if bool(found) != finds:

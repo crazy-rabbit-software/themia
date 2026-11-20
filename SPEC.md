@@ -8549,6 +8549,15 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   one-line face that fills the height instead stands across where its card's alignment puts it ([S-14301]). Which kinds
   are tiles, one-line faces, graphs or pictures is read in one place (`classify` in `scripts/gap-check.py`), so a
   catalog of the kinds' traits can replace the names there alone.
+- **[S-14312]** **No text stands in the inset** (WR-3: "the inset is padding inside the item"; the check's lower bound).
+  The gap check measures each text the layout names (`ink`, `texts`) on the PNG within its own box, against its box's
+  ground, and a text whose ink stands closer than the inset less the tolerance (8) to a card edge is a finding ("text in
+  the inset"); a text in a plot or a free field, a picture's or a desktop icon's card, a glyph's own text, and an item's
+  text against a card edge the item's box is (its padding there in the inset's place) are not judged. A text whose box
+  reaches the edge but whose ink does not is fine. Over every kind it found the quote's cut line ([S-14311]), the
+  calendar's weekday letters 4 from the start edge (the month's first column's own padding, [S-12832], left to its
+  owner), the Header's caption in a preview strip drawn at the height of one without a caption, and the next meeting's
+  "none" sentence in its least card (32 tall).
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day
