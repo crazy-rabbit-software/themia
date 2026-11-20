@@ -159,6 +159,16 @@ public static class SharedSettings
         (from, to) => to.Detail = from.Detail,
         looks => looks.OffersDetail);
 
+    /// <summary>
+    /// [S-14603] A single metric's trend (None, Arrow, Line); written onto a kind only as it can draw it (a line where it
+    /// has no series is its arrow), held only by a kind whose metric has a history.
+    /// </summary>
+    public static SharedSetting<IMetricTrend> MetricTrend { get; } = new(
+        "metricTrend",
+        (a, b) => MetricRules.Effective(a) == MetricRules.Effective(b),
+        (from, to) => to.Trend = MetricRules.Effective(MetricRules.Effective(from), to.History),
+        held => held.History != MetricHistory.None);
+
     /// <summary>[S-5143] The exchange-rate atoms' pair.</summary>
     public static SharedSetting<ExchangePairConfig> ExchangePair { get; } = new(
         "exchangePair",
@@ -213,7 +223,7 @@ public static class SharedSettings
     public static IReadOnlyList<SharedSetting> All { get; } =
     [
         Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, PingHost, GpuAdapter, AudioOutput,
-        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, ListRows, ListLines, HideWhenIdle,
+        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, MetricTrend, ListRows, ListLines, HideWhenIdle,
     ];
 
     /// <summary>The shared setting named <paramref name="key"/>, or null.</summary>

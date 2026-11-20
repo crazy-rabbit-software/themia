@@ -8,7 +8,11 @@
     "chart.detail",
     "chart.detail.simple",
     "chart.detail.detailed",
-    "chart.noData"
+    "chart.noData",
+    "metric.trend",
+    "metric.trend.none",
+    "metric.trend.arrow",
+    "metric.trend.line"
   ],
   "chart.type": "Chart type",
   "chart.type.area": "Area",
@@ -18,5 +22,9 @@
   "chart.detail": "Detail",
   "chart.detail.simple": "Simple",
   "chart.detail.detailed": "Detailed",
-  "chart.noData": "No data yet"
+  "chart.noData": "No data yet",
+  "metric.trend": "Trend",
+  "metric.trend.none": "None",
+  "metric.trend.arrow": "Arrow",
+  "metric.trend.line": "Line"
 }

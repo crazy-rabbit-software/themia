@@ -35,6 +35,14 @@ public sealed class ThemiaProviderAttribute(string id, Type module) : Attribute
 }
 
 /// <summary>
+/// [S-14606] A kind that is one row of a removed kind of many rows (owner, 2026-11-20: "Each placed facts widget becomes
+/// its shown rows as single-metric widgets stacked in the same spot, with the same settings"): the removed kind's id,
+/// the row's key in its stored pick (its <c>facts</c> or <c>times</c>, compared ignoring case), its place in that kind's
+/// own order and whether a new one showed it (a stored widget with no pick shows its kind's defaults).
+/// </summary>
+public sealed record SplitFrom(string Kind, string Part, int Order, bool Default);
+
+/// <summary>
 /// [S-6902] What the host knows of a widget without its UI: one record per widget, in place of the
 /// per-kind tables the host used to keep (docs/WIDGET-KIT.md section 4.3). A member is added here
 /// when a table moves onto it, and the table goes in the same commit.
@@ -133,6 +141,12 @@ public sealed record WidgetDescriptor
     /// follows. Its code names exactly these (the conformance test); SPEC's topic table is made from them.
     /// </summary>
     public Themia.Core.Links.LinkUse Links { get; init; } = Themia.Core.Links.LinkUse.None;
+
+    /// <summary>
+    /// [S-14606] The row of a removed kind of many rows this kind stands in for (a CPU facts card's "speed" row is the
+    /// CPU speed widget): a placed one is replaced in place on load by one widget a row it showed. Null for every other kind.
+    /// </summary>
+    public SplitFrom? Split { get; init; }
 
     /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
     public string Name => Label.Text();

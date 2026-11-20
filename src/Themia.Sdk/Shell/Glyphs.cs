@@ -119,6 +119,14 @@ public static class Glyphs
     public static readonly string BackToWindow = From(0xE73F);
     public static readonly string MoveUp = From(0xE74A);
     public static readonly string MoveDown = From(0xE74B);
+
+    /// <summary>[S-14603] A single metric's trend arrow: up, down, flat (the move arrows, said for what they mean here).</summary>
+    public static readonly string TrendUp = MoveUp;
+
+    public static readonly string TrendDown = MoveDown;
+
+    public static readonly string TrendFlat = From(0xE72A);
+
     public static readonly string Folder = From(0xE8B7);
     public static readonly string File = From(0xE8A5);
     public static readonly string Hidden = From(0xE890);

@@ -15,8 +15,11 @@ public sealed partial class AddPictureSamplesTests
 {
     private static readonly string App = RepoFiles.At("src", "Themia.App");
 
-    /// <summary>The kinds whose preview has no sample on purpose: an "are you sure?" only, a reading of absence, a pressed look.</summary>
-    private static readonly string[] NoSample = ["ScratchpadView", "MeterView", "DetailView", "PowerButtonView"];
+    /// <summary>
+    /// The kinds whose preview has no sample on purpose: an "are you sure?" only, a reading of absence, a pressed look; and the
+    /// single metrics' base (<c>MetricView</c>, [S-14605]), whose families ship their own samples or draw the sample PC.
+    /// </summary>
+    private static readonly string[] NoSample = ["ScratchpadView", "MeterView", "DetailView", "PowerButtonView", "MetricView"];
 
     private static string Relative(string file) => Path.GetRelativePath(RepoFiles.Root, file).Replace('\\', '/');
 

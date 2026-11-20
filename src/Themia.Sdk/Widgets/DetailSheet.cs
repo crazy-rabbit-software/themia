@@ -4,8 +4,9 @@ namespace Themia.Core.Widgets;
 /// <param name="Label">What it is ("Base speed").</param>
 /// <param name="Value">The figure ("3.20 GHz"), or "--" when it cannot be read right now.</param>
 /// <param name="Available">False when the value is "--": it is drawn dimmed.</param>
-/// <param name="Key">[S-11007] Which of its kind's facts it is (a facts atom picks by it); null for a fact no pick names.</param>
-public readonly record struct DetailFact(string Label, string Value, bool Available = true, string? Key = null)
+/// <param name="Key">[S-14604] Which of its kind's facts it is (a single metric's kind reads it by it); null for a fact none names.</param>
+/// <param name="Number">[S-14603] The figure as a number, for a trend; null for a text (an address, a name).</param>
+public readonly record struct DetailFact(string Label, string Value, bool Available = true, string? Key = null, double? Number = null)
 {
     public static DetailFact Unavailable(string label) => new(label, "--", false);
 }
