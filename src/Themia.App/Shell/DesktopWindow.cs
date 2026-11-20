@@ -200,14 +200,15 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     }
 
     /// <summary>
-    /// The coordinate space fractional rects resolve into: the window's client area in DIPs, which is
-    /// the whole monitor ([S-840]), with the work area as the region new geometry may use ([S-841]).
+    /// The coordinate space fractional rects resolve into: the whole monitor in DIPs ([S-840]), with the work area as
+    /// the region new geometry may use ([S-841]).
     /// <para>
-    /// Derived from the real client rect divided by the real rasterization scale, <b>not</b> from
+    /// [S-05] Derived from the monitor's real bounds divided by the real rasterization scale, <b>not</b> from
     /// <c>ActualWidth</c>. On a scaled display the root's ActualWidth was observed still holding the
     /// pre-DPI size (physical pixels treated as DIPs) because changing scale alone resizes the
     /// content without changing the client's pixel size, so no SizeChanged ever corrected it — and
-    /// every widget rendered 1.5x too far right and down, with the far edge off-screen.
+    /// every widget rendered 1.5x too far right and down, with the far edge off-screen. [S-11892] Nor from the
+    /// window's client rect: the window is a pixel short of its display ([S-852]).
     /// </para>
     /// <para>
     /// [S-855] Its allowed area is the part of the screen every display showing this view holds in its work area: a
@@ -217,20 +218,17 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// </summary>
     public ScreenMetrics Metrics => OwnMetrics with { Allowed = _host.SharedAllowed(CurrentViewId, OwnAllowed) };
 
-    /// <summary>[S-841] This display's metrics with its own work area as the allowed area.</summary>
+    /// <summary>
+    /// [S-841] This display's metrics with its own work area as the allowed area. [S-11892] The display's bounds, never
+    /// the window's client rect: the window is a pixel short at the foot ([S-852]), and fractions resolved against it
+    /// put the grid's rows off whole DIPs (<see cref="GridGeometry.DisplayScreen"/>).
+    /// </summary>
     private ScreenMetrics OwnMetrics
     {
         get
         {
-            var allowed = OwnAllowed;
-            var scale = RasterScale;
-
-            if (Win32.GetClientRect(_hwnd, out var client) && client.Width > 0 && client.Height > 0)
-            {
-                return new ScreenMetrics(client.Width / scale, client.Height / scale) { Allowed = allowed };
-            }
-
-            return new ScreenMetrics(_monitor.Bounds.Width / scale, _monitor.Bounds.Height / scale) { Allowed = allowed };
+            var bounds = _monitor.Bounds;
+            return GridGeometry.DisplayScreen(new PixelRect(bounds.Left, bounds.Top, bounds.Width, bounds.Height), RasterScale) with { Allowed = OwnAllowed };
         }
     }
 

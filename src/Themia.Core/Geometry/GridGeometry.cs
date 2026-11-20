@@ -392,6 +392,20 @@ public static class GridGeometry
     public static PixelRect SurfaceWindow(PixelRect display)
         => display.Height > 1 ? display with { Height = display.Height - 1 } : display;
 
+    /// <summary>
+    /// [S-840] [S-11892] The screen a display's stored fractions resolve against: the display's own bounds (physical
+    /// pixels) in DIPs at <paramref name="rasterScale"/>, never its surface's window, which is a pixel short at the foot
+    /// (<see cref="SurfaceWindow"/>). Measured on that window a 1440-pixel display was 1439 DIPs tall at 100 %: its rows'
+    /// pitch was 9.993 DIPs, no whole number, so a move put on whole pixels left a block up to half a pixel off the line
+    /// and two blocks side by side met a pixel apart (owner, 2026-11-20: "the borders dont nicely connect"). A
+    /// non-positive or non-finite scale counts as 1.
+    /// </summary>
+    public static ScreenMetrics DisplayScreen(PixelRect display, double rasterScale)
+    {
+        var scale = double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1;
+        return new ScreenMetrics(display.Width / scale, display.Height / scale);
+    }
+
     public static PixelRect SurfaceRegion(PixelRect window, PixelRect workArea)
     {
         var inside = window.Width > 0 && window.Height > 0 ? Intersect(window, workArea) : null;
@@ -520,26 +534,6 @@ public static class GridGeometry
     /// 3 px came out 2 and 4 px further on: a block moved freely changed its spacing.
     /// </summary>
     public static double DevicePixel(double wholeDip, double scale) => Math.Floor((wholeDip * scale) + 0.5) / scale;
-
-    /// <summary>
-    /// [S-11873] The fewest whole DIPs that are whole device pixels at <paramref name="scale"/>: 1 at 100 % and
-    /// 200 %, 2 at 150 %, 4 at 125 % and 175 %. A block moved by a whole number of these keeps every card's
-    /// pixels where they were relative to the others; a scale no small count makes whole takes 1.
-    /// </summary>
-    public static int PixelStep(double scale)
-    {
-        var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
-        for (var n = 1; n <= 8; n++)
-        {
-            var px = n * s;
-            if (Math.Abs(px - Math.Round(px)) < 1e-6)
-            {
-                return n;
-            }
-        }
-
-        return 1;
-    }
 
     /// <summary>
     /// [S-04] Resolve a stored fraction to its <b>cell</b> in pixels. The widget gap is deliberately

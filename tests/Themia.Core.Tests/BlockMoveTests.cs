@@ -1,93 +1,71 @@
 using Themia.Core.Geometry;
-using Themia.Core.Model;
 using Xunit;
 
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-11873] A block (several selected widgets, moved together) moved freely moves by whole device pixels, so
-/// its cards keep their spacing to the pixel.
+/// [S-11873] A block (several selected widgets, moved together) keeps its cards' spacing while it moves: it moves by
+/// whole cells ([S-11892]), so every card stays on the grid's lines, and every line is drawn on its whole device pixel,
+/// so two cards that share a line share its pixel wherever the block goes.
 /// </summary>
 public sealed class BlockMoveTests
 {
-    private static readonly ScreenMetrics Screen = new(2560 / 1.5, 1440 / 1.5);
-
-    /// <summary>A column of two cards and one card beside it, selected together, at fractions that are no whole DIPs.</summary>
-    private static readonly FracRect[] Group =
-    [
-        new(0.1034, 0.1210, 0.1301, 0.0911),
-        new(0.1034, 0.2121, 0.1301, 0.0733),
-        new(0.2335, 0.1210, 0.0977, 0.1644),
-    ];
+    /// <summary>Screens at 100 % to 250 %, their pitch a whole number of device pixels or not.</summary>
+    public static TheoryData<double> Scales => [1.0, 1.25, 1.5, 1.75, 2.0, 2.5];
 
     [Theory]
-    [InlineData(1.0)]
-    [InlineData(1.25)]
-    [InlineData(1.5)]
-    [InlineData(1.75)]
-    [InlineData(2.0)]
-    [InlineData(2.5)]
-    public void S11873_a_selection_moved_freely_keeps_every_cards_pixels_relative_to_the_others(double scale)
+    [MemberData(nameof(Scales))]
+    public void S11873_a_selection_moved_keeps_the_cards_that_share_a_line_on_one_pixel(double scale)
     {
-        var start = Group.Select(r => GridGeometry.ToPixels(r, Screen, scale)).ToArray();
+        var screen = new ScreenMetrics(2560 / scale, 1440 / scale);
+        var (cols, rows) = GridGeometry.GridDims(screen);
+        FracRect Cells(int x, int y, int w, int h) => new((double)x / cols, (double)y / rows, (double)w / cols, (double)h / rows);
+
+        // A column of two cards and one card beside it, all three touching, and a fourth a cell apart.
+        FracRect[] group = [Cells(30, 20, 13, 9), Cells(30, 29, 13, 7), Cells(43, 20, 10, 16), Cells(54, 20, 4, 4)];
 
         // A drag in small fractional steps across the screen, both ways, as the pointer reports it.
         for (var i = 1; i < 240; i++)
         {
-            var dx = (i * 0.00137) - 0.11;
-            var dy = (i * 0.00071) - 0.05;
-            var delta = BlockGeometry.Move(Group, dx, dy, Screen, rasterScale: scale);
-            var moved = Group.Select(r => GridGeometry.ToPixels(BlockGeometry.Apply(r, delta, Screen), Screen, scale)).ToArray();
+            var delta = BlockGeometry.Move(group, (i * 0.00137) - 0.11, (i * 0.00071) - 0.05, screen);
+            var cells = group.Select(r => GridGeometry.ToPixels(BlockGeometry.Apply(r, delta, screen), screen, scale)).ToArray();
 
+            // Touching stays touching, to the pixel: the column's seam, and the card beside it on both.
+            Assert.Equal(cells[0].Y + cells[0].Height, cells[1].Y, 9);
+            Assert.Equal(cells[0].X + cells[0].Width, cells[2].X, 9);
+            Assert.Equal(cells[1].X + cells[1].Width, cells[2].X, 9);
+            Assert.Equal(cells[0].Y, cells[2].Y, 9);
+            Assert.Equal(cells[1].Y + cells[1].Height, cells[2].Y + cells[2].Height, 9);
+
+            // Apart stays apart: the grid's own cell between them, within a pixel of its pitch.
+            Assert.InRange(cells[3].X - (cells[2].X + cells[2].Width), (screen.Width / cols) - 1.5, (screen.Width / cols) + 1.5);
+        }
+    }
+
+    [Theory]
+    [InlineData(1920, 1080, 1.0)]
+    [InlineData(1280, 720, 1.5)]
+    [InlineData(1280, 720, 2.0)]
+    public void S11873_where_the_pitch_is_whole_pixels_every_cards_pixels_keep_their_places(double width, double height, double scale)
+    {
+        // 10 DIPs a cell, whole pixels at these scales: the whole block's pixels move as one.
+        var screen = new ScreenMetrics(width, height);
+        var (cols, rows) = GridGeometry.GridDims(screen);
+        FracRect[] group = [new(8.0 / cols, 4.0 / rows, 8.0 / cols, 10.0 / rows), new(20.0 / cols, 6.0 / rows, 30.0 / cols, 12.0 / rows)];
+        var start = group.Select(r => GridGeometry.ToPixels(r, screen, scale)).ToArray();
+        for (var i = 1; i < 120; i++)
+        {
+            var delta = BlockGeometry.Move(group, i * 0.00313, i * 0.00177, screen);
+            var moved = group.Select(r => GridGeometry.ToPixels(BlockGeometry.Apply(r, delta, screen), screen, scale)).ToArray();
             var (ox, oy) = (moved[0].X - start[0].X, moved[0].Y - start[0].Y);
-            for (var c = 0; c < Group.Length; c++)
+            for (var c = 0; c < group.Length; c++)
             {
                 Assert.Equal(start[c].Width, moved[c].Width, 9);
                 Assert.Equal(start[c].Height, moved[c].Height, 9);
                 Assert.Equal(start[c].X + ox, moved[c].X, 9);
                 Assert.Equal(start[c].Y + oy, moved[c].Y, 9);
             }
-
-            // One offset, in whole device pixels.
-            Assert.Equal(Math.Round(ox * scale), ox * scale, 6);
-            Assert.Equal(Math.Round(oy * scale), oy * scale, 6);
         }
-    }
-
-    [Fact]
-    public void S11873_the_regression_rounded_each_card_on_its_own_and_drifted()
-    {
-        // The old move: the drag's fraction itself, each card then rounded on its own at 150 %.
-        var start = Group.Select(r => GridGeometry.ToPixels(r, Screen, 1.5)).ToArray();
-        var drifted = false;
-        for (var i = 1; i < 120 && !drifted; i++)
-        {
-            var delta = BlockGeometry.Move(Group, i * 0.00113, 0, Screen);
-            var moved = Group.Select(r => GridGeometry.ToPixels(BlockGeometry.Apply(r, delta, Screen), Screen, 1.5)).ToArray();
-            drifted = Enumerable.Range(1, Group.Length - 1).Any(c => Math.Abs((moved[c].X - moved[0].X) - (start[c].X - start[0].X)) > 1e-9);
-        }
-
-        Assert.True(drifted, "without the display's scale the move is the drag's own fraction, which drifts");
-    }
-
-    [Theory]
-    [InlineData(1.0, 1)]
-    [InlineData(1.25, 4)]
-    [InlineData(1.5, 2)]
-    [InlineData(1.75, 4)]
-    [InlineData(2.0, 1)]
-    [InlineData(2.25, 4)]
-    public void S11873_a_pixel_step_is_the_fewest_whole_dips_that_are_whole_pixels(double scale, int step)
-        => Assert.Equal(step, GridGeometry.PixelStep(scale));
-
-    [Fact]
-    public void S11873_a_block_at_its_limit_stops_there_whole()
-    {
-        // Far past the right edge: the block stops where its last card keeps the visible minimum.
-        var free = BlockGeometry.Move(Group, 5, 0, Screen);
-        var whole = BlockGeometry.Move(Group, 5, 0, Screen, rasterScale: 1.5);
-        Assert.True(whole.Dx <= free.Dx + 1e-12);
-        Assert.True(free.Dx - whole.Dx < 2.0 / Screen.Width);
     }
 
     [Fact]

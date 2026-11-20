@@ -186,7 +186,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>[S-11890] The two translations of a move of <paramref name="cards"/>, on this display as it is now; [S-13041] the held card's landing on the cell of what it lands on.</summary>
     private BlockMove Block(List<(WidgetCard Card, FracRect Start)> cards, List<FracRect>? apart, int held = -1, Func<FracRect, FracRect>? cell = null)
-        => new([.. cards.Select(c => c.Start)], apart, Metrics, RasterScale, held, cell);
+        => new([.. cards.Select(c => c.Start)], apart, Metrics, held, cell);
 
     /// <summary>
     /// [S-11959] The rects of this display's drawn cards other than <paramref name="moving"/> (widgets and desktop
@@ -201,8 +201,8 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1584] The pointer moved: every moving card follows by the same translation ([S-11873]: in whole device
-    /// pixels, so the cards keep their spacing to the pixel). [S-11891] They are drawn where they land: snapped to the
+    /// [S-1584] The pointer moved: every moving card follows by the same translation ([S-11892]: whole cells, every card
+    /// on the grid's lines, each line on its pixel, [S-11873]). [S-11891] They are drawn where they land: snapped to the
     /// grid as a block (<see cref="BlockGeometry.Move"/>), clamped for the block as a whole, which the local grid lights. [S-78] The display the drop would hand the widgets to shows their ghost, and the cards here fade.
     /// [S-11890] The first move is drawn at once; the ones after are coalesced to one step a rendered frame
     /// (<see cref="PointerFrames"/>, <see cref="CompositionTarget.Rendering"/>), the latest pointer winning.

@@ -18,17 +18,15 @@ namespace Themia.Core.Geometry;
 public sealed class BlockMove
 {
     private readonly ScreenMetrics _screen;
-    private readonly double _rasterScale;
     private readonly int _held;
     private readonly Func<FracRect, FracRect>? _cell;
 
-    public BlockMove(IReadOnlyList<FracRect> start, IReadOnlyList<FracRect>? apart, ScreenMetrics screen, double rasterScale, int held = -1, Func<FracRect, FracRect>? cell = null)
+    public BlockMove(IReadOnlyList<FracRect> start, IReadOnlyList<FracRect>? apart, ScreenMetrics screen, int held = -1, Func<FracRect, FracRect>? cell = null)
     {
         ArgumentNullException.ThrowIfNull(start);
         Start = start;
         Apart = apart;
         _screen = screen;
-        _rasterScale = rasterScale;
         _held = held;
         _cell = cell;
     }
@@ -48,10 +46,10 @@ public sealed class BlockMove
     /// </summary>
     public bool Step(double dxFrac, double dyFrac)
     {
-        var landing = BlockGeometry.Move(Start, dxFrac, dyFrac, _screen, _rasterScale);
+        var landing = BlockGeometry.Move(Start, dxFrac, dyFrac, _screen);
         if (Apart is { } apart)
         {
-            landing = BlockGeometry.Apart(Start, landing, Landing, apart, _screen, _rasterScale);
+            landing = BlockGeometry.Apart(Start, landing, Landing, apart, _screen);
         }
 
         // [S-13041] The held card on the cell of what it lands in: the block follows it.

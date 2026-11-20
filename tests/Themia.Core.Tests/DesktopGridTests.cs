@@ -378,22 +378,19 @@ public sealed class DesktopGridTests
         var (cols, rows) = GridGeometry.GridDims(screen);
         FracRect[] start = [new(8.0 / cols, 4.0 / rows, 8.0 / cols, 10.0 / rows), new(20.0 / cols, 6.0 / rows, 30.0 / cols, 12.0 / rows)];
 
-        var delta = BlockGeometry.Move(start, 0.1234, 0.0567, screen, scale);
+        var delta = BlockGeometry.Move(start, 0.1234, 0.0567, screen);
         var moved = start.Select(r => BlockGeometry.Apply(r, delta, screen)).ToArray();
 
         // One translation for all: the offsets between them never change.
         Assert.Equal(start[1].X - start[0].X, moved[1].X - moved[0].X, 12);
         Assert.Equal(start[1].Y - start[0].Y, moved[1].Y - moved[0].Y, 12);
 
-        // Whole device pixels: every card's cell moves by the same pixels.
-        var before = start.Select(r => GridGeometry.ToPixels(r, screen, scale)).ToArray();
-        var after = moved.Select(r => GridGeometry.ToPixels(r, screen, scale)).ToArray();
-        Assert.Equal(after[0].X - before[0].X, after[1].X - before[1].X, 9);
-        Assert.Equal(after[0].Y - before[0].Y, after[1].Y - before[1].Y, 9);
-
-        // On the grid, to within one whole-pixel step.
-        var step = GridGeometry.PixelStep(scale) / screen.Width;
-        Assert.InRange(Math.Abs((moved[0].X * cols) - Math.Round(moved[0].X * cols)) / cols, 0, step);
+        // [S-11892] Whole cells: every card on the grid's lines, at every scale.
+        foreach (var r in moved)
+        {
+            Assert.Equal(Math.Round(r.X * cols), r.X * cols, 9);
+            Assert.Equal(Math.Round(r.Y * rows), r.Y * rows, 9);
+        }
     }
 
     [Fact]

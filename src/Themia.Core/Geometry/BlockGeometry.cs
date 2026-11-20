@@ -49,51 +49,16 @@ public static class BlockGeometry
     /// applies to a block whose rects started at <paramref name="start"/>: the box's corner snapped to the
     /// grid as a block ([S-06]: always on), then every rect kept in reach of the allowed area ([S-6608]).
     /// <para>
-    /// [S-11873] With the display's <paramref name="rasterScale"/> given, the snapped translation is then
-    /// put on whole <see cref="GridGeometry.PixelStep"/>s: one offset in whole DIPs that is whole device
-    /// pixels, so every card's cell (<see cref="GridGeometry.ToPixels"/>) moves by exactly the same pixels
-    /// and the cards' spacing never changes while the block moves or where it lands (owner, 2026-11-15:
-    /// "when moving a group around freely the spacing of the widgets inside the group changes slightly").
-    /// On a display whose grid pitch is a whole number of those steps (10 DIPs at 100 % and 200 %) this
-    /// changes nothing; elsewhere it moves the block less than one step off the line.
+    /// [S-11892] The translation is the snap's, whole cells, at any scale: a block on the grid's lines lands on them, so
+    /// two blocks moved apart and laid side by side meet on one line and paint one body. Each line is drawn on its
+    /// whole device pixel (<see cref="GridGeometry.ToPixels"/>), so cards on one line share its pixel wherever the block
+    /// goes ([S-11873]). Until 2026-11-20 the snapped translation was then put on whole device pixels, which on a
+    /// screen whose pitch is no whole number of them (the window a pixel short at 100 %, 125 %, 150 % at 2560) left
+    /// the block up to half a pixel step off the line: two blocks moved on their own met a pixel or more apart.
     /// </para>
     /// </summary>
-    public static Delta Move(IReadOnlyList<FracRect> start, double dxFrac, double dyFrac, ScreenMetrics screen, double? rasterScale = null)
-    {
-        var delta = Settle(start, dxFrac, dyFrac, screen);
-        return rasterScale is not { } scale ? delta : Whole(start, delta, screen, scale);
-    }
-
-    /// <summary>
-    /// [S-11873] <paramref name="delta"/> as whole pixel steps: the nearest that keeps the block in reach as
-    /// <see cref="Settle"/> left it; where no whole step does (a block already at its limit), as it was.
-    /// </summary>
-    private static Delta Whole(IReadOnlyList<FracRect> start, Delta delta, ScreenMetrics screen, double rasterScale)
-    {
-        if (screen.Width <= 0 || screen.Height <= 0)
-        {
-            return delta;
-        }
-
-        var step = GridGeometry.PixelStep(rasterScale);
-        var (loX, hiX, loY, hiY) = Reach(start, screen);
-        return new Delta(Axis(delta.Dx, screen.Width, loX, hiX), Axis(delta.Dy, screen.Height, loY, hiY));
-
-        double Axis(double d, double length, double lo, double hi)
-        {
-            var dips = Math.Round(d * length / step, MidpointRounding.AwayFromZero) * step;
-            foreach (var candidate in new[] { dips, dips - step, dips + step })
-            {
-                var frac = candidate / length;
-                if (frac >= lo - 1e-12 && frac <= hi + 1e-12)
-                {
-                    return frac;
-                }
-            }
-
-            return d;
-        }
-    }
+    public static Delta Move(IReadOnlyList<FracRect> start, double dxFrac, double dyFrac, ScreenMetrics screen)
+        => Settle(start, dxFrac, dyFrac, screen);
 
     /// <summary>
     /// [S-1586] The translation that puts the centre of <paramref name="anchor"/> on a point, then
@@ -173,42 +138,39 @@ public static class BlockGeometry
     /// start of the move (<paramref name="start"/>); the widgets that stay are never touched.
     /// <para>
     /// The grid is always on ([S-06]), so a drag's <paramref name="wanted"/> is already whole cells and a key's one
-    /// cell: the block slides cell by cell. With the display's <paramref name="rasterScale"/> given (the drag's
-    /// whole pixel steps, [S-11873]), an overlap thinner than one such step is no overlap: the steps may leave a
-    /// block that far off the grid line its neighbour stands on, and it must still land flush beside it.
+    /// cell: the block slides cell by cell, and lands flush beside a neighbour on the lines ([S-11892]).
     /// </para>
     /// </summary>
-    public static Delta Apart(IReadOnlyList<FracRect> start, Delta wanted, Delta last, IReadOnlyList<FracRect> others, ScreenMetrics screen, double? rasterScale = null)
+    public static Delta Apart(IReadOnlyList<FracRect> start, Delta wanted, Delta last, IReadOnlyList<FracRect> others, ScreenMetrics screen)
     {
         ArgumentNullException.ThrowIfNull(start);
         ArgumentNullException.ThrowIfNull(others);
 
-        var slack = Slack(screen, rasterScale);
         var alongX = wanted with { Dy = last.Dy };
         var alongY = wanted with { Dx = last.Dx };
 
         // [S-11890] Only the cards near where any of the three tries lands can hold it: the rest are never looked at.
-        others = Near(start, [wanted, alongX, alongY], others, screen, slack);
-        if (others.Count == 0 || Clear(start, wanted, others, screen, slack))
+        others = Near(start, [wanted, alongX, alongY], others, screen);
+        if (others.Count == 0 || Clear(start, wanted, others, screen))
         {
             return wanted;
         }
 
-        if (Clear(start, alongX, others, screen, slack))
+        if (Clear(start, alongX, others, screen))
         {
             return alongX;
         }
 
-        return Clear(start, alongY, others, screen, slack) ? alongY : last;
+        return Clear(start, alongY, others, screen) ? alongY : last;
     }
 
     /// <summary>
     /// [S-11890] The rects of <paramref name="others"/> that share area with the box every rect of
     /// <paramref name="start"/> lands in under any of <paramref name="deltas"/>: the only ones that can hold the
-    /// block (<see cref="Clear"/>). Exact, not a guess: a rect that shares more than <paramref name="slack"/> with a
+    /// block (<see cref="Clear"/>). Exact, not a guess: a rect that shares more than the fractions' rounding with a
     /// landed rect shares at least as much with the box round all of them.
     /// </summary>
-    internal static IReadOnlyList<FracRect> Near(IReadOnlyList<FracRect> start, ReadOnlySpan<Delta> deltas, IReadOnlyList<FracRect> others, ScreenMetrics screen, (double X, double Y) slack)
+    internal static IReadOnlyList<FracRect> Near(IReadOnlyList<FracRect> start, ReadOnlySpan<Delta> deltas, IReadOnlyList<FracRect> others, ScreenMetrics screen)
     {
         var landed = new List<FracRect>(start.Count * deltas.Length);
         foreach (var delta in deltas)
@@ -231,7 +193,7 @@ public static class BlockGeometry
         var near = new List<FracRect>();
         foreach (var other in others)
         {
-            if (other.IsFinite && Over(box, other, slack))
+            if (other.IsFinite && Over(box, other))
             {
                 near.Add(other);
             }
@@ -240,22 +202,8 @@ public static class BlockGeometry
         return near;
     }
 
-    /// <summary>[S-11959] How thin an overlap may be and still count as touching, on each axis, in fractions.</summary>
-    internal static (double X, double Y) Slack(ScreenMetrics screen, double? rasterScale)
-    {
-        const double Rounding = 1e-6;
-        if (rasterScale is not { } scale || screen.Width <= 0 || screen.Height <= 0)
-        {
-            return (Rounding, Rounding);
-        }
-
-        // Thinner than one whole pixel step, so just under it.
-        var step = GridGeometry.PixelStep(scale) - 1e-3;
-        return (Math.Max(Rounding, step / screen.Width), Math.Max(Rounding, step / screen.Height));
-    }
-
     /// <summary>[S-11959] No moving rect lands over a staying one it did not already lie over at the start.</summary>
-    internal static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen, (double X, double Y) slack)
+    internal static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen)
     {
         foreach (var from in start)
         {
@@ -267,7 +215,7 @@ public static class BlockGeometry
             var landed = Apply(from, delta, screen);
             foreach (var other in others)
             {
-                if (other.IsFinite && Over(landed, other, slack) && !Over(from, other, slack))
+                if (other.IsFinite && Over(landed, other) && !Over(from, other))
                 {
                     return false;
                 }
@@ -281,11 +229,12 @@ public static class BlockGeometry
     /// [S-11959] Two rects share area: touching edges do not, nor a sliver under a pixel's thousandth
     /// (the fractions' rounding).
     /// </summary>
-    internal static bool Over(FracRect a, FracRect b) => Over(a, b, (1e-6, 1e-6));
+    internal static bool Over(FracRect a, FracRect b)
+        => Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X) > Rounding
+            && Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y) > Rounding;
 
-    private static bool Over(FracRect a, FracRect b, (double X, double Y) slack)
-        => Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X) > slack.X
-            && Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y) > slack.Y;
+    /// <summary>[S-11959] How thin an overlap may be and still count as touching, in fractions: the fractions' rounding.</summary>
+    private const double Rounding = 1e-6;
 
     /// <summary>A translation, in fractions of the screen.</summary>
     public readonly record struct Delta(double Dx, double Dy);

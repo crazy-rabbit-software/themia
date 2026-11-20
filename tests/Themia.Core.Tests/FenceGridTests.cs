@@ -101,8 +101,8 @@ public sealed class FenceGridTests
         Assert.Equal(outside, DesktopFences.DropCell(view, outside, Screen, Box, moving));
 
         // Moved one box right, the grid's move lands it on the fence's first cell, with the fence's helper or without.
-        var plain = new BlockMove([outside], null, Screen, 1);
-        var helped = new BlockMove([outside], null, Screen, 1, 0, landing => DesktopFences.DropCell(view, landing, Screen, Box, moving));
+        var plain = new BlockMove([outside], null, Screen);
+        var helped = new BlockMove([outside], null, Screen, 0, landing => DesktopFences.DropCell(view, landing, Screen, Box, moving));
         plain.Step(Box.W, 0);
         helped.Step(Box.W, 0);
         Assert.Equal(plain.At(outside, plain.Landing).X, helped.At(outside, helped.Landing).X, 1.0 / Screen.Width);

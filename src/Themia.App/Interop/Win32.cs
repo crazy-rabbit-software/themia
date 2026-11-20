@@ -130,10 +130,6 @@ internal static partial class Win32
 
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool GetClientRect(nint hWnd, out Rect lpRect);
-
-    [LibraryImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool GetWindowRect(nint hWnd, out Rect lpRect);
 
     [LibraryImport("user32.dll", SetLastError = true)]

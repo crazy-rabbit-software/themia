@@ -46,17 +46,14 @@ public sealed class DragPipelineTests
             var others = Enumerable.Range(0, random.Next(25)).Select(_ => Rect(random)).ToList();
             var wanted = new BlockGeometry.Delta(Cells(random, 30), Cells(random, 30));
             var last = new BlockGeometry.Delta(Cells(random, 30), Cells(random, 30));
-            var scale = random.Next(2) == 0 ? (double?)null : 1.5;
-
-            Assert.Equal(FullScanApart(block, wanted, last, others, scale), BlockGeometry.Apart(block, wanted, last, others, Screen, scale));
+            Assert.Equal(FullScanApart(block, wanted, last, others), BlockGeometry.Apart(block, wanted, last, others, Screen));
 
             // Every card the prune leaves out could not have held any of the three tries.
-            var slack = BlockGeometry.Slack(Screen, scale);
             BlockGeometry.Delta[] tries = [wanted, wanted with { Dy = last.Dy }, wanted with { Dx = last.Dx }];
-            var near = BlockGeometry.Near(block, tries, others, Screen, slack);
+            var near = BlockGeometry.Near(block, tries, others, Screen);
             foreach (var other in others.Except(near))
             {
-                Assert.All(tries, d => Assert.True(BlockGeometry.Clear(block, d, [other], Screen, slack)));
+                Assert.All(tries, d => Assert.True(BlockGeometry.Clear(block, d, [other], Screen)));
             }
         }
 
@@ -67,7 +64,7 @@ public sealed class DragPipelineTests
     [Fact]
     public void S11890_a_step_says_the_block_moved_only_when_it_reaches_another_cell()
     {
-        var move = new BlockMove([R(0.4, 0.4, 0.1, 0.1)], apart: null, Screen, rasterScale: 1);
+        var move = new BlockMove([R(0.4, 0.4, 0.1, 0.1)], apart: null, Screen);
         var moves = 0;
 
         // 30 DIPs to the right, one DIP at a time: it moves on to the 10, 20 and 30 DIP cells (the snap's half cell).
@@ -94,17 +91,16 @@ public sealed class DragPipelineTests
         // Regression (owner, 2026-11-19: "the items dont stick to the grid anymore when moving in the preview"): the
         // one translation the cards are drawn at is the snapped move, so mid-drag they stand where they will land.
         var start = new[] { R(0.4, 0.4, 0.1, 0.1), R(0.5, 0.4, 0.1, 0.1) };
-        var move = new BlockMove(start, apart: null, Screen, scale);
+        var move = new BlockMove(start, apart: null, Screen);
         move.Step(pointerDip / 1000, pointerDip / 2000);
 
-        Assert.Equal(BlockGeometry.Move(start, pointerDip / 1000, pointerDip / 2000, Screen, scale), move.Landing);
+        Assert.Equal(BlockGeometry.Move(start, pointerDip / 1000, pointerDip / 2000, Screen), move.Landing);
 
-        // On the 10 DIP lines (within one whole pixel step of them where the pitch is not a whole number of steps).
-        var step = GridGeometry.PixelStep(scale);
+        // [S-11892] On the 10 DIP lines, at every scale.
         var x = move.LandingBounds().X * 1000;
-        Assert.InRange(Math.Abs(x - (Math.Round(x / 10) * 10)), 0, step);
+        Assert.Equal(Math.Round(x / 10) * 10, x, 9);
 
-        // [S-11873] Each card's cell moved by the same whole pixels: the two still touch.
+        // [S-11873] The two cards share a line, so its pixel: they still touch.
         var left = GridGeometry.ToPixels(move.At(start[0], move.Landing), Screen, scale);
         var right = GridGeometry.ToPixels(move.At(start[1], move.Landing), Screen, scale);
         Assert.Equal(left.X + left.Width, right.X, 9);
@@ -114,7 +110,7 @@ public sealed class DragPipelineTests
     public void S11891_kept_apart_the_block_stops_flush_by_a_card_and_slides_along_the_free_axis_on_the_grid()
     {
         var neighbour = R(0.3, 0.1, 0.1, 0.1);
-        var move = new BlockMove([R(0.1, 0.1, 0.1, 0.1)], [neighbour], Screen, rasterScale: 1);
+        var move = new BlockMove([R(0.1, 0.1, 0.1, 0.1)], [neighbour], Screen);
 
         // 4 DIPs past flush: it stands flush, not over the neighbour.
         move.Step(0.104, 0);
@@ -185,21 +181,20 @@ public sealed class DragPipelineTests
     }
 
     /// <summary>[S-11959] The keep-apart rule as it was before the prune: every staying card looked at.</summary>
-    private static BlockGeometry.Delta FullScanApart(List<FracRect> start, BlockGeometry.Delta wanted, BlockGeometry.Delta last, List<FracRect> others, double? scale)
+    private static BlockGeometry.Delta FullScanApart(List<FracRect> start, BlockGeometry.Delta wanted, BlockGeometry.Delta last, List<FracRect> others)
     {
-        var slack = BlockGeometry.Slack(Screen, scale);
-        if (others.Count == 0 || BlockGeometry.Clear(start, wanted, others, Screen, slack))
+        if (others.Count == 0 || BlockGeometry.Clear(start, wanted, others, Screen))
         {
             return wanted;
         }
 
         var alongX = wanted with { Dy = last.Dy };
-        if (BlockGeometry.Clear(start, alongX, others, Screen, slack))
+        if (BlockGeometry.Clear(start, alongX, others, Screen))
         {
             return alongX;
         }
 
         var alongY = wanted with { Dx = last.Dx };
-        return BlockGeometry.Clear(start, alongY, others, Screen, slack) ? alongY : last;
+        return BlockGeometry.Clear(start, alongY, others, Screen) ? alongY : last;
     }
 }

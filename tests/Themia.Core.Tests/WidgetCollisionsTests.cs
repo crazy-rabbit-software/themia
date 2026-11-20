@@ -104,22 +104,26 @@ public sealed class WidgetCollisionsTests
         Assert.Equal(0.11, KeyboardNudge.Move([start], NudgeDirection.Right, NudgeStep.Cell, Screen)[0].X, 9);
     }
 
-    [Fact]
-    public void S11959_a_locked_drag_in_whole_pixel_steps_still_lands_flush_beside_a_neighbour()
+    [Theory]
+    [InlineData(1000, 1000)]
+    [InlineData(1536, 864)]
+    public void S11959_a_locked_drag_lands_flush_beside_a_neighbour_on_its_line(double width, double height)
     {
-        // [S-11873] At 125 % a locked drag moves in whole steps of 4 DIPs (5 px): a block dragged 13 cells is put
-        // 132 DIPs over, 2 DIPs into the neighbour standing on the grid line. Thinner than one step, that is touching.
-        var block = R(0.1, 0.1, 0.1, 0.1);
-        var neighbour = R(0.33, 0.1, 0.1, 0.1);
-        var wanted = BlockGeometry.Move([block], 0.13, 0, Screen, rasterScale: 1.25);
-        Assert.Equal(0.132, wanted.Dx, 9);
-        Assert.True(BlockGeometry.Over(Moved(block, wanted), neighbour));
+        // [S-11892] A drag lands on the grid's lines at any pitch (1536 DIPs is 154 columns of 9.974): a block dragged
+        // 13 cells stands flush beside the neighbour on the line 13 cells over, touching, never into it.
+        var screen = new ScreenMetrics(width, height);
+        var (cols, rows) = GridGeometry.GridDims(screen);
+        var block = R(10.0 / cols, 10.0 / rows, 10.0 / cols, 10.0 / rows);
+        var neighbour = R(33.0 / cols, 10.0 / rows, 10.0 / cols, 10.0 / rows);
+        var wanted = BlockGeometry.Move([block], 13.2 / cols, 0, screen);
+        Assert.Equal(13.0 / cols, wanted.Dx, 12);
+        Assert.False(BlockGeometry.Over(Moved(block, wanted), neighbour));
+        Assert.Equal(neighbour.X, Moved(block, wanted).Right, 12);
+        Assert.Equal(wanted, BlockGeometry.Apart([block], wanted, default, [neighbour], screen));
 
-        Assert.Equal(wanted, BlockGeometry.Apart([block], wanted, default, [neighbour], Screen, rasterScale: 1.25));
-
-        // A whole cell into it is an overlap at any scale: held.
-        var into = BlockGeometry.Move([block], 0.14, 0, Screen, rasterScale: 1.25);
-        Assert.Equal(default, BlockGeometry.Apart([block], into, default, [neighbour], Screen, rasterScale: 1.25));
+        // A whole cell into it is an overlap: held.
+        var into = BlockGeometry.Move([block], 14.0 / cols, 0, screen);
+        Assert.Equal(default, BlockGeometry.Apart([block], into, default, [neighbour], screen));
     }
 
     [Fact]
@@ -141,8 +145,8 @@ public sealed class WidgetCollisionsTests
         var (moving, staying) = Split(view, ids);
 
         // Right and down: the icon would be clear, the card would come over "other". The block slides down instead.
-        var wanted = BlockGeometry.Move(moving, 0.1, 0.2, Screen, rasterScale: 1);
-        var delta = BlockGeometry.Apart(moving, wanted, default, staying, Screen, rasterScale: 1);
+        var wanted = BlockGeometry.Move(moving, 0.1, 0.2, Screen);
+        var delta = BlockGeometry.Apart(moving, wanted, default, staying, Screen);
         Assert.Equal(new BlockGeometry.Delta(0, 0.2), delta);
         Assert.All(moving, r => Assert.All(staying, s => Assert.False(BlockGeometry.Over(Moved(r, delta), s))));
     }

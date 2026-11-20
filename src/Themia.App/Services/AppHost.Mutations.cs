@@ -53,6 +53,9 @@ internal sealed partial class AppHost
         // [S-854] on a display whose metrics have not settled, once they have.
         _sizings.Refit(State, SurfacesNow());
 
+        // [S-11892] Every card on its display's grid lines: an edge drifted off its line by less than a DIP put on it.
+        SettleOnGrid();
+
         // [S-855] Every widget clear of the taskbars of every display that shows its view, in the same step: a view
         // shown on another display, a layout made against another work area ([S-854]: on settled metrics only).
         SettleOnWorkAreas();
@@ -91,6 +94,15 @@ internal sealed partial class AppHost
     /// <summary>The sizing each widget had at the last mutation, by instance: what a config change is compared with ([S-2447]).</summary>
     private readonly SizingNotes _sizings = new();
 
+    /// <summary>[S-11892] The cards of every shown view whose edges drifted off their display's grid lines put on them (<see cref="GridSettle"/>), loudly.</summary>
+    private void SettleOnGrid()
+    {
+        if (GridSettle.Apply(State, SurfacesNow()) is { Count: > 0 } notes)
+        {
+            Log.Warn(Scope, $"{notes.Count} widget(s) off their display's grid lines by less than a DIP, put on them: {string.Join("; ", notes)}");
+        }
+    }
+
     /// <summary>[S-855] The widgets of every shown view moved clear of the taskbars of the displays showing it (<see cref="WorkAreaSettle"/>).</summary>
     private void SettleOnWorkAreas()
     {
@@ -122,7 +134,8 @@ internal sealed partial class AppHost
     /// [S-854] A surface's metrics settled (its first layout at the real scale, or a display pass after a
     /// scale change): once every live surface has, what waited for real metrics runs on them: the refits
     /// a config change left waiting ([S-2447]), a read of the desktop that came in before ([S-5520]), and
-    /// the desktop settled across the displays and onto the grid ([S-5560], [S-5589]).
+    /// the desktop settled across the displays and onto the grid ([S-5560], [S-5589]), and a card that drifted off its
+    /// display's grid lines put on them ([S-11892]).
     /// </summary>
     internal void SettleSurfaces()
     {
@@ -132,9 +145,10 @@ internal sealed partial class AppHost
         }
 
         // [S-13040] A fence is laid on its display's icon grid at the real metrics (a start, another resolution or scale);
-        // [S-855] a widget a taskbar now covers on a display showing its view moves clear of it.
+        // [S-855] a widget a taskbar now covers on a display showing its view moves clear of it; [S-11892] a card off its
+        // display's grid lines by less than a DIP is put on them.
         if (_sizings.Waits(State) || State.Views.Exists(v => v.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
-            || WorkAreaSettle.Waits(State, SurfacesNow()))
+            || WorkAreaSettle.Waits(State, SurfacesNow()) || GridSettle.Waits(State, SurfacesNow()))
         {
             Mutate(_ => { }, undo: null);
         }

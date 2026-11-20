@@ -5,7 +5,7 @@ namespace Themia.App.Shell;
 /// <summary>The stages of a move's pointer step that <see cref="DragProfile"/> times ([S-11890], <c>--drag-bench</c>).</summary>
 internal enum DragStage
 {
-    /// <summary>The block's translation: the snap, the reach, whole pixel steps (<c>BlockGeometry.Move</c>, the follow).</summary>
+    /// <summary>The block's translation: the snap and the reach (<c>BlockGeometry.Move</c>, the follow).</summary>
     Geometry,
 
     /// <summary>[S-11959] Keeping the block apart from the cards that stay.</summary>

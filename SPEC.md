@@ -44,8 +44,9 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-04]** Each widget renders at `left = x·W`, `top = y·H` and paints its **whole cell**: there is no gap
   between widgets ([S-11884]); logical edges are rounded to a shared whole-pixel boundary, so adjacent widgets
   meet exactly. *(Until 2026-11-15 each card was inset by `widgetGap / 2`.)*
-- **[S-05]** The DIP space a fraction resolves into is the window's **real client rect divided by
-  the window's real rasterization scale** — not `ActualWidth`. Changing display scale resizes the
+- **[S-05]** The DIP space a fraction resolves into is the **display's real bounds divided by the window's real
+  rasterization scale** (`GridGeometry.DisplayScreen`) — not `ActualWidth`, and not the window's client rect, which is a
+  pixel short of the display ([S-11892]). Changing display scale resizes the
   content without changing the client's pixel size, so no `SizeChanged` fires and `ActualWidth` can
   hold a stale pre-DPI value; trusting it rendered every widget 1.5x too far out on a 150% display.
 - **[S-32]** *(Retired by [S-6560]/[S-6563]: the per-widget surface enum (Card, Translucent, None) is
@@ -57,8 +58,8 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **[S-06]** **The grid is always on** (owner, 2026-11-15: "it should also not be possible to disable the
   grid anymore. grid is always fixed"): every gesture's rect (drag, a block's move, resize, placement, paste,
-  the arrow keys) lands on the nearest grid line, and every widget's size is whole grid cells ([S-11807]), a
-  desktop icon's too ([S-11875]). There is no setting, no toggle, no Alt to suspend it and no free path
+  the arrow keys) lands on the nearest grid line, at any display scale ([S-11892]: a block's move is whole cells), and
+  every widget's size is whole grid cells ([S-11807]), a desktop icon's too ([S-11875]). There is no setting, no toggle, no Alt to suspend it and no free path
   (`GridGeometry.Settle`, `BlockGeometry.Move`, `KeyboardNudge`, `PlacementPayload` take no snap flag);
   storage is the fraction the gesture landed on. *(Until 2026-11-15 `design.gridSnap` and Alt switched it
   off; gone, and a state file no longer carries it.)*
@@ -2172,9 +2173,10 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   a press that would land over another does not move). The block goes all the way where it lands clear, else
   slides along the clear axis, else stays where it stood (`BlockGeometry.Apart`). What moves is held, never what
   stays: desktop icons and cards alike stay clear (a card that hides itself, [S-873], is not drawn, so not in the
-  way); the selected widgets move together and never hold each other. Touching edges are no overlap, nor an overlap
-  thinner than one whole pixel step of the drag ([S-11873]), so a block still lands flush beside a neighbour on a
-  display whose grid pitch is not whole steps. Widgets already lying over each other are left as they are, and a
+  way); the selected widgets move together and never hold each other. Touching edges are no overlap, nor a sliver
+  under the fractions' rounding; a block lands on the lines ([S-11892]), so it stops flush beside a neighbour on them at
+  any scale (until 2026-11-20 an overlap under one whole pixel step of the drag counted as touching, the step having
+  left blocks off the lines). Widgets already lying over each other are left as they are, and a
   moved one may stay over or leave the one it started over, but never comes over another. A block's resize by the
   selection's frame or Shift+arrows is held too ([S-2465]). A single widget's resize, placing, a
   paste, icons dropped back from the shell's drag and a hand-off to another display are not held. Tests
@@ -4735,7 +4737,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   the cells. The content gets the spare room under a cell and lays it out as it lays out any size in its
   range. So the painted box ([S-2446]), a resize, a Shift+arrow, a refit ([S-2447]), a new widget (its Natural rounded up) and a display, DPI or scale change
   all give whole cells; a widget standing on a grid line ends on one. Positions stay the gesture's (the grid,
-  the work-area magnet [S-6609]), so the size is what being shown changes. A scene and the add page's
+  the work-area magnet [S-6609]), so the size is what being shown changes; a card's edge drifted off its line by less
+  than a DIP is put on it ([S-11892]). A scene and the add page's
   pictures paint whole cells too (one path, no off-grid layout). The overlay draws each
   line on the whole DIP a card edge there is put on (`GridFit.LineDip`, [S-11872]), so edge and line share
   their pixels at any scale. With the grid off the sizing is content's alone, as before. Tests
@@ -4764,15 +4767,40 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   overlaps, each painted where it landed; a recipe taller or wider than the work area at that content scale, as
   This PC's one column at 2x on a 960-DIP display, cannot stand whole and lands each card in reach, [S-09]),
   `GridFitTests.S11809_`.
-- **[S-11873]** **A block's move is whole device pixels** (owner, 2026-11-15: "when moving a group around freely the
+- **[S-11873]** **A block keeps its spacing while it moves** (owner, 2026-11-15: "when moving a group around freely the
   spacing of the widgets inside the group changes slightly when moving"). Each card's cell was rounded on its own from
   the drag's fractional offset, and rounding to even put 4.5 px on 4 and 7.5 px on 8, so cards moved by the same
   amount came out a pixel apart. A block (a selection, a mixed selection of icons and cards on the locked
-  desktop, [S-11879]) is snapped as a block ([S-06]), then that offset is put on whole `GridGeometry.PixelStep`s
-  (the fewest whole DIPs that are whole device pixels: 1 at 100 %, 2 at 150 %, 4 at 125 %), one offset for every card
-  (`BlockGeometry.Move(..., rasterScale)`), and every edge rounds half up (`GridGeometry.WholeDip`, `DevicePixel`, the
-  grid's `LineDip` and `CrispLine` alike), so the cards' pixels keep their places relative to one another while it
-  moves and where it lands. Tests `BlockMoveTests.S11873_`.
+  desktop, [S-11879]) is snapped as a block ([S-06]): one offset for every card, whole cells (`BlockGeometry.Move`,
+  [S-11892]), so every card stays on the grid's lines; every edge rounds half up (`GridGeometry.WholeDip`,
+  `DevicePixel`, the grid's `LineDip` and `CrispLine` alike), so each line is one whole device pixel and two cards that
+  share a line share its pixel wherever the block goes: touching stays touching, aligned stays aligned. Where the
+  pitch is whole pixels (10 DIPs at 100 % and 200 %, 1280 × 720 DIPs at 150 %) every card's pixels keep their places
+  to the others exactly; elsewhere a gap or a size may take the pixel the grid's own cell takes there. *(Until
+  2026-11-20 the offset was then put on whole device pixels, `GridGeometry.PixelStep`, which left a block up to half a
+  step off the lines: gone with [S-11892].)* Tests `BlockMoveTests.S11873_`.
+- **[S-11892]** **Every card on its display's grid lines** (owner, 2026-11-20: "there is a problem with the layouting
+  in this configuraiton. the borders dont nicely connect."; on Home a 2 × 2 block of 30-pixel quick toggles against a
+  row of four 60-pixel ones at 2560 × 1440, 100 %: the block's top stood at 9.43 pixels, the row's at 9.67, so the
+  block's edges rounded to pixel 9 and the row's to 10; the block's top right corner was round against the row's
+  square top left, the row's bottom left round against the block's square bottom right, and the block read as a
+  shape of its own). Two causes, both off the lines: the surface measured its display on its window, a pixel short at
+  the foot ([S-840]), so the rows' pitch was 1439 / 144 = 9.993 DIPs; and a block's move was put on whole device
+  pixels after the snap ([S-11873] as it was), so on any pitch that is no whole number of pixels (that window at 100 %,
+  every 125 % display, 150 % at 2560) a block landed up to half a step off its line, and two blocks moved on their own
+  met a pixel or more apart. Now: (1) `Metrics` is the display's bounds in DIPs (`GridGeometry.DisplayScreen`, [S-05]);
+  (2) a block's move is the snap's whole cells at any scale (`BlockGeometry.Move`, no raster scale; kept apart by
+  the fractions' rounding alone, [S-11959]), so blocks laid side by side meet on one line and paint one body
+  ([S-2249]); (3) a card whose edges drifted off the lines by less than a DIP is put on them (`GridSettle`, in every
+  mutation on settled metrics, [S-854], before the taskbars are cleared, [S-855]; one warning line in the log naming
+  each card, before and after): every edge that is one value (a join, an alignment) moves with the others or not at
+  all, a card moves only with both edges on an axis on lines or drifted and its whole cells kept (nothing is painted
+  larger or smaller), a fence stays (its own rule) and holds what it shares, an edge flush on the work area's edge
+  stays ([S-6609]), the desktop's icons are `DesktopGrid`'s; (4) every caller of `GridGeometry.ToPixels` names its
+  raster scale (the placement ghost rounded at 100 % on a 150 % display, unlike the card it becomes). The owner's
+  state of 2026-11-20 has 63 of its 77 cards a fraction of a DIP off (32 of 33 on Home, the y axis only); they land on
+  the lines at the first start. A quick toggle's tile then takes the joined card's corners ([S-11883]): square at the
+  seam, round at the body's outer corners. Tests `OnTheLinesTests.S11892_`.
 - **[S-11810]** **Insets on the cards' pixels** (owner, 2026-11-15: "the group borders dont align with the
   widget borders inside … everything should align on the given grid"). Every inset is whole device pixels
   (the gap rounded to whole pixels once, the start side the lower half, the end side the rest, so neighbours
@@ -6120,8 +6148,9 @@ The display watcher, stable monitor identity, the per-display switch and scale, 
 model that keeps widgets still when the taskbar changes (S-840..S-859).
 
 - **[S-840]** The grid and every stored fraction are laid out on the **whole monitor**, taskbar
-  included. The surface window covers the monitor's bounds exactly ([S-23]); `Metrics` is its client
-  rect in DIPs; the snap grid overlay spans it. Resizing, moving or auto-hiding the taskbar therefore
+  included. The surface window covers the monitor's bounds but its last pixel row ([S-23]; a pixel short at the foot,
+  `GridGeometry.SurfaceWindow`, so the shell never takes it for a full-screen app); `Metrics` is the monitor's bounds in
+  DIPs, never that window's client rect ([S-11892]); the snap grid overlay spans it. Resizing, moving or auto-hiding the taskbar therefore
   never rescales a widget and moves only one it now covers ([S-855]): rendering ignores the work area entirely. Was: the window and
   the fractions followed the work area, so every taskbar change moved every widget.
 - **[S-841]** The **work area** is the region *new* geometry may use: `ScreenMetrics.Allowed`, the
@@ -8014,7 +8043,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   from a whole DIP (`GridGeometry.ToPixels`, [S-11872]), so two edges are the same pixel or at least one
   whole pixel apart: one pixel apart or over is no meeting, at 100 % as at 125, 150 or 200 % and on a
   screen whose DIPs are fractional; the half pixel only absorbs float noise. On the grid they meet on its
-  line. Tests `CardPaintTests.S2248_`.
+  line, and cards on one line share its pixel: every card stands on its display's lines ([S-11892]), so a seam's
+  two ends and the edges along it are one pixel in both cards. Tests `CardPaintTests.S2248_`.
 - **[S-2249]** **Touching cards are one connected panel** (`CardJoins.Paint`, the one path the desktop, the scenes
   and the add page's pictures take through `WidgetCard.Join`). Every card paints its whole cell ([S-11884]); cards
   whose cells meet ([S-2248]) join ([S-2240], [S-2241]) with no line between ([S-11870]): square inner corners,
@@ -8022,8 +8052,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   moving it away parts them, each round all round again. A card that takes no part in joins (an icon, a bare
   widget) beside a panel keeps all four corners, and the panel's corner over it stays round. A card being dragged
   away (another set, [S-2457]) or resized ([S-2244]) is free until it lands; a dragged selection stays one panel
-  among itself. A resize or a refit ([S-2447]) of one card changes that card's cell alone. Tests
-  `CardPaintTests.S2249_`.
+  among itself. A resize or a refit ([S-2447]) of one card changes that card's cell alone. Touching cards of any
+  sizes (a 2 × 2 block of small toggles against a row of large ones) are one body because their edges are one stored
+  edge, a grid line ([S-11892]); two edges a fraction of a DIP apart rounded to pixels a pixel apart, one corner
+  round and one square at the seam. Tests `CardPaintTests.S2249_`, `OnTheLinesTests.S11892_`.
 - **[S-11884]** **No gap between widgets** (owner, 2026-11-15: "the padding of the widgets should also be
   removed, the space between widgets will only come from how you place them now"): a card paints its whole
   cell, on the grid's lines. There is no gap setting (Appearance › Cards has no Gap row), no
@@ -9156,7 +9188,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   widget, icon or card, moves **every selected widget of that display's view** as one block
   (`DesktopPicks.Moving` over the desktop's one selection, [S-11877]); an unselected one moves alone and the selection
   stays. The block moves as [S-1584] says: one translation, its corner snapped
-  to the grid, kept in reach, in whole device pixels ([S-11873]), handed to another display's view where it is let go
+  to the grid, kept in reach, by whole cells ([S-11873], [S-11892]), handed to another display's view where it is let go
   there ([S-1591]), one undo step. **Picked by hand** (owner, 2026-11-19: "in non edit mode when the dashboard is not
   locked i should be able to select multiple widgets and move them around together"): besides the band, a left press
   with **Ctrl** (toggle) or **Shift** (the range) on any widget card puts it in the one selection as a desktop icon's
@@ -9258,8 +9290,8 @@ makes a composition one thing. Several widgets selected together are arranged an
   time ([S-1973]); **Escape** clears the selection. A press on a card's own resize handle selects that widget alone
   (the selection's frame's resizes the block, [S-2460]). Tests
   `NoGroupsTests.S1593_`, `.S1580_`, `.S1581_`, `.S1973_`.
-- **[S-2452]** **Several selected act as one**: they move as one block, by one translation, snapped and in whole
-  device pixels ([S-1584], [S-11873]), kept apart from the cards that stay when Keep widgets from overlapping is on
+- **[S-2452]** **Several selected act as one**: they move as one block, by one translation, snapped by whole
+  cells ([S-1584], [S-11873], [S-11892]), kept apart from the cards that stay when Keep widgets from overlapping is on
   ([S-11959]); they are resized together by the selection's frame and Shift+arrows ([S-2460]..[S-2465]); they copy,
   cut, paste, delete and are layered together ([S-1592]); the arrow keys nudge them whole ([S-1970]). Their page is **For all of them** (each shared setting once, [S-11751]) and the Appearance tab, set on
   every one ([S-11754], [S-11755]). Tests `NoGroupsTests.S1584_`, `BlockMoveTests.S11873_`,
@@ -12509,7 +12541,7 @@ power buttons, whose whole body is their button) open nothing.
 - **[S-11891]** **The dragged cards stick to the grid** (owner, 2026-11-19: "now the items dont stick to the grid
   anymore when moving in the preview. they should always stick to the grid"; replaces the same day's glue to the
   pointer): while dragged a block is drawn at the one translation it lands at, the snapped move ([S-1584]: on the grid
-  or an edge magnet, [S-6609]; kept in reach, [S-6608]; on whole pixel steps, [S-11873]; kept apart, [S-11959]: by a
+  or an edge magnet, [S-6609]; kept in reach, [S-6608]; on the lines at any scale, [S-11892]; kept apart, [S-11959]: by a
   card that stays it stops flush and slides along the free axis), stepping cell by cell; the local grid lights that
   box ([S-11874]; in edit mode the box alone over the whole grid), and the drop leaves it there. Tests
   `DragPipelineTests.S11891_`.

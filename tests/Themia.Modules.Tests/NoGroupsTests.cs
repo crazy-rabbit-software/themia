@@ -123,7 +123,7 @@ public sealed class NoGroupsTests
         var view = Sample();
         var rects = SelectionRules.InView(view, ["c", "a"]).Select(id => view.Find(id)!.Rect).ToList();
 
-        var delta = BlockGeometry.Move(rects, 0.05, 0.1, Screen, rasterScale: 1);
+        var delta = BlockGeometry.Move(rects, 0.05, 0.1, Screen);
         var moved = rects.Select(r => BlockGeometry.Apply(r, delta, Screen)).ToList();
 
         Assert.Equal(rects[1].X - rects[0].X, moved[1].X - moved[0].X, 9);
