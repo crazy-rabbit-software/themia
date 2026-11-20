@@ -61,7 +61,7 @@ internal static unsafe partial class InkMeasure
             return known;
         }
 
-        var ink = Lay(text);
+        var ink = Lay(text).Ink;
         if (Measured.Count >= Kept)
         {
             Measured.Clear();
@@ -71,12 +71,13 @@ internal static unsafe partial class InkMeasure
         return ink;
     }
 
-    private static LineInk? Lay(InkText text)
+    /// <summary>The text's ink as laid out, and how many lines it took.</summary>
+    private static (LineInk? Ink, uint Lines) Lay(InkText text)
     {
         var factory = Factory.Value;
         if (factory == 0 || string.IsNullOrEmpty(text.Text) || !(text.FontSize > 0) || !double.IsFinite(text.FontSize))
         {
-            return null;
+            return (null, 0);
         }
 
         nint format = 0;
@@ -101,14 +102,14 @@ internal static unsafe partial class InkMeasure
 
             if (result < 0 || format == 0)
             {
-                return Failed($"no text format for {font} (0x{result:X8})");
+                return (Failed($"no text format for {font} (0x{result:X8})"), 0);
             }
 
             var wraps = double.IsFinite(text.Width) && text.Width > 0;
             result = ((delegate* unmanaged[Stdcall]<nint, int, int>)Slot(format, FormatSetWordWrapping))(format, wraps ? Wrap : NoWrap);
             if (result < 0)
             {
-                return Failed($"no word wrapping (0x{result:X8})");
+                return (Failed($"no word wrapping (0x{result:X8})"), 0);
             }
 
             fixed (char* chars = text.Text)
@@ -119,13 +120,13 @@ internal static unsafe partial class InkMeasure
 
             if (result < 0 || layout == 0)
             {
-                return Failed($"no text layout (0x{result:X8})");
+                return (Failed($"no text layout (0x{result:X8})"), 0);
             }
 
             // Tracking moves where a text wraps: the same spacing XAML puts after each character.
             if (wraps && text.Tracking != 0 && !Track(layout, text))
             {
-                return Failed("no character spacing");
+                return (Failed("no character spacing"), 0);
             }
 
             // A family text's lines at their block line height, the baseline where XAML puts it: at the share of the line
@@ -136,7 +137,7 @@ internal static unsafe partial class InkMeasure
                 result = ((delegate* unmanaged[Stdcall]<nint, TextMetrics*, int>)Slot(layout, LayoutGetMetrics))(layout, &laid);
                 if (result < 0 || laid.LineCount == 0 || laid.LineCount > MaxLines)
                 {
-                    return result < 0 ? Failed($"no text metrics (0x{result:X8})") : null;
+                    return (result < 0 ? Failed($"no text metrics (0x{result:X8})") : null, 0);
                 }
 
                 // Every line's metrics or none: DirectWrite fills nothing into a buffer short of the lines.
@@ -145,7 +146,13 @@ internal static unsafe partial class InkMeasure
                 result = ((delegate* unmanaged[Stdcall]<nint, LineMetrics*, uint, uint*, int>)Slot(layout, LayoutGetLineMetrics))(layout, lines, laid.LineCount, &count);
                 if (result < 0 || !(lines[0].Height > 0))
                 {
-                    return Failed($"no line metrics (0x{result:X8})");
+                    return (Failed($"no line metrics (0x{result:X8})"), 0);
+                }
+
+                // Past its most lines XAML cuts the last one shown with an ellipsis: the ink is the lines it shows.
+                if (text.MaxLines > 0 && laid.LineCount > text.MaxLines)
+                {
+                    return (Shown(text, lines, (int)laid.LineCount), (uint)text.MaxLines);
                 }
 
                 var baseline = text.LineHeight * lines[0].Baseline / lines[0].Height;
@@ -153,7 +160,7 @@ internal static unsafe partial class InkMeasure
                     layout, UniformSpacing, (float)text.LineHeight, (float)baseline);
                 if (result < 0)
                 {
-                    return Failed($"no line spacing (0x{result:X8})");
+                    return (Failed($"no line spacing (0x{result:X8})"), 0);
                 }
             }
 
@@ -161,37 +168,54 @@ internal static unsafe partial class InkMeasure
             result = ((delegate* unmanaged[Stdcall]<nint, TextMetrics*, int>)Slot(layout, LayoutGetMetrics))(layout, &metrics);
             if (result < 0 || !(metrics.Height > 0))
             {
-                return result < 0 ? Failed($"no text metrics (0x{result:X8})") : null;
+                return (result < 0 ? Failed($"no text metrics (0x{result:X8})") : null, 0);
             }
 
             // The box is the lines' own height: the overhang under it is the room under the last ink, as over it the first's.
             result = ((delegate* unmanaged[Stdcall]<nint, float, int>)Slot(layout, LayoutSetMaxHeight))(layout, metrics.Height);
             if (result < 0)
             {
-                return Failed($"no layout height (0x{result:X8})");
+                return (Failed($"no layout height (0x{result:X8})"), 0);
             }
 
             Overhang overhang;
             result = ((delegate* unmanaged[Stdcall]<nint, Overhang*, int>)Slot(layout, LayoutGetOverhangMetrics))(layout, &overhang);
             if (result < 0)
             {
-                return Failed($"no overhang (0x{result:X8})");
+                return (Failed($"no overhang (0x{result:X8})"), 0);
             }
 
             double over = -overhang.Top, under = -overhang.Bottom;
 
             // Nothing inked (spaces alone): no ink to stand on.
-            return double.IsFinite(over) && double.IsFinite(under) && over + under < metrics.Height ? new LineInk(over, under) : null;
+            return (double.IsFinite(over) && double.IsFinite(under) && over + under < metrics.Height ? new LineInk(over, under) : null, metrics.LineCount);
         }
         catch (Exception ex)
         {
-            return Failed("measuring a text's ink failed", ex);
+            return (Failed("measuring a text's ink failed", ex), 0);
         }
         finally
         {
             Free(layout);
             Free(format);
         }
+    }
+
+    /// <summary>
+    /// The lines a text cut at its most shows: its words up to the end of the last line shown and the ellipsis, as XAML
+    /// trims them; where the ellipsis would take a line of its own, those words alone.
+    /// </summary>
+    private static LineInk? Shown(InkText text, LineMetrics* lines, int count)
+    {
+        var length = 0;
+        for (var i = 0; i < text.MaxLines && i < count; i++)
+        {
+            length += (int)lines[i].Length;
+        }
+
+        var kept = text.Text[..Math.Min(length, text.Text.Length)].TrimEnd();
+        var cut = Lay(text with { Text = kept + "…", MaxLines = 0 });
+        return cut.Lines <= text.MaxLines ? cut.Ink : Lay(text with { Text = kept, MaxLines = 0 }).Ink;
     }
 
     /// <summary>XAML's <c>CharacterSpacing</c> (thousandths of an em after each character) on the layout (<c>IDWriteTextLayout1</c>).</summary>

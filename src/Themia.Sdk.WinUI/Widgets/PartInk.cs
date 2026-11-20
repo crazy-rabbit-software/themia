@@ -134,7 +134,7 @@ public static class PartInk
 
     /// <summary>
     /// [S-14200] A family text (its block line height): the room over its first ink and under its last as it is drawn,
-    /// wrapped where it wraps; a planned line saying nothing yet is the model's capitals on the baseline, and so is a
+    /// wrapped where it wraps and cut where its lines run out; a planned line saying nothing yet is the model's capitals on the baseline, and so is a
     /// placeholder read as what it stands for (<paramref name="held"/>, [S-12813]). A text on the font's own line: none.
     /// </summary>
     private static LineInk Text(TextBlock text, bool held)
@@ -147,7 +147,7 @@ public static class PartInk
         var step = new TypeStep(text.FontSize, text.LineHeight, false);
         return held && LineInk.Capless(text.Text)
             ? LineInk.Of(step)
-            : InkMeter.Line(step, text.Text, FontOf(text.FontFamily), text.FontWeight.Weight, WrapWidth(text), text.CharacterSpacing);
+            : InkMeter.Line(step, text.Text, FontOf(text.FontFamily), text.FontWeight.Weight, WrapWidth(text), text.CharacterSpacing, text.MaxLines);
     }
 
     /// <summary>

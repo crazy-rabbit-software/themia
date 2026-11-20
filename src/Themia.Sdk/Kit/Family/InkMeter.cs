@@ -6,10 +6,10 @@ namespace Themia.Sdk.Kit;
 /// [S-14200] A text as it is drawn, for where its ink stands: its words, its font (a family name as XAML names it),
 /// size, weight (100..900), its lines' height (<see cref="LineHeight"/>: a family text's block line height, its baseline
 /// where XAML puts it, at the font's ascent's share of the line; 0: the font's own line, as a glyph draws in its em box), the
-/// width it wraps at (infinite: one line) and its tracking (thousandths of an em, XAML's <c>CharacterSpacing</c>), which
-/// moves where it wraps.
+/// width it wraps at (infinite: one line), its tracking (thousandths of an em, XAML's <c>CharacterSpacing</c>), which
+/// moves where it wraps, and the most lines it shows (0: all; past them XAML cuts the last shown line with its ellipsis).
 /// </summary>
-public readonly record struct InkText(string Text, string Font, double FontSize, int Weight, double LineHeight, double Width = double.PositiveInfinity, int Tracking = 0);
+public readonly record struct InkText(string Text, string Font, double FontSize, int Weight, double LineHeight, double Width = double.PositiveInfinity, int Tracking = 0, int MaxLines = 0);
 
 /// <summary>
 /// [S-14200] Where a text's ink really stands in its box (owner, 2026-11-19, of the tiles and the one-line faces:
@@ -32,8 +32,8 @@ public static class InkMeter
     /// The ink of a line of the family's on <paramref name="step"/> saying <paramref name="text"/>: measured, else (no
     /// meter, no text: a planned line saying nothing yet) the model's capitals on the baseline.
     /// </summary>
-    public static LineInk Line(TypeStep step, string? text, string font, int weight, double width = double.PositiveInfinity, int tracking = 0)
-        => Measure(new InkText(text ?? string.Empty, font, step.FontSize, weight, step.LineHeight, width, tracking)) ?? LineInk.Of(step);
+    public static LineInk Line(TypeStep step, string? text, string font, int weight, double width = double.PositiveInfinity, int tracking = 0, int maxLines = 0)
+        => Measure(new InkText(text ?? string.Empty, font, step.FontSize, weight, step.LineHeight, width, tracking, maxLines)) ?? LineInk.Of(step);
 
     /// <summary>The host's meter. Once per process.</summary>
     internal static void Install(Func<InkText, LineInk?> meter)
