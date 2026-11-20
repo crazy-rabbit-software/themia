@@ -11,7 +11,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-12481] [S-6710] A tool line: [label, Body, secondary, ellipsis] … [trailing], one line of 20, the first
 /// line of a widget's own content where its kind offers tools there: the calendar's month and its arrows, a
-/// folder's way back and up, the screen time's day and its arrows, the note's formatting bar. Never a card's
+/// folder's way back and up, the screen time's day and its arrows (its parts also make the note's pill, [S-14771]). Never a card's
 /// header and never the widget's name (no card has a header, [S-12480]; a title is a Header widget of its
 /// own, [S-9600]): the label says what the tools act on now ("November 2026", "Documents"). The view lays it
 /// in its own first row at its side inset. [S-12834] The line is a band of whole grid cells: its 20 and the gap
@@ -148,6 +148,49 @@ public sealed partial class ToolLine : Grid, IInked
             Margin = new Thickness(0, -FamilySpace.ButtonOverflow, 0, -FamilySpace.ButtonOverflow),
         };
 
+        Acts(element, tooltip, run);
+        return element;
+    }
+
+    /// <summary>
+    /// [S-14771] A line's choice: the name of what it shows now and the chevron that opens the others, one line button
+    /// (the button's 24, its fills and its radius; the name in Body, secondary, cut with an ellipsis at its
+    /// <c>MaxWidth</c>, 8 from the button's start; the chevron's 16 in a 24 square at its end), so the name and the
+    /// chevron are pressed as one, as a Windows drop-down is. The caller keeps <paramref name="name"/> to say another name.
+    /// </summary>
+    public static Border Dropdown(TextBlock name, string tooltip, Action open)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(open);
+
+        name.TextTrimming = TextTrimming.CharacterEllipsis;
+        name.TextWrapping = TextWrapping.NoWrap;
+        name.VerticalAlignment = VerticalAlignment.Center;
+
+        var chevron = new Border
+        {
+            Child = Family.Glyph(Themia.App.Shell.Glyphs.ChevronDown),
+            Width = FamilyShape.LineButton,
+            Height = FamilyShape.LineButton,
+        };
+
+        var element = new Border
+        {
+            Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { name, chevron } },
+            Height = FamilyShape.LineButton,
+            Padding = new Thickness(FamilySpace.S2, 0, 0, 0),
+            CornerRadius = Family.Radius,
+            Background = Family.Brush(ColourRole.Clear),
+            Margin = new Thickness(0, -FamilySpace.ButtonOverflow, 0, -FamilySpace.ButtonOverflow),
+        };
+
+        Acts(element, tooltip, open);
+        return element;
+    }
+
+    /// <summary>[S-6710] A line button's name, its subtle fills on hover and press, and its one action on a tap.</summary>
+    private static void Acts(Border element, string tooltip, Action run)
+    {
         ToolTipService.SetToolTip(element, tooltip);
         AutomationProperties.SetName(element, tooltip);
         element.PointerEntered += (_, _) => element.Background = Family.Brush(ColourRole.Subtle);
@@ -159,8 +202,6 @@ public sealed partial class ToolLine : Grid, IInked
             args.Handled = true;
             run();
         };
-
-        return element;
     }
 
     /// <summary>

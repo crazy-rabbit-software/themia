@@ -116,8 +116,12 @@ public readonly record struct ItemMenuEntry(
     /// <summary>[S-2351] It asks in place (a line of text or a question): its card opens on what it asks.</summary>
     public bool Asks => Ask is not null || Confirm is not null;
 
-    /// <summary>[S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow.</summary>
-    internal MenuLine Line => IsSeparator ? MenuLine.Separator : MenuLine.Entry(Checked is null && Children is null ? Quick : null);
+    /// <summary>
+    /// [S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow. [S-14772] A text
+    /// format does, its state lit as Windows' text menu lights it (<see cref="ContextMenuLayout.IsFormat"/>).
+    /// </summary>
+    internal MenuLine Line => IsSeparator ? MenuLine.Separator
+        : MenuLine.Entry(Children is null && (Checked is null || Quick is { } quick && ContextMenuLayout.IsFormat(quick)) ? Quick : null);
 }
 
 /// <summary>
@@ -339,6 +343,35 @@ public static class ItemMenu
     public static bool Open(FrameworkElement anchor, IEnumerable<ItemMenuEntry> entries, Action? closed = null) => ShowAt(anchor, null, entries, closed);
 
     /// <summary>
+    /// [S-14772] A text selection's bar: the menu at <paramref name="at"/> of <paramref name="target"/> (down and to the
+    /// right of the pointer, [S-1748]) that comes by itself after text was selected with the pointer, so it does not take
+    /// the keyboard (<see cref="FlyoutShowMode.Transient"/>): typing goes on in the text. Returns the menu, or null when
+    /// there is nothing in it, for its owner to close when the text is typed in or clicked again.
+    /// </summary>
+    public static FlyoutBase? ShowBar(UIElement target, Point at, IEnumerable<ItemMenuEntry> entries, Action? closed = null)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+
+        if (Build(entries) is not { } menu)
+        {
+            return null;
+        }
+
+        if (closed is not null)
+        {
+            menu.Closed += (_, _) => Run(closed);
+        }
+
+        menu.ShowAt(target, new FlyoutShowOptions
+        {
+            ShowMode = FlyoutShowMode.Transient,
+            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+            Position = at,
+        });
+        return menu;
+    }
+
+    /// <summary>
     /// Give <paramref name="target"/> a menu whose entries are read fresh on every right-tap (so a
     /// "Mark as done" can follow the item's state). Dispose the result to unsubscribe — on
     /// <c>Detach</c>, or when the row is recycled.
@@ -389,6 +422,15 @@ public static class ItemMenu
         if (keys is not null)
         {
             AutomationProperties.SetAcceleratorKey(button, keys);
+        }
+
+        // [S-14772] A text format in force (the selection is bold): lit as Windows lights a checked command of its row,
+        // still a plain button ([S-12952]); its state is said to a screen reader too.
+        if (entry.Checked is true)
+        {
+            button.Background = ThemeBrush.Of("AppBarToggleButtonBackgroundChecked", Colors.SteelBlue);
+            button.Foreground = ThemeBrush.Of("AppBarToggleButtonForegroundChecked", Colors.White);
+            AutomationProperties.SetItemStatus(button, Str.Toggle_On.Text());
         }
 
         Wire(menu, button, entry.Action);
@@ -490,6 +532,7 @@ public static class ItemMenu
     internal static IconElement? IconFor(ItemMenuEntry entry, Action<IconElement>? replace = null)
     {
         var glyph = entry.Glyph is null ? null
+            : Lettered(entry.Glyph) ? Letters(entry.Glyph)
             : entry.Disabled ? UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph }) : MenuArtIcons.IconOrGlyph(entry.Glyph);
         if (entry.IconFile is not { } file)
         {
@@ -549,12 +592,36 @@ public static class ItemMenu
         }
     }
 
+    /// <summary>
+    /// [S-1365] [S-14772] A glyph that is letters, not the icon font's (its private-use area): the note's "H" and "1.", which
+    /// Segoe Fluent Icons has no picture for. Drawn in the text's face, semibold, as the letters they are.
+    /// </summary>
+    private static bool Lettered(string glyph) => glyph.Length > 0 && !glyph.Any(c => c is >= '\uE000' and <= '\uF8FF');
+
+    private static FontIcon Letters(string letters)
+    {
+        var icon = new FontIcon { Glyph = letters, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
+        if (Application.Current?.Resources.TryGetValue("ContentControlThemeFontFamily", out var face) == true && face is FontFamily family)
+        {
+            icon.FontFamily = family;
+        }
+
+        return icon;
+    }
+
     /// <summary>The icon a quick command has when its caller gave none.</summary>
     private static string QuickGlyph(QuickCommand? quick) => quick switch
     {
         QuickCommand.Cut => Glyphs.Cut,
         QuickCommand.Copy => Glyphs.Copy,
         QuickCommand.Paste => Glyphs.Paste,
+        QuickCommand.Bold => Glyphs.Bold,
+        QuickCommand.Italic => Glyphs.Italic,
+        QuickCommand.Strikethrough => Glyphs.Strikethrough,
+        QuickCommand.Code => Glyphs.Code,
+        QuickCommand.BulletList => Glyphs.BulletList,
+        QuickCommand.Checklist => Glyphs.Checklist,
+        QuickCommand.Quote => Glyphs.Quote,
         QuickCommand.Rename => Glyphs.Rename,
         QuickCommand.Share => Glyphs.Share,
         QuickCommand.Duplicate => Glyphs.Duplicate,

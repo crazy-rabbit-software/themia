@@ -12419,12 +12419,15 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   included ([S-816]).
 - **[S-1740]** One menu, Windows 11 File Explorer style: a `CommandBarFlyout`, always expanded, with
   the common commands as a **row of icons** on top and the labelled list below. The row's commands
-  and order: Cut, Copy, Paste, Rename, Share (the folder widget's files, [S-6416]), Duplicate (items and views only,
-  never a widget, [S-1743]),
-  Settings, Delete. Each icon (Explorer's picture, [S-1754]) has its label as tooltip
+  and order: Cut, Copy, Paste, a text's formats (Bold, Italic, Strikethrough, Code, Heading, the bulleted, numbered and
+  check lists, Quote: the note's text menu, [S-14772], as Windows' text menus put Bold and Italic after Paste), Rename,
+  Share (the folder widget's files, [S-6416]), Duplicate (items and views only, never a widget, [S-1743]),
+  Settings, Delete. Each icon (Explorer's picture, [S-1754]; letters where the icon font has none, the note's "H" and
+  "1.", in the text's face) has its label as tooltip
   (with the shortcut, "Copy (Ctrl+C)", [S-1753]) and as its accessible name. A disabled command stays in its
   place, greyed, so the row never shifts. A second entry claiming the same command, a toggle and a
-  submenu stay in the list. `ItemMenu` is the only code that builds a context menu; no view builds a
+  submenu stay in the list; a text format alone may say it is in force, lit as Windows lights a checked command of its
+  row (`ContextMenuLayout.IsFormat`, [S-14772]). `ItemMenu` is the only code that builds a context menu; no view builds a
   `MenuFlyout` for one by hand.
 - **[S-1741]** With fewer than two row commands there is no row: a lone icon reads as a stray button,
   so it stays a labelled line in the list, and the menu is the list alone (a `MenuFlyout`: a command

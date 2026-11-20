@@ -4,13 +4,23 @@ namespace Themia.Core.Shell;
 /// [S-1740] The commands Windows 11 draws as a row of icons above a context menu's list, in the
 /// order the row shows them. File Explorer's row is Cut, Copy, (Paste), Rename, Share, Delete;
 /// Themia adds Duplicate (views and items, not widgets) and Settings, which its items use as often.
-/// Share is the folder widget's, for files ([S-6416]).
+/// Share is the folder widget's, for files ([S-6416]). [S-14772] A text's menu puts its formats after Paste, as
+/// Windows' text menus put Bold and Italic there: the note's marks and its paragraph's kinds (<see cref="ContextMenuLayout.IsFormat"/>).
 /// </summary>
 public enum QuickCommand
 {
     Cut,
     Copy,
     Paste,
+    Bold,
+    Italic,
+    Strikethrough,
+    Code,
+    Heading,
+    BulletList,
+    NumberedList,
+    Checklist,
+    Quote,
     Rename,
     Share,
     Duplicate,
@@ -49,6 +59,13 @@ public static class ContextMenuLayout
     /// as a stray button, not as a row, and it has no label to say what it is.
     /// </summary>
     public const int MinRow = 2;
+
+    /// <summary>
+    /// [S-14772] A text format in the row (Bold .. Quote): the one kind of row command that may say whether it is in force
+    /// (a toggle stays in the list otherwise, [S-1740]: an icon cannot show a check), lit as Windows' text menu lights its
+    /// Bold while the selection is bold.
+    /// </summary>
+    public static bool IsFormat(QuickCommand quick) => quick is >= QuickCommand.Bold and <= QuickCommand.Quote;
 
     /// <summary>
     /// [S-1740]..[S-1742] Split <paramref name="lines"/> into the icon row and the list.

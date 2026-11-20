@@ -43,6 +43,41 @@ public sealed class ContextMenuTests
         Assert.Empty(split.List);
     }
 
+    [Fact]
+    public void S14772_a_texts_formats_stand_after_paste_in_the_row_marks_before_paragraphs()
+    {
+        // Listed out of order: the row still reads Cut, Copy, Paste, Bold, Italic, Strikethrough, Code, Heading, the lists, Quote.
+        QuickCommand[] listed =
+        [
+            QuickCommand.Quote, QuickCommand.Checklist, QuickCommand.Bold, QuickCommand.Paste, QuickCommand.Heading, QuickCommand.Cut,
+            QuickCommand.NumberedList, QuickCommand.Code, QuickCommand.Copy, QuickCommand.BulletList, QuickCommand.Italic, QuickCommand.Strikethrough,
+        ];
+        var split = ContextMenuLayout.Split([.. listed.Select(Q)]);
+
+        Assert.Equal(
+            [
+                QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Paste, QuickCommand.Bold, QuickCommand.Italic, QuickCommand.Strikethrough,
+                QuickCommand.Code, QuickCommand.Heading, QuickCommand.BulletList, QuickCommand.NumberedList, QuickCommand.Checklist, QuickCommand.Quote,
+            ],
+            split.Row.Select(i => listed[i]));
+        Assert.Empty(split.List);
+    }
+
+    [Fact]
+    public void S14772_only_a_text_format_may_say_in_the_row_that_it_is_in_force()
+    {
+        QuickCommand[] formats =
+        [
+            QuickCommand.Bold, QuickCommand.Italic, QuickCommand.Strikethrough, QuickCommand.Code, QuickCommand.Heading,
+            QuickCommand.BulletList, QuickCommand.NumberedList, QuickCommand.Checklist, QuickCommand.Quote,
+        ];
+
+        foreach (var quick in Enum.GetValues<QuickCommand>())
+        {
+            Assert.Equal(formats.Contains(quick), ContextMenuLayout.IsFormat(quick));
+        }
+    }
+
     // ---- [S-1741] no lone icon ---------------------------------------------------------------------
 
     [Fact]

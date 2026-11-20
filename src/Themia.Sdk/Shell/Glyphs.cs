@@ -329,9 +329,9 @@ public static class Glyphs
     public static readonly string Tag = From(0xE8EC);
     public static readonly string Dot = From(0xE91F);
 
-    // [S-1365] The note formatting bar. Checked against SegoeIcons.ttf's cmap and a rendered sheet:
-    // a bold B, a slanted I, a struck S, a bulleted list, a checked list. The font has no numbered
-    // list and no heading mark; those two buttons are lettered ("1.", "H").
+    // [S-1365] The note's formats (its selection's menu, [S-14772]). Checked against SegoeIcons.ttf's cmap and a rendered
+    // sheet: a bold B, a slanted I, a struck S, a bulleted list, a checked list. The font has no numbered list and no
+    // heading mark; those two are lettered ("1.", "H"); the chevron is the note picker's.
     public static readonly string Bold = From(0xE8DD);
     public static readonly string Italic = From(0xE8DB);
     public static readonly string Strikethrough = From(0xEDE0);
