@@ -102,5 +102,5 @@ internal sealed partial class AccountService
     }
 
     private static ServiceReply Reply(AccountReply reply)
-        => new(reply.Status, reply.Headers, Encoding.UTF8.GetBytes(reply.Body));
+        => new(reply.Status, reply.Headers, reply.Raw);
 }

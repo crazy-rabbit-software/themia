@@ -1,11 +1,8 @@
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using Themia.App.Services.Accounts;
 using Themia.App.Services.Net;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
@@ -41,29 +38,18 @@ internal static class WebFetch
     private const string Scope = "web";
 
     /// <summary>
-    /// A widget refreshes on a timer, so the honest deadline is short: a request that has not
-    /// answered in this long has nothing to add that the next tick will not get sooner.
+    /// [S-960] [S-967] The web's policy over the one send: the clients for everything on the internet (every
+    /// connection through the guard, the local network only for the host of an address the user typed, [S-3840]),
+    /// loopback only for a service on this computer (the hardware monitor, never proxied). A widget refreshes on a
+    /// timer, so the honest deadline is short (20 s: a request that has not answered by then has nothing the next tick
+    /// will not get sooner), and a dead host is unreachable in seconds (8 s to connect). Feeds are a few hundred
+    /// kilobytes and a ten-year chart under a megabyte: past 4 MB the reply is not the document asked for.
     /// </summary>
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(20);
-
-    /// <summary>A dead host should be reported as unreachable in seconds, not held open until the whole-request deadline.</summary>
-    private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(8);
-
-    /// <summary>
-    /// A ceiling on what is read into memory, applied to the stream rather than to a
-    /// <c>Content-Length</c> a host is free to lie about or omit. Feeds are a few hundred kilobytes
-    /// and a ten-year chart is under a megabyte; past this, the reply is not the document asked for.
-    /// </summary>
-    private const int MaxBytes = 4 * 1024 * 1024;
-
-    /// <summary>
-    /// [S-960] The clients for everything on the internet: every connection through the guard, the
-    /// local network only for the host of an address the user typed ([S-3840]).
-    /// </summary>
-    private static readonly GuardedClients Clients = GuardedHttp.CreatePair(ConnectTimeout, RequestTimeout);
-
-    /// <summary>[S-967] The client for a service on this computer (the hardware monitor): loopback only, never proxied.</summary>
-    private static readonly HttpClient LocalClient = GuardedHttp.Create(NetReach.ThisMachine, ConnectTimeout, RequestTimeout);
+    private static readonly HttpPolicy Policy = new(
+        GuardedHttp.CreatePair(TimeSpan.FromSeconds(8), Timeout.InfiniteTimeSpan),
+        GuardedHttp.Create(NetReach.ThisMachine, TimeSpan.FromSeconds(8), Timeout.InfiniteTimeSpan),
+        Deadline: TimeSpan.FromSeconds(20),
+        MaxBytes: 4 * 1024 * 1024);
 
     /// <summary>
     /// Fetch a URL as text, mapping every way it can go wrong onto a named
@@ -86,7 +72,7 @@ internal static class WebFetch
     /// </param>
     public static async Task<WebResponse> GetAsync(Uri uri, string accept, CancellationToken token, NetReach reach = NetReach.Internet, LocalGrant? grant = null)
     {
-        var (status, body, detail) = await FetchAsync(uri, accept, reach, grant, MaxBytes, token).ConfigureAwait(false);
+        var (status, body, detail) = await FetchAsync(uri, accept, reach, grant, null, token).ConfigureAwait(false);
 
         // UTF-8 with replacement, not with an exception: a feed declaring one encoding and serving
         // another is common, the app builds with InvariantGlobalization so most legacy code pages
@@ -106,115 +92,55 @@ internal static class WebFetch
         string accept,
         int maxBytes,
         CancellationToken token)
-        => FetchAsync(uri, accept, NetReach.Internet, grant: null, Math.Clamp(maxBytes, 1, MaxBytes), token);
+        => FetchAsync(uri, accept, NetReach.Internet, grant: null, maxBytes, token);
 
     private static async Task<(FetchStatus Status, byte[]? Body, string? Detail)> FetchAsync(
         Uri uri,
         string accept,
         NetReach reach,
         LocalGrant? grant,
-        int maxBytes,
+        int? maxBytes,
         CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(uri);
 
-        // The last line of defence for the trust boundary. Every caller builds its URI from
-        // checked pieces, but this is the single place every request goes through, and a scheme
-        // check here cannot be forgotten by a future caller.
-        if (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp)
+        var request = new RequestTemplate(HttpMethod.Get, uri);
+        if (!string.IsNullOrEmpty(accept))
         {
-            Log.Warn(Scope, $"refused a non-http request to '{uri.Scheme}:'");
-            return (FetchStatus.Refused, null, $"scheme {uri.Scheme}");
+            request.Headers.Add(("Accept", accept));
         }
 
         try
         {
-            var current = uri;
+            var answer = await HttpCore.SendAsync(Policy, request, CredentialKind.None, null, grant, token, reach, maxBytes).ConfigureAwait(false);
 
-            for (var hop = 0; ; hop++)
+            if (answer.Status == 429)
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, current);
-
-                if (!string.IsNullOrEmpty(accept))
-                {
-                    request.Headers.Accept.ParseAdd(accept);
-                }
-
-                // [S-3840] The grant goes along only while the hop stays on the host it was given for.
-                using var response = await (reach == NetReach.ThisMachine
-                        ? LocalClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token)
-                        : Clients.SendAsync(request, grant, HttpCompletionOption.ResponseHeadersRead, token))
-                    .ConfigureAwait(false);
-
-                // [S-966] Redirects are followed here, never by the stack, so each hop is a new
-                // request that meets the guard: a public feed answering 302 to http://192.168.1.1/ is
-                // the textbook way around a check made only on the first address. Which hops are
-                // followed at all is the accounts' rule (RedirectRules): http(s) only, never https
-                // down to http, never from a public host into the local network.
-                if (RedirectRules.IsRedirect((int)response.StatusCode))
-                {
-                    if (hop >= RedirectRules.MaxHops || response.Headers.Location is not { } location)
-                    {
-                        return (FetchStatus.BadResponse, null, hop >= RedirectRules.MaxHops ? "too many redirects" : "a redirect with no address");
-                    }
-
-                    var next = location.IsAbsoluteUri ? location : new Uri(current, location);
-
-                    if (!RedirectRules.MayFollow(current, next))
-                    {
-                        return (FetchStatus.Refused, null, $"refused a redirect to {next.Scheme}://{next.IdnHost}");
-                    }
-
-                    current = next;
-                    continue;
-                }
-
-                if (response.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    // Its own status, because it is the one failure whose correct response is to stop
-                    // asking for a long time rather than to try again on the next tick.
-                    return (FetchStatus.RateLimited, null, "HTTP 429 Too Many Requests");
-                }
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    // The status line, not the body: a 403 challenge page or a 404 HTML document would
-                    // otherwise be handed to the parser and reported as "not a feed", which sends the
-                    // reader looking in the wrong place.
-                    var line = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}".TrimEnd();
-                    return (FetchStatus.BadResponse, null, line);
-                }
-
-                var body = await ReadAsync(response, maxBytes, token).ConfigureAwait(false);
-
-                return body is null
-                    ? (FetchStatus.BadResponse, null, $"reply larger than {maxBytes} bytes")
-                    : (FetchStatus.Ok, body, null);
+                // Its own status, because it is the one failure whose correct response is to stop
+                // asking for a long time rather than to try again on the next tick.
+                return (FetchStatus.RateLimited, null, "HTTP 429 Too Many Requests");
             }
+
+            if (!answer.IsSuccess)
+            {
+                // The status line, not the body: a 403 challenge page or a 404 HTML document would
+                // otherwise be handed to the parser and reported as "not a feed", which sends the
+                // reader looking in the wrong place.
+                return (FetchStatus.BadResponse, null, $"HTTP {answer.Status}");
+            }
+
+            return (FetchStatus.Ok, answer.Body, null);
         }
-        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        catch (AccountException ex)
         {
-            // The caller moved on — a config change, a torn-down widget. Not a network state.
-            throw;
-        }
-        catch (OperationCanceledException)
-        {
-            // Cancelled without the caller asking is HttpClient's own deadline.
-            return (FetchStatus.TimedOut, null, $"no reply within {RequestTimeout.TotalSeconds:F0}s");
-        }
-        catch (HttpRequestException ex) when (NetRefusedException.Find(ex) is { } refused)
-        {
-            // The guard said no: its own status, and the sentence that says why and what to do.
-            return (FetchStatus.Refused, null, refused.Message);
-        }
-        catch (HttpRequestException ex)
-        {
-            return (Classify(ex), null, Describe(ex));
-        }
-        catch (IOException ex)
-        {
-            // A connection dropped mid-body.
-            return (FetchStatus.Unreachable, null, ex.Message);
+            // The one classifier's verdict: a guard's or a redirect's refusal with its sentence, no network, a
+            // timeout, a host that did not answer, a body over the cap.
+            if (ex.Error == AccountError.Refused)
+            {
+                Log.Debug(Scope, $"refused: {ex.Message}");
+            }
+
+            return (ex.ToFetchStatus(), null, ex.Message);
         }
     }
 
@@ -255,73 +181,4 @@ internal static class WebFetch
             return (FetchStatus.BadResponse, null, ex.Message);
         }
     }
-
-    /// <summary>
-    /// Read the body, refusing to grow past <paramref name="maxBytes"/>.
-    /// <para>
-    /// Bounded while reading rather than after: a host that streams forever would otherwise be
-    /// stopped only by the request deadline, having already put whatever it sent into this
-    /// process's memory.
-    /// </para>
-    /// </summary>
-    private static async Task<byte[]?> ReadAsync(HttpResponseMessage response, int maxBytes, CancellationToken token)
-    {
-        await using var stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
-        using var buffer = new MemoryStream();
-
-        var chunk = new byte[16 * 1024];
-
-        while (true)
-        {
-            var read = await stream.ReadAsync(chunk, token).ConfigureAwait(false);
-
-            if (read == 0)
-            {
-                break;
-            }
-
-            if (buffer.Length + read > maxBytes)
-            {
-                return null;
-            }
-
-            buffer.Write(chunk, 0, read);
-        }
-
-        return buffer.ToArray();
-    }
-
-    /// <summary>
-    /// Tell "this machine has no network" apart from "that host did not answer".
-    /// <para>
-    /// Worth the extra call because they are different facts and the reader can act on one of them.
-    /// Offline is the laptop's state and the widget is blameless; unreachable means the network is
-    /// up and the service specifically is not, which is the one that is worth looking into.
-    /// </para>
-    /// </summary>
-    private static FetchStatus Classify(HttpRequestException ex)
-    {
-        if (!NetworkInterface.GetIsNetworkAvailable())
-        {
-            return FetchStatus.Offline;
-        }
-
-        if (ex.InnerException is SocketException socket)
-        {
-            return socket.SocketErrorCode switch
-            {
-                SocketError.HostNotFound or SocketError.NoData or SocketError.TryAgain => FetchStatus.Unreachable,
-                SocketError.NetworkDown or SocketError.NetworkUnreachable => FetchStatus.Offline,
-                SocketError.TimedOut => FetchStatus.TimedOut,
-                _ => FetchStatus.Unreachable,
-            };
-        }
-
-        return FetchStatus.Unreachable;
-    }
-
-    private static string Describe(HttpRequestException ex)
-        => ex.InnerException is SocketException socket
-            ? $"{socket.SocketErrorCode}: {socket.Message}"
-            : ex.Message;
 }
