@@ -31,6 +31,12 @@ public static class NextMeetingJoin
     /// </summary>
     public static KitWidths Widths { get; } = new(260, 320, 520);
 
+    /// <summary>
+    /// [S-14261] The lines' least width, unscaled: what the block keeps for its title and lines however it scales, the room
+    /// they have in its least card beside the end column ("a title of a dozen letters"); past it they are cut.
+    /// </summary>
+    public static double TextLeast => Widths.Min - (2 * FamilySpace.Inset) - EndEstimate - Gap;
+
     /// <summary>The countdown's one line (BodyStrong).</summary>
     public static double CountdownLine => FamilyType.BodyStrong.LineHeight;
 

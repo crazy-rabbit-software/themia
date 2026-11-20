@@ -131,7 +131,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         var end = _fit.GivesWayBox(_end, FamilyType.BodyStrong.FontSize);
         SetColumn(end, 1);
 
-        _content.Children.Add(_text);
+        // [S-14261] The lines are cut with their ellipsis at the width the block gives them, never stopping its scale.
+        _content.Children.Add(new CutLine(_text) { Least = NextMeetingJoin.TextLeast });
         _content.Children.Add(end);
         _content.Background = Family.Brush(ColourRole.Clear);
         _content.PointerEntered += OnPointerEntered;

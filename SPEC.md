@@ -8168,6 +8168,16 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   centred in it, and its ink is that track (`PartInk`, as a slider's is its thumb), so the block's last ink is the
   track's foot. Before, the switch was held to the Controls row's 32 and the template cut its track's foot flat at
   every size. Renders `--widget-png alarm --state set|off|snoozed|ringing --sizes range`.
+- **[S-14261]** **A text the block cuts never holds it small** (owner, 2026-11-19, WR-4: "they should stretch if they dont
+  reach all the way"; WR-7). A line of a one-readout block that its kind cuts with its ellipsis (the next meeting's title
+  and its lines, [S-11407]) stands in a `CutLine`: measured unbounded (as `ReadingFit` measures its parts, [S-12814]) it
+  asks for no more than its least (the room the lines have in the kind's least card, `NextMeetingJoin.TextLeast`, so a
+  block scaled up never squeezes them to nothing), laid out it is measured again at the width it is given and its text
+  is cut there. So the block scales to fill the card's height and the cut lines take what width is left; before, the
+  next meeting's whole title held the block at 0.82 of its natural size in its natural card, leaving 39 under it
+  (320x124). A card far taller than the block is wide still leaves the height the width does not let it fill (WR-7:
+  "until its ink fills the height or the width stops it").
+  Renders `--widget-png nextMeeting --state sample|running|nolink --sizes range`, judged by `scripts/gap-check.py`.
 - **[S-12815]** **A list's first row stands on the card's top edge, and the gap check** (owner, 2026-11-19: "or the
   stick too. audit all the widgets and make sure that this shit does not happen anywhere. test this properly"; "no
   this is fine if it happens, but there should not be a space at the top"). A list whose rows are the first thing in

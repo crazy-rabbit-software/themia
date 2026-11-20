@@ -61,4 +61,18 @@ public sealed class NextMeetingJoinTests
         Assert.Equal(4 + 20, NextMeetingJoin.EndHeight(hasJoin: false));
         Assert.Equal(20 + 4 + 28, NextMeetingJoin.EndHeight(hasJoin: true));
     }
+
+    /// <summary>
+    /// [S-14261] The lines keep their least card's room however the block scales: in its least card at scale 1 they stand
+    /// beside the end column whole; a long title is cut there, never holding the block small.
+    /// </summary>
+    [Fact]
+    public void S14261_the_lines_least_width_is_their_room_in_the_least_card()
+    {
+        var least = NextMeetingJoin.TextLeast;
+
+        Assert.Equal(NextMeetingJoin.Widths.Min - 24 - NextMeetingJoin.EndEstimate - NextMeetingJoin.Gap, least);
+        Assert.True(least > 0);
+        Assert.True(least + NextMeetingJoin.Gap + Countdown <= NextMeetingJoin.Widths.Min - 24);
+    }
 }
