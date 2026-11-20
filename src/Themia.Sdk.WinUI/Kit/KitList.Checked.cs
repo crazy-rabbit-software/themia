@@ -230,6 +230,7 @@ public sealed partial class KitList
         }
 
         var columns = Math.Max(1, panel.Columns);
+        BeforeTrailingHeading(panel, columns);
         for (var k = 0; k < panel.Children.Count; k++)
         {
             var height = _plan.RowAt(k / columns);
@@ -251,6 +252,24 @@ public sealed partial class KitList
         }
 
         CapToWholeLines();
+    }
+
+    /// <summary>
+    /// [S-639] [S-14500] Where the last line the room holds is a heading (the done group's, more lines under it), the list
+    /// never ends on it, so the lines before it share the room it would have taken: the rows stretch to the add row and
+    /// the foot (WR-5: no room left over under the last item), rather than ending a line short of it.
+    /// </summary>
+    private void BeforeTrailingHeading(KitRowsPanel panel, int columns)
+    {
+        var reach = _plan.Reach;
+        var lines = KitChecks.LinesFor(panel.Children.Count, columns);
+        if (columns != 1 || reach.Pitch <= 0 || reach.Shown is <= 1 or int.MaxValue || lines <= reach.Shown || panel.Children[reach.Shown - 1] is Border)
+        {
+            return;
+        }
+
+        var shown = reach.Shown - 1;
+        _plan = _plan.With(new RowReach(reach.Room / shown, shown, reach.Scale) { Foot = reach.Foot });
     }
 
     /// <summary>[S-784] A group's heading (the done ones): one row of 28 (stretched as the rows are, [S-12410]), BodyStrong, secondary.</summary>

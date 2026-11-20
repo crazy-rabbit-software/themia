@@ -319,6 +319,10 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             _addRow.Element.Height = reach.Foot;
         }
 
+        // [S-6714] [S-14500] The Status row stands in the first habit's place, stretched as the rows are, so the add row
+        // under it and the empty rows under that end on the card's foot (WR-5).
+        _status.Height = count == 0 && _area.IsMeasured ? reach.Height(0) : double.NaN;
+
         FitAddRow(plan);
     }
 

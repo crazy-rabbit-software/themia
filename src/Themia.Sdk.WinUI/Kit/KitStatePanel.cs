@@ -93,10 +93,32 @@ public sealed partial class KitStatePanel : Grid
 
     private double _lineHeight = double.NaN;
 
+    /// <summary>The panel's height as laid: the room the state's row and the empty rows under it share.</summary>
+    private double _height;
+
     private void ApplyRowHeight()
     {
+        if (double.IsFinite(_lineHeight) && _lineHeight > 0)
+        {
+            _row.Height = _lineHeight;
+            return;
+        }
+
+        // [S-14500] The state's row is the first of the rows the panel's room holds at the list's pitch (unset: a one-line
+        // row's optimal), stretched alike with the empty rows under it so they end on the card's foot; a room short of a
+        // second row is the state's row's alone (WR-5: nothing left over under the last item).
         var pitch = _empty.Pitch;
-        _row.Height = double.IsFinite(_lineHeight) && _lineHeight > 0 ? _lineHeight : double.IsFinite(pitch) && pitch > 0 ? pitch : double.NaN;
+        var at = double.IsFinite(pitch) && pitch > 0 ? pitch : LineRules.EdgeRow(ItemGrids.Of(this));
+        // The row stands on the card's top edge (its margin reaches over the view's inset): that much more room is the rows'.
+        var room = _height - _row.Margin.Top - _row.Margin.Bottom;
+        if (_height > 0 && room > 0)
+        {
+            var count = Math.Max(1, EmptyRows.Fit(room, at));
+            _row.Height = new Themia.Core.Widgets.RowReach(room / count, count, XamlRoot?.RasterizationScale ?? 1).Height(0);
+            return;
+        }
+
+        _row.Height = double.IsFinite(pitch) && pitch > 0 ? pitch : double.NaN;
     }
 
     /// <summary>
@@ -192,6 +214,12 @@ public sealed partial class KitStatePanel : Grid
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs args)
     {
+        if (!args.NewSize.Height.Equals(_height))
+        {
+            _height = args.NewSize.Height;
+            ApplyRowHeight();
+        }
+
         // A narrow tile gets the short form, rather than a button that leaves no room for the sentence.
         var narrow = args.NewSize.Width is > 0 and < ShortLabelBelow;
         if (narrow != _short)

@@ -4827,8 +4827,10 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   last, never under their optimal and less than one more item over it; what stands with them (an add row, column
   titles) stretches as they do (`RowsAbove`'s foot); text never stretches. A list with fewer items than the card holds
   keeps its empty rows at the foot (`ItemStretch.SpareRows`, WR-5). A box short of one item's optimal (a content scale
-  under 1) lays the items at their natural. A kind's natural is its stated count at the optimal (a list's Rows times
-  its row), its least one item. So a list ten cells tall of rows of three shows three rows of ten thirds, one eleven
+  under 1) lays the items at their natural. A check list whose last line the room holds would be a heading (the done
+  group's, more under it) ends before it, the lines before it sharing its room ([S-639]); a state's row is the first of
+  the rows its panel holds, stretched alike with the empty rows under it ([S-12835]). A kind's natural is its stated
+  count at the optimal (a list's Rows times its row), its least one item. So a list ten cells tall of rows of three shows three rows of ten thirds, one eleven
   cells tall three of eleven thirds, none left over. A view tells the item check each family row's optimal
   (`ItemDump`'s `o`). Tests `OptimalStretchTests.S14500_`, `ItemStretchTests.S14500_`, `WidgetSizingTests.S14500_`
   (Core: every size in range is its own; module host: `S14500_every_kind_resizes_by_one_grid_cell_on_both_axes`),

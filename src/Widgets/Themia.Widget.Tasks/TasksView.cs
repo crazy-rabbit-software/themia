@@ -659,8 +659,10 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         var rows = _config.RowsShown;
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
         var lines = _config.Style == TasksStyle.Compact ? 1 : KitSizing.ClampLines(rows.Lines);
-        _state.LineHeight = LineRules.EdgeRow(cells);
-        _state.RowPitch = _area.IsMeasured ? ItemStretch.RowsAbove(_area.Height, lines, cells).Pitch : ItemStretch.Natural(lines, cells).Pitch;
+        // The add row's place is as tall as the add row stands, stretched as the rows are (ItemStretch.RowsAbove's foot).
+        var reach = _area.IsMeasured ? ItemStretch.RowsAbove(_area.Height, lines, cells) : ItemStretch.Natural(lines, cells);
+        _state.LineHeight = reach.Foot > 0 ? reach.Foot : LineRules.EdgeRow(cells);
+        _state.RowPitch = reach.Pitch;
         _state.Show(text, action == EmptyAction.Accounts, action: action switch
         {
             EmptyAction.Retry => (TasksStr.Connect_TryAgain.Text(), Refresh),
