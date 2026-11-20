@@ -2678,7 +2678,7 @@ right-click cancelling); the keys of [S-13617]; the pictures drawing in the runn
 packaged Store build, their cache across openings, after a design or language change and dropped a minute
 after closing; a screen reader on the rail, the family heads and the tiles.
 
-#### Unplaced icons ([S-13700]..[S-13709])
+#### Unplaced icons ([S-13700]..[S-13710])
 
 The owner (2026-11-19): *"in edit mode there should be a page with the desktop icons that are on the physical desktop
 folder but are not placed on the given view, this should be a page in the settings too, own entry in the topbar."*
@@ -2697,7 +2697,7 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
 (`PlaceDesktopItems`, `PutDesktopItemsInFence`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
 `BeginPlacement(items, screen)`, `DesktopListed`), the entry's badge in `EditBar.cs`; render
 `Gallery/EditBarRender.Unplaced.cs`, `Gallery/DeskSelectCheck.cs` (`<out>.place-icon.png`). Tests `UnplacedItemsTests`,
-`SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`, `MultiSelectPlacementTests.S13708_`,
+`SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`, `MultiSelectPlacementTests.S13708_`, `.S13710_`,
 `ItemSelectionTests.S13709_`.
 
 - **[S-13700]** **The page** is a settings page like the others (`SettingsPageId.DesktopItems`, after Views in the
@@ -2780,6 +2780,11 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   theme) the name in the page's own words' colour with no shadow, as Explorer draws icons in a light folder window, and
   the desktop icon's highlight in black (`DesktopIconOnLight`, [S-13019]: every strength the desktop's), icon only's name
   plate the page's ground; on a dark one (the page in the dark theme) as on the wallpaper.
+- **[S-13710]** **The hint names what is placed**: while icons dragged off the page (or Add widget's On the desktop tile)
+  are placed, the line that takes the bar's place ([S-3500]) names one by its own name ("Click to place Report.docx")
+  and several by their count ("Click to place 2 icons"), never "a copy of": placing an unplaced icon on a view copies
+  no file (`PlacementPayload.ForIcons`, its `IconNames`; `PlacementHint.Verb`). Every other placement is worded as
+  before.
 
 Needs a live pass: the drag off the page onto the desktop (the icons under the real pointer from its first frame, the
 release landing them, on another display too, and the page opening again), placing and putting in a fence with the real

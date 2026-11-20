@@ -1,4 +1,5 @@
 using Themia.Core.Geometry;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Xunit;
@@ -313,6 +314,39 @@ public sealed class MultiSelectPlacementTests
 
         // A new widget's ghost stays a frame: it has no config to draw.
         Assert.Null(Assert.Single(PlacementPayload.ForNew(new WidgetId("clock"), 200, 100).Outlines(0.5, 0.5, Screen)).Config);
+    }
+
+    [Fact]
+    public void S13710_the_hint_names_unplaced_icons_by_their_own_names_and_never_as_copies()
+    {
+        static PlacementPayload Icons(params string[] names)
+        {
+            var holder = new ViewState
+            {
+                Id = "desktop-item",
+                Name = string.Empty,
+                Widgets = [.. names.Select((name, i) =>
+                {
+                    var widget = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(i * 0.08, 0, 0.08, 0.125));
+                    ((IDesktopItemConfig)widget.Config).Item = @"C:\Users\a\Desktop\" + name;
+                    return widget;
+                })],
+            };
+            return PlacementPayload.ForIcons(holder, names)!;
+        }
+
+        // One by its own name, several by their count: placing an unplaced icon on a view copies no file.
+        Assert.Equal("Click to place Report.docx", PlacementHint.Verb(Icons("Report.docx")));
+        Assert.Equal("Click to place 2 icons", PlacementHint.Verb(Icons("Report.docx", "Budget.xlsx")));
+        Assert.Equal(["Report.docx", "Budget.xlsx"], Icons("Report.docx", "Budget.xlsx").IconNames);
+
+        // Every other placement is worded as before: a copy of widgets is still a copy.
+        var view = View(At(new WidgetId("clock"), "a", 0.1, 0.1, 0.1, 0.1), At(new WidgetId("cpu"), "b", 0.3, 0.1, 0.1, 0.1));
+        var copyOne = PlacementPayload.FromView(view, ["a"], PlacementMode.Copy)!;
+        Assert.Empty(copyOne.IconNames);
+        Assert.Equal(Str.Shell_Place_CopyOne.Format(("name", ModuleCatalog.Of(new WidgetId("clock")).Name)), PlacementHint.Verb(copyOne));
+        Assert.Equal(Str.Shell_Place_CopyMany.Plural(2), PlacementHint.Verb(PlacementPayload.FromView(view, ["a", "b"], PlacementMode.Copy)!));
+        Assert.Equal(Str.Shell_Place_PlaceOne.Format(("name", ModuleCatalog.Of(new WidgetId("clock")).Name)), PlacementHint.Verb(PlacementPayload.ForNew(new WidgetId("clock"), 200, 100)));
     }
 
     [Fact]

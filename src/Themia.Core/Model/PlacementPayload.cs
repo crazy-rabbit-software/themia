@@ -106,6 +106,13 @@ public sealed class PlacementPayload
     /// <summary>The snapshots (empty for a new widget).</summary>
     public IReadOnlyList<WidgetInstance> Widgets => _widgets;
 
+    /// <summary>
+    /// [S-13710] The names of the unplaced desktop icons this payload places (a drag off the Unplaced icons page, Add widget's On
+    /// the desktop tile), in its order; empty for anything else. Placing one on a view copies no file: the hint names it
+    /// (<see cref="PlacementHint.Verb"/>).
+    /// </summary>
+    public IReadOnlyList<string> IconNames { get; private init; } = [];
+
     /// <summary>The ids of the snapshots, in view order (empty for a new widget).</summary>
     public IReadOnlyList<string> RootIds => _roots;
 
@@ -174,6 +181,19 @@ public sealed class PlacementPayload
         {
             AnchorId = anchorId is not null && roots.Contains(anchorId) ? anchorId : null,
         };
+    }
+
+    /// <summary>
+    /// [S-13705] [S-13710] Unplaced desktop icons placed as new item widgets: <paramref name="holder"/>'s widgets (one per icon,
+    /// laid as one block), fresh ids on every landing as a copy's, named by <paramref name="names"/>. Null when it holds none.
+    /// </summary>
+    public static PlacementPayload? ForIcons(ViewState holder, IReadOnlyList<string> names)
+    {
+        ArgumentNullException.ThrowIfNull(holder);
+        ArgumentNullException.ThrowIfNull(names);
+        return FromView(holder, [.. holder.Widgets.Select(w => w.Id)], PlacementMode.Copy) is { } made
+            ? new PlacementPayload(made.Mode, null, made._widgets, made._roots, 0, 0) { IconNames = names }
+            : null;
     }
 
     /// <summary>

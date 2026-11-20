@@ -375,7 +375,9 @@ internal sealed partial class AppHost
         var block = UnplacedItems.Block(items.Count, DeskIconSize(screen));
         var widgets = items.Select((item, i) => NewItemWidget(kind.Id, item, block[i])).ToList();
         var holder = new ViewState { Id = "desktop-item", Name = string.Empty, Widgets = widgets };
-        if (PlacementPayload.FromView(holder, [.. widgets.Select(w => w.Id)], PlacementMode.Copy) is { } payload)
+
+        // [S-13710] Named by the icons' own names: the hint says what is placed.
+        if (PlacementPayload.ForIcons(holder, [.. items.Select(i => i.Name)]) is { } payload)
         {
             BeginPlacement(payload);
         }

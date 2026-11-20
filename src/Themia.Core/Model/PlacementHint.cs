@@ -20,6 +20,13 @@ public static class PlacementHint
             return Str.Shell_Place_PlaceOne.Format(("name", group.Name.Text()));
         }
 
+        // [S-13710] Unplaced desktop icons: placing one on this view copies no file. One is named by its own name, several
+        // counted as icons (2026-11-20: "Click to place Report.docx", "Click to place 2 icons"), never "a copy of".
+        if (payload.IconNames is { Count: > 0 } icons)
+        {
+            return icons.Count == 1 ? Str.Shell_Place_PlaceOne.Format(("name", icons[0])) : Str.Shell_Place_PlaceIcons.Plural(icons.Count);
+        }
+
         if (payload.SingleKind is { } kind)
         {
             var name = ModuleCatalog.Of(kind).Name;

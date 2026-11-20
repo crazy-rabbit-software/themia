@@ -1,5 +1,6 @@
 {
   "$englishOnly": [
+    "shell.place.placeIcons",
     "shell.setup.place",
     "shell.setup.account",
     "shell.tasks.readOnly",
@@ -179,6 +180,10 @@
   "shell.place.moveMany": {
     "one": "Click to move {count} widget",
     "other": "Click to move {count} widgets"
+  },
+  "shell.place.placeIcons": {
+    "one": "Click to place {count} icon",
+    "other": "Click to place {count} icons"
   },
   "shell.viewBar.name": "Views",
   "shell.viewBar.hiddenTip": "The view bar is hidden on this display; it shows here only while editing",
