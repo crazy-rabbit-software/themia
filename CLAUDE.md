@@ -61,7 +61,8 @@ Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local gri
 Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass] [--icon-layout below|beside|icononly]   # the locked
            # desktop's one selection through a real host and surface: --live drives it with real input (SendInput, over every
            # window), PASS or FAIL [S-12954]; host-level it also moves an icon into the fence and one on the free desktop, drawn
-           # mid-move to <out>.move-fence.png / .move-free.png [S-13046]
+           # mid-move to <out>.move-fence.png / .move-free.png [S-13046], and two icons on the free desktop and into the fence,
+           # the held icon alone under the pointer (<out>.move-several-free.png / .move-several-fence.png, [S-13048])
 Themia.exe --first-drag-check <out.txt> [--locked] [--kinds a,b]   # every kind's first press on a row, a button, a track,
            # a thumb, a text box, a chart, an empty spot, dragged through the card's own steps off-screen, PASS or FAIL [S-13060]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
@@ -118,7 +119,7 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   and the file widgets' shared data (FolderBadges, RecentFileRules, DesktopCell (the cell at each icon size), DesktopTip, the app layouts: AppLayoutModel, LayoutTree,
   LayoutPlan, IHoldsAppLayouts; VideoStreamRules, HlsVariants, the stream's facts; Files/: FileNames, FileDrops,
   SurfaceDrops, DesktopItem with DesktopItemKeys, DesktopCommands (what a command does to a selection of
-  desktop icons), DragGhost (Explorer's drag picture), TypeIconName, FenceRules (a fence's rules), DesktopSortBy and the
+  desktop icons), DragGhost (Explorer's drag picture; a desktop icons' move shows the held icon alone, `OfMove`), TypeIconName, FenceRules (a fence's rules), DesktopSortBy and the
   records the file contracts carry; Widgets/FenceGrid, a fence's cells (the one layout of its body); Model/Configs/IHoldsDesktopItems, a fence's config contract)
   Widgets/ (WidgetArea, LayoutMath, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
   HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ColourPicker, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
@@ -463,7 +464,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   mode flips it) keeps every widget where it is outside edit mode, icons alone move (`WidgetLock`: a mixed selection
   moves its icons; edit mode moves everything); with Keep widgets from overlapping on, every move (both modes, keys too) goes through
   `BlockGeometry.Apart` ([S-11959]). Edit mode is entered and left by one checked menu line, **Edit mode** ([S-65]). Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
-  an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`). One
+  an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`); under the pointer it
+  shows the held icon alone however many move, never a stack or a count, and the shell's drag carries that picture
+  ([S-13046]..[S-13048], `DragGhost.OfMove`). One
   selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them. A
   selected icon shows its highlight alone; its corners only in edit mode and a move ([S-11889]). Ctrl+Z / Ctrl+Y
   on the desktop step the one history; a desktop delete's step puts its items back from the Recycle Bin

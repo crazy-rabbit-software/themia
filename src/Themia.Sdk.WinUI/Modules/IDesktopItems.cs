@@ -95,9 +95,9 @@ public interface IDesktopItems
     ItemDragOffer? BeginDrag(string key, nint window);
 
     /// <summary>
-    /// [S-5549] [S-5564] The picture <paramref name="drag"/> shows, at once: Explorer's ghost (the held
-    /// icon, the others stacked behind it, their number in a badge) composed from the pictures the
-    /// icons' views hold, the pointer where it grabbed the held icon. Null when it is not the running
+    /// [S-5549] [S-13047] [S-13048] The picture <paramref name="drag"/> shows, at once: the one the move it
+    /// came from showed, the held icon alone (never the others stacked behind it nor their number), composed
+    /// from the picture its view holds, the pointer where it grabbed the icon. Null when it is not the running
     /// drag or the held icon has no picture yet.
     /// </summary>
     DragPicture? DragPicture(ItemDragOffer drag);

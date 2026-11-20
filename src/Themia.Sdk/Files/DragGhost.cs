@@ -44,7 +44,8 @@ public sealed record DragGhostPlan(IReadOnlyList<GhostBox> Icons, GhostBadge? Ba
 /// left, with the number of dragged items in a rounded badge at the stack's lower right ("99+" past 99).
 /// Never every icon in its own place, never a name. The layout is a pure rule (<see cref="Plan"/>), the
 /// pixels a pure composition of the icons the views already hold (<see cref="Compose"/>): nothing is
-/// rendered when the drag starts, so the picture is there with the drag.
+/// rendered when the drag starts, so the picture is there with the drag. [S-13048] A move of the desktop's own icons is one
+/// item's picture however many move (<see cref="OfMove"/>).
 /// </summary>
 public static class DragGhost
 {
@@ -134,6 +135,23 @@ public static class DragGhost
         var hotY = front.Y + Math.Clamp(double.IsFinite(grabY) ? grabY : icon / 2, 0, icon);
         return new DragGhostPlan(icons, badge, right, bottom, hotX, hotY);
     }
+
+    /// <summary>
+    /// [S-13048] The picture a move of the desktop's own icons shows under the pointer (the owner, 2026-11-20: "when i move
+    /// around multiple desktop icons there is an additional preview with the count showing over the mouse. this should not
+    /// be. remove that."): the held icon alone (<paramref name="held"/>, the icon grabbed), whole in its square
+    /// <paramref name="icon"/> DIPs a side, see-through at <see cref="Themia.Core.Widgets.SelectionLook.DragOpacity"/>, held
+    /// where it was grabbed (<paramref name="grabX"/>, <paramref name="grabY"/>, as <see cref="Plan"/>), at
+    /// <paramref name="scale"/> pixels a DIP, whatever the number of icons moving (<paramref name="moving"/>, the held one
+    /// among them): never the others stacked behind it, never a count badge. How many move and where shows where the block
+    /// lands, each moving icon's whole ghost ([S-13046]); the shell's drag the move becomes carries this same picture
+    /// ([S-13047]). Explorer's stack with its count stays a drag's that starts as the shell's elsewhere (a folder's rows, a
+    /// search fence's files). Null when nothing moves or nothing can be shown.
+    /// </summary>
+    public static DragPicture? OfMove(GhostIcon held, int moving, double icon, double grabX, double grabY, double scale)
+        => moving >= 1 && held.Drawable && Plan(count: 1, pictures: 1, icon, grabX, grabY, badgeText: 0) is { } plan
+            ? Compose(plan, [held], scale, Themia.Core.Widgets.SelectionLook.DragOpacity, default, default, default)
+            : null;
 
     /// <summary>
     /// [S-5565] The picture's pixels for <paramref name="plan"/> at <paramref name="scale"/> pixels a DIP:

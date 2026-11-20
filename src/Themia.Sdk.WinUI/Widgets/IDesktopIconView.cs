@@ -6,7 +6,7 @@ namespace Themia.Sdk.WinUI;
 
 /// <summary>
 /// [S-5549] [S-5564] A view drawn as a desktop icon: what a drag of the desktop's selection shows of it.
-/// The host composes the dragged icons' pictures into the drag's one ghost (<see cref="ItemDrag.Ghost"/>).
+/// The host composes the held icon's picture into the move's picture ([S-13048]: it alone, however many move).
 /// [S-11878] On the desktop an icon moves as every widget does (its card's move, [S-2008]); the card hands
 /// the press to <see cref="DragOut"/> only once the move is to leave the desktop or reach a drop target.
 /// </summary>

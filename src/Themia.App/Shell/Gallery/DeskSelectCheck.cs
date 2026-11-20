@@ -31,6 +31,8 @@ namespace Themia.App.Shell.Gallery;
 /// foreground. Each step says what the selection holds against what Lock widgets wants (off: cards and icons alike; on: icons
 /// only) and the last line is PASS or FAIL. [S-14310] Without <c>--live</c> it also checks the marks of several cards selected:
 /// the selection's frame's four corners alone round them, none of their own, a card alone its own, through a locked move too.
+/// [S-13046]..[S-13048] It moves icons one and several on the free desktop, into the fence and out of it, drawn mid-move: the
+/// held icon alone under the pointer (one icon's square, no badge), each moving icon a ghost where it lands.
 /// <c>--twice</c> adds a second display left of it; <c>--glass</c> draws Liquid glass.
 /// </summary>
 internal static partial class DeskSelectCheck
@@ -430,6 +432,82 @@ internal static partial class DeskSelectCheck
                 var before = Model(Index("iconA")).Rect;
                 await MoveAsync("iconA", held => new Point(metrics.Width * 0.79, metrics.Height * 0.16), "free", () => Model(Index("iconA")).Rect != before).ConfigureAwait(true);
 
+                // [S-13048] A move of several desktop icons (the owner, 2026-11-20: "when i move around multiple desktop icons there
+                // is an additional preview with the count showing over the mouse. this should not be. remove that."): under the
+                // pointer the held icon alone, whatever the number moving; where the block lands every moving icon whole as its
+                // ghost. On the free desktop, out of the fence and into it; drawn mid-move.
+                // Where the press grabbed the held icon, taken before the move starts: its icon's square and the press, the root's DIPs.
+                (Rect Square, Point At) Grab(WidgetCard held, Point press)
+                {
+                    var box = ((Themia.Sdk.WinUI.IDesktopIconView)held.View).DragIconBox;
+                    return (box.TransformToVisual(surface.DebugRoot).TransformBounds(new Rect(0, 0, box.ActualWidth, box.ActualHeight)),
+                        ((UIElement)held.Parent).TransformToVisual(surface.DebugRoot).TransformPoint(press));
+                }
+
+                // The picture is the held icon alone: one icon's square at the display's scale (no stack behind it, no badge hanging
+                // out of its corner), held where the icon was grabbed, nothing in it opaque (the icon is see-through; a badge is not).
+                (bool Alone, string Said) HeldAlone(Themia.Core.Files.DragPicture? picture, (Rect Square, Point At) grab)
+                {
+                    if (picture is null)
+                    {
+                        return (false, "no picture");
+                    }
+
+                    var opaque = 0;
+                    for (var i = 3; i < picture.Bgra.Length; i += 4)
+                    {
+                        opaque = Math.Max(opaque, picture.Bgra[i]);
+                    }
+
+                    var (square, at) = grab;
+                    var side = square.Width * picture.PixelsPerDip;
+                    var oneSquare = Math.Abs(picture.Width - side) <= 1 && Math.Abs(picture.Height - side) <= 1;
+                    var (hotX, hotY) = picture.Anchor;
+                    var grabbed = Math.Abs(hotX - Math.Clamp(at.X - square.X, 0, square.Width)) <= 1 && Math.Abs(hotY - Math.Clamp(at.Y - square.Y, 0, square.Width)) <= 1;
+                    var noBadge = opaque <= Math.Ceiling(255 * SelectionLook.DragOpacity) + 1;
+                    return (oneSquare && grabbed && noBadge,
+                        $"{picture.Width}x{picture.Height} px, one icon's square of {side:0} px {oneSquare}, held where grabbed {grabbed}, most opaque pixel {opaque} so no badge {noBadge}");
+                }
+
+                async Task MoveSeveralAsync(string name, string[] along, Func<WidgetCard, Point> to, string tag, Func<bool> landed)
+                {
+                    host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                    Click(name);
+                    foreach (var other in along)
+                    {
+                        Click(other, ctrl: true);
+                    }
+
+                    var held = Card(name);
+                    var moving = along.Prepend(name).Select(Card).ToList();
+                    var press = held.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(held.ActualWidth / 2, held.ActualHeight * 0.3));
+                    var grab = Grab(held, press);
+                    var target = to(held);
+                    surface.BeginMove(held, press);
+                    surface.PreviewMove(held, (target.X - press.X) / metrics.Width, (target.Y - press.Y) / metrics.Height);
+                    surface.FlushMove();
+                    await Task.Delay(500).ConfigureAwait(true);
+                    var ghosts = moving.TrueForAll(c => Math.Abs(c.Opacity - SelectionLook.Landing) < 0.001);
+                    var (alone, said) = HeldAlone(surface.ShownDragPicture, grab);
+                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-several-{tag}.png")).ConfigureAwait(true);
+                    surface.CommitMove(held);
+                    await Task.Delay(400).ConfigureAwait(true);
+                    var whole = moving.TrueForAll(c => surface.CardFor(c.Model.Id) is { Opacity: 1 }) && !surface.ShowsDragPicture;
+                    var ok = alone && ghosts && whole && landed();
+                    failures += ok ? 0 : 1;
+                    Say($"{(ok ? "ok  " : "FAIL")} move {name} with {string.Join(",", along)} ({tag}): under the pointer the held icon alone {alone} ({said})"
+                        + $", every moving icon a ghost where it lands {ghosts}, whole after {whole}, landed {landed()}");
+                }
+
+                var freeBefore = (Model(Index("iconA")).Rect, Model(Index("iconB")).Rect);
+                await MoveSeveralAsync("iconB", ["iconA"], held => new Point(metrics.Width * 0.92, metrics.Height * 0.45), "free",
+                    () => Model(Index("iconA")).Rect != freeBefore.Item1 && Model(Index("iconB")).Rect != freeBefore.Item2).ConfigureAwait(true);
+                bool Fenced(string name) => Themia.Core.Desktop.DesktopFences.Holding(running.State.Views[0], KeyOf(name)) is not null;
+                await MoveSeveralAsync("twinU", ["twinP"], held => new Point(metrics.Width * 0.90, metrics.Height * 0.80), "out",
+                    () => !Fenced("twinU") && !Fenced("twinP")).ConfigureAwait(true);
+                await MoveSeveralAsync("twinP", ["twinU"], held => fenceCard.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(fenceCard.ActualWidth * 0.3, fenceCard.ActualHeight * 0.5)), "fence",
+                    () => Fenced("twinP")).ConfigureAwait(true);
+
                 // [S-14310] Edit mode, the same rule: two selected show no marks and no grips of their own and the frame in its
                 // edit look (hairline, markers, grips) round them; every card not selected keeps its own; one selected again
                 // (narrowed, or one of two taken out) shows its own and the frame goes.
@@ -517,22 +595,27 @@ internal static partial class DeskSelectCheck
 
                 // [S-13047] A move that becomes the shell's drag (off the desktop, onto a free folder) hands it its picture and its
                 // press: the drag shows the very picture the move showed, held where the icon was grabbed, its cards back home.
+                // [S-13048] A move of two: the picture carried is the held icon alone.
                 {
                     host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                    Click("iconA");
+                    Click("iconB", ctrl: true);
                     var heldIcon = Card("iconA");
                     var layer = (UIElement)heldIcon.Parent;
                     var press = heldIcon.TransformToVisual(layer).TransformPoint(new Point(heldIcon.ActualWidth / 2, heldIcon.ActualHeight * 0.3));
-                    var home = heldIcon.LiveRect;
+                    var grab = Grab(heldIcon, press);
+                    var home = (heldIcon.LiveRect, Card("iconB").LiveRect);
                     surface.BeginMove(heldIcon, press);
                     surface.PreviewMove(heldIcon, -0.1, 0.1);
                     surface.FlushMove();
                     var showing = surface.ShownDragPicture;
                     surface.CancelMove(heldIcon);
                     var carried = showing is not null && surface.HandedMove is { } handedOver && ReferenceEquals(handedOver.Picture, showing);
-                    var back = heldIcon.LiveRect == home;
-                    var handOk = carried && back;
+                    var (alone, said) = HeldAlone(surface.HandedMove?.Picture, grab);
+                    var back = (heldIcon.LiveRect, Card("iconB").LiveRect) == home;
+                    var handOk = carried && alone && back;
                     failures += handOk ? 0 : 1;
-                    Say($"{(handOk ? "ok  " : "FAIL")} a move handed to the shell's drag: its picture carried {carried}, its cards back {back}");
+                    Say($"{(handOk ? "ok  " : "FAIL")} a move of iconA with iconB handed to the shell's drag: its picture carried {carried}, the held icon alone {alone} ({said}), its cards back {back}");
                 }
 
                 // [S-13708] An icon dragged off the Unplaced icons page (the one placement session, edit mode): under the pointer

@@ -294,4 +294,52 @@ public sealed class DragGhostTests
     [Fact]
     public void S5565_the_pictures_opacity_is_the_dragged_look_of_the_selection()
         => Assert.Equal(0.65, Themia.Core.Widgets.SelectionLook.DragOpacity);
+
+    /// <summary>
+    /// [S-13048] The regression (the owner, 2026-11-20: "when i move around multiple desktop icons there is an additional
+    /// preview with the count showing over the mouse. this should not be. remove that."): a move of several desktop icons
+    /// showed Explorer's stack under the pointer, the other moving icons behind the held one and their number in a badge.
+    /// Now it is the held icon alone whatever the number moving: one icon's square, see-through, held where it was grabbed,
+    /// pixel for pixel the picture of a move of that icon alone.
+    /// </summary>
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(12)]
+    [InlineData(150)]
+    public void S13048_a_move_of_several_icons_shows_the_held_icon_alone_and_no_badge(int moving)
+    {
+        var held = Icon(48, 40, 80, 120);
+
+        var picture = DragGhost.OfMove(held, moving, icon: 48, grabX: 30, grabY: 12, scale: 1.5);
+
+        Assert.NotNull(picture);
+
+        // One icon's square at the display's scale: no step for a stack behind it, no badge hanging out of its corner.
+        Assert.Equal((72, 72, 45, 18), (picture.Width, picture.Height, picture.HotX, picture.HotY));
+
+        // Every pixel the held icon at the drag's opacity (premultiplied 0.65): nothing opaque, so no badge, and no other icon.
+        for (var y = 0; y < picture.Height; y++)
+        {
+            for (var x = 0; x < picture.Width; x++)
+            {
+                Assert.Equal([(byte)25, (byte)51, (byte)77, (byte)165], Pixel(picture, x, y));
+            }
+        }
+
+        Assert.Equal(DragGhost.OfMove(held, moving: 1, icon: 48, grabX: 30, grabY: 12, scale: 1.5)!.Bgra, picture.Bgra);
+    }
+
+    [Fact]
+    public void S13048_a_move_is_held_where_the_icon_was_grabbed_and_nothing_moving_shows_nothing()
+    {
+        var held = Icon(32, 1, 2, 3);
+
+        // A press on the name below the icon holds the icon's nearest point, as Explorer's one item does.
+        var picture = DragGhost.OfMove(held, moving: 4, icon: 32, grabX: 16, grabY: 50, scale: 1)!;
+        Assert.Equal((32, 32, 16, 31), (picture.Width, picture.Height, picture.HotX, picture.HotY));
+
+        Assert.Null(DragGhost.OfMove(held, moving: 0, icon: 32, grabX: 0, grabY: 0, scale: 1));
+        Assert.Null(DragGhost.OfMove(held, moving: 3, icon: 0, grabX: 0, grabY: 0, scale: 1));
+    }
 }

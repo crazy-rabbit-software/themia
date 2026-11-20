@@ -195,9 +195,9 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
   desktop item's, and a key stored as an item that starts so is cleared at load ([S-9501]). The
   gestures: a left press (Ctrl, Shift) and its release, a move past the dead zone starting the drag of
   the selection (XAML's own drag, started inside that pointer handler with its pointer:
-  `IDesktopItems.BeginDrag`, `ItemDrag.StartAsync`, `EndDrag` on every way out, [S-5549]; its ghost composed at
-  once from the picture each icon keeps, `DragIcon`: the shell's bitmap read, anything else rendered when the icon
-  changes, [S-5564]; a drag loop
+  `IDesktopItems.BeginDrag`, `ItemDrag.StartAsync`, `EndDrag` on every way out, [S-5549]; its picture the held
+  icon's alone, composed at once from the picture the icon keeps, `DragIcon`: the shell's bitmap read, anything else
+  rendered when the icon changes, [S-5564], [S-13048]; a drag loop
   started after the handler never saw the mouse until the button was let go), a double-click opening the selection, a
   right-click the desktop's menu for the selection (Windows 11's, [S-5582]; with Shift held the shell's
   classic one at once, [S-5545]; both the icon's own, never the card's: no edit mode, no card menu), the keys and letters with the lease (Escape is the lease's own end, which keeps the
@@ -298,7 +298,7 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
 Needs a manual pass: none of this kind's gestures can be exercised without a live desktop, and none
 was in the change of 2026-11-14 that merged the two kinds. On the live desktop (the showcase views do not hold desktop items: they are made by the reconcile), at 100 % and at a
 scaled display, with icons of both sources: every gesture of [S-5604]; dragging a selection (the
-ghost under the pointer from the drag's first frame, held where the icon was pressed, one icon or a stack with its badge, with no mark and no caption while they would only move, [S-5564]; that the drag follows the pointer from the press on, [S-5549]); moving
+ghost under the pointer from the drag's first frame, held where the icon was pressed, the held icon alone however many are selected (no stack, no badge, [S-13048]), with no mark and no caption while they would only move, [S-5564]; that the drag follows the pointer from the press on, [S-5549]); moving
 it on empty desktop and across displays; dropping it onto a folder, an app and a Recycle Bin icon of
 either source; dragging it out to Explorer; a drag of only own icons that are no file being refused
 everywhere outside the desktop; the Windows 11 menu ([S-5582]) for a file, a folder, a link, a shell item, one

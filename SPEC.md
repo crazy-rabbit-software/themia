@@ -11380,7 +11380,9 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   place. Over the desktop where the icons only move no tip shows (the glyph and caption hidden,
   [S-5546]); over a target that would copy, move or link its caption shows ("Move to Desktop", "Copy to
   …"; [S-1024]). The folder widget's drag out ([S-1332]) shows the same ghost of its pressed item's icon
-  (its thumbnail where it shows one) and up to two more of the dragged items shown in its list.
+  (its thumbnail where it shows one) and up to two more of the dragged items shown in its list; a search fence's
+  files the same ([S-13023]). **A move of the desktop's own icons shows one item's picture whatever the number moving**,
+  the held icon alone, never the stack nor the badge, and the shell's drag it becomes carries that picture ([S-13048]).
   *Sure*: one item without its name and translucent; several stacked with a count badge; the tip only
   over a target that changes something. *Best knowledge of Explorer's look* (not measured against a
   capture): the stack's step and how many it shows, the badge's size, radius and place, its accent fill
@@ -11473,10 +11475,11 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   started"), and the host's warning stays for a real leak and now says what is known of the drag that did
   not end: how long ago it began, how many icons, whether its drop on the desktop was seen, whether its
   surface is alive. Not confirmed on a live desktop. The originals stay drawn,
-  selected, while it runs. **The picture** under the pointer is Explorer's ghost ([S-5564], [S-5565]):
-  the held icon, the others stacked behind it, their number in a badge. It is **there with the drag**:
+  selected, while it runs. **The picture** under the pointer is the one the move it came from showed ([S-13047]): the
+  held icon alone, never the others stacked behind it nor their number ([S-13048]; Explorer's picture of one item,
+  [S-5564], [S-5565]). It is **there with the drag**:
   composed before `StartDragAsync` is asked (`ItemDrag.StartAsync` draws the bitmap first; the host's
-  `DesktopWindow.DeskDragPicture` composes the pixels the icons' views keep, `IDesktopIconView.DragIcon`,
+  `DesktopWindow.DeskDragPicture` composes the pixels the held icon's view keeps, `IDesktopIconView.DragIcon`,
   rendering nothing) and handed over synchronously in `DragStarting` (`DragUI.SetContentFromSoftwareBitmap`,
   no deferral), held at the pointer's place in it (`DragPicture.Anchor`, in DIPs at the display's scale,
   the bitmap at that scale's resolution). *(Until 2026-11-14 the dragged icons were rendered with
@@ -11912,9 +11915,9 @@ module's `FenceTests`.
   "when dragging a desktop icon into the fence it only show the icons corners as the ghost preview. it should show the
   whole icon as the ghost preview. it should also still show the icon that is dragged with the mouse as well, not only in
   the fence"): a move held by a desktop icon ([S-2008], [S-13041]; both modes, on the free desktop and over or in a fence
-  alike) draws two things. **Under the pointer** the picture Explorer's drag shows (`DragGhost`, [S-5564], [S-5565]: the
-  held icon in front, up to two of the other moving icons behind it, the count badge for several, see-through at
-  `SelectionLook.DragOpacity`), held where the icon was grabbed and moved every frame with the pointer (the surface's ghost
+  alike) draws two things. **Under the pointer** the held icon alone, whatever the number moving ([S-13048],
+  `DragGhost.OfMove`: Explorer's picture of one item, [S-5564], [S-5565]; no other moving icon behind it, no count badge),
+  see-through at `SelectionLook.DragOpacity`, held where the icon was grabbed and moved every frame with the pointer (the surface's ghost
   layer, as [S-13026]'s; the same picture the shell's drag shows when the move becomes one, [S-11878]). **Where the block
   lands** (on the grid or a fence's cell, stepping cell by cell, [S-11891], [S-13041]) each moving icon whole, in the icon
   size and layout in force (its highlight, icon and name: the card itself, [S-13970]), at `SelectionLook.Landing` as its
@@ -11939,13 +11942,30 @@ module's `FenceTests`.
   drag picture with its glyph and caption took over. Now a move over a fenced icon lands on its cell as anywhere in the
   fence ([S-13041]), and a shell drag of the desktop's icons over one does too (`AppHost.FenceTakesDeskDrag`). **Where the
   move does become the shell's drag** (off the desktop, onto a free folder or app) the drag shows the move's own picture
-  held at the move's own grab (`DesktopWindow.HandedMove`; `AppHost.DragPicture`, `BeginDrag`), and its icons land by that
+  (the held icon alone, [S-13048]) held at the move's own grab (`DesktopWindow.HandedMove`; `AppHost.DragPicture`, `BeginDrag`), and its icons land by that
   grab ([S-5546]): before, the picture was composed again with the icons back home and the grab clamped to the icon's
   corner, so it jumped under the pointer. Windows' own glyph and caption over a real drop target stay, as Explorer's.
   Tests `FenceGridTests.S13047_`; `--desk-select-check` moves twinU onto twinP in the fence by way of the fence's title bar
   (`<out>.move-fence-icon.png`: the same picture all the way, never handed over; a move over the free twinU is) and hands
   a move to the shell's drag (its picture carried). Needs a live pass: the real pointer moving an icon across a full fence
   and out again, and off the desktop onto an app's window.
+- **[S-13048]** **Several icons moved: the held icon alone under the pointer** (the owner, 2026-11-20: "when i move
+  around multiple desktop icons there is an additional preview with the count showing over the mouse. this should not
+  be. remove that."): a move held by a desktop icon ([S-13046]: edit mode or locked, Lock widgets on or off, on the free
+  desktop, into, inside and out of a fence) shows under the pointer the icon that was grabbed alone, whole, see-through at
+  `SelectionLook.DragOpacity`, held where it was grabbed, whatever the number of icons moving: never the other moving
+  icons stacked behind it and never their number in a badge (`DragGhost.OfMove`, the SDK's Files/: Explorer's picture of
+  one item, [S-5564], [S-5565], composed by `DesktopWindow.DeskDragPicture` from the held icon's `DragIcon`). How many
+  move and where shows where the block lands: every moving icon's whole ghost ([S-13046]). When the move becomes the
+  shell's drag (off the desktop, onto a free folder or app, [S-11878]) the drag carries that same picture ([S-13047]):
+  one picture from the press to the release. Before, the move composed Explorer's stack of the moving icons (the held one
+  in front, up to two behind it, their count in a badge), a second preview over the moving icons' own ghosts. Explorer's
+  stack with its count stays for a drag that starts as the shell's elsewhere: the folder widget's rows ([S-1332]) and a
+  search fence's files ([S-13023]). Windows' own desktop stacks several with their count: a difference by the owner's word
+  ([S-13100]). Tests `DragGhostTests.S13048_`; `--desk-select-check` moves two icons on the free desktop and two into the
+  fence (`<out>.move-several-free.png`, `<out>.move-several-fence.png`): the picture under the pointer is one icon's square
+  held where it was grabbed with nothing opaque in it (no badge), every moving icon a ghost where it lands. Needs a live
+  pass: the real pointer moving several selected icons on the desktop, into a fence and off the desktop onto an app.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each
@@ -11984,7 +12004,8 @@ against the DESKTOP section's rules; what it found missing is here.
   Undo line ([S-13103]), Ctrl+Shift+C ([S-13104]). Left, with why: a right-drag of Themia's own icons (the drag XAML
   starts from an island is a left press's, [S-5549]: the shell's Move here / Copy here / Create shortcuts here menu shows
   for drags from other programs only); a drag of a shell item (This PC, the Recycle Bin) to another program ([S-5586]);
-  Paste shortcut into a fence (the desktop's own Paste shortcut lands at its click).
+  Paste shortcut into a fence (the desktop's own Paste shortcut lands at its click). Different by the owner's word: a move
+  of several icons shows the held icon alone under the pointer, where Explorer stacks them with their count ([S-13048]).
 - **[S-13101]** **Ctrl+Shift+N** makes a new folder in the user's desktop folder, as in Explorer (`WidgetKey.NewFolder`),
   landing in the fence that has the keys, else at the last press on that display's empty desktop, else at its first free
   spot, with its rename box open ([S-5552]); one step of the undo log ([S-13102]). Tests `DesktopFileUndoTests.S13101_`.

@@ -970,9 +970,10 @@ internal sealed partial class AppHost : IDesktopDesk
     }
 
     /// <summary>
-    /// [S-5549] [S-5564] [S-13047] The ghost of the dragged icons: the picture the move it came from showed under the pointer
-    /// (<see cref="DesktopWindow.HandedMove"/>, composed by <see cref="DesktopWindow.DeskDragPicture"/> as the move began), the
-    /// same bitmap held at the same grab, so the picture does not change as the move becomes the shell's drag. Null for none.
+    /// [S-5549] [S-13047] [S-13048] The picture of the dragged icons: the one the move it came from showed under the pointer, the
+    /// held icon alone (<see cref="DesktopWindow.HandedMove"/>, composed by <see cref="DesktopWindow.DeskDragPicture"/> as the
+    /// move began), the same bitmap held at the same grab, so the picture does not change as the move becomes the shell's drag.
+    /// Null for none.
     /// </summary>
     public DragPicture? DragPicture(ItemDragOffer drag)
         => _deskDrag is { } running && ReferenceEquals(running.Offer, drag) ? running.Source?.HandedMove?.Picture : null;

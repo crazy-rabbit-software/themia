@@ -352,48 +352,32 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     }
 
     /// <summary>
-    /// [S-5549] [S-5564] [S-13046] The picture a move of the desktop's icons shows under the pointer, as Explorer's drag: the
-    /// held icon (<paramref name="held"/>, its widget) in front, up to two more of the moving icons of this display
-    /// (<paramref name="widgetIds"/>) stacked behind it, and for several their number (<paramref name="count"/>) in a badge; no
-    /// name, no highlight, nothing in its desktop place. The pointer (<paramref name="pointer"/>, the root's DIPs: the move's
-    /// press) holds the front icon where it grabbed it. Composed at once from the pictures the icons' views keep
-    /// (<see cref="IDesktopIconView.DragIcon"/>), at this display's scale: nothing is rendered here. [S-13047] The shell's drag
-    /// the move becomes shows this same picture (<see cref="HandedMove"/>). Null when the held icon has no picture yet; the
-    /// drag then shows the pressed icon as it is drawn.
+    /// [S-5549] [S-13046] [S-13048] The picture a move of the desktop's icons shows under the pointer: the held icon alone
+    /// (<paramref name="held"/>, its card), whatever the number of icons moving (<paramref name="moving"/>): never the others
+    /// stacked behind it, never their count (<see cref="DragGhost.OfMove"/>); no name, no highlight, nothing in its desktop
+    /// place. The pointer (<paramref name="pointer"/>, the root's DIPs: the move's press) holds it where it grabbed it. Composed
+    /// at once from the picture the icon's view keeps (<see cref="IDesktopIconView.DragIcon"/>), at this display's scale:
+    /// nothing is rendered here. [S-13047] The shell's drag the move becomes shows this same picture (<see cref="HandedMove"/>).
+    /// Null when the held icon has no picture yet; the drag then shows the pressed icon as it is drawn.
     /// </summary>
-    internal DragPicture? DeskDragPicture(IReadOnlySet<string> widgetIds, string held, int count, Point pointer)
+    internal DragPicture? DeskDragPicture(WidgetCard held, int moving, Point pointer)
     {
-        ArgumentNullException.ThrowIfNull(widgetIds);
+        ArgumentNullException.ThrowIfNull(held);
         try
         {
-            var cards = _cards.Where(c => c.View is IDesktopIconView && widgetIds.Contains(c.Model.Id)).ToList();
-            if (cards.FirstOrDefault(c => string.Equals(c.Model.Id, held, StringComparison.Ordinal)) is not { View: IDesktopIconView front } grabbed
-                || front.DragIcon is not { } picture || front.DragIconBox is not { ActualWidth: > 0, ActualHeight: > 0 } box)
+            if (held.View is not IDesktopIconView icon || icon.DragIcon is not { } picture
+                || icon.DragIconBox is not { ActualWidth: > 0, ActualHeight: > 0 } box)
             {
                 return null;
             }
 
-            var icons = new List<GhostIcon> { picture };
-            foreach (var card in cards)
-            {
-                if (icons.Count >= DragGhost.MaxShown)
-                {
-                    break;
-                }
-
-                if (!ReferenceEquals(card, grabbed) && card.View is IDesktopIconView { DragIcon: { } other })
-                {
-                    icons.Add(other);
-                }
-            }
-
             // The icon's square on the surface: through the card's content scale ([S-850]) and wherever it sits.
             var square = box.TransformToVisual(_root).TransformBounds(new Rect(0, 0, box.ActualWidth, box.ActualHeight));
-            return ItemDrag.Ghost(icons, count, square.Width, new Point(pointer.X - square.X, pointer.Y - square.Y), RasterScale);
+            return DragGhost.OfMove(picture, moving, square.Width, pointer.X - square.X, pointer.Y - square.Y, RasterScale);
         }
         catch (Exception ex)
         {
-            Log.Warn(Scope, "the picture of the dragged desktop icons could not be drawn; the drag shows the pressed icon alone", ex);
+            Log.Warn(Scope, "the picture of the moving desktop icon could not be drawn; the drag shows the pressed icon as drawn", ex);
             return null;
         }
     }

@@ -52,7 +52,7 @@ internal sealed partial class DesktopWindow
         /// <summary>[S-13046] Whether a desktop icon holds the move: its icons stand where they land as their ghosts.</summary>
         public bool HeldByIcon { get; init; }
 
-        /// <summary>[S-13046] Explorer's picture of the moving icons, under the pointer while a desktop icon holds the move; else null.</summary>
+        /// <summary>[S-13046] [S-13048] The held icon's picture alone, under the pointer while a desktop icon holds the move; else null.</summary>
         public Themia.Core.Files.DragPicture? Picture { get; init; }
 
         /// <summary>[S-13046] Where the pointer pressed, in the root's DIPs: the picture follows it by the move's translation.</summary>
@@ -126,7 +126,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-1584] <see cref="BeginMove(WidgetCard)"/> with the pointer's press at <paramref name="press"/> (the widget layer's
-    /// DIPs): [S-13046] held by a desktop icon, the move shows Explorer's picture of its icons there, following the pointer.
+    /// DIPs): [S-13046] held by a desktop icon, the move shows the held icon's picture there, following the pointer ([S-13048]: it alone).
     /// </summary>
     internal void BeginMove(WidgetCard card, Point press)
     {
@@ -171,15 +171,15 @@ internal sealed partial class DesktopWindow
         var cell = _host.DropCellFor(this, models);
         var apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card), skipFences: cell is not null) : null;
 
-        // [S-13046] Held by a desktop icon: the picture of the moving icons under the pointer, held where the icon was grabbed.
+        // [S-13046] Held by a desktop icon: the held icon under the pointer, held where it was grabbed; [S-13048] it alone,
+        // however many icons move.
         HandedMove = null;
         var heldByIcon = card.View is IDesktopIconView;
         var pressAt = _widgetLayer.TransformToVisual(_root).TransformPoint(press);
-        var icons = heldByIcon ? cards.Where(c => c.Card.View is IDesktopIconView).Select(c => c.Card.Model.Id).ToHashSet(StringComparer.Ordinal) : [];
         _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, apart, cards.FindIndex(c => ReferenceEquals(c.Card, card)), cell))
         {
             HeldByIcon = heldByIcon,
-            Picture = heldByIcon ? DeskDragPicture(icons, card.Model.Id, icons.Count, pressAt) : null,
+            Picture = heldByIcon ? DeskDragPicture(card, cards.Count(c => c.Card.View is IDesktopIconView), pressAt) : null,
             Press = pressAt,
         };
     }

@@ -201,6 +201,8 @@ internal static class DesktopRender
     /// composed by the very call a drag makes (<see cref="ItemDrag.Ghost"/>) from the pictures the
     /// stand-in icons' views keep, each drawn at its own pixels with a small mark where the pointer holds
     /// it. Says how long composing the largest one took: the whole cost of the picture at a drag's start.
+    /// The stack is a drag's that starts as the shell's (a folder's rows, a search fence's files); a move of the
+    /// desktop's own icons shows the held one alone, the picture of 1 here ([S-13048]).
     /// </summary>
     private static async Task RenderGhostsAsync(Grid screen, Canvas desktop, double scale, string path)
     {
