@@ -81,8 +81,8 @@ public static class ContactsPlan
     /// <summary>
     /// [S-11406] Each layout's own sizes, with the search box where it is on: List and Compact the
     /// kit's widths (220..520, a new one 300), their height the rows; Details as wide as its columns
-    /// need (88 a column) to 720, its height the column titles and the rows; the Grid one size, its
-    /// cells and lines (no handle).
+    /// need (88 a column) to 720, its height the column titles and the rows; the Grid its cells, stepped by a cell
+    /// across (its columns, the card's: [S-14410]) and by a line down (its rows).
     /// </summary>
     public static WidgetSizing Sizing(ContactsConfig config)
     {
@@ -91,23 +91,43 @@ public static class ContactsPlan
 
         if (config.EffectiveLayout == ContactsLayout.Grid)
         {
-            var columns = Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid);
-            var lines = Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid);
-            return WidgetSizing.Fixed(new(
-                (2 * FamilySpace.Inset) + (columns * CellWidth) + ((columns - 1) * FamilySpace.ColumnGap),
-                top + (lines * CellHeight) + ((lines - 1) * FamilySpace.ColumnGap) + FamilySpace.Inset));
+            return WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1))
+                .WithWidthSteps(GridColumnSteps(config.GridColumns))
+                .WithHeightSteps(GridRowSteps(config.GridRows, top));
         }
 
         var widths = config.EffectiveLayout == ContactsLayout.Details ? DetailWidths(config.EffectiveColumns.Count) : new KitWidths(KitSizing.MinWidth, KitSizing.NaturalWidth, KitSizing.MaxWidth);
         return WidgetSizing.Range(new(widths.Min, 1), new(widths.Natural, 1), new(widths.Max, 1)).WithHeightSteps(Steps(config, top));
     }
 
-    /// <summary>[S-11406] The rows a height means (List, Compact, Details): a copy when they change; the Grid has one size.</summary>
+    /// <summary>[S-14410] The grid's width: the inset either side, a 96 cell and its gap a step, 2..<see cref="ContactsConfig.MaxGrid"/> of them.</summary>
+    public static SizeSteps GridColumnSteps(int columns)
+        => new((2 * FamilySpace.Inset) - FamilySpace.ColumnGap, CellWidth + FamilySpace.ColumnGap, 2, ContactsConfig.MaxGrid, Math.Clamp(columns, 2, ContactsConfig.MaxGrid));
+
+    /// <summary>[S-11406] The grid's height: what stands over it and the inset under it, a cell and its gap a line.</summary>
+    public static SizeSteps GridRowSteps(int rows, double top)
+        => new(top + FamilySpace.Inset - FamilySpace.ColumnGap, CellHeight + FamilySpace.ColumnGap, 1, ContactsConfig.MaxGrid, Math.Clamp(rows, 1, ContactsConfig.MaxGrid));
+
+    /// <summary>[S-11406] [S-14410] The rows a height means, and for the Grid the cells a line its width holds: a copy when they change.</summary>
     public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size)
     {
-        if (config is not ContactsConfig contacts || contacts.EffectiveLayout == ContactsLayout.Grid)
+        if (config is not ContactsConfig contacts)
         {
             return config;
+        }
+
+        if (contacts.EffectiveLayout == ContactsLayout.Grid)
+        {
+            var columns = GridColumnSteps(contacts.GridColumns).Nearest(size.Width);
+            var lines = GridRowSteps(contacts.GridRows, FamilySpace.ContentTop + (contacts.SearchBox ? SearchHeight : 0)).Nearest(size.Height);
+            if (columns == contacts.GridColumns && lines == contacts.GridRows)
+            {
+                return config;
+            }
+
+            var grid = (ContactsConfig)contacts.Clone();
+            (grid.GridColumns, grid.GridRows) = (columns, lines);
+            return grid;
         }
 
         var wanted = Steps(contacts, FamilySpace.ContentTop + (contacts.SearchBox ? SearchHeight : 0)).Nearest(size.Height);

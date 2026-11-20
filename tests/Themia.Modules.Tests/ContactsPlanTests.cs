@@ -51,16 +51,21 @@ public sealed class ContactsPlanTests
     }
 
     [Fact]
-    public void S11406_the_grid_is_one_size_its_cells_and_lines_the_config_s()
+    public void S11406_S14410_the_grid_steps_by_a_cell_across_and_a_line_down_and_a_drag_sets_both()
     {
         var config = new ContactsConfig { Layout = ContactsLayout.Grid, SearchBox = false, GridColumns = 3, GridRows = 2 };
         var sizing = ContactsPlan.Sizing(config);
         var plan = Plan(config);
 
-        Assert.True(sizing.FixedWidth && sizing.FixedHeight);
         Assert.Equal(new Themia.Sdk.SizeDip(24 + (3 * 96) + (2 * 12), 12 + (2 * ContactsPlan.CellHeight) + 12 + 12), sizing.Natural);
+        Assert.Equal((3, 2), (sizing.WidthSteps!.Count, sizing.HeightSteps!.Count));
         Assert.Equal((48.0, 3, 2), (plan.Icon, plan.Columns, plan.Rows));
-        Assert.Same(config, ContactsPlan.SizeSets(config, new Themia.Sdk.SizeDip(400, 400)));
+        Assert.Same(config, ContactsPlan.SizeSets(config, sizing.Natural));
+
+        // [S-14410] Owner, 2026-11-20: "Anything that's just 'how many of the same item' ... follows the card's size".
+        var wider = Assert.IsType<ContactsConfig>(ContactsPlan.SizeSets(config, sizing.Natural with { Width = sizing.WidthSteps.At(5) }));
+        Assert.Equal((5, 2), (wider.GridColumns, wider.GridRows));
+        Assert.Equal(3, config.GridColumns);
     }
 
     [Fact]

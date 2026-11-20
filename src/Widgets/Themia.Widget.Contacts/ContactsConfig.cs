@@ -27,7 +27,7 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     /// <summary>[S-11406] A new contacts list's rows.</summary>
     public const int DefaultRows = 5;
 
-    /// <summary>[S-11406] The grid's cells a line: 2 to <see cref="MaxGrid"/>.</summary>
+    /// <summary>[S-11406] [S-14410] The grid's cells a line: 2 to <see cref="MaxGrid"/>; the card's width's (a resize sets them).</summary>
     public const int DefaultGridColumns = 3;
 
     /// <summary>[S-11406] The grid's lines of cells.</summary>

@@ -46,11 +46,10 @@ internal static class ContactsMenu
             menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Grid, ContactsStr.WidgetsA_Contacts_Menu_Columns.Text(), Columns(menu, config)));
         }
 
-        // [S-11406] What each layout shows: the List's rows and lines, Compact's and Details' rows, the
-        // Grid's cells a line and lines; then the search box.
+        // [S-11406] What each layout shows: the List's rows and lines, Compact's and Details' rows, the Grid's lines (its
+        // cells a line are the card's width, [S-14410]); then the search box.
         if (config.EffectiveLayout == ContactsLayout.Grid)
         {
-            menu.Lines.Add(KitMenuLines.Count(menu, null, Str.Kit_Columns.Text(), Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid), 2, ContactsConfig.MaxGrid, 1, v => config.GridColumns = v));
             menu.Lines.Add(KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid), 1, ContactsConfig.MaxGrid, 1, v => config.GridRows = v));
         }
         else

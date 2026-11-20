@@ -27,10 +27,13 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
   default 5), 220..520 wide for List and Compact (a new one 300 × 284), their height the search box
   where on, the rows and the inset, dragging the bottom edge sets Rows, more scroll inside them.
   **Grid**: `GridColumns` cells a line (2..6, default 3) and `GridRows` lines (1..6, default 2) of
-  48 monograms over their names, one size (no handle), more scroll inside it. **Search box**
+  48 monograms over their names, the width stepped by a cell and the height by a line, more scroll inside it;
+  dragging an edge sets them; its Rows line sets the lines, and the cells a line are the card's alone (owner,
+  2026-11-20: "Anything that's just 'how many of the same item' ... follows the card's size", [S-14410]: the
+  Columns line is gone). **Search box**
   (`SearchBox`, on by default): over the people; off, the card menu's Search opens it ([S-12481]). One
   column at every width; no layout falls back to another. The ladder ([S-1270], [S-1271], [S-1273],
-  [S-1275], `ContactRules.Effective`) is gone. Tests `ContactsPlanTests`, `ContactsMenuTests.S11406_`,
+  [S-1275], `ContactRules.Effective`) is gone. Tests `ContactsPlanTests.S11406_S14410_`, `ContactsMenuTests.S11406_`,
   `ContactsFitTests.S11406_`.
 - **[S-584]** A search box asks for the keyboard while focused (Esc clears). It
   starts empty: the `defaultSearch` setting is gone ([S-3796]).
