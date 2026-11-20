@@ -378,7 +378,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public ViewState? ViewForCards => _closed ? null : ViewForThisMonitor(_host.State);
 
     /// <summary>A widget edited its own config. Persist it, but do not re-lay-out: see [S-128].</summary>
-    public void RequestSaveConfig() => _host.SaveGeometryOnly();
+    public void RequestSaveConfig() => _host.SaveSoon();
 
     /// <summary>[S-11877] In edit mode its selection's; on the locked desktop the desktop's one selection (icons and cards).</summary>
     public bool IsSelected(WidgetCard card) => EditMode ? _host.Selection.Contains(card.Model.Id) : _host.DeskSelects(card.Model);

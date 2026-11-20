@@ -152,7 +152,7 @@ internal sealed partial class AppHost
         if (assigned > 0)
         {
             Log.Info(Scope, $"gave {assigned} display(s) an existing view");
-            _store.SaveSoon(State);
+            _writer.SaveSoon();
 
             // [S-887] The system's doing, not the user's: not something Ctrl+Z should take away.
             AdoptLayout();
@@ -245,7 +245,7 @@ internal sealed partial class AppHost
         {
             rekeyed = true;
             Log.Info(Scope, "moved display settings from their ordinal keys to the device paths the displays now report");
-            _store.SaveSoon(State);
+            _writer.SaveSoon();
 
             // The system's doing, not the user's: not something Ctrl+Z should take away ([S-887]).
             AdoptLayout();

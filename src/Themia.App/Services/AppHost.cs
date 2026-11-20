@@ -21,6 +21,12 @@ internal sealed partial class AppHost : IDisposable
 
     private readonly DispatcherQueue _dispatcher;
     private readonly AppStateStore _store;
+
+    /// <summary>[S-41] The live state's saves: asked for by every change, taken on this thread once they pause.</summary>
+    private readonly StateWriter _writer;
+
+    /// <summary>[S-41] The writer's quiet time (<see cref="StateWriter.SaveDelay"/>), restarted by every asked-for save.</summary>
+    private readonly DispatcherQueueTimer _saveTimer;
     private readonly List<DesktopWindow> _windows = [];
     private readonly CommandWindow _command = new();
 
@@ -46,6 +52,13 @@ internal sealed partial class AppHost : IDisposable
         _dispatcher = dispatcher;
         _store = store;
         State = state;
+
+        // [S-41] Saves are taken here, on the UI thread that changes the state, and written off it by the store.
+        _saveTimer = dispatcher.CreateTimer();
+        _saveTimer.Interval = StateWriter.SaveDelay;
+        _saveTimer.IsRepeating = false;
+        _saveTimer.Tick += OnSaveTimer;
+        _writer = new StateWriter(state, store, ArmSave);
         Ticker = new Ticker(dispatcher);
 
         // [S-2500] One hub for every system widget, for the app's lifetime, on the shared ticker.
@@ -334,8 +347,18 @@ internal sealed partial class AppHost : IDisposable
 
         // Seed the file on a fresh profile so the starting layout survives a restart even if the
         // user never touches anything.
-        _store.SaveSoon(State);
+        _writer.SaveSoon();
     }
+
+    /// <summary>[S-41] A save was asked for: the quiet time starts again.</summary>
+    private void ArmSave()
+    {
+        _saveTimer.Stop();
+        _saveTimer.Start();
+    }
+
+    /// <summary>[S-41] The changes paused: the state is taken now, on this thread, and handed to the store.</summary>
+    private void OnSaveTimer(DispatcherQueueTimer timer, object args) => _writer.SaveNow();
 
     // -----------------------------------------------------------------------------------------
     // Lifetime, continued
@@ -361,7 +384,9 @@ internal sealed partial class AppHost : IDisposable
 
             try
             {
-                await _store.FlushAsync().ConfigureAwait(true);
+                // [S-42] The state as the closed surfaces left it, taken here and written.
+                _saveTimer.Stop();
+                await _writer.FlushAsync().ConfigureAwait(true);
 
                 // [S-603] A task ticked on a list kept on this PC a moment before exit.
                 if (AppServices.Tasks is { } tasks)
@@ -427,6 +452,8 @@ internal sealed partial class AppHost : IDisposable
         }
 
         _disposed = true;
+        _saveTimer.Stop();
+        _saveTimer.Tick -= OnSaveTimer;
         StopDesktop();
         StopOutsideWatch();
         StopPlacementKeys();

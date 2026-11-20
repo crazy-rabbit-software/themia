@@ -132,7 +132,7 @@ internal sealed partial class AppHost
     public void CommitGeometry(UndoAction action)
     {
         _history?.Commit(State, action);
-        _store.SaveSoon(State);
+        _writer.SaveSoon();
         HistoryChanged?.Invoke();
     }
 
@@ -187,7 +187,7 @@ internal sealed partial class AppHost
         _history.Rebase(State);
         HistoryChanged?.Invoke();
 
-        _store.SaveSoon(State);
+        _writer.SaveSoon();
         ChangeSelection(Selection.Prune(State));
         StateChanged?.Invoke();
 

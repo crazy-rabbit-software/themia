@@ -29,11 +29,11 @@ internal static class StateRoundTrip
             view.Widgets.Clear();
             view.Widgets.Add(widget);
 
-            var store = new AppStateStore(path, TimeSpan.Zero);
-            store.SaveSoon(state);
+            var store = new AppStateStore(path);
+            store.SaveSoon(StateSnapshot.Take(state));
             await store.FlushAsync();
 
-            var loaded = new AppStateStore(path, TimeSpan.Zero).Load();
+            var loaded = new AppStateStore(path).Load();
             Assert.Equal(LoadOutcome.Loaded, loaded.Outcome);
 
             return Assert.IsType<T>(loaded.State.ActiveView().Widgets[0].Config);

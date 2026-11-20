@@ -519,11 +519,20 @@ busy desktop ([S-6601]), Debug, private bytes.
   file without delete sharing refuses the rename for a moment (seen as a flaky
   `Access to the path is denied` in the note store's concurrent-writers test). Any other error, and
   the last attempt's, is handled by the store as before.
-- **[S-41]** There is a **single writer**, and saves are coalesced — a drag that mutates geometry
-  sixty times a second produces one write.
+- **[S-41]** There is a **single writer**, and saves are coalesced. The live state is the UI thread's alone: every
+  change asks for a save (`StateWriter.SaveSoon`: `Mutate`, the end of a drag or resize, an undo step; a change made in
+  place outside `Mutate`, a widget's own config or an alarm that switched itself off, through `AppHost.SaveSoon`), the UI
+  thread's one-shot timer (`StateWriter.SaveDelay`, 400 ms, started again by every ask) takes the state's bytes there
+  once the changes pause (`StateSnapshot.Take`), and the store writes them on the thread pool through its one gate, a
+  newer snapshot replacing one still queued. The store is never handed the state: no member of `AppStateStore` takes
+  or keeps an `AppState` (`AppStateStoreTests.S41_`). *(Until 2026-11-20 it kept the live object and serialised it on
+  the thread pool: a widget list changed mid-write threw and lost that write, one that did not throw could write a
+  rect half moved.)*
 - **[S-42]** `FlushAsync` takes the write gate *before* reading the pending snapshot, so a flush that
   finds nothing queued still waits for an in-flight write to land. Reading the snapshot first let a
-  shutdown flush return while a debounced save was mid-write, i.e. "flushed" without durability.
+  shutdown flush return while a debounced save was mid-write, i.e. "flushed" without durability. At exit the
+  state is taken once more as the closed surfaces left it (a widget writes its last words into its config as it
+  detaches), asked for or not, and flushed (`StateWriter.FlushAsync`).
 - **[S-43]** Load distinguishes **absent** from **corrupt**. A missing file is a fresh profile. A
   file that is empty, unparseable, or from a newer `schemaVersion` is corrupt: defaults are returned,
   loudly, and the original is **moved aside, never deleted**.

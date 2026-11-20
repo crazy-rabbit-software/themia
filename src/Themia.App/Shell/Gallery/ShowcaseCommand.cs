@@ -126,10 +126,10 @@ internal static class ShowcaseCommand
     /// <summary>Atomic, through the app's own store: a temp file renamed over the target.</summary>
     private static void Write(string path, AppState state)
     {
-        var store = new AppStateStore(path, TimeSpan.Zero);
+        var store = new AppStateStore(path);
         try
         {
-            store.SaveSoon(state);
+            store.SaveSoon(StateSnapshot.Take(state));
             store.FlushAsync().GetAwaiter().GetResult();
         }
         finally

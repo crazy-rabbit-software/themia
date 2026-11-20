@@ -106,13 +106,13 @@ public sealed class ShellSettingsTests : IDisposable
         state.DisabledMonitors.Add(@"\\.\DISPLAY2");
         state.MonitorScales[@"\\.\DISPLAY1"] = 1.5;
 
-        await using (var store = new AppStateStore(_path, TimeSpan.Zero))
+        await using (var store = new AppStateStore(_path))
         {
-            store.SaveSoon(state);
+            store.SaveSoon(StateSnapshot.Take(state));
             await store.FlushAsync();
         }
 
-        var loaded = new AppStateStore(_path, TimeSpan.Zero).Load();
+        var loaded = new AppStateStore(_path).Load();
         Assert.Equal(LoadOutcome.Loaded, loaded.Outcome);
         var back = loaded.State;
 

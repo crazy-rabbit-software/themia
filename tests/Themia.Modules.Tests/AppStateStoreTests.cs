@@ -1,3 +1,4 @@
+using System.Reflection;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
@@ -30,7 +31,7 @@ public sealed class AppStateStoreTests : IDisposable
         }
     }
 
-    private AppStateStore NewStore() => new(_path, TimeSpan.Zero);
+    private AppStateStore NewStore() => new(_path);
 
     [Fact]
     public void A_missing_file_is_Fresh_not_Recovered()
@@ -100,7 +101,7 @@ public sealed class AppStateStoreTests : IDisposable
         state.Design.CornerRadiusPx = 12;
 
         var store = NewStore();
-        store.SaveSoon(state);
+        store.SaveSoon(StateSnapshot.Take(state));
         await store.FlushAsync();
 
         var loaded = NewStore().Load();
@@ -122,22 +123,59 @@ public sealed class AppStateStoreTests : IDisposable
     public async Task A_save_leaves_no_temp_file_behind()
     {
         var store = NewStore();
-        store.SaveSoon(AppState.CreateDefault());
+        store.SaveSoon(StateSnapshot.Take(AppState.CreateDefault()));
         await store.FlushAsync();
 
         Assert.Empty(Directory.GetFiles(_dir, "*.tmp"));
     }
 
     [Fact]
+    public void S41_the_store_never_takes_or_keeps_the_live_state()
+    {
+        // [S-41] The UI thread changes the state while the store writes on the thread pool: the store is handed bytes
+        // taken on the owner's thread, so nothing it takes or keeps is a state that thread goes on changing. A save of
+        // the live object let a write read a widget list mid-change (one that threw lost the write; one that did not
+        // could write a rect half moved).
+        var members = typeof(AppStateStore).GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+
+        Assert.Empty(members.OfType<MethodBase>()
+            .Where(m => m.GetParameters().Any(p => p.ParameterType == typeof(AppState)))
+            .Select(m => m.Name));
+        Assert.Empty(members.OfType<FieldInfo>()
+            .Where(f => f.FieldType == typeof(AppState))
+            .Select(f => f.Name));
+    }
+
+    [Fact]
+    public async Task S41_a_snapshot_is_the_state_as_it_was_taken()
+    {
+        var state = AppState.CreateDefault();
+        state.Design.CornerRadiusPx = 4;
+        var snapshot = StateSnapshot.Take(state);
+
+        // Changed after it was taken: the write is the state as it was then, never what it became.
+        state.Design.CornerRadiusPx = 16;
+        state.ActiveView().Widgets.Clear();
+
+        var store = NewStore();
+        store.SaveSoon(snapshot);
+        await store.FlushAsync();
+
+        var loaded = NewStore().Load().State;
+        Assert.Equal(4, loaded.Design.CornerRadiusPx);
+        Assert.NotEmpty(loaded.ActiveView().Widgets);
+    }
+
+    [Fact]
     public async Task Coalesced_saves_write_the_latest_snapshot()
     {
-        var store = new AppStateStore(_path, TimeSpan.FromMilliseconds(50));
+        var store = NewStore();
 
         for (var i = 1; i <= 20; i++)
         {
             var state = AppState.CreateDefault();
             state.Design.CornerRadiusPx = i;
-            store.SaveSoon(state);
+            store.SaveSoon(StateSnapshot.Take(state));
         }
 
         await store.FlushAsync();

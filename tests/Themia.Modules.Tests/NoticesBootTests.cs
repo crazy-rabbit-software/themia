@@ -360,7 +360,7 @@ public sealed class NoticesBootTests : IDisposable
         var store = new AppStateStore(path);
         var state = AppState.CreateDefault();
 
-        store.SaveSoon(state);
+        store.SaveSoon(StateSnapshot.Take(state));
         await store.FlushAsync();
 
         var loaded = new AppStateStore(path).Load();

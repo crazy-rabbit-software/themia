@@ -67,8 +67,13 @@ public enum ParseRefusal
 /// Single-writer, atomic persistence for <see cref="AppState"/>.
 /// <para>
 /// Writes go to a sibling temp file and are then moved over the target, so a crash mid-write can
-/// never leave a truncated document. Saves are serialised through one gate and coalesced, so a
-/// drag that mutates geometry sixty times a second still produces one write.
+/// never leave a truncated document. Saves are serialised through one gate and coalesced: a write
+/// still queued is replaced by a newer one.
+/// </para>
+/// <para>
+/// [S-41] The store is handed bytes (<see cref="StateSnapshot"/>), taken on the thread that owns the live
+/// state, and never the state itself: it writes on the thread pool while that thread goes on changing it.
+/// When to take them is the owner's (<see cref="StateWriter"/>).
 /// </para>
 /// </summary>
 public sealed class AppStateStore : IAsyncDisposable
@@ -76,27 +81,24 @@ public sealed class AppStateStore : IAsyncDisposable
     private const string Scope = "store";
 
     private readonly string _path;
-    private readonly TimeSpan _debounce;
     private readonly SemaphoreSlim _writeGate = new(1, 1);
     private readonly Lock _pendingGate = new();
 
-    private AppState? _pending;
-    private CancellationTokenSource? _debounceCts;
+    private StateSnapshot? _pending;
     private bool _disposed;
 
     /// <summary>False for a <see cref="Detached"/> store, which accepts saves and writes nothing.</summary>
     private readonly bool _persists;
 
-    public AppStateStore(string path, TimeSpan? debounce = null)
-        : this(path, debounce, persists: true)
+    public AppStateStore(string path)
+        : this(path, persists: true)
     {
     }
 
-    private AppStateStore(string path, TimeSpan? debounce, bool persists)
+    private AppStateStore(string path, bool persists)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         _path = path;
-        _debounce = debounce ?? TimeSpan.FromMilliseconds(400);
         _persists = persists;
     }
 
@@ -110,7 +112,7 @@ public sealed class AppStateStore : IAsyncDisposable
     /// run in the app.
     /// </para>
     /// </summary>
-    public static AppStateStore Detached(string path) => new(path, TimeSpan.Zero, persists: false);
+    public static AppStateStore Detached(string path) => new(path, persists: false);
 
     public string Path => _path;
 
@@ -891,38 +893,29 @@ public sealed class AppStateStore : IAsyncDisposable
     }
 
     /// <summary>
-    /// Queue a save. Repeated calls inside the debounce window collapse into one write of the
-    /// latest snapshot, so a live drag does not hammer the disk.
+    /// Queue a write of <paramref name="snapshot"/>, carried out on the thread pool; one still queued is replaced, so
+    /// the latest wins. A detached store drops it.
     /// </summary>
-    public void SaveSoon(AppState state)
+    public void SaveSoon(StateSnapshot snapshot)
     {
-        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(snapshot);
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        CancellationTokenSource cts;
+        if (!_persists)
+        {
+            return;
+        }
+
         lock (_pendingGate)
         {
-            _pending = state;
-            _debounceCts?.Cancel();
-            _debounceCts?.Dispose();
-            _debounceCts = new CancellationTokenSource();
-            cts = _debounceCts;
+            _pending = snapshot;
         }
 
-        _ = DebouncedSaveAsync(cts.Token);
+        _ = Task.Run(WriteQueuedAsync);
     }
 
-    private async Task DebouncedSaveAsync(CancellationToken token)
+    private async Task WriteQueuedAsync()
     {
-        try
-        {
-            await Task.Delay(_debounce, token).ConfigureAwait(false);
-        }
-        catch (TaskCanceledException)
-        {
-            return; // superseded by a newer SaveSoon; that call owns the write
-        }
-
         try
         {
             await FlushAsync().ConfigureAwait(false);
@@ -937,11 +930,17 @@ public sealed class AppStateStore : IAsyncDisposable
     }
 
     /// <summary>
+    /// Tests: a write that took its snapshot waits for this before it writes, so a test can change the state
+    /// and queue a newer snapshot while a write is out.
+    /// </summary>
+    internal Task WritesHeldUntil { get; set; } = Task.CompletedTask;
+
+    /// <summary>
     /// Write any queued snapshot now and wait for it. Safe to call when nothing is pending.
     /// <para>
     /// The write gate is taken <i>before</i> the pending snapshot is read, so a flush that finds
     /// nothing queued still waits for an in-flight write to land. Reading the snapshot first would
-    /// let this return while a debounced save was mid-write, i.e. "flushed" without durability —
+    /// let this return while a queued save was mid-write, i.e. "flushed" without durability —
     /// exactly the window a shutdown flush exists to close.
     /// </para>
     /// </summary>
@@ -950,7 +949,7 @@ public sealed class AppStateStore : IAsyncDisposable
         await _writeGate.WaitAsync().ConfigureAwait(false);
         try
         {
-            AppState? snapshot;
+            StateSnapshot? snapshot;
             lock (_pendingGate)
             {
                 snapshot = _pending;
@@ -962,6 +961,7 @@ public sealed class AppStateStore : IAsyncDisposable
                 return;
             }
 
+            await WritesHeldUntil.ConfigureAwait(false);
             await WriteAtomicAsync(snapshot).ConfigureAwait(false);
         }
         finally
@@ -970,7 +970,7 @@ public sealed class AppStateStore : IAsyncDisposable
         }
     }
 
-    private async Task WriteAtomicAsync(AppState state)
+    private async Task WriteAtomicAsync(StateSnapshot snapshot)
     {
         var temp = $"{_path}.tmp";
         try
@@ -981,13 +981,12 @@ public sealed class AppStateStore : IAsyncDisposable
                 Directory.CreateDirectory(dir);
             }
 
-            var json = JsonSerializer.Serialize(state, StateJson.AppState);
-            await File.WriteAllTextAsync(temp, json).ConfigureAwait(false);
+            await File.WriteAllBytesAsync(temp, snapshot.Json).ConfigureAwait(false);
 
             // Atomic swap: readers see either the old document or the new one, never a partial write.
             AtomicFile.Replace(temp, _path);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             Log.Error(Scope, $"could not save state to {_path}", ex);
 
@@ -1013,14 +1012,6 @@ public sealed class AppStateStore : IAsyncDisposable
         }
 
         _disposed = true;
-
-        lock (_pendingGate)
-        {
-            _debounceCts?.Cancel();
-            _debounceCts?.Dispose();
-            _debounceCts = null;
-        }
-
         await FlushAsync().ConfigureAwait(false);
         _writeGate.Dispose();
     }

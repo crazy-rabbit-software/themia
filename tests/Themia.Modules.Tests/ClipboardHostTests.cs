@@ -34,7 +34,7 @@ public sealed class ClipboardHostTests : IDisposable
         }
     }
 
-    private AppStateStore NewStore() => new(_path, TimeSpan.Zero);
+    private AppStateStore NewStore() => new(_path);
 
     private async Task<WidgetConfig> RoundTripAsync(WidgetConfig config)
     {
@@ -44,7 +44,7 @@ public sealed class ClipboardHostTests : IDisposable
         widget.Config = config;
 
         var store = NewStore();
-        store.SaveSoon(state);
+        store.SaveSoon(StateSnapshot.Take(state));
         await store.FlushAsync();
 
         var loaded = NewStore().Load();

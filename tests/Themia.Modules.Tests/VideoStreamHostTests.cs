@@ -44,8 +44,8 @@ public sealed class VideoStreamHostTests
             };
             state.Views[0].Widgets.Add(widget);
 
-            var store = new AppStateStore(path, TimeSpan.Zero);
-            store.SaveSoon(state);
+            var store = new AppStateStore(path);
+            store.SaveSoon(StateSnapshot.Take(state));
             await store.FlushAsync();
             await store.DisposeAsync();
 

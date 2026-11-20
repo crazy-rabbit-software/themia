@@ -13,7 +13,7 @@ internal sealed partial class AppHost
 
     private void StartAlarms()
     {
-        _alarms = new AlarmService(_dispatcher, () => State, SaveGeometryOnly);
+        _alarms = new AlarmService(_dispatcher, () => State, SaveSoon);
         AppServices.Alarms = _alarms;
 
         // Settings, an undo, a paste or a deleted widget: the alarms there are now.

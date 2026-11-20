@@ -79,7 +79,7 @@ internal sealed partial class AppHost
             _history?.Rebase(State);
         }
 
-        _store.SaveSoon(State);
+        _writer.SaveSoon();
         HistoryChanged?.Invoke();
 
         // [S-1583] A deleted or moved widget leaves the selection with the change that removed it.
@@ -164,10 +164,10 @@ internal sealed partial class AppHost
     }
 
     /// <summary>
-    /// Persist geometry mid-drag without re-running layout: the dragged card is already following
-    /// the pointer, so raising <see cref="StateChanged"/> here would fight it.
+    /// [S-41] Save a change made in place outside <see cref="Mutate"/> (a widget's own config, an alarm that switched
+    /// itself off), without re-running layout: the card already shows it.
     /// </summary>
-    public void SaveGeometryOnly() => _store.SaveSoon(State);
+    public void SaveSoon() => _writer.SaveSoon();
 
     public void SetEditMode(bool enabled)
     {
@@ -194,7 +194,7 @@ internal sealed partial class AppHost
 
         if (!enabled)
         {
-            _store.SaveSoon(State);
+            _writer.SaveSoon();
         }
 
         Log.Info(Scope, enabled ? "entered edit mode" : "left edit mode");

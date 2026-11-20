@@ -38,7 +38,7 @@ public sealed class GalleryPersistenceTests : IDisposable
         }
     }
 
-    private AppStateStore NewStore() => new(_path, TimeSpan.Zero);
+    private AppStateStore NewStore() => new(_path);
 
     /// <summary>Save a widget of this kind with its config filled in, and read it back.</summary>
     private async Task<T> RoundTripAsync<T>(WidgetId kind, Action<T> fill)
@@ -52,7 +52,7 @@ public sealed class GalleryPersistenceTests : IDisposable
         view.Widgets.Add(widget);
 
         var store = NewStore();
-        store.SaveSoon(state);
+        store.SaveSoon(StateSnapshot.Take(state));
         await store.FlushAsync();
 
         var loaded = NewStore().Load();

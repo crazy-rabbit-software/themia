@@ -100,11 +100,11 @@ public class PowerActionTests
             var widget = state.ActiveView().Widgets[0];
             widget.Config = new SignOutConfig();
 
-            var store = new AppStateStore(path, TimeSpan.Zero);
-            store.SaveSoon(state);
+            var store = new AppStateStore(path);
+            store.SaveSoon(StateSnapshot.Take(state));
             await store.FlushAsync();
 
-            var loaded = new AppStateStore(path, TimeSpan.Zero).Load();
+            var loaded = new AppStateStore(path).Load();
             var config = Assert.IsType<SignOutConfig>(loaded.State.ActiveView().Widgets[0].Config);
             Assert.Equal(PowerAction.SignOut, config.Action);
         }

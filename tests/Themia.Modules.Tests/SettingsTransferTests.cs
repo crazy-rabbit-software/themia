@@ -275,7 +275,7 @@ public sealed class SettingsTransferTests : IDisposable
         var path = Path.Combine(_dir, "state.json");
         var store = AppStateStore.Detached(path);
 
-        store.SaveSoon(Sample());
+        store.SaveSoon(StateSnapshot.Take(Sample()));
         await store.FlushAsync();
         await store.DisposeAsync();
 
