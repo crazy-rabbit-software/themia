@@ -1,3 +1,4 @@
+using Themia.Core.Desktop;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 
@@ -39,29 +40,47 @@ internal sealed partial class AppHost
         }
     }
 
-    /// <summary>Delete every selected widget in one write.</summary>
+    /// <summary>[S-1592] [S-5524] Edit mode's Delete: every selected widget off this view in one write (<see cref="DesktopDelete"/>; no file touched).</summary>
     public void DeleteSelected()
     {
-        if (SelectionView is not { } view)
+        if (SelectionView is null)
         {
             return;
         }
 
-        var ids = Selection.Ids.ToList();
-        Mutate(_ =>
+        var removal = DesktopDelete.Of([.. Selection.Ids.Select(id => new DeskDeleting(id, null))], editMode: true, State.Preferences.LockWidgets);
+        RemoveWidgets(removal.Widgets);
+        Select(null);
+    }
+
+    /// <summary>
+    /// [S-881] [S-14320] The widgets <paramref name="ids"/> taken off the desktop, from every view that holds them: one undoable
+    /// step of the one history (Ctrl+Z, here and on the desktop, puts them back where they were, with their config) and the way
+    /// back offered, as Delete asks nothing first ([B9]). No file is touched: a fence's items stay on the free desktop where it
+    /// showed them ([S-13009]; the undo brings it back with them). Edit mode's Delete and the desktop's both come here.
+    /// </summary>
+    private void RemoveWidgets(IReadOnlyList<string> ids)
+    {
+        if (ids.Count == 0)
         {
-            // [S-13009] A fence deleted never takes its items with it: they stay on the free desktop where it showed them (the undo brings it back with them).
-            var fences = view.Widgets.Where(w => ids.Contains(w.Id) && w.Config is IHoldsDesktopItems).ToList();
-            view.Widgets.RemoveAll(w => ids.Contains(w.Id));
-            foreach (var fence in fences)
+            return;
+        }
+
+        var gone = new HashSet<string>(ids, StringComparer.Ordinal);
+        CloseRenameFor(null);
+        Mutate(state =>
+        {
+            foreach (var view in state.Views)
             {
-                PutBackFenceItems(view, fence);
+                var fences = view.Widgets.Where(w => gone.Contains(w.Id) && w.Config is IHoldsDesktopItems).ToList();
+                view.Widgets.RemoveAll(w => gone.Contains(w.Id));
+                foreach (var fence in fences)
+                {
+                    PutBackFenceItems(view, fence);
+                }
             }
         }, undo: UndoAction.Delete);
-        Select(null);
-
-        // [S-881] Delete asks nothing first ([B9]): the notice is the way back.
-        OfferUndo(Str.Shell_Undo_DeletedWidgets.Plural(ids.Count));
+        OfferUndo(Str.Shell_Undo_DeletedWidgets.Plural(gone.Count));
     }
 
     /// <summary>

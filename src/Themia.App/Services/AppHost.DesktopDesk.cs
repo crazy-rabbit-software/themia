@@ -320,10 +320,14 @@ internal sealed partial class AppHost : IDesktopDesk
     /// [S-11879] A widget card pressed with Ctrl or Shift on the locked desktop: in (or out of) the desktop's one selection
     /// under its card key, by the icons' rules (Ctrl toggles, Shift adds the range from the anchor), as a click. The
     /// desktop is active (the selection's look) from then on. False for a widget with no key.
+    /// [S-14320] The desktop takes the keys, as after a press on an icon or on empty desktop ([S-5550]): Delete, Escape, the
+    /// arrows and the Menu key reach the selection the press made (before, the press on a card ended the desktop's hold of
+    /// them and no one had them, so Delete on cards picked by hand went nowhere).
     /// </summary>
     public bool DeskPick(WidgetInstance widget, bool ctrl, bool shift)
     {
-        GestureOn(SurfaceShowing(widget.Id));
+        var surface = SurfaceShowing(widget.Id);
+        GestureOn(surface);
         LayoutDesk();
         if (DeskKey(widget) is not { } key)
         {
@@ -333,6 +337,11 @@ internal sealed partial class AppHost : IDesktopDesk
         CloseRenameFor(null);
         _desk.Press(key, ctrl, shift);
         _desk.Release(key);
+        if (surface is not null)
+        {
+            DesktopTakeKeys(surface);
+        }
+
         _deskActive = true;
         RepaintDesk();
         return true;
@@ -398,37 +407,6 @@ internal sealed partial class AppHost : IDesktopDesk
         {
             window.ShowDesktopBand(null);
         }
-    }
-
-    /// <summary>
-    /// [S-5583] The widgets of the own icons <paramref name="keys"/> are removed: one undoable step with
-    /// the way back offered, as edit mode's delete ([S-881]); no prompt, and nothing of their targets is touched.
-    /// </summary>
-    private void RemoveOwnIcons(IReadOnlyList<string> keys)
-    {
-        var ids = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var key in keys)
-        {
-            if (DesktopItemKeys.IsOwn(key) && DeskPlace(key) is { } at)
-            {
-                ids.Add(at.Widget.Id);
-            }
-        }
-
-        if (ids.Count == 0)
-        {
-            return;
-        }
-
-        CloseRenameFor(null);
-        Mutate(state =>
-        {
-            foreach (var view in state.Views)
-            {
-                view.Widgets.RemoveAll(w => ids.Contains(w.Id));
-            }
-        }, undo: UndoAction.Delete);
-        OfferUndo(Str.Shell_Undo_DeletedWidgets.Plural(ids.Count));
     }
 
     /// <summary>[S-5582] Properties of an own icon: edit mode with its widget selected, so its page opens (Target, Name, Icon, Name lines, Open with).</summary>
@@ -582,24 +560,44 @@ internal sealed partial class AppHost : IDesktopDesk
     private nint DeskOwner => (KeyboardSurface ?? DesktopKeysSurface ?? _windows.FirstOrDefault(w => w.IsAlive))?.Hwnd ?? 0;
 
     /// <summary>
-    /// [S-5545] [S-5583] Delete and Shift+Delete: the shell's own "delete" on the selected desktop items'
-    /// files, with the shell's own prompt as the user set it up (the Recycle Bin, or for good with Shift),
-    /// as Explorer's desktop; the selected own icons' widgets are removed (undoable, no prompt, no file
-    /// touched). A mixed selection does both.
+    /// [S-14320] What Delete does to the desktop's one selection now (<see cref="DesktopDelete"/>, outside edit mode): each
+    /// selected key's widget where the user is, a desktop icon with its icon, a card without.
     /// </summary>
-    private void DeleteSelection(bool permanent)
+    private DeskRemoval DeskRemovalNow()
     {
+        List<DeskDeleting> picked = [];
+        foreach (var key in _desk.Selected)
+        {
+            if (DeskPlace(key) is { } at)
+            {
+                picked.Add(new DeskDeleting(at.Widget.Id, DeskIconOf(key)));
+            }
+        }
+
+        return DesktopDelete.Of(picked, editMode: false, State.Preferences.LockWidgets);
+    }
+
+    /// <summary>
+    /// [S-5545] [S-5583] [S-14320] Delete and Shift+Delete on the desktop, and the menus' Delete line: the shell's own "delete"
+    /// on the selected desktop items' files, with the shell's own prompt as the user set it up (the Recycle Bin, or for good
+    /// with Shift), as Explorer's desktop; the selected own icons' widgets and, while Lock widgets is off, the selected widget
+    /// cards are removed (<see cref="RemoveWidgets"/>: one undoable step, no prompt, no file touched; Shift changes nothing for
+    /// them). A mixed selection does both.
+    /// </summary>
+    internal void DeleteSelection(bool permanent)
+    {
+        LayoutDesk();
         var icons = DeskIcons(_desk.Selected);
-        var plan = DesktopCommands.Delete(icons);
-        if (plan.Files.Count > 0)
+        var removal = DeskRemovalNow();
+        if (removal.Files.Count > 0)
         {
             // [S-5597] What goes to the Recycle Bin is undoable once it is seen gone; a delete for good is not.
             ExpectDesktopDelete(icons, permanent);
             try
             {
-                if (!ShellContextMenu.InvokeVerb(plan.Files, "delete", DeskOwner, shift: permanent))
+                if (!ShellContextMenu.InvokeVerb(removal.Files, "delete", DeskOwner, shift: permanent))
                 {
-                    Log.Warn(Scope, $"the shell did not delete {plan.Files.Count} desktop item(s)");
+                    Log.Warn(Scope, $"the shell did not delete {removal.Files.Count} desktop item(s)");
                 }
             }
             catch (Exception ex)
@@ -608,7 +606,7 @@ internal sealed partial class AppHost : IDesktopDesk
             }
         }
 
-        RemoveOwnIcons(plan.OwnKeys);
+        RemoveWidgets(removal.Widgets);
     }
 
     /// <summary>

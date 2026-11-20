@@ -6852,6 +6852,7 @@ there: Themia never takes a key from the app the user is typing in.
 | Edit mode | Menu key / Shift+F10 | The selection's menu, or the surface's ([S-1974]) |
 | Edit mode | F6 / Shift+F6 | Widgets → toolbar → view bar → notices ([S-1975]) |
 | Edit mode | Delete | Delete the selection, undoable ([S-1592], [S-885]) |
+| The desktop's keys | Delete / Shift+Delete | The selected files to the shell's delete; the selected own icons and, Lock widgets off, widget cards removed, undoable ([S-5545], [S-14320]) |
 | Edit mode | Ctrl+C / X / V / D | Copy, cut, paste, duplicate ([S-70]) |
 | Edit mode | Ctrl+A | Select all on the display under the pointer ([S-1582]) |
 | Edit mode, the desktop's keys | Ctrl+Z / Ctrl+Y, Ctrl+Shift+Z | Undo / redo ([S-885]; a desktop delete's items back from the Recycle Bin, [S-5597]) |
@@ -9104,7 +9105,9 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   locked i should be able to select multiple widgets and move them around together"): besides the band, a left press
   with **Ctrl** (toggle) or **Shift** (the range) on any widget card puts it in the one selection as a desktop icon's
   press does (`DesktopPicks.PicksOnPress`, `AppHost.DeskPick`); that press is not the widget's (no open, no row, no
-  move); a plain press stays the widget's. With Lock widgets on no widget card is picked at all, icons alone ([S-12953]).
+  move), and the desktop takes the keys from it as from a press on an icon or on empty desktop ([S-5550], [S-14320]:
+  Delete, Escape, the arrows and the Menu key reach what it picked; before 2026-11-20 the press ended the desktop's hold on
+  the keys and nothing had them); a plain press stays the widget's. With Lock widgets on no widget card is picked at all, icons alone ([S-12953]).
   Before, a card reached the selection by the band alone, and the band and the move died on the first press after
   another app ([S-13017]). Tests `DesktopGridTests.S11879_`.
 - **[S-11885]** *(Retired 2026-11-17 with the groups, [S-2450]: the locked desktop moves and selects exactly what is
@@ -9119,7 +9122,9 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   two or more cards selected on a display draw none of their own, the selection's frame's four corners go round them
   instead ([S-14310]); an
   icon draws its own selection look ([S-6627]) alone, no corners ([S-11889]). Delete, Cut, Copy, Enter and F2 keep their meaning per kind: on the
-  icons the file commands ([S-5545]), on cards nothing outside edit mode. Edit mode keeps its own selection
+  icons the file commands ([S-5545]); on cards Delete (and Shift+Delete) removes them while Lock widgets is off, one undoable
+  step ([S-14320]), and Cut, Copy, Enter and F2 do nothing outside edit mode. *(Until 2026-11-20 Delete did nothing on
+  cards either: "deleting widgets with delete does not work in non edit mode without the lock enabled".)* Edit mode keeps its own selection
   (`WidgetSelection`, [S-2451]), started empty. Tests `DesktopGridTests.S11877_`; `--drag-png` draws it
   (`drag-lasso-*`; several cards: `drag-group-*`).
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
@@ -10952,7 +10957,8 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   on is a desktop item's, one with a key (`DesktopBackground.RemovesFromView`, `QuickSetOffer.RemovesFromView`); a
   selection with any other widget, an own icon among them, says Delete: an own icon stands for no file
   and is listed nowhere once removed. Outside edit mode Delete is the shell's own delete of
-  a desktop item's file, with the shell's prompt ([S-5545]), and removes an own icon's widget ([S-5583]).
+  a desktop item's file, with the shell's prompt ([S-5545]), and removes an own icon's widget ([S-5583]) and, while Lock
+  widgets is off, a widget card's ([S-14320]). Both are `DesktopDelete.Of`'s one table.
 - **[S-5525]** **Each view chooses its desktop icons** (the owner, 2026-11-16): a view's setting **Desktop icons**
   (`ViewState.DesktopIcons`, `ViewDesktopIcons`): **All** (the default for every view, new or loaded: left out of
   the file), **Chosen** or **None**. It governs the desktop's items alone: an own icon ([S-5600]) is a widget placed on
@@ -11469,7 +11475,23 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   shell's own delete as [S-5545] says (its prompt; Shift for good; a shell item is no file and is
   never deleted). The selected own icons' widgets are removed in one undoable step, with the undo
   notice offered as edit mode's delete offers it ([S-881]): no prompt, and nothing of their targets is
-  touched. A selection of both does both. The menu's Delete ([S-5582]) is this same delete.
+  touched; the selected widget cards go in the same step while Lock widgets is off ([S-14320]). A selection of both
+  does both. The menu's Delete ([S-5582]) and a card menu's ([S-14321]) are this same delete.
+- **[S-14320]** **Delete removes widgets outside edit mode** (owner, 2026-11-20: "deleting widgets with delete does not
+  work in non edit mode without the lock enabled"). On the desktop's keys, **Delete** and **Shift+Delete** (and the card
+  menu's Delete line, [S-14321]) act on the desktop's one selection ([S-11877]) by one table, `DesktopDelete.Of` (Core,
+  tested), given edit mode and Lock widgets: the desktop items' files go to the shell's own delete as [S-5545] says; the own
+  icons' widgets ([S-5583]) and, **while Lock widgets is off**, the selected widget cards are taken off the desktop in **one
+  undoable step** of the one history (`AppHost.RemoveWidgets`, the path edit mode's Delete takes too: the undo notice,
+  [S-881]; Ctrl+Z on the desktop or in edit mode puts them back where they were, with their config; a fence's items stay
+  where it showed them, [S-13009]). Shift changes nothing for widgets (they have no Recycle Bin; the step is the way back).
+  **With Lock widgets on** no card is removed (a locked card is in no selection anyway, [S-12953]): the icons alone, as
+  before. A mixed selection deletes its icons as before and removes its cards; its files' step is the shell's own, seen
+  when they are gone ([S-5597]), so it is a second step. Removing a card never touches a file, and deleting a file never
+  removes a card. A card picked by hand (Ctrl/Shift+press, [S-11879]) gives the desktop the keys, so Delete reaches it;
+  before, it reached nothing. In edit mode Delete is [S-5524]'s (every selected widget off the view, no file touched).
+  Tests `DesktopDeleteTests.S14320_`; `--desk-select-check` (host-level: Ctrl+press clock and notes, Ctrl+click an own
+  icon, Delete and Shift+Delete, then Ctrl+Z; `--locked`: the icon alone).
 - **[S-5597]** **Ctrl+Z puts a deleted item back** (owner, 2026-11-16: "when i deleted a folder from the desktop
   for example it should be possible to bring it back with ctrl z"), as Explorer's own Undo Delete: a delete of
   desktop items that sends them to the Recycle Bin (Delete, the menu's Delete; not Shift+Delete, which deletes for
