@@ -730,6 +730,19 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     }
 
     /// <summary>
+    /// [S-2460] A step of the selection's resize as a block: the card shows <paramref name="rect"/> and the view the
+    /// config that size means ([S-2442]), nothing stored until it lands (<see cref="LandResize"/>).
+    /// </summary>
+    public void PreviewResize(FracRect rect)
+    {
+        LiveRect = rect;
+        if (_host.Metrics is { IsUsable: true } metrics)
+        {
+            PreviewResizedConfig(metrics);
+        }
+    }
+
+    /// <summary>
     /// [S-2442] A resize lands on <paramref name="rect"/>: for a kind whose size follows a count the
     /// config that size means goes on the model with it (the caller stores both in one undo step).
     /// The pointer's drag and the keyboard's Shift+arrows both land here.

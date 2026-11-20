@@ -285,9 +285,7 @@ internal sealed partial class WidgetCard
     private void PaintMarkers(bool selected)
     {
         Canvas.SetZIndex(MarkerInks, selected ? 1 : 0);
-        var ink = selected
-            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : NeutralInk();
+        var ink = selected ? SelectedInk() : NeutralInk();
         foreach (var part in _markerParts)
         {
             foreach (var bar in part.Inks)
@@ -296,6 +294,9 @@ internal sealed partial class WidgetCard
             }
         }
     }
+
+    /// <summary>[S-31c] A selected widget's bars: the accent. [S-2460] The selection's frame is drawn in it too.</summary>
+    internal static Brush SelectedInk() => ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
     /// <summary>
     /// [S-2444] A fixed axis has no handle: the edges of that axis lose their grip and their bar, a
@@ -322,13 +323,14 @@ internal sealed partial class WidgetCard
         }
     }
 
-    private static InputSystemCursorShape CursorFor(ResizeHandle handle, bool width, bool height)
+    /// <summary>[S-31b] A grip's cursor for the axes it resizes ([S-2460]: the selection's frame's too).</summary>
+    internal static InputSystemCursorShape CursorFor(ResizeHandle handle, bool width, bool height)
         => width && height ? CursorFor(handle)
             : width ? InputSystemCursorShape.SizeWestEast
             : height ? InputSystemCursorShape.SizeNorthSouth
             : InputSystemCursorShape.SizeAll;
 
-    private static bool IsCorner(ResizeHandle handle)
+    internal static bool IsCorner(ResizeHandle handle)
         => handle is ResizeHandle.TopLeft or ResizeHandle.TopRight or ResizeHandle.BottomLeft or ResizeHandle.BottomRight;
 
     private static InputSystemCursorShape CursorFor(ResizeHandle handle) => handle switch
