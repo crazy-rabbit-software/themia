@@ -89,26 +89,27 @@ public sealed class NoLeftoverTests
     }
 
     [Theory]
-    [InlineData("cpuFacts")]
-    [InlineData("memoryFacts")]
-    [InlineData("driveFacts")]
-    [InlineData("sunTimes")]
-    [InlineData("airFacts")]
-    public void S14100_a_facts_list_is_exactly_its_rows_at_every_count(string kind)
+    [InlineData("cpuSpeed")]
+    [InlineData("memoryInUse")]
+    [InlineData("driveUsed")]
+    [InlineData("sunrise")]
+    [InlineData("airUv")]
+    [InlineData("weatherPressure")]
+    public void S14100_S14600_a_single_metric_is_exactly_its_one_row(string kind)
     {
+        // The facts lists are single metrics now ([S-14604]): one fact row a card, its height that row's whole cells.
         foreach (var (screen, scale) in Displays)
         {
             var grid = SizeFit.Grid(screen, scale);
-            var steps = SizeFit.Of(WidgetConfig.CreateDefault(new WidgetId(kind))).HeightSteps!;
-            for (var n = steps.MinCount; n <= steps.MaxCount; n++)
-            {
-                var config = SizeFit.ConfigAt(WidgetConfig.CreateDefault(new WidgetId(kind)), new SizeDip(260, steps.At(n)));
-                var card = CardHeight(config, screen, scale);
+            var sizing = SizeFit.Of(WidgetConfig.CreateDefault(new WidgetId(kind)));
+            Assert.IsType<WholeCells>(sizing.HeightSteps!.Cells);
+            var limits = SizeFit.Limits(sizing, screen, scale)!;
+            Assert.True(limits.Height.Fixed, $"{kind}: its height is its one row");
+            var card = limits.Height.Min * screen.Height / scale;
 
-                // FactList (SpreadStack): a fact row each from the card's top edge.
-                var slots = ItemStretch.Reach(card, [.. Enumerable.Repeat(StretchItem.Row(1), n)], grid);
-                Exactly(card, slots[^1].End, grid, $"{kind} with {n} facts on {screen.Width}x{screen.Height} at {scale}");
-            }
+            // FactList (SpreadStack): its one row from the card's top edge.
+            var slots = ItemStretch.Reach(card, [StretchItem.Row(1)], grid);
+            Exactly(card, slots[^1].End, grid, $"{kind} on {screen.Width}x{screen.Height} at {scale}");
         }
     }
 

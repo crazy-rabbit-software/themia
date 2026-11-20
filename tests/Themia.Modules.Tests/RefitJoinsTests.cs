@@ -61,15 +61,16 @@ public sealed class RefitJoinsTests
     [Fact]
     public void S14104_a_card_beside_a_stepped_width_follows_its_right_edge()
     {
-        // The week planner's width steps by a cell a day (three days: 600, 630, 660, ...): 640 is fitted to 630.
+        // The week planner's width steps by a day's column of whole cells and follows its days ([S-14410]: three days,
+        // 600): stored 640, it is fitted to 600.
         var planner = Card("weekPlanner", 200, 200, 640, 180);
         var clock = Card("clock", 840, 200, 300, 130);
         var state = State(planner, clock);
 
         Assert.Equal(2, Load(state));
 
-        Dip(630, planner.Rect.W, W);
-        Dip(830, clock.Rect.X, W);
+        Dip(600, planner.Rect.W, W);
+        Dip(800, clock.Rect.X, W);
         Dip(200, clock.Rect.Y, H);
         Assert.Equal(planner.Rect.Right, clock.Rect.X, 9);
     }
@@ -77,20 +78,20 @@ public sealed class RefitJoinsTests
     [Fact]
     public void S14104_a_chain_of_three_stays_joined_when_two_of_them_shrink()
     {
-        // A forecast of 170 over facts of 140 (four rows of 30: 120) over a clock.
+        // A forecast of 170 over a single metric of 40 (its one row: 30, [S-14600]) over a clock.
         var forecast = Card("weatherForecast", 400, 300, 300, 170);
-        var facts = Card("cpuFacts", 400, 470, 300, 140);
-        var clock = Card("clock", 400, 610, 300, 130);
-        var state = State(forecast, facts, clock);
+        var metric = Card("cpuSpeed", 400, 470, 300, 40);
+        var clock = Card("clock", 400, 510, 300, 130);
+        var state = State(forecast, metric, clock);
 
         Load(state);
 
         Dip(150, forecast.Rect.H, H);
-        Dip(450, facts.Rect.Y, H);
-        Dip(120, facts.Rect.H, H);
-        Dip(570, clock.Rect.Y, H);
-        Assert.Equal(forecast.Rect.Bottom, facts.Rect.Y, 9);
-        Assert.Equal(facts.Rect.Bottom, clock.Rect.Y, 9);
+        Dip(450, metric.Rect.Y, H);
+        Dip(30, metric.Rect.H, H);
+        Dip(480, clock.Rect.Y, H);
+        Assert.Equal(forecast.Rect.Bottom, metric.Rect.Y, 9);
+        Assert.Equal(metric.Rect.Bottom, clock.Rect.Y, 9);
     }
 
     [Fact]

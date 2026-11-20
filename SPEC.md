@@ -4750,16 +4750,17 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   axis on its display's grid (`SizeFit.Limits`: the parts and the item counted in cells of the card's pitch,
   `SizeFit.Grid`, each step that many of the screen's lines), so on any pitch the card is exactly its parts and n whole
   items, and a resize lands only there (`AxisLimits.Range`, `Holds`; the config a resize stores counts the items its
-  cells hold, `SizeFit.ConfigFor`). Items that grow together (a month's weeks and days, the week planner's days) step
+  cells hold, `SizeFit.ConfigFor`). Items that grow together (a month's weeks and days) step
   by one cell for each of them (`SizeSteps.Growing`), the month with titles by a chip line in every week
   (`SizeSteps.Lined`). So: every kit list (`KitSizing.Steps`: its rows, a table's titles, the add row, a kind's own line
   over its rows, as the screen time apps' day), the single metrics' one row (`MetricRules.HeightSteps`, [S-14600]), the forecast's
   rows, the contacts (the search box and the titles one part), the habits' rows and add row, the mixer, the week
-  planner (a day's heading and its rows; its width a cell a day), the folder's list and table ([S-14102]) and the
+  planner (a day's heading and its rows; its width a day's column of whole cells a step, the days following it,
+  [S-14410]), the folder's list and table ([S-14102]) and the
   month ([S-14101]). Empty stated rows (a list with fewer items than its rows) still stand at the foot as rows ("this is
   fine if it happens"); a part row or leftover cells never do. Tests `NoLeftoverTests.S14100_` (Core: the steps on
   pitches 10, 9.974 and 8, every step whole items; a resize's config), the modules' `NoLeftoverTests.S14100_` (the
-  forecast at every day count and lines, tasks, a facts list, a ready-made group), `WidgetSizingTests`; renders judged by
+  forecast at every day count and lines, tasks, a single metric, a ready-made group), `WidgetSizingTests`; renders judged by
   `scripts/item-check.py` (its leftover rule and the `steps` size set, `SizeFit.CheckedSteps`).
 - **[S-14103]** **A loaded card is fitted to its steps** ([S-14100]): a card stored before its kind's steps were whole
   cells is painted fitted to them ([S-2446]) and, at the first refit on settled metrics after a start, its stored rect

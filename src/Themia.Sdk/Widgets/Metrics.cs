@@ -124,10 +124,12 @@ public static class MetricRules
     public static double RowHeight => ItemGrid.Default().Whole(FamilyShape.Row1);
 
     /// <summary>
-    /// [S-14600] The height's one step: the card is its one row (owner, 2026-11-20: "the individual weather facts like
-    /// pressure have a way to high height. the contents should also fit to the height"), never taller, so it hugs it.
+    /// [S-14600] [S-14100] The height's one step: the card is its one row (owner, 2026-11-20: "the individual weather facts
+    /// like pressure have a way to high height. the contents should also fit to the height"), never taller, so it hugs it;
+    /// the row whole grid cells of the card's own grid from its top edge to its foot edge (<see cref="SizeSteps.InCells"/>),
+    /// so on any pitch the card is exactly its row, no cell left over.
     /// </summary>
-    public static SizeSteps HeightSteps { get; } = new(0, RowHeight, 1, 1);
+    public static SizeSteps HeightSteps { get; } = SizeSteps.InCells(FamilyShape.Row1, 1, 1);
 
     /// <summary>[S-14600] The sizing of a single metric drawing no trend: 200..420 wide (relaxed), one row tall.</summary>
     public static WidgetSizing Sizing { get; } = SizingFor(MetricTrend.None);
