@@ -5503,6 +5503,13 @@ repaired to defaults and logged, never an upgrade. S-1050..S-1059.
 - **[S-1054]** *(Retired.)* `TokenExpiry.FromUnixSeconds` (the classic `expires_at`) and the
   "imported account" wording in [S-501], [S-505], [S-506], [S-509], [S-525]: removed. An untagged
   secret in `accounts.json` is still refused ([S-506]); that is validation, not a format to accept.
+- **[S-1055]** A value of a closed set (an enum) that names none of its members (a hand edit, a member renamed
+  or removed) is put back, before the typed read, to what a fresh object of its type holds there (left out where
+  that is none), loudly, one line each (`design.borderStyle: "wavy" names no value; using "Solid"`); the rest of
+  the file loads. The typed read would otherwise refuse the whole file over one word and start a default desktop.
+  The pass walks the serializer's own metadata (`StateDocument`), so every enum in the state is covered, a widget's
+  config's too, without a list; a property read by a converter of its own (a widget's style, a lenient list) is
+  left to it, and a number that is no member reads and is the repair's. Test `AppStateStoreTests.S1055_`.
 
 ## Colours, fonts and uninstall (the settings window, retired)
 

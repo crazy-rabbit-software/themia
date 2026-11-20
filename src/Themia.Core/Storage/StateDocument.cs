@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 using Themia.Core.Model;
 using Themia.Sdk;
 
@@ -84,6 +85,7 @@ public static class StateDocument
         var dropped = KindSplits.Replace(document);
         dropped.AddRange(DropUnknownKinds(document));
         dropped.AddRange(DropUnknownKeys(document));
+        dropped.AddRange(ReplaceUnknownNames(document));
 
         AppState? parsed;
         try
@@ -215,7 +217,7 @@ public static class StateDocument
             }
 
             var info = StateJson.Options.GetTypeInfo(descriptor.ConfigType);
-            if (info.Kind != System.Text.Json.Serialization.Metadata.JsonTypeInfoKind.Object || info.Properties.Any(p => p.IsExtensionData))
+            if (info.Kind != JsonTypeInfoKind.Object || info.Properties.Any(p => p.IsExtensionData))
             {
                 return null;
             }
@@ -225,8 +227,163 @@ public static class StateDocument
             return keys;
         }
 
-        static HashSet<string> Keys(System.Text.Json.Serialization.Metadata.JsonTypeInfo info)
+        static HashSet<string> Keys(JsonTypeInfo info)
             => new(info.Properties.Select(p => p.Name), StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// [S-1055] Put back, before the typed read, every value of a closed set (an enum) that names none of its members
+    /// (a hand edit, a member renamed or removed) with what a fresh object of its type holds there, loudly, one line
+    /// each. The typed read would otherwise refuse the whole document over one word, and the user would be handed a
+    /// default desktop. Walked by the serializer's own metadata, so every enum in the state (the design, the
+    /// preferences, a view bar, a widget, a widget's config) is covered without a list; a property read by a converter
+    /// of its own (a widget's style, a lenient list) is left to it. A number that is no member reads and is the repair's
+    /// (<see cref="StateRepair"/>). Runs after <see cref="DropUnknownKinds"/>: every config left names a kind of this build.
+    /// </summary>
+    private static List<string> ReplaceUnknownNames(JsonNode? document)
+    {
+        var replaced = new List<string>();
+        if (document is JsonObject root)
+        {
+            Names(root, StateJson.AppState, string.Empty, replaced);
+        }
+
+        return replaced;
+    }
+
+    private static void Names(JsonNode node, JsonTypeInfo info, string path, List<string> replaced)
+    {
+        switch (info.Kind)
+        {
+            case JsonTypeInfoKind.Object when node is JsonObject fields:
+                if (Derived(info, fields) is { } derived)
+                {
+                    Names(fields, derived, path, replaced);
+                    return;
+                }
+
+                object? fresh = null;
+                foreach (var property in info.Properties)
+                {
+                    if (property.CustomConverter is not null
+                        || !fields.TryGetPropertyValue(property.Name, out var value)
+                        || value is null
+                        || Of(property.PropertyType) is not { } type)
+                    {
+                        continue;
+                    }
+
+                    var at = path.Length == 0 ? property.Name : $"{path}.{property.Name}";
+                    if (!type.Type.IsEnum)
+                    {
+                        Names(value, type, at, replaced);
+                        continue;
+                    }
+
+                    if (Reads(value, type))
+                    {
+                        continue;
+                    }
+
+                    fresh ??= info.CreateObject?.Invoke();
+                    var fallback = fresh is null ? null : property.Get?.Invoke(fresh);
+                    if (fallback is null)
+                    {
+                        fields.Remove(property.Name);
+                        replaced.Add($"{at}: {value.ToJsonString()} names no value; left out");
+                    }
+                    else
+                    {
+                        var written = JsonSerializer.SerializeToNode(fallback, type);
+                        fields[property.Name] = written;
+                        replaced.Add($"{at}: {value.ToJsonString()} names no value; using {written?.ToJsonString()}");
+                    }
+                }
+
+                return;
+
+            case JsonTypeInfoKind.Enumerable when node is JsonArray items && Of(info.ElementType) is { } element:
+                for (var i = items.Count - 1; i >= 0; i--)
+                {
+                    if (items[i] is not { } item)
+                    {
+                        continue;
+                    }
+
+                    var at = $"{path}[{Name(item, i)}]";
+                    if (!element.Type.IsEnum)
+                    {
+                        Names(item, element, at, replaced);
+                    }
+                    else if (!Reads(item, element))
+                    {
+                        items.RemoveAt(i);
+                        replaced.Add($"{at}: {item.ToJsonString()} names no value; dropped");
+                    }
+                }
+
+                return;
+
+            case JsonTypeInfoKind.Dictionary when node is JsonObject entries && Of(info.ElementType) is { } element:
+                foreach (var (key, item) in entries.ToList())
+                {
+                    if (item is null)
+                    {
+                        continue;
+                    }
+
+                    var at = $"{path}[{key}]";
+                    if (!element.Type.IsEnum)
+                    {
+                        Names(item, element, at, replaced);
+                    }
+                    else if (!Reads(item, element))
+                    {
+                        entries.Remove(key);
+                        replaced.Add($"{at}: {item.ToJsonString()} names no value; dropped");
+                    }
+                }
+
+                return;
+        }
+
+        // The metadata of a type as the state's options hold it; a nullable enum is its enum. Null where the options have
+        // none, which the typed read would refuse on its own terms.
+        static JsonTypeInfo? Of(Type? type)
+            => type is not null && StateJson.Options.TryGetTypeInfo(Nullable.GetUnderlyingType(type) ?? type, out var found) ? found : null;
+
+        // The derived type a union's discriminator names, or null where the type is no union or names none.
+        static JsonTypeInfo? Derived(JsonTypeInfo info, JsonObject fields)
+        {
+            if (info.PolymorphismOptions is not { } union
+                || fields[union.TypeDiscriminatorPropertyName] is not JsonValue discriminator
+                || !discriminator.TryGetValue<string>(out var name))
+            {
+                return null;
+            }
+
+            var derived = union.DerivedTypes.FirstOrDefault(d => d.TypeDiscriminator is string id && string.Equals(id, name, StringComparison.Ordinal));
+            return derived.DerivedType is null || derived.DerivedType == info.Type ? null : Of(derived.DerivedType);
+        }
+
+        // An element's name in a line: its id where it has one (a view, a widget), else its place.
+        static string Name(JsonNode item, int index)
+            => item is JsonObject o && o["id"] is JsonValue id && id.TryGetValue<string>(out var text) ? text : index.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        // Whether the value reads as its type: the converter the typed read will use decides.
+        static bool Reads(JsonNode value, JsonTypeInfo type)
+        {
+            try
+            {
+                JsonSerializer.Deserialize(value, type);
+                return true;
+            }
+            catch (JsonException)
+            {
+                // ignore: a value its type cannot read is the answer asked for, not an error
+                return false;
+            }
+        }
     }
 
     /// <summary>

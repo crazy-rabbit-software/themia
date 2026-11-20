@@ -331,6 +331,57 @@ public sealed class AppStateStoreTests : IDisposable
     }
 
     /// <summary>
+    /// [S-1055] A hand-edited file whose closed sets hold words this build has no member for: the design's border, the
+    /// preferences' language, a view bar's position, a widget's alignment, a clock's offset.
+    /// </summary>
+    private const string UnknownNamesDocument = """
+        {
+          "schemaVersion": 1,
+          "activeViewId": "v",
+          "design": { "borderStyle": "wavy", "fontScale": 1.25 },
+          "preferences": { "language": "klingon", "lockWidgets": true },
+          "viewBars": { "A": { "anchor": "middle", "hidden": true } },
+          "views": [
+            {
+              "id": "v",
+              "name": "Desk",
+              "widgets": [
+                { "id": "c", "x": 0.1, "y": 0.1, "w": 0.2, "h": 0.2, "align": "diagonal", "config": { "kind": "clock" } },
+                { "id": "d", "x": 0.4, "y": 0.1, "w": 0.2, "h": 0.2, "config": { "kind": "clock", "offsetMode": "sideways" } }
+              ]
+            }
+          ]
+        }
+        """;
+
+    [Fact]
+    public void S1055_an_unknown_enum_name_is_its_default_loudly_and_the_rest_of_the_file_loads()
+    {
+        // Regression: one word a closed set does not have refused the whole file, and the user got a default desktop.
+        File.WriteAllText(_path, UnknownNamesDocument);
+
+        var result = new AppStateStore(_path).Load();
+
+        Assert.Equal(LoadOutcome.Loaded, result.Outcome);
+        var state = result.State;
+        Assert.Equal(["c", "d"], state.Views.Single().Widgets.Select(w => w.Id));
+        Assert.Equal(WidgetBorderStyle.Solid, state.Design.BorderStyle);
+        Assert.Equal(1.25, state.Design.FontScale);
+        Assert.Equal(AppLanguage.System, state.Preferences.Language);
+        Assert.True(state.Preferences.LockWidgets);
+        Assert.Equal(ViewBarAnchor.BottomLeft, state.ViewBars["A"].Anchor);
+        Assert.True(state.ViewBars["A"].Hidden);
+        Assert.Null(state.Views[0].Widgets[0].Align);
+        Assert.Equal(ClockOffsetMode.None, Assert.IsType<ClockConfig>(state.Views[0].Widgets[1].Config).OffsetMode);
+
+        var parsed = StateDocument.Parse(UnknownNamesDocument);
+        foreach (var word in new[] { "wavy", "klingon", "middle", "diagonal", "sideways" })
+        {
+            Assert.Single(parsed.Repairs, r => r.Contains($"\"{word}\"", StringComparison.Ordinal));
+        }
+    }
+
+    /// <summary>
     /// A hand-written state file from before the calculator and the containers were removed: one
     /// widget whose kind this build does not have, a group, and a clock that was inside the group.
     /// </summary>
