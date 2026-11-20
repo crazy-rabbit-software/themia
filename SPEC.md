@@ -8541,6 +8541,14 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   letter, not a band. The layout dump writes each text cut (`cuts`: `IsTextTrimmed`) and the gap check reads the end side
   of a card whose ink a cut text ends as on the inset. Was: the next meeting's title alone at 350x70
   ("Design review:...", the next word's letter and the ellipsis not fitting) stood 39 from the end and was "off centre".
+- **[S-14305]** **A tile's and a one-line face's sides are judged** (docs/WIDGET-RULES.md, Exemptions: tiles "The bands
+  over and under a tile's face are alike; nothing else of WR-1..WR-4 is relaxed"; a one-line face "whose one line grows
+  until the width stops it", only its leftover height shared). The gap check judged these kinds by their top and foot
+  alone and returned: their sides were never judged. Now a tile (quick toggles, power buttons) and a one-line face
+  (clock, date, header) have their bands over and under alike and their side bands within the inset as any card's; a
+  one-line face that fills the height instead stands across where its card's alignment puts it ([S-14301]). Which kinds
+  are tiles, one-line faces, graphs or pictures is read in one place (`classify` in `scripts/gap-check.py`), so a
+  catalog of the kinds' traits can replace the names there alone.
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day

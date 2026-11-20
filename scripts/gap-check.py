@@ -44,7 +44,10 @@ last row and column of ink (a pixel off the card's own colour), and judges:
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
 Windows' icon cell (not judged); a tile (quick toggles, power buttons) and a one-line face (clock, date, header) may
-stand centred: the bands over and under the face alike (within the tolerance), its sides as any card's; a reading (a card
+stand centred: the bands over and under the face alike (within the tolerance), and [S-14305] its sides judged as any
+card's (WR-3: each band beside it within the inset; tiles: "nothing else of WR-1..WR-4 is relaxed"); a one-line face
+that fills the height (its line grows until the height stops it) stands across where its card's alignment puts it, as
+a reading does ([S-14301]); a reading (a card
 with no item and no plot) whose ink reaches the edges of one axis may stand centred on the other ([S-14301], owner
 2026-11-20: "Centred is fine"): the two bands of that axis alike, not within the inset. Across, a reading that fills the
 height stands where its card's alignment puts it (the layout's `align`, [S-6583]: a kind that aligns in its style draws
@@ -91,8 +94,25 @@ GRAPHS = {'rainNextHour'}
 EDGE = 0.5  # DIP: layout rounding
 
 
+def classify(kind):
+    """[S-14305] The one place a kind's class is read, from its name: 'picture' and 'windows' (the owner's exemptions,
+    not judged), 'tile' and 'one-line' (centred down, judged across), 'graph' (its plot edge to edge) or 'card' (any
+    other). A catalog of the kinds' traits can stand in for it here alone."""
+    if kind in PICTURES:
+        return 'picture'
+    if kind in WINDOWS_LOOK:
+        return 'windows'
+    if TILE.search(kind) or kind in POWER:
+        return 'tile'
+    if kind in ONE_LINE:
+        return 'one-line'
+    if GRAPH.search(kind) or kind in GRAPHS:
+        return 'graph'
+    return 'card'
+
+
 def graph(kind):
-    return bool(GRAPH.search(kind)) or kind in GRAPHS
+    return classify(kind) == 'graph'
 
 
 def plot_box(layout):
@@ -111,10 +131,6 @@ def field_box(layout):
         return None
     return (min(f['x'] for f in fields), min(f['y'] for f in fields),
             max(f['x'] + f['w'] for f in fields), max(f['y'] + f['h'] for f in fields))
-
-
-def centred(kind):
-    return bool(TILE.search(kind)) or kind in POWER or kind in ONE_LINE
 
 
 def measure(path, layouts):
@@ -162,22 +178,26 @@ def judge(kind, card, layout):
     w, h, top, foot, left, right = card
     if top is None:
         return ['WR-10 nothing drawn']
-    if kind in PICTURES:
+    kind_class = classify(kind)
+    if kind_class in ('picture', 'windows'):
         return []
-    if kind in WINDOWS_LOOK:
-        return []
-    if centred(kind):
-        # Centred, as the owner granted: the bands over and under the face alike; the sides as any card's.
-        found = []
-        if abs(top - foot) > TOLERANCE:
-            found.append(f'centred face off centre {top:.1f}/{foot:.1f}')
-        return found
     found = []
     limit = INSET + TOLERANCE
     # [S-14304] A text cut to the width it was given that ends the content's ink: the room after it is the cut's.
     cw = (layout or {}).get('w', w)
     if any(c['x'] + c['w'] >= cw - right - TOLERANCE for c in (layout or {}).get('cuts', [])):
         right = min(right, INSET)
+    if kind_class in ('tile', 'one-line'):
+        # Centred, as the owner granted: the bands over and under the face alike. [S-14305] Its sides as any card's (tiles:
+        # "nothing else of WR-1..WR-4 is relaxed"); a one-line face that fills the height stands across where its
+        # alignment puts it, as a reading ([S-14301]).
+        if abs(top - foot) > TOLERANCE:
+            found.append(f'centred face off centre {top:.1f}/{foot:.1f}')
+        if left <= limit and right <= limit:
+            return found
+        if kind_class == 'one-line' and top <= limit and foot <= limit:
+            return found + across(left, right, (layout or {}).get('align', 'center'), limit)
+        return found + [f'WR-3 sides {left:.1f}/{right:.1f}']
     items = (layout or {}).get('items', [])
     on_top = any(i['y'] <= 0.5 for i in items)
     # [S-6754] A graph's plot reaches every edge of its card; where it does, it is the card's top and foot.
@@ -305,10 +325,18 @@ def self_test():
         ('a cut line under a wider one', card(350, 70, 12, 12, 15.3, 39.3, cuts=[{'x': 12, 'y': 0, 'w': 200, 'h': 56}]), [], True),
         ('a short title, not cut', card(350, 70, 12, 12, 15.3, 39.3), [], True),
         ('an editor short of the foot', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 400}]), [], True),
+        # [S-14305] A tile and a one-line face: centred down, their sides judged as any card's.
+        ('a tile centred both ways', card(100, 100, 30, 30, 30, 30), ['wifiToggle'], True),
+        ('a tile whose face fills its width', card(160, 100, 30, 31, 12, 12), ['wifiToggle'], False),
+        ('a clock line the width stops', card(600, 200, 50, 51, 12, 13), ['clock'], False),
+        ('a clock line the height stops, centred', card(900, 160, 12, 12, 200, 201, align='center'), ['clock'], False),
+        ('a clock line the height stops, aligned left but centred', card(900, 160, 12, 12, 200, 201, align='left'), ['clock'], True),
+        ('a short date line in a wide card', card(600, 200, 50, 50, 150, 150), ['date'], True),
     ]
     failed = 0
-    for name, (measured, layout), _, finds in cases:
-        found = judge('cpuHistory' if layout['plots'] else 'notes' if layout.get('fields') else 'recycleBin', measured, layout)
+    for name, (measured, layout), kinds, finds in cases:
+        kind = kinds[0] if kinds else 'cpuHistory' if layout['plots'] else 'notes' if layout.get('fields') else 'recycleBin'
+        found = judge(kind, measured, layout)
         if bool(found) != finds:
             failed += 1
             print(f'FAIL {name}: {found}')
