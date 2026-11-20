@@ -24,14 +24,21 @@ public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Colu
     /// <summary>[S-14500] How the rows share the room: each one's edges on whole device pixels; none before the card is measured.</summary>
     public RowReach Reach { get; init; }
 
-    /// <summary>
-    /// [S-14500] Row <paramref name="index"/>'s height: its share of the room on whole device pixels (<see cref="RowReach.Height"/>),
-    /// so the rows shown end exactly on the room's end and none peeks in under them; the pitch before it is laid.
-    /// </summary>
-    public double RowAt(int index) => Reach.Pitch > 0 ? Reach.Height(index) : Pitch;
+    /// <summary>[S-13950] The lines of the room over the list's first row: the search line that takes the first line, else none.</summary>
+    public int First { get; init; }
 
-    /// <summary>[S-14500] The length <paramref name="count"/> rows take from the first: as <see cref="RowAt"/> lays them.</summary>
-    public double Span(int count) => count <= 0 ? 0 : Reach.Pitch > 0 ? Reach.Start(count) : count * Pitch;
+    /// <summary>
+    /// [S-14500] Row <paramref name="index"/>'s height: its share of the room on whole device pixels (<see cref="RowReach.Height"/>,
+    /// counted past <see cref="First"/>), so the rows shown end exactly on the room's end and none peeks in under them; the
+    /// pitch before it is laid.
+    /// </summary>
+    public double RowAt(int index) => Reach.Pitch > 0 ? Reach.Height(index + First) : Pitch;
+
+    /// <summary>[S-14500] Where the list's first row starts down the room: under the <see cref="First"/> lines over it.</summary>
+    public double Top => Reach.Pitch > 0 ? Reach.Start(First) : First * Pitch;
+
+    /// <summary>[S-14500] The length <paramref name="count"/> rows take from the list's first: as <see cref="RowAt"/> lays them.</summary>
+    public double Span(int count) => count <= 0 ? 0 : Reach.Pitch > 0 ? Reach.Start(count + First) - Reach.Start(First) : count * Pitch;
 }
 
 /// <summary>

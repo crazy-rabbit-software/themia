@@ -597,7 +597,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             }
 
             // [S-12834] A card whose room holds one line has none left under the line: no row is cut by its foot (WR-6).
-            plan = plan with { Rows = Math.Max(0, plan.Rows - 1) };
+            plan = plan with { Rows = Math.Max(0, plan.Rows - 1), First = 1 };
         }
 
         // [S-12834] WR-6: no more rows than the card holds whole under what stands over them (the field, the line).
@@ -615,7 +615,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             {
                 SetRow(_state, 2);
                 SetRowSpan(_state, 1);
-                _state.Margin = line ? new Thickness(0, plan.RowAt(0), 0, 0) : default;
+                _state.Margin = line ? new Thickness(0, plan.Top, 0, 0) : default;
             }
 
             _state.Show((_contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
@@ -641,7 +641,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         // [S-12815] Without a field over it the list stands on the card's top edge; [S-13950] under the line, one line
         // down: each row stands where it stood.
-        _scroll.Margin = showSearch ? default : ListEdge.Margin with { Top = ListEdge.Margin.Top + (line ? plan.RowAt(0) : 0) };
+        _scroll.Margin = showSearch ? default : ListEdge.Margin with { Top = ListEdge.Margin.Top + (line ? plan.Top : 0) };
 
         if (_selectedId is { } id)
         {

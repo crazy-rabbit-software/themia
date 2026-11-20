@@ -51,5 +51,13 @@ public sealed class ContactsPitchTests
         Assert.Equal(plan.Reach.Room, span, 6);
         Assert.Equal(span, plan.Span(plan.Rows), 6);
         Assert.All(Enumerable.Range(0, plan.Rows), i => Assert.Equal(Math.Round(plan.RowAt(i) * 1.5), plan.RowAt(i) * 1.5, 6));
+
+        // [S-13950] Under the search line, which takes the first line, the rows keep their places and still end on the room's
+        // end (a card 250 tall ran the last 0.33 past its foot, laid from the room's start).
+        var whole = ContactsPlan.Of(new WidgetArea(300, 238), new ContactsConfig { Layout = ContactsLayout.List, Lines = 2, Rows = 5, SearchBox = false }, 1.5);
+        var open = whole with { Rows = whole.Rows - 1, First = 1 };
+        Assert.Equal(open.Reach.Height(0), open.Top, 6);
+        Assert.Equal(open.Reach.Room, open.Top + open.Span(open.Rows), 6);
+        Assert.Equal(open.Reach.Height(1), open.RowAt(0), 6);
     }
 }
