@@ -30,7 +30,9 @@ last row and column of ink (a pixel off the card's own colour), and judges:
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
 Windows' icon cell (not judged); a tile (quick toggles, power buttons) and a one-line face (clock, date, header) may
-stand centred: the bands over and under the face alike (within the tolerance), its sides as any card's. Every render runs
+stand centred: the bands over and under the face alike (within the tolerance), its sides as any card's; a reading (a card
+with no item and no plot) whose ink reaches the edges of one axis may stand centred on the other ([S-14301], owner
+2026-11-20: "Centred is fine"): the two bands of that axis alike, not within the inset. Every render runs
 under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix), <out>/gaps.json and
 <out>/findings.txt; exits 1 on any finding.
 """
@@ -182,6 +184,15 @@ def judge(kind, card, layout):
         if l > EDGE or r < cw - EDGE or t > top_edge or b < ch - EDGE:
             found.append(f'plot not edge to edge {l:.1f}..{r:.1f} x {t:.1f}..{b:.1f} of {cw:.0f}x{ch:.0f}')
         plot_top, plot_foot = t <= top_edge, b >= ch - EDGE
+    # [S-14301] A reading (no item, no plot) that fills one axis stands centred on the other (owner, 2026-11-20:
+    # "Centred is fine"): that axis's bands alike, not within the inset.
+    if not items and plot is None:
+        tall = top <= limit and foot <= limit
+        wide = left <= limit and right <= limit
+        if tall and not wide:
+            return found + ([] if abs(left - right) <= TOLERANCE else [f'reading off centre sides {left:.1f}/{right:.1f}'])
+        if wide and not tall:
+            return found + ([] if abs(top - foot) <= TOLERANCE else [f'reading off centre top/foot {top:.1f}/{foot:.1f}'])
     if top > limit and not on_top and not plot_top:
         found.append(f'WR-1 top {top:.1f}')
     # Under a card's items the room left is theirs: whole cells and empty stated rows at the foot (WR-5), judged by

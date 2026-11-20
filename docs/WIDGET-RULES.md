@@ -82,6 +82,11 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   is relaxed.
 - **A one-line face may stand centred.** 2026-11-19, asked about clock, date and the Header widget, whose one line grows
   until the width stops it: "Centred is fine". The leftover height is shared alike over and under the line.
+- **A reading that fills one side may stand centred on the other.** 2026-11-20, asked whether a reading and its caption
+  that fill the card's height but not its width (or the reverse) may stand centred like the clock, or the widget should
+  rearrange to fill (the caption beside the reading): "Centred is fine". The block grows until one axis stops it, and
+  WR-1..WR-4 hold on that axis; the leftover on the other axis is shared alike on both sides. Lists, graphs and items
+  are not relaxed.
 - **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
   Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
 

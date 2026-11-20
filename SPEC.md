@@ -8241,6 +8241,13 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   with its own layout entry: it never finds cards by their alpha, which merged a size label over a card into its top
   rows and skipped a card under 20 px (a quick toggle's least, 10x10), so every later card was judged with the layout
   of the one before it (126 "centred face off centre" findings on tiles that were centred).
+- **[S-14301]** **A reading fills one axis and stands centred on the other** (owner, 2026-11-20, asked whether a reading
+  and its caption that fill the card's height but not its width, or the reverse, may stand centred like the clock or the
+  widget should rearrange to fill: "Centred is fine"; docs/WIDGET-RULES.md, Exemptions). Its block grows as one until
+  one axis stops it ([S-12808]); the leftover on the other axis is shared alike on both sides, never put between its
+  parts (WR-7). The gap check judges a card with no item and no plot whose ink reaches both edges of one axis (each band
+  within the inset and the tolerance) by the other axis's two bands being alike (within the tolerance); a reading that
+  reaches neither axis is still a finding, and lists, graphs and items are not relaxed.
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day
