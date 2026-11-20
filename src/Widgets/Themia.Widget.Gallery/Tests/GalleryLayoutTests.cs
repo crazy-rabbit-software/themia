@@ -174,8 +174,10 @@ public class GalleryLayoutTests
         var area = new WidgetArea(width, height);
 
         Assert.Equal((6, 3, 2), (GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Pictures, GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Columns, GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Rows));
-        Assert.Equal(6, GalleryPlan.For(area, Of(GalleryStyle.Scatter), 24).Pictures);
-        Assert.Equal(6, GalleryPlan.For(area, Of(GalleryStyle.Mosaic), 24).Pictures);
+
+        // [S-14410] The scatter's and the mosaic's pictures are what their box holds (S11207_S14410_), never a setting.
+        Assert.Equal(GalleryPlan.ShownIn(area), GalleryPlan.For(area, Of(GalleryStyle.Scatter), 24).Pictures);
+        Assert.Equal(GalleryPlan.ShownIn(area), GalleryPlan.For(area, Of(GalleryStyle.Mosaic), 24).Pictures);
 
         var slide = GalleryPlan.For(area, Of(GalleryStyle.Slideshow), 24);
         Assert.True(slide.Controls, tier);
@@ -198,8 +200,19 @@ public class GalleryLayoutTests
         Assert.Equal(GalleryMode.Single, GalleryPlan.For(area, file, 1).Mode);
         Assert.Equal(GalleryMode.Single, GalleryPlan.For(area, Of(GalleryStyle.Mosaic), 1).Mode);
         Assert.Equal(3, GalleryPlan.For(area, Of(GalleryStyle.Grid), 3).Pictures);
-        Assert.Equal(12, GalleryPlan.For(area, new GalleryConfig { Style = GalleryStyle.Scatter, Shown = 40 }, 24).Pictures);
+        Assert.Equal(6, GalleryPlan.For(area, new GalleryConfig { Style = GalleryStyle.Scatter }, 24).Pictures);
+        Assert.Equal(12, GalleryPlan.For(new WidgetArea(800, 600), new GalleryConfig { Style = GalleryStyle.Scatter }, 24).Pictures);
     }
+
+    [Theory]
+    [InlineData(320, 240, 6)]
+    [InlineData(160, 120, 1)]
+    [InlineData(200, 200, 4)]
+    [InlineData(420, 240, 8)]
+    [InlineData(800, 600, 12)]
+    [InlineData(20, 20, 1)]
+    public void S11207_S14410_a_scatter_and_a_mosaic_show_as_many_pictures_as_their_box_holds(double width, double height, int pictures)
+        => Assert.Equal(pictures, GalleryPlan.ShownIn(new WidgetArea(width, height)));
 
     [Fact]
     public void S11207_the_grid_is_its_cells_and_the_other_layouts_a_free_range()

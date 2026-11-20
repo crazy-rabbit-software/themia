@@ -805,7 +805,6 @@
             "maxImages": 24,
             "columns": 3,
             "rows": 2,
-            "shown": 6,
             "rotation": 0,
             "outline": false,
             "outlineColor": "#FFFFFF",

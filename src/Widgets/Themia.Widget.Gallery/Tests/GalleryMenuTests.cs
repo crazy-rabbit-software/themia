@@ -28,13 +28,13 @@ public sealed class GalleryMenuTests
         Assert.Equal(
             [GalleryStr.WidgetsB_Settings_Gallery_Slide_Label.Text(), GalleryStr.WidgetsB_Settings_Gallery_Fit_Label.Text()],
             Build(new GalleryConfig { Style = GalleryStyle.Slideshow }).StyleLines.Select(l => l.Text));
-        Assert.Equal([GalleryStr.Gallery_Shown.Text()], Build(new GalleryConfig { Style = GalleryStyle.Mosaic }).StyleLines.Select(l => l.Text));
+        Assert.Empty(Build(new GalleryConfig { Style = GalleryStyle.Mosaic }).StyleLines);
     }
 
     [Fact]
-    public void S11207_the_grid_offers_its_columns_and_rows_under_style_never_a_cell_size()
+    public void S11207_the_grid_offers_its_rows_under_style_never_its_columns_or_a_cell_size()
         => Assert.Equal(
-            [GalleryStr.WidgetsB_Settings_Gallery_Fit_Label.Text(), GalleryStr.Gallery_Columns.Text(), Str.Kit_Rows.Text()],
+            [GalleryStr.WidgetsB_Settings_Gallery_Fit_Label.Text(), Str.Kit_Rows.Text()],
             Build(new GalleryConfig { Style = GalleryStyle.Grid }).StyleLines.Select(l => l.Text));
 
     [Fact]

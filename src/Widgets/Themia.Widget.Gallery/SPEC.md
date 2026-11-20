@@ -49,12 +49,14 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
 - **[S-11207]** Converted to the sizing ([S-2438]), headerless by default: **Grid** (a folder's) is its
   cells of 96 (no Cell size since 2026-11-20, owner: "the size should not be settable, it is set by the size of the
-  widget", [S-2449] retired): Columns and Rows (1..6 each) under Style, each axis stepped by a cell and following its
-  count (dragging an edge sets Columns or Rows,
-  `GalleryPlan.SizeSets`); a new one 296 × 196. **Slideshow**, **Scatter**, **Mosaic** and a single
+  widget", [S-2449] retired): Columns and Rows (1..6 each), each axis stepped by a cell and following its count
+  (dragging an edge sets Columns or Rows, `GalleryPlan.SizeSets`); Rows is its Style line, Columns the card's alone
+  ([S-14410]: no line); a new one 296 × 196. **Slideshow**, **Scatter**, **Mosaic** and a single
   picture (a file, the photo of the day) keep a free range, 160..800 × 120..600 (a new one 320 × 240);
-  the picture fills it. Scatter and Mosaic show **Pictures shown** (1..12, a new one 6), never more
-  as the card grows. The tile-per-120-DIP grid, the prints per area and the counter and hover bar from
+  the picture fills it. Scatter and Mosaic show as many pictures as their card holds in 96 cells and their 4
+  (`GalleryPlan.ShownIn`, 1..12, a new one six; owner, 2026-11-20: "Anything that's just 'how many of the same
+  item' (days, hours, weeks, processes) follows the card's size", [S-14410]: the Pictures shown line is gone).
+  Tests `GalleryLayoutTests.S11207_S14410_`. The tile-per-120-DIP grid, the prints per area and the counter and hover bar from
   Regular width are gone (`GridCapacity`, `ScatterCapacity`, `MosaicCapacity`). It stays in the app;
   the owner asked that it is not in the store pictures.
 - **[S-768]** *(Retired: no "up next" thumbnails to tap, [S-767]. Home / End and the arrows still

@@ -44,7 +44,7 @@ public sealed record GalleryPlan(
     /// [S-11207] The plan for <paramref name="config"/> with <paramref name="available"/> pictures in
     /// <paramref name="area"/> (the view's slot): a picture file or the photo of the day is one still
     /// picture; the slideshow one at a time with its counter and its hover bar; the grid its Columns ×
-    /// Rows cells; the scatter and the mosaic as many pictures as Pictures shown says. Fewer pictures than
+    /// Rows cells; the scatter and the mosaic as many pictures as their box holds (<see cref="ShownIn"/>). Fewer pictures than
     /// that show what there is; one alone is that picture, full-bleed.
     /// </summary>
     public static GalleryPlan For(WidgetArea area, GalleryConfig config, int available)
@@ -62,8 +62,8 @@ public sealed record GalleryPlan(
                 Columns = config.EffectiveColumns,
                 Rows = config.EffectiveRows,
             },
-            GalleryStyle.Scatter => Many(GalleryMode.Scatter, config.EffectiveShown, area, available),
-            GalleryStyle.Mosaic => Many(GalleryMode.Mosaic, config.EffectiveShown, area, available),
+            GalleryStyle.Scatter => Many(GalleryMode.Scatter, ShownIn(area), area, available),
+            GalleryStyle.Mosaic => Many(GalleryMode.Mosaic, ShownIn(area), area, available),
             _ => new GalleryPlan(GalleryMode.Slideshow, 1, true, area.Width, area.Height),
         };
     }
@@ -80,6 +80,18 @@ public sealed record GalleryPlan(
 
     /// <summary>[S-11207] A grid cell's side: 96 (no Cell size setting, [S-2449] retired).</summary>
     public const double CellSide = 3 * FamilyShape.IconLarge;
+
+    /// <summary>
+    /// [S-11207] [S-14410] How many pictures a scatter or a mosaic shows in <paramref name="area"/>: as many grid cells
+    /// (96 and the gap) as its width and height hold, 1..<see cref="GalleryConfig.MaxShown"/>. The card's, never a setting
+    /// (owner, 2026-11-20: "Anything that's just 'how many of the same item' ... follows the card's size"): a new one
+    /// (320 × 240) six.
+    /// </summary>
+    public static int ShownIn(WidgetArea area)
+    {
+        static int Along(double length) => double.IsFinite(length) ? (int)Math.Floor((length + Gap + LayoutMath.Tolerance) / (CellSide + Gap)) : 0;
+        return Math.Clamp(Math.Max(1, Along(area.Width)) * Math.Max(1, Along(area.Height)), 1, GalleryConfig.MaxShown);
+    }
 
     /// <summary>[S-11207] The gap between grid cells.</summary>
     public const double Gap = FamilySpace.S1;

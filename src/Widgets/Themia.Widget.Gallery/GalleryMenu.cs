@@ -45,17 +45,11 @@ internal static class GalleryMenu
                 config.Fit, value => config.Fit = value));
         }
 
-        // [S-11207] What the layout shows is set: the grid's columns and rows, the scatter's and the mosaic's count. Its
-        // cells' size is not ([S-2449] retired): a cell is 96, the card's size is the user's.
+        // [S-11207] The grid's rows are set (they decide its natural height). [S-14410] Its columns, the scatter's and the
+        // mosaic's pictures and its cells' size are the card's ([S-2449] retired): no line sets them.
         if (config.Offers(GallerySetting.Cells))
         {
-            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Columns.Text(), config.EffectiveColumns, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, n => Str.Kit_UnitColumns.Plural(n), v => config.Columns = v));
             menu.StyleLines.Add(menu.Number(null, Str.Kit_Rows.Text(), config.EffectiveRows, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, KitMenuLines.Rows, v => config.Rows = v));
-        }
-
-        if (config.Offers(GallerySetting.Shown))
-        {
-            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Shown.Text(), config.EffectiveShown, 1, GalleryConfig.MaxShown, 1, KitMenuLines.Items, v => config.Shown = v));
         }
 
         var lines = menu.Lines;

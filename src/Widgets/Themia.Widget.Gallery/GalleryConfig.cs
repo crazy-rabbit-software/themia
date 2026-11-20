@@ -54,11 +54,8 @@ public enum GallerySetting
     OutlineWidth,
     Count,
 
-    /// <summary>[S-11207] The grid's columns, rows and cell size.</summary>
+    /// <summary>[S-11207] The grid's rows (its columns are the card's width, [S-14410]).</summary>
     Cells,
-
-    /// <summary>[S-11207] How many pictures the scatter and the mosaic show.</summary>
-    Shown,
     Shuffle,
     OpenFolder,
 }
@@ -156,15 +153,13 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
 
     public const int MaxCells = 6;
 
-    /// <summary>[S-11207] The grid's columns; its width follows them.</summary>
+    /// <summary>[S-11207] [S-14410] The grid's columns; its width follows them, and a resize sets them (no line).</summary>
     public int Columns { get; set; } = 3;
 
     /// <summary>[S-11207] The grid's rows; its height follows them.</summary>
     public int Rows { get; set; } = 2;
 
-    /// <summary>[S-11207] How many pictures the scatter and the mosaic show, 1..<see cref="MaxShown"/>.</summary>
-    public int Shown { get; set; } = 6;
-
+    /// <summary>[S-11207] [S-14410] The most pictures the scatter and the mosaic show: as many as their card holds (<see cref="GalleryPlan.ShownIn"/>).</summary>
     public const int MaxShown = 12;
 
     [JsonIgnore]
@@ -173,8 +168,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     [JsonIgnore]
     public int EffectiveRows => Math.Clamp(Rows, MinCells, MaxCells);
 
-    [JsonIgnore]
-    public int EffectiveShown => Math.Clamp(Shown, 1, MaxShown);
 
     /// <summary>[S-774] One picture turned by this many degrees (any whole number; read through <see cref="EffectiveRotation"/>).</summary>
     public int Rotation { get; set; }
@@ -238,11 +231,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
                     if (Style == GalleryStyle.Grid)
                     {
                         shown.Add(GallerySetting.Cells);
-                    }
-
-                    if (Style is GalleryStyle.Scatter or GalleryStyle.Mosaic)
-                    {
-                        shown.Add(GallerySetting.Shown);
                     }
 
                     shown.Add(GallerySetting.Count);
@@ -311,6 +299,5 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         OutlineWidth = OutlineWidth,
         Columns = Columns,
         Rows = Rows,
-        Shown = Shown,
     };
 }
