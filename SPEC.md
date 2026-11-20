@@ -1105,11 +1105,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   every part secondary; **unavailable** every part disabled; **critical** (a power button armed, or
   its last run failed) the glyph, the text and the ring in Critical, nothing filled: the tile shows
   its state itself, never a Status row (DECISIONS 4). The lines are planned whether or not they say
-  anything now (a reading not answered has an empty state line), so a change of state moves nothing.
+  anything now (a reading not answered says "--" on its state line, [S-14202]), so a change of state keeps the face's
+  size; the face stands centred on its ink ([S-14201]).
   The owner keeps the whole tile as its hit target and tells the block the pointer (`Face`): the item
   layer's hover and press, or over the accent the subtle fills laid on it. A **ringed** tile keeps
   its glyph inside its ring, at the largest family glyph size within three quarters of the step
-  (`TileRules.RingGlyph`), so the arm ring shows without moving anything; the ring is the Chart's
+  (`TileRules.RingGlyph`), so the arm ring shows without the glyph changing size (the face, centred on its ink, takes
+  the ring in, [S-14201]); the ring is the Chart's
   (`ChartRing`, stroke 2 over its track) and drains on the compositor (`ChartRing.Drain`: one linear
   animation of the arc's end over the time left, nothing on the UI thread, [S-1913]). The **switch**
   look is a row: [glyph 16] 8 [name over state] 12 [Windows' toggle switch, 40 wide, drawn and
@@ -5560,7 +5562,7 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   its ring's room (the ring on the step its box holds, [S-11882], the icon the largest family glyph
   size within three quarters of it), the name under it (cut with an ellipsis where it does not fit,
   whole in the tooltip), no state line, in the card's inset of 12. The armed sentence and a failure
-  take the name's line, so arming moves nothing.
+  take the name's line (wrapping as the name does), the face centred on its ink in every state ([S-14201]).
 - **[S-1913]** Shut down, restart, sign out and hibernate arm on the first click: the icon, a draining
   ring round it and the name's line turn critical, and the line becomes "Click again to shut down"
   (one Body line, cut where it does not fit; the tooltip carries it whole); the tile itself takes no
@@ -8312,6 +8314,36 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   letters leave (`LineInk.FaceSide`, 0.034; a placeholder's dashes `LineInk.FaceDashSide`, 0.06), so it never reaches
   past its ink. The fit's one DIP of room over its parts' width ([S-12814], `BlockFit.WidthSlack`) stays: a part laid
   at exactly its width would be trimmed by layout rounding; drawn, it is the block's scale in DIPs at its end.
+- **[S-14200]** **A face stands on its ink as drawn** (docs/WIDGET-RULES.md, the exemptions: a tile's face and a one-line
+  face "Centred is fine", the bands over and under it alike). Where a text's or a glyph's ink stands in its box is
+  measured on the font, as the text is laid out (`InkMeter`, the host's DirectWrite meter `InkMeasure` installed at
+  start: the font, size, weight, block line height with its baseline where XAML puts it (the font's ascent's share of its
+  own line, 0.81 for Segoe UI Variable: the model's 0.8 put a large clock's figures 2 to 4 DIP off), the width it wraps
+  at and its tracking; the room over the first ink and under the last off the layout's overhang, fallback fonts
+  included), never
+  the family's model of capitals on the baseline (`LineInk.Of`), which missed a descender ("Friday, 20 November", "Sleep",
+  "Sign out": 0.23 of the size), the letters over the capitals and the figures' overshoot (the clock's "10:42", 0.03),
+  and a glyph's own room in its em box (Wi-Fi's arcs start an eighth under its top, its dot a sixth over its foot).
+  `PartInk` reads a family text and a glyph so (a glyph alone in a panel stands where its box does), and the Readout
+  block its value, unit and line under (`ReadoutBlock.Ink`). A line saying nothing yet, and a placeholder read as what it
+  stands for ([S-12813]), keep the model; without a meter (Core's tests) the model stands. Tests
+  `InkCentringTests.S14200_`.
+- **[S-14201]** **A tile's face is centred on its ink** (owner, 2026-11-19, of a quick toggle's or a power button's icon
+  and name: "Centred is fine"). The Tile block's face (the glyph, its circle or arm ring, the name and a toggle's state
+  line) stands in an `InkFit` at its own size (`Most` 1: never drawn larger than planned) in the tile's inset, so its
+  first ink (the glyph's top, the ring's, the circle's) and its last (the last line's baseline or descender) stand as far
+  from the top as from the foot; it stood centred by its box, 8 to 15 DIP more room over the glyph than under the words
+  (the Wi-Fi tile at 232: 52 over, 44 under). A face whose ink changes in a box of the same size (a sentence with a
+  descender for one without, the arm ring shown, "--" for "Off") is placed again (`InkFit` re-arranges when its face's
+  ink moved). Arming draws the ring round the glyph and the face takes it in, centred again. The clock's and the date's
+  faces are centred on their measured ink the same way where their width stops them ([S-12804], [S-12808]). Tests
+  `InkCentringTests.S14201_`; renders `--widget-png wifiToggle|lock|shutdown --state on|hover|armed --sizes range` and
+  `--sizes 600x200,520x600,900x300`, `scripts/gap-check.py --kinds` the twenty tiles, clock and date.
+- **[S-14202]** **A toggle not known yet says "--"** (docs/WIDGET-RULES.md WR-10: the face keeps "its reading as
+  '--'"): while Windows has not answered, the tile's state line shows the default (`QuickToggleRules.StateLine`,
+  `MetricRules.Default`) rather than nothing, so its face is the same block, centred on the same ink, before and after
+  the answer; the tooltip and the item status still say what is known. Test
+  `QuickToggleTests.S14202_`.
 - **[S-12834]** **What stands over a list is whole cells, and the rows start right under it** (owner, 2026-11-19,
   docs/WIDGET-RULES.md WR-1: "there should not be a space at the top"; WR-5: "Empty stated rows / leftover whole cells
   may stand at the foot; never above the first item, never between items"; WR-6: "Every repeated item is a whole number
@@ -9809,8 +9841,8 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 - **[S-3906]** The face is the Tile block ([S-6715]) in the card's inset of 12: the icon centred on the
   step its box holds ([S-11882]) above the name (Body) and the state line ("On", "Off",
   "Unavailable", Caption), both always (cut with an ellipsis where they do not fit, whole in the
-  tooltip). Both lines are planned whether or not they say anything (a reading not answered yet has
-  no state text), so switching moves nothing.
+  tooltip). Both lines are planned whether or not they say anything (a reading not answered yet says "--",
+  [S-14202]), so switching keeps the face's size; the face stands centred on its ink ([S-14201]).
 - **[S-11307]** *(Retired 2026-11-15 by [S-11882]: a quick toggle's and a power button's Size (Small, Medium,
   Large) and the fixed card it named are gone; the card is resized freely.)*
 - **[S-11312]** *(Retired 2026-11-15 by [S-11882]: the glyph alone is now what a box too small for the words
