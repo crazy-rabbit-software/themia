@@ -18,7 +18,18 @@ public static class ItemMark
     public static void Mark(FrameworkElement element)
     {
         ArgumentNullException.ThrowIfNull(element);
-        Items.AddOrUpdate(element, Marker);
+        if (Items.TryGetValue(element, out _))
+        {
+            return;
+        }
+
+        Items.Add(element, Marker);
+
+        // A plain XAML element's managed object may be collected and made anew while the element lives (a list's heading no
+        // view holds), and the new one is not the key this table holds: the item went unseen (tasks' done heading in a
+        // render of many cards read as a gap of a row). A handler of the element's own that holds it keeps that object for
+        // as long as the element lives.
+        element.Loaded += (_, _) => GC.KeepAlive(element);
     }
 
     /// <summary>Whether <paramref name="node"/> is an item.</summary>
