@@ -28,7 +28,7 @@ internal sealed partial class NotesView
     private TextBlock _pickerName = null!;
 
     /// <summary>The open rename box (the pill's flyout), or null.</summary>
-    private TextBox? _renaming;
+    private bool _renaming;
 
     /// <summary>[S-14268] A picture's note name (its sample's), with no pool to read one from.</summary>
     private string? _pictureName;
@@ -124,43 +124,19 @@ internal sealed partial class NotesView
             return;
         }
 
-        var box = new TextBox { Text = note.Title, MinWidth = NotesLayout.RenameWidth, PlaceholderText = NotesStr.Notes_NamePlaceholder.Text() };
-        // [S-1500] Its own popup, kept in the display's work area by the framework wherever the card sits.
-        var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
-        var cancelled = false;
-
-        box.KeyDown += (_, e) =>
-        {
-            if (e.Key is VirtualKey.Enter or VirtualKey.Escape)
-            {
-                e.Handled = true;
-                cancelled = e.Key == VirtualKey.Escape;
-                flyout.Hide();
-            }
-        };
-
-        flyout.Opened += (_, _) =>
-        {
-            _renaming = box;
-            UpdateKeyboard();
-            box.Focus(FocusState.Programmatic);
-            box.SelectAll();
-        };
-
-        flyout.Closed += (_, _) =>
-        {
-            if (!cancelled)
-            {
-                _pool?.Rename(id, box.Text);
-            }
-
-            _renaming = null;
-            UpdateKeyboard();
-            PillMenu(false);
-        };
-
         PillMenu(true);
-        flyout.ShowAt(_more);
+        RenameFlyout.Show(
+            _more,
+            note.Title,
+            NotesStr.Notes_NamePlaceholder.Text(),
+            NotesLayout.RenameWidth,
+            editing =>
+            {
+                _renaming = editing;
+                UpdateKeyboard();
+            },
+            name => _pool?.Rename(id, name),
+            () => PillMenu(false));
     }
 
     // -----------------------------------------------------------------------------------------

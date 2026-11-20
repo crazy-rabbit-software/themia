@@ -81,7 +81,7 @@ internal sealed partial class TasksView
     /// [S-808] Whether an editor is being typed into: a row's or the add row's box, or the list
     /// picker's. This is only the text box's share of the shell's keyboard lease.
     /// </summary>
-    private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_list.Editing || _renamingList is not null));
+    private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_list.Editing || _renamingList));
 
     /// <summary>
     /// [S-787] [S-808] A key from the shell's keyboard lease: the kit's list's one key map ([S-616]).

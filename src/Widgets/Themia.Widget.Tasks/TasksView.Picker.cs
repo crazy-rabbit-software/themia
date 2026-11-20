@@ -20,7 +20,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class TasksView
 {
-    private TextBox? _renamingList;
+    private bool _renamingList;
 
     /// <summary>
     /// [S-612] [S-12481] The list picker on the card menu: a line per other list to switch to, and Rename
@@ -111,43 +111,23 @@ internal sealed partial class TasksView
 
     /// <summary>Rename the shown list in a small box under the picker: Enter or leaving it commits, Escape does not.</summary>
     private void RenameInFlyout(string current)
-    {
-        var box = new TextBox { Text = current, MinWidth = RenameWidth, PlaceholderText = TasksStr.Todo_LocalLists_NamePlaceholder.Text() };
-        // [S-1500] Its own popup, kept in the display's work area by the framework wherever the card sits.
-        var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
-        var cancelled = false;
-
-        box.KeyDown += (_, e) =>
-        {
-            if (e.Key is VirtualKey.Enter or VirtualKey.Escape)
+        => RenameFlyout.Show(
+            this,
+            current,
+            TasksStr.Todo_LocalLists_NamePlaceholder.Text(),
+            RenameWidth,
+            editing =>
             {
-                e.Handled = true;
-                cancelled = e.Key == VirtualKey.Escape;
-                flyout.Hide();
-            }
-        };
-
-        flyout.Opened += (_, _) =>
-        {
-            _renamingList = box;
-            UpdateKeyboard();
-            box.Focus(FocusState.Programmatic);
-            box.SelectAll();
-        };
-
-        flyout.Closed += (_, _) =>
-        {
-            _renamingList = null;
-            UpdateKeyboard();
-
-            if (!cancelled && !_detached)
+                _renamingList = editing;
+                UpdateKeyboard();
+            },
+            name =>
             {
-                RenameShownList(box.Text);
-            }
-        };
-
-        flyout.ShowAt(this);
-    }
+                if (!_detached)
+                {
+                    RenameShownList(name);
+                }
+            });
 
     /// <summary>[S-614] A blank or unchanged name writes nothing; To Do's own lists and Today are never offered.</summary>
     private void RenameShownList(string typed)

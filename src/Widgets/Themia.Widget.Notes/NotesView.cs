@@ -511,7 +511,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     }
 
     /// <summary>Typing asks for the keyboard: the editor, and the pill's rename box.</summary>
-    private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_editorFocused || _renaming is not null));
+    private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_editorFocused || _renaming));
 
     private void OnSaveTick(DispatcherQueueTimer sender, object args) => Flush();
 
