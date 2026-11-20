@@ -135,6 +135,10 @@ internal static class PageRows
             {
                 Text = icon.Text,
                 Icon = IconOf(icon.Glyph, icon.GlyphColour),
+
+                // [S-14322] Folded, its head shows what it holds: the chosen icon, or the default's words.
+                Shows = IconOf(icon.Head.Glyph, icon.GlyphColour),
+                Value = icon.Head.Words,
                 Picker = () => new IconPicker(icon.Current, icon.DefaultName, icon.DefaultText, glyph =>
                 {
                     if (!string.Equals(glyph, icon.Current, StringComparison.Ordinal))
@@ -277,8 +281,9 @@ internal static class PageRows
                 Text = entry.Text,
                 Icon = icon,
 
-                // What holds said at its head's end where no glyph pictures it.
-                Value = pick.Current is null ? pick.NoneName : null,
+                // [S-14322] Folded, its head shows what it holds: the chosen icon, or the default's words.
+                Shows = IconOf(IconHead.Of(pick.Current, pick.NoneName, null).Glyph, null),
+                Value = IconHead.Of(pick.Current, pick.NoneName, null).Words,
                 Picker = () => new IconPicker(pick.Current, pick.NoneName, null, pick.Set),
                 Disabled = entry.Disabled,
             };

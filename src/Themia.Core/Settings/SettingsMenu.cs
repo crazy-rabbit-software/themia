@@ -223,7 +223,25 @@ public sealed record SettingsAsk(string Key, string Text, string? Glyph, string 
 /// Segoe Fluent glyph, its default cell <see cref="DefaultText"/> (a view's initials) named
 /// <see cref="DefaultName"/>. <see cref="Glyph"/> is the line's own glyph (the icon that holds).
 /// </summary>
-public sealed record SettingsIcon(string Key, string Text, string? Glyph, string? Current, string DefaultText, string DefaultName, Action<string?> Set) : SettingsLine(Key);
+public sealed record SettingsIcon(string Key, string Text, string? Glyph, string? Current, string DefaultText, string DefaultName, Action<string?> Set) : SettingsLine(Key)
+{
+    /// <summary>[S-14322] What its picker's head says it holds while folded (<see cref="IconHead.Of"/>).</summary>
+    public IconHead Head => IconHead.Of(Current, DefaultName, DefaultText);
+}
+
+/// <summary>
+/// [S-14322] What an icon picker's head shows it holds while folded (owner, 2026-11-21: "the icon in the icon selector
+/// configuration section does not show when it is not extended"), at the value's place as a choice's head says its
+/// choice: the chosen glyph (<see cref="Glyph"/>), or for the default its words as its cell in the picker says them
+/// (<see cref="Words"/>: "Initials (WK)", "Its own icon").
+/// </summary>
+public readonly record struct IconHead(string? Glyph, string? Words)
+{
+    /// <summary>The head of a picker holding <paramref name="current"/> (null: its default, named <paramref name="defaultName"/>, drawing <paramref name="defaultText"/>).</summary>
+    public static IconHead Of(string? current, string defaultName, string? defaultText)
+        => !string.IsNullOrEmpty(current) ? new IconHead(current, null)
+            : new IconHead(null, string.IsNullOrEmpty(defaultText) ? defaultName : $"{defaultName} ({defaultText})");
+}
 
 /// <summary>A command: a click does it, and the menu stays.</summary>
 public sealed record SettingsCommand(string Key, string Text, string? Glyph, Action Run) : SettingsLine(Key)

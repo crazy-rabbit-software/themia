@@ -125,6 +125,14 @@ internal sealed partial class PageView
             said = Said(value, expander ? FamilyType.Caption : FamilyType.Body);
         }
 
+        // [S-14322] What the picker holds pictured (an icon picker's chosen icon), as a choice's head says its choice.
+        if (!(open && expander) && row.Shows?.Invoke() is FrameworkElement shows)
+        {
+            shows.VerticalAlignment = VerticalAlignment.Center;
+            shows.Margin = said is not null ? new Thickness(0, 0, Fluent.Space2, 0) : tools.Count > 0 ? new Thickness(0, 0, P.Label, 0) : ToChevron;
+            end.Children.Add(shows);
+        }
+
         if (said is not null)
         {
             said.Margin = tools.Count > 0 ? new Thickness(0, 0, P.Label, 0) : ToChevron;
