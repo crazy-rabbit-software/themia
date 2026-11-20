@@ -23,6 +23,13 @@ public static class RecycleBinLayout
         CardWidth,
         FamilySpace.ContentTop + ReadoutRules.Height(FamilyType.Big28, Worst) + FamilySpace.S2 + FamilyShape.Button + FamilySpace.Inset);
 
+    /// <summary>
+    /// [S-12833] The bin's parts (<see cref="FaceParts"/>): the size its main reading, at 9 in its least card; its count,
+    /// its unit and the Empty row give way on the way down (Empty stays on the card's menu).
+    /// </summary>
+    public static FaceParts Face()
+        => FaceParts.Readout(FamilyType.Big28, Worst, CardWidth - (2 * FamilySpace.Inset)).Then(ControlsRules.Row(0));
+
     /// <summary>[S-4861] "12 items" / "Empty", in <paramref name="locale"/>; null before the first answer.</summary>
     public static string? CountText(Locale locale, RecycleBinState? state)
         => state switch

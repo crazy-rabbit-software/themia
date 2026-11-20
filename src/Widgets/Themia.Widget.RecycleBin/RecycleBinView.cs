@@ -54,7 +54,8 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
 
         // [S-12808] The size, its count and Empty: one block, planned at the natural box and scaled up as one.
         _fit.Parts.Add(_size);
-        _fit.Parts.Add(_controls);
+        _fit.AddGivesWay(_controls, ControlsRules.GivesWayAt);
+        _fit.Face = RecycleBinLayout.Face();
         Children.Add(_fit);
 
         // The whole tile is the way into the bin, as its icon on the desktop is.

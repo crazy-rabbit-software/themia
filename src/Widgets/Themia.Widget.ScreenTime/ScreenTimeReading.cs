@@ -27,6 +27,13 @@ public static class ScreenTimeReading
     /// <summary>The widest figure a reading holds, so its least width never cuts it: 888h 59m.</summary>
     public const double WorstSeconds = (888 * 3600) + (59 * 60);
 
+    /// <summary>
+    /// [S-12833] The reading's parts (<see cref="FaceParts"/>): the figure its main reading, at 9 in its least card; its line
+    /// under gives way on the way down. The day line over it is a row of whole cells and stays.
+    /// </summary>
+    public static FaceParts Face()
+        => FaceParts.Readout(FamilyType.Big28, new ReadoutText(ScreenTimeRules.FormatDuration(WorstSeconds), LineUnder: true), NaturalWidth - (2 * FamilySpace.Inset));
+
     /// <summary>[S-11500] The reading's sizing: its day line for a day ([S-454], [S-12803]), the 28's line and its line under, one height.</summary>
     public static WidgetSizing Sizing(ScreenTimePeriod period)
     {

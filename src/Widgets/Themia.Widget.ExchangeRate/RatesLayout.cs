@@ -21,6 +21,15 @@ public static class RatesLayout
     /// <summary>[S-6707] Whether the code is drawn and where the change stands, for a content <paramref name="width"/> wide.</summary>
     public static ReadoutFold Fold(ReadoutText rate, double width) => ReadoutRules.Fold(FamilyType.Big28, rate, WorstChange, width);
 
+    /// <summary>The widest rate the widget prints, and its quote's code after it.</summary>
+    public static readonly ReadoutText Worst = new("8,888.88", " XXX", LineUnder: true);
+
+    /// <summary>
+    /// [S-12833] The rate's parts (<see cref="FaceParts"/>): the rate its main reading, at 9 in its least card; its code,
+    /// its change and its line under give way on the way down.
+    /// </summary>
+    public static FaceParts Face() => FaceParts.Readout(FamilyType.Big28, Worst, 200 - (2 * FamilySpace.Inset));
+
     /// <summary>[S-11151] The rate's sizing.</summary>
     public static WidgetSizing Sizing()
     {

@@ -46,9 +46,9 @@ public sealed class RecycleBinTests
     {
         var sizing = ModuleCatalog.Of(new WidgetId("recycleBin")).SizingOf();
 
-        // [S-12833] One natural size; it scales down as one to its Caption's floor.
+        // [S-12833] One natural size; it scales down as one to its size's figures at 9 ("1023"), the rest giving way.
         Assert.Equal(new SizeDip(180, 12 + 36 + 16 + 8 + 28 + 12), sizing.Natural);
-        Assert.Equal(new SizeDip(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(180d * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize))), Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(sizing.Natural.Height * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize)))), sizing.Min);
+        Assert.Equal(new SizeDip(Math.Ceiling((Themia.Core.Widgets.HeroFit.Ems("1023") * 9) + 24), Themia.Sdk.WidgetSizing.LeastScaled), sizing.Min);
         Assert.Equal(new SizeDip(Themia.Sdk.SizeStretch.Ceiling, Themia.Sdk.SizeStretch.Ceiling), sizing.Max); // relaxed, [S-12411]: no practical Max
         Assert.Empty(sizing.Problems());
     }

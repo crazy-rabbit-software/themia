@@ -27,6 +27,17 @@ public static class DriveFace
     /// <summary>Under the ring: 8, then the space line (Body).</summary>
     public static double RingLine => FamilySpace.S2 + FamilyType.Body.LineHeight;
 
+    /// <summary>
+    /// [S-12833] The bar style's parts (<see cref="FaceParts"/>): the share its main reading, at 9 in its least card, with
+    /// the drive's icon before it and the bar under; its unit and space line give way on the way down. The ring is planned
+    /// in its box, its share at 28, and keeps the rule it had (its space line's floor): null.
+    /// </summary>
+    public static FaceParts? Face(DriveStyle style)
+        => style != DriveStyle.Bar ? null
+            : FaceParts.Readout(FamilyType.Big28, Worst with { LineUnder = true }, 200 - (2 * FamilySpace.Inset))
+                .Led(FacePiece.Box(FamilyType.Big28.LineHeight + FamilySpace.GlyphGap, FamilyType.Big28.LineHeight))
+                .Then(new FaceRow([FacePiece.Box(0, FamilyShape.Track)], GapOver: FamilySpace.S2));
+
     /// <summary>[S-4672] [S-6274] [S-11026] The reading's sizing in its style.</summary>
     public static WidgetSizing Sizing(DriveStyle style)
     {

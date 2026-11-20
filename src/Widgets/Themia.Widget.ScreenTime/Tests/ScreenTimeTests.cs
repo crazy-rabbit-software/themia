@@ -20,9 +20,10 @@ public sealed class ScreenTimeTests
         var sizing = Kind.Sizing(new ScreenTimeConfig());
         var height = FamilySpace.ContentTop + ScreenTimeReading.DayLine(ScreenTimePeriod.Week) + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;
         Assert.Equal(new SizeDip(200, height), sizing.Natural);
-        // [S-12833] It scales down as one to its Caption's floor: its least is its natural box at that scale.
-        Assert.Equal((Math.Min(160d, Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(200d * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize)))), Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(sizing.Natural.Height * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize))), sizing.Min.Height);
+        // [S-12833] It scales down as one to its figure at 9, its line under giving way; the day line stays.
+        var least = ScreenTimeReading.Face().LeastBox();
+        Assert.Equal((Math.Ceiling(least.Width + 24), Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+        Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(least.Height + 24 + ScreenTimeReading.DayLine(ScreenTimePeriod.Week))), sizing.Min.Height);
         Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
         Assert.Empty(sizing.Problems());
         Assert.Null(Kind.SizeSets);

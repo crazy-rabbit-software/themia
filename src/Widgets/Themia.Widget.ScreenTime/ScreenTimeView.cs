@@ -64,6 +64,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         SetRow(_fit, 1);
         Children.Add(_nav.Line);
         _fit.Parts.Add(_readout);
+        _fit.Face = ScreenTimeReading.Face();
         Children.Add(_fit);
     }
 

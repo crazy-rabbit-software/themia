@@ -57,6 +57,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
         _state.Visibility = Visibility.Collapsed;
 
         _fit.Parts.Add(_rate);
+        _fit.Face = RatesLayout.Face();
         Children.Add(_fit);
         Children.Add(_state);
         _mark.Place(this);

@@ -77,6 +77,10 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
 
         _fit.Parts.Add(_readout);
         _fit.Parts.Add(_month);
+
+        // [S-12833] The phase's name and the month's give way where the card would draw them under the floor.
+        _fit.GivesWay(_name, FamilyType.Under(FamilyType.Big28).FontSize);
+        _fit.GivesWay(_monthName, FamilyType.Caption.FontSize);
         Children.Add(_fit);
     }
 
@@ -99,6 +103,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as MoonConfig ?? new MoonConfig();
+        _fit.Face = MoonLayout.Face(_config);
 
         // One cadence for good: the config cannot change it, so subscribe once.
         _subscription ??= _ticker?.Subscribe(_config.TickInterval, Tick);

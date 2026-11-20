@@ -33,6 +33,28 @@ public static class MoonLayout
     /// <summary>[S-11121] The month's grid, its name over it: its width and height.</summary>
     public static SizeDip Month => new(Columns * Pitch, FamilyType.Caption.LineHeight + FamilySpace.S2 + (Rows * Pitch));
 
+    /// <summary>
+    /// [S-12833] The moon's parts (<see cref="FaceParts"/>). Disc: the share its main reading, at 9 in its least card, the
+    /// moon beside it; its unit and the phase's name give way on the way down. Phase month: its discs are its reading, at
+    /// their glyph floor (a 20 disc as 15 text, <see cref="ScaleFloor.AsText"/>); the month's name over them gives way.
+    /// </summary>
+    public static FaceParts Face(MoonConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Style == MoonStyle.PhaseMonth)
+        {
+            return new FaceParts(ScaleFloor.AsText(Disc),
+            [
+                new FaceRow([FacePiece.Text(FamilyType.Caption, Month.Width, FamilyType.Caption.FontSize)]),
+                new FaceRow([FacePiece.Box(Month.Width, Rows * Pitch)], GapOver: FamilySpace.S2),
+            ]);
+        }
+
+        var disc = FamilyType.Big28.FontSize + FamilySpace.GlyphGap;
+        return FaceParts.Readout(FamilyType.Big28, Worst() with { Lead = false }, 160 - (2 * FamilySpace.Inset) - disc)
+            .Led(FacePiece.Box(disc, FamilyType.Big28.LineHeight));
+    }
+
     /// <summary>[S-11121] The moon's sizing.</summary>
     public static WidgetSizing Sizing(MoonConfig config)
     {

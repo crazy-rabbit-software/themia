@@ -44,6 +44,9 @@ internal sealed partial class DriveView
         var ring = _config.Style == Core.Model.DriveStyle.Ring;
         _figure.Visibility = ring ? Visibility.Collapsed : Visibility.Visible;
 
+        // [S-12833] The bar's parts: in a smaller card its space line and unit give way, the share stays.
+        _fit.Face = DriveFace.Face(_config.Style);
+
         if (ring && _ringParts is null)
         {
             _ringParts = new RingParts();
