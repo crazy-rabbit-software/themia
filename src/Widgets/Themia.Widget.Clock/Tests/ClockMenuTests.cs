@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Clock.Tests;
 
-/// <summary>[S-1478] The Clock's options on its properties menu: what the style draws under Style, the zone as a search.</summary>
+/// <summary>[S-1478] The Clock's options on its page: what the style draws under Style, the zone as a search.</summary>
 public sealed class ClockMenuTests
 {
     private int _saves;
@@ -33,7 +33,7 @@ public sealed class ClockMenuTests
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
             zone => Assert.Empty(zone.Search!.Fixed),
-            // [S-3590] The 12- or 24-hour clock is ⚙'s: the clock just follows it, no link row ([S-3749]).
+            // [S-3590] The 12- or 24-hour clock is the settings': the clock just follows it, no link row ([S-3749]).
             offset => Assert.Equal(ClockStr.Clock_OffsetLabel.Text(), offset.Text));
     }
 
@@ -56,7 +56,7 @@ public sealed class ClockMenuTests
     [Fact]
     public void S6741_the_clock_has_no_text_size_of_its_own_its_line_is_its_steps()
     {
-        // [S-1476] retired: the line under the time follows the readout's step ([S-6701]); the text size is ⚙'s.
+        // [S-1476] retired: the line under the time follows the readout's step ([S-6701]); the text size is the settings'.
         Assert.Equal(
             [ClockStr.Clock_SecondsLabel.Text()],
             Build(new ClockConfig { Style = ClockStyle.Digital, TimeZoneId = "Asia/Tokyo" }).StyleLines.Select(l => l.Text));

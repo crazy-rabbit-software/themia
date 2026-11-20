@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.WeatherForecast.Tests;
 
-/// <summary>[S-6173] The forecast's options on its properties menu.</summary>
+/// <summary>[S-6173] The forecast's options on its page.</summary>
 public sealed class WeatherForecastMenuTests
 {
     private int _saves;

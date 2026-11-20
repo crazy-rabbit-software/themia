@@ -1,7 +1,7 @@
 namespace Themia.Sdk.WinUI;
 
 /// <summary>
-/// [S-6913] What a widget's properties menu lines ([S-3719]) read of the host: its local stores,
+/// [S-6913] What a widget's page lines ([S-3719]) read of the host: its local stores,
 /// the accounts and the launcher. A module's <c>MenuLines</c> is handed no <see cref="IWidgetHost"/>
 /// (the menu is the host's, not the card's), so the host installs the same ones here once at start,
 /// as it installs <see cref="DriveList"/>. A store is null while the host keeps none (a debug render).

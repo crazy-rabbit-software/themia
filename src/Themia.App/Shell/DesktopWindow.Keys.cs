@@ -34,7 +34,7 @@ internal sealed partial class DesktopWindow
             return false;
         }
 
-        // A key on the toolbar or a notice is that control's: arrows, Tab and Enter work its buttons.
+        // A key on the edit bar or a notice is that control's: arrows, Tab and Enter work its buttons.
         if (FocusOnChrome() && action.Command is EditCommand.Move or EditCommand.Resize or EditCommand.Cycle
             or EditCommand.FocusProperties or EditCommand.OpenMenu)
         {
@@ -284,13 +284,13 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1975] F6 walks the surface's panes: the widgets, the toolbar, the properties strip ([S-3707], while it shows), the edit bar's open menu ([S-3520]), the view bar (when it shows),
+    /// [S-1975] F6 walks the surface's panes: the widgets, the edit bar, its open flyout ([S-3520]), the view bar (when it shows),
     /// the notices (while there are any), and round again; Shift+F6 the other way. A pane lands on its first control; the widgets
     /// on the selected one, else the surface itself.
     /// </summary>
     private void SwitchPane(bool backwards)
     {
-        var panes = new List<FrameworkElement?> { null, _toolbar };
+        var panes = new List<FrameworkElement?> { null, _editBar };
         if (_flyout is { } flyout)
         {
             panes.Add(flyout);
@@ -331,7 +331,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1974] Enter: the keyboard goes into the selection's properties menu, on its first control,
+    /// [S-1974] Enter: the keyboard goes into the selection's page, on its first control,
     /// as F6 reaches it ([S-1975]); Escape there hands it back. Nothing while the menu is away (no
     /// selection on this display, a drag), so Enter goes on to whatever else takes it.
     /// </summary>
@@ -346,8 +346,8 @@ internal sealed partial class DesktopWindow
         return _flyout is { } flyout && FocusIsIn(flyout);
     }
 
-    /// <summary>Whether the keyboard is on the surface's chrome (the toolbar, the properties strip, the view bar, a notice) rather than the widgets.</summary>
-    private bool FocusOnChrome() => FocusIsIn(_toolbar) || (_flyout is { } flyout && FocusIsIn(flyout)) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
+    /// <summary>Whether the keyboard is on the surface's chrome (the edit bar, its open flyout, the view bar, a notice) rather than the widgets.</summary>
+    private bool FocusOnChrome() => FocusIsIn(_editBar) || (_flyout is { } flyout && FocusIsIn(flyout)) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
 
     /// <summary>Whether the focused element is <paramref name="container"/> or inside it.</summary>
     private bool FocusIsIn(DependencyObject container)

@@ -31,7 +31,7 @@ public enum CalendarStyle
     Year = 4,
 }
 
-/// <summary>[S-3601] A style's own line on the calendar's properties menu, beside the accounts and birthdays every style shows.</summary>
+/// <summary>[S-3601] A style's own line on the calendar's page, beside the accounts and birthdays every style shows.</summary>
 public enum CalendarSetting
 {
     /// <summary>[S-3637] Week: where the first column is.</summary>
@@ -167,7 +167,7 @@ public abstract class CalendarConfig : WidgetConfig, ISetupRule, IInterests
 
     /// <summary>
     /// [S-564] [S-3770] The week start the layout draws by: the shared regional setting
-    /// (⚙ › Language &amp; region, else Windows'), never the widget's own.
+    /// (settings › Language &amp; region, else Windows'), never the widget's own.
     /// </summary>
     [JsonIgnore]
     public WeekStartDay EffectiveWeekStart => Localization.RegionFormat.Current.WeekStart;

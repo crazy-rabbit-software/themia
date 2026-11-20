@@ -7,13 +7,13 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The location line the weather family's properties menus share (current conditions, forecast,
+/// The location line the weather family's pages share (current conditions, forecast,
 /// air quality, rain).
 /// </summary>
 public static class WeatherPlaceRows
 {
     /// <summary>
-    /// [S-2840] [S-3722] The place's lines on the properties menu, shared by the weather family: Use my
+    /// [S-2840] [S-3722] The place's lines on the selection's page, shared by the weather family: Use my
     /// location ([S-2850], with what Windows says while it gives no position), then, while it is off,
     /// the location as a search, the chosen place at the end of its line, in its submenu the search box,
     /// the places it finds (a click picks one: replaced at once, resolved once) and Clear location

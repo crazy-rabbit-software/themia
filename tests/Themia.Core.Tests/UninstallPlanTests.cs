@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-1552]..[S-1555] ⚙ › About Themia › Uninstall Themia's plan: the route, the folders it may delete, the survey.</summary>
+/// <summary>[S-1552]..[S-1555] settings › About Themia › Uninstall Themia's plan: the route, the folders it may delete, the survey.</summary>
 public sealed class UninstallPlanTests
 {
     private const string Roaming = @"C:\Users\someone\AppData\Roaming";

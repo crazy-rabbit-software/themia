@@ -8,10 +8,10 @@ namespace Themia.App.Shell;
 /// <summary>[S-2320] The edit bar along the top centre of the surface in edit mode.</summary>
 internal sealed partial class DesktopWindow
 {
-    private EditBar BuildToolbar() => new(ToolbarCommands()) { Visibility = Visibility.Collapsed };
+    private EditBar BuildEditBar() => new(BarCommands()) { Visibility = Visibility.Collapsed };
 
     /// <summary>What this display's edit bar does: everything goes through the host, for this display.</summary>
-    private EditBarCommands ToolbarCommands() => new(
+    private EditBarCommands BarCommands() => new(
         Add: ToggleAddPage,
         Page: TogglePage,
         Selection: ToggleSelectionPage,
@@ -23,7 +23,7 @@ internal sealed partial class DesktopWindow
     /// [S-2320] What this display's bar shows now: the selection's entry, the problems (Themia keeps no
     /// standing list of them yet: the room is kept, empty), the open entry, the room the work area gives.
     /// </summary>
-    private EditBarState ToolbarState()
+    private EditBarState BarState()
     {
         // [S-2341] The selection's entry: the kind's name and glyph, or the count.
         BarSelection? selection = null;
@@ -46,25 +46,19 @@ internal sealed partial class DesktopWindow
     /// [S-2320] The bar follows a change made elsewhere (an undo, an import, another display), the
     /// selection's entry the selection as it is now, and the open flyout the state.
     /// </summary>
-    private void SyncToolbar()
+    private void SyncEditBar()
     {
         SyncProperties();
-        ShowToolbar();
+        ShowEditBar();
         SyncBarMenu();
     }
 
     /// <summary>[S-2320] The bar's entries as they are now; nothing while it is not built.</summary>
-    private void ShowToolbar()
+    private void ShowEditBar()
     {
-        if (!_closed && _toolbar.Built)
+        if (!_closed && _editBar.Built)
         {
-            _toolbar.Show(ToolbarState());
+            _editBar.Show(BarState());
         }
-    }
-
-    /// <summary>[S-885] What Undo and Redo can step changed: the bar has no buttons for them (the keys do it).</summary>
-    private void OnHistoryChanged()
-    {
-        // ignore: the bar shows no history; Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z step it.
     }
 }

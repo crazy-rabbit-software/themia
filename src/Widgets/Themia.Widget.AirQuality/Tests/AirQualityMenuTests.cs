@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.AirQuality.Tests;
 
-/// <summary>[S-5108] The air quality widget's options on its properties menu.</summary>
+/// <summary>[S-5108] The air quality widget's options on its page.</summary>
 public sealed class AirQualityMenuTests
 {
     private static WidgetMenuLines Build(AirQualityConfig config)

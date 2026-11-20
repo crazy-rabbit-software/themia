@@ -9,7 +9,7 @@ using Themia.Widget.Bluetooth;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3255] The Bluetooth tile's options, all on its properties menu ([S-3719]): Appearance, which
+/// [S-3255] The Bluetooth tile's options, all on its page ([S-3719]): Appearance, which
 /// devices it lists, then what a device's row shows ([S-1257]: the name always; the connection
 /// only where a listed device can be not connected, [S-3256]). It has no settings page.
 /// </summary>

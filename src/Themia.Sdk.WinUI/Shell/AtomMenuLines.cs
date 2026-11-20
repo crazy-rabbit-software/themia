@@ -6,7 +6,7 @@ using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>The line the system history atoms share on their properties menus ([S-3719]): a history's span.</summary>
+/// <summary>The line the system history atoms share on their pages ([S-3719]): a history's span.</summary>
 public static class AtomMenuLines
 {
     /// <summary>[S-1122] [S-11002] A history atom's one setting: how much history its chart spans, on the first level.</summary>

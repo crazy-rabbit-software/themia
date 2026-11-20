@@ -20,7 +20,7 @@ public sealed record KitAccountWords(string None, string Every);
 public sealed record KitShowLine(string Label, Func<bool> Get, Action<bool> Set);
 
 /// <summary>
-/// [S-7063] The standard lines of a kit widget on its properties menu ([S-3719]), built only from
+/// [S-7063] The standard lines of a kit widget on its page ([S-3719]), built only from
 /// the menu's vocabulary (<see cref="WidgetMenuLines"/>): the accounts it reads, how many items, and
 /// its optional fields. No refresh line ([S-3780]: the cadence is the app's). A free input is the
 /// menu's own ask ([S-3721]) or list ([S-3729]), checked by the widget's validator as it is typed.
@@ -31,7 +31,7 @@ public static class KitMenuLines
     /// [S-7063] The Accounts submenu: "Every account" (on by default: accounts added later join too),
     /// then a switch per signed-in account; turning Every off starts from the accounts there are now,
     /// so nothing disappears, and the last chosen account cannot be turned off (it is greyed), because
-    /// an empty list means "every". Then Manage accounts, which opens ⚙ › Accounts. With no
+    /// an empty list means "every". Then Manage accounts, which opens settings › Accounts. With no
     /// account at all: the widget's sentence and Add an account.
     /// </summary>
     public static ItemMenuEntry Accounts(

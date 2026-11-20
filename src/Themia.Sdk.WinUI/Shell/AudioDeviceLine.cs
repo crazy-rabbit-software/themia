@@ -8,7 +8,7 @@ using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>The output-device line the volume tile's and the mixer's properties menus share.</summary>
+/// <summary>The output-device line the volume tile's and the mixer's pages share.</summary>
 public static class AudioDeviceLine
 {
     private const string Scope = "audio-device";
@@ -34,7 +34,7 @@ public static class AudioDeviceLine
         => chosenId is not null || outputs.Failed || outputs.Value is { Count: >= 2 };
 
     /// <summary>
-    /// [S-1222] The output device an audio widget is bound to, as a search on the properties menu
+    /// [S-1222] The output device an audio widget is bound to, as a search on the selection's page
     /// ([S-3722]): Windows' devices are asked for as its submenu opens, so the list is the one
     /// connected now. "Default output" (which follows Windows) heads it, then each device; the one
     /// that holds has the dot, and a chosen device that is not connected stays listed by the name it

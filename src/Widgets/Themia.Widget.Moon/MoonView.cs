@@ -112,7 +112,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         Refresh();
     }
 
-    /// <summary>[S-6583] The widget's alignment, from the properties panel: where the readout sits.</summary>
+    /// <summary>[S-6583] The widget's alignment, from the selection's page: where the readout sits.</summary>
     public void ApplyAlign(ContentAlign align)
     {
         _fit.Align = align;

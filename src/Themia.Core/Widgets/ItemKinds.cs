@@ -6,7 +6,7 @@ namespace Themia.Core.Widgets;
 /// <summary>
 /// [S-6570] Whether a kind's view draws items at all: rows, tiles, chips or tracks painted through
 /// the item layer (<c>ItemFill</c>, [S-6513]). A kind without items has nothing an item background
-/// could reach, so the properties menu leaves that line out for it ([S-6571]).
+/// could reach, so the selection's page leaves that line out for it ([S-6571]).
 /// <para>
 /// Stated by each widget's descriptor (<see cref="WidgetTraits.HasItems"/>, [S-6905]); it cannot
 /// drift from the views: <c>ItemKindsTests</c> scans every view's source (and the shared parts it

@@ -27,9 +27,6 @@ internal sealed partial class AppHost
     private LayoutHistory? _history => _writer.History;
     private BootGuard? _bootGuard;
 
-    /// <summary>[S-3509] What Undo and Redo can step may have changed (a change, a drag, a step, an import): the edit bars follow.</summary>
-    public event Action? HistoryChanged;
-
     /// <summary>[S-3509] There is a step to undo: the edit bar's Undo is live.</summary>
     public bool CanUndo => _history?.CanUndo ?? false;
 
@@ -134,7 +131,6 @@ internal sealed partial class AppHost
     {
         _history?.Commit(State, action);
         _writer.SaveSoon();
-        HistoryChanged?.Invoke();
     }
 
     /// <summary>[S-887] The system changed the layout (a view made for a new display): adopt it, do not offer it as an undo.</summary>
@@ -186,7 +182,6 @@ internal sealed partial class AppHost
         SettleOnWorkAreas();
         _sizings.NoteAll(State);
         _history.Rebase(State);
-        HistoryChanged?.Invoke();
 
         _writer.SaveSoon();
         ChangeSelection(Selection.Prune(State));
@@ -243,7 +238,7 @@ internal sealed partial class AppHost
     /// appearance and preferences. The current settings are kept beside the state file first, and
     /// (<paramref name="backup"/>) and if they cannot be, nothing is reset. Accounts, notes, tasks
     /// and habits are their own files and are left alone. Returns null on success, otherwise why
-    /// nothing changed: ⚙ › Back up &amp; reset says which under its line ([S-3578]).
+    /// nothing changed: settings › Back up &amp; reset says which under its line ([S-3578]).
     /// </summary>
     public string? ResetAll(out string backup) => ReplaceState(AppState.CreateDefault(), SettingsTransfer.ResetOccasion, out backup);
 }

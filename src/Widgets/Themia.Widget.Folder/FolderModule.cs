@@ -44,7 +44,7 @@ public sealed class FolderModule : IWidgetModule
         Add = new(AddFolderId.Files, 0, 0, Popular: 9),
     };
 
-    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => FolderPropertiesMenu.Lines(menu, (FolderConfig)config);
 

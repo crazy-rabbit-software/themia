@@ -6,7 +6,7 @@ using Themia.Core.Settings;
 namespace Themia.App.Services.Licensing;
 
 /// <summary>
-/// [S-3570]..[S-3573] What ⚙ › Themia Pro does, over the one licence service: the License page's
+/// [S-3570]..[S-3573] What settings › Themia Pro does, over the one licence service: the License page's
 /// flows, run from the menu's lines, the same on every display. The price is asked of the Store the
 /// first time a settings menu opens (once known, kept); the refusal that opened the menu is said
 /// until the last menu closes; the purchase and the asking again say how they went under their lines.
@@ -55,7 +55,7 @@ internal sealed class LicenceMenu
 
     /// <summary>
     /// [S-3572] The Store's purchase dialog for Pro, owned by <paramref name="owner"/> (the window of
-    /// the display whose ⚙ it was started from: a desktop app must hand the Store a window before it
+    /// the display whose settings it was started from: a desktop app must hand the Store a window before it
     /// shows any UI, <c>IInitializeWithWindow</c>). How it ended stands under Upgrade.
     /// </summary>
     public async void Purchase(nint owner)
@@ -117,7 +117,7 @@ internal sealed class LicenceMenu
             Log.Warn(Scope, "could not show the Pro price", ex);
         }
 
-        // No price this time (offline, the Store not listing it yet): asked again when ⚙ next opens.
+        // No price this time (offline, the Store not listing it yet): asked again when the settings next open.
         _priceAsked = false;
     }
 }

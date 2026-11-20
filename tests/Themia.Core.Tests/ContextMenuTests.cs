@@ -147,7 +147,7 @@ public sealed class ContextMenuTests
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
         // No Duplicate: Copy then Paste does that, one way to do it. No Settings: the widget's
-        // options are on its properties menu beside it ([S-6536]).
+        // options are on its page beside it ([S-6536]).
         Assert.Equal(
             [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Delete],
             split.Row.Select(i => items[i].Command));
@@ -211,7 +211,7 @@ public sealed class ContextMenuTests
         var items = ShellMenus.ForCard(Card(edit: false));
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
-        // [S-6536] No Settings: a widget's options are on its properties menu, in edit mode.
+        // [S-6536] No Settings: a widget's options are on its page, in edit mode.
         Assert.Equal([ShellCommand.WidgetActions, ShellCommand.DeleteOnDesktop, ShellCommand.Separator, ShellCommand.DesktopMenu], Commands(items));
 
         // No icon row: Delete is a line of the list, as on the desktop's own menus (the desktop menu's Paste stays a line).

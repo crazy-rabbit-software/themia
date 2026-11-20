@@ -66,7 +66,7 @@ internal sealed partial class DesktopWindow
         _widgetGallery = gallery;
         _galleryLayer.Children.Add(gallery);
         PlaceWidgetGallery();
-        ShowToolbar();
+        ShowEditBar();
         Log.Info(Scope, $"widget gallery open on {_monitor.GdiName}: {gallery.Screens.Count} screen(s)");
     }
 
@@ -81,7 +81,7 @@ internal sealed partial class DesktopWindow
         _galleryLayer.Children.Remove(gallery);
         gallery.Dispose();
         _widgetGallery = null;
-        ShowToolbar();
+        ShowEditBar();
     }
 
     /// <summary>[S-14911] Over the work area under the bar, on this display's grid.</summary>
@@ -94,7 +94,7 @@ internal sealed partial class DesktopWindow
         }
 
         var area = WorkArea;
-        var bar = ToolbarRect(area);
+        var bar = EditBarRect(area);
         gallery.Place(metrics, RasterScale, area, bar.Y + bar.Height, GridGeometry.AllowedPixels(metrics), SizesNow.Scale);
     }
 

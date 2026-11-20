@@ -8,7 +8,7 @@ using Themia.Widget.Notes;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1349] The Notes widget's options, all on its properties menu ([S-3719]): Appearance
+/// [S-1349] The Notes widget's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), which note it shows (picked from the notes kept on this PC, which can be made, renamed
 /// and deleted there), and apart from it clearing the note where one is shown. The note is drawn in the
 /// family's steps, at the text size every widget follows ([S-6700]); it has no size of its own. It has

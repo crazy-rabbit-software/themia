@@ -15,7 +15,7 @@ using Xunit;
 namespace Themia.Modules.Tests;
 
 /// <summary>
-/// [S-7063] [S-561]..[S-567] The account widgets' shared lines on the properties menu: the kit's
+/// [S-7063] [S-561]..[S-567] The account widgets' shared lines on the selection's page: the kit's
 /// Accounts submenu and the calendars' lines.
 /// </summary>
 public sealed class AccountMenuLinesTests

@@ -46,7 +46,7 @@ public abstract class MetricModule : IWidgetModule
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; }
 
-    /// <summary>[S-14603] Its options, all on its properties menu ([S-3719]): the family's source line, then the trend's.</summary>
+    /// <summary>[S-14603] Its options, all on its page ([S-3719]): the family's source line, then the trend's.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);

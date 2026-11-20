@@ -12,7 +12,7 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-2778] [S-11160] What the stock atoms share on their properties menus ([S-3719]): the instrument as
+/// [S-2778] [S-11160] What the stock atoms share on their pages ([S-3719]): the instrument as
 /// a search ([S-1307], [S-3722]; the line Set up opens), the period (Timeframe), Extended hours where
 /// they exist and fit ([S-1308]) and the link to the markets' update interval ([S-3749]).
 /// </summary>

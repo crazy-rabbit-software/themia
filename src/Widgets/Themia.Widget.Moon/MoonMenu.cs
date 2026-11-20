@@ -6,7 +6,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3108] The Moon's options, all on its properties menu ([S-3719]): Appearance ([S-3723]), then the
+/// [S-3108] The Moon's options, all on its page ([S-3719]): Appearance ([S-3723]), then the
 /// shared place, a search ([S-3101], [S-3722]). The phase is the same everywhere; the rise and set,
 /// and which way round the lit side is drawn, are the place's, so the month's phases ([S-6050]) offer
 /// no longitude ([S-6074]). It has no settings page.

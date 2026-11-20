@@ -107,7 +107,7 @@ public sealed class CardDavProvider : IProviderModule
 /// <summary>Short forms for host code: a provider id's facts, read from its module ([S-6910]).</summary>
 public static class AccountProviders
 {
-    /// <summary>What ⚙ › Accounts calls the provider.</summary>
+    /// <summary>What settings › Accounts calls the provider.</summary>
     public static string Label(this ProviderId provider) => ProviderCatalog.Of(provider).Label.Text();
 
     /// <summary>[S-502] What the provider feeds. Follows from its module, never from a list of switches.</summary>

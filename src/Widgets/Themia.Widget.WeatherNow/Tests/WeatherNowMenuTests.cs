@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.WeatherNow.Tests;
 
-/// <summary>[S-6174] The current conditions' options on its properties menu, the weather family's location search among them.</summary>
+/// <summary>[S-6174] The current conditions' options on its page, the weather family's location search among them.</summary>
 public sealed class WeatherNowMenuTests
 {
     private int _saves;

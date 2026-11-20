@@ -119,7 +119,7 @@ internal sealed partial class DesktopWindow
             },
         };
 
-        // Last, so notices sit over the widgets, the view bar and the toolbar.
+        // Last, so notices sit over the widgets, the view bar and the edit bar.
         UiLanguage.ApplyFlow(layer);
         _root.Children.Add(layer);
         _noticeLayer = layer;

@@ -44,30 +44,30 @@ namespace Themia.App.Widgets;
 /// [S-3718] With <paramref name="Checked"/>, the entry is one of a set of choices of which one holds
 /// (Windows draws a dot, not a tick): the entries of one group sharing this name.
 /// </param>
-/// <param name="Search">[S-3722] The properties menu's search, opened beside the line; item menus have none.</param>
+/// <param name="Search">[S-3722] The selection's page's search, opened beside the line; item menus have none.</param>
 /// <param name="Value">
 /// [S-3726] What the line holds, at its end in the secondary colour (a number, a folder's name); the
-/// properties menu draws it, item menus write a shortcut there instead.
+/// selection's page draws it, item menus write a shortcut there instead.
 /// </param>
-/// <param name="Colour">[S-3724] The properties menu's colour line: its submenu is the one colour submenu; item menus have none.</param>
+/// <param name="Colour">[S-3724] The selection's page's colour line: its submenu is the one colour submenu; item menus have none.</param>
 /// <param name="Note">[S-3728] A line of words only (a data source's credit): greyed, never clickable, trimmed with the whole as its tooltip.</param>
 /// <param name="SetsUp">
-/// [S-1862] The properties menu's line where what the widget waits for is set: the card's Set up
+/// [S-1862] The selection's page's line where what the widget waits for is set: the card's Set up
 /// button opens the menu at it (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.SetsUp"/>); item menus have none.
 /// </param>
-/// <param name="Slider">[S-3731] The properties menu's inline slider (words, slider, value in one line); item menus have none.</param>
-/// <param name="Order">[S-3732] The properties menu's ordered list item: its line is dragged up and down among the list's; item menus have none.</param>
+/// <param name="Slider">[S-3731] The selection's page's inline slider (words, slider, value in one line); item menus have none.</param>
+/// <param name="Order">[S-3732] The selection's page's ordered list item: its line is dragged up and down among the list's; item menus have none.</param>
 /// <param name="Ask">
-/// [S-2351] [S-3721] The properties menu's line of text asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Ask"/>:
+/// [S-2351] [S-3721] The selection's page's line of text asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Ask"/>:
 /// Rename…, Add…, a path typed): its card opens on the field and its accept, never a page of its own; item menus have none.
 /// </param>
 /// <param name="Confirm">
-/// [S-2351] [S-3727] The properties menu's "are you sure?" asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Confirm"/>):
+/// [S-2351] [S-3727] The selection's page's "are you sure?" asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Confirm"/>):
 /// its card opens on the question and its answers; only the answer does it. Item menus have none.
 /// </param>
 /// <param name="LinkTo">
 /// [S-3749] A link row: its <paramref name="Action"/> closes the menu and opens another menu at the level that owns
-/// the setting (⚙ › Accounts), whose name this is (the tooltip says "Opens Accounts"); drawn with Windows' "open in
+/// the setting (settings › Accounts), whose name this is (the tooltip says "Opens Accounts"); drawn with Windows' "open in
 /// new window" mark at its end, no chevron. Null for any other line; item menus ignore it.
 /// </param>
 /// <param name="Shares">
@@ -75,8 +75,8 @@ namespace Themia.App.Widgets;
 /// page finds it among a member's lines and shows it once for every member that holds the setting. Null for a
 /// line of the widget's own; item menus ignore it.
 /// </param>
-/// <param name="Icon">[S-9602] The properties menu's icon line: the one icon picker inline in its card; item menus have none.</param>
-/// <param name="Field">[S-2332] The properties menu's line of text typed in place, its box at the line's end; item menus have none.</param>
+/// <param name="Icon">[S-9602] The selection's page's icon line: the one icon picker inline in its card; item menus have none.</param>
+/// <param name="Field">[S-2332] The selection's page's line of text typed in place, its box at the line's end; item menus have none.</param>
 /// <param name="Why">
 /// [S-2375] Why a <paramref name="Disabled"/> line is greyed, said under its name on the page (Karpo's §309); item menus
 /// ignore it. Null for nothing said.

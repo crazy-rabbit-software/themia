@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.ExchangeRate.Tests;
 
-/// <summary>[S-5148] The exchange-rate widget's options on its properties menu: the pair as two searches over the published codes.</summary>
+/// <summary>[S-5148] The exchange-rate widget's options on its page: the pair as two searches over the published codes.</summary>
 public sealed class ExchangeRateMenuTests
 {
     private int _saves;

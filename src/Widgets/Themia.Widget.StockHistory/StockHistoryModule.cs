@@ -79,7 +79,7 @@ public sealed class StockHistoryModule : IWidgetModule
         return new ChartModel { Type = ChartLooks.Effective(config), Detail = detail, PadTop = markers, PadBottom = markers };
     }
 
-    /// <summary>[S-11167] Every option is on the properties menu: the instrument and its period as the price's, and the markers.</summary>
+    /// <summary>[S-11167] Every option is on the selection's page: the instrument and its period as the price's, and the markers.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => Lines(menu, (StockHistoryConfig)config, SymbolLookup.FindAsync);
 
     /// <summary>The lines, with the symbol search's lookup given (a test's in place of the host's two services).</summary>

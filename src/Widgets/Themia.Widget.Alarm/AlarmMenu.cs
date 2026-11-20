@@ -12,7 +12,7 @@ using Themia.Widget.Alarm;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-4631] The Alarm's options, all on its properties menu ([S-3719]), in groups apart: Appearance
+/// [S-4631] The Alarm's options, all on its page ([S-3719]), in groups apart: Appearance
 /// ([S-3723]); when it rings (the time, the days it repeats on, its switch); what it says (its name);
 /// how it sounds (the sound, previewed once, its level and the snooze); the note of [S-4627]. Every line writes the live config and saves; the
 /// save is a state change, which the alarm service syncs from at once. It has no settings page.
@@ -24,7 +24,7 @@ internal static class AlarmMenu
 
     public static void Lines(WidgetMenuLines menu, AlarmConfig alarm) => Lines(menu, alarm, RegionFormat.Current.WeekStart);
 
-    /// <summary>The lines, the week starting on <paramref name="weekStart"/> (⚙ › Language &amp; region's, [S-3590]; a test's own).</summary>
+    /// <summary>The lines, the week starting on <paramref name="weekStart"/> (settings › Language &amp; region's, [S-3590]; a test's own).</summary>
     internal static void Lines(WidgetMenuLines menu, AlarmConfig alarm, WeekStartDay weekStart)
     {
         ArgumentNullException.ThrowIfNull(menu);
@@ -91,7 +91,7 @@ internal static class AlarmMenu
 
     /// <summary>
     /// [S-4631] Repeats on: a switch per day of the week from the start of the week every widget
-    /// follows ([S-3770]: ⚙ › Language &amp; region's, never the language's own guess), the days at the
+    /// follows ([S-3770]: settings › Language &amp; region's, never the language's own guess), the days at the
     /// end of the line; none chosen rings once, which the note under the days says.
     /// </summary>
     private static ItemMenuEntry Days(WidgetMenuLines menu, AlarmConfig alarm, Locale locale, WeekStartDay weekStart)

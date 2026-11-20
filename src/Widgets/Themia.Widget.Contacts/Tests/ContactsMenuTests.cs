@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.Contacts.Tests;
 
-/// <summary>[S-7511] The contacts widget's options on its properties menu ([S-3719]).</summary>
+/// <summary>[S-7511] The contacts widget's options on its page ([S-3719]).</summary>
 public sealed class ContactsMenuTests
 {
     private int _saves;

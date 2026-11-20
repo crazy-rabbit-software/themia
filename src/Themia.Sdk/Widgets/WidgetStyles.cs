@@ -54,7 +54,7 @@ public interface IStyled
 
     /// <summary>
     /// [S-6075] Whether the styles draw differently now: false where every look draws the same (a
-    /// gallery of one picture), so the properties menu has no Style line until they would differ
+    /// gallery of one picture), so the selection's page has no Style line until they would differ
     /// again. The style is kept for then.
     /// </summary>
     bool StyleApplies => true;

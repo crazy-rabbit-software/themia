@@ -41,13 +41,13 @@ internal interface IWidgetCardHost
 
     /// <summary>
     /// [S-1862] The card's Set up button: go where what the widget waits for is set (its properties
-    /// menu in edit mode, or ⚙ › Accounts when an account is all it lacks).
+    /// menu in edit mode, or settings › Accounts when an account is all it lacks).
     /// </summary>
     void RequestSetup(WidgetCard card);
 
     /// <summary>
     /// [S-3558] A widget's way to its accounts (its "Open Accounts settings", a status's sign-in
-    /// problem): ⚙ › Accounts on this display, edit mode entered. False where there is none (a render).
+    /// problem): settings › Accounts on this display, edit mode entered. False where there is none (a render).
     /// </summary>
     bool RequestAccounts();
 
@@ -286,9 +286,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     /// <summary>Whether the pointer has travelled far enough since the press to count as a drag ([S-1745]).</summary>
     private bool _moved;
-
-    /// <summary>[S-1745] What the current press started; a plain click is told apart on release.</summary>
-    private CardPress _press;
 
     private bool _dragging;
 
@@ -563,11 +560,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     private CardFill CardFillNow()
         => DesignLook.Card(FillChoice.Effective(_host.Design.Background, _preview?.Background ?? Model.Background), DesignApplier.IsDark, Frosted);
 
-    /// <summary>[S-3731] A fill the properties menu's slider shows while it is dragged; null: the card's own.</summary>
+    /// <summary>[S-3731] A fill the selection's page's slider shows while it is dragged; null: the card's own.</summary>
     private CardPreview? _preview;
 
     /// <summary>
-    /// [S-3731] Show a background or item fill not yet stored while a slider of the properties menu
+    /// [S-3731] Show a background or item fill not yet stored while a slider of the selection's page
     /// is dragged, or the card's own again (null). Paints only: nothing is stored or rebuilt. The
     /// content scale is the surface's (<see cref="ApplyContentScale"/>).
     /// </summary>
@@ -876,13 +873,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // [S-1745] What the press starts.
         var handle = HitHandle(e.OriginalSource);
-        _press = CardGestures.Press(
+        var press = CardGestures.Press(
             editMode: true,
             leftButton: e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
             ctrl: IsKeyDown(Windows.System.VirtualKey.Control),
             onHandle: handle is not null);
 
-        switch (_press)
+        switch (press)
         {
             case CardPress.None:
                 return;
@@ -981,7 +978,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _dragging = false;
         _activeHandle = null;
         _narrowOnRelease = false;
-        _press = CardPress.None;
         ReleasePointerCapture(e.Pointer);
         _host.PressEnded(this);
         icon.DragOut(e.GetCurrentPoint(_view));
@@ -1045,7 +1041,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _dragging = false;
         _activeHandle = null;
         _narrowOnRelease = false;
-        _press = CardPress.None;
 
         // Only a move may hand widgets to another display: a resize that happens to end with the
         // pointer over another screen is still a resize.

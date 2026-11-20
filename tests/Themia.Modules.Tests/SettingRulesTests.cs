@@ -11,7 +11,7 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-6070] [S-6074] A widget's properties menu offers only the options that change what it shows
+/// [S-6070] [S-6074] A widget's page offers only the options that change what it shows
 /// in its current style and state: one Core rule per config (<see cref="IShownSettings{TSetting}"/>),
 /// pinned here per kind and style.
 /// </summary>

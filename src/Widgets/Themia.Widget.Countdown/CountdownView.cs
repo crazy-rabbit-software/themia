@@ -104,7 +104,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     /// <summary>[S-6583] Where the time left, the date, the ring, the cards and the bar sit: the widget's alignment, centred by default ([S-6582]).</summary>
     private ContentAlign _align = ContentAlign.Center;
 
-    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    /// <summary>[S-6583] The widget's alignment, from the selection's page.</summary>
     public void ApplyAlign(ContentAlign align)
     {
         _fit.Align = align;

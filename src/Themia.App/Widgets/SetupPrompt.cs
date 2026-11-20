@@ -11,7 +11,7 @@ namespace Themia.App.Widgets;
 /// [S-1862] The body of a widget that cannot show anything until it is set up: the Status block's set-up
 /// row ([S-6714]) where the content's first row would be — the widget's glyph, one sentence saying what
 /// it waits for ("Choose a place"), and the accent Set up button that goes where it is set (its
-/// properties menu, or ⚙ › Accounts: <c>DesktopWindow.RequestSetup</c>). On a row too narrow for both
+/// page, or settings › Accounts: <c>DesktopWindow.RequestSetup</c>). On a row too narrow for both
 /// (XS, S) the sentence goes and the glyph and the button stay.
 /// <para>
 /// The card puts it over the view (<c>WidgetCard.Setup</c>) when <see cref="Themia.Core.Widgets.WidgetSetup.Needed"/>

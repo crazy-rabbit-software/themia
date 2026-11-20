@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.HabitTracker.Tests;
 
-/// <summary>[S-1429] The Habits widget's options on its properties menu: the dots' own under Style, the lists, the resets, the data folder.</summary>
+/// <summary>[S-1429] The Habits widget's options on its page: the dots' own under Style, the lists, the resets, the data folder.</summary>
 public sealed class HabitTrackerMenuTests
 {
     private int _saves;

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Gpu.Tests;
 
-/// <summary>[S-1200] [S-433] The GPU meter's options on its properties menu: Appearance, the adapter with two or more, the span under Style.</summary>
+/// <summary>[S-1200] [S-433] The GPU meter's options on its page: Appearance, the adapter with two or more, the span under Style.</summary>
 public sealed class GpuMenuTests
 {
     private static readonly GpuAdapter[] Two = [new(0, "NVIDIA GeForce RTX 4070", "a", 0, 0), new(1, "Intel UHD Graphics", "b", 0, 0)];

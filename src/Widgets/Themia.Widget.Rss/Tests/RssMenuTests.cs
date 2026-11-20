@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.Rss.Tests;
 
-/// <summary>[S-7510] The feed widget's options on its properties menu ([S-3719]): the feeds as a list, the kit's switches and the count.</summary>
+/// <summary>[S-7510] The feed widget's options on its page ([S-3719]): the feeds as a list, the kit's switches and the count.</summary>
 public sealed class RssMenuTests
 {
     private int _saves;
@@ -41,7 +41,7 @@ public sealed class RssMenuTests
             ],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
 
-        // [S-3590] How often the feeds are asked is ⚙'s: followed, no link row ([S-3749]).
+        // [S-3590] How often the feeds are asked is the settings': followed, no link row ([S-3749]).
         Assert.DoesNotContain(lines.Lines, l => l.LinkTo is not null);
         Assert.Empty(lines.StyleLines);
     }

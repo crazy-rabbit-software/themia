@@ -7,7 +7,7 @@ using Themia.Sdk.Services;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3553] What stands under a line of ⚙ › Accounts while it is being done or once it is done: a
+/// [S-3553] What stands under a line of settings › Accounts while it is being done or once it is done: a
 /// browser sign-in waiting, a device code to enter (<see cref="Code"/> on <see cref="Page"/>), a
 /// rename or a sign-out that failed. <see cref="Busy"/> draws the ring before the words.
 /// </summary>
@@ -21,7 +21,7 @@ public sealed record AccountStatus(string Text, bool Busy = false, bool Failed =
 }
 
 /// <summary>
-/// [S-3554] [S-3557] What ⚙ › Accounts holds that is not the accounts: the forms being filled in
+/// [S-3554] [S-3557] What settings › Accounts holds that is not the accounts: the forms being filled in
 /// (one per kind, the same wherever the form is opened from) and what stands under the lines being
 /// done, by the line's key. Kept while the menu is open, on every display; emptied (forms cleared,
 /// passwords wiped, statuses gone) when the menu closes (<see cref="Close"/>), which the host does
@@ -96,7 +96,7 @@ public sealed class AccountsMenuState
 }
 
 /// <summary>
-/// [S-3550] What ⚙ › Accounts reads and asks for: the accounts as the account service has them, what
+/// [S-3550] What settings › Accounts reads and asks for: the accounts as the account service has them, what
 /// each holds on this PC, the forms and statuses (<see cref="Menu"/>), and the sign-ins, tries,
 /// renames and sign-outs the service carries out. Everything it starts says how it went through
 /// <see cref="Menu"/>, under the line it was started from.

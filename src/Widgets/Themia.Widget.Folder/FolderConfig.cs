@@ -37,7 +37,7 @@ public enum FolderNavigation
     Navigate = 1,
 }
 
-/// <summary>[S-4121] A style's own line on the folder's properties menu, beside the rows every style shows.</summary>
+/// <summary>[S-4121] A style's own line on the folder's page, beside the rows every style shows.</summary>
 public enum FolderSetting
 {
     Columns,
@@ -58,7 +58,7 @@ public enum FolderSetting
 /// four styles. What every style uses: the folder, how opening works, the order, and hidden items;
 /// then the union of what the styles use ([S-4121]): whether names keep their extension (list, details,
 /// grid) and the columns (details). The rows and cells are the family's ([S-6711], [S-6713]): no size of their own.
-/// A style ignores the fields it does not use, and its properties menu shows only its own ([S-4122]).
+/// A style ignores the fields it does not use, and its page shows only its own ([S-4122]).
 /// </summary>
 public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderSetting>
 {
@@ -119,7 +119,7 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
     public bool ShowDate { get; set; } = true;
 
     /// <summary>
-    /// [S-4121] [S-4122] [S-6070] The lines the properties menu shows for the current style, in
+    /// [S-4121] [S-4122] [S-6070] The lines the selection's page shows for the current style, in
     /// menu order: only what that style draws.
     /// </summary>
     [JsonIgnore]

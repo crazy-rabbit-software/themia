@@ -35,7 +35,7 @@ public enum ShellCommand
     /// <summary>[S-1582] Every widget on this display.</summary>
     SelectAll,
 
-    /// <summary>[S-1744] The edit bar's settings menu (⚙), opened on this display ([S-3520]).</summary>
+    /// <summary>[S-1744] The edit bar's settings, opened on this display ([S-3520]).</summary>
     Settings,
 
     /// <summary>
@@ -101,7 +101,7 @@ public static class ShellMenus
     /// [S-1743] A widget card's menu in edit mode (outside it, [S-1758]). The icon row is Cut, Copy, Paste and Delete
     /// ([S-1740]); there is no Duplicate, Copy then Paste does that. The list holds the view's own
     /// commands, the layering pair, and entering or leaving edit mode. Nothing on it changes how the
-    /// widget looks: that is its properties menu's ([S-1746], [S-6536]), so there is no Settings.
+    /// widget looks: that is its page's ([S-1746], [S-6536]), so there is no Settings.
     /// </summary>
     public static IReadOnlyList<ShellMenuItem> ForCard(CardMenuFacts facts)
     {

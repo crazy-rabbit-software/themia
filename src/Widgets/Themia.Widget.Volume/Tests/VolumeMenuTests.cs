@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Volume.Tests;
 
-/// <summary>[S-2734] The volume tile's options on its properties menu.</summary>
+/// <summary>[S-2734] The volume tile's options on its page.</summary>
 public sealed class VolumeMenuTests
 {
     private static readonly MenuLoaded<IReadOnlyList<AudioDevice>> Two = new([new("{a}", "Speakers"), new("{b}", "Headphones")], false);

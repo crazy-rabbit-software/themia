@@ -126,7 +126,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
         await box.Loaded.WaitAsync(cancellation).ConfigureAwait(true);
 
-        // The properties menu's picker: asked when the list is old, never on a timer.
+        // The selection's page's picker: asked when the list is old, never on a timer.
         await AskAsync(box.CalendarList, force, cancellation).ConfigureAwait(true);
         var list = box.CalendarList;
         return new Synced<IReadOnlyList<CalendarInfo>>(list.Calendars, list.Schedule.Status, list.Schedule.Detail, list.At);
@@ -630,7 +630,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
                     Birthdays.Schedule.Seed(shelf.BirthdaysAt, now);
                 }
 
-                // [S-3823] What is stored, for ⚙ › Accounts.
+                // [S-3823] What is stored, for settings › Accounts.
                 _owner._sync.Report(AccountId, SyncStats.Of(shelf));
             }
 

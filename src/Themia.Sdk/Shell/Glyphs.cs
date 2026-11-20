@@ -35,7 +35,7 @@ public static class Glyphs
     public static readonly string Paste = From(0xE77F);
     public static readonly string Reset = From(0xE777);
 
-    /// <summary>[S-3575] A clock turning back: ⚙'s Back up &amp; reset, the settings kept and gone back to.</summary>
+    /// <summary>[S-3575] A clock turning back: the settings' Back up &amp; reset, the settings kept and gone back to.</summary>
     public static readonly string History = From(0xE81C);
     public static readonly string Rename = From(0xE8AC);
 
@@ -281,7 +281,7 @@ public static class Glyphs
 
     public static readonly string HeaderRight = From(0xE90D);
 
-    /// <summary>[S-6584] The properties panel's Alignment choice: Segoe "AlignLeft", "AlignCenter" and "AlignRight".</summary>
+    /// <summary>[S-6584] The selection page's Alignment choice: Segoe "AlignLeft", "AlignCenter" and "AlignRight".</summary>
     public static readonly string AlignLeft = From(0xE8E4);
 
     public static readonly string AlignCenter = From(0xE8E3);
@@ -298,10 +298,10 @@ public static class Glyphs
     public static readonly string Shop = From(0xE719);
     public static readonly string Certificate = From(0xEB95);
 
-    // The language line of ⚙ › Language & region ([S-1109], [S-3536]): Fluent's LocaleLanguage.
+    // The language line of settings › Language & region ([S-1109], [S-3536]): Fluent's LocaleLanguage.
     public static readonly string Language = From(0xF2B7);
 
-    // ⚙ › Language & region ([S-3536]): Windows Settings' "Time & language" (Segoe TimeLanguage).
+    // settings › Language & region ([S-3536]): Windows Settings' "Time & language" (Segoe TimeLanguage).
     public static readonly string TimeLanguage = From(0xE775);
 
     // The About page.

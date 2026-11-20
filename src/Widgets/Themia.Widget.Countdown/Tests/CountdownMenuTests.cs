@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Countdown.Tests;
 
-/// <summary>[S-6037] The Countdown's options on its properties menu: the name, the target's day and time typed, the format.</summary>
+/// <summary>[S-6037] The Countdown's options on its page: the name, the target's day and time typed, the format.</summary>
 public sealed class CountdownMenuTests
 {
     private static readonly DateTimeOffset Now = new(2026, 10, 19, 9, 0, 0, TimeSpan.Zero);

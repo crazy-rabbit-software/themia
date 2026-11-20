@@ -9,7 +9,7 @@ using Themia.Widget.Scratchpad;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1501] The scratchpad's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
+/// [S-1501] The scratchpad's options, all on its page ([S-3719]): Appearance ([S-3723]),
 /// the pen's colour and size, and apart from the pen whether the tools ride in the widget's header. It has no settings page.
 /// <para>
 /// Clearing the drawing is <b>not</b> here. It lives on the pad itself, behind a confirmation,

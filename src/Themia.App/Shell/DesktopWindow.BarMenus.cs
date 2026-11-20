@@ -133,12 +133,12 @@ internal sealed partial class DesktopWindow
             _openPage = page;
             if (page is SettingsPageId.General or SettingsPageId.Accounts)
             {
-                SettingsMenuOpened();
+                _host.SettingsMenuOpened();
             }
         }
 
         _flyout!.Page.Show();
-        ShowToolbar();
+        ShowEditBar();
         PlaceFlyout();
         if (path.Count > 0 ? !_flyout.Page.Open(path) : !_flyout.Page.FocusFirst())
         {
@@ -165,7 +165,7 @@ internal sealed partial class DesktopWindow
         }
 
         _flyout!.Page.Show();
-        ShowToolbar();
+        ShowEditBar();
         PlaceFlyout();
         if (focus && !_flyout.Page.FocusFirst())
         {
@@ -224,13 +224,13 @@ internal sealed partial class DesktopWindow
         _selectionOpen = false;
         if (page is SettingsPageId.General or SettingsPageId.Accounts)
         {
-            SettingsMenuClosed();
+            _host.SettingsMenuClosed();
         }
 
-        ShowToolbar();
+        ShowEditBar();
         if (focusEntry)
         {
-            _toolbar.FocusEntry(selection ? null : page);
+            _editBar.FocusEntry(selection ? null : page);
         }
     }
 
@@ -243,7 +243,7 @@ internal sealed partial class DesktopWindow
         CloseFlyout(focusEntry: false);
         DropKeptPreview();
         _selectionShown = null;
-        _toolbar.Release();
+        _editBar.Release();
     }
 
     /// <summary>
@@ -269,9 +269,6 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-3531] A language switch: the open flyout's words in the new language; the keys stay, so what is open stays open.</summary>
-    private void RebuildBarMenu() => SyncBarMenu();
-
     /// <summary>
     /// [S-2327] A press anywhere on the surface that is not the bar or the open flyout closes it, and the
     /// press goes on to do what it does. [S-2343] A press on a widget leaves the selection's page open:
@@ -288,7 +285,7 @@ internal sealed partial class DesktopWindow
 
         for (var node = source; node is not null; node = VisualTreeHelper.GetParent(node))
         {
-            if (ReferenceEquals(node, open) || ReferenceEquals(node, _toolbar) || (_selectionOpen && node is WidgetCard))
+            if (ReferenceEquals(node, open) || ReferenceEquals(node, _editBar) || (_selectionOpen && node is WidgetCard))
             {
                 return;
             }
@@ -348,8 +345,8 @@ internal sealed partial class DesktopWindow
         }
 
         var area = WorkArea;
-        var bar = ToolbarRect(area);
-        var entry = _toolbar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new PixelRect(bar.X, bar.Y, bar.Width, bar.Height);
+        var bar = EditBarRect(area);
+        var entry = _editBar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new PixelRect(bar.X, bar.Y, bar.Width, bar.Height);
 
         // [S-13707] The Unplaced icons page is as wide as the bar, as the add page is: measured at that width.
         flyout.Place(!_selectionOpen && _openPage is { } page && SettingsPages.BarWide(page)

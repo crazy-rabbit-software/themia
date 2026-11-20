@@ -6,7 +6,7 @@ using Themia.Core.Storage;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-1552]..[S-1555] Themia taking itself off the PC, once ⚙ › About Themia › Uninstall Themia ›
+/// [S-1552]..[S-1555] Themia taking itself off the PC, once settings › About Themia › Uninstall Themia ›
 /// Uninstall… has been answered ([S-3582]): the goodbye survey opens (as the original's installer
 /// opened it on an interactive uninstall), Themia closes and saves, and only after that, so the
 /// final save cannot write the folders back, the data goes (when asked) and the app itself: a

@@ -6,7 +6,7 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-3554]..[S-3557] ⚙ › Accounts' forms as drafts: what a form finds from the address, what it
+/// [S-3554]..[S-3557] settings › Accounts' forms as drafts: what a form finds from the address, what it
 /// lacks in the page's words, how a try greys it and how it ends, and that the password is never
 /// said and is wiped. The passwords here are made up per run.
 /// </summary>

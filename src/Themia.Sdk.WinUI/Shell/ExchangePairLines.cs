@@ -7,7 +7,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-5148] [S-11150] What the exchange-rate atoms share on their properties menus ([S-3719]): the pair,
+/// [S-5148] [S-11150] What the exchange-rate atoms share on their pages ([S-3719]): the pair,
 /// the base and the currency priced in it, each a search over the published codes ([S-3722]), and the
 /// source's credit behind a divider (the ECB's terms: free reuse, with the source named).
 /// </summary>

@@ -43,7 +43,7 @@ public sealed class TopProcessesModule : IWidgetModule
     /// <summary>[S-2412] [S-2440] Its rows as drawn: the config's count, two lines each (the list scrolls the rest).</summary>
     private static KitRowsChoice Shown(TopProcessesConfig config) => new(KitSizing.ClampRows(config.Rows), 2);
 
-    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => TopProcessesMenu.Lines(menu, (TopProcessesConfig)config);
 

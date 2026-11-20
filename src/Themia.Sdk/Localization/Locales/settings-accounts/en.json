@@ -1,5 +1,5 @@
 {
-  "$comment": "[S-3550]..[S-3561] The edit bar's ⚙ › Accounts: its own words; the rest are the words of the Accounts page it replaces.",
+  "$comment": "[S-3550]..[S-3561] The edit bar's settings › Accounts: its own words; the rest are the words of the Accounts page it replaces.",
   "$englishOnly": [],
   "settingsAccounts.ownServer": "Set the server myself",
   "settingsAccounts.test": "Test connection",

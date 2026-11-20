@@ -24,7 +24,7 @@ public enum OwnIconSource
 
 /// <summary>
 /// [S-9503] A shortcut's own icon (issue 157): a picture file or one emoji the user
-/// chose, over the icon Windows gives the target. Both come from the properties menu and from a JSON
+/// chose, over the icon Windows gives the target. Both come from the selection's page and from a JSON
 /// file anything running as the user can rewrite, so both are checked here, on the way in and on load.
 /// </summary>
 public static class OwnIcons

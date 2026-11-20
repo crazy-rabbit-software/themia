@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.RainNextHour.Tests;
 
-/// <summary>[S-5127] The rain widget's options on its properties menu: Appearance, the weather family's location search, the source.</summary>
+/// <summary>[S-5127] The rain widget's options on its page: Appearance, the weather family's location search, the source.</summary>
 public sealed class RainNextHourMenuTests
 {
     private int _saves;

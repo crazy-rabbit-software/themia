@@ -55,7 +55,7 @@ internal sealed partial class AppHost
     }
 
     /// <summary>
-    /// [S-3719] One widget's own lines on its properties menu, over its live config; a change they
+    /// [S-3719] One widget's own lines on its page, over its live config; a change they
     /// make in place is stored through the host's one state write. Null for a widget that is gone.
     /// [S-3749] <paramref name="openSetting"/> opens a link row's level on the display the menu is on.
     /// </summary>

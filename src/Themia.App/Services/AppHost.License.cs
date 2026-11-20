@@ -10,7 +10,7 @@ namespace Themia.App.Services;
 /// [S-1065] The free-tier gate, at every place a widget or a view is created: placement (when it
 /// starts and when it lands), paste, duplicate, a new view, and the view a
 /// new display would get. A refusal creates nothing, deletes nothing, and says why in a notice
-/// ([S-881]) whose button opens ⚙ › Themia Pro on that display, which offers the upgrade ([S-3573]). A notice
+/// ([S-881]) whose button opens settings › Themia Pro on that display, which offers the upgrade ([S-3573]). A notice
 /// rather than a menu thrown open: a refusal is news, and opening something over the desktop in
 /// the middle of arranging it is a heavier answer than the question deserves.
 /// </summary>
@@ -43,7 +43,7 @@ internal sealed partial class AppHost
     }
 
     /// <summary>
-    /// [S-3573] "See plans": edit mode, and ⚙ open at Themia Pro on the display the notice was
+    /// [S-3573] "See plans": edit mode, and settings open at Themia Pro on the display the notice was
     /// clicked on (the one under the pointer), the refusal said once on top until the menu closes.
     /// </summary>
     private void SeePlans(string refusal)

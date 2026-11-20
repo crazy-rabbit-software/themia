@@ -110,7 +110,7 @@ internal sealed partial class DesktopWindow
 
         // [S-2343] A new selection: its entry on the bar, its flyout opened once.
         SyncProperties();
-        ShowToolbar();
+        ShowEditBar();
 
         // [S-2460] Several selected: the frame round them.
         SyncFrame();
@@ -119,7 +119,7 @@ internal sealed partial class DesktopWindow
     private void OnStateChanged()
     {
         ApplyTheme();
-        SyncToolbar();
+        SyncEditBar();
         Relayout();
 
         // A card built again (an undo, a paste of a copy) starts unfaded: the cut keeps its fade.
@@ -131,13 +131,13 @@ internal sealed partial class DesktopWindow
         if (editing)
         {
             // [S-3593] The bar's buttons and its add menu are built as edit mode starts.
-            if (!_toolbar.Built)
+            if (!_editBar.Built)
             {
-                _toolbar.Fill(ToolbarCommands());
+                _editBar.Fill(BarCommands());
             }
 
             SyncProperties();
-            ShowToolbar();
+            ShowEditBar();
         }
         else
         {
@@ -146,7 +146,7 @@ internal sealed partial class DesktopWindow
             ReleaseEditMenus();
         }
 
-        _toolbar.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
+        _editBar.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
 
         _gridOverlay.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
 
@@ -170,7 +170,7 @@ internal sealed partial class DesktopWindow
 
         // [S-907] The bar gains its grip in edit mode, or appears faded where the user hid it.
         RefreshViewBar();
-        PlaceProperties();
+        PlaceFlyout();
 
         if (editing)
         {
@@ -220,7 +220,7 @@ internal sealed partial class DesktopWindow
 
         PositionCard(card, card.Model.Rect);
         JoinCards();
-        PlaceProperties();
+        PlaceFlyout();
     }
 
     /// <inheritdoc />
@@ -310,7 +310,7 @@ internal sealed partial class DesktopWindow
 
         ApplyChromeInsets();
         RefreshViewBar();
-        PlaceProperties();
+        PlaceFlyout();
         PlaceWidgetGallery();
 
         if (EditMode)
@@ -323,7 +323,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-852] Keep the edit toolbar and the placement hint inside the work area. The surface spans
+    /// [S-852] Keep the edit bar and the placement hint inside the work area. The surface spans
     /// the whole monitor, so with the taskbar at the top they would otherwise sit underneath it.
     /// </summary>
     private void ApplyChromeInsets()
@@ -341,7 +341,7 @@ internal sealed partial class DesktopWindow
             Math.Max(0, metrics.Width - (allowed.X + allowed.Width)),
             0);
 
-        _toolbar.Margin = margin;
+        _editBar.Margin = margin;
         _placementHint.Margin = margin;
     }
 

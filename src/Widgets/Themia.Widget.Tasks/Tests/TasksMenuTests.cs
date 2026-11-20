@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.Tasks.Tests;
 
-/// <summary>[S-7516] The Tasks widget's options on its properties menu ([S-3719]): where the list comes from, which list, and what the rows keep.</summary>
+/// <summary>[S-7516] The Tasks widget's options on its page ([S-3719]): where the list comes from, which list, and what the rows keep.</summary>
 public sealed class TasksMenuTests
 {
     private sealed class Service(IReadOnlyList<TaskAccount> accounts, ILocalTaskLists local, Func<string, Task<IReadOnlyList<TaskListInfo>>> lists) : ITaskSource

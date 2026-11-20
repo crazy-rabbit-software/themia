@@ -94,7 +94,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>[S-11850] The sample (or a render's fixture) holds the list: no refresh replaces it.</summary>
     private bool _frozen;
 
-    /// <summary>[S-6913] What the view asks of the host: the shared Office source, the launcher, ⚙ › Accounts.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the shared Office source, the launcher, settings › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public ContactsView(IWidgetHost host)

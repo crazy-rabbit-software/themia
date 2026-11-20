@@ -59,7 +59,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
     private FolderConfig _config;
 
     /// <summary>
-    /// A copy of the settings last acted on: the properties menu edits the live object in place, so the
+    /// A copy of the settings last acted on: the selection's page edits the live object in place, so the
     /// previous values are only knowable from a copy.
     /// </summary>
     private FolderConfig _applied;

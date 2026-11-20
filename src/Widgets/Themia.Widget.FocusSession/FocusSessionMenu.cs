@@ -9,7 +9,7 @@ using Themia.Widget.FocusSession;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-4428] The focus session's options, all on its properties menu ([S-3719]): Appearance
+/// [S-4428] The focus session's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), the length and do not disturb. It has no settings page.
 /// </summary>
 internal static class FocusSessionMenu

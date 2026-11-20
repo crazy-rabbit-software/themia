@@ -24,11 +24,11 @@ internal static class ModuleHost
     public static FrameworkElement CreateView(WidgetId kind, IWidgetHost host) => Module(kind).CreateView(host);
 
     /// <summary>
-    /// [S-3719] A widget's own lines on its properties menu, built by <paramref name="kind"/>'s module over
+    /// [S-3719] A widget's own lines on its page, built by <paramref name="kind"/>'s module over
     /// <paramref name="config"/> (the live one: the lines change it in place and <paramref name="save"/>
     /// stores it; or [S-11751] a scratch copy whose save sets what it holds on every widget selected that holds it),
     /// what they ask asked in place ([S-2351]). A module that throws is logged and has none.
-    /// [S-3749] <paramref name="openSetting"/> opens the level a link row leads to (⚙ › Accounts,
+    /// [S-3749] <paramref name="openSetting"/> opens the level a link row leads to (settings › Accounts,
     /// [S-3558]; a format; an update interval).
     /// </summary>
     public static WidgetMenuLines? MenuLines(WidgetId kind, WidgetConfig config, Action save, Action<SettingLink>? openSetting = null)

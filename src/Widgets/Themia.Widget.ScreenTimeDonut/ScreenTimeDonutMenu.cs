@@ -7,7 +7,7 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3345] The donut's options, all on its properties menu ([S-3719]): Appearance ([S-3723]), the
+/// [S-3345] The donut's options, all on its page ([S-3719]): Appearance ([S-3723]), the
 /// period, the ring's Size, then the limits and hidden apps every screen-time widget shares ([S-3323]). It has no
 /// settings page.
 /// </summary>

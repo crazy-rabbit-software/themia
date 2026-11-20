@@ -13,7 +13,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// content's top end corner at the inset, taking no room of the content's. The problem glyph is the one
 /// stale rule ([S-7042]): it shows only while a copy is on screen that the last attempt of some source
 /// could not improve on, its tooltip one line per source and problem ("Work: No network · updated
-/// 10:42"); a click on it opens ⚙ › Accounts when the problem is one only the user can mend there. The
+/// 10:42"); a click on it opens settings › Accounts when the problem is one only the user can mend there. The
 /// age is never drawn here: it is on the Refresh line. The ring shows only while a fetch for one of the
 /// widget's own sources is out ([S-2661]). With neither it is collapsed.
 /// <para>
@@ -71,7 +71,7 @@ public sealed partial class KitStatus : StackPanel
 
     /// <summary>
     /// Show the state: the problem lines (none hides the glyph), whether a fetch is out and whether the
-    /// problem is mended in ⚙ › Accounts.
+    /// problem is mended in settings › Accounts.
     /// </summary>
     public void Show(IReadOnlyList<string> problems, bool busy, bool offersAccounts = false)
     {
@@ -172,7 +172,7 @@ public sealed partial class KitStatus : StackPanel
         args.Handled = true;
         if (!_host.ShowAccounts())
         {
-            Log.Info("kit", "nothing here opens ⚙ › Accounts");
+            Log.Info("kit", "nothing here opens settings › Accounts");
         }
     }
 }

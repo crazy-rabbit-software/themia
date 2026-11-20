@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Themia.Widget.WeekPlanner.Tests;
 
-/// <summary>[S-5324] The week planner's options on its properties menu ([S-3719]).</summary>
+/// <summary>[S-5324] The week planner's options on its page ([S-3719]).</summary>
 public sealed class WeekPlannerMenuTests
 {
     private int _saves;

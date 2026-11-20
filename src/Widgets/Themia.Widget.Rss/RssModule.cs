@@ -33,7 +33,7 @@ public sealed class RssModule : IWidgetModule
         Add = new(AddFolderId.Markets, 1, 0),
     };
 
-    /// <summary>[S-3719] [S-7510] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] [S-7510] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => RssMenu.Lines(menu, (RssConfig)config);
 

@@ -10,7 +10,7 @@ using Themia.Core.Settings;
 namespace Themia.Sdk.WinUI;
 
 /// <summary>
-/// [S-3719] What a module's own lines on the properties menu ([S-3716]) are built into: the lines of
+/// [S-3719] What a module's own lines on the selection's page ([S-3716]) are built into: the lines of
 /// the menu's first level (<see cref="Lines"/>), the lines right under its Style line
 /// (<see cref="StyleLines"/>: what only the look draws with), and the save to call after a change.
 /// The card's own lines are the menu's pinned Appearance foot ([S-3739]), never among these. The lines are the one menu
@@ -32,8 +32,8 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3749] Opens where <see cref="SettingLink"/> leads (⚙ › Accounts, to add or manage an account),
-    /// closing the properties menu: what a link row does. A setting the widget merely follows (a format,
+    /// [S-3749] Opens where <see cref="SettingLink"/> leads (settings › Accounts, to add or manage an account),
+    /// closing the selection's page: what a link row does. A setting the widget merely follows (a format,
     /// an update interval) gets no link row: the widget just follows it ([S-3590]). Null where the host
     /// has no edit bar (a render, a test): the link is greyed.
     /// </summary>
@@ -172,8 +172,8 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3745] [S-3749] The line that opens ⚙ › Accounts (Manage accounts, Add an account): a link
-    /// row, never a copy of what ⚙ › Accounts sets; it changes nothing here and saves nothing; greyed
+    /// [S-3745] [S-3749] The line that opens settings › Accounts (Manage accounts, Add an account): a link
+    /// row, never a copy of what settings › Accounts sets; it changes nothing here and saves nothing; greyed
     /// where the host has no edit bar.
     /// </summary>
     public ItemMenuEntry AccountsLine(string? glyph, string text)
@@ -609,7 +609,7 @@ public sealed record MenuListRename<T>(Func<T, string, bool> Set)
 public sealed record MenuListAdd<T>(string Title, string Placeholder, Func<string, string?> Refuse, Func<string, T> Create);
 
 /// <summary>
-/// [S-3721] [S-2351] One line of text asked for on the properties menu, in place in its line's card: what it asks for
+/// [S-3721] [S-2351] One line of text asked for on the selection's page, in place in its line's card: what it asks for
 /// (its field's name for a screen reader), the field's placeholder, the words of the accept that gives it, the check run
 /// as it is typed (the reason it cannot be used, or null) and what is done with it. Enter or the accept gives it;
 /// Escape or a press elsewhere closes it and gives nothing.
@@ -619,7 +619,7 @@ public sealed record MenuListAdd<T>(string Title, string Placeholder, Func<strin
 public sealed record WidgetTextAsk(string Title, string Placeholder, string Accept, Func<string, string?> Refuse, Action<string> Done, string? Initial = null, bool AllowEmpty = false);
 
 /// <summary>
-/// [S-3727] [S-2351] An "are you sure?" on the properties menu, in place in its line's card: the question, the words of
+/// [S-3727] [S-2351] An "are you sure?" on the selection's page, in place in its line's card: the question, the words of
 /// the button that does it (in the critical colour where <paramref name="Danger"/>), what it does, and optionally
 /// <paramref name="Detail"/> under the question (what goes with it: "Its 4 habits and their streaks go too"). Cancel,
 /// Escape or a press elsewhere do nothing.
@@ -627,7 +627,7 @@ public sealed record WidgetTextAsk(string Title, string Placeholder, string Acce
 public sealed record WidgetConfirm(string Question, string Accept, Action Done, bool Danger = true, string? Detail = null);
 
 /// <summary>
-/// [S-3722] A search on the properties menu: the box's placeholder, the answer for what is typed
+/// [S-3722] A search on the selection's page: the box's placeholder, the answer for what is typed
 /// (the empty text included, asked as the submenu opens), how long typing settles before it is
 /// asked (zero for an answer in hand, the geocoder's pause for a network one), and the lines that
 /// always follow the answers (clear the choice, a switch about it).

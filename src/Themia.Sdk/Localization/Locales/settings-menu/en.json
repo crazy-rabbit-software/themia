@@ -1,5 +1,5 @@
 {
-  "$comment": "[S-3520]..[S-3584] The edit bar's settings menu (⚙): its own words.",
+  "$comment": "[S-3520]..[S-3584] The edit bar's settings: its own words.",
   "settingsMenu.onlineUpdates": "Online updates",
   "settingsMenu.gameMode": "Pause during full-screen apps",
   "settingsMenu.findLanguage": "Find a language",

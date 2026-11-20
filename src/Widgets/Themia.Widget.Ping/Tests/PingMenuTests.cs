@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.Ping.Tests;
 
-/// <summary>[S-1175] [S-109] The ping meter's options on its properties menu: Appearance, the host (checked as typed), the span under Style.</summary>
+/// <summary>[S-1175] [S-109] The ping meter's options on its page: Appearance, the host (checked as typed), the span under Style.</summary>
 public sealed class PingMenuTests
 {
     private int _saves;

@@ -33,7 +33,7 @@ public enum EditCommand
     /// <summary>[S-1973] Tab / Shift+Tab selects the next / previous widget in reading order.</summary>
     Cycle,
 
-    /// <summary>[S-1974] Enter moves the keyboard into the selection's properties menu, where its options are.</summary>
+    /// <summary>[S-1974] Enter moves the keyboard into the selection's page, where its options are.</summary>
     FocusProperties,
 
     /// <summary>[S-1974] The Menu key or Shift+F10 opens the selection's context menu.</summary>

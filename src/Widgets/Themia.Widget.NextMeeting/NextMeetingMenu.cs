@@ -8,7 +8,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.Widget.NextMeeting;
 
 /// <summary>
-/// [S-4826] Next meeting's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
+/// [S-4826] Next meeting's options, all on its page ([S-3719]): Appearance ([S-3723]),
 /// then the accounts and calendars every calendar widget chooses (the SDK's
 /// <see cref="OfficeMenuLines"/>), without their colours, which it never draws. No birthdays line:
 /// they are all-day, never a meeting. It has no settings page.

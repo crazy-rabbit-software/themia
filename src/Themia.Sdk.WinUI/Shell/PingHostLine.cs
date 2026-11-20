@@ -6,7 +6,7 @@ using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>[S-109] The host line the ping meter's and the ping details' properties menus share.</summary>
+/// <summary>[S-109] The host line the ping meter's and the ping details' pages share.</summary>
 public static class PingHostLine
 {
     /// <summary>

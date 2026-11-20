@@ -3,7 +3,7 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk;
 
 /// <summary>
-/// [S-4655] The drives a properties menu lists (the disk meter's and the Drive widget's drive choice):
+/// [S-4655] The drives a page lists (the disk meter's and the Drive widget's drive choice):
 /// the host's walk, installed by the host once at start, as the place lookup is.
 /// </summary>
 public static class DriveList

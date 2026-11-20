@@ -177,7 +177,7 @@ public static class ColorChoice
         GapDips: Fluent.Space1,
         LabelHeightDips: FamilyType.BodyStrong.LineHeight + (2 * Fluent.Space1));
 
-    /// <summary>[S-1556] [S-3723] The eyedropper from a line of the properties menu, which stays where it is.</summary>
+    /// <summary>[S-1556] [S-3723] The eyedropper from a line of the selection's page, which stays where it is.</summary>
     internal static void PickFromScreen(Action<string> choose)
     {
         ArgumentNullException.ThrowIfNull(choose);

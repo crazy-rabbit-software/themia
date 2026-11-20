@@ -13,7 +13,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-3715] A Windows 11 flyout's surface for chrome that stands on the desktop surface beside the
-/// widgets (the properties panel): the flyout's solid fill, its stroke, the overlay corners and a
+/// widgets (the selection's page): the flyout's solid fill, its stroke, the overlay corners and a
 /// flyout's drop shadow, so it reads as a raised sheet over any wallpaper and any card.
 /// <para>
 /// The fill is the flyout presenter's solid colour (<c>SolidBackgroundFillColorQuarternary</c>,

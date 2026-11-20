@@ -42,7 +42,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetSurfaceAwa
 
     /// <summary>
     /// [S-13a] A copy of the settings this view last acted on, which is what a change is measured
-    /// against. Not <c>_config</c>: the properties menu edits the live config object in place.
+    /// against. Not <c>_config</c>: the selection's page edits the live config object in place.
     /// </summary>
     private GalleryConfig _applied = new();
 
@@ -80,7 +80,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetSurfaceAwa
     private bool _everApplied;
     private bool _detached;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, settings › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public GalleryView(IWidgetHost host)

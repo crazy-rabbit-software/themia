@@ -4,7 +4,7 @@ using Themia.Widget.Ping;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>[S-1175] The ping meter's options, all on its properties menu ([S-3719]): Appearance, then the host ([S-109]). It has no settings page.</summary>
+/// <summary>[S-1175] The ping meter's options, all on its page ([S-3719]): Appearance, then the host ([S-109]). It has no settings page.</summary>
 internal static class PingMenu
 {
     public static void Lines(WidgetMenuLines menu, PingConfig config)

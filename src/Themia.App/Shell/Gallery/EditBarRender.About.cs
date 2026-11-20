@@ -10,7 +10,7 @@ using Themia.Core.Storage;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-3583] ⚙ › Themia Pro, Back up &amp; reset and About Themia open on the stand-in display:
+/// [S-3583] settings › Themia Pro, Back up &amp; reset and About Themia open on the stand-in display:
 /// <c>-pro-&lt;state&gt;</c> for each licence state the License page's render showed (<c>free</c>,
 /// <c>refused</c> (a refusal said on top), <c>pro</c>, <c>grace</c>, <c>offline</c>), and
 /// <c>-pro-developer</c>, <c>-pro-onsale</c> (the Store's price on Upgrade), <c>-pro-buying</c> (the

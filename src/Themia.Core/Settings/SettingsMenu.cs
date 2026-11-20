@@ -8,7 +8,7 @@ namespace Themia.Core.Settings;
 
 /// <summary>
 /// [S-3524] One line of the edit bar's settings menu, as data: what it shows and what a pick does.
-/// The app draws every one with the menu engine the properties menu is drawn with ([S-3716]); the
+/// The app draws every one with the menu engine the selection's page is drawn with ([S-3716]); the
 /// rules (which lines a section has, their choices, their words, what each writes) are here, so they
 /// are tested without a window. <see cref="Key"/> names the line across rebuilds and languages
 /// (a path: "appearance/cards/radius"), so an open submenu stays open through a change of words.

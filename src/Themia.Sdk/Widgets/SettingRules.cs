@@ -1,7 +1,7 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-6070] The options of a kind's properties menu that only some styles or states use, as the
+/// [S-6070] The options of a kind's page that only some styles or states use, as the
 /// kind's own enum: the lines that change nothing the widget visibly does or shows right now are not
 /// built at all. Every such rule is one Core property of the config, never a check written in a
 /// menu. An option every style and state uses is not listed: it is always offered.

@@ -5,7 +5,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug renders only: <c>--design key=value,...</c> sets appearance values on the design a render
-/// draws its cards with, so a border, radius or fill can be looked at without ⚙ › Appearance. The
+/// draws its cards with, so a border, radius or fill can be looked at without settings › Appearance. The
 /// text is read by <see cref="DesignText"/> (its keys are listed there); a pair it cannot read is
 /// printed and skipped.
 /// </summary>

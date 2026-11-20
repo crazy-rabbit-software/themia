@@ -12,7 +12,7 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.Contacts;
 
 /// <summary>
-/// [S-7511] The contacts widget's options, all on its properties menu ([S-3719]): Appearance
+/// [S-7511] The contacts widget's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), the accounts it reads (the SDK's account lines, [S-580]), the layout, the details
 /// table's columns ([S-582], on the details layout only, [S-6074]) and how many people ([S-583]).
 /// It has no settings page.

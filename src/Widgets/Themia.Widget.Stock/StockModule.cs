@@ -38,7 +38,7 @@ public sealed class StockModule : IWidgetModule
         Add = new(AddFolderId.Markets, 0, 0),
     };
 
-    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => StockMenu.Lines(menu, (StockConfig)config);
 

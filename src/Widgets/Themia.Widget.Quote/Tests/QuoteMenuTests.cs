@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.Quote.Tests;
 
-/// <summary>[S-1502] The quote widget's options on its properties menu: the list, the author switch, the shuffle, the cadence.</summary>
+/// <summary>[S-1502] The quote widget's options on its page: the list, the author switch, the shuffle, the cadence.</summary>
 public sealed class QuoteMenuTests
 {
     private int _saves;

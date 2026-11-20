@@ -32,7 +32,7 @@ public interface IWidgetHost
     /// <summary>[S-1251] The card is a preview (a debug render): a view whose buttons act on the machine is inert.</summary>
     bool IsPreview { get; }
 
-    /// <summary>Open ⚙ › Accounts, for a widget whose empty state is "sign in". False where there is none to open (a debug render).</summary>
+    /// <summary>Open settings › Accounts, for a widget whose empty state is "sign in". False where there is none to open (a debug render).</summary>
     bool ShowAccounts();
 
     /// <summary>

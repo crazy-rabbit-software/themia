@@ -2,7 +2,7 @@ namespace Themia.Core.Model;
 
 /// <summary>
 /// [S-6530]..[S-6533] One widget's own content scale (<see cref="WidgetInstance.Scale"/>): what it
-/// may hold, what the properties panel offers, how a hand-edited value is repaired, and how it
+/// may hold, what the selection's page offers, how a hand-edited value is repaired, and how it
 /// combines with the display's ([S-850]). Pure.
 /// </summary>
 public static class WidgetScale
@@ -13,7 +13,7 @@ public static class WidgetScale
     /// <summary>[S-6530] The largest widget scale, as a factor: double size, like the display scale.</summary>
     public const double Max = 2.0;
 
-    /// <summary>[S-6530] The grain of a stored scale: 5 %, the properties menu's Scale slider's step ([S-6531]).</summary>
+    /// <summary>[S-6530] The grain of a stored scale: 5 %, the selection's page's Scale slider's step ([S-6531]).</summary>
     public const double Step = 0.05;
 
     /// <summary>

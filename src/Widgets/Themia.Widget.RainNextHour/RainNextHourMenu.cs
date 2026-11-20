@@ -8,7 +8,7 @@ using Themia.Sdk;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-5127] The rain widget's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
+/// [S-5127] The rain widget's options, all on its page ([S-3719]): Appearance ([S-3723]),
 /// the weather family's location search ([S-2840], [S-3722]) and the source's credit. Rain has nothing else to choose. It has no settings page.
 /// </summary>
 internal static class RainNextHourMenu

@@ -124,7 +124,6 @@ internal sealed partial class WidgetCard
         _moveArmed = false;
         _openArmed = false;
 
-        _press = CardPress.Move;
         _activeHandle = null;
         _narrowOnRelease = false;
         _dragStartRect = LiveRect;

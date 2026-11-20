@@ -103,7 +103,7 @@ internal sealed class LicenseService : IDisposable
 
     /// <summary>
     /// Open the Store's purchase dialog for Pro, owned by <paramref name="owner"/> (the window of the
-    /// display whose ⚙ it was asked from, [S-3572]): a desktop app must hand the Store a window before it can show any UI
+    /// display whose settings it was asked from, [S-3572]): a desktop app must hand the Store a window before it can show any UI
     /// (<c>IInitializeWithWindow</c>).
     /// </summary>
     public async Task<PurchaseOutcome> PurchaseProAsync(nint owner)

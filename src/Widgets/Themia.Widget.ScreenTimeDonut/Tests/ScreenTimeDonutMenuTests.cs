@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Themia.Widget.ScreenTimeDonut.Tests;
 
-/// <summary>[S-3345] The donut's options on its properties menu: the period, then the shared limits ([S-3323]): the day's, never an app's.</summary>
+/// <summary>[S-3345] The donut's options on its page: the period, then the shared limits ([S-3323]): the day's, never an app's.</summary>
 public sealed class ScreenTimeDonutMenuTests
 {
     private int _saves;

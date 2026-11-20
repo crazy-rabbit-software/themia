@@ -15,7 +15,7 @@ namespace Themia.Core.Model;
 /// [S-3640] The calendar: one widget, five styles (month, week, day, year, agenda), what were five
 /// kinds. It stores what every calendar shares and the union of what its styles use: the week's
 /// length and first column ([S-3637]) and the agenda's range and length ([S-3636], [S-571]). A
-/// style ignores the fields it does not use, and the properties menu shows only its own
+/// style ignores the fields it does not use, and the selection's page shows only its own
 /// (<see cref="SettingsFor"/>).
 /// </summary>
 public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettings<CalendarSetting>, IKitRows
@@ -98,7 +98,7 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     };
 
     /// <summary>
-    /// [S-3601] [S-6070] The lines the properties menu shows for the current style after the
+    /// [S-3601] [S-6070] The lines the selection's page shows for the current style after the
     /// accounts, in menu order: only what that style uses (birthdays follow for every style).
     /// </summary>
     [JsonIgnore]

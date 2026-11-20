@@ -749,7 +749,7 @@ internal sealed class MailService : IMailSource, IDisposable
 
                 Drain.Restore([.. shelf.Pending, .. Drain.Pending]);
 
-                // [S-3823] What is stored, for ⚙ › Accounts.
+                // [S-3823] What is stored, for settings › Accounts.
                 _owner._sync.Report(AccountId, SyncStats.Of(shelf));
             }
 

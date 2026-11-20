@@ -8,7 +8,7 @@ using Themia.Widget.VideoStream;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-473] The camera stream's options, all on its properties menu ([S-3719]): Appearance
+/// [S-473] The camera stream's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), the address and how often it is read; after a divider how the picture fills and
 /// turns; after another the overlay's switches; then a note on what the right-click menu does. It has
 /// no settings page.

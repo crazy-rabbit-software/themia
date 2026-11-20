@@ -35,7 +35,7 @@ internal class PreviewCardHost(Ticker ticker) : IWidgetCardHost
 
     public Ticker Ticker => ticker;
 
-    /// <summary>[S-3713] Edit mode, for the properties strip's render; false elsewhere.</summary>
+    /// <summary>[S-3713] Edit mode, for the selection page's render; false elsewhere.</summary>
     public bool EditMode { get; init; }
 
     /// <summary>[S-3713] The ids drawn selected; none elsewhere.</summary>

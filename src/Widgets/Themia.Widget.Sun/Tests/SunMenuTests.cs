@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Sun.Tests;
 
-/// <summary>[S-3107] The Sun's options on its properties menu, the sky's shared location search among them ([S-3101]).</summary>
+/// <summary>[S-3107] The Sun's options on its page, the sky's shared location search among them ([S-3101]).</summary>
 public sealed class SunMenuTests
 {
     private int _saves;

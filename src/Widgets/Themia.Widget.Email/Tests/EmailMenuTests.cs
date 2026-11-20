@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.Email.Tests;
 
-/// <summary>[S-7512] The Mail widget's options on its properties menu ([S-3719]): what each style offers under Style, and what a line does.</summary>
+/// <summary>[S-7512] The Mail widget's options on its page ([S-3719]): what each style offers under Style, and what a line does.</summary>
 public sealed class EmailMenuTests
 {
     private int _saves;

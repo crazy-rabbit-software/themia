@@ -9,7 +9,7 @@ using Themia.Widget.Mixer;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1235] The mixer's options, all on its properties menu ([S-3719]): Appearance ([S-3723]), the
+/// [S-1235] The mixer's options, all on its page ([S-3719]): Appearance ([S-3723]), the
 /// output device ([S-1222], only where there is a choice, [S-1236]), which rows the list holds, what
 /// a row shows, and how the keys work, each group behind a divider. It has no settings page.
 /// </summary>

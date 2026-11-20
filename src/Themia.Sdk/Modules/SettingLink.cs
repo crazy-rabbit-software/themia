@@ -10,7 +10,7 @@ namespace Themia.Sdk;
 /// </summary>
 public enum OwnedSetting
 {
-    /// <summary>[S-3550] ⚙ › Accounts: the accounts an account widget reads.</summary>
+    /// <summary>[S-3550] settings › Accounts: the accounts an account widget reads.</summary>
     Accounts,
 }
 

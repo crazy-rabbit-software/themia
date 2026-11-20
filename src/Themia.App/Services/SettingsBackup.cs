@@ -8,9 +8,9 @@ using Themia.Core.Storage;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-3575]..[S-3578] What ⚙ › Back up &amp; reset does to the settings file, the About page's flows run
+/// [S-3575]..[S-3578] What settings › Back up &amp; reset does to the settings file, the About page's flows run
 /// from the menu's lines: Windows' Save and Open dialogs (<c>Microsoft.Windows.Storage.Pickers</c>,
-/// which take a window id and work unpackaged) owned by the window of the display whose ⚙ it is,
+/// which take a window id and work unpackaged) owned by the window of the display whose settings it is,
 /// the import's question asked beside that menu, the file opened through the one launcher, the reset.
 /// How each ended is said under its line; a dialog cancelled says nothing.
 /// </summary>

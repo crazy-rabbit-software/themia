@@ -4,7 +4,7 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk;
 
 /// <summary>
-/// [S-2431] The graphics adapters a properties menu lists (the GPU widgets' adapter choice): the host's
+/// [S-2431] The graphics adapters a page lists (the GPU widgets' adapter choice): the host's
 /// DXGI enumeration, installed by the host once at start, as the place lookup is.
 /// </summary>
 public static class GpuAdapters

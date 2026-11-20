@@ -19,7 +19,7 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class DesktopWindow : IViewBarOwner
 {
-    /// <summary>The layer the bar is positioned on: above the widgets, under the ghosts and the toolbar.</summary>
+    /// <summary>The layer the bar is positioned on: above the widgets, under the ghosts and the edit bar.</summary>
     private readonly Canvas _barLayer = new();
 
     private readonly ViewBar _viewBar;
@@ -55,9 +55,9 @@ internal sealed partial class DesktopWindow : IViewBarOwner
 
         // [S-917] The chips that fit along this display's work area at this anchor; the rest go
         // behind the overflow chip. Refit on every refresh: a resize, a DPI or work-area change, a
-        // drag to another anchor, the toolbar coming and going, a view added.
+        // drag to another anchor, the edit bar coming and going, a view added.
         var area = WorkArea;
-        var room = ViewBarRules.Room(area, anchor, EditMode ? ToolbarRect(area) : null, settings.Type);
+        var room = ViewBarRules.Room(area, anchor, EditMode ? EditBarRect(area) : null, settings.Type);
 
         _viewBar.Update(
             items,
@@ -68,7 +68,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         PositionViewBar(anchor);
     }
 
-    /// <summary>[S-909] Put the bar at its anchor in the work area, clear of the edit toolbar.</summary>
+    /// <summary>[S-909] Put the bar at its anchor in the work area, clear of the edit bar.</summary>
     private void PositionViewBar(ViewBarAnchor anchor)
     {
         var metrics = Metrics;
@@ -80,24 +80,24 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         _viewBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = _viewBar.DesiredSize;
         var area = WorkArea;
-        var (x, y) = ViewBarRules.Place(area, size.Width, size.Height, anchor, EditMode ? ToolbarRect(area) : null);
+        var (x, y) = ViewBarRules.Place(area, size.Width, size.Height, anchor, EditMode ? EditBarRect(area) : null);
 
         Canvas.SetLeft(_viewBar, x);
         Canvas.SetTop(_viewBar, y);
     }
 
     /// <summary>
-    /// The edit toolbar's rect in the surface's DIPs. Computed from its measured size and its
+    /// The edit bar's rect in the surface's DIPs. Computed from its measured size and its
     /// alignment (centred along the top of the work area, [S-852]: it never moves) rather than read
     /// back from layout, because it has just been made visible when edit mode starts and has not been
     /// laid out yet.
     /// </summary>
-    private PixelRect ToolbarRect(PixelRect area)
+    private PixelRect EditBarRect(PixelRect area)
     {
-        _toolbar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var margin = _toolbar.Margin;
-        var width = Math.Max(0, _toolbar.DesiredSize.Width - margin.Left - margin.Right);
-        var height = Math.Max(0, _toolbar.DesiredSize.Height - margin.Top - margin.Bottom);
+        _editBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var margin = _editBar.Margin;
+        var width = Math.Max(0, _editBar.DesiredSize.Width - margin.Left - margin.Right);
+        var height = Math.Max(0, _editBar.DesiredSize.Height - margin.Top - margin.Bottom);
         return new PixelRect(area.X + ((area.Width - width) / 2), area.Y + ChromeTopMargin, width, height);
     }
 

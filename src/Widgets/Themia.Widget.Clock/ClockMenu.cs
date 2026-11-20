@@ -9,11 +9,11 @@ using Themia.Sdk;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1480] The Clock's options, all on its properties menu ([S-3719]): under Style what the look
+/// [S-1480] The Clock's options, all on its page ([S-3719]): under Style what the look
 /// draws (seconds: [S-6074] only where the style draws them); then
 /// Appearance ([S-3723]) and the time zone, a search ([S-3722]), with the offset line after it on the
 /// same level (what is shown is chosen on the first level, not inside a search). The 12- or 24-hour clock is
-/// ⚙'s and the clock just follows it ([S-3590]).
+/// the settings' and the clock just follows it ([S-3590]).
 /// It has no settings page.
 /// </summary>
 internal static class ClockMenu

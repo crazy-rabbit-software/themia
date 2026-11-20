@@ -5,7 +5,7 @@ using Themia.Core.Diagnostics;
 namespace Themia.App.Services;
 
 /// <summary>
-/// What the app can say about itself, for the log and ⚙ › About Themia.
+/// What the app can say about itself, for the log and settings › About Themia.
 /// <para>
 /// Read once. None of it changes while the process is alive, and the status bar asks for it every
 /// time anything at all happens.

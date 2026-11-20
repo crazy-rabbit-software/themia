@@ -146,11 +146,11 @@ internal sealed partial class AppHost : IDisposable
         _office = new Office.AccountOfficeSource(Accounts, Sync, Ticker);
         Office.OfficeSources.Current = _office;
 
-        // [S-3550] ⚙ › Accounts on every display reads one set of forms and flows.
+        // [S-3550] settings › Accounts on every display reads one set of forms and flows.
         AccountsMenu = new Themia.App.Services.Accounts.AccountsMenuHost(dispatcher);
         AccountsMenu.Changed += () => SettingsOutdated?.Invoke();
 
-        // [S-3570] [S-3575] ⚙ › Themia Pro and Back up & reset: one licence menu, one settings file,
+        // [S-3570] [S-3575] settings › Themia Pro and Back up & reset: one licence menu, one settings file,
         // and what their lines started said under them, the same on every display.
         SettingsOutcomes.Changed += () => SettingsOutdated?.Invoke();
         LicenceMenu = new Licensing.LicenceMenu(License, SettingsOutcomes);
@@ -365,7 +365,7 @@ internal sealed partial class AppHost : IDisposable
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// Close everything down and quit. Reachable from the edit toolbar, which is the only place it
+    /// Close everything down and quit. Reachable from the edit bar, which is the only place it
     /// is offered: an app with no tray entry has no other chrome to hang it from.
     /// </summary>
     /// <param name="afterShutdown">

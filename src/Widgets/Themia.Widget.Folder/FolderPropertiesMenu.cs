@@ -8,7 +8,7 @@ using Themia.Widget.Folder;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1337] The Folder widget's options, all on its properties menu ([S-3719]): under Style what the
+/// [S-1337] The Folder widget's options, all on its page ([S-3719]): under Style what the
 /// look draws ([S-4121]: row or tile size, the details columns, the extensions, the order); then
 /// Appearance ([S-3723]), the folder and hidden items, and how items and folders open. It has no
 /// settings page. (Its item and background menus are <see cref="FolderMenu"/>.)

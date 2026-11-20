@@ -43,7 +43,7 @@ public sealed class EmailModule : IWidgetModule
         Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),
     };
 
-    /// <summary>[S-3719] [S-7512] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] [S-7512] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => EmailMenu.Lines(menu, (EmailConfig)config, SettingsHost.AccountsWith(HostFeatures.Mail));
 

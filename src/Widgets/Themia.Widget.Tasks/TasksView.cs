@@ -29,7 +29,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// Every state that is not a list says which it is and what to do about it ([S-181]): no account,
 /// an account that needs signing in again, an account gone, no lists, loading, offline, and a
-/// provider error each have their own sentence, and the ones ⚙ › Accounts can mend link to it.
+/// provider error each have their own sentence, and the ones settings › Accounts can mend link to it.
 /// A list on this PC needs no account at all.
 /// </para>
 /// </summary>
@@ -85,7 +85,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <summary>[S-789] List names by id, for the Today view's rows on a panel. Read from the service's cache.</summary>
     private IReadOnlyDictionary<string, string> _listNames = new Dictionary<string, string>();
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, settings › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public TasksView(IWidgetHost host)
@@ -164,7 +164,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         Resubscribe();
 
         // [S-183] Only what changes the request re-binds; the rest redraws what is in hand. The
-        // properties menu edits this very config object in place, so the comparison is against what
+        // selection's page edits this very config object in place, so the comparison is against what
         // the widget last bound to, never against "the previous config".
         if (BindKey.Of(_config) != _bound)
         {
@@ -595,7 +595,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
                 break;
 
             case Screen.NoAccount:
-                // [S-1862] The card's Set up button covers this; its properties menu offers a local list.
+                // [S-1862] The card's Set up button covers this; its page offers a local list.
                 _state.Hide();
                 break;
 

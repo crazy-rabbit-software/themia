@@ -10,7 +10,7 @@ using Themia.Widget.ScreenTimeApps;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3356] The app list's options, all on its properties menu ([S-3719]): Appearance ([S-3723]), the
+/// [S-3356] The app list's options, all on its page ([S-3719]): Appearance ([S-3723]), the
 /// period, its rows and lines, the figures on the second line (an average only over a window, [S-6074]); then the
 /// limits and hidden apps every screen-time widget shares ([S-3323]). It has no settings page.
 /// </summary>

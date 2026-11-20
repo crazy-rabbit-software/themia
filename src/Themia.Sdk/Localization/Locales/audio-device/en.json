@@ -1,5 +1,5 @@
 {
-  "$comment": "[S-1222] The audio widgets' output-device line on the properties menu.",
+  "$comment": "[S-1222] The audio widgets' output-device line on the selection's page.",
   "$englishOnly": [
     "audioDevice.search"
   ],

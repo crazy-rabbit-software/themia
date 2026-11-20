@@ -49,7 +49,7 @@ public sealed class ExchangeHistoryModule : IWidgetModule
     internal static WidgetSizing Sizing()
         => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
 
-    /// <summary>[S-11157] Every option is on the properties menu: the pair, as the rate's.</summary>
+    /// <summary>[S-11157] Every option is on the selection's page: the pair, as the rate's.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);

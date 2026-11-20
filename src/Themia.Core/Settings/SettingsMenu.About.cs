@@ -17,7 +17,7 @@ public enum MenuPicture
 }
 
 /// <summary>
-/// [S-3580] What ⚙ › About Themia reads and does: the version and what it runs on, the links (through
+/// [S-3580] What settings › About Themia reads and does: the version and what it runs on, the links (through
 /// the app's one launcher), and the uninstall: the plan for this install, the "also delete my data"
 /// choice of a loose build (a draft, unticked again when the menu closes) and the uninstall itself.
 /// </summary>

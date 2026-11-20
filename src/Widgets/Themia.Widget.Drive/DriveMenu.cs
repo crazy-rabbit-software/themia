@@ -8,7 +8,7 @@ using Themia.Widget.Drive;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>[S-4674] The Drive card's options, all on its properties menu ([S-3719]): Appearance, then which drive. It has no settings page.</summary>
+/// <summary>[S-4674] The Drive card's options, all on its page ([S-3719]): Appearance, then which drive. It has no settings page.</summary>
 internal static class DriveMenu
 {
     /// <param name="drives">Every drive Windows has (the host's walk, <c>DriveList.Now()</c>).</param>

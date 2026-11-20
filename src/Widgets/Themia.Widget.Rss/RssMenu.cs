@@ -11,7 +11,7 @@ using Themia.Sdk;
 namespace Themia.Widget.Rss;
 
 /// <summary>
-/// [S-7510] The Rss widget's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
+/// [S-7510] The Rss widget's options, all on its page ([S-3719]): Appearance ([S-3723]),
 /// the feeds as the menu's editable list ([S-3729]), the kit's switches for the optional fields and
 /// how many articles ([S-7063]). It has no settings page.
 /// <para>

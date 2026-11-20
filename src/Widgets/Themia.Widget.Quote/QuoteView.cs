@@ -251,7 +251,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
     /// <summary>[S-6583] Where the mark, the quote and its author sit: the widget's alignment, from the start by default ([S-6582]).</summary>
     private ContentAlign _align = ContentAlign.Left;
 
-    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    /// <summary>[S-6583] The widget's alignment, from the selection's page.</summary>
     public void ApplyAlign(ContentAlign align)
     {
         _fit.Align = align;

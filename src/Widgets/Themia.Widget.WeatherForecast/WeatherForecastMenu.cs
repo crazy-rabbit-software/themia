@@ -9,7 +9,7 @@ using Themia.Sdk;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-2860] The forecast widget's options, all on its properties menu ([S-3719]): Appearance
+/// [S-2860] The forecast widget's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), the location's search ([S-3722]) with the location-name switch after it and the precipitation
 /// switch. How many days is the card's ([S-14410]): no line sets it. It has no settings page.
 /// </summary>

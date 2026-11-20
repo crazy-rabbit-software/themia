@@ -7,7 +7,7 @@ namespace Themia.App.Shell;
 /// [S-1110] The language switching live on the desktop: one central rebuild, so no widget has to
 /// follow the language itself.
 /// <para>
-/// Every card on the surface is recreated once — its view, its header, its menus — and the toolbar
+/// Every card on the surface is recreated once — its view and its menus — and the edit bar
 /// (with the Add-widget picker inside it), the view bar and the placement hint are redrawn. A
 /// language change is rare and deliberate, so restarting each widget's tick is an acceptable price
 /// for having one path that cannot miss a string, rather than a subscription in every view.
@@ -38,7 +38,7 @@ internal sealed partial class DesktopWindow
         }
 
         ApplyFlow();
-        RebuildToolbar();
+        RebuildEditBar();
 
         // A suspended surface has no cards; it builds them fresh, in the new language, when it resumes.
         if (!_suspended)
@@ -61,7 +61,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-1113] The language on the whole surface, its direction only on the parts that are text:
-    /// the edit bar, the properties strip, the view bar, the placement hint, the notices and the menu anchor (each card
+    /// the edit bar, its open flyout, the view bar, the placement hint, the notices and the menu anchor (each card
     /// sets its own as it is built). The surface root and its canvases stay left to right — they
     /// are where things are on the screen, and a widget does not move when the language changes.
     /// </summary>
@@ -69,7 +69,7 @@ internal sealed partial class DesktopWindow
     {
         UiLanguage.ApplyLanguageOnly(_root);
         UiLanguage.ApplyFlow(_menuAnchor);
-        UiLanguage.ApplyFlow(_toolbar);
+        UiLanguage.ApplyFlow(_editBar);
         if (_flyout is { } flyout)
         {
             UiLanguage.ApplyFlow(flyout.Page);
@@ -84,14 +84,14 @@ internal sealed partial class DesktopWindow
     private Windows.Foundation.Point OnMenuAnchor(Windows.Foundation.Point at)
         => _root.TransformToVisual(_menuAnchor).TransformPoint(at);
 
-    /// <summary>The edit bar's buttons and its add menu, the properties strip and the bar's open menu, built again in the current language.</summary>
-    private void RebuildToolbar()
+    /// <summary>The edit bar's buttons, its add page and its open flyout, built again in the current language.</summary>
+    private void RebuildEditBar()
     {
-        if (_toolbar.Built)
+        if (_editBar.Built)
         {
-            _toolbar.Fill(ToolbarCommands());
+            _editBar.Fill(BarCommands());
         }
 
-        RebuildBarMenu();
+        SyncBarMenu();
     }
 }

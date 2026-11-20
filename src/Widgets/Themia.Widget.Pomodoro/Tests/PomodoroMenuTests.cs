@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.Pomodoro.Tests;
 
-/// <summary>[S-8110] [S-8112] The Pomodoro's options on its properties menu: the phases as a list, Repeat, the sound and its level.</summary>
+/// <summary>[S-8110] [S-8112] The Pomodoro's options on its page: the phases as a list, Repeat, the sound and its level.</summary>
 public sealed class PomodoroMenuTests
 {
     private int _saves;

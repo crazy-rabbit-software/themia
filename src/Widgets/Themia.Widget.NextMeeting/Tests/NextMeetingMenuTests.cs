@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.NextMeeting.Tests;
 
-/// <summary>[S-4826] Next meeting's options on its properties menu ([S-3719]).</summary>
+/// <summary>[S-4826] Next meeting's options on its page ([S-3719]).</summary>
 public sealed class NextMeetingMenuTests
 {
     [Fact]

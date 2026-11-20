@@ -5,7 +5,7 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk.WinUI;
 
 /// <summary>
-/// [S-3724] What a colour line of the properties menu holds and what a pick in its submenu does: a
+/// [S-3724] What a colour line of the selection's page holds and what a pick in its submenu does: a
 /// colour (<c>#RRGGBB</c>, or empty for the default) or a fill (<see cref="FillChoice"/>: Default,
 /// Transparent or a colour at an opacity). The host draws every one as the same colour submenu,
 /// the card's own Background, Item background and Item text among them ([S-3723]): Default (and a

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.FocusSession.Tests;
 
-/// <summary>[S-4428] The focus session's options on its properties menu: Appearance, the length typed, do not disturb.</summary>
+/// <summary>[S-4428] The focus session's options on its page: Appearance, the length typed, do not disturb.</summary>
 public sealed class FocusSessionMenuTests
 {
     private int _saves;

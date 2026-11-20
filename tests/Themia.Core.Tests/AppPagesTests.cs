@@ -9,7 +9,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-3800]..[S-3823] Rules the settings pages had and the edit bar's menus kept: reordering by
-/// keyboard, a view's colour, and the synced-item numbers ⚙ › Accounts shows.
+/// keyboard, a view's colour, and the synced-item numbers settings › Accounts shows.
 /// </summary>
 public sealed class AppPagesTests
 {

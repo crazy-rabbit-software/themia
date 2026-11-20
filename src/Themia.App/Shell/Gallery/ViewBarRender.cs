@@ -25,7 +25,7 @@ namespace Themia.App.Shell.Gallery;
 /// The bar is the real <see cref="ViewBar"/>, fitted to the real room ([S-917]) and placed by the real
 /// rule (<see cref="ViewBarRules.Place"/>) inside a work area that leaves a taskbar strip at the
 /// bottom, so the pictures show both how a bar looks and where it lands. The edit-mode shots carry a
-/// stand-in for the edit toolbar, to show a top bar moving out from under it.
+/// stand-in for the edit bar, to show a top bar moving out from under it.
 /// </para>
 /// <para>
 /// [S-919] Without <c>--views</c> it draws four views at fifteen anchor/size/label/mode combinations
@@ -105,7 +105,7 @@ internal static class ViewBarRender
         new("right-XL-vertical-text", ViewBarAnchor.RightCenter, ViewBarSize.ExtraLarge, Text, Editing: false),
         new("bottomright-M-edit", ViewBarAnchor.BottomRight, ViewBarSize.Medium, Both, Editing: true),
         new("bottomright-M-edit-text", ViewBarAnchor.BottomRight, ViewBarSize.Medium, Text, Editing: true),
-        new("topcenter-L-edit-toolbar", ViewBarAnchor.TopCenter, ViewBarSize.Large, Both, Editing: true),
+        new("topcenter-L-edit-editBar", ViewBarAnchor.TopCenter, ViewBarSize.Large, Both, Editing: true),
         new("left-M-edit-hidden", ViewBarAnchor.LeftCenter, ViewBarSize.Medium, Both, Editing: true, Hidden: true),
         .. SelectCases,
         .. StyleCases,
@@ -209,7 +209,7 @@ internal static class ViewBarRender
         return true;
     }
 
-    /// <summary>[S-919] Every anchor with each of the three labels, the sizes taken in turn, then two edit-mode shots under the toolbar.</summary>
+    /// <summary>[S-919] Every anchor with each of the three labels, the sizes taken in turn, then two edit-mode shots under the edit bar.</summary>
     private static List<Case> ManyCases()
     {
         ViewBarAnchor[] anchors =
@@ -261,7 +261,7 @@ internal static class ViewBarRender
         ];
     }
 
-    /// <summary>One shot: the work area, the taskbar strip, the toolbar stand-in in edit mode, and the bar at its anchor.</summary>
+    /// <summary>One shot: the work area, the taskbar strip, the edit bar stand-in in edit mode, and the bar at its anchor.</summary>
     private static (ViewBar Bar, PixelRect Area) Draw(Grid screen, Case c, IReadOnlyList<ViewBarItem> items)
     {
         screen.Children.Clear();
@@ -279,11 +279,11 @@ internal static class ViewBarRender
         Canvas.SetTop(taskbar, ScreenHeight - TaskbarHeight);
         canvas.Children.Add(taskbar);
 
-        PixelRect? toolbar = null;
+        PixelRect? editBar = null;
         if (c.Editing)
         {
             var stand = new PixelRect((ScreenWidth - 460) / 2, Fluent.Space2, 460, EditBar.ButtonSize + (2 * Fluent.Space1) + (2 * Fluent.Hairline));
-            toolbar = stand;
+            editBar = stand;
             var box = new Border
             {
                 Width = stand.Width,
@@ -292,7 +292,7 @@ internal static class ViewBarRender
                 BorderThickness = new Thickness(1),
                 BorderBrush = DesignApplier.Brush("SurfaceStrokeColorDefaultBrush", Colors.Gray),
                 Background = DesignApplier.Brush("AcrylicBackgroundFillColorDefaultBrush", Colors.Black),
-                Child = new TextBlock { Text = "edit toolbar", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Opacity = 0.6 },
+                Child = new TextBlock { Text = "edit editBar", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Opacity = 0.6 },
             };
             Canvas.SetLeft(box, stand.X);
             Canvas.SetTop(box, stand.Y);
@@ -305,11 +305,11 @@ internal static class ViewBarRender
             items,
             new ViewBarLook(c.Size, c.Labels, ViewBarRules.IsVertical(c.Anchor, c.Type), c.Editing, c.Editing && c.Hidden, c.Type),
             new DesignState(),
-            ViewBarRules.Room(area, c.Anchor, toolbar, c.Type));
+            ViewBarRules.Room(area, c.Anchor, editBar, c.Type));
         canvas.Children.Add(bar);
 
         bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var (x, y) = ViewBarRules.Place(area, bar.DesiredSize.Width, bar.DesiredSize.Height, c.Anchor, toolbar);
+        var (x, y) = ViewBarRules.Place(area, bar.DesiredSize.Width, bar.DesiredSize.Height, c.Anchor, editBar);
         Canvas.SetLeft(bar, x);
         Canvas.SetTop(bar, y);
 

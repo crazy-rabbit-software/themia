@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.Folder.Tests;
 
-/// <summary>[S-1337] [S-4121] The Folder widget's options on its properties menu: what each style draws under Style, the folder picked or typed.</summary>
+/// <summary>[S-1337] [S-4121] The Folder widget's options on its page: what each style draws under Style, the folder picked or typed.</summary>
 public sealed class FolderPropertiesMenuTests
 {
     private int _saves;

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.Drive.Tests;
 
-/// <summary>[S-4674] The Drive card's options on its properties menu: Appearance, then which drive.</summary>
+/// <summary>[S-4674] The Drive card's options on its page: Appearance, then which drive.</summary>
 public sealed class DriveMenuTests
 {
     private static readonly DriveEntry[] Drives =

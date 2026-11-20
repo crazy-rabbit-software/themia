@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>The selected widgets' properties strip ([S-3701]..[S-3705], [S-3711]).</summary>
+/// <summary>The selected widgets' page ([S-3701]..[S-3705], [S-3711]).</summary>
 public sealed class QuickSetTests
 {
     private static WidgetInstance Widget(WidgetId kind, string id)

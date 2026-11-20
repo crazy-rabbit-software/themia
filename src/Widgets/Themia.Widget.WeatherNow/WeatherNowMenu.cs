@@ -7,8 +7,8 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-6174] The reading's options, all on its properties menu ([S-3719]): Style and Appearance, then
-/// the location's search ([S-3722]); the temperature unit and how often the weather is asked are ⚙'s,
+/// [S-6174] The reading's options, all on its page ([S-3719]): Style and Appearance, then
+/// the location's search ([S-3722]); the temperature unit and how often the weather is asked are the settings',
 /// followed, never the widget's own ([S-3590]). What it shows is its style alone: nothing under Style.
 /// </summary>
 internal static class WeatherNowMenu

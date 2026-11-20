@@ -109,7 +109,7 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     /// [S-6074] The rows the menu offers: seconds where the face ticks them; the offset line wherever there
     /// is a line under the time, so not on the minimal clock ([S-6014]). The date is the Date widget's
     /// ([S-12805]). The line's size is its step's ([S-6741]): the clock has no text size of its own. The zone
-    /// applies to every style; the alignment is the properties panel's ([S-6580]).
+    /// applies to every style; the alignment is the selection's page's ([S-6580]).
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<ClockSetting> ShownSettings

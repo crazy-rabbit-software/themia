@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-3536] [S-3537] ⚙ › Language &amp; region: the language and the regional formats, as the page held them.</summary>
+/// <summary>[S-3536] [S-3537] settings › Language &amp; region: the language and the regional formats, as the page held them.</summary>
 public sealed partial class SettingsMenuTests
 {
     [Fact]

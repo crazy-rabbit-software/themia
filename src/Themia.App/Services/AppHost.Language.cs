@@ -14,7 +14,7 @@ internal sealed partial class AppHost
     /// <summary>[S-3536] The language Windows gives Themia: what its "Windows setting" speaks.</summary>
     public Locale WindowsLanguage => LanguageResolver.Resolve(AppLanguage.System, SystemLanguages.Preferred());
 
-    /// <summary>[S-3536] Choose the language from ⚙ › Language &amp; region. Applies at once.</summary>
+    /// <summary>[S-3536] Choose the language from settings › Language &amp; region. Applies at once.</summary>
     public void SetLanguage(AppLanguage language)
     {
         Mutate(state => state.Preferences.Language = language, relayout: false);

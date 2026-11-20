@@ -8,7 +8,7 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-3570]..[S-3584] ⚙ › Themia Pro, Back up &amp; reset and About Themia: the License page and the
+/// [S-3570]..[S-3584] settings › Themia Pro, Back up &amp; reset and About Themia: the License page and the
 /// About page as lines, what each line asks for and what stands under it.
 /// </summary>
 public sealed partial class SettingsMenuTests

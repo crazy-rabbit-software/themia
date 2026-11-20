@@ -7,7 +7,7 @@ using Themia.Widget.Music;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1479] Now playing's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
+/// [S-1479] Now playing's options, all on its page ([S-3719]): Appearance ([S-3723]),
 /// then when it hides ([S-1464]); what it shows is fixed ([S-11311]). Nothing about players
 /// or accounts: it reads Windows' own media session. It has no settings page.
 /// </summary>

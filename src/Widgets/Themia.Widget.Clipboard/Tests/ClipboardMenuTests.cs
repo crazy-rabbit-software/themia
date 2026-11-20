@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.Clipboard.Tests;
 
-/// <summary>[S-1450] The Clipboard's options on its properties menu: timestamps, entries typed, the privacy note.</summary>
+/// <summary>[S-1450] The Clipboard's options on its page: timestamps, entries typed, the privacy note.</summary>
 public sealed class ClipboardMenuTests
 {
     private int _saves;

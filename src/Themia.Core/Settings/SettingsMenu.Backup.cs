@@ -6,7 +6,7 @@ using Themia.Core.Storage;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3575] What ⚙ › Back up &amp; reset does to the settings file: Windows' Save and Open dialogs over
+/// [S-3575] What settings › Back up &amp; reset does to the settings file: Windows' Save and Open dialogs over
 /// the display whose menu it is, the file opened, the reset. How each ended is said under its line
 /// (<see cref="ISettingsMenuHost.Outcomes"/>); an import is asked first beside the menu
 /// (<see cref="SettingsMenu.ImportQuestion"/>), a reset by the menu itself.
@@ -31,7 +31,7 @@ public interface IBackupMenuHost
 
 /// <summary>
 /// [S-3575]..[S-3578] Back up &amp; reset ›: the About page's settings file rows as lines, after Karpo's
-/// ⚙ › Back up and reset (karpo-app, docs/widgets.md §339): Export settings…, Import settings…, Open
+/// settings › Back up and reset (karpo-app, docs/widgets.md §339): Export settings…, Import settings…, Open
 /// settings file (its path under it), then Reset all settings…, asked first.
 /// </summary>
 public static partial class SettingsMenu

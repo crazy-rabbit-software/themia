@@ -1,7 +1,7 @@
 namespace Themia.Sdk.WinUI;
 
 /// <summary>
-/// [S-3731] An inline slider on the properties menu (a fill's Opacity, the card's Scale, a widget's
+/// [S-3731] An inline slider on the selection's page (a fill's Opacity, the card's Scale, a widget's
 /// own number set by feel): one 32-DIP line of its words, the slider and the value as
 /// <see cref="Format"/> writes it. While it is dragged the value is only previewed
 /// (<see cref="Preview"/>: the line's words, and the widgets where the line says how); the release
@@ -90,7 +90,7 @@ public sealed class MenuSlider
 }
 
 /// <summary>
-/// [S-3732] An item line of an ordered list on the properties menu: its place in the list and what a
+/// [S-3732] An item line of an ordered list on the selection's page: its place in the list and what a
 /// drop or Alt+Shift+Up / Down does. The host lets the lines of one list (they stand together) be
 /// dragged up and down among themselves; <see cref="Move"/> moves the item and saves, once.
 /// </summary>

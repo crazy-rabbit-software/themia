@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.ScreenTimeChart.Tests;
 
-/// <summary>[S-3335] [S-3336] The chart's options on its properties menu: a week or a month, then the shared lines ([S-3323]); bars or a calendar is its style.</summary>
+/// <summary>[S-3335] [S-3336] The chart's options on its page: a week or a month, then the shared lines ([S-3323]); bars or a calendar is its style.</summary>
 public sealed class ScreenTimeChartMenuTests
 {
     private int _saves;

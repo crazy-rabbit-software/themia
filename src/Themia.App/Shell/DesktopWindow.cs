@@ -43,7 +43,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     /// <summary>[S-11874] The local grid of a move on the locked desktop, under the cards.</summary>
     private readonly LocalGridOverlay _localGrid = new();
-    private readonly EditBar _toolbar;
+    private readonly EditBar _editBar;
 
 
     private readonly Border _placementHint;
@@ -84,9 +84,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
         _gridOverlay = new SnapGridOverlay { Visibility = Visibility.Collapsed };
 
-        _toolbar = BuildToolbar();
+        _editBar = BuildEditBar();
 
-        // [S-906] The view bar sits on its own layer, over the widgets and under the toolbar.
+        // [S-906] The view bar sits on its own layer, over the widgets and under the edit bar.
         _viewBar = new ViewBar(this) { Visibility = Visibility.Collapsed };
         _viewBar.SizeChanged += OnViewBarSizeChanged;
         _barLayer.Children.Add(_viewBar);
@@ -104,7 +104,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = Themia.Sdk.WinUI.Kit.Family.Brush(Themia.Sdk.Kit.ColourRole.Clear),
-            Children = { _menuAnchor, _gridOverlay, _localGrid, _widgetLayer, _markerLayer.Overhangs, _markerLayer.Halos, _markerLayer.Inks, _markerLayer.Lifts, _barLayer, _ghostLayer, _galleryLayer, _toolbar, _flyoutLayer, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _localGrid, _widgetLayer, _markerLayer.Overhangs, _markerLayer.Halos, _markerLayer.Inks, _markerLayer.Lifts, _barLayer, _ghostLayer, _galleryLayer, _editBar, _flyoutLayer, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.
@@ -166,7 +166,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _host.StateChanged += OnStateChanged;
         _host.EditModeChanged += OnEditModeChanged;
         _host.SelectionChanged += OnSelectionChanged;
-        _host.HistoryChanged += OnHistoryChanged;
         _host.PlacementChanged += OnPlacementChanged;
         _host.Clipboard.Changed += OnClipboardChanged;
         _host.SettingsOutdated += SyncBarMenu;

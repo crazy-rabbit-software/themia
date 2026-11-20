@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.Alarm.Tests;
 
-/// <summary>[S-4631] The Alarm's options on its properties menu: the time typed, the switch, the name, the days, the sound, its level, the snooze, the note.</summary>
+/// <summary>[S-4631] The Alarm's options on its page: the time typed, the switch, the name, the days, the sound, its level, the snooze, the note.</summary>
 public sealed class AlarmMenuTests
 {
     private int _saves;
@@ -104,7 +104,7 @@ public sealed class AlarmMenuTests
     [InlineData(WeekStartDay.Saturday, DayOfWeek.Saturday)]
     public void S4631_the_days_start_on_the_start_of_the_week_language_and_region_sets(WeekStartDay start, DayOfWeek first)
     {
-        // Regression: the days started on the language's first day, whatever ⚙ › Language & region said.
+        // Regression: the days started on the language's first day, whatever settings › Language & region said.
         var lines = new WidgetMenuLines(() => _saves++);
         AlarmMenu.Lines(lines, new AlarmConfig(), start);
 

@@ -34,7 +34,7 @@ internal sealed partial class AppHost
     /// [S-421]/[S-1587] Start placing. Nothing is added, removed or moved yet: a ghost of the payload
     /// follows the pointer across every display and the change happens only once the user clicks.
     /// <para>
-    /// The widget's properties menu is deliberately not opened. Adding a widget and configuring it
+    /// The widget's page is deliberately not opened. Adding a widget and configuring it
     /// are two decisions, and a menu appearing over the very spot the user was about to click is
     /// the fastest way to lose the first one.
     /// </para>

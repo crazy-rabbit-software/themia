@@ -8,7 +8,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3101] What the Sun and Moon widgets share on their properties menus ([S-3719]): where the
+/// [S-3101] What the Sun and Moon widgets share on their pages ([S-3719]): where the
 /// observer is.
 /// <para>
 /// [S-1494] The place is picked by city name, as in the original [S-01], through the same search the

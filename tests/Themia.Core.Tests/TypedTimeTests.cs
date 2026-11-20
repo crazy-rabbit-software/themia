@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-3738] A time of day and a date typed on the properties menu: either clock, the year or the day first, nothing guessed.</summary>
+/// <summary>[S-3738] A time of day and a date typed on the selection's page: either clock, the year or the day first, nothing guessed.</summary>
 public sealed class TypedTimeTests
 {
     [Theory]

@@ -11,7 +11,7 @@ using Themia.Widget.Gallery;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-778] The Gallery's options, all on its properties menu ([S-3719]): under Style what the
+/// [S-778] The Gallery's options, all on its page ([S-3719]): under Style what the
 /// layout draws (the slide time, the picture size); then Appearance ([S-3723]), the source and only
 /// the lines it uses ([S-6074]: a folder's, a picture file's, none of either for the photo of the
 /// day). It has no settings page.

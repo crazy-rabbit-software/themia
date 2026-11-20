@@ -13,7 +13,7 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.Calendar;
 
 /// <summary>
-/// [S-7513] The calendar's options, all on its properties menu ([S-3719]): under Style only what the
+/// [S-7513] The calendar's options, all on its page ([S-3719]): under Style only what the
 /// style uses ([S-3601], [S-6070]: the week's first column and length, the agenda's range and
 /// length); then Appearance ([S-3723]), every calendar widget's accounts and calendars with their
 /// colours ([S-561], the SDK's <see cref="OfficeMenuLines"/>) and, after a divider, birthdays while

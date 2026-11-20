@@ -32,7 +32,7 @@ public sealed class DeviceBatteriesModule : IWidgetModule
         Add = new(AddFolderId.Devices, 1, 2),
     };
 
-    /// <summary>[S-10006] Its two options are on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-10006] Its two options are on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, Themia.Core.Model.WidgetConfig config)
         => DeviceBatteriesMenu.Lines(menu, (DeviceBatteriesConfig)config);
 

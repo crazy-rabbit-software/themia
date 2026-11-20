@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.Bluetooth.Tests;
 
-/// <summary>[S-3255] The Bluetooth tile's options on its properties menu.</summary>
+/// <summary>[S-3255] The Bluetooth tile's options on its page.</summary>
 public sealed class BluetoothMenuTests
 {
     private int _saves;

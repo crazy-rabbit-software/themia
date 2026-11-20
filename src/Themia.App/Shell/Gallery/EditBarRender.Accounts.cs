@@ -12,7 +12,7 @@ using Themia.Sdk.Services;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-3560] ⚙ › Accounts open on the stand-in display over three stand-in accounts (a Microsoft one
+/// [S-3560] settings › Accounts open on the stand-in display over three stand-in accounts (a Microsoft one
 /// with numbers, a mail server that needs signing in again, a calendar server): <c>-accounts</c>,
 /// <c>-account</c> (one account's card opened), <c>-account-again</c> (the one needing a sign-in),
 /// <c>-signout</c> (its Sign out's "are you sure?" in place in its card, [S-2351]), <c>-add</c> (Add an account),
@@ -109,7 +109,7 @@ internal static partial class EditBarRender
     }
 
     /// <summary>
-    /// A stand-in for ⚙ › Accounts' host: three made-up accounts and their numbers, forms that keep
+    /// A stand-in for settings › Accounts' host: three made-up accounts and their numbers, forms that keep
     /// what is typed, sign-ins that only say they wait and tries that end as <see cref="Outcome"/> says.
     /// </summary>
     private sealed class RenderAccountsHost : IAccountsMenuHost

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Modules.Tests;
 
-/// <summary>[S-1222] [S-1236] The audio widgets' output-device line on the properties menu: what its search answers.</summary>
+/// <summary>[S-1222] [S-1236] The audio widgets' output-device line on the selection's page: what its search answers.</summary>
 public sealed class AudioDeviceLineTests
 {
     private static readonly AudioDevice[] Devices = [new("{a}", "Speakers"), new("{b}", "Headphones")];

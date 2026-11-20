@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Brightness.Tests;
 
-/// <summary>[S-4446] The brightness widget's options on its properties menu.</summary>
+/// <summary>[S-4446] The brightness widget's options on its page.</summary>
 public sealed class BrightnessMenuTests
 {
     private int _saves;

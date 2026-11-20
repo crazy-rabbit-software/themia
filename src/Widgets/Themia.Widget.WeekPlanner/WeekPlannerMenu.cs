@@ -12,11 +12,11 @@ using Themia.Sdk;
 namespace Themia.Widget.WeekPlanner;
 
 /// <summary>
-/// [S-5324] The week planner's options, all on its properties menu ([S-3719]): Appearance
+/// [S-5324] The week planner's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), every calendar's lines (accounts, calendars and colours, birthdays: [S-561], the SDK's
 /// <see cref="OfficeMenuLines"/>; birthdays while a chosen account has contacts), then today's
 /// tasks: whether they show, and from which account while they do and there is more than one to
-/// choose ([S-6074]). Its columns follow ⚙'s start of the week ([S-3590]). It has no settings page.
+/// choose ([S-6074]). Its columns follow the settings' start of the week ([S-3590]). It has no settings page.
 /// </summary>
 internal static class WeekPlannerMenu
 {

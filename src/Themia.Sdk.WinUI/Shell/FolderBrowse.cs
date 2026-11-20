@@ -4,7 +4,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The shell's own folder picker behind the properties menu's folder lines (the folder widget's, the
+/// The shell's own folder picker behind the selection's page's folder lines (the folder widget's, the
 /// gallery's, a shortcut's), so nobody has to type a path they could point at.
 /// <para>
 /// The picker needs an owner window (<see cref="SettingsHost.OwnPicker"/>).
@@ -16,7 +16,7 @@ public static class FolderBrowse
 
     /// <summary>
     /// [S-3730] The picker on its own: <paramref name="chosen"/> gets the folder picked, and nothing
-    /// happens on a cancel. The properties menu's folder line ([S-3730]) and its pickers go through
+    /// happens on a cancel. The selection's page's folder line ([S-3730]) and its pickers go through
     /// it, so there is one picker.
     /// </summary>
     public static async Task PickAsync(Action<string> chosen)

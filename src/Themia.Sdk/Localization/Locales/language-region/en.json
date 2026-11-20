@@ -1,5 +1,5 @@
 {
-  "$comment": "[S-1109] [S-3770] [S-3536] ⚙ › Language & region: the display language and the regional formats every widget shares.",
+  "$comment": "[S-1109] [S-3770] [S-3536] settings › Language & region: the display language and the regional formats every widget shares.",
   "$englishOnly": [],
   "languageRegion.nav": "Language & region",
   "languageRegion.clock": "Time format",

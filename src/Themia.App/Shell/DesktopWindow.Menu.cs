@@ -32,7 +32,7 @@ internal sealed partial class DesktopWindow
             var cancelled = _rightPressCancelledPlacement;
             _rightPressCancelledPlacement = false;
 
-            // Only the surface itself: a card, the toolbar and the view bar have menus of their own,
+            // Only the surface itself: a card, the edit bar and the view bar have menus of their own,
             // or none, and a right-click on them is not a right-click on the desktop.
             if (e.Handled || cancelled || _closed || !ReferenceEquals(e.OriginalSource, _root))
             {

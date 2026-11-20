@@ -2,7 +2,7 @@ namespace Themia.Core.Model;
 
 /// <summary>
 /// [S-6573] A widget of a kind with items ([S-6570]) that draws them only in some of its styles or
-/// states, or draws only tracks: its config says what it draws now, so the properties menu offers
+/// states, or draws only tracks: its config says what it draws now, so the selection's page offers
 /// Item background and Item text only where they reach something ([S-6571], [S-6574]). Implemented by
 /// the config, so the rule is the widget's own and <see cref="Themia.Core.Widgets.ItemKinds"/> names no
 /// kind. A config without it draws what its kind's trait says, text included.

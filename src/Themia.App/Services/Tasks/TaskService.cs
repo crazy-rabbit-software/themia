@@ -629,7 +629,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
                     Schedule.Force(DateTimeOffset.UtcNow);
                 }
 
-                // [S-3823] What is stored, for ⚙ › Accounts.
+                // [S-3823] What is stored, for settings › Accounts.
                 _owner._sync.Report(AccountId, SyncStats.Of(shelf));
 
                 // [S-2653] Changes that were waiting when the app last closed are shown again and resent.

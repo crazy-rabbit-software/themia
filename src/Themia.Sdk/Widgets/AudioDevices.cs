@@ -3,7 +3,7 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk;
 
 /// <summary>
-/// [S-1222] The active output devices a properties menu lists (the volume widget's device choice): the
+/// [S-1222] The active output devices a page lists (the volume widget's device choice): the
 /// host's Core Audio enumeration, installed by the host once at start, as the place lookup is.
 /// </summary>
 public static class AudioDevices

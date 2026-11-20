@@ -14,7 +14,7 @@ public interface IProviderModule
     /// <summary>Its id ([S-6900]): the name an account of it is written under in <c>accounts.json</c> ([S-501]).</summary>
     ProviderId Id { get; }
 
-    /// <summary>What ⚙ › Accounts and an account's subtitle call it.</summary>
+    /// <summary>What settings › Accounts and an account's subtitle call it.</summary>
     LocalText Label { get; }
 
     /// <summary>[S-502] What its accounts can feed a widget.</summary>
@@ -23,11 +23,11 @@ public interface IProviderModule
     /// <summary>How its accounts prove themselves on every request.</summary>
     AccountAuth Auth { get; }
 
-    /// <summary>Its place in ⚙ › Accounts › Add account (lower first).</summary>
+    /// <summary>Its place in settings › Accounts › Add account (lower first).</summary>
     int AddRank { get; }
 
     /// <summary>
-    /// [S-3562] Whether a new account of it may be added: ⚙ › Accounts › Add account lists it and a
+    /// [S-3562] Whether a new account of it may be added: settings › Accounts › Add account lists it and a
     /// widget's Set up counts what it feeds. False holds a provider back (one whose sign-in may not be
     /// offered yet) without a branch anywhere else: its accounts already signed in still load, sync,
     /// sign in again and sign out.
@@ -35,13 +35,13 @@ public interface IProviderModule
     bool Offered => true;
 
     /// <summary>
-    /// [S-3780] Its own row in ⚙ › Online updates, or null when its accounts follow the
+    /// [S-3780] Its own row in settings › Online updates, or null when its accounts follow the
     /// host's Accounts row (every account provider of today).
     /// </summary>
     CadenceRow? Cadence { get; }
 
     /// <summary>
-    /// [S-9910] How its accounts sign in, in the order ⚙ › Accounts offers them: the members of
+    /// [S-9910] How its accounts sign in, in the order settings › Accounts offers them: the members of
     /// the closed set the host runs (<c>ServiceSignIn</c>). None for a provider whose accounts the host
     /// adds through a password form (IMAP, CalDAV, CardDAV).
     /// </summary>
@@ -123,7 +123,7 @@ public sealed class FeatureSet : IEquatable<FeatureSet>
 }
 
 /// <summary>
-/// [S-3780] A row of ⚙ › Online updates: one shared refresh cadence for every widget of a
+/// [S-3780] A row of settings › Online updates: one shared refresh cadence for every widget of a
 /// kind of source, its offered minutes (a closed list; a stored value snaps to the nearest) and its
 /// default.
 /// </summary>

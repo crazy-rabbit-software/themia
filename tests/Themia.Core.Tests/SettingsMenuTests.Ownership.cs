@@ -19,7 +19,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed partial class SettingsMenuTests
 {
-    /// <summary>The bar's menus over one state: ⚙'s host, and Display ▾'s and View ▾'s over the same state.</summary>
+    /// <summary>The bar's menus over one state: the settings' host, and Display ▾'s and View ▾'s over the same state.</summary>
     private sealed class World
     {
         public World()
@@ -335,7 +335,7 @@ public sealed partial class SettingsMenuTests
     {
         var written = WritersByPath().Keys.ToList();
 
-        // RunAtStartup is what Windows was last asked, kept for when it cannot be read ([S-935]): ⚙ asks Windows.
+        // RunAtStartup is what Windows was last asked, kept for when it cannot be read ([S-935]): the settings ask Windows.
         // RecentColours is the colour picker's memory of what was mixed ([S-1575]), not a setting: no page sets it.
         string[] fields =
         [
@@ -391,7 +391,7 @@ public sealed partial class SettingsMenuTests
     [Fact]
     public void S3592_no_two_menus_offer_a_setting_under_the_same_words()
     {
-        // Regression: ⚙ › Appearance and Display ▾ both had "Widget scale" (an app-wide and a display's
+        // Regression: settings › Appearance and Display ▾ both had "Widget scale" (an app-wide and a display's
         // factor multiplied together), so nobody could tell which one they were setting.
         var twice = SettingWords(new World().Menus()).Where(w => w.Value.Count > 1).Select(w => $"{w.Key} ← {string.Join(", ", w.Value)}").ToList();
 

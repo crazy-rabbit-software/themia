@@ -10,7 +10,7 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-3550]..[S-3557] [S-3561] ⚙ › Accounts as data: the accounts and what each holds, Add account's
+/// [S-3550]..[S-3557] [S-3561] settings › Accounts as data: the accounts and what each holds, Add account's
 /// kinds and forms, what a line starts and what stands under it, and that no line ever carries a
 /// password. The accounts are made up and nothing is signed in to.
 /// </summary>

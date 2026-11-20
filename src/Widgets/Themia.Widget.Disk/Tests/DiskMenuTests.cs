@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.Disk.Tests;
 
-/// <summary>[S-1168] The disk meter's options on its properties menu: Appearance, the drive, the span under Style.</summary>
+/// <summary>[S-1168] The disk meter's options on its page: Appearance, the drive, the span under Style.</summary>
 public sealed class DiskMenuTests
 {
     private static readonly DriveEntry[] Drives =

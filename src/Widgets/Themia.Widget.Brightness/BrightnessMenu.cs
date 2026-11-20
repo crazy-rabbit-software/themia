@@ -9,7 +9,7 @@ using Themia.Widget.Brightness;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>[S-4446] The brightness widget's options, all on its properties menu ([S-3719]): Appearance, then which screens it dims. It has no settings page.</summary>
+/// <summary>[S-4446] The brightness widget's options, all on its page ([S-3719]): Appearance, then which screens it dims. It has no settings page.</summary>
 internal static class BrightnessMenu
 {
     /// <param name="displays">The displays with a brightness (<c>BrightnessDisplays.Now()</c>).</param>

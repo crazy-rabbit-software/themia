@@ -8,7 +8,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3321] [S-3323] The lines every screen-time widget's properties menu ([S-3719]) has: the period,
+/// [S-3321] [S-3323] The lines every screen-time widget's page ([S-3719]) has: the period,
 /// then the limits and the hidden apps they share, one set for the machine written through the
 /// tracker (<see cref="IScreenTimeSource.SetPreferences"/>) rather than the config.
 /// </summary>

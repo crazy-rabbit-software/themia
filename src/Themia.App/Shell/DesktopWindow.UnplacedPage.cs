@@ -57,7 +57,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        ShowToolbar();
+        ShowEditBar();
         if (_openPage == SettingsPageId.DesktopItems)
         {
             SyncBarMenu();

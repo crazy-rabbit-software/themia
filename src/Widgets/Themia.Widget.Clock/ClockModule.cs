@@ -40,7 +40,7 @@ public sealed class ClockModule : IWidgetModule
         Add = new(AddFolderId.Time, 0, 0, Popular: 0),
     };
 
-    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => ClockMenu.Lines(menu, (ClockConfig)config);
 

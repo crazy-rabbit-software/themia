@@ -159,7 +159,7 @@ internal sealed partial class ViewBar : Grid
         PaintSurface(look, design);
 
         // The language is part of what was built: a switch redraws the tooltips and names ([S-1110]).
-        // [S-917] So is the room: a resize, a DPI change or the toolbar appearing refits the chips.
+        // [S-917] So is the room: a resize, a DPI change or the edit bar appearing refits the chips.
         var signature = $"{look}|{string.Join("|", items)}|{FamilyType.Body.FontSize}|{Strings.Current}|{Math.Floor(room)}";
         if ((_dragging && _pressedId is not null) || signature == _built)
         {

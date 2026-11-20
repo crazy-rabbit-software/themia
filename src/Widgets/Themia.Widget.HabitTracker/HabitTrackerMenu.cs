@@ -11,7 +11,7 @@ using Themia.Widget.HabitTracker;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1429] The Habits widget's options, all on its properties menu ([S-3719]): under Style what only
+/// [S-1429] The Habits widget's options, all on its page ([S-3719]): under Style what only
 /// the dots draw (the streak and the history, [S-6408]); then Appearance ([S-3723]), and in groups
 /// apart which list it shows (and the lists themselves), how often its boxes clear, and the data
 /// folder where the lists have a file. It has no settings page.

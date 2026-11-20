@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Themia.Widget.Music.Tests;
 
-/// <summary>[S-1479] Now playing's options on its properties menu.</summary>
+/// <summary>[S-1479] Now playing's options on its page.</summary>
 public sealed class MusicMenuTests
 {
     private int _saves;

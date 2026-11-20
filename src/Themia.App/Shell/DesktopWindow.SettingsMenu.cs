@@ -17,21 +17,6 @@ namespace Themia.App.Shell;
 internal sealed partial class DesktopWindow
 {
     /// <summary>
-    /// [S-3525] What Windows owns is read now and followed while the menu is open; [S-3559] so are
-    /// the accounts and their numbers.
-    /// </summary>
-    private void SettingsMenuOpened()
-    {
-        _host.SettingsMenuOpened();
-    }
-
-    /// <summary>[S-3557] Closed: what was followed stops, and with the last menu every form empties.</summary>
-    private void SettingsMenuClosed()
-    {
-        _host.SettingsMenuClosed();
-    }
-
-    /// <summary>
     /// [S-3573] [S-3558] [S-3534] Edit mode entered and the settings page that holds the row
     /// <paramref name="key"/> open on this display at it (its section's key opens it at the section): where
     /// "See plans" and a widget's way to its accounts land. Whether it opened.
@@ -98,7 +83,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-3576] ⚙ open at <paramref name="path"/> on this display, for a question asked once Windows'
+    /// [S-3576] settings open at <paramref name="path"/> on this display, for a question asked once Windows'
     /// dialog has gone (an import's): opened again where it was closed meanwhile. Whether it is open.
     /// </summary>
     private bool SettingsOpenAt(string key) => _openPage == SettingsPageId.General || RequestSettings(key);
@@ -107,7 +92,7 @@ internal sealed partial class DesktopWindow
     private Microsoft.UI.WindowId WindowId => Microsoft.UI.Win32Interop.GetWindowIdFromWindow(_hwnd);
 
     /// <summary>
-    /// [S-3558] A widget's way to its accounts: edit mode entered and ⚙ open on this display at
+    /// [S-3558] A widget's way to its accounts: edit mode entered and settings open on this display at
     /// Accounts, or at Add account while there is no account to manage. Its menu and its card's
     /// links all come here; nothing opens a settings window for an account any more.
     /// </summary>
@@ -129,8 +114,8 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-3749] A widget's link row: ⚙ open on this display where it leads (the accounts), the
-    /// properties menu away while it is open. Whether it opened.
+    /// [S-3749] A widget's link row: settings open on this display where it leads (the accounts), the
+    /// selection's page away while it is open. Whether it opened.
     /// </summary>
     public bool RequestSetting(SettingLink link)
     {

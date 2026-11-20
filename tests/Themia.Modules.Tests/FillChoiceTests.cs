@@ -331,7 +331,7 @@ public sealed class FillChoiceTests
         Assert.Equal(DesignPresetId.Default, DesignPresets.Match(design));
     }
 
-    // ---- [S-6566] the properties panel ----------------------------------------------------------------
+    // ---- [S-6566] the selection's page ----------------------------------------------------------------
 
     [Fact]
     public void S6566_a_duplicated_widget_keeps_copies_of_its_fills()

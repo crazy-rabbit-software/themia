@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.VideoStream.Tests;
 
-/// <summary>[S-473] [S-467] The camera's options on its properties menu: the address asked for and checked as typed.</summary>
+/// <summary>[S-473] [S-467] The camera's options on its page: the address asked for and checked as typed.</summary>
 public sealed class VideoStreamMenuTests
 {
     private int _saves;

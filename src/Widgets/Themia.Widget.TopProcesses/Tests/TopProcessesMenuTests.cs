@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.TopProcesses.Tests;
 
-/// <summary>[S-9700] The top processes' options on its properties menu: Appearance, Sort by, Rows, Group by program.</summary>
+/// <summary>[S-9700] The top processes' options on its page: Appearance, Sort by, Rows, Group by program.</summary>
 public sealed class TopProcessesMenuTests
 {
     private int _saves;

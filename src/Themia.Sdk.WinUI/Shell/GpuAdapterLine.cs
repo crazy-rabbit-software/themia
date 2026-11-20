@@ -6,7 +6,7 @@ using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>The adapter line the GPU meter's and the GPU details' properties menus share.</summary>
+/// <summary>The adapter line the GPU meter's and the GPU details' pages share.</summary>
 public static class GpuAdapterLine
 {
     /// <summary>

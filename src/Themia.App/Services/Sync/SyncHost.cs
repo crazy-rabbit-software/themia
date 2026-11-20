@@ -50,7 +50,7 @@ internal sealed class SyncHost : IDisposable
 
     /// <summary>
     /// [S-3823] A service loaded or saved <paramref name="owner"/>'s shelf: its numbers, for
-    /// ⚙ › Accounts. From any thread; the menu hears of it on the UI thread.
+    /// settings › Accounts. From any thread; the menu hears of it on the UI thread.
     /// </summary>
     public void Report(string owner, ShelfStats stats)
     {

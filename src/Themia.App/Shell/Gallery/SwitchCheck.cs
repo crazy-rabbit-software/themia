@@ -298,9 +298,9 @@ internal static class SwitchCheck
 
     /// <summary>
     /// [S-3593] What edit mode's menus hold and give back: the ordinary view shown, edit mode entered
-    /// (the bar built), a widget selected (its properties menu), each of the bar's menus opened once
-    /// and ⚙ down to Appearance (each first open timed), Done (the menus released), then edit mode
-    /// and ⚙ again (a rebuild timed).
+    /// (the bar built), a widget selected (its page), each of the bar's menus opened once
+    /// and the settings down to Appearance (each first open timed), Done (the menus released), then edit mode
+    /// and the settings again (a rebuild timed).
     /// </summary>
     private static async Task EditMenusAsync(Application app, DispatcherQueue dispatcher, string? outPath)
     {

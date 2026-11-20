@@ -25,7 +25,7 @@ namespace Themia.App.Shell;
 /// from: the header icon, title, secondary-text description and control on the right, the card fill
 /// and stroke, hover and press, and the wrap under the title when the window is narrow. Section
 /// headings are BodyStrong, 30 above and 6 below. The app's own settings are the edit bar's menus
-/// ([S-3520]) and a widget's its properties menu ([S-6536]), both drawn by the menu engine; nothing
+/// ([S-3520]) and a widget's page ([S-6536]), both drawn by the menu engine; nothing
 /// here is a settings page.
 /// </para>
 /// </summary>

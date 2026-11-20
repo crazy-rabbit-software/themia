@@ -142,7 +142,7 @@ internal sealed partial class DesktopWindow
                 CloseFlyout(focusEntry: false);
             }
 
-            ShowToolbar();
+            ShowEditBar();
             return;
         }
 
@@ -153,7 +153,7 @@ internal sealed partial class DesktopWindow
             OpenSelectionPage(focus: false);
         }
 
-        ShowToolbar();
+        ShowEditBar();
         ShineSelection();
     }
 
@@ -209,7 +209,4 @@ internal sealed partial class DesktopWindow
             CloseFlyout(focusEntry: false);
         }
     }
-
-    /// <summary>[S-2325] The flyout stays hung from its entry as the surface lays out again.</summary>
-    private void PlaceProperties() => PlaceFlyout();
 }

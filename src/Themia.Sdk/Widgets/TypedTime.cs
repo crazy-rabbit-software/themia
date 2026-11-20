@@ -3,7 +3,7 @@ using System.Globalization;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-3738] A time of day or a date typed on the properties menu ([S-3721]), read the same way by
+/// [S-3738] A time of day or a date typed on the selection's page ([S-3721]), read the same way by
 /// every widget that asks for one (an alarm's time, a countdown's target). Strict on purpose: what is
 /// typed is the trust boundary, so a form that could mean two things is refused rather than guessed
 /// at, and a refused text leaves the setting as it was.

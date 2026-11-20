@@ -17,7 +17,7 @@ public sealed record ServiceDescriptor
     /// <summary>What widgets ask for ([S-502]): a kit service's feature is its provider's id.</summary>
     public required FeatureId Feature { get; init; }
 
-    /// <summary>Its row in ⚙ › Online updates ([S-3780]).</summary>
+    /// <summary>Its row in settings › Online updates ([S-3780]).</summary>
     public required CadenceRow Cadence { get; init; }
 
     public required TransportKind Transport { get; init; }
@@ -28,7 +28,7 @@ public sealed record ServiceDescriptor
     /// <summary>Whether an account may name its own root (an Enterprise server).</summary>
     public ApiRootRule Root { get; init; } = ApiRootRule.Fixed;
 
-    /// <summary>The sign-in members, in the order ⚙ › Accounts offers them.</summary>
+    /// <summary>The sign-in members, in the order settings › Accounts offers them.</summary>
     public required ProviderSignIn SignIn { get; init; }
 
     /// <summary>[S-9916] Who a token belongs to: run after every sign-in and on a pasted token before it is kept.</summary>

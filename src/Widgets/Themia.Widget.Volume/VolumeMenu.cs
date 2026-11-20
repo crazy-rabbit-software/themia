@@ -8,7 +8,7 @@ using Themia.Widget.Volume;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-2734] The volume tile's options, all on its properties menu ([S-3719]): Appearance
+/// [S-2734] The volume tile's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), the output device ([S-1222], only where there is a choice, [S-1236]), then whether it
 /// may change the volume and, while it may, how the keys work. Nothing to show or hide: the tile is
 /// the slider ([S-2730]). It has no settings page.

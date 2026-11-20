@@ -52,7 +52,7 @@ public sealed class CalendarModule : IWidgetModule
         Add = new(AddFolderId.CalendarMail, 0, 0, Popular: 3),
     };
 
-    /// <summary>[S-3719] [S-7513] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] [S-7513] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => CalendarMenu.Lines(menu, (CalendarWidgetConfig)config, SettingsHost.Office);
 

@@ -11,7 +11,7 @@ using Xunit;
 namespace Themia.Widget.ScreenTimeApps.Tests;
 
 /// <summary>
-/// [S-3356] The app list's options on its properties menu, with the shared limits and hidden apps
+/// [S-3356] The app list's options on its page, with the shared limits and hidden apps
 /// ([S-3323]) over a stand-in tracker: the sample month, its preferences kept here.
 /// </summary>
 public sealed class ScreenTimeAppsMenuTests

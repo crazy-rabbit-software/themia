@@ -19,14 +19,14 @@ namespace Themia.Modules.Tests;
 /// [S-3592] The ownership guard over every widget's menu (Karpo's
 /// <c>ConfigCoverageTests.NoSettingIsSetAtTwoLevels</c>, the widgets' half; the bar menus' half is
 /// Core's <c>SettingsMenuTests.S3592_</c>): no widget's lines offer a setting under the words of one
-/// the bar's menus (⚙, Display ▾, View ▾, Snap) or the card's own rows (Style, Header, the Appearance
+/// the bar's pages (General, Display, Views) or the card's own rows (Style, Header, the Appearance
 /// foot) set, nor links to one (a widget just follows it; its only link rows lead to an account); and no widget's config carries a field of a type only
 /// a higher level owns (a temperature scale, a clock, a week start, a cadence, a theme, a language).
 /// </summary>
 
 public sealed class SettingOwnershipTests
 {
-    /// <summary>A settings host that reaches nothing: enough to build ⚙'s lines and read their words.</summary>
+    /// <summary>A settings host that reaches nothing: enough to build the settings' lines and read their words.</summary>
     private sealed class QuietSettingsHost : ISettingsMenuHost, ILicenceMenuHost, IBackupMenuHost, IAboutMenuHost
     {
         public AppState State { get; } = AppState.CreateDefault();
@@ -290,7 +290,7 @@ public sealed class SettingOwnershipTests
     /// <summary>
     /// [S-3592] A widget's own setting under words a higher level uses too, each for its reason: it is
     /// the widget's own and only shares a word (a focus session's Length is the session's, never an
-    /// animation's, ⚙ › Appearance › Motion's; [S-9602] a Header widget's Title is the words it shows, never a page's
+    /// animation's, settings › Appearance › Motion's; [S-9602] a Header widget's Title is the words it shows, never a page's
     /// title). No widget has a Size of its own ([S-2449] retired: its size is its card's).
     /// </summary>
     private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("header", "Title")];
@@ -366,7 +366,7 @@ public sealed class SettingOwnershipTests
             .Distinct()
             .ToList();
 
-        Assert.True(copies.Count == 0, "a widget keeps its own copy of what ⚙ owns: " + string.Join(", ", copies));
+        Assert.True(copies.Count == 0, "a widget keeps its own copy of what the settings own: " + string.Join(", ", copies));
     }
 
     /// <summary>

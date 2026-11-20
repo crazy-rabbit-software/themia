@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.Notes.Tests;
 
-/// <summary>[S-1349] The Notes widget's options on its properties menu: the note shown and the pool, the text size, Clear note.</summary>
+/// <summary>[S-1349] The Notes widget's options on its page: the note shown and the pool, the text size, Clear note.</summary>
 public sealed class NotesMenuTests
 {
     private static readonly DateTimeOffset Now = DateTimeOffset.FromUnixTimeSeconds(1_800_000_000);

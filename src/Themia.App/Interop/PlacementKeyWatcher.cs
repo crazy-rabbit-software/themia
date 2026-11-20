@@ -12,7 +12,7 @@ namespace Themia.App.Interop;
 /// Why a low-level keyboard hook. The surface only hears a key as a XAML <c>KeyDown</c>, which needs
 /// it to be the foreground window with the focus inside it — and a placement mostly starts when it
 /// is neither: from a card menu or the add menu, whose closing leaves the focus on nothing (the
-/// toolbar button it returns to is hidden while placing), from a surface that never took the
+/// edit bar button it returns to is hidden while placing), from a surface that never took the
 /// foreground, or with the pointer, and the ghost, on another display. The hook is the one signal that
 /// sees the key in every one of those. It follows <see cref="OutsideClickWatcher"/>'s pattern: on only
 /// while a session is open, on a thread of its own whose only work is pumping messages (a busy UI

@@ -6,7 +6,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.Widget.DeviceBatteries;
 
 /// <summary>
-/// [S-10006] The widget's options, on its properties menu ([S-3719]) after Appearance: where a battery
+/// [S-10006] The widget's options, on its page ([S-3719]) after Appearance: where a battery
 /// counts as low, whether a charging device is listed, and how many rows ([S-11028]). Nothing else: the
 /// rows' icon and value are the widget's, and how often Windows is asked is no setting.
 /// </summary>

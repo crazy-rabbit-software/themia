@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Mixer.Tests;
 
-/// <summary>[S-1235] The mixer's options on its properties menu.</summary>
+/// <summary>[S-1235] The mixer's options on its page.</summary>
 public sealed class MixerMenuTests
 {
     private static readonly MenuLoaded<IReadOnlyList<AudioDevice>> Two = new([new("{a}", "Speakers"), new("{b}", "Headphones")], false);

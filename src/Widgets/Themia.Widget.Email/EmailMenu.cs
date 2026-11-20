@@ -12,12 +12,12 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.Email;
 
 /// <summary>
-/// [S-7512] The Mail widget's options, all on its properties menu ([S-3719]): under Style what the
+/// [S-7512] The Mail widget's options, all on its page ([S-3719]): under Style what the
 /// style draws with ([S-6403], [S-6070]: the subject and account lines, the preview's lines, the
 /// table's columns); then Appearance ([S-3723]), the accounts it reads ([S-541], the kit's Accounts
 /// submenu) and the folder. It has no settings page.
 /// <para>
-/// Accounts are signed in from ⚙ › Accounts, not here: the menu lists what is already signed in
+/// Accounts are signed in from settings › Accounts, not here: the menu lists what is already signed in
 /// and opens that page, so there is exactly one place an account comes into being.
 /// </para>
 /// </summary>

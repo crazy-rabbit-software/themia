@@ -9,7 +9,7 @@ using Themia.Widget.Countdown;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-6037] The Countdown's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
+/// [S-6037] The Countdown's options, all on its page ([S-3719]): Appearance ([S-3723]),
 /// the one target's name, its date and its time (typed, [S-3738]), and its format. Every line writes
 /// the live config and saves; nothing keeps a copy of a value. It has no settings page.
 /// </summary>

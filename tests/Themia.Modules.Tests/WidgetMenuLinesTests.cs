@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Themia.Modules.Tests;
 
-/// <summary>[S-3718] [S-3719] [S-3724]..[S-3730] The lines a module puts on its properties menu, as the SDK builds them.</summary>
+/// <summary>[S-3718] [S-3719] [S-3724]..[S-3730] The lines a module puts on its page, as the SDK builds them.</summary>
 public sealed class WidgetMenuLinesTests
 {
     private int _saves;

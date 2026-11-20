@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.Scratchpad.Tests;
 
-/// <summary>[S-1501] The scratchpad's options on its properties menu: the pen's colour and size, Show tools; nothing that clears.</summary>
+/// <summary>[S-1501] The scratchpad's options on its page: the pen's colour and size, Show tools; nothing that clears.</summary>
 public sealed class ScratchpadMenuTests
 {
     private int _saves;

@@ -10,7 +10,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-6913] The host as a card's view sees it: the card's surface decides the ticker and whether it
-/// is a preview; the launcher and ⚙ › Accounts are the app's one of each. [S-11851] A card whose host
+/// is a preview; the launcher and settings › Accounts are the app's one of each. [S-11851] A card whose host
 /// hands it a sample world (the add page's pictures) reads the sample PC's hub and its own gallery
 /// service from it, never the app's, and copies nothing to the clipboard.
 /// </summary>
@@ -103,7 +103,7 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IFavicons Favicons => HostFavicons.Instance;
 
-    /// <summary>[S-3558] ⚙ › Accounts on the card's display.</summary>
+    /// <summary>[S-3558] settings › Accounts on the card's display.</summary>
     public bool ShowAccounts() => card.RequestAccounts();
 
     public IReadOnlyList<Themia.App.Services.Accounts.AccountInfo> AccountsWith(Themia.Sdk.FeatureId feature)

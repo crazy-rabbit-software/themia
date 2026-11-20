@@ -52,8 +52,6 @@ internal sealed partial class AppHost
             return false;
         }
 
-        HistoryChanged?.Invoke();
-
         // [S-1583] A deleted or moved widget leaves the selection with the change that removed it.
         ChangeSelection(Selection.Prune(State));
 
@@ -276,7 +274,7 @@ internal sealed partial class AppHost
     public void ShowView(string monitorId, string viewId)
         => Mutate(state => state.ShowViewOn(monitorId, viewId));
 
-    /// <summary>Where the state file lives, for ⚙ › Back up &amp; reset to show and open.</summary>
+    /// <summary>Where the state file lives, for settings › Back up &amp; reset to show and open.</summary>
     public string StatePath => _store.Path;
 
     /// <summary>
@@ -338,8 +336,6 @@ internal sealed partial class AppHost
         // The imported file carries its own per-display switches ([S-845]).
         ReconcileDisplays();
         _history?.Clear(State);
-        HistoryChanged?.Invoke();
-
         Log.Info(Scope, $"replaced the settings ({occasion}); the previous ones are at {backup}");
         return null;
     }

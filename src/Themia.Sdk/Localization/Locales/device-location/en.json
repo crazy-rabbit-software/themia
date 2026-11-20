@@ -1,5 +1,5 @@
 {
-  "$comment": "[S-2850]..[S-2855] A place widget's device-location switch on its properties menu, the states it can be in, and the card while it waits.",
+  "$comment": "[S-2850]..[S-2855] A place widget's device-location switch on its page, the states it can be in, and the card while it waits.",
   "$englishOnly": [
     "shell.place.useDevice",
     "shell.place.myLocation",

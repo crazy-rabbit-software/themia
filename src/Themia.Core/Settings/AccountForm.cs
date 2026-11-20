@@ -24,7 +24,7 @@ public enum AccountTry
 public sealed record AccountOutcome(AccountTry Tried, string Text, bool Failed);
 
 /// <summary>
-/// [S-3554] [S-3555] One of ⚙ › Accounts' forms as typed so far: a draft, never the state or the
+/// [S-3554] [S-3555] One of settings › Accounts' forms as typed so far: a draft, never the state or the
 /// accounts file. The menu's fields write it (<c>Set…</c>, which say whether anything changed), its
 /// lines are read from it each time the menu is drawn, and only an Add that the service has proven
 /// (a sign-in to the server) makes an account of it. A mail server is found from the address where

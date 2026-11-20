@@ -6,7 +6,7 @@ using Themia.Widget.TopProcesses;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>[S-9700] The top processes' options, all on its properties menu ([S-3719]): Appearance, Sort by ([S-2411]), Rows ([S-2412]) and Group by program ([S-2413]). It has no settings page.</summary>
+/// <summary>[S-9700] The top processes' options, all on its page ([S-3719]): Appearance, Sort by ([S-2411]), Rows ([S-2412]) and Group by program ([S-2413]). It has no settings page.</summary>
 internal static class TopProcessesMenu
 {
     public static void Lines(WidgetMenuLines menu, TopProcessesConfig config)

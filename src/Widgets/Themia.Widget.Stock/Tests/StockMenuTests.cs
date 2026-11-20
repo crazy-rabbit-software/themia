@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.Stock.Tests;
 
-/// <summary>[S-2778] [S-1307] [S-2776] The Stocks widget's options on its properties menu: the symbol as a search, the holding checked as typed.</summary>
+/// <summary>[S-2778] [S-1307] [S-2776] The Stocks widget's options on its page: the symbol as a search, the holding checked as typed.</summary>
 public sealed class StockMenuTests
 {
     private static readonly SymbolHit Microsoft = new("MSFT", "Microsoft Corporation", QuoteMarket.Listed, AssetClass.Equity, "NASDAQ");

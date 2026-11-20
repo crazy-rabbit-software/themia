@@ -8,7 +8,7 @@ using Themia.Widget.Clipboard;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1450] The Clipboard widget's options, all on its properties menu ([S-3719]): Appearance
+/// [S-1450] The Clipboard widget's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), the timestamps switch (how it reads), then apart from it how many entries are kept
 /// and the privacy sentence (what is kept).
 /// <para>

@@ -6,7 +6,7 @@ namespace Themia.Core.Tests;
 /// <summary>
 /// [S-6608]..[S-6610] Widgets may hang over any edge of the display, but always keep the visible
 /// minimum on its work area; the work area's edges stay a magnet while the snap aid is on; the
-/// properties panel anchors to what shows.
+/// selection's page anchors to what shows.
 /// </summary>
 public class EdgeOverhangTests
 {

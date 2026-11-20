@@ -153,7 +153,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         Resubscribe();
     }
 
-    /// <summary>[S-1484] [S-6583] The widget's alignment, from the properties panel.</summary>
+    /// <summary>[S-1484] [S-6583] The widget's alignment, from the selection's page.</summary>
     public void ApplyAlign(ContentAlign align)
     {
         if (align == _align)

@@ -9,7 +9,7 @@ using Themia.Widget.Quote;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1502] The quote widget's options, all on its properties menu ([S-3719]): Appearance
+/// [S-1502] The quote widget's options, all on its page ([S-3719]): Appearance
 /// ([S-3723]), the list it turns over (each quote's text and author, its place, Remove, Add), the
 /// author switch, and with two quotes or more the shuffle and how often it turns. It has no settings
 /// page.

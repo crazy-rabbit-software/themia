@@ -14,7 +14,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// the tasks', the week's and the next meeting's): the Status block's one row at the top of the
 /// content, where its first row would be ([S-6714], DECISIONS 4) — the widget's glyph (the caution
 /// warning for a problem), one sentence (several sources' problems in one, "World News and 2 more
-/// could not be loaded", every line in its tooltip) and its one way out: ⚙ › Accounts when only the
+/// could not be loaded", every line in its tooltip) and its one way out: settings › Accounts when only the
 /// user can mend it there ("Account gone", "sign in again", "access not granted"), else the page that
 /// widens what the account may read ([S-9919]), else the widget's own (Try again, start a list on
 /// this PC). Loading, offline and "nothing on" need no action and show none. No account at all is the
@@ -154,12 +154,12 @@ public sealed partial class KitStatePanel : Grid
         _run = null;
     }
 
-    /// <summary>Open ⚙ › Accounts, the one place accounts are added and mended.</summary>
+    /// <summary>Open settings › Accounts, the one place accounts are added and mended.</summary>
     public void OpenAccounts()
     {
         if (!_widgetHost.ShowAccounts())
         {
-            Log.Info(Scope, "nothing here opens ⚙ › Accounts");
+            Log.Info(Scope, "nothing here opens settings › Accounts");
         }
     }
 

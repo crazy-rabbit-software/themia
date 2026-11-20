@@ -1,16 +1,16 @@
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3572] [S-3576] How something a line of ⚙ started went, said under that line: an export saved,
+/// [S-3572] [S-3576] How something a line of the settings started went, said under that line: an export saved,
 /// an import refused, the Store asked. <see cref="Busy"/> draws the ring before the words (it is still
 /// being done); <see cref="Failed"/> draws them in the critical colour.
 /// </summary>
 public sealed record MenuOutcome(string Text, bool Busy = false, bool Failed = false);
 
 /// <summary>
-/// [S-3572] [S-3576] What stands under the lines of ⚙ › Themia Pro and Back up &amp; reset, by the
+/// [S-3572] [S-3576] What stands under the lines of settings › Themia Pro and Back up &amp; reset, by the
 /// line's key: one for the app, so every display's menu says the same. Kept while a settings menu
-/// is open; emptied when the last one closes (<see cref="Clear"/>), so ⚙ opened again says nothing
+/// is open; emptied when the last one closes (<see cref="Clear"/>), so the settings opened again says nothing
 /// of what was done before, as Karpo's does.
 /// </summary>
 public sealed class SettingsOutcomes
@@ -44,7 +44,7 @@ public sealed class SettingsOutcomes
 
     /// <summary>
     /// The last menu closed: nothing stands under any line any more, but what is still being done
-    /// (the Store's dialog still up): its line says so when ⚙ opens again, and how it ended once it has.
+    /// (the Store's dialog still up): its line says so when the settings open again, and how it ended once it has.
     /// </summary>
     public void Clear()
     {

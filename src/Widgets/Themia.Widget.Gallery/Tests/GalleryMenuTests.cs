@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.Gallery.Tests;
 
-/// <summary>[S-778] The Gallery's options on its properties menu: what the layout draws under Style, the source's own lines, the paths checked as typed.</summary>
+/// <summary>[S-778] The Gallery's options on its page: what the layout draws under Style, the source's own lines, the paths checked as typed.</summary>
 public sealed class GalleryMenuTests
 {
     private int _saves;

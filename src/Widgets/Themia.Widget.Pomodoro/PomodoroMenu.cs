@@ -10,7 +10,7 @@ using Themia.Widget.Pomodoro;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-8110] The Pomodoro's options, all on its properties menu ([S-3719]): the phases ([S-8112]) and whether the cycle
+/// [S-8110] The Pomodoro's options, all on its page ([S-3719]): the phases ([S-8112]) and whether the cycle
 /// repeats ([S-8114]), then the sound (previewed once) and its level. It has no settings page and no Size: the card is
 /// its size ([S-8117]).
 /// </summary>

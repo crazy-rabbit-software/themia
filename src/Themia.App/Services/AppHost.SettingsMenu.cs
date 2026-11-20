@@ -12,7 +12,7 @@ namespace Themia.App.Services;
 /// </summary>
 internal sealed partial class AppHost
 {
-    /// <summary>[S-3550] What ⚙ › Accounts reads and does, the same on every display.</summary>
+    /// <summary>[S-3550] What settings › Accounts reads and does, the same on every display.</summary>
     public Themia.App.Services.Accounts.AccountsMenuHost AccountsMenu { get; }
 
     /// <summary>[S-935] What Windows said of start with Windows when it was last read or changed; null until then.</summary>
@@ -24,13 +24,13 @@ internal sealed partial class AppHost
     /// </summary>
     public event Action? SettingsOutdated;
 
-    /// <summary>[S-3570] What ⚙ › Themia Pro reads and does, the same on every display.</summary>
+    /// <summary>[S-3570] What settings › Themia Pro reads and does, the same on every display.</summary>
     public Licensing.LicenceMenu LicenceMenu { get; }
 
-    /// <summary>[S-3575] What ⚙ › Back up &amp; reset does to the settings file.</summary>
+    /// <summary>[S-3575] What settings › Back up &amp; reset does to the settings file.</summary>
     public SettingsBackup Backup { get; }
 
-    /// <summary>[S-3572] [S-3576] How what ⚙'s lines started went, said under each, on every display.</summary>
+    /// <summary>[S-3572] [S-3576] How what the settings' lines started went, said under each, on every display.</summary>
     public Themia.Core.Settings.SettingsOutcomes SettingsOutcomes { get; } = new();
 
     /// <summary>[S-3582] A loose build's "Also delete my widgets, settings and accounts", unticked again with the last menu.</summary>

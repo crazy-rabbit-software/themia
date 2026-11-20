@@ -15,7 +15,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-6016] Debug only: <c>Themia.exe --clock-style-check &lt;outDir&gt;</c>. One live clock card,
 /// off-screen, handed a run of configs in turn through the card's own settings path (what a pick on
-/// the properties menu does): every style after every other, both ways, with seconds on and off, the seconds toggled on the flip face, and the card resized between some of them. A
+/// the selection's page does): every style after every other, both ways, with seconds on and off, the seconds toggled on the flip face, and the card resized between some of them. A
 /// card that turns into its error card stops the run; the steps go to <c>steps.txt</c>, the last
 /// face to <c>last.png</c>, and the process exits with 1 on a fault, 0 when every step held.
 /// </summary>

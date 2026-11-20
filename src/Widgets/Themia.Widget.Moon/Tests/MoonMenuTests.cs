@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Widget.Moon.Tests;
 
-/// <summary>[S-3108] The Moon's options on its properties menu: Appearance, then the sky's shared location search ([S-3101]).</summary>
+/// <summary>[S-3108] The Moon's options on its page: Appearance, then the sky's shared location search ([S-3101]).</summary>
 public sealed class MoonMenuTests
 {
     private static WidgetMenuLines Build(MoonConfig config)

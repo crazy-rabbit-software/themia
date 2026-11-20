@@ -5,7 +5,7 @@ using Themia.Core.Localization;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3570] What ⚙ › Themia Pro reads and asks for: the licence as the Store last gave it, whether Pro
+/// [S-3570] What settings › Themia Pro reads and asks for: the licence as the Store last gave it, whether Pro
 /// can be bought here and at what price, why a create was refused (said once), and the Store's purchase
 /// and its asking again. How each ended is said under its line (<see cref="ISettingsMenuHost.Outcomes"/>).
 /// </summary>
@@ -31,7 +31,7 @@ public interface ILicenceMenuHost
 }
 
 /// <summary>
-/// [S-3570]..[S-3574] Themia Pro ›: the settings window's License page as lines, after Karpo's ⚙ ›
+/// [S-3570]..[S-3574] Themia Pro ›: the settings window's License page as lines, after Karpo's settings ›
 /// Karpo Pro (karpo-app, docs/widgets.md §339): what this copy is and why, the free allowance where it
 /// applies, Upgrade with the Store's price, and Restore purchases.
 /// </summary>

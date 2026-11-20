@@ -148,7 +148,7 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-1862] What the Set up row says: the widget's own sentence, else that an account would bring
-    /// what it lacks (where Set up goes to ⚙ › Accounts), else what it needs set.
+    /// what it lacks (where Set up goes to settings › Accounts), else what it needs set.
     /// </summary>
     private string SetupSentence(FeatureSet signedIn)
     {

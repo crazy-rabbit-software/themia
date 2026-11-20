@@ -7,7 +7,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-2840] [S-3722] The place search every widget about a place shares on its properties menu (the
+/// [S-2840] [S-3722] The place search every widget about a place shares on its page (the
 /// weather family's and the Sun and Moon's location lines): what is typed, asked of the host's
 /// geocoder, answered as lines to pick from or one sentence in their place.
 /// <para>
@@ -45,7 +45,7 @@ public static class PlaceSearch
 #endif
 
     /// <summary>
-    /// [S-3722] The geocoder as a search on the properties menu: what the box says calls for nothing
+    /// [S-3722] The geocoder as a search on the selection's page: what the box says calls for nothing
     /// (empty, one letter), a word (no letter in it), or the lookup ([S-2841]); its places as lines,
     /// a click on one <paramref name="picked"/>, the one <paramref name="holds"/> says is in force dotted ([S-13606]:
     /// every search's rows); no match, offline and failed said in their place ([S-2843]).

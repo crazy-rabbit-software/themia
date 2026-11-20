@@ -35,7 +35,7 @@ public sealed class ScreenTimeDonutModule : IWidgetModule
         Add = new(AddFolderId.ScreenTime, 0, 2),
     };
 
-    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => ScreenTimeDonutMenu.Lines(menu, (ScreenTimeDonutConfig)config, SettingsHost.ScreenTime);
 

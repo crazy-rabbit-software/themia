@@ -523,7 +523,7 @@ public static class ShellMetrics
 /// </summary>
 public enum ShellRole
 {
-    /// <summary>A flyout's solid sheet (the menus, the properties panel).</summary>
+    /// <summary>A flyout's solid sheet (the menus, the pages).</summary>
     Flyout,
 
     /// <summary>A flyout's and a notice's stroke.</summary>

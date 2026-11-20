@@ -12,7 +12,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-6580]..[S-6585] A widget's content alignment: which kinds and styles take it, what each does
-/// without a choice, what the card draws, the properties panel's offer and writes, and load repair.
+/// without a choice, what the card draws, the selection's page's offer and writes, and load repair.
 /// The list (<see cref="ContentAlignment"/>) is checked against the views that take it.
 /// </summary>
 public sealed partial class ContentAlignmentTests

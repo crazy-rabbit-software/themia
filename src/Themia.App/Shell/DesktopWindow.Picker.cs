@@ -92,7 +92,7 @@ internal sealed partial class DesktopWindow
             _flyoutLayer.Children.Add(_addPage);
         }
 
-        ShowToolbar();
+        ShowEditBar();
         PlaceAddPage();
         _addPage.View.FocusSearch();
     }
@@ -108,10 +108,10 @@ internal sealed partial class DesktopWindow
         _flyoutLayer.Children.Remove(page);
         _addPage = null;
         _addArea = null;
-        ShowToolbar();
+        ShowEditBar();
         if (focusAdd)
         {
-            _toolbar.FocusAdd();
+            _editBar.FocusAdd();
         }
     }
 
@@ -124,7 +124,7 @@ internal sealed partial class DesktopWindow
         }
 
         var area = WorkArea;
-        page.Place(ToolbarRect(area), area);
+        page.Place(EditBarRect(area), area);
     }
 
     /// <summary>[S-1065] How many widgets placing a tile creates: the licence's question before the ghost.</summary>
@@ -351,7 +351,7 @@ internal sealed partial class DesktopWindow
     /// <summary>
     /// [S-421]/[S-1587] Enter or leave placing. The cards stop taking input while something is being
     /// placed, so a click over an existing widget drops the payload there instead of grabbing the old
-    /// one, and the toolbar steps aside for a line saying what the click will do. The originals of a
+    /// one, and the edit bar steps aside for a line saying what the click will do. The originals of a
     /// move are faded while they are aimed, so it is clear which widgets are about to go.
     /// </summary>
     private void OnPlacementChanged()
@@ -374,9 +374,9 @@ internal sealed partial class DesktopWindow
             EndLasso();
             _placementHintText.Text = Str.Shell_Place_Hint.Format(("action", PlacementHint.Verb(placing)));
             _placementHint.Visibility = Visibility.Visible;
-            _toolbar.Visibility = Visibility.Collapsed;
+            _editBar.Visibility = Visibility.Collapsed;
             CloseFlyout(focusEntry: false);
-            PlaceProperties();
+            PlaceFlyout();
 
             // The command was given with the pointer already somewhere: show the ghost there at once
             // rather than waiting for the first move.
@@ -398,8 +398,8 @@ internal sealed partial class DesktopWindow
         }
 
         _placementHint.Visibility = Visibility.Collapsed;
-        _toolbar.Visibility = EditMode ? Visibility.Visible : Visibility.Collapsed;
-        PlaceProperties();
+        _editBar.Visibility = EditMode ? Visibility.Visible : Visibility.Collapsed;
+        PlaceFlyout();
         HideGhost();
         DropIconGhosts();
         ReopenUnplacedAfterPlacing();
