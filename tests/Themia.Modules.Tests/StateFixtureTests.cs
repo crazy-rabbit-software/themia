@@ -36,7 +36,7 @@ public sealed class StateFixtureTests
     [Fact]
     public void S44_a_state_with_every_kinds_default_config_loads_without_a_repair()
     {
-        var parsed = AppStateStore.Parse(File.ReadAllText(Fixture()));
+        var parsed = StateDocument.Parse(File.ReadAllText(Fixture()));
 
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);
@@ -53,7 +53,7 @@ public sealed class StateFixtureTests
     public void S44_a_state_with_every_kinds_default_config_writes_back_unchanged()
     {
         var json = File.ReadAllText(Fixture());
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         var written = JsonSerializer.Serialize(parsed.State, StateJson.AppState);

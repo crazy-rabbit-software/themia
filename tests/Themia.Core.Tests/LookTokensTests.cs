@@ -81,11 +81,11 @@ public sealed class LookTokensTests
     {
         var state = AppState.CreateDefault();
         state.Design.Tokens = null!;
-        Assert.DoesNotContain(Storage.AppStateStore.Validate(state), r => r.Contains("look token", StringComparison.Ordinal));
+        Assert.DoesNotContain(Storage.StateRepair.Repair(state), r => r.Contains("look token", StringComparison.Ordinal));
         Assert.True(state.Design.Tokens.SameAs(new LookTokens()));
 
         state.Design.Tokens.TrackingLarge = -400;
-        Assert.Contains(Storage.AppStateStore.Validate(state), r => r.Contains("trackingLarge", StringComparison.Ordinal));
+        Assert.Contains(Storage.StateRepair.Repair(state), r => r.Contains("trackingLarge", StringComparison.Ordinal));
         Assert.Equal(-60, state.Design.Tokens.TrackingLarge);
     }
 

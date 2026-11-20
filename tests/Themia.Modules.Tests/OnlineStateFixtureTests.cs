@@ -24,7 +24,7 @@ public sealed class OnlineStateFixtureTests
     public void S44_the_online_widgets_configured_state_loads_without_a_repair_and_writes_back_unchanged()
     {
         var json = Fixture();
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);
@@ -35,7 +35,7 @@ public sealed class OnlineStateFixtureTests
     [Fact]
     public void S44_the_online_widgets_configured_state_reads_the_places_and_choices_it_holds()
     {
-        var state = AppStateStore.Parse(Fixture()).State!;
+        var state = StateDocument.Parse(Fixture()).State!;
         var configs = Assert.Single(state.Views).Widgets.Select(w => w.Config).ToList();
 
         var now = Assert.IsType<WeatherNowConfig>(configs[0]);

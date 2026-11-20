@@ -26,7 +26,7 @@ public sealed class AccountStateFixtureTests
     public void S44_the_account_widgets_configured_state_loads_without_a_repair_and_writes_back_unchanged()
     {
         var json = Fixture();
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);
@@ -37,7 +37,7 @@ public sealed class AccountStateFixtureTests
     [Fact]
     public void S44_every_account_widget_reads_its_own_config()
     {
-        var widgets = Assert.Single(AppStateStore.Parse(Fixture()).State!.Views).Widgets;
+        var widgets = Assert.Single(StateDocument.Parse(Fixture()).State!.Views).Widgets;
         Assert.Equal(16, widgets.Count);
         Assert.Equal(
             ["email", "email", "email", "calendar", "calendar", "calendar", "calendar", "contacts", "contacts", "nextMeeting", "nextMeeting", "weekPlanner", "weekPlanner", "tasks", "tasks", "tasks"],

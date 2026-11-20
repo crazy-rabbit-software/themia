@@ -46,7 +46,7 @@ public sealed class CalendarHostTests
     [InlineData(900, 365)]
     public void S3636_an_agenda_range_out_of_bounds_is_repaired_and_said(int stored, int repaired)
     {
-        var parsed = AppStateStore.Parse(StateWith(new WidgetId("calendar"), $$"""{"kind":"calendar","style":"agenda","agendaDays":{{stored}}}""").ToJsonString());
+        var parsed = StateDocument.Parse(StateWith(new WidgetId("calendar"), $$"""{"kind":"calendar","style":"agenda","agendaDays":{{stored}}}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
         Assert.Equal(repaired, ConfigOf<CalendarWidgetConfig>(parsed, new WidgetId("calendar")).AgendaDays);
@@ -59,7 +59,7 @@ public sealed class CalendarHostTests
     [InlineData("""{"kind":"calendar","style":"week","weekFrom":7}""", WeekFirstDay.Week)]
     public void S3637_a_week_first_day_out_of_bounds_falls_back(string json, WeekFirstDay from)
     {
-        var parsed = AppStateStore.Parse(StateWith(new WidgetId("calendar"), json).ToJsonString());
+        var parsed = StateDocument.Parse(StateWith(new WidgetId("calendar"), json).ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
         var week = ConfigOf<CalendarWidgetConfig>(parsed, new WidgetId("calendar"));
@@ -70,8 +70,8 @@ public sealed class CalendarHostTests
     public void S14502_a_stored_count_the_card_now_holds_is_dropped_loudly()
     {
         // [S-14502] How many days, hours or lines a calendar shows is its card's: a file that still stores one loads with the
-        // key dropped, said in the log (AppStateStore.DropUnknownKeys).
-        var parsed = AppStateStore.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"week","weekDays":5,"dayHours":8,"monthLines":3,"weekHours":8}""").ToJsonString());
+        // key dropped, said in the log (StateDocument.DropUnknownKeys).
+        var parsed = StateDocument.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"week","weekDays":5,"dayHours":8,"monthLines":3,"weekHours":8}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
         foreach (var key in new[] { "weekDays", "dayHours", "monthLines", "weekHours" })
@@ -93,7 +93,7 @@ public sealed class CalendarHostTests
         state.Views[0].Widgets.Add(week);
         state.Views[0].Widgets.Add(agenda);
 
-        var parsed = AppStateStore.Parse(SettingsTransfer.Serialize(state));
+        var parsed = StateDocument.Parse(SettingsTransfer.Serialize(state));
         CalendarWidgetConfig Of(string id) => Assert.IsType<CalendarWidgetConfig>(parsed.State!.Views[0].Widgets.First(w => w.Id == id).Config);
 
         var w = Of("week");

@@ -377,7 +377,7 @@ public class MailFeedTests
     {
         var document = StateWithMail("""{"kind":"email","listFields":["subject","preview","account"]}""");
 
-        var config = MailOf(AppStateStore.Parse(document.ToJsonString()).State!);
+        var config = MailOf(StateDocument.Parse(document.ToJsonString()).State!);
 
         Assert.Equal([MailListField.Subject, MailListField.Account], config.ListFields);
     }
@@ -421,7 +421,7 @@ public class MailFeedTests
         Assert.Contains("\"sortOrder\": \"asc\"", json, StringComparison.Ordinal);
         Assert.DoesNotContain("collectionId", json, StringComparison.Ordinal);
 
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
         var back = MailOf(parsed.State!);
         Assert.Equal(MailFolder.Junk, back.Folder);
         Assert.Equal([MailColumn.Date, MailColumn.From], back.RowColumns);
@@ -439,7 +439,7 @@ public class MailFeedTests
              "listFields":["subject","bogus"],"rowColumns":[]}
             """);
 
-        var parsed = AppStateStore.Parse(document.ToJsonString());
+        var parsed = StateDocument.Parse(document.ToJsonString());
 
         Assert.NotNull(parsed.State);
         Assert.Equal(AppState.CreateDefault().Views[0].Widgets.Count + 2, parsed.State!.Views[0].Widgets.Count);

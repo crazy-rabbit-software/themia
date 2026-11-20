@@ -546,7 +546,7 @@ busy desktop ([S-6601]), Debug, private bytes.
   so a config can never be silently read as the wrong widget's shape. An unknown widget kind is
   dropped with a report, because this build cannot render it at all ([S-1900]).
 - **[S-1900]** A widget whose kind is a name this build does not have (a removed widget, a hand edit)
-  is taken out of the document **before** the typed read (`AppStateStore.Parse`, by its config's `kind`
+  is taken out of the document **before** the typed read (`StateDocument.Parse`, by its config's `kind`
   string), and each one is reported ("dropped widget 'calc' of unknown kind 'calculator' from view 'Desk'"); the rest
   of the document loads. The typed read would otherwise refuse the whole file over one widget and
   set it aside. A property the model no longer has (a widget's old `parentId`) is ignored like any
@@ -3784,7 +3784,7 @@ itself is ⚙ › About Themia ([S-3580]). Owning files: `Themia.Core/Storage/Se
 - **[S-494]** Export writes the state document — the same JSON as `state.json` — to a file picked
   with `Microsoft.Windows.Storage.Pickers` (window id, works unpackaged; the window of the display
   whose ⚙ it is, [S-3576]), atomically (temp + move).
-- **[S-495]** Import reads the picked file through `AppStateStore.Parse`, the startup trust boundary,
+- **[S-495]** Import reads the picked file through `StateDocument.Parse`, the startup trust boundary,
   so an import can never accept what a restart would refuse. Empty, non-JSON, newer-schema and
   view-less documents (any other app's JSON would otherwise read as "one blank view") are refused
   with a reason and change nothing.
@@ -4988,7 +4988,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   that only held such a count are gone (the forecast's `Days`, the week planner's `Days`, the calendar's `WeekDays`,
   `DayHours`, `MonthLines` and `WeekHours`, the contacts' `GridColumns`, the gallery's `Columns`, the stopwatch's
   `LapRows`, the video stream's `Span`, RSS's `Columns`), and a state file that still has one loads with the key
-  dropped loudly (`AppStateStore.DropUnknownKeys`); no migration. Tests
+  dropped loudly (`StateDocument.DropUnknownKeys`); no migration. Tests
   `CalendarHostTests.S11146_S14502_a_stored_count_the_card_now_holds_is_dropped_loudly`, the fixture tests.
 - **[S-14503]** **A list's Rows puts the card at its natural** ([S-2447], [S-14500]): a config change that moves the
   sizing's Natural on an axis and leaves its Min and Max there as they were (a list's Rows, which decide its natural
@@ -5059,7 +5059,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   [S-12808]) to its floor ([S-12833], WR-14: its main reading at 9 where the face states its parts, its smaller parts
   giving way; else its smallest text); a picture (the cover) or a ring (the donut) is as large
   as its card holds. A state file that still has a widget's `size` loads with the key dropped loudly
-  (`AppStateStore.DropUnknownKeys`); no migration. Tests `SizeFollowsCardTests.S2449_`.)* What stands: a data
+  (`StateDocument.DropUnknownKeys`); no migration. Tests `SizeFollowsCardTests.S2449_`.)* What stands: a data
   widget's number is the family's 28 ([S-2220]; the 40 step stays for a kind that states it).
 - **[S-2448]** **A kind is checked at its range**: its Min, its Natural and, with no practical Max ([S-12411]), a
   large size, twice its Natural fitted into its sizing (`SizeStretch.Large`; `SizeFit.CheckedAt`, `CheckedSize`
@@ -9652,7 +9652,7 @@ makes a composition one thing. Several widgets selected together are arranged an
   together"). A view holds widgets only: no `Groups`, no widget `group`, no group in a payload, an undo shape, a
   scene or an export. A state file that still names them loads with those keys dropped,
   one repair line each ([S-1050]: load validation takes out every key the preferences, a view or a widget does not have,
-  `AppStateStore.DropUnknownKeys`). No Ctrl+G or Ctrl+Shift+G, no Group, Ungroup or Remove from group on the card
+  `StateDocument.DropUnknownKeys`). No Ctrl+G or Ctrl+Shift+G, no Group, Ungroup or Remove from group on the card
   menu or the selection's page, no group page or name, no entering a group. *(2026-11-12 to 2026-11-17 a group was
   a lock over two or more widgets of one view: `WidgetGroups`, `WidgetSelection.Entered`, `EditMarks`,
   `SelectionRules.MarksOf`, the group's page and name; removed whole.)* Tests `NoGroupsTests.S2450_`,
@@ -13944,7 +13944,7 @@ Removed by the owner's decision on 2026-11-20 ("remove mcp integration from them
 listener, JSON-RPC and HTTP code, tools, key file, the ⚙ › AI assistants card, its strings, renders and tests
 (issue #165 had added it on 2026-11-07). Themia opens no socket for assistants and hands nothing to one. A
 state file that still holds `preferences.mcpServer` loads with it dropped, one repair line ([S-1050],
-`AppStateStore.DropUnknownKeys`, test `ShellSettingsTests.S1050_`); an `mcp.json` left beside the state file
+`StateDocument.DropUnknownKeys`, test `ShellSettingsTests.S1050_`); an `mcp.json` left beside the state file
 is read by nothing (an uninstall that deletes the data takes it with the folder). These tags are not reused.
 
 - **[S-9960]** *(Retired: there is no assistants' server and no `Preferences.McpServer` switch.)*

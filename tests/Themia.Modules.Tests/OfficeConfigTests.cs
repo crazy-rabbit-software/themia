@@ -33,7 +33,7 @@ public sealed class OfficeConfigTests
     [Fact]
     public void S563_GarbledValuesFallBackInsteadOfRefusingTheFile()
     {
-        var calendar = AppStateStore.Parse(StateWith(new WidgetId("calendar"),
+        var calendar = StateDocument.Parse(StateWith(new WidgetId("calendar"),
             """{"kind":"calendar","accountIds":"nope","calendars":{"a":"x","b":["c1",7]},"calendarColors":{"k":5,"j":"#123456"},"weekStart":3}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, calendar.Refusal);
@@ -43,13 +43,13 @@ public sealed class OfficeConfigTests
         Assert.Empty(c.Calendars["a"]);
         Assert.Equal("#123456", Assert.Single(c.CalendarColors).Value);
 
-        var agenda = AppStateStore.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"agenda","agendaCount":900}""").ToJsonString());
+        var agenda = StateDocument.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"agenda","agendaCount":900}""").ToJsonString());
         Assert.Equal(ParseRefusal.None, agenda.Refusal);
         var a = ConfigOf<CalendarWidgetConfig>(agenda, new WidgetId("calendar"));
         Assert.Equal(100, a.AgendaCount);
         Assert.Equal(CalendarStyle.Agenda, a.Style);
 
-        var contacts = AppStateStore.Parse(StateWith(new WidgetId("contacts"),
+        var contacts = StateDocument.Parse(StateWith(new WidgetId("contacts"),
             """{"kind":"contacts","layout":"tiles","columns":["email","bogus",3],"count":-4}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, contacts.Refusal);
@@ -81,7 +81,7 @@ public sealed class OfficeConfigTests
 
         var json = SettingsTransfer.Serialize(state);
 
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
         CalendarWidgetConfig Of(string id) => Assert.IsType<CalendarWidgetConfig>(parsed.State!.Views[0].Widgets.First(w => w.Id == id).Config);
         var back = Of("year");
         Assert.Equal(["google:1"], back.AccountIds);
@@ -130,7 +130,7 @@ public sealed class OfficeConfigTests
     [Fact]
     public void S3640_an_unknown_calendar_style_is_repaired_to_the_month()
     {
-        var parsed = AppStateStore.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"fortnight"}""").ToJsonString());
+        var parsed = StateDocument.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"fortnight"}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
         Assert.Equal(CalendarStyle.Month, ConfigOf<CalendarWidgetConfig>(parsed, new WidgetId("calendar")).Style);

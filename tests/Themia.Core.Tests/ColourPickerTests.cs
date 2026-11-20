@@ -129,12 +129,12 @@ public sealed class ColourPickerTests
         Assert.Empty(state.Preferences.RecentColours);
 
         state.Preferences.RecentColours = ["#112233", "not a colour", "#112233", "#ABCDEF"];
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
         Assert.Equal(["#112233", "#ABCDEF"], state.Preferences.RecentColours);
         Assert.Contains(repairs, r => r.Contains("recent colours", StringComparison.Ordinal));
 
         // A valid list is no repair; it round-trips and is copied by Clone.
-        Assert.DoesNotContain(AppStateStore.Validate(state), r => r.Contains("recent colours", StringComparison.Ordinal));
+        Assert.DoesNotContain(StateRepair.Repair(state), r => r.Contains("recent colours", StringComparison.Ordinal));
         var json = JsonSerializer.Serialize(state.Preferences, AppStateJsonContext.Default.AppPreferences);
         Assert.Equal(["#112233", "#ABCDEF"], JsonSerializer.Deserialize(json, AppStateJsonContext.Default.AppPreferences)!.RecentColours);
         var copy = state.Preferences.Clone();
@@ -143,7 +143,7 @@ public sealed class ColourPickerTests
 
         // A hand-edited null is an empty list.
         state.Preferences.RecentColours = null!;
-        AppStateStore.Validate(state);
+        StateRepair.Repair(state);
         Assert.Empty(state.Preferences.RecentColours);
     }
 

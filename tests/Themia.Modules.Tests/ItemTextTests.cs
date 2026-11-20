@@ -122,7 +122,7 @@ public sealed class ItemTextTests
         state.Design.ItemTextColor = null!;
         state.Views[0].Widgets[0].ItemTextColor = null!;
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Equal(string.Empty, state.Design.ItemTextColor);
         Assert.Equal(string.Empty, state.Views[0].Widgets[0].ItemTextColor);

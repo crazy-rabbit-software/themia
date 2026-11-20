@@ -135,7 +135,7 @@ internal static class SwitchCheck
             if (options.StatePath is { } source)
             {
                 // A copy of a state file: parsed with the app's own trust boundary, never written back.
-                state = AppStateStore.Parse(File.ReadAllText(source)).State
+                state = StateDocument.Parse(File.ReadAllText(source)).State
                     ?? throw new InvalidDataException($"{source} is not a state document");
                 state.Views.Add(empty);
             }

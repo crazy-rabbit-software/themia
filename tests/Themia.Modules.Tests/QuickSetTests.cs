@@ -169,7 +169,7 @@ public sealed class QuickSetTests
         a.BackgroundImage = "notes.txt";
         var (state, _, _) = State(a);
 
-        var parsed = AppStateStore.Parse(System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState));
+        var parsed = StateDocument.Parse(System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState));
 
         Assert.Null(parsed.State!.Views[0].Widgets[0].BackgroundImage);
         Assert.Contains(parsed.Repairs, r => r.Contains("background image", StringComparison.Ordinal));

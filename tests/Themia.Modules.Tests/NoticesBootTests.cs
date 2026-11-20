@@ -308,12 +308,12 @@ public sealed class NoticesBootTests : IDisposable
         var state = AppState.CreateDefault();
         var before = state.Views.SelectMany(v => v.Widgets).Select(w => (w.Kind, w.Rect)).ToList();
 
-        Assert.Empty(AppStateStore.Validate(state));
+        Assert.Empty(StateRepair.Repair(state));
         Assert.Equal(before, state.Views.SelectMany(v => v.Widgets).Select(w => (w.Kind, w.Rect)));
 
         // The same through the file's own parse: written and read back, nothing needs repair.
         var written = SettingsTransfer.Serialize(state);
-        var parsed = AppStateStore.Parse(written);
+        var parsed = StateDocument.Parse(written);
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);
         Assert.Equal(written, SettingsTransfer.Serialize(parsed.State!));

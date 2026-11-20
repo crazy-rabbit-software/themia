@@ -183,7 +183,7 @@ public sealed class ViewsTests
         };
         state.ViewBars[" "] = new ViewBarSettings();
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.NotEmpty(repairs);
         Assert.False(state.ViewBars.ContainsKey(" "));
@@ -207,7 +207,7 @@ public sealed class ViewsTests
         });
 
         var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         var bar = parsed.State!.ViewBars["m1"];

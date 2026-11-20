@@ -47,7 +47,7 @@ public sealed class SettingsTransferTests : IDisposable
 
     /// <summary>A deep copy, through the same serialiser an export uses.</summary>
     private static AppState Copy(AppState state)
-        => AppStateStore.Parse(SettingsTransfer.Serialize(state)).State!;
+        => StateDocument.Parse(SettingsTransfer.Serialize(state)).State!;
 
     private static string[] Displays => ["\\\\.\\DISPLAY1"];
 

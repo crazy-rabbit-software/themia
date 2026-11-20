@@ -22,7 +22,7 @@ internal static class ConfigJson
             }
             """;
 
-        var state = AppStateStore.Parse(json).State ?? throw new InvalidOperationException("the state did not parse");
+        var state = StateDocument.Parse(json).State ?? throw new InvalidOperationException("the state did not parse");
         return state.Views[0].Find("w")!.Config;
     }
 }

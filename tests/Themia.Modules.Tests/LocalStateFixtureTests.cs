@@ -28,7 +28,7 @@ public sealed class LocalStateFixtureTests
     public void S44_the_local_widgets_configured_state_loads_without_a_repair_and_writes_back_unchanged()
     {
         var json = Fixture();
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);
@@ -39,7 +39,7 @@ public sealed class LocalStateFixtureTests
     [Fact]
     public void S44_the_local_widgets_configured_state_reads_the_choices_it_holds()
     {
-        var state = AppStateStore.Parse(Fixture()).State!;
+        var state = StateDocument.Parse(Fixture()).State!;
         var configs = Assert.Single(state.Views).Widgets.Select(w => w.Config).ToList();
         Assert.Equal(12, configs.Count);
 

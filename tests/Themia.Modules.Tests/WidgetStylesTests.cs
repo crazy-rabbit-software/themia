@@ -80,7 +80,7 @@ public sealed class WidgetStylesTests
             var json = JsonSerializer.Serialize(state, StateJson.AppState);
             Assert.Contains($"\"style\": \"{last.Name}\"", json, StringComparison.Ordinal);
 
-            var back = AppStateStore.Parse(json).State!.Views[0].Find("w")!;
+            var back = StateDocument.Parse(json).State!.Views[0].Find("w")!;
             Assert.Equal(last.Value, WidgetStyles.Current(back.Config));
         }
     }
@@ -118,7 +118,7 @@ public sealed class WidgetStylesTests
             }
             """;
 
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.Equal(ClockStyle.Digital, ((ClockConfig)parsed.State!.Views[0].Find("w")!.Config).Style);
         Assert.Contains(parsed.Repairs, r => r.Contains("style", StringComparison.Ordinal));

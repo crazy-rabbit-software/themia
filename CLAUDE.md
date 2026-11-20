@@ -427,7 +427,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   Toggle/RadioMenuFlyoutItem or AppBarToggleButton (`S12952_` guard, no file excepted; the view bar's select menu too).
 - **Widget selection, no groups** ([S-1580]..[S-1597], [S-2450]..[S-2457]; owner, 2026-11-17: "actually remove
   the group feature"): there are no groups, no `WidgetGroups`, no view `Groups`, no widget `group`, no Ctrl+G, no
-  group page; a state file that still names them loads with those keys dropped loudly (`AppStateStore.DropUnknownKeys`).
+  group page; a state file that still names them loads with those keys dropped loudly (`StateDocument.DropUnknownKeys`).
   Edit mode selects widgets (`WidgetSelection`: a press the widget alone or keeps a selection that holds it, a click
   narrows, Ctrl/Shift+click toggles one, the lasso what it touches, Tab one by one, Escape clears); several selected
   move as one block (snapped, whole device pixels, [S-11873]; kept apart, [S-11959]), resize as one block by the

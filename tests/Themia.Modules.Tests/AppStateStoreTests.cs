@@ -189,7 +189,7 @@ public sealed class AppStateStoreTests : IDisposable
         var state = AppState.CreateDefault();
         state.ActiveViewId = "does-not-exist";
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Contains(repairs, r => r.Contains("active view"));
         Assert.Equal(state.Views[0].Id, state.ActiveViewId);
@@ -201,7 +201,7 @@ public sealed class AppStateStoreTests : IDisposable
         var state = AppState.CreateDefault();
         state.MonitorViews["\\\\.\\DISPLAY1"] = "deleted-view";
 
-        AppStateStore.Validate(state);
+        StateRepair.Repair(state);
 
         Assert.Empty(state.MonitorViews);
     }
@@ -215,7 +215,7 @@ public sealed class AppStateStoreTests : IDisposable
         clone.Id = view.Widgets[0].Id;
         view.Widgets.Add(clone);
 
-        AppStateStore.Validate(state);
+        StateRepair.Repair(state);
 
         Assert.Equal(view.Widgets.Count, view.Widgets.Select(w => w.Id).Distinct().Count());
     }
@@ -227,7 +227,7 @@ public sealed class AppStateStoreTests : IDisposable
         var widget = state.ActiveView().Widgets[0];
         widget.Config = null!;
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.DoesNotContain(widget, state.ActiveView().Widgets);
         Assert.Contains(repairs, r => r.Contains($"'{widget.Id}'", StringComparison.Ordinal));
@@ -240,7 +240,7 @@ public sealed class AppStateStoreTests : IDisposable
         var widget = state.ActiveView().Widgets[0];
         widget.Rect = new FracRect(5, -5, 0.2, 0.2);
 
-        AppStateStore.Validate(state);
+        StateRepair.Repair(state);
 
         // Against the 1920 × 1080 reference screen: the visible minimum stays on it, no more.
         Assert.Equal(1 - (GridGeometry.MinVisiblePx / 1920), widget.Rect.X, 9);
@@ -256,7 +256,7 @@ public sealed class AppStateStoreTests : IDisposable
         var overhanging = new FracRect(-0.1, 0.9, 0.2, 0.2);
         widget.Rect = overhanging;
 
-        AppStateStore.Validate(state);
+        StateRepair.Repair(state);
 
         Assert.Equal(overhanging, widget.Rect);
     }
@@ -271,7 +271,7 @@ public sealed class AppStateStoreTests : IDisposable
         var root = System.Text.Json.Nodes.JsonNode.Parse(SettingsTransfer.Serialize(state))!;
         root["design"]!.AsObject()["overEdge"] = false;
 
-        var read = AppStateStore.Parse(root.ToJsonString());
+        var read = StateDocument.Parse(root.ToJsonString());
 
         Assert.NotNull(read.State);
         Assert.Equal(1.25, read.State!.Design.FontScale);
@@ -281,7 +281,7 @@ public sealed class AppStateStoreTests : IDisposable
 
     [Fact]
     public void S1050_a_design_written_by_this_build_loads_with_no_repair()
-        => Assert.Empty(AppStateStore.Parse(SettingsTransfer.Serialize(AppState.CreateDefault())).Repairs);
+        => Assert.Empty(StateDocument.Parse(SettingsTransfer.Serialize(AppState.CreateDefault())).Repairs);
 
     [Fact]
     public void Validate_clamps_nonsense_design_values()
@@ -291,7 +291,7 @@ public sealed class AppStateStoreTests : IDisposable
         state.Design.Background.Opacity = -4;
         state.Design.CornerRadiusPx = 9999;
 
-        AppStateStore.Validate(state);
+        StateRepair.Repair(state);
 
         Assert.InRange(state.Design.Background.Opacity, 0, 1.0);
         Assert.InRange(state.Design.CornerRadiusPx, 0, 32);
@@ -303,7 +303,7 @@ public sealed class AppStateStoreTests : IDisposable
         var state = AppState.CreateDefault();
         state.Design.CornerRadiusPx = double.NaN;
 
-        AppStateStore.Validate(state);
+        StateRepair.Repair(state);
 
         Assert.Equal(8, state.Design.CornerRadiusPx);
     }
@@ -355,7 +355,7 @@ public sealed class AppStateStoreTests : IDisposable
     [Fact]
     public void S1900_a_widget_of_a_kind_this_build_lacks_is_dropped_loudly_and_the_rest_is_kept()
     {
-        var result = AppStateStore.Parse(RemovedKindsDocument);
+        var result = StateDocument.Parse(RemovedKindsDocument);
 
         Assert.Equal(ParseRefusal.None, result.Refusal);
         var kept = Assert.Single(result.State!.Views[0].Widgets);

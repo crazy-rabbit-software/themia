@@ -74,7 +74,7 @@ public sealed class WidgetPreferencesTests
     [Fact]
     public void S3772_null_preferences_in_the_file_are_the_defaults()
     {
-        var parsed = AppStateStore.Parse("""
+        var parsed = StateDocument.Parse("""
             { "schemaVersion": 1, "views": [ { "id": "v1", "name": "Desktop", "widgets": [] } ], "activeViewId": "v1",
               "monitorViews": {}, "preferences": { "region": null, "refresh": { "weather": 1, "markets": 5, "feeds": 30, "accounts": 2 } } }
             """);

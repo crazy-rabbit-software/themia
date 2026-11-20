@@ -15,7 +15,7 @@ public sealed record ImportPreview(IReadOnlyList<string> Changes, IReadOnlyList<
 /// Exporting the whole settings document to a file and importing one back. [S-494..S-498]
 /// <para>
 /// The file is the state document itself, byte for byte what <c>state.json</c> holds, so there is
-/// one format and one reader: an import goes through <see cref="AppStateStore.Parse"/>, the same
+/// one format and one reader: an import goes through <see cref="StateDocument.Parse"/>, the same
 /// trust boundary the app's own file crosses at startup. A file that would be refused at startup is
 /// refused here, before it can replace anything.
 /// </para>
@@ -123,7 +123,7 @@ public static class SettingsTransfer
             return ParseResult.Refused(ParseRefusal.NotState, Explain(ParseRefusal.NotState));
         }
 
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
         if (parsed.State is null)
         {
             Log.Warn(Scope, $"refused an import from {source}: {parsed.Problem}");

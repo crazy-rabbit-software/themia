@@ -75,7 +75,7 @@ internal static class StartupCheck
         try
         {
             var state = statePath is { } source
-                ? AppStateStore.Parse(File.ReadAllText(source)).State ?? throw new InvalidDataException($"{source} is not a state document")
+                ? StateDocument.Parse(File.ReadAllText(source)).State ?? throw new InvalidDataException($"{source} is not a state document")
                 : AppState.CreateDefault();
             var view = show is null ? state.Views[0] : state.Views.First(v => string.Equals(v.Name, show, StringComparison.OrdinalIgnoreCase));
             state.ShowViewOn(DisplayId, view.Id);

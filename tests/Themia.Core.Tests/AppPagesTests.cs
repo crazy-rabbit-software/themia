@@ -96,7 +96,7 @@ public sealed class AppPagesTests
         node["views"]![0]!["color"] = System.Text.Json.Nodes.JsonNode.Parse(color);
         var json = node.ToJsonString();
 
-        var result = AppStateStore.Parse(json);
+        var result = StateDocument.Parse(json);
 
         Assert.Null(result.State!.Views[0].Color);
         Assert.Contains(result.Repairs, r => r.Contains("colour", StringComparison.Ordinal));
@@ -109,7 +109,7 @@ public sealed class AppPagesTests
         state.Views[0].Color = "#abc";
         var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
 
-        var result = AppStateStore.Parse(json);
+        var result = StateDocument.Parse(json);
 
         Assert.Equal("#AABBCC", result.State!.Views[0].Color);
         Assert.DoesNotContain(result.Repairs, r => r.Contains("colour", StringComparison.Ordinal));

@@ -82,9 +82,9 @@ public sealed class WidgetScaleTests
     [Fact]
     public void S6530_the_scale_round_trips_through_the_state_file()
     {
-        var state = AppStateStore.Parse(StateFile("1.25")).State!;
+        var state = StateDocument.Parse(StateFile("1.25")).State!;
         var json = JsonSerializer.Serialize(state, StateJson.AppState);
-        var back = AppStateStore.Parse(json);
+        var back = StateDocument.Parse(json);
 
         Assert.Equal(1.25, back.State!.Views[0].Widgets[0].Scale);
         Assert.Empty(back.Repairs);
@@ -93,7 +93,7 @@ public sealed class WidgetScaleTests
     [Fact]
     public void S6530_a_file_without_a_scale_reads_as_100_percent()
     {
-        var result = AppStateStore.Parse(StateFile("1").Replace("\"scale\": 1, ", string.Empty, StringComparison.Ordinal));
+        var result = StateDocument.Parse(StateFile("1").Replace("\"scale\": 1, ", string.Empty, StringComparison.Ordinal));
 
         Assert.Equal(1.0, result.State!.Views[0].Widgets[0].Scale);
         Assert.Empty(result.Repairs);
@@ -106,7 +106,7 @@ public sealed class WidgetScaleTests
     [InlineData("-1", 0.5)]
     public void S6533_a_hand_edited_scale_is_repaired_and_said(string scale, double repaired)
     {
-        var result = AppStateStore.Parse(StateFile(scale));
+        var result = StateDocument.Parse(StateFile(scale));
 
         Assert.Equal(ParseRefusal.None, result.Refusal);
         Assert.Equal(repaired, result.State!.Views[0].Widgets[0].Scale);

@@ -54,7 +54,7 @@ public sealed class ReadyMadePlacementTests
         var view = state.Views[0];
         Assert.Equal(recipe.Widgets.Select(w => w.Kind), view.Widgets.Select(w => w.Kind.Value));
         Assert.Equal(view.Widgets.Select(w => w.Id), plan.Roots);
-        Assert.Empty(AppStateStore.Validate(state));
+        Assert.Empty(StateRepair.Repair(state));
         Assert.All(view.Widgets, w => Assert.True(w.Rect.IsFinite && w.Rect.W > 0 && w.Rect.H > 0, $"{id}: {w.Kind.Value} has no box"));
         var written = Themia.Core.Storage.SettingsTransfer.Serialize(state);
         Assert.DoesNotContain("\"group\":", written, StringComparison.Ordinal);

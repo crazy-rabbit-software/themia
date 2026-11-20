@@ -43,7 +43,7 @@ public sealed class ViewBarTypeTests
         });
 
         var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         var bar = parsed.State!.ViewBars["m1"];
@@ -59,7 +59,7 @@ public sealed class ViewBarTypeTests
         var state = ThreeViews();
         state.ViewBars["m1"] = new ViewBarSettings { Type = (ViewBarType)9, Labels = ViewBarLabels.IconOnly, Anchor = ViewBarAnchor.TopRight };
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Contains(repairs, r => r.Contains("unknown type", StringComparison.Ordinal));
         Assert.Equal(ViewBarType.Inline, state.ViewBars["m1"].Type);
@@ -73,7 +73,7 @@ public sealed class ViewBarTypeTests
         var state = ThreeViews();
         state.ViewBars["m1"] = new ViewBarSettings { Labels = (ViewBarLabels)7, Type = ViewBarType.Select };
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Contains(repairs, r => r.Contains("unknown labels", StringComparison.Ordinal));
         Assert.Equal(ViewBarLabels.IconAndText, state.ViewBars["m1"].Labels);
@@ -88,7 +88,7 @@ public sealed class ViewBarTypeTests
         var written = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
         var json = written.Replace("\"labels\": 2", "\"labels\": 42", StringComparison.Ordinal);
 
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotEqual(written, json);
         Assert.Equal(ViewBarLabels.IconAndText, parsed.State!.ViewBars["m1"].Labels);

@@ -15,7 +15,7 @@ namespace Themia.App.Shell.Gallery;
 /// widget kind into a state file, each holding the widget at its min, natural and max
 /// (<see cref="ShowcaseViews"/>), laid out for the primary display, and exits. No window, no desktop.
 /// <para>
-/// The state file is read with the app's own trust boundary (<see cref="AppStateStore.Parse"/>); a
+/// The state file is read with the app's own trust boundary (<see cref="StateDocument.Parse"/>); a
 /// file that does not parse is left untouched and the command fails, rather than starting over from
 /// defaults. Writing the app's own file while a copy is running is refused: that copy owns it and
 /// would overwrite the change with its next save.
@@ -72,7 +72,7 @@ internal static class ShowcaseCommand
         AppState state;
         if (File.Exists(path))
         {
-            var parsed = AppStateStore.Parse(File.ReadAllText(path));
+            var parsed = StateDocument.Parse(File.ReadAllText(path));
             if (parsed.State is not { } loaded)
             {
                 Say($"refused: {path} is not a state document ({parsed.Refusal}: {parsed.Problem}); left untouched.");
@@ -111,7 +111,7 @@ internal static class ShowcaseCommand
         Write(path, state);
 
         // The store logs a failed write instead of throwing, so read the file back to know it landed.
-        var check = AppStateStore.Parse(File.ReadAllText(path));
+        var check = StateDocument.Parse(File.ReadAllText(path));
         if (check.State is not { } written || views.Any(v => written.FindView(v.Id) is null))
         {
             Say($"failed: {path} does not hold the new views after saving (see the log)");

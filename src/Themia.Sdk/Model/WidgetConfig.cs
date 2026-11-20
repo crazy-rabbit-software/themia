@@ -34,7 +34,7 @@ public abstract class WidgetConfig
     /// <summary>
     /// Bring a config read from disk back inside its own invariants — clamp ranges, drop values a
     /// hand edit made unusable — and say what had to change. Run once at load by
-    /// <c>AppStateStore.Validate</c>, so the repairs are logged with the rest. Most configs have
+    /// <c>StateRepair.Repair</c>, so the repairs are logged with the rest. Most configs have
     /// nothing to repair.
     /// </summary>
     public virtual IReadOnlyList<string> Repair() => [];

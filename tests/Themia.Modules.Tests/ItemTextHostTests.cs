@@ -20,7 +20,7 @@ public sealed class ItemTextHostTests
         first.ItemTextColor = "#abcdef";
         second.ItemTextColor = "#12";
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Equal(string.Empty, state.Design.ItemTextColor);
         Assert.Equal("#ABCDEF", first.ItemTextColor);

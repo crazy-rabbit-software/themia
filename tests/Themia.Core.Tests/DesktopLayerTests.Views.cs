@@ -29,11 +29,11 @@ public sealed partial class DesktopLayerTests
     {
         Assert.Equal(ViewDesktopIcons.All, ViewState.Create("New").DesktopIcons);
 
-        var plain = AppStateStore.Parse(StateWith(string.Empty));
+        var plain = StateDocument.Parse(StateWith(string.Empty));
         Assert.Equal(ViewDesktopIcons.All, plain.State!.Views[0].DesktopIcons);
         Assert.Empty(plain.Repairs);
 
-        var chosen = AppStateStore.Parse(StateWith("\"desktopIcons\": \"Chosen\","));
+        var chosen = StateDocument.Parse(StateWith("\"desktopIcons\": \"Chosen\","));
         Assert.Equal(ViewDesktopIcons.Chosen, chosen.State!.Views[0].DesktopIcons);
         Assert.Empty(chosen.Repairs);
     }
@@ -41,7 +41,7 @@ public sealed partial class DesktopLayerTests
     [Fact]
     public void S5525_load_repairs_an_unknown_value_to_all_and_empties_a_none_view_loudly()
     {
-        var unknown = AppStateStore.Parse(StateWith("\"desktopIcons\": 7,"));
+        var unknown = StateDocument.Parse(StateWith("\"desktopIcons\": 7,"));
         Assert.Equal(ViewDesktopIcons.All, unknown.State!.Views[0].DesktopIcons);
         Assert.Contains(unknown.Repairs, r => r.Contains("desktop icons", StringComparison.Ordinal));
 

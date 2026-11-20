@@ -56,7 +56,7 @@ public sealed class ShellSettingsTests : IDisposable
 
     private static AppState Parse(string json)
     {
-        var result = AppStateStore.Parse(json);
+        var result = StateDocument.Parse(json);
         Assert.Equal(ParseRefusal.None, result.Refusal);
         return result.State!;
     }
@@ -181,7 +181,7 @@ public sealed class ShellSettingsTests : IDisposable
             "\"monitorViews\": {}, \"preferences\": { \"language\": 99, \"gameModeSuspend\": true },",
             StringComparison.Ordinal);
 
-        var result = AppStateStore.Parse(json);
+        var result = StateDocument.Parse(json);
 
         Assert.Equal(AppLanguage.System, result.State!.Preferences.Language);
         Assert.True(result.State.Preferences.GameModeSuspend);
@@ -191,11 +191,11 @@ public sealed class ShellSettingsTests : IDisposable
     [Fact]
     public void S12950_lock_widgets_is_stored_as_lockWidgets_and_a_file_without_it_loads_off()
     {
-        var without = AppStateStore.Parse(StateFile.Replace(
+        var without = StateDocument.Parse(StateFile.Replace(
             "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"gameModeSuspend\": true },", StringComparison.Ordinal));
         Assert.False(without.State!.Preferences.LockWidgets);
 
-        var with = AppStateStore.Parse(StateFile.Replace(
+        var with = StateDocument.Parse(StateFile.Replace(
             "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"lockWidgets\": true },", StringComparison.Ordinal));
         Assert.True(with.State!.Preferences.LockWidgets);
     }
@@ -204,7 +204,7 @@ public sealed class ShellSettingsTests : IDisposable
     public void S1050_a_preferences_key_this_build_does_not_have_is_dropped_loudly_and_the_rest_loads()
     {
         // [S-9960] retired: the assistants' server switch is gone; a file that still holds it loads without it, said once.
-        var result = AppStateStore.Parse(StateFile.Replace(
+        var result = StateDocument.Parse(StateFile.Replace(
             "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"lockWidgets\": true, \"mcpServer\": true },", StringComparison.Ordinal));
 
         Assert.Equal(ParseRefusal.None, result.Refusal);
@@ -221,7 +221,7 @@ public sealed class ShellSettingsTests : IDisposable
     {
         var json = StateFile.Replace("\"name\": \"Desktop\",", $"\"name\": \"Desktop\", \"icon\": {icon},", StringComparison.Ordinal);
 
-        var result = AppStateStore.Parse(json);
+        var result = StateDocument.Parse(json);
 
         Assert.Null(result.State!.Views[0].Icon);
         Assert.Contains(result.Repairs, r => r.Contains("icon", StringComparison.Ordinal));
@@ -240,8 +240,8 @@ public sealed class ShellSettingsTests : IDisposable
 
         Assert.Null(state.DefaultViewForNewDisplays);
         Assert.Equal(["A", "B"], state.DisabledMonitors);
-        Assert.Equal(AppStateStore.MaxMonitorScale, state.MonitorScales["A"]);
-        Assert.Equal(AppStateStore.MinMonitorScale, state.MonitorScales["B"]);
+        Assert.Equal(StateRepair.MaxMonitorScale, state.MonitorScales["A"]);
+        Assert.Equal(StateRepair.MinMonitorScale, state.MonitorScales["B"]);
         Assert.Equal(1.25, state.MonitorScales["C"]);
     }
 

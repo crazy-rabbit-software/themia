@@ -150,7 +150,7 @@ public sealed class ViewBarStyleTests
         ViewBarRules.Update(state, "m1", bar => bar.Type = type);
 
         var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         Assert.Equal(type, parsed.State!.ViewBars["m1"].Type);

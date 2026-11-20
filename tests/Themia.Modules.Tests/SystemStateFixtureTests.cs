@@ -26,14 +26,14 @@ public sealed class SystemStateFixtureTests
     [Fact]
     public void S44_the_system_widgets_configured_state_loads_with_its_facts_cards_replaced_and_then_writes_back_unchanged()
     {
-        var parsed = AppStateStore.Parse(Fixture());
+        var parsed = StateDocument.Parse(Fixture());
 
         Assert.NotNull(parsed.State);
         Assert.Equal(6, parsed.Repairs.Count);
         Assert.All(parsed.Repairs, r => Assert.StartsWith("replaced ", r, StringComparison.Ordinal));
 
         var json = JsonSerializer.Serialize(parsed.State, StateJson.AppState);
-        var again = AppStateStore.Parse(json);
+        var again = StateDocument.Parse(json);
         Assert.Empty(again.Repairs);
         var written = JsonSerializer.Serialize(again.State!, StateJson.AppState);
         Assert.True(JsonNode.DeepEquals(JsonNode.Parse(json), JsonNode.Parse(written)), "the system widgets' state does not write back as it was read");
@@ -42,7 +42,7 @@ public sealed class SystemStateFixtureTests
     [Fact]
     public void S14606_each_placed_facts_card_becomes_its_shown_rows_single_metrics_stacked_in_its_spot_with_its_settings()
     {
-        var parsed = AppStateStore.Parse(Fixture());
+        var parsed = StateDocument.Parse(Fixture());
         var widgets = Assert.Single(parsed.State!.Views).Widgets;
 
         // In the card's place in the drawing order, its rows in its order, each one row of the old card tall.
@@ -83,7 +83,7 @@ public sealed class SystemStateFixtureTests
     [Fact]
     public void S44_the_system_widgets_configured_state_reads_the_choices_it_holds()
     {
-        var state = AppStateStore.Parse(Fixture()).State!;
+        var state = StateDocument.Parse(Fixture()).State!;
         var configs = Assert.Single(state.Views).Widgets.Select(w => w.Config).ToList();
         Assert.Equal(25, configs.Count);
 

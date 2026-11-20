@@ -168,7 +168,7 @@ public class WidgetTransferTests
         var (state, left, right, widget) = TwoViews();
         state.ApplyPlacement(MovePlan(left, widget.Id), right.Id);
 
-        var repairs = Themia.Core.Storage.AppStateStore.Validate(state);
+        var repairs = Themia.Core.Storage.StateRepair.Repair(state);
 
         Assert.Empty(repairs);
     }

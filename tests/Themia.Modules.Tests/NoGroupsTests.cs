@@ -42,7 +42,7 @@ public sealed class NoGroupsTests
 
         Assert.DoesNotContain("\"group\":", json, StringComparison.Ordinal);
         Assert.DoesNotContain("\"groups\":", json, StringComparison.Ordinal);
-        Assert.Empty(AppStateStore.Parse(json).Repairs);
+        Assert.Empty(StateDocument.Parse(json).Repairs);
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public sealed class NoGroupsTests
         view["groups"] = System.Text.Json.Nodes.JsonNode.Parse("""[ { "id": "g", "name": "Pair" } ]""");
         view["widgets"]![0]!.AsObject()["group"] = "g";
 
-        var read = AppStateStore.Parse(root.ToJsonString());
+        var read = StateDocument.Parse(root.ToJsonString());
 
         Assert.NotNull(read.State);
         Assert.Equal(4, read.State!.Views[0].Widgets.Count);

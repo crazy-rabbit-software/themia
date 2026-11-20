@@ -341,7 +341,7 @@ public sealed class DesktopIconLayoutTests
         var state = AppState.CreateDefault();
         state.Preferences.DesktopIconLayout = (DesktopIconLayout)42;
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Equal(DesktopIconLayout.Below, state.Preferences.DesktopIconLayout);
         Assert.Contains(repairs, r => r.Contains("desktop icon layout", StringComparison.Ordinal));

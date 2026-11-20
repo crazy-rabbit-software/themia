@@ -104,7 +104,7 @@ public class ViewPerDisplayTests
         var state = AppState.CreateDefault();
         DisplayPlan.AssignViews(state, TwoDisplays);
 
-        Assert.Empty(Themia.Core.Storage.AppStateStore.Validate(state));
+        Assert.Empty(Themia.Core.Storage.StateRepair.Repair(state));
     }
 
     /// <summary>

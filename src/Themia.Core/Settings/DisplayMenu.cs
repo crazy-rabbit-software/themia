@@ -110,7 +110,7 @@ public static class DisplayMenu
 
             // [S-850] Its magnification of the widgets' content, 50–200 % in fives.
             new SettingsSlider(Keys.Scale(id), Str.Display_WidgetScale_Label.Text(), Glyphs.Scale, scale * 100,
-                AppStateStore.MinMonitorScale * 100, AppStateStore.MaxMonitorScale * 100, 5, v => SettingsMenu.Percent(v / 100), v => host.SetScale(id, v / 100)),
+                StateRepair.MinMonitorScale * 100, StateRepair.MaxMonitorScale * 100, 5, v => SettingsMenu.Percent(v / 100), v => host.SetScale(id, v / 100)),
             .. ViewBar(host, id),
         ];
 

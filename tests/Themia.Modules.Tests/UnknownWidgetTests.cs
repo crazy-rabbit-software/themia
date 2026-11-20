@@ -34,7 +34,7 @@ public sealed class UnknownWidgetTests
     {
         var (json, count) = WithIds(("w00", "hello"));
 
-        var result = AppStateStore.Parse(json);
+        var result = StateDocument.Parse(json);
 
         Assert.Equal(ParseRefusal.None, result.Refusal);
         var widgets = Assert.Single(result.State!.Views).Widgets;
@@ -50,9 +50,9 @@ public sealed class UnknownWidgetTests
     public void S6908_every_other_widget_is_kept_as_it_was()
     {
         var (json, count) = WithIds(("w03", "hello"), ("w40", "nope"));
-        var untouched = AppStateStore.Parse(Fixture()).State!.Views[0].Widgets.Where(w => w.Id is not ("w03" or "w40")).ToList();
+        var untouched = StateDocument.Parse(Fixture()).State!.Views[0].Widgets.Where(w => w.Id is not ("w03" or "w40")).ToList();
 
-        var kept = AppStateStore.Parse(json).State!.Views[0].Widgets;
+        var kept = StateDocument.Parse(json).State!.Views[0].Widgets;
 
         Assert.Equal(count - 2, kept.Count);
         Assert.Equal(untouched.Select(w => (w.Id, w.Kind)), kept.Select(w => (w.Id, w.Kind)));
@@ -81,7 +81,7 @@ public sealed class UnknownWidgetTests
     [Fact]
     public void S6908_a_malformed_id_is_dropped_like_an_unknown_one()
     {
-        var result = AppStateStore.Parse(WithIds(("w05", "Not An Id")).Json);
+        var result = StateDocument.Parse(WithIds(("w05", "Not An Id")).Json);
 
         Assert.Equal(ParseRefusal.None, result.Refusal);
         Assert.DoesNotContain(result.State!.Views[0].Widgets, w => w.Id == "w05");
@@ -94,7 +94,7 @@ public sealed class UnknownWidgetTests
         // The weather facts kind was split into a widget a fact (owner, 2026-11-19): a placed one is removed, not converted.
         var (json, count) = WithIds(("w03", "weatherFacts"), ("w07", "weatherFacts"));
 
-        var result = AppStateStore.Parse(json);
+        var result = StateDocument.Parse(json);
 
         Assert.Equal(ParseRefusal.None, result.Refusal);
         var widgets = Assert.Single(result.State!.Views).Widgets;
@@ -115,7 +115,7 @@ public sealed class UnknownWidgetTests
         widgets.Single(w => (string?)w!["id"] == "w03")!["config"] = JsonNode.Parse("""{ "kind": "airFacts", "latitude": 47.37, "longitude": 8.54, "locationName": "Zurich" }""");
         widgets.Single(w => (string?)w!["id"] == "w07")!["config"] = JsonNode.Parse("""{ "kind": "sunTimes", "times": ["Dusk", "nope", "Dusk"] }""");
 
-        var result = AppStateStore.Parse(root.ToJsonString());
+        var result = StateDocument.Parse(root.ToJsonString());
 
         Assert.Equal(ParseRefusal.None, result.Refusal);
         var placed = Assert.Single(result.State!.Views).Widgets;

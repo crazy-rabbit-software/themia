@@ -222,7 +222,7 @@ public sealed class ShowcaseViewsTests
 
         // A display showing a showcase view still shows it: the id came back.
         Assert.Equal(shown, state.MonitorViews["display-a"]);
-        Assert.Empty(AppStateStore.Validate(state));
+        Assert.Empty(StateRepair.Repair(state));
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public sealed class ShowcaseViewsTests
         ShowcaseViews.Replace(state, ShowcaseViews.Build(AllKinds(), QhdAt150));
 
         var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
-        var parsed = AppStateStore.Parse(json);
+        var parsed = StateDocument.Parse(json);
 
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);

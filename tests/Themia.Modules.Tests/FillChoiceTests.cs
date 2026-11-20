@@ -101,7 +101,7 @@ public sealed class FillChoiceTests
         widget.Background = new FillChoice { Kind = FillKind.Colour, Colour = "#abcdef", Opacity = double.NaN };
         widget.ItemBackground = new FillChoice { Kind = FillKind.Colour, Colour = "#abcdef", Opacity = 7 };
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Equal(FillKind.Default, state.Design.Background.Kind);
         Assert.Equal(FillKind.Default, state.Design.ItemBackground.Kind);
@@ -121,7 +121,7 @@ public sealed class FillChoiceTests
         state.Design.ItemBackground = null!;
         state.Views[0].Widgets[0].Background = null!;
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.True(FillChoice.Of("#102030", 0.4).SameAs(state.Design.Background));
         Assert.Equal(FillKind.Default, state.Design.ItemBackground.Kind);

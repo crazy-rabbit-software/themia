@@ -178,7 +178,7 @@ public sealed class SizeFollowsCardTests
         var root = JsonNode.Parse(JsonSerializer.Serialize(state, StateJson.AppState))!;
         root["views"]![0]!["widgets"]![0]!["config"]!.AsObject()["size"] = "Large";
 
-        var read = AppStateStore.Parse(root.ToJsonString());
+        var read = StateDocument.Parse(root.ToJsonString());
 
         Assert.NotNull(read.State);
         Assert.Single(read.State!.Views[0].Widgets);

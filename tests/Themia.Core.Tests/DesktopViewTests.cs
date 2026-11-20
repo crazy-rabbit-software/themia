@@ -107,7 +107,7 @@ public sealed class DesktopViewTests
         state.Preferences.DesktopIconSize = (DesktopIconSize)42;
         state.Desktop.Sort = (DesktopSortBy)42;
 
-        var repairs = AppStateStore.Validate(state);
+        var repairs = StateRepair.Repair(state);
 
         Assert.Equal(DesktopIconSize.Medium, state.Preferences.DesktopIconSize);
         Assert.Equal(DesktopSortBy.Name, state.Desktop.Sort);

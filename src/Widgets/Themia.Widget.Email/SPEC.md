@@ -18,7 +18,7 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   `viewMode: list|compact|row`, `sortOrder: desc|asc`, `listFields`, `rowColumns`, `accountIds`).
   Every closed set is read leniently: an unknown or mistyped value becomes the default and is
   logged, never a throw that would refuse the state file. `WidgetConfig.Repair()` runs at load from
-  `AppStateStore.Validate`; for mail it keeps at least one row
+  `StateRepair.Repair`; for mail it keeps at least one row
   column. No hearth-era field is read ([S-1050]).
 - **[S-541]** `accountIds` empty means every mail account, including ones added later (the classic
   widget showed "select an account" instead); a non-empty list reads those accounts that are still
