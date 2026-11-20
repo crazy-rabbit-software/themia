@@ -10,8 +10,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-886] [S-498] The hand-written copies of the state (a widget's arrangement and clone, the design's and the
-/// preferences' clones, the whole state's copy an import makes) against what the file stores: each walks the
+/// [S-886] [S-498] [S-889] The hand-written copies of the state (a widget's arrangement and clone, a view's, the design's
+/// and the preferences' clones, the whole state's copy an import and a taken-back change make) against what the file
+/// stores: each walks the
 /// source-generated contract of its type (<see cref="JsonTypeInfo.Properties"/>, as load validation does) and fails
 /// on a stored property the copy leaves out, unless this file declares it apart (an id, a widget's content).
 /// <para>
@@ -238,6 +239,23 @@ public sealed class StateCopyGuardTests
         Differs(source, new AppPreferences());
 
         Same(source, source.Clone(), nameof(AppPreferences.Clone));
+    }
+
+    [Fact]
+    public void S889_a_views_copy_takes_every_stored_property_but_the_id_and_the_widgets()
+    {
+        var source = ViewState.Create("Imported");
+        source.Icon = "";
+        source.Color = "#336699";
+        source.DesktopIcons = ViewDesktopIcons.None;
+        source.Widgets.Add(VariedWidget());
+        var target = ViewState.Create("Plain");
+        Differs(source, target);
+
+        target.CopyFrom(source);
+
+        Same(source, target, nameof(ViewState.CopyFrom), "id", "widgets");
+        Assert.Empty(target.Widgets);
     }
 
     [Fact]

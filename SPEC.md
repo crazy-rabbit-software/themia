@@ -10604,6 +10604,17 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
 - **[S-888]** Not undone: widget content and settings-page config, the app-wide appearance, preferences, display
   switches and scales, view-bar settings, which view a display shows, and a view bar's visible-view
   list after a view delete is undone (the view returns hidden from bars that listed it).
+- **[S-889]** A change that throws is **taken back whole**. `Mutate`'s sequence (the change, the fences shown by a
+  rule, then the settle: the desktop's icon look, the refits, the work areas, the fences laid; the commit to the undo
+  history; the save asked for) is Core's `StateWriter.Write`. It takes the state's bytes and its views and widgets
+  before the change; when the change or the settle throws, the state is made what it was (every view and widget the
+  same instance with its values back, a config the same object unless the change wrote into it, everything else of
+  the state as it was: `ViewState.CopyFrom`, `WidgetInstance.CopyArrangementFrom`, `AppState.CopyFrom`, guarded by
+  `StateCopyGuardTests`), nothing is committed and no save is asked for, the error is logged, the notice "That didn't
+  work" says everything was put back, the desktop's icon look in force follows the state again and the surfaces draw
+  it. An import or a reset taken back so says under its line why nothing changed ([S-3576]). Test `StateWriterTests.S889_`. *(Until
+  2026-11-20 the change was logged as "may be partially applied" and carried on: a bug in any command persisted a
+  torn layout and made it an undo step.)*
 - **[S-890]** Crash-loop guard (`Core/Storage/BootGuard`, `boot_attempts` beside the state file):
   bumped atomically before the surfaces are built, deleted once every surface has loaded and laid out
   its cards. The 3rd start in a row that never got that far is safe: every card shows "Paused:

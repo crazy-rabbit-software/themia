@@ -180,6 +180,20 @@ public sealed class ViewState
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public ViewDesktopIcons DesktopIcons { get; set; }
 
+    /// <summary>
+    /// [S-889] Take every stored property of <paramref name="source"/> but its id and its widgets (the caller lays those):
+    /// a guard test fails on a stored property it leaves out.
+    /// </summary>
+    public void CopyFrom(ViewState source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        Name = source.Name;
+        Icon = source.Icon;
+        Color = source.Color;
+        DesktopIcons = source.DesktopIcons;
+    }
+
     /// <summary>Find a widget in this view by id, or null.</summary>
     public WidgetInstance? Find(string? id)
         => string.IsNullOrEmpty(id) ? null : Widgets.Find(w => string.Equals(w.Id, id, StringComparison.Ordinal));

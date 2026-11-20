@@ -135,6 +135,79 @@ public sealed class StateWriterTests : IDisposable
     }
 
     [Fact]
+    public async Task S889_a_change_that_throws_leaves_the_state_the_undo_log_and_the_file_as_they_were()
+    {
+        var state = Desk();
+        var store = new AppStateStore(_path);
+        var writer = Writer(state, store);
+        writer.StartHistory();
+        var history = writer.History!;
+
+        writer.Write(s => s.Views[0].Widgets[0].X = 0.5, UndoAction.Move);
+        writer.SaveNow();
+        await store.FlushAsync();
+
+        var file = File.ReadAllBytes(_path);
+        var json = JsonSerializer.Serialize(state, StateJson.AppState);
+        var view = state.Views[0];
+        var widgets = view.Widgets.ToList();
+        var config = widgets[0].Config;
+        var (steps, version, armed) = (history.UndoCount, history.Version, _armed);
+
+        // A command with a bug: it gets half way through the state and throws.
+        var written = writer.Write(
+            s =>
+            {
+                s.Views[0].Widgets.RemoveAt(1);
+                s.Views[0].Widgets[0].X = 0.9;
+                s.Views[0].Widgets[0].Scale = 2;
+                ((ClockConfig)s.Views[0].Widgets[2].Config).ShowSeconds = true;
+                s.Views[0].Widgets = [.. s.Views[0].Widgets];
+                s.Views.Add(ViewState.Create("Half made"));
+                s.Design.CornerRadiusPx = 30;
+                s.Preferences.LockWidgets = true;
+                throw new InvalidOperationException("a command's bug");
+            },
+            UndoAction.Delete);
+
+        Assert.False(written);
+        Assert.Equal(json, JsonSerializer.Serialize(state, StateJson.AppState));
+        Assert.Same(view, Assert.Single(state.Views));
+        Assert.Equal(widgets, view.Widgets);
+        Assert.Same(config, view.Widgets[0].Config);
+        Assert.Equal((steps, version), (history.UndoCount, history.Version));
+        Assert.Equal(armed, _armed);
+        Assert.False(writer.SaveDue);
+
+        writer.SaveNow();
+        await store.FlushAsync();
+        Assert.Equal(file, File.ReadAllBytes(_path));
+
+        // And the history is whole: the step before the throw is still the one Ctrl+Z takes back.
+        Assert.Equal(UndoAction.Move, history.Undo(state));
+        Assert.Equal(0, state.Views[0].Widgets[0].X);
+    }
+
+    [Fact]
+    public void S889_a_settle_that_throws_takes_the_change_back_too()
+    {
+        var state = Desk();
+        var writer = Writer(state, new AppStateStore(_path));
+        writer.StartHistory();
+        var json = JsonSerializer.Serialize(state, StateJson.AppState);
+
+        var written = writer.Write(
+            s => s.Views[0].Widgets[0].X = 0.4,
+            UndoAction.Move,
+            settle: () => throw new InvalidOperationException("a refit's bug"));
+
+        Assert.False(written);
+        Assert.Equal(json, JsonSerializer.Serialize(state, StateJson.AppState));
+        Assert.False(writer.History!.CanUndo);
+        Assert.False(writer.SaveDue);
+    }
+
+    [Fact]
     public async Task S2601_a_detached_store_is_handed_nothing()
     {
         var state = Desk();

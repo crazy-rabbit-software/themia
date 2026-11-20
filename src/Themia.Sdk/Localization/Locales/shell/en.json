@@ -10,7 +10,9 @@
     "shell.color.hex",
     "shell.color.recent",
     "shell.card.deleteWidget",
-    "shell.card.refreshWidget"
+    "shell.card.refreshWidget",
+    "shell.notice.changeTakenBack",
+    "shell.notice.changeTakenBackBody"
   ],
   "shell.time.justNow": "Just now",
   "shell.fetch.notConfigured": "Not set up yet",
@@ -389,6 +391,8 @@
   "shell.notice.pausedBody": "Themia didn't finish starting the last few times. Start your widgets here, or reset your settings in Settings › Back up and reset.",
   "shell.notice.startWidgets": "Start widgets",
   "shell.notice.backupFailed": "The settings you have now couldn't be kept, so nothing was changed. {reason}",
+  "shell.notice.changeTakenBack": "That didn't work",
+  "shell.notice.changeTakenBackBody": "Something went wrong, so everything was put back as it was.",
   "shell.license.planLimit": "Free plan limit reached",
   "shell.license.seePlans": "See plans",
   "shell.display.primary": "{name} (primary)",

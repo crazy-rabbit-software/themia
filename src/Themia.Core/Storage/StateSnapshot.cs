@@ -23,4 +23,9 @@ public sealed class StateSnapshot
 
     /// <summary>The document, as the file holds it.</summary>
     internal ReadOnlyMemory<byte> Json => _json;
+
+    /// <summary>[S-889] The state it was taken from, as it was then: a new object graph, the same document.</summary>
+    internal AppState Read()
+        => JsonSerializer.Deserialize(_json, StateJson.AppState)
+            ?? throw new InvalidOperationException("a state snapshot read back as no state");
 }

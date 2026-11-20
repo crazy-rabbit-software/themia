@@ -25,12 +25,16 @@ internal sealed partial class AppHost
     /// files changed): adopted without a step. [S-5597] <paramref name="effect"/>: what the step did outside the
     /// state (a desktop delete's files), carried by it.
     /// </para>
+    /// <para>
+    /// [S-889] A change that throws is taken back whole by the writer (no step, nothing saved): see <see cref="TakenBack"/>.
+    /// Returns false then.
+    /// </para>
     /// </summary>
-    public void Mutate(Action<AppState> change, bool relayout = true, UndoAction? undo = UndoAction.Change, IUndoEffect? effect = null)
+    public bool Mutate(Action<AppState> change, bool relayout = true, UndoAction? undo = UndoAction.Change, IUndoEffect? effect = null)
     {
         ArgumentNullException.ThrowIfNull(change);
 
-        _writer.Write(
+        var written = _writer.Write(
             state =>
             {
                 change(state);
@@ -42,6 +46,12 @@ internal sealed partial class AppHost
             effect,
             SettleChange);
 
+        if (!written)
+        {
+            TakenBack();
+            return false;
+        }
+
         HistoryChanged?.Invoke();
 
         // [S-1583] A deleted or moved widget leaves the selection with the change that removed it.
@@ -51,6 +61,25 @@ internal sealed partial class AppHost
         {
             StateChanged?.Invoke();
         }
+
+        return true;
+    }
+
+    /// <summary>
+    /// [S-889] A change threw and the writer took it back whole. What the change put in force outside the state follows
+    /// the state again (the desktop's icon size and layout, the sizings noted), the user is told, and every surface draws
+    /// the state as it is: a card the change took away and the restore put back is a card again.
+    /// </summary>
+    private void TakenBack()
+    {
+        DesktopCell.Apply(State.Preferences.DesktopIconSize);
+        DesktopCell.Apply(State.Preferences.DesktopIconLayout);
+        _sizings.NoteAll(State);
+
+        Notices.Error(Str.Shell_Notice_ChangeTakenBack.Text(), Str.Shell_Notice_ChangeTakenBackBody.Text());
+
+        ChangeSelection(Selection.Prune(State));
+        StateChanged?.Invoke();
     }
 
     /// <summary>
@@ -285,7 +314,7 @@ internal sealed partial class AppHost
         DesktopCell.Apply(incoming.Preferences.DesktopIconSize);
         DesktopCell.Apply(incoming.Preferences.DesktopIconLayout);
 
-        Mutate(state =>
+        var replaced = Mutate(state =>
         {
             SettingsTransfer.Apply(state, incoming);
 
@@ -297,6 +326,13 @@ internal sealed partial class AppHost
             // the same step (a reset's empty known set lays every icon on the fresh views, as a new state does).
             ReconcileDesktopAfterStep();
         });
+
+        // [S-889] The replacement threw and was taken back: the settings are the ones there were.
+        if (!replaced)
+        {
+            Log.Error(Scope, $"{occasion} failed and was taken back; the settings are as they were");
+            return Str.Shell_Notice_ChangeTakenBackBody.Text();
+        }
 
         // The imported file carries its own per-display switches ([S-845]).
         ReconcileDisplays();
