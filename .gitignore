@@ -28,6 +28,8 @@ store/out/
 !.claude/workflows/
 .claude/skills/*/runs/
 *.log
+# Python's bytecode beside the scripts.
+__pycache__/
 
 # ---- Store screenshots -------------------------------------------------------------------
 # store/capture.ps1 writes here; the scenes and wallpapers next to it are the source.
