@@ -26,6 +26,7 @@ public sealed partial class ReadingFit : Panel
     private FaceFit _faceFit = FaceFit.All;
     private FaceParts? _face;
     private readonly List<(UIElement Part, Border Holder, double Size)> _givesWay = [];
+    private readonly List<(UIElement Piece, double Size)> _pieces = [];
 
     public ReadingFit()
     {
@@ -82,17 +83,46 @@ public sealed partial class ReadingFit : Panel
     /// [S-12833] Add a part, after those already in, that gives way as a whole where the room would draw it under the
     /// floor: a Controls row at Body, a caption. It stands in a box of the fit's own, so its view still shows and hides it.
     /// </summary>
-    public void AddGivesWay(UIElement part, double size)
+    public void AddGivesWay(UIElement part, double size) => _plan.Children.Add(GivesWayBox(part, size));
+
+    /// <summary>
+    /// [S-12833] A box holding <paramref name="part"/> that gives way as a whole where the room would draw it under the
+    /// floor, for its view to stand inside one of its parts (a line under a title, an end column): the fit shows and hides
+    /// the box, the view still shows and hides the part.
+    /// </summary>
+    public Border GivesWayBox(UIElement part, double size)
     {
         ArgumentNullException.ThrowIfNull(part);
         var holder = new Border { Child = part };
         _givesWay.Add((part, holder, size));
-        _plan.Children.Add(holder);
+        return holder;
     }
+
+    /// <summary>
+    /// [S-12833] A piece inside a part (a caption under a reading) that gives way where the room would draw it under the
+    /// floor: the fit alone shows and hides it, so its view never sets its Visibility (it shows or hides the part round it).
+    /// </summary>
+    public void GivesWay(UIElement piece, double size)
+    {
+        ArgumentNullException.ThrowIfNull(piece);
+        _pieces.Add((piece, size));
+    }
+
+    /// <summary>[S-12833] Let go of a piece given with <see cref="GivesWay"/> (its view dropped it).</summary>
+    public void Forget(UIElement piece) => _pieces.RemoveAll(p => ReferenceEquals(p.Piece, piece));
 
     /// <summary>[S-12833] Show the pieces of at least <paramref name="floor"/>: the parts that give way, and every block's own.</summary>
     private void Keep(double floor)
     {
+        foreach (var (piece, size) in _pieces)
+        {
+            var shown = _face?.Keeps(size, floor) ?? true ? Visibility.Visible : Visibility.Collapsed;
+            if (piece.Visibility != shown)
+            {
+                piece.Visibility = shown;
+            }
+        }
+
         foreach (var (part, holder, size) in _givesWay)
         {
             var shown = part.Visibility == Visibility.Visible && (_face?.Keeps(size, floor) ?? true) ? Visibility.Visible : Visibility.Collapsed;
@@ -188,7 +218,7 @@ public sealed partial class ReadingFit : Panel
         if (!_hold || _held != availableSize)
         {
             // [S-12833] Down to its smallest text's floor, up to what fills the room.
-            _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink, ScaleFloors.Of(shown), _faceFit.Most);
+            _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink, _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown), _faceFit.Most);
             _held = availableSize;
         }
 

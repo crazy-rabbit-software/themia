@@ -11,6 +11,25 @@ public static class ScaleFloors
     /// <summary>The least scale <paramref name="parts"/> may be drawn at.</summary>
     public static double Of(IEnumerable<UIElement> parts)
     {
+        var (text, glyph) = Smallest(parts);
+        return ScaleFloor.Least(double.IsFinite(text) ? text : 0, double.IsFinite(glyph) ? glyph : 0);
+    }
+
+    /// <summary>
+    /// [S-12833] The least scale <paramref name="parts"/> may be drawn at, a face stating its main reading's size
+    /// (<paramref name="main"/>, <c>FaceParts.Main</c>): their smallest text's or glyph's, else, with none drawn (a picture),
+    /// the main reading's.
+    /// </summary>
+    public static double Of(IEnumerable<UIElement> parts, double main)
+    {
+        var (text, glyph) = Smallest(parts);
+        return double.IsFinite(text) || double.IsFinite(glyph)
+            ? ScaleFloor.Least(double.IsFinite(text) ? text : 0, double.IsFinite(glyph) ? glyph : 0)
+            : ScaleFloor.Least(main);
+    }
+
+    private static (double Text, double Glyph) Smallest(IEnumerable<UIElement> parts)
+    {
         ArgumentNullException.ThrowIfNull(parts);
         double text = double.PositiveInfinity, glyph = double.PositiveInfinity;
         foreach (var part in parts)
@@ -18,7 +37,7 @@ public static class ScaleFloors
             Walk(part, ref text, ref glyph);
         }
 
-        return ScaleFloor.Least(double.IsFinite(text) ? text : 0, double.IsFinite(glyph) ? glyph : 0);
+        return (text, glyph);
     }
 
     private static void Walk(UIElement node, ref double text, ref double glyph)
