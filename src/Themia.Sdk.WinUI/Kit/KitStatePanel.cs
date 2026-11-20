@@ -61,11 +61,19 @@ public sealed partial class KitStatePanel : Grid
     /// <summary>The state's row.</summary>
     public StatusBlock Row => _row;
 
-    /// <summary>[S-12835] The pitch of the list's rows the face keeps under the row (unset: a one-line row's whole cells).</summary>
+    /// <summary>
+    /// [S-12835] The pitch of the list's rows the face keeps under the row (unset: a one-line row's whole cells). [S-14100]
+    /// The state's row stands in the first stated row's place, at that pitch, so the rows under it end on the card's foot
+    /// (a row of two lines is four cells, the compact line alone three: one would be left over).
+    /// </summary>
     public double RowPitch
     {
         get => _empty.Pitch;
-        set => _empty.Pitch = value;
+        set
+        {
+            _empty.Pitch = value;
+            _row.Height = double.IsFinite(value) && value > 0 ? value : double.NaN;
+        }
     }
 
     /// <summary>

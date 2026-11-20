@@ -24,13 +24,31 @@ public sealed record MonthLayout(IReadOnlyList<double> Columns, double HeaderHei
 }
 
 /// <summary>
+/// [S-14101] The room a month's cell must have before it shows its day's events as chips: the chip lines under its number
+/// (<see cref="Lanes"/>) and its column's width (<see cref="Column"/>).
+/// </summary>
+public readonly record struct MonthChipRoom(int Lanes, double Column)
+{
+    /// <summary>
+    /// [S-14101] A dots month (owner, 2026-11-20: "the calendar shows the individual events too early, the items should stay
+    /// small for a little longer"): its cells keep their dots until they hold two chip lines under the number in a column of
+    /// 80, where a chip's title reads (a meeting's dot, its start's room and a word or two) and "+k more" has its words.
+    /// </summary>
+    public static MonthChipRoom Dots => new(2, MonthPlan.MoreWordsFrom);
+
+    /// <summary>[S-11547] A month with titles, chosen: a chip line in a column of its least, 56.</summary>
+    public static MonthChipRoom Titles => new(1, CalendarSizing.MonthTitleColumn);
+}
+
+/// <summary>
 /// [S-12832] The month's one layout rule (owner, 2026-11-19: "the calendar does not follow this design philosophy for
 /// example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and the
 /// items dont reach from edge to edge"). The day cells tile the card: seven columns from its left edge to its right, each
 /// whole grid cells (the cells the width has shared as evenly as they go, the last column taking what is not a whole
 /// cell), the weeks from under the weekday line down, each the same whole cells ([S-12830]), as many of the six as hold
-/// a day's number at whole cells (the anchor's week among them), the cells left over at the foot. A cell is filled by
-/// its content: its day's events as chips under its number where it has the room for a chip line (Outlook's month view),
+/// a day's number at whole cells (the anchor's week among them), the cells left over at the foot (none at the month's
+/// own size steps, [S-14101]). A cell is filled by its content: its day's events as chips under its number where it has
+/// the room for them (<see cref="MonthChipRoom"/>; Outlook's month view),
 /// its dots where it does not, its number alone on a day of nothing; the number grows with the cell, as large as what
 /// the chips or dots leave of its height and half its width allow.
 /// </summary>
@@ -38,9 +56,6 @@ public static class MonthLayouts
 {
     /// <summary>The least a week's row holds: a day's number line and the cell's 4.</summary>
     public static double LeastRow => FamilyType.Caption.LineHeight + FamilySpace.S1;
-
-    /// <summary>The narrowest column a chip's title reads in.</summary>
-    public const double ChipColumn = 44;
 
     /// <summary>The largest a day's number line grows.</summary>
     public const double MostNumberLine = 64;
@@ -50,8 +65,10 @@ public static class MonthLayouts
     /// edge and ends at its foot, <paramref name="cardHeight"/> under it, on <paramref name="grid"/>: the anchor's week is
     /// <paramref name="anchorRow"/> (0..5), and the most items a day shown has is <paramref name="mostItems"/>.
     /// </summary>
-    public static MonthLayout Plan(double width, double cardHeight, double top, ItemGrid grid, int anchorRow, int mostItems)
+    /// <param name="chips">[S-14101] The room a cell must have before it shows chips: a dots month's (the default) or a month with titles'.</param>
+    public static MonthLayout Plan(double width, double cardHeight, double top, ItemGrid grid, int anchorRow, int mostItems, MonthChipRoom? chips = null)
     {
+        var need = chips ?? MonthChipRoom.Dots;
         width = double.IsFinite(width) ? Math.Max(0, width) : 0;
         var pitch = grid.Pitch;
         var columns = ItemStretch.Columns(width, 7, grid);
@@ -67,7 +84,7 @@ public static class MonthLayouts
         var pad = FamilySpace.S1;
         var chipLine = CalendarFit.ChipLine;
         var lanesFit = (int)Math.Floor((rowHeight - pad - FamilyType.Caption.LineHeight + 1e-6) / chipLine);
-        var lanes = column >= ChipColumn ? Math.Clamp(Math.Min(lanesFit, Math.Max(0, mostItems)), 0, MonthPlan.MaxLines) : 0;
+        var lanes = column >= need.Column && lanesFit >= Math.Max(1, need.Lanes) ? Math.Clamp(Math.Min(lanesFit, Math.Max(0, mostItems)), 0, MonthPlan.MaxLines) : 0;
         var dotRoom = CalendarFit.Dot + FamilySpace.S1;
         var face = lanes >= 1 ? MonthFace.Chips
             : mostItems > 0 && rowHeight - (2 * pad) - FamilyType.Caption.LineHeight >= dotRoom ? MonthFace.Dots

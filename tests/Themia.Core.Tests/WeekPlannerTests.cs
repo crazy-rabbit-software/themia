@@ -91,11 +91,14 @@ public class WeekPlannerTests
     [Fact]
     public void S11410_S14410_the_width_steps_by_a_day_following_the_days_and_the_height_the_rows()
     {
+        // [S-14100] The heading and the rows whole cells (30 each); the width a day's column of whole cells (20 on the default
+        // grid) a step, the days following it ([S-14410]).
         var three = WeekPlannerRules.Sizing(3, 5);
-        Assert.Equal(new SizeDip(600, 12 + 28 + (5 * 28) + 12), three.Natural);
+        Assert.Equal(new SizeDip(600, 30 + (5 * 30)), three.Natural);
         Assert.Equal((200d, 1400d), (three.Min.Width, three.Max.Width));
         Assert.Equal(3, three.WidthSteps!.Count);
         Assert.Equal(200, three.WidthSteps.Step);
+        Assert.NotNull(three.WidthSteps.Cells);
         Assert.Equal(1400, WeekPlannerRules.Sizing(7, 5).Natural.Width);
         Assert.Equal(200, WeekPlannerRules.Sizing(0, 5).Natural.Width);
         Assert.Empty(three.Problems());

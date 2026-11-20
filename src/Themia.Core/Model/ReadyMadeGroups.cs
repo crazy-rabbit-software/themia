@@ -101,8 +101,8 @@ public static class ReadyMadeGroups
         new("clock", new(0, 0, 320, 118)),
         new("date", new(0, 118, 320, 52)),
         new("nextMeeting", new(0, 170, 320, 124)),
-        new("upNext", new(0, 294, 320, 108)),
-        new("tasks", new(0, 402, 320, 220)),
+        new("upNext", new(0, 294, 320, 90)),
+        new("tasks", new(0, 384, 320, 210)),
     ]) { Starter = 1 });
 
     /// <summary>
@@ -113,8 +113,8 @@ public static class ReadyMadeGroups
     [
         new("weatherNow", new(0, 0, 300, 76)),
         .. Metrics(76, 300, "weatherHighLow", "weatherWind"),
-        new("weatherForecast", new(0, 76 + (2 * Row), 300, 164)),
-        new("rainNextHour", new(0, 240 + (2 * Row), 300, 148)),
+        new("weatherForecast", new(0, 76 + (2 * Row), 300, 150)),
+        new("rainNextHour", new(0, 226 + (2 * Row), 300, 148)),
     ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
 
     /// <summary>
@@ -123,8 +123,8 @@ public static class ReadyMadeGroups
     /// </summary>
     public static ReadyMadeGroup MyFiles { get; } = Headed(new("myFiles", Str.Groups_Recipe_MyFiles, Str.Groups_Recipe_MyFilesAbout, Glyphs.Folder, AddFolderId.Files,
     [
-        new("folder", new(0, 0, 300, 264), Config: """{ "style": "list", "path": "%USERPROFILE%\\Documents" }"""),
-        new("recentFiles", new(300, 0, 316, 264), Config: """{ "rows": 6 }"""),
+        new("folder", new(0, 0, 300, 280), Config: """{ "style": "list", "path": "%USERPROFILE%\\Documents" }"""),
+        new("recentFiles", new(300, 0, 316, 280), Config: """{ "rows": 7 }"""),
     ]) { Starter = 5 });
 
     // ---- [S-11090] The system readings' groups: each old card's look, made of its atoms ----------------
@@ -197,7 +197,7 @@ public static class ReadyMadeGroups
     [
         new("network", new(0, 0, 344, 60)),
         .. Metrics(60, 344, "networkLocalAddress", "networkReceived", "networkSent", "networkLinkSpeed"),
-        new("networkAdapters", new(0, 60 + (4 * Row), 344, 104), Config: """{ "rows": 2 }"""),
+        new("networkAdapters", new(0, 60 + (4 * Row), 344, 80), Config: """{ "rows": 2 }"""),
     ]), Str.Groups_Recipe_Network);
 
     /// <summary>[S-11090] Ping: the latency over its history.</summary>
@@ -318,7 +318,7 @@ public static class ReadyMadeGroups
     public static ReadyMadeGroup Sound { get; } = Headed(new("sound", Str.Groups_Recipe_Sound, Str.Groups_Recipe_SoundAbout, Glyphs.Volume3, AddFolderId.Media,
     [
         new("volume", new(0, 0, 300, 112)),
-        new("mixer", new(0, 112, 300, 136)),
+        new("mixer", new(0, 112, 300, 120)),
     ]));
 
     /// <summary>[S-11342] Quick settings: Wi-Fi, Bluetooth, Do not disturb and Night light in a row.</summary>
@@ -343,14 +343,14 @@ public static class ReadyMadeGroups
     public static ReadyMadeGroup NextMeetings { get; } = Headed(new("nextMeetings", Str.Groups_Recipe_NextMeeting, Str.Groups_Recipe_NextMeetingAbout, Glyphs.Meeting, AddFolderId.CalendarMail,
     [
         new("nextMeeting", new(0, 0, 320, 124)),
-        new("upNext", new(0, 124, 320, 108)),
+        new("upNext", new(0, 124, 320, 90)),
     ]));
 
     /// <summary>[S-11409] The inbox beside the task list.</summary>
     public static ReadyMadeGroup InboxAndTasks { get; } = Headed(new("inboxAndTasks", Str.Groups_Recipe_InboxAndTasks, Str.Groups_Recipe_InboxAndTasksAbout, Glyphs.Mail, AddFolderId.CalendarMail,
     [
-        new("email", new(0, 0, 300, 304), Config: """{ "rows": 7 }"""),
-        new("tasks", new(300, 0, 300, 304), Config: """{ "rows": 9 }"""),
+        new("email", new(0, 0, 300, 240), Config: """{ "rows": 6 }"""),
+        new("tasks", new(300, 0, 300, 240), Config: """{ "rows": 7 }"""),
     ]) { Starter = 7 });
 
     /// <summary>[S-11520] Screen time: the week's total over its bars over the apps, one panel.</summary>
@@ -358,7 +358,7 @@ public static class ReadyMadeGroups
     [
         new("screenTime", new(0, 0, 300, 76)),
         new("screenTimeChart", new(0, 76, 300, 116)),
-        new("screenTimeApps", new(0, 192, 300, 164), Config: """{ "period": "Week" }"""),
+        new("screenTimeApps", new(0, 192, 300, 150), Config: """{ "period": "Week" }"""),
     ]) { Starter = 6 });
 
     /// <summary>[S-14600] A single metric's height in a group: its one row, whole grid cells.</summary>

@@ -18,17 +18,17 @@ public sealed class RecentFilesSizingTests
         Assert.Equal((6, 2), (config.Rows, config.Lines));
 
         var sizing = Kind.Sizing(config);
-        Assert.Equal(new SizeDip(300, 12 + (6 * 40) + 12), sizing.Natural);
+        Assert.Equal(new SizeDip(300, 6 * 40), sizing.Natural);
         Assert.Equal((220.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
-        Assert.Equal(12 + (3 * 28) + 12, Kind.Sizing(new RecentFilesConfig { Rows = 3, Lines = 1 }).Natural.Height);
+        Assert.Equal(3 * 30, Kind.Sizing(new RecentFilesConfig { Rows = 3, Lines = 1 }).Natural.Height);
     }
 
     [Fact]
     public void S11200_dragging_its_bottom_edge_sets_rows_on_a_copy()
     {
         var config = new RecentFilesConfig();
-        var next = Kind.SizeSets!(config, new SizeDip(300, 12 + (4 * 40) + 12));
+        var next = Kind.SizeSets!(config, new SizeDip(300, 4 * 40));
 
         Assert.Equal(4, Assert.IsType<RecentFilesConfig>(next).Rows);
         Assert.Equal(6, config.Rows);

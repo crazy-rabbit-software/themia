@@ -45,9 +45,12 @@ public static class MixerLayout
     /// <summary>[S-11309] The rows the config gives, held to <see cref="MinRows"/>..<see cref="MaxRows"/>.</summary>
     public static int ClampRows(int rows) => Math.Clamp(rows, MinRows, MaxRows);
 
-    /// <summary>[S-11309] The height's steps: the content top and the inset as the base, a row as the step, the config's rows as the count.</summary>
+    /// <summary>
+    /// [S-11309] [S-14100] The height's steps: a row as the step, whole grid cells from the card's top edge to its foot
+    /// edge (<see cref="Sdk.SizeSteps.InCells"/>), the config's rows as the count.
+    /// </summary>
     public static Sdk.SizeSteps Steps(int rows, int lines)
-        => new(FamilySpace.ContentTop + FamilySpace.Inset, FamilyShape.RowHeight(Math.Clamp(lines, 1, 2)), MinRows, MaxRows, ClampRows(rows));
+        => Sdk.SizeSteps.InCells(FamilyShape.RowHeight(Math.Clamp(lines, 1, 2)), MinRows, MaxRows, ClampRows(rows));
 
     /// <summary>
     /// [S-11309] The mixer's sizing ([S-2438]): its rows (one or two lines each) under its header, stepped

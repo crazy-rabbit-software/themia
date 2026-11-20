@@ -190,8 +190,8 @@ public sealed class DeviceBatteriesTests
     public void S11028_its_height_follows_its_rows_of_two_lines_and_a_dragged_edge_sets_them()
     {
         var kind = ModuleCatalog.Of(new WidgetId("deviceBatteries"));
-        Assert.Equal(12 + (4 * 40) + 12, kind.SizingOf().Natural.Height);
-        var two = Assert.IsType<DeviceBatteriesConfig>(kind.SizeSets!(new DeviceBatteriesConfig(), new SizeDip(300, 12 + 80 + 12)));
+        Assert.Equal(4 * 40, kind.SizingOf().Natural.Height);
+        var two = Assert.IsType<DeviceBatteriesConfig>(kind.SizeSets!(new DeviceBatteriesConfig(), new SizeDip(300, 2 * 40)));
         Assert.Equal(2, two.Rows);
         Assert.Equal(6, ((DeviceBatteriesConfig)new DeviceBatteriesConfig { Rows = 6 }.Clone()).Rows);
     }

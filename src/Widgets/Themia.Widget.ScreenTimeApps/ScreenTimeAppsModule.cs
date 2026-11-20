@@ -30,8 +30,8 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
         Label = ScreenTimeAppsStr.WidgetsC_ScreenTime_Apps_Label.Local(),
         Description = ScreenTimeAppsStr.WidgetsC_ScreenTime_Apps_Desc.Local(),
         Glyph = Glyphs.ScreenTime,
-        Sizing = c => WithDayLine(KitSizing.Sizing(((ScreenTimeAppsConfig)c).RowsShown, addFooter: false), DayLine(((ScreenTimeAppsConfig)c).Period)),
-        SizeSets = (c, size) => KitSizing.SizeSets(c, new SizeDip(size.Width, size.Height - DayLine(((ScreenTimeAppsConfig)c).Period)), ((ScreenTimeAppsConfig)c).RowsShown, addFooter: false),
+        Sizing = c => KitSizing.Sizing(((ScreenTimeAppsConfig)c).RowsShown, addFooter: false, over: DayLine(((ScreenTimeAppsConfig)c).Period)),
+        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((ScreenTimeAppsConfig)c).RowsShown, addFooter: false, over: DayLine(((ScreenTimeAppsConfig)c).Period)),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 3),
@@ -41,17 +41,11 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => ScreenTimeAppsMenu.Lines(menu, (ScreenTimeAppsConfig)config, SettingsHost.ScreenTime);
 
-    /// <summary>[S-454] [S-12481] [S-12803] The day line over the rows for a day (its line and the gap under it), none for a window.</summary>
-    public static double DayLine(ScreenTimePeriod period) => ScreenTimeRules.DayLine(period);
-
-    /// <summary>[S-12481] The kit's sizing of the rows, the day line over them.</summary>
-    private static WidgetSizing WithDayLine(WidgetSizing rows, double line) => rows with
-    {
-        Min = new SizeDip(rows.Min.Width, rows.Min.Height + line),
-        Natural = new SizeDip(rows.Natural.Width, rows.Natural.Height + line),
-        Max = new SizeDip(rows.Max.Width, rows.Max.Height + line),
-        HeightSteps = rows.HeightSteps is { } steps ? steps with { Base = steps.Base + line } : null,
-    };
+    /// <summary>
+    /// [S-454] [S-12481] [S-12803] [S-14100] The day line over the rows for a day (the card's inset, its line and the gap
+    /// under it, whole cells from the card's top edge: <see cref="LineRules.BandOver"/>), none for a window.
+    /// </summary>
+    public static double DayLine(ScreenTimePeriod period) => ScreenTimeRules.DayLine(period) > 0 ? LineRules.BandOver : 0;
 
     public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeAppsView(host);
 }

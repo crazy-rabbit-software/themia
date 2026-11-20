@@ -76,10 +76,10 @@ public sealed class UpNextTests
     public void S11408_three_rows_of_one_line_as_wide_as_the_next_meeting_block()
     {
         var sizing = new UpNextModule().Descriptor.Sizing(new UpNextConfig());
-        Assert.Equal(new SizeDip(320, 12 + (3 * 28) + 12), sizing.Natural);
+        Assert.Equal(new SizeDip(320, 3 * 30), sizing.Natural);
         Assert.Equal((260d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
-        var next = (UpNextConfig)new UpNextModule().Descriptor.SizeSets!(new UpNextConfig(), new SizeDip(320, 12 + (5 * 28) + 12));
+        var next = (UpNextConfig)new UpNextModule().Descriptor.SizeSets!(new UpNextConfig(), new SizeDip(320, 5 * 30));
         Assert.Equal(5, next.Rows);
     }
 

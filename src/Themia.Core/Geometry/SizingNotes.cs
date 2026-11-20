@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Sdk;
 
@@ -10,21 +11,42 @@ namespace Themia.Core.Geometry;
 /// its stored rect fitted into the new one on the display that shows its view; a widget first seen
 /// (loaded, brought back by an undo) is noted as it is: being shown never rewrites a rect ([S-2446]).
 /// [S-854] While the surface showing its view has not settled, the refit waits (the old sizing stays
-/// noted) and runs at the first refit on settled metrics.
+/// noted) and runs at the first refit on settled metrics. [S-14103] A widget loaded with a stepped axis
+/// (<see cref="NoteAll"/> with <c>fit</c>) has its stored rect fitted to its nearest step once, at that first
+/// refit, logged: a card stored before its steps were whole cells keeps no leftover cell in its stored rect.
 /// </summary>
 public sealed class SizingNotes
 {
+    private const string Scope = "sizing";
+
     private readonly ConditionalWeakTable<WidgetInstance, WidgetSizing> _noted = [];
 
-    /// <summary>Note every widget's sizing as it is, refitting nothing.</summary>
-    public void NoteAll(AppState state)
+    /// <summary>[S-14103] The loaded widgets whose stored rect is fitted to their steps at the first refit on settled metrics.</summary>
+    private readonly ConditionalWeakTable<WidgetInstance, object> _unfitted = [];
+
+    private static readonly object Unfitted = new();
+
+    /// <summary>
+    /// Note every widget's sizing as it is, refitting nothing. [S-14103] <paramref name="fit"/> (the state as loaded):
+    /// a widget with a stepped axis is fitted to its nearest step at the first refit on settled metrics.
+    /// </summary>
+    public void NoteAll(AppState state, bool fit = false)
     {
         ArgumentNullException.ThrowIfNull(state);
         foreach (var widget in state.Views.SelectMany(v => v.Widgets))
         {
-            _noted.AddOrUpdate(widget, SizeFit.Of(widget));
+            var sizing = SizeFit.Of(widget);
+            _noted.AddOrUpdate(widget, sizing);
+            if (fit && Stepped(widget, sizing))
+            {
+                _unfitted.AddOrUpdate(widget, Unfitted);
+            }
         }
     }
+
+    /// <summary>[S-14103] A widget whose sizing steps an axis (a list's rows, a month's weeks): what a load fits to its steps.</summary>
+    private static bool Stepped(WidgetInstance widget, WidgetSizing sizing)
+        => widget.Config is not IDesktopItemConfig && (sizing.HeightSteps is not null || sizing.WidthSteps is not null);
 
     /// <summary>
     /// [S-2447] [S-854] Refit every widget whose sizing changed since it was noted, on the first of
@@ -43,11 +65,12 @@ public sealed class SizingNotes
             foreach (var widget in view.Widgets)
             {
                 var sizing = SizeFit.Of(widget);
+                var loaded = _unfitted.TryGetValue(widget, out _);
 
                 // [S-11887] A desktop icon's box is the desktop grid's (DesktopGrid: the icon size's two-line
                 // cell, laid with the others), never refitted one by one at its own corner: that let icons of
                 // a column grow into each other.
-                if (_noted.TryGetValue(widget, out var was) && was != sizing && at >= 0 && widget.Config is not IDesktopItemConfig)
+                if (((_noted.TryGetValue(widget, out var was) && was != sizing) || loaded) && at >= 0 && widget.Config is not IDesktopItemConfig)
                 {
                     var surface = surfaces[at];
                     if (!surface.Writable)
@@ -55,12 +78,20 @@ public sealed class SizingNotes
                         continue;
                     }
 
+                    var stored = widget.Rect;
                     if (SizeFit.Refit(widget, surface.Screen, WidgetScale.For(widget, surface.DisplayScale)))
                     {
                         changed++;
+
+                        // [S-14103] A loaded card fitted to its steps says so: what it stored and what it is now.
+                        if (loaded)
+                        {
+                            Log.Info(Scope, $"{widget.Config.Kind} {widget.Id} fitted to its steps: {stored.W:0.####}x{stored.H:0.####} -> {widget.Rect.W:0.####}x{widget.Rect.H:0.####}");
+                        }
                     }
                 }
 
+                _unfitted.Remove(widget);
                 _noted.AddOrUpdate(widget, sizing);
             }
         }
@@ -72,7 +103,8 @@ public sealed class SizingNotes
     public bool Waits(AppState state)
     {
         ArgumentNullException.ThrowIfNull(state);
-        return state.Views.SelectMany(v => v.Widgets).Any(w => w.Config is not IDesktopItemConfig && _noted.TryGetValue(w, out var was) && was != SizeFit.Of(w));
+        return state.Views.SelectMany(v => v.Widgets).Any(w => w.Config is not IDesktopItemConfig
+            && ((_noted.TryGetValue(w, out var was) && was != SizeFit.Of(w)) || _unfitted.TryGetValue(w, out _)));
     }
 
     private static int IndexOf(IReadOnlyList<SurfaceMetrics> surfaces, string viewId)

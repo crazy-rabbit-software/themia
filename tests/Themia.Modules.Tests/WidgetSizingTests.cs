@@ -166,7 +166,7 @@ public sealed class WidgetSizingTests
         Assert.True(SizeFit.Refit(widget, Screen, 1));
         Assert.Equal(0.2, widget.Rect.X, 9);
         Assert.Equal(0.2, widget.Rect.Y, 9);
-        Assert.Equal(0.14, widget.Rect.H, 9); // 12 + (3 * 28) + 28 + 12, on whole grid cells
+        Assert.Equal(0.12, widget.Rect.H, 9); // [S-14100] (3 * 30) + 30: three rows and the add row, whole grid cells each
         Assert.False(SizeFit.Refit(widget, Screen, 1));
     }
 
@@ -180,7 +180,7 @@ public sealed class WidgetSizingTests
         Assert.Equal(1, local.RowsShown.Lines);
         Assert.Equal(2, today.RowsShown.Lines);
         Assert.Equal(1, compact.RowsShown.Lines);
-        Assert.Equal(12 + (6 * 40) + 28 + 12, ModuleCatalog.Of(new WidgetId("tasks")).Sizing(today).Natural.Height);
+        Assert.Equal((6 * 40) + 30, ModuleCatalog.Of(new WidgetId("tasks")).Sizing(today).Natural.Height);
     }
 
     [Fact]

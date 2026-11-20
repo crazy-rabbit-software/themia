@@ -264,7 +264,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   setting, no Alt, no free path) and it fits every sizing, a desktop icon's too, to whole grid cells first
   (`GridFit`, [S-11807], [S-11875]; a ready-made group, or touching widgets in a picture, as one block, [S-11808], [S-11809]:
   `ReadyMadeGroups.Laid`, never member by member),
-  so a kind states content's DIPs, never grid sizes. Inside its range a kind shows the
+  so a kind states content's DIPs, never grid sizes; a kind whose content is repeated items states its steps in whole
+  cells part by part (`SizeSteps.InCells`, `Growing`, `Lined`; [S-14100]: a card holding items is exactly its whole
+  items, no cell left over under the last, owner 2026-11-20). Inside its range a kind shows the
   same parts: what it shows is config (rows, lines, facts, what the items are, a chart's span). **Size and item
   counts follow the card** ([S-14410], owner 2026-11-20: "the size should not be settable, it is set by the size of
   the widget"; "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's

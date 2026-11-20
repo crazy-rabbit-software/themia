@@ -55,14 +55,14 @@ public sealed class ClipboardTests
     {
         var config = new ClipboardConfig();
         Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true, Rows: 5), ClipboardLayout.Plan(config));
-        Assert.Equal(new Themia.Sdk.SizeDip(300, 12 + (5 * 28) + 12), new ClipboardModule().Descriptor.Sizing(config).Natural);
+        Assert.Equal(new Themia.Sdk.SizeDip(300, 5 * 30), new ClipboardModule().Descriptor.Sizing(config).Natural);
         Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true, Rows: 5), ClipboardLayout.Plan(new ClipboardConfig { Lines = 2 }));
     }
 
     [Fact]
     public void S11405_dragging_sets_rows_and_out_of_range_is_repaired_and_copied()
     {
-        var next = (ClipboardConfig)new ClipboardModule().Descriptor.SizeSets!(new ClipboardConfig(), new Themia.Sdk.SizeDip(300, 12 + (8 * 28) + 12));
+        var next = (ClipboardConfig)new ClipboardModule().Descriptor.SizeSets!(new ClipboardConfig(), new Themia.Sdk.SizeDip(300, 8 * 30));
         Assert.Equal(8, next.Rows);
 
         var wild = new ClipboardConfig { Rows = 50, Lines = 0 };

@@ -370,7 +370,7 @@ public sealed partial class KitList : Grid, IStatusRoom
         }
 
         var lines = (_rowElements.Count + columns - 1) / columns;
-        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area))));
+        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area), _area.Grid())));
         _scroll.Height = shown * _plan.RowHeight;
     }
 

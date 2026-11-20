@@ -121,18 +121,22 @@ public static class WeekPlannerRules
     public const int MaxRows = 12;
 
     /// <summary>
-    /// [S-11410] [S-14410] The planner's size: the days side by side, each a column of <see cref="ColumnWidth"/>
-    /// (its rows carry the side inset, so the columns meet), the width stepped by a day and following the days (the
-    /// card's: a resize stores the days its width holds); the height the content top, a day's heading (28), its rows
-    /// (28 each) and the inset, stepped by a row.
+    /// [S-11410] [S-14410] [S-14100] The planner's size: the days side by side, each a column of <see cref="ColumnWidth"/>
+    /// in whole grid cells (its rows carry the side inset, so the columns meet), the width stepped by a day's column and
+    /// following the days (the card's: a resize stores the days its width holds), the columns whole cells and alike at
+    /// every width; the height a day's heading (28) and its rows (28 each), each whole grid cells from the card's top edge
+    /// to its foot edge, stepped by a row (owner, 2026-11-20: no cell left over under the last row).
     /// </summary>
     public static WidgetSizing Sizing(int days, int rows)
         => WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1))
             .WithWidthSteps(DaySteps(days))
-            .WithHeightSteps(new SizeSteps(FamilySpace.ContentTop + FamilyShape.Row1 + FamilySpace.Inset, FamilyShape.Row1, 1, MaxRows, Math.Clamp(rows, 1, MaxRows)));
+            .WithHeightSteps(SizeSteps.InCells(FamilyShape.Row1, 1, MaxRows, Math.Clamp(rows, 1, MaxRows), FamilyShape.Row1));
 
-    /// <summary>[S-14410] The width's steps: a day's column a step, 1..<see cref="Days"/>, <paramref name="days"/> of them.</summary>
-    public static SizeSteps DaySteps(int days) => new(0, ColumnWidth, 1, Days, Math.Clamp(days, 1, Days));
+    /// <summary>
+    /// [S-14410] [S-14100] The width's steps: a day's column a step, whole grid cells (<see cref="SizeSteps.InCells"/>),
+    /// 1..<see cref="Days"/>, <paramref name="days"/> of them.
+    /// </summary>
+    public static SizeSteps DaySteps(int days) => SizeSteps.InCells(ColumnWidth, 1, Days, Math.Clamp(days, 1, Days));
 
     /// <summary>A day's rows in <paramref name="fit"/> whole rows: all of them, or all but one and a "+N" row; in one row its first item.</summary>
     private static (int Shown, int Hidden) Cut(int count, int fit)

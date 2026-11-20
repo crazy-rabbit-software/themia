@@ -106,10 +106,16 @@ public static class SizeFit
         }
 
         var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
+        var (cols, rows) = GridGeometry.GridDims(screen);
 
-        AxisLimits Axis(double min, double max, SizeSteps? steps, double screenPx)
+        AxisLimits Axis(double min, double max, SizeSteps? steps, double screenPx, int lines)
         {
             double Cell(double dip) => dip * s / screenPx;
+            if (steps is { Cells: { } cells })
+            {
+                return InCells(steps, cells, Grid(screen, s), lines);
+            }
+
             // [S-12411] A free axis no larger than the screen: its Max is the ceiling, the work area the bound.
             return steps is null
                 ? new AxisLimits(Cell(min), Math.Max(Cell(min), Math.Min(1, Cell(max))))
@@ -117,8 +123,27 @@ public static class SizeFit
         }
 
         return new SizeLimits(
-            Axis(sizing.Min.Width, sizing.Max.Width, sizing.WidthSteps, screen.Width),
-            Axis(sizing.Min.Height, sizing.Max.Height, sizing.HeightSteps, screen.Height));
+            Axis(sizing.Min.Width, sizing.Max.Width, sizing.WidthSteps, screen.Width, cols),
+            Axis(sizing.Min.Height, sizing.Max.Height, sizing.HeightSteps, screen.Height, rows));
+    }
+
+    /// <summary>
+    /// [S-14100] The grid a card's view lays its items on, on <paramref name="screen"/> at content scale <paramref name="scale"/>:
+    /// the grid's pitch in the card's content DIPs (<c>WidgetCard.CellPitch</c>, [S-12830]).
+    /// </summary>
+    public static ItemGrid Grid(ScreenMetrics screen, double scale)
+        => new(GridGeometry.CellPitch(screen) / (double.IsFinite(scale) && scale > 0 ? scale : 1));
+
+    /// <summary>
+    /// [S-14100] An axis of whole cells part by part on its display: its fixed parts and its item counted in cells of the
+    /// card's <paramref name="grid"/> (what its view lays), each step that many of the screen's <paramref name="lines"/>,
+    /// so the card is exactly its parts and n whole items: no cell left over under the last (owner, 2026-11-20).
+    /// </summary>
+    private static AxisLimits InCells(SizeSteps steps, WholeCells cells, ItemGrid grid, int lines)
+    {
+        var (b, step) = cells.Count(grid);
+        double At(int n) => (b + (Math.Clamp(n, steps.MinCount, Math.Max(steps.MinCount, steps.MaxCount)) * step)) / (double)lines;
+        return new AxisLimits(At(steps.MinCount), At(steps.MaxCount), b / (double)lines, step / (double)lines, steps.Count is { } count ? At(count) : null);
     }
 
     /// <summary>
@@ -220,8 +245,22 @@ public static class SizeFit
         }
 
         var held = limits is null ? cell : cell with { W = limits.Width.Holds(cell.W), H = limits.Height.Holds(cell.H) };
-        return ConfigAt(config, Wanted(held, screen, scale));
+        var wanted = Wanted(held, screen, scale);
+        if (limits is not null && Of(config) is { } sizing)
+        {
+            // [S-14100] An axis of whole cells counts its items in its display's cells: the config is the count its cells
+            // hold, asked as that count's size on the default grid (what the kind's steps say in DIPs).
+            wanted = new SizeDip(Counted(sizing.WidthSteps, limits.Width, held.W) ?? wanted.Width, Counted(sizing.HeightSteps, limits.Height, held.H) ?? wanted.Height);
+        }
+
+        return ConfigAt(config, wanted);
     }
+
+    /// <summary>[S-14100] The default grid's size of the items an axis of whole cells holds in <paramref name="size"/>; null for any other axis.</summary>
+    private static double? Counted(SizeSteps? steps, AxisLimits axis, double size)
+        => steps is { Cells: not null } && axis.Stepped && double.IsFinite(size)
+            ? steps.At((int)Math.Round((size - axis.StepBase) / axis.Step, MidpointRounding.AwayFromZero))
+            : null;
 
     /// <summary>
     /// [S-2442] The config a card box of <paramref name="box"/> DIPs (at widget scale 1) means, for a kind that has the hook: what a resize to that box
@@ -286,6 +325,40 @@ public static class SizeFit
             // [S-12411] No practical Max: the large size checked is twice the natural ([S-2448]).
             new(CheckedSize.Max, SizeStretch.Large(sizing).Width, SizeStretch.Large(sizing).Height),
         ];
+    }
+
+    /// <summary>
+    /// [S-14100] The heights a kind is checked at for its steps (owner, 2026-11-20: "right now all of the widgets have a
+    /// space on the bottom, this means their size steps are not in sync with the item heights"): its natural width at its
+    /// first <paramref name="count"/> height steps from its Min (a free height: its Natural on whole default cells and the
+    /// next cells, as the desktop's whole cells give), named <c>step0</c>, <c>step1</c>, ...
+    /// </summary>
+    public static IReadOnlyList<CheckedSize> CheckedSteps(WidgetSizing sizing, int count = 4)
+    {
+        ArgumentNullException.ThrowIfNull(sizing);
+        var sizes = new List<CheckedSize>();
+        var cell = ItemGrid.DefaultCell;
+        for (var i = 0; i < count; i++)
+        {
+            double height;
+            if (sizing.HeightSteps is { } steps)
+            {
+                if (steps.MinCount + i > steps.MaxCount)
+                {
+                    break;
+                }
+
+                height = steps.At(steps.MinCount + i);
+            }
+            else
+            {
+                height = (Math.Ceiling((sizing.Natural.Height / cell) - 1e-6) + i) * cell;
+            }
+
+            sizes.Add(new CheckedSize($"step{i}", sizing.Natural.Width, height));
+        }
+
+        return sizes;
     }
 
     /// <summary>

@@ -7,8 +7,8 @@ namespace Themia.Core.Habits;
 
 /// <summary>
 /// [S-11530]..[S-11532] The habit tracker's sizes, from its config alone, on the family's tokens: each
-/// style its own. The rows' styles (Dots, Checklist) are 36 + the habits' rows + the add footer (28) +
-/// 12, stepped by a row; the heatmap one grid for the list (one height) or a grid per habit (stepped by
+/// style its own. The rows' styles (Dots, Checklist) are the habits' rows and the add row (28), each whole grid cells
+/// ([S-14100]), stepped by a row; the heatmap one grid for the list (one height) or a grid per habit (stepped by
 /// a habit). Pure.
 /// </summary>
 public static class HabitSizing
@@ -94,7 +94,9 @@ public static class HabitSizing
         }
 
         var least = config.Style == HabitTrackerStyle.Dots ? Math.Max(Narrowest, Math.Ceiling(DotsChrome(config) / FamilySpace.S1) * FamilySpace.S1) : Narrowest;
-        var rowSteps = new SizeSteps(FamilySpace.ContentTop + FamilyShape.Row1 + FamilySpace.Inset, FamilyShape.RowHeight(Lines(config)), MinRows, MaxRows, rows);
+        // [S-14100] The habits' rows and the add row under them, each whole grid cells, from the card's top edge to its
+        // foot edge: the card is exactly its rows.
+        var rowSteps = SizeSteps.InCells(FamilyShape.RowHeight(Lines(config)), MinRows, MaxRows, rows, FamilyShape.Row1);
         return WidgetSizing.Range(new(least, 1), new(Math.Max(least, NaturalWidth), 1), new(Math.Max(least, Widest), 1)).WithHeightSteps(rowSteps);
     }
 

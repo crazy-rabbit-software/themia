@@ -127,7 +127,8 @@ public sealed class SystemAtomsTests
             Assert.Empty(sizing.Problems());
         }
 
-        Assert.Equal(12 + (4 * 28) + 12, MeterSizing.ItemRows(4).Natural.Height);
-        Assert.True(MeterSizing.ItemRows(4).FixedHeight);
+        // [S-14100] Four rows of whole cells (30) edge to edge, a cell more for each a step: they grow together, none left over.
+        Assert.Equal(4 * 30, MeterSizing.ItemRows(4).Natural.Height);
+        Assert.Equal(40, MeterSizing.ItemRows(4).HeightSteps!.Step);
     }
 }

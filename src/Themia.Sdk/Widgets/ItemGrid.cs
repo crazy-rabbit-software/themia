@@ -22,9 +22,16 @@ public readonly record struct ItemGrid(double Cell, double Scale = 1)
     /// <summary>The raster scale, a usable one.</summary>
     public double Raster => double.IsFinite(Scale) && Scale > 0 ? Scale : 1;
 
-    /// <summary>The fewest whole cells that hold <paramref name="length"/> (at least one).</summary>
+    /// <summary>
+    /// [S-14100] How far past a whole cell a length may reach and still count as that cell: a fiftieth of one. A display's
+    /// pitch is its width over its columns, seldom exactly 10 (9.974 at 1536 wide): a row of 40 is 4.01 of those cells and
+    /// takes four, not five.
+    /// </summary>
+    public const double Slack = 0.02;
+
+    /// <summary>The fewest whole cells that hold <paramref name="length"/> (at least one), within <see cref="Slack"/>.</summary>
     public int Cells(double length)
-        => !double.IsFinite(length) || length <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling((length / Pitch) - 1e-6));
+        => !double.IsFinite(length) || length <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling((length / Pitch) - Slack));
 
     /// <summary>How many whole cells <paramref name="length"/> holds (rounded down).</summary>
     public int Within(double length)

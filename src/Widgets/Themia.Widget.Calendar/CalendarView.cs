@@ -645,8 +645,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         // [S-569] [S-12481] The line (or the state's row in its place) takes its room off the top of the box the style
         // is drawn in; the month lays its rows on the card's grid from where it starts under the card's top edge.
         // [S-12834] Both are whole cells: the line's band ends on a grid line, the state's row on the card's top edge too.
+        // [S-14101] The state's row stands in the line's place and keeps its band, so the weeks fill the card the sizing
+        // made for that band (no cell left over at the foot).
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
-        var over = stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : ShowsLine ? LineRules.Band(cells) : 0;
+        var over = ShowsLine ? Math.Max(LineRules.Band(cells), stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : 0) : stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : 0;
         var height = _area.Height - over;
 
         switch (Layout)

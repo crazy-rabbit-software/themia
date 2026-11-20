@@ -245,12 +245,17 @@ internal sealed partial class FolderView
     {
         _crumbHost.Visibility = plan.Breadcrumb ? Visibility.Visible : Visibility.Collapsed;
         _searchBox.Visibility = plan.SearchBox ? Visibility.Visible : Visibility.Collapsed;
-        _searchBox.Fill(FolderLayout.SearchBand(_area.Grid(XamlRoot?.RasterizationScale ?? 1), plan.Breadcrumb));
+        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        _searchBox.Fill(FolderLayout.SearchBand(cells, plan.Breadcrumb));
         _columnHeader.Visibility = plan.ColumnHeader ? Visibility.Visible : Visibility.Collapsed;
+
+        // [S-14102] The path's and the titles' bands end on grid lines, so the rows under them start on one.
+        _crumbHost.Height = FolderLayout.CrumbBand(cells);
+        _columnHeader.Height = FolderLayout.HeaderBand(cells, FolderLayout.Over(cells, plan.SearchBox, header: false, plan.Breadcrumb));
 
         // [S-6712] [S-6713] As tall as its whole rows (or rows of cells): never a part of one at its foot.
         // A cell's mark stands 4 around it, so the grid starts 4 over the items' top and 4 inside the inset.
-        var height = FolderLayout.ItemsHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb);
+        var height = FolderLayout.ItemsHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb, rows: plan.Grid is null);
         if (plan.Grid is { } grid)
         {
             _scroll.Padding = new Thickness(RowRules.CellMarkEdge, 0, RowRules.CellMarkEdge, 0);

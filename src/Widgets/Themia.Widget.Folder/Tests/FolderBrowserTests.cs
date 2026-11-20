@@ -214,9 +214,10 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S11203_a_folder_keeps_a_free_size_in_its_range_and_details_is_as_wide_as_its_columns()
     {
-        // [S-12834] Over the items: the card's inset and the tool line's whole-cell band (12 + 28 = 40).
+        // [S-12834] Over the items: the card's inset and the tool line's whole-cell band (12 + 28 = 40). [S-14102] The list's
+        // rows are whole cells (30) to the card's foot: four at least, twenty at most, a new one the step nearest 280.
         var list = FolderLayout.Sizing(new FolderConfig());
-        Assert.Equal((new SizeDip(220, 160), new SizeDip(300, 40 + (8 * 28) + 12), new SizeDip(800, 640)), (list.Min, list.Natural, list.Max));
+        Assert.Equal((new SizeDip(220, 40 + (4 * 30)), new SizeDip(300, 40 + (8 * 30)), new SizeDip(800, 40 + (20 * 30))), (list.Min, list.Natural, list.Max));
         Assert.Equal(40 + (4 * 64) - 12 + 12, FolderLayout.Sizing(new FolderConfig { Style = FolderStyle.Grid }).Natural.Height);
         Assert.Empty(list.Problems());
 
@@ -231,8 +232,35 @@ public sealed class FolderBrowserTests
 
         // Everything over the items on: the least height holds them and one row.
         var tall = new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true };
-        // [S-12834] The search box is the family's control of 28, the items right under it.
-        Assert.Equal(40 + 28 + 28 + 24 + 28 + 12, FolderLayout.Sizing(tall).Min.Height);
+        // [S-12834] The search box is the family's control of 28, the items right under it. [S-14102] The path, the search box
+        // and the titles each a band of whole cells (30), four rows of 30 under them.
+        Assert.Equal(40 + 30 + 30 + 30 + (4 * 30), FolderLayout.Sizing(tall).Min.Height);
+    }
+
+    /// <summary>
+    /// [S-14102] (owner, 2026-11-20: "right now all of the widgets have a space on the bottom, this means their size steps are
+    /// not in sync with the item heights"): at every height step the list's and the table's rows run from right under
+    /// what stands over them (each a band of whole cells) to the card's foot, none left over.
+    /// </summary>
+    [Fact]
+    public void S14102_the_rows_run_from_under_the_bands_to_the_cards_foot_at_every_step()
+    {
+        var grid = ItemGrid.Default();
+        foreach (var config in new[] { new FolderConfig(), new FolderConfig { ShowPath = true, SearchBox = true }, new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true } })
+        {
+            var header = config.Style == FolderStyle.Details && config.ColumnTitles;
+            var steps = FolderLayout.Sizing(config).HeightSteps!;
+            for (var n = steps.MinCount; n <= steps.MaxCount; n++)
+            {
+                var card = steps.At(n);
+                var area = new WidgetArea(300, card - Themia.Sdk.Kit.FamilySpace.Inset, grid.Pitch);
+                var height = FolderLayout.ItemsHeight(area, config.SearchBox, header, config.ShowPath, rows: true);
+                var reach = FolderLayout.Reach(height, grid);
+
+                Assert.Equal(n, reach.Shown);
+                Assert.Equal(card, FolderLayout.Over(grid, config.SearchBox, header, config.ShowPath) + reach.Length(FolderLayout.Rows(height)), 6);
+            }
+        }
     }
 
     [Fact]

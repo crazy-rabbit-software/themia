@@ -11,19 +11,20 @@ public sealed class KitRowsTests
 
     private static readonly KitSpec Rich = new(KitRowLook.Rich, KitShow.All, () => "Untitled", () => "Empty", MaxColumns: 3);
 
+    /// <summary>[S-2440] [S-14100] The rows and the add footer, each whole grid cells (30 and 40 on the default grid): no inset over or under them.</summary>
     [Theory]
-    [InlineData(6, 1, true, 12 + (6 * 28) + 28 + 12)]
-    [InlineData(6, 2, true, 12 + (6 * 40) + 28 + 12)]
-    [InlineData(1, 1, false, 12 + 28 + 12)]
-    [InlineData(20, 2, false, 12 + (20 * 40) + 12)]
-    public void S2440_the_height_is_the_content_top_the_rows_the_add_footer_and_the_inset(int rows, int lines, bool footer, double height)
+    [InlineData(6, 1, true, (6 * 30) + 30)]
+    [InlineData(6, 2, true, (6 * 40) + 30)]
+    [InlineData(1, 1, false, 30)]
+    [InlineData(20, 2, false, 20 * 40)]
+    public void S2440_the_height_is_the_rows_and_the_add_footer_in_whole_cells(int rows, int lines, bool footer, double height)
     {
         var sizing = KitSizing.Sizing(new KitRowsChoice(rows, lines), footer);
 
         Assert.Equal(height, sizing.Natural.Height);
         Assert.Equal(KitSizing.MinWidth, sizing.Min.Width);
         Assert.Equal(KitSizing.MaxWidth, sizing.Max.Width);
-        Assert.Equal(FamilyShape.RowHeight(lines), sizing.HeightSteps!.Step);
+        Assert.Equal(Themia.Core.Widgets.ItemGrid.Default().Whole(FamilyShape.RowHeight(lines)), sizing.HeightSteps!.Step);
         Assert.Equal(rows, sizing.HeightSteps.Count);
         Assert.Empty(sizing.Problems());
     }
@@ -103,7 +104,7 @@ public sealed class KitRowsTests
         var plan = KitPlanner.Plan(new WidgetArea(300, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(4, 3) });
         Assert.Equal(3, plan.Lines);
         Assert.True(plan.Subtitle && plan.Preview);
-        Assert.Equal(12 + (4 * FamilyShape.RowHeight(3)) + 12, KitSizing.Sizing(new KitRowsChoice(4, 3), false).Natural.Height);
+        Assert.Equal(4 * 60, KitSizing.Sizing(new KitRowsChoice(4, 3), false).Natural.Height);
         Assert.Equal(3, KitSizing.ClampLines(9, KitSizing.MaxLines));
         Assert.Equal(2, KitSizing.ClampColumns(5));
     }
@@ -118,7 +119,7 @@ public sealed class KitRowsTests
 
         var sizing = KitSizing.Sizing(new KitRowsChoice(5, 1, ColumnTitles: true), false, new KitWidths(320, 420, 720));
         Assert.Equal((320, 420, 720), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(12 + KitPlanner.ColumnHeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(40 + (5 * 30), sizing.Natural.Height);
     }
 
     [Fact]

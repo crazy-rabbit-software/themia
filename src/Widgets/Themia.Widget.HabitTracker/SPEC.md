@@ -78,8 +78,8 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   ([S-1427], [S-1428]).
 - **[S-11530]** **The tracker states its sizes** (owner decision 2026-11-12, [S-2438]): **Rows**, the
   habits shown (1..12, a new one 4; more scroll inside them), on its menu's first level; in the Dots
-  and Checklist styles its height is 36 + the rows (28, or 40 with two lines) + the add footer (28,
-  always there where a habit can be added, [S-3850]) + 12, stepped by a row, dragging the bottom edge
+  and Checklist styles its height is the rows (28, or 40 with two lines) and the add footer (28,
+  always there where a habit can be added, [S-3850]), whole grid cells each ([S-14100]), stepped by a row, dragging the bottom edge
   sets Rows (`HabitSizing.SizeSets`); fewer habits leave their rows empty. 300 wide new, at most 520.
   No ladder, no tiers: what a row shows is the config's at every size (`HabitLayout.Plan`).
 - **[S-11531]** **The Dots style's settings**, under Style: Show streaks (the run, a number), **Run in

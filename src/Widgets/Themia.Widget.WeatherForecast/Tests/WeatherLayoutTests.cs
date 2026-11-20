@@ -24,8 +24,8 @@ public class WeatherLayoutTests
         var one = Kind.Sizing(new WeatherForecastConfig { Days = 5 });
         var two = Kind.Sizing(new WeatherForecastConfig { Days = 5, Lines = 2 });
 
-        Assert.Equal(new SizeDip(300, 12 + (5 * 28) + 12), one.Natural);
-        Assert.Equal(12 + (5 * 40) + 12, two.Natural.Height);
+        Assert.Equal(new SizeDip(300, 5 * 30), one.Natural);
+        Assert.Equal(5 * 40, two.Natural.Height);
         Assert.Equal((220.0, Themia.Sdk.SizeStretch.Ceiling), (one.Min.Width, one.Max.Width)); // relaxed, [S-12411]: no practical Max
         Assert.True(one.HeightSteps!.FollowsConfig);
     }
@@ -49,9 +49,9 @@ public class WeatherLayoutTests
         var rows = new WeatherForecastConfig { Days = 5 };
         var columns = new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5 };
 
-        Assert.Equal(7, ((WeatherForecastConfig)Kind.SizeSets!(rows, new SizeDip(300, 12 + (7 * 28) + 12))).Days);
+        Assert.Equal(7, ((WeatherForecastConfig)Kind.SizeSets!(rows, new SizeDip(300, 7 * 30))).Days);
         Assert.Equal(3, ((WeatherForecastConfig)Kind.SizeSets(columns, new SizeDip(24 + (3 * 56), 200))).Days);
-        Assert.Same(rows, Kind.SizeSets(rows, new SizeDip(400, 12 + (5 * 28) + 12)));
+        Assert.Same(rows, Kind.SizeSets(rows, new SizeDip(400, 5 * 30)));
         Assert.Equal(5, rows.Days);
     }
 

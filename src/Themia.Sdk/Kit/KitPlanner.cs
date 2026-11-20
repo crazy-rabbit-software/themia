@@ -214,6 +214,19 @@ public static class KitPlanner
     /// <summary>[S-7034] The table's column titles: one Caption line and the gap under it.</summary>
     public static double ColumnHeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
+    /// <summary>
+    /// [S-14100] The column titles with the card's inset over them, as one length from the card's top edge: what a table's
+    /// sizing counts (<see cref="KitSizing.Steps"/>), whole cells of its grid (40 on the default grid of 10).
+    /// </summary>
+    public static double TitlesOver => FamilySpace.Inset + ColumnHeaderHeight;
+
+    /// <summary>
+    /// [S-12834] [S-14100] The column titles' band under the card's inset on <paramref name="grid"/>: the titles and their gap
+    /// grown to end on a grid line (<see cref="LineRules.Under"/>), so the rows under them start right under them on one
+    /// (WR-1, WR-5, WR-6). On the default grid of 10: 28.
+    /// </summary>
+    public static double TitlesBand(Themia.Core.Widgets.ItemGrid grid) => LineRules.Under(grid, FamilySpace.Inset, ColumnHeaderHeight);
+
     /// <summary>[S-7034] The gap between table columns: the family's column gap.</summary>
     public const double ColumnGap = FamilySpace.ColumnGap;
 
@@ -241,9 +254,9 @@ public static class KitPlanner
     public static double ListHeight(WidgetArea area) => Math.Max(0, area.Height + FamilySpace.Inset);
 
     /// <summary>[S-6712] Whole rows of <paramref name="plan"/> (its rows and the gaps between them) in a list <paramref name="height"/> tall, under the table's column titles when it has them.</summary>
-    public static int Fit(KitPlan plan, double height)
+    public static int Fit(KitPlan plan, double height, ItemGrid? grid = null)
     {
-        var room = height - (plan.ColumnHeader ? ColumnHeaderHeight : 0);
+        var room = height - (plan.ColumnHeader ? FamilySpace.Inset + TitlesBand(grid ?? ItemGrid.Default()) : 0);
         return double.IsFinite(room) && room > 0 && plan.RowHeight > 0 ? (int)Math.Floor((room + LayoutMath.Tolerance) / plan.RowHeight) : 0;
     }
 
@@ -289,8 +302,8 @@ public static class KitPlanner
         var lead = has(KitShow.Lead);
         var chosen = choices.Columns is { Count: > 0 } picked ? picked : [KitColumn.Title];
         var fits = TableColumns(chosen, InnerWidth(width, lead), ColumnGap);
-        // [S-12807] Under the titles the rows' room starts: the first row's band reaches into the titles' gap.
-        return new KitPlan(KitRowLook.Table, 1, width, 1, lead, false, false, false, ColumnHeader: rows.ColumnTitles, Table: fits).With(Reach(area, rows.Rows, 1, rows.ColumnTitles ? ColumnHeaderHeight : 0, edge: !rows.ColumnTitles));
+        // [S-12807] [S-14100] Under the titles' band (whole cells from the card's top edge) the rows' room starts.
+        return new KitPlan(KitRowLook.Table, 1, width, 1, lead, false, false, false, ColumnHeader: rows.ColumnTitles, Table: fits).With(Reach(area, rows.Rows, 1, rows.ColumnTitles ? TitlesOver : 0));
     }
 
     /// <summary>A row's width inside its side insets and past its lead: what its text has to share.</summary>

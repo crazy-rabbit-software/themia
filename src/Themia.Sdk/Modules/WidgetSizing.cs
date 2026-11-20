@@ -1,3 +1,5 @@
+using Themia.Core.Widgets;
+
 namespace Themia.Sdk;
 
 /// <summary>[S-2438] A size in DIPs of the card's box at widget scale 1.</summary>
@@ -11,6 +13,58 @@ public readonly record struct SizeDip(double Width, double Height);
 /// </summary>
 public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCount, int? Count = null)
 {
+    /// <summary>
+    /// [S-14100] The axis in whole grid cells, part by part (owner, 2026-11-20: "now the weather forecast widget always has
+    /// one block space at the bottom. this should obviously not be"): its fixed parts and its repeated item as natural
+    /// lengths, each laid in whole cells of the card's grid (<see cref="WholeCells.On"/>), so every step is exactly its
+    /// fixed parts and n whole items, never a cell left over under the last. <see cref="Base"/> and <see cref="Step"/> are
+    /// then those on the default grid (<see cref="ItemGrid.Default"/>), what the DIPs of the sizing say; the host lays the
+    /// axis on its display's grid (<c>SizeFit.Limits</c>). Null: Base and Step are DIPs as stated.
+    /// </summary>
+    public WholeCells? Cells { get; init; }
+
+    /// <summary>
+    /// [S-14100] An axis of <paramref name="item"/>-long items over <paramref name="over"/> (the fixed parts, each its own
+    /// whole cells: a tool line from the card's top edge, column titles, an add row), every part and item whole cells of
+    /// the card's grid: steps of one item's whole cells (<see cref="Cells"/>), n items for n in
+    /// <paramref name="minCount"/>..<paramref name="maxCount"/>, following <paramref name="count"/> where the config says.
+    /// </summary>
+    public static SizeSteps InCells(double item, int minCount, int maxCount, int? count = null, params double[] over)
+    {
+        var cells = new WholeCells(item, over ?? []);
+        var (b, step) = cells.On(ItemGrid.Default());
+        return new SizeSteps(b, step, minCount, maxCount, count) { Cells = cells };
+    }
+
+    /// <summary>
+    /// [S-14100] An axis of <paramref name="items"/> like items that grow together (a month's six weeks, its seven days
+    /// across), over <paramref name="over"/> (the fixed parts, each its own whole cells): its least is every item at the
+    /// whole cells <paramref name="item"/> takes, and each step one more cell for every item, up to
+    /// <paramref name="most"/> steps, so every size of it lays the items whole cells and alike, none left over.
+    /// </summary>
+    public static SizeSteps Growing(double item, int items, int most, params double[] over)
+    {
+        var cells = new WholeCells(0, over ?? []) { Grows = Math.Max(1, items), Least = item };
+        var (b, step) = cells.On(ItemGrid.Default());
+        return new SizeSteps(b, step, 0, Math.Max(0, most)) { Cells = cells };
+    }
+
+    /// <summary>
+    /// [S-14100] An axis of <paramref name="items"/> like items each holding <paramref name="least"/> and
+    /// <paramref name="count"/> lines of <paramref name="line"/> (a month's weeks, their cells' chip lines), over
+    /// <paramref name="over"/>: a step is one more line in every item, each part, the least and a line whole cells of the
+    /// card's grid, so the items fill the axis exactly at every count.
+    /// </summary>
+    public static SizeSteps Lined(double least, double line, int items, int minCount, int maxCount, int count, params double[] over)
+    {
+        var cells = new WholeCells(line, over ?? []) { Grows = Math.Max(1, items), Least = least };
+        var (b, step) = cells.On(ItemGrid.Default());
+        return new SizeSteps(b, step, minCount, maxCount, count) { Cells = cells };
+    }
+
+    /// <summary>[S-14100] The base and the step on <paramref name="grid"/>: each part whole cells of it (<see cref="Cells"/>), else as stated.</summary>
+    public (double Base, double Step) On(ItemGrid grid) => Cells is { } cells ? cells.On(grid) : (Base, Step);
+
     /// <summary>The size of <paramref name="n"/> steps, n held to the range.</summary>
     public double At(int n) => Base + (Math.Clamp(n, MinCount, Math.Max(MinCount, MaxCount)) * Step);
 
@@ -25,6 +79,60 @@ public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCo
 
     /// <summary>The axis follows the config's count.</summary>
     public bool FollowsConfig => Count is not null;
+}
+
+/// <summary>
+/// [S-14100] An axis of whole grid cells, part by part (owner, 2026-11-19, docs/WIDGET-RULES.md WR-6: "items inside widgets
+/// should be designed in a way that they match the size of the grid on the desktop"; 2026-11-20, WR-5: "now the weather
+/// forecast widget always has one block space at the bottom. this should obviously not be"): the natural length of the
+/// repeated <see cref="Item"/> (a row of 28: three cells on the default grid) and of each fixed part <see cref="Over"/>
+/// (a tool line's band from the card's top edge, column titles, an add row), each grown to whole cells of its own on a
+/// grid, as the view lays them (<c>ItemStretch</c>, <c>LineRules</c>). Value equality over the parts, so a sizing made
+/// twice from one config is the same sizing (<c>SizingNotes</c> compares them).
+/// </summary>
+public sealed record WholeCells(double Item, IReadOnlyList<double> Over)
+{
+    /// <summary>
+    /// [S-14100] How many items a step takes: a list's one more row (1, the default), or the items that grow together (a
+    /// month's six weeks), each by one <see cref="Item"/> (by one cell where the item is 0).
+    /// </summary>
+    public int Grows { get; init; } = 1;
+
+    /// <summary>[S-14100] The least of each of the <see cref="Grows"/> items, in the base (a week's number line); 0: none.</summary>
+    public double Least { get; init; }
+
+    /// <summary>The fixed parts' and the item's lengths on <paramref name="grid"/>: each part whole cells of its own (none for a part of nothing).</summary>
+    public (double Base, double Step) On(ItemGrid grid)
+    {
+        var (b, step) = Count(grid);
+        return (b * grid.Pitch, step * grid.Pitch);
+    }
+
+    /// <summary>[S-14100] The cells the fixed parts (and the items' least) and one step take on <paramref name="grid"/>.</summary>
+    public (int Base, int Step) Count(ItemGrid grid)
+    {
+        static bool Some(double length) => length > 0 && double.IsFinite(length);
+        var items = Math.Max(1, Grows);
+        var over = Over.Where(Some).Sum(grid.Cells) + (Some(Least) ? items * grid.Cells(Least) : 0);
+        return (over, items * (Some(Item) ? grid.Cells(Item) : 1));
+    }
+
+    public bool Equals(WholeCells? other)
+        => other is not null && Item.Equals(other.Item) && Grows == other.Grows && Least.Equals(other.Least) && Over.SequenceEqual(other.Over);
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Item);
+        hash.Add(Grows);
+        hash.Add(Least);
+        foreach (var part in Over)
+        {
+            hash.Add(part);
+        }
+
+        return hash.ToHashCode();
+    }
 }
 
 /// <summary>

@@ -48,7 +48,7 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   secondary). Retired with group G6: the list's unlabelled Size and Type columns (Details is the table), XL's one-size-up
   tiles and the tiles' two- and three-line names.
 - **[S-11203]** Converted to the sizing ([S-2438]), not split: a file browser keeps a **free size**, 220..800
-  wide and 160..640 high (`FolderLayout.Sizing`), and is the one kind where more room shows more of the user's
+  wide and 160..640 high (`FolderLayout.Sizing`; the list and the table step by a row of whole cells, [S-14102]), and is the one kind where more room shows more of the user's
   own entries, as a window does (more rows, more columns of cells; the rest scrolls). What stood or fell with
   the box is a setting under Style, each on or off: **Search box** (off: the tool line's Search opens the search in
   the line's label, the one search box at the line's size, taking no room, [S-13950]; on: the field always stands and
@@ -60,6 +60,11 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   the icons 300, Details 268); its least height holds what stands over the items and one row. No tier
   decides anything: the path at Expanded × Expanded, the columns that fit, the 48 cells and the list's date
   from 180 are gone (`FolderColumns.Fit` with them).
+- **[S-14102]** **The folder's rows reach its foot** ([S-14100]): in the list and the table the path, the search box and
+  the titles are bands of whole cells under the tool line (`FolderLayout.CrumbBand`, `SearchBand`, `HeaderBand`,
+  `Over`), the rows run from right under them to the card's foot edge, and the height steps by a row over those bands
+  (`FolderLayout.RowSteps`, 4..20 rows; how many show is the box's, as a window's). The grid's and the icons' cells keep
+  their inset. Tests the folder's `S14102_`.
 - **[S-6411]** The rightmost column ends at the row's right inset, the same as the tool line's buttons, at
   every width and in every style (user report 2026-10-16: from 400 DIPs the list put Size last, blank for
   every folder, so the dates stopped a column short of the edge). The list has one value, the date modified,

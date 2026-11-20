@@ -24,8 +24,9 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
   else the number), each led by its 32 monogram; **Compact** rows of one line with the one field as
   their value; **Details** one line a person under the column titles, as wide as its columns need
   (24 + 88 a column, at least two) to 720, a new one 420; these three show `Rows` people (1..20,
-  default 5), 220..520 wide for List and Compact (a new one 300 × 284), their height the search box
-  where on, the rows and the inset, dragging the bottom edge sets Rows, more scroll inside them.
+  default 5), 220..520 wide for List and Compact, their height the search box where on (with the titles one band of
+  whole cells under the card's inset) and the rows, whole grid cells each ([S-14100]), dragging the bottom edge sets
+  Rows, more scroll inside them.
   **Grid**: `GridColumns` cells a line (2..6, default 3) and `GridRows` lines (1..6, default 2) of
   48 monograms over their names, the width stepped by a cell and the height by a line, more scroll inside it;
   dragging an edge sets them; its Rows line sets the lines, and the cells a line are the card's alone (owner,

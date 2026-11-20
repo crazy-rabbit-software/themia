@@ -4577,9 +4577,9 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   `MinCount..MaxCount`; a list's n rows). With `Count` set the axis follows the config: its size is
   the config's step, whatever is asked of it.
 - **[S-2440]** **A kit list that states its rows** (`IKitRows` on its config: `Rows`, 1..20, default 6;
-  `Lines` per row, 1 or 2): its height is the family's content top (36), its rows (28 or 40 each,
-  [S-6704]), the add footer (28) where it adds in place and the bottom inset (12, the rows' to stretch
-  into, [S-12410]), stepped by a row
+  `Lines` per row, 1 or 2): its height is its rows (28 or 40 each, [S-6704]) from the card's top edge to its foot
+  edge, a table's titles over them and the add footer (28) under them where it adds in place, each whole grid cells
+  ([S-14100]: no inset over or under the rows, no cell left over), stepped by a row
   and following the config's rows; its width 220..520, a new one 300 (`KitSizing`). Dragging its
   bottom edge sets Rows ([S-2442], `KitSizing.SizeSets`); more items than rows scroll inside them (the
   wheel as before). Its plan is the same at every size in its range (`KitChoices.Rows`: one column,
@@ -4734,6 +4734,38 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   still show exactly the gap), so a card's edge and the grid's line share their pixels at gap 0
   (`GridFit.LineDip`). The box round touching cards (`CardJoins.Frame`) is what Liquid glass draws their one
   shape from ([S-2123]). Tests `CardPaintTests.S11810_the_box_round_several_cards_is_round_their_cells_on_the_grids_lines`.
+- **[S-14100]** **A card holding items is exactly as tall as its whole items** (owner, 2026-11-20: "now the weather
+  forecast widget always has one block space at the bottom. this should obviously not be"; "same for the task widget,
+  there is also a one block space at the bottom now. why is that?"; "right now all of the widgets have a space on the
+  bottom, this means their size steps are not in sync with the item heights. fix this if you are not already fixing
+  it."; docs/WIDGET-RULES.md WR-5, WR-6). The cause: a row is whole grid cells, at least those its natural height takes
+  (a row of 28: three, [S-12830]), while a kind stated its height in DIPs (the inset, the rows of 28, the inset) and the
+  host rounded that sum up to whole cells, so the card held a cell or two more than its whole rows, left at its foot
+  (the forecast's five days: 164, painted 170, its rows 150; the tasks' six and the add row: 220, its rows 210). Now a
+  kind whose content is repeated items states its steps **in whole cells, part by part** (`SizeSteps.InCells`,
+  `WholeCells`): the natural length of its item and of each part that stands with the items (a tool line with the
+  card's inset over it, `LineRules.BandOver`; column titles, `KitPlanner.TitlesOver`; a search box; an add row), each
+  grown to whole cells of the card's grid as its view lays it, the rows from the card's top edge to its foot edge with
+  no inset over or under them; the sizing's DIPs are those on the default grid (a row step 30), and the host lays the
+  axis on its display's grid (`SizeFit.Limits`: the parts and the item counted in cells of the card's pitch,
+  `SizeFit.Grid`, each step that many of the screen's lines), so on any pitch the card is exactly its parts and n whole
+  items, and a resize lands only there (`AxisLimits.Range`, `Holds`; the config a resize stores counts the items its
+  cells hold, `SizeFit.ConfigFor`). Items that grow together (a month's weeks and days, the week planner's days) step
+  by one cell for each of them (`SizeSteps.Growing`), the month with titles by a chip line in every week
+  (`SizeSteps.Lined`). So: every kit list (`KitSizing.Steps`: its rows, a table's titles, the add row, a kind's own line
+  over its rows, as the screen time apps' day), the single metrics' one row (`MetricRules.HeightSteps`, [S-14600]), the forecast's
+  rows, the contacts (the search box and the titles one part), the habits' rows and add row, the mixer, the week
+  planner (a day's heading and its rows; its width a cell a day), the folder's list and table ([S-14102]) and the
+  month ([S-14101]). Empty stated rows (a list with fewer items than its rows) still stand at the foot as rows ("this is
+  fine if it happens"); a part row or leftover cells never do. Tests `NoLeftoverTests.S14100_` (Core: the steps on
+  pitches 10, 9.974 and 8, every step whole items; a resize's config), the modules' `NoLeftoverTests.S14100_` (the
+  forecast at every day count and lines, tasks, a facts list, a ready-made group), `WidgetSizingTests`; renders judged by
+  `scripts/item-check.py` (its leftover rule and the `steps` size set, `SizeFit.CheckedSteps`).
+- **[S-14103]** **A loaded card is fitted to its steps** ([S-14100]): a card stored before its kind's steps were whole
+  cells is painted fitted to them ([S-2446]) and, at the first refit on settled metrics after a start, its stored rect
+  is fitted to its nearest step on the display that shows its view (`SizingNotes.NoteAll(state, fit: true)`, the
+  existing refit, [S-2447]), one log line each ("… fitted to its steps: old -> new"); an undo still notes a widget as it
+  is. Tests `SettledMetricsTests.S14103_`.
 - **[S-2449]** *(Retired 2026-11-20. Owner: "the size should not be settable, it is set by the size of the widget.
   do this for the other widgets too". The readout size setting is gone with everything that existed for it:
   `ReadoutSize`, `IReadoutSized`, `ReadoutSizes`, the shared setting `readoutSize`, `KitMenuLines.ReadoutSize`, the
@@ -7079,8 +7111,8 @@ single metric of its own (METRICS, [S-14604]). Tests `SystemAtomsTests`
 - **[S-11005]** **Items** (the cores' bars, rings and graphs) start headerless and stand in the card's
   12 inset on every side; they only grow with the card (`MeterSizing.Columns`, `Tiles`, `Graphs`). A
   graph cell's figure stands over its history's top corner, so every cell draws both at every size.
-- **[S-11006]** **Rows of items** (the GPU's engines) keep the header: one 28 row per item at a fixed
-  count, 200..420 wide (`MeterSizing.ItemRows`).
+- **[S-11006]** **Rows of items** (the GPU's engines): one 28 row per item at a fixed count, 200..420 wide
+  (`MeterSizing.ItemRows`); the height whole cells a row, growing by a cell a row together ([S-14100]).
 - **[S-11007]** *(Retired by [S-14604]: a fact is a single metric of its own; no card of picked facts.)* **Facts** keep the header and show fact rows alone, no hero (the reading atom is the
   hero): which of the kind's facts and in what order is the config's pick (`FactsConfig.Facts`, keys;
   a new one the kind's first four). Its height is 36 + 28 a fact + 12, stepped by the count, 200..420
@@ -8103,7 +8135,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its text stands about the inset under it, the same in every list; its rows run touching to the card's foot edge
   (`ItemStretch.Rows`: the view's height and the top inset; `KitPlanner.ListHeight`). Under a tool line, a search box
   or column titles the rows start under them. A list keeps a place for every row its config states ([S-12800]): fewer
-  items leave the foot's rows empty, which is fine; a space at the top never is. `scripts/gap-check.py` audits the ink
+  items leave the foot's rows empty, which is fine; a space at the top never is, nor a part row or leftover cells under
+  the last row ([S-14100]). `scripts/gap-check.py` audits the ink
   ([S-12831] the checks).
 - **[S-12830]** **Items are whole grid cells** (owner, 2026-11-19: "items inside widgets should be designed in a way
   that they match the size of the grid on the desktop, for example they should be designed so that they are 3 blocks
@@ -8111,8 +8144,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   have an uneven size which i dont want. do this for all the widgets."; docs/WIDGET-RULES.md WR-6). Every repeated item
   (a list's row, a fact row, a day of a month) is a whole number of the desktop grid's cells along the axis it repeats,
   at least the cells its natural length takes (a row's 28: three), all alike; a view shows as many as its room holds at
-  those sizes, never one squeezed in at less; the cells left over stand at the foot, never above the first item or
-  between two (WR-5). The cell is the grid's drawn pitch on the card's display ([S-06b]: screen / columns, about 10,
+  those sizes, never one squeezed in at less; never a cell above the first item or between two (WR-5), and since
+  2026-11-20 none left over under the last either: the kind's size steps are whole items ([S-14100]). The cell is the grid's drawn pitch on the card's display ([S-06b]: screen / columns, about 10,
   `GridGeometry.CellPitch`), in the card's content units: the card hands it to its view in `WidgetArea.Cell` and to
   any part under it (`IGridCellHost`, `ItemGrids.Of`); the one rule is `ItemStretch` on an `ItemGrid` (`Rows`/`Reach`:
   the pitch and `RowReach.Shown`, the rows the room holds; `SpreadStack`'s growing rows in whole cells too). A kit
@@ -8126,10 +8159,15 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   item. `scripts/item-check.py` judges them for every kind, every state, at its range and at desktop sizes: the items
   of a column reach the card's left and right edges (WR-3), touch along the axis they repeat (WR-2), the first stands
   on the card's top edge or right under what stands over it (WR-1, WR-5), each is whole cells and all alike (WR-6;
-  across, the card's whole cells shared to a cell, the last taking the part cell), none is cut; it writes
+  across, the card's whole cells shared to a cell, the last taking the part cell), none is cut, and nothing is left
+  over under the lowest item but whole empty rows of its list's pitch ([S-14100], WR-5; drawn at the kind's first
+  height steps too, `--sizes steps`); it writes
   `items.json` and `items.md` and exits 1 on any finding. `scripts/gap-check.py` judges the ink against the card's
   edges: the band over the first ink and under the last at most the inset (the padding inside an item, WR-3) and the
   4 DIP the measure may be off by, but where the card's items stand on its top edge (their boxes are the item check's);
+  beside the ink the same, but where the card's item boxes reach both its edges (a list's short titles leave the right
+  band wide inside rows that span the card: the item check judges the boxes; owner, 2026-11-20, "you should choose what
+  works");
   its one exemption is the owner's: a picture or a video filling the card. `--hover fx,fy` and `--pressed fx,fy` show
   the item (`PointerPreview`: what lights a row) or control under that point of every card as under the pointer, for
   WR-12 and WR-13 to be judged on renders.
@@ -8139,7 +8177,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   cells tile the card (`MonthLayouts.Plan`): seven columns from the card's left edge to its right, each whole grid cells
   (the width's whole cells shared as evenly as they go, the last column taking what is not a whole cell), the weekday
   line ending on a grid line, the weeks under it, whole cells each and alike, as many of the six as hold a day's number
-  at whole cells (the anchor's week among them), the cells left over at the foot. A cell is filled by its content: its
+  at whole cells (the anchor's week among them); the month's size steps by a cell a week and a cell a column, so the
+  weeks fill the card to its foot ([S-14101]). A cell is filled by its content: its
   day's events as one-line chips under its number where it has room for a chip line (Outlook's month view: a span a
   bar in its calendar's colour, a meeting its dot, start and title; "+k" on the number's line), its dots where it has
   not, its number alone on a day of nothing; the number grows with the cell (as large as what the chips or dots leave of
@@ -12892,12 +12931,12 @@ config, its page, setup and sync); the SDK's rules it is drawn by stay here. Tes
   column a day; nothing stacks and no column drops the start times.)*
 - **[S-11410]** **The planner states its sizes** (owner decision 2026-11-12): `Days` (1..7, default
   3) stand side by side, today first, each a column of 200 (`WeekPlannerRules.ColumnWidth`; its rows
-  carry the card's side inset, so the columns meet), the width stepped by a day and following them; the days are
-  the card's (2026-11-20, [S-14410]: dragging a side edge sets them, no Days line); `RowsPerDay` (1..12, default 5)
-  rows under each day's heading, the height the content top, the heading (28), the rows (28 each) and the inset,
-  stepped by a row (a new one 600 × 216); dragging the bottom edge sets RowsPerDay (`WeekPlannerModule.SetRows`).
-  Every event row has its start. Its menu has Rows per day first. Tests `WeekPlannerTests.S11410_`,
-  `WeekPlannerTests.S5320_S14410_`, `WeekPlannerMenuTests`.
+  carry the card's side inset, so the columns meet), the width stepped by a day's column in whole grid cells ([S-14100]:
+  the columns whole cells and alike) and following them; the days are the card's (2026-11-20, [S-14410]: dragging a
+  side edge sets them, no Days line); `RowsPerDay` (1..12, default 5) rows under each day's heading, the height the
+  heading (28) and the rows (28 each), whole grid cells each, stepped by a row (a new one 600 × 180); dragging the
+  bottom edge sets RowsPerDay (`WeekPlannerModule.SetRows`). Every event row has its start. Its menu has Rows per day
+  first. Tests `WeekPlannerTests.S11410_`, `WeekPlannerTests.S5320_S14410_`, `WeekPlannerMenuTests`.
 - **[S-5322]** A day's rows (`WeekPlannerRules.Build`), each a Row block of 32 ([S-6711]): its
   events as a calendar day lists them ([S-570]: birthdays, all-day, then timed by start), today
   without the timed events already over; an event row is its calendar's colour as a 2 px bar in the

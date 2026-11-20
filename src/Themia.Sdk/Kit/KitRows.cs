@@ -47,9 +47,11 @@ public readonly record struct KitRowsChoice(int Rows, int Lines, int Columns = 1
 public readonly record struct KitWidths(double Min, double Natural, double Max);
 
 /// <summary>
-/// [S-2440] The size of a kit list that states its rows: the family's content top (36), its rows (28
-/// or 40 each by its lines), the add footer (28) where it has one and the card's bottom inset (12);
-/// the height stepped by a row, the width in its range. Pure, so every kit list shares it.
+/// [S-2440] [S-14100] The size of a kit list that states its rows: its rows (28 or 40 each by its lines) from the card's
+/// top edge to its foot edge, under a table's column titles and over the add row where it has them, each part and each
+/// row whole grid cells (three a row of 28 on the default grid), so the card is exactly its whole rows (owner,
+/// 2026-11-20: "same for the task widget, there is also a one block space at the bottom now. why is that?"); the height
+/// stepped by a row, the width in its range. Pure, so every kit list shares it.
 /// </summary>
 public static class KitSizing
 {
@@ -94,29 +96,35 @@ public static class KitSizing
     }
 
     /// <summary>
-    /// [S-2440] The height's steps: everything but the rows as the base (a table's column titles
-    /// included, [S-11401]), a row as the step, the config's rows as the count.
+    /// [S-2440] [S-14100] The height's steps in whole grid cells (<see cref="SizeSteps.InCells"/>): a row as the step, the
+    /// config's rows as the count, over the parts that stand with the rows: <paramref name="over"/> (a kind's own line
+    /// over its rows, as its natural length from the card's top edge: a day line), a table's column titles
+    /// (<see cref="KitPlanner.TitlesOver"/>, [S-11401]) and the add row (a row of 28, [S-3850]). The rows reach the card's
+    /// top edge where nothing stands over them and its foot edge where no add row stands under them: no inset over or
+    /// under them.
     /// </summary>
-    public static SizeSteps Steps(KitRowsChoice choice, bool addFooter)
-        => new(
-            FamilySpace.ContentTop + (choice.ColumnTitles ? KitPlanner.ColumnHeaderHeight : 0) + (addFooter ? FamilyShape.Row1 : 0) + FamilySpace.Inset,
+    public static SizeSteps Steps(KitRowsChoice choice, bool addFooter, double over = 0)
+        => SizeSteps.InCells(
             FamilyShape.RowHeight(choice.Lines),
             MinRows,
             MaxRows,
-            choice.Rows);
+            choice.Rows,
+            over,
+            choice.ColumnTitles ? KitPlanner.TitlesOver : 0,
+            addFooter ? FamilyShape.Row1 : 0);
 
     /// <summary>
     /// [S-2440] The sizing of a kit list showing <paramref name="shown"/> (the config's rows and the lines
     /// its rows really have: a one-line style has one): its width range (the kit's, or the look's own
     /// <paramref name="widths"/>; its natural and largest times its columns, its least one column's so a narrower card
-    /// goes back to one, [S-11400], [S-14410]), its height in rows.
+    /// goes back to one, [S-11400], [S-14410]), its height in rows (over <paramref name="over"/>, <see cref="Steps"/>).
     /// </summary>
-    public static WidgetSizing Sizing(KitRowsChoice shown, bool addFooter, KitWidths? widths = null)
+    public static WidgetSizing Sizing(KitRowsChoice shown, bool addFooter, KitWidths? widths = null, double over = 0)
     {
         var w = widths ?? new KitWidths(MinWidth, NaturalWidth, MaxWidth);
         var columns = ClampColumns(shown.Columns);
         return (WidgetSizing.Range(new(w.Min, 1), new(w.Natural * columns, 1), new(w.Max * columns, 1)) with { Room = StretchRoom.List })
-            .WithHeightSteps(Steps(shown, addFooter));
+            .WithHeightSteps(Steps(shown, addFooter, over));
     }
 
     /// <summary>[S-11400] [S-14410] The columns a list <paramref name="width"/> wide shows: two where it holds two columns' least, else one.</summary>
@@ -128,7 +136,7 @@ public static class KitSizing
     /// being as <paramref name="shown"/> says, and where it has columns the columns that width holds ([S-14410],
     /// <see cref="ColumnsFor"/>). A copy when they change, the same config otherwise; never the given one changed.
     /// </summary>
-    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size, KitRowsChoice shown, bool addFooter, KitWidths? widths = null)
+    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size, KitRowsChoice shown, bool addFooter, KitWidths? widths = null, double over = 0)
     {
         ArgumentNullException.ThrowIfNull(config);
         if (config is not IKitRows rows)
@@ -136,7 +144,7 @@ public static class KitSizing
             return config;
         }
 
-        var wanted = Steps(shown, addFooter).Nearest(size.Height);
+        var wanted = Steps(shown, addFooter, over).Nearest(size.Height);
         var columns = config is IKitColumns c ? (Now: ClampColumns(c.Columns), Wanted: ColumnsFor(size.Width, widths)) : (Now: 1, Wanted: 1);
         if (wanted == rows.Rows && columns.Wanted == columns.Now)
         {

@@ -134,7 +134,7 @@ public sealed class RssTests
         Assert.Equal((1, 2), (wide.Columns, wide.Lines));
         Assert.True(wide.Lead && wide.Subtitle && wide.When);
         Assert.False(wide.Preview);
-        Assert.Equal(new Themia.Sdk.SizeDip(300, 12 + (5 * 40) + 12), new RssModule().Descriptor.Sizing(config).Natural);
+        Assert.Equal(new Themia.Sdk.SizeDip(300, 5 * 40), new RssModule().Descriptor.Sizing(config).Natural);
     }
 
     [Fact]

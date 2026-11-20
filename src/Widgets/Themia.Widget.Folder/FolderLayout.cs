@@ -61,7 +61,26 @@ public static class FolderLayout
     /// grown to end on a grid line, so the items start right under it (WR-1, WR-5).
     /// </summary>
     public static double SearchBand(ItemGrid grid, bool breadcrumb)
-        => LineRules.Under(grid, FamilySpace.Inset + LineRules.Band(grid) + (breadcrumb ? BreadcrumbHeight : 0), SearchHeight);
+        => LineRules.Under(grid, FamilySpace.Inset + LineRules.Band(grid) + (breadcrumb ? CrumbBand(grid) : 0), SearchHeight);
+
+    /// <summary>
+    /// [S-14102] The path's band under the tool line on <paramref name="grid"/>: its row of 28 grown to end on a grid line, so
+    /// what stands under it starts on one (WR-6; owner, 2026-11-20: no cell left over under the last row).
+    /// </summary>
+    public static double CrumbBand(ItemGrid grid) => LineRules.Under(grid, FamilySpace.Inset + LineRules.Band(grid), BreadcrumbHeight);
+
+    /// <summary>[S-14102] The details table's titles' band under what stands over them (<paramref name="top"/> from the card's top edge), grown to end on a grid line.</summary>
+    public static double HeaderBand(ItemGrid grid, double top) => LineRules.Under(grid, top, ColumnHeaderHeight);
+
+    /// <summary>
+    /// [S-14102] What stands over the items, from the card's top edge, on <paramref name="grid"/>: the inset and the tool
+    /// line, the path, the search box, the titles, each a band of whole cells.
+    /// </summary>
+    public static double Over(ItemGrid grid, bool search, bool header, bool breadcrumb)
+    {
+        var top = FamilySpace.Inset + LineRules.Band(grid) + (breadcrumb ? CrumbBand(grid) : 0) + (search ? SearchBand(grid, breadcrumb) : 0);
+        return top + (header ? HeaderBand(grid, top) : 0);
+    }
 
     /// <summary>The details table's titles: a Caption line and 8, as the kit's table ([S-7034]).</summary>
     public static double ColumnHeaderHeight => KitPlanner.ColumnHeaderHeight;
@@ -142,10 +161,38 @@ public static class FolderLayout
         var leastWidth = config.Style == FolderStyle.Details ? Math.Max(Least.Width, DetailsLeast(config)) : Least.Width;
         var leastHeight = LeastHeight(config);
         var natural = config.Style == FolderStyle.Details ? leastWidth + 60 : 300;
-        return WidgetSizing.Range(
+        var sizing = WidgetSizing.Range(
             new(leastWidth, leastHeight),
             new(Math.Min(natural, Largest.Width), Math.Max(NaturalHeight(config), leastHeight)),
             new(Math.Max(leastWidth, Largest.Width), Math.Max(leastHeight, Largest.Height)));
+        return config.Style is FolderStyle.List or FolderStyle.Details ? sizing.WithHeightSteps(RowSteps(config)) : sizing;
+    }
+
+    /// <summary>[S-14102] The fewest rows a list or a table shows.</summary>
+    public const int LeastRows = 4;
+
+    /// <summary>[S-14102] The most rows a list or a table is made tall for (the rest scrolls).</summary>
+    public const int MostRows = 20;
+
+    /// <summary>
+    /// [S-14102] The list's and the table's height steps (owner, 2026-11-20: "right now all of the widgets have a space on
+    /// the bottom, this means their size steps are not in sync with the item heights"): a row of 28 a step, whole grid
+    /// cells, under what stands over the rows (the inset and the tool line, the path, the search box, the titles, each a
+    /// band of whole cells, <see cref="Over"/>), the rows running to the card's foot edge, so the card is exactly its bands
+    /// and its whole rows. How many rows show is the box's, as a window's, so no count follows the config.
+    /// </summary>
+    public static SizeSteps RowSteps(FolderConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return SizeSteps.InCells(
+            RowHeight,
+            LeastRows,
+            MostRows,
+            null,
+            LineRules.BandOver,
+            config.ShowPath ? BreadcrumbHeight : 0,
+            config.SearchBox ? SearchHeight : 0,
+            config.Style == FolderStyle.Details && config.ColumnTitles ? ColumnHeaderHeight : 0);
     }
 
     /// <summary>
@@ -171,12 +218,12 @@ public static class FolderLayout
     public static double ToolLineHeight => LineRules.NaturalBand;
 
     /// <summary>
-    /// The height the items have: the view's area less what stands above them (the tool line first) and the card's bottom
-    /// inset. <see cref="Rows"/> of it are whole rows.
+    /// The height the items have: the view's area less what stands above them (the tool line first) and, for the grid's and
+    /// the icons' cells, the card's bottom inset (their marks stand inside it). [S-14102] A list's or a table's rows run to
+    /// the card's foot edge (<paramref name="rows"/>). <see cref="Rows"/> of it are whole rows.
     /// </summary>
-    public static double ItemsHeight(WidgetArea area, bool search, bool header, bool breadcrumb)
-        => Math.Max(0, area.Height - FamilySpace.Inset - LineRules.Band(area.Grid())
-            - (search ? SearchBand(area.Grid(), breadcrumb) : 0) - (header ? ColumnHeaderHeight : 0) - (breadcrumb ? BreadcrumbHeight : 0));
+    public static double ItemsHeight(WidgetArea area, bool search, bool header, bool breadcrumb, bool rows = false)
+        => Math.Max(0, area.Height + FamilySpace.Inset - Over(area.Grid(), search, header, breadcrumb) - (rows ? 0 : FamilySpace.Inset));
 
     /// <summary>[S-6712] The whole rows of 28 in <paramref name="height"/>, at least one.</summary>
     public static int Rows(double height) => Math.Max(1, RowRules.Fit(height, 1));

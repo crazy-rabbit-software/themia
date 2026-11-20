@@ -16,13 +16,13 @@ public sealed class HabitSizingTests
     public void S11530_four_habits_of_one_line_over_the_add_footer_the_height_following_the_rows()
     {
         var sizing = Kind.Sizing(new HabitTrackerConfig());
-        Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + (4 * FamilyShape.Row1) + FamilyShape.Row1 + FamilySpace.Inset), sizing.Natural);
+        Assert.Equal(new SizeDip(300, (4 * 30) + 30), sizing.Natural);
         Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Width); // relaxed, [S-12411]: no practical Max
         Assert.True(sizing.HeightSteps!.FollowsConfig);
         Assert.Equal((1, 12), (sizing.HeightSteps.MinCount, sizing.HeightSteps.MaxCount));
 
         var two = Kind.Sizing(new HabitTrackerConfig { Rows = 6, Lines = 2 });
-        Assert.Equal(FamilySpace.ContentTop + (6 * FamilyShape.Row2) + FamilyShape.Row1 + FamilySpace.Inset, two.Natural.Height);
+        Assert.Equal((6 * 40) + 30, two.Natural.Height);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public sealed class HabitSizingTests
         // A checklist's rows are one line and need no room for dots or a run.
         var checklist = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist, Lines = 2 });
         Assert.Equal(HabitSizing.Narrowest, checklist.Min.Width);
-        Assert.Equal(FamilySpace.ContentTop + (4 * FamilyShape.Row1) + FamilyShape.Row1 + FamilySpace.Inset, checklist.Natural.Height);
+        Assert.Equal((4 * 30) + 30, checklist.Natural.Height);
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public sealed class HabitSizingTests
     public void S11530_dragging_the_bottom_edge_sets_rows_on_a_copy_and_a_single_grid_keeps_its_config()
     {
         var config = new HabitTrackerConfig();
-        var tall = FamilySpace.ContentTop + (7 * FamilyShape.Row1) + FamilyShape.Row1 + FamilySpace.Inset;
+        var tall = (7 * 30) + 30;
         Assert.Equal(7, Assert.IsType<HabitTrackerConfig>(Kind.SizeSets!(config, new SizeDip(300, tall))).Rows);
         Assert.Equal(4, config.Rows);
 

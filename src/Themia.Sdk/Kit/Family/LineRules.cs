@@ -64,6 +64,12 @@ public static class LineRules
     public static double NaturalBand => Band(Themia.Core.Widgets.ItemGrid.Default());
 
     /// <summary>
+    /// [S-14100] A tool line with the card's inset over it, as one natural length from the card's top edge: what a sizing
+    /// in whole cells counts for it (<c>SizeSteps.InCells</c>), <see cref="Band"/> and the inset on every grid.
+    /// </summary>
+    public const double BandOver = FamilySpace.Inset + FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+
+    /// <summary>
     /// [S-12834] A line standing on the card's top edge (a state's or a set-up's compact row, a list's first): one row of
     /// 28 grown to whole cells of <paramref name="grid"/> (30 on the default grid), the rows under it starting on a grid line.
     /// </summary>

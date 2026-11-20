@@ -199,7 +199,8 @@ public sealed partial class KitList
         }
 
         _columnHeader.ColumnSpacing = template.ColumnSpacing;
-        _columnHeader.Height = KitPlanner.ColumnHeaderHeight;
+        // [S-14100] The titles' band ends on a grid line, so the rows under it start on one.
+        _columnHeader.Height = KitPlanner.TitlesBand(_area.Grid(XamlRoot?.RasterizationScale ?? 1));
         _columnHeader.Padding = new Thickness(FamilySpace.Inset + (_plan.Lead ? RowRules.NameStart(FamilyShape.Icon) : 0), 0, FamilySpace.Inset, 0);
 
         for (var i = 0; i < columns.Count; i++)

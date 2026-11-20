@@ -16,9 +16,11 @@ public sealed class GpuEnginesTests
     public void S11015_four_rows_under_the_header_one_height()
     {
         var sizing = Kind.SizingOf();
-        Assert.Equal(12 + (4 * 28) + 12, sizing.Natural.Height);
+        // [S-14100] Four rows of whole cells (30) from edge to edge, growing a cell each together.
+        Assert.Equal(4 * 30, sizing.Natural.Height);
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]: no practical Max
+        Assert.Equal(40, sizing.HeightSteps!.Step);
+        Assert.True(sizing.Max.Height > 1000);
     }
 
     [Fact]

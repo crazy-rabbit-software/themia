@@ -66,9 +66,11 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   also what it asks for) decide what it shows in every style, and they are the card's (owner, 2026-11-20: "Anything
   that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's size", [S-14410]): no
   menu line sets them; a resize stores the days its box holds. Nothing else sheds or appears with the box (a bar or
-  the chart longer). Days and lines out of range are repaired.
-- **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`, the inset over and under): **Rows** a 28 or
-  40 row a day, the height stepped by the days and following them, 220..420 wide (a new one 300 × 164);
+  the chart longer, a column or cell wider). Days and lines out of range are repaired.
+- **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`): **Rows** a 28 or 40 row a day in whole grid cells from the
+  card's top edge to its foot edge ([S-14100], owner, 2026-11-20: "now the weather forecast widget always has one block
+  space at the bottom. this should obviously not be"), the height stepped by the days and following them, 220..420 wide
+  (a new one 300 × 150);
   **Columns** a 56 column a day, the width stepped by the days and following them, one height (184 with
   the rain, 164 without); **Curve** a 56 column a day, the width stepped by the days and following them, the chart's
   band 72..144 (a new one 96) under the days' parts; **Grid** its arrangement (one row up to four days, two up to

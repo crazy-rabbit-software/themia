@@ -15,7 +15,7 @@ public sealed class EmailSizingTests
     public void S11402_a_new_list_is_five_messages_of_two_lines_300_wide()
     {
         var sizing = Sizing(new EmailConfig());
-        Assert.Equal(new SizeDip(300, 12 + (5 * 40) + 12), sizing.Natural);
+        Assert.Equal(new SizeDip(300, 5 * 40), sizing.Natural);
         Assert.Equal(220, sizing.Min.Width);
         Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Width); // relaxed, [S-12411]: no practical Max
         Assert.Empty(sizing.Problems());
@@ -39,8 +39,9 @@ public sealed class EmailSizingTests
         var without = Sizing(new EmailConfig { Style = EmailStyle.Table, ColumnTitles = false });
 
         Assert.Equal((320d, 420d, Themia.Sdk.SizeStretch.Ceiling), (with.Min.Width, with.Natural.Width, with.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.Equal(KitPlanner.ColumnHeaderHeight, with.Natural.Height - without.Natural.Height);
-        Assert.Equal(12 + (5 * 28) + 12, without.Natural.Height);
+        // [S-14100] The titles with the card's inset over them: one band of whole cells (40 on the default grid).
+        Assert.Equal(40, with.Natural.Height - without.Natural.Height);
+        Assert.Equal(5 * 30, without.Natural.Height);
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public sealed class EmailSizingTests
     public void S11402_dragging_the_bottom_edge_sets_rows_and_a_copy_keeps_them()
     {
         var config = new EmailConfig { Rows = 5 };
-        var next = (EmailConfig)new EmailModule().Descriptor.SizeSets!(config, new SizeDip(300, 12 + (3 * 40) + 12));
+        var next = (EmailConfig)new EmailModule().Descriptor.SizeSets!(config, new SizeDip(300, 3 * 40));
         Assert.Equal(3, next.Rows);
         Assert.Equal(5, config.Rows);
         Assert.Equal(3, ((EmailConfig)next.Clone()).Rows);

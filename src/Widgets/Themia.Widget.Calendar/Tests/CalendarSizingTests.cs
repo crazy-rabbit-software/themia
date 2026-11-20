@@ -18,11 +18,11 @@ public sealed class CalendarSizingTests
     public void S11540_the_agenda_is_six_rows_of_its_lines_and_a_drag_sets_rows()
     {
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Agenda };
-        Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + (6 * FamilyShape.Row1) + FamilySpace.Inset), Of(config).Natural);
+        Assert.Equal(new SizeDip(300, 6 * 30), Of(config).Natural);
         Assert.Equal(260, Of(config).Min.Width);
-        Assert.Equal(FamilySpace.ContentTop + (4 * FamilyShape.Row2) + FamilySpace.Inset, Of(new CalendarWidgetConfig { Style = CalendarStyle.Agenda, Rows = 4, Lines = 2 }).Natural.Height);
+        Assert.Equal(4 * 40, Of(new CalendarWidgetConfig { Style = CalendarStyle.Agenda, Rows = 4, Lines = 2 }).Natural.Height);
 
-        var set = Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(300, FamilySpace.ContentTop + (9 * FamilyShape.Row1) + FamilySpace.Inset)));
+        var set = Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(300, 9 * 30)));
         Assert.Equal(9, set.Rows);
         Assert.Equal(6, config.Rows);
     }
@@ -80,13 +80,16 @@ public sealed class CalendarSizingTests
     }
 
     [Fact]
-    public void S11544_a_month_of_dots_is_six_weeks_of_28_one_height_260_to_420_wide()
+    public void S11544_S14101_a_month_of_dots_is_six_weeks_of_28_at_least_growing_a_cell_a_week_and_a_column()
     {
+        // The period's line with the inset (40), the weekday line (20), six weeks of three cells; a step a cell each.
         var sizing = Of(new CalendarWidgetConfig());
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]
-        Assert.Equal((260d, 300d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.Equal(CalendarSizing.ContentTop + FamilyType.Caption.LineHeight + (6 * FamilyShape.Row1) + FamilySpace.Inset, sizing.Natural.Height);
+        Assert.Equal(40 + 20 + (6 * 30), sizing.Natural.Height);
+        Assert.Equal((60d, 70d), (sizing.HeightSteps!.Step, sizing.WidthSteps!.Step));
+        Assert.Equal((280d, 280d), (sizing.Min.Width, sizing.Natural.Width));
+        Assert.True(sizing.Max.Height > 1000 && sizing.Max.Width > 1000);
+        Assert.Empty(sizing.Problems());
 
         var fit = CalendarSizing.Month(MonthEvents.Dots, 236);
         Assert.Equal((6, MonthDensity.Dots, 0), (fit.Rows, fit.Density, fit.ChipLines));
@@ -98,11 +101,13 @@ public sealed class CalendarSizingTests
     {
         var config = new CalendarWidgetConfig { MonthEvents = MonthEvents.Chips };
         var sizing = Of(config);
-        Assert.Equal((24d + (7 * 56), 24d + (7 * 100), Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+        // [S-14101] Seven columns of whole cells from 56 (six cells), a cell a column a step, edge to edge.
+        Assert.Equal((7 * 60d, 7 * 100d), (sizing.Min.Width, sizing.Natural.Width));
+        Assert.True(sizing.Max.Width >= 7 * 180);
 
-        // The inset and the period's line, the weekday line, six weeks of a number line over three chip lines, the inset.
+        // The period's line with the inset, the weekday line, six weeks of a number line over three chip lines, whole cells each.
         var cell = FamilySpace.S1 + FamilyType.Caption.LineHeight + (3 * CalendarFit.ChipLine);
-        Assert.Equal(CalendarSizing.ContentTop + FamilyType.Caption.LineHeight + (6 * cell) + FamilySpace.Inset, sizing.Natural.Height);
+        Assert.Equal(40 + 20 + (6 * (20 + (3 * 20))), sizing.Natural.Height);
         Assert.Equal(cell, CalendarSizing.MonthCell(MonthEvents.Chips, config.MonthLines));
         Assert.True(sizing.Max.Height > sizing.Natural.Height && sizing.Natural.Height > sizing.Min.Height);
 

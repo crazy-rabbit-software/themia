@@ -97,7 +97,7 @@ public static class ContactsPlan
         }
 
         var widths = config.EffectiveLayout == ContactsLayout.Details ? DetailWidths(config.EffectiveColumns.Count) : new KitWidths(KitSizing.MinWidth, KitSizing.NaturalWidth, KitSizing.MaxWidth);
-        return WidgetSizing.Range(new(widths.Min, 1), new(widths.Natural, 1), new(widths.Max, 1)).WithHeightSteps(Steps(config, top));
+        return WidgetSizing.Range(new(widths.Min, 1), new(widths.Natural, 1), new(widths.Max, 1)).WithHeightSteps(Steps(config));
     }
 
     /// <summary>[S-14410] The grid's width: the inset either side, a 96 cell and its gap a step, 2..<see cref="ContactsConfig.MaxGrid"/> of them.</summary>
@@ -130,7 +130,7 @@ public static class ContactsPlan
             return grid;
         }
 
-        var wanted = Steps(contacts, FamilySpace.ContentTop + (contacts.SearchBox ? SearchHeight : 0)).Nearest(size.Height);
+        var wanted = Steps(contacts).Nearest(size.Height);
         if (wanted == contacts.Rows)
         {
             return config;
@@ -149,12 +149,17 @@ public static class ContactsPlan
         return new KitWidths(min, natural, Math.Max(natural, 720));
     }
 
-    private static SizeSteps Steps(ContactsConfig config, double top)
+    /// <summary>
+    /// [S-14100] The rows' steps in whole grid cells: a row as the step, the config's rows as the count, under what stands
+    /// over them (the search box, the column titles, with the card's inset over them: one part of whole cells from the
+    /// card's top edge, as <see cref="Reach"/> lays it), from the card's top edge to its foot edge.
+    /// </summary>
+    private static SizeSteps Steps(ContactsConfig config)
     {
         var layout = config.EffectiveLayout;
         var row = layout == ContactsLayout.List ? FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)) : FamilyShape.Row1;
-        var head = layout == ContactsLayout.Details ? HeaderHeight : 0;
-        return new SizeSteps(top + head + FamilySpace.Inset, row, KitSizing.MinRows, KitSizing.MaxRows, KitSizing.ClampRows(config.Rows));
+        var over = (config.SearchBox ? SearchHeight : 0) + (layout == ContactsLayout.Details ? HeaderHeight : 0);
+        return SizeSteps.InCells(row, KitSizing.MinRows, KitSizing.MaxRows, KitSizing.ClampRows(config.Rows), over > 0 ? FamilySpace.Inset + over : 0);
     }
 
     /// <summary>

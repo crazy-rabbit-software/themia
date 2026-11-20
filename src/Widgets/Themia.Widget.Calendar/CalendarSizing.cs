@@ -137,28 +137,44 @@ public static class CalendarSizing
             chips ? MonthDensity.Chips : MonthDensity.Dots, chips ? MonthPlan.Lines(lines) : 0, CalendarFit.ChipLine, chips && column >= CalendarFit.ChipTimeFrom, false);
     }
 
-    /// <summary>[S-11547] The month with titles' height steps: the inset and the period's line, the weekday line, six number lines, a chip line a week a step, the inset.</summary>
-    public static SizeSteps MonthLineSteps(int lines)
-        => new(ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthNumberLine) + FamilySpace.Inset,
-            MonthWeeks * CalendarFit.ChipLine, MonthPlan.MinLines, MonthPlan.MaxLines, MonthPlan.Lines(lines));
+    /// <summary>
+    /// [S-12832] [S-14101] What stands over a month's weeks, each part whole grid cells from the card's top edge as the
+    /// month lays it (<see cref="MonthLayouts.Plan"/>): the period's line with the card's inset over it, the weekday line.
+    /// </summary>
+    public static double[] MonthOver => [LineRules.BandOver, FamilyType.Caption.LineHeight];
+
+    /// <summary>[S-14101] How many cells more each week (and each day's column) may take than its least: the month's steps.</summary>
+    public const int MonthMostSteps = 40;
 
     /// <summary>
-    /// [S-11544] The month with dots: 260..420 wide (a new one 300), its weekday letters and six weeks of 28.
-    /// [S-11547] With titles: seven columns of 56..180 (a new one 100, where a chip leads with its time), the
-    /// height its lines', dragging the bottom edge sets them.
+    /// [S-11547] [S-14101] The month with titles' height steps: over the weeks their whole cells (<see cref="MonthOver"/>),
+    /// six weeks of a number line and a chip line each a step, every part whole grid cells, so the weeks fill the card
+    /// exactly at every count of lines.
+    /// </summary>
+    public static SizeSteps MonthLineSteps(int lines)
+        => SizeSteps.Lined(MonthNumberLine, CalendarFit.ChipLine, MonthWeeks, MonthPlan.MinLines, MonthPlan.MaxLines, MonthPlan.Lines(lines), MonthOver);
+
+    /// <summary>
+    /// [S-11544] The month with dots: seven columns of 260 / 7 at least (a new one the least), its weekday letters and six
+    /// weeks of 28 at least. [S-11547] With titles: seven columns of 56 at least (a new one 100, where a chip leads with its
+    /// time), the height its lines', dragging the bottom edge sets them. [S-14101] (owner, 2026-11-20: "the calendar does
+    /// not always stretch the contents to the top and bottom although it would be easily possible"): the width in steps of
+    /// one grid cell a column, the dots month's height in steps of one cell a week (<see cref="SizeSteps.Growing"/>), so
+    /// the days' columns and the weeks are whole cells and alike and fill the card at every size, none left over.
     /// </summary>
     public static WidgetSizing MonthSizing(CalendarWidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         if (config.MonthEvents == MonthEvents.Chips)
         {
-            static double Wide(double column) => (2 * FamilySpace.Inset) + (7 * column);
-            return WidgetSizing.Range(new(Wide(MonthTitleColumn), 1), new(Wide(MonthNaturalColumn), 1), new(Wide(MonthWidestColumn), 1))
+            return WidgetSizing.Range(new(7 * MonthTitleColumn, 1), new(7 * MonthNaturalColumn, 1), new(7 * MonthWidestColumn, 1))
+                .WithWidthSteps(SizeSteps.Growing(MonthTitleColumn, 7, MonthMostSteps * 4))
                 .WithHeightSteps(MonthLineSteps(config.MonthLines));
         }
 
-        var height = ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthCell(MonthEvents.Dots)) + FamilySpace.Inset;
-        return WidgetSizing.Range(new(260, height), new(300, height), new(420, height));
+        return WidgetSizing.Range(new(260, 1), new(300, 1), new(420, 1))
+            .WithWidthSteps(SizeSteps.Growing(260.0 / 7, 7, MonthMostSteps))
+            .WithHeightSteps(SizeSteps.Growing(MonthCell(MonthEvents.Dots), MonthWeeks, MonthMostSteps, MonthOver));
     }
 
     // ---- [S-11545] [S-11546] week -------------------------------------------------------------------

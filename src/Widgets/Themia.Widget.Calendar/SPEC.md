@@ -43,8 +43,9 @@ one and a resize stores the count, no menu line sets it; a list's Rows stay a se
   events) where it is no longer, else that many from just before the next event or now
   (`CalendarFit.HoursOf`).
 - **[S-11544]** **Month**: six weeks always (the month's and the next days', dimmed), so every month is
-  one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; 36 + the weekday
-  line + six cells + 12, 260..420 wide, a new one 300) or Titles ([S-11547]). The weeks fill the
+  one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; the period's line, the weekday
+  line and six cells, whole grid cells each, a cell a week and a cell a column a step, 280 wide new, [S-14101]) or
+  Titles ([S-11547]). The weeks fill the
   content edge to edge, the first week under the weekday line and the last week's marks on the foot's inset ([S-12400], [S-12807], `ItemStretch.Reach`): a box taller than their cells spaces the weeks evenly.
   The day readout a narrow month fell back to is gone.
 - **[S-11547]** **Month with titles** (owner request 2026-11-15: "a size where he actually shows the
@@ -58,9 +59,22 @@ one and a resize stores the count, no menu line sets it; a list's Rows stay a se
   all six weeks, [S-568]), dimmed as their numbers are: a chip wholly on them in tertiary text
   (`MonthPlan.Dimmed`), a span reaching into the month not. Today keeps its accent pill, the selected day its fill; a hairline
   parts the weeks. Seven columns of 56..180 (a new one 100) + the inset: 416..1284 wide (a new one 724);
-  the height is 36 + the weekday line + six times (4 + the number's 16 + the lines' 20 each) + 12,
+  the height is the period's line with the inset, the weekday line and six times (4 + the number's 16 + the lines' 20
+  each), every part whole grid cells ([S-14101]),
   dragging the bottom edge sets the lines (`CalendarSizing.MonthLineSteps`). Debug render:
   `--style month --state titles` (the sample in this look, at its own min, natural and max).
+- **[S-14101]** **The month fills its card and keeps its dots longer** (owner, 2026-11-20: "the calendar does not
+  always stretch the contents to the top and bottom although it would be easily possible."; "the calendar shows the
+  individual events too early, the items should stay small for a little longer."). Its seven columns step by one cell
+  each across and its six weeks by one cell each down (`CalendarSizing.MonthSizing`, `SizeSteps.Growing` over
+  `MonthOver`: the period's line with the inset over it and the weekday line, each whole cells as `MonthLayouts.Plan`
+  lays them), so at every size the weeks fill the card from under the weekday line to its foot, alike, none left over;
+  a state's row (Set up, an account gone) stands in the period line's band, so the weeks keep the room the sizing made.
+  A dots month's cell shows its day's events as chips only once it holds two chip lines under its number in a column of
+  80, where a chip's title reads and "+k more" has its words (`MonthChipRoom.Dots`; before, one chip line in a column of
+  44 turned a 40-tall cell into chips of four letters); a month with titles, chosen, shows them from one chip line in its
+  least column of 56 (`MonthChipRoom.Titles`).
+  Tests `MonthLayoutTests.S14101_`.
 - **[S-11545]** **Week, the day strip** (a new one's): each column's head (its weekday, its number) over
   the room its marks take at most ([S-2282]: three, then "+n"), then 8, then the chosen day's **Rows**
   (1..12, a new one 3; Style line) as the agenda's one-line rows ([S-2285]): one height for the

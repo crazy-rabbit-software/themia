@@ -99,6 +99,34 @@ public sealed class SettledMetricsTests
     }
 
     [Fact]
+    public void S14103_a_loaded_card_is_fitted_to_its_steps_once_the_metrics_have_settled()
+    {
+        // Stored as the old sizing painted it: a forecast of five days 170 tall, two cells under its rows of 30.
+        var state = Home();
+        var forecast = WidgetInstance.Create(new WidgetId("weatherForecast"), new FracRect(0.2, 0.2, 300 / 2560.0, 170 / 1440.0));
+        state.Views[0].Widgets.Add(forecast);
+        var notes = new SizingNotes();
+        notes.NoteAll(state, fit: true);
+        Assert.True(notes.Waits(state));
+
+        // Not on provisional metrics: it waits for the real ones.
+        Assert.Equal(0, notes.Refit(state, [Provisional]));
+        Assert.Equal(170 / 1440.0, forecast.Rect.H, 9);
+
+        Assert.Equal(1, notes.Refit(state, [Real]));
+        Assert.Equal(150 / 1440.0, forecast.Rect.H, 9);
+        Assert.Equal(0.2, forecast.Rect.Y, 9);
+        Assert.False(notes.Waits(state));
+
+        // Once: a later refit with the same sizing leaves it, and an undo's note fits nothing.
+        Assert.Equal(0, notes.Refit(state, [Real]));
+        forecast.Rect = forecast.Rect with { H = 170 / 1440.0 };
+        notes.NoteAll(state);
+        Assert.Equal(0, notes.Refit(state, [Real]));
+        Assert.Equal(170 / 1440.0, forecast.Rect.H, 9);
+    }
+
+    [Fact]
     public void S2447_a_widget_whose_view_no_display_shows_is_noted_as_it_is()
     {
         var state = Home();

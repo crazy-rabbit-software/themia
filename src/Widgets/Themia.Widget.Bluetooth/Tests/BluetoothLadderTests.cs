@@ -24,11 +24,11 @@ public class BluetoothLadderTests
         var config = new BluetoothConfig();
         var sizing = kind.Sizing(config);
 
-        Assert.Equal(12 + (4 * 28) + 12, sizing.Natural.Height);
-        Assert.Equal(12 + (4 * 40) + 12, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
+        Assert.Equal(4 * 30, sizing.Natural.Height);
+        Assert.Equal(4 * 40, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
         Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
-        var six = Assert.IsType<BluetoothConfig>(kind.SizeSets!(config, sizing.Natural with { Height = 12 + (6 * 28) + 12 }));
+        var six = Assert.IsType<BluetoothConfig>(kind.SizeSets!(config, sizing.Natural with { Height = 6 * 30 }));
         Assert.Equal(6, six.Rows);
         Assert.Equal(4, config.Rows);
     }

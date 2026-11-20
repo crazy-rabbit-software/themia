@@ -623,7 +623,7 @@ internal static class WidgetRender
 
     /// <summary>
     /// [S-1917] <c>--sizes 100x100,160x100</c>: several in-between sizes on one page, beside or instead of
-    /// the range. [S-2448] <c>range</c> is the kind's min, natural and max.
+    /// the range. [S-2448] <c>range</c> is the kind's min, natural and max; [S-14100] <c>steps</c> its first height steps.
     /// </summary>
     private static List<CheckedSize>? Sizes(string? list, WidgetSizing sizing)
     {
@@ -638,6 +638,13 @@ internal static class WidgetRender
             if (item.Equals("range", StringComparison.OrdinalIgnoreCase))
             {
                 tiers.AddRange(SizeFit.CheckedAt(sizing));
+                continue;
+            }
+
+            // [S-14100] The kind's first height steps at its natural width (the item check's "every step").
+            if (item.Equals("steps", StringComparison.OrdinalIgnoreCase))
+            {
+                tiers.AddRange(SizeFit.CheckedSteps(sizing));
                 continue;
             }
 

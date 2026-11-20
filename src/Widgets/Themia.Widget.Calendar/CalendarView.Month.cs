@@ -49,7 +49,7 @@ internal sealed partial class CalendarView
             }
         }
 
-        var layout = MonthLayouts.Plan(width, height + top, top, _area.Grid(XamlRoot?.RasterizationScale ?? 1), anchorRow, most);
+        var layout = MonthLayouts.Plan(width, height + top, top, _area.Grid(XamlRoot?.RasterizationScale ?? 1), anchorRow, most, _config.MonthEvents == Themia.Core.Model.MonthEvents.Chips ? MonthChipRoom.Titles : MonthChipRoom.Dots);
 
         var grid = new Grid();
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(layout.HeaderHeight) });

@@ -22,9 +22,15 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   the item, never a margin round the items.
 - **WR-4 Items stretch to fill.** 2026-11-19: "the weather forecast widget and others too the items still dont reach
   to the top and bottom. they still have a little / small gap. they should stretch if they dont reach all the way."
-- **WR-5 Empty room only at the foot.** 2026-11-19, of a list with fewer items than its stated rows: "no this is fine
-  if it happens, but there should not be a space at the top". Empty stated rows / leftover whole cells may stand at
-  the foot; never above the first item, never between items.
+- **WR-5 Empty room only at the foot, and only as empty rows.** 2026-11-19, of a list with fewer items than its stated
+  rows: "no this is fine if it happens, but there should not be a space at the top". 2026-11-20: "now the weather
+  forecast widget always has one block space at the bottom. this should obviously not be"; "same for the task widget,
+  there is also a one block space at the bottom now. why is that?"; "right now all of the widgets have a space on the
+  bottom, this means their size steps are not in sync with the item heights. fix this if you are not already fixing
+  it."; "the calendar does not always stretch the contents to the top and bottom although it would be easily
+  possible." Empty stated rows may stand at the foot, as rows; never above the first item, never between items, and
+  never a part row or leftover cells under the last item: a card holding items is exactly as tall as its whole items,
+  its size steps in sync with them.
 - **WR-6 Items are whole grid cells.** 2026-11-19: "items inside widgets should be designed in a way that they match
   the size of the grid on the desktop, for example they should be designed so that they are 3 blocks high or wide,
   that means that a widget that is 10 blocks hight should not show 4 items because then the items would have an
@@ -36,7 +42,8 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   bottom."
 - **WR-9 Calendar cells and numbers fill the card.** 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; answer "Bigger numbers too"; "the calendar does not match the fucking design rules i told
-  you."
+  you." 2026-11-20: "the calendar shows the individual events too early, the items should stay small for a little
+  longer." A day cell keeps its small marks until it clearly holds a readable chip line.
 
 - **WR-14 A face that scales scales down too.** 2026-11-19: "you should be able to make the clock even smaller than it
   is right now. for the widgets that can scale there should basically be no lower limit except for one that makes

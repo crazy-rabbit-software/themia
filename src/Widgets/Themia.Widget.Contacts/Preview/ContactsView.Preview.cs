@@ -13,9 +13,13 @@ internal sealed partial class ContactsView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "search", "searching", "nobox", "opened", "openedTyping", "openedClosed"];
 
+    /// <summary>[S-11603] [S-14100] A state without the box is sized without it: the rows' card, no band over them.</summary>
+    public Themia.Core.Model.WidgetConfig? DrawnConfig { get; private set; }
+
     public async Task ShowPreviewStateAsync(string state)
     {
         _config.SearchBox = state is not ("nobox" or "opened" or "openedTyping" or "openedClosed");
+        DrawnConfig = _config.SearchBox ? null : _config;
         await ShowSampleAsync().ConfigureAwait(true);
         if (state is "search" or "searching")
         {

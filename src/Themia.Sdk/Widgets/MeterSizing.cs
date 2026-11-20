@@ -223,10 +223,18 @@ public static class MeterSizing
     /// <summary>[S-11005] Items as graphs (the cores' own histories), headerless, in the card's inset.</summary>
     public static WidgetSizing Graphs { get; } = WidgetSizing.Range(new(200, 128), new(280, 200), new(640, 400)) with { Room = StretchRoom.Picture };
 
-    /// <summary>[S-11006] <paramref name="rows"/> rows of items (the engines) under a header: one 28 row each, one height.</summary>
+    /// <summary>[S-14100] How many cells more each item row may grow than its least: an item rows card's steps.</summary>
+    public const int MostRowSteps = 30;
+
+    /// <summary>
+    /// [S-11006] [S-14100] <paramref name="rows"/> rows of items (the engines): one 28 row each, whole grid cells from the
+    /// card's top edge to its foot edge, the height in steps of one cell for every row (<see cref="SizeSteps.Growing"/>),
+    /// so the rows grow together and fill the card at every height, none left over.
+    /// </summary>
     public static WidgetSizing ItemRows(int rows)
     {
-        var h = FamilySpace.ContentTop + (Math.Max(1, rows) * FamilyShape.Row1) + FamilySpace.Inset;
-        return WidgetSizing.Range(new(200, h), new(240, h), new(420, h));
+        var shown = Math.Max(1, rows);
+        var h = shown * FamilyShape.Row1;
+        return WidgetSizing.Range(new(200, h), new(240, h), new(420, h)).WithHeightSteps(SizeSteps.Growing(FamilyShape.Row1, shown, MostRowSteps));
     }
 }

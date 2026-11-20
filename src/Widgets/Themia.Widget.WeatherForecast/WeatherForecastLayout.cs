@@ -125,8 +125,10 @@ public static class WeatherForecastLayout
             }
 
             default:
+                // [S-14100] A row a day, whole grid cells, from the card's top edge to its foot edge: the card is exactly
+                // its rows (owner, 2026-11-20: "now the weather forecast widget always has one block space at the bottom").
                 return WidgetSizing.Range(new(RowsNarrowest, 1), new(300, 1), new(RowsWidest, 1))
-                    .WithHeightSteps(new SizeSteps(chrome, FamilyShape.RowHeight(config.EffectiveLines), 1, 14, days));
+                    .WithHeightSteps(SizeSteps.InCells(FamilyShape.RowHeight(config.EffectiveLines), 1, 14, days));
         }
     }
 
