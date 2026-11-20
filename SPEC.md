@@ -8622,6 +8622,16 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   clock and the date kept the scale the part went at (`Most`), so the world clock at 350x70, its city line gone, stood
   83 from either side and short of its top and foot: it filled neither axis. Tests `FaceFloorTests.S12833_S14318_`,
   `ClockFaceTests.S6741_S12833_a_world_clock_whose_city_line_gave_way_fills_its_card`.
+- **[S-14319]** **A running reading never moves as it runs** (owner, 2026-11-20: "the clock right now changes its layout
+  depending on the time that it shows because not all of the chars have the same width"). A readout's figures are tabular
+  (`ReadoutBlock`: OpenType `tnum`, every digit one width, measured so too: `InkText.Tabular`), and a face that shows a
+  running time or count is held to its format's widest form (`ReadoutBlock.Hold`, `FigureTemplate`: the format with every
+  digit its script's 8 and as many places as it ever shows; the clock's "88:88:88" and its wider meridiem, the stopwatch's
+  form, the pomodoro's and the focus session's longest phase, the alarm's "88:88"): its box and the ink it stands by at its
+  edges are the template's, whatever it shows, and a shorter time ("9:41" of "88:88") is padded at its start with figure
+  spaces (a digit's width, no ink) where it has the template's shape. So 1:11 and 10:08 draw one box in one place (the
+  clock's preview states `at0111`, `at1008` beside the sample's 10:42). A reading of another shape (a countdown's "3d 5h")
+  keeps its own; the meters' readings are tabular. Tests `FigureTemplateTests.S14319_`.
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day

@@ -249,6 +249,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
 
                 // [S-6014] The minimal clock: the same readout at the regular weight, alone.
                 _readout.Use(style == ClockStyle.Minimal ? FamilyType.Regular(_digits.Step) : _digits.Step, Aligned.Horizontal(_align));
+
+                // [S-14319] Held to its widest time and meridiem: the face never moves or grows as the time runs.
+                var template = ClockFormatter.Template(_config, Strings.Current).Split(':');
+                var held = _digits.Seconds ? template : template[..Math.Min(2, template.Length)];
+                _readout.Hold(string.Join(_digits.Stacked ? "\n" : ":", held), _digits.Meridiem && meridiem.Length > 0 ? " " + meridiem : string.Empty);
                 _underStep = FamilyType.Under(_digits.Step);
                 _underShown = _digits.Under;
                 _stack.Children.Add(_readout);

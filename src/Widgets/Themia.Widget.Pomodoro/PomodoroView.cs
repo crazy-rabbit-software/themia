@@ -383,6 +383,9 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         _time.MinWidth = ringed ? 0 : Math.Max(Measured(worst.Value, step), ReadoutRules.Width(step, worst));
         var centred = arrangement == PomodoroArrangement.Tall || ringed;
         _time.Use(step, centred ? HorizontalAlignment.Center : HorizontalAlignment.Left);
+
+        // [S-14319] Held to the widest time its phases show: a tick never moves the figures.
+        _time.Hold(worst.Value);
         _time.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Left;
         _caption.TextAlignment = arrangement == PomodoroArrangement.Tall ? TextAlignment.Center : TextAlignment.Left;
     }

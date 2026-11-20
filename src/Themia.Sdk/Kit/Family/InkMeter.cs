@@ -7,9 +7,10 @@ namespace Themia.Sdk.Kit;
 /// size, weight (100..900), its lines' height (<see cref="LineHeight"/>: a family text's block line height, its baseline
 /// where XAML puts it, at the font's ascent's share of the line; 0: the font's own line, as a glyph draws in its em box), the
 /// width it wraps at (infinite: one line), its tracking (thousandths of an em, XAML's <c>CharacterSpacing</c>), which
-/// moves where it wraps, and the most lines it shows (0: all; past them XAML cuts the last shown line with its ellipsis).
+/// moves where it wraps, the most lines it shows (0: all; past them XAML cuts the last shown line with its ellipsis), and
+/// [S-14319] whether its figures are tabular (OpenType <c>tnum</c>: every digit one width, a readout's).
 /// </summary>
-public readonly record struct InkText(string Text, string Font, double FontSize, int Weight, double LineHeight, double Width = double.PositiveInfinity, int Tracking = 0, int MaxLines = 0);
+public readonly record struct InkText(string Text, string Font, double FontSize, int Weight, double LineHeight, double Width = double.PositiveInfinity, int Tracking = 0, int MaxLines = 0, bool Tabular = false);
 
 /// <summary>
 /// [S-14200] [S-14240] The room in a text's box around its ink: over its first ink and under its last

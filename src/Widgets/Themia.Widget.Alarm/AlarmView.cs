@@ -193,6 +193,9 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _time.Use(AlarmFace.Sized(_config, Strings.Current).Step, centred: true);
+
+        // [S-14319] Held to the widest time: another alarm time never moves the face.
+        _time.Hold(FigureTemplate.Of(LocaleFormat.Digits(Strings.Current, AlarmFace.WidestTime)));
         Render();
     }
 

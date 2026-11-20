@@ -1,4 +1,6 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Themia.App.Widgets;
@@ -28,6 +30,14 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     private readonly Run _delta = new();
     private readonly TextBlock _under;
     private readonly StackPanel _row;
+
+    /// <summary>[S-14319] The value's line and, under it unseen, its held form: the cell is as wide as the wider.</summary>
+    private readonly Grid _cell;
+    private readonly TextBlock _held;
+    private readonly Run _heldValue = new();
+    private readonly Run _heldUnit = new();
+    private string _template = string.Empty;
+    private string _templateUnit = string.Empty;
     private TypeStep _step = FamilyType.Big28;
     private ColourRole _valueRole = ColourRole.TextPrimary;
     private ColourRole _deltaRole = ColourRole.TextSecondary;
@@ -57,7 +67,14 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         _line.Inlines.Add(_unit);
         _line.Inlines.Add(_delta);
 
-        _row = new StackPanel { Orientation = Orientation.Horizontal, Children = { _lead, _line } };
+        _held = new TextBlock { TextWrapping = TextWrapping.NoWrap, TextTrimming = TextTrimming.None, VerticalAlignment = VerticalAlignment.Center, Opacity = 0, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+        _held.Inlines.Add(_heldValue);
+        _held.Inlines.Add(_heldUnit);
+        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_held, FontNumeralAlignment.Tabular);
+        AutomationProperties.SetAccessibilityView(_held, AccessibilityView.Raw);
+        _cell = new Grid { Children = { _held, _line } };
+
+        _row = new StackPanel { Orientation = Orientation.Horizontal, Children = { _lead, _cell } };
         _under = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
         _under.Visibility = Visibility.Collapsed;
 
@@ -83,12 +100,13 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     private LineInk Drawn()
     {
         var font = PartInk.FontOf(_line.FontFamily);
-        var value = InkMeter.Measure(new InkText(_value.Text, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight))
-            ?? (LineInk.Capless(_value.Text) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : LineInk.Of(_step));
-        var oneLine = !_value.Text.Contains('\n', StringComparison.Ordinal);
-        foreach (var run in new[] { _unit, _delta })
+        var sized = SizedValue;
+        var value = InkMeter.Measure(new InkText(sized, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight, Tabular: Family.Tabular(_line)))
+            ?? (LineInk.Capless(sized) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : LineInk.Of(_step));
+        var oneLine = !sized.Contains('\n', StringComparison.Ordinal);
+        foreach (var run in new[] { (Text: SizedUnit, _unit.FontSize, _unit.FontWeight), (Text: _delta.Text, _delta.FontSize, _delta.FontWeight) })
         {
-            if (InkMeter.Measure(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight)) is { } beside)
+            if (InkMeter.Measure(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight, Tabular: Family.Tabular(_line))) is { } beside)
             {
                 value = new LineInk(oneLine ? Math.Min(value.Over, beside.Over) : value.Over, Math.Min(value.Under, beside.Under));
             }
@@ -115,6 +133,42 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     public TextBlock UnderText => _under;
 
     /// <summary>
+    /// [S-14319] Hold the value to <paramref name="template"/> (<see cref="FigureTemplate"/>: its format's widest form) and
+    /// the unit to <paramref name="unit"/> (its widest, a meridiem's): the readout is sized and its ink stood by them, never
+    /// by the value it shows, which is padded at its start to the template's places. Empty: sized by what it shows.
+    /// </summary>
+    public void Hold(string template, string unit = "")
+    {
+        if (_template == (template ?? string.Empty) && _templateUnit == (unit ?? string.Empty))
+        {
+            return;
+        }
+
+        _template = template ?? string.Empty;
+        _templateUnit = unit ?? string.Empty;
+        _heldValue.Text = _template;
+        _heldUnit.Text = _unit.Text.Length > 0 ? _templateUnit : string.Empty;
+        _held.Visibility = _template.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        // [S-14319] Its figures tabular, every digit one width, whatever the design's type tokens say.
+        if (Held)
+        {
+            Family.Figures(_line);
+        }
+
+        InvalidateMeasure();
+    }
+
+    /// <summary>[S-14319] Whether the readout is held to a template.</summary>
+    private bool Held => _template.Length > 0;
+
+    /// <summary>[S-14319] The value as sized: its template while held.</summary>
+    private string SizedValue => Held ? _template : _value.Text;
+
+    /// <summary>[S-14319] The unit as sized: its widest while held (none while none is drawn).</summary>
+    private string SizedUnit => Held && _unit.Text.Length > 0 && _templateUnit.Length > 0 ? _templateUnit : _unit.Text;
+
+    /// <summary>
     /// [S-6330] Show a reading: the value, its unit (a leading space where one is drawn), the line under
     /// it, a delta and its role, a lead glyph and its role, and the value's role (the disabled role for
     /// a part missing on this PC, [S-1940]; the unit and the line under follow it). What is the same as
@@ -124,7 +178,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     /// </summary>
     public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary, ColourRole leadRole = ColourRole.TextSecondary, ColourRole underRole = ColourRole.TextSecondary)
     {
-        Set(_value, value);
+        Set(_value, Held ? FigureTemplate.Pad(value ?? string.Empty, _template) : value ?? string.Empty);
         _unitText = unit ?? string.Empty;
 
         // An en space before the delta: a run has no margin of its own.
@@ -183,6 +237,8 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         var unit = FamilyType.Unit(_step);
         _unit.FontSize = unit.FontSize;
         _unit.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
+        _heldUnit.FontSize = unit.FontSize;
+        _heldUnit.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
         _delta.FontSize = FamilyType.Body.FontSize;
         _delta.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
         _lead.FontSize = _step.FontSize;
@@ -203,6 +259,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         // A readout of several lines aligns them only when its owner aligned it (a stacked clock); a
         // one-line readout keeps the start, so its glyphs stand where they always did.
         _line.TextAlignment = _align is null ? TextAlignment.Left : text;
+        _held.TextAlignment = _line.TextAlignment;
         _under.HorizontalAlignment = align;
         _under.TextAlignment = text;
         Paint();
@@ -226,6 +283,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     {
         _floor = double.IsFinite(floor) && floor > 0 ? floor : 0;
         Set(_unit, Draws(FamilyType.Unit(_step).FontSize) ? _unitText : string.Empty);
+        Set(_heldUnit, _unit.Text.Length > 0 ? _templateUnit : string.Empty);
         Set(_delta, Draws(FamilyType.Body.FontSize) ? _deltaText : string.Empty);
         if (_lead.Glyph != _leadGlyph)
         {
@@ -253,6 +311,17 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     /// </summary>
     protected override Size MeasureOverride(Size availableSize)
     {
+        // [S-14319] The held form in the line's type, as the design restyles the line.
+        if (Held)
+        {
+            _held.FontSize = _line.FontSize;
+            _held.LineHeight = _line.LineHeight;
+            _held.LineStackingStrategy = _line.LineStackingStrategy;
+            _held.FontWeight = _line.FontWeight;
+            _held.CharacterSpacing = _line.CharacterSpacing;
+            _held.FontFamily = _line.FontFamily;
+        }
+
         var rtl = FlowDirection == FlowDirection.RightToLeft;
         var leads = _lead.Visibility == Visibility.Visible;
         var glyph = leads ? InkMeter.Room(new InkText(_lead.Glyph, PartInk.FontOf(_lead.FontFamily), _lead.FontSize, _lead.FontWeight.Weight, 0)) : null;
@@ -268,14 +337,16 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         // The line's tracking moves where its box ends after its last ink, as XAML puts it after each character.
         var font = PartInk.FontOf(_line.FontFamily);
         var tracking = _line.CharacterSpacing;
-        var value = InkMeter.Room(new InkText(_value.Text, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight, Tracking: tracking));
-        var run = _delta.Text.Length > 0 ? _delta : _unit.Text.Length > 0 ? _unit : null;
-        var last = run is null ? value : InkMeter.Room(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight, Tracking: tracking));
+        // [S-14319] Held, by its template's ink: the line stands where the template's does, whatever it shows.
+        var value = InkMeter.Room(new InkText(SizedValue, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight, Tracking: tracking, Tabular: Family.Tabular(_line)));
+        var run = _delta.Text.Length > 0 ? (Text: _delta.Text, _delta.FontSize, _delta.FontWeight)
+            : _unit.Text.Length > 0 ? (Text: SizedUnit, _unit.FontSize, _unit.FontWeight) : default;
+        var last = run.Text is null ? value : InkMeter.Room(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight, Tracking: tracking, Tabular: Family.Tabular(_line)));
         var (start, end) = InkRoom.Ends(value, last, rtl, leads);
         var line = new Thickness(-start, 0, -end, 0);
-        if (_line.Margin != line)
+        if (_cell.Margin != line)
         {
-            _line.Margin = line;
+            _cell.Margin = line;
         }
 
         // [S-14301] The line under too: its ink, not its advance, at its ends (a block the width holds by its caption, the

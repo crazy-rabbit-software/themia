@@ -243,6 +243,10 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         _hours = elapsed >= TimeSpan.FromHours(1);
         var tenths = StopwatchFace.Tenths(_hours);
 
+        // [S-14319] Held to the widest time of its form: a tick never moves the figures.
+        var shownTenths = tenths && !_state.Running && !_state.Idle;
+        _clock.Hold(FigureTemplate.Of(LocaleFormat.Digits(Strings.Current, StopwatchFace.Widest(_hours, shownTenths).Replace(".", LocaleFormat.DecimalSeparator(Strings.Current).ToString(), StringComparison.Ordinal))));
+
         // [S-4603] Running: whole seconds, the one the ticker can keep. Stopped: the tenth too.
         var laps = _state.Splits;
         var lapLine = _state.Phase == StopwatchPhase.Paused && laps.Length == 0

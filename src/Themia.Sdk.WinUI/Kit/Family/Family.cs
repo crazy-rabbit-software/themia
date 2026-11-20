@@ -91,12 +91,29 @@ public static class Family
 
     private static readonly ConditionalWeakTable<Microsoft.UI.Xaml.Documents.Run, Typed> Runs = [];
 
+    /// <summary>[S-14319] The blocks whose figures are tabular whatever the design's type tokens say (<see cref="Figures"/>).</summary>
+    private static readonly ConditionalWeakTable<TextBlock, object> Figured = [];
+
+    /// <summary>
+    /// [S-14319] <paramref name="block"/> shows a reading that runs (a clock's time, a timer's count): its figures are
+    /// tabular whatever the design's type tokens say, now and on every restyle, so it never jumps as it runs.
+    /// </summary>
+    public static void Figures(TextBlock block)
+    {
+        ArgumentNullException.ThrowIfNull(block);
+        Figured.AddOrUpdate(block, Figured);
+        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(block, FontNumeralAlignment.Tabular);
+    }
+
+    /// <summary>[S-14319] Whether <paramref name="block"/>'s figures are tabular: the design's, or a running reading's.</summary>
+    public static bool Tabular(TextBlock block) => FamilyLook.Type.TabularNumerals || Figured.TryGetValue(block, out _);
+
     private static void Style(TextBlock block, Typed typed)
     {
         var look = FamilyLook.Type;
         block.FontWeight = Weight(look.WeightOf(typed.Base, typed.Strong));
         block.CharacterSpacing = (int)Math.Round(look.TrackingOf(typed.Base));
-        if (look.TabularNumerals)
+        if (look.TabularNumerals || Figured.TryGetValue(block, out _))
         {
             Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(block, FontNumeralAlignment.Tabular);
         }

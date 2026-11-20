@@ -23,6 +23,12 @@ internal static unsafe partial class InkMeasure
     private const int Release = 2;
     private const int FactoryCreateTextFormat = 15;
     private const int FactoryCreateTextLayout = 18;
+    private const int FactoryCreateTypography = 16;
+    private const int TypographyAddFontFeature = 3;
+    private const int LayoutSetTypography = 40;
+
+    /// <summary>[S-14319] OpenType's <c>tnum</c>, tabular figures, as DirectWrite tags it.</summary>
+    private const uint TabularTag = 't' | ('n' << 8) | ('u' << 16) | ((uint)'m' << 24);
     private const int FormatSetWordWrapping = 5;
     private const int FormatSetLineSpacing = 10;
     private const int LayoutSetMaxHeight = 29;
@@ -130,6 +136,12 @@ internal static unsafe partial class InkMeasure
                 return (Failed("no character spacing"), 0);
             }
 
+            // [S-14319] A readout's figures tabular, as XAML draws them (NumeralAlignment): their side bearings are their own.
+            if (text.Tabular && !Tabulate(factory, layout, text))
+            {
+                return (Failed("no tabular figures"), 0);
+            }
+
             // A family text's lines at their block line height, the baseline where XAML puts it: at the share of the line
             // the font's own line gives its ascent (measured on the renders: 0.812 of a Hero line, not the model's 0.8).
             if (text.LineHeight > 0 && double.IsFinite(text.LineHeight))
@@ -224,6 +236,35 @@ internal static unsafe partial class InkMeasure
         var kept = text.Text[..Math.Min(length, text.Text.Length)].TrimEnd();
         var cut = Lay(text with { Text = kept + "…", MaxLines = 0 });
         return cut.Lines <= text.MaxLines ? cut.Ink : Lay(text with { Text = kept, MaxLines = 0 }).Ink;
+    }
+
+    /// <summary>[S-14319] Tabular figures (<c>tnum</c>) over the whole layout (<c>IDWriteTypography</c>).</summary>
+    private static bool Tabulate(nint factory, nint layout, InkText text)
+    {
+        nint typography = 0;
+        try
+        {
+            var result = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)Slot(factory, FactoryCreateTypography))(factory, &typography);
+            if (result < 0 || typography == 0)
+            {
+                return false;
+            }
+
+            result = ((delegate* unmanaged[Stdcall]<nint, FontFeature, int>)Slot(typography, TypographyAddFontFeature))(
+                typography, new FontFeature { NameTag = TabularTag, Parameter = 1 });
+            if (result < 0)
+            {
+                return false;
+            }
+
+            result = ((delegate* unmanaged[Stdcall]<nint, nint, TextRange, int>)Slot(layout, LayoutSetTypography))(
+                layout, typography, new TextRange { Start = 0, Length = (uint)text.Text.Length });
+            return result >= 0;
+        }
+        finally
+        {
+            Free(typography);
+        }
     }
 
     /// <summary>XAML's <c>CharacterSpacing</c> (thousandths of an em after each character) on the layout (<c>IDWriteTextLayout1</c>).</summary>
@@ -324,6 +365,14 @@ internal static unsafe partial class InkMeasure
     {
         public uint Start;
         public uint Length;
+    }
+
+    /// <summary>[S-14319] <c>DWRITE_FONT_FEATURE</c>: an OpenType feature's tag and its parameter (1: on).</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    private struct FontFeature
+    {
+        public uint NameTag;
+        public uint Parameter;
     }
 
     [StructLayout(LayoutKind.Sequential)]

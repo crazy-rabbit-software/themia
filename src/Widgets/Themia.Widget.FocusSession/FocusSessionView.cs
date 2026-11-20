@@ -141,6 +141,9 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
         _ring.Visibility = _face.Ring > 0 ? Visibility.Visible : Visibility.Collapsed;
         _clock.Use(_face.Step, centred: true);
 
+        // [S-14319] Held to the widest time the session counts: a tick never moves the figures.
+        _clock.Hold(FigureTemplate.Of(FocusSessionRules.WidestClock(_config.Minutes)));
+
         // In the ring the status line is cut at the hole's edge, never drawn over the arc.
         _clock.MaxWidth = _face.Ring > 0 ? ChartRules.Hole(_face.Ring).Width : double.PositiveInfinity;
         Paint();

@@ -1,6 +1,7 @@
 using System.Globalization;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
 using Themia.Widget.Clock;
 
 namespace Themia.Core.Widgets;
@@ -137,6 +138,16 @@ public static class ClockFormatter
     }
 
     /// <summary>24-hour time is zero-padded; 12-hour time is not, which is what both conventions expect.</summary>
+    /// <summary>
+    /// [S-14319] The figures' widest form in <paramref name="locale"/>'s digits: the time at a two-digit hour with every figure
+    /// its script's 8 ("88:88:88", "88:88" without seconds), which the face is held to whatever time it shows.
+    /// </summary>
+    public static string Template(ClockConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return FigureTemplate.OfTime(LocaleFormat.Digits(locale, config.DrawsSeconds ? "10:58:58" : "10:58"));
+    }
+
     private static string Pad(int hour, bool use24Hour)
         => use24Hour ? hour.ToString("D2", CultureInfo.InvariantCulture) : hour.ToString(CultureInfo.InvariantCulture);
 }
