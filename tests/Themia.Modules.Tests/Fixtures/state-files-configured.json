@@ -224,7 +224,7 @@
             "kind": "desktopItem",
             "item": "",
             "itemId": "j1",
-            "label": "News \u2713",
+            "label": "News ✓",
             "target": "C:\\Users\\me\\Desktop\\Game.url",
             "iconPath": "C:\\Games\\game.ico",
             "labelLines": 2,
@@ -351,8 +351,7 @@
     "transitionAnimation": "Scale",
     "transitionAnimationMs": 500,
     "unlockAnimation": "Scale",
-    "unlockAnimationMs": 500,
-    "runAtStartup": false
+    "unlockAnimationMs": 500
   },
   "preferences": {
     "language": "System",
@@ -371,7 +370,8 @@
       "feeds": 30,
       "accounts": 2
     },
-    "recentColours": []
+    "recentColours": [],
+    "runAtStartup": false
   },
   "disabledMonitors": [],
   "monitorScales": {},

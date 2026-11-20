@@ -201,6 +201,23 @@ public sealed class ShellSettingsTests : IDisposable
     }
 
     [Fact]
+    public void S935_starting_with_windows_is_a_preference_never_the_design()
+    {
+        // [S-935] A behaviour, not a look: it moved from the design to the preferences, the schema changed in place.
+        // ([S-11959] retired: keeping widgets apart is gone whole, AppStateStoreTests.S11959_.)
+        var moved = StateDocument.Parse(StateFile.Replace(
+            "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"runAtStartup\": true },", StringComparison.Ordinal));
+        Assert.True(moved.State!.Preferences.RunAtStartup);
+
+        // A file that still holds it under the design loads with it dropped, said once ([S-1050]).
+        var stored = StateDocument.Parse(StateFile.Replace(
+            "\"introAnimationMs\": 400", "\"introAnimationMs\": 400, \"runAtStartup\": true", StringComparison.Ordinal));
+        Assert.Equal(ParseRefusal.None, stored.Refusal);
+        Assert.False(stored.State!.Preferences.RunAtStartup);
+        Assert.Contains("design: dropped the unknown key 'runAtStartup'", stored.Repairs);
+    }
+
+    [Fact]
     public void S1050_a_preferences_key_this_build_does_not_have_is_dropped_loudly_and_the_rest_loads()
     {
         // [S-9960] retired: the assistants' server switch is gone; a file that still holds it loads without it, said once.

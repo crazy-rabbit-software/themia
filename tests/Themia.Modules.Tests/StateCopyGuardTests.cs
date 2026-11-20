@@ -98,7 +98,6 @@ public sealed class StateCopyGuardTests
         TransitionAnimationMs = 250,
         UnlockAnimation = IntroAnimation.None,
         UnlockAnimationMs = 200,
-        RunAtStartup = true,
     };
 
     private static AppPreferences VariedPreferences()
@@ -110,6 +109,7 @@ public sealed class StateCopyGuardTests
             DesktopIconSize = DesktopIconSize.Large,
             DesktopIconLayout = DesktopIconLayout.Beside,
             LockWidgets = true,
+            RunAtStartup = true,
             Region = new RegionPreferences { Clock = ClockHours.Twelve, WeekStart = FirstWeekday.Monday, Temperature = TemperatureScale.Fahrenheit },
             RecentColours = ["#123456"],
         };
@@ -265,7 +265,7 @@ public sealed class StateCopyGuardTests
         Differs(incoming, target);
 
         // Start with Windows is kept from this PC ([S-498], its own test); here both say the same.
-        target.Design.RunAtStartup = incoming.Design.RunAtStartup;
+        target.Preferences.RunAtStartup = incoming.Preferences.RunAtStartup;
         SettingsTransfer.Apply(target, incoming);
 
         Same(incoming, target, nameof(SettingsTransfer.Apply));

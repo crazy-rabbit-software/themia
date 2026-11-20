@@ -49,8 +49,12 @@ public sealed partial class AppPreferences
     /// </summary>
     public List<string> RecentColours { get; set; } = [];
 
+    /// <summary>[S-935] Launch with Windows, via the per-user Run key: what Windows was last asked, kept for when it cannot be read.</summary>
+    public bool RunAtStartup { get; set; }
+
     public AppPreferences Clone() => new()
     {
+        RunAtStartup = RunAtStartup,
         Language = Language,
         GameModeSuspend = GameModeSuspend,
         DesktopIconSize = DesktopIconSize,

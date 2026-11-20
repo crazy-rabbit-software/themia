@@ -309,9 +309,6 @@ public sealed partial class DesignState
 
     public double UnlockAnimationMs { get; set; } = 500;
 
-    /// <summary>Launch with Windows, via the per-user Run key.</summary>
-    public bool RunAtStartup { get; set; }
-
     public DesignState Clone() => new()
     {
         Theme = Theme,
@@ -335,7 +332,6 @@ public sealed partial class DesignState
         TransitionAnimationMs = TransitionAnimationMs,
         UnlockAnimation = UnlockAnimation,
         UnlockAnimationMs = UnlockAnimationMs,
-        RunAtStartup = RunAtStartup,
     };
 }
 

@@ -251,11 +251,11 @@ public sealed class SettingsTransferTests : IDisposable
     public void S498_apply_replaces_the_layout_in_place_but_keeps_start_with_windows()
     {
         var state = Sample();
-        state.Design.RunAtStartup = true;
+        state.Preferences.RunAtStartup = true;
 
         var incoming = new AppState { Views = [ViewState.Create("Imported")] };
         incoming.ActiveViewId = incoming.Views[0].Id;
-        incoming.Design.RunAtStartup = false;
+        incoming.Preferences.RunAtStartup = false;
         incoming.Design.CornerRadiusPx = 20;
 
         var before = state;
@@ -266,7 +266,7 @@ public sealed class SettingsTransferTests : IDisposable
         Assert.Equal(incoming.ActiveViewId, state.ActiveViewId);
         Assert.Empty(state.MonitorViews);
         Assert.Equal(20, state.Design.CornerRadiusPx);
-        Assert.True(state.Design.RunAtStartup);
+        Assert.True(state.Preferences.RunAtStartup);
     }
 
     [Fact]

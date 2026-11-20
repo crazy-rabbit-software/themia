@@ -22,7 +22,7 @@ public static partial class SettingsMenu
         var status = host.Startup;
 
         // [S-935] An unread or unreadable state keeps the stored value rather than claiming "off".
-        var startsWithWindows = status is { State: not AutostartState.Unknown } read ? read.WillStart : state.Design.RunAtStartup;
+        var startsWithWindows = status is { State: not AutostartState.Unknown } read ? read.WillStart : state.Preferences.RunAtStartup;
 
         var lines = new List<SettingsLine>
         {

@@ -596,8 +596,7 @@
     "transitionAnimation": "Scale",
     "transitionAnimationMs": 500,
     "unlockAnimation": "Scale",
-    "unlockAnimationMs": 500,
-    "runAtStartup": false
+    "unlockAnimationMs": 500
   },
   "preferences": {
     "language": "System",
@@ -616,7 +615,8 @@
       "feeds": 30,
       "accounts": 2
     },
-    "recentColours": []
+    "recentColours": [],
+    "runAtStartup": false
   },
   "disabledMonitors": [],
   "monitorScales": {},

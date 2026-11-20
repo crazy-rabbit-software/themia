@@ -9471,7 +9471,7 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
 - **[S-936]** "On" means it will actually run (original AS-07): the Run value must launch this
   executable (a stale path is off) and Windows' own switch (`Explorer\StartupApproved\Run`, low bit
   of the first byte = disabled) must allow it. Turning it on from Themia removes that record, the
-  user's newest choice winning. Read fresh each time the settings menu opens; `Design.RunAtStartup` is a first-paint cache.
+  user's newest choice winning. Read fresh each time the settings menu opens; `Preferences.RunAtStartup` is a first-paint cache.
 - **[S-937]** Packaged states map from `StartupTaskState`; "disabled by user" can only be undone in
   Windows (advice says where), policy states are reported as such, unknown values read as unknown.
 - **[S-938]** Click clean-up (original `dismiss_start_menu_if_open`, `dismiss_context_menu_if_open`,
@@ -11185,7 +11185,7 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   points to Ctrl+Z.
 - **[S-886]** A step restores the arrangement (`LayoutShape`): views (id, name, icon, colour, which desktop icons they
   show, order) and every widget's z-order and whole instance but its config (`WidgetShape`: a copy keeping its id, so its
-  kind, geometry, title and its own look: background, background image, item background, item text colour, scale and
+  kind, geometry and its own look: background, background image, item background, item text colour, scale and
   alignment; a fence's items, [S-13010]). One copy does it, `WidgetInstance.CopyArrangementFrom` (the snapshot, its
   restore and `Clone`), and one comparison, `SameArrangement`; `StateCopyGuardTests.S886_` walk the stored properties
   and fail on one either leaves out. Not content: a widget that

@@ -201,9 +201,9 @@ public static class SettingsTransfer
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(incoming);
 
-        var runAtStartup = target.Design.RunAtStartup;
+        var runAtStartup = target.Preferences.RunAtStartup;
         target.CopyFrom(incoming);
-        target.Design.RunAtStartup = runAtStartup;
+        target.Preferences.RunAtStartup = runAtStartup;
     }
 
     /// <summary>
@@ -257,7 +257,7 @@ public static class SettingsTransfer
                 : Strings.Plural(locale, Str.Shell_Transfer_Repaired, repairs.Count));
         }
 
-        if (current.Design.RunAtStartup != incoming.Design.RunAtStartup)
+        if (current.Preferences.RunAtStartup != incoming.Preferences.RunAtStartup)
         {
             notes.Add(Strings.Get(locale, Str.Shell_Transfer_StartupKept));
         }

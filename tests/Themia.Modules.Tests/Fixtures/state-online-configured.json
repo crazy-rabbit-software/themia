@@ -28,7 +28,7 @@
             "style": "largeIcon",
             "latitude": 47.3667,
             "longitude": 8.55,
-            "locationName": "Z\u00FCrich, Zurich, Switzerland",
+            "locationName": "Zürich, Zurich, Switzerland",
             "useDeviceLocation": false
           }
         },
@@ -200,8 +200,7 @@
     "transitionAnimation": "Scale",
     "transitionAnimationMs": 500,
     "unlockAnimation": "Scale",
-    "unlockAnimationMs": 500,
-    "runAtStartup": false
+    "unlockAnimationMs": 500
   },
   "preferences": {
     "language": "System",
@@ -220,7 +219,8 @@
       "feeds": 30,
       "accounts": 2
     },
-    "recentColours": []
+    "recentColours": [],
+    "runAtStartup": false
   },
   "disabledMonitors": [],
   "monitorScales": {},

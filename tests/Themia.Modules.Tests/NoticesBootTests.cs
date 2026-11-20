@@ -177,13 +177,13 @@ public sealed class NoticesBootTests : IDisposable
     public void S892_a_reset_is_the_first_run_desktop_and_keeps_start_with_windows()
     {
         var state = AppState.CreateDefault();
-        state.Design.RunAtStartup = true;
+        state.Preferences.RunAtStartup = true;
         state.Design.CornerRadiusPx = 20;
         state.Views.Add(ViewState.Create("Extra"));
 
         SettingsTransfer.Apply(state, AppState.CreateDefault());
 
-        Assert.True(state.Design.RunAtStartup);
+        Assert.True(state.Preferences.RunAtStartup);
         Assert.Equal(new DesignState().CornerRadiusPx, state.Design.CornerRadiusPx);
         Assert.Equal(2, state.Views.Count);
         Assert.Equal(AppState.CreateDefault().Views[0].Widgets.Count, state.Views[0].Widgets.Count);

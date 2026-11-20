@@ -182,7 +182,7 @@ public sealed partial class SettingsMenuTests
     public void S3525_start_with_windows_shows_the_stored_value_until_windows_is_read()
     {
         var host = new FakeHost();
-        host.State.Design.RunAtStartup = true;
+        host.State.Preferences.RunAtStartup = true;
         Assert.True(At<SettingsToggle>(host, "startup").On);
 
         host.Startup = new AutostartStatus(AutostartState.Unknown);

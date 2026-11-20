@@ -111,9 +111,9 @@ internal sealed partial class AppHost
     {
         var changed = StartupStatus != status;
         StartupStatus = status;
-        if (status.State != AutostartState.Unknown && State.Design.RunAtStartup != status.WillStart)
+        if (status.State != AutostartState.Unknown && State.Preferences.RunAtStartup != status.WillStart)
         {
-            Mutate(s => s.Design.RunAtStartup = status.WillStart, relayout: false);
+            Mutate(s => s.Preferences.RunAtStartup = status.WillStart, relayout: false);
         }
 
         if (changed)
