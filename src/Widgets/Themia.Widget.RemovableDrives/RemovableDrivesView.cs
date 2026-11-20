@@ -34,7 +34,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
     private readonly StackPanel _list = new();
     private readonly List<DeviceRow> _rows = [];
-    private readonly StatusBlock _empty = new();
+    private readonly StatusBlock _empty = StatusBlock.Line();
     private readonly EmptyRows _face = EmptyRows.UnderStatus();
     private ScrollFade? _fade;
     private IWidgetSurface? _surface;

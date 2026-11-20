@@ -41,6 +41,21 @@ public sealed partial class StatusBlock : Grid
         Children.Add(_sentence);
     }
 
+    /// <summary>
+    /// [S-14260] A state's row standing in a list's first row's place, over the list's face (its rows kept empty under it,
+    /// WR-10): one of the list's items, as any row is (owner, 2026-11-19, WR-3: "the items dont reach from edge to edge";
+    /// docs/WIDGET-RULES.md: "An item's box (its row band, cell, hover area) runs from the card's left edge to its right
+    /// edge"). Its box runs edge to edge with the side inset inside it, and it is reported as an item
+    /// (<see cref="Themia.App.Widgets.ItemMark"/>), so a list whose card holds one row (its least) and nothing to list is
+    /// laid and judged as that one row, its sentence never stretched.
+    /// </summary>
+    public static StatusBlock Line()
+    {
+        var row = new StatusBlock();
+        Themia.App.Widgets.ItemMark.Mark(row);
+        return row;
+    }
+
     /// <summary>Fold to the width the layout offers, in the measure pass.</summary>
     protected override Windows.Foundation.Size MeasureOverride(Windows.Foundation.Size availableSize)
     {

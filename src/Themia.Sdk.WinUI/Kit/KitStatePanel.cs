@@ -33,7 +33,8 @@ public sealed partial class KitStatePanel : Grid
     /// <summary>Under this width the Accounts button says only "Accounts".</summary>
     private const double ShortLabelBelow = 200;
 
-    private readonly StatusBlock _row = new();
+    /// <summary>[S-14260] The state's row: the list's first row's place, one of its items.</summary>
+    private readonly StatusBlock _row = StatusBlock.Line();
     private readonly IWidgetHost _widgetHost;
     private readonly string _glyph;
     private Uri? _grantPage;

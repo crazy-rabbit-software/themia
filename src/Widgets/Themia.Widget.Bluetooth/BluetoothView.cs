@@ -57,7 +57,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     private readonly ProgressRing _busy = ToolLine.Busy();
     private readonly Grid _columns = new();
     private readonly ScrollViewer _scroll;
-    private readonly StatusBlock _status = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly StatusBlock _status = StatusBlock.Line();
     private readonly EmptyRows _face = EmptyRows.UnderStatus();
 
     // The rows on screen: each unhooks its hover when the list is drawn again. A leaked one keeps the

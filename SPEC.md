@@ -8395,6 +8395,14 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   line (`KitStatePanel.ShowFace`, `KitBinding`), as the contacts and the week planner do without an account. Tests
   `WidgetLivenessTests.S12835_`, `PlaceClearTests.S2848_`; renders `--widget-png rss|email|deviceBatteries --state
   empty|failed|loading --sizes range`.
+- **[S-14260]** **The state's line is a row of the list** (owner, 2026-11-19, docs/WIDGET-RULES.md WR-3: "the items dont
+  reach from edge to edge"; WR-10 above). The compact line a list's state stands in (`KitStatePanel`'s, Bluetooth's off,
+  removable drives' none: `StatusBlock.Line`) is in the list's first row's place, its box from the card's left edge to
+  its right on the card's top edge, the side inset inside it, at the list's pitch, and it is one of the list's items
+  (`ItemMark`), as its empty rows under it are. In a list's least card (one row) it is that one row, laid and judged as
+  the row it stands for; its sentence never stretches. Renders `--widget-png email|rss|notifications|recentFiles|
+  removableDrives|deviceBatteries --state empty --sizes range`, `clipboard --state confirm`, `bluetooth --state off`,
+  judged by `scripts/item-check.py` and `scripts/gap-check.py`.
 - **[S-12816]** **The pointer never changes a widget's layout** (owner, 2026-11-19: "some widgets like the now playing
   scrubber changes text sizes when hovering over it with the mouse … this should not be"). Hover and press are paint:
   a fill, a colour, a thumb or a ring drawn over the parts, never a part shown or hidden, resized or re-texted in a way
