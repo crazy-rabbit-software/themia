@@ -162,9 +162,12 @@ public sealed class WriteDrain<TResult>
 
     private async Task<WriteSent<TResult>> SendAsync(PendingWrite write)
     {
+        Task<WriteSent<TResult>>? sending = null;
         try
         {
-            var sent = await _send(write, _cancellation).ConfigureAwait(true);
+            // The drain stops when its owner cancels whether or not the send hears the token.
+            sending = _send(write, _cancellation);
+            var sent = await sending.WaitAsync(_cancellation).ConfigureAwait(true);
             if (sent.Result == WriteResult.Done)
             {
                 Log.Info(_scope, $"{write.Kind} done for {_subject}");
@@ -174,6 +177,16 @@ public sealed class WriteDrain<TResult>
         }
         catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
         {
+            if (sending is { IsCompleted: false })
+            {
+                var scope = _scope;
+                _ = sending.ContinueWith(
+                    done => Log.Debug(scope, $"a send cancelled by its owner ended {(done.IsFaulted ? "with " + done.Exception!.GetBaseException().Message : "late")}"),
+                    CancellationToken.None,
+                    TaskContinuationOptions.ExecuteSynchronously,
+                    TaskScheduler.Default);
+            }
+
             return new WriteSent<TResult>(WriteResult.Retry);
         }
         catch (AccountException ex)

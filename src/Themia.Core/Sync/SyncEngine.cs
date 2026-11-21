@@ -286,6 +286,9 @@ public sealed class SyncEngine<TEntry> : IDisposable
     private readonly Func<TimeSpan, Action, IDisposable>? _subscribe;
     private readonly Func<TEntry, bool>? _usable;
     private readonly CancellationTokenSource _cancel = new();
+
+    /// <summary>The runs out, each with the task its waiters hold: <see cref="Dispose"/> ends them itself, on its own thread.</summary>
+    private readonly Dictionary<TEntry, TaskCompletionSource> _running = [];
     private IDisposable? _tick;
 
     /// <param name="entries">The table (an owner with rules of its own over it keeps it; else a new one).</param>
@@ -424,31 +427,57 @@ public sealed class SyncEngine<TEntry> : IDisposable
             return entry.Flight ?? Task.CompletedTask;
         }
 
-        var flight = RunOnceAsync(entry);
-        if (!flight.IsCompleted)
-        {
-            entry.Flight = flight;
-        }
-
-        return flight;
+        // The run's waiters hold a task the engine completes itself: when the run lands, or at once on Dispose,
+        // whether or not the fetch ever ends and whether or not a thread is free to resume it.
+        var done = new TaskCompletionSource();
+        _running[entry] = done;
+        entry.Flight = done.Task;
+        _ = RunOnceAsync(entry, done);
+        return done.Task;
     }
 
-    private async Task RunOnceAsync(TEntry entry)
+    private async Task RunOnceAsync(TEntry entry, TaskCompletionSource done)
+    {
+        try
+        {
+            await RunBodyAsync(entry).ConfigureAwait(true);
+        }
+        finally
+        {
+            if (_running.TryGetValue(entry, out var held) && ReferenceEquals(held, done))
+            {
+                _running.Remove(entry);
+            }
+
+            if (ReferenceEquals(entry.Flight, done.Task))
+            {
+                entry.Flight = null;
+            }
+
+            done.TrySetResult();
+        }
+    }
+
+    private async Task RunBodyAsync(TEntry entry)
     {
         var asked = entry.Asked;
         Entries.Begin(entry);
         Raise(entry);
 
         SyncRun run;
+        Task<SyncRun>? fetch = null;
         try
         {
-            run = await _fetch(entry, asked, _cancel.Token).ConfigureAwait(true);
+            // The run ends when the engine is disposed whether or not the fetch hears its token: the wait is
+            // cancelled by the token itself, on the thread that cancels, never by a timer or a pool thread.
+            fetch = _fetch(entry, asked, _cancel.Token);
+            run = await fetch.WaitAsync(_cancel.Token).ConfigureAwait(true);
         }
         catch (OperationCanceledException) when (_cancel.IsCancellationRequested || !ReferenceEquals(Entries.Find(entry.Key), entry))
         {
             // ignore: the owner closed, or let the entry go mid-run (its account left); nobody is waiting for this run.
+            Orphan(fetch, entry);
             SyncEntries<TEntry>.Abandon(entry);
-            entry.Flight = null;
             return;
         }
         catch (AccountException ex)
@@ -463,7 +492,6 @@ public sealed class SyncEngine<TEntry> : IDisposable
             run = new SyncRun(FetchStatus.BadResponse, ex.Message);
         }
 
-        entry.Flight = null;
         if (Disposed)
         {
             SyncEntries<TEntry>.Abandon(entry);
@@ -481,6 +509,23 @@ public sealed class SyncEngine<TEntry> : IDisposable
             entry.Schedule.Force(Now);
             await RunAsync(entry).ConfigureAwait(true);
         }
+    }
+
+    /// <summary>A fetch left running after its run was cancelled: what it ends with is logged, never unobserved.</summary>
+    private void Orphan(Task<SyncRun>? fetch, TEntry entry)
+    {
+        if (fetch is null || fetch.IsCompleted)
+        {
+            return;
+        }
+
+        var scope = Entries.Scope;
+        var subject = entry.Subject;
+        _ = fetch.ContinueWith(
+            done => Log.Debug(scope, $"{subject}: a run cancelled by its owner ended {(done.IsFaulted ? "with " + done.Exception!.GetBaseException().Message : "late")}"),
+            CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
     }
 
     private void Raise(TEntry entry)
@@ -526,6 +571,17 @@ public sealed class SyncEngine<TEntry> : IDisposable
             // A registration on the token threw while cancelling; the runs are still told.
             Log.Error(Entries.Scope, "cancelling the sync's runs threw", ex);
         }
+
+        // [S-2691] Every run still out ends here, deterministically: no outcome, no back-off, its waiters released.
+        // Nothing waits for a fetch, a timer or a free thread; a fetch that resumes later finds the engine disposed.
+        foreach (var (entry, done) in _running.ToList())
+        {
+            SyncEntries<TEntry>.Abandon(entry);
+            entry.Flight = null;
+            done.TrySetResult();
+        }
+
+        _running.Clear();
 
         // Not disposed: a run still out reads the token it was handed; the source holds no timer.
     }

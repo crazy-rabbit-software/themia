@@ -13431,7 +13431,9 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   and one line in the log per change of an entry's state, never one per attempt. A run's outcome is the one vocabulary
   (`SyncRun`: a `FetchStatus`, a line for the log, the provider's "not before"); a typed account failure is its outcome,
   anything else is logged as a bug and backs off. The clock is handed in. Disposing the owner cancels every run in flight
-  (the token reaches the provider's request) and drops what it brings back; an entry let go mid-run (its account left)
+  (the token reaches the provider's request), ends each of them there and then (their waiters are released inside the
+  dispose, whether or not the fetch hears its token, with no timer, thread or fetch to wait for) and drops what they
+  bring back; an entry let go mid-run (its account left)
   is abandoned the same way. The owner maps what came back onto its entry; the engine never decides what an entry holds.
 - **[S-2692]** One drain of a write-back queue (`WriteDrain`, tested in `WriteDrainTests`) for mail and tasks: the
   queue's rules as [S-2610] and [S-2611], one send at a time, head first, until it is empty or the head must wait; a
