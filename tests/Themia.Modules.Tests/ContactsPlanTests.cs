@@ -66,7 +66,7 @@ public sealed class ContactsPlanTests
         // same item' ... follows the card's size": five cells' width shows five, never stored.
         var natural = ContactsPlan.Of(new WidgetArea(sizing.Natural.Width, sizing.Natural.Height - 12), config);
         Assert.Equal((48.0, 3, 2), (natural.Icon, natural.Columns, natural.Rows));
-        var wider = ContactsPlan.Of(new WidgetArea((5 * 110) + 20, sizing.Natural.Height - 12), config);
+        var wider = ContactsPlan.Of(new WidgetArea(5 * 110, sizing.Natural.Height - 12), config);
         Assert.Equal(5, wider.Columns);
         Assert.Equal(110, wider.ColumnWidth); // [S-14810] a cell keeps its size
     }

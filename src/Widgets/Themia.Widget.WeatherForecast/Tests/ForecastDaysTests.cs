@@ -86,18 +86,18 @@ public class ForecastDaysTests
     }
 
     /// <summary>
-    /// [S-14815] Across, the cells the width holds whole (a cut column would hide a day in the middle of the week); down,
-    /// every line the card's foot reaches, the last cut by it; the days every cell, at most 14.
+    /// [S-14815] [S-14816] Every cell the card reaches, both ways (WR-4: "the last item will be cutoff to some extent then"):
+    /// across the last column cut by the right edge, down the last line cut by the foot; the days every cell, at most 14.
     /// </summary>
     [Theory]
     [InlineData(240, 200, 3, 2, 6)]
-    [InlineData(250, 200, 3, 2, 6)]
-    [InlineData(239, 200, 2, 2, 4)]
+    [InlineData(250, 200, 4, 2, 8)]
+    [InlineData(239, 200, 3, 2, 6)]
     [InlineData(240, 210, 3, 3, 9)]
     [InlineData(80, 100, 1, 1, 1)]
     [InlineData(400, 300, 5, 3, 14)]
-    [InlineData(330, 130, 4, 2, 8)]
-    public void S14815_the_cells_across_are_whole_and_the_last_line_down_is_cut(double width, double height, int across, int lines, int days)
+    [InlineData(330, 130, 5, 2, 10)]
+    public void S14815_the_cells_across_and_down_reach_the_cards_edges_the_last_cut(double width, double height, int across, int lines, int days)
     {
         var area = new WidgetArea(width, height - FamilySpace.ContentTop);
         var plan = ForecastGrid.Plan(area, new WeatherForecastConfig { Style = ForecastStyle.Grid });

@@ -160,8 +160,8 @@ public sealed class FolderBrowserTests
     // ---- the layout and the sizing ----------------------------------------------------------------
 
     [Theory]
-    [InlineData(FolderStyle.Grid, 330, true, 4)]
-    [InlineData(FolderStyle.Icons, 330, false, 6)]
+    [InlineData(FolderStyle.Grid, 330, true, 5)]
+    [InlineData(FolderStyle.Icons, 330, false, 7)]
     [InlineData(FolderStyle.Grid, 560, true, 7)]
     public void S11203_cells_are_the_family_s_32_at_every_width_and_more_room_shows_more_of_them(FolderStyle style, double width, bool named, int columns)
     {

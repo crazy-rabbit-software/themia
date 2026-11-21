@@ -5315,7 +5315,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   of 60, its 56 in whole cells, from the card's left edge, `WeatherForecastLayout.DaysIn`), the calendar's hours (each
   its optimal, `CalendarFit.HoursOf` takes the hour's size, not the room), the week planner's days (200 each, from the
   card's left edge) and lines, the stopwatch's laps, screen time's apps, the contacts grid's lines (its cells their own
-  size, as many a line as the width holds whole). The month's seven columns share the card's width
+  size, every column the width reaches, the last cut, [S-14816]). The month's seven columns share the card's width
   (`ItemSize.Columns`, [S-12832]). Tests `WeatherLayoutTests.S11146_S14502_S14810_`, `ForecastCurveTests`,
   `WeekPlannerTests.S14410_S14502_S14810_`, `CalendarSizingTests`, `ContactsPitchTests.S12450_S14810_`.
 - **[S-14813]** **The item check judges the fixed size** (docs/WIDGET-RULES.md WR-1..WR-6 as of 2026-11-20).
@@ -5339,8 +5339,9 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   styles. fix this, also for other widgets if applicable."; docs/WIDGET-RULES.md WR-2, WR-3, WR-4). The one rule for a grid
   of cells (`ItemSize.Cells`, its `CellReach`): each cell its natural box (its content and the padding inside it) in
   whole grid cells, at every size of its card; the cells touch, from the card's left edge and the items' top (the card's
-  top edge where nothing stands over them); across, the columns the width holds whole (a column cut by the right edge
-  would hide an item in the middle of a wrapped list: the room past the last stays empty), down every line the height
+  top edge where nothing stands over them); both ways as a list's rows (WR-4, owner 2026-11-20: "they should just keep
+  their size and the last item will be cutoff to some extent then"): across, every column the width reaches, the last cut
+  by the card's right edge (never the room past the last whole column left empty, WR-3), down every line the height
   reaches, the last cut by the card's foot. Every edge on a whole device pixel. On it: the family's Row.Cell grid
   (`RowRules.Cells`, `CellGrid`: the folder's grid and icons, the box the lead and name with 8 round them, 80 × 70 for a
   named 32 cell, 50 × 50 unnamed, [S-6713]), the contacts' grid ([S-14817]) and the forecast's grid ([S-14815]). Tests

@@ -136,14 +136,14 @@ public sealed class FamilyBlockRulesTests
     [InlineData(320)]
     [InlineData(560)]
     [InlineData(800)]
-    public void S2220_S14816_a_grids_cells_start_on_the_card_edge_and_end_within_it(double card)
+    public void S2220_S14816_a_grids_cells_start_on_the_card_edge_and_reach_its_right_edge(double card)
     {
-        // [S-14816] The cells' boxes stand from the card's left edge, touching, as many as the card holds whole: none cut
-        // across, the room past the last less than a cell.
+        // [S-14816] The cells' boxes stand from the card's left edge, touching, every one the card reaches: the last ends on
+        // the card's right edge or is cut by it, no room left past it.
         var grid = RowRules.Cells(card, 400, FamilyShape.IconLarge, named: true, ItemGrid.Default());
         Assert.Equal(0, grid.Left(0));
-        Assert.True(grid.Left(grid.Columns) <= card + 0.01, $"{card}: {grid.Left(grid.Columns)}");
-        Assert.True(card - grid.Left(grid.Columns) < grid.Width, $"{card}: {grid.Left(grid.Columns)}");
+        Assert.True(grid.Left(grid.Columns) >= card - 0.01, $"{card}: {grid.Left(grid.Columns)}");
+        Assert.True(grid.Left(grid.Columns - 1) < card, $"{card}: {grid.Left(grid.Columns - 1)}");
     }
 
     [Fact]

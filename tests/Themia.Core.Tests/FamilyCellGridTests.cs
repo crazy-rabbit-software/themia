@@ -18,15 +18,16 @@ public sealed class FamilyCellGridTests
     /// <summary>
     /// [S-14816] Owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they have space
     /// everywhere. ... fix this, also for other widgets if applicable." A cell's box is its lead and name with 8 round them,
-    /// in whole grid cells, at every width: the columns the width holds whole, touching, from the card's left edge.
+    /// in whole grid cells, at every width: every column the width reaches, touching, from the card's left edge, the last cut
+    /// by its right edge.
     /// </summary>
     [Theory]
-    [InlineData(168, 2)]
+    [InlineData(168, 3)]
     [InlineData(80, 1)]
     [InlineData(240, 3)]
-    [InlineData(239, 2)]
+    [InlineData(239, 3)]
     [InlineData(20, 1)]
-    public void S14816_cells_keep_one_box_and_take_the_whole_columns_the_width_holds(double width, int columns)
+    public void S14816_cells_keep_one_box_and_take_every_column_the_width_reaches(double width, int columns)
     {
         var grid = RowRules.Cells(width, 400, 32, named: true, Grid);
         Assert.Equal(columns, grid.Columns);

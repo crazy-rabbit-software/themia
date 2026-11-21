@@ -173,16 +173,17 @@ public class ItemSizeTests
 
     /// <summary>
     /// [S-14816] Owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they have space
-    /// everywhere." A grid's cells keep one size from the box's edges, touching: across, the columns its width holds whole;
-    /// down, every line its height reaches, the last cut by its foot.
+    /// everywhere." A grid's cells keep one size from the box's edges, touching (WR-4: "the last item will be cutoff to some
+    /// extent then"): across, every column its width reaches, the last cut by its right edge; down, every line its height
+    /// reaches, the last cut by its foot.
     /// </summary>
     [Theory]
     [InlineData(240, 200, 3, 2)]
-    [InlineData(259, 200, 3, 2)]
-    [InlineData(239, 200, 2, 2)]
+    [InlineData(259, 200, 4, 2)]
+    [InlineData(239, 200, 3, 2)]
     [InlineData(240, 201, 3, 3)]
     [InlineData(10, 10, 1, 1)]
-    public void S14816_a_grid_of_cells_takes_whole_columns_and_every_line_it_reaches(double width, double height, int columns, int lines)
+    public void S14816_a_grid_of_cells_takes_every_column_and_line_it_reaches_the_last_cut(double width, double height, int columns, int lines)
     {
         var cells = ItemSize.Cells(width, height, 76, 96, Grid);
 

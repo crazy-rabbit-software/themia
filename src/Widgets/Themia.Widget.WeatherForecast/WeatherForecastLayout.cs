@@ -26,7 +26,7 @@ public sealed record ForecastColumnsPlan(int Days, double ColumnWidth, double Ic
 /// menu line); every axis takes every grid cell ([S-14500]). Rows: a row a day (28 or 40, its optimal whole cells),
 /// 220..420 wide. Columns: a 60 column a day (its 56 in whole cells) from the card's left edge, one height. Curve: a 60
 /// column a day, the chart's band 72..144 tall. Grid ([S-14815]):
-/// a cell a day of one fixed size from the card's left and top edges, as many across as its width holds whole, lines
+/// a cell a day of one fixed size from the card's left and top edges, every column its width reaches (the last cut), lines
 /// down as its height reaches, the last cut (<see cref="ForecastGrid.DaysFor"/>). Every style's items stand from the
 /// card's edges, the inset padding inside them. Nothing else sheds or appears with the box: a bar or a chart gets longer.
 /// </summary>

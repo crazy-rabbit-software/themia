@@ -97,8 +97,8 @@ public static class ContactsPlan
 
     /// <summary>
     /// [S-11406] [S-14410] [S-14810] [S-14817] The grid in <paramref name="area"/>: its cells at their one fixed size, touching,
-    /// from the card's left edge and from its top edge (under the search box where it shows), as many a line as its width
-    /// holds whole (2..<see cref="ContactsConfig.MaxGrid"/>) and as many lines as its height reaches, the last cut by the
+    /// from the card's left edge and from its top edge (under the search box where it shows), every column its width
+    /// reaches, the last cut by its right edge (2..<see cref="ContactsConfig.MaxGrid"/>) and as many lines as its height reaches, the last cut by the
     /// card's foot (<see cref="ItemSize.Cells"/>); before the box is measured, a new one's grid.
     /// </summary>
     private static ContactsLayoutPlan Cells(WidgetArea area, ContactsConfig config)

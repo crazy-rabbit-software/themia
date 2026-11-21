@@ -56,9 +56,10 @@ public sealed class ContactsPitchTests
         Assert.Equal((330.0, 80.0 * config.GridRows), (sizing.Natural.Width, sizing.Natural.Height));
         Assert.Equal(220.0, sizing.Min.Width);
 
-        // 340 wide holds three cells of 110 whole; 250 tall (the view 238 under the inset) reaches four lines, the last cut.
+        // 340 wide reaches four cells of 110, the last cut by the right edge; 250 tall (the view 238 under the inset) reaches
+        // four lines, the last cut by the foot.
         var plan = ContactsPlan.Of(new WidgetArea(340, 238), config);
-        Assert.Equal((3, 110.0, 80.0, 4), (plan.Columns, plan.ColumnWidth, plan.Pitch, plan.Rows));
+        Assert.Equal((4, 110.0, 80.0, 4), (plan.Columns, plan.ColumnWidth, plan.Pitch, plan.Rows));
     }
 
     [Fact]

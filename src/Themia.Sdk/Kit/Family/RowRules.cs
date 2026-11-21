@@ -76,8 +76,8 @@ public static class RowRules
     /// the items' top to the card's foot) on <paramref name="grid"/> (owner, 2026-11-21: "the weather forecast widget grid
     /// view items do not go from edge to edge, they have space everywhere. ... fix this, also for other widgets if
     /// applicable."): each cell's box one fixed size (<see cref="CellBoxWidth"/> × <see cref="CellBoxHeight"/> in whole grid
-    /// cells, its hover and selection the whole box), touching, from the card's left edge and the items' top: as many
-    /// columns as the width holds whole and the lines the height reaches, the last cut by the card's foot
+    /// cells, its hover and selection the whole box), touching, from the card's left edge and the items' top: every
+    /// column the width reaches, the last cut by the card's right edge, and the lines the height reaches, the last cut by the card's foot
     /// (<see cref="ItemSize.Cells"/>).
     /// </summary>
     public static CellGrid Cells(double width, double height, double icon, bool named, ItemGrid grid)

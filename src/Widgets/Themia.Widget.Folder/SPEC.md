@@ -43,7 +43,7 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   secondary, 12 apart; none dropped for want of room). Grid and Icons are Row.Cell grids ([S-6713],
   `RowRules.Cells`): the icon (or the picture's thumbnail) 32 at every width, Grid's name one
   Caption line under it (the whole name on selection, [S-6629]), Icons the icon alone; each cell's box one size (80 × 70
-  named, 50 × 50 icons) from the card's left edge, touching, as many a line as the width holds whole, the lines from the
+  named, 50 × 50 icons) from the card's left edge, touching, every column the width reaches, the last cut by its right edge, the lines from the
   items' top to the card's foot, the last in sight cut by it ([S-14816]); the rest scrolls under the fade.
   Over 1000 items: the first 1000 and a "N more in Explorer…" row (a Row block with the open glyph, its name
   secondary). Retired with group G6: the list's unlabelled Size and Type columns (Details is the table), XL's one-size-up

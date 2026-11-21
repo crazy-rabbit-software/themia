@@ -96,8 +96,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   width; columns and the curve's columns from the card's left edge and from its top edge to its foot, the inset over and
   under their parts padding inside the column (the hover and a link light the column whole); the grid's cells of one
   size (80 × 100 on the default grid: "Today" and "16° 8°" with the inset either side, the parts with 8 over and under,
-  in whole grid cells) from the card's left and top edges, touching, as many across as the width holds whole (a cut
-  column would hide a day mid-week) and lines down as the height reaches, the last cut by the card's foot. No margin and
+  in whole grid cells) from the card's left and top edges, touching, every column the width reaches, the last cut by
+  the card's right edge, and every line the height reaches, the last cut by its foot ([S-14816]). No margin and
   no gap round or between the days in any style; every edge on a whole device pixel (`RowReach`). Tests
   `ForecastDaysTests.S14815_`; renders judged by `scripts/item-check.py` in every style ([S-14814]).
 

@@ -55,7 +55,7 @@ public readonly record struct RowReach(double Pitch, int Shown = 1, double Scale
 
 /// <summary>
 /// [S-14816] A grid of cells of one fixed size in a box (<see cref="ItemSize.Cells"/>): <see cref="Across"/> the columns,
-/// as many as the box's width holds whole, from its left edge; <see cref="Down"/> the lines, every one the box's height
+/// every one the box's width reaches from its left edge, the last cut by its right edge; <see cref="Down"/> the lines, every one the box's height
 /// reaches from its top edge, the last cut by its foot. Both touching, every edge on a whole device pixel.
 /// </summary>
 public readonly record struct CellReach(RowReach Across, RowReach Down)
@@ -240,17 +240,18 @@ public static class ItemSize
     /// padding inside them) in a box <paramref name="width"/> × <paramref name="height"/> on <paramref name="grid"/> (owner,
     /// 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they have space everywhere."):
     /// each cell its optimal on both axes, at every size of its card; the cells touch, from the box's left and top edges (the
-    /// card's: no inset round them, the inset is the cells' own padding, WR-3). Across, the columns the width holds whole
-    /// (<paramref name="least"/>..<paramref name="most"/>; a column cut by the right edge would hide an item in the middle of
-    /// a wrapped list, so the room past the last stays empty); down, every line the height reaches, the last cut by the
-    /// foot (WR-4), at least one.
+    /// card's: no inset round them, the inset is the cells' own padding, WR-3). Both ways as a list's rows (WR-4, owner
+    /// 2026-11-20: "they should just keep their size and the last item will be cutoff to some extent then"): across, every
+    /// column the width reaches (<paramref name="least"/>..<paramref name="most"/>), the last cut by the card's right edge,
+    /// never the room past the last whole one left empty (WR-3: a grid's cells reach from edge to edge); down, every line
+    /// the height reaches, the last cut by the foot, at least one.
     /// </summary>
     public static CellReach Cells(double width, double height, double naturalWidth, double naturalHeight, ItemGrid grid, int least = 1, int most = int.MaxValue)
     {
-        var cellWidth = Optimal(naturalWidth, grid);
-        var room = double.IsFinite(width) ? Math.Max(0, width) : 0;
-        var columns = Math.Clamp((int)Math.Floor((room + LayoutMath.Tolerance) / cellWidth), Math.Max(1, least), Math.Max(Math.Max(1, least), most));
-        var across = new RowReach(cellWidth, columns, grid.Raster);
+        var room = double.IsFinite(width) && width > 0 ? width : double.NaN;
+        var across = double.IsFinite(room)
+            ? new RowReach(Optimal(naturalWidth, grid), Count(room, naturalWidth, grid, Math.Max(1, least), most), grid.Raster) { Room = room }
+            : new RowReach(Optimal(naturalWidth, grid), Math.Max(1, least), grid.Raster);
         return new CellReach(across, Reach(height, naturalHeight, grid));
     }
 
