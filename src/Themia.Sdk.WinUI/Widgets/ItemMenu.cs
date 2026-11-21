@@ -31,7 +31,7 @@ namespace Themia.App.Widgets;
 /// </param>
 /// <param name="Quick">
 /// [S-1740] The Windows 11 icon-row command this entry is (Cut, Copy, Paste, Rename, Share,
-/// Duplicate, Settings, Delete). <see cref="ContextMenuLayout"/> decides whether it goes to the row.
+/// Duplicate, Refresh, Settings, Delete). <see cref="ContextMenuLayout"/> decides whether it goes to the row.
 /// </param>
 /// <param name="Shortcut">
 /// [S-1753] The key that does the same, shown beside the label as Windows writes it ("Ctrl+C",
@@ -579,6 +579,7 @@ public static class ItemMenu
         QuickCommand.Rename => Glyphs.Rename,
         QuickCommand.Share => Glyphs.Share,
         QuickCommand.Duplicate => Glyphs.Duplicate,
+        QuickCommand.Refresh => Glyphs.Refresh,
         QuickCommand.Settings => Glyphs.Settings,
         QuickCommand.Delete => Glyphs.Delete,
         _ => Glyphs.More,
