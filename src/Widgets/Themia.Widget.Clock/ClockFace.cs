@@ -306,11 +306,11 @@ public static class ClockFace
 
     /// <summary>
     /// [S-6741] The one line under a clock's face: the city of a world clock and the offset, " · " between them,
-    /// as the line's room (<paramref name="width"/> on <paramref name="step"/>) holds them, else the city alone; the
-    /// line is cut with an ellipsis past that. Null when there is nothing to say. The date is the Date widget's
-    /// ([S-12805]).
+    /// as the line's room (<paramref name="width"/>) holds them as they are drawn (<paramref name="drawn"/>: a line's width,
+    /// measured by the view), else the city alone; the line is cut with an ellipsis past that. Null when there is nothing
+    /// to say. The date is the Date widget's ([S-12805]).
     /// </summary>
-    public static string? Under(double width, TypeStep step, string? label, string? offset)
+    public static string? Under(double width, Func<string, double> drawn, string? label, string? offset)
     {
         string? Join(params string?[] parts)
         {
@@ -326,7 +326,7 @@ public static class ClockFace
 
         foreach (var candidate in candidates)
         {
-            if (candidate is not null && HeroFit.Ems(candidate) * step.FontSize <= width)
+            if (candidate is not null && drawn(candidate) <= width)
             {
                 return candidate;
             }

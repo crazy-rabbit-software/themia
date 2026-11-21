@@ -50,6 +50,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     /// <summary>[S-6013] The words.</summary>
     private readonly TextBlock _words = new() { TextWrapping = TextWrapping.Wrap, Foreground = Family.Brush(ColourRole.TextPrimary) };
 
+    /// <summary>[S-6741] The line under measured off the face, for which words it holds (never drawn).</summary>
+    private readonly TextBlock _underProbe = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+
     /// <summary>The one line under the words, the cards or the dial.</summary>
     private readonly TextBlock _under = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
 
@@ -529,7 +532,16 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     private string? Line(DateTimeOffset now, ClockReading reading, Locale locale)
     {
         var offset = _config.OffsetMode != ClockOffsetMode.None ? ClockFormatter.OffsetLine(now, _config, locale) : null;
-        return ClockFace.Under(_underWidth, _underStep, _label, offset);
+        return ClockFace.Under(_underWidth, Drawn, _label, offset);
+    }
+
+    /// <summary>[S-6741] A line under as it is drawn on its step: its width, measured.</summary>
+    private double Drawn(string text)
+    {
+        Family.Step(_underProbe, _underStep);
+        _underProbe.Text = text;
+        _underProbe.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        return _underProbe.DesiredSize.Width;
     }
 
     public void Detach()

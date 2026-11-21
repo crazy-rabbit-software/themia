@@ -240,11 +240,13 @@ public sealed class ClockFaceTests
     public void S6741_the_line_under_holds_the_city_and_the_offset_as_its_room_does_never_a_date()
     {
         // [S-12805] The date is the Date widget's: the clock's line says where (a world clock) and the offset.
-        var caption = FamilyType.Caption;
-        Assert.Equal("Tokyo · UTC+9", ClockFace.Under(1000, caption, "Tokyo", "UTC+9"));
-        Assert.Equal("Tokyo", ClockFace.Under(30, caption, "Tokyo", "UTC+9"));
-        Assert.Equal("UTC+9", ClockFace.Under(1000, caption, null, "UTC+9"));
-        Assert.Null(ClockFace.Under(100, caption, null, null));
+        // [S-12833] Judged by the line as drawn (the view's measure), here 6 DIP a letter.
+        static double Drawn(string text) => 6 * text.Length;
+        Assert.Equal("Tokyo · UTC+9", ClockFace.Under(1000, Drawn, "Tokyo", "UTC+9"));
+        Assert.Equal("Tokyo · UTC+9", ClockFace.Under(78, Drawn, "Tokyo", "UTC+9"));
+        Assert.Equal("Tokyo", ClockFace.Under(77, Drawn, "Tokyo", "UTC+9"));
+        Assert.Equal("UTC+9", ClockFace.Under(1000, Drawn, null, "UTC+9"));
+        Assert.Null(ClockFace.Under(100, Drawn, null, null));
     }
 
     [Fact]
