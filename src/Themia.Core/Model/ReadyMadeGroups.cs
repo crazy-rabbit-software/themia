@@ -114,8 +114,8 @@ public static class ReadyMadeGroups
         new("weatherNow", new(0, 0, 300, 76)),
         .. Metrics(76, 300, "weatherHighLow", "weatherWind"),
         new("weatherForecast", new(0, 76 + (2 * Row), 300, 150)),
-        new("rainOutlook", new(0, 226 + (2 * Row), 300, 80)),
-        new("rainNextHour", new(0, 306 + (2 * Row), 300, 92)),
+        new("rainOutlook", new(0, 226 + (2 * Row), 300, 52)),
+        new("rainNextHour", new(0, 278 + (2 * Row), 300, 92)),
     ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
 
     /// <summary>
@@ -332,9 +332,9 @@ public static class ReadyMadeGroups
     /// <summary>[S-14944] Rain: the sentence over the graph over the total, the rain family's three parts as one panel.</summary>
     public static ReadyMadeGroup Rain { get; } = Headed(new("rain", Str.Groups_Recipe_Rain, Str.Groups_Recipe_RainAbout, Glyphs.Rain, AddFolderId.Rain,
     [
-        new("rainOutlook", new(0, 0, 300, 80)),
-        new("rainNextHour", new(0, 80, 300, 92)),
-        .. Metrics(172, 300, "rainTotal"),
+        new("rainOutlook", new(0, 0, 300, 52)),
+        new("rainNextHour", new(0, 52, 300, 92)),
+        .. Metrics(144, 300, "rainTotal"),
     ]));
 
     /// <summary>[S-11341] Sound: the volume over the mixer, one header (the volume's).</summary>
