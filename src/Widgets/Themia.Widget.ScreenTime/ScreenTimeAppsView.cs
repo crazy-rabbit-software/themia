@@ -32,8 +32,8 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
 
-    /// <summary>[S-11928] The day selected on the view, followed.</summary>
-    private readonly WidgetLinks _dates = new();
+    /// <summary>[S-450] [S-3310] The tracker, the day line, the app links and the dates: joined and left as one.</summary>
+    private readonly ScreenTimeWiring _wiring;
 
     /// <summary>[S-450] The tracker, followed as every screen-time widget follows it.</summary>
     private readonly ScreenTimeFeed _feed;
@@ -49,16 +49,14 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
     private WidgetArea _area;
-    private bool _attached;
 
-    private readonly IWidgetHost _host;
+    /// <summary>Whether the binding is attached: before the first attach and after a detach, a change draws nothing.</summary>
+    private bool _attached;
 
     public ScreenTimeAppsView(IWidgetHost host)
     {
-        _host = host;
-        _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
-        _nav = new ScreenTimeDayNav(Changed);
-        _feed = new ScreenTimeFeed(Changed, _nav);
+        _wiring = new ScreenTimeWiring(host, Changed, ApplyFocus);
+        (_links, _nav, _feed) = (_wiring.Links, _wiring.Nav, _wiring.Feed);
         _source = new AppsSource(this);
         _binding = new KitBinding(host, ScreenTimeAppsSpec.Spec, Glyphs.ScreenTime, ScreenTimeAppsSpec.Actions, Run)
         {
@@ -69,13 +67,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         };
 
         // [S-11928] A day selected on the view (a calendar's click) is the day a Day period shows.
-        _dates.Follow(LinkTopics.SelectedDate, value =>
-        {
-            if (ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day && _nav.Select(value?.Date))
-            {
-                Changed();
-            }
-        });
+        _wiring.FollowSelectedDay(() => _config.Period);
 
         // The space under the rows takes taps, so a click there lets the selection go ([S-3302]).
         Background = Family.Brush(ColourRole.Clear);
@@ -108,9 +100,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     {
         _config = config as ScreenTimeAppsConfig ?? new ScreenTimeAppsConfig();
         _attached = true;
-        _feed.Attach(_host.ScreenTime);
-        _links.Join(_surface?.Links);
-        _dates.Join(_surface?.Links);
+        _wiring.Attach(_surface);
         _nav.Update(_config.Period);
         _binding.Attach(ticker, _source, _config, Redraw);
     }
@@ -135,9 +125,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     public void Detach()
     {
         _attached = false;
-        _feed.Detach();
-        _links.Leave();
-        _dates.Leave();
+        _wiring.Detach();
         _binding.Dispose();
         _rows.Clear();
     }
