@@ -119,7 +119,7 @@ public sealed class NextMeetingJoinTests
                 Assert.True(!fit.Draws(order[i - 1]) || fit.Draws(order[i]), $"{w}x{h}: {order[i - 1]} drawn without {order[i]}");
             }
 
-            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Fill >= ScaleFloor.Text - 1e-4, $"{w}x{h}: {size} at {size * fit.Fill}"));
+            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-4, $"{w}x{h}: {size} at {size * fit.Scale}"));
         }
     }
 
