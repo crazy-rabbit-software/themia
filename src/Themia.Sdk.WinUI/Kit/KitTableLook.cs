@@ -88,6 +88,10 @@ public sealed class KitTableLook : IKitLook
         var band = KitPlanner.TitlesBand(draw.Grid);
         titles.Height = band;
         titles.Margin = ListEdge.Margin;
+
+        // [S-12831] The titles' band is the table's head row: a band from the card's left edge to its right, the rows'
+        // first item right under it.
+        ItemMark.Mark(titles);
         titles.Padding = new Thickness(FamilySpace.Inset + (plan.Lead ? RowRules.NameStart(FamilyShape.Icon) : 0), 0, FamilySpace.Inset, 0);
 
         // Each title's box is the band's height, its words centred in it as a row's text in its row.
@@ -96,7 +100,8 @@ public sealed class KitTableLook : IKitLook
         for (var i = 0; i < columns.Count; i++)
         {
             var title = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, draw.Spec.ColumnHeading?.Invoke(columns[i].Column) ?? string.Empty);
-            title.VerticalAlignment = VerticalAlignment.Stretch;
+            title.VerticalAlignment = VerticalAlignment.Top;
+            title.Height = band;
             title.Padding = new Thickness(0, over, 0, 0);
             if (columns[i].Column == KitColumn.When)
             {
