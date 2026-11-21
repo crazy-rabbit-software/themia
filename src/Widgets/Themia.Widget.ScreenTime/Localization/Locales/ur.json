@@ -1,5 +1,17 @@
 {
   "screenTime.label": "اسکرین ٹائم",
   "screentime.goalPerDay": "{value}/دن میں سے",
-  "screentime.ofGoal": "{value} میں سے"
+  "screentime.ofGoal": "{value} میں سے",
+  "screentime.metric.average": "روزانہ اوسط",
+  "screentime.metric.percent": "کل کا حصہ",
+  "widgetsC.screenTime.apps.desc": "آپ نے کون سی ایپس استعمال کیں، اور کتنی دیر",
+  "widgetsC.screenTime.apps.label": "اسکرین ٹائم ایپس",
+  "widgetsC.screenTime.limitOverTip": "حد {limit} (تجاوز)",
+  "widgetsC.screenTime.limitTip": "حد {limit}",
+  "styles.screenTimeChart.bars": "بارز",
+  "styles.screenTimeChart.calendar": "کیلنڈر",
+  "widgetsC.screenTime.chart.desc": "ہفتے یا مہینے میں دن بہ دن آپ کا اسکرین ٹائم",
+  "widgetsC.screenTime.chart.label": "اسکرین ٹائم چارٹ",
+  "widgetsC.screenTime.donut.desc": "آپ کے اسکرین ٹائم میں ہر ایپ کا حصہ، ایک دائرے کی صورت",
+  "widgetsC.screenTime.donut.label": "اسکرین ٹائم ڈونٹ"
 }

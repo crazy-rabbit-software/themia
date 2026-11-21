@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "1 日あたりの平均",
-  "screentime.metric.percent": "全体に占める割合",
-  "widgetsC.screenTime.apps.desc": "使ったアプリとその時間",
-  "widgetsC.screenTime.apps.label": "スクリーン タイム アプリ",
-  "widgetsC.screenTime.limitOverTip": "制限 {limit} (超過)",
-  "widgetsC.screenTime.limitTip": "制限 {limit}"
-}

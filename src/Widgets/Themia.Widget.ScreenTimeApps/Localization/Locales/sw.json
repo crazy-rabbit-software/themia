@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "Wastani wa kila siku",
-  "screentime.metric.percent": "Sehemu ya jumla",
-  "widgetsC.screenTime.apps.desc": "Programu ulizotumia, na kwa muda gani",
-  "widgetsC.screenTime.apps.label": "Programu za muda wa skrini",
-  "widgetsC.screenTime.limitOverTip": "kikomo {limit} (kimepitwa)",
-  "widgetsC.screenTime.limitTip": "kikomo {limit}"
-}

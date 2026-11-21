@@ -1,5 +1,17 @@
 {
   "screenTime.label": "မျက်နှာပြင် ကြည့်ချိန်",
   "screentime.goalPerDay": "{value}/ရက် အနက်",
-  "screentime.ofGoal": "{value} အနက်"
+  "screentime.ofGoal": "{value} အနက်",
+  "screentime.metric.average": "နေ့စဉ် ပျမ်းမျှ",
+  "screentime.metric.percent": "စုစုပေါင်း၏ ဝေစု",
+  "widgetsC.screenTime.apps.desc": "သင်သုံးခဲ့သော အက်ပ်များနှင့် ကြာချိန်",
+  "widgetsC.screenTime.apps.label": "ကြည့်ချိန် အက်ပ်များ",
+  "widgetsC.screenTime.limitOverTip": "ကန့်သတ်ချက် {limit} (ကျော်)",
+  "widgetsC.screenTime.limitTip": "ကန့်သတ်ချက် {limit}",
+  "styles.screenTimeChart.bars": "ဘားများ",
+  "styles.screenTimeChart.calendar": "ပြက္ခဒိန်",
+  "widgetsC.screenTime.chart.desc": "ရက်သတ္တပတ် သို့မဟုတ် လတစ်လအတွင်း နေ့အလိုက် သင့်ကြည့်ချိန်",
+  "widgetsC.screenTime.chart.label": "ကြည့်ချိန် ဇယား",
+  "widgetsC.screenTime.donut.desc": "သင့်ကြည့်ချိန်တွင် အက်ပ်တစ်ခုစီ၏ ဝေစု၊ ကွင်းအဖြစ်",
+  "widgetsC.screenTime.donut.label": "ကြည့်ချိန် ကွင်း"
 }

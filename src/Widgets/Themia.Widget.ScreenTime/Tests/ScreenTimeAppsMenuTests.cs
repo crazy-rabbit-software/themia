@@ -1,0 +1,201 @@
+using Themia.App.Services;
+using Themia.App.Shell.Config;
+using Themia.App.Widgets;
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Core.Widgets;
+using Themia.Sdk;
+using Themia.Sdk.WinUI;
+using Xunit;
+
+namespace Themia.Widget.ScreenTime.Tests;
+
+/// <summary>
+/// [S-3356] The app list's options on its page, with the shared limits and hidden apps
+/// ([S-3323]) over a stand-in tracker: the sample month, its preferences kept here.
+/// </summary>
+public sealed class ScreenTimeAppsMenuTests
+{
+    private int _saves;
+
+    private WidgetTextAsk? _asked;
+
+    /// <summary>The sample history with preferences of its own, counting what is handed to it.</summary>
+    internal sealed class Tracker(ScreenTimePreferences preferences) : IScreenTimeSource
+    {
+        private readonly SampleScreenTime _sample = new();
+
+        public int Sets { get; private set; }
+
+        public LocalDay Today => _sample.Today;
+
+        public ScreenTimePreferences Preferences { get; private set; } = preferences;
+
+        public event Action? Changed
+        {
+            add { }
+            remove { }
+        }
+
+        public ScreenTimeDay Day(string? date) => _sample.Day(date);
+
+        public IReadOnlyList<ScreenTimeDay> Range(int days) => _sample.Range(days);
+
+        public void SetPreferences(ScreenTimePreferences preferences)
+        {
+            Preferences = preferences;
+            Sets++;
+        }
+    }
+
+    private WidgetMenuLines Build(ScreenTimeAppsConfig config, IScreenTimeSource? source)
+    {
+        var lines = new WidgetMenuLines(() => _saves++);
+        ScreenTimeAppsMenu.Lines(lines, config, source);
+        return lines;
+    }
+
+    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+
+    [Fact]
+    public void S3356_the_first_level_is_appearance_the_list_its_figures_then_the_shared_lines()
+    {
+        var lines = Build(new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week }, new Tracker(new ScreenTimePreferences()));
+
+        Assert.Equal(
+            [
+                Str.Screentime_Cfg_Period.Text(),
+                "|",
+                Str.Kit_Rows.Text(),
+                Str.Kit_Lines.Text(),
+                ScreenTimeStr.Screentime_Metric_Average.Text(),
+                ScreenTimeStr.Screentime_Metric_Percent.Text(),
+                "|",
+                Str.WidgetsC_ScreenTime_Settings_Limits.Text(),
+                Str.Screentime_Cfg_Hidden.Text(),
+                "|",
+                Str.WidgetsC_ScreenTime_Settings_Privacy.Text(),
+            ],
+            lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
+    }
+
+    [Fact]
+    public void S3356_a_day_has_no_average_and_no_tracker_says_so()
+    {
+        var lines = Build(new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Day }, null);
+
+        Assert.DoesNotContain(lines.Lines, l => l.Text == ScreenTimeStr.Screentime_Metric_Average.Text());
+        Assert.DoesNotContain(lines.Lines, l => l.Text == Str.WidgetsC_ScreenTime_Settings_Limits.Text());
+        Assert.True(Line(lines.Lines, Str.WidgetsC_ScreenTime_NotRecording.Text()).Note);
+    }
+
+    [Fact]
+    public void S3356_the_period_sets_once_and_the_current_one_saves_nothing()
+    {
+        var config = new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Day };
+        var period = Line(Build(config, null).Lines, Str.Screentime_Cfg_Period.Text());
+
+        Line(period.Children!, Str.Screentime_Cfg_PeriodDay.Text()).Action!();
+        Assert.Equal(0, _saves);
+
+        Line(period.Children!, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month)).Action!();
+        Assert.Equal(ScreenTimePeriod.Month, config.Period);
+        Assert.Equal(1, _saves);
+    }
+
+    [Fact]
+    public void S11510_rows_are_offered_and_lines_are_offered_only_with_figures_for_a_second()
+    {
+        var config = new ScreenTimeAppsConfig();
+        var rows = Line(Build(config, null).Lines, Str.Kit_Rows.Text());
+        Assert.Equal("5 rows", rows.Value);
+
+        // A day with no share shown has nothing for a second line; the share gives it one.
+        Assert.DoesNotContain(Build(config, null).Lines, l => l.Text == Str.Kit_Lines.Text());
+        config.ShowPercent = true;
+        Assert.Single(Build(config, null).Lines, l => l.Text == Str.Kit_Lines.Text());
+    }
+
+    [Fact]
+    public void S3356_the_figures_switch_and_save_once()
+    {
+        var config = new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week, ShowAverage = true, ShowPercent = false };
+        var lines = Build(config, null).Lines;
+
+        Line(lines, ScreenTimeStr.Screentime_Metric_Average.Text()).Action!();
+        Line(lines, ScreenTimeStr.Screentime_Metric_Percent.Text()).Action!();
+
+        Assert.False(config.ShowAverage);
+        Assert.True(config.ShowPercent);
+        Assert.Equal(2, _saves);
+    }
+
+    [Fact]
+    public void S3356_the_list_limits_each_app_never_the_day()
+    {
+        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("edge", 5400)]));
+        var limits = Line(Build(new ScreenTimeAppsConfig(), tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!;
+
+        Assert.DoesNotContain(limits, l => l.Text == Str.WidgetsC_ScreenTime_DailyLimit.Text());
+        var edge = Line(limits, "Microsoft Edge");
+        Assert.Equal(ScreenTimeRules.FormatLimit(5400), edge.Value);
+        Assert.NotNull(Line(limits, Str.WidgetsC_ScreenTime_Settings_LimitApp.Text()).Search);
+    }
+
+    [Fact]
+    public void S3356_an_app_limit_is_changed_and_removed_through_the_tracker()
+    {
+        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("edge", 3600)]));
+        var config = new ScreenTimeAppsConfig();
+        var edge = Line(Line(Build(config, tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!, "Microsoft Edge").Children!;
+
+        _asked = Typed.Ask(Line(edge, Str.WidgetsC_ScreenTime_DailyLimit.Text()));
+        var ask = Assert.IsType<WidgetTextAsk>(_asked);
+        // [S-2370] A number box: words that read as no number are refused, a number is held to its range.
+        Assert.NotNull(ask.Refuse("long"));
+        ask.Done("90");
+        Assert.Equal(5400, tracker.Preferences.AppLimits["edge"]);
+
+        Line(edge, Str.Common_Remove.Text()).Action!();
+        Assert.Empty(tracker.Preferences.AppLimits);
+        Assert.Equal(2, tracker.Sets);
+    }
+
+    [Fact]
+    public async Task S3356_limit_an_app_offers_the_known_apps_without_a_limit_and_adds_an_hour()
+    {
+        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("edge", 3600)]));
+        var limits = Line(Build(new ScreenTimeAppsConfig(), tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!;
+        var search = Line(limits, Str.WidgetsC_ScreenTime_Settings_LimitApp.Text()).Search!;
+
+        var all = await search.Find(string.Empty, CancellationToken.None);
+        Assert.DoesNotContain(all.Lines, l => l.Text == "Microsoft Edge");
+        Assert.Contains(all.Lines, l => l.Text == "Visual Studio Code");
+
+        var found = Assert.Single((await search.Find("spot", CancellationToken.None)).Lines);
+        found.Action!();
+        Assert.Equal(ScreenTimeMenuLines.NewAppLimitSeconds, tracker.Preferences.AppLimits["spotify"]);
+        Assert.Equal(1, tracker.Sets);
+    }
+
+    [Fact]
+    public void S3356_a_hidden_app_is_shown_again_through_the_tracker()
+    {
+        var tracker = new Tracker(ScreenTimePreferences.From(["spotify", "zz-gone"], 0, null));
+        var hidden = Line(Build(new ScreenTimeAppsConfig(), tracker).Lines, Str.Screentime_Cfg_Hidden.Text()).Children!;
+
+        Assert.Contains(hidden, l => l.Text == AppNames.Prettify("zz-gone"));
+        Line(Line(hidden, "Spotify").Children!, Str.WidgetsC_ScreenTime_Settings_ShowAgain.Text()).Action!();
+
+        Assert.Equal(["zz-gone"], tracker.Preferences.Hidden);
+    }
+
+    [Fact]
+    public void S3356_without_hidden_apps_the_submenu_says_how_to_hide_one()
+    {
+        var hidden = Line(Build(new ScreenTimeAppsConfig(), new Tracker(new ScreenTimePreferences())).Lines, Str.Screentime_Cfg_Hidden.Text()).Children!;
+
+        Assert.True(hidden[0].Note);
+        Assert.Equal(Str.WidgetsC_ScreenTime_Settings_NoHidden.Text(), hidden[0].Text);
+    }
+}

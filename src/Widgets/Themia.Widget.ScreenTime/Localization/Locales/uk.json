@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Час використання",
   "screentime.goalPerDay": "з {value}/день",
-  "screentime.ofGoal": "з {value}"
+  "screentime.ofGoal": "з {value}",
+  "screentime.metric.average": "Середнє за день",
+  "screentime.metric.percent": "Частка від загального",
+  "widgetsC.screenTime.apps.desc": "Програми, якими ти користувався, і як довго",
+  "widgetsC.screenTime.apps.label": "Програми за часом використання",
+  "widgetsC.screenTime.limitOverTip": "ліміт {limit} (перевищено)",
+  "widgetsC.screenTime.limitTip": "ліміт {limit}",
+  "styles.screenTimeChart.bars": "Стовпчики",
+  "styles.screenTimeChart.calendar": "Календар",
+  "widgetsC.screenTime.chart.desc": "Твій час використання день за днем, за тиждень або місяць",
+  "widgetsC.screenTime.chart.label": "Графік часу використання",
+  "widgetsC.screenTime.donut.desc": "Частка кожної програми в часі використання, у вигляді кільця",
+  "widgetsC.screenTime.donut.label": "Кільце часу використання"
 }

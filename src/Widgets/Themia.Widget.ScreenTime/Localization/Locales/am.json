@@ -1,5 +1,17 @@
 {
   "screenTime.label": "የማያ ገጽ ጊዜ",
   "screentime.goalPerDay": "ከ{value}/ቀን",
-  "screentime.ofGoal": "ከ{value}"
+  "screentime.ofGoal": "ከ{value}",
+  "screentime.metric.average": "የዕለት አማካይ",
+  "screentime.metric.percent": "ከጠቅላላው ድርሻ",
+  "widgetsC.screenTime.apps.desc": "የተጠቀሟቸው መተግበሪያዎች፣ እና ለምን ያህል ጊዜ",
+  "widgetsC.screenTime.apps.label": "የማያ ገጽ ጊዜ መተግበሪያዎች",
+  "widgetsC.screenTime.limitOverTip": "ገደብ {limit} (አልፏል)",
+  "widgetsC.screenTime.limitTip": "ገደብ {limit}",
+  "styles.screenTimeChart.bars": "አሞሌዎች",
+  "styles.screenTimeChart.calendar": "ቀን መቁጠሪያ",
+  "widgetsC.screenTime.chart.desc": "የማያ ገጽ ጊዜዎ በየቀኑ፣ በሳምንት ወይም በወር",
+  "widgetsC.screenTime.chart.label": "የማያ ገጽ ጊዜ ገበታ",
+  "widgetsC.screenTime.donut.desc": "የእያንዳንዱ መተግበሪያ ድርሻ ከማያ ገጽ ጊዜዎ፣ እንደ ቀለበት",
+  "widgetsC.screenTime.donut.label": "የማያ ገጽ ጊዜ ቀለበት"
 }

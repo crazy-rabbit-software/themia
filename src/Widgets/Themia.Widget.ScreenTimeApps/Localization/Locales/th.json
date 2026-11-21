@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "ค่าเฉลี่ยต่อวัน",
-  "screentime.metric.percent": "สัดส่วนของทั้งหมด",
-  "widgetsC.screenTime.apps.desc": "แอปที่คุณใช้ และใช้นานเท่าใด",
-  "widgetsC.screenTime.apps.label": "แอปตามเวลาหน้าจอ",
-  "widgetsC.screenTime.limitOverTip": "ขีดจำกัด {limit} (เกิน)",
-  "widgetsC.screenTime.limitTip": "ขีดจำกัด {limit}"
-}

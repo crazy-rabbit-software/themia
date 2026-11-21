@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Muda wa skrini",
   "screentime.goalPerDay": "kati ya {value}/siku",
-  "screentime.ofGoal": "kati ya {value}"
+  "screentime.ofGoal": "kati ya {value}",
+  "screentime.metric.average": "Wastani wa kila siku",
+  "screentime.metric.percent": "Sehemu ya jumla",
+  "widgetsC.screenTime.apps.desc": "Programu ulizotumia, na kwa muda gani",
+  "widgetsC.screenTime.apps.label": "Programu za muda wa skrini",
+  "widgetsC.screenTime.limitOverTip": "kikomo {limit} (kimepitwa)",
+  "widgetsC.screenTime.limitTip": "kikomo {limit}",
+  "styles.screenTimeChart.bars": "Pau",
+  "styles.screenTimeChart.calendar": "Kalenda",
+  "widgetsC.screenTime.chart.desc": "Muda wako wa skrini siku kwa siku, kwa wiki au mwezi",
+  "widgetsC.screenTime.chart.label": "Chati ya muda wa skrini",
+  "widgetsC.screenTime.donut.desc": "Sehemu ya kila programu katika muda wako wa skrini, kama pete",
+  "widgetsC.screenTime.donut.label": "Pete ya muda wa skrini"
 }

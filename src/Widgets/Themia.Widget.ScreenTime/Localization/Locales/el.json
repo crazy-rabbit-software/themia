@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Χρόνος οθόνης",
   "screentime.goalPerDay": "από {value}/ημέρα",
-  "screentime.ofGoal": "από {value}"
+  "screentime.ofGoal": "από {value}",
+  "screentime.metric.average": "Ημερήσιος μέσος όρος",
+  "screentime.metric.percent": "Ποσοστό του συνόλου",
+  "widgetsC.screenTime.apps.desc": "Οι εφαρμογές που χρησιμοποίησες και για πόσο",
+  "widgetsC.screenTime.apps.label": "Εφαρμογές χρόνου οθόνης",
+  "widgetsC.screenTime.limitOverTip": "όριο {limit} (ξεπεράστηκε)",
+  "widgetsC.screenTime.limitTip": "όριο {limit}",
+  "styles.screenTimeChart.bars": "Μπάρες",
+  "styles.screenTimeChart.calendar": "Ημερολόγιο",
+  "widgetsC.screenTime.chart.desc": "Ο χρόνος οθόνης σου μέρα με τη μέρα, σε μια εβδομάδα ή έναν μήνα",
+  "widgetsC.screenTime.chart.label": "Γράφημα χρόνου οθόνης",
+  "widgetsC.screenTime.donut.desc": "Το μερίδιο κάθε εφαρμογής στον χρόνο οθόνης σου, ως δακτύλιος",
+  "widgetsC.screenTime.donut.label": "Δακτύλιος χρόνου οθόνης"
 }

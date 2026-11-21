@@ -1,5 +1,17 @@
 {
   "screenTime.label": "ಪರದೆ ಸಮಯ",
   "screentime.goalPerDay": "{value}/ದಿನದಲ್ಲಿ",
-  "screentime.ofGoal": "{value} ರಲ್ಲಿ"
+  "screentime.ofGoal": "{value} ರಲ್ಲಿ",
+  "screentime.metric.average": "ದೈನಂದಿನ ಸರಾಸರಿ",
+  "screentime.metric.percent": "ಒಟ್ಟು ಮೊತ್ತದ ಪಾಲು",
+  "widgetsC.screenTime.apps.desc": "ನೀನು ಬಳಸಿದ ಆ್ಯಪ್‌ಗಳು, ಮತ್ತು ಎಷ್ಟು ಹೊತ್ತು",
+  "widgetsC.screenTime.apps.label": "ಪರದೆ ಸಮಯದ ಆ್ಯಪ್‌ಗಳು",
+  "widgetsC.screenTime.limitOverTip": "ಮಿತಿ {limit} (ಮೀರಿದೆ)",
+  "widgetsC.screenTime.limitTip": "ಮಿತಿ {limit}",
+  "styles.screenTimeChart.bars": "ಬಾರ್‌ಗಳು",
+  "styles.screenTimeChart.calendar": "ಕ್ಯಾಲೆಂಡರ್",
+  "widgetsC.screenTime.chart.desc": "ನಿನ್ನ ಪರದೆ ಸಮಯ ದಿನದಿಂದ ದಿನಕ್ಕೆ, ಒಂದು ವಾರ ಅಥವಾ ತಿಂಗಳಲ್ಲಿ",
+  "widgetsC.screenTime.chart.label": "ಪರದೆ ಸಮಯದ ಚಾರ್ಟ್",
+  "widgetsC.screenTime.donut.desc": "ನಿನ್ನ ಪರದೆ ಸಮಯದಲ್ಲಿ ಪ್ರತಿ ಆ್ಯಪ್‌ನ ಪಾಲು, ಉಂಗುರವಾಗಿ",
+  "widgetsC.screenTime.donut.label": "ಪರದೆ ಸಮಯದ ಡೋನಟ್"
 }

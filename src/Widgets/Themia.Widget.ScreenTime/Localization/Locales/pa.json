@@ -1,5 +1,17 @@
 {
   "screenTime.label": "ਸਕ੍ਰੀਨ ਸਮਾਂ",
   "screentime.goalPerDay": "{value}/ਦਿਨ ਵਿੱਚੋਂ",
-  "screentime.ofGoal": "{value} ਵਿੱਚੋਂ"
+  "screentime.ofGoal": "{value} ਵਿੱਚੋਂ",
+  "screentime.metric.average": "ਰੋਜ਼ਾਨਾ ਔਸਤ",
+  "screentime.metric.percent": "ਕੁੱਲ ਦਾ ਹਿੱਸਾ",
+  "widgetsC.screenTime.apps.desc": "ਤੁਹਾਡੇ ਵੱਲੋਂ ਵਰਤੀਆਂ ਐਪਾਂ, ਅਤੇ ਕਿੰਨੀ ਦੇਰ",
+  "widgetsC.screenTime.apps.label": "ਸਕ੍ਰੀਨ ਸਮਾਂ ਐਪਾਂ",
+  "widgetsC.screenTime.limitOverTip": "ਸੀਮਾ {limit} (ਪਾਰ)",
+  "widgetsC.screenTime.limitTip": "ਸੀਮਾ {limit}",
+  "styles.screenTimeChart.bars": "ਬਾਰ",
+  "styles.screenTimeChart.calendar": "ਕੈਲੰਡਰ",
+  "widgetsC.screenTime.chart.desc": "ਤੁਹਾਡਾ ਸਕ੍ਰੀਨ ਸਮਾਂ ਦਿਨ-ਬ-ਦਿਨ, ਇੱਕ ਹਫ਼ਤੇ ਜਾਂ ਮਹੀਨੇ ਵਿੱਚ",
+  "widgetsC.screenTime.chart.label": "ਸਕ੍ਰੀਨ ਸਮਾਂ ਚਾਰਟ",
+  "widgetsC.screenTime.donut.desc": "ਤੁਹਾਡੇ ਸਕ੍ਰੀਨ ਸਮੇਂ ਵਿੱਚ ਹਰ ਐਪ ਦਾ ਹਿੱਸਾ, ਇੱਕ ਛੱਲੇ ਵਜੋਂ",
+  "widgetsC.screenTime.donut.label": "ਸਕ੍ਰੀਨ ਸਮਾਂ ਡੋਨਟ"
 }

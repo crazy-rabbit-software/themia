@@ -1,5 +1,17 @@
 {
   "screenTime.label": "스크린 타임",
   "screentime.goalPerDay": "/ {value}/일",
-  "screentime.ofGoal": "/ {value}"
+  "screentime.ofGoal": "/ {value}",
+  "screentime.metric.average": "일일 평균",
+  "screentime.metric.percent": "합계 대비 비율",
+  "widgetsC.screenTime.apps.desc": "사용한 앱과 사용 시간",
+  "widgetsC.screenTime.apps.label": "화면 사용 시간 앱",
+  "widgetsC.screenTime.limitOverTip": "제한 {limit}(초과)",
+  "widgetsC.screenTime.limitTip": "제한 {limit}",
+  "styles.screenTimeChart.bars": "막대",
+  "styles.screenTimeChart.calendar": "달력",
+  "widgetsC.screenTime.chart.desc": "일주일 또는 한 달 동안의 일별 화면 사용 시간",
+  "widgetsC.screenTime.chart.label": "화면 사용 시간 차트",
+  "widgetsC.screenTime.donut.desc": "화면 사용 시간에서 각 앱의 비율을 고리로 표시",
+  "widgetsC.screenTime.donut.label": "화면 사용 시간 도넛"
 }

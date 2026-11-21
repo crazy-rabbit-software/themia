@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "Medie zilnică",
-  "screentime.metric.percent": "Procent din total",
-  "widgetsC.screenTime.apps.desc": "Aplicațiile folosite și cât timp",
-  "widgetsC.screenTime.apps.label": "Aplicații timp pe ecran",
-  "widgetsC.screenTime.limitOverTip": "limită {limit} (depășită)",
-  "widgetsC.screenTime.limitTip": "limită {limit}"
-}

@@ -4442,9 +4442,10 @@ by the list.
 ## Screen time: chart, donut and apps (SCREENTIME-SPLIT)
 
 Screen time is four widgets (atoms, [S-11500]) on the one tracker, so a view can put the total, the
-week, the share and the list side by side and they light the same app together. Each is a module of
-its own (`src/Widgets/Themia.Widget.ScreenTime`, `.ScreenTimeChart`, `.ScreenTimeDonut`,
-`.ScreenTimeApps`, each its SPEC.md and its own sizes; no ladder is left). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,
+week, the share and the list side by side and they light the same app together. They are one family
+project (`src/Widgets/Themia.Widget.ScreenTime`, [S-6901]): each kind its own id, module, config, view and sizes, one
+SPEC.md with a section each, what every view holds alike (the tracker, the day line, the links) made and joined once
+(`ScreenTimeWiring`); no ladder is left. What they share stays here: the SDK's `Widgets/{ScreenTimeRules,
 ScreenTimePreferences,ScreenTimeDay}.cs` and `Model/Configs/ScreenTimeSettings.cs` (the period, the chart
 style and the settings the configs share), Themia.Sdk.WinUI's `Widgets/ScreenTimeShared.cs`
 (data, links, the look on the family's roles with each app the accent at its rank's step, `ScreenTimeLook.Brush`,
@@ -4502,15 +4503,15 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
 
 - **[S-3330]** `ScreenTimeChartConfig`: `Period` Week (default) or Month (a day reads as the week)
   and its style Bars (default) or Calendar ([S-3336]: an unknown one is repaired to Bars at load).
-- [S-3331], [S-3332], [S-3333], [S-3334]: moved with the Screen time: chart widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeChart/`).
+- [S-3331], [S-3332], [S-3333], [S-3334]: moved with the Screen time: chart widget into its module's `SPEC.md` (now the screen-time family's, `src/Widgets/Themia.Widget.ScreenTime/`).
 
 ### Donut
 
-- [S-3340], [S-3341], [S-3342], [S-3343], [S-3344]: moved with the Screen time: donut widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeDonut/`).
+- [S-3340], [S-3341], [S-3342], [S-3343], [S-3344]: moved with the Screen time: donut widget into its module's `SPEC.md` (now the screen-time family's, `src/Widgets/Themia.Widget.ScreenTime/`).
 
 ### Apps
 
-- [S-3350], [S-3352], [S-3353], [S-3354]: moved with the Screen time: apps widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeApps/`).
+- [S-3350], [S-3352], [S-3353], [S-3354]: moved with the Screen time: apps widget into its module's `SPEC.md` (now the screen-time family's, `src/Widgets/Themia.Widget.ScreenTime/`).
 - **[S-3960]** A packaged (Store / MSIX) app's icon is its package's logo, as Start shows it: its
   executable (under `WindowsApps\<package full name>\`) is asked for as the Apps-folder item
   `shell:AppsFolder\<family>!<app id>` (`PackagedApps.AppsFolderTarget`: the manifest's

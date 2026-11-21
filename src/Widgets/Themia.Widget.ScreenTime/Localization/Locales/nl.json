@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Schermtijd",
   "screentime.goalPerDay": "van {value}/dag",
-  "screentime.ofGoal": "van {value}"
+  "screentime.ofGoal": "van {value}",
+  "screentime.metric.average": "Daggemiddelde",
+  "screentime.metric.percent": "Aandeel van totaal",
+  "widgetsC.screenTime.apps.desc": "De apps die je gebruikte, en hoelang",
+  "widgetsC.screenTime.apps.label": "Schermtijd per app",
+  "widgetsC.screenTime.limitOverTip": "limiet {limit} (overschreden)",
+  "widgetsC.screenTime.limitTip": "limiet {limit}",
+  "styles.screenTimeChart.bars": "Staven",
+  "styles.screenTimeChart.calendar": "Kalender",
+  "widgetsC.screenTime.chart.desc": "Je schermtijd per dag, over een week of een maand",
+  "widgetsC.screenTime.chart.label": "Schermtijdgrafiek",
+  "widgetsC.screenTime.donut.desc": "Het aandeel van elke app in je schermtijd, als ring",
+  "widgetsC.screenTime.donut.label": "Schermtijdring"
 }

@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "روزانہ اوسط",
-  "screentime.metric.percent": "کل کا حصہ",
-  "widgetsC.screenTime.apps.desc": "آپ نے کون سی ایپس استعمال کیں، اور کتنی دیر",
-  "widgetsC.screenTime.apps.label": "اسکرین ٹائم ایپس",
-  "widgetsC.screenTime.limitOverTip": "حد {limit} (تجاوز)",
-  "widgetsC.screenTime.limitTip": "حد {limit}"
-}

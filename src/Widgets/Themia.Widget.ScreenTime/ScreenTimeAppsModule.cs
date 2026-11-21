@@ -1,0 +1,50 @@
+using System.Text.Json.Serialization;
+using Microsoft.UI.Xaml;
+using Themia.App.Shell;
+using Themia.App.Shell.Config;
+using Themia.App.Widgets;
+using Themia.Core.Links;
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Core.Widgets;
+using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
+using Themia.Widget.ScreenTime;
+
+[assembly: ThemiaWidget("screenTimeApps", typeof(ScreenTimeAppsModule))]
+
+namespace Themia.Widget.ScreenTime;
+
+/// <summary>[S-3350] The apps of the screen-time history, busiest first, for a day or a rolling week or month, each with its limit. SPEC.md beside this file.</summary>
+public sealed class ScreenTimeAppsModule : IWidgetModule
+{
+    /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
+    public WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("screenTimeApps"),
+        ConfigType = typeof(ScreenTimeAppsConfig),
+        CreateDefault = () => new ScreenTimeAppsConfig(),
+        Json = ScreenTimeJsonContext.Default,
+        Keywords = ["usage", "productivity", "time tracking", "screen time", "app usage", "list", "limits"],
+        Label = ScreenTimeStr.WidgetsC_ScreenTime_Apps_Label.Local(),
+        Description = ScreenTimeStr.WidgetsC_ScreenTime_Apps_Desc.Local(),
+        Glyph = Glyphs.ScreenTime,
+        Sizing = c => KitSizing.Sizing(((ScreenTimeAppsConfig)c).RowsShown, addFooter: false, over: DayLine(((ScreenTimeAppsConfig)c).Period)),
+        Traits = WidgetTraits.HasItems,
+        Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
+        Add = new(AddFolderId.ScreenTime, 0, 3),
+    };
+
+    /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ScreenTimeAppsMenu.Lines(menu, (ScreenTimeAppsConfig)config, SettingsHost.ScreenTime);
+
+    /// <summary>
+    /// [S-454] [S-12481] [S-12803] [S-14500] The day line over the rows for a day (the card's inset, its line and the gap
+    /// under it, whole cells from the card's top edge: <see cref="LineRules.BandOver"/>), none for a window.
+    /// </summary>
+    public static double DayLine(ScreenTimePeriod period) => ScreenTimeRules.DayLine(period) > 0 ? LineRules.BandOver : 0;
+
+    public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeAppsView(host);
+}

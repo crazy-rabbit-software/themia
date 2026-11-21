@@ -26,37 +26,29 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     private readonly ScreenTimeDayNav _nav;
 
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
-    private readonly WidgetLinks _dates = new();
+    private readonly WidgetLinks _dates;
     /// <summary>[S-12410] [S-14282] The reading under its day line: one block ([S-12483]: the same joined or alone).</summary>
     private readonly ReadoutBlock _readout = new() { HorizontalAlignment = HorizontalAlignment.Left };
 
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
 
-    private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
+    /// <summary>[S-450] [S-3310] The tracker, the day line, the app links and the dates: joined and left as one.</summary>
+    private readonly ScreenTimeWiring _wiring;
     /// <summary>[S-450] The tracker, followed as every screen-time widget follows it.</summary>
     private readonly ScreenTimeFeed _feed;
     private ScreenTimeConfig _config = new();
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
-    private bool _detached;
 
     public ScreenTimeView(IWidgetHost host)
     {
-        _host = host;
-        _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
-        _nav = new ScreenTimeDayNav(Render);
-        _feed = new ScreenTimeFeed(Render, _nav);
+        _wiring = new ScreenTimeWiring(host, Render, ApplyFocus);
+        (_links, _nav, _feed, _dates) = (_wiring.Links, _wiring.Nav, _wiring.Feed, _wiring.Dates);
 
         // [S-11928] A day selected on the view (a calendar's click) is the day a Day period shows.
-        _dates.Follow(LinkTopics.SelectedDate, value =>
-        {
-            if (ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day && _nav.Select(value?.Date))
-            {
-                Render();
-            }
-        });
+        _wiring.FollowSelectedDay(() => _config.Period);
         _readout.Use(FamilyType.Big28);
 
         // [S-454] [S-12481] [S-14282] The day and its arrows stand right over the reading, as wide as it, one block with
@@ -73,11 +65,8 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _detached = false;
         _config = config as ScreenTimeConfig ?? new ScreenTimeConfig();
-        _feed.Attach(_host.ScreenTime);
-        _links.Join(_surface?.Links);
-        _dates.Join(_surface?.Links);
+        _wiring.Attach(_surface);
         Render();
     }
 
@@ -89,15 +78,12 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
     public void Detach()
     {
-        _detached = true;
-        _feed.Detach();
-        _links.Leave();
-        _dates.Leave();
+        _wiring.Detach();
     }
 
     private void Render()
     {
-        if (_detached)
+        if (_wiring.Detached)
         {
             return;
         }
@@ -138,7 +124,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     /// <summary>[S-11503] The total and its line, or the focused app's time over the period and its share.</summary>
     private void ApplyFocus()
     {
-        if (_detached || _data is not { } data)
+        if (_wiring.Detached || _data is not { } data)
         {
             return;
         }

@@ -1,5 +1,17 @@
 {
   "screenTime.label": "സ്ക്രീൻ സമയം",
   "screentime.goalPerDay": "{value}/ദിവസം-ൽ",
-  "screentime.ofGoal": "{value}-ൽ"
+  "screentime.ofGoal": "{value}-ൽ",
+  "screentime.metric.average": "ദൈനംദിന ശരാശരി",
+  "screentime.metric.percent": "ആകെയുടെ പങ്ക്",
+  "widgetsC.screenTime.apps.desc": "നിങ്ങൾ ഉപയോഗിച്ച ആപ്പുകളും എത്ര നേരവും",
+  "widgetsC.screenTime.apps.label": "സ്ക്രീൻ സമയ ആപ്പുകൾ",
+  "widgetsC.screenTime.limitOverTip": "പരിധി {limit} (കവിഞ്ഞു)",
+  "widgetsC.screenTime.limitTip": "പരിധി {limit}",
+  "styles.screenTimeChart.bars": "ബാറുകൾ",
+  "styles.screenTimeChart.calendar": "കലണ്ടർ",
+  "widgetsC.screenTime.chart.desc": "ഒരു ആഴ്ചയിലോ മാസത്തിലോ, ദിവസം തോറുമുള്ള നിങ്ങളുടെ സ്ക്രീൻ സമയം",
+  "widgetsC.screenTime.chart.label": "സ്ക്രീൻ സമയ ചാർട്ട്",
+  "widgetsC.screenTime.donut.desc": "നിങ്ങളുടെ സ്ക്രീൻ സമയത്തിൽ ഓരോ ആപ്പിന്റെയും പങ്ക്, ഒരു വളയമായി",
+  "widgetsC.screenTime.donut.label": "സ്ക്രീൻ സമയ ഡോണട്ട്"
 }

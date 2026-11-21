@@ -73,9 +73,6 @@
     <Project Path="src/Widgets/Themia.Widget.RemovableDrives/Themia.Widget.RemovableDrives.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Rss/Themia.Widget.Rss.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Scratchpad/Themia.Widget.Scratchpad.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.ScreenTimeApps/Themia.Widget.ScreenTimeApps.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.ScreenTimeChart/Themia.Widget.ScreenTimeChart.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.ScreenTimeDonut/Themia.Widget.ScreenTimeDonut.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stock/Themia.Widget.Stock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stopwatch/Themia.Widget.Stopwatch.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Sun/Themia.Widget.Sun.csproj" />

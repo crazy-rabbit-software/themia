@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Waktu layar",
   "screentime.goalPerDay": "dari {value}/hari",
-  "screentime.ofGoal": "dari {value}"
+  "screentime.ofGoal": "dari {value}",
+  "screentime.metric.average": "Rata-rata harian",
+  "screentime.metric.percent": "Bagian dari total",
+  "widgetsC.screenTime.apps.desc": "Aplikasi yang Anda gunakan, dan berapa lama",
+  "widgetsC.screenTime.apps.label": "Aplikasi waktu layar",
+  "widgetsC.screenTime.limitOverTip": "batas {limit} (terlampaui)",
+  "widgetsC.screenTime.limitTip": "batas {limit}",
+  "styles.screenTimeChart.bars": "Batang",
+  "styles.screenTimeChart.calendar": "Kalender",
+  "widgetsC.screenTime.chart.desc": "Waktu layar Anda per hari, selama seminggu atau sebulan",
+  "widgetsC.screenTime.chart.label": "Grafik waktu layar",
+  "widgetsC.screenTime.donut.desc": "Bagian setiap aplikasi dari waktu layar Anda, sebagai cincin",
+  "widgetsC.screenTime.donut.label": "Donat waktu layar"
 }

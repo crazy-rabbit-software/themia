@@ -1,5 +1,17 @@
 {
   "screenTime.label": "スクリーンタイム",
   "screentime.goalPerDay": "/ {value} 毎日",
-  "screentime.ofGoal": "/ {value}"
+  "screentime.ofGoal": "/ {value}",
+  "screentime.metric.average": "1 日あたりの平均",
+  "screentime.metric.percent": "全体に占める割合",
+  "widgetsC.screenTime.apps.desc": "使ったアプリとその時間",
+  "widgetsC.screenTime.apps.label": "スクリーン タイム アプリ",
+  "widgetsC.screenTime.limitOverTip": "制限 {limit} (超過)",
+  "widgetsC.screenTime.limitTip": "制限 {limit}",
+  "styles.screenTimeChart.bars": "棒グラフ",
+  "styles.screenTimeChart.calendar": "カレンダー",
+  "widgetsC.screenTime.chart.desc": "1 週間または 1 か月のスクリーン タイムを日ごとに表示",
+  "widgetsC.screenTime.chart.label": "スクリーン タイム グラフ",
+  "widgetsC.screenTime.donut.desc": "スクリーン タイムに占める各アプリの割合をリングで表示",
+  "widgetsC.screenTime.donut.label": "スクリーン タイム リング"
 }

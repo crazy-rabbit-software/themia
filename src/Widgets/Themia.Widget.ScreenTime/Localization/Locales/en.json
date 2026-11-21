@@ -1,7 +1,21 @@
 {
-  "$englishOnly": ["screenTime.desc"],
+  "$englishOnly": [
+    "screenTime.desc"
+  ],
   "screenTime.desc": "Your screen time over a day, a week or a month, against your daily limit",
   "screenTime.label": "Screen time",
   "screentime.goalPerDay": "of {value}/day",
-  "screentime.ofGoal": "of {value}"
+  "screentime.ofGoal": "of {value}",
+  "screentime.metric.average": "Daily average",
+  "screentime.metric.percent": "Share of total",
+  "widgetsC.screenTime.apps.desc": "The apps you used, and for how long",
+  "widgetsC.screenTime.apps.label": "Screen time apps",
+  "widgetsC.screenTime.limitOverTip": "limit {limit} (over)",
+  "widgetsC.screenTime.limitTip": "limit {limit}",
+  "styles.screenTimeChart.bars": "Bars",
+  "styles.screenTimeChart.calendar": "Calendar",
+  "widgetsC.screenTime.chart.desc": "Your screen time day by day, over a week or a month",
+  "widgetsC.screenTime.chart.label": "Screen time chart",
+  "widgetsC.screenTime.donut.desc": "Each app's share of your screen time, as a ring",
+  "widgetsC.screenTime.donut.label": "Screen time donut"
 }

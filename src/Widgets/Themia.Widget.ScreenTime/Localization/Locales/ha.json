@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Lokacin allo",
   "screentime.goalPerDay": "na {value}/rana",
-  "screentime.ofGoal": "na {value}"
+  "screentime.ofGoal": "na {value}",
+  "screentime.metric.average": "Matsakaicin kullum",
+  "screentime.metric.percent": "Kaso na jimla",
+  "widgetsC.screenTime.apps.desc": "Manhajojin da ka yi amfani da su, da tsawon lokaci",
+  "widgetsC.screenTime.apps.label": "Manhajojin lokacin allo",
+  "widgetsC.screenTime.limitOverTip": "iyaka {limit} (an wuce)",
+  "widgetsC.screenTime.limitTip": "iyaka {limit}",
+  "styles.screenTimeChart.bars": "Sanduna",
+  "styles.screenTimeChart.calendar": "Kalanda",
+  "widgetsC.screenTime.chart.desc": "Lokacin allonka rana bayan rana, a cikin mako ko wata",
+  "widgetsC.screenTime.chart.label": "Jadawalin lokacin allo",
+  "widgetsC.screenTime.donut.desc": "Kason kowace manhaja na lokacin allonka, a matsayin zobe",
+  "widgetsC.screenTime.donut.label": "Zoben lokacin allo"
 }

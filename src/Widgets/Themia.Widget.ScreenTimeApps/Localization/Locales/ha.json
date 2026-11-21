@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "Matsakaicin kullum",
-  "screentime.metric.percent": "Kaso na jimla",
-  "widgetsC.screenTime.apps.desc": "Manhajojin da ka yi amfani da su, da tsawon lokaci",
-  "widgetsC.screenTime.apps.label": "Manhajojin lokacin allo",
-  "widgetsC.screenTime.limitOverTip": "iyaka {limit} (an wuce)",
-  "widgetsC.screenTime.limitTip": "iyaka {limit}"
-}

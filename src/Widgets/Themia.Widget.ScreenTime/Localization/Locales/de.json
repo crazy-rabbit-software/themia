@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Bildschirmzeit",
   "screentime.goalPerDay": "von {value}/Tag",
-  "screentime.ofGoal": "von {value}"
+  "screentime.ofGoal": "von {value}",
+  "screentime.metric.average": "Tagesdurchschnitt",
+  "screentime.metric.percent": "Anteil an der Gesamtzeit",
+  "widgetsC.screenTime.apps.desc": "Welche Apps du genutzt hast und wie lange",
+  "widgetsC.screenTime.apps.label": "Bildschirmzeit-Apps",
+  "widgetsC.screenTime.limitOverTip": "Limit {limit} (überschritten)",
+  "widgetsC.screenTime.limitTip": "Limit {limit}",
+  "styles.screenTimeChart.bars": "Balken",
+  "styles.screenTimeChart.calendar": "Kalender",
+  "widgetsC.screenTime.chart.desc": "Deine Bildschirmzeit Tag für Tag, über eine Woche oder einen Monat",
+  "widgetsC.screenTime.chart.label": "Bildschirmzeit-Diagramm",
+  "widgetsC.screenTime.donut.desc": "Der Anteil jeder App an deiner Bildschirmzeit, als Ring",
+  "widgetsC.screenTime.donut.label": "Bildschirmzeit-Ring"
 }

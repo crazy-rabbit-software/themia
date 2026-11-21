@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "المتوسط اليومي",
-  "screentime.metric.percent": "النسبة من الإجمالي",
-  "widgetsC.screenTime.apps.desc": "التطبيقات التي استخدمتها، ومدة استخدامها",
-  "widgetsC.screenTime.apps.label": "تطبيقات وقت الشاشة",
-  "widgetsC.screenTime.limitOverTip": "الحد {limit} (تم تجاوزه)",
-  "widgetsC.screenTime.limitTip": "الحد {limit}"
-}

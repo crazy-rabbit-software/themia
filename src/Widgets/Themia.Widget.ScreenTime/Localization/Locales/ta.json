@@ -1,5 +1,17 @@
 {
   "screenTime.label": "திரை நேரம்",
   "screentime.goalPerDay": "{value}/நாள் இல்",
-  "screentime.ofGoal": "{value} இல்"
+  "screentime.ofGoal": "{value} இல்",
+  "screentime.metric.average": "தினசரி சராசரி",
+  "screentime.metric.percent": "மொத்தத்தில் பங்கு",
+  "widgetsC.screenTime.apps.desc": "நீங்கள் பயன்படுத்திய பயன்பாடுகளும், எவ்வளவு நேரம் என்பதும்",
+  "widgetsC.screenTime.apps.label": "திரை நேரப் பயன்பாடுகள்",
+  "widgetsC.screenTime.limitOverTip": "வரம்பு {limit} (மீறியது)",
+  "widgetsC.screenTime.limitTip": "வரம்பு {limit}",
+  "styles.screenTimeChart.bars": "பட்டைகள்",
+  "styles.screenTimeChart.calendar": "நாள்காட்டி",
+  "widgetsC.screenTime.chart.desc": "ஒரு வாரம் அல்லது மாதத்தில், நாள்தோறும் உங்கள் திரை நேரம்",
+  "widgetsC.screenTime.chart.label": "திரை நேர விளக்கப்படம்",
+  "widgetsC.screenTime.donut.desc": "உங்கள் திரை நேரத்தில் ஒவ்வொரு பயன்பாட்டின் பங்கு, வளையமாக",
+  "widgetsC.screenTime.donut.label": "திரை நேர வளையம்"
 }

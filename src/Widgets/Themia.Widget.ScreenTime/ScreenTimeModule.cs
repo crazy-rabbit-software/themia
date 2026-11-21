@@ -11,6 +11,7 @@ using Themia.Sdk.WinUI;
 using Themia.Widget.ScreenTime;
 using Themia.Sdk.Kit;
 
+[assembly: ThemiaWidgetFamily]
 [assembly: ThemiaWidget("screenTime", typeof(ScreenTimeModule))]
 
 namespace Themia.Widget.ScreenTime;
@@ -47,10 +48,13 @@ public sealed class ScreenTimeModule : IWidgetModule
     public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeView(host);
 }
 
-/// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>
+/// <summary>[S-6903] The family's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>
 [JsonSourceGenerationOptions(
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(ScreenTimeConfig))]
+[JsonSerializable(typeof(ScreenTimeAppsConfig))]
+[JsonSerializable(typeof(ScreenTimeChartConfig))]
+[JsonSerializable(typeof(ScreenTimeDonutConfig))]
 internal sealed partial class ScreenTimeJsonContext : JsonSerializerContext;

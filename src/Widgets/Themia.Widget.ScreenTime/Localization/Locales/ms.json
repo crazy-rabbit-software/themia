@@ -1,5 +1,18 @@
 {
   "screenTime.label": "Masa skrin",
   "screentime.goalPerDay": "daripada {value}/hari",
-  "screentime.ofGoal": "daripada {value}"
+  "screentime.ofGoal": "daripada {value}",
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "screentime.metric.average": "Purata harian",
+  "screentime.metric.percent": "Bahagian daripada jumlah",
+  "widgetsC.screenTime.apps.desc": "Apl yang kamu gunakan, dan berapa lama",
+  "widgetsC.screenTime.apps.label": "Apl masa skrin",
+  "widgetsC.screenTime.limitOverTip": "had {limit} (melebihi)",
+  "widgetsC.screenTime.limitTip": "had {limit}",
+  "styles.screenTimeChart.bars": "Bar",
+  "styles.screenTimeChart.calendar": "Kalendar",
+  "widgetsC.screenTime.chart.desc": "Masa skrin kamu hari demi hari, sepanjang seminggu atau sebulan",
+  "widgetsC.screenTime.chart.label": "Carta masa skrin",
+  "widgetsC.screenTime.donut.desc": "Bahagian setiap apl daripada masa skrin kamu, sebagai cincin",
+  "widgetsC.screenTime.donut.label": "Donat masa skrin"
 }

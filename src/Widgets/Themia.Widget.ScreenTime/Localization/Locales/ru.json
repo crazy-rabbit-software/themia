@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Экранное время",
   "screentime.goalPerDay": "из {value}/день",
-  "screentime.ofGoal": "из {value}"
+  "screentime.ofGoal": "из {value}",
+  "screentime.metric.average": "Среднее за день",
+  "screentime.metric.percent": "Доля от общего",
+  "widgetsC.screenTime.apps.desc": "Какие приложения вы использовали и сколько",
+  "widgetsC.screenTime.apps.label": "Приложения по времени использования",
+  "widgetsC.screenTime.limitOverTip": "лимит {limit} (превышен)",
+  "widgetsC.screenTime.limitTip": "лимит {limit}",
+  "styles.screenTimeChart.bars": "Столбцы",
+  "styles.screenTimeChart.calendar": "Календарь",
+  "widgetsC.screenTime.chart.desc": "Ваше время использования по дням за неделю или месяц",
+  "widgetsC.screenTime.chart.label": "График времени использования",
+  "widgetsC.screenTime.donut.desc": "Доля каждого приложения во времени использования в виде кольца",
+  "widgetsC.screenTime.donut.label": "Кольцо времени использования"
 }

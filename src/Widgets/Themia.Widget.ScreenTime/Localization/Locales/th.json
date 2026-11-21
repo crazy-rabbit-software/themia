@@ -1,5 +1,17 @@
 {
   "screenTime.label": "เวลาหน้าจอ",
   "screentime.goalPerDay": "จาก {value}/วัน",
-  "screentime.ofGoal": "จาก {value}"
+  "screentime.ofGoal": "จาก {value}",
+  "screentime.metric.average": "ค่าเฉลี่ยต่อวัน",
+  "screentime.metric.percent": "สัดส่วนของทั้งหมด",
+  "widgetsC.screenTime.apps.desc": "แอปที่คุณใช้ และใช้นานเท่าใด",
+  "widgetsC.screenTime.apps.label": "แอปตามเวลาหน้าจอ",
+  "widgetsC.screenTime.limitOverTip": "ขีดจำกัด {limit} (เกิน)",
+  "widgetsC.screenTime.limitTip": "ขีดจำกัด {limit}",
+  "styles.screenTimeChart.bars": "แท่ง",
+  "styles.screenTimeChart.calendar": "ปฏิทิน",
+  "widgetsC.screenTime.chart.desc": "เวลาหน้าจอของคุณรายวัน ตลอดหนึ่งสัปดาห์หรือหนึ่งเดือน",
+  "widgetsC.screenTime.chart.label": "แผนภูมิเวลาหน้าจอ",
+  "widgetsC.screenTime.donut.desc": "สัดส่วนเวลาหน้าจอของแต่ละแอป ในรูปวงแหวน",
+  "widgetsC.screenTime.donut.label": "แผนภูมิวงแหวนเวลาหน้าจอ"
 }

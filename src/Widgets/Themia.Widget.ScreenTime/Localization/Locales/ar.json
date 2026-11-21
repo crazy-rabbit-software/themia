@@ -1,5 +1,17 @@
 {
   "screenTime.label": "وقت الشاشة",
   "screentime.goalPerDay": "من {value}/يوم",
-  "screentime.ofGoal": "من {value}"
+  "screentime.ofGoal": "من {value}",
+  "screentime.metric.average": "المتوسط اليومي",
+  "screentime.metric.percent": "النسبة من الإجمالي",
+  "widgetsC.screenTime.apps.desc": "التطبيقات التي استخدمتها، ومدة استخدامها",
+  "widgetsC.screenTime.apps.label": "تطبيقات وقت الشاشة",
+  "widgetsC.screenTime.limitOverTip": "الحد {limit} (تم تجاوزه)",
+  "widgetsC.screenTime.limitTip": "الحد {limit}",
+  "styles.screenTimeChart.bars": "أشرطة",
+  "styles.screenTimeChart.calendar": "تقويم",
+  "widgetsC.screenTime.chart.desc": "وقت الشاشة يومًا بيوم، على مدى أسبوع أو شهر",
+  "widgetsC.screenTime.chart.label": "مخطط وقت الشاشة",
+  "widgetsC.screenTime.donut.desc": "حصة كل تطبيق من وقت الشاشة، على شكل حلقة",
+  "widgetsC.screenTime.donut.label": "حلقة وقت الشاشة"
 }

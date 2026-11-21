@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Oras sa screen",
   "screentime.goalPerDay": "sa {value}/araw",
-  "screentime.ofGoal": "sa {value}"
+  "screentime.ofGoal": "sa {value}",
+  "screentime.metric.average": "Average bawat araw",
+  "screentime.metric.percent": "Bahagi sa kabuuan",
+  "widgetsC.screenTime.apps.desc": "Ang mga app na ginamit mo, at kung gaano katagal",
+  "widgetsC.screenTime.apps.label": "Mga app sa screen time",
+  "widgetsC.screenTime.limitOverTip": "limitasyon {limit} (lampas)",
+  "widgetsC.screenTime.limitTip": "limitasyon {limit}",
+  "styles.screenTimeChart.bars": "Mga bar",
+  "styles.screenTimeChart.calendar": "Kalendaryo",
+  "widgetsC.screenTime.chart.desc": "Ang iyong screen time araw-araw, sa loob ng isang linggo o buwan",
+  "widgetsC.screenTime.chart.label": "Chart ng screen time",
+  "widgetsC.screenTime.donut.desc": "Bahagi ng bawat app sa iyong screen time, bilang singsing",
+  "widgetsC.screenTime.donut.label": "Donut ng screen time"
 }

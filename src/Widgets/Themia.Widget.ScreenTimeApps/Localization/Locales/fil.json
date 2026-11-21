@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "Average bawat araw",
-  "screentime.metric.percent": "Bahagi sa kabuuan",
-  "widgetsC.screenTime.apps.desc": "Ang mga app na ginamit mo, at kung gaano katagal",
-  "widgetsC.screenTime.apps.label": "Mga app sa screen time",
-  "widgetsC.screenTime.limitOverTip": "limitasyon {limit} (lampas)",
-  "widgetsC.screenTime.limitTip": "limitasyon {limit}"
-}

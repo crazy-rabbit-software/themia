@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Timp petrecut pe ecran",
   "screentime.goalPerDay": "din {value}/zi",
-  "screentime.ofGoal": "din {value}"
+  "screentime.ofGoal": "din {value}",
+  "screentime.metric.average": "Medie zilnică",
+  "screentime.metric.percent": "Procent din total",
+  "widgetsC.screenTime.apps.desc": "Aplicațiile folosite și cât timp",
+  "widgetsC.screenTime.apps.label": "Aplicații timp pe ecran",
+  "widgetsC.screenTime.limitOverTip": "limită {limit} (depășită)",
+  "widgetsC.screenTime.limitTip": "limită {limit}",
+  "styles.screenTimeChart.bars": "Bare",
+  "styles.screenTimeChart.calendar": "Calendar",
+  "widgetsC.screenTime.chart.desc": "Timpul pe ecran zi de zi, pe o săptămână sau o lună",
+  "widgetsC.screenTime.chart.label": "Grafic timp pe ecran",
+  "widgetsC.screenTime.donut.desc": "Ponderea fiecărei aplicații din timpul pe ecran, ca inel",
+  "widgetsC.screenTime.donut.label": "Inel timp pe ecran"
 }

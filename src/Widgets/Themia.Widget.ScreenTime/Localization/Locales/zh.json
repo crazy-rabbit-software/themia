@@ -1,5 +1,17 @@
 {
   "screenTime.label": "屏幕使用时间",
   "screentime.goalPerDay": "/ {value} 每天",
-  "screentime.ofGoal": "/ {value}"
+  "screentime.ofGoal": "/ {value}",
+  "screentime.metric.average": "日均用时",
+  "screentime.metric.percent": "占总时长比例",
+  "widgetsC.screenTime.apps.desc": "你使用了哪些应用以及使用时长",
+  "widgetsC.screenTime.apps.label": "屏幕使用时间应用",
+  "widgetsC.screenTime.limitOverTip": "限制 {limit}（已超出）",
+  "widgetsC.screenTime.limitTip": "限制 {limit}",
+  "styles.screenTimeChart.bars": "柱状图",
+  "styles.screenTimeChart.calendar": "日历",
+  "widgetsC.screenTime.chart.desc": "按天显示一周或一个月的屏幕使用时间",
+  "widgetsC.screenTime.chart.label": "屏幕使用时间图表",
+  "widgetsC.screenTime.donut.desc": "以环形显示每个应用在屏幕使用时间中的占比",
+  "widgetsC.screenTime.donut.label": "屏幕使用时间环形图"
 }

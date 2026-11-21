@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "Rata-rata harian",
-  "screentime.metric.percent": "Bagian dari total",
-  "widgetsC.screenTime.apps.desc": "Aplikasi yang Anda gunakan, dan berapa lama",
-  "widgetsC.screenTime.apps.label": "Aplikasi waktu layar",
-  "widgetsC.screenTime.limitOverTip": "batas {limit} (terlampaui)",
-  "widgetsC.screenTime.limitTip": "batas {limit}"
-}

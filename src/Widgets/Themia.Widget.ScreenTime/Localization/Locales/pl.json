@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Czas ekranu",
   "screentime.goalPerDay": "z {value}/dzień",
-  "screentime.ofGoal": "z {value}"
+  "screentime.ofGoal": "z {value}",
+  "screentime.metric.average": "Średnia dzienna",
+  "screentime.metric.percent": "Udział w całości",
+  "widgetsC.screenTime.apps.desc": "Aplikacje, z których korzystasz, i jak długo",
+  "widgetsC.screenTime.apps.label": "Aplikacje czasu przed ekranem",
+  "widgetsC.screenTime.limitOverTip": "limit {limit} (przekroczony)",
+  "widgetsC.screenTime.limitTip": "limit {limit}",
+  "styles.screenTimeChart.bars": "Słupki",
+  "styles.screenTimeChart.calendar": "Kalendarz",
+  "widgetsC.screenTime.chart.desc": "Twój czas przed ekranem dzień po dniu, w tygodniu lub miesiącu",
+  "widgetsC.screenTime.chart.label": "Wykres czasu przed ekranem",
+  "widgetsC.screenTime.donut.desc": "Udział każdej aplikacji w czasie przed ekranem, jako pierścień",
+  "widgetsC.screenTime.donut.label": "Pierścień czasu przed ekranem"
 }

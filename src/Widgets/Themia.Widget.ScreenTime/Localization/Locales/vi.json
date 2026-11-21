@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Thời gian sử dụng",
   "screentime.goalPerDay": "trên {value}/ngày",
-  "screentime.ofGoal": "trên {value}"
+  "screentime.ofGoal": "trên {value}",
+  "screentime.metric.average": "Trung bình mỗi ngày",
+  "screentime.metric.percent": "Tỷ lệ trên tổng",
+  "widgetsC.screenTime.apps.desc": "Các ứng dụng bạn đã dùng, và trong bao lâu",
+  "widgetsC.screenTime.apps.label": "Ứng dụng theo thời gian sử dụng",
+  "widgetsC.screenTime.limitOverTip": "giới hạn {limit} (vượt)",
+  "widgetsC.screenTime.limitTip": "giới hạn {limit}",
+  "styles.screenTimeChart.bars": "Thanh",
+  "styles.screenTimeChart.calendar": "Lịch",
+  "widgetsC.screenTime.chart.desc": "Thời gian sử dụng theo từng ngày, trong một tuần hoặc một tháng",
+  "widgetsC.screenTime.chart.label": "Biểu đồ thời gian sử dụng",
+  "widgetsC.screenTime.donut.desc": "Phần thời gian sử dụng của mỗi ứng dụng, dạng vòng",
+  "widgetsC.screenTime.donut.label": "Vòng thời gian sử dụng"
 }

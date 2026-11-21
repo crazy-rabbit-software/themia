@@ -1,8 +1,0 @@
-{
-  "screentime.metric.average": "दैनिक सरासरी",
-  "screentime.metric.percent": "एकूणातील वाटा",
-  "widgetsC.screenTime.apps.desc": "तुम्ही वापरलेली अ‍ॅप्स, आणि किती वेळ",
-  "widgetsC.screenTime.apps.label": "स्क्रीन टाइम अ‍ॅप्स",
-  "widgetsC.screenTime.limitOverTip": "मर्यादा {limit} (ओलांडली)",
-  "widgetsC.screenTime.limitTip": "मर्यादा {limit}"
-}

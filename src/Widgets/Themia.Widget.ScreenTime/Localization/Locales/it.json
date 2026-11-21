@@ -1,5 +1,17 @@
 {
   "screenTime.label": "Tempo di utilizzo",
   "screentime.goalPerDay": "di {value}/giorno",
-  "screentime.ofGoal": "di {value}"
+  "screentime.ofGoal": "di {value}",
+  "screentime.metric.average": "Media giornaliera",
+  "screentime.metric.percent": "Quota sul totale",
+  "widgetsC.screenTime.apps.desc": "Le app che hai usato e per quanto tempo",
+  "widgetsC.screenTime.apps.label": "App del tempo di utilizzo",
+  "widgetsC.screenTime.limitOverTip": "limite {limit} (superato)",
+  "widgetsC.screenTime.limitTip": "limite {limit}",
+  "styles.screenTimeChart.bars": "Barre",
+  "styles.screenTimeChart.calendar": "Calendario",
+  "widgetsC.screenTime.chart.desc": "Il tuo tempo di utilizzo giorno per giorno, in una settimana o un mese",
+  "widgetsC.screenTime.chart.label": "Grafico del tempo di utilizzo",
+  "widgetsC.screenTime.donut.desc": "La quota di ogni app nel tuo tempo di utilizzo, come anello",
+  "widgetsC.screenTime.donut.label": "Anello del tempo di utilizzo"
 }
