@@ -163,10 +163,13 @@ public static class BlockLayout
         return new Measured(intrinsic, packed, ink, least, whole);
     }
 
-    /// <summary>[S-12808] The fill of a measured block in a room <paramref name="width"/> × <paramref name="height"/>; [S-14319] on its <paramref name="foot"/>.</summary>
-    public static BlockFill Fill(double width, double height, Measured block, bool foot = false)
+    /// <summary>
+    /// [S-12808] The fill of a measured block in a room <paramref name="width"/> × <paramref name="height"/>; [S-14319] on its
+    /// <paramref name="foot"/>; [S-14324] never over <paramref name="most"/> (a line that keeps its own size, centred on its ink).
+    /// </summary>
+    public static BlockFill Fill(double width, double height, Measured block, bool foot = false, double most = double.PositiveInfinity)
     {
-        var most = block.Whole > block.Intrinsic ? Uncut(width, block.Whole) : double.PositiveInfinity;
+        most = Math.Min(most > 0 && !double.IsNaN(most) ? most : double.PositiveInfinity, block.Whole > block.Intrinsic ? Uncut(width, block.Whole) : double.PositiveInfinity);
         var fill = Fill(width, height, block.Intrinsic, block.Packed, block.Ink, block.Least, most);
 
         // [S-14319] Stood on its foot: where the width stops it, the height left stands over its first ink alone.

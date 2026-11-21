@@ -10,8 +10,9 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-6274] The drive reading's Ring style on the family's blocks: the used share as the Chart block's
-/// ring (stroke 2, the bar's role, [S-6717]) with the share at 28 in its hole, start-aligned, as large as
-/// the box allows with the space line 8 under it (<see cref="DriveFace.Ring"/>). Built when the style is chosen, dropped when the bar is ([S-6005]);
+/// ring (stroke 2, the bar's role, [S-6717]) with the share at 28 in its hole, as large as the box allows with the space
+/// line 8 under it (<see cref="DriveFace.Ring"/>), [S-14324] the ring and its line centred across where the height stops
+/// the ring (owner, 2026-11-20, of a reading that fills one axis: "Centred is fine"). Built when the style is chosen, dropped when the bar is ([S-6005]);
 /// the drive and its walk are the card's as in the bar style.
 /// </summary>
 internal sealed partial class DriveView
@@ -21,7 +22,7 @@ internal sealed partial class DriveView
     private sealed class RingParts
     {
         public readonly StackPanel Root = new() { VerticalAlignment = VerticalAlignment.Center };
-        public readonly Grid Box = new() { HorizontalAlignment = HorizontalAlignment.Left };
+        public readonly Grid Box = new() { HorizontalAlignment = HorizontalAlignment.Center };
         public readonly ChartRing Ring = new();
         public readonly ReadoutBlock Share = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         public readonly TextBlock Line = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
@@ -30,7 +31,8 @@ internal sealed partial class DriveView
         {
             Line.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
             Line.TextTrimming = TextTrimming.CharacterEllipsis;
-            Line.HorizontalAlignment = HorizontalAlignment.Left;
+            Line.HorizontalAlignment = HorizontalAlignment.Center;
+            Line.TextAlignment = TextAlignment.Center;
             Box.Children.Add(Ring);
             Box.Children.Add(Share);
             Root.Children.Add(Box);

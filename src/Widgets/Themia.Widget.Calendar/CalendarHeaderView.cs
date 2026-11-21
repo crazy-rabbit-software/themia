@@ -55,11 +55,15 @@ internal sealed partial class CalendarHeaderView : Grid, IWidgetView, IWidgetSur
 
     public CalendarHeaderView()
     {
-        _line.Margin = Family.SideInset;
         _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
         _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1)));
-        _line.VerticalAlignment = VerticalAlignment.Top;
-        Children.Add(_line);
+
+        // [S-14324] The one line stands centred on its ink in the card's height (owner, 2026-11-19, of the one-line faces:
+        // "Centred is fine"), across the whole content, at its own size: the one block layout with a line that keeps its size.
+        var fit = new ReadingFit { Most = 1 };
+        fit.Parts.Add(_line);
+        fit.Span(_line);
+        Children.Add(fit);
 
         // [S-3628] Followed once; joined again on every Attach, each told what the view holds at once.
         _links.Follow(LinkTopics.SelectedDate, OnSelected);

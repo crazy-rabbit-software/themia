@@ -253,4 +253,20 @@ public sealed class BlockLayoutTests
         Assert.False(solved.Shown(1));
         Assert.Equal(solved.Places[0]!.Value.Y + 40, solved.Places[2]!.Value.Y, 6);
     }
+
+    [Fact]
+    public void S14324_a_line_that_keeps_its_own_size_stands_centred_on_its_ink()
+    {
+        // A calendar header's tool line (40 tall, 10 over its first ink, 6 under its last) in a 576 x 68 room, at most its size.
+        var line = new PartBox(200, 40, new LineInk(10, 6), Spans: true, Text: 14);
+        var block = BlockLayout.Measure([line], 0, null, 0);
+        var fill = BlockLayout.Fill(576, 68, block, most: 1);
+        Assert.Equal(1, fill.Scale);
+        var over = fill.Top + 10;
+        var under = 68 - (fill.Top + 40 - 6);
+        Assert.Equal(over, under, 6);
+
+        // A room shorter than it still scales it down to its floor (WR-14).
+        Assert.True(BlockLayout.Fill(576, 12, block, most: 1).Scale < 1);
+    }
 }

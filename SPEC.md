@@ -8825,6 +8825,17 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   the same rule at its own size, a whole device pixel down (the one rounding token, `LayoutMath.Pixel`). Tests
   `BlockLayoutTests` (the give-way order, held templates, cut lines' caps, placeholder ink, alignment, cross-axis
   centring, the face floor), `BlockFillTests`, `ResponsiveLayoutTests.S662_`.
+- **[S-14324]** **Every reading face fills one axis on the one layout and stands centred on the other** (owner, 2026-11-20,
+  of a reading that fills one axis: "Centred is fine"; WR-1, WR-2, WR-7, WR-10; found by the checks drawing every style,
+  [S-14814]). A meter's battery and signal looks are one block (`ReadingFit`): the reading over its picture at its natural
+  size, scaled as one, never a picture grown under a reading that stays its size; a gauge or a ring stands centred across
+  and, by the block rule at its own size, in the height; over a meter's rows its reading's first ink stands on the content's
+  top (as drawn) and the first row right under its line, no gap; a drive's ring and its line stand centred across; the
+  moon's month, which takes no alignment, stands centred; the calendar header's one line stands centred on its ink in the
+  card's height at its own size (`ReadingFit.Most`). The cores' graphs run edge to edge (no padding round the plots, their
+  figures inside), and a box too small for the least ring or graph still draws every core, as large as it holds them
+  (`MeterPlan.Rings`, `MeterPlan.Graphs`: none only where there is no room). Tests `MeterPlanTests.S6305_`,
+  `MeterPlanTests.S6317_`, `BlockLayoutTests.S14324_`.
 - **[S-14301]** **A reading fills one axis and stands centred on the other** (owner, 2026-11-20, asked whether a reading
   and its caption that fill the card's height but not its width, or the reverse, may stand centred like the clock or the
   widget should rearrange to fill: "Centred is fine"; docs/WIDGET-RULES.md, Exemptions). Its block grows as one until

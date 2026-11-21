@@ -73,8 +73,9 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         _monthGrid.Height = MoonLayout.Rows * MoonLayout.Pitch;
 
         _fit.Parts.Add(_readout);
+        // [S-14324] The month stands its own width where the alignment puts it (centred by default), never spread over the
+        // content's width with its days at the start (WR-3, owner 2026-11-20: "Centred is fine").
         _fit.Parts.Add(_month);
-        _fit.Span(_month);
 
         // [S-12833] The phase's name and the month's give way where the card would draw them under the floor.
         _fit.GivesWay(_name, FamilyType.Under(FamilyType.Big28).FontSize);
@@ -109,15 +110,29 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         _readout.Visibility = Show(!month);
         _month.Visibility = Show(month);
         _monthDrawn = default;
+        Align();
         Refresh();
     }
 
     /// <summary>[S-6583] The widget's alignment, from the selection's page: where the readout sits.</summary>
     public void ApplyAlign(ContentAlign align)
     {
+        _align = align;
+        Align();
+    }
+
+    /// <summary>
+    /// [S-6583] [S-14324] The block where the card's alignment puts it while the style aligns (the disc's readout); the month,
+    /// which takes no alignment (<c>AlignApplies</c>), centred where the height stops it (owner, 2026-11-20: "Centred is fine").
+    /// </summary>
+    private void Align()
+    {
+        var align = ((IContentAligned)_config).AlignApplies ? _align : ContentAlign.Center;
         _fit.Align = align;
         _name.TextAlignment = Aligned.Text(align);
     }
+
+    private ContentAlign _align = ContentAlign.Center;
 
     public void Detach()
     {

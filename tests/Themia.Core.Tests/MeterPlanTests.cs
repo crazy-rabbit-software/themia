@@ -19,8 +19,11 @@ public sealed class MeterPlanTests
         Assert.True((grid.Columns * grid.CellWidth) + ((grid.Columns - 1) * FamilySpace.S2) <= 336);
         Assert.True((grid.Rows * grid.CellHeight) + ((grid.Rows - 1) * FamilySpace.S2) <= 300);
 
-        // A ring smaller than an icon is no grid.
-        Assert.False(MeterPlan.Rings(72, 40, 24).Shown);
+        // [S-14324] WR-10: a box too small for icon-sized rings still draws every core, the rings as large as it holds them.
+        var small = MeterPlan.Rings(72, 40, 24);
+        Assert.True(small.Shown);
+        Assert.True(small.Columns * small.Rows >= 24);
+        Assert.True(small.CellWidth is > 0 and < MeterPlan.RingFloor);
     }
 
     [Fact]
@@ -31,7 +34,13 @@ public sealed class MeterPlanTests
         Assert.True(grid.CellWidth >= MeterPlan.GraphCellWidthFloor);
         Assert.True(grid.CellHeight >= MeterPlan.GraphCellFloor);
         Assert.True(grid.Columns * grid.Rows >= 16);
-        Assert.False(MeterPlan.Graphs(96, 40, 16).Shown);
+
+        // [S-14324] WR-10: a box too small for the least graph still draws every core's, as large as it holds them.
+        var small = MeterPlan.Graphs(96, 40, 16);
+        Assert.True(small.Shown);
+        Assert.True(small.Columns * small.Rows >= 16);
+        Assert.True(small.CellWidth > 0 && small.CellHeight > 0);
+        Assert.False(MeterPlan.Graphs(0, 40, 16).Shown);
     }
 
     [Fact]

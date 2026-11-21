@@ -345,11 +345,15 @@ public sealed partial class MeterView
         }
     }
 
-    /// <summary>[S-6302] [S-6266] The gauge or the ring: the dial and the reading in one box, the reading inside it.</summary>
+    /// <summary>
+    /// [S-6302] [S-6266] The gauge or the ring: the dial and the reading in one box, the reading inside it. [S-14324] The dial
+    /// grows until one axis stops it and stands centred on the other (owner, 2026-11-20, of a reading that fills one axis:
+    /// "Centred is fine"): across in the content's middle, down by the block rule (<see cref="Block"/>).
+    /// </summary>
     private sealed class Dial(MeterView view, bool half) : IMeterLook
     {
         private readonly ChartRing _dial = new(half: half);
-        private readonly Grid _box = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset };
+        private readonly Grid _box = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset };
 
         public void Build()
         {
@@ -378,6 +382,12 @@ public sealed partial class MeterView
             _box.Height = half ? ChartRules.GaugeHeight(diameter) : diameter;
             view._reading.HorizontalAlignment = HorizontalAlignment.Center;
             view._reading.VerticalAlignment = half ? VerticalAlignment.Bottom : VerticalAlignment.Center;
+        }
+
+        public double Block(double width, double height)
+        {
+            var diameter = half ? MeterSizing.GaugeIn(width, height) : MeterSizing.RingIn(width, height);
+            return half ? ChartRules.GaugeHeight(diameter) : diameter;
         }
 
         public void Release()
@@ -511,10 +521,14 @@ public sealed partial class MeterView
         public void Release() => view.Children.Remove(_body);
     }
 
-    /// <summary>[S-6304] [S-12807] [S-14810] Rows of items under the reading at their one size, the last the card's foot reaches cut by it.</summary>
+    /// <summary>
+    /// [S-6304] [S-12807] [S-14810] Rows of items under the reading at their one size, the last the card's foot reaches cut by
+    /// it. [S-14324] The reading's first ink stands on the content's top (WR-1: its figures, not its line's leading) and the
+    /// first row right under its line (WR-2: no space over the first item).
+    /// </summary>
     private sealed class Rows(MeterView view) : IMeterLook
     {
-        private readonly SpreadStack _body = new() { Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+        private readonly SpreadStack _body = new();
         private readonly List<RowBlock> _rows = [];
 
         public bool WantsItems => true;
@@ -556,10 +570,24 @@ public sealed partial class MeterView
         public void Lay(double width, double height)
         {
             view.ItemsAlone(_body);
+            Stand();
             foreach (var row in _rows)
             {
                 row.Visibility = Visibility.Visible;
                 row.NameText.MaxWidth = width / 2;
+            }
+        }
+
+        /// <summary>A reading shown: its ink may stand higher or lower (a placeholder's dashes), so it is stood again.</summary>
+        public void Show(MeterReading reading, ColourRole role) => Stand();
+
+        /// <summary>[S-14324] The reading's first ink, as drawn, on the content's top.</summary>
+        private void Stand()
+        {
+            var margin = Family.SideInset with { Top = -view._reading.Ink.Over };
+            if (view._reading.Margin != margin)
+            {
+                view._reading.Margin = margin;
             }
         }
 
@@ -680,128 +708,171 @@ public sealed partial class MeterView
         public void Release() => view.Children.Remove(_body);
     }
 
-    /// <summary>[S-6262] The battery: its body (an outline of 2 in the secondary role, the one radius), the fill 4 inside the outline, the bolt, the cap.</summary>
-    private sealed class Battery : IMeterLook
+    /// <summary>
+    /// [S-6262] [S-14324] A reading over its picture (the battery, the signal bars), one block (WR-7, owner 2026-11-19: "All
+    /// together, scaled"): the picture drawn at its natural size under the reading, 8 between them, and the two scaled up as
+    /// one until their ink fills the content's height or the width stops them, standing centred on the other axis (owner,
+    /// 2026-11-20: "Centred is fine"): the one block layout (<see cref="ReadingFit"/>), never a centring of the look's own.
+    /// </summary>
+    private abstract class Pictured : IMeterLook
     {
-        private readonly MeterView _view;
-        private readonly Border _fill = new() { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(FamilySpace.S1) };
-        private readonly FontIcon _bolt = Family.Glyph(Glyphs.ChargingBolt, FamilyShape.Icon, ColourRole.TextPrimary);
+        protected Pictured(MeterView view, FrameworkElement picture)
+        {
+            View = view;
+            Picture = picture;
+            Picture.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
+        }
+
+        protected MeterView View { get; }
+
+        protected FrameworkElement Picture { get; }
+
+        public ReadingFit Fit { get; } = new();
+
+        public void Build()
+        {
+            SetRowSpan(Fit, 2);
+            View.Children.Remove(View._reading);
+            View._reading.Margin = default;
+            Fit.Parts.Add(View._reading);
+            Fit.Parts.Add(Picture);
+            View.Children.Add(Fit);
+        }
+
+        public abstract void Show(MeterReading reading, ColourRole role);
+
+        public void Release()
+        {
+            View.Children.Remove(Fit);
+            Fit.Parts.Remove(View._reading);
+            Fit.Parts.Remove(Picture);
+        }
+    }
+
+    /// <summary>[S-14324] A picture in a block (the battery, the signal bars): it inks its whole box, its outline and its bars.</summary>
+    private sealed partial class PictureBox : Grid, IInked
+    {
+        public LineInk Ink => LineInk.None;
+
+        public bool IsRow => false;
+    }
+
+    /// <summary>[S-6262] The battery: its body (an outline of 2 in the secondary role, the one radius), the fill 4 inside the outline, the bolt, the cap.</summary>
+    private sealed class Battery : Pictured
+    {
+        private readonly Border _fill;
+        private readonly FontIcon _bolt;
         private readonly Grid _bodyBox;
-        private readonly Border _cap = new() { Width = MeterPlan.Cap, VerticalAlignment = VerticalAlignment.Center };
-        private readonly StackPanel _body;
-        private BatteryPicture? _picture;
+        private readonly Border _cap;
+        private readonly BatteryPicture _picture = MeterPlan.Picture(MeterSizing.BodyNatural);
         private double _charge;
 
         public Battery(MeterView view)
+            : this(view, new Border { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(FamilySpace.S1) }, Family.Glyph(Glyphs.ChargingBolt, FamilyShape.Icon, ColourRole.TextPrimary), new Border { Width = MeterPlan.Cap, VerticalAlignment = VerticalAlignment.Center })
         {
-            _view = view;
-            _bolt.HorizontalAlignment = HorizontalAlignment.Center;
-            _bolt.Visibility = Visibility.Collapsed;
-            _bodyBox = new Grid
+        }
+
+        private Battery(MeterView view, Border fill, FontIcon bolt, Border cap)
+            : base(view, Body(fill, bolt, cap, out var box))
+        {
+            (_fill, _bolt, _cap, _bodyBox) = (fill, bolt, cap, box);
+
+            // The picture at its natural size: the block scales it with the reading.
+            _bodyBox.Width = _picture.BodyWidth;
+            _bodyBox.Height = _picture.Height;
+            _cap.Height = _picture.CapHeight;
+            _cap.CornerRadius = Family.Round(MeterPlan.Cap, _picture.CapHeight);
+            if (_picture.Bolt > 0)
+            {
+                _bolt.FontSize = _picture.Bolt;
+                _bolt.Width = _picture.Bolt;
+                _bolt.Height = _picture.Bolt;
+            }
+        }
+
+        /// <summary>[S-1113] A battery fills from the left in every language, as Windows draws it: its body, then its cap.</summary>
+        private static PictureBox Body(Border fill, FontIcon bolt, Border cap, out Grid box)
+        {
+            bolt.HorizontalAlignment = HorizontalAlignment.Center;
+            bolt.Visibility = Visibility.Collapsed;
+            box = new Grid
             {
                 BorderThickness = new Thickness(FamilyShape.Stroke),
                 CornerRadius = Family.Radius,
-                Children = { _fill, _bolt },
+                Children = { fill, bolt },
             };
-
-            // [S-1113] A battery fills from the left in every language, as Windows draws it.
-            _body = new StackPanel
+            SetColumn(cap, 1);
+            return new PictureBox
             {
-                Orientation = Orientation.Horizontal,
                 FlowDirection = FlowDirection.LeftToRight,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = Family.Inset with { Top = FamilySpace.S2 },
-                Children = { _bodyBox, _cap },
+                ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = GridLength.Auto } },
+                Children = { box, cap },
             };
         }
 
-        public void Build() => _view.Body(_body);
-
         /// <summary>[S-6262] The charge at once in its role; no reading is an empty battery, no battery at all stands at the middle ([S-1941]).</summary>
-        public void Show(MeterReading reading, ColourRole role)
+        public override void Show(MeterReading reading, ColourRole role)
         {
             var outline = Family.Brush(reading.Absent ? ColourRole.TextDisabled : ColourRole.TextSecondary);
             _bodyBox.BorderBrush = outline;
             _cap.Background = outline;
             _fill.Background = Family.Brush(role);
-            _bolt.Visibility = reading.Available && reading.Charging && _picture is { Bolt: > 0 } ? Visibility.Visible : Visibility.Collapsed;
+            _bolt.Visibility = reading.Available && reading.Charging && _picture.Bolt > 0 ? Visibility.Visible : Visibility.Collapsed;
 
             var charge = Unavailable.Fraction(reading) ?? 0;
-            if (!charge.Equals(_charge))
+            if (!charge.Equals(_charge) || _fill.Width is not > 0 && charge > 0)
             {
                 _charge = charge;
-                _fill.Width = _picture?.FillWidth(charge) ?? 0;
+                _fill.Width = _picture.FillWidth(charge);
             }
         }
-
-        /// <summary>[S-6262] The battery's picture laid out, its charge painted again.</summary>
-        public void Lay(double width, double height)
-        {
-            _view.ItemsAlone(_body);
-            _picture = MeterPlan.Picture(MeterSizing.BatteryIn(width, height).Height);
-            _body.Visibility = _picture is null ? Visibility.Collapsed : Visibility.Visible;
-            if (_picture is { } picture)
-            {
-                _bodyBox.Width = picture.BodyWidth;
-                _bodyBox.Height = picture.Height;
-                _cap.Height = picture.CapHeight;
-                _cap.CornerRadius = Family.Round(MeterPlan.Cap, picture.CapHeight);
-                _fill.Width = picture.FillWidth(_charge);
-                if (picture.Bolt > 0)
-                {
-                    _bolt.FontSize = picture.Bolt;
-                    _bolt.Width = picture.Bolt;
-                    _bolt.Height = picture.Bolt;
-                }
-            }
-
-            if (_view._last is { } reading)
-            {
-                Show(reading, MeterPlan.Role(_view._part.PressureOf(reading), reading.Absent));
-            }
-        }
-
-        public double Block(double width, double height) => MeterSizing.PartTop + MeterSizing.BatteryIn(width, height).Height;
-
-        public void Release() => _view.Children.Remove(_body);
     }
 
     /// <summary>[S-6263] Four bars rising left to right, 4 apart, standing on one line, lit by the reading's latency.</summary>
-    private sealed class Signal : IMeterLook
+    private sealed class Signal : Pictured
     {
-        private readonly MeterView _view;
-        private readonly Grid _body;
-        private readonly List<Border> _bars = [];
+        private readonly List<Border> _bars;
         private int _signal;
         private ColourRole _role = ColourRole.Accent;
 
         public Signal(MeterView view)
+            : this(view, [])
         {
-            _view = view;
-            _body = new Grid
-            {
-                FlowDirection = FlowDirection.LeftToRight,
-                ColumnSpacing = FamilySpace.S1,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = Family.Inset with { Top = FamilySpace.S2 },
-            };
-
-            for (var i = 0; i < PingSignal.BarCount; i++)
-            {
-                _body.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                var bar = new Border { VerticalAlignment = VerticalAlignment.Bottom, Background = Family.Brush(ColourRole.Track) };
-                SetColumn(bar, i);
-                _body.Children.Add(bar);
-                _bars.Add(bar);
-            }
         }
 
-        public void Build() => _view.Body(_body);
+        private Signal(MeterView view, List<Border> bars)
+            : base(view, Bars(bars))
+        {
+            _bars = bars;
+        }
+
+        /// <summary>The bars at their natural size: the block scales them with the reading.</summary>
+        private static PictureBox Bars(List<Border> bars)
+        {
+            var grid = new PictureBox { FlowDirection = FlowDirection.LeftToRight, ColumnSpacing = FamilySpace.S1 };
+            var sizes = MeterPlan.SignalBars(double.PositiveInfinity, MeterSizing.SignalNatural);
+            for (var i = 0; i < PingSignal.BarCount && i < sizes.Count; i++)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                var bar = new Border
+                {
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Background = Family.Brush(ColourRole.Track),
+                    Width = sizes[i].Width,
+                    Height = sizes[i].Height,
+                    CornerRadius = sizes[i].Width >= 2 * FamilyShape.Radius ? Family.Radius : Family.Round(sizes[i].Width, sizes[i].Height),
+                };
+                SetColumn(bar, i);
+                grid.Children.Add(bar);
+                bars.Add(bar);
+            }
+
+            grid.Height = sizes.Count > 0 ? sizes[^1].Height : 0;
+            return grid;
+        }
 
         /// <summary>[S-6263] The bars the latency earns in the status role, the rest the track.</summary>
-        public void Show(MeterReading reading, ColourRole role)
+        public override void Show(MeterReading reading, ColourRole role)
         {
             _signal = PingSignal.Level(reading.Available ? reading.Value : null);
             _role = role;
@@ -810,29 +881,6 @@ public sealed partial class MeterView
                 _bars[i].Background = Family.Brush(i < _signal ? _role : ColourRole.Track);
             }
         }
-
-        /// <summary>[S-6263] The signal bars laid out (none: not drawn).</summary>
-        public void Lay(double width, double height)
-        {
-            _view.ItemsAlone(_body);
-            var bars = MeterPlan.SignalBars(width, MeterSizing.SignalIn(width, height));
-            _body.Visibility = bars.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-            for (var i = 0; i < _bars.Count && i < bars.Count; i++)
-            {
-                _bars[i].Width = bars[i].Width;
-                _bars[i].Height = bars[i].Height;
-                _bars[i].CornerRadius = bars[i].Width >= 2 * FamilyShape.Radius ? Family.Radius : Family.Round(bars[i].Width, bars[i].Height);
-            }
-
-            if (bars.Count > 0)
-            {
-                _body.Height = bars[^1].Height;
-            }
-        }
-
-        public double Block(double width, double height) => MeterSizing.PartTop + MeterSizing.SignalIn(width, height);
-
-        public void Release() => _view.Children.Remove(_body);
     }
 
     /// <summary>
@@ -859,8 +907,9 @@ public sealed partial class MeterView
                 Children = { _figure, Band },
             };
 
-            // [S-14818] The core's item: its cell, the graph inside its padding.
-            Item = new Border { Child = Root, Padding = new Thickness(FamilySpace.S1), Background = Family.Brush(ColourRole.Clear) };
+            // [S-14818] The core's item: its cell, the graph filling it ([S-14324]: the plot edge to edge, owner 2026-11-19, "Plot
+            // edge to edge"; its figure stands inside it, over the plot).
+            Item = new Border { Child = Root, Background = Family.Brush(ColourRole.Clear) };
             ItemMark.Mark(Item);
         }
 
@@ -881,7 +930,7 @@ public sealed partial class MeterView
                 SetRow(Band, 0);
                 SetRowSpan(Band, 2);
                 Root.RowSpacing = 0;
-                _figure.Margin = new Thickness(FamilySpace.S1, 0, 0, 0);
+                _figure.Margin = new Thickness(FamilySpace.S2, FamilySpace.S1, 0, 0);
             }
 
             _figure.Visibility = Visibility.Visible;

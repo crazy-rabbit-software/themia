@@ -175,6 +175,26 @@ public sealed partial class ReadingFit : Panel
         }
     }
 
+    /// <summary>
+    /// [S-14324] The most the block is drawn at (infinite: as large as the room takes it): a line that keeps its own size (a
+    /// calendar header's tool line, 1) stands centred on its ink in the height left, as every block the width stops.
+    /// </summary>
+    public double Most
+    {
+        get => _most;
+        set
+        {
+            if (!value.Equals(_most))
+            {
+                _most = value;
+                _held = Size.Empty;
+                InvalidateArrange();
+            }
+        }
+    }
+
+    private double _most = double.PositiveInfinity;
+
     /// <summary>The least gap between two parts (a family token).</summary>
     public double Spacing
     {
@@ -375,7 +395,7 @@ public sealed partial class ReadingFit : Panel
             // [S-12833] Down to its smallest text's floor, up to what fills the room it is laid in (the arranged room, which
             // the measure's may fall a rounding short of); [S-14791] never past where a line it cuts would stand whole;
             // [S-14319] on its foot where it stands on it.
-            _fill = BlockLayout.Fill(finalSize.Width, finalSize.Height, _block, _foot);
+            _fill = BlockLayout.Fill(finalSize.Width, finalSize.Height, _block, _foot, _most);
             _held = finalSize;
         }
 

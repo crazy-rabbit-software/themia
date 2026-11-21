@@ -55,16 +55,25 @@ public static class MeterPlan
     /// <summary>The signal bars' box: a little wider than tall, as Windows' Wi-Fi glyph.</summary>
     public const double SignalAspect = 1.25;
 
-    /// <summary>[S-6305] [S-11005] The rings' grid in a box of <paramref name="width"/> × <paramref name="height"/>.</summary>
+    /// <summary>
+    /// [S-6305] [S-11005] The rings' grid in a box of <paramref name="width"/> × <paramref name="height"/>. [S-14324] WR-10
+    /// (owner, 2026-11-19: "it should show the default values ... and not just not show the graph"): a box too small for
+    /// icon-sized rings still draws every core, the rings as large as it holds them; only a box of no room draws none.
+    /// </summary>
     public static MeterGrid Rings(double width, double height, int count)
     {
-        var best = MeterGrid.None;
+        var best = Rings(width, height, count, RingFloor);
+        return best.Shown ? best : Rings(width, height, count, 1);
+    }
 
+    private static MeterGrid Rings(double width, double height, int count, double floor)
+    {
+        var best = MeterGrid.None;
         for (var columns = 1; columns <= count; columns++)
         {
             var rows = (count + columns - 1) / columns;
             var size = Math.Floor(Math.Min(Cell(width, columns), Cell(height, rows)));
-            if (size >= RingFloor && size > best.CellWidth)
+            if (size >= floor && size > best.CellWidth)
             {
                 best = new MeterGrid(columns, rows, size, size);
             }
@@ -73,8 +82,17 @@ public static class MeterPlan
         return best;
     }
 
-    /// <summary>[S-6317] [S-11005] The graphs' grid in a box of <paramref name="width"/> × <paramref name="height"/>.</summary>
+    /// <summary>
+    /// [S-6317] [S-11005] The graphs' grid in a box of <paramref name="width"/> × <paramref name="height"/>. [S-14324] WR-10:
+    /// a box too small for the least graph still draws every core's, as large as it holds them.
+    /// </summary>
     public static MeterGrid Graphs(double width, double height, int count)
+    {
+        var best = Graphs(width, height, count, GraphCellWidthFloor, GraphCellFloor);
+        return best.Shown ? best : Graphs(width, height, count, 1, 1);
+    }
+
+    private static MeterGrid Graphs(double width, double height, int count, double widthFloor, double heightFloor)
     {
         var best = MeterGrid.None;
         var bestScore = 0.0;
@@ -84,7 +102,7 @@ public static class MeterPlan
             var rows = (count + columns - 1) / columns;
             var cellWidth = Math.Floor(Cell(width, columns));
             var cellHeight = Math.Floor(Cell(height, rows));
-            if (cellWidth < GraphCellWidthFloor || cellHeight < GraphCellFloor)
+            if (cellWidth < widthFloor || cellHeight < heightFloor)
             {
                 continue;
             }
