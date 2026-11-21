@@ -11397,6 +11397,22 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   it. An import or a reset taken back so says under its line why nothing changed ([S-3576]). Test `StateWriterTests.S889_`. *(Until
   2026-11-20 the change was logged as "may be partially applied" and carried on: a bug in any command persisted a
   torn layout and made it an undo step.)*
+- **[S-15660]** **A change tells what it changed, and the surfaces draw that** (audit 2026-11-21: every change re-applied
+  every card's config and design on every display). The writer marks the state after every write (`StateMarks`: each
+  widget's rect, own look, config object and config document, a fence's items; each view's name, icon, colour, desktop
+  icons and widgets' order; which view each display shows; the design's and the preferences' documents) and tells the
+  difference from the marks before (`StateChange`: the widgets whose config, look or presence changed, the ones that moved,
+  whether the design or the preferences moved, whether it is drawn whole). A config written in place since the last write
+  (a widget's page writing into it, then asking for the write) is that widget's change. What the writes changed waits in
+  the writer until the surfaces draw (`StateWriter.TakeChange`: a change made with no relayout is drawn with the next). A
+  kept card applies its config again only when its widget changed or the preferences moved, and is painted again
+  (`WidgetCard.ApplyDesignChange`: text size, then the design) when the design moved; every card is still laid where it
+  stands. An undo step, a change taken back, another view shown on a display and every other redraw are drawn whole
+  (`StateChange.All`). Tests `StateChangeTests.S15660_`.
+- **[S-15664]** A change that touched no arrangement (`StateChange.Arranged`: no widget moved, added, removed or given
+  another look or config object, no fence's items, no view's name, icon, colour, order or widgets' order) and did nothing
+  outside the state takes no snapshot for the undo history: design, preferences and widget content record nothing, as
+  before ([S-884]), without copying the layout to find that out. Test `StateChangeTests.S15664_`.
 - **[S-890]** Crash-loop guard (`Core/Storage/BootGuard`, `boot_attempts` beside the state file):
   bumped atomically before the surfaces are built, deleted once every surface has loaded and laid out
   its cards. The 3rd start in a row that never got that far is safe: every card shows "Paused:

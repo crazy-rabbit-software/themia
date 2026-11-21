@@ -55,9 +55,11 @@ internal sealed partial class AppHost
         // [S-1583] A deleted or moved widget leaves the selection with the change that removed it.
         ChangeSelection(Selection.Prune(State));
 
+        // [S-15660] The surfaces draw what the writes changed since they last drew (a change that asked for no relayout
+        // waits in the writer for the next).
         if (relayout)
         {
-            StateChanged?.Invoke();
+            StateChanged?.Invoke(_writer.TakeChange());
         }
 
         return true;
@@ -77,7 +79,9 @@ internal sealed partial class AppHost
         Notices.Error(Str.Shell_Notice_ChangeTakenBack.Text(), Str.Shell_Notice_ChangeTakenBackBody.Text());
 
         ChangeSelection(Selection.Prune(State));
-        StateChanged?.Invoke();
+
+        // [S-15660] The writer took it back: drawn whole.
+        StateChanged?.Invoke(_writer.TakeChange());
     }
 
     /// <summary>

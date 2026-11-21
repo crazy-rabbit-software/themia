@@ -183,9 +183,11 @@ internal sealed partial class AppHost
         _sizings.NoteAll(State);
         _history.Rebase(State);
 
+        // [S-15660] The step restored the state outside a write: the writer marks it again and the surfaces draw it whole.
+        _writer.Rebase();
         _writer.SaveSoon();
         ChangeSelection(Selection.Prune(State));
-        StateChanged?.Invoke();
+        StateChanged?.Invoke(_writer.TakeChange());
 
         var version = _history.Version;
         Notices.Show(new Notice(NoticeKind.Info, undo ? UndoText.Undid(done) : UndoText.Redid(done))

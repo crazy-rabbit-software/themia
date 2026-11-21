@@ -16,7 +16,7 @@ internal sealed partial class AppHost
     /// <summary>Called from the constructor right after the language, before any surface subscribes.</summary>
     private void StartRegion()
     {
-        StateChanged += ApplyRegion;
+        StateChanged += _ => ApplyRegion();
         ApplyRegion();
     }
 

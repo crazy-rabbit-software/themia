@@ -25,7 +25,7 @@ internal sealed partial class AppHost
     private void StartLanguage()
     {
         // An import or a settings reset changes the language through a state change.
-        StateChanged += ApplyLanguage;
+        StateChanged += _ => ApplyLanguage();
         ApplyLanguage();
     }
 

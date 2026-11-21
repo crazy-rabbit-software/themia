@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Windows.Foundation;
+using Themia.Core.Storage;
 
 namespace Themia.App.Services;
 
@@ -124,7 +125,7 @@ internal sealed partial class AppHost : IDesktopDesk
 
     private void OnDeskListingChanged() => LayoutDesk();
 
-    private void OnDeskStateChanged()
+    private void OnDeskStateChanged(StateChange change)
     {
         // [S-5593]..[S-5595] A view setting changed with this state: the icons are settled for it.
         SettleDesktopViewSettings();

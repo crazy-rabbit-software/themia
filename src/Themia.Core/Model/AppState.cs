@@ -137,8 +137,18 @@ public sealed partial class WidgetInstance
     {
         ArgumentNullException.ThrowIfNull(other);
 
-        return X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
-            && Background.SameAs(other.Background)
+        return X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H) && SameLook(other);
+    }
+
+    /// <summary>
+    /// [S-15660] Whether the two have the same own look: everything <see cref="SameArrangement"/> compares but the rect
+    /// (a card moved needs no new look).
+    /// </summary>
+    public bool SameLook(WidgetInstance other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+
+        return Background.SameAs(other.Background)
             && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
             && ItemBackground.SameAs(other.ItemBackground)
             && string.Equals(ItemTextColor, other.ItemTextColor, StringComparison.Ordinal)

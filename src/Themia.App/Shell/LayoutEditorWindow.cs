@@ -17,6 +17,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Windows.Graphics;
+using Themia.Core.Storage;
 
 namespace Themia.App.Shell;
 
@@ -329,7 +330,7 @@ internal sealed class LayoutEditorWindow
 
     // ---- state ------------------------------------------------------------------------------------
 
-    private void OnStateChanged()
+    private void OnStateChanged(StateChange change)
     {
         if (_closed)
         {

@@ -1,4 +1,5 @@
 using Themia.App.Services.Drives;
+using Themia.Core.Storage;
 
 namespace Themia.App.Services;
 
@@ -17,7 +18,7 @@ internal sealed partial class AppHost
         AppServices.Alarms = _alarms;
 
         // Settings, an undo, a paste or a deleted widget: the alarms there are now.
-        StateChanged += _alarms.Sync;
+        StateChanged += SyncAlarms;
         _command.TimeChanged += _alarms.TimeChanged;
         _command.Resumed += _alarms.Resumed;
         _command.VolumesChanged += DriveService.DevicesChanged;
@@ -27,6 +28,9 @@ internal sealed partial class AppHost
         _alarms.Start();
     }
 
+    /// <summary>Settings, an undo, a paste or a deleted widget: the alarms there are now.</summary>
+    private void SyncAlarms(StateChange change) => _alarms?.Sync();
+
     private void StopAlarms()
     {
         if (_alarms is not { } alarms)
@@ -34,7 +38,7 @@ internal sealed partial class AppHost
             return;
         }
 
-        StateChanged -= alarms.Sync;
+        StateChanged -= SyncAlarms;
         _command.TimeChanged -= alarms.TimeChanged;
         _command.Resumed -= alarms.Resumed;
         _command.VolumesChanged -= DriveService.DevicesChanged;

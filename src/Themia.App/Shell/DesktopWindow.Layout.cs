@@ -14,6 +14,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Windows.Foundation;
 using Windows.Graphics;
@@ -116,11 +117,11 @@ internal sealed partial class DesktopWindow
         SyncFrame();
     }
 
-    private void OnStateChanged()
+    private void OnStateChanged(StateChange change)
     {
         ApplyTheme();
         SyncEditBar();
-        Relayout();
+        Relayout(change);
 
         // A card built again (an undo, a paste of a copy) starts unfaded: the cut keeps its fade.
         FadeLeaving();
@@ -226,8 +227,15 @@ internal sealed partial class DesktopWindow
     /// <inheritdoc />
     public void RequestZOrder(WidgetCard card, bool front) => _host.ZOrderSelected(front);
 
-    /// <summary>Rebuild the cards for this monitor's view and position them.</summary>
-    private void Relayout()
+    /// <summary>Rebuild the cards for this monitor's view and position them, every card's config and design applied again: the full pass.</summary>
+    private void Relayout() => Relayout(StateChange.All);
+
+    /// <summary>
+    /// Rebuild the cards for this monitor's view and position them. [S-15660] A kept card applies its config again only
+    /// where <paramref name="change"/> says it changed (every card when the preferences moved, or the pass is whole), and
+    /// is painted again where the design moved; every card is laid where it stands.
+    /// </summary>
+    private void Relayout(StateChange change)
     {
         // [S-928] A suspended surface has no cards and must not grow them back until it resumes.
         if (_closed || _suspended)
@@ -245,9 +253,9 @@ internal sealed partial class DesktopWindow
         // would restart each widget's tick subscription and flash the whole surface. [S-1882] The
         // cards that go are released before any new one is built, so a view switch never holds the
         // old view and the new one at once.
-        var change = WidgetLiveness.Reconcile(_cards, c => c.Model, wanted);
+        var cards = WidgetLiveness.Reconcile(_cards, c => c.Model, wanted);
 
-        foreach (var stale in change.Release)
+        foreach (var stale in cards.Release)
         {
             // [S-802] A card holding the keyboard and now gone must not keep the surface focusable
             // forever. Before Detach, so its view hears the Escape while it is still whole.
@@ -258,18 +266,26 @@ internal sealed partial class DesktopWindow
         }
 
         // [S-1882] The cards just taken off hold native trees only a collection releases.
-        if (change.Release.Count > 0 && _root.DispatcherQueue is { } queue)
+        if (cards.Release.Count > 0 && _root.DispatcherQueue is { } queue)
         {
             ReleaseSweep.Request(queue);
         }
 
-        var kept = new List<WidgetCard>(change.Slots.Count);
+        var kept = new List<WidgetCard>(cards.Slots.Count);
 
-        foreach (var (model, existing) in change.Slots)
+        foreach (var (model, existing) in cards.Slots)
         {
             if (existing is not null)
             {
-                existing.ApplyConfig();
+                if (change.Reapplies(model.Id))
+                {
+                    existing.ApplyConfig();
+                }
+                else if (change.Design)
+                {
+                    existing.ApplyDesignChange();
+                }
+
                 kept.Add(existing);
                 continue;
             }

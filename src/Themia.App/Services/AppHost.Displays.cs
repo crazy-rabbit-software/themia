@@ -220,7 +220,7 @@ internal sealed partial class AppHost
                 $"(+{plan.Create.Count} -{plan.Close.Count} ~{plan.Update.Count})");
 
             // The settings tree lists the displays, and a display may now show another view.
-            StateChanged?.Invoke();
+            StateChanged?.Invoke(StateChange.All);
         }
     }
 

@@ -72,7 +72,7 @@ internal sealed partial class AppHost : IDisposable
         // [S-3300] The views' links, before any surface builds a card that joins one. A deleted view's
         // board goes with it ([S-3305]).
         AppServices.Links = new Themia.Core.Links.LinkRegistry();
-        StateChanged += () => AppServices.Links?.Retain(State.Views.Select(view => view.Id));
+        StateChanged += _ => AppServices.Links?.Retain(State.Views.Select(view => view.Id));
 
         // [S-1109] The language before anything with text is built, and before the surfaces subscribe.
         StartLanguage();
@@ -95,8 +95,8 @@ internal sealed partial class AppHost : IDisposable
         // new theme, accent, font and text size. A Windows theme or accent change re-runs the same
         // path, which is how "use system setting" and the Windows accent follow Windows live.
         Shell.DesignApplier.Apply(state.Design);
-        StateChanged += () => Shell.DesignApplier.Apply(State.Design);
-        Shell.DesignApplier.Watch(dispatcher, () => StateChanged?.Invoke());
+        StateChanged += _ => Shell.DesignApplier.Apply(State.Design);
+        Shell.DesignApplier.Watch(dispatcher, () => StateChanged?.Invoke(StateChange.All));
 
         // Beside the state file, so a portable or test state path takes its accounts with it.
         Accounts = new Accounts.AccountService(dispatcher, Themia.Core.Accounts.AccountStore.PathBeside(store.Path));
@@ -114,17 +114,17 @@ internal sealed partial class AppHost : IDisposable
             _deviceLocation = new DeviceLocationService(dispatcher);
             AppServices.DeviceLocation = _deviceLocation;
             _deviceLocation.SetWanted(Themia.Core.Widgets.DeviceLocationInterest.Wanted(state));
-            StateChanged += () => _deviceLocation.SetWanted(Themia.Core.Widgets.DeviceLocationInterest.Wanted(State));
-            _deviceLocation.Changed += () => StateChanged?.Invoke();
+            StateChanged += _ => _deviceLocation.SetWanted(Themia.Core.Widgets.DeviceLocationInterest.Wanted(State));
+            _deviceLocation.Changed += () => StateChanged?.Invoke(StateChange.All);
         }
 
         Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(state, AppServices.DeviceLocationNow));
-        StateChanged += () => Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(State, AppServices.DeviceLocationNow));
+        StateChanged += _ => Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(State, AppServices.DeviceLocationNow));
 
         // [S-2513] The system hub reads what every view's system widgets need from the start, so a
         // view switched to shows its charts with their history and its details already read.
         _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(state, SystemDrive.Root));
-        StateChanged += () => _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(State, SystemDrive.Root));
+        StateChanged += _ => _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(State, SystemDrive.Root));
 
         // [S-1458] One clipboard history, kept while any view holds a Clipboard widget, on screen or
         // not. Never for a detached state (a debug render): its PNGs must not carry the clipboard.
@@ -132,7 +132,7 @@ internal sealed partial class AppHost : IDisposable
         {
             AppServices.Clipboard = _clipboard;
             _clipboard.SetWanted(Themia.Core.Widgets.ClipboardInterest.Capacity(state));
-            StateChanged += () => _clipboard.SetWanted(Themia.Core.Widgets.ClipboardInterest.Capacity(State));
+            StateChanged += _ => _clipboard.SetWanted(Themia.Core.Widgets.ClipboardInterest.Capacity(State));
         }
 
         // [S-2607] Signing out takes the account's synced data with it.
@@ -184,8 +184,11 @@ internal sealed partial class AppHost : IDisposable
     /// <summary>[S-2600] The offline sync store and what the widgets need from it.</summary>
     public Services.Sync.SyncHost Sync { get; }
 
-    /// <summary>Raised when anything that affects rendering changed. Windows re-read <see cref="State"/>.</summary>
-    public event Action? StateChanged;
+    /// <summary>
+    /// Raised when anything that affects rendering changed, with what changed ([S-15660]: <see cref="StateChange.All"/> when
+    /// it is not known). Windows re-read <see cref="State"/>.
+    /// </summary>
+    public event Action<StateChange>? StateChanged;
 
     /// <summary>Raised when edit mode is entered or left.</summary>
     public event Action<bool>? EditModeChanged;

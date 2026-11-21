@@ -3,6 +3,7 @@ using Themia.App.Interop;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Shell;
+using Themia.Core.Storage;
 
 namespace Themia.App.Services;
 
@@ -45,13 +46,15 @@ internal sealed partial class AppHost
     private void StartGameMode()
     {
         // An import or a reset can change the switch too, and it arrives as a state change.
-        StateChanged += SyncGameModeWatch;
+        StateChanged += OnGameModeState;
         SyncGameModeWatch();
     }
 
+    private void OnGameModeState(StateChange change) => SyncGameModeWatch();
+
     private void StopGameMode()
     {
-        StateChanged -= SyncGameModeWatch;
+        StateChanged -= OnGameModeState;
         _fullscreenWatch?.Dispose();
         _fullscreenWatch = null;
     }

@@ -25,6 +25,12 @@ public sealed class StateWriter
     private readonly Action _arm;
     private bool _due;
 
+    /// <summary>[S-15660] The state as the last write (or the start) left it.</summary>
+    private StateMarks? _marks;
+
+    /// <summary>[S-15660] What the writes changed since the owner last took it (<see cref="TakeChange"/>).</summary>
+    private StateChange _pending = StateChange.None;
+
     /// <param name="state">The live state.</param>
     /// <param name="store">Where it is written.</param>
     /// <param name="arm">
@@ -40,6 +46,7 @@ public sealed class StateWriter
         State = state;
         _store = store;
         _arm = arm;
+        _marks = StateMarks.Of(state);
     }
 
     /// <summary>The live state, changed on the owner's thread only.</summary>
@@ -61,6 +68,12 @@ public sealed class StateWriter
     /// [S-889] When the change or the settle throws, the change is taken back whole: the state is made what it was
     /// before (its views and widgets the same instances, so their cards stay), nothing is committed and no save is
     /// asked for, and the error is logged. Returns false then: the owner says so and draws the state again.
+    /// </para>
+    /// <para>
+    /// [S-15660] What the write changed (and what was written in place since the last one) is told by the state's marks
+    /// before and after it and kept for the owner to take (<see cref="TakeChange"/>). [S-15664] A write that changed no
+    /// arrangement (<see cref="StateChange.Arranged"/>) and did nothing outside the state leaves the history as it was:
+    /// no snapshot is taken for it.
     /// </para>
     /// </summary>
     public bool Write(Action<AppState> change, UndoAction? undo = UndoAction.Change, IUndoEffect? effect = null, Func<bool>? settle = null)
@@ -84,20 +97,50 @@ public sealed class StateWriter
         {
             Log.Error(Scope, "a change threw; it is taken back whole: no undo step, nothing saved", ex);
             TakeBack(before, instances);
+            Rebase();
             return false;
         }
 
+        var marks = StateMarks.Of(State);
+        var changed = marks.Since(_marks);
+        _marks = marks;
+        _pending = _pending.With(changed);
+
         if (undo is { } step)
         {
-            History?.Commit(State, step, effect);
+            if (changed.Arranged || effect is not null)
+            {
+                History?.Commit(State, step, effect);
+            }
         }
-        else
+        else if (changed.Arranged)
         {
             History?.Rebase(State);
         }
 
         SaveSoon();
         return true;
+    }
+
+    /// <summary>
+    /// [S-15660] What the writes changed since this was last asked (a write whose owner drew nothing leaves its change
+    /// here for the next), and nothing from now on.
+    /// </summary>
+    public StateChange TakeChange()
+    {
+        var taken = _pending;
+        _pending = StateChange.None;
+        return taken;
+    }
+
+    /// <summary>
+    /// [S-15660] The state was changed outside a write (an undo step, a change taken back): its marks are taken again
+    /// and the owner draws it whole (<see cref="StateChange.All"/> is what is left to take).
+    /// </summary>
+    public void Rebase()
+    {
+        _marks = StateMarks.Of(State);
+        _pending = StateChange.All;
     }
 
     /// <summary>[S-889] Make the state what <paramref name="before"/> holds again; said in the log when it cannot be.</summary>

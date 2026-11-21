@@ -708,6 +708,16 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         ApplyDesign();
     }
 
+    /// <summary>
+    /// [S-15660] The app-wide design moved and this card's config did not: its text brought to the text size, then painted
+    /// again (<see cref="ApplyDesign"/>). The type ramp's and the look tokens' own followers restyle what a view built.
+    /// </summary>
+    public void ApplyDesignChange()
+    {
+        ApplyTextScale();
+        ApplyDesign();
+    }
+
     public void Detach()
     {
         DetachBackdrop();
