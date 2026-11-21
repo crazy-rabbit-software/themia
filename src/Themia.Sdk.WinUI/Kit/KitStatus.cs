@@ -73,11 +73,13 @@ public sealed partial class KitStatus : StackPanel
     private double _placedTop = FamilySpace.S1;
 
     /// <summary>
-    /// [S-12813] Where the status stands down the view: <paramref name="top"/> under the view's top (a face that stands on
-    /// the card's top edge with a head band of its own, the month's weekday line, holds the glyph in that band, beside its
-    /// words and over nothing of its cells), or, null, where <see cref="Place"/> put it.
+    /// [S-12813] Where the status stands: <paramref name="top"/> under the view's top and <paramref name="end"/> in from the
+    /// card's end edge (a face that stands on the card's edges with a head band of its own, the month's weekday line, holds
+    /// the glyph in that band at its end, as its cells hold their words, beside its words and over nothing of its cells),
+    /// or, null, where <see cref="Place"/> put it (the inset in from the end).
     /// </summary>
-    public void StandAt(double? top) => Margin = Margin with { Top = top ?? _placedTop };
+    public void StandAt(double? top, double? end = null)
+        => Margin = Margin with { Top = top ?? _placedTop, Right = end ?? FamilySpace.Inset };
 
     /// <summary>[S-12813] How much of the content's top end the status takes, from the inset in (0: none shown).</summary>
     public double Room => _room;
