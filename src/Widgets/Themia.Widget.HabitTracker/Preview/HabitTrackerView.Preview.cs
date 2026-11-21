@@ -28,18 +28,13 @@ internal sealed partial class HabitTrackerView : IWidgetPreviewState
         if (state is "adding" or "typing" or "renaming")
         {
             _ = ShowSampleAsync();
-            if (state == "renaming" && _rows.Count > 0)
+            if (state == "renaming" && _list.Items.Count > 0)
             {
-                BeginRename(_rows[0].Id);
+                _list.BeginRename(_list.Items[0]);
             }
             else
             {
-                OpenAddEditor();
-                if (state == "typing" && _editor is { } editor)
-                {
-                    editor.Box.Text = LongWords;
-                    editor.Box.SelectionStart = LongWords.Length;
-                }
+                _list.BeginAdd(state == "typing" ? LongWords : string.Empty);
             }
 
             return Task.CompletedTask;

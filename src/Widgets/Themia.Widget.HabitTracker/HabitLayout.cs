@@ -35,33 +35,6 @@ public sealed record HabitLayoutPlan(
     bool StreakWords,
     int Dots);
 
-/// <summary>[S-1428] What a key on a focused row does.</summary>
-public enum HabitKeyCommand
-{
-    None,
-
-    /// <summary>Move the focus to the row at the index.</summary>
-    Focus,
-
-    /// <summary>Tick or un-tick the row's habit — the same as its box.</summary>
-    Toggle,
-
-    Rename,
-
-    Delete,
-
-    /// <summary>Clear the highlight and give the keyboard back.</summary>
-    Release,
-
-    /// <summary>[S-3802] Move the row's habit one place up; the focus goes with it.</summary>
-    MoveUp,
-
-    /// <summary>[S-3802] Move the row's habit one place down.</summary>
-    MoveDown,
-}
-
-public readonly record struct HabitKeyResult(HabitKeyCommand Command, int Index);
-
 /// <summary>
 /// [S-1427] [S-11530] [S-1428] The Habits widget's rows and keys. Pure, so each edge is pinned by a test.
 /// <para>
@@ -110,59 +83,4 @@ public static class HabitLayout
         var addRow = input.Writable && (!input.Heatmap || input.Count == 0);
         return new HabitLayoutPlan(lines, FamilyShape.RowHeight(lines), HabitSizing.ClampRows(input.Rows), addRow, streak, streak && input.RunWords, dots);
     }
-
-    /// <summary>
-    /// [S-1428] A key on the row at <paramref name="index"/> of <paramref name="count"/>. The arrows
-    /// clamp at the ends; Tab and Shift+Tab wrap ("next one", not a direction); Enter ticks, as the
-    /// box does; F2 renames; Delete removes; Escape gives the keyboard back; Alt+Shift+Up / Down moves
-    /// the habit ([S-3802]).
-    /// [S-1982] Space ticks too, and Page Up / Page Down jump <see cref="ListKeys.PageStep"/> rows.
-    /// </summary>
-    /// <remarks>
-    /// [S-812] With no row focused (<paramref name="index"/> negative) a movement key lands on an end
-    /// (Up, Down, Home, Tab the first row; End, Shift+Tab the last) and the rest do nothing.
-    /// </remarks>
-    public static HabitKeyResult Decide(WidgetKey key, int index, int count)
-    {
-        if (count <= 0 || index < 0)
-        {
-            return key switch
-            {
-                WidgetKey.Escape => new(HabitKeyCommand.Release, -1),
-                _ when count <= 0 => new(HabitKeyCommand.None, -1),
-                WidgetKey.Up or WidgetKey.Down or WidgetKey.Home or WidgetKey.Tab or WidgetKey.PageUp or WidgetKey.PageDown => new(HabitKeyCommand.Focus, 0),
-                WidgetKey.End or WidgetKey.ShiftTab => new(HabitKeyCommand.Focus, count - 1),
-                _ => new(HabitKeyCommand.None, -1),
-            };
-        }
-
-        var at = Math.Clamp(index, 0, count - 1);
-
-        return key switch
-        {
-            WidgetKey.Up => new(HabitKeyCommand.Focus, Math.Max(0, at - 1)),
-            WidgetKey.Down => new(HabitKeyCommand.Focus, Math.Min(count - 1, at + 1)),
-            WidgetKey.Home => new(HabitKeyCommand.Focus, 0),
-            WidgetKey.End => new(HabitKeyCommand.Focus, count - 1),
-            WidgetKey.PageUp => new(HabitKeyCommand.Focus, Math.Max(0, at - ListKeys.PageStep)),
-            WidgetKey.PageDown => new(HabitKeyCommand.Focus, Math.Min(count - 1, at + ListKeys.PageStep)),
-            WidgetKey.Tab => new(HabitKeyCommand.Focus, (at + 1) % count),
-            WidgetKey.ShiftTab => new(HabitKeyCommand.Focus, (at - 1 + count) % count),
-            WidgetKey.Enter or WidgetKey.Space => new(HabitKeyCommand.Toggle, at),
-            WidgetKey.Rename => new(HabitKeyCommand.Rename, at),
-            WidgetKey.Delete => new(HabitKeyCommand.Delete, at),
-            WidgetKey.Escape => new(HabitKeyCommand.Release, at),
-
-            // [S-3802] The ends have nowhere further to go.
-            WidgetKey.MoveUp when at > 0 => new(HabitKeyCommand.MoveUp, at),
-            WidgetKey.MoveDown when at < count - 1 => new(HabitKeyCommand.MoveDown, at),
-            _ => new(HabitKeyCommand.None, at),
-        };
-    }
-
-    /// <summary>
-    /// The row the focus goes to after the one at <paramref name="index"/> was deleted from a list of
-    /// <paramref name="count"/> (before the delete): the one that took its place, or the new last.
-    /// </summary>
-    public static int AfterDelete(int index, int count) => count <= 1 ? -1 : Math.Clamp(index, 0, count - 2);
 }

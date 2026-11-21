@@ -38,35 +38,4 @@ public class HabitLayoutTests
         Assert.Equal((false, false, 0), (bare.Streak, bare.StreakWords, bare.Dots));
         Assert.Equal(2, Plan(lines: 7).Lines);
     }
-
-    // ---- [S-1428] keys ------------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(WidgetKey.Up, 0, HabitKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.Down, 2, HabitKeyCommand.Focus, 2)]
-    [InlineData(WidgetKey.Down, 0, HabitKeyCommand.Focus, 1)]
-    [InlineData(WidgetKey.Home, 2, HabitKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.End, 0, HabitKeyCommand.Focus, 2)]
-    [InlineData(WidgetKey.Tab, 2, HabitKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.ShiftTab, 0, HabitKeyCommand.Focus, 2)]
-    [InlineData(WidgetKey.Enter, 1, HabitKeyCommand.Toggle, 1)]
-    [InlineData(WidgetKey.Rename, 1, HabitKeyCommand.Rename, 1)]
-    [InlineData(WidgetKey.Delete, 1, HabitKeyCommand.Delete, 1)]
-    [InlineData(WidgetKey.Escape, 1, HabitKeyCommand.Release, 1)]
-    public void S1428_arrows_clamp_tab_wraps_and_enter_ticks(WidgetKey key, int index, HabitKeyCommand command, int target)
-        => Assert.Equal(new HabitKeyResult(command, target), HabitLayout.Decide(key, index, 3));
-
-    [Fact]
-    public void S1428_an_empty_list_only_answers_escape()
-    {
-        Assert.Equal(HabitKeyCommand.Release, HabitLayout.Decide(WidgetKey.Escape, 0, 0).Command);
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.Enter, 0, 0).Command);
-    }
-
-    [Theory]
-    [InlineData(0, 3, 0)]
-    [InlineData(2, 3, 1)]
-    [InlineData(0, 1, -1)]
-    public void S1428_after_a_delete_the_focus_goes_to_the_row_in_its_place(int index, int count, int expected)
-        => Assert.Equal(expected, HabitLayout.AfterDelete(index, count));
 }

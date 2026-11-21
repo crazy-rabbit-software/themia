@@ -92,26 +92,37 @@ public sealed partial class KitConformanceTests
     private static partial Regex ListPlumbing();
 
     /// <summary>
-    /// [S-7069] Kit views stay thin: a widget whose config is an <c>IKitConfig</c> builds no list
-    /// plumbing of its own (no scroll viewer, row focus, menu entries, ring, empty state, cursor or
-    /// key map, no process): <c>KitList</c>, <c>KitStatus</c>, <c>KitStatePanel</c> and <c>KitBinding</c> do.
+    /// [S-7069] [S-7074] Kit views stay thin: a widget whose config is an <c>IKitConfig</c> or states its rows as a kit list
+    /// (<c>IKitRows</c>) builds no list plumbing of its own (no scroll viewer, row focus, menu entries, ring, empty state,
+    /// cursor or key map, no process): <c>KitList</c>, <c>KitStatus</c>, <c>KitStatePanel</c> and <c>KitBinding</c> do.
+    /// Today's offenders, each with its reason, may only shrink.
     /// </summary>
     [Fact]
     public void S7069_a_kit_widgets_view_builds_no_list_of_its_own()
     {
         var kitModules = RepoFiles.WidgetModules()
-            .Where(dir => RepoFiles.CSharp(dir).Any(f => Regex.IsMatch(Code(f), @"class \w+Config\b[^{]*\bIKitConfig\b")))
+            .Where(dir => RepoFiles.CSharp(dir).Any(f => Regex.IsMatch(Code(f), @"class \w+Config\b[^{]*\b(Themia\.Sdk\.Kit\.)?(IKitConfig|IKitLocalConfig|IKitRows)\b")))
             .ToList();
         Assert.Contains(kitModules, d => Path.GetFileName(d) == "Themia.Widget.Rss");
+        Assert.Contains(kitModules, d => Path.GetFileName(d) == "Themia.Widget.Clipboard");
 
         var offending = kitModules
             .SelectMany(RepoFiles.CSharp)
             .Where(f => Path.GetFileName(f).Contains("View", StringComparison.Ordinal))
-            .SelectMany(f => ListPlumbing().Matches(Code(f)).Select(m => $"{Path.GetFileName(f)}: {m.Value}"))
+            .Where(f => ListPlumbing().IsMatch(Code(f)))
+            .Select(f => Path.GetFileName(f)!)
+            .Order(StringComparer.Ordinal)
             .ToList();
 
-        Assert.Empty(offending);
+        Assert.Equal(ThinViewOffendersToday.Keys.Order(StringComparer.Ordinal), offending);
     }
+
+    /// <summary>[S-7069] The views of a kit-rows widget that still build a list part of their own, and why. Shrink only.</summary>
+    private static readonly Dictionary<string, string> ThinViewOffendersToday = new(StringComparer.Ordinal)
+    {
+        ["ContactsView.cs"] = "its people list (rows, cells and the search line) is its own until it moves onto the kit",
+        ["TasksView.Picker.cs"] = "the list picker's own menu (the lists to show), not a row's",
+    };
 
     /// <summary>
     /// [S-7063] One Accounts submenu: a widget that lets the user choose among the signed-in accounts

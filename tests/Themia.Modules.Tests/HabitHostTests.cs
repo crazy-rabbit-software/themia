@@ -62,22 +62,10 @@ public sealed class HabitHostTests : IDisposable
         return Assert.IsType<T>(reloaded.Config);
     }
 
-    [Theory]
-    [InlineData(WidgetKey.Down, HabitKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.Tab, HabitKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.ShiftTab, HabitKeyCommand.Focus, 2)]
-    [InlineData(WidgetKey.End, HabitKeyCommand.Focus, 2)]
-    [InlineData(WidgetKey.Enter, HabitKeyCommand.None, -1)]
-    [InlineData(WidgetKey.Delete, HabitKeyCommand.None, -1)]
-    [InlineData(WidgetKey.Escape, HabitKeyCommand.Release, -1)]
-    public void S812_habits_without_a_focused_row(WidgetKey key, HabitKeyCommand command, int index)
-        => Assert.Equal(new HabitKeyResult(command, index), HabitLayout.Decide(key, -1, 3));
-
     [Fact]
     public void S812_keys_the_lists_do_not_answer_do_nothing()
     {
         Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.Tab, 1, 3).Command);
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.Left, 1, 3).Command);
     }
 
     [Fact]
@@ -88,10 +76,6 @@ public sealed class HabitHostTests : IDisposable
         Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveUp, 0, 3).Command);
         Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveDown, 2, 3).Command);
         Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveDown, -1, 3).Command);
-
-        Assert.Equal(new HabitKeyResult(HabitKeyCommand.MoveUp, 2), HabitLayout.Decide(WidgetKey.MoveUp, 2, 3));
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.MoveDown, 2, 3).Command);
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.MoveUp, 0, 3).Command);
     }
 
     [Fact]

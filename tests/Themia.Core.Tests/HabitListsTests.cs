@@ -241,6 +241,16 @@ public sealed class HabitListsTests : IDisposable
     }
 
     [Fact]
+    public void S1425_a_drag_writes_the_new_order_and_the_same_order_writes_nothing()
+    {
+        var habits = Three();
+
+        Assert.Equal("c,a,b", string.Join(',', HabitLists.ReorderHabits(habits, ["c", "a", "b"]).Select(h => h.Id)));
+        Assert.Equal("b,a,c", string.Join(',', HabitLists.ReorderHabits(habits, ["b", "zzz", "b"]).Select(h => h.Id)));
+        Assert.Same(habits, HabitLists.ReorderHabits(habits, ["a", "b", "c"]));
+    }
+
+    [Fact]
     public void S1421_a_tick_lands_on_one_habit_only()
     {
         var after = HabitLists.ToggleHabit(Three(), "b", "2026-06-15");

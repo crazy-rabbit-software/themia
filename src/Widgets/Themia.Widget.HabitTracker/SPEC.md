@@ -10,9 +10,10 @@ rules are the SDK's `HabitLists`, `HabitRules` and `HabitPeriods`, the file's st
 
 Owning files: everything in this folder: `HabitTrackerModule.cs` (descriptor, glyph, view factory,
 menu lines, JSON context), `HabitTrackerConfig.cs` (the list shown, its styles, period and
-history), `HabitTrackerView.cs` (the list through its host) with `.Rows.cs` (the rows, the editor, the
-keys), `.Drag.cs` (reordering) and `.Heatmap.cs` (the heatmap style), `HabitLayout.cs` (the rows' plan and
-the key map), `HabitSizing.cs` (each style's sizes), `HabitDrag.cs`, `HabitHeatmap.cs`, `HabitTrackerMenu.cs` (its properties-menu lines: the
+history), `HabitSpec.cs` (a habit as a kit item of the check look, its actions), `HabitTrackerView.cs` (the list through its
+host on the kit's check look, [S-7074], [S-7037], as Tasks: the rows, the editors, the drag and the keys are the
+kit's, the history dots the look's end part) and `.Heatmap.cs` (the heatmap style), `HabitLayout.cs` (the rows'
+plan), `HabitSizing.cs` (each style's sizes), `HabitHeatmap.cs`, `HabitTrackerMenu.cs` (its properties-menu lines: the
 lists, the period, the data folder through `SettingsHost.Launcher`), `Preview/` (Debug renders:
 `--state sample|habits|few|empty`, over lists held in memory, `PreviewHabitLists`),
 `Localization/Locales/` (its own `HabitTrackerStr`, 30 languages, its style names included). Tests:
@@ -38,12 +39,11 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   pool) and "No habits yet." (over the add footer) plainly, a deleted list or lists that could not
   be read as a problem. A focused row wears the Row block's ring ([S-1288]).
 - **[S-1428]** Keyboard (original S-17): a click in the widget takes the shell's keyboard lease
-  ([S-809]) and a clicked row takes the focus:
-  Up/Down clamp, Home/End, Tab/Shift+Tab wrap, Enter ticks, F2 renames, Delete deletes, Escape gives
-  the keyboard back. In an editor Tab commits and opens the next row's editor, falling into the add
-  row past the last. Not verified live: needs a manual pass on the desktop.
-- **[S-1982]** Space ticks the focused habit as Enter does, and Page Up / Page Down jump ten rows
-  (`HabitLayout.Decide`, clamped; from no row, the first).
+  ([S-809]) and a clicked row takes the focus; the keys are the kit's one key map ([S-7020], as Tasks'):
+  Up/Down/Left/Right, Home/End, Page Up/Down move, Space ticks, Enter and F2 rename, Delete deletes, the Menu
+  key opens the row's menu, Alt+Shift+Up / Down move the habit, Escape gives the keyboard back. In an editor
+  Tab commits and opens the next row's editor ([S-788]). Not verified live: needs a manual pass on the desktop.
+- **[S-1982]** Space ticks the focused habit (the kit's Toggle); Page Up / Page Down jump ten rows.
 - **[S-1429]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style, for the Dots style only ([S-6408]): **Show streaks** (a switch); how many
   periods of history is the card's ([S-14410]: no History line). Then Appearance ([S-3723]),
@@ -101,13 +101,9 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   classified like every other launch), for a backup or another program. Not there when the lists
   have no file (no pool, or a debug render's kept in memory): there is no folder to open ([S-6070]).
 - **[S-1621]** Habits are **reordered by dragging a row** in the widget (original S-13), beside the
-  keyboard's Alt+Shift+Up / Down ([S-3802]). A press arms nothing until the pointer has moved 5 px
-  (`HabitDrag.Threshold`), so a click still focuses and a double-click still renames; a press on the
-  tick box or in the rename box never arms. The lifted row follows the pointer (clamped to the list),
-  the rows it passes step one pitch aside (`HabitDrag.Shift`), the landing slot is the one the row is
-  more than half over (`HabitDrag.Target`), and the list scrolls near its edges. Release commits one
-  `MoveHabit` through the pool (a drag that comes home writes nothing); capture lost, a rebuild under
-  the drag or Detach puts the rows back. Rows are only translated while captured, never reparented.
+  keyboard's Alt+Shift+Up / Down ([S-3802]): the kit's check layout's drag ([S-786], `KitChecks`), as Tasks'.
+  A press on the check or in the rename box never arms; the drop writes the new order through the pool
+  (`HabitLists.ReorderHabits`: the same order writes nothing).
   In edit mode the card takes the press and the widget moves instead.
 
 Needs a manual pass: the widget on a live desktop ([S-1425], [S-1428], [S-1429], [S-1430], [S-1621]:

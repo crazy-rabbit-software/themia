@@ -244,6 +244,30 @@ public static class HabitLists
         return next;
     }
 
+    /// <summary>
+    /// [S-1425] [S-786] The habits in the order a drag left them (<paramref name="ids"/>, the kit's list's new order): an
+    /// id it does not hold is ignored, a habit the order does not name keeps its place after the named ones. The same
+    /// order is the input itself, so the caller writes nothing.
+    /// </summary>
+    public static IReadOnlyList<Habit> ReorderHabits(IReadOnlyList<Habit> habits, IReadOnlyList<string> ids)
+    {
+        ArgumentNullException.ThrowIfNull(habits);
+        ArgumentNullException.ThrowIfNull(ids);
+
+        var byId = habits.ToDictionary(h => h.Id, StringComparer.Ordinal);
+        var next = new List<Habit>(habits.Count);
+        foreach (var id in ids.Distinct(StringComparer.Ordinal))
+        {
+            if (byId.Remove(id, out var habit))
+            {
+                next.Add(habit);
+            }
+        }
+
+        next.AddRange(habits.Where(h => byId.ContainsKey(h.Id)));
+        return next.Select(h => h.Id).SequenceEqual(habits.Select(h => h.Id), StringComparer.Ordinal) ? habits : next;
+    }
+
     /// <summary>[S-1421] Tick or un-tick one habit in the period <paramref name="key"/> names.</summary>
     public static IReadOnlyList<Habit> ToggleHabit(IReadOnlyList<Habit> habits, string id, string key)
         => IndexOf(habits, id) < 0 ? habits : [.. habits.Select(h => h.Id == id ? h with { Log = HabitRules.Toggle(h.Log, key) } : h)];
