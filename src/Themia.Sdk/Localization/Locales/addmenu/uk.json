@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "Дані батареї",
   "addMenu.family.driveFacts": "Дані диска",
   "addMenu.family.sunTimes": "Час сонця",
-  "addMenu.family.moonTimes": "Час місяця"
+  "addMenu.family.moonTimes": "Час місяця",
+  "addMenu.family.weatherSummary": "Зведення погоди"
 }

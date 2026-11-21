@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "バッテリーの詳細",
   "addMenu.family.driveFacts": "ドライブの詳細",
   "addMenu.family.sunTimes": "太陽の時刻",
-  "addMenu.family.moonTimes": "月の時刻"
+  "addMenu.family.moonTimes": "月の時刻",
+  "addMenu.family.weatherSummary": "天気の概要"
 }

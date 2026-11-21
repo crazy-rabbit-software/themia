@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "大圖示",
-  "styles.weatherNow.minimal": "極簡",
-  "styles.weatherNow.standard": "標準",
-  "widget.weatherCurrent.label": "天氣摘要",
-  "widgetsA.catalog.weather.description": "您所在地的天氣",
+  "weatherNow.condition.desc": "你所在地的天氣，用文字表示",
+  "weatherNow.condition.label": "天氣狀況",
+  "weatherNow.sky.desc": "你所在地的天空，一個圖示",
+  "weatherNow.sky.label": "天氣圖示",
   "widgetsC.weather.feelsShort": "體感 {temperature}"
 }

@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "ไอคอนใหญ่",
-  "styles.weatherNow.minimal": "เรียบง่าย",
-  "styles.weatherNow.standard": "มาตรฐาน",
-  "widget.weatherCurrent.label": "สรุปสภาพอากาศ",
-  "widgetsA.catalog.weather.description": "สภาพอากาศในที่ที่คุณอยู่",
+  "weatherNow.condition.desc": "สภาพอากาศที่คุณอยู่เป็นคำพูด",
+  "weatherNow.condition.label": "สภาพอากาศ",
+  "weatherNow.sky.desc": "ท้องฟ้าที่คุณอยู่ในไอคอนเดียว",
+  "weatherNow.sky.label": "ไอคอนสภาพอากาศ",
   "widgetsC.weather.feelsShort": "รู้สึก {temperature}"
 }

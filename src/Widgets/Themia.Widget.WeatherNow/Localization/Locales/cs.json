@@ -1,9 +1,8 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.weatherNow.largeIcon": "Velká ikona",
-  "styles.weatherNow.minimal": "Minimalistické",
-  "styles.weatherNow.standard": "Standardní",
-  "widget.weatherCurrent.label": "Přehled počasí",
-  "widgetsA.catalog.weather.description": "Počasí tam, kde jsi",
+  "weatherNow.condition.desc": "Počasí tam, kde jste, slovy",
+  "weatherNow.condition.label": "Stav počasí",
+  "weatherNow.sky.desc": "Obloha tam, kde jste, jednou ikonou",
+  "weatherNow.sky.label": "Ikona počasí",
   "widgetsC.weather.feelsShort": "Pocitově {temperature}"
 }

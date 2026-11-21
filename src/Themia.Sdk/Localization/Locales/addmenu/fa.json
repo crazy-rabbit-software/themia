@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "اطلاعات باتری",
   "addMenu.family.driveFacts": "اطلاعات درایو",
   "addMenu.family.sunTimes": "زمان‌های خورشید",
-  "addMenu.family.moonTimes": "زمان‌های ماه"
+  "addMenu.family.moonTimes": "زمان‌های ماه",
+  "addMenu.family.weatherSummary": "خلاصهٔ آب‌وهوا"
 }

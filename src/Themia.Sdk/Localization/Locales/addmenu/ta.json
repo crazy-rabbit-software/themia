@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "பேட்டரி விவரங்கள்",
   "addMenu.family.driveFacts": "டிரைவ் விவரங்கள்",
   "addMenu.family.sunTimes": "சூரிய நேரங்கள்",
-  "addMenu.family.moonTimes": "சந்திர நேரங்கள்"
+  "addMenu.family.moonTimes": "சந்திர நேரங்கள்",
+  "addMenu.family.weatherSummary": "வானிலை சுருக்கம்"
 }

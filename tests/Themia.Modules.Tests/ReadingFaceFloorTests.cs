@@ -33,7 +33,6 @@ public sealed class ReadingFaceFloorTests
     /// <summary>The parts a kind states for its face: the same its sizing and its view take.</summary>
     private static FaceParts? Face(string kind, WidgetConfig config) => kind switch
     {
-        "weatherNow" => WeatherNowStyles.Face((WeatherNowConfig)config),
         "airQuality" => AirLayout.Face((AirQualityConfig)config),
         "exchangeRate" => RatesLayout.Face(),
         "screenTime" => ScreenTimeReading.Face(),
@@ -47,6 +46,7 @@ public sealed class ReadingFaceFloorTests
         "countdown" => CountdownLayout.Face((CountdownConfig)config, Strings.Current),
         "music" or "musicArtist" or "musicAlbum" => TextRules.Face(1, lead: true),
         "rainOutlook" => TextRules.Face(2, lead: false),
+        "weatherCondition" => TextRules.Face(1, lead: false),
         "musicProgress" => MusicProgressFace.Face(),
         "nextMeeting" => NextMeetingJoin.Face((NextMeetingConfig)config),
         _ => null,
@@ -58,9 +58,6 @@ public sealed class ReadingFaceFloorTests
     /// </summary>
     public static TheoryData<string, string, double, double> Faces() => new()
     {
-        { "weatherNow", "standard", 32, 57 },
-        { "weatherNow", "largeIcon", 40, 57 },
-        { "weatherNow", "minimal", 32, 45 },
         { "airQuality", "number", 32, 57 },
         { "airQuality", "gauge", 60, 91 },
         { "exchangeRate", "default", 32, 57 },
@@ -80,6 +77,7 @@ public sealed class ReadingFaceFloorTests
         { "musicArtist", "default", 48, 52 },
         { "musicAlbum", "default", 48, 52 },
         { "rainOutlook", "default", 48, 80 },
+        { "weatherCondition", "default", 48, 52 },
         { "musicProgress", "default", 32, 32 },
         { "nextMeeting", "default", 32, 93 },
         { "cpu", "number", 32, 45 },

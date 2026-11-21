@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "အိုင်ကွန် အကြီး",
-  "styles.weatherNow.minimal": "အနည်းဆုံး",
-  "styles.weatherNow.standard": "စံ",
-  "widget.weatherCurrent.label": "ရာသီဥတု အနှစ်ချုပ်",
-  "widgetsA.catalog.weather.description": "သင်ရှိရာ အခြေအနေ",
+  "weatherNow.condition.desc": "သင်ရှိရာ ရာသီဥတု၊ စကားလုံးဖြင့်",
+  "weatherNow.condition.label": "ရာသီဥတု အခြေအနေ",
+  "weatherNow.sky.desc": "သင်ရှိရာ ကောင်းကင်၊ အိုင်ကွန်တစ်ခုဖြင့်",
+  "weatherNow.sky.label": "ရာသီဥတု အိုင်ကွန်",
   "widgetsC.weather.feelsShort": "{temperature} ဟု ခံစားရ"
 }

@@ -1,9 +1,8 @@
 {
   "$englishOnly": [],
-  "styles.weatherNow.largeIcon": "Large icon",
-  "styles.weatherNow.minimal": "Minimal",
-  "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Weather summary",
-  "widgetsA.catalog.weather.description": "Conditions where you are",
+  "weatherNow.condition.desc": "The weather where you are, in words",
+  "weatherNow.condition.label": "Condition",
+  "weatherNow.sky.desc": "The sky where you are, as one icon",
+  "weatherNow.sky.label": "Weather icon",
   "widgetsC.weather.feelsShort": "Feels {temperature}"
 }

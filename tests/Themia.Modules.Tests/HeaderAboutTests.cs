@@ -12,7 +12,7 @@ namespace Themia.Modules.Tests;
 /// </summary>
 public sealed class HeaderAboutTests
 {
-    public static TheoryData<string> Places() => ["weatherNow", "weatherForecast", "airQuality", "rainNextHour", "sun", "moon"];
+    public static TheoryData<string> Places() => ["weatherCondition", "weatherForecast", "airQuality", "rainNextHour", "sun", "moon"];
 
     private static WidgetConfig Placed(string kind, string? name)
     {

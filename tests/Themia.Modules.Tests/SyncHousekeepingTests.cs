@@ -45,11 +45,11 @@ public sealed class SyncHousekeepingTests : IDisposable
     [Fact]
     public void S2663_weather_and_stocks_widgets_of_every_view_are_synced_and_unset_ones_ask_nothing()
     {
-        var now = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54 };
+        var now = new WeatherConditionConfig { Latitude = 47.37, Longitude = 8.54 };
         var days = new WeatherForecastConfig { Latitude = 47.37, Longitude = 8.54 };
         var stock = new StockConfig { Symbol = "aapl", Range = QuoteRange.FiveDays };
         var state = State(
-            [now, new WeatherNowConfig(), new WeatherNowConfig { Latitude = 120, Longitude = 8 }],
+            [now, new WeatherConditionConfig(), new WeatherConditionConfig { Latitude = 120, Longitude = 8 }],
             [days, stock, new StockConfig(), new StockConfig { Symbol = "not a symbol!" }]);
 
         var interests = SyncInterests.From(state);
@@ -66,7 +66,7 @@ public sealed class SyncHousekeepingTests : IDisposable
     [Fact]
     public void S2663_the_widget_asks_exactly_what_the_sync_keeps_and_a_change_of_place_or_range_is_heard()
     {
-        var now = new WeatherNowConfig { Latitude = 1, Longitude = 2 };
+        var now = new WeatherConditionConfig { Latitude = 1, Longitude = 2 };
         var stock = new StockConfig { Symbol = "MSFT" };
         var state = State([now, stock]);
 
@@ -94,7 +94,7 @@ public sealed class SyncHousekeepingTests : IDisposable
     [Fact]
     public void S3780_the_shared_cadences_reach_every_interest_and_a_change_is_heard()
     {
-        var state = State([new WeatherNowConfig { Latitude = 1, Longitude = 2 }, new StockConfig { Symbol = "MSFT" }, new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed.xml" }] }]);
+        var state = State([new WeatherConditionConfig { Latitude = 1, Longitude = 2 }, new StockConfig { Symbol = "MSFT" }, new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed.xml" }] }]);
         state.Preferences.Refresh = new RefreshPreferences { ["weather"] = 60, ["markets"] = 15, ["feeds"] = 120, ["accounts"] = 5 };
 
         var interests = SyncInterests.From(state);

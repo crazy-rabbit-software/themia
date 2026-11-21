@@ -2196,7 +2196,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   bento cells, each 14 grid cells square ([S-06]: 140 DIPs on a 10-DIP grid), the tiles 2 grid cells apart, twelve
   cards of 1 × 1, 2 × 1 and 2 × 2 cells packed with no hole and no overlap: Clock and Calendar (the month) on top, a
   CPU meter and the Wi-Fi toggle tile under the clock, Tasks, the network history graph and Music (now playing) under
-  them, down the right the weather station joined (Weather summary, its humidity ([S-13900]), the forecast: one join's tiles split the gap
+  them, down the right the weather station joined (the temperature, [S-15024], its humidity ([S-13900]), the forecast: one join's tiles split the gap
   between them and meet, so they draw as one panel, [S-2240]), and under it the battery meter and the Lock tile. Each
   box holds its kind's least size; a kind whose size follows a count shows what its box holds ([S-2442]). The bento
   stands in the display's middle on its grid lines, placed as the desktop places cards so their frost is the
@@ -8763,7 +8763,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   user decides how large the card is ([S-12411]). Kept: toggles and power buttons ([S-5700], [S-12806]), pictures,
   graphs and charts ([S-12800]), Drive's ring style (its ring grows with the box), the Header, Next meeting's and
   Rain next hour's lines over their join or chart, Sun's picture. Tests `BlockFillTests.S12808_`; renders
-  `--widget-png weatherNow|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
+  `--widget-png weatherSky|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
 - **[S-12809]** **The calendar's month fills its card** (owner, 2026-11-19: "the calendar does not follow this design
   philosophy for example. fix that"; then "Bigger numbers too"). The weekday line and the six weeks fill the content
   edge to edge inside the margin, the cells touching: the rows grow with the card's height (each as tall as its
@@ -10224,7 +10224,7 @@ model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
   them agree. A shared write is content, not the arrangement: one mutation, no undo step ([S-886]).
 - **[S-11752]** **What is shared, and who holds it** (pinned by `SharedSettingsTests`): the place
   (`IPlaced`, which names its coordinates and its place name, the weather's `LocationName` and the sky's
-  `Place` under one shape: Weather summary, the weather facts (each of the eleven, [S-13900]), Forecast, Rain next hour, Air quality, Air facts,
+  `Place` under one shape: the weather summary's sky and condition ([S-15020]), the weather facts (each of the eleven, [S-13900]), Forecast, Rain next hour, Air quality, Air facts,
   Sun, Sun times, Moon, Moon times and the seven weather graphs ([S-12707]); the same place is the same coordinates or both on the device's);
   the calendars' accounts with their calendars and colours (`CalendarConfig`: Calendar, Next meeting, Up
   next, Week planner); the mail and the contacts accounts (`IChoosesAccounts`, by the feature they offer:
@@ -10441,7 +10441,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   PM10, ozone and the worst pollen); the old cards' groups are their reading over the old card's four metrics (**CPU
   details**, **Memory details**, **GPU details**, **Network details** with its adapters, **Ping details**, **Battery
   details**, **Drive**), **Sun** and **Moon** the graphic or reading over its three times, **Weather** and **Weather
-  station** the reading over its metrics; each starts with its Header ([S-12485]), every metric one row tall, touching.
+  station** the weather summary's three parts over its metrics ([S-15024]); each starts with its Header ([S-12485]), every metric one row tall, touching.
 - **[S-14700]** **A metric fits its box** (owner, 2026-11-20: "the widgets like the PM2.5 one should be resizable in height
   and change its style so that it fits."): every single metric's height is resizable from its least ([S-14600]) by one
   cell, with no most, and its face changes its look to fit the box: the same parts (the glyph, the name, the value, its
@@ -10548,7 +10548,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   sizing when painted), top to bottom and left to right, in the card's place in the drawing order; the key the card was
   shared out by (its style) goes, what a part does not have is dropped by the load, loudly. Only a graph's merge
   (`MergeFrom.Graph`) shows the graph (its trend Line, its window its `span`). One logged line a replaced card. Tests
-  `KindMergesTests.S15022_` (Core), `WeatherNowSplitTests.S15022_`.
+  `KindMergesTests.S15022_` (Core); the weather summary's, [S-15025].
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,
@@ -10617,7 +10617,7 @@ every line of text is a text kind (TEXTS) and every one reading a single metric 
 `Themia.Sdk/Modules/IconKind.cs` (a kind as data), `Themia.Sdk.WinUI/Widgets/IconView.cs` (+ `.Preview.cs`, the one face,
 on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the Icon widget (`Themia.Widget.Icon`,
 [S-15010]), the now-playing buttons (`Themia.Widget.Music`, [S-14922]) and the sky now (`weatherSky`,
-`Themia.Widget.WeatherNow`, [S-15020]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
+`Themia.Widget.WeatherNow`, [S-15021]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
 
 - **[S-15000]** **Its size is a square round its glyph.** An icon kind's card lands at the 40 step's line (52) in the family's inset,
   76 square, a desktop cell's width (`IconRules.Sizing`, `NaturalSide`), resizes freely on both axes from the grid's least widget, 32 (WR-14: a
@@ -10676,7 +10676,7 @@ are single metrics (METRICS). Tests: each module's, `ReadyMadeGroupsTests`.
   changes. Atoms of one subject at one place read the same answer, so they agree to the digit; the sky
   atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
 - **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
-  (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
+  (the first carries the header, the others none; [S-2472]): **Weather** (the summary's three parts over its facts, [S-15024]),
   **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its readings),
   **Weather facts** (every weather fact, [S-14607]), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
   **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
@@ -11677,9 +11677,10 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   named Home and Work (translated, `shell.view.homeName`/`workName`); Home is active. Laid out on a
   2560×1440 grid and stored as fractions, so it holds on any display. Home, clock first: Clock (digital,
   no seconds, no date) top right (2250, 0, 310×180); no shortcuts (Windows' own desktop icons are the
-  desktop items, [S-5500]; the Shortcuts grid of six Windows places went with that widget, 2026-11-13); Weather now (large icon) top left (0, 0, 310×180); CPU,
+  desktop items, [S-5500]; the Shortcuts grid of six Windows places went with that widget, 2026-11-13); the weather summary's three parts top left, bare: the sky (0, 0, 110×112) beside the temperature
+  (110, 0, 200×60) over the condition (110, 60, 200×52), [S-15024]; CPU,
   Memory, GPU and Network as graphs down the right edge (x 2250, y 920/1040/1160/1280, 310 wide,
-  89/1080 of the screen tall); these seven are transparent and headerless. Along the top centre, six
+  89/1080 of the screen tall); these nine are transparent and headerless. Along the top centre, six
   60×60 quick-setting tiles from x 1090: Do not disturb, Color filters, Night light, Airplane mode,
   Bluetooth, Wi-Fi. Work: Clock (digital, with the date, transparent, headerless) top right (2330, 0,
   230×120); Calendar (month) (0, 0, 800×710), Tasks (list) (800, 0, 510×710) and Notes (1310, 0,

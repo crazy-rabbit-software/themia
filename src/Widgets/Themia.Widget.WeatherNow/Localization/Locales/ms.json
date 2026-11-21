@@ -1,9 +1,8 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.weatherNow.largeIcon": "Ikon besar",
-  "styles.weatherNow.minimal": "Minimum",
-  "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Ringkasan cuaca",
-  "widgetsA.catalog.weather.description": "Keadaan di tempat kamu",
+  "weatherNow.condition.desc": "Cuaca di tempat anda, dalam perkataan",
+  "weatherNow.condition.label": "Keadaan cuaca",
+  "weatherNow.sky.desc": "Langit di tempat anda, dalam satu ikon",
+  "weatherNow.sky.label": "Ikon cuaca",
   "widgetsC.weather.feelsShort": "Terasa {temperature}"
 }

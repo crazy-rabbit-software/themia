@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "Сведения о батарее",
   "addMenu.family.driveFacts": "Сведения о диске",
   "addMenu.family.sunTimes": "Время солнца",
-  "addMenu.family.moonTimes": "Время луны"
+  "addMenu.family.moonTimes": "Время луны",
+  "addMenu.family.weatherSummary": "Сводка погоды"
 }

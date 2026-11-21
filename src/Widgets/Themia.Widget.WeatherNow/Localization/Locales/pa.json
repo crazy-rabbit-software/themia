@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "ਵੱਡਾ ਆਈਕਨ",
-  "styles.weatherNow.minimal": "ਘੱਟੋ-ਘੱਟ",
-  "styles.weatherNow.standard": "ਮਿਆਰੀ",
-  "widget.weatherCurrent.label": "ਮੌਸਮ ਸਾਰ",
-  "widgetsA.catalog.weather.description": "ਜਿੱਥੇ ਤੁਸੀਂ ਹੋ ਉੱਥੋਂ ਦੇ ਹਾਲਾਤ",
+  "weatherNow.condition.desc": "ਤੁਹਾਡੀ ਥਾਂ ਦਾ ਮੌਸਮ, ਸ਼ਬਦਾਂ ਵਿੱਚ",
+  "weatherNow.condition.label": "ਮੌਸਮ ਦੀ ਹਾਲਤ",
+  "weatherNow.sky.desc": "ਤੁਹਾਡੀ ਥਾਂ ਦਾ ਅਸਮਾਨ, ਇੱਕ ਆਈਕਨ ਵਿੱਚ",
+  "weatherNow.sky.label": "ਮੌਸਮ ਆਈਕਨ",
   "widgetsC.weather.feelsShort": "ਮਹਿਸੂਸ {temperature}"
 }

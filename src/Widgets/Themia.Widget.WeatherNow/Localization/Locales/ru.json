@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "Крупный значок",
-  "styles.weatherNow.minimal": "Минимальный",
-  "styles.weatherNow.standard": "Стандартный",
-  "widget.weatherCurrent.label": "Сводка погоды",
-  "widgetsA.catalog.weather.description": "Погода там, где вы находитесь",
+  "weatherNow.condition.desc": "Погода там, где вы, словами",
+  "weatherNow.condition.label": "Состояние погоды",
+  "weatherNow.sky.desc": "Небо там, где вы, одним значком",
+  "weatherNow.sky.label": "Значок погоды",
   "widgetsC.weather.feelsShort": "Ощущ. {temperature}"
 }

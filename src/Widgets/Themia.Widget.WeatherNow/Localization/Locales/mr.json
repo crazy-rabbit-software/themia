@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "मोठे चिन्ह",
-  "styles.weatherNow.minimal": "किमान",
-  "styles.weatherNow.standard": "मानक",
-  "widget.weatherCurrent.label": "हवामान सारांश",
-  "widgetsA.catalog.weather.description": "तुम्ही जिथे आहात तिथली स्थिती",
+  "weatherNow.condition.desc": "तुमच्या ठिकाणचे हवामान, शब्दांत",
+  "weatherNow.condition.label": "हवामान स्थिती",
+  "weatherNow.sky.desc": "तुमच्या ठिकाणचे आकाश, एका चिन्हात",
+  "weatherNow.sky.label": "हवामान चिन्ह",
   "widgetsC.weather.feelsShort": "जाणवते {temperature}"
 }

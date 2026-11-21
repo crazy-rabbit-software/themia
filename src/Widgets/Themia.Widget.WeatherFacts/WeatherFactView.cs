@@ -12,8 +12,8 @@ namespace Themia.Widget.WeatherFacts;
 
 /// <summary>
 /// [S-13901] [S-14601] One weather reading at the card's place on the single metric's face (<see cref="MetricView"/>).
-/// The reading comes from the background sync through <see cref="SkyFeed{TWant, T}"/>, the same answer the reading card
-/// (<c>weatherNow</c>) draws; a trend over the service's hours reads the place's hours (the weather graphs' answer),
+/// The reading comes from the background sync through <see cref="SkyFeed{TWant, T}"/>, the same answer the weather summary's sky and condition
+/// (<c>weatherSky</c>, <c>weatherCondition</c>) draw; a trend over the service's hours reads the place's hours (the weather graphs' answer),
 /// this hour against the last for the arrow and the hours from the last on for the line ([S-14603]). A reading kept
 /// through a failed refresh stays and the status's problem glyph says so ([S-7042]); with none, the row stays with
 /// "--" and its tooltip says why ([S-13902]).

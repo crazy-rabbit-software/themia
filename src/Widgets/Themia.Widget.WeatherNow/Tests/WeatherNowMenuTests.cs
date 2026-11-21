@@ -7,12 +7,12 @@ using Xunit;
 
 namespace Themia.Widget.WeatherNow.Tests;
 
-/// <summary>[S-6174] The current conditions' options on its page, the weather family's location search among them.</summary>
+/// <summary>[S-6174] The weather summary's parts' options on their page, the weather family's location search among them.</summary>
 public sealed class WeatherNowMenuTests
 {
     private int _saves;
 
-    private WidgetMenuLines Build(WeatherNowConfig config)
+    private WidgetMenuLines Build(WeatherNowPartConfig config)
     {
         var lines = new WidgetMenuLines(() => _saves++);
         WeatherNowMenu.Lines(lines, config);
@@ -20,18 +20,16 @@ public sealed class WeatherNowMenuTests
     }
 
     [Fact]
-    public void S6174_nothing_stands_under_style_in_any_style()
+    public void S6174_nothing_stands_under_style_for_either_part()
     {
-        foreach (var style in Enum.GetValues<WeatherNowStyle>())
-        {
-            Assert.Empty(Build(new WeatherNowConfig { Style = style }).StyleLines);
-        }
+        Assert.Empty(Build(new WeatherSkyConfig()).StyleLines);
+        Assert.Empty(Build(new WeatherConditionConfig()).StyleLines);
     }
 
     [Fact]
     public void S6174_the_first_level_is_appearance_then_use_my_location_the_location_search_and_no_link()
     {
-        var lines = Build(new WeatherNowConfig());
+        var lines = Build(new WeatherSkyConfig());
 
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
@@ -46,7 +44,7 @@ public sealed class WeatherNowMenuTests
     [Fact]
     public void S6174_without_a_place_the_line_shows_none_and_clear_is_greyed()
     {
-        var location = Build(new WeatherNowConfig()).Lines.First(l => l.Search is not null);
+        var location = Build(new WeatherSkyConfig()).Lines.First(l => l.Search is not null);
 
         Assert.Null(location.Search!.Value);
         Assert.True(Assert.Single(location.Search!.Fixed, f => f.Text == Str.Shell_Place_Clear.Text()).Disabled);
@@ -55,7 +53,7 @@ public sealed class WeatherNowMenuTests
     [Fact]
     public void S6174_clear_forgets_the_place()
     {
-        var config = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Switzerland" };
+        var config = new WeatherSkyConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Switzerland" };
         var search = Build(config).Lines.First(l => l.Search is not null).Search!;
 
         Assert.Equal("Zürich", search.Value);
@@ -69,7 +67,7 @@ public sealed class WeatherNowMenuTests
     [InlineData("z")]
     public async Task S6174_nothing_typed_or_one_letter_asks_nothing(string typed)
     {
-        var search = Build(new WeatherNowConfig()).Lines.First(l => l.Search is not null).Search!;
+        var search = Build(new WeatherSkyConfig()).Lines.First(l => l.Search is not null).Search!;
         var answer = await search.Find(typed, CancellationToken.None);
 
         Assert.Empty(answer.Lines);

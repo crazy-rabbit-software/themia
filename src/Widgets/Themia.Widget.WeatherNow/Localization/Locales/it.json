@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "Icona grande",
-  "styles.weatherNow.minimal": "Minimale",
-  "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Riepilogo meteo",
-  "widgetsA.catalog.weather.description": "Il meteo dove ti trovi",
+  "weatherNow.condition.desc": "Il tempo dove sei, a parole",
+  "weatherNow.condition.label": "Condizioni",
+  "weatherNow.sky.desc": "Il cielo dove sei, in un’icona",
+  "weatherNow.sky.label": "Icona meteo",
   "widgetsC.weather.feelsShort": "Percepita {temperature}"
 }

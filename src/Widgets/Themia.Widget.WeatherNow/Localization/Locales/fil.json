@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "Malaking icon",
-  "styles.weatherNow.minimal": "Minimal",
-  "styles.weatherNow.standard": "Karaniwan",
-  "widget.weatherCurrent.label": "Buod ng panahon",
-  "widgetsA.catalog.weather.description": "Lagay ng panahon kung nasaan ka",
+  "weatherNow.condition.desc": "Ang panahon kung nasaan ka, sa mga salita",
+  "weatherNow.condition.label": "Kalagayan ng panahon",
+  "weatherNow.sky.desc": "Ang langit kung nasaan ka, sa isang icon",
+  "weatherNow.sky.label": "Icon ng panahon",
   "widgetsC.weather.feelsShort": "Pakiramdam {temperature}"
 }

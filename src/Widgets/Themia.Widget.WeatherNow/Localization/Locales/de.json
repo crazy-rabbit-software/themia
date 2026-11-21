@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "Großes Symbol",
-  "styles.weatherNow.minimal": "Minimal",
-  "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Wetterübersicht",
-  "widgetsA.catalog.weather.description": "Das Wetter an deinem Ort",
+  "weatherNow.condition.desc": "Das Wetter an deinem Ort in Worten",
+  "weatherNow.condition.label": "Wetterlage",
+  "weatherNow.sky.desc": "Der Himmel an deinem Ort als ein Symbol",
+  "weatherNow.sky.label": "Wettersymbol",
   "widgetsC.weather.feelsShort": "Gefühlt {temperature}"
 }

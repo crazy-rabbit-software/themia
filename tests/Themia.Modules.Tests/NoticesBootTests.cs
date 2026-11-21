@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
 
@@ -214,7 +215,7 @@ public sealed class NoticesBootTests : IDisposable
         // The clock first, so it is the one drawn on top.
         Assert.Equal(
             [
-                new WidgetId("clock"), new WidgetId("weatherNow"),
+                new WidgetId("clock"), new WidgetId("weatherSky"), new WidgetId("weatherTemperature"), new WidgetId("weatherCondition"),
                 new WidgetId("cpu"), new WidgetId("memory"), new WidgetId("gpu"), new WidgetId("network"),
                 new WidgetId("doNotDisturbToggle"), new WidgetId("colorFiltersToggle"), new WidgetId("nightLightToggle"),
                 new WidgetId("airplaneModeToggle"), new WidgetId("bluetoothToggle"), new WidgetId("wifiToggle"),
@@ -229,15 +230,18 @@ public sealed class NoticesBootTests : IDisposable
         // through the reconcile ([S-5500], [S-5520]), and an own icon is the user's to add.
         Assert.DoesNotContain(widgets, w => w.Kind == new WidgetId("desktopItem"));
 
-        Assert.Equal(WeatherNowStyle.LargeIcon, Assert.IsType<WeatherNowConfig>(widgets[1].Config).Style);
-        Assert.Equal(CpuStyle.Number, Assert.IsType<CpuConfig>(widgets[2].Config).Style);
-        Assert.Equal(MemoryStyle.Number, Assert.IsType<MemoryConfig>(widgets[3].Config).Style);
-        Assert.Equal(GpuStyle.Number, Assert.IsType<GpuConfig>(widgets[4].Config).Style);
-        Assert.IsType<NetworkConfig>(widgets[5].Config);
+        // [S-15024] The weather summary's parts, the temperature the plain metric.
+        Assert.IsType<WeatherSkyConfig>(widgets[1].Config);
+        Assert.Equal(MetricTrend.None, Assert.IsAssignableFrom<IMetricTrend>(widgets[2].Config).Trend);
+        Assert.IsType<WeatherConditionConfig>(widgets[3].Config);
+        Assert.Equal(CpuStyle.Number, Assert.IsType<CpuConfig>(widgets[4].Config).Style);
+        Assert.Equal(MemoryStyle.Number, Assert.IsType<MemoryConfig>(widgets[5].Config).Style);
+        Assert.Equal(GpuStyle.Number, Assert.IsType<GpuConfig>(widgets[6].Config).Style);
+        Assert.IsType<NetworkConfig>(widgets[7].Config);
 
         // Everything but the quick settings sits on the wallpaper: no card.
-        Assert.All(widgets.Take(6), w => Assert.Equal(FillKind.Transparent, w.Background.Kind));
-        Assert.All(widgets.Skip(7), w => Assert.Equal(FillKind.Default, w.Background.Kind));
+        Assert.All(widgets.Take(8), w => Assert.Equal(FillKind.Transparent, w.Background.Kind));
+        Assert.All(widgets.Skip(9), w => Assert.Equal(FillKind.Default, w.Background.Kind));
         Assert.All(widgets, w => Assert.Equal(FillKind.Default, w.ItemBackground.Kind));
         AssertInsideAndApart(widgets);
     }
@@ -245,7 +249,7 @@ public sealed class NoticesBootTests : IDisposable
     [Fact]
     public void S893_the_quick_settings_line_up_along_the_top_centre()
     {
-        var toggles = AppState.CreateDefault().Views[0].Widgets.Skip(7).ToList();
+        var toggles = AppState.CreateDefault().Views[0].Widgets.Skip(9).ToList();
 
         Assert.All(toggles, t => Assert.Equal(0, t.Y));
         Assert.All(toggles, t => Assert.Equal(toggles[0].W, t.W, 9));
@@ -283,10 +287,13 @@ public sealed class NoticesBootTests : IDisposable
     {
         var widgets = AppState.CreateDefault().Views.SelectMany(v => v.Widgets).ToList();
 
-        var weather = Assert.IsType<WeatherNowConfig>(Assert.Single(widgets, w => w.Kind == new WidgetId("weatherNow")).Config);
-        Assert.Null(weather.Latitude);
-        Assert.Null(weather.Longitude);
-        Assert.Equal(string.Empty, weather.LocationName);
+        foreach (var kind in new[] { "weatherSky", "weatherTemperature", "weatherCondition" })
+        {
+            var weather = Assert.IsAssignableFrom<WeatherConfig>(Assert.Single(widgets, w => w.Kind == new WidgetId(kind)).Config);
+            Assert.Null(weather.Latitude);
+            Assert.Null(weather.Longitude);
+            Assert.Equal(string.Empty, weather.LocationName);
+        }
 
         var calendar = Assert.IsType<CalendarWidgetConfig>(Assert.Single(widgets, w => w.Kind == new WidgetId("calendar")).Config);
         Assert.Empty(calendar.AccountIds);

@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "Ikon besar",
-  "styles.weatherNow.minimal": "Minimal",
-  "styles.weatherNow.standard": "Standar",
-  "widget.weatherCurrent.label": "Ringkasan cuaca",
-  "widgetsA.catalog.weather.description": "Kondisi di tempat Anda",
+  "weatherNow.condition.desc": "Cuaca di tempat Anda, dalam kata-kata",
+  "weatherNow.condition.label": "Kondisi cuaca",
+  "weatherNow.sky.desc": "Langit di tempat Anda, dalam satu ikon",
+  "weatherNow.sky.label": "Ikon cuaca",
   "widgetsC.weather.feelsShort": "Terasa {temperature}"
 }

@@ -51,14 +51,14 @@ public static class AppearanceBento
 
     /// <summary>
     /// [S-2311] The tiles, in reading order: the clock and the month on top, a meter and a toggle under the clock, the
-    /// tasks and a network graph and the music under them; down the right the weather station joined (the reading, a
+    /// tasks and a network graph and the music under them; down the right the weather station joined (the temperature, a
     /// fact, the days ahead), and under it the battery and a power tile.
     /// </summary>
     public static IReadOnlyList<BentoTile> Tiles { get; } =
     [
         new("clock", 0, 0, 2, 1),
         new("calendar", 2, 0, 2, 2),
-        new("weatherNow", 4, 0, 2, 1, Station),
+        new("weatherTemperature", 4, 0, 2, 1, Station),
         new("cpu", 0, 1, 1, 1),
         new("wifiToggle", 1, 1, 1, 1),
         new("weatherHumidity", 4, 1, 2, 1, Station),

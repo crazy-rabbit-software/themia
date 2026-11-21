@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "Groot pictogram",
-  "styles.weatherNow.minimal": "Minimaal",
-  "styles.weatherNow.standard": "Standaard",
-  "widget.weatherCurrent.label": "Weeroverzicht",
-  "widgetsA.catalog.weather.description": "Het weer waar je bent",
+  "weatherNow.condition.desc": "Het weer waar je bent, in woorden",
+  "weatherNow.condition.label": "Weersgesteldheid",
+  "weatherNow.sky.desc": "De lucht waar je bent, als één pictogram",
+  "weatherNow.sky.label": "Weerpictogram",
   "widgetsC.weather.feelsShort": "Voelt als {temperature}"
 }

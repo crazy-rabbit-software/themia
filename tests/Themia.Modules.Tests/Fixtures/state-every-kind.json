@@ -514,7 +514,7 @@
         },
         {
           "id": "w17",
-          "kind": "WeatherNow",
+          "kind": "WeatherCondition",
           "x": 0.07,
           "y": 0.01,
           "w": 0.2,
@@ -532,8 +532,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "weatherNow",
-            "style": "standard",
+            "kind": "weatherCondition",
             "locationName": "",
             "useDeviceLocation": false
           }

@@ -15,7 +15,7 @@ public sealed class OnlineHostTests
     [Fact]
     public void S728_the_place_label_is_the_chosen_city_not_the_typed_query()
     {
-        var config = new WeatherNowConfig { LocationName = "Zürich, Zurich, Switzerland", Latitude = 47.37, Longitude = 8.54 };
+        var config = new WeatherConditionConfig { LocationName = "Zürich, Zurich, Switzerland", Latitude = 47.37, Longitude = 8.54 };
 
         Assert.Equal("Zürich", config.PlaceLabel);
     }

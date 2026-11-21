@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "نماد بزرگ",
-  "styles.weatherNow.minimal": "ساده",
-  "styles.weatherNow.standard": "استاندارد",
-  "widget.weatherCurrent.label": "خلاصهٔ آب‌وهوا",
-  "widgetsA.catalog.weather.description": "وضعیت هوا در محل شما",
+  "weatherNow.condition.desc": "آب‌وهوای جایی که هستید، با کلمات",
+  "weatherNow.condition.label": "وضعیت هوا",
+  "weatherNow.sky.desc": "آسمانِ جایی که هستید، در یک نماد",
+  "weatherNow.sky.label": "نماد آب‌وهوا",
   "widgetsC.weather.feelsShort": "محسوس {temperature}"
 }

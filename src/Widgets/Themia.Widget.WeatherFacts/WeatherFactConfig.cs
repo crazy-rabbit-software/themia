@@ -9,7 +9,7 @@ namespace Themia.Widget.WeatherFacts;
 
 /// <summary>
 /// [S-13900] [S-13903] [S-14603] What one weather fact card remembers: its place (the weather family's, [S-2840]) and its
-/// trend; its fact is its kind's. It reads the same weather feed as the reading (<c>weatherNow</c>): every card at one
+/// trend; its fact is its kind's. It reads the same weather feed as the sky and the condition (<c>weatherSky</c>, <c>weatherCondition</c>): every card at one
 /// place is one request ([S-2663]); a trend over the service's hours asks the place's hours too (the weather graphs'
 /// one answer), only while it draws one.
 /// </summary>

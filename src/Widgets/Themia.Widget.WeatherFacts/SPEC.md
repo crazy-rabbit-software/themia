@@ -1,8 +1,10 @@
 # Weather facts (WEATHER-FACTS)
 
 The family project `Themia.Widget.WeatherFacts` ([S-6901], `[assembly: ThemiaWidgetFamily]`): the weather's
-readings where the user says they are, **one widget a fact**. Atoms ([S-11170]): with the reading (`weatherNow`, "Weather
-summary") they make the ready-made groups "Weather" and "Weather station" ([S-11172], [S-2474]). Its tags are this file's
+readings where the user says they are, **one widget a fact**. Atoms ([S-11170]): with the weather summary's sky and condition
+(`weatherSky`, `weatherCondition`, whose third part the temperature is, [S-15020]) they make the ready-made groups "Weather
+summary", "Weather" and "Weather station" ([S-11172], [S-2474], [S-15024]); a placed summary's temperature becomes
+`weatherTemperature` in place, plain (no graph; the whole card where it was Minimal, [S-15025]). Its tags are this file's
 and [S-722]; the root `SPEC.md` holds the host's sections and what the weather widgets share (the request [S-720], the
 place [S-2840]..[S-2853], Refresh [S-730], the sync [S-2663]).
 

@@ -38,6 +38,7 @@
   "addMenu.family.moonTimes": "Moon times",
   "addMenu.family.nowPlaying": "Now playing",
   "addMenu.family.rain": "Rain",
+  "addMenu.family.weatherSummary": "Weather summary",
   "addMenu.start": "Start",
   "addMenu.widgets": "Widgets",
   "addMenu.noResults": "No results for “{query}”",

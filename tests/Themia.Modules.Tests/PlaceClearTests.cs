@@ -15,7 +15,7 @@ public class PlaceClearTests
 {
     private static readonly WidgetId[] Placed =
     [
-        new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"), new WidgetId("rainOutlook"), new WidgetId("rainTotal"),
+        new WidgetId("weatherCondition"), new WidgetId("weatherSky"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"), new WidgetId("rainOutlook"), new WidgetId("rainTotal"),
         new WidgetId("sun"), new WidgetId("moon"),
         new WidgetId("airUv"), new WidgetId("airPm25"), new WidgetId("airPollen"), new WidgetId("airPm10"), new WidgetId("airOzone"), new WidgetId("airAlder"), new WidgetId("airBirch"), new WidgetId("airGrass"), new WidgetId("airMugwort"), new WidgetId("airOlive"), new WidgetId("airRagweed"),
         new WidgetId("sunrise"), new WidgetId("sunset"), new WidgetId("daylight"), new WidgetId("solarNoon"), new WidgetId("dawn"), new WidgetId("dusk"), new WidgetId("moonrise"), new WidgetId("moonset"), new WidgetId("nextFullMoon"), new WidgetId("nextNewMoon"),
@@ -139,7 +139,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_clearing_forgets_the_name()
     {
-        var weather = (WeatherNowConfig)WithPlace(new WidgetId("weatherNow"));
+        var weather = (WeatherConditionConfig)WithPlace(new WidgetId("weatherCondition"));
 
         weather.ClearLocation();
 
@@ -160,7 +160,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_a_cleared_place_asks_the_sync_for_nothing_so_the_old_place_is_never_fetched()
     {
-        var now = (WeatherNowConfig)WithPlace(new WidgetId("weatherNow"));
+        var now = (WeatherConditionConfig)WithPlace(new WidgetId("weatherCondition"));
         var forecast = (WeatherForecastConfig)WithPlace(new WidgetId("weatherForecast"));
         var air = (AirQualityConfig)WithPlace(new WidgetId("airQuality"));
         var rain = (RainNextHourConfig)WithPlace(new WidgetId("rainNextHour"));

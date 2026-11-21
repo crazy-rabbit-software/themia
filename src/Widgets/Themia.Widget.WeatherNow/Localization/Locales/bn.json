@@ -1,8 +1,7 @@
 {
-  "styles.weatherNow.largeIcon": "বড় আইকন",
-  "styles.weatherNow.minimal": "ন্যূনতম",
-  "styles.weatherNow.standard": "স্ট্যান্ডার্ড",
-  "widget.weatherCurrent.label": "আবহাওয়ার সারাংশ",
-  "widgetsA.catalog.weather.description": "আপনার এলাকার আবহাওয়া",
+  "weatherNow.condition.desc": "আপনার জায়গার আবহাওয়া, কথায়",
+  "weatherNow.condition.label": "আবহাওয়ার অবস্থা",
+  "weatherNow.sky.desc": "আপনার জায়গার আকাশ, একটি আইকনে",
+  "weatherNow.sky.label": "আবহাওয়া আইকন",
   "widgetsC.weather.feelsShort": "অনুভূত {temperature}"
 }

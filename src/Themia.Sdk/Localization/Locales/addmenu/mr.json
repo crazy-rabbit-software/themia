@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "बॅटरी तपशील",
   "addMenu.family.driveFacts": "ड्राइव्ह तपशील",
   "addMenu.family.sunTimes": "सूर्याच्या वेळा",
-  "addMenu.family.moonTimes": "चंद्राच्या वेळा"
+  "addMenu.family.moonTimes": "चंद्राच्या वेळा",
+  "addMenu.family.weatherSummary": "हवामान सारांश"
 }

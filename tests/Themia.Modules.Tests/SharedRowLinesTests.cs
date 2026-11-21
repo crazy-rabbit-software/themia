@@ -14,7 +14,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class SharedRowLinesTests
 {
-    private static readonly WidgetId Weather = new("weatherNow");
+    private static readonly WidgetId Weather = new("weatherCondition");
     private static readonly WidgetId Sun = new("sun");
     private static readonly WidgetId Clock = new("clock");
 

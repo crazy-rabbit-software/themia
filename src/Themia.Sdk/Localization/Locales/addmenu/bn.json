@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "ব্যাটারির তথ্য",
   "addMenu.family.driveFacts": "ড্রাইভের তথ্য",
   "addMenu.family.sunTimes": "সূর্যের সময়",
-  "addMenu.family.moonTimes": "চাঁদের সময়"
+  "addMenu.family.moonTimes": "চাঁদের সময়",
+  "addMenu.family.weatherSummary": "আবহাওয়ার সারাংশ"
 }

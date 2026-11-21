@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "배터리 정보",
   "addMenu.family.driveFacts": "드라이브 정보",
   "addMenu.family.sunTimes": "해 시간",
-  "addMenu.family.moonTimes": "달 시간"
+  "addMenu.family.moonTimes": "달 시간",
+  "addMenu.family.weatherSummary": "날씨 요약"
 }

@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "የባትሪ መረጃዎች",
   "addMenu.family.driveFacts": "የአንጻፊ መረጃዎች",
   "addMenu.family.sunTimes": "የፀሐይ ሰዓቶች",
-  "addMenu.family.moonTimes": "የጨረቃ ሰዓቶች"
+  "addMenu.family.moonTimes": "የጨረቃ ሰዓቶች",
+  "addMenu.family.weatherSummary": "የአየር ሁኔታ ማጠቃለያ"
 }

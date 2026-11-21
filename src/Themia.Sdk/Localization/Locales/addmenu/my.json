@@ -24,5 +24,6 @@
   "addMenu.family.batteryFacts": "ဘက်ထရီ အချက်အလက်များ",
   "addMenu.family.driveFacts": "ဒရိုက် အချက်အလက်များ",
   "addMenu.family.sunTimes": "နေ အချိန်များ",
-  "addMenu.family.moonTimes": "လ အချိန်များ"
+  "addMenu.family.moonTimes": "လ အချိန်များ",
+  "addMenu.family.weatherSummary": "ရာသီဥတု အနှစ်ချုပ်"
 }

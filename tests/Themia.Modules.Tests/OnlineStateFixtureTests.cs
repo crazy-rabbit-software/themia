@@ -38,9 +38,8 @@ public sealed class OnlineStateFixtureTests
         var state = StateDocument.Parse(Fixture()).State!;
         var configs = Assert.Single(state.Views).Widgets.Select(w => w.Config).ToList();
 
-        var now = Assert.IsType<WeatherNowConfig>(configs[0]);
+        var now = Assert.IsType<WeatherConditionConfig>(configs[0]);
         Assert.Equal((47.3667, 8.55, "Zürich, Zurich, Switzerland"), (now.Latitude, now.Longitude, now.LocationName));
-        Assert.Equal(WeatherNowStyle.LargeIcon, now.Style);
 
         var forecast = Assert.IsType<WeatherForecastConfig>(configs[1]);
         Assert.Equal((-33.8688, 151.2093, false, ForecastStyle.Curve), (forecast.Latitude, forecast.Longitude, forecast.ShowPrecipitation, forecast.Style));

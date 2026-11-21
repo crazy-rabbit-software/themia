@@ -23,7 +23,7 @@ public class WidgetSetupTests
     /// <summary>Every kind whose default config needs setting up, with nothing signed in.</summary>
     private static readonly WidgetId[] NeedSetupByDefault =
     [
-        new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"), new WidgetId("rainOutlook"), new WidgetId("rainTotal"),
+        new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherCondition"), new WidgetId("weatherSky"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"), new WidgetId("rainOutlook"), new WidgetId("rainTotal"),
         new WidgetId("airUv"), new WidgetId("airPm25"), new WidgetId("airPollen"), new WidgetId("airPm10"), new WidgetId("airOzone"), new WidgetId("airAlder"), new WidgetId("airBirch"), new WidgetId("airGrass"), new WidgetId("airMugwort"), new WidgetId("airOlive"), new WidgetId("airRagweed"),
         new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"),
         new WidgetId("weatherTemperature"), new WidgetId("airIndex"),
@@ -61,7 +61,7 @@ public class WidgetSetupTests
 
         Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed" }] }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new StockConfig { Symbol = "MSFT" }, FeatureSet.None));
-        Assert.False(WidgetSetup.Needed(new WeatherNowConfig { Latitude = 47.4, Longitude = 8.5 }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new WeatherConditionConfig { Latitude = 47.4, Longitude = 8.5 }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new VideoStreamConfig { Url = "http://cam.local/stream" }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"C:\Pictures" }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new GalleryConfig { Source = GallerySource.Bing }, FeatureSet.None));
@@ -138,7 +138,7 @@ public class WidgetSetupTests
     [InlineData("rss")]
     [InlineData("stock")]
     [InlineData("stockHistory")]
-    [InlineData("weatherNow")]
+    [InlineData("weatherCondition")]
     [InlineData("weatherForecast")]
     [InlineData("airQuality")]
     [InlineData("rainNextHour")]
@@ -156,7 +156,7 @@ public class WidgetSetupTests
         Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new RssConfig(), FeatureSet.None, Everything));
     }
 
-    public static TheoryData<string> WaitingForAnOption() => ["countdown", "rss", "stock", "stockHistory", "weatherNow", "weatherForecast", "airQuality", "rainNextHour", "videoStream", "gallery"];
+    public static TheoryData<string> WaitingForAnOption() => ["countdown", "rss", "stock", "stockHistory", "weatherCondition", "weatherForecast", "airQuality", "rainNextHour", "videoStream", "gallery"];
 
     [Theory]
     [MemberData(nameof(WaitingForAnOption))]

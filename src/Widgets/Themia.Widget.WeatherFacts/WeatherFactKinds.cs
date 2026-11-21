@@ -86,7 +86,8 @@ internal static class WeatherFactKinds
     /// </summary>
     private static MergeFrom[] Merges(WeatherFactKind fact) => fact switch
     {
-        WeatherFactKind.Temperature => [new("temperatureGraph") { Graph = true }],
+        // [S-15025] The weather summary's temperature: a placed summary's top right, or the whole of its Minimal look.
+        WeatherFactKind.Temperature => [new("temperatureGraph") { Graph = true }, .. WeatherSummary.Temperature],
         WeatherFactKind.Humidity => [new("humidityGraph") { Graph = true }],
         WeatherFactKind.Wind => [new("windGraph") { Graph = true }],
         WeatherFactKind.Precipitation => [new("rainGraph") { Graph = true }],
