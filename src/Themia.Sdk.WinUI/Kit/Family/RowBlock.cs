@@ -395,8 +395,24 @@ public sealed partial class RowBlock : Grid, IInked
     /// <inheritdoc />
     public bool IsRow => true;
 
-    /// <summary>[S-12807] The room inside its text over its first ink and under its last: its lines' leading, or its lead's room where that reaches further.</summary>
-    public LineInk Ink => LineInk.Row(_lines, _lead.Visibility == Visibility.Visible && _lead.Child is not null ? _lead.Width : 0);
+    /// <summary>
+    /// [S-12807] [S-14200] The room inside its text over its first ink and under its last: its first line's and its last
+    /// line's as they are drawn (<see cref="InkMeter"/>; unmeasured, the family's model, <see cref="LineInk.Row"/>), or its
+    /// lead's room where that reaches further.
+    /// </summary>
+    public LineInk Ink
+    {
+        get
+        {
+            var lines = Math.Clamp(_lines, 1, 3);
+            var last = lines switch { 1 => NameText, 2 => Second, _ => Third };
+            var font = Themia.App.Widgets.Ink.FontOf(NameText.FontFamily);
+            var over = InkMeter.Line(FamilyType.Body, NameText.Text, font, NameText.FontWeight.Weight).Over;
+            var under = InkMeter.Line(lines == 1 ? FamilyType.Body : FamilyType.Caption, last.Text, Themia.App.Widgets.Ink.FontOf(last.FontFamily), last.FontWeight.Weight).Under;
+            var lead = _lead.Visibility == Visibility.Visible && _lead.Child is not null ? _lead.Width : 0;
+            return new LineInk(over, under).With(lead, FamilyType.BodyLine + ((lines - 1) * FamilyType.CaptionLine));
+        }
+    }
 }
 
 /// <summary>

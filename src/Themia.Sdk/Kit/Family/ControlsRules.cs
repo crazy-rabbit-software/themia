@@ -41,8 +41,14 @@ public static class ControlsRules
     /// <summary>A switch's width: Windows' toggle switch track (the Tile's switch look draws the same).</summary>
     public const double SwitchWidth = TileRules.SwitchWidth;
 
-    /// <summary>[S-14283] A switch's track's height: its ink, centred in the template's own height.</summary>
+    /// <summary>[S-14283] A switch's track's height: its ink, centred in the template's own height (Windows' template's <c>OuterBorder</c>; drawn, the template's own is read).</summary>
     public const double SwitchTrack = 20;
+
+    /// <summary>
+    /// [S-14283] A horizontal slider's thumb with its ring: its ink, centred on the rail (Windows' template: the thumb's 18 and
+    /// its border standing 2 outside it each way; drawn, the template's own is read).
+    /// </summary>
+    public const double SliderThumb = 22;
 
     /// <summary>
     /// [S-12833] The text size a Controls row gives way at in a face drawn small (<c>FaceFloor</c>): its words' (Body);

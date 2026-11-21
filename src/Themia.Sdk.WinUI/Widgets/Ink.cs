@@ -215,25 +215,58 @@ public static class Ink
         => InkMeter.Measure(new InkText(icon.Glyph, FontOf(icon.FontFamily), icon.FontSize, icon.FontWeight.Weight, 0)) is not null;
 
     /// <summary>
-    /// The thumb of a horizontal slider, its ring included, measured on the renders: the template's box is taller
-    /// than it (32), and the thumb is the slider's first and last ink.
+    /// [S-14283] A horizontal slider: the room its box holds over and under its thumb, centred on the rail. The thumb, its
+    /// ring included, is the slider's first and last ink, read from its template as drawn (its <c>HorizontalThumb</c>'s
+    /// height and its border standing outside it, a negative margin); before the template stands, the family's
+    /// <see cref="ControlsRules.SliderThumb"/>.
     /// </summary>
-    private const double SliderThumb = 22;
-
-    /// <summary>A horizontal slider: the room its box holds over and under its thumb, centred on the rail.</summary>
     private static LineInk Thumb(Slider slider)
     {
+        var thumb = ControlsRules.SliderThumb;
+        if (Named(slider, "HorizontalThumb") is { Height: > 0 } part && double.IsFinite(part.Height))
+        {
+            var ring = VisualTreeHelper.GetChildrenCount(part) > 0 && VisualTreeHelper.GetChild(part, 0) is FrameworkElement root
+                ? Math.Max(0, -(root.Margin.Top + root.Margin.Bottom))
+                : 0;
+            thumb = part.Height + ring;
+        }
+
         var box = slider.DesiredSize.Height - slider.Margin.Top - slider.Margin.Bottom;
-        var room = Math.Max(0, (box - SliderThumb) / 2);
+        var room = Math.Max(0, (box - thumb) / 2);
         return new LineInk(room, room);
     }
 
-    /// <summary>[S-14283] A toggle switch: the room its template's box holds over and under its track, centred in it.</summary>
+    /// <summary>
+    /// [S-14283] A toggle switch: the room its template's box holds over and under its track, centred in it: the track read
+    /// from its template as drawn (its <c>OuterBorder</c>'s height); before the template stands, <see cref="ControlsRules.SwitchTrack"/>.
+    /// </summary>
     private static LineInk Track(ToggleSwitch toggle)
     {
+        var track = Named(toggle, "OuterBorder") is { Height: > 0 } part && double.IsFinite(part.Height) ? part.Height : ControlsRules.SwitchTrack;
         var box = toggle.DesiredSize.Height - toggle.Margin.Top - toggle.Margin.Bottom;
-        var room = Math.Max(0, (box - ControlsRules.SwitchTrack) / 2);
+        var room = Math.Max(0, (box - track) / 2);
         return new LineInk(room, room);
+    }
+
+    /// <summary>The part of a control's template named <paramref name="name"/>, as it stands in its visual tree; null before the template stands.</summary>
+    private static FrameworkElement? Named(DependencyObject control, string name)
+    {
+        var count = VisualTreeHelper.GetChildrenCount(control);
+        for (var i = 0; i < count; i++)
+        {
+            var child = VisualTreeHelper.GetChild(control, i);
+            if (child is FrameworkElement { Name: var named } element && named == name)
+            {
+                return element;
+            }
+
+            if (Named(child, name) is { } found)
+            {
+                return found;
+            }
+        }
+
+        return null;
     }
 
     private static LineInk Add(LineInk ink, double over, double under) => new(ink.Over + over, ink.Under + under);
@@ -407,7 +440,7 @@ public static class Ink
 
     /// <summary>
     /// The width a wrapping text wraps at as it is laid out: its widest line (a greedy wrap at that width breaks where it
-    /// broke), with a pixel's slack for layout rounding; a text that does not wrap is one line.
+    /// broke), with a device pixel's slack for layout rounding (<see cref="LayoutMath.Pixel"/>); a text that does not wrap is one line.
     /// </summary>
     private static double WrapWidth(TextBlock text)
     {
@@ -417,6 +450,6 @@ public static class Ink
         }
 
         var width = text.DesiredSize.Width - text.Margin.Left - text.Margin.Right;
-        return width > 0 ? width + 1 : double.PositiveInfinity;
+        return width > 0 ? width + LayoutMath.Pixel(text.XamlRoot?.RasterizationScale ?? 0) : double.PositiveInfinity;
     }
 }

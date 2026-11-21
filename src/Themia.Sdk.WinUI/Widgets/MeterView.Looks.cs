@@ -217,13 +217,21 @@ public sealed partial class MeterView
     /// [S-12410] [S-12808] A reading's block is drawn at its natural size (its battery or bars up to their most): what a
     /// larger box has beyond it stands alike over and under it (the one block rule, <see cref="BlockLayout.Fill(double, double, double, double, LineInk, double, double)"/>,
     /// at its own size), the foot's inset kept under it, never huddled at the top, joined or alone ([S-12483]); a whole
-    /// pixel down. At its natural box this is none; a dial, rows or a scaled reading fill the box and take none. Padding on
+    /// device pixel down. At its natural box this is none; a dial, rows or a scaled reading fill the box and take none. Padding on
     /// the view itself, never its alignment: the card measures the view's own box as its area ([S-663]).
     /// </summary>
     private double Centring(double width, double height)
     {
         var block = _shown.Block(width, height);
-        return block > 0 ? Math.Floor(BlockLayout.Fill(width, height, 0, block, LineInk.None, least: 1, most: 1).Top) : 0;
+        if (!(block > 0))
+        {
+            return 0;
+        }
+
+        // A whole device pixel down (the one rounding token, LayoutMath.Pixel), so the picture's edges stand on pixels.
+        var pixel = LayoutMath.Pixel(XamlRoot?.RasterizationScale ?? 0);
+        var top = BlockLayout.Fill(width, height, 0, block, LineInk.None, least: 1, most: 1).Top;
+        return Math.Floor((top / pixel) + 1e-9) * pixel;
     }
 
     /// <summary>[S-6330] A reading on the look's own part.</summary>

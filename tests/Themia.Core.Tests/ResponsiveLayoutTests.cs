@@ -36,4 +36,17 @@ public class ResponsiveLayoutTests
     [InlineData(double.NaN, 20, 0, 0)]
     public void S662_whole_lines_count_only_lines_that_fit_whole(double height, double line, double gap, int expected)
         => Assert.Equal(expected, LayoutMath.WholeLines(height, line, gap));
+
+    [Theory]
+    [InlineData(1.0, 1.0)]
+    [InlineData(1.5, 2 / 3.0)]
+    [InlineData(2.0, 0.5)]
+    [InlineData(0.0, 1.0)]
+    [InlineData(double.NaN, 1.0)]
+    public void S662_the_one_rounding_token_is_a_device_pixel_and_pure_sizing_takes_it_at_100(double raster, double pixel)
+    {
+        Assert.Equal(pixel, LayoutMath.Pixel(raster), 9);
+        Assert.Equal(LayoutMath.Tolerance, LayoutMath.Pixel(1) / 2);
+        Assert.Equal(LayoutMath.Slack, 2 * LayoutMath.Pixel(1));
+    }
 }

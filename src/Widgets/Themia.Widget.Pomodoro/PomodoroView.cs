@@ -379,7 +379,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         var ringed = _plan.Look == PomodoroLook.Ring;
         var step = _plan.StepIn(arrangement);
         var worst = PomodoroFace.Worst(_config);
-        _block.FaceInk = ringed ? LineInk.None : LineInk.Of(step);
         _time.MinWidth = ringed ? 0 : Math.Max(Measured(worst.Value, step), ReadoutRules.Width(step, worst));
         var centred = arrangement == PomodoroArrangement.Tall || ringed;
         _time.Use(step, centred ? HorizontalAlignment.Center : HorizontalAlignment.Left);

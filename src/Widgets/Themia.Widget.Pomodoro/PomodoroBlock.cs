@@ -23,7 +23,6 @@ internal sealed partial class PomodoroBlock : Panel, IInked
     private readonly FrameworkElement _bar;
     private readonly FrameworkElement _controls;
     private PomodoroArrangement _arrangement = PomodoroArrangement.Wide;
-    private LineInk _faceInk;
     private bool _ringFace;
     private LineInk _ink;
 
@@ -50,19 +49,11 @@ internal sealed partial class PomodoroBlock : Panel, IInked
         }
     }
 
-    /// <summary>The room in the face's box over its first ink and under its last: the time's line's, or none for a ring.</summary>
-    public LineInk FaceInk
-    {
-        get => _faceInk;
-        set
-        {
-            if (value != _faceInk)
-            {
-                _faceInk = value;
-                InvalidateMeasure();
-            }
-        }
-    }
+    /// <summary>
+    /// [S-14200] The room in the face's box over its first ink and under its last: the time's as it is drawn (its held
+    /// template's figures, measured), or none for a ring (its box is its ink).
+    /// </summary>
+    private LineInk FaceInk => _ringFace ? LineInk.None : Themia.App.Widgets.Ink.Of(_face).Ink;
 
     /// <summary>Whether the face is a ring: its caption stands 8 under it (a time's stands right under, as a readout's line under).</summary>
     public bool RingFace
@@ -89,7 +80,7 @@ internal sealed partial class PomodoroBlock : Panel, IInked
         => PomodoroFace.Stand(
             _arrangement,
             _face.DesiredSize.Height,
-            _faceInk,
+            FaceInk,
             _caption.DesiredSize.Height,
             Themia.App.Widgets.Ink.Of(_caption).Ink.Over,
             _bar.Visibility == Visibility.Visible ? _bar.DesiredSize.Height : 0,
@@ -109,7 +100,7 @@ internal sealed partial class PomodoroBlock : Panel, IInked
         var stand = Stand();
         if (_arrangement == PomodoroArrangement.Tall)
         {
-            _ink = new LineInk(_faceInk.Over, 0);
+            _ink = new LineInk(FaceInk.Over, 0);
             return new Size(Math.Max(face.Width, Math.Max(caption.Width, controls.Width)), stand.Height);
         }
 
