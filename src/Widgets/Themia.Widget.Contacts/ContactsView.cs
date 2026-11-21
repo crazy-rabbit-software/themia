@@ -74,25 +74,18 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private string _query = string.Empty;
     private string? _selectedId;
     private bool _searchOpen;
-    private IReadOnlyList<Contact> _contacts = [];
     private IReadOnlyList<Contact> _visible = [];
 
     /// <summary>[S-1983] Type-ahead over the names on screen.</summary>
     private readonly TypeAhead _typeAhead = new();
-    private Screen _screen = Screen.Loading;
-    private Func<string> _problemText = () => string.Empty;
-    private bool _problemOffersAccounts;
-    private Func<string>? _warningText;
-    private bool _warningOpensAccounts;
-    private string _requestKey = string.Empty;
-    private bool _refreshing;
-    private bool _busy;
-    private bool _again;
-    private bool _againForced;
-    private bool _detached;
 
-    /// <summary>[S-11850] The sample (or a render's fixture) holds the list: no refresh replaces it.</summary>
-    private bool _frozen;
+    /// <summary>[S-7077] The office widgets' one feed: the people's loads one at a time, the screen they call for, the stale rule.</summary>
+    private readonly OfficeFeed<IReadOnlyList<Contact>> _feed;
+
+    /// <summary>[S-11850] A sample's people in place of the feed's, or null.</summary>
+    private IReadOnlyList<Contact>? _held;
+    private string _requestKey = string.Empty;
+    private bool _detached;
 
     /// <summary>[S-6913] What the view asks of the host: the shared Office source, the launcher, settings › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
@@ -100,6 +93,23 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     public ContactsView(IWidgetHost host)
     {
         _widgetHost = host;
+        _feed = new OfficeFeed<IReadOnlyList<Contact>>(LoadAsync, SyncSubject.Contacts, static locale => ContactsStr.WidgetsA_Contacts_ReadFailed.Text(locale));
+        _feed.Changed += () =>
+        {
+            if (_detached)
+            {
+                return;
+            }
+
+            if (_feed.Busy)
+            {
+                ShowStatus();
+            }
+            else
+            {
+                Render();
+            }
+        };
         _state = new(Glyphs.Contact, host) { Visibility = Visibility.Collapsed };
         _status = new KitStatus(host);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -162,21 +172,20 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         Tapped += OnBackgroundTapped;
     }
 
-    /// <summary>Which of the widget's states is on screen.</summary>
-    private enum Screen
-    {
-        Loading,
-        NoAccounts,
-        AccountsGone,
-        Problem,
-        Ready,
-    }
+    /// <summary>The people the last load (or a sample) brought.</summary>
+    private IReadOnlyList<Contact> Contacts => _held ?? _feed.Data ?? [];
+
+    /// <summary>[S-7077] The screen the last load calls for; a sample's people are always the list.</summary>
+    private Themia.Sdk.Kit.KitScreen Screen => _held is not null ? new(Themia.Sdk.Kit.KitScreenKind.Items, string.Empty, false, []) : _feed.Screen(Strings.Current);
+
+    private bool Ready => Screen.Kind == Themia.Sdk.Kit.KitScreenKind.Items;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        _feed.Start();
         _config = config as ContactsConfig ?? new ContactsConfig();
         _source = _widgetHost.Office;
 
@@ -224,7 +233,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             : [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
 
     /// <summary>[S-1275] The list is up and its search box is on request and closed.</summary>
-    private bool OffersSearch => _screen == Screen.Ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && !LineOpen(true);
+    private bool OffersSearch => Ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && !LineOpen(true);
 
     public void Detach()
     {
@@ -234,6 +243,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         _detached = true;
+        _feed.Stop();
         Strings.Changed -= OnLanguage;
         _poll?.Dispose();
         _poll = null;
@@ -267,110 +277,35 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
     private string RequestKey() => $"{string.Join(",", _config.AccountIds)}|{ContactRules.FetchSize(_config.EffectiveCount)}";
 
-    private async Task RefreshAsync(bool force)
+    /// <summary>[S-7077] One load at a time through the office feed; one asked for meanwhile runs after it, forced if any was.</summary>
+    private Task RefreshAsync(bool force) => _detached || _held is not null ? Task.CompletedTask : _feed.RefreshAsync(force);
+
+    /// <summary>One load of every chosen account's people, merged; each account's problem by its label.</summary>
+    private async Task<OfficeLoad<IReadOnlyList<Contact>>> LoadAsync(bool force, CancellationToken token)
     {
-        if (_detached || _frozen)
-        {
-            return;
-        }
-
-        if (_refreshing)
-        {
-            _again = true;
-            _againForced |= force;
-            return;
-        }
-
         var source = _source;
         var accounts = source?.Accounts(HostFeatures.Contacts) ?? [];
         _requestKey = RequestKey();
 
         if (source is null || accounts.Count == 0)
         {
-            _screen = Screen.NoAccounts;
-            Render();
-            return;
+            return OfficeLoad<IReadOnlyList<Contact>>.Of(OfficeLoadState.NoAccounts);
         }
 
         var selected = CalendarRules.SelectAccounts(_config.AccountIds, [.. accounts.Select(a => a.Id)]);
         if (selected.Count == 0)
         {
-            _screen = Screen.AccountsGone;
-            Render();
-            return;
+            return OfficeLoad<IReadOnlyList<Contact>>.Of(OfficeLoadState.AccountsGone);
         }
 
         var labels = accounts.ToDictionary(a => a.Id, a => a.Label, StringComparer.Ordinal);
         var size = ContactRules.FetchSize(_config.EffectiveCount);
+        var tasks = selected.Select(a => source.ContactsAsync(a, size, force, token)).ToList();
+        await Task.WhenAll(tasks).ConfigureAwait(true);
 
-        _refreshing = true;
-        SetBusy(true);
-
-        try
-        {
-            var tasks = selected.Select(a => source.ContactsAsync(a, size, force, CancellationToken.None)).ToList();
-            await Task.WhenAll(tasks).ConfigureAwait(true);
-
-            if (_detached)
-            {
-                return;
-            }
-
-            var results = tasks.Select(t => t.Result).ToList();
-            var problems = results.Select((r, i) => (Account: selected[i], r.Status, r.At)).Where(p => OfficeProblems.IsProblem(p.Status)).ToList();
-            var anyData = results.Any(r => r.Value is not null);
-
-            _contacts = ContactRules.Merge(results.Select(r => r.Value ?? []));
-
-            if (!anyData && problems.Count > 0)
-            {
-                var worst = problems.OrderByDescending(p => OfficeProblems.NeedsUser(p.Status)).First();
-                _screen = Screen.Problem;
-                var problem = worst.Status;
-                _problemText = () => OfficeProblems.Message(problem, SyncSubject.Contacts, Strings.Current);
-                _problemOffersAccounts = OfficeProblems.NeedsUser(worst.Status);
-                _warningText = null;
-            }
-            else
-            {
-                _screen = Screen.Ready;
-                _warningText = problems.Count == 0
-                    ? null
-                    : () => string.Join(Environment.NewLine, problems.Select(p =>
-                        Str.WidgetsA_Office_AccountProblem.Format(
-                            ("account", labels.TryGetValue(p.Account, out var label) ? label : p.Account),
-                            ("problem", Themia.Core.Sync.SyncFreshness.Stamp(Strings.Current, OfficeProblems.Message(p.Status, SyncSubject.Contacts, Strings.Current), p.At?.ToLocalTime(), DateTimeOffset.Now)))));
-                _warningOpensAccounts = problems.Any(p => OfficeProblems.NeedsUser(p.Status));
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "could not refresh the contact list", ex);
-            _screen = Screen.Problem;
-            _problemText = () => ContactsStr.WidgetsA_Contacts_ReadFailed.Text();
-            _problemOffersAccounts = false;
-        }
-        finally
-        {
-            _refreshing = false;
-            SetBusy(false);
-        }
-
-        Render();
-
-        if (_again && !_detached)
-        {
-            var forced = _againForced;
-            _again = false;
-            _againForced = false;
-            await RefreshAsync(forced).ConfigureAwait(true);
-        }
-    }
-
-    private void SetBusy(bool busy)
-    {
-        _busy = busy;
-        ShowStatus();
+        var results = tasks.Select(t => t.Result).ToList();
+        var problems = results.Select((r, i) => new OfficeProblem(selected[i], r.Status, r.At)).Where(p => OfficeProblems.IsProblem(p.Status)).ToList();
+        return new OfficeLoad<IReadOnlyList<Contact>>(OfficeLoadState.Asked, ContactRules.Merge(results.Select(r => r.Value ?? [])), results.Any(r => r.Value is not null), problems, labels);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -453,7 +388,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     /// </summary>
     public bool HandleKey(WidgetKey key)
     {
-        if (_detached || _screen != Screen.Ready || _visible.Count == 0)
+        if (_detached || !Ready || _visible.Count == 0)
         {
             return false;
         }
@@ -489,7 +424,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>[S-1983] Type-ahead: the first letters of a name select that person.</summary>
     public bool HandleText(char character)
     {
-        if (_detached || _screen != Screen.Ready || _visible.Count == 0)
+        if (_detached || !Ready || _visible.Count == 0)
         {
             return false;
         }
@@ -528,9 +463,11 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>[S-12481] The status: the problem glyph while a list is up with an account that failed, and the ring.</summary>
     private void ShowStatus()
     {
-        var ready = _screen == Screen.Ready;
-        var problems = ready && _warningText is not null ? _warningText().Split(Environment.NewLine) : [];
-        _status.Show(problems, _busy, _warningOpensAccounts);
+        // [S-7042] [S-7077] The one stale rule: each account whose last sync could not improve on the people held.
+        var screen = Screen;
+        var ready = screen.Kind == Themia.Sdk.Kit.KitScreenKind.Items;
+        var problems = ready && _held is null ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _feed.Outcomes, DateTimeOffset.Now) : [];
+        _status.Show(problems, _held is null && _feed.Busy, ready && screen.OffersAccounts);
     }
 
     /// <summary>[S-11406] The box (the field over the list) is there when the config has it.</summary>
@@ -549,7 +486,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         ClearRows();
 
-        var ready = _screen == Screen.Ready;
+        var ready = Ready;
         var showSearch = FieldShown(ready);
         var line = LineOpen(ready);
         _search.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
@@ -560,26 +497,19 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         // A search typed into a box that has since been hidden still filters; the box shows the
         // query again as soon as there is room for it.
-        _visible = ready ? ContactRules.Visible(_contacts, _query, _config.EffectiveCount) : [];
+        _visible = ready ? ContactRules.Visible(Contacts, _query, _config.EffectiveCount) : [];
         ShowStatus();
 
-        switch (_screen)
+        var screen = Screen;
+        switch (screen.Kind)
         {
-            case Screen.Loading:
-                _state.Show(Str.Common_Loading.Text(), offerAccounts: false);
-                return;
-
-            case Screen.NoAccounts:
+            case Themia.Sdk.Kit.KitScreenKind.NoAccounts:
                 // [S-1862] [S-12835] The card's compact Set up line says so over the face: the rows kept, empty.
                 _state.ShowFace();
                 return;
 
-            case Screen.AccountsGone:
-                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Contacts, Strings.Current), offerAccounts: true, problem: true);
-                return;
-
-            case Screen.Problem:
-                _state.Show(_problemText(), _problemOffersAccounts, problem: true);
+            case not Themia.Sdk.Kit.KitScreenKind.Items:
+                _state.Show(screen);
                 return;
         }
 
@@ -618,7 +548,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 _state.Margin = line ? new Thickness(0, plan.Top, 0, 0) : default;
             }
 
-            _state.Show((_contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
+            _state.Show((Contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
             return;
         }
 

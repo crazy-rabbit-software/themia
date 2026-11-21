@@ -45,7 +45,7 @@ internal sealed partial class CalendarView
         {
             for (var c = 0; c < 7; c++)
             {
-                most = Math.Max(most, CalendarRules.DayItems(_events, _birthdays, weekStart.AddDays(c), zone).Count);
+                most = Math.Max(most, CalendarRules.DayItems(Events, Birthdays, weekStart.AddDays(c), zone).Count);
             }
         }
 
@@ -94,7 +94,7 @@ internal sealed partial class CalendarView
             var week = Columns(layout.Columns);
 
             // [S-11547] The week's chips on the lanes the cells hold, each day's items and its "+k more".
-            var plan = chipped ? MonthPlan.Week(_events, _birthdays, weekStart, zone, layout.ChipLanes) : null;
+            var plan = chipped ? MonthPlan.Week(Events, Birthdays, weekStart, zone, layout.ChipLanes) : null;
             if (chipped)
             {
                 // The number's line under the cell's padding, then one row per chip lane, the rest of the cell.
@@ -110,7 +110,7 @@ internal sealed partial class CalendarView
             for (var c = 0; c < 7; c++)
             {
                 var day = weekStart.AddDays(c);
-                var items = CalendarRules.DayItems(_events, _birthdays, day, zone);
+                var items = CalendarRules.DayItems(Events, Birthdays, day, zone);
                 var count = plan is not null ? plan.Items[c] : items.Count;
                 var hidden = plan is not null ? plan.Hidden[c] : 0;
 

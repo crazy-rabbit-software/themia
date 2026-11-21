@@ -32,7 +32,7 @@ internal sealed partial class CalendarView
         var day = _anchor;
         var zone = TimeZoneInfo.Local;
         var showColors = ShowColors;
-        var items = CalendarRules.DayItems(_events, _birthdays, day, zone);
+        var items = CalendarRules.DayItems(Events, Birthdays, day, zone);
         var allDay = items.Where(i => i.Birthday is not null || i.Event!.AllDay || CalendarFit.IsMultiDay(i.Event, zone)).ToList();
         var timed = items.Where(i => i.Event is { AllDay: false } e && !CalendarFit.IsMultiDay(e, zone)).Select(i => i.Event!).ToList();
 

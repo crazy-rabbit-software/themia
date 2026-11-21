@@ -36,7 +36,7 @@ internal sealed partial class CalendarView
         var firstMonth = CalendarFit.FirstMonth(_anchor, fit.Months);
         var year = _anchor.Year;
         var showColors = ShowColors;
-        var byDay = CalendarFit.ByDay(_events, _birthdays, new DateOnly(year, 1, 1), new DateOnly(year, 12, 31), TimeZoneInfo.Local);
+        var byDay = CalendarFit.ByDay(Events, Birthdays, new DateOnly(year, 1, 1), new DateOnly(year, 12, 31), TimeZoneInfo.Local);
         var miniWidth = 7 * fit.DayCell;
 
         var grid = new Grid

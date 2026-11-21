@@ -66,15 +66,9 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     private IDisposable? _poll;
     private IDisposable? _tick;
     private WeekPlannerConfig _config = new();
-    private Screen _screen = Screen.Loading;
-    private Func<string> _problemText = () => string.Empty;
-    private bool _problemOffersAccounts;
-    private IReadOnlyList<CalendarEvent> _events = [];
-    private IReadOnlyList<Birthday> _birthdays = [];
-    private IReadOnlyList<CalendarTarget> _targets = [];
-    private IReadOnlyDictionary<string, ProviderId> _providers = new Dictionary<string, ProviderId>();
-    private bool _refreshing;
-    private bool _again;
+
+    /// <summary>[S-7077] The office widgets' one feed: the week's loads one at a time and the screen they call for.</summary>
+    private readonly OfficeFeed<CalendarSlice> _office;
     private bool _detached;
 
     /// <summary>[S-1917] [S-11850] The sample's tasks in place of the service's (<see cref="ShowSampleAsync"/>), or null.</summary>
@@ -89,6 +83,14 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     public WeekPlannerView(IWidgetHost host)
     {
         _widgetHost = host;
+        _office = new OfficeFeed<CalendarSlice>(LoadAsync, SyncSubject.Calendar, static locale => Strings.Get(locale, Str.WidgetsA_Calendar_ReadFailed));
+        _office.Changed += () =>
+        {
+            if (!_office.Busy)
+            {
+                Render();
+            }
+        };
         _state = new(Glyphs.WeekPlanner, host) { Visibility = Visibility.Collapsed };
         _heads = FollowLinks();
         _eventRows = new LinkLights<EventLink>(_links, LinkTopics.HoveredEvent);
@@ -97,20 +99,20 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         Children.Add(_state);
     }
 
-    private enum Screen
-    {
-        Loading,
-        NoAccounts,
-        AccountsGone,
-        Problem,
-        Ready,
-    }
+    private IReadOnlyList<CalendarEvent> Events => _office.Data?.Events ?? [];
+
+    private IReadOnlyList<Birthday> Birthdays => _office.Data?.Birthdays ?? [];
+
+    private IReadOnlyList<CalendarTarget> Targets => _office.Data?.Targets ?? [];
+
+    private IReadOnlyDictionary<string, ProviderId> Providers => _office.Data?.Providers ?? new Dictionary<string, ProviderId>();
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        _office.Start();
         _config = config as WeekPlannerConfig ?? new WeekPlannerConfig();
         UseData(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
         Strings.Changed += OnLanguage;
@@ -156,6 +158,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         }
 
         _detached = true;
+        _office.Stop();
         Strings.Changed -= OnLanguage;
         _links.Leave();
         _poll?.Dispose();
@@ -198,93 +201,19 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
 
     private void OnAccountsChanged() => _ = RefreshAsync(force: false);
 
-    /// <summary>One load at a time; one asked for meanwhile runs after it.</summary>
-    private async Task RefreshAsync(bool force)
+    /// <summary>[S-7077] One load at a time through the office feed; one asked for meanwhile runs after it.</summary>
+    private Task RefreshAsync(bool force) => _detached ? Task.CompletedTask : _office.RefreshAsync(force);
+
+    /// <summary>One load of the week on screen.</summary>
+    private async Task<OfficeLoad<CalendarSlice>> LoadAsync(bool force, CancellationToken token)
     {
-        if (_detached)
-        {
-            return;
-        }
-
-        if (_refreshing)
-        {
-            _again = true;
-            return;
-        }
-
         if (_data is not { } data)
         {
-            _screen = HasTasks ? Screen.Ready : Screen.NoAccounts;
-            Render();
-            return;
+            return OfficeLoad<CalendarSlice>.Of(OfficeLoadState.NoAccounts);
         }
 
         var (first, last) = WeekPlannerRules.Range(Start(DateOnly.FromDateTime(_clock().LocalDateTime)));
-        _refreshing = true;
-
-        try
-        {
-            var slice = await data.LoadAsync(_config, first, last, force, CancellationToken.None).ConfigureAwait(true);
-            if (_detached)
-            {
-                return;
-            }
-
-            Take(slice);
-        }
-        catch (Exception ex)
-        {
-            // Reached from a ticker callback and a menu click: nothing above may see it.
-            Log.Error(Scope, "could not read the calendar", ex);
-            _screen = Screen.Problem;
-            _problemText = () => Str.WidgetsA_Calendar_ReadFailed.Text();
-            _problemOffersAccounts = false;
-        }
-        finally
-        {
-            _refreshing = false;
-        }
-
-        Render();
-
-        if (_again && !_detached)
-        {
-            _again = false;
-            await RefreshAsync(force: false).ConfigureAwait(true);
-        }
-    }
-
-    private void Take(CalendarSlice slice)
-    {
-        switch (slice.State)
-        {
-            // [S-5325] Tasks alone still make a planner: no calendar account is an empty week then.
-            case CalendarSliceState.NoAccounts:
-                _events = [];
-                _birthdays = [];
-                _targets = [];
-                _screen = HasTasks ? Screen.Ready : Screen.NoAccounts;
-                return;
-
-            case CalendarSliceState.AccountsGone:
-                _screen = Screen.AccountsGone;
-                return;
-        }
-
-        if (!slice.AnyData && slice.Problems.Count > 0)
-        {
-            var worst = slice.Problems.OrderByDescending(p => OfficeProblems.NeedsUser(p.Status)).First();
-            _screen = Screen.Problem;
-            _problemText = () => OfficeProblems.Message(worst.Status, SyncSubject.Calendar, Strings.Current);
-            _problemOffersAccounts = OfficeProblems.NeedsUser(worst.Status);
-            return;
-        }
-
-        _screen = Screen.Ready;
-        _events = slice.Events;
-        _birthdays = slice.Birthdays;
-        _targets = slice.Targets;
-        _providers = slice.Providers;
+        return (await data.LoadAsync(_config, first, last, force, token).ConfigureAwait(true)).AsLoad();
     }
 
     /// <summary>Whether the planner has a task source to show, calendar or not.</summary>
@@ -377,23 +306,22 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         ClearRows();
         _content.Visibility = Visibility.Collapsed;
 
-        switch (_screen)
+        // [S-7077] The office feed's screen; [S-5325] tasks alone still make a planner: no calendar account is an empty
+        // week then.
+        var screen = _office.Screen(Strings.Current);
+        switch (screen.Kind)
         {
-            case Screen.Loading:
-                _state.Show(Str.Common_Loading.Text(), offerAccounts: false);
+            case Themia.Sdk.Kit.KitScreenKind.Loading when !HasTasks:
+                _state.Show(screen.Sentence, offerAccounts: false);
                 return;
 
-            case Screen.NoAccounts:
+            case Themia.Sdk.Kit.KitScreenKind.NoAccounts when !HasTasks:
                 // [S-1862] [S-12835] The card's compact Set up line says so over the face: the rows kept, empty.
                 _state.ShowFace();
                 return;
 
-            case Screen.AccountsGone:
-                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
-                return;
-
-            case Screen.Problem:
-                _state.Show(_problemText(), _problemOffersAccounts);
+            case Themia.Sdk.Kit.KitScreenKind.AccountsGone or Themia.Sdk.Kit.KitScreenKind.Problem:
+                _state.Show(screen);
                 return;
         }
 
@@ -402,7 +330,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         var now = _clock();
         var zone = TimeZoneInfo.Local;
         var today = DateOnly.FromDateTime(now.LocalDateTime);
-        var days = WeekPlannerRules.Build(_events, _birthdays, Tasks, today, zone, now, Start(today));
+        var days = WeekPlannerRules.Build(Events, Birthdays, Tasks, today, zone, now, Start(today));
 
         // [S-11410] [S-14502] The days the card's width holds side by side, the rows its height holds under each heading;
         // rows carry the card's side inset, so the columns meet. An empty today still takes a row, to say nothing is
@@ -413,7 +341,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         var shownDays = _area.IsMeasured ? WeekPlannerRules.DaysIn(_area.Width, grid) : WeekPlannerRules.DefaultDays;
         var rows = _area.IsMeasured ? Math.Max(1, reach.Shown - 1) : Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows);
         var slots = WeekPlannerRules.Columns(counts, shownDays, rows);
-        var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
+        var showColors = CalendarRules.ShowColors(Targets, _config.CalendarColors);
 
         // [S-12834] [S-14810] The days are columns of one grid of cells, each at its one fixed width from the card's left
         // edge, the last the card's right edge reaches cut by it; every line of them at the lines' size, a day with fewer
@@ -692,7 +620,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
             return;
         }
 
-        ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
+        ProviderId? provider = Providers.TryGetValue(item.AccountId, out var known) ? known : null;
         if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
         {
             _widgetHost.Launcher.OpenCalendarLink(link);

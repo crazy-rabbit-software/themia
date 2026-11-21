@@ -55,7 +55,7 @@ internal sealed partial class CalendarView
         var gutter = HourLabelWidth;
         var columnWidth = Math.Max(0, (inner.Width - gutter) / days);
         var labels = CalendarFit.Weekdays(columnWidth);
-        var bars = CalendarFit.Bars(_events, _birthdays, start, days, zone, singleTimed: false);
+        var bars = CalendarFit.Bars(Events, Birthdays, start, days, zone, singleTimed: false);
         var barLine = CalendarFit.ChipLine;
         var bandLines = Math.Min(CalendarFit.LaneCount(bars), 1);
         var bodyHeight = Math.Max(0, inner.Height - FamilySpace.Inset - CalendarSizing.WeekHead - (bandLines * barLine));
@@ -85,7 +85,7 @@ internal sealed partial class CalendarView
         for (var c = 0; c < days; c++)
         {
             var day = start.AddDays(c);
-            timedByDay[c] = [.. CalendarRules.DayItems(_events, [], day, zone)
+            timedByDay[c] = [.. CalendarRules.DayItems(Events, [], day, zone)
                 .Select(i => i.Event!)
                 .Where(e => !e.AllDay && !CalendarFit.IsMultiDay(e, zone))];
 
@@ -98,7 +98,7 @@ internal sealed partial class CalendarView
                 header.BorderBrush = Accent();
             }
 
-            ChoosesDay(header, day, CalendarRules.DayItems(_events, _birthdays, day, zone));
+            ChoosesDay(header, day, CalendarRules.DayItems(Events, Birthdays, day, zone));
             LinkDay(header, day); // [S-11923]
 
             SetColumn(header, first + c);
@@ -135,7 +135,7 @@ internal sealed partial class CalendarView
         var byDay = new IReadOnlyList<DayItem>[days];
         for (var c = 0; c < days; c++)
         {
-            byDay[c] = CalendarRules.DayItems(_events, _birthdays, start.AddDays(c), zone);
+            byDay[c] = CalendarRules.DayItems(Events, Birthdays, start.AddDays(c), zone);
         }
 
         // [S-11545] [S-14502] [S-14810] The chosen day's rows under the strip at their one size, as many as the card reaches,
@@ -337,7 +337,7 @@ internal sealed partial class CalendarView
             var hidden = CalendarFit.Hidden(bars, c, bandLines) + timedByDay[c].Count(e => CalendarFit.Place(e.Start, e.End, day, zone, window) is null);
             if (hidden > 0)
             {
-                ToolTipService.SetToolTip(canvas, DayTooltip(day, CalendarRules.DayItems(_events, _birthdays, day, zone)));
+                ToolTipService.SetToolTip(canvas, DayTooltip(day, CalendarRules.DayItems(Events, Birthdays, day, zone)));
             }
 
             SetRow(canvas, body);

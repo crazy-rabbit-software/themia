@@ -12,8 +12,7 @@ internal sealed partial class ContactsView : IWidgetSample
 {
     public Task ShowSampleAsync()
     {
-        _frozen = true;
-        _contacts = ContactRules.Merge([[
+        _held = ContactRules.Merge([[
             .. SampleCast.Contacts.Select((p, i) => new Contact
             {
                 Id = (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -24,8 +23,6 @@ internal sealed partial class ContactsView : IWidgetSample
                 Phone = p.Phone,
             }),
         ]]);
-        _screen = Screen.Ready;
-        _warningText = null;
         _query = string.Empty;
         Render();
         return Task.CompletedTask;

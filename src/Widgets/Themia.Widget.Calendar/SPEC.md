@@ -98,7 +98,7 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   name and "Birthday". The view pages it with the card menu's back and forward (where there is a page that way), the wheel and the keys and hooks each event's row for its
   tooltip, its links across widgets and the click that opens it.
 - **[S-3651]** The calendar's one stale rule ([S-7042]): each account whose last sync could not improve
-  on the events held is a kit outcome (`CalendarFreshness`: its label, its problem in the kit's
+  on the events held is a kit outcome (the office feed's, `OfficeScreens.Outcomes`, [S-7077]: its label, its problem in the kit's
   failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the problem
   glyph and the ring are the kit's status over the content's top end in every style (`KitStatus`, [S-12481], [S-14903]); the card menu's Refresh line says the age of the oldest copy.
 - **[S-3652]** The agenda's one open gesture ([S-7065]): a click focuses a row (the ring), a

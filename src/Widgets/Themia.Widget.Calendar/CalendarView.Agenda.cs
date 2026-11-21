@@ -65,7 +65,7 @@ internal sealed partial class CalendarView
     {
         var today = Today;
         var (first, last) = CalendarRules.ViewRange(CalendarStyle.Agenda, _anchor, today, _config.Period);
-        var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config.EffectiveAgendaCount, _clock());
+        var groups = CalendarRules.Agenda(Events, Birthdays, first, last, TimeZoneInfo.Local, _config.EffectiveAgendaCount, _clock());
         var rows = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 
         _agendaItems.Clear();

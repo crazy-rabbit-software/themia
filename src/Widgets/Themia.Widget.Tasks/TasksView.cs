@@ -74,7 +74,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <summary>Why the lists could not be read, when resolving the default list failed.</summary>
     private AccountException? _listsFailure;
 
-    private Screen _screen = Screen.Starting;
+    /// <summary>[S-7077] What the widget shows instead of, or as well as, a list: the kit's screen, worded when shown ([S-1109]).</summary>
+    private Func<KitScreen> _screen = null!;
     private BindKey? _bound;
     private int _bindGeneration;
     private bool _detached;
@@ -91,6 +92,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     public TasksView(IWidgetHost host)
     {
         _widgetHost = host;
+        _screen = Starting;
         // [S-615] A change the provider refused, or a refresh that failed with tasks still on screen:
         // the list stays, and the kit's problem glyph says it may be out of date and why.
         _status = new KitStatus(host);
@@ -108,20 +110,35 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _status.Place(this);
     }
 
-    /// <summary>What the widget is showing instead of, or as well as, a list.</summary>
-    private enum Screen
-    {
-        Starting,
-        NoAccount,
-        AccountGone,
-        NeedsSignIn,
-        NoLists,
-        ListsFailed,
-        NoLocalList,
-        Loading,
-        Failed,
-        Ready,
-    }
+    /// <summary>Whether the list is on screen (not a state).</summary>
+    private bool Ready => _screen().Kind == KitScreenKind.Items;
+
+    // ---- [S-617] [S-7077] the states, as the kit's screens: each needs a different action ([S-181]) -----------------
+
+    private static KitScreen Stated(KitScreenKind kind, string sentence, bool accounts = false, KitFix? fix = null) => new(kind, sentence, accounts, []) { Fix = fix };
+
+    private KitScreen ListShown() => Stated(KitScreenKind.Items, string.Empty);
+
+    private KitScreen Starting() => Stated(KitScreenKind.Loading, TasksStr.WidgetsC_OneDrive_Starting.Text());
+
+    /// <summary>[S-1862] The card's Set up button covers this; its page offers a local list.</summary>
+    private KitScreen NoAccount() => Stated(KitScreenKind.NoAccounts, string.Empty);
+
+    private KitScreen AccountGone() => Stated(KitScreenKind.AccountsGone, TasksStr.WidgetsC_OneDrive_AccountGone.Text(), accounts: true);
+
+    private KitScreen NeedsSignIn() => Stated(KitScreenKind.SignInRequired, _account?.Label is not { } who ? TasksStr.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text() : TasksStr.WidgetsC_OneDrive_AccountNeedsSignIn.Format(("account", who)), accounts: true);
+
+    private KitScreen NoLists() => Stated(KitScreenKind.Empty, _account?.Label is not { } who ? TasksStr.WidgetsC_Tasks_NoListsThisAccount.Text() : TasksStr.WidgetsC_Tasks_NoLists.Format(("account", who)));
+
+    private KitScreen ListsFailed() => Stated(KitScreenKind.Problem, Explain(_listsFailure), fix: new KitFix(TasksStr.Connect_TryAgain.Text(), Refresh));
+
+    private KitScreen NoLocalList() => Stated(KitScreenKind.Empty, TasksStr.WidgetsC_Tasks_PickLocal.Text(), fix: new KitFix(TasksStr.WidgetsC_Tasks_StartList.Text(), StartLocalList));
+
+    private KitScreen Fetching() => Stated(KitScreenKind.Loading, TasksStr.WidgetsC_Tasks_Loading.Text());
+
+    private KitScreen Failed() => _feed?.Failure?.Error is AccountError.SignInRequired or AccountError.UnknownAccount
+        ? Stated(KitScreenKind.Problem, Explain(_feed?.Failure), accounts: true)
+        : Stated(KitScreenKind.Problem, Explain(_feed?.Failure), fix: new KitFix(TasksStr.Connect_TryAgain.Text(), Refresh));
 
     private bool IsLocal => _config.Source == TaskSource.Local;
 
@@ -217,7 +234,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         if (_service is null)
         {
             // Only reachable in a teardown race; a widget with no service still says so.
-            Show(Screen.Starting);
+            Show(Starting);
             return;
         }
 
@@ -236,19 +253,19 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         {
             // A named account that has gone is not quietly swapped for another one: the widget
             // would start showing somebody else's tasks without being asked.
-            Show(named && accounts.Count > 0 ? Screen.AccountGone : Screen.NoAccount);
+            Show(named && accounts.Count > 0 ? AccountGone : NoAccount);
             return;
         }
 
         if (_account.Problem is not null)
         {
-            Show(Screen.NeedsSignIn);
+            Show(NeedsSignIn);
             return;
         }
 
         if (string.IsNullOrEmpty(_config.ListId))
         {
-            Show(Screen.Loading);
+            Show(Fetching);
             _ = ResolveDefaultListAsync(_account, generation);
             return;
         }
@@ -273,7 +290,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
 
             if (TaskRules.DefaultList(lists) is not { } list)
             {
-                Show(Screen.NoLists);
+                Show(NoLists);
                 return;
             }
 
@@ -288,7 +305,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
 
             Log.Warn(Scope, $"could not read the task lists of {account.Id}", ex);
             _listsFailure = ex;
-            Show(ex.Error == AccountError.SignInRequired ? Screen.NeedsSignIn : Screen.ListsFailed);
+            Show(ex.Error == AccountError.SignInRequired ? NeedsSignIn : ListsFailed);
         }
     }
 
@@ -469,14 +486,14 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         if (rows is null)
         {
             Show(IsLocal
-                ? Screen.NoLocalList
-                : _feed is { Failure: not null } ? Screen.Failed
-                : _feed is not null ? Screen.Loading
+                ? NoLocalList
+                : _feed is { Failure: not null } ? Failed
+                : _feed is not null ? Fetching
                 : _screen);
             return;
         }
 
-        _screen = Screen.Ready;
+        _screen = ListShown;
         _displayed = rows;
         var plan = Plan(rows.Count);
         _drawnPlan = plan;
@@ -486,7 +503,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         if (rows.Count == 0)
         {
-            ShowEmpty(EmptyListText(), action: null);
+            ShowState(Stated(KitScreenKind.Empty, EmptyListText()));
         }
         else
         {
@@ -511,7 +528,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _area = area;
 
-        if (_screen == Screen.Ready)
+        if (Ready)
         {
             if (Plan(_displayed.Count) != _drawnPlan)
             {
@@ -527,13 +544,13 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <summary>[S-12481] The busy ring and the warning, the status over the content's top end.</summary>
     private void UpdateStatus()
     {
-        var busy = _feed?.Busy == true || _screen == Screen.Loading;
+        var busy = _feed?.Busy == true || _screen().Kind == KitScreenKind.Loading;
 
         // [S-615] The one stale rule ([S-7042]): the widget's own note (a list on this PC that could
         // not be saved, a change the provider refused), then the failed refresh with when the list is from.
         var note = IsLocal ? _local?.Problem : _feed?.WriteProblem;
         string[] notes = note is null ? [] : [note];
-        var lines = _screen == Screen.Ready ? [.. notes, .. KitFreshness.Lines(Strings.Current, Outcomes(), DateTimeOffset.Now)] : notes;
+        var lines = Ready ? [.. notes, .. KitFreshness.Lines(Strings.Current, Outcomes(), DateTimeOffset.Now)] : notes;
 
         _status.Show(lines, busy);
     }
@@ -562,7 +579,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     /// <summary>Say what is actually true, because every one of these needs a different action ([S-181]).</summary>
-    private void Show(Screen screen)
+    private void Show(Func<KitScreen> screen)
     {
         _screen = screen;
 
@@ -572,49 +589,14 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _drawnPlan = null;
         UpdateStatus();
 
-        var who = _account?.Label;
-
-        switch (screen)
+        var shown = screen();
+        if (shown.Kind == KitScreenKind.NoAccounts)
         {
-            case Screen.Starting:
-                ShowEmpty(TasksStr.WidgetsC_OneDrive_Starting.Text(), null);
-                break;
-
-            case Screen.NoAccount:
-                // [S-1862] The card's Set up button covers this; its page offers a local list.
-                _state.Hide();
-                break;
-
-            case Screen.AccountGone:
-                ShowEmpty(TasksStr.WidgetsC_OneDrive_AccountGone.Text(), EmptyAction.Accounts, problem: true);
-                break;
-
-            case Screen.NeedsSignIn:
-                ShowEmpty(who is null ? TasksStr.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text() : TasksStr.WidgetsC_OneDrive_AccountNeedsSignIn.Format(("account", who)), EmptyAction.Accounts, problem: true);
-                break;
-
-            case Screen.NoLists:
-                ShowEmpty(who is null ? TasksStr.WidgetsC_Tasks_NoListsThisAccount.Text() : TasksStr.WidgetsC_Tasks_NoLists.Format(("account", who)), null);
-                break;
-
-            case Screen.ListsFailed:
-                ShowEmpty(Explain(_listsFailure), EmptyAction.Retry, problem: true);
-                break;
-
-            case Screen.NoLocalList:
-                ShowEmpty(TasksStr.WidgetsC_Tasks_PickLocal.Text(), EmptyAction.StartLocalList);
-                break;
-
-            case Screen.Loading:
-                ShowEmpty(TasksStr.WidgetsC_Tasks_Loading.Text(), null);
-                break;
-
-            case Screen.Failed:
-                ShowEmpty(Explain(_feed?.Failure), _feed?.Failure?.Error is AccountError.SignInRequired or AccountError.UnknownAccount
-                    ? EmptyAction.Accounts
-                    : EmptyAction.Retry, problem: true);
-                break;
+            _state.Hide();
+            return;
         }
+
+        ShowState(shown);
     }
 
     /// <summary>A failure in the user's words: the network state, else what the provider said.</summary>
@@ -628,16 +610,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _ => FetchState.Message(failure.ToFetchStatus()) is { Length: > 0 } message ? message : TasksStr.WidgetsC_Tasks_ReadFailed.Text(),
     };
 
-    private enum EmptyAction
-    {
-        Accounts,
-        Retry,
-        StartLocalList,
-    }
-
-    /// <summary>[S-617] A state's sentence on the kit's panel, with its way out.</summary>
-    /// <param name="problem">A state the user must know went wrong (an account gone or to sign in again, a failed fetch): the warning leads it.</param>
-    private void ShowEmpty(string text, EmptyAction? action, bool problem = false)
+    /// <summary>[S-617] A state on the kit's panel, with its way out (the Accounts link, Try again, Start a list).</summary>
+    private void ShowState(KitScreen screen)
     {
         // [S-14810] The state's row and the empty rows under it at the list's one row size, from the card's top edge.
         // A check list's card is its rows and its add row: the state stands in the add row's place (a row of one line),
@@ -649,12 +623,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         var reach = _area.IsMeasured ? ItemSize.RowsAbove(_area.Height, lines, cells) : ItemSize.Natural(lines, cells);
         _state.LineHeight = reach.Foot > 0 ? reach.Foot : LineRules.EdgeRow(cells);
         _state.RowPitch = reach.Pitch;
-        _state.Show(text, action == EmptyAction.Accounts, action: action switch
-        {
-            EmptyAction.Retry => (TasksStr.Connect_TryAgain.Text(), Refresh),
-            EmptyAction.StartLocalList => (TasksStr.WidgetsC_Tasks_StartList.Text(), StartLocalList),
-            _ => null,
-        }, problem: problem);
+        _state.Show(screen);
     }
 
     /// <summary>[S-604] Start a list on this PC: the one it had if that still exists, else the first, else a new one.</summary>

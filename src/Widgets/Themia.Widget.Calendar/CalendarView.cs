@@ -76,21 +76,12 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     /// <summary>The view's slot, from the card ([S-663]); unmeasured until the first layout pass.</summary>
     private WidgetArea _area;
-    private Screen _screen = Screen.Loading;
-    /// <summary>The problem in words, worded when shown so a language switch reaches it ([S-1109]).</summary>
-    private Func<string> _problemText = () => string.Empty;
-    private bool _problemOffersAccounts;
-    /// <summary>[S-3651] Each account whose last sync could not improve on what is held: the one stale rule ([S-12481]).</summary>
-    private IReadOnlyList<Themia.Sdk.Kit.KitOutcome> _outcomes = [];
-    private bool _outcomesNeedUser;
-    private IReadOnlyList<CalendarEvent> _events = [];
-    private IReadOnlyList<Birthday> _birthdays = [];
-    private IReadOnlyList<CalendarTarget> _targets = [];
-    private IReadOnlyDictionary<string, ProviderId> _providers = new Dictionary<string, ProviderId>();
+    /// <summary>
+    /// [S-7077] The office widgets' one feed: the loads one at a time, the screen they call for, the data of the last that
+    /// had any, and the stale rule's outcomes ([S-3651], [S-12481]).
+    /// </summary>
+    private readonly OfficeFeed<CalendarSlice> _feed;
     private string _requestKey = string.Empty;
-    private bool _refreshing;
-    private bool _again;
-    private bool _againForced;
     private bool _detached;
 
     /// <summary>[S-6913] What the view asks of the host: the launcher, settings › Accounts.</summary>
@@ -99,6 +90,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     public CalendarView(IWidgetHost host)
     {
         _widgetHost = host;
+        _feed = new OfficeFeed<CalendarSlice>(LoadAsync, SyncSubject.Calendar, static locale => Strings.Get(locale, Str.WidgetsA_Calendar_ReadFailed));
+        _feed.Changed += OnFeed;
         _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed };
         _status = new KitStatus(host);
         _wheel = OnWheel;
@@ -120,15 +113,19 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         _status.Place(this);
     }
 
-    /// <summary>Which of the widget's states is on screen. Each one needs something different of the user.</summary>
-    private enum Screen
-    {
-        Loading,
-        NoAccounts,
-        AccountsGone,
-        Problem,
-        Ready,
-    }
+    /// <summary>[S-7077] The screen the last load calls for, worded now ([S-1109]).</summary>
+    private Themia.Sdk.Kit.KitScreen Screen => _feed.Screen(Strings.Current);
+
+    /// <summary>Whether the style's events are on screen (not a state).</summary>
+    private bool Ready => Screen.Kind == Themia.Sdk.Kit.KitScreenKind.Items;
+
+    private IReadOnlyList<CalendarEvent> Events => _feed.Data?.Events ?? [];
+
+    private IReadOnlyList<Birthday> Birthdays => _feed.Data?.Birthdays ?? [];
+
+    private IReadOnlyList<CalendarTarget> Targets => _feed.Data?.Targets ?? [];
+
+    private IReadOnlyDictionary<string, ProviderId> Providers => _feed.Data?.Providers ?? new Dictionary<string, ProviderId>();
 
     /// <summary>[S-2050] The clock the view reads: the real one, or a preview's sample moment.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
@@ -146,6 +143,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        _feed.Start();
         _config = config as CalendarWidgetConfig ?? new CalendarWidgetConfig();
         UseData(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
 
@@ -232,7 +230,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         get
         {
             var actions = new List<WidgetAction>(4);
-            if (_screen == Screen.Ready && AwayFromToday)
+            if (Ready && AwayFromToday)
             {
                 actions.Add(new(Glyphs.Calendar, CalendarStr.Calendar_Today.Text(), GoToday));
             }
@@ -256,7 +254,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         }
     }
 
-    private WidgetAction Refresh() => new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, _clock()), () => _ = RefreshAsync(force: true));
+    private WidgetAction Refresh() => new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _feed.Outcomes, _clock()), () => _ = RefreshAsync(force: true));
 
     public void Detach()
     {
@@ -266,6 +264,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         _detached = true;
+        _feed.Stop();
         Strings.Changed -= OnLanguage;
         RemoveHandler(PointerWheelChangedEvent, _wheel);
         _wheelCarry = 0;
@@ -295,117 +294,45 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     }
 
     /// <summary>
-    /// Ask for the range on screen. One at a time: a request arriving while one is out is
-    /// remembered and run after it, so the widget can never settle on a range it has moved away from.
+    /// [S-7077] Ask for the range on screen through the office feed: one load at a time, one asked for meanwhile runs after
+    /// it, so the widget can never settle on a range it has moved away from.
     /// </summary>
-    private async Task RefreshAsync(bool force)
+    private Task RefreshAsync(bool force) => _detached ? Task.CompletedTask : _feed.RefreshAsync(force);
+
+    /// <summary>One load of the range the style draws, read when it goes out.</summary>
+    private async Task<OfficeLoad<CalendarSlice>> LoadAsync(bool force, CancellationToken token)
     {
-        if (_detached)
-        {
-            return;
-        }
-
-        if (_refreshing)
-        {
-            _again = true;
-            _againForced |= force;
-            return;
-        }
-
         // [S-569] Until the user pages away, the widget stays on today, across midnight too.
         if (_followToday)
         {
             _anchor = Today;
         }
 
-        var data = _data;
         _requestKey = RequestKey();
-
-        if (data is null)
+        if (_data is not { } data)
         {
-            _screen = Screen.NoAccounts;
-            Render();
-            return;
+            return OfficeLoad<CalendarSlice>.Of(OfficeLoadState.NoAccounts);
         }
 
         var range = Range();
-        _refreshing = true;
-        UpdateState();
-
-        try
-        {
-            var slice = await data.LoadAsync(_config, range.First, range.Last, force, CancellationToken.None).ConfigureAwait(true);
-
-            if (_detached)
-            {
-                return;
-            }
-
-            Take(slice);
-        }
-        catch (Exception ex)
-        {
-            // Reached from a ticker callback and a menu click: nothing above may see an exception.
-            Log.Error(Scope, "could not refresh the calendar", ex);
-            _screen = Screen.Problem;
-            _problemText = () => Str.WidgetsA_Calendar_ReadFailed.Text();
-            _problemOffersAccounts = false;
-        }
-        finally
-        {
-            _refreshing = false;
-            UpdateState();
-        }
-
-        Render();
-
-        if (_again && !_detached)
-        {
-            var forced = _againForced;
-            _again = false;
-            _againForced = false;
-            await RefreshAsync(forced).ConfigureAwait(true);
-        }
+        return (await data.LoadAsync(_config, range.First, range.Last, force, token).ConfigureAwait(true)).AsLoad();
     }
 
-    /// <summary>What a load said: the screen it calls for, and the data when there is any.</summary>
-    private void Take(CalendarSlice slice)
+    /// <summary>A load went out (the ring) or came back (drawn).</summary>
+    private void OnFeed()
     {
-        switch (slice.State)
+        if (_detached)
         {
-            case CalendarSliceState.NoAccounts:
-                _screen = Screen.NoAccounts;
-                return;
-
-            case CalendarSliceState.AccountsGone:
-                _screen = Screen.AccountsGone;
-                return;
-        }
-
-        _events = slice.Events;
-        _birthdays = slice.Birthdays;
-        _targets = slice.Targets;
-        _providers = slice.Providers;
-
-        var problems = slice.Problems;
-        var labels = slice.Labels;
-        var worst = problems.OrderByDescending(p => OfficeProblems.NeedsUser(p.Status)).FirstOrDefault();
-
-        if (!slice.AnyData && problems.Count > 0)
-        {
-            _screen = Screen.Problem;
-            var problem = worst.Status;
-            _problemText = () => OfficeProblems.Message(problem, SyncSubject.Calendar, Strings.Current);
-            _problemOffersAccounts = OfficeProblems.NeedsUser(worst.Status);
-            _outcomes = [];
             return;
         }
 
-        // [S-2664] [S-3651] Events from the store the last sync could not improve on say when they
-        // are from, in the kit's one stale rule: "Work: No network · updated 10:42".
-        _screen = Screen.Ready;
-        _outcomes = CalendarFreshness.Outcomes(problems, labels);
-        _outcomesNeedUser = problems.Any(p => OfficeProblems.NeedsUser(p.Status));
+        if (_feed.Busy)
+        {
+            UpdateState();
+            return;
+        }
+
+        Render();
     }
 
     /// <summary>
@@ -415,8 +342,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// </summary>
     private void UpdateState()
     {
-        var lines = _screen == Screen.Ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _outcomes, _clock()) : [];
-        _status.Show(lines, _refreshing, _outcomesNeedUser);
+        var screen = Screen;
+        var ready = screen.Kind == Themia.Sdk.Kit.KitScreenKind.Items;
+        var lines = ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _feed.Outcomes, _clock()) : [];
+        _status.Show(lines, _feed.Busy, ready && screen.OffersAccounts);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -474,7 +403,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>[S-3629] The wheel pages the calendar, a period (an agenda page) a notch; Ctrl with it is the desktop's.</summary>
     private void OnWheel(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs args)
     {
-        if (_detached || _screen != Screen.Ready || args.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control))
+        if (_detached || !Ready || args.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control))
         {
             return;
         }
@@ -498,7 +427,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// </summary>
     public bool HandleKey(WidgetKey key)
     {
-        if (_detached || _screen != Screen.Ready)
+        if (_detached || !Ready)
         {
             return false;
         }
@@ -559,7 +488,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         var day = Layout == CalendarStyle.Week
             ? CalendarFit.ChosenDay(_selected, from, last.DayNumber - from.DayNumber + 1, Today)
             : SelectedInView ? _selected!.Value : _anchor;
-        var first = CalendarRules.DayItems(_events, [], day, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
+        var first = CalendarRules.DayItems(Events, [], day, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
 
         if (first is null)
         {
@@ -600,7 +529,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         ClearDrawing();
 
-        var ready = _screen == Screen.Ready;
+        var screen = Screen;
+        var ready = screen.Kind == Themia.Sdk.Kit.KitScreenKind.Items;
         // The agenda and the narrow week ([S-2285]) draw their rows themselves; no other style has any.
         if (!ready || Layout is not (CalendarStyle.Agenda or CalendarStyle.Week))
         {
@@ -613,18 +543,14 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         // problem is one compact row in the period line's place; the style's face stays under it with nothing on it
         // (the month, today marked). Loading shows the face and the line's ring.
         var stated = true;
-        switch (_screen)
+        switch (screen.Kind)
         {
-            case Screen.NoAccounts:
+            case Themia.Sdk.Kit.KitScreenKind.NoAccounts:
                 _state.Show(_config.SetupSentence ?? OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
                 break;
 
-            case Screen.AccountsGone:
-                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
-                break;
-
-            case Screen.Problem:
-                _state.Show(_problemText(), _problemOffersAccounts, problem: true);
+            case Themia.Sdk.Kit.KitScreenKind.AccountsGone or Themia.Sdk.Kit.KitScreenKind.Problem:
+                _state.Show(screen);
                 break;
 
             default:
@@ -698,7 +624,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     // ---- shared pieces ------------------------------------------------------------------------
 
-    private bool ShowColors => CalendarRules.ShowColors(_targets, _config.CalendarColors);
+    private bool ShowColors => CalendarRules.ShowColors(Targets, _config.CalendarColors);
 
     /// <summary>[S-566] An event's calendar colour, resolved at draw time so a settings change repaints at once.</summary>
     /// <summary>[S-566] An event's calendar colour: a data colour ([S-6705]), never a typed one.</summary>
@@ -720,7 +646,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     private void Open(CalendarEvent item)
     {
-        ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
+        ProviderId? provider = Providers.TryGetValue(item.AccountId, out var known) ? known : null;
         if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
         {
             _widgetHost.Launcher.OpenCalendarLink(link);
@@ -752,7 +678,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     /// <summary>[S-1268] Whether an event has somewhere to open: its web page, or a Microsoft event (Outlook or its page).</summary>
     private bool Openable(CalendarEvent item)
-        => item.WebLink is not null || (_providers.TryGetValue(item.AccountId, out var provider) && provider == HostProviders.Microsoft);
+        => item.WebLink is not null || (Providers.TryGetValue(item.AccountId, out var provider) && provider == HostProviders.Microsoft);
 
     /// <summary>Everything a chip had to leave out, on hover.</summary>
     private static string Describe(CalendarEvent item)
