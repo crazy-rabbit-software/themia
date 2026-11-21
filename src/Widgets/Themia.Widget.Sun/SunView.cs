@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Astronomy;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -52,6 +53,13 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
     // [S-6046] The day bar: the day as the Chart's track, the daylight its fill.
     private readonly ChartBar _bar = new();
 
+    /// <summary>
+    /// [S-14319] The day bar's room: every place its dot stands in through the day, the track and the dot's half past either
+    /// end (the content's whole width at the inset). A held reading's box, so what judges the face reads the bar's sides
+    /// there, not at the track's ends.
+    /// </summary>
+    private readonly Border _barRoom = new() { IsHitTestVisible = false };
+
     private SunConfig _config = new();
 
     private Ticker? _ticker;
@@ -79,8 +87,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
         _canvas.Children.Add(_nightTrack);
         _canvas.Children.Add(_doneTrack);
         _canvas.Children.Add(_horizon);
+        _canvas.Children.Add(_barRoom);
         _canvas.Children.Add(_bar);
         _canvas.Children.Add(_sun);
+        HoldMark.Mark(_barRoom);
         // [S-6703] The card's inset on the sides and the foot; the top is the card's ([S-11600]).
         _canvas.Margin = Family.Inset with { Top = 0 };
         Children.Add(_canvas);
@@ -163,6 +173,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
         }
 
         _bar.Visibility = Show(bar);
+        _barRoom.Visibility = Show(bar);
         Refresh();
     }
 
@@ -232,6 +243,8 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
     {
         var half = SunLayout.Dot / 2;
         var span = Math.Max(1, width - SunLayout.Dot);
+        _barRoom.Width = width;
+        _barRoom.Height = SunLayout.Dot;
         _bar.Width = span;
         Canvas.SetLeft(_bar, half);
         Canvas.SetTop(_bar, (SunLayout.Dot - FamilyShape.Track) / 2);
