@@ -6260,7 +6260,7 @@ for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `Offic
   range it loads (`CalendarRules.ViewRange`), its paging unit (`Step`), its title and its keys
   (`CalendarFit.Key`) follow it. A style change re-draws from the data in hand, loads the new range
   when it differs, starts the agenda on its first page, anchors a dated style on the selected day
-  ([S-3621]) and publishes the new range (an agenda clears its own, [S-3625]); the selected day and
+  ([S-3621]) and follows the period the view shows ([S-3628]) without saying it ([S-3626]); the selected day and
   the hovered event keep working across calendars of any styles on a view ([S-3620]..[S-3624]).
 - **[S-3641]** The config holds what every style shares and the union of the styles' own fields
   (`weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
@@ -6313,6 +6313,23 @@ Shared dates and events on a view ([S-3300], [S-3311]):
 - **[S-3624]** The keys' cursor day is the selected day: Up / Down move it a week (from the selection
   when it is on screen, else from the anchor, `CalendarShare.Step`) and publish it, so the other
   calendars follow as for a click; Enter opens its first event.
+- **[S-3626]** **The period shown is the view's** (owner, 2026-11-21: "split up the calendar into the month with the
+  arrows and the body of the calendar too, share the scrolling via the global state that we have."): the view's links
+  carry it (`VisibleRange`, a `RangeLink`, sticky, the board's like every link, [S-3300]). A calendar header
+  (`calendarHeader`) or a calendar (`calendar`) that pages (back, forward, today, the wheel, the keys) says its new
+  period there, and every other calendar header and calendar of the view follows it ([S-3628]); a follower never says
+  it again, so nothing echoes. A widget that joins the view reads the period held there at once (a view switched away
+  and back keeps it, a restart starts on today). A calendar alone on its view pages itself as before. Replaces [S-3625].
+- **[S-3627]** What a calendar says when it pages (`CalendarShare.Period`): a month its own days (never the neighbours'
+  that pad its six weeks), a week its columns, a day, a year; the agenda the days of the rows on its page
+  (`CalendarShare.AgendaPeriod`). A click or a key that selects a day in another period pages the calendar there and
+  says that period too, so a view switched back lands where it was left.
+- **[S-3628]** Where a follower lands (`CalendarShare.AnchorIn`): on the selected day while the period holds it, else on
+  today while it holds today, else on the period's first day; a month, a week, a day, a year or a header shows its own
+  period holding that day, the agenda turns to the page holding it ([S-3622]; a day after every row moves nothing).
+- **[S-3629]** The wheel over a calendar or a calendar header pages it, one period (an agenda page) a notch: turned away
+  from the user back, towards forward (`CalendarShare.Wheel`: a precision wheel's or a touchpad's parts of a notch are
+  carried, turning back drops them); Ctrl with the wheel stays the desktop's.
 
 ## Mail: the whole tile
 
@@ -7178,7 +7195,8 @@ Topics:
   (`ScreenTimeRules.OtherKey` for the "Other" remainder). What a widget emphasises is the hover when
   there is one, else the selection (`ScreenTimeRules.Focus`).
 - **[S-3311]** `SelectedDate` and `VisibleRange` are defined for the date widgets; what they publish
-  and how they show it is their section's: the calendars' is [S-3620]..[S-3625].
+  and how they show it is their section's: the calendars' is [S-3620]..[S-3629] (`VisibleRange` the period the
+  view's calendars show, [S-3626]).
 
 ## Keyboard in the shell (SHELL-KEYS)
 
