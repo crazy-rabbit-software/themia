@@ -171,6 +171,14 @@ internal sealed partial class MusicButtonView : Grid, IWidgetView, IWidgetSurfac
         PointerCaptureLost += OnPointerLost;
         PointerCanceled += OnPointerLost;
         Strings.Changed += OnLanguage;
+
+        // [S-12831] What the tile shows under the pointer and pressed, for the renders' --hover and --pressed.
+        PointerPreview.Register(this, pressed =>
+        {
+            _hover = !Inert;
+            _pressed = pressed && !Inert;
+            Paint();
+        });
         _feed.Attach(DispatcherQueue);
         ApplyConfig(config);
     }
@@ -207,6 +215,7 @@ internal sealed partial class MusicButtonView : Grid, IWidgetView, IWidgetSurfac
         PointerCaptureLost -= OnPointerLost;
         PointerCanceled -= OnPointerLost;
         Strings.Changed -= OnLanguage;
+        PointerPreview.Forget(this);
         _feed.Dispose();
     }
 
