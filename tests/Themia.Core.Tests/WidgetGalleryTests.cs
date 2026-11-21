@@ -75,7 +75,7 @@ public sealed class WidgetGalleryTests
 
         // Every kind exactly once, at its own cells.
         var laid = screens.SelectMany(s => s.Cards).ToList();
-        Assert.Equal(category.Blocks.SelectMany(b => b.Kinds), laid.Select(c => c.Kind));
+        Assert.Equal(category.Blocks.SelectMany(b => b.Kinds).Select(k => k.Value).Order(), laid.Select(c => c.Kind.Value).Order());
         Assert.All(laid, c => Assert.Equal(Size(c.Kind), (c.Box.W, c.Box.H)));
 
         // The title line on top of each screen, the cards under it.
@@ -92,7 +92,8 @@ public sealed class WidgetGalleryTests
 
         var screen = Assert.Single(WidgetGallery.Lay(category, Area, Size));
 
-        foreach (var block in category.Blocks)
+        // A family's cards: one block under its name (the category's own widgets are cards each, no family to keep).
+        foreach (var block in category.Blocks.Where(b => b.Title is not null))
         {
             var mine = screen.Cards.Where(c => c.Block == block.Key).Select(c => c.Box).ToList();
             var left = mine.Min(b => b.X);
@@ -127,10 +128,40 @@ public sealed class WidgetGalleryTests
         AssertTidy(screens, Area);
         Assert.All(screens, s => Assert.Equal((screens.Count, AddFolderId.Weather), (s.Pages, s.Category)));
         Assert.Equal(Enumerable.Range(0, screens.Count), screens.Select(s => s.Page));
-        Assert.Equal(kinds.Select(K), screens.SelectMany(s => s.Cards).Select(c => c.Kind));
+        Assert.Equal(kinds.Select(K).Order(), screens.SelectMany(s => s.Cards).Select(c => c.Kind).Order());
+
+        // A family split over screens keeps its order: a later chunk never on an earlier screen.
+        Assert.Equal(kinds[6..].Select(K), screens.SelectMany(s => s.Cards.Where(c => c.Block == "fam")).Select(c => c.Kind));
 
         // A family split over screens carries its name on each.
         Assert.All(screens.Where(s => s.Cards.Any(c => c.Block == "fam")), s => Assert.Contains(s.Heads, h => h.Text.Equals(LocalText.Fixed("Family"))));
+    }
+
+    [Fact]
+    public void S14912_a_screen_is_filled_before_the_next()
+    {
+        // Thirty small cards and a family of ten: 7 across and 7 down on one screen of 150 × 76, a cell apart.
+        var own = Enumerable.Range(0, 30).Select(i => $"w20x10{(char)('a' + (i % 26))}{(char)('a' + (i / 26))}").ToArray();
+        var fam = Enumerable.Range(0, 10).Select(i => $"w20x8{(char)('a' + i)}").ToArray();
+
+        var screens = WidgetGallery.Lay(Category(Block("own", null, own), Block("fam", "Facts", fam)), Area, Size);
+
+        var screen = Assert.Single(screens);
+        Assert.Equal(40, screen.Cards.Count);
+        AssertTidy(screens, Area);
+    }
+
+    [Fact]
+    public void S14912_a_smaller_block_fills_the_room_beside_a_taller_one()
+    {
+        // A tall card, then a family of three that fits beside it: beside it, not under it.
+        var category = Category(Block("own", null, "w30x60"), Block("fam", "Facts", "w20x8", "w20x8b", "w20x8c"));
+
+        var screen = Assert.Single(WidgetGallery.Lay(category, Area, Size));
+
+        var tall = screen.Cards.Single(c => c.Block == "own").Box;
+        var head = Assert.Single(screen.Heads).Box;
+        Assert.Equal((tall.Right + WidgetGallery.BlockGap, tall.Y), (head.X, head.Y));
     }
 
     [Fact]
@@ -165,6 +196,9 @@ public sealed class WidgetGalleryTests
         var weather = Category(Block("own", null, "w24x12"));
         var time = weather with { Id = AddFolderId.Time };
         var screens = WidgetGallery.Lay([weather, time], Area, Size);
+
+        // Categories never share a screen, even where the second would fit beside the first.
+        Assert.Equal([AddFolderId.Weather, AddFolderId.Time], screens.Select(s => s.Category));
         Assert.Equal(1, WidgetGallery.FirstOf(screens, AddFolderId.Time));
         Assert.Equal(0, WidgetGallery.FirstOf(screens, AddFolderId.System));
     }
