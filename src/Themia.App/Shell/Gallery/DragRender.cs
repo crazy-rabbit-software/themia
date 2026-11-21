@@ -1,25 +1,22 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Desktop;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2008] [S-11874]..[S-11879] Debug only: the locked desktop's moves, off-screen, to PNGs.
-/// <c>Themia.exe --drag-png &lt;outDir&gt;</c> writes, for both themes over a dark and a light stand-in
+/// <c>Themia.exe --render drag &lt;outDir&gt;</c> writes, for both themes over a dark and a light stand-in
 /// wallpaper: <c>drag-move-…</c> a clock moved on the locked desktop, the local grid round where it lands;
 /// <c>drag-icons-&lt;size&gt;-…</c> desktop icons at each icon size on the widget grid, beside a clock, packed by
 /// Auto arrange's rule, with the edit-mode grid drawn faintly to judge the cells; <c>drag-lasso-…</c> a mixed
@@ -33,122 +30,85 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class DragRender
 {
-    public const string Flag = "--drag-png";
-
-    private const string Scope = "drag-render";
     private static double ScreenWidth = 960;
     private static double ScreenHeight = 540;
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "drag",
+        "<outDir> [--icon-layout below|beside|icononly]",
+        """
+        the locked desktop, both themes over a dark and a light wallpaper [S-11874]..[S-11879]: a move with its local grid
+        (drag-move-*), icons on the widget grid at each icon size (drag-icons-*), a mixed lasso selection of icons and cards
+        (drag-lasso-*), several cards selected and moved (the frame's corners, drag-group-*, drag-groupmove-*, [S-14310]),
+        fences (drag-fences-*, in Liquid glass drag-fences-glass-*, [S-13000])
+        --icon-layout instead: that layout's icons and fences at medium and large icons [S-13970]..[S-13976]
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, $"usage: {Flag} <outDir>");
-            app.Exit();
-            return true;
-        }
-
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
+        var outDir = run.PathArg(0);
 
         // [S-13970] One icon layout's icons and fences, on a screen with room for text beside's wide boxes.
-        var layoutAt = Array.IndexOf(args, "--icon-layout");
-        DesktopIconLayout? layout = null;
-        if (layoutAt >= 0)
+        DesktopIconLayout? layout = run.Has("--icon-layout")
+            ? DesktopRender.Choice(run, "--icon-layout", DesktopIconLayout.Below, "below|beside|icononly")
+            : null;
+        if (layout is not null)
         {
-            if (layoutAt + 1 >= args.Length || !Enum.TryParse<DesktopIconLayout>(args[layoutAt + 1], ignoreCase: true, out var named) || !Enum.IsDefined(named))
-            {
-                Log.Error(Scope, "usage: --icon-layout below|beside|icononly");
-                app.Exit();
-                return true;
-            }
-
-            layout = named;
             (ScreenWidth, ScreenHeight) = (1440, 900);
         }
 
-        _ = dispatcher.TryEnqueue(async () =>
+        System.IO.Directory.CreateDirectory(outDir);
+        var screen = new Grid { Width = ScreenWidth, Height = ScreenHeight, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+        using var harness = RenderHarness.Open(run, "Themia drag render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        var ticker = harness.Ticker;
+        var scale = harness.Window.Scale;
+        var metrics = new ScreenMetrics(ScreenWidth, ScreenHeight);
+        if (layout is { } only)
         {
-            Window? window = null;
-            Ticker? ticker = null;
-            try
+            await LayoutAsync(screen, ticker, metrics, scale, only, outDir).ConfigureAwait(true);
+            return RenderCommandLine.Passed;
+        }
+
+        foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
+        {
+            DesignApplier.Apply(new DesignState { Theme = theme });
+            screen.RequestedTheme = DesignApplier.Theme;
+            var tag = theme == AppTheme.Light ? "light" : "dark";
+            foreach (var (wallName, wall) in Wallpapers())
             {
-                System.IO.Directory.CreateDirectory(outDir);
-                var screen = new Grid { Width = ScreenWidth, Height = ScreenHeight, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia drag render" };
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((ScreenHeight + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                ticker = new Ticker(dispatcher);
-                var metrics = new ScreenMetrics(ScreenWidth, ScreenHeight);
-                if (layout is { } only)
+                screen.Background = wall;
+                await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-move-{tag}-{wallName}.png"), several: false).ConfigureAwait(true);
+                await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-groupmove-{tag}-{wallName}.png"), several: true).ConfigureAwait(true);
+                await LassoAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-lasso-{tag}-{wallName}.png")).ConfigureAwait(true);
+                await GroupAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-group-{tag}-{wallName}.png")).ConfigureAwait(true);
+                await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-{tag}-{wallName}.png")).ConfigureAwait(true);
+                foreach (var size in new[] { DesktopIconSize.Small, DesktopIconSize.Medium, DesktopIconSize.Large })
                 {
-                    await LayoutAsync(screen, ticker, metrics, scale, only, outDir).ConfigureAwait(true);
-                    return;
+                    await IconsAsync(screen, ticker, metrics, scale, size, System.IO.Path.Combine(outDir, $"drag-icons-{size.ToString().ToLowerInvariant()}-{tag}-{wallName}.png")).ConfigureAwait(true);
                 }
-
-                foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
-                {
-                    DesignApplier.Apply(new DesignState { Theme = theme });
-                    screen.RequestedTheme = DesignApplier.Theme;
-                    var tag = theme == AppTheme.Light ? "light" : "dark";
-                    foreach (var (wallName, wall) in Wallpapers())
-                    {
-                        screen.Background = wall;
-                        await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-move-{tag}-{wallName}.png"), several: false).ConfigureAwait(true);
-                        await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-groupmove-{tag}-{wallName}.png"), several: true).ConfigureAwait(true);
-                        await LassoAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-lasso-{tag}-{wallName}.png")).ConfigureAwait(true);
-                        await GroupAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-group-{tag}-{wallName}.png")).ConfigureAwait(true);
-                        await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-{tag}-{wallName}.png")).ConfigureAwait(true);
-                        foreach (var size in new[] { DesktopIconSize.Small, DesktopIconSize.Medium, DesktopIconSize.Large })
-                        {
-                            await IconsAsync(screen, ticker, metrics, scale, size, System.IO.Path.Combine(outDir, $"drag-icons-{size.ToString().ToLowerInvariant()}-{tag}-{wallName}.png")).ConfigureAwait(true);
-                        }
-                    }
-                }
-
-                // [S-13000] The fences again in Liquid glass, which frosts over the wallpaper.
-                foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
-                {
-                    var glass = new DesignState();
-                    DesignPresets.Apply(glass, DesignPresetId.LiquidGlass);
-                    glass.Theme = theme;
-                    DesignApplier.Apply(glass);
-                    screen.RequestedTheme = DesignApplier.Theme;
-                    var tag = theme == AppTheme.Light ? "light" : "dark";
-                    foreach (var (wallName, wall) in Wallpapers())
-                    {
-                        screen.Background = wall;
-                        await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-glass-{tag}-{wallName}.png")).ConfigureAwait(true);
-                    }
-                }
-
-                DesktopCell.Apply(DesktopIconSize.Medium);
             }
-            catch (Exception ex)
+        }
+
+        // [S-13000] The fences again in Liquid glass, which frosts over the wallpaper.
+        foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
+        {
+            var glass = new DesignState();
+            DesignPresets.Apply(glass, DesignPresetId.LiquidGlass);
+            glass.Theme = theme;
+            DesignApplier.Apply(glass);
+            screen.RequestedTheme = DesignApplier.Theme;
+            var tag = theme == AppTheme.Light ? "light" : "dark";
+            foreach (var (wallName, wall) in Wallpapers())
             {
-                Log.Error(Scope, "rendering the drag failed", ex);
+                screen.Background = wall;
+                await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-glass-{tag}-{wallName}.png")).ConfigureAwait(true);
             }
-            finally
-            {
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
+        }
 
-        return true;
+        DesktopCell.Apply(DesktopIconSize.Medium);
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>
@@ -256,8 +216,7 @@ internal static class DragRender
 
         local.Show(target, metrics, scale);
         await Task.Delay(700).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"drag: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
     /// <summary>[S-11877] A mixed selection under the band: two icons selected (their look), a clock selected (its corners), one icon and one card not.</summary>
@@ -298,8 +257,7 @@ internal static class DragRender
         screen.Children.Add(markers.Inks);
 
         await Task.Delay(900).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"drag: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
     /// <summary>
@@ -343,8 +301,7 @@ internal static class DragRender
         screen.Children.Add(markers.Inks);
 
         await Task.Delay(900).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"drag: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
     /// <summary>
@@ -447,8 +404,7 @@ internal static class DragRender
         layer.Children.Add(band);
 
         await Task.Delay(900).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"drag: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
     /// <summary>[S-11875] [S-11876] Twelve icons at <paramref name="size"/> packed on the widget grid round a clock, the grid drawn to judge them.</summary>
@@ -482,8 +438,7 @@ internal static class DragRender
         Hang(layer);
 
         await Task.Delay(900).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"drag: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
     /// <summary>One desktop icon at <paramref name="at"/>'s corner, in its box on the grid, in a preview state.</summary>

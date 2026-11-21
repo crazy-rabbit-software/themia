@@ -63,7 +63,7 @@ public partial class App : Application
 #if DEBUG
         // [S-69] A render's --theme: the application theme can only be chosen before the resources load,
         // and the brushes come from it.
-        if (RenderCommandLine.Theme(Environment.GetCommandLineArgs()) is { } theme && theme != Core.Model.AppTheme.System)
+        if (Shell.RenderCommands.ThemeOf(Environment.GetCommandLineArgs()) is { } theme && theme != Core.Model.AppTheme.System)
         {
             RequestedTheme = theme == Core.Model.AppTheme.Light ? ApplicationTheme.Light : ApplicationTheme.Dark;
         }

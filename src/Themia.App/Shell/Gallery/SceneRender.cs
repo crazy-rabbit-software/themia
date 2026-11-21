@@ -1,7 +1,6 @@
 #if DEBUG
 using System.Globalization;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -12,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Scenes;
+using Themia.Core.Shell;
 using Themia.Sdk;
 using Themia.Sdk.Samples;
 using Themia.Sdk.WinUI;
@@ -23,30 +23,18 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1074] Debug only: one scene of a store scenes file ([S-1075]), a whole stand-in desktop of real
 /// widget cards, off-screen, to one PNG of exactly the display's size times <c>--scale</c>, whatever
-/// this machine's DPI is. <c>Themia.exe --scene-png &lt;scenes.json&gt; &lt;scene&gt; &lt;out.png&gt;
-/// [--lang &lt;code&gt;] [--scale &lt;n&gt;]</c>. Cards stand where the desktop would put them
+/// this machine's DPI is. <c>Themia.exe --render scene &lt;scenes.json&gt; &lt;scene&gt; &lt;out.png&gt;
+/// [--scale &lt;n&gt;]</c>. Cards stand where the desktop would put them
 /// ([S-1076]); a scene with <c>edit</c> is drawn in edit mode as the edit bar's pictures are
 /// ([S-1077]); a scene with <c>taskbar</c> has Windows' taskbar stood in along the bottom ([S-2200]), a
-/// <c>sample:</c> wallpaper is painted at the output's size ([S-2210]). One scene per process: its theme is the application's, chosen before the resources load.
-/// Exit codes: 0 written; 2 the command line, the file, a scene, a kind, a style or the wallpaper
-/// refused before anything is drawn (a sample wallpaper this build does not have too); 1 the drawing failed (a preview state or submenu a widget does
-/// not have, a card that broke, a bitmap of the wrong size).
+/// <c>sample:</c> wallpaper is painted at the output's size ([S-2210]). The scene's theme is the application's, chosen
+/// before the resources load (<see cref="SceneTheme"/>). Exit codes: 0 written; 64 the command line, the file, a scene, a kind, a style or the wallpaper refused
+/// before anything is drawn (a sample wallpaper this build does not have too); 1 the drawing failed (a preview state or
+/// submenu a widget does not have, a card that broke, a bitmap of the wrong size); 2 it threw.
 /// </summary>
 internal static class SceneRender
 {
-    public const string Flag = "--scene-png";
-
-    /// <summary>[S-2475] A ready-made group placed, drawn as a scene of its own: <c>--recipe-png &lt;id&gt; &lt;out.png&gt;</c>.</summary>
-    public const string RecipeFlag = "--recipe-png";
-
-    private const string RecipeUsage = $"usage: {RecipeFlag} <id> <out.png> [--states kind=state,..] [--theme light|dark] [--edit] [--lang <code>] [--scale <n>]";
-
     private const string Scope = "scene-render";
-    private const string Usage = $"usage: {Flag} <scenes.json> <scene> <out.png> [--lang <code>] [--scale <n>]";
-
-    private const int Drawn = 0;
-    private const int Failed = 1;
-    private const int Refused = 2;
 
     /// <summary>The output's pixels per DIP when <c>--scale</c> is not given.</summary>
     private const double DefaultScale = 2;
@@ -54,72 +42,58 @@ internal static class SceneRender
     /// <summary>The window the scene is laid out in, in physical pixels: smaller than most scenes on purpose (the scene is not clipped to it).</summary>
     private static readonly SizeInt32 WindowSize = new(1280, 800);
 
-    /// <summary>The application theme can only be chosen before the resources load: the scene's, read by <c>App</c>; null when the run will refuse anyway.</summary>
-    public static ApplicationTheme? RequestedTheme(string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "scene",
+        "<scenes.json> <scene> <out.png> [--scale <n>]",
+        """
+        a store scene: a whole desktop of widgets to one PNG of exactly screen x scale px (default 2) [S-1074], and its
+        <out>.layout.json (every widget's box, [S-11862]); store/capture.ps1 draws every scene of store/scenes.json
+        a scene widget may carry "selected": true; a "readyMade" entry too (all its widgets) [S-11860]
+        exit 64: the file, the scene, a kind, a style or the wallpaper refused before drawing; 1: the drawing failed
+        """,
+        run => DrawAsync(run, ReadScene(run)),
+        Theme: SceneTheme);
+
+    /// <summary>[S-2475] A ready-made group placed, drawn as a scene of its own.</summary>
+    public static RenderCommand Recipe { get; } = new(
+        RenderVerb.Render,
+        "recipe",
+        "<id> <out.png> [--states kind=state,..] [--theme light|dark] [--edit] [--scale <n>]",
+        """
+        a ready-made group placed, as a scene on a sample wallpaper [S-2475]: dark unless --theme light; --edit: edit mode,
+        the placed widgets selected under the bar with its page; --states: a kind's preview state, none: its "sample" preview
+        """,
+        run => DrawAsync(run, ReadRecipe(run)),
+        Theme: args => RecipeTheme(args));
+
+    /// <summary>
+    /// The application theme a scene is drawn in, chosen before the resources load: the scene's own (dark unless it says
+    /// light); null when the file or the scene cannot be read, which the run then refuses.
+    /// </summary>
+    private static AppTheme? SceneTheme(IReadOnlyList<string> args)
     {
-        if (Read(args, out _) is not { } job)
+        if (args.Count < 2)
         {
             return null;
         }
 
-        return job.Scene.Theme == AppTheme.Light ? ApplicationTheme.Light : ApplicationTheme.Dark;
+        try
+        {
+            return SceneParser.Parse(File.ReadAllText(Path.GetFullPath(args[0])), out _)?.Find(args[1]) is { } scene
+                ? scene.Theme == AppTheme.Light ? AppTheme.Light : AppTheme.Dark
+                : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
+        {
+            // ignore: the run reads the file again and refuses it with the reason.
+            return null;
+        }
     }
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
-    {
-        if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, RecipeFlag) < 0)
-        {
-            return false;
-        }
-
-        if (Read(args, out var problem) is not { } job || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Fail(app, Refused, problem ?? "no dispatcher on the launch thread");
-            return true;
-        }
-
-        _ = dispatcher.TryEnqueue(async () =>
-        {
-            var code = Failed;
-            Window? window = null;
-            Ticker? ticker = null;
-            IDisposable? machine = null;
-            var cards = new List<WidgetCard>();
-            try
-            {
-                window = new Window { Title = "Themia scene render" };
-                ticker = new Ticker(dispatcher);
-
-                // [S-1931] A store picture never shows this PC: the system widgets read the sample machine.
-                machine = RenderMachine.Install(ticker, dispatcher);
-                AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
-                code = await DrawAsync(window, ticker, job, cards).ConfigureAwait(true);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the scene failed", ex);
-                Console.WriteLine($"scene: failed: {ex.Message}");
-                code = Failed;
-            }
-            finally
-            {
-                foreach (var card in cards)
-                {
-                    card.Detach();
-                }
-
-                machine?.Dispose();
-                AppServices.Gallery?.Dispose();
-                AppServices.Gallery = null;
-                ticker?.Dispose();
-                window?.Close();
-                Environment.ExitCode = code;
-                app.Exit();
-            }
-        });
-
-        return true;
-    }
+    /// <summary>A ready-made group's theme: dark unless <c>--theme light</c>.</summary>
+    private static AppTheme RecipeTheme(IReadOnlyList<string> args)
+        => string.Equals(RenderCommandLine.Option(args, "--theme"), "light", StringComparison.OrdinalIgnoreCase) ? AppTheme.Light : AppTheme.Dark;
 
     /// <summary>What a run draws, every part checked before a window opens.</summary>
     /// <param name="SampleWhereOffered">Kept for the callers that name it: every scene shows samples where no state is given ([S-11861]).</param>
@@ -129,31 +103,13 @@ internal static class SceneRender
         public string? SampleWallpaper => Scene.SampleWallpaper;
     }
 
-    /// <summary>The command line, the file, the scene and its widgets, read; null and why when any is refused.</summary>
-    private static Job? Read(string[] args, out string? problem)
+    /// <summary>The command line, the file, the scene and its widgets, read; a usage error says why any is refused.</summary>
+    private static Job ReadScene(RenderRun run)
     {
-        problem = null;
-        if (Array.IndexOf(args, RecipeFlag) >= 0)
-        {
-            return ReadRecipe(args, out problem);
-        }
-
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0 || at + 3 >= args.Length || args[(at + 1)..(at + 4)].Any(a => a.StartsWith("--", StringComparison.Ordinal)))
-        {
-            problem = Usage;
-            return null;
-        }
-
-        var scale = DefaultScale;
-        if (Option(args, "--scale") is { } scaleText
-            && !(double.TryParse(scaleText, NumberStyles.Float, CultureInfo.InvariantCulture, out scale) && double.IsFinite(scale) && scale is >= 0.5 and <= 4))
-        {
-            problem = $"--scale {scaleText}: a number of pixels per DIP from 0.5 to 4";
-            return null;
-        }
-
-        var path = Path.GetFullPath(args[at + 1]);
+        var scale = Scale(run);
+        var path = run.PathArg(0);
+        var name = run.Arg(1);
+        var outPath = run.Arg(2);
         string json;
         try
         {
@@ -161,23 +117,33 @@ internal static class SceneRender
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
         {
-            problem = $"{path}: cannot be read ({ex.Message})";
-            return null;
+            throw run.Usage($"{path}: cannot be read ({ex.Message})");
         }
 
         if (SceneParser.Parse(json, out var refusal) is not { } file)
         {
-            problem = $"{path}: {refusal}";
-            return null;
+            throw run.Usage($"{path}: {refusal}");
         }
 
-        if (file.Find(args[at + 2]) is not { } scene)
+        if (file.Find(name) is not { } scene)
         {
-            problem = $"{path} has no scene \"{args[at + 2]}\" (has: {string.Join(", ", file.Scenes.Select(s => s.Name))})";
-            return null;
+            throw run.Usage($"{path} has no scene \"{name}\" (has: {string.Join(", ", file.Scenes.Select(s => s.Name))})");
         }
 
-        return Finish(file, scene, path, args[at + 3], scale, sampleWhereOffered: false, out problem);
+        return Finish(run, file, scene, path, outPath, scale, sampleWhereOffered: false);
+    }
+
+    /// <summary><c>--scale</c>: pixels per DIP from 0.5 to 4, <see cref="DefaultScale"/> without it.</summary>
+    private static double Scale(RenderRun run)
+    {
+        var scale = DefaultScale;
+        if (run.Option("--scale") is { } scaleText
+            && !(double.TryParse(scaleText, NumberStyles.Float, CultureInfo.InvariantCulture, out scale) && double.IsFinite(scale) && scale is >= 0.5 and <= 4))
+        {
+            throw run.Usage($"--scale {scaleText}: a number of pixels per DIP from 0.5 to 4");
+        }
+
+        return scale;
     }
 
     /// <summary>
@@ -186,60 +152,41 @@ internal static class SceneRender
     /// selected under the bar with its page. <c>--states</c> gives a kind a preview state; a kind given none
     /// shows its "sample" state where it has one.
     /// </summary>
-    private static Job? ReadRecipe(string[] args, out string? problem)
+    private static Job ReadRecipe(RenderRun run)
     {
-        problem = null;
-        var at = Array.IndexOf(args, RecipeFlag);
-        if (at + 2 >= args.Length || args[(at + 1)..(at + 3)].Any(a => a.StartsWith("--", StringComparison.Ordinal)))
+        if (ReadyMadeGroups.Find(run.Arg(0)) is not { } recipe)
         {
-            problem = RecipeUsage;
-            return null;
+            throw run.Usage($"no ready-made group \"{run.Arg(0)}\" (has: {string.Join(", ", ReadyMadeGroups.All.Select(r => r.Id))})");
         }
 
-        if (ReadyMadeGroups.Find(args[at + 1]) is not { } recipe)
-        {
-            problem = $"no ready-made group \"{args[at + 1]}\" (has: {string.Join(", ", ReadyMadeGroups.All.Select(r => r.Id))})";
-            return null;
-        }
-
-        var scale = DefaultScale;
-        if (Option(args, "--scale") is { } scaleText
-            && !(double.TryParse(scaleText, NumberStyles.Float, CultureInfo.InvariantCulture, out scale) && double.IsFinite(scale) && scale is >= 0.5 and <= 4))
-        {
-            problem = $"--scale {scaleText}: a number of pixels per DIP from 0.5 to 4";
-            return null;
-        }
-
+        var outPath = run.Arg(1);
+        var scale = Scale(run);
         var states = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var pair in (Option(args, "--states") ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        foreach (var pair in (run.Option("--states") ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var parts = pair.Split('=', 2, StringSplitOptions.TrimEntries);
             if (parts.Length != 2 || parts[0].Length == 0 || parts[1].Length == 0)
             {
-                problem = $"--states {pair}: kind=state, as tasks=sample";
-                return null;
+                throw run.Usage($"--states {pair}: kind=state, as tasks=sample");
             }
 
             states[parts[0]] = parts[1];
         }
 
         // [S-2475] The placed widgets as they stand on the desktop; --edit draws them selected under the bar, their page open.
-        var theme = string.Equals(Option(args, "--theme"), "light", StringComparison.OrdinalIgnoreCase) ? AppTheme.Light : AppTheme.Dark;
-        var file = ReadyMadeScene.Of(recipe, states, edit: Array.IndexOf(args, "--edit") >= 0, theme);
-        return Finish(file, file.Scenes[0], Path.Combine(Environment.CurrentDirectory, "recipe.json"), args[at + 2], scale, sampleWhereOffered: true, out problem);
+        var file = ReadyMadeScene.Of(recipe, states, edit: run.Has("--edit"), RecipeTheme(run.Args));
+        return Finish(run, file, file.Scenes[0], Path.Combine(Environment.CurrentDirectory, "recipe.json"), outPath, scale, sampleWhereOffered: true);
     }
 
-    /// <summary>The scene's widgets built and its wallpaper found: the job, or null and why.</summary>
-    private static Job? Finish(SceneFile file, Scene scene, string path, string outPath, double scale, bool sampleWhereOffered, out string? problem)
+    /// <summary>The scene's widgets built and its wallpaper found: the job, or a usage error saying why not.</summary>
+    private static Job Finish(RenderRun run, SceneFile file, Scene scene, string path, string outPath, double scale, bool sampleWhereOffered)
     {
-        problem = null;
         var widgets = new List<(SceneWidget, WidgetInstance)>();
         foreach (var spec in scene.Widgets)
         {
             if (SceneWidgets.Build(spec, file.Screen, out var refused) is not { } model)
             {
-                problem = $"{path}: {refused}";
-                return null;
+                throw run.Usage($"{path}: {refused}");
             }
 
             widgets.Add((spec, model));
@@ -248,8 +195,7 @@ internal static class SceneRender
         // [S-2210] What knows the sample pictures refuses a name it does not have, before drawing.
         if (scene.SampleWallpaper is { } sample && !SamplePictures.WallpaperSlugs.Contains(sample, StringComparer.Ordinal))
         {
-            problem = $"{path}: scene \"{scene.Name}\" names the wallpaper {Scene.SamplePrefix}{sample}, and there is no such sample picture (has: {string.Join(", ", SamplePictures.WallpaperSlugs.Select(s => Scene.SamplePrefix + s))})";
-            return null;
+            throw run.Usage($"{path}: scene \"{scene.Name}\" names the wallpaper {Scene.SamplePrefix}{sample}, and there is no such sample picture (has: {string.Join(", ", SamplePictures.WallpaperSlugs.Select(s => Scene.SamplePrefix + s))})");
         }
 
         string? wallpaper = null;
@@ -258,21 +204,28 @@ internal static class SceneRender
             wallpaper = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(path)!, relative));
             if (!File.Exists(wallpaper))
             {
-                problem = $"{path}: scene \"{scene.Name}\" names the wallpaper {relative}, and there is no {wallpaper}";
-                return null;
+                throw run.Usage($"{path}: scene \"{scene.Name}\" names the wallpaper {relative}, and there is no {wallpaper}");
             }
         }
 
         return new Job(file, scene, widgets, wallpaper, Path.GetFullPath(outPath), scale, sampleWhereOffered);
     }
 
-    private static async Task<int> DrawAsync(Window window, Ticker ticker, Job job, List<WidgetCard> cards)
+    private static async Task<int> DrawAsync(RenderRun run, Job job)
     {
+        // Off-screen and never activated, at the scene's own window size (physical pixels, not the content's DIPs).
+        // [S-1931] A store picture never shows this PC: the system widgets read the sample machine.
+        using var harness = RenderHarness.Open(run, "Themia scene render", null, 0, 0);
+        var window = harness.Window.Window;
+        window.AppWindow.Resize(WindowSize);
+        harness.UseServices(sampleMachine: true);
+        var cards = new List<WidgetCard>();
+
         var (width, height) = (job.File.Screen.Width, job.File.Screen.Height);
         var edit = job.Scene.Edit;
 
-        // [S-1076] The design the cards are drawn with: the scene's text, its theme the scene's
-        // (the application theme is too), so the themed brushes and the design agree.
+        // [S-1076] The design the cards are drawn with: the scene's text, its theme the scene's (the display's
+        // too), so the themed brushes and the design agree.
         var design = new DesignState();
         _ = DesignText.Apply(design, job.Scene.Design);
         design.Theme = job.Scene.Theme;
@@ -299,11 +252,6 @@ internal static class SceneRender
         // larger than the window is neither measured down nor clipped.
         var frame = new Canvas { Children = { screen } };
         window.Content = new Canvas { Children = { frame } };
-
-        // Off-screen and never activated: it must not appear on the user's desktop.
-        window.AppWindow.Move(new PointInt32(-32000, -32000));
-        window.AppWindow.Resize(WindowSize);
-        window.AppWindow.Show(activateWindow: false);
         await LoadedAsync(screen).ConfigureAwait(true);
 
         var dpi = screen.XamlRoot?.RasterizationScale is > 0 and var raster ? raster : 1.0;
@@ -383,7 +331,7 @@ internal static class SceneRender
         var index = 0;
         foreach (var (spec, model) in job.Widgets)
         {
-            var host = new NoticeRender.RenderCardHost(ticker)
+            var host = new NoticeRender.RenderCardHost(harness.Ticker)
             {
                 Design = design,
                 Metrics = metrics,
@@ -407,7 +355,7 @@ internal static class SceneRender
             Canvas.SetLeft(card, cell.X);
             Canvas.SetTop(card, cell.Y);
             canvas.Children.Add(card);
-            cards.Add(card);
+            cards.Add(harness.Track(card));
             if (edit is not null)
             {
                 markers.Add(card);
@@ -435,7 +383,7 @@ internal static class SceneRender
 
         if (!await ShowStatesAsync(job, cards).ConfigureAwait(true))
         {
-            return Failed;
+            return RenderCommandLine.Failed;
         }
 
         // [S-11909] What the picture points at and has picked, set on the scene's one board by a member of
@@ -448,7 +396,7 @@ internal static class SceneRender
 
         if (edit is not null && !await ComposeEditAsync(canvas, edit, view, job, metrics, design).ConfigureAwait(true))
         {
-            return Failed;
+            return RenderCommandLine.Failed;
         }
 
         await Task.Delay(800).ConfigureAwait(true);
@@ -464,7 +412,7 @@ internal static class SceneRender
         if (cards.FirstOrDefault(c => c.IsFaulted) is { } broken)
         {
             Console.WriteLine($"scene: {job.Widgets[cards.IndexOf(broken)].Spec.Path}: the card broke (its error card shows); see the log");
-            return Failed;
+            return RenderCommandLine.Failed;
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(job.OutPath)!);
@@ -477,7 +425,7 @@ internal static class SceneRender
             await Task.Delay(tile is (0, 0, _, _) ? 0 : 150).ConfigureAwait(true);
         }).ConfigureAwait(true);
         Console.WriteLine($"scene: wrote {job.OutPath} ({pixelWidth} x {pixelHeight})");
-        return Drawn;
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>
@@ -726,18 +674,5 @@ internal static class SceneRender
         return loaded.Task;
     }
 
-    private static void Fail(Application app, int code, string message)
-    {
-        Log.Error(Scope, message);
-        Console.WriteLine($"scene: {message}");
-        Environment.ExitCode = code;
-        app.Exit();
-    }
-
-    private static string? Option(string[] args, string name)
-    {
-        var at = Array.IndexOf(args, name);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
-    }
 }
 #endif

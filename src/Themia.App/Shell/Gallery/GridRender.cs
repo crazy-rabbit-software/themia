@@ -1,126 +1,85 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
-using Themia.App.Services;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Sdk;
 using Windows.Foundation;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-06c] Debug only: the edit-mode snap grid (the real <see cref="SnapGridOverlay"/>) on a stand-in
-/// display, off-screen, to PNGs. <c>Themia.exe --grid-png &lt;outDir&gt;</c> writes
+/// display, off-screen, to PNGs. <c>Themia.exe --render grid &lt;outDir&gt;</c> writes
 /// <c>grid-&lt;theme&gt;-&lt;wallpaper&gt;.png</c> for both themes over a dark and a light stand-in
 /// wallpaper, each with a clock snapped to the grid, at the window's own DPI.
 /// </summary>
 internal static class GridRender
 {
-    private const string Scope = "grid-render";
-    private const string Flag = "--grid-png";
-
     private const double ScreenWidth = 960;
     private const double ScreenHeight = 540;
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "grid",
+        "<outDir>",
+        """
+        the edit-mode snap grid alone (every 5th line heavier) with a clock snapped to it, both themes over a dark and a light
+        wallpaper, at the window's own DPI (grid-<theme>-<wall>.png) [S-06c]
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
+        var outDir = run.PathArg(0);
+        System.IO.Directory.CreateDirectory(outDir);
+
+        var screen = new Grid
         {
-            return false;
+            Width = ScreenWidth,
+            Height = ScreenHeight,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+        };
+
+        using var harness = RenderHarness.Open(run, "Themia grid render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        var scale = harness.Window.Scale;
+        var host = new NoticeRender.RenderCardHost(harness.Ticker);
+        var metrics = new ScreenMetrics(ScreenWidth, ScreenHeight);
+
+        foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
+        {
+            DesignApplier.Apply(new DesignState { Theme = theme });
+            screen.RequestedTheme = DesignApplier.Theme;
+
+            foreach (var (wallName, wall) in Wallpapers())
+            {
+                screen.Children.Clear();
+                screen.Background = wall;
+
+                var grid = new SnapGridOverlay();
+                grid.Draw(metrics, scale);
+                screen.Children.Add(grid);
+
+                // A widget on the grid, so the major lines can be judged against a snapped edge.
+                var rect = GridGeometry.Settle(new FracRect(0.1, 0.18, 0.3, 0.3), metrics);
+                var cell = GridGeometry.PaintedCell(rect, metrics, scale);
+                var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+                var card = harness.Track(new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), rect)) { Width = cell.Width, Height = cell.Height });
+                Canvas.SetLeft(card, cell.X);
+                Canvas.SetTop(card, cell.Y);
+                layer.Children.Add(card);
+                screen.Children.Add(layer);
+
+                await Task.Delay(600).ConfigureAwait(true);
+                var name = $"grid-{(theme == AppTheme.Light ? "light" : "dark")}-{wallName}.png";
+                await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, name), "grid").ConfigureAwait(true);
+            }
         }
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, $"usage: {Flag} <outDir>");
-            app.Exit();
-            return true;
-        }
-
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
-
-        _ = dispatcher.TryEnqueue(async () =>
-        {
-            Window? window = null;
-            Ticker? ticker = null;
-
-            try
-            {
-                System.IO.Directory.CreateDirectory(outDir);
-
-                var screen = new Grid
-                {
-                    Width = ScreenWidth,
-                    Height = ScreenHeight,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                };
-
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia grid render" };
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((ScreenHeight + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                ticker = new Ticker(dispatcher);
-                var host = new NoticeRender.RenderCardHost(ticker);
-                var metrics = new ScreenMetrics(ScreenWidth, ScreenHeight);
-
-                foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
-                {
-                    DesignApplier.Apply(new DesignState { Theme = theme });
-                    screen.RequestedTheme = DesignApplier.Theme;
-
-                    foreach (var (wallName, wall) in Wallpapers())
-                    {
-                        screen.Children.Clear();
-                        screen.Background = wall;
-
-                        var grid = new SnapGridOverlay();
-                        grid.Draw(metrics, scale);
-                        screen.Children.Add(grid);
-
-                        // A widget on the grid, so the major lines can be judged against a snapped edge.
-                        var rect = GridGeometry.Settle(new FracRect(0.1, 0.18, 0.3, 0.3), metrics);
-                        var cell = GridGeometry.PaintedCell(rect, metrics, scale);
-                        var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
-                        var card = new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), rect)) { Width = cell.Width, Height = cell.Height };
-                        Canvas.SetLeft(card, cell.X);
-                        Canvas.SetTop(card, cell.Y);
-                        layer.Children.Add(card);
-                        screen.Children.Add(layer);
-
-                        await Task.Delay(600).ConfigureAwait(true);
-                        var name = $"grid-{(theme == AppTheme.Light ? "light" : "dark")}-{wallName}.png";
-                        var path = System.IO.Path.Combine(outDir, name);
-                        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-                        Console.WriteLine($"grid: wrote {path}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the grid failed", ex);
-            }
-            finally
-            {
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
-
-        return true;
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>Stand-in wallpapers, a dark and a light wash: render fixtures, not design colours.</summary>

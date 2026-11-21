@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
-/// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
+/// PNG, off-screen. <c>Themia.exe --render widget &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
 /// [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample] [--config json]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
 /// (<see cref="SizeFit.CheckedAt"/>, [S-2448]), labelled, side by side on one page; with one, once at that size. The widget has its
 /// kind's default config; the host is a preview, so nothing it does reaches the machine.
@@ -36,7 +36,7 @@ internal static class WidgetRender
     private const string Scope = "widget-render";
 
     /// <summary>What follows <c>--render widget</c>.</summary>
-    internal const string Usage = "<Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range|steps] [--keys k1,k2|text:abc] [--design k=v,..] [--chart area|line|bars|candles] [--detail simple|detailed] [--span s] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--background-image path] [--wallpaper path] [--transparent] [--place-cleared] [--machine sample] [--reference] [--tree] [--layout-json out.json] [--hover fx,fy] [--pressed fx,fy]";
+    internal const string Usage = "<Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range|steps] [--keys k1,k2|text:abc] [--design k=v,..] [--chart area|line|bars|candles] [--detail simple|detailed] [--trend none|arrow|line] [--span s] [--config json] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--background-image path] [--wallpaper path] [--transparent] [--place-cleared] [--machine sample] [--reference] [--tree] [--layout-json out.json] [--hover fx,fy] [--pressed fx,fy]";
 
     public static RenderCommand Command { get; } = new(
         RenderVerb.Render,
@@ -46,6 +46,7 @@ internal static class WidgetRender
         one widget in a real card on a preview host [S-1917]: at its min, natural and max side by side, or at w h, or --sizes (range, steps: cell by cell round its natural)
         --state: a preview state (a wrong one prints the kind's states; --render states <Kind>); --style: a styled kind's look [S-6006]
         --design border=dashed,radius=4,preset=Midnight,vibrancy=1,...: any look token by its key [S-2142]; --chart/--detail: a graph's chart look [S-6752]
+        --trend/--span: a single metric drawing that trend, its graph over that span [S-14712]; --config <json>: a config fragment over the kind's default [S-14962]
         --transparent: no page behind the cards (the PNG keeps their alpha); --wallpaper: the page is a screen with that wallpaper [S-2119]
         --machine sample: the system widgets read the sample laptop, not this PC [S-1931]; --place-cleared: a place widget with its place cleared [S-2848]
         --layout-json: every card's item boxes, grid pitch and ink outside its items [S-12831]; --hover/--pressed fx,fy: the item at that point under the pointer

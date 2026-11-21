@@ -1,24 +1,21 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-5544] [S-5605] [S-6733] Debug only: a stand-in desktop of desktop icons, off-screen, to PNGs.
-/// <c>Themia.exe --desktop-png &lt;outDir&gt;</c> writes <c>desktop-&lt;theme&gt;-&lt;wallpaper&gt;.png</c>
+/// <c>Themia.exe --render desktop &lt;outDir&gt;</c> writes <c>desktop-&lt;theme&gt;-&lt;wallpaper&gt;.png</c>
 /// for both themes over a dark, a light and a busy stand-in wallpaper: twenty icons of both sources
 /// mixed (the preview states, so no user's desktop is read), three columns of desktop items and two of
 /// own icons, showing the rest, the hover, the selection (active and inactive), the focus, a drop
@@ -33,9 +30,6 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class DesktopRender
 {
-    public const string Flag = "--desktop-png";
-
-    private const string Scope = "desktop-render";
     private const double Cell = 8;
     private const double TipsHeight = 270;
 
@@ -48,43 +42,25 @@ internal static class DesktopRender
         (4, 0, "web"), (4, 1, "ownInactive"), (4, 2, "ownDropTarget"), (4, 3, "ownFocus"),
     ];
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "desktop",
+        "<outDir> [--icon-size small|medium|large] [--icon-layout below|beside|icononly]",
+        """
+        a stand-in desktop of icons of both sources, their states, the band and the tips, both themes over a dark, a light and
+        a busy wallpaper (desktop-<theme>-<wall>.png), and a drag's ghost of 1, 2, 3 and 12 icons (desktop-ghost-*) [S-5605] [S-5564]
+        --icon-size: the desktop's icon size [S-5593] (desktop-<size>-*); --icon-layout: its icon layout [S-13970] (desktop-<layout>-<size>-*)
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, $"usage: {Flag} <outDir>");
-            app.Exit();
-            return true;
-        }
-
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
+        var outDir = run.PathArg(0);
 
         // [S-5593] The desktop's icon size for this render: the cell, the icons and their pixels follow it.
-        var sizeAt = Array.IndexOf(args, "--icon-size");
-        var size = DesktopIconSize.Medium;
-        if (sizeAt >= 0 && (sizeAt + 1 >= args.Length || !Enum.TryParse(args[sizeAt + 1], ignoreCase: true, out size) || !Enum.IsDefined(size)))
-        {
-            Log.Error(Scope, "usage: --icon-size small|medium|large");
-            app.Exit();
-            return true;
-        }
-
         // [S-13970] The desktop's icon layout for this render: the cell and where the name stands follow it.
-        var layoutAt = Array.IndexOf(args, "--icon-layout");
-        var layout = DesktopIconLayout.Below;
-        if (layoutAt >= 0 && (layoutAt + 1 >= args.Length || !Enum.TryParse(args[layoutAt + 1], ignoreCase: true, out layout) || !Enum.IsDefined(layout)))
-        {
-            Log.Error(Scope, "usage: --icon-layout below|beside|icononly");
-            app.Exit();
-            return true;
-        }
-
+        var size = Choice(run, "--icon-size", DesktopIconSize.Medium, "small|medium|large");
+        var layout = Choice(run, "--icon-layout", DesktopIconLayout.Below, "below|beside|icononly");
         DesktopCell.Apply(size);
         DesktopCell.Apply(layout);
         var grid = DesktopCell.Grid(size, layout);
@@ -96,104 +72,92 @@ internal static class DesktopRender
         var prefix = layout != DesktopIconLayout.Below
             ? $"desktop-{layout.ToString().ToLowerInvariant()}-{size.ToString().ToLowerInvariant()}"
             : size == DesktopIconSize.Medium ? "desktop" : $"desktop-{size.ToString().ToLowerInvariant()}";
-        _ = dispatcher.TryEnqueue(async () =>
+
+        System.IO.Directory.CreateDirectory(outDir);
+        var screen = new Grid { Width = ScreenWidth, Height = ScreenHeight, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+        using var harness = RenderHarness.Open(run, "Themia desktop render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        var scale = harness.Window.Scale;
+        var host = new NoticeRender.RenderCardHost(harness.Ticker);
+        var kind = ModuleCatalog.Widgets.First(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
+        foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
         {
-            Window? window = null;
-            Ticker? ticker = null;
-            try
+            DesignApplier.Apply(new DesignState { Theme = theme });
+            screen.RequestedTheme = DesignApplier.Theme;
+            foreach (var (wallName, wall) in Wallpapers())
             {
-                System.IO.Directory.CreateDirectory(outDir);
-                var screen = new Grid { Width = ScreenWidth, Height = ScreenHeight, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia desktop render" };
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((ScreenHeight + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                ticker = new Ticker(dispatcher);
-                var host = new NoticeRender.RenderCardHost(ticker);
-                var kind = ModuleCatalog.Widgets.First(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
-                foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
+                screen.Children.Clear();
+                screen.Background = wall;
+                var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+                foreach (var (column, row, state) in Items)
                 {
-                    DesignApplier.Apply(new DesignState { Theme = theme });
-                    screen.RequestedTheme = DesignApplier.Theme;
-                    foreach (var (wallName, wall) in Wallpapers())
+                    var x = Cell + (column * kind.Natural.Width);
+                    var y = Cell + (row * kind.Natural.Height);
+                    var rect = new FracRect(x / ScreenWidth, y / ScreenHeight, kind.Natural.Width / ScreenWidth, kind.Natural.Height / ScreenHeight);
+                    var card = new WidgetCard(host, WidgetInstance.Create(kind.Id, rect)) { Width = kind.Natural.Width, Height = kind.Natural.Height };
+                    Canvas.SetLeft(card, x);
+                    Canvas.SetTop(card, y);
+                    layer.Children.Add(harness.Track(card));
+                    if (card.View is IWidgetPreviewState preview)
                     {
-                        screen.Children.Clear();
-                        screen.Background = wall;
-                        var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
-                        foreach (var (column, row, state) in Items)
-                        {
-                            var x = Cell + (column * kind.Natural.Width);
-                            var y = Cell + (row * kind.Natural.Height);
-                            var rect = new FracRect(x / ScreenWidth, y / ScreenHeight, kind.Natural.Width / ScreenWidth, kind.Natural.Height / ScreenHeight);
-                            var card = new WidgetCard(host, WidgetInstance.Create(kind.Id, rect)) { Width = kind.Natural.Width, Height = kind.Natural.Height };
-                            Canvas.SetLeft(card, x);
-                            Canvas.SetTop(card, y);
-                            layer.Children.Add(card);
-                            if (card.View is IWidgetPreviewState preview)
-                            {
-                                await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
-                            }
-                        }
-
-                        // [S-13975] What the icons draw past their cells, over every card, as the surface's plate.
-                        var hangs = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
-                        foreach (var card in layer.Children.OfType<WidgetCard>().ToList())
-                        {
-                            hangs.Children.Add(card.OverhangPlate);
-                        }
-
-                        layer.Children.Add(hangs);
-
-                        // [S-5544] The band from empty desktop, half over the first columns' middle rows.
-                        var band = new Border { Width = 150, Height = 150, IsHitTestVisible = false };
-                        SelectionChrome.PaintBand(band);
-                        Canvas.SetLeft(band, Cell + 40);
-                        Canvas.SetTop(band, Cell + 60);
-                        layer.Children.Add(band);
-                        // [S-5610] The tips, as the rule words them (DesktopTip): a file's, a folder's, a
-                        // shortcut's and an own icon's on a Windows location; one whose name says it all has none.
-                        var tips = new StackPanel { Spacing = Cell, MaxWidth = ScreenWidth - (2 * Cell) };
-                        foreach (var tip in Tips())
-                        {
-                            tips.Children.Add(new ToolTip { Content = tip, IsHitTestVisible = false, HorizontalAlignment = HorizontalAlignment.Left });
-                        }
-
-                        Canvas.SetLeft(tips, Cell);
-                        Canvas.SetTop(tips, Cell + (4 * grid.Height) + hangRoom + Cell);
-                        layer.Children.Add(tips);
-                        screen.Children.Add(layer);
-
-                        await Task.Delay(900).ConfigureAwait(true);
-                        var path = System.IO.Path.Combine(outDir, $"{prefix}-{(theme == AppTheme.Light ? "light" : "dark")}-{wallName}.png");
-                        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-                        Console.WriteLine($"desktop: wrote {path}");
-
-                        if (wallName != "busywall")
-                        {
-                            await RenderGhostsAsync(screen, layer, scale, System.IO.Path.Combine(outDir, $"{prefix}-ghost-{(theme == AppTheme.Light ? "light" : "dark")}-{wallName}.png")).ConfigureAwait(true);
-                        }
+                        await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the desktop failed", ex);
-            }
-            finally
-            {
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
 
-        return true;
+                // [S-13975] What the icons draw past their cells, over every card, as the surface's plate.
+                var hangs = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+                foreach (var card in layer.Children.OfType<WidgetCard>().ToList())
+                {
+                    hangs.Children.Add(card.OverhangPlate);
+                }
+
+                layer.Children.Add(hangs);
+
+                // [S-5544] The band from empty desktop, half over the first columns' middle rows.
+                var band = new Border { Width = 150, Height = 150, IsHitTestVisible = false };
+                SelectionChrome.PaintBand(band);
+                Canvas.SetLeft(band, Cell + 40);
+                Canvas.SetTop(band, Cell + 60);
+                layer.Children.Add(band);
+
+                // [S-5610] The tips, as the rule words them (DesktopTip): a file's, a folder's, a
+                // shortcut's and an own icon's on a Windows location; one whose name says it all has none.
+                var tips = new StackPanel { Spacing = Cell, MaxWidth = ScreenWidth - (2 * Cell) };
+                foreach (var tip in Tips())
+                {
+                    tips.Children.Add(new ToolTip { Content = tip, IsHitTestVisible = false, HorizontalAlignment = HorizontalAlignment.Left });
+                }
+
+                Canvas.SetLeft(tips, Cell);
+                Canvas.SetTop(tips, Cell + (4 * grid.Height) + hangRoom + Cell);
+                layer.Children.Add(tips);
+                screen.Children.Add(layer);
+
+                await Task.Delay(900).ConfigureAwait(true);
+                var tag = theme == AppTheme.Light ? "light" : "dark";
+                await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, $"{prefix}-{tag}-{wallName}.png"), "desktop").ConfigureAwait(true);
+
+                if (wallName != "busywall")
+                {
+                    await RenderGhostsAsync(screen, layer, scale, System.IO.Path.Combine(outDir, $"{prefix}-ghost-{tag}-{wallName}.png")).ConfigureAwait(true);
+                }
+            }
+        }
+
+        return RenderCommandLine.Passed;
+    }
+
+    /// <summary>The value of the option <paramref name="name"/> (<paramref name="fallback"/> without it); a wrong one is a usage error naming <paramref name="values"/>.</summary>
+    internal static T Choice<T>(RenderRun run, string name, T fallback, string values)
+        where T : struct, Enum
+    {
+        if (!run.Has(name))
+        {
+            return fallback;
+        }
+
+        return run.Option(name) is { } text && Enum.TryParse<T>(text, ignoreCase: true, out var value) && Enum.IsDefined(value)
+            ? value
+            : throw run.Usage($"{name} {values}");
     }
 
     /// <summary>
@@ -255,8 +219,7 @@ internal static class DesktopRender
         desktop.Visibility = Visibility.Collapsed;
         screen.Children.Add(strip);
         await Task.Delay(300).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"desktop: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "desktop").ConfigureAwait(true);
         screen.Children.Remove(strip);
         desktop.Visibility = held;
     }

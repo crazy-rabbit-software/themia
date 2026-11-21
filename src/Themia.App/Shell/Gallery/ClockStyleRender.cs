@@ -1,11 +1,9 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Themia.App.Services;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.Sdk;
 using Windows.Graphics;
@@ -13,122 +11,79 @@ using Windows.Graphics;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-6016] Debug only: <c>Themia.exe --clock-style-check &lt;outDir&gt;</c>. One live clock card,
+/// [S-6016] Debug only: <c>Themia.exe --check clock-style &lt;outDir&gt;</c>. One live clock card,
 /// off-screen, handed a run of configs in turn through the card's own settings path (what a pick on
 /// the selection's page does): every style after every other, both ways, with seconds on and off, the seconds toggled on the flip face, and the card resized between some of them. A
-/// card that turns into its error card stops the run; the steps go to <c>steps.txt</c>, the last
-/// face to <c>last.png</c>, and the process exits with 1 on a fault, 0 when every step held.
+/// card that turns into its error card fails the step and stops the run; the steps go to <c>steps.txt</c>, the last
+/// face to <c>last.png</c>, PASS or FAIL.
 /// </summary>
 internal static class ClockStyleRender
 {
     private const string Scope = "clock-style-check";
-    private const string Flag = "--clock-style-check";
 
     private static readonly string[] Styles = ["digital", "analog", "stacked", "flip", "word", "minimal"];
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "clock-style",
+        "<outDir>",
+        """
+        one live clock card handed every style after every other, both ways, seconds on and off, resized between some,
+        through the card's own settings path: a step that turns it into its error card fails, PASS or FAIL [S-6016]
+        writes steps.txt and the last face, last.png
+        """,
+        run => RunAsync(run, run.PathArg(0)));
+
+    private static async Task<int> RunAsync(RenderRun run, string outDir)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
+        var report = new CheckReport(Scope, Path.Combine(outDir, "steps.txt"));
+        try
         {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, $"usage: {Flag} <outDir>");
-            app.Exit();
-            return true;
-        }
-
-        var outDir = Path.GetFullPath(args[at + 1]);
-
-        _ = dispatcher.TryEnqueue(async () =>
-        {
-            Window? window = null;
-            Ticker? ticker = null;
-            WidgetCard? card = null;
-            var lines = new List<string>();
-            var faulted = false;
-
-            try
+            Directory.CreateDirectory(outDir);
+            var screen = new Grid { Width = 900, Height = 600, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+            using var harness = RenderHarness.Open(run, "Themia clock style check", new Grid { Children = { screen } }, screen.Width, screen.Height);
+            harness.Window.Window.AppWindow.Resize(new SizeInt32(1000, 700));
+            var host = new NoticeRender.RenderCardHost(harness.Ticker);
+            var card = harness.Track(new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), new FracRect(0, 0, 0.3, 0.3)))
             {
-                Directory.CreateDirectory(outDir);
+                Width = 360,
+                Height = 220,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+            });
 
-                var screen = new Grid { Width = 900, Height = 600, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia clock style check" };
+            screen.Children.Add(card);
+            await Task.Delay(1000).ConfigureAwait(true);
 
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32(1000, 700));
-                window.AppWindow.Show(activateWindow: false);
-
-                ticker = new Ticker(dispatcher);
-                var host = new NoticeRender.RenderCardHost(ticker);
-                card = new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), new FracRect(0, 0, 0.3, 0.3)))
+            var step = 0;
+            foreach (var (fragment, size) in Steps())
+            {
+                step++;
+                if (size is { } wh)
                 {
-                    Width = 360,
-                    Height = 220,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                };
-
-                screen.Children.Add(card);
-                await Task.Delay(1000).ConfigureAwait(true);
-
-                var step = 0;
-                foreach (var (fragment, size) in Steps())
-                {
-                    step++;
-                    if (size is { } wh)
-                    {
-                        (card.Width, card.Height) = wh;
-                    }
-
-                    card.Model.Config = StateJson.Merged(card.Model.Config, fragment);
-                    card.ApplyConfig();
-
-                    // A layout pass, so a resize reaches the view's ApplySize before the next config.
-                    await Task.Delay(40).ConfigureAwait(true);
-
-                    var line = $"{step,3} {card.Width}x{card.Height} {fragment}";
-                    if (card.IsFaulted)
-                    {
-                        faulted = true;
-                        lines.Add(line + "  FAULT (the error card)");
-                        break;
-                    }
-
-                    lines.Add(line + "  ok");
+                    (card.Width, card.Height) = wh;
                 }
 
-                lines.Add(faulted ? "clock-style-check: FAULT" : $"clock-style-check: {step} steps, no fault");
-                await RenderPng.SaveAsync(screen, Path.Combine(outDir, "last.png")).ConfigureAwait(true);
-            }
-            catch (Exception ex)
-            {
-                faulted = true;
-                Log.Error(Scope, "the clock style check failed", ex);
-                lines.Add($"clock-style-check: failed: {ex.Message}");
-            }
-            finally
-            {
-                card?.Detach();
-                ticker?.Dispose();
-                window?.Close();
+                card.Model.Config = StateJson.Merged(card.Model.Config, fragment);
+                card.ApplyConfig();
 
-                foreach (var line in lines)
+                // A layout pass, so a resize reaches the view's ApplySize before the next config.
+                await Task.Delay(40).ConfigureAwait(true);
+                if (!report.Expect(!card.IsFaulted, $"{step,3} {card.Width}x{card.Height} {fragment}" + (card.IsFaulted ? "  (the error card)" : string.Empty)))
                 {
-                    Console.WriteLine(line);
+                    break;
                 }
-
-                await File.WriteAllLinesAsync(Path.Combine(outDir, "steps.txt"), lines).ConfigureAwait(true);
-                Environment.ExitCode = faulted ? 1 : 0;
-                app.Exit();
             }
-        });
 
-        return true;
+            report.Say($"clock-style-check: {step} steps");
+            await RenderHarness.SaveAsync(screen, Path.Combine(outDir, "last.png"), Scope).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            report.Crash(ex);
+        }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>The configs in turn: each a fragment over the last, and now and then a new size.</summary>

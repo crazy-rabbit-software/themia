@@ -1,26 +1,23 @@
 #if DEBUG
 using Microsoft.UI;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Shell.Motion;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Motion;
+using Themia.Core.Shell;
 using Themia.Sdk;
 using Windows.Foundation;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1016] Debug only: freeze intros mid-flight and draw them to PNGs, off-screen.
-/// <c>Themia.exe --motion-png &lt;outDir&gt;</c>.
+/// <c>Themia.exe --render motion &lt;outDir&gt;</c>.
 /// <para>
 /// A render target cannot see compositor animations, so each frame is posed from the same Core data
 /// the compositor plays (<see cref="IntroTracks"/>, <see cref="Hyperspace"/>): real cards on a
@@ -31,8 +28,6 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class MotionRender
 {
-    private const string Scope = "motion-render";
-
     private const double ScreenWidth = 960;
     private const double ScreenHeight = 540;
     private const double IntroMs = 500;
@@ -47,150 +42,109 @@ internal static class MotionRender
         (new WidgetId("notes"), new FracRect(0.55, 0.62, 0.42, 0.3)),
     ];
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "motion",
+        "<outDir>",
+        """
+        the intros frozen mid-flight on a stand-in screen of real cards [S-1016]: rest, each keyframe style 250 ms in, Sides
+        60 ms in, Hyperspace's moments (600..3800 ms) and Hacker's tiles over the cards, each a PNG
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, "--motion-png");
-        if (at < 0)
+        var outDir = run.PathArg(0);
+        System.IO.Directory.CreateDirectory(outDir);
+
+        // A stand-in wallpaper, so the veil and the fades read against something.
+        var screen = new Grid
         {
-            return false;
+            Width = ScreenWidth,
+            Height = ScreenHeight,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Background = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1),
+                GradientStops =
+                {
+                    new GradientStop { Color = Windows.UI.Color.FromArgb(255, 38, 70, 110), Offset = 0 },
+                    new GradientStop { Color = Windows.UI.Color.FromArgb(255, 120, 72, 96), Offset = 1 },
+                },
+            },
+        };
+
+        var stars = new Canvas { Width = ScreenWidth, Height = ScreenHeight, Clip = new RectangleGeometry { Rect = new Rect(0, 0, ScreenWidth, ScreenHeight) } };
+        var veil = new Rectangle { Fill = new SolidColorBrush(Colors.Black), Opacity = 0 };
+        var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+        screen.Children.Add(veil);
+        screen.Children.Add(stars);
+        screen.Children.Add(layer);
+
+        using var harness = RenderHarness.Open(run, "Themia motion render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        var host = new NoticeRender.RenderCardHost(harness.Ticker);
+        var cards = new List<WidgetCard>();
+        foreach (var (kind, rect) in Scene)
+        {
+            var card = new WidgetCard(host, WidgetInstance.Create(kind, rect))
+            {
+                Width = rect.W * ScreenWidth,
+                Height = rect.H * ScreenHeight,
+            };
+
+            Canvas.SetLeft(card, rect.X * ScreenWidth);
+            Canvas.SetTop(card, rect.Y * ScreenHeight);
+            layer.Children.Add(card);
+            cards.Add(harness.Track(card));
         }
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
+        await Task.Delay(1200).ConfigureAwait(true);
+
+        async Task Save(string name)
         {
-            Log.Error(Scope, "usage: --motion-png <outDir>");
-            app.Exit();
-            return true;
+            await Task.Delay(150).ConfigureAwait(true);
+            await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, name + ".png"), "motion").ConfigureAwait(true);
         }
 
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
+        await Save("rest").ConfigureAwait(true);
 
-        _ = dispatcher.TryEnqueue(async () =>
+        // The keyframe styles, 250 ms into a 500 ms intro: the cascade shows across the cards.
+        foreach (var style in new[] { IntroAnimation.Fade, IntroAnimation.Scale, IntroAnimation.Slide, IntroAnimation.Sides, IntroAnimation.TopBottom, IntroAnimation.Flip, IntroAnimation.Blur })
         {
-            Window? window = null;
-            Ticker? ticker = null;
-            var cards = new List<WidgetCard>();
+            PoseCards(cards, style, IntroMode.Startup, 250);
+            await Save($"{style}-250ms").ConfigureAwait(true);
+        }
 
-            try
-            {
-                System.IO.Directory.CreateDirectory(outDir);
+        // Sides early, so the two sheets are visibly travelling as blocks.
+        PoseCards(cards, IntroAnimation.Sides, IntroMode.Startup, 60);
+        await Save("Sides-60ms").ConfigureAwait(true);
 
-                // A stand-in wallpaper, so the veil and the fades read against something.
-                var screen = new Grid
-                {
-                    Width = ScreenWidth,
-                    Height = ScreenHeight,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    Background = new LinearGradientBrush
-                    {
-                        StartPoint = new Point(0, 0),
-                        EndPoint = new Point(1, 1),
-                        GradientStops =
-                        {
-                            new GradientStop { Color = Windows.UI.Color.FromArgb(255, 38, 70, 110), Offset = 0 },
-                            new GradientStop { Color = Windows.UI.Color.FromArgb(255, 120, 72, 96), Offset = 1 },
-                        },
-                    },
-                };
+        // Hyperspace: the static field, the tease, cruise streaks, the crash, the veil lifting.
+        foreach (var ms in new[] { 600.0, 2300, 2900, 3450, 3800 })
+        {
+            PoseHyperspace(cards, layer, veil, stars, ms);
+            await Save($"Hyperspace-{ms:0}ms").ConfigureAwait(true);
+        }
 
-                var stars = new Canvas { Width = ScreenWidth, Height = ScreenHeight, Clip = new RectangleGeometry { Rect = new Rect(0, 0, ScreenWidth, ScreenHeight) } };
-                var veil = new Rectangle { Fill = new SolidColorBrush(Colors.Black), Opacity = 0 };
-                var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
-                screen.Children.Add(veil);
-                screen.Children.Add(stars);
-                screen.Children.Add(layer);
+        Reset(cards, layer, veil, stars);
 
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia motion render" };
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
+        // Hacker: the real tiles, through the real hook, before any has started to fade.
+        for (var i = 0; i < cards.Count; i++)
+        {
+            var tile = HackerTile.Build(i, cards[i].Width, cards[i].Height, 8);
+            cards[i].SetMotionCover(tile.Tile);
+        }
 
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((ScreenHeight + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
+        await Save("Hacker-covered").ConfigureAwait(true);
 
-                ticker = new Ticker(dispatcher);
-                var host = new NoticeRender.RenderCardHost(ticker);
+        foreach (var card in cards)
+        {
+            card.SetMotionCover(null);
+        }
 
-                foreach (var (kind, rect) in Scene)
-                {
-                    var card = new WidgetCard(host, WidgetInstance.Create(kind, rect))
-                    {
-                        Width = rect.W * ScreenWidth,
-                        Height = rect.H * ScreenHeight,
-                    };
-
-                    Canvas.SetLeft(card, rect.X * ScreenWidth);
-                    Canvas.SetTop(card, rect.Y * ScreenHeight);
-                    layer.Children.Add(card);
-                    cards.Add(card);
-                }
-
-                await Task.Delay(1200).ConfigureAwait(true);
-
-                async Task Save(string name)
-                {
-                    await Task.Delay(150).ConfigureAwait(true);
-                    var path = System.IO.Path.Combine(outDir, name + ".png");
-                    await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-                    Console.WriteLine($"motion: wrote {path}");
-                }
-
-                await Save("rest").ConfigureAwait(true);
-
-                // The keyframe styles, 250 ms into a 500 ms intro: the cascade shows across the cards.
-                foreach (var style in new[] { IntroAnimation.Fade, IntroAnimation.Scale, IntroAnimation.Slide, IntroAnimation.Sides, IntroAnimation.TopBottom, IntroAnimation.Flip, IntroAnimation.Blur })
-                {
-                    PoseCards(cards, style, IntroMode.Startup, 250);
-                    await Save($"{style}-250ms").ConfigureAwait(true);
-                }
-
-                // Sides early, so the two sheets are visibly travelling as blocks.
-                PoseCards(cards, IntroAnimation.Sides, IntroMode.Startup, 60);
-                await Save("Sides-60ms").ConfigureAwait(true);
-
-                // Hyperspace: the static field, the tease, cruise streaks, the crash, the veil lifting.
-                foreach (var ms in new[] { 600.0, 2300, 2900, 3450, 3800 })
-                {
-                    PoseHyperspace(cards, layer, veil, stars, ms);
-                    await Save($"Hyperspace-{ms:0}ms").ConfigureAwait(true);
-                }
-
-                Reset(cards, layer, veil, stars);
-
-                // Hacker: the real tiles, through the real hook, before any has started to fade.
-                for (var i = 0; i < cards.Count; i++)
-                {
-                    var tile = HackerTile.Build(i, cards[i].Width, cards[i].Height, 8);
-                    cards[i].SetMotionCover(tile.Tile);
-                }
-
-                await Save("Hacker-covered").ConfigureAwait(true);
-
-                foreach (var card in cards)
-                {
-                    card.SetMotionCover(null);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the intros failed", ex);
-            }
-            finally
-            {
-                foreach (var card in cards)
-                {
-                    card.Detach();
-                }
-
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
-
-        return true;
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>

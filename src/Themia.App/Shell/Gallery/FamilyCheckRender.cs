@@ -1,23 +1,21 @@
 #if DEBUG
 using System.Text.Json;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-6731] Debug only: the family's render walk. <c>Themia.exe --family-check &lt;out.json&gt;
+/// [S-6731] Debug only: the family's render walk. <c>Themia.exe --check family &lt;out.json&gt;
 /// [--theme light|dark] [--kinds a,b]</c> draws every kind (or those named) at its min, natural and max
 /// ([S-2448], each box fitted into its sizing), in its
 /// default state, each of its preview states (not the interaction ones: a hover, a press, a lasso)
@@ -25,13 +23,12 @@ namespace Themia.App.Shell.Gallery;
 /// what each card's header, view and Set up row draw (<see cref="FamilyWalk"/>) and judges every
 /// element by <see cref="FamilyCheck"/>. Writes the findings per kind (each with its count and the
 /// first variant it was seen in) and prints one line per kind; <c>scripts/family-check.ps1</c> runs
-/// it for both themes and holds the result to its baseline. The theme, as for every render, is
-/// chosen before the resources load (<see cref="RequestedTheme"/>).
+/// it for both themes and holds the result to its baseline: the walk itself passes once the findings are written (a kind
+/// this build does not have is a usage error). The theme, as for every render, is chosen before the resources load.
 /// </summary>
 internal static class FamilyCheckRender
 {
     private const string Scope = "family-check";
-    private const string Flag = "--family-check";
 
     /// <summary>Interaction states: they say nothing about the family's look.</summary>
     private static readonly HashSet<string> Skip = new(StringComparer.Ordinal)
@@ -43,129 +40,78 @@ internal static class FamilyCheckRender
         "adding", "typing", "renaming", "search", "searching", "searchClosed", "opened", "openedTyping", "openedClosed", "editingLong",
     };
 
-    public static ApplicationTheme? RequestedTheme(string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "family",
+        "<out.json> [--theme light|dark] [--kinds a,b]",
+        """
+        every kind (or those named) at its min, natural and max, in its default state, each preview state and each style,
+        its header, view and Set up row walked and every element judged by the family's rules [S-6731]: the findings per kind
+        to out.json (exit 0 once written; a kind this build does not have: 64); scripts/family-check.ps1 runs both themes
+        and holds the findings to its baseline
+        """,
+        RunAsync,
+
+        // Dark unless --theme light: the walk is always of one theme, chosen before the resources load.
+        Theme: args => string.Equals(RenderCommandLine.Option(args, "--theme"), "light", StringComparison.OrdinalIgnoreCase) ? AppTheme.Light : AppTheme.Dark);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        if (Array.IndexOf(args, Flag) < 0)
-        {
-            return null;
-        }
-
-        var at = Array.IndexOf(args, "--theme");
-        return at >= 0 && at + 1 < args.Length && args[at + 1].Equals("light", StringComparison.OrdinalIgnoreCase)
-            ? ApplicationTheme.Light
-            : ApplicationTheme.Dark;
-    }
-
-    public static bool TryRunFromCommandLine(Application app, string[] args)
-    {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Console.WriteLine($"usage: {Flag} <out.json> [--theme light|dark] [--kinds a,b]");
-            app.Exit();
-            return true;
-        }
-
-        var outPath = System.IO.Path.GetFullPath(args[at + 1]);
-        var theme = RequestedTheme(args) == ApplicationTheme.Light ? AppTheme.Light : AppTheme.Dark;
-        var only = Option(args, "--kinds")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.Ordinal);
+        var outPath = run.PathArg(0);
+        var only = run.Option("--kinds")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.Ordinal);
         var kinds = ModuleCatalog.Widgets.Select(d => d.Id).Where(id => only is null || only.Contains(id.Value)).ToList();
 
         // [S-14342] A kind this build does not have is named and fails the walk: never "no finding" over nothing.
         if (only?.Except(kinds.Select(k => k.Value), StringComparer.Ordinal).ToList() is { Count: > 0 } unknown)
         {
-            Console.WriteLine($"family-check: no such kind in this build: {string.Join(", ", unknown)}");
-            Environment.Exit(64);
-            return true;
+            throw run.Usage($"no such kind in this build: {string.Join(", ", unknown)}");
         }
 
-        _ = dispatcher.TryEnqueue(async () =>
+        var results = new SortedDictionary<string, SortedDictionary<string, (int Count, string First)>>(StringComparer.Ordinal);
+        var walkedByKind = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        // [S-2448] A kind is walked at its range (min, natural, max): the page holds the largest of them.
+        var (width, height) = (0.0, 0.0);
+        foreach (var kind in kinds)
         {
-            Window? window = null;
-            Ticker? ticker = null;
-            var results = new SortedDictionary<string, SortedDictionary<string, (int Count, string First)>>(StringComparer.Ordinal);
-            var walkedByKind = new Dictionary<string, int>(StringComparer.Ordinal);
-
-            try
+            foreach (var style in (IEnumerable<int?>)[null, .. WidgetStyles.For(kind).Select(s => (int?)s.Value)])
             {
-                var design = new DesignState { Theme = theme };
-                DesignApplier.Apply(design);
-                // [S-2448] A kind is walked at its range (min, natural, max): the page holds the largest of them.
-                var (width, height) = (0.0, 0.0);
-                foreach (var kind in kinds)
-                {
-                    foreach (var style in (IEnumerable<int?>)[null, .. WidgetStyles.For(kind).Select(s => (int?)s.Value)])
-                    {
-                        var (w, h) = WidgetRender.PageSize([.. SizeFit.CheckedAt(SizeFit.Of(kind, style))]);
-                        (width, height) = (Math.Max(width, w), Math.Max(height, h));
-                    }
-                }
-
-                var page = new Canvas { Width = width, Height = height };
-                window = new Window { Content = new Grid { Children = { page } }, Title = "Themia family check" };
-                UiLanguage.ApplyLanguageOnly(page);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((width + 40) * scale), (int)((height + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                ticker = new Ticker(dispatcher);
-                ConfirmFlyout.RenderInWindow = true;
-                AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
-                AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
-                var host = new NoticeRender.RenderCardHost(ticker) { Design = design };
-
-                foreach (var kind in kinds)
-                {
-                    var found = new SortedDictionary<string, (int Count, string First)>(StringComparer.Ordinal);
-                    results[kind.Value] = found;
-                    var walked = 0;
-                    foreach (var (state, style) in await VariantsAsync(page, host, kind).ConfigureAwait(true))
-                    {
-                        var name = (state ?? "default") + (style is null ? string.Empty : "/" + style.Value.Name);
-                        walked += await CheckAsync(page, host, kind, state, style?.Value, [.. SizeFit.CheckedAt(SizeFit.Of(kind, style?.Value))], name, found).ConfigureAwait(true);
-                    }
-
-                    // A kind whose cards drew nothing was not checked: that is a finding of its own.
-                    if (walked == 0)
-                    {
-                        found["nothing drawn"] = (1, "default");
-                    }
-
-                    walkedByKind[kind.Value] = walked;
-                    Console.WriteLine($"family-check: {kind.Value} {found.Count} findings ({found.Values.Sum(f => f.Count)} offending) over {walked} elements");
-                }
-
-                Write(outPath, theme, results, walkedByKind);
-                Console.WriteLine($"family-check: wrote {outPath}");
+                var (w, h) = WidgetRender.PageSize([.. SizeFit.CheckedAt(SizeFit.Of(kind, style))]);
+                (width, height) = (Math.Max(width, w), Math.Max(height, h));
             }
-            catch (Exception ex)
+        }
+
+        var page = new Canvas { Width = width, Height = height };
+        using var harness = RenderHarness.Open(run, "Themia family check", new Grid { Children = { page } }, width, height);
+        UiLanguage.ApplyLanguageOnly(page);
+        ConfirmFlyout.RenderInWindow = true;
+        harness.UseServices(sampleMachine: false);
+        var host = harness.CardHost();
+
+        foreach (var kind in kinds)
+        {
+            var found = new SortedDictionary<string, (int Count, string First)>(StringComparer.Ordinal);
+            results[kind.Value] = found;
+            var walked = 0;
+            foreach (var (state, style) in await VariantsAsync(page, host, kind).ConfigureAwait(true))
             {
-                Log.Error(Scope, "the family check failed", ex);
-                Console.WriteLine($"family-check: failed: {ex.Message}");
+                var name = (state ?? "default") + (style is null ? string.Empty : "/" + style.Value.Name);
+                walked += await CheckAsync(page, host, kind, state, style?.Value, [.. SizeFit.CheckedAt(SizeFit.Of(kind, style?.Value))], name, found).ConfigureAwait(true);
             }
-            finally
-            {
-                AppServices.System?.Dispose();
-                AppServices.System = null;
-                AppServices.Gallery?.Dispose();
-                AppServices.Gallery = null;
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
 
-        return true;
+            // A kind whose cards drew nothing was not checked: that is a finding of its own.
+            if (walked == 0)
+            {
+                found["nothing drawn"] = (1, "default");
+            }
+
+            walkedByKind[kind.Value] = walked;
+            Console.WriteLine($"family-check: {kind.Value} {found.Count} findings ({found.Values.Sum(f => f.Count)} offending) over {walked} elements");
+        }
+
+        Write(outPath, harness.Design.Theme == AppTheme.Light ? AppTheme.Light : AppTheme.Dark, results, walkedByKind);
+        Console.WriteLine($"family-check: wrote {outPath}");
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>A kind's variants: its default, its preview states and its styles at its first data state.</summary>
@@ -297,12 +243,6 @@ internal static class FamilyCheckRender
 
         w.WriteEndObject();
         w.WriteEndObject();
-    }
-
-    private static string? Option(string[] args, string name)
-    {
-        var at = Array.IndexOf(args, name);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
     }
 }
 #endif

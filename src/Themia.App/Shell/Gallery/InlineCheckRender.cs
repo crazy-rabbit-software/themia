@@ -1,36 +1,32 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-13950] Debug only: the inline check. <c>Themia.exe --inline-check &lt;out.txt&gt;</c> draws every widget's inline box
+/// [S-13950] Debug only: the inline check. <c>Themia.exe --check inline &lt;out.txt&gt;</c> draws every widget's inline box
 /// open over the state it opens on (the add row, a row's rename, typed words longer than the row, a fence's title, a
 /// folder item's name, a search box taking the keys, a search opened on a tool line or on a list's first line, typed in
 /// and closed again), one card at a time at the kind's min, natural and max, off-screen
 /// as <c>--widget-png</c> does; measures every text, glyph, picture, row and list viewport in the card at rest and open
 /// (<see cref="Collect"/>), and judges them by <see cref="InlineFit.Judge"/>: the box is the box of the words it stands
-/// in for and nothing else moves, grows or goes. Writes one line per finding (none: "ok") and exits 1 on any.
+/// in for and nothing else moves, grows or goes. Writes one line per case (none: "ok", else FAIL and its findings), PASS or FAIL.
 /// </summary>
 internal static class InlineCheckRender
 {
     private const string Scope = "inline-check";
-    public const string Flag = "--inline-check";
 
     /// <summary>
     /// Every inline input a widget has, by the render state that opens it over its rest state, and how it is judged: Open (a
@@ -75,103 +71,72 @@ internal static class InlineCheckRender
         Closed,
     }
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "inline",
+        "<out.txt>",
+        """
+        every widget's inline box (add row, rename, title, search) open over its rest state at min, natural and max: a finding
+        per part that moved, grew or went, PASS or FAIL [S-13950]
+        """,
+        run => RunAsync(run, run.PathArg(0)));
+
+    private static async Task<int> RunAsync(RenderRun run, string outPath)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
+        var report = new CheckReport(Scope, outPath);
+        var findingCount = 0;
+        try
         {
-            return false;
-        }
+            const double Width = 1300, Height = 1100;
+            var page = new Canvas { Width = Width, Height = Height };
+            using var harness = RenderHarness.Open(run, "Themia inline check", new Grid { Children = { page } }, Width, Height);
+            UiLanguage.ApplyLanguageOnly(page);
+            ConfirmFlyout.RenderInWindow = true;
+            harness.UseServices(sampleMachine: false);
+            var host = harness.CardHost();
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Console.WriteLine($"usage: {Flag} <out.txt>");
-            app.Exit();
-            return true;
-        }
-
-        var outPath = System.IO.Path.GetFullPath(args[at + 1]);
-        _ = dispatcher.TryEnqueue(async () =>
-        {
-            Window? window = null;
-            Ticker? ticker = null;
-            var lines = new List<string>();
-            var failed = 0;
-            try
+            foreach (var (name, styleName, rest, open, how) in Cases)
             {
-                var design = new DesignState();
-                DesignApplier.Apply(design);
-                const double Width = 1300, Height = 1100;
-                var page = new Canvas { Width = Width, Height = Height };
-                window = new Window { Content = new Grid { Children = { page } }, Title = "Themia inline check" };
-                UiLanguage.ApplyLanguageOnly(page);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((Width + 40) * scale), (int)((Height + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                ticker = new Ticker(dispatcher);
-                ConfirmFlyout.RenderInWindow = true;
-                AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
-                AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
-                var host = new NoticeRender.RenderCardHost(ticker) { Design = design };
-
-                foreach (var (name, styleName, rest, open, how) in Cases)
+                if (!ModuleCatalog.TryFind(name, out var picked))
                 {
-                    if (!ModuleCatalog.TryFind(name, out var picked))
-                    {
-                        lines.Add($"{name}: no such kind");
-                        failed++;
-                        continue;
-                    }
-
-                    var kind = picked.Id;
-                    int? style = styleName is not null && WidgetStyles.Find(kind, styleName) is { } found ? found.Value : null;
-                    foreach (var tier in SizeFit.CheckedAt(SizeFit.Of(kind, style)))
-                    {
-                        var label = $"{name}{(styleName is null ? string.Empty : "/" + styleName)} {open} {tier.Name}";
-                        var before = await DrawAsync(page, host, kind, style, tier, rest).ConfigureAwait(true);
-                        var after = await DrawAsync(page, host, kind, style, tier, open).ConfigureAwait(true);
-                        IReadOnlyList<string> findings = (how, after.Box) switch
-                        {
-                            (Judged.Closed, not null) => ["a box is still open"],
-                            (not Judged.Closed, null) => ["no box is open"],
-                            _ => InlineFit.Judge(before.Card, after.Card, after.Box, before.Parts, after.Parts, filters: how == Judged.Filters),
-                        };
-                        failed += findings.Count;
-                        lines.Add(findings.Count == 0 ? $"{label}: ok" : $"{label}: {string.Join("; ", findings)}");
-                        Console.WriteLine($"inline-check: {lines[^1]}");
-                    }
+                    report.Fail($"{name}: no such kind");
+                    findingCount++;
+                    continue;
                 }
 
-                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
-                await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-                Console.WriteLine($"inline-check: {failed} findings; wrote {outPath}");
+                var kind = picked.Id;
+                int? style = styleName is not null && WidgetStyles.Find(kind, styleName) is { } found ? found.Value : null;
+                foreach (var tier in SizeFit.CheckedAt(SizeFit.Of(kind, style)))
+                {
+                    var label = $"{name}{(styleName is null ? string.Empty : "/" + styleName)} {open} {tier.Name}";
+                    var before = await DrawAsync(page, host, kind, style, tier, rest).ConfigureAwait(true);
+                    var after = await DrawAsync(page, host, kind, style, tier, open).ConfigureAwait(true);
+                    IReadOnlyList<string> findings = (how, after.Box) switch
+                    {
+                        (Judged.Closed, not null) => ["a box is still open"],
+                        (not Judged.Closed, null) => ["no box is open"],
+                        _ => InlineFit.Judge(before.Card, after.Card, after.Box, before.Parts, after.Parts, filters: how == Judged.Filters),
+                    };
+                    findingCount += findings.Count;
+                    if (findings.Count == 0)
+                    {
+                        report.Say($"{label}: ok");
+                    }
+                    else
+                    {
+                        report.Fail($"{label}: {string.Join("; ", findings)}");
+                    }
+                }
             }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "the inline check failed", ex);
-                Console.WriteLine($"inline-check: failed: {ex.Message}");
-                failed++;
-            }
-            finally
-            {
-                AppServices.System?.Dispose();
-                AppServices.System = null;
-                AppServices.Gallery?.Dispose();
-                AppServices.Gallery = null;
-                ticker?.Dispose();
-                window?.Close();
-                Environment.ExitCode = failed == 0 ? 0 : 1;
-                app.Exit();
-            }
-        });
 
-        return true;
+            report.Say($"inline-check: {findingCount} findings");
+        }
+        catch (Exception ex)
+        {
+            report.Crash(ex);
+        }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>One card of <paramref name="kind"/> at <paramref name="tier"/> in <paramref name="state"/>: its size, its parts and its open box.</summary>

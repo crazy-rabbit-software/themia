@@ -25,7 +25,7 @@ internal sealed class RenderHarness : IDisposable
         Run = run;
         Window = window;
         Ticker = new Ticker(run.Dispatcher);
-        Design = DesignArgs.From([.. args], RenderCommandLine.Theme(Environment.GetCommandLineArgs()) ?? AppTheme.System);
+        Design = DesignArgs.From([.. args], RenderCommands.ThemeOf(Environment.GetCommandLineArgs()) ?? AppTheme.System);
     }
 
     public RenderRun Run { get; }

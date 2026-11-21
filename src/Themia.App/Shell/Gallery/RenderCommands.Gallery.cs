@@ -36,6 +36,17 @@ internal static partial class RenderCommands
         NoticeRender.Command,
         WidgetGalleryRender.Command,
         WidgetGalleryRender.Check,
+
+        // scenes
+        MotionRender.Command,
+        DesktopRender.Command,
+        DragRender.Command,
+        GridRender.Command,
+        SceneRender.Command,
+        SceneRender.Recipe,
+        FamilyCheckRender.Command,
+        InlineCheckRender.Command,
+        ClockStyleRender.Command,
     ];
 }
 #endif

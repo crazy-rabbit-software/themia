@@ -1,6 +1,7 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Themia.Core.Diagnostics;
+using Themia.Core.Model;
 using Themia.Core.Shell;
 
 namespace Themia.App.Shell;
@@ -9,8 +10,10 @@ namespace Themia.App.Shell;
 /// [S-69] A render or check the build runs instead of the app: <c>Themia.exe --render|--check &lt;name&gt;
 /// &lt;usage&gt;</c>. <paramref name="Summary"/> is what <c>--render list</c> prints under its line (more lines for its
 /// options). <paramref name="Run"/> runs on the UI thread and returns the exit code (<see cref="RenderCommandLine"/>).
+/// <paramref name="Theme"/> reads, from the arguments after its name, the application theme it draws in, before the
+/// resources load (a scene's own, the family walk's dark by default); without one it is the <c>--theme</c> asked for.
 /// </summary>
-internal sealed record RenderCommand(RenderVerb Verb, string Name, string Usage, string Summary, Func<RenderRun, Task<int>> Run)
+internal sealed record RenderCommand(RenderVerb Verb, string Name, string Usage, string Summary, Func<RenderRun, Task<int>> Run, Func<IReadOnlyList<string>, AppTheme?>? Theme = null)
 {
     /// <summary>The command line it is run with, as its usage error and the list say it.</summary>
     public string Line => RenderCommandLine.Line(Verb, Name, Usage);
@@ -96,9 +99,22 @@ internal static partial class RenderCommands
         return true;
     }
 
+    /// <summary>
+    /// The application theme <paramref name="commandLine"/> (the process's) asks for, read before the resources load: its
+    /// command's own reading (<see cref="RenderCommand.Theme"/>), else its <c>--theme</c>; null when it is no render command
+    /// or asks for none.
+    /// </summary>
+    public static AppTheme? ThemeOf(IReadOnlyList<string> commandLine)
+        => RenderCommandLine.Parse(commandLine) is not { } asked ? null
+            : Find(asked)?.Theme is { } read ? read(asked.Args)
+            : RenderCommandLine.Theme(commandLine);
+
+    private static RenderCommand? Find(RenderInvocation asked)
+        => All.FirstOrDefault(c => c.Verb == asked.Verb && string.Equals(c.Name, asked.Name, StringComparison.Ordinal));
+
     private static async Task<int> RunAsync(Application app, DispatcherQueue dispatcher, RenderInvocation asked)
     {
-        if (All.FirstOrDefault(c => c.Verb == asked.Verb && string.Equals(c.Name, asked.Name, StringComparison.Ordinal)) is not { } command)
+        if (Find(asked) is not { } command)
         {
             var known = string.Join(", ", All.Where(c => c.Verb == asked.Verb).Select(c => c.Name));
             Console.Error.WriteLine($"render: no {RenderCommandLine.Line(asked.Verb, asked.Name, string.Empty)} in this build (has: {known}); Themia.exe --render list says them all");
