@@ -788,26 +788,33 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
     }
 
-    /// <summary>[S-1273] The grid: one <c>Row.Cell</c> per person (the monogram over the name), cells 12 apart, whole lines only.</summary>
+    /// <summary>
+    /// [S-1273] [S-14817] The grid: one <c>Row.Cell</c> per person (the monogram over the name) in a cell of one fixed size,
+    /// the cells touching from the card's left edge and the list's top, their padding inside them (WR-3); the lines past
+    /// the card's foot a scroll away, the last in sight cut by it. Every edge on a whole device pixel.
+    /// </summary>
     private void DrawCells(IReadOnlyList<Contact> contacts, ContactsLayoutPlan plan)
     {
-        var panel = new Grid { Padding = Family.SideInset, ColumnSpacing = FamilySpace.ColumnGap, RowSpacing = FamilySpace.ColumnGap, HorizontalAlignment = HorizontalAlignment.Left };
+        var scale = _area.Grid(XamlRoot?.RasterizationScale ?? 1).Raster;
+        var across = new RowReach(plan.ColumnWidth, plan.Columns, scale);
+        var down = new RowReach(plan.Pitch, 1, scale);
+        var panel = new Grid { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
         for (var c = 0; c < plan.Columns; c++)
         {
-            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.ColumnWidth) });
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(across.Height(c)) });
         }
 
         for (var i = 0; i < contacts.Count; i++)
         {
             if (i % plan.Columns == 0)
             {
-                panel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                panel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(down.Height(i / plan.Columns)) });
             }
 
             var contact = contacts[i];
-            var cell = new RowCell(plan.Icon);
+            var cell = new RowCell(plan.Icon) { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
             cell.Show(Monogram(contact, plan.Icon), contact.Name);
-            cell.NameText.MaxWidth = plan.ColumnWidth;
+            cell.NameText.MaxWidth = ContactsPlan.CellWidth;
 
             // The keyboard's ring over the cell, taking no room: selecting moves nothing.
             var ring = new Border { BorderThickness = new Thickness(FamilyShape.Stroke), CornerRadius = Family.Radius, BorderBrush = Family.Brush(ColourRole.Clear), IsHitTestVisible = false };
@@ -817,11 +824,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             panel.Children.Add(item);
         }
 
-        // The panel's last gap is not a line of its own.
-        var lines = (contacts.Count + plan.Columns - 1) / plan.Columns;
-        // [S-11406] The lines its config states; the rest is a scroll away.
-        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
-        _scroll.Height = lines > shown ? (shown * plan.Pitch) - FamilySpace.ColumnGap : double.NaN;
+        _scroll.Height = double.NaN;
         _scroll.Margin = default;
         Use(panel);
     }

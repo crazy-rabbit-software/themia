@@ -68,6 +68,12 @@ public static class ContactsPlan
     /// <summary>[S-11406] A grid line's height: the monogram, 4, the name's Caption line.</summary>
     public static double CellHeight => RowRules.CellHeight(CellIcon, named: true);
 
+    /// <summary>[S-14817] A grid cell's box: its monogram and name with 6 either side, inside the cell (WR-3), in whole grid cells.</summary>
+    public const double CellNaturalWidth = CellWidth + FamilySpace.ColumnGap;
+
+    /// <summary>[S-14817] A grid cell's box's height: the monogram and name with 6 over and under, inside the cell.</summary>
+    public static double CellNaturalHeight => CellHeight + FamilySpace.ColumnGap;
+
     /// <summary>[S-582] The narrowest a details column says anything in.</summary>
     public const double DetailColumn = 88;
 
@@ -90,23 +96,22 @@ public static class ContactsPlan
     }
 
     /// <summary>
-    /// [S-11406] [S-14410] [S-14810] The grid in <paramref name="area"/>: its cells at their one fixed size, as many a line as
-    /// its width holds whole (2..<see cref="ContactsConfig.MaxGrid"/>) and as many lines as its height reaches, the last cut by
-    /// the card's foot, the gaps kept; before the box is measured, a new one's grid.
+    /// [S-11406] [S-14410] [S-14810] [S-14817] The grid in <paramref name="area"/>: its cells at their one fixed size, touching,
+    /// from the card's left edge and from its top edge (under the search box where it shows), as many a line as its width
+    /// holds whole (2..<see cref="ContactsConfig.MaxGrid"/>) and as many lines as its height reaches, the last cut by the
+    /// card's foot (<see cref="ItemSize.Cells"/>); before the box is measured, a new one's grid.
     /// </summary>
     private static ContactsLayoutPlan Cells(WidgetArea area, ContactsConfig config)
     {
-        var gap = FamilySpace.ColumnGap;
+        var grid = area.Grid();
         if (!area.IsMeasured)
         {
-            return new ContactsLayoutPlan(ContactsLayout.Grid, ContactsConfig.DefaultGridColumns, CellWidth, 1, false, false, CellIcon, CellHeight + gap, Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid));
+            return new ContactsLayoutPlan(ContactsLayout.Grid, ContactsConfig.DefaultGridColumns, ItemSize.Optimal(CellNaturalWidth, grid), 1, false, false, CellIcon, ItemSize.Optimal(CellNaturalHeight, grid), Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid));
         }
 
-        var across = Math.Max(0, area.Width - (2 * FamilySpace.Inset)) + gap;
-        var columns = Math.Clamp((int)Math.Floor((across + LayoutMath.Tolerance) / (CellWidth + gap)), 2, ContactsConfig.MaxGrid);
-        var down = Math.Max(0, area.Height - (config.SearchBox ? SearchHeight : 0) - FamilySpace.Inset) + gap;
-        var lines = Math.Max(1, (int)Math.Ceiling((down - LayoutMath.Tolerance) / (CellHeight + gap)));
-        return new ContactsLayoutPlan(ContactsLayout.Grid, columns, CellWidth, 1, false, false, CellIcon, CellHeight + gap, lines);
+        var down = area.Height + (config.SearchBox ? -SearchHeight : FamilySpace.Inset);
+        var cells = ItemSize.Cells(area.Width, down, CellNaturalWidth, CellNaturalHeight, grid, 2, ContactsConfig.MaxGrid);
+        return new ContactsLayoutPlan(ContactsLayout.Grid, cells.Columns, cells.Across.Pitch, 1, false, false, CellIcon, cells.Down.Pitch, cells.Lines);
     }
 
     /// <summary>
@@ -133,9 +138,11 @@ public static class ContactsPlan
 
         if (config.EffectiveLayout == ContactsLayout.Grid)
         {
-            var gap = FamilySpace.ColumnGap;
-            double Across(int n) => (2 * FamilySpace.Inset) + (n * CellWidth) + ((n - 1) * gap);
-            double Down(int n) => top + FamilySpace.Inset + (n * CellHeight) + ((n - 1) * gap);
+            // [S-14817] The cells alone, touching, from the card's edges (under the search box where it shows).
+            var cells = ItemGrid.Default();
+            var above = config.SearchBox ? top : 0;
+            double Across(int n) => n * ItemSize.Optimal(CellNaturalWidth, cells);
+            double Down(int n) => above + (n * ItemSize.Optimal(CellNaturalHeight, cells));
             var rows = Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid);
             return WidgetSizing.Range(new(Across(2), Down(1)), new(Across(ContactsConfig.DefaultGridColumns), Down(rows)), new(Across(ContactsConfig.MaxGrid), Down(ContactsConfig.MaxGrid)));
         }

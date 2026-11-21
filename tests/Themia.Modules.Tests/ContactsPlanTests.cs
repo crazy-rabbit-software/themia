@@ -59,15 +59,16 @@ public sealed class ContactsPlanTests
         var config = new ContactsConfig { Layout = ContactsLayout.Grid, SearchBox = false, GridRows = 2 };
         var sizing = ContactsPlan.Sizing(config);
 
-        Assert.Equal(new Themia.Sdk.SizeDip(24 + (3 * 96) + (2 * 12), 12 + (2 * ContactsPlan.CellHeight) + 12 + 12), sizing.Natural);
+        // [S-14817] The cells alone from the card's edges, 110 × 80 each.
+        Assert.Equal(new Themia.Sdk.SizeDip(3 * 110, 2 * 80), sizing.Natural);
 
         // At its natural box: three across, two lines; [S-14410] Owner, 2026-11-20: "Anything that's just 'how many of the
         // same item' ... follows the card's size": five cells' width shows five, never stored.
         var natural = ContactsPlan.Of(new WidgetArea(sizing.Natural.Width, sizing.Natural.Height - 12), config);
         Assert.Equal((48.0, 3, 2), (natural.Icon, natural.Columns, natural.Rows));
-        var wider = ContactsPlan.Of(new WidgetArea(24 + (5 * 96) + (4 * 12) + 20, sizing.Natural.Height - 12), config);
+        var wider = ContactsPlan.Of(new WidgetArea((5 * 110) + 20, sizing.Natural.Height - 12), config);
         Assert.Equal(5, wider.Columns);
-        Assert.Equal(96, wider.ColumnWidth); // [S-14810] a cell keeps its size
+        Assert.Equal(110, wider.ColumnWidth); // [S-14810] a cell keeps its size
     }
 
     [Fact]

@@ -36,11 +36,29 @@ public sealed class ContactsPitchTests
         var rows = ContactsPlan.Of(new WidgetArea(300, (6 * 28) + 12), compact);
         Assert.Equal((30.0, 7), (rows.Pitch, rows.Rows));
 
-        // The grid's cells and lines keep their size, its cells' gap kept.
+        // The grid's cells and lines keep their size: their content and its padding in whole cells.
         var grid = new ContactsConfig { Layout = ContactsLayout.Grid };
         var tall = ContactsPlan.Of(new WidgetArea(300, 2000), grid);
-        Assert.Equal(ContactsPlan.CellHeight + 12, tall.Pitch, 6);
-        Assert.Equal(ContactsPlan.CellWidth, tall.ColumnWidth, 6);
+        Assert.Equal(80, tall.Pitch, 6);
+        Assert.Equal(110, tall.ColumnWidth, 6);
+    }
+
+    /// <summary>
+    /// [S-14817] Owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they have space
+    /// everywhere. ... fix this, also for other widgets if applicable." The grid is its cells alone from the card's edges:
+    /// no inset round them, no gap between them; the columns its width holds whole, the lines its height reaches.
+    /// </summary>
+    [Fact]
+    public void S14817_the_grids_cells_stand_from_the_card_edges_touching()
+    {
+        var config = new ContactsConfig { Layout = ContactsLayout.Grid, SearchBox = false };
+        var sizing = ContactsPlan.Sizing(config);
+        Assert.Equal((330.0, 80.0 * config.GridRows), (sizing.Natural.Width, sizing.Natural.Height));
+        Assert.Equal(220.0, sizing.Min.Width);
+
+        // 340 wide holds three cells of 110 whole; 250 tall (the view 238 under the inset) reaches four lines, the last cut.
+        var plan = ContactsPlan.Of(new WidgetArea(340, 238), config);
+        Assert.Equal((3, 110.0, 80.0, 4), (plan.Columns, plan.ColumnWidth, plan.Pitch, plan.Rows));
     }
 
     [Fact]

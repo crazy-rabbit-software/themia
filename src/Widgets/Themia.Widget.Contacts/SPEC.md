@@ -65,3 +65,11 @@ the menu's email, call and message hand-offs), and the search box under the keyb
   details table's rows lay their text from under the search box and the titles to the foot's inset, up to half
   again their height (`ContactsPlan.Of`'s `Pitch`, `Over`, `Gap`, whole device pixels); the cards keep their size.
   Tests `ContactsPitchTests.S12450_`.
+- **[S-14817]** **The grid's cells stand from the card's edges** (owner, 2026-11-21: "the weather forecast widget grid
+  view items do not go from edge to edge, they have space everywhere. ... fix this, also for other widgets if
+  applicable."; docs/WIDGET-RULES.md WR-2, WR-3, WR-4). A person's cell is one fixed size (the 96 monogram-and-name box
+  and 6 round it, 110 × 80 on the default grid, `ContactsPlan.CellNaturalWidth`/`CellNaturalHeight` in whole cells) from
+  the card's left edge and its top edge (under the search box where it shows), the cells touching, no inset round them and
+  no gap between them: as many a line as the width holds whole (2 to 6, the shared rule `ItemSize.Cells`, [S-14816]), the
+  lines past the card's foot a scroll away, the last in sight cut by it. A new grid is 330 wide, its lines 80 each. The
+  `compact`, `details` and `grid` renders show each layout ([S-14814]). Tests `ContactsPitchTests.S14817_`.
