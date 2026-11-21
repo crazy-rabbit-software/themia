@@ -560,7 +560,7 @@ internal static partial class EditBarRender
             new(new WidgetId("networkLocalAddress"), 20, 160, 344, 84, true),
             new(new WidgetId("networkDownload"), 20, 244, 344, 84, true),
             new(new WidgetId("network"), 20, 328, 344, 84, true),
-            new(new WidgetId("networkHistory"), 20, 412, 344, 120, true),
+            new(new WidgetId("networkUpload"), 20, 412, 344, 120, true, Config: """{"trend":"Line"}"""),
         ];
 
         (PropsCard[] Layout, string Name, string? Click)[] cases =
