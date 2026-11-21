@@ -14,7 +14,7 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Widget.MusicProgress;
 
-/// <summary>[S-11330] How far into what Windows is playing it is: the seek bar between the elapsed time and the total. SPEC.md beside this file.</summary>
+/// <summary>[S-11330] How far into what Windows is playing it is: the seek bar alone, a bar atom ([S-15104]). SPEC.md beside this file.</summary>
 public sealed class MusicProgressModule : IWidgetModule
 {
     /// <summary>Its glyph (Segoe Fluent Icons U+E7A5, a bar), the module's own.</summary>
@@ -31,9 +31,9 @@ public sealed class MusicProgressModule : IWidgetModule
         Label = MusicProgressStr.MusicProgress_Label.Local(),
         Description = MusicProgressStr.MusicProgress_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => MusicProgressFace.Sizing().ScalesDownTo(MusicProgressFace.Face()),
+        Sizing = _ => MusicProgressFace.Sizing(),
         Traits = WidgetTraits.None,
-        Add = new(AddFolderId.NowPlaying, 0, 7),
+        Add = new(AddFolderId.NowPlaying, 0, 8),
     };
 
     /// <summary>[S-11330] Its one option: when it hides ([S-1464]).</summary>

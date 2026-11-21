@@ -62,6 +62,21 @@ public sealed class MusicAlbumConfig : MusicTextConfig
     protected override MusicPartConfig Fresh() => new MusicAlbumConfig();
 }
 
+/// <summary>[S-15106] How far into the track it is, as a text: the progress's first part, at the start of its card.</summary>
+public sealed class MusicElapsedConfig : MusicTextConfig
+{
+    protected override MusicPartConfig Fresh() => new MusicElapsedConfig();
+}
+
+/// <summary>[S-15106] How long the track is, as a text: the progress's last part, at the end of its card unless it is put elsewhere.</summary>
+public sealed class MusicDurationConfig : MusicTextConfig, IContentAligned
+{
+    /// <summary>[S-6582] It closes the progress's line: it sits at the end.</summary>
+    ContentAlign IContentAligned.DefaultAlign => ContentAlign.Right;
+
+    protected override MusicPartConfig Fresh() => new MusicDurationConfig();
+}
+
 /// <summary>[S-14922] One transport button, the whole tile its button: which one is its kind.</summary>
 public abstract class MusicButtonConfig : MusicPartConfig, IDrawsItems
 {

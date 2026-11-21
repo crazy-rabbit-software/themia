@@ -76,6 +76,18 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   that it shows because not all of the chars have the same width." (SPEC [S-14319]; the gap check judges a held reading
   by its template, `holds`.)
 
+- **WR-16 Atoms: one universal spacing, content fills it.** 2026-11-21, of the small widgets that make up a group
+  (asked for the now playing group first: "for now just for the now playing group"): "the spacing inside the atoms
+  should be universal and the same for all the widgets (also buttons and text), that way it should look good in the
+  composition."; "the texts should be aligneable, left right center, left should be the default."; "there should be
+  proper text overflow handling"; "the text should rather overflow to the left than to shrink and not fill the height up
+  to the spacing."; "the text should grow in height to fill up to the universal spacing."; "left and right borders
+  should also apply the universal spacing"; "track progress should be split into three widgets too, two text based
+  widgets and a scaling progress bar that also fills up to the universal spacing given"; "the art cover should also get
+  a spacing now, also the universal spacing." Asked the same day: which part of a too-long text stays, "Start stays, end
+  cut"; how the cut looks, "Ellipsis"; what fills a transport button, "Glyph only"; the lead glyphs of the title, the
+  artist and the album, "Drop them". (SPEC ATOMS, [S-15100]..[S-15107].)
+
 ## Content
 
 - **WR-10 Defaults, never hidden.** 2026-11-19: "even if there is no rain in the next two hours or even if there is no
@@ -100,8 +112,9 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
 
 ## Exemptions granted by the owner
 
-- **Pictures and video.** A kind whose face is a picture or a video filling the card edge to edge (gallery, video,
-  cover art) meets WR-1..WR-4 by that picture.
+- **Pictures and video.** A kind whose face is a picture or a video filling the card edge to edge (gallery, video)
+  meets WR-1..WR-4 by that picture. The cover art is an atom since 2026-11-21 (WR-16: "the art cover should also get a
+  spacing now, also the universal spacing"): its picture stands in the universal spacing.
 - **Tiles stand centred.** 2026-11-19, asked whether a quick toggle's or power button's icon and name may stay
   centred in the tile: "Centred is fine". The bands over and under a tile's face are alike; nothing else of WR-1..WR-4
   is relaxed.

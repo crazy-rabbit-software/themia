@@ -32,7 +32,7 @@ public abstract class TextModule : IWidgetModule
             Label = kind.Label,
             Description = kind.Description,
             Glyph = kind.Glyph,
-            Sizing = _ => TextRules.Sizing(kind),
+            Sizing = _ => Sizing(),
             Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
             Add = new(folder, 0, rank, popular),
             Merges = merges ?? [],
@@ -57,6 +57,9 @@ public abstract class TextModule : IWidgetModule
     protected virtual void SourceLines(WidgetMenuLines menu, WidgetConfig config)
     {
     }
+
+    /// <summary>[S-14930] The kind's card: the text base's; [S-15102] a family of text atoms states the atom's.</summary>
+    protected virtual WidgetSizing Sizing() => TextRules.Sizing(Kind);
 
     public abstract FrameworkElement CreateView(IWidgetHost host);
 }

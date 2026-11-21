@@ -9,13 +9,14 @@ using Xunit;
 
 namespace Themia.Widget.Music.Tests;
 
-/// <summary>[S-14920]..[S-14922] The now-playing family: a widget a part, its texts on the text base, its buttons on the icon base.</summary>
+/// <summary>[S-14920]..[S-14922] [S-15106] [S-15108] The now-playing family: a widget a part, its texts and times atoms on the universal spacing, its buttons on the icon base.</summary>
 public sealed class MusicTests
 {
     private static readonly IWidgetModule[] Modules =
     [
         new MusicTitleModule(), new MusicArtistModule(), new MusicAlbumModule(),
         new MusicPreviousModule(), new MusicPlayPauseModule(), new MusicNextModule(),
+        new MusicElapsedModule(), new MusicDurationModule(),
     ];
 
     private static NowPlaying Track(MusicState state = MusicState.Paused) => new(
@@ -25,9 +26,11 @@ public sealed class MusicTests
     [Fact]
     public void S14920_the_title_keeps_the_old_id_and_every_part_is_in_the_now_playing_family_in_its_order()
     {
-        Assert.Equal(["music", "musicArtist", "musicAlbum", "musicPrevious", "musicPlayPause", "musicNext"], Modules.Select(m => m.Descriptor.Id.Value));
+        Assert.Equal(["music", "musicArtist", "musicAlbum", "musicPrevious", "musicPlayPause", "musicNext", "musicElapsed", "musicDuration"], Modules.Select(m => m.Descriptor.Id.Value));
         Assert.All(Modules, m => Assert.Equal(AddFolderId.NowPlaying, m.Descriptor.Add.Shelf));
-        Assert.Equal([0, 1, 2, 3, 4, 5], Modules.Select(m => m.Descriptor.Add.Rank));
+
+        // The cover is 6 and the bar 8 (their own projects): the progress's parts stand elapsed, bar, length.
+        Assert.Equal([0, 1, 2, 3, 4, 5, 7, 9], Modules.Select(m => m.Descriptor.Add.Rank));
         Assert.All(Modules, m => Assert.True(m.Descriptor.Traits.HasFlag(WidgetTraits.OneReadout)));
         Assert.Equal(typeof(MusicConfig), Modules[0].Descriptor.ConfigType);
     }
@@ -70,14 +73,66 @@ public sealed class MusicTests
     }
 
     [Fact]
-    public void S14921_the_texts_are_one_line_led_by_their_glyph_the_artist_and_album_secondary()
+    public void S14921_the_texts_are_one_line_with_no_lead_the_artist_and_album_secondary()
     {
         var title = MusicKinds.Text(MusicKinds.Title);
-        Assert.Equal((1, true, TextTone.Primary), (title.Lines, title.Lead, title.Tone));
-        Assert.Equal(TextTone.Secondary, MusicKinds.Text(MusicKinds.Artist).Tone);
-        Assert.Equal(TextTone.Secondary, MusicKinds.Text(MusicKinds.Album).Tone);
-        Assert.All(MusicKinds.Texts, k => Assert.Same(TextOpens.Player, k.Opens));
-        Assert.Equal(TextRules.Sizing(title).Natural, Modules[0].Descriptor.Sizing(new MusicConfig()).Natural);
+        Assert.Equal((1, false, TextTone.Primary), (title.Lines, title.Lead, title.Tone));
+        Assert.All(MusicKinds.Texts, k => Assert.False(k.Lead));
+        Assert.All(MusicKinds.Texts.Skip(1), k => Assert.Equal(TextTone.Secondary, k.Tone));
+        Assert.All([MusicKinds.Title, MusicKinds.Artist, MusicKinds.Album], key => Assert.Same(TextOpens.Player, MusicKinds.Text(key).Opens));
+    }
+
+    [Fact]
+    public void S15108_each_text_is_a_text_atom_a_titles_ink_for_the_title_a_details_for_the_rest_the_times_short()
+    {
+        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TextWidth, AtomRules.TitleInk).Natural, Modules[0].Descriptor.Sizing(new MusicConfig()).Natural);
+        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TextWidth, AtomRules.DetailInk).Natural, Modules[1].Descriptor.Sizing(new MusicArtistConfig()).Natural);
+        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TextWidth, AtomRules.DetailInk).Natural, Modules[2].Descriptor.Sizing(new MusicAlbumConfig()).Natural);
+        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TimeWidth, AtomRules.DetailInk).Natural, Modules[6].Descriptor.Sizing(new MusicElapsedConfig()).Natural);
+        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TimeWidth, AtomRules.DetailInk).Natural, Modules[7].Descriptor.Sizing(new MusicDurationConfig()).Natural);
+
+        // [S-12411] A taller card is a larger text: no height is fixed.
+        Assert.All(Modules, m => Assert.False(m.Descriptor.Sizing(m.Descriptor.CreateDefault()).FixedHeight));
+    }
+
+    [Fact]
+    public void S15106_the_times_are_the_elapsed_time_and_the_tracks_length_as_the_clock_writes_them()
+    {
+        var now = Track() with { Timeline = new TrackTimeline(TimeSpan.FromSeconds(74), TimeSpan.FromSeconds(222)) };
+
+        Assert.Equal(new TextShown("1:14"), MusicKinds.Shown(MusicKinds.Elapsed, now, TimeSpan.FromSeconds(74)));
+        Assert.Equal(new TextShown("3:42"), MusicKinds.Shown(MusicKinds.Duration, now, TimeSpan.FromSeconds(74)));
+        Assert.True(MusicKinds.IsTime(MusicKinds.Elapsed) && MusicKinds.IsTime(MusicKinds.Duration) && !MusicKinds.IsTime(MusicKinds.Title));
+
+        // A time opens nothing: it is a reading, not a name.
+        Assert.Null(MusicKinds.Text(MusicKinds.Elapsed).Opens);
+        Assert.Null(MusicKinds.Text(MusicKinds.Duration).Opens);
+    }
+
+    [Fact]
+    public void S15106_with_no_track_or_no_end_a_time_keeps_its_shape_unavailable()
+    {
+        var idle = NowPlaying.Of(MusicState.Idle);
+        foreach (var key in new[] { MusicKinds.Elapsed, MusicKinds.Duration })
+        {
+            var shown = MusicKinds.Shown(key, idle);
+            Assert.Equal((MusicKinds.NoTime, false), (shown.Text, shown.Available));
+            Assert.Equal(MusicRules.StatusMessage(MusicState.Idle), shown.Why);
+        }
+
+        // A stream with no end: the elapsed time runs, the length has nothing to say.
+        var stream = Track(MusicState.Playing);
+        Assert.Equal(new TextShown("0:05"), MusicKinds.Shown(MusicKinds.Elapsed, stream, TimeSpan.FromSeconds(5)));
+        Assert.Equal(new TextShown(MusicKinds.NoTime, false), MusicKinds.Shown(MusicKinds.Duration, stream));
+    }
+
+    [Fact]
+    public void S15106_a_text_sits_at_the_start_and_the_tracks_length_at_the_end_unless_chosen()
+    {
+        Assert.Equal(ContentAlign.Left, ((IContentAligned)new MusicConfig()).DefaultAlign);
+        Assert.Equal(ContentAlign.Left, ((IContentAligned)new MusicElapsedConfig()).DefaultAlign);
+        Assert.Equal(ContentAlign.Right, ((IContentAligned)new MusicDurationConfig()).DefaultAlign);
+        Assert.IsType<MusicDurationConfig>(new MusicDurationConfig().Clone());
     }
 
     [Fact]

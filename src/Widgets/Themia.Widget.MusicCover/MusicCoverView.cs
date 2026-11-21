@@ -13,19 +13,23 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.MusicCover;
 
 /// <summary>
-/// [S-11320] The cover of what Windows is playing, drawn to the card's edges: the picture cropped to
-/// fill the square, the music glyph on the control fill while there is none. It reads the same media
-/// session as the track atom (<see cref="NowPlayingFeed"/>), fetching the art once per track.
+/// [S-11320] [S-15102] The cover of what Windows is playing, a picture atom (owner, 2026-11-21: "the art cover should also
+/// get a spacing now, also the universal spacing"): the picture cropped to fill the card's box less the universal
+/// spacing on every side, its corners the family's radius, the music glyph on the control fill while there is none. It
+/// reads the same media session as the other now-playing parts (<see cref="NowPlayingFeed"/>), fetching the art once per
+/// track.
 /// </summary>
 internal sealed partial class MusicCoverView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetTopEdge
 {
-    /// <summary>[S-5700] It owns its top edge: the picture fills the card.</summary>
+    /// <summary>[S-5700] It owns its top edge: the universal spacing is its own on every side.</summary>
     public bool OwnsTopEdge => true;
 
     /// <inheritdoc />
     public CardOpen? Opens => _feed.Now.State is MusicState.NoSession or MusicState.Loading ? null : CardOpen.App(_feed.Now.AppId);
 
-    private readonly Image _picture = new() { Stretch = Stretch.UniformToFill, Visibility = Visibility.Collapsed };
+    /// <summary>The picture's box: the card's less the spacing, its corners round (they cut the picture).</summary>
+    private readonly Grid _frame = new() { Margin = new Thickness(AtomSpace.Pad), CornerRadius = Family.Radius };
+    private readonly Image _picture = new() { Stretch = Stretch.UniformToFill, Visibility = Visibility.Collapsed, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly FontIcon _placeholder;
     private readonly NowPlayingFeed _feed;
 
@@ -42,9 +46,27 @@ internal sealed partial class MusicCoverView : Grid, IWidgetView, IWidgetOpens, 
         _placeholder = Family.Glyph(ModuleCatalog.Of(new WidgetId("music")).Glyph, FamilyShape.IconLarge, ColourRole.TextTertiary);
         _placeholder.HorizontalAlignment = HorizontalAlignment.Center;
         _placeholder.VerticalAlignment = VerticalAlignment.Center;
-        Background = Family.Brush(ColourRole.Control);
-        Children.Add(_placeholder);
-        Children.Add(_picture);
+        _frame.Background = Family.Brush(ColourRole.Control);
+        _frame.Children.Add(_placeholder);
+        _frame.Children.Add(_picture);
+        Children.Add(_frame);
+
+        // The whole card opens the player, edge to edge.
+        Background = Family.Brush(ColourRole.Clear);
+        SizeChanged += (_, _) => SizePlaceholder();
+    }
+
+    /// <summary>The placeholder's glyph is half its room's short side, between the family's icon sizes.</summary>
+    private void SizePlaceholder()
+    {
+        var room = AtomRules.Room(ActualWidth, ActualHeight);
+        var size = Math.Clamp(Math.Floor(Math.Min(room.Width, room.Height) / 2), FamilyShape.Icon, FamilyShape.IconHuge);
+        if (!_placeholder.FontSize.Equals(size))
+        {
+            _placeholder.FontSize = size;
+            _placeholder.Width = size;
+            _placeholder.Height = size;
+        }
     }
 
     public void Bind(IWidgetSurface surface)
@@ -134,7 +156,6 @@ internal sealed partial class MusicCoverView : Grid, IWidgetView, IWidgetOpens, 
         _artwork?.Cancel();
         _artwork = null;
         _feed.Dispose();
-        _picture.Source = null;
-        _artKey = string.Empty;
+        Show(null, string.Empty);
     }
 }

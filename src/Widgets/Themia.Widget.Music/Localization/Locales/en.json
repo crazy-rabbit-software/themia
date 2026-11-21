@@ -12,7 +12,11 @@
     "music.previous.desc",
     "music.playPause.desc",
     "music.next.label",
-    "music.next.desc"
+    "music.next.desc",
+    "music.elapsed.label",
+    "music.elapsed.desc",
+    "music.duration.label",
+    "music.duration.desc"
   ],
   "music.album.desc": "The album of what Windows is playing",
   "music.album.label": "Album",
@@ -20,6 +24,10 @@
   "music.artist.desc": "Who is playing what Windows plays",
   "music.artist.label": "Artist",
   "music.artist.none": "No artist",
+  "music.duration.desc": "How long what Windows is playing is",
+  "music.duration.label": "Track length",
+  "music.elapsed.desc": "How far into what Windows is playing it is",
+  "music.elapsed.label": "Elapsed time",
   "music.hideWhenIdle.label": "Hide when idle",
   "music.hideWhenIdle.never": "Never",
   "music.next.desc": "Skips to the next track in what Windows is playing",

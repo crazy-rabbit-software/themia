@@ -215,7 +215,12 @@ a `TextModule` each, the one face `TextView` (one block scaled as one at the con
 edge, `TextRules`; the item that lights and opens its source, `TextKind.Opens`, `ItemLight`). Every widget whose face is one
 icon (the transport buttons, the sky, the Icon widget) is an **icon kind** on one base too (SPEC ICONS, [S-15000]..[S-15006]):
 `IconKind` data, an `IconModule` each, the one face `IconView` (the Tile block's face without words, its glyph filling the inset,
-`IconRules`; it opens its kind's source, `IconKind.Opens`, or presses as a button). A module builds
+`IconRules`; it opens its kind's source, `IconKind.Opens`, or presses as a button). A small text, bar or picture that is one
+part of a composition is an **atom** on the universal spacing (SPEC ATOMS, [S-15100]..[S-15107]; WR-16; the now-playing
+family first, owner 2026-11-21): its content stands in its card's box less `AtomSpace.Pad` (8) on every side and fills
+that room (`AtomRules`): a text by its height alone, cut at the room's end with its ellipsis (`AtomText`, the face
+`AtomTextView` over a `TextKind`), a bar (`MusicSeekBar`), a picture; never a spacing, a font size or a fit of its own
+(a glyph that is a widget is an icon kind, never an atom: owner, 2026-11-22). A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,

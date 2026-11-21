@@ -321,30 +321,39 @@ public static class ReadyMadeGroups
     ]));
 
     /// <summary>
-    /// [S-11340] [S-14944] Now playing: the cover at the side, the title over the three buttons beside it, the progress under
-    /// both (the old card's box, made of the family's parts).
+    /// [S-11340] [S-14944] [S-15107] Now playing: the cover at the side, the title over the artist over the three buttons
+    /// beside it, the progress's line under both (the elapsed time, the bar, the track's length), every part an atom on
+    /// the universal spacing.
     /// </summary>
     public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.NowPlaying,
     [
-        new("musicCover", new(0, 0, 96, 96)),
-        new("music", new(96, 0, 244, 48)),
-        new("musicPrevious", new(96, 48, 81, 48)),
-        new("musicPlayPause", new(177, 48, 82, 48)),
-        new("musicNext", new(259, 48, 81, 48)),
-        new("musicProgress", new(0, 96, 340, 40)),
+        new("musicCover", new(0, 0, 110, 110)),
+        new("music", new(110, 0, 240, 40)),
+        new("musicArtist", new(110, 40, 240, 30)),
+        new("musicPrevious", new(110, 70, 80, 40)),
+        new("musicPlayPause", new(190, 70, 80, 40)),
+        new("musicNext", new(270, 70, 80, 40)),
+        new("musicElapsed", new(0, 110, 50, 30)),
+        new("musicProgress", new(50, 110, 250, 30)),
+        new("musicDuration", new(300, 110, 50, 30)),
     ]) { Starter = 4 });
 
-    /// <summary>[S-11340] [S-14944] Now playing, large: the cover on top, the title, the artist, the album, the progress and the buttons under it.</summary>
+    /// <summary>
+    /// [S-11340] [S-14944] [S-15107] Now playing, large: the cover on top, the title, the artist, the album, a thin bar
+    /// with the elapsed time and the track's length under its ends, and the buttons under them.
+    /// </summary>
     public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.NowPlaying,
     [
         new("musicCover", new(0, 0, 240, 240)),
-        new("music", new(0, 240, 240, 52)),
-        new("musicArtist", new(0, 292, 240, 48)),
-        new("musicAlbum", new(0, 340, 240, 48)),
-        new("musicProgress", new(0, 388, 240, 40)),
-        new("musicPrevious", new(0, 428, 80, 64)),
-        new("musicPlayPause", new(80, 428, 80, 64)),
-        new("musicNext", new(160, 428, 80, 64)),
+        new("music", new(0, 240, 240, 40)),
+        new("musicArtist", new(0, 280, 240, 30)),
+        new("musicAlbum", new(0, 310, 240, 30)),
+        new("musicProgress", new(0, 340, 240, 20)),
+        new("musicElapsed", new(0, 360, 120, 30)),
+        new("musicDuration", new(120, 360, 120, 30)),
+        new("musicPrevious", new(0, 390, 80, 50)),
+        new("musicPlayPause", new(80, 390, 80, 50)),
+        new("musicNext", new(160, 390, 80, 50)),
     ]), Str.Groups_Recipe_NowPlaying);
 
     /// <summary>[S-14944] Rain: the sentence over the graph over the total, the rain family's three parts as one panel.</summary>

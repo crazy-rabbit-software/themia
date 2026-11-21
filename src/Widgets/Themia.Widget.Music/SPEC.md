@@ -3,7 +3,8 @@
 The family project `Themia.Widget.Music` ([S-6901], `[assembly: ThemiaWidgetFamily]`): what Windows is playing, through
 its own media session, **a widget a part** (owner, 2026-11-21: "now playing widget should be split into the individual
 buttons, the title and the album name."). Its texts are kinds of the text base (root `SPEC.md`, Text widgets (TEXTS),
-[S-14930]..[S-14936]); its buttons are icon kinds ([S-15003]). Its tags are this file's; the root `SPEC.md` holds the host's sections and
+[S-14930]..[S-14936]); its buttons are icon kinds ([S-15003]); its texts, times, cover and bar are atoms on the universal
+spacing (root `SPEC.md`, Atoms (ATOMS), [S-15100]..[S-15105]). Its tags are this file's; the root `SPEC.md` holds the host's sections and
 the session's and the rules' root tags: hide when idle [S-1464], the seek bar's mapping [S-1465], the keys [S-1468] and the
 album line [S-1469] are the SDK's `MusicRules`; the WinRT session manager is the host's (`MediaSession`, behind
 `IWidgetHost.Media`), one widget's connection to it the SDK's `NowPlayingFeed`. The cover and the progress are their own
@@ -27,15 +28,16 @@ buttons' module, their words and looks, their view on the icon face), `MusicMenu
 - **[S-14920]** **A widget a part**: `music` **Song title** (the old track atom's id: a placed one is the title now, its
   Hide when idle kept; nothing converted), `musicArtist` **Artist**, `musicAlbum` **Album**, `musicPrevious` **Previous
   track**, `musicPlayPause` **Play or pause**, `musicNext` **Next track**, in that order in the family **Now playing**
-  under Music & media (`AddFolderId.NowPlaying`), the cover and the progress after them. Each reads the session through
+  under Music & media (`AddFolderId.NowPlaying`), then the cover, and the progress's three parts: `musicElapsed`
+  **Elapsed time**, the bar and `musicDuration` **Track length** ([S-15106]). Each reads the session through
   its own `NowPlayingFeed`, as the cover and the progress do, so every part shows the same track at the same moment. Each
   has one option, **Hide when idle** ([S-1464], the shared setting, [S-1479]).
-- **[S-14921]** **The texts** (text kinds, [S-14934]): the title (primary), the artist and the album (secondary), one line
-  each, led by their glyph (a note, a person, a disc: the three look alike without it), cut with their ellipsis at the
-  card's edge ([S-14931]). The artist is a part of its own because the old card showed it (its line was the artist and
-  the album). With no track the title says why ("Nothing playing", "No media playing") and the artist and the album their
-  words for none ("No artist", "No album"), unavailable, why their tooltip; a track with no artist or album (a stream, a
-  video) the same, an album named as its artist said once (`MusicRules.Album`). `MusicKinds.Shown`.
+- **[S-14921]** **The texts** (text kinds, [S-14934]; text atoms, [S-15101]): the title (primary, strong), the artist and
+  the album (secondary, regular), one line each with no lead glyph, filling their card's room, cut with their ellipsis at
+  its end. The artist is a part of its own because the old card showed it (its line was the artist and the album). With
+  no track the title says why ("Nothing playing", "No media playing") and the artist and the album their words for none
+  ("No artist", "No album"), unavailable, why their tooltip; a track with no artist or album (a stream, a video) the
+  same, an album named as its artist said once (`MusicRules.Album`). `MusicKinds.Shown`.
 - **[S-14922]** **The buttons**: previous, play or pause, next, each an icon kind on the icon base ([S-15000]..[S-15005];
   owner, 2026-11-21: "there should be a shared widget backend for widgets that show just an icon"): its glyph alone filling
   its card (a 76 square when new, down to 32), what a click does its tooltip and its screen reader's name ("Previous",
@@ -46,6 +48,17 @@ buttons' module, their words and looks, their view on the icon face), `MusicMenu
   optimistic: the session's own notification draws the result. In edit mode the press is the card's (select, move), never
   a press of the button ([S-1911]). A preview presses nothing. Left to right in every language ([S-1113]: they are three
   cards the user places). `MusicButtons.Shown`. Was: a Tile with its name under the glyph (the name the glyph alone said).
+- **[S-15106]** **The times** (owner, 2026-11-21: "track progress should be split into three widgets too, two text based
+  widgets and a scaling progress bar"): `musicElapsed` **Elapsed time** and `musicDuration` **Track length**, text atoms
+  (secondary, tabular figures, left to right in every language), on either side of the bar (`musicProgress`, its own
+  project) in the family's order. The elapsed time is the one part on a clock: a second while a track plays, arithmetic
+  against the session's anchor, nothing at rest. The elapsed time sits at its card's start, the track's length at its
+  end, unless the user chose ([S-6582]). With no track both keep the clock's shape with no figures ("-:--"),
+  unavailable, why their tooltip; a stream with no end the same for its length (WR-10). They open nothing.
+  `MusicKinds.Shown`.
+- **[S-15108]** **Every part is an atom** ([S-15100]..[S-15105]): a new title is 240 by 40, a new artist or album 240 by
+  30, a new time 60 by 30 (`MusicTextModule.Sizing`, `AtomRules`); every axis is free, a taller card a larger text. The
+  buttons are icon kinds, not atoms (owner, 2026-11-22: "Icon base"): a new one the icon base's square ([S-15000]).
 - **[S-2155]** *(Retired with the split: the side cover is the cover atom beside the track atom, the
   Now playing group, [S-11340].)*
 - **[S-6406]** *(Retired with the split: the styles Artwork and text, Full artwork and Text only; the
