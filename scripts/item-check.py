@@ -204,7 +204,7 @@ def judge(card, kind=None):
         out.append({'group': g, 'axis': axis, 'items': len(items), 'findings': found})
     hidden = covered(card)
     if hidden:
-        out.append({'group': 'marks', 'axis': '-', 'items': len(marks), 'findings': hidden})
+        out.append({'group': 'marks', 'axis': '-', 'items': len(hidden), 'findings': hidden})
     return out
 
 
