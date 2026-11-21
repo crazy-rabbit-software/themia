@@ -48,4 +48,22 @@ public sealed class ScreenTimeChartTests
         Assert.Equal(FamilySpace.S2, ScreenTimeChartLayout.BarGap(7));
         Assert.Equal(FamilySpace.S1, ScreenTimeChartLayout.BarGap(30));
     }
+
+    [Fact]
+    public void S11505_S12808_the_calendars_rings_grow_as_one_block_until_the_height_or_the_width_stops_them()
+    {
+        // At its natural box the rings are their 20; a taller and wider box grows them until the height stops them, a
+        // wide and short one until the height does, a narrow and tall one until a ring is a column wide (whole DIPs).
+        var natural = ScreenTimeChartLayout.CalendarHeight(ScreenTimePeriod.Week, ScreenTimeChartLayout.Cell);
+        Assert.Equal(ScreenTimeChartLayout.Cell, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 276, natural));
+        Assert.Equal(80, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 876, 80 + ScreenTimeChartLayout.CalendarHeader));
+        Assert.Equal(36, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 276, 500));
+        Assert.Equal(ScreenTimeChartLayout.Cell, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 50, 10));
+        Assert.Equal(ScreenTimeChartLayout.Cell, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, double.NaN, 100));
+
+        // A month's five weeks share the height, 4 apart.
+        var month = ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Month, 876, 300);
+        Assert.Equal(Math.Floor((300 - ScreenTimeChartLayout.CalendarHeader - (4 * FamilySpace.S1)) / 5), month);
+        Assert.True(ScreenTimeChartLayout.CalendarHeight(ScreenTimePeriod.Month, month) <= 300);
+    }
 }

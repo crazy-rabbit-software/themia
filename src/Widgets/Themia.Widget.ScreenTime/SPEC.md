@@ -89,6 +89,10 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
   inset on every side, 200..520 wide (a new one 300), one height per style (`ScreenTimeChartLayout.Sizing`):
   Bars 12 + 24 + 72 of bars + their labels' row (4 + 16) + 12 = 140; Calendar 12 + 24 + the letters
   (16 + 4) + its weeks of 20 rings 4 apart + 12 (a week 88, a month's five weeks 184). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
+  The calendar's letters and rings are one block (WR-7, [S-12808]): in a larger box its rings grow as one until the
+  block fills the room under the day line or a ring is its column's width, centred on the other axis
+  (`ScreenTimeChartLayout.CalendarCell`, never under 20, whole DIPs); before, the rings stayed 20 and stood centred in a
+  room up to 280 DIP too large.
   The bars are a graph's plot, the card's whole box (owner, 2026-11-19: "Plot edge to edge", [S-6754]): the view owns
   the card's top edge with them, the first bar stands on the card's left edge and the last on its right, the bars rise
   from over their end labels (at the inset off the foot and the sides) to the card's top (under the day line where a

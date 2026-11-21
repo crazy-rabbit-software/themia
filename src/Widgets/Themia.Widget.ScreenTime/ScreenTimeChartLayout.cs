@@ -37,6 +37,27 @@ public static class ScreenTimeChartLayout
     public static int Weeks(ScreenTimePeriod period)
         => Math.Max(1, ScreenTimeRules.HeatmapCells(ScreenTimeRules.RangeLength(ScreenTimeRules.ChartPeriod(period))).Count / ScreenTimeRules.HeatmapColumns);
 
+    /// <summary>
+    /// [S-11505] [S-12808] The calendar's cell in a box <paramref name="width"/> × <paramref name="height"/> (the card less its
+    /// insets and its day line): the letters and the weeks are one block that grows as one until it fills the height or
+    /// the width stops it (a ring a column wide), never under <see cref="Cell"/>; whole DIPs.
+    /// </summary>
+    public static double CalendarCell(ScreenTimePeriod period, double width, double height)
+    {
+        var weeks = Weeks(period);
+        var across = (width - ((ScreenTimeRules.HeatmapColumns - 1) * FamilySpace.S1)) / ScreenTimeRules.HeatmapColumns;
+        var down = (height - CalendarHeader - ((weeks - 1) * FamilySpace.S1)) / weeks;
+        var side = Math.Floor(Math.Min(across, down));
+        return double.IsFinite(side) ? Math.Max(Cell, side) : Cell;
+    }
+
+    /// <summary>[S-11505] The calendar's height at <paramref name="cell"/>: the letters over its weeks.</summary>
+    public static double CalendarHeight(ScreenTimePeriod period, double cell)
+    {
+        var weeks = Weeks(period);
+        return CalendarHeader + (weeks * cell) + ((weeks - 1) * FamilySpace.S1);
+    }
+
     /// <summary>[S-11505] The drawing's height: the bars and their labels, or the letters over the calendar's weeks.</summary>
     public static double Drawing(ScreenTimeChartStyle style, ScreenTimePeriod period)
     {

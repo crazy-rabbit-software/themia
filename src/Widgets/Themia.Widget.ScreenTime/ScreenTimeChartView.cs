@@ -226,11 +226,14 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _tones = ScreenTimeRules.Tones(_segments);
 
         // [S-12410] [S-6754] The bars are a chart: their plot is the card's whole box, edge to edge, the end labels
-        // inside it at the inset (Plot edge to edge). The calendar's rings keep their size: a taller card centres them in
-        // the room under the day line, the foot's inset counted with them. [S-12483] The same joined or alone.
+        // inside it at the inset (Plot edge to edge). [S-12808] The calendar's letters and rings are one block that grows as
+        // one until it fills the room under the day line or the width stops it, centred on the other axis, the foot's inset
+        // counted with it. [S-12483] The same joined or alone.
         var calendar = ChartStyle == ScreenTimeChartStyle.Calendar;
         var width = calendar ? Math.Max(1, _area.Width - (2 * FamilySpace.Inset)) : Math.Max(1, _area.Width);
-        var drawing = ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
+        var drawing = calendar
+            ? ScreenTimeChartLayout.CalendarHeight(_config.Period, ScreenTimeChartLayout.CalendarCell(_config.Period, width, _area.Height - ScreenTimeChartLayout.DayLine(_config.Period) - FamilySpace.Inset))
+            : ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
         var height = calendar ? drawing : Math.Max(1, Math.Floor(_area.Height));
         _drawing.Height = height;
         _drawing.VerticalAlignment = calendar ? VerticalAlignment.Center : VerticalAlignment.Top;
@@ -461,7 +464,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     {
         var cells = ScreenTimeRules.HeatmapCells(data.Totals.Count);
         var weeks = Math.Max(1, cells.Count / ScreenTimeRules.HeatmapColumns);
-        var cell = ScreenTimeChartLayout.Cell;
+        var cell = Math.Max(ScreenTimeChartLayout.Cell, (height - ScreenTimeChartLayout.CalendarHeader - ((weeks - 1) * FamilySpace.S1)) / weeks);
 
         // [S-11505] The columns share the width; each ring keeps its one size, centred in its column.
         var grid = new Grid
