@@ -93,7 +93,7 @@ public sealed class WeatherGraphsTests
     // ---- frame ---------------------------------------------------------------------------------
 
         [Fact]
-    public void S12703_slots_sit_on_their_cells_middles_and_a_line_skips_gaps()
+    public void S14220_slots_sit_on_their_cells_middles_and_a_line_skips_gaps()
     {
         Assert.Equal(5, HourGraphRules.X(0, 10, 100));
         Assert.Equal(95, HourGraphRules.X(9, 10, 100));
@@ -101,7 +101,7 @@ public sealed class WeatherGraphsTests
     }
 
     [Fact]
-    public void S12703_the_worse_role_of_two_hours_draws_their_piece()
+    public void S14220_the_worse_role_of_two_hours_draws_their_piece()
     {
         Assert.Equal(ColourRole.Caution, ChartPlot.Worse(ColourRole.Accent, ColourRole.Caution));
         Assert.Equal(ColourRole.Critical, ChartPlot.Worse(ColourRole.Critical, ColourRole.Caution));
@@ -109,7 +109,7 @@ public sealed class WeatherGraphsTests
     }
 
     [Fact]
-    public void S12703_a_column_keeps_between_the_stroke_and_half_a_large_icon()
+    public void S14220_a_column_keeps_between_the_stroke_and_half_a_large_icon()
     {
         Assert.Equal(FamilyShape.Stroke, ChartPlot.BarWidth(1));
         Assert.Equal(6, ChartPlot.BarWidth(10));
