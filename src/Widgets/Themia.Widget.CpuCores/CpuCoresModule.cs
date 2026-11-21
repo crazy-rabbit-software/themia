@@ -148,6 +148,12 @@ internal sealed class CpuCoresMeter : MeterPart
         _ => MeterLook.Columns,
     };
 
+    /// <summary>
+    /// [S-15162] Before the hub's first per-core read: a track per logical processor of this PC, each without a load (WR-10:
+    /// the cores' face, never an empty card); the read's own count replaces it.
+    /// </summary>
+    public override IReadOnlyList<MeterItem> WaitingItems => CpuCoresRules.Waiting(Environment.ProcessorCount);
+
     /// <summary>[S-6310] Each logical processor, from the hub's one per-core read; [S-6318] with each one's history.</summary>
     public override MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems)
         => MeterItemsWatch.Of(
@@ -166,3 +172,11 @@ internal sealed class CpuCoresMeter : MeterPart
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(CpuCoresConfig))]
 internal sealed partial class CpuCoresJsonContext : JsonSerializerContext;
+
+/// <summary>[S-15162] The cores' rules, pure.</summary>
+internal static class CpuCoresRules
+{
+    /// <summary>[S-15162] <paramref name="processors"/> cores (at least one) without a load: drawn as tracks, no bar lit.</summary>
+    public static IReadOnlyList<MeterItem> Waiting(int processors)
+        => [.. Enumerable.Range(0, Math.Max(1, processors)).Select(_ => new MeterItem(null, MeterPressure.Normal))];
+}

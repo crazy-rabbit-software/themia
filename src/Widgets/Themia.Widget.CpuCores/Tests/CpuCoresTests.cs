@@ -48,4 +48,19 @@ public sealed class CpuCoresTests
         var back = Assert.IsType<CpuCoresConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal((CpuCoresStyle.Graphs, 300), (back.Style, ((CpuCoresConfig)back.Clone()).GraphSpanSeconds));
     }
+
+    /// <summary>
+    /// [S-15162] Before the hub's first per-core read the card drew nothing at all (a render under load caught it empty):
+    /// it draws a track per logical processor, none lit, until the read's own count replaces them (WR-10).
+    /// </summary>
+    [Fact]
+    public void S15162_before_the_first_read_every_core_is_a_track_without_a_load()
+    {
+        var waiting = new CpuCoresMeter().WaitingItems;
+
+        Assert.Equal(Math.Max(1, Environment.ProcessorCount), waiting.Count);
+        Assert.All(waiting, item => Assert.Null(item.Fraction));
+        Assert.Single(CpuCoresRules.Waiting(0));
+        Assert.Equal(24, CpuCoresRules.Waiting(24).Count);
+    }
 }

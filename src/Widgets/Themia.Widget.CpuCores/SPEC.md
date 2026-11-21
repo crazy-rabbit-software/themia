@@ -17,5 +17,8 @@ the module host's `MeterHostTests` (`S6310_`, `S6318_`).
   load in Caption over its top corner, [S-6317]; 200..640 × 128..400, a new one 280 × 200). Sixteen
   cores fit every style at its least; the cells only grow. The Graphs style offers the Chart span under
   Style ([S-6318]: the hub keeps each core's history for it); the others have no setting.
+- **[S-15162]** Before the hub's first per-core read (the root's [S-15161]) a core per logical processor of this PC
+  stands in every style, none lit (`CpuCoresRules.Waiting`); the read's own count replaces them. The card was empty
+  wherever a render or a start beat that read.
 
 Needs a manual pass: a machine with many cores (32, 64), each style at its least.
