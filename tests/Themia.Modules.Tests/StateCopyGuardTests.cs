@@ -247,6 +247,7 @@ public sealed class StateCopyGuardTests
         source.Icon = "";
         source.Color = "#336699";
         source.DesktopIcons = ViewDesktopIcons.None;
+        source.WorkArea = new FracRect(0.028, 0, 0.944, 1);
         source.Widgets.Add(VariedWidget());
         var target = ViewState.Create("Plain");
         Differs(source, target);

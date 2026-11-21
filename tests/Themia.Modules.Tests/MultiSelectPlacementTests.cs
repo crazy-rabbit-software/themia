@@ -192,15 +192,16 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1584_S855_a_taskbar_stops_a_block_where_its_first_widget_reaches_it()
+    public void S1584_S6608_S855_a_block_goes_over_a_taskbar_until_a_widget_would_keep_less_than_the_visible_minimum()
     {
+        // Owner, 2026-11-21: "the widgets should be able to go over the screen": a taskbar's edge is no stop.
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 0.9) };
         FracRect[] start = [new(0.1, 0.5, 0.1, 0.1), new(0.1, 0.7, 0.1, 0.1)];
 
         var delta = BlockGeometry.Move(start, 0, 0.5, screen);
 
-        Assert.Equal(0.9 - 0.1, BlockGeometry.Apply(start[1], delta, screen).Y, 9);
-        Assert.Equal(0.7 - 0.1, BlockGeometry.Apply(start[0], delta, screen).Y, 9);
+        Assert.Equal(0.9 - 0.032, BlockGeometry.Apply(start[1], delta, screen).Y, 9);
+        Assert.Equal(0.7 - 0.032, BlockGeometry.Apply(start[0], delta, screen).Y, 9);
     }
 
     [Fact]

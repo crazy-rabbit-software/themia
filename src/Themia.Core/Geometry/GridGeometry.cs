@@ -105,13 +105,30 @@ public static class GridGeometry
 
     /// <summary>
     /// [S-09]/[S-6608] Keep a rect reachable: above the [S-08] size floor, never bigger than the
-    /// screen's allowed area ([S-841]: the work area, so off the taskbar), and overlapping that area
-    /// by at least <see cref="MinVisiblePx"/> on each axis. Past that it may hang over any edge; the
-    /// surface clips it there. A rect pushed further slides back just far enough, keeping its size.
+    /// screen's allowed area ([S-841]: the work area), and overlapping that area by at least
+    /// <see cref="MinVisiblePx"/> on each axis. Past that it may hang over any edge, a taskbar's as the
+    /// monitor's own (owner, 2026-11-21: "the widgets should be able to go over the screen"); the surface
+    /// clips it at the work area ([S-851]), so what is over a taskbar is behind it. A rect pushed further
+    /// slides back just far enough, keeping its size. Every gesture's rule (a drag, a block's move, a
+    /// resize, the arrow keys); a placement lands clear of the taskbars instead (<see cref="Land"/>).
     /// Total: a non-finite or inverted input collapses to a valid rect instead of propagating NaN
     /// into storage.
     /// </summary>
-    public static FracRect Clamp(FracRect r, ScreenMetrics screen)
+    public static FracRect Clamp(FracRect r, ScreenMetrics screen) => Clamp(r, screen, default);
+
+    /// <summary>
+    /// [S-11] [S-855] A rect that is placed (a new widget, a paste, a ready-made group, a hand-off to another display)
+    /// kept in reach as <see cref="Clamp(FracRect, ScreenMetrics)"/> does, and wholly clear of every taskbar of the
+    /// view's displays (<see cref="Strips"/>): nothing lands hidden behind one. The monitor's own edges are still hung
+    /// over to the visible minimum.
+    /// </summary>
+    public static FracRect Land(FracRect r, ScreenMetrics screen) => Clamp(r, screen, Strips(screen.Allowed));
+
+    /// <summary>
+    /// [S-6608] [S-855] <see cref="Clamp(FracRect, ScreenMetrics)"/> with the sides in <paramref name="held"/> holding
+    /// the whole rect inside the allowed area: the visible minimum on every other side.
+    /// </summary>
+    public static FracRect Clamp(FracRect r, ScreenMetrics screen, EdgeHolds held)
     {
         var (minW, minH) = MinFraction(screen);
         var a = screen.Allowed;
@@ -123,7 +140,7 @@ public static class GridGeometry
 
         var w = Math.Clamp(r.W, minW, Math.Max(minW, a.W));
         var h = Math.Clamp(r.H, minH, Math.Max(minH, a.H));
-        var (loX, hiX, loY, hiY) = Reach(screen, w, h);
+        var (loX, hiX, loY, hiY) = Reach(screen, w, h, held);
 
         var x = Between(r.X, loX, hiX);
         var y = Between(r.Y, loY, hiY);
@@ -132,15 +149,14 @@ public static class GridGeometry
     }
 
     /// <summary>
-    /// [S-6608] [S-855] Where a rect of this size may start on each axis and still be in reach: on a side that holds
-    /// it (<see cref="Holds"/>: a taskbar's) wholly inside the allowed area; on any other side (the monitor's own edge)
-    /// over the edge by all but the visible minimum (<see cref="Keep"/>).
+    /// [S-6608] Where a rect of this size may start on each axis and still be in reach: over any edge of the allowed
+    /// area, a taskbar's included, by all but the visible minimum (<see cref="Keep"/>); [S-855] on a side in
+    /// <paramref name="held"/> (a placement's, <see cref="Land"/>) wholly inside it.
     /// </summary>
-    public static (double LoX, double HiX, double LoY, double HiY) Reach(ScreenMetrics screen, double w, double h)
+    public static (double LoX, double HiX, double LoY, double HiY) Reach(ScreenMetrics screen, double w, double h, EdgeHolds held = default)
     {
         var a = screen.Allowed;
         var (keepX, keepY) = Keep(screen, w, h);
-        var held = Holds(screen);
         return (
             held.Left ? a.X : a.X + keepX - w,
             held.Right ? a.Right - w : a.Right - keepX,
@@ -151,8 +167,8 @@ public static class GridGeometry
     /// <summary>
     /// [S-6608] The overlap, as fractions of the screen, a rect of this size must keep with the
     /// allowed area: <see cref="MinVisiblePx"/>, but never more than the rect or the area itself. Widgets may
-    /// always go over the monitor's own edge ([S-2330]: no setting keeps them whole on it, a taskbar's edge holds them,
-    /// [S-855]); this is what stops one being lost off it.
+    /// always go over every edge ([S-2330]: no setting keeps them whole on it, a taskbar's included); this is what
+    /// stops one being lost off the screen or behind a taskbar.
     /// </summary>
     public static (double X, double Y) Keep(ScreenMetrics screen, double w, double h)
     {
@@ -168,18 +184,35 @@ public static class GridGeometry
     private const double StripEdge = 1e-7;
 
     /// <summary>
-    /// [S-855] The sides of the allowed area a rect stays wholly inside. A side where the allowed area ends inside
-    /// the monitor ends at a strip another program reserved (the taskbar, a dock registered as an appbar), on this
-    /// display or on another that shows the same view: what lies past it is hidden there, so nothing hangs over it
-    /// (owner, 2026-11-20: "hidden widgets on both screens"). A side that is the monitor's own edge always lets a rect
-    /// hang over it ([S-6608]; owner, 2026-11-20: "they should always be able to go over the screen", [S-2330]). An
-    /// auto-hidden taskbar reserves nothing, so its edge is the monitor's.
+    /// [S-855] The sides of <paramref name="allowed"/> that end at a reserved strip (inside the monitor): the taskbar, a
+    /// dock registered as an appbar, on this display or on another that shows the same view. What lies past one is
+    /// behind it there. A gesture may take a widget over it ([S-6608]); a placement lands clear of it (<see cref="Land"/>),
+    /// and so does what a change of the work area would newly hide (<see cref="WorkAreaSettle"/>). An auto-hidden
+    /// taskbar reserves nothing, so its edge is the monitor's.
     /// </summary>
-    public static EdgeHolds Holds(ScreenMetrics screen) => Strips(screen.Allowed);
-
-    /// <summary>[S-855] The sides of <paramref name="allowed"/> that end at a reserved strip (inside the monitor).</summary>
     public static EdgeHolds Strips(FracRect allowed)
         => new(allowed.X > StripEdge, allowed.Y > StripEdge, allowed.Right < 1 - StripEdge, allowed.Bottom < 1 - StripEdge);
+
+    /// <summary>
+    /// [S-855] The sides of <paramref name="allowed"/> that end at a strip and that <paramref name="r"/> lay inside of
+    /// on <paramref name="laidOn"/> (the area it was laid out in): where it was clear, it is kept clear; where it reached
+    /// past that area's edge (hung over it by the user, [S-6608]), it may stay over. A non-finite rect holds nowhere.
+    /// </summary>
+    public static EdgeHolds ClearSides(FracRect r, FracRect laidOn, FracRect allowed)
+    {
+        var strips = Strips(allowed);
+        if (!r.IsFinite)
+        {
+            return default;
+        }
+
+        const double eps = 1e-9;
+        return new(
+            strips.Left && r.X >= laidOn.X - eps,
+            strips.Top && r.Y >= laidOn.Y - eps,
+            strips.Right && r.Right <= laidOn.Right + eps,
+            strips.Bottom && r.Bottom <= laidOn.Bottom + eps);
+    }
 
     /// <summary>
     /// [S-855] The allowed area of a view shown on several displays: the part of the screen every one of their
@@ -304,9 +337,7 @@ public static class GridGeometry
         var (minW, minH) = MinFraction(screen);
         var (keepX, keepY) = Keep(screen, double.PositiveInfinity, double.PositiveInfinity);
 
-        // [S-855] A moved edge stops on a taskbar's edge; past the monitor's own it may go ([S-2330]).
-        var held = Holds(screen);
-
+        // [S-6608] A moved edge may pass every edge of the allowed area, a taskbar's as the monitor's ([S-2330]).
         double left = r.X, top = r.Y, right = r.Right, bottom = r.Bottom;
 
         // Each moved edge: snapped, then stopped before the widget outgrows the allowed area or
@@ -316,7 +347,6 @@ public static class GridGeometry
             left = SnapEdge(left, a.X, a.Right, cols, screen.Width);
             left = limits is null ? left : right - limits.Width.Range(right - left);
             left = Math.Min(Math.Max(left, right - a.W), a.Right - keepX);
-            left = held.Left ? Math.Max(left, a.X) : left;
             left = Math.Min(left, right - minW);
         }
 
@@ -325,7 +355,6 @@ public static class GridGeometry
             right = SnapEdge(right, a.X, a.Right, cols, screen.Width);
             right = limits is null ? right : left + limits.Width.Range(right - left);
             right = Math.Max(Math.Min(right, left + a.W), a.X + keepX);
-            right = held.Right ? Math.Min(right, a.Right) : right;
             right = Math.Max(right, left + minW);
         }
 
@@ -334,7 +363,6 @@ public static class GridGeometry
             top = SnapEdge(top, a.Y, a.Bottom, rows, screen.Height);
             top = limits is null ? top : bottom - limits.Height.Range(bottom - top);
             top = Math.Min(Math.Max(top, bottom - a.H), a.Bottom - keepY);
-            top = held.Top ? Math.Max(top, a.Y) : top;
             top = Math.Min(top, bottom - minH);
         }
 
@@ -343,7 +371,6 @@ public static class GridGeometry
             bottom = SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height);
             bottom = limits is null ? bottom : top + limits.Height.Range(bottom - top);
             bottom = Math.Max(Math.Min(bottom, top + a.H), a.Y + keepY);
-            bottom = held.Bottom ? Math.Min(bottom, a.Bottom) : bottom;
             bottom = Math.Max(bottom, top + minH);
         }
 
@@ -507,8 +534,8 @@ public static class GridGeometry
 
     /// <summary>
     /// [S-11] Placement: centre a default-sized widget on the drop point, then settle it as a drag
-    /// does: near an edge it may hang over it, but always keeps the visible minimum on the allowed
-    /// area ([S-6608]).
+    /// does: near the monitor's own edge it may hang over it, but always keeps the visible minimum on the allowed
+    /// area ([S-6608]); [S-855] it lands wholly clear of a taskbar (<see cref="Land"/>).
     /// </summary>
     public static FracRect PlaceAt(
         double xFrac,
@@ -519,7 +546,7 @@ public static class GridGeometry
     {
         var size = FracRect.FromPixels(0, 0, defaultWidthPx, defaultHeightPx, screen);
         var raw = new FracRect(xFrac - (size.W / 2), yFrac - (size.H / 2), size.W, size.H);
-        return Settle(raw, screen);
+        return Land(Settle(raw, screen), screen);
     }
 
     /// <summary>

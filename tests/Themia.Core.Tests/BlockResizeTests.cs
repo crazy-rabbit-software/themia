@@ -346,18 +346,19 @@ public sealed class BlockResizeTests
     }
 
     [Fact]
-    public void S2462_S855_a_block_never_grows_under_a_taskbar_it_stops_flush_on_its_edge()
+    public void S2462_S6608_S855_a_block_grows_over_a_taskbar_as_over_the_monitors_edge()
     {
-        // A taskbar 80 DIPs tall: the allowed area ends at row 100 of 108.
+        // A taskbar 80 DIPs tall: the allowed area ends at row 100 of 108. Owner, 2026-11-21: "the widgets should be able
+        // to go over the screen".
         var taskbar = Screen with { Allowed = new FracRect(0, 0, 1, 100.0 / Rows) };
         FracRect[] stack = [C(10, 80, 20, 8), C(10, 88, 20, 8)];
 
         var grown = BlockResize.Resize(stack, FreeAll(2), ResizeHandle.Bottom, 0, 10.0 / Rows, taskbar);
 
-        Assert.Equal(100, Cells(grown[1]).Y + Cells(grown[1]).H, 6);
-        Assert.Equal((80, 10), (Cells(grown[0]).Y, Cells(grown[0]).H));
+        Assert.True(Cells(grown[1]).Y + Cells(grown[1]).H > 100 + 1e-6, $"{grown[1]} stopped at the taskbar");
+        Assert.Equal(Cells(grown[0]).Y + Cells(grown[0]).H, Cells(grown[1]).Y, 6);
 
-        // Past the monitor's own edge (no taskbar there) it goes on.
+        // Past the monitor's own edge it goes on the same.
         Assert.True(Drag(stack, ResizeHandle.Bottom, 0, 30)[1].Bottom > 1);
     }
 

@@ -117,13 +117,16 @@ public class EdgeOverhangTests
     }
 
     [Fact]
-    public void S6608_S855_nothing_hangs_under_the_taskbar_its_edge_holds_the_whole_widget()
+    public void S6608_S855_a_widget_goes_under_the_taskbar_keeping_the_visible_minimum_and_a_placed_one_lands_clear()
     {
+        // Owner, 2026-11-21: "the widgets should be able to go over the screen": a taskbar's edge too.
         var screen = Screen with { Allowed = new FracRect(0, 0, 1, 1032.0 / 1080) };
 
         var settled = GridGeometry.Clamp(new FracRect(0.4, 0.99, 0.2, 0.2), screen);
+        Assert.Equal((1032.0 - GridGeometry.MinVisiblePx) / 1080, settled.Y, 9);
 
-        Assert.Equal((1032.0 / 1080) - 0.2, settled.Y, 9);
+        // [S-11] [S-855] Placed there, it lands wholly above the taskbar.
+        Assert.Equal((1032.0 / 1080) - 0.2, GridGeometry.Land(new FracRect(0.4, 0.99, 0.2, 0.2), screen).Y, 9);
     }
 
     [Fact]
@@ -234,7 +237,7 @@ public class EdgeOverhangTests
         Assert.Equal(0.15, BlockGeometry.Apply(start[1], delta, screen).X - BlockGeometry.Apply(start[0], delta, screen).X, 9);
     }
 
-    // ---- [S-2330] No Over the edge setting: every gesture may go over the monitor's edges, never a taskbar's ----
+    // ---- [S-2330] No Over the edge setting: every gesture may go over every edge, a taskbar's too ----
 
     private static readonly ScreenMetrics Taskbar = new(1920, 1080) { Allowed = new FracRect(0, 0, 1, 1000.0 / 1080) };
 
@@ -242,12 +245,12 @@ public class EdgeOverhangTests
     public void S2330_a_resized_edge_always_goes_over_the_monitors_edge_and_stops_at_the_visible_minimum()
     {
         // Owner, 2026-11-20: "widgets can go over screen edge should not be a setting anymore, they should always be
-        // able to go over the screen". [S-855] A taskbar's edge still holds the whole widget.
+        // able to go over the screen"; 2026-11-21: "the widgets should be able to go over the screen": the taskbar's too.
         var start = new FracRect(0.7, 0.7, 0.2, 0.2);
 
         var over = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.5, 0.5, Taskbar), Taskbar, ResizeHandle.BottomRight);
         Assert.True(over.Right > 1);
-        Assert.Equal(Taskbar.Allowed.Bottom, over.Bottom, 9);
+        Assert.True(over.Bottom > 1);
         Assert.Equal((0.7, 0.7), (over.X, over.Y));
 
         // A top-left edge dragged far past the screen's corner: over it, and never so far the widget is lost.

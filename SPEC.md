@@ -85,12 +85,14 @@ Sections, grouped by area (file order below; search for the heading).
   the sizing's Min first ([S-2445]).
 - **[S-09]** Widgets are kept **in reach** (`GridGeometry.Clamp`), not inside: at load against the
   whole screen, and against the **work area** of the view's displays (every one showing it, [S-855]) for drag,
-  resize, placement, paste, drop and the arrow keys ([S-841]), each by the one rule of [S-6608]. No widget is ever bigger than that area.
+  resize, placement, paste, drop and the arrow keys ([S-841]), each by the one rule of [S-6608] (a placement also
+  lands clear of the taskbars, [S-11], [S-855]). No widget is ever bigger than that area.
   Clamping is **total**: a non-finite or inverted rect collapses to a valid one rather than
   propagating NaN into storage. A widget is also held to its sizing: painted fitted into it
   ([S-2446]), resized within it ([S-2445]); its Max may be larger than the work area allows, and the
   work area wins.
-- **[S-6608]** A widget may always hang over **the monitor's own edges** (no setting, [S-2330]; never a taskbar's, below), but always keeps at least
+- **[S-6608]** A widget may always hang over **every edge of its monitor, a taskbar's included** (no setting, [S-2330]; owner,
+  2026-11-21: "the widgets should be able to go over the screen"), but always keeps at least
   `MinVisiblePx` (**32 DIP**, a grab's worth; the [S-08] floor was 32 until 2026-11-17 and is one grid cell now) of
   itself on the allowed area on each axis: a widget no larger is never cut at all, a bigger one always leaves 32 DIP
   to see, grab and drag back. Pushed further, it slides back just that far, keeping its size; a
@@ -102,10 +104,16 @@ Sections, grouped by area (file order below; search for the heading).
   shown on the neighbour; moving it there is the hand-off of [S-76]. The rule holds at the moment of
   the gesture and at load (against a 1920 × 1080 reference): stored fractions scale with the display
   ([S-02]) and nothing re-settles on a display change ([S-841]), so on a much smaller display the
-  overhang scales with it. (Tests `S6608_`.) **A taskbar's edge is not one to hang over** ([S-855], owner
-  2026-11-20): where the work area ends inside the monitor (a taskbar on any side, an appbar, on this display or on
-  another showing the view) the whole widget stays on the work area's side of it; the overhang is the monitor's own
-  edges'.
+  overhang scales with it. (Tests `S6608_`.) **A taskbar's edge is hung over like the monitor's** (owner, 2026-11-21:
+  "the widgets should be able to go over the screen"; the owner's taskbars stand on the left and right of both his
+  displays, so until then no widget could go over a left or right screen edge at all): every gesture (a drag, a
+  block's move, a resize, a block's resize, the arrow keys) may take a widget past a work-area edge that ends inside
+  the monitor (a taskbar on any side, an appbar, on this display or another showing the view, [S-855]); the part past
+  it is behind the taskbar, the surface clipping at the work area ([S-851]), and the visible minimum stays on the work
+  area, so it can always be grabbed back. What stays it there is the user's: no settle pulls it out ([S-855] (3)).
+  Only what is **placed** (a new widget, a paste, a ready-made group, a hand-off) lands wholly clear of a taskbar
+  ([S-11], `GridGeometry.Land`). *(2026-11-20 to -21 a taskbar's edge held the whole widget, `GridGeometry.Holds`,
+  for every gesture, and the settle pulled anything past it back out on every change: gone.)*
 - **[S-6609]** On the grid ([S-06]) the work area's edges are a **magnet**: a moved rect, block or resized edge within `EdgeMagnetPx` (**8 DIP**, under one grid
   cell) of one lands flush on it, judged on the raw position before the grid rounds it; past that the
   drag goes on over the edge. It catches an edge the grid misses (a taskbar's top is rarely on a grid
@@ -119,7 +127,7 @@ Sections, grouped by area (file order below; search for the heading).
   inverting the rect.
 - **[S-31a]** Settling a resize snaps and limits **only the edges the handle moves**: a moved edge
   rounds to the grid (or lands on a work-area edge within the magnet, [S-6609]), may pass the
-  monitor's edge (never a taskbar's: it stops on it, [S-855]), and stops where the widget would outgrow the work area or keep less than the visible
+  monitor's edge or a taskbar's ([S-6608]), and stops where the widget would outgrow the work area or keep less than the visible
   minimum on it ([S-6608]); an anchored edge never moves. The moved edge also stops at the widget's
   sizing's Min and Max and lands on any grid line between, a fixed axis has no handle ([S-2444], [S-2445]). Snapping the whole rect rounded the anchored
   edge too, and clamping the whole rect pushed the widget about instead of stopping the moved edge.
@@ -2197,11 +2205,12 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   [S-11959]; removed whole with its setting. Retired 2026-11-15: the Snap to grid toggle; the grid is always on, [S-06].)*
   **Widgets always go over the
   screen edge** (owner, 2026-11-20: "widgets can go over screen edge should not be a setting anymore, they should
-  always be able to go over the screen"): every gesture (placing, moving, a block's move or resize, resizing,
-  pasting) may hang a widget over the **monitor's own** edges. The rules that stay: [S-6608]'s visible minimum (32 DIP
-  of every widget on the allowed area, `GridGeometry.Keep`), so no widget is ever lost off the screen, and [S-855]'s
-  taskbar edge, which still holds the whole widget (`GridGeometry.Holds`: nothing hangs under a taskbar or an appbar
-  of any display showing the view).
+  always be able to go over the screen"; 2026-11-21: "the widgets should be able to go over the screen"): every gesture
+  (moving, a block's move or resize, resizing, the arrow keys) may hang a widget over **every** edge, the monitor's own
+  and a taskbar's alike ([S-6608]). The rules that stay: [S-6608]'s visible minimum (32 DIP of every widget on the
+  allowed area, `GridGeometry.Keep`), so no widget is ever lost off the screen or behind a taskbar, the magnet
+  ([S-6609]), and [S-855]'s placement rule: what is placed, pasted or handed to another display lands clear of every
+  taskbar of the displays showing the view (`GridGeometry.Land`).
   *(2026-11-15 to -20 a second toggle, **Widgets can go over the screen edge**, `design.overEdge`, kept the whole
   widget on the work area while off; removed whole. A state file that still holds the key loads with it dropped,
   one repair line, [S-1050].)* Tests `EditBarLayoutTests.S2320_`, `SettingsMenuTests.S2330_`,
@@ -6389,15 +6398,16 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   included. The surface window covers the monitor's bounds but its last pixel row ([S-23]; a pixel short at the foot,
   `GridGeometry.SurfaceWindow`, so the shell never takes it for a full-screen app); `Metrics` is the monitor's bounds in
   DIPs, never that window's client rect ([S-11892]); the snap grid overlay spans it. Resizing, moving or auto-hiding the taskbar therefore
-  never rescales a widget and moves only one it now covers ([S-855]): rendering ignores the work area entirely. Was: the window and
+  never rescales a widget and moves only one it would newly hide ([S-855] (3)): rendering ignores the work area entirely. Was: the window and
   the fractions followed the work area, so every taskbar change moved every widget.
 - **[S-841]** The **work area** is the region *new* geometry may use: `ScreenMetrics.Allowed`, the
   work area as a fraction of the monitor (`GridGeometry.AllowedArea`). Placement, drag, resize, paste,
   drop and duplicate settle against it ([S-6608]), so nothing is lost under the taskbar; a rect that
   does not fit shrinks to it, one pushed out of reach slides back to the visible minimum keeping its
-  size, and one dragged just past the taskbar's edge lands flush with it ([S-6609]). A widget the
-  taskbar later grows over **moves clear of it**, as little as it takes ([S-855]; until 2026-11-20 it stayed under
-  it): load validation keeps it in reach of the whole screen only, and the settle on settled metrics moves it; a
+  size (a gesture may leave the rest of it behind the taskbar, [S-6608]; a placement lands clear, [S-11]), and one
+  dragged just past the taskbar's edge lands flush with it ([S-6609]). A widget that lay clear of the taskbar and that
+  the taskbar later grows over **moves clear of it**, as little as it takes ([S-855] (3); until 2026-11-20 it stayed
+  under it); one the user hung over its edge stays: load validation keeps it in reach of the whole screen only, and the settle on settled metrics moves it; a
   desktop icon's widget, of either source, follows the work area by its own rules as Explorer's icons do ([S-5562],
   [S-11887]). For a view shown on several displays the work area is the part every one of them holds ([S-855]). An unusable work area
   (non-finite, empty, off the monitor) allows the whole screen. An auto-hidden taskbar reserves
@@ -6478,7 +6488,7 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   (`AppHost.SettleSurfaces`, also at the end of each display pass) that runs what waited. A pass at
   provisional metrics then real ones stores what the real ones alone do. Tests `SurfaceMetricsTests`,
   `SettledMetricsTests` (Modules).
-- **[S-855]** **Every taskbar is kept clear, on every display that shows the view** (owner, 2026-11-20: "themia does
+- **[S-855]** **Every taskbar is kept clear by placement and by a change of displays, on every display that shows the view; a gesture may still go over one ([S-6608])** (owner, 2026-11-20: "themia does
   not properly take the taskbars into account, when i show the same view on two screens it calculates the center
   without the taskbar this leads to hidden widgets on both screens. fix this. (happens on left and right taskbars
   like i have it.)"; two 2560 × 1440 panels side by side, the taskbar on the left of one and on the right of the
@@ -6491,29 +6501,46 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   block's move, a resize, the arrow keys, a refit, the desktop icons' arrivals, settle, auto arrange and sort, and the
   fences all lay geometry inside it, so what is put on one display is clear of the other's taskbar; each display's
   own chrome (the edit bar, its flyouts and the add page, the view bar, the notices, the placement line) stands in
-  its own work area (`DesktopWindow.WorkArea`). (2) **A taskbar's edge is never hung over** (`GridGeometry.Holds`,
-  `Strips`, `Reach`): an allowed area's side that ends inside the monitor ends at a strip another program reserved
-  (the taskbar on any side, a dock registered as an appbar, on this display or another showing the view); a
-  gesture keeps the whole widget on its side, and a widget hangs over the monitor's own edges only ([S-2330]: always,
-  no setting). An auto-hidden taskbar reserves nothing: its edge is the monitor's. (3) **What is stored
-  is settled clear of it** (`WorkAreaSettle`, in every mutation and after an undo step, on settled metrics [S-854];
-  a display pass or a work-area change runs one): a widget reaching past a taskbar's edge of its view's work area
-  (laid out against another display's work area, before the view was shown on a second display, or under a taskbar
-  that moved, grew or stopped hiding) moves in as little as it takes: **the whole view by one translation** where that
-  holds every widget (a layout made on one display slides whole into the shared part: its joins, gaps and alignment
-  kept), else **each set of touching widgets by its own** ([S-2240]: a join stays a join), carrying a widget it comes
-  to lie over by as much (their gap kept); a set wider than the room is kept in it widget by widget. What hangs over a
-  monitor's own edge stays; the desktop's icons keep their own settle ([S-11887]) on the same work area; nothing is
-  ever resized by it. A widget placed at a display's work-area centre lands centred there, never on the monitor's
-  centre. Tests `TaskbarSidesTests.S855_` (the owner's two displays with every widget inside each work area, the pair
-  joined, the neighbour carried, nothing clear moved; a layout sliding whole; top, bottom, left and right taskbars;
-  auto-hide; the monitor's own edge still hung over; an unsettled display waits; icons left alone),
-  `WorkAreaGeometryTests.S6608_S855_`, `S11_S855_`, `S31a_S855_`, `EdgeOverhangTests.S6608_S855_`. `--displays-check
+  its own work area (`DesktopWindow.WorkArea`). (2) **A taskbar's edge is a strip's** (`GridGeometry.Strips`): an
+  allowed area's side that ends inside the monitor ends at a strip another program reserved (the taskbar on any side,
+  a dock registered as an appbar, on this display or another showing the view). A gesture may take a widget over it
+  to the visible minimum ([S-6608]; owner, 2026-11-21: "the widgets should be able to go over the screen"); what is
+  **placed** lands wholly clear of it (`GridGeometry.Land`, `BlockGeometry.PlaceAt`/`Land`: a new widget, a paste, a
+  ready-made group, a hand-off, [S-11], [S-77]), so nothing lands hidden behind one. An auto-hidden taskbar reserves
+  nothing: its edge is the monitor's. (3) **What is stored is settled by two rules, and only two** (`WorkAreaSettle`,
+  in every mutation, on settled metrics [S-854]; a display pass or a work-area change runs one): **(a) nothing is
+  lost**: every widget keeps the visible minimum on its view's work area on each axis, sliding back only that far (a
+  set of touching widgets by one translation where one does it); a widget the user hung over a taskbar stays where it
+  is, through every change after. **(b) Nothing is newly hidden by a change of the area**: a view remembers the area
+  its widgets were laid on (`ViewState.WorkArea`, `workArea` in the file; none yet: the whole monitor, laid on no work
+  area, as a file from before or another PC), and when it is shown in another (on a second display, on another display
+  alone, under a taskbar that moved, grew or stopped hiding), a widget that lay inside that area on a side and would
+  now reach past a taskbar's edge on it (`GridGeometry.ClearSides`) moves in as little as it takes: **the whole view by
+  one translation** where that holds every widget (a layout made on one display slides whole into the shared part: its
+  joins, gaps and alignment kept), else **each set of touching widgets by its own** ([S-2240]: a join stays a join),
+  carrying a widget it comes to lie over by as much (their gap kept); a set wider than the room is kept in it widget by
+  widget. A widget that reached past the old area's edge on an axis (the user's overhang, over a taskbar or the monitor's
+  own edge) is left on that axis to rule (a). Then the new area is remembered. A refit that grows a card keeps it clear
+  of a taskbar it was clear of ([S-2447]). The desktop's icons keep their own settle ([S-11887]); nothing is ever resized
+  by it. The undo snapshot does not hold the area (showing a view is navigating, [S-886]). A widget placed at a
+  display's work-area centre lands centred there, never on the monitor's centre. Tests `TaskbarSidesTests.S855_` (a view
+  laid on no area yet: the owner's two displays with every widget inside each work area, the pair joined, the neighbour
+  carried, nothing clear moved; a layout sliding whole; a set wider than the room; an unsettled display waits; icons left
+  alone; laid on the left display then shown on both: what the right taskbar would hide moves, the user's overhang over
+  the left taskbar stays; a taskbar that grew; the area remembered; a bad area repaired) and `TaskbarSidesTests.S6608_`
+  (a gesture over every taskbar side to the visible minimum, a placement there clear; a widget hung over a taskbar kept
+  through every settle; one wholly behind it brought out only to the visible minimum), `WorkAreaGeometryTests.S6608_S855_`,
+  `S11_S855_`, `S31a_S6608_S855_`, `EdgeOverhangTests.S6608_S855_`, `WidgetSizingTests.S2447_S855_`. `--displays-check
   <outDir>` lays one view against both work areas on two stand-in displays whose taskbars are on opposite sides
   (2560 × 1440, 72 pixels) through a real host and surfaces, and checks every card against each display's own work
-  area, where a widget placed at either far edge lands, and each edit bar's room (`displays.txt`, PASS or FAIL;
-  `display-left.png`, `display-right.png` with each taskbar's strip tinted). **Needs a live check** on the owner's
-  two displays: the real work areas, a drag and a placement on each, a taskbar moved or set to auto-hide.
+  area, where a widget placed at either far edge lands, a widget dragged half over each display's own taskbar (it stays
+  there through the settles after, partly behind it, the visible minimum on both work areas), each edit bar's room, and a
+  second view laid on the left display alone then shown on both (the widget flush with the right monitor edge moves
+  clear of the right taskbar, the one hung over the left taskbar stays, placements land clear of both) (`displays.txt`,
+  PASS or FAIL; `display-left.png`, `display-right.png`, `display-left-work.png`, `display-right-work.png` with each
+  taskbar's strip tinted). **Needs a live check** on the owner's two displays: the real work areas, a real drag over the
+  left and the right taskbar on each display (the part behind it clipped, the card grabbed back by what shows), a
+  placement on each, a view shown on the other display, a taskbar moved or set to auto-hide.
 
 Not ported, deliberately: the original's legacy ordinal-key migration ([MI-03]/[MI-04]; no
 compatibility, by decision); its ~1 s work-area self-heal sweep ([DW-04]), which polls, replaced by

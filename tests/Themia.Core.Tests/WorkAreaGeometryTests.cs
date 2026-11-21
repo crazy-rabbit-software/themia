@@ -94,7 +94,7 @@ public class WorkAreaGeometryTests
 
     [Theory]
     [MemberData(nameof(Edges))]
-    public void S6608_S855_a_widget_dragged_onto_any_taskbar_stops_clear_of_it_and_keeps_the_minimum_on_the_other_edges(string edge, PixelRect work)
+    public void S6608_S855_a_widget_dragged_onto_any_taskbar_goes_behind_it_and_keeps_the_minimum_on_every_edge(string edge, PixelRect work)
     {
         var screen = WithTaskbar(work);
         var a = screen.Allowed;
@@ -116,17 +116,25 @@ public class WorkAreaGeometryTests
             Assert.True(overlapY >= GridGeometry.MinVisiblePx - 1e-6, edge);
             Assert.Equal(pushed.W, settled.W, 6);
             Assert.Equal(pushed.H, settled.H, 6);
-
-            // [S-855] Never under the taskbar: its edge holds the widget whole.
-            var clear = edge switch
-            {
-                "bottom" => settled.Bottom <= a.Bottom + Eps,
-                "top" => settled.Y >= a.Y - Eps,
-                "left" => settled.X >= a.X - Eps,
-                _ => settled.Right <= a.Right + Eps,
-            };
-            Assert.True(clear, $"{edge}: {settled}");
         }
+
+        // Pushed onto the taskbar itself it goes behind it, the visible minimum left on the work area.
+        var onto = edge switch
+        {
+            "bottom" => new FracRect(0.4, 1.5, w, h),
+            "top" => new FracRect(0.4, -1.5, w, h),
+            "left" => new FracRect(-1.5, 0.4, w, h),
+            _ => new FracRect(1.5, 0.4, w, h),
+        };
+        var behind = GridGeometry.Settle(onto, screen);
+        var under = edge switch
+        {
+            "bottom" => behind.Bottom > a.Bottom + Eps,
+            "top" => behind.Y < a.Y - Eps,
+            "left" => behind.X < a.X - Eps,
+            _ => behind.Right > a.Right + Eps,
+        };
+        Assert.True(under, $"{edge}: {behind} stopped at the taskbar");
     }
 
     [Fact]
@@ -139,6 +147,10 @@ public class WorkAreaGeometryTests
         var settled = GridGeometry.Settle(new FracRect(0.4, (1037.0 / 1080) - h, 0.1, h), screen);
 
         Assert.Equal(1032.0 / 1080, settled.Bottom, 9);
+
+        // [S-6608] Past the magnet it goes on over the taskbar's edge.
+        var past = GridGeometry.Settle(new FracRect(0.4, (1052.0 / 1080) - h, 0.1, h), screen);
+        Assert.True(past.Bottom > (1032.0 / 1080) + Eps, $"{past} stopped at the taskbar");
     }
 
     [Fact]
@@ -195,7 +207,7 @@ public class WorkAreaGeometryTests
     }
 
     [Fact]
-    public void S31a_S855_dragging_the_bottom_edge_onto_the_taskbar_stops_it_on_the_taskbars_edge()
+    public void S31a_S6608_S855_dragging_the_bottom_edge_onto_the_taskbar_takes_it_behind_the_taskbar()
     {
         var screen = WithTaskbar(BottomTaskbar);
         var start = new FracRect(0.2, 0.7, 0.2, 0.15);
@@ -204,11 +216,11 @@ public class WorkAreaGeometryTests
         var settled = GridGeometry.Settle(dragged, screen, ResizeHandle.Bottom);
 
         Assert.Equal(start.Y, settled.Y, 12);
-        Assert.Equal(screen.Allowed.Bottom, settled.Bottom, 9);
+        Assert.Equal(1.05, settled.Bottom, 2);
         Assert.Equal(start.X, settled.X, 12);
         Assert.Equal(start.W, settled.W, 12);
 
-        // [S-6608] The monitor's own edge (a taskbar on the top) is still passed.
+        // [S-6608] The monitor's own edge (a taskbar on the top) is passed the same.
         var top = WithTaskbar(TopTaskbar);
         var past = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, 0.2, top), top, ResizeHandle.Bottom);
         Assert.Equal(1.05, past.Bottom, 2);

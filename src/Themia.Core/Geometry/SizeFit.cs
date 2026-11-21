@@ -292,8 +292,9 @@ public static class SizeFit
                 stored = stored with { H = limits.Height.Range(sizing.Natural.Height * s / screen.Height) };
             }
 
-            // Kept in reach as any rect ([S-09]) where the natural moved it.
-            stored = stored == widget.Rect ? stored : GridGeometry.Clamp(stored, screen);
+            // Kept in reach as any rect ([S-09]) where the natural moved it; [S-855] clear of a taskbar it was clear of, so
+            // a card that grows is never pushed behind one (one the user hung over a taskbar may stay over it, [S-6608]).
+            stored = stored == widget.Rect ? stored : GridGeometry.Clamp(stored, screen, GridGeometry.ClearSides(widget.Rect, screen.Allowed, screen.Allowed));
         }
 
         var shown = Shown(stored, limits, screen);

@@ -19,10 +19,9 @@ namespace Themia.Core.Geometry;
 /// when that is at most <see cref="MostCommonStep"/> cells; so two equal widgets side by side grow a cell each, together.
 /// Otherwise cell by cell, each edge on its nearest line.</item>
 /// <item>The block stops at the last length at which every member stays inside its sizing (one member at its Min or Max
-/// stops them all), stays in reach as a single widget does (over the monitor's own edge by all but the visible minimum,
-/// [S-6608]; never under a taskbar of a display showing the view, [S-855]): on the common step where one was passed, else
-/// (a limit nearer than one step) that last length itself. It may come over a widget that stays: nothing keeps widgets
-/// apart ([S-2465] retired with [S-11959]).</item>
+/// stops them all), stays in reach as a single widget does (over any edge, a taskbar's as the monitor's, by all but the
+/// visible minimum, [S-6608]): on the common step where one was passed, else (a limit nearer than one step) that last
+/// length itself. It may come over a widget that stays: nothing keeps widgets apart ([S-2465] retired with [S-11959]).</item>
 /// <item>A member fixed on an axis (a desktop icon) keeps its size there and moves with its nearer edge; an axis every
 /// member is fixed on does not resize (<see cref="Free"/>).</item>
 /// </list>
@@ -442,8 +441,8 @@ public static class BlockResize
         }
 
         /// <summary>
-        /// [S-6608] [S-855] The span is in reach as a single widget's gesture keeps it (<see cref="GridGeometry.Reach"/>):
-        /// over the monitor's own edge by all but the visible minimum, never past a taskbar's edge of the view's allowed area.
+        /// [S-6608] The span is in reach as a single widget's gesture keeps it (<see cref="GridGeometry.Reach"/>):
+        /// over any edge of the view's allowed area, a taskbar's as the monitor's, by all but the visible minimum.
         /// </summary>
         private bool Reached(Span span)
         {

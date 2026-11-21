@@ -181,6 +181,16 @@ public sealed partial class ViewState
     public ViewDesktopIcons DesktopIcons { get; set; }
 
     /// <summary>
+    /// [S-855] The area its widgets were last settled on: the part of the screen every display showing it held in its
+    /// work area then (<see cref="Geometry.GridGeometry.SharedAllowed"/>), as a fraction of the monitor; null until the
+    /// view has been shown on a settled display. Kept by <see cref="Geometry.WorkAreaSettle"/>: when the area the view
+    /// is shown in is another (a second display, a taskbar moved or grown), a widget that lay clear of a side there and
+    /// would now be behind a taskbar moves clear, while one the user hung over a taskbar's edge stays over it ([S-6608]).
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public FracRect? WorkArea { get; set; }
+
+    /// <summary>
     /// [S-889] Take every stored property of <paramref name="source"/> but its id and its widgets (the caller lays those):
     /// a guard test fails on a stored property it leaves out.
     /// </summary>
@@ -192,6 +202,7 @@ public sealed partial class ViewState
         Icon = source.Icon;
         Color = source.Color;
         DesktopIcons = source.DesktopIcons;
+        WorkArea = source.WorkArea;
     }
 
     /// <summary>Find a widget in this view by id, or null.</summary>

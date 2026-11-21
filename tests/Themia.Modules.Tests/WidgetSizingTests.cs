@@ -128,6 +128,33 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
+    public void S2447_S855_a_card_that_grows_stays_clear_of_a_taskbar_it_was_clear_of_and_one_hung_over_it_stays()
+    {
+        // A taskbar from 0.9 down. A list flush on its edge that grows by its Rows is pushed up clear of it; one the user
+        // hung over it ([S-6608], owner 2026-11-21: "the widgets should be able to go over the screen") stays where it is.
+        var screen = Screen with { Allowed = new FracRect(0, 0, 1, 0.9) };
+        WidgetInstance List(double y)
+        {
+            var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, y, 0.3, 0.12));
+            ((TasksConfig)widget.Config).Rows = 3;
+            return widget;
+        }
+
+        var flush = List(0.78);
+        var hung = List(0.85);
+        foreach (var widget in new[] { flush, hung })
+        {
+            var was = SizeFit.Of(widget);
+            ((TasksConfig)widget.Config).Rows = 6;
+            Assert.True(SizeFit.Refit(widget, screen, 1, was));
+            Assert.True(widget.Rect.H > 0.12 + 1e-9);
+        }
+
+        Assert.Equal(0.9, flush.Rect.Bottom, 9);
+        Assert.Equal(0.85, hung.Rect.Y, 9);
+    }
+
+    [Fact]
     public void S2440_tasks_draws_two_lines_only_where_a_row_has_a_second_line()
     {
         var local = new TasksConfig { Source = TaskSource.Local, Lines = 2 };

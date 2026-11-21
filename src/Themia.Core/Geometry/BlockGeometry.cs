@@ -58,26 +58,31 @@ public static class BlockGeometry
     /// </para>
     /// </summary>
     public static Delta Move(IReadOnlyList<FracRect> start, double dxFrac, double dyFrac, ScreenMetrics screen)
-        => Settle(start, dxFrac, dyFrac, screen);
+        => Settle(start, dxFrac, dyFrac, screen, default);
 
     /// <summary>
     /// [S-1586] The translation that puts the centre of <paramref name="anchor"/> on a point, then
     /// settles the block as <see cref="Move"/> does. The anchor is the whole block's box for a paste
     /// (the block is centred on the pointer, [S-74]) and the grabbed widget for a drag handed to
-    /// another display ([S-77]).
+    /// another display ([S-77]). [S-855] A placement lands wholly clear of every taskbar of the view's displays
+    /// (<see cref="GridGeometry.Land"/>): what a gesture may take over a taskbar's edge, a placement never puts there.
     /// </summary>
     public static Delta PlaceAt(IReadOnlyList<FracRect> rects, FracRect anchor, double xFrac, double yFrac, ScreenMetrics screen)
     {
         var dx = double.IsFinite(xFrac) ? xFrac - (anchor.X + (anchor.W / 2)) : 0;
         var dy = double.IsFinite(yFrac) ? yFrac - (anchor.Y + (anchor.H / 2)) : 0;
-        return Settle(rects, dx, dy, screen);
+        return Settle(rects, dx, dy, screen, GridGeometry.Strips(screen.Allowed));
     }
 
     /// <summary>One rect of the block, moved by the block's delta and kept in reach ([S-09]).</summary>
     public static FracRect Apply(FracRect rect, Delta delta, ScreenMetrics screen)
         => GridGeometry.Clamp(rect with { X = rect.X + delta.Dx, Y = rect.Y + delta.Dy }, screen);
 
-    private static Delta Settle(IReadOnlyList<FracRect> rects, double dx, double dy, ScreenMetrics screen)
+    /// <summary>[S-11] [S-855] One rect of a placed block, moved by its delta (<see cref="PlaceAt"/>) and landed clear of the taskbars.</summary>
+    public static FracRect Land(FracRect rect, Delta delta, ScreenMetrics screen)
+        => GridGeometry.Land(rect with { X = rect.X + delta.Dx, Y = rect.Y + delta.Dy }, screen);
+
+    private static Delta Settle(IReadOnlyList<FracRect> rects, double dx, double dy, ScreenMetrics screen, EdgeHolds held)
     {
         var box = Bounds(rects);
         if (!box.IsFinite || !double.IsFinite(dx) || !double.IsFinite(dy))
@@ -94,10 +99,10 @@ public static class BlockGeometry
         x = GridGeometry.SnapStart(x, box.W, a.X, a.Right, cols, screen.Width);
         y = GridGeometry.SnapStart(y, box.H, a.Y, a.Bottom, rows, screen.Height);
 
-        // [S-6608] The block may hang over any edge until one of its widgets would keep less than
+        // [S-6608] The block may hang over any edge, a taskbar's too, until one of its widgets would keep less than
         // the visible minimum on the allowed area: that widget stops the whole block, so none of
-        // them is ever pushed out of reach and the offsets never change.
-        var (loX, hiX, loY, hiY) = Reach(rects, screen);
+        // them is ever pushed out of reach and the offsets never change. [S-855] A placement's held sides stop it whole.
+        var (loX, hiX, loY, hiY) = Reach(rects, screen, held);
 
         // Rects that cannot all stay in reach at once (laid out on a larger area) settle on the
         // nearest the block allows; Apply then keeps each one in reach on its own.
@@ -106,9 +111,9 @@ public static class BlockGeometry
 
     /// <summary>
     /// [S-6608] How far the block may move each way before one of its rects keeps less than the visible minimum;
-    /// [S-855] or, against a taskbar's edge, before one of them reaches under it.
+    /// [S-855] or, against a side in <paramref name="held"/> (a placement's taskbar edges), before one of them reaches under it.
     /// </summary>
-    private static (double LoX, double HiX, double LoY, double HiY) Reach(IReadOnlyList<FracRect> rects, ScreenMetrics screen)
+    private static (double LoX, double HiX, double LoY, double HiY) Reach(IReadOnlyList<FracRect> rects, ScreenMetrics screen, EdgeHolds held)
     {
         double loX = double.NegativeInfinity, hiX = double.PositiveInfinity;
         double loY = double.NegativeInfinity, hiY = double.PositiveInfinity;
@@ -119,7 +124,7 @@ public static class BlockGeometry
                 continue;
             }
 
-            var (startLoX, startHiX, startLoY, startHiY) = GridGeometry.Reach(screen, r.W, r.H);
+            var (startLoX, startHiX, startLoY, startHiY) = GridGeometry.Reach(screen, r.W, r.H, held);
             loX = Math.Max(loX, startLoX - r.X);
             hiX = Math.Min(hiX, startHiX - r.X);
             loY = Math.Max(loY, startLoY - r.Y);

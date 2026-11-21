@@ -199,14 +199,15 @@ public sealed class ShellKeyboardTests
     }
 
     [Fact]
-    public void S1970_S855_a_move_onto_the_taskbar_stops_on_its_edge_and_past_the_screens_keeps_the_minimum()
+    public void S1970_S6608_S855_a_move_onto_the_taskbar_goes_behind_it_keeping_the_minimum_as_past_the_screens()
     {
+        // Owner, 2026-11-21: "the widgets should be able to go over the screen".
         var screen = Screen with { Allowed = new FracRect(0, 0, 1, 0.9) };
         var moved = KeyboardNudge.Move([new FracRect(0.2, 0.7, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, screen);
 
-        Near(0.9 - 0.1, moved[0].Y);
+        Near(0.9 - (32.0 / 500), moved[0].Y);
 
-        // [S-6608] The monitor's own edge is hung over, the visible minimum kept on it.
+        // [S-6608] The monitor's own edge is hung over the same, the visible minimum kept on it.
         var over = KeyboardNudge.Move([new FracRect(0.2, 0.8, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, Screen);
         Near(1 - (32.0 / 500), over[0].Y);
     }

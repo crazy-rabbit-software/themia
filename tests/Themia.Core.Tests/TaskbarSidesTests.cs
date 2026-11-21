@@ -9,7 +9,8 @@ namespace Themia.Core.Tests;
 /// "when i show the same view on two screens it calculates the center without the taskbar this leads to hidden
 /// widgets on both screens. (happens on left and right taskbars like i have it.)"). His displays: two 2560 × 1440
 /// panels at 150 % (1706.7 × 960 DIPs), the taskbar 48 DIPs (72 pixels) wide on the left of one and on the right of
-/// the other.
+/// the other. [S-6608] A gesture still takes a widget over a taskbar's edge, keeping the visible minimum (owner,
+/// 2026-11-21: "the widgets should be able to go over the screen"); placement and a change of the area keep it clear.
 /// </summary>
 public sealed class TaskbarSidesTests
 {
@@ -45,6 +46,15 @@ public sealed class TaskbarSidesTests
     }
 
     private static WidgetInstance Widget(string id, FracRect rect) => new() { Id = id, Config = new Card(), Rect = rect };
+
+    /// <summary>How much of a stored rect a display's work area shows on each axis, in DIPs.</summary>
+    private static (double X, double Y) Visible(FracRect r, ScreenMetrics display)
+    {
+        var a = display.Allowed;
+        return (
+            (Math.Min(r.Right, a.Right) - Math.Max(r.X, a.X)) * display.Width,
+            (Math.Min(r.Bottom, a.Bottom) - Math.Max(r.Y, a.Y)) * display.Height);
+    }
 
     // ---- the area a view shown on several displays takes new geometry in ------------------------------------
 
@@ -100,19 +110,33 @@ public sealed class TaskbarSidesTests
     }
 
     [Fact]
-    public void S855_a_block_dragged_on_one_display_stops_at_the_other_displays_taskbar()
+    public void S6608_S855_a_block_dragged_on_one_display_goes_over_the_other_displays_taskbar_to_the_visible_minimum()
     {
+        // Owner, 2026-11-21: "the widgets should be able to go over the screen".
         FracRect[] start = [new(0.6, 0.4, 0.15, 0.2), new(0.75, 0.4, 0.15, 0.2)];
         var screen = Both(LeftBar);
 
         var delta = BlockGeometry.Move(start, 0.5, 0, screen);
+        var right = BlockGeometry.Apply(start[1], delta, screen);
 
-        Assert.Equal(1 - T, BlockGeometry.Apply(start[1], delta, screen).Right, 9);
-        Assert.Equal(0.15, BlockGeometry.Apply(start[1], delta, screen).X - BlockGeometry.Apply(start[0], delta, screen).X, 9);
-        Assert.True(start.All(r => Inside(BlockGeometry.Apply(r, delta, screen), RightBar)));
+        Assert.True(right.Right > 1 - T, $"{right} stopped at the taskbar");
+        Assert.Equal(GridGeometry.MinVisiblePx, Visible(right, screen).X, 6);
+        Assert.Equal(0.15, right.X - BlockGeometry.Apply(start[0], delta, screen).X, 9);
     }
 
-    // ---- a taskbar's edge is never hung over; the monitor's own edge still is ----------------------------------
+    [Fact]
+    public void S6609_S855_a_block_dragged_just_past_a_taskbars_edge_lands_flush_on_it()
+    {
+        FracRect[] start = [new(0.6, 0.4, 0.15, 0.2), new(0.75, 0.4, 0.15, 0.2)];
+        var screen = Both(LeftBar);
+
+        // The block's right edge 5 DIPs past the right display's taskbar: inside the magnet.
+        var delta = BlockGeometry.Move(start, 1 - T - 0.9 + (5 / screen.Width), 0, screen);
+
+        Assert.Equal(1 - T, BlockGeometry.Apply(start[1], delta, screen).Right, 9);
+    }
+
+    // ---- a gesture goes over a taskbar's edge as over the monitor's, keeping the visible minimum --------------------
 
     public static TheoryData<string, ScreenMetrics, FracRect> PushedOntoTaskbars => new()
     {
@@ -124,13 +148,18 @@ public sealed class TaskbarSidesTests
 
     [Theory]
     [MemberData(nameof(PushedOntoTaskbars))]
-    public void S855_a_widget_pushed_onto_a_taskbar_on_any_side_stops_wholly_clear_of_it(string side, ScreenMetrics screen, FracRect pushed)
+    public void S6608_S855_a_widget_pushed_onto_a_taskbar_on_any_side_goes_behind_it_keeping_the_visible_minimum(string side, ScreenMetrics screen, FracRect pushed)
     {
         var settled = GridGeometry.Settle(pushed, screen);
 
-        Assert.True(Inside(settled, screen), $"{side}: {settled}");
+        Assert.False(Inside(settled, screen), $"{side}: {settled} stopped at the taskbar");
+        var (x, y) = Visible(settled, screen);
+        Assert.Equal(GridGeometry.MinVisiblePx, side is "left" or "right" ? x : y, 6);
         var snapped = GridGeometry.Snap(pushed, screen);
         Assert.Equal((snapped.W, snapped.H), (settled.W, settled.H));
+
+        // [S-11] [S-855] Placed there instead, it lands wholly clear of the taskbar.
+        Assert.True(Inside(GridGeometry.Land(settled, screen), screen), $"{side}: placed under the taskbar");
     }
 
     [Fact]
@@ -146,19 +175,19 @@ public sealed class TaskbarSidesTests
     }
 
     [Fact]
-    public void S855_a_resized_edge_stops_on_a_taskbars_edge_and_passes_the_monitors()
+    public void S6608_S855_a_resized_edge_passes_a_taskbars_edge_as_the_monitors()
     {
         var start = new FracRect(0.4, 0.4, 0.2, 0.2);
 
-        var toBar = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Left, -0.6, 0, LeftBar), LeftBar, ResizeHandle.Left);
-        Assert.Equal(T, toBar.X, 9);
-        Assert.Equal(start.Right, toBar.Right, 12);
+        var overBar = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Left, -0.6, 0, LeftBar), LeftBar, ResizeHandle.Left);
+        Assert.True(overBar.X < T, $"{overBar} stopped at the taskbar");
+        Assert.Equal(start.Right, overBar.Right, 12);
 
         var overEdge = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Right, 0.8, 0, LeftBar), LeftBar, ResizeHandle.Right);
         Assert.True(overEdge.Right > 1);
     }
 
-    // ---- what is stored is settled clear of every taskbar of the displays showing it ---------------------------
+    // ---- a view laid on no work area yet is settled clear of every taskbar of the displays showing it -------------
 
     /// <summary>
     /// The owner's view as laid out on one display or the other: flush with the left display's taskbar and the right
@@ -283,8 +312,139 @@ public sealed class TaskbarSidesTests
         // Two joined widgets as wide as the whole monitor: no one translation holds them.
         IReadOnlyList<FracRect> rects = [new FracRect(0, 0.1, 0.5, 0.2), new FracRect(0.5, 0.1, 0.5, 0.2)];
 
-        var settled = WorkAreaSettle.Settle(rects, Both(LeftBar));
+        var settled = WorkAreaSettle.Settle(rects, FracRect.Full, Both(LeftBar));
 
         Assert.True(settled.All(r => Inside(r, LeftBar) && Inside(r, RightBar)), string.Join(" ", settled));
+    }
+
+    // ---- what the user hung over a taskbar stays; what a change of the area would newly hide moves clear -----------
+
+    [Fact]
+    public void S6608_S855_a_widget_hung_over_a_taskbar_stays_there_through_every_settle()
+    {
+        // Owner, 2026-11-21: "the widgets should be able to go over the screen". Laid on both displays, then dragged
+        // partly over the left display's taskbar and partly over the right display's.
+        var state = new AppState();
+        var view = ViewState.Create("Home");
+        view.Id = "home";
+        view.WorkArea = Both(LeftBar).Allowed;
+        var overLeft = new FracRect(T - 0.03, 0.2, 0.1, 0.12);
+        var overRight = new FracRect(1 - T - 0.07, 0.5, 0.1, 0.12);
+        view.Widgets.AddRange([Widget("over-left", overLeft), Widget("over-right", overRight)]);
+        state.Views.Add(view);
+
+        Assert.False(WorkAreaSettle.Waits(state, OwnersDisplays()));
+        Assert.Equal(0, WorkAreaSettle.Apply(state, OwnersDisplays()));
+        Assert.Equal(0, WorkAreaSettle.Apply(state, OwnersDisplays()));
+
+        Assert.Equal(overLeft, view.Widgets[0].Rect);
+        Assert.Equal(overRight, view.Widgets[1].Rect);
+    }
+
+    [Fact]
+    public void S6608_S855_one_wholly_behind_a_taskbar_slides_out_only_to_the_visible_minimum()
+    {
+        var state = new AppState();
+        var view = ViewState.Create("Home");
+        view.Id = "home";
+        view.WorkArea = Both(LeftBar).Allowed;
+        view.Widgets.Add(Widget("hidden", new FracRect(-0.05, 0.5, 0.06, 0.1)));
+        state.Views.Add(view);
+
+        Assert.True(WorkAreaSettle.Waits(state, OwnersDisplays()));
+        Assert.Equal(1, WorkAreaSettle.Apply(state, OwnersDisplays()));
+
+        var r = view.Widgets[0].Rect;
+        Assert.Equal(GridGeometry.MinVisiblePx, Visible(r, Both(LeftBar)).X, 6);
+        Assert.True(r.X < T, "pulled wholly clear: only the visible minimum is the settle's");
+        Assert.Equal((0.06, 0.5), (r.W, r.Y));
+    }
+
+    [Fact]
+    public void S855_a_view_shown_on_another_display_moves_what_its_taskbar_would_hide_and_keeps_the_users_overhang()
+    {
+        // Laid on the left display alone (its taskbar on the left): one widget hung over that taskbar by the user, one
+        // flush with the monitor's right edge, a pair joined there, one in the middle.
+        var state = new AppState();
+        var view = ViewState.Create("Home");
+        view.Id = "home";
+        view.WorkArea = LeftBar.Allowed;
+        var hung = new FracRect(T - 0.02, 0.1, 0.1, 0.12);
+        var middle = new FracRect(0.45, 0.75, 0.1, 0.12);
+        view.Widgets.AddRange(
+        [
+            Widget("hung-over-left-taskbar", hung),
+            Widget("flush-right-edge", new FracRect(0.9, 0.1, 0.1, 0.12)),
+            Widget("pair-a", new FracRect(0.8, 0.4, 0.1, 0.12)),
+            Widget("pair-b", new FracRect(0.9, 0.4, 0.1, 0.12)),
+            Widget("middle", middle),
+        ]);
+        state.Views.Add(view);
+
+        // Now shown on the right display too, whose taskbar is on the right.
+        Assert.True(WorkAreaSettle.Waits(state, OwnersDisplays()));
+        WorkAreaSettle.Apply(state, OwnersDisplays());
+
+        var at = view.Widgets.ToDictionary(w => w.Id, w => w.Rect);
+        Assert.Equal(1 - T, at["flush-right-edge"].Right, 9);
+        Assert.Equal(1 - T, at["pair-b"].Right, 9);
+        Assert.Equal(at["pair-a"].Right, at["pair-b"].X, 12);
+        Assert.Equal(hung, at["hung-over-left-taskbar"]);
+        Assert.Equal(middle, at["middle"]);
+        Assert.True(WorkAreaSettle.Same(Both(LeftBar).Allowed, view.WorkArea!.Value));
+        Assert.False(WorkAreaSettle.Waits(state, OwnersDisplays()));
+    }
+
+    [Fact]
+    public void S855_a_taskbar_that_grew_moves_what_lay_clear_of_it_and_keeps_what_hung_over_it()
+    {
+        var state = new AppState();
+        var view = ViewState.Create("Home");
+        view.Id = "home";
+        view.WorkArea = Screen(new PixelRect(0, 0, 2560, 1392)).Allowed;
+        var hung = new FracRect(0.6, 0.9, 0.2, 0.1);
+        view.Widgets.AddRange([Widget("flush", new FracRect(0.3, (1392.0 / 1440) - 0.1, 0.2, 0.1)), Widget("hung", hung)]);
+        state.Views.Add(view);
+
+        // The taskbar grew from 48 to 72 pixels.
+        WorkAreaSettle.Apply(state, [new SurfaceMetrics("home", BottomBar, 1, true)]);
+
+        Assert.Equal(BottomBar.Allowed.Bottom, view.Widgets[0].Rect.Bottom, 9);
+        Assert.Equal(hung, view.Widgets[1].Rect);
+    }
+
+    [Fact]
+    public void S855_the_area_a_view_is_laid_on_is_remembered_and_a_new_one_alone_waits()
+    {
+        var state = new AppState();
+        var view = ViewState.Create("Home");
+        view.Id = "home";
+        var middle = new FracRect(0.45, 0.4, 0.1, 0.12);
+        view.Widgets.Add(Widget("middle", middle));
+        state.Views.Add(view);
+
+        Assert.True(WorkAreaSettle.Waits(state, OwnersDisplays()));
+        Assert.Equal(0, WorkAreaSettle.Apply(state, OwnersDisplays()));
+        Assert.True(WorkAreaSettle.Same(Both(LeftBar).Allowed, view.WorkArea!.Value));
+        Assert.Equal(middle, view.Widgets[0].Rect);
+        Assert.False(WorkAreaSettle.Waits(state, OwnersDisplays()));
+
+        // Shown on the left display alone: another area, remembered.
+        Assert.True(WorkAreaSettle.Waits(state, [new SurfaceMetrics("home", LeftBar, 1, true)]));
+        WorkAreaSettle.Apply(state, [new SurfaceMetrics("home", LeftBar, 1, true)]);
+        Assert.True(WorkAreaSettle.Same(LeftBar.Allowed, view.WorkArea!.Value));
+    }
+
+    [Fact]
+    public void S855_a_work_area_that_is_no_part_of_the_screen_is_repaired_to_none_loudly()
+    {
+        var view = ViewState.Create("Home");
+        view.WorkArea = new FracRect(double.NaN, 0, 1, 1);
+        Assert.Contains(view.Repair(), line => line.Contains("work area", StringComparison.Ordinal));
+        Assert.Null(view.WorkArea);
+
+        view.WorkArea = new FracRect(T, 0, 1 - T, 1);
+        Assert.DoesNotContain(view.Repair(), line => line.Contains("work area", StringComparison.Ordinal));
+        Assert.Equal(new FracRect(T, 0, 1 - T, 1), view.WorkArea);
     }
 }

@@ -59,8 +59,9 @@ public readonly record struct ScreenMetrics(double Width, double Height)
 }
 
 /// <summary>
-/// [S-855] Which sides of the allowed area hold a rect wholly inside them (<see cref="GridGeometry.Holds"/>): a
-/// taskbar's side; a side that does not (the monitor's own edge) lets the rect hang over it.
+/// [S-855] Which sides of the allowed area hold a rect wholly inside them: a taskbar's side, where a placement lands
+/// (<see cref="GridGeometry.Land"/>) or a change of the work area would newly hide it (<see cref="GridGeometry.ClearSides"/>);
+/// a side that does not lets the rect hang over it to the visible minimum ([S-6608]).
 /// </summary>
 public readonly record struct EdgeHolds(bool Left, bool Top, bool Right, bool Bottom)
 {

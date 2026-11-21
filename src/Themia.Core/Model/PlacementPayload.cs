@@ -206,17 +206,17 @@ public sealed class PlacementPayload
         if (NewKind is { } kind)
         {
             var (rect, delta) = NewLayout(kind, xFrac, yFrac, screen, sizes);
-            return [new GhostOutline(BlockGeometry.Apply(rect, delta, screen), kind)];
+            return [new GhostOutline(BlockGeometry.Land(rect, delta, screen), kind)];
         }
 
         if (_readyMade is { } recipe)
         {
             var (boxes, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, sizes);
-            return [.. recipe.Widgets.Select((w, i) => new GhostOutline(BlockGeometry.Apply(boxes[i], delta, screen), new WidgetId(w.Kind)))];
+            return [.. recipe.Widgets.Select((w, i) => new GhostOutline(BlockGeometry.Land(boxes[i], delta, screen), new WidgetId(w.Kind)))];
         }
 
         var (drawn, at) = Layout(xFrac, yFrac, screen);
-        return [.. drawn.Select(w => new GhostOutline(BlockGeometry.Apply(w.Rect, at, screen), w.Kind, w.Config))];
+        return [.. drawn.Select(w => new GhostOutline(BlockGeometry.Land(w.Rect, at, screen), w.Kind, w.Config))];
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public sealed class PlacementPayload
         if (NewKind is { } kind)
         {
             var (rect, delta) = NewLayout(kind, xFrac, yFrac, screen, sizes);
-            var widget = WidgetInstance.Create(kind, BlockGeometry.Apply(rect, delta, screen));
+            var widget = WidgetInstance.Create(kind, BlockGeometry.Land(rect, delta, screen));
             return new PastePlan([widget], [widget.Id], []);
         }
 
@@ -244,7 +244,7 @@ public sealed class PlacementPayload
 
             for (var i = 0; i < widgets.Count; i++)
             {
-                widgets[i].Rect = BlockGeometry.Apply(boxes[i], delta, screen);
+                widgets[i].Rect = BlockGeometry.Land(boxes[i], delta, screen);
             }
 
             return new PastePlan(widgets, [.. widgets.Select(w => w.Id)], []);
@@ -263,7 +263,7 @@ public sealed class PlacementPayload
         {
             var copy = w.Clone();
             copy.Id = ids[w.Id];
-            copy.Rect = BlockGeometry.Apply(w.Rect, at, screen);
+            copy.Rect = BlockGeometry.Land(w.Rect, at, screen);
             return copy;
         }).ToList();
 

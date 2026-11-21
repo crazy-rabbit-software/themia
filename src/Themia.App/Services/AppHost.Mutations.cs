@@ -99,8 +99,9 @@ internal sealed partial class AppHost
         // [S-11892] Every card on its display's grid lines: an edge drifted off its line by less than a DIP put on it.
         SettleOnGrid();
 
-        // [S-855] Every widget clear of the taskbars of every display that shows its view, in the same step: a view
-        // shown on another display, a layout made against another work area ([S-854]: on settled metrics only).
+        // [S-855] [S-6608] Every widget in reach of the area every display showing its view holds, and what a change of that
+        // area (a view shown on another display, a taskbar moved or grown) would hide behind a taskbar moved clear, in the
+        // same step ([S-854]: on settled metrics only); a widget the user hung over a taskbar stays there.
         SettleOnWorkAreas();
 
         // [S-13040] [S-13042] Every fence laid on its display's icon grid, its icons on its cells, in the same step.
@@ -128,12 +129,12 @@ internal sealed partial class AppHost
         }
     }
 
-    /// <summary>[S-855] The widgets of every shown view moved clear of the taskbars of the displays showing it (<see cref="WorkAreaSettle"/>).</summary>
+    /// <summary>[S-855] The widgets of every shown view settled on the area the displays showing it hold (<see cref="WorkAreaSettle"/>).</summary>
     private void SettleOnWorkAreas()
     {
         if (WorkAreaSettle.Apply(State, SurfacesNow()) is var moved and > 0)
         {
-            Log.Info(Scope, $"{moved} widget(s) moved clear of the taskbar of a display that shows their view");
+            Log.Info(Scope, $"{moved} widget(s) moved in reach, or clear of a taskbar a change of the work area would hide them behind");
         }
     }
 
@@ -170,7 +171,7 @@ internal sealed partial class AppHost
         }
 
         // [S-13040] A fence is laid on its display's icon grid at the real metrics (a start, another resolution or scale);
-        // [S-855] a widget a taskbar now covers on a display showing its view moves clear of it; [S-11892] a card off its
+        // [S-855] a widget a change of the work area would hide behind a taskbar moves clear of it; [S-11892] a card off its
         // display's grid lines by less than a DIP is put on them.
         if (_sizings.Waits(State) || State.Views.Exists(v => v.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
             || WorkAreaSettle.Waits(State, SurfacesNow()) || GridSettle.Waits(State, SurfacesNow()))
