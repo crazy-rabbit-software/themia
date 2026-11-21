@@ -125,6 +125,9 @@
     "one": "{count}টি উইজেট মুছুন",
     "other": "{count}টি উইজেট মুছুন"
   },
+  "shell.card.deleteWidget": "উইজেট মুছুন",
+  "shell.card.refreshWidget": "উইজেট রিফ্রেশ করুন",
+  "shell.card.widgetSettings": "উইজেট সেটিংস",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

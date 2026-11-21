@@ -125,6 +125,9 @@
     "one": "{count} വിജറ്റ് ഇല്ലാതാക്കുക",
     "other": "{count} വിജറ്റുകൾ ഇല്ലാതാക്കുക"
   },
+  "shell.card.deleteWidget": "വിജറ്റ് ഇല്ലാതാക്കുക",
+  "shell.card.refreshWidget": "വിജറ്റ് പുതുക്കുക",
+  "shell.card.widgetSettings": "വിജറ്റ് ക്രമീകരണങ്ങൾ",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

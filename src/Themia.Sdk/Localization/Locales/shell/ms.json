@@ -122,6 +122,9 @@
   "shell.card.deleteMany": {
     "other": "Padam {count} widget"
   },
+  "shell.card.deleteWidget": "Padam widget",
+  "shell.card.refreshWidget": "Muat semula widget",
+  "shell.card.widgetSettings": "Seting widget",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

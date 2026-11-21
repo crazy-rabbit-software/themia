@@ -125,6 +125,9 @@
     "one": "Burahin ang {count} widget",
     "other": "Burahin ang {count} widget"
   },
+  "shell.card.deleteWidget": "Burahin ang widget",
+  "shell.card.refreshWidget": "I-refresh ang widget",
+  "shell.card.widgetSettings": "Mga setting ng widget",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

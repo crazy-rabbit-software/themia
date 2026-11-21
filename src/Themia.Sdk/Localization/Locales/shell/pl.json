@@ -131,6 +131,9 @@
     "many": "Usuń {count} widżetów",
     "other": "Usuń {count} widżetu"
   },
+  "shell.card.deleteWidget": "Usuń widżet",
+  "shell.card.refreshWidget": "Odśwież widżet",
+  "shell.card.widgetSettings": "Ustawienia widżetu",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

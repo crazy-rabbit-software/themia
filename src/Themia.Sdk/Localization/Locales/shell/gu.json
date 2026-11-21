@@ -125,6 +125,9 @@
     "one": "{count} વિજેટ કાઢી નાખો",
     "other": "{count} વિજેટ કાઢી નાખો"
   },
+  "shell.card.deleteWidget": "વિજેટ કાઢી નાખો",
+  "shell.card.refreshWidget": "વિજેટ રિફ્રેશ કરો",
+  "shell.card.widgetSettings": "વિજેટ સેટિંગ્સ",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

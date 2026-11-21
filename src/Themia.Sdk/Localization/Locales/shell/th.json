@@ -122,6 +122,9 @@
   "shell.card.deleteMany": {
     "other": "ลบ {count} วิดเจ็ต"
   },
+  "shell.card.deleteWidget": "ลบวิดเจ็ต",
+  "shell.card.refreshWidget": "รีเฟรชวิดเจ็ต",
+  "shell.card.widgetSettings": "การตั้งค่าวิดเจ็ต",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

@@ -125,6 +125,9 @@
     "one": "{count} ವಿಜೆಟ್ ಅಳಿಸು",
     "other": "{count} ವಿಜೆಟ್‌ಗಳನ್ನು ಅಳಿಸು"
   },
+  "shell.card.deleteWidget": "ವಿಜೆಟ್ ಅಳಿಸು",
+  "shell.card.refreshWidget": "ವಿಜೆಟ್ ರಿಫ್ರೆಶ್ ಮಾಡು",
+  "shell.card.widgetSettings": "ವಿಜೆಟ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

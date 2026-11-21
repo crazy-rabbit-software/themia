@@ -125,6 +125,9 @@
     "one": "حذف {count} ویجت",
     "other": "حذف {count} ویجت"
   },
+  "shell.card.deleteWidget": "حذف ویجت",
+  "shell.card.refreshWidget": "تازه‌سازی ویجت",
+  "shell.card.widgetSettings": "تنظیمات ویجت",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

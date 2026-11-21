@@ -122,6 +122,9 @@
   "shell.card.deleteMany": {
     "other": "{count} 個のウィジェットを削除"
   },
+  "shell.card.deleteWidget": "ウィジェットを削除",
+  "shell.card.refreshWidget": "ウィジェットを更新",
+  "shell.card.widgetSettings": "ウィジェットの設定",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

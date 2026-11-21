@@ -137,6 +137,9 @@
     "many": "حذف {count} أداةً",
     "other": "حذف {count} أداة"
   },
+  "shell.card.deleteWidget": "حذف الأداة",
+  "shell.card.refreshWidget": "تحديث الأداة",
+  "shell.card.widgetSettings": "إعدادات الأداة",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

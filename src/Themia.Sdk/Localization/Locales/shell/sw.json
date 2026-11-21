@@ -125,6 +125,9 @@
     "one": "Futa wijeti {count}",
     "other": "Futa wijeti {count}"
   },
+  "shell.card.deleteWidget": "Futa wijeti",
+  "shell.card.refreshWidget": "Onyesha upya wijeti",
+  "shell.card.widgetSettings": "Mipangilio ya wijeti",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

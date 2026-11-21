@@ -122,6 +122,9 @@
   "shell.card.deleteMany": {
     "other": "ဝစ်ဂျက် {count} ခု ဖျက်ရန်"
   },
+  "shell.card.deleteWidget": "ဝစ်ဂျက် ဖျက်ရန်",
+  "shell.card.refreshWidget": "ဝစ်ဂျက် ပြန်လည်ဆန်းသစ်ရန်",
+  "shell.card.widgetSettings": "ဝစ်ဂျက် ဆက်တင်များ",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

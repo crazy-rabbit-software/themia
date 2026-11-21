@@ -125,6 +125,9 @@
     "one": "Διαγραφή {count} γραφικού στοιχείου",
     "other": "Διαγραφή {count} γραφικών στοιχείων"
   },
+  "shell.card.deleteWidget": "Διαγραφή γραφικού στοιχείου",
+  "shell.card.refreshWidget": "Ανανέωση γραφικού στοιχείου",
+  "shell.card.widgetSettings": "Ρυθμίσεις γραφικού στοιχείου",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

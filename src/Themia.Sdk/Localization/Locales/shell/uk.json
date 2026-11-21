@@ -131,6 +131,9 @@
     "many": "Видалити {count} віджетів",
     "other": "Видалити {count} віджета"
   },
+  "shell.card.deleteWidget": "Видалити віджет",
+  "shell.card.refreshWidget": "Оновити віджет",
+  "shell.card.widgetSettings": "Параметри віджета",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

@@ -122,6 +122,9 @@
   "shell.card.deleteMany": {
     "other": "Xóa {count} tiện ích"
   },
+  "shell.card.deleteWidget": "Xóa tiện ích",
+  "shell.card.refreshWidget": "Làm mới tiện ích",
+  "shell.card.widgetSettings": "Cài đặt tiện ích",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

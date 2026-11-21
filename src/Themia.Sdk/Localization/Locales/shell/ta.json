@@ -125,6 +125,9 @@
     "one": "{count} விட்ஜெட்டை நீக்கு",
     "other": "{count} விட்ஜெட்களை நீக்கு"
   },
+  "shell.card.deleteWidget": "விட்ஜெட்டை நீக்கு",
+  "shell.card.refreshWidget": "விட்ஜெட்டைப் புதுப்பி",
+  "shell.card.widgetSettings": "விட்ஜெட் அமைப்புகள்",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

@@ -125,6 +125,9 @@
     "one": "{count} विजेट हटाएँ",
     "other": "{count} विजेट हटाएँ"
   },
+  "shell.card.deleteWidget": "विजेट हटाएँ",
+  "shell.card.refreshWidget": "विजेट रीफ़्रेश करें",
+  "shell.card.widgetSettings": "विजेट सेटिंग्स",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

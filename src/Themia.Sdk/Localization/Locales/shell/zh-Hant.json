@@ -122,6 +122,9 @@
   "shell.card.deleteMany": {
     "other": "刪除 {count} 個小工具"
   },
+  "shell.card.deleteWidget": "刪除小工具",
+  "shell.card.refreshWidget": "重新整理小工具",
+  "shell.card.widgetSettings": "小工具設定",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

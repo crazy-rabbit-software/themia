@@ -122,6 +122,9 @@
   "shell.card.deleteMany": {
     "other": "Pa wíjẹ́ẹ̀tì {count} rẹ́"
   },
+  "shell.card.deleteWidget": "Pa wíjẹ́ẹ̀tì rẹ́",
+  "shell.card.refreshWidget": "Sọ wíjẹ́ẹ̀tì dọ̀tun",
+  "shell.card.widgetSettings": "Ètò wíjẹ́ẹ̀tì",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

@@ -125,6 +125,9 @@
     "one": "Goge widget {count}",
     "other": "Goge widget {count}"
   },
+  "shell.card.deleteWidget": "Goge widget",
+  "shell.card.refreshWidget": "Wartsake widget",
+  "shell.card.widgetSettings": "Saitunan widget",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",

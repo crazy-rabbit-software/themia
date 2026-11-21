@@ -125,6 +125,9 @@
     "one": "Elimina {count} widget",
     "other": "Elimina {count} widget"
   },
+  "shell.card.deleteWidget": "Elimina widget",
+  "shell.card.refreshWidget": "Aggiorna widget",
+  "shell.card.widgetSettings": "Impostazioni widget",
   "shell.key.ctrl": "CTRL",
   "shell.key.alt": "Alt",
   "shell.key.shift": "MAIUSC",

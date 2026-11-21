@@ -9,9 +9,6 @@
     "shell.color.hue",
     "shell.color.hex",
     "shell.color.recent",
-    "shell.card.deleteWidget",
-    "shell.card.refreshWidget",
-    "shell.card.widgetSettings",
     "shell.notice.changeTakenBack",
     "shell.notice.changeTakenBackBody"
   ],

@@ -125,6 +125,9 @@
     "one": "{count} విడ్జెట్‌ను తొలగించు",
     "other": "{count} విడ్జెట్‌లను తొలగించు"
   },
+  "shell.card.deleteWidget": "విడ్జెట్‌ను తొలగించు",
+  "shell.card.refreshWidget": "విడ్జెట్‌ను రిఫ్రెష్ చేయి",
+  "shell.card.widgetSettings": "విడ్జెట్ సెట్టింగ్‌లు",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
