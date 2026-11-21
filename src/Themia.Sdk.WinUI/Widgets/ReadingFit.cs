@@ -9,103 +9,51 @@ using Windows.Foundation;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-12808] [S-12814] A one-readout view's block in its room (<see cref="BlockFit.Fill"/>): its parts (a reading and
-/// its caption, its controls, a bar) stand together and the block scales up as one to the largest size at which the
-/// parts with a width of their own fit the room's width and the parts packed together fit its height. [S-14280] WR-7:
-/// it is laid out in its parts' own height (a <see cref="SpreadStack"/>, nothing between them), its first ink on the
-/// room's top and its last on its foot where the height stops it, centred on its ink in the height left where the width
-/// does. A bar, a slider or a graph spans the width it is given and never limits the scale. The sides' and the foot's insets are
-/// this panel's margin (or its view's padding), so they never scale. [S-12833] A smaller room scales it down as one,
-/// to its smallest drawn text's legibility floor (<see cref="ScaleFloor"/>); with its kind's parts stated
-/// (<see cref="Face"/>) its main reading sets that floor and its smaller pieces give way first (<see cref="FaceFloor"/>).
-/// [S-14301] Across, where the width does not stop it, each part with a width of its own stands where <see cref="Align"/>
-/// puts it (centred unless its card aligns it); a part that takes the width it is given (a bar, a slider's row, a line it
-/// cuts: <see cref="Span"/>) runs across the whole content. [S-14791] A line it cuts (<see cref="CutLine"/>) never holds it
-/// under its floor, and it never grows past where that line's held text stands whole.
+/// [S-12808] [S-12814] [S-12804] The one panel a one-readout block is drawn in (a clock's face, a date, a reading and its
+/// caption, its controls, a bar, a tile's face, a text kind's line): its parts are measured (<see cref="Ink.Of"/>) and laid
+/// where <see cref="BlockLayout.Solve(double, double, Func{double, IReadOnlyList{PartBox}}, BlockFace?, ContentAlign, double, bool)"/>
+/// puts them: packed top to bottom (WR-7, [S-14280]), the block scaled as one until its ink fills the room's height or its
+/// parts' own width fills its width, centred on its ink in the height left where the width stops it ([S-12808]; on its foot
+/// with <see cref="Foot"/>), each part's ink across where <see cref="Align"/> puts it ([S-14301]), a part that takes the
+/// width it is given (<see cref="Span"/>) across the whole room. A bar, a slider or a graph never limits the scale. The
+/// sides' and the foot's insets are this panel's margin (or its view's padding), so they never scale. [S-12833] A smaller
+/// room scales it down as one to its smallest drawn text's legibility floor; with its kind's parts stated
+/// (<see cref="Face"/>) its main reading sets that floor and its smaller pieces give way first. [S-14791] A line it cuts
+/// (<see cref="CutLine"/>) never holds it under its floor, and it never grows past where that line's held text stands whole.
+/// <para>
+/// The layout is computed in the measure (the floor decided once a room, on the parts measured at each floor) and applied
+/// in the arrange: the parts are this panel's own children, so a part measured again (its text changed) measures the block
+/// again, and the panel's one transform draws them at the block's scale.
+/// </para>
 /// </summary>
 public sealed partial class ReadingFit : Panel
 {
-    private readonly Plan _plan;
     private readonly ScaleTransform _scale = new();
-    private BlockFill _fill = new(1, 0, 0);
-    private FaceParts? _face;
     private readonly List<(UIElement Part, Border Holder, double Size)> _givesWay = [];
     private readonly List<(UIElement Piece, double Size)> _pieces = [];
     private readonly HashSet<UIElement> _spans = [];
     private ContentAlign _align = ContentAlign.Center;
+    private FaceParts? _face;
+    private BlockFace? _stated;
+    private double _spacing;
 
     // [S-12833] [S-14243] The floor the face is drawn at (its pieces under it give way) and the room it was decided for.
     private double _floor;
     private Size _decided = Size.Empty;
 
-    // [S-14244] Inside this fit's own measure: the plan measured from here is not a part's change.
-    private bool _measuring;
+    // The last measure's fill and its parts, as the arrange lays them.
+    private BlockFill _fill = new(1, 0, 0);
+    private IReadOnlyList<PartBox> _parts = [];
 
     public ReadingFit()
     {
-        _plan = new Plan(this);
         Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        _plan.RenderTransform = _scale;
+        RenderTransform = _scale;
 
-        // [S-14301] The plan is drawn scaled, so a whole pixel in its own units is the scale's pixels drawn: laid out
+        // [S-14301] The block is drawn scaled, so a whole pixel in its own units is the scale's pixels drawn: laid out
         // rounded, a part centred in it stood 2.6 DIP off the card's middle at 7x (the GPU card's "--" at 600x200).
-        _plan.UseLayoutRounding = false;
-        Children.Add(_plan);
+        UseLayoutRounding = false;
     }
-
-    /// <summary>
-    /// [S-14244] The block's parts, laid in its height. A part measured again on its own (its text changed: a reading
-    /// becoming "--", a placeholder its reading) measures the plan again, and the plan has its fit fit the block again:
-    /// the scale and where the first ink stands follow the part's new width and ink even where the plan's own size stays
-    /// (a Controls row wider than the reading kept it, and a brightness card's "--" stood 25 under the top, its fit
-    /// still placing the "0%" it had replaced).
-    /// </summary>
-    private sealed partial class Plan : SpreadStack
-    {
-        private readonly ReadingFit _fit;
-
-        public Plan(ReadingFit fit) => _fit = fit;
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            var size = base.MeasureOverride(availableSize);
-            if (!_fit._measuring)
-            {
-                _fit.InvalidateMeasure();
-            }
-
-            return size;
-        }
-
-        /// <summary>
-        /// [S-14301] A part that spans runs across the room itself, never over the slack the plan holds beyond it
-        /// (<see cref="BlockFit.Across"/>): a bar or a slider's row stands on both side insets. Every other part stands its
-        /// ink, not its box, where the alignment puts it (<see cref="PartInk.Across"/>: a text's side bearings, drawn at the
-        /// block's scale, stood a width-held title 5 short of the inset at 520x600).
-        /// </summary>
-        protected override Rect Lay(UIElement part, Rect slot)
-        {
-            var (start, width) = _fit._room;
-            if (part is FrameworkElement { HorizontalAlignment: HorizontalAlignment.Stretch })
-            {
-                return new Rect(start, slot.Y, width, slot.Height);
-            }
-
-            var share = _fit._align switch
-            {
-                ContentAlign.Left => 0.0,
-                ContentAlign.Right => 1.0,
-                _ => 0.5,
-            };
-            var box = part.DesiredSize.Width;
-            var (left, right) = PartInk.Across(part);
-            var ink = Math.Max(0, box - left - right);
-            return new Rect(start + (share * (width - ink)) - left, slot.Y, box, slot.Height);
-        }
-    }
-
-    /// <summary>[S-14301] The room's start and width in the plan's own units, as the last arrange laid the plan.</summary>
-    private (double Start, double Width) _room;
 
     /// <summary>
     /// [S-14319] Its last ink on the room's foot where the width stops it (a stopwatch's controls on its laps' top, WR-1),
@@ -149,7 +97,7 @@ public sealed partial class ReadingFit : Panel
     private Size _held = Size.Empty;
 
     /// <summary>The block's parts, top to bottom.</summary>
-    public UIElementCollection Parts => _plan.Children;
+    public UIElementCollection Parts => Children;
 
     /// <summary>
     /// [S-14301] Where the parts with a width of their own stand across the content (owner, 2026-11-20, of a reading that
@@ -165,7 +113,6 @@ public sealed partial class ReadingFit : Panel
             if (value != _align)
             {
                 _align = value;
-                Place();
                 InvalidateArrange();
             }
         }
@@ -181,38 +128,30 @@ public sealed partial class ReadingFit : Panel
         ArgumentNullException.ThrowIfNull(part);
         if (_spans.Add(part))
         {
-            Place();
             InvalidateMeasure();
         }
     }
 
-    /// <summary>[S-14301] Each part's place across: <see cref="Align"/>'s, or the whole width for one that spans.</summary>
-    private void Place()
+    /// <summary>The least gap between two parts (a family token).</summary>
+    public double Spacing
     {
-        var across = Aligned.Horizontal(_align);
-        foreach (var part in _plan.Children.OfType<FrameworkElement>())
+        get => _spacing;
+        set
         {
-            var want = Spans(part) ? HorizontalAlignment.Stretch : across;
-            if (part.HorizontalAlignment != want)
+            if (!value.Equals(_spacing))
             {
-                part.HorizontalAlignment = want;
+                _spacing = value;
+                InvalidateMeasure();
             }
         }
-    }
-
-    /// <summary>Whether <paramref name="part"/> (or the part a give-way box holds) takes the whole width: named, or asking for none.</summary>
-    private bool Spans(FrameworkElement part)
-    {
-        var held = part is Border holder && _givesWay.Exists(g => ReferenceEquals(g.Holder, holder)) ? holder.Child : part;
-        return held is not null && (_spans.Contains(held) || (held.Visibility == Visibility.Visible && held.DesiredSize is { Width: < 1, Height: > 0 }));
     }
 
     /// <summary>
     /// [S-12833] The face's parts as its kind states them (the same its sizing's least box is made of): in a room that
     /// would draw them under the floor the pieces give way, smallest first, judged on the block as it is drawn ([S-14243]):
     /// a block's own (<see cref="IFacePieces"/>, a Readout's unit, lead and line under) and the parts added with
-    /// <see cref="AddGivesWay"/>; the parts left fill the room (WR-1, WR-4: <see cref="FaceFit.Scale"/>, the block grows back
-    /// into the room a part left). Null: every part is drawn.
+    /// <see cref="AddGivesWay"/>; the parts left fill the room (WR-1, WR-4: the block grows back into the room a part left).
+    /// Null: every part is drawn.
     /// </summary>
     public FaceParts? Face
     {
@@ -222,6 +161,7 @@ public sealed partial class ReadingFit : Panel
             if (!Equals(value, _face))
             {
                 _face = value;
+                _stated = value is null ? null : BlockFace.Of(value);
                 _held = Size.Empty;
                 _decided = Size.Empty;
                 InvalidateMeasure();
@@ -233,7 +173,7 @@ public sealed partial class ReadingFit : Panel
     /// [S-12833] Add a part, after those already in, that gives way as a whole where the room would draw it under the
     /// floor: a Controls row at Body, a caption. It stands in a box of the fit's own, so its view still shows and hides it.
     /// </summary>
-    public void AddGivesWay(UIElement part, double size) => _plan.Children.Add(GivesWayBox(part, size));
+    public void AddGivesWay(UIElement part, double size) => Children.Add(GivesWayBox(part, size));
 
     /// <summary>
     /// [S-12833] A box holding <paramref name="part"/> that gives way as a whole where the room would draw it under the
@@ -261,6 +201,19 @@ public sealed partial class ReadingFit : Panel
     /// <summary>[S-12833] Let go of a piece given with <see cref="GivesWay"/> (its view dropped it).</summary>
     public void Forget(UIElement piece) => _pieces.RemoveAll(p => ReferenceEquals(p.Piece, piece));
 
+    /// <summary>
+    /// [S-14201] Measure the block again although no part's size changed: new words or figures may ink higher or lower in
+    /// the same box (a descender in the line under), which XAML does not measure again while its size stays.
+    /// </summary>
+    public void Refit() => InvalidateMeasure();
+
+    /// <summary>
+    /// [S-12834] The block's natural height: its shown parts at their own size, packed with their spacing. A view with rows
+    /// under its block (a stock's holding, a stopwatch's laps) gives the block that, grown to a grid line, and the rows the
+    /// rest (WR-6: rows are whole cells and never scale with a face).
+    /// </summary>
+    public double Natural() => BlockLayout.Measure(Measured(), 0, _stated, _spacing).Packed;
+
     /// <summary>[S-12833] Show the pieces of at least <paramref name="floor"/>: the parts that give way, and every block's own.</summary>
     private void Keep(double floor)
     {
@@ -282,217 +235,120 @@ public sealed partial class ReadingFit : Panel
             }
         }
 
-        foreach (var part in _plan.Children)
+        foreach (var part in Children)
         {
-            KeepIn(part, floor);
+            Ink.Keep(part, floor);
         }
     }
 
-    private static void KeepIn(UIElement node, double floor)
+    /// <summary>The parts measured at their own size (unbounded), as the block lays them: each what it draws, and whether it spans.</summary>
+    private List<PartBox> Measured()
     {
-        switch (node)
-        {
-            case IFacePieces pieces:
-                pieces.Keep(floor);
-                break;
-            case Panel panel:
-                foreach (var child in panel.Children)
-                {
-                    KeepIn(child, floor);
-                }
-
-                break;
-            case Border { Child: { } child }:
-                KeepIn(child, floor);
-                break;
-            case ContentControl { Content: UIElement content }:
-                KeepIn(content, floor);
-                break;
-        }
-    }
-
-    /// <summary>The least gap between two parts (a family token).</summary>
-    public double Spacing
-    {
-        get => _plan.Spacing;
-        set => _plan.Spacing = value;
-    }
-
-    /// <summary>
-    /// [S-12834] The block's natural height: its shown parts at their own size, packed with their spacing. A view with rows
-    /// under its block (a stock's holding, a stopwatch's laps) gives the block that, grown to a grid line, and the rows the
-    /// rest (WR-6: rows are whole cells and never scale with a face).
-    /// </summary>
-    public double Natural()
-    {
-        var shown = _plan.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
-        var packed = 0.0;
-        foreach (var part in shown)
+        var parts = new List<PartBox>(Children.Count);
+        foreach (var part in Children)
         {
             part.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            packed += part.DesiredSize.Height;
+            var box = Ink.Of(part);
+            parts.Add(box with { Spans = Spans(part) });
         }
 
-        return packed + (Math.Max(0, shown.Count - 1) * _plan.Spacing);
+        return parts;
+    }
+
+    /// <summary>Whether <paramref name="part"/> (or the part a give-way box holds) takes the whole width: named, or asking for none.</summary>
+    private bool Spans(UIElement part)
+    {
+        var held = part is Border holder && _givesWay.Exists(g => ReferenceEquals(g.Holder, holder)) ? holder.Child : part;
+        return held is not null && (_spans.Contains(held) || (held.Visibility == Visibility.Visible && held.DesiredSize is { Width: < 1, Height: > 0 }));
     }
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        _measuring = true;
-        try
+        var finite = double.IsFinite(availableSize.Width) && double.IsFinite(availableSize.Height);
+        if (_stated is null || !finite)
         {
-            var finite = double.IsFinite(availableSize.Width) && double.IsFinite(availableSize.Height);
-            if (_face is null || !finite)
-            {
-                _floor = 0;
-                _decided = Size.Empty;
-            }
-            else if (_decided != availableSize && (!_hold || _held != availableSize))
-            {
-                // [S-12833] [S-14243] What the room draws of the face: decided once for a room, so hiding a piece settles.
-                Decide(availableSize, _face);
-            }
+            _floor = 0;
+            _decided = Size.Empty;
+        }
+        else if (_decided != availableSize && (!_hold || _held != availableSize))
+        {
+            // [S-12833] [S-14243] What the room draws of the face: decided once for a room, so hiding a piece settles.
+            Decide(availableSize, _stated);
+        }
 
+        Keep(_floor);
+        var parts = Measured();
+        var block = BlockLayout.Measure(parts, 0, _stated, _spacing);
+
+        // [S-14243] A text grown since (a longer reading) that would draw a kept piece under the floor: it gives way now.
+        if (_stated is { } face && finite && !_hold && BlockLayout.Kept(face, _floor) * Raw(availableSize, block) < ScaleFloor.Text - FaceFloor.Hair)
+        {
+            Decide(availableSize, face);
             Keep(_floor);
-            var block = Measured(availableSize);
-            Place();
-
-            // [S-14243] A text grown since (a longer reading) that would draw a kept piece under the floor: it gives way now.
-            if (_face is { } face && finite && !_hold && Kept(face) * block.Raw < ScaleFloor.Text - FaceFloor.Hair)
-            {
-                Decide(availableSize, face);
-                Keep(_floor);
-                block = Measured(availableSize);
-            }
-
-            if (!_hold || _held != availableSize)
-            {
-                // [S-12833] Down to its smallest text's floor, up to what fills the room.
-                // [S-14791] Never past where a line it cuts would stand whole (a title alone filling the height stood cut at 2.8x).
-                _fill = BlockLayout.Fill(availableSize.Width, availableSize.Height, block.Intrinsic, block.Packed, block.Ink, block.Least, block.Most);
-                if (_foot)
-                {
-                    // [S-14319] Stood on its foot: where the width stops it, the height left stands over its first ink alone.
-                    _fill = _fill with { Top = (2 * _fill.Top) + (Math.Max(0, block.Ink.Over) * _fill.Scale) };
-                }
-
-                _held = availableSize;
-            }
-
-            _scale.ScaleX = _fill.Scale;
-            _scale.ScaleY = _fill.Scale;
-
-            // [S-12814] The plan is measured unbounded across, as its parts were: a part whose text changes is measured again
-            // at that same width, so its new width reaches this fit and the scale follows it (a measure at the scaled width
-            // would clamp a grown text and the change would stop there, the old scale cutting the new text).
-            _plan.Measure(new Size(double.PositiveInfinity, _fill.Height));
-            return new Size(
-                double.IsFinite(availableSize.Width) ? availableSize.Width : _plan.DesiredSize.Width,
-                double.IsFinite(availableSize.Height) ? availableSize.Height : _plan.DesiredSize.Height);
+            parts = Measured();
+            block = BlockLayout.Measure(parts, 0, _stated, _spacing);
         }
-        finally
+
+        if (!_hold || _held != availableSize)
         {
-            _measuring = false;
+            // [S-12833] Down to its smallest text's floor, up to what fills the room; [S-14791] never past where a line it
+            // cuts would stand whole; [S-14319] on its foot where it stands on it.
+            _fill = BlockLayout.Fill(availableSize.Width, availableSize.Height, block, _foot);
+            _held = availableSize;
         }
+
+        _parts = parts;
+        return new Size(
+            double.IsFinite(availableSize.Width) ? availableSize.Width : parts.Select(p => p.Width).DefaultIfEmpty(0).Max(),
+            double.IsFinite(availableSize.Height) ? availableSize.Height : block.Packed);
     }
 
-    /// <summary>
-    /// The block's shown parts at their own size, and the scale that fills the room with them (<see cref="Raw"/>: no floor);
-    /// [S-14791] <see cref="Most"/>: the scale its cut lines stand whole at (none: unbounded).
-    /// </summary>
-    private readonly record struct Block(double Intrinsic, double Packed, LineInk Ink, double Least, double Raw, double Most);
-
-    /// <summary>Measure the shown parts unbounded: what has a width of its own, the parts packed, their ink.</summary>
-    private Block Measured(Size room)
-    {
-        var shown = _plan.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
-        var intrinsic = 0.0;
-        var packed = 0.0;
-        var whole = 0.0;
-        foreach (var part in shown)
-        {
-            part.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            packed += part.DesiredSize.Height;
-
-            // Measured unbounded, a bar, a slider or a graph asks for next to no width: only text and icons count, by their
-            // ink ([S-14301]: a text's side bearings are no part of the width the block fills).
-            var (left, right) = PartInk.Across(part);
-            var own = part.DesiredSize.Width - left - right;
-            intrinsic = Math.Max(intrinsic, own);
-
-            // [S-14791] The part with the line it cuts standing whole: what it asks, and what that line would ask more.
-            whole = Math.Max(whole, own + Uncut(part));
-        }
-
-        packed += Math.Max(0, shown.Count - 1) * _plan.Spacing;
-        // [S-12813] Sized and placed by the ink it draws (a placeholder's dashes too: WR-1, WR-4).
-        var ink = shown.Count == 0 ? LineInk.None : new LineInk(PartInk.Of(shown[0]).Over, PartInk.Of(shown[^1]).Under);
-        var least = _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown);
-        var raw = BlockLayout.Fill(room.Width, room.Height, intrinsic, packed, ink, least: NoFloor).Scale;
-        var most = whole > intrinsic ? BlockLayout.Uncut(room.Width, whole) : double.PositiveInfinity;
-        return new Block(intrinsic, packed, ink, least, raw, most);
-    }
-
-    /// <summary>
-    /// [S-14791] How much wider <paramref name="node"/> would ask to be with the lines it cuts (<see cref="CutLine"/>) standing
-    /// whole: each shown cut line's <see cref="CutLine.Whole"/> over what it asks, added (side by side, the most it can be).
-    /// </summary>
-    private static double Uncut(UIElement node)
-    {
-        if (node.Visibility != Visibility.Visible)
-        {
-            return 0;
-        }
-
-        return node switch
-        {
-            CutLine cut => Math.Max(0, cut.Whole - cut.DesiredSize.Width),
-            Panel panel => panel.Children.Sum(Uncut),
-            Border { Child: { } child } => Uncut(child),
-            _ => 0,
-        };
-    }
+    /// <summary>The scale the room alone fills the measured block at: no floor.</summary>
+    private static double Raw(Size room, BlockLayout.Measured block)
+        => BlockLayout.Fill(room.Width, room.Height, block.Intrinsic, block.Packed, block.Ink, least: NoFloor).Scale;
 
     /// <summary>A least scale so small it never holds the block: the scale the room alone gives it.</summary>
     private const double NoFloor = 1e-6;
 
     /// <summary>
-    /// [S-14243] The face's floor in <paramref name="room"/>, decided on the parts as they are drawn (owner, 2026-11-19, WR-7:
-    /// "Keep them together"; CLAUDE.md: size never decides content): its pieces give way smallest first only where the
-    /// scale the drawn block fills the room at would draw them under the legibility floor (<see cref="FaceFloor"/>'s rule
-    /// on the measured block). The stated plan is sized on the face's widest reading, so a countdown's "3d 5h" in a 300 ×
-    /// 164 card had dropped its name and its date (its "88 days ago" would have drawn them at 8.9) while the time itself
-    /// was drawn more than twice that large.
+    /// [S-14243] The face's floor in <paramref name="room"/>, decided on the parts as they are drawn at each floor
+    /// (<see cref="BlockLayout.Decide(double, double, BlockFace, Func{double, IReadOnlyList{PartBox}}, double)"/>): the
+    /// stated plan is sized on the face's widest reading, so a countdown's "3d 5h" in a 300 × 164 card had dropped its name
+    /// and its date (its "88 days ago" would have drawn them at 8.9) while the time itself was drawn more than twice that large.
     /// </summary>
-    private void Decide(Size room, FaceParts face)
+    private void Decide(Size room, BlockFace face)
     {
         _decided = room;
-        _floor = BlockLayout.Decide(room.Width, room.Height, face.Sizes, floor =>
+        _floor = BlockLayout.Decide(room.Width, room.Height, face, floor =>
         {
             Keep(floor);
-            var block = Measured(room);
-            return new FacePlan(block.Intrinsic, Math.Max(0, block.Packed - Room(block.Ink.Over) - Room(block.Ink.Under)));
-        }).Floor;
-
-        static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
-    }
-
-    /// <summary>The smallest text size the face draws at the decided floor (its main reading's where only that is left).</summary>
-    private double Kept(FaceParts face)
-    {
-        var kept = face.Sizes.Where(s => s > 0 && double.IsFinite(s) && s >= _floor - 1e-9).DefaultIfEmpty(face.Main).Min();
-        return kept >= face.Main ? double.PositiveInfinity : kept;
+            return Measured();
+        }, _spacing);
     }
 
     protected override Size ArrangeOverride(Size finalSize)
     {
-        // [S-14301] The plan across the room where its alignment puts it, its slack beyond the room.
-        var (left, width) = BlockFit.Across(finalSize.Width, _fill.Scale, _align);
-        _room = (-left / _fill.Scale, finalSize.Width / _fill.Scale);
+        _scale.ScaleX = _fill.Scale;
+        _scale.ScaleY = _fill.Scale;
+        var places = BlockLayout.Place(finalSize.Width, _parts, 0, _fill, _align, _spacing);
+        for (var i = 0; i < Children.Count; i++)
+        {
+            var part = Children[i];
+            if (i >= places.Count || places[i] is not { } place)
+            {
+                part.Arrange(default);
+                continue;
+            }
 
-        // Never narrower than its widest part's box (a text's side bearings beyond its ink): laid narrower, the plan is
-        // clipped to its box and its parts with it.
-        _plan.Arrange(new Rect(left, _fill.Top, Math.Max(width, _plan.DesiredSize.Width), _fill.Height));
+            // A part that spans is laid across the room: it stretches to it, whatever it asked.
+            if (_parts[i].Spans && part is FrameworkElement { HorizontalAlignment: not HorizontalAlignment.Stretch } stretch)
+            {
+                stretch.HorizontalAlignment = HorizontalAlignment.Stretch;
+            }
+
+            part.Arrange(new Rect(place.X, place.Y, place.Width, _parts[i].Height));
+        }
+
         return finalSize;
     }
 }

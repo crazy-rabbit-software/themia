@@ -71,7 +71,7 @@ public sealed partial class ControlsBlock : Grid
             Width = ControlsRules.SwitchWidth,
 
             // [S-14283] At the template's own height: forced to the Controls row's 32 it cut its track's foot. Its ink is
-            // its track (PartInk), centred in that height.
+            // its track (Ink), centred in that height.
             MinHeight = 0,
             VerticalAlignment = VerticalAlignment.Center,
             AllowFocusOnInteraction = false,

@@ -99,7 +99,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     /// <summary>[S-14200] The value's line as drawn: the value and, on its baseline, the unit and the delta beside its last line.</summary>
     private LineInk Drawn()
     {
-        var font = PartInk.FontOf(_line.FontFamily);
+        var font = Themia.App.Widgets.Ink.FontOf(_line.FontFamily);
         var sized = SizedValue;
         var value = InkMeter.Measure(new InkText(sized, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight, Tabular: Family.Tabular(_line)))
             ?? (LineInk.Capless(sized) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : LineInk.Of(_step));
@@ -117,12 +117,12 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
 
     private LineInk Inked(LineInk line)
     {
-        // [S-14240] The lead glyph's ink in its box, measured as every glyph's is (PartInk): its whole box where unmeasured.
+        // [S-14240] The lead glyph's ink in its box, measured as every glyph's is (Ink): its whole box where unmeasured.
         var leads = _lead.Visibility == Visibility.Visible;
-        var value = line.With(leads ? PartInk.Of(_lead) : LineInk.None, leads ? _lead.Height : 0, _step.LineHeight);
+        var value = line.With(leads ? Themia.App.Widgets.Ink.Of(_lead).Ink : LineInk.None, leads ? _lead.Height : 0, _step.LineHeight);
         var step = FamilyType.Under(_step);
         var under = _under.Visibility != Visibility.Visible ? value.Under
-            : InkMeter.Line(step, _under.Text, PartInk.FontOf(_under.FontFamily), _under.FontWeight.Weight).Under;
+            : InkMeter.Line(step, _under.Text, Themia.App.Widgets.Ink.FontOf(_under.FontFamily), _under.FontWeight.Weight).Under;
         return new LineInk(value.Over, under);
     }
 
@@ -325,9 +325,9 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
 
         var rtl = FlowDirection == FlowDirection.RightToLeft;
         var leads = _lead.Visibility == Visibility.Visible;
-        var glyph = leads ? InkMeter.Room(new InkText(_lead.Glyph, PartInk.FontOf(_lead.FontFamily), _lead.FontSize, _lead.FontWeight.Weight, 0)) : null;
+        var glyph = leads ? InkMeter.Room(new InkText(_lead.Glyph, Themia.App.Widgets.Ink.FontOf(_lead.FontFamily), _lead.FontSize, _lead.FontWeight.Weight, 0)) : null;
 
-        // The glyph's em box stands centred in the icon's box (PartInk's glyph).
+        // The glyph's em box stands centred in the icon's box (Ink's glyph).
         var em = double.IsFinite(_lead.Width) ? Math.Max(0, (_lead.Width - _lead.FontSize) / 2) : 0;
         var margin = new Thickness(glyph is { } g ? -(Math.Max(0, g.Start(rtl)) + em) : 0, 0, FamilySpace.GlyphGap, 0);
         if (_lead.Margin != margin)
@@ -336,7 +336,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         }
 
         // The line's tracking moves where its box ends after its last ink, as XAML puts it after each character.
-        var font = PartInk.FontOf(_line.FontFamily);
+        var font = Themia.App.Widgets.Ink.FontOf(_line.FontFamily);
         var tracking = _line.CharacterSpacing;
         // [S-14319] Held, by its template's ink: the line stands where the template's does, whatever it shows.
         var value = InkMeter.Room(new InkText(SizedValue, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight, Tracking: tracking, Tabular: Family.Tabular(_line)));
@@ -354,7 +354,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         // weather's "Can't reach the service", stood 4.7 short of the end's inset).
         var step = FamilyType.Under(_step);
         var under = _under.Visibility == Visibility.Visible
-            ? InkMeter.Room(new InkText(_under.Text, PartInk.FontOf(_under.FontFamily), step.FontSize, _under.FontWeight.Weight, step.LineHeight, Tracking: _under.CharacterSpacing))
+            ? InkMeter.Room(new InkText(_under.Text, Themia.App.Widgets.Ink.FontOf(_under.FontFamily), step.FontSize, _under.FontWeight.Weight, step.LineHeight, Tracking: _under.CharacterSpacing))
             : null;
         var (underStart, underEnd) = InkRoom.Ends(under, under, rtl, led: false);
         var below = new Thickness(-underStart, 0, -underEnd, 0);

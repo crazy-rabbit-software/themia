@@ -4,7 +4,7 @@ namespace Themia.Core.Widgets;
 /// [S-12833] How small a face that scales may draw (owner, 2026-11-19: "you should be able to make the clock even
 /// smaller than it is right now. for the widgets that can scale there should basically be no lower limit except for one
 /// that makes sense so you can still see the widget."): a face that scales as one (a clock, a date, a reading on
-/// <c>ReadingFit</c> or <c>InkFit</c>) scales down as well as up, until its smallest text is <see cref="Text"/> DIP or
+/// <c>ReadingFit</c>) scales down as well as up, until its smallest text is <see cref="Text"/> DIP or
 /// its smallest glyph <see cref="Glyph"/>; its kind's least size is its natural box at that scale, never under
 /// <see cref="Themia.Sdk.WidgetSizing.LeastScaled"/>. One floor for every kind.
 /// </summary>

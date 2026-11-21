@@ -6,7 +6,7 @@ namespace Themia.Core.Widgets;
 /// [S-1465] [S-12816] The now-playing seek bar's face: a thin track and its fill, and a thumb that shows only under the
 /// pointer or while scrubbing a seekable track. The bar is as tall as the thumb, so the thumb never grows it, and its
 /// ink is its track's at rest and under the pointer alike: what the block it stands in is scaled and placed by
-/// (<see cref="BlockFit"/>) never depends on the pointer (owner, 2026-11-19: "the now playing scrubber changes text
+/// (<see cref="BlockLayout"/>) never depends on the pointer (owner, 2026-11-19: "the now playing scrubber changes text
 /// sizes when hovering over it with the mouse … this should not be").
 /// </summary>
 public static class SeekBarFace

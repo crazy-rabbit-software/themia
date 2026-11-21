@@ -306,8 +306,8 @@ internal static class ItemDump
     }
 
     /// <summary>
-    /// [S-14317] A text's letters as they show in the card: its box less its side bearings (<see cref="PartInk.Across"/>) and
-    /// the leading over its first ink and under its last (<see cref="PartInk.Of"/>), both read without its margin; null for a
+    /// [S-14317] A text's letters as they show in the card: its box less its side bearings (<see cref="Ink.Of"/>) and
+    /// the leading over its first ink and under its last (the same read), both read without its margin; null for a
     /// part that is no plain text.
     /// </summary>
     private static Rect? Letters(UIElement card, FrameworkElement part)
@@ -318,8 +318,9 @@ internal static class ItemDump
         }
 
         var margin = text.Margin;
-        var (left, right) = PartInk.Across(text);
-        var line = PartInk.Of(text);
+        var read = Ink.Of(text);
+        var (left, right) = (read.Left, read.Right);
+        var line = read.Ink;
         var l = Math.Clamp(left - margin.Left, 0, text.ActualWidth);
         var r = Math.Clamp(right - margin.Right, 0, text.ActualWidth - l);
         var o = Math.Clamp(line.Over - margin.Top, 0, text.ActualHeight);

@@ -38,7 +38,7 @@ public sealed partial class CutLine : Panel
 
     /// <summary>
     /// [S-14791] The line in the part whose whole width the block never grows past (the meeting's title): the fit scales the
-    /// block no larger than where it stands uncut, and cuts it only at its floor (<see cref="BlockFit.Uncut"/>). Null: none.
+    /// block no larger than where it stands uncut, and cuts it only at its floor (<see cref="BlockLayout.Uncut"/>). Null: none.
     /// </summary>
     public FrameworkElement? Holds { get; init; }
 

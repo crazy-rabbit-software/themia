@@ -294,7 +294,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
         SetWhen(NextMeetingRules.When(locale, item, now, zone), hasJoin ? 0 : NextMeetingJoin.TitleLineOffset);
         _title.Text = string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject;
-        PartInk.InkStart(_title);
+        Ink.InkStart(_title);
         _range.Text.Text = NextMeetingRules.Range(locale, item, zone);
         _location.Text.Text = item.Location ?? string.Empty;
         _location.Row.Visibility = Show(_config.ShowPlace && !string.IsNullOrWhiteSpace(item.Location));
@@ -325,7 +325,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         SetWhen(EmptyRows.Placeholder, NextMeetingJoin.TitleLineOffset);
         _text.VerticalAlignment = VerticalAlignment.Top;
         _title.Text = EmptyRows.Placeholder;
-        PartInk.InkStart(_title);
+        Ink.InkStart(_title);
         _range.Text.Text = EmptyRows.Placeholder;
         _location.Text.Text = EmptyRows.Placeholder;
         _location.Row.Visibility = Show(_config.ShowPlace);
@@ -406,7 +406,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _whenProbe.FlowDirection = _when.FlowDirection;
         _whenProbe.Text = wording;
         _whenProbe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-        var (left, right) = PartInk.Across(_whenProbe);
+        var probe = Ink.Of(_whenProbe);
+        var (left, right) = (probe.Left, probe.Right);
         return (_whenProbe.DesiredSize.Width, left, right);
     }
 

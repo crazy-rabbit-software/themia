@@ -18,7 +18,7 @@ namespace Themia.App.Widgets;
 /// song name or album name make a shared class in the background that all of those widgets use. similar to how the metric
 /// one works"): the kind's glyph leading its line where the kind has one, and its text on the Title step (a detail's
 /// regular, secondary), one line cut with its ellipsis or wrapping to the kind's lines. One block in the family's inset,
-/// scaled as one (<see cref="InkFit"/>, WR-7, WR-14) until its ink fills the card's height or the width stops it, standing
+/// scaled as one (<see cref="ReadingFit"/>, WR-7, WR-14) until its ink fills the card's height or the width stops it, standing
 /// at the card's content alignment across ([S-6583]) and centred on the other axis (owner, 2026-11-19, of the one-line
 /// faces: "Centred is fine"); its line takes the width the box gives it at that scale (<see cref="TextRules.Room"/>), so a
 /// longer text is cut at the card's edge, never drawn past it. The whole text is one item, the card edge to edge, lit under
@@ -42,7 +42,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly ItemLight _light;
 
     /// <summary>[S-14930] The block (the lead and the line), scaled as one in the card's inset.</summary>
-    private readonly InkFit _fit = new();
+    private readonly ReadingFit _fit = new();
     private readonly StackPanel _block = new() { Orientation = Orientation.Horizontal };
     private readonly FontIcon? _lead;
     private readonly TextBlock _text;
@@ -77,7 +77,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         };
 
         // [S-14934] The lead: the kind's glyph at the step's size, in a box of the first line's height so it stands on that
-        // line (its ink counts as the line's, PartInk), the glyph gap after it.
+        // line (its ink counts as the line's, Ink), the glyph gap after it.
         var step = TextRules.StepOf(kind.Tone);
         if (kind.Lead)
         {
@@ -97,7 +97,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         _text.TextWrapping = TextRules.Lines(kind.Lines) > 1 ? TextWrapping.WrapWholeWords : TextWrapping.NoWrap;
         _text.MaxLines = TextRules.Lines(kind.Lines);
         _block.Children.Add(_text);
-        _fit.Child = _block;
+        _fit.Parts.Add(_block);
         _fit.Margin = new Thickness(FamilySpace.Inset);
         _face.Children.Add(_fit);
 
@@ -249,7 +249,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         Lay();
 
         // [S-14201] Another text may ink lower in the same box (a descender): the fit places the face on its ink again.
-        _fit.InvalidateArrange();
+        _fit.Refit();
     }
 
     /// <summary>
@@ -262,7 +262,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         var height = _area.IsMeasured ? _area.Height - ListEdge.Margin.Top : 0;
         var end = FamilySpace.Inset + _statusRoom;
         _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, FamilySpace.Inset);
-        _fit.Align = Aligned.Horizontal(_align);
+        _fit.Align = _align;
         _text.TextAlignment = Aligned.Text(_align);
         var room = _area.IsMeasured
             ? TextRules.Room(_area.Width - FamilySpace.Inset - end, height - (2 * FamilySpace.Inset), _kind.Lines, _kind.Lead)

@@ -90,7 +90,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         _face.Children.Add(_row);
 
         // The row's 16 glyph: a glyph is read down to 12 and a Caption to 9, so the block scales down alike to 0.75 (WR-14).
-        // In a box of its own its ink counts as the caption's (PartInk reads a bare glyph beside a text as inside the text's
+        // In a box of its own its ink counts as the caption's (Ink reads a bare glyph beside a text as inside the text's
         // line): standing higher than the name's letters, it is the block's first ink, on the room's top, never over it.
         _captionGlyph = Family.Glyph(kind.Glyph, FamilyShape.Icon, ColourRole.TextSecondary);
         _caption.Children.Add(new Border { Child = _captionGlyph, Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Center });

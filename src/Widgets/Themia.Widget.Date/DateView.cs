@@ -14,7 +14,7 @@ namespace Themia.Widget.Date;
 
 /// <summary>
 /// [S-10800] [S-10803] Today in its style: the face laid out at the step its Size names, then scaled up as one until its
-/// ink fills the card (<see cref="InkFit"/>, [S-12808]), so a larger card is a larger date, never a band round it.
+/// ink fills the card (<see cref="ReadingFit"/>, [S-12808]), so a larger card is a larger date, never a band round it.
 /// [S-14308] The face is today's text, not the box the sizing made for the language's widest day: today's line reaches
 /// the sides at its alignment where the width stops it (owner, of the one-line faces: "whose one line grows until the
 /// width stops it"); a shorter day is drawn larger, the day-to-day change accepted. The family's inset at the sides and the foot (the card gives the
@@ -29,7 +29,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
     private readonly TextBlock _number = Family.Text(FamilyType.Hero68);
     private readonly TextBlock _month = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly StackPanel _face = new();
-    private readonly InkFit _fit = new();
+    private readonly ReadingFit _fit = new() { Margin = default };
     private DateConfig _config = new();
     private ContentAlign _align = ContentAlign.Center;
     private WidgetArea _area;
@@ -46,7 +46,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
             text.TextWrapping = TextWrapping.NoWrap;
         }
 
-        _fit.Child = _face;
+        _fit.Parts.Add(_face);
         Children.Add(_fit);
         Padding = Family.SideInset with { Bottom = FamilySpace.Inset };
     }
@@ -113,7 +113,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
 
         // [S-14308] As wide as today's text: the fit scales today's line, not the widest day's box.
         _face.Height = face.Height;
-        _fit.Align = Aligned.Horizontal(_align);
+        _fit.Align = _align;
         var text = _align switch
         {
             ContentAlign.Center => TextAlignment.Center,
@@ -163,6 +163,6 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
 
         // [S-14201] Another day may ink lower in the same box (a descender): the fit places the face on its ink again,
         // which XAML does not do while its size stays.
-        _fit.InvalidateArrange();
+        _fit.Refit();
     }
 }

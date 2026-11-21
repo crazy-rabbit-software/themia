@@ -82,12 +82,12 @@ public sealed partial class ToolLine : Grid, IInked
         {
             var model = LineInk.Of(FamilyType.Body);
             var over = _label.Text.Length > 0
-                ? InkMeter.Line(FamilyType.Body, _label.Text, PartInk.FontOf(_label.FontFamily), _label.FontWeight.Weight).Over
+                ? InkMeter.Line(FamilyType.Body, _label.Text, Themia.App.Widgets.Ink.FontOf(_label.FontFamily), _label.FontWeight.Weight).Over
                 : model.Over;
             foreach (var button in Parts.Children.OfType<Border>().Where(b => b.Visibility == Visibility.Visible))
             {
                 if (button.Child is FontIcon { Visibility: Visibility.Visible } glyph && double.IsFinite(button.Height)
-                    && InkMeter.Measure(new InkText(glyph.Glyph, PartInk.FontOf(glyph.FontFamily), glyph.FontSize, glyph.FontWeight.Weight, 0)) is { } ink)
+                    && InkMeter.Measure(new InkText(glyph.Glyph, Themia.App.Widgets.Ink.FontOf(glyph.FontFamily), glyph.FontSize, glyph.FontWeight.Weight, 0)) is { } ink)
                 {
                     over = Math.Min(over, button.Margin.Top + ((button.Height - glyph.FontSize) / 2) + ink.Over);
                 }

@@ -16,7 +16,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// role ([S-1940]).
 /// <para>
 /// [S-14201] The face (the glyph or its circle or ring, the label and the state line) stands centred on its ink, not its
-/// box (<see cref="InkFit"/>: the glyph's room in its em box, the last line's room under its baseline or descender), so
+/// box (<see cref="ReadingFit"/>: the glyph's room in its em box, the last line's room under its baseline or descender), so
 /// the bands over and under it are alike (owner, 2026-11-19: "Centred is fine"). [S-14306] It is one block that scales up
 /// as one (WR-7: "A reading and its caption stay together and scale up") until its ink fills the tile's height or the
 /// width stops it, then stands centred on the other axis: the tile exemption relaxes only the bands over and under it
@@ -37,7 +37,7 @@ public sealed partial class TileBlock : Grid
     private readonly StackPanel _stack;
 
     /// <summary>[S-14201] [S-14306] The face centred on its ink in the tile's inset, scaled up as one to fill it.</summary>
-    private readonly InkFit _fit = new();
+    private readonly ReadingFit _fit = new() { Margin = default };
     private readonly Grid _mark;
     private readonly Border _circle;
     private readonly Border _circleOverlay = new() { IsHitTestVisible = false };
@@ -117,7 +117,7 @@ public sealed partial class TileBlock : Grid
         _switchRow.Children.Add(_switchLines);
         _switchRow.Children.Add(_switch);
 
-        _fit.Child = _stack;
+        _fit.Parts.Add(_stack);
         Children.Add(_overlay);
         Children.Add(_fit);
         Children.Add(_switchRow);
@@ -316,6 +316,6 @@ public sealed partial class TileBlock : Grid
 
         // [S-14201] Its ink may have moved in a box of the same size (a sentence with a descender, the ring shown, "--"
         // for "Off"), which XAML does not arrange again on its own: the fit places it again.
-        _fit.InvalidateArrange();
+        _fit.Refit();
     }
 }

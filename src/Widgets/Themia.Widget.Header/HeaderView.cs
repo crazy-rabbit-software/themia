@@ -14,13 +14,13 @@ namespace Themia.Widget.Header;
 /// [S-9600] [S-9601] The Header widget's view: the family's Header block (glyph, name, caption) at the
 /// widget's alignment, in the card's inset. [S-14307] Its one line grows until the width stops it (owner, 2026-11-19, of
 /// the clock, the date and "the Header widget, whose one line grows until the width stops it": "Centred is fine"): the
-/// block scales up as one (<see cref="InkFit"/>) until its ink fills the card's height or its width, the height left
+/// block scales up as one (<see cref="ReadingFit"/>) until its ink fills the card's height or its width, the height left
 /// shared alike over and under it, across where its alignment puts it. [S-12483] The same whether a card joins it or not.
 /// </summary>
 internal sealed partial class HeaderView : Grid, IWidgetView, IWidgetAligned, IWidgetSizeAware
 {
     private readonly HeaderBlock _block = new();
-    private readonly InkFit _fit = new();
+    private readonly ReadingFit _fit = new();
     private HeaderConfig _config = new();
     private ContentAlign _align = ContentAlign.Left;
 
@@ -30,7 +30,7 @@ internal sealed partial class HeaderView : Grid, IWidgetView, IWidgetAligned, IW
         // top inset partly given back), and grown as one in a larger card, the same band over and under it.
         Padding = Family.SideInset;
         _fit.Margin = new Thickness(0, Band - FamilySpace.Inset, 0, Band);
-        _fit.Child = _block;
+        _fit.Parts.Add(_block);
         Children.Add(_fit);
     }
 
@@ -87,7 +87,7 @@ internal sealed partial class HeaderView : Grid, IWidgetView, IWidgetAligned, IW
             title = $"{title} · {place}";
         }
 
-        _fit.Align = Aligned.Horizontal(_align);
+        _fit.Align = _align;
         _block.Show(title, _config.Glyph, _config.Caption, Aligned.Horizontal(_align));
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -7,54 +8,159 @@ using Themia.Sdk.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-12807] [S-12808] Where a measured part's ink starts and ends inside its box (<see cref="LineInk"/>): a family
-/// text's room over its first ink and under its last, a row's (<see cref="IInked"/>), and for a panel
-/// the part of it that reaches furthest up and down, as it stands in the panel. [S-14200] A text and a glyph are measured
-/// as they are drawn (<see cref="InkMeter"/>: a text's letters over its capitals and its descenders, a glyph's room in its
-/// em box). A chart, a bar, anything else inks its whole box; a horizontal slider its thumb. What a
-/// <see cref="SpreadStack"/> stands on the insets.
+/// [S-12807] [S-12808] [S-12833] [S-14200] The one ink truth for drawing: what a measured part draws, read once in one
+/// walk of its tree (<see cref="Of"/>, a <see cref="PartBox"/>): where its ink starts and ends inside its box over and under
+/// (a family text's room over its first ink and under its last, a row's <see cref="IInked"/>, a panel's part that reaches
+/// furthest up and down as it stands in it), before and after across ([S-14301]: a text's side bearings, a column's least
+/// either side, a row's ends), the smallest text and glyph it draws (the legibility floor, <see cref="ScaleFloor"/>) and
+/// how much wider its cut lines would ask to stand whole ([S-14791], <see cref="CutLine"/>). A text and a glyph are
+/// measured as they are drawn (<see cref="InkMeter"/>: a text's letters over its capitals and its descenders, a glyph's
+/// room in its em box); the family's model of capitals on the baseline (<see cref="LineInk.Of(TypeStep)"/>) stands only
+/// where nothing is measured (no meter) and for pure sizing. A chart, a bar, anything else inks its whole box; a horizontal
+/// slider its thumb, a toggle switch its track. The same walk hands a floor to every block whose pieces give way
+/// (<see cref="Keep"/>, <see cref="IFacePieces"/>).
 /// </summary>
-public static class PartInk
+public static class Ink
 {
     /// <summary>
-    /// The room in <paramref name="element"/>'s box (its margin included) over its first ink and under its last; measured
-    /// parts only. [S-12813] A placeholder ("--") as it is drawn, as any text.
+    /// What <paramref name="element"/> draws as it was last measured (its margin included): its box, its ink's room over,
+    /// under and either side, its smallest text and glyph, its cut lines' whole width. [S-12813] A placeholder ("--") as it
+    /// is drawn, as any text. Collapsed: nothing.
     /// </summary>
-    public static LineInk Of(UIElement element)
+    public static PartBox Of(UIElement element)
     {
         ArgumentNullException.ThrowIfNull(element);
-        if (element.Visibility != Visibility.Visible)
+        return Walk(element).Box(element);
+    }
+
+    /// <summary>[S-12833] Hand <paramref name="floor"/> to every block under <paramref name="element"/> whose pieces give way (shown or not).</summary>
+    public static void Keep(UIElement element, double floor)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        if (element is IFacePieces pieces)
         {
-            return LineInk.None;
+            pieces.Keep(floor);
+            return;
         }
 
-        var margin = element is FrameworkElement fe ? fe.Margin : default;
-        var inner = element switch
+        foreach (var child in Inside(element))
+        {
+            Keep(child, floor);
+        }
+    }
+
+    /// <summary>What a node draws, as the walk reads it: its ink's room over, under and either side, its smallest text and glyph, its cut lines' more.</summary>
+    private readonly record struct Read(LineInk Line, double Left, double Right, double Text, double Glyph, double Uncut)
+    {
+        public (double Left, double Right) Across => (Left, Right);
+
+        public static Read Nothing => new(LineInk.None, 0, 0, double.PositiveInfinity, double.PositiveInfinity, 0);
+
+        public PartBox Box(UIElement element)
+            => element.Visibility != Visibility.Visible
+                ? new PartBox(0, 0)
+                : new PartBox(element.DesiredSize.Width, element.DesiredSize.Height, Line, Left, Right, Uncut: Uncut, Text: Text, Glyph: Glyph);
+    }
+
+    /// <summary>The children the walk reads under a node: a panel's, a border's, a content control's content, a viewbox's child.</summary>
+    private static IEnumerable<UIElement> Inside(UIElement node) => node switch
+    {
+        Panel panel => panel.Children,
+        Border { Child: { } child } => [child],
+        ContentControl { Content: UIElement content } => [content],
+        Viewbox { Child: { } child } => [child],
+        _ => [],
+    };
+
+    /// <summary>The one walk: each shown node read once, its children's reads combined by the node's own rule.</summary>
+    private static Read Walk(UIElement node)
+    {
+        if (node.Visibility != Visibility.Visible)
+        {
+            return Read.Nothing;
+        }
+
+        var kids = new Dictionary<UIElement, Read>();
+        double text = double.PositiveInfinity, glyph = double.PositiveInfinity, uncut = 0;
+        foreach (var child in Inside(node))
+        {
+            var read = Walk(child);
+            kids[child] = read;
+            text = Math.Min(text, read.Text);
+            glyph = Math.Min(glyph, read.Glyph);
+            uncut += read.Uncut;
+        }
+
+        Read Kid(UIElement child) => kids.TryGetValue(child, out var read) ? read : Read.Nothing;
+
+        // [S-12833] The smallest text and glyph drawn: a text's (its runs' too), a glyph's, else its children's.
+        switch (node)
+        {
+            case TextBlock block when block.Text.Length > 0 || block.Inlines.Count > 0:
+                text = Math.Min(text, block.FontSize);
+                foreach (var inline in block.Inlines)
+                {
+                    if (inline is Run { Text.Length: > 0 } run)
+                    {
+                        text = Math.Min(text, run.FontSize);
+                    }
+                }
+
+                break;
+            case FontIcon icon when icon.Glyph.Length > 0:
+                glyph = Math.Min(glyph, icon.FontSize);
+                break;
+        }
+
+        // [S-14791] A cut line's whole width over what it asks; a panel adds its parts' (side by side, the most it can be),
+        // a border its child's; nothing else holds one.
+        uncut = node switch
+        {
+            CutLine cut => Math.Max(0, cut.Whole - cut.DesiredSize.Width),
+            Panel or Border => uncut,
+            _ => 0,
+        };
+
+        var margin = node is FrameworkElement fe ? fe.Margin : default;
+        var line = node switch
         {
             IInked part => part.Ink,
             Slider { Orientation: Orientation.Horizontal } slider => Thumb(slider),
             ToggleSwitch toggle => Track(toggle),
-            TextBlock text => Text(text),
+            TextBlock block => Text(block),
             FontIcon icon => Glyph(icon),
-            Border border when border.Child is { } child => Add(Of(child), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
-            StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children), stack.Padding.Top, stack.Padding.Bottom),
-            SpreadStack { Orientation: Orientation.Vertical } spread => Stacked(spread.Children),
-            Panel panel => Beside(panel),
+            Border border when border.Child is { } child => Add(Kid(child).Line, border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
+            StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children, Kid), stack.Padding.Top, stack.Padding.Bottom),
+            SpreadStack { Orientation: Orientation.Vertical } spread => Stacked(spread.Children, Kid),
+            Panel panel => Beside(panel, Kid),
             _ => LineInk.None,
         };
 
-        return Add(inner, margin.Top, margin.Bottom);
+        var (left, right) = node switch
+        {
+            IInked => (0.0, 0.0),
+            TextBlock block => TextAcross(block),
+            Border { Child: { } child } border => Pad(Kid(child).Across, border.Padding.Left + border.BorderThickness.Left, border.Padding.Right + border.BorderThickness.Right),
+            StackPanel { Orientation: Orientation.Vertical } stack => Pad(Column(stack.Children, stack.DesiredSize.Width - stack.Margin.Left - stack.Margin.Right - stack.Padding.Left - stack.Padding.Right, Kid), stack.Padding.Left, stack.Padding.Right),
+            SpreadStack { Orientation: Orientation.Vertical } spread => Column(spread.Children, spread.DesiredSize.Width - spread.Margin.Left - spread.Margin.Right, Kid),
+            StackPanel { Orientation: Orientation.Horizontal } row => Pad(Row(row.Children, Kid), row.Padding.Left, row.Padding.Right),
+            FontIcon icon => GlyphAcross(icon),
+            Grid grid => Pad(Columns(grid, Kid), grid.Padding.Left, grid.Padding.Right),
+            _ => (0.0, 0.0),
+        };
+
+        return new Read(Add(line, margin.Top, margin.Bottom), Math.Max(0, left + margin.Left), Math.Max(0, right + margin.Right), text, glyph, uncut);
     }
 
     /// <summary>A vertical stack: its first shown part's room over and its last's under.</summary>
-    private static LineInk Stacked(UIElementCollection children)
+    private static LineInk Stacked(UIElementCollection children, Func<UIElement, Read> kid)
     {
         var shown = children.Where(c => c.Visibility == Visibility.Visible).ToList();
-        return shown.Count == 0 ? LineInk.None : new LineInk(Of(shown[0]).Over, Of(shown[^1]).Under);
+        return shown.Count == 0 ? LineInk.None : new LineInk(kid(shown[0]).Line.Over, kid(shown[^1]).Line.Under);
     }
 
     /// <summary>Parts side by side (a grid, a row): the least room over and under any of them, where each stands in the panel's height.</summary>
-    private static LineInk Beside(Panel panel)
+    private static LineInk Beside(Panel panel, Func<UIElement, Read> kid)
     {
         // Its own box: what it measured less its own margin (each part's slot holds the part's).
         var own = panel is FrameworkElement self ? self.Margin.Top + self.Margin.Bottom : 0;
@@ -74,7 +180,6 @@ public static class PartInk
 
         foreach (var part in shown)
         {
-
             // In a grid of rows only the first row's parts can ink its top and only the last row's its foot.
             var row = panel is Grid ? Grid.GetRow(part) : 0;
             var span = panel is Grid ? Grid.GetRowSpan(part) : 1;
@@ -90,7 +195,7 @@ public static class PartInk
                 VerticalAlignment.Bottom => room,
                 _ => room / 2,
             };
-            var ink = Of(part);
+            var ink = kid(part).Line;
             if (row == 0)
             {
                 over = Math.Min(over, top + ink.Over);
@@ -113,7 +218,7 @@ public static class PartInk
     /// The thumb of a horizontal slider, its ring included, measured on the renders: the template's box is taller
     /// than it (32), and the thumb is the slider's first and last ink.
     /// </summary>
-    public const double SliderThumb = 22;
+    private const double SliderThumb = 22;
 
     /// <summary>A horizontal slider: the room its box holds over and under its thumb, centred on the rail.</summary>
     private static LineInk Thumb(Slider slider)
@@ -153,37 +258,6 @@ public static class PartInk
         }
     }
 
-    /// <summary>
-    /// [S-14301] The room in <paramref name="element"/>'s measured box (its margin included) before its first ink and after
-    /// its last, across, left and right as laid out: a text's side bearings as the meter measures them (<see cref="InkMeter.Room"/>),
-    /// a column's least either side as its parts stand in it, a row's first part's start and last part's end. A family
-    /// part that stands its own ink at its ends (<see cref="IInked"/>: a Readout, [S-14247]) and anything else: none, its box.
-    /// </summary>
-    public static (double Left, double Right) Across(UIElement element)
-    {
-        ArgumentNullException.ThrowIfNull(element);
-        if (element.Visibility != Visibility.Visible)
-        {
-            return (0, 0);
-        }
-
-        var margin = element is FrameworkElement fe ? fe.Margin : default;
-        var (left, right) = element switch
-        {
-            IInked => (0.0, 0.0),
-            TextBlock text => TextAcross(text),
-            Border { Child: { } child } border => Pad(Across(child), border.Padding.Left + border.BorderThickness.Left, border.Padding.Right + border.BorderThickness.Right),
-            StackPanel { Orientation: Orientation.Vertical } stack => Pad(Column(stack.Children, stack.DesiredSize.Width - stack.Margin.Left - stack.Margin.Right - stack.Padding.Left - stack.Padding.Right), stack.Padding.Left, stack.Padding.Right),
-            SpreadStack { Orientation: Orientation.Vertical } spread => Column(spread.Children, spread.DesiredSize.Width - spread.Margin.Left - spread.Margin.Right),
-            StackPanel { Orientation: Orientation.Horizontal } row => Pad(Row(row.Children), row.Padding.Left, row.Padding.Right),
-            FontIcon icon => GlyphAcross(icon),
-            Grid grid => Pad(Columns(grid), grid.Padding.Left, grid.Padding.Right),
-            _ => (0.0, 0.0),
-        };
-
-        return (Math.Max(0, left + margin.Left), Math.Max(0, right + margin.Right));
-    }
-
     private static (double Left, double Right) Pad((double Left, double Right) room, double left, double right) => (room.Left + left, room.Right + right);
 
     /// <summary>A text's side bearings (one line as it measures unbounded; a wrapping text its start alone), unmeasured none.</summary>
@@ -211,7 +285,7 @@ public static class PartInk
     }
 
     /// <summary>A column's parts as they stand in its <paramref name="width"/>: the least room either side over them.</summary>
-    private static (double Left, double Right) Column(UIElementCollection children, double width)
+    private static (double Left, double Right) Column(UIElementCollection children, double width, Func<UIElement, Read> kid)
     {
         double left = double.PositiveInfinity, right = double.PositiveInfinity;
         foreach (var child in children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible))
@@ -225,7 +299,7 @@ public static class PartInk
                 HorizontalAlignment.Center => (width - w) / 2,
                 _ => 0,
             };
-            var (l, r) = Across(child);
+            var (l, r) = kid(child).Across;
             left = Math.Min(left, x + l);
             right = Math.Min(right, width - x - w + r);
         }
@@ -251,13 +325,13 @@ public static class PartInk
     /// [S-14306] A grid's sides: one column, its parts as they stand in it (a glyph centred in its mark); several, the parts
     /// standing at the first column's start and at the last column's end (a part centred in a column between says nothing).
     /// </summary>
-    private static (double Left, double Right) Columns(Grid grid)
+    private static (double Left, double Right) Columns(Grid grid, Func<UIElement, Read> kid)
     {
         var width = grid.DesiredSize.Width - grid.Margin.Left - grid.Margin.Right - grid.Padding.Left - grid.Padding.Right;
         var columns = Math.Max(1, grid.ColumnDefinitions.Count);
         if (columns == 1)
         {
-            return Column(grid.Children, width);
+            return Column(grid.Children, width, kid);
         }
 
         // The first and last columns that hold a shown part (a collapsed glyph's column takes no room).
@@ -272,7 +346,7 @@ public static class PartInk
         double left = double.PositiveInfinity, right = double.PositiveInfinity;
         foreach (var child in shown)
         {
-            var (l, r) = Across(child);
+            var (l, r) = kid(child).Across;
             var column = Grid.GetColumn(child);
             if (column == first && child.HorizontalAlignment is HorizontalAlignment.Left or HorizontalAlignment.Stretch)
             {
@@ -289,10 +363,10 @@ public static class PartInk
     }
 
     /// <summary>A row's first shown part's start and its last's end.</summary>
-    private static (double Left, double Right) Row(UIElementCollection children)
+    private static (double Left, double Right) Row(UIElementCollection children, Func<UIElement, Read> kid)
     {
         var shown = children.Where(c => c.Visibility == Visibility.Visible).ToList();
-        return shown.Count == 0 ? (0, 0) : (Across(shown[0]).Left, Across(shown[^1]).Right);
+        return shown.Count == 0 ? (0, 0) : (kid(shown[0]).Left, kid(shown[^1]).Right);
     }
 
     /// <summary>

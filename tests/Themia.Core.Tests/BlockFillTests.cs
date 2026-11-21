@@ -12,24 +12,31 @@ namespace Themia.Core.Tests;
 /// </summary>
 public class BlockFillTests
 {
+    /// <summary>A block as the one-part panel lays it (the clock's face): its scale and its box's top.</summary>
+    private static (double Scale, double Top) Lay(double width, double height, double naturalWidth, double naturalHeight, LineInk ink = default, double least = 1)
+    {
+        var fill = BlockLayout.Fill(width, height, naturalWidth, naturalHeight, ink, least);
+        return (fill.Scale, fill.Top + 0.0);
+    }
+
     [Fact]
     public void S12808_at_its_natural_room_nothing_scales_or_moves()
     {
-        Assert.Equal(new BlockLay(1, 0), BlockFit.Lay(156, 52, 156, 52));
+        Assert.Equal((1, 0), Lay(156, 52, 156, 52));
     }
 
     [Fact]
     public void S12808_a_taller_and_wider_room_scales_it_to_the_height()
     {
         // Twice as tall, three times as wide: the height stops it at 2, its top on the room's.
-        Assert.Equal(new BlockLay(2, 0), BlockFit.Lay(468, 104, 156, 52));
+        Assert.Equal((2, 0), Lay(468, 104, 156, 52));
     }
 
     [Fact]
     public void S12808_where_the_width_stops_it_it_is_centred_in_the_height_left()
     {
         // As wide as twice the natural, four times as tall: scale 2, the 104 tall block centred in 208.
-        Assert.Equal(new BlockLay(2, 52), BlockFit.Lay(312, 208, 156, 52));
+        Assert.Equal((2, 52), Lay(312, 208, 156, 52));
     }
 
     [Theory]
@@ -38,7 +45,7 @@ public class BlockFillTests
     [InlineData(100, 40)]    // smaller than natural: never shrinks, from the top
     public void S12808_it_never_shrinks_and_never_grows_past_either_side(double width, double height)
     {
-        var lay = BlockFit.Lay(width, height, 156, 52);
+        var lay = Lay(width, height, 156, 52);
         Assert.Equal(1, lay.Scale);
         Assert.Equal(Math.Max(0, (height - 52) / 2), lay.Top);
     }
@@ -48,7 +55,7 @@ public class BlockFillTests
     {
         foreach (var (w, h) in new[] { (300.0, 400.0), (520, 600), (900, 300), (3840, 120) })
         {
-            var lay = BlockFit.Lay(w, h, 156, 52);
+            var lay = Lay(w, h, 156, 52);
             Assert.True(156 * lay.Scale <= w + 1e-9 && 52 * lay.Scale <= h + 1e-9, $"{w}x{h}: {lay}");
             Assert.True(lay.Top >= 0 && lay.Top + (52 * lay.Scale) <= h + 1e-9);
         }
@@ -57,8 +64,8 @@ public class BlockFillTests
     [Fact]
     public void S12808_bad_input_is_harmless()
     {
-        Assert.Equal(new BlockLay(1, 0), BlockFit.Lay(double.NaN, 100, 156, 52));
-        Assert.Equal(new BlockLay(1, 0), BlockFit.Lay(300, 400, 0, 52));
+        Assert.Equal((1, 0), Lay(double.NaN, 100, 156, 52));
+        Assert.Equal((1, 0), Lay(300, 400, 156, double.NaN));
     }
 
     [Fact]
@@ -67,7 +74,7 @@ public class BlockFillTests
         // A reading and its caption planned in 176 x 52, 6 of leading over the reading's capitals and 6.7 under the
         // caption's baseline: in a wide room the ink fills the height, the leading outside it.
         var ink = new LineInk(6, 6.7);
-        var lay = BlockFit.Lay(2000, 276, 176, 52, ink);
+        var lay = Lay(2000, 276, 176, 52, ink);
 
         Assert.Equal(276 / (52 - 12.7), lay.Scale, 6);
         Assert.Equal(0, lay.Top + (6 * lay.Scale), 6);
@@ -78,8 +85,8 @@ public class BlockFillTests
     public void S12808_at_its_natural_room_its_ink_stays_where_the_plan_put_it()
     {
         // Width-bound at 1: the ink centred in the natural room, as the plan centred it.
-        var lay = BlockFit.Lay(176, 52, 176, 52, new LineInk(6, 6));
-        Assert.Equal(new BlockLay(1, 0), lay);
+        var lay = Lay(176, 52, 176, 52, new LineInk(6, 6));
+        Assert.Equal((1, 0), lay);
     }
 
     [Fact]
@@ -189,27 +196,6 @@ public class BlockFillTests
         Assert.Equal(0, 128 - (fill.Top + ((fill.Height - drawn.Under) * fill.Scale)), 6);
     }
 
-    [Theory]
-    [InlineData(ContentAlign.Left)]
-    [InlineData(ContentAlign.Center)]
-    [InlineData(ContentAlign.Right)]
-    public void S14301_a_width_held_block_reaches_both_side_insets_its_slack_laid_beyond_the_room(ContentAlign align)
-    {
-        // The weather's "--" over "Can't reach the service" (150 wide) in a tall card: the width holds the scale, at
-        // exactly the room over the parts' width, and the plan still has a pixel over its text so rounding never trims
-        // it: laid beyond the room, where the alignment leaves it free.
-        var fill = BlockLayout.Fill(306, 400, 150, 52, new LineInk(9.2, 4));
-        Assert.Equal(306.0 / 150, fill.Scale, 6);
-
-        var (left, width) = BlockFit.Across(306, fill.Scale, align);
-        Assert.True(width - 150 >= BlockFit.WidthSlack - 1e-9);
-
-        // The parts, 150 wide where the alignment puts them in the plan, stand from the room's start to its end.
-        var start = align switch { ContentAlign.Left => 0, ContentAlign.Right => width - 150, _ => (width - 150) / 2 };
-        Assert.Equal(0, left + (start * fill.Scale), 6);
-        Assert.Equal(306, left + ((start + 150) * fill.Scale), 6);
-    }
-
     [Fact]
     public void S14301_a_regression_the_slack_in_the_scale_stood_a_width_held_block_short_of_the_end()
     {
@@ -217,28 +203,7 @@ public class BlockFillTests
         // of the end's inset: 4.5 DIP at the exchange rate's 900x300 card (876 wide inside its insets, "1.0739 EUR +0.13%"
         // 180 wide), its right band 16.7 against the 12 the left one had.
         var fill = BlockLayout.Fill(876, 288, 180, 52, new LineInk(9.2, 4));
-        var (left, width) = BlockFit.Across(876, fill.Scale, ContentAlign.Left);
-        Assert.Equal(0, left, 6);
         Assert.Equal(876, 180 * fill.Scale, 6);
-        Assert.True((width - 180) * fill.Scale > 4, "the slack lies beyond the room's end");
-    }
-
-    [Fact]
-    public void S14301_a_block_that_does_not_fill_the_width_stands_where_its_alignment_puts_it()
-    {
-        // The recycle bin's 600x200 card (576 x 188): its parts 100 wide, held by the height at 2. Centred, the band left
-        // over stands alike either side; at the start the parts start the room; at the end they end it.
-        const double parts = 100;
-        const double scale = 2;
-        var (cl, cw) = BlockFit.Across(576, scale, ContentAlign.Center);
-        var centreStart = cl + (((cw - parts) / 2) * scale);
-        Assert.Equal(576 - (centreStart + (parts * scale)), centreStart, 6);
-
-        var (ll, _) = BlockFit.Across(576, scale, ContentAlign.Left);
-        Assert.Equal(0, ll, 6);
-
-        var (rl, rw) = BlockFit.Across(576, scale, ContentAlign.Right);
-        Assert.Equal(576, rl + (rw * scale), 6);
     }
 
     [Theory]

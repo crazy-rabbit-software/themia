@@ -208,7 +208,7 @@ public static class BlockLayout
     /// text at the legibility floor, <see cref="ScaleFloor"/>).
     /// </summary>
     /// <remarks>[S-14791] Never over <paramref name="most"/> (<see cref="Uncut"/>: where a line it cuts stands whole).</remarks>
-    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, double least = 1, double most = double.PositiveInfinity)
+    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink = default, double least = 1, double most = double.PositiveInfinity)
     {
         var over = Room(ink.Over);
         var under = Room(ink.Under);

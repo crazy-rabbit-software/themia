@@ -44,7 +44,7 @@ public sealed class ScreenTimeDonutTests
         // its smallest text, the figure's line under, at the floor.
         var least = ScreenTimeDonutLayout.Sizing(period).Min;
         var room = (Width: least.Width - (2 * FamilySpace.Inset), Height: least.Height - FamilySpace.ContentTop - FamilySpace.Inset);
-        var block = (Width: ScreenTimeDonutLayout.NaturalRing + BlockFit.WidthSlack, Height: ScreenTimeDonutLayout.DayLine(period) + ScreenTimeDonutLayout.NaturalRing);
+        var block = (Width: ScreenTimeDonutLayout.NaturalRing, Height: ScreenTimeDonutLayout.DayLine(period) + ScreenTimeDonutLayout.NaturalRing);
         var scale = Math.Min(room.Width / block.Width, room.Height / block.Height);
 
         Assert.True(scale >= ScaleFloor.Least(FamilyType.Under(FamilyType.Big28).FontSize), $"{period}: {scale}");

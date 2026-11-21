@@ -106,11 +106,11 @@ public sealed class FaceFloorTests
     [Fact]
     public void S12833_a_block_fills_its_room_and_is_never_drawn_under_its_least()
     {
-        var free = BlockFit.Lay(468, 104, 156, 52, least: 0.1);
+        var free = BlockLayout.Fill(468, 104, 156, 52, least: 0.1);
         Assert.Equal(2, free.Scale, 6);
 
         // Never under its least.
-        Assert.Equal(0.3, BlockFit.Lay(10, 10, 156, 52, least: 0.3).Scale, 6);
+        Assert.Equal(0.3, BlockLayout.Fill(10, 10, 156, 52, least: 0.3).Scale, 6);
         Assert.Equal(0.3, BlockLayout.Fill(10, 10, 156, 52, new LineInk(9.2, 4), least: 0.3).Scale, 6);
     }
 

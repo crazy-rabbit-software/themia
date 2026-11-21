@@ -4,7 +4,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-12807] [S-12808] A part that knows where its ink stands in its box without being measured (a family row, a
-/// readout): what <see cref="PartInk"/> and <see cref="SpreadStack"/> read of it.
+/// readout): what <see cref="Ink"/> and <see cref="SpreadStack"/> read of it.
 /// </summary>
 public interface IInked
 {

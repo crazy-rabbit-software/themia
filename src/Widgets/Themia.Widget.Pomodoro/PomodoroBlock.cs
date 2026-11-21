@@ -91,7 +91,7 @@ internal sealed partial class PomodoroBlock : Panel, IInked
             _face.DesiredSize.Height,
             _faceInk,
             _caption.DesiredSize.Height,
-            PartInk.Of(_caption).Over,
+            Themia.App.Widgets.Ink.Of(_caption).Ink.Over,
             _bar.Visibility == Visibility.Visible ? _bar.DesiredSize.Height : 0,
             _controls.DesiredSize.Height,
             CaptionGap);
@@ -115,7 +115,7 @@ internal sealed partial class PomodoroBlock : Panel, IInked
 
         // Side by side the block's box starts at the caption's line, so its first ink is the caption's capitals (or the
         // face's, level with them).
-        _ink = new LineInk(PartInk.Of(_caption).Over, 0);
+        _ink = new LineInk(Themia.App.Widgets.Ink.Of(_caption).Ink.Over, 0);
         return new Size(face.Width + PomodoroFace.ColumnGap + Math.Max(caption.Width, controls.Width), stand.Height);
     }
 
