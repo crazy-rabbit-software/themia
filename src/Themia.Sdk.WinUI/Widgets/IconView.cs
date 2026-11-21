@@ -219,6 +219,17 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     protected void Present(IconShown shown)
     {
         _shown = shown ?? throw new ArgumentNullException(nameof(shown));
+
+        // The status speaks only when a read lands: what it says changes the glyph's room (Lay), never the other way round.
+        if (_shown.State == TileState.Unavailable)
+        {
+            _status.Clear();
+        }
+        else
+        {
+            _status.Show(_shown.Problems, busy: false);
+        }
+
         Paint();
     }
 
@@ -260,7 +271,6 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         var inset = IconRules.Inset(width, height);
         _tile.Padding = new Thickness(inset, inset, inset + _statusRoom, inset);
         _tile.Use(IconRules.Step(width, height), width - (2 * inset), label: false, state: false);
-        Paint();
     }
 
     /// <summary>The whole look from the read: the glyph, its state, hover and pressed, its tooltip and its name.</summary>
@@ -271,14 +281,6 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         _tile.Face(_shown.State == TileState.Unavailable || Inert ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
         ToolTipService.SetToolTip(_face, _shown.Tooltip);
         AutomationProperties.SetName(_face, name);
-        if (_shown.State == TileState.Unavailable)
-        {
-            _status.Clear();
-        }
-        else
-        {
-            _status.Show(_shown.Problems, busy: false);
-        }
     }
 
     private void OnPointerEntered(object sender, PointerRoutedEventArgs e)
