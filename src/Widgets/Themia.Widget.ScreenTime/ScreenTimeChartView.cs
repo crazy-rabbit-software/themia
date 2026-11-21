@@ -231,14 +231,15 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         // counted with it. [S-12483] The same joined or alone.
         var calendar = ChartStyle == ScreenTimeChartStyle.Calendar;
         var width = calendar ? Math.Max(1, _area.Width - (2 * FamilySpace.Inset)) : Math.Max(1, _area.Width);
-        // [S-12808] Centred on its ink: the letters' line has room over its ink the rings have not under theirs, so the
-        // block stands that much higher (the foot's margin takes it).
+        // [S-12808] Centred on its ink where the width stops it: the letters' line has room over its ink the rings have not
+        // under theirs, so a block with room over and under it stands that much higher (the foot's margin takes it); one the
+        // height stops fills its room from the inset to the inset.
         var over = calendar ? LineInk.Of(FamilyType.Caption).Over : 0;
         var room = _area.Height - ScreenTimeChartLayout.DayLine(_config.Period) - FamilySpace.Inset;
         var drawing = calendar
-            ? ScreenTimeChartLayout.CalendarHeight(_config.Period, ScreenTimeChartLayout.CalendarCell(_config.Period, width, room - over))
+            ? ScreenTimeChartLayout.CalendarHeight(_config.Period, ScreenTimeChartLayout.CalendarCell(_config.Period, width, room))
             : ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
-        var leading = Math.Clamp(room - drawing, 0, over);
+        var leading = Math.Clamp(room - drawing - over, 0, over);
         var height = calendar ? drawing : Math.Max(1, Math.Floor(_area.Height));
         _drawing.Height = height;
         _drawing.VerticalAlignment = calendar ? VerticalAlignment.Center : VerticalAlignment.Top;
