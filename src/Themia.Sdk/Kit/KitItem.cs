@@ -198,4 +198,16 @@ public enum KitIcon
     Pen,
     Watch,
     Device,
+
+    /// <summary>[S-7012] The lists that moved onto the kit ([S-7060]): a file's folder, a drive's eject, a notification's dismiss, clearing an entry, a level's mute and reset, an app hidden, an app opened.</summary>
+    Folder,
+    Eject,
+    Dismiss,
+    Clear,
+    Mute,
+    Unmute,
+    Reset,
+    Hide,
+    App,
+    Bluetooth,
 }

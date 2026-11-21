@@ -27,6 +27,9 @@ public sealed class KitBinding : IDisposable
     private readonly Action<KitItem, KitAction>? _handle;
     private KitSpec _spec;
 
+    /// <summary>The spec the widget's own look was made for: a style's other spec takes that spec's look.</summary>
+    private readonly KitSpec _first;
+
     private Ticker? _ticker;
     private IDisposable? _tick;
     private TimeSpan _tickInterval;
@@ -47,6 +50,7 @@ public sealed class KitBinding : IDisposable
 
         _host = host;
         _spec = spec;
+        _first = spec;
         _actions = actions;
         _handle = handle;
         Status = new KitStatus(host);
@@ -67,7 +71,23 @@ public sealed class KitBinding : IDisposable
     /// <inheritdoc cref="Decorate"/>
     public Action? Redrawing { get; init; }
 
-    private KitList NewList(KitSpec spec) => new(_host, spec, _actions, Run) { Clock = _clock, Decorate = Decorate, Redrawing = Redrawing };
+    /// <summary>[S-7060] How the rows are drawn: the widget's own look (a part of its own on each row), or null for the spec's.</summary>
+    public IKitLook? Look { get; init; }
+
+    /// <summary>[S-12815] A line of the widget's own stands over the list: its rows start under it.</summary>
+    public bool UnderLine { get; init; }
+
+    /// <summary>[S-3307] The cursor moved onto an item (null: it let go).</summary>
+    public Action<KitItem?>? CursorMoved { get; init; }
+
+    private KitList NewList(KitSpec spec) => new(_host, spec, _actions, Run, Look is not null && ReferenceEquals(spec, _first) ? Look : null)
+    {
+        Clock = _clock,
+        Decorate = Decorate,
+        Redrawing = Redrawing,
+        UnderLine = UnderLine,
+        CursorMoved = CursorMoved,
+    };
 
     /// <summary>[S-12481] [S-7064] The sources' state: the view lays it over its content (<see cref="KitStatus.Place"/>).</summary>
     public KitStatus Status { get; }
@@ -226,7 +246,7 @@ public sealed class KitBinding : IDisposable
         var read = _source.Read();
         Last = read;
 
-        if (read.Refused is null && !_config.Configured)
+        if (read.Stated is null && !_config.Configured)
         {
             // [S-12835] Not set up: the card's compact Set up line says so over the face, the list's rows empty under it.
             Screen = new KitScreen(KitScreenKind.NoAccounts, string.Empty, false, []);
@@ -234,9 +254,9 @@ public sealed class KitBinding : IDisposable
             return;
         }
 
-        if (read.Refused is { } refused)
+        if (read.Stated is { } stated)
         {
-            Screen = KitScreen.Refused(refused);
+            Screen = KitScreen.Of(stated);
         }
         else
         {
@@ -300,7 +320,8 @@ public sealed class KitBinding : IDisposable
                 break;
 
             case KitActionKind.CopyLink or KitActionKind.CopyText when action.Text is { Length: > 0 } text:
-                if (!_host.CopyText(text))
+                // A preview's sample is never put on the user's clipboard.
+                if (!_host.IsPreview && !_host.CopyText(text))
                 {
                     Log.Warn(Scope, "could not copy to the clipboard");
                 }

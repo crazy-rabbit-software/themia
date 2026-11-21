@@ -218,7 +218,7 @@ internal sealed partial class RssView : Grid, IWidgetView,
             {
                 // No feed at all is the card's Set up button ([S-1862]); refused ones say why.
                 var refused = _config.ResolvedFeeds.FirstOrDefault(r => !r.IsValid);
-                return new KitRead([], [], Refused: _config.ResolvedFeeds.Count == 0 ? string.Empty : WebInput.Explain(refused.Problem));
+                return new KitRead([], [], Stated: new KitStated(_config.ResolvedFeeds.Count == 0 ? string.Empty : WebInput.Explain(refused.Problem)));
             }
 
             var parts = Parts();

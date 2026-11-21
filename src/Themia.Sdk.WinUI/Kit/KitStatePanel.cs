@@ -143,7 +143,7 @@ public sealed partial class KitStatePanel : Grid
     {
         ArgumentNullException.ThrowIfNull(screen);
         var problem = screen.Kind is KitScreenKind.Problem or KitScreenKind.AccountsGone or KitScreenKind.SignInRequired or KitScreenKind.Forbidden;
-        Show(screen.Sentence, screen.OffersAccounts, screen.Grant, problem: problem, details: screen.Details);
+        Show(screen.Sentence, screen.OffersAccounts, screen.Grant, screen.Fix is { } fix ? (fix.Label, fix.Run) : null, problem, screen.Details);
     }
 
     public void Hide() => Visibility = Visibility.Collapsed;

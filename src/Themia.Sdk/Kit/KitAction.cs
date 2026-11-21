@@ -161,7 +161,8 @@ public static class KitMenu
 
     /// <summary>
     /// [S-7011] The action Enter and a double-click run: the item's Open, when it can run; an item with
-    /// nothing to open at all (a task) opens for editing, its Rename.
+    /// nothing to open at all (a task) opens for editing, its Rename; an item with neither (a clipboard entry) its first
+    /// copy.
     /// </summary>
     public static KitAction? Primary(IReadOnlyList<KitAction> actions)
     {
@@ -172,6 +173,11 @@ public static class KitMenu
             return open.Runnable ? open : null;
         }
 
-        return actions.FirstOrDefault(a => a.Kind == KitActionKind.Rename) is { Runnable: true } rename ? rename : null;
+        if (actions.FirstOrDefault(a => a.Kind == KitActionKind.Rename) is { } rename)
+        {
+            return rename.Runnable ? rename : null;
+        }
+
+        return actions.FirstOrDefault(a => a.Kind is KitActionKind.CopyLink or KitActionKind.CopyText) is { Runnable: true } copy ? copy : null;
     }
 }

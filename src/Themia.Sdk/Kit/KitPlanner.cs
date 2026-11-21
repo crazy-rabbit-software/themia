@@ -158,6 +158,13 @@ public sealed record KitSpec(
     /// (<see cref="RowRules.Roles"/> quiet), so no lead glyph is needed to say it.
     /// </summary>
     public bool Unread { get; init; }
+
+    /// <summary>
+    /// [S-7065] A single click runs the item's primary action (<see cref="KitMenu.Primary"/>) as well as focusing it: a list
+    /// whose rows do one light thing and open nothing heavy (a clipboard entry copied back, [S-1444]; a meeting opened in
+    /// its calendar, [S-1268]). Every other list: a click focuses, a double-click or Enter runs it.
+    /// </summary>
+    public bool ClickRuns { get; init; }
 }
 
 /// <summary>[S-7030] What a kit list shows, the same at every size of its range; made by <see cref="KitPlanner.Plan"/>.</summary>

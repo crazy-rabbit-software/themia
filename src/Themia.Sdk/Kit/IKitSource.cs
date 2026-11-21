@@ -24,7 +24,10 @@ public interface IKitSource
 /// <param name="Items">The items in the order to show them, before the item rules ([S-7002]).</param>
 /// <param name="Outcomes">How each source last went, in the sources' order.</param>
 /// <param name="Title">The header title the data suggests, or null for the catalogue's ([S-403]: the user's own wins).</param>
-/// <param name="Refused">A sentence when the widget's own input was refused before anything was asked (an address its rules refuse); empty for nothing to read at all.</param>
+/// <param name="Stated">
+/// [S-7040] A state only the widget's own source knows, said in place of the list: its input refused before anything was
+/// asked (an address its rules refuse), a store Windows keeps closed, a radio switched off; null while the kit decides.
+/// </param>
 /// <param name="WebHosts">The hosts an item may link to, or null for any public web address ([S-7002]).</param>
 /// <param name="Accounts">The signed-in accounts offering what it needs, or null for a widget that reads none.</param>
 /// <param name="Chosen">The accounts it names; empty for every one.</param>
@@ -32,7 +35,7 @@ public sealed record KitRead(
     IReadOnlyList<KitItem> Items,
     IReadOnlyList<KitOutcome> Outcomes,
     string? Title = null,
-    string? Refused = null,
+    KitStated? Stated = null,
     IReadOnlyCollection<string>? WebHosts = null,
     IReadOnlyList<KitAccount>? Accounts = null,
     IReadOnlyList<string>? Chosen = null)
@@ -52,3 +55,16 @@ public sealed record KitRead(
     /// </summary>
     public IReadOnlyList<string> Notes { get; init; } = [];
 }
+
+/// <summary>
+/// [S-7040] A widget's own state for a list it cannot fill, in the kit's one state row: the sentence, as a problem (the
+/// warning) or a plain state (the widget's glyph), and its one way out where it has one ("Allow", "Try again").
+/// </summary>
+public sealed record KitStated(string Sentence, bool Problem = true)
+{
+    /// <summary>The one action the state row offers, or null.</summary>
+    public KitFix? Fix { get; init; }
+}
+
+/// <summary>[S-7040] A state row's one way out: its words and what it does.</summary>
+public sealed record KitFix(string Label, Action Run);

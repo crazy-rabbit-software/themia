@@ -8,13 +8,9 @@ using Themia.Sdk.Kit;
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-7035] [S-7036] The paged list and the schedule look on the family's rows. A paged list shows
-/// the rows that fit whole, one page at a time, turned by the widget's own controls and keys; it never
-/// scrolls. The page flows down its columns, a day's heading (one row of 28, BodyStrong secondary;
-/// primary for the day the widget has chosen) over its first row. A schedule row is a Row block: its
-/// calendar's colour as a 2 px bar in the lead ([S-566], a data colour, [S-6705]) or its lead glyph,
-/// the title as the name, the start as the value ("All day", "Now" Strong), the span, where and who
-/// (or the item's note) on the second line where the plan gives two.
+/// [S-7035] The paged list: the rows that fit whole, one page at a time, turned by the widget's own controls and keys;
+/// it never scrolls. The page flows down its columns, a group's heading (the look's, <see cref="IKitLook.Heading"/>)
+/// over its first row.
 /// </summary>
 public sealed partial class KitList
 {
@@ -66,11 +62,13 @@ public sealed partial class KitList
         {
             _pageIndex = page;
             BuildRows(_drawnAt);
+            return;
         }
     }
 
-    private void BuildPage(DateTimeOffset now)
+    private void BuildPage(KitDraw draw)
     {
+        var now = draw.Now;
         _drawnAt = now;
         _page.Children.Clear();
         _page.ColumnDefinitions.Clear();
@@ -97,8 +95,6 @@ public sealed partial class KitList
         _pageStarts = KitPages.Pages(keys, _plan.Columns, box, _plan.HeadingHeight, _plan.RowHeight, firstHeading);
         _pageIndex = Math.Clamp(_pageIndex, 0, _pageStarts.Count - 1);
 
-        // [S-2716] "Today" and "Tomorrow" carry their date where the heading line holds it whole.
-        var dated = KitDays.Dated(Strings.Current, _plan.ColumnWidth - (2 * FamilySpace.Inset));
         var at = _pageStarts[_pageIndex];
 
         for (var c = 0; c < _plan.Columns && at < _items.Count; c++)
@@ -111,18 +107,22 @@ public sealed partial class KitList
             for (var i = at; i < at + count; i++)
             {
                 var item = _items[i];
+                draw.Index = i;
+                draw.Line = stack.Children.Count;
                 if (KitPages.HeadingBefore(keys, at, i, heading))
                 {
-                    var head = Heading(item.Group, today, dated);
-                    if (item.Group is { } group)
+                    var group = item.Group ?? new KitGroup(string.Empty);
+                    var head = _look.Heading(group, draw);
+                    if (item.Group is not null)
                     {
                         DecorateHeading?.Invoke(group, head);
                     }
 
                     stack.Children.Add(head);
+                    draw.Line = stack.Children.Count;
                 }
 
-                var row = ScheduleRow(item, i);
+                var row = Item(_look.Draw(item, draw), item, i);
                 stack.Children.Add(row);
                 _rowElements[i] = row;
             }
@@ -147,56 +147,5 @@ public sealed partial class KitList
             _page.Children.Add(stack);
             at += count;
         }
-    }
-
-    /// <summary>[S-7035] A day's heading: one row of 28 (stretched as the rows are, [S-12410]), BodyStrong, secondary (primary for the chosen day).</summary>
-    private Grid Heading(KitGroup? group, DateOnly today, bool dated)
-        => SectionHeading.Make(
-            group?.Heading ?? (group?.Day is { } day ? KitDays.Heading(Strings.Current, day, today, dated) : string.Empty),
-            _plan.HeadingHeight,
-            group is { Selected: true });
-
-    /// <summary>[S-7036] One scheduled item as a Row block.</summary>
-    private Border ScheduleRow(KitItem item, int index)
-    {
-        var schedule = item.Schedule ?? new KitSchedule(null);
-        var block = new RowBlock(RowKind.List) { Lines = _plan.Lines, Strong = item.Emphasis, Height = _plan.RowHeight };
-
-        string? second;
-        if (schedule.Note is { } note)
-        {
-            second = note;
-        }
-        else
-        {
-            second = string.Join(" · ", new[] { schedule.Span, schedule.Where, schedule.Who }.Where(s => !string.IsNullOrWhiteSpace(s)));
-        }
-
-        block.Show(TitleText(item), schedule.Start, second is { Length: > 0 } ? second : null);
-        if (schedule.Strong)
-        {
-            Family.Step(block.ValueText, FamilyType.BodyStrong);
-        }
-
-        block.ValueText.Foreground = Family.Brush(ToneRole(item.Tone, ColourRole.TextSecondary));
-
-        // [S-566] The calendar's colour as a 2 px bar at the lead's start; with none, the item's glyph.
-        if (schedule.Mark is { } mark)
-        {
-            block.Lead(new Border
-            {
-                Width = FamilyShape.Stroke,
-                Height = FamilyShape.Icon,
-                CornerRadius = Family.Round(FamilyShape.Stroke, FamilyShape.Icon),
-                Background = Family.Data(mark),
-                HorizontalAlignment = HorizontalAlignment.Left,
-            });
-        }
-        else if (Lead(item) is { } lead)
-        {
-            block.Lead(lead);
-        }
-
-        return Item(block, item, index);
     }
 }

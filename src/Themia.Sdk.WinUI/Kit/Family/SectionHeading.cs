@@ -25,6 +25,23 @@ public static class SectionHeading
         return heading;
     }
 
+    /// <summary>[S-4402] Lead a heading with <paramref name="lead"/> (an app's 16 icon) before its words, the glyph's gap between them.</summary>
+    public static void Lead(Grid heading, FrameworkElement lead)
+    {
+        ArgumentNullException.ThrowIfNull(heading);
+        ArgumentNullException.ThrowIfNull(lead);
+        heading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        heading.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        foreach (var child in heading.Children.OfType<FrameworkElement>())
+        {
+            Grid.SetColumn(child, 1);
+        }
+
+        lead.VerticalAlignment = VerticalAlignment.Center;
+        lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
+        heading.Children.Add(lead);
+    }
+
     /// <summary>
     /// [S-12834] A line's words in a band <paramref name="height"/> tall: the box fills the band (a text block's box is its
     /// lines and its padding, never stretched), the words centred in it, or on its top where <paramref name="top"/>.

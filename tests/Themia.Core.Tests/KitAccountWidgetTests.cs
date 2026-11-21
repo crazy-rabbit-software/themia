@@ -62,6 +62,18 @@ public sealed class KitAccountWidgetTests
         Assert.Null(KitMenu.Primary([new(KitActionKind.Open, "Open"), rename]));
     }
 
+    /// <summary>[S-7011] An item with neither an open nor a rename (a clipboard entry) has its first copy as the primary action.</summary>
+    [Fact]
+    public void S7011_an_item_with_neither_open_nor_rename_has_its_first_copy_as_the_primary_action()
+    {
+        KitAction copy = new(KitActionKind.CopyText, "Copy", Text: "abc");
+        KitAction delete = new(KitActionKind.Delete, "Remove", Id: "remove");
+
+        Assert.Same(copy, KitMenu.Primary([delete, copy, new(KitActionKind.CopyText, "Again", Text: "x")]));
+        Assert.Null(KitMenu.Primary([delete, new(KitActionKind.CopyText, "Copy")]));
+        Assert.Null(KitMenu.Primary([delete]));
+    }
+
     /// <summary>[S-7011] A toggle whose label says what it does (Mark as done, Mark as not done) is a plain line, not a check.</summary>
     [Fact]
     public void S7011_a_toggle_without_a_state_is_a_plain_line()

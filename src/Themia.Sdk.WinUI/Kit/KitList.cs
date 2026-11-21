@@ -10,22 +10,25 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
-using Windows.Foundation;
 using Windows.Storage.Streams;
 
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-7060] The list part of every kit widget: the family's rows ([S-6711], <see cref="RowBlock"/>) for
-/// the plan the ladder chose (<see cref="KitPlanner.Plan"/>), full-bleed with their own inset ([S-190]),
-/// no separators, in columns read left to right, as many whole rows as fit under a scroll with the
-/// shared fade ([S-639], [S-1281]), their text reaching the view's top and the foot's inset ([S-12807]).
+/// [S-7060] The list part of every kit widget, the shell its rows stand in: it knows no look. A look
+/// (<see cref="IKitLook"/>; the spec's own, <see cref="KitLooks.For"/>, or one the widget hands it) draws each item as the
+/// family's Row block ([S-6711]); the list lays the rows for the plan (<see cref="KitPlanner.Plan"/>) at their one fixed
+/// size ([S-14810]), full-bleed with their own inset ([S-190]), no separators, in columns read left to right, a group's
+/// heading over its first row, as many as the card reaches under a scroll with the shared fade ([S-639], [S-1281]), their
+/// text reaching the view's top and the foot's inset ([S-12807]); or in pages ([S-7035]); or in the check layout
+/// ([S-7037]).
 /// <para>
-/// One focus model, <see cref="RowFocus"/>: a click focuses a row, a double-click or Enter runs its
-/// primary action ([S-1288], [S-1306]); the card makes the list inert in edit mode ([S-1751]), so it
-/// checks nothing itself. Every row's menu is built from its actions by <see cref="KitMenu"/>, fresh
-/// on each right-tap; the keys are <see cref="KitKeys"/>'. Everything a row shows was written by
-/// somebody else and is set as text, never as markup.
+/// One focus model, <see cref="RowFocus"/>: a click focuses a row, a double-click or Enter runs its primary action
+/// ([S-1288], [S-1306]; a list whose spec says so runs it on the click too, <see cref="KitSpec.ClickRuns"/>); the card
+/// makes the list inert in edit mode ([S-1751]), so it checks nothing itself. Every row's menu is built from its actions
+/// by <see cref="KitMenu"/>, fresh on each right-tap; the keys are <see cref="KitKeys"/>'. Everything a row shows was
+/// written by somebody else and is set as text, never as markup. A new reading of the same rows rewrites them in place
+/// where the look can (<see cref="IKitLook.Update"/>), so nothing under the pointer is rebuilt.
 /// </para>
 /// </summary>
 public sealed partial class KitList : Grid, IStatusRoom
@@ -34,6 +37,7 @@ public sealed partial class KitList : Grid, IStatusRoom
 
     private readonly IWidgetHost _host;
     private readonly KitSpec _spec;
+    private readonly IKitLook _look;
     private readonly Func<KitItem, IReadOnlyList<KitAction>> _actions;
     private readonly Action<KitItem, KitAction> _run;
 
@@ -41,6 +45,12 @@ public sealed partial class KitList : Grid, IStatusRoom
     private readonly ScrollViewer _scroll;
     private readonly List<IDisposable> _rowHooks = [];
     private readonly List<Border> _rowElements = [];
+
+    /// <summary>[S-7034] The column titles over the rows (a table look's).</summary>
+    private readonly Grid _columnHeader = new();
+
+    /// <summary>Each drawn time, so the ages are rewritten without rebuilding the rows.</summary>
+    private readonly List<(TextBlock Text, KitWhen? When, KitTime Time)> _times = [];
 
     /// <summary>Decoded site icons, one per origin, shared by this list's rows.</summary>
     private readonly Dictionary<string, Task<BitmapImage?>> _icons = new(StringComparer.OrdinalIgnoreCase);
@@ -56,6 +66,9 @@ public sealed partial class KitList : Grid, IStatusRoom
     private KitPlan _plan;
     private WidgetArea _area;
 
+    /// <summary>The plan the rows standing were laid for (null: none stand), for a new reading rewritten in place.</summary>
+    private KitPlan? _drawn;
+
     /// <summary>The keyboard cursor, by item id, and where it was (for an item that left the list).</summary>
     private string? _cursorId;
     private int _cursorIndex = -1;
@@ -63,7 +76,8 @@ public sealed partial class KitList : Grid, IStatusRoom
 
     /// <param name="actions">An item's actions, as its spec gives them (read fresh for every menu).</param>
     /// <param name="run">Carries out an action the user chose (<see cref="KitBinding"/>'s runner).</param>
-    public KitList(IWidgetHost host, KitSpec spec, Func<KitItem, IReadOnlyList<KitAction>> actions, Action<KitItem, KitAction> run)
+    /// <param name="look">How the rows are drawn; null: the spec's own look.</param>
+    public KitList(IWidgetHost host, KitSpec spec, Func<KitItem, IReadOnlyList<KitAction>> actions, Action<KitItem, KitAction> run, IKitLook? look = null)
     {
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(spec);
@@ -72,6 +86,7 @@ public sealed partial class KitList : Grid, IStatusRoom
 
         _host = host;
         _spec = spec;
+        _look = look ?? KitLooks.For(spec);
         _actions = actions;
         _run = run;
 
@@ -94,9 +109,9 @@ public sealed partial class KitList : Grid, IStatusRoom
         SetRow(_page, 1);
         Children.Add(_columnHeader);
 
-        if (spec.Look == KitRowLook.Check)
+        if (Checked)
         {
-            // [S-7037] The check look's host gives the scroll only its whole lines and fades them; the
+            // [S-7037] The check layout's host gives the scroll only its whole lines and fades them; the
             // add row sits under it ([S-3850]).
             BuildCheckParts();
             Children.Add(_checkHost!);
@@ -105,7 +120,7 @@ public sealed partial class KitList : Grid, IStatusRoom
         }
 
         // [S-7035] A paged list draws its page in the slot; it never scrolls.
-        Children.Add(spec.Overflow == KitOverflow.Page ? _page : _scroll);
+        Children.Add(Paged ? _page : _scroll);
     }
 
     /// <summary>The items shown, in order.</summary>
@@ -116,6 +131,9 @@ public sealed partial class KitList : Grid, IStatusRoom
 
     /// <summary>The focused item's place, or negative for none.</summary>
     public int CursorIndex => _cursorIndex;
+
+    /// <summary>[S-12815] A line of the widget's own stands over the list (a day's line): the rows start under it, not on the card's top edge.</summary>
+    public bool UnderLine { get; init; }
 
     /// <summary>Hook the fade; once per attach.</summary>
     public void Attach()
@@ -154,13 +172,15 @@ public sealed partial class KitList : Grid, IStatusRoom
         }
 
         _held = null;
+        var was = _items;
         _items = items;
         _plan = plan;
         _area = area;
 
-        // [S-12815] The rows stand on the card's top edge unless the table's column titles stand over them.
+        // [S-12815] The rows stand on the card's top edge unless the table's column titles or a line of the widget's own
+        // stand over them.
         FrameworkElement part = Checked ? _checkHost! : Paged ? _page : _scroll;
-        if (plan.ColumnHeader)
+        if (plan.ColumnHeader || UnderLine)
         {
             part.Margin = default;
         }
@@ -176,13 +196,18 @@ public sealed partial class KitList : Grid, IStatusRoom
             _cursorId = _cursorIndex >= 0 ? items[_cursorIndex].Id : null;
         }
 
+        if (!Checked && !Paged && Rewrite(was, now))
+        {
+            return;
+        }
+
         BuildRows(now);
     }
 
     /// <summary>Take every row down (an empty or problem screen is up).</summary>
     public void Clear() => Clear(_plan);
 
-    /// <summary>Take every row down for another screen; a check look's add row follows <paramref name="plan"/> (none without a list).</summary>
+    /// <summary>Take every row down for another screen; a check layout's add row follows <paramref name="plan"/> (none without a list).</summary>
     public void Clear(KitPlan plan)
     {
         if (Checked && _editor is { Id: not null })
@@ -211,67 +236,37 @@ public sealed partial class KitList : Grid, IStatusRoom
         _fade = null;
     }
 
+    /// <summary>[S-7061] Rewrite every drawn time for <paramref name="now"/> (the ages on the ticker).</summary>
+    public void Retime(DateTimeOffset now)
+    {
+        foreach (var (text, when, time) in _times)
+        {
+            text.Text = KitText.When(Strings.Current, when, time, now);
+        }
+    }
+
     // ---- rows --------------------------------------------------------------------------------
+
+    /// <summary>A draw of the plan at <paramref name="now"/>: the look's context, wired to this list's shared parts.</summary>
+    private KitDraw NewDraw(DateTimeOffset now)
+        => new(_spec, _plan, now, _area.Grid(XamlRoot?.RasterizationScale ?? 1), (text, when, time) => _times.Add((text, when, time)), SiteIcon, HookCheck);
 
     private void BuildRows(DateTimeOffset now)
     {
         ClearRows();
+        var draw = NewDraw(now);
 
         if (Checked)
         {
-            BuildChecks();
-            if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
-            {
-                Mark(_cursorIndex, true);
-            }
-
-            ApplyRoom();
-            return;
+            BuildChecks(draw);
         }
-
-        if (Paged)
+        else if (Paged)
         {
-            BuildPage(now);
-            if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
-            {
-                Mark(_cursorIndex, true);
-            }
-
-            ApplyRoom();
-            return;
-        }
-
-        var columns = Math.Max(1, _plan.Columns);
-
-        for (var c = 0; c < columns; c++)
-        {
-            _rows.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
-
-        for (var r = 0; r < (_items.Count + columns - 1) / columns; r++)
-        {
-            _rows.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        }
-
-        if (_spec.Look == KitRowLook.Table)
-        {
-            BuildColumnHeader();
+            BuildPage(draw);
         }
         else
         {
-            _columnHeader.Visibility = Visibility.Collapsed;
-        }
-
-        for (var i = 0; i < _items.Count; i++)
-        {
-            var row = BuildFamilyRow(_items[i], i, now);
-            SetRow(row, i / columns);
-            SetColumn(row, i % columns);
-
-            // [S-14266] The last item of a line the list does not fill takes the rest of it: no line ends short of the edge.
-            SetColumnSpan(row, KitPlanner.ColumnSpan(i, _items.Count, columns));
-            _rows.Children.Add(row);
-            _rowElements.Add(row);
+            BuildScroll(draw);
         }
 
         if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
@@ -279,9 +274,124 @@ public sealed partial class KitList : Grid, IStatusRoom
             Mark(_cursorIndex, true);
         }
 
-        FitRows(columns);
+        _drawn = _plan;
+        ApplyRoom();
+    }
+
+    /// <summary>Whether the rows stand under their groups' headings: a one-column list whose items name them.</summary>
+    private bool Sectioned => Math.Max(1, _plan.Columns) == 1 && _items.Any(i => i.Group?.Heading is not null);
+
+    /// <summary>The bottom of each line of a sectioned list and whether it is a heading, for the viewport's whole-line end.</summary>
+    private readonly List<(double Bottom, bool Heading)> _lines = [];
+
+    /// <summary>
+    /// [S-7060] The scroll of rows: in the plan's columns read left to right, or one column with each group's heading over
+    /// its first row ([S-4402]); each line its one fixed size ([S-14810]).
+    /// </summary>
+    private void BuildScroll(KitDraw draw)
+    {
+        var columns = Math.Max(1, _plan.Columns);
+
+        for (var c = 0; c < columns; c++)
+        {
+            _rows.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        }
+
+        _columnHeader.Visibility = _look.Titles(_columnHeader, draw) ? Visibility.Visible : Visibility.Collapsed;
+
+        var sectioned = Sectioned;
+        var line = 0;
+        for (var i = 0; i < _items.Count; i++)
+        {
+            var item = _items[i];
+            if (sectioned && item.Group is { Heading: not null } group && (i == 0 || _items[i - 1].Group?.Key != group.Key))
+            {
+                draw.Line = line;
+                var heading = _look.Heading(group, draw);
+                heading.Height = _plan.RowAt(line);
+                DecorateHeading?.Invoke(group, heading);
+                AddLine(heading, line++, 0, columns);
+            }
+
+            draw.Index = i;
+            draw.Line = sectioned ? line : i / columns;
+            var row = Item(_look.Draw(item, draw), item, i);
+            row.Height = _plan.RowAt(draw.Line);
+            _rowElements.Add(row);
+
+            // [S-14266] The last item of a line the list does not fill takes the rest of it: no line ends short of the edge.
+            if (sectioned)
+            {
+                AddLine(row, line++, 0, 1);
+            }
+            else
+            {
+                AddLine(row, i / columns, i % columns, KitPlanner.ColumnSpan(i, _items.Count, columns));
+            }
+        }
+
+        FitRows(sectioned ? line : (_items.Count + columns - 1) / columns);
+        _fade?.Refresh();
+    }
+
+    private void AddLine(FrameworkElement element, int line, int column, int span)
+    {
+        while (_lines.Count <= line)
+        {
+            _rows.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            _lines.Add((_plan.LineStart(_lines.Count + 1), false));
+        }
+
+        if (element is not Border)
+        {
+            _lines[line] = (_lines[line].Bottom, true);
+        }
+
+        SetRow(element, line);
+        SetColumn(element, column);
+        SetColumnSpan(element, span);
+        _rows.Children.Add(element);
+    }
+
+    /// <summary>
+    /// [S-7060] A new reading of a list laid for the same plan and holding as many rows: each row rewritten in place where
+    /// the look can, drawn again where it cannot, the item around it kept (its pointer, its menu, its place on the links).
+    /// </summary>
+    private bool Rewrite(IReadOnlyList<KitItem> was, DateTimeOffset now)
+    {
+        if (_drawn is not { } drawn || drawn != _plan || was.Count != _items.Count || _rowElements.Count != _items.Count || Sectioned || _items.Any(i => i.Group?.Heading is not null) != was.Any(i => i.Group?.Heading is not null))
+        {
+            return false;
+        }
+
+        Redrawing?.Invoke();
+        _times.Clear();
+        var draw = NewDraw(now);
+        var columns = Math.Max(1, _plan.Columns);
+        for (var i = 0; i < _items.Count; i++)
+        {
+            var item = _items[i];
+            var row = _rowElements[i];
+            draw.Index = i;
+            draw.Line = i / columns;
+            if (row.Child is not RowBlock block || !_look.Update(block, was[i], item, draw))
+            {
+                (row.Child as RowBlock)?.Detach();
+                row.Child = _look.Draw(item, draw);
+            }
+
+            ToolTipService.SetToolTip(row, item.Tooltip ?? item.Link?.OriginalString);
+            Decorate?.Invoke(item, row);
+        }
+
+        for (var i = 0; i < _rowElements.Count; i++)
+        {
+            Mark(i, i == _cursorIndex);
+        }
+
         _fade?.Refresh();
         ApplyRoom();
+        return true;
     }
 
     private double _statusRoom;
@@ -338,6 +448,12 @@ public sealed partial class KitList : Grid, IStatusRoom
             return _page.Children.Count > 0 && _page.Children[^1] is Panel { Children.Count: > 0 } column ? column.Children[0] as FrameworkElement : null;
         }
 
+        // A heading over the first row stands in the corner.
+        if (_rows.Children.Count > 0 && _rows.Children[0] is FrameworkElement { } first && first is not Border)
+        {
+            return first;
+        }
+
         // [S-14266] A first line the list does not fill: its last item spans to the end corner.
         var end = Math.Min(Math.Max(1, _plan.Columns), _rowElements.Count) - 1;
         return end >= 0 ? _rowElements[end] : null;
@@ -362,10 +478,10 @@ public sealed partial class KitList : Grid, IStatusRoom
     }
 
     /// <summary>
-    /// [S-639] [S-6712] [S-14810] The list is given its rows' height (each of the plan's one fixed size), at most its room:
-    /// a longer list's last row in sight is cut by the card's foot, the rest a scroll away.
+    /// [S-639] [S-6712] [S-14810] The list is given its lines' height (each of the plan's one fixed size), at most its room:
+    /// a longer list's last line in sight is cut by the card's foot, never ending in a heading, the rest a scroll away.
     /// </summary>
-    private void FitRows(int columns)
+    private void FitRows(int lines)
     {
         if (!_area.IsMeasured || _rowElements.Count == 0)
         {
@@ -373,8 +489,46 @@ public sealed partial class KitList : Grid, IStatusRoom
             return;
         }
 
-        var lines = (_rowElements.Count + columns - 1) / columns;
-        _scroll.Height = Math.Min(_plan.LineStart(lines), KitPlanner.ListRoom(_plan, KitPlanner.ListHeight(_area), _area.Grid()));
+        var content = _plan.LineStart(lines);
+        var room = KitPlanner.ListRoom(_plan, KitPlanner.ListHeight(_area), _area.Grid());
+        _scroll.Height = content <= room + LayoutMath.Tolerance || !_lines.Any(l => l.Heading)
+            ? Math.Min(content, room)
+            : KitChecks.ViewEnd([.. _lines.Take(lines).Select(l => l.Bottom)], room, [.. _lines.Take(lines).Select(l => l.Heading)]);
+    }
+
+    /// <summary>A full-width item around a row: the item layer's fill and hover, its tag, menu, tooltip and pointer.</summary>
+    private Border Item(FrameworkElement content, KitItem item, int index)
+    {
+        var row = new Border { Child = content, Tag = index };
+        ItemMark.Mark(row);
+        ItemFill.Paint(row, ItemRole.Row);
+        WidgetItems.Mark(row);
+        _rowHooks.Add(Fluent.Hover(row));
+        _rowHooks.Add(ItemMenu.Attach(row, () => index < _items.Count ? Entries(_items[index]) : []));
+
+        if ((item.Tooltip ?? item.Link?.OriginalString) is { } tip)
+        {
+            ToolTipService.SetToolTip(row, tip);
+        }
+
+        row.Tapped += Checked ? OnCheckRowTapped : OnRowTapped;
+        row.DoubleTapped += OnRowDoubleTapped;
+        if (Checked)
+        {
+            HookDrag(row);
+        }
+
+        Decorate?.Invoke(item, row);
+        return row;
+    }
+
+    /// <summary>[S-1288] The keyboard's ring on a row (the Row block's own, over its whole width).</summary>
+    private void Mark(int index, bool focused)
+    {
+        if (index >= 0 && index < _rowElements.Count && _rowElements[index].Child is RowBlock block)
+        {
+            block.Focused = focused;
+        }
     }
 
     /// <summary>[S-1304] The site's own icon (the host's one cache), with a globe in its place until it arrives or when the site has none.</summary>
@@ -468,10 +622,14 @@ public sealed partial class KitList : Grid, IStatusRoom
         foreach (var row in _rowElements)
         {
             row.Tapped -= OnRowTapped;
+            row.Tapped -= OnCheckRowTapped;
             row.DoubleTapped -= OnRowDoubleTapped;
+            (row.Child as RowBlock)?.Detach();
         }
 
         _rowElements.Clear();
+        _lines.Clear();
+        _drawn = null;
         _roomed = null;
         _checksByRow.Clear();
         _checks?.Children.Clear();
@@ -483,7 +641,10 @@ public sealed partial class KitList : Grid, IStatusRoom
 
     // ---- pointer, menu, keys -----------------------------------------------------------------
 
-    /// <summary>A click focuses the row, and is the row's: it never reaches the card ([S-2004]).</summary>
+    /// <summary>
+    /// A click focuses the row, and is the row's: it never reaches the card ([S-2004]); a list whose rows do one light
+    /// thing runs it too ([S-7065], <see cref="KitSpec.ClickRuns"/>).
+    /// </summary>
     private void OnRowTapped(object sender, TappedRoutedEventArgs args)
     {
         args.Handled = true;
@@ -491,16 +652,23 @@ public sealed partial class KitList : Grid, IStatusRoom
         if (sender is Border { Tag: int index })
         {
             Focus(index);
+            if (_spec.ClickRuns)
+            {
+                RunKind(index, null);
+            }
         }
     }
 
-    /// <summary>A double-click runs the row's primary action.</summary>
+    /// <summary>A double-click runs the row's primary action (a list that runs it on the click has run it already).</summary>
     private void OnRowDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
     {
         if (sender is Border { Tag: int index } && index < _items.Count && KitMenu.Primary(_actions(_items[index])) is { } primary)
         {
             args.Handled = true;
-            Run(_items[index], primary);
+            if (!_spec.ClickRuns)
+            {
+                Run(_items[index], primary);
+            }
         }
     }
 
@@ -577,6 +745,11 @@ public sealed partial class KitList : Grid, IStatusRoom
         {
             case KitKeyCommand.Focus:
                 Focus(decision.Index);
+                if (had != decision.Index)
+                {
+                    _rowElements[decision.Index].StartBringIntoView();
+                }
+
                 return had != decision.Index;
 
             case KitKeyCommand.Release:
@@ -612,6 +785,11 @@ public sealed partial class KitList : Grid, IStatusRoom
     /// <summary>Run the focused item's action of <paramref name="kind"/> (null: its primary one), if it has one that can run.</summary>
     private bool RunKind(int index, KitActionKind? kind)
     {
+        if (index < 0 || index >= _items.Count)
+        {
+            return false;
+        }
+
         var item = _items[index];
         var actions = _actions(item);
         var action = kind is { } k ? actions.FirstOrDefault(a => a.Kind == k && a.Runnable) : KitMenu.Primary(actions);
@@ -658,6 +836,7 @@ public sealed partial class KitList : Grid, IStatusRoom
         // [S-7035] The cursor takes the page with it (a turned page is drawn with the cursor on it).
         TurnTo(index);
         Mark(index, true);
+        CursorMoved?.Invoke(_items[index]);
     }
 
     /// <summary>Drop the cursor.</summary>
@@ -668,9 +847,17 @@ public sealed partial class KitList : Grid, IStatusRoom
             Mark(_cursorIndex, false);
         }
 
+        var had = _cursorIndex >= 0;
         _cursorIndex = -1;
         _cursorId = null;
+        if (had)
+        {
+            CursorMoved?.Invoke(null);
+        }
     }
+
+    /// <summary>[S-3307] The cursor moved onto an item (null: it let go): a widget publishing its item on its view's links hears it.</summary>
+    public Action<KitItem?>? CursorMoved { get; init; }
 
     private int IndexOf(string id)
     {
@@ -683,5 +870,17 @@ public sealed partial class KitList : Grid, IStatusRoom
         }
 
         return -1;
+    }
+
+    /// <summary>A hook undone on dispose (a handler pair a row's part added).</summary>
+    private sealed class Unhook(Action undo) : IDisposable
+    {
+        private Action? _undo = undo;
+
+        public void Dispose()
+        {
+            _undo?.Invoke();
+            _undo = null;
+        }
     }
 }

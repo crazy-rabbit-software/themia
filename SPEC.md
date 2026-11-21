@@ -1801,6 +1801,27 @@ The shared parts a list widget is built from, and the rules they keep (design an
   any other device).
 - **[S-7073]** *(Every width since [S-11580]: the time no longer gives way either.)* A spec whose value is a reading (`KitSpec.Readings`) keeps it at every width: it is
   the item's point, where a time gives way below a column of 180; the title ellipsises first.
+- **[S-7074]** **One list shell, many looks** (owner, 2026-11-21, audit phase 8: "the widgets have too much variance in
+  themselves. they should reuse more of the same components."). `KitList` is the shell every kit list stands in and
+  knows no look: it lays the rows (a scroll of whole rows at their one fixed size, pages, or the check layout), wraps
+  each in the item that takes the pointer, the menu, the keys and the focus ring, and says what is on screen. A look
+  (`IKitLook`) draws one item as the family's Row block: the kit's own are `KitRichLook` (rich, two-line, one-line),
+  `KitTableLook`, `KitScheduleLook` and `KitCheckLook`, one per `KitRowLook` (`KitLooks.For`); a widget whose rows
+  carry something of their own hands its list a look: the rich look with its own lead (a file's, an app's icon, a
+  colour's swatch, a drive's picture), a part in the meter's place (a drive's used bar) or a touch of the row's roles;
+  the check look with a part at the row's end (a habit's history dots); or a look of its own (the mixer's slider and
+  mute). A new reading of a list laid for the same plan and holding as many rows rewrites each row in place where the
+  look can (`IKitLook.Update`: the same item, led the same), so a part under the pointer or an icon already drawn
+  survives a refresh. In one column the rows stand under their groups' headings where the items name them
+  (`KitGroup.Heading`, the look's `Heading`: a notification's app with its icon, [S-4402]), each heading one of the
+  rows that tile the list, at their size; the viewport never ends in a heading.
+- **[S-7075]** A list whose rows do one light thing runs it on a single click too (`KitSpec.ClickRuns`: a clipboard
+  entry copied back, [S-1444]; a meeting opened in its calendar, [S-1268]); every other list focuses on the click.
+  The primary action of an item with neither an Open nor a Rename is its first copy.
+- **[S-7076]** A state only the widget's own source knows is said in the kit's one state row (`KitRead.Stated`,
+  `KitStated`): an address its rules refuse, access Windows has not given, a radio that is off, a history whose
+  listener never started; a problem (the warning) or a plain state (the widget's glyph), with its one way out where it
+  has one (`KitFix`: "Allow", "Open settings", "Try again").
 - **[S-14266]** **No line of a list in columns ends short of the edge** (owner, 2026-11-19, WR-4: "they should stretch if
   they dont reach all the way"; WR-3). A list laid in columns read left to right whose items do not fill its last line
   (seven in two) gives that line's last item the rest of the line (`KitPlanner.ColumnSpan`): its box, hover and menu

@@ -13,8 +13,8 @@ using Windows.UI.Core;
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-7037] [S-7038] The check look: rows with a check lead in one or two columns, filled column by
-/// column, whole lines only, the done group under its heading ([S-781], [S-782], [S-784]); a click on
+/// [S-7037] [S-7038] The check layout (a look whose <see cref="IKitLook.Checks"/>: the check look's): rows with a check
+/// lead in one or two columns, filled column by column, whole lines only, the done group under its heading ([S-781], [S-782], [S-784]); a click on
 /// the check toggles it at once ([S-597]); the title renamed in place and new items typed into the add
 /// row under the list ([S-599], [S-600], [S-788], [S-3850]); a row dragged to a new place ([S-786]).
 /// The widget carries the changes out (<see cref="Renamed"/>, <see cref="Added"/>,
@@ -30,7 +30,7 @@ public sealed partial class KitList
     private AddFooterRow? _addRow;
 
     /// <summary>The check lead of each drawn row, by place, for the click that toggles it.</summary>
-    private readonly Dictionary<int, Border> _checksByRow = [];
+    private readonly Dictionary<int, FrameworkElement> _checksByRow = [];
 
     /// <summary>The open editor: renaming an item (its id) or adding one (null), and the row it stands in (its ring on while it is open).</summary>
     private (InlineBox Box, string? Id, RowBlock Row)? _editor;
@@ -57,7 +57,7 @@ public sealed partial class KitList
     /// <summary>Whether an editor is open (the widget holds back what would rebuild it).</summary>
     public bool Editing => _editor is not null;
 
-    private bool Checked => _spec.Look == KitRowLook.Check;
+    private bool Checked => _look.Checks;
 
     /// <summary>The check look's parts, in the list's rows: the host under the column header, the add row under it.</summary>
     private void BuildCheckParts()
@@ -161,7 +161,7 @@ public sealed partial class KitList
         return false;
     }
 
-    private void BuildChecks()
+    private void BuildChecks(KitDraw draw)
     {
         var panel = _checks!;
         panel.Columns = _plan.Columns;
@@ -169,14 +169,15 @@ public sealed partial class KitList
         for (var i = 0; i < _items.Count; i++)
         {
             var item = _items[i];
+            draw.Index = i;
 
             // [S-784] A group's heading over its first row, where a heading earns its line.
-            if (_plan.Headings && item.Group is { Heading: { } heading } group && (i == 0 || _items[i - 1].Group?.Key != group.Key))
+            if (_plan.Headings && item.Group is { Heading: not null } group && (i == 0 || _items[i - 1].Group?.Key != group.Key))
             {
-                panel.Children.Add(CheckHeading(heading));
+                panel.Children.Add(_look.Heading(group, draw));
             }
 
-            var row = CheckRow(item, i);
+            var row = Item(_look.Draw(item, draw), item, i);
             panel.Children.Add(row);
             _rowElements.Add(row);
         }
@@ -254,119 +255,29 @@ public sealed partial class KitList
         CapToWholeLines();
     }
 
-    /// <summary>[S-784] A group's heading (the done ones): one row of 28 (at the rows' fixed size, [S-14810]), BodyStrong, secondary.</summary>
-    private Grid CheckHeading(string text) => SectionHeading.Make(text, _plan.HeadingHeight);
-
     /// <summary>
-    /// [S-7037] One row, a Row block: the check as its lead, the title as the name (BodyStrong when
-    /// emphasised and open; struck through and tertiary when done), the due as its value in the item's
-    /// tone, the subtitle (a list's name) on its second line where the plan gives two.
+    /// [S-597] A row's check, as its look drew it: a click on it toggles the item (and is never the row's double-click), its
+    /// tooltip what that does.
     /// </summary>
-    private Border CheckRow(KitItem item, int index)
+    private void HookCheck(FrameworkElement check, int index)
     {
-        var done = item.Lead.IsDone;
-        var marker = CheckMarker(done, item.Lead.Tone, index);
-        var block = new RowBlock(RowKind.List) { Lines = _plan.Lines, Strong = item.Emphasis && !done, Height = _plan.RowHeight };
-        block.Show(TitleText(item), _plan.When ? DueText(item) : null, _plan.Subtitle ? item.Subtitle : null);
-        block.Lead(marker);
-
-        // [S-186] Done is struck through, not merely dimmed: the one mark that says "done" without a
-        // legend and without relying on colour. Late says so in words as well as in its tone, and
-        // only for open work.
-        if (done)
-        {
-            block.NameText.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
-            block.NameText.Foreground = Family.Brush(ColourRole.TextTertiary);
-        }
-        else
-        {
-            block.ValueText.Foreground = Family.Brush(ToneRole(item.Tone, ColourRole.TextSecondary));
-        }
-
-        var row = new Border { Child = block, Tag = index };
-        ItemMark.Mark(row);
-        ItemFill.Paint(row, ItemRole.Row);
-        _checksByRow[index] = marker;
-
-        _rowHooks.Add(Fluent.Hover(row));
-        _rowHooks.Add(ItemMenu.Attach(row, () => Entries(item)));
-        WidgetItems.Mark(row); // [S-814]
-
-        if (item.Tooltip is { } tip)
-        {
-            ToolTipService.SetToolTip(row, tip);
-        }
-
-        row.Tapped += OnCheckRowTapped;
-        row.DoubleTapped += OnRowDoubleTapped;
-        HookDrag(row);
-        Decorate?.Invoke(item, row);
-        return row;
-    }
-
-    private string? DueText(KitItem item)
-    {
-        if (item.Due is not { } due)
-        {
-            return null;
-        }
-
-        if (_plan.UrgentOnly)
-        {
-            return due.Urgent ? due.Short : null;
-        }
-
-        return _plan.LongWhen ? due.Long : due.Short;
-    }
-
-    /// <summary>
-    /// [S-597] The check, which is also the one control that toggles the item: an empty ring for open
-    /// work, a filled tick for done. Drawn rather than taken from the icon font (there is no hollow
-    /// circle in it), sized from the row height, never from the tile.
-    /// </summary>
-    /// <summary>
-    /// [S-780] The check: a 16 ring (stroke 2, in the item's tone when it is late, else secondary), the
-    /// accent's filled circle with the tick on it when done (a checked box is the accent's to say).
-    /// </summary>
-    private Border CheckMarker(bool done, KitTone tone, int index)
-    {
-        var marker = new Border
-        {
-            Width = FamilyShape.Icon,
-            Height = FamilyShape.Icon,
-            CornerRadius = Family.Round(FamilyShape.Icon, FamilyShape.Icon),
-            VerticalAlignment = VerticalAlignment.Center,
-            Tag = index,
-        };
-
-        PaintCheck(marker, done, tone);
-        ToolTipService.SetToolTip(marker, CheckTooltip(index));
-        marker.Tapped += OnCheckTapped;
-        marker.DoubleTapped += OnCheckDoubleTapped;
+        _checksByRow[index] = check;
+        check.Tag = index;
+        ToolTipService.SetToolTip(check, index < _items.Count ? _actions(_items[index]).FirstOrDefault(a => a.Kind == KitActionKind.Toggle)?.Label : null);
+        check.Tapped += OnCheckTapped;
+        check.DoubleTapped += OnCheckDoubleTapped;
         _rowHooks.Add(new Unhook(() =>
         {
-            marker.Tapped -= OnCheckTapped;
-            marker.DoubleTapped -= OnCheckDoubleTapped;
+            check.Tapped -= OnCheckTapped;
+            check.DoubleTapped -= OnCheckDoubleTapped;
         }));
-        return marker;
     }
-
-    private static void PaintCheck(Border marker, bool done, KitTone tone)
-    {
-        marker.BorderBrush = Family.Brush(ToneRole(tone, ColourRole.TextSecondary));
-        marker.BorderThickness = new Thickness(done ? 0 : FamilyShape.Stroke);
-        marker.Background = Family.Brush(done ? ColourRole.Accent : ColourRole.Clear);
-        marker.Child = done ? Family.Glyph(Glyphs.Done, FamilyShape.Icon, ColourRole.TextOnAccent) : null;
-    }
-
-    private string? CheckTooltip(int index)
-        => index < _items.Count ? _actions(_items[index]).FirstOrDefault(a => a.Kind == KitActionKind.Toggle)?.Label : null;
 
     /// <summary>[S-597] A click on the check toggles the item, drawn at once; the widget's write follows.</summary>
     private void OnCheckTapped(object sender, TappedRoutedEventArgs args)
     {
         args.Handled = true;
-        if (sender is Border { Tag: int index } marker && index < _items.Count)
+        if (sender is FrameworkElement { Tag: int index } marker && index < _items.Count)
         {
             Toggle(index, marker);
         }
@@ -376,7 +287,7 @@ public sealed partial class KitList
     private static void OnCheckDoubleTapped(object sender, DoubleTappedRoutedEventArgs args) => args.Handled = true;
 
     /// <summary>[S-597] Toggle an item: its check flips on screen first (optimistic), then its action runs.</summary>
-    private bool Toggle(int index, Border? marker = null)
+    private bool Toggle(int index, FrameworkElement? marker = null)
     {
         var item = _items[index];
         if (_actions(item).FirstOrDefault(a => a.Kind == KitActionKind.Toggle && a.Runnable) is not { } toggle)
@@ -386,7 +297,7 @@ public sealed partial class KitList
 
         if ((marker ?? _checksByRow.GetValueOrDefault(index)) is { } check)
         {
-            PaintCheck(check, !item.Lead.IsDone, item.Lead.Tone);
+            _look.Toggled(check, item, !item.Lead.IsDone);
         }
 
         Run(item, toggle);

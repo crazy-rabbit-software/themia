@@ -80,8 +80,15 @@ public sealed record KitScreen(KitScreenKind Kind, string Sentence, bool OffersA
     /// <summary>The screen offers the grant page.</summary>
     public bool OffersGrant => Grant is not null;
 
-    /// <summary>A problem the widget states itself before any source is asked (an address refused by its rules).</summary>
-    public static KitScreen Refused(string sentence) => new(KitScreenKind.Problem, sentence, false, []);
+    /// <summary>[S-7040] The widget's own state's way out ("Allow", "Try again"), offered when no account or grant page is.</summary>
+    public KitFix? Fix { get; init; }
+
+    /// <summary>[S-7040] A state the widget's own source states (an address refused by its rules, access Windows has not given): a problem, or a plain empty state.</summary>
+    public static KitScreen Of(KitStated stated)
+    {
+        ArgumentNullException.ThrowIfNull(stated);
+        return new(stated.Problem ? KitScreenKind.Problem : KitScreenKind.Empty, stated.Sentence, false, []) { Fix = stated.Fix };
+    }
 }
 
 /// <summary>
