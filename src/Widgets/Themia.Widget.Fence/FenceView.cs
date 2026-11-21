@@ -125,7 +125,6 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
         SizeChanged += (_, _) =>
         {
-            _titleBar.Height = TitleHeight();
             OnRollSized();
             Layout();
         };
@@ -555,7 +554,22 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
     /// alone (on the desktop its rows exactly; a picture lays it at the sizing's 28 unfitted), so the bar, the fence's first
     /// row, is never cut by its own card.
     /// </summary>
-    private double TitleHeight() => ActualHeight > 0 ? Math.Min(Cells.Title, ActualHeight) : Cells.Title;
+    private double TitleHeight() => double.IsFinite(_room) && _room > 0 ? Math.Min(Cells.Title, _room) : Cells.Title;
+
+    /// <summary>[S-14315] The height the card gives the view, as the last measure was given it (its own box may be taller).</summary>
+    private double _room = double.PositiveInfinity;
+
+    protected override Windows.Foundation.Size MeasureOverride(Windows.Foundation.Size availableSize)
+    {
+        _room = availableSize.Height;
+        var title = TitleHeight();
+        if (_titleBar.Height != title)
+        {
+            _titleBar.Height = title;
+        }
+
+        return base.MeasureOverride(availableSize);
+    }
 
     /// <summary>[S-10901] [S-10902] The title bar and the body as the config and the desktop say now.</summary>
     private void Render()

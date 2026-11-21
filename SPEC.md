@@ -8605,7 +8605,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-14315]** **A fence's title bar is its first row** (WR-3, [S-13040]). The title bar (the name, the count, the
   chevron) is a band from the card's left edge to its right on its top, three grid rows tall, marked as the fence's item
   (`ItemMark`): its name stands in its own padding (12 at the sides, centred down in its rows as a row's text is in its
-  band), so a rolled-up fence (its title bar alone, 28 tall) is a row, not a text 6.7 off the card's foot.
+  band), so a rolled-up fence (its title bar alone, 28 tall) is a row, not a text 6.7 off the card's foot. The bar is
+  never taller than the height the card gives the view (a picture lays a rolled-up fence at the sizing's 28, unfitted,
+  while its rows are 30): it is never cut by its own card.
 - **[S-14316]** **A Header preview state is sized by its own config** ([S-11603]). The `plain`, `long` and `bare` states
   swap in a config of their own (`DrawnConfig`), so a render sizes the strip by what it draws: the long state's caption is
   a second line, and its strip is the one a header with a caption states (52 tall), never the 36 of one without. Was:
