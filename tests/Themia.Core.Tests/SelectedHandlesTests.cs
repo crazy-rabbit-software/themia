@@ -11,7 +11,7 @@ namespace Themia.Core.Tests;
 public sealed class SelectedHandlesTests
 {
     /// <summary>A selected card under another that overlaps its right half; the drawing order stays: "top" over "under".</summary>
-    private static readonly (string Id, PixelRect Box)[] Cards = [("under", new PixelRect(100, 100, 200, 100)), ("top", new PixelRect(200, 80, 200, 160))];
+    private static readonly (string Id, DipRect Box)[] Cards = [("under", new DipRect(100, 100, 200, 100)), ("top", new DipRect(200, 80, 200, 160))];
 
     [Fact]
     public void S1597_regression_a_press_on_a_selected_cards_covered_edge_corner_or_body_goes_to_it()

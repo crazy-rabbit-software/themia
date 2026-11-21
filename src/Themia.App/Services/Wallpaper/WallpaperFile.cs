@@ -24,7 +24,7 @@ internal static class WallpaperFile
     /// <paramref name="fit"/> over <paramref name="background"/>, or the colour alone for no file. Null
     /// (and logged) for a file that cannot be read or decoded: absent and corrupt are told apart.
     /// </summary>
-    public static async Task<WallpaperPicture?> PlaceAsync(string path, WallpaperFit fit, RgbColor background, PixelRect display, PixelRect desktop, CancellationToken cancel)
+    public static async Task<WallpaperPicture?> PlaceAsync(string path, WallpaperFit fit, RgbColor background, DeviceRect display, DeviceRect desktop, CancellationToken cancel)
     {
         if (string.IsNullOrWhiteSpace(path))
         {

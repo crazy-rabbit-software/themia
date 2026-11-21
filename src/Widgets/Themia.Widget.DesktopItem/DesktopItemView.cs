@@ -114,7 +114,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     }
 
     /// <summary>[S-5612] Put the highlight on <paramref name="box"/>, in the view's (the card's) DIPs.</summary>
-    private void PlaceChrome(Themia.Core.Geometry.PixelRect box)
+    private void PlaceChrome(Themia.Core.Geometry.DipRect box)
     {
         _chrome.HorizontalAlignment = HorizontalAlignment.Left;
         _chrome.VerticalAlignment = VerticalAlignment.Top;

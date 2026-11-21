@@ -25,7 +25,7 @@ public static class DesktopBand
     /// </summary>
     /// <param name="display">The surface's display, in physical screen pixels.</param>
     /// <param name="scale">The surface's DIP-to-pixel factor.</param>
-    public static (double X, double Y) ToScreen(PixelRect display, double scale, double dipX, double dipY)
+    public static (double X, double Y) ToScreen(DeviceRect display, double scale, double dipX, double dipY)
         => (display.X + (dipX * scale), display.Y + (dipY * scale));
 
     /// <summary>
@@ -34,7 +34,7 @@ public static class DesktopBand
     /// displays do not touch, a pointer in the gap holds the band at the display it is nearest to. No
     /// usable area leaves the point as it is.
     /// </summary>
-    public static (double X, double Y) Into(IReadOnlyList<PixelRect> areas, double x, double y)
+    public static (double X, double Y) Into(IReadOnlyList<DeviceRect> areas, double x, double y)
     {
         ArgumentNullException.ThrowIfNull(areas);
         var best = (X: x, Y: y);
@@ -66,7 +66,7 @@ public static class DesktopBand
     /// inside the work areas taken together: it grows across displays and stops at their outer edge and
     /// at what the taskbar or a dock reserved.
     /// </summary>
-    public static BandRect Of(IReadOnlyList<PixelRect> areas, (double X, double Y) start, (double X, double Y) now)
+    public static BandRect Of(IReadOnlyList<DeviceRect> areas, (double X, double Y) start, (double X, double Y) now)
     {
         var from = Into(areas, start.X, start.Y);
         var to = Into(areas, now.X, now.Y);
@@ -82,7 +82,7 @@ public static class DesktopBand
     /// <param name="display">The display, in screen pixels.</param>
     /// <param name="workArea">Its work area, in screen pixels.</param>
     /// <param name="scale">Its surface's DIP-to-pixel factor.</param>
-    public static BandRect? On(BandRect band, PixelRect display, PixelRect workArea, double scale)
+    public static BandRect? On(BandRect band, DeviceRect display, DeviceRect workArea, double scale)
     {
         if (!(scale > 0) || !Touches(band, workArea))
         {
@@ -117,7 +117,7 @@ public static class DesktopBand
     }
 
     /// <summary>Whether the band and an area share a point, edges included: a band lying along a display's edge still shows its line there.</summary>
-    private static bool Touches(BandRect band, PixelRect area)
+    private static bool Touches(BandRect band, DeviceRect area)
         => area.Width > 0 && area.Height > 0
             && band.Left <= area.X + area.Width && band.Left + band.Width >= area.X
             && band.Top <= area.Y + area.Height && band.Top + band.Height >= area.Y;

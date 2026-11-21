@@ -19,20 +19,20 @@ public sealed class TaskbarSidesTests
         public override WidgetConfig Clone() => new Card();
     }
 
-    private static readonly PixelRect Monitor = new(0, 0, 2560, 1440);
+    private static readonly DeviceRect Monitor = new(0, 0, 2560, 1440);
 
     /// <summary>The taskbar's width as a fraction of the panel's.</summary>
     private const double T = 72.0 / 2560;
 
     private const double Eps = 1e-9;
 
-    private static ScreenMetrics Screen(PixelRect work)
+    private static ScreenMetrics Screen(DeviceRect work)
         => new(2560 / 1.5, 1440 / 1.5) { Allowed = GridGeometry.AllowedArea(Monitor, work) };
 
-    private static readonly ScreenMetrics LeftBar = Screen(new PixelRect(72, 0, 2488, 1440));
-    private static readonly ScreenMetrics RightBar = Screen(new PixelRect(0, 0, 2488, 1440));
-    private static readonly ScreenMetrics TopBar = Screen(new PixelRect(0, 72, 2560, 1368));
-    private static readonly ScreenMetrics BottomBar = Screen(new PixelRect(0, 0, 2560, 1368));
+    private static readonly ScreenMetrics LeftBar = Screen(new DeviceRect(72, 0, 2488, 1440));
+    private static readonly ScreenMetrics RightBar = Screen(new DeviceRect(0, 0, 2488, 1440));
+    private static readonly ScreenMetrics TopBar = Screen(new DeviceRect(0, 72, 2560, 1368));
+    private static readonly ScreenMetrics BottomBar = Screen(new DeviceRect(0, 0, 2560, 1368));
     private static readonly ScreenMetrics AutoHide = Screen(Monitor);
 
     /// <summary>The view's area on both of the owner's displays, as the host hands it to a gesture on either.</summary>
@@ -120,7 +120,7 @@ public sealed class TaskbarSidesTests
         var right = BlockGeometry.Apply(start[1], delta, screen);
 
         Assert.True(right.Right > 1 - T, $"{right} stopped at the taskbar");
-        Assert.Equal(GridGeometry.MinVisiblePx, Visible(right, screen).X, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, Visible(right, screen).X, 6);
         Assert.Equal(0.15, right.X - BlockGeometry.Apply(start[0], delta, screen).X, 9);
     }
 
@@ -154,7 +154,7 @@ public sealed class TaskbarSidesTests
 
         Assert.False(Inside(settled, screen), $"{side}: {settled} stopped at the taskbar");
         var (x, y) = Visible(settled, screen);
-        Assert.Equal(GridGeometry.MinVisiblePx, side is "left" or "right" ? x : y, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, side is "left" or "right" ? x : y, 6);
         var snapped = GridGeometry.Snap(pushed, screen);
         Assert.Equal((snapped.W, snapped.H), (settled.W, settled.H));
 
@@ -167,7 +167,7 @@ public sealed class TaskbarSidesTests
     {
         // A bottom taskbar: the top, left and right are the monitor's edges.
         var settled = GridGeometry.Settle(new FracRect(0.4, -2, 0.15, 0.2), BottomBar);
-        Assert.Equal((GridGeometry.MinVisiblePx / BottomBar.Height) - settled.H, settled.Y, 9);
+        Assert.Equal((GridGeometry.MinVisibleDip / BottomBar.Height) - settled.H, settled.Y, 9);
 
         // An auto-hidden taskbar reserves nothing: every edge is the monitor's.
         Assert.True(GridGeometry.Strips(AutoHide.Allowed).None);
@@ -355,7 +355,7 @@ public sealed class TaskbarSidesTests
         Assert.Equal(1, WorkAreaSettle.Apply(state, OwnersDisplays()));
 
         var r = view.Widgets[0].Rect;
-        Assert.Equal(GridGeometry.MinVisiblePx, Visible(r, Both(LeftBar)).X, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, Visible(r, Both(LeftBar)).X, 6);
         Assert.True(r.X < T, "pulled wholly clear: only the visible minimum is the settle's");
         Assert.Equal((0.06, 0.5), (r.W, r.Y));
     }
@@ -401,7 +401,7 @@ public sealed class TaskbarSidesTests
         var state = new AppState();
         var view = ViewState.Create("Home");
         view.Id = "home";
-        view.WorkArea = Screen(new PixelRect(0, 0, 2560, 1392)).Allowed;
+        view.WorkArea = Screen(new DeviceRect(0, 0, 2560, 1392)).Allowed;
         var hung = new FracRect(0.6, 0.9, 0.2, 0.1);
         view.Widgets.AddRange([Widget("flush", new FracRect(0.3, (1392.0 / 1440) - 0.1, 0.2, 0.1)), Widget("hung", hung)]);
         state.Views.Add(view);

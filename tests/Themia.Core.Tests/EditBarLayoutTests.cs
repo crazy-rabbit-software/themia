@@ -121,9 +121,9 @@ public sealed class EditBarLayoutTests
     [Fact]
     public void S2325_a_flyout_is_centred_on_its_entry_twelve_under_the_bar_its_beak_at_the_entry()
     {
-        var area = new PixelRect(0, 0, 1920, 1040);
-        var bar = new PixelRect(400, 8, 1000, 48);
-        var entry = new PixelRect(800, 16, 80, 32);
+        var area = new DipRect(0, 0, 1920, 1040);
+        var bar = new DipRect(400, 8, 1000, 48);
+        var entry = new DipRect(800, 16, 80, 32);
 
         var spot = FlyoutPlacement.Place(entry, bar, area, 300);
 
@@ -137,8 +137,8 @@ public sealed class EditBarLayoutTests
     [Fact]
     public void S2325_a_tall_page_stops_at_seventy_percent_of_the_work_area_and_scrolls()
     {
-        var area = new PixelRect(0, 0, 1920, 1000);
-        var spot = FlyoutPlacement.Place(new PixelRect(800, 16, 80, 32), new PixelRect(400, 8, 1000, 48), area, 5000);
+        var area = new DipRect(0, 0, 1920, 1000);
+        var spot = FlyoutPlacement.Place(new DipRect(800, 16, 80, 32), new DipRect(400, 8, 1000, 48), area, 5000);
 
         Assert.Equal(700, spot.Height);
     }
@@ -148,8 +148,8 @@ public sealed class EditBarLayoutTests
     {
         // The Views page (420 tall), Work's card opened (640), closed again (420): each hanging is the page's height,
         // never the tallest it has been; past 70 % of the work area it stops there and scrolls, and shrinks back from it.
-        var area = new PixelRect(0, 0, 1920, 1000);
-        var (entry, bar) = (new PixelRect(800, 16, 80, 32), new PixelRect(400, 8, 1000, 48));
+        var area = new DipRect(0, 0, 1920, 1000);
+        var (entry, bar) = (new DipRect(800, 16, 80, 32), new DipRect(400, 8, 1000, 48));
 
         var heights = new[] { 420.0, 640, 420, 900, 420 }.Select(page => FlyoutPlacement.Place(entry, bar, area, page).Height).ToList();
 
@@ -159,18 +159,18 @@ public sealed class EditBarLayoutTests
     [Fact]
     public void S2326_pushed_in_at_a_screen_edge_the_beak_stays_over_its_entry()
     {
-        var area = new PixelRect(0, 0, 900, 1000);
-        var entry = new PixelRect(20, 16, 40, 32);
+        var area = new DipRect(0, 0, 900, 1000);
+        var entry = new DipRect(20, 16, 40, 32);
 
-        var spot = FlyoutPlacement.Place(entry, new PixelRect(10, 8, 880, 48), area, 200);
+        var spot = FlyoutPlacement.Place(entry, new DipRect(10, 8, 880, 48), area, 200);
 
         Assert.Equal(F.EdgeMargin, spot.X);
         Assert.Equal(40 - F.EdgeMargin, spot.Tip);
 
         // At the very edge the tip stays on the top's straight: the corner and half the beak in.
-        var corner = FlyoutPlacement.Place(new PixelRect(0, 16, 10, 32), new PixelRect(0, 8, 880, 48), area, 200);
+        var corner = FlyoutPlacement.Place(new DipRect(0, 16, 10, 32), new DipRect(0, 8, 880, 48), area, 200);
         Assert.Equal(Themia.Sdk.Kit.ShellMetrics.OverlayRadius + (F.BeakWidth / 2), corner.Tip);
-        var right = FlyoutPlacement.Place(new PixelRect(850, 16, 40, 32), new PixelRect(10, 8, 880, 48), area, 200);
+        var right = FlyoutPlacement.Place(new DipRect(850, 16, 40, 32), new DipRect(10, 8, 880, 48), area, 200);
         Assert.Equal(900 - F.EdgeMargin - F.Width, right.X);
         Assert.Equal(870 - right.X, right.Tip);
     }
@@ -182,22 +182,22 @@ public sealed class EditBarLayoutTests
     [Fact]
     public void S2344_a_widget_under_the_page_is_a_window_in_the_panels_own_dips()
     {
-        var windows = FlyoutPlacement.ShineThrough(Panel, [new PixelRect(500, 200, 200, 100)]);
+        var windows = FlyoutPlacement.ShineThrough(Panel, [new DipRect(500, 200, 200, 100)]);
 
         var window = Assert.Single(windows);
-        Assert.Equal(new PixelRect(100, 132, 200, 100), window.Box);
+        Assert.Equal(new DipRect(100, 132, 200, 100), window.Box);
         Assert.False(window.TopLeft || window.TopRight || window.BottomRight || window.BottomLeft);
     }
 
     [Fact]
     public void S2344_a_widget_beside_the_page_or_only_touching_it_has_no_window()
     {
-        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(100, 200, 200, 100)]));
-        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(200, 200, 200, 100)]));
-        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(500, 668, 200, 100)]));
+        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new DipRect(100, 200, 200, 100)]));
+        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new DipRect(200, 200, 200, 100)]));
+        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new DipRect(500, 668, 200, 100)]));
 
         // Above the panel (under the bar and the beak): not the panel's.
-        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(600, 8, 200, 60)]));
+        Assert.Empty(FlyoutPlacement.ShineThrough(Panel, [new DipRect(600, 8, 200, 60)]));
         Assert.Empty(FlyoutPlacement.ShineThrough(Panel, []));
     }
 
@@ -205,17 +205,17 @@ public sealed class EditBarLayoutTests
     public void S2344_a_widget_past_the_panels_edge_is_cut_to_it_and_takes_its_round_corner()
     {
         // Over the panel's top-left corner, past it on both sides.
-        var corner = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(300, 20, 200, 100)]));
-        Assert.Equal(new PixelRect(0, 0, 100, 52), corner.Box);
+        var corner = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new DipRect(300, 20, 200, 100)]));
+        Assert.Equal(new DipRect(0, 0, 100, 52), corner.Box);
         Assert.Equal((true, false, false, false), (corner.TopLeft, corner.TopRight, corner.BottomRight, corner.BottomLeft));
 
         // Wider and taller than the panel: the whole of it, every corner round.
-        var all = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(0, 0, 2000, 2000)]));
-        Assert.Equal(new PixelRect(0, 0, 580, 600), all.Box);
+        var all = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new DipRect(0, 0, 2000, 2000)]));
+        Assert.Equal(new DipRect(0, 0, 580, 600), all.Box);
         Assert.True(all.TopLeft && all.TopRight && all.BottomRight && all.BottomLeft);
 
         // Along the foot only: its two foot corners.
-        var foot = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(300, 600, 800, 200)]));
+        var foot = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new DipRect(300, 600, 800, 200)]));
         Assert.Equal((false, false, true, true), (foot.TopLeft, foot.TopRight, foot.BottomRight, foot.BottomLeft));
     }
 
@@ -223,17 +223,17 @@ public sealed class EditBarLayoutTests
     public void S2344_joined_widgets_are_one_window_so_no_seam_shows_where_they_meet()
     {
         // A group of two side by side and two stacked: one box each time.
-        var side = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(500, 200, 100, 80), new PixelRect(600, 200, 120, 80)]));
-        Assert.Equal(new PixelRect(100, 132, 220, 80), side.Box);
+        var side = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new DipRect(500, 200, 100, 80), new DipRect(600, 200, 120, 80)]));
+        Assert.Equal(new DipRect(100, 132, 220, 80), side.Box);
 
-        var stacked = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new PixelRect(500, 300, 100, 80), new PixelRect(500, 200, 100, 100)]));
-        Assert.Equal(new PixelRect(100, 132, 100, 180), stacked.Box);
+        var stacked = Assert.Single(FlyoutPlacement.ShineThrough(Panel, [new DipRect(500, 300, 100, 80), new DipRect(500, 200, 100, 100)]));
+        Assert.Equal(new DipRect(100, 132, 100, 180), stacked.Box);
     }
 
     [Fact]
     public void S2344_widgets_that_overlap_never_thin_the_same_spot_twice()
     {
-        PixelRect[] widgets = [new PixelRect(500, 200, 200, 200), new PixelRect(600, 300, 200, 200), new PixelRect(550, 250, 50, 50)];
+        DipRect[] widgets = [new DipRect(500, 200, 200, 200), new DipRect(600, 300, 200, 200), new DipRect(550, 250, 50, 50)];
 
         var windows = FlyoutPlacement.ShineThrough(Panel, widgets);
 

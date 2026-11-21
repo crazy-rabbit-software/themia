@@ -35,7 +35,7 @@ public sealed class NoGroupsShellTests
     public void S2457_cards_join_only_within_their_set_so_a_dragged_pair_stays_one_panel()
     {
         // Two dragged cards side by side (set 1) over a still card they touch (set 0).
-        PixelRect?[] boxes = [new PixelRect(0, 0, 100, 50), new PixelRect(100, 0, 100, 50), new PixelRect(0, 50, 100, 50)];
+        DipRect?[] boxes = [new DipRect(0, 0, 100, 50), new DipRect(100, 0, 100, 50), new DipRect(0, 50, 100, 50)];
 
         var outlines = CardJoins.Outlines(boxes, 0.25, [1, 1, 0]);
 
@@ -49,6 +49,6 @@ public sealed class NoGroupsShellTests
     [Fact]
     public void S2457_one_set_per_box()
     {
-        Assert.Throws<ArgumentException>(() => CardJoins.Outlines([new PixelRect(0, 0, 1, 1)], 0.25, [0, 1]));
+        Assert.Throws<ArgumentException>(() => CardJoins.Outlines([new DipRect(0, 0, 1, 1)], 0.25, [0, 1]));
     }
 }

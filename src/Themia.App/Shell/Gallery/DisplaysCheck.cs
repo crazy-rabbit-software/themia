@@ -160,7 +160,7 @@ internal static class DisplaysCheck
                         continue;
                     }
 
-                    var box = new PixelRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height);
+                    var box = new DipRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height);
                     var under = Under(box, work, surface.Metrics);
                     Check(under < Rounding, $"{name}: {label,-20} at x {box.X:0.#}..{box.X + box.Width:0.#} stored x {model.Rect.X:0.####}" +
                         (under >= Rounding ? $" UNDER THE TASKBAR by {under:0.#} DIPs" : string.Empty));
@@ -204,9 +204,9 @@ internal static class DisplaysCheck
                 foreach (var (on, onName) in new[] { (left, "left"), (right, "right") })
                 {
                     var work = WorkDips(on);
-                    var box = on.CardFor(id) is { } card ? new PixelRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height) : Box(kept, on.Metrics);
+                    var box = on.CardFor(id) is { } card ? new DipRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height) : Box(kept, on.Metrics);
                     var shows = Math.Min(box.X + box.Width, work.X + work.Width) - Math.Max(box.X, work.X);
-                    Check(shows >= GridGeometry.MinVisiblePx - Rounding, $"  on the {onName} display {shows:0.#} DIPs of it show on the work area (at least {GridGeometry.MinVisiblePx:0})");
+                    Check(shows >= GridGeometry.MinVisibleDip - Rounding, $"  on the {onName} display {shows:0.#} DIPs of it show on the work area (at least {GridGeometry.MinVisibleDip:0})");
                     if (ReferenceEquals(on, surface))
                     {
                         var under = Under(box, work, on.Metrics);
@@ -288,23 +288,23 @@ internal static class DisplaysCheck
     }
 
     /// <summary>The display's own work area in the surface's DIPs.</summary>
-    private static PixelRect WorkDips(DesktopWindow surface)
+    private static DipRect WorkDips(DesktopWindow surface)
     {
         var bounds = surface.Monitor.Bounds;
         var work = surface.Monitor.WorkArea;
         var metrics = surface.Metrics;
         var scale = bounds.Width / metrics.Width;
-        return new PixelRect((work.Left - bounds.Left) / scale, (work.Top - bounds.Top) / scale, work.Width / scale, work.Height / scale);
+        return new DipRect((work.Left - bounds.Left) / scale, (work.Top - bounds.Top) / scale, work.Width / scale, work.Height / scale);
     }
 
-    private static PixelRect Box(FracRect rect, ScreenMetrics screen)
+    private static DipRect Box(FracRect rect, ScreenMetrics screen)
         => new(rect.X * screen.Width, rect.Y * screen.Height, rect.W * screen.Width, rect.H * screen.Height);
 
     /// <summary>
     /// How far, in DIPs, a box reaches under the taskbar: past a work area's edge that is inside the monitor (one at the
     /// monitor's own edge may be hung over, [S-6608]).
     /// </summary>
-    private static double Under(PixelRect box, PixelRect work, ScreenMetrics screen)
+    private static double Under(DipRect box, DipRect work, ScreenMetrics screen)
     {
         var under = 0.0;
         if (work.X > 0.5)
@@ -355,8 +355,8 @@ internal static class DisplaysCheck
         var work = WorkDips(surface);
         var metrics = surface.Metrics;
         var strip = work.X > 0.5
-            ? new PixelRect(0, 0, work.X, metrics.Height)
-            : new PixelRect(work.X + work.Width, 0, metrics.Width - (work.X + work.Width), metrics.Height);
+            ? new DipRect(0, 0, work.X, metrics.Height)
+            : new DipRect(work.X + work.Width, 0, metrics.Width - (work.X + work.Width), metrics.Height);
         var tint = new Microsoft.UI.Xaml.Shapes.Rectangle
         {
             Width = strip.Width,

@@ -374,7 +374,7 @@ public static class ViewBarRules
     /// A bar bigger than the area is pinned to the area's top-left, so its first chips are reachable.
     /// </para>
     /// </summary>
-    public static (double X, double Y) Place(PixelRect area, double width, double height, ViewBarAnchor anchor, PixelRect? avoid = null)
+    public static (double X, double Y) Place(DipRect area, double width, double height, ViewBarAnchor anchor, DipRect? avoid = null)
     {
         var m = EdgeMargin;
         var left = area.X + m;
@@ -397,7 +397,7 @@ public static class ViewBarRules
             _ => (left, bottom),
         };
 
-        if (avoid is { } chrome && GridGeometry.Intersect(new PixelRect(x, y, width, height), chrome) is not null)
+        if (avoid is { } chrome && GridGeometry.Intersect(new DipRect(x, y, width, height), chrome) is not null)
         {
             y = chrome.Y + chrome.Height + (m / 2);
         }
@@ -414,7 +414,7 @@ public static class ViewBarRules
     /// gives up the strip the edit toolbar takes at the top, so a column pushed below the toolbar
     /// ([S-909]) still ends a margin above the bottom.
     /// </summary>
-    public static double Room(PixelRect area, ViewBarAnchor anchor, PixelRect? avoid = null, ViewBarType type = ViewBarType.Inline)
+    public static double Room(DipRect area, ViewBarAnchor anchor, DipRect? avoid = null, ViewBarType type = ViewBarType.Inline)
     {
         var m = EdgeMargin;
         if (!IsVertical(anchor, type))
@@ -549,7 +549,7 @@ public static class ViewBarRules
     /// the menu instead of running under the taskbar or off the display. A menu beside a column may use
     /// the area's whole height.
     /// </summary>
-    public static double MenuHeight(PixelRect area, PixelRect from, ViewBarMenuSide side)
+    public static double MenuHeight(DipRect area, DipRect from, ViewBarMenuSide side)
     {
         var m = EdgeMargin;
         var height = side switch
@@ -567,7 +567,7 @@ public static class ViewBarRules
     /// band of the left and right thirds is the vertical anchors, the dead centre goes to the top
     /// or bottom middle by which half the pointer is in. As in the original.
     /// </summary>
-    public static ViewBarAnchor PickAnchor(PixelRect area, double x, double y)
+    public static ViewBarAnchor PickAnchor(DipRect area, double x, double y)
     {
         var xz = area.Width > 0 ? (x - area.X) / area.Width : 0.5;
         var yz = area.Height > 0 ? (y - area.Y) / area.Height : 0.5;

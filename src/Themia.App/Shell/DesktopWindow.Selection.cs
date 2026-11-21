@@ -260,7 +260,7 @@ internal sealed partial class DesktopWindow
             {
                 var at = move.Block.At(start, move.Block.Landing);
                 moving.SetLiveRect(at);
-                moving.FollowMove(GridGeometry.ToPixels(at, metrics, RasterScale));
+                moving.FollowMove(GridGeometry.PaintedCell(at, metrics, RasterScale));
             }
 
             // [S-2460] The selection's frame goes with the block ([S-14310]: on the locked desktop its corners).

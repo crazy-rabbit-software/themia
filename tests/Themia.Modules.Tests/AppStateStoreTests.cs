@@ -260,8 +260,8 @@ public sealed class AppStateStoreTests : IDisposable
         StateRepair.Repair(state);
 
         // Against the 1920 × 1080 reference screen: the visible minimum stays on it, no more.
-        Assert.Equal(1 - (GridGeometry.MinVisiblePx / 1920), widget.Rect.X, 9);
-        Assert.Equal(GridGeometry.MinVisiblePx / 1080, widget.Rect.Bottom, 9);
+        Assert.Equal(1 - (GridGeometry.MinVisibleDip / 1920), widget.Rect.X, 9);
+        Assert.Equal(GridGeometry.MinVisibleDip / 1080, widget.Rect.Bottom, 9);
         Assert.Equal(0.2, widget.Rect.W, 9);
     }
 

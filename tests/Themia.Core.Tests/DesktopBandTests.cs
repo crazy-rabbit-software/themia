@@ -13,11 +13,11 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class DesktopBandTests
 {
-    private static readonly PixelRect Left = new(0, 0, 1920, 1080);
-    private static readonly PixelRect LeftWork = new(64, 0, 1856, 1080);
-    private static readonly PixelRect Right = new(1920, 0, 3840, 2160);
-    private static readonly PixelRect RightWork = new(1920, 0, 3840, 2088);
-    private static readonly PixelRect[] Areas = [LeftWork, RightWork];
+    private static readonly DeviceRect Left = new(0, 0, 1920, 1080);
+    private static readonly DeviceRect LeftWork = new(64, 0, 1856, 1080);
+    private static readonly DeviceRect Right = new(1920, 0, 3840, 2160);
+    private static readonly DeviceRect RightWork = new(1920, 0, 3840, 2088);
+    private static readonly DeviceRect[] Areas = [LeftWork, RightWork];
 
     [Fact]
     public void S5544_a_point_in_a_surfaces_dips_is_a_screen_point_at_that_surfaces_scale()
@@ -60,7 +60,7 @@ public sealed class DesktopBandTests
     [Fact]
     public void S5544_displays_that_do_not_touch_still_share_one_band()
     {
-        PixelRect[] apart = [new(0, 0, 1000, 1000), new(1400, 0, 1000, 1000)];
+        DeviceRect[] apart = [new(0, 0, 1000, 1000), new(1400, 0, 1000, 1000)];
 
         // In the gap the pointer is held at the nearer display's edge; past the gap it is on the other.
         Assert.Equal((1000d, 500d), DesktopBand.Into(apart, 1100, 500));
@@ -70,7 +70,7 @@ public sealed class DesktopBandTests
 
     [Fact]
     public void S5544_no_usable_work_area_leaves_the_point_as_it_is()
-        => Assert.Equal((5d, 7d), DesktopBand.Into([new PixelRect(0, 0, 0, 0)], 5, 7));
+        => Assert.Equal((5d, 7d), DesktopBand.Into([new DeviceRect(0, 0, 0, 0)], 5, 7));
 
     /// <summary>[S-5563] Each display draws the band in its own DIPs: the same screen rectangle, at 100 % and at 150 %.</summary>
     [Fact]
@@ -86,7 +86,7 @@ public sealed class DesktopBandTests
     [Fact]
     public void S5544_a_display_with_a_negative_corner_draws_from_its_own_corner()
     {
-        var second = new PixelRect(-2560, -200, 2560, 1440);
+        var second = new DeviceRect(-2560, -200, 2560, 1440);
 
         Assert.Equal(new BandRect(2460, 300, 2560 + 100, 500), DesktopBand.On(new BandRect(-100, 100, 100, 300), second, second, 1.0));
     }
@@ -95,7 +95,7 @@ public sealed class DesktopBandTests
     public void S5544_a_display_the_band_does_not_reach_draws_nothing()
     {
         Assert.Null(DesktopBand.On(new BandRect(500, 300, 900, 600), Right, RightWork, 1.5));
-        Assert.Null(DesktopBand.On(new BandRect(2000, 2100, 2500, 2150), Right, new PixelRect(1920, 0, 3840, 2088), 0));
+        Assert.Null(DesktopBand.On(new BandRect(2000, 2100, 2500, 2150), Right, new DeviceRect(1920, 0, 3840, 2088), 0));
     }
 
     /// <summary>A band wholly inside what a display's taskbar reserved cannot exist (it is clamped), and one outside the work area draws nothing there.</summary>

@@ -135,7 +135,7 @@ public sealed partial class OnePathSizingTests
         foreach (var sizing in configs.Select(kind.Sizing))
         {
             Assert.True(double.IsFinite(sizing.Max.Width) && double.IsFinite(sizing.Max.Height), $"{id}: no maximum");
-            Assert.True(sizing.Min.Width >= Themia.Core.Geometry.GridGeometry.MinWidgetPx && sizing.Min.Height >= Themia.Core.Geometry.GridGeometry.MinWidgetPx, $"{id}: under the floor");
+            Assert.True(sizing.Min.Width >= Themia.Core.Geometry.GridGeometry.MinWidgetDip && sizing.Min.Height >= Themia.Core.Geometry.GridGeometry.MinWidgetDip, $"{id}: under the floor");
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Themia.Core.Geometry;
 /// both work areas hold (<see cref="GridGeometry.SharedAllowed"/>, the view's area). Two rules, nothing else:
 /// <list type="number">
 /// <item><b>Nothing is lost</b>: every widget keeps the visible minimum on the view's area on each axis
-/// (<see cref="GridGeometry.MinVisiblePx"/>), sliding back just that far, as a gesture keeps it. A widget the user hung over
+/// (<see cref="GridGeometry.MinVisibleDip"/>), sliding back just that far, as a gesture keeps it. A widget the user hung over
 /// a taskbar's edge stays there (owner, 2026-11-21: "the widgets should be able to go over the screen"): the part over the
 /// taskbar is behind it, the surface clipping at the work area ([S-851]).</item>
 /// <item><b>Nothing lands hidden by a change of the area</b> (owner, 2026-11-20: "when i show the same view on two

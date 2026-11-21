@@ -398,8 +398,8 @@ public sealed class AddPageTests
     [Fact]
     public void S11707_the_page_hangs_flush_under_the_bar_as_wide_with_no_beak_and_at_most_70_percent_tall()
     {
-        var bar = new PixelRect(400, 8, 1100, 48);
-        var area = new PixelRect(0, 0, 1920, 1032);
+        var bar = new DipRect(400, 8, 1100, 48);
+        var area = new DipRect(0, 0, 1920, 1032);
 
         var low = FlyoutPlacement.Under(bar, area, 300);
         Assert.Equal((400, 68, 1100, 300), (low.X, low.Y, low.Width, low.Height));

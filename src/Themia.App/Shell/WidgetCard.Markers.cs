@@ -270,13 +270,13 @@ internal sealed partial class WidgetCard
             for (var i = 0; i < part.Inks.Length; i++)
             {
                 var bar = marker.Bars[i];
-                var onCard = new PixelRect(marker.Hit.X + bar.X, marker.Hit.Y + bar.Y, bar.Width, bar.Height);
+                var onCard = new DipRect(marker.Hit.X + bar.X, marker.Hit.Y + bar.Y, bar.Width, bar.Height);
                 Place(part.Inks[i], onCard);
                 Place(part.Halos[i], EditMarkers.Haloed(onCard, scale));
             }
         }
 
-        static void Place(Rectangle shape, PixelRect box)
+        static void Place(Rectangle shape, DipRect box)
         {
             Canvas.SetLeft(shape, box.X);
             Canvas.SetTop(shape, box.Y);

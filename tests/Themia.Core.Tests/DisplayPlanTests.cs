@@ -11,7 +11,7 @@ public class DisplayPlanTests
     private const string PathB = @"\\?\display#gsm5b7f#5&2b2a8e3c&0&uid4358#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}";
 
     private static DisplayInfo Display(string id, bool primary = false, double x = 0, double taskbar = 48, bool resolved = true)
-        => new(id, resolved, new PixelRect(x, 0, 1920, 1080), new PixelRect(x, 0, 1920, 1080 - taskbar), primary);
+        => new(id, resolved, new DeviceRect(x, 0, 1920, 1080), new DeviceRect(x, 0, 1920, 1080 - taskbar), primary);
 
     private static readonly DisplayInfo A = Display(PathA, primary: true);
     private static readonly DisplayInfo B = Display(PathB, x: 1920);
@@ -116,7 +116,7 @@ public class DisplayPlanTests
     [Fact]
     public void S840_S844_a_taskbar_change_updates_the_surface_and_does_not_rebuild_it()
     {
-        var pass = DisplayPlan.Reconcile(Surfaces(A, B), [A with { WorkArea = new PixelRect(0, 0, 1920, 1000) }, B], []);
+        var pass = DisplayPlan.Reconcile(Surfaces(A, B), [A with { WorkArea = new DeviceRect(0, 0, 1920, 1000) }, B], []);
 
         Assert.Empty(pass.Create);
         Assert.Empty(pass.Close);
@@ -126,7 +126,7 @@ public class DisplayPlanTests
     [Fact]
     public void S844_a_resolution_change_updates_the_surface()
     {
-        var bigger = A with { Bounds = new PixelRect(0, 0, 2560, 1440), WorkArea = new PixelRect(0, 0, 2560, 1392) };
+        var bigger = A with { Bounds = new DeviceRect(0, 0, 2560, 1440), WorkArea = new DeviceRect(0, 0, 2560, 1392) };
 
         var pass = DisplayPlan.Reconcile(Surfaces(A), [bigger], []);
 
@@ -156,7 +156,7 @@ public class DisplayPlanTests
     [Fact]
     public void S844_a_repeated_id_gets_one_surface()
     {
-        var pass = DisplayPlan.Reconcile(Surfaces(), [A, A with { Bounds = new PixelRect(1920, 0, 1920, 1080) }], []);
+        var pass = DisplayPlan.Reconcile(Surfaces(), [A, A with { Bounds = new DeviceRect(1920, 0, 1920, 1080) }], []);
 
         Assert.Single(pass.Create);
         Assert.Equal(A, pass.Create[0]);

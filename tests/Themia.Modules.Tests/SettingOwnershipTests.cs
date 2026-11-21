@@ -142,7 +142,7 @@ public sealed class SettingOwnershipTests
 
         public IReadOnlyList<MenuDisplay> Displays { get; } =
         [
-            new("a", "Screen a", "Screen a — 1920 × 1080", new DisplayInfo("a", true, new Core.Geometry.PixelRect(0, 0, 1920, 1080), new Core.Geometry.PixelRect(0, 0, 1920, 1040), true)),
+            new("a", "Screen a", "Screen a — 1920 × 1080", new DisplayInfo("a", true, new Core.Geometry.DeviceRect(0, 0, 1920, 1080), new Core.Geometry.DeviceRect(0, 0, 1920, 1040), true)),
         ];
 
         public void Mutate(Action<AppState> change, bool relayout = true) => change(State);

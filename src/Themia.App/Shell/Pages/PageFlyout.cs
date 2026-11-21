@@ -51,7 +51,7 @@ internal sealed partial class PageFlyout : Grid
 
     private FlyoutSpot _spot;
 
-    private IReadOnlyList<PixelRect> _under = [];
+    private IReadOnlyList<DipRect> _under = [];
 
     private readonly ScrollViewer _scroll = new()
     {
@@ -251,7 +251,7 @@ internal sealed partial class PageFlyout : Grid
     public PageView Page { get; }
 
     /// <summary>[S-13713] Where the panel stands on its layer (the beak not counted): what a drop onto the page lands on.</summary>
-    public PixelRect Panel => new(_spot.X, _spot.Y, _spot.Width, _spot.Height);
+    public DipRect Panel => new(_spot.X, _spot.Y, _spot.Width, _spot.Height);
 
     /// <summary>[S-2346] A press landed on the flyout, a control's included.</summary>
     public event Action? Pressed;
@@ -301,7 +301,7 @@ internal sealed partial class PageFlyout : Grid
     /// [S-2344] The selected widgets as their cards are drawn now (the surface's DIPs): where the panel
     /// covers them its ground is thinned so they are seen through it. Empty for every other page.
     /// </summary>
-    public void ShineThrough(IReadOnlyList<PixelRect> widgets)
+    public void ShineThrough(IReadOnlyList<DipRect> widgets)
     {
         _under = widgets ?? throw new ArgumentNullException(nameof(widgets));
         Draw();

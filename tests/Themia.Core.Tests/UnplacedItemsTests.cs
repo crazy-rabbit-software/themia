@@ -139,9 +139,9 @@ public sealed class UnplacedItemsTests
         Assert.True(SettingsPages.BarWide(SettingsPageId.DesktopItems));
         Assert.All(Enum.GetValues<SettingsPageId>().Where(p => p != SettingsPageId.DesktopItems), p => Assert.False(SettingsPages.BarWide(p)));
 
-        var area = new PixelRect(0, 0, 1920, 1040);
-        var bar = new PixelRect(12, 12, 1896, 48);
-        var entry = new PixelRect(400, 16, 40, 40);
+        var area = new DipRect(0, 0, 1920, 1040);
+        var bar = new DipRect(12, 12, 1896, 48);
+        var entry = new DipRect(400, 16, 40, 40);
         var spot = FlyoutPlacement.Wide(entry, bar, area, 300);
         var add = FlyoutPlacement.Under(bar, area, 300);
 
@@ -153,7 +153,7 @@ public sealed class UnplacedItemsTests
         Assert.Equal(420 - bar.X, spot.Tip, 9);
 
         // Wider bars make it wider; a tall page is still cut at 70 % of the work area.
-        var narrow = FlyoutPlacement.Wide(entry, new PixelRect(12, 12, 876, 48), new PixelRect(0, 0, 900, 1040), 5000);
+        var narrow = FlyoutPlacement.Wide(entry, new DipRect(12, 12, 876, 48), new DipRect(0, 0, 900, 1040), 5000);
         Assert.Equal(876, narrow.Width);
         Assert.Equal(Math.Floor(1040 * 0.7), narrow.Height);
     }
@@ -194,10 +194,10 @@ public sealed class UnplacedItemsTests
 
         // Reading order, no gap, wrapping into the next row.
         var cells = UnplacedItems.Cells(7, 300, new SizeDip(100, 120));
-        Assert.Equal(new PixelRect(0, 0, 100, 120), cells[0]);
-        Assert.Equal(new PixelRect(200, 0, 100, 120), cells[2]);
-        Assert.Equal(new PixelRect(0, 120, 100, 120), cells[3]);
-        Assert.Equal(new PixelRect(0, 240, 100, 120), cells[6]);
+        Assert.Equal(new DipRect(0, 0, 100, 120), cells[0]);
+        Assert.Equal(new DipRect(200, 0, 100, 120), cells[2]);
+        Assert.Equal(new DipRect(0, 120, 100, 120), cells[3]);
+        Assert.Equal(new DipRect(0, 240, 100, 120), cells[6]);
         Assert.Empty(UnplacedItems.Cells(0, 300, new SizeDip(100, 120)));
 
         // As tall as its rows.

@@ -17,20 +17,20 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed partial class DockGuardTests
 {
-    private static readonly PixelRect Window = new(0, 0, 1920, 1080);
+    private static readonly DeviceRect Window = new(0, 0, 1920, 1080);
 
     /// <summary>A dock along the left edge, registered as an appbar: the work area leaves its strip out, and so does the region.</summary>
     [Fact]
     public void S21_the_region_is_the_work_area_relative_to_the_window()
-        => Assert.Equal(new PixelRect(64, 0, 1856, 1032), GridGeometry.SurfaceRegion(Window, new PixelRect(64, 0, 1856, 1032)));
+        => Assert.Equal(new DeviceRect(64, 0, 1856, 1032), GridGeometry.SurfaceRegion(Window, new DeviceRect(64, 0, 1856, 1032)));
 
     /// <summary>The region is relative to the window, which sits at its display's corner: a display left of or above the primary has a negative one.</summary>
     [Fact]
     public void S21_a_display_off_the_origin_is_measured_from_the_windows_own_corner()
     {
-        var window = new PixelRect(-2560, -200, 2560, 1440);
+        var window = new DeviceRect(-2560, -200, 2560, 1440);
 
-        Assert.Equal(new PixelRect(72, 0, 2488, 1392), GridGeometry.SurfaceRegion(window, new PixelRect(-2488, -200, 2488, 1392)));
+        Assert.Equal(new DeviceRect(72, 0, 2488, 1392), GridGeometry.SurfaceRegion(window, new DeviceRect(-2488, -200, 2488, 1392)));
     }
 
     /// <summary>
@@ -41,10 +41,10 @@ public sealed partial class DockGuardTests
     [Fact]
     public void S21_the_region_never_reaches_past_the_work_area_whatever_the_window_is()
     {
-        var spilled = new PixelRect(-400, 0, 2880, 1620);
-        var region = GridGeometry.SurfaceRegion(spilled, new PixelRect(64, 0, 1856, 1032));
+        var spilled = new DeviceRect(-400, 0, 2880, 1620);
+        var region = GridGeometry.SurfaceRegion(spilled, new DeviceRect(64, 0, 1856, 1032));
 
-        Assert.Equal(new PixelRect(464, 0, 1856, 1032), region);
+        Assert.Equal(new DeviceRect(464, 0, 1856, 1032), region);
     }
 
     /// <summary>The invariant over a grid of work areas: the region, put back on screen, is always inside the work area.</summary>
@@ -59,10 +59,10 @@ public sealed partial class DockGuardTests
                 {
                     foreach (var bottom in new[] { 0, 48, 72 })
                     {
-                        var work = new PixelRect(left, top, 1920 - left - right, 1080 - top - bottom);
+                        var work = new DeviceRect(left, top, 1920 - left - right, 1080 - top - bottom);
                         var region = GridGeometry.SurfaceRegion(Window, work);
 
-                        Assert.Equal(work, new PixelRect(region.X + Window.X, region.Y + Window.Y, region.Width, region.Height));
+                        Assert.Equal(work, new DeviceRect(region.X + Window.X, region.Y + Window.Y, region.Width, region.Height));
                     }
                 }
             }
@@ -73,8 +73,8 @@ public sealed partial class DockGuardTests
     [Fact]
     public void S21_a_work_area_off_the_window_gives_the_whole_window()
     {
-        Assert.Equal(new PixelRect(0, 0, 1920, 1080), GridGeometry.SurfaceRegion(Window, new PixelRect(5000, 5000, 100, 100)));
-        Assert.Equal(new PixelRect(0, 0, 1920, 1080), GridGeometry.SurfaceRegion(Window, new PixelRect(0, 0, 0, 0)));
+        Assert.Equal(new DeviceRect(0, 0, 1920, 1080), GridGeometry.SurfaceRegion(Window, new DeviceRect(5000, 5000, 100, 100)));
+        Assert.Equal(new DeviceRect(0, 0, 1920, 1080), GridGeometry.SurfaceRegion(Window, new DeviceRect(0, 0, 0, 0)));
     }
 
     // ---- source guards --------------------------------------------------------------------------
@@ -216,7 +216,7 @@ public sealed partial class DockGuardTests
     // ---- the surface is never a full-screen app ([S-852]) ---------------------------------------
 
     /// <summary>The test a dock (Karpo's FullscreenApps.Covers) and the shell make of a front window: every edge of the display is inside it.</summary>
-    private static bool CoversDisplay(PixelRect window, PixelRect display)
+    private static bool CoversDisplay(DeviceRect window, DeviceRect display)
         => window.X <= display.X && window.Y <= display.Y
             && window.X + window.Width >= display.X + display.Width && window.Y + window.Height >= display.Y + display.Height;
 
@@ -227,7 +227,7 @@ public sealed partial class DockGuardTests
     public void S852_a_surfaces_window_never_covers_its_whole_display_so_no_dock_takes_it_for_a_full_screen_app(double x, double y, double width, double height)
     {
         // The bug: the surface was exactly its display, and Karpo hid its bar whenever a click made it the front window.
-        var display = new PixelRect(x, y, width, height);
+        var display = new DeviceRect(x, y, width, height);
         var window = GridGeometry.SurfaceWindow(display);
 
         Assert.True(CoversDisplay(display, display));
@@ -240,10 +240,10 @@ public sealed partial class DockGuardTests
     [Fact]
     public void S852_the_cut_to_the_work_area_stays_inside_the_shortened_window()
     {
-        var display = new PixelRect(0, 0, 1920, 1080);
+        var display = new DeviceRect(0, 0, 1920, 1080);
         var region = GridGeometry.SurfaceRegion(GridGeometry.SurfaceWindow(display), display);
 
-        Assert.Equal(new PixelRect(0, 0, 1920, 1079), region);
+        Assert.Equal(new DeviceRect(0, 0, 1920, 1079), region);
     }
 
     [Fact]

@@ -27,7 +27,7 @@ internal readonly record struct MonitorTarget(
     string FriendlyName = "")
 {
     /// <summary>The display as the pure display pass sees it.</summary>
-    public DisplayInfo Info => new(Id, IdResolved, ToPixels(Bounds), ToPixels(WorkArea), IsPrimary);
+    public DisplayInfo Info => new(Id, IdResolved, ToDevice(Bounds), ToDevice(WorkArea), IsPrimary);
 
     /// <summary>Whether a physical screen point is on this display, taskbar included.</summary>
     public bool Contains(int x, int y)
@@ -60,7 +60,7 @@ internal readonly record struct MonitorTarget(
             : Str.Shell_Display_Describe.Format(("name", name), ("size", size));
     }
 
-    private static PixelRect ToPixels(Win32.Rect r) => new(r.Left, r.Top, r.Width, r.Height);
+    private static DeviceRect ToDevice(Win32.Rect r) => new(r.Left, r.Top, r.Width, r.Height);
 
     /// <summary>
     /// A fallback when the monitor reports no product name. The GDI device name is meaningless to a

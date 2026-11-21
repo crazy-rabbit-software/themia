@@ -9,19 +9,19 @@ namespace Themia.Core.Tests;
 /// </summary>
 public class WorkAreaGeometryTests
 {
-    private static readonly PixelRect Monitor = new(0, 0, 1920, 1080);
+    private static readonly DeviceRect Monitor = new(0, 0, 1920, 1080);
 
-    private static ScreenMetrics WithTaskbar(PixelRect workArea, double rasterScale = 1.0)
+    private static ScreenMetrics WithTaskbar(DeviceRect workArea, double rasterScale = 1.0)
         => new(Monitor.Width / rasterScale, Monitor.Height / rasterScale) { Allowed = GridGeometry.AllowedArea(Monitor, workArea) };
 
-    private static readonly PixelRect BottomTaskbar = new(0, 0, 1920, 1032);
-    private static readonly PixelRect TopTaskbar = new(0, 48, 1920, 1032);
-    private static readonly PixelRect LeftTaskbar = new(48, 0, 1872, 1080);
-    private static readonly PixelRect RightTaskbar = new(0, 0, 1872, 1080);
+    private static readonly DeviceRect BottomTaskbar = new(0, 0, 1920, 1032);
+    private static readonly DeviceRect TopTaskbar = new(0, 48, 1920, 1032);
+    private static readonly DeviceRect LeftTaskbar = new(48, 0, 1872, 1080);
+    private static readonly DeviceRect RightTaskbar = new(0, 0, 1872, 1080);
 
     private const double Eps = 1e-9;
 
-    public static TheoryData<string, PixelRect> Edges => new()
+    public static TheoryData<string, DeviceRect> Edges => new()
     {
         { "bottom", BottomTaskbar },
         { "top", TopTaskbar },
@@ -31,7 +31,7 @@ public class WorkAreaGeometryTests
 
     [Theory]
     [MemberData(nameof(Edges))]
-    public void S841_the_allowed_area_is_the_work_area_as_a_fraction_of_the_whole_monitor(string edge, PixelRect work)
+    public void S841_the_allowed_area_is_the_work_area_as_a_fraction_of_the_whole_monitor(string edge, DeviceRect work)
     {
         var allowed = GridGeometry.AllowedArea(Monitor, work);
 
@@ -45,8 +45,8 @@ public class WorkAreaGeometryTests
     [Fact]
     public void S841_a_monitor_off_the_origin_resolves_relative_to_its_own_corner()
     {
-        var second = new PixelRect(-2560, -200, 2560, 1440);
-        var work = new PixelRect(-2560, -200, 2560, 1392);
+        var second = new DeviceRect(-2560, -200, 2560, 1440);
+        var work = new DeviceRect(-2560, -200, 2560, 1392);
 
         var allowed = GridGeometry.AllowedArea(second, work);
 
@@ -62,8 +62,8 @@ public class WorkAreaGeometryTests
     [Fact]
     public void S841_a_nonsense_work_area_allows_the_whole_screen_rather_than_nothing()
     {
-        Assert.Equal(FracRect.Full, GridGeometry.AllowedArea(Monitor, new PixelRect(5000, 5000, 100, 100)));
-        Assert.Equal(FracRect.Full, GridGeometry.AllowedArea(new PixelRect(0, 0, 0, 0), BottomTaskbar));
+        Assert.Equal(FracRect.Full, GridGeometry.AllowedArea(Monitor, new DeviceRect(5000, 5000, 100, 100)));
+        Assert.Equal(FracRect.Full, GridGeometry.AllowedArea(new DeviceRect(0, 0, 0, 0), BottomTaskbar));
         Assert.Equal(FracRect.Full, new ScreenMetrics(1920, 1080) { Allowed = new FracRect(double.NaN, 0, 1, 1) }.Allowed);
         Assert.Equal(FracRect.Full, new ScreenMetrics(1920, 1080).Allowed);
     }
@@ -84,17 +84,17 @@ public class WorkAreaGeometryTests
         // Rendering resolves against the whole monitor: the same fraction is the same pixels however
         // big the taskbar is, auto-hidden or on any edge.
         var widget = new FracRect(0.25, 0.9, 0.2, 0.08);
-        var expected = GridGeometry.ToPixels(widget, WithTaskbar(Monitor, rasterScale), rasterScale);
+        var expected = GridGeometry.PaintedCell(widget, WithTaskbar(Monitor, rasterScale), rasterScale);
 
-        foreach (var work in new[] { BottomTaskbar, TopTaskbar, LeftTaskbar, RightTaskbar, new PixelRect(0, 0, 1920, 900) })
+        foreach (var work in new[] { BottomTaskbar, TopTaskbar, LeftTaskbar, RightTaskbar, new DeviceRect(0, 0, 1920, 900) })
         {
-            Assert.Equal(expected, GridGeometry.ToPixels(widget, WithTaskbar(work, rasterScale), rasterScale));
+            Assert.Equal(expected, GridGeometry.PaintedCell(widget, WithTaskbar(work, rasterScale), rasterScale));
         }
     }
 
     [Theory]
     [MemberData(nameof(Edges))]
-    public void S6608_S855_a_widget_dragged_onto_any_taskbar_goes_behind_it_and_keeps_the_minimum_on_every_edge(string edge, PixelRect work)
+    public void S6608_S855_a_widget_dragged_onto_any_taskbar_goes_behind_it_and_keeps_the_minimum_on_every_edge(string edge, DeviceRect work)
     {
         var screen = WithTaskbar(work);
         var a = screen.Allowed;
@@ -112,8 +112,8 @@ public class WorkAreaGeometryTests
 
             var overlapX = (Math.Min(settled.Right, a.Right) - Math.Max(settled.X, a.X)) * 1920;
             var overlapY = (Math.Min(settled.Bottom, a.Bottom) - Math.Max(settled.Y, a.Y)) * 1080;
-            Assert.True(overlapX >= GridGeometry.MinVisiblePx - 1e-6, edge);
-            Assert.True(overlapY >= GridGeometry.MinVisiblePx - 1e-6, edge);
+            Assert.True(overlapX >= GridGeometry.MinVisibleDip - 1e-6, edge);
+            Assert.True(overlapY >= GridGeometry.MinVisibleDip - 1e-6, edge);
             Assert.Equal(pushed.W, settled.W, 6);
             Assert.Equal(pushed.H, settled.H, 6);
         }
@@ -181,7 +181,7 @@ public class WorkAreaGeometryTests
 
         var clamped = GridGeometry.Clamp(new FracRect(0.5, 0.5, 0.0001, 0.2), screen);
 
-        Assert.True(clamped.W * 1920 >= GridGeometry.MinWidgetPx - 0.001);
+        Assert.True(clamped.W * 1920 >= GridGeometry.MinWidgetDip - 0.001);
         Assert.True(clamped.Right <= 1 + Eps);
         Assert.True(clamped.X >= 0);
     }
@@ -228,7 +228,7 @@ public class WorkAreaGeometryTests
 
     [Theory]
     [MemberData(nameof(Edges))]
-    public void S31a_S6608_a_resize_toward_any_edge_keeps_the_anchored_corner_and_grows_no_bigger_than_the_work_area(string edge, PixelRect work)
+    public void S31a_S6608_a_resize_toward_any_edge_keeps_the_anchored_corner_and_grows_no_bigger_than_the_work_area(string edge, DeviceRect work)
     {
         var screen = WithTaskbar(work);
         var a = screen.Allowed;
@@ -283,7 +283,7 @@ public class WorkAreaGeometryTests
         var settled = GridGeometry.Settle(
             GridGeometry.Resize(start, ResizeHandle.Left, 0.5, 0, screen), screen, ResizeHandle.Left);
 
-        Assert.True(settled.W * 1920 >= GridGeometry.MinWidgetPx - 0.001);
+        Assert.True(settled.W * 1920 >= GridGeometry.MinWidgetDip - 0.001);
         Assert.Equal(start.Right, settled.Right, 12);
     }
 
@@ -292,7 +292,7 @@ public class WorkAreaGeometryTests
     {
         var screen = WithTaskbar(TopTaskbar, rasterScale: 1.5);
 
-        var allowed = GridGeometry.AllowedPixels(screen);
+        var allowed = GridGeometry.AllowedDips(screen);
 
         Assert.Equal(32, allowed.Y, 9);
         Assert.Equal(1280, allowed.Width, 9);
@@ -302,10 +302,10 @@ public class WorkAreaGeometryTests
     [Fact]
     public void S851_intersect_clips_a_widget_to_the_work_area_and_drops_one_wholly_outside()
     {
-        var work = new PixelRect(0, 0, 1920, 1032);
+        var work = new DipRect(0, 0, 1920, 1032);
 
-        Assert.Equal(new PixelRect(100, 1000, 200, 32), GridGeometry.Intersect(new PixelRect(100, 1000, 200, 60), work));
-        Assert.Null(GridGeometry.Intersect(new PixelRect(100, 1040, 200, 30), work));
-        Assert.Null(GridGeometry.Intersect(new PixelRect(1920, 0, 10, 10), work));
+        Assert.Equal(new DipRect(100, 1000, 200, 32), GridGeometry.Intersect(new DipRect(100, 1000, 200, 60), work));
+        Assert.Null(GridGeometry.Intersect(new DipRect(100, 1040, 200, 30), work));
+        Assert.Null(GridGeometry.Intersect(new DipRect(1920, 0, 10, 10), work));
     }
 }

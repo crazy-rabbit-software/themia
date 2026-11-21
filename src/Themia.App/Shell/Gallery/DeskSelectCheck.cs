@@ -309,7 +309,7 @@ internal static partial class DeskSelectCheck
                 // [S-14310] Several cards selected: the selection's frame's four corners alone round them (no hairline, no grip)
                 // and none of their own; one card alone, icons beside it or not: its own corners and no frame. The count crosses
                 // 1 and 2 both ways. A locked move of several carries the frame's corners with the block.
-                PixelRect CellOf(WidgetCard card)
+                DipRect CellOf(WidgetCard card)
                     => new(Microsoft.UI.Xaml.Controls.Canvas.GetLeft(card), Microsoft.UI.Xaml.Controls.Canvas.GetTop(card), card.Width, card.Height);
                 bool Round(IReadOnlyList<WidgetCard> members)
                 {

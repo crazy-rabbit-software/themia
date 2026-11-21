@@ -4,7 +4,7 @@ namespace Themia.Core.Geometry;
 /// [S-11890] One layer of the local grid: the grid's lines inside <paramref name="Region"/> (the surface's DIPs),
 /// drawn at <paramref name="Opacity"/> over the layers before it.
 /// </summary>
-public readonly record struct GridLevel(PixelRect Region, double Opacity);
+public readonly record struct GridLevel(DipRect Region, double Opacity);
 
 /// <summary>
 /// [S-11874] The local grid of a move on the locked desktop (owner, 2026-11-15: "it should not actually go
@@ -63,7 +63,7 @@ public static class LocalGrid
     }
 
     /// <summary>The distance in DIPs from (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="box"/>: 0 on or inside it.</summary>
-    public static double Distance(PixelRect box, double x, double y)
+    public static double Distance(DipRect box, double x, double y)
     {
         var dx = Math.Max(0, Math.Max(box.X - x, x - (box.X + box.Width)));
         var dy = Math.Max(0, Math.Max(box.Y - y, y - (box.Y + box.Height)));
@@ -76,7 +76,7 @@ public static class LocalGrid
     /// <see cref="Falloff"/> of the point's distance from the box's edges taken per axis as the larger of the
     /// two, so the fade keeps the box's rectangle and grows evenly outward from it (no ellipse).
     /// </summary>
-    public static double Strength(PixelRect box, double x, double y, double radius)
+    public static double Strength(DipRect box, double x, double y, double radius)
     {
         if (!double.IsFinite(x) || !double.IsFinite(y))
         {
@@ -92,7 +92,7 @@ public static class LocalGrid
     /// The target box in the surface's DIPs, on the lines the grid draws: what the local grid lights and
     /// measures from. Empty for an unusable screen.
     /// </summary>
-    public static PixelRect Lit(FracRect target, ScreenMetrics screen)
+    public static DipRect Lit(FracRect target, ScreenMetrics screen)
     {
         if (!screen.IsUsable || !target.IsFinite)
         {
@@ -103,7 +103,7 @@ public static class LocalGrid
         var top = GridGeometry.WholeDip(target.Y * screen.Height);
         var right = GridGeometry.WholeDip(target.Right * screen.Width);
         var bottom = GridGeometry.WholeDip(target.Bottom * screen.Height);
-        return new PixelRect(left, top, Math.Max(0, right - left), Math.Max(0, bottom - top));
+        return new DipRect(left, top, Math.Max(0, right - left), Math.Max(0, bottom - top));
     }
 
     /// <summary>The fade's radius in DIPs on <paramref name="screen"/>: <paramref name="radiusCells"/> of the grid's wider pitch.</summary>
@@ -141,7 +141,7 @@ public static class LocalGrid
         {
             // Strength > (k-1)/Steps: nearer the box than where the smoothstep falls to it.
             var reach = radius * (1 - InverseSmoothstep((k - 1) / (double)Steps));
-            var region = new PixelRect(box.X - reach, box.Y - reach, box.Width + (2 * reach), box.Height + (2 * reach));
+            var region = new DipRect(box.X - reach, box.Y - reach, box.Width + (2 * reach), box.Height + (2 * reach));
 
             // Over the layers below (together `under`), this one brings a line here to PeakOpacity * k / Steps.
             var wanted = PeakOpacity * k / Steps;

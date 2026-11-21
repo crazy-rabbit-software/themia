@@ -266,7 +266,7 @@ internal sealed partial class DesktopWindow
                 continue;
             }
 
-            var box = GridGeometry.ToPixels(outlines[i].Rect, metrics, RasterScale);
+            var box = GridGeometry.PaintedCell(outlines[i].Rect, metrics, RasterScale);
             var definition = ModuleCatalog.Of(outlines[i].Kind);
 
             ghost.Icon.Glyph = definition.Glyph;

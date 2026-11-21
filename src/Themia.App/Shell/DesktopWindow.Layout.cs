@@ -390,7 +390,7 @@ internal sealed partial class DesktopWindow
         // follows, [S-2249]), so the edit outline and handles trace the cell rather than the painted
         // surface, and changing the gap does not move or resize anything.
         // [S-11872] Every edge on a whole device pixel, so two cards that meet share one.
-        var cell = GridGeometry.ToPixels(rect, metrics, RasterScale);
+        var cell = GridGeometry.PaintedCell(rect, metrics, RasterScale);
         Canvas.SetLeft(card, cell.X);
         Canvas.SetTop(card, cell.Y);
         card.Width = cell.Width;
@@ -440,11 +440,11 @@ internal sealed partial class DesktopWindow
         // The region is in physical pixels relative to the WINDOW.
         var work = _monitor.WorkArea;
         DesktopLayer.SetHitRegion(_hwnd, ToRegionRect(GridGeometry.SurfaceRegion(
-            new PixelRect(window.Left, window.Top, window.Width, window.Height),
-            new PixelRect(work.Left, work.Top, work.Width, work.Height))));
+            new DeviceRect(window.Left, window.Top, window.Width, window.Height),
+            new DeviceRect(work.Left, work.Top, work.Width, work.Height))));
     }
 
-    private static Win32.Rect ToRegionRect(PixelRect r) => new()
+    private static Win32.Rect ToRegionRect(DeviceRect r) => new()
     {
         Left = (int)Math.Round(r.X),
         Top = (int)Math.Round(r.Y),

@@ -13,7 +13,7 @@ namespace Themia.Core.Model;
 /// <param name="Bounds">The whole monitor, in physical pixels. The surface covers exactly this ([S-840]).</param>
 /// <param name="WorkArea">The monitor less the taskbar and other app bars, in physical pixels ([S-841]).</param>
 /// <param name="IsPrimary">Whether this is the primary display.</param>
-public readonly record struct DisplayInfo(string Id, bool IdResolved, PixelRect Bounds, PixelRect WorkArea, bool IsPrimary);
+public readonly record struct DisplayInfo(string Id, bool IdResolved, DeviceRect Bounds, DeviceRect WorkArea, bool IsPrimary);
 
 /// <summary>
 /// [S-842] Which string names a display for good.

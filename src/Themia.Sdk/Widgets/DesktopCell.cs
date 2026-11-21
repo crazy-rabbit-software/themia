@@ -223,7 +223,7 @@ public static class DesktopCell
     /// (its whole grid cells, [S-11875]), never a smaller mark inside it (owner, 2026-11-19: "the hover and highlight of
     /// a desktop icon should always be the same area that the widget itself has (where the corners are)").
     /// </summary>
-    public static Themia.Core.Geometry.PixelRect Highlight(double width, double height)
+    public static Themia.Core.Geometry.DipRect Highlight(double width, double height)
         => new(0, 0, double.IsFinite(width) ? Math.Max(0, width) : 0, double.IsFinite(height) ? Math.Max(0, height) : 0);
 
     /// <summary>The width a name wraps at in a cell of <paramref name="size"/> drawn <paramref name="actualWidth"/> wide (not measured yet: the cell's own), in the layout in force.</summary>

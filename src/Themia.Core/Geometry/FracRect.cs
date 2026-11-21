@@ -23,12 +23,12 @@ public readonly record struct FracRect(double X, double Y, double W, double H)
         => new(left, top, right - left, bottom - top);
 
     /// <summary>
-    /// [S-10] Convert a widget definition's default <b>pixel</b> size into a fraction of the screen
+    /// [S-10] Convert a widget definition's default size in <b>DIPs</b> into a fraction of the screen
     /// it is dropped on, so a new widget has a consistent physical size on every monitor and
     /// scales per [S-02] thereafter.
     /// </summary>
-    public static FracRect FromPixels(double x, double y, double wPx, double hPx, ScreenMetrics screen)
-        => new(x, y, wPx / screen.Width, hPx / screen.Height);
+    public static FracRect FromDips(double x, double y, double wDip, double hDip, ScreenMetrics screen)
+        => new(x, y, wDip / screen.Width, hDip / screen.Height);
 
     public bool IsFinite =>
         double.IsFinite(X) && double.IsFinite(Y) && double.IsFinite(W) && double.IsFinite(H);

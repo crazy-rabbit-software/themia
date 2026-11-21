@@ -195,7 +195,7 @@ public sealed class GridFitTests
             var limits = OnGrid(Ragged, screen, scale: raster);
             var stored = GridGeometry.Settle(new FracRect(0.3137, 0.2719, 0.1, 0.1), screen);
             var shown = SizeFit.Shown(stored, limits, screen);
-            var px = GridGeometry.ToPixels(shown, screen, raster);
+            var px = GridGeometry.PaintedCell(shown, screen, raster);
 
             var left = (int)Math.Round(shown.X * cols);
             var right = (int)Math.Round(shown.Right * cols);

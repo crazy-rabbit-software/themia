@@ -14,9 +14,9 @@ public class EdgeOverhangTests
 
     private const double Eps = 1e-9;
 
-    private static double KeepX(ScreenMetrics s) => GridGeometry.MinVisiblePx / s.Width;
+    private static double KeepX(ScreenMetrics s) => GridGeometry.MinVisibleDip / s.Width;
 
-    private static double KeepY(ScreenMetrics s) => GridGeometry.MinVisiblePx / s.Height;
+    private static double KeepY(ScreenMetrics s) => GridGeometry.MinVisibleDip / s.Height;
 
     /// <summary>The overlap with the allowed area on each axis, in DIPs.</summary>
     private static (double X, double Y) Visible(FracRect r, ScreenMetrics s)
@@ -73,8 +73,8 @@ public class EdgeOverhangTests
         var settled = GridGeometry.Settle(new FracRect(x, y, 0.3, 0.3), Screen);
 
         var (vx, vy) = Visible(settled, Screen);
-        Assert.Equal(GridGeometry.MinVisiblePx, vx, 6);
-        Assert.Equal(GridGeometry.MinVisiblePx, vy, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, vx, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, vy, 6);
     }
 
     [Fact]
@@ -112,8 +112,8 @@ public class EdgeOverhangTests
         var settled = GridGeometry.Clamp(new FracRect(5, -5, 0.2, 0.2), screen);
 
         var (vx, vy) = Visible(settled, screen);
-        Assert.Equal(GridGeometry.MinVisiblePx, vx, 6);
-        Assert.Equal(GridGeometry.MinVisiblePx, vy, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, vx, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, vy, 6);
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class EdgeOverhangTests
         var screen = Screen with { Allowed = new FracRect(0, 0, 1, 1032.0 / 1080) };
 
         var settled = GridGeometry.Clamp(new FracRect(0.4, 0.99, 0.2, 0.2), screen);
-        Assert.Equal((1032.0 - GridGeometry.MinVisiblePx) / 1080, settled.Y, 9);
+        Assert.Equal((1032.0 - GridGeometry.MinVisibleDip) / 1080, settled.Y, 9);
 
         // [S-11] [S-855] Placed there, it lands wholly above the taskbar.
         Assert.Equal((1032.0 / 1080) - 0.2, GridGeometry.Land(new FracRect(0.4, 0.99, 0.2, 0.2), screen).Y, 9);
@@ -161,10 +161,10 @@ public class EdgeOverhangTests
             var settled = GridGeometry.Settle(GridGeometry.Resize(start, handle, dx, dy, Screen), Screen, handle);
 
             var (vx, vy) = Visible(settled, Screen);
-            Assert.True(vx >= GridGeometry.MinVisiblePx - 1e-6);
-            Assert.True(vy >= GridGeometry.MinVisiblePx - 1e-6);
-            Assert.True(settled.W * 1920 >= GridGeometry.MinWidgetPx - 1e-6);
-            Assert.True(settled.H * 1080 >= GridGeometry.MinWidgetPx - 1e-6);
+            Assert.True(vx >= GridGeometry.MinVisibleDip - 1e-6);
+            Assert.True(vy >= GridGeometry.MinVisibleDip - 1e-6);
+            Assert.True(settled.W * 1920 >= GridGeometry.MinWidgetDip - 1e-6);
+            Assert.True(settled.H * 1080 >= GridGeometry.MinWidgetDip - 1e-6);
         }
     }
 
@@ -256,7 +256,7 @@ public class EdgeOverhangTests
         // A top-left edge dragged far past the screen's corner: over it, and never so far the widget is lost.
         var left = GridGeometry.Settle(GridGeometry.Resize(new FracRect(0.1, 0.1, 0.2, 0.2), ResizeHandle.TopLeft, -0.5, -0.5, Taskbar), Taskbar, ResizeHandle.TopLeft);
         Assert.True(left.X < 0 && left.Y < 0);
-        Assert.True(Visible(left, Taskbar).X >= GridGeometry.MinVisiblePx - 1e-6);
+        Assert.True(Visible(left, Taskbar).X >= GridGeometry.MinVisibleDip - 1e-6);
     }
 
     [Fact]
@@ -268,7 +268,7 @@ public class EdgeOverhangTests
         var right = BlockGeometry.Apply(start[1], delta, Taskbar);
 
         Assert.True(right.Right > 1);
-        Assert.Equal(GridGeometry.MinVisiblePx, Visible(right, Taskbar).X, 6);
+        Assert.Equal(GridGeometry.MinVisibleDip, Visible(right, Taskbar).X, 6);
         Assert.Equal(0.22, right.X - BlockGeometry.Apply(start[0], delta, Taskbar).X, 9);
     }
 }

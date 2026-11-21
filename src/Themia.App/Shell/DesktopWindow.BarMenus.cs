@@ -355,7 +355,7 @@ internal sealed partial class DesktopWindow
 
         var area = WorkArea;
         var bar = EditBarRect(area);
-        var entry = _editBar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new PixelRect(bar.X, bar.Y, bar.Width, bar.Height);
+        var entry = _editBar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new DipRect(bar.X, bar.Y, bar.Width, bar.Height);
 
         // [S-13707] The Unplaced icons page is as wide as the bar, as the add page is: measured at that width.
         flyout.Place(!_selectionOpen && _openPage is { } page && SettingsPages.BarWide(page)
@@ -375,14 +375,14 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var under = new List<PixelRect>();
+        var under = new List<DipRect>();
         if (_selectionOpen)
         {
             foreach (var card in _cards)
             {
                 if (_host.Selection.Contains(card.Model.Id) && card.Visibility == Visibility.Visible && card.Width > 0 && card.Height > 0)
                 {
-                    under.Add(new PixelRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height));
+                    under.Add(new DipRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height));
                 }
             }
         }

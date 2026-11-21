@@ -50,8 +50,8 @@ public sealed class ViewsMenuTests
 
         public IReadOnlyList<MenuDisplay> Displays { get; } =
         [
-            new(Here, "Screen here", "Screen here — 1920 × 1080", new DisplayInfo(Here, true, new PixelRect(0, 0, 1920, 1080), new PixelRect(0, 0, 1920, 1040), true)),
-            new("other", "LG HDR WQHD", "LG HDR WQHD — 2560 × 1440", new DisplayInfo("other", true, new PixelRect(1920, 0, 2560, 1440), new PixelRect(1920, 0, 2560, 1400), false)),
+            new(Here, "Screen here", "Screen here — 1920 × 1080", new DisplayInfo(Here, true, new DeviceRect(0, 0, 1920, 1080), new DeviceRect(0, 0, 1920, 1040), true)),
+            new("other", "LG HDR WQHD", "LG HDR WQHD — 2560 × 1440", new DisplayInfo("other", true, new DeviceRect(1920, 0, 2560, 1440), new DeviceRect(1920, 0, 2560, 1400), false)),
         ];
 
         public int Mutations { get; private set; }

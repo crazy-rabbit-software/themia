@@ -7,7 +7,7 @@ namespace Themia.Core.Tests;
 /// <summary>[S-917]..[S-918] The view bar never leaves the work area: its room, which chips fit, and where it lands.</summary>
 public sealed class ViewBarFitTests
 {
-    private static readonly PixelRect Area = new(0, 0, 960, 492);
+    private static readonly DipRect Area = new(0, 0, 960, 492);
 
     private static double[] Chips(int count, double length = 40) => [.. Enumerable.Repeat(length, count)];
 
@@ -15,7 +15,7 @@ public sealed class ViewBarFitTests
     public void S917_a_row_has_the_area_width_less_both_margins()
     {
         Assert.Equal(960 - (2 * ViewBarRules.EdgeMargin), ViewBarRules.Room(Area, ViewBarAnchor.BottomCenter));
-        Assert.Equal(960 - (2 * ViewBarRules.EdgeMargin), ViewBarRules.Room(Area, ViewBarAnchor.TopLeft, new PixelRect(250, 8, 460, 44)));
+        Assert.Equal(960 - (2 * ViewBarRules.EdgeMargin), ViewBarRules.Room(Area, ViewBarAnchor.TopLeft, new DipRect(250, 8, 460, 44)));
     }
 
     [Fact]
@@ -24,14 +24,14 @@ public sealed class ViewBarFitTests
         var m = ViewBarRules.EdgeMargin;
         Assert.Equal(492 - (2 * m), ViewBarRules.Room(Area, ViewBarAnchor.LeftCenter));
 
-        var toolbar = new PixelRect(250, 8, 460, 44);
+        var toolbar = new DipRect(250, 8, 460, 44);
         var room = ViewBarRules.Room(Area, ViewBarAnchor.RightCenter, toolbar);
         Assert.Equal(492 - (2 * m) - (8 + 44 + (m / 2) - m), room);
     }
 
     [Fact]
     public void S917_a_tiny_area_has_no_negative_room()
-        => Assert.Equal(0, ViewBarRules.Room(new PixelRect(0, 0, 10, 10), ViewBarAnchor.LeftCenter, new PixelRect(0, 0, 10, 40)));
+        => Assert.Equal(0, ViewBarRules.Room(new DipRect(0, 0, 10, 10), ViewBarAnchor.LeftCenter, new DipRect(0, 0, 10, 40)));
 
     [Fact]
     public void S917_chips_that_fit_are_all_drawn_without_an_overflow_chip()
@@ -127,14 +127,14 @@ public sealed class ViewBarFitTests
     public void S918_a_menu_is_capped_to_the_work_area_on_its_side_of_the_bar()
     {
         var m = ViewBarRules.EdgeMargin;
-        var bottomBar = new PixelRect(16, 444, 600, 32);
+        var bottomBar = new DipRect(16, 444, 600, 32);
         Assert.Equal(444 - m, ViewBarRules.MenuHeight(Area, bottomBar, ViewBarMenuSide.Above));
 
-        var toolbar = new PixelRect(250, 8, 460, 44);
+        var toolbar = new DipRect(250, 8, 460, 44);
         Assert.Equal(492 - 52 - m, ViewBarRules.MenuHeight(Area, toolbar, ViewBarMenuSide.Below));
 
-        Assert.Equal(492 - (2 * m), ViewBarRules.MenuHeight(Area, new PixelRect(16, 30, 40, 400), ViewBarMenuSide.Right));
-        Assert.Equal(0, ViewBarRules.MenuHeight(Area, new PixelRect(16, 0, 40, 10), ViewBarMenuSide.Above));
+        Assert.Equal(492 - (2 * m), ViewBarRules.MenuHeight(Area, new DipRect(16, 30, 40, 400), ViewBarMenuSide.Right));
+        Assert.Equal(0, ViewBarRules.MenuHeight(Area, new DipRect(16, 0, 40, 10), ViewBarMenuSide.Above));
     }
 
     [Theory]
@@ -149,11 +149,11 @@ public sealed class ViewBarFitTests
     public void S917_a_bar_as_long_as_its_room_lands_wholly_inside_the_work_area_at_every_anchor(ViewBarAnchor anchor)
     {
         // A display with the taskbar on the left and an offset origin (a second monitor), edit mode on.
-        var area = new PixelRect(1968, 40, 1872, 1040);
-        var toolbar = new PixelRect(area.X + ((area.Width - 460) / 2), area.Y + 8, 460, 44);
+        var area = new DipRect(1968, 40, 1872, 1040);
+        var toolbar = new DipRect(area.X + ((area.Width - 460) / 2), area.Y + 8, 460, 44);
         var vertical = ViewBarRules.IsVertical(anchor);
 
-        foreach (var avoid in new PixelRect?[] { null, toolbar })
+        foreach (var avoid in new DipRect?[] { null, toolbar })
         {
             var room = ViewBarRules.Room(area, anchor, avoid);
             var (width, height) = vertical ? (48.0, room) : (room, 48.0);
@@ -163,7 +163,7 @@ public sealed class ViewBarFitTests
             Assert.InRange(y, area.Y, area.Y + area.Height - height);
             if (avoid is { } chrome)
             {
-                Assert.Null(GridGeometry.Intersect(new PixelRect(x, y, width, height), chrome));
+                Assert.Null(GridGeometry.Intersect(new DipRect(x, y, width, height), chrome));
             }
         }
     }

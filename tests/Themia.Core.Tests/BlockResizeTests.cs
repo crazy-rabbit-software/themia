@@ -340,8 +340,8 @@ public sealed class BlockResizeTests
         var shrunk = Drag(row, ResizeHandle.Right, -30, 0);
 
         var visible = (shrunk[0].Right - 0) * Screen.Width;
-        Assert.True(visible >= GridGeometry.MinVisiblePx - 1e-6);
-        Assert.True(visible < GridGeometry.MinVisiblePx + 10);
+        Assert.True(visible >= GridGeometry.MinVisibleDip - 1e-6);
+        Assert.True(visible < GridGeometry.MinVisibleDip + 10);
         Assert.Equal(shrunk[0].Right, shrunk[1].X, 9);
     }
 

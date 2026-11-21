@@ -104,7 +104,7 @@ public sealed class ReadyMadePlacementTests
             for (var j = i + 1; j < recipe.Widgets.Count; j++)
             {
                 var (a, b) = (recipe.Widgets[i].Box, recipe.Widgets[j].Box);
-                if (CardJoins.Meeting(new PixelRect(a.X, a.Y, a.Width, a.Height), new PixelRect(b.X, b.Y, b.Width, b.Height), 1e-6) is not null)
+                if (CardJoins.Meeting(new DipRect(a.X, a.Y, a.Width, a.Height), new DipRect(b.X, b.Y, b.Width, b.Height), 1e-6) is not null)
                 {
                     neighbours.Add((i, j));
                 }
@@ -137,7 +137,7 @@ public sealed class ReadyMadePlacementTests
 
                 foreach (var raster in Rasters)
                 {
-                    var cells = plan.Added.Select(w => GridGeometry.ToPixels(w.Rect, screen, raster)).ToArray();
+                    var cells = plan.Added.Select(w => GridGeometry.PaintedCell(w.Rect, screen, raster)).ToArray();
                     var outlines = CardJoins.Paint(cells, [.. cells.Select(_ => (int?)0)], raster);
                     foreach (var (a, b) in neighbours)
                     {

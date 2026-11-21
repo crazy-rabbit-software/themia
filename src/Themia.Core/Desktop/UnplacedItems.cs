@@ -121,7 +121,7 @@ public static class UnplacedItems
     public static (double X, double Y) Pitch(ScreenMetrics screen)
     {
         var (cols, rows) = GridGeometry.GridDims(screen);
-        return screen.IsUsable ? (screen.Width / cols, screen.Height / rows) : (GridGeometry.MinCellPx, GridGeometry.MinCellPx);
+        return screen.IsUsable ? (screen.Width / cols, screen.Height / rows) : (GridGeometry.MinCellDip, GridGeometry.MinCellDip);
     }
 
     /// <summary>[S-13702] Whether a list of <paramref name="count"/> items shows the search box.</summary>
@@ -174,10 +174,10 @@ public static class UnplacedItems
     /// icons, box against box with no gap (every card paints its whole cell, [S-11884]), in reading order, as many to a row
     /// as <paramref name="width"/> holds (<see cref="Columns"/>), row after row.
     /// </summary>
-    public static IReadOnlyList<PixelRect> Cells(int count, double width, SizeDip box)
+    public static IReadOnlyList<DipRect> Cells(int count, double width, SizeDip box)
     {
         var columns = Columns(width, box.Width);
-        return [.. Enumerable.Range(0, Math.Max(0, count)).Select(i => new PixelRect(i % columns * box.Width, i / columns * box.Height, box.Width, box.Height))];
+        return [.. Enumerable.Range(0, Math.Max(0, count)).Select(i => new DipRect(i % columns * box.Width, i / columns * box.Height, box.Width, box.Height))];
     }
 
     /// <summary>[S-13707] How tall the page's icons stand: whole rows of <paramref name="box"/>, none for none.</summary>

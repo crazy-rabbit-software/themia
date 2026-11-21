@@ -262,11 +262,11 @@ internal static class ViewBarRender
     }
 
     /// <summary>One shot: the work area, the taskbar strip, the edit bar stand-in in edit mode, and the bar at its anchor.</summary>
-    private static (ViewBar Bar, PixelRect Area) Draw(Grid screen, Case c, IReadOnlyList<ViewBarItem> items)
+    private static (ViewBar Bar, DipRect Area) Draw(Grid screen, Case c, IReadOnlyList<ViewBarItem> items)
     {
         screen.Children.Clear();
 
-        var area = new PixelRect(0, 0, ScreenWidth, ScreenHeight - TaskbarHeight);
+        var area = new DipRect(0, 0, ScreenWidth, ScreenHeight - TaskbarHeight);
         var canvas = new Canvas();
         screen.Children.Add(canvas);
 
@@ -279,10 +279,10 @@ internal static class ViewBarRender
         Canvas.SetTop(taskbar, ScreenHeight - TaskbarHeight);
         canvas.Children.Add(taskbar);
 
-        PixelRect? editBar = null;
+        DipRect? editBar = null;
         if (c.Editing)
         {
-            var stand = new PixelRect((ScreenWidth - 460) / 2, Fluent.Space2, 460, EditBar.ButtonSize + (2 * Fluent.Space1) + (2 * Fluent.Hairline));
+            var stand = new DipRect((ScreenWidth - 460) / 2, Fluent.Space2, 460, EditBar.ButtonSize + (2 * Fluent.Space1) + (2 * Fluent.Hairline));
             editBar = stand;
             var box = new Border
             {
@@ -319,9 +319,9 @@ internal static class ViewBarRender
     }
 
     /// <summary>[S-918] / [S-5402] The bar's menu as the surface opens it, drawn inside the window; the popup's content alone is written.</summary>
-    private static async Task DrawMenuAsync(Grid screen, ViewBar bar, FrameworkElement chip, PixelRect area, Case c, string path)
+    private static async Task DrawMenuAsync(Grid screen, ViewBar bar, FrameworkElement chip, DipRect area, Case c, string path)
     {
-        var box = new PixelRect(Canvas.GetLeft(bar), Canvas.GetTop(bar), bar.ActualWidth, bar.ActualHeight);
+        var box = new DipRect(Canvas.GetLeft(bar), Canvas.GetTop(bar), bar.ActualWidth, bar.ActualHeight);
         var side = ViewBarRules.MenuSide(c.Anchor);
         var cap = ViewBarRules.MenuHeight(area, box, side);
 

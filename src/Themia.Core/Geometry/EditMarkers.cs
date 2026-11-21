@@ -5,7 +5,7 @@ namespace Themia.Core.Geometry;
 /// so the grip is larger than the ink), and the bars it is drawn from. Every box is in DIPs relative
 /// to the card's cell, and the bars are relative to the hit box.
 /// </summary>
-public sealed record EditMarker(ResizeHandle Handle, PixelRect Hit, IReadOnlyList<PixelRect> Bars);
+public sealed record EditMarker(ResizeHandle Handle, DipRect Hit, IReadOnlyList<DipRect> Bars);
 
 /// <summary>
 /// [S-31b] Where edit mode draws a widget's eight markers instead of an outline: a square-cornered
@@ -61,34 +61,34 @@ public static class EditMarkers
         return
         [
             Corner(ResizeHandle.TopLeft, 0, 0, left: true, top: true),
-            Edge(ResizeHandle.Top, PixelRect.FromEdges(midX, -t, midX + edgeX, t), w / 2, 0),
+            Edge(ResizeHandle.Top, DipRect.FromEdges(midX, -t, midX + edgeX, t), w / 2, 0),
             Corner(ResizeHandle.TopRight, w, 0, left: false, top: true),
-            Edge(ResizeHandle.Left, PixelRect.FromEdges(-t, midY, t, midY + edgeY), 0, h / 2),
-            Edge(ResizeHandle.Right, PixelRect.FromEdges(w - t, midY, w + t, midY + edgeY), w, h / 2),
+            Edge(ResizeHandle.Left, DipRect.FromEdges(-t, midY, t, midY + edgeY), 0, h / 2),
+            Edge(ResizeHandle.Right, DipRect.FromEdges(w - t, midY, w + t, midY + edgeY), w, h / 2),
             Corner(ResizeHandle.BottomLeft, 0, h, left: true, top: false),
-            Edge(ResizeHandle.Bottom, PixelRect.FromEdges(midX, h - t, midX + edgeX, h + t), w / 2, h),
+            Edge(ResizeHandle.Bottom, DipRect.FromEdges(midX, h - t, midX + edgeX, h + t), w / 2, h),
             Corner(ResizeHandle.BottomRight, w, h, left: false, top: false),
         ];
 
         EditMarker Corner(ResizeHandle handle, double x, double y, bool left, bool top)
         {
             // The arms run Arm in from the corner along each edge; the outer corner stands t beyond it.
-            var across = PixelRect.FromEdges(left ? x - t : x - armX, y - t, left ? x + armX : x + t, y + t);
-            var down = PixelRect.FromEdges(x - t, top ? y - t : y - armY, x + t, top ? y + armY : y + t);
+            var across = DipRect.FromEdges(left ? x - t : x - armX, y - t, left ? x + armX : x + t, y + t);
+            var down = DipRect.FromEdges(x - t, top ? y - t : y - armY, x + t, top ? y + armY : y + t);
             var ink = Union(across, down);
-            return Make(handle, Union(ink, PixelRect.FromEdges(x - grip, y - grip, x + grip, y + grip)), across, down);
+            return Make(handle, Union(ink, DipRect.FromEdges(x - grip, y - grip, x + grip, y + grip)), across, down);
         }
 
-        EditMarker Edge(ResizeHandle handle, PixelRect bar, double cx, double cy)
+        EditMarker Edge(ResizeHandle handle, DipRect bar, double cx, double cy)
         {
-            var old = PixelRect.FromEdges(cx - grip, cy - grip, cx + grip, cy + grip);
+            var old = DipRect.FromEdges(cx - grip, cy - grip, cx + grip, cy + grip);
             return Make(handle, Union(bar, old), bar);
         }
 
-        EditMarker Make(ResizeHandle handle, PixelRect hit, params PixelRect[] bars)
+        EditMarker Make(ResizeHandle handle, DipRect hit, params DipRect[] bars)
         {
-            var box = PixelRect.FromEdges(Snap(hit.X, s), Snap(hit.Y, s), Snap(hit.X + hit.Width, s), Snap(hit.Y + hit.Height, s));
-            return new EditMarker(handle, box, [.. bars.Select(b => new PixelRect(b.X - box.X, b.Y - box.Y, b.Width, b.Height))]);
+            var box = DipRect.FromEdges(Snap(hit.X, s), Snap(hit.Y, s), Snap(hit.X + hit.Width, s), Snap(hit.Y + hit.Height, s));
+            return new EditMarker(handle, box, [.. bars.Select(b => new DipRect(b.X - box.X, b.Y - box.Y, b.Width, b.Height))]);
         }
     }
 
@@ -114,11 +114,11 @@ public static class EditMarkers
     }
 
     /// <summary>A bar grown by the contrast stroke on every side, still on device pixels.</summary>
-    public static PixelRect Haloed(PixelRect bar, double scale)
+    public static DipRect Haloed(DipRect bar, double scale)
     {
         var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
         var halo = Device(Halo, s);
-        return new PixelRect(bar.X - halo, bar.Y - halo, bar.Width + (2 * halo), bar.Height + (2 * halo));
+        return new DipRect(bar.X - halo, bar.Y - halo, bar.Width + (2 * halo), bar.Height + (2 * halo));
     }
 
     /// <summary>
@@ -139,8 +139,8 @@ public static class EditMarkers
         return (Math.Max(thickness, Floor(Arm * ratio, scale)), Math.Max(thickness, Floor(EdgeLength * ratio, scale)));
     }
 
-    private static PixelRect Union(PixelRect a, PixelRect b)
-        => PixelRect.FromEdges(
+    private static DipRect Union(DipRect a, DipRect b)
+        => DipRect.FromEdges(
             Math.Min(a.X, b.X),
             Math.Min(a.Y, b.Y),
             Math.Max(a.X + a.Width, b.X + b.Width),

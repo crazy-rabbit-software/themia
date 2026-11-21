@@ -51,7 +51,7 @@ public static class BlockGeometry
     /// <para>
     /// [S-11892] The translation is the snap's, whole cells, at any scale: a block on the grid's lines lands on them, so
     /// two blocks moved apart and laid side by side meet on one line and paint one body. Each line is drawn on its
-    /// whole device pixel (<see cref="GridGeometry.ToPixels"/>), so cards on one line share its pixel wherever the block
+    /// whole device pixel (<see cref="GridGeometry.PaintedCell"/>), so cards on one line share its pixel wherever the block
     /// goes ([S-11873]). Until 2026-11-20 the snapped translation was then put on whole device pixels, which on a
     /// screen whose pitch is no whole number of them (the window a pixel short at 100 %, 125 %, 150 % at 2560) left
     /// the block up to half a pixel step off the line: two blocks moved on their own met a pixel or more apart.

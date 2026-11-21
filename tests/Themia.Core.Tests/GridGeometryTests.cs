@@ -15,8 +15,8 @@ public class GridGeometryTests
 
         var clamped = GridGeometry.Clamp(new FracRect(5, 5, 0.3, 0.3), Screen);
 
-        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Width), clamped.X, 9);
-        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Height), clamped.Y, 9);
+        Assert.Equal(1 - (GridGeometry.MinVisibleDip / Screen.Width), clamped.X, 9);
+        Assert.Equal(1 - (GridGeometry.MinVisibleDip / Screen.Height), clamped.Y, 9);
         Assert.Equal(0.3, clamped.W, 9);
     }
 
@@ -39,8 +39,8 @@ public class GridGeometryTests
 
         var clamped = GridGeometry.Clamp(tiny, Screen);
 
-        Assert.True(clamped.W * Screen.Width >= GridGeometry.MinWidgetPx - 0.001);
-        Assert.True(clamped.H * Screen.Height >= GridGeometry.MinWidgetPx - 0.001);
+        Assert.True(clamped.W * Screen.Width >= GridGeometry.MinWidgetDip - 0.001);
+        Assert.True(clamped.H * Screen.Height >= GridGeometry.MinWidgetDip - 0.001);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class GridGeometryTests
 
         Assert.True(resized.W > 0);
         Assert.Equal(start.Right, resized.Right, 9);
-        Assert.True(resized.W * Screen.Width >= GridGeometry.MinWidgetPx - 0.001);
+        Assert.True(resized.W * Screen.Width >= GridGeometry.MinWidgetDip - 0.001);
     }
 
     [Fact]
@@ -120,8 +120,8 @@ public class GridGeometryTests
         var small = new ScreenMetrics(1280, 720);
         var large = new ScreenMetrics(3840, 2160);
 
-        var onSmall = GridGeometry.ToPixels(rect, small, 1);
-        var onLarge = GridGeometry.ToPixels(rect, large, 1);
+        var onSmall = GridGeometry.PaintedCell(rect, small, 1);
+        var onLarge = GridGeometry.PaintedCell(rect, large, 1);
 
         Assert.Equal(onLarge.Width / onSmall.Width, large.Width / small.Width, 3);
         Assert.Equal(onLarge.X / onSmall.X, large.Width / small.Width, 3);
@@ -146,8 +146,8 @@ public class GridGeometryTests
         var left = new FracRect(0.0, 0.0, 0.5, 1.0);
         var right = new FracRect(0.5, 0.0, 0.5, 1.0);
 
-        var l = GridGeometry.ToPixels(left, Screen, 1);
-        var r = GridGeometry.ToPixels(right, Screen, 1);
+        var l = GridGeometry.PaintedCell(left, Screen, 1);
+        var r = GridGeometry.PaintedCell(right, Screen, 1);
 
         Assert.Equal(l.X + l.Width, r.X, 9);
     }
@@ -166,9 +166,9 @@ public class GridGeometryTests
         var lower = new FracRect(40.0 / 1536, 178.0 / 864, 320.0 / 1536, 124.0 / 864);
         var third = new FracRect(40.0 / 1536, 302.0 / 864, 320.0 / 1536, 109.0 / 864);
 
-        var a = GridGeometry.ToPixels(upper, screen, scale);
-        var b = GridGeometry.ToPixels(lower, screen, scale);
-        var c = GridGeometry.ToPixels(third, screen, scale);
+        var a = GridGeometry.PaintedCell(upper, screen, scale);
+        var b = GridGeometry.PaintedCell(lower, screen, scale);
+        var c = GridGeometry.PaintedCell(third, screen, scale);
 
         foreach (var edge in new[] { a.X, a.Y, a.Y + a.Height, b.Y, b.Y + b.Height, c.Y, c.Y + c.Height })
         {
@@ -195,8 +195,8 @@ public class GridGeometryTests
 
         Assert.True(placed.X < 0);
         Assert.True(placed.Y < 0);
-        Assert.True(placed.Right * Screen.Width >= GridGeometry.MinVisiblePx - 0.001);
-        Assert.True(placed.Bottom * Screen.Height >= GridGeometry.MinVisiblePx - 0.001);
+        Assert.True(placed.Right * Screen.Width >= GridGeometry.MinVisibleDip - 0.001);
+        Assert.True(placed.Bottom * Screen.Height >= GridGeometry.MinVisibleDip - 0.001);
     }
 
     [Fact]

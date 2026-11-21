@@ -72,21 +72,21 @@ public sealed class PlacementPayload
 
     private readonly List<string> _roots;
 
-    private readonly double _newWidthPx;
-    private readonly double _newHeightPx;
+    private readonly double _newWidthDip;
+    private readonly double _newHeightDip;
 
     /// <summary>[S-2471] The ready-made group a <see cref="PlacementMode.Create"/> payload places, or null.</summary>
     private readonly ReadyMadeGroup? _readyMade;
 
-    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthPx, double heightPx, ReadyMadeGroup? readyMade = null)
+    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthDip, double heightDip, ReadyMadeGroup? readyMade = null)
     {
         _readyMade = readyMade;
         Mode = mode;
         NewKind = kind;
         _widgets = widgets;
         _roots = roots;
-        _newWidthPx = widthPx;
-        _newHeightPx = heightPx;
+        _newWidthDip = widthDip;
+        _newHeightDip = heightDip;
     }
 
     public PlacementMode Mode { get; }
@@ -152,8 +152,8 @@ public sealed class PlacementPayload
     }
 
     /// <summary>[S-421] A new widget of <paramref name="kind"/> at its default size in pixels.</summary>
-    public static PlacementPayload ForNew(WidgetId kind, double widthPx, double heightPx)
-        => new(PlacementMode.Create, kind, [], [], widthPx, heightPx);
+    public static PlacementPayload ForNew(WidgetId kind, double widthDip, double heightDip)
+        => new(PlacementMode.Create, kind, [], [], widthDip, heightDip);
 
     /// <summary>
     /// [S-1588] A snapshot of the picked widgets of one view, in view order, with their original ids.
@@ -220,20 +220,20 @@ public sealed class PlacementPayload
     }
 
     /// <summary>
-    /// [S-11807] [S-14912] The box a new widget of <paramref name="kind"/> (<paramref name="widthPx"/> × <paramref name="heightPx"/>
+    /// [S-11807] [S-14912] The box a new widget of <paramref name="kind"/> (<paramref name="widthDip"/> × <paramref name="heightDip"/>
     /// DIPs at scale 1) takes on <paramref name="screen"/> at its corner: with <paramref name="sizes"/> its Natural at the
     /// display's content scale rounded up to whole cells and held to its sizing there; without, the DIPs as they are. What
     /// the ghost of a new widget draws, and what the widget gallery stands each card at.
     /// </summary>
-    public static FracRect NewSize(WidgetId kind, double widthPx, double heightPx, ScreenMetrics screen, PlacementSizes? sizes)
+    public static FracRect NewSize(WidgetId kind, double widthDip, double heightDip, ScreenMetrics screen, PlacementSizes? sizes)
     {
-        var rect = FracRect.FromPixels(0, 0, widthPx, heightPx, screen);
+        var rect = FracRect.FromDips(0, 0, widthDip, heightDip, screen);
         if (sizes is not { } grid || !screen.IsUsable)
         {
             return rect;
         }
 
-        var cell = FracRect.FromPixels(0, 0, widthPx * grid.Scale, heightPx * grid.Scale, screen);
+        var cell = FracRect.FromDips(0, 0, widthDip * grid.Scale, heightDip * grid.Scale, screen);
         var (cols, rows) = GridGeometry.GridDims(screen);
         var (w, h) = (GridFit.Up(cell.W, cols), GridFit.Up(cell.H, rows));
         if (ModuleCatalog.TryGet(kind, out _) && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
@@ -371,7 +371,7 @@ public sealed class PlacementPayload
     /// </summary>
     private (FracRect Rect, BlockGeometry.Delta At) NewLayout(WidgetId kind, double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes)
     {
-        var rect = NewSize(kind, _newWidthPx, _newHeightPx, screen, sizes);
+        var rect = NewSize(kind, _newWidthDip, _newHeightDip, screen, sizes);
         return (rect, BlockGeometry.PlaceAt([rect], rect, xFrac, yFrac, screen));
     }
 

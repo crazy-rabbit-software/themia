@@ -192,7 +192,7 @@ public static class ZOrderPolicy
     /// </summary>
     /// <param name="display">The surface's display, whole, in physical pixels.</param>
     /// <param name="above">Every window above the surface in the z-order.</param>
-    public static bool MayTakeForeground(PixelRect display, ReadOnlySpan<AboveWindow> above)
+    public static bool MayTakeForeground(DeviceRect display, ReadOnlySpan<AboveWindow> above)
     {
         foreach (var window in above)
         {
@@ -206,7 +206,7 @@ public static class ZOrderPolicy
     }
 
     /// <summary>[S-34f] Whether <paramref name="window"/> reaches every edge of <paramref name="display"/> (a full-screen app runs to all four, and past them on some).</summary>
-    public static bool Covers(PixelRect window, PixelRect display)
+    public static bool Covers(DeviceRect window, DeviceRect display)
         => display.Width > 0 && display.Height > 0
             && window.X <= display.X && window.Y <= display.Y
             && window.X + window.Width >= display.X + display.Width
@@ -218,7 +218,7 @@ public static class ZOrderPolicy
 /// <param name="OnScreen">Visible, not minimised, not cloaked, and not click-through (an overlay drawn over a whole display, a recorder's or a game bar's, is no app in front).</param>
 /// <param name="Own">One of this app's windows (a surface, its flyouts).</param>
 /// <param name="MaximizedWithCaption">Maximised with a title bar: it covers a display only where nothing holds a strip there, and is no full-screen app.</param>
-public readonly record struct AboveWindow(PixelRect Rect, bool OnScreen, bool Own, bool MaximizedWithCaption);
+public readonly record struct AboveWindow(DeviceRect Rect, bool OnScreen, bool Own, bool MaximizedWithCaption);
 
 /// <summary>[S-33g] What becomes of a z-order move asked of a surface.</summary>
 public enum ZMove

@@ -121,8 +121,8 @@ public sealed partial class SettingsMenuTests
 
         public IReadOnlyList<MenuDisplay> Displays { get; } =
         [
-            new("a", "Screen a", "Screen a — 1920 × 1080", new DisplayInfo("a", true, new PixelRect(0, 0, 1920, 1080), new PixelRect(0, 0, 1920, 1040), true)),
-            new("b", "Screen b", "Screen b — 1920 × 1080", new DisplayInfo("b", true, new PixelRect(1920, 0, 1920, 1080), new PixelRect(1920, 0, 1920, 1040), false)),
+            new("a", "Screen a", "Screen a — 1920 × 1080", new DisplayInfo("a", true, new DeviceRect(0, 0, 1920, 1080), new DeviceRect(0, 0, 1920, 1040), true)),
+            new("b", "Screen b", "Screen b — 1920 × 1080", new DisplayInfo("b", true, new DeviceRect(1920, 0, 1920, 1080), new DeviceRect(1920, 0, 1920, 1040), false)),
         ];
 
         public void Mutate(Action<AppState> change, bool relayout = true) => change(State);

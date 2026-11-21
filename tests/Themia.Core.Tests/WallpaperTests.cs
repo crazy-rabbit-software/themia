@@ -8,7 +8,7 @@ namespace Themia.Core.Tests;
 /// <summary>The blurred wallpaper behind the cards: placement, composing, a card's part, the blur ([S-2112]..[S-2115]).</summary>
 public sealed class WallpaperTests
 {
-    private static readonly PixelRect Display = new(0, 0, 1920, 1080);
+    private static readonly DeviceRect Display = new(0, 0, 1920, 1080);
 
     // ---- [S-2113] placing the image per fit ---------------------------------------------------------
 
@@ -18,7 +18,7 @@ public sealed class WallpaperTests
         var (rect, repeat) = WallpaperLayout.Place(WallpaperFit.Fill, 1000, 1000, Display, Display);
 
         Assert.False(repeat);
-        Assert.Equal(new PixelRect(0, -420, 1920, 1920), rect);
+        Assert.Equal(new DeviceRect(0, -420, 1920, 1920), rect);
     }
 
     [Fact]
@@ -26,20 +26,20 @@ public sealed class WallpaperTests
     {
         var (rect, _) = WallpaperLayout.Place(WallpaperFit.Fit, 1000, 1000, Display, Display);
 
-        Assert.Equal(new PixelRect(420, 0, 1080, 1080), rect);
+        Assert.Equal(new DeviceRect(420, 0, 1080, 1080), rect);
     }
 
     [Fact]
     public void S2113_stretch_is_the_display_exactly()
-        => Assert.Equal(new PixelRect(0, 0, 1920, 1080), WallpaperLayout.Place(WallpaperFit.Stretch, 640, 480, Display, Display).Rect);
+        => Assert.Equal(new DeviceRect(0, 0, 1920, 1080), WallpaperLayout.Place(WallpaperFit.Stretch, 640, 480, Display, Display).Rect);
 
     [Fact]
     public void S2113_center_keeps_the_images_own_size()
     {
-        Assert.Equal(new PixelRect(640, 340, 640, 400), WallpaperLayout.Place(WallpaperFit.Center, 640, 400, Display, Display).Rect);
+        Assert.Equal(new DeviceRect(640, 340, 640, 400), WallpaperLayout.Place(WallpaperFit.Center, 640, 400, Display, Display).Rect);
 
         // Larger than the display: centred and cropped on every side.
-        Assert.Equal(new PixelRect(-40, -60, 2000, 1200), WallpaperLayout.Place(WallpaperFit.Center, 2000, 1200, Display, Display).Rect);
+        Assert.Equal(new DeviceRect(-40, -60, 2000, 1200), WallpaperLayout.Place(WallpaperFit.Center, 2000, 1200, Display, Display).Rect);
     }
 
     [Fact]
@@ -48,21 +48,21 @@ public sealed class WallpaperTests
         var (rect, repeat) = WallpaperLayout.Place(WallpaperFit.Tile, 64, 48, Display, Display);
 
         Assert.True(repeat);
-        Assert.Equal(new PixelRect(0, 0, 64, 48), rect);
+        Assert.Equal(new DeviceRect(0, 0, 64, 48), rect);
     }
 
     [Fact]
     public void S2113_span_fills_every_display_and_each_shows_its_part()
     {
-        var left = new PixelRect(-1920, 0, 1920, 1080);
-        var right = new PixelRect(0, 0, 1920, 1080);
-        var desktop = new PixelRect(-1920, 0, 3840, 1080);
+        var left = new DeviceRect(-1920, 0, 1920, 1080);
+        var right = new DeviceRect(0, 0, 1920, 1080);
+        var desktop = new DeviceRect(-1920, 0, 3840, 1080);
 
         var onLeft = WallpaperLayout.Place(WallpaperFit.Span, 3840, 1080, left, desktop).Rect;
         var onRight = WallpaperLayout.Place(WallpaperFit.Span, 3840, 1080, right, desktop).Rect;
 
-        Assert.Equal(new PixelRect(0, 0, 3840, 1080), onLeft);
-        Assert.Equal(new PixelRect(-1920, 0, 3840, 1080), onRight);
+        Assert.Equal(new DeviceRect(0, 0, 3840, 1080), onLeft);
+        Assert.Equal(new DeviceRect(-1920, 0, 3840, 1080), onRight);
     }
 
     [Theory]
@@ -70,7 +70,7 @@ public sealed class WallpaperTests
     [InlineData(100, 0)]
     [InlineData(double.NaN, 100)]
     public void S2113_an_image_with_no_size_covers_the_display(double w, double h)
-        => Assert.Equal(new PixelRect(0, 0, 1920, 1080), WallpaperLayout.Place(WallpaperFit.Center, w, h, Display, Display).Rect);
+        => Assert.Equal(new DeviceRect(0, 0, 1920, 1080), WallpaperLayout.Place(WallpaperFit.Center, w, h, Display, Display).Rect);
 
     // ---- [S-2112] the picture's size and composing ------------------------------------------------
 
@@ -78,8 +78,8 @@ public sealed class WallpaperTests
     public void S2112_the_picture_keeps_one_pixel_in_twelve_per_side()
     {
         Assert.Equal((160, 90), WallpaperLayout.PictureSize(Display));
-        Assert.Equal((214, 120), WallpaperLayout.PictureSize(new PixelRect(0, 0, 2561, 1440)));
-        Assert.Equal((1, 1), WallpaperLayout.PictureSize(new PixelRect(0, 0, 0, 0)));
+        Assert.Equal((214, 120), WallpaperLayout.PictureSize(new DeviceRect(0, 0, 2561, 1440)));
+        Assert.Equal((1, 1), WallpaperLayout.PictureSize(new DeviceRect(0, 0, 0, 0)));
     }
 
     [Fact]
@@ -132,10 +132,10 @@ public sealed class WallpaperTests
     [Fact]
     public void S2112_the_plan_scales_a_placement_into_the_picture()
     {
-        var plan = WallpaperLayout.Plan(new PixelRect(0, -420, 1920, 1920), repeat: false);
+        var plan = WallpaperLayout.Plan(new DeviceRect(0, -420, 1920, 1920), repeat: false);
 
         Assert.Equal(new WallpaperPlan(0, -35, 160, 160, false), plan);
-        Assert.Equal(1, WallpaperLayout.Plan(new PixelRect(0, 0, 4, 4), true).Width);
+        Assert.Equal(1, WallpaperLayout.Plan(new DeviceRect(0, 0, 4, 4), true).Width);
     }
 
     // ---- [S-2114] the part a card shows ------------------------------------------------------------
@@ -146,17 +146,17 @@ public sealed class WallpaperTests
         // A 1280 × 720 DIP display (1920 × 1080 at 150 %) and its 160 × 90 picture.
         var picture = new WallpaperPicture(160, 90, new byte[160 * 90 * 4]);
 
-        var part = WallpaperLayout.Part(new PixelRect(640, 360, 320, 240), 1280, 720, picture);
+        var part = WallpaperLayout.Part(new DipRect(640, 360, 320, 240), 1280, 720, picture);
 
-        Assert.Equal(new PixelRect(80, 45, 40, 30), part);
+        Assert.Equal(new DeviceRect(80, 45, 40, 30), part);
     }
 
     [Fact]
     public void S2114_moving_the_card_moves_its_part_by_the_same_fraction()
     {
         var picture = new WallpaperPicture(160, 90, new byte[160 * 90 * 4]);
-        var before = WallpaperLayout.Part(new PixelRect(100, 100, 200, 100), 1920, 1080, picture);
-        var after = WallpaperLayout.Part(new PixelRect(196, 100, 200, 100), 1920, 1080, picture);
+        var before = WallpaperLayout.Part(new DipRect(100, 100, 200, 100), 1920, 1080, picture);
+        var after = WallpaperLayout.Part(new DipRect(196, 100, 200, 100), 1920, 1080, picture);
 
         Assert.Equal(before.Width, after.Width);
         Assert.Equal(8, after.X - before.X, 6);

@@ -95,7 +95,7 @@ internal sealed partial class DesktopWindow
 
         var area = WorkArea;
         var bar = EditBarRect(area);
-        gallery.Place(metrics, RasterScale, area, bar.Y + bar.Height, GridGeometry.AllowedPixels(metrics), SizesNow.Scale);
+        gallery.Place(metrics, RasterScale, area, bar.Y + bar.Height, GridGeometry.AllowedDips(metrics), SizesNow.Scale);
     }
 
     /// <summary>

@@ -9,7 +9,7 @@ public class CardJoinsTests
 {
     private const double Tol = 0.25; // half a device pixel at 200 %
 
-    private static PixelRect? Box(double x, double y, double w, double h) => new PixelRect(x, y, w, h);
+    private static DipRect? Box(double x, double y, double w, double h) => new DipRect(x, y, w, h);
 
     private static CardOutline O(string round, string draws) => new(
         round.Contains("TL", StringComparison.Ordinal), round.Contains("TR", StringComparison.Ordinal),
@@ -32,14 +32,14 @@ public class CardJoinsTests
     }
 
     /// <summary>[S-2240] Any two cards that meet join: there are no groups.</summary>
-    private static CardOutline[] Group(params PixelRect?[] boxes) => CardJoins.Outlines(boxes, Tol);
+    private static CardOutline[] Group(params DipRect?[] boxes) => CardJoins.Outlines(boxes, Tol);
 
     [Fact]
     public void S2240_regression_ungrouped_cards_that_touch_join()
     {
         // Owner, 2026-11-17: "the widgets should connect when the edges of them touch, right now they only connect
         // when the edges touch and they are grouped together". Three cards edge to edge, no group of any kind.
-        PixelRect?[] boxes = [Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(100, 0, 50, 100)];
+        DipRect?[] boxes = [Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(100, 0, 50, 100)];
         var o = CardJoins.Outlines(boxes, Tol);
         Assert.False(o[0].DrawsBottom);
         Assert.False(o[1].DrawsTop);

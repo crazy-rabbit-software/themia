@@ -12,27 +12,27 @@ public sealed class ShowcaseViewsTests
 {
 
     /// <summary>1920 × 1080 at 100 %, a 48-DIP taskbar at the bottom.</summary>
-    private static readonly ScreenMetrics FullHd = Screen(1920, 1080, new PixelRect(0, 0, 1920, 1032));
+    private static readonly ScreenMetrics FullHd = Screen(1920, 1080, new DeviceRect(0, 0, 1920, 1032));
 
     /// <summary>2560 × 1440 at 150 %: 1706.67 × 960 DIPs, taskbar at the top.</summary>
-    private static readonly ScreenMetrics QhdAt150 = Screen(2560 / 1.5, 960, new PixelRect(0, 32, 2560 / 1.5, 928));
+    private static readonly ScreenMetrics QhdAt150 = Screen(2560 / 1.5, 960, new DeviceRect(0, 32, 2560 / 1.5, 928));
 
     /// <summary>640 × 480 with a 40-DIP taskbar: too small for a note's three sizes on one view.</summary>
-    private static readonly ScreenMetrics Tiny = Screen(640, 480, new PixelRect(0, 0, 640, 440));
+    private static readonly ScreenMetrics Tiny = Screen(640, 480, new DeviceRect(0, 0, 640, 440));
 
     /// <summary>A kind whose max (600 × 600) is larger than <see cref="Tiny"/>'s work area.</summary>
     private static readonly WidgetId Notes = new("notes");
 
-    private static ScreenMetrics Screen(double width, double height, PixelRect work)
-        => new(width, height) { Allowed = GridGeometry.AllowedArea(new PixelRect(0, 0, width, height), work) };
+    private static ScreenMetrics Screen(double width, double height, DeviceRect work)
+        => new(width, height) { Allowed = GridGeometry.AllowedArea(new DeviceRect(0, 0, width, height), work) };
 
     private static List<ShowcaseKind> AllKinds()
         => [.. ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Select(k => new ShowcaseKind(k, k.ToString(), ""))];
 
-    private static PixelRect Dips(WidgetInstance w, ScreenMetrics screen)
+    private static DipRect Dips(WidgetInstance w, ScreenMetrics screen)
         => new(w.X * screen.Width, w.Y * screen.Height, w.W * screen.Width, w.H * screen.Height);
 
-    private static bool Overlap(PixelRect a, PixelRect b)
+    private static bool Overlap(DipRect a, DipRect b)
         => a.X < b.X + b.Width - 1e-6 && b.X < a.X + a.Width - 1e-6 && a.Y < b.Y + b.Height - 1e-6 && b.Y < a.Y + a.Height - 1e-6;
 
     public static TheoryData<string> Screens => new() { "fullhd", "qhd150", "tiny" };
@@ -49,7 +49,7 @@ public sealed class ShowcaseViewsTests
     public void S1810_no_two_widgets_of_a_view_overlap_and_all_sit_inside_the_work_area(string name)
     {
         var screen = Named(name);
-        var work = GridGeometry.AllowedPixels(screen);
+        var work = GridGeometry.AllowedDips(screen);
 
         foreach (var view in ShowcaseViews.Build(AllKinds(), screen))
         {
@@ -95,7 +95,7 @@ public sealed class ShowcaseViewsTests
                 var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(kinds[k].Kind, tier));
 
                 // The painted card is the whole cell ([S-11884]): exactly the size.
-                var painted = GridGeometry.ToPixels(widget.Rect, screen, 1);
+                var painted = GridGeometry.PaintedCell(widget.Rect, screen, 1);
                 Assert.Equal(tier.Width, painted.Width, 3);
                 Assert.Equal(tier.Height, painted.Height, 3);
             }
@@ -157,7 +157,7 @@ public sealed class ShowcaseViewsTests
         foreach (var tier in range)
         {
             var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(clock, tier));
-            var painted = GridGeometry.ToPixels(widget.Rect, FullHd, 1);
+            var painted = GridGeometry.PaintedCell(widget.Rect, FullHd, 1);
             Assert.Equal(tier.Width, painted.Width, 3);
             Assert.Equal(tier.Height, painted.Height, 3);
         }
@@ -193,7 +193,7 @@ public sealed class ShowcaseViewsTests
     public void S1812_a_size_larger_than_the_work_area_is_shrunk_to_it()
     {
         var views = ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny);
-        var work = GridGeometry.AllowedPixels(Tiny);
+        var work = GridGeometry.AllowedDips(Tiny);
 
         Assert.Equal(3, views.Sum(v => v.Widgets.Count));
         Assert.All(views.SelectMany(v => v.Widgets), w =>

@@ -26,7 +26,7 @@ internal sealed class WindowsWallpaper : IWallpaperSource, IDisposable
 
     public event Action? Changed;
 
-    public async Task<WallpaperPicture?> PictureAsync(PixelRect display, CancellationToken cancel)
+    public async Task<WallpaperPicture?> PictureAsync(DeviceRect display, CancellationToken cancel)
     {
         try
         {

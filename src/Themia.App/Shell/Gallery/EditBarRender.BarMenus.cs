@@ -163,8 +163,8 @@ internal static partial class EditBarRender
 
         public IReadOnlyList<MenuDisplay> Displays { get; } =
         [
-            new("render-display", "DELL U2723QE (primary)", "DELL U2723QE — 3840 × 2160 (primary)", new DisplayInfo("render-display", true, new PixelRect(0, 0, 3840, 2160), new PixelRect(0, 0, 3840, 2112), true)),
-            new("render-2", "LG HDR WQHD", "LG HDR WQHD — 2560 × 1440", new DisplayInfo("render-2", true, new PixelRect(3840, 0, 2560, 1440), new PixelRect(3840, 0, 2560, 1392), false)),
+            new("render-display", "DELL U2723QE (primary)", "DELL U2723QE — 3840 × 2160 (primary)", new DisplayInfo("render-display", true, new DeviceRect(0, 0, 3840, 2160), new DeviceRect(0, 0, 3840, 2112), true)),
+            new("render-2", "LG HDR WQHD", "LG HDR WQHD — 2560 × 1440", new DisplayInfo("render-2", true, new DeviceRect(3840, 0, 2560, 1440), new DeviceRect(3840, 0, 2560, 1392), false)),
         ];
 
         public void Show(string viewId) => Mutate(s => s.ShowViewOn(DisplayId, viewId));
@@ -275,7 +275,7 @@ internal static partial class EditBarRender
         public void Show(string displayId, string viewId) => Mutate(s => s.ShowViewOn(displayId, viewId));
 
         private static MenuDisplay Display(string id, string name, string description, int x, int width, int height, bool primary)
-            => new(id, name, description, new DisplayInfo(id, true, new PixelRect(x, 0, width, height), new PixelRect(x, 0, width, height - 48), primary));
+            => new(id, name, description, new DisplayInfo(id, true, new DeviceRect(x, 0, width, height), new DeviceRect(x, 0, width, height - 48), primary));
     }
 }
 #endif

@@ -29,7 +29,7 @@ internal sealed class IconMarks
     /// The marks of <paramref name="icons"/> (each its box in the plates' DIPs, and whether it is selected) at
     /// <paramref name="scale"/> device pixels a DIP; the shapes are pooled, the ones left over hidden.
     /// </summary>
-    public void Draw(IReadOnlyList<(PixelRect Box, bool Selected)> icons, double scale)
+    public void Draw(IReadOnlyList<(DipRect Box, bool Selected)> icons, double scale)
     {
         ArgumentNullException.ThrowIfNull(icons);
         var used = 0;
@@ -47,7 +47,7 @@ internal sealed class IconMarks
             {
                 foreach (var bar in marker.Bars)
                 {
-                    var at = new PixelRect(box.X + marker.Hit.X + bar.X, box.Y + marker.Hit.Y + bar.Y, bar.Width, bar.Height);
+                    var at = new DipRect(box.X + marker.Hit.X + bar.X, box.Y + marker.Hit.Y + bar.Y, bar.Width, bar.Height);
                     Place(Shape(_halos, Halos, used, WidgetCard.MarkerHalo), EditMarkers.Haloed(at, scale));
                     var shape = Shape(_inks, Inks, used, ink);
                     shape.Fill = ink;
@@ -78,7 +78,7 @@ internal sealed class IconMarks
         return shape;
     }
 
-    private static void Place(Rectangle shape, PixelRect box)
+    private static void Place(Rectangle shape, DipRect box)
     {
         Canvas.SetLeft(shape, box.X);
         Canvas.SetTop(shape, box.Y);

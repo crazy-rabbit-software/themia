@@ -17,7 +17,7 @@ public sealed class CardContentTests
     {
         Assert.Equal(FamilySpace.Inset, CardContent.TopInset(ownsTopEdge: false));
         Assert.Equal(0, CardContent.TopInset(ownsTopEdge: true));
-        Assert.Equal(new PixelRect(10, 20 + FamilySpace.Inset, 300, 80 - FamilySpace.Inset), CardContent.Box(new PixelRect(10, 20, 300, 80), ownsTopEdge: false));
+        Assert.Equal(new DipRect(10, 20 + FamilySpace.Inset, 300, 80 - FamilySpace.Inset), CardContent.Box(new DipRect(10, 20, 300, 80), ownsTopEdge: false));
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public sealed class CardContentTests
     [Fact]
     public void S12483_a_cards_content_box_is_the_same_joined_and_alone()
     {
-        PixelRect[] cells = [new(0, 0, 300, 40), new(0, 40, 300, 80), new(0, 120, 300, 140)];
+        DipRect[] cells = [new(0, 0, 300, 40), new(0, 40, 300, 80), new(0, 120, 300, 140)];
         var joined = CardJoins.Paint(cells, [0, 0, 0], 1);
         Assert.All(joined, o => Assert.NotEqual(CardOutline.Free, o));
 

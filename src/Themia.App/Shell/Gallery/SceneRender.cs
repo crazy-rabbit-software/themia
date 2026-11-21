@@ -363,9 +363,9 @@ internal static class SceneRender
 
         // [S-1076] Each card where the desktop puts it: its whole cell, the design's gap inside it,
         // its own content scale; each on a host of its own so it replays its own preview state.
-        var placed = new List<(SceneWidget Spec, PixelRect Cell)>(job.Widgets.Count);
+        var placed = new List<(SceneWidget Spec, DipRect Cell)>(job.Widgets.Count);
         var hosts = new List<PreviewCardHost>(job.Widgets.Count);
-        var drawn = new List<(WidgetCard Card, PixelRect Cell)>(job.Widgets.Count);
+        var drawn = new List<(WidgetCard Card, DipRect Cell)>(job.Widgets.Count);
 
         // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop; [S-11809] touching
         // widgets fitted as one block, so the edges they share stay shared; [S-11807] on whole
@@ -386,7 +386,7 @@ internal static class SceneRender
             };
             var contentScale = WidgetScale.For(model, job.Scene.Scale);
             var shown = fitted[index++];
-            var cell = GridGeometry.ToPixels(shown, metrics, job.Scale);
+            var cell = GridGeometry.PaintedCell(shown, metrics, job.Scale);
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
             placed.Add((spec, cell));
             hosts.Add(host);
@@ -477,7 +477,7 @@ internal static class SceneRender
     /// fitted into its sizing, a ready-made group's widgets where the recipe puts them). What composes
     /// pictures from scenes reads this, never the scene file's own numbers.
     /// </summary>
-    private static void WriteLayout(Job job, List<(SceneWidget Spec, PixelRect Cell)> placed)
+    private static void WriteLayout(Job job, List<(SceneWidget Spec, DipRect Cell)> placed)
     {
         var path = Path.ChangeExtension(job.OutPath, ".layout.json");
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -580,7 +580,7 @@ internal static class SceneRender
 
         // [S-1077] The selection as the desktop holds it: the widgets marked selected.
         var selection = SceneWidgets.Selection(job.Scene, view);
-        var barRect = new PixelRect(0, 0, 0, 0);
+        var barRect = new DipRect(0, 0, 0, 0);
         EditBar? bar = null;
         if (edit.Bar)
         {
@@ -624,7 +624,7 @@ internal static class SceneRender
         }
 
         var page = EditBarRender.SelectionPageOf(view, selection);
-        var flyout = EditBarRender.HangFlyout(canvas, page, bar, barRect, null, new PixelRect(0, 0, metrics.Width, bottom));
+        var flyout = EditBarRender.HangFlyout(canvas, page, bar, barRect, null, new DipRect(0, 0, metrics.Width, bottom));
         page.Show();
         if (edit.Open is { } open && !page.DebugClick(open))
         {
@@ -633,7 +633,7 @@ internal static class SceneRender
         }
 
         canvas.UpdateLayout();
-        flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, new PixelRect(0, 0, metrics.Width, bottom), flyout.ContentHeight));
+        flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, new DipRect(0, 0, metrics.Width, bottom), flyout.ContentHeight));
         await Task.Delay(400).ConfigureAwait(true);
 
         return true;

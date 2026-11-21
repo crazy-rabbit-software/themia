@@ -105,7 +105,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var box = GridGeometry.ToPixels(BlockGeometry.Bounds([.. cards.Select(c => c.LiveRect)]), Metrics, RasterScale);
+        var box = GridGeometry.PaintedCell(BlockGeometry.Bounds([.. cards.Select(c => c.LiveRect)]), Metrics, RasterScale);
         var editing = EditMode;
         var (width, height) = editing ? BlockResize.Free([.. cards.Select(c => c.Limits)], cards.Count) : (false, false);
         _markerLayer.Frame.Show(box, RasterScale, width, height, cornersOnly: !editing);

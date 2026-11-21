@@ -83,7 +83,7 @@ public sealed class ReadyMadeGroupsTests
     [MemberData(nameof(Recipes))]
     public void S2472_every_widget_touches_another_so_the_recipe_draws_as_one_panel(string id)
     {
-        PixelRect?[] boxes = [.. Of(id).Widgets.Select(w => (PixelRect?)new PixelRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height))];
+        DipRect?[] boxes = [.. Of(id).Widgets.Select(w => (DipRect?)new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height))];
 
         var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(1));
 
@@ -97,10 +97,10 @@ public sealed class ReadyMadeGroupsTests
     [MemberData(nameof(Recipes))]
     public void S11870_a_recipe_placed_draws_its_outer_border_only(string id)
     {
-        var boxes = Of(id).Widgets.Select(w => new PixelRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height)).ToList();
+        var boxes = Of(id).Widgets.Select(w => new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height)).ToList();
         var tol = CardJoins.Tolerance(1);
 
-        var outlines = CardJoins.Outlines([.. boxes.Select(b => (PixelRect?)b)], tol);
+        var outlines = CardJoins.Outlines([.. boxes.Select(b => (DipRect?)b)], tol);
 
         for (var i = 0; i < boxes.Count; i++)
         {
@@ -320,7 +320,7 @@ public sealed class ReadyMadeGroupsTests
             ],
         };
 
-        var laid = ReadyMadeGroups.Laid(recipe, Screen, new PlacementSizes(1)).Select(r => GridGeometry.ToPixels(r, Screen, 1)).ToList();
+        var laid = ReadyMadeGroups.Laid(recipe, Screen, new PlacementSizes(1)).Select(r => GridGeometry.PaintedCell(r, Screen, 1)).ToList();
 
         // A line goes down to one cell: one row tall it is the row with its sparkline, so the group lays as it was drawn.
         Assert.Equal([row, row, row], laid.Select(r => Math.Round(r.Height, 6)));
@@ -363,8 +363,8 @@ public sealed class ReadyMadeGroupsTests
 
         Assert.Equal(ghost.Select(g => g.Rect), plan.Added.Select(w => w.Rect));
         Assert.Equal(ReadyMadeGroups.MyDay.Widgets.Select(w => new WidgetId(w.Kind)), ghost.Select(g => g.Kind));
-        var clock = GridGeometry.ToPixels(plan.Added[1].Rect, Screen, 1);
-        var meeting = GridGeometry.ToPixels(plan.Added[2].Rect, Screen, 1);
+        var clock = GridGeometry.PaintedCell(plan.Added[1].Rect, Screen, 1);
+        var meeting = GridGeometry.PaintedCell(plan.Added[2].Rect, Screen, 1);
         Assert.Equal(clock.Y + clock.Height, meeting.Y, 6);
         Assert.Equal(320, clock.Width, 6);
     }

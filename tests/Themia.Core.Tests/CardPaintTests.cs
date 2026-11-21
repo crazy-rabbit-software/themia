@@ -11,7 +11,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class CardPaintTests
 {
-    private static CardOutline[] Paint(PixelRect[] cells, double scale = 1, int?[]? sets = null)
+    private static CardOutline[] Paint(DipRect[] cells, double scale = 1, int?[]? sets = null)
         => CardJoins.Paint(cells, sets ?? [.. cells.Select(_ => (int?)0)], scale);
 
     private static bool OnDevicePixel(double dip, double scale) => Math.Abs((dip * scale) - Math.Round(dip * scale)) < 1e-6;
@@ -21,16 +21,16 @@ public sealed class CardPaintTests
     [Fact]
     public void S2248_cells_that_share_a_side_are_neighbours_and_say_which_is_first()
     {
-        Assert.Equal((false, true), CardJoins.Meeting(new PixelRect(0, 0, 100, 50), new PixelRect(100, 0, 80, 50), 0.5));
-        Assert.Equal((false, false), CardJoins.Meeting(new PixelRect(100, 0, 80, 50), new PixelRect(0, 0, 100, 50), 0.5));
-        Assert.Equal((true, true), CardJoins.Meeting(new PixelRect(0, 0, 100, 50), new PixelRect(20, 50, 40, 30), 0.5));
+        Assert.Equal((false, true), CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 0, 80, 50), 0.5));
+        Assert.Equal((false, false), CardJoins.Meeting(new DipRect(100, 0, 80, 50), new DipRect(0, 0, 100, 50), 0.5));
+        Assert.Equal((true, true), CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(20, 50, 40, 30), 0.5));
     }
 
     [Fact]
     public void S2248_a_corner_alone_or_a_sliver_along_the_side_is_no_meeting()
     {
-        Assert.Null(CardJoins.Meeting(new PixelRect(0, 0, 100, 50), new PixelRect(100, 50, 80, 50), 0.5));
-        Assert.Null(CardJoins.Meeting(new PixelRect(0, 0, 100, 50), new PixelRect(100, 49.6, 80, 50), 0.5));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 50, 80, 50), 0.5));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 49.6, 80, 50), 0.5));
     }
 
     [Theory]
@@ -42,9 +42,9 @@ public sealed class CardPaintTests
     {
         var tol = CardJoins.Tolerance(scale);
         var px = 1 / scale;
-        Assert.NotNull(CardJoins.Meeting(new PixelRect(0, 0, 100, 50), new PixelRect(100, 0, 80, 50), tol));
-        Assert.Null(CardJoins.Meeting(new PixelRect(0, 0, 100, 50), new PixelRect(100 + px, 0, 80, 50), tol));
-        Assert.Null(CardJoins.Meeting(new PixelRect(0, 0, 100, 50), new PixelRect(100 - px, 0, 80, 50), tol));
+        Assert.NotNull(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 0, 80, 50), tol));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100 + px, 0, 80, 50), tol));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100 - px, 0, 80, 50), tol));
     }
 
     [Theory]
@@ -59,8 +59,8 @@ public sealed class CardPaintTests
         var (cols, rows) = GridGeometry.GridDims(screen);
         for (var c = 1; c + 3 < cols; c += 7)
         {
-            var left = GridGeometry.ToPixels(new FracRect((c - 1) / (double)cols, 0.1, 1.0 / cols, 3.0 / rows), screen, scale);
-            var right = GridGeometry.ToPixels(new FracRect(c / (double)cols, 0.1, 3.0 / cols, 3.0 / rows), screen, scale);
+            var left = GridGeometry.PaintedCell(new FracRect((c - 1) / (double)cols, 0.1, 1.0 / cols, 3.0 / rows), screen, scale);
+            var right = GridGeometry.PaintedCell(new FracRect(c / (double)cols, 0.1, 3.0 / cols, 3.0 / rows), screen, scale);
             Assert.NotNull(CardJoins.Meeting(left, right, CardJoins.Tolerance(scale)));
             Assert.True(OnDevicePixel(right.X, scale));
             Assert.Equal(left.X + left.Width, right.X, 9);
@@ -74,7 +74,7 @@ public sealed class CardPaintTests
     {
         // Owner, 2026-11-17: "the widgets should connect when the edges of them touch, right now they only connect
         // when the edges touch and they are grouped together".
-        PixelRect[] cells = [new(0, 0, 200, 120), new(200, 0, 160, 120)];
+        DipRect[] cells = [new(0, 0, 200, 120), new(200, 0, 160, 120)];
 
         var grouped = Paint(cells);
         Assert.False(grouped[0].DrawsRight);
@@ -88,14 +88,14 @@ public sealed class CardPaintTests
     public void S2240_S11884_cards_a_gap_apart_stay_two_cards_with_all_their_corners()
     {
         // Owner, 2026-11-15: "the space between widgets will only come from how you place them now".
-        PixelRect[] cells = [new(0, 0, 100, 50), new(101, 0, 100, 50), new(0, 51, 200, 40)];
+        DipRect[] cells = [new(0, 0, 100, 50), new(101, 0, 100, 50), new(0, 51, 200, 40)];
         Assert.All(Paint(cells), o => Assert.Equal(CardOutline.Free, o));
     }
 
     [Fact]
     public void S2249_a_three_member_panel_squares_its_inner_corners_and_keeps_its_outer_ones()
     {
-        PixelRect[] cells = [new(0, 0, 200, 120), new(200, 0, 160, 120), new(0, 120, 360, 60)];
+        DipRect[] cells = [new(0, 0, 200, 120), new(200, 0, 160, 120), new(0, 120, 360, 60)];
         var p = Paint(cells);
         Assert.False(p[0].DrawsRight || p[1].DrawsLeft || p[0].DrawsBottom || p[2].DrawsTop);
         Assert.True(p[0].RoundTopLeft && p[1].RoundTopRight && p[2].RoundBottomLeft && p[2].RoundBottomRight);
@@ -105,7 +105,7 @@ public sealed class CardPaintTests
     [Fact]
     public void S2249_cards_that_are_not_neighbours_stay_separate_cards()
     {
-        PixelRect[] cells = [new(0, 0, 100, 50), new(300, 200, 100, 50)];
+        DipRect[] cells = [new(0, 0, 100, 50), new(300, 200, 100, 50)];
         var p = Paint(cells);
         Assert.Equal(CardOutline.Free, p[0]);
         Assert.Equal(CardOutline.Free, p[1]);
@@ -114,7 +114,7 @@ public sealed class CardPaintTests
     [Fact]
     public void S2249_a_dragged_card_or_one_being_resized_is_free()
     {
-        PixelRect[] cells = [new(0, 0, 100, 50), new(100, 0, 100, 50)];
+        DipRect[] cells = [new(0, 0, 100, 50), new(100, 0, 100, 50)];
         Assert.Equal(CardOutline.Free, Paint(cells, sets: [0, 1])[0]);
         Assert.Equal(CardOutline.Free, Paint(cells, sets: [0, null])[0]);
 
@@ -127,7 +127,7 @@ public sealed class CardPaintTests
     {
         // A wide card over a narrow neighbour and a card that joins nothing (an icon, a bare widget): only the corner
         // over the neighbour is square.
-        PixelRect[] cells = [new(0, 0, 200, 100), new(0, 100, 100, 50), new(100, 100, 100, 50)];
+        DipRect[] cells = [new(0, 0, 200, 100), new(0, 100, 100, 50), new(100, 100, 100, 50)];
         var p = Paint(cells, sets: [0, 0, null]);
         Assert.False(p[0].RoundBottomLeft);
         Assert.True(p[0].RoundBottomRight);
@@ -143,7 +143,7 @@ public sealed class CardPaintTests
         Assert.True(CardJoins.Joins(Themia.Sdk.WidgetTraits.None, drawsSurface: true));
         Assert.False(CardJoins.Joins(Themia.Sdk.WidgetTraits.None, drawsSurface: false));
 
-        PixelRect[] cells = [new(0, 0, 100, 100), new(100, 0, 100, 100)];
+        DipRect[] cells = [new(0, 0, 100, 100), new(100, 0, 100, 100)];
         Assert.All(Paint(cells, sets: [null, null]), o => Assert.Equal(CardOutline.Free, o));
     }
 
@@ -169,7 +169,7 @@ public sealed class CardPaintTests
         var screen = new ScreenMetrics(2560 / 1.5, 1440 / 1.5);
         var (cols, rows) = GridGeometry.GridDims(screen);
         FracRect Cells(int c, int r, int w, int h) => new(c / (double)cols, r / (double)rows, w / (double)cols, h / (double)rows);
-        PixelRect[] cells = [.. new[] { Cells(11, 7, 9, 5), Cells(20, 7, 6, 5), Cells(11, 12, 15, 3) }.Select(f => GridGeometry.ToPixels(f, screen, scale))];
+        DipRect[] cells = [.. new[] { Cells(11, 7, 9, 5), Cells(20, 7, 6, 5), Cells(11, 12, 15, 3) }.Select(f => GridGeometry.PaintedCell(f, screen, scale))];
 
         var frame = CardJoins.Frame(cells)!.Value;
 

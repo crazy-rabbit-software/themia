@@ -41,7 +41,7 @@ internal sealed partial class AddPageFlyout : Grid
     public AddPictures Pictures { get; }
 
     /// <summary>[S-11707] Stand under <paramref name="bar"/>, inside <paramref name="area"/>.</summary>
-    public void Place(PixelRect bar, PixelRect area)
+    public void Place(DipRect bar, DipRect area)
     {
         _tallest = Math.Max(_tallest, View.ContentHeight(bar.Width));
         var spot = FlyoutPlacement.Under(bar, area, _tallest);

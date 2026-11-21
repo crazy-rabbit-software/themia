@@ -330,7 +330,7 @@ internal sealed partial class EditBar : Grid
     internal double AddOffset => _add is null ? 0 : Canvas.GetLeft(_add);
 
     /// <summary>[S-2325] Where an entry is, in <paramref name="layer"/>'s coordinates (null for the selection's page): null before it is laid out.</summary>
-    public Themia.Core.Geometry.PixelRect? EntryBox(SettingsPageId? page, UIElement layer)
+    public Themia.Core.Geometry.DipRect? EntryBox(SettingsPageId? page, UIElement layer)
     {
         var entry = page is { } id ? _pages.GetValueOrDefault(id) : _selection;
         if (entry is not { ActualWidth: > 0 } shown)
@@ -339,7 +339,7 @@ internal sealed partial class EditBar : Grid
         }
 
         var box = shown.TransformToVisual(layer).TransformBounds(new Rect(0, 0, shown.ActualWidth, shown.ActualHeight));
-        return new Themia.Core.Geometry.PixelRect(box.X, box.Y, box.Width, box.Height);
+        return new Themia.Core.Geometry.DipRect(box.X, box.Y, box.Width, box.Height);
     }
 
     /// <summary>[S-2327] The keyboard back on an entry (its flyout closed from the keyboard); null for the selection's.</summary>

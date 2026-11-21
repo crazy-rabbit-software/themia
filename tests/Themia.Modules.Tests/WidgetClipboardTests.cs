@@ -181,8 +181,8 @@ public class WidgetClipboardTests
 
         var rect = Paste(clipboard, 1.5, 1.5).Added[0].Rect;
 
-        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Width), rect.X, 9);
-        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Height), rect.Y, 9);
+        Assert.Equal(1 - (GridGeometry.MinVisibleDip / Screen.Width), rect.X, 9);
+        Assert.Equal(1 - (GridGeometry.MinVisibleDip / Screen.Height), rect.Y, 9);
     }
 
     [Fact]
@@ -196,8 +196,8 @@ public class WidgetClipboardTests
         var portrait = new ScreenMetrics(1080, 1920);
         var rect = Paste(clipboard, 1.4, 1.4, portrait).Added[0].Rect;
 
-        Assert.True((1 - rect.X) * portrait.Width >= GridGeometry.MinVisiblePx - 1e-6);
-        Assert.True((1 - rect.Y) * portrait.Height >= GridGeometry.MinVisiblePx - 1e-6);
+        Assert.True((1 - rect.X) * portrait.Width >= GridGeometry.MinVisibleDip - 1e-6);
+        Assert.True((1 - rect.Y) * portrait.Height >= GridGeometry.MinVisibleDip - 1e-6);
     }
 
     [Fact]

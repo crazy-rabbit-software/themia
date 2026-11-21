@@ -263,7 +263,7 @@ internal sealed class AddPictures : IDisposable
         {
             case AddWidgetTile one:
                 var natural = Sdk.ModuleCatalog.Of(one.Kind).Natural;
-                models = [WidgetInstance.Create(one.Kind, Core.Geometry.FracRect.FromPixels(0, 0, natural.Width, natural.Height, metrics))];
+                models = [WidgetInstance.Create(one.Kind, Core.Geometry.FracRect.FromDips(0, 0, natural.Width, natural.Height, metrics))];
                 break;
             case AddGroupTile group when ReadyMadeGroups.Build(group.Group, metrics) is { } built:
                 models = built;
@@ -285,7 +285,7 @@ internal sealed class AddPictures : IDisposable
             {
                 var model = models[i];
                 var shown = boxes[i];
-                var cell = Core.Geometry.GridGeometry.ToPixels(shown, metrics, 1);
+                var cell = Core.Geometry.GridGeometry.PaintedCell(shown, metrics, 1);
                 var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
                 card.SetLiveRect(shown);
                 card.ApplyEditMode(false);

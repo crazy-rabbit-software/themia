@@ -235,10 +235,10 @@ public sealed class ZOrderPolicyTests
     public void S33g_the_controllers_own_placement_moves_a_lifted_surface()
         => Assert.Equal(ZMove.Allow, ZOrderPolicy.Move(lifted: true, ownPlacement: true));
 
-    private static readonly PixelRect Display1 = new(0, 0, 3840, 2160);
+    private static readonly DeviceRect Display1 = new(0, 0, 3840, 2160);
 
     private static AboveWindow Window(double left, double top, double right, double bottom, bool onScreen = true, bool own = false, bool maximized = false)
-        => new(PixelRect.FromEdges(left, top, right, bottom), onScreen, own, maximized);
+        => new(DeviceRect.FromEdges(left, top, right, bottom), onScreen, own, maximized);
 
     /// <summary>
     /// The owner's report (2026-11-19, "in fullscreen mode when clicking themia sometimes karpo comes to
@@ -273,8 +273,8 @@ public sealed class ZOrderPolicyTests
     [Fact]
     public void S34f_covering_means_every_edge_of_the_display()
     {
-        Assert.True(ZOrderPolicy.Covers(PixelRect.FromEdges(-11, -11, 3851, 2171), Display1));
-        Assert.False(ZOrderPolicy.Covers(PixelRect.FromEdges(0, 0, 3840, 2159), Display1));
-        Assert.False(ZOrderPolicy.Covers(PixelRect.FromEdges(0, 0, 3840, 2160), new PixelRect(0, 0, 0, 0)));
+        Assert.True(ZOrderPolicy.Covers(DeviceRect.FromEdges(-11, -11, 3851, 2171), Display1));
+        Assert.False(ZOrderPolicy.Covers(DeviceRect.FromEdges(0, 0, 3840, 2159), Display1));
+        Assert.False(ZOrderPolicy.Covers(DeviceRect.FromEdges(0, 0, 3840, 2160), new DeviceRect(0, 0, 0, 0)));
     }
 }

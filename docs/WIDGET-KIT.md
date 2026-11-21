@@ -1653,7 +1653,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   glyph of its own (the shared view draws all thirteen from `Glyphs`). Into the SDK first, each its
   own commit: the shared rules `QuickToggleRules` (with the decoders of what Windows answers, which
   the host's sources call, so their tests stay Core's unchanged), `ToggleGate`, `ToggleFace`,
-  `SwitchFace` and `PixelRect` (out of `GridGeometry`) into `Themia.Sdk`; `QuickToggleView` with its
+  `SwitchFace` and `PixelRect` (out of `GridGeometry`; since 2026-11-21 `DipRect` and `DeviceRect`, [S-11894]) into `Themia.Sdk`; `QuickToggleView` with its
   Switch face and preview states into `Themia.Sdk.WinUI`. Contract added: `IWidgetHost.Toggles`
   (`IQuickToggles.Acquire(QuickToggle, changed)` → `IToggleSource`: `Reading`, `SetAsync`, `Refresh`,
   dispose to let go), keyed by the closed `QuickToggle` enum, which names the host's drivers, not

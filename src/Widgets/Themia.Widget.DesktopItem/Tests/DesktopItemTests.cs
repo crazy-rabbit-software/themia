@@ -140,12 +140,12 @@ public sealed class DesktopItemTests
     {
         var screen = new Themia.Core.Geometry.ScreenMetrics(1920 / scale, 1080 / scale);
         var cell = DesktopCell.Grid(size);
-        var rect = Themia.Core.Geometry.FracRect.FromPixels(0.1, 0.1, cell.Width, cell.Height, screen);
-        var card = Themia.Core.Geometry.GridGeometry.ToPixels(rect, screen, scale);
+        var rect = Themia.Core.Geometry.FracRect.FromDips(0.1, 0.1, cell.Width, cell.Height, screen);
+        var card = Themia.Core.Geometry.GridGeometry.PaintedCell(rect, screen, scale);
 
         var highlight = DesktopCell.Highlight(card.Width, card.Height);
 
-        Assert.Equal(new Themia.Core.Geometry.PixelRect(0, 0, card.Width, card.Height), highlight);
+        Assert.Equal(new Themia.Core.Geometry.DipRect(0, 0, card.Width, card.Height), highlight);
         Assert.Equal(card, highlight with { X = card.X, Y = card.Y });
     }
 

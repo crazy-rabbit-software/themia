@@ -5,15 +5,15 @@ namespace Themia.Core.Tests;
 
 public class EditMarkersTests
 {
-    private static PixelRect Absolute(EditMarker marker, PixelRect bar)
+    private static DipRect Absolute(EditMarker marker, DipRect bar)
         => new(marker.Hit.X + bar.X, marker.Hit.Y + bar.Y, bar.Width, bar.Height);
 
-    private static bool Contains(PixelRect outer, PixelRect inner)
+    private static bool Contains(DipRect outer, DipRect inner)
         => inner.X >= outer.X - 1e-9 && inner.Y >= outer.Y - 1e-9
             && inner.X + inner.Width <= outer.X + outer.Width + 1e-9
             && inner.Y + inner.Height <= outer.Y + outer.Height + 1e-9;
 
-    private static bool Overlap(PixelRect a, PixelRect b)
+    private static bool Overlap(DipRect a, DipRect b)
         => a.X < b.X + b.Width - 1e-9 && b.X < a.X + a.Width - 1e-9
             && a.Y < b.Y + b.Height - 1e-9 && b.Y < a.Y + a.Height - 1e-9;
 
@@ -34,8 +34,8 @@ public class EditMarkersTests
         var half = EditMarkers.Half(1);
 
         Assert.Equal(2, bars.Count);
-        Assert.Contains(bars, b => b == PixelRect.FromEdges(280 - EditMarkers.Arm, 180 - half, 280 + half, 180 + half));
-        Assert.Contains(bars, b => b == PixelRect.FromEdges(280 - half, 180 - EditMarkers.Arm, 280 + half, 180 + half));
+        Assert.Contains(bars, b => b == DipRect.FromEdges(280 - EditMarkers.Arm, 180 - half, 280 + half, 180 + half));
+        Assert.Contains(bars, b => b == DipRect.FromEdges(280 - half, 180 - EditMarkers.Arm, 280 + half, 180 + half));
     }
 
     [Fact]
@@ -46,8 +46,8 @@ public class EditMarkersTests
         var left = markers.Single(m => m.Handle == ResizeHandle.Left);
         var half = EditMarkers.Half(1);
 
-        Assert.Equal(PixelRect.FromEdges(132, -half, 148, half), Absolute(top, Assert.Single(top.Bars)));
-        Assert.Equal(PixelRect.FromEdges(-half, 82, half, 98), Absolute(left, Assert.Single(left.Bars)));
+        Assert.Equal(DipRect.FromEdges(132, -half, 148, half), Absolute(top, Assert.Single(top.Bars)));
+        Assert.Equal(DipRect.FromEdges(-half, 82, half, 98), Absolute(left, Assert.Single(left.Bars)));
     }
 
     [Theory]
@@ -65,7 +65,7 @@ public class EditMarkersTests
         {
             foreach (var bar in marker.Bars)
             {
-                Assert.True(Contains(PixelRect.FromEdges(-half, -half, 200 + half, 120 + half), Absolute(marker, bar)), $"{marker.Handle}");
+                Assert.True(Contains(DipRect.FromEdges(-half, -half, 200 + half, 120 + half), Absolute(marker, bar)), $"{marker.Handle}");
             }
         }
     }
@@ -81,10 +81,10 @@ public class EditMarkersTests
         var left = EditMarkers.For(w, h, scale);
         var right = EditMarkers.For(w, h, scale);
 
-        PixelRect Vertical(IReadOnlyList<EditMarker> set, ResizeHandle handle, double dx)
+        DipRect Vertical(IReadOnlyList<EditMarker> set, ResizeHandle handle, double dx)
         {
             var m = set.Single(x => x.Handle == handle);
-            return m.Bars.Select(b => Absolute(m, b)).Select(b => new PixelRect(b.X + dx, b.Y, b.Width, b.Height)).OrderBy(b => b.Width).First();
+            return m.Bars.Select(b => Absolute(m, b)).Select(b => new DipRect(b.X + dx, b.Y, b.Width, b.Height)).OrderBy(b => b.Width).First();
         }
 
         foreach (var (a, b) in new[] { (ResizeHandle.TopRight, ResizeHandle.TopLeft), (ResizeHandle.Right, ResizeHandle.Left), (ResizeHandle.BottomRight, ResizeHandle.BottomLeft) })
@@ -110,7 +110,7 @@ public class EditMarkersTests
         foreach (var marker in EditMarkers.For(w, h, 1))
         {
             var (x, y) = points[marker.Handle];
-            Assert.True(Contains(marker.Hit, PixelRect.FromEdges(x - g, y - g, x + g, y + g)), $"{marker.Handle} grip");
+            Assert.True(Contains(marker.Hit, DipRect.FromEdges(x - g, y - g, x + g, y + g)), $"{marker.Handle} grip");
             foreach (var bar in marker.Bars)
             {
                 Assert.True(Contains(marker.Hit, Absolute(marker, bar)), $"{marker.Handle} ink");
@@ -185,10 +185,10 @@ public class EditMarkersTests
     [Fact]
     public void S31b_the_halo_grows_a_bar_by_whole_device_pixel()
     {
-        var bar = new PixelRect(10, 10, 14, 3);
+        var bar = new DipRect(10, 10, 14, 3);
 
-        Assert.Equal(new PixelRect(9, 9, 16, 5), EditMarkers.Haloed(bar, 1));
-        Assert.Equal(new PixelRect(9.2, 9.2, 15.6, 4.6), EditMarkers.Haloed(bar, 1.25)); // one device pixel: 0.8 DIPs
+        Assert.Equal(new DipRect(9, 9, 16, 5), EditMarkers.Haloed(bar, 1));
+        Assert.Equal(new DipRect(9.2, 9.2, 15.6, 4.6), EditMarkers.Haloed(bar, 1.25)); // one device pixel: 0.8 DIPs
     }
 
     [Fact]

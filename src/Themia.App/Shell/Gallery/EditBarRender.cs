@@ -287,7 +287,7 @@ internal static partial class EditBarRender
         var bar = Bar(new EditBarState(null, 0, page, false, ScreenWidth - (2 * ShellMetricsBarTop)));
         var barRect = PlaceBar(canvas, bar, ScreenWidth);
         UiLanguage.ApplyFlow(view);
-        var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);
+        var area = new DipRect(0, 0, ScreenWidth, OpenHeight);
         var flyout = HangFlyout(canvas, view, bar, barRect, page, area);
         view.Show();
         if (key is not null && core?.Invoke() is { } built && (SettingsPages.PathTo(built, key) is not { } at || !view.Open(at)))
@@ -759,10 +759,10 @@ internal static partial class EditBarRender
         canvas.Children.Add(markers.Inks);
 
         // [S-2460] Several selected: the frame round them, [S-14310] and no marks of their own.
-        RenderFrame.Round(markers, [.. cards.Zip(widgets).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
+        RenderFrame.Round(markers, [.. cards.Zip(widgets).Select(c => (c.First, new DipRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
 
         var page = SelectionPageOf(view, selected, lines);
-        var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);
+        var area = new DipRect(0, 0, ScreenWidth, OpenHeight);
         var flyout = HangFlyout(canvas, page, bar, barRect, null, area);
         page.Show();
         if (click is not null)
@@ -790,7 +790,7 @@ internal static partial class EditBarRender
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
 
         // [S-2344] The selected cards it covers seen through it, as the surface shows them.
-        flyout.ShineThrough([.. widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H))]);
+        flyout.ShineThrough([.. widgets.Where(w => w.Spec.Selected).Select(w => new DipRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H))]);
         canvas.UpdateLayout();
         if (scrollToEnd)
         {
@@ -936,7 +936,7 @@ internal static partial class EditBarRender
         canvas.Children.Add(markers.Inks);
 
         // [S-2460] Several selected: the frame round them, [S-14310] and no marks of their own.
-        RenderFrame.Round(markers, [.. cards.Zip(models).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
+        RenderFrame.Round(markers, [.. cards.Zip(models).Select(c => (c.First, new DipRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
 
         await Task.Delay(800).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);

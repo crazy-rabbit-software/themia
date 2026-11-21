@@ -77,7 +77,7 @@ internal sealed partial class SelectionFrame
     public bool CornersOnly { get; private set; }
 
     /// <summary>The box it was last drawn round, in the surface's DIPs.</summary>
-    public PixelRect Box { get; private set; }
+    public DipRect Box { get; private set; }
 
     /// <summary>[S-2460] A grip was pressed with the left button and holds the pointer: the block's resize by that handle starts.</summary>
     public event Action<ResizeHandle, PointerRoutedEventArgs>? Pressed;
@@ -93,7 +93,7 @@ internal sealed partial class SelectionFrame
     /// own edges) at <paramref name="scale"/>, its grips on the axes the block may resize. [S-14310] With
     /// <paramref name="cornersOnly"/> (the locked desktop) its four corners alone: no hairline, no edge bars, no grip.
     /// </summary>
-    public void Show(PixelRect box, double scale, bool freeWidth, bool freeHeight, bool cornersOnly)
+    public void Show(DipRect box, double scale, bool freeWidth, bool freeHeight, bool cornersOnly)
     {
         foreach (var plate in new[] { Halos, Inks, Grips })
         {
@@ -139,7 +139,7 @@ internal sealed partial class SelectionFrame
             for (var i = 0; i < part.Inks.Length; i++)
             {
                 var bar = marker.Bars[i];
-                var onBox = new PixelRect(marker.Hit.X + bar.X, marker.Hit.Y + bar.Y, bar.Width, bar.Height);
+                var onBox = new DipRect(marker.Hit.X + bar.X, marker.Hit.Y + bar.Y, bar.Width, bar.Height);
                 Place(part.Inks[i], onBox);
                 Place(part.Halos[i], EditMarkers.Haloed(onBox, s));
                 part.Inks[i].Visibility = inked;
@@ -217,7 +217,7 @@ internal sealed partial class SelectionFrame
         }
     }
 
-    private static void Place(Rectangle shape, PixelRect box)
+    private static void Place(Rectangle shape, DipRect box)
     {
         Canvas.SetLeft(shape, box.X);
         Canvas.SetTop(shape, box.Y);

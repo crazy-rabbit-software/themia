@@ -436,9 +436,9 @@ public static class ReadyMadeGroups
     public static IReadOnlyList<ReadyMadeGroup> Offered()
         => [.. All.Where(r => r.Widgets.All(w => WidgetId.TryParse(w.Kind, out var id) && ModuleCatalog.TryGet(id, out _)))];
 
-    /// <summary>[S-2471] A recipe box on <paramref name="screen"/>, its group's corner at (<paramref name="xPx"/>, <paramref name="yPx"/>) DIPs.</summary>
-    public static FracRect Rect(ReadyMadeBox box, ScreenMetrics screen, double xPx = 0, double yPx = 0)
-        => FracRect.FromPixels((xPx + box.X) / screen.Width, (yPx + box.Y) / screen.Height, box.Width, box.Height, screen);
+    /// <summary>[S-2471] A recipe box on <paramref name="screen"/>, its group's corner at (<paramref name="xDip"/>, <paramref name="yDip"/>) DIPs.</summary>
+    public static FracRect Rect(ReadyMadeBox box, ScreenMetrics screen, double xDip = 0, double yDip = 0)
+        => FracRect.FromDips((xDip + box.X) / screen.Width, (yDip + box.Y) / screen.Height, box.Width, box.Height, screen);
 
     /// <summary>
     /// [S-11809] The recipe's boxes on <paramref name="screen"/> (its corner at the origin) as the
@@ -465,18 +465,18 @@ public static class ReadyMadeGroups
 
     /// <summary>
     /// [S-2471] The widgets of <paramref name="recipe"/> on <paramref name="screen"/>, its corner at
-    /// (<paramref name="xPx"/>, <paramref name="yPx"/>) DIPs, every id new, each the kind's default config
+    /// (<paramref name="xDip"/>, <paramref name="yDip"/>) DIPs, every id new, each the kind's default config
     /// with the fragment over it (as the first-run seed builds them): loose widgets, in no group of any
     /// kind ([S-2475]). Null, logged, when this build lacks one of its kinds.
     /// </summary>
-    public static List<WidgetInstance>? Build(ReadyMadeGroup recipe, ScreenMetrics screen, double xPx = 0, double yPx = 0)
+    public static List<WidgetInstance>? Build(ReadyMadeGroup recipe, ScreenMetrics screen, double xDip = 0, double yDip = 0)
     {
         ArgumentNullException.ThrowIfNull(recipe);
 
         var widgets = new List<WidgetInstance>(recipe.Widgets.Count);
         foreach (var part in recipe.Widgets)
         {
-            var rect = Rect(part.Box, screen, xPx, yPx);
+            var rect = Rect(part.Box, screen, xDip, yDip);
             if (FirstRunDesktop.Build(new FirstRunDesktop.Seed(part.Kind, rect, Config: part.Fragment)) is not { } widget)
             {
                 Log.Warn(Scope, $"'{recipe.Id}' names a widget this build does not have ('{part.Kind}'); it is not placed");

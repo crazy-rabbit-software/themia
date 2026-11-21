@@ -90,7 +90,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     private ScreenMetrics _metrics;
     private double _raster = 1;
     private double _contentScale = 1;
-    private PixelRect _work;
+    private DipRect _work;
     private CellBox _area;
     private IReadOnlyList<GalleryScreen> _screens = [];
     private int _at;
@@ -202,7 +202,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <paramref name="barBottom"/>, the part new geometry may use <paramref name="allowed"/> (DIPs), the raster scale and the
     /// content scale new widgets get there. The screens are laid again only when one of them changed.
     /// </summary>
-    public void Place(ScreenMetrics metrics, double rasterScale, PixelRect work, double barBottom, PixelRect allowed, double contentScale)
+    public void Place(ScreenMetrics metrics, double rasterScale, DipRect work, double barBottom, DipRect allowed, double contentScale)
     {
         if (_disposed || !metrics.IsUsable)
         {
@@ -266,7 +266,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         var cx = (int)Math.Ceiling((x0 / pitchX) - 1e-9);
         var cy = (int)Math.Ceiling((y0 / pitchY) - 1e-9);
         var area = new CellBox(cx, cy, Math.Max(1, (int)Math.Floor((x1 / pitchX) + 1e-9) - cx), Math.Max(1, (int)Math.Floor((y1 / pitchY) + 1e-9) - cy));
-        SetBox(_input, new PixelRect(x0, y0, Math.Max(0, x1 - x0), Math.Max(0, y1 - y0)));
+        SetBox(_input, new DipRect(x0, y0, Math.Max(0, x1 - x0), Math.Max(0, y1 - y0)));
 
         if (same && area == _area && _screens.Count > 0)
         {
@@ -323,7 +323,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         {
             try
             {
-                var cell = GridGeometry.ToPixels(widget.Rect, _metrics, _raster);
+                var cell = GridGeometry.PaintedCell(widget.Rect, _metrics, _raster);
                 var card = new WidgetCard(_host, widget) { Width = cell.Width, Height = cell.Height };
                 card.SetLiveRect(widget.Rect);
                 card.ApplyEditMode(false);
@@ -446,7 +446,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         for (var i = 0; i < following.Count && i < outlines.Count; i++)
         {
-            var box = GridGeometry.ToPixels(outlines[i].Rect, _metrics, _raster);
+            var box = GridGeometry.PaintedCell(outlines[i].Rect, _metrics, _raster);
             Canvas.SetLeft(following[i], box.X);
             Canvas.SetTop(following[i], box.Y);
         }
@@ -467,7 +467,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         foreach (var card in _cards)
         {
-            var cell = GridGeometry.ToPixels(card.LiveRect, _metrics, _raster);
+            var cell = GridGeometry.PaintedCell(card.LiveRect, _metrics, _raster);
             Canvas.SetLeft(card, cell.X);
             Canvas.SetTop(card, cell.Y);
             card.Opacity = 1;
@@ -509,7 +509,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
     private static ViewState Empty() => new() { Id = ScreenViewId, Name = string.Empty };
 
-    private static void SetBox(FrameworkElement element, PixelRect box)
+    private static void SetBox(FrameworkElement element, DipRect box)
     {
         Canvas.SetLeft(element, box.X);
         Canvas.SetTop(element, box.Y);
@@ -537,7 +537,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     private void DrawTitles(GalleryScreen screen, Func<CellBox, FracRect> rect)
     {
         _titles.Children.Clear();
-        var title = GridGeometry.ToPixels(rect(screen.Title), _metrics, _raster);
+        var title = GridGeometry.PaintedCell(rect(screen.Title), _metrics, _raster);
         var name = Fluent.Text(FamilyType.Title);
         name.Text = screen.Name.Text();
         var count = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
@@ -553,7 +553,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         foreach (var head in screen.Heads)
         {
-            var box = GridGeometry.ToPixels(rect(head.Box), _metrics, _raster);
+            var box = GridGeometry.PaintedCell(rect(head.Box), _metrics, _raster);
             var words = Fluent.Text(FamilyType.BodyStrong);
             words.Text = head.Text.Text();
             words.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -570,7 +570,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     // ---- [S-14914] picking -----------------------------------------------------------------------
 
     private string? CardAt(Point at)
-        => SelectionRules.PressTarget([.. _cards.Select(c => (c.Model.Id, new PixelRect(Canvas.GetLeft(c), Canvas.GetTop(c), c.Width, c.Height)))], _selected, at.X, at.Y, 0);
+        => SelectionRules.PressTarget([.. _cards.Select(c => (c.Model.Id, new DipRect(Canvas.GetLeft(c), Canvas.GetTop(c), c.Width, c.Height)))], _selected, at.X, at.Y, 0);
 
     private void OnPressed(object sender, PointerRoutedEventArgs e)
     {
@@ -708,7 +708,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         if (framed.Count > 0)
         {
-            var box = GridGeometry.ToPixels(BlockGeometry.Bounds([.. framed.Select(c => c.LiveRect)]), _metrics, _raster);
+            var box = GridGeometry.PaintedCell(BlockGeometry.Bounds([.. framed.Select(c => c.LiveRect)]), _metrics, _raster);
             _marks.Frame.Show(box, _raster, false, false, cornersOnly: true);
         }
         else
@@ -812,7 +812,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         try
         {
             var sizing = SizeFit.Of(kind, option.Value).Natural;
-            var model = WidgetInstance.Create(kind, FracRect.FromPixels(0, 0, sizing.Width, sizing.Height, _metrics));
+            var model = WidgetInstance.Create(kind, FracRect.FromDips(0, 0, sizing.Width, sizing.Height, _metrics));
             WidgetStyles.Set(model.Config, option.Value);
             var card = new WidgetCard(_host, model) { Width = sizing.Width, Height = sizing.Height };
             card.SetLiveRect(model.Rect);

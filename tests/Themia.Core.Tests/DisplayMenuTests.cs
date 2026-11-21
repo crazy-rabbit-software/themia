@@ -64,7 +64,7 @@ public sealed class DisplayMenuTests
         public void Show(string displayId, string viewId) => Shown.Add(displayId + ":" + viewId);
 
         public static MenuDisplay Display(string id, int x, bool primary)
-            => new(id, "Screen " + id, "Screen " + id + " — 1920 × 1080", new DisplayInfo(id, true, new PixelRect(x, 0, 1920, 1080), new PixelRect(x, 0, 1920, 1040), primary));
+            => new(id, "Screen " + id, "Screen " + id + " — 1920 × 1080", new DisplayInfo(id, true, new DeviceRect(x, 0, 1920, 1080), new DeviceRect(x, 0, 1920, 1040), primary));
     }
 
     private static SettingsSubmenu Card(FakeHost host, string id)

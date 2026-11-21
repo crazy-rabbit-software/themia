@@ -547,7 +547,7 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
         }
 
         var laid = _icons.Laid;
-        var boxes = new List<(PixelRect Box, bool Selected)>(Math.Min(laid.Count, _shown.Count));
+        var boxes = new List<(DipRect Box, bool Selected)>(Math.Min(laid.Count, _shown.Count));
         for (var i = 0; i < laid.Count && i < _shown.Count; i++)
         {
             boxes.Add((laid[i], _selection.IsSelected(_shown[i].Key)));
@@ -705,7 +705,7 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
         public SizeDip Box { get; set; }
 
         /// <summary>The cells the children were last laid in, in their order.</summary>
-        public IReadOnlyList<PixelRect> Laid { get; private set; } = [];
+        public IReadOnlyList<DipRect> Laid { get; private set; } = [];
 
         /// <summary>[S-13712] [S-13714] The area the children were last laid in (the grid's and the band's room).</summary>
         public Windows.Foundation.Size Area { get; private set; }

@@ -56,7 +56,7 @@ public interface IWallpaperSource
     /// not be read or decoded (logged), or no display Windows knows there. A solid colour is a picture
     /// of that colour.
     /// </summary>
-    Task<WallpaperPicture?> PictureAsync(PixelRect display, CancellationToken cancel);
+    Task<WallpaperPicture?> PictureAsync(DeviceRect display, CancellationToken cancel);
 
     /// <summary>Windows changed what it shows: a new wallpaper, a slideshow step, a colour, a display.</summary>
     event Action? Changed;
@@ -72,7 +72,7 @@ public static class WallpaperLayout
     public const int Downscale = 12;
 
     /// <summary>[S-2112] The picture's size for a display of <paramref name="display"/>'s pixels.</summary>
-    public static (int Width, int Height) PictureSize(PixelRect display)
+    public static (int Width, int Height) PictureSize(DeviceRect display)
         => (Math.Max(1, (int)Math.Ceiling(display.Width / Downscale)), Math.Max(1, (int)Math.Ceiling(display.Height / Downscale)));
 
     /// <summary>
@@ -83,21 +83,21 @@ public static class WallpaperLayout
     /// it at its own size from the top-left, Span fills <paramref name="desktop"/> (the bounding box of
     /// every display) and the display shows its part.
     /// </summary>
-    public static (PixelRect Rect, bool Repeat) Place(WallpaperFit fit, double imageWidth, double imageHeight, PixelRect display, PixelRect desktop)
+    public static (DeviceRect Rect, bool Repeat) Place(WallpaperFit fit, double imageWidth, double imageHeight, DeviceRect display, DeviceRect desktop)
     {
         if (!(imageWidth > 0) || !(imageHeight > 0) || !(display.Width > 0) || !(display.Height > 0))
         {
-            return (new PixelRect(0, 0, display.Width, display.Height), false);
+            return (new DeviceRect(0, 0, display.Width, display.Height), false);
         }
 
         switch (fit)
         {
             case WallpaperFit.Stretch:
-                return (new PixelRect(0, 0, display.Width, display.Height), false);
+                return (new DeviceRect(0, 0, display.Width, display.Height), false);
             case WallpaperFit.Center:
-                return (new PixelRect((display.Width - imageWidth) / 2, (display.Height - imageHeight) / 2, imageWidth, imageHeight), false);
+                return (new DeviceRect((display.Width - imageWidth) / 2, (display.Height - imageHeight) / 2, imageWidth, imageHeight), false);
             case WallpaperFit.Tile:
-                return (new PixelRect(0, 0, imageWidth, imageHeight), true);
+                return (new DeviceRect(0, 0, imageWidth, imageHeight), true);
             case WallpaperFit.Fit:
                 return (Scaled(display, Math.Min(display.Width / imageWidth, display.Height / imageHeight)), false);
             case WallpaperFit.Span when desktop.Width > 0 && desktop.Height > 0:
@@ -105,23 +105,23 @@ public static class WallpaperLayout
                 var scale = Math.Max(desktop.Width / imageWidth, desktop.Height / imageHeight);
                 var w = imageWidth * scale;
                 var h = imageHeight * scale;
-                return (new PixelRect(desktop.X + ((desktop.Width - w) / 2) - display.X, desktop.Y + ((desktop.Height - h) / 2) - display.Y, w, h), false);
+                return (new DeviceRect(desktop.X + ((desktop.Width - w) / 2) - display.X, desktop.Y + ((desktop.Height - h) / 2) - display.Y, w, h), false);
             }
 
             default:
                 return (Scaled(display, Math.Max(display.Width / imageWidth, display.Height / imageHeight)), false);
         }
 
-        PixelRect Scaled(PixelRect area, double scale)
+        DeviceRect Scaled(DeviceRect area, double scale)
         {
             var w = imageWidth * scale;
             var h = imageHeight * scale;
-            return new PixelRect((area.Width - w) / 2, (area.Height - h) / 2, w, h);
+            return new DeviceRect((area.Width - w) / 2, (area.Height - h) / 2, w, h);
         }
     }
 
     /// <summary>[S-2112] A placement in display pixels, brought into the picture: one image size for every copy.</summary>
-    public static WallpaperPlan Plan(PixelRect placed, bool repeat)
+    public static WallpaperPlan Plan(DeviceRect placed, bool repeat)
         => new(
             (int)Math.Round(placed.X / Downscale),
             (int)Math.Round(placed.Y / Downscale),
@@ -183,7 +183,7 @@ public static class WallpaperLayout
     }
 
     /// <summary>[S-2112] A display Windows draws in one colour (no picture, or one it shows none of): that colour.</summary>
-    public static WallpaperPicture Solid(PixelRect display, RgbColor colour)
+    public static WallpaperPicture Solid(DeviceRect display, RgbColor colour)
     {
         var (width, height) = PictureSize(display);
         return Compose(width, height, colour, new WallpaperPlan(0, 0, 1, 1, false), [colour.B, colour.G, colour.R, 255]);
@@ -194,7 +194,7 @@ public static class WallpaperLayout
     /// on the display (in DIPs, from the display's top-left) scaled from the display's DIP size to the
     /// picture's. It may reach past the picture where the card does past the display.
     /// </summary>
-    public static PixelRect Part(PixelRect card, double displayWidth, double displayHeight, WallpaperPicture picture)
+    public static DeviceRect Part(DipRect card, double displayWidth, double displayHeight, WallpaperPicture picture)
     {
         ArgumentNullException.ThrowIfNull(picture);
         if (!(displayWidth > 0) || !(displayHeight > 0))
@@ -204,7 +204,7 @@ public static class WallpaperLayout
 
         var sx = picture.Width / displayWidth;
         var sy = picture.Height / displayHeight;
-        return new PixelRect(card.X * sx, card.Y * sy, card.Width * sx, card.Height * sy);
+        return new DeviceRect(card.X * sx, card.Y * sy, card.Width * sx, card.Height * sy);
     }
 
     private static int Mod(int value, int by) => ((value % by) + by) % by;

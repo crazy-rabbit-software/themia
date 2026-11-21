@@ -21,14 +21,14 @@ internal sealed class Backdrop
     private CancellationTokenSource? _loading;
     private int _cards;
 
-    internal Backdrop(Backdrops owner, PixelRect display)
+    internal Backdrop(Backdrops owner, DeviceRect display)
     {
         _owner = owner;
         Display = display;
     }
 
     /// <summary>The display's bounds in virtual screen pixels: what the source is asked about.</summary>
-    public PixelRect Display { get; }
+    public DeviceRect Display { get; }
 
     /// <summary>The blurred picture, or null for none ([S-2111]: the cards fall back to a firmer fill).</summary>
     public ImageSource? Picture { get; private set; }
@@ -142,7 +142,7 @@ internal sealed class Backdrops : IDisposable
 {
     internal const string Scope = "backdrop";
 
-    private readonly Dictionary<PixelRect, Backdrop> _byDisplay = [];
+    private readonly Dictionary<DeviceRect, Backdrop> _byDisplay = [];
     private readonly DispatcherQueue _dispatcher;
 
     public Backdrops(IWallpaperSource source, DispatcherQueue dispatcher)
@@ -156,7 +156,7 @@ internal sealed class Backdrops : IDisposable
     internal IWallpaperSource Source { get; }
 
     /// <summary>The display's backdrop, built on first ask.</summary>
-    public Backdrop For(PixelRect display)
+    public Backdrop For(DeviceRect display)
     {
         if (!_byDisplay.TryGetValue(display, out var backdrop))
         {

@@ -28,7 +28,7 @@ public sealed class BlockMoveTests
         for (var i = 1; i < 240; i++)
         {
             var delta = BlockGeometry.Move(group, (i * 0.00137) - 0.11, (i * 0.00071) - 0.05, screen);
-            var cells = group.Select(r => GridGeometry.ToPixels(BlockGeometry.Apply(r, delta, screen), screen, scale)).ToArray();
+            var cells = group.Select(r => GridGeometry.PaintedCell(BlockGeometry.Apply(r, delta, screen), screen, scale)).ToArray();
 
             // Touching stays touching, to the pixel: the column's seam, and the card beside it on both.
             Assert.Equal(cells[0].Y + cells[0].Height, cells[1].Y, 9);
@@ -52,11 +52,11 @@ public sealed class BlockMoveTests
         var screen = new ScreenMetrics(width, height);
         var (cols, rows) = GridGeometry.GridDims(screen);
         FracRect[] group = [new(8.0 / cols, 4.0 / rows, 8.0 / cols, 10.0 / rows), new(20.0 / cols, 6.0 / rows, 30.0 / cols, 12.0 / rows)];
-        var start = group.Select(r => GridGeometry.ToPixels(r, screen, scale)).ToArray();
+        var start = group.Select(r => GridGeometry.PaintedCell(r, screen, scale)).ToArray();
         for (var i = 1; i < 120; i++)
         {
             var delta = BlockGeometry.Move(group, i * 0.00313, i * 0.00177, screen);
-            var moved = group.Select(r => GridGeometry.ToPixels(BlockGeometry.Apply(r, delta, screen), screen, scale)).ToArray();
+            var moved = group.Select(r => GridGeometry.PaintedCell(BlockGeometry.Apply(r, delta, screen), screen, scale)).ToArray();
             var (ox, oy) = (moved[0].X - start[0].X, moved[0].Y - start[0].Y);
             for (var c = 0; c < group.Length; c++)
             {

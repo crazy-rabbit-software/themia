@@ -162,11 +162,11 @@ public static class ShowcaseViews
     /// tallest first, each placed at the lowest, then leftmost, spot inside the work area less
     /// <see cref="Margin"/>. Whole DIPs, so the painted edges land on the size exactly.
     /// </summary>
-    internal static List<List<(CheckedSize Size, PixelRect Cell)>> Layout(ScreenMetrics screen, double contentScale, IReadOnlyList<CheckedSize> sizes)
+    internal static List<List<(CheckedSize Size, DipRect Cell)>> Layout(ScreenMetrics screen, double contentScale, IReadOnlyList<CheckedSize> sizes)
     {
         var scale = double.IsFinite(contentScale) && contentScale > 0 ? contentScale : 1;
 
-        var work = GridGeometry.AllowedPixels(screen);
+        var work = GridGeometry.AllowedDips(screen);
         var left = Math.Ceiling(work.X + Margin);
         var top = Math.Ceiling(work.Y + Margin);
         var width = Math.Max(1, Math.Floor(work.X + work.Width - Margin) - left);
@@ -180,11 +180,11 @@ public static class ShowcaseViews
             .ThenByDescending(t => t.W)
             .ToList();
 
-        var pages = new List<List<(CheckedSize, PixelRect)>>();
+        var pages = new List<List<(CheckedSize, DipRect)>>();
         while (pending.Count > 0)
         {
             var skyline = new List<Segment> { new(0, width, 0) };
-            var page = new List<(CheckedSize, PixelRect)>();
+            var page = new List<(CheckedSize, DipRect)>();
 
             foreach (var item in pending.ToList())
             {
@@ -194,7 +194,7 @@ public static class ShowcaseViews
                 }
 
                 Raise(skyline, spot.X, item.W, spot.Y + item.H);
-                page.Add((item.Size, new PixelRect(left + spot.X, top + spot.Y, item.W, item.H)));
+                page.Add((item.Size, new DipRect(left + spot.X, top + spot.Y, item.W, item.H)));
                 pending.Remove(item);
             }
 

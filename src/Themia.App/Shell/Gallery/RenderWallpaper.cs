@@ -50,7 +50,7 @@ internal static class RenderWallpaper
     public static Task WhenLoaded() => _backdrops?.WhenLoaded() ?? Task.CompletedTask;
 
     /// <summary>The stand-in display: the screen's DIPs taken as its pixels, at the origin.</summary>
-    private static PixelRect Display(ScreenMetrics screen) => new(0, 0, Math.Round(screen.Width), Math.Round(screen.Height));
+    private static DeviceRect Display(ScreenMetrics screen) => new(0, 0, Math.Round(screen.Width), Math.Round(screen.Height));
 
     private sealed class Restore(Backdrops? previous) : IDisposable
     {
@@ -80,7 +80,7 @@ internal static class RenderWallpaper
             remove { }
         }
 
-        public Task<WallpaperPicture?> PictureAsync(PixelRect display, CancellationToken cancel)
+        public Task<WallpaperPicture?> PictureAsync(DeviceRect display, CancellationToken cancel)
             => WallpaperFile.PlaceAsync(path, WallpaperFit.Fill, new RgbColor(0, 0, 0), display, display, cancel);
     }
 }

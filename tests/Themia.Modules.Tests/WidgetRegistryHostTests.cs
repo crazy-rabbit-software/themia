@@ -69,7 +69,7 @@ public sealed class WidgetRegistryHostTests
         Assert.InRange(widget.Natural.Width, 76, 800);
         // [S-11002] [S-2438] An atom may be a strip (a history under its reading: 64) or one row tall (a track's
         // progress: 40); never under the floor ([S-08]).
-        Assert.InRange(widget.Natural.Height, Themia.Core.Geometry.GridGeometry.MinWidgetPx, 800);
+        Assert.InRange(widget.Natural.Height, Themia.Core.Geometry.GridGeometry.MinWidgetDip, 800);
     }
 
     [Theory]

@@ -11,7 +11,7 @@ public readonly record struct FlyoutSpot(double X, double Y, double Width, doubl
 /// the panel's own DIPs (0, 0 its top-left, the beak not counted) and which of its corners are the panel's
 /// round corners (rounded with them; every other corner is square).
 /// </summary>
-public readonly record struct ShineWindow(PixelRect Box, bool TopLeft, bool TopRight, bool BottomRight, bool BottomLeft);
+public readonly record struct ShineWindow(DipRect Box, bool TopLeft, bool TopRight, bool BottomRight, bool BottomLeft);
 
 /// <summary>
 /// [S-2325] [S-2326] A page's flyout hung from its entry, Karpo's (karpo-app, docs/widgets.md §578, §584;
@@ -27,7 +27,7 @@ public static class FlyoutPlacement
     /// The flyout of a page <paramref name="content"/> DIPs tall, hung from <paramref name="entry"/> on
     /// <paramref name="bar"/>, inside <paramref name="area"/> (the work area).
     /// </summary>
-    public static FlyoutSpot Place(PixelRect entry, PixelRect bar, PixelRect area, double content)
+    public static FlyoutSpot Place(DipRect entry, DipRect bar, DipRect area, double content)
     {
         var width = Math.Min(M.Width, Math.Max(0, area.Width - (2 * M.EdgeMargin)));
         var middle = entry.X + (entry.Width / 2.0);
@@ -45,7 +45,7 @@ public static class FlyoutPlacement
     /// flush with its sides, the flyout's gap under it, no beak (its tip NaN); as tall as its page
     /// (<paramref name="content"/>) up to 70 % of <paramref name="area"/>, never past its foot less the margin.
     /// </summary>
-    public static FlyoutSpot Under(PixelRect bar, PixelRect area, double content)
+    public static FlyoutSpot Under(DipRect bar, DipRect area, double content)
     {
         var y = bar.Y + bar.Height + M.Gap;
         var room = Math.Min(Math.Floor(area.Height * M.MostShare), area.Y + area.Height - M.EdgeMargin - y);
@@ -58,7 +58,7 @@ public static class FlyoutPlacement
     /// add page's box (<see cref="Under"/>: the bar's width, flush with its sides, as tall as its page up to 70 % of the work
     /// area), still hung from its entry: its beak's tip over <paramref name="entry"/>'s middle, kept on the straight of the top.
     /// </summary>
-    public static FlyoutSpot Wide(PixelRect entry, PixelRect bar, PixelRect area, double content)
+    public static FlyoutSpot Wide(DipRect entry, DipRect bar, DipRect area, double content)
     {
         var spot = Under(bar, area, content);
         return spot with { Tip = Tip(entry.X + (entry.Width / 2.0) - spot.X, spot.Width) };
@@ -71,19 +71,19 @@ public static class FlyoutPlacement
     /// already shows, so the ground is thinned once), side by side windows of one height or one width made
     /// one. A widget beside the panel or only under its beak has none.
     /// </summary>
-    public static IReadOnlyList<ShineWindow> ShineThrough(FlyoutSpot spot, IReadOnlyList<PixelRect> widgets)
+    public static IReadOnlyList<ShineWindow> ShineThrough(FlyoutSpot spot, IReadOnlyList<DipRect> widgets)
     {
         ArgumentNullException.ThrowIfNull(widgets);
-        var panel = new PixelRect(0, 0, spot.Width, spot.Height);
-        var pieces = new List<PixelRect>();
+        var panel = new DipRect(0, 0, spot.Width, spot.Height);
+        var pieces = new List<DipRect>();
         foreach (var widget in widgets)
         {
-            if (GridGeometry.Intersect(new PixelRect(widget.X - spot.X, widget.Y - spot.Y, widget.Width, widget.Height), panel) is not { } covered)
+            if (GridGeometry.Intersect(new DipRect(widget.X - spot.X, widget.Y - spot.Y, widget.Width, widget.Height), panel) is not { } covered)
             {
                 continue;
             }
 
-            var left = new List<PixelRect> { covered };
+            var left = new List<DipRect> { covered };
             foreach (var earlier in pieces)
             {
                 left = [.. left.SelectMany(part => Without(part, earlier))];
@@ -102,7 +102,7 @@ public static class FlyoutPlacement
     }
 
     /// <summary><paramref name="a"/> less <paramref name="b"/>: up to four boxes (a band above, one below, one either side).</summary>
-    private static IEnumerable<PixelRect> Without(PixelRect a, PixelRect b)
+    private static IEnumerable<DipRect> Without(DipRect a, DipRect b)
     {
         if (GridGeometry.Intersect(a, b) is not { } cut)
         {
@@ -112,27 +112,27 @@ public static class FlyoutPlacement
 
         if (cut.Y > a.Y)
         {
-            yield return new PixelRect(a.X, a.Y, a.Width, cut.Y - a.Y);
+            yield return new DipRect(a.X, a.Y, a.Width, cut.Y - a.Y);
         }
 
         if (cut.Y + cut.Height < a.Y + a.Height)
         {
-            yield return new PixelRect(a.X, cut.Y + cut.Height, a.Width, a.Y + a.Height - (cut.Y + cut.Height));
+            yield return new DipRect(a.X, cut.Y + cut.Height, a.Width, a.Y + a.Height - (cut.Y + cut.Height));
         }
 
         if (cut.X > a.X)
         {
-            yield return new PixelRect(a.X, cut.Y, cut.X - a.X, cut.Height);
+            yield return new DipRect(a.X, cut.Y, cut.X - a.X, cut.Height);
         }
 
         if (cut.X + cut.Width < a.X + a.Width)
         {
-            yield return new PixelRect(cut.X + cut.Width, cut.Y, a.X + a.Width - (cut.X + cut.Width), cut.Height);
+            yield return new DipRect(cut.X + cut.Width, cut.Y, a.X + a.Width - (cut.X + cut.Width), cut.Height);
         }
     }
 
     /// <summary>Two boxes that share a whole side made one, until none do: no seam where joined widgets meet.</summary>
-    private static void Merge(List<PixelRect> pieces)
+    private static void Merge(List<DipRect> pieces)
     {
         for (var merged = true; merged;)
         {
@@ -152,16 +152,16 @@ public static class FlyoutPlacement
         }
     }
 
-    private static PixelRect? Joined(PixelRect a, PixelRect b)
+    private static DipRect? Joined(DipRect a, DipRect b)
     {
         if (a.Y == b.Y && a.Height == b.Height && (a.X + a.Width == b.X || b.X + b.Width == a.X))
         {
-            return new PixelRect(Math.Min(a.X, b.X), a.Y, a.Width + b.Width, a.Height);
+            return new DipRect(Math.Min(a.X, b.X), a.Y, a.Width + b.Width, a.Height);
         }
 
         if (a.X == b.X && a.Width == b.Width && (a.Y + a.Height == b.Y || b.Y + b.Height == a.Y))
         {
-            return new PixelRect(a.X, Math.Min(a.Y, b.Y), a.Width, a.Height + b.Height);
+            return new DipRect(a.X, Math.Min(a.Y, b.Y), a.Width, a.Height + b.Height);
         }
 
         return null;

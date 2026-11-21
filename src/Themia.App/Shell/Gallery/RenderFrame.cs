@@ -19,7 +19,7 @@ internal static class RenderFrame
     /// </summary>
     public static void Round(
         EditMarkerLayer markers,
-        IReadOnlyList<(WidgetCard Card, PixelRect Box)> drawn,
+        IReadOnlyList<(WidgetCard Card, DipRect Box)> drawn,
         IReadOnlySet<string> selected,
         bool editing,
         double scale,
@@ -43,7 +43,7 @@ internal static class RenderFrame
             return;
         }
 
-        var box = PixelRect.FromEdges(
+        var box = DipRect.FromEdges(
             members.Min(m => m.Box.X),
             members.Min(m => m.Box.Y),
             members.Max(m => m.Box.X + m.Box.Width),

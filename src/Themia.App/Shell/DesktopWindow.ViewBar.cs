@@ -92,17 +92,17 @@ internal sealed partial class DesktopWindow : IViewBarOwner
     /// back from layout, because it has just been made visible when edit mode starts and has not been
     /// laid out yet.
     /// </summary>
-    private PixelRect EditBarRect(PixelRect area)
+    private DipRect EditBarRect(DipRect area)
     {
         _editBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var margin = _editBar.Margin;
         var width = Math.Max(0, _editBar.DesiredSize.Width - margin.Left - margin.Right);
         var height = Math.Max(0, _editBar.DesiredSize.Height - margin.Top - margin.Bottom);
-        return new PixelRect(area.X + ((area.Width - width) / 2), area.Y + ChromeTopMargin, width, height);
+        return new DipRect(area.X + ((area.Width - width) / 2), area.Y + ChromeTopMargin, width, height);
     }
 
     /// <summary>[S-912] The bar's box in the surface's DIPs; null when it is not drawn.</summary>
-    private PixelRect? ViewBarBox()
+    private DipRect? ViewBarBox()
     {
         if (_viewBar.Visibility != Visibility.Visible)
         {
@@ -111,7 +111,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
 
         var width = _viewBar.ActualWidth > 0 ? _viewBar.ActualWidth : _viewBar.DesiredSize.Width;
         var height = _viewBar.ActualHeight > 0 ? _viewBar.ActualHeight : _viewBar.DesiredSize.Height;
-        return width > 0 && height > 0 ? new PixelRect(Canvas.GetLeft(_viewBar), Canvas.GetTop(_viewBar), width, height) : null;
+        return width > 0 && height > 0 ? new DipRect(Canvas.GetLeft(_viewBar), Canvas.GetTop(_viewBar), width, height) : null;
     }
 
     /// <summary>The bar's real size arrived (or changed with a rename): move it.</summary>

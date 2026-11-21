@@ -75,8 +75,8 @@ public sealed class DragPipelineTests
         Assert.Equal(Math.Round(x / 10) * 10, x, 9);
 
         // [S-11873] The two cards share a line, so its pixel: they still touch.
-        var left = GridGeometry.ToPixels(move.At(start[0], move.Landing), Screen, scale);
-        var right = GridGeometry.ToPixels(move.At(start[1], move.Landing), Screen, scale);
+        var left = GridGeometry.PaintedCell(move.At(start[0], move.Landing), Screen, scale);
+        var right = GridGeometry.PaintedCell(move.At(start[1], move.Landing), Screen, scale);
         Assert.Equal(left.X + left.Width, right.X, 9);
     }
 

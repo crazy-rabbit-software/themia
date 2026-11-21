@@ -7,7 +7,7 @@ namespace Themia.Core.Geometry;
 public static class GridGeometry
 {
     /// <summary>[S-08] Minimum on-screen widget size, in device-independent pixels: one grid cell (<see cref="Themia.Sdk.WidgetSizing.Floor"/>).</summary>
-    public const double MinWidgetPx = Themia.Sdk.WidgetSizing.Floor;
+    public const double MinWidgetDip = Themia.Sdk.WidgetSizing.Floor;
 
     /// <summary>
     /// Target size of one snap cell, in device-independent pixels.
@@ -16,7 +16,7 @@ public static class GridGeometry
     /// rendered cell is screen/cols, so the pitch follows the display.
     /// </para>
     /// </summary>
-    public const double MinCellPx = 10;
+    public const double MinCellDip = 10;
 
     /// <summary>
     /// [S-06] The widget grid's granularity for a screen. Every gesture lands on it (there is no way to
@@ -29,17 +29,17 @@ public static class GridGeometry
             return (1, 1);
         }
 
-        var cols = Math.Max(1, (int)Math.Round(screen.Width / MinCellPx));
-        var rows = Math.Max(1, (int)Math.Round(screen.Height / MinCellPx));
+        var cols = Math.Max(1, (int)Math.Round(screen.Width / MinCellDip));
+        var rows = Math.Max(1, (int)Math.Round(screen.Height / MinCellDip));
         return (cols, rows);
     }
 
     /// <summary>
     /// [S-06b] [S-12830] The grid's drawn pitch on <paramref name="screen"/>, in DIPs: its width over its columns (about
-    /// <see cref="MinCellPx"/>). What a widget's items are whole numbers of; the target for a screen that cannot be read.
+    /// <see cref="MinCellDip"/>). What a widget's items are whole numbers of; the target for a screen that cannot be read.
     /// </summary>
     public static double CellPitch(ScreenMetrics screen)
-        => screen.IsUsable ? screen.Width / GridDims(screen).Cols : MinCellPx;
+        => screen.IsUsable ? screen.Width / GridDims(screen).Cols : MinCellDip;
 
     /// <summary>
     /// [S-06c] Every this many cells the overlay draws a heavier line, so the fine mesh can be
@@ -85,7 +85,7 @@ public static class GridGeometry
             return (0.01, 0.01);
         }
 
-        return (Math.Min(1, MinWidgetPx / screen.Width), Math.Min(1, MinWidgetPx / screen.Height));
+        return (Math.Min(1, MinWidgetDip / screen.Width), Math.Min(1, MinWidgetDip / screen.Height));
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public static class GridGeometry
     /// worth (32) to see, grab and drag back. A widget smaller than this (the [S-08] floor is one grid
     /// cell) is never cut at all; one on an allowed area narrower than this keeps what the area can hold.
     /// </summary>
-    public const double MinVisiblePx = 32;
+    public const double MinVisibleDip = 32;
 
     /// <summary>
     /// [S-6609] How close, in DIPs, a dragged edge must come to an allowed-area edge to land flush
@@ -101,12 +101,12 @@ public static class GridGeometry
     /// cell in from the edge; enough to catch an edge the grid does not reach (a taskbar's top is
     /// rarely on a grid line), now that the edge no longer stops a drag by itself.
     /// </summary>
-    public const double EdgeMagnetPx = 8;
+    public const double EdgeMagnetDip = 8;
 
     /// <summary>
     /// [S-09]/[S-6608] Keep a rect reachable: above the [S-08] size floor, never bigger than the
     /// screen's allowed area ([S-841]: the work area), and overlapping that area by at least
-    /// <see cref="MinVisiblePx"/> on each axis. Past that it may hang over any edge, a taskbar's as the
+    /// <see cref="MinVisibleDip"/> on each axis. Past that it may hang over any edge, a taskbar's as the
     /// monitor's own (owner, 2026-11-21: "the widgets should be able to go over the screen"); the surface
     /// clips it at the work area ([S-851]), so what is over a taskbar is behind it. A rect pushed further
     /// slides back just far enough, keeping its size. Every gesture's rule (a drag, a block's move, a
@@ -166,14 +166,14 @@ public static class GridGeometry
 
     /// <summary>
     /// [S-6608] The overlap, as fractions of the screen, a rect of this size must keep with the
-    /// allowed area: <see cref="MinVisiblePx"/>, but never more than the rect or the area itself. Widgets may
+    /// allowed area: <see cref="MinVisibleDip"/>, but never more than the rect or the area itself. Widgets may
     /// always go over every edge ([S-2330]: no setting keeps them whole on it, a taskbar's included); this is what
     /// stops one being lost off the screen or behind a taskbar.
     /// </summary>
     public static (double X, double Y) Keep(ScreenMetrics screen, double w, double h)
     {
         var a = screen.Allowed;
-        var (px, py) = screen.IsUsable ? (MinVisiblePx / screen.Width, MinVisiblePx / screen.Height) : (0.01, 0.01);
+        var (px, py) = screen.IsUsable ? (MinVisibleDip / screen.Width, MinVisibleDip / screen.Height) : (0.01, 0.01);
         return (Math.Max(0, Math.Min(px, Math.Min(w, a.W))), Math.Max(0, Math.Min(py, Math.Min(h, a.H))));
     }
 
@@ -253,20 +253,20 @@ public static class GridGeometry
 
     /// <summary>
     /// [S-6609] A moved edge on the grid: flush on an allowed-area edge it is within
-    /// <see cref="EdgeMagnetPx"/> of (judged on the raw position, before the grid rounds it away),
+    /// <see cref="EdgeMagnetDip"/> of (judged on the raw position, before the grid rounds it away),
     /// else on the nearest of <paramref name="lines"/> grid lines.
     /// </summary>
-    internal static double SnapEdge(double raw, double areaStart, double areaEnd, int lines, double screenPx)
-        => SnapStart(raw, 0, areaStart, areaEnd, lines, screenPx);
+    internal static double SnapEdge(double raw, double areaStart, double areaEnd, int lines, double screenDip)
+        => SnapStart(raw, 0, areaStart, areaEnd, lines, screenDip);
 
     /// <summary>
     /// [S-6609] A moved rect's start on the grid: its start edge flush on the area's start, or
     /// its end edge (start + <paramref name="size"/>) flush on the area's end, when either is within
-    /// <see cref="EdgeMagnetPx"/>; else the start snaps to the grid.
+    /// <see cref="EdgeMagnetDip"/>; else the start snaps to the grid.
     /// </summary>
-    internal static double SnapStart(double rawStart, double size, double areaStart, double areaEnd, int lines, double screenPx)
+    internal static double SnapStart(double rawStart, double size, double areaStart, double areaEnd, int lines, double screenDip)
     {
-        var magnet = screenPx > 0 ? EdgeMagnetPx / screenPx : 0;
+        var magnet = screenDip > 0 ? EdgeMagnetDip / screenDip : 0;
         if (Math.Abs(rawStart - areaStart) <= magnet)
         {
             return areaStart;
@@ -385,7 +385,7 @@ public static class GridGeometry
     /// or a degenerate monitor, yields the whole screen: refusing every placement because Windows
     /// reported something odd would be worse than allowing the taskbar band.
     /// </summary>
-    public static FracRect AllowedArea(PixelRect monitor, PixelRect workArea)
+    public static FracRect AllowedArea(DeviceRect monitor, DeviceRect workArea)
     {
         if (!(monitor.Width > 0 && monitor.Height > 0) || Intersect(monitor, workArea) is not { } inside)
         {
@@ -416,7 +416,7 @@ public static class GridGeometry
     /// display; the last pixel row is the taskbar's or the display's edge. A display no taller than a
     /// pixel is returned as it is.
     /// </summary>
-    public static PixelRect SurfaceWindow(PixelRect display)
+    public static DeviceRect SurfaceWindow(DeviceRect display)
         => display.Height > 1 ? display with { Height = display.Height - 1 } : display;
 
     /// <summary>
@@ -427,18 +427,18 @@ public static class GridGeometry
     /// and two blocks side by side met a pixel apart (owner, 2026-11-20: "the borders dont nicely connect"). A
     /// non-positive or non-finite scale counts as 1.
     /// </summary>
-    public static ScreenMetrics DisplayScreen(PixelRect display, double rasterScale)
+    public static ScreenMetrics DisplayScreen(DeviceRect display, double rasterScale)
     {
         var scale = double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1;
         return new ScreenMetrics(display.Width / scale, display.Height / scale);
     }
 
-    public static PixelRect SurfaceRegion(PixelRect window, PixelRect workArea)
+    public static DeviceRect SurfaceRegion(DeviceRect window, DeviceRect workArea)
     {
         var inside = window.Width > 0 && window.Height > 0 ? Intersect(window, workArea) : null;
         return inside is { } r
-            ? new PixelRect(r.X - window.X, r.Y - window.Y, r.Width, r.Height)
-            : new PixelRect(0, 0, Math.Max(0, window.Width), Math.Max(0, window.Height));
+            ? new DeviceRect(r.X - window.X, r.Y - window.Y, r.Width, r.Height)
+            : new DeviceRect(0, 0, Math.Max(0, window.Width), Math.Max(0, window.Height));
     }
 
     /// <summary>
@@ -460,21 +460,27 @@ public static class GridGeometry
     }
 
     /// <summary>[S-841] The allowed area in the screen's own DIPs, for chrome that must stay off the taskbar.</summary>
-    public static PixelRect AllowedPixels(ScreenMetrics screen)
+    public static DipRect AllowedDips(ScreenMetrics screen)
     {
         var a = screen.Allowed;
-        return new PixelRect(a.X * screen.Width, a.Y * screen.Height, a.W * screen.Width, a.H * screen.Height);
+        return new DipRect(a.X * screen.Width, a.Y * screen.Height, a.W * screen.Width, a.H * screen.Height);
     }
 
-    /// <summary>The overlap of two rects, or null when they do not overlap.</summary>
-    public static PixelRect? Intersect(PixelRect a, PixelRect b)
-    {
-        var left = Math.Max(a.X, b.X);
-        var top = Math.Max(a.Y, b.Y);
-        var right = Math.Min(a.X + a.Width, b.X + b.Width);
-        var bottom = Math.Min(a.Y + a.Height, b.Y + b.Height);
+    /// <summary>The overlap of two boxes in DIPs, or null when they do not overlap.</summary>
+    public static DipRect? Intersect(DipRect a, DipRect b)
+        => Intersect(a.X, a.Y, a.Right, a.Bottom, b.X, b.Y, b.Right, b.Bottom) is { } i ? DipRect.FromEdges(i.Left, i.Top, i.Right, i.Bottom) : null;
 
-        return right > left && bottom > top ? new PixelRect(left, top, right - left, bottom - top) : null;
+    /// <summary>The overlap of two boxes in device pixels, or null when they do not overlap.</summary>
+    public static DeviceRect? Intersect(DeviceRect a, DeviceRect b)
+        => Intersect(a.X, a.Y, a.Right, a.Bottom, b.X, b.Y, b.Right, b.Bottom) is { } i ? DeviceRect.FromEdges(i.Left, i.Top, i.Right, i.Bottom) : null;
+
+    private static (double Left, double Top, double Right, double Bottom)? Intersect(double aL, double aT, double aR, double aB, double bL, double bT, double bR, double bB)
+    {
+        var left = Math.Max(aL, bL);
+        var top = Math.Max(aT, bT);
+        var right = Math.Min(aR, bR);
+        var bottom = Math.Min(aB, bB);
+        return right > left && bottom > top ? (left, top, right, bottom) : null;
     }
 
     /// <summary>Move a rect by a fractional delta. Size is untouched.</summary>
@@ -540,11 +546,11 @@ public static class GridGeometry
     public static FracRect PlaceAt(
         double xFrac,
         double yFrac,
-        double defaultWidthPx,
-        double defaultHeightPx,
+        double defaultWidthDip,
+        double defaultHeightDip,
         ScreenMetrics screen)
     {
-        var size = FracRect.FromPixels(0, 0, defaultWidthPx, defaultHeightPx, screen);
+        var size = FracRect.FromDips(0, 0, defaultWidthDip, defaultHeightDip, screen);
         var raw = new FracRect(xFrac - (size.W / 2), yFrac - (size.H / 2), size.W, size.H);
         return Land(Settle(raw, screen), screen);
     }
@@ -563,7 +569,7 @@ public static class GridGeometry
     public static double DevicePixel(double wholeDip, double scale) => Math.Floor((wholeDip * scale) + 0.5) / scale;
 
     /// <summary>
-    /// [S-04] Resolve a stored fraction to its <b>cell</b> in pixels. The widget gap is deliberately
+    /// [S-04] [S-11894] Resolve a stored fraction to its <b>cell</b> as painted: DIPs, every edge on a whole device pixel. The widget gap is deliberately
     /// not applied here, and neither is the allowed area: [S-840] a fraction resolves against the
     /// whole monitor, so a taskbar change never moves or rescales a widget already placed.
     /// <para>
@@ -586,7 +592,7 @@ public static class GridGeometry
     /// same whole DIP, so a side two cards share is the same device pixel in both.
     /// </para>
     /// </summary>
-    public static PixelRect ToPixels(FracRect r, ScreenMetrics screen, double rasterScale)
+    public static DipRect PaintedCell(FracRect r, ScreenMetrics screen, double rasterScale)
     {
         var scale = double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1;
         double Edge(double dip) => DevicePixel(WholeDip(dip), scale);
@@ -596,6 +602,6 @@ public static class GridGeometry
         var right = Edge(r.Right * screen.Width);
         var bottom = Edge(r.Bottom * screen.Height);
 
-        return new PixelRect(left, top, Math.Max(1, right - left), Math.Max(1, bottom - top));
+        return new DipRect(left, top, Math.Max(1, right - left), Math.Max(1, bottom - top));
     }
 }

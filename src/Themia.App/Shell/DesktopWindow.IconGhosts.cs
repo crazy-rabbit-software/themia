@@ -48,7 +48,7 @@ internal sealed partial class DesktopWindow
 
         var (views, marks, host) = IconGhostLayer();
         var shown = new HashSet<WidgetConfig>(ReferenceEqualityComparer.Instance);
-        var boxes = new List<(PixelRect Box, bool Selected)>(icons.Count);
+        var boxes = new List<(DipRect Box, bool Selected)>(icons.Count);
         foreach (var outline in icons)
         {
             if (outline.Config is not { } config || _iconGhostsFailed.Contains(config)
@@ -58,7 +58,7 @@ internal sealed partial class DesktopWindow
             }
 
             // On the device pixels a card lands on ([S-11873]).
-            var box = GridGeometry.ToPixels(outline.Rect, metrics, RasterScale);
+            var box = GridGeometry.PaintedCell(outline.Rect, metrics, RasterScale);
             Canvas.SetLeft(made.Root, box.X);
             Canvas.SetTop(made.Root, box.Y);
             made.Root.Width = Math.Max(0, box.Width);

@@ -38,6 +38,15 @@ Sections, grouped by area (file order below; search for the heading).
   grid.
 - **[S-03]** The persisted document is `{ schemaVersion, views, activeViewId, monitorViews, design }`.
   A view is `{ id, name, widgets }`.
+- **[S-11894]** **Units by type** (code audit 2026-11-21): a box in DIPs is a `DipRect` (a card's cell, a face part, a
+  flyout, the work area as a surface lays it out), a box in a raster's own pixels a `DeviceRect` (a display, its work area
+  and a window as Win32 reports them, in virtual-screen pixels; a backdrop picture's), and nothing converts one into the
+  other but the display's raster scale (`GridGeometry.DisplayScreen`). A stored fraction becomes DIPs only as a card's
+  painted cell (`GridGeometry.PaintedCell`: DIPs, every edge on a whole device pixel), always with the raster scale it is drawn at
+  (no default). Names say their unit: `…Dip` holds DIPs (`MinWidgetDip`, `MinVisibleDip`, `EdgeMagnetDip`,
+  `FracRect.FromDips`, `GridGeometry.AllowedDips`), `…Px` only physical pixels (`LineWidthsPx`, `CrispLine`'s width).
+  *(Until 2026-11-21 one `PixelRect` held both and `…Px` names held DIPs. The design's stored `cornerRadiusPx` and
+  `borderWidthPx` still say Px for DIPs: they are keys of the state file, renamed only with the owner's word.)*
 
 ## Rendering
 
@@ -78,7 +87,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 ## Constraints
 
-- **[S-08]** Minimum widget size is a **pixel floor**, one grid cell (`MinWidgetPx` = `WidgetSizing.Floor`, 10 DIP,
+- **[S-08]** Minimum widget size is a **pixel floor**, one grid cell (`MinWidgetDip` = `WidgetSizing.Floor`, 10 DIP,
   [S-06b]; was 32 until 2026-11-17, owner: the quick toggles "should not really have a smallest size at all"), converted to a
   fractional floor at the moment of resize, so it means the same physical size on every monitor. It
   is every widget's last floor: a kind's sizing never starts under it ([S-11800]), and a resize stops at
@@ -93,7 +102,7 @@ Sections, grouped by area (file order below; search for the heading).
   work area wins.
 - **[S-6608]** A widget may always hang over **every edge of its monitor, a taskbar's included** (no setting, [S-2330]; owner,
   2026-11-21: "the widgets should be able to go over the screen"), but always keeps at least
-  `MinVisiblePx` (**32 DIP**, a grab's worth; the [S-08] floor was 32 until 2026-11-17 and is one grid cell now) of
+  `MinVisibleDip` (**32 DIP**, a grab's worth; the [S-08] floor was 32 until 2026-11-17 and is one grid cell now) of
   itself on the allowed area on each axis: a widget no larger is never cut at all, a bigger one always leaves 32 DIP
   to see, grab and drag back. Pushed further, it slides back just that far, keeping its size; a
   resize stops the moved edge there. The minimum is kept on the **work area**, so nothing can be lost
@@ -114,7 +123,7 @@ Sections, grouped by area (file order below; search for the heading).
   Only what is **placed** (a new widget, a paste, a ready-made group, a hand-off) lands wholly clear of a taskbar
   ([S-11], `GridGeometry.Land`). *(2026-11-20 to -21 a taskbar's edge held the whole widget, `GridGeometry.Holds`,
   for every gesture, and the settle pulled anything past it back out on every change: gone.)*
-- **[S-6609]** On the grid ([S-06]) the work area's edges are a **magnet**: a moved rect, block or resized edge within `EdgeMagnetPx` (**8 DIP**, under one grid
+- **[S-6609]** On the grid ([S-06]) the work area's edges are a **magnet**: a moved rect, block or resized edge within `EdgeMagnetDip` (**8 DIP**, under one grid
   cell) of one lands flush on it, judged on the raw position before the grid rounds it; past that the
   drag goes on over the edge. It catches an edge the grid misses (a taskbar's top is rarely on a grid
   line), now that the edge no longer stops a drag by itself. (Tests `S6609_`.)
@@ -5082,7 +5091,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   each card, before and after): every edge that is one value (a join, an alignment) moves with the others or not at
   all, a card moves only with both edges on an axis on lines or drifted and its whole cells kept (nothing is painted
   larger or smaller), a fence stays (its own rule) and holds what it shares, an edge flush on the work area's edge
-  stays ([S-6609]), the desktop's icons are `DesktopGrid`'s; (4) every caller of `GridGeometry.ToPixels` names its
+  stays ([S-6609]), the desktop's icons are `DesktopGrid`'s; (4) every caller of `GridGeometry.PaintedCell` names its
   raster scale (the placement ghost rounded at 100 % on a 150 % display, unlike the card it becomes). The owner's
   state of 2026-11-20 has 63 of its 77 cards a fraction of a DIP off (32 of 33 on Home, the y axis only); they land on
   the lines at the first start. A quick toggle's tile then takes the joined card's corners ([S-11883]): square at the
@@ -6661,7 +6670,7 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   strip is not in the work area, so the region cannot leave it out: there the z-order alone keeps
   the widgets under it ([S-20], [S-33f]).
 - **[S-852]** The edit bar ([S-3500]) and the placement hint sit inside the work area (margins from
-  `GridGeometry.AllowedPixels`), so a taskbar on the top edge does not cover them.
+  `GridGeometry.AllowedDips`), so a taskbar on the top edge does not cover them.
 - **[S-853]** Display ▾ ([S-3543]) names its display by the monitor's name ("(primary)" on the
   primary) and its resolution, the id never shown, and holds its widget scale and its view bar
   ([S-3544]); its Show Themia on lists **every connected display**, switched off or not ([S-3545]).
@@ -8496,7 +8505,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   neighbours when their **cells** (the stored rect, painted whole, [S-04]) meet along a side: a side
   of one on the opposite side of the other within half a device pixel (`CardJoins.Tolerance`), overlapping
   along it by more than that; a corner alone is no meeting. Every cell edge is put on a whole device pixel
-  from a whole DIP (`GridGeometry.ToPixels`, [S-11872]), so two edges are the same pixel or at least one
+  from a whole DIP (`GridGeometry.PaintedCell`, [S-11872]), so two edges are the same pixel or at least one
   whole pixel apart: one pixel apart or over is no meeting, at 100 % as at 125, 150 or 200 % and on a
   screen whose DIPs are fractional; the half pixel only absorbs float noise. On the grid they meet on its
   line, and cards on one line share its pixel: every card stands on its display's lines ([S-11892]), so a seam's
@@ -9229,7 +9238,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   the edge itself: a card edge between two device pixels (an odd DIP at 150 %, most at 125 %) was drawn
   half by each neighbour, their translucent fills each half covering one row, so the wallpaper showed
   through there as a light line. A card's cell now puts each edge on a whole device pixel
-  (`GridGeometry.ToPixels(rect, screen, rasterScale)`, rounded from the same whole DIP, so a side two
+  (`GridGeometry.PaintedCell(rect, screen, rasterScale)`, rounded from the same whole DIP, so a side two
   cards share is one device pixel in both): the desktop's layout and the join, and a
   scene's cards. Test `GridGeometryTests.S11872_`.
 
@@ -9774,7 +9783,7 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   `config` fragment merged over it (`StateJson.Merged`; a property the kind's config does not have is
   refused rather than dropped, a value of the wrong type too), the style one of the kind's, then `bare`
   (transparent, no header, as the first-run desktop's) and over it what the widget names itself. Its card
-  stands where the desktop puts it: the whole cell (`GridGeometry.ToPixels` of its fractions), the
+  stands where the desktop puts it: the whole cell (`GridGeometry.PaintedCell` of its fractions), the
   design's gap inside it (`ApplyGap`), its own content scale, the language's flow. Each card has a preview
   host of its own, so its `state` (applied as `--widget-png --state` does: a widget waiting for setup runs
   for the preview first) and a kit widget's recordings ([S-9929]) are its own; the hosts share one link

@@ -321,7 +321,7 @@ public sealed class ViewsTests
     // ---- view bar: placement and dragging -------------------------------------------------------
 
     /// <summary>A 1000 x 700 work area starting at (0, 40): a taskbar along the top.</summary>
-    private static readonly PixelRect Area = new(0, 40, 1000, 700);
+    private static readonly DipRect Area = new(0, 40, 1000, 700);
 
     [Theory]
     [InlineData(ViewBarAnchor.TopLeft, 16, 56)]
@@ -343,7 +343,7 @@ public sealed class ViewsTests
     [Fact]
     public void S909_a_bar_under_the_edit_toolbar_moves_below_it_and_one_beside_it_stays()
     {
-        var toolbar = new PixelRect(300, 64, 400, 48);
+        var toolbar = new DipRect(300, 64, 400, 48);
 
         var (_, centreY) = ViewBarRules.Place(Area, 100, 40, ViewBarAnchor.TopCenter, toolbar);
         Assert.True(centreY >= toolbar.Y + toolbar.Height, $"top-centre bar at {centreY} still under the toolbar");
@@ -355,7 +355,7 @@ public sealed class ViewsTests
     [Fact]
     public void S909_a_bar_wider_than_the_area_is_pinned_to_its_top_left_corner()
     {
-        var (x, y) = ViewBarRules.Place(new PixelRect(10, 20, 200, 100), 400, 300, ViewBarAnchor.BottomRight);
+        var (x, y) = ViewBarRules.Place(new DipRect(10, 20, 200, 100), 400, 300, ViewBarAnchor.BottomRight);
 
         Assert.Equal(10, x, 3);
         Assert.Equal(20, y, 3);

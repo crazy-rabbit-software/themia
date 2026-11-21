@@ -251,13 +251,13 @@ public static class SelectionRules
     /// edges), holds the point; else the topmost card whose box holds it; null over no card. The drawing order
     /// stays: <paramref name="cards"/> in paint order, the last on top.
     /// </summary>
-    public static string? PressTarget(IReadOnlyList<(string Id, PixelRect Box)> cards, IReadOnlySet<string> selected, double x, double y, double grip)
+    public static string? PressTarget(IReadOnlyList<(string Id, DipRect Box)> cards, IReadOnlySet<string> selected, double x, double y, double grip)
     {
         ArgumentNullException.ThrowIfNull(cards);
         ArgumentNullException.ThrowIfNull(selected);
 
         var reach = double.IsFinite(grip) && grip > 0 ? grip : 0;
-        static bool Holds(PixelRect box, double x, double y, double grow)
+        static bool Holds(DipRect box, double x, double y, double grow)
             => x >= box.X - grow && x < box.X + box.Width + grow && y >= box.Y - grow && y < box.Y + box.Height + grow;
 
         for (var i = cards.Count - 1; i >= 0; i--)

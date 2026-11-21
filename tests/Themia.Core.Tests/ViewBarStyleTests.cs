@@ -8,7 +8,7 @@ namespace Themia.Core.Tests;
 /// <summary>[S-13400]..[S-13404] The view bar's styles: dots, Previous / Next, one button; stepping and the wheel.</summary>
 public sealed class ViewBarStyleTests
 {
-    private static readonly PixelRect Area = new(0, 0, 960, 492);
+    private static readonly DipRect Area = new(0, 0, 960, 492);
 
     private static readonly string[] Four = ["a", "b", "c", "d"];
 

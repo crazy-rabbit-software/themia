@@ -55,7 +55,7 @@ internal sealed partial class WidgetCard
             return;
         }
 
-        var cells = new PixelRect[cards.Count];
+        var cells = new DipRect[cards.Count];
         var sets = new int?[cards.Count];
         for (var i = 0; i < cards.Count; i++)
         {
@@ -63,7 +63,7 @@ internal sealed partial class WidgetCard
             var inSet = set(card);
             var joins = card.Visibility == Visibility.Visible && card.IsShown(editMode) && inSet is not null
                 && CardJoins.Joins(ModuleCatalog.Of(card.Model.Kind).Traits, card.DrawsSurface);
-            cells[i] = GridGeometry.ToPixels(card.LiveRect, metrics, rasterScale);
+            cells[i] = GridGeometry.PaintedCell(card.LiveRect, metrics, rasterScale);
             sets[i] = joins ? inSet : null;
         }
 
@@ -87,7 +87,7 @@ internal sealed partial class WidgetCard
     /// [S-2249] The card's cell on its display as the last join drew it (its live rect on whole device pixels):
     /// where its surface is painted and its own edit markers stand.
     /// </summary>
-    public PixelRect Cell { get; private set; }
+    public DipRect Cell { get; private set; }
 
     /// <summary>
     /// [S-11890] The card is carried by a move to <paramref name="cell"/> (its live rect on whole device pixels, the
@@ -95,7 +95,7 @@ internal sealed partial class WidgetCard
     /// move carries keep their places to one another and their joins ([S-2457]). Nothing is joined or painted again:
     /// what is drawn behind it (the frost, the glass's tint) follows the offset ([S-2114]).
     /// </summary>
-    public void FollowMove(PixelRect cell)
+    public void FollowMove(DipRect cell)
     {
         var (dx, dy) = (cell.X - Cell.X, cell.Y - Cell.Y);
         Cell = cell;

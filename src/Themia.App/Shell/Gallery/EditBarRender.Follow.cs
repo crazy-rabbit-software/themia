@@ -37,7 +37,7 @@ internal static partial class EditBarRender
         var view = new PageView(() => PageRows.Of(SettingsPages.Views(host)));
         host.Page = view;
         UiLanguage.ApplyFlow(view);
-        var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);
+        var area = new DipRect(0, 0, ScreenWidth, OpenHeight);
         var flyout = HangFlyout(canvas, view, bar, barRect, SettingsPageId.Views, area);
         void Hang() => flyout.Place(FlyoutPlacement.Place(bar.EntryBox(SettingsPageId.Views, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
 

@@ -30,7 +30,7 @@ public static class GridFit
     /// <summary>
     /// [S-11807] Where grid line <paramref name="index"/> of <paramref name="count"/> across a screen of
     /// <paramref name="screenDip"/> is drawn: the whole DIP a card edge standing on that line is put on
-    /// (<see cref="GridGeometry.ToPixels"/> rounds every edge to a whole DIP first), so a card's edge and
+    /// (<see cref="GridGeometry.PaintedCell"/> rounds every edge to a whole DIP first), so a card's edge and
     /// the line share their pixels on a screen whose DIPs are no whole multiple of the cell.
     /// </summary>
     public static double LineDip(int index, int count, double screenDip)

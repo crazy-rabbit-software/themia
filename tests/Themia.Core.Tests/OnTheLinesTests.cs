@@ -26,7 +26,7 @@ public sealed class OnTheLinesTests
     public void S11892_a_display_resolves_against_its_bounds_never_its_window_a_pixel_short()
     {
         // The owner's display: 2560 x 1440 at 100 %. Its surface's window is a pixel short at the foot ([S-852]).
-        var display = new PixelRect(0, 0, 2560, 1440);
+        var display = new DeviceRect(0, 0, 2560, 1440);
         var screen = GridGeometry.DisplayScreen(display, 1);
         Assert.Equal(new ScreenMetrics(2560, 1440), screen);
         Assert.Equal(10, GridGeometry.CellPitch(screen), 9);
@@ -73,7 +73,7 @@ public sealed class OnTheLinesTests
             }
 
             // The tiles' tops and the row's on one pixel, the block's side on the row's.
-            var cells = moved.Select(r => GridGeometry.ToPixels(r, screen, scale)).ToArray();
+            var cells = moved.Select(r => GridGeometry.PaintedCell(r, screen, scale)).ToArray();
             Assert.Equal(cells[0].Y, cells[4].Y, 9);
             Assert.Equal(cells[1].X + cells[1].Width, cells[4].X, 9);
             Assert.Equal(cells[3].Y + cells[3].Height, cells[4].Y + cells[4].Height, 9);
@@ -103,7 +103,7 @@ public sealed class OnTheLinesTests
         Assert.Equal(row[0].Y, block[0].Y, 12);
         Assert.Equal(row[0].X, block[1].Right, 12);
 
-        var cells = block.Concat(row).Select(r => GridGeometry.ToPixels(r, screen, scale)).ToArray();
+        var cells = block.Concat(row).Select(r => GridGeometry.PaintedCell(r, screen, scale)).ToArray();
         var outlines = CardJoins.Paint(cells, [.. cells.Select(_ => (int?)0)], scale);
 
         // One body: round only at its four outer corners, no seam left between the block and the row.
@@ -141,7 +141,7 @@ public sealed class OnTheLinesTests
 
     private static CardOutline[] Painted(IEnumerable<FracRect> rects, ScreenMetrics screen, double scale = 1)
     {
-        var cells = rects.Select(r => GridGeometry.ToPixels(r, screen, scale)).ToArray();
+        var cells = rects.Select(r => GridGeometry.PaintedCell(r, screen, scale)).ToArray();
         return CardJoins.Paint(cells, [.. cells.Select(_ => (int?)0)], scale);
     }
 
@@ -150,7 +150,7 @@ public sealed class OnTheLinesTests
     {
         // As stored and painted: the block's top on pixel 9, the row's on 10; the block's top right corner round against
         // the row's square top left, the row's bottom left round against the block's square bottom right.
-        var cells = OwnersToggles.Select(r => GridGeometry.ToPixels(r, Owners, 1)).ToArray();
+        var cells = OwnersToggles.Select(r => GridGeometry.PaintedCell(r, Owners, 1)).ToArray();
         Assert.Equal(9, cells[0].Y);
         Assert.Equal(10, cells[4].Y);
         var outlines = Painted(OwnersToggles, Owners);

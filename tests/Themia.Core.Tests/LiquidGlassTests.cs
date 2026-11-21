@@ -109,16 +109,16 @@ public sealed class LiquidGlassTests
 
     // ---- cards that touch are one glass shape ----
 
-    private static GlassPart[] Bodies(PixelRect[] painted, int?[]? sets = null)
+    private static GlassPart[] Bodies(DipRect[] painted, int?[]? sets = null)
         => CardJoins.Bodies(painted, sets ?? [.. painted.Select(_ => (int?)0)], 1, LiquidGlass.Light.DividerInset);
 
     [Fact]
     public void S2123_cards_that_meet_are_one_body_round_them_all_with_no_group()
     {
-        PixelRect[] painted = [new(10, 10, 300, 84), new(10, 94, 300, 64), new(10, 158, 300, 84), new(400, 10, 100, 100)];
+        DipRect[] painted = [new(10, 10, 300, 84), new(10, 94, 300, 64), new(10, 158, 300, 84), new(400, 10, 100, 100)];
         var parts = Bodies(painted);
 
-        Assert.All(parts.Take(3), p => Assert.Equal(new PixelRect(10, 10, 300, 232), p.Body));
+        Assert.All(parts.Take(3), p => Assert.Equal(new DipRect(10, 10, 300, 232), p.Body));
         Assert.Equal(painted[3], parts[3].Body);
         Assert.Empty(parts[3].Dividers);
     }
@@ -127,7 +127,7 @@ public sealed class LiquidGlassTests
     public void S2123_each_pair_that_meets_draws_one_divider_on_the_upper_card_short_of_the_outer_edge()
     {
         var inset = LiquidGlass.Light.DividerInset;
-        PixelRect[] painted = [new(10, 10, 300, 84), new(10, 94, 300, 64), new(10, 158, 300, 84)];
+        DipRect[] painted = [new(10, 10, 300, 84), new(10, 94, 300, 64), new(10, 158, 300, 84)];
         var parts = Bodies(painted);
 
         Assert.Equal([new DividerLine(inset, 84, 300 - inset, 84)], parts[0].Dividers);
@@ -140,7 +140,7 @@ public sealed class LiquidGlassTests
     {
         // Two side by side over one across: the line between the two ends on the one under them.
         var inset = LiquidGlass.Light.DividerInset;
-        PixelRect[] painted = [new(0, 0, 150, 80), new(150, 0, 150, 80), new(0, 80, 300, 60)];
+        DipRect[] painted = [new(0, 0, 150, 80), new(150, 0, 150, 80), new(0, 80, 300, 60)];
         var parts = Bodies(painted);
 
         Assert.Contains(new DividerLine(150, inset, 150, 80), parts[0].Dividers);
@@ -151,7 +151,7 @@ public sealed class LiquidGlassTests
     [Fact]
     public void S2123_cards_of_two_sets_and_cards_in_no_set_are_bodies_of_their_own()
     {
-        PixelRect[] painted = [new(0, 0, 100, 50), new(100, 0, 100, 50), new(0, 50, 100, 50), new(100, 50, 100, 50)];
+        DipRect[] painted = [new(0, 0, 100, 50), new(100, 0, 100, 50), new(0, 50, 100, 50), new(100, 50, 100, 50)];
         var parts = Bodies(painted, [0, 1, null, 2]);
 
         Assert.All(parts.Select((p, i) => (p, i)), x => Assert.Equal(painted[x.i], x.p.Body));

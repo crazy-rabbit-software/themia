@@ -6,7 +6,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Interop;
 
 /// <summary>[S-2116] What Windows shows on one display: the picture's file (empty for none), its fit, the colour round it, and every display's bounds together (for Span).</summary>
-internal readonly record struct WallpaperSetting(string Path, WallpaperFit Fit, RgbColor Background, PixelRect Desktop);
+internal readonly record struct WallpaperSetting(string Path, WallpaperFit Fit, RgbColor Background, DeviceRect Desktop);
 
 /// <summary>
 /// [S-2116] Windows' wallpaper, read through <c>IDesktopWallpaper</c> (shobjidl_core.h): per monitor
@@ -36,7 +36,7 @@ internal static unsafe class DesktopWallpaper
     /// The setting for the display whose bounds (virtual screen pixels) are <paramref name="display"/>,
     /// or null when Windows cannot say (the interface is missing, no monitor of Windows' matches): logged.
     /// </summary>
-    public static WallpaperSetting? Read(PixelRect display)
+    public static WallpaperSetting? Read(DeviceRect display)
     {
         using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
         if (!apartment.Usable)
@@ -63,7 +63,7 @@ internal static unsafe class DesktopWallpaper
         }
 
         string? match = null;
-        var desktop = default(PixelRect);
+        var desktop = default(DeviceRect);
         var any = false;
         for (uint i = 0; i < count; i++)
         {
@@ -82,7 +82,7 @@ internal static unsafe class DesktopWallpaper
                 continue;
             }
 
-            var bounds = new PixelRect(rect.Left, rect.Top, rect.Width, rect.Height);
+            var bounds = new DeviceRect(rect.Left, rect.Top, rect.Width, rect.Height);
             desktop = any ? Union(desktop, bounds) : bounds;
             any = true;
             if (bounds == display)
@@ -129,6 +129,6 @@ internal static unsafe class DesktopWallpaper
         return new WallpaperSetting(file, (WallpaperFit)position, background, desktop);
     }
 
-    private static PixelRect Union(PixelRect a, PixelRect b)
-        => PixelRect.FromEdges(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Max(a.X + a.Width, b.X + b.Width), Math.Max(a.Y + a.Height, b.Y + b.Height));
+    private static DeviceRect Union(DeviceRect a, DeviceRect b)
+        => DeviceRect.FromEdges(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Max(a.X + a.Width, b.X + b.Width), Math.Max(a.Y + a.Height, b.Y + b.Height));
 }

@@ -496,7 +496,7 @@ internal static unsafe class DesktopZOrder
                 var style = (uint)Win32.GetWindowLongPtr(next, Win32.GwlStyle);
                 var ex = (uint)Win32.GetWindowLongPtr(next, Win32.GwlExStyle);
                 above.Add(new AboveWindow(
-                    PixelRect.FromEdges(rect.Left, rect.Top, rect.Right, rect.Bottom),
+                    DeviceRect.FromEdges(rect.Left, rect.Top, rect.Right, rect.Bottom),
                     OnScreen: Win32.IsWindowVisible(next) && !Win32.IsIconic(next) && !ShellSignals.IsCloaked(next)
                         && (ex & Win32.WsExTransparent) == 0,
                     Own: own || (Win32.GetWindowThreadProcessId(next, out var process) != 0 && process == (uint)Environment.ProcessId),
@@ -506,7 +506,7 @@ internal static unsafe class DesktopZOrder
             next = Win32.GetWindow(next, Win32.GwHwndPrev);
         }
 
-        var allowed = ZOrderPolicy.MayTakeForeground(PixelRect.FromEdges(display.Left, display.Top, display.Right, display.Bottom), CollectionsMarshal.AsSpan(above));
+        var allowed = ZOrderPolicy.MayTakeForeground(DeviceRect.FromEdges(display.Left, display.Top, display.Right, display.Bottom), CollectionsMarshal.AsSpan(above));
         if (!allowed)
         {
             Log.Debug(Scope, "a full-screen app covers this display: the surface leaves it the foreground");

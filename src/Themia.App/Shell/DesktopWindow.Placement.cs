@@ -87,10 +87,10 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>[S-852] Where this surface's window stands: its display, a pixel short of covering it (<see cref="GridGeometry.SurfaceWindow"/>).</summary>
-    private PixelRect SurfaceWindow()
+    private DeviceRect SurfaceWindow()
     {
         var bounds = _monitor.Bounds;
-        return GridGeometry.SurfaceWindow(new PixelRect(bounds.Left, bounds.Top, bounds.Width, bounds.Height));
+        return GridGeometry.SurfaceWindow(new DeviceRect(bounds.Left, bounds.Top, bounds.Width, bounds.Height));
     }
 
     /// <summary>

@@ -277,10 +277,10 @@ public static class CardContent
     public static double TopInset(bool ownsTopEdge) => ownsTopEdge ? 0 : Themia.Sdk.Kit.FamilySpace.Inset;
 
     /// <summary>The view's box inside a card's <paramref name="cell"/>: the cell less its top inset.</summary>
-    public static PixelRect Box(PixelRect cell, bool ownsTopEdge)
+    public static DipRect Box(DipRect cell, bool ownsTopEdge)
     {
         var top = Math.Min(cell.Height, TopInset(ownsTopEdge));
-        return new PixelRect(cell.X, cell.Y + top, cell.Width, cell.Height - top);
+        return new DipRect(cell.X, cell.Y + top, cell.Width, cell.Height - top);
     }
 }
 
@@ -288,7 +288,7 @@ public static class CardContent
 public readonly record struct DividerLine(double X1, double Y1, double X2, double Y2);
 
 /// <summary>[S-2123] The glass shape a card is part of: its body's box on the display, and the dividers this card draws.</summary>
-public sealed record GlassPart(PixelRect Body, IReadOnlyList<DividerLine> Dividers);
+public sealed record GlassPart(DipRect Body, IReadOnlyList<DividerLine> Dividers);
 
 /// <summary>A piece of a border's path: a line to (X, Y), or with an arc radius a clockwise quarter arc to it.</summary>
 public readonly record struct OutlineSegment(double X, double Y, double ArcRadius);
@@ -307,7 +307,7 @@ public static class CardJoins
 {
     /// <summary>
     /// [S-2240] [S-2248] The tolerance two edges meet within: half a device pixel, in DIPs. Every cell
-    /// edge is put on a whole device pixel from a whole DIP (<see cref="GridGeometry.ToPixels"/>), so two
+    /// edge is put on a whole device pixel from a whole DIP (<see cref="GridGeometry.PaintedCell"/>), so two
     /// edges are either the same pixel (they meet) or at least one whole pixel apart (they do not); the
     /// half pixel only absorbs float noise, at 100 % as at 150 %.
     /// </summary>
@@ -336,7 +336,7 @@ public static class CardJoins
     /// stretches out (<see cref="CardOutline.Seams"/>).
     /// </para>
     /// </summary>
-    public static CardOutline[] Outlines(IReadOnlyList<PixelRect?> boxes, double tolerance, IReadOnlyList<int>? sets = null)
+    public static CardOutline[] Outlines(IReadOnlyList<DipRect?> boxes, double tolerance, IReadOnlyList<int>? sets = null)
     {
         ArgumentNullException.ThrowIfNull(boxes);
         if (sets is not null && sets.Count != boxes.Count)
@@ -457,7 +457,7 @@ public static class CardJoins
     /// corner alone is no meeting). Null when they do not meet; else whether they are stacked (one
     /// above the other) and whether <paramref name="a"/> is the first (the upper or the left one).
     /// </summary>
-    public static (bool Stacked, bool AFirst)? Meeting(PixelRect a, PixelRect b, double tolerance)
+    public static (bool Stacked, bool AFirst)? Meeting(DipRect a, DipRect b, double tolerance)
     {
         var tol = double.IsFinite(tolerance) && tolerance > 0 ? tolerance : 0;
         var acrossX = Overlap(a.X, a.X + a.Width, b.X, b.X + b.Width) > tol;
@@ -475,10 +475,10 @@ public static class CardJoins
     /// the cells join as they are ([S-2240], [S-11870]): cards in one <paramref name="sets"/> set whose
     /// cells meet ([S-2248]) are one sheet, every other card is free. A null set is a card that joins nothing (<see cref="Joins"/> false: no card surface, a
     /// desktop icon; hidden; being resized). <paramref name="cells"/> are the cells as drawn
-    /// (<see cref="GridGeometry.ToPixels"/> at <paramref name="rasterScale"/>), so a shared edge is one
+    /// (<see cref="GridGeometry.PaintedCell"/> at <paramref name="rasterScale"/>), so a shared edge is one
     /// device pixel in both.
     /// </summary>
-    public static CardOutline[] Paint(IReadOnlyList<PixelRect> cells, IReadOnlyList<int?> sets, double rasterScale)
+    public static CardOutline[] Paint(IReadOnlyList<DipRect> cells, IReadOnlyList<int?> sets, double rasterScale)
     {
         ArgumentNullException.ThrowIfNull(cells);
         ArgumentNullException.ThrowIfNull(sets);
@@ -487,7 +487,7 @@ public static class CardJoins
             throw new ArgumentException("one set per cell");
         }
 
-        return Outlines([.. cells.Select((p, i) => sets[i] is null ? (PixelRect?)null : p)], Tolerance(rasterScale), [.. sets.Select(s => s ?? -1)]);
+        return Outlines([.. cells.Select((p, i) => sets[i] is null ? (DipRect?)null : p)], Tolerance(rasterScale), [.. sets.Select(s => s ?? -1)]);
     }
 
     /// <summary>
@@ -512,9 +512,9 @@ public static class CardJoins
 
     /// <summary>
     /// [S-11810] The box round several cells as drawn (each on whole device pixels,
-    /// <see cref="GridGeometry.ToPixels"/>): a glass body round the cards it joins. Null for none.
+    /// <see cref="GridGeometry.PaintedCell"/>): a glass body round the cards it joins. Null for none.
     /// </summary>
-    public static PixelRect? Frame(IEnumerable<PixelRect> cells)
+    public static DipRect? Frame(IEnumerable<DipRect> cells)
     {
         ArgumentNullException.ThrowIfNull(cells);
         var boxes = cells.ToList();
@@ -525,7 +525,7 @@ public static class CardJoins
 
         var left = boxes.Min(b => b.X);
         var top = boxes.Min(b => b.Y);
-        return new PixelRect(left, top, boxes.Max(b => b.X + b.Width) - left, boxes.Max(b => b.Y + b.Height) - top);
+        return new DipRect(left, top, boxes.Max(b => b.X + b.Width) - left, boxes.Max(b => b.Y + b.Height) - top);
     }
 
     /// <summary>
@@ -536,7 +536,7 @@ public static class CardJoins
     /// body runs on). A card in no set, or touching no card, is a body of its own with no divider.
     /// Divider lines are in the card's own DIPs from its painted box's corner.
     /// </summary>
-    public static GlassPart[] Bodies(IReadOnlyList<PixelRect> painted, IReadOnlyList<int?> sets, double rasterScale, double dividerInset)
+    public static GlassPart[] Bodies(IReadOnlyList<DipRect> painted, IReadOnlyList<int?> sets, double rasterScale, double dividerInset)
     {
         ArgumentNullException.ThrowIfNull(painted);
         ArgumentNullException.ThrowIfNull(sets);
@@ -566,7 +566,7 @@ public static class CardJoins
             }
         }
 
-        var bodies = new PixelRect[n];
+        var bodies = new DipRect[n];
         foreach (var members in Enumerable.Range(0, n).GroupBy(Find))
         {
             var box = Frame(members.Select(i => painted[i]))!.Value;
@@ -604,11 +604,11 @@ public static class CardJoins
     private static bool Meets(double edge, double opposite, double tol) => Math.Abs(edge - opposite) <= tol;
 
     /// <summary>The card's side as a stretch of its own axis.</summary>
-    private static (double From, double To) Extent(PixelRect box, CardSide side)
+    private static (double From, double To) Extent(DipRect box, CardSide side)
         => side is CardSide.Top or CardSide.Bottom ? (box.X, box.X + box.Width) : (box.Y, box.Y + box.Height);
 
     /// <summary>Whether <paramref name="spans"/> together cover the whole of the card's side, within the tolerance.</summary>
-    private static bool Covered(PixelRect box, CardSide side, List<(double From, double To)>? spans, double tol)
+    private static bool Covered(DipRect box, CardSide side, List<(double From, double To)>? spans, double tol)
     {
         if (spans is null || spans.Count == 0)
         {
@@ -638,7 +638,7 @@ public static class CardJoins
     /// [S-11870] The stretches of the card's side across <paramref name="spans"/>, merged, as fractions
     /// of the side; an end within the tolerance of the side's own end is that end.
     /// </summary>
-    private static IEnumerable<OutlineSeam> Seams(PixelRect box, CardSide side, List<(double From, double To)> spans, double tol)
+    private static IEnumerable<OutlineSeam> Seams(DipRect box, CardSide side, List<(double From, double To)> spans, double tol)
     {
         var (from, to) = Extent(box, side);
         var length = to - from;

@@ -64,5 +64,5 @@ public sealed class IoStylesTests
 
 file static class RectExtensions
 {
-    public static double Right(this Themia.Core.Geometry.PixelRect rect) => rect.X + rect.Width;
+    public static double Right(this Themia.Core.Geometry.DipRect rect) => rect.X + rect.Width;
 }

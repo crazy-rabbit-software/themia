@@ -259,7 +259,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         get
         {
             var bounds = _monitor.Bounds;
-            return GridGeometry.DisplayScreen(new PixelRect(bounds.Left, bounds.Top, bounds.Width, bounds.Height), RasterScale) with { Allowed = OwnAllowed };
+            return GridGeometry.DisplayScreen(new DeviceRect(bounds.Left, bounds.Top, bounds.Width, bounds.Height), RasterScale) with { Allowed = OwnAllowed };
         }
     }
 
@@ -270,7 +270,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// [S-852] [S-855] This display's own work area in its DIPs: where its chrome stands (the edit bar, its flyouts and the
     /// add page, the view bar, the notices, the placement line), whatever another display showing the view reserves.
     /// </summary>
-    private PixelRect WorkArea => GridGeometry.AllowedPixels(OwnMetrics);
+    private DipRect WorkArea => GridGeometry.AllowedDips(OwnMetrics);
 
     public DesignState Design => _host.State.Design;
 

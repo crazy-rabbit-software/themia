@@ -8,7 +8,7 @@ namespace Themia.Core.Tests;
 /// <summary>[S-5400]..[S-5406] The view bar inline or as one select button, and its labels.</summary>
 public sealed class ViewBarTypeTests
 {
-    private static readonly PixelRect Area = new(0, 0, 960, 492);
+    private static readonly DipRect Area = new(0, 0, 960, 492);
 
     private static AppState ThreeViews()
     {
@@ -129,7 +129,7 @@ public sealed class ViewBarTypeTests
     public void S5401_a_select_bar_is_a_row_at_every_anchor_with_the_width_as_its_room(ViewBarAnchor anchor)
     {
         Assert.False(ViewBarRules.IsVertical(anchor, ViewBarType.Select));
-        Assert.Equal(960 - (2 * ViewBarRules.EdgeMargin), ViewBarRules.Room(Area, anchor, new PixelRect(250, 8, 460, 44), ViewBarType.Select));
+        Assert.Equal(960 - (2 * ViewBarRules.EdgeMargin), ViewBarRules.Room(Area, anchor, new DipRect(250, 8, 460, 44), ViewBarType.Select));
     }
 
     [Fact]
@@ -183,7 +183,7 @@ public sealed class ViewBarTypeTests
         Assert.Equal(side, ViewBarRules.MenuSide(anchor));
 
         // A button at the bottom: the menu above it is capped a margin short of the top of the area.
-        var button = new PixelRect(16, 444, 140, 32);
+        var button = new DipRect(16, 444, 140, 32);
         Assert.Equal(444 - ViewBarRules.EdgeMargin, ViewBarRules.MenuHeight(Area, button, ViewBarMenuSide.Above));
     }
 

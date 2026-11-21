@@ -235,7 +235,7 @@ public sealed class ShellKeyboardTests
 
         var once = KeyboardNudge.Resize(small, NudgeDirection.Left, NudgeStep.Far, Screen);
 
-        Near(GridGeometry.MinWidgetPx / Screen.Width, once.W);
+        Near(GridGeometry.MinWidgetDip / Screen.Width, once.W);
         Near(0.2, once.X);
     }
 

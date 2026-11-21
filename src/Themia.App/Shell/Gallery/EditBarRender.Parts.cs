@@ -50,11 +50,11 @@ internal static partial class EditBarRender
     private const double ShellMetricsBarTop = Themia.Sdk.Kit.ShellMetrics.Bar.Top;
 
     /// <summary>The bar on <paramref name="canvas"/>, centred 8 DIPs under the display's top: where it stands.</summary>
-    internal static PixelRect PlaceBar(Canvas canvas, EditBar bar, double screenWidth)
+    internal static DipRect PlaceBar(Canvas canvas, EditBar bar, double screenWidth)
     {
         canvas.Children.Add(bar);
         bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var rect = new PixelRect(Math.Round((screenWidth - bar.DesiredSize.Width) / 2), ShellMetricsBarTop, bar.DesiredSize.Width, bar.DesiredSize.Height);
+        var rect = new DipRect(Math.Round((screenWidth - bar.DesiredSize.Width) / 2), ShellMetricsBarTop, bar.DesiredSize.Width, bar.DesiredSize.Height);
         Canvas.SetLeft(bar, rect.X);
         Canvas.SetTop(bar, rect.Y);
         return rect;
@@ -82,8 +82,8 @@ internal static partial class EditBarRender
         canvas.Children.Add(menu);
         bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         canvas.UpdateLayout();
-        menu.Place(new PixelRect(barX, barY, bar.DesiredSize.Width, bar.DesiredSize.Height), new PixelRect(0, 0, screenWidth, screenHeight));
-        menu.View.Drawn += () => menu.Place(new PixelRect(barX, barY, bar.DesiredSize.Width, bar.DesiredSize.Height), new PixelRect(0, 0, screenWidth, screenHeight));
+        menu.Place(new DipRect(barX, barY, bar.DesiredSize.Width, bar.DesiredSize.Height), new DipRect(0, 0, screenWidth, screenHeight));
+        menu.View.Drawn += () => menu.Place(new DipRect(barX, barY, bar.DesiredSize.Width, bar.DesiredSize.Height), new DipRect(0, 0, screenWidth, screenHeight));
         canvas.UpdateLayout();
     }
 
@@ -193,7 +193,7 @@ internal static partial class EditBarRender
     /// [S-2325] A page's flyout on <paramref name="canvas"/>, hung from the entry of <paramref name="page"/>
     /// (null: the selection's) on <paramref name="bar"/>, inside <paramref name="area"/>, as the surface hangs it.
     /// </summary>
-    internal static PageFlyout HangFlyout(Canvas canvas, PageView view, EditBar bar, PixelRect barRect, SettingsPageId? page, PixelRect area)
+    internal static PageFlyout HangFlyout(Canvas canvas, PageView view, EditBar bar, DipRect barRect, SettingsPageId? page, DipRect area)
     {
         var flyout = new PageFlyout(view);
         canvas.Children.Add(flyout);

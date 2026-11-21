@@ -250,7 +250,7 @@ internal static class DragRender
         }
 
         // [S-14310] Several moving: the frame's corners round them, none of their own.
-        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics, scale)))], selected, editing: false, scale, [host]);
+        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.PaintedCell(c.LiveRect, metrics, scale)))], selected, editing: false, scale, [host]);
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 
@@ -338,7 +338,7 @@ internal static class DragRender
             markers.Add(card);
         }
 
-        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.ToPixels(c.LiveRect, metrics, scale)))], selected, editing: false, scale, [host]);
+        RenderFrame.Round(markers, [.. cards.Select(c => (c, GridGeometry.PaintedCell(c.LiveRect, metrics, scale)))], selected, editing: false, scale, [host]);
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 
@@ -505,7 +505,7 @@ internal static class DragRender
 
     private static void Place(Canvas layer, WidgetCard card, FracRect rect, ScreenMetrics metrics, double scale)
     {
-        var cell = GridGeometry.ToPixels(rect, metrics, scale);
+        var cell = GridGeometry.PaintedCell(rect, metrics, scale);
         card.Width = cell.Width;
         card.Height = cell.Height;
         card.SetLiveRect(rect);

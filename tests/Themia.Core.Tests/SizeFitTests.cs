@@ -50,7 +50,7 @@ public sealed class SizeFitTests
         var shown = SizeFit.Shown(new FracRect(0.99, 0.5, 0.01, 0.15), limits, Screen);
 
         Near(0.16, shown.W);
-        Assert.True(shown.X <= 1 - (GridGeometry.MinVisiblePx / 1000) + 1e-9);
+        Assert.True(shown.X <= 1 - (GridGeometry.MinVisibleDip / 1000) + 1e-9);
     }
 
 

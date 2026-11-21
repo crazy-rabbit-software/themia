@@ -246,7 +246,7 @@ internal static class WidgetGalleryRender
                 var start = surface.MovePlacementForCheck(held);
                 var still = start.Count == picked.Count && picked.Select((w, i) => Same(start[i].Rect, w.Rect)).All(x => x);
                 var drawn = picked.TrueForAll(w => gallery.CardOf(w.Id) is { } card
-                    && Math.Abs(Microsoft.UI.Xaml.Controls.Canvas.GetLeft(card) - GridGeometry.ToPixels(w.Rect, metrics, card.XamlRoot?.RasterizationScale ?? 1).X) < 0.01);
+                    && Math.Abs(Microsoft.UI.Xaml.Controls.Canvas.GetLeft(card) - GridGeometry.PaintedCell(w.Rect, metrics, card.XamlRoot?.RasterizationScale ?? 1).X) < 0.01);
                 Expect(still && drawn, $"{what}: held where it stood, the ghost is the cells they stood on and the cards stay put (no jump)");
 
                 // Moved: whole cells, every one by the same, as the pointer went (rounded to the nearest line).
@@ -267,7 +267,7 @@ internal static class WidgetGalleryRender
                 // Replenished: the gallery is back, every card on its cell, the kinds still there.
                 var back = surface.DebugGallery is { } open && ReferenceEquals(open, gallery) && !gallery.Following && host.Placing is null
                     && picked.TrueForAll(w => gallery.Screen.Find(w.Id) is not null && gallery.CardOf(w.Id) is { Opacity: 1 } card
-                        && Math.Abs(Microsoft.UI.Xaml.Controls.Canvas.GetTop(card) - GridGeometry.ToPixels(w.Rect, metrics, card.XamlRoot?.RasterizationScale ?? 1).Y) < 0.01);
+                        && Math.Abs(Microsoft.UI.Xaml.Controls.Canvas.GetTop(card) - GridGeometry.PaintedCell(w.Rect, metrics, card.XamlRoot?.RasterizationScale ?? 1).Y) < 0.01);
                 Expect(back, $"{what}: the gallery is back, the widgets dragged still on it at their cells");
                 return placedRight;
             }
