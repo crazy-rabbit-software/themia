@@ -53,18 +53,17 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     private const string Scope = "desktop-item";
 
     private readonly IWidgetHost _host;
-    private readonly Grid _iconHost = new() { HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly Image _image = new() { Stretch = Stretch.Uniform };
 
     /// <summary>[S-5593] The desktop's icon size this view is drawn at: the one in force when it last rendered.</summary>
     private DesktopIconSize _size = DesktopCell.Current;
     private readonly WallpaperLabel _name = new(FamilyType.Caption);
 
-    /// <summary>The icon and the name, inside the cell's insets: what the cell draws, laid out for the icon layout (<see cref="Relook"/>).</summary>
-    private readonly StackPanel _stack = new();
-
-    /// <summary>[S-5612] The highlight behind the icon and the name: the whole card box, where its corners are (<see cref="DesktopCell.Highlight"/>).</summary>
-    private readonly Border _chrome = SelectionChrome.Wrap(null, SelectionLook.DesktopIcon);
+    /// <summary>
+    /// [S-6632] The one desktop-icon cell in the view's box: [S-5612] the highlight behind the icon and the name (the whole
+    /// card box, where its corners are, <see cref="DesktopCell.Highlight"/>), then the icon and the name inside the cell's
+    /// insets, laid out for the icon layout (<see cref="Relook"/>).
+    /// </summary>
+    private readonly FileIconCell _cell;
 
     private IWidgetSurface? _surface;
     private Ticker? _ticker;
@@ -91,10 +90,10 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     public DesktopItemView(IWidgetHost host)
     {
         _host = host;
-        _stack.Children.Add(_iconHost);
+        _cell = new FileIconCell(this, SelectionLook.DesktopIcon, DesktopCell.Icon(_size));
 
         // [S-5564] A picture decoded after it was set (a file, a site's icon) is drawn only now: the ghost's copy follows.
-        _image.ImageOpened += (_, _) => KeepDragIcon();
+        _cell.Icon.Image.ImageOpened += (_, _) => KeepDragIcon();
         BuildOverhang();
 
         // [S-5612] The highlight is the whole card box (the view owns the card's top edge, [S-5700], so its box is the card's).
@@ -105,8 +104,6 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
             PlaceOverhang();
         };
         Relook(_size, _layout);
-        Children.Add(_chrome);
-        Children.Add(_stack);
 
         // Clear, not null: the empty part of the cell takes the press too.
         Background = Fluent.Clear();
@@ -116,18 +113,19 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     /// <summary>[S-5612] Put the highlight on <paramref name="box"/>, in the view's (the card's) DIPs.</summary>
     private void PlaceChrome(Themia.Core.Geometry.DipRect box)
     {
-        _chrome.HorizontalAlignment = HorizontalAlignment.Left;
-        _chrome.VerticalAlignment = VerticalAlignment.Top;
-        _chrome.Margin = new Thickness(box.X, box.Y, 0, 0);
-        _chrome.Width = box.Width;
-        _chrome.Height = box.Height;
+        var chrome = _cell.Chrome;
+        chrome.HorizontalAlignment = HorizontalAlignment.Left;
+        chrome.VerticalAlignment = VerticalAlignment.Top;
+        chrome.Margin = new Thickness(box.X, box.Y, 0, 0);
+        chrome.Width = box.Width;
+        chrome.Height = box.Height;
     }
 
     /// <summary>[S-5700] The cell is the whole card, from its top edge: the card adds no inset above it (one would push the name's second line out of the cell).</summary>
     public bool OwnsTopEdge => true;
 
     /// <summary>[S-5564] The icon's square: where a drag grabbed the icon is measured from it.</summary>
-    public FrameworkElement DragIconBox => _iconHost;
+    public FrameworkElement DragIconBox => _cell.Icon;
 
     /// <summary>[S-5564] The icon's picture, kept current (<c>.Icon.cs</c>): what a drag's ghost shows of this icon.</summary>
     public GhostIcon? DragIcon => _dragIcon;
@@ -193,7 +191,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         RightTapped += OnRightTapped;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
-        _hover = SelectionChrome.Hover(this, hovered =>
+        _hover = _cell.Hover(hovered =>
         {
             _hovered = hovered;
             Paint();
@@ -254,7 +252,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         WatchBin(false);
         _pressed = false;
         CloseBox();
-        _iconRequest++;
+        _cell.Icon.Cancel();
         _dragIconRequest++;
         _factsRequest++;
         _links.Leave();
@@ -454,12 +452,12 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         // and box never do.
         var ground = desk.GroundOf(WidgetId);
         var ink = SelectionLook.DesktopIconInk(ground?.Text is SolidColorBrush words ? new RgbColor(words.Color.R, words.Color.G, words.Color.B) : null);
-        SelectionChrome.Paint(_chrome, new SelectionCue(selected, _hovered || LinkedElsewhere, focus, focus, active, dropTarget), ink.Look);
+        _cell.Paint(new SelectionCue(selected, _hovered || LinkedElsewhere, focus, focus, active, dropTarget), ink.Look);
         _name.Ground(ink.GroundText ? ground?.Text : null);
         _scrim.Background = ink.GroundText && ground is not null ? ground.Ground : Family.Brush(ColourRole.OnWallpaperShadow);
 
         var faded = _fixture.On ? _fixture.Faded : !Own && (desk.IsCut(key) || Item?.Hidden == true);
-        _iconHost.Opacity = faded ? SelectionLook.Faded : 1;
+        _cell.Icon.Opacity = faded ? SelectionLook.Faded : 1;
 
         // [S-5608] Told to a screen reader: the selection as it changes, the focus as it arrives.
         var focused = Acts && desk.IsFocused(key);

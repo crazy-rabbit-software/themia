@@ -37,7 +37,8 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// [S-12810] The drive's own icon, as This PC draws it (the shell's: a fixed disk, the Windows drive, a USB stick, a
     /// mapped network drive), leading the share at the readout's step.
     /// </summary>
-    private readonly Image _icon = new() { Width = FamilyType.Big28.LineHeight, Height = FamilyType.Big28.LineHeight, Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Center };
+    /// <summary>[S-12810] [S-6631] The drive's own icon, none until it comes (and no room while there is none).</summary>
+    private readonly IconSlot _icon = new(FamilyType.Big28.LineHeight) { Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
     private string? _iconRoot;
     private readonly ChartBar _bar = DriveBar.Create();
     private readonly StatusBlock _status = new();
@@ -163,23 +164,16 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _iconRoot = drive.Root;
-        _icon.Source = null;
+        _icon.Reset(null);
         _icon.Visibility = Visibility.Collapsed;
         const int system = 0x4;
         var pixels = (int)Math.Ceiling(FamilyType.Big28.LineHeight * 4 * (XamlRoot?.RasterizationScale ?? 1));
-        try
+
+        // async void: the slot's load logs and swallows a failure (an icon is decoration), so nothing escapes here.
+        if (await _icon.LoadAsync(() => _widgetHost.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels)).ConfigureAwait(true))
         {
-            var image = await _widgetHost.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels);
-            if (_iconRoot == drive.Root)
-            {
-                // No icon to draw takes no room: the share stands where its ink is.
-                _icon.Source = image;
-                _icon.Visibility = image is null ? Visibility.Collapsed : Visibility.Visible;
-            }
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)
-        {
-            Log.Warn("drive", $"no icon for {drive.Letter}", ex);
+            // No icon to draw takes no room: the share stands where its ink is.
+            _icon.Visibility = _icon.Source is null ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 

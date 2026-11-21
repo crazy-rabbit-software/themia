@@ -145,8 +145,8 @@ internal sealed partial class DesktopItemView
     private void PaintHealth()
     {
         var missing = _health == TargetHealth.Missing;
-        _stack.Opacity = missing || Refused ? SelectionLook.Faded : 1;
-        _hang.Opacity = _stack.Opacity;
+        _cell.Stack.Opacity = missing || Refused ? SelectionLook.Faded : 1;
+        _hang.Opacity = _cell.Stack.Opacity;
         _name.Strikethrough = missing;
         PaintTip();
     }

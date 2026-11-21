@@ -34,22 +34,17 @@ internal sealed partial class FenceView
     /// <summary>The icon loads under way, for a picture that waits for them (the sample).</summary>
     private readonly List<Task> _loads = [];
 
-    /// <summary>One file's cell.</summary>
+    /// <summary>One file's cell: the one desktop-icon cell ([S-6632]) and its name.</summary>
     private sealed class Cell
     {
         public required string Key { get; init; }
 
-        public required Grid Root { get; init; }
-
-        public required Border Chrome { get; init; }
-
-        public required Grid IconHost { get; init; }
-
-        public required Image Image { get; init; }
+        /// <summary>[S-6632] Its chrome, its icon slot and its stack, in its own box (<see cref="Root"/>).</summary>
+        public required FileIconCell Tile { get; init; }
 
         public required TextBlock Name { get; init; }
 
-        public required StackPanel Stack { get; init; }
+        public Grid Root => (Grid)Tile.Root;
 
         public DesktopItem Item { get; set; } = null!;
 
@@ -57,12 +52,7 @@ internal sealed partial class FenceView
 
         public bool Hovered { get; set; }
 
-        public int IconRequest { get; set; }
-
         public int IconPixels { get; set; }
-
-        /// <summary>[S-5564] The icon's picture for a drag's ghost, as last drawn.</summary>
-        public GhostIcon? Ghost { get; set; }
     }
 
     /// <summary>What the fence draws itself: a picture's items, or what a search found (the newest first); none for a fence of desktop icons.</summary>
@@ -112,33 +102,23 @@ internal sealed partial class FenceView
 
     private Cell MakeCell(string key)
     {
-        var icon = DesktopCell.Icon(DesktopCell.Current);
-        var image = new Image { Stretch = Stretch.Uniform, Width = icon, Height = icon };
-        var iconHost = new Grid { Width = icon, Height = icon, HorizontalAlignment = HorizontalAlignment.Center };
-        iconHost.Children.Add(image);
         var name = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
         name.TextWrapping = TextWrapping.WrapWholeWords;
         name.TextTrimming = TextTrimming.CharacterEllipsis;
         name.MaxLines = 2;
-        var stack = new StackPanel();
-        stack.Children.Add(iconHost);
-        stack.Children.Add(name);
-        var chrome = SelectionChrome.Wrap(null, Look);
         var root = new Grid { Background = Fluent.Clear() };
 
         // [S-14263] A cell of the body is one of the fence's items (its box on the icon grid), reported as one.
         ItemMark.Mark(root);
-        root.Children.Add(chrome);
-        root.Children.Add(stack);
-        var cell = new Cell { Key = key, Root = root, Chrome = chrome, IconHost = iconHost, Image = image, Name = name, Stack = stack };
+        var tile = new FileIconCell(root, Look, DesktopCell.Icon(DesktopCell.Current));
+        tile.Stack.Children.Add(name);
+        var cell = new Cell { Key = key, Tile = tile, Name = name };
 
-        // [S-5564] The shell's bitmap is read for the ghost once it is decoded.
-        image.ImageOpened += (_, _) => cell.Ghost = ItemDrag.IconOf(image.Source);
         root.PointerPressed += (_, e) => OnItemPressed(cell, e);
         root.PointerReleased += (_, e) => OnItemReleased(cell, e);
         root.DoubleTapped += (_, e) => OnItemDoubleTapped(cell, e);
         root.RightTapped += (_, e) => OnItemRightTapped(cell, e);
-        cell.Hover = SelectionChrome.Hover(root, hovered =>
+        cell.Hover = tile.Hover(hovered =>
         {
             cell.Hovered = hovered;
             PaintCell(cell);
@@ -153,7 +133,7 @@ internal sealed partial class FenceView
     private static void LayCell(Cell cell)
     {
         var (size, layout) = (DesktopCell.Current, DesktopCell.CurrentLayout);
-        DesktopCellLayout.Arrange(cell.Stack, layout);
+        DesktopCellLayout.Arrange(cell.Tile.Stack, layout);
         var beside = layout == DesktopIconLayout.Beside;
         cell.Name.TextAlignment = DesktopCellLayout.NameAlignment(layout);
         cell.Name.HorizontalAlignment = beside ? HorizontalAlignment.Left : HorizontalAlignment.Center;
@@ -166,7 +146,7 @@ internal sealed partial class FenceView
 
     private void DropCell(Cell cell)
     {
-        cell.IconRequest++;
+        cell.Tile.Icon.Cancel();
         cell.Hover?.Dispose();
         cell.Hover = null;
         _canvas.Children.Remove(cell.Root);
@@ -187,37 +167,21 @@ internal sealed partial class FenceView
     /// <summary>[S-5563] [S-5593] The icon's pixels on this display at the desktop's icon size.</summary>
     private int IconPixels() => DesktopIconPixels.For(DesktopCell.Icon(DesktopCell.Current), XamlRoot?.RasterizationScale ?? 1.0);
 
-    /// <summary>[S-5512] The shell's icon with its overlay, the cached one at once, else asked.</summary>
-    private async Task LoadIconAsync(Cell cell)
+    /// <summary>[S-5512] [S-6631] The shell's icon with its overlay, the cached one at once, else asked.</summary>
+    private Task LoadIconAsync(Cell cell)
     {
-        var request = ++cell.IconRequest;
         var pixels = IconPixels();
         cell.IconPixels = pixels;
-        var icon = DesktopCell.Icon(DesktopCell.Current);
-        cell.IconHost.Width = icon;
-        cell.IconHost.Height = icon;
-        cell.Image.Width = icon;
-        cell.Image.Height = icon;
-        try
+        var icon = cell.Tile.Icon;
+        icon.Side = DesktopCell.Icon(DesktopCell.Current);
+        if (_host.DesktopItems.TryIcon(cell.Item, pixels, out var cached) && cached is not null)
         {
-            if (_host.DesktopItems.TryIcon(cell.Item, pixels, out var cached) && cached is not null)
-            {
-                cell.Image.Source = cached;
-                cell.Ghost = ItemDrag.IconOf(cached);
-                return;
-            }
+            icon.Cancel();
+            icon.Show(cached);
+            return Task.CompletedTask;
+        }
 
-            if (await _host.DesktopItems.IconAsync(cell.Item, pixels).ConfigureAwait(true) is { } source && request == cell.IconRequest)
-            {
-                cell.Image.Source = source;
-                cell.Ghost = ItemDrag.IconOf(source);
-            }
-        }
-        catch (Exception ex)
-        {
-            // An icon is decoration: the name still shows.
-            Log.Warn(Scope, "could not load a fence file's icon", ex);
-        }
+        return icon.LoadAsync(() => _host.DesktopItems.IconAsync(cell.Item, pixels));
     }
 
     /// <summary>[S-5602] Every cell's look: a search's own selection, a picture's set one.</summary>
@@ -243,8 +207,8 @@ internal sealed partial class FenceView
         var selected = _fixture.On ? _fixture.Selected.Contains(key) : _picks.IsSelected(key);
         var focus = _fixture.On ? _fixture.Focus == key : _picks.Cues && _picks.IsFocus(key);
         var active = !_fixture.On || !_fixture.Inactive;
-        SelectionChrome.Paint(cell.Chrome, new SelectionCue(selected, cell.Hovered, focus, focus, active, false), Look);
-        cell.IconHost.Opacity = _fixture.On && _fixture.Faded.Contains(key) ? SelectionLook.Faded : 1;
+        cell.Tile.Paint(new SelectionCue(selected, cell.Hovered, focus, focus, active, false), Look);
+        cell.Tile.Icon.Opacity = _fixture.On && _fixture.Faded.Contains(key) ? SelectionLook.Faded : 1;
     }
 
     // ---- a search's files ([S-13023]) --------------------------------------------------------------
@@ -347,7 +311,7 @@ internal sealed partial class FenceView
     /// <summary>[S-5564] Explorer's ghost from this fence: the held icon in front, up to two more selected ones behind, the count in a badge.</summary>
     private DragPicture? Ghost(Cell held, double side, Point anchor, ItemDragOffer offer, Func<string, bool> isSelected)
     {
-        if (held.Ghost is not { } front || side <= 0)
+        if (held.Tile.Icon.Ghost is not { } front || side <= 0)
         {
             return null;
         }
@@ -361,7 +325,7 @@ internal sealed partial class FenceView
                 break;
             }
 
-            if (!string.Equals(key, held.Key, StringComparison.OrdinalIgnoreCase) && _cells.TryGetValue(key, out var other) && other.Ghost is { } picture)
+            if (!string.Equals(key, held.Key, StringComparison.OrdinalIgnoreCase) && _cells.TryGetValue(key, out var other) && other.Tile.Icon.Ghost is { } picture)
             {
                 icons.Add(picture);
             }

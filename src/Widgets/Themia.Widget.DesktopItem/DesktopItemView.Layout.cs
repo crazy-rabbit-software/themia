@@ -64,20 +64,17 @@ internal sealed partial class DesktopItemView : IWidgetOverhang
         _size = size;
         _layout = layout;
         var icon = DesktopCell.Icon(size);
-        _iconHost.Width = icon;
-        _iconHost.Height = icon;
-        _image.Width = icon;
-        _image.Height = icon;
+        _cell.Icon.Side = icon;
 
         // [S-5601] [S-13973] The icon over its name, or beside it, or (icon only) alone in the cell, its name on the plate
         // under it, past the cell.
-        DesktopCellLayout.Arrange(_stack, layout);
+        DesktopCellLayout.Arrange(_cell.Stack, layout);
         (_name.Parent as Panel)?.Children.Remove(_name);
         var overhangs = DesktopCell.NameOverhangs(layout);
         _name.Alignment = DesktopCellLayout.NameAlignment(layout);
         _name.VerticalAlignment = layout == DesktopIconLayout.Beside ? VerticalAlignment.Center : VerticalAlignment.Top;
         _name.Margin = overhangs ? new Thickness(FamilySpace.S1, 0, FamilySpace.S1, FamilyShape.Hairline) : default;
-        (overhangs ? (Panel)_plate : _stack).Children.Add(_name);
+        (overhangs ? (Panel)_plate : _cell.Stack).Children.Add(_name);
 
         // [S-5607] A rename box open as the layout changes moves with the name.
         if (_box is { } box)
@@ -118,7 +115,7 @@ internal sealed partial class DesktopItemView : IWidgetOverhang
     }
 
     /// <summary>[S-5607] [S-13974] Where the rename box stands: in the name's place, in the cell or (icon only) on the plate's column past it.</summary>
-    private Panel BoxHost => DesktopCell.NameOverhangs(_layout) ? _hang : (Panel)_stack;
+    private Panel BoxHost => DesktopCell.NameOverhangs(_layout) ? _hang : _cell.Stack;
 
     /// <summary>[S-5607] [S-13973] The rename box laid out as the name it edits: centred under the icon, or from its start beside it.</summary>
     private void LayBox(TextBox box)

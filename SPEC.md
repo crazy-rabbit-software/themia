@@ -7145,6 +7145,16 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   draws two items selected, one under the pointer and the focus moved by Ctrl+arrows (`selected`), the
   same after the widget lost the keyboard (`inactive`) and a long name shown in full
   (`fullname`); the folder's `fullname` picks its longest name.
+- **[S-6631]** **One icon slot** (`IconSlot`, Themia.Sdk.WinUI): every file item's icon (a desktop icon, a fence's found
+  file, a folder's row and cell, a recent file, a drive's face) is one square of one side, the kind's placeholder (its
+  glyph, an emoji, or none) under the picture: a picture the host has cached is laid in at once (no flash of the glyph on
+  a redraw), else asked and laid in when it comes unless a newer ask or a cancel came meanwhile (the newest wins); the
+  placeholder shows while there is no picture and stays when there is none; the picture's pixels are a drag's ghost
+  ([S-5564]). A failing load is logged and the placeholder kept.
+- **[S-6632]** **One desktop-icon cell** (`FileIconCell`): what is drawn as a desktop icon (the desktop item, a fence's
+  own cells) is one composition in its item's box: the selection chrome behind it in its palette ([S-6627]), the icon
+  slot ([S-6631]) at the desktop's icon size and its name laid by the icon layout (`DesktopCellLayout`, [S-13970]), its
+  hover through `SelectionChrome.Hover`. A desktop parity check (`--desktop-png`, `--drag-png`) draws the same pictures.
 
 ## View links (VIEW-LINKS)
 

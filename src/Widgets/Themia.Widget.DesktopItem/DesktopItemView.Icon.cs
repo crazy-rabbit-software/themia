@@ -28,12 +28,6 @@ namespace Themia.Widget.DesktopItem;
 /// </summary>
 internal sealed partial class DesktopItemView
 {
-    /// <summary>The glyph (or the emoji) drawn until, or instead of, a picture.</summary>
-    private FrameworkElement? _fallback;
-
-    /// <summary>The newest icon request: an answer to an older one is dropped.</summary>
-    private int _iconRequest;
-
     /// <summary>[S-5563] The pixels the icon was last asked at.</summary>
     private int _iconPixels;
 
@@ -62,7 +56,7 @@ internal sealed partial class DesktopItemView
     private void KeepDragIcon()
     {
         var request = ++_dragIconRequest;
-        if (_image.Visibility == Visibility.Visible && ItemDrag.IconOf(_image.Source) is { } pixels)
+        if (_cell.Icon.Ghost is { } pixels)
         {
             _dragIcon = pixels;
             return;
@@ -75,13 +69,13 @@ internal sealed partial class DesktopItemView
     {
         try
         {
-            if (!IsLoaded || _iconHost.ActualWidth <= 0 || _iconHost.ActualHeight <= 0)
+            if (!IsLoaded || _cell.Icon.ActualWidth <= 0 || _cell.Icon.ActualHeight <= 0)
             {
                 return; // not drawn yet: Loaded keeps it again
             }
 
             var bitmap = new RenderTargetBitmap();
-            await bitmap.RenderAsync(_iconHost);
+            await bitmap.RenderAsync(_cell.Icon);
             if (request != _dragIconRequest || bitmap.PixelWidth <= 0 || bitmap.PixelHeight <= 0)
             {
                 return;
@@ -146,24 +140,18 @@ internal sealed partial class DesktopItemView
     private string BinVariant() => _host.RecycleBin.Current is not { } bin ? "unknown" : bin.IsEmpty ? "empty" : "full";
 
     /// <summary>
-    /// The icon's square, built anew: the glyph of what the shortcut is (a warning for a refused target),
+    /// [S-6631] The icon's square, built anew: the glyph of what the shortcut is (a warning for a refused target),
     /// or the user's emoji in its place at once; the picture is laid over it when it arrives.
     /// </summary>
     private void BuildIcon()
     {
-        _iconHost.Children.Clear();
-        _image.Source = null;
-        _image.Visibility = Visibility.Collapsed;
-
         if (!Own)
         {
             // A desktop item draws the shell's icon alone; the cached one is laid in at once (no flash of nothing).
-            _fallback = null;
-            _iconHost.Children.Add(_image);
+            _cell.Icon.Reset(null);
             if (Item is { } item && _host.DesktopItems.TryIcon(item, IconPixels(), out var cached) && cached is not null)
             {
-                _image.Source = cached;
-                _image.Visibility = Visibility.Visible;
+                _cell.Icon.Show(cached);
             }
 
             KeepDragIcon();
@@ -172,17 +160,15 @@ internal sealed partial class DesktopItemView
 
         if (_config.IconEmoji is { } emoji)
         {
-            _fallback = EmojiIcon(emoji);
+            _cell.Icon.Reset(EmojiIcon(emoji));
         }
         else
         {
             var glyph = Family.Glyph(GlyphNow(), DesktopCell.Icon(_size), Refused ? ColourRole.Critical : ColourRole.OnWallpaper);
             glyph.HorizontalAlignment = HorizontalAlignment.Center;
-            _fallback = glyph;
+            _cell.Icon.Reset(glyph);
         }
 
-        _iconHost.Children.Add(_fallback);
-        _iconHost.Children.Add(_image);
         KeepDragIcon();
     }
 
@@ -223,7 +209,7 @@ internal sealed partial class DesktopItemView
 
     private async Task LoadIconCoreAsync()
     {
-        var request = ++_iconRequest;
+        var request = _cell.Icon.Ask();
         var config = _config;
         var target = _target;
         var pixels = IconPixels();
@@ -235,10 +221,9 @@ internal sealed partial class DesktopItemView
         {
             if (!Own)
             {
-                if (Item is { } item && await _host.DesktopItems.IconAsync(item, pixels).ConfigureAwait(true) is { } shell && request == _iconRequest)
+                if (Item is { } item && await _host.DesktopItems.IconAsync(item, pixels).ConfigureAwait(true) is { } shell && _cell.Icon.Answers(request))
                 {
-                    _image.Source = shell;
-                    _image.Visibility = Visibility.Visible;
+                    _cell.Icon.Show(shell);
                     KeepDragIcon();
                 }
 
@@ -279,18 +264,12 @@ internal sealed partial class DesktopItemView
                 _ => null,
             };
 
-            if (source is null || request != _iconRequest)
+            if (source is null || !_cell.Icon.Answers(request))
             {
                 return;
             }
 
-            _image.Source = source;
-            _image.Visibility = Visibility.Visible;
-            if (_fallback is not null)
-            {
-                _fallback.Visibility = Visibility.Collapsed;
-            }
-
+            _cell.Icon.Show(source);
             KeepDragIcon();
         }
         catch (Exception ex)
@@ -431,7 +410,7 @@ internal sealed partial class DesktopItemView
             }
         }
 
-        if (sources.Count == 0 || request != _iconRequest)
+        if (sources.Count == 0 || !_cell.Icon.Answers(request))
         {
             return;
         }
@@ -442,7 +421,7 @@ internal sealed partial class DesktopItemView
 
         for (var i = 0; i < sources.Count; i++)
         {
-            _iconHost.Children.Add(new Image
+            _cell.Icon.Children.Add(new Image
             {
                 Source = sources[i],
                 Width = each,
@@ -454,9 +433,9 @@ internal sealed partial class DesktopItemView
             });
         }
 
-        if (_fallback is not null)
+        if (_cell.Icon.Placeholder is { } placeholder)
         {
-            _fallback.Visibility = Visibility.Collapsed;
+            placeholder.Visibility = Visibility.Collapsed;
         }
 
         KeepDragIcon();

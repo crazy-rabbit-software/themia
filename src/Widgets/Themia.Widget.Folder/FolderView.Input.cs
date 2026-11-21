@@ -132,7 +132,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
         var source = e.OriginalSource as DependencyObject;
         var press = FolderGesture.Classify(
             visual is not null,
-            visual is not null && (IsWithin(source, visual.IconBox) || IsWithin(source, visual.Name)));
+            visual is not null && (IsWithin(source, visual.Icon) || IsWithin(source, visual.Name)));
 
         if (visual is not null && press == FolderPress.Item)
         {
@@ -547,7 +547,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
         }
 
         var pressed = _visuals[index];
-        if (pressed.IconBox is not { ActualWidth: > 0, ActualHeight: > 0 } box || ItemDrag.IconOf(pressed.Image.Source) is not { } front)
+        if (pressed.Icon is not { ActualWidth: > 0, ActualHeight: > 0 } box || pressed.Icon.Ghost is not { } front)
         {
             return null;
         }
@@ -561,7 +561,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 break;
             }
 
-            if (!ReferenceEquals(visual, pressed) && dragged.Contains(visual.Entry.FullPath) && ItemDrag.IconOf(visual.Image.Source) is { } other)
+            if (!ReferenceEquals(visual, pressed) && dragged.Contains(visual.Entry.FullPath) && visual.Icon.Ghost is { } other)
             {
                 icons.Add(other);
             }

@@ -112,12 +112,10 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         }
     }
 
-    /// <summary>The shell's icon for the file; a page glyph until it comes, and for a file that has none.</summary>
+    /// <summary>[S-6631] The shell's icon for the file, the row's lead: a page glyph until it comes, and for a file that has none.</summary>
     private FrameworkElement FileIcon(string? path)
     {
-        var image = new Image { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
-        var fallback = Family.Glyph(Glyphs.File);
-        var icon = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center, Children = { fallback, image } };
+        var icon = new IconSlot(FamilyShape.Icon, Family.Glyph(Glyphs.File)) { VerticalAlignment = VerticalAlignment.Center };
         if (path is null)
         {
             return icon;
@@ -127,26 +125,14 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         var pixels = (int)Math.Ceiling(FamilyShape.Icon * (XamlRoot?.RasterizationScale ?? 1));
         if (_host.FileIcons.TryIcon(entry, pixels, out var known))
         {
-            ShowIcon(image, fallback, known);
+            icon.Show(known);
         }
         else
         {
-            _ = LoadIconAsync(image, fallback, entry, pixels);
+            _ = icon.LoadAsync(() => _host.FileIcons.IconAsync(entry, pixels));
         }
 
         return icon;
-    }
-
-    private async Task LoadIconAsync(Image target, FontIcon fallback, FolderEntry entry, int pixels)
-    {
-        // AppIcons logs and returns null for a file without an icon; nothing here throws.
-        ShowIcon(target, fallback, await _host.FileIcons.IconAsync(entry, pixels).ConfigureAwait(true));
-    }
-
-    private static void ShowIcon(Image target, FontIcon fallback, ImageSource? source)
-    {
-        target.Source = source;
-        fallback.Visibility = source is null ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>[S-4840] Windows' Recent Items as a kit source: the files, an unreadable folder the state's problem.</summary>

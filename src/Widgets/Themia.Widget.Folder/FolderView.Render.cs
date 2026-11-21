@@ -71,11 +71,8 @@ internal sealed partial class FolderView
         /// <summary>Dimmed while the item is cut; the row itself carries the scroll fade's opacity.</summary>
         public required FrameworkElement Content { get; init; }
 
-        public required Image Image { get; init; }
-
-        public required FontIcon Glyph { get; init; }
-
-        public required Grid IconBox { get; init; }
+        /// <summary>[S-6631] The icon slot: the kind's glyph until the shell's icon (or a thumbnail) comes.</summary>
+        public required IconSlot Icon { get; init; }
 
         /// <summary>The name: what a rename's box stands in for ([S-1331], [S-13950]).</summary>
         public required TextBlock Name { get; init; }
@@ -613,10 +610,10 @@ internal sealed partial class FolderView
     {
         var columns = plan?.Columns ?? [];
         var details = _config.Style == FolderStyle.Details;
-        var (iconBox, image, glyph) = IconBox(entry, FolderLayout.Lead);
+        var icon = IconBox(entry, FolderLayout.Lead);
 
         var block = new RowBlock(RowKind.List, FolderLayout.Lead) { Lines = 1 };
-        block.Lead(iconBox);
+        block.Lead(icon);
 
         TextBlock name;
         Grid? cells = null;
@@ -650,9 +647,7 @@ internal sealed partial class FolderView
             Root = new Border { Height = _rowReach.Height(index), Child = new Grid { Children = { chrome, block } }, Tag = index },
             Chrome = chrome,
             Content = block,
-            Image = image,
-            Glyph = glyph,
-            IconBox = iconBox,
+            Icon = icon,
             Name = name,
         };
 
@@ -776,10 +771,10 @@ internal sealed partial class FolderView
     /// </summary>
     private ItemVisual BuildTile(FolderEntry entry, int index, CellGrid grid)
     {
-        var (iconBox, image, glyph) = IconBox(entry, grid.Icon);
+        var icon = IconBox(entry, grid.Icon);
         // [S-14816] The lead and name inside the cell's box, its padding round them: the box is the item, edge to edge.
         var cell = new RowCell(grid.Icon) { Width = grid.ContentWidth, Margin = new Thickness(FamilySpace.S2), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-        cell.Show(iconBox, grid.Named ? FileNamesDisplay(entry) : string.Empty);
+        cell.Show(icon, grid.Named ? FileNamesDisplay(entry) : string.Empty);
 
         // [S-6627] The cell, icon and name, is the item's mark.
         var chrome = SelectionChrome.Wrap(new Grid());
@@ -796,9 +791,7 @@ internal sealed partial class FolderView
             },
             Chrome = chrome,
             Content = cell,
-            Image = image,
-            Glyph = glyph,
-            IconBox = iconBox,
+            Icon = icon,
             Name = cell.NameText,
             Tile = true,
         };
@@ -811,26 +804,22 @@ internal sealed partial class FolderView
         return visual;
     }
 
-    /// <summary>The icon slot: the kind's glyph at once (secondary, the lead's role), the shell's icon (or a thumbnail) over it when it arrives.</summary>
-    private static (Grid Box, Image Image, FontIcon Glyph) IconBox(FolderEntry entry, double size)
+    /// <summary>[S-6631] The icon slot: the kind's glyph at once (secondary, the lead's role), the shell's icon (or a thumbnail) over it when it arrives.</summary>
+    private static IconSlot IconBox(FolderEntry entry, double size)
     {
         var glyph = Family.Glyph(entry.IsDirectory ? Glyphs.Folder : Glyphs.File, size, ColourRole.TextSecondary);
         glyph.HorizontalAlignment = HorizontalAlignment.Center;
-
-        var image = new Image { Width = size, Height = size, Stretch = Stretch.Uniform };
-        var box = new Grid { Width = size, Height = size, VerticalAlignment = VerticalAlignment.Center, Children = { glyph, image } };
-        return (box, image, glyph);
+        return new IconSlot(size, glyph) { VerticalAlignment = VerticalAlignment.Center };
     }
 
     /// <summary>Paint a cached icon at once, so a redraw does not flash glyphs.</summary>
     private void Prime(ItemVisual visual)
     {
-        var pixels = IconPixels(visual.IconBox.Width);
+        var pixels = IconPixels(visual.Icon.Side);
 
         if (_widgetHost.FileIcons.TryIcon(visual.Entry, pixels, out var image) && image is not null)
         {
-            visual.Image.Source = image;
-            visual.Glyph.Visibility = Visibility.Collapsed;
+            visual.Icon.Show(image);
         }
     }
 
@@ -855,9 +844,9 @@ internal sealed partial class FolderView
                     return;
                 }
 
-                var pixels = (int)Math.Round(visual.IconBox.Width * scale);
+                var pixels = (int)Math.Round(visual.Icon.Side * scale);
 
-                if (visual.Image.Source is null)
+                if (visual.Icon.Source is null)
                 {
                     var icon = await _widgetHost.FileIcons.IconAsync(visual.Entry, pixels).ConfigureAwait(true);
 
@@ -868,16 +857,14 @@ internal sealed partial class FolderView
 
                     if (icon is not null)
                     {
-                        visual.Image.Source = icon;
-                        visual.Glyph.Visibility = Visibility.Collapsed;
+                        visual.Icon.Show(icon);
                     }
                 }
 
                 if (thumbnails && await _widgetHost.FileIcons.ThumbnailAsync(visual.Entry, pixels).ConfigureAwait(true) is { } thumb
                     && generation == _renderGeneration)
                 {
-                    visual.Image.Source = thumb;
-                    visual.Glyph.Visibility = Visibility.Collapsed;
+                    visual.Icon.Show(thumb);
                 }
 
                 if (counts && visual.Entry.IsDirectory && visual.Cells.TryGetValue(FolderColumn.ItemCount, out var cell))

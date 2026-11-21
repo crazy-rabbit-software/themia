@@ -161,7 +161,7 @@ internal sealed partial class FenceView
         {
             var paths = FoundTargets(held.Key);
             var offer = new ItemDragOffer([.. paths], DropEffect.Copy | DropEffect.Link);
-            var square = held.IconHost.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, held.IconHost.ActualWidth, held.IconHost.ActualHeight));
+            var square = held.Tile.Icon.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, held.Tile.Icon.ActualWidth, held.Tile.Icon.ActualHeight));
             var anchor = new Windows.Foundation.Point(Math.Clamp(point.Position.X - square.X, 0, square.Width), Math.Clamp(point.Position.Y - square.Y, 0, square.Height));
             var effect = await ItemDrag.StartAsync(this, point, offer, () => Ghost(held, square.Width, anchor, offer, _picks.IsSelected)).ConfigureAwait(true);
             Log.Debug(Scope, $"a drag from a search fence ended: {effect}");
