@@ -51,13 +51,19 @@ internal sealed partial class CalendarView
 
         var layout = MonthLayouts.Plan(width, height + top, top, _area.Grid(XamlRoot?.RasterizationScale ?? 1), anchorRow, most, _config.MonthEvents == Themia.Core.Model.MonthEvents.Chips ? MonthChipRoom.Titles : MonthChipRoom.Dots);
 
-        var grid = new Grid();
+        // [S-12832] The month stands <paramref name="top"/> under the card's top edge: the view starts the card's inset under
+        // it, so the grid stands that much higher (or lower) than the view's top.
+        var grid = new Grid { Margin = new Thickness(0, top - FamilySpace.ContentTop, 0, 0), VerticalAlignment = VerticalAlignment.Top };
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(layout.HeaderHeight) });
-        // [S-14500] The weeks share the room under the weekday line evenly to the card's foot (each its share on whole
-        // device pixels, as the grid lays its stars): nothing left over under the last.
+
+        // [S-14500] The weeks share the room under the weekday line evenly to the card's foot, each edge on a whole device
+        // pixel laid here (WR-2: a grid's own rounding of its stars stood rows 0.7 over each other), nothing left under the last.
+        var scale = XamlRoot?.RasterizationScale ?? 1;
         for (var r = 0; r < layout.Rows; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            var from = ItemSize.OnPixels(layout.HeaderHeight + (r * layout.RowHeight), scale);
+            var to = ItemSize.OnPixels(layout.HeaderHeight + ((r + 1) * layout.RowHeight), scale);
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(Math.Max(0, to - from)) });
         }
 
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.

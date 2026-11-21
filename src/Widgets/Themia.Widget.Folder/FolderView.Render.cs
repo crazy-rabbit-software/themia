@@ -937,7 +937,10 @@ internal sealed partial class FolderView
             sort is { } s && s == _config.Sort ? $"{title} {(_config.Descending ? "↓" : "↑")}" : title);
         text.TextAlignment = alignment;
         text.HorizontalAlignment = alignment == TextAlignment.Right ? HorizontalAlignment.Right : HorizontalAlignment.Left;
-        text.VerticalAlignment = VerticalAlignment.Top;
+
+        // [S-12815] The titles stand on their band's foot, right over the first row (WR-1: nothing between the first item
+        // and what stands over it), as the kit's table titles do.
+        text.VerticalAlignment = VerticalAlignment.Bottom;
 
         var cell = new Border { Child = text, Background = Family.Brush(ColourRole.Clear) };
         SetColumn(cell, column);

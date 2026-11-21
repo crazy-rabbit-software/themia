@@ -587,7 +587,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
                 break;
 
             default:
-                DrawMonth(width, height, FamilySpace.ContentTop + over);
+                // [S-12832] WR-1: with no state over it the month starts on the card's top edge, its weekday line the
+                // first thing in the card; under a state's row, right under that row.
+                var monthTop = stated ? FamilySpace.ContentTop + over : 0;
+                DrawMonth(width, _area.Height + FamilySpace.ContentTop - monthTop, monthTop);
                 break;
         }
 

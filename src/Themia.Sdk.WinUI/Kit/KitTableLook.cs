@@ -83,14 +83,15 @@ public sealed class KitTableLook : IKitLook
 
         titles.ColumnSpacing = template.ColumnSpacing;
 
-        // [S-14500] The titles' band ends on a grid line, so the rows under it start on one.
+        // [S-14500] The titles' band ends on a grid line, so the rows under it start on one. [S-12815] Its words stand on the
+        // band's foot, right over the first row (WR-1: nothing between the first item and what stands over it).
         titles.Height = KitPlanner.TitlesBand(draw.Grid);
         titles.Padding = new Thickness(FamilySpace.Inset + (plan.Lead ? RowRules.NameStart(FamilyShape.Icon) : 0), 0, FamilySpace.Inset, 0);
 
         for (var i = 0; i < columns.Count; i++)
         {
             var title = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, draw.Spec.ColumnHeading?.Invoke(columns[i].Column) ?? string.Empty);
-            title.VerticalAlignment = VerticalAlignment.Top;
+            title.VerticalAlignment = VerticalAlignment.Bottom;
             if (columns[i].Column == KitColumn.When)
             {
                 title.TextAlignment = TextAlignment.Right;
