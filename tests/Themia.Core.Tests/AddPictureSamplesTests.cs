@@ -237,19 +237,23 @@ public sealed partial class AddPictureSamplesTests
     }
 
     /// <summary>
-    /// [S-11854] A shipped build knows one flag besides the app's own, the add page's check, so it is
-    /// never refused as unknown and never reaches the hand-off; Debug knows it too, with its renders.
+    /// [S-11854] [S-69] A shipped build knows one check besides the app's own flags, the add page's, so it is never
+    /// refused as unknown and never reaches the hand-off; Debug knows it too, with its renders.
     /// </summary>
     [Fact]
     public void S11854_the_check_is_known_in_every_build()
     {
         var app = File.ReadAllText(Path.Combine(App, "App.xaml.cs"));
-        Assert.Contains("[Shell.AddPicturesCheck.Flag, .. Shell.Gallery.RenderFlags.All];", app, StringComparison.Ordinal);
-        Assert.Contains("#else\n        [Shell.AddPicturesCheck.Flag];", app.Replace("\r\n", "\n", StringComparison.Ordinal), StringComparison.Ordinal);
-        Assert.Equal(StartRequest.Render, StartArguments.Classify(["Themia.exe", "--add-pictures-check", "x.png"], ["--add-pictures-check"]).Request);
+        Assert.Contains("StartArguments.Classify(commandLine, RenderCommandLine.Flags)", app, StringComparison.Ordinal);
+        Assert.Equal(StartRequest.Render, StartArguments.Classify(["Themia.exe", "--check", "add-pictures", "x.png"], RenderCommandLine.Flags).Request);
+
+        // The shipped commands (outside the Debug-only Gallery) hold the check.
+        var commands = File.ReadAllText(Path.Combine(App, "Shell", "RenderCommands.cs"));
+        Assert.Contains("AddPicturesCheck.Command,", commands, StringComparison.Ordinal);
+        Assert.DoesNotContain("#if DEBUG", commands, StringComparison.Ordinal);
 
         var check = File.ReadAllText(Path.Combine(App, "Shell", "Pages", "AddPicturesCheck.cs"));
-        Assert.Contains("public const string Flag = \"--add-pictures-check\";", check, StringComparison.Ordinal);
-        Assert.Contains("!string.Equals(args[1], Flag, StringComparison.Ordinal)", check, StringComparison.Ordinal);
+        Assert.Contains("\"add-pictures\",", check, StringComparison.Ordinal);
+        Assert.DoesNotContain("#if DEBUG", check, StringComparison.Ordinal);
     }
 }

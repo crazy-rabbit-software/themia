@@ -38,8 +38,8 @@ public static class StartArguments
 
     /// <summary>
     /// Classify <paramref name="commandLine"/> (as <c>Environment.GetCommandLineArgs()</c> gives it: the
-    /// executable first). <paramref name="renderFlags"/> are the renders and checks this build has
-    /// (none in a Release build). Flags compare exactly, as every render looks its own up.
+    /// executable first). <paramref name="renderFlags"/> are the verbs of the renders and checks
+    /// (<see cref="RenderCommandLine.Flags"/>, [S-69]). Flags compare exactly.
     /// </summary>
     public static StartDecision Classify(IReadOnlyList<string> commandLine, IReadOnlyCollection<string> renderFlags)
     {
@@ -67,7 +67,4 @@ public static class StartArguments
 
     /// <summary>The line an unknown flag prints (English: no language is loaded this early).</summary>
     public static string UnknownFlagMessage(string flag) => $"Themia: unknown flag '{flag}'; Themia was not started and no running copy was told anything.";
-
-    /// <summary>The line for a render flag no render took (a render's own lookup and this list disagree).</summary>
-    public static string UntakenRenderMessage(string flag) => $"Themia: '{flag}' is a render flag but no render ran; Themia was not started.";
 }

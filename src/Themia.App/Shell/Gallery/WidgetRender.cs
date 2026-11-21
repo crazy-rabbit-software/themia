@@ -10,6 +10,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -33,7 +34,24 @@ namespace Themia.App.Shell.Gallery;
 internal static class WidgetRender
 {
     private const string Scope = "widget-render";
-    internal const string Flag = "--widget-png";
+
+    /// <summary>What follows <c>--render widget</c>.</summary>
+    internal const string Usage = "<Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range|steps] [--keys k1,k2|text:abc] [--design k=v,..] [--chart area|line|bars|candles] [--detail simple|detailed] [--span s] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--background-image path] [--wallpaper path] [--transparent] [--place-cleared] [--machine sample] [--reference] [--tree] [--layout-json out.json] [--hover fx,fy] [--pressed fx,fy]";
+
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "widget",
+        Usage,
+        """
+        one widget in a real card on a preview host [S-1917]: at its min, natural and max side by side, or at w h, or --sizes (range, steps: cell by cell round its natural)
+        --state: a preview state (a wrong one prints the kind's states; --render states <Kind>); --style: a styled kind's look [S-6006]
+        --design border=dashed,radius=4,preset=Midnight,vibrancy=1,...: any look token by its key [S-2142]; --chart/--detail: a graph's chart look [S-6752]
+        --transparent: no page behind the cards (the PNG keeps their alpha); --wallpaper: the page is a screen with that wallpaper [S-2119]
+        --machine sample: the system widgets read the sample laptop, not this PC [S-1931]; --place-cleared: a place widget with its place cleared [S-2848]
+        --layout-json: every card's item boxes, grid pitch and ink outside its items [S-12831]; --hover/--pressed fx,fy: the item at that point under the pointer
+        scripts/item-check.py and scripts/gap-check.py judge the kinds against docs/WIDGET-RULES.md (exit 1 on a finding)
+        """,
+        async run => await Render(run, run.Args).ConfigureAwait(true) ? RenderCommandLine.Passed : RenderCommandLine.Failed);
 
     /// <summary>[S-6569] The cards' own background (<c>--background</c>), Default to follow the design.</summary>
     private static FillChoice _background = new();
@@ -70,57 +88,23 @@ internal static class WidgetRender
     /// <summary>Height reserved above each frame for its size label.</summary>
     private const double LabelHeight = 22;
 
-    /// <summary>The application theme can only be chosen before the resources load: read by <c>App</c>.</summary>
-    public static ApplicationTheme? RequestedTheme(string[] args)
-    {
-        if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, WidgetBatch.Flag) < 0)
-        {
-            return null;
-        }
-
-        return Option(args, "--theme")?.ToLowerInvariant() switch
-        {
-            "light" => ApplicationTheme.Light,
-            "dark" => ApplicationTheme.Dark,
-            _ => null,
-        };
-    }
-
-    public static bool TryRunFromCommandLine(Application app, string[] args)
-    {
-        if (Array.IndexOf(args, Flag) < 0)
-        {
-            return false;
-        }
-
-        _ = ExitAfter(app, Render(args));
-        return true;
-    }
-
-    /// <summary>[S-14340] The render's verdict is its exit code: 0 when the PNG was written, 1 when not.</summary>
-    private static async Task ExitAfter(Application app, Task<bool> drawn)
-    {
-        Environment.ExitCode = await drawn.ConfigureAwait(true) ? 0 : 1;
-        app.Exit();
-    }
-
     /// <summary>
     /// [S-1917] One render, on the UI thread: the widget drawn to its PNG (and what else <paramref name="args"/> ask for),
     /// then its window closed and its services disposed. Never throws: a failure is logged and printed. True when the
     /// PNG was written. [S-14340] The batch draws each of its jobs through it, one after another in one process, so a
     /// job's picture is the one its own <c>--widget-png</c> process draws.
     /// </summary>
-    internal static Task<bool> Render(string[] args)
+    internal static async Task<bool> Render(RenderRun run, IReadOnlyList<string> jobArgs)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0
-            || at + 2 >= args.Length
-            || !ModuleCatalog.TryFind(args[at + 1], out var picked)
-            || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
+        string[] args = [.. jobArgs];
+        if (args.Length < 2 || StartArguments.LooksLikeFlag(args[0]) || StartArguments.LooksLikeFlag(args[1]))
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree] [--layout-json out.json] [--hover fx,fy] [--pressed fx,fy]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
-            return Task.FromResult(false);
+            throw run.Usage("a kind and a PNG path");
+        }
+
+        if (!ModuleCatalog.TryFind(args[0], out var picked))
+        {
+            throw run.Usage($"no kind '{args[0]}' (Themia.exe --render catalog <out.json> lists them)");
         }
 
         // [S-14340] What a render reads per card, and the stand-in device location a job before may have set, are this render's.
@@ -128,35 +112,35 @@ internal static class WidgetRender
         AppServices.DebugDeviceLocation = null;
 
         var kind = picked.Id;
-        var outPath = System.IO.Path.GetFullPath(args[at + 2]);
-        var state = Option(args, "--state");
+        var outPath = System.IO.Path.GetFullPath(args[1]);
+        var state = RenderCommandLine.Option(args, "--state");
 
         // [S-6569] --background default|transparent|#RRGGBB[@percent]: the cards' own background.
-        _background = DesignText.Fill(Option(args, "--background")) ?? new FillChoice();
+        _background = DesignText.Fill(RenderCommandLine.Option(args, "--background")) ?? new FillChoice();
 
         // [S-6535] --scale 0.75|1.5: the widget's own content scale, through the same path as on the desktop.
-        _scale = Option(args, "--scale") is { } scaleText
+        _scale = RenderCommandLine.Option(args, "--scale") is { } scaleText
             && double.TryParse(scaleText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scaleValue)
                 ? WidgetScale.Normalise(scaleValue)
                 : 1.0;
 
         // [S-6586] --align left|center|right: where the cards draw their content (a kind or style
         // that does not align draws its default, as on the desktop).
-        _align = Option(args, "--align") is { } alignText && Enum.TryParse<ContentAlign>(alignText, ignoreCase: true, out var alignValue)
+        _align = RenderCommandLine.Option(args, "--align") is { } alignText && Enum.TryParse<ContentAlign>(alignText, ignoreCase: true, out var alignValue)
             && Enum.IsDefined(alignValue)
                 ? alignValue
                 : null;
 
         // [S-6547] The widget's own item layer, over the app-wide one --design sets: the per-widget override.
-        _ownItems = DesignText.Fill(Option(args, "--own-items")) ?? new FillChoice();
-        _ownItemText = HexColor.Normalise(Option(args, "--own-item-text"));
+        _ownItems = DesignText.Fill(RenderCommandLine.Option(args, "--own-items")) ?? new FillChoice();
+        _ownItemText = HexColor.Normalise(RenderCommandLine.Option(args, "--own-item-text"));
 
         // [S-6590] --background-image <path>: the cards' own background image, a picture file's full path.
-        _backgroundImage = Option(args, "--background-image") is { } imagePath && BackgroundImage.IsImagePath(imagePath) ? imagePath : null;
+        _backgroundImage = RenderCommandLine.Option(args, "--background-image") is { } imagePath && BackgroundImage.IsImagePath(imagePath) ? imagePath : null;
 
         // [S-6006] Any styled kind in one of its styles; a wrong name prints the kind's styles.
         int? style = null;
-        if (Option(args, "--style") is { } styleName)
+        if (RenderCommandLine.Option(args, "--style") is { } styleName)
         {
             if (WidgetStyles.Find(kind, styleName) is { } found)
             {
@@ -168,16 +152,16 @@ internal static class WidgetRender
             }
         }
         // [S-1829] --span seconds: a meter's chart span, to see a folded chart (an hour on a tile).
-        _span = Option(args, "--span") is { } spanText && int.TryParse(spanText, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var spanValue)
+        _span = RenderCommandLine.Option(args, "--span") is { } spanText && int.TryParse(spanText, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var spanValue)
             ? spanValue
             : null;
 
         // [S-2448] A kind is drawn at its range (min, natural, max) unless sizes are asked for:
         // --sizes range|WxH,.. picks.
-        _chart = Option(args, "--chart") is { } chartText && Enum.TryParse<ChartType>(chartText, ignoreCase: true, out var chartValue) && Enum.IsDefined(chartValue) ? chartValue : null;
-        _detail = Option(args, "--detail") is { } detailText && Enum.TryParse<ChartDetail>(detailText, ignoreCase: true, out var detailValue) && Enum.IsDefined(detailValue) ? detailValue : null;
-        _trend = Option(args, "--trend") is { } trendText && Enum.TryParse<MetricTrend>(trendText, ignoreCase: true, out var trendValue) && Enum.IsDefined(trendValue) ? trendValue : null;
-        _fragment = Option(args, "--config");
+        _chart = RenderCommandLine.Option(args, "--chart") is { } chartText && Enum.TryParse<ChartType>(chartText, ignoreCase: true, out var chartValue) && Enum.IsDefined(chartValue) ? chartValue : null;
+        _detail = RenderCommandLine.Option(args, "--detail") is { } detailText && Enum.TryParse<ChartDetail>(detailText, ignoreCase: true, out var detailValue) && Enum.IsDefined(detailValue) ? detailValue : null;
+        _trend = RenderCommandLine.Option(args, "--trend") is { } trendText && Enum.TryParse<MetricTrend>(trendText, ignoreCase: true, out var trendValue) && Enum.IsDefined(trendValue) ? trendValue : null;
+        _fragment = RenderCommandLine.Option(args, "--config");
         var sized = Fragment(WidgetConfig.CreateDefault(kind));
         if (style is { } styled)
         {
@@ -186,256 +170,207 @@ internal static class WidgetRender
 
         ChartLook(sized);
         var sizing = SizeFit.Of(sized);
-        List<CheckedSize> tiers = Size(args, at + 3) is { } size
+        List<CheckedSize> tiers = Size(args, 2) is { } size
             ? [new CheckedSize($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
-            : Sizes(Option(args, "--sizes"), sizing) is { Count: > 0 } sizes ? sizes : [.. SizeFit.CheckedAt(sizing)];
+            : Sizes(RenderCommandLine.Option(args, "--sizes"), sizing) is { Count: > 0 } sizes ? sizes : [.. SizeFit.CheckedAt(sizing)];
 
-        var drawn = new TaskCompletionSource<bool>();
-        var queued = dispatcher.TryEnqueue(async () =>
+        // The themed brushes follow the design's theme, not the application's: the harness sets both.
+        // [S-6480] --design sets the look the cards are drawn with (a border, a radius, a fill).
+        using var harness = RenderHarness.Open(run, "Themia widget render", null, 0, 0, args);
+        try
         {
-            Window? window = null;
-            Ticker? ticker = null;
-            IDisposable? machine = null;
-            IDisposable? wallpaper = null;
+            var reference = Array.IndexOf(args, "--reference") >= 0;
+            var (width, height) = PageSize(tiers);
+            if (reference)
+            {
+                width += tiers[0].Width + Gap;
+            }
+            // [S-1917] --transparent: the page draws nothing, so the PNG keeps the cards' own alpha
+            // (a transparent card, the corners) for compositing a render onto a picture. [S-14300] It paints a
+            // clear brush, never none: a page with no background is drawn from its first child's corner, so the PNG
+            // would not start where the layout dump's card places (the page's DIPs) start.
+            var transparent = Array.IndexOf(args, "--transparent") >= 0;
+            var page = new Canvas
+            {
+                Width = width,
+                Height = height,
+                Background = transparent
+                    ? new SolidColorBrush(Colors.Transparent)
+                    : DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
+            };
+
+            // [S-2119] --wallpaper <path>: the page is the screen, the picture its wallpaper.
+            if (RenderCommandLine.Option(args, "--wallpaper") is { } wallpaperPath)
+            {
+                harness.Own(RenderWallpaper.Use(wallpaperPath, new ScreenMetrics(width, height)));
+                if (!transparent)
+                {
+                    page.Background = new ImageBrush
+                    {
+                        ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(System.IO.Path.GetFullPath(wallpaperPath))),
+                        Stretch = Stretch.UniformToFill,
+                    };
+                }
+            }
+
+            harness.Window.Window.Content = new Grid { Children = { page } };
+
+            // As on the desktop: the page is screen geometry, each card flows with the language itself.
+            UiLanguage.ApplyLanguageOnly(page);
+            harness.Window.Resize(width, height);
+
+            // [S-1500] A confirmation a state opens is drawn inside this window, as a popup of
+            // its own window does not render to a bitmap. Set before any view builds one.
+            ConfirmFlyout.RenderInWindow = true;
+
+            // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
+            // [S-1931] --machine sample: they read the sample machine instead of this PC. [S-15744] So does a system kind's
+            // "sample" state (a meter's own: its reading and items are the sample machine's, never this PC's moving ones).
+            harness.UseServices(sampleMachine: string.Equals(RenderCommandLine.Option(args, "--machine"), "sample", StringComparison.OrdinalIgnoreCase)
+                || (state == "sample" && WidgetConfig.CreateDefault(kind) is Themia.Core.SystemData.IReadsSystem));
+
+            // [S-9929] A kit service widget's preview states are its provider's recordings.
+            var host = harness.CardHost(state);
+
+            // [S-11601] The cards are drawn at the boxes their configs take: the page and window follow.
             var cards = new List<WidgetCard>();
-            var written = false;
-
-            try
+            var labels = Place(page, host, kind, style, tiers, cards);
+            cards.ForEach(card => harness.Track(card));
+            if (reference)
             {
-                // The themed brushes follow the design's theme, not the application's: set both.
-                // [S-6480] --design sets the look the cards are drawn with (a border, a radius, a fill).
-                var design = DesignArgs.From(args, RequestedTheme(args) switch
-                {
-                    ApplicationTheme.Light => AppTheme.Light,
-                    ApplicationTheme.Dark => AppTheme.Dark,
-                    _ => AppTheme.System,
-                });
-                DesignApplier.Apply(design);
-
-                var reference = Array.IndexOf(args, "--reference") >= 0;
-                var (width, height) = PageSize(tiers);
-                if (reference)
-                {
-                    width += tiers[0].Width + Gap;
-                }
-                // [S-1917] --transparent: the page draws nothing, so the PNG keeps the cards' own alpha
-                // (a transparent card, the corners) for compositing a render onto a picture. [S-14300] It paints a
-                // clear brush, never none: a page with no background is drawn from its first child's corner, so the PNG
-                // would not start where the layout dump's card places (the page's DIPs) start.
-                var transparent = Array.IndexOf(args, "--transparent") >= 0;
-                var page = new Canvas
-                {
-                    Width = width,
-                    Height = height,
-                    Background = transparent
-                        ? new SolidColorBrush(Colors.Transparent)
-                        : DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
-                };
-
-                // [S-2119] --wallpaper <path>: the page is the screen, the picture its wallpaper.
-                if (Option(args, "--wallpaper") is { } wallpaperPath)
-                {
-                    wallpaper = RenderWallpaper.Use(wallpaperPath, new ScreenMetrics(width, height));
-                    if (!transparent)
-                    {
-                        page.Background = new ImageBrush
-                        {
-                            ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(System.IO.Path.GetFullPath(wallpaperPath))),
-                            Stretch = Stretch.UniformToFill,
-                        };
-                    }
-                }
-
-                window = new Window { Content = new Grid { Children = { page } }, Title = "Themia widget render" };
-
-                // As on the desktop: the page is screen geometry, each card flows with the language itself.
-                UiLanguage.ApplyLanguageOnly(page);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((width + 40) * scale), (int)((height + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                ticker = new Ticker(dispatcher);
-
-                // [S-1500] A confirmation a state opens is drawn inside this window, as a popup of
-                // its own window does not render to a bitmap. Set before any view builds one.
-                ConfirmFlyout.RenderInWindow = true;
-
-                // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
-                // [S-1931] --machine sample: they read the sample machine instead of this PC. [S-15744] So does a system kind's
-                // "sample" state (a meter's own: its reading and items are the sample machine's, never this PC's moving ones).
-                if (string.Equals(Option(args, "--machine"), "sample", StringComparison.OrdinalIgnoreCase)
-                    || (state == "sample" && WidgetConfig.CreateDefault(kind) is Themia.Core.SystemData.IReadsSystem))
-                {
-                    machine = RenderMachine.Install(ticker, dispatcher);
-                }
-                else
-                {
-                    AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
-                }
-
-                AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
-                // [S-9929] A kit service widget's preview states are its provider's recordings.
-                var host = new NoticeRender.RenderCardHost(ticker) { Design = design, FixtureState = state };
-                // [S-11601] The cards are drawn at the boxes their configs take: the page and window follow.
-                var labels = Place(page, host, kind, style, tiers, cards);
-                if (reference)
-                {
-                    page.Width += tiers[0].Width + Gap;
-                    PlaceReference(page, tiers[0], page.Width - Gap - tiers[0].Width);
-                }
-
-                window.AppWindow.Resize(new SizeInt32((int)((page.Width + 40) * scale), (int)((page.Height + 80) * scale)));
-
-                await Task.Delay(800).ConfigureAwait(true);
-                await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
-
-                if (state is not null)
-                {
-                    foreach (var card in cards)
-                    {
-                        if (card.View is IWidgetPreviewState preview)
-                        {
-                            // [S-2711] A preview state draws over fixture data: no account is needed.
-                            if (card.ShowsSetup)
-                            {
-                                card.RunForPreview();
-                                await Task.Delay(200).ConfigureAwait(true);
-                            }
-
-                            if (!preview.PreviewStates.Contains(state, StringComparer.Ordinal))
-                            {
-                                Console.WriteLine($"widget: {kind} has no state '{state}' (has: {string.Join(", ", preview.PreviewStates)})");
-                            }
-
-                            await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
-
-                            // [S-15809] A state drawing a config the card would set up stands under its Set up line (WR-10).
-                            if (preview.DrawnConfig is { } drawn)
-                            {
-                                card.SetupForPreview(drawn);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine($"widget: {kind} has no preview states");
-                        }
-                    }
-
-                    await Task.Delay(400).ConfigureAwait(true);
-
-                    // [S-11603] A state that holds its own items is drawn at their size.
-                    if (!reference && cards.Any(c => c.View is IWidgetPreviewState { DrawnConfig: not null }))
-                    {
-                        tiers = Refit(page, cards, labels, tiers);
-                        window.AppWindow.Resize(new SizeInt32((int)((page.Width + 40) * scale), (int)((page.Height + 80) * scale)));
-                        await Task.Delay(400).ConfigureAwait(true);
-                    }
-                }
-
-                // [S-1980] Keys handed to every card before the shot, to look at a widget's keyboard
-                // focus ("--keys Down,Down" or "--keys text:be" for type-ahead) without the lease.
-                if (Option(args, "--keys") is { } keys)
-                {
-                    foreach (var card in cards)
-                    {
-                        SendKeys(card, keys);
-                    }
-
-                    await Task.Delay(400).ConfigureAwait(true);
-                }
-
-                // [S-12831] --hover fx,fy / --pressed fx,fy: each card's item (or control) under that point of it (fractions
-                // of the card) shows its look under the pointer, as the owner's hover rules are judged (WR-12, WR-13).
-                foreach (var (flag, pressed) in new[] { ("--hover", false), ("--pressed", true) })
-                {
-                    if (Option(args, flag) is { } where && Fraction(where) is { } point)
-                    {
-                        foreach (var card in cards)
-                        {
-                            PointAt(card, point, pressed);
-                        }
-
-                        await Task.Delay(400).ConfigureAwait(true);
-                    }
-                }
-
-                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
-                await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
-                Console.WriteLine($"widget: wrote {outPath}");
-                written = true;
-
-                // [S-6732] --tree: each card's visual tree beside the PNG, for the match against a mockup.
-                if (Array.IndexOf(args, "--tree") >= 0)
-                {
-                    TreeDump.Write(cards, tiers, outPath + ".tree.json");
-                    Console.WriteLine($"widget: wrote {outPath}.tree.json");
-                }
-
-                // [S-12831] --layout-json: each card's item boxes, its grid pitch and the ink outside its items, for the item check.
-                if (Option(args, "--layout-json") is { } layoutPath)
-                {
-                    var full = System.IO.Path.GetFullPath(layoutPath);
-                    ItemDump.Write(cards, tiers, kind.ToString(), state, page, full);
-                    Console.WriteLine($"widget: wrote {full}");
-                }
-
-                // A state that opens a popup (a confirmation) is not part of the page's bitmap: each
-                // open one is written beside it as <name>-popup<n>.png.
-                var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(page.XamlRoot);
-                for (var i = 0; i < popups.Count; i++)
-                {
-                    if (popups[i].Child is not UIElement content)
-                    {
-                        continue;
-                    }
-
-                    var target = System.IO.Path.ChangeExtension(outPath, null) + $"-popup{i}.png";
-                    try
-                    {
-                        // A flyout's presenter carries a system backdrop, which a bitmap cannot draw:
-                        // draw what it presents.
-                        var drawn = content is ContentControl { Content: UIElement presented } ? presented : content;
-                        await RenderPng.SaveAsync(drawn, target).ConfigureAwait(true);
-                        Console.WriteLine($"widget: wrote {target}");
-                    }
-                    catch (Exception ex)
-                    {
-                        // A popup with nothing laid out (a closing tooltip) cannot be drawn; the page already was.
-                        Log.Warn(Scope, $"popup {i} could not be drawn", ex);
-                        Console.WriteLine($"widget: popup {i} could not be drawn: {ex.Message}");
-                    }
-                }
+                page.Width += tiers[0].Width + Gap;
+                PlaceReference(page, tiers[0], page.Width - Gap - tiers[0].Width);
             }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the widget failed", ex);
-                Console.WriteLine($"widget: failed: {ex.Message}");
-            }
-            finally
+
+            harness.Window.Resize(page.Width, page.Height);
+
+            await Task.Delay(800).ConfigureAwait(true);
+            await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
+
+            if (state is not null)
             {
                 foreach (var card in cards)
                 {
-                    card.Detach();
+                    if (card.View is IWidgetPreviewState preview)
+                    {
+                        // [S-2711] A preview state draws over fixture data: no account is needed.
+                        if (card.ShowsSetup)
+                        {
+                            card.RunForPreview();
+                            await Task.Delay(200).ConfigureAwait(true);
+                        }
+
+                        if (!preview.PreviewStates.Contains(state, StringComparer.Ordinal))
+                        {
+                            Console.WriteLine($"widget: {kind} has no state '{state}' (has: {string.Join(", ", preview.PreviewStates)})");
+                        }
+
+                        await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
+
+                        // [S-15809] A state drawing a config the card would set up stands under its Set up line (WR-10).
+                        if (preview.DrawnConfig is { } drawn)
+                        {
+                            card.SetupForPreview(drawn);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"widget: {kind} has no preview states");
+                    }
                 }
 
-                machine?.Dispose();
-                AppServices.System?.Dispose();
-                AppServices.System = null;
-                AppServices.Gallery?.Dispose();
-                AppServices.Gallery = null;
-                wallpaper?.Dispose();
-                ticker?.Dispose();
-                window?.Close();
-                drawn.TrySetResult(written);
-            }
-        });
+                await Task.Delay(400).ConfigureAwait(true);
 
-        return queued ? drawn.Task : Task.FromResult(false);
+                // [S-11603] A state that holds its own items is drawn at their size.
+                if (!reference && cards.Any(c => c.View is IWidgetPreviewState { DrawnConfig: not null }))
+                {
+                    tiers = Refit(page, cards, labels, tiers);
+                    harness.Window.Resize(page.Width, page.Height);
+                    await Task.Delay(400).ConfigureAwait(true);
+                }
+            }
+
+            // [S-1980] Keys handed to every card before the shot, to look at a widget's keyboard
+            // focus ("--keys Down,Down" or "--keys text:be" for type-ahead) without the lease.
+            if (RenderCommandLine.Option(args, "--keys") is { } keys)
+            {
+                foreach (var card in cards)
+                {
+                    SendKeys(card, keys);
+                }
+
+                await Task.Delay(400).ConfigureAwait(true);
+            }
+
+            // [S-12831] --hover fx,fy / --pressed fx,fy: each card's item (or control) under that point of it (fractions
+            // of the card) shows its look under the pointer, as the owner's hover rules are judged (WR-12, WR-13).
+            foreach (var (flag, pressed) in new[] { ("--hover", false), ("--pressed", true) })
+            {
+                if (RenderCommandLine.Option(args, flag) is { } where && Fraction(where) is { } point)
+                {
+                    foreach (var card in cards)
+                    {
+                        PointAt(card, point, pressed);
+                    }
+
+                    await Task.Delay(400).ConfigureAwait(true);
+                }
+            }
+
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
+            await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
+            Console.WriteLine($"widget: wrote {outPath}");
+
+            // [S-6732] --tree: each card's visual tree beside the PNG, for the match against a mockup.
+            if (Array.IndexOf(args, "--tree") >= 0)
+            {
+                TreeDump.Write(cards, tiers, outPath + ".tree.json");
+                Console.WriteLine($"widget: wrote {outPath}.tree.json");
+            }
+
+            // [S-12831] --layout-json: each card's item boxes, its grid pitch and the ink outside its items, for the item check.
+            if (RenderCommandLine.Option(args, "--layout-json") is { } layoutPath)
+            {
+                var full = System.IO.Path.GetFullPath(layoutPath);
+                ItemDump.Write(cards, tiers, kind.ToString(), state, page, full);
+                Console.WriteLine($"widget: wrote {full}");
+            }
+
+            // A state that opens a popup (a confirmation) is not part of the page's bitmap: each
+            // open one is written beside it as <name>-popup<n>.png.
+            var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(page.XamlRoot);
+            for (var i = 0; i < popups.Count; i++)
+            {
+                if (popups[i].Child is not UIElement content)
+                {
+                    continue;
+                }
+
+                var target = System.IO.Path.ChangeExtension(outPath, null) + $"-popup{i}.png";
+                try
+                {
+                    // A flyout's presenter carries a system backdrop, which a bitmap cannot draw:
+                    // draw what it presents.
+                    var drawn = content is ContentControl { Content: UIElement presented } ? presented : content;
+                    await RenderPng.SaveAsync(drawn, target).ConfigureAwait(true);
+                    Console.WriteLine($"widget: wrote {target}");
+                }
+                catch (Exception ex)
+                {
+                    // A popup with nothing laid out (a closing tooltip) cannot be drawn; the page already was.
+                    Log.Warn(Scope, $"popup {i} could not be drawn", ex);
+                    Console.WriteLine($"widget: popup {i} could not be drawn: {ex.Message}");
+                }
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "rendering the widget failed", ex);
+            Console.WriteLine($"widget: failed: {ex.Message}");
+            return false;
+        }
     }
 
     private static void SendKeys(WidgetCard card, string keys)
@@ -760,12 +695,6 @@ internal static class WidgetRender
                 return;
             }
         }
-    }
-
-    private static string? Option(string[] args, string name)
-    {
-        var at = Array.IndexOf(args, name);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
     }
 }
 #endif

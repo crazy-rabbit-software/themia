@@ -61,15 +61,11 @@ public partial class App : Application
         Services.SoundCue.Install(new Services.HostCuePlayer());
 
 #if DEBUG
-        // A render's --theme: the application theme can only be chosen before the resources load,
+        // [S-69] A render's --theme: the application theme can only be chosen before the resources load,
         // and the brushes come from it.
-        if ((Shell.Gallery.IconPickerRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.EditBarRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.FamilyCheckRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.SceneRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
+        if (RenderCommandLine.Theme(Environment.GetCommandLineArgs()) is { } theme && theme != Core.Model.AppTheme.System)
         {
-            RequestedTheme = theme;
+            RequestedTheme = theme == Core.Model.AppTheme.Light ? ApplicationTheme.Light : ApplicationTheme.Dark;
         }
 #endif
 
@@ -121,7 +117,7 @@ public partial class App : Application
 
         // [S-68] A flag this build does not know never starts the app and never reaches the hand-off,
         // which would toggle the running copy's edit mode: it is named and the process exits.
-        var start = StartArguments.Classify(commandLine, KnownRenderFlags);
+        var start = StartArguments.Classify(commandLine, RenderCommandLine.Flags);
         if (start.Request == StartRequest.Unknown)
         {
             RefuseStart(StartArguments.UnknownFlagMessage(start.Flag ?? string.Empty));
@@ -135,211 +131,16 @@ public partial class App : Application
             OffDesktop.Enter();
         }
 
-        // [S-11854] The add page's pictures drawn off-screen to a PNG, then exit: in every build.
-        if (Shell.AddPicturesCheck.TryRunFromCommandLine(this, commandLine))
-        {
-            return;
-        }
-
 #if DEBUG
-        // [S-1814] Showcase views into a state file, then exit. Before the single-instance hand-off,
-        // which would toggle the running copy's edit mode instead.
-        if (Shell.Gallery.ShowcaseCommand.TryRun(Environment.GetCommandLineArgs()) is { } exitCode)
-        {
-            Environment.Exit(exitCode);
-            return;
-        }
-
-        // [S-1109] --lang <code> draws any render below in that language.
-        Shell.Gallery.RenderLanguage.Apply(Environment.GetCommandLineArgs());
-
-        // Each render runs instead of the app, never alongside it: no state file, no single-instance
-        // hand-off, so it can draw while the user's own copy keeps running, over a demo state that
-        // is never saved. The edit bar's open add menu ([S-3506]).
-        if (Shell.Gallery.PickerRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the edit bar ([S-3506]).
-        if (Shell.Gallery.EditBarRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the open icon picker ([S-1803]).
-        if (Shell.Gallery.IconPickerRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the desktop view bar ([S-906]) at its anchors and sizes.
-        if (Shell.Gallery.ViewBarRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // [S-5510] [S-5512] This PC's desktop namespace read once, without its names.
-        if (Shell.Gallery.DesktopItemsCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // [S-5551] The desktop's background menu with Themia's lines, built and read back, never shown.
-        if (Shell.Gallery.DesktopMenuCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the desktop's notices and a widget's error card ([S-880], [S-891]).
-        if (Shell.Gallery.NoticeRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the app-layout editor ([S-1411]).
-        if (Shell.Gallery.LayoutEditorRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for one widget at every size tier, or one size ([S-1917]).
-        if (Shell.Gallery.WidgetRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And many of those in one process, for the checks ([S-14340]).
-        if (Shell.Gallery.WidgetBatch.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And every kind the build has, with its states, for the checks ([S-14342]).
-        if (Shell.Gallery.CatalogDump.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the context menus ([S-1740]..[S-1744]).
-        if (Shell.Gallery.MenuRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the intros, frozen mid-flight ([S-1016]).
-        if (Shell.Gallery.MotionRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And a stand-in desktop of item widgets with the band ([S-5544]).
-        if (Shell.Gallery.DesktopRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And a store scene: a whole stand-in desktop of widgets to one PNG ([S-1074]).
-        if (Shell.Gallery.SceneRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And the edit-mode snap grid ([S-06c]).
-        if (Shell.Gallery.GridRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // [S-11874]..[S-11879] The locked desktop's moves: the local grid, icons on the grid, a mixed lasso.
-        if (Shell.Gallery.DragRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // [S-11890] What each stage of a move's pointer step costs, on a real surface.
-        if (Shell.Gallery.DragBench.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // [S-2360] What the edit mode's everyday steps cost (a page opened, a card expanded, a selection), on a real surface.
-        if (Shell.Gallery.UiBench.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And what a view switch costs, and whether it leaks ([S-1883]).
-        if (Shell.Gallery.SwitchCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And the surface's start on a view: every card at rest, the automation tree whole ([S-1018]).
-        if (Shell.Gallery.StartupCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And the locked desktop's one selection of cards and icons through a real host and surface, real input with --live ([S-12954]).
-        if (Shell.Gallery.DeskSelectCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And a weather forecast's three states, its layout editing driven through a real host and surface ([S-15526]).
-        if (Shell.Gallery.ForecastEditCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And one view on two stand-in displays whose taskbars are on opposite sides: every widget clear of both ([S-855]).
-        if (Shell.Gallery.DisplaysCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And the first press on any widget, dragged, moving it: posted pointer messages through a real host and surface ([S-13060]).
-        if (Shell.Gallery.FirstDragCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And the surface's drop plumbing, exercised off-screen ([S-1026]).
-        if (Shell.Gallery.DropCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And the family's render walk over every kind ([S-6731]), and its blocks drawn alone ([S-6732]).
-        if (Shell.Gallery.FamilyCheckRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And every widget's inline box, open over its rest state: nothing moves ([S-13950]).
-        if (Shell.Gallery.InlineCheckRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And the widget gallery: its screens and picks drawn, its drag driven through a real host and surface ([S-14917]).
-        if (Shell.Gallery.WidgetGalleryRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And a live clock handed every style in turn ([S-6016]).
-        if (Shell.Gallery.ClockStyleRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
+        // [S-1109] --lang <code> draws any render in that language.
+        Shell.Gallery.RenderLanguage.Apply(commandLine);
 #endif
 
-        // [S-68] A render flag no render above took: still never the app.
-        if (start.Request == StartRequest.Render)
+        // [S-69] A render or check runs instead of the app, never alongside it: no state file, no single-instance
+        // hand-off, so it can draw while the user's own copy keeps running, over a demo state that is never saved.
+        // [S-11854] A Release build has the add page's check alone.
+        if (Shell.RenderCommands.TryRun(this, commandLine))
         {
-            RefuseStart(StartArguments.UntakenRenderMessage(start.Flag ?? string.Empty));
             return;
         }
 
@@ -391,14 +192,6 @@ public partial class App : Application
         _host.LayShareOuts(load.SharedOut);
         _host.Start();
     }
-
-    /// <summary>[S-68] The renders and checks this build runs instead of the app: none in a Release build.</summary>
-    private static IReadOnlyCollection<string> KnownRenderFlags =>
-#if DEBUG
-        [Shell.AddPicturesCheck.Flag, .. Shell.Gallery.RenderFlags.All];
-#else
-        [Shell.AddPicturesCheck.Flag];
-#endif
 
     /// <summary>[S-68] Say why nothing started, on the console and in the log, and exit non-zero.</summary>
     private static void RefuseStart(string message)

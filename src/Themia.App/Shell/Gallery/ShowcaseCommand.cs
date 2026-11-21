@@ -5,13 +5,14 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.Sdk;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-1814] Debug only: <c>Themia.exe --add-showcase-views [&lt;statePath&gt;]</c> puts one view per
+/// [S-1814] Debug only: <c>Themia.exe --render showcase-views [&lt;statePath&gt;]</c> puts one view per
 /// widget kind into a state file, each holding the widget at its min, natural and max
 /// (<see cref="ShowcaseViews"/>), laid out for the primary display, and exits. No window, no desktop.
 /// <para>
@@ -27,8 +28,6 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class ShowcaseCommand
 {
-    public const string Flag = "--add-showcase-views";
-
     private const string Scope = "showcase";
 
     /// <summary>MONITOR_DEFAULTTOPRIMARY.</summary>
@@ -37,18 +36,19 @@ internal static class ShowcaseCommand
     /// <summary>MDT_EFFECTIVE_DPI.</summary>
     private const int EffectiveDpi = 0;
 
-    /// <summary>Run the command if <paramref name="args"/> asks for it. Returns the exit code, or null when not asked.</summary>
-    public static int? TryRun(string[] args)
-    {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return null;
-        }
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "showcase-views",
+        "[<statePath>]",
+        "one view per widget kind at its min, natural and max, into a state file (default: the app's own; quit Themia first) [S-1814]",
+        run => Task.FromResult(Guarded(run.Args.Count > 0 && !StartArguments.LooksLikeFlag(run.Args[0]) ? run.Args[0] : null)));
 
+    /// <summary>The command, its throw logged and said: exit code 5.</summary>
+    private static int Guarded(string? requested)
+    {
         try
         {
-            return Run(at + 1 < args.Length && !args[at + 1].StartsWith("--", StringComparison.Ordinal) ? args[at + 1] : null);
+            return Run(requested);
         }
         catch (Exception ex)
         {
@@ -162,7 +162,7 @@ internal static class ShowcaseCommand
 
     private static void Say(string message)
     {
-        Console.WriteLine($"{Flag}: {message}");
+        Console.WriteLine($"showcase-views: {message}");
         Log.Info(Scope, message);
     }
 }

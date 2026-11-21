@@ -1,5 +1,4 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -8,13 +7,13 @@ using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
-using Themia.Core.Storage;
+using Themia.Core.Shell;
 using Themia.Sdk;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-855] Debug only: <c>Themia.exe --displays-check &lt;outDir&gt;</c>. A real <see cref="AppHost"/> over a detached
+/// [S-855] Debug only: <c>Themia.exe --check displays &lt;outDir&gt;</c>. A real <see cref="AppHost"/> over a detached
 /// store and two real <see cref="DesktopWindow"/>s on stand-in displays off-screen, side by side as the owner's (two
 /// 2560 × 1440 panels, the taskbar 72 pixels wide on the left of one and on the right of the other), both showing one
 /// view laid out against one display's work area or the other's (a column flush with each work area's edges, a
@@ -32,7 +31,6 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class DisplaysCheck
 {
-    public const string Flag = "--displays-check";
     private const string Scope = "displays-check";
     private const string LeftId = "displays-check-taskbar-left";
     private const string RightId = "displays-check-taskbar-right";
@@ -46,44 +44,22 @@ internal static class DisplaysCheck
     /// </summary>
     private const double Rounding = 1;
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "displays",
+        "<outDir>",
+        """
+        one view on two stand-in displays, the taskbar left on one and right on the other, through a real host and surfaces:
+        every card clear of both taskbars, placement at the far edges, a widget dragged over each taskbar staying there
+        (the visible minimum kept), a view shown on the other display, PASS or FAIL [S-855]
+        """,
+        run => RunAsync(run.PathArg(0)));
+
+    private static async Task<int> RunAsync(string outDir)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
-        {
-            Log.Error(Scope, $"usage: {Flag} <outDir>");
-            app.Exit();
-            return true;
-        }
-
-        _ = RunAsync(app, Path.GetFullPath(args[at + 1]));
-        return true;
-    }
-
-    private static async Task RunAsync(Application app, string outDir)
-    {
-        var lines = new List<string>();
-        var failures = 0;
-        AppHost? host = null;
-        DesktopWindow? left = null;
-        DesktopWindow? right = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
-
-        void Check(bool ok, string what)
-        {
-            failures += ok ? 0 : 1;
-            Say($"{(ok ? "ok  " : "FAIL")} {what}");
-        }
+        var report = new CheckReport(Scope, Path.Combine(outDir, "displays.txt"));
+        void Say(string line) => report.Say(line);
+        void Check(bool ok, string what) => report.Expect(ok, what);
 
         Log.AddSink(static record =>
         {
@@ -93,6 +69,7 @@ internal static class DisplaysCheck
             }
         });
 
+        StandInDesktop? desk = null;
         try
         {
             Directory.CreateDirectory(outDir);
@@ -101,21 +78,19 @@ internal static class DisplaysCheck
             view.Widgets.Clear();
 
             // Off-screen, side by side: the left panel's taskbar on its left, the right panel's on its right (the outer edges).
-            var leftBounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 2560, Bottom = -32000 + 1440 };
-            var rightBounds = leftBounds with { Left = leftBounds.Right, Right = leftBounds.Right + 2560 };
+            var leftBounds = StandInDesktop.OffScreen(2560, 1440);
+            var rightBounds = StandInDesktop.OffScreen(2560, 1440, left: 2560);
             var leftMonitor = new MonitorTarget(LeftId, IdResolved: true, "displays-check-left", leftBounds, leftBounds with { Left = leftBounds.Left + Taskbar }, IsPrimary: false);
             var rightMonitor = new MonitorTarget(RightId, IdResolved: true, "displays-check-right", rightBounds, rightBounds with { Right = rightBounds.Right - Taskbar }, IsPrimary: false);
 
             state.ShowViewOn(LeftId, view.Id);
             state.ShowViewOn(RightId, view.Id);
 
-            host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-displays-check", "state.json")), state);
-            left = new DesktopWindow(host, leftMonitor);
-            host.AdoptSurfaceForCheck(left);
-            right = new DesktopWindow(host, rightMonitor);
-            host.AdoptSurfaceForCheck(right);
-            left.ShowSurface();
-            right.ShowSurface();
+            desk = StandInDesktop.Create(Scope, state);
+            var host = desk.Host;
+            var left = desk.Add(leftMonitor);
+            var right = desk.Add(rightMonitor);
+            desk.Show();
 
             // A diagnostic's wait, not a correctness path: both roots load and settle, the intro ends.
             await Task.Delay(2500).ConfigureAwait(true);
@@ -269,22 +244,17 @@ internal static class DisplaysCheck
             {
                 await Picture(surface, Path.Combine(outDir, $"display-{name}-work.png")).ConfigureAwait(true);
             }
-
-            Say(failures == 0 ? "displays-check: PASS" : $"displays-check: FAIL ({failures})");
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the displays check failed", ex);
-            Say($"displays-check: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
-            right?.CloseSurface();
-            left?.CloseSurface();
-            host?.Dispose();
-            await File.WriteAllLinesAsync(Path.Combine(outDir, "displays.txt"), lines).ConfigureAwait(true);
-            app.Exit();
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>The display's own work area in the surface's DIPs.</summary>
@@ -371,9 +341,8 @@ internal static class DisplaysCheck
         var root = (Panel)surface.DebugRoot;
         root.Children.Add(tint);
         await Task.Delay(200).ConfigureAwait(true);
-        await RenderPng.SaveAsync(root, path).ConfigureAwait(true);
+        await RenderHarness.SaveAsync(root, path, Scope).ConfigureAwait(true);
         root.Children.Remove(tint);
-        Console.WriteLine($"displays-check: wrote {path}");
     }
 }
 #endif
