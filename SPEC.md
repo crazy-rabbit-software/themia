@@ -10557,10 +10557,19 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   ([S-854]), then is laid once, in that mutation, at each part's own scale and on the grid's minimums (`SizeFit.Limits`):
   a lead beside a stack (the sky on the left, the temperature over the condition) keeps its shares where they hold; else
   the line beside the lead and the stack's lines move as far as the minimums need; else the parts stack, the lead on top,
-  each the card's width; else the arrangement that grows the card least, right and down from its corner, never one part
-  over another. Parts moved, resized or removed before then are the user's and stay; a card whose view no display shows
-  waits; an import's cards wait the same way, a reset's are forgotten. Tests `ShareOutsTests.S15026_` (Core),
-  `WeatherNowSplitTests.S15026_`.
+  each the card's width; else as [S-15027] grows or moves them. Parts moved, resized or removed before then are the
+  user's and stay; a card whose view no display shows waits; an import's cards wait the same way, a reset's are
+  forgotten. Tests `ShareOutsTests.S15026_` (Core), `WeatherNowSplitTests.S15026_`.
+- **[S-15027]** **The parts are laid on whole grid cells, never over each other or a neighbour** (owner's Home, 2026-11-21:
+  a 300 × 110 summary over a forecast had its condition at 135.3, painted 60 tall over the temperature and 5 DIPs over
+  the forecast; a 320 × 80 one had its temperature and condition at 2287.3, painted 220 wide over the sky and past the
+  forecast's edge). Shares of a card fall between grid lines and a card is painted at whole cells
+  ([S-11807]), so the lay of [S-15026] counts in cells: the card's lines, each part's least in whole cells (it may go
+  under its natural, down to that), the cells shared by the shares and what rounding leaves given one each where most
+  was lost (`ShareOuts.Split`). When neither arrangement holds in the card, the block grows over it toward free cells
+  (no other card as painted there, inside the work area), the smaller arrangement first, the corner nearest the card's
+  first; when no growth is free, last, the smaller arrangement moves to the free cells nearest the card. Tests
+  `ShareOutsTests.S15027_` (Core), `WeatherNowSplitTests.S15027_` (the owner's two cards and their neighbours).
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,

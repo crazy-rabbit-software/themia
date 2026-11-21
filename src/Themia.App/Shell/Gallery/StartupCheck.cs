@@ -74,8 +74,9 @@ internal static class StartupCheck
 
         try
         {
-            var state = statePath is { } source
-                ? StateDocument.Parse(File.ReadAllText(source)).State ?? throw new InvalidDataException($"{source} is not a state document")
+            var parsed = statePath is { } source ? StateDocument.Parse(File.ReadAllText(source)) : (ParseResult?)null;
+            var state = parsed is { } read
+                ? read.State ?? throw new InvalidDataException($"{statePath} is not a state document")
                 : AppState.CreateDefault();
             var view = show is null ? state.Views[0] : state.Views.First(v => string.Equals(v.Name, show, StringComparison.OrdinalIgnoreCase));
             state.ShowViewOn(DisplayId, view.Id);
@@ -88,7 +89,14 @@ internal static class StartupCheck
                 : null;
 
             host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-startup-check", "state.json")), state);
+
+            // [S-15026] As at a start: the cards the load shared out are laid once the surface's metrics settle.
+            host.LayShareOuts(parsed?.SharedOut ?? []);
             surface = new DesktopWindow(host, monitor);
+
+            // The host's own surface, as at a start: what waits for settled metrics (the refits, the settles, a card the load
+            // shared out, [S-15026]) runs on it.
+            host.AdoptSurfaceForCheck(surface);
             surface.ShowSurface();
             if (Environment.GetCommandLineArgs().Contains("--twice"))
             {
