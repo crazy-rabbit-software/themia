@@ -3,10 +3,10 @@ using Themia.App.Widgets;
 using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
-using Themia.Core.Settings;
 
 namespace Themia.Widget.HabitTracker.Tests;
 

@@ -1,16 +1,16 @@
 using System.Text.Json;
+using Themia.App.Widgets;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
-using Themia.App.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
-using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 

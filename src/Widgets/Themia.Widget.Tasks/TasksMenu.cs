@@ -6,12 +6,12 @@ using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
-using Themia.Core.Settings;
 
 namespace Themia.Widget.Tasks;
 

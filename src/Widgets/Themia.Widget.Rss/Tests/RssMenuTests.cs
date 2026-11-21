@@ -1,9 +1,9 @@
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Sdk.WinUI;
 using Xunit;
-using Themia.Core.Settings;
 
 namespace Themia.Widget.Rss.Tests;
 

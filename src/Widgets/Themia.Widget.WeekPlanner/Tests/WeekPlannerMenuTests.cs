@@ -6,10 +6,10 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Core.Settings;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
-using Themia.Core.Settings;
 
 namespace Themia.Widget.WeekPlanner.Tests;
 

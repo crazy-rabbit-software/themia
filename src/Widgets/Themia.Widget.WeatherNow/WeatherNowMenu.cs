@@ -1,9 +1,9 @@
 using Themia.App.Widgets;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Sync;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
-using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 

@@ -1,11 +1,11 @@
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
-using Themia.Sdk.WinUI;
-using Themia.Widget.WeatherForecast;
+using Themia.Core.Settings;
 using Themia.Core.Sync;
 using Themia.Sdk;
-using Themia.Core.Settings;
+using Themia.Sdk.WinUI;
+using Themia.Widget.WeatherForecast;
 
 namespace Themia.App.Shell.Config;
 

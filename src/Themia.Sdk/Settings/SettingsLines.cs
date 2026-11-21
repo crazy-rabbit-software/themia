@@ -1,5 +1,5 @@
-using Themia.Sdk.WinUI;
 using Themia.Core.Model;
+using Themia.Sdk.WinUI;
 
 namespace Themia.Core.Settings;
 

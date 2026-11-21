@@ -1,9 +1,9 @@
 using System.Reflection;
 using Themia.App.Widgets;
+using Themia.Core.Settings;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk.WinUI;
 using Xunit;
-using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 

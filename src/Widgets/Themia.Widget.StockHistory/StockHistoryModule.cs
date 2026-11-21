@@ -5,12 +5,12 @@ using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Links;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.StockHistory;
-using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("stockHistory", typeof(StockHistoryModule))]
 

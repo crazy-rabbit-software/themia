@@ -1,10 +1,10 @@
 using Themia.App.Services.Office;
 using Themia.App.Shell;
-using Themia.App.Widgets;
 using Themia.App.Shell.Config;
+using Themia.App.Widgets;
 using Themia.Core.Model;
-using Themia.Sdk.WinUI;
 using Themia.Core.Settings;
+using Themia.Sdk.WinUI;
 
 namespace Themia.Widget.NextMeeting;
 

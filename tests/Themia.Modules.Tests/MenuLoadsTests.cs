@@ -1,8 +1,8 @@
 using Themia.App.Widgets;
 using Themia.Core.Localization;
+using Themia.Core.Settings;
 using Themia.Sdk.WinUI;
 using Xunit;
-using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 

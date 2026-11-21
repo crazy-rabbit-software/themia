@@ -1,14 +1,14 @@
+using Themia.App.Widgets;
 using Themia.Core.Accounts;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Tasks;
-using Themia.App.Widgets;
 using Themia.Core.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.DesktopItem;
 using Xunit;
-using Themia.Core.Settings;
 
 namespace Themia.Core.Tests;
 

@@ -1,14 +1,14 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Links;
 using Themia.Core.Localization;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.DesktopItem;
-using Themia.App.Shell;
-using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("desktopItem", typeof(DesktopItemModule))]
 

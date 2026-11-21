@@ -4,11 +4,11 @@ using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Desktop;
 using Themia.Core.Localization;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Fence;
-using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("fence", typeof(FenceModule))]
 

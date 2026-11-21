@@ -2,11 +2,11 @@ using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.ScreenTime;
-using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 

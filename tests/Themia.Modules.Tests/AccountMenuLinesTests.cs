@@ -6,12 +6,12 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
-using Themia.Core.Widgets;
-using Themia.Sdk.WinUI.Kit;
-using Themia.Sdk.WinUI;
-using Themia.Sdk;
-using Xunit;
 using Themia.Core.Settings;
+using Themia.Core.Widgets;
+using Themia.Sdk;
+using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
+using Xunit;
 
 namespace Themia.Modules.Tests;
 

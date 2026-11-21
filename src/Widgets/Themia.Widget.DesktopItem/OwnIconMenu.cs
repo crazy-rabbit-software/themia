@@ -3,10 +3,10 @@ using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
-using Themia.Core.Settings;
 
 namespace Themia.Widget.DesktopItem;
 

@@ -2,8 +2,8 @@ using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
-using Themia.Sdk.Kit;
 using Themia.Core.Settings;
+using Themia.Sdk.Kit;
 
 namespace Themia.Sdk.WinUI;
 
