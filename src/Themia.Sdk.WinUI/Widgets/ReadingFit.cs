@@ -40,9 +40,10 @@ public sealed partial class ReadingFit : Panel
     private double _floor;
     private Size _decided = Size.Empty;
 
-    // The last measure's fill and its parts, as the arrange lays them.
-    private BlockFill _fill = new(1, 0, 0);
+    // The last measure's block and its parts, and the fill the arrange laid them at.
+    private BlockLayout.Measured _block;
     private IReadOnlyList<PartBox> _parts = [];
+    private BlockFill _fill = new(1, 0, 0);
 
     public ReadingFit()
     {
@@ -91,6 +92,7 @@ public sealed partial class ReadingFit : Panel
 
     private bool _hold;
     private Size _held = Size.Empty;
+    private Size _heldMeasure = Size.Empty;
 
     /// <summary>The block's parts, top to bottom.</summary>
     public BlockParts Parts { get; }
@@ -312,7 +314,7 @@ public sealed partial class ReadingFit : Panel
             _floor = 0;
             _decided = Size.Empty;
         }
-        else if (_decided != availableSize && (!_hold || _held != availableSize))
+        else if (_decided != availableSize && (!_hold || _heldMeasure != availableSize))
         {
             // [S-12833] [S-14243] What the room draws of the face: decided once for a room, so hiding a piece settles.
             Decide(availableSize, _stated);
@@ -331,14 +333,12 @@ public sealed partial class ReadingFit : Panel
             block = BlockLayout.Measure(parts, 0, _stated, _spacing);
         }
 
-        if (!_hold || _held != availableSize)
+        if (!_hold)
         {
-            // [S-12833] Down to its smallest text's floor, up to what fills the room; [S-14791] never past where a line it
-            // cuts would stand whole; [S-14319] on its foot where it stands on it.
-            _fill = BlockLayout.Fill(availableSize.Width, availableSize.Height, block, _foot);
-            _held = availableSize;
+            _heldMeasure = availableSize;
         }
 
+        _block = block;
         _parts = parts;
         return new Size(
             double.IsFinite(availableSize.Width) ? availableSize.Width : parts.Select(p => p.Width).DefaultIfEmpty(0).Max(),
@@ -370,6 +370,15 @@ public sealed partial class ReadingFit : Panel
 
     protected override Size ArrangeOverride(Size finalSize)
     {
+        if (!_hold || _held != finalSize)
+        {
+            // [S-12833] Down to its smallest text's floor, up to what fills the room it is laid in (the arranged room, which
+            // the measure's may fall a rounding short of); [S-14791] never past where a line it cuts would stand whole;
+            // [S-14319] on its foot where it stands on it.
+            _fill = BlockLayout.Fill(finalSize.Width, finalSize.Height, _block, _foot);
+            _held = finalSize;
+        }
+
         _scale.ScaleX = _fill.Scale;
         _scale.ScaleY = _fill.Scale;
         var places = BlockLayout.Place(finalSize.Width, _parts, 0, _fill, _align, _spacing);
