@@ -240,17 +240,19 @@ public static class KitPlanner
     public static double ColumnHeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
     /// <summary>
-    /// [S-14500] The column titles with the card's inset over them, as one length from the card's top edge: what a table's
-    /// sizing counts (<see cref="KitSizing.Parts"/>), whole cells of its grid (40 on the default grid of 10).
+    /// [S-14500] [S-12815] The column titles' natural band, as one length from the card's top edge: their Caption line with
+    /// the card's inset over it, what a table's sizing counts (<see cref="KitSizing.Parts"/>) in whole cells of its grid (30
+    /// on the default grid of 10, a one-line row's).
     /// </summary>
-    public static double TitlesOver => FamilySpace.Inset + ColumnHeaderHeight;
+    public static double TitlesOver => FamilySpace.Inset + FamilyType.Caption.LineHeight;
 
     /// <summary>
-    /// [S-12834] [S-14500] The column titles' band under the card's inset on <paramref name="grid"/>: the titles and their gap
-    /// grown to end on a grid line (<see cref="LineRules.Under"/>), so the rows under them start right under them on one
-    /// (WR-1, WR-5, WR-6). On the default grid of 10: 28.
+    /// [S-12834] [S-14500] [S-12815] The column titles' band on <paramref name="grid"/>, standing on the card's top edge as a
+    /// row does: <see cref="TitlesOver"/> grown to end on a grid line, the titles centred in it as a row's text and the rows
+    /// starting right under it on that line (WR-1: no room over the titles nor between them and the first row; WR-5, WR-6).
+    /// On the default grid of 10: 30.
     /// </summary>
-    public static double TitlesBand(Themia.Core.Widgets.ItemGrid grid) => LineRules.Under(grid, FamilySpace.Inset, ColumnHeaderHeight);
+    public static double TitlesBand(Themia.Core.Widgets.ItemGrid grid) => grid.Whole(TitlesOver);
 
     /// <summary>[S-7034] The gap between table columns: the family's column gap.</summary>
     public const double ColumnGap = FamilySpace.ColumnGap;
@@ -296,7 +298,7 @@ public static class KitPlanner
     /// </summary>
     public static double ListRoom(KitPlan plan, double height, ItemGrid? grid = null)
     {
-        var room = height - (plan.ColumnHeader ? FamilySpace.Inset + TitlesBand(grid ?? ItemGrid.Default()) : 0);
+        var room = height - (plan.ColumnHeader ? TitlesBand(grid ?? ItemGrid.Default()) : 0);
         return double.IsFinite(room) ? Math.Max(0, room) : 0;
     }
 

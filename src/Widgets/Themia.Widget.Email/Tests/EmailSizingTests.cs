@@ -39,8 +39,8 @@ public sealed class EmailSizingTests
         var without = Sizing(new EmailConfig { Style = EmailStyle.Table, ColumnTitles = false });
 
         Assert.Equal((320d, 420d, Themia.Sdk.SizeStretch.Ceiling), (with.Min.Width, with.Natural.Width, with.Max.Width)); // relaxed, [S-12411]: no practical Max
-        // [S-14500] The titles with the card's inset over them: one band at its optimal, whole cells (40 on the default grid).
-        Assert.Equal(40, with.Natural.Height - without.Natural.Height);
+        // [S-14500] The titles with the card's inset over them: one band at its optimal, whole cells (30 on the default grid).
+        Assert.Equal(30, with.Natural.Height - without.Natural.Height);
         Assert.Equal(5 * 30, without.Natural.Height);
     }
 

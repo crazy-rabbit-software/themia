@@ -156,10 +156,11 @@ public class FixedItemTests
         var tasks = KitSizing.Sizing(new KitRowsChoice(6, 1), addFooter: true);
         Assert.Equal((60.0, 210.0), (tasks.Min.Height, tasks.Natural.Height));
 
-        // A table's titles with the inset over them are one band of four cells; the rows under it.
+        // A table's titles with the inset over them are one band of three cells, a one-line row's, on the card's top edge;
+        // the rows under it.
         var table = KitSizing.Sizing(new KitRowsChoice(5, 1, ColumnTitles: true), addFooter: false);
-        Assert.Equal(40 + 150, table.Natural.Height, 6);
-        Assert.Equal(40 + 30, table.Min.Height, 6);
+        Assert.Equal(30 + 150, table.Natural.Height, 6);
+        Assert.Equal(30 + 30, table.Min.Height, 6);
     }
 
     [Fact]

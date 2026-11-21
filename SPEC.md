@@ -8888,7 +8888,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its card stands the inset over its view's top (`ListEdge`), so its first row's band reaches the card's top edge and
   its text stands about the inset under it, the same in every list; its rows run touching at their size, the last cut
   by the card's foot edge ([S-14810], `ItemSize.Rows`: the view's height and the top inset; `KitPlanner.ListHeight`). Under a tool line, a search box
-  or column titles the rows start under them. A list keeps a place for every row its config states ([S-12800]): fewer
+  or column titles the rows start under them. A table's column titles are a band on the card's top edge as a row is
+  (`KitPlanner.TitlesBand`: their Caption line with the inset over it in whole cells, 30 on the default grid), their words
+  centred in it as a row's text, the first row right under it. A list keeps a place for every row its config states ([S-12800]): fewer
   items leave the room under the last empty, which is fine; a space at the top never is ([S-14810]). `scripts/gap-check.py` audits the ink
   ([S-12831] the checks).
 - **[S-12830]** **Items are whole grid cells** *(amended 2026-11-20 by [S-14500]: the whole cells are an item's

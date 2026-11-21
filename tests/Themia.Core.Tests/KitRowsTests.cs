@@ -136,7 +136,7 @@ public sealed class KitRowsTests
 
         var sizing = KitSizing.Sizing(new KitRowsChoice(5, 1, ColumnTitles: true), false, new KitWidths(320, 420, 720));
         Assert.Equal((320, 420, 720), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(40 + (5 * 30), sizing.Natural.Height);
+        Assert.Equal(30 + (5 * 30), sizing.Natural.Height);
     }
 
     [Fact]

@@ -83,15 +83,21 @@ public sealed class KitTableLook : IKitLook
 
         titles.ColumnSpacing = template.ColumnSpacing;
 
-        // [S-14500] The titles' band ends on a grid line, so the rows under it start on one. [S-12815] Its words stand on the
-        // band's foot, right over the first row (WR-1: nothing between the first item and what stands over it).
-        titles.Height = KitPlanner.TitlesBand(draw.Grid);
+        // [S-14500] [S-12815] The titles' band stands on the card's top edge as a row does and ends on a grid line, so the rows
+        // under it start right under it on one (WR-1: no room over the titles, nothing between them and the first row).
+        var band = KitPlanner.TitlesBand(draw.Grid);
+        titles.Height = band;
+        titles.Margin = ListEdge.Margin;
         titles.Padding = new Thickness(FamilySpace.Inset + (plan.Lead ? RowRules.NameStart(FamilyShape.Icon) : 0), 0, FamilySpace.Inset, 0);
+
+        // Each title's box is the band's height, its words centred in it as a row's text in its row.
+        var over = Math.Max(0, (band - FamilyType.Caption.LineHeight) / 2);
 
         for (var i = 0; i < columns.Count; i++)
         {
             var title = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, draw.Spec.ColumnHeading?.Invoke(columns[i].Column) ?? string.Empty);
-            title.VerticalAlignment = VerticalAlignment.Bottom;
+            title.VerticalAlignment = VerticalAlignment.Stretch;
+            title.Padding = new Thickness(0, over, 0, 0);
             if (columns[i].Column == KitColumn.When)
             {
                 title.TextAlignment = TextAlignment.Right;
