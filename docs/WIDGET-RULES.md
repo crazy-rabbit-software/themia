@@ -58,6 +58,9 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   sense so you can still see the widget." A face that scales as one (a clock, a date, a reading) is sized down to where
   its smallest text is still read (9 DIP; a glyph 12) and never under the grid's least widget (32 DIP); rows and list
   items keep their optimal size (WR-6; a list's least is one item).
+- **WR-15 A running reading never moves.** 2026-11-20: "the clock right now changes its layout depending on the time
+  that it shows because not all of the chars have the same width." (SPEC [S-14319]; the gap check judges a held reading
+  by its template, `holds`.)
 
 ## Content
 
