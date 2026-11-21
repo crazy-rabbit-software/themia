@@ -11,8 +11,10 @@ history the previews draw ([S-3355], the SDK's `SampleScreenTime`).
 
 Owning files: everything in this folder: `ScreenTimeAppsModule.cs` (descriptor, view factory, menu
 lines, JSON context), `ScreenTimeAppsConfig.cs` (the period, the ceiling, the figures),
-`ScreenTimeAppsView.cs` (the rows through its host, the keys) with `.Row.cs` (a row, its icon through
-the installed `AppIconSource`), `ScreenTimeAppsLayout.cs` (the rows as its config says), `ScreenTimeAppsMenu.cs` (its
+`ScreenTimeAppsSpec.cs` (its kit spec, a segment as a kit item), `ScreenTimeAppsView.cs` (a kit list, [S-7074], under
+the day line: the binding over the tracker, the app's icon through the installed `AppIconSource` as the rich look's
+lead, the links' one look on the rows the kit drew; the kit's keys with the day steps and the pick its own; the
+row menu the kit's (Hide); nothing recorded or no activity the kit's state row), `ScreenTimeAppsLayout.cs` (the rows as its config says), `ScreenTimeAppsMenu.cs` (its
 properties menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|hovered|selected|packaged`),
 `Localization/Locales/` (its own `ScreenTimeAppsStr`, 30 languages). Tests: `Tests/ScreenTimeAppsTests.cs`,
 `Tests/ScreenTimeAppsMenuTests.cs` (run by `tests/Themia.Modules.Tests`).

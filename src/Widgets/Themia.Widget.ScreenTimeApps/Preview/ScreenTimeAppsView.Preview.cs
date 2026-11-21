@@ -16,7 +16,7 @@ internal sealed partial class ScreenTimeAppsView : IWidgetPreviewState
 
         _feed.Use(new SampleScreenTime(state));
         ScreenTimePreviewStates.Apply(_links, state);
-        Render();
+        Changed();
         return Task.CompletedTask;
     }
 }

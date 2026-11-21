@@ -8,7 +8,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Model;
 
 /// <summary>[S-3350] The screen-time app list: the apps of the period, busiest first, with their time.</summary>
-public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>, IKitRows, IScreenTimePeriod
+public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>, IKitLocalConfig, IKitRows, IScreenTimePeriod
 {
     /// <summary>[S-11510] A new list's rows.</summary>
     public const int DefaultRows = 5;
@@ -46,6 +46,10 @@ public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTi
     /// <summary>[S-11510] The rows as drawn: a second line only where a row has figures for it.</summary>
     [JsonIgnore]
     public KitRowsChoice RowsShown => new(KitSizing.ClampRows(Rows), HasFigures ? KitSizing.ClampLines(Lines) : 1);
+
+    /// <summary>[S-3350] The icon and the time always; the figures on the second line where a row has one.</summary>
+    [JsonIgnore]
+    public KitShow Shows => KitShow.Lead | KitShow.Subtitle | KitShow.When;
 
     public override WidgetConfig Clone() => new ScreenTimeAppsConfig
     {

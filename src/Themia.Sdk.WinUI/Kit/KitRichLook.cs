@@ -27,6 +27,9 @@ public sealed class KitRichLook : IKitLook
     /// <summary>The lead's side: 16, or a picture's 32 ([S-6704]).</summary>
     public double LeadSize { get; init; } = FamilyShape.Icon;
 
+    /// <summary>[S-11510] The lead grows to a picture's 32 on rows of two lines or more (an app's icon beside its figures).</summary>
+    public bool LargeOnTwoLines { get; init; }
+
     /// <summary>A part at the row's end, in the meter's place, for an item, or null for none.</summary>
     public Func<KitItem, KitTrail?>? Trail { get; init; }
 
@@ -42,7 +45,7 @@ public sealed class KitRichLook : IKitLook
         ArgumentNullException.ThrowIfNull(draw);
 
         var plan = draw.Plan;
-        var block = new RowBlock(RowKind.List, plan.Lead ? LeadSize : 0);
+        var block = new RowBlock(RowKind.List, plan.Lead ? LeadOf(plan) : 0);
         Write(block, item, draw);
 
         if (plan.Lead && (Lead?.Invoke(item) ?? draw.Lead(item)) is { } lead)
@@ -52,6 +55,9 @@ public sealed class KitRichLook : IKitLook
 
         return block;
     }
+
+    /// <summary>The lead's side on rows of <paramref name="plan"/>'s lines.</summary>
+    public double LeadOf(KitPlan plan) => LargeOnTwoLines && plan.Lines > 1 ? FamilyShape.IconLarge : LeadSize;
 
     public bool Update(RowBlock row, KitItem was, KitItem item, KitDraw draw)
     {

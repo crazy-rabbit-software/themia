@@ -133,7 +133,7 @@ public sealed partial class KitList : Grid, IStatusRoom
     public int CursorIndex => _cursorIndex;
 
     /// <summary>[S-12815] A line of the widget's own stands over the list (a day's line): the rows start under it, not on the card's top edge.</summary>
-    public bool UnderLine { get; init; }
+    public bool UnderLine { get; set; }
 
     /// <summary>Hook the fade; once per attach.</summary>
     public void Attach()
