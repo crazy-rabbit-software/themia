@@ -3,7 +3,7 @@
 The family project `Themia.Widget.Music` ([S-6901], `[assembly: ThemiaWidgetFamily]`): what Windows is playing, through
 its own media session, **a widget a part** (owner, 2026-11-21: "now playing widget should be split into the individual
 buttons, the title and the album name."). Its texts are kinds of the text base (root `SPEC.md`, Text widgets (TEXTS),
-[S-14930]..[S-14936]); its buttons are tiles. Its tags are this file's; the root `SPEC.md` holds the host's sections and
+[S-14930]..[S-14936]); its buttons are icon kinds ([S-15003]). Its tags are this file's; the root `SPEC.md` holds the host's sections and
 the session's and the rules' root tags: hide when idle [S-1464], the seek bar's mapping [S-1465], the keys [S-1468] and the
 album line [S-1469] are the SDK's `MusicRules`; the WinRT session manager is the host's (`MediaSession`, behind
 `IWidgetHost.Media`), one widget's connection to it the SDK's `NowPlayingFeed`. The cover and the progress are their own
@@ -11,7 +11,7 @@ projects (`musicCover`, `musicProgress`, their own SPEC.md), in the same add-pag
 
 Owning files: everything in this folder: `MusicKinds.cs` (the kinds, what each text shows, the JSON context),
 `MusicConfig.cs` (the configs: when each hides), `MusicText.cs` (the text kinds' module and view), `MusicButton.cs` (the
-buttons' module, their words and looks, the tile's view), `MusicMenu.cs` (the one properties-menu line), `Samples/`,
+buttons' module, their words and looks, their view on the icon face), `MusicMenu.cs` (the one properties-menu line), `Samples/`,
 `Preview/` (Debug renders: the texts `--state sample|idle|bare|long`, the buttons `sample|playing|idle`),
 `Localization/Locales/` (its own `MusicStr`). Tests: `Tests/MusicTests.cs`, `Tests/MusicMenuTests.cs`,
 `Tests/MusicOpenTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's rules is the module host's
@@ -36,15 +36,16 @@ buttons' module, their words and looks, the tile's view), `MusicMenu.cs` (the on
   the album). With no track the title says why ("Nothing playing", "No media playing") and the artist and the album their
   words for none ("No artist", "No album"), unavailable, why their tooltip; a track with no artist or album (a stream, a
   video) the same, an album named as its artist said once (`MusicRules.Album`). `MusicKinds.Shown`.
-- **[S-14922]** **The buttons**: previous, play or pause, next, each the Tile block (the power buttons' and the quick
-  toggles' one face, [S-11882]): its glyph on the step its box holds and its name under it, what a click does ("Previous",
-  "Play", "Pause", "Next"; the name gives way to the glyph alone in a small box, then the inset, as a tile's, [S-12806]),
-  the item layer's hover and pressed fills across the whole card, never a size change (WR-12). Play or pause is the accent
-  while it plays (On, as a toggle that is on) and offers Pause; a button the player cannot do now, and every button with
-  no track, keeps its tile drawn unavailable ([S-1940], WR-10). A click, or Space or Enter while it has the keyboard, asks
-  the session through the host (`NowPlayingFeed.Press`), never optimistic: the session's own notification draws the
-  result. In edit mode the press is the card's (select, move), never a press of the button ([S-1911]). A preview presses
-  nothing. Left to right in every language ([S-1113]: they are three cards the user places). `MusicButtons.Face`.
+- **[S-14922]** **The buttons**: previous, play or pause, next, each an icon kind on the icon base ([S-15000]..[S-15005];
+  owner, 2026-11-21: "there should be a shared widget backend for widgets that show just an icon"): its glyph alone filling
+  its card (a 64 square when new, down to 32), what a click does its tooltip and its screen reader's name ("Previous",
+  "Play", "Pause", "Next"); the item layer's hover and pressed fills across the whole card, never a size change (WR-12).
+  Play or pause is the accent while it plays (On, as a toggle that is on) and offers Pause; a button the player cannot do
+  now, and every button with no track, keeps its glyph drawn unavailable, why its tooltip with no track ([S-1940], WR-10).
+  A click, or Space or Enter while it has the keyboard, asks the session through the host (`NowPlayingFeed.Press`), never
+  optimistic: the session's own notification draws the result. In edit mode the press is the card's (select, move), never
+  a press of the button ([S-1911]). A preview presses nothing. Left to right in every language ([S-1113]: they are three
+  cards the user places). `MusicButtons.Shown`. Was: a Tile with its name under the glyph (the name the glyph alone said).
 - **[S-2155]** *(Retired with the split: the side cover is the cover atom beside the track atom, the
   Now playing group, [S-11340].)*
 - **[S-6406]** *(Retired with the split: the styles Artwork and text, Full artwork and Text only; the

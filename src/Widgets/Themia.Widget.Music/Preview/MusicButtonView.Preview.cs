@@ -10,11 +10,11 @@ namespace Themia.Widget.Music;
 /// Debug renders only ([S-1917]): <c>sample</c> the sample track, paused; <c>playing</c> it playing (play or pause the
 /// accent, offering Pause); <c>idle</c> a session with no track, every button unavailable ([S-1940]).
 /// </summary>
-internal sealed partial class MusicButtonView : IWidgetPreviewState
+internal sealed partial class MusicButtonView
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "playing", "idle"];
+    protected override IReadOnlyList<string> OwnPreviewStates { get; } = ["sample", "playing", "idle"];
 
-    public Task ShowPreviewStateAsync(string state)
+    protected override Task ShowOwnPreviewStateAsync(string state)
     {
         switch (state)
         {

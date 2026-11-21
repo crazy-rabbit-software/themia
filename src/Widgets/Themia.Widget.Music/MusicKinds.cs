@@ -20,7 +20,7 @@ namespace Themia.Widget.Music;
 /// [S-14920] The now-playing family (owner, 2026-11-21: "now playing widget should be split into the individual buttons, the
 /// title and the album name."): what Windows is playing, a widget a part. Its texts are kinds of the text base ([S-14934]):
 /// the title (<c>music</c>, the old track atom's id, so a placed one is the title), the artist and the album; its buttons
-/// (previous, play or pause, next) are a tile each ([S-14922]). The cover and the progress are their own projects, in the
+/// (previous, play or pause, next) are an icon each ([S-14922], on the icon base, [S-15003]). The cover and the progress are their own projects, in the
 /// same add-page family. The order here is the family's on the add page.
 /// </summary>
 internal static class MusicKinds
@@ -57,6 +57,21 @@ internal static class MusicKinds
     /// <summary>The buttons, in the transport's order after the texts.</summary>
     public static IReadOnlyList<MediaTransport> Buttons { get; } = [MediaTransport.Previous, MediaTransport.PlayPause, MediaTransport.Next];
 
+    /// <summary>[S-14922] The buttons as icon kinds ([S-15003]): each its id, its glyph at rest, its words and its config.</summary>
+    public static IReadOnlyList<IconKind> ButtonKinds { get; } =
+    [
+        ButtonKind("musicPrevious", MediaTransport.Previous, () => new MusicPreviousConfig()),
+        ButtonKind("musicPlayPause", MediaTransport.PlayPause, () => new MusicPlayPauseConfig()),
+        ButtonKind("musicNext", MediaTransport.Next, () => new MusicNextConfig()),
+    ];
+
+    /// <summary>The icon kind of the button that asks <paramref name="transport"/>.</summary>
+    public static IconKind Button(MediaTransport transport) => ButtonKinds[Buttons.ToList().IndexOf(transport)];
+
+    private static IconKind ButtonKind(string id, MediaTransport transport, Func<MusicButtonConfig> create)
+        => new(id, MusicButtons.Glyph(transport, playing: false), MusicButtons.Label(transport), MusicButtons.Description(transport),
+            ["media controls", "transport", "playback", "now playing", "music", .. MusicButtons.Words(transport)], create);
+
     /// <summary>A kind's place in the family's order: its add-page rank (the cover and the progress follow them).</summary>
     public static int Rank(string key) => Texts.ToList().FindIndex(k => k.Key == key);
 
@@ -89,7 +104,7 @@ internal static class MusicKinds
 }
 
 // [S-14920] Each kind is its module and its config (a config's type is how it knows its id, [S-6902]); everything else is
-// the family's (MusicTextModule and MusicButtonModule, the views) over the text base and the tile.
+// the family's (MusicTextModule and MusicButtonModule, the views) over the text base and the icon base.
 
 public sealed class MusicTitleModule() : MusicTextModule(MusicKinds.Title);
 
@@ -97,11 +112,11 @@ public sealed class MusicArtistModule() : MusicTextModule(MusicKinds.Artist);
 
 public sealed class MusicAlbumModule() : MusicTextModule(MusicKinds.Album);
 
-public sealed class MusicPreviousModule() : MusicButtonModule("musicPrevious", () => new MusicPreviousConfig());
+public sealed class MusicPreviousModule() : MusicButtonModule(MediaTransport.Previous);
 
-public sealed class MusicPlayPauseModule() : MusicButtonModule("musicPlayPause", () => new MusicPlayPauseConfig());
+public sealed class MusicPlayPauseModule() : MusicButtonModule(MediaTransport.PlayPause);
 
-public sealed class MusicNextModule() : MusicButtonModule("musicNext", () => new MusicNextConfig());
+public sealed class MusicNextModule() : MusicButtonModule(MediaTransport.Next);
 
 /// <summary>[S-6903] The family's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>
 [JsonSourceGenerationOptions(

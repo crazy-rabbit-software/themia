@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Widget.Music.Tests;
 
-/// <summary>[S-14920]..[S-14922] The now-playing family: a widget a part, its texts on the text base, its buttons tiles.</summary>
+/// <summary>[S-14920]..[S-14922] The now-playing family: a widget a part, its texts on the text base, its buttons on the icon base.</summary>
 public sealed class MusicTests
 {
     private static readonly IWidgetModule[] Modules =
@@ -83,26 +83,32 @@ public sealed class MusicTests
     [Fact]
     public void S14922_play_or_pause_says_what_a_click_does_and_is_the_accent_while_it_plays()
     {
-        var paused = MusicButtons.Face(MediaTransport.PlayPause, Track());
-        Assert.Equal((Glyphs.Play, "Play", TileState.Off), paused);
+        var paused = MusicButtons.Shown(MediaTransport.PlayPause, Track());
+        Assert.Equal((Glyphs.Play, "Play", TileState.Off), (paused.Glyph, paused.Name, paused.State));
 
-        var playing = MusicButtons.Face(MediaTransport.PlayPause, Track(MusicState.Playing));
-        Assert.Equal((Glyphs.Pause, "Pause", TileState.On), playing);
+        var playing = MusicButtons.Shown(MediaTransport.PlayPause, Track(MusicState.Playing));
+        Assert.Equal((Glyphs.Pause, "Pause", TileState.On), (playing.Glyph, playing.Name, playing.State));
     }
 
     [Fact]
     public void S14922_a_button_the_player_cannot_do_and_every_button_without_a_track_is_unavailable()
     {
-        Assert.Equal(TileState.Unavailable, MusicButtons.Face(MediaTransport.Previous, Track()).State);
-        Assert.Equal(TileState.Off, MusicButtons.Face(MediaTransport.Next, Track()).State);
-        Assert.All(MusicKinds.Buttons, t => Assert.Equal(TileState.Unavailable, MusicButtons.Face(t, NowPlaying.Of(MusicState.Idle)).State));
-        Assert.Equal(Glyphs.Next, MusicButtons.Face(MediaTransport.Next, NowPlaying.Of(MusicState.Idle)).Glyph);
+        Assert.Equal(TileState.Unavailable, MusicButtons.Shown(MediaTransport.Previous, Track()).State);
+        Assert.Equal(TileState.Off, MusicButtons.Shown(MediaTransport.Next, Track()).State);
+        Assert.All(MusicKinds.Buttons, t => Assert.Equal(TileState.Unavailable, MusicButtons.Shown(t, NowPlaying.Of(MusicState.Idle)).State));
+        Assert.Equal(Glyphs.Next, MusicButtons.Shown(MediaTransport.Next, NowPlaying.Of(MusicState.Idle)).Glyph);
+
+        // [S-15001] Without a track, why is its tooltip; with one it can't do, its name.
+        Assert.Equal(MusicRules.StatusMessage(MusicState.Idle), MusicButtons.Shown(MediaTransport.Next, NowPlaying.Of(MusicState.Idle)).Tooltip);
+        Assert.Equal("Previous", MusicButtons.Shown(MediaTransport.Previous, Track()).Tooltip);
     }
 
     [Fact]
-    public void S14922_a_button_is_a_tile_with_no_state_line()
+    public void S14922_a_button_is_an_icon_on_the_icon_base()
     {
-        Assert.Equal(TileRules.Sizing(TileLook.Tile, stateLine: false).Natural, Modules[4].Descriptor.Sizing(new MusicPlayPauseConfig()).Natural);
+        Assert.Equal(IconRules.Sizing().Natural, Modules[4].Descriptor.Sizing(new MusicPlayPauseConfig()).Natural);
+        Assert.IsAssignableFrom<IconModule>(Modules[4]);
+        Assert.Equal(["musicPrevious", "musicPlayPause", "musicNext"], MusicKinds.ButtonKinds.Select(k => k.Id));
         Assert.Equal(MediaTransport.Previous, new MusicPreviousConfig().Transport);
         Assert.Equal(MediaTransport.Next, new MusicNextConfig().Transport);
     }
