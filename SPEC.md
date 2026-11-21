@@ -8722,8 +8722,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   Tests the clock's `S6011_the_clock_has_no_date_style_and_no_date_line`, the Date module's.
 - **[S-12806]** **A quick toggle or power button has no real minimum** (owner, 2026-11-17: "the buttons like the
   night mode toggle should be able to be smaller than they are now, they should not really have a smallest size
-  at all"): its least box is the app's floor, one grid cell (`TileRules.MinSide` = `WidgetSizing.Floor`, 10, [S-08];
-  was 40, the 16 glyph in the inset). Under the 28 glyph's room in the inset (52) the inset gives way down to 4 round
+  at all"; WR-14, 2026-11-19: "for the widgets that can scale there should basically be no lower limit except for one
+  that makes sense so you can still see the widget"): its least box is the grid's least widget, as every face that
+  scales (`TileRules.MinSide` = `WidgetSizing.LeastScaled`, 32; was the app's floor, 10, whose one-cell tile drew
+  nothing to see, and before that 40, the 16 glyph in the inset). Under the 28 glyph's room in the inset (52) the inset gives way down to 4 round
   the glyph, which is the 28 while it fits and else the 16; under the 16's room (24) the glyph is two thirds of the
   box and the inset the rest (`TileFace.Mark`, `.Inset`), so every box from the floor draws its glyph whole, growing
   with the box; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`; render

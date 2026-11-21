@@ -202,11 +202,13 @@ public static class TileRules
 
     /// <summary>
     /// [S-12806] The smallest a Tile or Round tile may be (owner, 2026-11-17: "the buttons like the night mode toggle
-    /// should be able to be smaller than they are now, they should not really have a smallest size at all"): the
-    /// app's floor, one grid cell ([S-08], <see cref="WidgetSizing.Floor"/>). <see cref="Face"/> draws the glyph in
-    /// whatever box that leaves, the inset and then the glyph giving way.
+    /// should be able to be smaller than they are now, they should not really have a smallest size at all"; and WR-14,
+    /// 2026-11-19: "for the widgets that can scale there should basically be no lower limit except for one that makes
+    /// sense so you can still see the widget"): the grid's least widget, 32 (<see cref="WidgetSizing.LeastScaled"/>), as
+    /// every face that scales. <see cref="Face"/> draws the glyph in whatever box that leaves, the inset and then the glyph
+    /// giving way.
     /// </summary>
-    public const double MinSide = WidgetSizing.Floor;
+    public const double MinSide = WidgetSizing.LeastScaled;
 
     /// <summary>
     /// [S-11882] [S-11804] Where a new Tile or Round tile lands: the 28 glyph, its name on two lines and (a
