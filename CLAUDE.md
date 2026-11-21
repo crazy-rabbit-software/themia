@@ -209,7 +209,10 @@ each, the one face `MetricView` (one row at its least, every cell taller too, th
 system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. Every widget whose face is a line of text (a song's
 title, the rain's sentence) is a **text kind** on one base the same way (SPEC TEXTS, [S-14930]..[S-14936]): `TextKind` data,
 a `TextModule` each, the one face `TextView` (one block scaled as one at the content alignment, its line cut at the card's
-edge, `TextRules`; the item that lights and opens its source, `TextKind.Opens`, `ItemLight`). A module builds
+edge, `TextRules`; the item that lights and opens its source, `TextKind.Opens`, `ItemLight`). Every widget whose face is one
+icon (the transport buttons, the sky, the Icon widget) is an **icon kind** on one base too (SPEC ICONS, [S-15000]..[S-15006]):
+`IconKind` data, an `IconModule` each, the one face `IconView` (the Tile block's face without words, its glyph filling the inset,
+`IconRules`; it opens its kind's source, `IconKind.Opens`, or presses as a button). A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
