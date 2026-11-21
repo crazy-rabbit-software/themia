@@ -10,37 +10,44 @@ namespace Themia.App.Widgets;
 internal sealed partial class WeatherForecastView
 {
     /// <summary>
-    /// The days that have a cell's floor, as cells in the plan's columns × rows (filled left to
-    /// right, then down; time runs left to right in every language, [S-1113]), 12 apart. Each cell is
-    /// the day, the sky's glyph (32, 48 on an expanded width) and the high beside the low, centred in it.
-    /// [S-12403] Each line of cells fills the content's width: a last line short of days shares the
-    /// width among the days it has (<see cref="ForecastGrid.Lines"/>), so no empty cell is left at its end.
+    /// [S-14815] The days as cells of one fixed size (the plan's), filled left to right, then down (time runs left to right
+    /// in every language, [S-1113]), from the card's left and top edges, touching: as many across as the width holds
+    /// whole, the last line the card's foot reaches cut by it, a last line short of days leaving the room after it empty.
+    /// Each cell is the day, the sky's glyph and the high beside the low, centred in it: the inset is padding inside the
+    /// cell (WR-3), never a margin round the cells. Every edge on a whole device pixel.
     /// </summary>
     private Grid BuildGrid(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastGridPlan plan)
     {
         var count = Math.Min(plan.Days, days.Count);
+        var scale = _area.Grid().Raster;
+        var across = new RowReach(plan.CellWidth, plan.Columns, scale);
+        var down = new RowReach(plan.CellHeight, plan.Rows, scale);
         var grid = new Grid
         {
-            Margin = ContentInset,
-            RowSpacing = ForecastGrid.Gap,
+            Margin = ListEdge.Margin,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
             FlowDirection = FlowDirection.LeftToRight,
         };
+
+        for (var c = 0; c < plan.Columns; c++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(across.Height(c)) });
+        }
 
         var first = 0;
         foreach (var cells in ForecastGrid.Lines(count, plan.Columns))
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            var line = new Grid { ColumnSpacing = ForecastGrid.Gap };
+            var line = grid.RowDefinitions.Count;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(down.Height(line)) });
             for (var c = 0; c < cells; c++)
             {
-                line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                 var cell = BuildCell(days[first + c], today, plan);
+                Grid.SetRow(cell, line);
                 Grid.SetColumn(cell, c);
-                line.Children.Add(cell);
+                grid.Children.Add(cell);
             }
 
-            Grid.SetRow(line, grid.RowDefinitions.Count - 1);
-            grid.Children.Add(line);
             first += cells;
         }
 
@@ -52,9 +59,8 @@ internal sealed partial class WeatherForecastView
         var label = DayText(day, today);
         label.HorizontalAlignment = HorizontalAlignment.Center;
 
-        var icon = Family.Glyph(LookGlyph(WeatherReport.Look(day.Code)), Math.Max(plan.Icon, FamilyShape.Icon));
+        var icon = Family.Glyph(LookGlyph(WeatherReport.Look(day.Code)), plan.Icon);
         icon.HorizontalAlignment = HorizontalAlignment.Center;
-        icon.Visibility = plan.Icon > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         var figures = new StackPanel
         {
@@ -84,6 +90,7 @@ internal sealed partial class WeatherForecastView
 
         ToolTipService.SetToolTip(host, Describe(day));
         LinkDay(host, day.Day);
+        ItemMark.Mark(host);
         return host;
     }
 }

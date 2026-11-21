@@ -48,9 +48,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   flat line in the middle. A day without a value breaks the line. Time runs left to right in every
   language.
 - **[S-6171]** **Grid** (`ForecastGrid`): the days as cells (the day, the sky's 32 glyph, the high
-  then the low; no other fact), filled left to right then down, 12 apart as the family's cells
-  ([S-6713]), each centred in its cell, in a fixed arrangement by the days: one row up to four days,
-  two up to eight, three past (`ForecastGrid.Arrangement`).
+  then the low; no other fact), filled left to right then down, each centred in its cell, the cells of one
+  size from the card's edges, touching ([S-14815]).
 - **[S-6172]** *(Retired 2026-10-29, group G3: the temperature now is the current conditions' fact, not
   the forecast's ([S-666]); the curve's now mark and the dot on today's range bar are gone, and the
   forecast no longer reads the current-conditions reading.)*
@@ -74,8 +73,9 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   220..420 wide (a new one 300 × 150, five days); **Columns** a 60 column a day (its 56 in whole cells) from the card's
   left edge, every day the width reaches, the last cut by its right edge, one height (184 with the rain, 164 without; a
   new one five, 300 wide); **Curve** a 60 column a day from the card's left edge, every day the width reaches, the chart's
-  band 72..144 (a new one 96) under the days' parts; **Grid** as many 64 cells, 12 apart, as the card holds across and
-  down, the days its cells hold in their arrangement (`ForecastGrid.DaysFor`), so no whole row stands empty. Every
+  band 72..144 (a new one 96) under the days' parts; **Grid** cells of 80 × 100 (their content and its padding in whole
+  grid cells), as many across as the width holds whole and lines down as the height reaches, the last line cut, a new
+  one 3 × 2 (240 × 200), 1 × 1 to 5 × 3 (`ForecastGrid.DaysFor`, [S-14815]). Every
   style takes every grid cell; a resize stores no days ([S-14502]). Tests `ForecastDaysTests.S11146_S14410_`,
   `ForecastCurveTests.S11146_S14410_`, `WeatherForecastMenuTests.S6173_S14410_`.
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
@@ -84,11 +84,21 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   from its top to the foot's inset, touching ([S-12807]): a box taller than the days grows the rows; each
   range bar takes what the widest day name (with two lines, the widest second line too) and the widest
   value leave, the same length on every row, never under [S-725]'s share (`WeatherForecastLayout.MeterWidth`).
-  Columns: equal columns across the whole width, the standing bar taking the height the other parts
-  leave. Curve: the columns across the width, the chart the height left. Grid: each line of cells
-  across the whole width, a last line short of days sharing it among the days it has
-  (`ForecastGrid.Lines`), the lines sharing the height. Tests `WeatherLayoutTests.S12403_`,
-  `ForecastDaysTests.S12403_`.
+  Columns: the columns at their one width ([S-14810]), the standing bar taking the height the other parts
+  leave. Curve: the columns at their one width, the chart the height left. Grid: the cells at their one
+  size ([S-14815]), a last line short of days leaving the room after them empty (`ForecastGrid.Lines`).
+  Tests `WeatherLayoutTests.S12403_`, `ForecastDaysTests.S12403_`.
+- **[S-14815]** **Every style's days stand from the card's edges** (owner, 2026-11-21: "the weather forecast widget grid
+  view items do not go from edge to edge, they have space everywhere. same for the columns view and maybe also other
+  styles. fix this, also for other widgets if applicable."; docs/WIDGET-RULES.md WR-2, WR-3, WR-4). A day's box (a row,
+  a column, a curve's column, a grid's cell) is an item (`ItemMark`): rows from the card's top edge across its whole
+  width; columns and the curve's columns from the card's left edge and from its top edge to its foot, the inset over and
+  under their parts padding inside the column (the hover and a link light the column whole); the grid's cells of one
+  size (80 × 100 on the default grid: "Today" and "16° 8°" with the inset either side, the parts with 8 over and under,
+  in whole grid cells) from the card's left and top edges, touching, as many across as the width holds whole (a cut
+  column would hide a day mid-week) and lines down as the height reaches, the last cut by the card's foot. No margin and
+  no gap round or between the days in any style; every edge on a whole device pixel (`RowReach`). Tests
+  `ForecastDaysTests.S14815_`; renders judged by `scripts/item-check.py` in every style ([S-14814]).
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
 - View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).

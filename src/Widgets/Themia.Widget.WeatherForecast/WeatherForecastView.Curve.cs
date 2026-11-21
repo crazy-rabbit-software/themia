@@ -14,18 +14,32 @@ internal sealed partial class WeatherForecastView
     /// highs as the Chart block's line in the accent with each day's figure over its point, and with
     /// the height the lows as its second line, tertiary, their figures under them, on the same scale.
     /// Time runs left to right in every language ([S-1113]).
+    /// <para>
+    /// [S-14810] [S-14815] Each day's column is its item: its one width from the card's left edge, the last cut by the
+    /// right edge, and from the card's top edge to its foot (the hover and the links light it whole); the parts and the
+    /// chart stand inside the columns, the inset over and under them their padding (WR-3).
+    /// </para>
     /// </summary>
     private Grid BuildCurve(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastCurvePlan plan)
     {
         var shown = days.Take(plan.Days).ToList();
-        var grid = new Grid
+        var columns = new Grid
         {
-            // [S-14810] The days' columns from the card's left edge at their one width, the last cut by its right edge.
-            Margin = ColumnsInset,
+            Margin = ListEdge.Margin,
             HorizontalAlignment = HorizontalAlignment.Left,
-            RowSpacing = ForecastCurve.Gap,
             FlowDirection = FlowDirection.LeftToRight,
         };
+        AddColumns(columns, plan.ColumnWidth, shown.Count);
+
+        // The parts over the columns, in the same columns: the pointer goes to the column under them.
+        var grid = new Grid
+        {
+            Padding = ColumnPadding,
+            RowSpacing = ForecastCurve.Gap,
+            IsHitTestVisible = false,
+        };
+        AddColumns(grid, plan.ColumnWidth, shown.Count);
+        Grid.SetColumnSpan(grid, Math.Max(1, shown.Count));
 
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         if (plan.Icon)
@@ -42,17 +56,16 @@ internal sealed partial class WeatherForecastView
 
         for (var i = 0; i < shown.Count; i++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.ColumnWidth) });
             var day = shown[i];
 
-            // A hit target per column for the day's summary; the chart itself is not hit-testable. It is the
-            // day's column marker for the links ([S-11924]): the hover fill behind the column's parts and the line.
-            var hit = new Border { Background = Family.Brush(ColourRole.Clear), CornerRadius = Family.Radius };
+            // The day's column, the card's top edge to its foot: its summary, and its marker for the links ([S-11924]):
+            // the hover fill behind the column's parts and the line.
+            var hit = new Border { Background = Family.Brush(ColourRole.Clear) };
             ToolTipService.SetToolTip(hit, Describe(day));
             LinkDay(hit, day.Day);
+            ItemMark.Mark(hit);
             Grid.SetColumn(hit, i);
-            Grid.SetRowSpan(hit, grid.RowDefinitions.Count);
-            grid.Children.Add(hit);
+            columns.Children.Add(hit);
 
             Put(grid, DayText(day, today), 0, i);
 
@@ -71,7 +84,8 @@ internal sealed partial class WeatherForecastView
         Grid.SetRow(chart, chartRow);
         Grid.SetColumnSpan(chart, Math.Max(1, shown.Count));
         grid.Children.Add(chart);
-        return grid;
+        columns.Children.Add(grid);
+        return columns;
     }
 
     private static void Put(Grid grid, FrameworkElement element, int row, int column)

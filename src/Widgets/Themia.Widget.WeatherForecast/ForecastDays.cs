@@ -6,55 +6,62 @@ namespace Themia.Core.Widgets;
 
 /// <summary>What the grid style draws at one size ([S-6171]).</summary>
 /// <param name="Days">How many of the first days are shown.</param>
-/// <param name="Columns">Cells across.</param>
-/// <param name="Rows">Cells down.</param>
-/// <param name="CellWidth">One cell's width.</param>
-/// <param name="CellHeight">One cell's height.</param>
-/// <param name="Icon">The sky's glyph: 32, or 48 from an expanded width where the cell holds it ([S-6713]); 0 only for a lone cell shorter than the floor (the smallest tile).</param>
+/// <param name="Columns">Cells across: as many as the card's width holds whole.</param>
+/// <param name="Rows">Lines of cells down: as many as the days fill, the last one the card's foot reaches cut by it.</param>
+/// <param name="CellWidth">One cell's one width (<see cref="ForecastGrid.CellNaturalWidth"/> in whole grid cells).</param>
+/// <param name="CellHeight">One cell's one height (<see cref="ForecastGrid.CellNaturalHeight"/> in whole grid cells).</param>
+/// <param name="Icon">The sky's glyph: 32.</param>
 public sealed record ForecastGridPlan(int Days, int Columns, int Rows, double CellWidth, double CellHeight, double Icon);
 
 /// <summary>
-/// [S-6171] [S-11146] The forecast's grid: the days as cells (the day, the sky's 32 glyph, the high
-/// beside the low, centred), 12 apart as the family's cells ([S-6713]), in a fixed arrangement by the
-/// day count (<see cref="Arrangement"/>); the days what the card's 64 cells across and cells down hold ([S-14410],
-/// [S-14502], <see cref="DaysFor"/>), the cells sharing the content.
+/// [S-6171] [S-11146] [S-14815] The forecast's grid: the days as cells (the day, the sky's 32 glyph, the high beside the
+/// low, centred), each of one fixed size (its natural in whole grid cells, [S-14810]), from the card's left and top
+/// edges, touching (owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they
+/// have space everywhere."): as many across as the card's width holds whole (a cut column would hide a day in the
+/// middle of the week), lines down as the days fill, the last line the card's foot reaches cut by it ([S-14502]:
+/// the days are every cell the card shows, never stored).
 /// </summary>
 public static class ForecastGrid
 {
-    /// <summary>Between two cells, both ways.</summary>
-    public const double Gap = FamilySpace.S3;
-
     /// <summary>Between two parts of a cell.</summary>
     public const double PartGap = FamilySpace.S1;
 
     /// <summary>Between the high and the low.</summary>
     public const double FigureGap = FamilySpace.S2;
 
-    /// <summary>The narrowest cell: "Today" and "16° 8°" in Body.</summary>
+    /// <summary>The narrowest cell content: "Today" and "16° 8°" in Body.</summary>
     public const double CellMinWidth = 56;
 
-    /// <summary>The shortest cell: the day, the 32 glyph and the figures.</summary>
-    public static double CellMinHeight => CellHeight(FamilyShape.IconLarge);
+    /// <summary>A cell's content: the day, the 32 glyph and the figures, 4 apart.</summary>
+    public static double CellContentHeight => (2 * FamilyType.Body.LineHeight) + FamilyShape.IconLarge + (2 * PartGap);
 
-    /// <summary>A cell's parts with a glyph of <paramref name="icon"/>: the day, the glyph and the figures, 4 apart.</summary>
-    public static double CellHeight(double icon) => (2 * FamilyType.Body.LineHeight) + icon + (2 * PartGap);
+    /// <summary>[S-14815] A cell's natural width: its content and the inset either side, inside the cell (WR-3).</summary>
+    public const double CellNaturalWidth = CellMinWidth + (2 * FamilySpace.Inset);
 
-    /// <summary>[S-11146] A new card's cell width, and the widest a cell grows.</summary>
-    public const double CellStart = 64;
+    /// <summary>[S-14815] A cell's natural height: its content and 8 over and under it, inside the cell.</summary>
+    public static double CellNaturalHeight => CellContentHeight + (2 * FamilySpace.S2);
 
-    public const double CellMaxWidth = 80;
+    /// <summary>[S-14410] The most cells across a card stands at: five.</summary>
+    public const int MostColumns = 5;
 
-    /// <summary>[S-11146] The days' fixed arrangement: one row up to four days, two up to eight, three past.</summary>
-    public static (int Columns, int Rows) Arrangement(int days)
-    {
-        days = Math.Clamp(days, 1, 14);
-        var rows = days <= 4 ? 1 : days <= 8 ? 2 : 3;
-        return ((days + rows - 1) / rows, rows);
-    }
+    /// <summary>[S-14410] The most lines a card stands at: three.</summary>
+    public const int MostRows = 3;
+
+    /// <summary>[S-14815] A cell's one width on <paramref name="grid"/>.</summary>
+    public static double CellWidth(ItemGrid grid) => ItemSize.Optimal(CellNaturalWidth, grid);
+
+    /// <summary>[S-14815] A cell's one height on <paramref name="grid"/>.</summary>
+    public static double CellHeight(ItemGrid grid) => ItemSize.Optimal(CellNaturalHeight, grid);
+
+    /// <summary>[S-14410] The grid's width at <paramref name="columns"/> cells: the cells alone, touching.</summary>
+    public static double Width(int columns) => Math.Max(1, columns) * CellWidth(ItemGrid.Default());
+
+    /// <summary>[S-14410] The grid's height at <paramref name="rows"/> lines: the cells alone, from the card's top edge.</summary>
+    public static double Height(int rows) => Math.Max(1, rows) * CellHeight(ItemGrid.Default());
 
     /// <summary>
     /// [S-12403] How many cells each line holds, top to bottom: <paramref name="columns"/> a line, the
-    /// last one the days left (it spreads them across the whole width). No days, no lines.
+    /// last one the days left (the room after them empty). No days, no lines.
     /// </summary>
     public static IReadOnlyList<int> Lines(int days, int columns)
     {
@@ -68,53 +75,26 @@ public static class ForecastGrid
         return lines;
     }
 
-    /// <summary>The length of <paramref name="count"/> cells of <paramref name="cell"/>, 12 apart.</summary>
-    public static double Length(int count, double cell) => (count * cell) + ((count - 1) * Gap);
-
-    /// <summary>[S-14410] The most cells across an arrangement has: five, fourteen days in three rows.</summary>
-    public const int MostColumns = 5;
-
-    /// <summary>[S-14410] The most rows an arrangement has.</summary>
-    public const int MostRows = 3;
-
-    /// <summary>[S-14410] The grid's width: the inset either side and <paramref name="columns"/> 64 cells, 12 apart.</summary>
-    public static double Width(int columns) => (2 * FamilySpace.Inset) + Length(Math.Max(1, columns), CellStart);
-
-    /// <summary>[S-14410] The grid's height: the content top and the inset under and <paramref name="rows"/> cells, 12 apart.</summary>
-    public static double Height(int rows) => FamilySpace.ContentTop + FamilySpace.Inset + Length(Math.Max(1, rows), CellMinHeight);
-
-    /// <summary>[S-14502] How many 64 cells, 12 apart, the box's content holds across: 1..<see cref="MostColumns"/>.</summary>
-    public static int CellsAcross(WidgetArea area)
-        => Math.Clamp((int)Math.Floor((WeatherForecastLayout.ContentWidth(area) + Gap + LayoutMath.Tolerance) / (CellStart + Gap)), 1, MostColumns);
-
-    /// <summary>[S-14502] How many cells, 12 apart, the box's content holds down: 1..<see cref="MostRows"/>.</summary>
-    public static int CellsDown(WidgetArea area)
-        => Math.Clamp((int)Math.Floor((WeatherForecastLayout.ContentHeight(area) + Gap + LayoutMath.Tolerance) / (CellMinHeight + Gap)), 1, MostRows);
-
     /// <summary>
-    /// [S-14410] The days a grid of <paramref name="columns"/> cells across and <paramref name="rows"/> down holds:
-    /// the most days whose arrangement is that, else those of the nearest arrangement (the fewest cells off, the more
-    /// days on a tie), so a resize lands on an arrangement and never leaves a whole row empty.
+    /// [S-14815] The cells in the box (the view's: its top the inset under the card's top edge): as many across as its width
+    /// holds whole, every line its height reaches from the card's top edge, the last cut by the foot (<see cref="ItemSize.Cells"/>).
     /// </summary>
-    public static int DaysFor(int columns, int rows)
-        => Enumerable.Range(1, 14)
-            .Select(d => (Days: d, Shape: Arrangement(d)))
-            .OrderBy(a => Math.Abs(a.Shape.Columns - columns) + Math.Abs(a.Shape.Rows - rows))
-            .ThenByDescending(a => a.Days)
-            .First().Days;
+    public static CellReach Cells(WidgetArea area)
+        => ItemSize.Cells(area.Width, area.Height + FamilySpace.Inset, CellNaturalWidth, CellNaturalHeight, area.Grid(), 1, WeatherForecastConfig.MostDays);
 
-    /// <summary>[S-6171] [S-11146] [S-14502] The grid for the box: the days its cells hold in their arrangement, the cells sharing the content, the 32 glyph.</summary>
+    /// <summary>[S-14502] [S-14815] The days <paramref name="columns"/> cells across and <paramref name="rows"/> lines hold: every cell, at most 14.</summary>
+    public static int DaysFor(int columns, int rows)
+        => Math.Clamp(Math.Max(1, columns) * Math.Max(1, rows), 1, WeatherForecastConfig.MostDays);
+
+    /// <summary>[S-6171] [S-14502] [S-14815] The grid for the box: the days its cells hold, the cells their one size, the 32 glyph.</summary>
     public static ForecastGridPlan Plan(WidgetArea area, WeatherForecastConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         var days = WeatherForecastLayout.DaysIn(area, config);
-        var (columns, rows) = Arrangement(days);
-        var width = WeatherForecastLayout.ContentWidth(area);
-        var height = WeatherForecastLayout.ContentHeight(area);
-        return new ForecastGridPlan(days, columns, rows, Cell(width, columns), Cell(height, rows), FamilyShape.IconLarge);
+        var columns = area.IsMeasured ? Cells(area).Columns : 3;
+        var grid = area.Grid();
+        return new ForecastGridPlan(days, columns, Lines(days, columns).Count, CellWidth(grid), CellHeight(grid), FamilyShape.IconLarge);
     }
-
-    private static double Cell(double length, int count) => Math.Max(0, (length - ((count - 1) * Gap)) / count);
 }
 
 /// <summary>[S-12813] The forecast's default: the days it shows, nothing read for any.</summary>

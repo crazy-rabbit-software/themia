@@ -12,8 +12,22 @@ internal sealed partial class WeatherForecastView
     /// <summary>The content's box: the inset either side and at the foot, joined or alone ([S-12483]).</summary>
     private Thickness ContentInset => new(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
 
-    /// <summary>[S-14810] Columns of days stand from the card's left edge (their own padding inside them), the foot's inset under them.</summary>
-    private static Thickness ColumnsInset => new(0, 0, 0, FamilySpace.Inset);
+    /// <summary>
+    /// [S-14810] [S-14815] A column of a day's parts: from the card's top edge to its foot (the columns stand on
+    /// <see cref="ListEdge"/>, the inset over and under the parts their padding inside the column, WR-3), from the card's
+    /// left edge.
+    /// </summary>
+    private static Thickness ColumnPadding => new(0, FamilySpace.Inset, 0, FamilySpace.Inset);
+
+    /// <summary>[S-14815] The columns' widths, each its one size on whole device pixels, from the card's left edge.</summary>
+    private void AddColumns(Grid grid, double width, int count)
+    {
+        var reach = new RowReach(width, count, _area.Grid().Raster);
+        for (var i = 0; i < count; i++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(reach.Height(i)) });
+        }
+    }
 
     // ---- Rows [S-725] ------------------------------------------------------------------------
 
@@ -110,18 +124,19 @@ internal sealed partial class WeatherForecastView
     // ---- Columns [S-726] ---------------------------------------------------------------------
 
     /// <summary>
-    /// The days side by side, each a column of its one fixed width from the card's left edge ([S-14810]): the day, the
+    /// The days side by side, each a column of its one fixed width from the card's left edge and from its top edge to its
+    /// foot ([S-14810], [S-14815]): the day, the
     /// sky's glyph, the high, the range standing up, the low and the precipitation, as the plan has them. Never a
     /// scroller: the last day the card's right edge reaches is cut by it.
     /// </summary>
     private Grid BuildColumns(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastColumnsPlan plan)
     {
         var count = Math.Min(plan.Days, days.Count);
-        var grid = new Grid { Margin = ColumnsInset, FlowDirection = FlowDirection.LeftToRight, HorizontalAlignment = HorizontalAlignment.Left };
+        var grid = new Grid { Margin = ListEdge.Margin, FlowDirection = FlowDirection.LeftToRight, HorizontalAlignment = HorizontalAlignment.Left };
+        AddColumns(grid, plan.ColumnWidth, count);
 
         for (var i = 0; i < count; i++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.ColumnWidth) });
             var column = BuildColumn(days[i], today, range, plan);
             Grid.SetColumn(column, i);
             grid.Children.Add(column);
@@ -132,7 +147,7 @@ internal sealed partial class WeatherForecastView
 
     private Grid BuildColumn(ForecastDay day, DateOnly today, Range range, ForecastColumnsPlan plan)
     {
-        var parts = new Grid { RowSpacing = WeatherForecastLayout.ColumnGap, Background = Family.Brush(ColourRole.Clear) };
+        var parts = new Grid { RowSpacing = WeatherForecastLayout.ColumnGap, Padding = ColumnPadding, Background = Family.Brush(ColourRole.Clear) };
 
         void Add(FrameworkElement element, GridLength height)
         {
@@ -182,6 +197,7 @@ internal sealed partial class WeatherForecastView
 
         ToolTipService.SetToolTip(parts, Describe(day));
         LinkDay(parts, day.Day);
+        ItemMark.Mark(parts);
         return parts;
     }
 

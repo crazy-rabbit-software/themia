@@ -25,10 +25,10 @@ public sealed record ForecastColumnsPlan(int Days, double ColumnWidth, double Ic
 /// the card's, every one its box reaches at their one fixed size, the last cut ([S-14810], [S-14812]), never stored (no
 /// menu line); every axis takes every grid cell ([S-14500]). Rows: a row a day (28 or 40, its optimal whole cells),
 /// 220..420 wide. Columns: a 60 column a day (its 56 in whole cells) from the card's left edge, one height. Curve: a 60
-/// column a day, the chart's band 72..144 tall. Grid:
-/// the days in their arrangement (one row up to four days, two up to eight, three past), as many 64 cells across and
-/// cells down as the box holds (<see cref="ForecastGrid.DaysFor"/>). Nothing else sheds or appears with the box: a bar
-/// or a chart gets longer.
+/// column a day, the chart's band 72..144 tall. Grid ([S-14815]):
+/// a cell a day of one fixed size from the card's left and top edges, as many across as its width holds whole, lines
+/// down as its height reaches, the last cut (<see cref="ForecastGrid.DaysFor"/>). Every style's items stand from the
+/// card's edges, the inset padding inside them. Nothing else sheds or appears with the box: a bar or a chart gets longer.
 /// </summary>
 public static class WeatherForecastLayout
 {
@@ -69,8 +69,7 @@ public static class WeatherForecastLayout
     /// [S-14502] The days a forecast shows in <paramref name="area"/> (its view's box): as many rows (the Rows style, from
     /// the card's top edge) or columns (Columns: <see cref="ColumnMin"/> each; Curve: <see cref="ForecastCurve.ColumnStart"/>;
     /// from the card's left edge) as it reaches at their one fixed size, the last cut by the card's foot or right edge
-    /// ([S-14810]), the grid's arrangement its cells hold
-    /// (<see cref="ForecastGrid.DaysFor"/>); 1..<see cref="WeatherForecastConfig.MostDays"/>. Before the box is measured, a
+    /// ([S-14810]), the grid's every cell (<see cref="ForecastGrid.DaysFor"/>); 1..<see cref="WeatherForecastConfig.MostDays"/>. Before the box is measured, a
     /// new one's days.
     /// </summary>
     public static int DaysIn(WidgetArea area, WeatherForecastConfig config)
@@ -86,7 +85,7 @@ public static class WeatherForecastLayout
         {
             ForecastStyle.Columns => Across(ColumnMin),
             ForecastStyle.Curve => Across(ForecastCurve.ColumnStart),
-            ForecastStyle.Grid => ForecastGrid.DaysFor(ForecastGrid.CellsAcross(area), ForecastGrid.CellsDown(area)),
+            ForecastStyle.Grid => ForecastGrid.DaysFor(ForecastGrid.Cells(area).Columns, ForecastGrid.Cells(area).Lines),
             _ => ItemSize.Count(area.Height + FamilySpace.Inset, FamilyShape.RowHeight(config.EffectiveLines), area.Grid(), 1, WeatherForecastConfig.MostDays),
         };
     }
@@ -151,13 +150,12 @@ public static class WeatherForecastLayout
             }
 
             case ForecastStyle.Grid:
-            {
-                var (columns, rows) = ForecastGrid.Arrangement(days);
+                // [S-14815] A new one three cells across and two lines down (its five days and one more), every cell
+                // from the card's edges at its one size.
                 return WidgetSizing.Range(
                     new(ForecastGrid.Width(1), ForecastGrid.Height(1)),
-                    new(ForecastGrid.Width(columns), ForecastGrid.Height(rows)),
+                    new(ForecastGrid.Width(3), ForecastGrid.Height(2)),
                     new(ForecastGrid.Width(ForecastGrid.MostColumns), ForecastGrid.Height(ForecastGrid.MostRows)));
-            }
 
             default:
                 // [S-14810] A row a day at its one fixed size, from the card's top edge (owner, 2026-11-20: "the widget items
