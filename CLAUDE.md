@@ -91,7 +91,7 @@ Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>] [-
            # group placed, as a scene; --edit: edit mode, the placed widgets selected; no state: its "sample" preview [S-2475]
 Themia.exe --inline-check <out.txt>   # every widget's inline box (add row, rename, title, search) open over its rest
            # state at min, natural and max: a finding per part that moved, grew or went; exit 1 on any [S-13950]
-Themia.exe --gallery-png <outDir> [--theme light|dark] [--category Id]   # the widget gallery through a real host and surface:
+Themia.exe --gallery-png <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]   # the widget gallery:
            # every screen, one widget picked (its panel, its styles), several, a drag under way [S-14917]
 Themia.exe --gallery-check <out.txt>   # its drag driven: picked, dragged (no jump, whole cells), dropped, the gallery back; PASS or FAIL
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)

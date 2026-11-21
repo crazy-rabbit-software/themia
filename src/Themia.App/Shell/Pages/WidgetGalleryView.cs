@@ -34,8 +34,8 @@ internal sealed record WidgetGalleryCommands(Action<ViewState, IReadOnlyList<str
 /// from that preview."): over the display's work area, under its edit bar, a calm ground (the display's blurred wallpaper
 /// under Windows' sheet) with the display's own grid on it, and on it a screen of real cards on their samples
 /// (<see cref="SampleWorld"/>, <see cref="SampleCards"/>), each kind at its natural size on the display's cells, laid by
-/// <see cref="WidgetGallery"/>: a cell of the gallery is a cell of the desktop. The category tabs and the arrows walk the
-/// screens; the edit mode's selection rules pick cards (<see cref="WidgetSelection"/>, <see cref="SelectionRules"/>: a press,
+/// <see cref="WidgetGallery"/>: a cell of the gallery is a cell of the desktop. The categories' rail (the add page's) and
+/// the arrows walk the screens; the edit mode's selection rules pick cards (<see cref="WidgetSelection"/>, <see cref="SelectionRules"/>: a press,
 /// Ctrl or Shift, the lasso) marked as the locked desktop marks them (a card's corners, the frame's round several); the
 /// panel on the right says what is picked and offers one widget's styles as small live cards. Dragging the pick hands it
 /// to the surface (<see cref="WidgetGalleryCommands.Drag"/>), which starts the one placement session; while it is aimed
@@ -76,8 +76,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         Visibility = Visibility.Collapsed,
     };
 
-    private readonly StackPanel _tabs = new() { Orientation = Orientation.Horizontal, Spacing = P.TabGap };
-    private readonly ScrollViewer _tabsScroll;
+    /// <summary>[S-14913] The categories as the add page's rail (its one component, [S-13610]), down the gallery's left.</summary>
+    private readonly AddRail _rail;
+    private readonly ScrollViewer _railScroll;
     private readonly TextBlock _pages = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
     private readonly StackPanel _tabRow;
     private readonly Border _panel = new();
@@ -124,13 +125,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             _markPlates.Children.Add(plate);
         }
 
-        _tabsScroll = new ScrollViewer
+        // Every category in sight at once, its name and how many widgets it holds: the add page's rail.
+        _rail = new AddRail([.. _categories.Select(c => new AddRailItem(c.Id, c.Title, c.Glyph, c.Blocks.Sum(b => b.Kinds.Count)))], ShowCategory);
+        _railScroll = new ScrollViewer
         {
-            Content = _tabs,
-            HorizontalScrollMode = ScrollMode.Enabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
-            VerticalScrollMode = ScrollMode.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            Content = _rail,
+            HorizontalScrollMode = ScrollMode.Disabled,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
         _pages.VerticalAlignment = VerticalAlignment.Center;
         _pages.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
@@ -140,7 +142,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             Height = G.Tabs,
             Children = { Arrow(Glyphs.ChevronLeft, Str.WidgetGallery_Previous.Text(), back: true), _pages, Arrow(Glyphs.ChevronRight, Str.WidgetGallery_Next.Text(), back: false) },
         };
-        UiLanguage.ApplyFlow(_tabsScroll);
+        UiLanguage.ApplyFlow(_railScroll);
         UiLanguage.ApplyFlow(_tabRow);
 
         _panel.Background = ShellBrush.Of(ShellRole.CardFill);
@@ -158,7 +160,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _stage.Children.Add(_markPlates);
         _stage.Children.Add(_input);
         _stage.Children.Add(_band);
-        _stage.Children.Add(_tabsScroll);
+        _stage.Children.Add(_railScroll);
         _stage.Children.Add(_tabRow);
         _stage.Children.Add(_panel);
         Children.Add(_stage);
@@ -231,32 +233,34 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             _grid.Clip = new RectangleGeometry { Rect = new Rect(work.X, work.Y, work.Width, work.Height) };
         }
 
+        // [S-14911] The rail down the left, the pager over the panel on the right, the cards between.
         var top = barBottom + ShellMetrics.Flyout.Gap;
-        var left = work.X + G.Margin;
+        var bottom = work.Y + work.Height - G.Margin;
+        var railLeft = work.X + G.Margin;
+        Canvas.SetLeft(_railScroll, railLeft);
+        Canvas.SetTop(_railScroll, top);
+        _railScroll.Width = G.Rail;
+        _railScroll.Height = Math.Max(0, bottom - top);
+        var left = railLeft + G.Rail + G.Margin;
         var right = work.X + work.Width - G.Margin;
         var panelLeft = right - G.Panel;
 
-        Canvas.SetLeft(_tabsScroll, left);
-        Canvas.SetTop(_tabsScroll, top);
-        _tabsScroll.Height = G.Tabs;
         _tabRow.Measure(new Size(double.PositiveInfinity, G.Tabs));
         var pager = Math.Ceiling(_tabRow.DesiredSize.Width);
-        _tabsScroll.Width = Math.Max(0, panelLeft - G.Margin - left);
         Canvas.SetLeft(_tabRow, panelLeft + G.Panel - pager);
         Canvas.SetTop(_tabRow, top);
 
-        var bodyTop = top + G.Tabs + ShellMetrics.Flyout.Gap;
-        var bottom = work.Y + work.Height - G.Margin;
+        var panelTop = top + G.Tabs + ShellMetrics.Flyout.Gap;
         Canvas.SetLeft(_panel, panelLeft);
-        Canvas.SetTop(_panel, bodyTop);
+        Canvas.SetTop(_panel, panelTop);
         _panel.Width = G.Panel;
-        _panel.Height = Math.Max(0, bottom - bodyTop);
+        _panel.Height = Math.Max(0, bottom - panelTop);
 
         // [S-14912] The cards' room in whole cells of the display's grid, inside the work area and the part new geometry may use.
         var (cols, rows) = GridGeometry.GridDims(metrics);
         var (pitchX, pitchY) = (metrics.Width / cols, metrics.Height / rows);
         var x0 = Math.Max(left, allowed.X + G.Margin);
-        var y0 = Math.Max(bodyTop, allowed.Y + G.Margin);
+        var y0 = Math.Max(top, allowed.Y + G.Margin);
         var x1 = Math.Min(panelLeft - G.Margin, allowed.X + allowed.Width - G.Margin);
         var y1 = Math.Min(bottom, allowed.Y + allowed.Height - G.Margin);
         var cx = (int)Math.Ceiling((x0 / pitchX) - 1e-9);
@@ -272,7 +276,6 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _area = area;
         var category = _screens.Count > 0 ? _screens[Math.Clamp(_at, 0, _screens.Count - 1)].Category : (AddFolderId?)null;
         _screens = WidgetGallery.Lay(_categories, area, Cells);
-        BuildTabs();
         Show(category is { } shown ? WidgetGallery.FirstOf(_screens, shown) : 0);
     }
 
@@ -339,17 +342,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         WidgetCard.Join(_cards, _metrics, _raster, editMode: false, _ => 0);
         DrawTitles(screen, Rect);
-        foreach (var tab in _tabs.Children.OfType<PageTabButton>())
-        {
-            tab.Chosen = tab.Key == screen.Category.ToString();
-
-            // The tabs scroll across where they are wider than their room: the chosen one in sight.
-            if (tab.Chosen)
-            {
-                tab.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
-            }
-        }
-
+        _rail.Choose(screen.Category);
         _pages.Text = Str.WidgetGallery_Pages.Format(("page", LocaleFormat.Integer(_at + 1)), ("count", LocaleFormat.Integer(_screens.Count)));
         Sync();
         var cards = _cards.ToList();
@@ -431,7 +424,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         ArgumentNullException.ThrowIfNull(ids);
         _following = [.. ids.Select(CardOf).OfType<WidgetCard>()];
         IsHitTestVisible = false;
-        foreach (var part in new UIElement[] { _ground, _grid, _titles, _markPlates, _tabsScroll, _tabRow, _panel, _band })
+        foreach (var part in new UIElement[] { _ground, _grid, _titles, _markPlates, _railScroll, _tabRow, _panel, _band })
         {
             part.Opacity = 0;
         }
@@ -467,7 +460,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     {
         _following = null;
         IsHitTestVisible = true;
-        foreach (var part in new UIElement[] { _ground, _grid, _titles, _markPlates, _tabsScroll, _tabRow, _panel, _band })
+        foreach (var part in new UIElement[] { _ground, _grid, _titles, _markPlates, _railScroll, _tabRow, _panel, _band })
         {
             part.Opacity = 1;
         }
@@ -538,17 +531,6 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         AutomationProperties.SetName(button, said);
         button.Click += (_, _) => Step(back);
         return button;
-    }
-
-    /// <summary>[S-14913] A tab per category, the add page's subjects' names, the one tab component.</summary>
-    private void BuildTabs()
-    {
-        _tabs.Children.Clear();
-        foreach (var category in _categories.Where(c => _screens.Any(s => s.Category == c.Id)))
-        {
-            var id = category.Id;
-            _tabs.Children.Add(new PageTabButton(id.ToString(), category.Title.Text(), () => ShowCategory(id)) { Height = G.Tabs });
-        }
     }
 
     /// <summary>[S-14912] The screen's title line (the category, its page of how many) and each family's name over its cards.</summary>

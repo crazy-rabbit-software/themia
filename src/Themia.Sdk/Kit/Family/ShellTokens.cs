@@ -214,20 +214,23 @@ public static class ShellMetrics
     }
 
     /// <summary>
-    /// [S-14911] The widget gallery over the work area: its category tabs a flyout's gap under the bar (36 tall, Karpo's
-    /// side list's item laid across), the cards 24 in from the work area's sides and foot, the panel 320 wide on the
-    /// right, 24 off the cards; a style's preview in the panel at most 132 × 96, 8 apart.
+    /// [S-14911] The widget gallery over the work area, a flyout's gap under the bar: the categories' rail 200 wide down the
+    /// left (the add page's rail, its items 36 tall), the cards 24 off it, the pager (36 tall) over the panel 280 wide on
+    /// the right, 24 off the cards and the work area's sides and foot; a style's preview in the panel at most 132 × 96, 8 apart.
     /// </summary>
     public static class WidgetGallery
     {
-        /// <summary>The tabs' row (an add page rail item's height).</summary>
+        /// <summary>The pager's row (an add page rail item's height).</summary>
         public const double Tabs = AddPage.RailItem;
+
+        /// <summary>[S-14913] The categories' rail: every name and count in sight on a 1280-DIP screen (1920 at 150 %).</summary>
+        public const double Rail = 200;
 
         /// <summary>From the work area's sides and foot, and between the cards and the panel.</summary>
         public const double Margin = 24;
 
         /// <summary>The panel of the selection on the right.</summary>
-        public const double Panel = 320;
+        public const double Panel = 280;
 
         /// <summary>Inside the panel.</summary>
         public const double PanelPad = 16;

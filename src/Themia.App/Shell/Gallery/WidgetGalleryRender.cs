@@ -71,9 +71,14 @@ internal static class WidgetGalleryRender
 
         var dark = app.RequestedTheme != ApplicationTheme.Light;
         var path = Path.GetFullPath(args[at + 1]);
-        _ = png >= 0 ? DrawAsync(app, path, dark, category) : CheckAsync(app, path);
+        // The stand-in display's pixels (1920 × 1080 unless --width/--height), at the display's scale or 100 % (--raster 100).
+        var display = (Width: Pixels(args, "--width") ?? 1920, Height: Pixels(args, "--height") ?? 1080, Args: args);
+        _ = png >= 0 ? DrawAsync(app, path, dark, category, display) : CheckAsync(app, path, display);
         return true;
     }
+
+    private static int? Pixels(string[] args, string name)
+        => int.TryParse(Option(args, name), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var value) && value >= 640 ? value : null;
 
     private static string? Option(string[] args, string name)
     {
@@ -82,7 +87,7 @@ internal static class WidgetGalleryRender
     }
 
     /// <summary>The stand-in display, its host and surface in edit mode, the gallery open.</summary>
-    private static async Task<(AppHost Host, DesktopWindow Surface, WidgetGalleryView Gallery)> StandAsync(bool dark, string tag)
+    private static async Task<(AppHost Host, DesktopWindow Surface, WidgetGalleryView Gallery)> StandAsync(bool dark, string tag, (int Width, int Height, string[] Args) display)
     {
         var state = AppState.CreateDefault();
         var view = state.Views[0];
@@ -91,10 +96,13 @@ internal static class WidgetGalleryRender
         DesignApplier.Apply(state.Design);
         state.ShowViewOn(DisplayId, view.Id);
 
-        var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 1920, Bottom = -32000 + 1080 };
+        var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + display.Width, Bottom = -32000 + display.Height };
         var monitor = new MonitorTarget(DisplayId, IdResolved: true, tag, bounds, bounds with { Bottom = bounds.Bottom - 48 }, IsPrimary: false);
         var host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-" + tag, "state.json")), state);
-        var surface = new DesktopWindow(host, monitor) { CheckButton = static () => false };
+        DesktopWindow? made = null;
+        _ = RenderRaster.Window(display.Args, () => (made = new DesktopWindow(host, monitor)).DebugWindow);
+        var surface = made!;
+        surface.CheckButton = static () => false;
         host.AdoptSurfaceForCheck(surface);
         surface.ShowSurface();
 
@@ -108,7 +116,7 @@ internal static class WidgetGalleryRender
         return (host, surface, gallery);
     }
 
-    private static async Task DrawAsync(Application app, string outDir, bool dark, AddFolderId? category)
+    private static async Task DrawAsync(Application app, string outDir, bool dark, AddFolderId? category, (int Width, int Height, string[] Args) display)
     {
         AppHost? host = null;
         DesktopWindow? surface = null;
@@ -116,11 +124,11 @@ internal static class WidgetGalleryRender
         try
         {
             Directory.CreateDirectory(outDir);
-            (host, surface, var gallery) = await StandAsync(dark, "gallery-render").ConfigureAwait(true);
+            (host, surface, var gallery) = await StandAsync(dark, "gallery-render", display).ConfigureAwait(true);
             async Task Shot(string name)
             {
                 await Task.Delay(1500).ConfigureAwait(true);
-                var file = Path.Combine(outDir, $"gallery-{theme}-{name}.png");
+                var file = Path.Combine(outDir, $"gallery-{theme}-{display.Width}x{display.Height}-{name}.png");
                 await RenderPng.SaveAsync(surface.DebugRoot, file).ConfigureAwait(true);
                 Console.WriteLine($"gallery: wrote {file}");
             }
@@ -172,7 +180,7 @@ internal static class WidgetGalleryRender
     private static Point Centre(FracRect rect, ScreenMetrics metrics)
         => new((rect.X + (rect.W / 2)) * metrics.Width, (rect.Y + (rect.H * 0.4)) * metrics.Height);
 
-    private static async Task CheckAsync(Application app, string outPath)
+    private static async Task CheckAsync(Application app, string outPath, (int Width, int Height, string[] Args) display)
     {
         var lines = new List<string>();
         var failures = 0;
@@ -195,11 +203,12 @@ internal static class WidgetGalleryRender
 
         try
         {
-            (host, surface, var gallery) = await StandAsync(dark: true, "gallery-check").ConfigureAwait(true);
+            (host, surface, var gallery) = await StandAsync(dark: true, "gallery-check", display).ConfigureAwait(true);
             var metrics = surface.Metrics;
             var (cols, rows) = GridGeometry.GridDims(metrics);
             var work = metrics.Allowed;
             Say($"gallery-check: {gallery.Screens.Count} screen(s) over {metrics.Width:0}x{metrics.Height:0} DIPs, grid {cols}x{rows}");
+            Say("     screens per category: " + string.Join(", ", gallery.Screens.GroupBy(s => s.Category).Select(g => $"{g.Key} {g.Count()}")));
 
             // [S-14912] Every screen: whole cells of the display's grid, inside the work area, no two cards sharing a cell.
             var tidy = true;

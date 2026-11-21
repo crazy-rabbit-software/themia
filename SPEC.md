@@ -2948,9 +2948,10 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   on) under the bar, which stays over it: a calm ground (the display's blurred wallpaper under Windows' sheet at 0.86;
   the sheet alone where there is no wallpaper picture) with the display's own grid drawn on it as edit mode draws it
   ([S-06c]). Every card stands on that grid: its cells are the display's cells (`GridGeometry.GridDims`, the same pitch
-  and origin), so a card's cell in the gallery is a cell of the desktop. The category tabs a flyout's gap under the bar
-  (36 tall), the pager at their end (Previous, "n of m", Next), the cards 24 in from the work area's sides and foot, the
-  panel 320 wide on the right, 24 off them (`ShellMetrics.WidgetGallery`). A press anywhere on it is its own: nothing
+  and origin), so a card's cell in the gallery is a cell of the desktop. A flyout's gap under the bar: the categories'
+  **rail** down the left (200 wide, [S-14913]), the cards 24 off it, the pager over the panel on the right (Previous,
+  "n of m", Next; 36 tall), the panel 280 wide, 24 off the cards and the work area's sides and foot
+  (`ShellMetrics.WidgetGallery`). A press anywhere on it is its own: nothing
   reaches the widgets under it, and no edit key acts on them while it is open but undo, redo and Escape.
 - **[S-14912]** **Grouped, never scattered** (`WidgetGallery.Lay`, pure, tested). A **category** is an add page subject (and
   More), its **blocks** the subject's own widgets, then each family under its name, in the add tree's order
@@ -2958,13 +2959,17 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   sample data** ([S-11850], [S-11851]: a preview host with its own sample world, each view's sample) at its kind's
   natural size in whole cells of the display, what placing it new makes (`PlacementPayload.NewSize`), held to the room
   where it is larger. A screen is the category's title line (Title, 4 cells, "n of m" beside it where it has more), then
-  its blocks: a block's cards in rows left to right, 2 cells apart (never touching, so none joins, [S-2240]), a family's
-  name in BodyStrong over its cards (3 cells); blocks side by side on a shelf while they fit across, 6 cells apart, the
-  next shelf under the tallest. A block that does not fit under what stands goes on from a shelf's start with as many of
-  its rows as fit there, its other rows continuing on the next screen under its name again (no screen left half empty). Deterministic; every box on whole cells inside the room, no
+  its pieces **packed densely** (coordinator, 2026-11-21: fill each screen before starting the next): each of the
+  category's own widgets a piece of its own, each family one block under its name in BodyStrong (3 cells), its cards packed
+  the same way inside it a cell apart (never touching, so none joins, [S-2240]). Every piece goes to the **first spot it
+  fits** (top-most, then left-most corner of the room or past a placed box) on the **first screen it fits**, so smaller
+  pieces fill the room beside taller ones; 2 cells from another block's. A new screen only when a piece fits on none; a
+  family taller than a screen is cut into chunks, each under its name again, never on a screen before the one before it.
+  Categories never share a screen. Deterministic; every box on whole cells inside the room, no
   two sharing a cell, a block's cards together.
-- **[S-14913]** **Screens.** The categories' screens follow one another in the rail's order. A category's **tab** (the one
-  tab component, `PageTabButton`) shows its first screen; the **arrows**, the **wheel** over the gallery and **Left/Right**,
+- **[S-14913]** **Screens.** The categories' screens follow one another in the rail's order. Every category stands in
+  sight at once on the **rail**, the add page's own (`AddRail`, [S-13610]: its glyph, its name and how many widgets it
+  holds, the shown one marked by the accent's pill); a click shows its first screen; the **arrows**, the **wheel** over the gallery and **Left/Right**,
   **Page Up/Down** walk every screen round the ends (`WidgetGallery.Step`, mirrored right to left), **Home** and **End** go to
   the first and the last. A new screen shows with nothing picked. Built afresh each time the gallery opens ([S-1109]), laid
   again only when the display's size, scale or work area changed.
@@ -2989,10 +2994,11 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   [S-2475]); Escape or a right-click gives it up ([S-1594]). Either way the gallery comes back as it was, every card on its
   cell: the gallery is never used up. What landed is selected under it; its page does not open over the gallery
   ([S-2343]). The free plan's limit is the session's ([S-1065]): refused, nothing starts and the gallery stays.
-- **[S-14917]** Debug renders: `--gallery-png <outDir> [--theme light|dark] [--category Id]` draws the gallery through a real
-  host and surface on a stand-in 1920 × 1080 display (its taskbar 48 at the foot), off-screen, in edit mode: every screen
-  (or the category's, `gallery-<theme>-<nn>-<Category>-<page>.png`), one widget picked with its panel and styles
-  (`-select-one`), several picked (`-select-several`) and a drag under way (`-drag`). `--gallery-check <out.txt>` drives
+- **[S-14917]** Debug renders: `--gallery-png <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]`
+  draws the gallery through a real host and surface on a stand-in display (1920 × 1080 pixels unless sized, its taskbar 48 at
+  the foot; at the display's scale, or 100 %), off-screen, in edit mode: every screen
+  (or the category's, `gallery-<theme>-<w>x<h>-<nn>-<Category>-<page>.png`), one widget picked with its panel and styles
+  (`-select-one`), several picked (`-select-several`) and a drag under way (`-drag`). `--gallery-check <out.txt>` (the same sizing options) says the screens per category and drives
   it as its pointer does: every screen's cards on whole cells inside the work area and apart; one widget and then three
   dragged and dropped (the ghost on their cells where the pointer held them, moved by whole cells with their offsets kept,
   landed where it was, selected, the gallery back with them on their cells), a drag given up, a style picked landing with
