@@ -36,19 +36,13 @@ public enum MeterLook
 
     /// <summary>[S-11001] The reading alone: the number at 28 with its unit.</summary>
     Number = 10,
-
-    /// <summary>[S-11002] The history alone, edge to edge, no number.</summary>
-    History = 11,
 }
 
-/// <summary>[S-11000] Which of a subject's atoms a meter face is: its reading, its history, or its items.</summary>
+/// <summary>[S-11000] Which of a subject's atoms a meter face is: its reading or its items (a history is its metric's graph, [S-14713]).</summary>
 public enum MeterAtom
 {
     /// <summary>The reading, in one of its drawings (Number, Numbers, Gauge, Ring, Rows as a bar, Battery, Signal).</summary>
     Reading = 0,
-
-    /// <summary>The history band alone, edge to edge.</summary>
-    History = 1,
 
     /// <summary>The kind's items alone (cores, engines), in the card's insets.</summary>
     Items = 2,

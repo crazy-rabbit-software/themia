@@ -90,10 +90,6 @@ public sealed class SystemAtomsTests
     }
 
     [Fact]
-    public void S11002_a_history_is_160_to_640_by_48_to_200()
-        => Assert.Equal((new SizeDip(160, 48), new SizeDip(160, 64), new SizeDip(640, 200)), (MeterSizing.History.Min, MeterSizing.History.Natural, MeterSizing.History.Max));
-
-    [Fact]
     public void S11003_a_dial_at_its_least_holds_the_reading_and_the_box_gives_the_largest_that_fits()
     {
         var (gauge, _) = MeterSizing.GaugeDiameters(Percent);

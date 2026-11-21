@@ -207,12 +207,6 @@ public static class MeterSizing
     public static double SignalIn(double width, double height)
         => Math.Clamp(Math.Floor(Math.Min(height - PartTop, width / MeterPlan.SignalAspect)), 0, SignalMax);
 
-    /// <summary>[S-11002] A history atom: the band edge to edge, no header by default.</summary>
-    public static WidgetSizing History { get; } = WidgetSizing.Range(new(160, 48), new(160, 64), new(640, 200)) with { Room = StretchRoom.Picture };
-
-    /// <summary>[S-11002] [S-6751] A history atom at its chart's detail: Detailed is taller by the room it writes in (the band keeps nothing free of its own).</summary>
-    public static WidgetSizing HistoryOf(Themia.Core.Model.WidgetConfig config)
-        => config is Themia.Core.Model.IChartLooks looks ? ChartPlot.Sized(History, Themia.Core.Model.ChartLooks.EffectiveDetail(looks), 0, 0) : History;
 
     /// <summary>[S-11005] Items as columns (the cores' bars), headerless, in the card's inset.</summary>
     public static WidgetSizing Columns { get; } = WidgetSizing.Range(new(120, 48), new(160, 64), new(640, 200)) with { Room = StretchRoom.Picture };

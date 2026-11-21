@@ -28,11 +28,8 @@ namespace Themia.App.Widgets;
 /// with the tile, so a large tile is a longer chart, never a bigger number.
 /// </para>
 /// </summary>
-public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost, IWidgetTopEdge
+public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
 {
-    /// <summary>[S-5700] [S-6754] A history's plot is drawn to the card's top edge as to its sides and foot: it owns it.</summary>
-    public bool OwnsTopEdge => _part.Atom == MeterAtom.History;
-
     private const string Scope = "meter";
 
     private readonly MeterPart _part;
@@ -50,7 +47,6 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     private MeterReading? _last;
 
     private WidgetArea _area;
-    private bool _graph;
 
     // [S-1941] The history shows the stand-in line of a thing not on this machine.
     private bool _standIn;
@@ -131,8 +127,6 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config.Kind == _kind ? config : WidgetConfig.CreateDefault(_kind);
-
-        _graph = _part.Atom == MeterAtom.History;
 
         _part.ApplyConfig(_config, this);
         UseLook(_part.Look(_config));

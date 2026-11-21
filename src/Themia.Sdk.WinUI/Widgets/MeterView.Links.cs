@@ -33,7 +33,7 @@ public sealed partial class MeterView
     private string Subject => LinkInstants.Subject(_series ?? _part.Series(_config));
 
     /// <summary>Whether the face draws a history the pointer can stand on.</summary>
-    private bool Charts => _graph || _look == MeterLook.Graphs;
+    private bool Charts => _look == MeterLook.Graphs;
 
     /// <summary>[S-11953] The card as its drive: what it publishes under the pointer and lights for; null for a kind about no drive.</summary>
     private LinkCard<DriveLink>? _driveCard;
@@ -80,7 +80,7 @@ public sealed partial class MeterView
             return;
         }
 
-        var band = _graph ? _band : _cells.Select(cell => cell.Band).FirstOrDefault(b => Inside(b, args)) ?? (_cells.Count > 0 ? _cells[0].Band : _band);
+        var band = _cells.Select(cell => cell.Band).FirstOrDefault(b => Inside(b, args)) ?? (_cells.Count > 0 ? _cells[0].Band : _band);
         var at = band.InstantAt(args.GetCurrentPoint(band).Position.X, Period, DateTimeOffset.Now);
         var moment = new InstantLink(at, Subject);
         _links.Set(topic, moment);
