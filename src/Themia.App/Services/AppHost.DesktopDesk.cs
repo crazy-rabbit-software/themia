@@ -104,7 +104,7 @@ internal sealed partial class AppHost : IDesktopDesk
     private void StartDesk()
     {
         HostDesktopItems.Instance.Desk = this;
-        HostDesktopItems.Instance.Fenced = State.Views.SelectMany(v => DesktopFences.Members(v).Keys).ToHashSet(StringComparer.Ordinal);
+        HostDesktopItems.Instance.Fenced = State.Views.SelectMany(v => FencesOf(v).Members.Keys).ToHashSet(StringComparer.Ordinal);
         HostDesktopItems.Instance.Changed += OnDeskListingChanged;
         HostFileClipboard.Instance.Changed += RepaintDesk;
         StateChanged += OnDeskStateChanged;
@@ -132,7 +132,7 @@ internal sealed partial class AppHost : IDesktopDesk
 
         // [S-13709] An icon a fence holds stands on the fence: its name and highlight follow the fence's ground, so an icon
         // that went into or out of a fence repaints.
-        var fenced = State.Views.SelectMany(v => DesktopFences.Members(v).Keys).ToHashSet(StringComparer.Ordinal);
+        var fenced = State.Views.SelectMany(v => FencesOf(v).Members.Keys).ToHashSet(StringComparer.Ordinal);
         var moved = !fenced.SetEquals(HostDesktopItems.Instance.Fenced);
         HostDesktopItems.Instance.Fenced = fenced;
         var before = _desk.Count;

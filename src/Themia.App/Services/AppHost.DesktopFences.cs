@@ -100,28 +100,58 @@ internal sealed partial class AppHost : IDesktopFences
         var metrics = surface.Metrics;
         var box = DeskIconSize(metrics);
         var ids = new HashSet<string>(moving.Select(w => w.Id), StringComparer.Ordinal);
-        return landing => DesktopFences.DropCell(view, landing, metrics, box, ids);
+
+        // [S-15666] Every step of the move asks it: the view's fences as last looked up.
+        return landing => DesktopFences.DropCell(FencesOf(view), landing, metrics, box, ids);
     }
 
     /// <summary>[S-13042] Which widgets of <paramref name="view"/> the surface draws no card for now: the icons its fences do not show.</summary>
     internal HashSet<string> FenceHidden(ViewState view, ScreenMetrics metrics)
-        => view.Widgets.Exists(w => w.Config is IHoldsDesktopItems) ? DesktopFences.Hidden(view, metrics, DeskIconSize(metrics)) : [];
-
-    /// <summary>[S-13042] The widget ids of <paramref name="view"/>'s fences and the icons they hold: a move of icons alone may land on them.</summary>
-    internal static HashSet<string> FencesAndTheirIcons(ViewState view)
-        => [.. DesktopFences.On(view).Select(on => on.Widget.Id), .. DesktopFences.Members(view).Keys];
+        => FencesOf(view) is { HasFences: true } fences ? DesktopFences.Hidden(fences, metrics, DeskIconSize(metrics)) : [];
 
     /// <summary>[S-13042] The icons <paramref name="fenceId"/> of <paramref name="view"/> holds, by widget id: they move with it.</summary>
-    internal static IEnumerable<string> FenceIconsOf(ViewState view, string fenceId)
-        => DesktopFences.Members(view).Where(m => string.Equals(m.Value.Fence.Widget.Id, fenceId, StringComparison.Ordinal)).Select(m => m.Key);
+    internal IEnumerable<string> FenceIconsOf(ViewState view, string fenceId)
+        => FencesOf(view).Members.Where(m => string.Equals(m.Value.Fence.Widget.Id, fenceId, StringComparison.Ordinal)).Select(m => m.Key);
+
+    /// <summary>
+    /// [S-15666] <paramref name="view"/>'s fences looked up once and kept until the state changes (every <see cref="Mutate"/>
+    /// and undo step forgets them, <see cref="ForgetFences"/>), or until the view's widget list is another: a drag step, the
+    /// paint order and what the fences hide read them without walking the view. Inside a change, looked up afresh.
+    /// </summary>
+    internal FenceIndex FencesOf(ViewState view)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        if (_writing > 0)
+        {
+            return FenceIndex.Of(view);
+        }
+
+        if (_fenceIndexes.TryGetValue(view, out var kept) && ReferenceEquals(kept.Widgets, view.Widgets) && kept.Count == view.Widgets.Count)
+        {
+            return kept.Index;
+        }
+
+        var index = FenceIndex.Of(view);
+        _fenceIndexes[view] = (index, view.Widgets, view.Widgets.Count);
+        return index;
+    }
+
+    /// <summary>[S-15666] The views' fences as last looked up, with the widget list and count they were looked up from.</summary>
+    private readonly Dictionary<ViewState, (FenceIndex Index, List<WidgetInstance> Widgets, int Count)> _fenceIndexes = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>[S-15666] How deep changes are being written: what is asked of the fences then is looked up afresh.</summary>
+    private int _writing;
+
+    /// <summary>[S-15666] Forget every view's fences as looked up: the state changed.</summary>
+    private void ForgetFences() => _fenceIndexes.Clear();
 
     /// <summary>
     /// [S-13041] [S-13047] Whether a shell drag of the desktop's icons over <paramref name="widgetId"/> of <paramref name="view"/> is
     /// the desktop's drop: a fence, or an icon a fence holds (<see cref="DesktopFences.FenceAt"/>: the fence takes the icons by its
     /// cells, as the move does), unless it is a search's.
     /// </summary>
-    internal static bool FenceTakesDeskDrag(ViewState view, string widgetId)
-        => DesktopFences.FenceAt(view, widgetId) is { } fence && fence.Fence.Source != FenceSource.Search;
+    internal bool FenceTakesDeskDrag(ViewState view, string widgetId)
+        => FencesOf(view).FenceAt(widgetId) is { } fence && fence.Fence.Source != FenceSource.Search;
 
     /// <summary>
     /// [S-13012] Roll a fence up to its title bar (its height kept to unroll to) or unroll it. Not an undo step: a look,
@@ -486,12 +516,20 @@ internal sealed partial class AppHost : IDesktopFences
     /// </summary>
     private void CollectFences(AppState state)
     {
-        if (ItemKind is not { } kind || !HostDesktopItems.Instance.HasListing || !state.Views.Exists(v => DesktopFences.On(v).Any(on => on.Fence.Source != FenceSource.Held)))
+        if (ItemKind is not { } kind || !HostDesktopItems.Instance.HasListing || DesktopFences.CollectStamp(state) is not { } stamp)
+        {
+            _collected = null;
+            return;
+        }
+
+        // [S-15666] Run on this listing and these fences already: nothing to do.
+        var listing = HostDesktopItems.Instance.Items;
+        if (_collected is { } last && ReferenceEquals(last.Listing, listing) && string.Equals(last.Stamp, stamp, StringComparison.Ordinal))
         {
             return;
         }
 
-        foreach (var (view, keys) in DesktopFences.Collect(state, HostDesktopItems.Instance.Items, FenceIcon))
+        foreach (var (view, keys) in DesktopFences.Collect(state, listing, FenceIcon))
         {
             var items = keys.Select(key => HostDesktopItems.Instance.Find(key)).OfType<DesktopItem>().ToList();
             var left = DesktopFences.LetGo(view, items, null, null, ScreenOfView(view.Id) ?? DeskPrimaryScreen, (DeskCellDip.Width, DeskCellDip.Height),
@@ -501,5 +539,10 @@ internal sealed partial class AppHost : IDesktopFences
                 Log.Info(Scope, $"{left.Count} item(s) a fence let go found no free spot; Add widget lists them");
             }
         }
+
+        _collected = (listing, DesktopFences.CollectStamp(state));
     }
+
+    /// <summary>[S-15666] The listing and the fences' stamp the last collect ran on (<see cref="DesktopFences.CollectStamp"/>).</summary>
+    private (IReadOnlyList<DesktopItem> Listing, string? Stamp)? _collected;
 }

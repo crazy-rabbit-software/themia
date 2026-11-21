@@ -194,7 +194,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void ApplyPaintOrder(ViewState view)
     {
-        var order = Themia.Core.Desktop.DesktopFences.PaintOrder(view);
+        var order = Themia.Core.Desktop.DesktopFences.PaintOrder(_host.FencesOf(view));
         for (var i = 0; i < order.Count; i++)
         {
             var model = order[i];

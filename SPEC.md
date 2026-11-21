@@ -11424,6 +11424,19 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
 - **[S-15668]** A surface's metrics (its display in DIPs at its scale, the area every display showing its view holds) are
   made once and kept: made again when its scale, its display or its view is another, and forgotten by every change of the
   state, an undo step, a change taken back and a display pass. A drag step reads them many times.
+- **[S-15666]** **A view's fences are looked up once per change** (audit 2026-11-21: which icon each key has and which fence
+  holds each icon were rebuilt on almost every question, a move's every pointer step among them). `FenceIndex` holds a
+  view's fences in order, each item's icon by key, the fence that holds each key and the icons the fences hold with their
+  place; the host keeps one per view until the next change of the state or undo step (`AppHost.FencesOf`; inside a change
+  it is looked up afresh), and a move's drop cell, the fences' hidden icons, the paint order and what stands for a fence
+  read it. Each fence rule that changes a view looks its fences up once per call. The collect of the fences that show by a
+  rule ([S-13022]) runs only when the desktop's listing or what it reads of the fences (their order, sources, rules and
+  items: `DesktopFences.CollectStamp`) is another than when it last ran: run once it leaves nothing for a second run, and an
+  item taken out by hand changes the items, so it still comes back while it matches. Tests `FenceIndexTests.S15666_`.
+- **[S-15667]** **The room taken on the grid is looked up by cell** (`Occupancy`): every rect is filed under the grid cells it
+  reaches, so a free spot (`DesktopGrid.FirstFree`, `NearestFree`, an arrival, auto arrange, the settle's and a rescale's
+  lay) asks only the rects under the cells its box covers, never every widget for each of the grid's spots; the answer is
+  the one overlap rule's, the first rect added in the way. Tests `FenceIndexTests.S15667_`.
 - **[S-890]** Crash-loop guard (`Core/Storage/BootGuard`, `boot_attempts` beside the state file):
   bumped atomically before the surfaces are built, deleted once every surface has loaded and laid out
   its cards. The 3rd start in a row that never got that far is safe: every card shows "Paused:

@@ -126,11 +126,14 @@ public static partial class DesktopFences
     /// [S-13042] [S-13043] The widget ids of the icons <paramref name="view"/>'s fences do not show now (scrolled away, rolled
     /// up): no surface draws them, nothing selects them.
     /// </summary>
-    public static HashSet<string> Hidden(ViewState view, ScreenMetrics screen, (double W, double H) box)
+    public static HashSet<string> Hidden(ViewState view, ScreenMetrics screen, (double W, double H) box) => Hidden(FenceIndex.Of(view), screen, box);
+
+    /// <summary>[S-15666] What the fences of a view already looked up (<paramref name="fences"/>) do not show now.</summary>
+    public static HashSet<string> Hidden(FenceIndex fences, ScreenMetrics screen, (double W, double H) box)
     {
-        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(fences);
         var hidden = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var (id, (on, index)) in Members(view))
+        foreach (var (id, (on, index)) in fences.Members)
         {
             if (on.Fence.RolledUp || !screen.IsUsable || !FenceCells.Of(on.Widget.Rect, on.Fence, screen, box).Clamped(on.Fence.Items.Count).Shows(index))
             {
@@ -145,10 +148,14 @@ public static partial class DesktopFences
     /// [S-13042] The order <paramref name="view"/>'s widgets are painted in: the view's own ([S-874]), each fence's icons
     /// right over their fence, in its order.
     /// </summary>
-    public static List<WidgetInstance> PaintOrder(ViewState view)
+    public static List<WidgetInstance> PaintOrder(ViewState view) => PaintOrder(FenceIndex.Of(view));
+
+    /// <summary>[S-15666] The paint order of the view whose fences were already looked up (<paramref name="fences"/>).</summary>
+    public static List<WidgetInstance> PaintOrder(FenceIndex fences)
     {
-        ArgumentNullException.ThrowIfNull(view);
-        var members = Members(view);
+        ArgumentNullException.ThrowIfNull(fences);
+        var view = fences.View;
+        var members = fences.Members;
         if (members.Count == 0)
         {
             return [.. view.Widgets];
@@ -188,14 +195,18 @@ public static partial class DesktopFences
     /// does not show. Anywhere else the landing itself. Both are cells of the one grid.
     /// </summary>
     public static FracRect DropCell(ViewState view, FracRect landing, ScreenMetrics screen, (double W, double H) box, IReadOnlySet<string> moving)
+        => DropCell(FenceIndex.Of(view), landing, screen, box, moving);
+
+    /// <summary>[S-15666] The one drop computation over a view whose fences were already looked up (a move asks it at every step).</summary>
+    public static FracRect DropCell(FenceIndex fences, FracRect landing, ScreenMetrics screen, (double W, double H) box, IReadOnlySet<string> moving)
     {
-        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(fences);
         ArgumentNullException.ThrowIfNull(moving);
-        return Under(view, landing, screen, box, moving) is { } at ? FenceCells.Cell(at.Layout, at.Slot) : landing;
+        return Under(fences, landing, screen, box, moving) is { } at ? FenceCells.Cell(at.Layout, at.Slot) : landing;
     }
 
     /// <summary>[S-13041] The fence whose body <paramref name="landing"/>'s centre is on (the topmost), its layout and the place a drop there takes; null for none.</summary>
-    private static (FenceOn Fence, FenceGrid.Layout Layout, int Slot)? Under(ViewState view, FracRect landing, ScreenMetrics screen, (double W, double H) box, IReadOnlySet<string> moving)
+    private static (FenceOn Fence, FenceGrid.Layout Layout, int Slot)? Under(FenceIndex fences, FracRect landing, ScreenMetrics screen, (double W, double H) box, IReadOnlySet<string> moving)
     {
         if (!screen.IsUsable || !landing.IsFinite || !(box.W > 0) || !(box.H > 0))
         {
@@ -203,9 +214,9 @@ public static partial class DesktopFences
         }
 
         var (cx, cy) = (landing.X + (landing.W / 2), landing.Y + (landing.H / 2));
-        var icons = IconsByKey(view);
-        foreach (var on in On(view).Reverse())
+        for (var f = fences.Fences.Count - 1; f >= 0; f--)
         {
+            var on = fences.Fences[f];
             if (moving.Contains(on.Widget.Id) || on.Fence.RolledUp || on.Fence.Source == FenceSource.Search)
             {
                 continue;
@@ -218,7 +229,7 @@ public static partial class DesktopFences
                 continue;
             }
 
-            var staying = on.Fence.Items.Count(key => !(icons.TryGetValue(key, out var icon) && moving.Contains(icon.Id)));
+            var staying = on.Fence.Items.Count(key => !(fences.Icon(key) is { } icon && moving.Contains(icon.Id)));
             var first = layout.Scroll * layout.Columns;
             var last = first + Math.Max(0, layout.Shown - 1);
             return (on, layout, Math.Clamp(Math.Min(slot, staying), first, last));
@@ -239,6 +250,7 @@ public static partial class DesktopFences
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(moved);
         var set = new HashSet<string>(moved, StringComparer.Ordinal);
+        var fences = FenceIndex.Of(view);
         var landings = new List<(string Key, FracRect Rect, (FenceOn Fence, FenceGrid.Layout Layout, int Slot)? At)>();
         foreach (var widget in view.Widgets)
         {
@@ -247,12 +259,12 @@ public static partial class DesktopFences
                 continue;
             }
 
-            if (Holding(view, config.Item) is { } holder && set.Contains(holder.Widget.Id))
+            if (fences.Holding(config.Item) is { } holder && set.Contains(holder.Widget.Id))
             {
                 continue;
             }
 
-            landings.Add((config.Item, widget.Rect, Under(view, widget.Rect, screen, box, set)));
+            landings.Add((config.Item, widget.Rect, Under(fences, widget.Rect, screen, box, set)));
         }
 
         if (landings.Count == 0)

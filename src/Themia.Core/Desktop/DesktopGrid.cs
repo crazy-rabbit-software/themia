@@ -66,6 +66,13 @@ public static class DesktopGrid
     public static FracRect? FirstFree((double W, double H) size, IReadOnlyList<FracRect> occupied, ScreenMetrics screen)
     {
         ArgumentNullException.ThrowIfNull(occupied);
+        return Range(size, screen) is null ? null : FirstFree(size, Occupancy.Of(occupied, screen), screen);
+    }
+
+    /// <summary>[S-15667] <see cref="FirstFree(ValueTuple{double, double}, IReadOnlyList{FracRect}, ScreenMetrics)"/> over the room already looked up by cell.</summary>
+    public static FracRect? FirstFree((double W, double H) size, Occupancy occupied, ScreenMetrics screen)
+    {
+        ArgumentNullException.ThrowIfNull(occupied);
         if (Range(size, screen) is not { } range)
         {
             return null;
@@ -79,7 +86,7 @@ public static class DesktopGrid
             while (c <= c1)
             {
                 var rect = new FracRect((double)c / cols, (double)r / rows, size.W, size.H);
-                if (Blocker(rect, occupied) is not { } blocker)
+                if (occupied.Blocker(rect) is not { } blocker)
                 {
                     return rect;
                 }
@@ -99,6 +106,16 @@ public static class DesktopGrid
     /// further left, so the answer never depends on the order things were asked in). Null when none is free.
     /// </summary>
     public static FracRect? NearestFree((double W, double H) size, double x, double y, IReadOnlyList<FracRect> occupied, ScreenMetrics screen)
+    {
+        ArgumentNullException.ThrowIfNull(occupied);
+        return Range(size, screen) is null ? null : NearestFree(size, x, y, Occupancy.Of(occupied, screen), screen);
+    }
+
+    /// <summary>
+    /// [S-15667] <see cref="NearestFree(ValueTuple{double, double}, double, double, IReadOnlyList{FracRect}, ScreenMetrics)"/>
+    /// over the room already looked up by cell: each spot asks the cells its box covers.
+    /// </summary>
+    public static FracRect? NearestFree((double W, double H) size, double x, double y, Occupancy occupied, ScreenMetrics screen)
     {
         ArgumentNullException.ThrowIfNull(occupied);
         if (Range(size, screen) is not { } range || !double.IsFinite(x) || !double.IsFinite(y))
@@ -139,7 +156,7 @@ public static class DesktopGrid
                     }
 
                     var rect = new FracRect((double)c / cols, (double)r / rows, size.W, size.H);
-                    if (Blocker(rect, occupied) is null)
+                    if (occupied.Blocker(rect) is null)
                     {
                         (best, bestD, bestC, bestR) = (rect, d, c, r);
                     }
@@ -157,6 +174,19 @@ public static class DesktopGrid
     /// <paramref name="occupied"/>, so the arrivals of one pass never share one. Null when nothing is free.
     /// </summary>
     public static FracRect? Arrive(List<FracRect> occupied, (double W, double H) size, double? cx, double? cy, ScreenMetrics screen)
+    {
+        ArgumentNullException.ThrowIfNull(occupied);
+        var spot = Arrive(Occupancy.Of(occupied, screen), size, cx, cy, screen);
+        if (spot is { } placed)
+        {
+            occupied.Add(placed);
+        }
+
+        return spot;
+    }
+
+    /// <summary>[S-15667] <see cref="Arrive(List{FracRect}, ValueTuple{double, double}, double?, double?, ScreenMetrics)"/> over the room looked up by cell, the spot taken there.</summary>
+    public static FracRect? Arrive(Occupancy occupied, (double W, double H) size, double? cx, double? cy, ScreenMetrics screen)
     {
         ArgumentNullException.ThrowIfNull(occupied);
         var spot = cx is { } px && cy is { } py
@@ -183,7 +213,7 @@ public static class DesktopGrid
         ArgumentNullException.ThrowIfNull(others);
         var result = new FracRect?[icons.Count];
         var (_, rows) = GridGeometry.GridDims(screen);
-        var occupied = new List<FracRect>(others);
+        var occupied = Occupancy.Of(others, screen);
         foreach (var i in Enumerable.Range(0, icons.Count)
             .OrderBy(i => (int)Math.Round(icons[i].Y * rows, MidpointRounding.AwayFromZero))
             .ThenBy(i => Math.Round(icons[i].X, 6))
@@ -259,7 +289,7 @@ public static class DesktopGrid
         var anchors = icons.Select((r, i) => (
             X: from.W > 0 ? corner[i].X + ((r.X - corner[i].X) * to.W / from.W) : r.X,
             Y: from.H > 0 ? corner[i].Y + ((r.Y - corner[i].Y) * to.H / from.H) : r.Y)).ToList();
-        var laid = Lay([.. ReadingOrder(anchors, screen)], anchors, [], others, to, screen);
+        var laid = Lay([.. ReadingOrder(anchors, screen)], anchors, new Occupancy(screen), others, to, screen);
         return [.. icons.Select((r, i) => laid[i] ?? Fallback(anchors[i], to, screen))];
     }
 
@@ -361,7 +391,7 @@ public static class DesktopGrid
 
         var a = screen.Allowed;
         var anchors = icons.Select(r => (r.X, r.Y)).ToList();
-        var kept = new List<FracRect>();
+        var kept = new Occupancy(screen);
         var moving = new List<int>();
         foreach (var i in ReadingOrder(anchors, screen))
         {
@@ -369,7 +399,7 @@ public static class DesktopGrid
             var valid = r.IsFinite
                 && Math.Abs(r.W - size.W) < 1e-6 && Math.Abs(r.H - size.H) < 1e-6
                 && r.X >= a.X - 1e-6 && r.Y >= a.Y - 1e-6 && r.Right <= a.Right + 1e-6 && r.Bottom <= a.Bottom + 1e-6
-                && Blocker(r, kept) is null;
+                && kept.Blocker(r) is null;
             if (valid)
             {
                 kept.Add(r);
@@ -405,7 +435,7 @@ public static class DesktopGrid
     /// <paramref name="others"/> is in the way; else the free spot nearest the anchor. Null for an icon with no
     /// room.
     /// </summary>
-    private static FracRect?[] Lay(IReadOnlyList<int> order, IReadOnlyList<(double X, double Y)> anchors, List<FracRect> kept, IReadOnlyList<FracRect> others, (double W, double H) size, ScreenMetrics screen)
+    private static FracRect?[] Lay(IReadOnlyList<int> order, IReadOnlyList<(double X, double Y)> anchors, Occupancy kept, IReadOnlyList<FracRect> others, (double W, double H) size, ScreenMetrics screen)
     {
         var result = new FracRect?[anchors.Count];
         if (Range(size, screen) is not { } range)
@@ -416,7 +446,11 @@ public static class DesktopGrid
         var (c0, c1, r0, r1, cols, rows) = range;
         var wCells = Math.Max(1, size.W * cols);
         var hCells = Math.Max(1, size.H * rows);
-        var icons = new List<FracRect>(kept);
+
+        // [S-15667] The widgets, the icons (the kept and those laid so far) and both together, each looked up by cell.
+        var widgets = Occupancy.Of(others, screen);
+        var icons = Occupancy.Of(kept.Rects, screen);
+        var all = Occupancy.Of([.. others, .. kept.Rects], screen);
         foreach (var i in order)
         {
             var (ax, ay) = anchors[i];
@@ -432,12 +466,12 @@ public static class DesktopGrid
             for (var step = 0; step <= cols + rows; step++)
             {
                 var rect = new FracRect((double)c / cols, (double)r / rows, size.W, size.H);
-                if (Blocker(rect, others) is not null)
+                if (widgets.Blocker(rect) is not null)
                 {
                     break;
                 }
 
-                if (Blocker(rect, icons) is not { } icon)
+                if (icons.Blocker(rect) is not { } icon)
                 {
                     spot = rect;
                     break;
@@ -461,10 +495,11 @@ public static class DesktopGrid
                 }
             }
 
-            spot ??= NearestFree(size, ax, ay, [.. others, .. icons], screen);
+            spot ??= NearestFree(size, ax, ay, all, screen);
             if (spot is { } placed)
             {
                 icons.Add(placed);
+                all.Add(placed);
                 result[i] = placed;
             }
         }
@@ -550,9 +585,7 @@ public static class DesktopGrid
     {
         foreach (var other in occupied)
         {
-            if (other.IsFinite
-                && rect.X < other.Right - Epsilon && other.X < rect.Right - Epsilon
-                && rect.Y < other.Bottom - Epsilon && other.Y < rect.Bottom - Epsilon)
+            if (Occupancy.Overlaps(rect, other))
             {
                 return other;
             }

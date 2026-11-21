@@ -38,20 +38,31 @@ internal sealed partial class AppHost
     {
         ArgumentNullException.ThrowIfNull(change);
 
-        var written = _writer.Write(
-            state =>
-            {
-                change(state);
+        // [S-15666] What the change asks of the fences is looked up afresh; what was looked up before it is forgotten after.
+        _writing++;
+        bool written;
+        try
+        {
+            written = _writer.Write(
+                state =>
+                {
+                    change(state);
 
-                // [S-15668] The change may show another view on a display: every surface's metrics are made again.
-                ForgetMetrics();
+                    // [S-15668] The change may show another view on a display: every surface's metrics are made again.
+                    ForgetMetrics();
 
-                // [S-13022] [S-13023] Fences that show by a rule show it after every change, in the same step.
-                CollectFences(state);
-            },
-            undo,
-            effect,
-            SettleChange);
+                    // [S-13022] [S-13023] Fences that show by a rule show it after every change, in the same step.
+                    CollectFences(state);
+                },
+                undo,
+                effect,
+                SettleChange);
+        }
+        finally
+        {
+            _writing--;
+            ForgetFences();
+        }
 
         if (!written)
         {

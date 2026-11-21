@@ -145,7 +145,7 @@ internal sealed partial class DesktopWindow
         // [S-13042] A fence moves its icons with it: they stay on its cells.
         foreach (var fence in ids.Where(id => view.Find(id)?.Config is IHoldsDesktopItems).ToList())
         {
-            ids.AddRange(Services.AppHost.FenceIconsOf(view, fence).Where(icon => !ids.Contains(icon)));
+            ids.AddRange(_host.FenceIconsOf(view, fence).Where(icon => !ids.Contains(icon)));
         }
 
         var cards = new List<(WidgetCard Card, FracRect Start)>();
@@ -426,7 +426,7 @@ internal sealed partial class DesktopWindow
 
                     return Themia.Core.Desktop.DesktopDragOut.DropTarget(
                         takesDrops: card.View is IDesktopIconView icon ? icon.TakesDrops : card.View is Themia.App.Widgets.IWidgetDropTarget,
-                        fenced: Themia.Core.Desktop.DesktopFences.FenceAt(ViewForThisMonitor(_host.State), card.Model.Id) is not null);
+                        fenced: _host.FencesOf(ViewForThisMonitor(_host.State)).FenceAt(card.Model.Id) is not null);
                 }
             }
         }

@@ -334,7 +334,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         var (hit, card) = DropHitAt(point);
         // [S-13041] Over a fence (its icons too, [S-13047]) the desktop's own icons land by the one drop computation: on its cells.
         if (DesktopCommands.MovesIcons(_host.DeskDragRunning, EditMode, hit, card is not null
-            && (_host.DeskDragHolds(card.Model.Id) || Services.AppHost.FenceTakesDeskDrag(ViewForThisMonitor(_host.State), card.Model.Id))))
+            && (_host.DeskDragHolds(card.Model.Id) || _host.FenceTakesDeskDrag(ViewForThisMonitor(_host.State), card.Model.Id))))
         {
             return (DropRoute.Desktop, null, point, true);
         }

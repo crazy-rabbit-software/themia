@@ -43,16 +43,7 @@ public static partial class DesktopFences
     /// own icons: that fence itself, or the fence that holds that icon (its cell); null for any other widget. A move or a drag of
     /// the desktop's icons over either lands on the fence's cells, never in a fenced icon as a drop target.
     /// </summary>
-    public static FenceOn? FenceAt(ViewState view, string widgetId)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        if (view.Find(widgetId) is { Config: IHoldsDesktopItems fence } widget)
-        {
-            return new FenceOn(widget, fence);
-        }
-
-        return Members(view).TryGetValue(widgetId, out var member) ? member.Fence : null;
-    }
+    public static FenceOn? FenceAt(ViewState view, string widgetId) => FenceIndex.Of(view).FenceAt(widgetId);
 
     /// <summary>The fence widget <paramref name="fenceId"/> and its view, or null.</summary>
     public static (ViewState View, FenceOn Fence)? Find(AppState state, string fenceId)
@@ -205,32 +196,10 @@ public static partial class DesktopFences
     /// [S-13042] The icons of <paramref name="view"/> its fences hold, by widget id: the fence and the item's place in its
     /// order. Every other item widget of the view is a free icon.
     /// </summary>
-    public static Dictionary<string, (FenceOn Fence, int Index)> Members(ViewState view)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        var icons = IconsByKey(view);
-        var members = new Dictionary<string, (FenceOn, int)>(StringComparer.Ordinal);
-        foreach (var on in On(view))
-        {
-            for (var i = 0; i < on.Fence.Items.Count; i++)
-            {
-                if (icons.TryGetValue(on.Fence.Items[i], out var icon))
-                {
-                    members.TryAdd(icon.Id, (on, i));
-                }
-            }
-        }
-
-        return members;
-    }
+    public static IReadOnlyDictionary<string, (FenceOn Fence, int Index)> Members(ViewState view) => FenceIndex.Of(view).Members;
 
     /// <summary>[S-13042] The free desktop icons of <paramref name="view"/> (an own icon too): every item widget no fence holds.</summary>
-    public static List<WidgetInstance> FreeIcons(ViewState view)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        var members = Members(view);
-        return [.. view.Widgets.Where(w => w.Config is IDesktopItemConfig && !members.ContainsKey(w.Id))];
-    }
+    public static List<WidgetInstance> FreeIcons(ViewState view) => FenceIndex.Of(view).FreeIcons();
 
     /// <summary>
     /// [S-13002] Load: every fence's items made whole and no item in two places of one view. In each fence an invalid key

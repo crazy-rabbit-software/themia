@@ -31,6 +31,41 @@ public static partial class DesktopFences
     }
 
     /// <summary>
+    /// [S-15666] What <see cref="Collect"/> reads of the state besides the listing, as one text: every fence of each view that
+    /// has a collecting or a search fence (its id, source, rules and items, in the view's order). <see cref="Collect"/> run
+    /// once leaves nothing for a second run to do: while the stamp and the listing are the ones it ran on, it is not run
+    /// again (an item taken out by hand changes the items, so it comes back while it matches). Null when no view has such a
+    /// fence (nothing to collect).
+    /// </summary>
+    public static string? CollectStamp(AppState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        System.Text.StringBuilder? stamp = null;
+        foreach (var view in state.Views)
+        {
+            var fences = On(view).ToList();
+            if (!fences.Exists(on => on.Fence.Source != FenceSource.Held))
+            {
+                continue;
+            }
+
+            stamp ??= new System.Text.StringBuilder();
+            stamp.Append(view.Id).Append('\u001e');
+            foreach (var on in fences)
+            {
+                var rules = on.Fence.Rules;
+                stamp.Append(on.Widget.Id).Append('\u001f').Append(on.Fence.Source).Append('\u001f')
+                    .AppendJoin(',', rules?.Types ?? []).Append('\u001f')
+                    .AppendJoin(',', rules?.Extensions ?? []).Append('\u001f')
+                    .Append(rules?.NameContains).Append('\u001f')
+                    .AppendJoin('\u001f', on.Fence.Items).Append('\u001e');
+            }
+        }
+
+        return stamp?.ToString();
+    }
+
+    /// <summary>
     /// [S-13022] [S-13023] Every fence made to show what its source says, against the desktop's <paramref name="listing"/>: a
     /// collecting fence (<see cref="FenceSource.Desktop"/>) takes in every listed item its rules match that no fence before
     /// it on that view holds (from the free desktop and from other fences, <see cref="MoveIn"/>, at its end), and lets go of
@@ -123,7 +158,7 @@ public static partial class DesktopFences
         }
 
         var size = DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), screen);
-        var occupied = DesktopGrid.Occupied(view);
+        var occupied = Occupancy.Of(DesktopGrid.Occupied(view), screen);
         var unplaced = new List<DesktopItem>();
         var shown = new HashSet<string>(DesktopViews.Shown(view), DesktopItemKeys.Comparer);
         foreach (var item in items)
