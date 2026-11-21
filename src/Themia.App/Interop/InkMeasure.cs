@@ -27,6 +27,7 @@ internal static unsafe partial class InkMeasure
 
     /// <summary>[S-14319] OpenType's <c>tnum</c>, tabular figures, as DirectWrite tags it.</summary>
     private const uint TabularTag = 't' | ('n' << 8) | ('u' << 16) | ((uint)'m' << 24);
+    private const int FormatSetTextAlignment = 3;
     private const int FormatSetWordWrapping = 5;
     private const int FormatSetLineSpacing = 10;
     private const int LayoutSetMaxHeight = 29;
@@ -114,6 +115,17 @@ internal static unsafe partial class InkMeasure
             if (result < 0)
             {
                 return (Failed($"no word wrapping (0x{result:X8})"), 0);
+            }
+
+            // [S-15674] Wrapped lines stand across the width as XAML stands them (DWRITE_TEXT_ALIGNMENT: leading 0, trailing 1,
+            // centre 2): a centred sentence's shorter line leaves its room alike either side, not all of it at its end.
+            if (wraps && text.Align != InkAlign.Start)
+            {
+                result = ((delegate* unmanaged[Stdcall]<nint, int, int>)ComApi.Slot(format, FormatSetTextAlignment))(format, text.Align == InkAlign.Center ? 2 : 1);
+                if (result < 0)
+                {
+                    return (Failed($"no text alignment (0x{result:X8})"), 0);
+                }
             }
 
             fixed (char* chars = text.Text)

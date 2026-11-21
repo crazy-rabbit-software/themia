@@ -9244,6 +9244,15 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   block its value, unit and line under (`ReadoutBlock.Ink`). A line saying nothing yet, and a placeholder read as what it
   stands for ([S-12813]), keep the model; without a meter (Core's tests) the model stands. Tests
   `InkCentringTests.S14200_`.
+- **[S-15674]** **A wrapped text's sides are its lines' as they stand** (WR-3; a centred face's two bands alike, the
+  owner's "Centred is fine"). `Ink` read a text that wraps onto several lines by its first letter's room at its start
+  and none at its end, so a centred block of it (the word clock's sentence) stood by a box whose end was taken for ink:
+  "It's twenty to / eleven" at 900 × 300 stood 47.3 / 52.0 from the card's sides, the "o" ending its widest line leaving
+  4.7 DIP of its own room. Such a text is measured as its lines stand at the width it wraps at and where its alignment
+  puts them (`InkText.Width`, `InkText.Align`: `InkAlign` Start, End or Center, set on DirectWrite's layout as XAML's
+  `TextAlignment`), the room before its first ink and after its last both read off the lines (a centred sentence's
+  widest line's bearings either side, a shorter line centred under it). A text on one line is measured unbounded as
+  before.
 - **[S-14201]** **A tile's face is centred on its ink** (owner, 2026-11-19, of a quick toggle's or a power button's icon
   and name: "Centred is fine"). The Tile block's face (the glyph, its circle or arm ring, the name and a toggle's state
   line) stands in a `ReadingFit` in the tile's inset (since 2026-11-20 scaled up as one, [S-14306]), so its

@@ -293,7 +293,12 @@ public static class Ink
 
     private static (double Left, double Right) Pad((double Left, double Right) room, double left, double right) => (room.Left + left, room.Right + right);
 
-    /// <summary>A text's side bearings (one line as it measures unbounded; a wrapping text its start alone), unmeasured none.</summary>
+    /// <summary>
+    /// A text's side bearings: one line as it measures unbounded; [S-15674] a text that wraps onto several lines as its lines
+    /// stand at the width it wraps at, each where its alignment puts it (a centred sentence's widest line from its box's start
+    /// to its end, its letters' bearings either side; it had been read with no room at its end, standing a centred word
+    /// clock 4.7 DIP off centre at 900 × 300). Unmeasured: none.
+    /// </summary>
     private static (double Left, double Right) TextAcross(TextBlock text)
     {
         var words = text.Text;
@@ -302,20 +307,32 @@ public static class Ink
             return (0, 0);
         }
 
-        var room = InkMeter.Room(new InkText(words, FontOf(text.FontFamily), text.FontSize, text.FontWeight.Weight, 0, Tracking: text.CharacterSpacing));
+        // A wrapping text that stands on one line ends as one line does.
+        var line = text.LineHeight > 0 ? text.LineHeight : text.FontSize * 1.4;
+        var wraps = text.TextWrapping != TextWrapping.NoWrap && text.DesiredSize.Height - text.Margin.Top - text.Margin.Bottom > line * 1.5;
+        var rtl = text.FlowDirection == FlowDirection.RightToLeft;
+        var ink = new InkText(words, FontOf(text.FontFamily), text.FontSize, text.FontWeight.Weight, 0, Tracking: text.CharacterSpacing);
+        var room = InkMeter.Room(wraps ? ink with { Width = WrapWidth(text), Align = AlignOf(text.TextAlignment, rtl) } : ink);
         if (room is not { } r)
         {
             return (0, 0);
         }
 
-        var rtl = text.FlowDirection == FlowDirection.RightToLeft;
+        // The meter lays the lines left to right: right to left, its start is its right.
         var (start, end) = InkRoom.Ends(r, r, rtl, led: false);
-
-        // A wrapping text that stands on one line ends as one line does.
-        var line = text.LineHeight > 0 ? text.LineHeight : text.FontSize * 1.4;
-        var wraps = text.TextWrapping != TextWrapping.NoWrap && text.DesiredSize.Height - text.Margin.Top - text.Margin.Bottom > line * 1.5;
-        return rtl ? (wraps ? 0 : end, start) : (start, wraps ? 0 : end);
+        return rtl ? (end, start) : (start, end);
     }
+
+    /// <summary>
+    /// [S-15674] Where XAML stands a text's wrapped lines, as the meter lays them left to right (XAML's Left is its Start and
+    /// its Right its End: right to left, the start is the right).
+    /// </summary>
+    private static InkAlign AlignOf(TextAlignment alignment, bool rtl) => alignment switch
+    {
+        TextAlignment.Center => InkAlign.Center,
+        TextAlignment.End => rtl ? InkAlign.Start : InkAlign.End,
+        _ => rtl ? InkAlign.End : InkAlign.Start,
+    };
 
     /// <summary>A column's parts as they stand in its <paramref name="width"/>: the least room either side over them.</summary>
     private static (double Left, double Right) Column(UIElementCollection children, double width, Func<UIElement, Read> kid)

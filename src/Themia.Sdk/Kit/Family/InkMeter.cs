@@ -8,9 +8,24 @@ namespace Themia.Sdk.Kit;
 /// where XAML puts it, at the font's ascent's share of the line; 0: the font's own line, as a glyph draws in its em box), the
 /// width it wraps at (infinite: one line), its tracking (thousandths of an em, XAML's <c>CharacterSpacing</c>), which
 /// moves where it wraps, the most lines it shows (0: all; past them XAML cuts the last shown line with its ellipsis), and
-/// [S-14319] whether its figures are tabular (OpenType <c>tnum</c>: every digit one width, a readout's).
+/// [S-14319] whether its figures are tabular (OpenType <c>tnum</c>: every digit one width, a readout's), and [S-15674] where
+/// its wrapped lines stand across the width they wrap at (<see cref="InkAlign"/>: a centred sentence's shorter line centred
+/// under its widest), which moves the room before its first ink and after its last.
 /// </summary>
-public readonly record struct InkText(string Text, string Font, double FontSize, int Weight, double LineHeight, double Width = double.PositiveInfinity, int Tracking = 0, int MaxLines = 0, bool Tabular = false);
+public readonly record struct InkText(string Text, string Font, double FontSize, int Weight, double LineHeight, double Width = double.PositiveInfinity, int Tracking = 0, int MaxLines = 0, bool Tabular = false, InkAlign Align = InkAlign.Start);
+
+/// <summary>[S-15674] Where a text's lines stand across the width it wraps at, as XAML's <c>TextAlignment</c> lays them.</summary>
+public enum InkAlign
+{
+    /// <summary>At its start (left, right to left its right): XAML's Left, Start and Justify.</summary>
+    Start,
+
+    /// <summary>At its end.</summary>
+    End,
+
+    /// <summary>Centred.</summary>
+    Center,
+}
 
 /// <summary>
 /// [S-14200] [S-14240] The room in a text's box around its ink: over its first ink and under its last
