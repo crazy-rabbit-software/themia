@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Isinasara ang bawat app at pinapatay ang PC",
+  "power.action.shutdown": "I-shut down",
+  "widgetsC.power.desc.restart": "Isinasara ang bawat app at sinisimulan ulit ang Windows",
+  "power.action.restart": "I-restart",
+  "widgetsC.power.desc.sleep": "Mababang power; bumabalik sa parehong desktop",
+  "power.action.sleep": "Sleep",
+  "widgetsC.power.desc.hibernate": "Sine-save ang session sa disk at pinapatay ang power",
+  "power.action.hibernate": "Hibernate",
+  "widgetsC.power.desc.lock": "Ipinapakita ang lock screen; patuloy na tumatakbo ang mga app",
+  "power.action.lock": "I-lock",
+  "widgetsC.power.desc.signOut": "Isinasara ang iyong mga app at tinatapos ang iyong session",
+  "power.action.signOut": "Mag-sign out",
+  "widgetsC.power.desc.screenOff": "Pinapatay ang mga display; ginigising sila ng anumang input",
+  "power.action.screenOff": "Patayin ang display"
+}

@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "ಎಲ್ಲಾ ಆ್ಯಪ್‌ಗಳನ್ನು ಮುಚ್ಚಿ PC ಯನ್ನು ಆಫ್ ಮಾಡುತ್ತದೆ",
+  "power.action.shutdown": "ಶಟ್ ಡೌನ್",
+  "widgetsC.power.desc.restart": "ಎಲ್ಲಾ ಆ್ಯಪ್‌ಗಳನ್ನು ಮುಚ್ಚಿ Windows ಅನ್ನು ಮತ್ತೆ ಪ್ರಾರಂಭಿಸುತ್ತದೆ",
+  "power.action.restart": "ಮರುಪ್ರಾರಂಭಿಸು",
+  "widgetsC.power.desc.sleep": "ಕಡಿಮೆ ವಿದ್ಯುತ್; ಅದೇ ಡೆಸ್ಕ್‌ಟಾಪ್‌ಗೆ ಮರಳುತ್ತದೆ",
+  "power.action.sleep": "ನಿದ್ರೆ",
+  "widgetsC.power.desc.hibernate": "ಸೆಷನ್ ಅನ್ನು ಡಿಸ್ಕ್‌ಗೆ ಉಳಿಸಿ ಪವರ್ ಆಫ್ ಮಾಡುತ್ತದೆ",
+  "power.action.hibernate": "ಹೈಬರ್ನೇಟ್",
+  "widgetsC.power.desc.lock": "ಲಾಕ್ ಪರದೆಯನ್ನು ತೋರಿಸುತ್ತದೆ; ಆ್ಯಪ್‌ಗಳು ಚಾಲನೆಯಲ್ಲಿರುತ್ತವೆ",
+  "power.action.lock": "ಲಾಕ್ ಮಾಡು",
+  "widgetsC.power.desc.signOut": "ನಿನ್ನ ಆ್ಯಪ್‌ಗಳನ್ನು ಮುಚ್ಚಿ ನಿನ್ನ ಸೆಷನ್ ಕೊನೆಗೊಳಿಸುತ್ತದೆ",
+  "power.action.signOut": "ಸೈನ್ ಔಟ್",
+  "widgetsC.power.desc.screenOff": "ಡಿಸ್‌ಪ್ಲೇಗಳನ್ನು ಆಫ್ ಮಾಡುತ್ತದೆ; ಯಾವುದೇ ಇನ್‌ಪುಟ್ ಅವುಗಳನ್ನು ಮತ್ತೆ ಆನ್ ಮಾಡುತ್ತದೆ",
+  "power.action.screenOff": "ಡಿಸ್‌ಪ್ಲೇ ಆಫ್ ಮಾಡು"
+}

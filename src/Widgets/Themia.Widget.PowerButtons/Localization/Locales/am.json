@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "እያንዳንዱን መተግበሪያ ዘግቶ ፒሲውን ያጠፋል",
+  "power.action.shutdown": "ዝጋ",
+  "widgetsC.power.desc.restart": "እያንዳንዱን መተግበሪያ ዘግቶ Windowsን እንደገና ያስጀምራል",
+  "power.action.restart": "ዳግም አስጀምር",
+  "widgetsC.power.desc.sleep": "ዝቅተኛ ኃይል፤ ወደ ተመሳሳዩ ዴስክቶፕ ይመለሳል",
+  "power.action.sleep": "አንቀላፋ",
+  "widgetsC.power.desc.hibernate": "ክፍለ ጊዜውን በዲስክ ላይ አስቀምጦ ኃይሉን ያጠፋል",
+  "power.action.hibernate": "እርጋ",
+  "widgetsC.power.desc.lock": "የመቆለፊያ ማያ ገጹን ያሳያል፤ መተግበሪያዎች መሥራታቸውን ይቀጥላሉ",
+  "power.action.lock": "ቆልፍ",
+  "widgetsC.power.desc.signOut": "መተግበሪያዎችዎን ዘግቶ ክፍለ ጊዜዎን ያበቃል",
+  "power.action.signOut": "ውጣ",
+  "widgetsC.power.desc.screenOff": "ማሳያዎቹን ያጠፋል፤ ማንኛውም ግቤት ያነቃቸዋል",
+  "power.action.screenOff": "ማሳያውን አጥፋ"
+}

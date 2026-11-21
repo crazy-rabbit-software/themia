@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "모든 앱을 닫고 PC를 끕니다",
+  "power.action.shutdown": "시스템 종료",
+  "widgetsC.power.desc.restart": "모든 앱을 닫고 Windows를 다시 시작합니다",
+  "power.action.restart": "다시 시작",
+  "widgetsC.power.desc.sleep": "저전력 상태로 전환하며, 같은 바탕 화면으로 돌아옵니다",
+  "power.action.sleep": "절전",
+  "widgetsC.power.desc.hibernate": "세션을 디스크에 저장하고 전원을 끕니다",
+  "power.action.hibernate": "최대 절전 모드",
+  "widgetsC.power.desc.lock": "잠금 화면을 표시합니다. 앱은 계속 실행됩니다",
+  "power.action.lock": "잠금",
+  "widgetsC.power.desc.signOut": "앱을 닫고 세션을 종료합니다",
+  "power.action.signOut": "로그아웃",
+  "widgetsC.power.desc.screenOff": "디스플레이를 끕니다. 아무 입력이나 하면 다시 켜집니다",
+  "power.action.screenOff": "디스플레이 끄기"
+}

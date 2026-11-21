@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Ferme toutes les applications et éteint le PC",
+  "power.action.shutdown": "Arrêter",
+  "widgetsC.power.desc.restart": "Ferme toutes les applications et redémarre Windows",
+  "power.action.restart": "Redémarrer",
+  "widgetsC.power.desc.sleep": "Faible consommation ; revient au même bureau",
+  "power.action.sleep": "Veille",
+  "widgetsC.power.desc.hibernate": "Enregistre la session sur le disque et éteint",
+  "power.action.hibernate": "Veille prolongée",
+  "widgetsC.power.desc.lock": "Affiche l’écran de verrouillage ; les applications continuent",
+  "power.action.lock": "Verrouiller",
+  "widgetsC.power.desc.signOut": "Ferme vos applications et termine la session",
+  "power.action.signOut": "Se déconnecter",
+  "widgetsC.power.desc.screenOff": "Éteint les écrans ; toute saisie les rallume",
+  "power.action.screenOff": "Éteindre l’écran"
+}

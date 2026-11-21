@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Schließt alle Apps und schaltet den PC aus",
+  "power.action.shutdown": "Herunterfahren",
+  "widgetsC.power.desc.restart": "Schließt alle Apps und startet Windows neu",
+  "power.action.restart": "Neu starten",
+  "widgetsC.power.desc.sleep": "Wenig Energie; kehrt zum selben Desktop zurück",
+  "power.action.sleep": "Energie sparen",
+  "widgetsC.power.desc.hibernate": "Speichert die Sitzung auf dem Datenträger und schaltet aus",
+  "power.action.hibernate": "Ruhezustand",
+  "widgetsC.power.desc.lock": "Zeigt den Sperrbildschirm; Apps laufen weiter",
+  "power.action.lock": "Sperren",
+  "widgetsC.power.desc.signOut": "Schließt deine Apps und beendet die Sitzung",
+  "power.action.signOut": "Abmelden",
+  "widgetsC.power.desc.screenOff": "Schaltet die Bildschirme aus; jede Eingabe weckt sie",
+  "power.action.screenOff": "Bildschirm ausschalten"
+}

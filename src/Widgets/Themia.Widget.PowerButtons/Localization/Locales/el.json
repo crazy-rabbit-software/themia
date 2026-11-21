@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Κλείνει κάθε εφαρμογή και απενεργοποιεί τον υπολογιστή",
+  "power.action.shutdown": "Τερματισμός λειτουργίας",
+  "widgetsC.power.desc.restart": "Κλείνει κάθε εφαρμογή και ξεκινά ξανά τα Windows",
+  "power.action.restart": "Επανεκκίνηση",
+  "widgetsC.power.desc.sleep": "Χαμηλή κατανάλωση· επιστρέφει στην ίδια επιφάνεια εργασίας",
+  "power.action.sleep": "Αναστολή λειτουργίας",
+  "widgetsC.power.desc.hibernate": "Αποθηκεύει την περίοδο λειτουργίας στον δίσκο και απενεργοποιεί τον υπολογιστή",
+  "power.action.hibernate": "Αδρανοποίηση",
+  "widgetsC.power.desc.lock": "Εμφανίζει την οθόνη κλειδώματος· οι εφαρμογές συνεχίζουν να εκτελούνται",
+  "power.action.lock": "Κλείδωμα",
+  "widgetsC.power.desc.signOut": "Κλείνει τις εφαρμογές σου και τερματίζει την περίοδο λειτουργίας σου",
+  "power.action.signOut": "Αποσύνδεση",
+  "widgetsC.power.desc.screenOff": "Απενεργοποιεί τις οθόνες· οποιαδήποτε είσοδος τις ξυπνά",
+  "power.action.screenOff": "Απενεργοποίηση οθόνης"
+}

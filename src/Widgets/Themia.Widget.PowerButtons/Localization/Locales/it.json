@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Chiude tutte le app e spegne il PC",
+  "power.action.shutdown": "Arresta",
+  "widgetsC.power.desc.restart": "Chiude tutte le app e riavvia Windows",
+  "power.action.restart": "Riavvia",
+  "widgetsC.power.desc.sleep": "Basso consumo; torna allo stesso desktop",
+  "power.action.sleep": "Sospendi",
+  "widgetsC.power.desc.hibernate": "Salva la sessione su disco e spegne",
+  "power.action.hibernate": "Iberna",
+  "widgetsC.power.desc.lock": "Mostra la schermata di blocco; le app restano attive",
+  "power.action.lock": "Blocca",
+  "widgetsC.power.desc.signOut": "Chiude le app e termina la sessione",
+  "power.action.signOut": "Disconnetti",
+  "widgetsC.power.desc.screenOff": "Spegne gli schermi; qualsiasi input li riattiva",
+  "power.action.screenOff": "Spegni schermo"
+}

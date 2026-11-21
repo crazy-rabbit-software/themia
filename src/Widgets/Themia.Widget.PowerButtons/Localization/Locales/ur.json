@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "ہر ایپ بند کر کے PC بند کرتا ہے",
+  "power.action.shutdown": "بند کریں",
+  "widgetsC.power.desc.restart": "ہر ایپ بند کر کے Windows دوبارہ شروع کرتا ہے",
+  "power.action.restart": "دوبارہ شروع کریں",
+  "widgetsC.power.desc.sleep": "کم پاور؛ اسی ڈیسک ٹاپ پر واپس آتا ہے",
+  "power.action.sleep": "سلیپ",
+  "widgetsC.power.desc.hibernate": "سیشن ڈسک پر محفوظ کر کے بند ہو جاتا ہے",
+  "power.action.hibernate": "ہائبرنیٹ",
+  "widgetsC.power.desc.lock": "لاک اسکرین دکھاتا ہے؛ ایپس چلتی رہتی ہیں",
+  "power.action.lock": "لاک کریں",
+  "widgetsC.power.desc.signOut": "آپ کی ایپس بند کر کے سیشن ختم کرتا ہے",
+  "power.action.signOut": "سائن آؤٹ",
+  "widgetsC.power.desc.screenOff": "ڈسپلے بند کرتا ہے؛ کوئی بھی ان پٹ انہیں جگا دیتا ہے",
+  "power.action.screenOff": "ڈسپلے بند کریں"
+}

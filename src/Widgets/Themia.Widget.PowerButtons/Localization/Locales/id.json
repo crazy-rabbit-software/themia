@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Menutup semua aplikasi dan mematikan PC",
+  "power.action.shutdown": "Matikan",
+  "widgetsC.power.desc.restart": "Menutup semua aplikasi dan memulai ulang Windows",
+  "power.action.restart": "Mulai ulang",
+  "widgetsC.power.desc.sleep": "Daya rendah; kembali ke desktop yang sama",
+  "power.action.sleep": "Tidur",
+  "widgetsC.power.desc.hibernate": "Menyimpan sesi ke disk lalu mematikan daya",
+  "power.action.hibernate": "Hibernasi",
+  "widgetsC.power.desc.lock": "Menampilkan layar kunci; aplikasi tetap berjalan",
+  "power.action.lock": "Kunci",
+  "widgetsC.power.desc.signOut": "Menutup aplikasi Anda dan mengakhiri sesi",
+  "power.action.signOut": "Keluar",
+  "widgetsC.power.desc.screenOff": "Mematikan layar; input apa pun menyalakannya lagi",
+  "power.action.screenOff": "Matikan layar"
+}

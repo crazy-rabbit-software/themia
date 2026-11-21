@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Закрывает все приложения и выключает ПК",
+  "power.action.shutdown": "Завершение работы",
+  "widgetsC.power.desc.restart": "Закрывает все приложения и запускает Windows заново",
+  "power.action.restart": "Перезагрузка",
+  "widgetsC.power.desc.sleep": "Низкое энергопотребление; возврат к тому же рабочему столу",
+  "power.action.sleep": "Спящий режим",
+  "widgetsC.power.desc.hibernate": "Сохраняет сеанс на диск и выключает питание",
+  "power.action.hibernate": "Гибернация",
+  "widgetsC.power.desc.lock": "Показывает экран блокировки; приложения продолжают работать",
+  "power.action.lock": "Заблокировать",
+  "widgetsC.power.desc.signOut": "Закрывает ваши приложения и завершает сеанс",
+  "power.action.signOut": "Выйти",
+  "widgetsC.power.desc.screenOff": "Выключает дисплеи; любое действие их включает",
+  "power.action.screenOff": "Выключить экран"
+}

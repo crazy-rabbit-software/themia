@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Yana rufe kowace manhaja kuma ya kashe kwamfuta",
+  "power.action.shutdown": "Kashe",
+  "widgetsC.power.desc.restart": "Yana rufe kowace manhaja kuma ya sake kunna Windows",
+  "power.action.restart": "Sake kunnawa",
+  "widgetsC.power.desc.sleep": "Ƙaramin wuta; yana dawowa kan tebur ɗaya",
+  "power.action.sleep": "Barci",
+  "widgetsC.power.desc.hibernate": "Yana ajiye zaman a faifai kuma ya kashe wuta",
+  "power.action.hibernate": "Dogon barci",
+  "widgetsC.power.desc.lock": "Yana nuna allon kullewa; manhajoji suna ci gaba da gudana",
+  "power.action.lock": "Kulle",
+  "widgetsC.power.desc.signOut": "Yana rufe manhajojinka kuma ya ƙare zamanka",
+  "power.action.signOut": "Fita",
+  "widgetsC.power.desc.screenOff": "Yana kashe fuskoki; kowace shigarwa tana tayar da su",
+  "power.action.screenOff": "Kashe allo"
+}

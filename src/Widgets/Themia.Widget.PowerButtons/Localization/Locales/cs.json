@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsC.power.desc.shutdown": "Zavře všechny aplikace a vypne počítač",
+  "power.action.shutdown": "Vypnout",
+  "widgetsC.power.desc.restart": "Zavře všechny aplikace a znovu spustí Windows",
+  "power.action.restart": "Restartovat",
+  "widgetsC.power.desc.sleep": "Nízká spotřeba, vrátíš se na stejnou plochu",
+  "power.action.sleep": "Režim spánku",
+  "widgetsC.power.desc.hibernate": "Uloží relaci na disk a vypne napájení",
+  "power.action.hibernate": "Hibernace",
+  "widgetsC.power.desc.lock": "Zobrazí zamykací obrazovku, aplikace dál běží",
+  "power.action.lock": "Zamknout",
+  "widgetsC.power.desc.signOut": "Zavře tvoje aplikace a ukončí relaci",
+  "power.action.signOut": "Odhlásit se",
+  "widgetsC.power.desc.screenOff": "Vypne displeje, jakýkoli vstup je probudí",
+  "power.action.screenOff": "Vypnout displej"
+}

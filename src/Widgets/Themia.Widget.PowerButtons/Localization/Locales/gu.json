@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "બધી ઍપ્સ બંધ કરે છે અને PC બંધ કરે છે",
+  "power.action.shutdown": "બંધ કરો",
+  "widgetsC.power.desc.restart": "બધી ઍપ્સ બંધ કરે છે અને Windows ફરી શરૂ કરે છે",
+  "power.action.restart": "પુનઃપ્રારંભ કરો",
+  "widgetsC.power.desc.sleep": "ઓછો પાવર; એ જ ડેસ્કટૉપ પર પાછું આવે છે",
+  "power.action.sleep": "સ્લીપ",
+  "widgetsC.power.desc.hibernate": "સત્રને ડિસ્ક પર સાચવે છે અને પાવર બંધ કરે છે",
+  "power.action.hibernate": "હાઇબરનેટ",
+  "widgetsC.power.desc.lock": "લૉક સ્ક્રીન બતાવે છે; ઍપ્સ ચાલુ રહે છે",
+  "power.action.lock": "લૉક કરો",
+  "widgetsC.power.desc.signOut": "તમારી ઍપ્સ બંધ કરે છે અને તમારું સત્ર સમાપ્ત કરે છે",
+  "power.action.signOut": "સાઇન આઉટ કરો",
+  "widgetsC.power.desc.screenOff": "ડિસ્પ્લે બંધ કરે છે; કોઈપણ ઇનપુટ તેમને જગાડે છે",
+  "power.action.screenOff": "ડિસ્પ્લે બંધ કરો"
+}

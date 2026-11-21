@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Đóng mọi ứng dụng và tắt PC",
+  "power.action.shutdown": "Tắt máy",
+  "widgetsC.power.desc.restart": "Đóng mọi ứng dụng và khởi động lại Windows",
+  "power.action.restart": "Khởi động lại",
+  "widgetsC.power.desc.sleep": "Tiết kiệm điện; quay lại đúng màn hình nền cũ",
+  "power.action.sleep": "Ngủ",
+  "widgetsC.power.desc.hibernate": "Lưu phiên làm việc vào ổ đĩa và tắt nguồn",
+  "power.action.hibernate": "Ngủ đông",
+  "widgetsC.power.desc.lock": "Hiện màn hình khóa; ứng dụng vẫn chạy",
+  "power.action.lock": "Khóa",
+  "widgetsC.power.desc.signOut": "Đóng ứng dụng và kết thúc phiên làm việc",
+  "power.action.signOut": "Đăng xuất",
+  "widgetsC.power.desc.screenOff": "Tắt màn hình; thao tác bất kỳ sẽ bật lại",
+  "power.action.screenOff": "Tắt màn hình"
+}

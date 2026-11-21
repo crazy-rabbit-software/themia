@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Închide toate aplicațiile și oprește PC-ul",
+  "power.action.shutdown": "Închidere",
+  "widgetsC.power.desc.restart": "Închide toate aplicațiile și repornește Windows",
+  "power.action.restart": "Repornire",
+  "widgetsC.power.desc.sleep": "Consum redus; revine la același desktop",
+  "power.action.sleep": "Repaus",
+  "widgetsC.power.desc.hibernate": "Salvează sesiunea pe disc și oprește alimentarea",
+  "power.action.hibernate": "Hibernare",
+  "widgetsC.power.desc.lock": "Afișează ecranul de blocare; aplicațiile continuă să ruleze",
+  "power.action.lock": "Blocare",
+  "widgetsC.power.desc.signOut": "Închide aplicațiile și încheie sesiunea",
+  "power.action.signOut": "Deconectare",
+  "widgetsC.power.desc.screenOff": "Oprește afișajele; orice acțiune le trezește",
+  "power.action.screenOff": "Oprire afișaj"
+}

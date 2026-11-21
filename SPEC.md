@@ -1499,7 +1499,8 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   module its name says, `<name>` in camelCase (THEMIAMOD004). A **family** project
   (`[assembly: ThemiaWidgetFamily]`; owner, 2026-11-19: widgets split into smaller pieces, "the amount of "widgets" in
   the library will explode") declares several widgets, each a kind of its own id sharing the project's code (the
-  weather facts, a widget a fact, [S-13900]); it still declares no provider and no id another declares.
+  weather facts, a widget a fact, [S-13900]); it still declares no provider and no id another declares. Folding projects into a family moves code, never an id: the build's
+  kind ids are pinned (`KindIdsTests`; the toggles, the power buttons and the screen-time widgets are families so).
 - **[S-6902]** Each widget has one `WidgetDescriptor`, the pure half of its module: what the host
   knows of it without its UI. The host installs the registry into `ModuleCatalog` before it reads
   any widget (the app first thing in its constructor), once; a registry with a missing
@@ -6099,8 +6100,9 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
 (`widgets/system/power`, [S-01]..[S-11]). The SDK: `PowerActionRules`, `PowerButton`,
 `PowerButtonView` (the one view of all seven, on the family's `TileBlock`) and the base `PowerButtonConfig`; App: `Win32PowerActions`
 and `InertPowerActions`, behind `IWidgetHost.Power`; tests `PowerActionTests` (the module test host).
-Each power button is a module of its own (`src/Widgets/Themia.Widget.Shutdown` … `.ScreenOff`, one
-tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.Bluetooth`).
+The seven power buttons are one family project (`src/Widgets/Themia.Widget.PowerButtons`, [S-6901]: a kind each with
+its own id, config and tag, [S-7400]..[S-8000], the kinds as data); Bluetooth is a module of its own
+(`src/Widgets/Themia.Widget.Bluetooth`).
 
 - **[S-1910]** Each power action is its own widget kind and picker entry, with its own glyph, name and
   description: **Shut down** (`Shutdown`), **Restart**, **Sleep**, **Hibernate**, **Lock**, **Sign
@@ -10918,9 +10920,9 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   Energy saver, Night light, Rotation lock, Do not disturb, Sound (the default output's mute),
   Microphone (the default microphone's mute), Spatial sound, Mono audio, Color filters, Game mode.
   The kind maps to its `QuickToggle` in the SDK (`QuickToggleRules.ForKind`/`KindOf`, read off the
-  catalogue); one view serves all thirteen. Each is a module project of its own
-  (`src/Widgets/Themia.Widget.WifiToggle` …, tags [S-8200]..[S-9400] in their `SPEC.md`), with a
-  config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
+  catalogue); one view serves all thirteen. They are one family project
+  (`src/Widgets/Themia.Widget.QuickToggles`, [S-6901]: a kind each, the kinds as data, tags [S-8200]..[S-9400] in its
+  `SPEC.md`), each kind with a config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
   one setting is the style ([S-3916]), picked on the properties panel ([S-6536]), so its menu has no lines of its own; it
   never needs setting up. The picker names it "<name> on/off" (the module's own label and
   description; the name on the tile is the SDK's, which the shared view reads) so it never

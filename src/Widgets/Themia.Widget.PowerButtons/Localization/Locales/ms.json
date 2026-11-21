@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsC.power.desc.shutdown": "Menutup setiap apl dan mematikan PC",
+  "power.action.shutdown": "Matikan",
+  "widgetsC.power.desc.restart": "Menutup setiap apl dan memulakan Windows semula",
+  "power.action.restart": "Mula semula",
+  "widgetsC.power.desc.sleep": "Kuasa rendah; kembali ke desktop yang sama",
+  "power.action.sleep": "Tidur",
+  "widgetsC.power.desc.hibernate": "Menyimpan sesi ke cakera dan mematikan kuasa",
+  "power.action.hibernate": "Hibernasi",
+  "widgetsC.power.desc.lock": "Menunjukkan skrin kunci; apl terus berjalan",
+  "power.action.lock": "Kunci",
+  "widgetsC.power.desc.signOut": "Menutup apl kamu dan menamatkan sesi kamu",
+  "power.action.signOut": "Daftar keluar",
+  "widgetsC.power.desc.screenOff": "Mematikan paparan; sebarang input akan menghidupkannya",
+  "power.action.screenOff": "Matikan paparan"
+}

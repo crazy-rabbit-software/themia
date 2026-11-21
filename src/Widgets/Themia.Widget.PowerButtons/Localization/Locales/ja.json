@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "すべてのアプリを閉じて PC の電源を切ります",
+  "power.action.shutdown": "シャットダウン",
+  "widgetsC.power.desc.restart": "すべてのアプリを閉じて Windows を再起動します",
+  "power.action.restart": "再起動",
+  "widgetsC.power.desc.sleep": "低電力状態。同じデスクトップに戻ります",
+  "power.action.sleep": "スリープ",
+  "widgetsC.power.desc.hibernate": "セッションをディスクに保存して電源を切ります",
+  "power.action.hibernate": "休止状態",
+  "widgetsC.power.desc.lock": "ロック画面を表示します。アプリは実行されたままです",
+  "power.action.lock": "ロック",
+  "widgetsC.power.desc.signOut": "アプリを閉じてセッションを終了します",
+  "power.action.signOut": "サインアウト",
+  "widgetsC.power.desc.screenOff": "ディスプレイをオフにします。何か操作すると復帰します",
+  "power.action.screenOff": "画面をオフ"
+}

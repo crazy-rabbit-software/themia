@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "সব অ্যাপ বন্ধ করে PC বন্ধ করে",
+  "power.action.shutdown": "শাট ডাউন",
+  "widgetsC.power.desc.restart": "সব অ্যাপ বন্ধ করে Windows আবার চালু করে",
+  "power.action.restart": "রিস্টার্ট",
+  "widgetsC.power.desc.sleep": "কম পাওয়ার; একই ডেস্কটপে ফিরে আসে",
+  "power.action.sleep": "স্লিপ",
+  "widgetsC.power.desc.hibernate": "সেশন ডিস্কে সংরক্ষণ করে বন্ধ হয়",
+  "power.action.hibernate": "হাইবারনেট",
+  "widgetsC.power.desc.lock": "লক স্ক্রিন দেখায়; অ্যাপ চলতে থাকে",
+  "power.action.lock": "লক",
+  "widgetsC.power.desc.signOut": "আপনার অ্যাপ বন্ধ করে সেশন শেষ করে",
+  "power.action.signOut": "সাইন আউট",
+  "widgetsC.power.desc.screenOff": "ডিসপ্লে বন্ধ করে; যেকোনো ইনপুটে চালু হয়",
+  "power.action.screenOff": "ডিসপ্লে বন্ধ করুন"
+}

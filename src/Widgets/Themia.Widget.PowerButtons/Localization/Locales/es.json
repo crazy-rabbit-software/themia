@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Cierra todas las aplicaciones y apaga el equipo",
+  "power.action.shutdown": "Apagar",
+  "widgetsC.power.desc.restart": "Cierra todas las aplicaciones y vuelve a iniciar Windows",
+  "power.action.restart": "Reiniciar",
+  "widgetsC.power.desc.sleep": "Bajo consumo; vuelve al mismo escritorio",
+  "power.action.sleep": "Suspender",
+  "widgetsC.power.desc.hibernate": "Guarda la sesión en el disco y apaga",
+  "power.action.hibernate": "Hibernar",
+  "widgetsC.power.desc.lock": "Muestra la pantalla de bloqueo; las aplicaciones siguen abiertas",
+  "power.action.lock": "Bloquear",
+  "widgetsC.power.desc.signOut": "Cierra tus aplicaciones y termina la sesión",
+  "power.action.signOut": "Cerrar sesión",
+  "widgetsC.power.desc.screenOff": "Apaga las pantallas; cualquier entrada las activa",
+  "power.action.screenOff": "Apagar pantalla"
+}

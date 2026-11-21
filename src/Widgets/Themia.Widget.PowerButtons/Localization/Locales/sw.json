@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Hufunga kila programu na kuzima Kompyuta",
+  "power.action.shutdown": "Zima",
+  "widgetsC.power.desc.restart": "Hufunga kila programu na kuanzisha Windows tena",
+  "power.action.restart": "Anzisha upya",
+  "widgetsC.power.desc.sleep": "Nishati ya chini; hurudi kwenye eneo-kazi lilelile",
+  "power.action.sleep": "Lala",
+  "widgetsC.power.desc.hibernate": "Huhifadhi kipindi kwenye diski na kuzima",
+  "power.action.hibernate": "Hibaneti",
+  "widgetsC.power.desc.lock": "Huonyesha skrini iliyofungwa; programu huendelea kufanya kazi",
+  "power.action.lock": "Funga",
+  "widgetsC.power.desc.signOut": "Hufunga programu zako na kumaliza kipindi chako",
+  "power.action.signOut": "Ondoka",
+  "widgetsC.power.desc.screenOff": "Huzima maonyesho; ingizo lolote huyaamsha",
+  "power.action.screenOff": "Zima onyesho"
+}

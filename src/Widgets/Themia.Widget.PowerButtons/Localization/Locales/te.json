@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "ప్రతి యాప్‌ను మూసివేసి PCని ఆఫ్ చేస్తుంది",
+  "power.action.shutdown": "షట్ డౌన్",
+  "widgetsC.power.desc.restart": "ప్రతి యాప్‌ను మూసివేసి Windowsను మళ్లీ ప్రారంభిస్తుంది",
+  "power.action.restart": "పునఃప్రారంభించు",
+  "widgetsC.power.desc.sleep": "తక్కువ పవర్; అదే డెస్క్‌టాప్‌కు తిరిగి వస్తుంది",
+  "power.action.sleep": "నిద్ర",
+  "widgetsC.power.desc.hibernate": "సెషన్‌ను డిస్క్‌కు సేవ్ చేసి పవర్ ఆఫ్ చేస్తుంది",
+  "power.action.hibernate": "హైబర్నేట్",
+  "widgetsC.power.desc.lock": "లాక్ స్క్రీన్‌ను చూపిస్తుంది; యాప్‌లు నడుస్తూనే ఉంటాయి",
+  "power.action.lock": "లాక్ చేయి",
+  "widgetsC.power.desc.signOut": "మీ యాప్‌లను మూసివేసి మీ సెషన్‌ను ముగిస్తుంది",
+  "power.action.signOut": "సైన్ అవుట్",
+  "widgetsC.power.desc.screenOff": "డిస్‌ప్లేలను ఆఫ్ చేస్తుంది; ఏ ఇన్‌పుట్ అయినా వాటిని మేల్కొలుపుతుంది",
+  "power.action.screenOff": "డిస్‌ప్లేను ఆఫ్ చేయి"
+}

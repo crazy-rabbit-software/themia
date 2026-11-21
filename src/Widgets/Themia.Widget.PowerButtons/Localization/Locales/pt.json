@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Fecha todos os aplicativos e desliga o PC",
+  "power.action.shutdown": "Desligar",
+  "widgetsC.power.desc.restart": "Fecha todos os aplicativos e reinicia o Windows",
+  "power.action.restart": "Reiniciar",
+  "widgetsC.power.desc.sleep": "Baixo consumo; volta para a mesma área de trabalho",
+  "power.action.sleep": "Suspender",
+  "widgetsC.power.desc.hibernate": "Salva a sessão no disco e desliga",
+  "power.action.hibernate": "Hibernar",
+  "widgetsC.power.desc.lock": "Mostra a tela de bloqueio; os aplicativos continuam abertos",
+  "power.action.lock": "Bloquear",
+  "widgetsC.power.desc.signOut": "Fecha seus aplicativos e encerra a sessão",
+  "power.action.signOut": "Terminar sessão",
+  "widgetsC.power.desc.screenOff": "Desliga as telas; qualquer entrada as reativa",
+  "power.action.screenOff": "Desligar tela"
+}

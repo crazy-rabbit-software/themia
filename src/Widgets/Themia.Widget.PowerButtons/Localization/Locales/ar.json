@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "يُغلق كل التطبيقات ويوقف تشغيل الكمبيوتر",
+  "power.action.shutdown": "إيقاف التشغيل",
+  "widgetsC.power.desc.restart": "يُغلق كل التطبيقات ويبدأ Windows من جديد",
+  "power.action.restart": "إعادة التشغيل",
+  "widgetsC.power.desc.sleep": "طاقة منخفضة؛ يعود إلى سطح المكتب نفسه",
+  "power.action.sleep": "سكون",
+  "widgetsC.power.desc.hibernate": "يحفظ الجلسة على القرص ويوقف التشغيل",
+  "power.action.hibernate": "إسبات",
+  "widgetsC.power.desc.lock": "يعرض شاشة القفل؛ تستمر التطبيقات في العمل",
+  "power.action.lock": "قفل",
+  "widgetsC.power.desc.signOut": "يُغلق تطبيقاتك وينهي جلستك",
+  "power.action.signOut": "تسجيل الخروج",
+  "widgetsC.power.desc.screenOff": "يوقف تشغيل الشاشات؛ أي إدخال يوقظها",
+  "power.action.screenOff": "إيقاف تشغيل الشاشة"
+}

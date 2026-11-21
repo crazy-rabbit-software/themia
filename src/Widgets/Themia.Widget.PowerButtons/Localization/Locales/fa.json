@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "همه برنامه‌ها را می‌بندد و رایانه را خاموش می‌کند",
+  "power.action.shutdown": "خاموش کردن",
+  "widgetsC.power.desc.restart": "همه برنامه‌ها را می‌بندد و Windows را دوباره راه‌اندازی می‌کند",
+  "power.action.restart": "راه‌اندازی مجدد",
+  "widgetsC.power.desc.sleep": "مصرف کم؛ به همان دسکتاپ برمی‌گردد",
+  "power.action.sleep": "خواب",
+  "widgetsC.power.desc.hibernate": "جلسه را روی دیسک ذخیره می‌کند و خاموش می‌شود",
+  "power.action.hibernate": "خواب زمستانی",
+  "widgetsC.power.desc.lock": "صفحه قفل را نشان می‌دهد؛ برنامه‌ها به کار ادامه می‌دهند",
+  "power.action.lock": "قفل",
+  "widgetsC.power.desc.signOut": "برنامه‌های شما را می‌بندد و جلسه را پایان می‌دهد",
+  "power.action.signOut": "خروج از حساب",
+  "widgetsC.power.desc.screenOff": "نمایشگرها را خاموش می‌کند؛ هر ورودی آن‌ها را روشن می‌کند",
+  "power.action.screenOff": "خاموش کردن نمایشگر"
+}

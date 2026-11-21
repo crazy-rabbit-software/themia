@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "關閉所有應用程式並關閉電腦",
+  "power.action.shutdown": "關機",
+  "widgetsC.power.desc.restart": "關閉所有應用程式並重新啟動 Windows",
+  "power.action.restart": "重新啟動",
+  "widgetsC.power.desc.sleep": "低耗電；喚醒後回到相同的桌面",
+  "power.action.sleep": "睡眠",
+  "widgetsC.power.desc.hibernate": "將工作階段儲存到磁碟並關閉電源",
+  "power.action.hibernate": "休眠",
+  "widgetsC.power.desc.lock": "顯示鎖定畫面；應用程式繼續執行",
+  "power.action.lock": "鎖定",
+  "widgetsC.power.desc.signOut": "關閉您的應用程式並結束工作階段",
+  "power.action.signOut": "登出",
+  "widgetsC.power.desc.screenOff": "關閉顯示器；任何輸入都能喚醒",
+  "power.action.screenOff": "關閉顯示器"
+}

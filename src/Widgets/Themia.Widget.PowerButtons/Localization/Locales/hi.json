@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "हर ऐप बंद करके PC बंद करता है",
+  "power.action.shutdown": "शट डाउन करें",
+  "widgetsC.power.desc.restart": "हर ऐप बंद करके Windows फिर से शुरू करता है",
+  "power.action.restart": "पुनः आरंभ करें",
+  "widgetsC.power.desc.sleep": "कम पावर; उसी डेस्कटॉप पर लौटता है",
+  "power.action.sleep": "स्लीप",
+  "widgetsC.power.desc.hibernate": "सत्र को डिस्क पर सहेजकर बंद होता है",
+  "power.action.hibernate": "हाइबरनेट",
+  "widgetsC.power.desc.lock": "लॉक स्क्रीन दिखाता है; ऐप चलते रहते हैं",
+  "power.action.lock": "लॉक करें",
+  "widgetsC.power.desc.signOut": "आपके ऐप बंद करके सत्र समाप्त करता है",
+  "power.action.signOut": "साइन आउट करें",
+  "widgetsC.power.desc.screenOff": "डिस्प्ले बंद करता है; कोई भी इनपुट उन्हें जगाता है",
+  "power.action.screenOff": "डिस्प्ले बंद करें"
+}

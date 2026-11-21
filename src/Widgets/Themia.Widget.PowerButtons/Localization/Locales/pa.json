@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "ਹਰ ਐਪ ਬੰਦ ਕਰਦਾ ਹੈ ਅਤੇ PC ਨੂੰ ਬੰਦ ਕਰਦਾ ਹੈ",
+  "power.action.shutdown": "ਬੰਦ ਕਰੋ",
+  "widgetsC.power.desc.restart": "ਹਰ ਐਪ ਬੰਦ ਕਰਦਾ ਹੈ ਅਤੇ Windows ਨੂੰ ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰਦਾ ਹੈ",
+  "power.action.restart": "ਰੀਸਟਾਰਟ ਕਰੋ",
+  "widgetsC.power.desc.sleep": "ਘੱਟ ਪਾਵਰ; ਉਸੇ ਡੈਸਕਟਾਪ ਉੱਤੇ ਵਾਪਸ ਆਉਂਦਾ ਹੈ",
+  "power.action.sleep": "ਸਲੀਪ",
+  "widgetsC.power.desc.hibernate": "ਸੈਸ਼ਨ ਨੂੰ ਡਿਸਕ ਉੱਤੇ ਸੰਭਾਲਦਾ ਹੈ ਅਤੇ ਪਾਵਰ ਬੰਦ ਕਰਦਾ ਹੈ",
+  "power.action.hibernate": "ਹਾਈਬਰਨੇਟ",
+  "widgetsC.power.desc.lock": "ਲੌਕ ਸਕ੍ਰੀਨ ਦਿਖਾਉਂਦਾ ਹੈ; ਐਪਾਂ ਚੱਲਦੀਆਂ ਰਹਿੰਦੀਆਂ ਹਨ",
+  "power.action.lock": "ਲੌਕ ਕਰੋ",
+  "widgetsC.power.desc.signOut": "ਤੁਹਾਡੀਆਂ ਐਪਾਂ ਬੰਦ ਕਰਦਾ ਹੈ ਅਤੇ ਤੁਹਾਡਾ ਸੈਸ਼ਨ ਖ਼ਤਮ ਕਰਦਾ ਹੈ",
+  "power.action.signOut": "ਸਾਈਨ ਆਊਟ ਕਰੋ",
+  "widgetsC.power.desc.screenOff": "ਡਿਸਪਲੇ ਬੰਦ ਕਰਦਾ ਹੈ; ਕੋਈ ਵੀ ਇਨਪੁੱਟ ਉਹਨਾਂ ਨੂੰ ਜਗਾਉਂਦਾ ਹੈ",
+  "power.action.screenOff": "ਡਿਸਪਲੇ ਬੰਦ ਕਰੋ"
+}

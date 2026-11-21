@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "എല്ലാ ആപ്പും അടച്ച് PC ഓഫാക്കുന്നു",
+  "power.action.shutdown": "ഷട്ട് ഡൗൺ ചെയ്യുക",
+  "widgetsC.power.desc.restart": "എല്ലാ ആപ്പും അടച്ച് Windows വീണ്ടും തുടങ്ങുന്നു",
+  "power.action.restart": "പുനരാരംഭിക്കുക",
+  "widgetsC.power.desc.sleep": "കുറഞ്ഞ പവർ; അതേ ഡെസ്‌ക്‌ടോപ്പിലേക്ക് മടങ്ങിവരും",
+  "power.action.sleep": "സ്ലീപ്പ്",
+  "widgetsC.power.desc.hibernate": "സെഷൻ ഡിസ്‌ക്കിലേക്ക് സംരക്ഷിച്ച് പവർ ഓഫാക്കുന്നു",
+  "power.action.hibernate": "ഹൈബർനേറ്റ്",
+  "widgetsC.power.desc.lock": "ലോക്ക് സ്ക്രീൻ കാണിക്കുന്നു; ആപ്പുകൾ പ്രവർത്തിച്ചുകൊണ്ടിരിക്കും",
+  "power.action.lock": "ലോക്ക് ചെയ്യുക",
+  "widgetsC.power.desc.signOut": "നിങ്ങളുടെ ആപ്പുകൾ അടച്ച് സെഷൻ അവസാനിപ്പിക്കുന്നു",
+  "power.action.signOut": "സൈൻ ഔട്ട് ചെയ്യുക",
+  "widgetsC.power.desc.screenOff": "ഡിസ്‌പ്ലേകൾ ഓഫാക്കുന്നു; ഏത് ഇൻപുട്ടും അവയെ ഉണർത്തും",
+  "power.action.screenOff": "ഡിസ്‌പ്ലേ ഓഫാക്കുക"
+}

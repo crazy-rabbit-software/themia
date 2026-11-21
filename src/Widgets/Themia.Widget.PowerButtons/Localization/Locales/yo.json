@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "Ó pa gbogbo áàpù dé, ó sì pa PC",
+  "power.action.shutdown": "Pa ẹ̀rọ",
+  "widgetsC.power.desc.restart": "Ó pa gbogbo áàpù dé, ó sì tún Windows bẹ̀rẹ̀",
+  "power.action.restart": "Tún bẹ̀rẹ̀",
+  "widgetsC.power.desc.sleep": "Agbára díẹ̀; ó padà sí ojú-iṣẹ́ kan náà",
+  "power.action.sleep": "Sùn",
+  "widgetsC.power.desc.hibernate": "Ó ń fi àkókò iṣẹ́ pamọ́ sórí dísìkì, ó sì ń pa ẹ̀rọ",
+  "power.action.hibernate": "Sùn jíjìn",
+  "widgetsC.power.desc.lock": "Ó ń fi ojú-ìbòjú títì hàn; àwọn áàpù ń bá iṣẹ́ lọ",
+  "power.action.lock": "Tì pa",
+  "widgetsC.power.desc.signOut": "Ó pa àwọn áàpù rẹ dé, ó sì fòpin sí ìgbà ìwọlé rẹ",
+  "power.action.signOut": "Jáde",
+  "widgetsC.power.desc.screenOff": "Ó pa àwọn ojú-ìbòjú; títẹ̀ ohunkóhun yóò jí wọn",
+  "power.action.screenOff": "Pa ojú-ìbòjú"
+}

@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "ปิดทุกแอปและปิดพีซี",
+  "power.action.shutdown": "ปิดเครื่อง",
+  "widgetsC.power.desc.restart": "ปิดทุกแอปและเริ่ม Windows ใหม่",
+  "power.action.restart": "เริ่มระบบใหม่",
+  "widgetsC.power.desc.sleep": "ใช้พลังงานต่ำ กลับมาที่เดสก์ท็อปเดิม",
+  "power.action.sleep": "สลีป",
+  "widgetsC.power.desc.hibernate": "บันทึกเซสชันลงดิสก์และปิดเครื่อง",
+  "power.action.hibernate": "ไฮเบอร์เนต",
+  "widgetsC.power.desc.lock": "แสดงหน้าจอล็อก แอปยังคงทำงานอยู่",
+  "power.action.lock": "ล็อก",
+  "widgetsC.power.desc.signOut": "ปิดแอปของคุณและสิ้นสุดเซสชัน",
+  "power.action.signOut": "ลงชื่อออก",
+  "widgetsC.power.desc.screenOff": "ปิดจอแสดงผล การป้อนข้อมูลใดๆ จะปลุกจอขึ้นมา",
+  "power.action.screenOff": "ปิดจอแสดงผล"
+}

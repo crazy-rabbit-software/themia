@@ -1,0 +1,16 @@
+{
+  "widgetsC.power.desc.shutdown": "အက်ပ်တိုင်းကို ပိတ်ပြီး PC ကို ပိတ်သည်",
+  "power.action.shutdown": "စက်ပိတ်ရန်",
+  "widgetsC.power.desc.restart": "အက်ပ်တိုင်းကို ပိတ်ပြီး Windows ကို ပြန်စတင်သည်",
+  "power.action.restart": "ပြန်စရန်",
+  "widgetsC.power.desc.sleep": "ပါဝါနည်း၊ ဒက်စ်တော့တစ်ခုတည်းသို့ ပြန်လာသည်",
+  "power.action.sleep": "အိပ်ရန်",
+  "widgetsC.power.desc.hibernate": "session ကို ဒစ်ခ်တွင် သိမ်းပြီး ပါဝါ ပိတ်သည်",
+  "power.action.hibernate": "ရေရှည်အိပ်ရန်",
+  "widgetsC.power.desc.lock": "lock screen ကို ပြသည်၊ အက်ပ်များ ဆက်လည်ပတ်သည်",
+  "power.action.lock": "သော့ခတ်ရန်",
+  "widgetsC.power.desc.signOut": "သင့်အက်ပ်များကို ပိတ်ပြီး session ကို အဆုံးသတ်သည်",
+  "power.action.signOut": "ထွက်ရန်",
+  "widgetsC.power.desc.screenOff": "မျက်နှာပြင်များကို ပိတ်သည်၊ မည်သည့်ထည့်သွင်းမှုမဆို နိုးစေသည်",
+  "power.action.screenOff": "မျက်နှာပြင် ပိတ်ရန်"
+}
