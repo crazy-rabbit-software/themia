@@ -1,3 +1,4 @@
+using Themia.App.Services;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Xunit;
@@ -26,5 +27,25 @@ public sealed class MusicCoverTests
 
         var copy = Assert.IsType<MusicCoverConfig>(new MusicCoverConfig { HideWhenIdle = MusicHideWhenIdle.NotPlaying }.Clone());
         Assert.Equal(MusicHideWhenIdle.NotPlaying, copy.HideWhenIdle);
+    }
+
+    [Fact]
+    public void S11321_the_picture_is_read_per_track_and_per_reading_of_the_media_properties()
+    {
+        static NowPlaying Track(string key, int media, MusicState state = MusicState.Playing)
+            => new(state, "t", "s", key, default, DateTimeOffset.UnixEpoch, true, true, true, Media: media);
+
+        // The same track, the same reading: nothing to read again (a position or a play/pause notice).
+        Assert.Equal(MusicCoverFace.ArtKey(Track("a", 3)), MusicCoverFace.ArtKey(Track("a", 3, MusicState.Paused)));
+
+        // The same track after its media properties changed (a browser's picture arriving): read again.
+        Assert.NotEqual(MusicCoverFace.ArtKey(Track("a", 3)), MusicCoverFace.ArtKey(Track("a", 4)));
+
+        // Another track: read again. A key never reads as another track's reading ("1" + "2a" against "12" + "a").
+        Assert.NotEqual(MusicCoverFace.ArtKey(Track("a", 3)), MusicCoverFace.ArtKey(Track("b", 3)));
+        Assert.NotEqual(MusicCoverFace.ArtKey(Track("2a", 1)), MusicCoverFace.ArtKey(Track("a", 12)));
+
+        // Nothing playing: no picture to read.
+        Assert.Equal(string.Empty, MusicCoverFace.ArtKey(NowPlaying.Of(MusicState.Idle)));
     }
 }

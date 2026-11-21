@@ -610,7 +610,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// <summary>
     /// [S-873] Draw the card or nothing. Hidden, the fill, content and border collapse (the view
     /// stays attached and keeps receiving its updates, so it can show itself again); edit mode
-    /// always draws it, faded, so it can be found.
+    /// always draws it, as it is when it shows (owner, 2026-11-21: "in edit mode they should appear normally"), so it
+    /// can be found, placed and set.
     /// </summary>
     private void ApplyHidden()
     {
@@ -620,7 +621,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _image.Visibility = visibility;
         _fill.Visibility = visibility;
         _surface.Visibility = visibility;
-        _surface.Opacity = _hidden && editing ? 0.5 : 1;
     }
 
     /// <summary>

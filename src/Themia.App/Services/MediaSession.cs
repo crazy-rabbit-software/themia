@@ -53,13 +53,27 @@ internal sealed class MediaSession : IMediaSession
     /// Raised whenever something about the session changed, on whatever thread WinRT used. The
     /// caller marshals; this class deliberately knows nothing about a dispatcher.
     /// </param>
+    /// <summary>[S-11321] How many times the session said its media properties changed (and the current session was swapped).</summary>
+    private int _media;
+
     public MediaSession(Action onChanged)
     {
         ArgumentNullException.ThrowIfNull(onChanged);
         _onChanged = onChanged;
 
-        _onCurrentSessionChanged = (_, _) => OnSessionSwapped();
-        _onMediaPropertiesChanged = (_, _) => Notify();
+        _onCurrentSessionChanged = (_, _) =>
+        {
+            Interlocked.Increment(ref _media);
+            OnSessionSwapped();
+        };
+
+        // [S-11321] Counted: a snapshot says which reading of the media properties it is, so the cover reads its
+        // picture again when they change under the same track (a browser's picture comes after its title).
+        _onMediaPropertiesChanged = (_, _) =>
+        {
+            Interlocked.Increment(ref _media);
+            Notify();
+        };
         _onPlaybackInfoChanged = (_, _) => Notify();
         _onTimelineChanged = (_, _) => Notify();
     }
@@ -180,6 +194,8 @@ internal sealed class MediaSession : IMediaSession
 
         try
         {
+            // Read before the properties: a change that lands while they are read is the next snapshot's.
+            var media = Volatile.Read(ref _media);
             var properties = await session.TryGetMediaPropertiesAsync().AsTask(token).ConfigureAwait(false);
 
             var title = MusicRules.Title(properties?.Title);
@@ -232,7 +248,8 @@ internal sealed class MediaSession : IMediaSession
                 Artist: MusicRules.Artist(properties?.Artist),
                 Album: MusicRules.Album(properties?.Artist, properties?.AlbumTitle),
                 Origin: raw?.StartTime ?? TimeSpan.Zero,
-                AppId: session.SourceAppUserModelId ?? string.Empty);
+                AppId: session.SourceAppUserModelId ?? string.Empty,
+                Media: media);
         }
         catch (OperationCanceledException)
         {

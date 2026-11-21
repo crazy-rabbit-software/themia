@@ -25,6 +25,11 @@ public enum MediaTransport
 /// <param name="Album">[S-1469] The album alone; empty when it repeats the artist.</param>
 /// <param name="Origin">The session's own start time, which a seek is expressed against.</param>
 /// <param name="AppId">[S-2003] The AppUserModelID of the app that owns the session, as it reported it (untrusted: <c>CardOpen.App</c> checks it).</param>
+/// <param name="Media">
+/// [S-11321] Which reading of the session's media properties this is: it counts the session's own "media properties
+/// changed" notices, so a part that reads more of them than this snapshot holds (the cover's picture) reads again when
+/// they change though the track's key did not. A browser hands over a video's picture a moment after its title.
+/// </param>
 public readonly record struct NowPlaying(
     MusicState State,
     string Title,
@@ -39,7 +44,8 @@ public readonly record struct NowPlaying(
     string Artist = "",
     string Album = "",
     TimeSpan Origin = default,
-    string AppId = "")
+    string AppId = "",
+    int Media = 0)
 {
     /// <summary>A state with nothing in it. Used for loading and for every flavour of idle.</summary>
     public static NowPlaying Of(MusicState state) => new(

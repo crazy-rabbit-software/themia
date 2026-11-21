@@ -22,4 +22,13 @@ words copied with their translations from `music`). Tests: `Tests/MusicCoverTest
   idle** ([S-1464]). A click anywhere on the card opens the app that is playing ([S-2030]). Tests
   `MusicCoverTests.S11320_`.
 
+- **[S-11321]** **The picture is read again when the session's media properties change** (owner, 2026-11-21: "album
+  art does not show the current album when playing a youtube video in the brave browser"). A browser hands over a
+  video's picture a moment after its title, and may still hold the last video's when the title changes; the cover read
+  the picture once per track and so kept none, or the last one. A snapshot now says which reading of the media
+  properties it is (`NowPlaying.Media`, counted by the host's `MediaSession` on every "media properties changed" notice
+  and every change of the current session), and the cover reads the picture once per track and reading
+  (`MusicCoverFace.ArtKey`): the old picture stays until the new one is decoded, a reading with none shows the
+  placeholder. Position and play/pause notices read nothing again. Tests `MusicCoverTests.S11321_`.
+
 Needs a manual pass: a live track's cover, a track without one, a change of track.

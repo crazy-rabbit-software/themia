@@ -9804,7 +9804,9 @@ The card hooks widgets use. Rules in Core `LeaseKeyRouting`, `WidgetZOrder`, `Ca
   `CardFrame.Hit` is gone.)*
 - **[S-873]** `IWidgetSurface.SetHidden(bool)`: the card stops drawing its fill, border and content,
   so the wallpaper shows there; the view stays attached so it can show itself again. Edit mode always
-  draws it, at half opacity. Not persisted. (For Music's hide-when-idle.)
+  draws it, as it is when it shows (owner, 2026-11-21, of the now-playing parts hidden while nothing plays: "in edit
+  mode they should appear normally though"; it was drawn at half opacity before). Not persisted. (For Music's
+  hide-when-idle.)
 - **[S-874]** Bring to front / Send to back on every widget's card menu (disabled when it already
   is). The order is the view's widget list, persisted with it, and it is the paint order, applied
   through `Canvas.ZIndex` — nothing is removed and re-inserted in the tree.

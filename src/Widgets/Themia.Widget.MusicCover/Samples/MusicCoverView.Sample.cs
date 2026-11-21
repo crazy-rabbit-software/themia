@@ -12,6 +12,6 @@ internal sealed partial class MusicCoverView : IWidgetSample
         var track = NowPlayingFeed.SampleTrack(SampleDay.Now);
         _feed.Show(track);
         var bytes = await SamplePictureFiles.CoverPngAsync(600).ConfigureAwait(true);
-        Show(await NowPlayingFeed.DecodeAsync(bytes, CancellationToken.None).ConfigureAwait(true), track.TrackKey);
+        Show(await NowPlayingFeed.DecodeAsync(bytes, CancellationToken.None).ConfigureAwait(true), MusicCoverFace.ArtKey(track));
     }
 }

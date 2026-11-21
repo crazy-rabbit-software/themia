@@ -17,7 +17,7 @@ namespace Themia.Widget.MusicCover;
 /// get a spacing now, also the universal spacing"): the picture cropped to fill the card's box less the universal
 /// spacing on every side, its corners the family's radius, the music glyph on the control fill while there is none. It
 /// reads the same media session as the other now-playing parts (<see cref="NowPlayingFeed"/>), fetching the art once per
-/// track.
+/// track and again when the session says its media properties changed ([S-11321]).
 /// </summary>
 internal sealed partial class MusicCoverView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetTopEdge
 {
@@ -107,9 +107,11 @@ internal sealed partial class MusicCoverView : Grid, IWidgetView, IWidgetOpens, 
             return;
         }
 
-        if (now.TrackKey != _artKey && !_feed.Frozen)
+        // [S-11321] Once per track and per change of the session's media properties.
+        var key = MusicCoverFace.ArtKey(now);
+        if (key != _artKey && !_feed.Frozen)
         {
-            _ = LoadAsync(now.TrackKey);
+            _ = LoadAsync(key);
         }
     }
 
