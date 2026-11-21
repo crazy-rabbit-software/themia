@@ -37,6 +37,9 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   card's sides; where it reaches the card's foot it is the foot, and where it starts on the card's top the top, so the
   text or strokes in it are not judged by their bands there; what stands over or under it (a tool line, a pad's
   toolbar) is judged by its ink as any card's.
+- [S-14810] columns side by side from the card's left edge, each from its top edge to its foot (a forecast's days):
+  the room past the last is theirs (WR-4, WR-5: fewer items than room leave it empty), as the foot is a list's, and the
+  item check judges them; their left band is judged by the ink as any card's.
 - [S-14712] a card one grid cell tall (a metric's graph alone) is all rim to the measure: where a plot fills it edge
   to edge, its line in the rim (a flat or least value on the foot) is no "nothing drawn".
 - [S-14302] a mark over the content (`marks`: the sources' problem glyph, KitStatus, over the content's top end) is no
@@ -279,9 +282,20 @@ def judge(kind, card, layout):
         found.append(f'WR-4 foot {foot:.1f}')
     # Item boxes from the card's left edge to its right: the item check's box rule judges them (WR-3), not their ink.
     width = (layout or {}).get('w', w)
-    if not (items and spans(items, width)) and not plot_sides and not field_sides and (left > limit or right > limit):
-        found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
+    if not (items and spans(items, width)) and not plot_sides and not field_sides:
+        # [S-14810] Columns side by side from the card's left edge, each from its top edge to its foot: the room past the
+        # last is theirs, as the room under a list's last row is (WR-4: "or, for items side by side, its right edge"; WR-5:
+        # fewer items than room leave it empty), judged by the item check.
+        if items and side_by_side(items, layout['h']):
+            right = 0.0
+        if left > limit or right > limit:
+            found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
     return found
+
+
+def side_by_side(items, height):
+    """[S-14810] Whether the card's items are columns side by side from its left edge, each its whole height."""
+    return any(i['x'] <= EDGE for i in items) and all(i['y'] <= EDGE and i['y'] + i['h'] >= height - EDGE for i in items)
 
 
 def across(left, right, align, limit):
@@ -446,6 +460,13 @@ def self_test():
                                                    plots=[{'x': 0, 'y': 0, 'w': 330, 'h': 130}]), [], False),
         ('a graph whose plot stops short', card(330, 130, 12.7, 0, 12.7, 254.7,
                                                 plots=[{'x': 0, 'y': 0, 'w': 300, 'h': 130}]), [], True),
+        # [S-14810] A forecast's 14 days as columns from the left edge in a card wider than them: the room past the last.
+        ('columns side by side, fewer than the room', card(900, 300, 12, 12, 11.3, 74,
+                                                            items=[{'x': 60.0 * n, 'y': 0, 'w': 60, 'h': 300} for n in range(14)]), [], False),
+        ('columns short of the left edge', card(900, 300, 12, 12, 30, 74,
+                                                items=[{'x': 20 + (60.0 * n), 'y': 0, 'w': 60, 'h': 300} for n in range(14)]), [], True),
+        ('cells of a grid line short of the right edge', card(900, 300, 12, 12, 20, 260,
+                                                              items=[{'x': 110.0 * n, 'y': 0, 'w': 110, 'h': 80} for n in range(6)]), [], True),
         # [S-14712] A metric's graph alone in one grid cell, its flat line on the foot, all in the rim.
         ('a one-cell graph whose line stands in the rim', card(200, 10, None, None, None, None,
                                                                plots=[{'x': 0, 'y': 0, 'w': 200, 'h': 10}]), [], False),
