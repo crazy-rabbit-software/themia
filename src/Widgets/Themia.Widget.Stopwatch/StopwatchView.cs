@@ -304,6 +304,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         // [S-12834] With laps the block takes its natural lines grown to a grid line (its last ink on the laps' top, WR-1)
         // and the laps grow from there to the card's foot (WR-4, WR-6); without, the block fills the card.
         RowDefinitions[0].Height = laps > 0 ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
+
+        // [S-14319] Held to its widest time the face may be stopped by its width: its controls still on the laps' top.
+        _fit.Foot = laps > 0;
         RowDefinitions[1].Height = laps > 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
         Render();
         // [S-14500] The band the sizing counts (the face as stated, never less than its natural lines); the lap rows under it

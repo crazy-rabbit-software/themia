@@ -8633,7 +8633,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   edges are the template's, whatever it shows, and a shorter time ("9:41" of "88:88") is padded at its start with figure
   spaces (a digit's width, no ink) where it has the template's shape. So 1:11 and 10:08 draw one box in one place (the
   clock's preview states `at0111`, `at1008` beside the sample's 10:42). A reading of another shape (a countdown's "3d 5h")
-  keeps its own; the meters' readings are tabular. Tests `FigureTemplateTests.S14319_`.
+  keeps its own; the meters' readings follow the design's figures. A stopwatch with laps, its face now stopped by its
+  width at some sizes, stands its last ink on the laps' top (`ReadingFit.Foot`: the height left over its first ink),
+  never 0.6 over it. Tests `FigureTemplateTests.S14319_`.
 - **[S-14322]** **A folded icon picker shows what it holds** (owner, 2026-11-21: "the icon in the icon selector
   configuration section does not show when it is not extended"). An icon line's head (a view's Icon, a widget's or an own
   desktop icon's Icon) shows its chosen icon at the value's place, as a choice's head says its choice, and for the default

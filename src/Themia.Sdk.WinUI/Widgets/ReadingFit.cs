@@ -107,6 +107,26 @@ public sealed partial class ReadingFit : Panel
     private (double Start, double Width) _room;
 
     /// <summary>
+    /// [S-14319] Its last ink on the room's foot where the width stops it (a stopwatch's controls on its laps' top, WR-1),
+    /// the height left over its first ink; else shared alike over and under ([S-12808]).
+    /// </summary>
+    public bool Foot
+    {
+        get => _foot;
+        set
+        {
+            if (value != _foot)
+            {
+                _foot = value;
+                _held = Size.Empty;
+                InvalidateMeasure();
+            }
+        }
+    }
+
+    private bool _foot;
+
+    /// <summary>
     /// [S-12814] WR-12 (owner, 2026-11-19: "some widgets like the now playing scrubber changes text sizes when hovering
     /// over it with the mouse ... this should not be"): while held, the block keeps the scale it has (its text may change,
     /// a linked moment's value and time on a meter's reading); a new room still fits it again.
@@ -348,6 +368,12 @@ public sealed partial class ReadingFit : Panel
             {
                 // [S-12833] Down to its smallest text's floor, up to what fills the room.
                 _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, block.Intrinsic, block.Packed, block.Ink, block.Least);
+                if (_foot)
+                {
+                    // [S-14319] Stood on its foot: where the width stops it, the height left stands over its first ink alone.
+                    _fill = _fill with { Top = (2 * _fill.Top) + (Math.Max(0, block.Ink.Over) * _fill.Scale) };
+                }
+
                 _held = availableSize;
             }
 
