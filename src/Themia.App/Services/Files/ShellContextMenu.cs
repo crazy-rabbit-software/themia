@@ -124,7 +124,7 @@ internal static unsafe partial class ShellContextMenu
     }
 
     /// <summary>
-    /// [S-5548] Debug (<c>--desktop-menu-check</c>): the desktop's classic background menu as Show more
+    /// [S-5548] Debug (<c>--check desktop-menu</c>): the desktop's classic background menu as Show more
     /// options would open it, filled and read back but never shown or invoked: one line per item, its
     /// depth, words, verb and check mark. New ›'s lines fill themselves only when it opens, so they are
     /// not read.

@@ -17,6 +17,8 @@ internal sealed class StandInDesktop : IDisposable
 {
     private readonly List<DesktopWindow> _surfaces = [];
 
+    private Func<bool>? _checkButton;
+
     private StandInDesktop(AppHost host) => Host = host;
 
     public AppHost Host { get; }
@@ -42,10 +44,24 @@ internal sealed class StandInDesktop : IDisposable
     /// <summary>A surface for <paramref name="monitor"/>, adopted by the host; shown by <see cref="Show"/>.</summary>
     public DesktopWindow Add(MonitorTarget monitor)
     {
-        var surface = new DesktopWindow(Host, monitor);
+        var surface = new DesktopWindow(Host, monitor) { CheckButton = _checkButton };
         Host.AdoptSurfaceForCheck(surface);
         _surfaces.Add(surface);
         return surface;
+    }
+
+    /// <summary>
+    /// The check's own mouse button on every surface, those added later too (null: the physical mouse's again), as
+    /// <see cref="DesktopWindow.CheckButton"/>: while set, no surface takes the foreground from the user's window ([S-14320]),
+    /// each counts the times it would have. For the checks that press through the host or the cards' own steps.
+    /// </summary>
+    public void UseCheckButton(Func<bool>? held)
+    {
+        _checkButton = held;
+        foreach (var surface in _surfaces)
+        {
+            surface.CheckButton = held;
+        }
     }
 
     /// <summary>

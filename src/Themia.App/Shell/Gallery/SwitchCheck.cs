@@ -1,7 +1,6 @@
 #if DEBUG
 using System.Diagnostics;
 using System.Text.Json;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -12,6 +11,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -19,7 +19,7 @@ using Themia.Sdk;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-1883] Debug only: <c>Themia.exe --switch-check &lt;rounds&gt; [&lt;out.txt&gt;] [--ordinary | --show &lt;view&gt;] [--per-view] [--dwell ms]</c>
+/// [S-1883] Debug only: <c>Themia.exe --check switch &lt;rounds&gt; [&lt;out.txt&gt;] [--ordinary | --show &lt;view&gt;] [--per-view] [--dwell ms]</c>
 /// measures what switching views costs and whether it leaks.
 /// <c>[--state &lt;state.json&gt;]</c> takes the views from a copy of a state file (read, never written).
 /// <c>--edit-menus</c> ([S-3593]) measures what edit mode's menus hold: the ordinary view shown, edit
@@ -32,12 +32,12 @@ namespace Themia.App.Shell.Gallery;
 /// <para>
 /// A real <see cref="AppHost"/> over a detached state store (nothing is saved; the user's state,
 /// accounts and caches are never read) and a real <see cref="DesktopWindow"/> on a stand-in display
-/// parked off-screen, so the switch runs the surface's own path: <see cref="AppHost.ShowView"/>, the
+/// parked off-screen (<see cref="StandInDesktop"/>), so the switch runs the surface's own path: <see cref="AppHost.ShowView"/>, the
 /// relayout, card detach and the intro. The state holds the showcase views ([S-1810]) and one empty
 /// view. Each round shows every view for <c>--dwell</c> ms, then the empty one, forces a full
 /// collection and prints working set, private bytes, the managed heap, the cards still alive
 /// ([S-1884]), the views attached against the live widgets ([S-1880]), the ticker's subscriptions,
-/// threads and handles; a breach of the rule is marked LEAK. After round 1 the figures must stay
+/// threads and handles; a breach of the rule is marked LEAK and fails the check. After round 1 the figures must stay
 /// in one band: anything that keeps growing is held by something.
 /// </para>
 /// <para>
@@ -50,83 +50,66 @@ namespace Themia.App.Shell.Gallery;
 internal static class SwitchCheck
 {
     private const string Scope = "switch-check";
-    private const string Flag = "--switch-check";
     private const string DisplayId = "switch-check-display";
     private const string SecondId = "switch-check-display-2";
 
-    /// <summary>The stand-in display, in physical pixels, far outside every real one.</summary>
+    /// <summary>The stand-in display, in physical pixels.</summary>
     private const int Width = 1920;
     private const int Height = 1080;
-    private const int Left = -32000;
-    private const int Top = -32000;
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
-    {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || !int.TryParse(args[at + 1], out var rounds) || rounds < 1
-            || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, "usage: --switch-check <rounds> [<out.txt>] [--ordinary | --show <view>] [--per-view] [--dwell ms]");
-            app.Exit();
-            return true;
-        }
-
-        var outPath = at + 2 < args.Length && !args[at + 2].StartsWith("--", StringComparison.Ordinal)
-            ? Path.GetFullPath(args[at + 2])
-            : null;
-        var editMenus = args.Contains("--edit-menus");
-        var ordinary = args.Contains("--ordinary") || editMenus;
-        var dwellAt = Array.IndexOf(args, "--dwell");
-        var dwell = dwellAt >= 0 && dwellAt + 1 < args.Length && int.TryParse(args[dwellAt + 1], out var d) && d >= 0 ? d : 250;
-
-        var showAt = Array.IndexOf(args, "--show");
-        var show = showAt >= 0 && showAt + 1 < args.Length ? args[showAt + 1] : null;
-
-        var options = new Options(
-            ArgAfter(args, "--state"),
-            ArgAfter(args, "--busy"),
-            ArgAfter(args, "--stream"),
-            int.TryParse(ArgAfter(args, "--soak"), out var soak) && soak >= 0 ? soak : 0);
-
-        _ = editMenus
-            ? EditMenusAsync(app, dispatcher, outPath)
-            : RunAsync(app, dispatcher, rounds, outPath, ordinary, dwell, args.Contains("--per-view"), show, options);
-        return true;
-    }
-
-    private static string? ArgAfter(string[] args, string flag)
-    {
-        var at = Array.IndexOf(args, flag);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
-    }
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "switch",
+        "<rounds> [<out.txt>] [--ordinary | --show <view>] [--per-view] [--dwell ms] [--state <state.json>] [--edit-menus] [--busy <pictures> [--stream <url>] [--soak s]]",
+        """
+        what switching views costs and whether it leaks, on a real host and surface off-screen: every showcase view and an
+        empty one, <rounds> times, then working set, private bytes, the managed heap, the cards still alive [S-1884], the views
+        attached against the live widgets [S-1880], the ticker's subscriptions, threads, handles; a breach is LEAK and fails [S-1883]
+        --dwell ms             how long each view is shown (250)
+        --per-view             what each view costs while it is shown
+        --show <view>          that view alone, measured, drawn to <out>.png and, every list scrolled to its end, <out>.scrolled.png [S-1887]
+        --ordinary             the same for one view of eight everyday widgets [S-1885]
+        --state <state.json>   the views from a copy of a state file (read, never written)
+        --edit-menus           what edit mode's menus hold and give back, each first open timed [S-3593]
+        --busy <pictures>      the long-running desktop: two displays, seven galleries over that folder, a video stream
+                               (--stream <url>), the visualizer and the system widgets, measured every 30 s for --soak s [S-6601]
+        """,
+        RunAsync);
 
     /// <summary>The state to take the views from, and the long-running desktop ([S-6601]).</summary>
     private sealed record Options(string? StatePath, string? Pictures, string? Stream, int SoakSeconds);
 
-    private static async Task RunAsync(Application app, DispatcherQueue dispatcher, int rounds, string? outPath, bool ordinary, int dwell, bool byView, string? show, Options options)
+    private static Task<int> RunAsync(RenderRun run)
     {
-        var lines = new List<string>();
-        AppHost? host = null;
-        DesktopWindow? surface = null;
-        DesktopWindow? second = null;
+        var rounds = int.TryParse(run.Arg(0), out var r) && r >= 1 ? r : throw run.Usage($"<rounds> {run.Arg(0)}: a whole number of at least 1");
+        var outPath = run.Args.Count > 1 && !StartArguments.LooksLikeFlag(run.Args[1]) ? run.PathArg(1) : null;
+        var editMenus = run.Has("--edit-menus");
+        var ordinary = run.Has("--ordinary") || editMenus;
+        var dwell = Whole(run, "--dwell", 250);
+        var options = new Options(run.Option("--state"), run.Option("--busy"), run.Option("--stream"), Whole(run, "--soak", 0));
+        return editMenus
+            ? EditMenusAsync(outPath)
+            : RunAsync(rounds, outPath, ordinary, dwell, run.Has("--per-view"), run.Option("--show"), options);
+    }
 
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
+    /// <summary>The whole number after <paramref name="option"/> (0 or more), or <paramref name="fallback"/> when it is not given.</summary>
+    private static int Whole(RenderRun run, string option, int fallback)
+        => run.Option(option) is not { } given ? fallback
+            : int.TryParse(given, out var value) && value >= 0 ? value
+            : throw run.Usage($"{option} {given}: a whole number");
+
+    private static async Task<int> RunAsync(int rounds, string? outPath, bool ordinary, int dwell, bool byView, string? show, Options options)
+    {
+        var report = new CheckReport(Scope, outPath);
+        void Say(string line) => report.Say(line);
+        void Measured((string Line, bool Leak) measure) => report.Say(measure.Line, measure.Leak ? 1 : 0);
+        StandInDesktop? desk = null;
 
         try
         {
-            var statePath = Path.Combine(Path.GetTempPath(), "themia-switch-check", "state.json");
             var busy = options.Pictures is not null;
             var (width, height) = busy ? (2560, 1440) : (Width, Height);
-            var monitor = StandIn(DisplayId, Left, width, height);
+            var monitor = StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(width, height));
             var screen = new ScreenMetrics(width, height) { Allowed = GridGeometry.AllowedArea(monitor.Info.Bounds, monitor.Info.WorkArea) };
 
             var empty = ViewState.Create("Empty");
@@ -165,28 +148,27 @@ internal static class SwitchCheck
                 state.ShowViewOn(SecondId, empty.Id);
             }
 
-            host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
-            surface = new DesktopWindow(host, monitor);
-            surface.ShowSurface();
-
+            desk = StandInDesktop.Create(Scope, state);
+            var host = desk.Host;
+            var surface = desk.Add(monitor);
             if (busy)
             {
-                second = new DesktopWindow(host, StandIn(SecondId, Left + width + 100, width, height));
-                second.ShowSurface();
+                desk.Add(StandInDesktop.Display(SecondId, StandInDesktop.OffScreen(width, height, left: width + 100)));
             }
 
+            desk.Show();
             await Task.Delay(1000).ConfigureAwait(true);
 
             // [S-6612] As the app does at start, so the process measured is the app's.
             MemoryPriority.Lower();
 
             Say($"switch-check: {state.Views.Count} views, {state.Views.Sum(v => v.Widgets.Count)} widgets, dwell {dwell} ms, gen0 budget at most {Gen0Budget()}, memory priority {MemoryPriority.Current()?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "unknown"}");
-            Say(Measure("start (empty view)", host));
+            Measured(Measure("start (empty view)", host));
 
             if (busy)
             {
-                await SoakAsync(host, state, galleries!, feeds!, empty, options.SoakSeconds, rounds, dwell, Say).ConfigureAwait(true);
-                return;
+                await SoakAsync(desk, state, galleries!, feeds!, empty, options.SoakSeconds, rounds, dwell, Measured).ConfigureAwait(true);
+                return await report.FinishAsync().ConfigureAwait(true);
             }
 
             if (ordinary || show is not null)
@@ -194,10 +176,10 @@ internal static class SwitchCheck
                 var view = ordinary ? state.Views[0] : state.Views.First(v => string.Equals(v.Name, show, StringComparison.OrdinalIgnoreCase));
                 host.ShowView(DisplayId, view.Id);
                 await Task.Delay(Math.Max(dwell, 3000)).ConfigureAwait(true);
-                Say(Measure($"'{view.Name}' shown ({view.Widgets.Count} widgets)", host, view));
+                Measured(Measure($"'{view.Name}' shown ({view.Widgets.Count} widgets)", host, view));
                 if (outPath is not null)
                 {
-                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png")).ConfigureAwait(true);
+                    await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png"), Scope).ConfigureAwait(true);
 
                     // Every list scrolled to its end: what a scroll builds ([S-1887]) is drawn too.
                     var scrolled = 0;
@@ -207,30 +189,33 @@ internal static class SwitchCheck
                     }
 
                     await Task.Delay(1500).ConfigureAwait(true);
-                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".scrolled.png")).ConfigureAwait(true);
-                    Say(Measure($"'{view.Name}' {scrolled} list(s) scrolled to the end", host, view));
+                    await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".scrolled.png"), Scope).ConfigureAwait(true);
+                    Measured(Measure($"'{view.Name}' {scrolled} list(s) scrolled to the end", host, view));
                 }
 
+                // a timing, not a wait: what the view holds once it has been shown 5 s more.
                 await Task.Delay(5000).ConfigureAwait(true);
-                Say(Measure($"'{view.Name}' after 5 s more", host, view));
+                Measured(Measure($"'{view.Name}' after 5 s more", host, view));
                 host.ShowView(DisplayId, empty.Id);
                 await Task.Delay(1000).ConfigureAwait(true);
-                Say(Measure("empty view again", host));
+                Measured(Measure("empty view again", host));
 
                 // More rounds: this one view and the empty one, in turn.
                 for (var round = 2; round <= rounds; round++)
                 {
                     host.ShowView(DisplayId, view.Id);
+
+                    // a timing, not a wait: the view shown for the dwell.
                     await Task.Delay(dwell).ConfigureAwait(true);
                     host.ShowView(DisplayId, empty.Id);
                     await Task.Delay(500).ConfigureAwait(true);
-                    Say(Measure($"round {round}", host));
+                    Measured(Measure($"round {round}", host));
                 }
 
-                // What lets go a sample later (the NVIDIA library, [S-437]) has let go by now.
+                // a timing, not a wait: what lets go a sample later (the NVIDIA library, [S-437]) has let go by now.
                 await Task.Delay(3000).ConfigureAwait(true);
-                Say(Measure("empty view after 3 s more", host));
-                return;
+                Measured(Measure("empty view after 3 s more", host));
+                return await report.FinishAsync().ConfigureAwait(true);
             }
 
             // --per-view: what each view costs while shown, over the empty view, averaged over rounds 2..n.
@@ -242,6 +227,8 @@ internal static class SwitchCheck
                 foreach (var view in state.Views.ToList())
                 {
                     host.ShowView(DisplayId, view.Id);
+
+                    // a timing, not a wait: the view shown for the dwell.
                     await Task.Delay(dwell).ConfigureAwait(true);
 
                     if (byView)
@@ -263,7 +250,7 @@ internal static class SwitchCheck
 
                 host.ShowView(DisplayId, empty.Id);
                 await Task.Delay(1000).ConfigureAwait(true);
-                Say(Measure($"round {round}", host));
+                Measured(Measure($"round {round}", host));
             }
 
             foreach (var (name, growth) in perView.OrderByDescending(p => p.Value).Take(20))
@@ -277,23 +264,14 @@ internal static class SwitchCheck
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the switch check failed", ex);
-            Say($"switch-check: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
-            second?.CloseSurface();
-            surface?.CloseSurface();
-            host?.Dispose();
-
-            if (outPath is not null)
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-                await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            }
-
-            app.Exit();
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>
@@ -302,85 +280,71 @@ internal static class SwitchCheck
     /// and the settings down to Appearance (each first open timed), Done (the menus released), then edit mode
     /// and the settings again (a rebuild timed).
     /// </summary>
-    private static async Task EditMenusAsync(Application app, DispatcherQueue dispatcher, string? outPath)
+    private static async Task<int> EditMenusAsync(string? outPath)
     {
-        var lines = new List<string>();
-        AppHost? host = null;
-        DesktopWindow? surface = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
-
-        string Timed(string label, Action open)
-        {
-            var clock = Stopwatch.StartNew();
-            open();
-            surface!.DebugRoot.UpdateLayout();
-            return $"{label}: {clock.Elapsed.TotalMilliseconds:0} ms";
-        }
+        var report = new CheckReport(Scope, outPath);
+        void Say(string line) => report.Say(line);
+        void Measured((string Line, bool Leak) measure) => report.Say(measure.Line, measure.Leak ? 1 : 0);
+        StandInDesktop? desk = null;
 
         try
         {
-            var statePath = Path.Combine(Path.GetTempPath(), "themia-switch-check", "state.json");
-            var monitor = StandIn(DisplayId, Left, Width, Height);
             var view = OrdinaryView();
             var state = new AppState { Views = [view], ActiveViewId = view.Id };
             state.ShowViewOn(DisplayId, view.Id);
 
-            host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
-            surface = new DesktopWindow(host, monitor);
-            surface.ShowSurface();
+            desk = StandInDesktop.Create(Scope, state);
+            var host = desk.Host;
+            var surface = desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(Width, Height)));
+            desk.Show();
             await Task.Delay(2000).ConfigureAwait(true);
             MemoryPriority.Lower();
 
-            Say(Measure("view shown, not editing", host, view));
+            string Timed(string label, Action open)
+            {
+                var clock = Stopwatch.StartNew();
+                open();
+                surface.DebugRoot.UpdateLayout();
+                return $"{label}: {clock.Elapsed.TotalMilliseconds:0} ms";
+            }
+
+            Measured(Measure("view shown, not editing", host, view));
             host.SetEditMode(true);
             await Task.Delay(1000).ConfigureAwait(true);
-            Say(Measure("edit mode (the bar built)", host, view));
+            Measured(Measure("edit mode (the bar built)", host, view));
 
             host.Select(view.Widgets[0].Id);
             await Task.Delay(1000).ConfigureAwait(true);
-            Say(Measure("a widget selected (its menu)", host, view));
+            Measured(Measure("a widget selected (its menu)", host, view));
 
             Say(Timed("first open: Display", () => surface.OpenPage(Core.Settings.SettingsPageId.Display, [])));
             Say(Timed("first open: View", () => surface.OpenPage(Core.Settings.SettingsPageId.Views, [])));
             Say(Timed("first open: General", () => surface.OpenPage(Core.Settings.SettingsPageId.General, [])));
             Say(Timed("first open: Appearance", () => surface.OpenPage(Core.Settings.SettingsPageId.Appearance, [])));
             await Task.Delay(1000).ConfigureAwait(true);
-            Say(Measure("every bar menu opened", host, view));
+            Measured(Measure("every bar menu opened", host, view));
 
             host.SetEditMode(false);
             await Task.Delay(1500).ConfigureAwait(true);
-            Say(Measure("after Done (menus released)", host, view));
+            Measured(Measure("after Done (menus released)", host, view));
 
             host.SetEditMode(true);
             await Task.Delay(500).ConfigureAwait(true);
             Say(Timed("open again after Done: General", () => surface.OpenPage(Core.Settings.SettingsPageId.General, [])));
             host.SetEditMode(false);
             await Task.Delay(1500).ConfigureAwait(true);
-            Say(Measure("after Done again", host, view));
+            Measured(Measure("after Done again", host, view));
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the edit-menus check failed", ex);
-            Say($"switch-check: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
-            surface?.CloseSurface();
-            host?.Dispose();
-
-            if (outPath is not null)
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-                await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            }
-
-            app.Exit();
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>A full, compacting collection whose finalizers have run.</summary>
@@ -402,9 +366,9 @@ internal static class SwitchCheck
     /// <summary>
     /// A full collection, then the process's figures and the census, checked against the rule: the
     /// views attached must be exactly the live widgets ([S-1880]) and no card of another view may be
-    /// alive. A breach is printed as LEAK.
+    /// alive. A breach is printed as LEAK (and <c>Leak</c> is true).
     /// </summary>
-    private static string Measure(string label, AppHost host, ViewState? shown = null, ViewState? alsoShown = null)
+    private static (string Line, bool Leak) Measure(string label, AppHost host, ViewState? shown = null, ViewState? alsoShown = null)
     {
         Collect();
 
@@ -418,15 +382,16 @@ internal static class SwitchCheck
         // [S-2511] The system hub's one subscription is its own ([S-2503]), not a widget's.
         var system = AppServices.System;
         var hubTicks = system is { HoldsTicker: true } ? 1 : 0;
-        var verdict = cards == expected && LiveCensus.Attached == live && host.Ticker.SubscriptionCount - hubTicks <= live ? string.Empty : "  LEAK";
+        var leak = !(cards == expected && LiveCensus.Attached == live && host.Ticker.SubscriptionCount - hubTicks <= live);
+        var verdict = leak ? "  LEAK" : string.Empty;
 
-        return $"{label,-40} ws {process.WorkingSet64 / mb,7:0.0} MB  private {process.PrivateMemorySize64 / mb,7:0.0} MB  " +
+        return ($"{label,-40} ws {process.WorkingSet64 / mb,7:0.0} MB  private {process.PrivateMemorySize64 / mb,7:0.0} MB  " +
             $"managed {GC.GetTotalMemory(forceFullCollection: false) / mb,6:0.0} MB (committed {GC.GetGCMemoryInfo().TotalCommittedBytes / mb:0.0})  cards alive {cards,4} (shown {expected})  " +
             $"views attached {LiveCensus.Attached,4} (live {live})  ticks {host.Ticker.SubscriptionCount,3}  " +
             $"system feeds {system?.FeedCount ?? 0,3} (wanted {system?.WantedCount ?? 0}, series {system?.SeriesCount ?? 0})  " +
             $"gallery sources {AppServices.Gallery?.SourceCount ?? 0,2} (lingering {AppServices.Gallery?.LingeringCount ?? 0}, pictures {AppServices.Gallery?.Pictures.Count ?? 0}, {(AppServices.Gallery?.Pictures.Bytes ?? 0) / mb:0.0} MB)  " +
             $"icons {AppIcons.Count,3}  {NativeHeaps.Describe()}  threads {process.Threads.Count,3}  handles {process.HandleCount,5}  " +
-            $"nvml {LoadedCount(process, "nvml.dll")}{verdict}";
+            $"nvml {LoadedCount(process, "nvml.dll")}{verdict}", leak);
     }
 
     /// <summary>[S-437] How many modules of that file name the process has loaded (the NVIDIA driver library: 0 when no GPU widget is shown).</summary>
@@ -465,21 +430,14 @@ internal static class SwitchCheck
         }
     }
 
-    /// <summary>One display nobody can see: no real monitor is anywhere near (-32000, -32000).</summary>
-    private static MonitorTarget StandIn(string id = DisplayId, int left = Left, int width = Width, int height = Height)
-    {
-        var bounds = new Win32.Rect { Left = left, Top = Top, Right = left + width, Bottom = Top + height };
-        var work = bounds with { Bottom = bounds.Bottom - 48 };
-        return new MonitorTarget(id, IdResolved: true, "switch-check", bounds, work, IsPrimary: false);
-    }
-
     /// <summary>
     /// [S-6601] The long-running desktop: both busy views shown, measured every 30 s for
     /// <paramref name="soakSeconds"/>; then the showcase views switched through on the first display
     /// <paramref name="rounds"/> times while the second keeps its view; then both displays emptied.
     /// </summary>
-    private static async Task SoakAsync(AppHost host, AppState state, ViewState galleries, ViewState feeds, ViewState empty, int soakSeconds, int rounds, int dwell, Action<string> say)
+    private static async Task SoakAsync(StandInDesktop desk, AppState state, ViewState galleries, ViewState feeds, ViewState empty, int soakSeconds, int rounds, int dwell, Action<(string Line, bool Leak)> say)
     {
+        var host = desk.Host;
         host.ShowView(DisplayId, galleries.Id);
         host.ShowView(SecondId, feeds.Id);
         await Task.Delay(5000).ConfigureAwait(true);
@@ -488,6 +446,7 @@ internal static class SwitchCheck
         var watch = Stopwatch.StartNew();
         while (watch.Elapsed.TotalSeconds < soakSeconds)
         {
+            // a timing, not a wait: the soak is measured every 30 s.
             await Task.Delay(30_000).ConfigureAwait(true);
             say(Measure($"busy views after {watch.Elapsed.TotalSeconds:0} s", host, galleries, feeds));
         }
@@ -498,6 +457,8 @@ internal static class SwitchCheck
             foreach (var view in showcase)
             {
                 host.ShowView(DisplayId, view.Id);
+
+                // a timing, not a wait: the view shown for the dwell.
                 await Task.Delay(dwell).ConfigureAwait(true);
             }
 

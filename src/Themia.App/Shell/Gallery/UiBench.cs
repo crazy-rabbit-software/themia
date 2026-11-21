@@ -2,18 +2,17 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Automation.Provider;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Settings;
+using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.Sdk;
 using Themia.Core.Widgets;
@@ -21,10 +20,10 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-2360] Debug only: <c>Themia.exe --ui-bench &lt;out.txt&gt; [--frames n] [--repeat n]</c> measures what the edit
+/// [S-2360] Debug only: <c>Themia.exe --check ui-bench &lt;out.txt&gt; [--frames n] [--repeat n]</c> measures what the edit
 /// mode's everyday steps cost on a real surface: a real <see cref="AppHost"/> over a detached store (nothing of the
-/// user's read or saved) and a real <see cref="DesktopWindow"/> on a 1920x1080 stand-in display parked off-screen, the
-/// drag bench's 21 widgets on it and two views more. Each step is driven <c>--repeat</c> times (8) through the surface's
+/// user's read or saved) and a real <see cref="DesktopWindow"/> on a 1920x1080 stand-in display parked off-screen
+/// (<see cref="StandInDesktop"/>), the drag bench's 21 widgets on it and two views more. Each step is driven <c>--repeat</c> times (8) through the surface's
 /// own controls (the edit bar's entries and the pages' heads clicked through their automation peers, so their Click
 /// runs) and watched for <c>--frames</c> rendered frames (24) after it. Per step: the UI thread's milliseconds of the
 /// step and its layout (median, 95th percentile), its CPU time over the whole step (the frames after it too, the
@@ -33,50 +32,28 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static partial class UiBench
 {
-    public const string Flag = "--ui-bench";
-
     private const string Scope = "ui-bench";
     private const string DisplayId = "ui-bench-display";
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "ui-bench",
+        "<out.txt> [--frames n] [--repeat n]",
+        """
+        what edit mode's everyday steps cost on a real surface (the drag bench's 21 widgets and two views more), each
+        driven through the surface's own controls: the UI thread's milliseconds of the step and its layout, its CPU time,
+        the long frames, the layout passes, the elements and page drawings, the bytes allocated, the collections [S-2360]
+        --frames n   rendered frames watched after each step (24)
+        --repeat n   times each step is driven (8)
+        """,
+        run => RunAsync(run.PathArg(0), DragBench.Count(run, "--frames", 24), DragBench.Count(run, "--repeat", 8)));
+
+    private static async Task<int> RunAsync(string outPath, int frames, int repeat)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
-        {
-            Log.Error(Scope, $"usage: {Flag} <out.txt> [--frames n] [--repeat n]");
-            app.Exit();
-            return true;
-        }
-
-        var frames = int.TryParse(ArgAfter(args, "--frames"), out var f) && f > 0 ? f : 24;
-        var repeat = int.TryParse(ArgAfter(args, "--repeat"), out var r) && r > 0 ? r : 8;
-        _ = RunAsync(app, Path.GetFullPath(args[at + 1]), frames, repeat);
-        return true;
-    }
-
-    private static string? ArgAfter(string[] args, string flag)
-    {
-        var at = Array.IndexOf(args, flag);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
-    }
-
-    private static async Task RunAsync(Application app, string outPath, int frames, int repeat)
-    {
-        var lines = new List<string>();
-        AppHost? host = null;
-        DesktopWindow? surface = null;
+        var report = new CheckReport(Scope, outPath);
+        void Say(string line) => report.Say(line);
+        StandInDesktop? desk = null;
         Probe? probe = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
 
         try
         {
@@ -84,15 +61,14 @@ internal static partial class UiBench
             var state = new AppState { Views = [view, .. others], ActiveViewId = view.Id };
             state.ShowViewOn(DisplayId, view.Id);
 
-            var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 1920, Bottom = -32000 + 1080 };
-            var monitor = new MonitorTarget(DisplayId, IdResolved: true, "ui-bench", bounds, bounds with { Bottom = bounds.Bottom - 48 }, IsPrimary: false);
-            host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-ui-bench", "state.json")), state);
-            surface = new DesktopWindow(host, monitor);
-            surface.ShowSurface();
+            desk = StandInDesktop.Create(Scope, state);
+            var host = desk.Host;
+            var surface = desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(1920, 1080)));
+            desk.Show();
 
             // A diagnostic's wait, not a correctness path: the surface settles and its intro ends.
             await Task.Delay(2500).ConfigureAwait(true);
-            Touch(host, surface, rows);
+            DragBench.Touch(host, surface, rows);
             await Task.Delay(800).ConfigureAwait(true);
 
             var root = surface.DebugRoot;
@@ -206,18 +182,15 @@ internal static partial class UiBench
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the ui bench failed", ex);
-            Say($"ui-bench: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
             probe?.Dispose();
-            surface?.CloseSurface();
-            host?.Dispose();
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            app.Exit();
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>A click on the button tagged <paramref name="tag"/>, through its automation peer (its Click runs); a toggle's toggled.</summary>
@@ -290,50 +263,12 @@ internal static partial class UiBench
     }
 
     /// <summary>
-    /// The drag bench's scene (three rows of cards that will touch, six alone, five desktop icons) and two views more
-    /// with a few widgets each, so the Views page has cards to open.
+    /// The drag bench's scene (<see cref="DragBench.Scene"/>: three rows of cards that will touch, six alone, five desktop
+    /// icons) and two views more with a few widgets each, so the Views page has cards to open.
     /// </summary>
     private static (ViewState View, List<ViewState> Others, List<List<string>> Rows, List<string> Icons) Scene()
     {
-        var view = ViewState.Create("Bench");
-        var rows = new List<List<string>>();
-        foreach (var (kinds, y) in new[]
-        {
-            (new[] { "clock", "date", "battery" }, 0.08),
-            (new[] { "cpu", "memory", "gpu" }, 0.38),
-            (new[] { "wifiToggle", "bluetoothToggle", "soundToggle", "nightLightToggle" }, 0.68),
-        })
-        {
-            var row = new List<string>();
-            var x = 0.05;
-            foreach (var kind in kinds)
-            {
-                var widget = WidgetInstance.Create(new WidgetId(kind), new FracRect(x, y, 0.1, 0.1));
-                view.Widgets.Add(widget);
-                row.Add(widget.Id);
-                x += 0.12;
-            }
-
-            rows.Add(row);
-        }
-
-        foreach (var (kind, x, y) in new[]
-        {
-            ("countdown", 0.6, 0.08), ("stopwatch", 0.6, 0.38), ("moon", 0.6, 0.68),
-            ("pomodoro", 0.78, 0.38), ("header", 0.78, 0.08), ("lock", 0.8, 0.68),
-        })
-        {
-            view.Widgets.Add(WidgetInstance.Create(new WidgetId(kind), new FracRect(x, y, 0.1, 0.1)));
-        }
-
-        var icons = new List<string>();
-        for (var i = 0; i < 5; i++)
-        {
-            var icon = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.95, 0.05 + (i * 0.11), 0.04, 0.08));
-            view.Widgets.Add(icon);
-            icons.Add(icon.Id);
-        }
-
+        var (view, rows, icons) = DragBench.Scene("Bench");
         var others = new List<ViewState>();
         foreach (var name in new[] { "Work", "Play" })
         {
@@ -364,29 +299,6 @@ internal static partial class UiBench
 
         state.ActiveViewId = state.Views[0].Id;
         return state;
-    }
-
-    /// <summary>Each row's cards put edge to edge where they are drawn, so they join.</summary>
-    private static void Touch(AppHost host, DesktopWindow surface, List<List<string>> rows)
-    {
-        host.Mutate(
-            state =>
-            {
-                var view = state.ViewForMonitor(DisplayId);
-                foreach (var row in rows)
-                {
-                    var first = surface.CardFor(row[0])!.LiveRect;
-                    var x = first.X;
-                    foreach (var id in row)
-                    {
-                        var shown = surface.CardFor(id)!.LiveRect;
-                        view.Widgets.First(w => w.Id == id).Rect = shown with { X = x, Y = first.Y };
-                        x += shown.W;
-                    }
-                }
-            },
-            relayout: true,
-            undo: null);
     }
 
     /// <summary>

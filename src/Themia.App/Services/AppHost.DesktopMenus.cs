@@ -447,7 +447,7 @@ internal sealed partial class AppHost
     /// <summary>
     /// [S-5548] The background menu's lines for <see cref="ItemMenu"/>, worded; New › is the file menus'
     /// own submenu (<see cref="FileMenuEntries.New"/>) with the shell's file types after Folder and
-    /// Shortcut. Static: the menu render and <c>--desktop-menu-check</c> read them too.
+    /// Shortcut. Static: the menu render and <c>--check desktop-menu</c> read them too.
     /// </summary>
     private const string SizeGroup = "desktop-icon-size";
     private const string LayoutGroup = "desktop-icon-layout";

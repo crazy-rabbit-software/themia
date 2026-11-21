@@ -14,6 +14,17 @@ internal static partial class RenderCommands
         CatalogDump.States,
         ShowcaseCommand.Command,
         DisplaysCheck.Command,
+
+        // the real-host checks and the benches
+        DeskSelectCheck.Command,
+        FirstDragCheck.Command,
+        DragBench.Command,
+        UiBench.Command,
+        StartupCheck.Command,
+        SwitchCheck.Command,
+        DropCheck.Command,
+        DesktopItemsCheck.Command,
+        DesktopMenuCheck.Command,
     ];
 }
 #endif

@@ -38,6 +38,16 @@ internal sealed class CheckReport(string name, string? path)
     /// <summary>A failure.</summary>
     public void Fail(string what) => Expect(false, what);
 
+    /// <summary>
+    /// A line in the check's own shape that holds <paramref name="failures"/> failures (one kind's line over its several
+    /// presses, a summary of cards not at rest): said as it is, the failures counted in the verdict.
+    /// </summary>
+    public void Say(string line, int failures)
+    {
+        Failures += Math.Max(0, failures);
+        Say(line);
+    }
+
     /// <summary>The check threw: logged, said, and the verdict is <see cref="RenderCommandLine.Crashed"/>.</summary>
     public void Crash(Exception exception)
     {

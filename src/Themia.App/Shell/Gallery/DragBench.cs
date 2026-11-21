@@ -1,23 +1,21 @@
 #if DEBUG
 using System.Diagnostics;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
-using Themia.Core.Storage;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-11890] Debug only: <c>Themia.exe --drag-bench &lt;out.txt&gt; [--frames n] [--events n]</c> measures what a
+/// [S-11890] Debug only: <c>Themia.exe --check drag-bench &lt;out.txt&gt; [--frames n] [--events n]</c> measures what a
 /// move's pointer steps cost on a real surface. A real <see cref="AppHost"/> over a detached store (nothing read or
-/// saved of the user's) and a real <see cref="DesktopWindow"/> on a 1920x1080 stand-in display parked off-screen,
+/// saved of the user's) and a real <see cref="DesktopWindow"/> on a 1920x1080 stand-in display parked off-screen
+/// (<see cref="StandInDesktop"/>),
 /// showing 21 widgets: three rows of touching cards (joined, [S-2240]), six cards alone and five desktop icons. Each
 /// run drives a synthetic pointer path of <c>--frames</c> frames (120) with <c>--events</c> pointer moves a frame (4,
 /// a fast mouse at 120 Hz) through <see cref="DesktopWindow.BeginMove"/>, <see cref="DesktopWindow.PreviewMove"/> and
@@ -28,61 +26,43 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class DragBench
 {
-    public const string Flag = "--drag-bench";
-
     private const string Scope = "drag-bench";
     private const string DisplayId = "drag-bench-display";
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "drag-bench",
+        "<out.txt> [--frames n] [--events n]",
+        """
+        what each stage of a move's pointer step costs on a real surface of 21 widgets, locked and edit mode, solid and
+        Liquid glass: milliseconds per frame by stage, the frame's median, 95th percentile and worst, the drop [S-11890]
+        --frames n   the pointer path's frames (120)
+        --events n   pointer moves a frame (4: a fast mouse at 120 Hz)
+        """,
+        run => RunAsync(run.PathArg(0), Count(run, "--frames", 120), Count(run, "--events", 4)));
+
+    /// <summary>The whole number after <paramref name="option"/>, at least 1, or <paramref name="fallback"/> when it is not given.</summary>
+    internal static int Count(RenderRun run, string option, int fallback)
+        => run.Option(option) is not { } given ? fallback
+            : int.TryParse(given, out var count) && count > 0 ? count
+            : throw run.Usage($"{option} {given}: a whole number of at least 1");
+
+    private static async Task<int> RunAsync(string outPath, int frames, int events)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
-        {
-            Log.Error(Scope, $"usage: {Flag} <out.txt> [--frames n] [--events n]");
-            app.Exit();
-            return true;
-        }
-
-        var frames = int.TryParse(ArgAfter(args, "--frames"), out var f) && f > 0 ? f : 120;
-        var events = int.TryParse(ArgAfter(args, "--events"), out var e) && e > 0 ? e : 4;
-        _ = RunAsync(app, Path.GetFullPath(args[at + 1]), frames, events);
-        return true;
-    }
-
-    private static string? ArgAfter(string[] args, string flag)
-    {
-        var at = Array.IndexOf(args, flag);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
-    }
-
-    private static async Task RunAsync(Application app, string outPath, int frames, int events)
-    {
-        var lines = new List<string>();
-        AppHost? host = null;
-        DesktopWindow? surface = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
+        var report = new CheckReport(Scope, outPath);
+        void Say(string line) => report.Say(line);
+        StandInDesktop? desk = null;
 
         try
         {
-            var (view, rows, icons) = Scene();
+            var (view, rows, icons) = Scene("Drag bench");
             var state = new AppState { Views = [view], ActiveViewId = view.Id };
             state.ShowViewOn(DisplayId, view.Id);
 
-            var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 1920, Bottom = -32000 + 1080 };
-            var monitor = new MonitorTarget(DisplayId, IdResolved: true, "drag-bench", bounds, bounds with { Bottom = bounds.Bottom - 48 }, IsPrimary: false);
-            host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-drag-bench", "state.json")), state);
-            surface = new DesktopWindow(host, monitor);
-            surface.ShowSurface();
+            desk = StandInDesktop.Create(Scope, state);
+            var host = desk.Host;
+            var surface = desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(1920, 1080)));
+            desk.Show();
 
             // A diagnostic's wait, not a correctness path: the surface settles and its intro ends.
             await Task.Delay(2500).ConfigureAwait(true);
@@ -123,18 +103,15 @@ internal static class DragBench
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the drag bench failed", ex);
-            Say($"drag-bench: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
             DragProfile.On = false;
-            surface?.CloseSurface();
-            host?.Dispose();
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            app.Exit();
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>One move along the path: each frame its pointer moves, the frame's work, the layout pass; then the drop.</summary>
@@ -195,12 +172,12 @@ internal static class DragBench
     }
 
     /// <summary>
-    /// The scene: three rows of cards that will touch (<see cref="Touch"/>), six cards alone and five desktop icons
-    /// (own icons) down the right edge.
+    /// The scene of a view named <paramref name="name"/>: three rows of cards that will touch (<see cref="Touch"/>), six
+    /// cards alone and five desktop icons (own icons) down the right edge. The UI bench draws it too.
     /// </summary>
-    private static (ViewState View, List<List<string>> Rows, List<string> Icons) Scene()
+    internal static (ViewState View, List<List<string>> Rows, List<string> Icons) Scene(string name)
     {
-        var view = ViewState.Create("Drag bench");
+        var view = ViewState.Create(name);
         var rows = new List<List<string>>();
         foreach (var (kinds, y) in new[]
         {
@@ -242,13 +219,13 @@ internal static class DragBench
         return (view, rows, icons);
     }
 
-    /// <summary>Each row's cards put edge to edge where they are drawn, so they join.</summary>
-    private static void Touch(AppHost host, DesktopWindow surface, List<List<string>> rows)
+    /// <summary>Each row's cards put edge to edge where <paramref name="surface"/> draws them, so they join.</summary>
+    internal static void Touch(AppHost host, DesktopWindow surface, List<List<string>> rows)
     {
         host.Mutate(
             state =>
             {
-                var view = state.ViewForMonitor(DisplayId);
+                var view = state.ViewForMonitor(surface.Monitor.Id);
                 foreach (var row in rows)
                 {
                     var first = surface.CardFor(row[0])!.LiveRect;

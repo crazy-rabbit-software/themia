@@ -1,5 +1,4 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -11,7 +10,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
-using Themia.Core.Storage;
+using Themia.Core.Shell;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
@@ -19,7 +18,7 @@ using Windows.Foundation;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-13060] Debug only: <c>Themia.exe --first-drag-check &lt;out.txt&gt; [--kinds a,b] [--locked] [--probe]</c>. The first
+/// [S-13060] Debug only: <c>Themia.exe --check first-drag &lt;out.txt&gt; [--kinds a,b] [--locked] [--probe]</c>. The first
 /// press on a widget, dragged past the threshold, moves it, whatever is under the pointer. A real <see cref="AppHost"/> over a
 /// detached store and a real <see cref="DesktopWindow"/> on a stand-in display parked off-screen show every widget kind (or
 /// <c>--kinds</c>) in batches, each on its sample. For every card the check finds, in its real visual tree, a list row (an
@@ -34,7 +33,6 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static partial class FirstDragCheck
 {
-    public const string Flag = "--first-drag-check";
     private const string Scope = "first-drag-check";
     private const string DisplayId = "first-drag-check-display";
     private const int Batch = 12;
@@ -42,41 +40,29 @@ internal static partial class FirstDragCheck
     /// <summary>How far a test drags, in DIPs: several grid cells, so the card lands on another cell.</summary>
     private const double Reach = 48;
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "first-drag",
+        "<out.txt> [--locked] [--kinds a,b] [--probe]",
+        """
+        every kind's first press on a row, a button, a track, a thumb, a text box, a chart, an empty spot, dragged through
+        the card's own steps on a real host and surface off-screen: moved or stayed as it should, no foreground taken
+        mid-press, no focus left in the part; PASS or FAIL [S-13060]
+        --locked     Lock widgets on: only desktop icons move [S-12950]
+        --kinds a,b  those kinds only
+        --probe      posts a click to every window of the surface instead and says how many pointer events XAML raised
+                     (none: WinUI reads pointer messages, not posted mouse ones)
+        """,
+        run => RunAsync(
+            run.PathArg(0),
+            run.Option("--kinds")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.Ordinal),
+            run.Has("--locked"),
+            run.Has("--probe")));
+
+    private static async Task<int> RunAsync(string outPath, HashSet<string>? only, bool locked, bool probe)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
-        {
-            Log.Error(Scope, $"usage: {Flag} <out.txt> [--kinds a,b] [--locked] [--probe]");
-            app.Exit();
-            return true;
-        }
-
-        var kindsAt = Array.IndexOf(args, "--kinds");
-        var only = kindsAt >= 0 && kindsAt + 1 < args.Length
-            ? args[kindsAt + 1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.Ordinal)
-            : null;
-        _ = RunAsync(app, Path.GetFullPath(args[at + 1]), only, args.Contains("--locked"), args.Contains("--probe"));
-        return true;
-    }
-
-    private static async Task RunAsync(Application app, string outPath, HashSet<string>? only, bool locked, bool probe)
-    {
-        var failures = 0;
-        Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-        File.Delete(outPath);
-
-        // Each line lands at once: a run cut short by its timeout still says how far it came.
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            File.AppendAllText(outPath, line + Environment.NewLine);
-        }
+        var report = new CheckReport(Scope, outPath);
+        void Say(string line) => report.Say(line);
 
         Log.AddSink(static record =>
         {
@@ -93,19 +79,20 @@ internal static partial class FirstDragCheck
             if (probe)
             {
                 await ProbeAsync(kinds.Take(1).ToList(), Say).ConfigureAwait(true);
-                return;
+                return await report.FinishAsync().ConfigureAwait(true);
             }
 
             var failedSpots = new SortedDictionary<string, List<string>>(StringComparer.Ordinal);
             var tested = 0;
             for (var start = 0; start < kinds.Count; start += Batch)
             {
-                await using var desk = await Desk.StartAsync(kinds.Skip(start).Take(Batch).ToList(), locked).ConfigureAwait(true);
+                using var desk = await Desk.StartAsync(kinds.Skip(start).Take(Batch).ToList(), locked).ConfigureAwait(true);
                 foreach (var (kind, card) in desk.Cards)
                 {
                     Console.WriteLine($"  pressing {kind.Id.Value}");
                     var results = new List<string>();
                     var sign = 1;
+                    var failed = 0;
                     foreach (var spot in Enum.GetValues<Spot>())
                     {
                         if (Find(desk, card, spot) is not { } found)
@@ -119,7 +106,7 @@ internal static partial class FirstDragCheck
                         results.Add($"{spot.ToString().ToLowerInvariant()} {outcome.Text}");
                         if (!outcome.Ok)
                         {
-                            failures++;
+                            failed++;
                             if (!failedSpots.TryGetValue(spot.ToString(), out var list))
                             {
                                 failedSpots[spot.ToString()] = list = [];
@@ -130,7 +117,7 @@ internal static partial class FirstDragCheck
                     }
 
                     var verdict = results.TrueForAll(r => !r.Contains("FAIL", StringComparison.Ordinal)) ? "PASS" : "FAIL";
-                    Say($"{verdict} {kind.Id.Value}: {(results.Count == 0 ? "no spot found" : string.Join("; ", results))}");
+                    report.Say($"{verdict} {kind.Id.Value}: {(results.Count == 0 ? "no spot found" : string.Join("; ", results))}", failed);
                 }
             }
 
@@ -142,15 +129,10 @@ internal static partial class FirstDragCheck
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the first drag check failed", ex);
-            failures++;
-            Say($"first-drag-check: failed: {ex.Message}");
+            report.Crash(ex);
         }
-        finally
-        {
-            Say(failures == 0 ? "first-drag-check: PASS" : $"first-drag-check: FAIL ({failures})");
-            app.Exit();
-        }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     // ---- one press ------------------------------------------------------------------------------
@@ -180,7 +162,7 @@ internal static partial class FirstDragCheck
         var model = () => desk.Host.State.Views[0].Find(card.Model.Id)?.Rect;
         var before = model();
         var held = true;
-        desk.Surface.CheckButton = () => held;
+        desk.Stand.UseCheckButton(() => held);
         var taken = desk.Surface.CheckForegroundMidPress;
         try
         {
@@ -208,7 +190,7 @@ internal static partial class FirstDragCheck
         finally
         {
             held = false;
-            desk.Surface.CheckButton = null;
+            desk.Stand.UseCheckButton(null);
         }
 
         var moved = model() != before;
@@ -491,17 +473,19 @@ internal static partial class FirstDragCheck
 
     // ---- the desk -------------------------------------------------------------------------------
 
-    /// <summary>A host and a surface off-screen, holding one batch of kinds on their samples.</summary>
-    private sealed class Desk : IAsyncDisposable
+    /// <summary>A host and a surface off-screen (a <see cref="StandInDesktop"/>), holding one batch of kinds on their samples.</summary>
+    private sealed class Desk : IDisposable
     {
-        private Desk(AppHost host, DesktopWindow surface, List<(WidgetDescriptor Kind, WidgetCard Card)> cards)
+        private Desk(StandInDesktop stand, DesktopWindow surface, List<(WidgetDescriptor Kind, WidgetCard Card)> cards)
         {
-            Host = host;
+            Stand = stand;
             Surface = surface;
             Cards = cards;
         }
 
-        public AppHost Host { get; }
+        public StandInDesktop Stand { get; }
+
+        public AppHost Host => Stand.Host;
 
         public DesktopWindow Surface { get; }
 
@@ -516,7 +500,6 @@ internal static partial class FirstDragCheck
 
             // Parked off-screen: nothing of it is ever under the real mouse. Cards stand well apart, so a test's drag
             // never meets another card.
-            var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 3600, Bottom = -32000 + 2400 };
             const double W = 3600, H = 2400 - 48;
             var placed = new List<(WidgetDescriptor Kind, WidgetInstance Widget)>();
             double x = 160, y = 120, rowHeight = 0;
@@ -538,15 +521,28 @@ internal static partial class FirstDragCheck
             }
 
             state.ShowViewOn(DisplayId, view.Id);
-            var monitor = new MonitorTarget(DisplayId, IdResolved: true, "first-drag-check", bounds, bounds with { Bottom = bounds.Bottom - 48 }, IsPrimary: false);
-            var host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-first-drag-check", "state.json")), state);
-            var surface = new DesktopWindow(host, monitor);
-            host.AdoptSurfaceForCheck(surface);
-            surface.ShowSurface();
+            var stand = StandInDesktop.Create(Scope, state);
+            try
+            {
+                var surface = stand.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(3600, 2400)));
+                stand.Show();
 
-            // A diagnostic's wait, not a correctness path: the surface lays out and the intro ends.
-            await Task.Delay(2500).ConfigureAwait(true);
+                // A diagnostic's wait, not a correctness path: the surface lays out and the intro ends.
+                await Task.Delay(2500).ConfigureAwait(true);
+                var cards = await SamplesAsync(surface, placed).ConfigureAwait(true);
+                await Task.Delay(800).ConfigureAwait(true);
+                return new Desk(stand, surface, cards);
+            }
+            catch
+            {
+                stand.Dispose();
+                throw;
+            }
+        }
 
+        /// <summary>Each placed kind's card, showing its sample.</summary>
+        private static async Task<List<(WidgetDescriptor Kind, WidgetCard Card)>> SamplesAsync(DesktopWindow surface, List<(WidgetDescriptor Kind, WidgetInstance Widget)> placed)
+        {
             var cards = new List<(WidgetDescriptor, WidgetCard)>();
             foreach (var (kind, widget) in placed)
             {
@@ -575,8 +571,7 @@ internal static partial class FirstDragCheck
                 cards.Add((kind, card));
             }
 
-            await Task.Delay(800).ConfigureAwait(true);
-            return new Desk(host, surface, cards);
+            return cards;
         }
 
         /// <summary>A point of <paramref name="element"/> in the surface root's DIPs.</summary>
@@ -585,13 +580,7 @@ internal static partial class FirstDragCheck
         /// <summary>The surface root's DIP <paramref name="at"/> in the XAML root's own coordinates.</summary>
         public Point HostPoint(Point at) => Surface.DebugRoot.TransformToVisual(null).TransformPoint(at);
 
-        public ValueTask DisposeAsync()
-        {
-            Surface.CheckButton = null;
-            Surface.CloseSurface();
-            Host.Dispose();
-            return ValueTask.CompletedTask;
-        }
+        public void Dispose() => Stand.Dispose();
     }
 
     // ---- --probe: posted messages ---------------------------------------------------------------
@@ -606,7 +595,7 @@ internal static partial class FirstDragCheck
     /// </summary>
     private static async Task ProbeAsync(List<WidgetDescriptor> kinds, Action<string> say)
     {
-        await using var desk = await Desk.StartAsync(kinds, locked: false).ConfigureAwait(true);
+        using var desk = await Desk.StartAsync(kinds, locked: false).ConfigureAwait(true);
         var tree = new List<(nint Hwnd, string Class)>();
         Walk(desk.Surface.Hwnd, tree);
         var card = desk.Cards[0].Card;

@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace Themia.App.Shell;
 
-/// <summary>The stages of a move's pointer step that <see cref="DragProfile"/> times ([S-11890], <c>--drag-bench</c>).</summary>
+/// <summary>The stages of a move's pointer step that <see cref="DragProfile"/> times ([S-11890], <c>--check drag-bench</c>).</summary>
 internal enum DragStage
 {
     /// <summary>The block's translation: the snap and the reach (<c>BlockGeometry.Move</c>, the follow).</summary>
@@ -38,7 +38,7 @@ internal enum DragStage
 
 /// <summary>
 /// [S-11890] Debug only: what each stage of a move's pointer step costs, summed over a run of the
-/// <c>--drag-bench</c> render flag. Every member is <see cref="ConditionalAttribute"/> on DEBUG, so a
+/// <c>--check drag-bench</c> command. Every member is <see cref="ConditionalAttribute"/> on DEBUG, so a
 /// Release build has no call to it at all; and off (<see cref="On"/> false) it is one branch.
 /// </summary>
 internal static class DragProfile

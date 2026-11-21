@@ -352,7 +352,7 @@ internal sealed partial class DesktopWindow
 
 #if DEBUG
     /// <summary>
-    /// A debug check that presses with input of its own (<c>--first-drag-check</c>): whether its button is down, in place
+    /// A debug check that presses with input of its own (<c>--check first-drag</c>): whether its button is down, in place
     /// of the physical mouse's; while set the surface never takes the foreground from the user's window, it counts the
     /// times it would have (<see cref="CheckForegroundTaken"/>, <see cref="CheckForegroundMidPress"/>). Null in the app.
     /// </summary>

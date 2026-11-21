@@ -169,7 +169,7 @@ internal sealed partial class WidgetCard
     // ---- debug checks ---------------------------------------------------------------------------
 
     /// <summary>
-    /// A debug check's press (<c>--first-drag-check</c>), routed as XAML routes a left press to this card: from
+    /// A debug check's press (<c>--check first-drag</c>), routed as XAML routes a left press to this card: from
     /// <paramref name="source"/> at <paramref name="atSurface"/> (the surface's DIPs), heard by the card's own handler only
     /// when no part inside took it (<paramref name="handled"/>, the check's reading of what is there), then by the lease's.
     /// </summary>

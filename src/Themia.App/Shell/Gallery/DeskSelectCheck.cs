@@ -1,6 +1,5 @@
 #if DEBUG
 using System.Runtime.InteropServices;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Themia.App.Interop;
 using Themia.App.Services;
@@ -8,7 +7,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
-using Themia.Core.Storage;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Windows.Foundation;
@@ -16,7 +15,7 @@ using Windows.Foundation;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-11877] [S-11879] [S-12953] Debug only: <c>Themia.exe --desk-select-check &lt;out.txt&gt; [--locked] [--live] [--twice]
+/// [S-11877] [S-11879] [S-12953] Debug only: <c>Themia.exe --check desk-select &lt;out.txt&gt; [--locked] [--live] [--twice]
 /// [--glass]</c>. The locked desktop's one selection through the app's own wiring: a real <see cref="AppHost"/> over a detached
 /// store with its desk started as at the app's start, and a real <see cref="DesktopWindow"/> on a stand-in display whose view
 /// holds cards of several sorts (a clock, a calendar, a list, a text widget, the weather, a fence), two own icons and two
@@ -37,7 +36,6 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static partial class DeskSelectCheck
 {
-    public const string Flag = "--desk-select-check";
     private const string Scope = "desk-select-check";
     private const string DisplayId = "desk-select-check-display";
 
@@ -46,49 +44,44 @@ internal static partial class DeskSelectCheck
     private const ushort VkDown = 0x28;
     private const ushort VkA = 0x41;
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
-    {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "desk-select",
+        "<out.txt> [--locked] [--twice] [--glass] [--icon-layout below|beside|icononly] [--live]",
+        """
+        the locked desktop's one selection through a real host and surface, PASS or FAIL [S-12954]: the host's gestures
+        (Ctrl+press on every card, a band, a click, Ctrl+click and Shift+click on two desktop items of one name [S-5510]),
+        the several cards' frame [S-14310], Delete outside edit mode [S-14320], a card's menu [S-14321]; an icon moved into the
+        fence and one on the free desktop, drawn mid-move to <out>.move-fence.png / .move-fence-icon.png / .move-free.png
+        [S-13046] [S-13047], two icons moved on the free desktop, out of the fence and into it, the held icon alone under the
+        pointer (<out>.move-several-free.png / .move-several-out.png / .move-several-fence.png) [S-13048], an icon placed from the Unplaced page
+        (<out>.place-icon.png) [S-13708], icons moved onto the open Unplaced icons page and dragged back off it
+        (<out>.unplace-fence.png / .unplace-free.png) [S-13713] [S-13715]; <out>.png the surface at the end
+        --locked     Lock widgets on: the selection holds icons only [S-12953]
+        --twice      a second display left of it, the user's twin on its view too [S-5540]
+        --glass      Liquid glass
+        --icon-layout below|beside|icononly   the desktop's icon layout the icons and ghosts are drawn in [S-13970]
+        --live       real input instead (SendInput: the pointer, Ctrl, Shift, the arrows, Ctrl+A), the stand-in display on the
+                     primary screen over every window: it moves the user's real mouse [S-11879]
+        """,
+        RunAsync);
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
-        {
-            Log.Error(Scope, $"usage: {Flag} <out.txt> [--locked] [--live] [--twice] [--glass]");
-            app.Exit();
-            return true;
-        }
+    private static async Task<int> RunAsync(RenderRun run)
+    {
+        var outPath = run.PathArg(0);
 
         // [S-13970] The desktop's icon layout the icons (and the moves' ghosts, [S-13046]) are drawn in.
-        var layoutAt = Array.IndexOf(args, "--icon-layout");
         var layout = DesktopIconLayout.Below;
-        if (layoutAt >= 0 && (layoutAt + 1 >= args.Length || !Enum.TryParse(args[layoutAt + 1], ignoreCase: true, out layout) || !Enum.IsDefined(layout)))
+        if (run.Option("--icon-layout") is { } asked && (!Enum.TryParse(asked, ignoreCase: true, out layout) || !Enum.IsDefined(layout)))
         {
-            Log.Error(Scope, $"usage: {Flag} <out.txt> [--icon-layout below|beside|icononly]");
-            app.Exit();
-            return true;
+            throw run.Usage($"--icon-layout {asked}: below, beside or icononly");
         }
 
-        _ = RunAsync(app, Path.GetFullPath(args[at + 1]), args.Contains("--locked"), args.Contains("--live"), args.Contains("--twice"), args.Contains("--glass"), layout);
-        return true;
-    }
-
-    private static async Task RunAsync(Application app, string outPath, bool locked, bool live, bool twice, bool glass, DesktopIconLayout layout)
-    {
-        var lines = new List<string>();
-        var failures = 0;
-        AppHost? host = null;
-        DesktopWindow? surface = null;
-        DesktopWindow? second = null;
+        var (locked, live, twice, glass) = (run.Has("--locked"), run.Has("--live"), run.Has("--twice"), run.Has("--glass"));
+        var report = new CheckReport(Scope, outPath);
+        void Say(string line) => report.Say(line);
+        StandInDesktop? desk = null;
         Win32.Point? cursor = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
 
         Log.AddSink(static record => Console.WriteLine(LogFormat.Record(record)));
         try
@@ -136,11 +129,11 @@ internal static partial class DeskSelectCheck
 
             var bounds = live
                 ? new Win32.Rect { Left = twice ? 1300 : 60, Top = 60, Right = (twice ? 1300 : 60) + 1200, Bottom = 60 + 800 }
-                : new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 1920, Bottom = -32000 + 1080 };
-            var monitor = new MonitorTarget(DisplayId, IdResolved: true, "desk-select-check", bounds, bounds with { Bottom = bounds.Bottom - 48 }, IsPrimary: false);
-            host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-desk-select-check", "state.json")), state);
-            surface = new DesktopWindow(host, monitor);
-            host.AdoptSurfaceForCheck(surface);
+                : StandInDesktop.OffScreen(1920, 1080);
+            desk = StandInDesktop.Create(Scope, state);
+            var host = desk.Host;
+            var surface = desk.Add(StandInDesktop.Display(DisplayId, bounds));
+            DesktopWindow? second = null;
             string? homeTwin = null;
             if (twice)
             {
@@ -157,27 +150,22 @@ internal static partial class DeskSelectCheck
                 state.ShowViewOn(DisplayId + "-2", other.Id);
                 var left = live
                     ? new Win32.Rect { Left = 60, Top = 60, Right = 60 + 1200, Bottom = 60 + 800 }
-                    : bounds with { Left = bounds.Left - 2000, Right = bounds.Right - 2000 };
-                second = new DesktopWindow(host, new MonitorTarget(DisplayId + "-2", IdResolved: true, "desk-select-check-2", left, left with { Bottom = left.Bottom - 48 }, IsPrimary: false));
-                host.AdoptSurfaceForCheck(second);
-                second.ShowSurface();
+                    : StandInDesktop.OffScreen(1920, 1080, left: -2000);
+                second = desk.Add(StandInDesktop.Display(DisplayId + "-2", left));
+                desk.Show(second);
             }
 
             // [S-14320] The host's gestures never take the foreground from the user's window (the picks now give the desktop the
             // keys as a press on empty desktop does): the surfaces only count the times they would have, their button the check's.
             if (!live)
             {
-                surface.CheckButton = static () => false;
-                if (second is not null)
-                {
-                    second.CheckButton = static () => false;
-                }
+                desk.UseCheckButton(static () => false);
             }
 
             // The desk follows the host as at the app's start: the icons' presses reach it, the listing and state relay it ([S-5540]).
             host.StartDeskForCheck(start: true);
             Services.Files.HostDesktopItems.Instance.AdoptForCheck([.. twins.Select(key => new DesktopItem(key, "Twin (Check 1.0)", DesktopItemKind.Shortcut))]);
-            surface.ShowSurface();
+            desk.Show(surface);
 
             // A diagnostic's wait, not a correctness path: the surface lays out and the intro ends.
             await Task.Delay(2500).ConfigureAwait(true);
@@ -203,8 +191,7 @@ internal static partial class DeskSelectCheck
                 var picked = names.Where(n => running.DeskSelects(Model(Index(n)))).ToList();
                 var drawn = names.Where(n => shown.CardFor(items[Index(n)].Widget.Id) is { } card && shown.IsSelected(card)).ToList();
                 var ok = wanted is null || (picked.SequenceEqual(names.Where(wanted.Contains)) && drawn.SequenceEqual(picked));
-                failures += ok ? 0 : 1;
-                Say($"{(ok ? "ok  " : "FAIL")} {step}: selected [{string.Join(",", picked)}], drawn [{string.Join(",", drawn)}]"
+                report.Expect(ok, $"{step}: selected [{string.Join(",", picked)}], drawn [{string.Join(",", drawn)}]"
                     + (ok || wanted is null ? string.Empty : $", wanted [{string.Join(",", names.Where(wanted.Contains))}]"));
             }
 
@@ -279,8 +266,7 @@ internal static partial class DeskSelectCheck
                     var onHome = RenamesAfterPressOn(homeOf);
                     var onHere = RenamesAfterPressOn(here);
                     var renameOk = onHome == homeOf && onHere == here;
-                    failures += renameOk ? 0 : 1;
-                    Say($"{(renameOk ? "ok  " : "FAIL")} F2 on twinU after a press on the other display's copy: box on {(onHome == homeOf ? "that copy" : onHome ?? "none")}; after a press on this one's: {(onHere == here ? "this copy" : onHere ?? "none")}");
+                    report.Expect(renameOk, $"F2 on twinU after a press on the other display's copy: box on {(onHome == homeOf ? "that copy" : onHome ?? "none")}; after a press on this one's: {(onHere == here ? "this copy" : onHere ?? "none")}");
                 }
 
                 // [S-13045] The icons before the fence, whatever the gesture.
@@ -300,8 +286,7 @@ internal static partial class DeskSelectCheck
                 Click("iconB", shift: true);
                 var ranged = names.Where(n => running.DeskSelects(Model(Index(n)))).ToList();
                 var rangeOk = ranged.Contains("iconB") && !ranged.Contains("fence");
-                failures += rangeOk ? 0 : 1;
-                Say($"{(rangeOk ? "ok  " : "FAIL")} ctrl+press fence, shift+click iconB: selected [{string.Join(",", ranged)}] (the range, no fence)");
+                report.Expect(rangeOk, $"ctrl+press fence, shift+click iconB: selected [{string.Join(",", ranged)}] (the range, no fence)");
                 host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
                 host.Key(WidgetKey.SelectAll, shift: false, items[Index("iconA")].Widget.Id);
                 Expect("Ctrl+A", Allowed(names));
@@ -331,8 +316,7 @@ internal static partial class DeskSelectCheck
                     var members = framed.Select(n => shown.CardFor(items[Index(n)].Widget.Id)!).ToList();
                     var drawnRight = wantFramed.Count == 0 ? !frame.Shown : frame.Shown && frame.CornersOnly && Round(members);
                     var ok = framed.SequenceEqual(names.Where(wantFramed.Contains)) && marked.SequenceEqual(wantMarked) && drawnRight;
-                    failures += ok ? 0 : 1;
-                    Say($"{(ok ? "ok  " : "FAIL")} {step}: framed [{string.Join(",", framed)}], own marks [{string.Join(",", marked)}], frame {(frame.Shown ? frame.CornersOnly ? "corners" : "edit look" : "none")}"
+                    report.Expect(ok, $"{step}: framed [{string.Join(",", framed)}], own marks [{string.Join(",", marked)}], frame {(frame.Shown ? frame.CornersOnly ? "corners" : "edit look" : "none")}"
                         + (ok ? string.Empty : $", wanted framed [{string.Join(",", wantFramed)}] own marks [{string.Join(",", wantMarked)}]"));
                 }
 
@@ -352,8 +336,7 @@ internal static partial class DeskSelectCheck
                     surface.PreviewMove(clockCard, 0.03, 0.02);
                     surface.FlushMove();
                     var moveOk = !clockCard.MarksDrawn && !tasksCard.MarksDrawn && shown.DebugFrame is { Shown: true, CornersOnly: true } && Round([clockCard, tasksCard]);
-                    failures += moveOk ? 0 : 1;
-                    Say($"{(moveOk ? "ok  " : "FAIL")} a locked move of clock and tasks: own marks clock {clockCard.MarksDrawn}, tasks {tasksCard.MarksDrawn}; frame's corners round them where they land {shown.DebugFrame.Shown && Round([clockCard, tasksCard])}");
+                    report.Expect(moveOk, $"a locked move of clock and tasks: own marks clock {clockCard.MarksDrawn}, tasks {tasksCard.MarksDrawn}; frame's corners round them where they land {shown.DebugFrame.Shown && Round([clockCard, tasksCard])}");
                     surface.CancelMove(clockCard);
                     ExpectFrame("the move called off", ["clock", "tasks", "iconA"]);
                 }
@@ -397,14 +380,13 @@ internal static partial class DeskSelectCheck
                     var picture = surface.ShowsDragPicture;
                     var same = via is null || (first is not null && ReferenceEquals(first, surface.ShownDragPicture));
                     handed |= Handed(target);
-                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-{tag}.png")).ConfigureAwait(true);
+                    await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
                     await Task.Delay(400).ConfigureAwait(true);
                     var after = surface.CardFor(items[Index(name)].Widget.Id);
                     var whole = after is { Opacity: 1 } && !surface.ShowsDragPicture;
                     var ok = ghost && lifted && picture && same && !handed && whole && landed();
-                    failures += ok ? 0 : 1;
-                    Say($"{(ok ? "ok  " : "FAIL")} move {name} ({tag}): ghost where it lands {ghost}, over every card {lifted}, picture under the pointer {picture}"
+                    report.Expect(ok, $"move {name} ({tag}): ghost where it lands {ghost}, over every card {lifted}, picture under the pointer {picture}"
                         + (via is null ? string.Empty : $", the same picture all the way {same}")
                         + $", handed to the shell's drag {handed}, whole after {whole}, landed {landed()}");
                 }
@@ -414,8 +396,7 @@ internal static partial class DeskSelectCheck
                 WidgetCard Card(string name) => surface.CardFor(items[Index(name)].Widget.Id)!;
                 Point CentreOf(WidgetCard card) => card.TransformToVisual(surface.DebugRoot).TransformPoint(new Point(card.ActualWidth / 2, card.ActualHeight * 0.3));
                 var freeTakes = surface.DropTargetUnder(CentreOf(Card("twinU")), new HashSet<WidgetCard> { Card("iconA") });
-                failures += freeTakes ? 0 : 1;
-                Say($"{(freeTakes ? "ok  " : "FAIL")} a move over the free twinU is handed to the shell's drag: {freeTakes}");
+                report.Expect(freeTakes, $"a move over the free twinU is handed to the shell's drag: {freeTakes}");
 
                 var fenceCard = surface.CardFor(items[Index("fence")].Widget.Id)!;
                 var twinKey = KeyOf("twinP");
@@ -489,13 +470,12 @@ internal static partial class DeskSelectCheck
                     await Task.Delay(500).ConfigureAwait(true);
                     var ghosts = moving.TrueForAll(c => Math.Abs(c.Opacity - SelectionLook.Landing) < 0.001);
                     var (alone, said) = HeldAlone(surface.ShownDragPicture, grab);
-                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-several-{tag}.png")).ConfigureAwait(true);
+                    await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-several-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
                     await Task.Delay(400).ConfigureAwait(true);
                     var whole = moving.TrueForAll(c => surface.CardFor(c.Model.Id) is { Opacity: 1 }) && !surface.ShowsDragPicture;
                     var ok = alone && ghosts && whole && landed();
-                    failures += ok ? 0 : 1;
-                    Say($"{(ok ? "ok  " : "FAIL")} move {name} with {string.Join(",", along)} ({tag}): under the pointer the held icon alone {alone} ({said})"
+                    report.Expect(ok, $"move {name} with {string.Join(",", along)} ({tag}): under the pointer the held icon alone {alone} ({said})"
                         + $", every moving icon a ghost where it lands {ghosts}, whole after {whole}, landed {landed()}");
                 }
 
@@ -524,8 +504,7 @@ internal static partial class DeskSelectCheck
                         && members.TrueForAll(c => !c.MarksDrawn)
                         && cards.Where(n => !framedWanted.Contains(n)).All(n => CardOf(n).MarksDrawn)
                         && (framedWanted.Length == 0 ? !frame.Shown : frame.Shown && !frame.CornersOnly && Round(members));
-                    failures += ok ? 0 : 1;
-                    Say($"{(ok ? "ok  " : "FAIL")} edit mode, {step}: framed [{string.Join(",", framed)}], own marks [{string.Join(",", cards.Where(n => CardOf(n).MarksDrawn))}], frame {(frame.Shown ? frame.CornersOnly ? "corners" : "edit look" : "none")}");
+                    report.Expect(ok, $"edit mode, {step}: framed [{string.Join(",", framed)}], own marks [{string.Join(",", cards.Where(n => CardOf(n).MarksDrawn))}], frame {(frame.Shown ? frame.CornersOnly ? "corners" : "edit look" : "none")}");
                 }
 
                 host.SelectMany(viewId, [CardOf("clock").Model.Id, CardOf("tasks").Model.Id]);
@@ -567,8 +546,7 @@ internal static partial class DeskSelectCheck
                     // The keys as an empty press gets them: an off-screen stand-in display may be refused the foreground (it reads
                     // as covered), and then neither has them; the check asks that the pick does what the press on empty desktop does.
                     var deleteOk = gone.SequenceEqual(wanted) && kept && back && (locked || pickTakes == emptyTakes);
-                    failures += deleteOk ? 0 : 1;
-                    Say($"{(deleteOk ? "ok  " : "FAIL")} ctrl+press clock and notes, ctrl+click iconB, {(permanent ? "Shift+Delete" : "Delete")}: gone [{string.Join(",", gone)}]"
+                    report.Expect(deleteOk, $"ctrl+press clock and notes, ctrl+click iconB, {(permanent ? "Shift+Delete" : "Delete")}: gone [{string.Join(",", gone)}]"
                         + $", the rest kept {kept}, Ctrl+Z put them back as they were {back}, the desktop's keys after an empty press {emptyTakes}, after the picks {pickTakes}");
                 }
 
@@ -590,8 +568,7 @@ internal static partial class DeskSelectCheck
                 var hasSettings = cardLines.Contains(Str.Shell_Card_WidgetSettings.Text());
                 var endsWithDesk = deskLines.Count > 0 && cardLines.Count > deskLines.Count && cardLines.Skip(cardLines.Count - deskLines.Count).SequenceEqual(deskLines);
                 var menuOk = held.SequenceEqual(locked ? [] : ["notes"]) && keysNow == emptyKeys && hasDelete != locked && hasSettings && endsWithDesk;
-                failures += menuOk ? 0 : 1;
-                Say($"{(menuOk ? "ok  " : "FAIL")} right-click notes: selected [{string.Join(",", held)}], the desktop's keys {keysNow} (an empty press: {emptyKeys}), Delete widget {hasDelete}, Widget settings {hasSettings}"
+                report.Expect(menuOk, $"right-click notes: selected [{string.Join(",", held)}], the desktop's keys {keysNow} (an empty press: {emptyKeys}), Delete widget {hasDelete}, Widget settings {hasSettings}"
                     + $", ends with the desktop's {deskLines.Count} lines {endsWithDesk}: [{string.Join(" | ", cardLines)}]");
                 host.ClearDeskSelection();
 
@@ -616,32 +593,27 @@ internal static partial class DeskSelectCheck
                     var (alone, said) = HeldAlone(surface.HandedMove?.Picture, grab);
                     var back = (heldIcon.LiveRect, Card("iconB").LiveRect) == home;
                     var handOk = carried && alone && back;
-                    failures += handOk ? 0 : 1;
-                    Say($"{(handOk ? "ok  " : "FAIL")} a move of iconA with iconB handed to the shell's drag: its picture carried {carried}, the held icon alone {alone} ({said}), its cards back {back}");
+                    report.Expect(handOk, $"a move of iconA with iconB handed to the shell's drag: its picture carried {carried}, the held icon alone {alone} ({said}), its cards back {back}");
                 }
 
                 // [S-13708] An icon dragged off the Unplaced icons page (the one placement session, edit mode): under the pointer
                 // it is the icon as the desktop draws it, with its corners, beside the desktop's own in edit mode. Drawn, then given up.
                 var loose = new DesktopItem(Path.Combine(Path.GetTempPath(), "themia-desk-select-check", "Placed from the page (Check).txt"), "Placed from the page (Check).txt", DesktopItemKind.File);
                 host.BeginPlacement([loose], metrics);
-                var placingOk = false;
                 if (host.Placing is { } placing)
                 {
                     surface.ShowGhosts(placing.Outlines(0.30, 0.80, metrics, surface.SizesNow));
                     await Task.Delay(1200).ConfigureAwait(true);
                     var drawnAsIcon = surface.IconGhostsShown;
-                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".place-icon.png")).ConfigureAwait(true);
+                    await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".place-icon.png"), Scope).ConfigureAwait(true);
                     host.CancelPlacement();
                     var gone = surface.IconGhostsShown == 0;
-                    placingOk = drawnAsIcon == 1 && gone;
-                    Say($"{(placingOk ? "ok  " : "FAIL")} an icon placed from the page: drawn as the desktop draws it {drawnAsIcon}, gone with the placement {gone}");
+                    report.Expect(drawnAsIcon == 1 && gone, $"an icon placed from the page: drawn as the desktop draws it {drawnAsIcon}, gone with the placement {gone}");
                 }
                 else
                 {
-                    Say("FAIL an icon placed from the page: no placement began");
+                    report.Fail("an icon placed from the page: no placement began");
                 }
-
-                failures += placingOk ? 0 : 1;
 
                 // [S-13713] [S-13715] The Unplaced icons page open in edit mode stays open beside the desktop (owner, 2026-11-21: "it
                 // should not close when i click outside of it, that way it should also be possible to move desktop icons back to it"):
@@ -668,8 +640,7 @@ internal static partial class DeskSelectCheck
                     var fencedBefore = InFence(key);
                     if (CardOfKey(key) is not { } held || page is null)
                     {
-                        failures++;
-                        Say($"FAIL {name} onto the page ({tag}): {(page is null ? "the page is not open" : $"{name} has no card")}");
+                        report.Fail($"{name} onto the page ({tag}): {(page is null ? "the page is not open" : $"{name} has no card")}");
                         return;
                     }
 
@@ -686,15 +657,14 @@ internal static partial class DeskSelectCheck
                     await Task.Delay(500).ConfigureAwait(true);
                     var lit = page.DropShown;
                     var picture = surface.ShowsDragPicture;
-                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".unplace-{tag}.png")).ConfigureAwait(true);
+                    await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".unplace-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
                     surface.PressEnded(held);
                     await Task.Delay(800).ConfigureAwait(true);
                     var stays = surface.OpenUnplacedPart is { DropShown: false };
                     var all = running.State.Views[0].DesktopIcons == ViewDesktopIcons.All;
                     var ok = over && lit && picture && Listed(key) && !OnView(key) && !InFence(key) && stays && all;
-                    failures += ok ? 0 : 1;
-                    Say($"{(ok ? "ok  " : "FAIL")} {name} moved onto the open page ({tag}, in a fence before {fencedBefore}): over it {over}, the page lit {lit}, the picture under the pointer {picture}"
+                    report.Expect(ok, $"{name} moved onto the open page ({tag}, in a fence before {fencedBefore}): over it {over}, the page lit {lit}, the picture under the pointer {picture}"
                         + $", listed on the page {Listed(key)}, off the view {!OnView(key)}, the page still open and unlit {stays}, the view still All {all}");
                 }
 
@@ -706,8 +676,7 @@ internal static partial class DeskSelectCheck
                     await Task.Delay(800).ConfigureAwait(true);
                     var reopened = surface.OpenUnplacedPart is not null;
                     var ok = placed && !Listed(key) && OnView(key) && !InFence(key) && reopened;
-                    failures += ok ? 0 : 1;
-                    Say($"{(ok ? "ok  " : "FAIL")} {name} dragged off the page onto the free desktop ({tag}): placed {placed}, off the page {!Listed(key)}, on the view {OnView(key)}, free {!InFence(key)}, the page open again {reopened}");
+                    report.Expect(ok, $"{name} dragged off the page onto the free desktop ({tag}): placed {placed}, off the page {!Listed(key)}, on the view {OnView(key)}, free {!InFence(key)}, the page open again {reopened}");
                 }
 
                 await ToPageAsync("twinP", "fence").ConfigureAwait(true);
@@ -775,6 +744,7 @@ internal static partial class DeskSelectCheck
                         Key(modifier, up: true);
                     }
 
+                    // a timing, not a wait: the next click lands past the double-click time, so two clicks never read as one double-click.
                     await Task.Delay(450).ConfigureAwait(true);
                     return true;
                 }
@@ -868,24 +838,20 @@ internal static partial class DeskSelectCheck
                 ok = ok && await Press(held, new Point(held.X - (metrics.Width * 0.04), held.Y + (metrics.Height * 0.12)), 0, 12).ConfigureAwait(true);
                 var moved = names.Where(n => Model(Index(n)).Rect != before[n]).ToList();
                 var movedOk = moved.SequenceEqual(Allowed(names));
-                failures += movedOk ? 0 : 1;
-                Say($"{(movedOk ? "ok  " : "FAIL")} drag the selection by iconA: moved [{string.Join(",", moved)}]");
+                report.Expect(movedOk, $"drag the selection by iconA: moved [{string.Join(",", moved)}]");
                 ok = ok && await Click(empty).ConfigureAwait(true);
                 Expect("click empty", []);
                 if (!ok)
                 {
-                    failures++;
-                    Say("FAIL live: stopped early");
+                    report.Fail("live: stopped early");
                 }
             }
 
-            await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png")).ConfigureAwait(true);
+            await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png"), Scope).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the desk select check failed", ex);
-            failures++;
-            Say($"desk-select-check: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
@@ -896,15 +862,11 @@ internal static partial class DeskSelectCheck
                 _ = SetCursorPos(back.X, back.Y);
             }
 
-            host?.StartDeskForCheck(start: false);
-            second?.CloseSurface();
-            surface?.CloseSurface();
-            host?.Dispose();
-            Say(failures == 0 ? "desk-select-check: PASS" : $"desk-select-check: FAIL ({failures})");
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            app.Exit();
+            desk?.Host.StartDeskForCheck(start: false);
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     // ---- real input, --live only ----------------------------------------------------------------

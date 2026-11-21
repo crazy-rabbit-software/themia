@@ -1,132 +1,118 @@
 #if DEBUG
 using System.Numerics;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Hosting;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.App.Shell.Motion;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-1018] Debug only: <c>Themia.exe --startup-check &lt;out.txt&gt; [--state &lt;state.json&gt;] [--show &lt;view&gt;]
+/// [S-1018] Debug only: <c>Themia.exe --check startup &lt;out.txt&gt; [--state &lt;state.json&gt;] [--show &lt;view&gt;]
 /// [--hold ms] [--hide] [--twice] [--wallpaper &lt;picture&gt;] [--interrupt ms]</c>.
 /// A real <see cref="AppHost"/> over a detached store (a copy of the state is read, never written) and a
-/// real <see cref="DesktopWindow"/> on a stand-in display off-screen, started on the view as the app starts
-/// on it: the provisional pass, the root loaded, the startup intro. Once the intro should long have ended,
-/// every card is reported as the compositor holds it (its visual's opacity, scale and translation), with
-/// its layout and what UI Automation sees under the surface (the desktop's list and its children, [S-5576]);
-/// a card not at rest is marked NOT AT REST; <c>out.png</c> is the surface drawn. <c>--hide</c> hides the
-/// window through the intro, <c>--twice</c> shows the view on a second stand-in display too, <c>--wallpaper</c>
-/// frosts the cards over that picture, <c>--interrupt</c> lays the surface out again that long after the hold and reads the cards at once. The log goes to the console, never the user's log folder.
+/// real <see cref="DesktopWindow"/> on a stand-in display off-screen (<see cref="StandInDesktop"/>), started on the
+/// view as the app starts on it: the provisional pass, the root loaded, the startup intro. Once the intro should long
+/// have ended (<c>--hold</c>, 3 s), every card is reported as the compositor holds it (its visual's opacity, scale and
+/// translation), with its layout and what UI Automation sees under the surface (the desktop's list
+/// and its children, [S-5576]); a card not at rest is marked NOT AT REST and fails the check; <c>out.png</c> is the
+/// surface drawn. <c>--hide</c> hides the window through the intro, <c>--twice</c> shows the view
+/// on a second stand-in display too, <c>--wallpaper</c> frosts the cards over that picture, <c>--interrupt</c> lays the
+/// surface out again that long after and reads the cards at once. The log goes to the console, never the user's log folder.
 /// </summary>
 internal static class StartupCheck
 {
     private const string Scope = "startup-check";
-    private const string Flag = "--startup-check";
     private const string DisplayId = "startup-check-display";
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    /// <summary>How long the check waits for the start (and <c>--hide</c> keeps the window hidden) when no <c>--hold</c> is given.</summary>
+    private const int HoldMs = 3000;
+
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "startup",
+        "<out.txt> [--state <state.json>] [--show <view>] [--hold ms] [--hide] [--twice] [--wallpaper <picture>] [--interrupt ms]",
+        """
+        the startup intro on a real host and surface off-screen: long past it, every card as the compositor holds it
+        (opacity, scale, translation), its layout and what UI Automation sees; a card NOT AT REST fails; <out>.png [S-1018]
+        --state <state.json>   the views from a copy of a state file (read, never written)
+        --show <view>          that view (the first by default)
+        --hold ms              read the cards that long after the start (3 s by default; less: an intro caught in flight)
+        --hide                 the window hidden through the intro, --hold long, then shown and --hold waited again [S-1018]
+        --twice                the view on a second stand-in display too
+        --wallpaper <picture>  the cards frosted over that picture
+        --interrupt ms         a layout pass that long after, the cards read at once after it [S-1017]
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
-        {
-            Log.Error(Scope, "usage: --startup-check <out.txt> [--state <state.json>] [--show <view>]");
-            app.Exit();
-            return true;
-        }
-
-        var outPath = Path.GetFullPath(args[at + 1]);
-        _ = RunAsync(app, outPath, ArgAfter(args, "--state"), ArgAfter(args, "--show"), int.TryParse(ArgAfter(args, "--hold"), out var hold) && hold > 0 ? hold : 3000);
-        return true;
-    }
-
-    private static string? ArgAfter(string[] args, string flag)
-    {
-        var at = Array.IndexOf(args, flag);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
-    }
-
-    private static async Task RunAsync(Application app, string outPath, string? statePath, string? show, int holdMs)
-    {
-        var lines = new List<string>();
-        AppHost? host = null;
-        DesktopWindow? surface = null;
-        DesktopWindow? second = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
+        var outPath = run.PathArg(0);
+        var hold = Milliseconds(run, "--hold", least: 1) ?? HoldMs;
+        var interrupt = Milliseconds(run, "--interrupt", least: 0);
+        var report = new CheckReport(Scope, outPath);
+        void Say(string line) => report.Say(line);
+        StandInDesktop? desk = null;
 
         Log.AddSink(static record => Console.WriteLine(LogFormat.Record(record)));
 
         try
         {
-            var parsed = statePath is { } source ? StateDocument.Parse(File.ReadAllText(source)) : (ParseResult?)null;
+            var parsed = run.Option("--state") is { } source ? StateDocument.Parse(File.ReadAllText(source)) : (ParseResult?)null;
             var state = parsed is { } read
-                ? read.State ?? throw new InvalidDataException($"{statePath} is not a state document")
+                ? read.State ?? throw new InvalidDataException($"{run.Option("--state")} is not a state document")
                 : AppState.CreateDefault();
-            var view = show is null ? state.Views[0] : state.Views.First(v => string.Equals(v.Name, show, StringComparison.OrdinalIgnoreCase));
+            var view = run.Option("--show") is not { } show ? state.Views[0] : state.Views.First(v => string.Equals(v.Name, show, StringComparison.OrdinalIgnoreCase));
             state.ShowViewOn(DisplayId, view.Id);
 
-            var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 3840, Bottom = -32000 + 2160 };
-            var monitor = new MonitorTarget(DisplayId, IdResolved: true, "startup-check", bounds, bounds with { Bottom = bounds.Bottom - 72 }, IsPrimary: false);
-
-            using var wallpaper = ArgAfter(Environment.GetCommandLineArgs(), "--wallpaper") is { } picture
+            using var wallpaper = run.Option("--wallpaper") is { } picture
                 ? RenderWallpaper.Use(picture, new Themia.Core.Geometry.ScreenMetrics(2560, 1440))
                 : null;
 
-            host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-startup-check", "state.json")), state);
+            desk = StandInDesktop.Create(Scope, state);
 
-            // [S-15026] As at a start: the cards the load shared out are laid once the surface's metrics settle.
-            host.LayShareOuts(parsed?.SharedOut ?? []);
-            surface = new DesktopWindow(host, monitor);
-
-            // The host's own surface, as at a start: what waits for settled metrics (the refits, the settles, a card the load
-            // shared out, [S-15026]) runs on it.
-            host.AdoptSurfaceForCheck(surface);
-            surface.ShowSurface();
-            if (Environment.GetCommandLineArgs().Contains("--twice"))
+            // [S-15026] As at a start: the cards the load shared out are laid once the surface's metrics settle (the host's
+            // own surface, adopted by Add, is where what waits for settled metrics runs).
+            desk.Host.LayShareOuts(parsed?.SharedOut ?? []);
+            var bounds = StandInDesktop.OffScreen(3840, 2160);
+            var surface = desk.Add(StandInDesktop.Display(DisplayId, bounds, taskbar: 72));
+            if (run.Has("--twice"))
             {
-                var right = bounds with { Left = bounds.Right + 100, Right = bounds.Right + 100 + 3840 };
                 state.ShowViewOn(DisplayId + "-2", view.Id);
-                second = new DesktopWindow(host, new MonitorTarget(DisplayId + "-2", IdResolved: true, "startup-check-2", right, right with { Bottom = right.Bottom - 72 }, IsPrimary: false));
-                second.ShowSurface();
+                desk.Add(StandInDesktop.Display(DisplayId + "-2", StandInDesktop.OffScreen(3840, 2160, left: 3840 + 100), taskbar: 72));
             }
 
-            if (Environment.GetCommandLineArgs().Contains("--hide"))
+            desk.Show();
+
+            if (run.Has("--hide"))
             {
                 var id = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(WinRT.Interop.WindowNative.GetWindowHandle(surface.DebugWindow));
                 Microsoft.UI.Windowing.AppWindow.GetFromWindowId(id).Hide();
-                await Task.Delay(holdMs).ConfigureAwait(true);
+
+                // a timing, not a wait: how long the window stays hidden through its start.
+                await Task.Delay(hold).ConfigureAwait(true);
                 Microsoft.UI.Windowing.AppWindow.GetFromWindowId(id).Show(activateWindow: false);
             }
 
-            // A diagnostic's wait, not a correctness path: the intro is 500 ms; this is long past it.
-            await Task.Delay(holdMs).ConfigureAwait(true);
+            // A diagnostic's wait, not a correctness path: the intro is 500 ms; this is long past it (or --hold's).
+            await Task.Delay(hold).ConfigureAwait(true);
 
             // [S-1017] A layout pass while the intro is still in flight: the cards are read at once after it.
-            if (int.TryParse(ArgAfter(Environment.GetCommandLineArgs(), "--interrupt"), out var after) && after >= 0)
+            if (interrupt is { } after)
             {
+                // a timing, not a wait: the layout pass lands that far into the intro.
                 await Task.Delay(after).ConfigureAwait(true);
-                host.Mutate(_ => { }, undo: null);
+                desk.Host.Mutate(_ => { }, undo: null);
             }
 
             Say($"startup-check: view '{view.Name}', {view.Widgets.Count} widget(s), intro {state.Design.IntroAnimation} {state.Design.IntroAnimationMs} ms, animations {(SystemMotion.AnimationsEnabled ? "on" : "off")}");
             var unrested = 0;
-            foreach (var (shown, widget) in new[] { surface, second }.OfType<DesktopWindow>().SelectMany(s => view.Widgets.Select(w => (s, w))))
+            foreach (var (shown, widget) in desk.Surfaces.SelectMany(s => view.Widgets.Select(w => (s, w))))
             {
                 if (shown.CardFor(widget.Id) is not { } card)
                 {
@@ -154,23 +140,26 @@ internal static class StartupCheck
             {
                 Say($"automation: the children failed: {ex.Message}");
             }
+
             await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png")).ConfigureAwait(true);
-            Say(unrested == 0 ? "startup-check: every card at rest" : $"startup-check: {unrested} card(s) NOT AT REST");
+            report.Say(unrested == 0 ? "startup-check: every card at rest" : $"startup-check: {unrested} card(s) NOT AT REST", unrested);
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the startup check failed", ex);
-            Say($"startup-check: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
-            second?.CloseSurface();
-            surface?.CloseSurface();
-            host?.Dispose();
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            app.Exit();
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
+
+    /// <summary>The milliseconds after <paramref name="option"/> (at least <paramref name="least"/>), or null when it is not given.</summary>
+    private static int? Milliseconds(RenderRun run, string option, int least)
+        => run.Option(option) is not { } given ? null
+            : int.TryParse(given, out var ms) && ms >= least ? ms
+            : throw run.Usage($"{option} {given}: milliseconds, at least {least}");
 }
 #endif
