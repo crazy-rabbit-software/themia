@@ -1,6 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
@@ -42,6 +41,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     /// <summary>[S-14705] The metric's one item: the card from its top edge to its foot, side to side, the face inside it.</summary>
     private readonly Border _item = new();
     private readonly Face _face = new();
+    private readonly ItemLight _light;
 
     /// <summary>[S-12811] One row tall, its row is the facts' row, the one component every fact row is (a list of one).</summary>
     private readonly FactList _row = new();
@@ -67,8 +67,6 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private MetricTrend _trend;
     private WidgetConfig? _config;
     private WidgetArea _area;
-    private bool _interactive;
-    private bool _pointed;
 
     // [S-12813] The status glyph's width over the card's top end corner while it shows (0: none).
     private double _statusRoom;
@@ -84,7 +82,8 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         // [S-14705] The item stands on the card's top edge as a list's first row does, and runs to its foot: the view owns
         // the edge ([S-5700]), so its box is the card's at every height, one cell too ([S-14712]).
         ItemMark.Mark(_item);
-        _item.Background = Family.Brush(ColourRole.Clear);
+        // The item layer's light, clear at rest (ItemLight).
+        _light = new ItemLight(_item);
         _item.Child = _face;
         _face.Room = width => _statusRoom = width;
         _row.Margin = default;
@@ -426,61 +425,9 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
 
     /// <summary>
     /// [S-14705] The item lit under the pointer and pressed (owner, 2026-11-20: "the metrics should also have a hover
-    /// effect"): the item layer's row fill, as every row that opens something (WR-13: exactly the item under the pointer,
-    /// the card edge to edge; WR-12: only its fill changes). A metric that opens nothing lights nothing.
+    /// effect"): <see cref="ItemLight"/>. A metric that opens nothing lights nothing.
     /// </summary>
-    private void Interactive(bool on)
-    {
-        if (on == _interactive)
-        {
-            return;
-        }
-
-        _interactive = on;
-        if (on)
-        {
-            ItemFill.Paint(_item, ItemRole.Row);
-            PointerPreview.Register(_item, pressed => ItemFill.Paint(_item, ItemRole.Row, pressed ? ItemState.Pressed : ItemState.Hover));
-            _item.PointerEntered += OnEntered;
-            _item.PointerExited += OnGone;
-            _item.PointerCaptureLost += OnGone;
-            _item.PointerCanceled += OnGone;
-            _item.AddHandler(PointerPressedEvent, Pressed, handledEventsToo: true);
-            _item.AddHandler(PointerReleasedEvent, Released, handledEventsToo: true);
-        }
-        else
-        {
-            PointerPreview.Forget(_item);
-            _item.PointerEntered -= OnEntered;
-            _item.PointerExited -= OnGone;
-            _item.PointerCaptureLost -= OnGone;
-            _item.PointerCanceled -= OnGone;
-            _item.RemoveHandler(PointerPressedEvent, Pressed);
-            _item.RemoveHandler(PointerReleasedEvent, Released);
-            _pointed = false;
-            _item.Background = Family.Brush(ColourRole.Clear);
-        }
-    }
-
-    private PointerEventHandler Pressed => _pressed ??= (_, _) => ItemFill.Paint(_item, ItemRole.Row, ItemState.Pressed);
-
-    private PointerEventHandler Released => _released ??= (_, _) => ItemFill.Paint(_item, ItemRole.Row, _pointed ? ItemState.Hover : ItemState.Rest);
-
-    private PointerEventHandler? _pressed;
-    private PointerEventHandler? _released;
-
-    // Four events, as a row's hover: PointerExited alone strands the item lit when the card moves under it.
-    private void OnEntered(object sender, PointerRoutedEventArgs args)
-    {
-        _pointed = true;
-        ItemFill.Paint(_item, ItemRole.Row, ItemState.Hover);
-    }
-
-    private void OnGone(object sender, PointerRoutedEventArgs args)
-    {
-        _pointed = false;
-        ItemFill.Paint(_item, ItemRole.Row);
-    }
+    private void Interactive(bool on) => _light.Set(on);
 
     /// <summary>
     /// [S-12813] The face: the status glyph over the card's top end corner tells it its width (<see cref="IStatusRoom"/>), as it
