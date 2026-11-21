@@ -2,14 +2,12 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.UI;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Interop;
-using Themia.App.Services;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
@@ -19,71 +17,51 @@ using Windows.Graphics;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-1411] Debug only: <c>Themia.exe --layout-editor-png &lt;out.png&gt; [waitMs] [--empty]</c> draws
-/// the app-layout editor off-screen over a demo state that is never saved, then exits. <c>--empty</c> shows a fresh one-pane layout.
+/// [S-1411] Debug only: <c>Themia.exe --render layout-editor &lt;out.png&gt; [waitMs] [--empty]</c> draws the app-layout
+/// editor off-screen over a demo state that is never saved, <c>waitMs</c> (2500) after it opens, then exits. <c>--empty</c> shows a fresh one-pane layout.
 /// Nothing is launched and no window but its own is touched.
 /// </summary>
 internal static class LayoutEditorRender
 {
-    private const string Scope = "layout-editor-render";
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "layout-editor",
+        "<out.png> [waitMs] [--empty]",
+        """
+        the app-layout editor over a demo state that is never saved: a desktop icon's three-pane layout "Morning" [S-1411] [S-1405];
+        waitMs: drawn that long after it opens (2500); --empty: a fresh one-pane layout. Nothing is launched
+        """,
+        RunAsync);
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, "--layout-editor-png");
+        var outPath = run.PathArg(0);
+        var wait = run.Args.Count > 1 && int.TryParse(run.Args[1], out var ms) ? ms : 2500;
 
-        if (at < 0)
+        // A desktop icon, named by id, that is an own icon with an app layout: empty, or the demo layout.
+        var view = ViewState.Create("Desktop");
+        var widget = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.1, 0.1, 0.2, 0.2));
+        widget.Config = StateJson.Merged(widget.Config, run.Has("--empty") ? EmptyLayout : DemoAppLayout);
+        view.Widgets.Add(widget);
+        var itemId = JsonNode.Parse(JsonSerializer.Serialize(widget.Config, StateJson.WidgetConfig))?["itemId"]?.GetValue<string>()
+            ?? throw new InvalidOperationException("the demo layout has no id");
+
+        var state = new AppState { Views = [view], ActiveViewId = view.Id };
+
+        // [S-1109] --lang: the host applies the state's language, so the demo state carries it.
+        if (RenderLanguage.Setting(Environment.GetCommandLineArgs()) is { } language)
         {
-            return false;
+            state.Preferences.Language = language;
         }
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, "usage: --layout-editor-png <out.png> [waitMs] [--empty]");
-            app.Exit();
-            return true;
-        }
-
-        var outPath = Path.GetFullPath(args[at + 1]);
-        var wait = at + 2 < args.Length && int.TryParse(args[at + 2], out var ms) ? ms : 2500;
-        var empty = args.Contains("--empty");
-
-        _ = RenderAsync(app, dispatcher, outPath, wait, empty);
-        return true;
-    }
-
-    private static async Task RenderAsync(Application app, DispatcherQueue dispatcher, string outPath, int wait, bool empty)
-    {
-        AppHost? host = null;
-        LayoutEditorWindow? editor = null;
-
+        using var desktop = StandInDesktop.Create("layout-editor-render", state);
+        var editor = new LayoutEditorWindow(desktop.Host);
         try
         {
-            // A desktop icon, named by id, that is an own icon with an app layout: empty, or the demo layout.
-            var view = ViewState.Create("Desktop");
-            var widget = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.1, 0.1, 0.2, 0.2));
-            widget.Config = StateJson.Merged(widget.Config, empty ? EmptyLayout : DemoAppLayout);
-            view.Widgets.Add(widget);
-            var itemId = JsonNode.Parse(JsonSerializer.Serialize(widget.Config, StateJson.WidgetConfig))?["itemId"]?.GetValue<string>()
-                ?? throw new InvalidOperationException("the demo layout has no id");
-
-            var statePath = Path.Combine(Path.GetTempPath(), "themia-layout-editor-render", "state.json");
-            var state = new AppState { Views = [view], ActiveViewId = view.Id };
-
-            // [S-1109] --lang: the host applies the state's language, so the demo state carries it.
-            if (RenderLanguage.Setting(Environment.GetCommandLineArgs()) is { } language)
-            {
-                state.Preferences.Language = language;
-            }
-
-            host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
-
-            editor = new LayoutEditorWindow(host);
+            // The editor's own window, off-screen and never activated: it must not take the user's focus or appear on their desktop.
             var window = editor.DebugWindow;
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-            var dpi = Win32.GetDpiForWindow(hwnd);
+            var dpi = Win32.GetDpiForWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
             var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-            // Off-screen and never activated: it must not take the user's focus or appear on their desktop.
             window.AppWindow.Move(new PointInt32(-32000, -32000));
             window.AppWindow.Resize(new SizeInt32((int)(1000 * scale), (int)(900 * scale)));
             window.AppWindow.Show(activateWindow: false);
@@ -96,21 +74,12 @@ internal static class LayoutEditorRender
 
             editor.DebugShow(itemId);
             await Task.Delay(wait).ConfigureAwait(true);
-
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await RenderPng.SaveAsync(editor.DebugRoot, outPath).ConfigureAwait(true);
-            Console.WriteLine($"layout editor: wrote {outPath}");
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "the layout editor render failed", ex);
-            Console.Error.WriteLine($"layout editor: failed: {ex.Message}");
+            await RenderHarness.SaveAsync(editor.DebugRoot, outPath, "layout editor").ConfigureAwait(true);
+            return RenderCommandLine.Passed;
         }
         finally
         {
-            editor?.Close();
-            host?.Dispose();
-            app.Exit();
+            editor.Close();
         }
     }
 

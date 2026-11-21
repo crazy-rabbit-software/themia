@@ -1,26 +1,24 @@
 #if DEBUG
 using Microsoft.UI;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Windows.Foundation;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug only: draw the desktop view bar ([S-906]) on a stand-in display, at a set of anchors,
 /// sizes and modes, one PNG each, off-screen.
-/// <c>Themia.exe --viewbar-png &lt;outDir&gt; [--views n] [--only &lt;prefix&gt;] [--theme light|dark]</c>.
+/// <c>Themia.exe --render viewbar &lt;outDir&gt; [--views n] [--only &lt;prefix&gt;] [--theme light|dark]</c>.
 /// <para>
 /// The bar is the real <see cref="ViewBar"/>, fitted to the real room ([S-917]) and placed by the real
 /// rule (<see cref="ViewBarRules.Place"/>) inside a work area that leaves a taskbar strip at the
@@ -119,94 +117,63 @@ internal static class ViewBarRender
         new("focus", "Deep focus", null, Shown: false, IsDefault: false, Color: "#E74856"),
     ];
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "viewbar",
+        "<outDir> [--views n] [--only <prefix>] [--theme light|dark]",
+        """
+        the desktop view bar [S-906] on a stand-in display, fitted to the real room [S-917] and placed by the real rule:
+        four views at every anchor, size, label [S-5405] and mode (viewbar-<case>.png); --views n (1..60): n views at every
+        anchor with each label, its overflow menu where it overflows [S-919] (viewbar-<n>v-<theme>-<case>.png); both end with the
+        select type [S-5401] [S-5404] and the styles [S-13400] [S-13406], each with its menu open (…-menu.png);
+        --only: the shots whose name starts with it (dots, arrows, cycle, select, ...)
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, "--viewbar-png");
-        if (at < 0)
+        var outDir = run.PathArg(0);
+        int? many = int.TryParse(run.Option("--views"), out var n) ? Math.Clamp(n, 1, 60) : null;
+        var theme = run.App.RequestedTheme == ApplicationTheme.Light ? "light" : "dark";
+
+        System.IO.Directory.CreateDirectory(outDir);
+        using var harness = RenderHarness.Open(run, "Themia view bar render", null, ScreenWidth, ScreenHeight);
+        var screen = new Grid
         {
-            return false;
+            Width = ScreenWidth,
+            Height = ScreenHeight,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
+        };
+
+        harness.Window.Window.Content = new Grid { Children = { screen } };
+        UiLanguage.ApplyLanguageOnly(screen);
+
+        IReadOnlyList<ViewBarItem> items = many is { } count ? ManyItems(count) : Items;
+        IReadOnlyList<Case> cases = many is null ? Cases : ManyCases();
+
+        // [S-13406] --only <prefix>: the shots whose name starts with it (dots, arrows, cycle, select, ...).
+        if (run.Option("--only") is { } only)
+        {
+            cases = [.. cases.Where(c => c.Name.StartsWith(only, StringComparison.OrdinalIgnoreCase))];
         }
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
+        var prefix = many is { } total ? $"viewbar-{total}v-{theme}-" : "viewbar-";
+
+        foreach (var c in cases)
         {
-            Log.Error(Scope, "usage: --viewbar-png <outDir> [--views n] [--only <prefix>] [--theme light|dark]");
-            app.Exit();
-            return true;
+            var (bar, area) = Draw(screen, c, items);
+            await Task.Delay(400).ConfigureAwait(true);
+            await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, $"{prefix}{c.Name}.png"), "viewbar").ConfigureAwait(true);
+
+            if (((many is not null && c.Name is "bottomleft-names" or "bottomleft-text") || c.DrawsMenu) && bar.MenuButton is { } chip)
+            {
+                await DrawMenuAsync(screen, bar, chip, area, c, System.IO.Path.Combine(outDir, $"{prefix}{c.Name}-menu.png")).ConfigureAwait(true);
+            }
         }
 
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
-        var viewsAt = Array.IndexOf(args, "--views");
-        int? many = viewsAt >= 0 && viewsAt + 1 < args.Length && int.TryParse(args[viewsAt + 1], out var n) ? Math.Clamp(n, 1, 60) : null;
-        var theme = app.RequestedTheme == ApplicationTheme.Light ? "light" : "dark";
-
-        _ = dispatcher.TryEnqueue(async () =>
-        {
-            Window? window = null;
-
-            try
-            {
-                System.IO.Directory.CreateDirectory(outDir);
-                EditBarRender.ApplyDesignTheme(app);
-
-                var screen = new Grid
-                {
-                    Width = ScreenWidth,
-                    Height = ScreenHeight,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
-                };
-
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia view bar render" };
-                UiLanguage.ApplyLanguageOnly(screen);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((ScreenHeight + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                IReadOnlyList<ViewBarItem> items = many is { } count ? ManyItems(count) : Items;
-                IReadOnlyList<Case> cases = many is null ? Cases : ManyCases();
-                // [S-13406] --only <prefix>: the shots whose name starts with it (dots, arrows, cycle, select, ...).
-                var onlyAt = Array.IndexOf(args, "--only");
-                if (onlyAt >= 0 && onlyAt + 1 < args.Length)
-                {
-                    var only = args[onlyAt + 1];
-                    cases = [.. cases.Where(c => c.Name.StartsWith(only, StringComparison.OrdinalIgnoreCase))];
-                }
-
-                var prefix = many is { } total ? $"viewbar-{total}v-{theme}-" : "viewbar-";
-
-                foreach (var c in cases)
-                {
-                    var (bar, area) = Draw(screen, c, items);
-                    await Task.Delay(400).ConfigureAwait(true);
-
-                    var path = System.IO.Path.Combine(outDir, $"{prefix}{c.Name}.png");
-                    await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-                    Console.WriteLine($"viewbar: wrote {path}");
-
-                    if (((many is not null && c.Name is "bottomleft-names" or "bottomleft-text") || c.DrawsMenu) && bar.MenuButton is { } chip)
-                    {
-                        await DrawMenuAsync(screen, bar, chip, area, c, System.IO.Path.Combine(outDir, $"{prefix}{c.Name}-menu.png")).ConfigureAwait(true);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the view bar failed", ex);
-            }
-            finally
-            {
-                window?.Close();
-                app.Exit();
-            }
-        });
-
-        return true;
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>[S-919] Every anchor with each of the three labels, the sizes taken in turn, then two edit-mode shots under the edit bar.</summary>

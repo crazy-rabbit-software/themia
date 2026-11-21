@@ -12,7 +12,7 @@ using Windows.Foundation;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-13700]..[S-13715] The Unplaced icons page in a render (<c>--editbar-png … [--only unplaced]</c>): the bar with its
+/// [S-13700]..[S-13715] The Unplaced icons page in a render (<c>--render editbar … [--only unplaced]</c>): the bar with its
 /// entry's badge (<c>editbar-&lt;theme&gt;-unplaced.png</c>), and the page as wide as the bar, hung from its entry, under its title
 /// ([S-13711]), its icons the desktop's own icon view with its corner marks on the page's ground over the desktop's grid ([S-13712])
 /// (<c>page-&lt;theme&gt;-unplaced.png</c>: six, two selected; <c>-band</c>: fourteen, the desktop's band drawn from empty room
@@ -191,8 +191,7 @@ internal static partial class EditBarRender
         }
 
         Probe(screen, flyout, path);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"editbar: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
         view.Close();
         screen.Background = flat;
         screen.Width = ScreenWidth;

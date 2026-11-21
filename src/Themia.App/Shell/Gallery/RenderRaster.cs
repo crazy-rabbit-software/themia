@@ -1,5 +1,4 @@
 #if DEBUG
-using Microsoft.UI.Xaml;
 using Themia.App.Interop;
 using Themia.Core.Diagnostics;
 using Windows.Graphics;
@@ -15,11 +14,30 @@ internal static class RenderRaster
 {
     private const string Scope = "render-raster";
 
-    /// <summary>The window <paramref name="make"/> builds, at 100 % where <paramref name="args"/> asks for it.</summary>
-    public static Window Window(string[] args, Func<Window> make)
+    /// <summary>What the frame takes beside and above the content, in DIPs (as <see cref="OffscreenWindow"/>'s).</summary>
+    private const double MarginWidth = 40;
+
+    private const double MarginHeight = 80;
+
+    /// <summary>
+    /// The render's harness (<see cref="RenderHarness.Open"/>, its content set later), its window for
+    /// <paramref name="width"/> × <paramref name="height"/> DIPs, at 100 % where the run asks for <c>--raster 100</c>.
+    /// </summary>
+    public static RenderHarness Open(RenderRun run, string title, double width, double height)
     {
-        var at = Array.IndexOf(args, "--raster");
-        if (at < 0 || at + 1 >= args.Length || args[at + 1] != "100")
+        var harness = Made(run, () => RenderHarness.Open(run, title, null, width, height));
+
+        // In the screen's pixels, which a 100 % window's own DPI (96) does not say: the larger of its DPI and the system's.
+        var dpi = Math.Max(Win32.GetDpiForWindow(harness.Window.Hwnd), Win32.GetDpiForSystem());
+        var scale = dpi > 0 ? dpi / 96.0 : 1.0;
+        harness.Window.Window.AppWindow.Resize(new SizeInt32((int)((width + MarginWidth) * scale), (int)((height + MarginHeight) * scale)));
+        return harness;
+    }
+
+    /// <summary>What <paramref name="make"/> builds (a window and what it holds), built DPI-unaware where the run asks for <c>--raster 100</c>.</summary>
+    public static T Made<T>(RenderRun run, Func<T> make)
+    {
+        if (run.Option("--raster") != "100")
         {
             return make();
         }
@@ -40,18 +58,6 @@ internal static class RenderRaster
             // ignore: the old context back; what it returns is the unaware one just set.
             _ = Win32.SetThreadDpiAwarenessContext(was);
         }
-    }
-
-    /// <summary>
-    /// Size <paramref name="window"/> to hold <paramref name="width"/> × <paramref name="height"/> DIPs: in the screen's
-    /// pixels, which a 100 % window's own DPI (96) does not say, so the larger of its DPI and the system's is taken.
-    /// </summary>
-    public static void Size(Window window, double width, double height)
-    {
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        var dpi = Math.Max(Win32.GetDpiForWindow(hwnd), Win32.GetDpiForSystem());
-        var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-        window.AppWindow.Resize(new SizeInt32((int)(width * scale), (int)(height * scale)));
     }
 }
 #endif

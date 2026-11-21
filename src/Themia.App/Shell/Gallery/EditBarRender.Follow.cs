@@ -16,7 +16,7 @@ namespace Themia.App.Shell.Gallery;
 /// picker unfolded and folded inside it, the card closed by Escape's way back, and Work's sub-page (shorter than the
 /// list) opened and left. Writes <c>page-&lt;theme&gt;-follow-&lt;step&gt;.png</c> per step and says each height, PASS
 /// where the flyout stands at its page's height after every step and every closed step is as tall as the page was
-/// before it opened. <c>--editbar-png --only follow</c> draws these alone.
+/// before it opened. <c>--render editbar --only follow</c> draws these alone.
 /// </summary>
 internal static partial class EditBarRender
 {

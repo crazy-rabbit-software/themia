@@ -25,6 +25,17 @@ internal static partial class RenderCommands
         DropCheck.Command,
         DesktopItemsCheck.Command,
         DesktopMenuCheck.Command,
+
+        // pages
+        EditBarRender.Command,
+        PickerRender.Command,
+        IconPickerRender.Command,
+        ViewBarRender.Command,
+        MenuRender.Command,
+        LayoutEditorRender.Command,
+        NoticeRender.Command,
+        WidgetGalleryRender.Command,
+        WidgetGalleryRender.Check,
     ];
 }
 #endif

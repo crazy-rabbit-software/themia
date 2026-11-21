@@ -4,7 +4,6 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -12,17 +11,17 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2328] Debug only: draw the real edit bar ([S-2320]) and its flyouts off-screen to PNGs.
-/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow] [--raster 100]</c> writes the bar
+/// <c>Themia.exe --render editbar &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|display|select|marks|unplaced|follow] [--raster 100]</c> writes the bar
 /// (<c>editbar-&lt;theme&gt;.png</c>: nothing selected; <c>-widget</c>, one widget; <c>-many</c>, two of a kind;
 /// <c>-mixed</c>, three of several; <c>-errors</c>, the problems' button; <c>-open</c>, General's entry lit;
 /// <c>-narrow</c> and <c>-narrowest</c>, 900- and 640-wide displays; <c>-add</c>, the add menu; <c>-placing</c>,
@@ -34,60 +33,30 @@ namespace Themia.App.Shell.Gallery;
 internal static partial class EditBarRender
 {
     private const string Scope = "editbar-render";
-    private const string Flag = "--editbar-png";
 
     private const double ScreenWidth = 1280;
     private const double ScreenHeight = 64;
     private const double OpenHeight = 900;
 
-    /// <summary>
-    /// The <c>--theme</c> of this render or of <c>--picker-png</c> / <c>--viewbar-png</c> / <c>--menu-png</c> / <c>--notices-png</c>,
-    /// read before the app's resources load: the bar's brushes come from the application theme.
-    /// </summary>
-    public static ApplicationTheme? RequestedTheme(string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "editbar",
+        "<outDir> [--theme light|dark] [--only bar|pages|appearance|display|select|marks|unplaced|follow] [--raster 100]",
+        """
+        the edit bar (editbar-*: nothing, one, several selected, problems, an entry open, narrow), the add page (-add*), placing;
+        every page's flyout with its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*);
+        the selection's page beside real cards (select-*) [S-2328]; the edit marks (marks-*) and a block resized by the
+        selection's frame (marks-*-block*, [S-2460]); a flyout following its page as a card opens and closes (-follow-*, [S-2350]);
+        each flyout's hit probe and press check said beside its picture [S-2346]. There is no settings window [S-3585]
+        --only: one group of pictures; --raster 100: drawn at 100 % whatever the display's scale [S-2377]
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, "--picker-png") < 0 && Array.IndexOf(args, "--viewbar-png") < 0
-            && Array.IndexOf(args, "--menu-png") < 0 && Array.IndexOf(args, "--notices-png") < 0
-            && Array.IndexOf(args, WidgetGalleryRender.Flag) < 0 && Array.IndexOf(args, WidgetGalleryRender.CheckFlag) < 0)
-        {
-            return null;
-        }
-
-        return Option(args, "--theme")?.ToLowerInvariant() switch
-        {
-            "light" => ApplicationTheme.Light,
-            "dark" => ApplicationTheme.Dark,
-            _ => null,
-        };
-    }
-
-    /// <summary>
-    /// The themed brushes follow the design's theme, not the application's (the surface sets its
-    /// root to the design's theme too): a render sets both, as the widget render does.
-    /// </summary>
-    internal static void ApplyDesignTheme(Application app) => DesignApplier.Apply(new DesignState
-    {
-        Theme = app.RequestedTheme == ApplicationTheme.Light ? AppTheme.Light : AppTheme.Dark,
-    });
-
-    public static bool TryRunFromCommandLine(Application app, string[] args)
-    {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
-
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow] [--raster 100]");
-            app.Exit();
-            return true;
-        }
-
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
-        var theme = app.RequestedTheme == ApplicationTheme.Light ? "light" : "dark";
-        var only = Option(args, "--only");
+        var outDir = run.PathArg(0);
+        var theme = run.App.RequestedTheme == ApplicationTheme.Light ? "light" : "dark";
+        var only = run.Option("--only");
 
         // What went wrong while drawing is said with the pictures.
         Log.AddSink(static record =>
@@ -98,94 +67,67 @@ internal static partial class EditBarRender
             }
         });
 
-        _ = dispatcher.TryEnqueue(async () =>
+        System.IO.Directory.CreateDirectory(outDir);
+        using var harness = RenderRaster.Open(run, "Themia edit bar render", ScreenWidth, OpenHeight);
+        var screen = new Grid
         {
-            Window? window = null;
-            Ticker? ticker = null;
+            Width = ScreenWidth,
+            Height = ScreenHeight,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
 
-            try
-            {
-                System.IO.Directory.CreateDirectory(outDir);
-                ApplyDesignTheme(app);
+            // A stand-in wallpaper: the bar over a flat tint.
+            Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
+        };
 
-                var screen = new Grid
-                {
-                    Width = ScreenWidth,
-                    Height = ScreenHeight,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
+        harness.Window.Window.Content = new Grid { Children = { screen } };
+        UiLanguage.ApplyLanguageOnly(screen);
 
-                    // A stand-in wallpaper: the bar over a flat tint.
-                    Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
-                };
+        if (only is null or "bar")
+        {
+            await BarShots(screen, outDir, theme).ConfigureAwait(true);
+        }
 
-                window = RenderRaster.Window(args, () => new Window { Content = new Grid { Children = { screen } }, Title = "Themia edit bar render" });
-                UiLanguage.ApplyLanguageOnly(screen);
+        if (only is null or "pages")
+        {
+            await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
+            await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
+        }
 
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                RenderRaster.Size(window, ScreenWidth + 40, OpenHeight + 80);
-                window.AppWindow.Show(activateWindow: false);
+        if (only is "appearance")
+        {
+            await SettingsShots(screen, outDir, theme, appearanceOnly: true).ConfigureAwait(true);
+        }
 
-                if (only is null or "bar")
-                {
-                    await BarShots(screen, outDir, theme).ConfigureAwait(true);
-                }
+        if (only is "display")
+        {
+            await DisplayShots(screen, outDir, theme).ConfigureAwait(true);
+        }
 
-                if (only is null or "pages")
-                {
-                    await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
-                    await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
-                }
+        // [S-13700] The Unplaced icons page and its entry's badge.
+        if (only is null or "pages" or "unplaced")
+        {
+            await UnplacedShots(screen, outDir, theme).ConfigureAwait(true);
+        }
 
-                if (only is "appearance")
-                {
-                    await SettingsShots(screen, outDir, theme, appearanceOnly: true).ConfigureAwait(true);
-                }
+        // [S-2350] A page's flyout following its page as a card opens and closes again.
+        if (only is null or "pages" or "follow")
+        {
+            await FollowShots(screen, outDir, theme).ConfigureAwait(true);
+        }
 
-                if (only is "display")
-                {
-                    await DisplayShots(screen, outDir, theme).ConfigureAwait(true);
-                }
+        if (only is null or "select")
+        {
+            await SelectionShots(screen, harness.Ticker, outDir, theme).ConfigureAwait(true);
+        }
 
-                // [S-13700] The Unplaced icons page and its entry's badge.
-                if (only is null or "pages" or "unplaced")
-                {
-                    await UnplacedShots(screen, outDir, theme).ConfigureAwait(true);
-                }
+        // [S-31b] The edit markers; [S-2460] the selection's frame and a block resized by it.
+        if (only is null or "marks")
+        {
+            await MarkerShots(screen, harness.Ticker, outDir, theme).ConfigureAwait(true);
+        }
 
-                // [S-2350] A page's flyout following its page as a card opens and closes again.
-                if (only is null or "pages" or "follow")
-                {
-                    await FollowShots(screen, outDir, theme).ConfigureAwait(true);
-                }
-
-                if (only is null or "select")
-                {
-                    ticker = new Ticker(dispatcher);
-                    await SelectionShots(screen, ticker, outDir, theme).ConfigureAwait(true);
-                }
-
-                // [S-31b] The edit markers; [S-2460] the selection's frame and a block resized by it.
-                if (only is null or "marks")
-                {
-                    ticker ??= new Ticker(dispatcher);
-                    await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the edit bar failed", ex);
-            }
-            finally
-            {
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
-
-        return true;
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>[S-2320]..[S-2324] The bar in its states, and the add menu and the placement line.</summary>
@@ -262,10 +204,7 @@ internal static partial class EditBarRender
         Canvas.SetTop(bar, ShellMetricsBarTop);
 
         await Task.Delay(500).ConfigureAwait(true);
-
-        var path = System.IO.Path.Combine(outDir, name);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"editbar: wrote {path}");
+        await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, name), "editbar").ConfigureAwait(true);
         screen.Width = ScreenWidth;
     }
 
@@ -305,8 +244,7 @@ internal static partial class EditBarRender
         await Task.Delay(500).ConfigureAwait(true);
         Probe(screen, flyout, path);
         await PressCheck(view, path).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"editbar: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
         view.Close();
         screen.Background = flat;
     }
@@ -799,8 +737,7 @@ internal static partial class EditBarRender
 
         await Task.Delay(700).ConfigureAwait(true);
         Probe(screen, flyout, path);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"editbar: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
         page.Close();
         screen.Background = flat;
 
@@ -939,19 +876,12 @@ internal static partial class EditBarRender
         RenderFrame.Round(markers, [.. cards.Zip(models).Select(c => (c.First, new DipRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
 
         await Task.Delay(800).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"editbar: wrote {path}");
+        await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
 
         foreach (var card in cards)
         {
             card.Detach();
         }
-    }
-
-    private static string? Option(string[] args, string name)
-    {
-        var at = Array.IndexOf(args, name);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
     }
 }
 #endif

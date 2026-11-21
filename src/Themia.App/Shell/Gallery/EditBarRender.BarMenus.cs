@@ -71,7 +71,7 @@ internal static partial class EditBarRender
 
     /// <summary>
     /// [S-2328] The Display page's shots; [S-13406] <c>-display-type</c> its view bar's Type (the styles) open.
-    /// <c>--editbar-png --only display</c> draws these alone.
+    /// <c>--render editbar --only display</c> draws these alone.
     /// </summary>
     private static async Task DisplayShots(Grid screen, string outDir, string theme)
     {

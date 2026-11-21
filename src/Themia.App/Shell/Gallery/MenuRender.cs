@@ -1,12 +1,10 @@
 #if DEBUG
 using Microsoft.UI;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Desktop;
@@ -18,13 +16,12 @@ using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Windows.Foundation;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug only: draw the context menus ([S-1740]..[S-1744]) to PNGs, off-screen.
-/// <c>Themia.exe --menu-png &lt;outDir&gt; [--theme light|dark]</c>. Menus draw in the app's theme (a popup does not
+/// <c>Themia.exe --render menu &lt;outDir&gt; [--theme light|dark]</c>. Menus draw in the app's theme (a popup does not
 /// follow an element's <c>RequestedTheme</c>), on a transparent background (acrylic does not render).
 /// <para>
 /// Each menu is opened for real — the same <see cref="ItemMenu"/> a right-click opens — on a window
@@ -37,204 +34,170 @@ internal static class MenuRender
 {
     private const string Scope = "menu-render";
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "menu",
+        "<outDir> [--theme light|dark]",
+        """
+        the context menus [S-1740]..[S-1744], each opened for real inside an off-screen window and its popup drawn: a card's in
+        and out of edit mode [S-14321] [S-12951] [S-1758], the surface's, an item's [S-1741], the folder widget's [S-6416]..[S-6418],
+        the desktop's icons' and background's with their submenus [S-5548] [S-5582] [S-5593] [S-5596] [S-13103] [S-13007] [S-13018];
+        says the process's private memory after every menu [S-1757]
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, "--menu-png");
-        if (at < 0)
+        var outDir = run.PathArg(0);
+        System.IO.Directory.CreateDirectory(outDir);
+
+        using var harness = RenderHarness.Open(run, "Themia menu render", null, 860, 820);
+        var root = new Grid
         {
-            return false;
+            Background = DesignApplier.Brush("SolidBackgroundFillColorBaseBrush", Colors.Black),
+        };
+
+        harness.Window.Window.Content = root;
+        UiLanguage.Apply(root);
+        await Task.Delay(400).ConfigureAwait(true);
+
+        // A view with a second widget, so the layering commands have something to act on.
+        var view = ViewState.Create("Render");
+        var clock = WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.1, 0.1, 0.2, 0.2));
+        var notes = WidgetInstance.Create(new WidgetId("notes"), new FracRect(0.5, 0.1, 0.3, 0.4));
+        view.Widgets.Add(clock);
+        view.Widgets.Add(notes);
+
+        // [S-14321] The desktop's background menu as the card menu outside edit mode holds it: built by the desktop's own builder.
+        var templates = await Themia.App.Services.Files.ShellNewTemplates.GetAsync().ConfigureAwait(true);
+        var host = new MenuRenderHost(harness.Ticker, view, templates);
+        var card = new WidgetCard(host, clock) { Width = 200, Height = 160 };
+        root.Children.Add(new Canvas { Children = { card } });
+        await Task.Delay(300).ConfigureAwait(true);
+        var menuAt = new Point(16, 16);
+
+        host.Set(editMode: true, selection: 1, canPaste: true);
+        await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit.png")).ConfigureAwait(true);
+
+        // [S-15831] Outside edit mode, one widget with no Refresh: Widget settings and Delete widget in the row.
+        host.Set(editMode: false, selection: 1, canPaste: false);
+        host.DeskDelete = (DeleteWords.OneWidget, 1);
+        await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-one.png")).ConfigureAwait(true);
+
+        // [S-14321] Outside edit mode, three widgets selected: "Delete 3 widgets", then the desktop's menu. [S-15833] The
+        // row holds Widget settings and Delete 3 widgets, what acts on all of them.
+        host.Set(editMode: false, selection: 3, canPaste: false);
+        host.DeskDelete = (DeleteWords.Widgets, 3);
+        await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
+
+        // [S-12951] Lock widgets on: no Delete; the desktop menu's Lock widgets line, checked.
+        host.WidgetsLocked = true;
+        host.DeskDelete = (DeleteWords.None, 0);
+        await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-locked.png")).ConfigureAwait(true);
+        host.WidgetsLocked = false;
+
+        // [S-14321] A selection with a desktop file in it: Explorer's own "Delete".
+        host.DeskDelete = (DeleteWords.Delete, 2);
+        await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-withfile.png")).ConfigureAwait(true);
+
+        // [S-1758] [S-14321] Outside edit mode: the view's own commands ("Refresh widget" beside the desktop's Refresh),
+        // "Delete widget", then the desktop's menu (owner, 2026-11-20: "Widget + desktop menu").
+        host.Set(editMode: false, selection: 1, canPaste: true);
+        host.DeskDelete = (DeleteWords.OneWidget, 1);
+
+        var drive = WidgetInstance.Create(new WidgetId("drive"), new FracRect(0.3, 0.6, 0.2, 0.2));
+        view.Widgets.Add(drive);
+        var withActions = new WidgetCard(host, drive) { Width = 200, Height = 120 };
+        root.Children.Add(new Canvas { Children = { withActions } });
+        await Task.Delay(300).ConfigureAwait(true);
+        await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-actions.png")).ConfigureAwait(true);
+
+        // [S-15831] Lock widgets on: no Delete; Refresh and Widget settings are still a row.
+        host.WidgetsLocked = true;
+        host.DeskDelete = (DeleteWords.None, 0);
+        await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-locked-actions.png")).ConfigureAwait(true);
+        host.WidgetsLocked = false;
+        host.DeskDelete = (DeleteWords.OneWidget, 1);
+
+        // [S-15830] Edit mode, one widget with a Refresh: Cut, Copy, Paste, Refresh, Delete.
+        host.Set(editMode: true, selection: 1, canPaste: true);
+        await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit-actions.png")).ConfigureAwait(true);
+        host.Set(editMode: false, selection: 1, canPaste: true);
+
+        // [S-14321] The same widget's menu from a card in another design (Liquid glass): the menu never takes a card's
+        // look, it is the desktop's (no element of the card is its anchor any more).
+        var glassHost = new MenuRenderHost(harness.Ticker, view, templates) { DeskDelete = (DeleteWords.OneWidget, 1) };
+        DesignPresets.Apply(glassHost.Design, DesignPresetId.LiquidGlass);
+        glassHost.Set(editMode: false, selection: 1, canPaste: true);
+        var glassCard = new WidgetCard(glassHost, drive) { Width = 200, Height = 120 };
+        root.Children.Add(new Canvas { Children = { glassCard } });
+        await Task.Delay(300).ConfigureAwait(true);
+        await RenderAsync(root, glassCard.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-glass.png")).ConfigureAwait(true);
+
+        var noop = static () => { };
+        var surface = DesktopWindow.SurfaceEntries(
+            new SurfaceMenuFacts(EditMode: true, Placing: false, CanPaste: true, HasWidgets: true),
+            new SurfaceMenuActions(noop, noop, noop, noop, noop, noop, noop));
+        await RenderAsync(root, surface, System.IO.Path.Combine(outDir, "surface.png")).ConfigureAwait(true);
+
+        // [S-5524] A desktop item's card in edit mode: its Delete takes the widget off this view only.
+        var deskItem = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.6, 0.6, 0.1, 0.12));
+        view.Widgets.Add(deskItem);
+        var itemCard = new WidgetCard(host, deskItem) { Width = 90, Height = 110 };
+        root.Children.Add(new Canvas { Children = { itemCard } });
+        await Task.Delay(300).ConfigureAwait(true);
+        host.Set(editMode: true, selection: 1, canPaste: true);
+        await RenderAsync(root, itemCard.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit-desktopitem.png")).ConfigureAwait(true);
+
+        // An item menu in File Explorer's shape: the row on top, a submenu and a danger entry below.
+        List<ItemMenuEntry> item =
+        [
+            new(Glyphs.Open, "Open", noop, Shortcut: KeyChord.Plain(ChordKey.Enter)),
+            new(Glyphs.Folder, "Show in Explorer", noop),
+            ItemMenuEntry.Separator,
+            new(Glyphs.Cut, "Cut", noop, Quick: QuickCommand.Cut, Shortcut: KeyChord.Ctrl(ChordKey.X)),
+            new(Glyphs.Copy, "Copy", noop, Quick: QuickCommand.Copy, Shortcut: KeyChord.Ctrl(ChordKey.C)),
+            new(Glyphs.Paste, "Paste", noop, Disabled: true, Quick: QuickCommand.Paste),
+            new(Glyphs.Rename, "Rename", noop, Quick: QuickCommand.Rename),
+            new(Glyphs.Delete, "Delete", noop, Danger: true, Quick: QuickCommand.Delete),
+            ItemMenuEntry.Separator,
+            new(Glyphs.Add, "New", null, Children: [new(Glyphs.NewFolder, "Folder", noop)]),
+            new(Glyphs.Properties, "Properties", noop, Shortcut: KeyChord.Alt(ChordKey.Enter)),
+        ];
+        await RenderAsync(root, item, System.IO.Path.Combine(outDir, "item.png")).ConfigureAwait(true);
+
+        // [S-1741] One quick command alone stays labelled in the list.
+        List<ItemMenuEntry> lone =
+        [
+            new(Glyphs.Open, "Open", noop),
+            new(Glyphs.Folder, "Show in Explorer", noop, Disabled: true),
+            ItemMenuEntry.Separator,
+            new(Glyphs.Delete, "Delete", noop, Danger: true, Quick: QuickCommand.Delete),
+        ];
+        await RenderAsync(root, lone, System.IO.Path.Combine(outDir, "item-lone.png")).ConfigureAwait(true);
+
+        // [S-6416]..[S-6418] The folder widget's own menus, from a real view over read-only
+        // Windows folders (its module's preview): a file's, its Open with submenu, a folder's,
+        // and the background's.
+        var folderId = new WidgetId("folder");
+        if (ModuleHost.CreateView(folderId, new CardWidgetHost(host)) is IWidgetView folderView and IWidgetPreviewMenus menus)
+        {
+            folderView.Attach(harness.Ticker, WidgetConfig.CreateDefault(folderId));
+            root.Children.Add(new Border { Width = 1, Height = 1, Child = (FrameworkElement)folderView });
+            foreach (var (name, entries) in await menus.PreviewMenusAsync().ConfigureAwait(true))
+            {
+                await RenderAsync(root, entries, System.IO.Path.Combine(outDir, $"folder-{name}.png")).ConfigureAwait(true);
+            }
+
+            folderView.Detach();
         }
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, "usage: --menu-png <outDir>");
-            app.Exit();
-            return true;
-        }
+        await RenderDesktopMenusAsync(root, outDir).ConfigureAwait(true);
 
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
-
-        _ = dispatcher.TryEnqueue(async () =>
-        {
-            Window? window = null;
-            Ticker? ticker = null;
-
-            try
-            {
-                System.IO.Directory.CreateDirectory(outDir);
-
-                EditBarRender.ApplyDesignTheme(app);
-
-                var root = new Grid
-                {
-                    Background = DesignApplier.Brush("SolidBackgroundFillColorBaseBrush", Colors.Black),
-                };
-
-                window = new Window { Content = root, Title = "Themia menu render" };
-                UiLanguage.Apply(root);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)(900 * scale), (int)(900 * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                await Task.Delay(400).ConfigureAwait(true);
-
-                ticker = new Ticker(dispatcher);
-
-                // A view with a second widget, so the layering commands have something to act on.
-                var view = ViewState.Create("Render");
-                var clock = WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.1, 0.1, 0.2, 0.2));
-                var notes = WidgetInstance.Create(new WidgetId("notes"), new FracRect(0.5, 0.1, 0.3, 0.4));
-                view.Widgets.Add(clock);
-                view.Widgets.Add(notes);
-
-                // [S-14321] The desktop's background menu as the card menu outside edit mode holds it: built by the desktop's own builder.
-                var templates = await Themia.App.Services.Files.ShellNewTemplates.GetAsync().ConfigureAwait(true);
-                var host = new MenuRenderHost(ticker, view, templates);
-                var card = new WidgetCard(host, clock) { Width = 200, Height = 160 };
-                root.Children.Add(new Canvas { Children = { card } });
-                await Task.Delay(300).ConfigureAwait(true);
-                var menuAt = new Point(16, 16);
-
-                host.Set(editMode: true, selection: 1, canPaste: true);
-                await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit.png")).ConfigureAwait(true);
-
-                // [S-15831] Outside edit mode, one widget with no Refresh: Widget settings and Delete widget in the row.
-                host.Set(editMode: false, selection: 1, canPaste: false);
-                host.DeskDelete = (DeleteWords.OneWidget, 1);
-                await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-one.png")).ConfigureAwait(true);
-
-                // [S-14321] Outside edit mode, three widgets selected: "Delete 3 widgets", then the desktop's menu. [S-15833] The
-                // row holds Widget settings and Delete 3 widgets, what acts on all of them.
-                host.Set(editMode: false, selection: 3, canPaste: false);
-                host.DeskDelete = (DeleteWords.Widgets, 3);
-                await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
-
-                // [S-12951] Lock widgets on: no Delete; the desktop menu's Lock widgets line, checked.
-                host.WidgetsLocked = true;
-                host.DeskDelete = (DeleteWords.None, 0);
-                await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-locked.png")).ConfigureAwait(true);
-                host.WidgetsLocked = false;
-
-                // [S-14321] A selection with a desktop file in it: Explorer's own "Delete".
-                host.DeskDelete = (DeleteWords.Delete, 2);
-                await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-withfile.png")).ConfigureAwait(true);
-
-                // [S-1758] [S-14321] Outside edit mode: the view's own commands ("Refresh widget" beside the desktop's Refresh),
-                // "Delete widget", then the desktop's menu (owner, 2026-11-20: "Widget + desktop menu").
-                host.Set(editMode: false, selection: 1, canPaste: true);
-                host.DeskDelete = (DeleteWords.OneWidget, 1);
-
-                var drive = WidgetInstance.Create(new WidgetId("drive"), new FracRect(0.3, 0.6, 0.2, 0.2));
-                view.Widgets.Add(drive);
-                var withActions = new WidgetCard(host, drive) { Width = 200, Height = 120 };
-                root.Children.Add(new Canvas { Children = { withActions } });
-                await Task.Delay(300).ConfigureAwait(true);
-                await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-actions.png")).ConfigureAwait(true);
-
-                // [S-15831] Lock widgets on: no Delete; Refresh and Widget settings are still a row.
-                host.WidgetsLocked = true;
-                host.DeskDelete = (DeleteWords.None, 0);
-                await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-locked-actions.png")).ConfigureAwait(true);
-                host.WidgetsLocked = false;
-                host.DeskDelete = (DeleteWords.OneWidget, 1);
-
-                // [S-15830] Edit mode, one widget with a Refresh: Cut, Copy, Paste, Refresh, Delete.
-                host.Set(editMode: true, selection: 1, canPaste: true);
-                await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit-actions.png")).ConfigureAwait(true);
-                host.Set(editMode: false, selection: 1, canPaste: true);
-
-                // [S-14321] The same widget's menu from a card in another design (Liquid glass): the menu never takes a card's
-                // look, it is the desktop's (no element of the card is its anchor any more).
-                var glassHost = new MenuRenderHost(ticker, view, templates) { DeskDelete = (DeleteWords.OneWidget, 1) };
-                DesignPresets.Apply(glassHost.Design, DesignPresetId.LiquidGlass);
-                glassHost.Set(editMode: false, selection: 1, canPaste: true);
-                var glassCard = new WidgetCard(glassHost, drive) { Width = 200, Height = 120 };
-                root.Children.Add(new Canvas { Children = { glassCard } });
-                await Task.Delay(300).ConfigureAwait(true);
-                await RenderAsync(root, glassCard.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-glass.png")).ConfigureAwait(true);
-
-                var noop = static () => { };
-                var surface = DesktopWindow.SurfaceEntries(
-                    new SurfaceMenuFacts(EditMode: true, Placing: false, CanPaste: true, HasWidgets: true),
-                    new SurfaceMenuActions(noop, noop, noop, noop, noop, noop, noop));
-                await RenderAsync(root, surface, System.IO.Path.Combine(outDir, "surface.png")).ConfigureAwait(true);
-
-                // [S-5524] A desktop item's card in edit mode: its Delete takes the widget off this view only.
-                var deskItem = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.6, 0.6, 0.1, 0.12));
-                view.Widgets.Add(deskItem);
-                var itemCard = new WidgetCard(host, deskItem) { Width = 90, Height = 110 };
-                root.Children.Add(new Canvas { Children = { itemCard } });
-                await Task.Delay(300).ConfigureAwait(true);
-                host.Set(editMode: true, selection: 1, canPaste: true);
-                await RenderAsync(root, itemCard.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit-desktopitem.png")).ConfigureAwait(true);
-
-                // An item menu in File Explorer's shape: the row on top, a submenu and a danger entry below.
-                List<ItemMenuEntry> item =
-                [
-                    new(Glyphs.Open, "Open", noop, Shortcut: KeyChord.Plain(ChordKey.Enter)),
-                    new(Glyphs.Folder, "Show in Explorer", noop),
-                    ItemMenuEntry.Separator,
-                    new(Glyphs.Cut, "Cut", noop, Quick: QuickCommand.Cut, Shortcut: KeyChord.Ctrl(ChordKey.X)),
-                    new(Glyphs.Copy, "Copy", noop, Quick: QuickCommand.Copy, Shortcut: KeyChord.Ctrl(ChordKey.C)),
-                    new(Glyphs.Paste, "Paste", noop, Disabled: true, Quick: QuickCommand.Paste),
-                    new(Glyphs.Rename, "Rename", noop, Quick: QuickCommand.Rename),
-                    new(Glyphs.Delete, "Delete", noop, Danger: true, Quick: QuickCommand.Delete),
-                    ItemMenuEntry.Separator,
-                    new(Glyphs.Add, "New", null, Children: [new(Glyphs.NewFolder, "Folder", noop)]),
-                    new(Glyphs.Properties, "Properties", noop, Shortcut: KeyChord.Alt(ChordKey.Enter)),
-                ];
-                await RenderAsync(root, item, System.IO.Path.Combine(outDir, "item.png")).ConfigureAwait(true);
-
-                // [S-1741] One quick command alone stays labelled in the list.
-                List<ItemMenuEntry> lone =
-                [
-                    new(Glyphs.Open, "Open", noop),
-                    new(Glyphs.Folder, "Show in Explorer", noop, Disabled: true),
-                    ItemMenuEntry.Separator,
-                    new(Glyphs.Delete, "Delete", noop, Danger: true, Quick: QuickCommand.Delete),
-                ];
-                await RenderAsync(root, lone, System.IO.Path.Combine(outDir, "item-lone.png")).ConfigureAwait(true);
-
-                // [S-6416]..[S-6418] The folder widget's own menus, from a real view over read-only
-                // Windows folders (its module's preview): a file's, its Open with submenu, a folder's,
-                // and the background's.
-                var folderId = new WidgetId("folder");
-                if (ModuleHost.CreateView(folderId, new CardWidgetHost(host)) is IWidgetView folderView and IWidgetPreviewMenus menus)
-                {
-                    folderView.Attach(ticker, WidgetConfig.CreateDefault(folderId));
-                    root.Children.Add(new Border { Width = 1, Height = 1, Child = (FrameworkElement)folderView });
-                    foreach (var (name, entries) in await menus.PreviewMenusAsync().ConfigureAwait(true))
-                    {
-                        await RenderAsync(root, entries, System.IO.Path.Combine(outDir, $"folder-{name}.png")).ConfigureAwait(true);
-                    }
-
-                    folderView.Detach();
-                }
-
-                await RenderDesktopMenusAsync(root, outDir).ConfigureAwait(true);
-
-                // [S-1757] The menus' pictures must cost kilobytes, not a screen-sized raster each.
-                using var process = System.Diagnostics.Process.GetCurrentProcess();
-                Console.WriteLine($"menu: private {process.PrivateMemorySize64 / (1024.0 * 1024.0):0.0} MB after every menu");
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the menus failed", ex);
-            }
-            finally
-            {
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
-
-        return true;
+        // [S-1757] The menus' pictures must cost kilobytes, not a screen-sized raster each.
+        using var process = System.Diagnostics.Process.GetCurrentProcess();
+        Console.WriteLine($"menu: private {process.PrivateMemorySize64 / (1024.0 * 1024.0):0.0} MB after every menu");
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>

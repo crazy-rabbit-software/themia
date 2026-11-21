@@ -1,24 +1,20 @@
 #if DEBUG
 using Microsoft.UI;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Shapes;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
-using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Sdk;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug only: draw a notice stack ([S-880]..[S-883]) and widget error cards ([S-891]/[S-890]) to
-/// PNGs, off-screen. <c>Themia.exe --notices-png &lt;outDir&gt; [--theme light|dark]</c>.
+/// PNGs, off-screen. <c>Themia.exe --render notices &lt;outDir&gt; [--theme light|dark]</c>.
 /// <para>
 /// The notices are the real <see cref="NoticeCard"/>s, stacked as the surface stacks them in the
 /// bottom-right corner of a stand-in work area above a taskbar strip. The error cards are real
@@ -28,101 +24,56 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class NoticeRender
 {
-    private const string Scope = "notice-render";
-
     private const double ScreenWidth = 960;
     private const double ScreenHeight = 540;
     private const double TaskbarHeight = 48;
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "notices",
+        "<outDir> [--theme light|dark]",
+        """
+        a notice stack in the corner of a stand-in work area [S-880]..[S-883] and every shape a notice has [S-881a]
+        (notices-stack.png), and widget error cards at
+        XS, S and M, failed and paused by safe mode [S-891] [S-890] (error-cards.png), then retried (error-cards-retried.png)
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, "--notices-png");
-        if (at < 0)
+        var outDir = run.PathArg(0);
+        System.IO.Directory.CreateDirectory(outDir);
+
+        using var harness = RenderHarness.Open(run, "Themia notice render", null, ScreenWidth, ScreenHeight);
+        var screen = new Grid
         {
-            return false;
+            Width = ScreenWidth,
+            Height = ScreenHeight,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Background = DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
+        };
+
+        harness.Window.Window.Content = new Grid { Children = { screen } };
+        UiLanguage.ApplyLanguageOnly(screen);
+
+        DrawNotices(screen);
+        await Task.Delay(800).ConfigureAwait(true);
+        await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, "notices-stack.png"), "notices").ConfigureAwait(true);
+
+        var cards = DrawCards(screen, harness);
+        await Task.Delay(800).ConfigureAwait(true);
+        await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, "error-cards.png"), "notices").ConfigureAwait(true);
+
+        // Retry on a card whose view is fine: the real view comes back in its place.
+        foreach (var card in cards)
+        {
+            card.Retry();
         }
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
-        {
-            Log.Error(Scope, "usage: --notices-png <outDir>");
-            app.Exit();
-            return true;
-        }
-
-        var outDir = System.IO.Path.GetFullPath(args[at + 1]);
-
-        _ = dispatcher.TryEnqueue(async () =>
-        {
-            Window? window = null;
-            Ticker? ticker = null;
-
-            try
-            {
-                System.IO.Directory.CreateDirectory(outDir);
-                EditBarRender.ApplyDesignTheme(app);
-
-                var screen = new Grid
-                {
-                    Width = ScreenWidth,
-                    Height = ScreenHeight,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    Background = DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
-                };
-
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia notice render" };
-                UiLanguage.ApplyLanguageOnly(screen);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-
-                // Off-screen and never activated: it must not appear on the user's desktop.
-                window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((ScreenHeight + 80) * scale)));
-                window.AppWindow.Show(activateWindow: false);
-
-                DrawNotices(screen);
-                await Task.Delay(800).ConfigureAwait(true);
-                var notices = System.IO.Path.Combine(outDir, "notices-stack.png");
-                await RenderPng.SaveAsync(screen, notices).ConfigureAwait(true);
-                Console.WriteLine($"notices: wrote {notices}");
-
-                ticker = new Ticker(dispatcher);
-                var cards = DrawCards(screen, ticker);
-                await Task.Delay(800).ConfigureAwait(true);
-                var errors = System.IO.Path.Combine(outDir, "error-cards.png");
-                await RenderPng.SaveAsync(screen, errors).ConfigureAwait(true);
-                Console.WriteLine($"notices: wrote {errors}");
-
-                // Retry on a card whose view is fine: the real view comes back in its place.
-                foreach (var card in cards)
-                {
-                    card.Retry();
-                }
-
-                await Task.Delay(800).ConfigureAwait(true);
-                var retried = System.IO.Path.Combine(outDir, "error-cards-retried.png");
-                await RenderPng.SaveAsync(screen, retried).ConfigureAwait(true);
-                Console.WriteLine($"notices: wrote {retried}");
-
-                foreach (var card in cards)
-                {
-                    card.Detach();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "rendering the notices failed", ex);
-            }
-            finally
-            {
-                ticker?.Dispose();
-                window?.Close();
-                app.Exit();
-            }
-        });
-
-        return true;
+        await Task.Delay(800).ConfigureAwait(true);
+        await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, "error-cards-retried.png"), "notices").ConfigureAwait(true);
+        return RenderCommandLine.Passed;
     }
 
     /// <summary>
@@ -196,13 +147,13 @@ internal static class NoticeRender
     }
 
     /// <summary>Failed cards at XS, S and M, and a paused one at S.</summary>
-    private static List<WidgetCard> DrawCards(Grid screen, Ticker ticker)
+    private static List<WidgetCard> DrawCards(Grid screen, RenderHarness harness)
     {
         screen.Children.Clear();
         var canvas = new Canvas();
         screen.Children.Add(canvas);
 
-        var host = new RenderCardHost(ticker);
+        var host = new RenderCardHost(harness.Ticker);
         var cards = new List<WidgetCard>();
         (double W, double H, bool Paused)[] sizes = [(120, 120, false), (200, 150, false), (320, 240, false), (200, 150, true)];
         var x = Fluent.Space4;
@@ -210,11 +161,11 @@ internal static class NoticeRender
         foreach (var (w, h, paused) in sizes)
         {
             WidgetCard.StartPaused = paused;
-            var card = new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), new FracRect(0, 0, 0.1, 0.1)))
+            var card = harness.Track(new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), new FracRect(0, 0, 0.1, 0.1)))
             {
                 Width = w,
                 Height = h,
-            };
+            });
             WidgetCard.StartPaused = false;
 
             if (!paused)

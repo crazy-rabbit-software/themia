@@ -1,12 +1,10 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
-using Themia.Core.Storage;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Windows.Foundation;
@@ -17,78 +15,76 @@ namespace Themia.App.Shell.Gallery;
 /// [S-14917] Debug only: the widget gallery through the app's own wiring, a real <see cref="AppHost"/> over a detached store
 /// and a real <see cref="DesktopWindow"/> on a stand-in 1920 × 1080 display (its taskbar 48 at the foot), off-screen, in edit
 /// mode with the gallery opened from the bar's path.
-/// <c>Themia.exe --gallery-png &lt;outDir&gt; [--theme light|dark] [--category Id]</c> draws every category's bento (or the
+/// <c>Themia.exe --render gallery &lt;outDir&gt; [--theme light|dark] [--category Id]</c> draws every category's bento (or the
 /// one's; one taller than the well again at its foot), one widget picked with its panel (the clock, its styles), several
 /// picked (the frame round them), a ready-made group picked whole and a drag under way
-/// (<c>gallery-&lt;theme&gt;-…png</c>). <c>Themia.exe --gallery-check &lt;out.txt&gt;</c> drives the gallery as its pointer does:
+/// (<c>gallery-&lt;theme&gt;-…png</c>). <c>Themia.exe --check gallery &lt;out.txt&gt;</c> drives the gallery as its pointer does:
 /// one widget and then three picked, dragged and dropped, a drag given up and a style picked; it says whether the ghost
 /// started on the cells they stood on (no jump), moved by whole cells, landed where it was, selected, and whether the
 /// gallery came back with them still on it; PASS or FAIL.
 /// </summary>
 internal static class WidgetGalleryRender
 {
-    public const string Flag = "--gallery-png";
-    public const string CheckFlag = "--gallery-check";
-    private const string Scope = "gallery-render";
     private const string DisplayId = "gallery-render-display";
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Render,
+        "gallery",
+        "<outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]",
+        """
+        the widget gallery through a real host and surface in edit mode: every screen (or --category's), one widget picked (its
+        panel, its styles), several, a drag under way (gallery-<theme>-<w>x<h>-*.png) [S-14917]; --width/--height the stand-in
+        display's pixels (1920 × 1080), --raster 100 at 100 %
+        """,
+        run => DrawAsync(run, run.PathArg(0), run.App.RequestedTheme != ApplicationTheme.Light, Category(run), Display(run)));
+
+    public static RenderCommand Check { get; } = new(
+        RenderVerb.Check,
+        "gallery",
+        "<out.txt> [--width w --height h] [--raster 100]",
+        """
+        the widget gallery's drag driven as its pointer does: one widget and three picked, dragged (no jump, whole cells) and
+        dropped (selected, the gallery back), a drag given up, a style picked; PASS or FAIL [S-14917]
+        """,
+        run => CheckAsync(run, run.PathArg(0), Display(run)));
+
+    /// <summary>--category's screens only, or every one (a name it does not know is said and ignored).</summary>
+    private static AddFolderId? Category(RenderRun run)
     {
-        var png = Array.IndexOf(args, Flag);
-        var check = Array.IndexOf(args, CheckFlag);
-        if (png < 0 && check < 0)
+        if (run.Option("--category") is not { } name)
         {
-            return false;
+            return null;
         }
 
-        var at = png >= 0 ? png : check;
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
+        if (Enum.TryParse<AddFolderId>(name, ignoreCase: true, out var id) && Enum.IsDefined(id))
         {
-            Console.WriteLine($"usage: {Flag} <outDir> [--theme light|dark] [--category Id] | {CheckFlag} <out.txt>");
-            app.Exit();
-            return true;
+            return id;
         }
 
-        AddFolderId? category = null;
-        if (Option(args, "--category") is { } name)
-        {
-            if (Enum.TryParse<AddFolderId>(name, ignoreCase: true, out var id) && Enum.IsDefined(id))
-            {
-                category = id;
-            }
-            else
-            {
-                Console.WriteLine($"gallery: no category '{name}' (has: {string.Join(", ", Enum.GetNames<AddFolderId>())})");
-            }
-        }
-
-        Log.AddSink(static record =>
-        {
-            if (record.Level >= LogLevel.Warn || record.Scope is "widget-gallery" or "surface")
-            {
-                Console.WriteLine($"gallery: {record.Level} {record.Scope}: {record.Message} {record.Detail}");
-            }
-        });
-
-        var dark = app.RequestedTheme != ApplicationTheme.Light;
-        var path = Path.GetFullPath(args[at + 1]);
-        // The stand-in display's pixels (1920 × 1080 unless --width/--height), at the display's scale or 100 % (--raster 100).
-        var display = (Width: Pixels(args, "--width") ?? 1920, Height: Pixels(args, "--height") ?? 1080, Args: args);
-        _ = png >= 0 ? DrawAsync(app, path, dark, category, display) : CheckAsync(app, path, display);
-        return true;
+        Console.WriteLine($"gallery: no category '{name}' (has: {string.Join(", ", Enum.GetNames<AddFolderId>())})");
+        return null;
     }
 
-    private static int? Pixels(string[] args, string name)
-        => int.TryParse(Option(args, name), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var value) && value >= 640 ? value : null;
+    /// <summary>The stand-in display's pixels: 1920 × 1080 unless --width/--height.</summary>
+    private static (int Width, int Height) Display(RenderRun run) => (Pixels(run, "--width") ?? 1920, Pixels(run, "--height") ?? 1080);
 
-    private static string? Option(string[] args, string name)
+    /// <summary>The gallery's and the surface's log lines, and every warning, said on stdout with the render's.</summary>
+    private static void Listen() => Log.AddSink(static record =>
     {
-        var at = Array.IndexOf(args, name);
-        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
-    }
+        if (record.Level >= LogLevel.Warn || record.Scope is "widget-gallery" or "surface")
+        {
+            Console.WriteLine($"gallery: {record.Level} {record.Scope}: {record.Message} {record.Detail}");
+        }
+    });
 
-    /// <summary>The stand-in display, its host and surface in edit mode, the gallery open.</summary>
-    private static async Task<(AppHost Host, DesktopWindow Surface, WidgetGalleryView Gallery)> StandAsync(bool dark, string tag, (int Width, int Height, string[] Args) display)
+    private static int? Pixels(RenderRun run, string name)
+        => int.TryParse(run.Option(name), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var value) && value >= 640 ? value : null;
+
+    /// <summary>
+    /// The stand-in display (at the display's scale or 100 %, --raster 100), its host and surface in edit mode, the
+    /// gallery open.
+    /// </summary>
+    private static async Task<(StandInDesktop Desk, DesktopWindow Surface, WidgetGalleryView Gallery)> StandAsync(RenderRun run, bool dark, string tag, (int Width, int Height) display)
     {
         var state = AppState.CreateDefault();
         var view = state.Views[0];
@@ -97,41 +93,35 @@ internal static class WidgetGalleryRender
         DesignApplier.Apply(state.Design);
         state.ShowViewOn(DisplayId, view.Id);
 
-        var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + display.Width, Bottom = -32000 + display.Height };
-        var monitor = new MonitorTarget(DisplayId, IdResolved: true, tag, bounds, bounds with { Bottom = bounds.Bottom - 48 }, IsPrimary: false);
-        var host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-" + tag, "state.json")), state);
-        DesktopWindow? made = null;
-        _ = RenderRaster.Window(display.Args, () => (made = new DesktopWindow(host, monitor)).DebugWindow);
-        var surface = made!;
-        surface.CheckButton = static () => false;
-        host.AdoptSurfaceForCheck(surface);
-        surface.ShowSurface();
+        var desk = StandInDesktop.Create(tag, state);
+        var surface = RenderRaster.Made(run, () => desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(display.Width, display.Height))));
+        desk.UseCheckButton(static () => false);
+        desk.Show();
 
         // A diagnostic's wait, not a correctness path: the surface lays out and its intro ends.
         await Task.Delay(2000).ConfigureAwait(true);
-        host.SetEditMode(true);
+        desk.Host.SetEditMode(true);
         await Task.Delay(500).ConfigureAwait(true);
         surface.OpenWidgetGallery();
         var gallery = surface.DebugGallery ?? throw new InvalidOperationException("the gallery did not open");
         await Task.Delay(2500).ConfigureAwait(true);
-        return (host, surface, gallery);
+        return (desk, surface, gallery);
     }
 
-    private static async Task DrawAsync(Application app, string outDir, bool dark, AddFolderId? category, (int Width, int Height, string[] Args) display)
+    private static async Task<int> DrawAsync(RenderRun run, string outDir, bool dark, AddFolderId? category, (int Width, int Height) display)
     {
-        AppHost? host = null;
-        DesktopWindow? surface = null;
+        Listen();
+        StandInDesktop? desk = null;
         var theme = dark ? "dark" : "light";
         try
         {
             Directory.CreateDirectory(outDir);
-            (host, surface, var gallery) = await StandAsync(dark, "gallery-render", display).ConfigureAwait(true);
+            (desk, var surface, var gallery) = await StandAsync(run, dark, "gallery-render", display).ConfigureAwait(true);
+            var host = desk.Host;
             async Task Shot(string name)
             {
                 await Task.Delay(1500).ConfigureAwait(true);
-                var file = Path.Combine(outDir, $"gallery-{theme}-{display.Width}x{display.Height}-{name}.png");
-                await RenderPng.SaveAsync(surface.DebugRoot, file).ConfigureAwait(true);
-                Console.WriteLine($"gallery: wrote {file}");
+                await RenderHarness.SaveAsync(surface.DebugRoot, Path.Combine(outDir, $"gallery-{theme}-{display.Width}x{display.Height}-{name}.png"), "gallery").ConfigureAwait(true);
             }
 
             // Every category's bento from its top; one taller than the well again at its foot.
@@ -186,47 +176,31 @@ internal static class WidgetGalleryRender
             surface.MovePlacementForCheck(new Point(held.X + (30 * metrics.Width / cols), held.Y + (12 * metrics.Height / rows)));
             await Shot("drag").ConfigureAwait(true);
             host.CancelPlacement();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "rendering the widget gallery failed", ex);
-            Console.WriteLine($"gallery: failed: {ex.Message}");
+            return RenderCommandLine.Passed;
         }
         finally
         {
-            surface?.CloseSurface();
-            host?.Dispose();
-            app.Exit();
+            desk?.Dispose();
         }
     }
 
     private static Point Centre(FracRect rect, ScreenMetrics metrics)
         => new((rect.X + (rect.W / 2)) * metrics.Width, (rect.Y + (rect.H * 0.4)) * metrics.Height);
 
-    private static async Task CheckAsync(Application app, string outPath, (int Width, int Height, string[] Args) display)
+    private static async Task<int> CheckAsync(RenderRun run, string outPath, (int Width, int Height) display)
     {
-        var lines = new List<string>();
-        var failures = 0;
-        AppHost? host = null;
-        DesktopWindow? surface = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
-
-        void Expect(bool ok, string what)
-        {
-            failures += ok ? 0 : 1;
-            Say($"{(ok ? "ok  " : "FAIL")} {what}");
-        }
+        Listen();
+        var report = new CheckReport("gallery-check", outPath);
+        void Say(string line) => report.Say(line);
+        void Expect(bool ok, string what) => report.Expect(ok, what);
+        StandInDesktop? desk = null;
 
         static bool Same(FracRect a, FracRect b) => Lattice.Same(a, b);
 
         try
         {
-            (host, surface, var gallery) = await StandAsync(dark: true, "gallery-check", display).ConfigureAwait(true);
+            (desk, var surface, var gallery) = await StandAsync(run, dark: true, "gallery-check", display).ConfigureAwait(true);
+            var host = desk.Host;
             var metrics = surface.Metrics;
             var (cols, rows) = GridGeometry.GridDims(metrics);
             var work = metrics.Allowed;
@@ -361,7 +335,7 @@ internal static class WidgetGalleryRender
             gallery.ShowCategory(AddFolderId.Time);
             await Task.Delay(500).ConfigureAwait(true);
             await DragAndDrop("one", [gallery.Screen.Widgets[0].Id], 37.4, 12.6).ConfigureAwait(true);
-            await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".dropped.png")).ConfigureAwait(true);
+            await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".dropped.png"), "gallery-check").ConfigureAwait(true);
             await DragAndDrop("three", [.. gallery.Screen.Widgets.Take(3).Select(w => w.Id)], 3.3, 2.7).ConfigureAwait(true);
 
             // Given up: Escape's path, nothing placed, the gallery back.
@@ -387,23 +361,18 @@ internal static class WidgetGalleryRender
 
             // The page of the selection does not open over the gallery.
             Expect(!surface.BarMenuOpenOtherThanGallery, "no other flyout opened over the gallery after the drops");
-            await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png")).ConfigureAwait(true);
+            await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png"), "gallery-check").ConfigureAwait(true);
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the gallery check failed", ex);
-            failures++;
-            Say($"gallery-check: failed: {ex.Message}");
+            report.Crash(ex);
         }
         finally
         {
-            surface?.CloseSurface();
-            host?.Dispose();
-            Say(failures == 0 ? "gallery-check: PASS" : $"gallery-check: FAIL ({failures})");
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            app.Exit();
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 }
 #endif
