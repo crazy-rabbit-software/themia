@@ -163,9 +163,9 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Columns:
-                // [S-1113] The first core on the left in every language. [S-14246] The first column on the start inset and
-                // the last on the end's, the room between them alike (WR-3: "the items dont reach from edge to edge").
-                Body(new SpreadStack { Orientation = Orientation.Horizontal, Justify = true, FlowDirection = FlowDirection.LeftToRight, Margin = Family.Inset with { Top = FamilySpace.S2 } });
+                // [S-1113] The first core on the left in every language. [S-14818] Each core's column an item sharing the
+                // card's width from its left edge to its right, touching, its bar standing in its middle.
+                Body(new Grid { FlowDirection = FlowDirection.LeftToRight });
                 break;
 
             case MeterLook.Rows:
@@ -175,15 +175,8 @@ public sealed partial class MeterView
 
             case MeterLook.Tiles:
             case MeterLook.Graphs:
-                Body(new Grid
-                {
-                    FlowDirection = FlowDirection.LeftToRight,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    ColumnSpacing = FamilySpace.S2,
-                    RowSpacing = FamilySpace.S2,
-                    Margin = Family.Inset with { Top = FamilySpace.S2 },
-                });
+                // [S-14818] The cores' cells share the card from edge to edge, touching, their padding inside them.
+                Body(new Grid { FlowDirection = FlowDirection.LeftToRight });
                 break;
 
             case MeterLook.Battery:
@@ -388,8 +381,9 @@ public sealed partial class MeterView
     {
         switch (_look)
         {
-            case MeterLook.Columns when _body is SpreadStack columns:
-                Resize(_columns, count, columns, () => new ChartBar(vertical: true), (_, _) => { });
+            case MeterLook.Columns when _body is Grid columns:
+                ResizeCells(_columns, count, columns, () => new ChartBar(vertical: true), ColumnPadding);
+                LayColumns(columns);
                 break;
 
             case MeterLook.Rows when _body is SpreadStack stack:
@@ -404,13 +398,13 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Tiles when _body is Grid grid:
-                Resize(_rings, count, grid, () => new ChartRing(), (_, _) => { });
+                ResizeCells(_rings, count, grid, () => new ChartRing(), default);
                 break;
 
             case MeterLook.Graphs when _body is Grid grid:
                 while (_cells.Count > count)
                 {
-                    grid.Children.Remove(_cells[^1].Root);
+                    grid.Children.Remove(_cells[^1].Item);
                     _cells.RemoveAt(_cells.Count - 1);
                 }
 
@@ -423,13 +417,56 @@ public sealed partial class MeterView
                     }
 
                     _cells.Add(cell);
-                    grid.Children.Add(cell.Root);
+                    grid.Children.Add(cell.Item);
                 }
 
                 break;
 
             default:
                 break;
+        }
+    }
+
+    /// <summary>[S-14818] A core's column: its bar from the inset under the card's top edge to the inset over its foot.</summary>
+    private static Thickness ColumnPadding => new(0, FamilySpace.Inset, 0, FamilySpace.Inset);
+
+    /// <summary>
+    /// [S-14818] Keep one part per item, each in its item's cell (<see cref="ItemMark"/>: the box the checks judge), the
+    /// part centred in it with <paramref name="padding"/> round it; the existing ones kept.
+    /// </summary>
+    private static void ResizeCells<T>(List<T> parts, int count, Panel panel, Func<T> make, Thickness padding)
+        where T : FrameworkElement
+    {
+        while (parts.Count > count)
+        {
+            panel.Children.Remove(Cell(parts[^1]));
+            parts.RemoveAt(parts.Count - 1);
+        }
+
+        while (parts.Count < count)
+        {
+            var part = make();
+            part.HorizontalAlignment = HorizontalAlignment.Center;
+            part.VerticalAlignment = part is ChartBar ? VerticalAlignment.Stretch : VerticalAlignment.Center;
+            var cell = new Border { Child = part, Padding = padding, Background = Family.Brush(ColourRole.Clear) };
+            ItemMark.Mark(cell);
+            parts.Add(part);
+            panel.Children.Add(cell);
+        }
+    }
+
+    /// <summary>The item cell a part stands in.</summary>
+    private static FrameworkElement Cell(FrameworkElement part) => part.Parent as FrameworkElement ?? part;
+
+    /// <summary>[S-14818] The columns share the card's width from its left edge to its right, whole device pixels each.</summary>
+    private void LayColumns(Grid grid)
+    {
+        var widths = ItemSize.Columns(_area.Width, _columns.Count, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
+        grid.ColumnDefinitions.Clear();
+        for (var i = 0; i < _columns.Count; i++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(widths[i]) });
+            SetColumn(Cell(_columns[i]), i);
         }
     }
 
@@ -548,7 +585,9 @@ public sealed partial class MeterView
             // foot's inset (the stack's margin), their text on both.
             SetRow(_body, 0);
             SetRowSpan(_body, 2);
-            _body.Margin = _look == MeterLook.Rows ? ListEdge.Margin : Family.Inset with { Top = 0 };
+            // [S-14818] Every look's items stand on the card's top edge and run to its sides and foot: the rows, and the
+            // columns', the rings' and the graphs' cells, their padding inside them.
+            _body.Margin = ListEdge.Margin;
         }
 
         switch (_look)
@@ -571,8 +610,9 @@ public sealed partial class MeterView
                 _second.Use(FamilyType.Big28);
                 break;
 
-            case MeterLook.Columns when _body is not null:
+            case MeterLook.Columns when _body is Grid columns:
                 _body.Visibility = Visibility.Visible;
+                LayColumns(columns);
                 break;
 
             case MeterLook.Rows:
@@ -585,11 +625,21 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Tiles when _body is Grid grid:
-                LayGrid(grid, MeterPlan.Rings(width, height, _rings.Count), _rings);
+            {
+                // The rings at the plan's size, each in the middle of its cell, the cell's room round it its padding.
+                var rings = MeterPlan.Rings(width, height, _rings.Count);
+                LayGrid(grid, rings, [.. _rings.Select(r => Cell(r))]);
+                foreach (var ring in _rings)
+                {
+                    ring.Width = rings.CellWidth;
+                    ring.Height = rings.CellHeight;
+                }
+
                 break;
+            }
 
             case MeterLook.Graphs when _body is Grid grid:
-                LayGrid(grid, MeterPlan.Graphs(width, height, _cells.Count), [.. _cells.Select(c => (FrameworkElement)c.Root)]);
+                LayGrid(grid, MeterPlan.Graphs(width, height, _cells.Count), [.. _cells.Select(c => (FrameworkElement)c.Item)]);
                 foreach (var cell in _cells)
                 {
                     cell.Overlay();
@@ -712,9 +762,12 @@ public sealed partial class MeterView
         }
     }
 
-    /// <summary>A grid of square or graph cells, row by row from the top left; none when the plan shows none.</summary>
-    private static void LayGrid<T>(Grid grid, MeterGrid plan, IReadOnlyList<T> cells)
-        where T : FrameworkElement
+    /// <summary>
+    /// [S-14818] A grid of ring or graph cells, row by row from the top left, the plan's columns and rows sharing the card
+    /// from its left edge to its right and its top edge to its foot, touching (every core is shown: the cells are the
+    /// card's, as the month's days are); none when the plan shows none.
+    /// </summary>
+    private void LayGrid(Grid grid, MeterGrid plan, IReadOnlyList<FrameworkElement> cells)
     {
         grid.Visibility = plan.Shown ? Visibility.Visible : Visibility.Collapsed;
         if (!plan.Shown)
@@ -722,16 +775,19 @@ public sealed partial class MeterView
             return;
         }
 
+        var lattice = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var widths = ItemSize.Columns(_area.Width, plan.Columns, lattice);
+        var heights = ItemSize.Columns(_area.Height + FamilySpace.Inset, plan.Rows, lattice);
         grid.ColumnDefinitions.Clear();
         grid.RowDefinitions.Clear();
-        for (var c = 0; c < plan.Columns; c++)
+        foreach (var w in widths)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.CellWidth) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(w) });
         }
 
-        for (var r = 0; r < plan.Rows; r++)
+        foreach (var h in heights)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(plan.CellHeight) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(h) });
         }
 
         for (var i = 0; i < cells.Count; i++)
@@ -764,9 +820,16 @@ public sealed partial class MeterView
                 },
                 Children = { _figure, Band },
             };
+
+            // [S-14818] The core's item: its cell, the graph inside its padding.
+            Item = new Border { Child = Root, Padding = new Thickness(FamilySpace.S1), Background = Family.Brush(ColourRole.Clear) };
+            ItemMark.Mark(Item);
         }
 
         public Grid Root { get; }
+
+        /// <summary>[S-14818] The cell the graph stands in: the item the checks judge, its share of the card.</summary>
+        public Border Item { get; }
 
         public SparkBand Band { get; }
 
