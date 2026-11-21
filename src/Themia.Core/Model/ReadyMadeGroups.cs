@@ -77,22 +77,22 @@ public static class ReadyMadeGroups
     private const string Scope = "ready-made";
 
     /// <summary>
-    /// [S-2474] [S-11090] This PC: the four readings in one column of one width, each over its history (owner,
-    /// 2026-11-15: "the this pc group should be one column not multiple"); the width is network's, whose two
-    /// readings stand on one line ([S-6264]).
+    /// [S-2474] [S-11090] [S-14713] This PC: the four readings in one column of one width, each over its graph, the metric
+    /// it is with its graph shown (owner, 2026-11-15: "the this pc group should be one column not multiple"); the width is
+    /// network's, whose two readings stand on one line ([S-6264]).
     /// </summary>
     public static ReadyMadeGroup ThisPc { get; } = Headed(new("thisPc", Str.Groups_Recipe_ThisPc, Str.Groups_Recipe_ThisPcAbout, Glyphs.Display, AddFolderId.System,
     [
         new("cpu", new(0, 0, 344, 60)),
-        new("cpuHistory", new(0, 60, 344, 64)),
+        new("cpuLoad", new(0, 60, 344, 64), Config: Graph),
         new("memory", new(0, 124, 344, 60)),
-        new("memoryHistory", new(0, 184, 344, 64)),
-        // The disk's own span is five minutes; in this group the four charts span one minute alike, so the
+        new("memoryInUse", new(0, 184, 344, 64), Config: Graph),
+        // The drive's activity's own span is five minutes; in this group the four graphs span one minute alike, so the
         // group's page reads one Chart span, not "Mixed" ([S-11751]).
         new("disk", new(0, 248, 344, 60)),
-        new("diskHistory", new(0, 308, 344, 64), Config: """{ "graphSpanSeconds": 60 }"""),
+        new("driveActivity", new(0, 308, 344, 64), Config: """{ "trend": "Line", "span": 60 }"""),
         new("network", new(0, 372, 344, 60)),
-        new("networkHistory", new(0, 432, 344, 64)),
+        new("networkDownload", new(0, 432, 344, 64), Config: Graph),
     ]) { Starter = 2 });
 
     /// <summary>[S-2474] My day: the clock on top, the date joined under it ([S-12805]), the next meeting and the tasks under them.</summary>
@@ -129,11 +129,11 @@ public static class ReadyMadeGroups
 
     // ---- [S-11090] The system readings' groups: each old card's look, made of its atoms ----------------
 
-    /// <summary>[S-11090] CPU: the reading over its history.</summary>
+    /// <summary>[S-11090] [S-14713] CPU: the reading over its graph (its metric with its graph shown).</summary>
     public static ReadyMadeGroup Cpu { get; } = Headed(new("cpu", Str.Groups_Recipe_Cpu, Str.Groups_Recipe_CpuAbout, Glyphs.Cpu, AddFolderId.Processor,
     [
-        new("cpu", new(0, 0, 160, 60)),
-        new("cpuHistory", new(0, 60, 160, 64)),
+        new("cpu", new(0, 0, 200, 60)),
+        new("cpuLoad", new(0, 60, 200, 64), Config: Graph),
     ]));
 
     /// <summary>[S-11090] CPU cores: the reading over a bar per core.</summary>
@@ -150,25 +150,25 @@ public static class ReadyMadeGroups
         .. Metrics(60, 240, "cpuSpeed", "cpuBaseSpeed", "cpuCoreCount", "cpuLogical"),
     ]), Str.Groups_Recipe_Cpu);
 
-    /// <summary>[S-11090] Memory: the reading over its history.</summary>
-    public static ReadyMadeGroup Memory { get; } = Headed(new("memory", Str.Groups_Recipe_Memory, Str.Groups_Recipe_MemoryAbout, Glyphs.Memory, AddFolderId.MemoryReading,
+    /// <summary>[S-11090] [S-14713] Memory: the reading over its graph (its metric with its graph shown).</summary>
+    public static ReadyMadeGroup Memory { get; } = Headed(new("memory", Str.Groups_Recipe_Memory, Str.Groups_Recipe_MemoryAbout, Glyphs.Memory, AddFolderId.System,
     [
-        new("memory", new(0, 0, 160, 60)),
-        new("memoryHistory", new(0, 60, 160, 64)),
+        new("memory", new(0, 0, 200, 60)),
+        new("memoryInUse", new(0, 60, 200, 64), Config: Graph),
     ]));
 
     /// <summary>[S-11090] [S-14607] Memory details: the reading over its facts, a single metric each.</summary>
-    public static ReadyMadeGroup MemoryDetails { get; } = Headed(new("memoryDetails", Str.Groups_Recipe_MemoryDetails, Str.Groups_Recipe_MemoryDetailsAbout, Glyphs.Memory, AddFolderId.MemoryReading,
+    public static ReadyMadeGroup MemoryDetails { get; } = Headed(new("memoryDetails", Str.Groups_Recipe_MemoryDetails, Str.Groups_Recipe_MemoryDetailsAbout, Glyphs.Memory, AddFolderId.System,
     [
         new("memory", new(0, 0, 260, 60)),
         .. Metrics(60, 260, "memoryInUse", "memoryAvailable", "memoryCommitted", "memoryCached"),
     ]), Str.Groups_Recipe_Memory);
 
-    /// <summary>[S-11090] GPU: the reading over its history.</summary>
+    /// <summary>[S-11090] [S-14713] GPU: the reading over its graph (its metric with its graph shown).</summary>
     public static ReadyMadeGroup Gpu { get; } = Headed(new("gpu", Str.Groups_Recipe_Gpu, Str.Groups_Recipe_GpuAbout, Glyphs.Gpu, AddFolderId.Graphics,
     [
         new("gpu", new(0, 0, 200, 60)),
-        new("gpuHistory", new(0, 60, 200, 64)),
+        new("gpuLoad", new(0, 60, 200, 64), Config: Graph),
     ]));
 
     /// <summary>[S-11090] [S-14607] GPU details: the reading over its facts, a single metric each.</summary>
@@ -178,18 +178,18 @@ public static class ReadyMadeGroups
         .. Metrics(60, 260, "gpuDedicatedMemory", "gpuSharedMemory", "gpuTemperature", "gpuFan"),
     ]), Str.Groups_Recipe_Gpu);
 
-    /// <summary>[S-11090] Disk: the reading over its history.</summary>
+    /// <summary>[S-11090] [S-14713] Disk: the reading over its graph (its metric with its graph shown).</summary>
     public static ReadyMadeGroup Disk { get; } = Headed(new("disk", Str.Groups_Recipe_Disk, Str.Groups_Recipe_DiskAbout, Glyphs.Disk, AddFolderId.System,
     [
-        new("disk", new(0, 0, 172, 60)),
-        new("diskHistory", new(0, 60, 172, 64)),
+        new("disk", new(0, 0, 200, 60)),
+        new("driveActivity", new(0, 60, 200, 64), Config: Graph),
     ]));
 
-    /// <summary>[S-11090] Network: download and upload on one line, over their history.</summary>
+    /// <summary>[S-11090] [S-14713] Network: download and upload on one line, over the download's graph (its metric with its graph shown).</summary>
     public static ReadyMadeGroup Network { get; } = Headed(new("network", Str.Groups_Recipe_Network, Str.Groups_Recipe_NetworkAbout, Glyphs.Network, AddFolderId.NetworkReading,
     [
         new("network", new(0, 0, 344, 60)),
-        new("networkHistory", new(0, 60, 344, 64)),
+        new("networkDownload", new(0, 60, 344, 64), Config: Graph),
     ]));
 
     /// <summary>[S-11090] Network details: the reading over the connection's facts and its adapters.</summary>
@@ -200,29 +200,29 @@ public static class ReadyMadeGroups
         new("networkAdapters", new(0, 60 + (4 * Row), 344, 80), Config: """{ "rows": 2 }"""),
     ]), Str.Groups_Recipe_Network);
 
-    /// <summary>[S-11090] Ping: the latency over its history.</summary>
-    public static ReadyMadeGroup Ping { get; } = Headed(new("ping", Str.Groups_Recipe_Ping, Str.Groups_Recipe_PingAbout, Glyphs.Network, AddFolderId.PingReading,
+    /// <summary>[S-11090] [S-14713] Ping: the latency over its graph (its metric with its graph shown).</summary>
+    public static ReadyMadeGroup Ping { get; } = Headed(new("ping", Str.Groups_Recipe_Ping, Str.Groups_Recipe_PingAbout, Glyphs.Network, AddFolderId.System,
     [
-        new("ping", new(0, 0, 160, 60)),
-        new("pingHistory", new(0, 60, 160, 64)),
+        new("ping", new(0, 0, 200, 60)),
+        new("pingAverage", new(0, 60, 200, 64), Config: Graph),
     ]));
 
     /// <summary>[S-11090] [S-14607] Ping details: the latency over its statistics, a single metric each.</summary>
-    public static ReadyMadeGroup PingDetails { get; } = Headed(new("pingDetails", Str.Groups_Recipe_PingDetails, Str.Groups_Recipe_PingDetailsAbout, Glyphs.Network, AddFolderId.PingReading,
+    public static ReadyMadeGroup PingDetails { get; } = Headed(new("pingDetails", Str.Groups_Recipe_PingDetails, Str.Groups_Recipe_PingDetailsAbout, Glyphs.Network, AddFolderId.System,
     [
         new("ping", new(0, 0, 260, 60)),
         .. Metrics(60, 260, "pingAverage", "pingMinimum", "pingMaximum", "pingJitter"),
     ]), Str.Groups_Recipe_Ping);
 
-    /// <summary>[S-11090] Battery: the charge over its history.</summary>
-    public static ReadyMadeGroup Battery { get; } = Headed(new("battery", Str.Groups_Recipe_Battery, Str.Groups_Recipe_BatteryAbout, Glyphs.Battery, AddFolderId.BatteryReading,
+    /// <summary>[S-11090] [S-14713] Battery: the charge over its graph (its metric with its graph shown).</summary>
+    public static ReadyMadeGroup Battery { get; } = Headed(new("battery", Str.Groups_Recipe_Battery, Str.Groups_Recipe_BatteryAbout, Glyphs.Battery, AddFolderId.Devices,
     [
-        new("battery", new(0, 0, 160, 60)),
-        new("batteryHistory", new(0, 60, 160, 64)),
+        new("battery", new(0, 0, 200, 60)),
+        new("batteryCharge", new(0, 60, 200, 64), Config: Graph),
     ]));
 
     /// <summary>[S-11090] [S-14607] Battery details: the charge over the battery's facts, a single metric each.</summary>
-    public static ReadyMadeGroup BatteryDetails { get; } = Headed(new("batteryDetails", Str.Groups_Recipe_BatteryDetails, Str.Groups_Recipe_BatteryDetailsAbout, Glyphs.Battery, AddFolderId.BatteryReading,
+    public static ReadyMadeGroup BatteryDetails { get; } = Headed(new("batteryDetails", Str.Groups_Recipe_BatteryDetails, Str.Groups_Recipe_BatteryDetailsAbout, Glyphs.Battery, AddFolderId.Devices,
     [
         new("battery", new(0, 0, 260, 60)),
         .. Metrics(60, 260, "batteryStatus", "batteryTime", "batteryHealth", "batteryFullCapacity"),
@@ -248,7 +248,7 @@ public static class ReadyMadeGroups
     /// </summary>
     public static ReadyMadeGroup WeatherFacts { get; } = Headed(new("weatherFacts", Str.Groups_Recipe_WeatherFacts, Str.Groups_Recipe_WeatherFactsAbout, Glyphs.Thermometer, AddFolderId.WeatherFacts,
     [
-        .. Metrics(0, 240, "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind", "weatherPrecipitation", "weatherPressure",
+        .. Metrics(0, 240, "weatherTemperature", "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind", "weatherPrecipitation", "weatherPressure",
             "weatherUv", "weatherCloudCover", "weatherGusts", "weatherSunrise", "weatherSunset"),
     ]));
 
@@ -276,12 +276,15 @@ public static class ReadyMadeGroups
         .. Metrics(76, 240, "airUv", "airPm25", "airPm10", "airOzone", "airPollen"),
     ]));
 
-    /// <summary>[S-12709] Weather graphs: the next day's temperature, rain and UV, hour by hour, stacked as one panel on one frame.</summary>
+    /// <summary>
+    /// [S-12709] [S-14713] Weather graphs: the next day's temperature, rain and UV, hour by hour, stacked as one panel: each
+    /// the weather metric with its graph shown (the temperature's area, the rain's and the UV's columns).
+    /// </summary>
     public static ReadyMadeGroup WeatherGraphs { get; } = Headed(new("weatherGraphs", Str.Groups_Recipe_WeatherGraphs, Str.Groups_Recipe_WeatherGraphsAbout, Glyphs.Thermometer, AddFolderId.Weather,
     [
-        new("temperatureGraph", new(0, 0, 320, 168)),
-        new("rainGraph", new(0, 168, 320, 168)),
-        new("uvGraph", new(0, 336, 320, 168)),
+        new("weatherTemperature", new(0, 0, 320, 168), Config: Graph),
+        new("weatherPrecipitation", new(0, 168, 320, 168), Config: Graph),
+        new("weatherUv", new(0, 336, 320, 168), Config: Graph),
     ]));
 
     /// <summary>[S-11172] Exchange rates: a currency pair's rate today and its last 90 days.</summary>
@@ -378,6 +381,9 @@ public static class ReadyMadeGroups
     private static double Row => MetricRules.RowHeight;
 
     /// <summary>[S-14607] Single metrics stacked from <paramref name="top"/>, <paramref name="width"/> wide, one row each, touching.</summary>
+    /// <summary>[S-14713] A metric's config with its graph shown: what stood in a group as a graph widget is the metric drawing Line.</summary>
+    private const string Graph = """{ "trend": "Line" }""";
+
     private static IEnumerable<ReadyMadeWidget> Metrics(double top, double width, params string[] kinds)
         => kinds.Select((kind, i) => new ReadyMadeWidget(kind, new(0, top + (i * Row), width, Row)));
 

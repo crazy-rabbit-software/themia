@@ -36,7 +36,7 @@ public sealed class PingModule : IWidgetModule
         Sizing = c => MeterSizing.Reading(PingMeter.Look(((PingConfig)c).Style), PingPart.Worst),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
-        Add = new(AddFolderId.PingReading, 0, 0),
+        Add = new(AddFolderId.System, 0, 5),
     };
 
     /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>

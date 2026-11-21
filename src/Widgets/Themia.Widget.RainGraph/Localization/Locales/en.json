@@ -1,9 +1,0 @@
-{
-  "$englishOnly": ["rainGraph.label", "rainGraph.desc", "rainGraph.dry", "rainGraph.chance", "rainGraph.style.hours", "rainGraph.style.nowcast"],
-  "rainGraph.label": "Rain graph",
-  "rainGraph.desc": "Rain and its chance hour by hour, or the next two hours",
-  "rainGraph.dry": "Dry",
-  "rainGraph.chance": "Show the chance of rain",
-  "rainGraph.style.hours": "Hours",
-  "rainGraph.style.nowcast": "Next 2 hours"
-}

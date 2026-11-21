@@ -37,7 +37,7 @@ public sealed class MemoryModule : IWidgetModule
         Sizing = c => Sizing((MemoryConfig)c),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
-        Add = new(AddFolderId.MemoryReading, 0, 0),
+        Add = new(AddFolderId.System, 0, 1),
     };
 
     /// <summary>[S-1130] [S-11001] The reading's sizing in its drawing: the number one height, the bar one row under it, the gauge as its dial.</summary>

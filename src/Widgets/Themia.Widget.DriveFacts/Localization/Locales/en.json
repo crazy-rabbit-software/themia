@@ -9,16 +9,20 @@
     "driveFacts.driveFileSystem.label",
     "driveFacts.driveFileSystem.desc",
     "driveFacts.driveType.label",
-    "driveFacts.driveType.desc"
+    "driveFacts.driveType.desc",
+    "driveFacts.driveActivity.label",
+    "driveFacts.driveActivity.desc"
   ],
-  "driveFacts.driveUsed.label": "Drive used",
-  "driveFacts.driveUsed.desc": "How much of a drive is used",
-  "driveFacts.driveFree.label": "Drive free",
-  "driveFacts.driveFree.desc": "How much room a drive has left",
-  "driveFacts.driveCapacity.label": "Drive capacity",
+  "driveFacts.driveActivity.desc": "How much a drive reads and writes, with its history",
+  "driveFacts.driveActivity.label": "Drive activity",
   "driveFacts.driveCapacity.desc": "How much a drive holds",
-  "driveFacts.driveFileSystem.label": "File system",
+  "driveFacts.driveCapacity.label": "Drive capacity",
   "driveFacts.driveFileSystem.desc": "A drive's file system",
+  "driveFacts.driveFileSystem.label": "File system",
+  "driveFacts.driveFree.desc": "How much room a drive has left",
+  "driveFacts.driveFree.label": "Drive free",
+  "driveFacts.driveType.desc": "What kind of drive it is",
   "driveFacts.driveType.label": "Drive type",
-  "driveFacts.driveType.desc": "What kind of drive it is"
+  "driveFacts.driveUsed.desc": "How much of a drive is used",
+  "driveFacts.driveUsed.label": "Drive used"
 }

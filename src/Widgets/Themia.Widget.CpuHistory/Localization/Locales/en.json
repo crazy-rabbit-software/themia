@@ -1,5 +1,0 @@
-{
-  "$englishOnly": ["cpuHistory.label", "cpuHistory.desc"],
-  "cpuHistory.label": "CPU history",
-  "cpuHistory.desc": "Processor load over time"
-}

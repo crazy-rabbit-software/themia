@@ -2,9 +2,11 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Widget.WeatherFacts;
 
 [assembly: ThemiaWidgetFamily]
+[assembly: ThemiaWidget("weatherTemperature", typeof(WeatherTemperatureModule))]
 [assembly: ThemiaWidget("weatherHighLow", typeof(WeatherHighLowModule))]
 [assembly: ThemiaWidget("weatherFeelsLike", typeof(WeatherFeelsLikeModule))]
 [assembly: ThemiaWidget("weatherHumidity", typeof(WeatherHumidityModule))]
@@ -28,6 +30,8 @@ internal static class WeatherFactKinds
 {
     public static IReadOnlyList<MetricKind> All { get; } =
     [
+        Kind(WeatherFactKind.Temperature, "weatherTemperature", WeatherFactsStr.WeatherFacts_Temperature_Label.Local(), WeatherFactsStr.WeatherFacts_Temperature_Label.Local(), WeatherFactsStr.WeatherFacts_Temperature_Desc.Local(),
+            ["temperature", "degrees", "warm", "cold", "graph", "hourly", "weather"], () => new WeatherTemperatureConfig()),
         Kind(WeatherFactKind.Today, "weatherHighLow", Str.Common_Today.Local(), WeatherFactsStr.WeatherFacts_HighLow_Label.Local(), WeatherFactsStr.WeatherFacts_HighLow_Desc.Local(),
             ["high", "low", "today", "temperature", "range", "max", "min", "weather"], () => new WeatherHighLowConfig()),
         Kind(WeatherFactKind.FeelsLike, "weatherFeelsLike", WeatherFactsStr.Weather_FeelsLike.Local(), WeatherFactsStr.Weather_FeelsLike.Local(), WeatherFactsStr.WeatherFacts_FeelsLike_Desc.Local(),
@@ -56,11 +60,45 @@ internal static class WeatherFactKinds
     public static MetricKind Of(WeatherFactKind fact) => All[(int)fact];
 
     private static MetricKind Kind(WeatherFactKind fact, string id, LocalText name, LocalText label, LocalText description, string[] keywords, Func<WeatherFactConfig> create)
-        => new(id, fact.ToString(), Glyph(fact), WeatherFactRules.History(fact), name, label, description, keywords, create) { Opens = MetricOpens.Weather };
+        => new(id, fact.ToString(), Glyph(fact), WeatherFactRules.History(fact), name, label, description, keywords, create)
+        {
+            Opens = MetricOpens.Weather,
+            Graph = Graph(fact),
+            Merges = Merges(fact),
+        };
+
+    /// <summary>
+    /// [S-14710] A fact's graph over the place's hours (the weather graphs' types: Area, Line or Bars), drawn by default as
+    /// the weather graph it merged drew ([S-6752]: the pressure, the wind and the gusts a line, the rain and the UV columns,
+    /// the rest the area); none for a fact the hours do not carry.
+    /// </summary>
+    internal static MetricGraph? Graph(WeatherFactKind fact) => WeatherFactRules.History(fact) != MetricHistory.Series ? null : fact switch
+    {
+        WeatherFactKind.Wind or WeatherFactKind.Gusts or WeatherFactKind.Pressure => MetricGraph.Hours(ChartType.Line),
+        WeatherFactKind.Precipitation or WeatherFactKind.Uv => MetricGraph.Hours(ChartType.Bars),
+        _ => MetricGraph.Hours(),
+    };
+
+    /// <summary>
+    /// [S-14713] The weather graph a fact stands in for (owner, 2026-11-21: "the wind graph is somewhat similar to the Wind
+    /// widget that shows a trendline. i think it would be good if we merge all the different graph types into the general
+    /// metric widget"): a placed one becomes the fact with its graph shown, in its spot.
+    /// </summary>
+    private static MergeFrom[] Merges(WeatherFactKind fact) => fact switch
+    {
+        WeatherFactKind.Temperature => [new("temperatureGraph")],
+        WeatherFactKind.Humidity => [new("humidityGraph")],
+        WeatherFactKind.Wind => [new("windGraph")],
+        WeatherFactKind.Precipitation => [new("rainGraph")],
+        WeatherFactKind.Pressure => [new("pressureGraph")],
+        WeatherFactKind.Uv => [new("uvGraph")],
+        _ => [],
+    };
 
     /// <summary>The glyph for a reading, checked against the font ([S-733]): its row's lead and its kind's.</summary>
     internal static string Glyph(WeatherFactKind kind) => kind switch
     {
+        WeatherFactKind.Temperature => Glyphs.Thermometer,
         WeatherFactKind.Today => Glyphs.Calendar,
         WeatherFactKind.FeelsLike => Glyphs.Thermometer,
         WeatherFactKind.Humidity or WeatherFactKind.Precipitation => Glyphs.Droplet,
@@ -75,6 +113,8 @@ internal static class WeatherFactKinds
 
 // [S-13900] Each kind is its module and its config (a config's type is how it knows its id, [S-6902]); everything
 // else is the family's (WeatherFactModule, WeatherFactConfig, WeatherFactView) over the single metric's base.
+
+public sealed class WeatherTemperatureModule() : WeatherFactModule(WeatherFactKind.Temperature);
 
 public sealed class WeatherHighLowModule() : WeatherFactModule(WeatherFactKind.Today);
 
@@ -97,6 +137,8 @@ public sealed class WeatherGustsModule() : WeatherFactModule(WeatherFactKind.Gus
 public sealed class WeatherSunriseModule() : WeatherFactModule(WeatherFactKind.Sunrise);
 
 public sealed class WeatherSunsetModule() : WeatherFactModule(WeatherFactKind.Sunset);
+
+public sealed class WeatherTemperatureConfig() : WeatherFactConfig(WeatherFactKind.Temperature);
 
 public sealed class WeatherHighLowConfig() : WeatherFactConfig(WeatherFactKind.Today);
 

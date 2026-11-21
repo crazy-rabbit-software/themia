@@ -35,6 +35,20 @@ public sealed class ThemiaProviderAttribute(string id, Type module) : Attribute
 }
 
 /// <summary>
+/// [S-14713] A removed graph kind a single metric stands in for (owner, 2026-11-21: "i think it would be good if we merge all
+/// the different graph types into the general metric widget"; a placed one is replaced in place, as the facts cards were,
+/// owner 2026-11-20: "Replace in place"): the removed kind's id and, where several metrics share it out by what it drew, the
+/// config's key and the value it held for this one (<see cref="When"/>, compared ignoring case; null: every one the others
+/// do not take). A placed one becomes this kind in its spot with its graph shown (its trend Line), its place, drive, adapter
+/// or host, its chart look and its span (the graph's window or span, renamed to the metric's).
+/// </summary>
+public sealed record MergeFrom(string Kind)
+{
+    /// <summary>The config's key and the value it held for this kind; null for the rest.</summary>
+    public (string Key, string Value)? When { get; init; }
+}
+
+/// <summary>
 /// [S-6902] What the host knows of a widget without its UI: one record per widget, in place of the
 /// per-kind tables the host used to keep (docs/WIDGET-KIT.md section 4.3). A member is added here
 /// when a table moves onto it, and the table goes in the same commit.
@@ -124,6 +138,12 @@ public sealed record WidgetDescriptor
     /// follows. Its code names exactly these (the conformance test); SPEC's topic table is made from them.
     /// </summary>
     public Themia.Core.Links.LinkUse Links { get; init; } = Themia.Core.Links.LinkUse.None;
+
+    /// <summary>
+    /// [S-14713] The removed graph kinds this kind stands in for (the wind graph is the Wind metric with its graph): a placed
+    /// one is replaced in place on load by this kind, its graph shown. Empty for every other kind.
+    /// </summary>
+    public IReadOnlyList<MergeFrom> Merges { get; init; } = [];
 
     /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
     public string Name => Label.Text();

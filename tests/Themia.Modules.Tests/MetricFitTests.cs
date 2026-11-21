@@ -85,7 +85,7 @@ public sealed class MetricFitTests
     }
 
     [Fact]
-    public void S14703_a_metric_with_a_series_offers_its_history_s_graphs_types_and_none_without()
+    public void S14703_S14710_a_metric_with_a_series_offers_its_kind_s_graph_s_types_and_none_without()
     {
         foreach (var module in Metrics())
         {
@@ -95,23 +95,42 @@ public sealed class MetricFitTests
                 continue;
             }
 
-            var looks = Assert.IsAssignableFrom<IChartLooks>(config);
+            var graph = Assert.IsAssignableFrom<IMetricGraph>(config);
 
-            // Today's look unasked: Area and Simple.
-            Assert.Equal((ChartType.Area, ChartDetail.Simple, ChartType.Area), (looks.Chart, looks.Detail, looks.DefaultChart));
-            Assert.Empty(ChartLooks.Repair(looks, module.Kind.Id));
-            if (trend.History != MetricHistory.Series)
+            // [S-14710] Every kind with a series declares its graph, every other none; the config takes it from the kind.
+            Assert.Equal(trend.History == MetricHistory.Series, module.Kind.Graph is not null);
+            Assert.Same(module.Kind.Graph, graph.Graph);
+
+            // Its kind's look unasked (the look its merged graph had, [S-6752]) and Simple; nothing to repair.
+            Assert.Equal((MetricGraphs.Default(module.Kind.Graph), ChartDetail.Simple), (graph.Chart, graph.Detail));
+            Assert.Empty(ChartLooks.Repair(graph, module.Kind.Id));
+            Assert.Null(MetricGraphs.RepairSpan(graph, module.Kind.Id));
+            if (module.Kind.Graph is not { } spec)
             {
-                Assert.Empty(looks.ChartTypes);
-                Assert.False(looks.OffersDetail);
+                Assert.Empty(graph.ChartTypes);
+                Assert.False(graph.OffersDetail);
                 continue;
             }
 
             // A place's hours draw as the weather graphs do (a column an hour too); the hub's series as the meters' histories.
-            Assert.Equal(config is WeatherConfig ? ChartLooks.Hours : ChartLooks.Lines, looks.ChartTypes);
-            Assert.True(looks.OffersDetail);
+            Assert.Equal(config is WeatherConfig ? GraphSeries.Hours : GraphSeries.Hub, spec.Series);
+            Assert.Equal(config is WeatherConfig ? ChartLooks.Hours : ChartLooks.Lines, graph.ChartTypes);
+            Assert.Contains(spec.Default, spec.Types);
+            Assert.Contains(spec.Span, spec.Spans);
+            Assert.True(graph.OffersDetail);
         }
+
+        // [S-6752] The looks the merged graphs had stay their metrics' defaults: the wind's and the pressure's a line, the
+        // rain's and the UV's columns, the rest the area.
+        Assert.Equal(ChartType.Line, Default("weatherWind"));
+        Assert.Equal(ChartType.Line, Default("weatherPressure"));
+        Assert.Equal(ChartType.Bars, Default("weatherPrecipitation"));
+        Assert.Equal(ChartType.Bars, Default("weatherUv"));
+        Assert.Equal(ChartType.Area, Default("weatherTemperature"));
+        Assert.Equal(ChartType.Area, Default("cpuLoad"));
     }
+
+    private static ChartType Default(string id) => ((IChartLooks)Metrics().Single(m => m.Kind.Id == id).Descriptor.CreateDefault()).Chart;
 
     [Fact]
     public void S14703_the_chart_look_is_on_the_page_under_the_trend_only_while_the_trend_is_the_graph()
@@ -134,8 +153,9 @@ public sealed class MetricFitTests
             config.Trend = MetricTrend.Line;
             var line = Menu();
             MetricMenuLines.Add(line, config);
-            Assert.Equal([Str.Metric_Trend.Text(), Str.Chart_Type.Text(), Str.Chart_Detail.Text()], line.Lines.TakeLast(3).Select(l => l.Text));
-            Assert.Equal([SharedSettings.ChartType.Key, SharedSettings.ChartDetail.Key], line.Lines.TakeLast(2).Select(l => l.Shares));
+            // [S-14711] Then its span, where its graph offers more than one.
+            Assert.Equal([Str.Metric_Trend.Text(), Str.Chart_Type.Text(), Str.Chart_Detail.Text()], line.Lines.Skip(line.Lines.Count - 4).Take(3).Select(l => l.Text));
+            Assert.Equal([SharedSettings.ChartType.Key, SharedSettings.ChartDetail.Key, SharedSettings.MetricSpan.Key], line.Lines.TakeLast(3).Select(l => l.Shares));
             Assert.Empty(line.StyleLines);
         }
     }
@@ -153,18 +173,26 @@ public sealed class MetricFitTests
 
             trend.Trend = MetricTrend.Line;
             var simple = module.Descriptor.Sizing(config);
-            var looks = (IChartLooks)config;
-            looks.Chart = ChartType.Line;
-            looks.Detail = ChartDetail.Detailed;
-            Assert.True(module.Descriptor.Sizing(config).Min.Height > simple.Min.Height, module.Kind.Id);
+            var looks = (IMetricGraph)config;
 
-            var copy = (IChartLooks)config.Clone();
-            Assert.Equal((ChartType.Line, ChartDetail.Detailed), (copy.Chart, copy.Detail));
+            // A type other than its default, so it is stored; a span other than its default too.
+            var other = looks.ChartTypes.First(t => t != looks.DefaultChart);
+            var span = looks.Graph!.Spans.First(s => s != looks.Graph.Span);
+            looks.Chart = other;
+            looks.Detail = ChartDetail.Detailed;
+            looks.Span = span;
+
+            // [S-14712] Detailed asks more of a new card; the least is still one cell (the graph alone).
+            Assert.True(module.Descriptor.Sizing(config).Natural.Height > simple.Natural.Height, module.Kind.Id);
+            Assert.Equal(simple.Min.Height, module.Descriptor.Sizing(config).Min.Height);
+
+            var copy = (IMetricGraph)config.Clone();
+            Assert.Equal((other, ChartDetail.Detailed, span), (copy.Chart, copy.Detail, copy.Span));
 
             var options = new JsonSerializerOptions { TypeInfoResolver = module.Descriptor.Json };
             var json = JsonSerializer.Serialize(config, module.Descriptor.ConfigType, options);
-            var back = (IChartLooks)JsonSerializer.Deserialize(json, module.Descriptor.ConfigType, options)!;
-            Assert.Equal((ChartType.Line, ChartDetail.Detailed), (back.Chart, back.Detail));
+            var back = (IMetricGraph)JsonSerializer.Deserialize(json, module.Descriptor.ConfigType, options)!;
+            Assert.Equal((other, ChartDetail.Detailed, span), (back.Chart, back.Detail, back.Span));
 
             // Today's look is not written: a new widget's file is as it was.
             var plain = module.Descriptor.CreateDefault();

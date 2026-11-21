@@ -23,26 +23,28 @@ public sealed class SharedSettingsTests
     /// <summary>[S-11752] Which kinds carry each shared setting: the table the SPEC states, pinned.</summary>
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
-        ["place"] = ["airAlder", "airBirch", "airGrass", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airQualityGraph", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "humidityGraph", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "pressureGraph", "rainGraph", "rainNextHour", "solarNoon", "sun", "sunrise", "sunset", "temperatureGraph", "uvGraph", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind", "windGraph"],
+        ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
         ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],
-        ["diskScope"] = ["disk", "diskHistory"],
-        ["drive"] = ["drive", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed"],
-        ["pingHost"] = ["ping", "pingAnswered", "pingAverage", "pingHistory", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum"],
-        ["gpuAdapter"] = ["gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuHistory", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"],
+        ["diskScope"] = ["disk"],
+        ["drive"] = ["drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed"],
+        ["pingHost"] = ["ping", "pingAnswered", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum"],
+        ["gpuAdapter"] = ["gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"],
         ["audioOutput"] = ["mixer", "volume"],
         ["exchangePair"] = ["exchangeHistory", "exchangeRate"],
         ["stockSymbol"] = ["stock", "stockHistory"],
         ["stockTimeframe"] = ["stock", "stockHistory"],
         ["screenTimePeriod"] = ["screenTime", "screenTimeApps", "screenTimeChart", "screenTimeDonut"],
-        ["historySpan"] = ["batteryHistory", "cpuCores", "cpuHistory", "diskHistory", "gpuHistory", "memoryHistory", "networkHistory", "pingHistory"],
+        ["historySpan"] = ["cpuCores"],
         ["hideWhenIdle"] = ["music", "musicCover", "musicProgress"],
-        ["metricTrend"] = ["airAlder", "airBirch", "airGrass", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airRagweed", "airUv", "batteryRate", "batteryTemperature", "batteryTime", "batteryVoltage", "cpuHandles", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "driveFree", "driveUsed", "gpuClock", "gpuDedicatedMemory", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature", "memoryAvailable", "memoryCached", "memoryCommitted", "memoryInUse", "memoryNonPagedPool", "memoryPageFile", "memoryPagedPool", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "weatherCloudCover", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherUv", "weatherWind"],
+        ["metricTrend"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airRagweed", "airUv", "batteryCharge", "batteryRate", "batteryTemperature", "batteryTime", "batteryVoltage", "cpuHandles", "cpuLoad", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "driveActivity", "driveFree", "driveUsed", "gpuClock", "gpuDedicatedMemory", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature", "memoryAvailable", "memoryCached", "memoryCommitted", "memoryInUse", "memoryNonPagedPool", "memoryPageFile", "memoryPagedPool", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "weatherCloudCover", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherTemperature", "weatherUv", "weatherWind"],
+        // [S-14711] Every single metric whose graph offers a choice of span.
+        ["metricSpan"] = ["airIndex", "airOzone", "airPm10", "airPm25", "batteryCharge", "cpuLoad", "driveActivity", "gpuLoad", "memoryInUse", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherTemperature", "weatherUv", "weatherWind"],
         // [S-14703] And every single metric with a series: its trend graph's look.
-        ["chartType"] = ["airOzone", "airPm10", "airPm25", "airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "gpuLoad", "humidityGraph", "memoryHistory", "memoryInUse", "networkDownload", "networkHistory", "networkUpload", "pingAverage", "pingHistory", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherUv", "weatherWind", "windGraph"],
+        ["chartType"] = ["airIndex", "airOzone", "airPm10", "airPm25", "batteryCharge", "cpuLoad", "driveActivity", "exchangeHistory", "gpuLoad", "memoryInUse", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "stockHistory", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherTemperature", "weatherUv", "weatherWind"],
         // [S-14703] And every single metric with a series: its trend graph's look.
-        ["chartDetail"] = ["airOzone", "airPm10", "airPm25", "airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "gpuLoad", "humidityGraph", "memoryHistory", "memoryInUse", "networkDownload", "networkHistory", "networkUpload", "pingAverage", "pingHistory", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherUv", "weatherWind", "windGraph"],
+        ["chartDetail"] = ["airIndex", "airOzone", "airPm10", "airPm25", "batteryCharge", "cpuLoad", "driveActivity", "exchangeHistory", "gpuLoad", "memoryInUse", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "stockHistory", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherTemperature", "weatherUv", "weatherWind"],
     };
 
     /// <summary>A value of each setting no kind starts with: written on one config, it differs from every default.</summary>
@@ -71,6 +73,7 @@ public sealed class SharedSettingsTests
         ["hideWhenIdle"] = c => ((IHidesWhenIdle)c).HideWhenIdle = MusicHideWhenIdle.NotPlaying,
         ["chartDetail"] = c => ((IChartLooks)c).Detail = ChartDetail.Detailed,
         ["metricTrend"] = c => ((Themia.Core.Widgets.IMetricTrend)c).Trend = Themia.Core.Widgets.MetricTrend.Arrow,
+        ["metricSpan"] = c => ((Themia.Core.Widgets.IMetricGraph)c).Span = ((Themia.Core.Widgets.IMetricGraph)c).Graph!.Spans[^1],
     };
 
     /// <summary>
@@ -82,6 +85,9 @@ public sealed class SharedSettingsTests
         var (a, b) = ((IChartLooks)from, (IChartLooks)to);
         a.Chart = a.ChartTypes.Intersect(b.ChartTypes).First(t => t != ChartLooks.Effective(b));
     }
+
+    private static bool SpanJoins(IMetricGraph from, IMetricGraph to)
+        => from.Graph!.Series == to.Graph!.Series && to.Graph.Spans.Contains(MetricGraphs.EffectiveSpan(from)) && MetricGraphs.EffectiveSpan(from) != MetricGraphs.EffectiveSpan(to);
 
     private static IEnumerable<(string Kind, WidgetConfig Config)> Defaults()
         => ModuleRegistry.Widgets.Select(m => (m.Descriptor.Id.Value, m.Descriptor.CreateDefault()));
@@ -129,6 +135,13 @@ public sealed class SharedSettingsTests
                         Other[setting.Key](from);
                     }
 
+                    // [S-14711] A span is written only onto a graph of the same series that offers it (an hour of the hub's is
+                    // no window of a place's hours): a pair that does not is no pair for it.
+                    if (setting == SharedSettings.MetricSpan && !SpanJoins((IMetricGraph)from, (IMetricGraph)to))
+                    {
+                        continue;
+                    }
+
                     Assert.True(SharedSettings.Read(setting, [from, to]) is { Holders: 2, Mixed: true }, $"{setting}: {kind} set apart still reads as {otherKind}'s");
                     Assert.True(setting.Copy(from, to), $"{setting}: {kind} onto {otherKind} changed nothing");
                     Assert.True(SharedSettings.Read(setting, [from, to]) is { Holders: 2, Mixed: false }, $"{setting}: {kind} onto {otherKind} still differs");
@@ -161,7 +174,7 @@ public sealed class SharedSettingsTests
     public void S11753_every_kind_that_holds_a_shared_setting_marks_the_line_that_sets_it()
     {
         // The kinds whose lines read a list only the running host installs: their helpers are checked below.
-        string[] hosted = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuHistory", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
+        string[] hosted = ["brightness", "desktopItem", "disk", "drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
 
         // A line offered only when it changes something (one output device), or only in a look (the calendar's
         // rows in its agenda, the cores' span in their graphs): the default look of these offers none.
@@ -173,7 +186,7 @@ public sealed class SharedSettingsTests
         // [S-14703] A single metric's chart look stands under its Trend line only while the trend is Line (MetricFitTests
         // checks those lines marked then): its default, None, offers none.
         static bool TrendGraph(IWidgetModule module, SharedSetting setting)
-            => module is Themia.Sdk.WinUI.MetricModule && (setting == SharedSettings.ChartType || setting == SharedSettings.ChartDetail);
+            => module is Themia.Sdk.WinUI.MetricModule && (setting == SharedSettings.ChartType || setting == SharedSettings.ChartDetail || setting == SharedSettings.MetricSpan);
 
         var missing = new List<string>();
         foreach (var module in ModuleRegistry.Widgets)

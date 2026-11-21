@@ -37,7 +37,7 @@ public sealed class BatteryModule : IWidgetModule
         Sizing = c => MeterSizing.Reading(BatteryMeter.Look(((BatteryConfig)c).Style), ReadoutRules.Split(Formatting.Percent(1))),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
-        Add = new(AddFolderId.BatteryReading, 0, 0),
+        Add = new(AddFolderId.Devices, 0, 0),
     };
 
     /// <summary>[S-3719] Nothing to set but the style and the card's look.</summary>

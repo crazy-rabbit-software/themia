@@ -23,7 +23,7 @@ namespace Themia.Widget.MemoryFacts;
 /// </summary>
 internal static class MemoryKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
+    public static IReadOnlyList<MetricKind> All { get; } = Graphed(MetricKind.Opening(
     [
         new("memoryInUse", "inUse", Glyphs.Memory, MetricHistory.Series, Str.Details_Memory_InUse.Local(), MemoryFactsStr.MemoryFacts_MemoryInUse_Label.Local(), MemoryFactsStr.MemoryFacts_MemoryInUse_Desc.Local(),
             ["memory", "ram", "in use", "used"], () => new MemoryInUseConfig()),
@@ -39,7 +39,17 @@ internal static class MemoryKinds
             ["memory", "non-paged pool", "nonpaged", "kernel"], () => new MemoryNonPagedPoolConfig()),
         new("memoryPageFile", "pageFile", Glyphs.Disk, MetricHistory.Readings, Str.Details_Memory_PageFile.Local(), MemoryFactsStr.MemoryFacts_MemoryPageFile_Label.Local(), MemoryFactsStr.MemoryFacts_MemoryPageFile_Desc.Local(),
             ["memory", "page file", "pagefile", "swap", "virtual memory"], () => new MemoryPageFileConfig()),
-    ], MetricOpens.TaskManager);
+    ], MetricOpens.TaskManager));
+
+    /// <summary>
+    /// [S-14710] [S-14713] Each series' graph (the hub's history: Area or Line, a span of the meters') and the history widget
+    /// it stands in for, a placed one replaced in place with its graph shown.
+    /// </summary>
+    private static IReadOnlyList<MetricKind> Graphed(IReadOnlyList<MetricKind> kinds) => [.. kinds.Select(kind => kind.Key switch
+    {
+        "inUse" => kind.Graphed(MetricGraph.Hub(), new MergeFrom("memoryHistory")),
+        _ => kind,
+    })];
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

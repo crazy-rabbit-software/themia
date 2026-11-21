@@ -33,30 +33,31 @@ public sealed class MeterHostTests
     };
 
     [Fact]
-    public void S1120_each_meter_has_its_default_span()
+    public void S1120_S14711_each_metric_graph_has_the_span_its_history_had()
     {
-        Assert.Equal(60, new Themia.Widget.CpuHistory.CpuHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(60, new Themia.Widget.MemoryHistory.MemoryHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(60, new Themia.Widget.NetworkHistory.NetworkHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(60, new Themia.Widget.GpuHistory.GpuHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(300, new Themia.Widget.DiskHistory.DiskHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(900, new Themia.Widget.BatteryHistory.BatteryHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(900, new Themia.Widget.PingHistory.PingHistoryConfig().GraphSpanSeconds);
+        // [S-14713] The histories' spans are their metrics' graphs' defaults now, the same choices ([S-1121]).
+        Assert.Equal(60, MetricGraphs.EffectiveSpan(new Themia.Widget.CpuFacts.CpuLoadConfig()));
+        Assert.Equal(60, MetricGraphs.EffectiveSpan(new Themia.Widget.MemoryFacts.MemoryInUseConfig()));
+        Assert.Equal(60, MetricGraphs.EffectiveSpan(new Themia.Widget.NetworkFacts.NetworkDownloadConfig()));
+        Assert.Equal(60, MetricGraphs.EffectiveSpan(new Themia.Widget.GpuFacts.GpuLoadConfig()));
+        Assert.Equal(300, MetricGraphs.EffectiveSpan(new Themia.Widget.DriveFacts.DriveActivityConfig()));
+        Assert.Equal(900, MetricGraphs.EffectiveSpan(new Themia.Widget.BatteryFacts.BatteryChargeConfig()));
+        Assert.Equal(900, MetricGraphs.EffectiveSpan(new Themia.Widget.PingFacts.PingAverageConfig()));
 
-        foreach (var config in new ISpansHistory[] { new Themia.Widget.MemoryHistory.MemoryHistoryConfig(), new Themia.Widget.NetworkHistory.NetworkHistoryConfig(), new Themia.Widget.GpuHistory.GpuHistoryConfig(), new Themia.Widget.DiskHistory.DiskHistoryConfig(), new Themia.Widget.BatteryHistory.BatteryHistoryConfig(), new Themia.Widget.PingHistory.PingHistoryConfig() })
+        foreach (var config in new IMetricGraph[] { new Themia.Widget.CpuFacts.CpuLoadConfig(), new Themia.Widget.DriveFacts.DriveActivityConfig(), new Themia.Widget.PingFacts.PingAverageConfig() })
         {
-            Assert.Contains(config.GraphSpanSeconds, MeterTiming.SpanChoices);
+            Assert.Equal(MeterTiming.SpanChoices, config.Graph!.Spans);
         }
     }
 
     [Fact]
-    public void S1120_repair_snaps_the_span()
+    public void S1120_S14711_repair_snaps_the_span()
     {
-        var cpu = new Themia.Widget.CpuHistory.CpuHistoryConfig { GraphSpanSeconds = 7 };
+        var cpu = new Themia.Widget.CpuFacts.CpuLoadConfig { Span = 7 };
         var notes = cpu.Repair();
 
         Assert.Single(notes);
-        Assert.Equal(60, cpu.GraphSpanSeconds);
+        Assert.Equal(60, MetricGraphs.EffectiveSpan(cpu));
         Assert.Empty(cpu.Repair());
     }
 
@@ -79,12 +80,12 @@ public sealed class MeterHostTests
         }
 
         Assert.DoesNotContain(FeedKey.Create(SystemSource.CpuCores), SystemInterests.For(new CpuConfig(), @"C:\").Feeds);
-        Assert.DoesNotContain(FeedKey.Create(SystemSource.CpuCores), SystemInterests.For(new Themia.Widget.CpuHistory.CpuHistoryConfig(), @"C:\").Feeds);
+        Assert.DoesNotContain(FeedKey.Create(SystemSource.CpuCores), SystemInterests.For(new Themia.Widget.CpuFacts.CpuLoadConfig(), @"C:\").Feeds);
 
-        // [S-11000] The reading, the history and the cores read the one series, so they agree to the point.
+        // [S-11000] [S-14714] The reading, the load's metric and the cores read the one series, so they agree to the point.
         var series = new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty);
         Assert.Contains(series, SystemInterests.For(new CpuConfig(), @"C:\").Series);
-        Assert.Contains(series, SystemInterests.For(new Themia.Widget.CpuHistory.CpuHistoryConfig(), @"C:\").Series);
+        Assert.Contains(series, SystemInterests.For(new Themia.Widget.CpuFacts.CpuLoadConfig(), @"C:\").Series);
         Assert.Contains(series, SystemInterests.For(new CpuCoresConfig(), @"C:\").Series);
     }
 
@@ -118,9 +119,9 @@ public sealed class MeterHostTests
     [Fact]
     public void S1120_clone_carries_the_shared_settings()
     {
-        var ping = new Themia.Widget.PingHistory.PingHistoryConfig { GraphSpanSeconds = 1800, Host = "example.com" };
-        var copy = (Themia.Widget.PingHistory.PingHistoryConfig)ping.Clone();
+        var ping = new Themia.Widget.PingFacts.PingAverageConfig { Span = 1800, Host = "example.com" };
+        var copy = (Themia.Widget.PingFacts.PingAverageConfig)ping.Clone();
 
-        Assert.Equal((1800, "example.com"), (copy.GraphSpanSeconds, copy.Host));
+        Assert.Equal((1800, "example.com"), (copy.Span, copy.Host));
     }
 }

@@ -46,8 +46,45 @@ public static class MetricMenuLines
         if (MetricRules.Effective(config) == MetricTrend.Line && config is IChartLooks looks)
         {
             menu.Lines.AddRange(ChartMenuLines.Lines(menu, looks));
+            if (config is IMetricGraph graph && Span(menu, graph) is { } span)
+            {
+                menu.Lines.Add(span);
+            }
         }
     }
+
+    /// <summary>
+    /// [S-14711] The graph's span line, the spans its kind's graph offers (owner, 2026-11-20: "What the items are (which facts,
+    /// which span of time a chart covers) stays a setting"): a hub series' as the meters' Chart span (a minute to an hour),
+    /// a place's hours as the weather graphs' Time span (hours, or days past two); none where its graph offers one span.
+    /// </summary>
+    public static ItemMenuEntry? Span(WidgetMenuLines menu, IMetricGraph config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Graph is not { Spans.Count: > 1 } graph)
+        {
+            return null;
+        }
+
+        var hub = graph.Series == GraphSeries.Hub;
+        return WidgetMenuLines.Shared(SharedSettings.MetricSpan, menu.Choice(hub ? Glyphs.Hours : Glyphs.Calendar,
+            hub ? Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text() : Str.WeatherGraph_Window.Text(),
+            [.. graph.Spans.Select(span => (span, SpanLabel(graph.Series, span)))],
+            MetricGraphs.EffectiveSpan(config),
+            span => config.Span = span == graph.Span ? 0 : span));
+    }
+
+    /// <summary>[S-14711] A span's name in its series' unit: "1 minute", "24 hours", "4 days".</summary>
+    public static string SpanLabel(GraphSeries series, int span) => series switch
+    {
+        GraphSeries.Hub => MeterTiming.SpanLabel(span),
+        GraphSeries.Prices => Str.WeatherGraph_WindowDays.Format(("count", LocaleFormat.Integer(Strings.Current, span))),
+        GraphSeries.Minutes => MeterTiming.SpanLabel(span * 60),
+        _ => span > 48 && span % 24 == 0
+            ? Str.WeatherGraph_WindowDays.Format(("count", LocaleFormat.Integer(Strings.Current, span / 24)))
+            : Str.WeatherGraph_WindowHours.Format(("count", LocaleFormat.Integer(Strings.Current, span))),
+    };
 
     /// <summary>A trend's name on the page.</summary>
     public static string Label(MetricTrend trend) => trend switch

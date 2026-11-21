@@ -5,6 +5,7 @@ using Themia.Sdk;
 using Themia.Widget.BatteryFacts;
 
 [assembly: ThemiaWidgetFamily]
+[assembly: ThemiaWidget("batteryCharge", typeof(BatteryChargeModule))]
 [assembly: ThemiaWidget("batteryStatus", typeof(BatteryStatusModule))]
 [assembly: ThemiaWidget("batteryTime", typeof(BatteryTimeModule))]
 [assembly: ThemiaWidget("batteryHealth", typeof(BatteryHealthModule))]
@@ -29,6 +30,10 @@ internal static class BatteryKinds
 {
     public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
     [
+        // [S-14714] The charge, the battery history's metric: the hub's series, its graph standing in for the history ([S-14713]).
+        new MetricKind("batteryCharge", "charge", Glyphs.Battery, MetricHistory.Series, BatteryFactsStr.BatteryFacts_BatteryCharge_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryCharge_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryCharge_Desc.Local(),
+            ["battery", "charge", "level", "percent", "graph", "history"], () => new BatteryChargeConfig())
+            .Graphed(MetricGraph.Hub(900), new MergeFrom("batteryHistory")),
         new("batteryStatus", "status", Glyphs.Battery, MetricHistory.None, Str.Details_Battery_Status.Local(), BatteryFactsStr.BatteryFacts_BatteryStatus_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryStatus_Desc.Local(),
             ["battery", "status", "charging", "plugged in"], () => new BatteryStatusConfig()),
         new("batteryTime", "time", Glyphs.Hours, MetricHistory.Readings, Str.Details_Battery_TimeLeft.Local(), BatteryFactsStr.BatteryFacts_BatteryTime_Label.Local(), BatteryFactsStr.BatteryFacts_BatteryTime_Desc.Local(),
@@ -63,6 +68,8 @@ internal static class BatteryKinds
 // [S-14604] Each kind is its module and its config (a config's type is how it knows its id, [S-6902]); everything
 // else is the family's (BatteryMetricModule, BatteryMetricConfig, the view) over the single metric's base.
 
+public sealed class BatteryChargeModule() : BatteryMetricModule("charge");
+
 public sealed class BatteryStatusModule() : BatteryMetricModule("status");
 
 public sealed class BatteryTimeModule() : BatteryMetricModule("time");
@@ -84,6 +91,8 @@ public sealed class BatteryTemperatureModule() : BatteryMetricModule("temperatur
 public sealed class BatteryChemistryModule() : BatteryMetricModule("chemistry");
 
 public sealed class BatteryManufacturerModule() : BatteryMetricModule("manufacturer");
+
+public sealed class BatteryChargeConfig() : BatteryMetricConfig("charge");
 
 public sealed class BatteryStatusConfig() : BatteryMetricConfig("status");
 

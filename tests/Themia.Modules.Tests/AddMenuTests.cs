@@ -96,8 +96,12 @@ public sealed class AddMenuTests
     {
         var homes = AddPage.Of(Every, ReadyMadeGroups.Offered()).Homes;
 
-        var history = homes.Single(home => home.Kind == new WidgetId("cpuHistory"));
-        Assert.Equal([AddFolderId.System, AddFolderId.Processor], history.Path.Select(shelf => shelf.Id));
+        var cores = homes.Single(home => home.Kind == new WidgetId("cpuCores"));
+        Assert.Equal([AddFolderId.System, AddFolderId.Processor], cores.Path.Select(shelf => shelf.Id));
+
+        // [S-14713] A reading whose history is its metric's graph now stands in its subject alone, never a family of one.
+        Assert.Equal([AddFolderId.System], homes.Single(home => home.Kind == new WidgetId("memory")).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.System, AddFolderId.CpuFacts], homes.Single(home => home.Kind == new WidgetId("cpuLoad")).Path.Select(shelf => shelf.Id));
 
         // [S-14604] A single metric is at home in its own family beside its reading's.
         var speed = homes.Single(home => home.Kind == new WidgetId("cpuSpeed"));

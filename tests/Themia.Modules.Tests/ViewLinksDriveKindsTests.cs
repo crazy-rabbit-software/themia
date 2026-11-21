@@ -15,7 +15,7 @@ public sealed class ViewLinksDriveKindsTests
     [InlineData("driveFileSystem")]
     [InlineData("driveType")]
     [InlineData("disk")]
-    [InlineData("diskHistory")]
+    [InlineData("driveActivity")]
     [InlineData("removableDrives")]
     [InlineData("folder")]
     public void S11950_a_drive_card_a_disk_atom_a_removable_row_and_a_folder_point_at_a_drive_and_light_for_one(string id)
@@ -27,8 +27,11 @@ public sealed class ViewLinksDriveKindsTests
     }
 
     [Fact]
-    public void S11953_the_disk_history_publishes_the_moment_and_the_drive_both()
-        => Assert.Equal([LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive], Links("diskHistory").Publishes);
+    public void S11953_S14713_the_drive_s_activity_is_its_drive_on_the_links_as_every_drive_fact()
+    {
+        Assert.Equal(Links("driveUsed").Publishes.ToList(), Links("driveActivity").Publishes.ToList());
+        Assert.Equal(Links("driveUsed").Follows.ToList(), Links("driveActivity").Follows.ToList());
+    }
 
     [Theory]
     [InlineData("bluetooth")]

@@ -10,8 +10,8 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-12700]..[S-12709] What the weather graphs share: the hourly replies' parsers on synthetic replies (never the
-/// network), the frame's geometry and rules, the shared config, the sync's wants and the offline store.
+/// [S-12700]..[S-12702] What the metrics over a place's hours share ([S-14710]): the hourly replies' parsers on synthetic
+/// replies (never the network), a slot's place on a plot of cells and the offline store.
 /// </summary>
 public sealed class WeatherGraphsTests
 {
@@ -92,65 +92,12 @@ public sealed class WeatherGraphsTests
 
     // ---- frame ---------------------------------------------------------------------------------
 
-    private static readonly DateTimeOffset T0 = DateTimeOffset.FromUnixTimeSeconds(Hour);
-
-    private static List<DateTimeOffset> Stamps(int count) => [.. Enumerable.Range(-1, count).Select(i => T0.AddHours(i))];
-
-    [Fact]
-    public void S12705_the_window_starts_at_the_hour_under_way_and_holds_its_hours_and_one()
-    {
-        var window = HourGraphRules.Window(Stamps(50), t => t, T0.AddMinutes(42), 24);
-
-        Assert.Equal(25, window.Count);
-        Assert.Equal(T0, window[0]);
-        Assert.Equal(T0.AddHours(24), window[^1]);
-    }
-
-    [Fact]
-    public void S12705_an_answer_too_old_for_now_gives_no_window_and_a_short_one_what_it_has()
-    {
-        Assert.Empty(HourGraphRules.Window(Stamps(5), t => t, T0.AddHours(10), 24));
-        Assert.Equal(4, HourGraphRules.Window(Stamps(5), t => t, T0, 24).Count);
-    }
-
-    [Fact]
-    public void S12705_the_scale_widens_a_flat_series_and_amounts_start_at_zero()
-    {
-        Assert.Equal((7.5, 12.5), HourGraphRules.Scale([10, 10.0, null], 5));
-        Assert.Equal((2.0, 20.0), HourGraphRules.Scale([2, 20.0], 5));
-        Assert.Equal((0.0, 2.0), HourGraphRules.Scale([0, 0.4], 0, fromZero: true, floorTop: 2));
-        Assert.Equal((0.0, 9.0), HourGraphRules.Scale([0, 9.0], 0, fromZero: true, floorTop: 2));
-        Assert.Null(HourGraphRules.Scale([null, null], 5));
-    }
-
-    [Fact]
-    public void S12705_shares_extremes_and_runs_skip_gaps()
-    {
-        Assert.Equal(0.5, HourGraphRules.Share(5, (0, 10)));
-        Assert.Equal(1.0, HourGraphRules.Share(15, (0, 10)));
-        Assert.Null(HourGraphRules.Share(null, (0, 10)));
-        Assert.Equal((1, 3), HourGraphRules.Extremes([null, 1, 4, 9, 9, null]));
-        Assert.Null(HourGraphRules.Extremes([null, null]));
-        Assert.Equal([(0, 1), (3, 3), (5, 6)], ChartPlot.Runs([.. new double?[] { 1, 2, null, 4, null, 6, 7 }.Select((v, i) => new ChartSample(i, v ?? double.NaN))]));
-    }
-
-    [Fact]
-    public void S12705_a_temperature_is_drawn_in_the_shared_unit()
-    {
-        Assert.Equal(10, HourGraphRules.Temperature(10, TemperatureUnit.Celsius));
-        Assert.Equal(50, HourGraphRules.Temperature(10, TemperatureUnit.Fahrenheit));
-        Assert.Equal(-40, HourGraphRules.Temperature(-40, TemperatureUnit.Fahrenheit));
-        Assert.Null(HourGraphRules.Temperature(null, TemperatureUnit.Fahrenheit));
-        Assert.Null(HourGraphRules.Temperature(double.NaN, TemperatureUnit.Celsius));
-    }
-
-    [Fact]
-    public void S12703_slots_sit_on_their_cells_middles_and_moments_between_them()
+        [Fact]
+    public void S12703_slots_sit_on_their_cells_middles_and_a_line_skips_gaps()
     {
         Assert.Equal(5, HourGraphRules.X(0, 10, 100));
         Assert.Equal(95, HourGraphRules.X(9, 10, 100));
-        Assert.Equal(10, HourGraphRules.X(T0.AddMinutes(30), T0, TimeSpan.FromHours(1), 10, 100));
-        Assert.Equal(15, HourGraphRules.X(T0.AddMinutes(15), T0, TimeSpan.FromMinutes(15), 10, 100));
+        Assert.Equal([(0, 1), (3, 3), (5, 6)], ChartPlot.Runs([.. new double?[] { 1, 2, null, 4, null, 6, 7 }.Select((v, i) => new ChartSample(i, v ?? double.NaN))]));
     }
 
     [Fact]
@@ -167,120 +114,6 @@ public sealed class WeatherGraphsTests
         Assert.Equal(FamilyShape.Stroke, ChartPlot.BarWidth(1));
         Assert.Equal(6, ChartPlot.BarWidth(10));
         Assert.Equal(FamilyShape.IconLarge / 2, ChartPlot.BarWidth(100));
-    }
-
-    [Fact]
-    public void S12703_the_days_borders_are_the_local_midnights_inside_the_window()
-    {
-        var zone = TimeZoneInfo.Utc;
-        var midnights = HourGraphRules.Midnights(T0, T0.AddHours(48), zone);
-
-        Assert.Equal(2, midnights.Count);
-        Assert.All(midnights, m => Assert.Equal(TimeSpan.Zero, m.TimeOfDay));
-        Assert.Empty(HourGraphRules.Midnights(T0, T0.AddHours(3), zone));
-    }
-
-    [Fact]
-    public void S12708_S12801_the_frame_leads_with_the_glyph_says_a_chosen_measure_and_the_window_ends()
-    {
-        var slots = Enumerable.Range(0, 25).Select(i => new HourSlot(T0.AddHours(i), 0.5)).ToList();
-        var model = HourGraphRules.Framed(new HourGraphModel(slots, HourGraphLook.Line), "", string.Empty, T0.AddMinutes(10), Locale.En, TimeZoneInfo.Utc);
-
-        // [S-12801] No name and no place: a group's Header widget says them once; the glyph says what the reading is.
-        Assert.Equal("", model.Glyph);
-        Assert.Equal(string.Empty, model.Label);
-        Assert.Equal("Now", model.StartLabel);
-        Assert.StartsWith(LocaleFormat.WeekdayName(Locale.En, T0.AddHours(24).DayOfWeek, NameWidth.Short), model.EndLabel, StringComparison.Ordinal);
-        Assert.Equal("PM2.5 µg/m³", HourGraphRules.Framed(new HourGraphModel(slots, HourGraphLook.Line), "", "PM2.5 µg/m³", T0, Locale.En, TimeZoneInfo.Utc).Label);
-    }
-
-    [Theory]
-    [InlineData(false, ChartDetail.Simple)]
-    [InlineData(true, ChartDetail.Simple)]
-    [InlineData(false, ChartDetail.Detailed)]
-    [InlineData(true, ChartDetail.Detailed)]
-    public void S6754_a_weather_graph_plots_edge_to_edge_its_top_line_and_arrows_over_it(bool arrows, ChartDetail detail)
-    {
-        var slots = Enumerable.Range(0, 25).Select(i => new HourSlot(T0.AddHours(i), 0.5, Direction: arrows ? 90 : null)).ToList();
-        var model = HourGraphRules.Framed(new HourGraphModel(slots, HourGraphLook.Area) { Detail = detail }, "", string.Empty, T0, Locale.En, TimeZoneInfo.Utc);
-        var size = HourGraphRules.Sizing(arrows).Min;
-        var chart = HourGraphRules.Chart(model, size.Width, Locale.En, TimeZoneInfo.Utc);
-        var frame = ChartPlot.Frame(chart, size.Width, size.Height);
-
-        // The plot is the card's; the top line stands over its top, the line under it and its figures' line.
-        Assert.Equal(new ChartBox(0, 0, size.Width, size.Height), frame.Plot);
-        Assert.Equal(HourGraphRules.Over + FamilyType.CaptionLine, frame.LineTop);
-
-        // The line keeps the height it had under the old frame: the plot's least less its figures' lines.
-        Assert.Equal(HourGraphRules.PlotMin - (2 * FamilyType.CaptionLine), frame.LineBottom - frame.LineTop, 6);
-
-        // "Now" and the end (Simple) at the foot; the slots on their cells' middles, the line held out to the sides.
-        Assert.Equal(new ChartEnds("Now", model.EndLabel), chart.Ends);
-        Assert.Equal(HourGraphRules.X(0, slots.Count, size.Width), chart.Series[0].X);
-        Assert.Equal(0, ChartPlot.ToEdges(chart.Series, size.Width)[0].X);
-        Assert.Equal(size.Width, ChartPlot.ToEdges(chart.Series, size.Width)[^1].X);
-
-        // The wind's arrows stand over the time line, each whole inside the text box.
-        var drawn = HourGraphRules.Arrows(slots.Count, frame);
-        Assert.NotEmpty(drawn);
-        Assert.All(drawn, a => Assert.True(a.X - (FamilyShape.Icon / 2) >= frame.Text.Left && a.X + (FamilyShape.Icon / 2) <= frame.Text.Right));
-        Assert.True(frame.UnderTop + (arrows ? FamilyShape.Icon : 0) <= frame.FootLine);
-    }
-
-    [Fact]
-    public void S12704_every_graph_states_one_sizing_relaxed_as_a_chart()
-    {
-        var plain = HourGraphRules.Sizing(arrows: false);
-        var wind = HourGraphRules.Sizing(arrows: true);
-
-        Assert.Empty(plain.Problems());
-        Assert.Equal(StretchRoom.Picture, plain.Room);
-        Assert.Equal((220.0, 320.0), (plain.Min.Width, plain.Natural.Width));
-        Assert.Equal(12 + 20 + 8 + 96 + 4 + 16 + 12, plain.Natural.Height);
-        Assert.Equal(plain.Natural.Height + FamilySpace.S1 + FamilyShape.Icon, wind.Natural.Height);
-    }
-
-    // ---- config and sync -----------------------------------------------------------------------
-
-    private sealed class Graph : HourGraphConfig
-    {
-        public Graph()
-            : base(ChartType.Area)
-        {
-        }
-
-        public override WidgetConfig Clone()
-        {
-            var copy = new Graph();
-            CopyTo(copy);
-            return copy;
-        }
-    }
-
-    [Fact]
-    public void S12707_a_window_that_is_no_choice_is_repaired_to_the_nearest()
-    {
-        var config = new Graph { Hours = 30 };
-
-        Assert.Equal(24, config.EffectiveHours);
-        Assert.Single(config.Repair());
-        Assert.Equal(24, config.Hours);
-        Assert.Empty(new Graph { Hours = 48 }.Repair());
-    }
-
-    [Fact]
-    public void S12702_graphs_at_one_place_share_one_hourly_want_and_none_without_a_place()
-    {
-        var builder = new InterestsBuilder(new RefreshPreferences(), TemperatureUnit.Celsius);
-        new Graph { Latitude = 47.37, Longitude = 8.54, Hours = 12 }.AddInterests(builder);
-        new Graph { Latitude = 47.37, Longitude = 8.54, Hours = 48 }.AddInterests(builder);
-        new Graph().AddInterests(builder);
-
-        var wants = builder.Of<HoursInterest>();
-
-        Assert.Equal(2, wants.Count);
-        Assert.Single(wants.Distinct());
-        Assert.Equal(12, ((Graph)new Graph { Latitude = 1, Longitude = 2, Hours = 12 }.Clone()).Hours);
     }
 
     // ---- offline store -------------------------------------------------------------------------

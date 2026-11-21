@@ -31,11 +31,8 @@ public enum AddFolderId
     // The families: one widget in several layouts or several parts.
     Processor,
     Graphics,
-    MemoryReading,
     NetworkReading,
-    PingReading,
     ScreenTime,
-    BatteryReading,
     PowerButtons,
 
     /// <summary>[S-13900] The weather's readings, one widget a fact, under Weather.</summary>

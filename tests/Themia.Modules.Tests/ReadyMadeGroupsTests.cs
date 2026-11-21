@@ -268,10 +268,12 @@ public sealed class ReadyMadeGroupsTests
     }
 
     [Fact]
-    public void S2474_this_pc_is_one_column_of_one_width_each_reading_over_its_history()
+    public void S2474_this_pc_is_one_column_of_one_width_each_reading_over_its_graph()
     {
+        // [S-14713] Each history is its metric with its graph shown.
         var recipe = ReadyMadeGroups.ThisPc;
-        Assert.Equal(["header", "cpu", "cpuHistory", "memory", "memoryHistory", "disk", "diskHistory", "network", "networkHistory"], recipe.Widgets.Select(w => w.Kind));
+        Assert.Equal(["header", "cpu", "cpuLoad", "memory", "memoryInUse", "disk", "driveActivity", "network", "networkDownload"], recipe.Widgets.Select(w => w.Kind));
+        Assert.All(recipe.Widgets.Where((_, i) => i % 2 == 0 && i > 0), w => Assert.Contains("\"trend\": \"Line\"", w.Config!, StringComparison.Ordinal));
 
         // One left edge, one width, each box right under the one before it.
         Assert.All(recipe.Widgets, w => Assert.Equal((0d, recipe.Bounds.Width), (w.Box.X, w.Box.Width)));
@@ -300,11 +302,11 @@ public sealed class ReadyMadeGroupsTests
     }
 
     /// <summary>
-    /// [S-14220] A group placed with metrics drawing a line lays each of them two rows tall (its sizing's, through the
-    /// block's fit), the others one, all still touching: the recipe's one-row boxes grow, never overlap.
+    /// [S-14712] A group placed with metrics drawing a line lays each of them in its recipe's box (a line goes down to one
+    /// cell, so a row's box holds its row and sparkline), all still touching: nothing grows, nothing overlaps.
     /// </summary>
     [Fact]
-    public void S14220_a_group_placed_with_line_metrics_lays_each_two_rows_still_touching()
+    public void S14712_a_group_placed_with_line_metrics_keeps_their_rows_still_touching()
     {
         const string line = """{ "trend": "Line" }""";
         var row = MetricRules.RowHeight;
@@ -320,7 +322,8 @@ public sealed class ReadyMadeGroupsTests
 
         var laid = ReadyMadeGroups.Laid(recipe, Screen, new PlacementSizes(1)).Select(r => GridGeometry.ToPixels(r, Screen, 1)).ToList();
 
-        Assert.Equal([2 * row, row, 2 * row], laid.Select(r => Math.Round(r.Height, 6)));
+        // A line goes down to one cell: one row tall it is the row with its sparkline, so the group lays as it was drawn.
+        Assert.Equal([row, row, row], laid.Select(r => Math.Round(r.Height, 6)));
         Assert.Equal(laid[0].Y + laid[0].Height, laid[1].Y, 6);
         Assert.Equal(laid[1].Y + laid[1].Height, laid[2].Y, 6);
         Assert.All(laid, r => Assert.Equal(240, r.Width, 6));

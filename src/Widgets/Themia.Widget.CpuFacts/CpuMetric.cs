@@ -20,8 +20,9 @@ namespace Themia.Widget.CpuFacts;
 public abstract class CpuMetricModule(string key)
     : MetricModule(CpuKinds.Of(key), CpuFactsJsonContext.Default, AddFolderId.CpuFacts, CpuKinds.Rank(key))
 {
+    /// <summary>[S-14714] The load is the hub's series itself (<see cref="SeriesMetricPart"/>); every other fact the processor's sheet.</summary>
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind, new CpuMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, Kind.Key == "load" ? new SeriesMetricPart(Formatting.Percent) : new CpuMetricPart(Kind.Key));
 }
 
 /// <summary>[S-14610] What a CPU fact card remembers: its trend; its fact is its kind's. It reads the hub's load, counts and processor feeds.</summary>
@@ -32,10 +33,11 @@ public abstract class CpuMetricConfig(string key) : MetricConfig, IReadsSystem
     public string Key { get; } = key;
 
     /// <inheritdoc />
-    protected override MetricHistory KindHistory => CpuKinds.Of(Key).History;
+    protected override MetricKind Metric => CpuKinds.Of(Key);
 
     /// <summary>[S-2513] The load, the counts and the processor's figures, in the hub's read order ([S-2501]).</summary>
-    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Cpu, SystemSource.Performance, SystemSource.Processor);
+    public SystemInterests SystemWants(string systemRoot)
+        => Key == "load" ? SystemInterests.Chart(SystemSource.Cpu) : SystemInterests.Read(SystemSource.Cpu, SystemSource.Performance, SystemSource.Processor);
 
     public override WidgetConfig Clone()
     {
@@ -104,6 +106,7 @@ internal sealed class CpuMetricPart(string key) : SystemMetricPart
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSerializable(typeof(CpuLoadConfig))]
 [JsonSerializable(typeof(CpuSpeedConfig))]
 [JsonSerializable(typeof(CpuBaseSpeedConfig))]
 [JsonSerializable(typeof(CpuCoreCountConfig))]

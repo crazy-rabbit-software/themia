@@ -31,6 +31,7 @@ public abstract class WeatherFactModule(WeatherFactKind fact)
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSerializable(typeof(WeatherTemperatureConfig))]
 [JsonSerializable(typeof(WeatherHighLowConfig))]
 [JsonSerializable(typeof(WeatherFeelsLikeConfig))]
 [JsonSerializable(typeof(WeatherHumidityConfig))]

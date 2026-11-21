@@ -32,7 +32,7 @@ public abstract class MemoryMetricConfig(string key) : MetricConfig, IReadsSyste
     public string Key { get; } = key;
 
     /// <inheritdoc />
-    protected override MetricHistory KindHistory => MemoryKinds.Of(Key).History;
+    protected override MetricKind Metric => MemoryKinds.Of(Key);
 
     /// <summary>[S-2513] The memory figures and the page files; [S-14603] the memory's share series while its line is drawn.</summary>
     public SystemInterests SystemWants(string systemRoot)
@@ -63,11 +63,13 @@ internal sealed class MemoryMetricPart(string key) : SystemMetricPart
 {
     private readonly WatchSlot<PerformanceSnapshot> _figures = new();
     private ISeriesWatch? _series;
+    private WidgetConfig? _config;
     private ISystemMetricHost? _host;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {
         _host = host;
+        _config = config;
         _figures.Hold(hub, Sources.Performance, _ =>
         {
             NextReading();
@@ -98,7 +100,7 @@ internal sealed class MemoryMetricPart(string key) : SystemMetricPart
 
         var shown = MetricRules.Pick(MemoryDetailRules.Sheet(Strings.Current, _figures.Value.Figures, _figures.Value.Pagefile), key) with { Reading = LastReading };
         // [S-14703] The history is the share in use (the memory meter's), written as one.
-        host.Present(_series is { } series ? shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)p.First)], Figure = Formatting.Percent } : shown);
+        host.Present(_series is { } series && _config is { } config ? Graphed(shown, series, config, p => p.First, Formatting.Percent) : shown);
     }
 
     public override void Detach()

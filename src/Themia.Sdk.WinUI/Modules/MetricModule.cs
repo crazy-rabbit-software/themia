@@ -36,6 +36,7 @@ public abstract class MetricModule : IWidgetModule
             Traits = WidgetTraits.HasItems,
             Links = links ?? LinkUse.None,
             Add = new(folder, 0, rank),
+            Merges = kind.Merges,
         };
     }
 

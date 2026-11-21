@@ -51,7 +51,7 @@ public abstract class GpuMetricConfig(string key) : MetricConfig, IReadsSystem, 
     public int Adapter { get; set; }
 
     /// <inheritdoc />
-    protected override MetricHistory KindHistory => GpuKinds.Of(Key).History;
+    protected override MetricKind Metric => GpuKinds.Of(Key);
 
     /// <summary>[S-2513] Every adapter's sample; [S-14603] the adapter's load series while its line is drawn.</summary>
     public SystemInterests SystemWants(string systemRoot)
@@ -126,7 +126,7 @@ internal sealed partial class GpuMetricPart(string key) : SystemMetricPart
         var detail = snapshot.Details[adapter < snapshot.Details.Count ? adapter : 0];
         var shown = MetricRules.Pick(GpuDetailRules.Sheet(Strings.Current, detail), key) with { Reading = LastReading };
         // [S-14703] The load's history is a share, written as one.
-        host.Present(_series is { } series ? shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)p.First)], Figure = Formatting.Percent } : shown);
+        host.Present(_series is { } series && _config is { } config ? Graphed(shown, series, config, p => p.First, Formatting.Percent) : shown);
     }
 
     public override void Detach()

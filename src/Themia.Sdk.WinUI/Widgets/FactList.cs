@@ -86,6 +86,10 @@ public partial class FactList : RowStack
         foreach (var row in _rows)
         {
             row.Height = height;
+
+            // [S-14712] A face under a row's natural height (a metric two cells tall, its sparkline beside the value): the
+            // row stands in it, its texts centred in the face, never cut by its own least.
+            row.MinHeight = double.IsFinite(height) ? Math.Min(FamilyShape.RowHeight(1), height) : FamilyShape.RowHeight(1);
         }
     }
 

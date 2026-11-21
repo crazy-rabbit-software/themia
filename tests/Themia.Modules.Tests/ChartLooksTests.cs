@@ -10,26 +10,15 @@ namespace Themia.Modules.Tests;
 /// <summary>[S-6752] Every graph kind's chart look: its defaults are its look until now, its repair, its copy and its sizing.</summary>
 public sealed class ChartLooksTests
 {
-    /// <summary>What each graph kind drew before there was a choice: a new widget looks as it did, unasked.</summary>
+    /// <summary>
+    /// What each graph kind drew before there was a choice: a new widget looks as it did, unasked. The weather graphs and
+    /// the histories are their metrics' graphs now ([S-14713]), their looks their kinds' graphs' defaults (<c>MetricFitTests</c>).
+    /// </summary>
     private static readonly Dictionary<string, ChartType> Before = new(StringComparer.Ordinal)
     {
-        ["airQualityGraph"] = ChartType.Area,
-        ["batteryHistory"] = ChartType.Area,
         ["cpuCores"] = ChartType.Area,
-        ["cpuHistory"] = ChartType.Area,
-        ["diskHistory"] = ChartType.Area,
         ["exchangeHistory"] = ChartType.Area,
-        ["gpuHistory"] = ChartType.Area,
-        ["humidityGraph"] = ChartType.Area,
-        ["memoryHistory"] = ChartType.Area,
-        ["networkHistory"] = ChartType.Area,
-        ["pingHistory"] = ChartType.Area,
-        ["pressureGraph"] = ChartType.Line,
-        ["rainGraph"] = ChartType.Bars,
         ["stockHistory"] = ChartType.Area,
-        ["temperatureGraph"] = ChartType.Area,
-        ["uvGraph"] = ChartType.Bars,
-        ["windGraph"] = ChartType.Line,
     };
 
     /// <summary>The graph kinds; a single metric's graph is its trend's, its look checked with the metrics (<c>MetricFitTests</c>).</summary>
@@ -68,9 +57,9 @@ public sealed class ChartLooksTests
     [Fact]
     public void S6752_a_type_not_offered_is_repaired_to_the_kinds_own_loudly()
     {
-        var history = (IChartLooks)ModuleCatalog.Of(new WidgetId("networkHistory")).CreateDefault();
+        var history = (IChartLooks)ModuleCatalog.Of(new WidgetId("networkDownload")).CreateDefault();
         history.Chart = ChartType.Candles;
-        Assert.Single(ChartLooks.Repair(history, "networkHistory"));
+        Assert.Single(ChartLooks.Repair(history, "networkDownload"));
         Assert.Equal(ChartType.Area, history.Chart);
 
         var cores = (IChartLooks)ModuleCatalog.Of(new WidgetId("cpuCores")).CreateDefault();

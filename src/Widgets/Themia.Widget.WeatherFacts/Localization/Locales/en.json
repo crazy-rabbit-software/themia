@@ -11,7 +11,9 @@
     "weatherFacts.cloudCover.desc",
     "weatherFacts.gusts.desc",
     "weatherFacts.sunrise.desc",
-    "weatherFacts.sunset.desc"
+    "weatherFacts.sunset.desc",
+    "weatherFacts.temperature.label",
+    "weatherFacts.temperature.desc"
   ],
   "weather.feelsLike": "Feels like",
   "weather.humidity": "Humidity",
@@ -28,6 +30,8 @@
   "weatherFacts.sunrise.label": "Sunrise",
   "weatherFacts.sunset.desc": "Today's sunset where you are",
   "weatherFacts.sunset.label": "Sunset",
+  "weatherFacts.temperature.desc": "The temperature where you are",
+  "weatherFacts.temperature.label": "Temperature",
   "weatherFacts.uv.desc": "The UV index where you are",
   "weatherFacts.wind.desc": "Wind speed and direction where you are",
   "widgetsC.weather.fact.cloudCover": "Cloud cover",

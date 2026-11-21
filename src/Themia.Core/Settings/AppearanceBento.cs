@@ -11,6 +11,9 @@ public sealed record BentoTile(string Kind, int Column, int Row, int Columns, in
 {
     /// <summary>The kind as an id.</summary>
     public WidgetId Id => new(Kind);
+
+    /// <summary>[S-14713] A single metric drawn with its graph (its trend Line): the network graph is the download's metric.</summary>
+    public bool Graph { get; init; }
 }
 
 /// <summary>[S-2311] A tile's box in the display's grid cells ([S-06]): whole cells, from the bento's top-left corner.</summary>
@@ -60,7 +63,7 @@ public static class AppearanceBento
         new("wifiToggle", 1, 1, 1, 1),
         new("weatherHumidity", 4, 1, 2, 1, Station),
         new("tasks", 0, 2, 2, 2),
-        new("networkHistory", 2, 2, 2, 1),
+        new("networkDownload", 2, 2, 2, 1) { Graph = true },
         new("weatherForecast", 4, 2, 2, 1, Station),
         new("music", 2, 3, 2, 1),
         new("battery", 4, 3, 1, 1),

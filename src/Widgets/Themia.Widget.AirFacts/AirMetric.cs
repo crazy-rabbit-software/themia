@@ -35,7 +35,7 @@ public abstract class AirMetricModule(string key)
 /// kind's. It asks for the same air answer as the index (<c>airQuality</c>, [S-5101]); a trend over the hours asks the
 /// place's air hours too (the air graph's one answer), only while it draws one.
 /// </summary>
-public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, IMetricTrend, IChartLooks
+public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, IMetricGraph
 {
     /// <summary>The reading its kind shows.</summary>
     [JsonIgnore]
@@ -47,25 +47,42 @@ public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, I
 
     /// <inheritdoc />
     [JsonIgnore]
-    public MetricHistory History => AirFactRules.History(Fact);
+    public MetricHistory History => AirKinds.Of(Fact.ToString()).History;
 
-    /// <summary>[S-14703] How its graph over the hours is drawn; Area (the look until now) by default.</summary>
+    /// <inheritdoc />
+    [JsonIgnore]
+    public MetricGraph? Graph => AirKinds.Of(Fact.ToString()).Graph;
+
+    /// <inheritdoc />
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public ChartType Chart { get; set; }
+    public int Span { get; set; }
+
+    /// <summary>[S-14703] How its graph over the hours is drawn: its kind's graph's default unless another is stored.</summary>
+    [JsonIgnore]
+    public ChartType Chart
+    {
+        get => ChartStored ?? DefaultChart;
+        set => ChartStored = value == DefaultChart ? null : value;
+    }
+
+    /// <summary>[S-14710] The chart type stored: only one other than its kind's default.</summary>
+    [JsonPropertyName("chart")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ChartType? ChartStored { get; set; }
 
     /// <summary>[S-14703] Simple by default.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public ChartDetail Detail { get; set; }
 
-    /// <summary>[S-14703] The weather graphs' types (the line with its wash, the line alone, a column per hour) where it has a series; none without.</summary>
+    /// <summary>[S-14710] The types its kind's graph offers; none without a graph.</summary>
     [JsonIgnore]
-    public IReadOnlyList<ChartType> ChartTypes => History == MetricHistory.Series ? ChartLooks.Hours : [];
+    public IReadOnlyList<ChartType> ChartTypes => MetricGraphs.Types(Graph);
 
     [JsonIgnore]
-    public ChartType DefaultChart => ChartType.Area;
+    public ChartType DefaultChart => MetricGraphs.Default(Graph);
 
     [JsonIgnore]
-    public bool OffersDetail => History == MetricHistory.Series;
+    public bool OffersDetail => MetricGraphs.OffersDetail(Graph);
 
     /// <summary>[S-14603] Whether it reads the place's air hours: a trend over them is drawn.</summary>
     [JsonIgnore]
@@ -93,14 +110,14 @@ public abstract class AirMetricConfig(string key) : WeatherConfig, IInterests, I
 
     /// <summary>[S-14603] A trend its reading cannot draw is the one it can, loudly.</summary>
     public override IReadOnlyList<string> Repair()
-        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>(), .. ChartLooks.Repair(this, GetType().Name)];
+        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>(), .. ChartLooks.Repair(this, GetType().Name),
+            .. MetricGraphs.RepairSpan(this, GetType().Name) is { } span ? [span] : Array.Empty<string>()];
 
     public override WidgetConfig Clone()
     {
         var copy = (AirMetricConfig)AirKinds.Of(Fact.ToString()).Create();
         CopyTo(copy);
-        copy.Trend = Trend;
-        ChartLooks.Copy(this, copy);
+        MetricGraphs.Copy(this, copy);
         return copy;
     }
 }
@@ -182,6 +199,9 @@ internal sealed partial class AirMetricView : MetricView
     private AirMetricConfig Own(WidgetConfig config)
         => config is AirMetricConfig own && own.Fact == _fact ? own : (AirMetricConfig)AirKinds.Of(_fact.ToString()).Create();
 
+    /// <summary>[S-5103] [S-14714] The index's scale: the place's (European in Europe, else the US index), as the air widget's Automatic.</summary>
+    private static AirQualityScale IndexScale(AirMetricConfig config) => AirQualityRules.Resolve(AirQualityScale.Auto, config.Latitude, config.Longitude);
+
     private void Render()
     {
         if (_feed.Held is not { Value: { } air } held)
@@ -191,12 +211,14 @@ internal sealed partial class AirMetricView : MetricView
             return;
         }
 
-        var shown = new MetricShown(AirFactRules.Metric(_fact, air)) { Reading = held.At.UtcTicks, Problems = OnlineParts.Problems(held) };
+        var shown = new MetricShown(AirFactRules.Metric(_fact, air, IndexScale(_config))) { Reading = held.At.UtcTicks, Problems = OnlineParts.Problems(held) };
         if (History == MetricHistory.Series && _hours.Held is { Value: { } hours })
         {
-            var (direction, series) = MetricRules.Hours(hours.Hours, h => h.At, h => AirFactRules.Hourly(_fact, h), 1, _clock());
-            // [S-14703] The pollutants' hours are concentrations, written as the reading is.
-            shown = shown with { Direction = direction, Series = series, Figure = AirFactRules.Concentration };
+            // [S-14711] The graph's window: the hours its span holds.
+            var span = MetricGraphs.EffectiveSpan(_config);
+            var (direction, series) = MetricRules.Hours(hours.Hours, h => h.At, h => AirFactRules.Hourly(_fact, h, IndexScale(_config)), 1, _clock(), span);
+            // [S-14703] The pollutants' hours are concentrations, written as the reading is; the index a whole number.
+            shown = shown with { Direction = direction, Series = series, Slots = span, Figure = _fact == AirFactKind.Index ? v => LocaleFormat.Number(v, 0) : AirFactRules.Concentration };
         }
 
         Present(shown);
@@ -208,6 +230,7 @@ internal sealed partial class AirMetricView : MetricView
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSerializable(typeof(AirIndexConfig))]
 [JsonSerializable(typeof(AirUvConfig))]
 [JsonSerializable(typeof(AirPm25Config))]
 [JsonSerializable(typeof(AirPollenConfig))]

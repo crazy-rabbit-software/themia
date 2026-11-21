@@ -53,7 +53,7 @@ public abstract class PingMetricConfig(string key) : MetricConfig, IReadsSystem,
     public string Key { get; } = key;
 
     /// <inheritdoc />
-    protected override MetricHistory KindHistory => PingKinds.Of(Key).History;
+    protected override MetricKind Metric => PingKinds.Of(Key);
 
     /// <summary>Host or address to probe. Empty falls back to <see cref="HostAddress.DefaultPingHost"/>.</summary>
     public string Host { get; set; } = HostAddress.DefaultPingHost;
@@ -143,19 +143,23 @@ internal sealed class PingMetricPart(string key) : SystemMetricPart
         }
 
         var window = config.EffectiveWindow;
-        var points = watch.History(window + MetricRules.LinePoints - 1);
+        // [S-14711] The line's points: the span's probes, each the statistic over the window ending there.
+        var slots = MetricGraphs.Points(config, watch.Interest.Key.PeriodSeconds);
+        var points = watch.History(window + slots - 1);
         var stats = Stats(points, points.Length, window);
         var status = PingStats.Status(watch.Count > 0, stats.Last is not null);
         var shown = MetricRules.Pick(PingDetailRules.Sheet(Strings.Current, stats, status), key) with { Reading = LastReading };
 
         if (PingKinds.Of(key).History == MetricHistory.Series)
         {
-            var first = Math.Max(1, points.Length - MetricRules.LinePoints + 1);
+            var first = Math.Max(1, points.Length - slots + 1);
             // [S-14703] Written as the reading is: a share for the loss, milliseconds for the rest.
             shown = shown with
             {
                 Series = [.. Enumerable.Range(first, points.Length - first + 1).Select(end => Figure(Stats(points, end, window)))],
                 Figure = key == "loss" ? Formatting.Percent : Formatting.Latency,
+                Slots = slots,
+                Added = watch.Added,
             };
         }
 

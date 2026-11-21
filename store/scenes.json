@@ -178,13 +178,16 @@
         },
         {
           "id": "pingHistory",
-          "kind": "pingHistory",
+          "kind": "pingAverage",
           "at": [
             660,
             372,
             280,
             64
-          ]
+          ],
+          "config": {
+            "trend": "Line"
+          }
         },
         {
           "id": "pingAverage",
@@ -238,13 +241,16 @@
         },
         {
           "id": "gpuHistory",
-          "kind": "gpuHistory",
+          "kind": "gpuLoad",
           "at": [
             964,
             108,
             262,
             64
-          ]
+          ],
+          "config": {
+            "trend": "Line"
+          }
         },
         {
           "id": "gpuDedicatedMemory",
@@ -298,13 +304,16 @@
         },
         {
           "id": "networkHistory",
-          "kind": "networkHistory",
+          "kind": "networkDownload",
           "at": [
             964,
             452,
             262,
             64
-          ]
+          ],
+          "config": {
+            "trend": "Line"
+          }
         },
         {
           "id": "networkLocalAddress",
@@ -368,13 +377,16 @@
         },
         {
           "id": "cpuHistory",
-          "kind": "cpuHistory",
+          "kind": "cpuLoad",
           "at": [
             1250,
             108,
             262,
             64
-          ]
+          ],
+          "config": {
+            "trend": "Line"
+          }
         },
         {
           "id": "cpuSpeed",
@@ -428,13 +440,16 @@
         },
         {
           "id": "memoryHistory",
-          "kind": "memoryHistory",
+          "kind": "memoryInUse",
           "at": [
             1250,
             408,
             262,
             64
-          ]
+          ],
+          "config": {
+            "trend": "Line"
+          }
         },
         {
           "id": "memoryInUse",
@@ -488,13 +503,16 @@
         },
         {
           "id": "batteryHistory",
-          "kind": "batteryHistory",
+          "kind": "batteryCharge",
           "at": [
             1250,
             708,
             262,
             64
-          ]
+          ],
+          "config": {
+            "trend": "Line"
+          }
         }
       ]
     },
@@ -754,7 +772,7 @@
           "readyMade": "battery",
           "id": "battery",
           "at": [
-            1348,
+            1332,
             312
           ]
         },

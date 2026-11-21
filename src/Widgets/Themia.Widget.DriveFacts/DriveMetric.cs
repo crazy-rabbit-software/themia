@@ -4,9 +4,11 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.App.Widgets.Details;
 using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -42,10 +44,11 @@ public abstract class DriveMetricConfig(string key) : MetricConfig, IDriveChoice
     public string Key { get; } = key;
 
     /// <inheritdoc />
-    protected override MetricHistory KindHistory => DriveKinds.Of(Key).History;
+    protected override MetricKind Metric => DriveKinds.Of(Key);
 
     /// <summary>The drive's root (<c>C:\</c>); empty for the system drive.</summary>
     public string Drive { get; set; } = string.Empty;
+
 
     public override WidgetConfig Clone()
     {
@@ -82,7 +85,7 @@ public abstract class DriveMetricConfig(string key) : MetricConfig, IDriveChoice
 /// drive without figures keeps its row, "--" dimmed. The drives come from the host's one walk (<see cref="IDrives"/>), as
 /// the Drive reading's; each walk is a new reading (an arrow compares the last two).
 /// </summary>
-internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
+internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware, ISystemMetricHost
 {
     private readonly IWidgetHost _host;
     private readonly MetricKind _kind;
@@ -102,12 +105,48 @@ internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
     /// <summary>[S-11850] A sample's or a render's own drive, in place of the walk.</summary>
     private DriveEntry? _previewDrive;
 
+    /// <summary>
+    /// [S-14714] The activity's reading and graph: the hub's series of the card's drive through the generic part (a rate,
+    /// a fold its peak), the drive's links the card's as every drive fact's; null for every other fact (the drives' walk).
+    /// </summary>
+    private readonly SeriesMetricPart? _activity;
+
     public DriveMetricView(IWidgetHost host, MetricKind kind)
         : base(host, kind)
     {
         _host = host;
         _kind = kind;
         _config = (DriveMetricConfig)kind.Create();
+        _activity = kind.Key == "activity" ? new SeriesMetricPart(Formatting.Rate) : null;
+    }
+
+    /// <inheritdoc />
+    protected override IReadOnlyList<WidgetAction> OwnActions
+        => _activity?.Refresh is { } refresh ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), refresh)] : [];
+
+    /// <inheritdoc />
+    void ISystemMetricHost.Present(MetricShown shown)
+    {
+        Card.Key = LinkKeys.DriveLink(DiskRules.Root(_config.Drive) ?? SystemDrive.Root);
+        Present(shown);
+    }
+
+    /// <summary>[S-14714] The activity watches its drive's series (the hub's, the disk meter's own).</summary>
+    private void WatchActivity()
+    {
+        if (_activity is not { } activity)
+        {
+            return;
+        }
+
+        if (_host.System is { } hub)
+        {
+            activity.Watch(hub, _config, this);
+        }
+        else
+        {
+            Present(new MetricShown(MetricValue.Unread) { Why = Str.WidgetsB_Meters_Unavailable.Text() });
+        }
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -118,13 +157,16 @@ internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
     {
         _config = config as DriveMetricConfig ?? _config;
         _watch?.Dispose();
-        _watch = _host.Drives.Watch(ticker, () =>
-        {
-            _reading++;
-            Show();
-        });
+        _watch = _activity is null
+            ? _host.Drives.Watch(ticker, () =>
+            {
+                _reading++;
+                Show();
+            })
+            : null;
         _links.Join(_surface?.Links);
         Card.Publishes(this);
+        WatchActivity();
         Show();
     }
 
@@ -137,11 +179,13 @@ internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
         }
 
         _config = own;
+        WatchActivity();
         Show();
     }
 
     protected override void OnDetach()
     {
+        _activity?.Detach();
         _watch?.Dispose();
         _watch = null;
         Card.Release();
@@ -150,7 +194,7 @@ internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
 
     private void Show()
     {
-        if (_previewDrive is null && !_host.Drives.HasValue)
+        if (_activity is not null || (_previewDrive is null && !_host.Drives.HasValue))
         {
             return;
         }
@@ -167,6 +211,7 @@ internal sealed partial class DriveMetricView : MetricView, IWidgetSurfaceAware
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSerializable(typeof(DriveActivityConfig))]
 [JsonSerializable(typeof(DriveUsedConfig))]
 [JsonSerializable(typeof(DriveFreeConfig))]
 [JsonSerializable(typeof(DriveCapacityConfig))]

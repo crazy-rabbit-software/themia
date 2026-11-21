@@ -22,7 +22,7 @@ namespace Themia.Widget.PingFacts;
 /// </summary>
 internal static class PingKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
+    public static IReadOnlyList<MetricKind> All { get; } = Graphed(MetricKind.Opening(
     [
         new("pingAverage", "average", Glyphs.Ping, MetricHistory.Series, PingFactsStr.Details_Ping_Average.Local(), PingFactsStr.PingFacts_PingAverage_Label.Local(), PingFactsStr.PingFacts_PingAverage_Desc.Local(),
             ["ping", "latency", "average", "ms", "connection quality"], () => new PingAverageConfig()),
@@ -36,7 +36,18 @@ internal static class PingKinds
             ["ping", "packet loss", "loss", "dropped"], () => new PingLossConfig()),
         new("pingAnswered", "answered", Glyphs.Ping, MetricHistory.None, PingFactsStr.Details_Ping_Answered.Local(), PingFactsStr.PingFacts_PingAnswered_Label.Local(), PingFactsStr.PingFacts_PingAnswered_Desc.Local(),
             ["ping", "answered", "replies"], () => new PingAnsweredConfig()),
-    ], MetricOpens.Network);
+    ], MetricOpens.Network));
+
+    /// <summary>
+    /// [S-14710] [S-14713] Each series' graph (the hub's history: Area or Line, a span of the meters') and the history widget
+    /// it stands in for, a placed one replaced in place with its graph shown.
+    /// </summary>
+    private static IReadOnlyList<MetricKind> Graphed(IReadOnlyList<MetricKind> kinds) => [.. kinds.Select(kind => kind.Key switch
+    {
+        "average" => kind.Graphed(MetricGraph.Hub(900, peak: true), new MergeFrom("pingHistory")),
+        "minimum" or "maximum" or "jitter" or "loss" => kind.Graphed(MetricGraph.Hub(900, peak: true)),
+        _ => kind,
+    })];
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

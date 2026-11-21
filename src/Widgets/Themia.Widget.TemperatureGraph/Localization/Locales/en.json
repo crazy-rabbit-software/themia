@@ -1,6 +1,0 @@
-{
-  "$englishOnly": ["temperatureGraph.label", "temperatureGraph.desc", "temperatureGraph.feelsLike"],
-  "temperatureGraph.label": "Temperature graph",
-  "temperatureGraph.desc": "The temperature hour by hour, with how it feels",
-  "temperatureGraph.feelsLike": "Show feels like"
-}

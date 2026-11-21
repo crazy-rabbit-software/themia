@@ -7,6 +7,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Settings;
+using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using P = Themia.Sdk.Kit.ShellMetrics.Page;
@@ -150,6 +151,10 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
                 var rect = new FracRect((left + box.X) / (double)cols, (top + box.Y) / (double)rows, box.Width / (double)cols, box.Height / (double)rows);
                 var cell = GridGeometry.ToPixels(rect, _metrics, 1);
                 var model = WidgetInstance.Create(tile.Id, rect);
+                if (tile.Graph && model.Config is IMetricTrend trend)
+                {
+                    trend.Trend = MetricTrend.Line;
+                }
 
                 var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
                 card.SetLiveRect(rect);

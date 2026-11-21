@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Services.Web;
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.App.Shell;
@@ -25,6 +26,9 @@ public enum AirFactKind
     Mugwort,
     Olive,
     Ragweed,
+
+    /// <summary>[S-14714] The air quality index and its band, "25 · Fair", on the place's scale ([S-5103]: European or US).</summary>
+    Index,
 }
 
 /// <summary>
@@ -49,6 +53,7 @@ public static class AirFactRules
         AirFactKind.Pollen => AirFactsStr.Online_Air_Pollen.Text(),
         AirFactKind.Pm10 => AirFactsStr.Online_Air_Pm10.Text(),
         AirFactKind.Ozone => AirFactsStr.Online_Air_Ozone.Text(),
+        AirFactKind.Index => AirFactsStr.AirFacts_AirIndex_Label.Text(),
         _ => PollenName(Type(kind)),
     };
 
@@ -58,17 +63,18 @@ public static class AirFactRules
     /// </summary>
     public static MetricHistory History(AirFactKind kind) => kind switch
     {
-        AirFactKind.Pm25 or AirFactKind.Pm10 or AirFactKind.Ozone => MetricHistory.Series,
+        AirFactKind.Pm25 or AirFactKind.Pm10 or AirFactKind.Ozone or AirFactKind.Index => MetricHistory.Series,
         AirFactKind.Pollen => MetricHistory.None,
         _ => MetricHistory.Readings,
     };
 
-    /// <summary>[S-14603] A reading's figure in one of the service's hours, null where the hours carry none.</summary>
-    public static double? Hourly(AirFactKind kind, AirHour hour)
+    /// <summary>[S-14603] A reading's figure in one of the service's hours, null where the hours carry none; the index on <paramref name="scale"/>.</summary>
+    public static double? Hourly(AirFactKind kind, AirHour hour, AirQualityScale scale = AirQualityScale.European)
     {
         ArgumentNullException.ThrowIfNull(hour);
         return kind switch
         {
+            AirFactKind.Index => scale == AirQualityScale.Us ? hour.UsAqi : hour.EuropeanAqi,
             AirFactKind.Pm25 => hour.Pm25,
             AirFactKind.Pm10 => hour.Pm10,
             AirFactKind.Ozone => hour.Ozone,
@@ -76,13 +82,14 @@ public static class AirFactRules
         };
     }
 
-    /// <summary>[S-14603] [S-11135] A reading as a metric: its value and the number a trend compares.</summary>
-    public static MetricValue Metric(AirFactKind kind, AirReading air)
+    /// <summary>[S-14603] [S-11135] A reading as a metric: its value and the number a trend compares; the index on <paramref name="scale"/>.</summary>
+    public static MetricValue Metric(AirFactKind kind, AirReading air, AirQualityScale scale = AirQualityScale.European)
     {
         ArgumentNullException.ThrowIfNull(air);
-        var text = Value(kind, air);
+        var text = Value(kind, air, scale);
         double? number = kind switch
         {
+            AirFactKind.Index => AirQualityRules.Index(air, scale),
             AirFactKind.Uv => air.Uv,
             AirFactKind.Pm25 => air.Pm25,
             AirFactKind.Pm10 => air.Pm10,
@@ -93,11 +100,12 @@ public static class AirFactRules
         return new MetricValue(text, text == Missing ? null : number);
     }
 
-    public static string Value(AirFactKind kind, AirReading air)
+    public static string Value(AirFactKind kind, AirReading air, AirQualityScale scale = AirQualityScale.European)
     {
         ArgumentNullException.ThrowIfNull(air);
         return kind switch
         {
+            AirFactKind.Index => AirQualityRules.Index(air, scale) is { } index ? IndexReading(scale, index) : Missing,
             AirFactKind.Uv => air.Uv is { } uv ? UvReading(uv) : Missing,
             AirFactKind.Pm25 => air.Pm25 is { } pm25 ? Concentration(pm25) : Missing,
             AirFactKind.Pm10 => air.Pm10 is { } pm10 ? Concentration(pm10) : Missing,
@@ -130,6 +138,31 @@ public static class AirFactRules
     /// <summary>[S-5105] "2.5 · Low": one decimal, as the services publish it, and the category.</summary>
     public static string UvReading(double index)
         => $"{LocaleFormat.Number(index, 1)} · {Uv(AirQualityRules.Uv(index))}";
+
+    /// <summary>[S-14714] The index and its band on <paramref name="scale"/>: "25 · Fair" (the air widget's words, [S-5104]).</summary>
+    public static string IndexReading(AirQualityScale scale, double index)
+        => $"{LocaleFormat.Number(index, 0)} · {Band(scale, AirQualityRules.Band(scale, index))}";
+
+    /// <summary>[S-5104] A band's name on <paramref name="scale"/>: the European words, or the US index's.</summary>
+    public static string Band(AirQualityScale scale, AirBand band) => (scale == AirQualityScale.Us
+        ? band switch
+        {
+            AirBand.Best => AirFactsStr.Online_Air_Us_Band0,
+            AirBand.Second => AirFactsStr.Online_Air_Us_Band1,
+            AirBand.Third => AirFactsStr.Online_Air_Us_Band2,
+            AirBand.Fourth => AirFactsStr.Online_Air_Us_Band3,
+            AirBand.Fifth => AirFactsStr.Online_Air_Us_Band4,
+            _ => AirFactsStr.Online_Air_Us_Band5,
+        }
+        : band switch
+        {
+            AirBand.Best => AirFactsStr.Online_Air_Eu_Band0,
+            AirBand.Second => AirFactsStr.Online_Air_Eu_Band1,
+            AirBand.Third => AirFactsStr.Online_Air_Eu_Band2,
+            AirBand.Fourth => AirFactsStr.Online_Air_Eu_Band3,
+            AirBand.Fifth => AirFactsStr.Online_Air_Eu_Band4,
+            _ => AirFactsStr.Online_Air_Eu_Band5,
+        }).Text();
 
     /// <summary>A concentration in µg/m³, a whole number from 10 up, one decimal below.</summary>
     public static string Concentration(double value)

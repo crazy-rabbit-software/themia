@@ -13,7 +13,7 @@ namespace Themia.Widget.WeatherFacts;
 /// place is one request ([S-2663]); a trend over the service's hours asks the place's hours too (the weather graphs'
 /// one answer), only while it draws one.
 /// </summary>
-public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, IInterests, IMetricTrend, IChartLooks
+public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, IInterests, IMetricGraph
 {
     /// <summary>[S-13900] The one reading its kind shows.</summary>
     [JsonIgnore]
@@ -28,25 +28,42 @@ public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, I
 
     /// <inheritdoc />
     [JsonIgnore]
-    public MetricHistory History => WeatherFactRules.History(Fact);
+    public MetricHistory History => WeatherFactKinds.Of(Fact).History;
 
-    /// <summary>[S-14703] How its graph over the hours is drawn; Area (the look until now) by default.</summary>
+    /// <inheritdoc />
+    [JsonIgnore]
+    public MetricGraph? Graph => WeatherFactKinds.Of(Fact).Graph;
+
+    /// <inheritdoc />
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public ChartType Chart { get; set; }
+    public int Span { get; set; }
+
+    /// <summary>[S-14703] How its graph over the hours is drawn: its kind's graph's default unless another is stored.</summary>
+    [JsonIgnore]
+    public ChartType Chart
+    {
+        get => ChartStored ?? DefaultChart;
+        set => ChartStored = value == DefaultChart ? null : value;
+    }
+
+    /// <summary>[S-14710] The chart type stored: only one other than its kind's default.</summary>
+    [JsonPropertyName("chart")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ChartType? ChartStored { get; set; }
 
     /// <summary>[S-14703] Simple by default.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public ChartDetail Detail { get; set; }
 
-    /// <summary>[S-14703] The weather graphs' types (the line with its wash, the line alone, a column per hour) where it has a series; none without.</summary>
+    /// <summary>[S-14710] The types its kind's graph offers; none without a graph.</summary>
     [JsonIgnore]
-    public IReadOnlyList<ChartType> ChartTypes => History == MetricHistory.Series ? ChartLooks.Hours : [];
+    public IReadOnlyList<ChartType> ChartTypes => MetricGraphs.Types(Graph);
 
     [JsonIgnore]
-    public ChartType DefaultChart => ChartType.Area;
+    public ChartType DefaultChart => MetricGraphs.Default(Graph);
 
     [JsonIgnore]
-    public bool OffersDetail => History == MetricHistory.Series;
+    public bool OffersDetail => MetricGraphs.OffersDetail(Graph);
 
     /// <summary>[S-14603] Whether it reads the place's hours: a trend over them is drawn.</summary>
     [JsonIgnore]
@@ -74,14 +91,14 @@ public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, I
 
     /// <summary>[S-14603] A trend its fact cannot draw is the one it can, loudly.</summary>
     public override IReadOnlyList<string> Repair()
-        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>(), .. ChartLooks.Repair(this, GetType().Name)];
+        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>(), .. ChartLooks.Repair(this, GetType().Name),
+            .. MetricGraphs.RepairSpan(this, GetType().Name) is { } span ? [span] : Array.Empty<string>()];
 
     public override WidgetConfig Clone()
     {
         var copy = (WeatherFactConfig)WeatherFactKinds.Of(Fact).Create();
         CopyTo(copy);
-        copy.Trend = Trend;
-        ChartLooks.Copy(this, copy);
+        MetricGraphs.Copy(this, copy);
         return copy;
     }
 }

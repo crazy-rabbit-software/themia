@@ -51,6 +51,7 @@ internal static class WidgetRender
     // [S-6752] --chart area|line|bars|candles and --detail simple|detailed: a graph kind in that chart look.
     private static ChartType? _chart;
     private static ChartDetail? _detail;
+    private static MetricTrend? _trend;
 
     /// <summary>[S-6547] The cards' own item colour and item text colour (<c>--own-items</c>, <c>--own-item-text</c>), empty to follow the design.</summary>
     private static FillChoice _ownItems = new();
@@ -172,6 +173,7 @@ internal static class WidgetRender
         // --sizes range|WxH,.. picks.
         _chart = Option(args, "--chart") is { } chartText && Enum.TryParse<ChartType>(chartText, ignoreCase: true, out var chartValue) && Enum.IsDefined(chartValue) ? chartValue : null;
         _detail = Option(args, "--detail") is { } detailText && Enum.TryParse<ChartDetail>(detailText, ignoreCase: true, out var detailValue) && Enum.IsDefined(detailValue) ? detailValue : null;
+        _trend = Option(args, "--trend") is { } trendText && Enum.TryParse<MetricTrend>(trendText, ignoreCase: true, out var trendValue) && Enum.IsDefined(trendValue) ? trendValue : null;
         var sized = WidgetConfig.CreateDefault(kind);
         if (style is { } styled)
         {
@@ -499,9 +501,24 @@ internal static class WidgetRender
         return labels;
     }
 
-    /// <summary>[S-6752] The chart look --chart and --detail ask for, on a graph kind (a type it does not offer is its own, as on load).</summary>
+    /// <summary>
+    /// [S-6752] The chart look --chart and --detail ask for, on a graph kind (a type it does not offer is its own, as on load);
+    /// [S-14712] a single metric's --trend (its graph drawn as a placed one draws it, sized as its config is) and --span.
+    /// </summary>
     private static void ChartLook(WidgetConfig config)
     {
+        if (_trend is { } trend && config is IMetricTrend metric)
+        {
+            metric.Trend = trend;
+            _ = MetricRules.Repair(metric);
+        }
+
+        if (_span is { } span && config is IMetricGraph graph)
+        {
+            graph.Span = span;
+            _ = MetricGraphs.RepairSpan(graph, config.Kind.ToString());
+        }
+
         if (config is not IChartLooks looks)
         {
             return;

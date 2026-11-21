@@ -1,5 +1,0 @@
-{
-  "$englishOnly": ["pingHistory.label", "pingHistory.desc"],
-  "pingHistory.label": "Ping history",
-  "pingHistory.desc": "Latency over time"
-}

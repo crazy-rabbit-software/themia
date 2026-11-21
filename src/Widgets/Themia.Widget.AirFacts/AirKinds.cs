@@ -5,6 +5,7 @@ using Themia.Sdk;
 using Themia.Widget.AirFacts;
 
 [assembly: ThemiaWidgetFamily]
+[assembly: ThemiaWidget("airIndex", typeof(AirIndexModule))]
 [assembly: ThemiaWidget("airUv", typeof(AirUvModule))]
 [assembly: ThemiaWidget("airPm25", typeof(AirPm25Module))]
 [assembly: ThemiaWidget("airPollen", typeof(AirPollenModule))]
@@ -27,8 +28,10 @@ namespace Themia.Widget.AirFacts;
 /// </summary>
 internal static class AirKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
+    public static IReadOnlyList<MetricKind> All { get; } = Graphed(MetricKind.Opening(
     [
+        new("airIndex", "Index", AirFactRules.Leaf, MetricHistory.Series, AirFactsStr.AirFacts_AirIndex_Label.Local(), AirFactsStr.AirFacts_AirIndex_Label.Local(), AirFactsStr.AirFacts_AirIndex_Desc.Local(),
+            ["air quality", "aqi", "index", "smog", "pollution", "graph", "air"], () => new AirIndexConfig()),
         new("airUv", "Uv", Glyphs.Sun, MetricHistory.Readings, AirFactsStr.Online_Air_Uv.Local(), AirFactsStr.AirFacts_AirUv_Label.Local(), AirFactsStr.AirFacts_AirUv_Desc.Local(),
             ["uv", "uv index", "sunburn", "sun", "air"], () => new AirUvConfig()),
         new("airPm25", "Pm25", Glyphs.Fog, MetricHistory.Series, AirFactsStr.Online_Air_Pm25.Local(), AirFactsStr.AirFacts_AirPm25_Label.Local(), AirFactsStr.AirFacts_AirPm25_Desc.Local(),
@@ -51,7 +54,17 @@ internal static class AirKinds
             ["olive", "pollen", "allergy", "hay fever"], () => new AirOliveConfig()),
         new("airRagweed", "Ragweed", AirFactRules.Leaf, MetricHistory.Readings, AirFactsStr.Online_Air_PollenType_Ragweed.Local(), AirFactsStr.AirFacts_AirRagweed_Label.Local(), AirFactsStr.AirFacts_AirRagweed_Desc.Local(),
             ["ragweed", "pollen", "allergy", "hay fever"], () => new AirRagweedConfig()),
-    ], MetricOpens.Weather);
+    ], MetricOpens.Weather));
+
+    /// <summary>
+    /// [S-14710] [S-14713] Each pollutant's and the index's graph over the place's air hours (the weather graphs' types, the
+    /// air's windows: one, two or four days, two by default), each standing in for the air graph that drew it (its
+    /// <c>measure</c>; the index and NO₂, which has no metric, the index's).
+    /// </summary>
+    private static IReadOnlyList<MetricKind> Graphed(IReadOnlyList<MetricKind> kinds)
+        => [.. kinds.Select(kind => AirFactRules.History(Enum.Parse<AirFactKind>(kind.Key)) != MetricHistory.Series ? kind : kind.Graphed(
+            MetricGraph.Hours(span: 48, spans: MetricGraph.AirSpans),
+            kind.Key == "Index" ? new MergeFrom("airQualityGraph") : new MergeFrom("airQualityGraph") { When = ("measure", kind.Key) }))];
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);
@@ -62,6 +75,8 @@ internal static class AirKinds
 
 // [S-14604] Each kind is its module and its config (a config's type is how it knows its id, [S-6902]); everything
 // else is the family's (AirMetricModule, AirMetricConfig, the view) over the single metric's base.
+
+public sealed class AirIndexModule() : AirMetricModule("Index");
 
 public sealed class AirUvModule() : AirMetricModule("Uv");
 
@@ -84,6 +99,8 @@ public sealed class AirMugwortModule() : AirMetricModule("Mugwort");
 public sealed class AirOliveModule() : AirMetricModule("Olive");
 
 public sealed class AirRagweedModule() : AirMetricModule("Ragweed");
+
+public sealed class AirIndexConfig() : AirMetricConfig("Index");
 
 public sealed class AirUvConfig() : AirMetricConfig("Uv");
 

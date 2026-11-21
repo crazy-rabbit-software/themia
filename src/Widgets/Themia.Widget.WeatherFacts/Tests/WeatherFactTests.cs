@@ -16,7 +16,7 @@ public sealed class WeatherFactTests
 {
     private static readonly string[] Ids =
     [
-        "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind", "weatherPrecipitation", "weatherPressure",
+        "weatherTemperature", "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind", "weatherPrecipitation", "weatherPressure",
         "weatherUv", "weatherCloudCover", "weatherGusts", "weatherSunrise", "weatherSunset",
     ];
 
@@ -49,7 +49,7 @@ public sealed class WeatherFactTests
     public void S13900_the_kinds_are_named_after_their_fact()
     {
         Assert.Equal(
-            ["High and low", "Feels like", "Humidity", "Wind", "Precipitation", "Pressure", "UV index", "Cloud cover", "Gusts", "Sunrise", "Sunset"],
+            ["Temperature", "High and low", "Feels like", "Humidity", "Wind", "Precipitation", "Pressure", "UV index", "Cloud cover", "Gusts", "Sunrise", "Sunset"],
             Ids.Select(id => Kind(id).Label.Text(Locale.En)));
         Assert.Equal(["Luftfeuchte", "Sonnenaufgang"], new[] { "weatherHumidity", "weatherSunrise" }.Select(id => Kind(id).Label.Text(Locale.De)));
     }
@@ -76,12 +76,15 @@ public sealed class WeatherFactTests
     public void S14608_the_hourly_readings_draw_a_line_cloud_cover_an_arrow_and_the_day_s_facts_none()
     {
         Assert.Equal(
-            [MetricHistory.None, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series,
+            [MetricHistory.Series, MetricHistory.None, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series, MetricHistory.Series,
              MetricHistory.Series, MetricHistory.Readings, MetricHistory.Series, MetricHistory.None, MetricHistory.None],
             WeatherFactRules.All.Select(WeatherFactRules.History));
         var humidity = new WeatherHour(DateTimeOffset.UnixEpoch) { Humidity = 63, Pressure = 1013 };
         Assert.Equal((63d, 1013d), (WeatherFactRules.Hourly(WeatherFactKind.Humidity, humidity), WeatherFactRules.Hourly(WeatherFactKind.Pressure, humidity)));
         Assert.Null(WeatherFactRules.Hourly(WeatherFactKind.CloudCover, humidity));
+
+        // [S-14714] The temperature now and its hours: the temperature graph's metric.
+        Assert.Equal(9.4, WeatherFactRules.Hourly(WeatherFactKind.Temperature, new WeatherHour(DateTimeOffset.UnixEpoch) { Temperature = 9.4 }));
     }
 
     [Fact]

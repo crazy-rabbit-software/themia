@@ -25,6 +25,18 @@ public sealed record MetricKind(
     public Type ConfigType { get; } = Create().GetType();
 
     /// <summary>
+    /// [S-14710] Its graph as data (its series, the chart types that make sense, its default, its spans): every kind whose
+    /// history is a series has one, every other none. One generic graph draws it ([S-14220]).
+    /// </summary>
+    public MetricGraph? Graph { get; init; }
+
+    /// <summary>[S-14713] The removed graph kinds it stands in for, a placed one replaced in place with its graph shown.</summary>
+    public IReadOnlyList<MergeFrom> Merges { get; init; } = [];
+
+    /// <summary>[S-14710] This kind with <paramref name="graph"/>; [S-14713] standing in for <paramref name="merges"/>.</summary>
+    public MetricKind Graphed(MetricGraph graph, params MergeFrom[] merges) => this with { Graph = graph, Merges = merges };
+
+    /// <summary>
     /// [S-14706] What a click on the card opens and its card menu's line: its family's source, the page its own widgets
     /// open (<see cref="MetricOpens"/>); null for a kind with no source to open (it lights nothing under the pointer).
     /// </summary>

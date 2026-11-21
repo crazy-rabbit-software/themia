@@ -9,11 +9,22 @@ namespace Themia.Core.Tests;
 /// <summary>[S-14600]..[S-14605] The single metric's base rules: its size, its default, its trends, the arrow and the line.</summary>
 public sealed class MetricRulesTests
 {
-    private sealed class Metric(MetricHistory history) : MetricConfig
+    /// <summary>A metric of <paramref name="history"/>: a series' kind draws the hub's graph (<see cref="MetricGraph.Hub"/>).</summary>
+    private sealed class Probe(MetricHistory history, MetricGraph? graph = null) : MetricConfig
     {
-        protected override MetricHistory KindHistory { get; } = history;
+        private MetricKind? _kind;
 
-        public override WidgetConfig Clone() => new Metric(History) { Trend = Trend, Chart = Chart, Detail = Detail };
+        protected override MetricKind Metric => _kind ??= new MetricKind("probe", "probe", "", history, default, default, default, [], () => new Probe(history, graph))
+        {
+            Graph = graph ?? (history == MetricHistory.Series ? MetricGraph.Hub() : null),
+        };
+
+        public override WidgetConfig Clone()
+        {
+            var copy = new Probe(history, graph);
+            CopyTo(copy);
+            return copy;
+        }
     }
 
     // ---- [S-14600] the size ---------------------------------------------------------------------------
@@ -44,12 +55,12 @@ public sealed class MetricRulesTests
         Assert.Equal(0, MetricRules.TrendRoom(MetricTrend.None));
         Assert.Equal(16 + 12, MetricRules.TrendRoom(MetricTrend.Arrow));
 
-        var arrow = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Arrow });
+        var arrow = MetricRules.SizingOf(new Probe(MetricHistory.Series) { Trend = MetricTrend.Arrow });
         Assert.Equal((228d, 268d, 30d), (arrow.Min.Width, arrow.Natural.Width, arrow.Natural.Height));
 
         // A line the metric cannot draw is its arrow, sized as one.
-        Assert.Equal(228, MetricRules.SizingOf(new Metric(MetricHistory.Readings) { Trend = MetricTrend.Line }).Min.Width);
-        Assert.Equal(MetricRules.Sizing, MetricRules.SizingOf(new Metric(MetricHistory.None) { Trend = MetricTrend.Arrow }));
+        Assert.Equal(228, MetricRules.SizingOf(new Probe(MetricHistory.Readings) { Trend = MetricTrend.Line }).Min.Width);
+        Assert.Equal(MetricRules.Sizing, MetricRules.SizingOf(new Probe(MetricHistory.None) { Trend = MetricTrend.Arrow }));
     }
 
     // ---- [S-14602] the default ------------------------------------------------------------------------
@@ -93,23 +104,23 @@ public sealed class MetricRulesTests
     [Fact]
     public void S14603_a_stored_trend_the_kind_cannot_draw_is_repaired_loudly_and_one_it_can_is_kept()
     {
-        var line = new Metric(MetricHistory.Readings) { Trend = MetricTrend.Line };
+        var line = new Probe(MetricHistory.Readings) { Trend = MetricTrend.Line };
         Assert.Single(line.Repair());
         Assert.Equal(MetricTrend.Arrow, line.Trend);
 
-        var bogus = new Metric(MetricHistory.Series) { Trend = (MetricTrend)9 };
+        var bogus = new Probe(MetricHistory.Series) { Trend = (MetricTrend)9 };
         Assert.Single(bogus.Repair());
         Assert.Equal(MetricTrend.None, bogus.Trend);
 
-        Assert.Empty(new Metric(MetricHistory.Series) { Trend = MetricTrend.Line }.Repair());
+        Assert.Empty(new Probe(MetricHistory.Series) { Trend = MetricTrend.Line }.Repair());
     }
 
     [Fact]
     public void S14603_the_shared_trend_is_held_only_by_a_metric_with_a_history_and_written_as_each_can_draw_it()
     {
-        var series = new Metric(MetricHistory.Series) { Trend = MetricTrend.Line };
-        var readings = new Metric(MetricHistory.Readings);
-        var none = new Metric(MetricHistory.None);
+        var series = new Probe(MetricHistory.Series) { Trend = MetricTrend.Line };
+        var readings = new Probe(MetricHistory.Readings);
+        var none = new Probe(MetricHistory.None);
 
         Assert.True(SharedSettings.MetricTrend.Holds(series));
         Assert.False(SharedSettings.MetricTrend.Holds(none));
@@ -156,18 +167,21 @@ public sealed class MetricRulesTests
     [Fact]
     public void S14220_none_and_an_arrow_stand_one_row_a_line_its_row_and_a_graph_row_and_no_room_beside_the_value()
     {
-        var none = MetricRules.SizingOf(new Metric(MetricHistory.Series));
-        var arrow = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Arrow });
-        var line = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Line });
+        var none = MetricRules.SizingOf(new Probe(MetricHistory.Series));
+        var arrow = MetricRules.SizingOf(new Probe(MetricHistory.Series) { Trend = MetricTrend.Arrow });
+        var line = MetricRules.SizingOf(new Probe(MetricHistory.Series) { Trend = MetricTrend.Line });
 
         Assert.Equal((30d, 30d), (none.Min.Height, none.Natural.Height));
         Assert.Equal((30d, 30d), (arrow.Min.Height, arrow.Natural.Height));
 
-        // A line: its reading row and the graph's least, a row; [S-14500] every cell taller too.
-        Assert.Equal(MetricRules.RowHeight, MetricRules.GraphLeast(ChartDetail.Simple, Grid10));
-        Assert.Equal((60d, 60d), (line.Min.Height, line.Natural.Height));
+        // A line: new, its reading row and the graph's row under it; [S-14712] its least one grid cell (the graph alone);
+        // [S-14500] every cell between and taller too.
+        Assert.Equal(MetricRules.RowHeight, MetricRules.GraphNatural(ChartDetail.Simple, Grid10));
+        Assert.Equal(10, MetricRules.GraphLeast(ChartDetail.Simple, Grid10));
+        Assert.Equal((10d, 60d), (line.Min.Height, line.Natural.Height));
         Assert.Empty(line.Problems());
-        Assert.Equal(60, SizeStretch.Relax(line).FitHeight(52));
+        Assert.Equal(10, SizeStretch.Relax(line).FitHeight(4));
+        Assert.Equal(20, SizeStretch.Relax(line).FitHeight(20));
         Assert.Equal(90, SizeStretch.Relax(line).FitHeight(90));
 
         // No room beside the value: the graph is under the reading.
@@ -175,7 +189,7 @@ public sealed class MetricRulesTests
         Assert.Equal((200d, 240d), (line.Min.Width, line.Natural.Width));
 
         // A line the metric cannot draw is its arrow: one row.
-        Assert.Equal(30, MetricRules.SizingOf(new Metric(MetricHistory.Readings) { Trend = MetricTrend.Line }).Natural.Height);
+        Assert.Equal(30, MetricRules.SizingOf(new Probe(MetricHistory.Readings) { Trend = MetricTrend.Line }).Natural.Height);
     }
 
     [Fact]
@@ -183,9 +197,10 @@ public sealed class MetricRulesTests
     {
         foreach (var trend in new[] { MetricTrend.None, MetricTrend.Arrow, MetricTrend.Line })
         {
-            var relaxed = SizeStretch.Relax(MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = trend }));
+            var relaxed = SizeStretch.Relax(MetricRules.SizingOf(new Probe(MetricHistory.Series) { Trend = trend }));
             var least = relaxed.Min.Height;
-            Assert.Equal(relaxed.Natural.Height, least);
+            // [S-14712] A graph goes down to one cell; a row's card is its row.
+            Assert.Equal(trend == MetricTrend.Line ? 10 : relaxed.Natural.Height, least);
             Assert.Equal(SizeStretch.Ceiling, relaxed.Max.Height);
             foreach (var cells in Enumerable.Range(1, 40))
             {
@@ -202,11 +217,11 @@ public sealed class MetricRulesTests
         Assert.Equal(100, least);
         Assert.True(Grid10.IsWhole(least));
 
-        var detailed = MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Line, Detail = ChartDetail.Detailed });
-        Assert.Equal((130d, 130d), (detailed.Min.Height, detailed.Natural.Height));
+        var detailed = MetricRules.SizingOf(new Probe(MetricHistory.Series) { Trend = MetricTrend.Line, Detail = ChartDetail.Detailed });
+        Assert.Equal((10d, 130d), (detailed.Min.Height, detailed.Natural.Height));
 
         // Detailed with no graph drawn changes nothing: the card is its row.
-        Assert.Equal(30, MetricRules.SizingOf(new Metric(MetricHistory.Series) { Trend = MetricTrend.Arrow, Detail = ChartDetail.Detailed }).Natural.Height);
+        Assert.Equal(30, MetricRules.SizingOf(new Probe(MetricHistory.Series) { Trend = MetricTrend.Arrow, Detail = ChartDetail.Detailed }).Natural.Height);
 
         // In a Detailed graph's least, the line still has its row between what is written over and under it.
         var frame = ChartPlot.Frame(new ChartModel { Detail = ChartDetail.Detailed, Over = 30 }, 240, 30 + least);
@@ -252,9 +267,12 @@ public sealed class MetricRulesTests
         Assert.Equal(new MetricLook(MetricFace.Readout, 150, 150), MetricRules.Look(300, MetricTrend.Line, ChartDetail.Simple, Grid10));
 
         // Detailed: the graph keeps its least (its row and its writing) first; the reading grows past its row once there is room.
-        Assert.Equal(new MetricLook(MetricFace.Row, 30, 100), MetricRules.Look(130, MetricTrend.Line, ChartDetail.Detailed, Grid10));
-        Assert.Equal(new MetricLook(MetricFace.Readout, 50, 100), MetricRules.Look(150, MetricTrend.Line, ChartDetail.Detailed, Grid10));
-        Assert.Equal(new MetricLook(MetricFace.Readout, 120, 120), MetricRules.Look(240, MetricTrend.Line, ChartDetail.Detailed, Grid10));
+        Assert.Equal(new MetricLook(MetricFace.Row, 30, 100, Detail: ChartDetail.Detailed), MetricRules.Look(130, MetricTrend.Line, ChartDetail.Detailed, Grid10));
+        Assert.Equal(new MetricLook(MetricFace.Readout, 50, 100, Detail: ChartDetail.Detailed), MetricRules.Look(150, MetricTrend.Line, ChartDetail.Detailed, Grid10));
+        Assert.Equal(new MetricLook(MetricFace.Readout, 120, 120, Detail: ChartDetail.Detailed), MetricRules.Look(240, MetricTrend.Line, ChartDetail.Detailed, Grid10));
+
+        // [S-14712] Under the room a Detailed graph writes in, it is drawn Simple, its line in what is left.
+        Assert.Equal(new MetricLook(MetricFace.Row, 30, 30), MetricRules.Look(60, MetricTrend.Line, ChartDetail.Detailed, Grid10));
 
         // The reading and the graph share the card exactly, every size.
         foreach (var cells in Enumerable.Range(6, 60))
@@ -265,6 +283,126 @@ public sealed class MetricRulesTests
             Assert.True(look.Reading >= MetricRules.RowHeight);
             Assert.True(Grid10.IsWhole(look.Reading));
         }
+    }
+
+    [Fact]
+    public void S14712_a_graph_scales_down_to_one_cell_alone_a_row_with_its_sparkline_then_the_row_over_it()
+    {
+        // One cell: the graph alone, the card edge to edge (no row's ink fits).
+        Assert.Equal(new MetricLook(MetricFace.Graph, 0, 10), MetricRules.Look(10, MetricTrend.Line, ChartDetail.Simple, Grid10));
+
+        // Two cells up to one row: the row, its graph the sparkline beside the value.
+        Assert.Equal(new MetricLook(MetricFace.Row, 20, 0, Spark: true), MetricRules.Look(20, MetricTrend.Line, ChartDetail.Simple, Grid10));
+        Assert.Equal(new MetricLook(MetricFace.Row, 30, 0, Spark: true), MetricRules.Look(30, MetricTrend.Line, ChartDetail.Detailed, Grid10));
+
+        // A cell over one row: the row over the graph, the graph one cell, then two.
+        Assert.Equal(new MetricLook(MetricFace.Row, 30, 10), MetricRules.Look(40, MetricTrend.Line, ChartDetail.Simple, Grid10));
+        Assert.Equal(new MetricLook(MetricFace.Row, 30, 20), MetricRules.Look(50, MetricTrend.Line, ChartDetail.Simple, Grid10));
+
+        // On a display's pitch, one cell is one cell; no trend keeps the row at any height (no sparkline, no graph).
+        Assert.Equal(MetricFace.Graph, MetricRules.Look(9.974, MetricTrend.Line, ChartDetail.Simple, new ItemGrid(9.974)).Face);
+        Assert.Equal(new MetricLook(MetricFace.Row, 20, 0), MetricRules.Look(20, MetricTrend.Arrow, ChartDetail.Simple, Grid10));
+
+        // Every whole cell from one: the reading and the graph share the card, the graph never none.
+        foreach (var cells in Enumerable.Range(1, 40))
+        {
+            var look = MetricRules.Look(cells * 10, MetricTrend.Line, ChartDetail.Simple, Grid10);
+            Assert.True(look.Graph > 0 || look.Spark);
+            Assert.Equal(cells * 10, look.Spark ? look.Reading : look.Reading + look.Graph, 9);
+        }
+    }
+
+    // ---- [S-14710] [S-14711] the graph as data and its span ----------------------------------------------
+
+    [Fact]
+    public void S14710_a_kind_s_graph_says_its_types_its_default_and_its_spans_and_the_config_takes_them()
+    {
+        var wind = new Probe(MetricHistory.Series, MetricGraph.Hours(ChartType.Line));
+        Assert.Equal(ChartLooks.Hours, wind.ChartTypes);
+        Assert.Equal(ChartType.Line, wind.DefaultChart);
+        Assert.Equal(ChartType.Line, wind.Chart);
+
+        // Its default is stored as nothing; another is stored, and a copy keeps it.
+        Assert.Null(wind.ChartStored);
+        wind.Chart = ChartType.Area;
+        Assert.Equal(ChartType.Area, wind.ChartStored);
+        Assert.Equal(ChartType.Area, ((Probe)wind.Clone()).Chart);
+        wind.Chart = ChartType.Line;
+        Assert.Null(wind.ChartStored);
+
+        // A metric without a series has no graph: no type, no detail, no span.
+        var none = new Probe(MetricHistory.Readings);
+        Assert.Null(none.Graph);
+        Assert.Empty(none.ChartTypes);
+        Assert.Equal(0, MetricGraphs.EffectiveSpan(none));
+
+        // The rain's minutes: a column a quarter hour, two hours, so the generic graph hosts the nowcast too.
+        var minutes = MetricGraph.Minutes();
+        Assert.Equal((GraphSeries.Minutes, ChartType.Bars, 120), (minutes.Series, minutes.Default, minutes.Span));
+        Assert.Equal(8, minutes.Points(minutes.Span));
+
+        // Every factory's default type is one of its types and its default span one of its spans.
+        foreach (var graph in new[] { MetricGraph.Hub(), MetricGraph.Hub(900, peak: true), MetricGraph.Hours(), MetricGraph.Hours(ChartType.Bars, 48, MetricGraph.AirSpans), MetricGraph.Prices(), minutes })
+        {
+            Assert.Contains(graph.Default, graph.Types);
+            Assert.Contains(graph.Span, graph.Spans);
+        }
+    }
+
+    [Fact]
+    public void S14711_the_span_is_the_graph_s_points_its_default_stored_as_none_and_one_not_offered_the_nearest_loudly()
+    {
+        // The hub's: a point a period (a minute of seconds, an hour of ten-second probes); the hours' an hour each.
+        Assert.Equal(60, MetricGraph.Hub().Points(60, 1));
+        Assert.Equal(360, MetricGraph.Hub().Points(3600, 10));
+        Assert.Equal(48, MetricGraph.Hours().Points(48));
+        Assert.Equal(24, MetricGraphs.Points(new Probe(MetricHistory.Series, MetricGraph.Hours())));
+
+        var cpu = new Probe(MetricHistory.Series) { Span = 300 };
+        Assert.Equal(300, MetricGraphs.EffectiveSpan(cpu));
+        Assert.Empty(cpu.Repair());
+
+        // A span not offered (a hand edit) is the nearest, said; the default stored is none, quietly.
+        var odd = new Probe(MetricHistory.Series) { Span = 400 };
+        Assert.Single(odd.Repair());
+        Assert.Equal(300, odd.Span);
+        var plain = new Probe(MetricHistory.Series) { Span = 60 };
+        Assert.Empty(plain.Repair());
+        Assert.Equal(0, plain.Span);
+
+        // A span on a metric with no graph is none, said.
+        var none = new Probe(MetricHistory.Readings) { Span = 60 };
+        Assert.Single(none.Repair());
+        Assert.Equal(0, none.Span);
+
+        // [S-11750] Several selected set it once, only on a graph of the same series that offers it.
+        var hours = new Probe(MetricHistory.Series, MetricGraph.Hours()) { Span = 48 };
+        var hub = new Probe(MetricHistory.Series);
+        Assert.True(SharedSettings.MetricSpan.Holds(hours));
+        Assert.False(SharedSettings.MetricSpan.Holds(new Probe(MetricHistory.Readings)));
+        Assert.False(SharedSettings.MetricSpan.Holds(new Probe(MetricHistory.Series, MetricGraph.Minutes())));
+        SharedSettings.MetricSpan.Copy(hours, hub);
+        Assert.Equal(0, hub.Span);
+        var other = new Probe(MetricHistory.Series, MetricGraph.Hours());
+        SharedSettings.MetricSpan.Copy(hours, other);
+        Assert.Equal(48, MetricGraphs.EffectiveSpan(other));
+    }
+
+    [Fact]
+    public void S14711_a_span_of_more_points_than_the_plot_has_slots_folds_them_its_peak_for_a_rate()
+    {
+        // An hour of seconds on a 240 plot: 120 slots of two DIP, a fold of thirty points each.
+        var hour = Enumerable.Range(0, 3600).Select(i => (double?)(i % 30 == 7 ? 100 : 1)).ToList();
+        var mean = MetricRules.Graph(hour, 240, ChartType.Area, ChartDetail.Simple, 0, slots: 3600, added: 3600);
+        var peak = MetricRules.Graph(hour, 240, ChartType.Area, ChartDetail.Simple, 0, slots: 3600, peak: true, added: 3600);
+        Assert.Equal(120, mean.Series.Count);
+        Assert.All(peak.Series, p => Assert.Equal(100, p.Value));
+        Assert.All(mean.Series, p => Assert.True(p.Value < 5));
+
+        // A span still filling grows in from the right on its slots: 10 of 60 stand at the right sixth.
+        var filling = MetricRules.Graph([.. Enumerable.Range(0, 10).Select(i => (double?)i)], 240, ChartType.Line, ChartDetail.Simple, 0, slots: 60);
+        Assert.Equal(10, filling.Series.Count);
+        Assert.True(filling.Series[0].X > 190);
     }
 
     [Fact]
@@ -330,7 +468,7 @@ public sealed class MetricRulesTests
     [Fact]
     public void S14703_a_metric_with_a_series_offers_the_histories_chart_types_and_detail_repaired_loudly()
     {
-        var series = new Metric(MetricHistory.Series);
+        var series = new Probe(MetricHistory.Series);
         Assert.Equal(ChartLooks.Lines, series.ChartTypes);
         Assert.True(series.OffersDetail);
         Assert.Equal((ChartType.Area, ChartDetail.Simple), (series.Chart, series.Detail));
@@ -338,12 +476,12 @@ public sealed class MetricRulesTests
         Assert.True(SharedSettings.ChartDetail.Holds(series));
 
         // A type the metric does not draw (a history draws no columns or candles) is its own, said.
-        var bars = new Metric(MetricHistory.Series) { Chart = ChartType.Bars, Detail = (ChartDetail)7 };
+        var bars = new Probe(MetricHistory.Series) { Chart = ChartType.Bars, Detail = (ChartDetail)7 };
         Assert.Equal(2, bars.Repair().Count);
         Assert.Equal((ChartType.Area, ChartDetail.Simple), (bars.Chart, bars.Detail));
 
         // Without a series there is no graph: no chart look held.
-        var none = new Metric(MetricHistory.Readings);
+        var none = new Probe(MetricHistory.Readings);
         Assert.Empty(none.ChartTypes);
         Assert.False(SharedSettings.ChartDetail.Holds(none));
         Assert.False(SharedSettings.ChartType.Holds(none));
@@ -354,7 +492,7 @@ public sealed class MetricRulesTests
     [Fact]
     public void S14706_the_families_sources_are_their_own_widgets_targets()
     {
-        var any = new Metric(MetricHistory.None);
+        var any = new Probe(MetricHistory.None);
         Assert.Equal(System.IO.Path.Combine(Environment.SystemDirectory, "Taskmgr.exe"), MetricOpens.TaskManager.Target(any)!.Value);
         Assert.Equal("ms-settings:network-status", MetricOpens.Network.Target(any)!.Value);
         Assert.Equal("ms-settings:batterysaver", MetricOpens.Battery.Target(any)!.Value);

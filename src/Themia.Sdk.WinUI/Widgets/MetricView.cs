@@ -31,7 +31,7 @@ namespace Themia.App.Widgets;
 /// family subclasses it for its data and hands each read to <see cref="Present"/>; the face, the trend, the readings an
 /// arrow compares and what a click opens are this base's alone.
 /// </summary>
-public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys, IWidgetCorners
+public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys, IWidgetCorners, IWidgetTopEdge
 {
     private const string Scope = "metrics";
 
@@ -60,6 +60,9 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private readonly MetricReadings _readings = new();
     private FontIcon? _rowArrow;
     private Chart? _graph;
+
+    /// <summary>[S-14712] The graph as the row's sparkline beside the value, built the first time a card one row tall draws it.</summary>
+    private Chart? _spark;
     private MetricShown? _shown;
     private MetricTrend _trend;
     private WidgetConfig? _config;
@@ -78,9 +81,9 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         _kind = kind ?? throw new ArgumentNullException(nameof(kind));
         _status = new KitStatus(host);
 
-        // [S-14705] The item stands on the card's top edge as a list's first row does, and runs to its foot.
+        // [S-14705] The item stands on the card's top edge as a list's first row does, and runs to its foot: the view owns
+        // the edge ([S-5700]), so its box is the card's at every height, one cell too ([S-14712]).
         ItemMark.Mark(_item);
-        ListEdge.Apply(_item);
         _item.Background = Family.Brush(ColourRole.Clear);
         _item.Child = _face;
         _face.Room = width => _statusRoom = width;
@@ -105,6 +108,12 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         Children.Add(_item);
         _status.Place(this);
     }
+
+    /// <summary>
+    /// [S-5700] [S-14712] The view owns the card's top edge: its one item is the card's box, its row and its graph stand on
+    /// the top edge, so a card one cell tall (under the family's inset) is still the whole metric's box.
+    /// </summary>
+    public bool OwnsTopEdge => true;
 
     /// <summary>[S-14603] What history the kind's metric has.</summary>
     protected MetricHistory History => _kind.History;
@@ -236,9 +245,8 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         var split = ReadoutRules.Split(value.Text);
         _reading.Show(split.Value, split.Unit, valueRole: value.Available ? ColourRole.TextPrimary : ColourRole.TextDisabled);
 
-        // [S-14602] "--" says there is no reading; why is the face's tooltip (a status glyph would stand over the value).
-        // A reading kept through a failed refresh stays, and the status's problem glyph says so, its room at the row's end.
-        ToolTipService.SetToolTip(_item, !value.Available && shown.Why is { Length: > 0 } why ? why : null);
+        // [S-14602] A reading kept through a failed refresh stays, and the status's problem glyph says so, its room at the
+        // row's end; "--" says there is no reading, why its tooltip (Lay's, with the face).
         if (value.Available)
         {
             _status.Show(shown.Problems, busy: false);
@@ -296,37 +304,67 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private void Lay()
     {
         var (shown, trend) = _drawn;
-        var (type, detail) = Looks();
+        var (type, chosen) = Looks();
 
-        // The item stands on the card's top edge: the card's box is the view's and the inset over it.
-        var height = _area.IsMeasured ? _area.Height - ListEdge.Margin.Top : 0;
-        var look = MetricRules.Look(height, trend, detail, _area.IsMeasured ? _area.Grid() : ItemGrid.Default());
+        // The item stands on the card's top edge: the view owns it, so the card's box is the view's.
+        var height = _area.IsMeasured ? _area.Height : 0;
+        var look = MetricRules.Look(height, trend, chosen, _area.IsMeasured ? _area.Grid() : ItemGrid.Default());
+        var detail = look.Detail;
         var graphs = trend == MetricTrend.Line;
+        var alone = look.Face == MetricFace.Graph;
+        var slots = shown.Slots ?? MetricRules.LinePoints;
+        var peak = _kind.Graph?.Peak ?? false;
+        var role = shown.Value.Available ? ColourRole.Accent : ColourRole.TextDisabled;
 
-        // [S-14220] [S-14703] The graph: the card's whole box, its plot edge to edge, the reading the owner's part over its top.
-        if (graphs)
+        // [S-14602] "--" says there is no reading, why the face's tooltip (a status glyph would stand over the value); [S-14712]
+        // the graph alone (one cell tall) says the reading in its tooltip, the name and the value it has no room to write.
+        var value = shown.Value;
+        ToolTipService.SetToolTip(_item, !value.Available && shown.Why is { Length: > 0 } why ? why
+            : alone ? $"{shown.Name ?? MetricName}  {value.Text}" : null);
+
+        // [S-14220] [S-14703] The graph: the card's whole box, its plot edge to edge, the reading the owner's part over its top;
+        // [S-14712] one row tall it is the row's sparkline beside the value instead, one cell tall the graph alone.
+        if (graphs && !look.Spark)
         {
             var graph = Graph();
             graph.Visibility = Visibility.Visible;
-            graph.Role(shown.Value.Available ? ColourRole.Accent : ColourRole.TextDisabled);
-            var over = look.Graph > 0 ? look.Reading : height / 2;
-            graph.Show(size => MetricRules.Graph(shown.Series, size.Width, type, detail, over, shown.Figure));
+            graph.Role(role);
+            var over = alone ? 0 : look.Graph > 0 ? look.Reading : height / 2;
+            graph.Show(size => MetricRules.Graph(shown.Series, size.Width, type, detail, over, shown.Figure, slots, peak, shown.Added));
         }
         else if (_graph is not null)
         {
             _graph.Visibility = Visibility.Collapsed;
         }
 
+        if (look.Spark)
+        {
+            _spark ??= new Chart { FlowDirection = FlowDirection.LeftToRight, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center };
+            _spark.Role(role);
+            _spark.Show(size => MetricRules.Graph(shown.Series, size.Width, type, ChartDetail.Simple, 0, null, slots, peak, shown.Added));
+            _row.Beside(0, _spark, MetricRules.SparkWidth);
+        }
+        else if (graphs)
+        {
+            _row.Beside(0, null, 0);
+        }
+
         var readout = look.Face == MetricFace.Readout;
-        _row.Visibility = readout ? Visibility.Collapsed : Visibility.Visible;
+        _row.Visibility = readout || alone ? Visibility.Collapsed : Visibility.Visible;
         _fit.Visibility = readout ? Visibility.Visible : Visibility.Collapsed;
+        if (alone)
+        {
+            return;
+        }
+
         if (!readout)
         {
             // One row: the card's, or the reading's share over the graph.
             // [S-14705] The one row is the whole face (one item, the card edge to edge), not a repeated item: it is the box.
-            var face = graphs ? (look.Graph > 0 ? look.Reading : height / 2) : height;
-            _row.VerticalAlignment = graphs ? VerticalAlignment.Top : VerticalAlignment.Stretch;
-            _row.Height = graphs ? face : double.NaN;
+            var under = look.Graph > 0;
+            var face = under ? look.Reading : height;
+            _row.VerticalAlignment = under ? VerticalAlignment.Top : VerticalAlignment.Stretch;
+            _row.Height = under ? face : double.NaN;
             _row.Face(_area.IsMeasured && face > 0 ? face : double.NaN);
             return;
         }

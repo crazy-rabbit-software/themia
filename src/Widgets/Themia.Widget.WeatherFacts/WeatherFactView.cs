@@ -107,8 +107,10 @@ internal sealed partial class WeatherFactView : MetricView
         var shown = new MetricShown(value) { Reading = held.At.UtcTicks, Problems = OnlineParts.Problems(held) };
         if (History == MetricHistory.Series && _hours.Held is { Value: { } hours })
         {
-            var (direction, series) = MetricRules.Hours(hours.Hours, h => h.At, h => WeatherFactRules.Hourly(_fact, h), WeatherFactRules.Digits(_fact), _clock());
-            shown = shown with { Direction = direction, Series = series, Figure = WeatherFactRules.Figure(Strings.Current, _fact, _feed.Want?.Unit ?? RegionFormat.Current.Temperature) };
+            // [S-14711] The graph's window: the hours its span holds.
+            var span = MetricGraphs.EffectiveSpan(_config);
+            var (direction, series) = MetricRules.Hours(hours.Hours, h => h.At, h => WeatherFactRules.Hourly(_fact, h), WeatherFactRules.Digits(_fact), _clock(), span);
+            shown = shown with { Direction = direction, Series = series, Slots = span, Figure = WeatherFactRules.Figure(Strings.Current, _fact, _feed.Want?.Unit ?? RegionFormat.Current.Temperature) };
         }
 
         Present(shown);

@@ -169,6 +169,24 @@ public static class SharedSettings
         (from, to) => to.Trend = MetricRules.Effective(MetricRules.Effective(from), to.History),
         held => held.History != MetricHistory.None);
 
+    /// <summary>
+    /// [S-14711] A single metric's graph's span, held only by a kind whose graph offers a choice of span; written onto a
+    /// kind only when its graph has the same series and offers that span (a day of hours is no span of the hub's): two of
+    /// different series read as Mixed, and each keeps the span of its own unit.
+    /// </summary>
+    public static SharedSetting<IMetricGraph> MetricSpan { get; } = new(
+        "metricSpan",
+        (a, b) => a.Graph?.Series == b.Graph?.Series && MetricGraphs.EffectiveSpan(a) == MetricGraphs.EffectiveSpan(b),
+        (from, to) =>
+        {
+            var span = MetricGraphs.EffectiveSpan(from);
+            if (to.Graph is { } graph && graph.Series == from.Graph?.Series && graph.Spans.Contains(span))
+            {
+                to.Span = span == graph.Span ? 0 : span;
+            }
+        },
+        held => held.Graph is { Spans.Count: > 1 });
+
     /// <summary>[S-5143] The exchange-rate atoms' pair.</summary>
     public static SharedSetting<ExchangePairConfig> ExchangePair { get; } = new(
         "exchangePair",
@@ -223,7 +241,7 @@ public static class SharedSettings
     public static IReadOnlyList<SharedSetting> All { get; } =
     [
         Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, PingHost, GpuAdapter, AudioOutput,
-        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, MetricTrend, ListRows, ListLines, HideWhenIdle,
+        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, MetricTrend, MetricSpan, ListRows, ListLines, HideWhenIdle,
     ];
 
     /// <summary>The shared setting named <paramref name="key"/>, or null.</summary>

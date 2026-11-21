@@ -211,7 +211,7 @@ public sealed class AddPageTests
         // A subject of 20 own widgets and 30 families of 12 one-row parts: 380 kinds.
         WidgetId Kind(string name) => new(name);
         var own = Enumerable.Range(0, 20).Select(i => (AddNode)new AddLeaf(Kind($"own{i}"))).ToList();
-        AddFolderId[] ids = [AddFolderId.Processor, AddFolderId.Graphics, AddFolderId.MemoryReading];
+        AddFolderId[] ids = [AddFolderId.Processor, AddFolderId.Graphics, AddFolderId.NetworkReading];
         var families = Enumerable.Range(0, 30).Select(f => (AddNode)new AddShelf(ids[f % ids.Length], LocalText.Fixed($"Family {f}"), Kind($"f{f}p0"),
             [.. Enumerable.Range(0, 12).Select(p => (AddNode)new AddLeaf(Kind($"f{f}p{p}")))])).ToList();
         var subject = new AddShelf(AddFolderId.Weather, LocalText.Fixed("Weather"), Kind("own0"), [.. own, .. families]);

@@ -419,7 +419,7 @@ def self_test():
         # Down it is always centred, whatever the alignment.
         ('a width-held reading centred down', card(300, 164, 30, 31, 12, 12, align='left'), [], False),
         ('a width-held reading high', card(300, 164, 42.7, 58, 12, 12, align='left'), [], True),
-        # [S-6754] A plot edge to edge is the card's sides too: cpuHistory's "No data yet" over a flat zero line.
+        # [S-6754] A plot edge to edge is the card's sides too: stockHistory's "No data yet" over a flat zero line.
         ('a graph whose plot spans the card', card(330, 130, 12.7, 0, 12.7, 254.7,
                                                    plots=[{'x': 0, 'y': 0, 'w': 330, 'h': 130}]), [], False),
         ('a graph whose plot stops short', card(330, 130, 12.7, 0, 12.7, 254.7,
@@ -476,7 +476,7 @@ def self_test():
                 print(f'FAIL {name}: {found}')
             continue
         measured, layout = card_layout
-        kind = kinds[0] if kinds else 'cpuHistory' if layout['plots'] else 'notes' if layout.get('fields') else 'recycleBin'
+        kind = kinds[0] if kinds else 'stockHistory' if layout['plots'] else 'notes' if layout.get('fields') else 'recycleBin'
         found = judge(kind, measured, layout)
         if bool(found) != finds:
             failed += 1

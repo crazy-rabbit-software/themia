@@ -10,6 +10,9 @@ namespace Themia.Widget.WeatherFacts;
 [JsonConverter(typeof(JsonStringEnumConverter<WeatherFactKind>))]
 public enum WeatherFactKind
 {
+    /// <summary>[S-14714] The temperature now, "14°": the temperature graph's metric ([S-14713]).</summary>
+    Temperature,
+
     /// <summary>[S-722] Today's high and low, "H 16°  L 8°".</summary>
     Today,
     FeelsLike,
@@ -46,7 +49,7 @@ public static class WeatherFactRules
     /// </summary>
     public static MetricHistory History(WeatherFactKind kind) => kind switch
     {
-        WeatherFactKind.FeelsLike or WeatherFactKind.Humidity or WeatherFactKind.Wind or WeatherFactKind.Precipitation
+        WeatherFactKind.Temperature or WeatherFactKind.FeelsLike or WeatherFactKind.Humidity or WeatherFactKind.Wind or WeatherFactKind.Precipitation
             or WeatherFactKind.Pressure or WeatherFactKind.Uv or WeatherFactKind.Gusts => MetricHistory.Series,
         WeatherFactKind.CloudCover => MetricHistory.Readings,
         _ => MetricHistory.None,
@@ -58,6 +61,7 @@ public static class WeatherFactRules
         ArgumentNullException.ThrowIfNull(hour);
         return kind switch
         {
+            WeatherFactKind.Temperature => hour.Temperature,
             WeatherFactKind.FeelsLike => hour.FeelsLike,
             WeatherFactKind.Humidity => hour.Humidity,
             WeatherFactKind.Wind => hour.Wind,
@@ -75,7 +79,7 @@ public static class WeatherFactRules
     /// </summary>
     public static Func<double, string> Figure(Locale locale, WeatherFactKind kind, TemperatureUnit unit) => kind switch
     {
-        WeatherFactKind.FeelsLike => v => WeatherReport.Temperature(v, unit),
+        WeatherFactKind.Temperature or WeatherFactKind.FeelsLike => v => WeatherReport.Temperature(v, unit),
         WeatherFactKind.Humidity => v => WeatherReport.Humidity(locale, v),
         WeatherFactKind.Wind or WeatherFactKind.Gusts => v => WeatherReport.Wind(v),
         WeatherFactKind.Precipitation => v => WeatherReport.Precipitation(locale, v),
@@ -94,6 +98,7 @@ public static class WeatherFactRules
         var text = Value(locale, kind, reading, unit);
         double? number = kind switch
         {
+            WeatherFactKind.Temperature => reading.Temperature,
             WeatherFactKind.FeelsLike => reading.FeelsLike,
             WeatherFactKind.Humidity => reading.Humidity,
             WeatherFactKind.Wind => reading.WindKilometresPerHour,
@@ -115,6 +120,7 @@ public static class WeatherFactRules
         var value = kind switch
         {
             WeatherFactKind.Today => today is null ? string.Empty : WeatherReport.HighLow(locale, today.High, today.Low),
+            WeatherFactKind.Temperature => WeatherReport.Temperature(reading.Temperature, unit),
             WeatherFactKind.FeelsLike => WeatherReport.Temperature(reading.FeelsLike, unit),
             WeatherFactKind.Humidity => WeatherReport.Humidity(locale, reading.Humidity),
             WeatherFactKind.Wind => WeatherReport.WindFrom(locale, reading.WindKilometresPerHour, reading.WindDirection),

@@ -81,7 +81,9 @@ public static class StateDocument
             return ParseResult.Refused(ParseRefusal.NotJson, "state file is not valid JSON", ex);
         }
 
-        var dropped = DropUnknownKinds(document);
+        // [S-14713] A placed widget of a kind merged into another becomes it first, in its place.
+        var dropped = KindMerges.Replace(document);
+        dropped.AddRange(DropUnknownKinds(document));
         dropped.AddRange(DropUnknownKeys(document));
         dropped.AddRange(ReplaceUnknownNames(document));
 

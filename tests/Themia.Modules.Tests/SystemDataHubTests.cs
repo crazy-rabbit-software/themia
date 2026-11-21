@@ -436,11 +436,11 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2513_a_change_that_wants_the_same_is_no_change()
     {
-        var state = State([new Themia.Widget.CpuHistory.CpuHistoryConfig(), new Themia.Widget.MemoryFacts.MemoryInUseConfig()]);
+        var state = State([new Themia.Widget.CpuFacts.CpuLoadConfig(), new Themia.Widget.MemoryFacts.MemoryInUseConfig()]);
         var before = SystemInterests.From(state, Root);
 
         // Moving a widget or changing a span reads nothing new.
-        ((Themia.Widget.CpuHistory.CpuHistoryConfig)state.Views[0].Widgets[0].Config).GraphSpanSeconds = 3600;
+        ((Themia.Widget.CpuFacts.CpuLoadConfig)state.Views[0].Widgets[0].Config).Span = 3600;
         Assert.True(before.SameAs(SystemInterests.From(state, Root)));
 
         state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Config = new Themia.Widget.NetworkFacts.NetworkDownloadConfig() });

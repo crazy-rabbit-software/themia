@@ -23,7 +23,7 @@ namespace Themia.Widget.NetworkFacts;
 /// </summary>
 internal static class NetworkKinds
 {
-    public static IReadOnlyList<MetricKind> All { get; } = MetricKind.Opening(
+    public static IReadOnlyList<MetricKind> All { get; } = Graphed(MetricKind.Opening(
     [
         new("networkLocalAddress", "localAddress", Glyphs.Network, MetricHistory.None, Str.Details_Network_LocalAddress.Local(), NetworkFactsStr.NetworkFacts_NetworkLocalAddress_Label.Local(), NetworkFactsStr.NetworkFacts_NetworkLocalAddress_Desc.Local(),
             ["ip address", "local address", "ipv4", "ipv6", "lan"], () => new NetworkLocalAddressConfig()),
@@ -39,7 +39,18 @@ internal static class NetworkKinds
             ["download", "download speed", "bandwidth", "throughput", "network"], () => new NetworkDownloadConfig()),
         new("networkUpload", "upload", Glyphs.Upload, MetricHistory.Series, Str.Details_Network_Upload.Local(), NetworkFactsStr.NetworkFacts_NetworkUpload_Label.Local(), NetworkFactsStr.NetworkFacts_NetworkUpload_Desc.Local(),
             ["upload", "upload speed", "bandwidth", "throughput", "network"], () => new NetworkUploadConfig()),
-    ], MetricOpens.Network);
+    ], MetricOpens.Network));
+
+    /// <summary>
+    /// [S-14710] [S-14713] Each series' graph (the hub's history: Area or Line, a span of the meters') and the history widget
+    /// it stands in for, a placed one replaced in place with its graph shown.
+    /// </summary>
+    private static IReadOnlyList<MetricKind> Graphed(IReadOnlyList<MetricKind> kinds) => [.. kinds.Select(kind => kind.Key switch
+    {
+        "download" => kind.Graphed(MetricGraph.Hub(peak: true), new MergeFrom("networkHistory")),
+        "upload" => kind.Graphed(MetricGraph.Hub(peak: true)),
+        _ => kind,
+    })];
 
     /// <summary>The kind showing the metric <paramref name="key"/>.</summary>
     public static MetricKind Of(string key) => All.Single(k => k.Key == key);

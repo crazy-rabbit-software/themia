@@ -3,6 +3,7 @@ using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -45,10 +46,91 @@ public abstract class SystemMetricPart
     /// <summary>The stamp of the newest reading (what a watch presents again at once).</summary>
     protected long LastReading => _reading;
 
+    /// <summary>
+    /// [S-14710] [S-14711] <paramref name="shown"/> with its graph over the hub's <paramref name="series"/>: the newest points
+    /// the config's span holds at the series' period (its kind's graph, [S-14711]), each <paramref name="point"/>, written as
+    /// the shown figure is (<paramref name="figure"/>), with the series' absolute count so a fold stays put.
+    /// </summary>
+    protected static MetricShown Graphed(MetricShown shown, ISeriesWatch series, WidgetConfig config, Func<SeriesPoint, double?> point, Func<double, string> figure)
+    {
+        ArgumentNullException.ThrowIfNull(shown);
+        ArgumentNullException.ThrowIfNull(series);
+        ArgumentNullException.ThrowIfNull(point);
+        var slots = config is IMetricGraph graph ? MetricGraphs.Points(graph, series.Interest.Key.PeriodSeconds) : MetricRules.LinePoints;
+        return shown with { Series = [.. series.History(slots).Select(point)], Slots = slots, Added = series.Added, Figure = figure };
+    }
+
 #if DEBUG
     /// <summary>[S-1942] Debug renders: the read <c>--state unavailable</c> shows, a thing not on this machine; null where the kind cannot be absent.</summary>
     public virtual MetricShown? Absent() => null;
 #endif
+}
+
+/// <summary>
+/// [S-14710] [S-14714] A metric that is one charted series of the hub, its reading the series' newest and its graph the
+/// series' own history (the processor's load, the battery's charge, a drive's activity: what their histories drew,
+/// [S-14713]): the series is the config's (<see cref="IReadsSystem"/>), its reading as the meter writes it, its history
+/// written by <paramref name="figure"/> (a share, a rate). One part for every such kind: a family declares the kind, never a
+/// part of its own. Unavailable (a sensor not there, no battery) its "--", why its tooltip.
+/// </summary>
+public sealed class SeriesMetricPart(Func<double, string> figure, Func<SeriesPoint, double?>? point = null) : SystemMetricPart
+{
+    private readonly Func<SeriesPoint, double?> _point = point ?? (p => double.IsFinite(p.First) ? p.First : null);
+    private ISeriesWatch? _series;
+    private WidgetConfig? _config;
+    private ISystemMetricHost? _host;
+
+    /// <inheritdoc />
+    public override Action? Refresh => () => _series?.Refresh();
+
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
+    {
+        ArgumentNullException.ThrowIfNull(hub);
+        _host = host;
+        _config = config;
+        var wanted = SystemInterests.For(config, SystemDrive.Root).Series.FirstOrDefault();
+        if (wanted == default)
+        {
+            _series?.Dispose();
+            _series = null;
+        }
+        else if (_series is null || _series.Interest != wanted)
+        {
+            _series?.Dispose();
+            _series = hub.WatchSeries(wanted, _ =>
+            {
+                NextReading();
+                Show();
+            });
+        }
+
+        Show();
+    }
+
+    private void Show()
+    {
+        if (_host is not { } host || _config is not { } config)
+        {
+            return;
+        }
+
+        if (_series is not { Latest: { } latest } series)
+        {
+            host.Present(new MetricShown(MetricValue.Unread) { Why = Str.WidgetsB_Meters_Unavailable.Text() });
+            return;
+        }
+
+        var value = latest.Available ? new MetricValue(latest.Primary, latest.Value ?? latest.Fraction) : MetricValue.Unread;
+        var shown = new MetricShown(value) { Reading = LastReading, Why = latest.Available ? null : latest.Reason };
+        host.Present(Graphed(shown, series, config, _point, figure));
+    }
+
+    public override void Detach()
+    {
+        _series?.Dispose();
+        _series = null;
+        _host = null;
+    }
 }
 
 /// <summary>

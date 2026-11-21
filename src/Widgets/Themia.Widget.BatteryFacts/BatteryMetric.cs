@@ -20,8 +20,9 @@ namespace Themia.Widget.BatteryFacts;
 public abstract class BatteryMetricModule(string key)
     : MetricModule(BatteryKinds.Of(key), BatteryFactsJsonContext.Default, AddFolderId.BatteryFacts, BatteryKinds.Rank(key))
 {
+    /// <summary>[S-14714] The charge is the hub's series itself (<see cref="SeriesMetricPart"/>); every other fact the battery's sheet.</summary>
     public override FrameworkElement CreateView(IWidgetHost host)
-        => new SystemMetricView(host, Kind, new BatteryMetricPart(Kind.Key));
+        => new SystemMetricView(host, Kind, Kind.Key == "charge" ? new SeriesMetricPart(Formatting.Percent) : new BatteryMetricPart(Kind.Key));
 }
 
 /// <summary>[S-14660] What a battery fact card remembers: its trend; its fact is its kind's.</summary>
@@ -32,10 +33,11 @@ public abstract class BatteryMetricConfig(string key) : MetricConfig, IReadsSyst
     public string Key { get; } = key;
 
     /// <inheritdoc />
-    protected override MetricHistory KindHistory => BatteryKinds.Of(Key).History;
+    protected override MetricKind Metric => BatteryKinds.Of(Key);
 
     /// <summary>[S-2513] The charge and what the battery itself reports.</summary>
-    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Battery, SystemSource.BatteryPack);
+    public SystemInterests SystemWants(string systemRoot)
+        => Key == "charge" ? SystemInterests.Chart(SystemSource.Battery) : SystemInterests.Read(SystemSource.Battery, SystemSource.BatteryPack);
 
     public override WidgetConfig Clone()
     {
@@ -110,6 +112,7 @@ internal sealed partial class BatteryMetricPart(string key) : SystemMetricPart
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSerializable(typeof(BatteryChargeConfig))]
 [JsonSerializable(typeof(BatteryStatusConfig))]
 [JsonSerializable(typeof(BatteryTimeConfig))]
 [JsonSerializable(typeof(BatteryHealthConfig))]

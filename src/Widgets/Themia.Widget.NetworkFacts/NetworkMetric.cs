@@ -42,7 +42,7 @@ public abstract class NetworkMetricConfig(string key) : MetricConfig, IReadsSyst
     public string Key { get; } = key;
 
     /// <inheritdoc />
-    protected override MetricHistory KindHistory => NetworkKinds.Of(Key).History;
+    protected override MetricKind Metric => NetworkKinds.Of(Key);
 
     /// <summary>
     /// [S-2417] Whether it asks a public service for this connection's public address: only the public address's own card
@@ -83,11 +83,13 @@ internal sealed class NetworkMetricPart(string key) : SystemMetricPart
     private readonly WatchSlot<IReadOnlyDictionary<string, string>> _addresses = new();
     private readonly WatchSlot<PublicAddressReading> _public = new();
     private ISeriesWatch? _series;
+    private WidgetConfig? _config;
     private ISystemMetricHost? _host;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {
         _host = host;
+        _config = config;
         var own = config as NetworkMetricConfig;
         _addresses.Hold(hub, Sources.LocalAddresses, static _ => { });
 
@@ -138,7 +140,7 @@ internal sealed class NetworkMetricPart(string key) : SystemMetricPart
         {
             var upload = key == "upload";
             // [S-14703] The throughput's history in bytes a second, written as a rate.
-            shown = shown with { Series = [.. series.History(MetricRules.LinePoints).Select(p => (double?)(upload ? p.Second : p.First))], Figure = Formatting.Rate };
+            shown = _config is { } config ? Graphed(shown, series, config, p => upload ? p.Second : p.First, Formatting.Rate) : shown;
         }
 
         host.Present(shown);

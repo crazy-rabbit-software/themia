@@ -1,5 +1,0 @@
-{
-  "$englishOnly": ["pressureGraph.label", "pressureGraph.desc"],
-  "pressureGraph.label": "Pressure graph",
-  "pressureGraph.desc": "Air pressure hour by hour"
-}
