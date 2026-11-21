@@ -52,9 +52,6 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     private bool _hidden;
     private bool _detached = true;
 
-    // [S-12813] The status glyph's width over the card's top end corner while it shows (0: none).
-    private double _statusRoom;
-
     /// <param name="host">The card's host: the status glyph's account link, the launcher a click opens through.</param>
     /// <param name="kind">The kind: its glyph and what it opens.</param>
     /// <param name="presses">[S-15005] Whether a click presses something of the family's (<see cref="Press"/>).</param>
@@ -66,17 +63,16 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         _shown = new IconShown(kind.Glyph) { Name = kind.Label.Text() };
         _status = new KitStatus(host);
         _face = presses ? new ButtonFace() : new Face();
-        _face.Room = width =>
-        {
-            _statusRoom = width;
-            Lay();
-        };
 
         // The whole card is hit-testable, edge to edge: the tile is the item.
         _face.Background = Family.Brush(ColourRole.Clear);
         _face.Children.Add(_tile);
         Children.Add(_face);
         _status.Place(this);
+
+        // [S-15160] The status glyph stands in the card's top end corner, on the inset round the glyph: it takes none of the
+        // glyph's room, so the icon stays centred at its size whatever the status says.
+        _status.StandAt(FamilySpace.S1, FamilySpace.S1);
     }
 
     /// <summary>[S-15005] Whether a click presses something of the family's rather than opening a source.</summary>
@@ -261,15 +257,15 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     }
 
     /// <summary>
-    /// [S-15002] The glyph on the step its box holds in the inset that box leaves, leaving the status glyph its room at the
-    /// end while one shows ([S-12813]); the fit centres and scales it.
+    /// [S-15002] The glyph on the step its box holds in the inset that box leaves, alike on every side; the fit centres and
+    /// scales it. [S-15160] The status glyph takes none of that room: it stands in the card's corner, over the inset.
     /// </summary>
     private void Lay()
     {
         var natural = IconRules.NaturalSide;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural, natural);
         var inset = IconRules.Inset(width, height);
-        _tile.Padding = new Thickness(inset, inset, inset + _statusRoom, inset);
+        _tile.Padding = new Thickness(inset);
         _tile.Use(IconRules.Step(width, height), width - (2 * inset), label: false, state: false);
     }
 
@@ -366,15 +362,10 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     }
 
     /// <summary>
-    /// [S-12813] The face, the card edge to edge: the status glyph over the card's top end corner tells it its width
-    /// (<see cref="IStatusRoom"/>), so the glyph leaves it room.
+    /// [S-15001] The face, the card edge to edge. [S-15160] It leaves the status glyph no room (no <see cref="IStatusRoom"/>):
+    /// the glyph stays centred at its size, the status standing in the card's corner over the inset.
     /// </summary>
-    private partial class Face : Grid, IStatusRoom
-    {
-        public Action<double>? Room { get; set; }
-
-        public void StatusRoom(double width) => Room?.Invoke(width);
-    }
+    private partial class Face : Grid;
 
     /// <summary>[S-2007] [S-15005] A pressing icon's face: one button edge to edge that takes the press itself.</summary>
     private sealed partial class ButtonFace : Face, IWidgetButton;

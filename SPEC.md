@@ -10680,8 +10680,13 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   standing centred on the other axis (owner, 2026-11-19, of the tiles: "Centred is fine"). The inset is the family's (12)
   while the card's short side holds the 28 glyph in it; under that, what the side leaves the 28 glyph on each side, down
   to 4 (`IconRules.Inset`, as a tile's, [S-12806]). Without a reading the face stays (WR-10): its kind's glyph drawn
-  unavailable, why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so, the
-  glyph leaving it its room ([S-12813]).
+  unavailable, why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so
+  ([S-12813]), standing in the card's corner ([S-15160]).
+- **[S-15160]** **The status takes none of the glyph's room.** The status's problem glyph (a sky kept through a failed
+  refresh, a player that failed) stands in the card's top end corner, 4 from its top and its end, on the inset round the
+  glyph; the glyph keeps its whole inset box alike on every side, centred at its full size whatever the status says (a
+  stale sky's cloud stood left of centre and smaller, giving the glyph its room). The same for every icon kind: the face
+  is the base's.
 - **[S-15003]** **A family a project, a kind an icon.** A family's kinds are data (`IconKind`: id, glyph, the add page's
   name, description and search words, its config, what it opens); each kind is a sealed module (`IconModule`: the one
   sizing, a one-readout face with its item, at home in its family's add-page folder in the family's order, the removed

@@ -1,7 +1,10 @@
+using System.Reflection;
+using Themia.App.Widgets;
 using Themia.Core.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Xunit;
 
 namespace Themia.Modules.Tests;
@@ -32,5 +35,16 @@ public sealed class IconKindsTests
             Assert.Equal(module.Kind.ConfigType, config.GetType());
             Assert.Single(module.Kind.Glyph.EnumerateRunes());
         }
+    }
+
+    /// <summary>
+    /// [S-15160] A stale sky's cloud stood left of centre and smaller: the face took the status glyph's width off its end.
+    /// No part of the icon face leaves the status room; the status stands in the card's corner over the inset.
+    /// </summary>
+    [Fact]
+    public void S15160_no_part_of_the_icon_face_gives_the_status_glyph_room()
+    {
+        var parts = typeof(IconView).GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic).Append(typeof(IconView));
+        Assert.DoesNotContain(parts, t => typeof(IStatusRoom).IsAssignableFrom(t));
     }
 }
