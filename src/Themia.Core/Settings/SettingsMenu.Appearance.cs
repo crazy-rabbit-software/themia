@@ -261,7 +261,7 @@ public static partial class SettingsMenu
         return new SettingsSubmenu(key, Str.Shell_Appearance_TextAndSize.Text(), Glyphs.Font,
         [
             new SettingsFont(key + "/font", Str.Settings_Font_FamilyLabel.Text(), Glyphs.Font, design.FontFamily,
-                v => host.Mutate(s => s.Design.FontFamily = v)),
+                v => host.Mutate(s => s.Design.FontFamily = v)) { Value = FontName(design.FontFamily) },
             new SettingsSlider(key + "/size", Str.Shell_Appearance_TextSize.Text(), Glyphs.TextSize, design.FontScale, DesignNumbers.FontScale.Min, DesignNumbers.FontScale.Max, DesignNumbers.FontScale.Step, Percent,
                 v => host.Mutate(s => s.Design.FontScale = v)),
             TokenSlider(host, key, "vibrancy", Str.SettingsPages_Look_Vibrancy, Glyphs.Opacity, Percent),

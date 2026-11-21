@@ -4,19 +4,6 @@ using Themia.Core.Localization;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3581] A picture a line of the settings menu shows in its icon column instead of a glyph: the
-/// app's own mark and the studio's, drawn by the app from the files beside <c>Themia.exe</c>.
-/// </summary>
-public enum MenuPicture
-{
-    /// <summary><c>Assets/themia-logo.png</c>, the mark of the app's name card.</summary>
-    ThemiaLogo,
-
-    /// <summary><c>Assets/lometics.svg</c>, the studio's mark.</summary>
-    Lometics,
-}
-
-/// <summary>
 /// [S-3580] What settings › About Themia reads and does: the version and what it runs on, the links (through
 /// the app's one launcher), and the uninstall: the plan for this install, the "also delete my data"
 /// choice of a loose build (a draft, unticked again when the menu closes) and the uninstall itself.
