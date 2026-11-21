@@ -24,7 +24,7 @@ public sealed class EditBarLayoutTests
     public void S13701_unplaced_icons_stands_right_beside_add_widget_its_icon_alone()
     {
         // Owner, 2026-11-21: "the selector settings page should be moved next to add widget and given another icon". Its
-        // entry is not among the pages' any more: the five pages, then right before Add its icon alone, at every width.
+        // entry is not among the pages' any more: the five pages, then right after Add its icon alone, at every width.
         Assert.DoesNotContain(Settings.SettingsPageId.DesktopItems, Settings.SettingsPages.Entries);
         Assert.Equal(Settings.SettingsPages.Order.Count - 1, Settings.SettingsPages.Entries.Count);
         Assert.Equal(Glyphs.UnplacedIcons, Settings.SettingsPages.Glyph(Settings.SettingsPageId.DesktopItems));
@@ -36,7 +36,7 @@ public sealed class EditBarLayoutTests
             var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
             var add = plan.Of(BarPartKind.Add)!.Value;
             Assert.Equal((B.IconOnly, true), (unplaced.Width, unplaced.IconOnly));
-            Assert.Equal(unplaced.Right + B.EntryGap, add.X);
+            Assert.Equal(add.Right + B.EntryGap, unplaced.X);
             Assert.Equal(Pages.Length, plan.Parts.Count(p => p.Kind == BarPartKind.Page));
             Assert.True(plan.Parts.Where(p => p.Kind == BarPartKind.Page).Max(p => p.Right) < plan.SelectionX);
         }
@@ -57,21 +57,19 @@ public sealed class EditBarLayoutTests
         Assert.Equal(divider.Right + B.DividerRoom, plan.SelectionX);
         Assert.Equal(plan.SelectionX, plan.Of(BarPartKind.Selection)!.Value.X);
 
-        // [S-11959] retired: no toggle at the bar's root. After the gutter the errors' room, then [S-13701] Unplaced icons
-        // right beside Add.
+        // [S-11959] retired: no toggle at the bar's root. After the gutter the errors' room, then [S-14910] the widget
+        // gallery's icon button directly before Add, and [S-13701] Unplaced icons right beside Add on its other side.
         Assert.DoesNotContain("Toggle", Enum.GetNames<BarPartKind>());
         var errors = plan.Of(BarPartKind.Errors)!.Value;
         Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly), (errors.X, errors.Width));
-        var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
-        Assert.Equal(errors.Right + B.EntryGap, unplaced.X);
-
-        // [S-14910] The widget gallery's icon button directly before Add, Unplaced icons beside it.
         var gallery = plan.Of(BarPartKind.Gallery)!.Value;
-        Assert.Equal((unplaced.Right + B.EntryGap, B.IconOnly, true), (gallery.X, gallery.Width, gallery.IconOnly));
+        Assert.Equal((errors.Right + B.EntryGap, B.IconOnly, true), (gallery.X, gallery.Width, gallery.IconOnly));
         var add = plan.Of(BarPartKind.Add)!.Value;
         Assert.Equal(gallery.Right + B.EntryGap, add.X);
+        var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
+        Assert.Equal((add.Right + B.EntryGap, B.IconOnly, true), (unplaced.X, unplaced.Width, unplaced.IconOnly));
         var done = plan.Of(BarPartKind.Done)!.Value;
-        Assert.Equal(add.Right + B.Pad, done.X);
+        Assert.Equal(unplaced.Right + B.Pad, done.X);
         Assert.Equal(B.DoneLeast, done.Width);
         Assert.Equal(done.Right + B.Pad, plan.Width);
         Assert.Equal(48, B.Height);

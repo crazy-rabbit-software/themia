@@ -2188,12 +2188,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   16 icon, 8, its words in Body, 12; no fill or rim until pointed at); 8, a 1-DIP hairline 20 tall, 8
   (drawn only while something is selected, its room always kept); the **selection's room**, 256 DIPs
   always kept ([S-2324]); a 16 gutter; the **problems' room** (a 40 icon button while there are
-  problems; Themia keeps no standing list of them yet, so the room stays empty); 4; **Unplaced icons** (its icon alone, 40,
-  and its count badge, [S-13701]); 4; the **Widget gallery**'s button (40,
+  problems; Themia keeps no standing list of them yet, so the room stays empty); 4; the **Widget gallery**'s button (40,
   its icon alone, [S-14910]); 4; **Add widget**
   ([S-3501]; a command bar's button as the entries, no fill nor rim until pointed at, as Karpo's "+ Add", its §575;
   owner, 2026-11-19: "the individual settings components between karpo and themia should bascially be the same ...
-  same with the topbar"); 8; **Done** (the one accent button, at
+  same with the topbar"); 4; **Unplaced icons** (its icon alone, 40, and its count badge, [S-13701]); 8; **Done** (the one accent button, at
   least 80, ending 8 from the bar's end). One width whatever is selected and however many problems there
   are. There is no grip (the bar is never dragged), no Undo or Redo (Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z still
   step the history, [S-885]), no search, no fold and no close button.
@@ -2837,7 +2836,8 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   selected" or a hint how to drag them over the icons), and **no buttons** over them ([S-13704] retired). A view
   that shows no desktop icons (None, [S-5525]) lists none and says so, pointing at Views › Desktop icons; with every
   icon placed the page says that.
-- **[S-13701]** **Its entry** on the edit bar stands **right beside Add widget**, not among the pages' (owner,
+- **[S-13701]** **Its entry** on the edit bar stands **right beside Add widget** (after it, the Widget gallery's button
+  before it, [S-14910]), not among the pages' (owner,
   2026-11-21: "the selector settings page should be moved next to add widget and given another icon";
   `BarPartKind.Unplaced`, `SettingsPages.Entries` the pages without it): its icon alone at every width (its name
   "Unplaced icons" the tooltip and the screen reader's), an app's icon with a plus (`Glyphs.UnplacedIcons`, Segoe
@@ -2939,7 +2939,7 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
 `WidgetGalleryTests`, `WidgetGalleryPlacementTests`, `EditBarLayoutTests.S2320_`.
 
 - **[S-14910]** **Its own page, beside the add page.** The edit bar has a **Widget gallery** button (an icon alone, Segoe's
-  ViewDashboard, its words its tooltip) between Unplaced icons and Add widget ([S-2320]: 4 either side); the add page
+  ViewDashboard, its words its tooltip) between the problems' room and Add widget ([S-2320]: 4 either side); the add page
   ([S-3501], [S-13610]..) is unchanged. The gallery is one of the bar's flyouts ([S-2327]): one at a time (it closes as
   another opens, and the others close as it opens), its button marked with the accent's pill while it is open, and its
   button, Escape (a pick first, [S-14914]), another entry, Done and leaving edit mode close it. Only in edit mode and not

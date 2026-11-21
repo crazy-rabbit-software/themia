@@ -58,8 +58,8 @@ internal sealed record EditBarState(BarSelection? Selection, int Errors, Setting
 /// one width whatever is selected. Left to right: the pages' entries (General, Accounts, Display, Views,
 /// Appearance) 4 apart, no fill until pointed at, the open one on the subtle fill with the accent's pill at
 /// its foot; 8, a hairline 20 tall while something is selected, 8; the selection's entry in its 256 room;
-/// a 16 gutter; the problems' button while there are any, in its room; 4; Unplaced icons (its icon and count badge,
-/// [S-13701]); 4; the widget gallery (its icon alone, [S-14910]); 4; Add widget; 8; Done (the one accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
+/// a 16 gutter; the problems' button while there are any, in its room; 4; the widget gallery (its icon alone, [S-14910]);
+/// 4; Add widget; 4; Unplaced icons (its icon and count badge, [S-13701]); 8; Done (the one accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
 /// the tooltip). Laid out by <see cref="EditBarLayout"/>. No grip, no undo, no search, no close.
 /// <para>
 /// Its own control so the debug render draws the real bar; its buttons are built as edit mode starts
