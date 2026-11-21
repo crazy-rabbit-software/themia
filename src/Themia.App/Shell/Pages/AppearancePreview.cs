@@ -166,7 +166,7 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
         }
 
         Lay();
-        _ = ShowSamplesAsync();
+        _ = SampleCards.ShowAsync([.. _cards], () => _disposed, Scope);
     }
 
     /// <summary>The cards painted in the design as it stands, then joined where they touch (a fill made Transparent joins nothing).</summary>
@@ -210,35 +210,6 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
             ScaleY = scale,
         };
         Clip = new RectangleGeometry { Rect = new Windows.Foundation.Rect(0, 0, ActualWidth, height) };
-    }
-
-    /// <summary>[S-11850] Each card's sample, as the add page's pictures show them.</summary>
-    private async Task ShowSamplesAsync()
-    {
-        try
-        {
-            foreach (var card in _cards.ToList())
-            {
-                if (_disposed)
-                {
-                    return;
-                }
-
-                if (card.ShowsSetup)
-                {
-                    card.RunForPreview();
-                }
-
-                if (card.View is IWidgetSample sample)
-                {
-                    await sample.ShowSampleAsync().ConfigureAwait(true);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Warn(Scope, "a preview card's sample could not be shown; it shows what it has", ex);
-        }
     }
 
     private void Clear()
