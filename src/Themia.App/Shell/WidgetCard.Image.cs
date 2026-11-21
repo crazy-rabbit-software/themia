@@ -39,7 +39,7 @@ internal sealed partial class WidgetCard
     /// </summary>
     private void ApplyImage(CornerRadius corners)
     {
-        // [S-2241] The card's corners, square where a joined neighbour covers them.
+        // [S-2250] Round all round or square: the surface's clip rounds it where the card is round.
         _image.CornerRadius = corners;
 
         var path = Model.BackgroundImage;

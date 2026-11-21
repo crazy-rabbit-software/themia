@@ -8634,6 +8634,15 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   screen whose DIPs are fractional; the lattice's one tolerance only absorbs float noise. On the grid they meet on its
   line, and cards on one line share its pixel: every card stands on its display's lines ([S-11892]), so a seam's
   two ends and the edges along it are one pixel in both cards. Tests `CardPaintTests.S2248_`.
+- **[S-2250]** **Inside the clip a layer is round all round or square** (`CardJoins.InsideRadius`,
+  `WidgetCard.InsideCorners`). The surface's clip alone takes one radius a corner ([S-2241]). What is drawn inside
+  it (the fill, the grain, the glass's glow, a background image, and the corners a view takes for its own fill,
+  [S-11883]) takes the card's radius on all four corners when all four are round, and none on a joined card: the clip
+  rounds it at the corners the card keeps. A filled layer with unequal corner radii is drawn only in part in a
+  picture of the cards (`RenderTargetBitmap`: every render flag, the Store's scenes, the add page's and the gallery's
+  pictures): a shade across the card fading out toward its joined sides, on every card of a joined panel that keeps
+  one, two or three corners (found 2026-11-21 on the now-playing groups; the live desktop drew them whole). Tests
+  `CardJoinsTests.S2250_`.
 - **[S-2249]** **Touching cards are one connected panel** (`CardJoins.Paint`, the one path the desktop, the scenes
   and the add page's pictures take through `WidgetCard.Join`). Every card paints its whole cell ([S-11884]); cards
   whose cells meet ([S-2248]) join ([S-2240], [S-2241]) with no line between ([S-11870]): square inner corners,
@@ -11190,7 +11199,8 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   every seam. The card hands a view whose fill reaches its edge its corners (`IWidgetCorners.ApplyCorners`,
   in the view's DIPs: the card's per-corner radius over its content scale) when the view attaches and on
   every join, design and content-scale change; `TileBlock.Corners` puts them on its fill and its overlay.
-  Round where the card is, square where a neighbour joins it ([S-2241]), in solid and Liquid glass alike.
+  Round all round on a card that keeps its four corners, square on a joined one, whose clip rounds the fill where the
+  card is round ([S-2241], [S-2250]), in solid and Liquid glass alike.
 - **[S-11804]** **A tile's name wraps before it is cut** (2026-11-12): under the glyph the name takes a
   second line where it runs past one ("Do not disturb", "Bitte nicht stören"), word by word, and only past
   the second is it cut with its ellipsis (`TileRules.NameLines`, `TileBlock`); the Switch look's row keeps

@@ -520,19 +520,23 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // graph reaches the bottom and both sides - is clipped to the card's corners instead of
         // squaring them off.
         _surface.CornerRadius = radius;
+
+        // [S-2250] The layers inside that clip take the radius all round or not at all, never one a corner.
+        var inside = InsideCorners(radiusPx);
+        _insideRadius = inside.TopLeft;
         ApplyViewCorners();
 
         // [S-823] [S-2100] The card paints its own fill, one colour at one opacity: Themia's neutral
         // card for the theme by default, the user's colour exactly otherwise. The surface is genuinely
         // transparent, so what shows through it is the desktop.
         // [S-6592] Over a background image only a colour of the widget's own is painted, as a tint.
-        ApplyImage(radius);
+        ApplyImage(inside);
         BindBackdrop();
         var cardFill = CardFillNow();
         var fill = PaintedFillNow();
         ApplyFrost(fill);
 
-        _fill.CornerRadius = radius;
+        _fill.CornerRadius = inside;
         _fill.Background = fill.Painted && fill.Colour is { } colour ? DesignApplier.UserBrush(HexColor.From(colour.R, colour.G, colour.B)) : null;
         _fill.Opacity = fill.Painted ? fill.Opacity : 1;
 
@@ -568,10 +572,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
 
         // [S-2123] Liquid glass: its tint, sheen, lens, rim and lift over what the design painted.
-        ApplyGlass(radius, radiusPx, fill);
+        ApplyGlass(inside, radiusPx, fill);
 
         // [S-2133] [S-2140] The accent in a default card, the grain.
-        ApplyLook(radius, fill);
+        ApplyLook(inside, fill);
 
         // [S-826] The design's font for everything in the card that does not pick its own; icons
         // name Segoe Fluent Icons themselves, so their glyphs are untouched.
@@ -803,9 +807,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         ApplyViewCorners();
     }
 
+    /// <summary>[S-2250] The radius of the layers inside the surface's clip as the last design set it (0: square).</summary>
+    private double _insideRadius;
+
     /// <summary>
-    /// [S-11883] A view whose fill reaches the card's edge takes the card's corners (round where the card
-    /// is, square where a neighbour joins it), in its own DIPs: the content is scaled by the content scale.
+    /// [S-11883] A view whose fill reaches the card's edge takes the card's corners, in its own DIPs (the content is
+    /// scaled by the content scale): [S-2250] the card's radius all round on a card whose four corners are round, square
+    /// on a joined one, where the surface's clip rounds the fill at the corners the card keeps.
     /// </summary>
     private void ApplyViewCorners()
     {
@@ -815,9 +823,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             return;
         }
 
-        var r = _surface.CornerRadius;
         var s = _contentScale > 0 ? _contentScale : 1;
-        corners.ApplyCorners(new CornerRadius(r.TopLeft / s, r.TopRight / s, r.BottomRight / s, r.BottomLeft / s));
+        corners.ApplyCorners(new CornerRadius(_insideRadius / s));
     }
 
     /// <summary>

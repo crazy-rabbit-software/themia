@@ -45,6 +45,9 @@ public readonly record struct CardOutline(
     /// <summary>The seams, none when the outline has none.</summary>
     private IReadOnlyList<OutlineSeam> SeamList => Seams ?? [];
 
+    /// <summary>[S-2250] Whether all four corners are round: a free card, or one whose neighbours reach none of its corners.</summary>
+    public bool AllRound => RoundTopLeft && RoundTopRight && RoundBottomRight && RoundBottomLeft;
+
     /// <summary>The same outline seen from a right-to-left flow, where the start is the physical right.</summary>
     public CardOutline Mirrored() => new(
         RoundTopRight, RoundTopLeft, RoundBottomLeft, RoundBottomRight,
@@ -498,6 +501,17 @@ public static class CardJoins
     /// </summary>
     public static double ClipRadius(Themia.Sdk.WidgetTraits traits, bool drawsSurface, double radius)
         => traits.HasFlag(Themia.Sdk.WidgetTraits.NeverJoins) && !drawsSurface ? 0 : radius;
+
+    /// <summary>
+    /// [S-2250] The corner radius of a layer drawn inside the card's clipped surface (its fill, its grain, its glow, a
+    /// background image, a view's own edge-to-edge fill): the card's <paramref name="radius"/> on all four corners when
+    /// all four are round, none otherwise. Never one radius a corner: a picture of the cards (a render, a Store scene,
+    /// the add page's previews) draws a filled layer with unequal corner radii only in part, a shade across the card
+    /// that fades out toward the joined sides; the surface's own clip already rounds whatever is inside it
+    /// (<see cref="CardOutline"/>, [S-2241]), so the square layer loses nothing.
+    /// </summary>
+    public static double InsideRadius(CardOutline outline, double radius)
+        => outline.AllRound && radius > 0 && double.IsFinite(radius) ? radius : 0;
 
     /// <summary>
     /// [S-11810] The box round several cells as drawn (each on whole device pixels,

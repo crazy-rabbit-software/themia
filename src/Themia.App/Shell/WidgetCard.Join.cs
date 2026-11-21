@@ -139,6 +139,12 @@ internal sealed partial class WidgetCard
     }
 
     /// <summary>
+    /// [S-2250] The corners of a layer inside the surface's clip (<see cref="CardJoins.InsideRadius"/>): the card's
+    /// radius all round on a card whose four corners are round, square on a joined one, which the surface's clip rounds.
+    /// </summary>
+    private CornerRadius InsideCorners(double radius) => new(CardJoins.InsideRadius(_outline, radius));
+
+    /// <summary>
     /// [S-2243] The border's path for the surface's size: one closed rounded figure for a free card,
     /// broken where a side is left to the neighbour or, [S-11871], where a neighbour lies across.
     /// Redrawn when the size, the stroke or the outline changes; content insets never depend on it.

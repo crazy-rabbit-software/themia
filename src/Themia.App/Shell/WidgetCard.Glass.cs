@@ -79,8 +79,8 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-2123] Paint the glass's layers over what <see cref="ApplyDesign"/> painted, or take them away for a solid
-    /// card. <paramref name="radiusPx"/> is the card's corner radius in DIPs, <paramref name="radius"/> its corners as
-    /// joined neighbours leave them.
+    /// card. <paramref name="radiusPx"/> is the card's corner radius in DIPs, <paramref name="radius"/> the corners of a
+    /// layer inside the surface's clip ([S-2250]).
     /// </summary>
     private void ApplyGlass(CornerRadius radius, double radiusPx, CardFill fill)
     {

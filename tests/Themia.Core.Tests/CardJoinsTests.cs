@@ -18,6 +18,31 @@ public class CardJoinsTests
         draws.Contains('R', StringComparison.Ordinal), draws.Contains('B', StringComparison.Ordinal));
 
     [Fact]
+    public void S2250_a_layer_inside_the_clip_is_round_all_round_or_square_never_one_radius_a_corner()
+    {
+        // A free card: the card's radius on every corner.
+        Assert.True(CardOutline.Free.AllRound);
+        Assert.Equal(8, CardJoins.InsideRadius(CardOutline.Free, 8));
+
+        // Every card of a joined panel that keeps some of its corners: square, the surface's clip rounds it.
+        var row = CardJoins.Outlines([Box(0, 0, 100, 50), Box(100, 0, 100, 50), Box(200, 0, 100, 50)], Scale);
+        Assert.All(row, o => Assert.False(o.AllRound));
+        Assert.All(row, o => Assert.Equal(0, CardJoins.InsideRadius(o, 8)));
+        Assert.Equal(0, CardJoins.InsideRadius(O("TL", "LT"), 8));
+        Assert.Equal(0, CardJoins.InsideRadius(O("TL TR BL", "LTR"), 8));
+        Assert.Equal(0, CardJoins.InsideRadius(O(string.Empty, string.Empty), 8));
+
+        // Mirrored, the same: which corners are round does not matter, only whether all are.
+        Assert.Equal(8, CardJoins.InsideRadius(CardOutline.Free.Mirrored(), 8));
+        Assert.Equal(0, CardJoins.InsideRadius(O("TL BL", "LTB").Mirrored(), 8));
+
+        // No radius, or none that is a length: square.
+        Assert.Equal(0, CardJoins.InsideRadius(CardOutline.Free, 0));
+        Assert.Equal(0, CardJoins.InsideRadius(CardOutline.Free, -4));
+        Assert.Equal(0, CardJoins.InsideRadius(CardOutline.Free, double.NaN));
+    }
+
+    [Fact]
     public void S2240_a_card_alone_is_free()
     {
         Assert.Equal([CardOutline.Free], CardJoins.Outlines([Box(0, 0, 100, 50)], Scale));
