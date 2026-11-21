@@ -17,7 +17,8 @@
     "metric.open.network",
     "metric.open.battery",
     "metric.open.weather",
-    "metric.open.drive"
+    "metric.open.drive",
+    "text.open.player"
   ],
   "chart.type": "Chart type",
   "chart.type.area": "Area",
@@ -36,5 +37,6 @@
   "metric.open.network": "Open Network & internet",
   "metric.open.battery": "Open Power & battery",
   "metric.open.weather": "Open on MSN Weather",
-  "metric.open.drive": "Open in File Explorer"
+  "metric.open.drive": "Open in File Explorer",
+  "text.open.player": "Open the player"
 }

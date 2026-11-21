@@ -204,7 +204,10 @@ config ([S-6901]); its kinds share one add-page family (`AddFolderId`, `AddTree`
 each, the one face `MetricView` (one row at its least, every cell taller too, the face fitting its box by one rule:
 `MetricRules.Look`, the row or the readout over the graph, [S-14700]; the trend None/Arrow/Line, the graph in the chart look
 `IChartLooks` sets, [S-14703]; one item that lights and opens its kind's source, `MetricKind.Opens`, [S-14706]), a
-system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. A module builds
+system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. Every widget whose face is a line of text (a song's
+title, the rain's sentence) is a **text kind** on one base the same way (SPEC TEXTS, [S-14930]..[S-14936]): `TextKind` data,
+a `TextModule` each, the one face `TextView` (one block scaled as one at the content alignment, its line cut at the card's
+edge, `TextRules`; the item that lights and opens its source, `TextKind.Opens`, `ItemLight`). A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
