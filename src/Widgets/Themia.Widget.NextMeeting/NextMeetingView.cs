@@ -241,28 +241,22 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
             return;
         }
 
-        switch (_feed.Screen)
+        // [S-7077] The office feed's screen: anything but the items is the kit's state row, the face kept under it; no
+        // account at all is the card's Set up row over it ([S-1862]).
+        var screen = _feed.Screen(Strings.Current);
+        if (screen.Kind != Themia.Sdk.Kit.KitScreenKind.Items)
         {
-            case MeetingScreen.Loading:
-                _state.Show(Str.Common_Loading.Text(), offerAccounts: false);
-                ShowFace();
-                return;
-
-            case MeetingScreen.NoAccounts:
-                // [S-1862] The card shows its Set up row over this, and the view stands under it.
+            if (screen.Kind == Themia.Sdk.Kit.KitScreenKind.NoAccounts)
+            {
                 _state.Hide();
-                ShowFace();
-                return;
+            }
+            else
+            {
+                _state.Show(screen);
+            }
 
-            case MeetingScreen.AccountsGone:
-                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
-                ShowFace();
-                return;
-
-            case MeetingScreen.Problem:
-                _state.Show(_feed.ProblemText(), _feed.ProblemOffersAccounts, problem: true);
-                ShowFace();
-                return;
+            ShowFace();
+            return;
         }
 
         var now = _clock();

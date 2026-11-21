@@ -6,7 +6,8 @@ SDK's rules it is drawn by, with their root tags: which meeting is next ([S-4821
 `NextMeetingRules.Pick`) and the feed both meeting atoms read (`MeetingFeed`, [S-11407]).
 
 Owning files: everything in this folder: `UpNextModule.cs` (descriptor, menu lines, JSON context),
-`UpNextConfig.cs`, `UpNextView.cs` (the rows over `IWidgetHost.Office` through the feed),
+`UpNextConfig.cs` (an `IKitConfig` over its calendar config), `UpNextSpec.cs` (its kit spec, a meeting as a kit item),
+`UpNextView.cs` (a kit list, [S-7074], over `IWidgetHost.Office` through the meeting feed, [S-7077]),
 `Preview/` (Debug renders: `--state sample|none`), `Localization/Locales/` (its own `UpNextStr`; "After
 this" moved here from Next meeting with its key, English-only as it was). Tests: `Tests/UpNextTests.cs`
 (run by `tests/Themia.Modules.Tests`).
@@ -22,7 +23,10 @@ this" moved here from Next meeting with its key, English-only as it was). Tests:
   320 × 132 (as wide as the Next meeting block it stands under); Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]);
   more meetings scroll inside them under the fade. It keeps its header by default, named "After this".
   Nothing after the next meeting is the Status row's "Nothing after this"; no account, loading and a
-  problem are as Next meeting's. A click on a row opens that meeting in its calendar ([S-1268]). Its
+  problem are the office feed's screens in the kit's state row ([S-7077]); an account whose last sync failed while meetings
+  show is the kit's problem glyph, and its card menu's Refresh carries the age ([S-7042]). It is a kit list ([S-7074]):
+  a click on a row focuses it and opens that meeting in its calendar ([S-1268], [S-7075]), as do a double-click and
+  Enter; the row's menu is the kit's (Open). Its
   menu: Rows, then the calendar accounts and calendars without colours ([S-4826]'s lines). Add menu:
   Calendar & mail. Debug: `--state sample` (two more meetings today, three tomorrow, after the design
   review), `none`. Tests `UpNextTests`.

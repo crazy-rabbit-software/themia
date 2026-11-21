@@ -87,7 +87,7 @@ public sealed record KitScreen(KitScreenKind Kind, string Sentence, bool OffersA
     public static KitScreen Of(KitStated stated)
     {
         ArgumentNullException.ThrowIfNull(stated);
-        return new(stated.Problem ? KitScreenKind.Problem : KitScreenKind.Empty, stated.Sentence, false, []) { Fix = stated.Fix };
+        return new(stated.Problem ? KitScreenKind.Problem : KitScreenKind.Empty, stated.Sentence, stated.OffersAccounts, []) { Fix = stated.Fix };
     }
 }
 

@@ -17,6 +17,7 @@ internal sealed partial class UpNextView : IWidgetSample
         var now = SampleDay.Now;
         _clock = () => now;
         _feed.Clock = _clock;
+        _binding.Clock = _clock;
         _feed.Use(new SampleCalendarData(empty: empty));
         await _feed.RefreshAsync(force: true).ConfigureAwait(true);
     }

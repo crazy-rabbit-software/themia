@@ -39,6 +39,19 @@ public sealed record CalendarSlice(
 {
     public static CalendarSlice Empty(CalendarSliceState state)
         => new(state, [], [], [], new Dictionary<string, ProviderId>(), new Dictionary<string, string>(), [], false);
+
+    /// <summary>[S-7077] The slice as an office load: what its feed decides the screen and the stale rule from.</summary>
+    public OfficeLoad<CalendarSlice> AsLoad() => new(
+        State switch
+        {
+            CalendarSliceState.NoAccounts => OfficeLoadState.NoAccounts,
+            CalendarSliceState.AccountsGone => OfficeLoadState.AccountsGone,
+            _ => OfficeLoadState.Asked,
+        },
+        State == CalendarSliceState.Asked ? this : null,
+        AnyData,
+        [.. Problems.Select(p => new OfficeProblem(p.Account, p.Status, p.At))],
+        Labels);
 }
 
 /// <summary>

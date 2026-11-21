@@ -1,6 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Services.Office;
 using Themia.App.Shell;
@@ -9,7 +8,6 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
-using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -19,44 +17,25 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.UpNext;
 
 /// <summary>
-/// [S-11408] The meetings after the next one ([S-2160]): a one-line Row each (the title the name, the
-/// start the value), as many as its rows, the rest a scroll away under the fade. It reads the same feed
-/// as Next meeting (<see cref="MeetingFeed"/>: the same pick, the same events), so the two agree on
-/// which meeting is next; it never fetches on its own (a 5-minute poll and the accounts' change event).
-/// A click on a row opens that meeting in its calendar ([S-1268]).
+/// [S-11408] The meetings after the next one ([S-2160]) as a kit list ([S-7074]): a one-line row each (the title the
+/// name, the start the value). It reads the same feed as Next meeting (<see cref="MeetingFeed"/>, the office feed:
+/// the same pick, the same events), so the two agree on which meeting is next; it never fetches on its own (a 5-minute
+/// poll and the accounts' change event). A click on a row opens that meeting in its calendar ([S-1268], [S-7075]).
 /// </summary>
-internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware
+internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
-    private WidgetArea _area;
-
-    /// <summary>[S-12807] The box decides how the config's rows reach the view's ends, never how many.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        if (area == _area)
-        {
-            return;
-        }
-
-        _area = area;
-        Render();
-    }
-
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);
 
     private static readonly TimeSpan Minute = TimeSpan.FromMinutes(1);
 
     private readonly IWidgetHost _widgetHost;
-    private readonly KitStatePanel _state;
-    private readonly StackPanel _list = new();
-    private readonly ScrollViewer _scroll;
-    private readonly List<RowBlock> _rows = [];
+    private readonly KitBinding _binding;
+    private readonly MeetingSource _source;
     private readonly MeetingFeed _feed;
-    private ScrollFade? _fade;
     private IWidgetSurface? _surface;
     private IDisposable? _poll;
-    private IDisposable? _tick;
     private UpNextConfig _config = new();
-    private bool _detached = true;
+    private bool _attached;
 
     /// <summary>[S-2050] The clock the rows read: the real one, or a preview's sample moment.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
@@ -64,187 +43,135 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
     public UpNextView(IWidgetHost host)
     {
         _widgetHost = host;
-        _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed };
         _feed = new MeetingFeed(() => _config);
-        _feed.Changed += Render;
-        _scroll = new ScrollViewer
+        _source = new MeetingSource(_feed, () => _clock());
+        _binding = new KitBinding(host, UpNextSpec.Spec, Glyphs.Calendar, UpNextSpec.Actions, Run)
         {
-            Content = _list,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-            VerticalAlignment = VerticalAlignment.Top,
+            Decorate = LinkRow,
+            Redrawing = ForgetRows,
         };
 
-        _list.Background = Family.Brush(ColourRole.Clear);
-        _list.Tapped += OnTapped;
-        FollowLinks();
-        Children.Add(_scroll);
-        Children.Add(_state);
+        Children.Add(_binding.List);
+        Children.Add(_binding.State);
+        _binding.Status.Place(this);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _detached = false;
         _config = config as UpNextConfig ?? new UpNextConfig();
+        _attached = true;
         _feed.Start();
         _feed.Use(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
-        _fade ??= new ScrollFade(_scroll, _list);
-        Strings.Changed += OnLanguage;
         _links.Join(_surface?.Links);
 
-        // [S-588] The poll fires once on subscribing: the first load.
+        // [S-588] The poll fires once on subscribing: the first load; the minute redraws the starts.
         _poll = ticker.Subscribe(Poll, () => _ = _feed.RefreshAsync(force: false));
-        _tick = ticker.Subscribe(Minute, Render);
+        _binding.Attach(ticker, _source, _config, Minute);
     }
 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as UpNextConfig ?? new UpNextConfig();
-        Render();
-        _ = _feed.RefreshAsync(force: false);
+        if (_attached)
+        {
+            _binding.Apply(_source, _config, Minute, show: false);
+            _ = _feed.RefreshAsync(force: false);
+        }
     }
 
+    public void ApplySize(WidgetArea area) => _binding.Size(area);
 
-    /// <summary>Refresh, as every calendar widget has.</summary>
-    public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = _feed.RefreshAsync(force: true))];
+    public bool HandleKey(WidgetKey key) => _binding.HandleKey(key);
+
+    /// <summary>Refresh, with the age of what is on screen, as every calendar widget has.</summary>
+    public IReadOnlyList<WidgetAction> ContextActions => _binding.CardActions;
 
     public void Detach()
     {
-        if (_detached)
+        if (!_attached)
         {
             return;
         }
 
-        _detached = true;
-        Strings.Changed -= OnLanguage;
+        _attached = false;
         _links.Leave();
         _poll?.Dispose();
         _poll = null;
-        _tick?.Dispose();
-        _tick = null;
         _feed.Stop();
-        _fade?.Dispose();
-        _fade = null;
-        _list.Tapped -= OnTapped;
-        _state.Detach();
+        _binding.Dispose();
     }
 
-    private void OnLanguage(Locale locale) => Render();
-
-    private void Render()
+    /// <summary>[S-1268] A row's open: that meeting in its calendar; a preview and edit mode open nothing.</summary>
+    private void Run(KitItem item, KitAction action)
     {
-        if (_detached)
+        if (action.Id != UpNextSpec.OpenId || _surface?.IsPreview == true || _surface?.EditMode == true || _source.MeetingOf(item.Id) is not { } meeting)
         {
             return;
         }
 
-        _scroll.Visibility = Visibility.Collapsed;
-
-        switch (_feed.Screen)
+        ProviderId? provider = _feed.Providers.TryGetValue(meeting.AccountId, out var known) ? known : null;
+        if (CalendarLinks.Open(meeting, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
         {
-            case MeetingScreen.Loading:
-                _state.Show(Str.Common_Loading.Text(), offerAccounts: false);
-                return;
-
-            case MeetingScreen.NoAccounts:
-                // [S-1862] The card shows its Set up row over this.
-                _state.Hide();
-                return;
-
-            case MeetingScreen.AccountsGone:
-                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
-                return;
-
-            case MeetingScreen.Problem:
-                _state.Show(_feed.ProblemText(), _feed.ProblemOffersAccounts, problem: true);
-                return;
-        }
-
-        var now = _clock();
-        var zone = TimeZoneInfo.Local;
-        var locale = Strings.Current;
-        var after = _feed.After(now, zone);
-
-        if (after.Count == 0)
-        {
-            _state.Show(UpNextStr.UpNext_None.Text(), offerAccounts: false);
-            return;
-        }
-
-        _state.Hide();
-
-        while (_rows.Count < after.Count)
-        {
-            var row = new RowBlock(RowKind.List, lead: 0) { Lines = 1 };
-            LinkRow(row);
-            _rows.Add(row);
-            _list.Children.Add(row);
-        }
-
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            var row = _rows[i];
-            row.Visibility = i < after.Count ? Visibility.Visible : Visibility.Collapsed;
-            if (i >= after.Count)
-            {
-                row.Tag = null;
-                continue;
-            }
-
-            var item = after[i];
-            row.Tag = item;
-            row.Show(string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject, NextMeetingRules.Start(locale, item, now, zone));
-            ToolTipService.SetToolTip(row, $"{(string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject)}{Environment.NewLine}{NextMeetingRules.Range(locale, item, zone)}");
-        }
-
-        // [S-2440] [S-14810] As tall as the rows, at most the card: the last row in sight cut by its foot, the rest a scroll
-        // away. [S-12807] The rows at their one fixed size from the card's top edge, the first one's band over the top.
-        var reach = _area.IsMeasured
-            ? ItemSize.Rows(_area.Height, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemSize.Natural(1, _area.Grid());
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            _rows[i].Height = reach.Height(i);
-        }
-
-        _scroll.Height = _area.IsMeasured ? reach.Span(after.Count) : double.NaN;
-        ListEdge.Apply(_scroll);
-        _scroll.Visibility = Visibility.Visible;
-        _fade?.Refresh();
-        LightRows();
-    }
-
-    /// <summary>[S-1268] A click on a row opens that meeting in its calendar.</summary>
-    private void OnTapped(object sender, TappedRoutedEventArgs args)
-    {
-        if (_surface?.IsPreview == true || _surface?.EditMode == true || RowItem(args.OriginalSource as DependencyObject) is not { } item)
-        {
-            return;
-        }
-
-        ProviderId? provider = _feed.Providers.TryGetValue(item.AccountId, out var known) ? known : null;
-        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
-        {
-            // [S-2004] The row's own click: the card does not open anything over it.
-            args.Handled = true;
             _widgetHost.Launcher.OpenCalendarLink(link);
         }
     }
 
-    /// <summary>The meeting whose row a click landed on.</summary>
-    private static CalendarEvent? RowItem(DependencyObject? source)
+    /// <summary>
+    /// [S-11408] The meeting feed as a kit source: the meetings after the one shown, the feed's screen where it is not
+    /// the list ([S-7077]), its stale accounts as the outcomes.
+    /// </summary>
+    private sealed class MeetingSource : IKitSource
     {
-        for (var node = source; node is not null; node = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(node))
+        private readonly MeetingFeed _feed;
+        private readonly Func<DateTimeOffset> _clock;
+        private IReadOnlyList<CalendarEvent> _after = [];
+
+        public MeetingSource(MeetingFeed feed, Func<DateTimeOffset> clock)
         {
-            if (node is RowBlock { Tag: CalendarEvent item })
+            _feed = feed;
+            _clock = clock;
+            feed.Changed += () => Changed?.Invoke();
+        }
+
+        public event Action? Changed;
+
+        public bool Busy => _feed.Busy;
+
+        public void Show(bool refresh)
+        {
+            if (refresh)
             {
-                return item;
+                _ = _feed.RefreshAsync(force: true);
             }
         }
 
-        return null;
+        public KitRead Read()
+        {
+            var locale = Strings.Current;
+            var screen = _feed.Screen(locale);
+            switch (screen.Kind)
+            {
+                case KitScreenKind.NoAccounts:
+                    // [S-1862] The card's Set up row says so over the face.
+                    return new KitRead([], [], Accounts: []);
+
+                case KitScreenKind.Loading:
+                    return new KitRead([], [new KitOutcome(null, FetchStatus.Loading)]);
+
+                case not KitScreenKind.Items:
+                    return new KitRead([], [], Stated: new KitStated(screen.Sentence) { OffersAccounts = screen.OffersAccounts });
+            }
+
+            var now = _clock();
+            var zone = TimeZoneInfo.Local;
+            _after = _feed.After(now, zone);
+            // Nothing after the meeting shown is the spec's sentence, whatever an account's last sync said.
+            KitOutcome[] outcomes = _after.Count > 0 ? [.. _feed.Outcomes, new KitOutcome(null, FetchStatus.Ok)] : [new KitOutcome(null, FetchStatus.Ok)];
+            return new KitRead([.. _after.Select(meeting => UpNextSpec.Item(meeting, now, zone, locale))], outcomes);
+        }
+
+        public CalendarEvent? MeetingOf(string id) => _after.FirstOrDefault(m => UpNextSpec.Id(m) == id);
     }
 }

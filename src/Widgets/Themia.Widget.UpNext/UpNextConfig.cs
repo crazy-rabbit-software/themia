@@ -10,7 +10,7 @@ namespace Themia.Core.Model;
 /// ([S-562], [S-567]), and how many meetings it shows. Birthdays are all-day and never a meeting, so it
 /// never asks for them.
 /// </summary>
-public sealed class UpNextConfig : CalendarConfig, IKitRows
+public sealed class UpNextConfig : CalendarConfig, IKitConfig, IKitRows
 {
     /// <summary>[S-11408] A new list's rows.</summary>
     public const int DefaultRows = 3;
@@ -41,6 +41,21 @@ public sealed class UpNextConfig : CalendarConfig, IKitRows
         get => 1;
         set { }
     }
+
+    /// <summary>[S-7050] It reads the calendar accounts; the calendar's own setup rule stands ([S-1862]).</summary>
+    [JsonIgnore]
+    Themia.Sdk.FeatureId? IKitConfig.Needs => Themia.Sdk.HostFeatures.Calendar;
+
+    /// <summary>[S-7050] Nothing to type in: the accounts decide what it reads.</summary>
+    [JsonIgnore]
+    bool IKitConfig.Configured => true;
+
+    [JsonIgnore]
+    IReadOnlyList<string> IKitConfig.AccountIds => [.. AccountIds];
+
+    /// <summary>[S-11408] The title and the start: nothing to turn off.</summary>
+    [JsonIgnore]
+    public KitShow Shows => KitShow.When;
 
     /// <summary>[S-11408] The rows as drawn: the chosen count, one line each.</summary>
     [JsonIgnore]

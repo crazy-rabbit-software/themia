@@ -62,6 +62,9 @@ public sealed record KitRead(
 /// </summary>
 public sealed record KitStated(string Sentence, bool Problem = true)
 {
+    /// <summary>Only the user can mend it in ⚙ › Accounts: the state row's way out is the Accounts link.</summary>
+    public bool OffersAccounts { get; init; }
+
     /// <summary>The one action the state row offers, or null.</summary>
     public KitFix? Fix { get; init; }
 }
