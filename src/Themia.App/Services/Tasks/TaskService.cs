@@ -107,16 +107,18 @@ internal sealed class TaskFeed : ITaskFeed
 /// <see cref="Local"/>. One instance, owned by the host and reached through <see cref="AppServices.Tasks"/>.
 /// <para>
 /// <b>Sync owns the network.</b> Each task account a widget in any view reads ([S-2608]) has a
-/// <see cref="Box"/>: its lists and the tasks of every list a widget shows (all of them once Today is
-/// shown, [S-2652]), loaded from the account's shelf at start and saved after every change. One sync
-/// per account reads the lists, then each wanted list in turn, at the fastest refresh any of its
-/// widgets asks for; a refresh never stacks on one still out; failures back off through
-/// <see cref="Backoff"/>. A widget's own tick asks nothing.
+/// <see cref="Box"/>, an entry of the one sync engine ([S-2691]): its lists and the tasks of every list a
+/// widget shows (all of them once Today is shown, [S-2652]), read from the account's shelf off the UI thread
+/// at start ([S-2693]) and saved after every change. One sync per account reads the lists, then each wanted
+/// list in turn, at the fastest refresh any of its widgets asks for; a Refresh while one is out runs once more
+/// after it; failures back off; what is in flight is cancelled when the account leaves or the service closes.
+/// A widget's own tick asks nothing.
 /// </para>
 /// <para>
 /// <b>Writing</b> is optimistic, queued and in order ([S-597], [S-2653]): the change shows at once and
-/// waits in the account's persisted queue until the provider confirms it; offline or throttled it
-/// waits and retries, still shown; a refusal takes it back and says why.
+/// waits in the account's persisted queue (the one <see cref="WriteDrain{TResult}"/>, [S-2692]) until the
+/// provider confirms it; offline or throttled it waits and retries, still shown; a refusal takes it back and
+/// says why.
 /// </para>
 /// </summary>
 internal sealed class TaskService : ITaskSource, IDisposable
@@ -126,19 +128,19 @@ internal sealed class TaskService : ITaskSource, IDisposable
     private static readonly TimeSpan DefaultInterval = TimeSpan.FromSeconds(60);
 
     private readonly ITaskRemote _remote;
-    private readonly Ticker _ticker;
     private readonly SyncHost _sync;
-    private readonly Dictionary<string, Box> _boxes = new(StringComparer.Ordinal);
+    private readonly SyncEngine<Box> _engine;
     private readonly Dictionary<string, TaskFeed> _feeds = new(StringComparer.Ordinal);
-    private IDisposable? _tick;
-    private bool _disposed;
 
     public TaskService(ITaskRemote remote, LocalTaskPool local, Ticker ticker, SyncHost sync)
     {
+        ArgumentNullException.ThrowIfNull(ticker);
         _remote = remote;
-        _ticker = ticker;
         _sync = sync;
         Local = local;
+        _engine = new SyncEngine<Box>(new SyncEntries<Box>(Scope), static (box, _, cancellation) => box.SyncAsync(cancellation), () => DateTimeOffset.UtcNow, ticker.Subscribe, box => box.MaySend);
+        _engine.Changed += box => box.Raise();
+        _engine.Polled += DrainAll;
         _remote.AccountsChanged += OnAccountsChanged;
         _sync.InterestsChanged += Reconcile;
         _sync.NetworkAvailable += OnNetworkAvailable;
@@ -165,16 +167,22 @@ internal sealed class TaskService : ITaskSource, IDisposable
     public async Task<IReadOnlyList<TaskListInfo>> ListsAsync(string accountId, bool fresh = false)
     {
         var box = BoxFor(accountId) ?? throw new AccountException(AccountError.UnknownAccount, Str.Shell_Accounts_NotSignedIn.Text());
+        await box.Loaded.ConfigureAwait(true);
 
         if (!fresh && box.Lists is { } held)
         {
             return held;
         }
 
-        box.ListsFlight ??= box.LoadListsAsync();
+        box.ListsFlight ??= box.LoadListsAsync(box.Cancellation);
         try
         {
             return await box.ListsFlight.ConfigureAwait(true);
+        }
+        catch (OperationCanceledException) when (box.Cancellation.IsCancellationRequested)
+        {
+            // The account left (or the service closed) while its lists were read.
+            throw new AccountException(AccountError.UnknownAccount, Str.Shell_Accounts_NotSignedIn.Text());
         }
         finally
         {
@@ -189,11 +197,10 @@ internal sealed class TaskService : ITaskSource, IDisposable
 
         if (!_feeds.TryGetValue(key, out var feed))
         {
-            var box = BoxFor(accountId) ?? Box.Load(this, accountId);
-            _boxes.TryAdd(accountId, box);
+            var box = _engine.Entries.Want(accountId, () => Make(accountId));
             feed = new TaskFeed(box, listId, showCompleted);
             _feeds[key] = feed;
-            EnsureTicking();
+            _engine.EnsureTicking();
         }
 
         feed.Holders++;
@@ -221,13 +228,12 @@ internal sealed class TaskService : ITaskSource, IDisposable
         var feed = (TaskFeed)shared;
         ArgumentNullException.ThrowIfNull(feed);
 
-        if (_disposed || !force)
+        if (_engine.Disposed || !force)
         {
             return;
         }
 
-        feed.Owner.Schedule.Force(DateTimeOffset.UtcNow);
-        _ = feed.Owner.SyncAsync(force: true);
+        _engine.Force([feed.Owner]);
     }
 
     // ---- writes ----------------------------------------------------------------------------------
@@ -351,27 +357,38 @@ internal sealed class TaskService : ITaskSource, IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
 
-        _disposed = true;
+        // [S-2691] Every sync and send in flight hears it; what they bring back after is dropped.
+        _engine.Dispose();
         _remote.AccountsChanged -= OnAccountsChanged;
         _sync.InterestsChanged -= Reconcile;
         _sync.NetworkAvailable -= OnNetworkAvailable;
-        _tick?.Dispose();
-        _tick = null;
         AccountsChanged = null;
         _feeds.Clear();
-        _boxes.Clear();
+
+        foreach (var box in _engine.Entries.All)
+        {
+            box.Cancel();
+        }
     }
 
     // ---- what to sync ----------------------------------------------------------------------------
 
+    /// <summary>A box for an account, its shelf read off the UI thread ([S-2693]).</summary>
+    private Box Make(string accountId)
+    {
+        var box = new Box(this, accountId);
+        box.Loaded = box.LoadAsync();
+        return box;
+    }
+
     private Box? BoxFor(string accountId)
     {
-        if (_boxes.TryGetValue(accountId, out var box))
+        if (_engine.Entries.Find(accountId) is { } box)
         {
             return box;
         }
@@ -381,9 +398,8 @@ internal sealed class TaskService : ITaskSource, IDisposable
             return null;
         }
 
-        box = Box.Load(this, accountId);
-        _boxes[accountId] = box;
-        EnsureTicking();
+        box = _engine.Entries.Hold(accountId, () => Make(accountId));
+        _engine.EnsureTicking();
         return box;
     }
 
@@ -391,88 +407,64 @@ internal sealed class TaskService : ITaskSource, IDisposable
     private string? Resolve(string accountId)
         => accountId.Length > 0 ? Find(accountId)?.Id : Accounts.FirstOrDefault()?.Id;
 
-    /// <summary>Follow the accounts and the widgets of every view.</summary>
+    /// <summary>Follow the accounts and the widgets of every view: an account a widget reads is a wanted entry.</summary>
     private void Reconcile()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
 
         var known = new HashSet<string>(Accounts.Select(a => a.Id), StringComparer.Ordinal);
-        foreach (var id in _boxes.Keys.Where(id => !known.Contains(id)).ToList())
+        foreach (var gone in _engine.Entries.RemoveWhere(b => !known.Contains(b.AccountId)))
         {
-            _boxes.Remove(id);
+            gone.Cancel();
         }
 
-        foreach (var box in _boxes.Values)
+        _engine.Reconcile(() =>
         {
-            box.Interests.Clear();
-        }
-
-        foreach (var interest in _sync.Interests.Tasks)
-        {
-            if (Resolve(interest.AccountId) is { } id && BoxFor(id) is { } box)
+            foreach (var box in _engine.Entries.All)
             {
-                box.Interests.Add((interest.ListId, interest.ShowCompleted, interest.Interval));
-            }
-        }
-
-        foreach (var box in _boxes.Values)
-        {
-            var interval = box.Interests.Count == 0 ? DefaultInterval : box.Interests.Min(i => i.Interval);
-            box.Schedule.Interval = interval;
-        }
-
-        EnsureTicking();
-        OnTick();
-    }
-
-    private void EnsureTicking()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (_boxes.Count > 0)
-        {
-            _tick ??= _ticker.Subscribe(TimeSpan.FromMinutes(1), OnTick);
-        }
-        else
-        {
-            _tick?.Dispose();
-            _tick = null;
-        }
-    }
-
-    private void OnTick()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        var now = DateTimeOffset.UtcNow;
-        foreach (var box in _boxes.Values.ToArray())
-        {
-            if (box.Usable && (box.Interests.Count > 0 || box.Feeds.Any()) && box.Schedule.IsDue(now))
-            {
-                _ = box.SyncAsync(force: false);
+                box.Interests.Clear();
             }
 
-            _ = box.DrainAsync();
+            foreach (var interest in _sync.Interests.Tasks)
+            {
+                if (Resolve(interest.AccountId) is { } id && BoxFor(id) is { } box)
+                {
+                    box.Interests.Add((interest.ListId, interest.ShowCompleted, interest.Interval));
+                }
+            }
+
+            foreach (var box in _engine.Entries.All.ToList())
+            {
+                if (box.Interests.Count > 0 || box.Feeds.Any())
+                {
+                    _engine.Entries.Want(box.Key, () => box);
+                }
+
+                box.Schedule.Interval = box.Interests.Count == 0 ? DefaultInterval : box.Interests.Min(i => i.Interval);
+            }
+        }, drop: false);
+    }
+
+    /// <summary>After every look at what is due: each account's queue sends what is ready.</summary>
+    private void DrainAll()
+    {
+        foreach (var box in _engine.Entries.All.ToArray())
+        {
+            _ = box.Drain.DrainAsync();
         }
     }
 
     private void OnNetworkAvailable()
     {
-        foreach (var box in _boxes.Values)
+        foreach (var box in _engine.Entries.All)
         {
-            box.Wake();
+            box.Drain.Wake();
         }
 
-        OnTick();
+        _engine.Wake();
     }
 
     private void OnAccountsChanged()
@@ -499,14 +491,13 @@ internal sealed class TaskService : ITaskSource, IDisposable
 
     // ---- one account -----------------------------------------------------------------------------
 
-    /// <summary>[S-2650] One task account: its lists, its held tasks, its queue, its shelf.</summary>
-    internal sealed class Box
+    /// <summary>[S-2650] One task account: its lists, its held tasks, its queue, its shelf; an entry of the sync engine.</summary>
+    internal sealed class Box : SyncEntry
     {
         private readonly TaskService _owner;
         private readonly Dictionary<string, (DateTimeOffset At, bool IncludesCompleted, IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> _held = new(StringComparer.Ordinal);
         private readonly Dictionary<string, long> _tickets = new(StringComparer.Ordinal);
-        private readonly Dictionary<string, TaskCompletionSource<TaskItem?>> _creates = new(StringComparer.Ordinal);
-        private List<PendingWrite> _pending = [];
+        private readonly CancellationTokenSource _cancel;
 
         /// <summary>
         /// [S-614] Renames the provider confirmed, by the list clock: kept on top of the lists until a
@@ -516,28 +507,38 @@ internal sealed class TaskService : ITaskSource, IDisposable
         private IReadOnlyList<TaskListInfo>? _lists;
         private long _listClock;
         private DateTimeOffset? _listsAt;
-        private bool _writing;
-        private bool _again;
         private string? _refused;
 
-        private Box(TaskService owner, string accountId)
+        public Box(TaskService owner, string accountId)
+            : base(accountId, DefaultInterval)
         {
             _owner = owner;
             AccountId = accountId;
+            _cancel = CancellationTokenSource.CreateLinkedTokenSource(owner._engine.Cancellation);
+            Drain = new WriteDrain<TaskItem>(Scope, accountId, SendAsync, () => DateTimeOffset.UtcNow, () => MaySend, _cancel.Token);
+            Drain.Settled += OnSettled;
         }
 
         public string AccountId { get; }
 
         public TaskEdits Edits { get; } = new();
 
-        public SyncSchedule Schedule { get; } = new(DefaultInterval);
+        public WriteDrain<TaskItem> Drain { get; }
+
+        /// <summary>[S-2693] The account's shelf read, off the UI thread.</summary>
+        public Task Loaded { get; set; } = Task.CompletedTask;
+
+        /// <summary>The shelf is still being read: nothing is asked or sent, nothing saved over it.</summary>
+        public bool Loading { get; private set; } = true;
+
+        public CancellationToken Cancellation => _cancel.Token;
 
         /// <summary>The lists as last read, with the renames still queued or not yet read back on top ([S-614]).</summary>
         public IReadOnlyList<TaskListInfo>? Lists => _lists is null
             ? null
             : TaskShelves.Renamed(_lists, [
                 .. _listRenames.Select(r => (r.ListId, r.Name)),
-                .. _pending.Where(w => w.Kind == PendingKind.TaskListRename && w.Text is not null).Select(w => (w.Target, w.Text!)),
+                .. Drain.Pending.Where(w => w.Kind == PendingKind.TaskListRename && w.Text is not null).Select(w => (w.Target, w.Text!)),
             ]);
 
         public Task<IReadOnlyList<TaskListInfo>>? ListsFlight { get; set; }
@@ -557,6 +558,9 @@ internal sealed class TaskService : ITaskSource, IDisposable
 
         public bool Usable => _owner.Find(AccountId) is { Problem: null };
 
+        /// <summary>Whether it may be asked or send now: signed in, its shelf read, its account still here.</summary>
+        public bool MaySend => Usable && !Loading && !_cancel.IsCancellationRequested;
+
         /// <summary>[S-621] Nothing is written for this account: every write below returns before it queues.</summary>
         public bool ReadOnly => _owner.Find(AccountId) is { ReadOnly: true };
 
@@ -565,7 +569,9 @@ internal sealed class TaskService : ITaskSource, IDisposable
         /// many changes are queued. A change on its way out normally says nothing.
         /// </summary>
         public string? WriteNote => _refused
-            ?? (_pending.Any(w => w.Attempts > 0) ? Str.Sync_Pending.Plural(_pending.Count, ("count", _pending.Count)) : null);
+            ?? (Drain.Waiting is > 0 and var waiting ? Str.Sync_Pending.Plural(waiting, ("count", waiting)) : null);
+
+        public override string Subject => AccountId;
 
         public bool Holds(string listId) => _held.ContainsKey(listId);
 
@@ -574,51 +580,79 @@ internal sealed class TaskService : ITaskSource, IDisposable
         public static TaskItem Optimistic(string id, string listId, string title, DateOnly? due)
             => new(id, listId, title, false, false, due is { } day ? $"{TaskDue.Wire(day)}T00:00:00.0000000" : null);
 
-        public static Box Load(TaskService owner, string accountId)
+        /// <summary>[S-2653] [S-2693] The account's shelf, read off the UI thread: its lists, held tasks and the queue, shown again.</summary>
+        public async Task LoadAsync()
         {
-            var box = new Box(owner, accountId);
-            var read = owner._sync.Vault.Load(SyncKind.Tasks, accountId, SyncJsonContext.Default.TasksShelf, TasksShelf.Version);
-            if (read.Value is not { } stored)
+            ShelfRead<TasksShelf> read;
+            try
             {
-                return box;
+                read = await _owner._sync.Vault.LoadAsync(SyncKind.Tasks, AccountId, SyncJsonContext.Default.TasksShelf, TasksShelf.Version).ConfigureAwait(true);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                // The read never throws for bad data; anything here is a bug, and the account syncs from nothing.
+                Log.Error(Scope, "reading a task shelf threw", ex);
+                read = new ShelfRead<TasksShelf>(null, ShelfReadOutcome.Discarded, ex.Message);
             }
 
-            var dropped = 0;
-            var shelf = TaskShelves.Validate(stored, ref dropped);
-            if (dropped > 0)
+            if (_cancel.IsCancellationRequested)
             {
-                Log.Warn(Scope, $"{accountId}: {dropped} unusable task entries dropped from the store");
+                return;
             }
 
-            if (shelf.Lists is { } lists)
+            var queued = Drain.Pending.Count > 0;
+            if (read.Value is { } stored)
             {
-                box._lists = [.. lists.Select(TaskShelves.Restore)];
-                box._listsAt = shelf.ListsAt;
-            }
-
-            foreach (var list in shelf.Held)
-            {
-                box._held[list.ListId] = (list.At, list.IncludesCompleted, [.. list.Tasks.Select(t => TaskShelves.Restore(t, list.ListId))], list.Cursor);
-            }
-
-            box.Edits.Landed(box.Base(), box.Edits.FetchStarted());
-            box.Schedule.Seed(shelf.Held.Count > 0 ? shelf.Held.Min(l => l.At) : shelf.ListsAt, DateTimeOffset.UtcNow);
-
-            // [S-3823] What is stored, for ⚙ › Accounts.
-            owner._sync.Report(accountId, SyncStats.Of(shelf));
-
-            // [S-2653] Changes that were waiting when the app last closed are shown again and resent.
-            foreach (var write in shelf.Pending)
-            {
-                // A list rename has no task edit: the lists themselves show it ([S-614]).
-                if (Edit(write) is { } edit)
+                var dropped = 0;
+                var shelf = TaskShelves.Validate(stored, ref dropped);
+                if (dropped > 0)
                 {
-                    box._tickets[write.Id] = box.Edits.Begin(edit);
+                    Log.Warn(Scope, $"{AccountId}: {dropped} unusable task entries dropped from the store");
                 }
+
+                if (shelf.Lists is { } lists)
+                {
+                    _lists = [.. lists.Select(TaskShelves.Restore)];
+                    _listsAt = shelf.ListsAt;
+                }
+
+                foreach (var list in shelf.Held)
+                {
+                    _held[list.ListId] = (list.At, list.IncludesCompleted, [.. list.Tasks.Select(t => TaskShelves.Restore(t, list.ListId))], list.Cursor);
+                }
+
+                Edits.Landed(Base(), Edits.FetchStarted());
+                Schedule.Seed(shelf.Held.Count > 0 ? shelf.Held.Min(l => l.At) : shelf.ListsAt, DateTimeOffset.UtcNow);
+                if (Asked)
+                {
+                    // The user's Refresh came while the shelf was read: it still goes now.
+                    Schedule.Force(DateTimeOffset.UtcNow);
+                }
+
+                // [S-3823] What is stored, for ⚙ › Accounts.
+                _owner._sync.Report(AccountId, SyncStats.Of(shelf));
+
+                // [S-2653] Changes that were waiting when the app last closed are shown again and resent.
+                foreach (var write in shelf.Pending)
+                {
+                    // A list rename has no task edit: the lists themselves show it ([S-614]).
+                    if (Edit(write) is { } edit)
+                    {
+                        _tickets[write.Id] = Edits.Begin(edit);
+                    }
+                }
+
+                Drain.Restore([.. shelf.Pending, .. Drain.Pending]);
             }
 
-            box._pending = shelf.Pending;
-            return box;
+            Loading = false;
+            if (queued)
+            {
+                Save();
+            }
+
+            _owner._engine.Poll();
+            Raise();
         }
 
         private static TaskEdit? Edit(PendingWrite write) => write.Kind switch
@@ -633,16 +667,10 @@ internal sealed class TaskService : ITaskSource, IDisposable
 
         private List<TaskItem> Base() => [.. _held.Values.SelectMany(h => h.Tasks)];
 
-        public void Wake()
-        {
-            Schedule.Wake();
-            _pending = WriteQueue.Wake(_pending);
-        }
-
-        public async Task<IReadOnlyList<TaskListInfo>> LoadListsAsync()
+        public async Task<IReadOnlyList<TaskListInfo>> LoadListsAsync(CancellationToken cancellation)
         {
             var started = ++_listClock;
-            var lists = await _owner._remote.ListsAsync(AccountId, CancellationToken.None).ConfigureAwait(true);
+            var lists = await _owner._remote.ListsAsync(AccountId, cancellation).ConfigureAwait(true);
             Log.Debug(Scope, $"{lists.Count} task list(s) on {AccountId}");
             _lists = [.. lists.Take(TaskShelves.MaxLists)];
             _listRenames.RemoveAll(r => r.ConfirmedAt < started);
@@ -651,27 +679,16 @@ internal sealed class TaskService : ITaskSource, IDisposable
             return Lists!;
         }
 
-        /// <summary>[S-2652] One sync of the account: the lists, then each wanted list in turn.</summary>
-        public async Task SyncAsync(bool force)
+        /// <summary>[S-2652] One run of the account: the lists, then each wanted list in turn.</summary>
+        public async Task<SyncRun> SyncAsync(CancellationToken cancellation)
         {
-            if (Schedule.Busy)
-            {
-                _again |= force;
-                return;
-            }
-
-            if (!Usable)
-            {
-                return;
-            }
-
-            Schedule.Busy = true;
-            Raise();
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation, _cancel.Token);
+            var token = linked.Token;
             var stamp = Edits.FetchStarted();
 
             try
             {
-                var lists = await LoadListsAsync().ConfigureAwait(true);
+                var lists = await LoadListsAsync(token).ConfigureAwait(true);
                 var interests = Interests.Select(i => (i.ListId, i.ShowCompleted))
                     .Concat(Feeds.Select(f => (f.ListId, f.ShowCompleted)));
                 var wanted = TaskShelves.Wanted(lists, interests);
@@ -685,7 +702,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
                     {
                         // [S-2686] Only the changes since the list's cursor, when it has a usable one.
                         var was = _held.TryGetValue(listId, out var held) ? held : default;
-                        var (tasks, cursor) = await _owner._remote.SyncListAsync(AccountId, listId, includeCompleted, was.Tasks, was.Cursor, CancellationToken.None).ConfigureAwait(true);
+                        var (tasks, cursor) = await _owner._remote.SyncListAsync(AccountId, listId, includeCompleted, was.Tasks, was.Cursor, token).ConfigureAwait(true);
                         _held[listId] = (DateTimeOffset.UtcNow, includeCompleted, [.. tasks.Take(TaskShelves.MaxTasksPerList)], cursor);
                     }
                     catch (AccountException ex)
@@ -711,34 +728,21 @@ internal sealed class TaskService : ITaskSource, IDisposable
 
                 Edits.Landed(Base(), stamp);
                 Failure = null;
-                Schedule.Succeeded(DateTimeOffset.UtcNow);
                 Save();
+                return SyncRun.Ok;
             }
             catch (AccountException ex)
             {
                 Failure = ex;
-                Schedule.Failed(ex, DateTimeOffset.UtcNow);
-                Log.Warn(Scope, $"{AccountId}: {FetchState.Message(ex.ToFetchStatus())} ({ex.Message})");
+                return SyncRun.Of(ex);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException and not OutOfMemoryException)
             {
                 // Anything the account layer did not already type is a bug or a provider oddity; the
                 // widget says the service answered unexpectedly and the log says what it was.
                 Log.Error(Scope, $"syncing the tasks of {AccountId} failed unexpectedly", ex);
                 Failure = new AccountException(AccountError.BadResponse, Str.Shell_Tasks_Unreadable.Text(), 0, ex);
-                Schedule.Failed(FetchStatus.BadResponse, ex.Message, DateTimeOffset.UtcNow);
-            }
-            finally
-            {
-                Schedule.Busy = false;
-            }
-
-            Raise();
-
-            if (_again && !_owner._disposed)
-            {
-                _again = false;
-                _ = SyncAsync(force: true);
+                return new SyncRun(FetchStatus.BadResponse, ex.Message);
             }
         }
 
@@ -747,7 +751,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
         public Task Enqueue(PendingKind kind, string taskId, string listId, string? text, DateOnly? due, TaskEdit? edit)
         {
             var write = new PendingWrite(Guid.NewGuid().ToString("n"), kind, taskId, listId, text, due, DateTimeOffset.UtcNow);
-            return Add(write, edit) ? DrainAsync() : Task.CompletedTask;
+            return Add(write, edit) ? Drain.DrainAsync() : Task.CompletedTask;
         }
 
         public async Task<TaskItem?> EnqueueCreateAsync(TaskItem optimistic, DateOnly? due)
@@ -758,19 +762,14 @@ internal sealed class TaskService : ITaskSource, IDisposable
                 return null;
             }
 
-            var created = new TaskCompletionSource<TaskItem?>();
-            _creates[write.Id] = created;
-            _ = DrainAsync();
-
-            // The provider's task once it answers; while it waits (offline) the temporary row, which
-            // the widget pins at the bottom like any other ([S-599]).
-            if (_pending.Count == 0 || _pending[0].Id != write.Id)
+            // The provider's task once it answers; while it waits (offline, behind another change) the temporary
+            // row, which the widget pins at the bottom like any other ([S-599]); nothing once refused.
+            return await Drain.SendNowAsync(write.Id).ConfigureAwait(true) switch
             {
-                _creates.Remove(write.Id);
-                return optimistic;
-            }
-
-            return await created.Task.ConfigureAwait(true);
+                { Result: WriteResult.Done } done => done.Value,
+                { Result: WriteResult.Refused } => null,
+                _ => Drain.Pending.Any(w => w.Id == write.Id) ? CreatedRow(write) : null,
+            };
         }
 
         public void Refuse(string sentence)
@@ -782,14 +781,13 @@ internal sealed class TaskService : ITaskSource, IDisposable
         /// <summary>Queue a write and show its edit; queued writes it folds away lose theirs ([S-2611]).</summary>
         private bool Add(PendingWrite write, TaskEdit? edit)
         {
-            if (WriteQueue.Add(_pending, write, headInFlight: _writing) is not { } next)
+            if (Drain.Add(write) is not { } added)
             {
                 Refuse(Str.Sync_QueueFull.Text());
                 return false;
             }
 
-            var kept = new HashSet<string>(next.Select(w => w.Id), StringComparer.Ordinal);
-            foreach (var folded in _pending.Where(w => !kept.Contains(w.Id)))
+            foreach (var folded in added.Folded)
             {
                 if (_tickets.Remove(folded.Id, out var ticket))
                 {
@@ -797,84 +795,46 @@ internal sealed class TaskService : ITaskSource, IDisposable
                 }
             }
 
-            _pending = next;
             _refused = null;
 
-            if (edit is not null && kept.Contains(write.Id))
+            if (edit is not null && added.Kept)
             {
                 _tickets[write.Id] = Edits.Begin(edit);
             }
 
             Save();
             Raise();
-            return kept.Contains(write.Id);
+            return added.Kept;
         }
 
-        /// <summary>Send what is ready, head first, until the queue is empty or the head has to wait.</summary>
-        public async Task DrainAsync()
+        private void OnSettled(PendingWrite write, WriteSent<TaskItem> sent)
         {
-            if (_writing || !Usable)
+            var ticket = _tickets.GetValueOrDefault(write.Id);
+            switch (sent.Result)
             {
-                return;
-            }
+                case WriteResult.Done when write.Kind == PendingKind.TaskListRename:
+                    _listRenames.Add((write.Target, write.Text ?? string.Empty, ++_listClock));
+                    break;
 
-            _writing = true;
-            try
-            {
-                while (WriteQueue.Ready(_pending, DateTimeOffset.UtcNow) is { } write)
-                {
-                    var (result, problem, created) = await SendAsync(write).ConfigureAwait(true);
-                    _pending = WriteQueue.Settle(_pending, write.Id, result, DateTimeOffset.UtcNow, problem);
-
-                    var ticket = _tickets.GetValueOrDefault(write.Id);
-                    switch (result)
+                case WriteResult.Done:
+                    _tickets.Remove(write.Id);
+                    Edits.Succeeded(ticket, sent.Value);
+                    if (sent.Value is { } created)
                     {
-                        case WriteResult.Done when write.Kind == PendingKind.TaskListRename:
-                            _listRenames.Add((write.Target, write.Text ?? string.Empty, ++_listClock));
-                            break;
-
-                        case WriteResult.Done:
-                            _tickets.Remove(write.Id);
-                            Edits.Succeeded(ticket, created);
-                            if (created is not null)
-                            {
-                                _pending = WriteQueue.Retarget(_pending, write.Target, created.Id);
-                            }
-
-                            break;
-
-                        case WriteResult.Refused:
-                            _tickets.Remove(write.Id);
-                            Edits.Failed(ticket);
-                            _refused = Str.Shell_Common_ProblemReason.Format(("problem", Failed(write.Kind).Text()), ("reason", problem ?? string.Empty));
-                            break;
+                        Drain.Retarget(write.Target, created.Id);
                     }
 
-                    Save();
-                    Raise();
+                    break;
 
-                    if (_creates.Remove(write.Id, out var answer))
-                    {
-                        answer.TrySetResult(result == WriteResult.Done ? created : result == WriteResult.Retry ? CreatedRow(write) : null);
-                    }
-
-                    if (result == WriteResult.Retry)
-                    {
-                        break;
-                    }
-                }
+                case WriteResult.Refused:
+                    _tickets.Remove(write.Id);
+                    Edits.Failed(ticket);
+                    _refused = Str.Shell_Common_ProblemReason.Format(("problem", Failed(write.Kind).Text()), ("reason", sent.Problem ?? string.Empty));
+                    break;
             }
-            finally
-            {
-                _writing = false;
 
-                foreach (var (id, answer) in _creates.ToList())
-                {
-                    answer.TrySetResult(_pending.FirstOrDefault(w => w.Id == id) is { } waiting ? CreatedRow(waiting) : null);
-                }
-
-                _creates.Clear();
-            }
+            Save();
+            Raise();
         }
 
         private static TaskItem CreatedRow(PendingWrite write) => Optimistic(write.Target, write.Container, write.Text ?? string.Empty, write.Due);
@@ -889,50 +849,33 @@ internal sealed class TaskService : ITaskSource, IDisposable
             _ => Str.Shell_Tasks_AddFailed,
         };
 
-        private async Task<(WriteResult Result, string? Problem, TaskItem? Created)> SendAsync(PendingWrite write)
+        private async Task<WriteSent<TaskItem>> SendAsync(PendingWrite write, CancellationToken cancellation)
         {
             var remote = _owner._remote;
+            TaskItem? created = null;
+            switch (write.Kind)
+            {
+                case PendingKind.TaskComplete or PendingKind.TaskReopen:
+                    await remote.SetCompletedAsync(AccountId, write.Container, write.Target, write.Kind == PendingKind.TaskComplete, cancellation).ConfigureAwait(true);
+                    break;
+                case PendingKind.TaskRename:
+                    await remote.RenameAsync(AccountId, write.Container, write.Target, write.Text ?? string.Empty, cancellation).ConfigureAwait(true);
+                    break;
+                case PendingKind.TaskDelete:
+                    await remote.DeleteAsync(AccountId, write.Container, write.Target, cancellation).ConfigureAwait(true);
+                    break;
+                case PendingKind.TaskListRename:
+                    await remote.RenameListAsync(AccountId, write.Target, write.Text ?? string.Empty, cancellation).ConfigureAwait(true);
+                    break;
+                default:
+                    created = await remote.CreateAsync(AccountId, write.Container, write.Text ?? string.Empty, write.Due, cancellation).ConfigureAwait(true);
+                    break;
+            }
 
-            try
-            {
-                TaskItem? created = null;
-                switch (write.Kind)
-                {
-                    case PendingKind.TaskComplete or PendingKind.TaskReopen:
-                        await remote.SetCompletedAsync(AccountId, write.Container, write.Target, write.Kind == PendingKind.TaskComplete, CancellationToken.None).ConfigureAwait(true);
-                        break;
-                    case PendingKind.TaskRename:
-                        await remote.RenameAsync(AccountId, write.Container, write.Target, write.Text ?? string.Empty, CancellationToken.None).ConfigureAwait(true);
-                        break;
-                    case PendingKind.TaskDelete:
-                        await remote.DeleteAsync(AccountId, write.Container, write.Target, CancellationToken.None).ConfigureAwait(true);
-                        break;
-                    case PendingKind.TaskListRename:
-                        await remote.RenameListAsync(AccountId, write.Target, write.Text ?? string.Empty, CancellationToken.None).ConfigureAwait(true);
-                        break;
-                    default:
-                        created = await remote.CreateAsync(AccountId, write.Container, write.Text ?? string.Empty, write.Due, CancellationToken.None).ConfigureAwait(true);
-                        break;
-                }
-
-                return (WriteResult.Done, null, created);
-            }
-            catch (AccountException ex)
-            {
-                var result = WriteQueue.Classify(ex.Error);
-                Log.Warn(Scope, $"{write.Kind} on {AccountId} {(result == WriteResult.Retry ? "is waiting to sync" : "was refused")}: {ex.Message}");
-                return (result, ex.Message, null);
-            }
-            catch (Exception ex)
-            {
-                // Not typed by the account layer: a bug or a provider oddity. Kept, not dropped: the
-                // user's change is retried on the queue's back-off and the log says what happened.
-                Log.Error(Scope, $"{write.Kind} on {AccountId} failed unexpectedly", ex);
-                return (WriteResult.Retry, ex.Message, null);
-            }
+            return WriteSent<TaskItem>.Done(created);
         }
 
-        private void Raise()
+        public void Raise()
         {
             foreach (var feed in Feeds.ToList())
             {
@@ -942,8 +885,8 @@ internal sealed class TaskService : ITaskSource, IDisposable
 
         private void Save()
         {
-            // An account signed out mid-sync must not be written back after its purge.
-            if (_owner.Find(AccountId) is null)
+            // An account signed out mid-sync must not be written back after its purge, nor a shelf still being read over.
+            if (Loading || _owner.Find(AccountId) is null)
             {
                 return;
             }
@@ -961,11 +904,24 @@ internal sealed class TaskService : ITaskSource, IDisposable
                     Tasks = [.. pair.Value.Tasks.Select(TaskShelves.Store)],
                     Cursor = pair.Value.Cursor,
                 })],
-                Pending = [.. _pending],
+                Pending = [.. Drain.Pending],
             };
 
             _owner._sync.Vault.SaveSoon(SyncKind.Tasks, AccountId, shelf, SyncJsonContext.Default.TasksShelf);
             _owner._sync.Report(AccountId, SyncStats.Of(shelf));
+        }
+
+        /// <summary>The account left, or the service closed: what is in flight hears it, and its queue stops.</summary>
+        public void Cancel()
+        {
+            try
+            {
+                _cancel.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ignore: already torn down.
+            }
         }
     }
 }
