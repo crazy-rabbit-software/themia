@@ -161,7 +161,7 @@ public sealed class FolderBrowserTests
 
     [Theory]
     [InlineData(FolderStyle.Grid, 330, true, 4)]
-    [InlineData(FolderStyle.Icons, 330, false, 7)]
+    [InlineData(FolderStyle.Icons, 330, false, 6)]
     [InlineData(FolderStyle.Grid, 560, true, 7)]
     public void S11203_cells_are_the_family_s_32_at_every_width_and_more_room_shows_more_of_them(FolderStyle style, double width, bool named, int columns)
     {
@@ -171,7 +171,8 @@ public sealed class FolderBrowserTests
         Assert.Equal(32, grid.Icon);
         Assert.Equal(named, grid.Named);
         Assert.Equal(columns, grid.Columns);
-        Assert.Equal(Themia.Sdk.Kit.RowRules.CellHeight(32, named), grid.Height);
+        // [S-14816] A cell's box: its lead and name with 8 round them, in whole grid cells, from the card's left edge.
+        Assert.Equal(named ? (80.0, 70.0) : (50.0, 50.0), (grid.Width, grid.Height));
     }
 
     [Theory]

@@ -165,7 +165,7 @@ public sealed class FolderKindsTests
         var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid }, 20, true, false, false).Grid!.Value;
 
         Assert.False(icons.Named);
-        Assert.Equal(icons.Icon, icons.Height);
+        Assert.Equal(icons.Icon + 16 + 2, icons.Height); // [S-14816] the icon with 8 round it, in whole grid cells
         Assert.True(grid.Named);
         Assert.True(icons.Columns > grid.Columns);
     }

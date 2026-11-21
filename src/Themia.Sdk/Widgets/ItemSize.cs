@@ -53,6 +53,23 @@ public readonly record struct RowReach(double Pitch, int Shown = 1, double Scale
     public double Span(int count) => Math.Min(Start(Math.Max(0, count)), Room);
 }
 
+/// <summary>
+/// [S-14816] A grid of cells of one fixed size in a box (<see cref="ItemSize.Cells"/>): <see cref="Across"/> the columns,
+/// as many as the box's width holds whole, from its left edge; <see cref="Down"/> the lines, every one the box's height
+/// reaches from its top edge, the last cut by its foot. Both touching, every edge on a whole device pixel.
+/// </summary>
+public readonly record struct CellReach(RowReach Across, RowReach Down)
+{
+    /// <summary>The columns.</summary>
+    public int Columns => Across.Shown;
+
+    /// <summary>The lines the box reaches, the last of them cut where the box does not hold it whole.</summary>
+    public int Lines => Down.Shown;
+
+    /// <summary>The cells the box shows: every column of every line it reaches.</summary>
+    public int Count => Columns * Lines;
+}
+
 /// <summary>[S-12410] Where an item is drawn along the axis: its start and its length, in DIPs from the axis's start.</summary>
 public readonly record struct ItemSlot(double Start, double Length)
 {
@@ -216,6 +233,25 @@ public static class ItemSize
         }
 
         return columns;
+    }
+
+    /// <summary>
+    /// [S-14816] A grid of cells of <paramref name="naturalWidth"/> × <paramref name="naturalHeight"/> (their content and the
+    /// padding inside them) in a box <paramref name="width"/> × <paramref name="height"/> on <paramref name="grid"/> (owner,
+    /// 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they have space everywhere."):
+    /// each cell its optimal on both axes, at every size of its card; the cells touch, from the box's left and top edges (the
+    /// card's: no inset round them, the inset is the cells' own padding, WR-3). Across, the columns the width holds whole
+    /// (<paramref name="least"/>..<paramref name="most"/>; a column cut by the right edge would hide an item in the middle of
+    /// a wrapped list, so the room past the last stays empty); down, every line the height reaches, the last cut by the
+    /// foot (WR-4), at least one.
+    /// </summary>
+    public static CellReach Cells(double width, double height, double naturalWidth, double naturalHeight, ItemGrid grid, int least = 1, int most = int.MaxValue)
+    {
+        var cellWidth = Optimal(naturalWidth, grid);
+        var room = double.IsFinite(width) ? Math.Max(0, width) : 0;
+        var columns = Math.Clamp((int)Math.Floor((room + LayoutMath.Tolerance) / cellWidth), Math.Max(1, least), Math.Max(Math.Max(1, least), most));
+        var across = new RowReach(cellWidth, columns, grid.Raster);
+        return new CellReach(across, Reach(height, naturalHeight, grid));
     }
 
     /// <summary>[S-14810] Rows of <paramref name="lines"/> lines before a list's box is measured: one at its optimal.</summary>

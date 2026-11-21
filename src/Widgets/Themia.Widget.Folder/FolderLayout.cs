@@ -102,7 +102,8 @@ public static class FolderLayout
         var search = config.SearchBox;
         var header = details && config.ColumnTitles;
         var named = config.Style == FolderStyle.Grid;
-        CellGrid? grid = tiles ? RowRules.Cells(width, ItemsHeight(area, search, header, config.ShowPath), CellIcon, named) : null;
+        // [S-14816] The cells from the card's left edge and the items' top to the card's foot, the last line cut by it.
+        CellGrid? grid = tiles ? RowRules.Cells(area.Width, ItemsHeight(area, search, header, config.ShowPath, rows: true), CellIcon, named, area.Grid()) : null;
 
         return new FolderPlan(
             config.ShowPath,

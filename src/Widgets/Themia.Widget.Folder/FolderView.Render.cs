@@ -253,14 +253,13 @@ internal sealed partial class FolderView
         _crumbHost.Height = FolderLayout.CrumbBand(cells);
         _columnHeader.Height = FolderLayout.HeaderBand(cells, FolderLayout.Over(cells, plan.SearchBox, header: false, plan.Breadcrumb));
 
-        // [S-6712] [S-6713] As tall as its whole rows (or rows of cells): never a part of one at its foot.
-        // A cell's mark stands 4 around it, so the grid starts 4 over the items' top and 4 inside the inset.
-        var height = FolderLayout.ItemsHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb, rows: plan.Grid is null);
-        if (plan.Grid is { } grid)
+        // [S-6712] [S-6713] [S-14816] The items from their top to the card's foot: rows, or cells from the card's left edge,
+        // touching, the last line in sight cut by the foot.
+        var height = FolderLayout.ItemsHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb, rows: true);
+        if (plan.Grid is not null)
         {
-            _scroll.Padding = new Thickness(RowRules.CellMarkEdge, 0, RowRules.CellMarkEdge, 0);
-            _scroll.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
-            _scroll.Height = Math.Max(1, grid.Rows) * grid.PitchY;
+            _scroll.Padding = new Thickness(0);
+            _scroll.Height = height;
         }
         else
         {
@@ -440,7 +439,7 @@ internal sealed partial class FolderView
     /// <summary>[S-1887] One item's pitch and how many sit side by side, as the plan lays them.</summary>
     private (double Extent, int Columns) ItemExtent()
         => _plan?.Grid is { } grid
-            ? (grid.PitchY, Math.Max(1, grid.Columns))
+            ? (grid.Height, Math.Max(1, grid.Columns))
             : (_rowPitch, 1);
 
     /// <summary>The DIPs of list in view: the scroller's once it is measured, the tile's before.</summary>
@@ -778,7 +777,8 @@ internal sealed partial class FolderView
     private ItemVisual BuildTile(FolderEntry entry, int index, CellGrid grid)
     {
         var (iconBox, image, glyph) = IconBox(entry, grid.Icon);
-        var cell = new RowCell(grid.Icon) { Width = grid.Width, Margin = new Thickness(FamilySpace.S1) };
+        // [S-14816] The lead and name inside the cell's box, its padding round them: the box is the item, edge to edge.
+        var cell = new RowCell(grid.Icon) { Width = grid.ContentWidth, Margin = new Thickness(FamilySpace.S2), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         cell.Show(iconBox, grid.Named ? FileNamesDisplay(entry) : string.Empty);
 
         // [S-6627] The cell, icon and name, is the item's mark.
@@ -1050,8 +1050,8 @@ internal sealed partial class FolderView
     // ---- the tile panel -------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-6713] The grid views' layout: each cell's mark at its pitch (the marks 4 apart, so the cells
-    /// are 12 apart), as many columns as the plan says, the cells sharing the width out.
+    /// [S-6713] [S-14816] The grid views' layout: each cell's box at its one size, touching, from the card's left edge and
+    /// the items' top, as many columns as the plan says, every edge on a whole device pixel.
     /// </summary>
     private sealed partial class TilePanel : Panel
     {
@@ -1076,19 +1076,19 @@ internal sealed partial class FolderView
             {
                 if (child is FrameworkElement { Tag: int })
                 {
-                    child.Measure(new Size(_grid.MarkWidth, _grid.MarkHeight));
+                    child.Measure(new Size(_grid.Width, _grid.Height));
                     tiles++;
                 }
                 else
                 {
                     // The "+N more" row sits under the tiles at full width.
-                    child.Measure(new Size(Columns * _grid.PitchX, double.PositiveInfinity));
+                    child.Measure(new Size(_grid.Left(Columns), double.PositiveInfinity));
                     extra += child.DesiredSize.Height;
                 }
             }
 
             var rows = (tiles + Columns - 1) / Columns;
-            return new Size((Columns * _grid.PitchX) - FamilySpace.S1, (rows * _grid.PitchY) + extra);
+            return new Size(_grid.Left(Columns), _grid.Top(rows) + extra);
         }
 
         protected override Size ArrangeOverride(Size finalSize)
@@ -1102,13 +1102,14 @@ internal sealed partial class FolderView
                 {
                     var row = i / Columns;
                     var column = i % Columns;
-                    child.Arrange(new Rect(column * _grid.PitchX, row * _grid.PitchY, _grid.MarkWidth, _grid.MarkHeight));
+                    var (x, y0) = (_grid.Left(column), _grid.Top(row));
+                    child.Arrange(new Rect(x, y0, _grid.Left(column + 1) - x, _grid.Top(row + 1) - y0));
                     rows = row + 1;
                     i++;
                 }
             }
 
-            var y = rows * _grid.PitchY;
+            var y = _grid.Top(rows);
 
             foreach (var child in Children)
             {

@@ -1079,8 +1079,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   (`RowRules.Fit`). No size gives a row more lines or fewer ([S-11800]).
 - **[S-6713]** **Row.Cell** (`RowCell`): a grid's item (a folder's icons), its lead (32 or
   48, as its widget's config states) over its name in Caption, primary, centred and cut with its ellipsis at
-  the cell's edge, 4 apart; cells 12 apart, their marks 4 around them, so a grid's marks start at the
-  inset less 4 (`RowRules.CellMarkEdge`, [S-2220]) and the first cell's lead and name at the inset.
+  the cell's edge, 4 apart; each cell's box (its mark: hover and selection) its lead and name with 8 round them, the
+  boxes touching from the card's left edge ([S-14816]).
 - **[S-13950]** **An inline box stands in exactly the box of the words it replaces** (owner, 2026-11-19: "there are layout
   shifts when i click add task in the task widget. layout shifts for these kind of inputs should never happen. fix for all
   the widgets"). Opening, typing in, committing or cancelling a box a widget types into in place of its own words (the add
@@ -5223,6 +5223,33 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   "nothing left over" rule is gone). `scripts/gap-check.py` leaves the foot band of a card with items to it, as before,
   and a text in an item over a cut last item has that item under it, not the inset. Tests: the checks' own cases
   (`python scripts/item-check.py --self-test`, `python scripts/gap-check.py --self-test`).
+- **[S-14814]** **The checks draw every style** (owner, 2026-11-21: "the weather forecast widget grid view items do not
+  go from edge to edge, they have space everywhere. same for the columns view and maybe also other styles."). The shared
+  render pass (`scripts/renders.py`, `Renders.looks`) gives the item check, the gap check and the widget audit every
+  state of a kind in its default style and every other style the build's catalog lists (`styles`) in its first state
+  (`--style`; pictures named `<state>@<style>`): the checks had drawn the default style alone, so the forecast's grid,
+  columns and curve were never judged. A style's repeated parts are items like the default's (`ItemMark`: a forecast's
+  column or cell, a CPU core's tile), so the item check sees them.
+- **[S-14816]** **A grid's cells stand from the card's edges at one size** (owner, 2026-11-21: "the weather forecast widget
+  grid view items do not go from edge to edge, they have space everywhere. same for the columns view and maybe also other
+  styles. fix this, also for other widgets if applicable."; docs/WIDGET-RULES.md WR-2, WR-3, WR-4). The one rule for a grid
+  of cells (`ItemSize.Cells`, its `CellReach`): each cell its natural box (its content and the padding inside it) in
+  whole grid cells, at every size of its card; the cells touch, from the card's left edge and the items' top (the card's
+  top edge where nothing stands over them); across, the columns the width holds whole (a column cut by the right edge
+  would hide an item in the middle of a wrapped list: the room past the last stays empty), down every line the height
+  reaches, the last cut by the card's foot. Every edge on a whole device pixel. On it: the family's Row.Cell grid
+  (`RowRules.Cells`, `CellGrid`: the folder's grid and icons, the box the lead and name with 8 round them, 80 × 70 for a
+  named 32 cell, 50 × 50 unnamed, [S-6713]), the contacts' grid ([S-14817]) and the forecast's grid ([S-14815]). Tests
+  `ItemSizeTests.S14816_`, `FamilyCellGridTests.S14816_`, `FamilyBlockRulesTests.S2220_S14816_`.
+- **[S-14818]** **The cores' cells share the card from edge to edge** (owner, 2026-11-21: "the weather forecast widget
+  grid view items do not go from edge to edge, they have space everywhere. same for the columns view and maybe also other
+  styles. fix this, also for other widgets if applicable."; docs/WIDGET-RULES.md WR-2, WR-3). A meter's items (the CPU
+  cores' bars, rings and graphs, `MeterLook.Columns`, `Tiles`, `Graphs`) each stand in a cell that is the item
+  (`ItemMark`: the box the checks judge): the cells touch, from the card's top edge and its left edge to its right and
+  its foot, sharing them on whole device pixels (`ItemSize.Columns`); a bar stands in its column's middle from the inset
+  under the top to the inset over the foot, a ring at the plan's size in its cell's middle, a graph inside 4 of padding.
+  Every core is shown at every size (how many there are is the PC's, not the card's), so the cells are the card's, as
+  the month's days are, and grow with it; no inset round them and no gap between them.
 - **[S-2449]** *(Retired 2026-11-20. Owner: "the size should not be settable, it is set by the size of the widget.
   do this for the other widgets too". The readout size setting is gone with everything that existed for it:
   `ReadoutSize`, `IReadoutSized`, `ReadoutSizes`, the shared setting `readoutSize`, `KitMenuLines.ReadoutSize`, the
@@ -7659,8 +7686,8 @@ single metric of its own (METRICS, [S-14604]). Tests `SystemAtomsTests`
 - **[S-11004]** **A picture under the reading** (the battery, the signal bars): 8 under the reading, its
   height the room left (a battery's body 24..64, twice as wide, its cap 4; the bars' box 24..48), so a
   taller card is a larger picture (`MeterSizing.BatteryIn`, `SignalIn`).
-- **[S-11005]** **Items** (the cores' bars, rings and graphs) start headerless and stand in the card's
-  12 inset on every side; they only grow with the card (`MeterSizing.Columns`, `Tiles`, `Graphs`). A
+- **[S-11005]** **Items** (the cores' bars, rings and graphs) start headerless, each in its cell, the cells sharing the
+  card from edge to edge ([S-14818]); they only grow with the card (`MeterSizing.Columns`, `Tiles`, `Graphs`). A
   graph cell's figure stands over its history's top corner, so every cell draws both at every size.
 - **[S-11006]** **Rows of items** (the GPU's engines): one 28 row per item at a fixed count, 200..420 wide
   (`MeterSizing.ItemRows`); the height the rows at their optimal, every cell taller too, the rows stretched alike
@@ -9024,10 +9051,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (`PartInk`), a part with a height of its own (a Controls row's 28 icon button, centred beside its 32 slider) stands
   where its alignment puts it, as a text does; only a part the row sizes inks the row's whole height. Was: the volume's
   mute button was read as reaching the row's foot, and the block stood 2 (5 drawn) over the foot's inset.
-- **[S-14246]** **The cores' columns run from inset to inset** (WR-3: "the items dont reach from edge to edge"). The
-  CPU cores' bars (`MeterLook.Columns`) stand the first on the start inset and the last on the end's, the room between
-  them alike (`SpreadStack.Justify` across). Was: each centred in an equal share of the width, 17 to 29 inside the
-  inset either side.
+- **[S-14246]** *(Replaced 2026-11-21 by [S-14818]: a core's column is its item, from the card's edge.)* **The cores'
+  columns run from inset to inset** (WR-3: "the items dont reach from edge to edge"): the bars stood the first on the
+  start inset and the last on the end's, the room between them alike.
 - **[S-14247]** **A Readout's line stands its ink at its ends** (WR-3). A text's advance holds room before its first
   ink and after its last (Segoe UI Variable: a figure 0.042 of its size, "%" 0.035, a dash 0.06), which a block scaled
   four times grows to 5 to 8 beside the inset. A Readout's line (`ReadoutBlock`) reaches back over that room at its

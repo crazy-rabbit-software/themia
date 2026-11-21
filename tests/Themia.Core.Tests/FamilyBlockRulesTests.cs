@@ -136,14 +136,14 @@ public sealed class FamilyBlockRulesTests
     [InlineData(320)]
     [InlineData(560)]
     [InlineData(800)]
-    public void S2220_a_grids_marks_start_4_inside_the_inset_and_end_within_the_card(double card)
+    public void S2220_S14816_a_grids_cells_start_on_the_card_edge_and_end_within_it(double card)
     {
-        // The marks stand 4 around the cells: from the card's edge they start at the inset less 4, and
-        // the last one ends no further in from the other edge, so no cell is cut by the card.
-        Assert.Equal(FamilySpace.Inset - FamilySpace.S1, RowRules.CellMarkEdge);
-        var grid = RowRules.Cells(card - (2 * FamilySpace.Inset), 400, FamilyShape.IconLarge, named: true);
-        var marks = (grid.Columns * grid.MarkWidth) + ((grid.Columns - 1) * FamilySpace.S1);
-        Assert.True(RowRules.CellMarkEdge + marks <= card - RowRules.CellMarkEdge + 0.01, $"{card}: {marks}");
+        // [S-14816] The cells' boxes stand from the card's left edge, touching, as many as the card holds whole: none cut
+        // across, the room past the last less than a cell.
+        var grid = RowRules.Cells(card, 400, FamilyShape.IconLarge, named: true, ItemGrid.Default());
+        Assert.Equal(0, grid.Left(0));
+        Assert.True(grid.Left(grid.Columns) <= card + 0.01, $"{card}: {grid.Left(grid.Columns)}");
+        Assert.True(card - grid.Left(grid.Columns) < grid.Width, $"{card}: {grid.Left(grid.Columns)}");
     }
 
     [Fact]

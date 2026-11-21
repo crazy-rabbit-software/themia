@@ -1,3 +1,5 @@
+using Themia.Core.Widgets;
+
 namespace Themia.Sdk.Kit;
 
 /// <summary>[S-6711] Which of a row's two texts is the information.</summary>
@@ -58,57 +60,54 @@ public static class RowRules
         => icon + (named ? FamilySpace.S1 + FamilyType.Caption.LineHeight : 0);
 
     /// <summary>
-    /// [S-6713] How far in from the card's edge a grid's cell marks start: the inset less the 4 a mark
-    /// stands around its cell, so the first cell's lead and name stand at the inset.
-    /// </summary>
-    public const double CellMarkEdge = FamilySpace.Inset - FamilySpace.S1;
-
-    /// <summary>
     /// [S-6713] The least width of a cell's lead and name: a named cell its icon and 16 either side (room
     /// for a short name in Caption), an unnamed one its icon alone.
     /// </summary>
     public static double CellLeast(double icon, bool named) => icon + (named ? 2 * FamilySpace.S4 : 0);
 
+    /// <summary>[S-6713] [S-14816] A cell's box across: its lead and name with 8 either side, the padding inside the cell (WR-3).</summary>
+    public static double CellBoxWidth(double icon, bool named) => CellLeast(icon, named) + (2 * FamilySpace.S2);
+
+    /// <summary>[S-6713] [S-14816] A cell's box down: its lead and name with 8 over and under them, inside the cell.</summary>
+    public static double CellBoxHeight(double icon, bool named) => CellHeight(icon, named) + (2 * FamilySpace.S2);
+
     /// <summary>
-    /// [S-6713] A grid of cells in a content box <paramref name="width"/> × <paramref name="height"/>
-    /// (the card less its inset): as many columns of at least <see cref="CellLeast"/> as fit 12 apart,
-    /// sharing the width out, and the whole rows that fit 12 apart. Each cell's mark (its hover and
-    /// selection) stands <see cref="FamilySpace.S1"/> around its lead and name, so neighbouring marks
-    /// are 4 apart and the first cell's lead and name stand at the inset.
+    /// [S-6713] [S-14816] A grid of cells in a box <paramref name="width"/> × <paramref name="height"/> (the card's width, from
+    /// the items' top to the card's foot) on <paramref name="grid"/> (owner, 2026-11-21: "the weather forecast widget grid
+    /// view items do not go from edge to edge, they have space everywhere. ... fix this, also for other widgets if
+    /// applicable."): each cell's box one fixed size (<see cref="CellBoxWidth"/> × <see cref="CellBoxHeight"/> in whole grid
+    /// cells, its hover and selection the whole box), touching, from the card's left edge and the items' top: as many
+    /// columns as the width holds whole and the lines the height reaches, the last cut by the card's foot
+    /// (<see cref="ItemSize.Cells"/>).
     /// </summary>
-    public static CellGrid Cells(double width, double height, double icon, bool named)
+    public static CellGrid Cells(double width, double height, double icon, bool named, ItemGrid grid)
     {
-        var least = CellLeast(icon, named);
-        var gap = FamilySpace.S3;
-        var columns = Math.Max(1, (int)Math.Floor((Math.Max(0, width) + gap + 0.01) / (least + gap)));
-        var cell = Math.Max(least, (Math.Max(0, width) - (gap * (columns - 1))) / columns);
-        var tall = CellHeight(icon, named);
-        var rows = Math.Max(0, (int)Math.Floor((Math.Max(0, height) + gap + 0.01) / (tall + gap)));
-        return new CellGrid(columns, rows, cell, tall, icon, named);
+        var reach = ItemSize.Cells(width, height, CellBoxWidth(icon, named), CellBoxHeight(icon, named), grid);
+        return new CellGrid(reach.Columns, reach.Lines, reach.Across.Pitch, reach.Down.Pitch, icon, named) { Scale = grid.Raster };
     }
 }
 
-/// <summary>[S-6713] A grid of cells: its columns and whole rows, one cell's content box and its lead.</summary>
+/// <summary>[S-6713] [S-14816] A grid of cells: its columns and the lines the box reaches, one cell's box and its lead.</summary>
 /// <param name="Columns">Cells side by side, at least one.</param>
-/// <param name="Rows">Whole rows of cells that fit the box (more scroll).</param>
-/// <param name="Width">A cell's lead and name: the width shared out between the columns.</param>
-/// <param name="Height">A cell's lead and name: <see cref="RowRules.CellHeight"/>.</param>
+/// <param name="Rows">Lines of cells the box reaches, the last cut by its foot (more scroll).</param>
+/// <param name="Width">A cell's box: its one width, the padding inside it.</param>
+/// <param name="Height">A cell's box's one height.</param>
 /// <param name="Icon">The lead's size.</param>
 /// <param name="Named">Whether the cells show their names.</param>
 public readonly record struct CellGrid(int Columns, int Rows, double Width, double Height, double Icon, bool Named)
 {
-    /// <summary>A cell's mark: its lead and name with <see cref="FamilySpace.S1"/> around them.</summary>
-    public double MarkWidth => Width + (2 * FamilySpace.S1);
+    /// <summary>The display's raster scale the cells' edges fall on.</summary>
+    public double Scale { get; init; } = 1;
 
-    /// <summary>A cell's mark's height.</summary>
-    public double MarkHeight => Height + (2 * FamilySpace.S1);
+    /// <summary>Where column <paramref name="column"/> starts from the card's left edge, on a whole device pixel.</summary>
+    public double Left(int column) => ItemSize.OnPixels(Math.Max(0, column) * Width, Scale);
 
-    /// <summary>From one cell's mark to the next one's, either way: the marks stand 4 apart.</summary>
-    public double PitchX => MarkWidth + FamilySpace.S1;
+    /// <summary>Where line <paramref name="line"/> starts from the items' top, on a whole device pixel.</summary>
+    public double Top(int line) => ItemSize.OnPixels(Math.Max(0, line) * Height, Scale);
 
-    /// <summary>From one row's marks to the next one's.</summary>
-    public double PitchY => MarkHeight + FamilySpace.S1;
+    /// <summary>A cell's lead and name inside its box: the box less its padding.</summary>
+    public double ContentWidth => Math.Max(0, Width - (2 * FamilySpace.S2));
 
-    /// <summary>The cells that show without scrolling.</summary>
+    /// <summary>The cells the box shows.</summary>
     public int Visible => Columns * Rows;
 }

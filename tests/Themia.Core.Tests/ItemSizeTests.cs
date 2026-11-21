@@ -171,6 +171,35 @@ public class ItemSizeTests
         public int GetHashCode(double obj) => 0;
     }
 
+    /// <summary>
+    /// [S-14816] Owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they have space
+    /// everywhere." A grid's cells keep one size from the box's edges, touching: across, the columns its width holds whole;
+    /// down, every line its height reaches, the last cut by its foot.
+    /// </summary>
+    [Theory]
+    [InlineData(240, 200, 3, 2)]
+    [InlineData(259, 200, 3, 2)]
+    [InlineData(239, 200, 2, 2)]
+    [InlineData(240, 201, 3, 3)]
+    [InlineData(10, 10, 1, 1)]
+    public void S14816_a_grid_of_cells_takes_whole_columns_and_every_line_it_reaches(double width, double height, int columns, int lines)
+    {
+        var cells = ItemSize.Cells(width, height, 76, 96, Grid);
+
+        Assert.Equal((columns, lines), (cells.Columns, cells.Lines));
+        Assert.Equal(80, cells.Across.Pitch);
+        Assert.Equal(100, cells.Down.Pitch);
+        Assert.Equal(160, cells.Across.Start(2));
+        Assert.Equal(100, cells.Down.Start(1));
+    }
+
+    [Fact]
+    public void S14816_a_grid_of_cells_keeps_its_least_and_most_columns()
+    {
+        Assert.Equal(2, ItemSize.Cells(90, 100, 76, 96, Grid, least: 2).Columns);
+        Assert.Equal(4, ItemSize.Cells(900, 100, 76, 96, Grid, most: 4).Columns);
+    }
+
     [Fact]
     public void S12830_whole_cells_are_whole_cells()
     {
