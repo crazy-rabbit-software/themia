@@ -1,16 +1,25 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "rain.outlook.desc",
+    "rain.graph.label",
+    "rain.graph.desc",
+    "rain.total.label",
+    "rain.total.desc",
+    "rain.total.name",
+    "rain.total.value"
+  ],
   "online.rain.label": "Rain next hour",
-  "online.rain.desc": "When rain starts or stops, in {minutes}-minute steps",
   "online.rain.startsIn": "Rain in {minutes} min",
   "online.rain.stopsIn": "Rain stops in {minutes} min",
   "online.rain.continues": "Rain for the next 2 hours",
   "online.rain.dry": "No rain in the next 2 hours",
   "online.rain.outdated": "No forecast for the next hour",
-  "online.rain.intensity.light": "Light rain",
-  "online.rain.intensity.moderate": "Moderate rain",
-  "online.rain.intensity.heavy": "Heavy rain",
-  "online.rain.chance": "{percent} chance",
-  "online.rain.total": "{amount} mm in 2 hours",
-  "online.rain.now": "Now"
+  "online.rain.now": "Now",
+  "rain.outlook.desc": "When rain starts or stops where you are",
+  "rain.graph.label": "Rain by the quarter hour",
+  "rain.graph.desc": "A bar for each {minutes} minutes of the next two hours",
+  "rain.total.label": "Rain total",
+  "rain.total.desc": "How much rain the next two hours hold",
+  "rain.total.name": "Next 2 hours",
+  "rain.total.value": "{amount} mm"
 }

@@ -390,6 +390,10 @@ public sealed partial class ModuleConformanceTests
     [GeneratedRegex(@"\bItemFill\.|\bFluent\.(Row|Hover)\(")]
     private static partial Regex PaintsDirectly();
 
+    /// <summary>[S-14934] A view over the text or the metric base: its name.</summary>
+    [GeneratedRegex(@"partial class (\w+)\s*:\s*(?:TextView|MetricView)\b")]
+    private static partial Regex BasedView();
+
     [GeneratedRegex(@"^(?:internal |public )?(?:sealed |static |abstract )*(?:partial )?(?:class|struct|record(?: struct)?) (\w+)", RegexOptions.Multiline)]
     private static partial Regex TopLevelType();
 
@@ -444,6 +448,15 @@ public sealed partial class ModuleConformanceTests
         var code = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
             .Where(f => !f.StartsWith(tests, StringComparison.OrdinalIgnoreCase) && !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
             .Select(Code).ToList();
+
+        // [S-14934] A family of several bases (the rain's graph beside its sentence and its total): the views over the text
+        // and metric bases are those kinds', so a kind of its own is judged by its own code alone.
+        if (Module(id) is not (TextModule or MetricModule))
+        {
+            var based = code.SelectMany(c => BasedView().Matches(c).Select(m => m.Groups[1].Value)).ToHashSet(StringComparer.Ordinal);
+            code = [.. code.Where(c => !based.Any(v => Regex.IsMatch(c, $@"partial class {v}\b")))];
+        }
+
         var parts = PaintingParts();
         var paints = code.Any(c => PaintsDirectly().IsMatch(c) || parts.Any(p => Regex.IsMatch(c, $@"\b{p}\b")));
 
@@ -463,6 +476,8 @@ public sealed partial class ModuleConformanceTests
             "airplaneModeToggle", "bluetoothToggle", "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "gameModeToggle",
             "microphoneToggle", "monoAudioToggle", "nightLightToggle", "rotationLockToggle", "soundToggle", "spatialSoundToggle", "wifiToggle",
             "hibernate", "lock", "restart", "screenOff", "shutdown", "signOut", "sleep",
+            // [S-14930] [S-14922] The text kinds' one face and the transport buttons' tiles.
+            "music", "musicArtist", "musicAlbum", "rainOutlook", "musicPrevious", "musicPlayPause", "musicNext",
         ];
 
         var declared = ModuleCatalog.Widgets.Where(w => Themia.Sdk.Kit.ReadoutRules.OneReadout(w.Traits)).Select(w => w.Id.Value).Order(StringComparer.Ordinal);

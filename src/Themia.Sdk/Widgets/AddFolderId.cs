@@ -49,4 +49,10 @@ public enum AddFolderId
     DriveFacts,
     SunTimes,
     MoonTimes,
+
+    /// <summary>[S-14920] What Windows is playing, a widget a part, under Music &amp; media.</summary>
+    NowPlaying,
+
+    /// <summary>[S-14940] The rain in the next two hours, a widget a part, under Weather.</summary>
+    Rain,
 }

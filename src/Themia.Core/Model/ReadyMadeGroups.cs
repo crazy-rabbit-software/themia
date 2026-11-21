@@ -106,15 +106,16 @@ public static class ReadyMadeGroups
     ]) { Starter = 1 });
 
     /// <summary>
-    /// [S-2474] [S-11172] [S-13900] Weather station: the reading, today's high and low, the wind, the days ahead and the rain
-    /// in the next hour, stacked as one panel.
+    /// [S-2474] [S-11172] [S-13900] [S-14944] Weather station: the reading, today's high and low, the wind, the days ahead and
+    /// the rain in the next hour (its sentence over its graph), stacked as one panel.
     /// </summary>
     public static ReadyMadeGroup WeatherStation { get; } = Headed(new("weatherStation", Str.Groups_Recipe_WeatherStation, Str.Groups_Recipe_WeatherStationAbout, Glyphs.Weather, AddFolderId.Weather,
     [
         new("weatherNow", new(0, 0, 300, 76)),
         .. Metrics(76, 300, "weatherHighLow", "weatherWind"),
         new("weatherForecast", new(0, 76 + (2 * Row), 300, 150)),
-        new("rainNextHour", new(0, 226 + (2 * Row), 300, 148)),
+        new("rainOutlook", new(0, 226 + (2 * Row), 300, 80)),
+        new("rainNextHour", new(0, 306 + (2 * Row), 300, 92)),
     ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
 
     /// <summary>
@@ -301,21 +302,40 @@ public static class ReadyMadeGroups
         new("stockHistory", new(0, 76, 280, 108)),
     ]));
 
-    /// <summary>[S-11340] Now playing: the cover at the side, the track beside it, the progress under both (the old card, tighter).</summary>
-    public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.Media,
+    /// <summary>
+    /// [S-11340] [S-14944] Now playing: the cover at the side, the title over the three buttons beside it, the progress under
+    /// both (the old card's box, made of the family's parts).
+    /// </summary>
+    public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.NowPlaying,
     [
         new("musicCover", new(0, 0, 96, 96)),
-        new("music", new(96, 0, 244, 96)),
+        new("music", new(96, 0, 244, 48)),
+        new("musicPrevious", new(96, 48, 81, 48)),
+        new("musicPlayPause", new(177, 48, 82, 48)),
+        new("musicNext", new(259, 48, 81, 48)),
         new("musicProgress", new(0, 96, 340, 40)),
     ]) { Starter = 4 });
 
-    /// <summary>[S-11340] Now playing, large: the cover on top, the track and the progress under it.</summary>
-    public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.Media,
+    /// <summary>[S-11340] [S-14944] Now playing, large: the cover on top, the title, the artist, the album, the progress and the buttons under it.</summary>
+    public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.NowPlaying,
     [
         new("musicCover", new(0, 0, 240, 240)),
-        new("music", new(0, 240, 240, 96)),
-        new("musicProgress", new(0, 336, 240, 40)),
+        new("music", new(0, 240, 240, 52)),
+        new("musicArtist", new(0, 292, 240, 48)),
+        new("musicAlbum", new(0, 340, 240, 48)),
+        new("musicProgress", new(0, 388, 240, 40)),
+        new("musicPrevious", new(0, 428, 80, 64)),
+        new("musicPlayPause", new(80, 428, 80, 64)),
+        new("musicNext", new(160, 428, 80, 64)),
     ]), Str.Groups_Recipe_NowPlaying);
+
+    /// <summary>[S-14944] Rain: the sentence over the graph over the total, the rain family's three parts as one panel.</summary>
+    public static ReadyMadeGroup Rain { get; } = Headed(new("rain", Str.Groups_Recipe_Rain, Str.Groups_Recipe_RainAbout, Glyphs.Rain, AddFolderId.Rain,
+    [
+        new("rainOutlook", new(0, 0, 300, 80)),
+        new("rainNextHour", new(0, 80, 300, 92)),
+        .. Metrics(172, 300, "rainTotal"),
+    ]));
 
     /// <summary>[S-11341] Sound: the volume over the mixer, one header (the volume's).</summary>
     public static ReadyMadeGroup Sound { get; } = Headed(new("sound", Str.Groups_Recipe_Sound, Str.Groups_Recipe_SoundAbout, Glyphs.Volume3, AddFolderId.Media,
@@ -404,7 +424,7 @@ public static class ReadyMadeGroups
     }
 
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, WeatherFacts, Sun, Moon, AirQuality, WeatherGraphs, ExchangeRates, Stocks, Calendar, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, WeatherFacts, Sun, Moon, AirQuality, WeatherGraphs, Rain, ExchangeRates, Stocks, Calendar, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

@@ -33,7 +33,7 @@ public sealed class MusicProgressModule : IWidgetModule
         Glyph = Glyph,
         Sizing = _ => MusicProgressFace.Sizing().ScalesDownTo(MusicProgressFace.Face()),
         Traits = WidgetTraits.None,
-        Add = new(AddFolderId.Media, 0, 5),
+        Add = new(AddFolderId.NowPlaying, 0, 7),
     };
 
     /// <summary>[S-11330] Its one option: when it hides ([S-1464]).</summary>

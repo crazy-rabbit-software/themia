@@ -23,7 +23,7 @@ public sealed class SharedSettingsTests
     /// <summary>[S-11752] Which kinds carry each shared setting: the table the SPEC states, pinned.</summary>
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
-        ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
+        ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "rainOutlook", "rainTotal", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
         ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],
@@ -38,7 +38,7 @@ public sealed class SharedSettingsTests
         ["stockTimeframe"] = ["stock", "stockHistory"],
         ["screenTimePeriod"] = ["screenTime", "screenTimeApps", "screenTimeChart", "screenTimeDonut"],
         ["historySpan"] = ["cpuCores"],
-        ["hideWhenIdle"] = ["music", "musicCover", "musicProgress"],
+        ["hideWhenIdle"] = ["music", "musicAlbum", "musicArtist", "musicCover", "musicNext", "musicPlayPause", "musicPrevious", "musicProgress"],
         ["metricTrend"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airRagweed", "airUv", "batteryCharge", "batteryRate", "batteryTemperature", "batteryTime", "batteryVoltage", "cpuHandles", "cpuLoad", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "driveActivity", "driveFree", "driveUsed", "gpuClock", "gpuDedicatedMemory", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature", "memoryAvailable", "memoryCached", "memoryCommitted", "memoryInUse", "memoryNonPagedPool", "memoryPageFile", "memoryPagedPool", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "weatherCloudCover", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherTemperature", "weatherUv", "weatherWind"],
         // [S-14711] Every single metric whose graph offers a choice of span.
         ["metricSpan"] = ["airIndex", "airOzone", "airPm10", "airPm25", "batteryCharge", "cpuLoad", "driveActivity", "gpuLoad", "memoryInUse", "networkDownload", "networkUpload", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum", "weatherFeelsLike", "weatherGusts", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherTemperature", "weatherUv", "weatherWind"],

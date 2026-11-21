@@ -4,6 +4,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
 using Themia.Tests;
 using Xunit;
@@ -44,7 +45,9 @@ public sealed partial class ContentAlignmentTests
         var wrong = new List<string>();
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
-            var takes = views.TryGetValue(kind, out var view) && aligned.Contains(view);
+            // [S-14930] A text kind's view is the text base's one face, which aligns: its family's module names no view of its own.
+            var text = ModuleRegistry.Widgets.Single(m => m.Descriptor.Id == kind) is Themia.Sdk.WinUI.TextModule;
+            var takes = (views.TryGetValue(kind, out var view) && aligned.Contains(view)) || (text && aligned.Contains("TextView"));
             if (takes != ContentAlignment.Offers(kind))
             {
                 wrong.Add($"{kind} ({view ?? "no named arm"}) takes an alignment: {takes}, listed: {ContentAlignment.Offers(kind)}");
@@ -57,7 +60,8 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("date"), new WidgetId("weatherNow"), new WidgetId("stock"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRate"), new WidgetId("header")];
+        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("date"), new WidgetId("weatherNow"), new WidgetId("stock"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRate"), new WidgetId("header"),
+            new WidgetId("music"), new WidgetId("musicArtist"), new WidgetId("musicAlbum"), new WidgetId("rainOutlook")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[new WidgetId("tasks"), new WidgetId("email"), new WidgetId("calendar"), new WidgetId("cpu"), new WidgetId("mixer"), new WidgetId("wifiToggle"), new WidgetId("shutdown"), new WidgetId("folder")])
