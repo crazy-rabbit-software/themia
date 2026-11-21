@@ -194,8 +194,14 @@ public static class CalendarSizing
     /// <summary>[S-11545] The day strip: the heads over the most the marks take.</summary>
     public static double Strip => WeekHead + MarksRoom;
 
-    /// <summary>[S-11545] The day strip's height over the chosen day's rows: the strip and 8, the insets.</summary>
-    public static double WeekRowsOver => ContentTop + Strip + FamilySpace.S2 + FamilySpace.Inset;
+    /// <summary>
+    /// [S-11545] [S-12815] The day strip's band on <paramref name="grid"/>: its day items from the card's top edge, their heads
+    /// at the card's inset over their marks, grown to end on a grid line, the chosen day's rows right under it.
+    /// </summary>
+    public static double StripBand(ItemGrid grid) => grid.Whole(FamilySpace.Inset + Strip);
+
+    /// <summary>[S-11545] The day strip's height over the chosen day's rows: its band on the default grid (100).</summary>
+    public static double WeekRowsOver => StripBand(ItemGrid.Default());
 
     /// <summary>[S-11546] The week with titles' height over its hours: the heads, the band's one line, the insets.</summary>
     public static double WeekHoursOver => ContentTop + WeekHead + CalendarFit.ChipLine + FamilySpace.Inset;

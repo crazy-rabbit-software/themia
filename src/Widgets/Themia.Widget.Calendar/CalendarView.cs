@@ -56,6 +56,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>[S-12481] [S-14903] The state over the content's top end, in every style: the period's line is the calendar header's.</summary>
     private readonly KitStatus _status;
 
+    /// <summary>Whether a state's row stands over the face (the face then starts right under it, not on the card's top edge).</summary>
+    private bool _stated;
+
     private readonly List<IDisposable> _hovers = [];
     private bool _navigable;
 
@@ -570,6 +573,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         // The status stands where the kit puts it; the month moves it into its weekday line.
         _status.StandAt(null);
+        _stated = stated;
 
         switch (Layout)
         {

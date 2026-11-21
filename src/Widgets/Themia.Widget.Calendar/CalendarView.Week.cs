@@ -138,29 +138,35 @@ internal sealed partial class CalendarView
             byDay[c] = CalendarRules.DayItems(Events, Birthdays, start.AddDays(c), zone);
         }
 
+        // [S-11545] [S-12815] The strip is a row of day items on the card's top edge (under a state's row, right under it):
+        // the days share the card's width from its left edge to its right (WR-3), touching (WR-2), each its weekday and
+        // number at the card's inset over its marks; the band ends on a grid line, the chosen day's rows right under it
+        // (WR-1: nothing between the strip and the first row).
+        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var lift = _stated ? 0 : FamilySpace.ContentTop;
+        var band = CalendarSizing.StripBand(cells);
+
         // [S-11545] [S-14502] [S-14810] The chosen day's rows under the strip at their one size, as many as the card reaches,
         // the last cut by its foot (its WeekRows a new card's).
-        var under = Math.Max(0, height - (CalendarSizing.Strip + FamilySpace.S2));
+        var under = Math.Max(0, height + lift - band);
         var rowsArea = _area.IsMeasured
             ? new WidgetArea(width, Math.Max(0, under - FamilySpace.Inset), _area.Cell, XamlRoot?.RasterizationScale ?? 1)
             : new WidgetArea(width, CalendarSizing.ClampWeekRows(_config.WeekRows) * FamilyShape.Row1);
-        var labels = CalendarFit.Weekdays(Math.Max(0, width - (2 * FamilySpace.Inset)) / Math.Max(1, days));
+        var columns = ItemSize.Columns(width, days, cells);
+        var labels = CalendarFit.Weekdays(Math.Max(0, width) / Math.Max(1, days));
         var plan = KitPlanner.Plan(rowsArea, AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = new KitRowsChoice(CalendarSizing.ClampWeekRows(_config.WeekRows), 1) });
 
-        // The strip, the family's gap, then the empty day's sentence: rows of the content, no margins.
+        // The strip, then the empty day's sentence: rows of the content, no margins.
         _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(FamilySpace.S2) });
         _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0), VerticalAlignment = VerticalAlignment.Top };
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
+        var grid = new Grid { Margin = new Thickness(0, -lift, 0, 0), Height = band, VerticalAlignment = VerticalAlignment.Top };
         for (var c = 0; c < days; c++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(columns[c]) });
 
             var day = start.AddDays(c);
+            var column = new StackPanel { Padding = new Thickness(0, FamilySpace.Inset, 0, 0) };
             var header = WeekHeader(day, day == today, labels == WeekdayLabel.None ? WeekdayLabel.Narrow : labels);
             header.CornerRadius = Family.Radius;
             if (day == chosen)
@@ -172,25 +178,27 @@ internal sealed partial class CalendarView
 
             // [S-11923] The chosen day's head keeps its selected fill when another day is pointed at.
             LinkDay(header, day, rest: day == chosen ? () => ItemFill.Paint(header, ItemRole.Chip, ItemState.Selected) : null);
-            SetColumn(header, c);
-            grid.Children.Add(header);
+            column.Children.Add(header);
 
             if (byDay[c].Count > 0)
             {
                 var marks = WeekMarks(byDay[c], showColors);
                 ChoosesDay(marks, day, byDay[c]);
                 PublishDay(marks, day);
-                SetRow(marks, 1);
-                SetColumn(marks, c);
-                grid.Children.Add(marks);
+                column.Children.Add(marks);
             }
+
+            // [S-12831] Each day is one of the strip's items: its column's whole band.
+            var item = new Border { Child = column, Background = Family.Brush(ColourRole.Clear) };
+            ItemMark.Mark(item);
+            SetColumn(item, c);
+            grid.Children.Add(item);
         }
 
         _content.Children.Add(grid);
 
-        // [S-11545] The strip is one height whatever the week holds: its marks' most room.
-        grid.Height = CalendarSizing.Strip;
-        var top = CalendarSizing.Strip + FamilySpace.S2;
+        // The rows' room over them in the rows' host (the view's second row; the list stands the inset over its top).
+        var top = band + FamilySpace.ContentTop - lift;
         var items = byDay[chosen.DayNumber - start.DayNumber];
         if (items.Count == 0)
         {
@@ -198,7 +206,7 @@ internal sealed partial class CalendarView
 
             // [S-2285] A day with nothing says so in the Status block's row where the first row would be.
             var none = new StatusBlock { Margin = default };
-            SetRow(none, 2);
+            SetRow(none, 1);
             none.Show(StatusKind.Empty, Themia.App.Shell.Glyphs.Calendar, (chosen == today ? CalendarStr.Calendar_NoEventsToday : CalendarStr.WidgetsA_Calendar_NoEvents).Text());
             _content.Children.Add(none);
             return;

@@ -78,11 +78,15 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   44 turned a 40-tall cell into chips of four letters); a month with titles, chosen, shows them from one chip line in its
   least column of 56 (`MonthChipRoom.Titles`).
   Tests `MonthLayoutTests.S14101_`.
-- **[S-11545]** **Week, the day strip** (a new one's): each column's head (its weekday, its number) over
-  the room its marks take at most ([S-2282]: three, then "+n"), then 8, then the chosen day's **Rows**
-  (1..12, a new one 3; Style line) as the agenda's one-line rows ([S-2285]): one height for the
-  config, a 40 column a day at its optimal (a new one's seven days 304), as many days as the card's width holds,
-  sharing it, and the rows its height holds ([S-14410], [S-14502]: none stored by a resize).
+- **[S-11545]** **Week, the day strip** (a new one's): a row of day items on the card's top edge (WR-1..WR-3,
+  [S-12815]): the days share the card's width from its left edge to its right, touching (`ItemSize.Columns`), each its
+  head (its weekday, its number) at the card's inset over the room its marks take at most ([S-2282]: three, then "+n");
+  the strip's band ends on a grid line (`CalendarSizing.StripBand`, 100 on the default grid) and the chosen day's
+  **Rows** (1..12, a new one 3; Style line) stand right under it as the agenda's one-line rows ([S-2285]), the last cut
+  by the card's foot: one height for the config, a 40 column a day at its optimal (a new one's seven days 304), as many
+  days as the card's width holds, sharing it, and the rows its height reaches ([S-14410], [S-14502]: none stored by a
+  resize). Under a state's row the strip starts right under it. Before, the strip stood in the inset with 8 under it,
+  its first row 40 DIP under the last ink over it.
 - **[S-11546]** **Titles in the week** (a Style switch, off by default): the columns hold their events'
   titles, each 96 wide at least ([S-2281]), so a new card is the days × 96 + the hours' labels (44) + the inset wide;
   one band line of all-day bars over an hour grid of its **hours** (4..16, a new one 8); the days are what the card's

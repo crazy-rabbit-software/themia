@@ -133,7 +133,10 @@ public sealed class CalendarSizingTests
     public void S11545_S14410_the_day_strip_is_a_40_column_a_day_over_the_chosen_days_rows()
     {
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Week };
-        Assert.Equal(CalendarSizing.ContentTop + CalendarSizing.Strip + FamilySpace.S2 + (3 * 30) + FamilySpace.Inset, Of(config).Natural.Height);
+        // [S-12815] The strip's day items stand on the card's top edge, their heads at the inset, the band whole cells (100),
+        // the rows right under it and cut by the foot: no gap and no inset under them.
+        Assert.Equal(100, CalendarSizing.WeekRowsOver);
+        Assert.Equal(CalendarSizing.WeekRowsOver + (3 * 30), Of(config).Natural.Height);
 
         // [S-14410] [S-14502] The days are the card's width: a 40 column a day, 1..14, a new one's seven, never stored.
         Assert.Equal((2 * FamilySpace.Inset) + (7 * CalendarSizing.StripColumn), Of(config).Natural.Width);
@@ -167,7 +170,7 @@ public sealed class CalendarSizingTests
         var expected = style switch
         {
             CalendarStyle.Month => CalendarSizing.MonthOver + (6 * 30),
-            CalendarStyle.Week => FamilySpace.Inset + CalendarSizing.Strip + FamilySpace.S2 + (3 * 30) + FamilySpace.Inset,
+            CalendarStyle.Week => CalendarSizing.StripBand(Themia.Core.Widgets.ItemGrid.Default()) + (3 * 30),
             CalendarStyle.Day => FamilySpace.Inset + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30) + FamilySpace.Inset,
             CalendarStyle.Year => FamilySpace.Inset + CalendarSizing.YearBlock(CalendarSizing.Year(false)).Height + FamilySpace.Inset,
             _ => 6 * 30d,
