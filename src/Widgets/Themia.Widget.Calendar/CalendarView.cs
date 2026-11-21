@@ -568,6 +568,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         var over = stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : 0;
         var height = _area.Height - over;
 
+        // The status stands where the kit puts it; the month moves it into its weekday line.
+        _status.StandAt(null);
+
         switch (Layout)
         {
             case CalendarStyle.Week:

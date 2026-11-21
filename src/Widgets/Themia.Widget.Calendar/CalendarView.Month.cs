@@ -69,6 +69,15 @@ internal sealed partial class CalendarView
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
         var weekdays = CalendarFit.Weekdays(layout.LeastColumn);
         var chipped = layout.Face == MonthFace.Chips;
+
+        // [S-12813] The month stands on the card's top edge: the status's glyph stands in its weekday line's band, at its end,
+        // over nothing of a day's cell (a stale month's warning stood over the first week's last number), and the last
+        // weekday's word leaves it room.
+        var room = weekdays != WeekdayLabel.None && layout.HeaderHeight >= KitStatus.Side ? _status.Room : 0;
+        _status.StandAt(weekdays != WeekdayLabel.None && layout.HeaderHeight >= KitStatus.Side
+            ? top - FamilySpace.ContentTop + ((layout.HeaderHeight - KitStatus.Side) / 2)
+            : null);
+
         if (weekdays != WeekdayLabel.None)
         {
             var order = CalendarRules.WeekdayOrder(start);
@@ -79,7 +88,8 @@ internal sealed partial class CalendarView
                 label.TextTrimming = TextTrimming.None;
                 label.HorizontalAlignment = chipped ? HorizontalAlignment.Left : HorizontalAlignment.Center;
                 label.VerticalAlignment = VerticalAlignment.Bottom;
-                var holder = new Border { Child = label, Padding = new Thickness(chipped ? FamilySpace.S1 : 0, 0, 0, 0) };
+                var leaves = room > 0 && c == layout.Columns.Count - 1 ? FamilySpace.Inset + room : 0;
+                var holder = new Border { Child = label, Padding = new Thickness(chipped ? FamilySpace.S1 : 0, 0, leaves, 0) };
 
                 // [S-14314] The letters are their column's head: on the cells' own padding, in line with the numbers under them.
                 HeadMark.Mark(holder);
