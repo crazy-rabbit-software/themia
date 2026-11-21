@@ -30,8 +30,27 @@ public sealed class MoonTests
         var sizing = MoonLayout.Sizing(new MoonConfig { Style = MoonStyle.PhaseMonth });
 
         Assert.True(sizing.FixedHeight && sizing.FixedWidth);
-        Assert.Equal(new SizeDip(24 + (7 * 28), 12 + 16 + 8 + (5 * 28) + 12), sizing.Natural);
+        // [S-15673] The grid its discs' ink: six pitches and a disc across, four and a disc down.
+        Assert.Equal(new SizeDip(24 + (6 * 28) + 20, 12 + 16 + 8 + (4 * 28) + 20 + 12), sizing.Natural);
         Assert.True(MoonLayout.Columns * MoonLayout.Rows >= 31);
+    }
+
+    [Fact]
+    public void S15673_the_month_grids_box_is_its_ink_the_discs_and_todays_ring_where_it_stands_on_an_edge()
+    {
+        // Thirty days, today inside: the discs from every edge, five lines.
+        Assert.Equal(new MoonGridBox((6 * 28) + 20, (4 * 28) + 20, 0, 0), MoonLayout.GridOf(30, 9));
+
+        // Today in the last column and the first line: its ring 4 past the disc on the right and the top.
+        Assert.Equal(new MoonGridBox((6 * 28) + 20 + 4, 4 + (4 * 28) + 20, 0, 4), MoonLayout.GridOf(30, 6));
+
+        // Today the 29th of thirty: the last line's, in its first column; the ring on the left and the foot.
+        Assert.Equal(new MoonGridBox(4 + (6 * 28) + 20, (4 * 28) + 20 + 4, 4, 0), MoonLayout.GridOf(30, 28));
+
+        // A February of 28: four lines; no today: no ring; the right edge is the full lines', a short last line's today none.
+        Assert.Equal(new MoonGridBox((6 * 28) + 20, (3 * 28) + 20, 0, 0), MoonLayout.GridOf(28, -1));
+        Assert.Equal((6 * 28) + 20, MoonLayout.GridOf(31, 29).Width);
+        Assert.Equal(MoonLayout.Ring, (MoonLayout.Pitch - MoonLayout.Disc) / 2);
     }
 
     [Fact]

@@ -30,8 +30,35 @@ public static class MoonLayout
 
     public const double Widest = 320;
 
+    /// <summary>[S-6050] [S-15673] How far today's ring reaches past its disc: the gap round the disc in its pitch.</summary>
+    public const double Ring = (Pitch - Disc) / 2;
+
+    /// <summary>[S-15673] The grid of a full month at a new card's size, no ring on its edge: its discs' ink, 188 × 132.</summary>
+    public static SizeDip Grid => new(((Columns - 1) * Pitch) + Disc, ((Rows - 1) * Pitch) + Disc);
+
     /// <summary>[S-11121] The month's grid, its name over it: its width and height.</summary>
-    public static SizeDip Month => new(Columns * Pitch, FamilyType.Caption.LineHeight + FamilySpace.S2 + (Rows * Pitch));
+    public static SizeDip Month => new(Grid.Width, FamilyType.Caption.LineHeight + FamilySpace.S2 + Grid.Height);
+
+    /// <summary>
+    /// [S-15673] The grid of a month of <paramref name="days"/> with today the <paramref name="today"/>th (from 0; none
+    /// outside them) as drawn: its box is its ink, the discs from its edges and today's ring where it stands on one (the ring
+    /// reaches <see cref="Ring"/> past its disc), never a pitch's gap round the outer discs. A block scaled to fill its card
+    /// (<c>ReadingFit</c>) stands by its box: the gap the outer discs left inside it stood the face 4 DIP off centre at twice
+    /// its size. Its lines are the days' (a February of 28 four).
+    /// </summary>
+    public static MoonGridBox GridOf(int days, int today)
+    {
+        days = Math.Max(1, days);
+        var columns = Math.Min(Columns, days);
+        var rows = (days + Columns - 1) / Columns;
+        var ringed = today >= 0 && today < days;
+        var (column, row) = ringed ? (today % Columns, today / Columns) : (-1, -1);
+        var left = column == 0 ? Ring : 0;
+        var right = column == columns - 1 ? Ring : 0;
+        var top = row == 0 ? Ring : 0;
+        var foot = row == rows - 1 ? Ring : 0;
+        return new MoonGridBox(left + ((columns - 1) * Pitch) + Disc + right, top + ((rows - 1) * Pitch) + Disc + foot, left, top);
+    }
 
     /// <summary>
     /// [S-12833] The moon's parts (<see cref="FaceParts"/>). Disc: the share its main reading, at 9 in its least card, the
@@ -46,7 +73,7 @@ public static class MoonLayout
             return new FaceParts(ScaleFloor.AsText(Disc),
             [
                 new FaceRow([FacePiece.Text(FamilyType.Caption, Month.Width, FamilyType.Caption.FontSize)]),
-                new FaceRow([FacePiece.Box(Month.Width, Rows * Pitch)], GapOver: FamilySpace.S2),
+                new FaceRow([FacePiece.Box(Grid.Width, Grid.Height)], GapOver: FamilySpace.S2),
             ]);
         }
 
@@ -68,3 +95,6 @@ public static class MoonLayout
         return WidgetSizing.Range(new(Narrowest, height), new(160, height), new(Widest, height));
     }
 }
+
+/// <summary>[S-15673] The moon month's grid as drawn: its box (its ink) and where its first disc stands in it.</summary>
+public readonly record struct MoonGridBox(double Width, double Height, double Left, double Top);

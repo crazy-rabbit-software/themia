@@ -69,8 +69,8 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         _month.Spacing = FamilySpace.S2;
         _month.Children.Add(_monthName);
         _month.Children.Add(_monthGrid);
-        _monthGrid.Width = MoonLayout.Columns * MoonLayout.Pitch;
-        _monthGrid.Height = MoonLayout.Rows * MoonLayout.Pitch;
+        _monthGrid.Width = MoonLayout.Grid.Width;
+        _monthGrid.Height = MoonLayout.Grid.Height;
 
         _fit.Parts.Add(_readout);
         // [S-14324] The month stands its own width where the alignment puts it (centred by default), never spread over the
@@ -169,23 +169,26 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         _monthGrid.Children.Clear();
         _monthName.Text = LocaleFormat.MonthName(locale, today.Month);
 
-        var inset = (MoonLayout.Pitch - MoonLayout.Disc) / 2;
+        // [S-15673] The grid's box is its ink: the discs from its edges, today's ring where it stands on one.
+        var box = MoonLayout.GridOf(days.Count, days.ToList().FindIndex(d => d.Today));
+        _monthGrid.Width = box.Width;
+        _monthGrid.Height = box.Height;
         for (var i = 0; i < days.Count; i++)
         {
             var disc = _monthDiscs[i];
             var (column, row) = (i % MoonLayout.Columns, i / MoonLayout.Columns);
             disc.Resize(MoonLayout.Disc);
             disc.Update(days[i].Phase, southern, up: true);
-            Canvas.SetLeft(disc.Root, (column * MoonLayout.Pitch) + inset);
-            Canvas.SetTop(disc.Root, (row * MoonLayout.Pitch) + inset);
+            Canvas.SetLeft(disc.Root, box.Left + (column * MoonLayout.Pitch));
+            Canvas.SetTop(disc.Root, box.Top + (row * MoonLayout.Pitch));
             ToolTipService.SetToolTip(disc.Root, $"{LocaleFormat.Date(locale, days[i].Date, DateStyle.MonthDay)} · {MoonPhase.Label(days[i].Name)}");
             _monthGrid.Children.Add(disc.Root);
 
             if (days[i].Today)
             {
                 // [S-6050] Today ringed in the accent at the Chart's stroke, in the gap round its disc.
-                Canvas.SetLeft(_todayRing, column * MoonLayout.Pitch);
-                Canvas.SetTop(_todayRing, row * MoonLayout.Pitch);
+                Canvas.SetLeft(_todayRing, box.Left + (column * MoonLayout.Pitch) - MoonLayout.Ring);
+                Canvas.SetTop(_todayRing, box.Top + (row * MoonLayout.Pitch) - MoonLayout.Ring);
                 _monthGrid.Children.Add(_todayRing);
             }
         }
