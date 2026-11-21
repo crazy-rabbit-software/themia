@@ -61,7 +61,8 @@ internal static class PickerRender
         var width = Number(run, "--width") ?? 1920;
         var height = Number(run, "--height") ?? 1032;
 
-        using var harness = RenderHarness.Open(run, "Themia add page render", null, width, height);
+        using var harness = RenderHarness.Open(run);
+        harness.PutAppThemeInForce();
         var screen = new Grid
         {
             HorizontalAlignment = HorizontalAlignment.Left,
@@ -69,8 +70,9 @@ internal static class PickerRender
             Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
         };
 
-        harness.Window.Window.Content = new Grid { Children = { screen } };
+        var window = harness.MakeWindow("Themia add page render", new Grid { Children = { screen } });
         UiLanguage.Apply(screen);
+        window.Show(width, height);
 
         System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
         await EditBarRender.AddPageShot(screen, outPath, width, height, tab, search, run.Option("--hover"), run.Option("--open")).ConfigureAwait(true);

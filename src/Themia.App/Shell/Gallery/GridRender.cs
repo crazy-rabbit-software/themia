@@ -44,7 +44,8 @@ internal static class GridRender
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        using var harness = RenderHarness.Open(run, "Themia grid render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        using var harness = RenderHarness.Open(run);
+        harness.MakeWindow("Themia grid render", new Grid { Children = { screen } }).Show(ScreenWidth, ScreenHeight);
         var scale = harness.Window.Scale;
         var host = new NoticeRender.RenderCardHost(harness.Ticker);
         var metrics = new ScreenMetrics(ScreenWidth, ScreenHeight);

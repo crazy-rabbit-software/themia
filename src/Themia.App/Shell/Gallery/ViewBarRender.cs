@@ -137,7 +137,8 @@ internal static class ViewBarRender
         var theme = run.App.RequestedTheme == ApplicationTheme.Light ? "light" : "dark";
 
         System.IO.Directory.CreateDirectory(outDir);
-        using var harness = RenderHarness.Open(run, "Themia view bar render", null, ScreenWidth, ScreenHeight);
+        using var harness = RenderHarness.Open(run);
+        harness.PutAppThemeInForce();
         var screen = new Grid
         {
             Width = ScreenWidth,
@@ -147,8 +148,9 @@ internal static class ViewBarRender
             Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
         };
 
-        harness.Window.Window.Content = new Grid { Children = { screen } };
+        var window = harness.MakeWindow("Themia view bar render", new Grid { Children = { screen } });
         UiLanguage.ApplyLanguageOnly(screen);
+        window.Show(ScreenWidth, ScreenHeight);
 
         IReadOnlyList<ViewBarItem> items = many is { } count ? ManyItems(count) : Items;
         IReadOnlyList<Case> cases = many is null ? Cases : ManyCases();

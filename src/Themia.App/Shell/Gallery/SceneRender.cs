@@ -215,9 +215,8 @@ internal static class SceneRender
     {
         // Off-screen and never activated, at the scene's own window size (physical pixels, not the content's DIPs).
         // [S-1931] A store picture never shows this PC: the system widgets read the sample machine.
-        using var harness = RenderHarness.Open(run, "Themia scene render", null, 0, 0);
-        var window = harness.Window.Window;
-        window.AppWindow.Resize(WindowSize);
+        using var harness = RenderHarness.Open(run);
+        var window = harness.MakeWindow("Themia scene render", null);
         harness.UseServices(sampleMachine: true);
         var cards = new List<WidgetCard>();
 
@@ -251,7 +250,8 @@ internal static class SceneRender
         // scale / dpi inside a frame sized so the bitmap comes out exact. In a canvas, so a scene
         // larger than the window is neither measured down nor clipped.
         var frame = new Canvas { Children = { screen } };
-        window.Content = new Canvas { Children = { frame } };
+        window.Window.Content = new Canvas { Children = { frame } };
+        window.Show(WindowSize);
         await LoadedAsync(screen).ConfigureAwait(true);
 
         var dpi = screen.XamlRoot?.RasterizationScale is > 0 and var raster ? raster : 1.0;

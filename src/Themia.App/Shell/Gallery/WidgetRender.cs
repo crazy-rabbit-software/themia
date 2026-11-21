@@ -177,9 +177,10 @@ internal static class WidgetRender
 
         // The themed brushes follow the design's theme, not the application's: the harness sets both.
         // [S-6480] --design sets the look the cards are drawn with (a border, a radius, a fill).
-        using var harness = RenderHarness.Open(run, "Themia widget render", null, 0, 0, args);
+        using var harness = RenderHarness.Open(run, args);
         try
         {
+            harness.PutDesignInForce();
             var reference = Array.IndexOf(args, "--reference") >= 0;
             var (width, height) = PageSize(tiers);
             if (reference)
@@ -214,11 +215,11 @@ internal static class WidgetRender
                 }
             }
 
-            harness.Window.Window.Content = new Grid { Children = { page } };
+            var window = harness.MakeWindow("Themia widget render", new Grid { Children = { page } });
 
             // As on the desktop: the page is screen geometry, each card flows with the language itself.
             UiLanguage.ApplyLanguageOnly(page);
-            harness.Window.Resize(width, height);
+            window.Show(width, height);
 
             // [S-1500] A confirmation a state opens is drawn inside this window, as a popup of
             // its own window does not render to a bitmap. Set before any view builds one.

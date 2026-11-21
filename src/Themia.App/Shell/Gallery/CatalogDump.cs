@@ -7,6 +7,7 @@ using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
@@ -55,7 +56,8 @@ internal static class CatalogDump
     private static async Task<int> WriteAsync(RenderRun run, IReadOnlyList<WidgetId> kinds, string? outPath)
     {
         var page = new StackPanel();
-        using var harness = RenderHarness.Open(run, "Themia catalog", new ScrollViewer { Content = page }, 760, 520);
+        using var harness = RenderHarness.Open(run);
+        harness.MakeWindow("Themia catalog", new ScrollViewer { Content = page }).Show(new SizeInt32(800, 600));
         harness.UseServices(sampleMachine: false);
         var host = harness.CardHost();
 

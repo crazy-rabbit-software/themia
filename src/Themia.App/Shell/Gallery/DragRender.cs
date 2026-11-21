@@ -61,7 +61,8 @@ internal static class DragRender
 
         System.IO.Directory.CreateDirectory(outDir);
         var screen = new Grid { Width = ScreenWidth, Height = ScreenHeight, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-        using var harness = RenderHarness.Open(run, "Themia drag render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        using var harness = RenderHarness.Open(run);
+        harness.MakeWindow("Themia drag render", new Grid { Children = { screen } }).Show(ScreenWidth, ScreenHeight);
         var ticker = harness.Ticker;
         var scale = harness.Window.Scale;
         var metrics = new ScreenMetrics(ScreenWidth, ScreenHeight);

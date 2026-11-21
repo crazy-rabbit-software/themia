@@ -1,7 +1,7 @@
 #if DEBUG
+using Microsoft.UI.Xaml;
 using Themia.App.Interop;
 using Themia.Core.Diagnostics;
-using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
@@ -14,24 +14,20 @@ internal static class RenderRaster
 {
     private const string Scope = "render-raster";
 
-    /// <summary>What the frame takes beside and above the content, in DIPs (as <see cref="OffscreenWindow"/>'s).</summary>
-    private const double MarginWidth = 40;
-
-    private const double MarginHeight = 80;
+    /// <summary>
+    /// The render's window (<see cref="RenderHarness.MakeWindow"/>), made at 100 % where the run asks for <c>--raster 100</c>.
+    /// </summary>
+    public static OffscreenWindow MakeWindow(RenderHarness harness, string title, UIElement? content)
+        => Made(harness.Run, () => harness.MakeWindow(title, content));
 
     /// <summary>
-    /// The render's harness (<see cref="RenderHarness.Open"/>, its content set later), its window for
-    /// <paramref name="width"/> × <paramref name="height"/> DIPs, at 100 % where the run asks for <c>--raster 100</c>.
+    /// <paramref name="window"/> shown for <paramref name="width"/> × <paramref name="height"/> DIPs in the screen's pixels,
+    /// which a 100 % window's own DPI (96) does not say: the larger of its DPI and the system's.
     /// </summary>
-    public static RenderHarness Open(RenderRun run, string title, double width, double height)
+    public static void Show(OffscreenWindow window, double width, double height)
     {
-        var harness = Made(run, () => RenderHarness.Open(run, title, null, width, height));
-
-        // In the screen's pixels, which a 100 % window's own DPI (96) does not say: the larger of its DPI and the system's.
-        var dpi = Math.Max(Win32.GetDpiForWindow(harness.Window.Hwnd), Win32.GetDpiForSystem());
-        var scale = dpi > 0 ? dpi / 96.0 : 1.0;
-        harness.Window.Window.AppWindow.Resize(new SizeInt32((int)((width + MarginWidth) * scale), (int)((height + MarginHeight) * scale)));
-        return harness;
+        var dpi = Math.Max(Win32.GetDpiForWindow(window.Hwnd), Win32.GetDpiForSystem());
+        window.Show(width, height, dpi > 0 ? dpi / 96.0 : 1.0);
     }
 
     /// <summary>What <paramref name="make"/> builds (a window and what it holds), built DPI-unaware where the run asks for <c>--raster 100</c>.</summary>

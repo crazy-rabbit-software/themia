@@ -82,8 +82,11 @@ internal static class FamilyCheckRender
         }
 
         var page = new Canvas { Width = width, Height = height };
-        using var harness = RenderHarness.Open(run, "Themia family check", new Grid { Children = { page } }, width, height);
+        using var harness = RenderHarness.Open(run);
+        harness.PutDesignInForce();
+        var window = harness.MakeWindow("Themia family check", new Grid { Children = { page } });
         UiLanguage.ApplyLanguageOnly(page);
+        window.Show(width, height);
         ConfirmFlyout.RenderInWindow = true;
         harness.UseServices(sampleMachine: false);
         var host = harness.CardHost();

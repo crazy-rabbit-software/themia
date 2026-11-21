@@ -89,8 +89,11 @@ internal static class InlineCheckRender
         {
             const double Width = 1300, Height = 1100;
             var page = new Canvas { Width = Width, Height = Height };
-            using var harness = RenderHarness.Open(run, "Themia inline check", new Grid { Children = { page } }, Width, Height);
+            using var harness = RenderHarness.Open(run);
+            harness.PutDesignInForce();
+            var window = harness.MakeWindow("Themia inline check", new Grid { Children = { page } });
             UiLanguage.ApplyLanguageOnly(page);
+            window.Show(Width, Height);
             ConfirmFlyout.RenderInWindow = true;
             harness.UseServices(sampleMachine: false);
             var host = harness.CardHost();

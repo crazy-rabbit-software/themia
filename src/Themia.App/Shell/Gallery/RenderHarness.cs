@@ -9,28 +9,31 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-69] Debug only: what every render shares, owned once. A render opens it on the UI thread
-/// (<see cref="RenderCommands"/> made the hop), gets its off-screen window, the design its <c>--theme</c> and
-/// <c>--design</c> ask for (put in force), a ticker, preview card hosts, the system and gallery services its cards read,
-/// and the PNG writer, and disposes it: the cards detach, the services and the
-/// ticker go and the window closes, whatever threw.
+/// (<see cref="RenderCommands"/> made the hop) and gets the design its <c>--theme</c> and <c>--design</c> ask for (put in
+/// force by <see cref="PutDesignInForce"/> where the render draws with it, before it builds what reads its brushes), its
+/// off-screen window (<see cref="MakeWindow"/>, holding the content, shown by <see cref="OffscreenWindow.Show(double, double, double?)"/>
+/// once the content is in place), a ticker, preview card hosts, the system and gallery services its cards read, and the PNG
+/// writer; and disposes it: the cards detach, the services and the ticker go and the window closes, whatever threw. Each
+/// render keeps the order its steps always had, so its pictures are the same.
 /// </summary>
 internal sealed class RenderHarness : IDisposable
 {
     private readonly List<WidgetCard> _cards = [];
     private readonly List<IDisposable> _owned = [];
+    private OffscreenWindow? _window;
     private bool _services;
 
-    private RenderHarness(RenderRun run, OffscreenWindow window, IReadOnlyList<string> args)
+    private RenderHarness(RenderRun run, IReadOnlyList<string> args)
     {
         Run = run;
-        Window = window;
         Ticker = new Ticker(run.Dispatcher);
         Design = DesignArgs.From([.. args], RenderCommands.ThemeOf(Environment.GetCommandLineArgs()) ?? AppTheme.System);
     }
 
     public RenderRun Run { get; }
 
-    public OffscreenWindow Window { get; }
+    /// <summary>The render's window, once made (<see cref="MakeWindow"/>).</summary>
+    public OffscreenWindow Window => _window ?? throw new InvalidOperationException("the render has no window yet");
 
     public Ticker Ticker { get; }
 
@@ -38,16 +41,31 @@ internal sealed class RenderHarness : IDisposable
     public DesignState Design { get; }
 
     /// <summary>
-    /// Open the render's window (titled <paramref name="title"/>, holding <paramref name="content"/>, sized for
-    /// <paramref name="width"/> × <paramref name="height"/> DIPs) and put its design in force. The themed brushes follow
-    /// the design's theme, not the application's: both are set. The design's <c>--design</c> is read from
-    /// <paramref name="args"/> (a batch job's), else the run's.
+    /// The harness of a render: its design read from <paramref name="args"/> (a batch job's), else the run's, not yet in
+    /// force; its ticker. No window yet.
     /// </summary>
-    public static RenderHarness Open(RenderRun run, string title, UIElement? content, double width, double height, IReadOnlyList<string>? args = null)
+    public static RenderHarness Open(RenderRun run, IReadOnlyList<string>? args = null) => new(run, args ?? run.Args);
+
+    /// <summary>
+    /// The render's design in force: the themed brushes follow the design's theme, not the application's (the app's is
+    /// chosen before the resources load): both are set.
+    /// </summary>
+    public void PutDesignInForce() => DesignApplier.Apply(Design);
+
+    /// <summary>
+    /// The application's theme alone in force, for the renders of the shell's pages (the edit bar, its flyouts, the menus):
+    /// they draw Windows' look, never a design's.
+    /// </summary>
+    public void PutAppThemeInForce() => DesignApplier.Apply(new DesignState
     {
-        var harness = new RenderHarness(run, OffscreenWindow.Open(title, content, width, height), args ?? run.Args);
-        DesignApplier.Apply(harness.Design);
-        return harness;
+        Theme = Run.App.RequestedTheme == ApplicationTheme.Light ? AppTheme.Light : AppTheme.Dark,
+    });
+
+    /// <summary>The render's window, titled <paramref name="title"/> and holding <paramref name="content"/>, not shown yet.</summary>
+    public OffscreenWindow MakeWindow(string title, UIElement? content)
+    {
+        _window = OffscreenWindow.Create(title, content);
+        return _window;
     }
 
     /// <summary>
@@ -116,7 +134,7 @@ internal sealed class RenderHarness : IDisposable
         }
 
         Ticker.Dispose();
-        Window.Dispose();
+        _window?.Dispose();
     }
 }
 #endif

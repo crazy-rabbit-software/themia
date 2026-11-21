@@ -56,8 +56,9 @@ internal static class AddPicturesCheck
             var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered());
             var flyout = new AddPageFlyout(page, new AddPageCommands(_ => { }, () => { }, _ => false)) { Width = PageWidth, Height = PageHeight };
             var screen = new Grid { Width = PageWidth, Height = PageHeight, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Children = { flyout } };
-            using var window = OffscreenWindow.Open("Themia add pictures check", new Grid { Children = { screen } }, PageWidth, PageHeight);
+            using var window = OffscreenWindow.Create("Themia add pictures check", new Grid { Children = { screen } });
             UiLanguage.Apply(screen);
+            window.Show(PageWidth, PageHeight);
 
             var wanted = page.Sections(AddFolderId.Start).SelectMany(s => s.Tiles).Where(t => t is not AddItemTile).Select(t => t.Key).Distinct(StringComparer.Ordinal).Count();
             var clock = System.Diagnostics.Stopwatch.StartNew();

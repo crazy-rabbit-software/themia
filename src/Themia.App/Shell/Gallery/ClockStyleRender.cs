@@ -41,8 +41,8 @@ internal static class ClockStyleRender
         {
             Directory.CreateDirectory(outDir);
             var screen = new Grid { Width = 900, Height = 600, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-            using var harness = RenderHarness.Open(run, "Themia clock style check", new Grid { Children = { screen } }, screen.Width, screen.Height);
-            harness.Window.Window.AppWindow.Resize(new SizeInt32(1000, 700));
+            using var harness = RenderHarness.Open(run);
+            harness.MakeWindow("Themia clock style check", new Grid { Children = { screen } }).Show(new SizeInt32(1000, 700));
             var host = new NoticeRender.RenderCardHost(harness.Ticker);
             var card = harness.Track(new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), new FracRect(0, 0, 0.3, 0.3)))
             {

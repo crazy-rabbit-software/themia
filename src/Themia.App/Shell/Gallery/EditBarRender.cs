@@ -68,7 +68,8 @@ internal static partial class EditBarRender
         });
 
         System.IO.Directory.CreateDirectory(outDir);
-        using var harness = RenderRaster.Open(run, "Themia edit bar render", ScreenWidth, OpenHeight);
+        using var harness = RenderHarness.Open(run);
+        harness.PutAppThemeInForce();
         var screen = new Grid
         {
             Width = ScreenWidth,
@@ -80,8 +81,9 @@ internal static partial class EditBarRender
             Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
         };
 
-        harness.Window.Window.Content = new Grid { Children = { screen } };
+        var window = RenderRaster.MakeWindow(harness, "Themia edit bar render", new Grid { Children = { screen } });
         UiLanguage.ApplyLanguageOnly(screen);
+        RenderRaster.Show(window, ScreenWidth, OpenHeight);
 
         if (only is null or "bar")
         {

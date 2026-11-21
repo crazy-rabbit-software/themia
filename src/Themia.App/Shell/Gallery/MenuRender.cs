@@ -51,14 +51,16 @@ internal static class MenuRender
         var outDir = run.PathArg(0);
         System.IO.Directory.CreateDirectory(outDir);
 
-        using var harness = RenderHarness.Open(run, "Themia menu render", null, 860, 820);
+        using var harness = RenderHarness.Open(run);
+        harness.PutAppThemeInForce();
         var root = new Grid
         {
             Background = DesignApplier.Brush("SolidBackgroundFillColorBaseBrush", Colors.Black),
         };
 
-        harness.Window.Window.Content = root;
+        var window = harness.MakeWindow("Themia menu render", root);
         UiLanguage.Apply(root);
+        window.Show(860, 820);
         await Task.Delay(400).ConfigureAwait(true);
 
         // A view with a second widget, so the layering commands have something to act on.

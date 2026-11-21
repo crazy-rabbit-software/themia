@@ -83,7 +83,8 @@ internal static class MotionRender
         screen.Children.Add(stars);
         screen.Children.Add(layer);
 
-        using var harness = RenderHarness.Open(run, "Themia motion render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        using var harness = RenderHarness.Open(run);
+        harness.MakeWindow("Themia motion render", new Grid { Children = { screen } }).Show(ScreenWidth, ScreenHeight);
         var host = new NoticeRender.RenderCardHost(harness.Ticker);
         var cards = new List<WidgetCard>();
         foreach (var (kind, rect) in Scene)

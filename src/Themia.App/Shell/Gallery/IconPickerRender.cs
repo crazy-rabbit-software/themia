@@ -36,8 +36,9 @@ internal static class IconPickerRender
         var search = run.Option("--search");
         var initials = run.Has("--initials");
 
-        // Its design in force before the stand-in reads its brushes.
-        using var harness = RenderRaster.Open(run, "Themia icon picker render", 660, 560);
+        // Its theme in force before the stand-in reads its brushes.
+        using var harness = RenderHarness.Open(run);
+        harness.PutAppThemeInForce();
 
         // The default chosen: its cross ringed.
         var picker = initials
@@ -67,8 +68,9 @@ internal static class IconPickerRender
             Children = { presenter },
         };
 
-        harness.Window.Window.Content = root;
+        var window = RenderRaster.MakeWindow(harness, "Themia icon picker render", root);
         UiLanguage.Apply(root);
+        RenderRaster.Show(window, 660, 560);
 
         // A render, not app code: the box takes text once it is loaded, and the grid realises its rows on the next layout passes.
         await Task.Delay(500).ConfigureAwait(true);

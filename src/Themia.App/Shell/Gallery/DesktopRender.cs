@@ -75,7 +75,8 @@ internal static class DesktopRender
 
         System.IO.Directory.CreateDirectory(outDir);
         var screen = new Grid { Width = ScreenWidth, Height = ScreenHeight, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-        using var harness = RenderHarness.Open(run, "Themia desktop render", new Grid { Children = { screen } }, ScreenWidth, ScreenHeight);
+        using var harness = RenderHarness.Open(run);
+        harness.MakeWindow("Themia desktop render", new Grid { Children = { screen } }).Show(ScreenWidth, ScreenHeight);
         var scale = harness.Window.Scale;
         var host = new NoticeRender.RenderCardHost(harness.Ticker);
         var kind = ModuleCatalog.Widgets.First(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));

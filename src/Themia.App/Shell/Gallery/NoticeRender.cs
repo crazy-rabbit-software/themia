@@ -44,7 +44,8 @@ internal static class NoticeRender
         var outDir = run.PathArg(0);
         System.IO.Directory.CreateDirectory(outDir);
 
-        using var harness = RenderHarness.Open(run, "Themia notice render", null, ScreenWidth, ScreenHeight);
+        using var harness = RenderHarness.Open(run);
+        harness.PutAppThemeInForce();
         var screen = new Grid
         {
             Width = ScreenWidth,
@@ -54,8 +55,9 @@ internal static class NoticeRender
             Background = DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
         };
 
-        harness.Window.Window.Content = new Grid { Children = { screen } };
+        var window = harness.MakeWindow("Themia notice render", new Grid { Children = { screen } });
         UiLanguage.ApplyLanguageOnly(screen);
+        window.Show(ScreenWidth, ScreenHeight);
 
         DrawNotices(screen);
         await Task.Delay(800).ConfigureAwait(true);
