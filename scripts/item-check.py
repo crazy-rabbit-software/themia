@@ -27,7 +27,8 @@ the panel that lays them, and the ink outside every item. For every group of ite
   boxes are desktop icons ("Desktop icons keep Windows' look"): whole boxes from the body's top-left, the cells past its
   icons (the sliver a box does not fill, the boxes no icon stands in) the desktop's empty grid.
 - WR-4 / WR-5 only the last item is cut: along the axis they repeat, the last item may be cut by the card's foot (its
-  right edge for a row of items) or by its list's viewport; any other item cut is a finding. The band under the last
+  right edge for a row of items) or by its list's viewport, the first by a list scrolled to bring a later item into
+  sight; any other item cut is a finding. The band under the last
   item is the card's: empty room (a list shorter than its card) or the cut item, never judged as leftover.
 - no mark outside the items (a status glyph, a busy ring) stands over an item's text (a stale facts list's warning
   over its first value); [S-14317] the text is its letters' box where the dump writes it (`ink`), not the side bearings
@@ -113,11 +114,15 @@ def optimal(items, found):
             break
 
 
-def cut(items, found):
-    """WR-4 (2026-11-20: "the last item will be cutoff to some extent then"): the last item along the axis may be cut
-    (by the card or its list's viewport); any other is a finding."""
-    for i in items[:-1]:
-        if i.get('cut'):
+def cut(items, found, axis='column'):
+    """WR-4 (2026-11-20: "the last item will be cutoff to some extent then"): along the axis the items repeat, the last
+    item may be cut (by the card or its list's viewport), and the first by a list scrolled to bring a later item into
+    sight ("the cut item is part of the scroll view"); any other is a finding. A cut across that axis (a row of cells on
+    a grid's last line cut by the card's foot) is the other axis' last item's, judged there."""
+    def along(i):
+        return (i.get('fh', i['h']) - i['h'] if axis == 'column' else i.get('fw', i['w']) - i['w']) > TOL
+    for i in items[1:-1]:
+        if i.get('cut') and along(i):
             found.append(f"an item other than the last is cut ({i['t']} at {i['x']:.0f},{i['y']:.0f})")
             break
 
@@ -135,7 +140,7 @@ def judge_row(items, card, found, line=None, sliver=0.0):
     sizes = [full_w(i) for i in items]
     if max(sizes) - min(sizes) > PX:
         found.append(f"WR-6 items unlike: {min(sizes):.1f}..{max(sizes):.1f} wide{line or ''}")
-    cut(items, found)
+    cut(items, found, 'row')
 
 
 def judge_grid(items, card, ink, found, sliver=(0.0, 0.0)):
@@ -263,13 +268,14 @@ def self_test():
         ('a short list: two rows, the room under them empty', card([row(0), row(30)]), True),
         ('rows stretched to 36.7 to fill 110', card([row(0, h=36.67), row(36.67, h=36.67), row(73.33, h=36.67)]), False),
         ('rows squeezed under their 30', card([row(0, h=27.5), row(27.5, h=27.5), row(55, h=27.5), row(82.5, h=27.5)]), False),
-        ('a row other than the last cut', card([row(0, h=20, fh=30, cut=True), row(20)]), False),
+        ('a list scrolled: the first row cut at its top, the last whole', card([row(0, h=20, fh=30, cut=True), row(20), row(50), row(80)]), True),
+        ('a row in the middle cut', card([row(0), row(30, h=20, fh=30, cut=True), row(50)]), False),
         ('a space over the first row', card([row(10), row(40)]), False),
         ('a gap between rows', card([row(0), row(34)]), False),
         ('columns of 60 from the left edge, the last cut by the right edge',
          dict(card([col(x) for x in (0.0, 60.0, 120.0, 180.0, 240.0)] + [col(300.0, w=10.0, fw=60.0, cut=True)]), w=310.0), True),
         ('columns of 60 from the left edge, fewer than the width', card([col(x) for x in (0.0, 60.0, 120.0)]), True),
-        ('a column other than the last cut', card([col(0.0, w=30.0, fw=60.0, cut=True), col(30.0)]), False),
+        ('a column in the middle cut', card([col(0.0), col(60.0, w=30.0, fw=60.0, cut=True), col(90.0)]), False),
     ]
     failed = 0
     for name, c, ok in cases:

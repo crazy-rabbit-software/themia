@@ -308,9 +308,17 @@ def texts_in_inset(path, layouts, kind):
             # month's weekday letters, on their column's padding in line with its numbers).
             held = [i for i in (card.get('items', []) or []) + (card.get('heads', []) or []) + bands(card.get('items', []) or [])
                     if inside(t, i)]
-            free = {'left': not any(i['x'] <= EDGE for i in held), 'top': not any(i['y'] <= EDGE for i in held),
+            # [S-14810] A text in an item whose list runs on past it to the card's foot (the last item cut there, WR-4), or whose
+            # item ends less than the inset over the foot (the room under a short list's last item, WR-5), has the item's own
+            # padding or the next item under it, not the inset: the foot is the items' (the item check's).
+            items = card.get('items', []) or []
+            runs_on = held and (any(i.get('cut') and i['y'] + i['h'] >= card['h'] - EDGE for i in items)
+                                or any(i['y'] + i['h'] >= card['h'] - INSET for i in held))
+            # A list scrolled to bring a later item into sight has its first item cut at the card's top: the top is the items'.
+            scrolled = held and any(i.get('cut') and i['y'] <= EDGE for i in items)
+            free = {'left': not any(i['x'] <= EDGE for i in held), 'top': not scrolled and not any(i['y'] <= EDGE for i in held),
                     'right': not any(i['x'] + i['w'] >= card['w'] - EDGE for i in held),
-                    'foot': not any(i['y'] + i['h'] >= card['h'] - EDGE for i in held)}
+                    'foot': not runs_on and not any(i['y'] + i['h'] >= card['h'] - EDGE for i in held)}
             x0, y0 = int(round((card['x'] + t['x']) * scale)), int(round((card['y'] + t['y']) * scale))
             x1, y1 = int(round((card['x'] + t['x'] + t['w']) * scale)), int(round((card['y'] + t['y'] + t['h']) * scale))
             x0, y0, x1, y1 = max(x0, cl), max(y0, ct), min(x1, cr), min(y1, cb)

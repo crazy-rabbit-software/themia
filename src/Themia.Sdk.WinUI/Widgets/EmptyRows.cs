@@ -94,6 +94,24 @@ public sealed partial class EmptyRows : StackPanel
     /// <summary>[S-14810] The rows' one size: the list's pitch; unset, a one-line row's optimal on the card's grid.</summary>
     private double PitchShown => double.IsFinite(_pitch) && _pitch > 0 ? _pitch : LineRules.EdgeRow(ItemGrids.Of(this));
 
+    /// <summary>[S-14810] The lines of the list's rows whose one size is the pitch (a two-line list's 40: two), so each "--" row is the list's row.</summary>
+    private int LinesShown
+    {
+        get
+        {
+            var grid = ItemGrids.Of(this);
+            for (var lines = 1; lines <= 3; lines++)
+            {
+                if (Math.Abs(ItemSize.Optimal(FamilyShape.RowHeight(lines), grid) - PitchShown) <= LayoutMath.Tolerance)
+                {
+                    return lines;
+                }
+            }
+
+            return 1;
+        }
+    }
+
     private void Fill()
     {
         // [S-14810] As many as the room reaches at the pitch, the last cut by the slot's end.
@@ -104,9 +122,13 @@ public sealed partial class EmptyRows : StackPanel
             // The same rows at another pitch: each takes its size.
             for (var i = 0; i < count; i++)
             {
-                if (Children[i] is FrameworkElement row && !row.Height.Equals(reach.Height(i)))
+                if (Children[i] is Themia.Sdk.WinUI.Kit.RowBlock row)
                 {
-                    row.Height = reach.Height(i);
+                    row.Lines = LinesShown;
+                    if (!row.Height.Equals(reach.Height(i)))
+                    {
+                        row.Height = reach.Height(i);
+                    }
                 }
             }
 
@@ -117,7 +139,7 @@ public sealed partial class EmptyRows : StackPanel
         Children.Clear();
         for (var i = 0; i < count; i++)
         {
-            var row = new Themia.Sdk.WinUI.Kit.RowBlock(RowKind.List, lead: 0) { Height = reach.Height(i), Available = false };
+            var row = new Themia.Sdk.WinUI.Kit.RowBlock(RowKind.List, lead: 0) { Lines = LinesShown, Height = reach.Height(i), Available = false };
             row.Show(Placeholder, Placeholder);
             Children.Add(row);
         }

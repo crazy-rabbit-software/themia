@@ -5042,11 +5042,13 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   `WeekPlannerTests.S14410_S14502_S14810_`, `CalendarSizingTests`, `ContactsPitchTests.S12450_S14810_`.
 - **[S-14813]** **The item check judges the fixed size** (docs/WIDGET-RULES.md WR-1..WR-6 as of 2026-11-20).
   `scripts/item-check.py` holds the items of a group alike and at their fixed size (a family row's `o` in the dump, to
-  a device pixel: never stretched, never shrunk; a cut item by its whole box, the dump's `fh`/`fw`), touching, edge to
-  edge across, the first from the top; only the last item along the axis it repeats may be cut, and only by the card's
-  foot (its right edge for columns) or its list's viewport; the band under the last item is the card's, empty room or a
-  cut item, never judged as leftover (the stretch's "nothing left over" rule is gone). `scripts/gap-check.py` leaves the
-  foot band of a card with items to it, as before. Tests: the checks' own cases (`python scripts/item-check.py --self-test`).
+  a device pixel: never stretched, never shrunk; a cut item by its whole box, the dump's `fw`/`fh`), touching, edge to
+  edge across, the first from the top; along the axis they repeat only the last item may be cut, by the card's foot
+  (its right edge for columns) or its list's viewport, and the first by a list scrolled to bring a later item into
+  sight; the band under the last item is the card's, empty room or a cut item, never judged as leftover (the stretch's
+  "nothing left over" rule is gone). `scripts/gap-check.py` leaves the foot band of a card with items to it, as before,
+  and a text in an item over a cut last item has that item under it, not the inset. Tests: the checks' own cases
+  (`python scripts/item-check.py --self-test`, `python scripts/gap-check.py --self-test`).
 - **[S-2449]** *(Retired 2026-11-20. Owner: "the size should not be settable, it is set by the size of the widget.
   do this for the other widgets too". The readout size setting is gone with everything that existed for it:
   `ReadoutSize`, `IReadoutSized`, `ReadoutSizes`, the shared setting `readoutSize`, `KitMenuLines.ReadoutSize`, the
