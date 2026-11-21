@@ -7,7 +7,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1307] The symbol search's Debug renders, without a network: <see cref="UseFixture"/> answers the stock
-/// widgets' symbol searches from a fixed list (<c>--editbar-png</c> types into them), as
+/// widgets' symbol searches from a fixed list (<c>--render editbar</c> types into them), as
 /// <see cref="PlaceRender"/> answers the place searches. <see cref="Unanswered"/> never answers (the search's
 /// "Searching…"); <see cref="Unreached"/> reaches no service (the search says why).
 /// </summary>

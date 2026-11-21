@@ -19,7 +19,7 @@ namespace Themia.App.Shell.Gallery;
 /// [--theme light|dark] [--kinds a,b]</c> draws every kind (or those named) at its min, natural and max
 /// ([S-2448], each box fitted into its sizing), in its
 /// default state, each of its preview states (not the interaction ones: a hover, a press, a lasso)
-/// and each of its styles (at its first data state), off-screen as <c>--widget-png</c> does, walks
+/// and each of its styles (at its first data state), off-screen as <c>--render widget</c> does, walks
 /// what each card's header, view and Set up row draw (<see cref="FamilyWalk"/>) and judges every
 /// element by <see cref="FamilyCheck"/>. Writes the findings per kind (each with its count and the
 /// first variant it was seen in) and prints one line per kind; <c>scripts/family-check.ps1</c> runs

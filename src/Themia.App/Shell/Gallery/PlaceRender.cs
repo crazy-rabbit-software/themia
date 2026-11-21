@@ -8,8 +8,8 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2847] The place search's Debug renders, without a network: <see cref="UseFixture"/> answers the
-/// selection page's location searches from a fixed list of fixture places (<c>--editbar-png</c>
-/// types into them); [S-2848] <c>--place-cleared</c> on <c>--widget-png</c> clears the widget's place
+/// selection page's location searches from a fixed list of fixture places (<c>--render editbar</c>
+/// types into them); [S-2848] <c>--place-cleared</c> on <c>--render widget</c> clears the widget's place
 /// (a Sun or Moon starts at Zurich).
 /// </summary>
 internal static class PlaceRender

@@ -94,7 +94,7 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
   in force, never its own (`DesktopItemView.Layout.cs`: `Relook`, through the SDK's `DesktopCellLayout`); a change of
   layout is drawn at once, a rename box open moving with the name. In icons only the name is on the view's overhang
   (`IWidgetOverhang`), shown while pointed at, keyboard-focused or renamed, and the tip always names the item. Renders
-  `--desktop-png --icon-layout below|beside|icononly [--icon-size …]`.
+  `--render desktop --icon-layout below|beside|icononly [--icon-size …]`.
 
 ## The look
 
@@ -107,7 +107,7 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
   was as tall as the icon and the name's lines, `DesktopCell.HighlightHeight`, which now only counts the cell's
   height); its corners are `SelectionLook.DesktopIcon`'s radius, the card never clipping them ([S-11880]). The rule
   is `DesktopCell.Highlight` (the card's DIPs in, the box out), placed by the view on every size change. Test
-  `DesktopItemTests.S5612_` (every icon size, 100 % to 200 %); renders `--desktop-png`, `--drag-png`. Its numbers are `SelectionLook.DesktopIcon`, a
+  `DesktopItemTests.S5612_` (every icon size, 100 % to 200 %); renders `--render desktop`, `--render drag`. Its numbers are `SelectionLook.DesktopIcon`, a
   `SelectionPalette` of its own (hover, selected, selected under the pointer, the inactive selection,
   the focus stroke, the radius and the border), the one place the desktop icon's highlight is tuned
   against Explorer's, and **measured there** (2026-11-14, inside against just outside the item's edge): a
@@ -268,7 +268,7 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
   `waiting`, `ownSelected`, `ownInactive`, `ownFocus`, `ownEditing`, `ownDropTarget`. The family's
   render walk skips the interaction ones ([S-6731]). This PC and the Recycle Bin are the shell's own;
   the files are names on no disk, drawn with their type's icon (and the arrow), the same on every PC;
-  none reads the user's desktop, and a fixture is applied, never saved. `--desktop-png <outDir>` draws
+  none reads the user's desktop, and a fixture is applied, never saved. `--render desktop <outDir>` draws
   icons of both sources together on stand-in wallpapers (hover, selected, inactive, focus, a drop
   target, cut, hidden, a two-line name, a long name, the rename box) with the band ([S-5544]); with
   `--icon-size small|medium|large` at that icon size ([S-5593], the files `desktop-<size>-…`), and under

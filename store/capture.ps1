@@ -1,5 +1,5 @@
 # [S-1078] The Microsoft Store screenshots: every scene of store/scenes.json drawn by the Debug app's
-# --scene-png ([S-1074]), one process per scene, a few at a time, to store/out/shots/<lang>/<scene>.png.
+# --render scene ([S-1074]), one process per scene, a few at a time, to store/out/shots/<lang>/<scene>.png.
 #
 #   powershell -ExecutionPolicy Bypass -File store/capture.ps1 [-Lang en] [-Only a,b] [-NoBuild] [-Jobs 4]
 #
@@ -62,7 +62,7 @@ while ($queue.Count -gt 0 -or $running.Count -gt 0) {
         $log = Join-Path $out "$name.log"
         if (Test-Path $png) { Remove-Item $png }
         $p = Start-Process -FilePath $exe -PassThru -WindowStyle Hidden -RedirectStandardOutput $log `
-            -ArgumentList @('--scene-png', "`"$scenes`"", $name, "`"$png`"", '--lang', $Lang, '--scale', $scale)
+            -ArgumentList @('--render', 'scene', "`"$scenes`"", $name, "`"$png`"", '--lang', $Lang, '--scale', $scale)
         $null = $p.Handle # keeps the exit code readable once it has exited
         $running += [pscustomobject]@{ Process = $p; Name = $name; Png = $png; Log = $log; Started = Get-Date }
     }

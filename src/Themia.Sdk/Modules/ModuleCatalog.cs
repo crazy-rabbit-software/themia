@@ -116,7 +116,7 @@ public static class ModuleCatalog
     }
 
     /// <summary>
-    /// A widget named on a command line (a debug render's <c>--widget-png Clock</c>): its id in any
+    /// A widget named on a command line (a debug render's <c>--render widget Clock</c>): its id in any
     /// case, so the names the flags always took keep working. Only an installed id is found.
     /// </summary>
     public static bool TryFind(string? name, out WidgetDescriptor widget)

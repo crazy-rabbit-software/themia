@@ -3,7 +3,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug renders only: a view that can show a state a render cannot click or hover its way into
-/// (an armed button, a hovered row). Optional; <c>--widget-png --state</c> uses it.
+/// (an armed button, a hovered row). Optional; <c>--render widget --state</c> uses it.
 /// </summary>
 public interface IWidgetPreviewState
 {

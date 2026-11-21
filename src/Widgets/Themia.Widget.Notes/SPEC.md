@@ -101,7 +101,7 @@ store's are Core's `NoteStoreTests` and `LocalStoreFixtureTests`.
 - **[S-14268]** A picture of the note (its sample on the add page, a render: unbound, no pool) stands as the desktop
   does: the text alone from the top at rest; under the pointer (`--hover 0.9,0.05`) the pill with its picker naming the
   sample's note ("Groceries") and its "…", opening nothing (WR-1: "there should not be a space at the top"). Renders
-  `--widget-png notes --state sample|confirm --sizes range`.
+  `--render widget notes --state sample|confirm --sizes range`.
 - **[S-1364]** The pill's picker (the shown note's name and its chevron, [S-14771]; [S-12481]: no card header, so no
   title row) opens the note picker (every note, the shown one checked, then New note), at every size ([S-11206]);
   Rename… and Delete note… are the pill's "…".

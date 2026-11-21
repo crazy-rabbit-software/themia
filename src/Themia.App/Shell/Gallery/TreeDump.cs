@@ -13,7 +13,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-6732] Debug only: every drawn element of each card (its type, position and size in the card,
 /// margin, padding, radius, text step, glyph and colours), as JSON beside a render
-/// (<c>--widget-png … --tree</c>). What a group phase compares with its
+/// (<c>--render widget … --tree</c>). What a group phase compares with its
 /// mockups' boxes (TestResults/family/match.py): a render matches when every text and glyph stands
 /// within a DIP of the mockup's in the same colour role.
 /// </summary>

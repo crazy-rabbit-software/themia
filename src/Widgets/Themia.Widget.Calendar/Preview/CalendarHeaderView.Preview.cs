@@ -5,7 +5,7 @@ namespace Themia.Widget.Calendar;
 /// <summary>
 /// Debug renders only ([S-1917]): <c>sample</c> the sample day's period (<see cref="ShowSampleAsync"/>); <c>next</c> the
 /// sample, then forward one period by the header's own arrow ([S-3626]): in a picture with calendars (a ready-made group,
-/// <c>--recipe-png calendar --states calendarHeader=next</c>) every calendar of it shows the period after the sample
+/// <c>--render recipe calendar --states calendarHeader=next</c>) every calendar of it shows the period after the sample
 /// day's.
 /// </summary>
 internal sealed partial class CalendarHeaderView : IWidgetPreviewState

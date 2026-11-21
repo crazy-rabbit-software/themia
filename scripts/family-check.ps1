@@ -1,10 +1,10 @@
 # [S-6731] The family's render walk: every widget kind at its sizes, in light and dark, in its
 # default, preview states and styles, judged element by element against the family's tokens
-# (Themia.exe --family-check, rules in Core: FamilyCheck). Needs a Debug build of the app.
+# (Themia.exe --check family, rules in Core: FamilyCheck). Needs a Debug build of the app.
 #
 #   powershell -ExecutionPolicy Bypass -File scripts/family-check.ps1 [-Exe <Themia.exe>] [-Kinds a,b] [-Out <dir>] [-Jobs 2]
 #
-# [S-14342] The kinds are the build's own (Themia.exe --catalog-json: a family's every kind); a kind it does not have
+# [S-14342] The kinds are the build's own (Themia.exe --render catalog: a family's every kind); a kind it does not have
 # fails the walk. A few kinds walk in one process (-Chunk, default 12), at most -Jobs processes at once (default 2: the
 # PC hard-hung under ~16 renders at once).
 #
@@ -41,9 +41,9 @@ Write-Host "family-check: $Exe"
 # Every kind the build has, from its own catalog (never a folder name: a family project declares several).
 $catalog = Join-Path $Out '_catalog\catalog.json'
 New-Item -ItemType Directory -Force (Split-Path $catalog) | Out-Null
-$p = Start-Process -FilePath $Exe -ArgumentList @('--catalog-json', "`"$catalog`"") -PassThru -WindowStyle Hidden
-if (-not $p.WaitForExit(300000)) { $p.Kill(); throw 'family-check: --catalog-json timed out' }
-if (-not (Test-Path $catalog)) { throw "family-check: $Exe wrote no catalog (a build from before --catalog-json?)" }
+$p = Start-Process -FilePath $Exe -ArgumentList @('--render', 'catalog', "`"$catalog`"") -PassThru -WindowStyle Hidden
+if (-not $p.WaitForExit(300000)) { $p.Kill(); throw 'family-check: --render catalog timed out' }
+if (-not (Test-Path $catalog)) { throw "family-check: $Exe wrote no catalog (a build from before --render catalog?)" }
 $known = @((Get-Content $catalog -Raw -Encoding UTF8 | ConvertFrom-Json).kinds | ForEach-Object { $_.id })
 if ($Kinds) {
     $all = @($Kinds.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })
@@ -69,7 +69,7 @@ while ($queue.Count -gt 0 -or $running.Count -gt 0) {
         $job = $queue.Dequeue()
         $json = Join-Path $Out ("{0}-{1:000}.json" -f $job[1], $job[2])
         if (Test-Path $json) { Remove-Item $json }
-        $p = Start-Process -FilePath $Exe -ArgumentList @('--family-check', "`"$json`"", '--theme', $job[1], '--kinds', $job[0]) -PassThru -WindowStyle Hidden
+        $p = Start-Process -FilePath $Exe -ArgumentList @('--check', 'family', "`"$json`"", '--theme', $job[1], '--kinds', $job[0]) -PassThru -WindowStyle Hidden
         $running += [pscustomobject]@{ Process = $p; Kind = $job[0]; Theme = $job[1]; Json = $json; Started = Get-Date }
     }
 

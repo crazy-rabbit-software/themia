@@ -78,7 +78,7 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   naming it (the photo of the day's credit tooltip, [S-3112], is the one exception); the freed height is the picture's. No card header names it ([S-12480]; a Header
   widget of the person's own does, [S-9600]). The picture's name stays only as its screen-reader name. (`GalleryPlan`; tests
   `S2760_`.) Debug renders show real pictures with
-  `--widget-png Gallery … --state slideshow|grid|scatter|mosaic|file` (Windows' own wallpapers).
+  `--render widget Gallery … --state slideshow|grid|scatter|mosaic|file` (Windows' own wallpapers).
 - **[S-776]** The one main picture (slideshow, file, photo of the day) has **no backing fill**, so a
   PNG's transparent pixels and a letterbox show the card, or the desktop on a transparent surface
   ([S-32]): a cut-out picture on a transparent Gallery is a sticker on the wallpaper. Tiles (grid,
@@ -88,7 +88,7 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   without one), the distance pass on the thread pool, drawn as a bitmap under the picture. It is
   asked again only when the picture, colour, width, angle, scale or the frame's size (in 32-DIP
   steps) changes; a newer ask cancels the one in flight, and until it lands the picture is fitted by
-  its own shape. Debug: `--widget-png Gallery … --state sticker` (the app's logo, −15°, white).
+  its own shape. Debug: `--render widget Gallery … --state sticker` (the app's logo, −15°, white).
 - **[S-778]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style what the layout draws ([S-6074]): **Slide time** (1 s to an hour,
   asked for as a number, [S-3726]) and **Picture size** (Fill / Fit). Then Appearance ([S-3723])

@@ -34,7 +34,7 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   bottom inset: the inks, the nibs and the eraser from its start, undo and full screen at its end, its spare room between
   them, its first and last glyphs on the side insets (`ScratchpadLayout.Overhang`, as a line's buttons, [S-6710]); before,
   the bar stood at its start at its own width and left the rest of a wide card's foot (152 at 768) and 18.7 at its end.
-  Full screen's toolbar holds the same bar packed. Renders `--widget-png scratchpad --state confirm --sizes range`.
+  Full screen's toolbar holds the same bar packed. Renders `--render widget scratchpad --state confirm --sizes range`.
 - **[S-1498]** The eraser (user requirement: an erasing stylus) is a tool of the ink bar, after the
   nibs, drawn with Windows' eraser glyph, on in the accent's fill with its glyph on it ([S-6706]);
   it is on screen while the bar shows (and on full screen's toolbar). A hidden eraser never leaves

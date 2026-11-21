@@ -49,7 +49,7 @@ public sealed record FamilyFact(
 /// and spacing component is on the space scale or one of its derived insets; every radius is 0, 4 or
 /// round; every stroke 0, 1, 2 or 4; every colour a role of the current theme (or the item layer's,
 /// or a data colour from its entry point, or clear); and no text or glyph is drawn in the accent.
-/// Pure: the Debug app walks the trees (<c>--family-check</c>), these rules judge what it saw, and a
+/// Pure: the Debug app walks the trees (<c>--check family</c>), these rules judge what it saw, and a
 /// finding is one short line, the same for the same offence, so a baseline can list it.
 /// </summary>
 public static class FamilyCheck

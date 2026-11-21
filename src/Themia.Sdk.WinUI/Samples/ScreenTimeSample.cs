@@ -7,7 +7,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// The sample day ([S-11850], [S-1917], [S-2056]): a fixed month of sample usage to the sample moment — ten apps, quieter weekends, the morning so far today, under a
-/// limit on the whole day and one on Edge (<c>over</c>: tight limits, the readouts over them) — so <c>--widget-png ScreenTimeDonut --state
+/// limit on the whole day and one on Edge (<c>over</c>: tight limits, the readouts over them) — so <c>--render widget ScreenTimeDonut --state
 /// sample</c> draws what a month of tracking would. <c>hovered</c> and <c>selected</c> light an app
 /// through the render's one board ([S-3300]), so every card on the page shows the link.
 /// <c>packaged</c> lists the packaged (Store) apps running on this machine by their real executables,

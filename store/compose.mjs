@@ -1,5 +1,5 @@
 // The Microsoft Store's pictures, made from Themia's real ones: every widget, desktop and menu on them is a scene
-// (store/scenes.json) drawn by the app itself (Themia.exe --scene-png, store/capture.ps1), set under its headline from
+// (store/scenes.json) drawn by the app itself (Themia.exe --render scene, store/capture.ps1), set under its headline from
 // store/listing/<lang>.json as panorama.mjs lays the pages out. A desktop's wallpaper is in its capture. Rendered by headless Chrome (or Edge) at the Store's sizes.
 //
 //   node store/compose.mjs              every language that has a listing

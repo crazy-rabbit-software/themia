@@ -147,7 +147,7 @@ internal static class SceneRender
     }
 
     /// <summary>
-    /// [S-2475] <c>--recipe-png</c>: the ready-made group as it lands, a scene of its own (ReadyMadeScene):
+    /// [S-2475] <c>--render recipe</c>: the ready-made group as it lands, a scene of its own (ReadyMadeScene):
     /// on a sample wallpaper, one panel, no edit chrome; <c>--edit</c> draws it in edit mode, the placed widgets
     /// selected under the bar with its page. <c>--states</c> gives a kind a preview state; a kind given none
     /// shows its "sample" state where it has one.
@@ -377,7 +377,7 @@ internal static class SceneRender
             canvas.Children.Add(markers.Inks);
         }
 
-        // [S-1500] A confirmation a state opens is drawn inside the window, as on --widget-png.
+        // [S-1500] A confirmation a state opens is drawn inside the window, as on --render widget.
         ConfirmFlyout.RenderInWindow = true;
         await Task.Delay(800).ConfigureAwait(true);
 
@@ -466,7 +466,7 @@ internal static class SceneRender
     }
 
     /// <summary>
-    /// [S-1076] Each widget's preview state, as <c>--widget-png --state</c> applies it: a widget
+    /// [S-1076] Each widget's preview state, as <c>--render widget --state</c> applies it: a widget
     /// waiting for setup runs for the preview first. A state the view does not have, or a view with
     /// none, fails the run rather than drawing something half-right.
     /// </summary>

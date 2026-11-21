@@ -11,7 +11,7 @@ The kinds: what a change touches (`--changed`, the default), `--kinds` or `--all
 catalog; the renders come from the one cached pass every check shares (scripts/renders.py, [S-14341] [S-14342]).
 [S-14814] Every state in the kind's default style, and every other style it has (the catalog's `styles`) in its first
 state: a style's items (a forecast's grid, a folder's tiles) are judged as the default's.
-Each render is drawn with `--widget-png <kind> <png> --sizes <s> --transparent [--state <s>] [--style <s>] --layout-json <json>`: the
+Each render is drawn with `--render widget <kind> <png> --sizes <s> --transparent [--state <s>] [--style <s>] --layout-json <json>`: the
 JSON holds every card's box, its grid pitch, its items (rows, cells, tiles: `ItemMark`) as they show in it, grouped by
 the panel that lays them, and the ink outside every item. For every group of items it judges:
 

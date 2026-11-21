@@ -5,7 +5,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-12830] [S-12831] Which elements are a widget's items: the boxes that tile its card (a row's band, a cell, a tile),
-/// so the layout dump (<c>--widget-png … --layout-json</c>) and the item check can see them. A family row marks itself,
+/// so the layout dump (<c>--render widget … --layout-json</c>) and the item check can see them. A family row marks itself,
 /// an item filled through the item layer as a row or a tile is one, and a part that is an item by its own rule (a
 /// month's day cell) marks itself here.
 /// </summary>
@@ -99,7 +99,7 @@ public static class HoldMark
 
 /// <summary>
 /// [S-12831] What an item does when the pointer is over it or presses it, for a render to show without a pointer
-/// (<c>--widget-png … --hover x,y</c>, <c>--pressed x,y</c>): the owner's rules on hover (WR-12: nothing changes size;
+/// (<c>--render widget … --hover x,y</c>, <c>--pressed x,y</c>): the owner's rules on hover (WR-12: nothing changes size;
 /// WR-13: the item under the pointer lights, edge to edge) are checked on those renders. An item that lights itself
 /// registers its look here beside its pointer handlers.
 /// </summary>

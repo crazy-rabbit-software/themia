@@ -340,7 +340,7 @@ build time (and rejects bad or duplicate ids), and at run time the host installs
 drag or a command line is validated against the modules compiled in. Ids are camelCase and equal
 to today's JSON discriminators (`clock`, `weatherNow`, `rss`), so state files keep their shape.
 
-- **One id per widget, everywhere:** the config's discriminator in `state.json`, `--widget-png
+- **One id per widget, everywhere:** the config's discriminator in `state.json`, `--render widget
   <id>`, the module's strings enum, its SPEC fragment, the showcase view.
 - **`WidgetKind` goes.** It has 1,095 references in 134 files today; most are per-kind switches and
   tables that become descriptor data (`WidgetCatalog.All` and `CreateView`, `CreateDefault`,
@@ -424,7 +424,7 @@ combined options.
 ### 4.8 Views, XAML and settings in a WinUI library
 
 - **Code-only views** (all widgets but Clock) live in the module's WinUI class library.
-  Spike-proven: drawn by `--widget-png hello` in Debug and from the AOT executable.
+  Spike-proven: drawn by `--render widget hello` in Debug and from the AOT executable.
 - **XAML in a module** works too: a `UserControl` compiled in a module library landed as
   `Themia.Widget.Bye\ByeBadge.xbf`, the existing `PublishCompiledXaml` glob copied it, and it drew in
   Debug and from the AOT executable. The MSIX package builds with a module library in it (M3:
@@ -483,10 +483,10 @@ id first, which is the large mechanical step of section 11, not a feasibility qu
 |---|---|---|
 | Debug build, warnings as errors | `dotnet build src/Themia.App/Themia.App.csproj -c Debug --artifacts-path …` | pass, 0 warnings |
 | Registry and JSON (JIT) | `Themia.exe --list-modules` | widgets `[hello]`, providers `[hello]`; `ClockConfig` and `HelloConfig` round-trip; unknown discriminator: `JsonException` |
-| Module widget render (JIT) | `Themia.exe --widget-png hello out.png` | drawn: the module's own string, its provider's host name |
-| Built-in render unaffected | `--widget-png Clock out.png 280 140` | drawn |
+| Module widget render (JIT) | `Themia.exe --render widget hello out.png` | drawn: the module's own string, its provider's host name |
+| Built-in render unaffected | `--render widget Clock out.png 280 140` | drawn |
 | Release AOT publish | `scripts/publish.ps1` (IlcTreatWarningsAsErrors) | pass, 0 warnings, 48.6 MB; 48.7 MB with the registry rooted from Release code |
-| Debug AOT publish, then run | `publish.ps1 -Configuration Debug`, the published `Themia.exe --list-modules` and `--widget-png hello` | pass, 0 warnings; registry, JSON round trip and render all work in the native binary |
+| Debug AOT publish, then run | `publish.ps1 -Configuration Debug`, the published `Themia.exe --list-modules` and `--render widget hello` | pass, 0 warnings; registry, JSON round trip and render all work in the native binary |
 | A second module by folder only | copy to `Themia.Widget.Bye`, rebuild | registry `[bye, hello]` with no edit outside the folder |
 | Build-time id checks | id `hello` twice; id `Bye_1` | `THEMIAMOD002`, `THEMIAMOD001` (beside a misleading `WMC9999` XAML-pass error the failed compile causes) |
 | XAML in a module | `ByeBadge.xaml` in the module | drawn in Debug and from the AOT executable |
@@ -1181,7 +1181,7 @@ properties panel's ([S-6536]).
 
 ### 6.7 Preview states and fixtures
 
-Kit views carry no preview code. `--widget-png <id> --state <name>` swaps the widget's source
+Kit views carry no preview code. `--render widget <id> --state <name>` swaps the widget's source
 for a `FixtureSource` (debug builds only, host code in `src/Themia.App/Shell/Gallery/Fixtures/`,
 compiled under `#if DEBUG` like the rest of `Gallery/`) that replays the provider's recorded
 answers through the real provider rules. Every kit widget gets the same state names for free: `items`, `many` (more than fit),
@@ -1222,7 +1222,7 @@ with the widget's sample data. Rules for a sample:
   shows its final state (a switch where it is, not animating) and waits for its own asynchronous
   pictures itself (the gallery's decodes).
 
-`Themia.exe --add-pictures-check <out.png>` ([S-11854]) runs in a Release build and says how many of the
+`Themia.exe --check add-pictures <out.png>` ([S-11854]) runs in a Release build and says how many of the
 Start tab's pictures it drew.
 
 ## 7. Building a service widget (the recipe)
@@ -1331,13 +1331,13 @@ Behaviour the checks cannot see stays in the render checklist and the manual pas
 For every kit widget, before calling it done (outputs outside `artifacts/`, e.g.
 `TestResults/render/<kind>/`):
 
-- `--widget-png <id> <out.png>` (its min, natural and max on one page) × `--theme light` and `dark` × `--lang en`,
+- `--render widget <id> <out.png>` (its min, natural and max on one page) × `--theme light` and `dark` × `--lang en`,
   `de` (longest words), `ar` (right to left, own digits), `ja` (no spaces to wrap at).
 - The same at `--state` `items`, `many`, `loading`, `empty`, `stale`, `signin`, `ratelimited`, `hovered`, `focused`.
 - Each style (`--style`) when the kind has styles; `--header left` and `--header hidden` once.
-- `--editbar-png` with the widget selected and its submenus open, in both themes and in `de`.
-- `--menu-png` showing the item menu (icon row present only with two or more row commands, [S-1741]).
-- The showcase views (`--add-showcase-views`) on the live desktop: a manual pass, said so.
+- `--render editbar` with the widget selected and its submenus open, in both themes and in `de`.
+- `--render menu` showing the item menu (icon row present only with two or more row commands, [S-1741]).
+- The showcase views (`--render showcase-views`) on the live desktop: a manual pass, said so.
 
 Look at every PNG against this rubric; a "no" is a defect:
 
@@ -1361,7 +1361,7 @@ Look at every PNG against this rubric; a "no" is a defect:
 
 Migrated widgets lose their old code in the same commit (one path). Each migration is a refactor
 with **zero visible change**: before and after renders of the checklist in section 10 are taken and
-compared pixel for pixel (a small `--widget-png` diff script under `scripts/`), and the widget's
+compared pixel for pixel (a small `--render widget` diff script under `scripts/`), and the widget's
 existing tests stay green without edits. Anything that would change what the user sees is split out
 as a behaviour commit with its SPEC edit and test first.
 
@@ -1595,8 +1595,8 @@ registration path: when a table becomes a descriptor member, the table is delete
   numbers only in today's list of 11 files, which may only shrink ([S-822]).
   Evidence: Debug build 0 warnings; Core 7766 and module tests 57 green; the M2 render set
   against a fresh "before" built at `873248d`: 228 images, 0 differ; Release AOT
-  publish 0 warnings (49.3 MB); Debug AOT publish 0 warnings and its `--widget-png clock`,
-  `--settings-png Widget:weatherNow`, `--picker-png --search google` finish in 2-3 s, identical to the
+  publish 0 warnings (49.3 MB); Debug AOT publish 0 warnings and its `--render widget clock`,
+  `--settings-png Widget:weatherNow`, `--render picker --search google` finish in 2-3 s, identical to the
   JIT renders.
   *M4 part B, group 1 as built (2026-10-18): the widgets with no host service.* Seventeen widget
   projects, one per commit, each its config, descriptor (on its module now), view, preview, settings
@@ -1819,7 +1819,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   animation caught mid-way, as in groups 1-3; it matched this time). Release AOT publish 0 warnings
   (49.9 MB); Debug AOT publish 0 warnings (82.8 MB, before 82.3 MB) and its renders of the CPU meter
   (sample, core graphs), the disk meter, the visualizer and the mixer's page finish in about 2 s,
-  identical to the JIT renders. Memory: the Debug AOT `--switch-check --busy` desktop (the system
+  identical to the JIT renders. Memory: the Debug AOT `--check switch --busy` desktop (the system
   widgets, galleries and visualizer on two stand-in displays) sampled at 30, 60 and 90 s, twice each:
   153/153/153 and 154/154/154 MB private before, 153/153/153 MB twice after. Manual passes owed: each
   module's own `SPEC.md` names it (the meters and details on a live desktop, a laptop's battery, two
@@ -1940,7 +1940,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   (`IVideoStreams` with `IStreamSink`), `InstalledApps`, `Favicons`, and `IWidgetDrag.ReadShellItems`;
   the records they carry went into the SDK with them. The Debug scenes name the four by id
   (`StateJson.Merged` fragments for the switch check's camera and the layout editor's demo layout), and
-  `--menu-png` draws the folder's menus through the module's preview (`IWidgetPreviewMenus`, new).
+  `--render menu` draws the folder's menus through the module's preview (`IWidgetPreviewMenus`, new).
   Recent behaviours are as they were (the renders below): the folder's lasso, Explorer's menu with its
   two-tone icons, light dismiss, the right column visible, edit mode inert, double-click and Enter
   opening. Strings were carried by the group 1 script, the same count in all 30 languages each time,
@@ -2825,7 +2825,7 @@ the Style picker holds the styles only) for what only the current look draws, `m
 rest, in groups the widget marks with `ItemMenuEntry.Separator` (the host parts the cards there).
 The host draws the Header section (title and positions) for every widget that can have a header and
 the card's Appearance section ([S-2342]): a widget never places them. Something the vocabulary lacks is an SDK change first, in its own commit, with tests
-in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-png`
+in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--render editbar`
 (`select-*-vocabulary*.png`, [S-2328]).
 
 ### 15.2 The rules
@@ -2859,7 +2859,7 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
   the `refuse` checks of every typed value.
 - **The module's `SPEC.md`** says its options are on the properties menu ([S-3719], with the date of
   the user's request) and lists them; retire the page's lines there.
-- **Render it**: `--editbar-png --only select` with the widget selected and its rows open (add a case to
+- **Render it**: `--render editbar --only select` with the widget selected and its rows open (add a case to
   `EditBarRender.SelectionShots`), and look at the PNGs.
 
 ## 16. One family: tokens, blocks and the guard
@@ -2909,7 +2909,7 @@ Layout around them is the family's too: content from the card's inset (12, joine
 not, [S-12483]); rows, the status and a band full width (they carry their own inset); everything
 else inside the 12 inset; Controls at the bottom inset. The meters (`MeterView`, `MeterPlan`) and the
 detail widgets (`DetailView`, `DetailFace`) are the reference for a widget of a Readout and a part under
-it, or a Readout and rows under it. A block is looked at in its widgets' renders (`--widget-png`,
+it, or a Readout and rows under it. A block is looked at in its widgets' renders (`--render widget`,
 `--tree` for the visual tree).
 
 ### 16.2a The kit on the blocks (G2, 2026-10-29)
@@ -3064,7 +3064,7 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
   (SPEC [S-14503]).
 - **No count is stored**: a resize stores the rect alone; how many of the same item stand is what the card holds
   as it is laid out (SPEC [S-14502]).
-- **Renders**: `--widget-png <Kind>` draws a kind at min, natural and max (`SizeFit.CheckedAt`;
+- **Renders**: `--render widget <Kind>` draws a kind at min, natural and max (`SizeFit.CheckedAt`;
   `--sizes range|WxH`); the showcase views and the family check walk the range.
 
 ### 17.3 Stating a kind's sizes, step by step
@@ -3101,8 +3101,8 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
    inside them (SPEC [S-14810]).
 5. **Test it at its range** (`SizeFit.CheckedAt`: its min, natural and max): what it shows is the same
    at each, and the box holds it.
-6. **Renders**: `--widget-png <Kind> <out.png> --theme dark|light` (its range, every style) before and
-   after; a store scene with the kind (`--scene-png store/scenes.json <scene> <out.png>`) shows it
+6. **Renders**: `--render widget <Kind> <out.png> --theme dark|light` (its range, every style) before and
+   after; a store scene with the kind (`--render scene store/scenes.json <scene> <out.png>`) shows it
    fitted: say what moved.
 7. **SPEC**: the kind's own `SPEC.md` says its sizing (ranges, what is one size, its settings) on the
    tag that describes its layout, and that nothing appears or disappears with its size.
@@ -3185,7 +3185,7 @@ The add menu lists them in its first column, "Ready-made", and its search finds 
 `ReadyMadeGroupsTests` (tests/Themia.Modules.Tests) then holds it to the rules: every kind installed,
 every config property one the kind has, two widgets or more, no boxes overlapping, every widget
 touching another, the whole within a 1280 × 720 work area. Look at it placed with
-`Themia.exe --recipe-png <id> <out.png> [--states kind=state,..]` (Debug): a widget given no state shows
+`Themia.exe --render recipe <id> <out.png> [--states kind=state,..]` (Debug): a widget given no state shows
 its "sample" preview where it has one.
 
 Adding one counts against the free limit as adding its widgets one by one would ([S-1065]): all or nothing.

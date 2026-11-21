@@ -3,7 +3,7 @@
 usage: python scripts/icon-clip-check.py <png or folder>... [--font <ttf>] [--all]
 
 [S-2377] (owner, 2026-11-19: "in the settings pages the icons show clipped"). Render with `--icon-census`
-(`Themia.exe --editbar-png <dir> --icon-census [--raster 100]`, `--iconpicker-png <png> --icon-census`, ...): beside
+(`Themia.exe --render editbar <dir> --icon-census [--raster 100]`, `--render iconpicker <png> --icon-census`, ...): beside
 each PNG the render writes `<png>.icons.json`, every icon it drew with its size as laid out, its own box, the box it is
 laid out in cut to every slot round it (`clip`), the window it is seen through (`view`: a scroller's viewport) and, for
 a glyph, its code point and size. For each icon wholly in view this script

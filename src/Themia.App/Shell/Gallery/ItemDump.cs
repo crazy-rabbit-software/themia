@@ -14,7 +14,7 @@ using Windows.Foundation;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-12831] Debug only: every card's item boxes beside a render (<c>--widget-png … --layout-json &lt;out.json&gt;</c>), for
+/// [S-12831] Debug only: every card's item boxes beside a render (<c>--render widget … --layout-json &lt;out.json&gt;</c>), for
 /// the item check (<c>scripts/item-check.py</c>, the owner's WR-2..WR-6): the card's box and its grid pitch, each item
 /// (<see cref="ItemMark"/>) as the box it shows in the card (cut by the scroll viewer or clip it stands in), grouped by
 /// the panel that lays it, [S-14813] a family row's optimal height on the card's grid (<c>o</c>: its natural in whole

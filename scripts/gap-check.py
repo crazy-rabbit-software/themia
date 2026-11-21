@@ -8,7 +8,7 @@ usage: python scripts/gap-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a
 For each kind (`--changed`, the default, `--kinds` or `--all`) it draws each state the build's catalog lists, and
 [S-14814] each other style it lists in its first state, once a build for every check (scripts/renders.py, [S-14341]
 [S-14342]),
-with `--widget-png <kind> <png> --state <s> --sizes range --transparent --layout-json <json>` and again at the desktop
+with `--render widget <kind> <png> --state <s> --sizes range --transparent --layout-json <json>` and again at the desktop
 sizes below, crops every card at the box the render laid it in (the layout's x, y, w, h: [S-14300]), finds its first and
 last row and column of ink (a pixel off the card's own colour), and judges:
 

@@ -40,7 +40,7 @@ desktop's own icons, laid by the host on the cells of its body; the view draws i
 - **[S-14264]** **An empty fence's sentence is its first row** (owner, 2026-11-19, WR-1: "there should not be a space at
   the top"; WR-5). "Drag desktop icons here" stands centred in the body's first row of boxes, edge to edge (one of its
   items, `ItemMark`), so the room of an empty fence stands under it as whole rows, as a list's empty sentence is its first
-  row; before, it stood in the middle of the whole body. Renders `--widget-png fence --state empty --sizes range`.
+  row; before, it stood in the middle of the whole body. Renders `--render widget fence --state empty --sizes range`.
 - **[S-10903]** **An item is a desktop icon**: on the desktop each item is the desktop's own icon card ([S-13042]), so its
   icon, name, highlight, hover, focus cue, cut and hidden fades are a free icon's, exactly. What the fence draws itself (a
   search's files, a picture's items) looks the same: the shell's icon with its overlay ([S-5512], at the display's pixels,
@@ -86,9 +86,9 @@ desktop's own icons, laid by the host on the cells of its body; the view draws i
   files staying where they are; the page is then "Which items").
 - **[S-10915]** **Pictures** ([S-11850]): the sample is a fence named "Work" with six of the sample desk's items (names on
   no disk, so the shell draws their type's icons, the same on every machine), drawn in its cells as the desktop's icons are.
-  Debug renders' states (`--widget-png Fence --state …`): `sample`, `empty`, `selected`, `inactive`, `title`, `rolledUp`,
+  Debug renders' states (`--render widget Fence --state …`): `sample`, `empty`, `selected`, `inactive`, `title`, `rolledUp`,
   `many` (its thumb), `cut`, `sorted`. The fence on the desktop beside free icons, its icons laid by Core over the grid:
-  `--drag-png` (`drag-fences-*`).
+  `--render drag` (`drag-fences-*`).
 - **[S-10916]** **Stored whole**: the config round-trips through the state file (the sort and the file types by name);
   a new one is as placed, rolls up on a click, peeks, and has no rule. Tests `FenceTests.S10916_`.
 - **[S-10917]** **Load repair**: a null item list or rule set is empty and the title is cleaned and cut, each said; the

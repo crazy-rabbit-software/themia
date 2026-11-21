@@ -2,17 +2,17 @@
 
 The gap check (scripts/gap-check.py), the item check (scripts/item-check.py) and the widget audit
 (.claude/workflows/widget-audit.js) look at the same pictures: a kind in a state at a set of sizes, drawn by
-`Themia.exe --widget-png <kind> <png> --sizes <s> --transparent --layout-json <json> [--state <s>]`. This module draws
+`Themia.exe --render widget <kind> <png> --sizes <s> --transparent --layout-json <json> [--state <s>]`. This module draws
 each of them once per build and keeps it:
 
-- one process for many pictures: the jobs go to `Themia.exe --widget-batch <jobs.json>` ([S-14340]) in chunks, a few
+- one process for many pictures: the jobs go to `Themia.exe --render widget-batch <jobs.json>` ([S-14340]) in chunks, a few
   workers at a time (default 2: the PC hard-hung under ~16 renders at once), so WinUI starts once a chunk, not once a
   picture; a job that hangs is killed by its timeout and reported, and the chunk goes on in a new process from the job
   after it;
 - a cache keyed by the build (a stamp of the Debug output's files: their names, sizes and times) and the job (kind,
   state, sizes, theme, flags): a second check on the same build draws nothing. It lives in <repo>/TestResults/renders
   (or --cache / THEMIA_RENDER_CACHE), one folder a build, the newest few kept;
-- the kinds and their states from the build's own catalog (`Themia.exe --catalog-json`, [S-14342]), asked once a
+- the kinds and their states from the build's own catalog (`Themia.exe --render catalog`, [S-14342]), asked once a
   build and kept with the renders: never a folder name or a regex over the sources;
 - one sweep drawing at a time on this PC: a second waits for the first (a lock in the user's home folder, released
   when its process ends however it ends).
@@ -134,7 +134,7 @@ class Job:
         return hashlib.sha1(json.dumps(parts).encode('utf-8')).hexdigest()[:20]
 
     def args(self, png):
-        """What follows `--widget-png` for this job, as the checks have always drawn it."""
+        """What follows `--render widget` for this job, as the checks have always drawn it."""
         args = [self.kind, png, '--sizes', self.sizes, *self.flags, '--layout-json', png + '.layout.json']
         if self.state:
             args += ['--state', self.state]
@@ -227,13 +227,13 @@ class Renders:
         if not os.path.exists(path):
             tmp = path + '.tmp.json'
             try:
-                p = subprocess.run([self.exe, '--catalog-json', tmp], capture_output=True, text=True, encoding='utf-8',
+                p = subprocess.run([self.exe, '--render', 'catalog', tmp], capture_output=True, text=True, encoding='utf-8',
                                    errors='replace', timeout=300)
             except subprocess.TimeoutExpired:
-                sys.exit(f'{self.exe} --catalog-json timed out')
+                sys.exit(f'{self.exe} --render catalog timed out')
             if p.returncode != 0 or not os.path.exists(tmp):
-                sys.exit(f'{self.exe} --catalog-json failed (exit {p.returncode}): {(p.stdout + p.stderr).strip()[:400]}'
-                         '\n(a build from before --catalog-json? rebuild src/Themia.App)')
+                sys.exit(f'{self.exe} --render catalog failed (exit {p.returncode}): {(p.stdout + p.stderr).strip()[:400]}'
+                         '\n(a build from before --render catalog? rebuild src/Themia.App)')
             os.replace(tmp, path)
         with open(path, encoding='utf-8') as f:
             return json.load(f)['kinds']
@@ -332,7 +332,7 @@ class Renders:
         for name in os.listdir(self.dir):
             if name.startswith(stems):
                 os.remove(os.path.join(self.dir, name))
-        cmd = [self.exe, '--widget-batch', listing, '--theme', self.theme, '--timeout', str(self.timeout)]
+        cmd = [self.exe, '--render', 'widget-batch', listing, '--theme', self.theme, '--timeout', str(self.timeout)]
         lines = queue.Queue()
         try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
@@ -394,7 +394,7 @@ class Renders:
             except OSError:
                 pass  # ignore: a leftover jobs list costs nothing
         if not started_any:
-            # The batch never started a job (an old build without --widget-batch, a refused list): say why, once a job.
+            # The batch never started a job (an old build without --render widget-batch, a refused list): say why, once a job.
             why = '\n'.join(out) or f'exit code {proc.returncode}'
             for i, job in ids.items():
                 if i not in seen:

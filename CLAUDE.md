@@ -9,7 +9,7 @@ Elastic License 2.0 (`LICENSE`). Unreleased: nothing here has users yet.
 ## Build, test, publish
 
 ```powershell
-dotnet build src/Themia.App/Themia.App.csproj -c Debug            # Debug builds include the render flags below
+dotnet build src/Themia.App/Themia.App.csproj -c Debug            # Debug builds include the render commands below
 python scripts/test.py                 # the test classes a change touches (--changed [range], the default), each with why
 python scripts/test.py --all           # Core.Tests (Core, the SDK's rules) and Modules.Tests (every module's Tests/, conformance) whole
 python scripts/test.py --spec 1480     # or --filter Clock: tests named after a SPEC tag, or holding a name (both suites)
@@ -32,12 +32,17 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 
 ### Looking at the UI without the desktop (Debug builds only)
 
-Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified. One
-check exists in every build, Release and the Store's included ([S-11854]): `Themia.exe --add-pictures-check
-<out.png>` draws the add page's Start tab through the shipped path and says how many pictures it drew.
+The renders and checks are one command surface ([S-69]): `Themia.exe --render <name> …` draws off-screen to PNGs (and
+JSON) and exits; `Themia.exe --check <name> …` runs a check, prints and writes its `ok`/`FAIL` lines and its verdict
+(`<name>: PASS`, `FAIL (n)`, `CRASHED`). Exit codes: 0 drawn or passed, 1 a failure, 2 it threw, 64 a wrong command line
+(an unknown name, a missing argument: nothing ran). `Themia.exe --render list` prints every command of the build with its
+usage, generated from the registry (`Shell/RenderCommands.cs`, the Debug ones in `Shell/Gallery/RenderCommands.Gallery.cs`:
+a new render adds its line there); `--render states <Kind>` prints one kind's catalog entry. Look at the PNGs; they are how
+UI work is verified. One check exists in every build, Release and the Store's included ([S-11854]): `Themia.exe --check
+add-pictures <out.png>` draws the add page's Start tab through the shipped path and says how many pictures it drew.
 
 ```
-Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range] [--keys k1,k2|text:abc]
+Themia.exe --render widget <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range] [--keys k1,k2|text:abc]
            [--place-cleared]   # a widget about a place with its place cleared [S-2848]
            [--transparent]     # no page behind the cards: the PNG keeps their alpha, for compositing
            [--background-image <full path>]   # the cards' own background image [S-6590]
@@ -54,55 +59,58 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            [--layout-json <out.json>]   # every card's item boxes, grid pitch and the ink outside its items [S-12831]
            [--hover fx,fy] [--pressed fx,fy]   # the item or control at that point of every card (fractions) as under the pointer [S-12831]
            # scripts/item-check.py and scripts/gap-check.py judge the kinds against docs/WIDGET-RULES.md (exit 1 on a finding)
-Themia.exe --widget-batch <jobs.json> [--theme dark] [--timeout s]   # many --widget-png renders in one process [S-14340]:
-           # {"jobs": [{"id", "args": [<what follows --widget-png>]}]}; the checks' renders go through it (scripts/renders.py)
-Themia.exe --catalog-json <out.json>   # every kind of the build: id, project, traits, styles, states [S-14342]
-Themia.exe --picker-png <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
-Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
-Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>   # --notices-png takes --theme: every notice shape [S-881a]
-Themia.exe --desktop-png <outDir> [--icon-size small|medium|large] [--icon-layout below|beside|icononly]   # a stand-in desktop
+Themia.exe --render widget-batch <jobs.json> [--theme dark] [--timeout s]   # many --render widget renders in one process [S-14340]:
+           # {"jobs": [{"id", "args": [<what follows --render widget>]}]}; the checks' renders go through it (scripts/renders.py)
+Themia.exe --render catalog <out.json>   # every kind of the build: id, project, traits, styles, states [S-14342]
+Themia.exe --render picker <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
+Themia.exe --render iconpicker <out.png> [--search t] [--initials]
+Themia.exe --render viewbar|notices|menu|motion|grid <outDir>   # notices takes --theme: every notice shape [S-881a]
+Themia.exe --render desktop <outDir> [--icon-size small|medium|large] [--icon-layout below|beside|icononly]   # a stand-in desktop
            # of icons of both sources, their states, the band and the tips [S-5605]; the desktop's icon size [S-5593] and layout [S-13970]
-Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local grid, icons on the widget grid at each icon
+Themia.exe --render drag <outDir>   # the locked desktop: a move with its local grid, icons on the widget grid at each icon
            # size, a mixed lasso selection (icons and cards), several cards selected and moved (the frame's corners,
            # drag-group-*, drag-groupmove-*, [S-14310]), both themes [S-11874]..[S-11879]; --icon-layout below|beside|icononly
            # instead: that layout's icons and fences at medium and large [S-13970]..[S-13976]
-Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass] [--icon-layout below|beside|icononly]   # the locked
+Themia.exe --check desk-select <out.txt> [--locked] [--live] [--twice] [--glass] [--icon-layout below|beside|icononly]   # the locked
            # desktop's one selection through a real host and surface: --live drives it with real input (SendInput, over every
            # window), PASS or FAIL [S-12954]; host-level it also moves an icon into the fence and one on the free desktop, drawn
            # mid-move to <out>.move-fence.png / .move-free.png [S-13046], and two icons on the free desktop and into the fence,
            # the held icon alone under the pointer (<out>.move-several-free.png / .move-several-fence.png, [S-13048])
-Themia.exe --forecast-edit-check <out.txt>   # a weather forecast's three states through a real host and surface: locked and edit
+Themia.exe --check forecast-edit <out.txt>   # a weather forecast's three states through a real host and surface: locked and edit
            # mode (one widget), its layout editing (parts picked, the bento, a part dragged in and out, the day box), PASS or
            # FAIL, pictures beside the text (<out>.layout.png, .part.png, .added.png, .resized.png, .done.png) [S-15526]
-Themia.exe --first-drag-check <out.txt> [--locked] [--kinds a,b]   # every kind's first press on a row, a button, a track,
+Themia.exe --check first-drag <out.txt> [--locked] [--kinds a,b]   # every kind's first press on a row, a button, a track,
            # a thumb, a text box, a chart, an empty spot, dragged through the card's own steps off-screen, PASS or FAIL [S-13060]
-Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
+Themia.exe --check drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
-Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow]   # the edit bar (editbar-*: nothing,
+Themia.exe --render editbar <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow]   # the edit bar (editbar-*: nothing,
            # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*); the selection's page
            # beside real cards (select-*) [S-2328]; the edit marks (marks-*) and a block resized by the selection's frame
            # (marks-*-block*, [S-2460]); a flyout following its page as a card opens and closes (-follow-*, PASS or
-           # FAIL, [S-2350]). --picker-png takes --theme too. There is no settings window [S-3585]
-Themia.exe --displays-check <outDir>   # one view on two stand-in displays, the taskbar left on one and right on the other,
+           # FAIL, [S-2350]). --render picker takes --theme too. There is no settings window [S-3585]
+Themia.exe --check displays <outDir>   # one view on two stand-in displays, the taskbar left on one and right on the other,
            # through a real host and surfaces: every card clear of both taskbars, placement at the far edges, a widget dragged
            # over each taskbar staying there (the visible minimum kept), a view shown on the other display, PASS or FAIL [S-855]
-Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
-Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at its min, natural and max; quit Themia first
-Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
+Themia.exe --render layout-editor <out.png> [waitMs] [--empty]
+Themia.exe --render showcase-views [<statePath>]   # one view per widget kind at its min, natural and max; quit Themia first
+Themia.exe --render scene <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
            # to one PNG of exactly screen × scale px (default 2) [S-1074]; store/capture.ps1 draws every scene of store/scenes.json
            # a scene widget may carry "selected": true; a "readyMade" entry too (all its widgets) [S-11860]
-Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>] [--theme light|dark] [--edit]   # a ready-made
+Themia.exe --render recipe <id> <out.png> [--states kind=state,..] [--scale <n>] [--theme light|dark] [--edit]   # a ready-made
            # group placed, as a scene; --edit: edit mode, the placed widgets selected; no state: its "sample" preview [S-2475]
-Themia.exe --inline-check <out.txt>   # every widget's inline box (add row, rename, title, search) open over its rest
-           # state at min, natural and max: a finding per part that moved, grew or went; exit 1 on any [S-13950]
-Themia.exe --gallery-png <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]   # the widget gallery:
+Themia.exe --check inline <out.txt>   # every widget's inline box (add row, rename, title, search) open over its rest
+           # state at min, natural and max: a finding per part that moved, grew or went; FAIL on any [S-13950]
+Themia.exe --check family <out.json> [--theme light|dark] [--kinds a,b]   # the family's render walk [S-6731]; run by
+           # scripts/family-check.ps1 over both themes against its baseline
+Themia.exe --check switch|startup|drop|ui-bench|clock-style|desktop-items|desktop-menu …   # the rest: --render list says each
+Themia.exe --render gallery <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]   # the widget gallery:
            # every screen, one widget picked (its panel, its styles), several, a drag under way [S-14917]
-Themia.exe --gallery-check <out.txt>   # its drag driven: picked, dragged (no jump, whole cells), dropped, the gallery back; PASS or FAIL
+Themia.exe --check gallery <out.txt> [--width w --height h] [--raster 100]   # its drag driven: picked, dragged (no jump, whole cells), dropped, the gallery back; PASS or FAIL
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
            [--icon-census]   # beside each PNG <png>.icons.json: every icon drawn and its box; then
            # python scripts/icon-clip-check.py <dir> names each icon cut by its box, measured on the PNG [S-2377]
---editbar-png, --iconpicker-png: [--raster 100]   # drawn at 100 % whatever the display's scale [S-2377]
+--render editbar, --render iconpicker: [--raster 100]   # drawn at 100 % whatever the display's scale [S-2377]
 ```
 
 Build output (`artifacts/`, `bin/`, `obj/`) cannot be read by agents; write render PNGs outside it.
@@ -113,7 +121,7 @@ render equal). Render the "before" set twice with the same build and pass the se
 `--noise`: changes inside what moved between those runs (live readings, the clock, async loads,
 animation frames) are reported as noise, anything else as `pixels`.
 
-**Never start `Themia.exe` without a render flag as the first argument.** A bare start hands off to
+**Never start `Themia.exe` without `--render` or `--check` as the first argument.** A bare start hands off to
 the copy that is already running and toggles its edit mode. Do not drive the user's running
 windows, and do not touch `%APPDATA%\Themia` or `%LOCALAPPDATA%\Themia`: the renders use a detached
 state store.
@@ -178,7 +186,7 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    Kit/ServiceSync.cs (the one service sync, IWidgetHost.Services)
   Shell/           DesktopWindow*.cs (one surface per display; .BarMenus: the edit bar's flyouts, .Properties: the
                    selection's entry and page, .SettingsMenu: the settings pages' hosts and deep links), EditBar,
-                   WidgetCard, picker, view bar, CardWidgetHost (a card's IWidgetHost), Gallery/ (render flags),
+                   WidgetCard, picker, view bar, CardWidgetHost (a card's IWidgetHost), Gallery/ (renders and checks),
                    Pages/ (PageFlyout, PageView: every page drawn as Windows' settings cards; PageRows, SelectionRows)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
@@ -514,7 +522,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`); under the pointer it
   shows the held icon alone however many move, never a stack or a count, and the shell's drag carries that picture
   ([S-13046]..[S-13048], `DragGhost.OfMove`). One
-  selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them. A
+  selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--render drag` draws them. A
   selected icon shows its highlight alone; its corners only in edit mode and a move ([S-11889]). Ctrl+Z / Ctrl+Y
   on the desktop step the one history; a desktop delete's step puts its items back from the Recycle Bin
   (`DesktopDeleteStep`, an `IUndoEffect` the undo log carries both ways, [S-5597]), and a paste, a drop from outside,
@@ -581,8 +589,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 
 1. `dotnet build` (Debug) is green with warnings as errors, and the tests pass at the tier below.
 2. New behaviour has a test; a fixed bug has a regression test.
-3. UI work: rendered through `--editbar-png`, `--widget-png` (and the other render flags) and looked at. Widget layout is
-   checked at its min, natural and max on the showcase views (`--add-showcase-views`) on the live desktop: a manual pass, say so.
+3. UI work: rendered through `--render editbar`, `--render widget` (and the other render commands) and looked at. Widget layout is
+   checked at its min, natural and max on the showcase views (`--render showcase-views`) on the live desktop: a manual pass, say so.
    **Any change to a widget, the kit, widget layout or the gap check ends with the widget audit** (the saved workflow
    `.claude/workflows/widget-audit.js`, args `{repo, out, exe?, kinds?}`): every kind it audits × every owner rule in
    `docs/WIDGET-RULES.md` gets a verdict from a reviewer who did not build the change, failures are re-measured by a

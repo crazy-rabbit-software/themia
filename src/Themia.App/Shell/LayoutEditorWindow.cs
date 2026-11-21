@@ -124,7 +124,7 @@ internal sealed class LayoutEditorWindow
     public void Close() => _window.Close();
 
 #if DEBUG
-    /// <summary>The window, for the debug render (<c>--layout-editor-png</c>).</summary>
+    /// <summary>The window, for the debug render (<c>--render layout-editor</c>).</summary>
     internal Window DebugWindow => _window;
 
     /// <summary>The content root, for the debug render.</summary>

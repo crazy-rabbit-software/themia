@@ -21,7 +21,7 @@ out through `IWidgetHost.FileOps`, drops) and `.Commands.cs` (Explorer's menus t
 `IWidgetHost.FileClipboard`), its rules (`FolderColumns`, `FolderFilter`, `FolderGesture`, `FolderHistory`,
 `FolderLayout`, `FolderMenu`, `FolderRules`, `FolderSelection`), `FolderPropertiesMenu.cs` (its
 properties-menu lines: the folder through the SDK's `PickFolder`), `Preview/` (Debug renders: `--state
-web|wallpapers`, Windows' own folders; `--menu-png`'s folder menus through `IWidgetPreviewMenus`),
+web|wallpapers`, Windows' own folders; `--render menu`'s folder menus through `IWidgetPreviewMenus`),
 `Localization/Locales/` (its own `FolderStr`, 30 languages, its style names included). Tests:
 `Tests/FolderBrowserTests.cs`, `FolderPressTests.cs`, `FolderMenuTests.cs`, `FolderPropertiesMenuTests.cs`, `FolderRulesTests.cs` (run
 by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are the module host's
@@ -152,9 +152,9 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   refused with the reason, never repaired; empty means the user folder) and **Show hidden items**;
   then **Open items with** (Double / Single click) and **Open folders** (In Explorer / Inside the widget).
   (Tests `FolderPropertiesMenuTests`.)
-- **[S-4122]** Debug renders: `--widget-png Folder <out> --style list|details|grid|icons --state web|wallpapers`
+- **[S-4122]** Debug renders: `--render widget Folder <out> --style list|details|grid|icons --state web|wallpapers`
   lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile; its menu's
-  lines are drawn by `--editbar-png` (`props-*-folder-*.png`).
+  lines are drawn by `--render editbar` (`props-*-folder-*.png`).
 - **[S-4123]** One kind, **Folder** (`Folder`, 17, `FolderConfig`, `folder`, 300×280, glyph E8B7), with
   four styles ([S-6000]; `FolderStyle`, stored as `"style"`, menu order): **List** (the default,
   E8B7), **Details** (F12B FolderHorizontal), **Grid** (ECA5 Tiles) and **Icons** (F0E2 GridView).

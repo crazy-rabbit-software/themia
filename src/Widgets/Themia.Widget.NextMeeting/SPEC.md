@@ -88,7 +88,7 @@ files' is the module host's `DeskInfoHostTests`.
   countdown "--", no Join, scaled as a meeting is to fill the card under the line ([S-12814]); with no account the card's
   Set up line stands over it instead. Its title and lines are cut at the width the block gives them, never holding it
   small ([S-14261]). Before, a list's empty rows of 30 stood under the line, and a card of 130 kept 10 under them (WR-5).
-  Renders `--widget-png nextMeeting --state none --sizes range` and `--sizes steps`, judged by `scripts/item-check.py`.
+  Renders `--render widget nextMeeting --state none --sizes range` and `--sizes steps`, judged by `scripts/item-check.py`.
 - **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event
   lights in the calendar widgets there, the others at 0.6 ([S-3623]); when another widget points at
   this one's event the whole card takes the item layer's hover fill over its whole box, as it does under the pointer

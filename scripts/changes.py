@@ -5,7 +5,7 @@ The checks (scripts/gap-check.py, scripts/item-check.py, the widget audit) and t
 included), mapped by a cheap static rule, each pick printed with why:
 
 - a module's folder (src/Widgets/Themia.Widget.X, its Tests/ and SPEC.md aside) -> the kinds that project declares
-  (the build's own catalog, `Themia.exe --catalog-json`: a family's every kind);
+  (the build's own catalog, `Themia.exe --render catalog`: a family's every kind);
 - shared code (src/Themia.Sdk, Sdk.WinUI, Core, App, a provider) -> the top-level types the changed file declares (and
   its extension methods), and the types of the files that name those (one step out: a kit planner's change reaches the
   kit list that every kit widget names); the kinds whose module names any of them. Where the card or the render path

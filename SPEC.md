@@ -128,7 +128,7 @@ Sections, grouped by area (file order below; search for the heading).
   1 DIP, major half as wide again, at least one physical pixel more) and a little stronger (0.26
   against 0.18 opacity), in the same theme brush. Purely visual: snapping stays on every line. Each
   line is placed on whole physical pixels (`CrispLine`) so it stays sharp at any DPI. The overlay is
-  two geometry paths, rebuilt only on layout. `--grid-png <outDir>` renders it in both themes.
+  two geometry paths, rebuilt only on layout. `--render grid <outDir>` renders it in both themes.
 
 ## Constraints
 
@@ -201,7 +201,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-31c]** Every widget in edit mode shows its markers: a selected one in the accent
   (`AccentFillColorDefault`), every other one in the neutral strong stroke (`ControlStrongFillColorDefault`).
   Two or more selected on a display show none of their own: the selection's frame round them alone marks them
-  ([S-14310], [S-2460]). `--editbar-png` (`--only marks`) writes `marks-<theme>-r4.png`, `-r16.png` (one selected) and
+  ([S-14310], [S-2460]). `--render editbar` (`--only marks`) writes `marks-<theme>-r4.png`, `-r16.png` (one selected) and
   `-multi.png` (three selected: the frame, no member's brackets).
 
 ## Defaults & placement
@@ -549,7 +549,7 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   is freed only when its managed wrappers are collected, and a widget layer allocates so little
   managed memory that, left alone, released views piled up (about +60 MB per pass over the showcase
   views, 412 MB to 820 MB private in eight passes). With the sweep the figure stays in one band.
-- **[S-1883]** Debug render: `--switch-check <rounds> [<out.txt>] [--ordinary | --show <view>]
+- **[S-1883]** Debug render: `--check switch <rounds> [<out.txt>] [--ordinary | --show <view>]
   [--per-view] [--dwell ms]` builds a real host and surface off-screen over a detached state holding
   the showcase views and an empty view, switches through every view `rounds` times and prints, after
   each round and a forced collection: working set, private bytes, managed heap, cards alive, views
@@ -585,7 +585,7 @@ busy desktop ([S-6601]), Debug, private bytes.
   of what nobody sees has a byte or entry cap (pictures [S-6605], program icons 512, file icons,
   favicons, program names). The
   release sweep ([S-1882]) is the only forced collection.
-- **[S-6601]** Debug render: `--switch-check <rounds> [<out.txt>] --busy <pictures> [--stream <url>]
+- **[S-6601]** Debug render: `--check switch <rounds> [<out.txt>] --busy <pictures> [--stream <url>]
   [--soak s]` is the long-running desktop: two 2560x1440 stand-in displays, one with seven galleries
   (every style) over a picture folder, one with a video stream, the visualizer, top processes, the
   meters, CPU details, the screen-time chart and a clock; measured after 5 s and every 30 s for
@@ -751,11 +751,25 @@ busy desktop ([S-6601]), Debug, private bytes.
   the user presses constantly); Themia ends with Windows' session, or as Uninstall closes it ([S-3582]).
 - **[S-68]** **A flag Themia does not know starts nothing.** The start's first argument is classified
   before anything else (`StartArguments.Classify`): no argument or a value is the app, as is the Run
-  entry's `--autostart` ([S-934]); a render or check flag this build has (Debug only,
-  `Gallery.RenderFlags`) runs that render and exits; any other argument starting with a dash prints
-  an error naming it (stderr and the log) and exits with code 2, never starting the app and never
-  reaching the hand-off of [S-66], which would toggle the running copy's edit mode. A render flag no
-  render took is refused the same way. A Release build knows no render flag. Tests `StartArgumentsTests`.
+  entry's `--autostart` ([S-934]); `--render` or `--check` runs a render command and exits ([S-69]); any
+  other argument starting with a dash prints an error naming it (stderr and the log) and exits with code 2,
+  never starting the app and never reaching the hand-off of [S-66], which would toggle the running copy's edit
+  mode. Tests `StartArgumentsTests`.
+- **[S-69]** **The renders and checks are one command surface.** `Themia.exe --render <name> …` draws off-screen
+  to files and exits; `Themia.exe --check <name> …` runs a check, says each expectation `ok` or `FAIL` (stdout and
+  its text file), ends with `<name>: PASS`, `<name>: FAIL (n)` or `<name>: CRASHED`, and exits with its verdict. Every
+  command exits 0 drawn or passed, 1 on a failure (a render that could not draw what it was asked), 2 when it threw,
+  64 on a wrong command line (an unknown name, a missing or wrong argument: nothing ran; the usage is printed). The
+  verb is the first argument only ([S-68]); the name follows it. The commands are one registry (`RenderCommands`;
+  Core's `RenderCommandLine` parses and holds the codes): `--render list` prints each with its usage, so the list of
+  renders is generated, never kept by hand; `--render states <Kind>` prints one kind's catalog entry. A Release build
+  has `--check add-pictures` ([S-11854]) and `--render list` alone. What every render shares is one harness
+  (`RenderHarness`: the off-screen window, the design its `--theme` and `--design` ask for, a ticker, preview card
+  hosts, the services its cards read, the cleanup whatever threw); the checks that need the desktop build a real host
+  and surfaces on stand-in displays over a detached store (`StandInDesktop`). A command may read the application theme
+  it draws in before the resources load (a scene's own; a ready-made group and the family walk dark unless `--theme
+  light`). Each render keeps its own fixed waits, so a picture and its timing are what they were. Tests
+  `RenderCommandLineTests`.
 
 ## Not on this machine (UNAVAILABLE)
 
@@ -1047,7 +1061,7 @@ actually touch each other, there is still a little space vertically which i dont
   card's inset (`FamilySpace.ContentTop` is the inset), so every kind that showed a header by default is
   24 shorter than it was. The schema changed in place: a widget has no `header`, the design no
   `headerBackgroundColor`/`headerOpacity`, the look tokens no `headerTone`/`headerCase`; `--design` and
-  `--widget-png` lost their header keys; a widget has no title of its own either (no `label`, nor in a scene or a
+  `--render widget` lost their header keys; a widget has no title of its own either (no `label`, nor in a scene or a
   ready-made group): a file that still stores one loads with it dropped loudly (`AppStateStoreTests.S12480_`). Tests
   `CardContentTests.S12480_`, `SizeFitTests`, `HeaderTests` (the module's).
 - **[S-12481]** **What a header carried besides a name moved into the widget's own content**, decided per
@@ -1084,7 +1098,7 @@ actually touch each other, there is still a little space vertically which i dont
   top; its content starts exactly one inset under the card's top edge at every size of its range (none
   where a mate joins). A chart drawn edge to edge (a history, a stock's chart) reaches the sides and the
   foot; its top is the card's as well. The edges are measured on the renders' visual trees
-  (`--widget-png … --tree`).
+  (`--render widget … --tree`).
 - *Retired by [S-12480]:* **[S-400]**, **[S-400a]** (the header was the card's, its trailing part the
   view's: `IWidgetHeaderContent` is gone), **[S-401]** (placement per widget), **[S-402]**, **[S-403]**
   (the title: the user's own or the view's, `SetHeaderTitle` is gone), **[S-404]**..**[S-409]** (side
@@ -1217,7 +1231,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   move. WinUI's own text box (a 32 minimum, padding 10,5,6,6, a frame, a 30-wide clear button, wrapping) had grown
   the add row to 32.7 (50.7 with long words), cutting the task list's last row, and stood a rename's text 5 to 11 right
   of the name. No widget and no kit part builds a text box of its own (`InlineBoxGuardTests`; a popup's box, the note's
-  field and the desktop icon's Explorer box, [S-5607], aside). The inline check (`Themia.exe --inline-check <out.txt>`,
+  field and the desktop icon's Explorer box, [S-5607], aside). The inline check (`Themia.exe --check inline <out.txt>`,
   Debug) draws every such box open over its rest state at the kind's min, natural and max and judges every text, glyph,
   picture, row and list viewport (`InlineFit.Judge`); the search box a contact list always shows, gaining the keys, is
   judged with them. **A search opened on demand** (coordinator, the same day, on the owner's rule: "opening a search must
@@ -1352,7 +1366,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   metrics' graphs now, [S-14713]: the default is the kind's graph's, [S-14710]), so no widget changes unasked. A type the kind does not offer (a hand-edited file) is repaired to its own and a detail it
   does not offer to Simple, both loudly. The weather graphs' former Area/Line/Bars styles are this one setting now (one
   look, one home). A single metric's trend graph takes the same two
-  settings on its page, under its Trend line ([S-14703]). `--widget-png … --chart
+  settings on its page, under its Trend line ([S-14703]). `--render widget … --chart
   area|line|bars|candles --detail simple|detailed` draws a kind in a look.
 - **[S-6753]** **A chart is always drawn** (owner, 2026-11-19: "even if there is no rain in the next two hours or even if
   there is no cpu data available it should show the default values in the graph and not just not show the graph. for
@@ -1521,7 +1535,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   It started (baseline 2026-10-29: 505 entries, 723 offences in 132 files) with a list of the day's
   offenders that only shrank; the shell sweep (2026-10-30) emptied it and the list is gone: **any**
   offence fails the test.
-- **[S-6731]** The **render walk** (`Themia.exe --family-check <out.json> [--theme] [--kinds]`, Debug):
+- **[S-6731]** The **render walk** (`Themia.exe --check family <out.json> [--theme] [--kinds]`, Debug):
   every kind at its min, natural and max ([S-2448]) in its default, its preview states and its styles, each card's header,
   view and Set up row walked element by element (a control's template skipped, its content walked)
   and judged by `FamilyCheck` (a glyph is judged as a glyph: the text inside its `FontIcon` is not
@@ -1538,7 +1552,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   drawn", so a clean run is a run over something. (Its "0 elements" per kind counted the offending
   elements, not the walked ones.)
 - **[S-6732]** *(Retired by [S-11800]: `--family-blocks-png` drew each block at the seven tiers, which are
-  gone; a block is looked at in its widgets' renders. `--widget-png … --tree` still writes a card's visual
+  gone; a block is looked at in its widgets' renders. `--render widget … --tree` still writes a card's visual
   tree beside it, `TreeDump`.)*
 - **[S-6733]** **A name over the wallpaper** (a widget with no card, the desktop icon's, [S-5606]) is
   drawn in the family's two wallpaper roles, not the card's text roles: `OnWallpaper`, light in either
@@ -1930,7 +1944,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   they dont reach all the way"; WR-3). A list laid in columns read left to right whose items do not fill its last line
   (seven in two) gives that line's last item the rest of the line (`KitPlanner.ColumnSpan`): its box, hover and menu
   run to the card's end edge, its time at the end as every row's. Before, RSS's stale list at 600 wide ended its fourth
-  line at 300. Tests `KitRowsTests.S14266_`; renders `--widget-png rss --state stale --sizes 600x200`.
+  line at 300. Tests `KitRowsTests.S14266_`; renders `--render widget rss --state stale --sizes 600x200`.
 - **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
   setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no
@@ -2431,7 +2445,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   it ([S-1975]); while the keyboard is in a flyout no edit key reaches the selection but Undo, Redo and
   F6. What the General and Accounts pages follow of Windows and the accounts is followed while one is
   open ([S-3525], [S-3559]).
-- **[S-2328]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
+- **[S-2328]** Debug renders: `--render editbar <outDir> [--theme light|dark] [--lang xx] [--only
   bar|pages|select]` draws the real bar on a stand-in display (`editbar-<theme>.png`, nothing selected;
   `-widget`, one widget, its flyout open; `-many`, two of a kind; `-mixed`, three of several; `-errors`,
   the problems' button; `-open`, General's entry lit; `-narrow` and `-narrowest`, 900- and 640-wide
@@ -2450,14 +2464,14 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   `-vocabulary-confirm`, `-vocabulary-confirm-end`, [S-2351]'s `-fence`, `-fence-name`, `-fence-name-typed`,
   `-fence-rules-name`, `-vocabulary-add`, `-vocabulary-add-refused`, `-vocabulary-add-typed`, `-vocabulary-rename`),
   over stand-in hosts that reach neither Windows nor the user's state; then the
-  edit markers ([S-31b]). `--editbar-png` writes no `settings-*`, `views-*`, `display-*` or `props-*`
+  edit markers ([S-31b]). `--render editbar` writes no `settings-*`, `views-*`, `display-*` or `props-*`
   pictures any more.
 - **[S-2331]** **Every choice shows what holds** (owner, 2026-11-19: "the selects dont all show as selected. fix that
   too"): a choice's radio rows are a radio group of their own, named by the choice's row (`PageView.Options`; a
   lookup's finds by its row too; a lone radio row its own). One name shared by every choice on a page made them one
   group, so of the Display card's View, Type, Labels, Position and Size, or General's Formats, one option stood
-  checked. Seen in `page-*-general-formats`, `page-*-display-type`. The popups' pictures (`--menu-png`,
-  `--viewbar-png`) are laid on the in-app acrylic's fallback (#2C2C2C dark, #FFFFFF light; `RenderPng.SaveOnGroundAsync`):
+  checked. Seen in `page-*-general-formats`, `page-*-display-type`. The popups' pictures (`--render menu`,
+  `--render viewbar`) are laid on the in-app acrylic's fallback (#2C2C2C dark, #FFFFFF light; `RenderPng.SaveOnGroundAsync`):
   acrylic does not render to a bitmap, and a dark menu's white words read white on white.
 - **[S-2332]** **A line of text a widget holds is typed in place** (owner, 2026-11-19: "the title and caption for
   example should show inline not under the additional menu. fix for all widgets"): `WidgetMenuLines.Text` and the
@@ -2602,7 +2616,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   switch moves nothing. The row revealed is the one the drawing that opened it laid out (2026-11-20: a card or picker
   opened by its head looked its row up before the new drawing was laid out, found the drawing before's, which went,
   and nothing scrolled; seen as `select-*-vocabulary-feeds` standing at the page's top). Tests `PageRevealTests.S2347_`;
-  `--editbar-png --only pages` draws pages opened at their rows (`page-*-general-temperature`, `-appearance-*`), `--only
+  `--render editbar --only pages` draws pages opened at their rows (`page-*-general-temperature`, `-appearance-*`), `--only
   select` cards opened by a click (`select-*-vocabulary-feeds`, `-vocabulary-confirm`).
 - **[S-2350]** **A page's flyout follows its page both ways** (owner, 2026-11-20: "the settings height does not change
   back when i close a section again"): the flyout is as tall as its page up to 70 % of the work area ([S-2325]) after
@@ -2612,7 +2626,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   page closed again kept the opened card's height, its size never changed, and nothing hung the flyout again. The
   flyout says when its page grew or shrank (`PageFlyout.PageResized`) and the surface hangs it again from that, the
   one trigger. The height changes at once both ways (neither way animates; the opened item's reveal glides, [S-2347]).
-  Tests `EditBarLayoutTests.S2350_`; `--editbar-png --only follow` opens the Desktop view's card on the Views page by
+  Tests `EditBarLayoutTests.S2350_`; `--render editbar --only follow` opens the Desktop view's card on the Views page by
   its head, unfolds and folds its icon picker, closes the card by its head and by Escape, opens Work's sub-page (shorter
   than the list) and leaves it, and says each height (PASS where the flyout stands at its page's height after every
   step and every closed step is as tall as the page was before it opened; `page-*-follow-*.png`).
@@ -2653,7 +2667,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   `-general-backup-reset`, `-general-backup-import`, `-general-uninstall-*confirm`, `-appearance-replace`.
 - **[S-2360]** **What the edit mode's steps cost is measured** (owner, 2026-11-20: "when expanding or closing a section,
   when opening or closing a settings page or also when doing other stuff, it lags a little bit"): Debug's
-  `--ui-bench <out.txt> [--frames n] [--repeat n]` drives each step `--repeat` times (8) on a real host and surface parked
+  `--check ui-bench <out.txt> [--frames n] [--repeat n]` drives each step `--repeat` times (8) on a real host and surface parked
   off-screen (the drag bench's 21 widgets and two views more, a detached store), through the surface's own controls (the
   bar's entries and the pages' heads clicked through their automation peers): edit mode in and out, a change of the
   state, one and three widgets selected and cleared, the selection's page closed and opened by its entry and its tabs,
@@ -2786,7 +2800,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   category field), so "calendar" finds the week view and "system" the meters (`AddSearch`).
 - **[S-3514]** *(Retired by [S-11708]: the keys walk the tiles; there is no tree to open.)*
 - **[S-3515]** *(Retired by [S-11706].)*
-- **[S-3506]** *(Retired by [S-11712]: the add page's pictures are `--picker-png` and `--editbar-png`'s `-add*`.)*
+- **[S-3506]** *(Retired by [S-11712]: the add page's pictures are `--render picker` and `--render editbar`'s `-add*`.)*
 - **[S-11700]** *(Retired by [S-13610] (2026-11-19): the subjects are no tab strip beside the search box but a rail
   under it; Start, the subjects in Browse's order and More stay as they were.)*
 - **[S-11701]** A rail item's content is **sections**, each a heading in BodyStrong (24 after the section before,
@@ -2838,10 +2852,10 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   bound ([S-11853]); a new look starts the cache again. A picture not yet drawn shows the tile's glyph on
   its box, never a blank. *(Until 2026-11-19 each tile carried its picture in a 120-tall box: [S-13600].)*
 - **[S-11711]** *(Retired by [S-11850]: the samples ship, and every build draws the pictures.)*
-- **[S-11712]** Debug renders: `--picker-png <out.png> [--tab Id] [--search text] [--width w] [--height h]
+- **[S-11712]** Debug renders: `--render picker <out.png> [--tab Id] [--search text] [--width w] [--height h]
   [--hover key] [--open family:Id] [--theme light|dark] [--lang xx]` draws the page open under the real bar on a stand-in display (1920 ×
   1032 unless sized), every picture drawn before the shot (a minute at most, said when cut short);
-  `--editbar-png`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
+  `--render editbar`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
   `-add-weather`, `-add-family` (System, the CPU family open and its head pointed at), `-add-search` ("music"),
   `-add-none` (nothing found), `-add-narrow` (a 900-wide display), `-add-hover` (the pointer on Forecast curve) and
   `-add-hover-group` (on This PC in System). `--tab <Id>` shows that rail item; `--hover <key>` (a tile's key:
@@ -2876,7 +2890,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   no pane and the tiles take its room (no preview); narrower still, the rail its glyphs alone ([S-13616]).
 - **[S-13604]** **Pictures** are drawn one at a time as before ([S-11710], [S-11853]), the **previewed tile's first**
   (`AddPictures.Prefer`: to the front of what is waiting; the one being drawn finishes), then every other tile in
-  sight and a screen below it ([S-13613]), so pointing at one later shows it at once. `--add-pictures-check` still
+  sight and a screen below it ([S-13613]), so pointing at one later shows it at once. `--check add-pictures` still
   draws Start's every picture.
 
 #### The rail and family stacks ([S-13610]..[S-13617])
@@ -2975,10 +2989,10 @@ too. What they need at run time ships; the render tooling does not.
   the last page closed; the next opening draws them again (measured 2026-11-12: the Start tab's eighteen
   in about 4.3 s in the Native AOT build, 13 MB of pixels; every tab's 152 about 64 MB, so the bound
   drops the oldest; at low priority, the glyphs meanwhile).
-- **[S-11854]** `Themia.exe --add-pictures-check <out.png>`, in **every build**, the one flag a Release build
-  knows besides the app's own ([S-68]): draws the page's Start off-screen through the shipped path,
-  writes it to the PNG, prints how many pictures of how many, their bytes and the time, and exits (0 when
-  every picture was drawn). Only as the first argument, with a `.png` path; it reads and writes no state
+- **[S-11854]** `Themia.exe --check add-pictures <out.png>`, in **every build**, the one check a Release build
+  knows ([S-68], [S-69]): draws the page's Start off-screen through the shipped path,
+  writes it to the PNG, says how many pictures of how many, their bytes and the time, and exits with its verdict (0
+  when every picture was drawn). Only as the first argument, with a `.png` path; it reads and writes no state
   and never reaches the hand-off.
 
 Needs a live pass: the page under the bar on every display at mixed DPI and with a top taskbar (as wide as
@@ -3089,7 +3103,7 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   size and layout in force, with the corner marks an icon shows in edit mode (`IconMarks`), at `SelectionLook.Landing` as
   a moving icon's ghost where it lands ([S-13046]). The same for Add widget's On the desktop tile and a copy or move of
   icons in edit mode. Made as the placement first shows them, moved with the pointer, let go when it ends
-  (`DesktopWindow.IconGhosts.cs`). `--desk-select-check` draws one placed beside the desktop's icons in edit mode
+  (`DesktopWindow.IconGhosts.cs`). `--check desk-select` draws one placed beside the desktop's icons in edit mode
   (`<out>.place-icon.png`, PASS or FAIL).
 - **[S-13709]** **On the page, the name and the highlight follow its ground** (2026-11-20, the page in the light theme:
   its white names hard to read, its selected icons with no fill to be seen): the icon's picture, cell, box and corner
@@ -3136,15 +3150,15 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   the desktop brings it back; it stays off until it is placed again or the view is set to All again ([S-5528]). Switching the
   view to Chosen was not done: it would also stop new files arriving on it, a second effect of one drag. A Chosen view's
   chosen set loses them; a None view shows none. Logged with the view's value. Dragging icons off the page onto the desktop
-  still places them ([S-13705]). Tests `UnplacedItemsTests.S13713_`; `--desk-select-check` moves a fenced icon and a free one
+  still places them ([S-13705]). Tests `UnplacedItemsTests.S13713_`; `--check desk-select` moves a fenced icon and a free one
   onto the open page and drags each back off it (`<out>.unplace-fence.png`, `.unplace-free.png`, PASS or FAIL);
-  `--editbar-png` draws one being dropped (`page-<theme>-unplaced-drop.png`).
+  `--render editbar` draws one being dropped (`page-<theme>-unplaced-drop.png`).
 - **[S-13714]** **The desktop's band on the page** (owner, 2026-11-21: "the place on this view page should allow lasso
   select"): a left press on empty room of the icons' area (not on an icon) that travels past the desktop's dead zone
   (`SelectionBand.Threshold`, 5 DIPs) draws **the desktop's band** in its look (`SelectionChrome.PaintBand`), kept inside the
   area, and selects the icons whose box it touches at all, live (`SelectionBand.Hits`, `ItemSelection.Band`): with no key the
   band's icons alone, **Shift adds** them, **Ctrl toggles** each against what was selected (`SelectionBand.Mode`, [S-6625]);
-  let go, what it selected stays. A click on empty room with no key held clears the selection ([S-6620]). `--editbar-png`
+  let go, what it selected stays. A click on empty room with no key held clears the selection ([S-6620]). `--render editbar`
   draws one halfway (`page-<theme>-unplaced-band.png`).
 - **[S-13715]** **The page stays open** (owner, 2026-11-21: "it should not close when i click outside of it"): the one
   flyout with no light dismiss (`SettingsPages.StaysOpen`, [S-2327]): a press outside it does what it does and the page
@@ -3251,7 +3265,7 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   [S-2475]); Escape or a right-click gives it up ([S-1594]). Either way the gallery comes back as it was, every card on its
   cell: the gallery is never used up. What landed is selected under it; its page does not open over the gallery
   ([S-2343]). The free plan's limit is the session's ([S-1065]): refused, nothing starts and the gallery stays.
-- **[S-14917]** Debug renders: `--gallery-png <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]`
+- **[S-14917]** Debug renders: `--render gallery <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]`
   draws the gallery through a real host and surface on a stand-in display (1920 × 1080 pixels unless sized, its taskbar 48 at
   the foot; at the display's scale, or 100 %), off-screen, in edit mode: every category's bento from its top
   (or the one's, `gallery-<theme>-<w>x<h>-<nn>-<Category>.png`; one taller than the well again at its foot, `-end`), one
@@ -3345,7 +3359,7 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   what is open open: the lines' keys do not change. A change of its own that lays no card out again (Lock widgets, a
   format, an update interval, a view's colour, the view a new display shows) is written into its rows too: the pages'
   hosts draw the open page again after it (until 2026-11-20 General's Lock widgets switch stood as it was after a click,
-  seen by `--ui-bench`: no drawing).
+  seen by `--check ui-bench`: no drawing).
 - **[S-3532]** *(Retired 2026-11-15, the owner: "dont show quit themia"; Karpo's Quit Karpo goes too.)* No page
   has a line that quits and the pages' host has no Quit (`SettingsMenuTests.S3532_`): Themia ends with Windows'
   sign-out or shutdown, or as Uninstall closes it ([S-3582]).
@@ -3489,7 +3503,7 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   dropped as it closes; when edit mode ends the open flyout goes, the widget's lines with it, and the
   bar's buttons and add menu with them (`EditBar.Release`);
   only the surface's layers and the bar's empty frame stay. Each is built again as it is next
-  needed. Measured (`--switch-check 1 <out.txt> --edit-menus`, Debug, the ordinary view): every bar
+  needed. Measured (`--check switch 1 <out.txt> --edit-menus`, Debug, the ordinary view): every bar
   menu opened 150.9 MB private, after Done 136.9 MB (14 MB given back; the native heaps 59 → 45 MB);
   a first open of Display ▾ 31 ms, View ▾ 14 ms, ⚙ 59 ms, and ⚙ again after Done 19 ms.
 
@@ -3593,7 +3607,7 @@ place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
   window for an account.
 - **[S-3559]** While ⚙ is open it follows the accounts and their numbers (`AccountsChanged`,
   `SyncHost.StatsChanged`) and every flow's progress, written into its lines in place ([S-3531]).
-- **[S-3560]** Debug renders (`--editbar-png`, [S-2328]): `page-<theme>-accounts`,
+- **[S-3560]** Debug renders (`--render editbar`, [S-2328]): `page-<theme>-accounts`,
   `-accounts-account`, `-account-again`, `-signout` (its "are you sure?" in place in its card, [S-2351]),
   `-add`, `-signin`, `-imap`, `-imap-filled`, `-imap-testing`, `-imap-failed`, `-caldav`, over a stand-in host with three made-up
   accounts and their numbers; no sign-in, server or account file is reached, and the password drawn
@@ -3696,7 +3710,7 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   question ("Uninstall Themia?", what happens and, ticked, that the data goes too). Only its
   Uninstall does it (`Uninstaller.Run`, the one plan, [S-1071]); nothing is removed or deleted
   before that answer ([S-1555]).
-- **[S-3583]** Debug renders (`--editbar-png`, [S-2328]): `page-<theme>-general-pro-free`, `-pro-refused`, `-pro-pro`, `-pro-grace`,
+- **[S-3583]** Debug renders (`--render editbar`, [S-2328]): `page-<theme>-general-pro-free`, `-pro-refused`, `-pro-pro`, `-pro-grace`,
   `-pro-offline` (the License page's `--license` states, gone with the page), `-pro-developer`,
   `-pro-onsale` (the price on Upgrade), `-pro-buying` (the Store waited for); `-backup`,
   `-backup-done` (outcomes under the lines), `-backup-import` (an import's question over a made-up
@@ -3716,7 +3730,7 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   settings is the edit bar's menus ([S-3534]): ⚙, View ▾ and Display ▾, the surface menu's ways in
   ([S-1744]), a second start ([S-66]), a widget's accounts ([S-3558]), See plans ([S-3573]).
   `FluentLayout` keeps the rows the app-layout editor, Themia's one window, is built from ([S-1411]);
-  a menu's debug render is `--editbar-png` ([S-3535]).
+  a menu's debug render is `--render editbar` ([S-3535]).
 
 Needs a live pass (step 5): Themia started again from Start, from a shortcut and as `Themia.exe` while
 it runs, with edit mode off and on, with ⚙ or another bar menu open, during a placement, with the
@@ -4008,7 +4022,7 @@ rules in Core `Model/QuickSet.cs` and `Shell/SelectionPage.cs`
 - **[S-6533]** Load validation repairs a stored scale outside 50–200 % or off the 5 % grain to the
   nearest one it may hold, and says so; a file without one reads as 100 %.
 - **[S-6534]** *(Retired by [S-6536]: the settings page has no Scale row; the panel is the scale's one place.)*
-- **[S-6535]** Debug: `--widget-png <Kind> <out.png> --scale <f>` draws the cards at that widget
+- **[S-6535]** Debug: `--render widget <Kind> <out.png> --scale <f>` draws the cards at that widget
   scale, through the same content transform.
 - **[S-6536]** The properties panel is the **one place** for a widget's options (user request
   2026-10-16, and for the widget's own options 2026-10-19): its title, style, header, background,
@@ -4048,7 +4062,7 @@ rules in Core `Model/QuickSet.cs` and `Shell/SelectionPage.cs`
   align, or one that aligns only in another style), the line is not there ([S-3718]).
 - **[S-6585]** Load validation drops an alignment outside the set, or one on a kind that never
   aligns, and says so; one on a style that does not align is kept for the style that does.
-- **[S-6586]** Debug: `--widget-png <Kind> <out.png> --align left|center|right` draws the cards with
+- **[S-6586]** Debug: `--render widget <Kind> <out.png> --align left|center|right` draws the cards with
   that alignment.
 - **[S-3713]** *(Retired by [S-2328]: the selection's pictures are `select-<theme>-*.png`.)*
 ## Widget styles (STYLES)
@@ -4079,7 +4093,7 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
 - **[S-6005]** A view receives a style change like any config change (`ApplyConfig`): it re-lays
   itself for the style on the same responsive ladder ([S-660]..[S-666], concise first), and lets go
   of whatever the previous style built or subscribed.
-- **[S-6006]** Debug: `--widget-png <Kind> <out.png> --style <name>` draws any styled kind in one of
+- **[S-6006]** Debug: `--render widget <Kind> <out.png> --style <name>` draws any styled kind in one of
   its styles; a wrong name prints the kind's styles.
 - **[S-6007]** The properties panel ([S-3707]) shows **Style** first, a drop-down with the
   current style's icon and name, whose menu lists the kind's styles with icon and name, the current one
@@ -4139,7 +4153,7 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   meeting: no calendar colours (it draws none), so Calendars only for an account with two or more. Habits: Interval under the custom period, streaks
   and history in Dots. Pomodoro and Alarm: Volume while a sound is chosen. Contacts: the columns in
   Details. Screen time: the daily limit on the chart and the donut, the per-app limits on the app
-  list, its Daily average over a week or a month. Debug: `--editbar-png` opens a kind's menu (and a
+  list, its Daily average over a week or a month. Debug: `--render editbar` opens a kind's menu (and a
   style's lines under Style) to look at them.
 
 Needs a live pass: picking a style on the strip for one widget and for several of one kind, the
@@ -4177,7 +4191,7 @@ itself is ⚙ › About Themia ([S-3580]). Owning files: `Themia.Core/Storage/Se
   2026-11-20 it was kept: the known set named every item while the views held none of them, so after a reset no icon
   arrived again.)*
 - **[S-499]** *(Retired by [S-3585]: there is no settings window and no `--settings-png`; ⚙'s
-  sections are drawn by `--editbar-png`, [S-3535], [S-3583], over the same detached store that writes
+  sections are drawn by `--render editbar`, [S-3535], [S-3583], over the same detached store that writes
   nothing.)*
 
 Not ported, on purpose: Karpo's "isn't running / Start" card — the settings here are the running
@@ -4660,7 +4674,7 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   every bar of the period, the list's dot and the ring. The alpha is the shape's opacity, never the
   shared brush's (`ScreenTimeLook.Brush`); a part pointed at or picked on the view is drawn at full
   strength and every other at its tone times the links' 0.6 or 0.3 (`ScreenTimeRules.Opacity`, [S-11902]). Tests `ScreenTimeRulesTests.S2272_`.
-- **[S-3355]** Debug renders: `--widget-png <ScreenTimeChart|ScreenTimeDonut|ScreenTimeApps>
+- **[S-3355]** Debug renders: `--render widget <ScreenTimeChart|ScreenTimeDonut|ScreenTimeApps>
   --state sample|hovered|selected` draw a fixed month of sample use (ten apps, quieter weekends, a
   6 h day limit, Microsoft Edge over its 1 h; Google is named nowhere Themia shows of itself, [S-3562]) through
   `SampleScreenTime`; `hovered` lights Code and `selected` selects Edge through the render's one board, so every card on the page shows it.
@@ -5491,13 +5505,13 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   widget's number is the family's 28 ([S-2220]; the 40 step stays for a kind that states it).
 - **[S-2448]** **A kind is checked at its range**: its Min, its Natural and, with no practical Max ([S-12411]), a
   large size, twice its Natural fitted into its sizing (`SizeStretch.Large`; `SizeFit.CheckedAt`, `CheckedSize`
-  named `min`, `natural`, `max`). `--widget-png <Kind>` draws a kind at its range by
+  named `min`, `natural`, `max`). `--render widget <Kind>` draws a kind at its range by
   default, side by side; `--sizes range|WxH,..` picks. The showcase views ([S-1810]) hold a kind at min,
-  natural and max; the family render walk (`--family-check`) walks the range, its page sized for the
+  natural and max; the family render walk (`--check family`) walks the range, its page sized for the
   largest. A store scene ([S-1074]) paints a kind fitted into its sizing as the desktop does ([S-2446]).
 - **[S-11601]** **A render draws a box as a resize to it leaves the widget**: the box fitted into its sizing as a
   resize on the desktop leaves it (`SizeFit.Of(config).Fit`), the config unchanged ([S-14502]: no size means a
-  config). So a kind's min, natural and max are drawn as the desktop draws them, in `--widget-png`, the showcase and
+  config). So a kind's min, natural and max are drawn as the desktop draws them, in `--render widget`, the showcase and
   the family walk alike. Tests `ShowcaseViewsTests.S11601_`.
 - **[S-11602]** A preview state fills in sample data over the card's own config (its counts, its style),
   never a fresh default one, so it draws what the box was sized for.
@@ -5806,9 +5820,9 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   guarded `WebFetch` and the source-generated JSON context only.
 - **[S-2846]** The typed query is not stored: `WeatherConfig.Place` is gone (a half-typed word is not
   a place and must not title the widget).
-- **[S-2847]** Debug renders: `--editbar-png` opens the location searches and types into them
+- **[S-2847]** Debug renders: `--render editbar` opens the location searches and types into them
   against a fixture geocoder (`PlaceRender.UseFixture`); nothing touches the network.
-  `--place-cleared` on `--widget-png` clears the widget's place ([S-2848]): a Sun or Moon starts at
+  `--place-cleared` on `--render widget` clears the widget's place ([S-2848]): a Sun or Moon starts at
   Zurich. (The settings page's `--place-chosen`, `--place-query` and `--place-reply` went with it.)
 - **[S-2848]** Clear (user requirement: a place can be cleared, not only overwritten). Every widget
   about a place implements `IPlaced` (`HasLocation`, `ClearLocation`): current conditions, forecast,
@@ -5859,9 +5873,9 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   and the sentence of the state (finding it,
   turned off in Windows settings, not available), the view parked as under Set up ([S-1881]), so
   nothing is fetched or drawn for a place it does not have and no other place stands in.
-- **[S-2855]** Debug renders: `--editbar-png` draws `props-*-device-off`, `-located`, `-locating`,
+- **[S-2855]** Debug renders: `--render editbar` draws `props-*-device-off`, `-located`, `-locating`,
   `-denied`, `-unavailable` and `-sun` over a stand-in state (`AppServices.DebugDeviceLocation`);
-  `--device locating|denied|unavailable|located` on `--widget-png` turns the switch on over one
+  `--device locating|denied|unavailable|located` on `--render widget` turns the switch on over one
   (located: Zurich). Neither asks Windows.
 
 Needs a live pass (Use my location): Windows' permission prompt in the packaged build and the
@@ -6075,7 +6089,7 @@ is gone ([S-3585]). Owning files: `Shell/ColorChoice.cs`, `Interop/ScreenColorPi
   preference, no Logs page, no developer banner, no `--dev` render switch, and no Web element
   widget (the original's pre-release widget behind developer mode: its view, picker window,
   off-screen WebView2 renderer, saved renders, settings, keys and fixture are gone). The debug-only
-  render flags (`--editbar-png`, `--picker-png`, ...) are build tooling and stay.
+  render flags (`--render editbar`, `--render picker`, ...) are build tooling and stay.
 - Not ported / different: karpo's status bar (removed by user request). The SDK's `TitleBar` and
   `BreadcrumbBar` controls are not used (the first crashed an earlier build; the second needs a WinRT
   collection) — equivalents are built from a grid and text blocks.
@@ -6152,7 +6166,7 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   into it would show that at the right edge. So nothing on screen changes value as points arrive, and
   a folded chart steps one slot each time a slot finishes ([S-6331]). The traces sit in a `Canvas`,
   not a `Grid`, so the shapes keep their own coordinates and the band's own clip is the only edge. A
-  rate chart's top is the drawn slots' peak ([S-1124]). Debug: `--widget-png <Kind> --machine sample
+  rate chart's top is the drawn slots' peak ([S-1124]). Debug: `--render widget <Kind> --machine sample
   [--span s]` draws the sample machine's full history at a span ([S-1932]) (an hour folds on any tile). *(Its slide, its lag of
   a slot less one sample and `--progress` are retired by [S-6330].)*
 - **[S-6323]** *(Retired by [S-6330]: readouts no longer glide between readings.)*
@@ -6321,7 +6335,7 @@ its own id, config and tag, [S-7400]..[S-8000], the kinds as data); Bluetooth is
   press, and logs a warning ([S-1246]).
 - **[S-1916]** One run at a time per widget: a press while the action is still running (sleep runs
   until the machine resumes) does nothing.
-- **[S-1917]** Debug: `--widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name]`
+- **[S-1917]** Debug: `--render widget <Kind> <out.png> [w h] [--theme light|dark] [--state name]`
   draws one widget in a real card on a preview host ([S-1251]), off-screen, at its min, natural and
   max ([S-2448]) (or once at `w h`), labelled. `--state` asks a view that implements
   `IWidgetPreviewState` for an interaction state a render cannot click into — for the power widgets
@@ -6331,8 +6345,8 @@ its own id, config and tag, [S-7400]..[S-8000], the kinds as data); Bluetooth is
   1 when it did not ([S-14340]).
 - **[S-14340]** **Many renders in one process** (owner, 2026-11-20: "right now all the checks take a long time. try to
   optimize the checks and the usage of them as well. you dont have to test everything everytime"). Debug:
-  `Themia.exe --widget-batch <jobs.json> [--theme light|dark] [--timeout s]` draws a list of jobs
-  (`{"jobs": [{"id", "args"}]}`, a job's args what follows `--widget-png` on its own command line) one after another
+  `Themia.exe --render widget-batch <jobs.json> [--theme light|dark] [--timeout s]` draws a list of jobs
+  (`{"jobs": [{"id", "args"}]}`, a job's args what follows `--render widget` on its own command line) one after another
   through the same render (`WidgetRender.Render`), so WinUI starts once for them all: the same layout dump as each
   render's own process, byte for byte, and the same pixels but the antialiasing of a card's rounded corners (a few rim
   pixels inside the band the gap check leaves out) and a few levels of some seams, which differ from one batch run to
@@ -6350,9 +6364,9 @@ its own id, config and tag, [S-7400]..[S-8000], the kinds as data); Bluetooth is
   A check links the pictures into its `--out` as before. Without `--exe` a check takes the one Debug build under
   `artifacts/` and refuses to pick among several (other branches' builds land there too).
 - **[S-14342]** **The kinds a check judges.** The kinds and their states are the build's own:
-  `Themia.exe --catalog-json <out.json>` writes every kind (`id`, the module `project`, `traits`, `styles` and the
+  `Themia.exe --render catalog <out.json>` writes every kind (`id`, the module `project`, `traits`, `styles` and the
   `states` its renders offer, read from each kind's card on a preview host as a render builds it: the states
-  `--widget-png … --state <unknown>` lists, for every kind), never a folder name (which missed the 84 kinds the
+  `--render widget … --state <unknown>` lists, for every kind), never a folder name (which missed the 84 kinds the
   family projects declare) or a regex over the sources; a kind the build does not have fails the check, the family
   walk too (exit 64). `--changed [range]` (the default; no range: the branch against winui, uncommitted and untracked
   files included; `since-sweep`: since this checkout's last full sweep, `TestResults/last-full-sweep.txt`) picks the
@@ -6384,7 +6398,7 @@ its own id, config and tag, [S-7400]..[S-8000], the kinds as data); Bluetooth is
   it sets the hub): Drive and Drive facts show System (C:), Removable drives the stick, and a scene or a
   recipe never shows this PC's drives or a drive that is not connected. The disk meter's volumes are the
   same two fixed drives, named alike. Tests `SamplePcTests.S11802_`.
-- **[S-1931]** Debug: `--widget-png ... --machine sample` draws the system widgets (the meters, the
+- **[S-1931]** Debug: `--render widget ... --machine sample` draws the system widgets (the meters, the
   details, Top processes) on the sample machine instead of this PC; without it they read this PC, as
   a developer wants. The sample machine (`SamplePc`, Core) is one ordinary good laptop: a 12-core
   processor (16 logical) at 31 %, 32 GB of memory 52 % used, a discrete GPU at 14 %, a system drive,
@@ -6987,7 +7001,7 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   the left taskbar stays; a taskbar that grew; the area remembered; a bad area repaired) and `TaskbarSidesTests.S6608_`
   (a gesture over every taskbar side to the visible minimum, a placement there clear; a widget hung over a taskbar kept
   through every settle; one wholly behind it brought out only to the visible minimum), `WorkAreaGeometryTests.S6608_S855_`,
-  `S11_S855_`, `S31a_S6608_S855_`, `EdgeOverhangTests.S6608_S855_`, `WidgetSizingTests.S2447_S855_`. `--displays-check
+  `S11_S855_`, `S31a_S6608_S855_`, `EdgeOverhangTests.S6608_S855_`, `WidgetSizingTests.S2447_S855_`. `--check displays
   <outDir>` lays one view against both work areas on two stand-in displays whose taskbars are on opposite sides
   (2560 × 1440, 72 pixels) through a real host and surfaces, and checks every card against each display's own work
   area, where a widget placed at either far edge lands, a widget dragged half over each display's own taskbar (it stays
@@ -7299,7 +7313,7 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   card's colour with the selection's mark, wrapped to the tile's width; it takes no presses. Not
   while renaming. Tiles only (the folder's Grid and Icons); rows keep
   trimming.
-- **[S-6630]** Debug: `--widget-png Folder … --state selected|inactive|fullname`
+- **[S-6630]** Debug: `--render widget Folder … --state selected|inactive|fullname`
   draws two items selected, one under the pointer and the focus moved by Ctrl+arrows (`selected`), the
   same after the widget lost the keyboard (`inactive`) and a long name shown in full
   (`fullname`); the folder's `fullname` picks its longest name.
@@ -8291,7 +8305,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   #72000000 light) for a heavier, dashed or dotted one. Drawn in the hairline's 6-10 %, a 4px,
   dashed or faded line looked exactly like none, so width, style and opacity all seemed ignored.
   The opacity never swaps the ink, so fading is monotone; at the 1px hairline it is subtle by nature.
-- **[S-6480]** `--widget-png … --design key=value,...` draws the cards with appearance values (`border`,
+- **[S-6480]** `--render widget … --design key=value,...` draws the cards with appearance values (`border`,
   `borderWidth`, `borderOpacity`, `borderColor`, `radius`, `background` and `items` (a fill, [S-6569]),
   `opacity` and `itemOpacity` (their colours' opacity), `header`, `headerOpacity`, `accent`, `font`,
   `itemText`, `gap`, `blur` (on|off, [S-2110]), `preset`), so a look is checked without ⚙ › Appearance. The text is read by Core's one
@@ -8548,7 +8562,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   fill's change in words ("Theme colour", "Transparent", "#1B2030, 55%").
 - **[S-6569]** Debug: `--design background=default|transparent|#RRGGBB[@percent]` and `items=…` set
   the app-wide fills of a render (`opacity=` and `itemOpacity=` their colours' opacity);
-  `--widget-png … --background <fill> --own-items <fill>` the cards' own.
+  `--render widget … --background <fill> --own-items <fill>` the cards' own.
 - **[S-6590]** A widget's own **background image** (user request 2026-10-25; `WidgetInstance.BackgroundImage`,
   a picture file's full path, absent for none): it covers the whole card, header included, under the
   fills and the content, clipped to the card's corners, centred and cropped to fill it
@@ -8556,7 +8570,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   width, 640 to 2560 pixels), off the design pass, and a load that lands after the path changed again
   is dropped. A file that is not there, cannot be read or is no picture Windows decodes draws the card
   without it and is logged; the path stays, so the picture is back with the file. Copied with the
-  widget, undone with its background ([S-6566]). Debug: `--widget-png … --background-image <path>`.
+  widget, undone with its background ([S-6566]). Debug: `--render widget … --background-image <path>`.
 - **[S-6591]** The path rule (`BackgroundImage.IsImagePath`): full (a drive or a network share, never
   relative), at most 1024 characters, no character a path cannot hold, of a picture type Windows
   decodes (.png, .jpg, .jpeg, .jfif, .bmp, .gif, .tif, .tiff, .webp). A stored path that breaks it
@@ -8611,7 +8625,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   calendar cell), tracks, and any colour that is not a theme text
   colour (accent, text on accent, status, event colours, the user's own).
 - **[S-6547]** Debug: `--design itemText=#RRGGBB` sets the app-wide item text colour of a render;
-  `--widget-png … --own-items <fill> --own-item-text #RRGGBB` give the cards a layer and a text
+  `--render widget … --own-items <fill> --own-item-text #RRGGBB` give the cards a layer and a text
   colour of their own, the per-widget override.
 - **[S-835]** *(Retired by [S-2100]: the default card is Themia's own; the text, accent, status and
   type below still are Windows'.)* The default look was Windows 11's, value for value, with the framework's own theme
@@ -8642,7 +8656,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   inner edge (`DesignLook.TintInset`; a `Border`'s background is `InnerBorderEdge`), so the stroke
   lies over the base alone (#1D1D1D / #E5E5E5 at 1px); dashed and dotted lines keep the tint
   full-bleed so their gaps do not show bare base. `DesignLook.Over` is the source-over rule.
-  `--widget-png … --reference` draws a stock WinUI card (framework brushes, application theme) beside
+  `--render widget … --reference` draws a stock WinUI card (framework brushes, application theme) beside
   the first tier and prints the colours it should composite to, for a pixel comparison.
 - **[S-837]** Tracks follow the control they stand for: a seek bar is a slider
   (`SliderTrackFill` = `ControlStrongFillColorDefault`, value `AccentFillColorDefault`, 4px), and so
@@ -8713,7 +8727,7 @@ blurred, under its tint. Windows' Mica, done by hand.
   clip, moved by minus the card's place on its surface plus the gap's inset: a drag, a resize, a gap
   or a display change moves an offset (`Canvas.Left/Top` watched, `ApplyGap`), never re-blurs. The
   frost is outside the content's scale ([S-850]); the fill, the header colour and the border lie over it.
-- **[S-2119]** Debug renders: `--widget-png … --wallpaper <image path>` draws the cards frosted over
+- **[S-2119]** Debug renders: `--render widget … --wallpaper <image path>` draws the cards frosted over
   that picture, the page being the screen: the page shows the picture itself behind them (placed as
   Fill) unless `--transparent`. A renderer of its own uses the one entry point
   `RenderWallpaper.Use(path, screen)` (an `IDisposable`; the screen in DIPs, the cards' `Canvas.Left/Top`
@@ -8854,7 +8868,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   holds (a stock's line under its price, [S-11161]). Kept on purpose: a grid of cells keeps its foot inside the inset
   for the cells' marks (the folder's grid and icons, the contacts' grid); a list keeps the rows its config states,
   so fewer items than rows leave the rest empty ([S-11800]: content decides the size, never the items now). Tests
-  `CardContentTests`, the stock's `S11161_`; renders `--recipe-png` of every group.
+  `CardContentTests`, the stock's `S11161_`; renders `--render recipe` of every group.
 - **[S-12801]** **A widget names no context** (owner, 2026-11-17: "the small widgets like the weather graph ones all
   show the location, but with that in a group the location would be shown x times for all the widgets. this should
   not be. stuff like that should be removed as a user would just put the location in the header"). Nothing in a
@@ -8888,7 +8902,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   stops it, as a display clock is: a larger card is a larger face, never a band round a small one; what is left is
   only what the card's other axis leaves, the face centred on its ink there, placed across by the alignment. The clock's dial is planned in
   the whole box instead (its hairlines stay hairlines). The one-step climb (`ReadoutSizes.Climb`, [S-12410]) is
-  gone. Renders: `--widget-png clock --style <each> --sizes range`, odd boxes.
+  gone. Renders: `--render widget clock --style <each> --sizes range`, odd boxes.
 - **[S-12805]** **The date is a widget of its own** (owner, 2026-11-17: "the clock widget should not have a date
   style as this should be moved into its own widget"): the clock has no Date style, no date line and no Show date
   (`ClockStyle.Date`, `ClockSetting.Date`, `showDate` gone; its line under says a world clock's city and the
@@ -8904,7 +8918,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   the glyph, which is the 28 while it fits and else the 16; under the 16's room (24) the glyph is two thirds of the
   box and the inset the rest (`TileFace.Mark`, `.Inset`), so every box from the floor draws its glyph whole, growing
   with the box; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`; render
-  `--widget-png nightLightToggle --sizes 10x10,16x16,24x24,40x40`.
+  `--render widget nightLightToggle --sizes 10x10,16x16,24x24,40x40`.
 - **[S-12807]** **A list's rows touch and fill the content** *(amended 2026-11-20 by [S-14810]: the rows touch at their
   one size from the card's top edge and the last is cut by its foot; they no longer grow to meet it)* (owner, 2026-11-19: "the forecast widget still has
   space on the top and bottom of its items this should not be, the items should reach the top and bottom"; "the
@@ -8948,7 +8962,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   weekday line is laid out in its row shrunk by the lesser of the two growths and drawn larger by as much
   (`ScaleBox`), so the day numbers, the dots and the chips grow with the cells and never past them. At the natural
   box nothing grows. The period line over the month is a tool line ([S-12481]) and keeps its size. Renders
-  `--widget-png calendar --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
+  `--render widget calendar --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
 - **[S-12810]** **The drive widget shows the drive's own icon** (owner, 2026-11-19: "the drive widget should show the
   windows drive icon. also add one for network drives / bake it into the same if possible"). The share leads with
   the icon Windows' This PC draws for that drive (the shell's own for its root: the Windows drive, a fixed disk, a
@@ -8970,7 +8984,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   type, roles and band as the weather facts', filling the content, touching ([S-12807]), so they cannot drift apart.
   A glyph is the line's own and optional: a list whose lines carry one leads every row with it (the slot kept for a
   line without, so the columns line up), a list without has no lead (the system facts have none). The inventory of
-  the other families and their outliers is the plan for the next ones (docs: none; renders `--widget-png
+  the other families and their outliers is the plan for the next ones (docs: none; renders `--render widget
   cpuSpeed|driveFree|weatherHumidity|stopwatch --state sample --sizes range`).
 - **[S-12812]** **One section heading** (owner, 2026-11-19: "generally i feel like the widgets have to much variance in
   themselves. they should reuse more of the same components"). A heading inside a card over a section of rows (a day
@@ -9038,7 +9052,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (`ControlsBlock.Switch`, the alarm's) stands at its template's own height, its track (20, `ControlsRules.SwitchTrack`)
   centred in it, and its ink is that track (`Ink`, as a slider's is its thumb), so the block's last ink is the
   track's foot. Before, the switch was held to the Controls row's 32 and the template cut its track's foot flat at
-  every size. Renders `--widget-png alarm --state sample|off|snoozed|ringing --sizes range`.
+  every size. Renders `--render widget alarm --state sample|off|snoozed|ringing --sizes range`.
 - **[S-14261]** **A text the block cuts never holds it small** (owner, 2026-11-19, WR-4: "they should stretch if they dont
   reach all the way"; WR-7). A line of a one-readout block that its kind cuts with its ellipsis (the next meeting's title
   and its lines, [S-11407]) stands in a `CutLine`: measured unbounded (as `ReadingFit` measures its parts, [S-12814]) it
@@ -9048,7 +9062,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   next meeting's whole title held the block at 0.82 of its natural size in its natural card, leaving 39 under it
   (320x124). A card far taller than the block is wide still leaves the height the width does not let it fill (WR-7:
   "until its ink fills the height or the width stops it").
-  Renders `--widget-png nextMeeting --state sample|running|nolink --sizes range`, judged by `scripts/gap-check.py`.
+  Renders `--render widget nextMeeting --state sample|running|nolink --sizes range`, judged by `scripts/gap-check.py`.
 - **[S-14791]** **A cut line never lets its block grow past where it stands whole** (owner, 2026-11-20: "the next meeting
   clips the time into the title"; docs/WIDGET-RULES.md exemption 2026-11-20, a reading that fills one axis may stand
   centred on the other: "Centred is fine"). A `CutLine` names the line whose whole width holds the block (`Holds`: the
@@ -9092,7 +9106,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   Tests `ItemSizeTests.S12830_`, `FixedItemTests.S14810_` (10 cells: three rows of three and a third of a fourth, never
   four of 2.5; the pitch follows the display), `KitTests`, `KitRowsTests`, the folder's and removable drives' pitch tests.
 - **[S-12831]** **The item check, the layout dump and the pointer renders** (docs/WIDGET-RULES.md WR-1..WR-6, WR-12,
-  WR-13). A render writes its cards' item boxes beside it (`--widget-png … --layout-json <out.json>`, Debug,
+  WR-13). A render writes its cards' item boxes beside it (`--render widget … --layout-json <out.json>`, Debug,
   `ItemDump`): each card's box and grid pitch, every item (`ItemMark`: a family row, a list's row, a fact row, an add
   row, a month's day cell) as the box it shows in the card, grouped by the panel that lays it, and the ink outside every
   item. `scripts/item-check.py` judges them for every kind, every state, at its range and at desktop sizes: the items
@@ -9452,7 +9466,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   descender for one without, the arm ring shown, "--" for "Off") is placed again (`ReadingFit` re-arranges when its face's
   ink moved). Arming draws the ring round the glyph and the face takes it in, centred again. The clock's and the date's
   faces are centred on their measured ink the same way where their width stops them ([S-12804], [S-12808]). Tests
-  `InkCentringTests.S14201_`; renders `--widget-png wifiToggle|lock|shutdown --state on|hover|armed --sizes range` and
+  `InkCentringTests.S14201_`; renders `--render widget wifiToggle|lock|shutdown --state on|hover|armed --sizes range` and
   `--sizes 600x200,520x600,900x300`, `scripts/gap-check.py --kinds` the twenty tiles, clock and date.
 - **[S-14202]** **A toggle not known yet says "--"** (docs/WIDGET-RULES.md WR-10: the face keeps "its reading as
   '--'"): while Windows has not answered, the tile's state line shows the default (`QuickToggleRules.StateLine`,
@@ -9489,7 +9503,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   titles, the first row of any `SpreadStack`, a facts list's) ends that much sooner (`IStatusRoom`, found however deep
   the part stands; a list built after the status spoke asks for its room, `KitStatus.Ask`). Tests
   `FamilyBlockRulesTests.S12834_`, `KitRowsTests.S11541_`, the folder's `S11203_`; renders
-  `--widget-png folder|tasks|habitTracker|weekPlanner|contacts|screenTimeApps|email --state sample|done|search|stale
+  `--render widget folder|tasks|habitTracker|weekPlanner|contacts|screenTimeApps|email --state sample|done|search|stale
   --sizes range` judged by `scripts/item-check.py`.
 - **[S-12835]** **No data, no account, not set up: the face is kept under one compact line** (owner, 2026-11-19,
   docs/WIDGET-RULES.md WR-10: "even if there is no rain in the next two hours or even if there is no cpu data available
@@ -9504,7 +9518,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its value, drawn unavailable (`EmptyRows`, as a facts list's missing fact, [S-12813]), at their size, as many as the
   room reaches, the last cut ([S-14810]), the first right under the line; a kit list not set up or without an account shows them alone under the card's
   line (`KitStatePanel.ShowFace`, `KitBinding`), as the contacts and the week planner do without an account. Tests
-  `WidgetLivenessTests.S12835_`, `PlaceClearTests.S2848_`; renders `--widget-png rss|email|deviceBatteries --state
+  `WidgetLivenessTests.S12835_`, `PlaceClearTests.S2848_`; renders `--render widget rss|email|deviceBatteries --state
   empty|failed|loading --sizes range`.
 - **[S-15784]** **A card too short for the line and the face keeps the face** (WR-10: "it never swaps its face for a
   status line alone"; coordinator's call 2026-11-22 pending the owner): where a kit list's slot holds the state's line
@@ -9523,7 +9537,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   removable drives' none: `StatusBlock.Line`) is in the list's first row's place, its box from the card's left edge to
   its right on the card's top edge, the side inset inside it, at the list's pitch, and it is one of the list's items
   (`ItemMark`), as its empty rows under it are. In a list's least card (one row) it is that one row, laid and judged as
-  the row it stands for; its sentence never stretches. Renders `--widget-png email|rss|notifications|recentFiles|
+  the row it stands for; its sentence never stretches. Renders `--render widget email|rss|notifications|recentFiles|
   removableDrives|deviceBatteries --state empty --sizes range`, `clipboard --state confirm`, `bluetooth --state off`,
   judged by `scripts/item-check.py` and `scripts/gap-check.py`.
 - **[S-12816]** **The pointer never changes a widget's layout** (owner, 2026-11-19: "some widgets like the now playing
@@ -9543,7 +9557,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   lit rows (`LinkLook`, `ItemFill`, the selection chrome: fills and colours), list rows' hover bands. Not a hover
   look but a reading: a meter's number standing at a moment pointed at on a linked chart ([S-11914]) says other text
   (the moment beside it, no lead), and its fit follows that text. Tests `SeekBarFaceTests.S12816_`; renders
-  `--widget-png musicProgress --state sample|hovered --sizes 340x40,340x80,520x120,900x40,520x40` draw the same type
+  `--render widget musicProgress --state sample|hovered --sizes 340x40,340x80,520x120,900x40,520x40` draw the same type
   size, run after run.
 - **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card
@@ -10017,7 +10031,7 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1067]** Add-on ownership: an active licence whose SKU id is `<productId>/<sku>`. A product id
   that is not 12 upper-case letters/digits (the placeholder) is never owned and is not offered.
 - **[S-1068]** *(Retired by [S-3570]..[S-3574]: the License page is ⚙ › Themia Pro; its
-  `--settings-png License --license …` render is `--editbar-png`'s `-pro-*` pictures, [S-3583].)*
+  `--settings-png License --license …` render is `--render editbar`'s `-pro-*` pictures, [S-3583].)*
 - **[S-1069]** The grace record is `%LOCALAPPDATA%\Themia\license.dat`, `themia-license:v1:<unix
   seconds>` sealed with DPAPI (current user), written atomically on "owned", deleted on "not owned",
   untouched when the Store is unreachable. Absent, unreadable, plain text or malformed: no grace.
@@ -10036,7 +10050,7 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   with the Store's code for it (`zh` is `zh-Hans`, `pt` is `pt-BR`, as the translation is
   Brazilian), so the listing shows them; English (`en-US`) is first, the default. It targets Windows
   11 (`MinVersion` 10.0.22000.0), the only Windows it is built and tested on.
-- **[S-1074]** Debug: `--scene-png <scenes.json> <scene> <out.png> [--lang <code>] [--scale <n>]` draws one
+- **[S-1074]** Debug: `--render scene <scenes.json> <scene> <out.png> [--lang <code>] [--scale <n>]` draws one
   scene of a store scenes file ([S-1075]), a whole stand-in desktop of real widget cards, off-screen, to one
   PNG of exactly the display's width and height times `--scale` pixels (default 2, from 0.5 to 4: a
   1920 × 1080 display is 3840 × 2160) whatever the machine's DPI: the display is laid out in DIPs at the
@@ -10116,7 +10130,7 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   (transparent, no header, as the first-run desktop's) and over it what the widget names itself. Its card
   stands where the desktop puts it: the whole cell (`GridGeometry.PaintedCell` of its fractions), the
   design's gap inside it (`ApplyGap`), its own content scale, the language's flow. Each card has a preview
-  host of its own, so its `state` (applied as `--widget-png --state` does: a widget waiting for setup runs
+  host of its own, so its `state` (applied as `--render widget --state` does: a widget waiting for setup runs
   for the preview first) and a kit widget's recordings ([S-9929]) are its own; the hosts share one link
   board. A preview state's name lives in the view, so it is checked when drawn ([S-1074]). Tests
   `SceneWidgetsTests.S1076_`.
@@ -10204,7 +10218,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   icons the file commands ([S-5545]); on cards Delete (and Shift+Delete) removes them while Lock widgets is off, one undoable
   step ([S-14320]), and Cut, Copy, Enter and F2 do nothing outside edit mode. *(Until 2026-11-20 Delete did nothing on
   cards either: "deleting widgets with delete does not work in non edit mode without the lock enabled".)* Edit mode keeps its own selection
-  (`WidgetSelection`, [S-2451]), started empty. Tests `DesktopGridTests.S11877_`; `--drag-png` draws it
+  (`WidgetSelection`, [S-2451]), started empty. Tests `DesktopGridTests.S11877_`; `--render drag` draws it
   (`drag-lasso-*`; several cards: `drag-group-*`).
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
@@ -10306,9 +10320,9 @@ makes a composition one thing. Several widgets selected together are arranged an
   marks follow it (`SelectionRules.MarksShown(…, framed)`); the surface marks again every card that joins or leaves the
   frame (`DesktopWindow.SyncFrame`, after every selection change, move step and layout), so a card alone selected loses
   its marks as a second is added and gets them back as one goes. Tests `GroupMarksTests.S14310_`; renders
-  `--editbar-png --only marks` (`marks-*-multi`, `-block*`) and `--only select` (`select-*-two`, `-many`, `-touching`),
-  `--drag-png` (`drag-group-*`: three cards and two icons selected on the locked desktop; `drag-groupmove-*`: two
-  selected cards moved); `--desk-select-check` checks it through a real host and surface (the locked desktop: Ctrl+A,
+  `--render editbar --only marks` (`marks-*-multi`, `-block*`) and `--only select` (`select-*-two`, `-many`, `-touching`),
+  `--render drag` (`drag-group-*`: three cards and two icons selected on the locked desktop; `drag-groupmove-*`: two
+  selected cards moved); `--check desk-select` checks it through a real host and surface (the locked desktop: Ctrl+A,
   one card, a second added, an icon beside, a locked move and its cancel, one taken out; edit mode: two, one taken out,
   one added, narrowed). Not live-verified: a real pointer on a member's edge or corner inside the frame (its move area
   takes the press), the corners on a move driven by real input.
@@ -10344,7 +10358,7 @@ makes a composition one thing. Several widgets selected together are arranged an
   edges never move. While dragged the cards are drawn where they land, each showing the config its size means
   ([S-2442]) and joined among themselves ([S-2457]); the page waits until the pointer lets go ([S-2343]). Let go, every
   member lands, a list's rows with its size, all in **one undo step**. Tests `BlockResizeTests.S2460_`; renders
-  `--editbar-png --only select` (`select-*-two`, `-many`, `-touching`: the frame) and `--only marks` (`marks-*-multi`,
+  `--render editbar --only select` (`select-*-two`, `-many`, `-touching`: the frame) and `--only marks` (`marks-*-multi`,
   `marks-*-block`, `-block-corner`, `-block-left`, `-block-keys`: one block before and after).
 - **[S-2461]** **The common step.** The block's length moves by the fewest whole cells at which every edge of every
   member (and of every gap between them) scales to a whole cell exactly: the block's length over the greatest common
@@ -10385,7 +10399,7 @@ makes a composition one thing. Several widgets selected together are arranged an
   by its grips' reach, holds the point, else the topmost card there). A widget that is not selected keeps its grips
   on its own card. A member of a selection of several lifts its move area alone: its grips are the frame's
   ([S-14310], [S-2460]). To reach the card on top where a selected one lies under it, select it elsewhere, or press
-  Escape first. Tests `SelectedHandlesTests.S1597_`; render `--editbar-png --only select`
+  Escape first. Tests `SelectedHandlesTests.S1597_`; render `--render editbar --only select`
   (`select-*-under-another`).
 - **[S-11860]** **A ready-made group in a scene**: an entry of a scene's `widgets` may be
   `{ "readyMade": "<id>", "at": [x, y] }` in place of a widget. It stands for every widget of that
@@ -10401,7 +10415,7 @@ makes a composition one thing. Several widgets selected together are arranged an
   widget waiting for setup running for the preview first: a scene is a picture for other people, so it
   never shows this PC's clock, player, accounts or files because a state was left out. A `state` still
   names any render state.
-- **[S-11862]** **A scene's layout beside its picture.** `--scene-png` writes `<picture>.layout.json`
+- **[S-11862]** **A scene's layout beside its picture.** `--render scene` writes `<picture>.layout.json`
   next to the PNG: the display's DIPs and every widget's id, kind, group and the box it is painted in,
   in DIPs (fitted into its sizing, [S-2446]; a ready-made group's widgets where the recipe puts them,
   [S-11860]). The store's pages take a widget's place from it, never from the scene file's numbers.
@@ -10527,14 +10541,14 @@ placement they will just be a collection of regular widgets like any others").
 - **[S-11342]** **Quick settings**: Wi-Fi, Bluetooth, Do not disturb and Night light, four Medium tiles
   (120) in a row.
 - **[S-11343]** **Power**: Lock, Sleep, Restart and Shut down, four Medium tiles (120) in a row.
-- **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--theme light|dark] [--edit]
+- **[S-2475]** Debug: `--render recipe <id> <out.png> [--states kind=state,..] [--theme light|dark] [--edit]
   [--scale <n>]` draws a recipe placed: a scene built from it (`ReadyMadeScene`), its widgets touching on a
   sample wallpaper, no edit chrome, so the picture is the panel; `--edit` draws it in edit mode, the placed
   widgets selected under the bar with their page hung from the bar's entry. A widget given no
   state shows its "sample" preview where it has one.
 - **[S-11606]** **A recipe is one panel** (`ReadyMadeGroupsTests`, every recipe): each widget's box is a
   size its kind takes for the recipe's config (placing it moves nothing, [S-2446]), and the
-  boxes fill the recipe's bounds with no notch. Every recipe is looked at in `--recipe-png` (a contact
+  boxes fill the recipe's bounds with no notch. Every recipe is looked at in `--render recipe` (a contact
   sheet of all of them): no double line, no spare air, and text edges in line from one atom to the next.
 - **[S-12485]** **Every ready-made group comes with its Header widget** (owner, 2026-11-16: "the groups should
   already include preplaced matching headers"): `ReadyMadeGroups.Headed` puts a Header widget ([S-9600])
@@ -11075,7 +11089,7 @@ are single metrics (METRICS). Tests: each module's, `ReadyMadeGroupsTests`.
   **Weather facts** (every weather fact, [S-14607]), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
   **Weather station** (the reading, its facts, the days ahead as a repeater of high and low rows ([S-15540]) and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
-  weather's none, the sky's Zürich); the previews and `--recipe-png` draw every atom at the one sample
+  weather's none, the sky's Zürich); the previews and `--render recipe` draw every atom at the one sample
   place (`SamplePlace`) on the sample day.
 - **[S-11806]** **The sun's arc fits its box in every season** (`SunPathPlot.For`, 2026-11-12): the
   altitude axis tops out at the day's own noon (`SunPathPlot.NoonAltitude`: 90 less the latitude's
@@ -11553,7 +11567,7 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   a boolean) before use. The handlers live on one STA thread with a message loop, every call handed to
   it as a task; no wall-clock wait (Karpo's two-second start-up wait is not ported: whether a handler
   applies is asked when the pointer comes by).
-- **[S-3909]** Debug: `--widget-png <Kind> <out.png> [--theme light|dark] [--style tile|round|switch] --state on|off|unavailable|unknown|hover|pressed|refused`.
+- **[S-3909]** Debug: `--render widget <Kind> <out.png> [--theme light|dark] [--style tile|round|switch] --state on|off|unavailable|unknown|hover|pressed|refused`.
   A render reads nothing and switches nothing ([S-1251]); a click there flips a made-up reading.
 - **[S-3910]** Wi-Fi and Bluetooth: `Windows.Devices.Radios`, the radio of the kind found on the pool,
   `StateChanged` followed, `RequestAccessAsync` then `SetStateAsync` (Windows may refuse an app; the
@@ -11825,7 +11839,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   with chevrons: a strip hides the shown view as easily as any other and needs a scroll position
   per display; the overflow keeps every drawn chip one click away and is how Windows overflows a
   command bar.
-- **[S-919]** Debug render: `Themia.exe --viewbar-png <outDir> [--views n] [--only <prefix>] [--theme light|dark]`.
+- **[S-919]** Debug render: `Themia.exe --render viewbar <outDir> [--views n] [--only <prefix>] [--theme light|dark]`.
   With `--views n` (1..60) it draws n views, the shown one two thirds along, at all eight anchors
   with each of the three labels ([S-5405], the sizes in turn) and two edit-mode shots, and the
   overflow menu of the bottom-left icon-and-text and text-only shots; it prints each bar's box and
@@ -11853,11 +11867,11 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 - **[S-5403]** Type-ahead in the menu: a letter moves to the next view after the focused one whose
   name starts with it, wrapping, so the same letter steps through them (`ViewBarRules.TypeAhead`;
   case-insensitive, no timer).
-- **[S-5404]** `--viewbar-png` draws the three labels inline (rows at M, L and XL; columns, icon-only and
+- **[S-5404]** `--render viewbar` draws the three labels inline (rows at M, L and XL; columns, icon-only and
   text-only; edit mode) and ends both sets with select shots (bottom left M, top right L icon only,
   bottom centre XL text only, left middle XL, right middle M text only, top centre M in edit mode),
   each closed and with its menu open (`…-select-…-menu.png`); `--theme` and `--lang` apply.
-  `--editbar-png --only bar` draws Display ▾ › View bar and its Type and Labels levels.
+  `--render editbar --only bar` draws Display ▾ › View bar and its Type and Labels levels.
 - **[S-5405]** Each display's bar has labels (`ViewBarSettings.Labels`, `ViewBarLabels`): **Icon and
   text** (the default: the view's icon or initials and its name), **Icon only** (the mark alone in
   one square, [S-911]) or **Text only** (the name alone, padded like a named chip). They apply to
@@ -11917,15 +11931,15 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   Windows' selectors mark the picked item with, the edit bar's open entry's ([S-2321], `ShellMetrics.Bar.Pill*`, 16 × 3):
   at its foot on a row, at its start on a column. Every chip on a row keeps the pill's room under its words, so the
   names stay on one line.
-- **[S-13406]** `--viewbar-png` ends both sets with the styles' shots (`viewbar-dots-…`, `-arrows-…`, `-cycle-…`: a row
+- **[S-13406]** `--render viewbar` ends both sets with the styles' shots (`viewbar-dots-…`, `-arrows-…`, `-cycle-…`: a row
   and a side anchor each, M to XL, the labels where they apply, edit mode), each arrows shot also with its label's menu
   open (`…-menu.png`); `--only <prefix>` draws the shots whose name starts with it (`--only cycle`).
-  `--editbar-png --only display` draws the Display page's shots alone, `page-<theme>-display-type.png` with the Type
+  `--render editbar --only display` draws the Display page's shots alone, `page-<theme>-display-type.png` with the Type
   (the styles) open.
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
 tooltip on the bar (licensing refuses through `AllowCreate`). Debug render:
-`Themia.exe --viewbar-png <outDir>` draws the real bar, placed by the real rule, at nine
+`Themia.exe --render viewbar <outDir>` draws the real bar, placed by the real rule, at nine
 anchor/size/mode combinations on a stand-in display with a taskbar strip ([S-919] for many views).
 
 ## The Displays and Views pages (R4-NAV, R5-PAGES)
@@ -11957,7 +11971,7 @@ every display's and every view's settings are the edit bar's Display and View me
 - **[S-1832]** *(Retired by [S-3540]: there are no Displays and Views pages.)*
 - **[S-1833]** *(Retired with the list pages ([S-3540]): no groups to keep open.)*
 - **[S-1834]** *(Retired with the list pages ([S-3540]): the bar menus follow the state in place ([S-3531]).)*
-- **[S-1835]** *(Retired by [S-3548]: `--editbar-png --only bar` draws View ▾ and Display ▾.)*
+- **[S-1835]** *(Retired by [S-3548]: `--render editbar --only bar` draws View ▾ and Display ▾.)*
 
 - **[S-3800]** *(Retired by [S-3541], [S-3542]: a view is a line of View ▾ and its submenu.)*
 - **[S-3801]** No menu reorders by arrows where dragging exists: View ▾ ([S-3541]) and the view bar
@@ -12018,7 +12032,7 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   (`Notice.OneLine`) has its glyph, title, button (on that line) and close button all centred on one line, the same 12
   over and under it, and no empty row under it (until then its parts hung from the top, the button 4 over the title, and
   16 stood under it: 12 over the title, 24 under it with a button). With a message each part stands from the top as
-  before, 12 over the title and 12 under the last line or the button. A notice has no progress shape. `--notices-png
+  before, 12 over the title and 12 under the last line or the button. A notice has no progress shape. `--render notices
   <outDir> [--theme light|dark]` draws every shape (a title alone, with its button, over a message, with a message and a
   button) beside the stack. Tests `NoticesBootTests.S881a_`.
 - **[S-882]** `NoticeStack`: at most 3 at once, newest at the bottom; a fourth pushes out the oldest
@@ -12336,7 +12350,7 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   desktop. The startup sound ([S-1008], [S-1009]) is removed.
 - **[S-1015]** Every intro runs on the compositor (`MotionKit`): keyframe and expression animations,
   no per-frame managed timer, no layout pass, no redraw of a widget.
-- **[S-1016]** Debug: `Themia.exe --motion-png <outDir>` freezes the intros mid-flight on a stand-in
+- **[S-1016]** Debug: `Themia.exe --render motion <outDir>` freezes the intros mid-flight on a stand-in
   screen, posed from the same Core data (keyframe styles at 250 ms of 500, Sides at 60 ms, Hyperspace
   at 600/2300/2900/3450/3800 ms of its natural 4.5 s, Hacker tiles through the real hook). It proves the choreography, not the
   compositor's playback.
@@ -12347,7 +12361,7 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   pose outright (`IntroPose.Rest`: opacity 1, scale 1, no translation, no rotation; every style's tracks end
   there). A show whose compositor never reported its end no longer keeps the cards at their start pose,
   unseen, and no longer refuses every replay ([S-1012]) for good.
-- **[S-1018]** Debug: `Themia.exe --startup-check <out.txt> [--state <state.json>] [--show <view>] [--hold ms]
+- **[S-1018]** Debug: `Themia.exe --check startup <out.txt> [--state <state.json>] [--show <view>] [--hold ms]
   [--hide] [--twice] [--wallpaper <picture>] [--interrupt ms]` starts a real surface on a stand-in display
   off-screen on that view as the app starts (a copy of the state, read only; a detached store) and reports
   every card as the compositor holds it (NOT AT REST marks one that is not), the desktop's list and its
@@ -12403,7 +12417,7 @@ shortcut S-28..S-34.
 - **[S-1025]** Untrusted text payloads: a Chromium app's `file:///` lines (VS Code offers CF_HDROP
   and fails to render it) become paths with percent escapes decoded as UTF-8 bytes; only absolute
   local or UNC paths, each once. Wide text stops at its NUL.
-- **[S-1026]** Debug: `Themia.exe --drop-check <outDir>` exercises the plumbing off-screen with no
+- **[S-1026]** Debug: `Themia.exe --check drop <outDir>` exercises the plumbing off-screen with no
   input: the target on every window of a WinUI window, a shell data object read back as a drag, a
   forwarded hover, a folder switch and a drop into a scratch folder under `outDir` (the copy must
   arrive), the drag-image helper and the caption, and a drag of our own short of starting it: what its
@@ -12604,7 +12618,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   icons** (All, Chosen, None; `view:<id>/desktop-icons`), and while Chosen under it **Icons on this view** ("3 of 7"),
   a page of its own behind a back head ([S-2303]) listing the desktop's items in `DesktopItemOrder`, each a switch with
   its kind's glyph that shows it on this view or hides it (`view:<id>/chosen-icons/<key>`; "There's nothing on the
-  desktop." with none). Rendered as `page-*-views-icons` and `-views-chosen` (`--editbar-png --only pages`).
+  desktop." with none). Rendered as `page-*-views-icons` and `-views-chosen` (`--render editbar --only pages`).
 - **[S-13015]** **One icon per item on a view** (the owner's report, 2026-11-19: "in one of my views some items are
   duplicated and move together"): a view never holds two icons of one desktop item, free or in a fence. Two item widgets of
   one key are one item to the one selection, the drag and every command (they share the key, [S-5540]), so a second icon
@@ -12646,7 +12660,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   "its" widget (`DesktopSelection.PlaceOf`, each box naming the widget that shows it; `AppHost.DeskPlace`, the one
   lookup): F2's box, Properties, the menu from the keys and its anchor, Hide from this view, a layout opened on its
   display and a drag's source act on the copy where the user is, and every command acts on the key once (the
-  selection holds it once). Tests `DeskTwinSelectionTests`; `--desk-select-check --twice` (F2 after a press on either
+  selection holds it once). Tests `DeskTwinSelectionTests`; `--check desk-select --twice` (F2 after a press on either
   copy). An item
   no longer shown (a card that draws nothing, [S-873]) leaves the selection; an icon's look is the SDK's one
   ([S-6627]), inactive while another window has the keyboard ([S-6626]); a card's is its corners ([S-11877]).
@@ -12690,7 +12704,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   held it. A display Themia is switched off on ([S-845]) has no surface: the band does not go there.
   *(Until 2026-11-14 the band was clamped to the surface it started on and selected that display's
   icons only.)* Tests `DesktopBandTests.S5544_`, `DeskTwinSelectionTests` (one item on two displays' views, the owner's
-  two Quartus icons), `--desk-select-check --twice` (host-level). Live pass still needed: two displays, mixed scale,
+  two Quartus icons), `--check desk-select --twice` (host-level). Live pass still needed: two displays, mixed scale,
   a display left of and above the primary.
 - **[S-5545]** **Commands** with the keys: Delete is the shell's own "delete" verb on the selected
   files (`IContextMenu`, as Explorer invokes it), with the shell's own prompt as the user set it up
@@ -12821,7 +12835,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   where the card stands, shows and fades with it and goes with it; the surface draws every plate over every card and under
   the edit marks (`EditMarkerLayer.Overhangs`). Its empty room takes no press; a press on what it holds is the card's
   (`WidgetPress.Locate`), so the rename box there keeps the card's keyboard lease. A picture with no plate shows no
-  overhang. Renders `--desktop-png --icon-layout icononly`, `--drag-png --icon-layout icononly`.
+  overhang. Renders `--render desktop --icon-layout icononly`, `--render drag --icon-layout icononly`.
 - **[S-13976]** **Fences follow the layout** ([S-13040]): a fence's cells are the icon boxes of the layout in force, its
   icons laid by `DesktopFences.Lay`; a fence made for n items (`FenceGrid.Around`) is as near square as the boxes allow,
   with fewer columns for text beside's wide boxes by their proportion (a list of a column or two), and a fence of them is at
@@ -12848,7 +12862,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   live menu (fixed 2026-11-14: Medium icons showed none): `ItemMenu` set a `RadioMenuFlyoutItem`'s
   `IsChecked` before its `GroupName`, so the checked line joined the nameless group for a moment and the
   next one checked there (Sort by's, built after View's) cleared it; the group is set first now.
-  Render: `--menu-png`, `desk-live-view-1.png` and `desk-live-sortby.png` (each submenu opened in place).
+  Render: `--render menu`, `desk-live-view-1.png` and `desk-live-sortby.png` (each submenu opened in place).
 - **[S-5546]** **Moving icons on the desktop** is the widgets' move ([S-2008], [S-11879]): an icon pressed and moved
   moves with the selection it is in, cards included, snapped to the widget grid, the local grid round where it lands
   ([S-11874]); nothing is pushed aside and icons may overlap widgets, as widgets may. Only when the move becomes the
@@ -12892,7 +12906,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   a badge whose text cannot be drawn is still a badge. An icon's picture is what its view keeps
   (`ItemDrag.IconOf`: the pixels of the shell's writeable bitmap the icon shows; for a glyph, an emoji, a
   picture file, a site's or a layout's icon a render made when the icon changes, never at the drag's
-  start). Debug: `--desktop-png` writes `desktop-ghost-<theme>-<wall>.png`, the ghost of 1, 2, 3 and 12
+  start). Debug: `--render desktop` writes `desktop-ghost-<theme>-<wall>.png`, the ghost of 1, 2, 3 and 12
   icons with a red dot where the pointer holds it. Tests `DragGhostTests.S5565_`.
 - **[S-5559]** **New ›'s lines have their own icons**, as Explorer's (owner's report 2026-11-14): Folder the
   folder's icon, Shortcut a shortcut's (the blank page under the shell's arrow), each template its
@@ -12905,7 +12919,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   the same submenu. **Open in Terminal** shows Windows Terminal's own app icon (its Apps-folder item);
   View › and Sort by › have Explorer's two-tone pictures ([S-1754]). Left as they are: Refresh, Display
   settings, Personalise, Paste and Paste shortcut keep the glyph pictures Themia has ([S-1754]); Explorer
-  draws them from its own resources. Tests `TypeIconNameTests.S5559_`; the render `--menu-png`
+  draws them from its own resources. Tests `TypeIconNameTests.S5559_`; the render `--render menu`
   (`desk-live-new*.png`).
 - **[S-5548]** **Menus** (user standard 2026-11-14: no difference to Windows' desktop, "context menus too"): a
   right-click on an icon (a right press keeps a selection it lands in, [S-5540]) or on empty desktop opens
@@ -12933,8 +12947,8 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   Rename is the desktop's box, [S-5543]); for empty desktop the desktop root's
   `IShellFolder::CreateViewObject` menu (`ShowForDesktop`), New ›'s owner-drawn lines forwarded, **with
   nothing of Themia's in it** (its View, Sort by, Refresh and Themia's lines are on the Windows 11 menu;
-  until 2026-11-14 they were put into the classic popup, which was the only menu). Debug: `--menu-png`
-  draws the Windows 11 menus ([S-1747]); `--desktop-menu-check <out.txt>` writes the background menu's lines,
+  until 2026-11-14 they were put into the classic popup, which was the only menu). Debug: `--render menu`
+  draws the Windows 11 menus ([S-1747]); `--check desktop-menu <out.txt>` writes the background menu's lines,
   the Windows 11 menu's and then the classic one's, never showing a menu or running a command. Not
   exercised on a live desktop in this change: the keyboard reaching the flyout over the surface (which
   does not activate outside edit mode), the flyout turning round at a screen's edge (the icon row below the
@@ -12982,7 +12996,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   `RenderTargetBitmap` under the drag's deferral after it had begun, each in its desktop place with its
   name, so the drag showed nothing for a moment, then every icon spread out: "the ghost preview … only
   appears after some time … if you drag and drop multiple items it looks off".)* Measured: composing a
-  ghost of 12 at 150 % takes about 8 ms on this PC (`--desktop-png` prints it; 200 runs); "drag: starting"
+  ghost of 12 at 150 % takes about 8 ms on this PC (`--render desktop` prints it; 200 runs); "drag: starting"
   in the log at debug level gives the time from the drag being asked for to `DragStarting` and the
   composing time, on the live desktop. Without a picture (the held icon has none yet) the drag shows
   the pressed icon as XAML draws it.
@@ -13051,7 +13065,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   there. A line is a command with its check mark or its dot, a submenu with its
   own title of such lines, or a separator (`DesktopMenuEntry`: `Checked`, `Chosen`; `DesktopMenuGroup`;
   `DesktopBackgroundFacts.Of` reads the icon size and the sort from the state). Their
-  words are Themia's (English only so far). `--desktop-menu-check` writes a checked line as `[x]` and the
+  words are Themia's (English only so far). `--check desktop-menu` writes a checked line as `[x]` and the
   chosen one of a set as `(o)`. Tests `DesktopSortTests.S5593_`, `S5594_`, `S5596_`.
   ([S-1407]). An icon that opens nothing (one that waits, a refused target, a layout with no app) is
   left out. At most 15 at once, the rest logged.
@@ -13109,7 +13123,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   when they are gone ([S-5597]), so it is a second step. Removing a card never touches a file, and deleting a file never
   removes a card. A card picked by hand (Ctrl/Shift+press, [S-11879]) gives the desktop the keys, so Delete reaches it;
   before, it reached nothing. In edit mode Delete is [S-5524]'s (every selected widget off the view, no file touched).
-  Tests `DesktopDeleteTests.S14320_`; `--desk-select-check` (host-level: Ctrl+press clock and notes, Ctrl+click an own
+  Tests `DesktopDeleteTests.S14320_`; `--check desk-select` (host-level: Ctrl+press clock and notes, Ctrl+click an own
   icon, Delete and Shift+Delete, then Ctrl+Z; `--locked`: the icon alone).
 - **[S-5597]** **Ctrl+Z puts a deleted item back** (owner, 2026-11-16: "when i deleted a folder from the desktop
   for example it should be possible to bring it back with ctrl z"), as Explorer's own Undo Delete: a delete of
@@ -13177,7 +13191,7 @@ of different sizes, Ctrl + wheel reaching the surface, Auto arrange icons packin
 not run live), the dots and check marks in the live menu, and an arrival of each kind (a new file, a
 paste, New ›, a drop from outside) landing beside a widget. The merge of the two kinds (2026-11-14) was checked by tests and renders only.
 The drag's start as XAML's drag (2026-11-14, [S-5549], [S-1332]) was built from the diagnosis of the
-old loop and checked by build, tests, `--drop-check` and the Native AOT publish only: that
+old loop and checked by build, tests, `--check drop` and the Native AOT publish only: that
 `StartDragAsync` takes over the held press, that the surface's OLE target sees the drag, the picture's
 place under the pointer at 100 % and at a scaled display, the missing mark and caption while icons
 would move, Escape, and a drop of the storage items on Explorer, an app and the Recycle Bin all need
@@ -13327,7 +13341,7 @@ module's `FenceTests`.
   a shortcut (never moved); nothing is dropped, pasted or made in it, its items are in no desktop selection, it holds no
   desktop item (one it held goes back to the free desktop), new items never route to it, and removing it touches no file.
   Empty, it says "Searching…", "Choose the kinds of file it shows on its page" or "No files match". Debug:
-  `--desktop-items-check <out.txt> --search <ext> [folder]` runs one search and writes counts by extension and the time
+  `--check desktop-items <out.txt> --search <ext> [folder]` runs one search and writes counts by extension and the time
   (no file names). Tests `FenceSourceTests.S13023_`, the module's `FenceTests.S10900_`. Needs a manual pass: a
   search fence on a live desktop (a drag out, the menu, a non-indexed folder's slower answer).
 - **[S-13026]** **The drag's picture stays over the surface** (the owner, 2026-11-19: "when it shows the ghost preview in the
@@ -13406,7 +13420,7 @@ module's `FenceTests`.
   icons are selected changes nothing; a band drawn back off the icons gives back the fence it still touches. One place:
   `DesktopSelection` (the layout's boxes say which are fences, `DesktopBox.Fence`; `ItemSelection.Deselect` lets go of
   them), so no gesture has a rule of its own. With Lock widgets on a fence is in no selection at all ([S-12953]). Tests
-  `FenceSelectionTests.S13045_` (every gesture); `--desk-select-check` (host-level: Ctrl+press the fence, then an icon,
+  `FenceSelectionTests.S13045_` (every gesture); `--check desk-select` (host-level: Ctrl+press the fence, then an icon,
   the fence again, a Shift range, Ctrl+A, the band).
 - **[S-13046]** **An icon's move: the icon under the pointer, the whole icon where it lands** (the owner, 2026-11-19:
   "when dragging a desktop icon into the fence it only show the icons corners as the ghost preview. it should show the
@@ -13424,7 +13438,7 @@ module's `FenceTests`.
   view's order stood under the fence's body, so only its corner marks (on the marker plates above every card) showed
   there, and nothing followed the pointer. While the block is going to another display ([S-78]) the picture goes and the
   cards fade as before. Cause and fix in `DesktopWindow.Selection.cs` (`BeginMove`, `StepMove`, `EndMoveLook`) and
-  `WidgetCard.SetGhost`. `--desk-select-check` draws a move into the fence and one on the free desktop mid-move
+  `WidgetCard.SetGhost`. `--check desk-select` draws a move into the fence and one on the free desktop mid-move
   (`<out>.move-fence.png`, `<out>.move-free.png`; `--icon-layout below|beside|icononly`) and checks the ghost, the lift,
   the picture and where the icon lands. Needs a live check: the real pointer dragging an icon over a fence and back, two
   displays.
@@ -13442,7 +13456,7 @@ module's `FenceTests`.
   (the held icon alone, [S-13048]) held at the move's own grab (`DesktopWindow.HandedMove`; `AppHost.DragPicture`, `BeginDrag`), and its icons land by that
   grab ([S-5546]): before, the picture was composed again with the icons back home and the grab clamped to the icon's
   corner, so it jumped under the pointer. Windows' own glyph and caption over a real drop target stay, as Explorer's.
-  Tests `FenceGridTests.S13047_`; `--desk-select-check` moves twinU onto twinP in the fence by way of the fence's title bar
+  Tests `FenceGridTests.S13047_`; `--check desk-select` moves twinU onto twinP in the fence by way of the fence's title bar
   (`<out>.move-fence-icon.png`: the same picture all the way, never handed over; a move over the free twinU is) and hands
   a move to the shell's drag (its picture carried). Needs a live pass: the real pointer moving an icon across a full fence
   and out again, and off the desktop onto an app's window.
@@ -13459,7 +13473,7 @@ module's `FenceTests`.
   in front, up to two behind it, their count in a badge), a second preview over the moving icons' own ghosts. Explorer's
   stack with its count stays for a drag that starts as the shell's elsewhere: the folder widget's rows ([S-1332]) and a
   search fence's files ([S-13023]). Windows' own desktop stacks several with their count: a difference by the owner's word
-  ([S-13100]). Tests `DragGhostTests.S13048_`; `--desk-select-check` moves two icons on the free desktop and two into the
+  ([S-13100]). Tests `DragGhostTests.S13048_`; `--check desk-select` moves two icons on the free desktop and two into the
   fence (`<out>.move-several-free.png`, `<out>.move-several-fence.png`): the picture under the pointer is one icon's square
   held where it was grabbed with nothing opaque in it (no badge), every moving icon a ghost where it lands. Needs a live
   pass: the real pointer moving several selected icons on the desktop, into a fence and off the desktop onto an app.
@@ -13472,7 +13486,7 @@ module's `FenceTests`.
   (`LassoArea.Fill`; a ready-made group or a desktop item picked there is placed as usual); **Create fence here** makes a
   fence on the area snapped out to whole cells and at least the kind's minimum, taking in the free icons whose middle is
   inside it (`LassoArea.IconsInside`), one undo step ([S-13007]'s rules). A lasso that touched something is a selection
-  and opens nothing; Escape or a click elsewhere closes the menu. Drawn by `--menu-png` (`desk-lasso-area`). Tests
+  and opens nothing; Escape or a click elsewhere closes the menu. Drawn by `--render menu` (`desk-lasso-area`). Tests
   `LassoAreaTests.S13018_`, `WidgetSizingTests.S13018_`.
 - **[S-13024]** **The band stays while its area menu is open** (the owner, 2026-11-19: "when the add widget here
   context menu comes up the lasso select should stay visible"): when a let-go lasso opens the area menu ([S-13018]) or a
@@ -13781,7 +13795,7 @@ Tests: `ShortcutsDropLayoutTests`; a drop onto an own icon, the module's `OwnIco
 - [S-1413] Each pane: split side by side / top and bottom / remove (not on the only pane), and centred
   the icon and name when assigned, the source, then a searchable Start menu app box, a URL box, or a
   path box with Browse (checked by `LaunchTargets`, the reason shown), reuse, Clear. Shrinks with the pane.
-- [S-1414] Debug: `--layout-editor-png <out.png> [waitMs] [--empty]` renders the editor off-screen over
+- [S-1414] Debug: `--render layout-editor <out.png> [waitMs] [--empty]` renders the editor off-screen over
   a demo state (one `desktopItem` widget, an own icon that is the layout); nothing is launched.
 
 Not ported: per-pane command-line arguments (allow-list rule: nothing is ever a command line); drag-out
@@ -13853,11 +13867,11 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   right-click on empty desktop does ([S-5550]). **One path, one look**: every card menu, in and outside edit mode (edit
   mode's content as [S-1743]), opens as the desktop's menus do, through the surface's menu anchor at the pointer
   (`DesktopWindow.OpenCardMenu`, `OpenMenuAt`), never on the card. Why they looked different: a flyout takes its theme
-  from the element it is opened on (its nearest ancestor with one; `--menu-png` showed it, the same menu on a card and on
+  from the element it is opened on (its nearest ancestor with one; `--render menu` showed it, the same menu on a card and on
   an anchor beside it pixel for pixel alike, on another element in another theme not), and the card's right press, unlike
   the desktop's, left the keys and the foreground with no one when the widget takes no keys (a press on a card ends the
   desktop's hold of them), so its menu opened over a surface in the background while the desktop's opened over the
-  foreground one. Tests `ContextMenuTests.S14321_`, `DesktopDeleteTests.S14321_`; `--menu-png` (`card-desktop-actions`,
+  foreground one. Tests `ContextMenuTests.S14321_`, `DesktopDeleteTests.S14321_`; `--render menu` (`card-desktop-actions`,
   `-3`, `-locked`, `-withfile`, `-glass`, beside `desk-background`). Live pass still needed: the real right-click on a
   widget on the desktop, its look against the background menu's, the keys in it.
 - **[S-15830]** **A widget's menu has Windows' icon row** (owner, 2026-11-21: "add a top row for the right click menus on
@@ -13943,7 +13957,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   (`MenuMarks.Slot`). `ItemMenu` builds plain items only: never a `ToggleMenuFlyoutItem`, `RadioMenuFlyoutItem` or
   `AppBarToggleButton`, each of which makes WinUI reserve a check column beside the icons. The view bar's select menu
   too (2026-11-17): the shown view's line shows the dot in the slot where every other view shows its mark (`ViewBar.ViewMenu`);
-  no file is excepted. Tests `ContextMenuTests.S12952_`; `--menu-png` and `--viewbar-png` draw them.
+  no file is excepted. Tests `ContextMenuTests.S12952_`; `--render menu` and `--render viewbar` draw them.
 - **[S-1755]** The pictures are Windows', never shipped with Themia: the standard-contrast `theme-light` /
   `theme-dark` SVGs under `%WINDIR%\SystemApps\MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\FileExplorerExtensions\Assets\images`,
   one file per picture (`MenuArtRules.FileName`), each read once per theme and kept. A Windows without
@@ -14001,7 +14015,7 @@ that puts every widget on the real desktop at its min, natural and max. Owning f
   the default (Karpo's cross). Typing filters at once; Enter in the box takes the best match (the default with nothing
   typed), Down moves into the grid; arrows, Home/End and Page keys move in the grid and Enter or Space picks. The
   current icon (or the default) is selected and scrolled to. No match says so in the grid's place, which keeps its
-  size. Debug render: `Themia.exe --iconpicker-png <out.png> [--search text] [--theme light|dark] [--initials]`.
+  size. Debug render: `Themia.exe --render iconpicker <out.png> [--search text] [--theme light|dark] [--initials]`.
 - **[S-13605]** The owner (2026-11-19): *"make the icon picker like it is in karpo"*. Karpo's (`karpo-app`, docs/widgets.md
   §249, §306, §682): **one grid, no headings** (alike glyphs together, `FluentIcons`' order, no categories: Karpo
   dropped its six headings in §306), **dense** (40-DIP squares of the 20 glyph, no names under them; a name is the
@@ -14025,7 +14039,7 @@ that puts every widget on the real desktop at its min, natural and max. Owning f
   end, an old one whose id comes back is replaced (a display showing it keeps it), one that does not is
   deleted with its references repaired ([S-902]). Widgets the user added to a showcase view go with it.
 - **[S-1814]** Only through a Debug-build flag, never the app's UI:
-  `Themia.exe --add-showcase-views [<statePath>]` (default: the app's own state file) lays the views out
+  `Themia.exe --render showcase-views [<statePath>]` (default: the app's own state file) lays the views out
   for the primary display, writes the file atomically through the store and exits. Exit 0 written,
   2 no display, 3 refused because a copy of Themia is running and the target is the app's own state
   file (that copy owns it and would overwrite the change), 4 the file is not a state document (left
@@ -14090,11 +14104,11 @@ gallery ([S-1863]).
   saves itself such as a drop onto an own desktop icon that waits, [S-9508]) or a newly signed-in account makes the widget
   useful. The views carry no "add one in settings" sentences of their own.
 
-- **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
+- **[S-1863]** There is no widget gallery: no `--gallery` window, no `--render gallery` render, no
   toolbar entry, and no `#if DEBUG` sample data inside widget views or services. A widget's layout at
   its min, natural and max is checked on the showcase views ([S-1810]) on the live
-  desktop, or off-screen with `--widget-png` (one card at each, default config, [S-1917]); the other debug render flags (`--editbar-png`, `--picker-png`, `--viewbar-png`,
-  `--notices-png`, `--menu-png`, `--iconpicker-png`, `--motion-png`, `--layout-editor-png`) stay and
+  desktop, or off-screen with `--render widget` (one card at each, default config, [S-1917]); the other debug render flags (`--render editbar`, `--render picker`, `--render viewbar`,
+  `--render notices`, `--render menu`, `--render iconpicker`, `--render motion`, `--render layout-editor`) stay and
   draw widgets with their default config. The tags that described the gallery's fixtures are retired.
 
 Needs a manual pass: the button on the live desktop outside edit mode (an option widget: edit mode
@@ -14239,7 +14253,7 @@ power buttons, whose whole body is their button) open nothing.
   band, Ctrl+A, the arrows, type-to-find, and a drag of the selection carries them. A click on one icon of a selection
   selects it alone on the release ([S-6621]), also while the icons are laid out again between the press and the release
   (every repaint of the desk does; before, that relayout dropped the waiting press, so such a click kept the whole
-  selection, locked or not). Through the app's own wiring with real input: `--desk-select-check <out.txt> --live
+  selection, locked or not). Through the app's own wiring with real input: `--check desk-select <out.txt> --live
   [--locked]` (Debug; a real host and surface, every gesture above, PASS or FAIL). Tests `DesktopGridTests.S12954_`,
   `ItemSelectionTests.S6621_a_redraw_`.
 - **[S-13060]** **The first press moves, whatever is under it** (owner, 2026-11-19: "sometimes when i hover over a widget an
@@ -14266,7 +14280,7 @@ power buttons, whose whole body is their button) open nothing.
   Before, the card armed its move only on a press no part took (or a widget that is one button) and heard only the moves
   no part took: a press on a button of any other widget (the stopwatch's, the music's, a list's tool line, the notes'), on
   a slider's track (which also set the volume), on a text box or on the seek bar never moved it. Tests
-  `FirstDragTests.S13060_`; `--first-drag-check <out.txt> [--locked] [--kinds a,b]` (Debug) presses every kind's row,
+  `FirstDragTests.S13060_`; `--check first-drag <out.txt> [--locked] [--kinds a,b]` (Debug) presses every kind's row,
   button, track, thumb, text box, chart and empty spot through the card's own press, move and release on a real host and
   surface, PASS or FAIL per kind and spot (posted mouse messages reach no XAML event: WinUI reads pointer messages; what a
   part does with a press is read from its type, as WinUI's controls route it). Real input: **not confirmed on a live
@@ -14280,7 +14294,7 @@ power buttons, whose whole body is their button) open nothing.
   fading in as the move starts (`LocalGrid.FadeInMs`, 120 ms) and out, slower, as it lands (`FadeOutMs`, 360 ms),
   an opacity transition. In edit mode, whose whole grid is drawn, only the target's box is lit ([S-11891]). Not while
   the block is going to another display ([S-78]). Tests `DragPipelineTests.S11874_`;
-  `--drag-png` draws it (`drag-move-*`).
+  `--render drag` draws it (`drag-move-*`).
 - **[S-11886]** **Fainter, wider, rectangular, slower out** (owner, 2026-11-15: "the light grid … should be less
   visible"; "should fade out a little slower"; later the same day: "the fade out of the grid should be bigger, and it
   should also not be round anymore"): the strongest line is `LocalGrid.PeakOpacity`, **0.2** (half the first 0.4).
@@ -14300,7 +14314,7 @@ power buttons, whose whole body is their button) open nothing.
   no size, resize grips, relayout, state change or event; the cards are freed from their neighbours by one join pass
   on the first step ([S-2244]) and joined again by one on the drop, none between (the moving cards keep their places
   to one another, [S-2457]); the local grid and the border marks ([S-11874], [S-11881]) change with them, or when the
-  hand-off preview comes or goes. The drop: one store of the rects, one join pass, one undo step. `--drag-bench <out.txt>` (Debug)
+  hand-off preview comes or goes. The drop: one store of the rects, one join pass, one undo step. `--check drag-bench <out.txt>` (Debug)
   times each stage (`DragProfile`) over a 120-frame pointer path on a real surface of 21 widgets (joined rows, icons),
   locked and edit mode, solid and Liquid glass. Tests `DragPipelineTests.S11890_`.
 - **[S-11891]** **The dragged cards stick to the grid** (owner, 2026-11-19: "now the items dont stick to the grid
@@ -14318,7 +14332,7 @@ power buttons, whose whole body is their button) open nothing.
   the point of its box nearest the target's centre, 1 where it touches it; past the fade none), so the neighbours'
   marks fade as the grid does (`WidgetCard.ShowMoveMarks`, `DesktopWindow.ShowMoveBorders`). Gone as the block
   lands or the move becomes the shell's drag. A desktop icon draws them too ([S-11889]). Tests
-  `DesktopGridTests.S11881_`; `--drag-png` draws it (`drag-move-*`: the clock moving, a card touching it at full
+  `DesktopGridTests.S11881_`; `--render drag` draws it (`drag-move-*`: the clock moving, a card touching it at full
   strength, one below it fainter, one past the fade without marks; `drag-groupmove-*`: a clock and a date moving, the
   frame's corners round them).
 - **[S-11889]** **Desktop icons show the corners where placing is going on** (owner, 2026-11-15: "the desktop
@@ -14329,7 +14343,7 @@ power buttons, whose whole body is their button) open nothing.
   highlight alone** ([S-6627]), never the corners a selected card shows there ([S-11877]). One rule
   (`SelectionRules.MarksShown(editing, selected, moveAlpha, icon, framed)`: edit mode, a move's strength, or selected
   and not an icon; never one of a selection's frame of several, [S-14310], which an icon is only in edit mode). Tests
-  `GroupMarksTests.S11889_`; `--drag-png` draws it (`drag-lasso-*`: the two selected icons in their highlight alone,
+  `GroupMarksTests.S11889_`; `--render drag` draws it (`drag-lasso-*`: the two selected icons in their highlight alone,
   the selected card with its corners; `drag-group-*`: the icons outside the cards' frame; `drag-move-*`: an icon below
   the landing, fainter).
 - **[S-11878]** **When an icon's move leaves the desktop** (`DesktopDragOut.Starts`, Core): a move held by a desktop

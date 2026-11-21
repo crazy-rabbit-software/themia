@@ -24,8 +24,8 @@ powershell -ExecutionPolicy Bypass -File scripts/publish.ps1   # single native b
 powershell -ExecutionPolicy Bypass -File scripts/package.ps1   # unsigned Store package
 ```
 
-Debug builds also carry render flags that write PNGs of the settings window, the picker and other
-shell parts without touching the desktop, and `--add-showcase-views`, which puts every widget on the
+Debug builds also carry render commands (`--render list`) that write PNGs of the settings window, the picker and other
+shell parts without touching the desktop, and `--render showcase-views`, which puts every widget on the
 desktop at seven fixed sizes. They are the way UI changes are checked, and are listed in
 [CLAUDE.md](CLAUDE.md). Google sign-in needs a client secret at
 build time (`THEMIA_CLIENT_SECRETS`, `google=<secret>`); a build without it refuses Google sign-in up front.
@@ -95,9 +95,9 @@ lifts both limits. Packaging and the manual test plan are in [docs/STORE.md](doc
 - Build and test before you open the pull request:
   `dotnet build src/Themia.App/Themia.App.csproj -c Debug` (warnings are errors) and
   `python scripts/test.py --all` (while you work, `python scripts/test.py` runs the tests your change touches).
-- For UI changes, render the result with the Debug `--editbar-png`, `--widget-png` (and other) render flags described
+- For UI changes, render the result with the Debug `--render editbar`, `--render widget` (and other) render commands described
   in CLAUDE.md and attach the PNG. Widgets must hold up at every size tier of the showcase views
-  (`--add-showcase-views`), down to 120 by 120; attach a screenshot of the widget's showcase view.
+  (`--render showcase-views`), down to 120 by 120; attach a screenshot of the widget's showcase view.
 - Put logic in `Themia.Core` and test it. A bug fix comes with a regression test that fails without the fix.
 - Keep refactors and behaviour changes in separate commits.
 - The app is unreleased, so there is no migration or legacy-format code: change the schema in place.

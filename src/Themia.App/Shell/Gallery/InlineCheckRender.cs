@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Gallery;
 /// open over the state it opens on (the add row, a row's rename, typed words longer than the row, a fence's title, a
 /// folder item's name, a search box taking the keys, a search opened on a tool line or on a list's first line, typed in
 /// and closed again), one card at a time at the kind's min, natural and max, off-screen
-/// as <c>--widget-png</c> does; measures every text, glyph, picture, row and list viewport in the card at rest and open
+/// as <c>--render widget</c> does; measures every text, glyph, picture, row and list viewport in the card at rest and open
 /// (<see cref="Collect"/>), and judges them by <see cref="InlineFit.Judge"/>: the box is the box of the words it stands
 /// in for and nothing else moves, grows or goes. Writes one line per case (none: "ok", else FAIL and its findings), PASS or FAIL.
 /// </summary>

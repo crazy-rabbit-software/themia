@@ -222,7 +222,7 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   56 px, the rest "+N" (on hover); a day with nothing says "No events today".
 - **[S-2708]** Month names in the year follow the small month's width: "September", "Sep", "S"
   (`LocaleFormat.MonthName`); the current month's in the accent.
-- **[S-3606]** Debug renders: `--widget-png Calendar <out> --style month|week|day|year|agenda
+- **[S-3606]** Debug renders: `--render widget Calendar <out> --style month|week|day|year|agenda
   --state sample|selected|linked|days` for each style: the fixed sample (two calendars, a one-day and a four-day all-day event, a trip across a
   week's end, an overnight event, overlaps, a long title, birthdays, a year of meetings) through a
   fixture `ICalendarData`; `selected` selects the day after tomorrow as another widget would ([S-3620]);
@@ -272,5 +272,5 @@ view), and the showcase views on the live desktop.
   that way) and Today, its keys and the wheel. Tests `CalendarSizingTests`.
 - **[S-14904]** The ready-made group **Calendar** (Calendar & mail): a Header widget ([S-12485]), the calendar header across
   the top, the month under it and the agenda beside the month, as tall (`ReadyMadeGroups.Calendar`). Debug render:
-  `--recipe-png calendar <out> --states calendar=sample,calendarHeader=next`: the header paged forward once, the month and
+  `--render recipe calendar <out> --states calendar=sample,calendarHeader=next`: the header paged forward once, the month and
   the agenda on the same period.

@@ -40,7 +40,7 @@ public readonly record struct ShowcaseKind(WidgetId Kind, string Name, string Gl
 /// <summary>
 /// [S-1810..S-1814] One view per widget kind holding that widget at its min, natural and max
 /// (<see cref="SizeFit.CheckedAt"/>, [S-2448]), so its whole range can be looked at on the real
-/// desktop. Built by the Debug flag <c>--add-showcase-views</c>; nothing in the app's own UI creates them.
+/// desktop. Built by the Debug flag <c>--render showcase-views</c>; nothing in the app's own UI creates them.
 /// <para>
 /// Ids are derived from the kind and the size's name, never random, so a second run replaces the first
 /// instead of adding another set beside it.

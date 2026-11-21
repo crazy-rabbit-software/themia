@@ -117,7 +117,7 @@ internal static partial class RenderCommands
         if (Find(asked) is not { } command)
         {
             var known = string.Join(", ", All.Where(c => c.Verb == asked.Verb).Select(c => c.Name));
-            Console.Error.WriteLine($"render: no {RenderCommandLine.Line(asked.Verb, asked.Name, string.Empty)} in this build (has: {known}); Themia.exe --render list says them all");
+            Console.WriteLine($"render: no {RenderCommandLine.Line(asked.Verb, asked.Name, string.Empty)} in this build (has: {known}); Themia.exe --render list says them all");
             return RenderCommandLine.UsageError;
         }
 
@@ -127,14 +127,15 @@ internal static partial class RenderCommands
         }
         catch (RenderUsageException usage)
         {
-            Console.Error.WriteLine($"{command.Name}: {usage.Message}");
-            Console.Error.WriteLine($"usage: {command.Line}");
+            // On stdout, with the command's own lines: a script that keeps them (store/capture.ps1's logs) keeps why.
+            Console.WriteLine($"{command.Name}: {usage.Message}");
+            Console.WriteLine($"usage: {command.Line}");
             return RenderCommandLine.UsageError;
         }
         catch (Exception ex)
         {
             Log.Error(Scope, $"{command.Line} threw", ex);
-            Console.Error.WriteLine($"{command.Name}: failed: {ex.Message}");
+            Console.WriteLine($"{command.Name}: failed: {ex.Message}");
             return RenderCommandLine.Crashed;
         }
     }

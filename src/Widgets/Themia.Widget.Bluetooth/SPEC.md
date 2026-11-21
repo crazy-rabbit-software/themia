@@ -80,7 +80,7 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
   ellipsises first.
 - **[S-3254]** 20% and below is low: the battery number is in the Critical role, as the tray draws
   it (`BluetoothRules.IsLowBattery`).
-  Debug renders: `--widget-png Bluetooth <out> --state sample` draws a fixed set of devices.
+  Debug renders: `--render widget Bluetooth <out> --state sample` draws a fixed set of devices.
 - **[S-3961]** No battery bar and no connection dot: the battery is its percentage as text, and the
   state is the device icon's colour (primary connected, secondary paired), the second line and the
   tooltip. `ShowConnection` governs the second line's state. No count badge: the icons' colours say

@@ -67,7 +67,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   are on and the style is not Words or Minimal.
 - **[S-6016]** Any style may follow any other, in any order, with seconds on or off: the view lets go of what the last style built (the flip cards and the AM/PM caption they
   carry included) before the next one is laid, and never shows its error card for a style
-  change. Covered by the Debug run `Themia.exe --clock-style-check <outDir>`, which hands one live
+  change. Covered by the Debug run `Themia.exe --check clock-style <outDir>`, which hands one live
   card every style after every other, both ways and to and from Flip, the seconds toggled on Flip
   at four sizes, and exits 1 on a fault (it did on Flip, another style, Flip again, before the fix).
 - **[S-6020]** `WordClock.Compose`: each language writes its own rules into its locale strings

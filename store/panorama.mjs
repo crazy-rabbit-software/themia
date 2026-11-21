@@ -53,7 +53,7 @@ export function monitorBox(card) {
 
 /**
  * scenes.json as a map: each scene by its name with what it starts from (like) filled in, its wallpaper, and its
- * widgets' boxes by id as the app drew them (layout: a scene's name to its <scene>.layout.json, which --scene-png
+ * widgets' boxes by id as the app drew them (layout: a scene's name to its <scene>.layout.json, which --render scene
  * writes beside the picture; a ready-made group's widgets are id-kind there). A scene with no layout yet has the
  * boxes scenes.json itself gives.
  */

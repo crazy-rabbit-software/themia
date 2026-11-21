@@ -5,7 +5,7 @@ using Themia.Sdk;
 namespace Themia.Core.Scenes;
 
 /// <summary>
-/// [S-2475] A ready-made group as a scene, for <c>--recipe-png</c>: its widgets where the recipe puts
+/// [S-2475] A ready-made group as a scene, for <c>--render recipe</c>: its widgets where the recipe puts
 /// them, at <see cref="Origin"/> on a full-HD stand-in with a sample wallpaper and the taskbar, as one
 /// group on the desktop: no edit chrome, so the picture is the panel the recipe makes; asked for edit mode,
 /// the new group selected under the bar, as a placement leaves it. Built from the recipe, never written by

@@ -93,7 +93,7 @@ internal static class WidgetRender
     /// [S-1917] One render, on the UI thread: the widget drawn to its PNG (and what else <paramref name="args"/> ask for),
     /// then its window closed and its services disposed. Never throws: a failure is logged and printed. True when the
     /// PNG was written. [S-14340] The batch draws each of its jobs through it, one after another in one process, so a
-    /// job's picture is the one its own <c>--widget-png</c> process draws.
+    /// job's picture is the one its own <c>--render widget</c> process draws.
     /// </summary>
     internal static async Task<bool> Render(RenderRun run, IReadOnlyList<string> jobArgs)
     {

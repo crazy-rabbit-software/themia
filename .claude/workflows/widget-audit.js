@@ -19,7 +19,7 @@ const A = args || {}
 if (!A.repo || !A.out) throw new Error('widget-audit needs args.repo and args.out')
 const RULES = `${A.repo}/docs/WIDGET-RULES.md`
 const SELECT = A.kinds === 'all' ? '--all' : Array.isArray(A.kinds) ? `--kinds ${A.kinds.join(',')}` : `--changed${A.changed ? ` ${A.changed}` : ''}`
-const HYGIENE = 'Build only with --artifacts-path under args.out and -nodeReuse:false. Every Themia.exe run has a hard timeout and is killed when it overruns; never start Themia.exe without a render flag; never touch %APPDATA%\\Themia or %LOCALAPPDATA%\\Programs\\Themia. Leave no process running when you return.'
+const HYGIENE = 'Build only with --artifacts-path under args.out and -nodeReuse:false. Every Themia.exe run has a hard timeout and is killed when it overruns; never start Themia.exe without --render or --check as its first argument; never touch %APPDATA%\\Themia or %LOCALAPPDATA%\\Programs\\Themia. Leave no process running when you return.'
 
 const RENDER_SCHEMA = {
   type: 'object',

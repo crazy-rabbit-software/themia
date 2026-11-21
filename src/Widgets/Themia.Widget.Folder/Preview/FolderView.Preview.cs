@@ -18,7 +18,7 @@ namespace Themia.App.Widgets;
 internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMenus
 {
     /// <summary>
-    /// [S-1747] For <c>--menu-png</c>: the real item menus of the first file in the pictures and of
+    /// [S-1747] For <c>--render menu</c>: the real item menus of the first file in the pictures and of
     /// the first folder in the documents, the background menu, and the file's Open with submenu,
     /// built by the same code a right-click runs.
     /// </summary>

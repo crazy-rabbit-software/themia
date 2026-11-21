@@ -45,9 +45,9 @@ the wave and the waveform), `Preview/` (Debug renders: `--state sample|unavailab
   block's line on the card's top edge (`StatusBlock.Line`, the warning, "Audio output unavailable", the tooltip too),
   over the spectrum, taking no pointer. The spectrum is the family's Chart drawn off the one chart, so it is reported as
   the card's plot (`PlotMark`): edge to edge, its bars standing at their levels inside it ([S-6754]). Before, the line was
-  a tooltip alone and a render of the state showed nothing a reader could see. Renders `--widget-png audioVisualizer
+  a tooltip alone and a render of the state showed nothing a reader could see. Renders `--render widget audioVisualizer
   --state unavailable|sample --sizes range`, judged by `scripts/gap-check.py`.
-- **[S-3207]** Debug renders cannot capture sound: `--widget-png AudioVisualizer --style <name> --state sample`
+- **[S-3207]** Debug renders cannot capture sound: `--render widget AudioVisualizer --style <name> --state sample`
   draws a still synthetic spectrum, `--state unavailable` the disabled baseline.
 - **[S-3211]** A frame writes numbers only, never allocates: a scale per bar or spoke, the fill (the
   accent or the track, two shared brushes) of the LED cells whose state changed, the wave's Bézier points. Shapes are placed once per layout

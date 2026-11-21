@@ -6,7 +6,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917], [S-2711], [S-3606], [S-2054]): every calendar style over the sample
-/// day's schedule (<see cref="ShowSampleAsync"/>), so <c>--widget-png Calendar --style month
+/// day's schedule (<see cref="ShowSampleAsync"/>), so <c>--render widget Calendar --style month
 /// --state sample</c> draws what a signed-in calendar would without an account.
 /// </summary>
 internal sealed partial class CalendarView : IWidgetPreviewState
