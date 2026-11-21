@@ -18,8 +18,9 @@ public abstract class IconModule : IWidgetModule
     /// <param name="folder">The family's add-page folder.</param>
     /// <param name="rank">Its place there: the family's order.</param>
     /// <param name="popular">Its place among Start's Popular, if it is one.</param>
+    /// <param name="group">Its run of rows in that folder (0 for most).</param>
     /// <param name="merges">[S-15022] The removed kinds a placed one of which it stands in for, in place; none for most.</param>
-    protected IconModule(IconKind kind, IJsonTypeInfoResolver json, AddFolderId folder, int rank, int? popular = null, IReadOnlyList<MergeFrom>? merges = null)
+    protected IconModule(IconKind kind, IJsonTypeInfoResolver json, AddFolderId folder, int rank, int? popular = null, int group = 0, IReadOnlyList<MergeFrom>? merges = null)
     {
         Kind = kind ?? throw new ArgumentNullException(nameof(kind));
         Descriptor = new()
@@ -34,7 +35,7 @@ public abstract class IconModule : IWidgetModule
             Glyph = kind.Glyph,
             Sizing = _ => IconRules.Sizing(),
             Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
-            Add = new(folder, 0, rank, popular),
+            Add = new(folder, group, rank, popular),
             Merges = merges ?? [],
         };
     }

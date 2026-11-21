@@ -49,7 +49,7 @@ public static class IconOpens
 /// <summary>
 /// [S-15000] [S-15002] The icon widget's rules, pure, one base for every widget whose face is one icon (owner, 2026-11-21:
 /// "there should be a shared widget backend for widgets that show just an icon"): its size (a square that lands with its
-/// glyph on the 40 step in the family's inset and goes down to the grid's least widget, the inset giving way under the 28
+/// glyph on the 40 step's line in the family's inset and goes down to the grid's least widget, the inset giving way under the 28
 /// glyph's room), the step its glyph is planned on in a box (the face's fit scales its ink the rest of the way, until it
 /// fills the inset's height or the width stops it) and the roles it is drawn in.
 /// </summary>
@@ -58,8 +58,8 @@ public static class IconRules
     /// <summary>[S-15000] The steps a glyph is planned on as its box grows: the tile's (28, 40, then the Hero steps to 136).</summary>
     public static IReadOnlyList<TypeStep> Steps => TileRules.GlyphSteps;
 
-    /// <summary>[S-15000] Where a new icon lands: the 40 glyph in the family's inset all round, 64 square.</summary>
-    public static double NaturalSide => (2 * FamilySpace.Inset) + FamilyType.Big40.FontSize;
+    /// <summary>[S-15000] Where a new icon lands: the 40 step's line in the family's inset all round, 76 square (a desktop cell's width).</summary>
+    public static double NaturalSide => (2 * FamilySpace.Inset) + FamilyType.Big40.LineHeight;
 
     /// <summary>
     /// [S-15000] The least an icon may be (WR-14: "a glyph 12, never under the grid's least widget"): the glyph at its floor

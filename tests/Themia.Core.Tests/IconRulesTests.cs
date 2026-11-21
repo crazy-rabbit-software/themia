@@ -12,11 +12,11 @@ public sealed class IconRulesTests
     // ---- [S-15000] the size -----------------------------------------------------------------------------
 
     [Fact]
-    public void S15000_a_new_icon_is_the_40_glyph_in_the_inset_a_square()
+    public void S15000_a_new_icon_is_the_40_steps_line_in_the_inset_a_square()
     {
         var sizing = IconRules.Sizing();
 
-        Assert.Equal(new SizeDip(12 + 40 + 12, 12 + 40 + 12), sizing.Natural);
+        Assert.Equal(new SizeDip(12 + 52 + 12, 12 + 52 + 12), sizing.Natural);
         Assert.Equal(new SizeDip(TileRules.MaxSide, TileRules.MaxSide), sizing.Max);
         Assert.Equal(StretchRoom.Picture, sizing.Room);
         Assert.Empty(sizing.Problems());
@@ -73,12 +73,13 @@ public sealed class IconRulesTests
     {
         Assert.Equal(FamilySpace.Inset, IconRules.Inset(0, 0));
         Assert.Equal(FamilySpace.Inset, IconRules.Inset(double.NaN, 40));
-        Assert.Equal(40, IconRules.Room(double.PositiveInfinity, 64));
+        Assert.Equal(52, IconRules.Room(double.PositiveInfinity, 64));
     }
 
     [Theory]
     [InlineData(32, 32, 28)]
     [InlineData(64, 64, 40)]
+    [InlineData(76, 76, 40)]
     [InlineData(64, 400, 40)]
     [InlineData(100, 100, 68)]
     [InlineData(130, 120, 96)]

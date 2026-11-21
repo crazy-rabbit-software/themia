@@ -38,7 +38,7 @@ buttons' module, their words and looks, their view on the icon face), `MusicMenu
   video) the same, an album named as its artist said once (`MusicRules.Album`). `MusicKinds.Shown`.
 - **[S-14922]** **The buttons**: previous, play or pause, next, each an icon kind on the icon base ([S-15000]..[S-15005];
   owner, 2026-11-21: "there should be a shared widget backend for widgets that show just an icon"): its glyph alone filling
-  its card (a 64 square when new, down to 32), what a click does its tooltip and its screen reader's name ("Previous",
+  its card (a 76 square when new, down to 32), what a click does its tooltip and its screen reader's name ("Previous",
   "Play", "Pause", "Next"); the item layer's hover and pressed fills across the whole card, never a size change (WR-12).
   Play or pause is the accent while it plays (On, as a toggle that is on) and offers Pause; a button the player cannot do
   now, and every button with no track, keeps its glyph drawn unavailable, why its tooltip with no track ([S-1940], WR-10).

@@ -10609,8 +10609,8 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
 [S-15010]), the now-playing buttons (`Themia.Widget.Music`, [S-14922]) and the sky now (`weatherSky`,
 `Themia.Widget.WeatherNow`, [S-15020]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
 
-- **[S-15000]** **Its size is a square round its glyph.** An icon kind's card lands at the 40 glyph in the family's inset,
-  64 square (`IconRules.Sizing`, `NaturalSide`), resizes freely on both axes from the grid's least widget, 32 (WR-14: a
+- **[S-15000]** **Its size is a square round its glyph.** An icon kind's card lands at the 40 step's line (52) in the family's inset,
+  76 square, a desktop cell's width (`IconRules.Sizing`, `NaturalSide`), resizes freely on both axes from the grid's least widget, 32 (WR-14: a
   glyph is read down to 12, which 32 holds in the least inset), to 480, relaxed past it ([S-12411], a picture's stretch),
   every cell between ([S-14500]). Its glyph grows with its card (a one-readout face, `WidgetTraits.OneReadout`).
 - **[S-15001]** **One face** (`IconView`): one glyph, the Tile block's face without words ([S-11882]): the card edge to edge

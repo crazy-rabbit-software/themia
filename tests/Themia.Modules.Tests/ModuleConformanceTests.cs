@@ -479,8 +479,8 @@ public sealed partial class ModuleConformanceTests
             "airplaneModeToggle", "bluetoothToggle", "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "gameModeToggle",
             "microphoneToggle", "monoAudioToggle", "nightLightToggle", "rotationLockToggle", "soundToggle", "spatialSoundToggle", "wifiToggle",
             "hibernate", "lock", "restart", "screenOff", "shutdown", "signOut", "sleep",
-            // [S-14930] [S-14922] The text kinds' one face and the transport buttons' tiles.
-            "music", "musicArtist", "musicAlbum", "rainOutlook", "musicPrevious", "musicPlayPause", "musicNext",
+            // [S-14930] [S-15003] The text kinds' one face and the icon kinds' (the transport buttons, the Icon widget).
+            "music", "musicArtist", "musicAlbum", "rainOutlook", "musicPrevious", "musicPlayPause", "musicNext", "icon",
         ];
 
         var declared = ModuleCatalog.Widgets.Where(w => Themia.Sdk.Kit.ReadoutRules.OneReadout(w.Traits)).Select(w => w.Id.Value).Order(StringComparer.Ordinal);
