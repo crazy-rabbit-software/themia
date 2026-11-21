@@ -38,7 +38,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// mapped network drive), leading the share at the readout's step.
     /// </summary>
     /// <summary>[S-12810] [S-6631] The drive's own icon, none until it comes (and no room while there is none).</summary>
-    private readonly IconSlot _icon = new(FamilyType.Big28.LineHeight) { Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
+    private readonly IconSlot _icon = new(FamilyType.Big28.LineHeight) { Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Center };
     private string? _iconRoot;
     private readonly ChartBar _bar = DriveBar.Create();
     private readonly StatusBlock _status = new();
