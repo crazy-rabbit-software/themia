@@ -18,27 +18,16 @@ internal sealed partial class MixerView
 
     private LinkLights<AppLink> Apps => _apps ??= new LinkLights<AppLink>(_links, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
 
-    /// <summary>The rows as they are shown: each visible row is its app, a hidden one nothing.</summary>
-    private void LinkRows()
-    {
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            if (i < _shown.Count)
-            {
-                Apps.Row(_rows[i].Host, AppOf(_shown[i]));
-            }
-            else
-            {
-                Apps.Remove(_rows[i].Host);
-            }
-        }
+    /// <summary>A row the kit's list drew: its app.</summary>
+    private void LinkRow(Themia.Sdk.Kit.KitItem item, Microsoft.UI.Xaml.FrameworkElement row)
+        => Apps.Row(row, RowOf(item.Id) is { } shown ? AppOf(shown.Row) : null);
 
-        Apps.Apply();
-    }
+    /// <summary>The kit's list draws its rows again: the old ones are forgotten.</summary>
+    private void ForgetRows() => Apps.Clear();
 
     /// <summary>[S-3307] The keyboard cursor publishes its row's app as the hover; none when it lets go.</summary>
-    private void PointCursor(int index)
-        => Apps.Point(index >= 0 && index < _shown.Count ? AppOf(_shown[index]) : null);
+    private void PointCursor(Themia.Sdk.Kit.KitItem? item)
+        => Apps.Point(item is not null && RowOf(item.Id) is { } shown ? AppOf(shown.Row) : null);
 
     private AppLink? AppOf(MixerRow row) => MixerRules.AppKey(row, _config.GroupByApp) is { } key ? new AppLink(key) : null;
 }

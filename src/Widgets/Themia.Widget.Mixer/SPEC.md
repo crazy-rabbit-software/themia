@@ -9,9 +9,10 @@ names, grouping, order and writes, [S-1225] the keys, [S-1228] the quiet rows, [
 [S-3251] apps and nothing else, [S-1624] a row's second line).
 
 Owning files: everything in this folder: `MixerModule.cs` (descriptor, view factory, menu lines,
-JSON context), `MixerConfig.cs` (the device and what the list holds and shows), `MixerView.cs` (the
-list through the shared `AudioFeed`), `MixerView.Row.cs` (a row: a Row block, the icon through the
-host's `AppIconSource`, the name, the slider and the mute), `MixerLayout.cs` (the rows' ladder),
+JSON context), `MixerConfig.cs` (the device and what the list holds and shows; an `IKitLocalConfig`), `MixerSpec.cs` (its kit
+spec, an app as a kit item, its actions), `MixerView.cs` (a kit list, [S-7074], over the shared `AudioFeed`),
+`MixerView.Row.cs` (the mixer's look, `IKitLook`: a Row block, the icon through the host's `AppIconSource`, the
+name, the slider and the mute, rewritten in place), `MixerLayout.cs` (the rows' ladder),
 `MixerMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `sample`, `unavailable`),
 `Localization/Locales/` (its own `MixerStr`, 30 languages). Tests: its device choice beside the
 volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTests.cs`, its rows

@@ -31,6 +31,11 @@ public interface IKitLook
     /// </summary>
     bool Update(RowBlock row, KitItem was, KitItem item, KitDraw draw) => false;
 
+    /// <summary>A row the list took down (drawn again, or the list redrawn): what the look hooked on it comes off.</summary>
+    void Dropped(RowBlock row)
+    {
+    }
+
     /// <summary>[S-7035] [S-784] A group's heading over its first row: one of the rows that tile the list, its text BodyStrong secondary.</summary>
     FrameworkElement Heading(KitGroup group, KitDraw draw) => SectionHeading.Make(group.Heading ?? string.Empty, draw.Plan.HeadingHeight, group.Selected);
 

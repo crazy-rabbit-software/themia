@@ -4347,8 +4347,8 @@ driver's sensors and the processes ([S-1762]).
   mid-enumeration is skipped; expired sessions are dropped.
 - **[S-447]** A muted row's slider sits at 0 but the row keeps its level; dragging a muted row above zero unmutes it.
   The mute button toggles a row (all of a group's sessions); right-click offers Mute/Unmute and
-  Reset to 100%. Rows are reused by position so a snapshot never rebuilds the slider under the
-  pointer.
+  Reset to 100% (the kit's row menu, [S-7074]: Mute or Unmute, then Reset). Rows are rewritten in place
+  (`IKitLook.Update`) so a snapshot never rebuilds the slider under the pointer.
 - [S-448], [S-449]: moved with the Mixer widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Mixer/`).
 
 Not ported: the poll `interval` setting (there is no poll).
@@ -9409,7 +9409,8 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   `ShowMicrophone` settings are gone.)*
 - **[S-1225]** Mixer keys (keyboard lease): Up/Down/Home/End move the row cursor (system focus rect on
   the row), Left/Right and +/− step the row 2 points, Page Up/Down 10, M or Space mute, Menu key opens
-  the row menu, Escape lets go. With no row focused a row key only focuses the first row. `WidgetKey`
+  the row menu, Escape lets go (the kit's key map, [S-7020], with the steps and M the mixer's own). With no row
+  focused a row key only focuses the first row. `WidgetKey`
   gains `Plus` (VK_ADD, VK_OEM_PLUS), `Minus` (VK_SUBTRACT, VK_OEM_MINUS), `Mute` (M without Shift).
 - **[S-1226]** Volume keys: arrows and +/− step 2 points, Page Up/Down 10, Home/End to 0/100
   ([S-2733]), M or Space mute. Ignored when `AllowControl` is off.

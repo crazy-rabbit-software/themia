@@ -31,6 +31,6 @@ internal sealed partial class MixerView : IWidgetSample
         _frozen = true;
         _feed.Dispose();
         _snapshot = snapshot;
-        Lay();
+        _source.Raise();
     }
 }

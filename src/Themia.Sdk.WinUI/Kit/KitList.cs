@@ -376,7 +376,12 @@ public sealed partial class KitList : Grid, IStatusRoom
             draw.Line = i / columns;
             if (row.Child is not RowBlock block || !_look.Update(block, was[i], item, draw))
             {
-                (row.Child as RowBlock)?.Detach();
+                if (row.Child is RowBlock old)
+                {
+                    old.Detach();
+                    _look.Dropped(old);
+                }
+
                 row.Child = _look.Draw(item, draw);
             }
 
@@ -624,7 +629,11 @@ public sealed partial class KitList : Grid, IStatusRoom
             row.Tapped -= OnRowTapped;
             row.Tapped -= OnCheckRowTapped;
             row.DoubleTapped -= OnRowDoubleTapped;
-            (row.Child as RowBlock)?.Detach();
+            if (row.Child is RowBlock block)
+            {
+                block.Detach();
+                _look.Dropped(block);
+            }
         }
 
         _rowElements.Clear();

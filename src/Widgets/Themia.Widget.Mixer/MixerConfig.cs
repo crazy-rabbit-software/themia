@@ -13,7 +13,7 @@ namespace Themia.Core.Model;
 /// there is no poll for a setting to tune.
 /// </para>
 /// </summary>
-public sealed class MixerConfig : WidgetConfig, IAudioOutput
+public sealed class MixerConfig : WidgetConfig, IAudioOutput, Themia.Sdk.Kit.IKitLocalConfig, Themia.Sdk.Kit.IKitRows
 {
     /// <summary>[S-11309] How many rows it shows, 1 to 12; a new one 4. More apps scroll inside them.</summary>
     public int Rows { get; set; } = MixerLayout.DefaultRows;
@@ -41,6 +41,10 @@ public sealed class MixerConfig : WidgetConfig, IAudioOutput
 
     /// <summary>[S-446] Each app's own icon rather than a generic glyph.</summary>
     public bool ShowIcons { get; set; } = true;
+
+    /// <summary>[S-446] The app's icon as the row's lead while it is on; what it is doing on the second line where Lines gives two.</summary>
+    [JsonIgnore]
+    public Themia.Sdk.Kit.KitShow Shows => Themia.Sdk.Kit.KitShow.Subtitle | (ShowIcons ? Themia.Sdk.Kit.KitShow.Lead : Themia.Sdk.Kit.KitShow.None);
 
     public override WidgetConfig Clone() => new MixerConfig
     {
