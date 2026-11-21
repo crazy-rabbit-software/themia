@@ -242,26 +242,26 @@ internal static unsafe partial class InkMeasure
         nint typography = 0;
         try
         {
-            var result = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)Slot(factory, FactoryCreateTypography))(factory, &typography);
+            var result = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)ComApi.Slot(factory, FactoryCreateTypography))(factory, &typography);
             if (result < 0 || typography == 0)
             {
                 return false;
             }
 
-            result = ((delegate* unmanaged[Stdcall]<nint, FontFeature, int>)Slot(typography, TypographyAddFontFeature))(
+            result = ((delegate* unmanaged[Stdcall]<nint, FontFeature, int>)ComApi.Slot(typography, TypographyAddFontFeature))(
                 typography, new FontFeature { NameTag = TabularTag, Parameter = 1 });
             if (result < 0)
             {
                 return false;
             }
 
-            result = ((delegate* unmanaged[Stdcall]<nint, nint, TextRange, int>)Slot(layout, LayoutSetTypography))(
+            result = ((delegate* unmanaged[Stdcall]<nint, nint, TextRange, int>)ComApi.Slot(layout, LayoutSetTypography))(
                 layout, typography, new TextRange { Start = 0, Length = (uint)text.Text.Length });
             return result >= 0;
         }
         finally
         {
-            Free(typography);
+            _ = ComApi.Release(typography);
         }
     }
 
