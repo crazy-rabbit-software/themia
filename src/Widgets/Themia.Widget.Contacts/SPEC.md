@@ -70,6 +70,6 @@ the menu's email, call and message hand-offs), and the search box under the keyb
   applicable."; docs/WIDGET-RULES.md WR-2, WR-3, WR-4). A person's cell is one fixed size (the 96 monogram-and-name box
   and 6 round it, 110 × 80 on the default grid, `ContactsPlan.CellNaturalWidth`/`CellNaturalHeight` in whole cells) from
   the card's left edge and its top edge (under the search box where it shows), the cells touching, no inset round them and
-  no gap between them: every column the width reaches, the last cut by its right edge (2 to 6, the shared rule `ItemSize.Cells`, [S-14816]), the
+  no gap between them: every column the width reaches, the last cut by its right edge (2 at least, no most, the shared rule `ItemSize.Cells`, [S-14816]), the
   lines past the card's foot a scroll away, the last in sight cut by it. A new grid is 330 wide, its lines 80 each. The
   `compact`, `details` and `grid` renders show each layout ([S-14814]). Tests `ContactsPitchTests.S14817_`.

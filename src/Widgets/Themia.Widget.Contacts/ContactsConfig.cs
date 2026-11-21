@@ -27,13 +27,13 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     /// <summary>[S-11406] A new contacts list's rows.</summary>
     public const int DefaultRows = 5;
 
-    /// <summary>[S-11406] [S-14410] A new grid's cells a line; then what the card's width holds (2 to <see cref="MaxGrid"/>), never stored.</summary>
+    /// <summary>[S-11406] [S-14410] A new grid's cells a line; then every one the card's width reaches (2 at least), never stored.</summary>
     public const int DefaultGridColumns = 3;
 
     /// <summary>[S-11406] The grid's lines of cells.</summary>
     public const int DefaultGridRows = 2;
 
-    /// <summary>[S-11406] The most cells a grid line, and the most lines.</summary>
+    /// <summary>[S-11406] The most lines a grid states (its Rows); a new card's widest grid line.</summary>
     public const int MaxGrid = 6;
 
     /// <summary>[S-11406] [S-14500] How many people a new List, Compact or Details card stands (its natural height); the card shows what it holds.</summary>

@@ -60,6 +60,9 @@ public sealed class ContactsPitchTests
         // four lines, the last cut by the foot.
         var plan = ContactsPlan.Of(new WidgetArea(340, 238), config);
         Assert.Equal((4, 110.0, 80.0, 4), (plan.Columns, plan.ColumnWidth, plan.Pitch, plan.Rows));
+
+        // [S-14410] No most across: a 900 card reaches nine cells, the ninth cut, never six and the rest of the line empty.
+        Assert.Equal(9, ContactsPlan.Of(new WidgetArea(900, 288), config).Columns);
     }
 
     [Fact]
