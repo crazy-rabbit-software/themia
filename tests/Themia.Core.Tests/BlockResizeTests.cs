@@ -373,7 +373,7 @@ public sealed class BlockResizeTests
     }
 
     [Fact]
-    public void S2465_retired_a_blocks_resize_goes_over_a_widget_that_stays()
+    public void S2460_a_blocks_resize_goes_over_a_widget_that_stays()
     {
         // [S-11959] retired (owner, 2026-11-21): nothing keeps widgets apart. Dragged 30 cells right, the row grows a cell
         // each step all the way, over the widget standing at 56 (kept apart once stopped it flush there, at 23 each).

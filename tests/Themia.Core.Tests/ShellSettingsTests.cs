@@ -204,7 +204,7 @@ public sealed class ShellSettingsTests : IDisposable
     public void S935_starting_with_windows_is_a_preference_never_the_design()
     {
         // [S-935] A behaviour, not a look: it moved from the design to the preferences, the schema changed in place.
-        // ([S-11959] retired: keeping widgets apart is gone whole, AppStateStoreTests.S11959_.)
+        // ([S-11959] retired: keeping widgets apart is gone whole, AppStateStoreTests.S1050_a_keep_apart_.)
         var moved = StateDocument.Parse(StateFile.Replace(
             "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"runAtStartup\": true },", StringComparison.Ordinal));
         Assert.True(moved.State!.Preferences.RunAtStartup);

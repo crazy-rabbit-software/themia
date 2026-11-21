@@ -2222,7 +2222,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   apart. Gone whole: the setting (`Design.WidgetCollisions`; a state file that still holds `widgetCollisions`, in the
   design or the preferences, loads with it dropped, one repair line, [S-1050]), the bar's toggle ([S-2330]) and the rule
   (`BlockGeometry.Apart`). From 2026-11-15 a widget moved with it on never landed over another.)* Tests
-  `SettingsMenuTests.S11959_retired_`, `DragPipelineTests.S11959_retired_`, `AppStateStoreTests.S11959_`.
+  `SettingsMenuTests.S2330_nothing_keeps_`, `DragPipelineTests.S2008_a_move_goes_`, `AppStateStoreTests.S1050_a_keep_apart_`.
 - **[S-2321]** The entry whose flyout is open is lit: the subtle fill and the accent's 16 × 3 pill at
   its foot. Each entry's words are its tooltip and its name.
 - **[S-2322]** On a display too narrow for the bar the pages' entries show their **icon alone** (40
@@ -9924,7 +9924,7 @@ makes a composition one thing. Several widgets selected together are arranged an
   `BlockResizeTests.S2464_`.
 - **[S-2465]** *(Retired 2026-11-21 with [S-11959]: a block's resize may come over a widget that stays; nothing holds
   it. Until then, with Keep widgets from overlapping on, it stopped at the last length clear of them.)* Tests
-  `BlockResizeTests.S2465_retired_`.
+  `BlockResizeTests.S2460_a_blocks_resize_goes_over_`.
   Not live-verified: the frame's drag with a real pointer (its grips over a member's own, the cursor shapes, the
   capture lost to another window), the frame across a hand-off to another display, mixed DPI.
 - **[S-2458]** *(Retired 2026-11-17: a scene has no `group` key and its `edit` block no `group` or `enter`; a scene

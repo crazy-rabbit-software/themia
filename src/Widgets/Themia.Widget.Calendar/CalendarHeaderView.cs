@@ -29,8 +29,8 @@ internal sealed partial class CalendarHeaderView : Grid, IWidgetView, IWidgetSur
     /// <summary>The day changes at midnight: the header following today turns with it.</summary>
     private static readonly TimeSpan Tick = TimeSpan.FromMinutes(1);
 
-    private static readonly string ChevronLeft = char.ConvertFromUtf32(0xE76B);
-    private static readonly string ChevronRight = char.ConvertFromUtf32(0xE76C);
+    private static readonly string ChevronLeft = Glyphs.ChevronLeft;
+    private static readonly string ChevronRight = Glyphs.ChevronRight;
 
     /// <summary>[S-14901] The period's title and its two arrows: the card's one line.</summary>
     private readonly ToolLine _line = new();

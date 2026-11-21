@@ -411,7 +411,7 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S11959_retired_nothing_keeps_widgets_from_overlapping()
+    public void S2330_nothing_keeps_widgets_from_overlapping()
     {
         // Owner, 2026-11-21: "keep widgets from overlapping should not be a selectable option anymore". No setting anywhere
         // (the design, the preferences), nothing writes one, and no keep-apart rule is left for a move to go through.

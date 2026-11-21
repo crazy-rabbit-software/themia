@@ -81,7 +81,7 @@ public sealed class DragPipelineTests
     }
 
     [Fact]
-    public void S11959_retired_a_move_goes_where_the_pointer_takes_it_over_any_widget()
+    public void S2008_a_move_goes_where_the_pointer_takes_it_over_any_widget()
     {
         // Owner, 2026-11-21: "keep widgets from overlapping should not be a selectable option anymore". A move never stops
         // flush by a neighbour nor slides along it: the block lands where the pointer takes it, on the grid, over whatever

@@ -121,14 +121,14 @@ public sealed class AppStateStoreTests : IDisposable
     public void S12480_a_stored_widget_title_is_dropped_loudly_and_the_widget_loads()
     {
         // [S-12480] A widget has no title of its own (the Header widget is the title): a file that still stores one
-        // loads with the key dropped, said in the log (AppStateStore.DropUnknownKeys), and never writes it again.
+        // loads with the key dropped, said in the log (StateDocument.DropUnknownKeys), and never writes it again.
         var state = AppState.CreateDefault();
         var widget = state.ActiveView().Widgets[0];
         var json = System.Text.Json.Nodes.JsonNode.Parse(SettingsTransfer.Serialize(state))!;
         var stored = json["views"]![0]!["widgets"]![0]!.AsObject();
         stored["label"] = "Bedside";
 
-        var parsed = AppStateStore.Parse(json.ToJsonString());
+        var parsed = StateDocument.Parse(json.ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
         Assert.Contains(parsed.Repairs, r => r.Contains($"widget '{widget.Id}'", StringComparison.Ordinal) && r.Contains("dropped the unknown key 'label'", StringComparison.Ordinal));
@@ -297,7 +297,7 @@ public sealed class AppStateStoreTests : IDisposable
     }
 
     [Fact]
-    public void S11959_a_keep_apart_key_left_in_a_file_is_dropped_loudly_and_the_design_loads()
+    public void S1050_a_keep_apart_key_left_in_a_file_is_dropped_loudly_and_the_design_loads()
     {
         // [S-1050] The schema changed in place (owner, 2026-11-21: "keep widgets from overlapping should not be a selectable
         // option anymore"): the key goes, one line, wherever it was left (the design, or the preferences it once moved to).
