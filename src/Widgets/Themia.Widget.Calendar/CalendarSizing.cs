@@ -48,45 +48,72 @@ public static class CalendarSizing
 
     // ---- [S-11542] year ------------------------------------------------------------------------
 
-    /// <summary>[S-11542] The gap between two small months.</summary>
-    public const double YearGap = FamilySpace.S2;
-
     /// <summary>[S-11542] A small year's day: a square.</summary>
     public const double YearSquare = FamilySpace.S2;
 
-    /// <summary>[S-11542] What a year draws: always twelve months, 4 × 3; squares, or with <paramref name="numbers"/> the numbers under the weekday letters.</summary>
+    /// <summary>
+    /// [S-15672] The padding inside a month's cell round its small month: the cells stand edge to edge (WR-3), the inset's
+    /// place is theirs.
+    /// </summary>
+    public const double YearPad = FamilySpace.S2;
+
+    /// <summary>[S-11542] What a year draws: always twelve months (a new one 4 × 3); squares, or with <paramref name="numbers"/> the numbers under the weekday letters.</summary>
     public static YearFit Year(bool numbers)
         => numbers
             ? new YearFit(12, 4, 3, FamilyType.Caption.LineHeight, true, true)
             : new YearFit(12, 4, 3, YearSquare, false, false);
 
-    /// <summary>[S-11542] The twelve months' block at its own size, in the inset: its width and height.</summary>
-    public static SizeDip YearBlock(YearFit fit)
+    /// <summary>[S-11542] A small month at its own size: its name over its six weeks (and the weekday letters with numbers).</summary>
+    public static SizeDip YearMonth(YearFit fit)
     {
         ArgumentNullException.ThrowIfNull(fit);
-        var mini = 7 * fit.DayCell;
-        var miniHeight = FamilyType.Caption.LineHeight + ((fit.Weekdays ? 7 : 6) * fit.DayCell);
-        return new SizeDip((fit.Columns * mini) + ((fit.Columns - 1) * YearGap), (fit.Rows * miniHeight) + ((fit.Rows - 1) * YearGap));
+        return new SizeDip(7 * fit.DayCell, FamilyType.Caption.LineHeight + ((fit.Weekdays ? 7 : 6) * fit.DayCell));
+    }
+
+    /// <summary>[S-15672] A month's cell at a new card's size: its small month and the padding round it, whole grid cells.</summary>
+    public static SizeDip YearCell(YearFit fit)
+    {
+        var month = YearMonth(fit);
+        var grid = ItemGrid.Default();
+        return new SizeDip(ItemSize.Optimal(month.Width + (2 * YearPad), grid), ItemSize.Optimal(month.Height + (2 * YearPad), grid));
     }
 
     /// <summary>
-    /// [S-11542] The year at its own size, in the inset: its Natural and its Min. The card's
-    /// size is the user's (no Size setting, [S-2449] retired): a larger card draws the months larger, as one
-    /// (<see cref="YearScale"/>).
+    /// [S-11542] [S-15672] The year at a new card's size: its months' cells 4 × 3, edge to edge from the card's top edge, and
+    /// its least. The card's size is the user's (no Size setting, [S-2449] retired): a larger card shares itself among the
+    /// twelve months (<see cref="YearShares"/>).
     /// </summary>
     public static WidgetSizing YearSizing(bool numbers)
     {
-        var block = YearBlock(Year(numbers));
-        var box = new SizeDip(block.Width + (2 * FamilySpace.Inset), ContentTop + block.Height + FamilySpace.Inset);
-        return WidgetSizing.Fixed(box);
+        var fit = Year(numbers);
+        var cell = YearCell(fit);
+        return WidgetSizing.Fixed(new SizeDip(fit.Columns * cell.Width, fit.Rows * cell.Height));
     }
 
-    /// <summary>[S-11542] How much larger the months are drawn in a room of <paramref name="width"/> × <paramref name="height"/> (the inset's inside): never under 1.</summary>
-    public static double YearScale(YearFit fit, double width, double height)
+    /// <summary>The ways twelve months stand in columns and lines, a new card's first: the first that draws them largest wins.</summary>
+    private static readonly (int Columns, int Rows)[] YearShapes = [(4, 3), (3, 4), (6, 2), (2, 6), (12, 1), (1, 12)];
+
+    /// <summary>
+    /// [S-15672] How the twelve months share a box <paramref name="width"/> × <paramref name="height"/> (the card's, from its
+    /// top edge): the year is a grid of the card, as the month is (WR-9, owner 2026-11-19: "the calendar does not follow this
+    /// design philosophy"; "Bigger numbers too"), its months' cells sharing it edge to edge, in the columns and lines that
+    /// draw the small months largest (a wide card 6 × 2, a tall one 3 × 4; a tie keeps a new card's 4 × 3), each small month
+    /// scaled up as one in its cell inside its padding, never under its own size.
+    /// </summary>
+    public static YearShare YearShares(YearFit fit, double width, double height)
     {
-        var block = YearBlock(fit);
-        var scale = Math.Min(width / block.Width, height / block.Height);
-        return double.IsFinite(scale) ? Math.Max(1, scale) : 1;
+        var month = YearMonth(fit);
+        var best = new YearShare(fit.Columns, fit.Rows, double.NegativeInfinity);
+        foreach (var (columns, rows) in YearShapes)
+        {
+            var factor = Math.Min(((width / columns) - (2 * YearPad)) / month.Width, ((height / rows) - (2 * YearPad)) / month.Height);
+            if (double.IsFinite(factor) && factor > best.Factor + 1e-9)
+            {
+                best = new YearShare(columns, rows, factor);
+            }
+        }
+
+        return best with { Factor = double.IsFinite(best.Factor) ? Math.Max(1, best.Factor) : 1 };
     }
 
     // ---- [S-11543] day --------------------------------------------------------------------------------
@@ -313,3 +340,6 @@ public static class CalendarSizing
         };
     }
 }
+
+/// <summary>[S-15672] The twelve months' share of a card: their columns and lines, and how much larger each small month is drawn.</summary>
+public readonly record struct YearShare(int Columns, int Rows, double Factor);

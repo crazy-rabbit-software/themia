@@ -17,8 +17,8 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-2707] [S-11542] The year: twelve small months, 4 × 3, as squares or the day numbers under the weekday letters,
-/// drawn as large as the card holds (one scale for the whole block, [S-12809]). A day that has something on it is marked (its
+/// [S-2707] [S-11542] [S-15672] The year: twelve small months, as squares or the day numbers under the weekday letters,
+/// their cells sharing the card edge to edge, each month drawn as large as its cell holds ([S-12809]). A day that has something on it is marked (its
 /// first item's colour on a square, a strong number with a stripe under it); today is the accent.
 /// Each day's events are on its hover.
 /// </summary>
@@ -29,7 +29,6 @@ internal sealed partial class CalendarView
 
     private void DrawYear(double width, double height)
     {
-        var gap = FamilySpace.S2;
         var fit = Themia.Widget.Calendar.CalendarSizing.Year(_config.YearNumbers);
         var start = _config.EffectiveWeekStart;
         var today = Today;
@@ -39,22 +38,25 @@ internal sealed partial class CalendarView
         var byDay = CalendarFit.ByDay(Events, Birthdays, new DateOnly(year, 1, 1), new DateOnly(year, 12, 31), TimeZoneInfo.Local);
         var miniWidth = 7 * fit.DayCell;
 
-        var grid = new Grid
-        {
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            ColumnSpacing = gap,
-            RowSpacing = gap,
-        };
+        // [S-15672] The year is a grid of the card (WR-9): from its top edge (under a state's row, right under it) its twelve
+        // months' cells share it edge to edge, in the columns and lines that draw them largest, each an item whose small
+        // month is scaled up as one inside its padding, centred in it.
+        var lift = _stated ? 0 : FamilySpace.ContentTop;
+        var box = height + lift;
+        var share = Themia.Widget.Calendar.CalendarSizing.YearShares(fit, width, box);
+        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var columns = ItemSize.Columns(width, share.Columns, cells);
+        var lines = ItemSize.Columns(box, share.Rows, cells);
 
-        for (var c = 0; c < fit.Columns; c++)
+        var grid = new Grid { Margin = new Thickness(0, -lift, 0, 0), VerticalAlignment = VerticalAlignment.Top };
+        foreach (var column in columns)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(miniWidth) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(column) });
         }
 
-        for (var r = 0; r < fit.Rows; r++)
+        foreach (var line in lines)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(line) });
         }
 
         // The month's name as long as the small month is wide: "September", "Sep", "S".
@@ -65,22 +67,25 @@ internal sealed partial class CalendarView
         for (var i = 0; i < fit.Months; i++)
         {
             var month = firstMonth + i;
-            var mini = MiniMonth(year, month, start, fit, nameWidth, today, byDay, showColors);
-            SetColumn(mini, i % fit.Columns);
-            SetRow(mini, i / fit.Columns);
-            grid.Children.Add(mini);
+            var cell = new Border
+            {
+                Child = new ScaleBox
+                {
+                    Factor = share.Factor,
+                    Child = MiniMonth(year, month, start, fit, nameWidth, today, byDay, showColors),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                },
+                Padding = new Thickness(Themia.Widget.Calendar.CalendarSizing.YearPad),
+                Background = Family.Brush(ColourRole.Clear),
+            };
+            ItemMark.Mark(cell);
+            SetColumn(cell, i % share.Columns);
+            SetRow(cell, i / share.Columns);
+            grid.Children.Add(cell);
         }
 
-        // [S-11542] The block as large as the card holds, in the inset at the sides and the foot.
-        var inner = (Width: width - (2 * FamilySpace.Inset), Height: height - FamilySpace.Inset);
-        _content.Children.Add(new ScaleBox
-        {
-            Factor = Themia.Widget.Calendar.CalendarSizing.YearScale(fit, inner.Width, inner.Height),
-            Child = grid,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
-        });
+        _content.Children.Add(grid);
     }
 
     /// <summary>One small month: its name, the weekday letters when there is room, and its six weeks of day cells.</summary>

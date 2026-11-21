@@ -31,12 +31,21 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   where and who on the second) on the kit's rows contract ([S-2440], `IKitRows`; the schedule look's
   rows, [S-11541]): its natural height is its rows at their optimal, 260..520 wide (a new one 300); Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]);
   one column at every width, the pages holding the rows the card holds (a day's heading takes a row). Its Style lines add Rows and Lines after the range and the count.
-- **[S-11542]** **Year**: twelve months, 4 × 3, a square a day (8; a new one's) or, with **Day numbers** on (its
+- **[S-11542]** **Year**: twelve months, a square a day (8; a new one's) or, with **Day numbers** on (its
   Style line, a mode, `YearNumbers`), the day numbers under the weekday letters (a Caption line a day): natural (and
-  least) 272 × 256 and 496 × 448 (`CalendarSizing.Year`, `YearSizing`). The card's size is the user's (owner,
-  2026-11-20: "the size should not be settable, it is set by the size of the widget"; the old Size line, [S-2449], is
-  gone): a larger card draws the twelve months larger as one block (`CalendarSizing.YearScale`, a `ScaleBox`, never
-  under 1), at the content's top-left in the inset. Tests `CalendarSizingTests.S11542_`.
+  least) 4 × 3 months' cells, 320 × 240 and 520 × 450 (`CalendarSizing.Year`, `YearCell`, `YearSizing`). The card's size
+  is the user's (owner, 2026-11-20: "the size should not be settable, it is set by the size of the widget"; the old Size
+  line, [S-2449], is gone): a larger card draws the twelve months larger ([S-15672]). Tests `CalendarSizingTests.S11542_`.
+- **[S-15672]** **The year is a grid of the card** (docs/WIDGET-RULES.md WR-9, owner 2026-11-19: "the calendar does not
+  follow this design philosophy for example. fix that"; "Bigger numbers too"; WR-1..WR-3): a year has its twelve months,
+  never "how many of the same item", so its months are not a list cut at the foot but share the card as the month's day
+  cells do. From the card's top edge (under a state's row, right under it) the months' cells (items) share the card's
+  width and height evenly, touching, edge to edge, every edge on a whole device pixel (`ItemSize.Columns`), in the
+  columns and lines of twelve that draw the small months largest (`CalendarSizing.YearShares`: a new card 4 × 3, a wide
+  one 6 × 2 or 12 × 1, a tall one 3 × 4; a tie keeps 4 × 3); each small month is scaled up as one inside its cell's
+  padding of 8 (`YearPad`, the inset's place), centred in it, never under its own size. It had been one block scaled from
+  the content's top-left, leaving the card's right or foot empty where its shape was not the card's. Tests
+  `CalendarSizingTests.S15672_`.
 - **[S-11543]** **Day**: its **hours** (4..24, a new one 8; the card's height, no line, none stored: as many as the
   card reaches at an hour's optimal, `CalendarSizing.HoursIn`, [S-14502]), an hour a 28 row at its optimal, under one
   band line for the all-day items (its item's bar, or chips shared among several, "+N"; a day without

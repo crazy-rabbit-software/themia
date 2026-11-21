@@ -35,7 +35,7 @@ public sealed class CalendarSizingTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void S11542_a_year_is_twelve_months_at_their_own_size_and_a_larger_card_draws_them_larger(bool numbers)
+    public void S11542_S15672_a_year_is_twelve_months_cells_edge_to_edge_and_a_larger_card_draws_them_larger(bool numbers)
     {
         var sizing = Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = numbers });
         Assert.Equal(sizing.Min, sizing.Natural);
@@ -43,16 +43,40 @@ public sealed class CalendarSizingTests
         // Relaxed, [S-12411]: the card's size is the user's ([S-2449] retired).
         Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), sizing.Max);
 
+        // A new one: 4 × 3 cells, each its small month and the padding round it in whole grid cells, no inset round them.
         var fit = CalendarSizing.Year(numbers);
         Assert.Equal((12, 4, 3, numbers, numbers), (fit.Months, fit.Columns, fit.Rows, fit.Numbers, fit.Weekdays));
-        Assert.Equal((2 * FamilySpace.Inset) + (4 * 7 * fit.DayCell) + (3 * CalendarSizing.YearGap), sizing.Natural.Width);
+        var cell = CalendarSizing.YearCell(fit);
+        Assert.Equal(numbers ? new SizeDip(130, 150) : new SizeDip(80, 80), cell);
+        Assert.Equal(new SizeDip(4 * cell.Width, 3 * cell.Height), sizing.Natural);
         Assert.True(Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = true }).Natural.Width > Of(new CalendarWidgetConfig { Style = CalendarStyle.Year }).Natural.Width);
 
-        // The months at their own size in a room their size; twice as large in a room twice as wide and tall; never smaller.
-        var block = CalendarSizing.YearBlock(fit);
-        Assert.Equal(1, CalendarSizing.YearScale(fit, block.Width, block.Height));
-        Assert.Equal(2, CalendarSizing.YearScale(fit, 2 * block.Width, 3 * block.Height));
-        Assert.Equal(1, CalendarSizing.YearScale(fit, block.Width / 2, block.Height));
+        // A new card: 4 × 3 at the months' own size (the cells' whole grid cells' room at most a few percent more); twice as
+        // wide and tall, twice as large.
+        var natural = CalendarSizing.YearShares(fit, sizing.Natural.Width, sizing.Natural.Height);
+        Assert.Equal((4, 3), (natural.Columns, natural.Rows));
+        Assert.InRange(natural.Factor, 1, 1.05);
+        var month = CalendarSizing.YearMonth(fit);
+        var twice = CalendarSizing.YearShares(fit, 4 * ((2 * month.Width) + 16), 3 * ((2 * month.Height) + 16));
+        Assert.Equal((4, 3), (twice.Columns, twice.Rows));
+        Assert.Equal(2, twice.Factor, 6);
+    }
+
+    [Fact]
+    public void S15672_the_months_share_the_card_in_the_columns_and_lines_that_draw_them_largest()
+    {
+        var fit = CalendarSizing.Year(false);
+
+        // A wide card: two lines of six; a tall one: four lines of three; a very wide one: one line; never under their size.
+        Assert.Equal((6, 2), Shape(CalendarSizing.YearShares(fit, 900, 300)));
+        Assert.Equal((3, 4), Shape(CalendarSizing.YearShares(fit, 520, 600)));
+        Assert.Equal((12, 1), Shape(CalendarSizing.YearShares(fit, 1800, 120)));
+        Assert.Equal((1, 12), Shape(CalendarSizing.YearShares(fit, 100, 1600)));
+        Assert.Equal(1, CalendarSizing.YearShares(fit, 10, 10).Factor);
+        Assert.Equal(1, CalendarSizing.YearShares(fit, double.NaN, 300).Factor);
+        Assert.True(CalendarSizing.YearShares(fit, 900, 300).Factor > CalendarSizing.YearShares(fit, 320, 240).Factor);
+
+        static (int, int) Shape(YearShare share) => (share.Columns, share.Rows);
     }
 
     [Fact]
@@ -194,7 +218,7 @@ public sealed class CalendarSizingTests
             CalendarStyle.Month => CalendarSizing.MonthOver + (6 * 30),
             CalendarStyle.Week => CalendarSizing.StripBand(Themia.Core.Widgets.ItemGrid.Default()) + (3 * 30),
             CalendarStyle.Day => FamilySpace.Inset + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30),
-            CalendarStyle.Year => FamilySpace.Inset + CalendarSizing.YearBlock(CalendarSizing.Year(false)).Height + FamilySpace.Inset,
+            CalendarStyle.Year => 3 * CalendarSizing.YearCell(CalendarSizing.Year(false)).Height,
             _ => 6 * 30d,
         };
         Assert.Equal(expected, sizing.Natural.Height);
