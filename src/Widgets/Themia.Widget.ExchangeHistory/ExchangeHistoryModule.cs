@@ -21,13 +21,6 @@ public sealed class ExchangeHistoryModule : IWidgetModule
     /// <summary>Its glyph: a chart (U+E9D2), the rate's old chart style's.</summary>
     internal static readonly string Glyph = Glyphs.Motion;
 
-    /// <summary>[S-11156] The chart's band: its least, a new card's and its most.</summary>
-    public const double BandMin = FamilyShape.IconHuge;
-
-    public const double BandStart = 72;
-
-    public const double BandMax = 200;
-
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {
@@ -45,9 +38,8 @@ public sealed class ExchangeHistoryModule : IWidgetModule
         Add = new(AddFolderId.Markets, 0, 3),
     };
 
-    /// <summary>[S-11156] [S-6754] The chart the card's whole box: 200..480 wide, the band 48..200 tall and the inset a Simple chart writes nothing in.</summary>
-    internal static WidgetSizing Sizing()
-        => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
+    /// <summary>[S-11156] [S-6754] [S-6755] The chart the card's whole box, the one band sizing: the band and the inset a Simple chart writes nothing in.</summary>
+    internal static WidgetSizing Sizing() => ChartSizing.Band(FamilySpace.Inset);
 
     /// <summary>[S-11157] Every option is on the selection's page: the pair, as the rate's.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)

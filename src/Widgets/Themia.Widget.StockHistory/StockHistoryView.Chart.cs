@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Shapes;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -19,12 +18,8 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class StockHistoryView
 {
-    private readonly Grid _chart = new();
-    private readonly Chart _series = new();
-    private readonly Canvas _overlay = new() { IsHitTestVisible = false };
-    private readonly Line _rule = new() { StrokeThickness = FamilyShape.Hairline, Visibility = Visibility.Collapsed };
-    private readonly Border _probe = new() { Visibility = Visibility.Collapsed, Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0) };
-    private readonly TextBlock _probeText = Family.Text(FamilyType.Caption);
+    /// <summary>[S-6756] The price panel: the chart, its hairline and the pointer's readout, its moments on the view's links.</summary>
+    private readonly PriceChart _chart = new();
 
     /// <summary>[S-1309] The period's start and end times, in the exchange's zone; written by the chart at its foot.</summary>
     private ChartEnds _ends = new(string.Empty, string.Empty);
@@ -32,27 +27,16 @@ internal sealed partial class StockHistoryView
     /// <summary>Where each bar was drawn, for the markers and the pointer readout.</summary>
     private readonly List<ChartPoint> _drawn = [];
 
+    /// <summary>[S-1311] [S-11910] The bar under the pointer published and read out (time and price); a moment pointed at elsewhere marked.</summary>
     private void BuildChart()
-    {
-        _rule.Stroke = Family.Brush(ColourRole.TextTertiary);
-        _probe.Child = _probeText;
-        _probe.CornerRadius = Family.Radius;
-        _probe.Background = Family.Brush(ColourRole.Solid);
-        _overlay.Children.Add(_rule);
-        _overlay.Children.Add(_probe);
-
-        _chart.Children.Add(_series);
-        _chart.Children.Add(_overlay);
-
-        // The chart's own surface takes the pointer for the readout; the rest of the card is still
-        // the card's to drag. A clear fill is what makes an empty area hit-testable.
-        // [S-1113] A price over time: the time axis runs left to right in every language.
-        _chart.FlowDirection = FlowDirection.LeftToRight;
-        _chart.Background = Family.Brush(ColourRole.Clear);
-        _chart.PointerMoved += OnChartPointerMoved;
-        _chart.PointerExited += OnChartPointerGone;
-        _chart.PointerCanceled += OnChartPointerGone;
-    }
+        => _chart.Moments(
+            _links,
+            LinkTopics.HoveredInstant,
+            () => Subject,
+            () => _quote?.Value is { } quote && _drawn.Count == quote.Bars.Count ? _drawn.Count : 0,
+            i => DateTimeOffset.FromUnixTimeSeconds(_quote!.Value!.Bars[i].Time),
+            BarAt,
+            Readout);
 
     /// <summary>[S-1309] [S-1311] The start and end times, only those, in the exchange's zone.</summary>
     private void UpdateLabels(TickerQuote quote)
@@ -73,9 +57,9 @@ internal sealed partial class StockHistoryView
     private void RedrawChart(string caption = "")
     {
         var quote = _quote?.Value is { Bars.Count: >= 2 } held ? held : null;
-        _series.Role(_falling ? ColourRole.Critical : ColourRole.Accent);
-        _series.Show(size => Layout(quote, size.Width, caption));
-        MarkInstant();
+        _chart.Series.Role(_falling ? ColourRole.Critical : ColourRole.Accent);
+        _chart.Series.Show(size => Layout(quote, size.Width, caption));
+        _chart.Mark();
     }
 
     /// <summary>[S-1308] [S-1310] [S-1311] [S-6751] What the chart draws across a band <paramref name="width"/> wide.</summary>
@@ -163,59 +147,18 @@ internal sealed partial class StockHistoryView
         return from < 0 ? (0, bars.Count) : (from, Math.Max(from + 1, to));
     }
 
-    /// <summary>[S-1311] On an expanded width, the pointer over the chart reads the bar under it: time and price.</summary>
-    private void OnChartPointerMoved(object sender, PointerRoutedEventArgs args)
+    /// <summary>[S-1311] The pointer's readout of bar <paramref name="index"/>: its time and its price.</summary>
+    private string Readout(int index)
     {
-        if (_drawn.Count < 2 || _quote?.Value is not { } quote)
-        {
-            return;
-        }
-
-        var x = args.GetCurrentPoint(_chart).Position.X;
-        var width = _chart.ActualWidth;
-        var index = (int)Math.Round(Math.Clamp(x / Math.Max(1, width), 0, 1) * (_drawn.Count - 1));
-        var point = _drawn[index];
+        var quote = _quote!.Value!;
         var bar = quote.Bars[index];
-        PublishInstant(bar.Time);
-
-        _rule.X1 = _rule.X2 = point.X;
-        (_rule.Y1, _rule.Y2) = Rules();
-        _rule.Visibility = Visibility.Visible;
-
         var range = _config.Range is QuoteRange.Day or QuoteRange.FiveDays ? QuoteRange.FiveDays : QuoteRange.Year;
-        _probeText.Text = $"{ExchangeTime.Label(bar.Time, quote.ExchangeOffset, range, DateTimeOffset.Now.Offset)} · {MarketQuote.Price(bar.Close, quote.PriceHint)}";
-        _probe.Visibility = Visibility.Visible;
-
-        // [S-6754] Inside the plot's text box, as everything written on the chart.
-        var estimate = (HeroFit.Ems(_probeText.Text) * FamilyType.Caption.FontSize) + (2 * FamilySpace.S1);
-        var frame = _series.Frame ?? ChartPlot.Frame(_series.Model, width, _chart.ActualHeight);
-        Canvas.SetLeft(_probe, ChartPlot.Across(frame, point.X, estimate));
-        Canvas.SetTop(_probe, frame.Text.Top);
-    }
-
-    /// <summary>[S-6754] Where a hairline down the plot runs: clear of the times written at its foot, as the chart's own.</summary>
-    private (double Top, double Bottom) Rules()
-    {
-        var frame = _series.Frame ?? ChartPlot.Frame(_series.Model, _chart.ActualWidth, _chart.ActualHeight);
-        return (frame.RulesTop, frame.RulesBottom);
-    }
-
-    private void OnChartPointerGone(object sender, PointerRoutedEventArgs args)
-    {
-        HideProbe();
-        UnpublishInstant();
-        MarkInstant();
-    }
-
-    private void HideProbe()
-    {
-        _rule.Visibility = Visibility.Collapsed;
-        _probe.Visibility = Visibility.Collapsed;
+        return $"{ExchangeTime.Label(bar.Time, quote.ExchangeOffset, range, DateTimeOffset.Now.Offset)} · {MarketQuote.Price(bar.Close, quote.PriceHint)}";
     }
 
     private void DetachChart()
     {
         _drawn.Clear();
-        HideProbe();
+        _chart.Clear();
     }
 }

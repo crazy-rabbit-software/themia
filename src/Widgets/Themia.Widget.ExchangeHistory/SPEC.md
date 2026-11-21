@@ -21,7 +21,7 @@ own `ExchangeHistoryStr`). Tests: `Tests/ExchangeHistoryTests.cs`.
   ([S-6753]). Its chart look ([S-6752]): Chart type Area (the default), Line or Candlestick (the days bucketed into
   periods) and Detail Simple or Detailed ([S-6751]: the grid and its rates, dates along the foot, the high, the low and
   the latest marked).
-- **[S-11156]** **Sizes**: 200..480 wide (a new one 280), the card 60..212 tall (a new one 84), the chart its
+- **[S-11156]** **Sizes**: 200..480 wide (a new one 280), the card 60..212 tall (a new one 84: the one band sizing, [S-6755], and the inset), the chart its
   whole box, edge to edge (until 2026-11-12 it stood in the inset on every side, unlike the stock's; until 2026-11-19
   under the card's top inset, [S-6754]): the chart only gets longer or taller.
 - **[S-11157]** Its options are all on the properties menu ([S-3719]): the pair, as the rate's

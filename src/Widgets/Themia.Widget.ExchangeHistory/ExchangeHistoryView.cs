@@ -26,8 +26,8 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
     public bool OwnsTopEdge => true;
 
     private readonly KitStatus _mark;
-    /// <summary>[S-6717] [S-11002] [S-6754] A history band: the card's edge to edge, its top edge too, as the stock's.</summary>
-    private readonly Chart _chart = new() { FlowDirection = FlowDirection.LeftToRight };
+    /// <summary>[S-6717] [S-11002] [S-6754] [S-6756] A history band, the price panel: the card's edge to edge, its top edge too, as the stock's.</summary>
+    private readonly PriceChart _chart = new();
     /// <summary>[S-11171] The rates table the exchange rate reads too, followed as every sky and money atom follows its answer.</summary>
     private readonly SkyFeed<RatesInterest, RateTable> _feed;
     private IWidgetSurface? _surface;
@@ -65,6 +65,7 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
     {
         _links.Leave();
         _feed.Detach();
+        _chart.Clear();
     }
 
     private void Render()
@@ -83,12 +84,12 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
         // [S-6753] With no table yet, or no rate for the pair, the chart is drawn at its baseline with why as its caption.
         var caption = rate is { History.Count: >= 2 } ? string.Empty
             : _feed.Held is null ? OnlineParts.Caption(_feed.Status) : Str.Online_Rates_Missing.Text();
-        _chart.Role(rate?.ChangePercent < 0 ? ColourRole.Critical : ColourRole.Accent);
+        _chart.Series.Role(rate?.ChangePercent < 0 ? ColourRole.Critical : ColourRole.Accent);
         var history = rate is { History.Count: >= 2 } ? rate.History : [];
         var days = rate?.Days is { } known && known.Count == history.Count ? known : null;
         var looks = (ChartLooks.Effective(_config), ChartLooks.EffectiveDetail(_config));
-        _chart.Show(size => Layout(history, days, looks.Item1, looks.Item2, caption, size.Width));
-        MarkInstant();
+        _chart.Series.Show(size => Layout(history, days, looks.Item1, looks.Item2, caption, size.Width));
+        _chart.Mark();
     }
 
     /// <summary>[S-6750] [S-6751] The days evenly across the band, the oldest on the left; Detailed, their dates along the foot.</summary>

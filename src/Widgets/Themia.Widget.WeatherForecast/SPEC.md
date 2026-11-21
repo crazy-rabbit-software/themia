@@ -72,8 +72,9 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   "the widget items should actually have a fixed size ... the last item will be cutoff to some extent then", [S-14810]),
   220..420 wide (a new one 300 × 150, five days); **Columns** a 60 column a day (its 56 in whole cells) from the card's
   left edge, every day the width reaches, the last cut by its right edge, one height (184 with the rain, 164 without; a
-  new one five, 300 wide); **Curve** a 60 column a day from the card's left edge, every day the width reaches, the chart's
-  band 72..144 (a new one 96) under the days' parts; **Grid** cells of 80 × 100 (their content and its padding in whole
+  new one five, 300 wide); **Curve** a 60 column a day from the card's left edge, every day the width reaches, the chart
+  80..232 (a new one 104: the one band, [S-6755], 48..200 and a new one's 72, and the figures' two Caption lines; until
+  2026-11-21 72..144, a new one 96) under the days' parts; **Grid** cells of 80 × 100 (their content and its padding in whole
   grid cells), as many across as the width holds whole and lines down as the height reaches, the last line cut, a new
   one 3 × 2 (240 × 200), 1 × 1 to 5 × 3 (`ForecastGrid.DaysFor`, [S-14815]). Every
   style takes every grid cell; a resize stores no days ([S-14502]). Tests `ForecastDaysTests.S11146_S14410_`,

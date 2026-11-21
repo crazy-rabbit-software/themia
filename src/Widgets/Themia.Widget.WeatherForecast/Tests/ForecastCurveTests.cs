@@ -98,8 +98,9 @@ public sealed class ForecastCurveTests
         var sizing = WeatherForecastLayout.Sizing(config);
 
         Assert.Equal((60.0, 5 * 60.0, 14 * 60.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(12 + ForecastCurve.Parts(true) + 96 + 12, sizing.Natural.Height);
-        Assert.Equal(sizing.Natural.Height - 96 + 72, sizing.Min.Height);
+        // [S-6755] The chart is the one band (72 new, 48 least) and the figures' two Caption lines.
+        Assert.Equal(12 + ForecastCurve.Parts(true) + 104 + 12, sizing.Natural.Height);
+        Assert.Equal(sizing.Natural.Height - 104 + 80, sizing.Min.Height);
 
         // [S-14502] A card two days wider shows seven days; its height is the chart's, never a count.
         Assert.Equal(7, ForecastCurve.Plan(new WidgetArea(7 * 60, 300), config).Days);

@@ -39,7 +39,6 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
 
     public StockHistoryView(IWidgetHost host)
     {
-        FollowInstants();
         _mark = new KitStatus(host);
         _feed = new(
             () => new(h => host.Quotes.Updated += h, h => host.Quotes.Updated -= h, host.Quotes.Key, host.Quotes.Quote, host.Quotes.Show),

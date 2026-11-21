@@ -18,13 +18,6 @@ namespace Themia.Widget.StockHistory;
 /// <summary>[S-11165] One instrument's price over its period as a chart. SPEC.md beside this file.</summary>
 public sealed class StockHistoryModule : IWidgetModule
 {
-    /// <summary>[S-11166] [S-6754] The trace's own band, under and over what the chart writes: its least, a new card's and its most.</summary>
-    public const double LineMin = 44;
-
-    public const double LineStart = 76;
-
-    public const double LineMax = 220;
-
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {
@@ -43,14 +36,13 @@ public sealed class StockHistoryModule : IWidgetModule
     };
 
     /// <summary>
-    /// [S-11166] [S-6754] The chart the card's edge to edge: 200..480 wide, as tall as what its Simple chart writes (the
-    /// ends' line, the markers' where they are on) and the trace's band, 44..220 (without markers 76..252 in all).
+    /// [S-11166] [S-6754] [S-6755] The chart the card's edge to edge, the one band sizing: as tall as what its Simple chart
+    /// writes (the ends' line, the markers' where they are on) and the trace's band (<see cref="ChartSizing.Band"/>).
     /// </summary>
     internal static WidgetSizing Sizing(StockHistoryConfig config)
     {
         var (top, bottom) = Keeps(config);
-        var keeps = top + bottom;
-        return WidgetSizing.Range(new(200, keeps + LineMin), new(280, keeps + LineStart), new(480, keeps + LineMax)) with { Room = StretchRoom.Picture };
+        return ChartSizing.Band(top + bottom);
     }
 
     /// <summary>[S-6754] What its Simple chart keeps over the trace and under it: the markers' lines where they are on, the ends' line.</summary>

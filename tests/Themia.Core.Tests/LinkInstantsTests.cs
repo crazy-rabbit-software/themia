@@ -2,11 +2,13 @@ using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-11910]..[S-11914] A moment on a history chart: its subject, where it stands, the sample then, its caption.</summary>
+/// <summary>[S-11910]..[S-11914] [S-6756] A moment on a history chart: its subject, where it stands, the sample then, its caption; [S-6755] a band chart's size.</summary>
 public sealed class LinkInstantsTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 12, 14, 5, 0, TimeSpan.FromHours(1));
@@ -86,5 +88,39 @@ public sealed class LinkInstantsTests
             $"{Formatting.DayHeading(Locale.En, new DateOnly(2026, 11, 11), new DateOnly(2026, 11, 12))}, {LocaleFormat.Time(Locale.En, new TimeOnly(14, 5))}",
             LinkInstants.Caption(Locale.En, Now.AddDays(-1), Now, InstantCaption.DayAndTime));
         Assert.Equal(Formatting.DayHeading(Locale.En, new DateOnly(2026, 11, 12), new DateOnly(2026, 11, 12)), LinkInstants.Caption(Locale.En, Now, Now, InstantCaption.Day));
+    }
+
+    [Fact]
+    public void S6756_the_sample_under_the_pointer_is_the_nearest_of_the_evenly_spread_ones()
+    {
+        // Five samples across 100: at 0, 25, 50, 75 and 100.
+        Assert.Equal(0, LinkInstants.IndexAt(0, 100, 5));
+        Assert.Equal(1, LinkInstants.IndexAt(20, 100, 5));
+        Assert.Equal(2, LinkInstants.IndexAt(55, 100, 5));
+        Assert.Equal(4, LinkInstants.IndexAt(100, 100, 5));
+
+        // Past either edge, the sample at that edge.
+        Assert.Equal(0, LinkInstants.IndexAt(-30, 100, 5));
+        Assert.Equal(4, LinkInstants.IndexAt(130, 100, 5));
+
+        // One sample is always it; none, or a chart not laid out yet, is none.
+        Assert.Equal(0, LinkInstants.IndexAt(70, 100, 1));
+        Assert.Null(LinkInstants.IndexAt(50, 100, 0));
+        Assert.Null(LinkInstants.IndexAt(50, 0, 5));
+    }
+
+    [Fact]
+    public void S6755_a_band_chart_is_its_band_and_what_its_chart_keeps_over_and_under_it()
+    {
+        var bare = ChartSizing.Band(0);
+        Assert.Equal(new SizeDip(200, 48), bare.Min);
+        Assert.Equal(new SizeDip(280, 72), bare.Natural);
+        Assert.Equal(new SizeDip(480, 200), bare.Max);
+        Assert.Equal(StretchRoom.Picture, bare.Room);
+
+        var kept = ChartSizing.Band(28);
+        Assert.Equal(bare.Natural.Height + 28, kept.Natural.Height);
+        Assert.Equal(bare.Min.Height + 28, kept.Min.Height);
+        Assert.Equal(bare.Natural.Width, kept.Natural.Width);
     }
 }

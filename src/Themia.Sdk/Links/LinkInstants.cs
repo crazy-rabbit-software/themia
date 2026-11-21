@@ -78,6 +78,21 @@ public static class LinkInstants
     }
 
     /// <summary>
+    /// [S-6756] The sample under <paramref name="x"/> of <paramref name="count"/> samples spread evenly across a chart
+    /// <paramref name="width"/> wide, the first at its left edge and the last at its right: the nearest one, a point outside the
+    /// chart the sample at its edge; null for a series with no sample or a chart not laid out yet.
+    /// </summary>
+    public static int? IndexAt(double x, double width, int count)
+    {
+        if (count <= 0 || !(width > 0) || double.IsNaN(x))
+        {
+            return null;
+        }
+
+        return (int)Math.Round(Math.Clamp(x / width, 0, 1) * (count - 1));
+    }
+
+    /// <summary>
     /// [S-11913] The sample of a series with its own times (in order) at <paramref name="at"/>: the nearest,
     /// or null for a moment before the first or after the last.
     /// </summary>

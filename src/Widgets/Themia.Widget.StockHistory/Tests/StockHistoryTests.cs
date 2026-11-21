@@ -16,13 +16,14 @@ public sealed class StockHistoryTests
     private static readonly WidgetDescriptor Kind = new StockHistoryModule().Descriptor;
 
     [Fact]
-    public void S11166_the_chart_starts_headerless_200_to_480_wide_76_to_252_tall_without_its_markers()
+    public void S11166_S6755_the_chart_starts_headerless_200_wide_80_tall_at_least_and_104_new_without_its_markers()
     {
         var sizing = Kind.Sizing(new StockHistoryConfig());
 
-        Assert.Equal(new SizeDip(280, 12 + 96), sizing.Natural);
+        // The one band (48 least, 72 new) and what the Simple chart keeps: the ends' line and the inset, 32.
+        Assert.Equal(new SizeDip(280, 32 + 72), sizing.Natural);
         Assert.Equal((200.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.Equal((12 + 64.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Height, sizing.Max.Height)); // relaxed, [S-12411]: no practical Max
+        Assert.Equal((32 + 48.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Height, sizing.Max.Height)); // relaxed, [S-12411]: no practical Max
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public sealed class StockHistoryTests
         {
             var min = Kind.Sizing(config).Min;
             var frame = ChartPlot.Frame(StockHistoryModule.Frame(config) with { Ends = new ChartEnds("9:30 AM", "4:00 PM") }, min.Width, min.Height);
-            Assert.Equal(StockHistoryModule.LineMin, frame.LineBottom - frame.LineTop, 6);
+            Assert.Equal(ChartSizing.BandLeast, frame.LineBottom - frame.LineTop, 6);
         }
     }
 

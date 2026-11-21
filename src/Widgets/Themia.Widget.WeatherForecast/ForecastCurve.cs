@@ -45,9 +45,6 @@ public static class ForecastCurve
     /// <summary>The narrowest column that holds "Today" and "-18°".</summary>
     public const double ColumnMin = 48;
 
-    /// <summary>The line's own band at its smallest, without the figures over and under it.</summary>
-    public const double CurveMin = 24;
-
     /// <summary>What the low line adds: its figures' line and the family's gap between the two lines.</summary>
     public static double LowCost => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
@@ -60,12 +57,15 @@ public static class ForecastCurve
     /// <summary>[S-11146] A new card's column a day.</summary>
     public const double ColumnStart = 56;
 
-    /// <summary>[S-11146] The chart's band (the lines and their figures): its least, a new card's and its most.</summary>
-    public const double ChartMin = 72;
+    /// <summary>[S-11146] [S-6755] What the chart writes besides its lines: the highs' figures over them and the lows' under them, a Caption line each.</summary>
+    public const double Figures = 2 * FamilyType.CaptionLine;
 
-    public const double ChartStart = 96;
+    /// <summary>[S-11146] [S-6755] The chart (the lines and their figures): the one band (<see cref="ChartSizing"/>) and its figures, at its least, a new card's and its most.</summary>
+    public const double ChartMin = ChartSizing.BandLeast + Figures;
 
-    public const double ChartMax = 144;
+    public const double ChartStart = ChartSizing.BandNatural + Figures;
+
+    public const double ChartMax = ChartSizing.BandMost + Figures;
 
     /// <summary>[S-11146] What a column holds besides the chart: the day, the 16 glyph and the rain if on, 4 apart.</summary>
     public static double Parts(bool precipitation)

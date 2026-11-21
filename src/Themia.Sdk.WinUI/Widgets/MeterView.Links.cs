@@ -23,7 +23,6 @@ namespace Themia.App.Widgets;
 public sealed partial class MeterView
 {
     private readonly WidgetLinks _links = new();
-    private LinkTopic<InstantLink>? _instantTopic;
 
     /// <summary>[S-11912] The moment the reading stands at now, or null while it is live.</summary>
     private InstantLink? _standsAt;
@@ -56,36 +55,24 @@ public sealed partial class MeterView
         }
     }
 
-    /// <summary>Take part when the kind names the topic (from the constructor).</summary>
+    /// <summary>
+    /// [S-6756] Take part when the kind names the topic (from the constructor), on the Chart block's one path: it lives as
+    /// long as the view, whose pointer and links hold it.
+    /// </summary>
     private void JoinInstants()
     {
-        if (_part.Instant is not { } topic)
+        if (_part.Instant is { } topic)
         {
-            return;
+            _ = new ChartMoments(_links, topic, this, InstantUnder, () => Subject, Mark, OnInstant, () => !_detached && Charts);
         }
-
-        _instantTopic = topic;
-        _links.Follow(topic, OnInstant);
-        PointerMoved += OnChartPointer;
-        PointerExited += OnChartLeft;
-        PointerCanceled += OnChartLeft;
-        PointerCaptureLost += OnChartLeft;
     }
 
-    /// <summary>[S-11911] The pointer over a history: the moment under it, published and marked here.</summary>
-    private void OnChartPointer(object sender, PointerRoutedEventArgs args)
+    /// <summary>[S-11911] The pointer over a history: the moment under it, on the band it is over (the first one's otherwise).</summary>
+    private DateTimeOffset? InstantUnder(PointerRoutedEventArgs args)
     {
-        if (_detached || _instantTopic is not { } topic || !Charts)
-        {
-            return;
-        }
-
         var cells = (_shown as Graphs)?.Cells ?? [];
         var band = cells.Select(cell => cell.Band).FirstOrDefault(b => Inside(b, args)) ?? (cells.Count > 0 ? cells[0].Band : _band);
-        var at = band.InstantAt(args.GetCurrentPoint(band).Position.X, Period, DateTimeOffset.Now);
-        var moment = new InstantLink(at, Subject);
-        _links.Set(topic, moment);
-        Mark(moment);
+        return band.InstantAt(args.GetCurrentPoint(band).Position.X, Period, DateTimeOffset.Now);
     }
 
     private static bool Inside(SparkBand band, PointerRoutedEventArgs args)
@@ -94,25 +81,10 @@ public sealed partial class MeterView
         return at.X >= 0 && at.Y >= 0 && at.X <= band.ActualWidth && at.Y <= band.ActualHeight;
     }
 
-    private void OnChartLeft(object sender, PointerRoutedEventArgs args)
-    {
-        if (_instantTopic is { } topic && Charts)
-        {
-            _links.Set(topic, null);
-            Mark(null);
-        }
-    }
-
     /// <summary>Another widget of the view points at a moment, or let go of it.</summary>
     private void OnInstant(InstantLink? moment)
     {
-        if (_detached)
-        {
-            return;
-        }
-
-        Mark(moment);
-        if (_part.Atom != MeterAtom.Reading)
+        if (_detached || _part.Atom != MeterAtom.Reading)
         {
             return;
         }
@@ -140,12 +112,17 @@ public sealed partial class MeterView
     }
 
     /// <summary>[S-11911] The hairline on every history this face draws.</summary>
-    private void Mark(InstantLink? moment)
+    private void Mark(DateTimeOffset? at)
     {
-        _band.Mark(moment?.At, Period);
+        if (_detached)
+        {
+            return;
+        }
+
+        _band.Mark(at, Period);
         foreach (var cell in (_shown as Graphs)?.Cells ?? [])
         {
-            cell.Band.Mark(moment?.At, Period);
+            cell.Band.Mark(at, Period);
         }
     }
 

@@ -1320,6 +1320,21 @@ module author's guide is docs/WIDGET-KIT.md 16.
   it shows one; where it does it is the card's top and foot, and where it reaches the card's left and right edges its
   sides too: a graph with no data yet, its status text over a flat zero line, is a plot edge to edge, never a WR-3
   finding of the text's short ink).
+- **[S-6755]** **One band sizing** (owner, 2026-11-20: unify the history charts' sizes, each kind's natural kept close):
+  a history band drawn the card's edge to edge is sized by one rule, `ChartSizing.Band(keeps)`: 200..480 wide (a new one
+  280), as tall as its band, 48 at its least and 72 in a new card (200 at its stated most), and what its chart keeps free
+  over and under the band (the kind's own: the stock's ends' and markers' lines, the rate's inset), so the chart only gets
+  longer or taller and the band is never shorter. The stock's and the rate's history are sized so (the stock's trace was
+  44..220, a new one 76, until 2026-11-21), and the forecast's curve takes the same band under its days, its figures' two
+  Caption lines on top (`ForecastCurve.ChartMin`/`ChartStart`: 80 and 104, until 2026-11-21 72 and 96).
+- **[S-6756]** **The hovered moment is the chart's** ([S-11910], [S-11911]): one path publishes the moment under the
+  pointer and marks the one pointed at, `ChartMoments` (Themia.Sdk.WinUI, beside the Chart block): over a chart's surface
+  it maps the pointer to its moment (the kind's own rule), sets `HoveredInstant` with the kind's subject, and hands the
+  moment shown (this chart's own while the pointer is on it, else the one followed) to the kind's mark; a moment another
+  widget points at reaches the kind too (a reading standing at it, [S-11912]). The meters' histories (`MeterView`: the
+  cores' graphs) and the two price charts use it; the stock's and the rate's history are one panel, `PriceChart` (the
+  Chart block, its hairline at the moment shown, the stock's readout of the point under the pointer), the sample under
+  the pointer by one rule (`LinkInstants.IndexAt`: the nearest of the samples spread evenly across it).
 - **[S-6745]** **The shell's measurements** (`ShellMetrics`, `Themia.Sdk/Kit/Family/ShellTokens.cs`): the
   app's own chrome is drawn from the family's tokens like a widget, its own spacings on the scale; what
   Windows or Karpo measure for a piece of chrome and the family has no token for is named there, each
@@ -7251,13 +7266,13 @@ Declared in data:
 
 A moment in time (`HoveredInstant`, `InstantLink(at, subject)`, a hover):
 
-- **[S-11910]** Every history chart publishes the moment under the pointer, with what it is of: `cpuCores` in its
+- **[S-11910]** Every history chart publishes the moment under the pointer, with what it is of (one path, `ChartMoments`, [S-6756]): `cpuCores` in its
   Graphs style (the shared `MeterView`, its part naming the topic, `MeterPart.Instant`), `stockHistory` (the bar under the
   pointer) and `exchangeHistory` (the day under the pointer, at its noon). The system histories are their metrics' graphs
   now ([S-14713]), one item that lights and opens as a whole ([S-14705]), no moment of their own.
 - **[S-11911]** Every history chart draws a hairline (`FamilyShape.Hairline`, the secondary text role) at
   a moment pointed at on any chart of the view, where its span holds it: one crosshair down a column of
-  charts (`SparkBand.Mark`, the stock's rule, the rate's marker; `LinkInstants.At`/`X`: the span runs from
+  charts (`SparkBand.Mark`, the price panel's hairline, `PriceChart`, the stock's and the rate's; `LinkInstants.At`/`X`: the span runs from
   the oldest slot at the chart's start to the newest at its end, now). A moment outside a chart's span
   draws nothing on it.
 - **[S-11912]** The reading atom of the same subject shows its value at that moment in place of the live

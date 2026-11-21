@@ -30,9 +30,10 @@ quote|falling|stale`: the SDK's `SampleQuote`, the price's), `Localization/Local
   times in place of the start and end, the high and the low marked whatever High and low says, the latest price's
   hairline and pill).
 - **[S-11166]** **Sizes**: 200..480 wide (a new one 280), as tall as what the chart writes (the ends' line at the
-  inset; the markers' lines where they are on, Detailed's room) and the trace's band 44..220 (a new one 76): without
-  the markers 76..252 (a new one 108); the markers or Detailed 44 taller (`StockHistoryModule.Sizing`, `Sized`): the
-  chart only gets longer or taller, the trace never shorter.
+  inset; the markers' lines where they are on, Detailed's room) and the trace's band, the one band sizing ([S-6755],
+  `ChartSizing.Band`) 48..200 (a new one 72; until 2026-11-21 44..220, a new one 76): without the markers 80..232 (a new
+  one 104); the markers or Detailed 44 taller (`StockHistoryModule.Sizing`, `Sized`): the chart only gets longer or
+  taller, the trace never shorter.
 - **[S-11167]** Its options are all on the properties menu ([S-3719]): **Symbol** (the line Set up
   opens), behind a divider **Timeframe**, **Extended hours** (where they exist) and **High and low** (the
   SDK's `StockQuoteLines`, the price's); the update interval is ⚙'s, followed, no link row ([S-3749]).
