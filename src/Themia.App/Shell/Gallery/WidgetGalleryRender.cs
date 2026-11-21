@@ -17,8 +17,9 @@ namespace Themia.App.Shell.Gallery;
 /// [S-14917] Debug only: the widget gallery through the app's own wiring, a real <see cref="AppHost"/> over a detached store
 /// and a real <see cref="DesktopWindow"/> on a stand-in 1920 × 1080 display (its taskbar 48 at the foot), off-screen, in edit
 /// mode with the gallery opened from the bar's path.
-/// <c>Themia.exe --gallery-png &lt;outDir&gt; [--theme light|dark] [--category Id]</c> draws every screen (or the category's),
-/// one widget picked with its panel (the clock, its styles), several picked (the frame round them) and a drag under way
+/// <c>Themia.exe --gallery-png &lt;outDir&gt; [--theme light|dark] [--category Id]</c> draws every category's bento (or the
+/// one's; one taller than the well again at its foot), one widget picked with its panel (the clock, its styles), several
+/// picked (the frame round them), a ready-made group picked whole and a drag under way
 /// (<c>gallery-&lt;theme&gt;-…png</c>). <c>Themia.exe --gallery-check &lt;out.txt&gt;</c> drives the gallery as its pointer does:
 /// one widget and then three picked, dragged and dropped, a drag given up and a style picked; it says whether the ghost
 /// started on the cells they stood on (no jump), moved by whole cells, landed where it was, selected, and whether the
@@ -133,27 +134,49 @@ internal static class WidgetGalleryRender
                 Console.WriteLine($"gallery: wrote {file}");
             }
 
-            for (var i = 0; i < gallery.Screens.Count; i++)
+            // Every category's bento from its top; one taller than the well again at its foot.
+            for (var i = 0; i < gallery.Categories.Count; i++)
             {
-                var screen = gallery.Screens[i];
-                if (category is { } only && screen.Category != only)
+                var shown = gallery.Categories[i];
+                if (category is { } only && shown.Id != only)
                 {
                     continue;
                 }
 
                 gallery.Show(i);
-                await Shot($"{i:00}-{screen.Category}-{screen.Page + 1}").ConfigureAwait(true);
+                await Shot($"{i:00}-{shown.Id}").ConfigureAwait(true);
+                if (gallery.MostScroll > 0)
+                {
+                    gallery.ScrollTo(gallery.MostScroll);
+                    await Shot($"{i:00}-{shown.Id}-end").ConfigureAwait(true);
+                }
             }
 
             // One widget picked: its name, what it is and its styles in the panel.
             gallery.ShowCategory(category ?? AddFolderId.Time);
-            var first = gallery.Screen.Widgets.FirstOrDefault(w => WidgetStyles.Offers(w.Kind)) ?? gallery.Screen.Widgets[0];
+            var first = gallery.Screen.Widgets.FirstOrDefault(w => WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1) ?? gallery.Screen.Widgets[0];
             gallery.Pick([first.Id]);
             await Shot("select-one").ConfigureAwait(true);
 
             // Several: the frame round them, their names in the panel.
             gallery.Pick([.. gallery.Screen.Widgets.Take(3).Select(w => w.Id)]);
             await Shot("select-several").ConfigureAwait(true);
+
+            // A ready-made group picked: all of it, by one of its widgets; what it is in the panel.
+            for (var i = 0; i < gallery.Categories.Count; i++)
+            {
+                if (gallery.Categories[i].Pieces.Any(p => p.Group is not null))
+                {
+                    gallery.Show(i);
+                    var member = gallery.Screen.Widgets.First(w => gallery.PieceOf(w.Id).Count > 1);
+                    gallery.Pick([member.Id]);
+                    await Shot("select-group").ConfigureAwait(true);
+                    break;
+                }
+            }
+
+            gallery.ShowCategory(category ?? AddFolderId.Time);
+            gallery.Pick([gallery.Screen.Widgets[0].Id]);
 
             // A drag under way: the gallery stepped aside, the picked cards on the ghost, thirty cells on.
             var metrics = surface.Metrics;
@@ -207,30 +230,92 @@ internal static class WidgetGalleryRender
             var metrics = surface.Metrics;
             var (cols, rows) = GridGeometry.GridDims(metrics);
             var work = metrics.Allowed;
-            Say($"gallery-check: {gallery.Screens.Count} screen(s) over {metrics.Width:0}x{metrics.Height:0} DIPs, grid {cols}x{rows}");
-            Say("     screens per category: " + string.Join(", ", gallery.Screens.GroupBy(s => s.Category).Select(g => $"{g.Key} {g.Count()}")));
+            Say($"gallery-check: {gallery.Categories.Count} categories over {metrics.Width:0}x{metrics.Height:0} DIPs, grid {cols}x{rows}");
+            Say("     pieces per category: " + string.Join(", ", gallery.Categories.Select(c => $"{c.Id} {c.Pieces.Count} ({c.Pieces.Count(p => p.Group is not null)} groups)")));
 
-            // [S-14912] Every screen: whole cells of the display's grid, inside the work area, no two cards sharing a cell.
+            // [S-14912] Every category, at its top and scrolled to its foot: whole cells of the display's grid, inside the view
+            // across, no two cards sharing a cell, every card where its widget is; no family's small part among them.
+            var offered = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered());
+            var parts = offered.Rail.SelectMany(r => offered.Sections(r.Id)).Where(s => s.Kind == AddSectionKind.Family)
+                .SelectMany(s => s.Tiles.OfType<AddWidgetTile>()).Select(t => t.Kind).ToHashSet();
             var tidy = true;
-            for (var i = 0; i < gallery.Screens.Count; i++)
+            var whole = true;
+            var reached = true;
+            for (var i = 0; i < gallery.Categories.Count; i++)
             {
                 gallery.Show(i);
-                var rects = gallery.Screen.Widgets.Select(w => w.Rect).ToList();
-                bool Whole(double v, int n) => Lattice.Same(v * n, Math.Round(v * n));
-                tidy &= rects.TrueForAll(r => Whole(r.X, cols) && Whole(r.Y, rows) && Whole(r.W, cols) && Whole(r.H, rows)
-                    && r.X >= work.X && r.Y >= work.Y && r.Right <= work.Right && r.Bottom <= work.Bottom);
-                for (var a = 0; a < rects.Count; a++)
+                var view = gallery.Frame!.View;
+                foreach (var scrolled in new[] { 0, gallery.MostScroll })
                 {
-                    for (var b = a + 1; b < rects.Count; b++)
+                    gallery.ScrollTo(scrolled);
+                    var rects = gallery.Screen.Widgets.Select(w => w.Rect).ToList();
+                    bool Whole(double v, int n) => Math.Abs((v * n) - Math.Round(v * n)) < 1e-6;
+                    tidy &= rects.TrueForAll(r => Whole(r.X, cols) && Whole(r.Y, rows) && Whole(r.W, cols) && Whole(r.H, rows)
+                        && r.X * cols >= view.X - 1e-6 && r.Right * cols <= view.Right + 1e-6 && r.X >= work.X && r.Right <= work.Right);
+                    for (var a = 0; a < rects.Count; a++)
                     {
-                        tidy &= !Lattice.Overlaps(rects[a], rects[b]);
+                        for (var b = a + 1; b < rects.Count; b++)
+                        {
+                            tidy &= !(Math.Min(rects[a].Right, rects[b].Right) - Math.Max(rects[a].X, rects[b].X) > 1e-6 && Math.Min(rects[a].Bottom, rects[b].Bottom) - Math.Max(rects[a].Y, rects[b].Y) > 1e-6);
+                        }
+                    }
+
+                    tidy &= gallery.Screen.Widgets.TrueForAll(w => gallery.CardOf(w.Id) is { } card && Same(card.LiveRect, w.Rect));
+                    if (scrolled == gallery.MostScroll && rects.Count > 0)
+                    {
+                        // Scrolled to its foot, its last card ends inside the view; at its top its first starts there.
+                        reached &= rects.Max(r => r.Bottom) * rows <= view.Bottom + 1e-6;
                     }
                 }
 
-                tidy &= gallery.Screen.Widgets.TrueForAll(w => gallery.CardOf(w.Id) is { } card && Same(card.LiveRect, w.Rect));
+                // At its top its first card starts in the view's first tile (a piece that keeps its size stands in its tile's middle).
+                gallery.ScrollTo(0);
+                var first = gallery.Screen.Widgets.Count == 0 ? view.Y : gallery.Screen.Widgets.Min(w => w.Rect.Y) * rows;
+                reached &= first >= view.Y - 1e-6 && first < view.Y + WidgetGallery.PitchTall;
+                whole &= gallery.Categories[i].Pieces.All(p => p.Group is not null || (p.Kind is { } kind && !parts.Contains(kind)));
             }
 
-            Expect(tidy && gallery.Screens.Count > 0, "every screen's cards on whole cells of the display's grid, inside the work area, apart");
+            Expect(tidy && gallery.Categories.Count > 0, "every category's cards on whole cells of the display's grid, inside the view, apart, at its top and scrolled to its foot");
+            Expect(reached, "every category starts at the view's top and scrolls until its last card is inside the view");
+            Expect(whole, "whole widgets and ready-made groups only: no family's small part");
+            var window = gallery.Frame!.Window;
+            Expect(window.X >= surface.WorkAreaForCheck.X && window.Y >= surface.WorkAreaForCheck.Y
+                && window.X + window.Width <= surface.WorkAreaForCheck.X + surface.WorkAreaForCheck.Width + 1e-6
+                && window.Y + window.Height <= surface.WorkAreaForCheck.Y + surface.WorkAreaForCheck.Height + 1e-6
+                && window.Width < surface.WorkAreaForCheck.Width && window.Height < surface.WorkAreaForCheck.Height,
+                $"the gallery is a window inside the work area ({window.Width:0}x{window.Height:0} of {surface.WorkAreaForCheck.Width:0}x{surface.WorkAreaForCheck.Height:0}), not all of it");
+
+            // [S-14913] The wheel's step scrolls the category by whole cells and never changes it.
+            var tall = Enumerable.Range(0, gallery.Categories.Count).FirstOrDefault(i =>
+            {
+                gallery.Show(i);
+                return gallery.MostScroll > 0;
+            }, -1);
+            if (tall >= 0)
+            {
+                gallery.Show(tall);
+                var before = gallery.Screen.Widgets[0].Rect;
+                gallery.ScrollTo(WidgetGallery.Step);
+                var after = gallery.Screen.Widgets[0].Rect;
+                Expect(gallery.Category.Id == gallery.Categories[tall].Id && gallery.Scrolled == Math.Min(WidgetGallery.Step, gallery.MostScroll)
+                    && Math.Abs(((before.Y - after.Y) * rows) - gallery.Scrolled) < 1e-6,
+                    $"{gallery.Category.Id}: a scroll step moves its cards {gallery.Scrolled} whole cells up and keeps the category");
+            }
+            else
+            {
+                Say("     no category is taller than the well at this size: scrolling not driven");
+            }
+
+            // [S-14914] A ready-made group is picked whole by any one of its widgets.
+            var grouped = Enumerable.Range(0, gallery.Categories.Count).FirstOrDefault(i => gallery.Categories[i].Pieces.Any(p => p.Group is not null), -1);
+            if (grouped >= 0)
+            {
+                gallery.Show(grouped);
+                var member = gallery.Screen.Widgets.First(w => gallery.PieceOf(w.Id).Count > 1);
+                gallery.Pick([member.Id]);
+                Expect(gallery.Picked.Count == gallery.PieceOf(member.Id).Count && gallery.PieceOf(member.Id).All(gallery.Picked.Contains),
+                    $"{gallery.Category.Id}: a group picked by one widget is picked whole ({gallery.Picked.Count} widgets)");
+            }
 
             async Task<bool> DragAndDrop(string what, IReadOnlyList<string> ids, double cellsX, double cellsY)
             {
@@ -277,7 +362,7 @@ internal static class WidgetGalleryRender
             await Task.Delay(500).ConfigureAwait(true);
             await DragAndDrop("one", [gallery.Screen.Widgets[0].Id], 37.4, 12.6).ConfigureAwait(true);
             await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".dropped.png")).ConfigureAwait(true);
-            await DragAndDrop("three", [.. gallery.Screen.Widgets.Take(3).Select(w => w.Id)], 20.3, 9.7).ConfigureAwait(true);
+            await DragAndDrop("three", [.. gallery.Screen.Widgets.Take(3).Select(w => w.Id)], 3.3, 2.7).ConfigureAwait(true);
 
             // Given up: Escape's path, nothing placed, the gallery back.
             var count = host.State.Views[0].Widgets.Count;

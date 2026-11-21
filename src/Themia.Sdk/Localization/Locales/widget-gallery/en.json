@@ -1,26 +1,25 @@
 {
-  "$comment": "[S-14910]..[S-14917] The widget gallery: every widget shown as a desktop of real cards, grouped by subject, dragged onto the desktop to place it.",
+  "$comment": "[S-14910]..[S-14917] The widget gallery: a window of whole widgets and ready-made groups as real cards, a bento a subject, dragged onto the desktop to place them.",
   "$englishOnly": [
     "widgetGallery.entry",
-    "widgetGallery.pages",
-    "widgetGallery.previous",
-    "widgetGallery.next",
     "widgetGallery.none",
     "widgetGallery.noneAbout",
     "widgetGallery.styles",
     "widgetGallery.several",
-    "widgetGallery.drag"
+    "widgetGallery.drag",
+    "widgetGallery.group"
   ],
   "widgetGallery.entry": "Widget gallery",
-  "widgetGallery.pages": "{page} of {count}",
-  "widgetGallery.previous": "Previous screen",
-  "widgetGallery.next": "Next screen",
   "widgetGallery.none": "Pick a widget",
-  "widgetGallery.noneAbout": "Click a widget to see its styles. Ctrl+click or drag a box round several to take them together.",
+  "widgetGallery.noneAbout": "Click a widget or a group to see what it is. Ctrl+click or drag a box round several to take them together.",
   "widgetGallery.styles": "Styles",
   "widgetGallery.several": {
     "one": "{count} widget",
     "other": "{count} widgets"
   },
-  "widgetGallery.drag": "Drag onto your desktop to place. The gallery keeps them."
+  "widgetGallery.drag": "Drag onto your desktop to place. The gallery keeps them.",
+  "widgetGallery.group": {
+    "one": "{count} widget, placed together",
+    "other": "{count} widgets, placed together"
+  }
 }

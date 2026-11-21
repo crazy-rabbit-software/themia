@@ -13,7 +13,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-14910]..[S-14917] The widget gallery on this display: opened from its button beside Add widget (the add page stays
-/// as it is), over the work area under the bar, one of the bar's flyouts (one at a time); a drag off it is the one
+/// as it is), a window in the middle of the work area under the bar, one of the bar's flyouts (one at a time); a drag off it is the one
 /// placement session, landing where the pointer lets go, the gallery stepping aside while it is aimed and coming back after.
 /// </summary>
 internal sealed partial class DesktopWindow
@@ -51,8 +51,8 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-14910] [S-14912] The gallery over this display's work area: every widget the add page offers, by its subjects,
-    /// built afresh each time it opens ([S-1109]). Only in edit mode and not while placing; any other flyout closes first.
+    /// [S-14910] [S-14912] The gallery's window on this display: every whole widget and ready-made group the add page
+    /// offers, by its subjects, built afresh each time it opens ([S-1109]). Only in edit mode and not while placing; any other flyout closes first.
     /// </summary>
     internal void OpenWidgetGallery()
     {
@@ -68,7 +68,7 @@ internal sealed partial class DesktopWindow
         _galleryLayer.Children.Add(gallery);
         PlaceWidgetGallery();
         Become(OpenFlyout.Gallery);
-        Log.Info(Scope, $"widget gallery open on {_monitor.GdiName}: {gallery.Screens.Count} screen(s)");
+        Log.Info(Scope, $"widget gallery open on {_monitor.GdiName}: {gallery.Categories.Count} categories");
     }
 
     /// <summary>[S-14910] Close the gallery, its cards and samples with it; never while its own drag is aimed.</summary>
@@ -85,7 +85,7 @@ internal sealed partial class DesktopWindow
         Become(OpenFlyout.None);
     }
 
-    /// <summary>[S-14911] Over the work area under the bar, on this display's grid.</summary>
+    /// <summary>[S-14911] In the middle of the work area's room under the bar, its cards on this display's grid.</summary>
     private void PlaceWidgetGallery()
     {
         var metrics = Metrics;
@@ -176,11 +176,14 @@ internal sealed partial class DesktopWindow
         _widgetGallery?.EndFollow();
     }
 
-    /// <summary>[S-14913] A key while the gallery is open: its own first (the screens, Ctrl+A, Escape on a pick).</summary>
+    /// <summary>[S-14913] A key while the gallery is open: its own first (scrolling, Ctrl+A, Escape on a pick).</summary>
     private bool GalleryKey(KeyRoutedEventArgs args)
         => _widgetGallery is { } gallery && _host.Placing is null && gallery.HandleKey(args.Key, IsDown(Windows.System.VirtualKey.Control));
 
 #if DEBUG
+    /// <summary>Debug only: this display's work area (DIPs), for the gallery's check.</summary>
+    internal DipRect WorkAreaForCheck => WorkArea;
+
     /// <summary>Debug only: a drag off the gallery begun as its pointer begins one, for the gallery's check.</summary>
     internal void BeginGalleryDragForCheck(ViewState screen, IReadOnlyList<string> ids, Point at) => BeginGalleryDrag(screen, ids, at);
 

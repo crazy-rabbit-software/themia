@@ -8,8 +8,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-14912] [S-14916] The widget gallery over every widget of the build, and its drag as the one placement session. Here,
-/// not in Core's tests, because the gallery is built from every widget and a new widget's box from its sizing.
+/// [S-14912] [S-14916] The widget gallery over every whole widget and ready-made group of the build, and its drag as the
+/// one placement session. Here, not in Core's tests, because the gallery is built from every widget and a new widget's
+/// box from its sizing.
 /// </summary>
 public sealed class WidgetGalleryPlacementTests
 {
@@ -31,42 +32,79 @@ public sealed class WidgetGalleryPlacementTests
         return new FracRect(box.X / (double)cols, box.Y / (double)rows, box.W / (double)cols, box.H / (double)rows);
     }
 
+    /// <summary>What a piece asks of the bento on <see cref="Screen"/>, as the gallery's view asks it.</summary>
+    private static PieceSize Size(GalleryPiece piece)
+    {
+        var (cols, rows) = GridGeometry.GridDims(Screen);
+        if (piece.Group is { } group)
+        {
+            var laid = ReadyMadeGroups.Laid(group, Screen, Sizes);
+            var (w, h) = ((int)Math.Round(laid.Max(r => r.Right) * cols), (int)Math.Round(laid.Max(r => r.Bottom) * rows));
+            return new PieceSize(w, h, w, h, true, false);
+        }
+
+        var kind = piece.Kind!.Value;
+        var (nw, nh) = Cells(kind);
+        var limits = SizeFit.Limits(SizeFit.Of(kind), Screen, Sizes.Scale)!;
+        return new PieceSize(nw, nh, (int)Math.Ceiling((limits.Width.Min * cols) - 1e-6), (int)Math.Ceiling((limits.Height.Min * rows) - 1e-6), !limits.Width.Fixed, !limits.Height.Fixed);
+    }
+
     [Fact]
-    public void S14912_every_widget_of_the_build_stands_once_in_the_gallery_in_its_subject_tidily()
+    public void S14912_every_whole_widget_and_ready_made_group_stands_once_in_its_subject_and_no_familys_part()
     {
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
         var categories = WidgetGallery.Of(page);
-        var area = new CellBox(3, 13, 150, 87);
 
-        var screens = WidgetGallery.Lay(categories, area, Cells);
+        // Every ready-made group this build places, once.
+        var groups = categories.SelectMany(c => c.Pieces).Where(p => p.Group is not null).Select(p => p.Group!.Id).ToList();
+        Assert.Equal(ReadyMadeGroups.Offered().Select(g => g.Id).Order(StringComparer.Ordinal), groups.Order(StringComparer.Ordinal));
 
-        // Every kind the add page homes, once, in the subject the page homes it in.
-        var laid = screens.SelectMany(s => s.Cards.Select(c => (s.Category, c.Kind))).ToList();
-        Assert.Equal(page.Homes.Count, laid.Count);
-        Assert.Equal(page.Homes.Select(h => h.Kind).Order(), laid.Select(l => l.Kind).Order());
-        foreach (var (category, kind) in laid)
-        {
-            var home = page.Homes.Single(h => h.Kind == kind);
-            Assert.Equal(home.Path[0].Id, category);
-        }
+        // Every widget that stands alone on the add page (a subject's own), once, in its subject; no part of a family.
+        var sections = page.Rail.Where(r => r.Id != AddFolderId.Start).SelectMany(r => page.Sections(r.Id).Select(s => (Subject: r.Id, Section: s))).ToList();
+        var own = sections.Where(s => s.Section.Kind == AddSectionKind.Widgets).SelectMany(s => s.Section.Tiles.OfType<AddWidgetTile>().Select(t => (s.Subject, t.Kind))).ToList();
+        var parts = sections.Where(s => s.Section.Kind == AddSectionKind.Family).SelectMany(s => s.Section.Tiles.OfType<AddWidgetTile>().Select(t => t.Kind)).ToHashSet();
+        var kinds = categories.SelectMany(c => c.Pieces.Where(p => p.Kind is not null).Select(p => (Subject: c.Id, Kind: p.Kind!.Value))).ToList();
+        Assert.Equal(own.OrderBy(o => o.Kind.Value, StringComparer.Ordinal), kinds.OrderBy(k => k.Kind.Value, StringComparer.Ordinal));
+        Assert.NotEmpty(parts);
+        Assert.DoesNotContain(kinds, k => parts.Contains(k.Kind));
 
-        // On whole cells inside the area, no two sharing a cell, each at its natural cells (held to the area).
-        foreach (var screen in screens)
-        {
-            Assert.All(screen.Cards, c => Assert.True(area.Holds(c.Box), $"{c.Kind} at {c.Box}"));
-            for (var i = 0; i < screen.Cards.Count; i++)
-            {
-                for (var j = i + 1; j < screen.Cards.Count; j++)
-                {
-                    Assert.False(screen.Cards[i].Box.Overlaps(screen.Cards[j].Box));
-                }
-            }
-
-            Assert.All(screen.Cards, c => Assert.Equal((Math.Min(Cells(c.Kind).W, area.W), Math.Min(Cells(c.Kind).H, area.H - WidgetGallery.TitleRows)), (c.Box.W, c.Box.H)));
-        }
+        // A family's parts are seen whole instead: the now-playing texts and buttons in their groups.
+        Assert.DoesNotContain(kinds, k => k.Kind.Value is "musicPlayPause" or "musicElapsed" or "music");
+        Assert.Contains("nowPlaying", groups);
 
         // Start is no category: it only shows again what is at home elsewhere.
         Assert.DoesNotContain(categories, c => c.Id == AddFolderId.Start);
+        Assert.All(categories, c => Assert.NotEmpty(c.Pieces));
+    }
+
+    [Fact]
+    public void S14912_every_category_of_the_build_is_a_tidy_bento_its_pieces_never_under_their_least()
+    {
+        var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
+        const int width = (12 * WidgetGallery.Pitch) - WidgetGallery.Gap;
+        foreach (var category in WidgetGallery.Of(page))
+        {
+            var sheet = WidgetGallery.Lay(category, width, Size);
+            Assert.Equal(category.Pieces.Count, sheet.Tiles.Count);
+            var room = new CellBox(0, 0, width, sheet.Rows);
+            for (var i = 0; i < sheet.Tiles.Count; i++)
+            {
+                var tile = sheet.Tiles[i];
+                Assert.True(room.Holds(tile.Tile), $"{category.Id}: {tile.Piece.Key} at {tile.Tile}");
+                Assert.True(tile.Tile.Holds(tile.Box), $"{category.Id}: {tile.Piece.Key}'s box {tile.Box} in {tile.Tile}");
+                for (var j = i + 1; j < sheet.Tiles.Count; j++)
+                {
+                    var other = sheet.Tiles[j].Tile;
+                    var apart = new CellBox(tile.Tile.X - WidgetGallery.Gap, tile.Tile.Y - WidgetGallery.Gap, tile.Tile.W + (2 * WidgetGallery.Gap), tile.Tile.H + (2 * WidgetGallery.Gap));
+                    Assert.False(apart.Overlaps(other), $"{category.Id}: {tile.Piece.Key} and {sheet.Tiles[j].Piece.Key} share cells or touch");
+                }
+
+                // Never drawn under its least: a widget keeps what its sizing asks, a group the size it is laid at.
+                var asked = Size(tile.Piece);
+                Assert.True(tile.Piece.Group is null || tile.Box.H == asked.H, $"{category.Id}: {tile.Piece.Key} is {tile.Box.H} tall, laid {asked.H}");
+                Assert.True(tile.Box.W >= Math.Min(asked.MinW, width) && tile.Box.H >= asked.MinH, $"{category.Id}: {tile.Piece.Key} {tile.Box} under its least {asked.MinW}x{asked.MinH}");
+            }
+        }
     }
 
     private static ViewState Gallery(params (string Kind, CellBox Box)[] cards)

@@ -29,17 +29,22 @@ internal sealed record WidgetGalleryCommands(Action<ViewState, IReadOnlyList<str
 
 /// <summary>
 /// [S-14910]..[S-14917] The widget gallery (owner, 2026-11-21: "on the independent page it should bascially be a dashboard
-/// that you show with the widgets already arranged / shown like it would be on a themia view, the widgets are grouped into
-/// the categories like weather already there, when you want to place a widget you basically just drag it onto the desktop
-/// from that preview."): over the display's work area, under its edit bar, a calm ground (the display's blurred wallpaper
-/// under Windows' sheet) with the display's own grid on it, and on it a screen of real cards on their samples
-/// (<see cref="SampleWorld"/>, <see cref="SampleCards"/>), each kind at its natural size on the display's cells, laid by
-/// <see cref="WidgetGallery"/>: a cell of the gallery is a cell of the desktop. The categories' rail (the add page's) and
-/// the arrows walk the screens; the edit mode's selection rules pick cards (<see cref="WidgetSelection"/>, <see cref="SelectionRules"/>: a press,
-/// Ctrl or Shift, the lasso) marked as the locked desktop marks them (a card's corners, the frame's round several); the
-/// panel on the right says what is picked and offers one widget's styles as small live cards. Dragging the pick hands it
-/// to the surface (<see cref="WidgetGalleryCommands.Drag"/>), which starts the one placement session; while it is aimed
-/// the gallery steps aside and the cards picked up follow the ghost (<see cref="Follow"/>) from exactly where they stood.
+/// that you show with the widgets already arranged / shown like it would be on a themia view ... when you want to place a
+/// widget you basically just drag it onto the desktop from that preview."; the same day: "lets just show complete widgets
+/// / groups, not the small atoms. scrolling should not scroll the tabs but a tabs contents should be scrollable ... they
+/// should be shown as a bento"; "it should also just be inside a settings window"; "the tabs and the widget explanation
+/// should be more differnt from the page and not just merge into it"). A window in the middle of the display's work area
+/// under its edit bar (<see cref="WidgetGallery.Frame"/>): the categories' rail on a pane of its own, the panel of what
+/// is picked a card of its own, and between them a well, the display's blurred wallpaper dimmed with the display's own
+/// grid on it, in which the category shown stands as a bento of real cards on their samples (<see cref="SampleWorld"/>,
+/// <see cref="SampleCards"/>; <see cref="WidgetGallery.Lay"/>): whole widgets sized to their tiles and ready-made groups
+/// as the panels they place, every card on the display's cells: a cell of the gallery is a cell of the desktop. A
+/// category taller than the well is scrolled, by whole cells (the wheel, the keys, the scroll bar); only the rail changes
+/// the category. The edit mode's selection rules pick pieces (<see cref="WidgetSelection"/>, <see cref="SelectionRules"/>:
+/// a press, Ctrl or Shift, the lasso; a group is picked whole) marked as the locked desktop marks them; the panel says
+/// what is picked and offers one widget's styles as small live cards. Dragging the pick hands it to the surface
+/// (<see cref="WidgetGalleryCommands.Drag"/>), which starts the one placement session; while it is aimed the gallery
+/// steps aside and the cards picked up follow the ghost (<see cref="Follow"/>) from exactly where they stood.
 /// </summary>
 internal sealed partial class WidgetGalleryView : Grid, IDisposable
 {
@@ -79,8 +84,27 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <summary>[S-14913] The categories as the add page's rail (its one component, [S-13610]), down the gallery's left.</summary>
     private readonly AddRail _rail;
     private readonly ScrollViewer _railScroll;
-    private readonly TextBlock _pages = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
-    private readonly StackPanel _tabRow;
+
+    /// <summary>[S-14911] The window: Windows' sheet, its rim and its lift, under everything of the gallery.</summary>
+    private readonly Border _window = new();
+
+    /// <summary>[S-14911] The rail's own pane, apart from the window's ground.</summary>
+    private readonly Border _railPane = new();
+
+    /// <summary>[S-14911] The well's rounded box: the ground the cards stand on is clipped to it.</summary>
+    private readonly Border _wellBox = new();
+
+    /// <summary>[S-14911] The well's rim, over the cards.</summary>
+    private readonly Border _wellRim = new() { IsHitTestVisible = false };
+    private readonly TextBlock _title = Fluent.Text(FamilyType.Title);
+
+    /// <summary>[S-14913] The well's scroll bar: shown while the category is taller than the well.</summary>
+    private readonly Microsoft.UI.Xaml.Controls.Primitives.ScrollBar _scrollBar = new()
+    {
+        Orientation = Orientation.Vertical,
+        IndicatorMode = Microsoft.UI.Xaml.Controls.Primitives.ScrollingIndicatorMode.MouseIndicator,
+        Visibility = Visibility.Collapsed,
+    };
     private readonly Border _panel = new();
     private readonly StackPanel _panelBody = new() { Spacing = Fluent.Space2 };
     private readonly List<WidgetCard> _cards = [];
@@ -91,10 +115,19 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     private double _raster = 1;
     private double _contentScale = 1;
     private DipRect _work;
-    private CellBox _area;
-    private IReadOnlyList<GalleryScreen> _screens = [];
+    private GalleryFrame? _frame;
+
+    /// <summary>[S-14912] The cards' room in the well, whole cells of the display's grid.</summary>
+    private CellBox _view;
+
+    /// <summary>[S-14913] The category shown (its place in <see cref="_categories"/>), its bento and how far it is scrolled, in rows of cells.</summary>
     private int _at;
+    private GallerySheet? _laid;
+    private int _scroll;
     private ViewState _screen = Empty();
+
+    /// <summary>[S-14912] Each widget of the sheet shown: the tile it belongs to and its box on the sheet (cells from its corner).</summary>
+    private readonly Dictionary<string, (int Tile, CellBox Box)> _placed = new(StringComparer.Ordinal);
 
     /// <summary>A press on the cards' room: where (surface DIPs), on which card (null: empty room), and how.</summary>
     private (Point At, string? Card, bool Kept, bool Extending, List<string> Base)? _press;
@@ -113,12 +146,37 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _samples = new SampleWorld(_ticker, dispatcher);
         _host = new Host(_ticker, this) { Design = design, Samples = _samples, Selected = _selected };
 
-        _sheet.Background = ShellBrush.Of(ShellRole.Flyout);
+        // [S-14911] The window: the edit bar's own ground with a flyout's rim, lifted off the desktop as a flyout is. A press
+        // on it is the gallery's: it never reaches the desktop under it.
+        _window.Background = ShellBrush.Of(ShellRole.Acrylic);
+        _window.BorderBrush = ShellBrush.Of(ShellRole.FlyoutStroke);
+        _window.BorderThickness = new Thickness(FamilyShape.Hairline);
+        _window.CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
+        _window.Shadow = new ThemeShadow();
+        _window.Translation = new System.Numerics.Vector3(0, 0, (float)ShellMetrics.Shadow.Elevation);
+        _window.PointerPressed += (_, e) => e.Handled = true;
+
+        // [S-14915] The rail and the panel are sheets of their own on that ground, the well a ground of its own with a rim:
+        // none merges into the window (owner, 2026-11-21: "the tabs and the widget explanation should be more differnt
+        // from the page and not just merge into it").
+        _railPane.Background = ShellBrush.Of(ShellRole.CardFill);
+        _railPane.BorderBrush = ShellBrush.Of(ShellRole.CardStroke);
+        _railPane.BorderThickness = new Thickness(FamilyShape.Hairline);
+        _railPane.CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
+        _railPane.Padding = new Thickness(Fluent.Space1);
+
+        _sheet.Background = ShellBrush.Of(ShellRole.CardBase);
         _ground.Children.Add(_wallpaper);
         _ground.Children.Add(_sheet);
-        // A press on the ground is the gallery's: it never reaches the desktop under it (no lasso of hidden widgets).
-        _ground.Background = Fluent.Clear();
-        _ground.PointerPressed += (_, e) => e.Handled = true;
+        _ground.Background = ShellBrush.Of(ShellRole.CardBase);
+        _wellBox.CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
+        _wellBox.Child = _ground;
+        _wellRim.CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
+        _wellRim.BorderBrush = ShellBrush.Of(ShellRole.CardStroke);
+        _wellRim.BorderThickness = new Thickness(FamilyShape.Hairline);
+        _title.VerticalAlignment = VerticalAlignment.Center;
+        _title.TextTrimming = TextTrimming.CharacterEllipsis;
+        UiLanguage.ApplyFlow(_title);
 
         foreach (var plate in new[] { _marks.Halos, _marks.Inks, _marks.Lifts, _marks.Overhangs })
         {
@@ -126,7 +184,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         // Every category in sight at once, its name and how many widgets it holds: the add page's rail.
-        _rail = new AddRail([.. _categories.Select(c => new AddRailItem(c.Id, c.Title, c.Glyph, c.Blocks.Sum(b => b.Kinds.Count)))], ShowCategory);
+        _rail = new AddRail([.. _categories.Select(c => new AddRailItem(c.Id, c.Title, c.Glyph, c.Pieces.Count))], ShowCategory);
         _railScroll = new ScrollViewer
         {
             Content = _rail,
@@ -134,16 +192,16 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
-        _pages.VerticalAlignment = VerticalAlignment.Center;
-        _pages.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
-        _tabRow = new StackPanel
+        _railPane.Child = _railScroll;
+        UiLanguage.ApplyFlow(_railPane);
+        _scrollBar.ValueChanged += (_, e) =>
         {
-            Orientation = Orientation.Horizontal,
-            Height = G.Tabs,
-            Children = { Arrow(Glyphs.ChevronLeft, Str.WidgetGallery_Previous.Text(), back: true), _pages, Arrow(Glyphs.ChevronRight, Str.WidgetGallery_Next.Text(), back: false) },
+            // Its own range being set (a category shown) is no scroll of the user's.
+            if (!_settingBar)
+            {
+                ScrollTo((int)Math.Round(e.NewValue));
+            }
         };
-        UiLanguage.ApplyFlow(_railScroll);
-        UiLanguage.ApplyFlow(_tabRow);
 
         _panel.Background = ShellBrush.Of(ShellRole.CardFill);
         _panel.BorderBrush = ShellBrush.Of(ShellRole.CardStroke);
@@ -153,16 +211,19 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _panel.Child = new ScrollViewer { Content = _panelBody, HorizontalScrollMode = ScrollMode.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         UiLanguage.ApplyFlow(_panel);
 
-        _stage.Children.Add(_ground);
-        _stage.Children.Add(_grid);
+        _stage.Children.Add(_window);
+        _stage.Children.Add(_railPane);
         _stage.Children.Add(_titles);
+        _stage.Children.Add(_wellBox);
+        _stage.Children.Add(_grid);
         _stage.Children.Add(_cardLayer);
         _stage.Children.Add(_markPlates);
         _stage.Children.Add(_input);
         _stage.Children.Add(_band);
-        _stage.Children.Add(_railScroll);
-        _stage.Children.Add(_tabRow);
+        _stage.Children.Add(_wellRim);
+        _stage.Children.Add(_scrollBar);
         _stage.Children.Add(_panel);
+        _titles.Children.Add(_title);
         Children.Add(_stage);
 
         _input.PointerPressed += OnPressed;
@@ -170,7 +231,6 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _input.PointerReleased += OnReleased;
         _input.PointerCaptureLost += (_, _) => EndPress();
         _input.PointerWheelChanged += OnWheel;
-        _ground.PointerWheelChanged += OnWheel;
         if (_backdrop is not null)
         {
             _backdrop.Changed += OnBackdrop;
@@ -179,14 +239,28 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         AutomationProperties.SetName(this, Str.WidgetGallery_Entry.Text());
     }
 
-    /// <summary>The screens laid for the display it stands on, in the tabs' order.</summary>
-    internal IReadOnlyList<GalleryScreen> Screens => _screens;
+    /// <summary>The categories, in the rail's order.</summary>
+    internal IReadOnlyList<GalleryCategory> Categories => _categories;
 
-    /// <summary>The screen shown.</summary>
-    internal int At => _at;
+    /// <summary>The category shown.</summary>
+    internal GalleryCategory Category => _categories[Math.Clamp(_at, 0, Math.Max(0, _categories.Count - 1))];
 
-    /// <summary>The widgets of the screen shown, on their cells: what a drag picks up.</summary>
+    /// <summary>[S-14912] The category shown as it is laid: its tiles on the sheet.</summary>
+    internal GallerySheet? Sheet => _laid;
+
+    /// <summary>[S-14911] The window's parts on the display, and the cards' room in the well.</summary>
+    internal GalleryFrame? Frame => _frame;
+
+    /// <summary>[S-14913] How far the category shown is scrolled, and how far it scrolls, in rows of cells.</summary>
+    internal int Scrolled => _scroll;
+
+    internal int MostScroll => _laid is { } sheet ? WidgetGallery.MaxScroll(sheet.Rows, _view.H) : 0;
+
+    /// <summary>The widgets of the category shown, on the cells they stand on now: what a drag picks up.</summary>
     internal ViewState Screen => _screen;
+
+    /// <summary>[S-14912] The widgets of the piece <paramref name="id"/> belongs to: itself, or its ready-made group's every widget.</summary>
+    internal IReadOnlyList<string> PieceOf(string id) => [.. Mates(id)];
 
     /// <summary>The widgets picked, in the order they were picked.</summary>
     internal IReadOnlyList<string> Picked => _selection.Ids;
@@ -214,69 +288,87 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         var same = metrics == _metrics && Math.Abs(rasterScale - _raster) < 1e-9 && work == _work && Math.Abs(contentScale - _contentScale) < 1e-9;
         (_metrics, _raster, _work, _contentScale) = (metrics, rasterScale, work, contentScale);
 
-        // The ground over the work area, the display's blurred wallpaper under Windows' sheet ([S-14911]).
-        SetBox(_ground, work);
-        _ground.Clip = new RectangleGeometry { Rect = new Rect(0, 0, work.Width, work.Height) };
-        _wallpaper.Margin = new Thickness(-work.X, -work.Y, 0, 0);
+        // [S-14911] The window in the middle of the work area's room under the bar, its parts inside it.
+        var (cols, rows) = GridGeometry.GridDims(metrics);
+        var frame = WidgetGallery.Frame(work, barBottom, allowed, metrics.Width / cols, metrics.Height / rows);
+        var moved = frame != _frame;
+        _frame = frame;
+        SetBox(_window, frame.Window);
+        SetBox(_railPane, frame.Rail);
+        SetBox(_titles, frame.Head);
+        _title.Width = frame.Head.Width;
+        _title.Height = frame.Head.Height;
+        SetBox(_panel, frame.Panel);
+
+        // The well: the display's blurred wallpaper under Windows' sheet, the display's own grid on it ([S-06c]): a cell
+        // here is a cell of the desktop.
+        var well = frame.Well;
+        SetBox(_wellBox, well);
+        SetBox(_wellRim, well);
+        _wallpaper.Margin = new Thickness(-well.X, -well.Y, 0, 0);
         _wallpaper.Width = metrics.Width;
         _wallpaper.Height = metrics.Height;
         _wallpaper.HorizontalAlignment = HorizontalAlignment.Left;
         _wallpaper.VerticalAlignment = VerticalAlignment.Top;
-        if (!same)
+        if (!same || moved)
         {
             OnBackdrop();
-
-            // The display's own grid, as edit mode draws it under the cards ([S-06c]): a cell here is a cell there.
             _grid.Width = metrics.Width;
             _grid.Height = metrics.Height;
             _grid.Draw(metrics, rasterScale);
-            _grid.Clip = new RectangleGeometry { Rect = new Rect(work.X, work.Y, work.Width, work.Height) };
         }
 
-        // [S-14911] The rail down the left, the pager over the panel on the right, the cards between.
-        var top = barBottom + ShellMetrics.Flyout.Gap;
-        var bottom = work.Y + work.Height - G.Margin;
-        var railLeft = work.X + G.Margin;
-        Canvas.SetLeft(_railScroll, railLeft);
-        Canvas.SetTop(_railScroll, top);
-        _railScroll.Width = G.Rail;
-        _railScroll.Height = Math.Max(0, bottom - top);
-        var left = railLeft + G.Rail + G.Margin;
-        var right = work.X + work.Width - G.Margin;
-        var panelLeft = right - G.Panel;
+        // What stands in the well is cut by it: the grid, the cards (a scrolled one runs under its rim), their marks, the lasso.
+        _clip = new Rect(well.X, well.Y, well.Width, well.Height);
+        ClipToWell(true);
+        SetBox(_input, well);
+        SetBox(_scrollBar, new DipRect(well.X + well.Width - G.ScrollBar - FamilyShape.Hairline, well.Y + G.WellPad, G.ScrollBar, Math.Max(0, well.Height - (2 * G.WellPad))));
 
-        _tabRow.Measure(new Size(double.PositiveInfinity, G.Tabs));
-        var pager = Math.Ceiling(_tabRow.DesiredSize.Width);
-        Canvas.SetLeft(_tabRow, panelLeft + G.Panel - pager);
-        Canvas.SetTop(_tabRow, top);
-
-        var panelTop = top + G.Tabs + ShellMetrics.Flyout.Gap;
-        Canvas.SetLeft(_panel, panelLeft);
-        Canvas.SetTop(_panel, panelTop);
-        _panel.Width = G.Panel;
-        _panel.Height = Math.Max(0, bottom - panelTop);
-
-        // [S-14912] The cards' room in whole cells of the display's grid, inside the work area and the part new geometry may use.
-        var grid = GridGeometry.GridDims(metrics);
-        var (pitchX, pitchY) = (metrics.Width / grid.Cols, metrics.Height / grid.Rows);
-        var x0 = Math.Max(left, allowed.X + G.Margin);
-        var y0 = Math.Max(top, allowed.Y + G.Margin);
-        var x1 = Math.Min(panelLeft - G.Margin, allowed.X + allowed.Width - G.Margin);
-        var y1 = Math.Min(bottom, allowed.Y + allowed.Height - G.Margin);
-        var cx = GridSpace.Up(x0 / pitchX);
-        var cy = GridSpace.Up(y0 / pitchY);
-        var area = new CellBox(cx, cy, Math.Max(1, GridSpace.Down(x1 / pitchX) - cx), Math.Max(1, GridSpace.Down(y1 / pitchY) - cy));
-        SetBox(_input, new DipRect(x0, y0, Math.Max(0, x1 - x0), Math.Max(0, y1 - y0)));
-
-        if (same && area == _area && _screens.Count > 0)
+        if (same && frame.View == _view && _laid is not null)
         {
             return;
         }
 
-        _area = area;
-        var category = _screens.Count > 0 ? _screens[Math.Clamp(_at, 0, _screens.Count - 1)].Category : (AddFolderId?)null;
-        _screens = WidgetGallery.Lay(_categories, area, Cells);
-        Show(category is { } shown ? WidgetGallery.FirstOf(_screens, shown) : 0);
+        _view = frame.View;
+        Show(_at);
+    }
+
+    private Rect _clip;
+
+    /// <summary>The well cuts what stands in it; while a drag is aimed the cards picked up follow the ghost anywhere.</summary>
+    private void ClipToWell(bool on)
+    {
+        foreach (var part in new UIElement[] { _grid, _cardLayer, _markPlates, _band })
+        {
+            part.Clip = on || ReferenceEquals(part, _grid) ? new RectangleGeometry { Rect = _clip } : null;
+        }
+    }
+
+    /// <summary>
+    /// [S-14912] What a piece asks of the bento on this display: a widget its natural cells, the least its sizing takes
+    /// and the axes it may be another length on; a ready-made group the cells it is laid at, wider but never smaller or
+    /// taller (its rows would grow unevenly, and its lines of text with them).
+    /// </summary>
+    private PieceSize Size(GalleryPiece piece)
+    {
+        var (cols, rows) = GridGeometry.GridDims(_metrics);
+        if (piece.Group is { } group)
+        {
+            var laid = ReadyMadeGroups.Laid(group, _metrics, new PlacementSizes(_contentScale));
+            var w = Math.Max(1, (int)Math.Round(laid.Max(r => r.Right) * cols));
+            var h = Math.Max(1, (int)Math.Round(laid.Max(r => r.Bottom) * rows));
+            return new PieceSize(w, h, w, h, Wider: true, Taller: false);
+        }
+
+        var kind = piece.Kind!.Value;
+        var (nw, nh) = Cells(kind);
+        var limits = SizeFit.Limits(SizeFit.Of(kind, _styles.TryGetValue(kind, out var style) ? style : null), _metrics, _contentScale);
+        if (limits is null)
+        {
+            return new PieceSize(nw, nh, nw, nh, false, false);
+        }
+
+        return new PieceSize(nw, nh, (int)Math.Ceiling((limits.Width.Min * cols) - 1e-6), (int)Math.Ceiling((limits.Height.Min * rows) - 1e-6), !limits.Width.Fixed, !limits.Height.Fixed);
     }
 
     /// <summary>[S-14912] A kind's natural cells on this display: what placing it new makes (<see cref="PlacementPayload.NewSize"/>).</summary>
@@ -288,34 +380,91 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         return (grid.Col(box.W), grid.Row(box.H));
     }
 
-    /// <summary>[S-14913] Show screen <paramref name="at"/>: its title, its families' names and its cards, nothing picked.</summary>
+    /// <summary>
+    /// [S-14912] [S-14913] Show category <paramref name="at"/>: its name over the well and its bento in it from its top,
+    /// nothing picked. Every piece is built, the ones under the well's foot too: scrolling moves cards, it builds none.
+    /// </summary>
     public void Show(int at)
     {
-        if (_disposed || _screens.Count == 0)
+        if (_disposed || _categories.Count == 0 || !_metrics.IsUsable)
         {
             return;
         }
 
-        _at = Math.Clamp(at, 0, _screens.Count - 1);
-        var screen = _screens[_at];
+        _at = Math.Clamp(at, 0, _categories.Count - 1);
+        var category = _categories[_at];
         DropCards();
         _selection.Clear();
         _selected.Clear();
+        _placed.Clear();
+        _scroll = 0;
 
-        var grid = GridGeometry.GridDims(_metrics);
-        FracRect Rect(CellBox box) => grid.Frac(box);
+        var (cols, rows) = GridGeometry.GridDims(_metrics);
+        var sheet = WidgetGallery.Lay(category, _view.W, Size);
+        _laid = sheet;
 
-        // The screen's widgets: new widgets on the cells they stand on, a style picked here kept on their kind.
+        // The category's widgets: new widgets on the cells of their tiles, a style picked here kept on their kind.
         var view = Empty();
-        foreach (var placed in screen.Cards)
+        for (var t = 0; t < sheet.Tiles.Count; t++)
         {
-            var widget = WidgetInstance.Create(placed.Kind, Rect(placed.Box));
-            if (_styles.TryGetValue(placed.Kind, out var style))
+            var tile = sheet.Tiles[t];
+            if (tile.Piece.Group is { } group)
             {
-                WidgetStyles.Set(widget.Config, style);
-            }
+                // [S-2471] A ready-made group as it is placed: its widgets with their own settings, laid as one block.
+                var laid = ReadyMadeGroups.Laid(group, _metrics, new PlacementSizes(_contentScale));
+                if (ReadyMadeGroups.Build(group, _metrics) is not { } made || made.Count != laid.Count)
+                {
+                    continue;
+                }
 
-            view.Widgets.Add(widget);
+                // [S-2460] Made as wide as its tile as one block, every member in its own sizing and every edge on a cell;
+                // where its common step stops it short, it stands in its tile's middle. Its height is its own.
+                var (lw, lh) = (laid.Max(r => r.Right), laid.Max(r => r.Bottom));
+                SizeLimits?[] limits = [.. made.Select(m => SizeFit.Limits(m, _metrics, _contentScale))];
+                var grown = BlockResize.Resize(laid, limits, ResizeHandle.Right, (tile.Tile.W / (double)cols) - lw, 0, _metrics);
+                var (gw, gh) = ((int)Math.Round(grown.Max(r => r.Right) * cols), (int)Math.Round(grown.Max(r => r.Bottom) * rows));
+                if (grown.Count == laid.Count && gw <= tile.Tile.W && gh <= tile.Tile.H && grown.Min(r => r.X) > -1e-9 && grown.Min(r => r.Y) > -1e-9)
+                {
+                    laid = grown;
+                }
+                else
+                {
+                    (gw, gh) = ((int)Math.Round(lw * cols), (int)Math.Round(lh * rows));
+                }
+
+                var (ox, oy) = (tile.Tile.X + Math.Max(0, (tile.Tile.W - gw) / 2), tile.Tile.Y + Math.Max(0, (tile.Tile.H - gh) / 2));
+                for (var i = 0; i < made.Count; i++)
+                {
+                    var box = new CellBox(ox + (int)Math.Round(laid[i].X * cols), oy + (int)Math.Round(laid[i].Y * rows),
+                        Math.Max(1, (int)Math.Round(laid[i].W * cols)), Math.Max(1, (int)Math.Round(laid[i].H * rows)));
+                    made[i].Rect = RectOf(box);
+                    _placed[made[i].Id] = (t, box);
+                    view.Widgets.Add(made[i]);
+                }
+            }
+            else if (tile.Piece.Kind is { } kind)
+            {
+                var widget = WidgetInstance.Create(kind, RectOf(tile.Box));
+                if (_styles.TryGetValue(kind, out var style))
+                {
+                    WidgetStyles.Set(widget.Config, style);
+                }
+
+                // Its tile's size, held to what its sizing takes on this display: what placing it then keeps.
+                var held = tile.Box;
+                if (SizeFit.Limits(widget, _metrics, _contentScale) is { } limits)
+                {
+                    held = held with
+                    {
+                        W = Math.Max(1, (int)Math.Round(limits.Width.Range(tile.Box.W / (double)cols) * cols)),
+                        H = Math.Max(1, (int)Math.Round(limits.Height.Range(tile.Box.H / (double)rows) * rows)),
+                    };
+                    widget.Rect = RectOf(held);
+                }
+
+                _placed[widget.Id] = (t, held);
+                view.Widgets.Add(widget);
+            }
         }
 
         _screen = view;
@@ -336,28 +485,103 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             }
             catch (Exception ex)
             {
-                Log.Warn(Scope, $"the gallery's {widget.Kind} card could not be built; the screen shows the rest", ex);
+                Log.Warn(Scope, $"the gallery's {widget.Kind} card could not be built; the category shows the rest", ex);
             }
         }
 
+        // [S-2240] Cards that touch are one panel: a group's own; pieces stand a cell apart and never join.
         WidgetCard.Join(_cards, _metrics, _raster, editMode: false, _ => 0);
-        DrawTitles(screen, Rect);
-        _rail.Choose(screen.Category);
-        _pages.Text = Str.WidgetGallery_Pages.Format(("page", LocaleFormat.Integer(_at + 1)), ("count", LocaleFormat.Integer(_screens.Count)));
+        _title.Text = category.Title.Text();
+        _rail.Choose(category.Id);
+        ShowScroll();
         Sync();
         var cards = _cards.ToList();
         _ = SampleCards.ShowAsync(cards, () => _disposed || !_cards.SequenceEqual(cards), Scope);
     }
 
-    /// <summary>[S-14913] The next or the previous screen, round the ends.</summary>
-    public void Step(bool back) => Show(WidgetGallery.Step(_at, _screens.Count, back));
-
-    /// <summary>[S-14913] A category's first screen (its tab).</summary>
-    public void ShowCategory(AddFolderId category) => Show(WidgetGallery.FirstOf(_screens, category));
+    /// <summary>[S-14912] A box of the sheet as it stands on the display now: from the view's corner, scrolled.</summary>
+    private FracRect RectOf(CellBox box)
+    {
+        var (cols, rows) = GridGeometry.GridDims(_metrics);
+        return new FracRect((_view.X + box.X) / (double)cols, (_view.Y + box.Y - _scroll) / (double)rows, box.W / (double)cols, box.H / (double)rows);
+    }
 
     /// <summary>
-    /// [S-14913] [S-14914] The gallery's keys: Left/Right and Page Up/Down walk the screens, Home and End the first and last,
-    /// Ctrl+A picks the screen's every card, Escape lets the pick go (with nothing picked it is not the gallery's: it closes).
+    /// [S-14913] Scroll the category shown to <paramref name="rows"/> rows of cells from its top (held to its ends): every
+    /// card moves by whole cells, so it stands on the desktop's cells wherever it is scrolled to.
+    /// </summary>
+    public void ScrollTo(int rows)
+    {
+        if (_disposed || _laid is null || _following is not null)
+        {
+            return;
+        }
+
+        var to = WidgetGallery.Scroll(0, rows, MostScroll);
+        if (to == _scroll)
+        {
+            return;
+        }
+
+        _scroll = to;
+        foreach (var card in _cards)
+        {
+            if (!_placed.TryGetValue(card.Model.Id, out var at))
+            {
+                continue;
+            }
+
+            var rect = RectOf(at.Box);
+            card.Model.Rect = rect;
+            card.SetLiveRect(rect);
+            card.FollowMove(GridGeometry.PaintedCell(rect, _metrics, _raster));
+        }
+
+        EndPress();
+        ShowScroll();
+        Sync();
+    }
+
+    /// <summary>[S-14913] The scroll bar: there while the category is taller than the well, its thumb the part in sight.</summary>
+    private void ShowScroll()
+    {
+        var most = MostScroll;
+        _settingBar = true;
+        try
+        {
+            _scrollBar.Visibility = most > 0 ? Visibility.Visible : Visibility.Collapsed;
+            _scrollBar.Minimum = 0;
+            _scrollBar.Maximum = most;
+            _scrollBar.ViewportSize = _view.H;
+            _scrollBar.SmallChange = WidgetGallery.Step;
+            _scrollBar.LargeChange = WidgetGallery.PageRows(_view.H);
+            _scrollBar.Value = _scroll;
+        }
+        finally
+        {
+            _settingBar = false;
+        }
+    }
+
+    private bool _settingBar;
+
+    /// <summary>[S-14913] A category's bento (its tab on the rail).</summary>
+    public void ShowCategory(AddFolderId category)
+    {
+        for (var i = 0; i < _categories.Count; i++)
+        {
+            if (_categories[i].Id == category)
+            {
+                Show(i);
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// [S-14913] [S-14914] The gallery's keys: Up/Down scroll the category by a tile, Page Up/Down by a page, Home and End
+    /// to its top and its foot (none changes the category: that is the rail's), Ctrl+A picks its every piece, Escape lets
+    /// the pick go (with nothing picked it is not the gallery's: it closes).
     /// </summary>
     public bool HandleKey(VirtualKey key, bool ctrl)
     {
@@ -368,17 +592,23 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         switch (key)
         {
-            case VirtualKey.Left or VirtualKey.PageUp:
-                Step(back: FlowDirection != FlowDirection.RightToLeft || key == VirtualKey.PageUp);
+            case VirtualKey.Up:
+                ScrollTo(_scroll - WidgetGallery.Step);
                 return true;
-            case VirtualKey.Right or VirtualKey.PageDown:
-                Step(back: FlowDirection == FlowDirection.RightToLeft && key == VirtualKey.Right);
+            case VirtualKey.Down:
+                ScrollTo(_scroll + WidgetGallery.Step);
+                return true;
+            case VirtualKey.PageUp:
+                ScrollTo(_scroll - WidgetGallery.PageRows(_view.H));
+                return true;
+            case VirtualKey.PageDown:
+                ScrollTo(_scroll + WidgetGallery.PageRows(_view.H));
                 return true;
             case VirtualKey.Home:
-                Show(0);
+                ScrollTo(0);
                 return true;
             case VirtualKey.End:
-                Show(_screens.Count - 1);
+                ScrollTo(MostScroll);
                 return true;
             case VirtualKey.A when ctrl:
                 _selection.Replace(ScreenViewId, SelectionRules.All(_screen));
@@ -424,7 +654,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         ArgumentNullException.ThrowIfNull(ids);
         _following = [.. ids.Select(CardOf).OfType<WidgetCard>()];
         IsHitTestVisible = false;
-        foreach (var part in new UIElement[] { _ground, _grid, _titles, _markPlates, _railScroll, _tabRow, _panel, _band })
+        ClipToWell(false);
+        foreach (var part in Chrome)
         {
             part.Opacity = 0;
         }
@@ -460,7 +691,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     {
         _following = null;
         IsHitTestVisible = true;
-        foreach (var part in new UIElement[] { _ground, _grid, _titles, _markPlates, _railScroll, _tabRow, _panel, _band })
+        ClipToWell(true);
+        foreach (var part in Chrome)
         {
             part.Opacity = 1;
         }
@@ -474,6 +706,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
     }
 
+
+    /// <summary>[S-14916] Everything of the gallery but its cards: what steps aside while a drag off it is aimed.</summary>
+    private UIElement[] Chrome => [_window, _railPane, _titles, _wellBox, _wellRim, _grid, _markPlates, _scrollBar, _panel, _band];
 
     public void Dispose()
     {
@@ -517,56 +752,6 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         element.Height = Math.Max(0, box.Height);
     }
 
-    private Button Arrow(string glyph, string said, bool back)
-    {
-        var button = new Button
-        {
-            Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = ShellMetrics.Bar.Icon }),
-            Width = ShellMetrics.Bar.IconOnly,
-            Height = G.Tabs,
-            Padding = new Thickness(0),
-        };
-        PageTabButton.Subtle(button);
-        ToolTipService.SetToolTip(button, said);
-        AutomationProperties.SetName(button, said);
-        button.Click += (_, _) => Step(back);
-        return button;
-    }
-
-    /// <summary>[S-14912] The screen's title line (the category, its page of how many) and each family's name over its cards.</summary>
-    private void DrawTitles(GalleryScreen screen, Func<CellBox, FracRect> rect)
-    {
-        _titles.Children.Clear();
-        var title = GridGeometry.PaintedCell(rect(screen.Title), _metrics, _raster);
-        var name = Fluent.Text(FamilyType.Title);
-        name.Text = screen.Name.Text();
-        var count = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
-        count.Text = screen.Pages > 1 ? Str.WidgetGallery_Pages.Format(("page", LocaleFormat.Integer(screen.Page + 1)), ("count", LocaleFormat.Integer(screen.Pages))) : string.Empty;
-        name.VerticalAlignment = VerticalAlignment.Center;
-        count.VerticalAlignment = VerticalAlignment.Center;
-        count.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
-        var line = new StackPanel { Orientation = Orientation.Horizontal, Children = { name, count }, Width = title.Width, Height = title.Height };
-        UiLanguage.ApplyFlow(line);
-        Canvas.SetLeft(line, title.X);
-        Canvas.SetTop(line, title.Y);
-        _titles.Children.Add(line);
-
-        foreach (var head in screen.Heads)
-        {
-            var box = GridGeometry.PaintedCell(rect(head.Box), _metrics, _raster);
-            var words = Fluent.Text(FamilyType.BodyStrong);
-            words.Text = head.Text.Text();
-            words.TextTrimming = TextTrimming.CharacterEllipsis;
-            words.Width = box.Width;
-            words.Height = box.Height;
-            words.VerticalAlignment = VerticalAlignment.Top;
-            UiLanguage.ApplyFlow(words);
-            Canvas.SetLeft(words, box.X);
-            Canvas.SetTop(words, box.Y);
-            _titles.Children.Add(words);
-        }
-    }
-
     // ---- [S-14914] picking -----------------------------------------------------------------------
 
     private string? CardAt(Point at)
@@ -590,7 +775,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             // [S-1580] [S-1593] Ctrl or Shift toggles the card; a press keeps a pick that holds it (the drag carries all of it), else it is picked alone.
             if (extending)
             {
+                // A group is toggled whole: one of its widgets let go lets all of it go.
+                var had = _selection.Contains(card);
                 _selection.Toggle(ScreenViewId, card);
+                if (had)
+                {
+                    var mates = Mates(card).ToHashSet(StringComparer.Ordinal);
+                    _selection.Replace(ScreenViewId, _selection.Ids.Where(id => !mates.Contains(id)));
+                }
             }
             else
             {
@@ -684,19 +876,55 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _band.Visibility = Visibility.Collapsed;
     }
 
+    /// <summary>[S-14913] The wheel over the well scrolls the category shown, a tile a notch; it never changes the category.</summary>
     private void OnWheel(object sender, PointerRoutedEventArgs e)
     {
         var delta = e.GetCurrentPoint(_stage).Properties.MouseWheelDelta;
         if (delta != 0 && _following is null)
         {
-            Step(back: delta > 0);
+            var notches = Math.Max(1, (int)Math.Round(Math.Abs(delta) / 120.0));
+            ScrollTo(_scroll + (delta > 0 ? -notches : notches) * WidgetGallery.Step);
             e.Handled = true;
+        }
+    }
+
+    /// <summary>[S-14912] The widgets picked with <paramref name="id"/>: itself, or every widget of the ready-made group it is of.</summary>
+    private IEnumerable<string> Mates(string id)
+    {
+        if (!_placed.TryGetValue(id, out var at) || _laid is not { } sheet || sheet.Tiles[at.Tile].Piece.Group is null)
+        {
+            return [id];
+        }
+
+        return _placed.Where(p => p.Value.Tile == at.Tile).Select(p => p.Key);
+    }
+
+    /// <summary>[S-14914] A pick holds whole pieces: a group's every widget with any one of them, in the screen's order.</summary>
+    private void Whole()
+    {
+        var ids = _selection.Ids;
+        var all = new List<string>();
+        foreach (var id in ids)
+        {
+            foreach (var mate in Mates(id))
+            {
+                if (!all.Contains(mate, StringComparer.Ordinal))
+                {
+                    all.Add(mate);
+                }
+            }
+        }
+
+        if (all.Count != ids.Count)
+        {
+            _selection.Replace(ScreenViewId, SelectionRules.InView(_screen, all));
         }
     }
 
     /// <summary>[S-14914] The pick drawn (a card's corners; several: the frame's round them) and said in the panel.</summary>
     private void Sync()
     {
+        Whole();
         _selected.Clear();
         _selected.UnionWith(_selection.Ids);
         var framed = SelectionRules.Framed(editing: false, _cards.Select(c => (c, _selected.Contains(c.Model.Id), false)));
@@ -736,7 +964,24 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         DropStyleCards();
         _panelBody.Children.Clear();
         var picked = SelectionRules.InView(_screen, _selection.Ids).Select(id => _screen.Find(id)!).ToList();
-        switch (picked.Count)
+        var pieces = picked.Where(w => _placed.ContainsKey(w.Id)).Select(w => _placed[w.Id].Tile).Distinct().Select(t => _laid!.Tiles[t].Piece).ToList();
+        if (pieces is [{ Group: { } group }])
+        {
+            // [S-14915] A ready-made group: its name, what it is and how many widgets land together.
+            var said = AddTileWords.Of(new AddGroupTile(group));
+            var top = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
+            top.Children.Add(Fluent.Icon(said.Glyph, "TextFillColorPrimaryBrush", P.IconGlyph));
+            var title = Fluent.Text(FamilyType.BodyStrong);
+            title.Text = said.Name;
+            top.Children.Add(title);
+            _panelBody.Children.Add(top);
+            Add(Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush"), said.About);
+            Add(Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush"), Str.WidgetGallery_Group.Plural(group.Widgets.Count));
+            Foot();
+            return;
+        }
+
+        switch (pieces.Count == 1 ? 1 : picked.Count)
         {
             case 0:
                 Add(Fluent.Text(FamilyType.BodyStrong), Str.WidgetGallery_None.Text());
@@ -763,15 +1008,21 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
                 break;
             default:
                 Add(Fluent.Text(FamilyType.BodyStrong), Str.WidgetGallery_Several.Plural(picked.Count));
-                Add(Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush"), string.Join(Environment.NewLine, picked.Select(w => ModuleCatalog.Of(w.Kind).TileName)));
+                Add(Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush"), string.Join(Environment.NewLine,
+                    pieces.Select(p => p.Group is { } g ? g.Name.Text() : ModuleCatalog.Of(p.Kind!.Value).TileName)));
                 break;
         }
 
-        var drag = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
-        drag.Margin = new Thickness(0, Fluent.Space4, 0, 0);
-        Add(drag, Str.WidgetGallery_Drag.Text());
-        var cards = _styleCards.ToList();
-        _ = SampleCards.ShowAsync(cards, () => _disposed || !_styleCards.SequenceEqual(cards), Scope);
+        Foot();
+
+        void Foot()
+        {
+            var drag = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
+            drag.Margin = new Thickness(0, Fluent.Space4, 0, 0);
+            Add(drag, Str.WidgetGallery_Drag.Text());
+            var cards = _styleCards.ToList();
+            _ = SampleCards.ShowAsync(cards, () => _disposed || !_styleCards.SequenceEqual(cards), Scope);
+        }
 
         void Add(TextBlock text, string words)
         {

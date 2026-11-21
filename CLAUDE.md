@@ -487,9 +487,12 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   sections, stacks and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a widget
   places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the placement
   session. **The widget gallery** ([S-14910]..[S-14917]; owner, 2026-11-21) is a second page beside it (its own bar button):
-  every widget as real sample cards on the display's own grid over the work area, grouped by subject and family in blocks
-  (`WidgetGallery`, Core, tested), screens per category; picking is edit mode's selection; a drag is the one placement session
-  (`PlacementPayload.ForGallery`, held where the pointer held it: no jump) and the gallery comes back after it.
+  a window in the middle of the work area (the rail's pane, the well and the panel each a surface of its own), whole
+  widgets and ready-made groups only (never a family's small parts) as real sample cards on the display's own grid, a
+  category one bento (`WidgetGallery.Lay`, Core, tested: pieces on whole tiles, widgets made as large as their tiles,
+  groups as wide), scrolled in its well by whole cells (the wheel never changes the tab); picking is edit mode's
+  selection, a group picked whole; a drag is the one placement session (`PlacementPayload.ForGallery`, held where the
+  pointer held it: no jump) and the gallery comes back after it.
 - **Samples and previews** ([S-11850]..[S-11854]; docs/WIDGET-KIT.md 6.8): **a widget's sample ships, its
   render-only states do not, by folder.** The sample (the add page's picture, on the sample day's data in
   `Themia.Sdk/Samples`) is `IWidgetSample.ShowSampleAsync` in the module's `Samples/<Name>View.Sample.cs`,

@@ -214,19 +214,38 @@ public static class ShellMetrics
     }
 
     /// <summary>
-    /// [S-14911] The widget gallery over the work area, a flyout's gap under the bar: the categories' rail 200 wide down the
-    /// left (the add page's rail, its items 36 tall), the cards 24 off it, the pager (36 tall) over the panel 280 wide on
-    /// the right, 24 off the cards and the work area's sides and foot; a style's preview in the panel at most 132 × 96, 8 apart.
+    /// [S-14911] The widget gallery's window: four fifths of the work area each way (never under 1200 by 640 where the work
+    /// area holds that: a 1280 by 720 display's well still holds eight tiles across), 24 from its sides and foot at the least, a flyout's gap under the bar; 16 inside it: the
+    /// categories' rail 200 wide on the left (the add page's rail, its items 36 tall), the panel 280 wide on the right,
+    /// and between them the title line (48) over the well the cards stand in, 8 inside it; a style's preview in the panel
+    /// at most 132 × 96, 8 apart.
     /// </summary>
     public static class WidgetGallery
     {
-        /// <summary>The pager's row (an add page rail item's height).</summary>
-        public const double Tabs = AddPage.RailItem;
+        /// <summary>[S-14911] The window's share of the work area, each way.</summary>
+        public const double Share = 0.8;
+
+        /// <summary>[S-14911] The least the window is where the work area holds it.</summary>
+        public const double MinWidth = 1200;
+
+        public const double MinHeight = 640;
+
+        /// <summary>[S-14911] Inside the window, and between its rail, its well and its panel.</summary>
+        public const double Pad = 16;
+
+        /// <summary>[S-14911] The title line over the well.</summary>
+        public const double Head = 48;
+
+        /// <summary>[S-14911] Inside the well, from its edge to the cards' room.</summary>
+        public const double WellPad = 8;
+
+        /// <summary>[S-14913] The scroll bar's room at the well's end.</summary>
+        public const double ScrollBar = 12;
 
         /// <summary>[S-14913] The categories' rail: every name and count in sight on a 1280-DIP screen (1920 at 150 %).</summary>
         public const double Rail = 200;
 
-        /// <summary>From the work area's sides and foot, and between the cards and the panel.</summary>
+        /// <summary>From the work area's sides and foot, at the least.</summary>
         public const double Margin = 24;
 
         /// <summary>The panel of the selection on the right.</summary>
@@ -243,8 +262,8 @@ public static class ShellMetrics
         /// <summary>Between two styles' previews.</summary>
         public const double StyleGap = 8;
 
-        /// <summary>[S-14911] How much of Windows' sheet lies over the display's blurred wallpaper: the desktop dimmed to a calm ground.</summary>
-        public const double Sheet = 0.86;
+        /// <summary>[S-14911] How much of Windows' sheet lies over the display's blurred wallpaper in the well: the desktop dimmed to a calm ground.</summary>
+        public const double Sheet = 0.6;
     }
 
     /// <summary>
