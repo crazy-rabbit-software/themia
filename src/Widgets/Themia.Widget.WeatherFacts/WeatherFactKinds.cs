@@ -86,12 +86,12 @@ internal static class WeatherFactKinds
     /// </summary>
     private static MergeFrom[] Merges(WeatherFactKind fact) => fact switch
     {
-        WeatherFactKind.Temperature => [new("temperatureGraph")],
-        WeatherFactKind.Humidity => [new("humidityGraph")],
-        WeatherFactKind.Wind => [new("windGraph")],
-        WeatherFactKind.Precipitation => [new("rainGraph")],
-        WeatherFactKind.Pressure => [new("pressureGraph")],
-        WeatherFactKind.Uv => [new("uvGraph")],
+        WeatherFactKind.Temperature => [new("temperatureGraph") { Graph = true }],
+        WeatherFactKind.Humidity => [new("humidityGraph") { Graph = true }],
+        WeatherFactKind.Wind => [new("windGraph") { Graph = true }],
+        WeatherFactKind.Precipitation => [new("rainGraph") { Graph = true }],
+        WeatherFactKind.Pressure => [new("pressureGraph") { Graph = true }],
+        WeatherFactKind.Uv => [new("uvGraph") { Graph = true }],
         _ => [],
     };
 

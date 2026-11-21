@@ -6,11 +6,11 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Storage;
 
 /// <summary>
-/// [S-14713] The one kind-replacement pass of a state load: a placed widget of a kind that is gone, replaced in place by the
-/// kind its descriptor says stands in for it (<see cref="WidgetDescriptor.Merges"/>; owner, 2026-11-20: "Replace in place").
-/// It runs on the raw document, before the unknown kinds are dropped and the typed read, which no longer knows the old
-/// kind (<see cref="StateDocument"/>); each replaced widget is one logged line, the rest of the document is not touched.
-/// ([S-14606]'s facts-card splits went with the last build that converted them.)
+/// [S-14713] [S-15022] The one kind-replacement pass of a state load: a placed widget of a kind that is gone, replaced in place
+/// by the kind or kinds whose descriptors say they stand in for it (<see cref="WidgetDescriptor.Merges"/>; owner, 2026-11-20:
+/// "Replace in place"). It runs on the raw document, before the unknown kinds are dropped and the typed read, which no longer
+/// knows the old kind (<see cref="StateDocument"/>); each replaced widget is one logged line, the rest of the document is not
+/// touched. ([S-14606]'s facts-card splits went with the last build that converted them.)
 /// </summary>
 public static class KindMerges
 {
@@ -21,14 +21,15 @@ public static class KindMerges
     private static readonly string[] Spans = ["hours", "graphSpanSeconds"];
 
     /// <summary>
-    /// [S-14713] Replace every placed widget of a removed graph kind in <paramref name="document"/> by the single metric that
-    /// stands in for it (owner, 2026-11-21: "i think it would be good if we merge all the different graph types into the
-    /// general metric widget"; placed ones "Replace in place", as the facts cards were): the metric whose
-    /// <see cref="MergeFrom.When"/> its config matches (an air graph's measure), else the one that takes the rest, in the same
-    /// spot with the same id, look and settings (the place, the drive, the adapter, the host, its chart look), its trend
-    /// Line so its graph shows, its window or span the metric's <c>span</c>. One logged line a replaced widget; a key the
-    /// metric does not have is then the load's to drop, loudly (<see cref="StateDocument"/>). Which kind stands in for which
-    /// the kinds declare (<see cref="WidgetDescriptor.Merges"/>).
+    /// [S-14713] [S-15022] Replace every placed widget of a removed kind in <paramref name="document"/> by the kinds that stand
+    /// in for it: those whose <see cref="MergeFrom.When"/> its config matches (an air graph's measure), else every one that
+    /// takes the rest and is not left out by <see cref="MergeFrom.Unless"/> (the weather summary's sky and condition, which its
+    /// Minimal look never drew). One kind takes the widget's spot, id, look and settings (the place, the drive, the adapter,
+    /// the host, its chart look); several each take a copy of it, its id the old one and the kind's (<c>w07-weatherSky</c>), in
+    /// their share of its rect (<see cref="MergeFrom.Share"/>), top to bottom and left to right, in its place in the drawing
+    /// order. A graph's (<see cref="MergeFrom.Graph"/>) has its trend Line so its graph shows and its window or span the
+    /// metric's <c>span</c>; the keys the old kind was shared out by go; a key a new kind does not have is then the load's to
+    /// drop, loudly (<see cref="StateDocument"/>). One logged line a replaced widget.
     /// </summary>
     internal static List<string> Replace(JsonNode? document, IReadOnlyList<WidgetDescriptor> widgets)
     {
@@ -50,54 +51,104 @@ public static class KindMerges
             }
 
             var viewName = entry["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var viewText) ? viewText : "?";
-            foreach (var item in placed)
+            for (var at = 0; at < placed.Count; at++)
             {
-                if (item is not JsonObject widget
+                if (placed[at] is not JsonObject widget
                     || widget["config"] is not JsonObject config
                     || config["kind"] is not JsonValue kindValue
                     || !kindValue.TryGetValue<string>(out var kind)
-                    || !merges.TryGetValue(kind, out var into)
-                    || Into(config, into) is not { } target)
+                    || !merges.TryGetValue(kind, out var candidates)
+                    || Into(config, candidates) is not { Count: > 0 } targets)
                 {
                     continue;
                 }
 
                 var id = widget["id"] is JsonValue idValue && idValue.TryGetValue<string>(out var text) ? text : "?";
-                config["kind"] = target.Into;
-                config["trend"] = nameof(MetricTrend.Line);
-                if (target.From.When is { } when)
+                var keys = candidates.SelectMany(c => new[] { c.From.When?.Key, c.From.Unless?.Key }).OfType<string>().Distinct().ToList();
+                if (targets.Count == 1)
                 {
-                    config.Remove(when.Key);
+                    Become(widget, targets[0], keys);
+                    notes.Add($"replaced {kind} '{id}' in view '{viewName}' in place by {Name(targets[0])}");
+                    continue;
                 }
 
-                foreach (var key in Spans)
+                placed.RemoveAt(at);
+                var made = new List<string>(targets.Count);
+                for (var i = 0; i < targets.Count; i++)
                 {
-                    if (config[key] is { } span)
-                    {
-                        config.Remove(key);
-                        config["span"] = span.DeepClone();
-                    }
+                    var copy = (JsonObject)widget.DeepClone();
+                    var newId = $"{id}-{targets[i].Into}";
+                    copy["id"] = newId;
+                    Become(copy, targets[i], keys);
+                    placed.Insert(at + i, copy);
+                    made.Add($"{targets[i].Into} '{newId}'");
                 }
 
-                notes.Add($"replaced {kind} '{id}' in view '{viewName}' in place by the single metric {target.Into} with its graph shown");
+                at += targets.Count - 1;
+                notes.Add($"replaced {kind} '{id}' in view '{viewName}' in place by {targets.Count} widgets in its spot: {string.Join(", ", made)}");
             }
         }
 
         return notes;
     }
 
-    /// <summary>[S-14713] The metric a placed graph becomes: the one its config's value names, else the one that takes the rest.</summary>
-    private static (string Into, MergeFrom From)? Into(JsonObject config, List<(string Into, MergeFrom From)> into)
+    /// <summary>The words of a replacement by one kind: a graph's metric with its graph shown, or the kind.</summary>
+    private static string Name((string Into, MergeFrom From) target)
+        => target.From.Graph ? $"the single metric {target.Into} with its graph shown" : $"the widget {target.Into}";
+
+    /// <summary>[S-14713] [S-15022] Make <paramref name="widget"/> the kind <paramref name="target"/> names, in its share of its rect.</summary>
+    private static void Become(JsonObject widget, (string Into, MergeFrom From) target, List<string> keys)
     {
-        foreach (var candidate in into)
+        var config = (JsonObject)widget["config"]!;
+        config["kind"] = target.Into;
+        foreach (var key in keys)
         {
-            if (candidate.From.When is { } when && config[when.Key] is JsonValue value && value.TryGetValue<string>(out var held)
-                && string.Equals(held, when.Value, StringComparison.OrdinalIgnoreCase))
+            config.Remove(key);
+        }
+
+        if (target.From.Graph)
+        {
+            config["trend"] = nameof(MetricTrend.Line);
+            foreach (var key in Spans)
             {
-                return candidate;
+                if (config[key] is { } span)
+                {
+                    config.Remove(key);
+                    config["span"] = span.DeepClone();
+                }
             }
         }
 
-        return into.FirstOrDefault(c => c.From.When is null) is { Into: not null } rest ? rest : null;
+        if (target.From.Share is { } share && Rect(widget) is var (x, y, w, h))
+        {
+            widget["x"] = x + (share.X * w);
+            widget["y"] = y + (share.Y * h);
+            widget["w"] = share.Width * w;
+            widget["h"] = share.Height * h;
+        }
     }
+
+    /// <summary>The widget's rect as fractions of its monitor; null without a whole one.</summary>
+    private static (double X, double Y, double W, double H)? Rect(JsonObject widget)
+    {
+        static double? Of(JsonNode? node) => node is JsonValue value && value.TryGetValue<double>(out var d) && double.IsFinite(d) ? d : null;
+        return (Of(widget["x"]), Of(widget["y"]), Of(widget["w"]), Of(widget["h"])) is ({ } x, { } y, { } w, { } h) && w > 0 && h > 0
+            ? (x, y, w, h)
+            : null;
+    }
+
+    /// <summary>
+    /// [S-14713] [S-15022] The kinds a placed widget of a removed kind becomes: those its config's value names, else every one
+    /// that takes the rest and is not left out by its value, in their shares' order (top to bottom, left to right).
+    /// </summary>
+    private static List<(string Into, MergeFrom From)> Into(JsonObject config, List<(string Into, MergeFrom From)> into)
+    {
+        var named = into.Where(c => c.From.When is { } when && Holds(config, when)).ToList();
+        var targets = named.Count > 0 ? named : [.. into.Where(c => c.From.When is null && !(c.From.Unless is { } unless && Holds(config, unless)))];
+        return [.. targets.OrderBy(t => t.From.Share?.Y ?? 0).ThenBy(t => t.From.Share?.X ?? 0)];
+    }
+
+    /// <summary>Whether the config holds <paramref name="pair"/>'s value at its key, ignoring case.</summary>
+    private static bool Holds(JsonObject config, (string Key, string Value) pair)
+        => config[pair.Key] is JsonValue value && value.TryGetValue<string>(out var held) && string.Equals(held, pair.Value, StringComparison.OrdinalIgnoreCase);
 }

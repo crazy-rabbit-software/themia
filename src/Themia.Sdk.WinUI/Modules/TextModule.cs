@@ -18,7 +18,8 @@ public abstract class TextModule : IWidgetModule
     /// <param name="folder">The family's add-page folder.</param>
     /// <param name="rank">Its place there: the family's order.</param>
     /// <param name="popular">Its place among Start's Popular, if it is one.</param>
-    protected TextModule(TextKind kind, IJsonTypeInfoResolver json, AddFolderId folder, int rank, int? popular = null)
+    /// <param name="merges">[S-15022] The removed kinds a placed one of which it stands in for, in place; none for most.</param>
+    protected TextModule(TextKind kind, IJsonTypeInfoResolver json, AddFolderId folder, int rank, int? popular = null, IReadOnlyList<MergeFrom>? merges = null)
     {
         Kind = kind ?? throw new ArgumentNullException(nameof(kind));
         Descriptor = new()
@@ -34,6 +35,7 @@ public abstract class TextModule : IWidgetModule
             Sizing = _ => TextRules.Sizing(kind),
             Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
             Add = new(folder, 0, rank, popular),
+            Merges = merges ?? [],
         };
     }
 

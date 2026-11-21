@@ -10350,7 +10350,7 @@ one base. Owning files: `Themia.Sdk/Widgets/Metrics.cs` (the pure rules: `Metric
 `Widgets/Details/SystemMetric.cs` (+ `.Preview.cs`, the system families' face over the hub), `Modules/MetricModule.cs`,
 `Shell/MetricMenuLines.cs` (the Trend line and, under it, the graph's chart look through `ChartMenuLines`),
 `Themia.Sdk/Widgets/MetricGraph.cs` (a kind's graph as data: `MetricGraph`, `GraphSeries`, `IMetricGraph`, `MetricGraphs`,
-[S-14710]), `Themia.Core/Storage/KindMerges.cs` (the one in-place replacement: the graph kinds); the families
+[S-14710]), `Themia.Core/Storage/KindMerges.cs` (the one in-place replacement: the graph kinds, and the cards split into parts, [S-15022]); the families
 are their projects: Weather facts, Air facts, CPU, GPU, Memory, Network, Ping, Battery and Drive facts, Sun times and Moon
 times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-6901], with its own `SPEC.md`). Tests:
 `MetricRulesTests` (Core), `MetricFitTests` (every kind: its graph, its chart look, its page, its source), each family's,
@@ -10539,6 +10539,16 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   metric stands in for which graph the kinds declare (`MetricKind.Merges`, `WidgetDescriptor.Merges`). The ready-made
   groups that held them hold the metrics drawing Line; the add page lists the metrics alone (a reading left alone in its
   family stands in its subject). The stock's and the exchange rate's histories are not single metrics yet and stay.
+- **[S-15022]** **A card several kinds share out becomes them in place** (owner, 2026-11-21: "weather summary should also
+  be split into three widgets"; a placed card "Replace in place", as the facts cards and the graphs were): the same pass
+  (`KindMerges`) takes every kind that stands in for a removed one (`WidgetDescriptor.Merges`): those its config's value
+  names (`MergeFrom.When`), else every one that takes the rest and is not left out by its value (`MergeFrom.Unless`: a look
+  of the old card that never drew that part). One takes the card's id, spot, look and settings; several each a copy of it,
+  its id the old one and the kind's (`w07-weatherSky`), in its share of the old rect (`MergeFrom.Share`, fitted to its own
+  sizing when painted), top to bottom and left to right, in the card's place in the drawing order; the key the card was
+  shared out by (its style) goes, what a part does not have is dropped by the load, loudly. Only a graph's merge
+  (`MergeFrom.Graph`) shows the graph (its trend Line, its window its `span`). One logged line a replaced card. Tests
+  `KindMergesTests.S15022_` (Core), `WeatherNowSplitTests.S15022_`.
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,

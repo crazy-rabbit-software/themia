@@ -35,18 +35,32 @@ public sealed class ThemiaProviderAttribute(string id, Type module) : Attribute
 }
 
 /// <summary>
-/// [S-14713] A removed graph kind a single metric stands in for (owner, 2026-11-21: "i think it would be good if we merge all
-/// the different graph types into the general metric widget"; a placed one is replaced in place, as the facts cards were,
-/// owner 2026-11-20: "Replace in place"): the removed kind's id and, where several metrics share it out by what it drew, the
-/// config's key and the value it held for this one (<see cref="When"/>, compared ignoring case; null: every one the others
-/// do not take). A placed one becomes this kind in its spot with its graph shown (its trend Line), its place, drive, adapter
-/// or host, its chart look and its span (the graph's window or span, renamed to the metric's).
+/// [S-14713] [S-15022] A removed kind a kind stands in for (owner, 2026-11-21: "i think it would be good if we merge all the
+/// different graph types into the general metric widget"; "weather summary should also be split into three widgets"; a
+/// placed one is replaced in place, as the facts cards were, owner 2026-11-20: "Replace in place"): the removed kind's id and,
+/// where several kinds share it out by what it drew, the config's key and the value it held for this one (<see cref="When"/>,
+/// compared ignoring case; null: every one the others do not take), or a value for which this one does not stand in
+/// (<see cref="Unless"/>: a look of the old card that never drew it). A placed one becomes this kind in its spot with its
+/// place, drive, adapter or host; a graph's with its graph shown (<see cref="Graph"/>: its trend Line, its chart look and its
+/// span); where several kinds stand in for one card, each in its share of the card's rect (<see cref="Share"/>).
 /// </summary>
 public sealed record MergeFrom(string Kind)
 {
     /// <summary>The config's key and the value it held for this kind; null for the rest.</summary>
     public (string Key, string Value)? When { get; init; }
+
+    /// <summary>[S-15022] The config's key and a value it held for which this kind does not stand in; null for none.</summary>
+    public (string Key, string Value)? Unless { get; init; }
+
+    /// <summary>[S-14713] Whether a placed one shows its graph: its trend Line, its window or span the metric's span.</summary>
+    public bool Graph { get; init; }
+
+    /// <summary>[S-15022] Where in the removed card's rect this kind stands when several stand in for it; null: the whole rect.</summary>
+    public MergeShare? Share { get; init; }
 }
+
+/// <summary>[S-15022] A share of a removed card's rect, as fractions of its width and height from its top-left corner.</summary>
+public readonly record struct MergeShare(double X, double Y, double Width, double Height);
 
 /// <summary>
 /// [S-6902] What the host knows of a widget without its UI: one record per widget, in place of the
@@ -140,8 +154,9 @@ public sealed record WidgetDescriptor
     public Themia.Core.Links.LinkUse Links { get; init; } = Themia.Core.Links.LinkUse.None;
 
     /// <summary>
-    /// [S-14713] The removed graph kinds this kind stands in for (the wind graph is the Wind metric with its graph): a placed
-    /// one is replaced in place on load by this kind, its graph shown. Empty for every other kind.
+    /// [S-14713] [S-15022] The removed kinds this kind stands in for (the wind graph is the Wind metric with its graph; the
+    /// weather summary is the sky, the temperature and the condition): a placed one is replaced in place on load by this kind
+    /// (with the others that share it out). Empty for every other kind.
     /// </summary>
     public IReadOnlyList<MergeFrom> Merges { get; init; } = [];
 
