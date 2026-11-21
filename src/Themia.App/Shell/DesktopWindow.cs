@@ -220,8 +220,34 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// view on a display whose taskbar is on the left and on one whose taskbar is on the right takes new geometry
     /// only where both show it. This display's own chrome stands in its own work area (<see cref="WorkArea"/>).
     /// </para>
+    /// <para>
+    /// [S-15668] Kept between reads (a drag step reads them many times): made again when the scale this surface renders at,
+    /// its display or the view it shows is another, and whenever the host forgets them (<see cref="ForgetMetrics"/>: every
+    /// change of the state, an undo step, a display pass), since another display's view or work area decides the allowed area.
+    /// </para>
     /// </summary>
-    public ScreenMetrics Metrics => OwnMetrics with { Allowed = _host.SharedAllowed(CurrentViewId, OwnAllowed) };
+    public ScreenMetrics Metrics
+    {
+        get
+        {
+            var scale = RasterScale;
+            var view = CurrentViewId;
+            if (_metrics is { } kept && kept.Scale.Equals(scale) && kept.Monitor == _monitor && string.Equals(kept.View, view, StringComparison.Ordinal))
+            {
+                return kept.Metrics;
+            }
+
+            var metrics = OwnMetrics with { Allowed = _host.SharedAllowed(view, OwnAllowed) };
+            _metrics = (scale, _monitor, view, metrics);
+            return metrics;
+        }
+    }
+
+    /// <summary>[S-15668] The metrics as last made, and what they were made for; null when forgotten.</summary>
+    private (double Scale, MonitorTarget Monitor, string View, ScreenMetrics Metrics)? _metrics;
+
+    /// <summary>[S-15668] Forget the kept metrics: the next read makes them again.</summary>
+    internal void ForgetMetrics() => _metrics = null;
 
     /// <summary>
     /// [S-841] This display's metrics with its own work area as the allowed area. [S-11892] The display's bounds, never

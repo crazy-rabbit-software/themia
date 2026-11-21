@@ -28,7 +28,11 @@ internal sealed partial class AppHost
 
 #if DEBUG
     /// <summary>Debug checks only: a stand-in display's surface counts as one of the host's surfaces (the desktop's selection lays out over them).</summary>
-    internal void AdoptSurfaceForCheck(DesktopWindow window) => _windows.Add(window);
+    internal void AdoptSurfaceForCheck(DesktopWindow window)
+    {
+        _windows.Add(window);
+        ForgetMetrics();
+    }
 
     /// <summary>Debug checks only: the desk follows the host as at the app's start (<see cref="StartDesk"/>), and lets go.</summary>
     internal void StartDeskForCheck(bool start)
@@ -146,6 +150,9 @@ internal sealed partial class AppHost
 
         var plan = DisplayPlan.Reconcile(surfaces, [.. monitors.Select(m => m.Info)], State.DisabledMonitors);
 
+        // [S-15668] Displays, their work areas and the views they show may be others from here on.
+        ForgetMetrics();
+
         // [S-1705] Assignments before surfaces, so a new surface finds its view on its first layout.
         // An existing view, never a new one: views are the user's to make.
         var assigned = DisplayPlan.AssignViews(State, DisplayPlan.ViewKeys(plan.Enabled, State.MonitorViews));
@@ -201,6 +208,8 @@ internal sealed partial class AppHost
                 Log.Error(Scope, $"could not create the widget surface for {monitor.GdiName}", ex);
             }
         }
+
+        ForgetMetrics();
 
         // [S-849] Every surface is checked against its monitor whether or not the monitor changed: a
         // DPI change resizes the window to the rect Windows suggests, and that is not the monitor.

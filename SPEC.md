@@ -11421,6 +11421,9 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   icons among them landing in a fence or out of one ([S-13041]), and the surfaces lay again what moved ([S-15660]). A widget's
   page writes into its config and lands it the same way. There is no other commit of geometry (`CommitGeometry` and
   `LandMoved` are gone).
+- **[S-15668]** A surface's metrics (its display in DIPs at its scale, the area every display showing its view holds) are
+  made once and kept: made again when its scale, its display or its view is another, and forgotten by every change of the
+  state, an undo step, a change taken back and a display pass. A drag step reads them many times.
 - **[S-890]** Crash-loop guard (`Core/Storage/BootGuard`, `boot_attempts` beside the state file):
   bumped atomically before the surfaces are built, deleted once every surface has loaded and laid out
   its cards. The 3rd start in a row that never got that far is safe: every card shows "Paused:

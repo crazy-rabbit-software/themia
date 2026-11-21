@@ -43,6 +43,9 @@ internal sealed partial class AppHost
             {
                 change(state);
 
+                // [S-15668] The change may show another view on a display: every surface's metrics are made again.
+                ForgetMetrics();
+
                 // [S-13022] [S-13023] Fences that show by a rule show it after every change, in the same step.
                 CollectFences(state);
             },
@@ -127,6 +130,7 @@ internal sealed partial class AppHost
         Notices.Error(Str.Shell_Notice_ChangeTakenBack.Text(), Str.Shell_Notice_ChangeTakenBackBody.Text());
 
         ChangeSelection(Selection.Prune(State));
+        ForgetMetrics();
 
         // [S-15660] The writer took it back: drawn whole.
         StateChanged?.Invoke(_writer.TakeChange());
@@ -185,6 +189,18 @@ internal sealed partial class AppHost
         if (WorkAreaSettle.Apply(State, SurfacesNow()) is var moved and > 0)
         {
             Log.Info(Scope, $"{moved} widget(s) moved in reach, or clear of a taskbar a change of the work area would hide them behind");
+        }
+    }
+
+    /// <summary>
+    /// [S-15668] Every surface's kept metrics forgotten: what they are made of (which view each display shows, the displays
+    /// and their work areas) may have changed.
+    /// </summary>
+    private void ForgetMetrics()
+    {
+        foreach (var window in _windows)
+        {
+            window.ForgetMetrics();
         }
     }
 
