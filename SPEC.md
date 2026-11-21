@@ -13679,6 +13679,11 @@ samples and previews read them; tests `SampleDayTests`.
   landscape matching its file name, the same bytes for the same picture and size on every run; the
   album cover the northern lights over a winter lake), the folder, recent files and recycle bin
   list invented documents with the shell's stock icons by extension.
+- **[S-15163]** The sample's folders (`SampleFiles.Write`) are each process's own (`%TEMP%\themia-sample\<process id>\`),
+  written once while their files stay the same: several folder cards of one render and renders drawing at once list the
+  one folder, never one writing it again under another's listing (the delete failed or emptied it, and a card kept the
+  user's own profile folder with an empty label, or listed a part of the documents). A process's first write deletes the
+  folders of processes no longer running.
 
 ## Opening a widget's app (R7-OPEN, retired)
 

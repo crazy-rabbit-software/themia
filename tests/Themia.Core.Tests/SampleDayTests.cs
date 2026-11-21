@@ -252,6 +252,35 @@ public class SampleDayTests
         }
     }
 
+    /// <summary>
+    /// [S-15163] A render's second folder card wrote the documents again while the first one listed them (a file open): the
+    /// delete under it failed, the write gave null and the card kept the user's own profile folder. The same files written
+    /// again are the folder already there, untouched, in this process's own folder.
+    /// </summary>
+    [Fact]
+    public void S15163_the_same_sample_written_again_is_the_folder_already_there_in_this_process_own()
+    {
+        var name = "test-" + Guid.NewGuid().ToString("n");
+        var path = SampleFiles.Write(name, SampleFiles.Documents);
+        Assert.NotNull(path);
+
+        try
+        {
+            Assert.Equal(Environment.ProcessId.ToString(System.Globalization.CultureInfo.InvariantCulture), Path.GetFileName(Path.GetDirectoryName(path)));
+            var first = SampleFiles.Documents.First(f => !f.IsFolder);
+            using (new FileStream(Path.Combine(path, first.Name), FileMode.Open, FileAccess.Read, FileShare.None))
+            {
+                Assert.Equal(path, SampleFiles.Write(name, SampleFiles.Documents));
+            }
+
+            Assert.Equal(SampleFiles.Documents.Count, Directory.GetFileSystemEntries(path).Length);
+        }
+        finally
+        {
+            Directory.Delete(path!, recursive: true);
+        }
+    }
+
     [Fact]
     public void S2055_the_week_planners_errands_are_the_lists_due_by_today_overdue_first()
     {
