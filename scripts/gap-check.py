@@ -5,8 +5,9 @@ edges, against the owner's rules as worded in docs/WIDGET-RULES.md. Needs a Debu
 usage: python scripts/gap-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a,b] [--jobs 4] [--timeout 120]
        python scripts/gap-check.py --self-test   # the judge's rules on made-up cards, no render
 
-For each kind (`--changed`, the default, `--kinds` or `--all`) it draws each state the build's catalog lists, once a
-build for every check (scripts/renders.py, [S-14341] [S-14342]),
+For each kind (`--changed`, the default, `--kinds` or `--all`) it draws each state the build's catalog lists, and
+[S-14814] each other style it lists in its first state, once a build for every check (scripts/renders.py, [S-14341]
+[S-14342]),
 with `--widget-png <kind> <png> --state <s> --sizes range --transparent --layout-json <json>` and again at the desktop
 sizes below, crops every card at the box the render laid it in (the layout's x, y, w, h: [S-14300]), finds its first and
 last row and column of ink (a pixel off the card's own colour), and judges:
@@ -377,20 +378,23 @@ def sets():
     return [('range', 'range')] + [(f'desk{i}', group) for i, group in enumerate(SIZES)]
 
 
-def check(kind, states, drawn, out):
-    """[S-14341] Judges a kind's renders, drawn once for every check (scripts/renders.py), linked into <out>/png."""
+def check(kind, looks, drawn, out):
+    """[S-14341] Judges a kind's renders, drawn once for every check (scripts/renders.py), linked into <out>/png;
+    [S-14814] every state in its default style and every other style (`looks`: (state, style) pairs)."""
     lines = []
-    for state in states:
+    for state, style in looks:
         for label, sizes in sets():
-            png = os.path.join(out, 'png', f'{kind}.{state or "default"}.{label}.png')
+            job = renders.Job(kind, state, sizes, style=style)
+            state_label = job.label
+            png = os.path.join(out, 'png', f'{kind}.{state_label}.{label}.png')
             layout_path = png + '.layout.json'
-            result = drawn[renders.Job(kind, state, sizes)]
+            result = drawn[job]
             renders.place(result, png)
             if result.timed_out or not os.path.exists(png):
-                lines.append((kind, state, label, '-', '-', '-', ['render failed' if not result.timed_out else 'render timed out']))
+                lines.append((kind, state_label, label, '-', '-', '-', ['render failed' if not result.timed_out else 'render timed out']))
                 continue
             if not os.path.exists(layout_path):
-                lines.append((kind, state, label, '-', '-', '-', ['render wrote no layout']))
+                lines.append((kind, state_label, label, '-', '-', '-', ['render wrote no layout']))
                 continue
             with open(layout_path, encoding='utf-8') as f:
                 layouts = json.load(f).get('cards', [])
@@ -398,7 +402,7 @@ def check(kind, states, drawn, out):
                 w, h, top, foot = card[:4]
                 box = f'{w:.0f}x{h:.0f}'
                 fmt = lambda v: '-' if v is None else f'{v:.1f}'
-                lines.append((kind, state, label, box, fmt(top), fmt(foot), judge(kind, card, layout) + inset))
+                lines.append((kind, state_label, label, box, fmt(top), fmt(foot), judge(kind, card, layout) + inset))
     return lines
 
 
@@ -496,11 +500,11 @@ def main():
     shared = renders.open_renders(a)
     kinds, _ = renders.pick(a, shared)
     os.makedirs(os.path.join(a.out, 'png'), exist_ok=True)
-    states = shared.states(kinds)
-    drawn = shared.render([renders.Job(k, s, sizes) for k in kinds for s in states[k] for _, sizes in sets()])
+    looks = shared.looks(kinds)
+    drawn = shared.render([renders.Job(k, s, sizes, style=st) for k in kinds for s, st in looks[k] for _, sizes in sets()])
     rows = []
     for k in kinds:
-        rows.extend(check(k, states[k], drawn, a.out))
+        rows.extend(check(k, looks[k], drawn, a.out))
     findings = [r for r in rows if r[6]]
     with open(os.path.join(a.out, 'gaps.md'), 'w', encoding='utf-8') as f:
         f.write('| kind | state | set | card (DIP) | top | foot | findings |\n|---|---|---|---|---|---|---|\n')

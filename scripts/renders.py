@@ -19,8 +19,9 @@ each of them once per build and keeps it:
 
 usage, beside the checks:  python scripts/renders.py [--exe <Themia.exe>] (--kinds a,b | --changed [range] | --all)
                                                      [--state s] [--sizes s1;s2] [--flags="--hover 0.5,0.3"] [--out <dir>]
-draws those pictures (every state of each kind, or --state) into the cache and links them into <out> as
-<kind>.<state>.<n>.png (n: the size set's place in --sizes), for an audit or a look. --list prints the kinds picked
+draws those pictures (every state of each kind, or --state, and [S-14814] every other style in its first state) into the
+cache and links them into <out> as <kind>.<state>[@<style>].<n>.png (n: the size set's place in --sizes), for an audit or
+a look. --list prints the kinds picked
 instead, as JSON ([{kind, project, states, why}]), drawing nothing.
 """
 import argparse
@@ -120,22 +121,31 @@ def build_stamp(exe):
 
 @dataclass(frozen=True)
 class Job:
-    """One picture: a kind in a state (empty: its default) at a set of sizes, with the render flags it takes."""
+    """One picture: a kind in a state (empty: its default) and a style (empty: its default) at a set of sizes, with the
+    render flags it takes."""
     kind: str
     state: str = ''
     sizes: str = 'range'
     flags: tuple = ('--transparent',)
+    style: str = ''
 
     def key(self, theme):
-        text = json.dumps([self.kind, self.state, self.sizes, theme, list(self.flags)])
-        return hashlib.sha1(text.encode('utf-8')).hexdigest()[:20]
+        parts = [self.kind, self.state, self.sizes, theme, list(self.flags)] + ([self.style] if self.style else [])
+        return hashlib.sha1(json.dumps(parts).encode('utf-8')).hexdigest()[:20]
 
     def args(self, png):
         """What follows `--widget-png` for this job, as the checks have always drawn it."""
         args = [self.kind, png, '--sizes', self.sizes, *self.flags, '--layout-json', png + '.layout.json']
         if self.state:
             args += ['--state', self.state]
+        if self.style:
+            args += ['--style', self.style]
         return args
+
+    @property
+    def label(self):
+        """The state and the style as a picture's name has them: `sample`, `default`, `sample@grid`."""
+        return (self.state or 'default') + (f'@{self.style}' if self.style else '')
 
 
 @dataclass
@@ -239,6 +249,20 @@ class Renders:
         """Every kind's states, from the catalog: [''] (its default alone) for a kind that offers none."""
         by_id = {k['id']: k['states'] for k in self.catalog()}
         return {k: list(by_id.get(k) or ['']) for k in kinds}
+
+    def looks(self, kinds):
+        """[S-14814] What the checks draw of every kind, as (state, style) pairs: every state in its default style, and
+        every other style the catalog lists in its first state (its sample). A style is the same data in another look
+        (a forecast's grid, a folder's tiles): its items obey the same rules, so a check that drew the default style
+        alone never saw them (owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge to
+        edge, they have space everywhere. same for the columns view and maybe also other styles.")."""
+        by_id = {k['id']: k for k in self.catalog()}
+        states = self.states(kinds)
+        out = {}
+        for k in kinds:
+            styles = (by_id.get(k) or {}).get('styles') or []
+            out[k] = [(s, '') for s in states[k]] + [(states[k][0], style) for style in styles[1:]]
+        return out
 
     def render(self, jobs):
         """Every job's result, drawn now where the cache has none."""
@@ -485,21 +509,24 @@ def main():
     if a.list:
         projects = {k: p for p, ks in renders.kinds_of().items() for k in ks}
         states = renders.states(kinds)
-        print(json.dumps([{'kind': k, 'project': projects[k], 'states': states[k], 'why': why[k]} for k in kinds], indent=1))
+        styles = {k['id']: k.get('styles') or [] for k in renders.catalog()}
+        print(json.dumps([{'kind': k, 'project': projects[k], 'states': states[k], 'styles': styles.get(k, []), 'why': why[k]}
+                          for k in kinds], indent=1))
         return
-    states = {k: [a.state] for k in kinds} if a.state else renders.states(kinds)
+    # [S-14814] Every state in the default style and every other style in the first state, as the checks draw them.
+    looks = {k: [(a.state, '')] for k in kinds} if a.state else renders.looks(kinds)
     flags = tuple(['--transparent', *a.flags.split()]) if a.flags else ('--transparent',)
     sets = a.sizes.split(';')
-    jobs = [(k, s, n, Job(k, s, sizes, flags)) for k in kinds for s in states[k] for n, sizes in enumerate(sets)]
+    jobs = [(k, n, Job(k, s, sizes, flags, st)) for k in kinds for s, st in looks[k] for n, sizes in enumerate(sets)]
     drawn = renders.render([j for *_, j in jobs])
     failed = 0
-    for k, s, n, job in jobs:
+    for k, n, job in jobs:
         r = drawn[job]
         if not r.drawn:
             failed += 1
-            print(f'  {k} {s or "default"} {job.sizes}: render {"timed out" if r.timed_out else "failed"} {r.crashed}')
+            print(f'  {k} {job.label} {job.sizes}: render {"timed out" if r.timed_out else "failed"} {r.crashed}')
         if a.out:
-            place(r, os.path.join(a.out, f'{k}.{s or "default"}.{n}.png'))
+            place(r, os.path.join(a.out, f'{k}.{job.label}.{n}.png'))
     print(f'renders: {len(jobs)} pictures of {len(kinds)} kinds, {renders.drawn} drawn now in {renders.seconds:.0f} s, '
           f'{len(jobs) - renders.drawn} from the cache; {failed} failed. Build {renders.stamp}: {renders.dir}')
     sys.exit(1 if failed else 0)

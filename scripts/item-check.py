@@ -9,7 +9,9 @@ usage: python scripts/item-check.py --exe <Themia.exe> [--changed [range] | --ki
 
 The kinds: what a change touches (`--changed`, the default), `--kinds` or `--all`, their states from the build's
 catalog; the renders come from the one cached pass every check shares (scripts/renders.py, [S-14341] [S-14342]).
-Each render is drawn with `--widget-png <kind> <png> --sizes <s> --transparent [--state <s>] --layout-json <json>`: the
+[S-14814] Every state in the kind's default style, and every other style it has (the catalog's `styles`) in its first
+state: a style's items (a forecast's grid, a folder's tiles) are judged as the default's.
+Each render is drawn with `--widget-png <kind> <png> --sizes <s> --transparent [--state <s>] [--style <s>] --layout-json <json>`: the
 JSON holds every card's box, its grid pitch, its items (rows, cells, tiles: `ItemMark`) as they show in it, grouped by
 the panel that lays them, and the ink outside every item. For every group of items it judges:
 
@@ -226,17 +228,19 @@ def covered(card):
     return hidden
 
 
-def check(kind, states, drawn, out, sizes):
-    """[S-14341] Judges a kind's renders, drawn once for every check (scripts/renders.py), linked into <out>/png."""
+def check(kind, looks, drawn, out, sizes):
+    """[S-14341] Judges a kind's renders, drawn once for every check (scripts/renders.py), linked into <out>/png;
+    [S-14814] every state in its default style and every other style (`looks`: (state, style) pairs)."""
     results = []
-    for state in states:
+    for state, style in looks:
         for n, size in enumerate(sizes):
             label = size if size in ('range', 'steps') else f'set{n}'
-            png = os.path.join(out, 'png', f'{kind}.{state or "default"}.{label}.png')
+            job = renders.Job(kind, state, size, style=style)
+            png = os.path.join(out, 'png', f'{kind}.{job.label}.{label}.png')
             layout = png + '.layout.json'
-            result = drawn[renders.Job(kind, state, size)]
+            result = drawn[job]
             renders.place(result, png)
-            row = {'kind': kind, 'state': state or 'default', 'sizes': size}
+            row = {'kind': kind, 'state': job.label, 'sizes': size}
             if result.timed_out or not os.path.exists(layout):
                 row['error'] = 'render timed out' if result.timed_out else 'render failed'
                 results.append(row)
@@ -315,11 +319,11 @@ def main():
     kinds, _ = renders.pick(a, shared)
     os.makedirs(os.path.join(a.out, 'png'), exist_ok=True)
     sizes = a.sizes.split(';') if a.sizes else SIZES
-    states = shared.states(kinds)
-    drawn = shared.render([renders.Job(k, s, size) for k in kinds for s in states[k] for size in sizes])
+    looks = shared.looks(kinds)
+    drawn = shared.render([renders.Job(k, s, size, style=st) for k in kinds for s, st in looks[k] for size in sizes])
     results = []
     for k in kinds:
-        results.extend(check(k, states[k], drawn, a.out, sizes))
+        results.extend(check(k, looks[k], drawn, a.out, sizes))
     with open(os.path.join(a.out, 'items.json'), 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=1)
     lines, total, kinds_hit = [], 0, set()
