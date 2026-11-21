@@ -10,6 +10,9 @@ public sealed class SyncEngineTests
 {
     private static readonly DateTimeOffset Start = new(2026, 11, 21, 9, 0, 0, TimeSpan.Zero);
 
+    /// <summary>A run the test waits for fails loudly after this, never hangs the suite.</summary>
+    private static readonly TimeSpan Guard = TimeSpan.FromSeconds(10);
+
     private DateTimeOffset _now = Start;
     private readonly List<(string Key, bool Asked)> _runs = [];
     private readonly Dictionary<string, Queue<Func<CancellationToken, Task<SyncRun>>>> _answers = new(StringComparer.Ordinal);
@@ -135,7 +138,7 @@ public sealed class SyncEngineTests
         Assert.NotNull(engine.Entries.Find("b"));
 
         slow.SetResult(SyncRun.Ok);
-        await flight;
+        await flight.WaitAsync(Guard);
         Assert.Equal(FetchStatus.Ok, engine.Entries.Find("b")!.Schedule.Status);
         Assert.Single(engine.Reconcile(() => { }));
     }
@@ -190,7 +193,7 @@ public sealed class SyncEngineTests
         Assert.Single(_runs);
 
         slow.SetResult(SyncRun.Ok);
-        await flight;
+        await flight.WaitAsync(Guard);
 
         Assert.Equal([("a", false), ("a", true)], _runs);
     }
@@ -215,12 +218,13 @@ public sealed class SyncEngineTests
     public async Task S2691_dispose_cancels_the_run_in_flight_and_drops_its_outcome()
     {
         var engine = Engine();
-        var heard = new TaskCompletionSource<bool>();
-        Answer("a", async cancellation =>
+        var handed = CancellationToken.None;
+
+        // A fetch that never ends on its own and never looks at its token: the run must end anyway.
+        Answer("a", cancellation =>
         {
-            using var registration = cancellation.Register(() => heard.TrySetResult(true));
-            await Task.Delay(Timeout.Infinite, cancellation);
-            return SyncRun.Ok;
+            handed = cancellation;
+            return new TaskCompletionSource<SyncRun>().Task;
         });
         engine.Reconcile(() => engine.Entries.Want("a", () => Make("a")));
         var entry = engine.Entries.Find("a")!;
@@ -229,14 +233,39 @@ public sealed class SyncEngineTests
         engine.Changed += _ => raised++;
 
         engine.Dispose();
+
+        // Ended inside Dispose itself: no thread, timer or fetch had to move for it.
+        Assert.True(flight.IsCompletedSuccessfully);
         await flight;
 
-        Assert.True(await heard.Task);
+        Assert.True(handed.IsCancellationRequested);
         Assert.True(engine.Cancellation.IsCancellationRequested);
         Assert.Equal(FetchStatus.Loading, entry.Schedule.Status);
         Assert.False(entry.Schedule.Busy);
+        Assert.Null(entry.Flight);
         Assert.Equal(0, raised);
         Assert.Equal(1, _unsubscribed);
+    }
+
+    [Fact]
+    public async Task S2691_a_fetch_that_hears_its_token_ends_its_run_on_dispose()
+    {
+        var engine = Engine();
+        Answer("a", cancellation =>
+        {
+            var gate = new TaskCompletionSource<SyncRun>();
+            cancellation.Register(() => gate.TrySetCanceled(cancellation));
+            return gate.Task;
+        });
+        engine.Reconcile(() => engine.Entries.Want("a", () => Make("a")));
+        var entry = engine.Entries.Find("a")!;
+        var flight = entry.Flight!;
+
+        engine.Dispose();
+
+        Assert.True(flight.IsCompletedSuccessfully);
+        Assert.False(entry.Schedule.Busy);
+        Assert.Equal(FetchStatus.Loading, entry.Schedule.Status);
     }
 
     [Fact]
@@ -292,10 +321,11 @@ public sealed class SyncEngineTests
     {
         using var engine = Engine();
         using var gone = new CancellationTokenSource();
-        Answer("a", async _ =>
+        Answer("a", _ =>
         {
-            await Task.Delay(Timeout.Infinite, gone.Token);
-            return SyncRun.Ok;
+            var gate = new TaskCompletionSource<SyncRun>();
+            gone.Token.Register(() => gate.TrySetCanceled(gone.Token));
+            return gate.Task;
         });
         engine.Reconcile(() => engine.Entries.Want("a", () => Make("a")));
         var entry = engine.Entries.Find("a")!;
@@ -303,7 +333,7 @@ public sealed class SyncEngineTests
 
         engine.Entries.Remove("a");
         await gone.CancelAsync();
-        await flight;
+        await flight.WaitAsync(Guard);
 
         Assert.Equal(FetchStatus.Loading, entry.Schedule.Status);
         Assert.False(entry.Schedule.Busy);

@@ -9,6 +9,9 @@ public sealed class WriteDrainTests
 {
     private static readonly DateTimeOffset Start = new(2026, 11, 21, 9, 0, 0, TimeSpan.Zero);
 
+    /// <summary>A drain the test waits for fails loudly after this, never hangs the suite.</summary>
+    private static readonly TimeSpan Guard = TimeSpan.FromSeconds(10);
+
     private readonly DateTimeOffset _now = Start;
     private readonly List<string> _sent = [];
     private readonly List<(string Id, WriteResult Result)> _settled = [];
@@ -38,7 +41,7 @@ public sealed class WriteDrainTests
         drain.Add(Write("1", "t1"));
         drain.Add(Write("2", "t2"));
 
-        await drain.DrainAsync();
+        await drain.DrainAsync().WaitAsync(Guard);
 
         Assert.Equal(["1", "2"], _sent);
         Assert.Equal([("1", WriteResult.Done), ("2", WriteResult.Done)], _settled);
@@ -53,7 +56,7 @@ public sealed class WriteDrainTests
         drain.Add(Write("1", "t1"));
         drain.Add(Write("2", "t2"));
 
-        await drain.DrainAsync();
+        await drain.DrainAsync().WaitAsync(Guard);
 
         Assert.Equal(["1"], _sent);
         Assert.Equal(2, drain.Pending.Count);
@@ -70,7 +73,7 @@ public sealed class WriteDrainTests
         drain.Add(Write("1", "t1"));
         drain.Add(Write("2", "t2"));
 
-        await drain.DrainAsync();
+        await drain.DrainAsync().WaitAsync(Guard);
 
         Assert.Equal([("1", WriteResult.Refused), ("2", WriteResult.Done)], _settled);
         Assert.Empty(drain.Pending);
@@ -83,7 +86,7 @@ public sealed class WriteDrainTests
         _answers["1"] = _ => throw new InvalidOperationException("a provider oddity");
         drain.Add(Write("1", "t1"));
 
-        await drain.DrainAsync();
+        await drain.DrainAsync().WaitAsync(Guard);
 
         Assert.Single(drain.Pending);
         Assert.Equal([("1", WriteResult.Retry)], _settled);
@@ -95,7 +98,7 @@ public sealed class WriteDrainTests
         var drain = Drain();
         drain.Add(Write("1", "t1"));
 
-        var sent = await drain.SendNowAsync("1");
+        var sent = await drain.SendNowAsync("1").WaitAsync(Guard);
 
         Assert.Equal(WriteResult.Done, sent?.Result);
         Assert.Equal("ok-1", sent?.Value);
@@ -111,10 +114,10 @@ public sealed class WriteDrainTests
         var head = drain.SendNowAsync("1");
         drain.Add(Write("2", "t2"));
 
-        Assert.Null(await drain.SendNowAsync("2"));
+        Assert.Null(await drain.SendNowAsync("2").WaitAsync(Guard));
 
         slow.SetResult(WriteSent<string>.Done());
-        Assert.Equal(WriteResult.Done, (await head)?.Result);
+        Assert.Equal(WriteResult.Done, (await head.WaitAsync(Guard))?.Result);
         Assert.Equal(["1", "2"], _sent);
     }
 
@@ -125,7 +128,7 @@ public sealed class WriteDrainTests
         _usable = false;
         drain.Add(Write("1", "t1"));
 
-        Assert.Null(await drain.SendNowAsync("1"));
+        Assert.Null(await drain.SendNowAsync("1").WaitAsync(Guard));
         Assert.Empty(_sent);
         Assert.Single(drain.Pending);
     }
@@ -135,17 +138,14 @@ public sealed class WriteDrainTests
     {
         using var cancel = new CancellationTokenSource();
         var drain = Drain(cancel.Token);
-        _answers["1"] = async cancellation =>
-        {
-            await Task.Delay(Timeout.Infinite, cancellation);
-            return WriteSent<string>.Done();
-        };
+        // A send that never ends on its own and never looks at its token: the drain must stop anyway.
+        _answers["1"] = _ => new TaskCompletionSource<WriteSent<string>>().Task;
         drain.Add(Write("1", "t1"));
         drain.Add(Write("2", "t2"));
 
         var running = drain.DrainAsync();
         await cancel.CancelAsync();
-        await running;
+        await running.WaitAsync(Guard);
 
         Assert.Equal(["1"], _sent);
         Assert.Equal(2, drain.Pending.Count);
@@ -180,7 +180,7 @@ public sealed class WriteDrainTests
         drain.Add(Write("1", "temp", PendingKind.TaskCreate));
         drain.Add(Write("2", "temp", PendingKind.TaskRename));
 
-        await drain.DrainAsync();
+        await drain.DrainAsync().WaitAsync(Guard);
 
         Assert.Equal("ok-1", Assert.Single(drain.Pending).Target);
     }
