@@ -162,7 +162,8 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
   Services/        AppHost*.cs (state, displays, placement, clipboard, keyboard lease, suspend, license),
-                   shared samplers and sync services (accounts, mail, tasks, files, web);
+                   shared samplers and sync services (accounts, mail, tasks, files, web; every sync an adapter over
+                   Core's Sync/SyncEngine and WriteDrain, every request through Net/HttpCore);
                    Kit/ServiceSync.cs (the one service sync, IWidgetHost.Services)
   Shell/           DesktopWindow*.cs (one surface per display; .BarMenus: the edit bar's flyouts, .Properties: the
                    selection's entry and page, .SettingsMenu: the settings pages' hosts and deep links), EditBar,
