@@ -212,8 +212,8 @@ public static class SelectionRules
     }
 
     /// <summary>
-    /// [S-1581] The widgets a rubber band touches: every widget whose cell overlaps it by any area,
-    /// in view order. <paramref name="hidden"/> are left out (cards that draw nothing). A band of no
+    /// [S-1581] The widgets a rubber band touches: every widget whose cell overlaps it by any area
+    /// (<see cref="Geometry.Lattice.Overlaps(FracRect, FracRect)"/>: more than float noise), in view order. <paramref name="hidden"/> are left out (cards that draw nothing). A band of no
     /// area touches nothing.
     /// </summary>
     public static List<string> Lasso(ViewState view, FracRect band, IReadOnlySet<string>? hidden = null)
@@ -233,8 +233,7 @@ public static class SelectionRules
                 continue;
             }
 
-            var r = widget.Rect;
-            if (r.X < band.Right && band.X < r.Right && r.Y < band.Bottom && band.Y < r.Bottom)
+            if (Geometry.Lattice.Overlaps(widget.Rect, band))
             {
                 hits.Add(widget.Id);
             }

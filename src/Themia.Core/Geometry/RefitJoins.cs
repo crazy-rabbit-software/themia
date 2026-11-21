@@ -19,7 +19,8 @@ public sealed record JoinShift(bool Vertical, double Delta, IReadOnlyList<Widget
 /// </summary>
 public static class RefitJoins
 {
-    private const double Tolerance = 1e-6;
+    /// <summary>[S-11893] The one tolerance: the lattice's.</summary>
+    private const double Tolerance = Lattice.Epsilon;
 
     /// <summary>
     /// Move the cards of <paramref name="widgets"/> that touched <paramref name="refit"/>'s bottom or right edge as it was
@@ -61,7 +62,7 @@ public static class RefitJoins
             var edge = queue.Dequeue();
             foreach (var w in widgets)
             {
-                if (ReferenceEquals(w, refit) || group.Contains(w) || !Joins(w) || !Touches(edge, w.Rect, vertical))
+                if (ReferenceEquals(w, refit) || group.Contains(w) || !Joins(w) || !Lattice.Follows(edge, w.Rect, vertical))
                 {
                     continue;
                 }
@@ -92,7 +93,7 @@ public static class RefitJoins
                 }
 
                 var other = w.Rect;
-                if (Overlaps(moved[i], other) && !Overlaps(group[i].Rect, ReferenceEquals(w, refit) ? before : other))
+                if (Lattice.Overlaps(moved[i], other) && !Lattice.Overlaps(group[i].Rect, ReferenceEquals(w, refit) ? before : other))
                 {
                     return new JoinShift(vertical, delta, [], "into a card it did not overlap");
                 }
@@ -106,14 +107,4 @@ public static class RefitJoins
 
         return new JoinShift(vertical, delta, group);
     }
-
-    /// <summary>Whether <paramref name="card"/>'s top (or left) edge lies on <paramref name="edge"/>'s bottom (or right) edge, the two overlapping along it.</summary>
-    private static bool Touches(FracRect edge, FracRect card, bool vertical)
-        => vertical
-            ? Math.Abs(card.Y - edge.Bottom) <= Tolerance && Across(edge.X, edge.Right, card.X, card.Right)
-            : Math.Abs(card.X - edge.Right) <= Tolerance && Across(edge.Y, edge.Bottom, card.Y, card.Bottom);
-
-    private static bool Across(double a0, double a1, double b0, double b1) => Math.Min(a1, b1) - Math.Max(a0, b0) > Tolerance;
-
-    private static bool Overlaps(FracRect a, FracRect b) => Across(a.X, a.Right, b.X, b.Right) && Across(a.Y, a.Bottom, b.Y, b.Bottom);
 }

@@ -57,8 +57,8 @@ public static partial class DesktopFences
     internal static FracRect Snap(FracRect rect, ScreenMetrics screen)
     {
         var (cols, rows) = GridGeometry.GridDims(screen);
-        double Down(double f, int n) => Math.Floor((f * n) + 1e-9) / n;
-        double Up(double f, int n) => Math.Min(1, Math.Ceiling((f * n) - 1e-9) / n);
+        double Down(double f, int n) => Math.Floor((f * n) + Lattice.Epsilon) / n;
+        double Up(double f, int n) => Math.Min(1, Math.Ceiling((f * n) - Lattice.Epsilon) / n);
         return GridGeometry.Clamp(new FracRect(Down(rect.X, cols), Down(rect.Y, rows), Up(rect.W, cols), Up(rect.H, rows)), screen);
     }
 
@@ -90,7 +90,7 @@ public static partial class DesktopFences
             }
 
             var snapped = FenceCells.Snap(on.Widget.Rect, on.Fence.RolledUp, screen, box);
-            if (!Same(snapped, on.Widget.Rect))
+            if (!Lattice.Same(snapped, on.Widget.Rect))
             {
                 on.Widget.Rect = snapped;
                 changed = true;
@@ -107,7 +107,7 @@ public static partial class DesktopFences
             {
                 var icon = icons[on.Fence.Items[i]];
                 var rect = layout.Shows(i) ? FenceCells.Cell(layout, i) : Tucked(on.Widget.Rect, box);
-                if (!Same(rect, icon.Rect))
+                if (!Lattice.Same(rect, icon.Rect))
                 {
                     icon.Rect = rect;
                     changed = true;

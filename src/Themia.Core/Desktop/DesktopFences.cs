@@ -31,7 +31,4 @@ public static partial class DesktopFences
             }
         }
     }
-
-    private static bool Same(FracRect a, FracRect b)
-        => Math.Abs(a.X - b.X) < 1e-9 && Math.Abs(a.Y - b.Y) < 1e-9 && Math.Abs(a.W - b.W) < 1e-9 && Math.Abs(a.H - b.H) < 1e-9;
 }

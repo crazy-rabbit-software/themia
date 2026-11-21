@@ -85,7 +85,7 @@ public sealed class ReadyMadeGroupsTests
     {
         DipRect?[] boxes = [.. Of(id).Widgets.Select(w => (DipRect?)new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height))];
 
-        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(1));
+        var outlines = CardJoins.Outlines(boxes, 1);
 
         for (var i = 0; i < outlines.Length; i++)
         {
@@ -98,9 +98,9 @@ public sealed class ReadyMadeGroupsTests
     public void S11870_a_recipe_placed_draws_its_outer_border_only(string id)
     {
         var boxes = Of(id).Widgets.Select(w => new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height)).ToList();
-        var tol = CardJoins.Tolerance(1);
+        var tol = 0.5;
 
-        var outlines = CardJoins.Outlines([.. boxes.Select(b => (DipRect?)b)], tol);
+        var outlines = CardJoins.Outlines([.. boxes.Select(b => (DipRect?)b)], 1);
 
         for (var i = 0; i < boxes.Count; i++)
         {

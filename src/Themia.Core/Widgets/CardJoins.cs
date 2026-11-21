@@ -36,8 +36,8 @@ public readonly record struct CardOutline(
     bool DrawsBottom,
     IReadOnlyList<OutlineSeam>? Seams = null)
 {
-    /// <summary>Lengths closer than this are equal: a seam is a fraction times a side.</summary>
-    private const double Epsilon = 1e-6;
+    /// <summary>[S-11893] Lengths closer than this are equal: a seam is a fraction times a side.</summary>
+    private const double Epsilon = Lattice.Epsilon;
 
     /// <summary>A card joined to nothing: every corner round, the whole border drawn.</summary>
     public static CardOutline Free { get; } = new(true, true, true, true, true, true, true, true);
@@ -302,17 +302,15 @@ public sealed record OutlineFigure(double StartX, double StartY, IReadOnlyList<O
 /// corners a joined neighbour covers are square and neither draws the line between. There are no groups:
 /// any two cards that meet join, a desktop icon never (<see cref="Joins"/>). Pure: boxes in, an outline per
 /// card out, so the desktop and the scene renderer agree on every case.
+/// <para>
+/// [S-2248] [S-11893] Cells are judged on the device lattice (<see cref="Lattice.Device"/>): every cell edge is put on a
+/// whole device pixel from a whole DIP (<see cref="GridGeometry.PaintedCell"/>), so two edges are the same pixel (they
+/// meet) or at least one whole pixel apart (they do not), at 100 % as at 150 %, and the rules are the lattice's
+/// (<see cref="Lattice.Meeting(DeviceRect, DeviceRect)"/>). Until 2026-11-21 they compared DIPs within half a device pixel.
+/// </para>
 /// </summary>
 public static class CardJoins
 {
-    /// <summary>
-    /// [S-2240] [S-2248] The tolerance two edges meet within: half a device pixel, in DIPs. Every cell
-    /// edge is put on a whole device pixel from a whole DIP (<see cref="GridGeometry.PaintedCell"/>), so two
-    /// edges are either the same pixel (they meet) or at least one whole pixel apart (they do not); the
-    /// half pixel only absorbs float noise, at 100 % as at 150 %.
-    /// </summary>
-    public static double Tolerance(double rasterScale)
-        => 0.5 / (double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1);
 
     /// <summary>A join: <paramref name="First"/> is the upper or the left card, <paramref name="Second"/> the lower or the right.</summary>
     private readonly record struct Join(int First, int Second, bool Stacked)
@@ -336,16 +334,17 @@ public static class CardJoins
     /// stretches out (<see cref="CardOutline.Seams"/>).
     /// </para>
     /// </summary>
-    public static CardOutline[] Outlines(IReadOnlyList<DipRect?> boxes, double tolerance, IReadOnlyList<int>? sets = null)
+    public static CardOutline[] Outlines(IReadOnlyList<DipRect?> cells, double rasterScale, IReadOnlyList<int>? sets = null)
     {
-        ArgumentNullException.ThrowIfNull(boxes);
-        if (sets is not null && sets.Count != boxes.Count)
+        ArgumentNullException.ThrowIfNull(cells);
+        if (sets is not null && sets.Count != cells.Count)
         {
             throw new ArgumentException("one set per box", nameof(sets));
         }
 
-        var tol = double.IsFinite(tolerance) && tolerance > 0 ? tolerance : 0;
-        var n = boxes.Count;
+        const double tol = Lattice.Epsilon;
+        DeviceRect?[] boxes = [.. cells.Select(c => c is { } cell ? Lattice.Device(cell, rasterScale) : (DeviceRect?)null)];
+        var n = boxes.Length;
         var joins = new List<Join>();
 
         for (var i = 0; i < n; i++)
@@ -362,7 +361,7 @@ public static class CardJoins
                     continue;
                 }
 
-                if (Meeting(a, b, tol) is { } meeting)
+                if (Lattice.Meeting(a, b) is { } meeting)
                 {
                     joins.Add(meeting.AFirst ? new Join(i, j, meeting.Stacked) : new Join(j, i, meeting.Stacked));
                 }
@@ -452,22 +451,13 @@ public static class CardJoins
     }
 
     /// <summary>
-    /// [S-2248] Whether two boxes are neighbours: a side of one lies on the opposite side of the other
-    /// within <paramref name="tolerance"/>, and they overlap along it by more than the tolerance (a
-    /// corner alone is no meeting). Null when they do not meet; else whether they are stacked (one
+    /// [S-2248] Whether two painted cells are neighbours: on the device lattice at <paramref name="rasterScale"/>
+    /// (<see cref="Lattice.Device"/>), a side of one on the opposite side of the other, the two across each other along it
+    /// by a pixel at least (a corner alone is no meeting). Null when they do not meet; else whether they are stacked (one
     /// above the other) and whether <paramref name="a"/> is the first (the upper or the left one).
     /// </summary>
-    public static (bool Stacked, bool AFirst)? Meeting(DipRect a, DipRect b, double tolerance)
-    {
-        var tol = double.IsFinite(tolerance) && tolerance > 0 ? tolerance : 0;
-        var acrossX = Overlap(a.X, a.X + a.Width, b.X, b.X + b.Width) > tol;
-        var acrossY = Overlap(a.Y, a.Y + a.Height, b.Y, b.Y + b.Height) > tol;
-        return acrossX && Meets(a.Y + a.Height, b.Y, tol) ? (true, true)
-            : acrossX && Meets(b.Y + b.Height, a.Y, tol) ? (true, false)
-            : acrossY && Meets(a.X + a.Width, b.X, tol) ? (false, true)
-            : acrossY && Meets(b.X + b.Width, a.X, tol) ? (false, false)
-            : null;
-    }
+    public static (bool Stacked, bool AFirst)? Meeting(DipRect a, DipRect b, double rasterScale)
+        => Lattice.Meeting(Lattice.Device(a, rasterScale), Lattice.Device(b, rasterScale));
 
     /// <summary>
     /// [S-2249] The outline each card of a surface is painted with. A card paints its whole cell (there
@@ -487,7 +477,7 @@ public static class CardJoins
             throw new ArgumentException("one set per cell");
         }
 
-        return Outlines([.. cells.Select((p, i) => sets[i] is null ? (DipRect?)null : p)], Tolerance(rasterScale), [.. sets.Select(s => s ?? -1)]);
+        return Outlines([.. cells.Select((p, i) => sets[i] is null ? (DipRect?)null : p)], rasterScale, [.. sets.Select(s => s ?? -1)]);
     }
 
     /// <summary>
@@ -545,9 +535,9 @@ public static class CardJoins
             throw new ArgumentException("one set per box");
         }
 
-        var tol = Tolerance(rasterScale);
         var inset = double.IsFinite(dividerInset) && dividerInset > 0 ? dividerInset : 0;
         var n = painted.Count;
+        DeviceRect[] device = [.. painted.Select(p => Lattice.Device(p, rasterScale))];
         var root = Enumerable.Range(0, n).ToArray();
         int Find(int i) => root[i] == i ? i : root[i] = Find(root[i]);
 
@@ -556,7 +546,7 @@ public static class CardJoins
         {
             for (var j = i + 1; j < n; j++)
             {
-                if (sets[i] is not { } si || sets[j] != si || Meeting(painted[i], painted[j], tol) is not { } meeting)
+                if (sets[i] is not { } si || sets[j] != si || Lattice.Meeting(device[i], device[j]) is not { } meeting)
                 {
                     continue;
                 }
@@ -584,9 +574,9 @@ public static class CardJoins
                 ? (Math.Max(a.X, b.X), Math.Min(a.X + a.Width, b.X + b.Width))
                 : (Math.Max(a.Y, b.Y), Math.Min(a.Y + a.Height, b.Y + b.Height));
             var (bodyFrom, bodyTo) = stacked ? (body.X, body.X + body.Width) : (body.Y, body.Y + body.Height);
-            from += Math.Abs(from - bodyFrom) <= tol ? inset : 0;
-            to -= Math.Abs(to - bodyTo) <= tol ? inset : 0;
-            if (to - from <= tol)
+            from += Lattice.Same(from, bodyFrom) ? inset : 0;
+            to -= Lattice.Same(to, bodyTo) ? inset : 0;
+            if (to - from <= Lattice.Epsilon)
             {
                 continue;
             }
@@ -599,16 +589,12 @@ public static class CardJoins
         return [.. Enumerable.Range(0, n).Select(i => new GlassPart(bodies[i], dividers[i]))];
     }
 
-    private static double Overlap(double a0, double a1, double b0, double b1) => Math.Min(a1, b1) - Math.Max(a0, b0);
-
-    private static bool Meets(double edge, double opposite, double tol) => Math.Abs(edge - opposite) <= tol;
-
     /// <summary>The card's side as a stretch of its own axis.</summary>
-    private static (double From, double To) Extent(DipRect box, CardSide side)
+    private static (double From, double To) Extent(DeviceRect box, CardSide side)
         => side is CardSide.Top or CardSide.Bottom ? (box.X, box.X + box.Width) : (box.Y, box.Y + box.Height);
 
     /// <summary>Whether <paramref name="spans"/> together cover the whole of the card's side, within the tolerance.</summary>
-    private static bool Covered(DipRect box, CardSide side, List<(double From, double To)>? spans, double tol)
+    private static bool Covered(DeviceRect box, CardSide side, List<(double From, double To)>? spans, double tol)
     {
         if (spans is null || spans.Count == 0)
         {
@@ -638,7 +624,7 @@ public static class CardJoins
     /// [S-11870] The stretches of the card's side across <paramref name="spans"/>, merged, as fractions
     /// of the side; an end within the tolerance of the side's own end is that end.
     /// </summary>
-    private static IEnumerable<OutlineSeam> Seams(DipRect box, CardSide side, List<(double From, double To)> spans, double tol)
+    private static IEnumerable<OutlineSeam> Seams(DeviceRect box, CardSide side, List<(double From, double To)> spans, double tol)
     {
         var (from, to) = Extent(box, side);
         var length = to - from;

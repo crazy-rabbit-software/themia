@@ -37,7 +37,7 @@ public sealed class NoGroupsShellTests
         // Two dragged cards side by side (set 1) over a still card they touch (set 0).
         DipRect?[] boxes = [new DipRect(0, 0, 100, 50), new DipRect(100, 0, 100, 50), new DipRect(0, 50, 100, 50)];
 
-        var outlines = CardJoins.Outlines(boxes, 0.25, [1, 1, 0]);
+        var outlines = CardJoins.Outlines(boxes, 2, [1, 1, 0]);
 
         Assert.False(outlines[0].RoundTopRight);
         Assert.False(outlines[1].RoundTopLeft);
@@ -49,6 +49,6 @@ public sealed class NoGroupsShellTests
     [Fact]
     public void S2457_one_set_per_box()
     {
-        Assert.Throws<ArgumentException>(() => CardJoins.Outlines([new DipRect(0, 0, 1, 1)], 0.25, [0, 1]));
+        Assert.Throws<ArgumentException>(() => CardJoins.Outlines([new DipRect(0, 0, 1, 1)], 2, [0, 1]));
     }
 }

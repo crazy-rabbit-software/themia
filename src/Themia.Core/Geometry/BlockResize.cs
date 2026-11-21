@@ -32,8 +32,8 @@ public static class BlockResize
     /// <summary>[S-2461] The largest common step, in grid cells, the block's length moves by; past it, cell by cell.</summary>
     public const int MostCommonStep = 8;
 
-    /// <summary>How far a size may be off a whole cell and still count as on it (float noise).</summary>
-    private const double Eps = 1e-6;
+    /// <summary>[S-11893] How far a size may be off a whole cell and still count as on it (float noise): the lattice's.</summary>
+    private const double Eps = Lattice.Epsilon;
 
     /// <summary>
     /// [S-2460] The rects a drag of the block's <paramref name="handle"/> by (<paramref name="dxFrac"/>,
@@ -133,7 +133,7 @@ public static class BlockResize
     {
         for (var i = 0; i < a.Count; i++)
         {
-            if (Math.Abs(a[i].X - b[i].X) > 1e-9 || Math.Abs(a[i].Y - b[i].Y) > 1e-9 || Math.Abs(a[i].W - b[i].W) > 1e-9 || Math.Abs(a[i].H - b[i].H) > 1e-9)
+            if (!Lattice.Same(a[i], b[i]))
             {
                 return false;
             }
@@ -328,7 +328,7 @@ public static class BlockResize
             for (var i = 0; i < _near.Length; i++)
             {
                 var was = Position(_d[_near[i]], i, _size[i]);
-                if (Math.Abs(was.Start - laid.Spans[i].Start) > 1e-9 || Math.Abs(was.Size - laid.Spans[i].Size) > 1e-9)
+                if (!Lattice.Same(was.Start, laid.Spans[i].Start) || !Lattice.Same(was.Size, laid.Spans[i].Size))
                 {
                     return true;
                 }
@@ -448,7 +448,7 @@ public static class BlockResize
         {
             var (loX, hiX, loY, hiY) = GridGeometry.Reach(_screen, span.Size, span.Size);
             var (lo, hi) = _horizontal ? (loX, hiX) : (loY, hiY);
-            return span.Start >= lo - 1e-9 && span.Start <= hi + 1e-9;
+            return span.Start >= lo - Eps && span.Start <= hi + Eps;
         }
 
         /// <summary>

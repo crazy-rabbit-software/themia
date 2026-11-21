@@ -52,7 +52,7 @@ public sealed class SelectedHandlesTests
             new(0.6, 0.6, 0.1, 0.1), // apart
         ];
 
-        var blocks = SizeFit.Touching(rects);
+        var blocks = Lattice.Touching(rects);
 
         Assert.Equal([[0, 1, 2], [3], [4]], blocks);
     }

@@ -134,17 +134,6 @@ public static class BlockGeometry
         return (loX, hiX, loY, hiY);
     }
 
-    /// <summary>
-    /// Two rects share area: touching edges do not, nor a sliver under a pixel's thousandth (the fractions' rounding).
-    /// A work-area settle checks it; [S-2463]'s tests pin a block's resize with it.
-    /// </summary>
-    internal static bool Over(FracRect a, FracRect b)
-        => Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X) > Rounding
-            && Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y) > Rounding;
-
-    /// <summary>How thin an overlap may be and still count as touching, in fractions: the fractions' rounding.</summary>
-    private const double Rounding = 1e-6;
-
     /// <summary>A translation, in fractions of the screen.</summary>
     public readonly record struct Delta(double Dx, double Dy);
 }

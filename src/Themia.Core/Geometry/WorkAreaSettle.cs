@@ -28,7 +28,8 @@ namespace Themia.Core.Geometry;
 /// </summary>
 public static class WorkAreaSettle
 {
-    private const double Eps = 1e-9;
+    /// <summary>[S-11893] The one tolerance: the lattice's.</summary>
+    private const double Eps = Lattice.Epsilon;
 
     /// <summary>
     /// [S-855] <paramref name="rects"/> (one view's widgets, in its order), laid on <paramref name="laidOn"/>, settled on
@@ -68,7 +69,7 @@ public static class WorkAreaSettle
                 }
             }
 
-            if (view.WorkArea is not { } known || !Same(known, screen.Allowed))
+            if (view.WorkArea is not { } known || !Lattice.Same(known, screen.Allowed))
             {
                 view.WorkArea = screen.Allowed;
             }
@@ -83,7 +84,7 @@ public static class WorkAreaSettle
         ArgumentNullException.ThrowIfNull(state);
         return Shown(state, surfaces).Any(shown =>
         {
-            if (shown.View.WorkArea is not { } known || !Same(known, shown.Screen.Allowed))
+            if (shown.View.WorkArea is not { } known || !Lattice.Same(known, shown.Screen.Allowed))
             {
                 return true;
             }
@@ -113,10 +114,6 @@ public static class WorkAreaSettle
         }
     }
 
-    /// <summary>[S-855] Two areas the same but for the fractions' rounding.</summary>
-    public static bool Same(FracRect a, FracRect b)
-        => Math.Abs(a.X - b.X) < Eps && Math.Abs(a.Y - b.Y) < Eps && Math.Abs(a.Right - b.Right) < Eps && Math.Abs(a.Bottom - b.Bottom) < Eps;
-
     /// <summary>
     /// The second rule: every rect of <paramref name="rects"/> inside its sides in <paramref name="held"/>, moved as
     /// little as it takes (the whole view by one translation, else each touching set, what it comes over carried).
@@ -144,7 +141,7 @@ public static class WorkAreaSettle
         }
 
         // Else each set of touching widgets on its own ([S-2240]: a join is kept), what it comes over carried along.
-        var groups = SizeFit.Touching([.. all.Select(i => rects[i])]).Select(g => g.Select(k => all[k]).ToList()).ToList();
+        var groups = Lattice.Touching([.. all.Select(i => rects[i])]).Select(g => g.Select(k => all[k]).ToList()).ToList();
         var moved = new bool[groups.Count];
         var queue = new Queue<(int Group, (double Dx, double Dy) By)>();
         for (var g = 0; g < groups.Count; g++)
@@ -221,7 +218,7 @@ public static class WorkAreaSettle
 
         var settled = rects.ToArray();
         var all = Enumerable.Range(0, rects.Length).Where(i => rects[i].IsFinite).ToList();
-        foreach (var group in SizeFit.Touching([.. all.Select(i => rects[i])]).Select(g => g.Select(k => all[k]).ToList()))
+        foreach (var group in Lattice.Touching([.. all.Select(i => rects[i])]).Select(g => g.Select(k => all[k]).ToList()))
         {
             if (group.All(i => InReach(rects[i])))
             {
@@ -323,5 +320,5 @@ public static class WorkAreaSettle
 
     /// <summary>Whether a rect of <paramref name="mover"/>, where it settled, now lies over a rect of <paramref name="other"/> it did not lie over before.</summary>
     private static bool Comes(List<int> mover, List<int> other, IReadOnlyList<FracRect> rects, FracRect[] settled)
-        => mover.Any(m => other.Any(o => BlockGeometry.Over(settled[m], rects[o]) && !BlockGeometry.Over(rects[m], rects[o])));
+        => mover.Any(m => other.Any(o => Lattice.Overlaps(settled[m], rects[o]) && !Lattice.Overlaps(rects[m], rects[o])));
 }

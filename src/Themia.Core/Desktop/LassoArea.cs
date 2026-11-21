@@ -28,7 +28,7 @@ public static class LassoArea
         }
 
         var (cols, rows) = GridGeometry.GridDims(screen);
-        if ((band.W * cols) < MinCells - 1e-9 || (band.H * rows) < MinCells - 1e-9)
+        if ((band.W * cols) < MinCells - Lattice.Epsilon || (band.H * rows) < MinCells - Lattice.Epsilon)
         {
             return null;
         }

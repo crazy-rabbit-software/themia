@@ -290,7 +290,7 @@ public sealed class BlockResizeTests
 
                     // Touching stays touching, apart stays apart, and side by side keeps its side.
                     Assert.Equal(Touch(block[i], block[j]), Touch(resized[i], resized[j]));
-                    Assert.Equal(BlockGeometry.Over(block[i], block[j]), BlockGeometry.Over(resized[i], resized[j]));
+                    Assert.Equal(Lattice.Overlaps(block[i], block[j]), Lattice.Overlaps(resized[i], resized[j]));
                     Assert.True(block[i].Right > block[j].X + 1e-9 || resized[i].Right <= resized[j].X + 1e-9, why);
                     Assert.True(block[i].Bottom > block[j].Y + 1e-9 || resized[i].Bottom <= resized[j].Y + 1e-9, why);
                 }

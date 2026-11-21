@@ -27,8 +27,8 @@ public static class GridSettle
     /// <summary>How far off its line, in DIPs, an edge may have drifted: less than one.</summary>
     public const double DriftDip = 1;
 
-    /// <summary>Edges closer than this (a fraction of the screen) are one edge; an edge this near its line is on it.</summary>
-    private const double Same = 1e-9;
+    /// <summary>[S-11893] Edges closer than this (a fraction of the screen) are one edge; an edge this near its line is on it: the lattice's.</summary>
+    private const double Same = Lattice.Epsilon;
 
     /// <summary>
     /// [S-11892] <paramref name="rects"/> (one view's cards, in its order) with every drifted edge on <paramref name="screen"/>'s

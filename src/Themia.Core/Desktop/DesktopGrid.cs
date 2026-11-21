@@ -26,8 +26,6 @@ namespace Themia.Core.Desktop;
 /// </summary>
 public static class DesktopGrid
 {
-    private const double Epsilon = 1e-9;
-
     /// <summary>
     /// [S-11875] An icon's box on <paramref name="screen"/> as fractions: <paramref name="cell"/> (the icon's
     /// cell in DIPs) rounded up to whole grid cells on each axis. Falls back to
@@ -92,7 +90,7 @@ public static class DesktopGrid
                 }
 
                 // Past the widget in the way: the next line at or after its right edge.
-                c = Math.Max(c + 1, (int)Math.Ceiling((blocker.Right * cols) - 1e-6));
+                c = Math.Max(c + 1, (int)Math.Ceiling((blocker.Right * cols) - Lattice.Epsilon));
             }
         }
 
@@ -224,7 +222,7 @@ public static class DesktopGrid
                 break;
             }
 
-            result[i] = Same(packed, icons[i]) ? null : packed;
+            result[i] = Lattice.Same(packed, icons[i]) ? null : packed;
         }
 
         return result;
@@ -397,8 +395,8 @@ public static class DesktopGrid
         {
             var r = icons[i];
             var valid = r.IsFinite
-                && Math.Abs(r.W - size.W) < 1e-6 && Math.Abs(r.H - size.H) < 1e-6
-                && r.X >= a.X - 1e-6 && r.Y >= a.Y - 1e-6 && r.Right <= a.Right + 1e-6 && r.Bottom <= a.Bottom + 1e-6
+                && Lattice.Same(r.W, size.W) && Lattice.Same(r.H, size.H)
+                && r.X >= a.X - Lattice.Epsilon && r.Y >= a.Y - Lattice.Epsilon && r.Right <= a.Right + Lattice.Epsilon && r.Bottom <= a.Bottom + Lattice.Epsilon
                 && kept.Blocker(r) is null;
             if (valid)
             {
@@ -418,7 +416,7 @@ public static class DesktopGrid
         var laid = Lay(moving, anchors, kept, others, size, screen);
         for (var i = 0; i < laid.Length; i++)
         {
-            if (laid[i] is { } rect && Same(rect, icons[i]))
+            if (laid[i] is { } rect && Lattice.Same(rect, icons[i]))
             {
                 laid[i] = null;
             }
@@ -482,11 +480,11 @@ public static class DesktopGrid
                 down ??= Math.Abs(r - (icon.Y * rows)) / hCells >= Math.Abs(c - (icon.X * cols)) / wCells;
                 if (down.Value)
                 {
-                    r = Math.Max(r + 1, (int)Math.Ceiling((icon.Bottom * rows) - 1e-6));
+                    r = Math.Max(r + 1, (int)Math.Ceiling((icon.Bottom * rows) - Lattice.Epsilon));
                 }
                 else
                 {
-                    c = Math.Max(c + 1, (int)Math.Ceiling((icon.Right * cols) - 1e-6));
+                    c = Math.Max(c + 1, (int)Math.Ceiling((icon.Right * cols) - Lattice.Epsilon));
                 }
 
                 if (r > r1 || c > c1)
@@ -566,10 +564,10 @@ public static class DesktopGrid
 
         var a = screen.Allowed;
         var (cols, rows) = GridGeometry.GridDims(screen);
-        var c0 = (int)Math.Ceiling((a.X * cols) - 1e-6);
-        var r0 = (int)Math.Ceiling((a.Y * rows) - 1e-6);
-        var c1 = (int)Math.Floor(((a.Right - size.W) * cols) + 1e-6);
-        var r1 = (int)Math.Floor(((a.Bottom - size.H) * rows) + 1e-6);
+        var c0 = (int)Math.Ceiling((a.X * cols) - Lattice.Epsilon);
+        var r0 = (int)Math.Ceiling((a.Y * rows) - Lattice.Epsilon);
+        var c1 = (int)Math.Floor(((a.Right - size.W) * cols) + Lattice.Epsilon);
+        var r1 = (int)Math.Floor(((a.Bottom - size.H) * rows) + Lattice.Epsilon);
         if (c1 < c0 || r1 < r0)
         {
             return null;
@@ -593,7 +591,4 @@ public static class DesktopGrid
 
         return null;
     }
-
-    private static bool Same(FracRect a, FracRect b)
-        => Math.Abs(a.X - b.X) < Epsilon && Math.Abs(a.Y - b.Y) < Epsilon && Math.Abs(a.W - b.W) < Epsilon && Math.Abs(a.H - b.H) < Epsilon;
 }

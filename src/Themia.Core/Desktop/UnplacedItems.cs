@@ -109,7 +109,7 @@ public static class UnplacedItems
             return [];
         }
 
-        var count = (int)Math.Floor((extent / pitch) + 1e-6);
+        var count = (int)Math.Floor((extent / pitch) + Lattice.Epsilon);
         return [.. Enumerable.Range(0, count + 1).Select(i => (Math.Min(i * pitch, extent), GridGeometry.IsMajorLine(i)))];
     }
 
@@ -167,7 +167,7 @@ public static class UnplacedItems
 
     /// <summary>[S-13707] How many icon boxes <paramref name="box"/> DIPs wide stand side by side in a row <paramref name="width"/> wide: at least one.</summary>
     public static int Columns(double width, double box)
-        => box > 0 && double.IsFinite(width) && width > 0 ? Math.Max(1, (int)Math.Floor((width + 1e-6) / box)) : 1;
+        => box > 0 && double.IsFinite(width) && width > 0 ? Math.Max(1, (int)Math.Floor((width + Lattice.Epsilon) / box)) : 1;
 
     /// <summary>
     /// [S-13707] Where <paramref name="count"/> icons stand on the page, in DIPs from its list's corner: as the desktop lays

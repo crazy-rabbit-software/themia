@@ -104,7 +104,7 @@ public sealed class ReadyMadePlacementTests
             for (var j = i + 1; j < recipe.Widgets.Count; j++)
             {
                 var (a, b) = (recipe.Widgets[i].Box, recipe.Widgets[j].Box);
-                if (CardJoins.Meeting(new DipRect(a.X, a.Y, a.Width, a.Height), new DipRect(b.X, b.Y, b.Width, b.Height), 1e-6) is not null)
+                if (CardJoins.Meeting(new DipRect(a.X, a.Y, a.Width, a.Height), new DipRect(b.X, b.Y, b.Width, b.Height), 1) is not null)
                 {
                     neighbours.Add((i, j));
                 }
@@ -142,7 +142,7 @@ public sealed class ReadyMadePlacementTests
                     foreach (var (a, b) in neighbours)
                     {
                         var (ka, kb) = (plan.Added[a].Kind.Value, plan.Added[b].Kind.Value);
-                        Assert.True(CardJoins.Meeting(cells[a], cells[b], CardJoins.Tolerance(raster)) is not null, $"{what} at {raster}: {ka} and {kb} no longer meet ({cells[a]} / {cells[b]})");
+                        Assert.True(CardJoins.Meeting(cells[a], cells[b], raster) is not null, $"{what} at {raster}: {ka} and {kb} no longer meet ({cells[a]} / {cells[b]})");
                         Assert.True(outlines[a] != CardOutline.Free && outlines[b] != CardOutline.Free, $"{what} at {raster}: {ka} and {kb} are not joined");
                     }
 

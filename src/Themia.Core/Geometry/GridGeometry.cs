@@ -181,7 +181,7 @@ public static class GridGeometry
     /// [S-855] How far in from the monitor's edge (a fraction) an allowed area's edge must be to be a strip's: an edge
     /// nearer is the monitor's own (rounding of a work area that reserves nothing there).
     /// </summary>
-    private const double StripEdge = 1e-7;
+    private const double StripEdge = Lattice.Epsilon;
 
     /// <summary>
     /// [S-855] The sides of <paramref name="allowed"/> that end at a reserved strip (inside the monitor): the taskbar, a
@@ -206,7 +206,7 @@ public static class GridGeometry
             return default;
         }
 
-        const double eps = 1e-9;
+        const double eps = Lattice.Epsilon;
         return new(
             strips.Left && r.X >= laidOn.X - eps,
             strips.Top && r.Y >= laidOn.Y - eps,

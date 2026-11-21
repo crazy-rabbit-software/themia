@@ -37,7 +37,7 @@ public sealed partial class ViewState
         }
 
         // [S-855] An area that is no part of the screen is no area: the view settles as laid out on none, loudly.
-        if (WorkArea is { } area && !(Geometry.GridGeometry.NormaliseAllowed(area) is { } clean && Geometry.WorkAreaSettle.Same(clean, area)))
+        if (WorkArea is { } area && !(Geometry.GridGeometry.NormaliseAllowed(area) is { } clean && Geometry.Lattice.Same(clean, area)))
         {
             WorkArea = null;
             repairs.Add($"view '{Id}' had a work area that is no part of the screen; it is settled afresh");

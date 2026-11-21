@@ -38,6 +38,18 @@ Sections, grouped by area (file order below; search for the heading).
   grid.
 - **[S-03]** The persisted document is `{ schemaVersion, views, activeViewId, monitorViews, design }`.
   A view is `{ id, name, widgets }`.
+- **[S-11893]** **One set of rules, one tolerance** (code audit 2026-11-21: six rules for "touching", four for "the same
+  rect" and nine tolerances, from none to half a device pixel, so a lasso, a join and a packed icon could disagree about
+  one pair of edges). Every geometry rule of Core compares by `Lattice` alone: two values are one edge (`Same`), two
+  spans lie across each other (`Across`), two rects overlap (`Overlaps`: touching edges do not), meet side to side
+  (`Meeting`, `Touches`, `Follows`; a corner alone does not), touch in sets (`Touching`), are the same rect (`Same`).
+  The joins ([S-2248]), the refit's followers ([S-14104]), a block's resize ([S-2460]), the work-area settle ([S-855]), the
+  grid settle ([S-11892]), the desktop grid ([S-11876]), the fences ([S-13040]), the displays' stand-ins, the lasso
+  ([S-1581]) and the lasso's area ([S-13018]) keep no rule or tolerance of their own. The one tolerance,
+  `Lattice.Epsilon` (= `GridCells.Noise`, 1e-6, in the unit compared: a fraction, a device pixel, a cell), is float
+  noise: every edge compared stands on a lattice whose steps are orders of magnitude wider (grid lines at least a
+  thousandth of the screen apart, whole device pixels, whole cells). Painted cells are compared on the device lattice
+  (`Lattice.Device`: each edge the whole device pixel it stands on). Tests `LatticeTests.S11893_`.
 - **[S-11894]** **Units by type** (code audit 2026-11-21): a box in DIPs is a `DipRect` (a card's cell, a face part, a
   flyout, the work area as a surface lays it out), a box in a raster's own pixels a `DeviceRect` (a display, its work area
   and a window as Win32 reports them, in virtual-screen pixels; a backdrop picture's), and nothing converts one into the
@@ -8454,9 +8466,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 
 - **[S-2240]** **When the cells of two cards touch along a side, they join** (`CardJoins.Outlines`, Core, pure:
   each card's box in, an outline per card out; owner, 2026-11-17). Two cards are joined on a side when that side
-  of one lies on the opposite side of the other within the tolerance (half a device pixel, `CardJoins.Tolerance`:
-  0.5 DIP at 100 %, 0.25 at 200 %) and they overlap along it by more than the tolerance; cards that meet only at a
-  corner do not. There is no group and no other condition (from 2026-11-15 to 2026-11-17 only members of one
+  of one lies on the opposite side of the other on the device lattice (each edge its whole device pixel at the cells'
+  raster scale, `Lattice.Device`, [S-11893]) and they lie across each other along it by a pixel at least; cards that
+  meet only at a corner do not. *(Until 2026-11-21 within half a device pixel, `CardJoins.Tolerance`: the same pairs
+  for painted cells.)* There is no group and no other condition (from 2026-11-15 to 2026-11-17 only members of one
   group joined; that rule is gone with the groups, [S-2450]). Only a card that takes part in joins does
   (`CardJoins.Joins`): one whose background is not Transparent, or that has a picture of its own ([S-6590]), and
   whose kind is a card (not `WidgetTraits.NeverJoins`, [S-11880]: a desktop icon never joins); a bare widget, a
@@ -8502,12 +8515,12 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-2246]** *(Retired 2026-11-15 by [S-11884]: there is no gap, a preset's or anyone's.)*
 - **[S-2247]** *(Retired 2026-11-15 by [S-11884]: there is no gap setting to default.)*
 - **[S-2248]** **Neighbours are cells that meet** (`CardJoins.Meeting`, Core, pure). Two widgets are
-  neighbours when their **cells** (the stored rect, painted whole, [S-04]) meet along a side: a side
-  of one on the opposite side of the other within half a device pixel (`CardJoins.Tolerance`), overlapping
-  along it by more than that; a corner alone is no meeting. Every cell edge is put on a whole device pixel
+  neighbours when their **cells** (the stored rect, painted whole, [S-04]) meet along a side: on the device lattice
+  (`Lattice.Device`, [S-11893]: each edge its whole device pixel), a side of one on the opposite side of the other, the
+  two across each other along it; a corner alone is no meeting. Every cell edge is put on a whole device pixel
   from a whole DIP (`GridGeometry.PaintedCell`, [S-11872]), so two edges are the same pixel or at least one
   whole pixel apart: one pixel apart or over is no meeting, at 100 % as at 125, 150 or 200 % and on a
-  screen whose DIPs are fractional; the half pixel only absorbs float noise. On the grid they meet on its
+  screen whose DIPs are fractional; the lattice's one tolerance only absorbs float noise. On the grid they meet on its
   line, and cards on one line share its pixel: every card stands on its display's lines ([S-11892]), so a seam's
   two ends and the edges along it are one pixel in both cards. Tests `CardPaintTests.S2248_`.
 - **[S-2249]** **Touching cards are one connected panel** (`CardJoins.Paint`, the one path the desktop, the scenes

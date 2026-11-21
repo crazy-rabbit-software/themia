@@ -113,7 +113,7 @@ public static class SizeFit
 
     /// <summary>
     /// [S-11809] The boxes a picture paints its widgets in (a scene, the add page's tile): a lone widget
-    /// as <see cref="Shown"/> paints it, widgets whose cells touch (<see cref="Touching"/>, a ready-made
+    /// as <see cref="Shown"/> paints it, widgets whose cells touch (<see cref="Lattice.Touching"/>, a ready-made
     /// group as laid) fitted together as one block (<see cref="GridFit.Layout"/>) so the edges they share
     /// stay shared at any scale and gap.
     /// <paramref name="limits"/> gives each widget's limits (its scale, the gap, the grid).
@@ -124,7 +124,7 @@ public static class SizeFit
         ArgumentNullException.ThrowIfNull(limits);
         var all = widgets.Select(limits).ToList();
         var shown = widgets.Select((w, i) => Shown(w.Rect, all[i], screen)).ToArray();
-        foreach (var at in Touching([.. widgets.Select(w => w.Rect)]))
+        foreach (var at in Lattice.Touching([.. widgets.Select(w => w.Rect)]))
         {
             if (at.Count < 2)
             {
@@ -139,36 +139,6 @@ public static class SizeFit
         }
 
         return shown;
-    }
-
-    /// <summary>
-    /// [S-11809] The widgets that touch one another, as sets of indexes: two whose rects meet edge to edge
-    /// (a side on the other's opposite side, overlapping along it) are in one set, and so is everything
-    /// that touches either. A widget touching nothing is a set of its own. In first-index order.
-    /// </summary>
-    public static List<List<int>> Touching(IReadOnlyList<FracRect> rects)
-    {
-        ArgumentNullException.ThrowIfNull(rects);
-        const double tol = 1e-6;
-        var root = Enumerable.Range(0, rects.Count).ToArray();
-        int Find(int i) => root[i] == i ? i : root[i] = Find(root[i]);
-        static bool Near(double a, double b) => Math.Abs(a - b) <= tol;
-        static bool Across(double a0, double a1, double b0, double b1) => Math.Min(a1, b1) - Math.Max(a0, b0) > tol;
-        for (var i = 0; i < rects.Count; i++)
-        {
-            for (var j = i + 1; j < rects.Count; j++)
-            {
-                var (a, b) = (rects[i], rects[j]);
-                var meet = (Across(a.X, a.Right, b.X, b.Right) && (Near(a.Bottom, b.Y) || Near(b.Bottom, a.Y)))
-                    || (Across(a.Y, a.Bottom, b.Y, b.Bottom) && (Near(a.Right, b.X) || Near(b.Right, a.X)));
-                if (meet)
-                {
-                    root[Find(i)] = Find(j);
-                }
-            }
-        }
-
-        return [.. Enumerable.Range(0, rects.Count).GroupBy(Find).Select(g => g.ToList())];
     }
 
     /// <summary>[S-2444] A widget's sizing as its card shows it: its kind's for its config ([S-12480]: no card has a header).</summary>
@@ -224,15 +194,16 @@ public static class SizeFit
     {
         ArgumentNullException.ThrowIfNull(sizing);
         const double cell = ItemGrid.DefaultCell;
-        static double Up(double dip) => Math.Ceiling((dip / cell) - 1e-6) * cell;
+        static double Up(double dip) => Math.Ceiling((dip / cell) - Lattice.Epsilon) * cell;
         var (w, h) = (Up(sizing.Natural.Width), Up(sizing.Natural.Height));
         var (minW, minH) = (Up(sizing.Min.Width), Up(sizing.Min.Height));
         var (maxW, maxH) = (Math.Max(minW, sizing.Max.Width), Math.Max(minH, sizing.Max.Height));
         var sizes = new List<CheckedSize> { new(CheckedSize.Natural, w, h) };
         void Add(string name, double width, double height)
         {
-            if (width >= minW - 1e-6 && width <= maxW + 1e-6 && height >= minH - 1e-6 && height <= maxH + 1e-6
-                && !sizes.Exists(s => Math.Abs(s.Width - width) < 1e-6 && Math.Abs(s.Height - height) < 1e-6))
+            const double eps = Lattice.Epsilon;
+            if (width >= minW - eps && width <= maxW + eps && height >= minH - eps && height <= maxH + eps
+                && !sizes.Exists(s => Lattice.Same(s.Width, width) && Lattice.Same(s.Height, height)))
             {
                 sizes.Add(new CheckedSize(name, width, height));
             }
@@ -279,9 +250,8 @@ public static class SizeFit
         if (limits is not null && was is not null && stored.IsFinite)
         {
             var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
-            static bool Same(double a, double b) => Math.Abs(a - b) < 1e-6;
             static bool Moved(double before, double now, double min0, double min1, double max0, double max1)
-                => !Same(before, now) && Same(min0, min1) && Same(max0, max1);
+                => !Lattice.Same(before, now) && Lattice.Same(min0, min1) && Lattice.Same(max0, max1);
             if (Moved(was.Natural.Width, sizing.Natural.Width, was.Min.Width, sizing.Min.Width, was.Max.Width, sizing.Max.Width))
             {
                 stored = stored with { W = limits.Width.Range(sizing.Natural.Width * s / screen.Width) };

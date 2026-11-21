@@ -391,7 +391,7 @@ public sealed class TaskbarSidesTests
         Assert.Equal(at["pair-a"].Right, at["pair-b"].X, 12);
         Assert.Equal(hung, at["hung-over-left-taskbar"]);
         Assert.Equal(middle, at["middle"]);
-        Assert.True(WorkAreaSettle.Same(Both(LeftBar).Allowed, view.WorkArea!.Value));
+        Assert.True(Lattice.Same(Both(LeftBar).Allowed, view.WorkArea!.Value));
         Assert.False(WorkAreaSettle.Waits(state, OwnersDisplays()));
     }
 
@@ -425,14 +425,14 @@ public sealed class TaskbarSidesTests
 
         Assert.True(WorkAreaSettle.Waits(state, OwnersDisplays()));
         Assert.Equal(0, WorkAreaSettle.Apply(state, OwnersDisplays()));
-        Assert.True(WorkAreaSettle.Same(Both(LeftBar).Allowed, view.WorkArea!.Value));
+        Assert.True(Lattice.Same(Both(LeftBar).Allowed, view.WorkArea!.Value));
         Assert.Equal(middle, view.Widgets[0].Rect);
         Assert.False(WorkAreaSettle.Waits(state, OwnersDisplays()));
 
         // Shown on the left display alone: another area, remembered.
         Assert.True(WorkAreaSettle.Waits(state, [new SurfaceMetrics("home", LeftBar, 1, true)]));
         WorkAreaSettle.Apply(state, [new SurfaceMetrics("home", LeftBar, 1, true)]);
-        Assert.True(WorkAreaSettle.Same(LeftBar.Allowed, view.WorkArea!.Value));
+        Assert.True(Lattice.Same(LeftBar.Allowed, view.WorkArea!.Value));
     }
 
     [Fact]

@@ -7,7 +7,7 @@ namespace Themia.Core.Tests;
 /// <summary>[S-2240]..[S-2243] Cards that touch become one surface: which corners stay round, which sides draw.</summary>
 public class CardJoinsTests
 {
-    private const double Tol = 0.25; // half a device pixel at 200 %
+    private const double Scale = 2; // the cells' raster scale: 200 %
 
     private static DipRect? Box(double x, double y, double w, double h) => new DipRect(x, y, w, h);
 
@@ -20,19 +20,20 @@ public class CardJoinsTests
     [Fact]
     public void S2240_a_card_alone_is_free()
     {
-        Assert.Equal([CardOutline.Free], CardJoins.Outlines([Box(0, 0, 100, 50)], Tol));
+        Assert.Equal([CardOutline.Free], CardJoins.Outlines([Box(0, 0, 100, 50)], Scale));
     }
 
     [Fact]
-    public void S2240_the_tolerance_is_half_a_device_pixel()
+    public void S2240_S11893_cells_are_judged_on_the_device_lattice()
     {
-        Assert.Equal(0.25, CardJoins.Tolerance(2));
-        Assert.Equal(0.5, CardJoins.Tolerance(1));
-        Assert.Equal(0.5, CardJoins.Tolerance(double.NaN));
+        // Until 2026-11-21: edges within half a device pixel met (0.25 DIP at 200 %). Now each edge is its device pixel.
+        Assert.NotNull(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100.2, 0, 80, 50), 2));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100.5, 0, 80, 50), 2));
+        Assert.NotNull(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100.4, 0, 80, 50), double.NaN));
     }
 
     /// <summary>[S-2240] Any two cards that meet join: there are no groups.</summary>
-    private static CardOutline[] Group(params DipRect?[] boxes) => CardJoins.Outlines(boxes, Tol);
+    private static CardOutline[] Group(params DipRect?[] boxes) => CardJoins.Outlines(boxes, Scale);
 
     [Fact]
     public void S2240_regression_ungrouped_cards_that_touch_join()
@@ -40,7 +41,7 @@ public class CardJoinsTests
         // Owner, 2026-11-17: "the widgets should connect when the edges of them touch, right now they only connect
         // when the edges touch and they are grouped together". Three cards edge to edge, no group of any kind.
         DipRect?[] boxes = [Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(100, 0, 50, 100)];
-        var o = CardJoins.Outlines(boxes, Tol);
+        var o = CardJoins.Outlines(boxes, Scale);
         Assert.False(o[0].DrawsBottom);
         Assert.False(o[1].DrawsTop);
         Assert.False(o[0].DrawsRight);
@@ -177,7 +178,7 @@ public class CardJoinsTests
     [Fact]
     public void S11870_a_column_of_three_draws_no_line_inside_and_its_outer_border_whole()
     {
-        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(0, 100, 100, 50)], Tol);
+        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(0, 100, 100, 50)], Scale);
 
         Assert.Equal(O("TL TR", "LTR"), o[0]);
         Assert.Equal(O("", "LR"), o[1]);
@@ -196,7 +197,7 @@ public class CardJoinsTests
     public void S11870_a_card_that_joins_nothing_against_a_panel_is_a_card_of_its_own()
     {
         // Two cards side by side, a card that takes no part in joins (a desktop icon: null box) as wide as both under them.
-        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), null], Tol);
+        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), null], Scale);
 
         Assert.Equal(O("TL BL", "LTB"), o[0]);
         Assert.Equal(O("TR BR", "TRB"), o[1]);
@@ -208,7 +209,7 @@ public class CardJoinsTests
     {
         // A wide card over a narrow one (x 20..60) and a card that joins nothing (x 60..100, its own set): the wide
         // card draws its bottom only over that one.
-        var o = CardJoins.Outlines([Box(0, 0, 100, 40), Box(20, 40, 40, 40), Box(60, 40, 40, 40)], Tol, sets: [0, 0, 1]);
+        var o = CardJoins.Outlines([Box(0, 0, 100, 40), Box(20, 40, 40, 40), Box(60, 40, 40, 40)], Scale, sets: [0, 0, 1]);
 
         Assert.True(o[0].DrawsBottom);
         Assert.Equal([new OutlineSeam(CardSide.Bottom, 0.2, 0.6)], o[0].Seams);
@@ -216,7 +217,7 @@ public class CardJoinsTests
         Assert.Equal(CardOutline.Free, o[2]);
 
         // A narrow card on a wide one: the wide one draws its top on either side of the narrow one.
-        var under = CardJoins.Outlines([Box(20, 0, 40, 30), Box(0, 30, 100, 50)], Tol);
+        var under = CardJoins.Outlines([Box(20, 0, 40, 30), Box(0, 30, 100, 50)], Scale);
         Assert.Equal(O("TL TR", "LTR"), under[0]);
         Assert.True(under[1].DrawsTop);
         Assert.Equal([new OutlineSeam(CardSide.Top, 0.2, 0.6)], under[1].Seams);
@@ -225,7 +226,7 @@ public class CardJoinsTests
     [Fact]
     public void S11870_a_card_apart_from_the_others_draws_its_whole_border()
     {
-        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(300, 0, 100, 50)], Tol);
+        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(300, 0, 100, 50)], Scale);
 
         Assert.Equal(CardOutline.Free, o[2]);
     }
@@ -234,7 +235,7 @@ public class CardJoinsTests
     public void S11870_a_dragged_block_keeps_its_seamless_inside_free_of_the_cards_standing_still()
     {
         // The dragged pair (set 1) over a still card (set 0).
-        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), Box(0, 40, 100, 40)], Tol, sets: [1, 1, 0]);
+        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), Box(0, 40, 100, 40)], Scale, sets: [1, 1, 0]);
 
         Assert.False(o[0].DrawsRight);
         Assert.False(o[1].DrawsLeft);

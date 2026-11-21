@@ -70,7 +70,7 @@ public sealed class BlockResizeKindsTests
                     for (var j = i + 1; j < widgets.Count; j++)
                     {
                         Assert.True(Touch(start[i], start[j]) == Touch(resized[i], resized[j]), $"{why}: {widgets[i].Kind.Value} and {widgets[j].Kind.Value} touched {Touch(start[i], start[j])}");
-                        Assert.True(BlockGeometry.Over(start[i], start[j]) == BlockGeometry.Over(resized[i], resized[j]), $"{why}: {widgets[i].Kind.Value} and {widgets[j].Kind.Value} overlap");
+                        Assert.True(Lattice.Overlaps(start[i], start[j]) == Lattice.Overlaps(resized[i], resized[j]), $"{why}: {widgets[i].Kind.Value} and {widgets[j].Kind.Value} overlap");
                     }
                 }
             }

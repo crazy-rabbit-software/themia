@@ -21,16 +21,16 @@ public sealed class CardPaintTests
     [Fact]
     public void S2248_cells_that_share_a_side_are_neighbours_and_say_which_is_first()
     {
-        Assert.Equal((false, true), CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 0, 80, 50), 0.5));
-        Assert.Equal((false, false), CardJoins.Meeting(new DipRect(100, 0, 80, 50), new DipRect(0, 0, 100, 50), 0.5));
-        Assert.Equal((true, true), CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(20, 50, 40, 30), 0.5));
+        Assert.Equal((false, true), CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 0, 80, 50), 1));
+        Assert.Equal((false, false), CardJoins.Meeting(new DipRect(100, 0, 80, 50), new DipRect(0, 0, 100, 50), 1));
+        Assert.Equal((true, true), CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(20, 50, 40, 30), 1));
     }
 
     [Fact]
     public void S2248_a_corner_alone_or_a_sliver_along_the_side_is_no_meeting()
     {
-        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 50, 80, 50), 0.5));
-        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 49.6, 80, 50), 0.5));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 50, 80, 50), 1));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 49.6, 80, 50), 1));
     }
 
     [Theory]
@@ -40,11 +40,10 @@ public sealed class CardPaintTests
     [InlineData(2)]
     public void S2248_one_device_pixel_apart_or_over_is_no_meeting_at_any_scale(double scale)
     {
-        var tol = CardJoins.Tolerance(scale);
         var px = 1 / scale;
-        Assert.NotNull(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 0, 80, 50), tol));
-        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100 + px, 0, 80, 50), tol));
-        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100 - px, 0, 80, 50), tol));
+        Assert.NotNull(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100, 0, 80, 50), scale));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100 + px, 0, 80, 50), scale));
+        Assert.Null(CardJoins.Meeting(new DipRect(0, 0, 100, 50), new DipRect(100 - px, 0, 80, 50), scale));
     }
 
     [Theory]
@@ -61,7 +60,7 @@ public sealed class CardPaintTests
         {
             var left = GridGeometry.PaintedCell(new FracRect((c - 1) / (double)cols, 0.1, 1.0 / cols, 3.0 / rows), screen, scale);
             var right = GridGeometry.PaintedCell(new FracRect(c / (double)cols, 0.1, 3.0 / cols, 3.0 / rows), screen, scale);
-            Assert.NotNull(CardJoins.Meeting(left, right, CardJoins.Tolerance(scale)));
+            Assert.NotNull(CardJoins.Meeting(left, right, scale));
             Assert.True(OnDevicePixel(right.X, scale));
             Assert.Equal(left.X + left.Width, right.X, 9);
         }

@@ -81,7 +81,7 @@ public static class DesktopDisplays
         foreach (var record in state.Desktop.Fallbacks ?? [])
         {
             var widget = state.FindView(record.View)?.Widgets.Find(w => string.Equals(w.Id, record.Widget, StringComparison.Ordinal));
-            if (widget?.Config is not IDesktopItemConfig config || !DesktopItemKeys.Comparer.Equals(config.Item, record.Item) || !Same(widget.Rect, record.Rect))
+            if (widget?.Config is not IDesktopItemConfig config || !DesktopItemKeys.Comparer.Equals(config.Item, record.Item) || !Lattice.Same(widget.Rect, record.Rect))
             {
                 continue;
             }
@@ -248,7 +248,4 @@ public static class DesktopDisplays
     private static bool Holds(ViewState? view, string key, IReadOnlySet<string>? except)
         => view is not null && view.Widgets.Any(w => (except is null || !except.Contains(w.Id))
             && w.Config is IDesktopItemConfig c && DesktopItemKeys.Comparer.Equals(c.Item, key));
-
-    private static bool Same(FracRect a, FracRect b)
-        => Math.Abs(a.X - b.X) < 1e-6 && Math.Abs(a.Y - b.Y) < 1e-6 && Math.Abs(a.W - b.W) < 1e-6 && Math.Abs(a.H - b.H) < 1e-6;
 }
