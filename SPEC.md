@@ -2499,9 +2499,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   undo, the press letting go) is posted once to the dispatcher (normal priority: never starved) and drawn after the event, asks while one
   is posted being that one, a press landing before its turn holding it again (`FlyoutRedraws` over `FlyoutPress`:
   `Redraw`/`Release` post, `Run` draws); what the drawing throws is logged, never let out of the callback. The page
-  itself never changes the panel it drew inside an event: a drawing of new rows is a new panel put in the old one's
-  place (`PageView`, a content control), and a drawing of the same rows (its own: a card opened, a tab, a back head, an
-  answer, [S-2361]) is posted and puts what changed in the standing panel after the event. Nothing over the flyouts takes a press: Debug's
+  itself never changes the panel it drew inside an event: every drawing puts what changed in the standing panel
+  (`PageView`, a content control), a change of the state reaching it posted (above) and a drawing its own events ask
+  for (a card opened, a tab, a back head, an answer given, [S-2361]) posted after the event. Nothing over the flyouts takes a press: Debug's
   `--editbar-png` hit-tests a grid every 5 DIPs over each page's flyout and prints how many points the page took
   (`FlyoutHitProbe`: every point of every select-* and page-* picture, the shine-through windows over real cards
   included, is the page's), and plays a press, a change under it and its release through `FlyoutRedraws` on each
@@ -2593,8 +2593,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   another) stays where it is, untouched and not laid out again; only the cards it changed are built and put in (the
   Appearance page's 55 rows: one card's, not every row's). What waited for the drawing (the reveal of what opened,
   [S-2347]; the keyboard's place) follows it: a card opened by a click is now revealed (until 2026-11-20 the reveal
-  looked for the opened row before the new drawing was laid out, found none and scrolled nothing). New rows (any change of the state, a way in, [S-3534]) are drawn whole as
-  before, in a new panel. A section asked in place ([S-2351]) is a mark of the card that holds it (`PageAsked`: what
+  looked for the opened row before the new drawing was laid out, found none and scrolled nothing). New rows (any change of the state, a way in, [S-3534]) keep every card too
+  (2026-11-21): a card stays where its rows read the same as when it was drawn (`PageBinding.Signature`: what each row
+  draws, its icon's, head picture's and picker's keys, never its handlers) under the same marks, its controls doing what
+  the newest rows of their keys do (`PageBinding.Bind`, bound late); a picker standing open and the Appearance's preview
+  are drawn anew. Switching one setting on Appearance draws its card alone. A section asked in place ([S-2351]) is a mark of the card that holds it (`PageAsked`: what
   asked it, a question asked after a step of its own, what is typed in its field): opening it, closing it by its head,
   Escape, Cancel or a press elsewhere draws that card alone, the same way; what it gives or answers changes the state
   and draws the page whole. The reveal after any of them is the one path (`PageView.Reveal`: laid out, then the row
