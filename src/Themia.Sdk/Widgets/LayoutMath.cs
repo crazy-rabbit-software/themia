@@ -1,14 +1,27 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-662] The arithmetic a view measures its fixed parts with: one rounding tolerance, and whole lines
-/// counted the same way everywhere (a timed event's lines in its block, a scroll's last line, a page of
-/// rows). It never decides what a widget shows: that is its config ([S-11800]).
+/// [S-662] The arithmetic a view measures its fixed parts with: one rounding token (a device pixel, <see cref="Pixel"/>, and
+/// what pure sizing takes of it at 100 %, where a pixel is largest: <see cref="Tolerance"/>, <see cref="Slack"/>), and whole
+/// lines counted the same way everywhere (a timed event's lines in its block, a scroll's last line, a page of rows). It
+/// never decides what a widget shows: that is its config ([S-11800]).
 /// </summary>
 public static class LayoutMath
 {
-    /// <summary>Layout rounding: a part that is short by a fraction of a pixel still fits.</summary>
-    public const double Tolerance = 0.5;
+    /// <summary>A device pixel at 100 %, in DIP: the largest a pixel is, what a rule with no display rounds by.</summary>
+    public const double Pixel100 = 1;
+
+    /// <summary>The one rounding token: a device pixel at <paramref name="raster"/> (the display's scale), in DIP; none known, at 100 %.</summary>
+    public static double Pixel(double raster) => raster > 0 && double.IsFinite(raster) ? 1 / raster : Pixel100;
+
+    /// <summary>Layout rounding: a part that is short by under half a pixel still fits.</summary>
+    public const double Tolerance = Pixel100 / 2;
+
+    /// <summary>
+    /// The room a sized face is given past its own size (a clock's, a timer's, a pomodoro's), so a box rounded to the
+    /// device's pixels still holds it: a pixel on either side.
+    /// </summary>
+    public const double Slack = 2 * Pixel100;
 
     /// <summary>
     /// How many whole lines of <paramref name="lineHeight"/>, <paramref name="gap"/> apart, fit in

@@ -186,7 +186,7 @@ public sealed class WidgetSizingTests
         WidgetSizing At(ClockStyle style) => kind.Sizing(new ClockConfig { Style = style });
 
         var digital = At(ClockStyle.Digital);
-        Assert.Equal(ClockFace.Step.LineHeight + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + ClockFace.Slack, digital.Natural.Height);
+        Assert.Equal(ClockFace.Step.LineHeight + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + LayoutMath.Slack, digital.Natural.Height);
         // [S-12833] It scales down to its smallest text's floor: its least height under its natural one.
         Assert.True(digital.Min.Height < digital.Natural.Height && !digital.FixedWidth);
 
@@ -195,8 +195,8 @@ public sealed class WidgetSizingTests
         var dial = At(ClockStyle.Analog);
         // [S-12833] The dial scales down too, to its floor in the inset.
         Assert.Equal(new SizeDip(ClockFace.DialFloor + 24, ClockFace.DialFloor + 24), dial.Min);
-        Assert.Equal(ClockFace.DialSide + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + ClockFace.Slack, dial.Natural.Height);
-        Assert.Equal(ClockFace.DialSide + 24 + ClockFace.Slack, dial.Natural.Width);
+        Assert.Equal(ClockFace.DialSide + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + LayoutMath.Slack, dial.Natural.Height);
+        Assert.Equal(ClockFace.DialSide + 24 + LayoutMath.Slack, dial.Natural.Width);
         Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), dial.Max);
         Assert.Null(typeof(ClockConfig).GetProperty("Size"));
     }

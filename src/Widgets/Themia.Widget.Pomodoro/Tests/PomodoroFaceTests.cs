@@ -120,7 +120,7 @@ public sealed class PomodoroFaceTests
     {
         var plan = Plan(style);
         var sizing = PomodoroFace.Sizing(Of(style), Locale.En);
-        var inset = (2 * FamilySpace.Inset) + PomodoroFace.Slack;
+        var inset = (2 * FamilySpace.Inset) + LayoutMath.Slack;
 
         Assert.Equal(Math.Ceiling(plan.Tall.Width * PomodoroFace.Least) + inset, sizing.Min.Width);
         Assert.Equal(Math.Ceiling(plan.Tall.Height * PomodoroFace.Least) + inset, sizing.Min.Height);
@@ -138,7 +138,7 @@ public sealed class PomodoroFaceTests
     {
         var plan = Plan(style);
         var sizing = PomodoroFace.Sizing(Of(style), Locale.En);
-        var inset = (2 * FamilySpace.Inset) + PomodoroFace.Slack;
+        var inset = (2 * FamilySpace.Inset) + LayoutMath.Slack;
         for (var w = sizing.Min.Width; w <= sizing.Min.Width * 4; w += 13)
         {
             for (var h = sizing.Min.Height; h <= sizing.Min.Height * 4; h += 11)

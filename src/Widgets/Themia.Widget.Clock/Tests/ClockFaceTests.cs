@@ -230,7 +230,7 @@ public sealed class ClockFaceTests
             var plan = ClockFace.Dial(width, height, line: true);
 
             Assert.True(plan.Line);
-            Assert.InRange(plan.Dial, ClockFace.DialSide, ClockFace.DialSide + ClockFace.Slack);
+            Assert.InRange(plan.Dial, ClockFace.DialSide, ClockFace.DialSide + LayoutMath.Slack);
         }
 
         Assert.Equal(ClockFace.DialFloor, ClockFace.Dial(8, 8, line: false).Dial);
@@ -256,6 +256,6 @@ public sealed class ClockFaceTests
 
         // A plain clock has no line under its face: its natural box is the face's step alone in the inset.
         var plain = ClockFace.Sizing(new ClockConfig(), string.Empty).Natural;
-        Assert.Equal(ClockFace.Step.LineHeight + 24 + ClockFace.Slack, plain.Height);
+        Assert.Equal(ClockFace.Step.LineHeight + 24 + LayoutMath.Slack, plain.Height);
     }
 }

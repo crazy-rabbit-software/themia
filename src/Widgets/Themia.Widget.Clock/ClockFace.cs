@@ -174,12 +174,6 @@ public static class ClockFace
         return new ClockDialPlan(Math.Floor(Math.Max(DialFloor, Math.Min(width, height))), false);
     }
 
-    /// <summary>
-    /// The room a face is given past its own size, so a box rounded to the device's pixels still holds
-    /// the chosen step; far under the next step's growth, so the planners never pick a larger one.
-    /// </summary>
-    public const double Slack = 2;
-
     /// <summary>The time faces' step: the family's one-readout step, 68 ([S-6702]).</summary>
     public static TypeStep Step => FamilyType.Hero68;
 
@@ -211,8 +205,8 @@ public static class ClockFace
 
         var face = Face(config, meridiem, meridiemShown: true, underShown: true);
         var box = new SizeDip(
-            Math.Ceiling(face.Width) + (2 * FamilySpace.Inset) + Slack,
-            Math.Ceiling(face.Height) + (2 * FamilySpace.Inset) + Slack);
+            Math.Ceiling(face.Width) + (2 * FamilySpace.Inset) + LayoutMath.Slack,
+            Math.Ceiling(face.Height) + (2 * FamilySpace.Inset) + LayoutMath.Slack);
         var widens = config.Style is not (ClockStyle.Analog or ClockStyle.Word);
         var least = config.Style == ClockStyle.Analog
             ? new SizeDip(DialFloor, DialFloor)

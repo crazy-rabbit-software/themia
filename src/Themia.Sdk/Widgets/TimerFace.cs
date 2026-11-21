@@ -27,9 +27,6 @@ public static class TimerFace
 
     // ---- the sized face ([S-11300]) ----------------------------------------------------------
 
-    /// <summary>The room a face is given past its own size, so a box rounded to the device's pixels still holds it (as the clock's).</summary>
-    public const double Slack = 2;
-
     /// <summary>[S-11300] How far a timer's card may be widened past its face: half again, the face staying centred.</summary>
     public const double WidthRange = 1.5;
 
@@ -135,9 +132,9 @@ public static class TimerFace
     /// </summary>
     public static WidgetSizing Sizing(TimerSized face, double controls, bool header, double extra = 0, double below = 0)
     {
-        var width = Math.Ceiling(Math.Max(face.Width, controls)) + (2 * FamilySpace.Inset) + Slack;
+        var width = Math.Ceiling(Math.Max(face.Width, controls)) + (2 * FamilySpace.Inset) + LayoutMath.Slack;
         var height = (header ? FamilySpace.ContentTop : FamilySpace.Inset)
-            + Math.Ceiling(face.Height + extra) + (controls > 0 ? ControlsCost : 0) + below + FamilySpace.Inset + Slack;
+            + Math.Ceiling(face.Height + extra) + (controls > 0 ? ControlsCost : 0) + below + FamilySpace.Inset + LayoutMath.Slack;
         var box = new SizeDip(width, height);
         var smallest = Math.Min(FamilyType.Under(face.Step).FontSize, controls > 0 ? FamilyType.Body.FontSize : double.PositiveInfinity);
         return WidgetSizing.Range(Least(box, header, ScaleFloor.Least(smallest)), box, box with { Width = Math.Ceiling(width * WidthRange) });
@@ -151,8 +148,8 @@ public static class TimerFace
     public static SizeDip Least(SizeDip box, bool header, double least)
     {
         var k = ScaleFloor.Clamp(least);
-        var across = (2 * FamilySpace.Inset) + Slack;
-        var down = (header ? FamilySpace.ContentTop : FamilySpace.Inset) + FamilySpace.Inset + Slack;
+        var across = (2 * FamilySpace.Inset) + LayoutMath.Slack;
+        var down = (header ? FamilySpace.ContentTop : FamilySpace.Inset) + FamilySpace.Inset + LayoutMath.Slack;
         return new SizeDip(
             Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((box.Width - across) * k) + across),
             Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((box.Height - down) * k) + down));

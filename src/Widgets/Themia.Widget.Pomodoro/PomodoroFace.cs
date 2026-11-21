@@ -52,9 +52,6 @@ public static class PomodoroFace
     /// <summary>[S-8117] From the face to the column beside it in a wide card.</summary>
     public const double ColumnGap = FamilySpace.S6;
 
-    /// <summary>The room a face is given past its own size, so a box rounded to the device's pixels still holds it.</summary>
-    public const double Slack = 2;
-
     /// <summary>[S-12833] The least scale the block is drawn at: its Body text at 9, its 16 glyphs at 12.</summary>
     public static double Least => ScaleFloor.Least(FamilyType.Body.FontSize, FamilyShape.Icon);
 
@@ -214,7 +211,7 @@ public static class PomodoroFace
 
     /// <summary>A block's card: the block in the inset on every side, and the slack.</summary>
     public static SizeDip Box(SizeDip block)
-        => new(Math.Ceiling(block.Width) + (2 * FamilySpace.Inset) + Slack, Math.Ceiling(block.Height) + (2 * FamilySpace.Inset) + Slack);
+        => new(Math.Ceiling(block.Width) + (2 * FamilySpace.Inset) + LayoutMath.Slack, Math.Ceiling(block.Height) + (2 * FamilySpace.Inset) + LayoutMath.Slack);
 
     private static bool Usable(SizeDip size) => size.Width > 0 && size.Height > 0 && double.IsFinite(size.Width) && double.IsFinite(size.Height);
 }
