@@ -152,7 +152,8 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
   Model/WidgetSelection.cs (the edit-mode selection of widgets; SelectionRules: lasso, Tab, PressTarget)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
-                   Kit/ (KitList, KitStatus, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
+                   Kit/ (KitList, the look-agnostic list shell, over an IKitLook: KitRichLook, KitTableLook, KitScheduleLook, KitCheckLook or
+                   a widget's own; KitStatus, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
                    ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
                    UiLanguage, ScrollFade, Notices, the meters' and details' shared views (MeterView,
@@ -357,7 +358,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   `Size`, `HandleKey`, `ContextActions` to `CardActions`, `Detach` to `Dispose`; children `List`, `State`
   and last `Status`, `Status.Place(this)`); its page lines from `KitMenuLines`
   (`Accounts`, `Count`, `Shows`; a free input is the menu's ask or list, [S-3719]). The kit decides the screen (`KitScreens`), the plan
-  (`KitPlanner`: the rows, lines and fields the config states), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
+  (`KitPlanner`: the rows, lines and fields the config states), the row look (`IKitLook`: a widget's own lead, end part or look
+  of its own, never a row of its own, [S-7074]), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
   (`KitMenu`, through `ItemMenu`), the stale rule (`KitFreshness`: a problem glyph, the age on the
   Refresh line, never on the widget) and opening (through `IWidgetHost.Launcher` only). A kit view
   builds no scroll viewer, row focus, menu entry, ring or empty state of its own, and the kit's
