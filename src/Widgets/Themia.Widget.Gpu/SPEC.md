@@ -1,7 +1,7 @@
 # GPU (reading)
 
 The module `gpu` ([S-6911]): one graphics adapter's load, the reading alone (the id stays the reading's;
-its history is `gpuHistory`, its engines `gpuEngines`, its details `gpuFacts`, and the old card's look the
+its history is the GPU load metric's graph (`gpuLoad`, [S-14713]), its engines `gpuEngines`, its details `gpuFacts`, and the old card's look the
 ready-made group "GPU"). Its tags are this file's alone; the root
 `SPEC.md` holds the host's sections and what the meters share (the meter framework [S-1120]..[S-1126],
 [S-1762], [S-1824], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the readouts' rule [S-6330],
@@ -37,7 +37,7 @@ engines share: the adapter's series, its name and whether it is there, the absen
   of the family's G1, 2026-10-29): its styles are the meters' looks ([S-6300]): the number and the
   Gauge (the load in the bowl, [S-6302]).
 - **[S-1200]** Its options are on the properties menu ([S-3719]), no settings page: Appearance and the
-  Adapter choice ([S-433]). The chart and its span are the GPU history atom's.
+  Adapter choice ([S-433]). The chart and its span are the GPU load metric's graph's.
 - **[S-1201]** The tile is a reading atom's face ([S-11001]): the load at 28 under the header, nothing
   else; no tier ladder is left.
 - **[S-2014]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system

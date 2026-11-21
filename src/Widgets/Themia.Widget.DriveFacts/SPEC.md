@@ -19,5 +19,9 @@ the JSON context), `Samples/` (a made-up system disk), `Preview/` (Debug renders
   item's ([S-14705]): one fill, never two over each other. A click on the card, Enter and the card menu's first line ("Open
   in File Explorer") open its drive (the system drive while none is chosen), as the Drive widget's ([S-2032], [S-14706],
   `MetricOpens.Drive`).
+- **[S-14675]** **Drive activity** (`driveActivity`, first in the family's order, [S-14714]): the drive's reads and writes, a
+  rate, the hub's series of its drive (the system drive while none is chosen) through the generic part on the family's own
+  view, so the card is its drive on the links as every drive fact ([S-11950]); its graph five minutes by default, a fold its
+  peak. A placed disk history is it with its graph shown ([S-14713]; every drive together is the system drive's).
 
 Needs a manual pass: a USB drive chosen then removed, a mapped share disconnected.

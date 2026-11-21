@@ -49,6 +49,7 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            # and every look token by its key: vibrancy=1,frostSaturation=1.6,innerSurface=vibrant,rowDividers=inset,... [S-2142]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
            [--chart area|line|bars|candles] [--detail simple|detailed]   # a graph kind in a chart look [S-6752]
+           [--trend none|arrow|line] [--span n]   # a single metric drawing that trend, its graph over that span [S-14712]
            [--layout-json <out.json>]   # every card's item boxes, grid pitch and the ink outside its items [S-12831]
            [--hover fx,fy] [--pressed fx,fy]   # the item or control at that point of every card (fractions) as under the pointer [S-12831]
            # scripts/item-check.py and scripts/gap-check.py judge the kinds against docs/WIDGET-RULES.md (exit 1 on a finding)

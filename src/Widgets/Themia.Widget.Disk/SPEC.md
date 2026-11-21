@@ -1,7 +1,7 @@
 # Disk (reading)
 
 The module `disk` ([S-6911]): a drive's activity, reads and writes per second, the reading alone (the id
-stays the reading's; its history is `diskHistory`, and the old card's look the ready-made group
+stays the reading's; its history is the drive activity metric's graph (`driveActivity`, [S-14713]), and the old card's look the ready-made group
 "Disk"). Its tags are this
 file's alone; the root `SPEC.md` holds the host's sections and what the meters share (the meter
 framework [S-1120]..[S-1126], [S-1762], [S-1167], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513],
@@ -26,7 +26,7 @@ I/O meters' are `IoStylesHostTests`.
   page: Appearance, then Drive (system drive / all drives / each drive Windows lists, a removed one
   offered as "not connected", the one held with the dot). Its styles (`DiskStyle`): **Number** (the rate
   alone, [S-11001]) and **Bars** (the rate over reads and writes as two rows, [S-6271]: one height, 148,
-  240..480 wide); the old Graph style is the Disk history atom. No tier ladder is left.
+  240..480 wide); the old Graph style is the drive activity metric's graph. No tier ladder is left.
 - **[S-2016]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
   folder's `Taskmgr.exe`); the module decides it (`DiskModule.Opens`, through its part's `Opens`).
 - View links: a reading of one drive is that drive as a card: the pointer on it publishes the drive and the card

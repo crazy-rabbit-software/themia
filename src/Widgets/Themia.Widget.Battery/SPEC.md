@@ -1,7 +1,7 @@
 # Battery (reading)
 
 The module `battery` ([S-6911]): the battery's charge, the reading alone (the id stays the reading's; its
-history is `batteryHistory`, its facts `batteryFacts`, and the old cards' looks the ready-made groups
+history is the battery charge metric's graph (`batteryCharge`, [S-14713]), its facts `batteryFacts`, and the old cards' looks the ready-made groups
 "Battery" and "Battery details"). Its tags are this file's alone; the root `SPEC.md` holds what the
 system atoms share ([S-11000]..[S-11009]) and the reading's rules, the SDK's `BatteryRules` ([S-1180] the
 charge and the no-battery decision, [S-1187] the glyph), the battery and ring faces ([S-6262], [S-6266]).
@@ -17,7 +17,7 @@ host's `IoStylesHostTests`.
   its body 24..64 tall as the card is) and **Ring** ([S-6266], [S-11003]). No battery draws the same
   reading in every style in the disabled look ([S-1940]): the glyph and the battery half full, the ring
   half swept ([S-1941]), the figure "--", "No battery" as the tooltip. Render `--state unavailable`.
-  The old Graph style is the Battery history atom. No tier ladder is left.
+  The old Graph style is the battery charge metric's graph. No tier ladder is left.
 - Its options are on the properties menu ([S-3719]): Style and Appearance; nothing of its own.
 - **[S-2022]** A click on the card ([S-2000]) opens Windows' Power & battery page
   (`ms-settings:batterysaver`); the module decides it (`BatteryModule.Opens`, through its part's

@@ -1222,10 +1222,10 @@ module author's guide is docs/WIDGET-KIT.md 16.
   one of the types the kind's data has (the histories Area or Line; the weather graphs Area, Line or Bars; the stock's
   and the rate's history Area, Line or Candlestick; the cores' graphs Area or Line, their bars and rings none), and
   **Detail**, Simple or Detailed (not the cores': no room in a cell). The defaults are each kind's look until now
-  (owner: "like now"): Area and Simple, but the pressure and wind graphs' Line and the UV and rain graphs' Bars, so no
-  widget changes unasked. A type the kind does not offer (a hand-edited file) is repaired to its own and a detail it
+  (owner: "like now"): Area and Simple, but the pressure's and the wind's Line and the UV's and the rain's Bars (their
+  metrics' graphs now, [S-14713]: the default is the kind's graph's, [S-14710]), so no widget changes unasked. A type the kind does not offer (a hand-edited file) is repaired to its own and a detail it
   does not offer to Simple, both loudly. The weather graphs' former Area/Line/Bars styles are this one setting now (one
-  look, one home); the rain graph keeps its style, Hours or Next 2 hours. A single metric's trend graph takes the same two
+  look, one home). A single metric's trend graph takes the same two
   settings on its page, under its Trend line ([S-14703]). `--widget-png … --chart
   area|line|bars|candles --detail simple|detailed` draws a kind in a look.
 - **[S-6753]** **A chart is always drawn** (owner, 2026-11-19: "even if there is no rain in the next two hours or even if
@@ -7130,11 +7130,10 @@ Declared in data:
 
 A moment in time (`HoveredInstant`, `InstantLink(at, subject)`, a hover):
 
-- **[S-11910]** Every history chart publishes the moment under the pointer, with what it is of: the
-  system histories (`cpuHistory`, `memoryHistory`, `gpuHistory`, `diskHistory`, `networkHistory`,
-  `pingHistory`, `batteryHistory`, `cpuCores` in its Graphs style: the shared `MeterView`, its part naming
-  the topic, `MeterPart.Instant`), `stockHistory` (the bar under the pointer) and `exchangeHistory` (the
-  day under the pointer, at its noon).
+- **[S-11910]** Every history chart publishes the moment under the pointer, with what it is of: `cpuCores` in its
+  Graphs style (the shared `MeterView`, its part naming the topic, `MeterPart.Instant`), `stockHistory` (the bar under the
+  pointer) and `exchangeHistory` (the day under the pointer, at its noon). The system histories are their metrics' graphs
+  now ([S-14713]), one item that lights and opens as a whole ([S-14705]), no moment of their own.
 - **[S-11911]** Every history chart draws a hairline (`FamilyShape.Hairline`, the secondary text role) at
   a moment pointed at on any chart of the view, where its span holds it: one crosshair down a column of
   charts (`SparkBand.Mark`, the stock's rule, the rate's marker; `LinkInstants.At`/`X`: the span runs from
@@ -7281,8 +7280,8 @@ The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKe
 
 The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `LinkKeys.Drive`, [S-11951]):
 
-- **[S-11950]** A drive is one thing across the view: the `drive` card, a drive fact's card (`driveUsed`, ...), a `disk` reading and
-  a `diskHistory` chart of one drive ([S-11953]) and a `folder` at its root ([S-11954]) are that drive as a whole card, a
+- **[S-11950]** A drive is one thing across the view: the `drive` card, a drive fact's card (`driveUsed`, ...,
+  `driveActivity`, [S-11953]), a `disk` reading and a `folder` at its root ([S-11954]) are that drive as a whole card, a
   `removableDrives` row is its drive. The pointer on the card (or the row, or the list's keyboard cursor, [S-3307])
   publishes the drive, and while a drive is pointed at anywhere on the view every card that is it takes the item
   layer's hover fill over its whole box (`LinkCard`, [S-11903], [S-11963]) and every row that is it the row's hover
@@ -7293,10 +7292,9 @@ The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `Lin
   a path on no lettered drive (a share) is none.
 - **[S-11952]** A disk atom's drive is its scope's (`DiskScopes.DriveLink`): its drive, the system drive when none is
   chosen; every drive together is no one drive and takes no part.
-- **[S-11953]** `disk` and `diskHistory` are the shared meter (`MeterView`): the kind's part names the topic
-  (`MeterPart.Drive`, as `MeterPart.Instant` names the moment's) and says its config's drive (`DriveOf`). The
-  history card publishes the drive while the pointer is on it and the moment under the pointer
-  ([S-11910]) as it moves, both at once.
+- **[S-11953]** `disk` is the shared meter (`MeterView`): the kind's part names the topic (`MeterPart.Drive`) and says its
+  config's drive (`DriveOf`). The drive's activity (`driveActivity`, the disk history's metric, [S-14713]) is its drive as
+  every drive fact's card is, its drive the config's (the system drive while none is chosen).
 - **[S-11954]** `folder`: a folder at a drive's root (`C:\`) is that drive (`LinkKeys.DriveRootLink`): pointing at its
   header (the card's row its own buttons stand in) or its path crumb publishes it, and the whole card lights while
   it is pointed at elsewhere. A folder under the root is on the drive, not the drive, and takes no part (until
@@ -7328,11 +7326,11 @@ Topics:
 | `SelectedDate` | Sticky | `calendar` | `calendar`, `calendarHeader`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar`, `calendarHeader` | `calendar`, `calendarHeader` |
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |
-| `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
+| `HoveredInstant` | Hover | `cpuCores`, `exchangeHistory`, `stockHistory` | `battery`, `cpu`, `cpuCores`, `disk`, `exchangeHistory`, `exchangeRate`, `gpu`, `memory`, `network`, `ping`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | `contacts`, `nextMeeting` | `contacts` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |
-| `HoveredDrive` | Hover | `disk`, `diskHistory`, `drive`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` | `disk`, `diskHistory`, `drive`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` |
+| `HoveredDrive` | Hover | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` |
 | `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
 | `HoveredMessage` | Hover | `email` | `email` |
 <!-- /view-links:table -->
@@ -7636,8 +7634,8 @@ single metric of its own (METRICS, [S-14604]). Tests `SystemAtomsTests`
 (Core), each atom's module tests.
 
 - **[S-11000]** **A subject's atoms.** Each of CPU, memory, GPU, disk, network, ping and battery is
-  its **reading** (the kind id stays: `cpu`, `memory`, ...), its **history** (`cpuHistory`, ...), and
-  where it had details its **facts**, a single metric each (`cpuSpeed`, ..., [S-14604]); extra atoms: CPU cores, GPU engines, network
+  its **reading** (the kind id stays: `cpu`, `memory`, ...), its **history** (its metric's graph, [S-14713]: `cpuLoad`,
+  `memoryInUse`, ... drawing Line), and where it had details its **facts**, a single metric each (`cpuSpeed`, ..., [S-14604]); extra atoms: CPU cores, GPU engines, network
   adapters. Every atom of a subject reads the subject's one series or feed from the hub ([S-2504]).
   Inside its range an atom shows the same parts, nothing appearing with size ([S-11800]).
 - **[S-11001]** **A reading** keeps its header (the subject's name; the device as its label) and draws
@@ -7646,7 +7644,8 @@ single metric of its own (METRICS, [S-14604]). Tests `SystemAtomsTests`
   width; 320 until 2026-11-15), a new one 160 (`MeterSizing.Reading`); two readings (network's both directions) stand
   on its one line, 24 apart ([S-6264]). Its other drawings are styles of the same atom, each its own
   sizing.
-- **[S-11002]** **A history** starts headerless and draws the band alone, edge to edge, no number:
+- **[S-11002]** *(Retired by [S-14713] as a kind: a history is its metric's graph; what follows is `cpuCores`' Graphs
+  style's band.)* **A history** starts headerless and draws the band alone, edge to edge, no number:
   160..640 wide, 48..200 tall, a new one 160 × 64 (`MeterSizing.History`); a wider card is a longer
   chart of its span (`HistoryConfig.GraphSpanSeconds`, [S-1121], on its menu's first level,
   `AtomMenuLines.Span`), and its chart look under Style ([S-6752]: Area or Line, Simple or Detailed; Detailed
@@ -7683,14 +7682,15 @@ single metric of its own (METRICS, [S-14604]). Tests `SystemAtomsTests`
   floors that shed it (96 high, 160 wide, `HeaderStrip.Sheds`) went with the legacy kinds ([S-11800]).
 - **[S-11090]** **The groups of the old cards** (`ReadyMadeGroups`, home: the subject's family): each
   old card is a group of its atoms, touching, the first with the header, the others headerless, about
-  as wide as the old card and tighter: **CPU** (`cpu` 160 × 84 over `cpuHistory` 160 × 64), **CPU cores**
+  as wide as the old card and tighter, each history its metric drawing Line ([S-14713], 64 tall, 200 wide at least: a
+  metric's least width): **CPU** (`cpu` over `cpuLoad`, 200 wide), **CPU cores**
   (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over its four metrics, [S-14607]), **Memory**
-  (`memory` over `memoryHistory`, 160 wide), **Memory details** (`memory` over its four metrics, 260 wide),
-  **GPU** (`gpu` over `gpuHistory`, 200 wide), **GPU details** (`gpu` over its four metrics, 260 wide),
-  **Disk** (`disk` over `diskHistory`, 160 wide), **Network** (`network` over `networkHistory`, 344 wide: its one line, [S-6264]),
+  (`memory` over `memoryInUse`, 200 wide), **Memory details** (`memory` over its four metrics, 260 wide),
+  **GPU** (`gpu` over `gpuLoad`, 200 wide), **GPU details** (`gpu` over its four metrics, 260 wide),
+  **Disk** (`disk` over `driveActivity`, 200 wide), **Network** (`network` over `networkDownload`, 344 wide: its one line, [S-6264]),
   **Network details** (`network` over its four metrics over `networkAdapters` of two rows, 344 wide),
-  **Ping** (`ping` over `pingHistory`), **Ping details** (`ping` over its four metrics), **Battery**
-  (`battery` over `batteryHistory`), **Battery details** (`battery` over its four metrics), **Drive**
+  **Ping** (`ping` over `pingAverage`, 200 wide), **Ping details** (`ping` over its four metrics), **Battery**
+  (`battery` over `batteryCharge`, 200 wide), **Battery details** (`battery` over its four metrics), **Drive**
   (`drive` over its four metrics, 260 wide).
 
 ## System details (SYS-DETAILS)
@@ -10170,23 +10170,25 @@ one base. Owning files: `Themia.Sdk/Widgets/Metrics.cs` (the pure rules: `Metric
 `Themia.Sdk/Model/Configs/MetricConfig.cs`, `Themia.Sdk.WinUI/Widgets/MetricView.cs` (+ `.Preview.cs`, the one face),
 `Widgets/Details/SystemMetric.cs` (+ `.Preview.cs`, the system families' face over the hub), `Modules/MetricModule.cs`,
 `Shell/MetricMenuLines.cs` (the Trend line and, under it, the graph's chart look through `ChartMenuLines`),
-`Themia.Core/Storage/KindSplits.cs` (the in-place replacement); the families
+`Themia.Sdk/Widgets/MetricGraph.cs` (a kind's graph as data: `MetricGraph`, `GraphSeries`, `IMetricGraph`, `MetricGraphs`,
+[S-14710]), `Themia.Core/Storage/KindSplits.cs` (the in-place replacements: the facts cards and the graph kinds); the families
 are their projects: Weather facts, Air facts, CPU, GPU, Memory, Network, Ping, Battery and Drive facts, Sun times and Moon
 times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-6901], with its own `SPEC.md`). Tests:
-`MetricRulesTests` (Core), `MetricFitTests` (every kind: its chart look, its page, its source), each family's, `SystemStateFixtureTests.S14606_`, `UnknownWidgetTests.S14606_`,
-`ReadyMadeGroupsTests`.
+`MetricRulesTests` (Core), `MetricFitTests` (every kind: its graph, its chart look, its page, its source), each family's, `SystemStateFixtureTests.S14606_`, `UnknownWidgetTests.S14606_`,
+`GraphMergeTests.S14713_`, `ReadyMadeGroupsTests`.
 
 - **[S-14600]** **Its size is its one row, and every cell taller.** The card's least and natural height is one fact row at
   its optimal (WR-6, [S-14500]) from its top edge to its foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on
-  the default grid), so its top and bottom spacing are a list row's; a metric drawing Line stands its row and its graph's
-  least under it (`MetricRules.GraphLeast`: a row; Detailed, the room the chart writes in more, [S-14703]). Every cell taller
+  the default grid), so its top and bottom spacing are a list row's; a new metric drawing Line stands its row and its graph's
+  natural under it (`MetricRules.GraphNatural`: a row; Detailed, the room the chart writes in more, [S-14703]) and goes down to
+  one grid cell ([S-14712]). Every cell taller
   is its too, with no most ([S-14700]: owner, 2026-11-20, "the widgets like the PM2.5 one should be resizable in height and
   change its style so that it fits"; relaxed, [S-12411]; steps of one cell, [S-14500]), the face arranging the same parts
   to fit ([S-14701], [S-14702]) (`MetricRules.SizingFor`); its width 200 at least, a new one 240, relaxed past 420
   ([S-12411]), each widened by the trend's room beside the value (an arrow 28, `MetricRules.TrendRoom`; a graph none, it
   is under the reading), so the name and the value keep theirs. Every kind states `MetricRules.SizingOf` its config; a
   placed metric switched to Line or back, or to Detailed, refits on the config change, and a ready-made group placed with
-  Line metrics lays them at their least, still touching (`ReadyMadeGroups.Laid` as one block).
+  Line metrics lays them in their boxes, still touching (`ReadyMadeGroups.Laid` as one block; a line fits any box, [S-14712]).
 - **[S-14601]** **One face** (`MetricView`): the kind's 16 glyph, the metric's name (the reading's own where its source names
   it more exactly, "Full in" while charging), its value with its unit at the end, and its trend ([S-14603]), the same parts
   at every size, arranged by the box ([S-14701]): one row tall the facts' row (`FactList`, a list of one, [S-12811]; a name
@@ -10216,17 +10218,19 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   plot should reach the card's edges: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand
   inside it, over the plot; WR-11: "they should reuse the same base … they should reuse more of the same components"). A
   metric drawing Line has no sparkline of its own: its graph is the one `Chart` ([S-6750]) over a model of the rules'
-  (`MetricRules.Graph`), in its chart look ([S-14703]; by default the histories' look until now, Area and Simple: the line at
-  2 over its 16 % wash), with no caption. It stands at least **two rows** (coordinator's decision 2026-11-20, after a line
-  squeezed under the text of a one-row card moved 3 DIP and read as a divider, not the "trendlines" the owner asked for):
-  the reading's share at the top and the graph's at the foot, the graph never less than a row ([S-14702]). The chart is the
+  (`MetricRules.Graph`), in its chart look ([S-14703]; by default its kind's graph's, [S-14710]), with no caption. Under the
+  reading it is never under its least ([S-14712]: one cell; owner, 2026-11-21, "right now the trendline has a minimum height
+  but i want it to scale down all the way to a one or two block height"; the two-row least of 2026-11-20 is retired): the
+  reading's share at the top and the graph's at the foot ([S-14702]); one row tall it is the row's sparkline beside the
+  value, one cell tall the graph alone. The chart is the
   card's whole box, on its top edge, down to its foot, side to side, so its plot is the card's box ([S-6754]); the reading
   is the owner's part over the plot's top (`ChartModel.Over`: the reading's share), so the line moves in the graph's share
   and never runs through a glyph, its wash down to the card's foot, as a meter's history stands under its figure. It takes
-  no room beside the value ([S-14600]). Its points are the newest 24 values of the metric's history, oldest first, on their
-  own range (the low at the band's foot, the high at its top; a flat history level through the middle); a line's on the
-  band's slots (`SparkSlots`, the newest on the right edge, a history still filling growing in from the right, [S-6331]), a
-  column's a slot each from the right (its foot a third of the range under the low, so the lowest is a short column, never
+  no room beside the value ([S-14600]). Its points are the newest its span holds ([S-14711]: the hub's at its period, an hour
+  each of a place's hours), oldest first, on their own range (the low at the band's foot, the high at its top; a flat history level through the middle); a line's on the
+  band's slots (`SparkSlots`, the newest on the right edge, a history still filling growing in from the right, [S-6331]; a
+  span of more points than the plot has two-DIP slots for folds them, its peak for a rate or a latency, else its mean,
+  fixed by the points' absolute positions, [S-1121]), a column's a slot each from the right (its foot a third of the range under the low, so the lowest is a short column, never
   none); a gap is left out; with fewer than two values it lies at its baseline (never no trend, WR-10). Its role is the
   accent, disabled while the value is unavailable.
 - **[S-14604]** **A family a project, a kind a metric.** A family's kinds are data (`MetricKind`: id, the metric's key,
@@ -10275,22 +10279,23 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   the name over the value), on the parts' own boxes (`MetricRules.Arrange`). Without a reading the same look with "--",
   the caption drawn unavailable too ([S-14602]); while the status's problem glyph shows, the block leaves it its room at
   the end, as the row does ([S-12813]).
-- **[S-14702]** **With the graph** (trend Line): the graph takes the foot, never less than its least
-  (`MetricRules.GraphLeast`), and the reading the top. On whole cells the reading grows first, to half the card (the half
+- **[S-14702]** **With the graph** (trend Line), a row and a cell tall or more ([S-14712]): the graph takes the foot, never
+  less than its least (`MetricRules.GraphLeast`: a cell; Detailed, the room it writes in, else it is drawn Simple), and the
+  reading the top, never under its row. On whole cells the reading grows first, to half the card (the half
   rounded up), the graph taking the rest: at 60 a 30 row over a 30 graph, at 70 a 40 row over 30, at 90 a 50 readout over
-  a 40 graph, at 120 60 over 60, then alike. The reading is the row while the card is under three rows or its share is
+  a 40 graph, at 120 60 over 60, then alike (at 40 a 30 row over a 10 graph, at 50 over 20). The reading is the row while the card is under three rows or its share is
   one row, else the readout over the graph, a gap of 8 between them; the graph's plot is still the whole card ([S-14220]).
 - **[S-14703]** **The graph's style is settable** (owner, 2026-11-20: "for the trendline you should also be able to set its
   style"): through the graph widgets' own chart look, one path ([S-6752]: `IChartLooks`, `ChartMenuLines`, the shared
-  settings `chartType` and `chartDetail`), on every metric with a series: **Chart type**, the types its history's graphs
-  offer (the hub's series: Area or Line, as the meters' histories; a place's hours: Area, Line or Bars, as the weather
-  graphs), and **Detail**, Simple or Detailed. Its lines stand on the page under the Trend line, only while the trend is
-  Line (`MetricMenuLines.Add`). The default is today's look (Area, Simple; neither stored, a new widget's file as before);
-  a stored type or detail the metric does not draw is repaired to Area or Simple, loudly; a copy and the state file keep
-  them. Detailed writes the chart's values (its grid, its low, its high, its latest) as the shown figure is written
+  settings `chartType` and `chartDetail`), on every metric with a series: **Chart type**, the types its kind's graph offers
+  ([S-14710]: the hub's series Area or Line, as the meters' histories; a place's hours Area, Line or Bars, as the weather
+  graphs), and **Detail**, Simple or Detailed; then its span ([S-14711]). Its lines stand on the page under the Trend line,
+  only while the trend is Line (`MetricMenuLines.Add`). The default is its kind's graph's type (the look the graph it merged
+  had, [S-6752]) and Simple, neither stored, a new widget's file as before; a stored type or detail the metric does not draw
+  is repaired to its default or Simple, loudly; a copy and the state file keep them. Detailed writes the chart's values (its grid, its low, its high, its latest) as the shown figure is written
   (`MetricShown.Figure`: the place's hours in their unit, a concentration in µg/m³, a rate, a latency, a share), and no
-  times (a metric's history has none); its graph keeps a row for its line and the room it writes in, so its least is
-  taller (100 on the default grid) and its card too (130 at the least).
+  times (a metric's history has none); its graph keeps a row for its line and the room it writes in (100 on the default
+  grid), so a new card is taller (130); a share under that draws it Simple ([S-14712]).
 - **[S-14705]** **The metric lights under the pointer** (owner, 2026-11-20: "the metrics should also have a hover effect. they
   should open the datasource when clicked / page that shows that metric"): the whole metric is one item, the card edge to
   edge (its row, its readout and its graph inside it, `ItemMark`), in the card's corners (`IWidgetCorners`); where it opens
@@ -10310,6 +10315,56 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   opens its source on Enter (`IWidgetKeys`); its card menu's own lines start with the line that opens it, worded as the
   app or the page ("Open Task Manager", "Open Network & internet", "Open Power & battery", "Open on MSN Weather", "Open in
   File Explorer"), then the family's (Refresh).
+
+- **[S-14710]** **One graph, configured by its kind** (owner, 2026-11-21: "i think it would be good if we merge all the
+  different graph types into the general metric widget and then go ahead and for every widget only make the graph type/s
+  that make sense available to display. the graphs should be implemented generically so that any widget can configure its
+  specific layout itself."): every single metric's graph is the base's one graph ([S-14220]), and what differs between
+  kinds is data on the kind (`MetricKind.Graph`, a `MetricGraph`), never code of its own: its **series** (`GraphSeries`: the
+  hub's charted series, a place's hours, a price history, a nowcast's quarter hours), the **chart types** that make sense
+  for its data (the hub's Area or Line; the hours' Area, Line or Bars; a price's Area, Line or Candles) and the one it draws
+  by default, its **spans** and default span ([S-14711]), whether a fold keeps its **peak** (a rate, a latency) and whether
+  **Detailed** is offered (its values written as the shown figure, `MetricShown.Figure`). Every kind whose history is a
+  series has one, every other none (`MetricFitTests.S14703_S14710_`). A config holds what it picks (`IMetricGraph`: its
+  trend, chart look and span; a type stored only when not its kind's default). The rain's next two hours are a series of
+  quarter hours (`MetricGraph.Minutes`) the same graph hosts once that widget is a metric.
+- **[S-14711]** **Its span is a setting** (owner, 2026-11-20: "What the items are (which facts, which span of time a chart
+  covers) stays a setting"): on the page under the chart look while the trend is Line, where its graph offers more than
+  one (`MetricMenuLines.Span`): the hub's as the meters' Chart span (a minute to an hour, the history it merged's default:
+  the processor's, the memory's, the graphics' and the network's a minute, a drive's five minutes, the battery's and the
+  ping's a quarter of an hour), a place's hours as the weather graphs' Time span (12, 24 or 48 hours; the air's one, two or
+  four days). Stored only when not its default (`span`); one not offered is the nearest, loudly. A shared setting
+  (`SharedSettings.MetricSpan`, [S-11750]): several selected set it once, on each graph of the same series that offers it.
+  The points it holds are the graph's (`MetricGraph.Points`: the hub's at its period, an hour or a quarter each).
+- **[S-14712]** **No least but a cell** (owner, 2026-11-21: "right now the trendline has a minimum height but i want it to
+  scale down all the way to a one or two block height."): a metric drawing Line goes down to one grid cell (its sizing's
+  least, `MetricRules.SizingFor`), its look by one pure rule on the card's whole cells (`MetricRules.Look`): **one cell**,
+  the graph alone, the card edge to edge, its plot edge to edge (no row's ink fits; the name and the value are its
+  tooltip); **two cells up to one row**, the row with its graph as a sparkline beside the value (`MetricRules.SparkWidth`,
+  in the arrow's inline slot); **a row and a cell or more**, the row (or the readout) over the graph ([S-14702]), the graph
+  at least a cell. The plot reaches the card's edges and the reading stands on its top edge at every height (WR-1, "Plot
+  edge to edge"). Tests `MetricRulesTests.S14712_`.
+- **[S-14713]** **The graph kinds are their metrics' graphs** (owner, 2026-11-21, above): the weather graphs and the system
+  histories are gone as kinds, each the metric it drew with its graph shown: `temperatureGraph` the temperature
+  (`weatherTemperature`), `humidityGraph` the humidity, `windGraph` the wind, `pressureGraph` the pressure, `uvGraph` the
+  UV index, `rainGraph` the precipitation (its Next 2 hours style too: those are the rain widget's, `rainNextHour`), `airQualityGraph` the
+  pollutant it drew (PM2.5, PM10, ozone) or the air quality index (`airIndex`, also for NO₂, which has no metric);
+  `cpuHistory` the CPU load (`cpuLoad`), `memoryHistory` memory in use, `gpuHistory` the GPU load, `diskHistory` the
+  drive's activity (`driveActivity`, its drive; every drive together is the system drive's), `networkHistory` the
+  download, `batteryHistory` the battery's charge (`batteryCharge`), `pingHistory` the ping's average. A placed one is
+  replaced in place on load (owner, 2026-11-20, of the facts cards: "Replace in place"; `KindSplits`, before the typed
+  read): the metric its config names (`MergeFrom.When`: the air graph's measure) or the one that takes the rest, the same
+  id, spot, look and settings (the place, the drive, the adapter, the host, its chart look), its trend Line, its window or
+  span its `span`; what the metric does not have (the gusts' and the chance's second line, the wind's arrows, a scope of
+  every drive, the index's scale) is dropped by the load, loudly ([S-1050]). One logged line a replaced widget. Which
+  metric stands in for which graph the kinds declare (`MetricKind.Merges`, `WidgetDescriptor.Merges`). The ready-made
+  groups that held them hold the metrics drawing Line; the add page lists the metrics alone (a reading left alone in its
+  family stands in its subject). The stock's and the exchange rate's histories are not single metrics yet and stay.
+- **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
+  index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
+  `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,
+  a rate; the drive's card on the links as every drive fact, [S-11950]): the last three one charted series of the hub each,
+  the reading its newest and the graph its history, through one part (`SeriesMetricPart`), never a part of their own.
 
 ## Weather, sky and money as atoms (ATOMS-SKY)
 
@@ -14087,77 +14142,43 @@ shelf, and the Windows region read (`GetUserDefaultGeoName`) in the packaged bui
 
 ## Weather graphs (WEATHER-GRAPHS)
 
-Seven weather graphs, each a module (`src/Widgets/Themia.Widget.TemperatureGraph/`, `.RainGraph/`, `.UvGraph/`,
-`.AirQualityGraph/`, `.WindGraph/`, `.HumidityGraph/`, `.PressureGraph/`: [S-10100]..[S-10799], their own `SPEC.md`),
-drawn by one frame so they read as one family (owner, 2026-11-16: "the graphs can have their own special styles that
-match the contents but should generally look similar"). This section keeps what they share. SDK: `Widgets/WeatherHours.cs`
-(the hourly answers and their parsers), `Widgets/HourGraph.cs` (the frame's model and geometry, `HourGraphRules`),
-`Model/Configs/HourGraphConfig.cs`, `Samples/SampleHours.cs`, `Sync/WebInterests.cs` (`HoursInterest`, `AirHoursInterest`);
-Sdk.WinUI: `Widgets/HourGraph.cs` (the part that draws it), `Widgets/HourGraphPanel.cs` (the graph or the Status row),
-`Shell/HourGraphLines.cs` (the shared page lines), `IWeatherAnswers.Hours`/`.AirHours`. Core: `Storage/OnlineCacheStore.cs`,
-`Sync/SyncInterests.cs`. App: `Services/Web/OnlineService.cs`, `WebSync`. Strings: `Locales/weather-graphs`. Tests
-`WeatherGraphsTests` (`S127xx_`), each module's own.
+*The seven weather graphs are their weather metrics' graphs (owner, 2026-11-21: "the wind graph is somewhat similar to the
+Wind widget that shows a trendline. i think it would be good if we merge all the different graph types into the general
+metric widget", [S-14713]): what is left here is the hourly answers they draw from.* SDK: `Widgets/WeatherHours.cs` (the
+hourly answers and their parsers), `Widgets/HourGraph.cs` (`HourGraphRules.X`: a slot on a plot of cells, the rain's
+quarters), `Samples/SampleHours.cs`, `Sync/WebInterests.cs` (`HoursInterest`, `AirHoursInterest`); Sdk.WinUI:
+`IWeatherAnswers.Hours`/`.AirHours`. Core: `Storage/OnlineCacheStore.cs`, `Sync/SyncInterests.cs`. App:
+`Services/Web/OnlineService.cs`, `WebSync`. Tests `WeatherGraphsTests` (`S127xx_`).
 
-- **[S-12700]** The weather graphs' one hourly answer: open-meteo's forecast API with
+- **[S-12700]** The hourly answer (the weather metrics' hours, [S-14603]): open-meteo's forecast API with
   `hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,uv_index,wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,pressure_msl`,
   `past_hours=1&forecast_hours=49`, `daily=sunrise,sunset&forecast_days=3`, always °C, km/h and mm, unix time.
   `WeatherHoursWire.Parse`: not JSON, an error document or no `hourly` block with a `time` array is rejected; an hour
   with a bad stamp is dropped, a figure null, a string or out of its physical range is null alone (a gap, never 0); time
   order, a repeated stamp once; no hour is Empty; the daylight is an extra (a sunrise before its sunset, under a day apart).
-  A precipitation sum is the hour **ending** at its stamp, the rest are instants; the graphs draw every value at its stamp.
-- **[S-12701]** The air graph's answer: the air-quality API with `hourly=european_aqi,us_aqi,pm2_5,pm10,ozone,nitrogen_dioxide`,
+  A precipitation sum is the hour **ending** at its stamp, the rest are instants; the metrics draw every value at its stamp.
+- **[S-12701]** The air's hourly answer (the air metrics' hours): the air-quality API with `hourly=european_aqi,us_aqi,pm2_5,pm10,ozone,nitrogen_dioxide`,
   `past_hours=1&forecast_hours=97` (four days; CAMS forecasts five). `WeatherHoursWire.ParseAir`: the same rules; an hour
   with no figure at all is dropped.
 - **[S-12702]** One want per place (`HoursInterest`, `AirHoursInterest`: the place and the cadence, never the window, the
-  unit or the look), so every graph at a place shares one request and a change of window or unit refetches nothing; the
+  unit or the look), so every metric at a place shares one request and a change of span or unit refetches nothing; the
   weather's cadence ([S-3780]), the air's never faster than hourly ([S-5101]). Synced by `WebSync` like the other answers
   ([S-2663]), kept on the online shelf ([S-5161]: `OnlineSource.Hours`/`AirHours`, a day at most).
-- **[S-12703]** **One frame** (`HourGraph`, on the one `Chart`, [S-6750]): the top line (the kind's glyph, 16
-  secondary, leading the reading now, BodyStrong, primary or its band's Caution/Critical; a measure the kind lets the
-  person choose after it, Body secondary, ellipsis, [S-12801]; the stale rule's Caution glyph at the line's end with
-  its lines as the tooltip, [S-7042]); 8 down the line's room; the wind's arrow line
-  (16, 4 over the time line, each arrow whole inside the text box, `HourGraphRules.Arrows`); the time line (Caption
-  tertiary, the chart's `Ends`: "Now" on the left, the window's last hour on the right, with its weekday when it is not
-  today) at the family's inset off the foot; the plot is the card's whole box under all of it ([S-6754]:
-  `HourGraphPanel` owns the top edge, the top line keeps the inset over it, `HourGraphRules.Chart`), no header of its own
-  (a group's Header widget names it). In the plot: shaded spans (the Subtle role, the UV graph's daylight, top to foot),
-  the days' borders (local midnights, Track hairlines under the top line), the series (held out to the plot's sides),
-  its wash down to the card's foot, the second series (tertiary, at the stroke), now (a secondary hairline, and on a line
-  a dot where the line is) and the figures at the marked slots (Caption: over a point primary, under it secondary, kept
-  inside the text box; a Caption line is kept free over the highest point and under the lowest). The slots are equal cells, each value on
-  its cell's middle; time runs left to right in every language ([S-1113]). The looks (`HourGraphLook`, the chart type of
-  [S-6752]; Detailed, [S-6751], writes its times in the plot in place of the time line): **Line** (the
-  stroke alone), **Area** (the stroke over the 16 % wash) and **Bars** (a round column per slot from the foot, its cell's
-  60 %, between the stroke and 16 wide; a figure over its column). Each piece of a line, its wash and each column is drawn in
-  its slot's role, the worse of a piece's two ends (the accent, then Caution, then Critical): the graphs' category bands
-  are the Chart block's three roles, never a colour of their own. A gap breaks the line (a lone slot is a dot).
-- **[S-12704]** **Sizing**, one for every graph (`HourGraphRules.Sizing`): 220..660 wide (a new card 320); the plot 56..224
-  (a new card 96) under its frame; relaxed as a chart ([S-12411], `StretchRoom.Picture`): the plot takes the box. The same
-  parts at every size ([S-11800]); the arrows' line where the wind has one.
-- **[S-12705]** **The window** (`HourGraphRules.Window`): the hour under way (the last stamp at or before now) and the
-  window's hours after it; an answer whose last hour is over an hour old draws its baseline under the caption "No
-  forecast for the next hours" ([S-6753]). Scales: a level (temperature, humidity, pressure) against the window's range widened to a least span about
-  its middle; an amount or an index from 0 to the window's highest, at least a floor top (a dry, clean or calm window stays
-  low). Fewer than two values in the window draw the baseline ([S-6753]). A temperature is drawn in the shared unit ([S-3770], °F = °C × 9/5 + 32).
-- **[S-12706]** Each graph's content is `HourGraphPanel`: the graph, at its baseline with a caption while there is nothing
-  to draw ([S-6753]: loading, a failure, the window's empty sentence); not set up is the card's Set up row ([S-1862]). It follows its answer
-  through `SkyFeed` ([S-11171]) and redraws every half hour (the nowcast every quarter) so the window and now move on.
-  Its menu's Refresh line is the answer's ([S-730]); a click opens MSN Weather's forecast for its place ([S-2037]).
-- **[S-12707]** `HourGraphConfig` (a `WeatherConfig`): the place and the window, 12, 24 or 48 hours (the air's 1, 2 or 4
-  days); a window that is no choice is repaired to the nearest; its chart look ([S-6752]). The page (`HourGraphLines`):
-  Style (Appearance) with Chart type and Detail under it, then the
-  place ([S-2840]), a divider, Time span, the kind's own lines, a divider and the source's credit (a note).
-- **[S-12708]** The top line names neither the graph nor the place ([S-12801]): the kind's glyph leads the reading
-  (`HourGraphModel.Glyph`), and only the air graph's chosen pollutant follows it (`Label`). The place is the group's
-  Header widget's ([S-9604]).
+- **[S-12703]** *(Retired by [S-14713]: no frame of its own; the metrics' one graph, [S-14220].)* A slot of a plot of
+  equal cells stands on its cell's middle (`HourGraphRules.X`: the rain's quarter hours, [S-5125]).
+- **[S-12704]** *(Retired by [S-14712]: a metric's sizing.)*
+- **[S-12705]** *(Retired by [S-14711]: the window is the metric's span, `MetricRules.Hours` from the hour before the one
+  under way.)*
+- **[S-12706]** *(Retired by [S-14713]: the metric's face, `MetricView`.)*
+- **[S-12707]** *(Retired by [S-14711]: the span is the metric's, `IMetricGraph.Span`; the page is the metric's.)*
+- **[S-12708]** *(Retired by [S-14713]: the metric's row or readout over its graph.)*
 - **[S-12709]** Samples ([S-11850]): `SampleHours` agrees with the sample day ([S-2052]): each day's low and high, the
   2.6 mm shower from eleven, 9 °C and 14 km/h from the south-west now, the place's sunrise and sunset; four days of air
-  agreeing with the index of 25. Its summer day (Debug states) shows the heat, the UV bands and a thunderstorm. The add
-  page's weather subject has them as its third run, and the ready-made group **Weather graphs** stacks the temperature,
-  rain and UV graphs (320 × 168 each) under its Header.
+  agreeing with the index of 25. The ready-made group **Weather graphs** stacks the temperature, the precipitation and
+  the UV index, each drawing Line (320 × 168 each), under its Header ([S-14713]).
 
-Needs a live pass: the graphs against the real services (a place in and outside Europe for the air's scales, a rainy and a
-windy day), offline with a restored shelf, a midnight and a daylight-saving change inside the window.
+Needs a live pass: the metrics' graphs against the real services (a place in and outside Europe for the air's scales, a
+rainy and a windy day), offline with a restored shelf, a midnight and a daylight-saving change inside the span.
 
 ## Date (DATE)
 

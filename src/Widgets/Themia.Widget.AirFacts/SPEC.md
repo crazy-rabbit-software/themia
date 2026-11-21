@@ -24,5 +24,9 @@ the air hours, the JSON context), `AirFactRules.cs` (the readings and their word
   moves; Refresh on its card menu. A click on the card, Enter and the card menu's first line ("Open on MSN Weather") open the forecast for its place, as
   the air graph's ([S-14706], [S-14707], `MetricOpens.Weather`); while a pollutant's trend is Line its graph's Chart type
   (Area, Line, Bars) and Detail stand under Trend ([S-14703]).
+- **[S-14685]** **The air graph is these metrics' graphs** ([S-14710], [S-14713]): PM2.5, PM10, ozone and the **air quality
+  index** (`airIndex`, "25 · Fair", the index on the place's scale, European in Europe, else the US index, [S-5103], first in
+  the family's order) draw their graph over the place's air hours (Area, Line or Bars; one, two or four days, two by
+  default). A placed air graph is the metric of the measure it drew, the index (and NO₂, which has no metric) the index's.
 
 Needs a live pass: the cards against the real service (a place in and outside Europe).

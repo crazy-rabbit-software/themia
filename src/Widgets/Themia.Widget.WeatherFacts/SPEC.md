@@ -60,5 +60,10 @@ with their translations). Tests: `Tests/WeatherFactTests.cs` (run by `tests/Them
   arrow this hour against the last ("previous hour"), rounded as shown, and the line the hours from the last one on (where
   it was and where it goes); cloud cover, which the hours do not carry, an arrow from the last two readings the card saw;
   today's high and low and the sun's times none (no Trend line).
+- **[S-13905]** **The weather graphs are these metrics' graphs** ([S-14710], [S-14713]): every fact with hours has its
+  graph over the place's hours (Area, Line or Bars; 12, 24 or 48 hours, a day by default), by default as the graph it merged
+  drew (the wind, the gusts and the pressure a line, the precipitation and the UV columns, the rest the area). **Temperature**
+  (`weatherTemperature`, the temperature now, "14°", first in the facts' order) is the temperature graph's metric; a placed
+  temperature, humidity, wind, pressure, UV or rain graph is its fact with its graph shown ([S-14713]).
 
 Needs a live pass: the cards against the real service, a group of fact cards placed and joined on the desktop.

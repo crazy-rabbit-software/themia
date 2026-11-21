@@ -15,5 +15,7 @@ hub's charge and battery pack feeds, the JSON context), `Localization/Locales/` 
   while charging, "Charge rate" or "Discharge rate"); a machine without a battery keeps the row, "--" dimmed, why its
   tooltip ([S-1942]). Trends ([S-14603]): battery time, charge rate, battery voltage and battery temperature an arrow from the last two readings the card saw (no history kept); battery status, battery health, full charge capacity, design capacity, cycle count, battery chemistry and battery maker none (a text, a constant or a time: no Trend line). 
 - **[S-2023]** A click on the card ([S-2000]) opens Windows' Power & battery page (`ms-settings:batterysaver`); every kind declares it (`BatteryKinds`, `MetricKind.Opens`, [S-14706]), as do the card menu's first line and Enter ([S-14707]).
+- **[S-14665]** **Battery charge** (`batteryCharge`, first in the family's order, [S-14714]): the battery's charge, the hub's
+  series itself, its graph a quarter of an hour by default; a placed battery history is it with its graph shown ([S-14713]).
 
 Needs a manual pass: the cards on a laptop (charging, discharging, full) and on a desktop (each "--", dimmed; `--state unavailable` renders it anywhere).

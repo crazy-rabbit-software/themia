@@ -4,7 +4,7 @@ The module `cpu` ([S-6911]): processor load across all cores, the reading alone.
 file's alone; the root `SPEC.md` holds the host's sections and what the system atoms share (the atoms
 [S-11000]..[S-11009], the meter framework [S-1120]..[S-1123], the gauge [S-6302], the readouts' rule
 [S-6330], the system hub [S-2500]..[S-2513]). The id `cpu` stays the reading's when the old CPU card
-was split (2026-11-12): its history is `cpuHistory`, its cores `cpuCores`, its details `cpuFacts`; the
+was split (2026-11-12): its history is the CPU load metric's graph (`cpuLoad`, [S-14713]), its cores `cpuCores`, its details `cpuFacts`; the
 old card's look is the ready-made group "CPU" ([S-11090]).
 
 Owning files: everything in this folder: `CpuModule.cs` (descriptor, sizing, view factory, JSON

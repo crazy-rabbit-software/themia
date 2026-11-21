@@ -1,7 +1,7 @@
 # Ping (reading)
 
 The module `ping` ([S-6911]): one host's latency, the reading alone (the id stays the reading's; its
-history is `pingHistory`, its statistics `pingFacts`, and the old cards' looks the ready-made groups
+history is the ping average metric's graph (`pingAverage`, [S-14713]), its statistics `pingFacts`, and the old cards' looks the ready-made groups
 "Ping" and "Ping details"). Its tags are this file's alone; the root `SPEC.md`
 holds the host's sections and what the meters share (the meter framework [S-1120]..[S-1126], [S-1762],
 [S-1167], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513] with its one prober per host [S-2508]);
