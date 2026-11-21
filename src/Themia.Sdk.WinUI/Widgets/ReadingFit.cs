@@ -48,10 +48,7 @@ public sealed partial class ReadingFit : Panel
     {
         Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         RenderTransform = _scale;
-
-        // [S-14301] The block is drawn scaled, so a whole pixel in its own units is the scale's pixels drawn: laid out
-        // rounded, a part centred in it stood 2.6 DIP off the card's middle at 7x (the GPU card's "--" at 600x200).
-        UseLayoutRounding = false;
+        Parts = new BlockParts(this);
     }
 
     /// <summary>
@@ -96,7 +93,52 @@ public sealed partial class ReadingFit : Panel
     private Size _held = Size.Empty;
 
     /// <summary>The block's parts, top to bottom.</summary>
-    public UIElementCollection Parts => Children;
+    public BlockParts Parts { get; }
+
+    /// <summary>
+    /// The parts of a block: this panel's own children. [S-14301] A part is drawn scaled, so a whole pixel in its own units is
+    /// the scale's pixels drawn: laid out rounded, a part centred in it stood 2.6 DIP off the card's middle at 7x (the GPU
+    /// card's "--" at 600x200); a part is laid out unrounded while it stands in a block, the block itself on the card's pixels.
+    /// </summary>
+    public sealed class BlockParts
+    {
+        private readonly ReadingFit _fit;
+
+        internal BlockParts(ReadingFit fit) => _fit = fit;
+
+        /// <summary>Add a part after those already in.</summary>
+        public void Add(UIElement part)
+        {
+            ArgumentNullException.ThrowIfNull(part);
+            part.UseLayoutRounding = false;
+            _fit.Children.Add(part);
+        }
+
+        /// <summary>Take a part out (back on the card's pixels); false where it was not one.</summary>
+        public bool Remove(UIElement part)
+        {
+            ArgumentNullException.ThrowIfNull(part);
+            if (!_fit.Children.Remove(part))
+            {
+                return false;
+            }
+
+            part.ClearValue(UIElement.UseLayoutRoundingProperty);
+            return true;
+        }
+
+        /// <summary>Whether <paramref name="part"/> is one of the block's.</summary>
+        public bool Contains(UIElement part) => _fit.Children.Contains(part);
+
+        /// <summary>Take every part out.</summary>
+        public void Clear()
+        {
+            foreach (var part in _fit.Children.ToList())
+            {
+                Remove(part);
+            }
+        }
+    }
 
     /// <summary>
     /// [S-14301] Where the parts with a width of their own stand across the content (owner, 2026-11-20, of a reading that
@@ -171,7 +213,7 @@ public sealed partial class ReadingFit : Panel
     /// [S-12833] Add a part, after those already in, that gives way as a whole where the room would draw it under the
     /// floor: a Controls row at Body, a caption. It stands in a box of the fit's own, so its view still shows and hides it.
     /// </summary>
-    public void AddGivesWay(UIElement part, double size) => Children.Add(GivesWayBox(part, size));
+    public void AddGivesWay(UIElement part, double size) => Parts.Add(GivesWayBox(part, size));
 
     /// <summary>
     /// [S-12833] A box holding <paramref name="part"/> that gives way as a whole where the room would draw it under the
