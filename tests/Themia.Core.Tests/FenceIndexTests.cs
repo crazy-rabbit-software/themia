@@ -165,9 +165,7 @@ public sealed class FenceIndexTests
     {
         foreach (var other in occupied)
         {
-            if (other.IsFinite
-                && rect.X < other.Right - 1e-9 && other.X < rect.Right - 1e-9
-                && rect.Y < other.Bottom - 1e-9 && other.Y < rect.Bottom - 1e-9)
+            if (Lattice.Overlaps(rect, other))
             {
                 return other;
             }

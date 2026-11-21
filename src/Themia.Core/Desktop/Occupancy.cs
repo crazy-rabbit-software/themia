@@ -12,8 +12,6 @@ namespace Themia.Core.Desktop;
 /// </summary>
 public sealed class Occupancy
 {
-    private const double Epsilon = 1e-9;
-
     private readonly int _cols;
     private readonly int _rows;
     private readonly List<FracRect> _rects = [];
@@ -94,11 +92,8 @@ public sealed class Occupancy
         return first == int.MaxValue ? null : _rects[first];
     }
 
-    /// <summary>The one overlap rule: the two share more than an edge.</summary>
-    internal static bool Overlaps(FracRect rect, FracRect other)
-        => other.IsFinite
-            && rect.X < other.Right - Epsilon && other.X < rect.Right - Epsilon
-            && rect.Y < other.Bottom - Epsilon && other.Y < rect.Bottom - Epsilon;
+    /// <summary>The one overlap rule, the lattice's ([S-11893]): the two share more than an edge.</summary>
+    internal static bool Overlaps(FracRect rect, FracRect other) => Lattice.Overlaps(rect, other);
 
     /// <summary>
     /// The cells <paramref name="rect"/> reaches, one more on each side, kept on the grid (a rect past the display's edge is
