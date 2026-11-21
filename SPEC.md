@@ -10171,10 +10171,10 @@ one base. Owning files: `Themia.Sdk/Widgets/Metrics.cs` (the pure rules: `Metric
 `Widgets/Details/SystemMetric.cs` (+ `.Preview.cs`, the system families' face over the hub), `Modules/MetricModule.cs`,
 `Shell/MetricMenuLines.cs` (the Trend line and, under it, the graph's chart look through `ChartMenuLines`),
 `Themia.Sdk/Widgets/MetricGraph.cs` (a kind's graph as data: `MetricGraph`, `GraphSeries`, `IMetricGraph`, `MetricGraphs`,
-[S-14710]), `Themia.Core/Storage/KindSplits.cs` (the in-place replacements: the facts cards and the graph kinds); the families
+[S-14710]), `Themia.Core/Storage/KindMerges.cs` (the one in-place replacement: the graph kinds); the families
 are their projects: Weather facts, Air facts, CPU, GPU, Memory, Network, Ping, Battery and Drive facts, Sun times and Moon
 times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-6901], with its own `SPEC.md`). Tests:
-`MetricRulesTests` (Core), `MetricFitTests` (every kind: its graph, its chart look, its page, its source), each family's, `SystemStateFixtureTests.S14606_`, `UnknownWidgetTests.S14606_`,
+`MetricRulesTests` (Core), `MetricFitTests` (every kind: its graph, its chart look, its page, its source), each family's,
 `GraphMergeTests.S14713_`, `ReadyMadeGroupsTests`.
 
 - **[S-14600]** **Its size is its one row, and every cell taller.** The card's least and natural height is one fact row at
@@ -10352,7 +10352,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   `cpuHistory` the CPU load (`cpuLoad`), `memoryHistory` memory in use, `gpuHistory` the GPU load, `diskHistory` the
   drive's activity (`driveActivity`, its drive; every drive together is the system drive's), `networkHistory` the
   download, `batteryHistory` the battery's charge (`batteryCharge`), `pingHistory` the ping's average. A placed one is
-  replaced in place on load (owner, 2026-11-20, of the facts cards: "Replace in place"; `KindSplits`, before the typed
+  replaced in place on load (owner, 2026-11-20, of the facts cards: "Replace in place"; `KindMerges`, the load's one kind-replacement pass, before the typed
   read): the metric its config names (`MergeFrom.When`: the air graph's measure) or the one that takes the rest, the same
   id, spot, look and settings (the place, the drive, the adapter, the host, its chart look), its trend Line, its window or
   span its `span`; what the metric does not have (the gusts' and the chance's second line, the wind's arrows, a scope of

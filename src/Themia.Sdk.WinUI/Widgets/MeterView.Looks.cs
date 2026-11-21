@@ -120,7 +120,7 @@ public sealed partial class MeterView
 
     private void Build(MeterLook look)
     {
-        _band.Visibility = look is MeterLook.Graph ? Visibility.Visible : Visibility.Collapsed;
+        _band.Visibility = Visibility.Collapsed;
 
         switch (look)
         {
@@ -626,7 +626,7 @@ public sealed partial class MeterView
         {
             MeterLook.Battery => MeterSizing.PartTop + MeterSizing.BatteryIn(width, height).Height,
             MeterLook.Signal => MeterSizing.PartTop + MeterSizing.SignalIn(width, height),
-            MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Graph or MeterLook.Number or MeterLook.Numbers => height,
+            MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Number or MeterLook.Numbers => height,
             _ => 0,
         };
 
