@@ -33,7 +33,7 @@ public sealed partial class MeterView
     private string Subject => LinkInstants.Subject(_series ?? _part.Series(_config));
 
     /// <summary>Whether the face draws a history the pointer can stand on.</summary>
-    private bool Charts => _look == MeterLook.Graphs;
+    private bool Charts => _shown is Graphs;
 
     /// <summary>[S-11953] The card as its drive: what it publishes under the pointer and lights for; null for a kind about no drive.</summary>
     private LinkCard<DriveLink>? _driveCard;
@@ -80,7 +80,8 @@ public sealed partial class MeterView
             return;
         }
 
-        var band = _cells.Select(cell => cell.Band).FirstOrDefault(b => Inside(b, args)) ?? (_cells.Count > 0 ? _cells[0].Band : _band);
+        var cells = (_shown as Graphs)?.Cells ?? [];
+        var band = cells.Select(cell => cell.Band).FirstOrDefault(b => Inside(b, args)) ?? (cells.Count > 0 ? cells[0].Band : _band);
         var at = band.InstantAt(args.GetCurrentPoint(band).Position.X, Period, DateTimeOffset.Now);
         var moment = new InstantLink(at, Subject);
         _links.Set(topic, moment);
@@ -119,9 +120,9 @@ public sealed partial class MeterView
         if (moment is not null && moment.Subject == Subject && ValueAt(moment.At) is { } value)
         {
             // [S-12814] WR-12: the moment's value and time are drawn at the reading's scale, never a scale of their own.
-            if (_fit is not null)
+            if (_shown.Fit is { } fit)
             {
-                _fit.Hold = true;
+                fit.Hold = true;
             }
 
             _standsAt = moment;
@@ -131,9 +132,9 @@ public sealed partial class MeterView
         {
             _standsAt = null;
             Present(_last ?? _part.Waiting);
-            if (_fit is not null)
+            if (_shown.Fit is { } fit)
             {
-                _fit.Hold = false;
+                fit.Hold = false;
             }
         }
     }
@@ -142,7 +143,7 @@ public sealed partial class MeterView
     private void Mark(InstantLink? moment)
     {
         _band.Mark(moment?.At, Period);
-        foreach (var cell in _cells)
+        foreach (var cell in (_shown as Graphs)?.Cells ?? [])
         {
             cell.Band.Mark(moment?.At, Period);
         }

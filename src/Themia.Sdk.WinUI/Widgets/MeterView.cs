@@ -139,27 +139,28 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         _band.Capacity = capacity;
 
         // [S-6752] The history's chart look; a value on its grid and marks as the reading writes it.
+        var graphs = _shown as Graphs;
         if (_config is IChartLooks looks)
         {
             _band.Looks(ChartLooks.Effective(looks), ChartLooks.EffectiveDetail(looks), TimeSpan.FromSeconds(Math.Max(1, series.Key.PeriodSeconds)), _formatValue, _part.CountsBytes);
-            foreach (var cell in _cells)
+            foreach (var cell in graphs?.Cells ?? [])
             {
                 cell.Band.Looks(ChartLooks.Effective(looks), ChartDetail.Simple, TimeSpan.FromSeconds(Math.Max(1, series.Key.PeriodSeconds)), null);
             }
         }
 
         // [S-6317] The core graphs span what the graph spans.
-        if (_cells.Count > 0 && _cells[0].Band.Capacity != capacity)
+        if (graphs is { Cells.Count: > 0 } && graphs.Cells[0].Band.Capacity != capacity)
         {
-            var grewCores = capacity > _cells[0].Band.Capacity;
-            foreach (var cell in _cells)
+            var grewCores = capacity > graphs.Cells[0].Band.Capacity;
+            foreach (var cell in graphs.Cells)
             {
                 cell.Band.Capacity = capacity;
             }
 
             if (grewCores)
             {
-                LoadGraphs();
+                graphs.Load();
             }
         }
 
