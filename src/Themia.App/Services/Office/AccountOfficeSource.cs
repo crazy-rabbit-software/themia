@@ -16,15 +16,17 @@ namespace Themia.App.Services.Office;
 /// <b>Sync owns the network.</b> Each calendar a widget in any view shows ([S-2608]) is held from a
 /// year back to a year ahead ([S-2631]): the weeks around today refreshed every five minutes, the
 /// whole window every six hours. Each address book a contacts widget reads is held whole up to
-/// <see cref="OfficeShelves.MaxContacts"/>, refreshed every fifteen minutes; birthdays daily. Every
-/// change is saved to the account's shelf. The cadence rides the shared ticker.
+/// <see cref="OfficeShelves.MaxContacts"/>, refreshed every fifteen minutes; birthdays daily. Each is an
+/// entry of the one sync engine ([S-2691]): its schedule, its back-off, one log line per change of state,
+/// and what is in flight cancelled when its account leaves or the source closes. Every change is saved
+/// to the account's shelf, read off the UI thread at start ([S-2693]). The cadence rides the shared ticker.
 /// </para>
 /// <para>
 /// <b>Widgets only read.</b> A request inside a calendar's window is answered from the shelf at once,
-/// with the time it was synced and whatever the last sync met; only a calendar never synced yet, a
-/// range outside the window (paged more than a year away, answered through
-/// <see cref="SyncCache{T}"/> in memory) or the user's Refresh reaches the network. <see cref="Changed"/>
-/// is raised whenever a sync brought something new, so widgets redraw from the shelf.
+/// with the time it was synced and how the last sync went (the one vocabulary, <see cref="FetchStatus"/>);
+/// only a calendar never synced yet, a range outside the window (paged more than a year away, answered
+/// through <see cref="SyncCache{T}"/> in memory) or the user's Refresh reaches the network. <see cref="Changed"/>
+/// is raised whenever a sync finished, so widgets redraw from the shelf.
 /// </para>
 /// <para>
 /// UI thread throughout: the ticker and every caller are there, and each await resumes there.
@@ -39,18 +41,26 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
     private readonly AccountService _accounts;
     private readonly SyncHost _sync;
-    private readonly Ticker _ticker;
+    private readonly SyncEngine<OfficeEntry> _engine;
     private readonly Dictionary<string, CalendarBox> _calendars = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactsBox> _contacts = new(StringComparer.Ordinal);
     private readonly SyncCache<IReadOnlyList<CalendarEvent>> _outside = new(Scope);
-    private IDisposable? _tick;
-    private bool _disposed;
 
     public AccountOfficeSource(AccountService accounts, SyncHost sync, Ticker ticker)
     {
+        ArgumentNullException.ThrowIfNull(ticker);
         _accounts = accounts;
         _sync = sync;
-        _ticker = ticker;
+        _engine = new SyncEngine<OfficeEntry>(new SyncEntries<OfficeEntry>(Scope), RunAsync, () => DateTimeOffset.UtcNow, ticker.Subscribe,
+            entry => !entry.Loading && Usable(entry.AccountId));
+        _engine.Changed += entry =>
+        {
+            // A run that finished brought something new (or a reason there is nothing new): widgets redraw from the shelf.
+            if (!entry.Schedule.Busy)
+            {
+                Raise();
+            }
+        };
         _accounts.AccountsChanged += OnAccountsChanged;
         _sync.InterestsChanged += Reconcile;
         _sync.NetworkAvailable += OnNetworkAvailable;
@@ -59,7 +69,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
     public AccountService Service => _accounts;
 
-    /// <summary>Raised on the UI thread when an account came, went or changed health, and when a sync brought new data.</summary>
+    /// <summary>Raised on the UI thread when an account came, went or changed health, and when a sync finished.</summary>
     public event Action? Changed;
 
     public IReadOnlyList<AccountInfo> Accounts(FeatureId feature) => _accounts.WithFeature(feature);
@@ -70,35 +80,36 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
     public async Task<Synced<IReadOnlyList<CalendarEvent>>> EventsAsync(CalendarTarget target, DateTimeOffset from, DateTimeOffset to, bool force, CancellationToken cancellation)
     {
-        var box = Calendar(target.AccountId);
-        if (box is null)
+        if (Calendar(target.AccountId) is not { } box)
         {
-            return new Synced<IReadOnlyList<CalendarEvent>>(null, SyncProblem.NoAccount, null, null);
+            return new Synced<IReadOnlyList<CalendarEvent>>(null, FetchStatus.NotConfigured, null, null);
         }
 
+        await box.Loaded.WaitAsync(cancellation).ConfigureAwait(true);
         var item = box.Item(target.CalendarId);
 
-        // Never synced: the first step of the first sync, awaited (the weeks around today; the rest of
+        // Never synced: the first step of the first run, awaited (the weeks around today; the rest of
         // the window follows and raises Changed). After a failure the schedule holds the next try, so
         // a widget redrawing on every change cannot turn a refusal into a request loop.
         if (force)
         {
-            await SyncEventsAsync(box, item, force: true).WaitAsync(cancellation).ConfigureAwait(true);
+            _engine.Entries.Force(item, DateTimeOffset.UtcNow);
+            await _engine.RunAsync(item).WaitAsync(cancellation).ConfigureAwait(true);
         }
-        else if (item.Span is null && item.Near.IsDue(DateTimeOffset.UtcNow))
+        else if (item.Span is null && item.IsDue(DateTimeOffset.UtcNow))
         {
-            _ = SyncEventsAsync(box, item, force: false);
-            await (item.FirstStep ?? Task.CompletedTask).WaitAsync(cancellation).ConfigureAwait(true);
+            _ = _engine.RunAsync(item);
+            await item.FirstStep.WaitAsync(cancellation).ConfigureAwait(true);
         }
 
         // Inside the synced window the shelf is the answer, whatever it holds: nothing yet (the first
-        // sync failed: the problem says why) is an answer too, never a reason to ask again here.
+        // sync failed: the status says why) is an answer too, never a reason to ask again here.
         var (windowFrom, windowTo) = CalendarSync.Window(DateOnly.FromDateTime(DateTime.Now), TimeZoneInfo.Local);
         if (item.Span is { } span && CalendarSync.Covers(span, from, to) || from >= windowFrom && to <= windowTo)
         {
             return item.Span is { } held
-                ? new Synced<IReadOnlyList<CalendarEvent>>(CalendarSync.Slice(held, from, to), item.Problem, item.Full.Detail ?? item.Near.Detail, held.NearAt)
-                : new Synced<IReadOnlyList<CalendarEvent>>(null, item.Problem, item.Full.Detail, null);
+                ? new Synced<IReadOnlyList<CalendarEvent>>(CalendarSync.Slice(held, from, to), item.Schedule.Status, item.Schedule.Detail, held.NearAt)
+                : new Synced<IReadOnlyList<CalendarEvent>>(null, item.Schedule.Status, item.Schedule.Detail, null);
         }
 
         // Paged past the window: asked for what is on screen, held in memory only.
@@ -110,53 +121,69 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
     {
         if (Calendar(accountId) is not { } box)
         {
-            return new Synced<IReadOnlyList<CalendarInfo>>(null, SyncProblem.NoAccount, null, null);
+            return new Synced<IReadOnlyList<CalendarInfo>>(null, FetchStatus.NotConfigured, null, null);
         }
+
+        await box.Loaded.WaitAsync(cancellation).ConfigureAwait(true);
 
         // The properties menu's picker: asked when the list is old, never on a timer.
-        if (force || box.CalendarsSchedule.IsDue(DateTimeOffset.UtcNow))
-        {
-            await RunAsync(box.CalendarsSchedule, () => box.CalendarsProblem, p => box.CalendarsProblem = p, async () =>
-            {
-                box.CalendarList = await LoadCalendarsAsync(accountId, CancellationToken.None).ConfigureAwait(true);
-                box.CalendarsAt = DateTimeOffset.UtcNow;
-            }, box.Save, force).WaitAsync(cancellation).ConfigureAwait(true);
-        }
-
-        return new Synced<IReadOnlyList<CalendarInfo>>(box.CalendarList, box.CalendarsProblem, box.CalendarsSchedule.Detail, box.CalendarsAt);
+        await AskAsync(box.CalendarList, force, cancellation).ConfigureAwait(true);
+        var list = box.CalendarList;
+        return new Synced<IReadOnlyList<CalendarInfo>>(list.Calendars, list.Schedule.Status, list.Schedule.Detail, list.At);
     }
 
     public async Task<Synced<IReadOnlyList<Birthday>>> BirthdaysAsync(string accountId, bool force, CancellationToken cancellation)
     {
         if (Calendar(accountId) is not { } box)
         {
-            return new Synced<IReadOnlyList<Birthday>>(null, SyncProblem.NoAccount, null, null);
+            return new Synced<IReadOnlyList<Birthday>>(null, FetchStatus.NotConfigured, null, null);
         }
 
-        box.WantsBirthdays = true;
+        await box.Loaded.WaitAsync(cancellation).ConfigureAwait(true);
 
-        if (force || (box.Birthdays is null && box.BirthdaysSchedule.IsDue(DateTimeOffset.UtcNow)))
+        // A widget that reads birthdays wants them kept fresh until the next reconcile says otherwise.
+        var birthdays = _engine.Entries.Want(box.Birthdays.Key, () => box.Birthdays);
+        _engine.EnsureTicking();
+
+        if (force || birthdays.Birthdays is null)
         {
-            await SyncBirthdaysAsync(box, force).WaitAsync(cancellation).ConfigureAwait(true);
+            await AskAsync(birthdays, force, cancellation).ConfigureAwait(true);
         }
 
-        return new Synced<IReadOnlyList<Birthday>>(box.Birthdays, box.BirthdaysProblem, box.BirthdaysSchedule.Detail, box.BirthdaysAt);
+        return new Synced<IReadOnlyList<Birthday>>(birthdays.Birthdays, birthdays.Schedule.Status, birthdays.Schedule.Detail, birthdays.At);
     }
 
     public async Task<Synced<IReadOnlyList<Contact>>> ContactsAsync(string accountId, int max, bool force, CancellationToken cancellation)
     {
-        if (Contacts(accountId) is not { } box)
+        if (Contacts(accountId) is not { } book)
         {
-            return new Synced<IReadOnlyList<Contact>>(null, SyncProblem.NoAccount, null, null);
+            return new Synced<IReadOnlyList<Contact>>(null, FetchStatus.NotConfigured, null, null);
         }
 
-        if (force || (box.People is null && box.Schedule.IsDue(DateTimeOffset.UtcNow)))
+        await book.Loaded.WaitAsync(cancellation).ConfigureAwait(true);
+
+        if (force || book.People is null)
         {
-            await SyncContactsAsync(box, force).WaitAsync(cancellation).ConfigureAwait(true);
+            await AskAsync(book, force, cancellation).ConfigureAwait(true);
         }
 
-        IReadOnlyList<Contact>? people = box.People is { } all ? [.. all.Take(Math.Max(0, max))] : null;
-        return new Synced<IReadOnlyList<Contact>>(people, box.Problem, box.Schedule.Detail, box.At);
+        IReadOnlyList<Contact>? people = book.People is { } all ? [.. all.Take(Math.Max(0, max))] : null;
+        return new Synced<IReadOnlyList<Contact>>(people, book.Schedule.Status, book.Schedule.Detail, book.At);
+    }
+
+    /// <summary>A widget's own ask: the user's Refresh goes now; otherwise only when the entry is due (a failure's back-off holds).</summary>
+    private Task AskAsync(OfficeEntry entry, bool force, CancellationToken cancellation)
+    {
+        if (force)
+        {
+            _engine.Entries.Force(entry, DateTimeOffset.UtcNow);
+        }
+        else if (!entry.IsDue(DateTimeOffset.UtcNow))
+        {
+            return Task.CompletedTask;
+        }
+
+        return _engine.RunAsync(entry).WaitAsync(cancellation);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -175,17 +202,18 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             return null;
         }
 
-        box = CalendarBox.Load(this, account.Id);
+        box = new CalendarBox(this, account.Id);
         _calendars[account.Id] = box;
-        EnsureTicking();
+        box.Loaded = box.LoadAsync();
+        _engine.EnsureTicking();
         return box;
     }
 
     private ContactsBox? Contacts(string accountId)
     {
-        if (_contacts.TryGetValue(accountId, out var box))
+        if (_contacts.TryGetValue(accountId, out var book))
         {
-            return box;
+            return book;
         }
 
         if (_accounts.Find(accountId) is not { } account || !account.Features.Has(HostFeatures.Contacts))
@@ -193,16 +221,20 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             return null;
         }
 
-        box = ContactsBox.Load(this, account.Id);
-        _contacts[account.Id] = box;
-        EnsureTicking();
-        return box;
+        book = _engine.Entries.Hold(ContactsBox.KeyOf(account.Id), () => new ContactsBox(this, account.Id));
+        _contacts[account.Id] = book;
+        book.Loaded = book.LoadAsync();
+        _engine.EnsureTicking();
+        return book;
     }
 
-    /// <summary>Follow the accounts and the widgets of every view: a box for each account something reads.</summary>
+    /// <summary>
+    /// Follow the accounts and the widgets of every view: a box for each account something reads. What no widget
+    /// reads any more stays on the shelf (a view may come back) but is not synced.
+    /// </summary>
     private void Reconcile()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
@@ -212,139 +244,61 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
         foreach (var id in _calendars.Keys.Where(id => !calendarAccounts.Contains(id)).ToList())
         {
+            var gone = _calendars[id];
             _calendars.Remove(id);
+            _engine.Entries.RemoveWhere(e => e is CalendarItem item && ReferenceEquals(item.Box, gone) || ReferenceEquals(e, gone.Birthdays) || ReferenceEquals(e, gone.CalendarList));
+            gone.Cancel();
         }
 
         foreach (var id in _contacts.Keys.Where(id => !contactAccounts.Contains(id)).ToList())
         {
+            var gone = _contacts[id];
             _contacts.Remove(id);
+            _engine.Entries.Remove(gone.Key);
+            gone.Cancel();
         }
 
-        // What no widget reads any more stays on the shelf (a view may come back) but is not synced.
-        foreach (var box in _calendars.Values)
+        _engine.Reconcile(() =>
         {
-            box.WantsBirthdays = false;
-            foreach (var item in box.Items)
+            foreach (var interest in _sync.Interests.Calendar)
             {
-                item.Wanted = false;
-            }
-        }
-
-        foreach (var box in _contacts.Values)
-        {
-            box.Wanted = false;
-        }
-
-        foreach (var interest in _sync.Interests.Calendar)
-        {
-            var selected = CalendarRules.SelectAccounts([.. interest.AccountIds], calendarAccounts);
-            foreach (var target in CalendarRules.Targets(selected, interest.Calendars))
-            {
-                if (Calendar(target.AccountId) is { } box)
+                var selected = CalendarRules.SelectAccounts([.. interest.AccountIds], calendarAccounts);
+                foreach (var target in CalendarRules.Targets(selected, interest.Calendars))
                 {
+                    if (Calendar(target.AccountId) is not { } box)
+                    {
+                        continue;
+                    }
+
+                    var item = box.Item(target.CalendarId);
+                    _engine.Entries.Want(item.Key, () => item);
+
                     // [S-3782] The near window follows the shared accounts cadence.
-                    box.Item(target.CalendarId).Near.Interval = _sync.Interests.AccountInterval;
-                    box.Item(target.CalendarId).Wanted = true;
-                    box.WantsBirthdays |= interest.Birthdays;
+                    item.Schedule.Interval = _sync.Interests.AccountInterval;
+
+                    if (interest.Birthdays)
+                    {
+                        _engine.Entries.Want(box.Birthdays.Key, () => box.Birthdays);
+                    }
                 }
             }
-        }
 
-        foreach (var interest in _sync.Interests.Contacts)
-        {
-            foreach (var id in CalendarRules.SelectAccounts([.. interest.AccountIds], contactAccounts))
+            foreach (var interest in _sync.Interests.Contacts)
             {
-                if (Contacts(id) is { } box)
+                foreach (var id in CalendarRules.SelectAccounts([.. interest.AccountIds], contactAccounts))
                 {
-                    box.Wanted = true;
+                    if (Contacts(id) is { } book)
+                    {
+                        _engine.Entries.Want(book.Key, () => book);
+                    }
                 }
             }
-        }
-
-        EnsureTicking();
-        OnTick();
-    }
-
-    private void EnsureTicking()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (_calendars.Count + _contacts.Count > 0)
-        {
-            // The ticker fires once on subscribing; that first pass is the start-up sync.
-            _tick ??= _ticker.Subscribe(TimeSpan.FromMinutes(1), OnTick);
-        }
-        else
-        {
-            _tick?.Dispose();
-            _tick = null;
-        }
-    }
-
-    /// <summary>[S-2609] Everything due: what the widgets want, on its own cadence.</summary>
-    private void OnTick()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        var now = DateTimeOffset.UtcNow;
-
-        foreach (var box in _calendars.Values.ToArray())
-        {
-            if (!Usable(box.AccountId))
-            {
-                continue;
-            }
-
-            foreach (var item in box.Items.Where(i => i.Wanted).ToArray())
-            {
-                // Decides itself which window is due, if any.
-                _ = SyncEventsAsync(box, item, force: false);
-            }
-
-            if (box.WantsBirthdays && box.BirthdaysSchedule.IsDue(now))
-            {
-                _ = SyncBirthdaysAsync(box, force: false);
-            }
-        }
-
-        foreach (var box in _contacts.Values.ToArray())
-        {
-            if (box.Wanted && Usable(box.AccountId) && box.Schedule.IsDue(now))
-            {
-                _ = SyncContactsAsync(box, force: false);
-            }
-        }
+        }, drop: false);
     }
 
     private bool Usable(string accountId) => _accounts.Find(accountId) is { Problem: null };
 
-    private void OnNetworkAvailable()
-    {
-        foreach (var box in _calendars.Values)
-        {
-            foreach (var item in box.Items)
-            {
-                item.Near.Wake();
-                item.Full.Wake();
-            }
-
-            box.BirthdaysSchedule.Wake();
-            box.CalendarsSchedule.Wake();
-        }
-
-        foreach (var box in _contacts.Values)
-        {
-            box.Schedule.Wake();
-        }
-
-        OnTick();
-    }
+    private void OnNetworkAvailable() => _engine.Wake();
 
     private void OnAccountsChanged()
     {
@@ -354,7 +308,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
     private void Raise()
     {
-        if (_disposed || Changed is not { } changed)
+        if (_engine.Disposed || Changed is not { } changed)
         {
             return;
         }
@@ -377,203 +331,131 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
     // Syncing
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// One calendar, when due (or asked): the whole window when that is due or the user refreshed,
-    /// else the weeks around today. A calendar synced for the first time reads the weeks around today
-    /// first, for a quick first draw (<see cref="CalendarItem.FirstStep"/>), and the rest of the window
-    /// straight after. Single-flight per calendar.
-    /// </summary>
-    private Task SyncEventsAsync(CalendarBox box, CalendarItem item, bool force)
+    /// <summary>One run of an entry, by what it is; its account's leaving cancels it too.</summary>
+    private async Task<SyncRun> RunAsync(OfficeEntry entry, bool asked, CancellationToken cancellation)
     {
-        if (item.Flight is { IsCompleted: false } flight)
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation, entry.Cancellation);
+        var token = linked.Token;
+
+        switch (entry)
         {
-            return flight;
+            case CalendarItem item:
+                await SyncEventsAsync(item, asked, token).ConfigureAwait(true);
+                break;
+
+            case BirthdaysEntry birthdays:
+                birthdays.Birthdays = await LoadBirthdaysAsync(birthdays.AccountId, token).ConfigureAwait(true);
+                birthdays.At = DateTimeOffset.UtcNow;
+                birthdays.Box.Save();
+                break;
+
+            case CalendarListEntry list:
+                list.Calendars = await LoadCalendarsAsync(list.AccountId, token).ConfigureAwait(true);
+                list.At = DateTimeOffset.UtcNow;
+                list.Box.Save();
+                break;
+
+            case ContactsBox book:
+                // [S-2685] The changes since the book's cursor, or the book in full.
+                (book.People, book.Cursor) = await SyncBookAsync(book.AccountId, book.People, book.Cursor, token).ConfigureAwait(true);
+                book.At = DateTimeOffset.UtcNow;
+                book.Save();
+                break;
         }
 
-        var now = DateTimeOffset.UtcNow;
-
-        // [S-2684] A calendar its provider reports changes for: every refresh is one round over the
-        // whole window (the changes since the cursor, or the window in full when there is none).
-        // A calendar never synced draws the weeks around today first, as below.
-        if (WindowCursorKind(box.AccountId, item.CalendarId) is { } kind)
-        {
-            if (!force && !item.Near.IsDue(now))
-            {
-                return Task.CompletedTask;
-            }
-
-            var neverSynced = item.Span is null;
-            var quick = neverSynced ? EventsOnceAsync(box, item, full: false, force) : Task.CompletedTask;
-            item.Flight = ThenWindowRoundAsync(quick, neverSynced, box, item, kind, force);
-            item.FirstStep = neverSynced ? quick : item.Flight;
-            return item.Flight;
-        }
-
-        // The user's Refresh asks for the whole window: whatever they are looking at is in it.
-        var full = force || (item.Span is not null && item.Full.IsDue(now));
-        if (!force && !(full ? item.Full : item.Near).IsDue(now))
-        {
-            return Task.CompletedTask;
-        }
-
-        var first = EventsOnceAsync(box, item, full, force);
-        item.FirstStep = first;
-        item.Flight = ThenWholeWindowAsync(first, box, item, full);
-        return item.Flight;
-    }
-
-    private async Task ThenWholeWindowAsync(Task first, CalendarBox box, CalendarItem item, bool wasFull)
-    {
-        await first.ConfigureAwait(true);
-
-        if (!wasFull && !_disposed && item.Span is not null && item.Full.IsDue(DateTimeOffset.UtcNow))
-        {
-            await EventsOnceAsync(box, item, full: true, force: false).ConfigureAwait(true);
-        }
-    }
-
-    private async Task ThenWindowRoundAsync(Task quick, bool ranQuick, CalendarBox box, CalendarItem item, CursorKind kind, bool force)
-    {
-        await quick.ConfigureAwait(true);
-
-        // A first draw that failed has said why and set its back-off; the round waits for that too.
-        if (_disposed || (ranQuick && item.Problem != SyncProblem.None))
-        {
-            return;
-        }
-
-        var target = new CalendarTarget(box.AccountId, item.CalendarId);
-        await RunAsync(item.Near, () => item.Problem, p => item.Problem = p, async () =>
-        {
-            item.Span = await SyncWindowAsync(target, item.Span, kind, CancellationToken.None).ConfigureAwait(true);
-
-            // A round answers for the whole window: the full refresh's clock moves with it.
-            item.Full.Succeeded(DateTimeOffset.UtcNow);
-        }, box.Save, force).ConfigureAwait(true);
-    }
-
-    private Task EventsOnceAsync(CalendarBox box, CalendarItem item, bool full, bool force)
-    {
-        var schedule = full ? item.Full : item.Near;
-        var today = DateOnly.FromDateTime(DateTime.Now);
-        var (from, to) = full ? CalendarSync.Window(today, TimeZoneInfo.Local) : CalendarSync.Near(today, TimeZoneInfo.Local);
-        var target = new CalendarTarget(box.AccountId, item.CalendarId);
-
-        return RunAsync(schedule, () => item.Problem, p => item.Problem = p, async () =>
-        {
-            var events = await LoadEventsAsync(target, from, to, CancellationToken.None).ConfigureAwait(true);
-            item.Span = CalendarSync.Merge(item.Span, item.CalendarId, events, from, to, DateTimeOffset.UtcNow, full);
-
-            // A full sync is a near sync too; a near sync leaves the full one's clock alone.
-            if (full)
-            {
-                item.Near.Succeeded(DateTimeOffset.UtcNow);
-            }
-        }, box.Save, force);
-    }
-
-    private Task SyncBirthdaysAsync(CalendarBox box, bool force)
-    {
-        if (box.BirthdaysFlight is { IsCompleted: false } flight)
-        {
-            return flight;
-        }
-
-        box.BirthdaysFlight = RunAsync(box.BirthdaysSchedule, () => box.BirthdaysProblem, p => box.BirthdaysProblem = p, async () =>
-        {
-            box.Birthdays = await LoadBirthdaysAsync(box.AccountId, CancellationToken.None).ConfigureAwait(true);
-            box.BirthdaysAt = DateTimeOffset.UtcNow;
-        }, box.Save, force);
-
-        return box.BirthdaysFlight;
-    }
-
-    private Task SyncContactsAsync(ContactsBox box, bool force)
-    {
-        if (box.Flight is { IsCompleted: false } flight)
-        {
-            return flight;
-        }
-
-        box.Flight = RunAsync(box.Schedule, () => box.Problem, p => box.Problem = p, async () =>
-        {
-            // [S-2685] The changes since the book's cursor, or the book in full.
-            (box.People, box.Cursor) = await SyncBookAsync(box.AccountId, box.People, box.Cursor, CancellationToken.None).ConfigureAwait(true);
-            box.At = DateTimeOffset.UtcNow;
-        }, box.Save, force);
-
-        return box.Flight;
+        return SyncRun.Ok;
     }
 
     /// <summary>
-    /// One sync step with its bookkeeping: single-flight through the schedule, the outcome recorded
-    /// and logged on a change, a refusal held ([S-588]), the shelf saved and the widgets told when
-    /// something new came. Never throws.
+    /// One calendar's run: the whole window when that is due or the user refreshed, else the weeks around today. A
+    /// calendar synced for the first time reads the weeks around today first, for a quick first draw
+    /// (<see cref="CalendarItem.FirstStep"/>), and the rest of the window straight after. [S-2684] A calendar its
+    /// provider reports changes for is one round over the whole window each time (the changes since the cursor, or
+    /// the window in full when there is none).
     /// </summary>
-    private async Task RunAsync(SyncSchedule schedule, Func<SyncProblem> problem, Action<SyncProblem> setProblem, Func<Task> load, Action save, bool force)
+    private async Task SyncEventsAsync(CalendarItem item, bool asked, CancellationToken cancellation)
     {
-        if (schedule.Busy)
-        {
-            return;
-        }
-
-        if (force)
-        {
-            schedule.Force(DateTimeOffset.UtcNow);
-        }
-
-        schedule.Busy = true;
-        var before = problem();
+        // Its waiters resume on their own turn, never inside this run.
+        var first = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        item.FirstStep = first.Task;
+        var target = new CalendarTarget(item.AccountId, item.CalendarId);
 
         try
         {
-            await load().ConfigureAwait(true);
-            schedule.Succeeded(DateTimeOffset.UtcNow);
-            setProblem(SyncProblem.None);
-            save();
-        }
-        catch (AccountException ex)
-        {
-            var next = SyncProblems.From(ex.Error);
-            var now = DateTimeOffset.UtcNow;
-            schedule.Failed(ex, now);
-            schedule.Hold(SyncProblems.HoldFor(next), now);
-            setProblem(next);
-
-            if (next != before)
+            if (WindowCursorKind(item.AccountId, item.CalendarId) is { } kind)
             {
-                Log.Warn(Scope, $"{next} ({ex.Message})");
+                if (item.Span is null)
+                {
+                    await EventsOnceAsync(item, target, full: false, cancellation).ConfigureAwait(true);
+                    first.TrySetResult();
+                    Raise();
+                }
+
+                item.Span = await SyncWindowAsync(target, item.Span, kind, cancellation).ConfigureAwait(true);
+
+                // A round answers for the whole window: the full refresh's clock moves with it.
+                item.Full.Succeeded(DateTimeOffset.UtcNow);
+                item.Box.Save();
+                return;
             }
-        }
-        catch (Exception ex)
-        {
-            // Anything else — a body that did not parse, a bug in a mapper — must not fault a shared
-            // flight several widgets await; it is logged in full and shown as "something unexpected".
-            Log.Error(Scope, "a calendar or contacts sync failed", ex);
-            schedule.Failed(FetchStatus.BadResponse, ex.Message, DateTimeOffset.UtcNow);
-            setProblem(SyncProblem.BadResponse);
+
+            // The user's Refresh asks for the whole window: whatever they are looking at is in it.
+            var full = asked || (item.Span is not null && item.Full.IsDue(DateTimeOffset.UtcNow));
+            await EventsOnceAsync(item, target, full, cancellation).ConfigureAwait(true);
+            first.TrySetResult();
+
+            if (!full && item.Span is not null && item.Full.IsDue(DateTimeOffset.UtcNow))
+            {
+                Raise();
+                await EventsOnceAsync(item, target, full: true, cancellation).ConfigureAwait(true);
+            }
         }
         finally
         {
-            schedule.Busy = false;
+            first.TrySetResult();
+        }
+    }
+
+    private async Task EventsOnceAsync(CalendarItem item, CalendarTarget target, bool full, CancellationToken cancellation)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        var (from, to) = full ? CalendarSync.Window(today, TimeZoneInfo.Local) : CalendarSync.Near(today, TimeZoneInfo.Local);
+
+        var events = await LoadEventsAsync(target, from, to, cancellation).ConfigureAwait(true);
+        item.Span = CalendarSync.Merge(item.Span, item.CalendarId, events, from, to, DateTimeOffset.UtcNow, full);
+
+        // A full read is a near one too (the engine moves the near clock); a near read leaves the full one's alone.
+        if (full)
+        {
+            item.Full.Succeeded(DateTimeOffset.UtcNow);
         }
 
-        Raise();
+        item.Box.Save();
     }
 
     public void Dispose()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
 
-        _disposed = true;
+        // [S-2691] Every run in flight hears it; what it brings back after is dropped.
+        _engine.Dispose();
         _accounts.AccountsChanged -= OnAccountsChanged;
         _sync.InterestsChanged -= Reconcile;
         _sync.NetworkAvailable -= OnNetworkAvailable;
-        _tick?.Dispose();
-        _tick = null;
+
+        foreach (var box in _calendars.Values)
+        {
+            box.Cancel();
+        }
+
+        foreach (var book in _contacts.Values)
+        {
+            book.Cancel();
+        }
+
         _calendars.Clear();
         _contacts.Clear();
         Changed = null;
@@ -583,119 +465,184 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
     // What is held
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>One calendar of one account.</summary>
-    private sealed class CalendarItem(string? calendarId)
+    /// <summary>One thing of one account the engine keeps fresh: a calendar, its birthdays, its calendar list, an address book.</summary>
+    private abstract class OfficeEntry(string key, TimeSpan interval, string accountId) : SyncEntry(key, interval)
     {
+        public string AccountId { get; } = accountId;
+
+        /// <summary>[S-2693] Its account's shelf is still being read: it is not asked before that lands.</summary>
+        public abstract bool Loading { get; }
+
+        /// <summary>Tripped when its account leaves or the source closes.</summary>
+        public abstract CancellationToken Cancellation { get; }
+
+        public override string Subject => $"{AccountId}: {GetType().Name}";
+    }
+
+    /// <summary>One calendar of one account: the weeks around today on the entry's schedule, the whole window on <see cref="Full"/>.</summary>
+    private sealed class CalendarItem(CalendarBox box, string? calendarId)
+        : OfficeEntry(KeyOf(box.AccountId, calendarId), CalendarSync.NearInterval, box.AccountId)
+    {
+        public static string KeyOf(string accountId, string? calendarId) => $"calendar|{accountId}|{calendarId}";
+
+        public CalendarBox Box { get; } = box;
+
         public string? CalendarId { get; } = calendarId;
 
         public CalendarSpan? Span { get; set; }
 
-        public SyncSchedule Near { get; } = new(CalendarSync.NearInterval);
-
+        /// <summary>When the whole window was last read: a clock only (its failures are the entry's).</summary>
         public SyncSchedule Full { get; } = new(CalendarSync.FullInterval);
 
-        public SyncProblem Problem { get; set; }
+        /// <summary>The first step of the run that is out: what a widget waiting on a first sync awaits.</summary>
+        public Task FirstStep { get; set; } = Task.CompletedTask;
 
-        /// <summary>Shown by a widget in some view; only these are synced on the timer.</summary>
-        public bool Wanted { get; set; }
+        public override bool Loading => Box.Loading;
 
-        public Task? Flight { get; set; }
+        public override CancellationToken Cancellation => Box.Cancellation;
 
-        /// <summary>The first step of the flight: what a widget waiting on a first sync awaits.</summary>
-        public Task? FirstStep { get; set; }
+        /// <summary>The near window's time, or the whole window's once something is held and the last run worked (a failure's back-off holds both).</summary>
+        public override bool IsDue(DateTimeOffset now)
+            => Schedule.IsDue(now) || (!Schedule.Busy && Span is not null && Schedule.Status == FetchStatus.Ok && Full.IsDue(now));
     }
 
-    /// <summary>One calendar account's shelf in memory.</summary>
-    private sealed class CalendarBox(AccountOfficeSource owner, string accountId)
+    /// <summary>[S-575] An account's contacts' birthdays, held for a day.</summary>
+    private sealed class BirthdaysEntry(CalendarBox box)
+        : OfficeEntry($"birthdays|{box.AccountId}", CalendarSync.BirthdaysInterval, box.AccountId)
     {
-        private readonly Dictionary<string, CalendarItem> _items = new(StringComparer.Ordinal);
-
-        public string AccountId { get; } = accountId;
-
-        public IEnumerable<CalendarItem> Items => _items.Values;
-
-        public IReadOnlyList<CalendarInfo>? CalendarList { get; set; }
-
-        public DateTimeOffset? CalendarsAt { get; set; }
-
-        public SyncSchedule CalendarsSchedule { get; } = new(CalendarSync.CalendarsInterval);
-
-        public SyncProblem CalendarsProblem { get; set; }
+        public CalendarBox Box { get; } = box;
 
         public IReadOnlyList<Birthday>? Birthdays { get; set; }
 
-        public DateTimeOffset? BirthdaysAt { get; set; }
+        public DateTimeOffset? At { get; set; }
 
-        public SyncSchedule BirthdaysSchedule { get; } = new(CalendarSync.BirthdaysInterval);
+        public override bool Loading => Box.Loading;
 
-        public SyncProblem BirthdaysProblem { get; set; }
+        public override CancellationToken Cancellation => Box.Cancellation;
+    }
 
-        public bool WantsBirthdays { get; set; }
+    /// <summary>[S-567] An account's calendar list: asked by the menu when old, never on a timer.</summary>
+    private sealed class CalendarListEntry(CalendarBox box)
+        : OfficeEntry($"calendars|{box.AccountId}", CalendarSync.CalendarsInterval, box.AccountId)
+    {
+        public CalendarBox Box { get; } = box;
 
-        public Task? BirthdaysFlight { get; set; }
+        public IReadOnlyList<CalendarInfo>? Calendars { get; set; }
 
+        public DateTimeOffset? At { get; set; }
+
+        public override bool Loading => Box.Loading;
+
+        public override CancellationToken Cancellation => Box.Cancellation;
+    }
+
+    /// <summary>One calendar account's shelf in memory: its calendars, their windows, its birthdays.</summary>
+    private sealed class CalendarBox
+    {
+        private readonly AccountOfficeSource _owner;
+        private readonly Dictionary<string, CalendarItem> _items = new(StringComparer.Ordinal);
+        private readonly CancellationTokenSource _cancel;
+
+        public CalendarBox(AccountOfficeSource owner, string accountId)
+        {
+            _owner = owner;
+            AccountId = accountId;
+            _cancel = CancellationTokenSource.CreateLinkedTokenSource(owner._engine.Cancellation);
+            Birthdays = owner._engine.Entries.Hold($"birthdays|{accountId}", () => new BirthdaysEntry(this));
+            CalendarList = owner._engine.Entries.Hold($"calendars|{accountId}", () => new CalendarListEntry(this));
+        }
+
+        public string AccountId { get; }
+
+        public BirthdaysEntry Birthdays { get; }
+
+        public CalendarListEntry CalendarList { get; }
+
+        public Task Loaded { get; set; } = Task.CompletedTask;
+
+        public bool Loading { get; private set; } = true;
+
+        public CancellationToken Cancellation => _cancel.Token;
+
+        /// <summary>A calendar of the account, held by the engine (shown or not).</summary>
         public CalendarItem Item(string? calendarId)
         {
             var key = calendarId ?? string.Empty;
             if (!_items.TryGetValue(key, out var item))
             {
-                item = new CalendarItem(calendarId);
+                item = new CalendarItem(this, calendarId);
                 _items[key] = item;
             }
 
-            return item;
+            return _owner._engine.Entries.Hold(item.Key, () => item);
         }
 
-        public static CalendarBox Load(AccountOfficeSource owner, string accountId)
+        /// <summary>[S-2632] [S-2693] The account's calendar shelf, read off the UI thread and validated.</summary>
+        public async Task LoadAsync()
         {
-            var box = new CalendarBox(owner, accountId);
-            var read = owner._sync.Vault.Load(SyncKind.Calendar, accountId, SyncJsonContext.Default.CalendarShelf, CalendarShelf.Version);
-            if (read.Value is not { } stored)
+            ShelfRead<CalendarShelf> read;
+            try
             {
-                return box;
+                read = await _owner._sync.Vault.LoadAsync(SyncKind.Calendar, AccountId, SyncJsonContext.Default.CalendarShelf, CalendarShelf.Version).ConfigureAwait(true);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                // The read never throws for bad data; anything here is a bug, and the account syncs from nothing.
+                Log.Error(Scope, "reading a calendar shelf threw", ex);
+                read = new ShelfRead<CalendarShelf>(null, ShelfReadOutcome.Discarded, ex.Message);
             }
 
-            var dropped = 0;
-            var shelf = OfficeShelves.Validate(stored, ref dropped);
-            if (dropped > 0)
+            if (_cancel.IsCancellationRequested)
             {
-                Log.Warn(Scope, $"{accountId}: {dropped} unusable calendar entries dropped from the store");
+                return;
             }
 
-            var now = DateTimeOffset.UtcNow;
-
-            if (shelf.Calendars is { } calendars)
+            if (read.Value is { } stored)
             {
-                box.CalendarList = [.. calendars.Select(OfficeShelves.Restore)];
-                box.CalendarsAt = shelf.CalendarsAt;
-                box.CalendarsSchedule.Seed(shelf.CalendarsAt, now);
+                var dropped = 0;
+                var shelf = OfficeShelves.Validate(stored, ref dropped);
+                if (dropped > 0)
+                {
+                    Log.Warn(Scope, $"{AccountId}: {dropped} unusable calendar entries dropped from the store");
+                }
+
+                var now = DateTimeOffset.UtcNow;
+
+                if (shelf.Calendars is { } calendars)
+                {
+                    CalendarList.Calendars = [.. calendars.Select(OfficeShelves.Restore)];
+                    CalendarList.At = shelf.CalendarsAt;
+                    CalendarList.Schedule.Seed(shelf.CalendarsAt, now);
+                }
+
+                foreach (var span in shelf.Spans)
+                {
+                    var item = Item(span.CalendarId);
+                    item.Span = span;
+                    item.Schedule.Seed(span.NearAt, now);
+                    item.Full.Seed(span.FullAt == default ? null : span.FullAt, now);
+                }
+
+                if (shelf.Birthdays is { } birthdays)
+                {
+                    Birthdays.Birthdays = [.. birthdays.Select(OfficeShelves.Restore)];
+                    Birthdays.At = shelf.BirthdaysAt;
+                    Birthdays.Schedule.Seed(shelf.BirthdaysAt, now);
+                }
+
+                // [S-3823] What is stored, for ⚙ › Accounts.
+                _owner._sync.Report(AccountId, SyncStats.Of(shelf));
             }
 
-            foreach (var span in shelf.Spans)
-            {
-                var item = box.Item(span.CalendarId);
-                item.Span = span;
-                item.Near.Seed(span.NearAt, now);
-                item.Full.Seed(span.FullAt == default ? null : span.FullAt, now);
-            }
-
-            if (shelf.Birthdays is { } birthdays)
-            {
-                box.Birthdays = [.. birthdays.Select(OfficeShelves.Restore)];
-                box.BirthdaysAt = shelf.BirthdaysAt;
-                box.BirthdaysSchedule.Seed(shelf.BirthdaysAt, now);
-            }
-
-            // [S-3823] What is stored, for ⚙ › Accounts.
-            owner._sync.Report(accountId, SyncStats.Of(shelf));
-
-            return box;
+            Loading = false;
+            _owner._engine.Poll();
+            _owner.Raise();
         }
 
         public void Save()
         {
-            // An account signed out mid-sync must not be written back after its purge.
-            if (owner._accounts.Find(AccountId) is null)
+            // An account signed out mid-sync must not be written back after its purge, nor a shelf still being read over.
+            if (Loading || _owner._accounts.Find(AccountId) is null)
             {
                 return;
             }
@@ -703,22 +650,45 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             var shelf = new CalendarShelf
             {
                 Owner = AccountId,
-                Calendars = CalendarList is { } list ? [.. list.Take(OfficeShelves.MaxCalendars).Select(OfficeShelves.Store)] : null,
-                CalendarsAt = CalendarList is null ? null : CalendarsAt,
+                Calendars = CalendarList.Calendars is { } list ? [.. list.Take(OfficeShelves.MaxCalendars).Select(OfficeShelves.Store)] : null,
+                CalendarsAt = CalendarList.Calendars is null ? null : CalendarList.At,
                 Spans = [.. _items.Values.Where(i => i.Span is not null).Select(i => i.Span!)],
-                Birthdays = Birthdays is { } held ? [.. held.Take(OfficeShelves.MaxBirthdays).Select(OfficeShelves.Store)] : null,
-                BirthdaysAt = Birthdays is null ? null : BirthdaysAt,
+                Birthdays = Birthdays.Birthdays is { } held ? [.. held.Take(OfficeShelves.MaxBirthdays).Select(OfficeShelves.Store)] : null,
+                BirthdaysAt = Birthdays.Birthdays is null ? null : Birthdays.At,
             };
 
-            owner._sync.Vault.SaveSoon(SyncKind.Calendar, AccountId, shelf, SyncJsonContext.Default.CalendarShelf);
-            owner._sync.Report(AccountId, SyncStats.Of(shelf));
+            _owner._sync.Vault.SaveSoon(SyncKind.Calendar, AccountId, shelf, SyncJsonContext.Default.CalendarShelf);
+            _owner._sync.Report(AccountId, SyncStats.Of(shelf));
+        }
+
+        public void Cancel()
+        {
+            try
+            {
+                _cancel.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ignore: already torn down.
+            }
         }
     }
 
-    /// <summary>One address book's shelf in memory.</summary>
-    private sealed class ContactsBox(AccountOfficeSource owner, string accountId)
+    /// <summary>One address book's shelf in memory: an entry of the engine itself.</summary>
+    private sealed class ContactsBox : OfficeEntry
     {
-        public string AccountId { get; } = accountId;
+        private readonly AccountOfficeSource _owner;
+        private readonly CancellationTokenSource _cancel;
+        private bool _loading = true;
+
+        public ContactsBox(AccountOfficeSource owner, string accountId)
+            : base(KeyOf(accountId), ContactsInterval, accountId)
+        {
+            _owner = owner;
+            _cancel = CancellationTokenSource.CreateLinkedTokenSource(owner._engine.Cancellation);
+        }
+
+        public static string KeyOf(string accountId) => $"contacts|{accountId}";
 
         public IReadOnlyList<Contact>? People { get; set; }
 
@@ -727,45 +697,59 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
         public DateTimeOffset? At { get; set; }
 
-        public SyncSchedule Schedule { get; } = new(ContactsInterval);
+        public Task Loaded { get; set; } = Task.CompletedTask;
 
-        public SyncProblem Problem { get; set; }
+        public override bool Loading => _loading;
 
-        public bool Wanted { get; set; }
+        public override CancellationToken Cancellation => _cancel.Token;
 
-        public Task? Flight { get; set; }
-
-        public static ContactsBox Load(AccountOfficeSource owner, string accountId)
+        /// <summary>[S-2641] [S-2693] The book's shelf, read off the UI thread and validated.</summary>
+        public async Task LoadAsync()
         {
-            var box = new ContactsBox(owner, accountId);
-            var read = owner._sync.Vault.Load(SyncKind.Contacts, accountId, SyncJsonContext.Default.ContactsShelf, ContactsShelf.Version);
-            if (read.Value is not { } stored)
+            ShelfRead<ContactsShelf> read;
+            try
             {
-                return box;
+                read = await _owner._sync.Vault.LoadAsync(SyncKind.Contacts, AccountId, SyncJsonContext.Default.ContactsShelf, ContactsShelf.Version).ConfigureAwait(true);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                // The read never throws for bad data; anything here is a bug, and the book syncs from nothing.
+                Log.Error(Scope, "reading a contacts shelf threw", ex);
+                read = new ShelfRead<ContactsShelf>(null, ShelfReadOutcome.Discarded, ex.Message);
             }
 
-            var dropped = 0;
-            var shelf = OfficeShelves.Validate(stored, ref dropped);
-            if (dropped > 0)
+            if (_cancel.IsCancellationRequested)
             {
-                Log.Warn(Scope, $"{accountId}: {dropped} unusable contacts dropped from the store");
+                return;
             }
 
-            if (shelf.At is { } at)
+            if (read.Value is { } stored)
             {
-                box.People = [.. shelf.Contacts.Select(c => OfficeShelves.Restore(c, accountId))];
-                box.Cursor = shelf.Cursor;
-                box.At = at;
-                box.Schedule.Seed(at, DateTimeOffset.UtcNow);
-                owner._sync.Report(accountId, SyncStats.Of(shelf));
+                var dropped = 0;
+                var shelf = OfficeShelves.Validate(stored, ref dropped);
+                if (dropped > 0)
+                {
+                    Log.Warn(Scope, $"{AccountId}: {dropped} unusable contacts dropped from the store");
+                }
+
+                if (shelf.At is { } at)
+                {
+                    People = [.. shelf.Contacts.Select(c => OfficeShelves.Restore(c, AccountId))];
+                    Cursor = shelf.Cursor;
+                    At = at;
+                    Schedule.Seed(at, DateTimeOffset.UtcNow);
+                    _owner._sync.Report(AccountId, SyncStats.Of(shelf));
+                }
             }
 
-            return box;
+            _loading = false;
+            _owner._engine.Poll();
+            _owner.Raise();
         }
 
         public void Save()
         {
-            if (owner._accounts.Find(AccountId) is null || People is null)
+            if (_loading || _owner._accounts.Find(AccountId) is null || People is null)
             {
                 return;
             }
@@ -778,8 +762,20 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
                 Cursor = Cursor,
             };
 
-            owner._sync.Vault.SaveSoon(SyncKind.Contacts, AccountId, shelf, SyncJsonContext.Default.ContactsShelf);
-            owner._sync.Report(AccountId, SyncStats.Of(shelf));
+            _owner._sync.Vault.SaveSoon(SyncKind.Contacts, AccountId, shelf, SyncJsonContext.Default.ContactsShelf);
+            _owner._sync.Report(AccountId, SyncStats.Of(shelf));
+        }
+
+        public void Cancel()
+        {
+            try
+            {
+                _cancel.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ignore: already torn down.
+            }
         }
     }
 }

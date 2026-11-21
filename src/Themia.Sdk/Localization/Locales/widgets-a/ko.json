@@ -37,7 +37,6 @@
   "widgetsA.office.problem.noAccount": "해당 계정은 더 이상 로그인되어 있지 않습니다.",
   "widgetsA.office.problem.offline": "네트워크 없음",
   "widgetsA.office.problem.rateLimited": "요청이 너무 많아 잠시 기다리는 중",
-  "widgetsA.office.problem.serverError": "서비스에 문제가 있습니다",
   "widgetsA.office.problem.signIn": "이 항목을 보려면 다시 로그인하세요.",
   "widgetsA.office.problem.timedOut": "서비스 시간이 초과되었습니다",
   "widgetsA.office.problem.unreachable": "서비스에 연결할 수 없습니다",

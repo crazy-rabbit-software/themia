@@ -1,4 +1,4 @@
-using Themia.Core.Office;
+using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Calendar;
@@ -12,12 +12,12 @@ namespace Themia.Widget.Calendar;
 public static class CalendarFreshness
 {
     public static IReadOnlyList<KitOutcome> Outcomes(
-        IReadOnlyList<(string Account, SyncProblem Problem, DateTimeOffset? At)> problems,
+        IReadOnlyList<(string Account, FetchStatus Status, DateTimeOffset? At)> problems,
         IReadOnlyDictionary<string, string> labels)
     {
         ArgumentNullException.ThrowIfNull(problems);
         ArgumentNullException.ThrowIfNull(labels);
 
-        return [.. problems.Select(p => new KitOutcome(labels.TryGetValue(p.Account, out var label) ? label : p.Account, SyncProblems.ToFetchStatus(p.Problem), HeldAt: p.At))];
+        return [.. problems.Select(p => new KitOutcome(labels.TryGetValue(p.Account, out var label) ? label : p.Account, p.Status, HeldAt: p.At))];
     }
 }

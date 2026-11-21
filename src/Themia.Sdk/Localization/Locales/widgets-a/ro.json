@@ -41,7 +41,6 @@
   "widgetsA.office.problem.noAccount": "Contul acesta nu mai este conectat.",
   "widgetsA.office.problem.offline": "Fără rețea",
   "widgetsA.office.problem.rateLimited": "Prea multe cereri: se așteaptă puțin",
-  "widgetsA.office.problem.serverError": "Serviciul are probleme",
   "widgetsA.office.problem.signIn": "Conectează-te din nou ca să vezi asta.",
   "widgetsA.office.problem.timedOut": "Serviciul nu a răspuns la timp",
   "widgetsA.office.problem.unreachable": "Serviciul nu poate fi accesat",

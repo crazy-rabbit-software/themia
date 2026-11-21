@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "Hindi na naka-sign in ang account na iyon.",
   "widgetsA.office.problem.offline": "Walang network",
   "widgetsA.office.problem.rateLimited": "Masyadong madalas nagtanong — maghihintay muna",
-  "widgetsA.office.problem.serverError": "May problema ang service",
   "widgetsA.office.problem.signIn": "Mag-sign in ulit para makita ito.",
   "widgetsA.office.problem.timedOut": "Nag-time out ang service",
   "widgetsA.office.problem.unreachable": "Hindi maabot ang service",

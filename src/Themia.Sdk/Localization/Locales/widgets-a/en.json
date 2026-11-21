@@ -40,7 +40,6 @@
   "widgetsA.office.problem.noAccount": "That account is no longer signed in.",
   "widgetsA.office.problem.offline": "No network",
   "widgetsA.office.problem.rateLimited": "Asked too often — waiting a while",
-  "widgetsA.office.problem.serverError": "The service is having trouble",
   "widgetsA.office.problem.signIn": "Sign in again to see this.",
   "widgetsA.office.problem.timedOut": "The service timed out",
   "widgetsA.office.problem.unreachable": "Can't reach the service",

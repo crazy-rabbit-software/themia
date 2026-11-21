@@ -3,6 +3,7 @@ using Themia.App.Services.Office;
 using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -33,7 +34,7 @@ public sealed record CalendarSlice(
     IReadOnlyList<CalendarTarget> Targets,
     IReadOnlyDictionary<string, ProviderId> Providers,
     IReadOnlyDictionary<string, string> Labels,
-    IReadOnlyList<(string Account, SyncProblem Problem, DateTimeOffset? At)> Problems,
+    IReadOnlyList<(string Account, FetchStatus Status, DateTimeOffset? At)> Problems,
     bool AnyData)
 {
     public static CalendarSlice Empty(CalendarSliceState state)
@@ -93,7 +94,7 @@ public sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
         await Task.WhenAll(eventTasks.Cast<Task>().Concat(birthdayTasks)).ConfigureAwait(true);
 
         var events = new List<CalendarEvent>();
-        var problems = new List<(string Account, SyncProblem Problem, DateTimeOffset? At)>();
+        var problems = new List<(string Account, FetchStatus Status, DateTimeOffset? At)>();
         var anyData = false;
 
         for (var i = 0; i < targets.Count; i++)
@@ -105,9 +106,9 @@ public sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
                 events.AddRange(list.Select(e => e with { AccountId = targets[i].AccountId, CalendarId = targets[i].CalendarId, SourceIndex = i }));
             }
 
-            if (result.Problem != SyncProblem.None)
+            if (OfficeProblems.IsProblem(result.Status))
             {
-                problems.Add((targets[i].AccountId, result.Problem, result.At));
+                problems.Add((targets[i].AccountId, result.Status, result.At));
             }
         }
 
@@ -119,9 +120,9 @@ public sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
 
             // [S-575] A refused address book costs the birthdays, never the calendar: it is a
             // warning on the header, not an error over the events.
-            if (result.Problem != SyncProblem.None)
+            if (OfficeProblems.IsProblem(result.Status))
             {
-                problems.Add((selected[i], result.Problem, result.At));
+                problems.Add((selected[i], result.Status, result.At));
             }
         }
 

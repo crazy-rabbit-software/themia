@@ -2,6 +2,7 @@ using Themia.App.Widgets;
 using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 
 namespace Themia.Sdk.Samples;
 
@@ -218,8 +219,8 @@ public sealed class SampleCalendarData(bool empty = false, bool freeToday = fals
         var (from, to) = CalendarRules.FetchWindow(first, last, zone);
         IReadOnlyList<CalendarEvent> events = empty ? [] : [.. SampleSchedule.Events(today, zone, freeToday)
             .Where(e => e.AllDay ? e.FirstDay <= last && e.EndDay > first : e.Start < to && e.End > from)];
-        IReadOnlyList<(string Account, SyncProblem Problem, DateTimeOffset? At)> problems = stale
-            ? [(SampleSchedule.WorkAccount, SyncProblem.Offline, SampleDay.MinutesAgo(20))]
+        IReadOnlyList<(string Account, FetchStatus Status, DateTimeOffset? At)> problems = stale
+            ? [(SampleSchedule.WorkAccount, FetchStatus.Offline, SampleDay.MinutesAgo(20))]
             : [];
         return new CalendarSlice(CalendarSliceState.Asked, events, empty ? [] : SampleSchedule.Birthdays(today), SampleSchedule.Targets,
             SampleSchedule.Providers, SampleSchedule.Labels, problems, true);

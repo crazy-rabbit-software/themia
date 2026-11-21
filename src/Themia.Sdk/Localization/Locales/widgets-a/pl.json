@@ -43,7 +43,6 @@
   "widgetsA.office.problem.noAccount": "To konto nie jest już zalogowane.",
   "widgetsA.office.problem.offline": "Brak sieci",
   "widgetsA.office.problem.rateLimited": "Zbyt wiele zapytań — chwila przerwy",
-  "widgetsA.office.problem.serverError": "Usługa ma problemy",
   "widgetsA.office.problem.signIn": "Zaloguj się ponownie, aby to zobaczyć.",
   "widgetsA.office.problem.timedOut": "Upłynął limit czasu usługi",
   "widgetsA.office.problem.unreachable": "Nie można połączyć się z usługą",

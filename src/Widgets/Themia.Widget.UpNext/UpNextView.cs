@@ -155,7 +155,7 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
                 return;
 
             case MeetingScreen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
+                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
                 return;
 
             case MeetingScreen.Problem:

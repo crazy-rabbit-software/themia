@@ -169,10 +169,10 @@ public sealed class MeetingFeed
 
         if (!slice.AnyData && slice.Problems.Count > 0)
         {
-            var worst = slice.Problems.OrderByDescending(p => SyncProblems.NeedsUser(p.Problem)).First();
+            var worst = slice.Problems.OrderByDescending(p => OfficeProblems.NeedsUser(p.Status)).First();
             Screen = MeetingScreen.Problem;
-            ProblemText = () => SyncProblems.Message(worst.Problem, SyncSubject.Calendar, Strings.Current);
-            ProblemOffersAccounts = SyncProblems.NeedsUser(worst.Problem);
+            ProblemText = () => OfficeProblems.Message(worst.Status, SyncSubject.Calendar, Strings.Current);
+            ProblemOffersAccounts = OfficeProblems.NeedsUser(worst.Status);
             return;
         }
 

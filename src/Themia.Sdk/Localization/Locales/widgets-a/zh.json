@@ -37,7 +37,6 @@
   "widgetsA.office.problem.noAccount": "该帐户已不再登录。",
   "widgetsA.office.problem.offline": "无网络",
   "widgetsA.office.problem.rateLimited": "请求过于频繁，稍后再试",
-  "widgetsA.office.problem.serverError": "服务出现问题",
   "widgetsA.office.problem.signIn": "请重新登录以查看。",
   "widgetsA.office.problem.timedOut": "服务超时",
   "widgetsA.office.problem.unreachable": "无法连接到服务",

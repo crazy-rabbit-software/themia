@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "Dat account is niet meer aangemeld.",
   "widgetsA.office.problem.offline": "Geen netwerk",
   "widgetsA.office.problem.rateLimited": "Te vaak gevraagd — even wachten",
-  "widgetsA.office.problem.serverError": "De service heeft problemen",
   "widgetsA.office.problem.signIn": "Meld je opnieuw aan om dit te zien.",
   "widgetsA.office.problem.timedOut": "Er is een time-out opgetreden bij de service",
   "widgetsA.office.problem.unreachable": "Kan de service niet bereiken",

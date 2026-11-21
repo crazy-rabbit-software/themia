@@ -317,18 +317,18 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             }
 
             var results = tasks.Select(t => t.Result).ToList();
-            var problems = results.Select((r, i) => (Account: selected[i], r.Problem, r.At)).Where(p => p.Problem != SyncProblem.None).ToList();
+            var problems = results.Select((r, i) => (Account: selected[i], r.Status, r.At)).Where(p => OfficeProblems.IsProblem(p.Status)).ToList();
             var anyData = results.Any(r => r.Value is not null);
 
             _contacts = ContactRules.Merge(results.Select(r => r.Value ?? []));
 
             if (!anyData && problems.Count > 0)
             {
-                var worst = problems.OrderByDescending(p => SyncProblems.NeedsUser(p.Problem)).First();
+                var worst = problems.OrderByDescending(p => OfficeProblems.NeedsUser(p.Status)).First();
                 _screen = Screen.Problem;
-                var problem = worst.Problem;
-                _problemText = () => SyncProblems.Message(problem, SyncSubject.Contacts, Strings.Current);
-                _problemOffersAccounts = SyncProblems.NeedsUser(worst.Problem);
+                var problem = worst.Status;
+                _problemText = () => OfficeProblems.Message(problem, SyncSubject.Contacts, Strings.Current);
+                _problemOffersAccounts = OfficeProblems.NeedsUser(worst.Status);
                 _warningText = null;
             }
             else
@@ -339,8 +339,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                     : () => string.Join(Environment.NewLine, problems.Select(p =>
                         Str.WidgetsA_Office_AccountProblem.Format(
                             ("account", labels.TryGetValue(p.Account, out var label) ? label : p.Account),
-                            ("problem", Themia.Core.Sync.SyncFreshness.Stamp(Strings.Current, SyncProblems.Message(p.Problem, SyncSubject.Contacts, Strings.Current), p.At?.ToLocalTime(), DateTimeOffset.Now)))));
-                _warningOpensAccounts = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
+                            ("problem", Themia.Core.Sync.SyncFreshness.Stamp(Strings.Current, OfficeProblems.Message(p.Status, SyncSubject.Contacts, Strings.Current), p.At?.ToLocalTime(), DateTimeOffset.Now)))));
+                _warningOpensAccounts = problems.Any(p => OfficeProblems.NeedsUser(p.Status));
             }
         }
         catch (Exception ex)
@@ -575,7 +575,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 return;
 
             case Screen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Contacts, Strings.Current), offerAccounts: true, problem: true);
+                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Contacts, Strings.Current), offerAccounts: true, problem: true);
                 return;
 
             case Screen.Problem:

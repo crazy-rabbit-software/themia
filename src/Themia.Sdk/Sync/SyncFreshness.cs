@@ -1,5 +1,4 @@
 using Themia.Core.Localization;
-using Themia.Core.Office;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Sync;
@@ -38,15 +37,15 @@ public static class SyncFreshness
     /// worst of what is on screen is. Items with nothing stored add no stamp; when none of them has
     /// one the line has none.
     /// </summary>
-    public static IReadOnlyList<(string Owner, SyncProblem Problem, DateTimeOffset? At)> Fold(
-        IEnumerable<(string Owner, SyncProblem Problem, DateTimeOffset? At)> problems)
+    public static IReadOnlyList<(string Owner, FetchStatus Status, DateTimeOffset? At)> Fold(
+        IEnumerable<(string Owner, FetchStatus Status, DateTimeOffset? At)> problems)
     {
         ArgumentNullException.ThrowIfNull(problems);
 
-        var folded = new List<(string Owner, SyncProblem Problem, DateTimeOffset? At)>();
+        var folded = new List<(string Owner, FetchStatus Status, DateTimeOffset? At)>();
         foreach (var (owner, problem, at) in problems)
         {
-            var index = folded.FindIndex(p => p.Owner == owner && p.Problem == problem);
+            var index = folded.FindIndex(p => p.Owner == owner && p.Status == problem);
             if (index < 0)
             {
                 folded.Add((owner, problem, at));

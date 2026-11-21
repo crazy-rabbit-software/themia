@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Storage;
 using Themia.Core.Sync;
+using Themia.Core.Widgets;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -117,16 +118,16 @@ public sealed class SyncHousekeepingTests : IDisposable
 
         var folded = SyncFreshness.Fold(
         [
-            ("work", SyncProblem.Offline, newer),
-            ("home", SyncProblem.Offline, null),
-            ("work", SyncProblem.Offline, older),
-            ("work", SyncProblem.Offline, null),
-            ("home", SyncProblem.Offline, newer),
-            ("work", SyncProblem.Unreachable, null),
+            ("work", FetchStatus.Offline, newer),
+            ("home", FetchStatus.Offline, null),
+            ("work", FetchStatus.Offline, older),
+            ("work", FetchStatus.Offline, null),
+            ("home", FetchStatus.Offline, newer),
+            ("work", FetchStatus.Unreachable, null),
         ]);
 
         Assert.Equal(
-            [("work", SyncProblem.Offline, (DateTimeOffset?)older), ("home", SyncProblem.Offline, newer), ("work", SyncProblem.Unreachable, null)],
+            [("work", FetchStatus.Offline, (DateTimeOffset?)older), ("home", FetchStatus.Offline, newer), ("work", FetchStatus.Unreachable, null)],
             folded);
     }
 
@@ -135,7 +136,7 @@ public sealed class SyncHousekeepingTests : IDisposable
     {
         var at = new DateTimeOffset(2026, 10, 11, 10, 42, 0, TimeSpan.Zero);
         var now = at.AddMinutes(30);
-        var problem = SyncProblems.Message(SyncProblem.Offline, SyncSubject.Calendar, Locale.En);
+        var problem = OfficeProblems.Message(FetchStatus.Offline, SyncSubject.Calendar, Locale.En);
 
         Assert.Equal($"{problem} · updated {LocaleFormat.Time(Locale.En, at.DateTime)}", SyncFreshness.Stamp(Locale.En, problem, at, now));
         Assert.Equal(problem, SyncFreshness.Stamp(Locale.En, problem, null, now));

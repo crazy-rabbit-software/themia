@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "Quell’account non è più connesso.",
   "widgetsA.office.problem.offline": "Nessuna rete",
   "widgetsA.office.problem.rateLimited": "Troppe richieste: attesa in corso",
-  "widgetsA.office.problem.serverError": "Il servizio ha dei problemi",
   "widgetsA.office.problem.signIn": "Accedi di nuovo per vederlo.",
   "widgetsA.office.problem.timedOut": "Il servizio non ha risposto in tempo",
   "widgetsA.office.problem.unreachable": "Impossibile raggiungere il servizio",

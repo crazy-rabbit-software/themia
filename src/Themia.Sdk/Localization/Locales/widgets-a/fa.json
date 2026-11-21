@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "دیگر به آن حساب وارد نشده‌اید.",
   "widgetsA.office.problem.offline": "شبکه‌ای نیست",
   "widgetsA.office.problem.rateLimited": "درخواست‌ها زیاد بود — کمی صبر می‌کند",
-  "widgetsA.office.problem.serverError": "سرویس دچار مشکل است",
   "widgetsA.office.problem.signIn": "برای دیدن این، دوباره وارد شوید.",
   "widgetsA.office.problem.timedOut": "مهلت پاسخ سرویس تمام شد",
   "widgetsA.office.problem.unreachable": "دسترسی به سرویس ممکن نیست",

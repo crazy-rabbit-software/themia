@@ -1,5 +1,6 @@
 using Themia.App.Services.Accounts;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.App.Services.Office;
@@ -9,10 +10,10 @@ namespace Themia.App.Services.Office;
 /// or missing, and when it was fetched.
 /// </summary>
 /// <param name="Value">The data, or null when there has never been any for this request.</param>
-/// <param name="Problem">Why the last attempt failed, or <see cref="SyncProblem.None"/>.</param>
+/// <param name="Status">How the last attempt went, in the one vocabulary ([S-2691]): Ok, Loading before the first, else why it failed.</param>
 /// <param name="Detail">One line for the log; never shown verbatim.</param>
 /// <param name="At">When <paramref name="Value"/> was fetched.</param>
-public sealed record Synced<T>(T? Value, SyncProblem Problem, string? Detail, DateTimeOffset? At)
+public sealed record Synced<T>(T? Value, FetchStatus Status, string? Detail, DateTimeOffset? At)
     where T : class;
 
 /// <summary>

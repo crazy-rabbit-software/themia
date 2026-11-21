@@ -43,7 +43,6 @@
   "widgetsA.office.problem.noAccount": "В эту учетную запись больше не выполнен вход.",
   "widgetsA.office.problem.offline": "Нет сети",
   "widgetsA.office.problem.rateLimited": "Слишком частые запросы — ожидание",
-  "widgetsA.office.problem.serverError": "В работе службы неполадки",
   "widgetsA.office.problem.signIn": "Войдите снова, чтобы увидеть это.",
   "widgetsA.office.problem.timedOut": "Служба не ответила вовремя",
   "widgetsA.office.problem.unreachable": "Служба недоступна",

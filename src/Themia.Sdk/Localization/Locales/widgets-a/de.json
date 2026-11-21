@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "Dieses Konto ist nicht mehr angemeldet.",
   "widgetsA.office.problem.offline": "Kein Netzwerk",
   "widgetsA.office.problem.rateLimited": "Zu oft angefragt – kurze Pause",
-  "widgetsA.office.problem.serverError": "Der Dienst hat Probleme",
   "widgetsA.office.problem.signIn": "Melde dich erneut an, um dies zu sehen.",
   "widgetsA.office.problem.timedOut": "Zeitüberschreitung beim Dienst",
   "widgetsA.office.problem.unreachable": "Dienst nicht erreichbar",

@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "Bu hesapta artık oturum açık değil.",
   "widgetsA.office.problem.offline": "Ağ yok",
   "widgetsA.office.problem.rateLimited": "Çok sık soruldu — bir süre bekleniyor",
-  "widgetsA.office.problem.serverError": "Hizmette sorun var",
   "widgetsA.office.problem.signIn": "Bunu görmek için yeniden oturum açın.",
   "widgetsA.office.problem.timedOut": "Hizmet zaman aşımına uğradı",
   "widgetsA.office.problem.unreachable": "Hizmete ulaşılamıyor",

@@ -254,6 +254,6 @@ public static class OfficeMenuLines
         var result = await source.CalendarsAsync(accountId, force: false, CancellationToken.None).ConfigureAwait(true);
         return result.Value is { } calendars
             ? new CalendarListing(calendars, null)
-            : new CalendarListing(null, Str.WidgetsA_Calendar_Settings_ListFailedWhy.Format(("problem", SyncProblems.Message(result.Problem, SyncSubject.Calendar, Strings.Current))));
+            : new CalendarListing(null, Str.WidgetsA_Calendar_Settings_ListFailedWhy.Format(("problem", OfficeProblems.Message(result.Status, SyncSubject.Calendar, Strings.Current))));
     }
 }

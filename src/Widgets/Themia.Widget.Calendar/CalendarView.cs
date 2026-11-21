@@ -414,14 +414,14 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         var problems = slice.Problems;
         var labels = slice.Labels;
-        var worst = problems.OrderByDescending(p => SyncProblems.NeedsUser(p.Problem)).FirstOrDefault();
+        var worst = problems.OrderByDescending(p => OfficeProblems.NeedsUser(p.Status)).FirstOrDefault();
 
         if (!slice.AnyData && problems.Count > 0)
         {
             _screen = Screen.Problem;
-            var problem = worst.Problem;
-            _problemText = () => SyncProblems.Message(problem, SyncSubject.Calendar, Strings.Current);
-            _problemOffersAccounts = SyncProblems.NeedsUser(worst.Problem);
+            var problem = worst.Status;
+            _problemText = () => OfficeProblems.Message(problem, SyncSubject.Calendar, Strings.Current);
+            _problemOffersAccounts = OfficeProblems.NeedsUser(worst.Status);
             _outcomes = [];
             return;
         }
@@ -430,7 +430,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         // are from, in the kit's one stale rule: "Work: No network · updated 10:42".
         _screen = Screen.Ready;
         _outcomes = CalendarFreshness.Outcomes(problems, labels);
-        _outcomesNeedUser = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
+        _outcomesNeedUser = problems.Any(p => OfficeProblems.NeedsUser(p.Status));
     }
 
     /// <summary>
@@ -629,11 +629,11 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         switch (_screen)
         {
             case Screen.NoAccounts:
-                _state.Show(_config.SetupSentence ?? SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
+                _state.Show(_config.SetupSentence ?? OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
                 break;
 
             case Screen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
+                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
                 break;
 
             case Screen.Problem:

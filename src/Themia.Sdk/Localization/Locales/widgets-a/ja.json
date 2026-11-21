@@ -37,7 +37,6 @@
   "widgetsA.office.problem.noAccount": "そのアカウントはサインインしていません。",
   "widgetsA.office.problem.offline": "ネットワークなし",
   "widgetsA.office.problem.rateLimited": "リクエストが多すぎるため、しばらく待機しています",
-  "widgetsA.office.problem.serverError": "サービスで問題が発生しています",
   "widgetsA.office.problem.signIn": "表示するには、もう一度サインインしてください。",
   "widgetsA.office.problem.timedOut": "サービスがタイムアウトしました",
   "widgetsA.office.problem.unreachable": "サービスに接続できません",

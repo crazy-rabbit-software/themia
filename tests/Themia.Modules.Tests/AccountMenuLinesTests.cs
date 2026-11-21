@@ -6,9 +6,10 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
-using Themia.Sdk;
-using Themia.Sdk.WinUI;
+using Themia.Core.Widgets;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.WinUI;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Modules.Tests;
@@ -104,7 +105,7 @@ public sealed class AccountMenuLinesTests
             => throw new NotSupportedException();
 
         public Task<Synced<IReadOnlyList<CalendarInfo>>> CalendarsAsync(string accountId, bool force, CancellationToken cancellation)
-            => Task.FromResult(new Synced<IReadOnlyList<CalendarInfo>>(calendars(accountId), calendars(accountId) is null ? SyncProblem.Offline : SyncProblem.None, null, null));
+            => Task.FromResult(new Synced<IReadOnlyList<CalendarInfo>>(calendars(accountId), calendars(accountId) is null ? FetchStatus.Offline : FetchStatus.Ok, null, null));
 
         public Task<Synced<IReadOnlyList<Birthday>>> BirthdaysAsync(string accountId, bool force, CancellationToken cancellation)
             => throw new NotSupportedException();
@@ -157,7 +158,7 @@ public sealed class AccountMenuLinesTests
         Assert.Equal(["Work", "Home"], calendars.Select(c => c.Text));
         var failed = Assert.Single(Line(calendars, "Home").Children!);
         Assert.True(failed.Note);
-        Assert.Contains(SyncProblems.Message(SyncProblem.Offline, SyncSubject.Calendar, Strings.Current), failed.Text, StringComparison.Ordinal);
+        Assert.Contains(OfficeProblems.Message(FetchStatus.Offline, SyncSubject.Calendar, Strings.Current), failed.Text, StringComparison.Ordinal);
     }
 
     [Fact]

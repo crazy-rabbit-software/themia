@@ -1925,6 +1925,27 @@ service layer knows strategies, never services: a service is a descriptor that p
   without it, it is classified by its codes like any failure.
 - **[S-9923]** The form-post transport sends its fields as `application/x-www-form-urlencoded`, each
   escaped, in order.
+- **[S-9932]** The account syncs and the kit service sync are one machine: one engine ([S-2691]: mail folders,
+  calendars, birthdays, calendar lists, address books, task accounts, web answers and service entries are its
+  entries), one write drain ([S-2692]), one send ([S-2694]), one pager ([S-9906]: the account service's Graph and
+  Google lists and change rounds page through `ServicePager`) and one failure vocabulary: the calendar and contacts
+  widgets read `Synced<T>.Status`, a `FetchStatus` (an account signed out is `NotConfigured`), and
+  `OfficeProblems` says it per subject; there is no second set of names.
+- **[S-9933]** What the five account providers (`HostProviders`: Microsoft, Google, IMAP, CalDAV, CardDAV) still need
+  before they are service modules like any other (`src/Providers/Themia.Provider.<Name>`, [S-9902]). They carry no
+  `ServiceDescriptor`; their reads and writes are host code that branches on the provider: 45 `HostProviders.X`
+  branches in the app (`MailService` 11, `AccountOfficeSource.Fetch` 8, `AccountOfficeSource.Delta` 8, `TaskRemote` 8,
+  `AccountService.Requests` 4, `AccountService.SignIn` 3, the account render 3). No account feed moved onto the kit's
+  interests and replica path yet, because each needs a part the service layer does not have: (1) writes: mail and tasks
+  change things, and a kit service is read-only (a write is an `OpenTo` page, [S-9900]); a `ServiceWrite` rule whose
+  queue is the one `WriteDrain` comes first; (2) transports that are not HTTP JSON: IMAP is a socket session
+  (`ImapMailClient`), CalDAV/CardDAV are XML multistatus with etags and sync-tokens; each is an `IServiceTransport`
+  and a reply scheme of its own; (3) the widgets: Email, Tasks, Calendar, Contacts, Next meeting, Up next and Week
+  planner read `Mail`, `Tasks` and `Office`, not `Services`. The order, one provider at a time: Microsoft Graph's
+  descriptor (bearer, Graph's error scheme, Retry-After only, `@odata.nextLink` as `BodyLink`); its contacts book and
+  calendar window as `ServiceReplica`s (the delta link is the replica's token, [S-2684], [S-2685]); the Contacts widget
+  onto `Services` as the proof; then Google; then writes; then the DAV and IMAP transports. Until then the account
+  feeds share everything above the provider branch ([S-9932]).
 
 ## Adding a widget
 

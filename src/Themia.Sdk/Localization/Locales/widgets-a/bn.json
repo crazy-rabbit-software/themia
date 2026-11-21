@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "সেই অ্যাকাউন্টে আর সাইন ইন করা নেই।",
   "widgetsA.office.problem.offline": "নেটওয়ার্ক নেই",
   "widgetsA.office.problem.rateLimited": "খুব ঘন ঘন অনুরোধ — কিছুক্ষণ অপেক্ষা করা হচ্ছে",
-  "widgetsA.office.problem.serverError": "সার্ভিসে সমস্যা হচ্ছে",
   "widgetsA.office.problem.signIn": "এটি দেখতে আবার সাইন ইন করুন।",
   "widgetsA.office.problem.timedOut": "সার্ভিসের সময় শেষ হয়ে গেছে",
   "widgetsA.office.problem.unreachable": "সার্ভিসে পৌঁছানো যাচ্ছে না",

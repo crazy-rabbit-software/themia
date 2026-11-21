@@ -37,7 +37,6 @@
   "widgetsA.office.problem.noAccount": "บัญชีนั้นไม่ได้ลงชื่อเข้าใช้อีกต่อไป",
   "widgetsA.office.problem.offline": "ไม่มีเครือข่าย",
   "widgetsA.office.problem.rateLimited": "ขอข้อมูลบ่อยเกินไป — กำลังรอสักครู่",
-  "widgetsA.office.problem.serverError": "บริการกำลังมีปัญหา",
   "widgetsA.office.problem.signIn": "ลงชื่อเข้าใช้อีกครั้งเพื่อดูข้อมูลนี้",
   "widgetsA.office.problem.timedOut": "บริการหมดเวลา",
   "widgetsA.office.problem.unreachable": "ไม่สามารถเข้าถึงบริการได้",

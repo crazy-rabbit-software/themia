@@ -37,7 +37,6 @@
   "widgetsA.office.problem.noAccount": "Tài khoản đó không còn đăng nhập.",
   "widgetsA.office.problem.offline": "Không có mạng",
   "widgetsA.office.problem.rateLimited": "Truy vấn quá thường xuyên — đang chờ một lúc",
-  "widgetsA.office.problem.serverError": "Dịch vụ đang gặp sự cố",
   "widgetsA.office.problem.signIn": "Đăng nhập lại để xem mục này.",
   "widgetsA.office.problem.timedOut": "Dịch vụ hết thời gian chờ",
   "widgetsA.office.problem.unreachable": "Không kết nối được dịch vụ",

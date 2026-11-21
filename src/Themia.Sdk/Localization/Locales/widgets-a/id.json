@@ -37,7 +37,6 @@
   "widgetsA.office.problem.noAccount": "Akun itu tidak lagi masuk.",
   "widgetsA.office.problem.offline": "Tidak ada jaringan",
   "widgetsA.office.problem.rateLimited": "Terlalu sering meminta — menunggu sebentar",
-  "widgetsA.office.problem.serverError": "Layanan sedang bermasalah",
   "widgetsA.office.problem.signIn": "Masuk lagi untuk melihat ini.",
   "widgetsA.office.problem.timedOut": "Waktu layanan habis",
   "widgetsA.office.problem.unreachable": "Tidak dapat menjangkau layanan",

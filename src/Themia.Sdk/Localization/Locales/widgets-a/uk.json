@@ -43,7 +43,6 @@
   "widgetsA.office.problem.noAccount": "Цей обліковий запис більше не ввійшов.",
   "widgetsA.office.problem.offline": "Немає мережі",
   "widgetsA.office.problem.rateLimited": "Забагато запитів: трохи зачекаємо",
-  "widgetsA.office.problem.serverError": "У служби проблеми",
   "widgetsA.office.problem.signIn": "Увійди знову, щоб побачити це.",
   "widgetsA.office.problem.timedOut": "Час очікування служби минув",
   "widgetsA.office.problem.unreachable": "Не вдається зв’язатися зі службою",

@@ -273,10 +273,10 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
 
         if (!slice.AnyData && slice.Problems.Count > 0)
         {
-            var worst = slice.Problems.OrderByDescending(p => SyncProblems.NeedsUser(p.Problem)).First();
+            var worst = slice.Problems.OrderByDescending(p => OfficeProblems.NeedsUser(p.Status)).First();
             _screen = Screen.Problem;
-            _problemText = () => SyncProblems.Message(worst.Problem, SyncSubject.Calendar, Strings.Current);
-            _problemOffersAccounts = SyncProblems.NeedsUser(worst.Problem);
+            _problemText = () => OfficeProblems.Message(worst.Status, SyncSubject.Calendar, Strings.Current);
+            _problemOffersAccounts = OfficeProblems.NeedsUser(worst.Status);
             return;
         }
 
@@ -389,7 +389,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
                 return;
 
             case Screen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
+                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
                 return;
 
             case Screen.Problem:

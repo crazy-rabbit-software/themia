@@ -255,7 +255,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
                 return;
 
             case MeetingScreen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
+                _state.Show(OfficeProblems.Message(FetchStatus.NotConfigured, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
                 ShowFace();
                 return;
 

@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "ആ അക്കൗണ്ട് ഇനി സൈൻ ഇൻ ചെയ്തിട്ടില്ല.",
   "widgetsA.office.problem.offline": "നെറ്റ്‌വർക്കില്ല",
   "widgetsA.office.problem.rateLimited": "വളരെ തവണ ചോദിച്ചു: കുറച്ചുനേരം കാത്തിരിക്കുന്നു",
-  "widgetsA.office.problem.serverError": "സേവനത്തിന് പ്രശ്‌നമുണ്ട്",
   "widgetsA.office.problem.signIn": "ഇത് കാണാൻ വീണ്ടും സൈൻ ഇൻ ചെയ്യുക.",
   "widgetsA.office.problem.timedOut": "സേവനം സമയപരിധി കഴിഞ്ഞു",
   "widgetsA.office.problem.unreachable": "സേവനത്തിലേക്ക് എത്താനാവില്ല",

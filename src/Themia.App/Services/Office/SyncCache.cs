@@ -1,6 +1,7 @@
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Office;
 
@@ -12,7 +13,7 @@ namespace Themia.App.Services.Office;
 /// <item>A request already out for the same key is joined, never started twice.</item>
 /// <item>
 /// A failure keeps the last good answer on screen, annotated with what went wrong, and is held for
-/// <see cref="SyncProblems.HoldFor"/> — an hour for a refusal only the user can mend — so a poll
+/// <see cref="HoldFor"/> — an hour for a refusal only the user can mend — so a poll
 /// does not hammer a provider that has already said no. A forced refresh (the user's Refresh) asks
 /// regardless.
 /// </item>
@@ -54,9 +55,9 @@ internal sealed class SyncCache<T>(string scope)
             {
                 if (!force && _entries.TryGetValue(key, out var entry))
                 {
-                    var fresh = entry.Result.Problem == SyncProblem.None
+                    var fresh = entry.Result.Status == FetchStatus.Ok
                         ? entry.Result.At is { } at && now - at < freshFor
-                        : now - entry.FailedAt < SyncProblems.HoldFor(entry.Result.Problem);
+                        : now - entry.FailedAt < HoldFor(entry.Result.Status);
 
                     if (fresh)
                     {
@@ -90,11 +91,11 @@ internal sealed class SyncCache<T>(string scope)
         try
         {
             var value = await load(CancellationToken.None).ConfigureAwait(false);
-            next = new Entry(new Synced<T>(value, SyncProblem.None, null, DateTimeOffset.UtcNow), default);
+            next = new Entry(new Synced<T>(value, FetchStatus.Ok, null, DateTimeOffset.UtcNow), default);
         }
         catch (AccountException ex)
         {
-            var problem = SyncProblems.From(ex.Error);
+            var problem = ex.ToFetchStatus();
             Log.Warn(scope, $"{Redact(key)}: {problem} ({ex.Message})");
             next = Failed(previous, problem, ex.Message);
         }
@@ -104,7 +105,7 @@ internal sealed class SyncCache<T>(string scope)
             // flight that several widgets are awaiting; it is logged in full and shown as "the
             // service sent something unexpected".
             Log.Error(scope, $"{Redact(key)}: the request failed", ex);
-            next = Failed(previous, SyncProblem.BadResponse, ex.Message);
+            next = Failed(previous, FetchStatus.BadResponse, ex.Message);
         }
 
         lock (_gate)
@@ -125,7 +126,14 @@ internal sealed class SyncCache<T>(string scope)
         return next.Result;
     }
 
-    private static Entry Failed(Synced<T>? previous, SyncProblem problem, string detail)
+    /// <summary>
+    /// [S-588] How long a failed page is answered from here before it is asked again: a refusal only the user can mend
+    /// an hour (the shared back-off's ceiling), a throttle a quarter of an hour, anything else the next ask.
+    /// </summary>
+    private static TimeSpan HoldFor(FetchStatus status)
+        => !FetchState.IsRetryable(status) ? Backoff.Ceiling : status == FetchStatus.RateLimited ? Backoff.RateLimitFloor : TimeSpan.Zero;
+
+    private static Entry Failed(Synced<T>? previous, FetchStatus problem, string detail)
         => new(new Synced<T>(previous?.Value, problem, detail, previous?.At), DateTimeOffset.UtcNow);
 
     /// <summary>The account part of a key only: a calendar id can be a long opaque string.</summary>

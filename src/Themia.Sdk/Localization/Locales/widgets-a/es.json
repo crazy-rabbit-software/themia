@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "Esa cuenta ya no tiene la sesión iniciada.",
   "widgetsA.office.problem.offline": "Sin red",
   "widgetsA.office.problem.rateLimited": "Demasiadas solicitudes: esperando un rato",
-  "widgetsA.office.problem.serverError": "El servicio tiene problemas",
   "widgetsA.office.problem.signIn": "Vuelve a iniciar sesión para verlo.",
   "widgetsA.office.problem.timedOut": "Se agotó el tiempo de espera del servicio",
   "widgetsA.office.problem.unreachable": "No se puede acceder al servicio",

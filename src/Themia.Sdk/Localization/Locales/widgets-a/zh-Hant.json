@@ -37,7 +37,6 @@
   "widgetsA.office.problem.noAccount": "該帳戶已不再登入。",
   "widgetsA.office.problem.offline": "沒有網路",
   "widgetsA.office.problem.rateLimited": "要求過於頻繁，稍候再試",
-  "widgetsA.office.problem.serverError": "服務發生問題",
   "widgetsA.office.problem.signIn": "請重新登入以查看。",
   "widgetsA.office.problem.timedOut": "服務逾時",
   "widgetsA.office.problem.unreachable": "無法連線到服務",

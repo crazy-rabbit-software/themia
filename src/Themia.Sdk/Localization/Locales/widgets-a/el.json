@@ -39,7 +39,6 @@
   "widgetsA.office.problem.noAccount": "Αυτός ο λογαριασμός δεν είναι πια συνδεδεμένος.",
   "widgetsA.office.problem.offline": "Χωρίς δίκτυο",
   "widgetsA.office.problem.rateLimited": "Πάρα πολλά αιτήματα: αναμονή για λίγο",
-  "widgetsA.office.problem.serverError": "Η υπηρεσία αντιμετωπίζει πρόβλημα",
   "widgetsA.office.problem.signIn": "Συνδέσου ξανά για να το δεις.",
   "widgetsA.office.problem.timedOut": "Η υπηρεσία δεν απάντησε εγκαίρως",
   "widgetsA.office.problem.unreachable": "Η υπηρεσία δεν είναι προσβάσιμη",

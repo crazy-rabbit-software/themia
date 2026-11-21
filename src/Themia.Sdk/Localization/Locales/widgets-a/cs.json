@@ -41,7 +41,6 @@
   "widgetsA.office.problem.noAccount": "Tento účet už není přihlášený.",
   "widgetsA.office.problem.offline": "Žádná síť",
   "widgetsA.office.problem.rateLimited": "Příliš mnoho požadavků, chvíli se čeká",
-  "widgetsA.office.problem.serverError": "Služba má potíže",
   "widgetsA.office.problem.signIn": "Pro zobrazení se znovu přihlas.",
   "widgetsA.office.problem.timedOut": "Služba neodpověděla včas",
   "widgetsA.office.problem.unreachable": "Služba není dostupná",

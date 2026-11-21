@@ -47,7 +47,6 @@
   "widgetsA.office.problem.noAccount": "لم يعد هذا الحساب مسجّل الدخول.",
   "widgetsA.office.problem.offline": "لا توجد شبكة",
   "widgetsA.office.problem.rateLimited": "طلبات كثيرة جدًا — الانتظار قليلًا",
-  "widgetsA.office.problem.serverError": "تواجه الخدمة مشكلة",
   "widgetsA.office.problem.signIn": "سجّل الدخول مرة أخرى لرؤية هذا.",
   "widgetsA.office.problem.timedOut": "انتهت مهلة الخدمة",
   "widgetsA.office.problem.unreachable": "يتعذر الوصول إلى الخدمة",
