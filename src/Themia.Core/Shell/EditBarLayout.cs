@@ -21,6 +21,9 @@ public enum BarPartKind
     /// <summary>[S-13701] Unplaced icons' entry, its icon alone and its count badge, right beside Add widget.</summary>
     Unplaced,
 
+    /// <summary>[S-14910] The widget gallery's button, an icon alone, just before Add.</summary>
+    Gallery,
+
     Add,
 
     Done,
@@ -55,8 +58,8 @@ public sealed record EditBarPlan(IReadOnlyList<BarPart> Parts, double Width, dou
 /// <summary>
 /// [S-2320]..[S-2324] The edit bar's layout, Karpo's command bar (karpo-app, docs/widgets.md §575, §578,
 /// §596, §608; <c>PanelLayout.Lay</c>): the pages' entries 4 apart; 8, the divider, 8; the selection's
-/// room; a 16 gutter; the errors' room; 4; Unplaced icons (its icon alone, [S-13701]); 4; Add; 8; Done, 8 from the
-/// bar's end. One width whatever is
+/// room; a 16 gutter; the errors' room; 4; Unplaced icons (its icon alone, [S-13701]); 4; the gallery (its icon alone,
+/// [S-14910]); 4; Add; 8; Done, 8 from the bar's end. One width whatever is
 /// selected and whether there are errors: the divider's, the selection's and the errors' rooms are kept
 /// empty. On a display too narrow for it the pages' entries show their icon alone first, then the
 /// selection's room narrows. Pure: the bar measures its words and asks.
@@ -139,9 +142,14 @@ public static class EditBarLayout
 
         x += M.IconOnly + M.EntryGap;
 
-        // [S-13701] Unplaced icons, its icon alone, right beside Add (owner, 2026-11-21: "moved next to add widget").
+        // [S-13701] Unplaced icons, its icon alone, by Add with the gallery (owner, 2026-11-21: "moved next to add widget").
         parts.Add(new BarPart(BarPartKind.Unplaced, 0, x, M.IconOnly, true));
         x += M.IconOnly + M.EntryGap;
+
+        // [S-14910] The widget gallery: an icon button just before Add, its words its tooltip.
+        parts.Add(new BarPart(BarPartKind.Gallery, 0, x, M.IconOnly, true));
+        x += M.IconOnly + M.EntryGap;
+
         // Add and Done are Windows' standard and accent buttons: their rim round the entry's room.
         var addWidth = EntryWidth(add) + (2 * FamilyShape.Hairline);
         parts.Add(new BarPart(BarPartKind.Add, 0, x, addWidth, false));

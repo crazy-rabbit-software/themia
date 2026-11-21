@@ -64,8 +64,12 @@ public sealed class EditBarLayoutTests
         Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly), (errors.X, errors.Width));
         var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
         Assert.Equal(errors.Right + B.EntryGap, unplaced.X);
+
+        // [S-14910] The widget gallery's icon button directly before Add, Unplaced icons beside it.
+        var gallery = plan.Of(BarPartKind.Gallery)!.Value;
+        Assert.Equal((unplaced.Right + B.EntryGap, B.IconOnly, true), (gallery.X, gallery.Width, gallery.IconOnly));
         var add = plan.Of(BarPartKind.Add)!.Value;
-        Assert.Equal(unplaced.Right + B.EntryGap, add.X);
+        Assert.Equal(gallery.Right + B.EntryGap, add.X);
         var done = plan.Of(BarPartKind.Done)!.Value;
         Assert.Equal(add.Right + B.Pad, done.X);
         Assert.Equal(B.DoneLeast, done.Width);
@@ -80,6 +84,7 @@ public sealed class EditBarLayoutTests
 
         Assert.Equal(bare.Width, Lay(selection: 300, errors: true).Width);
         Assert.Equal(bare.Of(BarPartKind.Add), Lay(selection: 40, errors: true).Of(BarPartKind.Add));
+        Assert.Equal(bare.Of(BarPartKind.Gallery), Lay(selection: 300, errors: true).Of(BarPartKind.Gallery));
         Assert.Null(bare.Of(BarPartKind.Divider));
         Assert.Null(bare.Of(BarPartKind.Selection));
         Assert.Null(bare.Of(BarPartKind.Errors));

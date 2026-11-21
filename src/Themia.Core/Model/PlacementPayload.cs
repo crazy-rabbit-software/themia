@@ -103,6 +103,14 @@ public sealed class PlacementPayload
     /// </summary>
     public string? AnchorId { get; init; }
 
+    /// <summary>
+    /// [S-14916] The point of the snapshots' block the pointer held when it was picked up (fractions of the display their
+    /// rects are on): the block moves by the pointer's travel from there, so it starts exactly where it stood and goes
+    /// cell by cell (owner, 2026-11-21: "the dragging is smooth and does not transition visibly somewhere"). Null: the
+    /// block is centred on the pointer (a paste, [S-74]) or the held widget is (<see cref="AnchorId"/>).
+    /// </summary>
+    public (double X, double Y)? HeldAt { get; private init; }
+
     /// <summary>The snapshots (empty for a new widget).</summary>
     public IReadOnlyList<WidgetInstance> Widgets => _widgets;
 
@@ -117,12 +125,12 @@ public sealed class PlacementPayload
     public IReadOnlyList<string> RootIds => _roots;
 
     /// <summary>How many widgets the user picked: one for a new widget, otherwise the snapshots.</summary>
-    public int Count => _readyMade is { } recipe ? recipe.Widgets.Count : Mode == PlacementMode.Create ? 1 : _roots.Count;
+    public int Count => _readyMade is { } recipe ? recipe.Widgets.Count : NewKind is not null ? 1 : _roots.Count;
 
     /// <summary>[S-1065] How many widgets starting this session would create, for the gate before the ghost appears.</summary>
     public int Creates => Mode switch
     {
-        PlacementMode.Create => _readyMade?.Widgets.Count ?? 1,
+        PlacementMode.Create => _readyMade?.Widgets.Count ?? (NewKind is null ? _widgets.Count : 1),
         PlacementMode.Copy => _widgets.Count,
         _ => 0,
     };
@@ -194,6 +202,47 @@ public sealed class PlacementPayload
         return FromView(holder, [.. holder.Widgets.Select(w => w.Id)], PlacementMode.Copy) is { } made
             ? new PlacementPayload(made.Mode, null, made._widgets, made._roots, 0, 0) { IconNames = names }
             : null;
+    }
+
+    /// <summary>
+    /// [S-14916] Widgets picked up off the widget gallery (<paramref name="gallery"/>: its screen as a view of new widgets
+    /// on their cells), <paramref name="ids"/> of them, held at (<paramref name="heldX"/>, <paramref name="heldY"/>): new
+    /// widgets (fresh ids on every landing, one Add step, placed as "Place Clock"), laid as one block at the cells they
+    /// stood on, which follows the pointer from where it held them. Null when none of the ids is on the screen.
+    /// </summary>
+    public static PlacementPayload? ForGallery(ViewState gallery, IEnumerable<string> ids, double heldX, double heldY)
+    {
+        ArgumentNullException.ThrowIfNull(gallery);
+        ArgumentNullException.ThrowIfNull(ids);
+        return FromView(gallery, ids, PlacementMode.Copy) is { } made
+            ? new PlacementPayload(PlacementMode.Create, null, made._widgets, made._roots, 0, 0) { HeldAt = (heldX, heldY) }
+            : null;
+    }
+
+    /// <summary>
+    /// [S-11807] [S-14912] The box a new widget of <paramref name="kind"/> (<paramref name="widthPx"/> × <paramref name="heightPx"/>
+    /// DIPs at scale 1) takes on <paramref name="screen"/> at its corner: with <paramref name="sizes"/> its Natural at the
+    /// display's content scale rounded up to whole cells and held to its sizing there; without, the DIPs as they are. What
+    /// the ghost of a new widget draws, and what the widget gallery stands each card at.
+    /// </summary>
+    public static FracRect NewSize(WidgetId kind, double widthPx, double heightPx, ScreenMetrics screen, PlacementSizes? sizes)
+    {
+        var rect = FracRect.FromPixels(0, 0, widthPx, heightPx, screen);
+        if (sizes is not { } grid || !screen.IsUsable)
+        {
+            return rect;
+        }
+
+        var cell = FracRect.FromPixels(0, 0, widthPx * grid.Scale, heightPx * grid.Scale, screen);
+        var (cols, rows) = GridGeometry.GridDims(screen);
+        var (w, h) = (GridFit.Up(cell.W, cols), GridFit.Up(cell.H, rows));
+        if (ModuleCatalog.TryGet(kind, out _) && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
+        {
+            // [S-2446] Its sizing held on the display's whole cells, as it is painted.
+            (w, h) = (limits.Width.Range(w), limits.Height.Range(h));
+        }
+
+        return rect with { W = w, H = h };
     }
 
     /// <summary>
@@ -274,7 +323,9 @@ public sealed class PlacementPayload
     private (List<WidgetInstance> Drawn, BlockGeometry.Delta At) Layout(double xFrac, double yFrac, ScreenMetrics screen)
     {
         var rects = _widgets.Select(w => w.Rect).ToList();
-        var anchor = AnchorId is not null && Find(AnchorId) is { } held ? held.Rect : BlockGeometry.Bounds(rects);
+        // [S-14916] Held at a point: that point goes to the pointer, so the block moves by the pointer's travel alone.
+        var anchor = HeldAt is { } point ? new FracRect(point.X, point.Y, 0, 0)
+            : AnchorId is not null && Find(AnchorId) is { } held ? held.Rect : BlockGeometry.Bounds(rects);
         return (_widgets, BlockGeometry.PlaceAt(rects, anchor, xFrac, yFrac, screen));
     }
 
@@ -320,22 +371,7 @@ public sealed class PlacementPayload
     /// </summary>
     private (FracRect Rect, BlockGeometry.Delta At) NewLayout(WidgetId kind, double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes)
     {
-        var rect = FracRect.FromPixels(0, 0, _newWidthPx, _newHeightPx, screen);
-        var known = ModuleCatalog.TryGet(kind, out _);
-        if (sizes is { } grid && screen.IsUsable)
-        {
-            var cell = FracRect.FromPixels(0, 0, _newWidthPx * grid.Scale, _newHeightPx * grid.Scale, screen);
-            var (cols, rows) = GridGeometry.GridDims(screen);
-            var (w, h) = (GridFit.Up(cell.W, cols), GridFit.Up(cell.H, rows));
-            if (known && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
-            {
-                // [S-2446] Its sizing held on the display's whole cells, as it is painted.
-                (w, h) = (limits.Width.Range(w), limits.Height.Range(h));
-            }
-
-            rect = rect with { W = w, H = h };
-        }
-
+        var rect = NewSize(kind, _newWidthPx, _newHeightPx, screen, sizes);
         return (rect, BlockGeometry.PlaceAt([rect], rect, xFrac, yFrac, screen));
     }
 
