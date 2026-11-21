@@ -86,26 +86,32 @@ public sealed class SyncEntries<TEntry>(string scope)
 
     public TEntry? Find(string key) => _entries.GetValueOrDefault(key);
 
-    /// <summary>The entry under <paramref name="key"/>, made by <paramref name="create"/> when there is none; not marked wanted.</summary>
-    public TEntry Hold(string key, Func<TEntry> create)
+    /// <summary>
+    /// The entry under <paramref name="key"/>, made by <paramref name="create"/> when there is none; not marked wanted.
+    /// A table of several kinds of entry keys each kind apart, so the one held is of the kind asked.
+    /// </summary>
+    public TItem Hold<TItem>(string key, Func<TItem> create)
+        where TItem : TEntry
     {
         ArgumentNullException.ThrowIfNull(create);
-        if (!_entries.TryGetValue(key, out var entry))
+        if (_entries.TryGetValue(key, out var held))
         {
-            entry = create();
-            if (entry.Key != key)
-            {
-                throw new ArgumentException($"an entry made for '{key}' is keyed '{entry.Key}'", nameof(create));
-            }
-
-            _entries[key] = entry;
+            return held as TItem ?? throw new InvalidOperationException($"the entry '{key}' is a {held.GetType().Name}, not a {typeof(TItem).Name}");
         }
 
+        var entry = create();
+        if (entry.Key != key)
+        {
+            throw new ArgumentException($"an entry made for '{key}' is keyed '{entry.Key}'", nameof(create));
+        }
+
+        _entries[key] = entry;
         return entry;
     }
 
-    /// <summary>As <see cref="Hold"/>, and a widget reads it.</summary>
-    public TEntry Want(string key, Func<TEntry> create)
+    /// <summary>As <see cref="Hold{TItem}"/>, and a widget reads it.</summary>
+    public TItem Want<TItem>(string key, Func<TItem> create)
+        where TItem : TEntry
     {
         var entry = Hold(key, create);
         entry.Wanted = true;
