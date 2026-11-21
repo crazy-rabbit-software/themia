@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
@@ -21,6 +22,9 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     private readonly MusicSeekBar _seek = new();
     private readonly NowPlayingFeed _feed;
 
+    /// <summary>[S-11331] The view's links: where the bar is being scrubbed to, for the elapsed time beside it.</summary>
+    private readonly WidgetLinks _links = new();
+
     private Ticker? _ticker;
 
     /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
@@ -34,7 +38,22 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     {
         _feed = new NowPlayingFeed(host.Media, Present);
         Children.Add(_seek);
-        _seek.Committed += fraction => _feed.Seek(MusicRules.SeekTarget(fraction, _feed.Now.Timeline.Duration));
+        _seek.Scrubbing += OnScrubbing;
+        _seek.Committed += fraction =>
+        {
+            _links.Set(LinkTopics.ScrubbedTrack, null);
+            _feed.Seek(MusicRules.SeekTarget(fraction, _feed.Now.Timeline.Duration));
+        };
+    }
+
+    /// <summary>
+    /// [S-11331] The scrub is said on the view's links while it lasts (the track and the position under the pointer), so
+    /// the elapsed time of the same track follows the pointer; -1 means the scrub was abandoned: nothing is said.
+    /// </summary>
+    private void OnScrubbing(double fraction)
+    {
+        var now = _feed.Now;
+        _links.Set(LinkTopics.ScrubbedTrack, MusicProgressFace.Scrub(now.HasTrack ? now.TrackKey : null, fraction, now.Timeline.Duration));
     }
 
     /// <summary>[S-5700] It owns its top edge: the universal spacing is its own on every side.</summary>
@@ -52,6 +71,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     {
         _ticker = ticker;
         _feed.Attach(DispatcherQueue);
+        _links.Join(_surface?.Links);
         ApplyConfig(config);
     }
 
@@ -91,6 +111,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 
     public void Detach()
     {
+        _links.Leave();
         _tick.Dispose();
         _ticker = null;
         _feed.Dispose();

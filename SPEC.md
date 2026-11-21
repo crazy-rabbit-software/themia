@@ -7417,6 +7417,14 @@ The message under the pointer (`HoveredMessage`, `MessageLink`, a hover; keyed b
   takes the item layer's hover fill, in place, through the kit list's `Decorate` ([S-11942]). Two mails from one
   sender are two things: neither lights for the other. A store scene can point at one ([S-11909]).
 
+The track being scrubbed (`ScrubbedTrack`, `TrackLink`, a hover; keyed by the track's key, `MusicRules.TrackKey`):
+
+- **[S-11970]** A scrub of a now-playing bar is said on the view's links while it lasts (owner, 2026-11-21: "the text
+  should update when scrubbing, this can be done with the shared global state"): `musicProgress` publishes the track
+  and the position under the pointer on every move of the scrub, and lets go of it when the scrub is committed or
+  abandoned; `musicElapsed` of the same track shows that position instead of the session's. A hover, so it goes with
+  the bar that set it (a view switched away from, a bar removed mid-scrub). A scrub of another track moves nothing.
+
 The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKeys.File`, [S-11946]):
 
 - **[S-11945]** A file or a folder is one thing across the view: a `folder`'s row or cell (each entry), a
@@ -7492,6 +7500,7 @@ Topics:
 | `HoveredDrive` | Hover | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` |
 | `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
 | `HoveredMessage` | Hover | `email` | `email` |
+| `ScrubbedTrack` | Hover | `musicProgress` | `musicElapsed` |
 <!-- /view-links:table -->
 
 - **[S-3310]** The screen-time widgets ([S-3320]) share `HoveredApp` and `SelectedApp` by app key

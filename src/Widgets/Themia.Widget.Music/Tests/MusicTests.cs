@@ -1,5 +1,6 @@
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -9,7 +10,7 @@ using Xunit;
 
 namespace Themia.Widget.Music.Tests;
 
-/// <summary>[S-14920]..[S-14922] [S-15106] [S-15108] The now-playing family: a widget a part, its texts and times atoms on the universal spacing, its buttons on the icon base.</summary>
+/// <summary>[S-14920]..[S-14922] [S-15106] [S-15108] [S-15109] The now-playing family: a widget a part, its texts and times atoms on the universal spacing, its buttons on the icon base.</summary>
 public sealed class MusicTests
 {
     private static readonly IWidgetModule[] Modules =
@@ -124,6 +125,31 @@ public sealed class MusicTests
         var stream = Track(MusicState.Playing);
         Assert.Equal(new TextShown("0:05"), MusicKinds.Shown(MusicKinds.Elapsed, stream, TimeSpan.FromSeconds(5)));
         Assert.Equal(new TextShown(MusicKinds.NoTime, false), MusicKinds.Shown(MusicKinds.Duration, stream));
+    }
+
+    [Fact]
+    public void S15109_the_elapsed_time_follows_a_scrub_of_its_own_track_alone()
+    {
+        var now = Track(MusicState.Playing);
+        var played = TimeSpan.FromSeconds(74);
+        var pointer = TimeSpan.FromSeconds(150);
+
+        // No scrub: the session's position. A scrub of this track: where the pointer has it.
+        Assert.Equal(played, MusicKinds.Position(now, played, null));
+        Assert.Equal(pointer, MusicKinds.Position(now, played, new TrackLink(now.TrackKey, pointer)));
+        Assert.Equal(new TextShown("2:30"), MusicKinds.Shown(MusicKinds.Elapsed, now, MusicKinds.Position(now, played, new TrackLink(now.TrackKey, pointer))));
+
+        // Another track's scrub, or one while nothing plays here, moves nothing.
+        Assert.Equal(played, MusicKinds.Position(now, played, new TrackLink("another", pointer)));
+        Assert.Equal(played, MusicKinds.Position(NowPlaying.Of(MusicState.Idle), played, new TrackLink(string.Empty, pointer)));
+    }
+
+    [Fact]
+    public void S15109_the_elapsed_time_alone_follows_the_scrub_on_the_views_links()
+    {
+        Assert.Equal([LinkTopicId.ScrubbedTrack], Modules[6].Descriptor.Links.Follows);
+        Assert.Empty(Modules[6].Descriptor.Links.Publishes);
+        Assert.All(Modules.Where((_, i) => i != 6), m => Assert.Empty(m.Descriptor.Links.Topics));
     }
 
     [Fact]

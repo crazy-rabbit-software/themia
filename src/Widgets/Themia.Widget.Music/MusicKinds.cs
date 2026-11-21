@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -143,6 +144,14 @@ internal static class MusicKinds
         };
         return text.Length > 0 ? new TextShown(text) { Owner = owner } : TextShown.None() with { Owner = owner };
     }
+
+    /// <summary>
+    /// [S-15109] Where the elapsed time stands: at <paramref name="played"/> (the session's position), or, while a bar of
+    /// the view is being scrubbed in this same track (<paramref name="scrub"/>), where the pointer has it. A scrub of
+    /// another track, and one with no track here, changes nothing.
+    /// </summary>
+    public static TimeSpan Position(NowPlaying now, TimeSpan played, TrackLink? scrub)
+        => scrub is not null && now.HasTrack && string.Equals(scrub.Track, now.TrackKey, StringComparison.Ordinal) ? scrub.Position : played;
 
     /// <summary>
     /// [S-15106] What a time shows of <paramref name="now"/>: the elapsed time at <paramref name="position"/> or the

@@ -34,6 +34,9 @@ public sealed class MusicProgressModule : IWidgetModule
         Sizing = _ => MusicProgressFace.Sizing(),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.NowPlaying, 0, 8),
+
+        // [S-11331] Its scrub is said on the view's links.
+        Links = Themia.Core.Links.LinkUse.Of([Themia.Core.Links.LinkTopicId.ScrubbedTrack], []),
     };
 
     /// <summary>[S-11330] Its one option: when it hides ([S-1464]).</summary>

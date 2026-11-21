@@ -1,3 +1,4 @@
+using Themia.Core.Links;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -14,4 +15,12 @@ public static class MusicProgressFace
 
     /// <summary>[S-11330] The progress atom's sizing ([S-2438]): the bar atom's (<see cref="AtomRules.BarSizing"/>); no header.</summary>
     public static WidgetSizing Sizing() => AtomRules.BarSizing(NaturalWidth);
+
+    /// <summary>
+    /// [S-11331] What a scrub says on the view's links: the track and the position at <paramref name="fraction"/> of its
+    /// <paramref name="duration"/> ([S-1465], <see cref="MusicRules.SeekTarget"/>); nothing for a scrub abandoned (a
+    /// negative fraction) or with no track.
+    /// </summary>
+    public static TrackLink? Scrub(string? track, double fraction, TimeSpan duration)
+        => string.IsNullOrEmpty(track) || !(fraction >= 0) ? null : new TrackLink(track, MusicRules.SeekTarget(fraction, duration));
 }

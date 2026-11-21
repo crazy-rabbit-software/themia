@@ -56,6 +56,10 @@ buttons' module, their words and looks, their view on the icon face), `MusicMenu
   end, unless the user chose ([S-6582]). With no track both keep the clock's shape with no figures ("-:--"),
   unavailable, why their tooltip; a stream with no end the same for its length (WR-10). They open nothing.
   `MusicKinds.Shown`.
+- **[S-15109]** **The elapsed time follows a scrub** (owner, 2026-11-21: "the text should update when scrubbing, this
+  can be done with the shared global state"): while a bar of the view is scrubbed in the same track (the view's links,
+  `ScrubbedTrack`, root [S-11970]), the elapsed time shows the position under the pointer; let go or abandoned, the
+  session's again. A scrub of another track, and one while nothing plays here, changes nothing. `MusicKinds.Position`.
 - **[S-15108]** **Every part is an atom** ([S-15100]..[S-15105]): a new title is 240 by 40, a new artist or album 240 by
   30, a new time 60 by 30 (`MusicTextModule.Sizing`, `AtomRules`); every axis is free, a taller card a larger text. The
   buttons are icon kinds, not atoms (owner, 2026-11-22: "Icon base"): a new one the icon base's square ([S-15000]).

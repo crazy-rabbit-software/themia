@@ -23,4 +23,8 @@ lines, JSON context), `MusicProgressConfig.cs`, `MusicProgressFace.cs` (its sizi
   240 by 20 (the 4 track in the spacing), free on both axes: a wider card lengthens the bar, a taller one thickens it.
   Its menu: **Hide when idle** ([S-1464]). Tests `MusicProgressTests.S11330_`.
 
+- **[S-11331]** **Its scrub is the view's** (root `SPEC.md`, [S-11970]): while the bar is scrubbed it says the track
+  and the position under the pointer on the view's links (`ScrubbedTrack`; `MusicProgressFace.Scrub`), so the elapsed
+  time beside it follows; committed or abandoned, it lets go. Tests `MusicProgressTests.S11331_`.
+
 Needs a manual pass: seeking a live track (click, drag, a player that refuses), a stream with no end.

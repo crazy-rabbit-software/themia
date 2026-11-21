@@ -3,6 +3,7 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -17,7 +18,8 @@ namespace Themia.Widget.Music;
 /// short card. SPEC.md beside this file.
 /// </summary>
 public abstract class MusicTextModule(string key)
-    : TextModule(MusicKinds.Text(key), MusicJsonContext.Default, AddFolderId.NowPlaying, MusicKinds.Rank(key), key == MusicKinds.Title ? 7 : null)
+    : TextModule(MusicKinds.Text(key), MusicJsonContext.Default, AddFolderId.NowPlaying, MusicKinds.Rank(key), key == MusicKinds.Title ? 7 : null,
+        links: key == MusicKinds.Elapsed ? LinkUse.Of([], [LinkTopicId.ScrubbedTrack]) : null)
 {
     /// <summary>[S-15108] A new text's width, and a new time's.</summary>
     public const double TextWidth = 240, TimeWidth = 60;
@@ -43,7 +45,8 @@ public abstract class MusicTextModule(string key)
 /// own media session through the SDK's <see cref="NowPlayingFeed"/> (so the title, the artist, the album, the buttons, the
 /// cover and the progress show the same track at the same moment). Event-driven: it redraws when the session says
 /// something changed; [S-15106] the elapsed time alone is on a clock, a second while a track plays, arithmetic against the
-/// session's anchor. Hidden when idle as its config says ([S-1464]).
+/// session's anchor, and [S-15109] it follows a bar's scrub through the view's links. Hidden when idle as its config says
+/// ([S-1464]).
 /// </summary>
 internal sealed partial class MusicTextView : AtomTextView
 {
@@ -54,6 +57,11 @@ internal sealed partial class MusicTextView : AtomTextView
     private readonly Ticker.Slot _tick = new();
     private Ticker? _ticker;
     private MusicPartConfig _config = new MusicConfig();
+
+    /// <summary>[S-15109] The view's links: the elapsed time follows a bar's scrub.</summary>
+    private readonly WidgetLinks _links = new();
+    private IWidgetSurface? _surface;
+    private TrackLink? _scrub;
 
     public MusicTextView(IWidgetHost host, TextKind kind)
         : base(host, kind)
@@ -66,14 +74,29 @@ internal sealed partial class MusicTextView : AtomTextView
             FlowDirection = FlowDirection.LeftToRight;
             Line.Figures();
         }
+
+        if (_key == MusicKinds.Elapsed)
+        {
+            // [S-15109] While a bar of the view is scrubbed, the elapsed time is where the pointer has it.
+            _links.Follow(LinkTopics.ScrubbedTrack, scrub =>
+            {
+                _scrub = scrub;
+                Show();
+            });
+        }
     }
 
-    protected override void OnBind(IWidgetSurface surface) => _feed.Preview = surface.IsPreview;
+    protected override void OnBind(IWidgetSurface surface)
+    {
+        _surface = surface;
+        _feed.Preview = surface.IsPreview;
+    }
 
     protected override void OnAttach(Ticker ticker, WidgetConfig config)
     {
         _ticker = ticker;
         _feed.Attach(DispatcherQueue);
+        _links.Join(_surface?.Links);
         OnApply(config);
     }
 
@@ -86,6 +109,8 @@ internal sealed partial class MusicTextView : AtomTextView
 
     protected override void OnDetach()
     {
+        _links.Leave();
+        _scrub = null;
         _tick.Dispose();
         _ticker = null;
         _feed.Dispose();
@@ -103,5 +128,6 @@ internal sealed partial class MusicTextView : AtomTextView
         _ = _tick.Set(_ticker, runs ? TimeSpan.FromSeconds(1) : TimeSpan.Zero, Show);
     }
 
-    private void Show() => Present(MusicKinds.Shown(_key, _feed.Now, _key == MusicKinds.Elapsed ? _feed.Position() : default));
+    private void Show()
+        => Present(MusicKinds.Shown(_key, _feed.Now, _key == MusicKinds.Elapsed ? MusicKinds.Position(_feed.Now, _feed.Position(), _scrub) : default));
 }

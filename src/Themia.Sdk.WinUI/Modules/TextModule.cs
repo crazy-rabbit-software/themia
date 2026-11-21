@@ -19,7 +19,9 @@ public abstract class TextModule : IWidgetModule
     /// <param name="rank">Its place there: the family's order.</param>
     /// <param name="popular">Its place among Start's Popular, if it is one.</param>
     /// <param name="merges">[S-15022] The removed kinds a placed one of which it stands in for, in place; none for most.</param>
-    protected TextModule(TextKind kind, IJsonTypeInfoResolver json, AddFolderId folder, int rank, int? popular = null, IReadOnlyList<MergeFrom>? merges = null)
+    /// <param name="links">What it publishes to and follows of its view's links ([S-11905]); none by default.</param>
+    protected TextModule(TextKind kind, IJsonTypeInfoResolver json, AddFolderId folder, int rank, int? popular = null, IReadOnlyList<MergeFrom>? merges = null,
+        Themia.Core.Links.LinkUse? links = null)
     {
         Kind = kind ?? throw new ArgumentNullException(nameof(kind));
         Descriptor = new()
@@ -36,6 +38,7 @@ public abstract class TextModule : IWidgetModule
             Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
             Add = new(folder, 0, rank, popular),
             Merges = merges ?? [],
+            Links = links ?? Themia.Core.Links.LinkUse.None,
         };
     }
 
