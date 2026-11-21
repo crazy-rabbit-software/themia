@@ -31,6 +31,99 @@ public static class UnplacedItems
     public static IReadOnlyList<DesktopItem> Of(ViewState view, IReadOnlyList<DesktopItem> listing)
         => DesktopReconcile.Unplaced(view, listing);
 
+    /// <summary>
+    /// [S-13711] The page's title, one line over its icons (owner, 2026-11-21: "it should show a title though"): "Not on
+    /// &lt;view&gt;", the name of the view the page's display shows. A name of nothing but spaces reads as the view it is.
+    /// </summary>
+    public static string Title(string? viewName)
+        => Str.Unplaced_Page_Title.Format(("view", string.IsNullOrWhiteSpace(viewName) ? Str.Shell_View_DefaultName.Text() : viewName.Trim()));
+
+    /// <summary>
+    /// [S-13713] What a move of icons let go over the open page takes off the view (owner, 2026-11-21: "that way it should also
+    /// be possible to move desktop icons back to it"): the desktop items among <paramref name="moving"/> (widget ids of
+    /// <paramref name="view"/>), each by its key, in the move's order, once. An own icon ([S-5600]) stands for no file and is
+    /// listed nowhere, a fence and a card are no icon: none of them. An icon a fence holds counts only when its fence is not
+    /// moving too (a fence moves its icons with it, [S-13042]: dragging a fence over the page empties nothing).
+    /// </summary>
+    public static IReadOnlyList<string> Taken(ViewState view, IEnumerable<string> moving)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(moving);
+        var ids = moving.ToList();
+        var fencesMoving = new HashSet<string>(ids.Where(id => view.Find(id)?.Config is IHoldsDesktopItems), StringComparer.Ordinal);
+        var members = DesktopFences.Members(view);
+        var keys = new List<string>();
+        var seen = new HashSet<string>(DesktopItemKeys.Comparer);
+        foreach (var id in ids)
+        {
+            if (view.Find(id)?.Config is not IDesktopItemConfig { Item.Length: > 0 } icon
+                || (members.TryGetValue(id, out var fence) && fencesMoving.Contains(fence.Fence.Widget.Id)))
+            {
+                continue;
+            }
+
+            if (seen.Add(icon.Item))
+            {
+                keys.Add(icon.Item);
+            }
+        }
+
+        return keys;
+    }
+
+    /// <summary>
+    /// [S-13713] The inverse of placing: <paramref name="keys"/> leave <paramref name="view"/>, out of its fences and their icons
+    /// off it, so the page lists them again. The files stay and other views keep theirs. The view's Desktop icons value
+    /// stays as it is, as Hide from this view and Remove from this view leave it ([S-5527], [S-5524]): an All view stays All
+    /// (All decides where a <i>new</i> item arrives, [S-5526]; an item taken off it stays off until it is placed again or the
+    /// view is set to All again), a Chosen view's chosen set loses them. Never on a None view (it shows none). Returns the keys
+    /// that left the view, in <paramref name="keys"/>' order.
+    /// </summary>
+    public static IReadOnlyList<string> Unplace(ViewState view, IReadOnlyList<string> keys)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(keys);
+        var shown = DesktopViews.Shown(view);
+        var leaving = keys.Where(shown.Contains).Distinct(DesktopItemKeys.Comparer).ToList();
+        if (leaving.Count == 0)
+        {
+            return [];
+        }
+
+        DesktopFences.TakeOut(view, leaving);
+        DesktopViews.Hide(view, leaving);
+        return leaving;
+    }
+
+    /// <summary>
+    /// [S-13712] The page's grid lines along one side of its icon area (owner, 2026-11-21: "it should show the grid too"): the
+    /// desktop's own grid at that display's pitch (<paramref name="pitch"/>, DIPs: the edit-mode grid's cell, <c>GridGeometry</c>),
+    /// from the area's corner, where the icons' boxes stand (each whole cells, [S-11875]): a line at every whole cell from the
+    /// corner to <paramref name="extent"/>, both edges included, every <see cref="GridGeometry.MajorEvery"/>th from the corner the
+    /// heavier one, as the desktop counts its lines from its corner. None for no room or no pitch.
+    /// </summary>
+    public static IReadOnlyList<(double At, bool Major)> GridLines(double extent, double pitch)
+    {
+        if (!(pitch > 0) || !double.IsFinite(pitch) || !(extent > 0) || !double.IsFinite(extent))
+        {
+            return [];
+        }
+
+        var count = (int)Math.Floor((extent / pitch) + 1e-6);
+        return [.. Enumerable.Range(0, count + 1).Select(i => (Math.Min(i * pitch, extent), GridGeometry.IsMajorLine(i)))];
+    }
+
+    /// <summary>
+    /// [S-13712] The desktop's grid cell on <paramref name="screen"/>, in DIPs: its width over its columns and its height over its
+    /// rows (<see cref="GridGeometry.GridDims"/>, the edit-mode grid's), so an icon's box (whole cells of it) is whole cells on
+    /// the page too.
+    /// </summary>
+    public static (double X, double Y) Pitch(ScreenMetrics screen)
+    {
+        var (cols, rows) = GridGeometry.GridDims(screen);
+        return screen.IsUsable ? (screen.Width / cols, screen.Height / rows) : (GridGeometry.MinCellPx, GridGeometry.MinCellPx);
+    }
+
     /// <summary>[S-13702] Whether a list of <paramref name="count"/> items shows the search box.</summary>
     public static bool Searches(int count) => count >= SearchFrom;
 

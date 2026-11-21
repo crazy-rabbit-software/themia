@@ -150,6 +150,14 @@ public static class SettingsPages
     /// </summary>
     public static bool BarWide(SettingsPageId page) => page == SettingsPageId.DesktopItems;
 
+    /// <summary>
+    /// [S-13715] Whether <paramref name="page"/>'s flyout stays open under a press outside it (no light dismiss, [S-2327]): the
+    /// Unplaced icons page alone (owner, 2026-11-21: "it should not close when i click outside of it, that way it should also be
+    /// possible to move desktop icons back to it"), closed by its entry, Escape, Done or another page; while it is open a
+    /// selection made on the desktop does not open its own page over it. Every other page closes as before.
+    /// </summary>
+    public static bool StaysOpen(SettingsPageId? page) => page == SettingsPageId.DesktopItems;
+
     /// <summary>[S-13700] The Unplaced icons page's one line: the list of the view's unplaced desktop icons.</summary>
     public const string UnplacedKey = "unplaced";
 

@@ -12,7 +12,7 @@ namespace Themia.App.Shell;
 /// <summary>
 /// [S-13026] The picture of a drag of ours (<see cref="Themia.Sdk.WinUI.ItemDrag.RunningPicture"/>: Explorer's ghost of the
 /// dragged icons) drawn by the surface itself while the drag is over it, on the ghost layer under the pointer, and XAML's
-/// own copy of it hidden there (<c>DragUIOverride.IsContentVisible</c>). Over a fence that shows where the items would land
+/// own copy of it hidden there (<c>DragUIOverride.IsContentVisible</c>); over every layer of the surface, the bar's flyouts too. Over a fence that shows where the items would land
 /// ([S-13021]) XAML's copy went (the owner, 2026-11-19: "when it shows the ghost preview in the fence it should not stop
 /// showing the drag preview"); the surface's copy is there wherever the drag is on Themia's desktop, the fence's ghosts
 /// beside it. Over another app's window the system's picture shows as before.
@@ -42,14 +42,7 @@ internal sealed partial class DesktopWindow
             var image = _dragImage ??= MakeDragImage();
             if (!ReferenceEquals(_dragImageOf, picture))
             {
-                var bitmap = new WriteableBitmap(picture.Width, picture.Height);
-                picture.Bgra.CopyTo(bitmap.PixelBuffer);
-                bitmap.Invalidate();
-                image.Source = bitmap;
-
-                // Its pixels one to one on the display it was composed for.
-                image.Width = picture.Width / picture.PixelsPerDip;
-                image.Height = picture.Height / picture.PixelsPerDip;
+                Draw(image, picture);
                 _dragImageOf = picture;
             }
 
@@ -84,11 +77,25 @@ internal sealed partial class DesktopWindow
         _dragImageOf = null;
     }
 
+    /// <summary>[S-13026] <paramref name="image"/> shows <paramref name="picture"/>: its pixels one to one on the display it was composed for.</summary>
+    internal static void Draw(Image image, DragPicture picture)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(picture);
+        var bitmap = new WriteableBitmap(picture.Width, picture.Height);
+        picture.Bgra.CopyTo(bitmap.PixelBuffer);
+        bitmap.Invalidate();
+        image.Source = bitmap;
+        image.Width = picture.Width / picture.PixelsPerDip;
+        image.Height = picture.Height / picture.PixelsPerDip;
+    }
+
     private Image MakeDragImage()
     {
-        // Never hit-testable: the drop is found under it.
+        // Never hit-testable: the drop is found under it. [S-13713] Over every layer, the bar's flyouts too, as the system's
+        // drag picture is over every window: a desktop icon moved onto the Unplaced icons page stays under the pointer there.
         var image = new Image { IsHitTestVisible = false, Stretch = Stretch.Fill, Visibility = Visibility.Collapsed };
-        _ghostLayer.Children.Add(image);
+        _pictureLayer.Children.Add(image);
         return image;
     }
 }

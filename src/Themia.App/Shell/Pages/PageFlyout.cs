@@ -250,6 +250,9 @@ internal sealed partial class PageFlyout : Grid
 
     public PageView Page { get; }
 
+    /// <summary>[S-13713] Where the panel stands on its layer (the beak not counted): what a drop onto the page lands on.</summary>
+    public PixelRect Panel => new(_spot.X, _spot.Y, _spot.Width, _spot.Height);
+
     /// <summary>[S-2346] A press landed on the flyout, a control's included.</summary>
     public event Action? Pressed;
 

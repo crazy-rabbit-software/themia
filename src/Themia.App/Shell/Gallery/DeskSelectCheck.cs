@@ -640,6 +640,78 @@ internal static partial class DeskSelectCheck
                 }
 
                 failures += placingOk ? 0 : 1;
+
+                // [S-13713] [S-13715] The Unplaced icons page open in edit mode stays open beside the desktop (owner, 2026-11-21: "it
+                // should not close when i click outside of it, that way it should also be possible to move desktop icons back to it"):
+                // a desktop item selected and moved onto it leaves the view, the page lit and the move's picture over it while it is
+                // there, the page still open after (no page of the selection's over it); dragged off the page onto the free desktop it
+                // is placed there again. twinP out of the fence it stands in, then twinU from the free desktop (drawn mid-drop:
+                // <out>.unplace-fence.png, .unplace-free.png).
+                host.SetEditMode(true);
+                await Task.Delay(400).ConfigureAwait(true);
+                surface.OpenPage(Themia.Core.Settings.SettingsPageId.DesktopItems, []);
+                await Task.Delay(800).ConfigureAwait(true);
+                var homeViewId = running.State.Views[0].Id;
+                bool Listed(string key) => host.UnplacedDesktopItems(homeViewId).Any(i => DesktopItemKeys.Comparer.Equals(i.Key, key));
+                bool OnView(string key) => Themia.Core.Desktop.DesktopViews.Shown(running.State.Views[0]).Contains(key);
+                bool InFence(string key) => Themia.Core.Desktop.DesktopFences.Holding(running.State.Views[0], key) is not null;
+                WidgetCard? CardOfKey(string key) => running.State.Views[0].Widgets.FirstOrDefault(w => w.Config is IDesktopItemConfig c && DesktopItemKeys.Comparer.Equals(c.Item, key)) is { } w
+                    ? surface.CardFor(w.Id)
+                    : null;
+
+                async Task ToPageAsync(string name, string tag)
+                {
+                    var key = KeyOf(name);
+                    var page = surface.OpenUnplacedPart;
+                    var fencedBefore = InFence(key);
+                    if (CardOfKey(key) is not { } held || page is null)
+                    {
+                        failures++;
+                        Say($"FAIL {name} onto the page ({tag}): {(page is null ? "the page is not open" : $"{name} has no card")}");
+                        return;
+                    }
+
+                    // A selection made on the desktop opens no page over this one.
+                    host.Select(held.Model.Id);
+                    var layer = (UIElement)held.Parent;
+                    var press = held.TransformToVisual(layer).TransformPoint(new Point(held.ActualWidth / 2, held.ActualHeight * 0.3));
+                    var pressAt = layer.TransformToVisual(surface.DebugRoot).TransformPoint(press);
+                    var target = page.TransformToVisual(surface.DebugRoot).TransformPoint(new Point(page.ActualWidth * 0.6, Math.Max(8, page.ActualHeight * 0.5)));
+                    var over = surface.OverUnplacedPage(target);
+                    surface.BeginMove(held, press);
+                    surface.PreviewMove(held, (target.X - pressAt.X) / metrics.Width, (target.Y - pressAt.Y) / metrics.Height);
+                    surface.FlushMove();
+                    await Task.Delay(500).ConfigureAwait(true);
+                    var lit = page.DropShown;
+                    var picture = surface.ShowsDragPicture;
+                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".unplace-{tag}.png")).ConfigureAwait(true);
+                    surface.CommitMove(held);
+                    surface.PressEnded(held);
+                    await Task.Delay(800).ConfigureAwait(true);
+                    var stays = surface.OpenUnplacedPart is { DropShown: false };
+                    var all = running.State.Views[0].DesktopIcons == ViewDesktopIcons.All;
+                    var ok = over && lit && picture && Listed(key) && !OnView(key) && !InFence(key) && stays && all;
+                    failures += ok ? 0 : 1;
+                    Say($"{(ok ? "ok  " : "FAIL")} {name} moved onto the open page ({tag}, in a fence before {fencedBefore}): over it {over}, the page lit {lit}, the picture under the pointer {picture}"
+                        + $", listed on the page {Listed(key)}, off the view {!OnView(key)}, the page still open and unlit {stays}, the view still All {all}");
+                }
+
+                async Task FromPageAsync(string name, string tag, double x, double y)
+                {
+                    var key = KeyOf(name);
+                    surface.DebugUnplacedDrag([key]);
+                    var placed = host.Placing is not null && host.CompletePlacement(surface, x, y);
+                    await Task.Delay(800).ConfigureAwait(true);
+                    var reopened = surface.OpenUnplacedPart is not null;
+                    var ok = placed && !Listed(key) && OnView(key) && !InFence(key) && reopened;
+                    failures += ok ? 0 : 1;
+                    Say($"{(ok ? "ok  " : "FAIL")} {name} dragged off the page onto the free desktop ({tag}): placed {placed}, off the page {!Listed(key)}, on the view {OnView(key)}, free {!InFence(key)}, the page open again {reopened}");
+                }
+
+                await ToPageAsync("twinP", "fence").ConfigureAwait(true);
+                await FromPageAsync("twinP", "back", 0.78, 0.86).ConfigureAwait(true);
+                await ToPageAsync("twinU", "free").ConfigureAwait(true);
+                await FromPageAsync("twinU", "back", 0.70, 0.86).ConfigureAwait(true);
                 host.SetEditMode(false);
             }
             else

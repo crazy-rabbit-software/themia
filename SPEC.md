@@ -2243,7 +2243,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 - **[S-2327]** **One flyout at a time**, nothing open as edit mode starts. A page's entry opens its
   flyout, or closes it again; another entry swaps it. It closes on Escape (after going back out of a
   sub-page or an opened card first), on a press anywhere that is not the bar or the flyout (which then
-  does what it does: a press on a widget selects it), when the add page opens ([S-11707]), when a placement starts,
+  does what it does: a press on a widget selects it; the Unplaced icons page alone stays open under it, [S-13715]),
+  when the add page opens ([S-11707]), when a placement starts,
   and as edit mode ends; Escape with no flyout open backs out of placing, the selection, then edit mode
   ([S-1583]). Keys: Tab and Shift+Tab walk the bar then the flyout; Left and Right walk the bar (mirrored
   right to left); Enter or Space opens an entry; Down from the bar goes into the open flyout; F6 reaches
@@ -2804,7 +2805,7 @@ right-click cancelling); the keys of [S-13617]; the pictures drawing in the runn
 packaged Store build, their cache across openings, after a design or language change and dropped a minute
 after closing; a screen reader on the rail, the family heads and the tiles.
 
-#### Unplaced icons ([S-13700]..[S-13710])
+#### Unplaced icons ([S-13700]..[S-13715])
 
 The owner (2026-11-19): *"in edit mode there should be a page with the desktop icons that are on the physical desktop
 folder but are not placed on the given view, this should be a page in the settings too, own entry in the topbar."*
@@ -2814,15 +2815,20 @@ And (2026-11-20): *"remove the text from the on desktop not home page. make the 
 as the rest of the configuration page. make sure that the icons look the same as they do on the desktop, right now the
 corners are not shown"*; *"when dragging a desktop item from the topbar of non placed items it should already look like
 the ones on the desktop"*.
+And (2026-11-21): *"-the place on this view page should allow lasso select / -it should show the grid too / -it should not
+show the place on this view button / -it should show a title though / -it should not close when i click outside of it, that
+way it should also be possible to move desktop icons back to it"*.
 Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`SettingsPageId.DesktopItems`,
 `DesktopItems()`, `Entries`, `BarWide`), `Shell/EditBarLayout.cs` (`BarPartKind.Unplaced`), `Geometry/FlyoutPlacement.cs`
 (`Wide`), `Model/PlacementPayload.cs` (`GhostOutline.Config`); App `Shell/Pages/UnplacedPageView.cs` (+ `.Icons.cs`: the
 icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.cs` (their corners),
 `Shell/DesktopWindow.UnplacedPage.cs`, `DesktopWindow.IconGhosts.cs` (a placement's icons, [S-13708]),
-`DesktopWindow.BarMenus.cs` (`PlaceFlyout`), `PageFlyout.ContentHeightAt`, `AppHost.DesktopViews.cs`
-(`PlaceDesktopItems`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
+`DesktopWindow.BarMenus.cs` (`PlaceFlyout`, `OnPressForBarMenu`), `DesktopWindow.Selection.cs` (a move let go over the page,
+[S-13713]), `DesktopWindow.DragPicture.cs` (the picture over the flyouts), `Shell/SnapGridOverlay.cs` (the grid, [S-13712]),
+`PageFlyout.ContentHeightAt`, `.Panel`, `AppHost.DesktopViews.cs` (`PlaceDesktopItems`, `UnplaceDesktopItems`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
 `BeginPlacement(items, screen)`, `DesktopListed`), the entry's badge in `EditBar.cs`; render
-`Gallery/EditBarRender.Unplaced.cs`, `Gallery/DeskSelectCheck.cs` (`<out>.place-icon.png`). Tests `UnplacedItemsTests`,
+`Gallery/EditBarRender.Unplaced.cs` (`-band`, `-drop`), `Gallery/DeskSelectCheck.cs` (`<out>.place-icon.png`,
+`<out>.unplace-fence.png`, `.unplace-free.png`). Tests `UnplacedItemsTests`, `UnplacedTitleTests`,
 `SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`, `MultiSelectPlacementTests.S13708_`, `.S13710_`,
 `ItemSelectionTests.S13709_`.
 
@@ -2832,9 +2838,10 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   listing (the user's and the public desktop, the one listing desktop icons come from, [S-5510]) that **the view
   shown on that display** shows nowhere, neither a free icon of it nor in a fence of it (`UnplacedItems.Of`, the same
   list Add widget's On the desktop offers, [S-5523]), in `DesktopItemOrder`. Each item is **its desktop icon, drawn
-  exactly as the desktop draws it** ([S-13707]: never a list row), with **no words over them** (owner, 2026-11-20:
-  "remove the text from the on desktop not home page"; before, "On the desktop, not on <view>" over the page and "n
-  selected" or a hint how to drag them over the icons), and **no buttons** over them ([S-13704] retired). A view
+  exactly as the desktop draws it** ([S-13707]: never a list row), with **no words over them** but the page's title
+  ([S-13711]; owner, 2026-11-20: "remove the text from the on desktop not home page"; before, "On the desktop, not on <view>"
+  over the page and "n selected" or a hint how to drag them over the icons), and **no buttons** over them ([S-13704] retired;
+  owner, 2026-11-21: "it should not show the place on this view button": none, and nothing in its place). A view
   that shows no desktop icons (None, [S-5525]) lists none and says so, pointing at Views › Desktop icons; with every
   icon placed the page says that.
 - **[S-13701]** **Its entry** on the edit bar stands **right beside Add widget** (after it, the Widget gallery's button
@@ -2849,7 +2856,7 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
 - **[S-13702]** **Search**: from nine items on (`UnplacedItems.SearchFrom`) a search box over the icons narrows them to
   the names holding every typed word, any case (`UnplacedItems.Matching`); nothing matching says so.
 - **[S-13703]** **Selection and placing**: the icons are selected as files are (`ItemSelection`, [S-6620]: click,
-  Ctrl/Shift+click, the arrows across a row and down to the same column of the next row as laid, Page Up/Down,
+  Ctrl/Shift+click, the desktop's band from empty room, [S-13714], the arrows across a row and down to the same column of the next row as laid, Page Up/Down,
   Home/End, Ctrl+A, Ctrl+Space), painted in the desktop icon's selection look (`SelectionLook.DesktopIcon`, through the
   icon's own view, [S-13707]; active while the page has the keyboard or a selection). A double-click on an icon places
   it and Enter places the selection: at the view's **next free grid cells** in the desktop's order, the arrivals' and
@@ -2920,8 +2927,53 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   no file (`PlacementPayload.ForIcons`, its `IconNames`; `PlacementHint.Verb`). Every other placement is worded as
   before.
 
+- **[S-13711]** **A title** (owner, 2026-11-21: "it should show a title though"): one line at the page's top, **"Not on
+  <view>"**, the name of the view the page's display shows (`UnplacedItems.Title`; a blank name reads as the default view's
+  name), in the pages' section heading's words (`BodyStrong`), a long name cut with an ellipsis, never wrapped; the icons' area
+  is named by it for a screen reader. It shows over every state of the page (the icons, "Every desktop icon is on this view",
+  a view that shows none). Tests `UnplacedTitleTests.S13711_`.
+- **[S-13712]** **The desktop's grid** (owner, 2026-11-21: "it should show the grid too"): the icons' area draws the edit-mode
+  grid under the icons, in its look (`SnapGridOverlay`, one drawing for both: the fine lines and every fifth heavier, each on
+  whole pixels), at the pitch of the desktop's grid on the page's display (`UnplacedItems.Pitch`: its width over its columns,
+  its height over its rows), counted from the area's corner, both edges drawn (`UnplacedItems.GridLines`): an icon's box is
+  whole cells of it ([S-11875]), so every icon stands on the cells it takes when placed. It spans the area's whole width and
+  its rows. Tests `UnplacedItemsTests.S13712_`.
+- **[S-13713]** **Desktop icons moved onto the page leave the view** (owner, 2026-11-21: "that way it should also be possible
+  to move desktop icons back to it"): the inverse of placing. While the page is open ([S-13715]) a move of desktop icons in
+  edit mode held by an icon ([S-1584]) with the pointer over the page's panel (`DesktopWindow.OverUnplacedPage`) **lights the
+  page** as a drop target (the one item look's drop target, `SelectionCue.DropTarget`, a step out round its parts), keeps
+  **the move's own picture under the pointer** ([S-13046]: the drag's picture is over every layer of the surface, the bar's
+  flyouts too), and fades the moving cards as a hand-off does, with no local grid ([S-78]). Let go there, the desktop items it
+  carries (`UnplacedItems.Taken`: each by its key, once; never an own icon, which stands for no file, a card or a fence, nor an
+  icon whose fence moves too) **leave the view** (`UnplacedItems.Unplace` through `AppHost.UnplaceDesktopItems`, one undo
+  step): out of the view's fences, their icons off it; the files stay and other views keep theirs; everything else the move
+  carried goes back where it was; the page lists them at once ([S-13706]) and stays open. **The view's Desktop icons value
+  stays** (decided 2026-11-21): an **All** view stays All, as Hide from this view and Remove from this view leave it
+  ([S-5527], [S-5524]): All says where a *new* item arrives ([S-5526]), and an item taken off the view is known, so no read of
+  the desktop brings it back; it stays off until it is placed again or the view is set to All again ([S-5528]). Switching the
+  view to Chosen was not done: it would also stop new files arriving on it, a second effect of one drag. A Chosen view's
+  chosen set loses them; a None view shows none. Logged with the view's value. Dragging icons off the page onto the desktop
+  still places them ([S-13705]). Tests `UnplacedItemsTests.S13713_`; `--desk-select-check` moves a fenced icon and a free one
+  onto the open page and drags each back off it (`<out>.unplace-fence.png`, `.unplace-free.png`, PASS or FAIL);
+  `--editbar-png` draws one being dropped (`page-<theme>-unplaced-drop.png`).
+- **[S-13714]** **The desktop's band on the page** (owner, 2026-11-21: "the place on this view page should allow lasso
+  select"): a left press on empty room of the icons' area (not on an icon) that travels past the desktop's dead zone
+  (`SelectionBand.Threshold`, 5 DIPs) draws **the desktop's band** in its look (`SelectionChrome.PaintBand`), kept inside the
+  area, and selects the icons whose box it touches at all, live (`SelectionBand.Hits`, `ItemSelection.Band`): with no key the
+  band's icons alone, **Shift adds** them, **Ctrl toggles** each against what was selected (`SelectionBand.Mode`, [S-6625]);
+  let go, what it selected stays. A click on empty room with no key held clears the selection ([S-6620]). `--editbar-png`
+  draws one halfway (`page-<theme>-unplaced-band.png`).
+- **[S-13715]** **The page stays open** (owner, 2026-11-21: "it should not close when i click outside of it"): the one
+  flyout with no light dismiss (`SettingsPages.StaysOpen`, [S-2327]): a press outside it does what it does and the page
+  stays; it closes by its entry, Escape, Done (leaving edit mode), opening another page or the add page, and for a placement
+  (its drag off, [S-13705], after which it opens again). While it is open **the desktop stays usable** beside it: widgets and
+  icons are selected and moved, and a selection made there does not open the selection's page over it on its own (the
+  selection's entry on the bar opens it, closing this one). Tests `UnplacedItemsTests.S13715_`.
+
 Needs a live pass: the drag off the page onto the desktop (the icons under the real pointer from its first frame, the
-release landing them, on another display too, a fence too, and the page opening again), placing by a double-click and
+release landing them, on another display too, a fence too, and the page opening again), a desktop icon dragged onto the
+open page with the real pointer (the page lit, the picture over it, the page still open after presses on the desktop), the
+band drawn on the page with the real pointer (Ctrl and Shift too), placing by a double-click and
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 

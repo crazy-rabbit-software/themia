@@ -12,9 +12,12 @@ using Windows.Foundation;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-13700]..[S-13707] The Unplaced icons page in a render (<c>--editbar-png … [--only unplaced]</c>): the bar with its
-/// entry's badge (<c>editbar-&lt;theme&gt;-unplaced.png</c>), and the page as wide as the bar, hung from its entry, its icons
-/// the desktop's own icon view with its corner marks on the page's ground (<c>page-&lt;theme&gt;-unplaced.png</c>: six, two selected;
+/// [S-13700]..[S-13715] The Unplaced icons page in a render (<c>--editbar-png … [--only unplaced]</c>): the bar with its
+/// entry's badge (<c>editbar-&lt;theme&gt;-unplaced.png</c>), and the page as wide as the bar, hung from its entry, under its title
+/// ([S-13711]), its icons the desktop's own icon view with its corner marks on the page's ground over the desktop's grid ([S-13712])
+/// (<c>page-&lt;theme&gt;-unplaced.png</c>: six, two selected; <c>-band</c>: fourteen, the desktop's band drawn from empty room
+/// halfway, [S-13714]; <c>-drop</c>: a desktop icon being dropped on the page, its picture under the pointer and the page lit,
+/// [S-13713];
 /// <c>-long</c>: fourteen; <c>-search</c>: fourteen with the search box and a word typed; <c>-none</c>: every icon
 /// placed; <c>-noview</c>: a view that shows no desktop icons); the six and the fourteen again on a narrower display
 /// (<c>-narrow</c>, a bar of 884) and at large icons (<c>-large</c>, <c>-large-narrow</c>), so the rows follow the bar's
@@ -73,6 +76,30 @@ internal static partial class EditBarRender
             DesktopCell.Apply(DesktopIconSize.Medium);
             await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-search.png"), new UnplacedModel(true, DesktopItemOrder.Sort(SampleItems)),
                 view => view.DebugSearch("report"), ScreenWidth).ConfigureAwait(true);
+
+            // [S-13714] The desktop's band from empty room, halfway over the icons: what it touches selected as it goes.
+            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-band.png"), new UnplacedModel(true, DesktopItemOrder.Sort(SampleItems)),
+                null, ScreenWidth, late: (view, _, _) =>
+                {
+                    view.DebugBand((0.005, 0.04), (0.33, 0.62));
+                    return null;
+                }).ConfigureAwait(true);
+
+            // [S-13713] A desktop icon moved onto the page: the move's own picture of it under the pointer, the page lit as a drop target.
+            var dropped = DesktopItemOrder.Sort(six);
+            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-drop.png"), new UnplacedModel(true, dropped),
+                null, ScreenWidth, late: (view, model, spot) =>
+                {
+                    var held = dropped[^1];
+                    var picture = view.DebugMovePicture(held.Key);
+                    if (picture is null)
+                    {
+                        Console.WriteLine("editbar: the held icon drew no picture");
+                    }
+
+                    view.DropOver(true);
+                    return (model with { Items = [.. dropped.SkipLast(1)] }, picture, new Point(spot.X + (spot.Width * 0.42), spot.Y + (spot.Height * 0.55)));
+                }).ConfigureAwait(true);
             await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-none.png"), new UnplacedModel(true, []), null, ScreenWidth).ConfigureAwait(true);
             await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-noview.png"), new UnplacedModel(false, []), null, ScreenWidth).ConfigureAwait(true);
         }
@@ -86,7 +113,17 @@ internal static partial class EditBarRender
     /// One picture on a display <paramref name="width"/> wide: the page open from its entry as wide as the bar (the badge
     /// counting <paramref name="model"/>'s items), its icons in the desktop's box on that display, then <paramref name="then"/>.
     /// </summary>
-    private static async Task UnplacedShot(Grid screen, string path, UnplacedModel model, Action<UnplacedPageView>? then, double width)
+    /// <param name="late">
+    /// Once the icons are drawn: a further hand on the page (the band, a drop), given the model shown and where the page stands; it
+    /// may hand back the model shown next, a drag's picture and the pointer it is held under.
+    /// </param>
+    private static async Task UnplacedShot(
+        Grid screen,
+        string path,
+        UnplacedModel model,
+        Action<UnplacedPageView>? then,
+        double width,
+        Func<UnplacedPageView, UnplacedModel, FlyoutSpot, (UnplacedModel Next, Themia.Core.Files.DragPicture? Picture, Point Pointer)?>? late = null)
     {
         screen.Children.Clear();
         screen.Height = OpenHeight;
@@ -99,7 +136,12 @@ internal static partial class EditBarRender
 
         // [S-13707] The desktop's own box for an icon on this display at the icon size in force.
         var display = new ScreenMetrics(width, OpenHeight);
-        model = model with { Box = UnplacedItems.Dips(DesktopGrid.IconSize(DesktopCell.Grid(DesktopCell.Current), display), display) };
+        model = model with
+        {
+            Box = UnplacedItems.Dips(DesktopGrid.IconSize(DesktopCell.Grid(DesktopCell.Current), display), display),
+            Title = UnplacedItems.Title("Home"),
+            Pitch = UnplacedItems.Pitch(display),
+        };
 
         var bar = Bar(new EditBarState(null, 0, SettingsPageId.DesktopItems, false, width - (2 * ShellMetricsBarTop)) { Unplaced = model.Items.Count });
         var barRect = PlaceBar(canvas, bar, width);
@@ -130,6 +172,24 @@ internal static partial class EditBarRender
 
         // The shell's icons come off the UI thread: given time to land before the picture.
         await Task.Delay(1500).ConfigureAwait(true);
+        if (part is not null && late?.Invoke(part, model, spot) is { } next)
+        {
+            model = next.Next;
+            part.Refresh();
+            if (next.Picture is { } picture)
+            {
+                var image = new Image { IsHitTestVisible = false, Stretch = Stretch.Fill };
+                DesktopWindow.Draw(image, picture);
+                var (hotX, hotY) = picture.Anchor;
+                Canvas.SetLeft(image, next.Pointer.X - hotX);
+                Canvas.SetTop(image, next.Pointer.Y - hotY);
+                canvas.Children.Add(image);
+            }
+
+            canvas.UpdateLayout();
+            await Task.Delay(300).ConfigureAwait(true);
+        }
+
         Probe(screen, flyout, path);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");

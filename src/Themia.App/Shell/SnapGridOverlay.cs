@@ -2,6 +2,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Themia.Core.Desktop;
 using Themia.Core.Geometry;
 using Windows.Foundation;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
@@ -9,7 +10,7 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-06a]/[S-06c] The edit-mode snap grid: two <see cref="Path"/>s, the fine lines and every
+/// [S-06a]/[S-06c] The edit-mode snap grid (and [S-13712] the same grid over the Unplaced icons page's icons): two <see cref="Path"/>s, the fine lines and every
 /// <see cref="GridGeometry.MajorEvery"/>th line heavier, each one geometry group rather than a few
 /// thousand elements. Redrawn only when the surface lays out, never per frame.
 /// </summary>
@@ -43,24 +44,44 @@ internal sealed partial class SnapGridOverlay : Grid
     public void Draw(ScreenMetrics metrics, double scale)
     {
         var (cols, rows) = GridGeometry.GridDims(metrics);
+        Draw(
+            [.. Enumerable.Range(1, Math.Max(0, cols - 1)).Select(c => (GridFit.LineDip(c, cols, metrics.Width), GridGeometry.IsMajorLine(c)))],
+            [.. Enumerable.Range(1, Math.Max(0, rows - 1)).Select(r => (GridFit.LineDip(r, rows, metrics.Height), GridGeometry.IsMajorLine(r)))],
+            metrics.Width,
+            metrics.Height,
+            scale);
+    }
+
+    /// <summary>
+    /// [S-13712] The same grid over an area <paramref name="width"/> by <paramref name="height"/> DIPs at the desktop's pitch
+    /// (<paramref name="pitch"/>, a grid cell on the display the area stands for), counted from the area's corner
+    /// (<see cref="UnplacedItems.GridLines"/>): the Unplaced icons page's icon area, whose icons stand on those cells.
+    /// </summary>
+    public void Draw(double width, double height, (double X, double Y) pitch, double scale)
+        => Draw(UnplacedItems.GridLines(width, pitch.X), UnplacedItems.GridLines(height, pitch.Y), width, height, scale);
+
+    /// <summary>
+    /// The one drawing of both: a line across the area at each of <paramref name="columns"/> (x) and <paramref name="rows"/> (y),
+    /// the major ones heavier, each on whole physical pixels at <paramref name="scale"/> so it stays crisp at any DPI.
+    /// </summary>
+    private void Draw(IReadOnlyList<(double At, bool Major)> columns, IReadOnlyList<(double At, bool Major)> rows, double width, double height, double scale)
+    {
         var (minorPx, majorPx) = GridGeometry.LineWidthsPx(scale);
         var s = scale > 0 && double.IsFinite(scale) ? scale : 1;
 
         var minor = new GeometryGroup();
         var major = new GeometryGroup();
 
-        for (var c = 1; c < cols; c++)
+        foreach (var (at, isMajor) in columns)
         {
-            var isMajor = GridGeometry.IsMajorLine(c);
-            var x = GridGeometry.CrispLine(GridFit.LineDip(c, cols, metrics.Width), s, isMajor ? majorPx : minorPx);
-            (isMajor ? major : minor).Children.Add(new LineGeometry { StartPoint = new Point(x, 0), EndPoint = new Point(x, metrics.Height) });
+            var x = GridGeometry.CrispLine(at, s, isMajor ? majorPx : minorPx);
+            (isMajor ? major : minor).Children.Add(new LineGeometry { StartPoint = new Point(x, 0), EndPoint = new Point(x, height) });
         }
 
-        for (var r = 1; r < rows; r++)
+        foreach (var (at, isMajor) in rows)
         {
-            var isMajor = GridGeometry.IsMajorLine(r);
-            var y = GridGeometry.CrispLine(GridFit.LineDip(r, rows, metrics.Height), s, isMajor ? majorPx : minorPx);
-            (isMajor ? major : minor).Children.Add(new LineGeometry { StartPoint = new Point(0, y), EndPoint = new Point(metrics.Width, y) });
+            var y = GridGeometry.CrispLine(at, s, isMajor ? majorPx : minorPx);
+            (isMajor ? major : minor).Children.Add(new LineGeometry { StartPoint = new Point(0, y), EndPoint = new Point(width, y) });
         }
 
         _minor.StrokeThickness = minorPx / s;

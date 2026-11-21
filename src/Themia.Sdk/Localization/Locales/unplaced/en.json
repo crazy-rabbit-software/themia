@@ -1,13 +1,15 @@
 {
-  "$comment": "[S-13700]..[S-13708] The edit bar's Unplaced icons page: the desktop's icons the view on a display does not place.",
+  "$comment": "[S-13700]..[S-13713] The edit bar's Unplaced icons page: the desktop's icons the view on a display does not place.",
   "$englishOnly": [
     "unplaced.page.name",
+    "unplaced.page.title",
     "unplaced.page.none",
     "unplaced.page.noneHere",
     "unplaced.page.search",
     "unplaced.badge"
   ],
   "unplaced.page.name": "Unplaced icons",
+  "unplaced.page.title": "Not on {view}",
   "unplaced.page.none": "Every desktop icon is on this view.",
   "unplaced.page.noneHere": "This view shows no desktop icons. Views › Desktop icons chooses which it shows.",
   "unplaced.page.search": "Search icons",

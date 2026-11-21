@@ -25,6 +25,12 @@ namespace Themia.App.Shell;
 /// <param name="Holds">Whether the view shown on the page's display shows desktop icons at all (<see cref="DesktopViews.Holds"/>).</param>
 internal sealed record UnplacedModel(bool Holds, IReadOnlyList<DesktopItem> Items)
 {
+    /// <summary>[S-13711] The page's title: "Not on &lt;view&gt;" (<see cref="UnplacedItems.Title"/>).</summary>
+    public string Title { get; init; } = string.Empty;
+
+    /// <summary>[S-13712] The desktop's grid cell on the page's display, in DIPs (<see cref="UnplacedItems.Pitch"/>): the page's grid.</summary>
+    public (double X, double Y) Pitch { get; init; }
+
     /// <summary>
     /// [S-13707] The box the desktop gives an icon on the page's display, in DIPs (<see cref="UnplacedItems.Dips"/> of the
     /// desktop's own box): the cell each icon is drawn in, as on the desktop. None for none.
@@ -44,25 +50,41 @@ internal sealed record UnplacedCommands(
     Func<DesktopItem, int, Task<ImageSource?>> Icon);
 
 /// <summary>
-/// [S-13700]..[S-13707] The Unplaced icons page's live part (the page's one line, drawn as the Appearance's preview is,
-/// <see cref="IPagePreview"/>): no words over it (owner, 2026-11-20: "remove the text from the on desktop not home page") and
-/// no buttons (owner, 2026-11-21: "place on fence and put in this view buttons should be removed from the desktop icons
-/// selector at the top", [S-13704] retired), a search box once the list is long (<see cref="UnplacedItems.Searches"/>), then
-/// the icons on the page's own ground, each the desktop's own icon view (<c>.Icons.cs</c>) at the
+/// [S-13700]..[S-13713] The Unplaced icons page's live part (the page's one line, drawn as the Appearance's preview is,
+/// <see cref="IPagePreview"/>): its title, one line (owner, 2026-11-21: "it should show a title though", [S-13711]), no other
+/// words (owner, 2026-11-20: "remove the text from the on desktop not home page") and no buttons (owner, 2026-11-21: "place on
+/// fence and put in this view buttons should be removed from the desktop icons selector at the top", [S-13704] retired), a
+/// search box once the list is long (<see cref="UnplacedItems.Searches"/>), then the icons on the page's own ground over the
+/// desktop's grid ([S-13712]), each the desktop's own icon view (<c>.Icons.cs</c>) at the
 /// desktop's icon size in the box the desktop gives it, with the corner marks the desktop's icons show in edit mode
 /// (<see cref="IconMarks"/>), box against box in rows across the page as the desktop lays them
 /// (<see cref="UnplacedItems.Cells"/>): what is seen is what is placed (owner, 2026-11-19: "it should show the icons
 /// exactly how they would look like on the desktop"). They are selected as files are (<see cref="ItemSelection"/>: click,
-/// Ctrl/Shift+click, the arrows across and down the rows, Ctrl+A), painted in the desktop icon's selection look, dragged
+/// Ctrl/Shift+click, the desktop's band from empty room ([S-13714]), the arrows across and down the rows, Ctrl+A), painted in the desktop icon's selection look, dragged
 /// off onto the desktop to place them where they are let go, and placed by a double-click or Enter. Drawn again from
 /// <see cref="UnplacedCommands.Read"/> each time the page is (<see cref="Refresh"/>): a file added to or gone from the
 /// desktop, an icon placed or removed, another icon size.
 /// </summary>
-internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
+internal sealed partial class UnplacedPageView : Grid, IPagePreview
 {
     private const string Scope = "unplaced-page";
 
     private readonly UnplacedCommands _commands;
+
+    /// <summary>The page's parts, top to bottom: the title, the search box, the icons, the note.</summary>
+    private readonly StackPanel _stack = new();
+
+    /// <summary>[S-13711] "Not on &lt;view&gt;", one line, as the pages' section headings.</summary>
+    private readonly TextBlock _title = Fluent.Text(FamilyType.BodyStrong);
+
+    /// <summary>[S-13712] The desktop's grid under the icons, at its pitch, in the edit-mode grid's look.</summary>
+    private readonly SnapGridOverlay _grid = new();
+
+    /// <summary>[S-13714] The desktop's band while one is drawn from empty room of the icons' area.</summary>
+    private readonly Border _band = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+
+    /// <summary>[S-13713] The page lit as a drop target while desktop icons dragged over it would land on it.</summary>
+    private readonly Border _dropMark = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
     private readonly ItemSelection _selection = new(DesktopItemKeys.Comparer);
     private readonly TextBox _search;
     private readonly IconGrid _icons = new();
@@ -87,6 +109,12 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
     /// <summary>The item a press is on and where it began.</summary>
     private (string Key, Windows.Foundation.Point At)? _press;
 
+    /// <summary>[S-13714] A press on empty room of the icons' area, where it began (the icons' DIPs) and how its band combines.</summary>
+    private (Windows.Foundation.Point At, BandMode Mode)? _emptyPress;
+
+    /// <summary>[S-13714] The press on empty room travelled past the dead zone: it is a band.</summary>
+    private bool _banding;
+
     /// <summary>One item's icon: the desktop's own icon view in its box.</summary>
     private sealed record Cell(string Key, Grid Root, FrameworkElement View);
 
@@ -97,7 +125,23 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         _ticker = new Ticker(dispatcher);
         _iconDesk = new IconDesk(this, Services.Files.HostDesktopItems.Instance);
         _iconHost = new IconPreviewHost(new CardWidgetHost(new PreviewCardHost(_ticker)), _iconDesk);
-        Spacing = P.CardGap;
+        _stack.Spacing = P.CardGap;
+        Children.Add(_stack);
+
+        // [S-13713] Lit over the whole page while icons dragged onto it would leave the view: the one item look's drop target.
+        // A step out round the page's parts, so its rim never touches the title's words.
+        _dropMark.Margin = new Thickness(-Fluent.Space2);
+        _dropMark.CornerRadius = new CornerRadius(P.CardRadius);
+        _dropMark.BorderThickness = new Thickness(SelectionLook.Rows.Border);
+        SelectionChrome.Paint(_dropMark, new SelectionCue(Selected: false, Hovered: false, DropTarget: true));
+        Children.Add(_dropMark);
+
+        // [S-13711] The title, one line, in the pages' section heading's words; a long view name cut with an ellipsis.
+        _title.TextWrapping = TextWrapping.NoWrap;
+        _title.TextTrimming = TextTrimming.CharacterEllipsis;
+        _title.MaxLines = 1;
+        _title.Margin = new Thickness(0, 0, 0, Math.Max(0, P.HeadingGap - P.CardGap));
+        _stack.Children.Add(_title);
 
         _search = new TextBox
         {
@@ -109,27 +153,35 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         };
         AutomationProperties.SetName(_search, Str.Unplaced_Page_Search.Text());
         _search.TextChanged += (_, _) => Draw();
-        Children.Add(_search);
+        _stack.Children.Add(_search);
 
         // [S-13707] The icons on the page's own ground (owner, 2026-11-20: "make the background of the icons area the same as
         // the rest of the configuration page"), their corner marks over them; room round them for the marks' outer half.
+        // [S-13712] The desktop's grid under them (owner, 2026-11-21: "it should show the grid too"); [S-13714] the band over all.
         _icons.Arranged = DrawMarks;
+        SelectionChrome.PaintBand(_band);
         _desk = new Border
         {
-            Child = new Grid { Children = { _icons, _marks.Halos, _marks.Inks } },
+            // The grid and the band on canvases: drawn over the icons' area, they never ask for room of their own (no layout cycle).
+            Child = new Grid { Children = { new Canvas { IsHitTestVisible = false, Children = { _grid } }, _icons, _marks.Halos, _marks.Inks, new Canvas { IsHitTestVisible = false, Children = { _band } } } },
             Padding = new Thickness(Fluent.Space2),
+            Background = Fluent.Clear(),
             IsTabStop = true,
             UseSystemFocusVisuals = true,
         };
         _desk.KeyDown += OnKey;
         _desk.GotFocus += (_, _) => Paint();
         _desk.LostFocus += (_, _) => Paint();
+        _desk.PointerPressed += OnEmptyPressed;
+        _desk.PointerMoved += OnEmptyMoved;
+        _desk.PointerReleased += OnEmptyReleased;
+        _desk.PointerCaptureLost += (_, _) => EndBand();
         AutomationProperties.SetName(_desk, Str.Unplaced_Page_Name.Text());
-        Children.Add(_desk);
+        _stack.Children.Add(_desk);
 
         _note.TextWrapping = TextWrapping.Wrap;
         _noteCard = Card(new Border { Child = _note, Padding = new Thickness(P.IconAt, P.EndInset, P.EndInset, P.EndInset) });
-        Children.Add(_noteCard);
+        _stack.Children.Add(_noteCard);
 
         if (_kind is null)
         {
@@ -158,10 +210,52 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
 
         _search.Visibility = UnplacedItems.Searches(_model.Items.Count) ? Visibility.Visible : Visibility.Collapsed;
+        _title.Text = _model.Title;
+        _title.Visibility = _model.Title.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        AutomationProperties.SetName(_desk, _model.Title.Length > 0 ? _model.Title : Str.Unplaced_Page_Name.Text());
         Draw();
     }
 
+    /// <summary>
+    /// [S-13713] Desktop icons dragged over the page would land on it (true), or not now: the page lit in the one item look's drop
+    /// target ([S-6627]), or not.
+    /// </summary>
+    public void DropOver(bool over)
+    {
+        if (!_disposed)
+        {
+            _dropMark.Visibility = over ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+
 #if DEBUG
+    /// <summary>[S-13713] Whether the page is lit as a drop target now (a check's question).</summary>
+    internal bool DropShown => _dropMark.Visibility == Visibility.Visible;
+
+    /// <summary>A render's hand: a band drawn from <paramref name="from"/> to <paramref name="to"/> (fractions of the icons' area) and held there.</summary>
+    internal void DebugBand((double X, double Y) from, (double X, double Y) to)
+    {
+        var size = _icons.Area;
+        _emptyPress = (new Windows.Foundation.Point(from.X * size.Width, from.Y * size.Height), BandMode.Replace);
+        Band(new Windows.Foundation.Point(to.X * size.Width, to.Y * size.Height));
+    }
+
+    /// <summary>
+    /// A render's hand: the picture a desktop move of the icon <paramref name="key"/> shows under the pointer
+    /// (<see cref="Themia.Core.Files.DragGhost.OfMove"/>, as the desktop composes it), held at its middle; null when that icon is not drawn.
+    /// </summary>
+    internal Themia.Core.Files.DragPicture? DebugMovePicture(string key)
+    {
+        if (!_cells.TryGetValue(key, out var cell) || cell.View is not IDesktopIconView icon || icon.DragIcon is not { } picture
+            || icon.DragIconBox is not { ActualWidth: > 0 } box)
+        {
+            return null;
+        }
+
+        var side = box.ActualWidth;
+        return Themia.Core.Files.DragGhost.OfMove(picture, 1, side, side / 2, side / 2, XamlRoot?.RasterizationScale ?? 1.0);
+    }
+
     /// <summary>A render's hand: these items selected as Ctrl+clicks select them.</summary>
     internal void DebugSelect(IReadOnlyList<string> keys)
     {
@@ -190,6 +284,8 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
 
         _disposed = true;
+        _emptyPress = null;
+        _banding = false;
         foreach (var cell in _cells.Values)
         {
             DropCell(cell);
@@ -458,8 +554,124 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
             boxes.Add((laid[i], _selection.IsSelected(_shown[i].Key)));
         }
 
-        _marks.Draw(boxes, XamlRoot?.RasterizationScale ?? 1.0);
+        var scale = XamlRoot?.RasterizationScale ?? 1.0;
+        _marks.Draw(boxes, scale);
+
+        // [S-13712] The desktop's grid over the icons' area: the cells their boxes stand on.
+        _grid.Draw(_icons.Area.Width, _icons.Area.Height, _model.Pitch, scale);
     }
+
+    /// <summary>
+    /// [S-13714] A left press on empty room of the icons' area (a press on an icon is the icon's): the keyboard here, and a band
+    /// once it travels past the desktop's dead zone (<see cref="SelectionBand.Threshold"/>); Ctrl toggles, Shift adds, as the
+    /// desktop's band combines (<see cref="SelectionBand.Mode"/>).
+    /// </summary>
+    private void OnEmptyPressed(object sender, PointerRoutedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(_desk).Properties.IsLeftButtonPressed || _shown.Count == 0)
+        {
+            return;
+        }
+
+        var ctrl = (e.KeyModifiers & VirtualKeyModifiers.Control) != 0;
+        var shift = (e.KeyModifiers & VirtualKeyModifiers.Shift) != 0;
+        _emptyPress = (Inside(e.GetCurrentPoint(_icons).Position), SelectionBand.Mode(ctrl, shift));
+        _banding = false;
+        _ = _desk.CapturePointer(e.Pointer);
+        _ = _desk.Focus(FocusState.Pointer);
+        e.Handled = true;
+    }
+
+    /// <summary>[S-13714] The pointer held from empty room moved: past the dead zone the band follows it and selects what it touches.</summary>
+    private void OnEmptyMoved(object sender, PointerRoutedEventArgs e)
+    {
+        if (_emptyPress is null || !e.GetCurrentPoint(_desk).Properties.IsLeftButtonPressed)
+        {
+            return;
+        }
+
+        Band(e.GetCurrentPoint(_icons).Position);
+        e.Handled = true;
+    }
+
+    /// <summary>[S-6620] [S-13714] Let go: a band leaves what it selected; a click on empty room with no key held clears the selection.</summary>
+    private void OnEmptyReleased(object sender, PointerRoutedEventArgs e)
+    {
+        if (_emptyPress is not { } press)
+        {
+            return;
+        }
+
+        var banded = _banding;
+        _desk.ReleasePointerCapture(e.Pointer);
+        EndBand();
+        if (!banded && press.Mode == BandMode.Replace && _selection.Clear())
+        {
+            Paint();
+        }
+
+        e.Handled = true;
+    }
+
+    /// <summary>
+    /// [S-6624] [S-13714] The band to <paramref name="now"/> (the icons' DIPs), kept inside the icons' area: the desktop's band in
+    /// its look (<see cref="SelectionChrome.PaintBand"/>), selecting each icon whose box it touches at all, live
+    /// (<see cref="SelectionBand.Hits"/>, <see cref="ItemSelection.Band"/>).
+    /// </summary>
+    private void Band(Windows.Foundation.Point now)
+    {
+        if (_emptyPress is not { } press)
+        {
+            return;
+        }
+
+        now = Inside(now);
+        if (!_banding)
+        {
+            if (!SelectionBand.PastThreshold(now.X - press.At.X, now.Y - press.At.Y))
+            {
+                return;
+            }
+
+            _banding = true;
+            _selection.BeginBand(press.Mode);
+        }
+
+        var band = new BandRect(press.At.X, press.At.Y, now.X, now.Y);
+        Canvas.SetLeft(_band, band.Left);
+        Canvas.SetTop(_band, band.Top);
+        _band.Width = band.Width;
+        _band.Height = band.Height;
+        _band.Visibility = Visibility.Visible;
+
+        var laid = _icons.Laid;
+        var count = Math.Min(laid.Count, _shown.Count);
+        var boxes = new List<ItemBox>(count);
+        for (var i = 0; i < count; i++)
+        {
+            boxes.Add(new ItemBox(laid[i].X, laid[i].Y, laid[i].Width, laid[i].Height));
+        }
+
+        _selection.Band(SelectionBand.Hits(band, boxes).Select(i => _selection.IndexOf(_shown[i].Key)));
+        Paint();
+    }
+
+    /// <summary>[S-13714] The band goes; what it selected stays.</summary>
+    private void EndBand()
+    {
+        if (_banding)
+        {
+            _selection.EndBand();
+        }
+
+        _emptyPress = null;
+        _banding = false;
+        _band.Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>A point of the icons' area: one outside it held at its edge.</summary>
+    private Windows.Foundation.Point Inside(Windows.Foundation.Point at)
+        => new(Math.Clamp(at.X, 0, Math.Max(0, _icons.Area.Width)), Math.Clamp(at.Y, 0, Math.Max(0, _icons.Area.Height)));
 
     /// <summary>A page card: the cards' fill and rim, radius 4.</summary>
     private static Border Card(UIElement child) => new()
@@ -496,7 +708,10 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         /// <summary>The cells the children were last laid in, in their order.</summary>
         public IReadOnlyList<PixelRect> Laid { get; private set; } = [];
 
-        /// <summary>Called after an arrange that laid the children in other cells, once <see cref="Laid"/> holds them.</summary>
+        /// <summary>[S-13712] [S-13714] The area the children were last laid in (the grid's and the band's room).</summary>
+        public Windows.Foundation.Size Area { get; private set; }
+
+        /// <summary>Called after an arrange that laid the children in other cells or another area, once <see cref="Laid"/> and <see cref="Area"/> hold them.</summary>
         public Action? Arranged { get; set; }
 
         protected override Windows.Foundation.Size MeasureOverride(Windows.Foundation.Size availableSize)
@@ -522,9 +737,10 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
                 Children[i].Arrange(new Windows.Foundation.Rect(cell.X, cell.Y, cell.Width, cell.Height));
             }
 
-            if (!Laid.SequenceEqual(cells))
+            if (!Laid.SequenceEqual(cells) || Area != finalSize)
             {
                 Laid = cells;
+                Area = finalSize;
                 Arranged?.Invoke();
             }
 

@@ -14,6 +14,7 @@ namespace Themia.App.Shell;
 /// entry, or the selection's, opens its flyout hung from it; one open at a time; it closes on its entry
 /// again, Escape (after going back out of what it opened), a press anywhere that is not the bar or the
 /// flyout, the add menu opening, a placement, and leaving edit mode. Nothing is open as edit mode starts.
+/// [S-13715] The Unplaced icons page alone stays open under a press outside it, so the desktop is used beside it.
 /// </summary>
 internal sealed partial class DesktopWindow
 {
@@ -157,6 +158,13 @@ internal sealed partial class DesktopWindow
             return;
         }
 
+        // [S-13715] The Unplaced icons page stays while the desktop is used beside it: a selection made there opens its page from
+        // its entry (focus: the bar's entry asked), never on its own over the page.
+        if (!focus && !_selectionOpen && SettingsPages.StaysOpen(_openPage))
+        {
+            return;
+        }
+
         if (!_selectionOpen)
         {
             CloseFlyout(focusEntry: false);
@@ -273,12 +281,13 @@ internal sealed partial class DesktopWindow
     /// [S-2327] A press anywhere on the surface that is not the bar or the open flyout closes it, and the
     /// press goes on to do what it does. [S-2343] A press on a widget leaves the selection's page open:
     /// a click on a widget ends with its page open, so closing it only to open it again would flash;
-    /// it goes when the widget starts to move (<see cref="ClearForDrag"/>).
+    /// it goes when the widget starts to move (<see cref="ClearForDrag"/>). [S-13715] The Unplaced icons page has no light
+    /// dismiss (owner, 2026-11-21: "it should not close when i click outside of it"): the press goes on, the page stays.
     /// </summary>
     private void OnPressForBarMenu(object sender, PointerRoutedEventArgs e)
     {
         FrameworkElement? open = (FrameworkElement?)_flyout ?? _addPage;
-        if (open is null || e.OriginalSource is not DependencyObject source)
+        if (open is null || e.OriginalSource is not DependencyObject source || (_flyout is not null && SettingsPages.StaysOpen(_openPage)))
         {
             return;
         }

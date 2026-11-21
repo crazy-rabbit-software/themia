@@ -8,9 +8,10 @@ using Themia.Sdk;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-13700]..[S-13707] The Unplaced icons page on this display: the desktop's icons the view shown here does not
+/// [S-13700]..[S-13713] The Unplaced icons page on this display: the desktop's icons the view shown here does not
 /// place, read for this display's view each time it is drawn; placing them at the next free cells (a double-click,
-/// Enter), dragging them onto the desktop (the one placement session, let go where the pointer lets go); and the
+/// Enter), dragging them onto the desktop (the one placement session, let go where the pointer lets go); desktop icons
+/// moved onto it leaving the view (the inverse, [S-13713]: the page stays open while the desktop is used, [S-13715]); and the
 /// entry's badge on the bar. The rules are Core's (<see cref="UnplacedItems"/>).
 /// </summary>
 internal sealed partial class DesktopWindow
@@ -23,12 +24,37 @@ internal sealed partial class DesktopWindow
 
     private bool _unplacedReleaseHooked;
 
+    /// <summary>[S-13713] The open page's live part (the last one built), lit while desktop icons dragged over it would land on it.</summary>
+    private UnplacedPageView? _unplacedPart;
+
     /// <summary>[S-13700] The page's live part, over this display's view.</summary>
-    private UnplacedPageView UnplacedPart() => new(new UnplacedCommands(
+    private UnplacedPageView UnplacedPart() => _unplacedPart = new(new UnplacedCommands(
         Read: UnplacedNow,
         Place: keys => _host.PlaceDesktopItems(CurrentViewId, keys),
         Drag: BeginUnplacedDrag,
         Icon: HostDesktopItems.Instance.IconAsync));
+
+    /// <summary>[S-13713] The page's live part while its flyout is open here; null otherwise.</summary>
+    internal UnplacedPageView? OpenUnplacedPart => _openPage == SettingsPageId.DesktopItems && _flyout is not null ? _unplacedPart : null;
+
+    /// <summary>
+    /// [S-13713] Whether <paramref name="at"/> (the root's DIPs) is over the Unplaced icons page open on this display, its panel
+    /// (the beak not counted): where a move of desktop icons let go takes them off the view.
+    /// </summary>
+    internal bool OverUnplacedPage(Windows.Foundation.Point at)
+    {
+        if (!EditMode || _openPage != SettingsPageId.DesktopItems || _flyout is not { } flyout)
+        {
+            return false;
+        }
+
+        var panel = flyout.Panel;
+        var corner = _flyoutLayer.TransformToVisual(_root).TransformPoint(new Windows.Foundation.Point(panel.X, panel.Y));
+        return at.X >= corner.X && at.X < corner.X + panel.Width && at.Y >= corner.Y && at.Y < corner.Y + panel.Height;
+    }
+
+    /// <summary>[S-13713] The page lit as a drop target, or not; a move's every step says which.</summary>
+    private void ShowUnplacedDrop(bool over) => OpenUnplacedPart?.DropOver(over);
 
     /// <summary>
     /// [S-13700] What the page shows now: what this display's view does not place; [S-13707] its icons in
@@ -43,6 +69,8 @@ internal sealed partial class DesktopWindow
             _host.UnplacedDesktopItems(view.Id))
         {
             Box = UnplacedItems.Dips(_host.DeskIconBox(metrics), metrics),
+            Title = UnplacedItems.Title(view.Name),
+            Pitch = UnplacedItems.Pitch(metrics),
         };
     }
 
@@ -91,6 +119,9 @@ internal sealed partial class DesktopWindow
             _reopenUnplaced = false;
         }
     }
+
+    /// <summary>A check's hand: these items dragged off the page, as a press past the dead zone on them does.</summary>
+    internal void DebugUnplacedDrag(IReadOnlyList<string> keys) => BeginUnplacedDrag(keys);
 
     /// <summary>[S-13705] The drag's release: the placement lands at that point.</summary>
     private void OnUnplacedDragReleased(object sender, PointerRoutedEventArgs e)

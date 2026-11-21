@@ -1,5 +1,6 @@
 using Themia.Core.Desktop;
 using Themia.Core.Geometry;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Sdk;
@@ -203,5 +204,135 @@ public sealed class UnplacedItemsTests
         Assert.Equal(360, UnplacedItems.Height(7, 300, new SizeDip(100, 120)));
         Assert.Equal(120, UnplacedItems.Height(3, 300, new SizeDip(100, 120)));
         Assert.Equal(0, UnplacedItems.Height(0, 300, new SizeDip(100, 120)));
+    }
+
+    [Fact]
+    public void S13712_the_grid_runs_at_the_desktops_pitch_from_the_corner_both_edges_and_every_fifth_line_heavier()
+    {
+        // Owner, 2026-11-21: "it should show the grid too": the desktop's cells, so every icon box (whole cells) stands on lines.
+        var screen = new ScreenMetrics(1920, 1080);
+        var pitch = UnplacedItems.Pitch(screen);
+        Assert.Equal(GridGeometry.CellPitch(screen), pitch.X, 9);
+        var box = UnplacedItems.Dips(DesktopGrid.IconSize(DesktopCell.Grid(DesktopIconSize.Medium), screen), screen);
+        var lines = UnplacedItems.GridLines(3 * box.Width, pitch.X);
+        var at = lines.Select(l => l.At).ToList();
+        var rows = UnplacedItems.GridLines(2 * box.Height, pitch.Y).Select(l => l.At).ToList();
+        foreach (var cell in UnplacedItems.Cells(6, 3 * box.Width, box))
+        {
+            Assert.Contains(at, x => Math.Abs(x - cell.X) < 1e-6);
+            Assert.Contains(rows, y => Math.Abs(y - cell.Y) < 1e-6);
+        }
+
+        Assert.Equal(0, lines[0].At);
+        Assert.True(lines[0].Major);
+        Assert.Equal(3 * box.Width, lines[^1].At, 6);
+        Assert.Equal([false, false, false, false, true], lines.Skip(1).Take(5).Select(l => l.Major));
+
+        // A side of 25 at a pitch of 10: 0, 10, 20 (the last whole cell); nothing for no room or no pitch.
+        Assert.Equal([0.0, 10.0, 20.0], UnplacedItems.GridLines(25, 10).Select(l => l.At));
+        Assert.Empty(UnplacedItems.GridLines(0, 10));
+        Assert.Empty(UnplacedItems.GridLines(100, 0));
+        Assert.Empty(UnplacedItems.GridLines(double.NaN, 10));
+    }
+
+    [Fact]
+    public void S13713_a_move_over_the_page_takes_its_desktop_items_never_an_own_icon_a_card_or_what_a_moving_fence_carries()
+    {
+        var home = ViewState.Create("Home");
+        var a = Icon("a.txt", new FracRect(0, 0, 0.09, 0.125));
+        var b = Icon("b.txt", new FracRect(0.1, 0, 0.09, 0.125));
+        var own = new WidgetInstance { Id = "own", Config = new DeskIconFake { Target = "app.exe" }, Rect = new FracRect(0.2, 0, 0.09, 0.125) };
+        var card = new WidgetInstance { Id = "card", Config = new OtherConfig(), Rect = new FracRect(0.3, 0.3, 0.2, 0.2) };
+        var fenced = Icon("c.txt", new FracRect(0.5, 0.2, 0.09, 0.125));
+        var fence = Fence("f", FenceSource.Held, "c.txt");
+        home.Widgets.AddRange([a, b, own, card, fenced, fence]);
+
+        Assert.Equal([Desk + "b.txt", Desk + "a.txt"], UnplacedItems.Taken(home, [b.Id, own.Id, card.Id, a.Id, a.Id]));
+
+        // An icon out of its fence (the fence stays) is taken; with its fence moving it is the fence's, not taken.
+        Assert.Equal([Desk + "c.txt"], UnplacedItems.Taken(home, [fenced.Id]));
+        Assert.Empty(UnplacedItems.Taken(home, [fence.Id, fenced.Id]));
+        Assert.Empty(UnplacedItems.Taken(home, ["gone"]));
+    }
+
+    [Fact]
+    public void S13713_dropped_on_the_page_icons_leave_the_view_and_its_fences_and_the_page_lists_them_again()
+    {
+        var home = ViewState.Create("Home");
+        home.Widgets.Add(Icon("a.txt", new FracRect(0, 0, 0.09, 0.125)));
+        home.Widgets.Add(Icon("b.txt", new FracRect(0.1, 0, 0.09, 0.125)));
+        home.Widgets.Add(Icon("c.txt", new FracRect(0.5, 0.2, 0.09, 0.125)));
+        home.Widgets.Add(Fence("f", FenceSource.Held, "c.txt"));
+        DesktopItem[] listing = [File("a.txt"), File("b.txt"), File("c.txt")];
+        Assert.Empty(UnplacedItems.Of(home, listing));
+
+        Assert.Equal([Desk + "a.txt", Desk + "c.txt"], UnplacedItems.Unplace(home, [Desk + "a.txt", Desk + "c.txt", Desk + "zzz.txt"]));
+        Assert.Equal(["a.txt", "c.txt"], Names(UnplacedItems.Of(home, listing)));
+        Assert.Empty(((FenceFake)home.Widgets.Single(w => w.Id == "f").Config).Items);
+        Assert.Equal([Desk + "b.txt"], DesktopViews.Shown(home));
+
+        // Not shown (any more): nothing leaves. Placed again (the page's drag, a double-click): off the list again.
+        Assert.Empty(UnplacedItems.Unplace(home, [Desk + "a.txt"]));
+        Assert.Empty(DesktopViews.Fill(home, [listing[0]], Screen, (90, 100), Create));
+        Assert.Equal(["c.txt"], Names(UnplacedItems.Of(home, listing)));
+    }
+
+    [Fact]
+    public void S13713_an_all_view_stays_all_and_what_was_taken_off_it_stays_off_until_placed_again()
+    {
+        // The decision (2026-11-21): taking an icon off a view keeps its Desktop icons value, as Hide from this view and Remove
+        // from this view do ([S-5527], [S-5524]): All decides where a new item arrives, and a known item is not new.
+        var home = ViewState.Create("Home");
+        var state = new AppState { Views = [home], ActiveViewId = home.Id };
+        DesktopItem[] listing = [File("a.txt"), File("b.txt")];
+        DesktopReconcile.Apply(state, DesktopReconcile.Plan(state, listing, []), Screen, (90, 100), Create);
+        Assert.Equal(ViewDesktopIcons.All, home.DesktopIcons);
+        Assert.Empty(UnplacedItems.Of(home, listing));
+
+        Assert.Equal([Desk + "a.txt"], UnplacedItems.Unplace(home, [Desk + "a.txt"]));
+        Assert.Equal(ViewDesktopIcons.All, home.DesktopIcons);
+
+        // The next read of the desktop does not bring it back; a new file still arrives on the All view.
+        DesktopItem[] more = [.. listing, File("new.txt")];
+        DesktopReconcile.Apply(state, DesktopReconcile.Plan(state, more, []), Screen, (90, 100), Create);
+        Assert.Equal(["a.txt"], Names(UnplacedItems.Of(home, more)));
+
+        // A Chosen view's chosen set loses it the same way; a None view shows none, so nothing leaves it.
+        home.DesktopIcons = ViewDesktopIcons.Chosen;
+        Assert.Equal([Desk + "b.txt"], UnplacedItems.Unplace(home, [Desk + "b.txt"]));
+        Assert.Equal(ViewDesktopIcons.Chosen, home.DesktopIcons);
+        Assert.Equal(["a.txt", "b.txt"], Names(UnplacedItems.Of(home, more)));
+        DesktopViews.Set(home, ViewDesktopIcons.None);
+        Assert.Empty(UnplacedItems.Unplace(home, [Desk + "new.txt"]));
+    }
+
+    [Fact]
+    public void S13715_the_unplaced_icons_page_alone_stays_open_under_a_press_outside_it()
+    {
+        // Owner, 2026-11-21: "it should not close when i click outside of it, that way it should also be possible to move desktop
+        // icons back to it".
+        Assert.True(SettingsPages.StaysOpen(SettingsPageId.DesktopItems));
+        Assert.All(Enum.GetValues<SettingsPageId>().Where(p => p != SettingsPageId.DesktopItems), p => Assert.False(SettingsPages.StaysOpen(p)));
+        Assert.False(SettingsPages.StaysOpen(null));
+    }
+
+    private sealed class OtherConfig : WidgetConfig
+    {
+        public override WidgetConfig Clone() => new OtherConfig();
+    }
+}
+
+/// <summary>[S-13711] The page's title, in the one language the tests set.</summary>
+[Collection(GlobalLocaleCollection.Name)]
+public sealed class UnplacedTitleTests
+{
+    [Fact]
+    public void S13711_the_title_names_the_view_the_page_is_for_on_one_line()
+    {
+        // Owner, 2026-11-21: "it should show a title though".
+        Assert.Equal("Not on Home", UnplacedItems.Title("Home"));
+        Assert.Equal("Not on Work", UnplacedItems.Title("  Work "));
+        Assert.Equal($"Not on {Str.Shell_View_DefaultName.Text()}", UnplacedItems.Title("   "));
+        Assert.DoesNotContain('\n', UnplacedItems.Title("Home"));
     }
 }

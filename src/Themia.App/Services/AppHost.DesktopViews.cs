@@ -112,6 +112,34 @@ internal sealed partial class AppHost
         }
     }
 
+    /// <summary>
+    /// [S-13713] Desktop icons let go over the open Unplaced icons page: <paramref name="keys"/> leave the view (out of its fences,
+    /// their icons off it, <see cref="UnplacedItems.Unplace"/>), one undo step, so the page lists them again. The view's
+    /// Desktop icons value stays (an All view stays All, the decision of 2026-11-21: as Hide from this view, [S-5527]). Returns
+    /// the keys that left.
+    /// </summary>
+    public IReadOnlyList<string> UnplaceDesktopItems(string viewId, IReadOnlyList<string> keys)
+    {
+        ArgumentNullException.ThrowIfNull(keys);
+        if (keys.Count == 0 || State.FindView(viewId) is not { } current || DesktopViews.Shown(current).Count == 0)
+        {
+            return [];
+        }
+
+        IReadOnlyList<string> left = [];
+        var value = current.DesktopIcons;
+        Mutate(state =>
+        {
+            if (state.FindView(viewId) is { } view)
+            {
+                left = UnplacedItems.Unplace(view, keys);
+            }
+        }, undo: UndoAction.Delete);
+
+        Log.Info(Scope, $"{left.Count} desktop icon(s) dropped on the Unplaced icons page left a view that shows {value} desktop icons; it still does");
+        return left;
+    }
+
     /// <summary>[S-5527] The icon menu's Hide from this view: each desktop item's icon off the view it stands on, one undo step.</summary>
     private void HideDesktopIcons(IReadOnlyList<DeskIcon> icons)
     {

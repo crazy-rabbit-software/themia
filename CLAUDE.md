@@ -393,7 +393,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   overlap, no Keep widgets from overlapping, [S-11959] retired), the problems' room, the Widget gallery's button
   ([S-14910]), Add widget, Unplaced icons right after Add (its icon alone and a count badge, [S-13700], [S-13701]), Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
-  never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
+  never the widgets' look), one at a time; the Unplaced icons page alone has no light dismiss and takes desktop icons moved
+  onto it off the view, the view's All/Chosen kept (`SettingsPages.StaysOpen`, `UnplacedItems.Unplace`, [S-13713], [S-13715]). No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
   is a widget's (its page), a view's (Views), a display's (Display) or Themia's (General, Accounts,
   Appearance), and that page alone sets it; a lower level that follows it just follows it: no copy and no

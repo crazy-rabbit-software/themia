@@ -55,6 +55,15 @@ internal sealed partial class DesktopWindow
 
         /// <summary>[S-13046] Where the pointer pressed, in the root's DIPs: the picture follows it by the move's translation.</summary>
         public Point Press { get; init; }
+
+        /// <summary>
+        /// [S-13713] The desktop items the move takes off the view if let go over the open Unplaced icons page
+        /// (<see cref="Themia.Core.Desktop.UnplacedItems.Taken"/>); none for a move a desktop icon does not hold.
+        /// </summary>
+        public IReadOnlyList<string> Takes { get; init; } = [];
+
+        /// <summary>[S-13713] Whether the last step had the pointer over the open Unplaced icons page with icons it takes.</summary>
+        public bool OverPage { get; set; }
     }
 
     private MoveSession? _move;
@@ -167,6 +176,7 @@ internal sealed partial class DesktopWindow
             HeldByIcon = heldByIcon,
             Picture = heldByIcon ? DeskDragPicture(card, cards.Count(c => c.Card.View is IDesktopIconView), pressAt) : null,
             Press = pressAt,
+            Takes = heldByIcon && EditMode ? Themia.Core.Desktop.UnplacedItems.Taken(view, cards.Select(c => c.Card.Model.Id)) : [],
         };
     }
 
@@ -277,17 +287,30 @@ internal sealed partial class DesktopWindow
         }
 
         var leaving = move.Payload is { } payload && _host.PreviewHandOff(this, payload);
-        var leavingChanged = first || leaving != move.Leaving;
+
+        // [S-13713] Over the open Unplaced icons page with icons it takes: let go there, they leave the view. The page is lit, and the
+        // cards here fade as for a hand-off, the local grid off: they would not land on the desktop.
+        var pointer = new Point(move.Press.X + (dxFrac * metrics.Width), move.Press.Y + (dyFrac * metrics.Height));
+        var overPage = !leaving && move.Takes.Count > 0 && OverUnplacedPage(pointer);
+        var away = leaving || overPage;
+        var leavingChanged = first || away != (move.Leaving || move.OverPage);
+        if (first || overPage != move.OverPage)
+        {
+            ShowUnplacedDrop(overPage);
+        }
+
         move.Leaving = leaving;
+        move.OverPage = overPage;
         if (leavingChanged)
         {
             foreach (var (moving, _) in move.Cards)
             {
-                moving.SetLeaving(leaving);
+                moving.SetLeaving(away);
             }
         }
 
         // [S-13046] The icon under the pointer, every frame; not while the block goes to another display, which shows its ghost.
+        // [S-13713] Over the page too: the drag's picture is over every layer, the flyouts' included.
         if (move.Picture is { } picture)
         {
             if (leaving)
@@ -296,7 +319,7 @@ internal sealed partial class DesktopWindow
             }
             else
             {
-                ShowDragPicture(picture, new Point(move.Press.X + (dxFrac * metrics.Width), move.Press.Y + (dyFrac * metrics.Height)));
+                ShowDragPicture(picture, pointer);
             }
         }
 
@@ -305,8 +328,9 @@ internal sealed partial class DesktopWindow
         if (first || leavingChanged || landed)
         {
             // [S-11874] The local grid round where the block lands (edit mode: its box lit over the whole grid), not
-            // while the block is going to another display. [S-11881] On the locked desktop the borders near it with it.
-            var target = !leaving ? move.Block.LandingBounds() : (FracRect?)null;
+            // while the block is going to another display or onto the Unplaced icons page. [S-11881] On the locked desktop the
+            // borders near it with it.
+            var target = !away ? move.Block.LandingBounds() : (FracRect?)null;
             ShowLocalGrid(target);
             DragProfile.Lap(DragStage.LocalGrid);
             ShowMoveBorders(EditMode ? null : target, move);
@@ -425,6 +449,7 @@ internal sealed partial class DesktopWindow
         HandedMove = (ToScreen(move.Press), move.Picture);
         CompositionTarget.Rendering -= OnMoveFrame;
         _host.EndHandOffPreview();
+        ShowUnplacedDrop(false);
         ShowLocalGrid(null);
         ShowMoveBorders(null, move);
         foreach (var (moving, start) in move.Cards)
@@ -453,6 +478,7 @@ internal sealed partial class DesktopWindow
         _move = null;
 
         _host.EndHandOffPreview();
+        ShowUnplacedDrop(false);
         ShowLocalGrid(null);
         ShowMoveBorders(null, move);
         foreach (var (moving, _) in move.Cards)
@@ -461,6 +487,21 @@ internal sealed partial class DesktopWindow
         }
 
         EndMoveLook(move);
+
+        // [S-13713] Let go over the open Unplaced icons page: its desktop items leave the view (one undo step) and the page lists
+        // them; whatever else the move carried stays where it was.
+        if (move.Moved && move.OverPage && move.Takes.Count > 0)
+        {
+            foreach (var (moving, start) in move.Cards)
+            {
+                PositionCard(moving, start);
+            }
+
+            JoinCards();
+            _host.UnplaceDesktopItems(CurrentViewId, move.Takes);
+            return;
+        }
+
         if (move.Payload is { } payload && TryHandOff(payload))
         {
             return;
