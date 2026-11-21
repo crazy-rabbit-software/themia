@@ -8,14 +8,15 @@ namespace Themia.Core.Habits;
 /// </summary>
 /// <param name="PerHabit">Each habit gets its own grid under its name; otherwise one grid for the whole list.</param>
 /// <param name="Weeks">Columns of seven periods, the newest on the right.</param>
-/// <param name="Cell">A cell's side in DIPs; cells are <see cref="HabitHeatmap.Gap"/> apart.</param>
-public sealed record HabitHeatmapPlan(bool PerHabit, int Weeks, double Cell)
+/// <param name="Cell">A cell's side in DIPs.</param>
+/// <param name="Gap">[S-15676] The room between two cells: the grid's own, grown with its cells.</param>
+public sealed record HabitHeatmapPlan(bool PerHabit, int Weeks, double Cell, double Gap = HabitHeatmap.Gap)
 {
     /// <summary>A cell and the gap after it.</summary>
-    public double Pitch => Cell + HabitHeatmap.Gap;
+    public double Pitch => Cell + Gap;
 
     /// <summary>The height of one grid: seven rows.</summary>
-    public double GridHeight => Weeks == 0 ? 0 : (HabitHeatmap.Rows * Pitch) - HabitHeatmap.Gap;
+    public double GridHeight => Weeks == 0 ? 0 : (HabitHeatmap.Rows * Pitch) - Gap;
 }
 
 /// <summary>
@@ -26,7 +27,8 @@ public sealed record HabitHeatmapPlan(bool PerHabit, int Weeks, double Cell)
 /// <para>
 /// What it draws is its config's: one grid for the list (cells of <see cref="SharedCell"/>, each filled
 /// from its foot by the share of the habits done) or a grid per habit under its name (cells of
-/// <see cref="PerHabitCell"/>). A wider card is a longer calendar: more weeks, never bigger cells.
+/// <see cref="PerHabitCell"/>). A wider card is a longer calendar: more weeks; a taller one draws one grid for the list
+/// larger ([S-15676]).
 /// </para>
 /// </summary>
 public static class HabitHeatmap
@@ -43,9 +45,6 @@ public static class HabitHeatmap
     /// <summary>[S-11532] A cell of a habit's own grid.</summary>
     public const double PerHabitCell = 8;
 
-    /// <summary>A year of weeks, as GitHub draws it.</summary>
-    public const int MaxWeeks = 53;
-
     /// <summary>Space between one habit's grid and the next habit's name.</summary>
     public const double BlockGap = 12;
 
@@ -56,19 +55,31 @@ public static class HabitHeatmap
     public static double GridOf(double cell) => (Rows * (cell + Gap)) - Gap;
 
     /// <summary>
-    /// [S-11532] The plan for a box <paramref name="width"/> wide (the card less its inset): a grid per
-    /// habit or one for the list, as the config says; every week the width reaches (WR-4: the weeks keep their size, the
-    /// oldest cut by the card's left edge).
+    /// [S-11532] [S-15676] The plan for a box <paramref name="width"/> wide and <paramref name="height"/> tall (the card less
+    /// its inset): a grid per habit or one for the list, as the config says. One grid for the list is a calendar grid of the
+    /// card, as the month is (docs/WIDGET-RULES.md WR-9: "The month is a grid of the card, not a list"; WR-1, WR-3, WR-4): its
+    /// cells and their gaps grow as one until its seven rows fill the height (never under their own 12 and 2), and every week
+    /// the width reaches at that size is drawn, the oldest cut by the card's left edge. A grid per habit keeps its 8 cells
+    /// (its habits are a list of blocks, WR-6), every week the width reaches.
     /// </summary>
-    public static HabitHeatmapPlan Plan(double width, bool perHabit)
+    public static HabitHeatmapPlan Plan(double width, double height, bool perHabit)
     {
-        var cell = perHabit ? PerHabitCell : SharedCell;
-        return new HabitHeatmapPlan(perHabit, WeeksFor(Math.Max(0, width), cell), cell);
+        var scale = perHabit ? 1 : Scale(height);
+        var cell = (perHabit ? PerHabitCell : SharedCell) * scale;
+        var gap = Gap * scale;
+        return new HabitHeatmapPlan(perHabit, WeeksFor(Math.Max(0, width), cell, gap), cell, gap);
     }
 
-    /// <summary>How many columns of <paramref name="cell"/> the width reaches (the last one in part), within the bounds.</summary>
-    private static int WeeksFor(double width, double cell)
-        => Math.Clamp((int)Math.Ceiling((width + Gap - LayoutMath.Tolerance) / (cell + Gap)), 1, MaxWeeks);
+    /// <summary>[S-15676] How much larger one grid for the list is drawn in a room <paramref name="height"/> tall: its rows fill it, never under 1.</summary>
+    public static double Scale(double height)
+    {
+        var scale = height / GridOf(SharedCell);
+        return double.IsFinite(scale) ? Math.Max(1, scale) : 1;
+    }
+
+    /// <summary>How many columns of <paramref name="cell"/> the width reaches (the last one in part), at least one.</summary>
+    private static int WeeksFor(double width, double cell, double gap)
+        => Math.Max(1, (int)Math.Ceiling((width + gap - LayoutMath.Tolerance) / (cell + gap)));
 
     /// <summary>
     /// [S-6409] The periods of a grid <paramref name="weeks"/> columns wide, column by column (index
@@ -80,7 +91,7 @@ public static class HabitHeatmap
     {
         ArgumentNullException.ThrowIfNull(zone);
 
-        var columns = Math.Clamp(weeks, 0, MaxWeeks);
+        var columns = Math.Max(0, weeks);
         var cells = new HabitBucket?[columns * Rows];
 
         if (columns == 0)

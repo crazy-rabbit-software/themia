@@ -71,8 +71,8 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   with A grid per habit, each habit's name (Body, primary, 4 over its grid; grids 12 apart) over its
   own grid (a done period the accent, an open one the track, the current period's cell ticking it as
   its check does). A cell's corners are the family's 4, round below 8 (`HabitHeatmap.Radius`); cells
-  2 apart; a wider card holds more weeks (at most 53). No add footer beside it (except under an empty
-  list) and no row keys.
+  2 apart (the list's one grid's grown with its cells, [S-15676]); a wider card holds more weeks. No add footer beside
+  it (except under an empty list) and no row keys.
 - **[S-6410]** Checklist: the current period only, each habit's check and name (`HabitLayoutInput.Checklist`):
   rows of one line, no run, dots, rate or best run; the add footer and the keys are the Dots style's
   ([S-1427], [S-1428]).
@@ -94,8 +94,15 @@ module host's `HabitHostTests` and `SettingRulesTests`.
 - **[S-11532]** **The heatmap's sizes**: one grid for the list (cells of 12) is one height, 36 + its
   seven rows + 12 = 144, 200..520 wide; **A grid per habit** (off by default, under Style) draws the
   habits each over its own grid of 8 cells (its name line, 4, its grid, 12 between), Rows of them a new card's height
-  and as many as the card holds after ([S-14500]); a block keeps its size, the room under the last left to the foot. A wider card is a longer calendar, never bigger cells:
+  and as many as the card holds after ([S-14500]); a block keeps its size, the room under the last left to the foot. A wider card is a longer calendar:
   every week the width reaches, the newest on the right inset, the oldest cut by the card's left edge (WR-3, WR-4).
+- **[S-15676]** **The list's one grid fills its card** (docs/WIDGET-RULES.md WR-9, of the month: "The month is a grid of
+  the card, not a list"; WR-1, WR-3, WR-4): GitHub's calendar is a grid of the card, so a card taller than the grid's
+  seven rows draws its cells and their gaps larger as one (`HabitHeatmap.Scale`, never under 12 and 2) until the rows
+  fill the height from the view's top to the card's bottom inset, and every week the width reaches at that size is drawn,
+  more than a year where the card is wide (no 53 weeks' bound), the oldest cut by the card's left edge. It had stood
+  centred at its 12 in a taller card, a year's 53 weeks at most short of a wide card's left edge. A grid per habit keeps
+  its 8 (its blocks are a list, WR-6). Tests `HabitTrackerStylesTests.S15676_`.
 - **[S-1430]** The menu ends with "Data folder" (issue #154), a submenu of a note (where the lists
   are kept) and **Open in Explorer**, which opens the folder
   holding `habits.json` (`IHabitLists.FilePath`, through `SettingsHost.Launcher.OpenContainingFolder`, so it is

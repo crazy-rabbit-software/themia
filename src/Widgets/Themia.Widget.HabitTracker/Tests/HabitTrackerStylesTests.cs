@@ -45,17 +45,36 @@ public sealed class HabitTrackerStylesTests
     [Fact]
     public void S11532_one_grid_for_the_list_or_one_per_habit_and_a_wider_card_more_weeks()
     {
-        var shared = HabitHeatmap.Plan(276, perHabit: false);
-        Assert.Equal((false, HabitHeatmap.SharedCell), (shared.PerHabit, shared.Cell));
+        // A new card's height: the list's grid at its own 12 and 2.
+        var natural = HabitHeatmap.GridOf(HabitHeatmap.SharedCell);
+        var shared = HabitHeatmap.Plan(276, natural, perHabit: false);
+        Assert.Equal((false, HabitHeatmap.SharedCell, HabitHeatmap.Gap), (shared.PerHabit, shared.Cell, shared.Gap));
         // Every week the width reaches, the oldest cut by the card's left edge (WR-4).
-        Assert.True((shared.Weeks * shared.Pitch) - HabitHeatmap.Gap >= 276);
-        Assert.True(((shared.Weeks - 1) * shared.Pitch) - HabitHeatmap.Gap < 276);
+        Assert.True((shared.Weeks * shared.Pitch) - shared.Gap >= 276);
+        Assert.True(((shared.Weeks - 1) * shared.Pitch) - shared.Gap < 276);
 
-        var each = HabitHeatmap.Plan(276, perHabit: true);
-        Assert.Equal((true, HabitHeatmap.PerHabitCell), (each.PerHabit, each.Cell));
-        Assert.True(HabitHeatmap.Plan(496, perHabit: false).Weeks > shared.Weeks);
-        Assert.Equal(HabitHeatmap.MaxWeeks, HabitHeatmap.Plan(4000, false).Weeks);
+        var each = HabitHeatmap.Plan(276, 600, perHabit: true);
+        Assert.Equal((true, HabitHeatmap.PerHabitCell, HabitHeatmap.Gap), (each.PerHabit, each.Cell, each.Gap));
+        Assert.True(HabitHeatmap.Plan(496, natural, perHabit: false).Weeks > shared.Weeks);
         Assert.Equal(HabitHeatmap.GridOf(shared.Cell), shared.GridHeight);
+    }
+
+    [Fact]
+    public void S15676_the_lists_one_grid_grows_until_its_rows_fill_the_height_and_shows_every_week_the_width_reaches()
+    {
+        // 900 × 300 less the inset: the grid's seven rows fill the 276 and its weeks the 876, the oldest cut, past a year.
+        var plan = HabitHeatmap.Plan(876, 276, perHabit: false);
+        Assert.Equal(276, plan.GridHeight, 6);
+        Assert.Equal(HabitHeatmap.SharedCell / HabitHeatmap.Gap, plan.Cell / plan.Gap, 6);
+        Assert.True((plan.Weeks * plan.Pitch) - plan.Gap >= 876);
+        Assert.True(((plan.Weeks - 1) * plan.Pitch) - plan.Gap < 876);
+
+        // Never under its own size; a wide short card draws more than a year of weeks; a grid per habit keeps its 8.
+        Assert.Equal(HabitHeatmap.SharedCell, HabitHeatmap.Plan(876, 40, perHabit: false).Cell);
+        Assert.Equal(HabitHeatmap.SharedCell, HabitHeatmap.Plan(876, double.NaN, perHabit: false).Cell);
+        Assert.True(HabitHeatmap.Plan(4000, HabitHeatmap.GridOf(HabitHeatmap.SharedCell), perHabit: false).Weeks > 53);
+        Assert.Equal(HabitHeatmap.PerHabitCell, HabitHeatmap.Plan(876, 276, perHabit: true).Cell);
+        Assert.Equal(1, HabitHeatmap.Plan(0, 276, perHabit: false).Weeks);
     }
 
     [Theory]

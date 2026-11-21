@@ -19,7 +19,7 @@ namespace Themia.App.Widgets;
 /// [S-6409] [S-11532] The heatmap style: the last weeks as a calendar grid, per habit (its name over its
 /// own grid, the current period's cell ticking it as its box does; the config's rows of habits) or one
 /// grid for the whole list shaded by how many were done, as the config says (<see cref="HabitHeatmap.Plan"/>);
-/// a wider card holds more weeks.
+/// a wider card holds more weeks, a taller one draws the list's one grid larger ([S-15676]).
 /// The cells are rebuilt only when the grid's shape changes; a tick or a rollover recolours them.
 /// </summary>
 internal sealed partial class HabitTrackerView
@@ -58,7 +58,8 @@ internal sealed partial class HabitTrackerView
         // The grids stand in the card's inset, from the view's top to the card's bottom inset.
         var inset = FamilySpace.Inset;
         var nameStep = FamilyType.Body;
-        var plan = HabitHeatmap.Plan(_area.Width - (2 * inset), _config.PerHabit);
+        // [S-15676] One grid for the list fills the height from the view's top to the card's bottom inset.
+        var plan = HabitHeatmap.Plan(_area.Width - (2 * inset), _area.Height - FamilySpace.Inset, _config.PerHabit);
         var habits = Habits;
         var cadence = _config.Cadence;
         var firstDay = LocaleFormat.FirstDayOfWeek(Strings.Current);
@@ -78,10 +79,11 @@ internal sealed partial class HabitTrackerView
 
         // [S-11532] The grids end on the right inset, the newest week there; the weeks reach the card's left edge, the oldest
         // cut by it (WR-4: the cells keep their size, the last one the card reaches cut; WR-3: the width filled).
-        // [S-12410] A grid's cells keep their size (more weeks fill the width): a taller box than the grids
-        // need centres them in their room, the foot's inset counted with them, joined or alone ([S-12483]).
+        // [S-12410] A grid per habit keeps its cells' size (more weeks fill the width): a taller box than the grids need
+        // centres them in their room, the foot's inset counted with them, joined or alone ([S-12483]); [S-15676] one grid for
+        // the list fills it.
         var room = Math.Max(0, _area.Width - (2 * inset));
-        var gridWidth = (plan.Weeks * plan.Pitch) - HabitHeatmap.Gap;
+        var gridWidth = (plan.Weeks * plan.Pitch) - plan.Gap;
         var left = inset + room - gridWidth;
         var block = (grids * (plan.GridHeight + (plan.PerHabit ? nameStep.LineHeight + HabitHeatmap.NameGap : 0)))
             + (Math.Max(0, grids - 1) * HabitHeatmap.BlockGap) + FamilySpace.Inset;
