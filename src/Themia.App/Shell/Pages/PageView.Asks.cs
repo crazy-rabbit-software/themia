@@ -28,9 +28,6 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class PageView
 {
-    /// <summary>[S-2351] Which section is open, by the key of what asked it (Core's rules).</summary>
-    private readonly AskInPlace _asks = new();
-
     /// <summary>[S-2351] A question asked after a step of its own (<see cref="ConfirmAt"/>) at the open section's row; null for none.</summary>
     private PageQuestion? _question;
 
@@ -51,31 +48,11 @@ internal sealed partial class PageView
         ArgumentNullException.ThrowIfNull(question);
         _model ??= _build();
         var keys = FromKeys();
-        _asks.Show(at);
         _question = question;
         _typed.Remove(at + "#ask");
 
         // The cards it stands in open (a picker inside one unfolded); on the page itself it is the one card open.
-        var path = PathTo(_model, at);
-        if (path.Count > 1)
-        {
-            if (_open != path[0])
-            {
-                _open = path[0];
-                _unfolded.Clear();
-            }
-
-            foreach (var key in path.Skip(1).Take(path.Count - 2))
-            {
-                _unfolded.Add(key);
-            }
-        }
-        else if (_open != at)
-        {
-            _open = null;
-            _unfolded.Clear();
-        }
-
+        _nav.AskAt(Nav(_model), at);
         Opened(at, keys);
     }
 
@@ -88,17 +65,11 @@ internal sealed partial class PageView
         var keys = FromKeys();
         _question = null;
         _typed.Remove(key + "#ask");
-        if (!_asks.Toggle(key))
+        if (!_nav.ToggleAsk(key, holder, inside))
         {
             // [S-2361] Only the card that held it is drawn again, after the click.
             Redraw(() => Refocus(new FocusTag(holder + "#head", 0, keys)));
             return;
-        }
-
-        if (!inside && _open != holder)
-        {
-            _open = null;
-            _unfolded.Clear();
         }
 
         Opened(holder, keys);
@@ -143,7 +114,7 @@ internal sealed partial class PageView
     {
         var holder = AskedNow()?.Holder;
         var keys = FromKeys();
-        if (!_asks.Cancel())
+        if (!_nav.Asks.Cancel())
         {
             return false;
         }
@@ -163,7 +134,7 @@ internal sealed partial class PageView
     /// <summary>[S-2351] Nothing asked any more (another card opened, a tab, the page going): closed without a drawing of its own.</summary>
     private void DropAsk()
     {
-        _asks.Cancel();
+        _nav.Asks.Cancel();
         _question = null;
     }
 
@@ -183,7 +154,7 @@ internal sealed partial class PageView
     /// <summary>[S-2351] What <paramref name="row"/>'s card asks now: its own line or question, a question asked at it, or one of its tools'; null for nothing.</summary>
     private Asked? AskOf(PageRow row)
     {
-        if (_asks.Open is not { } open)
+        if (_nav.Asks.Open is not { } open)
         {
             return null;
         }
@@ -204,7 +175,7 @@ internal sealed partial class PageView
     }
 
     /// <summary>[S-2351] What is asked now, found on the page as built; null for nothing.</summary>
-    private Asked? AskedNow() => _asks.Open is { } open && _model is not null && HolderOf(_model, open) is { } row ? AskOf(row) : null;
+    private Asked? AskedNow() => _nav.Asks.Open is { } open && _model is not null && HolderOf(_model, open) is { } row ? AskOf(row) : null;
 
     /// <summary>[S-2351] The row whose card holds the section keyed <paramref name="key"/> (its own, or the one whose tool it is), at any depth.</summary>
     private static PageRow? HolderOf(PageModel model, string key)
@@ -230,37 +201,6 @@ internal sealed partial class PageView
         return model.Sections.Select(s => In(s.Rows, key)).FirstOrDefault(r => r is not null);
     }
 
-    /// <summary>The keys from the page's own row down to the row keyed <paramref name="key"/> (the row's last); empty where it is not there.</summary>
-    private static List<string> PathTo(PageModel model, string key)
-    {
-        static bool In(IReadOnlyList<PageRow> rows, string key, List<string> path)
-        {
-            foreach (var row in rows)
-            {
-                path.Add(row.Key);
-                if (row.Key == key || (row.Rows is { } inner && In(inner, key, path)))
-                {
-                    return true;
-                }
-
-                path.RemoveAt(path.Count - 1);
-            }
-
-            return false;
-        }
-
-        foreach (var section in model.Sections)
-        {
-            var path = new List<string>();
-            if (In(section.Rows, key, path))
-            {
-                return path;
-            }
-        }
-
-        return [];
-    }
-
     /// <summary>
     /// [S-2351] A press on the page while a section is open: anywhere but in the card holding it, the section closes,
     /// nothing kept. Only the state changes here; whatever the press does draws the page (a head, a box), and a press that
@@ -268,14 +208,14 @@ internal sealed partial class PageView
     /// </summary>
     private void PressedOnPage(object sender, PointerRoutedEventArgs e)
     {
-        if (_asks.Open is not { } open || _model is null)
+        if (_nav.Asks.Open is not { } open || _model is null)
         {
             return;
         }
 
         var holder = HolderOf(_model, open) is { } row ? Tagged(this, row.Key + "#row") : null;
         var inside = holder is not null && e.OriginalSource is DependencyObject source && Under(source, holder);
-        if (_asks.PressedOutside(inside))
+        if (_nav.Asks.PressedOutside(inside))
         {
             _question = null;
             _closedAt = Drawings;
@@ -375,7 +315,7 @@ internal sealed partial class PageView
 
         void Give()
         {
-            var answer = _asks.Accept(key, box.Text, edit.AllowEmpty, edit.Refuse);
+            var answer = _nav.Asks.Accept(key, box.Text, edit.AllowEmpty, edit.Refuse);
             if (!answer.Kept)
             {
                 Check();
@@ -470,7 +410,7 @@ internal sealed partial class PageView
         };
         accept.Click += (_, _) =>
         {
-            if (_asks.Answer(key))
+            if (_nav.Asks.Answer(key))
             {
                 _question = null;
                 Do(question.Done);

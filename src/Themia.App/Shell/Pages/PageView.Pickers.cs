@@ -39,7 +39,7 @@ internal sealed partial class PageView
     private StackPanel Expander(PageRow row, bool inside = false)
     {
         var asked = AskOf(row);
-        var open = asked is not null || (row.Kind != SettingsRowKind.Ask && (inside ? _unfolded.Contains(row.Key) : _open == row.Key));
+        var open = asked is not null || (row.Kind != SettingsRowKind.Ask && _nav.IsOpen(row.Key, inside));
         var head = Plain(new Button
         {
             Content = Lay(row, HeadEnd(row, open, inside), row.Caption, lead: row.Order is not null ? Grip(row) : null),
@@ -62,21 +62,13 @@ internal sealed partial class PageView
                 return;
             }
 
-            if (inside)
+            // [S-2303] Inside an opened card it unfolds or folds; on the page it is the one card open, and [S-2351] the section
+            // asked closes (one open at a time).
+            // ignore: whether it is open now; the drawing says it.
+            _ = _nav.ToggleCard(row.Key, inside);
+            if (!inside)
             {
-                // ignore: Remove's answer; Add after it only where it was not there.
-                if (!_unfolded.Remove(row.Key))
-                {
-                    _unfolded.Add(row.Key);
-                }
-            }
-            else
-            {
-                _open = open ? null : row.Key;
-                _unfolded.Clear();
-
-                // [S-2351] Another card opened on the page: the section asked closes (one open at a time).
-                DropAsk();
+                _question = null;
             }
 
             // [S-2347] The card with what it opened, scrolled only as far as it takes to stand whole in sight.

@@ -122,9 +122,7 @@ internal sealed partial class PageView
     /// <summary>[S-2307] A page of its own under this one: the keyboard on its first control.</summary>
     private void Push(PageRow row)
     {
-        _steps.Add(new SubStep(row.Key));
-        _open = null;
-        _unfolded.Clear();
+        _nav.Push(row.Key);
         Redraw(() => FocusFirst());
     }
 

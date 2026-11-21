@@ -42,20 +42,16 @@ internal sealed partial class PageView : ContentControl
 
     private readonly Func<PageModel> _build;
 
-    /// <summary>The sub-pages opened, deepest last.</summary>
-    private readonly List<Step> _steps = [];
-
-    /// <summary>The one card opened inside (an expander, a picker), by its row's key.</summary>
-    private string? _open;
-
     /// <summary>
-    /// [S-2303] The pickers (and lists) unfolded inside the open card, by their rows' keys: inside a card each is folded
-    /// until clicked (owner, 2026-11-19), as Karpo's picker heads in an expander; emptied as the card closes.
+    /// [S-2303] [S-2307] [S-2345] [S-2351] Where the page stands (Core's state machine): the sub-pages opened, the one card
+    /// open, the pickers unfolded in it, the tab, the section asked in place. The view only draws it.
     /// </summary>
-    private readonly HashSet<string> _unfolded = new(StringComparer.Ordinal);
+    private readonly PageNavigation _nav = new();
 
-    /// <summary>[S-2345] The tab chosen, by its key, kept while the page lives; null: the first.</summary>
-    private string? _tab;
+    /// <summary>The model <see cref="_navPage"/> was read from.</summary>
+    private PageModel? _navFor;
+
+    private NavPage? _navPage;
 
     /// <summary>[S-2302] Why a text typed into a box was not kept, by the box's key.</summary>
     private readonly Dictionary<string, string> _refused = new(StringComparer.Ordinal);
@@ -132,7 +128,7 @@ internal sealed partial class PageView : ContentControl
     public event Action<FrameworkElement>? BringIntoView;
 
     /// <summary>Whether a sub-page stands in the page's place.</summary>
-    public bool Deep => _steps.Count > 0;
+    public bool Deep => _nav.Steps.Count > 0;
 
     /// <summary>
     /// [S-3531] Draw the page as the state holds it now: its rows built again, the open card, the sub-page, the
@@ -230,32 +226,27 @@ internal sealed partial class PageView : ContentControl
         _used.Clear();
         _grips.Clear();
         Drawings++;
-        while (_steps.Count > 0 && _steps[^1] is SubStep { Key: var key } && Find(_model, key) is null)
+        // [S-2361] A sub-page whose row went closes; [S-2351] a section whose row went (a view deleted, a list's item
+        // removed) goes with it.
+        if (_nav.Prune(Nav(_model)))
         {
-            _steps.RemoveAt(_steps.Count - 1);
-        }
-
-        // [S-2351] A section whose row went (a view deleted, a list's item removed) goes with it.
-        if (_asks.Open is { } gone && HolderOf(_model, gone) is null)
-        {
-            DropAsk();
+            _question = null;
         }
 
         // [S-2361] [S-2351] What this drawing's cards are drawn with: the section asked in place is its card's.
-        var asked = _asks.Open is { } open ? new PageAsked(open, _question?.Question, _typed.GetValueOrDefault(open + "#ask")) : null;
-        _marks = new PageMarks(_open, _unfolded, _typed, _refused, _answered, asked);
+        var asked = _nav.Asks.Open is { } open ? new PageAsked(open, _question?.Question, _typed.GetValueOrDefault(open + "#ask")) : null;
+        _marks = new PageMarks(_nav.Open, _nav.Unfolded, _typed, _refused, _answered, asked);
 
         try
         {
-            switch (_steps.LastOrDefault())
+            if (_nav.Deepest is { } deep && Find(_model, deep) is { } row)
             {
-                case SubStep sub when Find(_model, sub.Key) is { } row:
-                    Children.Add(BackHead(row.Text));
-                    AddCards(row.Rows ?? [], false);
-                    break;
-                default:
-                    DrawRoot(_model);
-                    break;
+                Children.Add(BackHead(row.Text));
+                AddCards(row.Rows ?? [], false);
+            }
+            else
+            {
+                DrawRoot(_model);
             }
         }
         catch (Exception ex)
@@ -308,65 +299,11 @@ internal sealed partial class PageView : ContentControl
     public bool Open(IReadOnlyList<string> path)
     {
         ArgumentNullException.ThrowIfNull(path);
-        _steps.Clear();
-        _open = null;
-        _unfolded.Clear();
-        DropAsk();
+        _question = null;
         _model ??= _build();
 
-        // [S-2345] A way in lands on the tab its section stands on.
-        if (path.Count > 0 && _model.Tabs.FirstOrDefault(t => t.Sections.Contains(path[0])) is { } holding)
-        {
-            _tab = holding.Key;
-        }
-
-        var rows = _model.Sections.FirstOrDefault(s => path.Count > 0 && s.Key == path[0])?.Rows;
-        string? target = path.Count > 0 ? path[0] : null;
-        var inCard = false;
-        for (var i = 1; i < path.Count && rows is not null; i++)
-        {
-            var row = rows.FirstOrDefault(r => r.Key == path[i]);
-            if (row is null)
-            {
-                break;
-            }
-
-            // Every card along the way opens, the row itself too where it opens (a deep link to a choice shows its options;
-            // [S-2351] to a line that asks, its section).
-            target = row.Key;
-            if (row.Kind == SettingsRowKind.Ask)
-            {
-                _asks.Show(row.Key);
-                if (!inCard)
-                {
-                    _open = null;
-                    _unfolded.Clear();
-                }
-            }
-            else if (row.Kind == SettingsRowKind.SubPage)
-            {
-                _steps.Add(new SubStep(row.Key));
-                _open = null;
-                _unfolded.Clear();
-                inCard = false;
-            }
-            else if (Opens(row.Kind))
-            {
-                // [S-2303] Inside an opened card a picker is folded: a way in unfolds it, the card staying the one open.
-                if (inCard)
-                {
-                    _unfolded.Add(row.Key);
-                }
-                else
-                {
-                    _open = row.Key;
-                    inCard = row.Kind == SettingsRowKind.Expander;
-                }
-            }
-
-            rows = row.Rows;
-        }
-
+        // [S-3534] [S-2345] Its tab, its sub-pages, its cards opened and a picker inside one unfolded, a line that asks asked.
+        var target = _nav.Enter(Nav(_model), path);
         Show();
         if (target is null)
         {
@@ -376,7 +313,7 @@ internal sealed partial class PageView : ContentControl
         // [S-2347] The row with what it opened, as a click opens it: scrolled only as far as it takes.
         if (Reveal(target, section: true) is not { } found)
         {
-            return _steps.Count > 0;
+            return _nav.Steps.Count > 0;
         }
 
         Light(found);
@@ -409,31 +346,25 @@ internal sealed partial class PageView : ContentControl
             return true;
         }
 
-        if (_steps.Count > 0)
+        switch (_nav.Back())
         {
-            _steps.RemoveAt(_steps.Count - 1);
-            Redraw(() => FocusFirst());
-            return true;
+            case { Kind: NavBackKind.SubPage }:
+                Redraw(() => FocusFirst());
+                return true;
+            case { Kind: NavBackKind.Card, Card: { } open }:
+                var keys = FromKeys();
+                Redraw(() => Refocus(new FocusTag(open + "#head", 0, keys)));
+                return true;
+            default:
+                return false;
         }
-
-        if (_open is not null)
-        {
-            var open = _open;
-            var keys = FromKeys();
-            _open = null;
-            _unfolded.Clear();
-            Redraw(() => Refocus(new FocusTag(open + "#head", 0, keys)));
-            return true;
-        }
-
-        return false;
     }
 
     /// <summary>[S-3557] The page goes: a search stops; [S-2351] a section asked closes, nothing kept.</summary>
     public void Close()
     {
-        _steps.Clear();
-        DropAsk();
+        _nav.Close();
+        _question = null;
         _closedAt = null;
         foreach (var asked in _typed.Keys.Where(k => k.EndsWith("#ask", StringComparison.Ordinal)).ToList())
         {
@@ -473,17 +404,14 @@ internal sealed partial class PageView : ContentControl
         var first = model.Header is null;
         var sections = model.Sections;
         string? tabTitle = null;
-        if (model.Tabs.Count > 1)
+        if (model.Tabs.Count > 1 && _nav.ShownTab(Nav(model)) is { } shown)
         {
-            var tab = model.Tabs.FirstOrDefault(t => t.Key == _tab) ?? model.Tabs[0];
-            _tab = tab.Key;
+            var tab = model.Tabs.First(t => t.Key == shown.Key);
             tabTitle = tab.Title;
             var strip = PageTabButton.Strip(model.Tabs.Select(t => (t.Key, t.Title)), tab.Key, key =>
             {
-                _tab = key;
-                _open = null;
-                _unfolded.Clear();
-                DropAsk();
+                _nav.ChooseTab(key);
+                _question = null;
                 Redraw();
             });
             strip.Margin = new Thickness(0, first ? 0 : P.TabsGap - P.CardGap, 0, P.TabsGap);
@@ -808,8 +736,26 @@ internal sealed partial class PageView : ContentControl
     }
 
     /// <summary>[S-2308] The kinds of row that open in place: an expander and the inline pickers.</summary>
-    private static bool Opens(SettingsRowKind kind)
-        => kind is SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon;
+    private static bool Opens(SettingsRowKind kind) => PageNavigation.Opens(kind);
+
+    /// <summary>[S-2302] <paramref name="model"/> as its navigation sees it: its rows' keys, kinds and tools; read once a model.</summary>
+    private NavPage Nav(PageModel model)
+    {
+        if (!ReferenceEquals(_navFor, model) || _navPage is null)
+        {
+            static NavRow Of(PageRow row) => new(row.Key, row.Kind, [.. (row.Rows ?? []).Select(Of)])
+            {
+                Tools = row.Tools is { Count: > 0 } tools ? [.. tools.Select(t => t.Key)] : [],
+            };
+
+            _navPage = new NavPage(
+                [.. model.Sections.Select(s => new NavSection(s.Key, [.. s.Rows.Select(Of)]))],
+                [.. model.Tabs.Select(t => new NavTab(t.Key, t.Sections))]);
+            _navFor = model;
+        }
+
+        return _navPage;
+    }
 
 #if DEBUG
     /// <summary>[S-2328] A render's click on the row at <paramref name="key"/>, as a click would do it; false where there is none.</summary>
@@ -831,32 +777,11 @@ internal sealed partial class PageView : ContentControl
                 break;
             case SettingsRowKind.Ask:
                 // [S-2351] Its cards opened as a click on the way would, its section asked in place.
-                var path = PathTo(_model, key);
-                if (path.Count > 1)
-                {
-                    _open = path[0];
-                    _unfolded.Clear();
-                    foreach (var on in path.Skip(1).Take(path.Count - 2))
-                    {
-                        _unfolded.Add(on);
-                    }
-                }
-
-                ToggleAsk(row.Key, row.Key, inside: path.Count > 1);
+                ToggleAsk(row.Key, row.Key, inside: _nav.OpenAlong(Nav(_model), key));
                 break;
             case var kind when Opens(kind):
                 // [S-2303] A picker inside a card: its card opened, it unfolded in it.
-                if (CardOf(_model, key) is { } card)
-                {
-                    _open = card.Key;
-                    _unfolded.Add(row.Key);
-                }
-                else
-                {
-                    _open = row.Key;
-                    _unfolded.Clear();
-                }
-
+                _nav.Reach(Nav(_model), key);
                 Redraw(() => Reveal(row.Key));
                 break;
             case SettingsRowKind.Toggle:
@@ -873,19 +798,10 @@ internal sealed partial class PageView : ContentControl
     /// <summary>[S-2345] A render's click on the tab keyed <paramref name="key"/>.</summary>
     internal void DebugTab(string key)
     {
-        _tab = key;
-        _open = null;
-        _unfolded.Clear();
-        DropAsk();
+        _nav.ChooseTab(key);
+        _question = null;
         Redraw();
     }
-
-    /// <summary>The top-level expander of <paramref name="model"/> that <paramref name="key"/>'s row stands in; null for a row of a section's own.</summary>
-    private static PageRow? CardOf(PageModel model, string key)
-        => model.Sections.SelectMany(s => s.Rows).FirstOrDefault(r => r.Kind == SettingsRowKind.Expander && r.Key != key && r.Rows is { } inner && Holds(inner, key));
-
-    private static bool Holds(IReadOnlyList<PageRow> rows, string key)
-        => rows.Any(r => r.Key == key || (r.Rows is { } inner && Holds(inner, key)));
 
     /// <summary>[S-2360] A bench's cards to open: the keys of the page's own cards that open in place.</summary>
     internal IReadOnlyList<string> DebugCards()
@@ -894,12 +810,12 @@ internal sealed partial class PageView : ContentControl
     /// <summary>[S-2328] A render's typing into the open lookup's box, or [S-2351] into the field of the section asked.</summary>
     internal void DebugType(string text)
     {
-        if (_asks.Open is { } asked)
+        if (_nav.Asks.Open is { } asked)
         {
             _typed[asked + "#ask"] = text;
             Redraw();
         }
-        else if (_open is { } open)
+        else if (_nav.Open is { } open)
         {
             _typed[open] = text;
             Redraw();
@@ -915,14 +831,10 @@ internal sealed partial class PageView : ContentControl
             return false;
         }
 
-        UseTool(row, tools[index], inside: CardOf(_model, key) is not null);
+        UseTool(row, tools[index], inside: Nav(_model).CardOf(key) is not null);
         return true;
     }
 #endif
-
-    private abstract record Step;
-
-    private sealed record SubStep(string Key) : Step;
 
     /// <summary>The words a row is said by (a tooltip, a screen reader).</summary>
     private static string Said(PageRow row) => row.Value is { Length: > 0 } value ? row.Text + ", " + value : row.Text;

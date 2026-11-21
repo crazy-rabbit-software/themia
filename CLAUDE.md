@@ -143,7 +143,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Widgets/ (per-widget rules) Accounts/ Mail/ Office/ Tasks/ Notes/ (NoteStore) Habits/ (HabitListStore)
   Settings/ (the settings as lines: SettingsMenu*.cs, one builder per section, ViewsMenu, DisplayMenu, AccountsMenu,
   AccountForm, UninstallPlan; SettingsPages: the edit bar's five pages over them)
-  Shell/ (EditBarLayout, SelectionPage) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
+  Shell/ (EditBarLayout, SelectionPage, PageNavigation: where a settings page stands, its view only drawing it) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Desktop/ (the desktop layer's rules: DesktopReconcile, DesktopViews (which items each view shows: All, Chosen, None), DesktopGrid (icons on the widget grid: their box, arrivals,
   auto arrange, a drop back), DesktopSelection with DesktopPicks (the locked desktop's one selection of icons and
   cards), DesktopDragOut, DesktopSort, DesktopBackground, DesktopFences (which items stand in a fence: membership,
