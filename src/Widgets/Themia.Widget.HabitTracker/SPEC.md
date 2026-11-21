@@ -94,7 +94,8 @@ module host's `HabitHostTests` and `SettingRulesTests`.
 - **[S-11532]** **The heatmap's sizes**: one grid for the list (cells of 12) is one height, 36 + its
   seven rows + 12 = 144, 200..520 wide; **A grid per habit** (off by default, under Style) draws the
   habits each over its own grid of 8 cells (its name line, 4, its grid, 12 between), Rows of them a new card's height
-  and as many as the card holds after ([S-14500]); a block keeps its size, the room under the last left to the foot. A wider card is a longer calendar, never bigger cells.
+  and as many as the card holds after ([S-14500]); a block keeps its size, the room under the last left to the foot. A wider card is a longer calendar, never bigger cells:
+  every week the width reaches, the newest on the right inset, the oldest cut by the card's left edge (WR-3, WR-4).
 - **[S-1430]** The menu ends with "Data folder" (issue #154), a submenu of a note (where the lists
   are kept) and **Open in Explorer**, which opens the folder
   holding `habits.json` (`IHabitLists.FilePath`, through `SettingsHost.Launcher.OpenContainingFolder`, so it is

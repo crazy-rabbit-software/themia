@@ -47,8 +47,9 @@ public sealed class HabitTrackerStylesTests
     {
         var shared = HabitHeatmap.Plan(276, perHabit: false);
         Assert.Equal((false, HabitHeatmap.SharedCell), (shared.PerHabit, shared.Cell));
-        Assert.True((shared.Weeks * shared.Pitch) - HabitHeatmap.Gap <= 276);
-        Assert.True(((shared.Weeks + 1) * shared.Pitch) - HabitHeatmap.Gap > 276);
+        // Every week the width reaches, the oldest cut by the card's left edge (WR-4).
+        Assert.True((shared.Weeks * shared.Pitch) - HabitHeatmap.Gap >= 276);
+        Assert.True(((shared.Weeks - 1) * shared.Pitch) - HabitHeatmap.Gap < 276);
 
         var each = HabitHeatmap.Plan(276, perHabit: true);
         Assert.Equal((true, HabitHeatmap.PerHabitCell), (each.PerHabit, each.Cell));

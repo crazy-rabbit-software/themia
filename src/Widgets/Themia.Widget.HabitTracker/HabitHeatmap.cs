@@ -57,7 +57,8 @@ public static class HabitHeatmap
 
     /// <summary>
     /// [S-11532] The plan for a box <paramref name="width"/> wide (the card less its inset): a grid per
-    /// habit or one for the list, as the config says; as many weeks as the width holds.
+    /// habit or one for the list, as the config says; every week the width reaches (WR-4: the weeks keep their size, the
+    /// oldest cut by the card's left edge).
     /// </summary>
     public static HabitHeatmapPlan Plan(double width, bool perHabit)
     {
@@ -65,9 +66,9 @@ public static class HabitHeatmap
         return new HabitHeatmapPlan(perHabit, WeeksFor(Math.Max(0, width), cell), cell);
     }
 
-    /// <summary>How many whole columns of <paramref name="cell"/> fit across <paramref name="width"/>, within the bounds.</summary>
+    /// <summary>How many columns of <paramref name="cell"/> the width reaches (the last one in part), within the bounds.</summary>
     private static int WeeksFor(double width, double cell)
-        => Math.Clamp((int)Math.Floor((width + Gap) / (cell + Gap)), 1, MaxWeeks);
+        => Math.Clamp((int)Math.Ceiling((width + Gap - LayoutMath.Tolerance) / (cell + Gap)), 1, MaxWeeks);
 
     /// <summary>
     /// [S-6409] The periods of a grid <paramref name="weeks"/> columns wide, column by column (index

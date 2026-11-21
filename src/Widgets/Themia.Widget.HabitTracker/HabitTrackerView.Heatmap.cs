@@ -76,10 +76,13 @@ internal sealed partial class HabitTrackerView
             _heatShape = shape;
         }
 
-        // The grids start at the left, as the rows do; a grid narrower than the tile leaves the rest empty.
+        // [S-11532] The grids end on the right inset, the newest week there; the weeks reach the card's left edge, the oldest
+        // cut by it (WR-4: the cells keep their size, the last one the card reaches cut; WR-3: the width filled).
         // [S-12410] A grid's cells keep their size (more weeks fill the width): a taller box than the grids
         // need centres them in their room, the foot's inset counted with them, joined or alone ([S-12483]).
+        var room = Math.Max(0, _area.Width - (2 * inset));
         var gridWidth = (plan.Weeks * plan.Pitch) - HabitHeatmap.Gap;
+        var left = inset + room - gridWidth;
         var block = (grids * (plan.GridHeight + (plan.PerHabit ? nameStep.LineHeight + HabitHeatmap.NameGap : 0)))
             + (Math.Max(0, grids - 1) * HabitHeatmap.BlockGap) + FamilySpace.Inset;
         var y = Math.Floor(Math.Max(0, _area.Height - block) / 2);
@@ -90,7 +93,7 @@ internal sealed partial class HabitTrackerView
             {
                 var name = _heatNames[g];
                 name.Text = habits[g].Name;
-                name.Width = gridWidth;
+                name.Width = Math.Min(gridWidth, room);
                 Canvas.SetLeft(name, inset);
                 Canvas.SetTop(name, y);
                 ToolTipService.SetToolTip(name, habits[g].Name);
@@ -100,7 +103,7 @@ internal sealed partial class HabitTrackerView
             for (var i = 0; i < periods.Count; i++)
             {
                 var cell = _heatCells[(g * periods.Count) + i];
-                Canvas.SetLeft(cell, inset + ((i / HabitHeatmap.Rows) * plan.Pitch));
+                Canvas.SetLeft(cell, left + ((i / HabitHeatmap.Rows) * plan.Pitch));
                 Canvas.SetTop(cell, y + ((i % HabitHeatmap.Rows) * plan.Pitch));
 
                 if (periods[i] is not { } period)
