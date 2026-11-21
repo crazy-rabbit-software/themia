@@ -31,6 +31,19 @@ public interface IKitConfig : ISetupRule
     bool ISetupRule.NeedsSetup(FeatureSet signedIn) => KitSetup.Needed(this, signedIn);
 }
 
+/// <summary>
+/// [S-7050] A kit list over a source of the PC's own (a history, Windows' recent items, a radio, the notification
+/// list): it reads no account and has nothing to set up; it states only the fields it shows.
+/// </summary>
+public interface IKitLocalConfig : IKitConfig
+{
+    FeatureId? IKitConfig.Needs => null;
+
+    bool IKitConfig.Configured => true;
+
+    IReadOnlyList<string> IKitConfig.AccountIds => [];
+}
+
 /// <summary>[S-7050] The kit's one setup rule.</summary>
 public static class KitSetup
 {

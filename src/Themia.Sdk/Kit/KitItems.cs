@@ -77,6 +77,23 @@ public static class KitItems
         return clean;
     }
 
+    /// <summary>
+    /// [S-7002] An id for an item whose own key may be longer than an id (a copied text, a file's path): the 64-bit FNV-1a
+    /// fingerprint of <paramref name="key"/> and its length, the same key the same id at every reading, short, and never
+    /// the key itself.
+    /// </summary>
+    public static string Fingerprint(string key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        var hash = 14695981039346656037UL;
+        foreach (var c in key)
+        {
+            hash = (hash ^ c) * 1099511628211UL;
+        }
+
+        return string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{hash:x16}-{key.Length}");
+    }
+
     /// <summary>[S-7002] A summary with its fraction clamped to 0..1, or without it when it is not a number.</summary>
     public static KitSummary? Clean(KitSummary? summary)
     {

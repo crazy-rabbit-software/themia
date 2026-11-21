@@ -7,7 +7,7 @@ namespace Themia.Core.Model;
 /// [S-4840] Recent files: the list is Windows' own Recent Items. [S-11200] How many files it shows and
 /// whether each has its folder under its name are the user's (the kit's rows, [S-2440]); its height follows.
 /// </summary>
-public sealed class RecentFilesConfig : WidgetConfig, IKitRows
+public sealed class RecentFilesConfig : WidgetConfig, IKitLocalConfig, IKitRows
 {
     /// <summary>[S-11200] How many files the list shows; more scroll.</summary>
     public int Rows { get; set; } = KitSizing.DefaultRows;
@@ -18,6 +18,10 @@ public sealed class RecentFilesConfig : WidgetConfig, IKitRows
     /// <summary>[S-11200] The rows as drawn, held to their ranges.</summary>
     [JsonIgnore]
     public KitRowsChoice RowsShown => KitSizing.Choice(this);
+
+    /// <summary>[S-11200] The icon and the time always; the folder on the second line as Lines says.</summary>
+    [JsonIgnore]
+    public KitShow Shows => KitShow.Lead | KitShow.Subtitle | KitShow.When;
 
     /// <summary>[S-4843] Keeps "2h" honest; the list itself redraws from the folder watch.</summary>
     [JsonIgnore]

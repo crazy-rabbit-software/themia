@@ -8,9 +8,9 @@ while a config asks for it through `IKeepsClipboardHistory`), its bounds and tex
 the widgets' one confirmation ([S-1500]).
 
 Owning files: everything in this folder: `ClipboardModule.cs` (descriptor, glyph, view factory,
-menu lines, JSON context), `ClipboardConfig.cs` (capacity and timestamps), `ClipboardView.cs` (the
-rows through its host, the menu, the keys, the copy back through `IWidgetHost.CopyText`),
-`ClipboardLayout.cs` (the ladder, the previews, how a row is marked), `ClipboardMenu.cs` (its
+menu lines, JSON context), `ClipboardConfig.cs` (capacity and timestamps; an `IKitConfig`), `ClipboardSpec.cs` (its kit spec, an entry as a kit
+item and its actions), `ClipboardView.cs` (a kit list, [S-7074]: the binding over the shared history as its source, the
+marker as the rich look's lead), `ClipboardLayout.cs` (the previews, how a row is marked), `ClipboardMenu.cs` (its
 properties-menu lines), `Preview/` (Debug renders: `--state sample|confirm`), `Localization/Locales/` (its own
 `ClipboardStr`, 30 languages). Tests: `Tests/ClipboardTests.cs`, `Tests/ClipboardMenuTests.cs` (run by `tests/Themia.Modules.Tests`);
 the host's history under its config is the module host's `ClipboardHostTests`.
@@ -35,13 +35,13 @@ the host's history under its config is the module host's `ClipboardHostTests`.
   only). Clear history is the card menu's line ([S-12481]), there only while there is something to clear.
   An empty or unwatched history is the state row's sentence at the top. A preview card never subscribes
   to the real clipboard; its `sample` state is a fixed history.
-- **[S-1444]** Clipboard row menu (shared `ItemMenu`): Copy, Remove from history, Clear history…
-  (confirmed through `FluentLayout.ConfirmAsync`, like the card menu's Clear history). `HandleKey`: Up/Down/Home/End
-  cursor, Enter copies, Escape drops it — through the shell's keyboard lease ([S-800]..[S-812]),
-  `ClipboardView : IWidgetKeys`; needs a live pass.
-- **[S-1561]** Clipboard takes the lease: Up/Down/PgUp/PgDn/Home/End move a cursor, Enter copies the
-  entry back, Delete removes it from the history (cursor stays on the row that moved up), Menu opens
-  its menu, Escape drops the cursor.
+- **[S-1444]** It is a kit list ([S-7074], `ClipboardSpec`): a row's menu is the kit's (`KitMenu`): Copy, then Remove
+  (its Delete); Clear history is the card menu's line alone, confirmed ([S-1500]). A click copies the entry back
+  (`KitSpec.ClickRuns`, [S-7075]), as do a double-click and Enter; an entry's id is its text's fingerprint
+  (`ClipboardSpec.Id`), never the text. Its time is the kit's compact age ("4m", "3h", "2d"). Needs a live pass.
+- **[S-1561]** Clipboard takes the lease with the kit's one key map ([S-7020]): Up/Down/PgUp/PgDn/Home/End move a
+  cursor, Enter copies the entry back, Ctrl+C copies it, Delete removes it from the history (the cursor stays on the
+  row that moved up), Menu opens its menu, Escape drops the cursor.
 - **[S-1450]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Show when it was copied** (a switch),
   under a divider (what is kept, apart from how it reads, user request 2026-10-19) **Entries**

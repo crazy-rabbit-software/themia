@@ -12,9 +12,9 @@ internal sealed partial class ClipboardView : IWidgetSample
     public Task ShowSampleAsync()
     {
         var now = SampleDay.Now;
-        _clock = () => now;
+        _binding.Clock = () => now;
         ClipboardEntry At(string text, double minutesAgo) => new(text, now.AddMinutes(-minutesAgo));
-        _sample =
+        _source.HoldForPreview(
         [
             At("Room 4.12", 2),
             At("https://lumen.example/onboarding/flow-v3", 6),
@@ -26,8 +26,7 @@ internal sealed partial class ClipboardView : IWidgetSample
             At("Please find the signed contract attached.", 300),
             At("onboarding-flow-v3.fig", 60 * 20),
             At("git commit -m \"Fix the header\"", 60 * 26),
-        ];
-        Render();
+        ]);
         return Task.CompletedTask;
     }
 }

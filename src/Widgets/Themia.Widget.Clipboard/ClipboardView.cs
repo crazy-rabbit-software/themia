@@ -1,13 +1,10 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Shell;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Core.Shell;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
@@ -16,7 +13,8 @@ using Themia.Widget.Clipboard;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// What has been copied recently, most recent first. Click a row to put it back on the clipboard.
+/// What has been copied recently, most recent first, as a kit list ([S-7074]) shaped by <see cref="ClipboardSpec"/>. A
+/// click on a row puts it back on the clipboard ([S-7075]).
 /// <para>
 /// This is the most sensitive widget in the app, and the design is mostly a list of things it does
 /// not do. It reads <b>text only</b> — a copied file or image is never looked at. It keeps a
@@ -28,241 +26,97 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>
 /// [S-1458] The history is the app's one (<see cref="IWidgetHost.ClipboardHistory"/>), kept while any view
-/// holds a Clipboard widget, so it is there when this view is switched to; the widget shows its
-/// newest entries, as many as its own setting keeps. It is fed by the host's clipboard listener, a
-/// message-only window with <c>AddClipboardFormatListener</c> rather than a poll — so the
-/// clipboard is read exactly when Windows says it changed and at no other time.
-/// </para>
-/// <para>
-/// [S-1443] Each entry is one of the family's rows ([S-6711], <see cref="ClipboardLayout.Plan"/>): its
-/// preview on one line, how much it is under it on a regular tile, its marker and when it was
-/// copied from 180 wide; Clear history is the card menu's line ([S-12481]); nothing but the entries.
+/// holds a Clipboard widget, fed by the host's clipboard listener (a message-only window with
+/// <c>AddClipboardFormatListener</c>, never a poll). Clear history is the card menu's line ([S-12481]).
 /// </para>
 /// </summary>
 internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetSizeAware, IWidgetContextActions
 {
-    private const string Scope = "clipboard-widget";
-
-    /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
-    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
-
-    private readonly StackPanel _list = new();
-    private readonly ScrollViewer _scroll;
-    private readonly ScrollFade _fade;
-    private readonly KitStatePanel _state;
-
-    /// <summary>One per row, so the hover and menu handlers come off with the rows they serve.</summary>
-    private readonly List<IDisposable> _rowHandles = [];
-
-    /// <summary>The rows in order, for the keyboard cursor ([S-1444]).</summary>
-    private readonly List<RowBlock> _rows = [];
-
-    private ClipboardConfig _config = new();
-    private ClipboardPlan _plan = ClipboardLayout.Plan(new ClipboardConfig());
     private readonly IWidgetHost _host;
-    private IClipboardHistory? _source;
-    private IDisposable? _subscription;
-    private Ticker? _ticker;
+    private readonly KitBinding _binding;
+    private readonly HistorySource _source;
+    private ClipboardConfig _config = new();
     private IWidgetSurface? _surface;
-    private int? _cursor;
-    private bool _detached;
-
-    /// <summary>[S-11850] The sample's fixed entries in place of the history ([S-1917]); never the user's clipboard.</summary>
-    private IReadOnlyList<ClipboardEntry>? _sample;
+    private bool _attached;
 
     public ClipboardView(IWidgetHost host)
     {
         _host = host;
-        _scroll = new ScrollViewer
+        _source = new HistorySource(() => _config);
+        _binding = new KitBinding(host, ClipboardSpec.Spec, ClipboardModule.Glyph, item => ClipboardSpec.Actions(_source.TextOf(item.Id)), Run)
         {
-            Content = _list,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-            VerticalAlignment = VerticalAlignment.Top,
+            Look = new KitRichLook { Lead = item => Marker(item.Lead.Value) },
         };
-        _fade = new ScrollFade(_scroll, _list);
-        _state = new KitStatePanel(ClipboardModule.Glyph, host) { Visibility = Visibility.Collapsed };
 
-        Children.Add(_scroll);
-        Children.Add(_state);
+        Children.Add(_binding.List);
+        Children.Add(_binding.State);
+        _binding.Status.Place(this);
     }
 
     /// <summary>[S-1500] [S-12481] Clear history, on the card menu while there is something to clear.</summary>
     public IReadOnlyList<WidgetAction> ContextActions
-        => !_detached && Entries.Count > 0 ? [new WidgetAction(Glyphs.Delete, ClipboardStr.Clipboard_ClearHistory.Text(), () => _ = ConfirmClearAsync())] : [];
+        => _attached && _source.Count > 0 ? [new WidgetAction(Glyphs.Delete, ClipboardStr.Clipboard_ClearHistory.Text(), () => _ = ConfirmClearAsync())] : [];
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
-        Strings.Changed += OnLanguage;
+        _config = config as ClipboardConfig ?? new ClipboardConfig();
+        _attached = true;
 
-        // [S-1458] The app's one history, shared by every Clipboard widget on every view.
-        // [S-1443] Never for a preview (a debug render): a render's PNG must not
-        // carry whatever happens to be on the user's clipboard.
-        if (_surface?.IsPreview != true && _source is null && _host.ClipboardHistory is { } source)
-        {
-            _source = source;
-            _source.Changed += OnHistoryChanged;
-        }
+        // [S-1458] The app's one history, shared by every Clipboard widget on every view. [S-1443] Never for a preview (a
+        // debug render): a render's PNG must not carry whatever happens to be on the user's clipboard.
+        _source.Start(_surface?.IsPreview == true ? null : _host.ClipboardHistory, _surface?.IsPreview == true);
 
-        // The tick does not fetch anything. It only keeps the relative times ("4m", "2h") honest,
-        // which is the one thing in this widget that goes stale on its own.
-        _subscription ??= _ticker?.Subscribe(_config.TickInterval, Redraw);
-
-        ApplyConfig(config);
+        // The tick fetches nothing: it keeps the ages ("4m", "2h") honest, the one thing here that goes stale on its own.
+        _binding.Attach(ticker, _source, _config, _config.TickInterval);
     }
 
+    /// <summary>
+    /// A lower capacity shows fewer entries at once; the shared history drops what no Clipboard widget keeps any more
+    /// when the state saves the setting ([S-1458]): a shorter history is the one setting that actually reduces exposure.
+    /// </summary>
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ClipboardConfig ?? new ClipboardConfig();
-        _plan = ClipboardLayout.Plan(_config);
-
-        // Lowering the capacity shows fewer entries at once; the shared history drops what no
-        // Clipboard widget keeps any more when the state saves the setting ([S-1458]): a shorter
-        // history is the one setting here that actually reduces exposure.
-        Render();
-    }
-
-    /// <summary>The entries this widget shows: the newest, as many as its own setting keeps.</summary>
-    private IReadOnlyList<ClipboardEntry> Entries
-    {
-        get
+        if (_attached)
         {
-            var all = _sample ?? _source?.Entries ?? [];
-            return all.Count <= _config.EffectiveCapacity ? all : [.. all.Take(_config.EffectiveCapacity)];
+            _binding.Apply(_source, _config, _config.TickInterval, show: false);
         }
     }
 
-    private void OnHistoryChanged()
+    public void ApplySize(WidgetArea area) => _binding.Size(area);
+
+    public bool HandleKey(WidgetKey key) => _binding.HandleKey(key);
+
+    public void Detach()
     {
-        if (!_detached)
-        {
-            Render();
-        }
+        _attached = false;
+        _binding.Dispose();
+        _source.Stop();
     }
 
-    /// <summary>[S-663] [S-12410] The card's word on its room: the rows' pitch follows it.</summary>
-    public void ApplySize(WidgetArea area)
+    /// <summary>[S-1444] Remove: the history raises the change, and every Clipboard widget redraws from it.</summary>
+    private void Run(KitItem item, KitAction action)
     {
-        if (area == _area)
+        if (action.Id == ClipboardSpec.RemoveId && _source.TextOf(item.Id) is { } text)
         {
-            return;
+            _source.Remove(text);
         }
-
-        _area = area;
-        Redraw();
-    }
-
-    private WidgetArea _area;
-
-    /// <summary>[S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the last its foot reaches cut by it.</summary>
-    private RowReach Reach => _area.IsMeasured
-        ? ItemSize.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-        : ItemSize.Natural(_plan.Lines, _area.Grid());
-
-    private void Redraw()
-    {
-        if (!_detached)
-        {
-            Render();
-        }
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // Drawing
-    // -----------------------------------------------------------------------------------------
-
-    private void Render()
-    {
-        ClearRows();
-
-        var entries = Entries;
-
-        if (entries.Count == 0)
-        {
-            // [S-6714] Each state says which it is, in one row where the first entry would be.
-            // "Nothing copied yet" and "the listener never started" need very different things.
-            var listening = _host.ClipboardHistory?.Listening == true || _surface?.IsPreview == true;
-            // [S-14500] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
-            _state.RowPitch = Reach.Pitch;
-            _state.Show((listening ? ClipboardStr.WidgetsA_Clipboard_Empty : ClipboardStr.WidgetsA_Clipboard_NoListener).Text(), offerAccounts: false, problem: !listening);
-            _scroll.Visibility = Visibility.Collapsed;
-            _cursor = null;
-            return;
-        }
-
-        _state.Hide();
-        _scroll.Visibility = Visibility.Visible;
-
-        // One clock reading for the whole list, so a list drawn across a minute boundary cannot
-        // show two different ideas of "now".
-        var now = _clock();
-
-        var reach = Reach;
-        for (var i = 0; i < entries.Count; i++)
-        {
-            var row = BuildRow(entries[i], i == 0, now);
-            row.Height = reach.Height(i);
-            _rows.Add(row);
-            _list.Children.Add(row);
-        }
-
-        // [S-2440] [S-14810] As tall as the rows, at most the card: the last row in sight cut by its foot, the rest a scroll away.
-        _scroll.Height = _area.IsMeasured ? reach.Span(_rows.Count) : double.NaN;
-        ListEdge.Apply(_scroll);
-
-        _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;
-        ShowCursor();
-        _fade.Refresh();
     }
 
     /// <summary>
-    /// [S-1441] [S-1442] One entry: its marker, its preview on one line (BodyStrong for what is on the
-    /// clipboard now), when it was copied, how much it is on the second line.
+    /// [S-1442] What the entry looks like it is: the tick for what is on the clipboard now, a dot of a colour's own
+    /// colour (a data colour, [S-6705]), else its kind's glyph, all 16.
     /// </summary>
-    private RowBlock BuildRow(ClipboardEntry entry, bool current, DateTimeOffset now)
+    private static FrameworkElement Marker(string? key)
     {
-        var row = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = current, Interactive = true };
-        row.Show(
-            ClipboardFormatting.Preview(entry.Text, ClipboardLayout.PreviewLength),
-            _plan.Time && _config.ShowTimestamp ? Formatting.Ago(entry.CapturedAt, now) : null,
-            ClipboardFormatting.Describe(entry.Text, Strings.Current));
-
-        if (_plan.Lead)
-        {
-            row.Lead(Marker(entry.Text, current));
-        }
-
-        row.Tag = entry.Text;
-
-        // [S-1444] The row menu, read fresh on each right-tap.
-        var captured = entry.Text;
-        _rowHandles.Add(ItemMenu.Attach(row, () => RowMenu(captured)));
-
-        // A single click, and deliberately so: this widget opens nothing. The worst a mis-click can
-        // do is put something back on the clipboard.
-        row.Tapped += OnRowTapped;
-        WidgetItems.Mark(row); // [S-814]
-
-        ToolTipService.SetToolTip(row, ClipboardFormatting.Describe(entry.Text, Strings.Current));
-        return row;
-    }
-
-    /// <summary>
-    /// [S-1442] What the entry looks like it is: the tick for what is on the clipboard now, a dot of a
-    /// colour's own colour (a data colour, [S-6705]), else its kind's glyph, all 16.
-    /// </summary>
-    private static FrameworkElement Marker(string text, bool current)
-    {
-        if (current)
+        if (key == ClipboardSpec.Current)
         {
             return Family.Glyph(Glyphs.Done);
         }
 
-        if (ClipboardLayout.TryColour(text, out var colour))
+        if (key?.StartsWith(ClipboardSpec.ColourLead, StringComparison.Ordinal) == true)
         {
             return new Border
             {
@@ -271,173 +125,32 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
                 CornerRadius = Family.Round(FamilyShape.Icon, FamilyShape.Icon),
 
                 // The user's own colour, which is the content here, not a design choice.
-                Background = Family.Data($"#{colour.R:X2}{colour.G:X2}{colour.B:X2}"),
+                Background = Family.Data(key[ClipboardSpec.ColourLead.Length..]),
             };
         }
 
-        return Family.Glyph(ClipboardLayout.Classify(text) switch
+        return Family.Glyph(Enum.TryParse<ClipboardContent>(key, out var kind) ? kind switch
         {
             ClipboardContent.Link => Glyphs.Link,
             ClipboardContent.Email => Glyphs.Mail,
             ClipboardContent.Number => Glyphs.Calculator,
             ClipboardContent.Lines => Glyphs.Note,
             _ => Glyphs.Copy,
-        });
+        } : Glyphs.Copy);
     }
-
-    private IEnumerable<ItemMenuEntry> RowMenu(string text)
-    {
-        if (_detached)
-        {
-            return [];
-        }
-
-        return
-        [
-            new(Glyphs.Copy, Str.Common_Copy.Text(), () => CopyBack(text), Quick: QuickCommand.Copy),
-            new(Glyphs.Delete, ClipboardStr.WidgetsA_Clipboard_Remove.Text(), () => Remove(text), Danger: true, Quick: QuickCommand.Delete),
-            ItemMenuEntry.Separator,
-            new(Glyphs.Clear, ClipboardStr.WidgetsA_Clipboard_ClearEllipsis.Text(), () => _ = ConfirmClearAsync(), Danger: true),
-        ];
-    }
-
-    private void OnRowTapped(object sender, TappedRoutedEventArgs args)
-    {
-        args.Handled = true;
-
-        if (!_detached && sender is RowBlock { Tag: string text })
-        {
-            CopyBack(text);
-        }
-    }
-
-    private void CopyBack(string text)
-    {
-        if (_detached || _sample is not null)
-        {
-            return;
-        }
-
-        if (!_host.CopyText(text))
-        {
-            // Already logged with the Win32 reason. Nothing changed, and the list still shows what
-            // is genuinely on the clipboard, so there is nothing to correct on screen.
-            Log.Debug(Scope, "the entry could not be put back on the clipboard");
-        }
-
-        // No redraw here on purpose: the write raises a clipboard change, and the history redraws
-        // from that. What is shown as current is then what Windows actually holds, not what this
-        // widget hoped it wrote.
-    }
-
-    private void Remove(string text)
-    {
-        if (!_detached)
-        {
-            // The history raises the change, and every Clipboard widget redraws from it.
-            _source?.Remove(text);
-        }
-    }
-
-    private void ClearRows()
-    {
-        foreach (var handle in _rowHandles)
-        {
-            handle.Dispose();
-        }
-
-        _rowHandles.Clear();
-
-        foreach (var row in _rows)
-        {
-            row.Tapped -= OnRowTapped;
-            row.Detach();
-
-            // Drop the reference to the copied text with the row. A detached row holding a
-            // password in its Tag is exactly the thing this widget should not be doing.
-            row.Tag = null;
-        }
-
-        _rows.Clear();
-        _list.Children.Clear();
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // Keyboard ([S-1444])
-    // -----------------------------------------------------------------------------------------
-
-    /// <summary>[S-1561] Up/Down/Page/Home/End move a cursor, Enter copies back, Delete removes, Menu opens the row's menu, Escape drops it.</summary>
-    public bool HandleKey(WidgetKey key)
-    {
-        if (_detached)
-        {
-            return false;
-        }
-
-        var entries = Entries;
-        var decision = ListKeys.Decide(key, _cursor ?? -1, entries.Count);
-
-        switch (decision.Command)
-        {
-            case ListCommand.Focus:
-                _cursor = decision.Index;
-                ShowCursor();
-                return true;
-
-            case ListCommand.Open:
-                CopyBack(entries[decision.Index].Text);
-                return true;
-
-            case ListCommand.Delete:
-                // Render keeps a cursor that is still in range, which is the row that moved up.
-                _cursor = ListKeys.AfterRemoval(decision.Index, entries.Count - 1) is var next and >= 0 ? next : null;
-                Remove(entries[decision.Index].Text);
-                return true;
-
-            case ListCommand.Menu when decision.Index < _rows.Count:
-                ItemMenu.Open(_rows[decision.Index], RowMenu(entries[decision.Index].Text));
-                return true;
-
-            case ListCommand.Release:
-                var had = _cursor is not null;
-                _cursor = null;
-                ShowCursor();
-                return had;
-
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>[S-1288] The keyboard's ring: the Row block's own, over the whole row.</summary>
-    private void ShowCursor()
-    {
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            _rows[i].Focused = _cursor == i;
-        }
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // Clearing
-    // -----------------------------------------------------------------------------------------
 
     private async Task ConfirmClearAsync()
     {
-        if (_detached || Entries.Count == 0)
+        if (!_attached || _source.Count == 0)
         {
             return;
         }
 
-        var confirmed = await AskToClearAsync().ConfigureAwait(true);
-
-        if (!confirmed || _detached)
+        if (await AskToClearAsync().ConfigureAwait(true) && _attached)
         {
-            return;
+            // Every Clipboard widget shows the one history, so all of them are cleared.
+            _source.Clear();
         }
-
-        // Every Clipboard widget shows the one history, so all of them are cleared.
-        _source?.Clear();
     }
 
     /// <summary>[S-1500] The widgets' one confirmation, beside the widget.</summary>
@@ -447,35 +160,107 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
         Str.Common_Clear.Text(),
         ClipboardStr.WidgetsA_Clipboard_ClearConfirm_Body.Text());
 
-    private void OnLanguage(Locale locale)
+    /// <summary>
+    /// [S-1458] The shared history as a kit source: its newest entries, as many as this widget keeps; nothing copied yet
+    /// is the spec's empty sentence, a listener that never started the state's problem ([S-6714]: they need very
+    /// different things).
+    /// </summary>
+    private sealed class HistorySource(Func<ClipboardConfig> config) : IKitSource
     {
-        Render();
-    }
+        private IClipboardHistory? _history;
+        private bool _preview;
 
-    public void Detach()
-    {
-        if (_detached)
+        /// <summary>[S-11850] The sample's fixed entries in place of the history ([S-1917]); never the user's clipboard.</summary>
+        private IReadOnlyList<ClipboardEntry>? _sample;
+
+        public event Action? Changed;
+
+        public bool Busy => false;
+
+        public int Count => Entries.Count;
+
+        private IReadOnlyList<ClipboardEntry> Entries
         {
-            return;
+            get
+            {
+                var all = _sample ?? _history?.Entries ?? [];
+                var kept = config().EffectiveCapacity;
+                return all.Count <= kept ? all : [.. all.Take(kept)];
+            }
         }
 
-        _detached = true;
-        Strings.Changed -= OnLanguage;
-
-        _subscription?.Dispose();
-        _subscription = null;
-
-        // [S-1458] The history stays with the app while a view holds a Clipboard widget; it is
-        // forgotten, and the listener stopped, when the state holds none.
-        if (_source is not null)
+        public void Start(IClipboardHistory? history, bool preview)
         {
-            _source.Changed -= OnHistoryChanged;
-            _source = null;
+            _preview = preview;
+            if (_history is null && history is not null)
+            {
+                _history = history;
+                _history.Changed += OnChanged;
+            }
         }
 
-        ClearRows();
-        _fade.Dispose();
-        _state.Detach();
-        _ticker = null;
+        public void Stop()
+        {
+            if (_history is not null)
+            {
+                _history.Changed -= OnChanged;
+                _history = null;
+            }
+        }
+
+        public void Show(bool refresh)
+        {
+            // ignore: the history follows the listener; there is nothing to ask again.
+        }
+
+        public KitRead Read()
+        {
+            var entries = Entries;
+            var locale = Strings.Current;
+            if (entries.Count == 0 && !_preview && _sample is null && _history?.Listening != true)
+            {
+                return new KitRead([], [], Stated: new KitStated(ClipboardStr.WidgetsA_Clipboard_NoListener.Text(locale)));
+            }
+
+            return new KitRead([.. entries.Select((entry, i) => ClipboardSpec.Item(entry, i == 0, locale))], [new KitOutcome(null, FetchStatus.Ok)]);
+        }
+
+        /// <summary>The text of the entry shown under <paramref name="id"/>, or null for one no longer held.</summary>
+        public string? TextOf(string id)
+        {
+            foreach (var entry in Entries)
+            {
+                if (ClipboardSpec.Id(entry.Text) == id)
+                {
+                    return entry.Text;
+                }
+            }
+
+            return null;
+        }
+
+        public void Remove(string text)
+        {
+            if (_sample is null)
+            {
+                _history?.Remove(text);
+            }
+        }
+
+        public void Clear()
+        {
+            if (_sample is null)
+            {
+                _history?.Clear();
+            }
+        }
+
+        public void HoldForPreview(IReadOnlyList<ClipboardEntry> sample)
+        {
+            _sample = sample;
+            Changed?.Invoke();
+        }
+
+        private void OnChanged() => Changed?.Invoke();
     }
 }

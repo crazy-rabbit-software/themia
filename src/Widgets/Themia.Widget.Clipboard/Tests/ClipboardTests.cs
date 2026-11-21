@@ -54,9 +54,12 @@ public sealed class ClipboardTests
     public void S11405_a_new_clipboard_is_five_one_line_entries_with_marker_and_time()
     {
         var config = new ClipboardConfig();
-        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true, Rows: 5), ClipboardLayout.Plan(config));
+        var choices = ((Themia.Sdk.Kit.IKitConfig)config).Choices;
+        Assert.Equal(new Themia.Sdk.Kit.KitRowsChoice(5, 1), choices.Rows);
+        Assert.Equal(Themia.Sdk.Kit.KitShow.Lead | Themia.Sdk.Kit.KitShow.Subtitle | Themia.Sdk.Kit.KitShow.When, choices.Shows);
         Assert.Equal(new Themia.Sdk.SizeDip(300, 5 * 30), new ClipboardModule().Descriptor.Sizing(config).Natural);
-        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true, Rows: 5), ClipboardLayout.Plan(new ClipboardConfig { Lines = 2 }));
+        Assert.Equal(2, ((Themia.Sdk.Kit.IKitConfig)new ClipboardConfig { Lines = 2 }).Choices.Rows.Lines);
+        Assert.Equal(Themia.Sdk.Kit.KitShow.Lead | Themia.Sdk.Kit.KitShow.Subtitle, new ClipboardConfig { ShowTimestamp = false }.Shows);
     }
 
     [Fact]
@@ -69,5 +72,26 @@ public sealed class ClipboardTests
         Assert.NotEmpty(wild.Repair());
         var copy = (ClipboardConfig)wild.Clone();
         Assert.Equal((20, 1), (copy.Rows, copy.Lines));
+    }
+
+    [Fact]
+    public void S1441_an_entrys_id_is_a_short_fingerprint_of_its_text()
+    {
+        var longText = new string('x', 10_000);
+        Assert.Equal(ClipboardSpec.Id("Room 4.12"), ClipboardSpec.Id("Room 4.12"));
+        Assert.NotEqual(ClipboardSpec.Id("Room 4.12"), ClipboardSpec.Id("Room 4.13"));
+        Assert.True(ClipboardSpec.Id(longText).Length <= Themia.Sdk.Kit.KitBounds.Id);
+        Assert.DoesNotContain("Room", ClipboardSpec.Id("Room 4.12"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void S1444_an_entry_copies_back_first_and_its_copy_is_the_primary_action()
+    {
+        var actions = ClipboardSpec.Actions("secret");
+        Assert.Same(actions[0], Themia.Sdk.Kit.KitMenu.Primary(actions));
+        Assert.Equal("secret", actions[0].Text);
+        Assert.Equal(Themia.Sdk.Kit.KitActionKind.Delete, actions[1].Kind);
+        Assert.Empty(ClipboardSpec.Actions(null));
+        Assert.True(ClipboardSpec.Spec.ClickRuns);
     }
 }

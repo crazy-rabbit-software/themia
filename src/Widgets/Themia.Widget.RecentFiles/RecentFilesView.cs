@@ -1,11 +1,9 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Files;
 using Themia.App.Shell;
-using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -17,207 +15,117 @@ using Themia.Widget.RecentFiles;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4840] The files opened last, as Windows lists them in Recent Items, newest first, on the
-/// family's rows ([S-6711]): the file's icon as the lead, its name primary, when it was opened as the
-/// value, its folder on the second line where Lines per row says so ([S-11200]: as many rows as the
-/// config says, at every size; more files scroll). A click focuses
-/// a row and a double-click opens the file, as every list ([S-7065]); the row menu opens its location
-/// or takes it off the list. The list is the shared <see cref="RecentItems"/>, redrawn when its folder
-/// changes; the minute tick only keeps "2h" honest. Keys through the lease, as every list ([S-1288]).
+/// [S-4840] The files opened last, as Windows lists them in Recent Items, newest first: a kit list ([S-7074]) over the
+/// host's one list (<see cref="IWidgetHost.RecentFiles"/>, redrawn when its folder changes; the minute tick only keeps
+/// "2h" honest), shaped by <see cref="RecentFilesSpec"/>, the shell's icon for each file as its lead.
 /// </summary>
 internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys, IWidgetSizeAware
 {
-    private WidgetArea _area;
-
-    /// <summary>[S-12807] The box decides how the config's rows reach the view's ends, never how many.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        if (area == _area)
-        {
-            return;
-        }
-
-        _area = area;
-        Render();
-    }
-
     /// <inheritdoc />
     public CardOpen? Opens => RecentFilesModule.Opens;
 
-    /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
-    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
-
-    private readonly StackPanel _list = new();
-    private readonly ScrollViewer _scroll;
-    private readonly ScrollFade _fade;
-    private readonly KitStatePanel _state;
-    private readonly List<Grid> _rows = [];
-
-    /// <summary>[S-6627] Each row's selection chrome, by row: laid behind the row, so it moves nothing.</summary>
-    private readonly List<Border> _chromes = [];
-
-    /// <summary>The row under the pointer, or -1.</summary>
-    private int _hovered = -1;
-    private readonly List<IDisposable> _rowHandles = [];
-
-    private IWidgetSurface? _surface;
-    private IDisposable? _items;
-    private IDisposable? _tick;
-    private IReadOnlyList<RecentFile> _files = [];
-    private bool _unreadable;
+    private readonly IWidgetHost _host;
+    private readonly KitBinding _binding;
+    private readonly RecentSource _source;
     private RecentFilesConfig _config = new();
-    private int _cursor = -1;
-    private bool _detached;
-
-    /// <summary>[S-6913] What the view asks of the host: the recent items, the file icons, the launcher, the file operations.</summary>
-    private readonly IWidgetHost _widgetHost;
+    private IWidgetSurface? _surface;
+    private bool _attached;
 
     public RecentFilesView(IWidgetHost host)
     {
-        _widgetHost = host;
-        _scroll = new ScrollViewer
+        _host = host;
+        _source = new RecentSource(host.RecentFiles);
+        _binding = new KitBinding(host, RecentFilesSpec.Spec, RecentFilesModule.Glyph, RecentFilesSpec.Actions, Run)
         {
-            Content = _list,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-            VerticalAlignment = VerticalAlignment.Top,
+            Look = new KitRichLook { Lead = item => FileIcon(item.Lead.Value) },
+            Decorate = LinkRow,
+            Redrawing = ForgetRows,
+            CursorMoved = PointCursor,
         };
-        _fade = new ScrollFade(_scroll, _list);
-        _state = new KitStatePanel(RecentFilesModule.Glyph, host) { Visibility = Visibility.Collapsed };
 
-        Children.Add(_scroll);
-        Children.Add(_state);
+        Children.Add(_binding.List);
+        Children.Add(_binding.State);
+        _binding.Status.Place(this);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _detached = false;
-        Strings.Changed += OnLanguage;
+        _config = config as RecentFilesConfig ?? new RecentFilesConfig();
+        _attached = true;
         _links.Join(_surface?.Links);
 
         // A debug render never reads the user's Recent Items: its PNG must not carry their file names.
         if (_surface?.IsPreview != true)
         {
-            _items ??= _widgetHost.RecentFiles.Subscribe(OnItems);
+            _source.Start();
         }
 
-        _config = config as RecentFilesConfig ?? new RecentFilesConfig();
-        _tick ??= ticker.Subscribe(_config.TickInterval, Render);
+        _binding.Attach(ticker, _source, _config, _config.TickInterval);
     }
 
     /// <summary>[S-11200] Rows and Lines are the config's; the size follows them, never the other way.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as RecentFilesConfig ?? new RecentFilesConfig();
-        Render();
+        if (_attached)
+        {
+            _binding.Apply(_source, _config, _config.TickInterval, show: false);
+        }
     }
+
+    public void ApplySize(WidgetArea area) => _binding.Size(area);
+
+    public bool HandleKey(WidgetKey key) => _binding.HandleKey(key);
 
     public void Detach()
     {
-        if (_detached)
-        {
-            return;
-        }
-
-        _detached = true;
-        Strings.Changed -= OnLanguage;
-        _items?.Dispose();
-        _items = null;
-        _tick?.Dispose();
-        _tick = null;
-        ClearRows();
-        _fade.Dispose();
-        _state.Detach();
+        _attached = false;
+        _binding.Dispose();
+        _source.Stop();
         _links.Leave();
     }
 
-    private void OnLanguage(Locale locale) => Render();
-
-    private void OnItems()
+    /// <summary>[S-4841] Open, its location, or off the list; the card makes the widget inert in edit mode ([S-1751]); a preview opens nothing.</summary>
+    private void Run(KitItem item, KitAction action)
     {
-        if (_detached)
+        if (_source.FileOf(item.Id) is not { } file || _surface?.IsPreview == true)
         {
             return;
         }
 
-        _files = _widgetHost.RecentFiles.Current ?? [];
-        _unreadable = _widgetHost.RecentFiles.Unreadable && _widgetHost.RecentFiles.Current is null;
-        Render();
+        switch (action.Id)
+        {
+            case RecentFilesSpec.OpenId when _host.Launcher.Open(file.Path) == LaunchOutcome.Missing:
+                // Gone since the last read: read again, and the row goes.
+                _host.RecentFiles.Refresh();
+                break;
+
+            case RecentFilesSpec.LocationId:
+                _host.FileOps.ShowInExplorer([file.Path]);
+                break;
+
+            case RecentFilesSpec.RemoveId:
+                _host.RecentFiles.Remove(file);
+                break;
+        }
     }
 
-    // -----------------------------------------------------------------------------------------
-    // Drawing
-    // -----------------------------------------------------------------------------------------
-
-    private void Render()
+    /// <summary>The shell's icon for the file; a page glyph until it comes, and for a file that has none.</summary>
+    private FrameworkElement FileIcon(string? path)
     {
-        if (_detached)
-        {
-            return;
-        }
-
-        ClearRows();
-
-        if (_files.Count == 0)
-        {
-            // [S-6714] One row where the first file would be: the folder unread is a problem, an empty one is not.
-            // [S-14500] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
-            var rows = _config.RowsShown;
-            _state.RowPitch = (_area.IsMeasured
-                ? ItemSize.Rows(_area.Height, rows.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-                : ItemSize.Natural(rows.Lines, _area.Grid())).Pitch;
-            _state.Show((_unreadable ? RecentFilesStr.RecentFiles_Unreadable : RecentFilesStr.RecentFiles_Empty).Text(), offerAccounts: false, problem: _unreadable);
-            _scroll.Visibility = Visibility.Collapsed;
-            _cursor = -1;
-            return;
-        }
-
-        _state.Hide();
-        _scroll.Visibility = Visibility.Visible;
-        var now = _clock();
-
-        foreach (var file in _files)
-        {
-            var row = BuildRow(file, now);
-            _rows.Add(row);
-            _list.Children.Add(row);
-        }
-
-        // [S-11200] [S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the viewport as tall as
-        // they are, at most the card: the last row in sight cut by its foot.
-        var shown = _config.RowsShown;
-        var reach = _area.IsMeasured
-            ? ItemSize.Rows(_area.Height, shown.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemSize.Natural(shown.Lines, _area.Grid());
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            _rows[i].Height = reach.Height(i);
-        }
-
-        _scroll.Height = _area.IsMeasured ? reach.Span(_rows.Count) : double.NaN;
-        ListEdge.Apply(_scroll);
-
-        _cursor = _cursor < _rows.Count ? _cursor : -1;
-        ShowCursor();
-        _fade.Refresh();
-    }
-
-    private Grid BuildRow(RecentFile file, DateTimeOffset now)
-    {
-        // [S-11200] The icon and the time always; the folder on the second line as Lines says.
-        var block = new RowBlock(RowKind.List, FamilyShape.Icon) { Lines = _config.RowsShown.Lines };
-        block.Show(file.Name, Formatting.Ago(file.Opened, now), file.Folder);
-
-        // The shell's icon for the file; a page glyph until it comes, and for a file that has none.
         var image = new Image { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
         var fallback = Family.Glyph(Glyphs.File);
-        var icon = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Children = { fallback, image } };
-        var entry = new FolderEntry(file.Name, file.Path, false, 0, file.Opened, false);
+        var icon = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center, Children = { fallback, image } };
+        if (path is null)
+        {
+            return icon;
+        }
+
+        var entry = new FolderEntry(System.IO.Path.GetFileName(path), path, false, 0, DateTimeOffset.MinValue, false);
         var pixels = (int)Math.Ceiling(FamilyShape.Icon * (XamlRoot?.RasterizationScale ?? 1));
-        if (_widgetHost.FileIcons.TryIcon(entry, pixels, out var known))
+        if (_host.FileIcons.TryIcon(entry, pixels, out var known))
         {
             ShowIcon(image, fallback, known);
         }
@@ -226,34 +134,13 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
             _ = LoadIconAsync(image, fallback, entry, pixels);
         }
 
-        block.Lead(icon);
-
-        // [S-6627] The focused file is marked as the desktop marks a selected one: the one selection
-        // chrome, laid behind the row over the whole of it, so marking it moves nothing.
-        var chrome = SelectionChrome.Wrap(new Grid());
-        var row = new Grid { Children = { chrome, block } };
-        _chromes.Add(chrome);
-
-        WidgetItems.Mark(row); // [S-814] a press here is the row's, not the background's
-        row.Tag = file;
-        row.Tapped += OnRowTapped;
-        row.DoubleTapped += OnRowDoubleTapped;
-        var index = _chromes.Count - 1;
-        _rowHandles.Add(SelectionChrome.Hover(row, over =>
-        {
-            _hovered = over ? index : _hovered == index ? -1 : _hovered;
-            ShowCursor(bringIntoView: false);
-            PointRow(index, over);
-        }));
-        _rowHandles.Add(ItemMenu.Attach(row, () => RowMenu(file)));
-        ToolTipService.SetToolTip(row, $"{file.Path}{Environment.NewLine}{LocaleFormat.Date(Strings.Current, file.Opened.LocalDateTime, DateStyle.Medium)} {LocaleFormat.Time(Strings.Current, file.Opened.LocalDateTime)}");
-        return row;
+        return icon;
     }
 
     private async Task LoadIconAsync(Image target, FontIcon fallback, FolderEntry entry, int pixels)
     {
         // AppIcons logs and returns null for a file without an icon; nothing here throws.
-        ShowIcon(target, fallback, await _widgetHost.FileIcons.IconAsync(entry, pixels).ConfigureAwait(true));
+        ShowIcon(target, fallback, await _host.FileIcons.IconAsync(entry, pixels).ConfigureAwait(true));
     }
 
     private static void ShowIcon(Image target, FontIcon fallback, ImageSource? source)
@@ -262,151 +149,53 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         fallback.Visibility = source is null ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private IEnumerable<ItemMenuEntry> RowMenu(RecentFile file)
+    /// <summary>[S-4840] Windows' Recent Items as a kit source: the files, an unreadable folder the state's problem.</summary>
+    private sealed class RecentSource(IRecentItems items) : IKitSource
     {
-        if (_detached)
+        private IDisposable? _watch;
+
+        /// <summary>[S-11850] The sample's files in place of Recent Items, or null.</summary>
+        private IReadOnlyList<RecentFile>? _held;
+
+        public event Action? Changed;
+
+        public bool Busy => false;
+
+        private IReadOnlyList<RecentFile> Files => _held ?? (_watch is null ? null : items.Current) ?? [];
+
+        public void Start() => _watch ??= items.Subscribe(() => Changed?.Invoke());
+
+        public void Stop()
         {
-            return [];
+            _watch?.Dispose();
+            _watch = null;
         }
 
-        return
-        [
-            new(Glyphs.Open, Str.Common_Open.Text(), () => Open(file)),
-            new(Glyphs.Folder, Str.Shortcut_OpenFileLocation.Text(), () => Reveal(file)),
-            ItemMenuEntry.Separator,
-            new(Glyphs.Clear, RecentFilesStr.RecentFiles_Remove.Text(), () => _widgetHost.RecentFiles.Remove(file)),
-        ];
-    }
-
-    /// <summary>[S-4844] A click focuses the row.</summary>
-    private void OnRowTapped(object sender, TappedRoutedEventArgs args)
-    {
-        if (sender is not Grid { Tag: RecentFile } row)
+        public void Show(bool refresh)
         {
-            return;
+            if (refresh && _held is null && _watch is not null)
+            {
+                items.Refresh();
+            }
         }
 
-        args.Handled = true;
-        _cursor = _rows.IndexOf(row);
-        ShowCursor();
-    }
-
-    /// <summary>[S-7065] A double-click opens the file; the card makes the widget inert in edit mode ([S-1751]).</summary>
-    private void OnRowDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
-    {
-        if (sender is not Grid { Tag: RecentFile file })
+        public KitRead Read()
         {
-            return;
+            if (_held is null && _watch is not null && items.Unreadable && items.Current is null)
+            {
+                return new KitRead([], [], Stated: new KitStated(RecentFilesStr.RecentFiles_Unreadable.Text()));
+            }
+
+            var locale = Strings.Current;
+            return new KitRead([.. Files.Select(file => RecentFilesSpec.Item(file, locale))], [new KitOutcome(null, FetchStatus.Ok)]);
         }
 
-        args.Handled = true;
-        Open(file);
-    }
+        public RecentFile? FileOf(string id) => Files.FirstOrDefault(f => KitItems.Fingerprint(f.Path) == id);
 
-    private void Open(RecentFile file)
-    {
-        if (_surface?.IsPreview == true)
+        public void HoldForPreview(IReadOnlyList<RecentFile> files)
         {
-            return;
-        }
-
-        var outcome = _widgetHost.Launcher.Open(file.Path);
-        if (outcome == LaunchOutcome.Missing)
-        {
-            // Gone since the last read: read again, and the row goes.
-            _widgetHost.RecentFiles.Refresh();
-        }
-    }
-
-    private void Reveal(RecentFile file)
-    {
-        if (_surface?.IsPreview != true)
-        {
-            _widgetHost.FileOps.ShowInExplorer([file.Path]);
-        }
-    }
-
-    private void ClearRows()
-    {
-        foreach (var handle in _rowHandles)
-        {
-            handle.Dispose();
-        }
-
-        _rowHandles.Clear();
-
-        foreach (var row in _rows)
-        {
-            row.Tapped -= OnRowTapped;
-            row.DoubleTapped -= OnRowDoubleTapped;
-            row.Tag = null;
-        }
-
-        _rows.Clear();
-        _chromes.Clear();
-        _hovered = -1;
-        _list.Children.Clear();
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // Keyboard ([S-1288])
-    // -----------------------------------------------------------------------------------------
-
-    /// <summary>[S-1564] An empty list takes no keyboard.</summary>
-    public bool WantsKeys => _files.Count > 0;
-
-    public bool HandleKey(WidgetKey key)
-    {
-        if (_detached)
-        {
-            return false;
-        }
-
-        var decision = ListKeys.Decide(key, _cursor, _files.Count);
-        switch (decision.Command)
-        {
-            case ListCommand.Focus:
-                _cursor = decision.Index;
-                ShowCursor();
-                PointCursor();
-                return true;
-
-            case ListCommand.Open:
-                Open(_files[decision.Index]);
-                return true;
-
-            case ListCommand.Delete:
-                _cursor = ListKeys.AfterRemoval(decision.Index, _files.Count - 1);
-                _widgetHost.RecentFiles.Remove(_files[decision.Index]);
-                return true;
-
-            case ListCommand.Menu when decision.Index < _rows.Count:
-                ItemMenu.Open(_rows[decision.Index], RowMenu(_files[decision.Index]));
-                return true;
-
-            case ListCommand.Release:
-                var had = _cursor >= 0;
-                _cursor = -1;
-                ShowCursor();
-                PointCursor();
-                return had;
-
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>[S-6627] The focused row as the desktop marks a selected file, the one under the pointer as its hover.</summary>
-    private void ShowCursor(bool bringIntoView = true)
-    {
-        for (var i = 0; i < _chromes.Count; i++)
-        {
-            SelectionChrome.Paint(_chromes[i], new SelectionCue(Selected: i == _cursor, Hovered: i == _hovered || PointedElsewhere(i)));
-        }
-
-        if (bringIntoView && _cursor >= 0 && _cursor < _rows.Count)
-        {
-            _rows[_cursor].StartBringIntoView();
+            _held = files;
+            Changed?.Invoke();
         }
     }
 }

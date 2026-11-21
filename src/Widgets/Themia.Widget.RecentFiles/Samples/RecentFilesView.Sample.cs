@@ -35,9 +35,7 @@ internal sealed partial class RecentFilesView : IWidgetSample
     /// <summary>Show <paramref name="files"/> in place of Recent Items, the clock at <paramref name="now"/>.</summary>
     internal void ShowFiles(DateTimeOffset now, IReadOnlyList<RecentFile> files)
     {
-        _clock = () => now;
-        _files = files;
-        _unreadable = false;
-        Render();
+        _binding.Clock = () => now;
+        _source.HoldForPreview(files);
     }
 }

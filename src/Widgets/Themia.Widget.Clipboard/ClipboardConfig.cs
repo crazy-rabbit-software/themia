@@ -20,7 +20,7 @@ namespace Themia.Core.Model;
 /// the one control that genuinely reduces exposure.
 /// </para>
 /// </summary>
-public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory, Themia.Sdk.Kit.IKitRows
+public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory, Themia.Sdk.Kit.IKitLocalConfig, Themia.Sdk.Kit.IKitRows
 {
     /// <summary>[S-11405] A new clipboard list's rows.</summary>
     public const int DefaultRows = 5;
@@ -46,6 +46,10 @@ public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory, Them
         (Rows, Lines) = (shown.Rows, shown.Lines);
         return ["clipboard: rows or lines out of range"];
     }
+
+    /// <summary>[S-1441] The marker and how much it is always; when it was copied as the timestamps switch says.</summary>
+    [JsonIgnore]
+    public Themia.Sdk.Kit.KitShow Shows => Themia.Sdk.Kit.KitShow.Lead | Themia.Sdk.Kit.KitShow.Subtitle | (ShowTimestamp ? Themia.Sdk.Kit.KitShow.When : Themia.Sdk.Kit.KitShow.None);
 
     /// <summary>[S-1440] How many entries to keep, 1 to 200 (default 50, as the original).</summary>
     public int Capacity { get; set; } = ClipboardHistory.DefaultCapacity;

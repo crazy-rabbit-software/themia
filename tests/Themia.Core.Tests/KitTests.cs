@@ -473,4 +473,18 @@ public sealed class KitTests
         Assert.True(mail.NeedsSetup(FeatureSet.Of(HostFeatures.Calendar)));
         Assert.False(mail.NeedsSetup(FeatureSet.Of(HostFeatures.Mail)));
     }
+
+    /// <summary>[S-7002] An item keyed by something longer than an id (a copied text, a path) takes its fingerprint: stable, short, never the key.</summary>
+    [Fact]
+    public void S7002_a_long_key_becomes_a_short_stable_fingerprint_id()
+    {
+        var path = @"C:\Users\Robin\" + new string('a', 400) + ".docx";
+        var id = KitItems.Fingerprint(path);
+
+        Assert.Equal(id, KitItems.Fingerprint(path));
+        Assert.NotEqual(id, KitItems.Fingerprint(path + "x"));
+        Assert.True(id.Length <= KitBounds.Id);
+        Assert.DoesNotContain("Robin", id, StringComparison.Ordinal);
+        Assert.Single(KitItems.Clean([new KitItem(id, "a")]));
+    }
 }

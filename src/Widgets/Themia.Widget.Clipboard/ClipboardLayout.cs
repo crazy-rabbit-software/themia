@@ -18,33 +18,11 @@ public enum ClipboardContent
     Colour,
 }
 
-/// <summary>
-/// [S-11405] What a Clipboard widget shows, on the family's rows ([S-6711]): each entry one row, its
-/// preview the name on one line, how much it is ("32 characters") on the second where the config gives
-/// two; its marker and when it was copied at every width. Nothing but the entries: no count footer.
-/// </summary>
-/// <param name="Lines">The rows' lines: 1, or 2 with how much it is.</param>
-/// <param name="Lead">The marker (what the entry looks like it is, [S-1442]) before the preview.</param>
-/// <param name="Time">When it was copied, as the row's value (when the user shows it).</param>
-/// <param name="Rows">[S-2440] The rows the list shows at a time, as its config states (more scroll inside them).</param>
-public readonly record struct ClipboardPlan(int Lines, bool Lead, bool Time, int Rows)
-{
-    /// <summary>The rows' one height (28 or 40).</summary>
-    public double RowHeight => FamilyShape.RowHeight(Lines);
-}
-
-/// <summary>[S-1442] [S-11405] The clipboard's plan and how a row is marked; pure, so both are pinned by tests.</summary>
+/// <summary>[S-1442] How a clipboard row is marked; pure, so it is pinned by tests.</summary>
 public static class ClipboardLayout
 {
     /// <summary>[S-1441] The characters a row's one-line preview keeps before its ellipsis.</summary>
     public const int PreviewLength = 120;
-
-    /// <summary>[S-11405] The config's plan: its rows and lines, the marker and the time at every size.</summary>
-    public static ClipboardPlan Plan(Themia.Core.Model.ClipboardConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return new ClipboardPlan(config.RowsShown.Lines, Lead: true, Time: true, Math.Max(1, config.RowsShown.Rows));
-    }
 
     /// <summary>
     /// [S-1442] What an entry looks like it is. Conservative: a hex colour needs its <c>#</c> (a bare
