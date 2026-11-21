@@ -154,6 +154,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         if (Held)
         {
             Family.Figures(_line);
+            HoldMark.Mark(_cell);
         }
 
         InvalidateMeasure();

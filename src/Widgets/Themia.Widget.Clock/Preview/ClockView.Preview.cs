@@ -17,6 +17,14 @@ public sealed partial class ClockView : IWidgetPreviewState
 {
     IReadOnlyList<string> IWidgetPreviewState.PreviewStates { get; } = ["sample", "world", "world12", "at0111", "at1008"];
 
+    /// <summary>
+    /// [S-11603] A world state's own config (seconds, its city line): a render sizes the card by it, never at the default
+    /// clock's least, which holds no seconds (held to "88:88:88" its figures stood 7 into the inset of a 48 card).
+    /// </summary>
+    Themia.Core.Model.WidgetConfig? IWidgetPreviewState.DrawnConfig => _drawn;
+
+    private ClockConfig? _drawn;
+
     Task IWidgetPreviewState.ShowPreviewStateAsync(string state)
     {
         if (state is "world" or "world12")
@@ -31,6 +39,7 @@ public sealed partial class ClockView : IWidgetPreviewState
             _config.OffsetMode = ClockOffsetMode.Utc;
             _config.ShowSeconds = true;
             _label = ClockFormatter.Label(_config);
+            _drawn = _config;
         }
 
         if (state is "at0111" or "at1008")

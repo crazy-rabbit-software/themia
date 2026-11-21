@@ -37,6 +37,10 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   toolbar) is judged by its ink as any card's.
 - [S-14302] a mark over the content (`marks`: the sources' problem glyph, KitStatus, over the content's top end) is no
   ink of the content's: it is left out of the measure.
+- [S-14319] a held reading (`holds`: a running time held to its format's widest form, owner 2026-11-20: "the clock
+  right now changes its layout depending on the time that it shows because not all of the chars have the same width")
+  is judged across by its template's ink, the box every value it shows stands in: a "1:11" padded where "88:88" stands
+  reaches the sides by that box, never by the narrower ink it shows now.
 - [S-14304] a text cut with its ellipsis at the width it was given (`cuts`) ends where its last whole letter and the
   ellipsis fit: where it ends the card's ink, the room after it is the cut's (less than the next letter), not a band, and
   the end side is read as on the inset.
@@ -177,8 +181,11 @@ def measure(path, layouts):
         if len(rows) == 0:
             out.append((w, h, None, None, None, None))
             continue
-        out.append((w, h, (rows[0] + edge) / scale, ((b - t) - (rows[-1] + 1 + edge)) / scale,
-                    (cols[0] + edge) / scale, ((r - l) - (cols[-1] + 1 + edge)) / scale))
+        left, right = (cols[0] + edge) / scale, ((r - l) - (cols[-1] + 1 + edge)) / scale
+        # [S-14319] A held reading's sides are its template's ink: the box every value it shows stands in.
+        for k in card.get('holds', []) or []:
+            left, right = min(left, max(0.0, k['x'])), min(right, max(0.0, w - k['x'] - k['w']))
+        out.append((w, h, (rows[0] + edge) / scale, ((b - t) - (rows[-1] + 1 + edge)) / scale, left, right))
     return out
 
 
@@ -298,7 +305,8 @@ def texts_in_inset(path, layouts, kind):
             # An item's own box edge on a card edge is the item's: its padding stands there in the inset's place (a row centres
             # its text in its band, a month's cell holds its number in its corner). [S-14314] So is a column's head's (the
             # month's weekday letters, on their column's padding in line with its numbers).
-            held = [i for i in (card.get('items', []) or []) + (card.get('heads', []) or []) if inside(t, i)]
+            held = [i for i in (card.get('items', []) or []) + (card.get('heads', []) or []) + bands(card.get('items', []) or [])
+                    if inside(t, i)]
             free = {'left': not any(i['x'] <= EDGE for i in held), 'top': not any(i['y'] <= EDGE for i in held),
                     'right': not any(i['x'] + i['w'] >= card['w'] - EDGE for i in held),
                     'foot': not any(i['y'] + i['h'] >= card['h'] - EDGE for i in held)}
@@ -319,6 +327,20 @@ def texts_in_inset(path, layouts, kind):
                          max(0, x0) / scale - card['x'] + (cols[-1] + 1) / scale, max(0, y0) / scale - card['y'] + (rows[-1] + 1) / scale,
                          free))
         out.append(inset_findings(card['w'], card['h'], inks))
+    return out
+
+
+def bands(items):
+    """[S-14314] The rows of items that tile a band together (a month's week of day cells), each as one box: a text laid
+    across several of them (a span's chip over the days it covers) stands in their padding as one in a single cell does."""
+    rows = {}
+    for i in items:
+        rows.setdefault((round(i['y'], 1), round(i['h'], 1)), []).append(i)
+    out = []
+    for row in rows.values():
+        row = sorted(row, key=lambda i: i['x'])
+        if len(row) > 1 and all(abs(a['x'] + a['w'] - b['x']) <= EDGE for a, b in zip(row, row[1:])):
+            out.append({'x': row[0]['x'], 'y': row[0]['y'], 'w': row[-1]['x'] + row[-1]['w'] - row[0]['x'], 'h': row[0]['h']})
     return out
 
 
@@ -428,7 +450,15 @@ def self_test():
         ('a weekday letter 4 from the start in no head', [(4, 30, 20, 42)], True),
     ]:
         cases.append((name, None, inks, finds))
-    failed = 0
+    # [S-14314] A chip spanning three day cells of the last week, 4 from the foot: in the week's band.
+    week = [{'x': 86.0 * n, 'y': 410, 'w': 86.0, 'h': 70} for n in range(7)]
+    chip = {'x': 180, 'y': 460, 'w': 110, 'h': 16}
+    if not any(inside(chip, b) for b in bands(week)) or any(inside(chip, i) for i in week):
+        failed_bands = 1
+        print('FAIL a chip spanning cells stands in their band')
+    else:
+        failed_bands = 0
+    failed = failed_bands
     for name, card_layout, kinds, finds in cases:
         if card_layout is None:
             found = inset_findings(330, 130, kinds)

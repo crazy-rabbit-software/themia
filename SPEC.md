@@ -8600,7 +8600,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   cells hold their numbers (chips: at the start; dots and numbers: centred), so a letter reads over its numbers. The
   layout dump writes the heads (`heads`) and the gap check reads a letter in a head against a card edge the head's box
   stands on as an item's text: the column's padding stands there in the inset's place ([S-14312]). A head is no item: it
-  is not one of the cells that tile the card alike (WR-6) and the item check does not judge it. Was: "text in the inset
+  is not one of the cells that tile the card alike (WR-6) and the item check does not judge it. A span's chip laid over
+  several cells of a week is read the same way, in their band (the week's cells as one box). Was: "text in the inset
   left 4.0" on every month with chips; moving the letters to 12 would have stood them 8 off their numbers.
 - **[S-14315]** **A fence's title bar is its first row** (WR-3, [S-13040]). The title bar (the name, the count, the
   chevron) is a band from the card's left edge to its right on its top, three grid rows tall, marked as the fence's item
@@ -8635,7 +8636,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   clock's preview states `at0111`, `at1008` beside the sample's 10:42). A reading of another shape (a countdown's "3d 5h")
   keeps its own; the meters' readings follow the design's figures. A stopwatch with laps, its face now stopped by its
   width at some sizes, stands its last ink on the laps' top (`ReadingFit.Foot`: the height left over its first ink),
-  never 0.6 over it. Tests `FigureTemplateTests.S14319_`.
+  never 0.6 over it. The layout dump writes a held reading's box (`holds`, `HoldMark`: its template's ink across) and the
+  gap check judges its sides by it, the place every value it shows stands in (a "1:11" padded where "88:88" stands, a
+  "10:42" whose "1" leaves more room before its ink than an 8). Tests `FigureTemplateTests.S14319_`.
 - **[S-14322]** **A folded icon picker shows what it holds** (owner, 2026-11-21: "the icon in the icon selector
   configuration section does not show when it is not extended"). An icon line's head (a view's Icon, a widget's or an own
   desktop icon's Icon) shows its chosen icon at the value's place, as a choice's head says its choice, and for the default

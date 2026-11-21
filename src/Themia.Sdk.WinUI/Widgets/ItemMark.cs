@@ -82,6 +82,22 @@ public static class HeadMark
 }
 
 /// <summary>
+/// [S-14319] A running reading held to its widest form (<c>ReadoutBlock.Hold</c>): its box is the template's ink across,
+/// so the layout dump (<c>--layout-json</c>'s <c>holds</c>) and the gap check judge its sides by the template's ink, the
+/// place every value it shows stands in, not by the ink of the value it shows now (a "1:11" padded where "88:88" stands).
+/// </summary>
+public static class HoldMark
+{
+    private static readonly MarkTable Holds = new();
+
+    /// <summary>Mark <paramref name="element"/> as a held reading's box.</summary>
+    public static void Mark(FrameworkElement element) => Holds.Mark(element);
+
+    /// <summary>Whether <paramref name="node"/> is a held reading's box.</summary>
+    public static bool IsHeld(DependencyObject? node) => Holds.Has(node);
+}
+
+/// <summary>
 /// [S-12831] What an item does when the pointer is over it or presses it, for a render to show without a pointer
 /// (<c>--widget-png … --hover x,y</c>, <c>--pressed x,y</c>): the owner's rules on hover (WR-12: nothing changes size;
 /// WR-13: the item under the pointer lights, edge to edge) are checked on those renders. An item that lights itself

@@ -63,9 +63,10 @@ internal static class ItemDump
             var marks = new List<Rect>();
             var cuts = new List<Rect>();
             var heads = new List<Rect>();
+            var holds = new List<Rect>();
             if (card.View is { } view)
             {
-                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks, cuts, heads);
+                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks, cuts, heads, holds);
             }
 
             var groups = new Dictionary<DependencyObject, int>();
@@ -176,6 +177,17 @@ internal static class ItemDump
 
             w.WriteEndArray();
 
+            // [S-14319] Each held reading's box (its template's ink across).
+            w.WriteStartArray("holds");
+            foreach (var box in holds)
+            {
+                w.WriteStartObject();
+                Box(w, box);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+
             // [S-14314] Each column's head (the month's weekday letters' box, the column's across).
             w.WriteStartArray("heads");
             foreach (var box in heads)
@@ -211,7 +223,7 @@ internal static class ItemDump
     }
 
     /// <summary>The items and the free ink under <paramref name="node"/>, each as it shows inside <paramref name="clip"/> (card coordinates).</summary>
-    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks, List<Rect> cuts, List<Rect> heads)
+    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks, List<Rect> cuts, List<Rect> heads, List<Rect> holds)
     {
         if (node is UIElement { Visibility: not Visibility.Visible } || node is UIElement { Opacity: <= 0 })
         {
@@ -248,6 +260,11 @@ internal static class ItemDump
                 heads.Add(shown.Value);
             }
 
+            if (HoldMark.IsHeld(fe))
+            {
+                holds.Add(shown.Value);
+            }
+
             if (fe is TextBlock { IsTextTrimmed: true })
             {
                 cuts.Add(shown.Value);
@@ -278,7 +295,7 @@ internal static class ItemDump
         var n = VisualTreeHelper.GetChildrenCount(node);
         for (var i = 0; i < n; i++)
         {
-            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots, fields, marks, cuts, heads);
+            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots, fields, marks, cuts, heads, holds);
         }
     }
 
