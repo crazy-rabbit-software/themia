@@ -750,22 +750,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         => GridGeometry.CellPitch(_host.Metrics) / (_contentScale > 0 && double.IsFinite(_contentScale) ? _contentScale : 1);
 
     /// <summary>
-    /// [S-2460] A step of the selection's resize as a block: the card shows <paramref name="rect"/>, nothing stored until it
-    /// lands (<see cref="LandResize"/>). [S-14502] Its view shows what that box holds: counts follow the card live.
+    /// [S-2460] A step of the selection's resize as a block: the card shows <paramref name="rect"/>, nothing stored until the
+    /// surface lands it ([S-15662]). [S-14502] Its view shows what that box holds: counts follow the card live; a resize
+    /// stores the box alone, never a config.
     /// </summary>
     public void PreviewResize(FracRect rect) => LiveRect = rect;
-
-    /// <summary>
-    /// [S-2445] A resize lands on <paramref name="rect"/> (the caller stores it in one undo step). [S-14502] A resize sets
-    /// the box alone: what the view shows of a count that follows its card (rows, days, columns) it reads from its box,
-    /// never a config a resize stored. The pointer's drag and the keyboard's Shift+arrows both land here.
-    /// </summary>
-    public void LandResize(FracRect rect)
-    {
-        Model.Rect = rect;
-        LiveRect = rect;
-        ApplyResizable();
-    }
 
     /// <summary>
     /// [S-850] Magnify the card's content — text, icons, padding — without touching its cell:
@@ -1054,9 +1043,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // Only a move may hand widgets to another display: a resize that happens to end with the
         // pointer over another screen is still a resize.
+        // [S-15662] A resize lands where the card shows it: the surface lands its live rect.
         if (resizing)
         {
-            LandResize(LiveRect);
             _host.OnGeometryCommitted(this);
             _host.PressEnded(this);
             return;

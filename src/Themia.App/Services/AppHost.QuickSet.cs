@@ -56,11 +56,11 @@ internal sealed partial class AppHost
 
     /// <summary>
     /// [S-3719] One widget's own lines on its page, over its live config; a change they
-    /// make in place is stored through the host's one state write. Null for a widget that is gone.
+    /// make in place is landed through the host's one landing path ([S-15662]: that widget's change, [S-15660]). Null for a widget that is gone.
     /// [S-3749] <paramref name="openSetting"/> opens a link row's level on the display the menu is on.
     /// </summary>
     public WidgetMenuLines? WidgetMenuLines(string widgetId, Action<SettingLink>? openSetting)
-        => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget.Kind, widget.Config, () => Mutate(_ => { }), openSetting) : null;
+        => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget.Kind, widget.Config, () => Land(null, [new Landing(widget.Id, Config: widget.Config)], UndoAction.Change), openSetting) : null;
 
     /// <summary>The selection's view, the widgets of <paramref name="ids"/> in it changed by <paramref name="change"/> in one step.</summary>
     private void Change(IReadOnlyList<string> ids, Func<ViewState, IReadOnlyList<string>, int> change)

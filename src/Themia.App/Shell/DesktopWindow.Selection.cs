@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
@@ -508,21 +509,19 @@ internal sealed partial class DesktopWindow
         }
 
         // [S-11891] They land where they were drawn and the local grid lit: on the grid.
+        var landings = new List<Landing>(move.Cards.Count);
         foreach (var (moving, start) in move.Cards)
         {
-            moving.Model.Rect = move.Moved ? move.Block.At(start, move.Block.Landing) : moving.LiveRect;
-        }
-
-        foreach (var (moving, _) in move.Cards)
-        {
-            PositionCard(moving, moving.Model.Rect);
+            var rect = move.Moved ? move.Block.At(start, move.Block.Landing) : moving.LiveRect;
+            landings.Add(new Landing(moving.Model.Id, rect));
+            PositionCard(moving, rect);
         }
 
         // [S-2244] Dropped: they join where they landed, one join pass.
         JoinCards();
 
-        // [S-884] The whole drag, every selected widget, is one undo step; [S-13041] its icons land in a fence or out of one in it.
-        _host.LandMoved(this, [.. move.Cards.Select(c => c.Card.Model.Id)], UndoAction.Move);
+        // [S-884] [S-15662] The whole drag, every selected widget, is one undo step; [S-13041] its icons land in a fence or out of one in it.
+        _host.Land(this, landings, UndoAction.Move);
     }
 
     /// <summary>

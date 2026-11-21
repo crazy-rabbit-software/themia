@@ -19,7 +19,7 @@ namespace Themia.App.Services;
 /// (<see cref="IDesktopFences"/>) carried out on the state through the one write path, by Core's rules
 /// (<see cref="DesktopFences"/>); every fence laid on its display's desktop icon grid in every change (its items are desktop
 /// icons on cells of its body, <see cref="LayFences"/>); a move of icons let go landing them in or out of a fence by the one
-/// drop computation (<see cref="LandMoved"/>); making a fence on the locked desktop, from a rectangle drawn with the right
+/// drop computation (<see cref="Land"/>); making a fence on the locked desktop, from a rectangle drawn with the right
 /// button ([S-13007]) or round the selected icons ([S-13008]). Never a file: a fence only changes where an item's icon
 /// stands. UI thread.
 /// </summary>
@@ -82,24 +82,6 @@ internal sealed partial class AppHost : IDesktopFences
 
         var items = keys.Select(key => HostDesktopItems.Instance.Find(key) ?? new DesktopItem(key, DesktopItemKeys.FallbackName(key), DesktopItemKind.File)).ToList();
         return [.. DesktopSort.Order(items, by, item => SortFacts(item, [])).Select(item => item.Key)];
-    }
-
-    /// <summary>
-    /// [S-13041] A move of widgets on <paramref name="surface"/> let go (their rects already where they landed): the icons
-    /// among them land in a fence or out of one by where they stand (<see cref="DesktopFences.Land"/>), and the fences are
-    /// laid again, all in the move's one undo step. A view with no fence records the move as it always did.
-    /// </summary>
-    internal void LandMoved(DesktopWindow surface, IReadOnlyCollection<string> moved, UndoAction action)
-    {
-        var view = State.ViewForMonitor(surface.Monitor.Id);
-        if (!view.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
-        {
-            CommitGeometry(action);
-            return;
-        }
-
-        var metrics = surface.Metrics;
-        Mutate(_ => DesktopFences.Land(view, moved, metrics, DeskIconSize(metrics)), undo: action);
     }
 
     /// <summary>

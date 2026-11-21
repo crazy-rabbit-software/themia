@@ -126,13 +126,6 @@ internal sealed partial class AppHost
     // Undo
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>[S-884] A drag or resize ended: its geometry is already on the model. Record it and save.</summary>
-    public void CommitGeometry(UndoAction action)
-    {
-        _history?.Commit(State, action);
-        _writer.SaveSoon();
-    }
-
     /// <summary>[S-887] The system changed the layout (a view made for a new display): adopt it, do not offer it as an undo.</summary>
     private void AdoptLayout() => _history?.Rebase(State);
 

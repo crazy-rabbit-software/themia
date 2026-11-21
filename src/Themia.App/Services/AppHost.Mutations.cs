@@ -1,6 +1,7 @@
 using Microsoft.UI.Dispatching;
 using Themia.App.Interop;
 using Themia.App.Shell;
+using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
@@ -9,6 +10,9 @@ using Themia.Core.Storage;
 using Themia.Sdk;
 
 namespace Themia.App.Services;
+
+/// <summary>[S-15662] What a gesture lands for one widget: its rect, its config (null: as it stands).</summary>
+internal readonly record struct Landing(string Id, FracRect? Rect = null, WidgetConfig? Config = null);
 
 /// <summary>
 /// Mutations — the single write path — and the commands built on it: edit mode, views, import,
@@ -63,6 +67,50 @@ internal sealed partial class AppHost
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// [S-15662] The one way a gesture lands: the widgets of <paramref name="landings"/> take their rects and configs inside one
+    /// change (<see cref="Mutate"/>, one undo step named <paramref name="undo"/>: a whole drag, a resize, a run of held arrows,
+    /// [S-1972]), and the desktop icons among them land in a fence or out of one by where they stand ([S-13041],
+    /// <see cref="DesktopFences.Land"/>) on <paramref name="surface"/>'s view; the surfaces draw what changed ([S-15660]: the
+    /// moved cards laid again, a config applied again only where it changed). A card shows its gesture in its live rect alone
+    /// until here; nothing writes the state outside this. A null <paramref name="surface"/> (a widget's page): the widgets
+    /// wherever they are, no fence landing.
+    /// </summary>
+    internal bool Land(DesktopWindow? surface, IReadOnlyList<Landing> landings, UndoAction undo)
+    {
+        ArgumentNullException.ThrowIfNull(landings);
+        var viewId = surface?.CurrentViewId;
+        var metrics = surface?.Metrics;
+        return Mutate(
+            state =>
+            {
+                var view = viewId is null ? null : state.FindView(viewId);
+                foreach (var landing in landings)
+                {
+                    if ((view is not null ? view.Find(landing.Id) : Find(landing.Id)?.Widget) is not { } widget)
+                    {
+                        continue;
+                    }
+
+                    if (landing.Rect is { } rect)
+                    {
+                        widget.Rect = rect;
+                    }
+
+                    if (landing.Config is { } config)
+                    {
+                        widget.Config = config;
+                    }
+                }
+
+                if (view is not null && metrics is { } screen && view.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
+                {
+                    DesktopFences.Land(view, [.. landings.Select(l => l.Id)], screen, DeskIconSize(screen));
+                }
+            },
+            undo: undo);
     }
 
     /// <summary>

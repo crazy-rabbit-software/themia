@@ -187,15 +187,14 @@ internal static class DisplaysCheck
             }
 
             // [S-6608] A widget dragged half its width over each display's own taskbar through the drag's rules (BlockMove's,
-            // BlockGeometry.Move), landed as a drag lands (LandMoved), then every settle that follows a change: it stays.
+            // BlockGeometry.Move), landed as a drag lands (Land), then every settle that follows a change: it stays.
             foreach (var (surface, name, index, sign) in new[] { (left, "left", 0, -1.0), (right, "right", 3, 1.0) })
             {
                 var id = widgets[index].Widget.Id;
                 var model = host.State.Views[0].Find(id)!;
                 var start = model.Rect;
                 var dragged = BlockGeometry.Apply(start, BlockGeometry.Move([start], sign * start.W / 2, 0, surface.Metrics), surface.Metrics);
-                model.Rect = dragged;
-                host.LandMoved(surface, [id], UndoAction.Move);
+                host.Land(surface, [new Landing(id, dragged)], UndoAction.Move);
                 host.Mutate(_ => { }, undo: null);
                 host.SettleSurfaces();
                 await Task.Delay(500).ConfigureAwait(true);

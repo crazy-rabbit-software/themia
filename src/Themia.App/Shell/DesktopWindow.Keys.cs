@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Themia.App.Services;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -24,6 +25,15 @@ internal sealed partial class DesktopWindow
     /// lose the keyboard).
     /// </summary>
     private UndoAction? _nudging;
+
+    /// <summary>
+    /// [S-1972] [S-15662] Where the run of arrow presses has put each nudged widget (by id): shown by its card, landed as the
+    /// run's one step when it ends (<see cref="FlushNudge"/>), never written into the state before.
+    /// </summary>
+    private readonly Dictionary<string, FracRect> _nudged = new(StringComparer.Ordinal);
+
+    /// <summary>[S-1972] Where <paramref name="card"/> stands: where the run of arrows put it, else its stored rect.</summary>
+    private FracRect Standing(WidgetCard card) => _nudged.TryGetValue(card.Model.Id, out var nudged) ? nudged : card.Model.Rect;
 
     /// <summary>Carry out one edit-mode key. False when it is not one, so it carries on.</summary>
     private bool RunEditKey(EditKeyAction action)
@@ -184,7 +194,7 @@ internal sealed partial class DesktopWindow
 
         // [S-2464] Several resized by the keys are one block, as the selection's frame resizes them.
         IReadOnlyList<FracRect> rects = action.Command == EditCommand.Move
-            ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics)
+            ? KeyboardNudge.Move([.. cards.Select(Standing)], action.Direction, action.Step, metrics)
             : cards.Count > 1
                 ? BlockResize.Nudge([.. cards.Select(c => c.LiveRect)], [.. cards.Select(c => c.Limits)], action.Direction, action.Step, metrics)
                 : [.. cards.Select(c => KeyboardNudge.Resize(c.LiveRect, action.Direction, action.Step, metrics, c.Limits))];
@@ -192,16 +202,7 @@ internal sealed partial class DesktopWindow
         for (var i = 0; i < cards.Count; i++)
         {
             // [S-2445] [S-14502] A resize by keys lands as a drag does: the rect alone, its config as it was.
-            if (action.Command == EditCommand.Move)
-            {
-                cards[i].Model.Rect = rects[i];
-                cards[i].SetLiveRect(rects[i]);
-            }
-            else
-            {
-                cards[i].LandResize(rects[i]);
-            }
-
+            _nudged[cards[i].Model.Id] = rects[i];
             PositionCard(cards[i], rects[i]);
         }
 
@@ -221,9 +222,11 @@ internal sealed partial class DesktopWindow
         }
 
         _nudging = null;
+        var landings = _nudged.Select(n => new Landing(n.Key, n.Value)).ToList();
+        _nudged.Clear();
 
-        // [S-13041] Nudged icons land in a fence or out of one as a move's do.
-        _host.LandMoved(this, [.. _host.Selection.Ids], action);
+        // [S-15662] The run lands as one step; [S-13041] nudged icons land in a fence or out of one as a move's do.
+        _host.Land(this, landings, action);
     }
 
     private void OnKeyUp(object sender, KeyRoutedEventArgs args)

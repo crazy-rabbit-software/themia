@@ -313,7 +313,9 @@ internal sealed partial class DesktopWindow
             // [S-2363] Edit mode's look paints the selection too (ApplyEditMode runs ApplySelection): once.
             card.ApplyEditMode(EditMode);
             card.ApplyContentScale(ContentScale(card.Model));
-            PositionCard(card, card.Model.Rect);
+
+            // [S-1972] A card a run of held arrows is moving stays where the run put it until the run lands.
+            PositionCard(card, Standing(card));
         }
 
         JoinCards();

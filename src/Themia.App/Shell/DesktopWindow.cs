@@ -298,14 +298,15 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         ClearForDrag();
     }
 
-    /// <summary>A resize ended: persist it, as one undo step ([S-884]). A resize never leaves its screen ([S-78]).</summary>
+    /// <summary>A resize ended: landed where the card shows it, as one undo step ([S-884], [S-15662]). A resize never leaves its screen ([S-78]).</summary>
     public void OnGeometryCommitted(WidgetCard card)
     {
-        PositionCard(card, card.LiveRect);
+        var rect = card.LiveRect;
+        PositionCard(card, rect);
         JoinCards();
 
         // [S-13040] A fence resized is laid again in the step.
-        _host.LandMoved(this, [card.Model.Id], UndoAction.Resize);
+        _host.Land(this, [new Landing(card.Model.Id, rect)], UndoAction.Resize);
     }
 
     /// <summary>Where a physical screen point falls on this display, as a fraction of the whole monitor.</summary>

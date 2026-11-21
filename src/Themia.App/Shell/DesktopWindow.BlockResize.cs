@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
+using Themia.App.Services;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
@@ -180,17 +181,15 @@ internal sealed partial class DesktopWindow
         {
             for (var i = 0; i < session.Cards.Count; i++)
             {
-                var card = session.Cards[i].Card;
-                card.LandResize(session.Now[i]);
-                PositionCard(card, card.Model.Rect);
+                PositionCard(session.Cards[i].Card, session.Now[i]);
             }
         }
 
         JoinCards();
         if (session.Stepped)
         {
-            // [S-13040] A fence is laid again in the step.
-            _host.LandMoved(this, [.. session.Cards.Select(c => c.Card.Model.Id)], UndoAction.Resize);
+            // [S-15662] Landed as one step where the cards show it; [S-13040] a fence is laid again in it.
+            _host.Land(this, [.. session.Cards.Select((c, i) => new Landing(c.Card.Model.Id, session.Now[i]))], UndoAction.Resize);
         }
 
         PressEnded(session.Cards[0].Card);

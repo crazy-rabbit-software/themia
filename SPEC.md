@@ -11357,7 +11357,7 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
 - **[S-884]** Undo history (`Core/Model/UndoLog<T>`, `LayoutHistory`): bounded at 100 steps, newest
   first; recording forgets the redo side; undo moves the current state to the redo side. `Mutate`,
   the single write path, commits every change to it with an `UndoAction`; the end of a drag (`Move`,
-  a whole multi-selection as one step) and of a resize (`Resize`) commit through `CommitGeometry`.
+  a whole multi-selection as one step) and of a resize (`Resize`) land through `Land` ([S-15662]).
   A commit records a step only when the arrangement changed, so design, widget settings and view
   switches record nothing. Steps: Change (settings-page header/surface/title, view name/icon), Add,
   Delete, Move (drag, cut-paste, Move, hand-off to another display), Resize, Paste (copies,
@@ -11413,6 +11413,14 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   another look or config object, no fence's items, no view's name, icon, colour, order or widgets' order) and did nothing
   outside the state takes no snapshot for the undo history: design, preferences and widget content record nothing, as
   before ([S-884]), without copying the layout to find that out. Test `StateChangeTests.S15664_`.
+- **[S-15662]** **One landing path** (audit 2026-11-21: a gesture wrote the live state's rects itself, then committed
+  through one of three paths, one of them past the fences, the refits and the settle). A card shows a gesture in its live
+  rect alone; the gesture's end hands the host what lands (`AppHost.Land(surface, [Landing(id, rect, config)], undo)`), which
+  writes it inside one `Mutate`: a drag of the whole selection, a resize, a block resized by the selection's frame and a run
+  of held arrows ([S-1972]: one step, the run's rects kept by the surface till the arrow comes up) are one step each, the
+  icons among them landing in a fence or out of one ([S-13041]), and the surfaces lay again what moved ([S-15660]). A widget's
+  page writes into its config and lands it the same way. There is no other commit of geometry (`CommitGeometry` and
+  `LandMoved` are gone).
 - **[S-890]** Crash-loop guard (`Core/Storage/BootGuard`, `boot_attempts` beside the state file):
   bumped atomically before the surfaces are built, deleted once every surface has loaded and laid out
   its cards. The 3rd start in a row that never got that far is safe: every card shows "Paused:
