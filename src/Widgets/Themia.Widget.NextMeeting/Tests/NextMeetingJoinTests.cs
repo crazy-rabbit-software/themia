@@ -145,7 +145,7 @@ public sealed class NextMeetingJoinTests
                     var room = w - 24;
                     var beside = end > 0 ? NextMeetingJoin.Gap + end : 0;
                     var asked = Math.Min(title, NextMeetingJoin.TextLeast(end)) + beside;
-                    var scale = BlockFit.Fill(room, h - 24, asked, packed, ink, least, BlockFit.Uncut(room, title + beside)).Scale;
+                    var scale = BlockLayout.Fill(room, h - 24, asked, packed, ink, least, BlockLayout.Uncut(room, title + beside)).Scale;
                     var content = room / scale;
                     var cut = end > 0 ? NextMeetingJoin.TextWidth(content, end) : content;
                     var at = $"{w}x{h} end {end} title {title}: scale {scale:0.###}";

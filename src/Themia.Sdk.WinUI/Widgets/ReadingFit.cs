@@ -369,7 +369,7 @@ public sealed partial class ReadingFit : Panel
             {
                 // [S-12833] Down to its smallest text's floor, up to what fills the room.
                 // [S-14791] Never past where a line it cuts would stand whole (a title alone filling the height stood cut at 2.8x).
-                _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, block.Intrinsic, block.Packed, block.Ink, block.Least, block.Most);
+                _fill = BlockLayout.Fill(availableSize.Width, availableSize.Height, block.Intrinsic, block.Packed, block.Ink, block.Least, block.Most);
                 if (_foot)
                 {
                     // [S-14319] Stood on its foot: where the width stops it, the height left stands over its first ink alone.
@@ -428,8 +428,8 @@ public sealed partial class ReadingFit : Panel
         // [S-12813] Sized and placed by the ink it draws (a placeholder's dashes too: WR-1, WR-4).
         var ink = shown.Count == 0 ? LineInk.None : new LineInk(PartInk.Of(shown[0]).Over, PartInk.Of(shown[^1]).Under);
         var least = _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown);
-        var raw = BlockFit.Fill(room.Width, room.Height, intrinsic, packed, ink, least: NoFloor).Scale;
-        var most = whole > intrinsic ? BlockFit.Uncut(room.Width, whole) : double.PositiveInfinity;
+        var raw = BlockLayout.Fill(room.Width, room.Height, intrinsic, packed, ink, least: NoFloor).Scale;
+        var most = whole > intrinsic ? BlockLayout.Uncut(room.Width, whole) : double.PositiveInfinity;
         return new Block(intrinsic, packed, ink, least, raw, most);
     }
 
@@ -467,7 +467,7 @@ public sealed partial class ReadingFit : Panel
     private void Decide(Size room, FaceParts face)
     {
         _decided = room;
-        _floor = FaceFloor.Fit(room.Width, room.Height, face.Sizes, floor =>
+        _floor = BlockLayout.Decide(room.Width, room.Height, face.Sizes, floor =>
         {
             Keep(floor);
             var block = Measured(room);

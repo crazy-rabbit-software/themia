@@ -268,7 +268,7 @@ public static class ClockFace
         ArgumentNullException.ThrowIfNull(config);
         return config.Style == ClockStyle.Analog
             ? FaceFit.All
-            : FaceFloor.Fit(width, height, PartSizes(config, meridiem), floor => Plan(config, meridiem, floor));
+            : BlockLayout.Decide(width, height, PartSizes(config, meridiem), floor => Plan(config, meridiem, floor));
     }
 
     /// <summary>The step of the face's main reading: the words' for the words, the figures' for the rest.</summary>

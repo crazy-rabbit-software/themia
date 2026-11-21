@@ -7,13 +7,6 @@ namespace Themia.Core.Widgets;
 public readonly record struct BlockLay(double Scale, double Top);
 
 /// <summary>
-/// [S-12814] [S-14280] How a block of parts fills its room: the <see cref="Scale"/> it is drawn at, the
-/// <see cref="Height"/> it is laid out in (before the scale: its parts packed, never the room's, so they stay together)
-/// and where its box's <see cref="Top"/> goes (the leading over the first ink above the room, or the band the width leaves).
-/// </summary>
-public readonly record struct BlockFill(double Scale, double Height, double Top);
-
-/// <summary>
 /// [S-12808] The one rule for a one-readout block (owner, 2026-11-19: "Keep them together"). The block is planned in
 /// the room its kind's natural box gives it, its parts together at their natural spacing; a larger room scales the
 /// plan up as one, as the clock's face ([S-12804]), until its ink (<paramref name="ink"/>: the room in the plan over
@@ -86,54 +79,5 @@ public static class BlockFit
             _ => -over / 2,
         };
         return (left, (width / scale) + WidthSlack);
-    }
-
-    /// <summary>
-    /// [S-14791] The most a block holding a line it cuts is drawn at (<see cref="Fill"/>'s <c>most</c>): the scale at which
-    /// that line, and what stands beside it, stands whole in a room <paramref name="width"/> wide (<paramref name="whole"/>:
-    /// the block's widest row with the line uncut, before the scale). A cut line never holds the block under its floor (it
-    /// is cut there, [S-14261]) and never lets it grow past where it would stand whole (the next meeting's title alone at
-    /// 370 × 80, filling the height at 2.8 times, drawn "Design re…" at 56 DIP). Nothing to hold: no most.
-    /// </summary>
-    public static double Uncut(double width, double whole)
-        => whole > 0 && double.IsFinite(whole) && width > 0 && double.IsFinite(width) ? width / whole : double.PositiveInfinity;
-
-    /// <summary>
-    /// [S-12814] The rule for a one-readout block (owner, 2026-11-19: "the drive widget still has a fucking space at the
-    /// top, maybe also at the bottom. make sure that this does not happen anywhere"). Only the parts with a width of
-    /// their own count against the room's width (<paramref name="intrinsicWidth"/>: the reading, its caption, an icon;
-    /// a bar, a slider, a graph spans whatever it is given). The block scales up as one to the largest size at which
-    /// those parts fit the width and the parts packed together (<paramref name="packedHeight"/>, their ink
-    /// <paramref name="ink"/> inside it) fit the height: where the height stops it, its first ink stands on the room's
-    /// top and its last on its foot. [S-14280] WR-7 (owner, 2026-11-19: "Keep them together"; "All together, scaled"):
-    /// it is laid out in its parts' own height, so they always touch; where the width stops it, the height left stands
-    /// alike over its first ink and under its last ([S-12808]), never between its parts. A room shorter than the parts
-    /// keeps them packed from the top, the first ink on it. [S-12813] A block showing a placeholder ("--") is sized and
-    /// placed by the ink it draws, as any (WR-1, WR-4: its dashes, lower than capitals, on the top where the height stops it
-    /// and its last ink on the foot; sized by the reading it stood for, it left the difference as a band at the foot).
-    /// </summary>
-    /// <remarks>[S-14791] Never over <paramref name="most"/> (<see cref="Uncut"/>: where a line it cuts stands whole).</remarks>
-    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, double least = 1, double most = double.PositiveInfinity)
-    {
-        static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
-        var over = Room(ink.Over);
-        var under = Room(ink.Under);
-        if (!(packedHeight > 0) || !double.IsFinite(packedHeight) || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
-        {
-            return new BlockFill(1, double.IsFinite(packedHeight) ? Math.Max(0, packedHeight) : 0, -over);
-        }
-
-        var span = Math.Max(1e-6, packedHeight - over - under);
-        // [S-14301] Held by the parts' own width: the slack that keeps rounding from trimming a text is laid beyond the
-        // room (Across), so the width-held block's ink reaches both side insets.
-        var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / intrinsicWidth : double.PositiveInfinity;
-        var fill = Math.Min(byWidth, height / span);
-        var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
-
-        // [S-14280] WR-7: laid in its parts' own height, never the room's, so nothing goes between them. The height the
-        // scale leaves (the width stopped it) stands alike over the reading's first ink and under its last ([S-12808]);
-        // a room shorter than the parts keeps them from the top.
-        var top = Math.Max(0, (height - (span * scale)) / 2);
-        return new BlockFill(scale, packedHeight, top - (over * scale));
     }
 }

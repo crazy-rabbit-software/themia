@@ -44,9 +44,9 @@ public class SeekBarFaceTests
         var thumbAsInk = Beside(times, new LineInk(barTop, barTop));
 
         const double width = 876, height = 28, intrinsic = 317;
-        var fill = BlockFit.Fill(width, height, intrinsic, line, rest);
-        Assert.Equal(BlockFit.Fill(width, height, intrinsic, line, times), fill);
+        var fill = BlockLayout.Fill(width, height, intrinsic, line, rest);
+        Assert.Equal(BlockLayout.Fill(width, height, intrinsic, line, times), fill);
         Assert.True(fill.Scale > 1);
-        Assert.NotEqual(fill.Scale, BlockFit.Fill(width, height, intrinsic, line, thumbAsInk).Scale);
+        Assert.NotEqual(fill.Scale, BlockLayout.Fill(width, height, intrinsic, line, thumbAsInk).Scale);
     }
 }

@@ -100,7 +100,7 @@ public static class DateLayout
     public static FaceFit Fit(double width, double height, DateConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return FaceFloor.Fit(width, height, PartSizes(config), floor => Plan(config, locale, floor));
+        return BlockLayout.Decide(width, height, PartSizes(config), floor => Plan(config, locale, floor));
     }
 
     /// <summary>The face's box and its ink's height (the box less the leading over its first capitals and under its last baseline).</summary>

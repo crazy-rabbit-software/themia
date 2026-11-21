@@ -10,7 +10,7 @@ namespace Themia.Core.Tests;
 /// [S-12808] A one-readout block keeps its parts together (owner, 2026-11-19: "Keep them together") and scales up as
 /// one until the room's height or width stops it.
 /// </summary>
-public class BlockFitTests
+public class BlockFillTests
 {
     [Fact]
     public void S12808_at_its_natural_room_nothing_scales_or_moves()
@@ -89,7 +89,7 @@ public class BlockFitTests
         // 52 tall, the 28 readout's leading 9.2 over its figures) over a bar 4 tall, 8 under it. The bar spans any width,
         // so only the text's 60 limits the width: the height does, at 106 / (64 - 9.2).
         var ink = new LineInk(9.2, 0);
-        var fill = BlockFit.Fill(306, 106, 60, 64, ink);
+        var fill = BlockLayout.Fill(306, 106, 60, 64, ink);
 
         Assert.Equal(106 / (64 - 9.2), fill.Scale, 6);
         Assert.Equal(-9.2 * fill.Scale, fill.Top, 6);
@@ -114,7 +114,7 @@ public class BlockFitTests
         // together"; "All together, scaled"): the block is laid in its parts' own height, never in the room's, so nothing
         // goes between them; it scales until its ink fills the height or its parts fill the width.
         var ink = new LineInk(9.2, 0);
-        var fill = BlockFit.Fill(width, height, 156, 80, ink);
+        var fill = BlockLayout.Fill(width, height, 156, 80, ink);
         var first = fill.Top + (ink.Over * fill.Scale);
         var last = fill.Top + ((fill.Height - ink.Under) * fill.Scale);
 
@@ -134,7 +134,7 @@ public class BlockFitTests
         // parts stay packed and the height left stands alike over the first ink and under the last ([S-12808]), never
         // between the reading and its caption (WR-7).
         var ink = new LineInk(9.2, 4);
-        var fill = BlockFit.Fill(576, 188, 180, 52, ink);
+        var fill = BlockLayout.Fill(576, 188, 180, 52, ink);
 
         Assert.Equal(576.0 / 180, fill.Scale, 6);
         Assert.Equal(52, fill.Height, 6);
@@ -149,7 +149,7 @@ public class BlockFitTests
     {
         // Before: a block the width held was laid in the room's height divided by the scale, its caption pushed to the
         // foot ("1.0739 EUR" on the top edge, "per CHF" on the foot, a band between them).
-        var fill = BlockFit.Fill(576, 188, 180, 52, new LineInk(9.2, 4));
+        var fill = BlockLayout.Fill(576, 188, 180, 52, new LineInk(9.2, 4));
         Assert.True(fill.Height * fill.Scale < 188 - 1, $"laid {fill.Height} at {fill.Scale}");
     }
 
@@ -163,7 +163,7 @@ public class BlockFitTests
         var drawn = LineInk.Placeholder(step, 0);
         Assert.True(drawn.Over > LineInk.Of(step).Over);
 
-        var fill = BlockFit.Fill(306, 128, 60, 64, drawn);
+        var fill = BlockLayout.Fill(306, 128, 60, 64, drawn);
 
         Assert.Equal(128 / (64 - drawn.Over - drawn.Under), fill.Scale, 6);
         Assert.Equal(0, fill.Top + (drawn.Over * fill.Scale), 6);
@@ -180,12 +180,12 @@ public class BlockFitTests
         var reading = LineInk.Of(step);
         var drawn = LineInk.Placeholder(step, 0);
 
-        var old = BlockFit.Fill(306, 128, 60, 64, reading);
+        var old = BlockLayout.Fill(306, 128, 60, 64, reading);
         var oldTop = old.Top + ((reading.Over - drawn.Over) * old.Scale);
         var oldFoot = 128 - (oldTop + ((old.Height - drawn.Under) * old.Scale));
         Assert.True(oldFoot > 10, $"{oldFoot}");
 
-        var fill = BlockFit.Fill(306, 128, 60, 64, drawn);
+        var fill = BlockLayout.Fill(306, 128, 60, 64, drawn);
         Assert.Equal(0, 128 - (fill.Top + ((fill.Height - drawn.Under) * fill.Scale)), 6);
     }
 
@@ -198,7 +198,7 @@ public class BlockFitTests
         // The weather's "--" over "Can't reach the service" (150 wide) in a tall card: the width holds the scale, at
         // exactly the room over the parts' width, and the plan still has a pixel over its text so rounding never trims
         // it: laid beyond the room, where the alignment leaves it free.
-        var fill = BlockFit.Fill(306, 400, 150, 52, new LineInk(9.2, 4));
+        var fill = BlockLayout.Fill(306, 400, 150, 52, new LineInk(9.2, 4));
         Assert.Equal(306.0 / 150, fill.Scale, 6);
 
         var (left, width) = BlockFit.Across(306, fill.Scale, align);
@@ -216,7 +216,7 @@ public class BlockFitTests
         // Before: the scale held a pixel over the parts' width, so a block the width held stood that pixel, scaled, short
         // of the end's inset: 4.5 DIP at the exchange rate's 900x300 card (876 wide inside its insets, "1.0739 EUR +0.13%"
         // 180 wide), its right band 16.7 against the 12 the left one had.
-        var fill = BlockFit.Fill(876, 288, 180, 52, new LineInk(9.2, 4));
+        var fill = BlockLayout.Fill(876, 288, 180, 52, new LineInk(9.2, 4));
         var (left, width) = BlockFit.Across(876, fill.Scale, ContentAlign.Left);
         Assert.Equal(0, left, 6);
         Assert.Equal(876, 180 * fill.Scale, 6);
@@ -272,10 +272,10 @@ public class BlockFitTests
         var least = ScaleFloor.Least(12);
         Assert.Equal(0.75, least, 6);
 
-        var half = BlockFit.Fill(78, 26, 156, 52, new LineInk(9.2, 4), least: least);
+        var half = BlockLayout.Fill(78, 26, 156, 52, new LineInk(9.2, 4), least: least);
         Assert.Equal(least, half.Scale, 6);
 
-        var most = BlockFit.Fill(140, 52, 156, 52, new LineInk(9.2, 4), least: least);
+        var most = BlockLayout.Fill(140, 52, 156, 52, new LineInk(9.2, 4), least: least);
         Assert.InRange(most.Scale, least, 1);
         Assert.Equal(140.0 / 156, most.Scale, 6);
     }
@@ -287,7 +287,7 @@ public class BlockFitTests
         var last = 0.0;
         foreach (var room in new[] { 20.0, 40, 60, 80, 120, 200, 400, 800 })
         {
-            var fill = BlockFit.Fill(room * 3, room, 156, 52, new LineInk(9.2, 4), least: least);
+            var fill = BlockLayout.Fill(room * 3, room, 156, 52, new LineInk(9.2, 4), least: least);
             Assert.True(fill.Scale >= last - 1e-9, $"room {room}: {fill.Scale} under {last}");
             last = fill.Scale;
         }
@@ -317,7 +317,7 @@ public class BlockFitTests
     [Fact]
     public void S12814_a_room_shorter_than_the_parts_keeps_them_packed_from_the_top()
     {
-        var fill = BlockFit.Fill(300, 40, 100, 80, new LineInk(6, 4));
+        var fill = BlockLayout.Fill(300, 40, 100, 80, new LineInk(6, 4));
         Assert.Equal(new BlockFill(1, 80, -6), fill);
     }
 
@@ -345,23 +345,23 @@ public class BlockFitTests
         var least = ScaleFloor.Least(20);
 
         // The regression: asked for its least alone, the title filled the height.
-        var cut = BlockFit.Fill(346, 56, 84, 28, ink, least);
+        var cut = BlockLayout.Fill(346, 56, 84, 28, ink, least);
         Assert.True(cut.Scale > 2.5, $"{cut.Scale}");
         Assert.True(280 * cut.Scale > 346);
 
         // Held by its whole width: it stands whole, on both side insets.
-        var whole = BlockFit.Fill(346, 56, 84, 28, ink, least, BlockFit.Uncut(346, 280));
+        var whole = BlockLayout.Fill(346, 56, 84, 28, ink, least, BlockLayout.Uncut(346, 280));
         Assert.Equal(346 / 280.0, whole.Scale, 6);
         Assert.True(280 * whole.Scale <= 346 + 1e-9);
 
         // Where the height stops it first, the height's scale.
-        Assert.Equal(cut.Scale, BlockFit.Fill(346, 56, 84, 28, ink, least, BlockFit.Uncut(346, 50)).Scale, 6);
+        Assert.Equal(cut.Scale, BlockLayout.Fill(346, 56, 84, 28, ink, least, BlockLayout.Uncut(346, 50)).Scale, 6);
 
         // Too narrow even at the floor: the floor, and the line is cut there.
-        Assert.Equal(least, BlockFit.Fill(100, 56, 84, 28, ink, least, BlockFit.Uncut(100, 280)).Scale, 6);
+        Assert.Equal(least, BlockLayout.Fill(100, 56, 84, 28, ink, least, BlockLayout.Uncut(100, 280)).Scale, 6);
 
         // Nothing held: no most.
-        Assert.Equal(double.PositiveInfinity, BlockFit.Uncut(346, 0));
-        Assert.Equal(double.PositiveInfinity, BlockFit.Uncut(double.NaN, 280));
+        Assert.Equal(double.PositiveInfinity, BlockLayout.Uncut(346, 0));
+        Assert.Equal(double.PositiveInfinity, BlockLayout.Uncut(double.NaN, 280));
     }
 }

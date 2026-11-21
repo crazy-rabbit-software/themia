@@ -38,39 +38,6 @@ public readonly record struct FaceFit(double Floor, double Scale)
 public static class FaceFloor
 {
     /// <summary>
-    /// How the face stands in a <paramref name="width"/> × <paramref name="height"/> room (the card's content box):
-    /// <paramref name="sizes"/> are its parts' text sizes (the main reading's the largest), <paramref name="plan"/> its plan
-    /// drawing the parts of at least the size it is given.
-    /// </summary>
-    public static FaceFit Fit(double width, double height, IReadOnlyCollection<double> sizes, Func<double, FacePlan> plan)
-    {
-        ArgumentNullException.ThrowIfNull(sizes);
-        ArgumentNullException.ThrowIfNull(plan);
-        var levels = Levels(sizes);
-        if (levels.Count == 0 || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
-        {
-            return FaceFit.All;
-        }
-
-        var main = levels[^1];
-        var least = ScaleFloor.Least(main);
-        var none = true;
-        foreach (var floor in levels)
-        {
-            var fill = Scale(width, height, plan(floor));
-            if (floor >= main || floor * fill >= ScaleFloor.Text - Hair)
-            {
-                return new FaceFit(none ? 0 : floor, Math.Max(least, fill));
-            }
-
-            // It gives way here: the parts left are planned without it, and fill the room.
-            none = false;
-        }
-
-        return new FaceFit(main, least);
-    }
-
-    /// <summary>
     /// The least box of the face (no inset): its main reading alone (<paramref name="plan"/> of the largest of
     /// <paramref name="sizes"/>) at the legibility floor.
     /// </summary>
@@ -91,15 +58,6 @@ public static class FaceFloor
         return ScaleFloor.Least(main) < 1
             ? new SizeDip(alone.Width * ScaleFloor.Text / main, alone.Ink * ScaleFloor.Text / main)
             : new SizeDip(alone.Width, alone.Ink);
-    }
-
-    /// <summary>The scale a plan fills a room at: its width or its ink's height stops it, whichever first (<c>BlockFit</c>'s rule).</summary>
-    public static double Scale(double width, double height, FacePlan plan)
-    {
-        var byWidth = plan.Width > 0 && double.IsFinite(plan.Width) ? width / plan.Width : double.PositiveInfinity;
-        var byHeight = plan.Ink > 0 && double.IsFinite(plan.Ink) ? height / plan.Ink : double.PositiveInfinity;
-        var scale = Math.Min(byWidth, byHeight);
-        return double.IsFinite(scale) ? scale : 1;
     }
 
     /// <summary>
@@ -191,7 +149,7 @@ public sealed record FaceParts(double Main, IReadOnlyList<FaceRow> Rows)
     }
 
     /// <summary>What it draws in a room of <paramref name="width"/> × <paramref name="height"/> (the card's content box).</summary>
-    public FaceFit Fit(double width, double height) => FaceFloor.Fit(width, height, Sizes, Plan);
+    public FaceFit Fit(double width, double height) => BlockLayout.Decide(width, height, Sizes, Plan);
 
     /// <summary>Its least box (no inset): the main reading alone at the floor.</summary>
     public SizeDip LeastBox() => FaceFloor.LeastBox(Sizes, Plan);

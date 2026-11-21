@@ -31,31 +31,31 @@ public sealed class FaceFloorTests
     [Fact]
     public void S12833_at_its_natural_room_every_part_is_drawn_and_nothing_caps_the_face()
     {
-        var fit = FaceFloor.Fit(230, 64, Sizes, Plan);
+        var fit = BlockLayout.Decide(230, 64, Sizes, Plan);
 
         // Nothing gave way: everything is drawn, a piece the face did not state too.
         Assert.Equal(new FaceFit(0, 1), fit);
         Assert.True(fit.Draws(14) && fit.Draws(28) && fit.Draws(68));
-        Assert.Equal(FaceFit.All, FaceFloor.Fit(0, 64, Sizes, Plan));
-        Assert.Equal(FaceFit.All, FaceFloor.Fit(double.NaN, 64, Sizes, Plan));
+        Assert.Equal(FaceFit.All, BlockLayout.Decide(0, 64, Sizes, Plan));
+        Assert.Equal(FaceFit.All, BlockLayout.Decide(double.NaN, 64, Sizes, Plan));
     }
 
     [Fact]
     public void S12833_the_smallest_part_gives_way_first_and_no_drawn_text_is_under_the_floor()
     {
         // Half the room: the line under would be 7, so it goes; the unit stays at 14.
-        var half = FaceFloor.Fit(115, 32, Sizes, Plan);
+        var half = BlockLayout.Decide(115, 32, Sizes, Plan);
         Assert.Equal(28, half.Floor);
         Assert.False(half.Draws(14));
 
         // [S-14318] A short room: the line under goes and the reading and its unit grow back into the room it left (WR-1,
         // WR-4), a one-line face too: held at the scale it went at (9 / 14) the face filled neither axis.
-        var shorter = FaceFloor.Fit(230, 40, Sizes, Plan);
+        var shorter = BlockLayout.Decide(230, 40, Sizes, Plan);
         Assert.Equal(28, shorter.Floor);
         Assert.Equal(40 / 48.0, shorter.Scale, 6);
 
         // A fifth: the unit would be under 9 too; the reading alone, at what the room gives it.
-        var fifth = FaceFloor.Fit(46, 13, Sizes, Plan);
+        var fifth = BlockLayout.Decide(46, 13, Sizes, Plan);
         Assert.Equal(68, fifth.Floor);
         Assert.InRange(fifth.Scale * 68, ScaleFloor.Text, 68);
     }
@@ -73,10 +73,10 @@ public sealed class FaceFloorTests
         {
             var width = 230 * (byWidth > 0 ? t : 1.5);
             var height = 64 * (byHeight > 0 ? t : 1.5);
-            var fit = FaceFloor.Fit(width, height, Sizes, Plan);
+            var fit = BlockLayout.Decide(width, height, Sizes, Plan);
 
             Assert.True(fit.Floor >= lastFloor - 1e-9, $"t {t:0.00}: a part came back");
-            Assert.Equal(Math.Max(ScaleFloor.Least(68), FaceFloor.Scale(width, height, Plan(fit.Floor))), fit.Scale, 9);
+            Assert.Equal(Math.Max(ScaleFloor.Least(68), BlockLayout.Scale(width, height, Plan(fit.Floor))), fit.Scale, 9);
             foreach (var size in Sizes.Where(fit.Draws))
             {
                 Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-6, $"t {t:0.00}: {size} drawn at {size * fit.Scale}");
@@ -111,7 +111,7 @@ public sealed class FaceFloorTests
 
         // Never under its least.
         Assert.Equal(0.3, BlockFit.Lay(10, 10, 156, 52, least: 0.3).Scale, 6);
-        Assert.Equal(0.3, BlockFit.Fill(10, 10, 156, 52, new LineInk(9.2, 4), least: 0.3).Scale, 6);
+        Assert.Equal(0.3, BlockLayout.Fill(10, 10, 156, 52, new LineInk(9.2, 4), least: 0.3).Scale, 6);
     }
 
     [Fact]
@@ -211,27 +211,27 @@ public sealed class FaceFloorTests
         FacePlan Plan(double floor) => new(200, 20 + (24 * new[] { time, place, organizer }.Count(s => s >= floor - 1e-9)));
 
         // All three over 0.75 (12 over 9): the ink 92 fits a 70 room.
-        Assert.Equal(0, FaceFloor.Fit(400, 70, sizes, Plan).Floor);
+        Assert.Equal(0, BlockLayout.Decide(400, 70, sizes, Plan).Floor);
 
         // At exactly 0.75 the organiser, a hair under 12, is judged by its 12: drawn at 9, it stays (the order's step
         // dropped it from the owner's 370 x 90, the block filling its room at exactly that scale).
-        Assert.Equal(0, FaceFloor.Fit(400, 69, sizes, Plan).Floor);
+        Assert.Equal(0, BlockLayout.Decide(400, 69, sizes, Plan).Floor);
 
         // A little shorter: the organiser alone goes (the two left fit at 0.75 in 51), never the three at once.
-        var one = FaceFloor.Fit(400, 60, sizes, Plan);
+        var one = BlockLayout.Decide(400, 60, sizes, Plan);
         Assert.Equal(place, one.Floor);
         Assert.False(one.Draws(organizer));
         Assert.True(one.Draws(place) && one.Draws(time));
 
         // Shorter again: the place goes too, the time stays.
-        var two = FaceFloor.Fit(400, 46, sizes, Plan);
+        var two = BlockLayout.Decide(400, 46, sizes, Plan);
         Assert.Equal(time, two.Floor);
         Assert.True(two.Draws(time));
 
         // Each is judged by its own size: none is drawn under the floor.
         foreach (var room in new[] { 100.0, 70, 69, 60, 51, 46, 33, 20 })
         {
-            var fit = FaceFloor.Fit(400, room, sizes, Plan);
+            var fit = BlockLayout.Decide(400, room, sizes, Plan);
             Assert.All(sizes.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-4, $"{size} at {room}"));
             Assert.True(!fit.Draws(place) || fit.Draws(time));
             Assert.True(!fit.Draws(organizer) || fit.Draws(place));
