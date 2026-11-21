@@ -1,11 +1,12 @@
 using Themia.Core.Widgets;
+using Themia.Sdk.Devices;
 using Xunit;
 
 namespace Themia.Widget.Bluetooth.Tests;
 
 /// <summary>
-/// [S-3252]..[S-3254] Where a paired device's battery comes from (the Windows device property, by
-/// container) and how the row shows it.
+/// [S-3252]..[S-3254] Where a paired device's battery comes from (the host's one battery inventory, by container,
+/// [S-4470]) and how the row shows it.
 /// </summary>
 public class BluetoothBatteryTests
 {
@@ -16,35 +17,14 @@ public class BluetoothBatteryTests
         => new(name, name, connected, BluetoothDeviceKind.Unknown, battery);
 
     [Fact]
-    public void S3252_the_property_is_a_byte_percentage()
+    public void S3252_S4470_a_container_takes_the_battery_inventorys_most_trusted_reading()
     {
-        Assert.Equal(80, BluetoothRules.ParseBattery((byte)80));
-        Assert.Equal(0, BluetoothRules.ParseBattery((byte)0));
-        Assert.Equal(100, BluetoothRules.ParseBattery(100));
-        Assert.Equal(55, BluetoothRules.ParseBattery(55u));
-    }
-
-    [Fact]
-    public void S3252_an_unknown_or_out_of_spec_reading_is_no_battery()
-    {
-        Assert.Null(BluetoothRules.ParseBattery(null));
-        Assert.Null(BluetoothRules.ParseBattery((byte)255));
-        Assert.Null(BluetoothRules.ParseBattery(101));
-        Assert.Null(BluetoothRules.ParseBattery(-1));
-        Assert.Null(BluetoothRules.ParseBattery("80"));
-        Assert.Null(BluetoothRules.ParseBattery(80.0));
-    }
-
-    [Fact]
-    public void S3252_a_container_takes_its_highest_valid_reading()
-    {
-        var map = BluetoothRules.BatteryByContainer(
+        var map = BluetoothReadings.Batteries(
         [
-            (Headset, (byte)40),
-            (Headset, (byte)70),
-            (Headset, (byte)255),
-            (Mouse, null),
-            (null, (byte)90),
+            new("gatt", "Headset", DeviceKind.Audio, 40, DeviceBatterySource.GattBatteryService, Headset),
+            new("bt", "Headset", DeviceKind.Audio, 70, DeviceBatterySource.BluetoothProperty, Headset),
+            new("pad", "Controller", DeviceKind.Gamepad, 90, DeviceBatterySource.GameController),
+            new("bad", "Mouse", DeviceKind.Mouse, 255, DeviceBatterySource.DeviceContainer, Mouse),
         ]);
 
         Assert.Equal(70, map[Headset]);
@@ -57,7 +37,7 @@ public class BluetoothBatteryTests
     {
         var batteries = new Dictionary<Guid, int> { [Headset] = 70, [Mouse] = 15 };
 
-        var result = BluetoothRules.WithBattery(
+        var result = BluetoothReadings.WithBattery(
             [Device("Headset", connected: true), Device("Mouse", connected: false), Device("Pen", connected: true)],
             [Headset, Mouse, null],
             batteries);
@@ -70,7 +50,7 @@ public class BluetoothBatteryTests
     [Fact]
     public void S3252_a_reading_already_in_hand_is_kept_where_the_property_has_none()
     {
-        var result = BluetoothRules.WithBattery([Device("Pen", connected: true, battery: 33)], [Mouse], new Dictionary<Guid, int>());
+        var result = BluetoothReadings.WithBattery([Device("Pen", connected: true, battery: 33)], [Mouse], new Dictionary<Guid, int>());
 
         Assert.Equal(33, result[0].BatteryPercent);
     }

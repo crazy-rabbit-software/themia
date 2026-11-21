@@ -57,6 +57,8 @@ internal sealed class IconPreviewHost(IWidgetHost inner, IDesktopItems desk) : I
 
     public IDeviceBatteries DeviceBatteries => inner.DeviceBatteries;
 
+    public IBluetoothDevices Bluetooth => inner.Bluetooth;
+
     public IAudioOutputs Audio => inner.Audio;
 
     public IBrightness Brightness => inner.Brightness;

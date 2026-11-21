@@ -6,9 +6,10 @@ ladder. Its tags are this file's alone; the root `SPEC.md` holds the host's sect
 widget settings [S-3790], the ladder rules [S-660]..[S-666]).
 
 Owning files: everything in this folder: `BluetoothModule.cs` (descriptor, view factory, menu
-lines, JSON context), `BluetoothConfig.cs`, `BluetoothInventory.cs` (Windows' device, radio, GATT and
-advertisement APIs: the widget's own reading, no host service), `BluetoothRules.cs`,
-`BluetoothLayout.cs`, `BluetoothView.cs`, `BluetoothMenu.cs` (its properties-menu lines), `Preview/` (Debug
+lines, JSON context), `BluetoothConfig.cs` (an `IKitLocalConfig`), `BluetoothSpec.cs` (its kit spec, a device as a kit item),
+`BluetoothRules.cs` (the wording, the fold and the order), `BluetoothLayout.cs`, `BluetoothView.cs` (a kit list,
+[S-7074], over the host's one pass, [S-4474]: the kind's glyph as the rich look's lead, every empty state the kit's
+state row, a failed pass with Try again), `BluetoothMenu.cs` (its properties-menu lines), `Preview/` (Debug
 renders), `Localization/Locales/` (its own `BluetoothStr`, 30 languages). Tests: `Tests/` (run by
 `tests/Themia.Modules.Tests`).
 

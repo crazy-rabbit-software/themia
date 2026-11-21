@@ -2,7 +2,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Shell;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -14,31 +13,22 @@ using Themia.Widget.Bluetooth;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The paired Bluetooth devices, as a Windows 11 list.
+/// The paired Bluetooth devices, as a Windows 11 list: a kit list ([S-7074]) over the host's one pass over the radios
+/// (<see cref="IWidgetHost.Bluetooth"/>, [S-4474]: every Bluetooth widget shares it, a connected device's battery the
+/// host's one battery inventory's), shaped by <see cref="BluetoothSpec"/>.
 /// <para>
-/// Built on the family's Row block ([S-6711]): the device's kind glyph (16) as the lead, the name
-/// primary, the battery percentage as the value, and a second line (kind · connection · signal) where
-/// the tier gives rows two ([S-6712]). The row carries the 12 inset as its own padding, so the
-/// highlight under the pointer reaches both card edges.
+/// <b>Read-only.</b> Nothing here connects, disconnects or unpairs. A surface that sits under every other window, with
+/// no confirmation and no undo, is the wrong place to drop a headset mid-call.
 /// </para>
 /// <para>
-/// <b>Read-only.</b> Nothing here connects, disconnects or unpairs. A surface that sits under every
-/// other window, with no confirmation and no undo, is the wrong place to drop a headset mid-call.
-/// </para>
-/// <para>
-/// <b>Rows</b> ([S-11310], <see cref="BluetoothLayout"/>): the config's rows, one line or two each, the
-/// battery % as the value, more devices a scroll away. A ring over the content's top end turns while a pass is out
-/// ([S-12481]). A connected device's glyph is in the primary text colour,
-/// a merely paired one's in the secondary ([S-3961]). A short list on a large tile stays a short list.
-/// Every empty list says which empty list it is, in the Status row at the top ([S-244], [S-6714]).
+/// Every empty list says which empty list it is ([S-244], [S-7076]): no radio, the radio off, access refused, a failed
+/// pass (with Try again), nothing paired. The ring over the content's top end turns while a pass is out ([S-12481]).
 /// </para>
 /// </summary>
-internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware
+internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => BluetoothModule.Opens;
-
-    private const string Scope = "bluetooth";
 
     // Segoe Fluent Icons code points this view needs beyond the shared table.
     private static readonly string[] KindGlyphs =
@@ -53,343 +43,158 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         From(0xE916), // watch    - Stopwatch
     ];
 
-    /// <summary>[S-12481] The ring while a pass is out, over the content's top end.</summary>
-    private readonly ProgressRing _busy = ToolLine.Busy();
-    private readonly Grid _columns = new();
-    private readonly ScrollViewer _scroll;
-    private readonly StatusBlock _status = StatusBlock.Line();
-    private readonly EmptyRows _face = EmptyRows.UnderStatus();
-
-    // The rows on screen: each unhooks its hover when the list is drawn again. A leaked one keeps the
-    // row alive and re-lights it after the list has been redrawn.
-    private readonly List<RowBlock> _rows = [];
-
-    private Ticker? _ticker;
+    private readonly KitBinding _binding;
+    private readonly DeviceSource _source;
     private BluetoothConfig _config = new();
+    private bool _attached;
 
-    /// <summary>
-    /// [S-13a] A copy of the settings this view last acted on, which is what a change is measured
-    /// against. Not <c>_config</c>: the selection's page edits the live config object in place, so by
-    /// the time a change arrives the "previous" config already holds the new values.
-    /// </summary>
-    private BluetoothConfig _applied = new();
-    /// <summary>The ticker subscription at the cadence the view needs now (<see cref="Ticker.Slot"/>).</summary>
-    private readonly Ticker.Slot _tick = new();
-    private CancellationTokenSource? _inFlight;
-    private BluetoothSnapshot _snapshot = BluetoothSnapshot.Of(BluetoothStatus.Loading);
-
-    /// <summary>
-    /// Which enumeration is current. A reply carrying an older number is a radio the widget has
-    /// stopped waiting on — a GATT pass that took eight seconds must not overwrite a newer one.
-    /// </summary>
-    private int _generation;
-
-    private bool _detached;
-
-    /// <summary>[S-11850] [S-1917] A sample or a preview state holds its fixture: no pass of the radio starts over it (the ticker's, a config change's).</summary>
-    private bool _held;
-
-    public BluetoothView()
+    public BluetoothView(IWidgetHost host)
     {
-        _busy.IsActive = false;
-        _busy.Visibility = Visibility.Collapsed;
-        _busy.HorizontalAlignment = HorizontalAlignment.Right;
-        _busy.VerticalAlignment = VerticalAlignment.Top;
-        _busy.Margin = new Thickness(0, FamilySpace.S1, FamilySpace.Inset, 0);
-        Canvas.SetZIndex(_busy, 1);
-
-        _scroll = new ScrollViewer
+        _source = new DeviceSource(host.Bluetooth, () => _config);
+        _binding = new KitBinding(host, BluetoothSpec.Spec, Glyphs.Bluetooth, BluetoothSpec.Actions)
         {
-            Content = _columns,
-            VerticalAlignment = VerticalAlignment.Top,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            Look = new KitRichLook { Lead = KindGlyph },
+            Decorate = LinkRow,
+            Redrawing = ForgetRows,
         };
 
-        _status.Visibility = Visibility.Collapsed;
-        Children.Add(_scroll);
-        Children.Add(_status);
-
-        // [S-12835] No devices to list: the rows kept, "--", under the status's line.
-        Children.Add(_face);
-        Children.Add(_busy);
+        Children.Add(_binding.List);
+        Children.Add(_binding.State);
+        _binding.Status.Place(this);
     }
 
-    /// <inheritdoc />
-    public IReadOnlyList<WidgetAction> ContextActions =>
-    [
-        // [S-1259] The original's "Refresh": enumerate now rather than at the next tick.
-        new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), Reload),
-    ];
+    /// <summary>[S-1259] Refresh: read the radios again now.</summary>
+    public IReadOnlyList<WidgetAction> ContextActions => _binding.CardActions;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
-        _detached = false;
-        Strings.Changed += OnLanguage;
+        _config = config as BluetoothConfig ?? new BluetoothConfig();
+        _attached = true;
         _links.Join(_surface?.Links);
-        ApplyConfig(config);
+        _source.Start(ticker, _config.ShowSignal);
+        _binding.Attach(ticker, _source, _config, _config.TickInterval);
     }
 
-    /// <summary>[S-1109] Rows, states and the summary are worded again; the radios are not re-read.</summary>
-    private void OnLanguage(Locale locale) => Render();
-
+    /// <summary>[S-13a] The signal switch changes what is read off the radio; every other line redraws what is in hand.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
-        var next = config as BluetoothConfig ?? new BluetoothConfig();
-        var previous = _applied;
-        _config = next;
-        _applied = (BluetoothConfig)next.Clone();
-
-        // Only the fields that change what comes off the radio are worth a re-enumeration.
-        // Everything else redraws what is already in hand: dragging the row-count slider must not
-        // fire a GATT pass per frame.
-        var needsRead = previous.ShowBattery != next.ShowBattery || previous.ShowSignal != next.ShowSignal;
-
-        // Subscribing fires a tick of its own, which reads with the new config already in place.
-        if (Resubscribe())
+        _config = config as BluetoothConfig ?? new BluetoothConfig();
+        if (_attached)
         {
-            return;
+            _source.Start(null, _config.ShowSignal);
+            _binding.Apply(_source, _config, _config.TickInterval, show: false);
         }
+    }
 
-        if (needsRead)
-        {
-            Reload();
-        }
-        else
-        {
-            Render();
-        }
+    public void ApplySize(WidgetArea area) => _binding.Size(area);
+
+    public bool HandleKey(WidgetKey key) => _binding.HandleKey(key);
+
+    public void Detach()
+    {
+        _attached = false;
+        _binding.Dispose();
+        _source.Stop();
+        _links.Leave();
     }
 
     /// <summary>
-    /// Rebuild the ticker subscription only when the cadence actually changed, and say whether it
-    /// did — a new subscription ticks immediately, so the caller has nothing left to do.
+    /// [S-1257] [S-3961] The kind's glyph, the original's "type" metric: its colour is the state, primary connected,
+    /// secondary paired; wrapped, so the row's own lead role does not repaint it.
     /// </summary>
-    private bool Resubscribe()
+    private static FrameworkElement? KindGlyph(KitItem item)
     {
-        return _tick.Set(_ticker, _config.TickInterval, Reload);
-    }
-
-    /// <summary>
-    /// Start an enumeration. Never on the UI thread: enumerating the radios is an RPC and a GATT
-    /// battery read waits on a peripheral to answer, which on the dispatcher is every widget on the
-    /// desktop frozen with it.
-    /// </summary>
-    private void Reload()
-    {
-        if (_detached || _held)
+        if (item.Lead.Value?.Split(':') is not [{ } kind, { } state] || !Enum.TryParse<BluetoothDeviceKind>(kind, out var parsed))
         {
-            return;
+            return null;
         }
 
-        // The previous pass is now for a configuration nobody is looking at.
-        _inFlight?.Cancel();
-
-        var cts = new CancellationTokenSource();
-        _inFlight = cts;
-        var generation = ++_generation;
-
-        _ = LoadAsync(_config.ShowBattery, _config.ShowSignal, generation, cts);
+        var glyph = Family.Glyph(KindGlyphs[(int)parsed], FamilyShape.Icon, state == "on" ? ColourRole.TextPrimary : ColourRole.TextSecondary);
+        return new Grid { VerticalAlignment = VerticalAlignment.Center, Children = { glyph } };
     }
 
-    private async Task LoadAsync(bool withBattery, bool withSignal, int generation, CancellationTokenSource cts)
+    private static string From(int codePoint) => char.ConvertFromUtf32(codePoint);
+
+    /// <summary>[S-4474] The host's pass over the radios as a kit source: the devices arranged by the widget's rules, every empty state worded.</summary>
+    private sealed class DeviceSource(IBluetoothDevices devices, Func<BluetoothConfig> config) : IKitSource
     {
-        try
+        private IDisposable? _watch;
+        private bool _signal;
+
+        /// <summary>[S-11850] [S-1917] A sample's or a preview's devices in place of the radio's.</summary>
+        private BluetoothSnapshot? _held;
+
+        public event Action? Changed;
+
+        public bool Busy => _held is null && devices.Busy;
+
+        private BluetoothSnapshot Snapshot => _held ?? (_watch is null ? BluetoothSnapshot.Of(BluetoothStatus.Loading) : devices.Last);
+
+        /// <summary>Watch the radios (again where the signal wanted changed); <paramref name="ticker"/> null keeps the one in use.</summary>
+        public void Start(Ticker? ticker, bool signal)
         {
-            SetBusy(true);
-
-            var snapshot = await BluetoothInventory.ReadAsync(withBattery, withSignal, cts.Token).ConfigureAwait(true);
-
-            // A late reply from a pass the widget has moved on from. Discarded rather than drawn.
-            if (_detached || generation != _generation)
+            if (_held is not null || (_watch is not null && signal == _signal))
             {
                 return;
             }
 
-            _snapshot = snapshot;
-            Render();
-        }
-        catch (OperationCanceledException)
-        {
-            // ignore: superseded by a newer pass, which will draw in this one's place.
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "the paired-device pass failed", ex);
-
-            if (!_detached && generation == _generation)
+            _ticker = ticker ?? _ticker;
+            if (_ticker is null)
             {
-                _snapshot = BluetoothSnapshot.Of(BluetoothStatus.Failed);
-                Render();
-            }
-        }
-        finally
-        {
-            if (ReferenceEquals(_inFlight, cts))
-            {
-                _inFlight = null;
-                SetBusy(false);
+                return;
             }
 
-            cts.Dispose();
-        }
-    }
-
-    private void SetBusy(bool busy)
-    {
-        if (_detached)
-        {
-            return;
+            _watch?.Dispose();
+            _signal = signal;
+            _watch = devices.Watch(_ticker, signal, () => Changed?.Invoke());
         }
 
-        _busy.IsActive = busy;
-        _busy.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
-    }
+        private Ticker? _ticker;
 
-    /// <summary>[S-663] [S-12410] The card's word on its room: the rows' pitch follows it.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        if (area == _area)
+        public void Stop()
         {
-            return;
+            _watch?.Dispose();
+            _watch = null;
         }
 
-        _area = area;
-        Render();
-    }
-
-    private WidgetArea _area;
-
-    /// <summary>
-    /// Draw the snapshot in hand at the size in hand. Every state with no rows says which state it
-    /// is: a blank tile is indistinguishable from a broken one.
-    /// </summary>
-    private void Render()
-    {
-        if (_detached)
+        public void Show(bool refresh)
         {
-            return;
-        }
-
-        ClearRows();
-
-        List<BluetoothDeviceEntry> devices = _snapshot.Status == BluetoothStatus.Ok
-            ? BluetoothRules.Arrange(_snapshot.Devices, _config.ConnectedOnly, Strings.Current)
-            : [];
-
-        var plan = BluetoothLayout.Plan(_config);
-
-        if (devices.Count == 0)
-        {
-            // [S-244] Ok with no rows is "nothing paired", which StatusMessage already words correctly;
-            // a read that failed is a problem, and asking again may mend it.
-            var message = BluetoothRules.StatusMessage(_snapshot.Status, Strings.Current);
-            if (_snapshot.Status == BluetoothStatus.Failed)
+            if (refresh && _held is null)
             {
-                _status.Show(StatusKind.Problem, Glyphs.Bluetooth, message, Str.Common_Retry.Text(), Reload);
-                _face.Visibility = Visibility.Visible;
+                devices.Refresh();
             }
-            else
+        }
+
+        public KitRead Read()
+        {
+            var snapshot = Snapshot;
+            var locale = Strings.Current;
+            switch (snapshot.Status)
             {
-                _status.Show(_snapshot.Status == BluetoothStatus.PermissionDenied ? StatusKind.Problem : StatusKind.Empty, Glyphs.Bluetooth, message);
-                _face.Visibility = Visibility.Visible;
+                case BluetoothStatus.Loading:
+                    return new KitRead([], [new KitOutcome(null, FetchStatus.Loading)]);
+
+                case BluetoothStatus.Failed:
+                    // [S-244] A failed pass is a problem, and asking again may mend it.
+                    return new KitRead([], [], Stated: new KitStated(BluetoothRules.StatusMessage(snapshot.Status, locale))
+                    {
+                        Fix = new KitFix(Strings.Get(locale, Str.Common_Retry), () => Show(refresh: true)),
+                    });
+
+                case not BluetoothStatus.Ok:
+                    return new KitRead([], [], Stated: new KitStated(BluetoothRules.StatusMessage(snapshot.Status, locale), Problem: snapshot.Status == BluetoothStatus.PermissionDenied));
             }
 
-            _scroll.Visibility = Visibility.Collapsed;
-            return;
+            var settings = config();
+            var arranged = BluetoothRules.Arrange(snapshot.Devices, settings.ConnectedOnly, locale);
+            return new KitRead([.. arranged.Select(device => BluetoothSpec.Item(device, settings, locale))], [new KitOutcome(null, FetchStatus.Ok)]);
         }
 
-        _status.Hide();
-        _face.Visibility = Visibility.Collapsed;
-        _scroll.Visibility = Visibility.Visible;
-
-        // [S-11310] One column of the config's rows, the rest a scroll away.
-        _columns.ColumnDefinitions.Clear();
-        _columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        // [S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the last its foot reaches cut by it.
-        var reach = _area.IsMeasured
-            ? ItemSize.Rows(_area.Height, plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemSize.Natural(plan.Lines, _area.Grid());
-        var column = new StackPanel();
-        _columns.Children.Add(column);
-        for (var i = 0; i < devices.Count; i++)
+        public void HoldForPreview(BluetoothSnapshot snapshot)
         {
-            var row = BuildRow(devices[i], plan);
-            row.Height = reach.Height(i);
-            column.Children.Add(row);
+            Stop();
+            _held = snapshot;
+            Changed?.Invoke();
         }
-
-        _scroll.Height = _area.IsMeasured ? reach.Room : double.NaN;
-        ListEdge.Apply(_scroll);
     }
-
-    /// <summary>
-    /// [S-1254] A device's row: its kind glyph (primary connected, secondary paired, [S-3961]), its name,
-    /// its battery as the value from a 180 column (Critical when low, [S-3254]), and where the row has
-    /// two lines its kind, its connection and its signal ([S-1255]).
-    /// </summary>
-    private RowBlock BuildRow(BluetoothDeviceEntry device, BluetoothRowPlan plan)
-    {
-        var row = new RowBlock(RowKind.List, _config.ShowIcon ? FamilyShape.Icon : 0) { Interactive = true };
-        _rows.Add(row);
-
-        // [S-1257] The kind icon is the original's "type" metric: optional. Wrapped, so the row's own
-        // lead role does not repaint it: its colour is the state.
-        if (_config.ShowIcon)
-        {
-            var glyph = Family.Glyph(KindGlyphs[(int)device.Kind], FamilyShape.Icon, device.Connected ? ColourRole.TextPrimary : ColourRole.TextSecondary);
-            row.Lead(new Grid { Children = { glyph } });
-        }
-
-        var battery = _config.ShowBattery ? BluetoothRules.BatteryLabel(device.BatteryPercent, Strings.Current) : null;
-        var second = BluetoothRules.DetailLine(device, _config.DrawsConnection, _config.ShowBattery && battery is null, _config.ShowSignal, Strings.Current);
-        row.Lines = plan.Lines;
-        row.Show(device.Name, battery, second);
-
-        // [S-3254] 20 % and below is low: the percentage in the critical role, as the tray draws it.
-        if (battery is not null && BluetoothRules.IsLowBattery(device.BatteryPercent))
-        {
-            row.ValueText.Foreground = Family.Brush(ColourRole.Critical);
-        }
-
-        // Everything the row knows, in words, for a reader who cannot see the icon's colour.
-        ToolTipService.SetToolTip(row, $"{device.Name} · {BluetoothRules.DetailLine(device, true, true, true, Strings.Current)}");
-        LinkRow(row, device);
-        return row;
-    }
-
-    /// <summary>Drop the rows and, with them, their hover handlers.</summary>
-    private void ClearRows()
-    {
-        foreach (var row in _rows)
-        {
-            row.Detach();
-        }
-
-        _rows.Clear();
-        _columns.Children.Clear();
-        Devices.Clear();
-    }
-
-    public void Detach()
-    {
-        _detached = true;
-        Strings.Changed -= OnLanguage;
-
-        ClearRows();
-        _links.Leave();
-
-        _tick.Dispose();
-
-        // Cancel but do not dispose: the in-flight pass owns its source and frees it on the way
-        // out, so there is exactly one owner however many times this is called.
-        _inFlight?.Cancel();
-        _inFlight = null;
-
-        _ticker = null;
-    }
-
-    private static string From(int codePoint) => char.ConvertFromUtf32(codePoint);
 }

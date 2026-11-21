@@ -43,9 +43,10 @@ internal static class MixerMenu
         lines.Add(ItemMenuEntry.Separator);
         lines.Add(menu.Toggle(Glyphs.Apps, MixerStr.Mixer_Cfg_IconsLabel.Text(), config.ShowIcons, on => config.ShowIcons = on));
 
-        // [S-11309] How many rows, and one line or two each; the card follows.
-        lines.Add(KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), MixerLayout.ClampRows(config.Rows), MixerLayout.MinRows, MixerLayout.MaxRows, 1, v => config.Rows = v));
-        lines.Add(menu.Choice(null, Str.Kit_Lines.Text(), [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())], Math.Clamp(config.Lines, 1, 2), v => config.Lines = v));
+        // [S-11309] How many rows, and one line or two each; the card follows. [S-11753] A kit list's Rows and Lines, the
+        // shared settings' lines.
+        lines.Add(WidgetMenuLines.Shared(SharedSettings.ListRows, KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), MixerLayout.ClampRows(config.Rows), MixerLayout.MinRows, MixerLayout.MaxRows, 1, v => config.Rows = v)));
+        lines.Add(WidgetMenuLines.Shared(SharedSettings.ListLines, menu.Choice(null, Str.Kit_Lines.Text(), [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())], Math.Clamp(config.Lines, 1, 2), v => config.Lines = v)));
 
         // [S-1225] The keys are found nowhere else.
         lines.Add(ItemMenuEntry.Separator);

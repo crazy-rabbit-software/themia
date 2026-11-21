@@ -23,15 +23,5 @@ internal sealed partial class BluetoothView : IWidgetSample
     }
 
     /// <summary>Hold <paramref name="snapshot"/> in place of the radio's.</summary>
-    internal void HoldSample(BluetoothSnapshot snapshot)
-    {
-        // The radio pass still out would draw over the fixture when it lands: it is now stale.
-        _held = true;
-        _inFlight?.Cancel();
-        _inFlight = null;
-        _generation++;
-        SetBusy(false);
-        _snapshot = snapshot;
-        Render();
-    }
+    internal void HoldSample(BluetoothSnapshot snapshot) => _source.HoldForPreview(snapshot);
 }

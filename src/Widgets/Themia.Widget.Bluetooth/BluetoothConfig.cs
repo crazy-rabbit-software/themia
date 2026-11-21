@@ -16,7 +16,7 @@ public enum BluetoothSetting
 /// <summary>
 /// Paired Bluetooth devices, their connection state, and their battery where they report one.
 /// </summary>
-public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>, IKitRows
+public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>, IKitLocalConfig, IKitRows
 {
     /// <summary>[S-11310] A new list's rows: four.</summary>
     public const int DefaultRows = 4;
@@ -64,9 +64,13 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
     public IReadOnlyList<BluetoothSetting> ShownSettings => ConnectedOnly ? [] : [BluetoothSetting.Connection];
 
 
+    /// <summary>[S-1257] The kind's glyph as the switch says; the detail line always; the battery as its switch says.</summary>
+    [JsonIgnore]
+    public KitShow Shows => KitShow.Subtitle | (ShowIcon ? KitShow.Lead : KitShow.None) | (ShowBattery ? KitShow.When : KitShow.None);
+
     /// <summary>
-    /// [S-3794] How often the radios are enumerated: every 30 seconds, not a setting. Enumerating
-    /// and reading GATT batteries is seconds of work, and a headset does not connect twice a minute.
+    /// [S-3794] How often the list is redrawn: every 30 seconds, not a setting. The radios are the host's to read, on its
+    /// own cadence ([S-4474]), and a headset does not connect twice a minute.
     /// </summary>
     [JsonIgnore]
     public TimeSpan TickInterval => TimeSpan.FromSeconds(30);

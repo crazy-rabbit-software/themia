@@ -43,7 +43,7 @@ public sealed class BluetoothModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => BluetoothMenu.Lines(menu, (BluetoothConfig)config);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new BluetoothView();
+    public FrameworkElement CreateView(IWidgetHost host) => new BluetoothView(host);
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

@@ -4,66 +4,6 @@ using Themia.Widget.Bluetooth;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// What a paired device is, as far as its icon is concerned. A closed set rather than the original's
-/// free-form string: the glyph table has to cover every case at compile time, and a typo in a
-/// category name is otherwise a device that silently draws the generic icon.
-/// </summary>
-public enum BluetoothDeviceKind
-{
-    Unknown = 0,
-    Audio = 1,
-    Mouse = 2,
-    Keyboard = 3,
-    Phone = 4,
-    Gamepad = 5,
-    Pen = 6,
-    Watch = 7,
-}
-
-/// <summary>Why a Bluetooth list has no rows. Each one wants a different sentence, and none of them is blank.</summary>
-public enum BluetoothStatus
-{
-    /// <summary>Before the first enumeration comes back.</summary>
-    Loading = 0,
-
-    Ok = 1,
-
-    /// <summary>This machine has no Bluetooth radio at all. Not an error — a fact about the hardware.</summary>
-    NoRadio = 2,
-
-    /// <summary>There is a radio and it is switched off.</summary>
-    RadioOff = 3,
-
-    /// <summary>Windows refused the app access to the radios.</summary>
-    PermissionDenied = 4,
-
-    /// <summary>The enumeration itself failed. The only one of these that is a fault.</summary>
-    Failed = 5,
-}
-
-/// <summary>One paired device, as the widget draws it.</summary>
-/// <param name="Name">The device's own name. Attacker-influenced in principle, so it is displayed and nothing more.</param>
-/// <param name="Id">The Windows device-interface id. Used to re-read battery, never shown.</param>
-/// <param name="Connected">Whether it is connected right now.</param>
-/// <param name="Kind">Which glyph it gets.</param>
-/// <param name="BatteryPercent">
-/// 0..100 where Windows reports it for a connected device ([S-3252]: the device property, else the
-/// GATT Battery Service), else null.
-/// </param>
-/// <param name="SignalDbm">
-/// [S-1256] Received signal strength in dBm where the radio reported one (an LE device seen
-/// advertising, or the association endpoint's own reading), else null. Most paired Classic devices
-/// never have one.
-/// </param>
-public readonly record struct BluetoothDeviceEntry(
-    string Name,
-    string Id,
-    bool Connected,
-    BluetoothDeviceKind Kind,
-    int? BatteryPercent,
-    int? SignalDbm = null);
-
-/// <summary>
 /// The rules the Bluetooth widget draws by: what a device is called, what it is, and in what order.
 /// <para>
 /// Pure, and kept out of the enumeration code, because the enumeration needs a radio and a machine
@@ -128,58 +68,6 @@ public static class BluetoothRules
     public static bool IsLowBattery(int? percent) => percent is >= 0 and <= LowBattery;
 
     /// <summary>
-    /// [S-3252] The Windows battery property (<c>DEVPKEY_Bluetooth_Battery</c>,
-    /// <c>{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2</c>) as a percentage. A <c>DEVPROP_TYPE_BYTE</c>
-    /// on the wire; any whole-number box is accepted, and anything that is not a whole number in
-    /// 0..100 (255 is "unknown") is no reading rather than a guess.
-    /// </summary>
-    public static int? ParseBattery(object? raw) => DeviceBatteryRules.ParsePercent(raw);
-
-    /// <summary>
-    /// [S-3252] One battery per device container from the device nodes that carry the property
-    /// (<see cref="DeviceBatteryRules.BatteryByContainer"/>): the highest valid reading per container.
-    /// </summary>
-    public static Dictionary<Guid, int> BatteryByContainer(IEnumerable<(Guid? Container, object? Raw)> nodes)
-        => DeviceBatteryRules.BatteryByContainer(nodes);
-
-    /// <summary>
-    /// [S-3252] Give each connected device its container's battery. A paired but disconnected device
-    /// keeps none: the property holds the last value Windows saw, and a headset in its case at "80%"
-    /// from yesterday is a number nobody should act on. Where the property has nothing, a reading the
-    /// entry already holds stays.
-    /// </summary>
-    /// <param name="containers">The device container of each entry, by index; null where unknown.</param>
-    public static List<BluetoothDeviceEntry> WithBattery(
-        IReadOnlyList<BluetoothDeviceEntry> devices,
-        IReadOnlyList<Guid?> containers,
-        IReadOnlyDictionary<Guid, int> batteries)
-    {
-        ArgumentNullException.ThrowIfNull(devices);
-        ArgumentNullException.ThrowIfNull(containers);
-        ArgumentNullException.ThrowIfNull(batteries);
-
-        var result = new List<BluetoothDeviceEntry>(devices.Count);
-
-        for (var i = 0; i < devices.Count; i++)
-        {
-            var device = devices[i];
-
-            if (!device.Connected)
-            {
-                result.Add(device with { BatteryPercent = null });
-                continue;
-            }
-
-            var container = i < containers.Count ? containers[i] : null;
-            result.Add(container is { } id && batteries.TryGetValue(id, out var percent)
-                ? device with { BatteryPercent = percent }
-                : device);
-        }
-
-        return result;
-    }
-
-    /// <summary>
     /// [S-1256] The signal column, or null. Real RSSI sits between about -100 and -20 dBm; zero is
     /// what a stack reports for "no reading", and anything outside the plausible range is a device or
     /// driver answering out of spec. Both become no column rather than a number nobody should read.
@@ -206,45 +94,6 @@ public static class BluetoothRules
             >= -90 => 1,
             _ => 0,
         };
-    }
-
-    /// <summary>
-    /// [S-1256] A Bluetooth address as the 48-bit number an advertisement carries, from the
-    /// association endpoint's "aa:bb:cc:dd:ee:ff" (or bare hex), or null for anything else.
-    /// </summary>
-    public static ulong? ParseAddress(string? text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return null;
-        }
-
-        var hex = text.Trim().Replace(":", string.Empty, StringComparison.Ordinal).Replace("-", string.Empty, StringComparison.Ordinal);
-
-        if (hex.Length != 12)
-        {
-            return null;
-        }
-
-        return ulong.TryParse(hex, System.Globalization.NumberStyles.AllowHexSpecifier, System.Globalization.CultureInfo.InvariantCulture, out var value)
-            ? value
-            : null;
-    }
-
-    /// <summary>
-    /// [S-1256] The device's own address from an association-endpoint id
-    /// (<c>BluetoothLE#BluetoothLE&lt;radio&gt;-&lt;device&gt;</c>): the part after the last dash.
-    /// The fallback for when the address property was not returned.
-    /// </summary>
-    public static ulong? AddressFromId(string? id)
-    {
-        if (string.IsNullOrEmpty(id))
-        {
-            return null;
-        }
-
-        var dash = id.LastIndexOf('-');
-        return dash < 0 || dash == id.Length - 1 ? null : ParseAddress(id[(dash + 1)..]);
     }
 
     /// <summary>[S-1255] What a device is, in words, for a two-line row's second line.</summary>

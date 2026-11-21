@@ -1822,6 +1822,14 @@ The shared parts a list widget is built from, and the rules they keep (design an
   `KitStated`): an address its rules refuse, access Windows has not given, a radio that is off, a history whose
   listener never started; a problem (the warning) or a plain state (the widget's glyph), with its one way out where it
   has one (`KitFix`: "Allow", "Open settings", "Try again").
+- **[S-7077]** **One office feed** (`OfficeFeed<T>`, `OfficeScreens`, pure, `OfficeFeedTests`): the calendar, the week
+  planner, the contacts and the meetings (Next meeting, After this) load through one feed: one load at a time (one asked
+  for meanwhile runs after it, forced if any ask was), what the last said as the kit's screen (`KitScreen`: loading, the
+  card's Set up for no account, the accounts gone with the Accounts link, the worst problem of a load that brought
+  nothing, one only the user can mend before any other, with the Accounts link where only they can; a load that threw
+  its own sentence), the data of the last load that had any, and the one stale rule's outcomes (`KitOutcome`, by the
+  account's label, stamped, [S-7042]) for the status's problem glyph and the Refresh line's age. No office widget keeps
+  a screen enum, a worst-problem rule or a refresh flight of its own; Tasks says its states as the kit's screens too.
 - **[S-14266]** **No line of a list in columns ends short of the edge** (owner, 2026-11-19, WR-4: "they should stretch if
   they dont reach all the way"; WR-3). A list laid in columns read left to right whose items do not fill its last line
   (seven in two) gives that line's last item the rest of the line (`KitPlanner.ColumnSpan`): its box, hover and menu
@@ -6303,6 +6311,13 @@ The host's one read of every peripheral battery Windows reports, for the Device 
 - **[S-4473]** What Windows sends no event for (a GATT level, a controller's report) is read again
   every 2 minutes on the shared ticker while a widget watches, and on Refresh. The last widget
   letting go stops the watchers and cancels a read that is out.
+- **[S-4474]** **One Bluetooth inventory** (audit phase 8): the paired Bluetooth devices are the host's one pass
+  (`IWidgetHost.Bluetooth`, `BluetoothDeviceService` over `BluetoothInventory`, beside `DeviceBatteryInventory`),
+  shared by every Bluetooth widget, single-flight on the pool, every 30 seconds while one watches and on Refresh; the LE
+  signal scan only while some widget shows the signal. It reads no battery of its own: a connected device's battery is
+  the one battery inventory's reading of its device container ([S-4470], the most trusted source's,
+  `BluetoothReadings.Batteries`), so the Bluetooth list and Device batteries say one level. The pass's names are the
+  radio's, raw; the widget's rules name and order them ([S-1254]). Needs a live pass with real radios.
 
 ## Habits
 

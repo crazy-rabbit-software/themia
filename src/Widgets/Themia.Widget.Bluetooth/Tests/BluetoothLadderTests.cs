@@ -59,15 +59,15 @@ public class BluetoothLadderTests
     [Fact]
     public void S1256_Addresses_parse_from_the_property_and_the_endpoint_id()
     {
-        Assert.Equal(0xC0288D123456UL, BluetoothRules.ParseAddress("c0:28:8d:12:34:56"));
-        Assert.Equal(0xC0288D123456UL, BluetoothRules.ParseAddress("C0288D123456"));
-        Assert.Null(BluetoothRules.ParseAddress("c0:28:8d:12:34"));
-        Assert.Null(BluetoothRules.ParseAddress("zz:28:8d:12:34:56"));
-        Assert.Null(BluetoothRules.ParseAddress(null));
+        Assert.Equal(0xC0288D123456UL, BluetoothReadings.ParseAddress("c0:28:8d:12:34:56"));
+        Assert.Equal(0xC0288D123456UL, BluetoothReadings.ParseAddress("C0288D123456"));
+        Assert.Null(BluetoothReadings.ParseAddress("c0:28:8d:12:34"));
+        Assert.Null(BluetoothReadings.ParseAddress("zz:28:8d:12:34:56"));
+        Assert.Null(BluetoothReadings.ParseAddress(null));
 
-        Assert.Equal(0xC0288D123456UL, BluetoothRules.AddressFromId("BluetoothLE#BluetoothLE00:1a:7d:da:71:13-c0:28:8d:12:34:56"));
-        Assert.Null(BluetoothRules.AddressFromId("BluetoothLE#nothing-"));
-        Assert.Null(BluetoothRules.AddressFromId("fixture:Surface Pen"));
+        Assert.Equal(0xC0288D123456UL, BluetoothReadings.AddressFromId("BluetoothLE#BluetoothLE00:1a:7d:da:71:13-c0:28:8d:12:34:56"));
+        Assert.Null(BluetoothReadings.AddressFromId("BluetoothLE#nothing-"));
+        Assert.Null(BluetoothReadings.AddressFromId("fixture:Surface Pen"));
     }
 
     [Fact]
