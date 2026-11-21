@@ -9106,6 +9106,16 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   never 0.6 over it. The layout dump writes a held reading's box (`holds`, `HoldMark`: its template's ink across) and the
   gap check judges its sides by it, the place every value it shows stands in (a "1:11" padded where "88:88" stands, a
   "10:42" whose "1" leaves more room before its ink than an 8). Tests `FigureTemplateTests.S14319_`.
+- **[S-15675]** **A held reading is judged down by its template too** (WR-15, owner 2026-11-20: "the clock right now
+  changes its layout depending on the time that it shows"). The figures a held reading shows sit inside its template's
+  ink, not on its edges: the template's 8 is round over the cap line and under the baseline, a "4" or a "2" flat on the
+  baseline, so the stacked clock's "42 AM" at 520 × 600 left 4.6 DIP more under its last ink than its template does and
+  the gap check, reading the drawn ink, called the face off centre (10.7 / 15.3), though it stood centred on the place
+  every time it shows stands in and must not move as the minutes run (the same face at 10:48 measured centred). The
+  layout dump writes each held reading's template ink down (`holds[].ink`: its box less the room `Ink.Of` measures over
+  and under its template) and the gap check reads its top and foot by it where it stands further out than the drawn ink
+  (`held`), as it reads its sides by its box. A hold whose ink down is not measured is read by the drawn ink. Self-test
+  cases in `scripts/gap-check.py --self-test`.
 - **[S-14322]** **A folded icon picker shows what it holds** (owner, 2026-11-21: "the icon in the icon selector
   configuration section does not show when it is not extended"). An icon line's head (a view's Icon, a widget's or an own
   desktop icon's Icon) shows its chosen icon at the value's place, as a choice's head says its choice, and for the default

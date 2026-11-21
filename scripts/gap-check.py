@@ -47,7 +47,8 @@ last row and column of ink (a pixel off the card's own colour), and judges:
 - [S-14319] a held reading (`holds`: a running time held to its format's widest form, owner 2026-11-20: "the clock
   right now changes its layout depending on the time that it shows because not all of the chars have the same width")
   is judged across by its template's ink, the box every value it shows stands in: a "1:11" padded where "88:88" stands
-  reaches the sides by that box, never by the narrower ink it shows now.
+  reaches the sides by that box, never by the narrower ink it shows now; [S-15675] and down by its template's ink where
+  the dump measured it (`ink`): a "42" flat on the baseline stands where the template's round "88" dips under it.
 - [S-14304] a text cut with its ellipsis at the width it was given (`cuts`) ends where its last whole letter and the
   ellipsis fit: where it ends the card's ink, the room after it is the cut's (less than the next letter), not a band, and
   the end side is read as on the inset.
@@ -200,11 +201,23 @@ def measure(path, layouts):
             out.append((w, h, None, None, None, None))
             continue
         left, right = (cols[0] + edge) / scale, ((r - l) - (cols[-1] + 1 + edge)) / scale
-        # [S-14319] A held reading's sides are its template's ink: the box every value it shows stands in.
-        for k in card.get('holds', []) or []:
-            left, right = min(left, max(0.0, k['x'])), min(right, max(0.0, w - k['x'] - k['w']))
-        out.append((w, h, (rows[0] + edge) / scale, ((b - t) - (rows[-1] + 1 + edge)) / scale, left, right))
+        top, foot = (rows[0] + edge) / scale, ((b - t) - (rows[-1] + 1 + edge)) / scale
+        out.append((w, h) + held(w, h, top, foot, left, right, card.get('holds', []) or []))
     return out
+
+
+def held(w, h, top, foot, left, right, holds):
+    """[S-14319] A held reading's sides are its template's ink: the box every value it shows stands in. [S-15675] And its
+    top and foot where the dump measured its template's ink down (`ink`): a running reading never moves (WR-15, owner
+    2026-11-20: "the clock right now changes its layout depending on the time that it shows"), so it stands by its template
+    down as across, and the figures it shows now sit inside that place (a "42" flat on the baseline where the template's
+    round "88" dips under it: 4.6 DIP at 520 x 600, which the measure of the drawn ink read as a face off centre)."""
+    for k in holds:
+        left, right = min(left, max(0.0, k['x'])), min(right, max(0.0, w - k['x'] - k['w']))
+        if 'ink' in k:
+            ink = k['ink']
+            top, foot = min(top, max(0.0, ink['y'])), min(foot, max(0.0, h - ink['y'] - ink['h']))
+    return top, foot, left, right
 
 
 def judge(kind, card, layout):
@@ -493,6 +506,20 @@ def self_test():
         ('a clock line the height stops, centred', card(900, 160, 12, 12, 200, 201, align='center'), ['clock'], False),
         ('a clock line the height stops, aligned left but centred', card(900, 160, 12, 12, 200, 201, align='left'), ['clock'], True),
         ('a short date line in a wide card', card(600, 200, 50, 50, 150, 150), ['date'], True),
+    ]
+    # [S-15675] A held stacked clock at 520 x 600: "10" over "42 AM", its template "88" over "88 AM" (round under the
+    # baseline) centred; the drawn "42" sits flat, 4.6 higher. Read by its template's ink down it is centred; a template
+    # standing off centre is still a finding; a hold with no ink measured down is read by the drawn ink.
+    stacked = {'x': 30, 'y': 0, 'w': 460, 'h': 588, 'ink': {'x': 30, 'y': 10.7, 'w': 460, 'h': 600 - 21.4}}
+    cases += [
+        ('a held stacked clock, flat figures over the foot of its template',
+         ((520, 600) + held(520, 600, 10.7, 15.3, 30, 30, [stacked]), {'w': 520, 'h': 600, 'items': [], 'plots': []}), ['clock'], False),
+        ('a held stacked clock whose template stands off centre',
+         ((520, 600) + held(520, 600, 10.7, 25.0, 30, 30, [dict(stacked, ink={'x': 30, 'y': 10.7, 'w': 460, 'h': 600 - 35.7})]),
+          {'w': 520, 'h': 600, 'items': [], 'plots': []}), ['clock'], True),
+        ('a hold with no ink down: the drawn ink',
+         ((520, 600) + held(520, 600, 10.7, 15.3, 30, 30, [{'x': 30, 'y': 0, 'w': 460, 'h': 588}]),
+          {'w': 520, 'h': 600, 'items': [], 'plots': []}), ['clock'], True),
     ]
     # [S-14312] The lower bound: a text's ink inside the inset; a box reaching the edge with its ink inset is fine.
     for name, inks, finds in [

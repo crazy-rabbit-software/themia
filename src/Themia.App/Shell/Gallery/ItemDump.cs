@@ -63,7 +63,7 @@ internal static class ItemDump
             var marks = new List<Rect>();
             var cuts = new List<Rect>();
             var heads = new List<Rect>();
-            var holds = new List<Rect>();
+            var holds = new List<(FrameworkElement Part, Rect Box)>();
             if (card.View is { } view)
             {
                 Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks, cuts, heads, holds);
@@ -183,12 +183,22 @@ internal static class ItemDump
 
             w.WriteEndArray();
 
-            // [S-14319] Each held reading's box (its template's ink across).
+            // [S-14319] Each held reading's box (its template's ink across); [S-15675] and its template's ink down (`ink`), the
+            // place every value it shows stands in from top to foot: a "42" whose figures sit flat on the baseline stands where
+            // the round "88" of its template does.
             w.WriteStartArray("holds");
-            foreach (var box in holds)
+            foreach (var (part, box) in holds)
             {
                 w.WriteStartObject();
                 Box(w, box);
+                if (TemplateInk(card, part) is { } template && Intersect(template, box) is { } letters)
+                {
+                    w.WritePropertyName("ink");
+                    w.WriteStartObject();
+                    Box(w, letters);
+                    w.WriteEndObject();
+                }
+
                 w.WriteEndObject();
             }
 
@@ -211,6 +221,24 @@ internal static class ItemDump
         w.WriteEndObject();
     }
 
+    /// <summary>
+    /// [S-15675] A held reading's template's ink down as it stands in the card: its whole box (not cut by the card) less the
+    /// room its ink leaves over and under it (<see cref="Ink.Of"/>, measured on its template as the block that scales it
+    /// measures it), at the box's scale in the card; null where its ink is not measured.
+    /// </summary>
+    private static Rect? TemplateInk(UIElement card, FrameworkElement part)
+    {
+        var line = Ink.Of(part).Ink;
+        if (!(part.ActualHeight > 0) || (line.Over <= 0 && line.Under <= 0) || Place(card, part) is not { } box)
+        {
+            return null;
+        }
+
+        var k = box.Height / part.ActualHeight;
+        var height = box.Height - ((line.Over + line.Under) * k);
+        return height > 0 ? new Rect(box.X, box.Y + (line.Over * k), box.Width, height) : null;
+    }
+
     /// <summary>[S-14301] The card's content alignment as the check reads it: left, center or right.</summary>
     private static string Across(WidgetInstance widget)
         => !ContentAlignment.Applies(widget) ? "center" : ContentAlignment.Shown(widget) switch
@@ -229,7 +257,7 @@ internal static class ItemDump
     }
 
     /// <summary>The items and the free ink under <paramref name="node"/>, each as it shows inside <paramref name="clip"/> (card coordinates).</summary>
-    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks, List<Rect> cuts, List<Rect> heads, List<Rect> holds)
+    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks, List<Rect> cuts, List<Rect> heads, List<(FrameworkElement, Rect)> holds)
     {
         if (node is UIElement { Visibility: not Visibility.Visible } || node is UIElement { Opacity: <= 0 })
         {
@@ -268,7 +296,7 @@ internal static class ItemDump
 
             if (HoldMark.IsHeld(fe))
             {
-                holds.Add(shown.Value);
+                holds.Add((fe, shown.Value));
             }
 
             if (fe is TextBlock { IsTextTrimmed: true })
