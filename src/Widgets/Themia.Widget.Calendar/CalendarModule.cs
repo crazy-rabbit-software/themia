@@ -13,7 +13,11 @@ using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Calendar;
 
+// [S-14900] One family: the calendar (its body: a month, a week, a day, a year or an agenda) and its header, the
+// period's title and arrows, paging every calendar of the view through the view's links ([S-3626]).
+[assembly: ThemiaWidgetFamily]
 [assembly: ThemiaWidget("calendar", typeof(CalendarModule))]
+[assembly: ThemiaWidget("calendarHeader", typeof(CalendarHeaderModule))]
 
 namespace Themia.Widget.Calendar;
 
@@ -44,7 +48,7 @@ public sealed class CalendarModule : IWidgetModule
         Glyph = Glyphs.Calendar,
         Sizing = c => CalendarSizing.Sizing((CalendarWidgetConfig)c),
         Traits = WidgetTraits.HasItems,
-        Links = LinkUse.Of([LinkTopicId.SelectedDate, LinkTopicId.VisibleRange, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate], [LinkTopicId.SelectedDate, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate]),
+        Links = LinkUse.Of([LinkTopicId.SelectedDate, LinkTopicId.VisibleRange, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate], [LinkTopicId.SelectedDate, LinkTopicId.VisibleRange, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.CalendarMail, 0, 0, Popular: 3),
     };
 
@@ -55,10 +59,43 @@ public sealed class CalendarModule : IWidgetModule
     public FrameworkElement CreateView(IWidgetHost host) => new CalendarView(host);
 }
 
+/// <summary>
+/// [S-14900] The calendar header: the period the view's calendars show, its title and back and forward, one tool line
+/// ([S-14901]). It pages every calendar of the view and follows them ([S-3626]); a calendar body keeps the kind id
+/// <c>calendar</c>, so a placed calendar stays one (without the line it had, [S-14903]).
+/// </summary>
+public sealed class CalendarHeaderModule : IWidgetModule
+{
+    /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
+    public WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("calendarHeader"),
+        ConfigType = typeof(CalendarHeaderConfig),
+        CreateDefault = () => new CalendarHeaderConfig(),
+        Json = CalendarJsonContext.Default,
+        Keywords = ["calendar header", "month", "arrows", "previous", "next", "today", "navigation", "period", "week", "year"],
+        Label = CalendarStr.Styles_CalendarHeader_Label.Local(),
+        Description = CalendarStr.Styles_CalendarHeader_Desc.Local(),
+        Glyph = Glyphs.Calendar,
+        Sizing = _ => CalendarSizing.HeaderSizing(),
+        Traits = WidgetTraits.None,
+        Links = LinkUse.Of([LinkTopicId.VisibleRange], [LinkTopicId.SelectedDate, LinkTopicId.VisibleRange]),
+        Add = new(AddFolderId.CalendarMail, 0, 4),
+    };
+
+    /// <summary>[S-14902] Its one option is its style, the period it pages by: no line of its own.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+    }
+
+    public FrameworkElement CreateView(IWidgetHost host) => new CalendarHeaderView();
+}
+
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>
 [JsonSourceGenerationOptions(
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(CalendarWidgetConfig))]
+[JsonSerializable(typeof(CalendarHeaderConfig))]
 internal sealed partial class CalendarJsonContext : JsonSerializerContext;

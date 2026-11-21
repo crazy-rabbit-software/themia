@@ -1,14 +1,15 @@
 # Calendar
 
-The module `calendar` ([S-6911]): the synced calendars in one of five styles (month, week, day,
-agenda, year). Its tags are this file's alone; the root `SPEC.md` holds what it shares with the host
+A family of two kinds ([S-6901], `[assembly: ThemiaWidgetFamily]`): the module `calendar` ([S-6911]), the synced
+calendars in one of five styles (month, week, day, agenda, year), and the module `calendarHeader` ([S-14900]), the
+period they show with its arrows. Its tags are this file's alone; the root `SPEC.md` holds what it shares with the host
 and the other calendar widgets, with their root tags: where events come from ([S-560]), the shared
 source and seam ([S-588], [S-2701], [S-3602]), the shared menu lines ([S-3601], the SDK's
 `OfficeMenuLines`), and every rule it is drawn by (`CalendarRules`, `CalendarFit`, `AgendaRules`,
 `CalendarText`, `CalendarLinks`, `CalendarShare`, in the SDK, with their tests in Core).
 
-Owning files: everything in this folder: `CalendarModule.cs` (descriptor, view factory, JSON
-context), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own settings),
+Owning files: everything in this folder: `CalendarModule.cs` (both kinds' descriptors, view factories, the JSON
+context), `CalendarHeaderConfig.cs`, `CalendarHeaderView.cs` (the header, [S-14900]..[S-14902]), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own settings),
 `CalendarView*.cs` (one partial per style, the links, over `IWidgetHost.Office`), `AgendaSpec.cs`
 (the agenda on the kit's list), `CalendarSizing.cs` (each style's sizes and what it draws, from the
 config), `MonthEvents.cs`, `MonthPlan.cs` (the month with titles' weeks, lines and "+k more", pure),
@@ -44,7 +45,7 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   events) where it is no longer, else that many from just before the next event or now
   (`CalendarFit.HoursOf`).
 - **[S-11544]** **Month**: six weeks always (the month's and the next days', dimmed), so every month is
-  one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; the period's line, the weekday
+  one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; the card's inset, the weekday
   line and six weeks at their optimal, every cell between, the weeks and the columns stretched to fill the card, 280
   wide new, [S-14101], [S-14500]) or
   Titles ([S-11547]). The weeks fill the
@@ -61,18 +62,17 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   all six weeks, [S-568]), dimmed as their numbers are: a chip wholly on them in tertiary text
   (`MonthPlan.Dimmed`), a span reaching into the month not. Today keeps its accent pill, the selected day its fill; a hairline
   parts the weeks. Seven columns of 56..180 (a new one 100) + the inset: 416..1284 wide (a new one 724);
-  the height is the period's line with the inset, the weekday line and six times (4 + the number's 16 + the lines' 20
+  the height is the inset, the weekday line and six times (4 + the number's 16 + the lines' 20
   each), every part whole grid cells ([S-14101]),
   the chip lines are what a week holds ([S-14502]). Debug render:
   `--style month --state titles` (the sample in this look, at its own min, natural and max).
 - **[S-14101]** **The month fills its card and keeps its dots longer** (owner, 2026-11-20: "the calendar does not
   always stretch the contents to the top and bottom although it would be easily possible."; "the calendar shows the
   individual events too early, the items should stay small for a little longer."). The card takes every grid cell
-  ([S-14500], `CalendarSizing.MonthSizing` over `MonthOver`: the period's line with the inset over it and the weekday
-  line, each whole cells as `MonthLayouts.Plan` lays them); its seven columns share the width and its six weeks the
+  ([S-14500], `CalendarSizing.MonthSizing` over `MonthOver`: the card's inset and the weekday line, whole cells as `MonthLayouts.Plan` lays them); its seven columns share the width and its six weeks the
   height under `MonthOver` evenly on whole device pixels, so at every size the weeks fill the card from under the
   weekday line to its foot, alike, none left over;
-  a state's row (Set up, an account gone) stands in the period line's band, so the weeks keep the room the sizing made.
+  a state's row (Set up, an account gone) stands on the card's top edge and the weeks share what it leaves ([S-14903]).
   A dots month's cell shows its day's events as chips only once it holds two chip lines under its number in a column of
   80, where a chip's title reads and "+k more" has its words (`MonthChipRoom.Dots`; before, one chip line in a column of
   44 turned a 40-tall cell into chips of four letters); a month with titles, chosen, shows them from one chip line in its
@@ -95,13 +95,12 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   event's part on the day ("All day" between a long event's first and last day, "Now" in the strong
   step while it is under way, start over end, the span for a narrow row), where and who, the
   calendar's colour (a 2 px bar) when colours show; a birthday its gift (neutral: not a state), its
-  name and "Birthday". The view pages it with the card menu's back and forward ([S-12481]: the agenda has no period line) and the keys and hooks each event's row for its
+  name and "Birthday". The view pages it with the card menu's back and forward (where there is a page that way), the wheel and the keys and hooks each event's row for its
   tooltip, its links across widgets and the click that opens it.
 - **[S-3651]** The calendar's one stale rule ([S-7042]): each account whose last sync could not improve
   on the events held is a kit outcome (`CalendarFreshness`: its label, its problem in the kit's
   failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the problem
-  glyph and the ring stand on the period's line beside back and forward ([S-569]) in every style but
-  the agenda, whose state is the kit's status over its rows' top end (`KitStatus`, [S-12481]); the card menu's Refresh line says the age of the oldest copy.
+  glyph and the ring are the kit's status over the content's top end in every style (`KitStatus`, [S-12481], [S-14903]); the card menu's Refresh line says the age of the oldest copy.
 - **[S-3652]** The agenda's one open gesture ([S-7065]): a click focuses a row (the ring), a
   double-click or Enter opens its event where it lives ([S-1268]); a row's menu offers Open; a birthday
   or an event with nowhere to open offers nothing. Its cursor keys are its kit list's (Up, Down, End,
@@ -145,7 +144,7 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   the week, else today while the week holds it, else the week's first day; its column head stands on
   the selection fill (the item layer's selected chip). A click on a day's head or marks selects it (a
   click on the selection lets it go, back to today), Up and Down move it a week ([S-1269]), Escape lets
-  it go, Enter opens its first event. The period's line (its title and its two buttons) pages the week as before.
+  it go, Enter opens its first event. The calendar header ([S-14900]), the card menu, the wheel and the keys page the week as before.
 - **[S-2285]** The chosen day's rows are the agenda's ([S-3650]: one row path, the view's one kit
   list, `AgendaSpec.DayRow`): the calendar's colour bar as the lead (a birthday's gift), the title,
   the start ("All day") as the value; one line a row; in no group, so no day heading ([S-2280]); the
@@ -170,7 +169,8 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   `linked` puts another widget's pointer on one event ([S-3623]); `days` sets the style's own range
   (the week: the next four days from today; the agenda: today and tomorrow). A card that needs
   setting up runs its view for the preview (`WidgetCard.RunForPreview`).
-- **[S-3625]** Paging (back, forward, today) publishes the days now on screen (`VisibleRange`) and moves
+- **[S-3625]** *(Retired by [S-3626], 2026-11-21: the period is the view's; a calendar paged moves every calendar and
+  calendar header of its view.)* Paging (back, forward, today) publishes the days now on screen (`VisibleRange`) and moves
   no other widget: two months on a view can show two months, and only a selection is followed.
 - **[S-2040]** A click on the card ([S-2000]) opens the calendar of the account it reads on the web:
   Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
@@ -180,11 +180,37 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
 Needs a live pass: a signed-in Microsoft, Google and CalDAV calendar in every style (paging, opening
 an event in Outlook or the browser, the hover link with Next meeting and the week planner on the
 view), and the showcase views on the live desktop.
-- View links: publishes and follows the day under the pointer in every style without moving ([S-11923]), besides the selected day, the range and the event ([S-3620]..[S-3625]).
+- View links: publishes and follows the day under the pointer in every style without moving ([S-11923]), besides the selected day, the period and the event ([S-3620]..[S-3629]).
 - View links: an agenda row is its event alone, never its organiser or its day: one item, one light ([S-11965]).
-- No card header ([S-12481]): the period's title and back and forward are the calendar's own first line, a
-  tool line (`ToolLine`: the title as its label, the problem glyph, the ring, the two buttons) at the side
-  inset with 4 under it, in every style but the agenda; each of those styles' sizing counts it
-  (`CalendarSizing.NavLine`, 20 + 4, `CalendarSizing.ContentTop`). The agenda has no line: its pages are the
-  card menu's back and forward where there is a page that way, and its state the kit's status over its
-  rows' top end. Tests `CalendarSizingTests`.
+- No card header ([S-12481]): the period's title and back and forward are the calendar header's, a widget of their own
+  ([S-14900]); the calendar draws no line over any style ([S-14903]).
+
+## The calendar header (`calendarHeader`)
+
+- **[S-14900]** **The calendar is split** (owner, 2026-11-21: "split up the calendar into the month with the arrows and
+  the body of the calendar too, share the scrolling via the global state that we have."): the period's title with back
+  and forward is its own kind, `calendarHeader` (`CalendarHeaderModule`, `CalendarHeaderConfig`, `CalendarHeaderView`),
+  and the calendar is the body (its month, week, day, year or agenda), keeping the kind id `calendar`, so a placed
+  calendar stays one, now without its line (no migration: it is the same widget). They share the period through the
+  view's links, never through each other: the header pages every calendar of the view and follows them ([S-3626]..[S-3629]);
+  a header alone pages nothing but itself, a calendar alone pages itself. The header reads no account and never waits for
+  one: it draws its period alone. Its card menu holds Today while its period does not hold today (the line has room for
+  the two arrows only, [S-6710]); its keys are the calendar's (Left / Page Up back, Right / Page Down forward, Home today,
+  [S-2710]); the wheel pages it ([S-3629]). Across midnight a header on today's period stays on today's.
+- **[S-14901]** **One line** (WR-1, WR-3; the owner's "a one-line face"): its card is the card's inset over one tool line
+  (`ToolLine`: the period's title as its label, back and forward its two buttons, at the side inset), the line's band whole
+  grid cells (`CalendarSizing.HeaderHeight`, `LineRules.BandOver` on the grid, 40): nothing over or under the line at its
+  own height; a taller card (relaxed, [S-12411]: the user's) keeps the line on the card's inset at its top and leaves the
+  room under it empty (WR-1, WR-5: the centring the owner granted the Header widget is not claimed); any width from 200
+  (the longest title beside its arrows), a new one 300 (a new month's). Tests `CalendarSizingTests.S14901_`.
+- **[S-14902]** **What it pages by** is its style ([S-6000]): **Month** (a new one's), **Week** (seven days from the
+  regional first day of the week, [S-3770]), **Day**, **Year**, titled as the calendar titles them (`CalendarRules.Title`:
+  "November 2026", "Nov 23 – 29", "Sat, Nov 21", "2026"). A style change keeps the day it is anchored on.
+- **[S-14903]** **The calendar has no period's line** in any style: every style is drawn from the card's inset
+  (`CalendarSizing.ContentTop`), its sizing counts no line, its state (the problem glyph, the ring) is the kit's status over
+  the content's top end, and a calendar alone pages by its card menu's back and forward (an agenda's where there is a page
+  that way) and Today, its keys and the wheel. Tests `CalendarSizingTests`.
+- **[S-14904]** The ready-made group **Calendar** (Calendar & mail): a Header widget ([S-12485]), the calendar header across
+  the top, the month under it and the agenda beside the month, as tall (`ReadyMadeGroups.Calendar`). Debug render:
+  `--recipe-png calendar <out> --states calendar=sample,calendarHeader=next`: the header paged forward once, the month and
+  the agenda on the same period.

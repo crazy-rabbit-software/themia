@@ -447,7 +447,10 @@ public sealed partial class ModuleConformanceTests
         var parts = PaintingParts();
         var paints = code.Any(c => PaintsDirectly().IsMatch(c) || parts.Any(p => Regex.IsMatch(c, $@"\b{p}\b")));
 
-        Assert.Equal(paints, Module(id).Descriptor.Traits.HasFlag(WidgetTraits.HasItems));
+        // A family's project is its kinds' code together ([S-6901]): it paints items exactly when one of its kinds says it has
+        // them (the calendar's body does, its header's line of two buttons does not).
+        var kinds = ModuleRegistry.Widgets.Where(m => m.GetType().Assembly == Module(id).GetType().Assembly).ToList();
+        Assert.Equal(paints, kinds.Any(m => m.Descriptor.Traits.HasFlag(WidgetTraits.HasItems)));
     }
 
     /// <summary>[S-6737] The one-readout widgets, the only ones a Hero step is allowed in, are those their modules declare: the clock and the timers, the quick toggles and the power buttons.</summary>

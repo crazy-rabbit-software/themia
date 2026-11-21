@@ -37,7 +37,12 @@ public sealed partial class ViewLinksConformanceTests
             .Order()
             .ToList();
 
-        Assert.Equal(descriptor.Links.Topics.ToList(), named);
+        // A family's project is its kinds' code together ([S-6901]): it names the topics they declare between them, and each
+        // kind declares none its family's code does not name.
+        var family = ModuleRegistry.Widgets.Where(m => m.GetType().Assembly == module.GetType().Assembly)
+            .SelectMany(m => m.Descriptor.Links.Topics).Distinct().Order().ToList();
+        Assert.Equal(family, named);
+        Assert.Subset(named.ToHashSet(), descriptor.Links.Topics.ToHashSet());
     }
 
     [Fact]

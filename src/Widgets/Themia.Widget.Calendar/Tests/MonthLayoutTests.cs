@@ -101,7 +101,7 @@ public sealed class MonthLayoutTests
             for (var n = 0; n <= 25; n++)
             {
                 var (width, height) = (Math.Ceiling(sizing.Min.Width / 10) * 10 + (n * 10), Math.Ceiling(sizing.Min.Height / 10) * 10 + (n * 10));
-                var top = FamilySpace.Inset + LineRules.Band(Grid);
+                var top = FamilySpace.Inset;
                 var month = MonthLayouts.Plan(width, height, top, Grid, anchorRow: 2, mostItems: 2);
 
                 Assert.Equal(CalendarSizing.MonthWeeks, month.Rows);
