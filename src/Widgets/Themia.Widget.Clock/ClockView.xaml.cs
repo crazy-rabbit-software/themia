@@ -105,7 +105,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         _flipMeridiem.VerticalAlignment = VerticalAlignment.Bottom;
         _flipMeridiem.Margin = new Thickness(FamilySpace.S2, 0, 0, 0);
         _flipLine.Children.Add(_flipRow);
-        _flipLine.Children.Add(_flipMeridiem);
         _words.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
 
         Unloaded += (_, _) => Detach();
@@ -194,15 +193,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         return (Math.Max(0, width), Math.Max(0, height));
     }
 
-    /// <summary>
-    /// [S-12833] Which parts the face draws in the card it was given and the most it is drawn at: the meridiem and the line
-    /// under give way where the card would draw them under the legibility floor (<see cref="ClockFace.Fit"/>).
-    /// </summary>
-    private FaceFit Fit(string meridiem)
-        => _area.IsMeasured
-            ? ClockFace.Fit(_area.Width - (2 * FamilySpace.Inset), _area.Height - FamilySpace.Inset, _config, meridiem)
-            : FaceFit.All;
-
     /// <summary>Plan the face for the area and the style, then draw the instant into it.</summary>
     private void Lay()
     {
@@ -210,7 +200,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         var style = _config.Style;
         var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
         var wantsLine = style != ClockStyle.Minimal && (_label is not null || _config.OffsetMode != ClockOffsetMode.None);
-        var fit = Fit(meridiem);
+        // [S-12833] The meridiem and the line under give way where the card would draw them under the legibility floor,
+        // decided by the fit on the face as it is drawn (its figures, its meridiem, its line, measured), as every block's.
+        _fit.Face = BlockFace.Of(ClockFace.PartSizes(_config, meridiem));
         _secondsDrawn = _config.DrawsSeconds;
         _underShown = false;
         _underWidth = width;
@@ -225,13 +217,13 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
                 Family.Step(_words, step);
                 _words.MaxWidth = Math.Max(1, width);
                 _underStep = FamilyType.Under(step);
-                _underShown = wantsLine && WordClock.Holds(width, height, WordClock.Longest(Strings.Current), step, under: true) && fit.Draws(_underStep.FontSize);
+                _underShown = wantsLine && WordClock.Holds(width, height, WordClock.Longest(Strings.Current), step, under: true);
                 _stack.Children.Add(_words);
                 AddUnder();
                 break;
 
             case ClockStyle.Flip:
-                LayFlip(width, height, meridiem, wantsLine, fit);
+                LayFlip(width, height, meridiem, wantsLine);
                 break;
 
             case ClockStyle.Analog:
@@ -239,12 +231,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
                 break;
 
             default:
+                // The readout's meridiem and line under give way as its pieces (IFacePieces).
                 _digits = ClockFace.Readout(width, height, style, _config.DrawsSeconds, meridiem, wantsLine);
-                _digits = _digits with
-                {
-                    Meridiem = _digits.Meridiem && fit.Draws(FamilyType.Unit(_digits.Step).FontSize),
-                    Under = _digits.Under && fit.Draws(FamilyType.Under(_digits.Step).FontSize),
-                };
                 _secondsDrawn = _config.DrawsSeconds && _digits.Seconds;
 
                 // [S-6014] The minimal clock: the same readout at the regular weight, alone.
@@ -267,19 +255,18 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     private void AddUnder()
     {
         Family.Step(_under, _underStep);
+        _fit.GivesWay(_under, _underStep.FontSize);
         if (_underShown)
         {
             _stack.Children.Add(_under);
         }
     }
 
-    /// <summary>[S-6742] The cards on their step, the meridiem after the last, the line under them ([S-12833]: as the card keeps them).</summary>
-    private void LayFlip(double width, double height, string meridiem, bool wantsLine, FaceFit fit)
+    /// <summary>[S-6742] The cards on their step, the meridiem after the last, the line under them ([S-12833]: as the fit keeps them).</summary>
+    private void LayFlip(double width, double height, string meridiem, bool wantsLine)
     {
         var count = _config.DrawsSeconds ? 3 : 2;
         var (plan, vertical, withMeridiem) = ClockFace.Flip(width, height, count, meridiem, wantsLine);
-        withMeridiem = withMeridiem && fit.Draws(FamilyType.Unit(plan.Step).FontSize);
-        plan = plan with { Under = plan.Under && fit.Draws(FamilyType.Under(plan.Step).FontSize) };
 
         if (_flipCards.Count != count)
         {
@@ -300,7 +287,21 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
 
         _flipRow.Orientation = vertical ? Orientation.Vertical : Orientation.Horizontal;
         Family.Step(_flipMeridiem, FamilyType.Unit(plan.Step));
-        _flipMeridiem.Visibility = withMeridiem ? Visibility.Visible : Visibility.Collapsed;
+
+        // The meridiem stands after the cards where the region writes one; the fit shows it while its size is drawn.
+        _fit.GivesWay(_flipMeridiem, FamilyType.Unit(plan.Step).FontSize);
+        if (withMeridiem != _flipLine.Children.Contains(_flipMeridiem))
+        {
+            if (withMeridiem)
+            {
+                _flipLine.Children.Add(_flipMeridiem);
+            }
+            else
+            {
+                _flipLine.Children.Remove(_flipMeridiem);
+            }
+        }
+
         _underStep = FamilyType.Under(plan.Step);
         _underShown = plan.Under;
         _stack.Children.Add(_flipLine);

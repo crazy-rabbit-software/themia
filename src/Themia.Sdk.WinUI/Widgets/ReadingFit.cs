@@ -33,7 +33,6 @@ public sealed partial class ReadingFit : Panel
     private readonly List<(UIElement Piece, double Size)> _pieces = [];
     private readonly HashSet<UIElement> _spans = [];
     private ContentAlign _align = ContentAlign.Center;
-    private FaceParts? _face;
     private BlockFace? _stated;
     private double _spacing;
 
@@ -153,15 +152,14 @@ public sealed partial class ReadingFit : Panel
     /// <see cref="AddGivesWay"/>; the parts left fill the room (WR-1, WR-4: the block grows back into the room a part left).
     /// Null: every part is drawn.
     /// </summary>
-    public FaceParts? Face
+    public BlockFace? Face
     {
-        get => _face;
+        get => _stated;
         set
         {
-            if (!Equals(value, _face))
+            if (!Equals(value, _stated))
             {
-                _face = value;
-                _stated = value is null ? null : BlockFace.Of(value);
+                _stated = value;
                 _held = Size.Empty;
                 _decided = Size.Empty;
                 InvalidateMeasure();
@@ -191,10 +189,12 @@ public sealed partial class ReadingFit : Panel
     /// <summary>
     /// [S-12833] A piece inside a part (a caption under a reading) that gives way where the room would draw it under the
     /// floor: the fit alone shows and hides it, so its view never sets its Visibility (it shows or hides the part round it).
+    /// Given again, the piece gives way at its new size.
     /// </summary>
     public void GivesWay(UIElement piece, double size)
     {
         ArgumentNullException.ThrowIfNull(piece);
+        _pieces.RemoveAll(p => ReferenceEquals(p.Piece, piece));
         _pieces.Add((piece, size));
     }
 
@@ -219,7 +219,7 @@ public sealed partial class ReadingFit : Panel
     {
         foreach (var (piece, size) in _pieces)
         {
-            var shown = _face?.Keeps(size, floor) ?? true ? Visibility.Visible : Visibility.Collapsed;
+            var shown = _stated?.Keeps(size, floor) ?? true ? Visibility.Visible : Visibility.Collapsed;
             if (piece.Visibility != shown)
             {
                 piece.Visibility = shown;
@@ -228,7 +228,7 @@ public sealed partial class ReadingFit : Panel
 
         foreach (var (part, holder, size) in _givesWay)
         {
-            var shown = part.Visibility == Visibility.Visible && (_face?.Keeps(size, floor) ?? true) ? Visibility.Visible : Visibility.Collapsed;
+            var shown = part.Visibility == Visibility.Visible && (_stated?.Keeps(size, floor) ?? true) ? Visibility.Visible : Visibility.Collapsed;
             if (holder.Visibility != shown)
             {
                 holder.Visibility = shown;

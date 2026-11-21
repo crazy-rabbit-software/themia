@@ -10,6 +10,13 @@ namespace Themia.Widget.Date.Tests;
 /// <summary>[S-10800]..[S-10804] The date widget's words, sizes and fill.</summary>
 public sealed class DateTests
 {
+    /// <summary>
+    /// [S-12833] The face as its sizing states it (<see cref="DateLayout.Plan"/>, estimated) in a content box: what the least
+    /// box is made of. The view decides on the face as drawn (<c>ReadingFit</c>).
+    /// </summary>
+    private static FaceFit Fit(double width, double height, DateConfig config, Locale locale)
+        => BlockLayout.Decide(width, height, DateLayout.PartSizes(config), floor => DateLayout.Plan(config, locale, floor));
+
     private static readonly DateOnly Day = new(2026, 11, 17);
 
     [Fact]
@@ -85,9 +92,9 @@ public sealed class DateTests
         Assert.Equal(WidgetSizing.LeastScaled, sizing.Min.Height);
 
         // At the natural box every part is drawn; at the least the main reading alone, at the floor.
-        var natural = DateLayout.Fit(sizing.Natural.Width - 24, sizing.Natural.Height - 24, config, Locale.En);
+        var natural = Fit(sizing.Natural.Width - 24, sizing.Natural.Height - 24, config, Locale.En);
         Assert.All(DateLayout.PartSizes(config), part => Assert.True(natural.Draws(part)));
-        var least = DateLayout.Fit(sizing.Min.Width - 24, sizing.Min.Height - 24, config, Locale.En);
+        var least = Fit(sizing.Min.Width - 24, sizing.Min.Height - 24, config, Locale.En);
         Assert.All(DateLayout.PartSizes(config).Where(size => size < main), size => Assert.False(least.Draws(size)));
         Assert.True(least.Draws(main));
         Assert.False(DateLayout.Lines(config, least.Floor));
@@ -104,7 +111,7 @@ public sealed class DateTests
         {
             var width = sizing.Min.Width + (t * (sizing.Natural.Width - sizing.Min.Width)) - 24;
             var height = sizing.Min.Height + (t * (sizing.Natural.Height - sizing.Min.Height)) - 24;
-            var fit = DateLayout.Fit(width, height, config, Locale.En);
+            var fit = Fit(width, height, config, Locale.En);
             var drawn = DateLayout.Lines(config, fit.Floor);
 
             Assert.True(lines || !drawn, $"{width}x{height}: the lines came back");

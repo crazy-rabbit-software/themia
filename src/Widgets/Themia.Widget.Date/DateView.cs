@@ -101,18 +101,11 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
     /// <summary>Build the face for the style and Size at its natural box; the viewbox scales it to the card.</summary>
     private void Lay()
     {
-        var locale = Strings.Current;
-
-        // [S-12833] The page's weekday and month give way where the card would draw them under the floor.
-        var fit = _area.IsMeasured
-            ? DateLayout.Fit(_area.Width - (2 * FamilySpace.Inset), _area.Height - FamilySpace.Inset, _config, locale)
-            : FaceFit.All;
-        var lines = DateLayout.Lines(_config, fit.Floor);
-        var face = DateLayout.Face(_config, locale, fit.Floor);
+        // [S-12833] The page's weekday and month give way where the card would draw them under the floor, decided by the fit
+        // on the face as it is drawn (today's words, measured), as every block's.
+        _fit.Face = BlockFace.Of(DateLayout.PartSizes(_config));
         _face.Children.Clear();
 
-        // [S-14308] As wide as today's text: the fit scales today's line, not the widest day's box.
-        _face.Height = face.Height;
         _fit.Align = _align;
         var text = _align switch
         {
@@ -127,7 +120,9 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
             Family.Step(_number, number);
             Family.Step(_weekday, FamilyType.Under(number));
             Family.Step(_month, FamilyType.Under(number));
-            foreach (var part in lines ? new[] { _weekday, _number, _month } : [_number])
+            _fit.GivesWay(_weekday, FamilyType.Under(number).FontSize);
+            _fit.GivesWay(_month, FamilyType.Under(number).FontSize);
+            foreach (var part in new[] { _weekday, _number, _month })
             {
                 part.TextAlignment = text;
                 _face.Children.Add(part);

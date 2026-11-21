@@ -96,13 +96,6 @@ public static class DateLayout
         return new FacePlan(face.Box.Width, face.Ink);
     }
 
-    /// <summary>[S-12833] How the face stands in a card's content box of <paramref name="width"/> × <paramref name="height"/>.</summary>
-    public static FaceFit Fit(double width, double height, DateConfig config, Locale locale)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return BlockLayout.Decide(width, height, PartSizes(config), floor => Plan(config, locale, floor));
-    }
-
     /// <summary>The face's box and its ink's height (the box less the leading over its first capitals and under its last baseline).</summary>
     private static (SizeDip Box, double Ink) Face(DateConfig config, Locale locale, bool lines)
     {

@@ -202,7 +202,7 @@ public static class ClockFace
     /// [S-12833] A smaller box scales it down as one (owner, 2026-11-19: "you should be able to make the clock even smaller";
     /// "the clock has a min height that is way to big"): its least box is its figures (or words) alone at the legibility
     /// floor in the card's inset (<see cref="FaceFloor"/>), the meridiem and the line under having given way on the way
-    /// down (<see cref="Fit"/>); the dial's is its floor, <see cref="DialFloor"/>, in the inset.
+    /// down (the view's fit decides on the face as drawn); the dial's is its floor, <see cref="DialFloor"/>, in the inset.
     /// </para>
     /// </summary>
     public static WidgetSizing Sizing(ClockConfig config, string meridiem)
@@ -256,19 +256,6 @@ public static class ClockFace
         var step = MainStep(config);
         var face = Face(config, meridiem, FamilyType.Unit(step).FontSize >= floor, FamilyType.Under(step).FontSize >= floor);
         return new FacePlan(face.Width, face.Ink);
-    }
-
-    /// <summary>
-    /// [S-12833] How the face stands in a card's content box of <paramref name="width"/> × <paramref name="height"/>: which of
-    /// its parts it draws (the meridiem and the line under give way where they would be drawn under the floor) and the most
-    /// it is drawn at. The dial draws every part it plans (<see cref="Dial"/>).
-    /// </summary>
-    public static FaceFit Fit(double width, double height, ClockConfig config, string meridiem)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return config.Style == ClockStyle.Analog
-            ? FaceFit.All
-            : BlockLayout.Decide(width, height, PartSizes(config, meridiem), floor => Plan(config, meridiem, floor));
     }
 
     /// <summary>The step of the face's main reading: the words' for the words, the figures' for the rest.</summary>

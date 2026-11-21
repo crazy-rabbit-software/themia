@@ -47,6 +47,25 @@ public sealed record BlockFace(double Main, IReadOnlyList<double> Sizes)
         ArgumentNullException.ThrowIfNull(parts);
         return new BlockFace(parts.Main, parts.Sizes);
     }
+
+    /// <summary>A face of these text sizes, the largest its main reading; none: null (every part drawn).</summary>
+    public static BlockFace? Of(IReadOnlyList<double> sizes)
+    {
+        ArgumentNullException.ThrowIfNull(sizes);
+        var usable = sizes.Where(s => s > 0 && double.IsFinite(s)).ToList();
+        return usable.Count == 0 ? null : new BlockFace(usable.Max(), usable);
+    }
+
+    /// <summary>A face stated as rows is a face (none: none).</summary>
+    public static implicit operator BlockFace?(FaceParts? parts) => parts is null ? null : Of(parts);
+
+    /// <summary>Whether a piece of text <paramref name="size"/> is drawn where the parts of at least <paramref name="floor"/> are.</summary>
+    public bool Keeps(double size, double floor) => size <= 0 || size >= Main || size >= floor - 1e-9;
+
+    /// <summary>The same face: its main reading and its sizes, in order.</summary>
+    public bool Equals(BlockFace? other) => other is not null && Main.Equals(other.Main) && Sizes.SequenceEqual(other.Sizes);
+
+    public override int GetHashCode() => HashCode.Combine(Main, Sizes.Count);
 }
 
 /// <summary>[S-14301] Where a shown part stands, in the block's own units (before the scale, the room's origin at 0, 0): its box's top left and the width it is laid at.</summary>

@@ -12,6 +12,15 @@ namespace Themia.Widget.Clock.Tests;
 /// </summary>
 public sealed class ClockFaceTests
 {
+    /// <summary>
+    /// [S-12833] The face as its sizing states it (<see cref="ClockFace.Plan"/>, estimated) in a content box: what the least
+    /// box is made of. The view decides on the face as drawn (<c>ReadingFit</c>).
+    /// </summary>
+    private static FaceFit Fit(double width, double height, ClockConfig config, string meridiem)
+        => config.Style == ClockStyle.Analog
+            ? FaceFit.All
+            : BlockLayout.Decide(width, height, ClockFace.PartSizes(config, meridiem), floor => ClockFace.Plan(config, meridiem, floor));
+
 
     /// <summary>The content box a card of <paramref name="box"/> gives the face: the card less its inset of 12 (the clock has no header).</summary>
     private static (double Width, double Height) Content(SizeDip box) => (box.Width - (2 * FamilySpace.Inset), box.Height - (2 * FamilySpace.Inset));
@@ -103,10 +112,10 @@ public sealed class ClockFaceTests
             var parts = ClockFace.PartSizes(config, meridiem);
             var figures = parts.Max();
 
-            var natural = ClockFace.Fit(sizing.Natural.Width - (2 * FamilySpace.Inset), sizing.Natural.Height - (2 * FamilySpace.Inset), config, meridiem);
+            var natural = Fit(sizing.Natural.Width - (2 * FamilySpace.Inset), sizing.Natural.Height - (2 * FamilySpace.Inset), config, meridiem);
             Assert.All(parts, size => Assert.True(natural.Draws(size), $"{config.Style}: {size} gave way at its natural box"));
 
-            var least = ClockFace.Fit(sizing.Min.Width - (2 * FamilySpace.Inset), sizing.Min.Height - (2 * FamilySpace.Inset), config, meridiem);
+            var least = Fit(sizing.Min.Width - (2 * FamilySpace.Inset), sizing.Min.Height - (2 * FamilySpace.Inset), config, meridiem);
             Assert.All(parts.Where(size => size < figures), size => Assert.False(least.Draws(size)));
             Assert.True(least.Draws(figures));
             Assert.InRange(least.Scale * figures, ScaleFloor.Text - 1e-6, ScaleFloor.Text + 3);
@@ -130,7 +139,7 @@ public sealed class ClockFaceTests
             {
                 var width = (byWidth > 0 ? sizing.Min.Width + (t * (sizing.Natural.Width - sizing.Min.Width)) : sizing.Natural.Width) - (2 * FamilySpace.Inset);
                 var height = (byHeight > 0 ? sizing.Min.Height + (t * (sizing.Natural.Height - sizing.Min.Height)) : sizing.Natural.Height) - (2 * FamilySpace.Inset);
-                var fit = ClockFace.Fit(width, height, config, meridiem);
+                var fit = Fit(width, height, config, meridiem);
                 var name = $"{config.Style} {config.ShowSeconds} {config.OffsetMode} '{meridiem}' {width}x{height}";
 
                 Assert.True(fit.Floor >= lastFloor, $"{name}: a part came back");
@@ -152,7 +161,7 @@ public sealed class ClockFaceTests
         // 83 from either side and short of the top and foot. They grow back into its room until the height stops them.
         var config = new ClockConfig { TimeZoneId = "Asia/Tokyo", OffsetMode = ClockOffsetMode.Utc, ShowSeconds = true };
         Assert.True(config.IsWorldClock);
-        var fit = ClockFace.Fit(326, 46, config, "AM");
+        var fit = Fit(326, 46, config, "AM");
         Assert.False(fit.Draws(FamilyType.Under(ClockFace.Step).FontSize));
 
         var plan = ClockFace.Plan(config, "AM", fit.Floor);
@@ -169,7 +178,7 @@ public sealed class ClockFaceTests
         var room = (W: sizing.Natural.Width - (2 * FamilySpace.Inset), H: sizing.Natural.Height - (2 * FamilySpace.Inset));
 
         // Half the card: the line under (14) would be 7; the meridiem (28) still 14.
-        var half = ClockFace.Fit(room.W / 2, room.H / 2, config, "AM");
+        var half = Fit(room.W / 2, room.H / 2, config, "AM");
         Assert.False(half.Draws(FamilyType.Under(step).FontSize));
         Assert.True(half.Draws(FamilyType.Unit(step).FontSize));
     }
