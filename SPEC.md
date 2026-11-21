@@ -2189,7 +2189,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   (drawn only while something is selected, its room always kept); the **selection's room**, 256 DIPs
   always kept ([S-2324]); a 16 gutter; the **problems' room** (a 40 icon button while there are
   problems; Themia keeps no standing list of them yet, so the room stays empty); 4; **Unplaced icons** (its icon alone, 40,
-  and its count badge, [S-13701]); 4; **Add widget**
+  and its count badge, [S-13701]); 4; the **Widget gallery**'s button (40,
+  its icon alone, [S-14910]); 4; **Add widget**
   ([S-3501]; a command bar's button as the entries, no fill nor rim until pointed at, as Karpo's "+ Add", its §575;
   owner, 2026-11-19: "the individual settings components between karpo and themia should bascially be the same ...
   same with the topbar"); 8; **Done** (the one accent button, at
@@ -2919,6 +2920,87 @@ Needs a live pass: the drag off the page onto the desktop (the icons under the r
 release landing them, on another display too, a fence too, and the page opening again), placing by a double-click and
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
+
+#### The widget gallery ([S-14910]..[S-14917])
+
+The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
+build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
+widgets already arranged / shown like it would be on a themia view, the widgets are grouped into the categories like
+weather already there, when you want to place a widget you basically just drag it onto the desktop from that preview. in
+the preview the grid should be aligned with the desktop grid already so that the dragging is smooth and does not
+transition visibly somewhere. when you select an individual widget somewhere it should show the different styles and a
+short title and description. you should also be able to select multiple and drag them onto your screen. when you dragged
+them onto your screen the settings menu should obviously replenish the widgets."* And: *"the widgets should be arranged
+in groups in this preview already. not just all scattered randomly. if one category does not fit onto one screen you can
+just implement multiple screens."* Owning files: Core `Widgets/WidgetGallery.cs` (the arrangement),
+`Model/PlacementPayload.cs` (`ForGallery`, `HeldAt`, `NewSize`), `Shell/EditBarLayout.cs` (`BarPartKind.Gallery`), the
+metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `Shell/DesktopWindow.WidgetGallery.cs`,
+`Shell/SampleCards.cs`, the gallery's button in `EditBar.cs`; render and check `Gallery/WidgetGalleryRender.cs`. Tests
+`WidgetGalleryTests`, `WidgetGalleryPlacementTests`, `EditBarLayoutTests.S2320_`.
+
+- **[S-14910]** **Its own page, beside the add page.** The edit bar has a **Widget gallery** button (an icon alone, Segoe's
+  ViewDashboard, its words its tooltip) between Unplaced icons and Add widget ([S-2320]: 4 either side); the add page
+  ([S-3501], [S-13610]..) is unchanged. The gallery is one of the bar's flyouts ([S-2327]): one at a time (it closes as
+  another opens, and the others close as it opens), its button marked with the accent's pill while it is open, and its
+  button, Escape (a pick first, [S-14914]), another entry, Done and leaving edit mode close it. Only in edit mode and not
+  while placing.
+- **[S-14911]** **Over the work area, on the display's grid.** It covers the display's work area (the one it was opened
+  on) under the bar, which stays over it: a calm ground (the display's blurred wallpaper under Windows' sheet at 0.86;
+  the sheet alone where there is no wallpaper picture) with the display's own grid drawn on it as edit mode draws it
+  ([S-06c]). Every card stands on that grid: its cells are the display's cells (`GridGeometry.GridDims`, the same pitch
+  and origin), so a card's cell in the gallery is a cell of the desktop. The category tabs a flyout's gap under the bar
+  (36 tall), the pager at their end (Previous, "n of m", Next), the cards 24 in from the work area's sides and foot, the
+  panel 320 wide on the right, 24 off them (`ShellMetrics.WidgetGallery`). A press anywhere on it is its own: nothing
+  reaches the widgets under it, and no edit key acts on them while it is open but undo, redo and Escape.
+- **[S-14912]** **Grouped, never scattered** (`WidgetGallery.Lay`, pure, tested). A **category** is an add page subject (and
+  More), its **blocks** the subject's own widgets, then each family under its name, in the add tree's order
+  (`WidgetGallery.Of`: Start, ready-made groups and desktop items stay the add page's). Every card is a **real card on
+  sample data** ([S-11850], [S-11851]: a preview host with its own sample world, each view's sample) at its kind's
+  natural size in whole cells of the display, what placing it new makes (`PlacementPayload.NewSize`), held to the room
+  where it is larger. A screen is the category's title line (Title, 4 cells, "n of m" beside it where it has more), then
+  its blocks: a block's cards in rows left to right, 2 cells apart (never touching, so none joins, [S-2240]), a family's
+  name in BodyStrong over its cards (3 cells); blocks side by side on a shelf while they fit across, 6 cells apart, the
+  next shelf under the tallest. A block that does not fit under what stands goes on from a shelf's start with as many of
+  its rows as fit there, its other rows continuing on the next screen under its name again (no screen left half empty). Deterministic; every box on whole cells inside the room, no
+  two sharing a cell, a block's cards together.
+- **[S-14913]** **Screens.** The categories' screens follow one another in the rail's order. A category's **tab** (the one
+  tab component, `PageTabButton`) shows its first screen; the **arrows**, the **wheel** over the gallery and **Left/Right**,
+  **Page Up/Down** walk every screen round the ends (`WidgetGallery.Step`, mirrored right to left), **Home** and **End** go to
+  the first and the last. A new screen shows with nothing picked. Built afresh each time the gallery opens ([S-1109]), laid
+  again only when the display's size, scale or work area changed.
+- **[S-14914]** **Picking** is edit mode's (`WidgetSelection`, `SelectionRules`, [S-1580]..[S-1593]): a press picks the card
+  alone or keeps a pick that holds it (a click then narrows to it), Ctrl or Shift+press toggles one, a band from empty room
+  picks what it touches (added to the pick with Ctrl or Shift), Ctrl+A the screen's every card, a press on empty room or
+  Escape lets go. Marked as the locked desktop marks a selection: one card its four corners, several the frame's corners
+  round them and none of their own ([S-14310]).
+- **[S-14915]** **The panel** (a page card: Windows' card fill and rim, radius 8, 16 in) says what is picked: nothing, how to
+  pick; **one**, its glyph and name (BodyStrong), what it is (Body, secondary; the add page's words, `AddTileWords`) and,
+  for a kind with styles ([S-6000]), **Styles**: each style a small live card of the kind in that style (at most 132 × 96,
+  scaled down, never up) over its name, two across, the one it has marked by the accent's rim; picking one restyles the
+  gallery's card of that kind (kept while the gallery is open), and the widget placed off it has that style; **several**,
+  how many and their names. Its foot says how to place: drag onto the desktop.
+- **[S-14916]** **Dragging places.** A press on a picked card dragged past the dead zone starts the **one placement session**
+  ([S-1587]) with the pick (`PlacementPayload.ForGallery`: new widgets, laid as they stood on the gallery's cells, kept
+  apart as they stood, one Add step, "Click to place …"), **held** where the pointer held them (`HeldAt`): the block moves
+  by the pointer's travel alone, so with the pointer still where it pressed the ghost is exactly their cells (no jump),
+  and it goes cell by cell as any move ([S-06], [S-11892]). While it is aimed the gallery steps aside (its ground, grid,
+  words, panel and other cards gone, nothing of it taking the pointer) and the picked cards stand on the ghost's outlines,
+  so the desktop shows under them. Letting go lands them there (as one block, selected as ready-made groups are,
+  [S-2475]); Escape or a right-click gives it up ([S-1594]). Either way the gallery comes back as it was, every card on its
+  cell: the gallery is never used up. What landed is selected under it; its page does not open over the gallery
+  ([S-2343]). The free plan's limit is the session's ([S-1065]): refused, nothing starts and the gallery stays.
+- **[S-14917]** Debug renders: `--gallery-png <outDir> [--theme light|dark] [--category Id]` draws the gallery through a real
+  host and surface on a stand-in 1920 × 1080 display (its taskbar 48 at the foot), off-screen, in edit mode: every screen
+  (or the category's, `gallery-<theme>-<nn>-<Category>-<page>.png`), one widget picked with its panel and styles
+  (`-select-one`), several picked (`-select-several`) and a drag under way (`-drag`). `--gallery-check <out.txt>` drives
+  it as its pointer does: every screen's cards on whole cells inside the work area and apart; one widget and then three
+  dragged and dropped (the ghost on their cells where the pointer held them, moved by whole cells with their offsets kept,
+  landed where it was, selected, the gallery back with them on their cells), a drag given up, a style picked landing with
+  its widget; PASS or FAIL (`<out>.png`, `<out>.dropped.png`).
+
+Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays
+and the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the
+panel and the styles, and the gallery's cost with many live cards on a slow PC.
 
 ### The edit bar's settings menu (SETTINGS-MENU)
 

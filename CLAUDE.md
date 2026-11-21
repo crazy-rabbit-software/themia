@@ -91,6 +91,9 @@ Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>] [-
            # group placed, as a scene; --edit: edit mode, the placed widgets selected; no state: its "sample" preview [S-2475]
 Themia.exe --inline-check <out.txt>   # every widget's inline box (add row, rename, title, search) open over its rest
            # state at min, natural and max: a finding per part that moved, grew or went; exit 1 on any [S-13950]
+Themia.exe --gallery-png <outDir> [--theme light|dark] [--category Id]   # the widget gallery through a real host and surface:
+           # every screen, one widget picked (its panel, its styles), several, a drag under way [S-14917]
+Themia.exe --gallery-check <out.txt>   # its drag driven: picked, dragged (no jump, whole cells), dropped, the gallery back; PASS or FAIL
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
            [--icon-census]   # beside each PNG <png>.icons.json: every icon drawn and its box; then
            # python scripts/icon-clip-check.py <dir> names each icon cut by its box, measured on the PNG [S-2377]
@@ -387,8 +390,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Appearance;
   `SettingsPages.Entries`), the divider and the selection's entry in its kept room, no toggle (the grid is always on,
   no Snap to grid, [S-06]; widgets always go over the screen edge, no Over the edge, [S-2330]; widgets may always
-  overlap, no Keep widgets from overlapping, [S-11959] retired), the problems' room, Unplaced icons right beside Add
-  (its icon alone and a count badge, [S-13700], [S-13701]), Add widget, Done. Each entry opens
+  overlap, no Keep widgets from overlapping, [S-11959] retired), the problems' room, Unplaced icons beside Add
+  (its icon alone and a count badge, [S-13700], [S-13701]), the Widget gallery's button ([S-14910]), Add widget, Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
   never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
@@ -463,7 +466,10 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   the previewed first. The model is Core's (`AddTree` the subjects and families, `AddRail`, `AddPage` the
   sections, stacks and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a widget
   places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the placement
-  session.
+  session. **The widget gallery** ([S-14910]..[S-14917]; owner, 2026-11-21) is a second page beside it (its own bar button):
+  every widget as real sample cards on the display's own grid over the work area, grouped by subject and family in blocks
+  (`WidgetGallery`, Core, tested), screens per category; picking is edit mode's selection; a drag is the one placement session
+  (`PlacementPayload.ForGallery`, held where the pointer held it: no jump) and the gallery comes back after it.
 - **Samples and previews** ([S-11850]..[S-11854]; docs/WIDGET-KIT.md 6.8): **a widget's sample ships, its
   render-only states do not, by folder.** The sample (the add page's picture, on the sample day's data in
   `Themia.Sdk/Samples`) is `IWidgetSample.ShowSampleAsync` in the module's `Samples/<Name>View.Sample.cs`,

@@ -26,12 +26,14 @@ namespace Themia.App.Shell;
 /// <param name="Selection">[S-2343] The selection's entry: its flyout opened, or closed again.</param>
 /// <param name="IntoFlyout">[S-2327] Down from the bar: the keyboard into the open flyout.</param>
 /// <param name="Done">Leaves edit mode.</param>
+/// <param name="Gallery">[S-14910] The widget gallery opened, or closed again; none (a render's stand-in): its button does nothing.</param>
 internal sealed record EditBarCommands(
     Action Add,
     Action<SettingsPageId> Page,
     Action Selection,
     Action IntoFlyout,
-    Action Done);
+    Action Done,
+    Action? Gallery = null);
 
 /// <summary>[S-2341] The selection's entry: its words ("Clock", "2 × Clock", "3 widgets") and its kind's glyph.</summary>
 internal sealed record BarSelection(string Words, string Glyph);
@@ -42,6 +44,9 @@ internal sealed record EditBarState(BarSelection? Selection, int Errors, Setting
 {
     /// <summary>[S-11707] The add page is open: Add is marked as an open entry is.</summary>
     public bool AddOpen { get; init; }
+
+    /// <summary>[S-14910] The widget gallery is open: its button is marked as an open entry is.</summary>
+    public bool GalleryOpen { get; init; }
 
     /// <summary>[S-13701] How many desktop icons the display's view does not place: the Unplaced icons entry's badge.</summary>
     public int Unplaced { get; init; }
@@ -54,7 +59,7 @@ internal sealed record EditBarState(BarSelection? Selection, int Errors, Setting
 /// Appearance) 4 apart, no fill until pointed at, the open one on the subtle fill with the accent's pill at
 /// its foot; 8, a hairline 20 tall while something is selected, 8; the selection's entry in its 256 room;
 /// a 16 gutter; the problems' button while there are any, in its room; 4; Unplaced icons (its icon and count badge,
-/// [S-13701]); 4; Add widget; 8; Done (the one accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
+/// [S-13701]); 4; the widget gallery (its icon alone, [S-14910]); 4; Add widget; 8; Done (the one accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
 /// the tooltip). Laid out by <see cref="EditBarLayout"/>. No grip, no undo, no search, no close.
 /// <para>
 /// Its own control so the debug render draws the real bar; its buttons are built as edit mode starts
@@ -79,6 +84,8 @@ internal sealed partial class EditBar : Grid
     private Button? _errors;
     private Button? _add;
     private Rectangle? _addPill;
+    private Button? _gallery;
+    private Rectangle? _galleryPill;
     private Button? _done;
 
     private EditBarCommands _commands;
@@ -151,6 +158,22 @@ internal sealed partial class EditBar : Grid
         Entry.Subtle(_errors);
         _row.Children.Add(_errors);
 
+        // [S-14910] The widget gallery: an icon button just before Add, its words its tooltip, the accent's pill while it is open.
+        _galleryPill = Entry.Pill();
+        _gallery = new Button
+        {
+            Content = new Grid { Children = { UiLanguage.Mirrored(new FontIcon { Glyph = Glyphs.WidgetGallery, FontSize = B.Icon, VerticalAlignment = VerticalAlignment.Center }), _galleryPill } },
+            Width = B.IconOnly,
+            Tag = "gallery",
+        };
+        Entry.Subtle(_gallery);
+        _gallery.Padding = new Thickness(0);
+        _gallery.VerticalContentAlignment = VerticalAlignment.Stretch;
+        ToolTipService.SetToolTip(_gallery, Str.WidgetGallery_Entry.Text());
+        AutomationProperties.SetName(_gallery, Str.WidgetGallery_Entry.Text());
+        _gallery.Click += (_, _) => commands.Gallery?.Invoke();
+        _row.Children.Add(_gallery);
+
         // [S-3501] A command bar's button as the pages' entries are, Karpo's "+ Add" (§575: no fill nor rim until
         // pointed at, Done the one accent button); [S-11707] it opens the add page under the bar, and while that is
         // open the accent's pill marks it.
@@ -184,8 +207,8 @@ internal sealed partial class EditBar : Grid
         _pages.Clear();
         _selection = null;
         _divider = null;
-        _addPill = null;
-        _errors = _add = _done = null;
+        _addPill = _galleryPill = null;
+        _errors = _add = _gallery = _done = null;
     }
 
     /// <summary>[S-2320] Lay the bar out for <paramref name="state"/>: the selection's entry, the problems, the open entry lit.</summary>
@@ -255,6 +278,18 @@ internal sealed partial class EditBar : Grid
         else
         {
             _errors!.Visibility = Visibility.Collapsed;
+        }
+
+        var gallery = plan.Of(BarPartKind.Gallery)!.Value;
+        Canvas.SetLeft(_gallery, gallery.X);
+        _galleryPill!.Visibility = state.GalleryOpen ? Visibility.Visible : Visibility.Collapsed;
+        if (state.GalleryOpen)
+        {
+            _gallery!.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
+        }
+        else
+        {
+            _gallery!.ClearValue(Control.BackgroundProperty);
         }
 
         var add = plan.Of(BarPartKind.Add)!.Value;

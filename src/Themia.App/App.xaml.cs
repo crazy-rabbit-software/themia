@@ -308,6 +308,12 @@ public partial class App : Application
             return;
         }
 
+        // And the widget gallery: its screens and picks drawn, its drag driven through a real host and surface ([S-14917]).
+        if (Shell.Gallery.WidgetGalleryRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And a live clock handed every style in turn ([S-6016]).
         if (Shell.Gallery.ClockStyleRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

@@ -36,7 +36,7 @@ internal sealed partial class DesktopWindow
     private FlyoutRedraws? _redraws;
 
     /// <summary>[S-2327] Whether one of the edit bar's flyouts is open on this display.</summary>
-    internal bool BarMenuOpen => _flyout is not null || _addPage is not null;
+    internal bool BarMenuOpen => _flyout is not null || _addPage is not null || _widgetGallery is not null;
 
     /// <summary>[S-2300] A page's rows, as the state and Windows hold them now.</summary>
     private Func<PageModel> PageOf(SettingsPageId page)
@@ -151,7 +151,8 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-2343] The selection's flyout: its page built over the selection as it is now.</summary>
     private void OpenSelectionPage(bool focus)
     {
-        if (_closed || !EditMode || _host.Placing is not null || !_selectionOffer.Shows)
+        // [S-14916] Widgets placed off the gallery land selected under it: the gallery stays, their page does not open over it.
+        if (_closed || !EditMode || _host.Placing is not null || !_selectionOffer.Shows || _widgetGallery is not null)
         {
             return;
         }
@@ -199,8 +200,9 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-2327] Close the open flyout; the keyboard back on its entry where it was closed from the keyboard.</summary>
     private void CloseFlyout(bool focusEntry)
     {
-        // [S-11707] The add page is one of the bar's flyouts: one at a time, closed with the rest.
+        // [S-11707] The add page is one of the bar's flyouts: one at a time, closed with the rest; [S-14910] the gallery too.
         CloseAddPage(focusAdd: false);
+        CloseWidgetGallery();
         if (_flyout is not { } flyout)
         {
             return;

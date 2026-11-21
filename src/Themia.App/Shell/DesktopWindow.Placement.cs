@@ -244,6 +244,8 @@ internal sealed partial class DesktopWindow
 
         // [S-3557] A settings page open here closes with the surface: with the last one the accounts' forms empty.
         CloseFlyout(focusEntry: false);
+        _galleryDragging = false;
+        CloseWidgetGallery();
         DropKeptPreview();
 
         Strings.Changed -= OnLanguageChanged;

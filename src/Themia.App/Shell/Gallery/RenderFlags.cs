@@ -41,6 +41,8 @@ internal static class RenderFlags
         DesktopRender.Flag,
         SceneRender.Flag,
         SceneRender.RecipeFlag,
+        WidgetGalleryRender.Flag,
+        WidgetGalleryRender.CheckFlag,
     ];
 }
 #endif

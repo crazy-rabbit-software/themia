@@ -36,6 +36,13 @@ internal sealed partial class DesktopWindow
             return;
         }
 
+        // [S-14913] The gallery's keys first while it is open.
+        if (GalleryKey(args))
+        {
+            args.Handled = true;
+            return;
+        }
+
         // [S-70], [S-1970]..[S-1976] One key map (Core EditKeys); the surface only carries it out.
         var action = EditKeys.Decide(
             (int)args.Key,

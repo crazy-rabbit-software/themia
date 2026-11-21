@@ -142,6 +142,9 @@ public static class Glyphs
     /// </summary>
     public static readonly string UnplacedIcons = From(0xEFDA);
 
+    /// <summary>[S-14910] The edit bar's Widget gallery: a dashboard of tiles (Segoe "ViewDashboard").</summary>
+    public static readonly string WidgetGallery = From(0xF246);
+
     /// <summary>[S-5548] The desktop menu's "Paste shortcut" (Explorer's picture, [S-1754]; Segoe "ClipboardList" without it).</summary>
     public static readonly string PasteShortcut = From(0xF0E3);
 

@@ -48,6 +48,12 @@ internal sealed partial class DesktopWindow
             return false;
         }
 
+        // [S-14913] While the gallery covers the desktop no key acts on the widgets under it but undo, redo and Escape (which closes it).
+        if (_widgetGallery is not null && action.Command is not (EditCommand.Undo or EditCommand.Redo or EditCommand.Back))
+        {
+            return true;
+        }
+
         if (action.Command is not (EditCommand.Move or EditCommand.Resize))
         {
             FlushNudge();

@@ -311,6 +311,7 @@ internal sealed partial class DesktopWindow
         ApplyChromeInsets();
         RefreshViewBar();
         PlaceProperties();
+        PlaceWidgetGallery();
 
         if (EditMode)
         {

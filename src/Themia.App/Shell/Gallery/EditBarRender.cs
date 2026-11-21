@@ -47,7 +47,8 @@ internal static partial class EditBarRender
     public static ApplicationTheme? RequestedTheme(string[] args)
     {
         if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, "--picker-png") < 0 && Array.IndexOf(args, "--viewbar-png") < 0
-            && Array.IndexOf(args, "--menu-png") < 0 && Array.IndexOf(args, "--notices-png") < 0)
+            && Array.IndexOf(args, "--menu-png") < 0 && Array.IndexOf(args, "--notices-png") < 0
+            && Array.IndexOf(args, WidgetGalleryRender.Flag) < 0 && Array.IndexOf(args, WidgetGalleryRender.CheckFlag) < 0)
         {
             return null;
         }

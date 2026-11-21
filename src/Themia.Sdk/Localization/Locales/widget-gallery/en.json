@@ -1,0 +1,26 @@
+{
+  "$comment": "[S-14910]..[S-14917] The widget gallery: every widget shown as a desktop of real cards, grouped by subject, dragged onto the desktop to place it.",
+  "$englishOnly": [
+    "widgetGallery.entry",
+    "widgetGallery.pages",
+    "widgetGallery.previous",
+    "widgetGallery.next",
+    "widgetGallery.none",
+    "widgetGallery.noneAbout",
+    "widgetGallery.styles",
+    "widgetGallery.several",
+    "widgetGallery.drag"
+  ],
+  "widgetGallery.entry": "Widget gallery",
+  "widgetGallery.pages": "{page} of {count}",
+  "widgetGallery.previous": "Previous screen",
+  "widgetGallery.next": "Next screen",
+  "widgetGallery.none": "Pick a widget",
+  "widgetGallery.noneAbout": "Click a widget to see its styles. Ctrl+click or drag a box round several to take them together.",
+  "widgetGallery.styles": "Styles",
+  "widgetGallery.several": {
+    "one": "{count} widget",
+    "other": "{count} widgets"
+  },
+  "widgetGallery.drag": "Drag onto your desktop to place. The gallery keeps them."
+}

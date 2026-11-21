@@ -214,6 +214,37 @@ public static class ShellMetrics
     }
 
     /// <summary>
+    /// [S-14911] The widget gallery over the work area: its category tabs a flyout's gap under the bar (36 tall, Karpo's
+    /// side list's item laid across), the cards 24 in from the work area's sides and foot, the panel 320 wide on the
+    /// right, 24 off the cards; a style's preview in the panel at most 132 × 96, 8 apart.
+    /// </summary>
+    public static class WidgetGallery
+    {
+        /// <summary>The tabs' row (an add page rail item's height).</summary>
+        public const double Tabs = AddPage.RailItem;
+
+        /// <summary>From the work area's sides and foot, and between the cards and the panel.</summary>
+        public const double Margin = 24;
+
+        /// <summary>The panel of the selection on the right.</summary>
+        public const double Panel = 320;
+
+        /// <summary>Inside the panel.</summary>
+        public const double PanelPad = 16;
+
+        /// <summary>A style's live preview in the panel: at most this wide and tall, its card scaled down to fit.</summary>
+        public const double StyleWidth = 132;
+
+        public const double StyleHeight = 96;
+
+        /// <summary>Between two styles' previews.</summary>
+        public const double StyleGap = 8;
+
+        /// <summary>[S-14911] How much of Windows' sheet lies over the display's blurred wallpaper: the desktop dimmed to a calm ground.</summary>
+        public const double Sheet = 0.86;
+    }
+
+    /// <summary>
     /// [S-2305] A page's sections, cards and rows (Karpo's PanelMetrics): a heading 24 after the previous
     /// group and 8 over its cards; cards 4 apart and radius 4, 16 under the last; a row 48 tall, 60 with a
     /// caption, its icon at 16, its name at 48, its control ending 16 from the card's edge.

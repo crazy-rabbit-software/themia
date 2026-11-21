@@ -382,7 +382,12 @@ internal sealed partial class DesktopWindow
             // rather than waiting for the first move.
             if (IsUnderCursor && Win32.GetCursorPos(out var cursor))
             {
-                ShowGhosts(OutlinesAt(cursor, placing));
+                // [S-14916] Off the gallery its own cards are the ghost.
+                var outlines = OutlinesAt(cursor, placing);
+                if (!FollowGalleryDrag(outlines))
+                {
+                    ShowGhosts(outlines);
+                }
             }
             else
             {
@@ -398,6 +403,7 @@ internal sealed partial class DesktopWindow
         HideGhost();
         DropIconGhosts();
         ReopenUnplacedAfterPlacing();
+        GalleryAfterPlacing();
     }
 
     /// <summary>Where a point in this surface's own coordinates falls, as a fraction of it.</summary>
@@ -416,7 +422,11 @@ internal sealed partial class DesktopWindow
         if (_host.Placing is { } payload)
         {
             var (x, y) = FractionOfDip(position);
-            ShowGhosts(payload.Outlines(x, y, Metrics, SizesNow));
+            var outlines = payload.Outlines(x, y, Metrics, SizesNow);
+            if (!FollowGalleryDrag(outlines))
+            {
+                ShowGhosts(outlines);
+            }
             return;
         }
 
