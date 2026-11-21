@@ -19,7 +19,7 @@ public sealed class FenceGridTests
     /// <summary>A screen whose grid cell is no whole DIP (9.97 × 10.05): what most displays are.</summary>
     private static readonly ScreenMetrics Screen = new(1536, 864);
 
-    private static readonly (int Cols, int Rows) Grid = GridGeometry.GridDims(Screen);
+    private static readonly GridSpace Grid = GridGeometry.GridDims(Screen);
 
     private static readonly (double W, double H) Box = DesktopGrid.IconSize(new SizeDip(76, 100), Screen);
 

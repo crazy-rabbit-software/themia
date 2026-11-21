@@ -50,6 +50,38 @@ Sections, grouped by area (file order below; search for the heading).
   noise: every edge compared stands on a lattice whose steps are orders of magnitude wider (grid lines at least a
   thousandth of the screen apart, whole device pixels, whole cells). Painted cells are compared on the device lattice
   (`Lattice.Device`: each edge the whole device pixel it stands on). Tests `LatticeTests.S11893_`.
+- **[S-11895]** **One grid, one rounding** (code audit 2026-11-21). A screen's widget grid is a `GridSpace` (what
+  `GridGeometry.GridDims` gives): its lines as whole numbers, `Cols` across and `Rows` down, line `i` at `i / Cols` of the
+  screen. It is the one place a fraction becomes a line (`Col`, `Row`; in cells `Nearest`, `Up`, `Down`) and a line a
+  fraction (`X`, `Y`): the snap of every gesture and of a block's move (`GridGeometry.Snap`, `SnapStart` past the magnet),
+  a group's fit (`GridFit.Layout`), the grid settle ([S-11892]), the desktop grid's spots, ranges and reading order
+  ([S-11876]) and the fences' rects (`FenceCells.Snap`, `DesktopFences.Snap`) round by it alone. The nearest line is
+  **half a cell up**, as every edge's DIP and device pixel is ([S-11873]); a count within float noise of a line is on it
+  (`Lattice.Epsilon`, [S-11893]). *(Until 2026-11-21 the snap rounded half to even, so a rect 2.5 cells off a line went
+  down to 2 and one 3.5 off up to 4, a placement centred on a line landing left or right of it by the line's parity; the
+  desktop grid, the fences and a group's fit rounded half away from zero.)* Tests `GridSpaceTests.S11895_`.
+- **[S-11896]** **What the one grid does not do yet** (code audit 2026-11-21, item 3 fix (b); each a rule change for the
+  owner's word, not a refactor):
+  1. *Integer rects through the rules.* The rules still compute in fractions of the screen and compare by the lattice's
+     tolerance ([S-11893]); `GridSpace` only turns fractions into lines and back where a rule rounds. Carrying an integer
+     `GridRect(Col, Row, Cols, Rows)` through the snap, a move, a block's move and resize, the fit, the refit, the settles,
+     the desktop grid, the fences and the joins (fractions only at the store, device pixels only at paint, "touching" an
+     integer equality) needs every writer on the lines first (3), and the pitch decided (2).
+  2. *A pitch of whole DIPs.* The grid is `round(W / 10)` columns of `W / cols` DIPs (9.974 on a 1536-DIP display, 125 %
+     of 1920), so a line stands between DIPs and each edge is put on its DIP and pixel on its own (`PaintedCell`). A pitch
+     of whole DIPs on whole device pixels, the remainder at the far edge, moves such a display's lines (line 153 of 1536
+     DIPs from 1526.0 to 1530), so every layout stored there is off its lines by more than the grid settle's one DIP: it
+     needs a one-time settle of stored layouts. At 125 % no pitch near 10 DIPs is both whole DIPs and whole pixels but 8
+     and 12 (a device pixel is 0.8 DIP): the owner picks.
+  3. *Writers that leave the lines on purpose.* The work area's magnet ([S-6609]: an edge flush on a taskbar's edge,
+     rarely a line) and the work-area settle's moves by the exact amount a taskbar asks ([S-855]: `WorkAreaSettle`'s shift,
+     carry and reach) write edges between lines. On an integer grid these land on lines (the magnet goes, or the work
+     area's edges become lines of their own).
+  4. *Keys that group by rounding*: a group's fit groups edges at 1e-9 (`GridFit.LayoutAxis`), a block's resize its
+     distances at a millionth of a cell (`BlockResize.Axis`), the desktop grid and the displays' stand-ins order by X at
+     1e-6; on an integer grid they are the lines' indexes.
+  5. *Stored names*: the design's `cornerRadiusPx` and `borderWidthPx` hold DIPs ([S-11894]); renaming a state file's keys
+     drops the owner's values once.
 - **[S-11894]** **Units by type** (code audit 2026-11-21): a box in DIPs is a `DipRect` (a card's cell, a face part, a
   flyout, the work area as a surface lays it out), a box in a raster's own pixels a `DeviceRect` (a display, its work area
   and a window as Win32 reports them, in virtual-screen pixels; a backdrop picture's), and nothing converts one into the

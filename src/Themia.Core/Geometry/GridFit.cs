@@ -115,7 +115,7 @@ public static class GridFit
         static double Key(double v) => Math.Round(v, 9);
         var grid = lines > 0;
         double unit = grid ? lines : 1;
-        double Snap(double v) => grid ? Math.Round(v, MidpointRounding.AwayFromZero) : v;
+        double Snap(double v) => grid ? GridSpace.Nearest(v) : v;
 
         // A box's own size for a span (in fractions), in units: what its limits hold it to.
         double Own(int i, double span) => Snap((limits[i] is { } l ? l.Range(span) : grid ? Up(span, lines) : span) * unit);

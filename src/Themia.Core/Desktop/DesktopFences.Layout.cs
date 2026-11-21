@@ -57,8 +57,8 @@ public static partial class DesktopFences
     internal static FracRect Snap(FracRect rect, ScreenMetrics screen)
     {
         var (cols, rows) = GridGeometry.GridDims(screen);
-        double Down(double f, int n) => Math.Floor((f * n) + Lattice.Epsilon) / n;
-        double Up(double f, int n) => Math.Min(1, Math.Ceiling((f * n) - Lattice.Epsilon) / n);
+        double Down(double f, int n) => GridSpace.Down(f * n) / (double)n;
+        double Up(double f, int n) => Math.Min(1, GridSpace.Up(f * n) / (double)n);
         return GridGeometry.Clamp(new FracRect(Down(rect.X, cols), Down(rect.Y, rows), Up(rect.W, cols), Up(rect.H, rows)), screen);
     }
 

@@ -90,7 +90,7 @@ public static class DesktopGrid
                 }
 
                 // Past the widget in the way: the next line at or after its right edge.
-                c = Math.Max(c + 1, (int)Math.Ceiling((blocker.Right * cols) - Lattice.Epsilon));
+                c = Math.Max(c + 1, GridSpace.Up(blocker.Right * cols));
             }
         }
 
@@ -123,8 +123,8 @@ public static class DesktopGrid
 
         var (c0, c1, r0, r1, cols, rows) = range;
 
-        var wc = Math.Clamp((int)Math.Round(x * cols, MidpointRounding.AwayFromZero), c0, c1);
-        var wr = Math.Clamp((int)Math.Round(y * rows, MidpointRounding.AwayFromZero), r0, r1);
+        var wc = Math.Clamp(GridSpace.Nearest(x * cols), c0, c1);
+        var wr = Math.Clamp(GridSpace.Nearest(y * rows), r0, r1);
         FracRect? best = null;
         var bestD = long.MaxValue;
         var (bestC, bestR) = (0, 0);
@@ -210,10 +210,10 @@ public static class DesktopGrid
         ArgumentNullException.ThrowIfNull(icons);
         ArgumentNullException.ThrowIfNull(others);
         var result = new FracRect?[icons.Count];
-        var (_, rows) = GridGeometry.GridDims(screen);
+        var grid = GridGeometry.GridDims(screen);
         var occupied = Occupancy.Of(others, screen);
         foreach (var i in Enumerable.Range(0, icons.Count)
-            .OrderBy(i => (int)Math.Round(icons[i].Y * rows, MidpointRounding.AwayFromZero))
+            .OrderBy(i => grid.Row(icons[i].Y))
             .ThenBy(i => Math.Round(icons[i].X, 6))
             .ThenBy(i => i))
         {
@@ -457,8 +457,8 @@ public static class DesktopGrid
                 continue;
             }
 
-            var c = Math.Clamp((int)Math.Round(ax * cols, MidpointRounding.AwayFromZero), c0, c1);
-            var r = Math.Clamp((int)Math.Round(ay * rows, MidpointRounding.AwayFromZero), r0, r1);
+            var c = Math.Clamp(GridSpace.Nearest(ax * cols), c0, c1);
+            var r = Math.Clamp(GridSpace.Nearest(ay * rows), r0, r1);
             FracRect? spot = null;
             bool? down = null;
             for (var step = 0; step <= cols + rows; step++)
@@ -480,11 +480,11 @@ public static class DesktopGrid
                 down ??= Math.Abs(r - (icon.Y * rows)) / hCells >= Math.Abs(c - (icon.X * cols)) / wCells;
                 if (down.Value)
                 {
-                    r = Math.Max(r + 1, (int)Math.Ceiling((icon.Bottom * rows) - Lattice.Epsilon));
+                    r = Math.Max(r + 1, GridSpace.Up(icon.Bottom * rows));
                 }
                 else
                 {
-                    c = Math.Max(c + 1, (int)Math.Ceiling((icon.Right * cols) - Lattice.Epsilon));
+                    c = Math.Max(c + 1, GridSpace.Up(icon.Right * cols));
                 }
 
                 if (r > r1 || c > c1)
@@ -508,9 +508,9 @@ public static class DesktopGrid
     /// <summary>Indices of <paramref name="corners"/> in reading order: by grid row, then left to right, then as listed.</summary>
     private static IEnumerable<int> ReadingOrder(IReadOnlyList<(double X, double Y)> corners, ScreenMetrics screen)
     {
-        var (_, rows) = GridGeometry.GridDims(screen);
+        var grid = GridGeometry.GridDims(screen);
         return Enumerable.Range(0, corners.Count)
-            .OrderBy(i => double.IsFinite(corners[i].Y) ? (int)Math.Round(corners[i].Y * rows, MidpointRounding.AwayFromZero) : int.MaxValue)
+            .OrderBy(i => double.IsFinite(corners[i].Y) ? grid.Row(corners[i].Y) : int.MaxValue)
             .ThenBy(i => double.IsFinite(corners[i].X) ? Math.Round(corners[i].X, 6) : double.MaxValue)
             .ThenBy(i => i);
     }
@@ -519,9 +519,9 @@ public static class DesktopGrid
     private static FracRect Fallback((double X, double Y) anchor, (double W, double H) size, ScreenMetrics screen)
     {
         var a = screen.Allowed;
-        var (cols, rows) = GridGeometry.GridDims(screen);
-        var x = double.IsFinite(anchor.X) ? Math.Round(anchor.X * cols, MidpointRounding.AwayFromZero) / cols : a.X;
-        var y = double.IsFinite(anchor.Y) ? Math.Round(anchor.Y * rows, MidpointRounding.AwayFromZero) / rows : a.Y;
+        var grid = GridGeometry.GridDims(screen);
+        var x = double.IsFinite(anchor.X) ? grid.X(grid.Col(anchor.X)) : a.X;
+        var y = double.IsFinite(anchor.Y) ? grid.Y(grid.Row(anchor.Y)) : a.Y;
         return new FracRect(Math.Clamp(x, a.X, Math.Max(a.X, a.Right - size.W)), Math.Clamp(y, a.Y, Math.Max(a.Y, a.Bottom - size.H)), size.W, size.H);
     }
 
@@ -564,10 +564,10 @@ public static class DesktopGrid
 
         var a = screen.Allowed;
         var (cols, rows) = GridGeometry.GridDims(screen);
-        var c0 = (int)Math.Ceiling((a.X * cols) - Lattice.Epsilon);
-        var r0 = (int)Math.Ceiling((a.Y * rows) - Lattice.Epsilon);
-        var c1 = (int)Math.Floor(((a.Right - size.W) * cols) + Lattice.Epsilon);
-        var r1 = (int)Math.Floor(((a.Bottom - size.H) * rows) + Lattice.Epsilon);
+        var c0 = GridSpace.Up(a.X * cols);
+        var r0 = GridSpace.Up(a.Y * rows);
+        var c1 = GridSpace.Down((a.Right - size.W) * cols);
+        var r1 = GridSpace.Down((a.Bottom - size.H) * rows);
         if (c1 < c0 || r1 < r0)
         {
             return null;

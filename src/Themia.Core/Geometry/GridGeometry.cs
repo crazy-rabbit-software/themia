@@ -19,19 +19,19 @@ public static class GridGeometry
     public const double MinCellDip = 10;
 
     /// <summary>
-    /// [S-06] The widget grid's granularity for a screen. Every gesture lands on it (there is no way to
-    /// switch it off, [S-06]); storage stays the fraction it lands on.
+    /// [S-06] [S-11895] The widget grid of a screen, as whole numbers (<see cref="GridSpace"/>). Every gesture lands on it
+    /// (there is no way to switch it off, [S-06]); storage stays the fraction it lands on.
     /// </summary>
-    public static (int Cols, int Rows) GridDims(ScreenMetrics screen)
+    public static GridSpace GridDims(ScreenMetrics screen)
     {
         if (!screen.IsUsable)
         {
-            return (1, 1);
+            return new GridSpace(1, 1);
         }
 
         var cols = Math.Max(1, (int)Math.Round(screen.Width / MinCellDip));
         var rows = Math.Max(1, (int)Math.Round(screen.Height / MinCellDip));
-        return (cols, rows);
+        return new GridSpace(cols, rows);
     }
 
     /// <summary>
@@ -277,7 +277,7 @@ public static class GridGeometry
             return areaEnd - size;
         }
 
-        return Math.Round(rawStart * lines) / lines;
+        return GridSpace.Nearest(rawStart * lines) / (double)lines;
     }
 
     /// <summary>[S-06] Round a rect onto the grid.</summary>
@@ -288,13 +288,13 @@ public static class GridGeometry
             return r;
         }
 
-        var (cols, rows) = GridDims(screen);
+        var grid = GridDims(screen);
         var (minW, minH) = MinFraction(screen);
 
-        var w = Math.Max(minW, Math.Round(r.W * cols) / cols);
-        var h = Math.Max(minH, Math.Round(r.H * rows) / rows);
-        var x = Math.Round(r.X * cols) / cols;
-        var y = Math.Round(r.Y * rows) / rows;
+        var w = Math.Max(minW, grid.X(grid.Col(r.W)));
+        var h = Math.Max(minH, grid.Y(grid.Row(r.H)));
+        var x = grid.X(grid.Col(r.X));
+        var y = grid.Y(grid.Row(r.Y));
 
         return new FracRect(x, y, w, h);
     }

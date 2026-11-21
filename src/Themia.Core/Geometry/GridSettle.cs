@@ -186,7 +186,7 @@ public static class GridSettle
                 return null;
             }
 
-            var line = Math.Round(v * lines) / lines;
+            var line = GridSpace.Nearest(v * lines) / (double)lines;
             var off = Math.Abs(v - line);
             if (off <= Same)
             {

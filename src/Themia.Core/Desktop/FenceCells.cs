@@ -47,13 +47,13 @@ public static class FenceCells
             return fence;
         }
 
-        var (cols, rows) = GridGeometry.GridDims(screen);
-        var title = FenceGrid.TitleCells / (double)rows;
-        var across = Math.Max(1, (int)Math.Round(fence.W / box.W, MidpointRounding.AwayFromZero));
-        var down = Math.Max(1, (int)Math.Round((fence.H - title) / box.H, MidpointRounding.AwayFromZero));
+        var grid = GridGeometry.GridDims(screen);
+        var title = FenceGrid.TitleCells / (double)grid.Rows;
+        var across = Math.Max(1, GridSpace.Nearest(fence.W / box.W));
+        var down = Math.Max(1, GridSpace.Nearest((fence.H - title) / box.H));
         return new FracRect(
-            Math.Round(fence.X * cols, MidpointRounding.AwayFromZero) / cols,
-            Math.Round(fence.Y * rows, MidpointRounding.AwayFromZero) / rows,
+            grid.X(grid.Col(fence.X)),
+            grid.Y(grid.Row(fence.Y)),
             across * box.W,
             rolledUp ? title : title + (down * box.H));
     }
