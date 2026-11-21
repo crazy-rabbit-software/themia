@@ -22,13 +22,13 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   step's line under (`DateLayout.LineStep`, `NumberStep`). The natural size (`DateLayout.Sizing`) is the face in the
   inset of 12: as wide as the language's widest day in the style (measured over two whole years: every weekday with
   every month and day), widened up to twice that (beside a wider mate, under a clock); the card is the user's past
-  that. It scales down to its main reading at 9 DIP in the inset (root [S-12833], `DateLayout.Fit`): a line to its
+  that. It scales down to its main reading at 9 DIP in the inset (root [S-12833], decided by its `ReadingFit` on the face as drawn): a line to its
   widest day at 9 by 32, the page to its number alone (35 × 32), its weekday and month giving way together where the
   card would draw them under 9 (owner, 2026-11-19: "for the widgets that can scale there should basically be no lower
   limit except for one that makes sense so you can still see the widget"). It has no menu lines of its own. A stored
   `size` is an unknown key, dropped loudly on load.
 - **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step, as wide as today's text
-  ([S-14308]: not the widest day's box), and scaled up as one to the card (`InkFit`, uniform; down only as [S-12833]
+  ([S-14308]: not the widest day's box), and scaled up as one to the card (`ReadingFit`, uniform; down only as [S-12833]
   says), so today's line reaches the sides where the width stops it, placed by the widget's alignment ([S-6581],
   centred by default); the family's inset at the sides and the foot, joined or alone
   ([S-12483]).

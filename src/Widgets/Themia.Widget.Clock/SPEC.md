@@ -45,7 +45,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   line under and then the meridiem give way where the card would draw them under 9, and the face is never drawn
   larger for it. **The face fills its card** (owner,
   2026-11-17: "the clock widget does not stretch out to fill the space properly, there is way too much spacing
-  in it"; root [S-12804]): planned in its natural box, it is scaled up as one to the card (`InkFit`, uniform; down only as
+  in it"; root [S-12804]): planned in its natural box, it is scaled up as one to the card (`ReadingFit`, uniform; down only as
   [S-12833] says), as a display clock is, so a larger card is a larger clock and the spare is only what the
   card's other axis leaves; the dial is planned in the whole box (its strokes stay the family's). The
   one-step climb (`ReadoutSizes.Climb`) is gone. Every style but Minimal draws one line under its face where

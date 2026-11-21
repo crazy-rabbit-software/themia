@@ -3085,7 +3085,7 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
    states it); a one-readout widget plans its face on the family's one-readout step (68) and has **no Size setting**
    (SPEC [S-2449] retired, owner 2026-11-20: "the size should not be settable, it is set by the size of the
    widget"): its natural size is that face, its Min the face scaled to its smallest text's floor (`ScalesDown`), and
-   its view scales the block with the card (`ReadingFit`, `InkFit`). How many of the same item it shows (days, hours,
+   its view scales the block with the card (`ReadingFit`). How many of the same item it shows (days, hours,
    laps, columns, tiles) is the card's too: the view shows every one its box reaches at their one fixed size (their
    natural in whole cells, `ItemSize.Optimal`, `Count`), the last cut by the card's edge, with no count line in its menu
    and nothing stored by a resize; what the items are, a chart's span and a list's **Rows** (its natural height) stay
@@ -3139,7 +3139,7 @@ will be cutoff to some extent then." One rule, no per-widget code where a block 
   | Kit list, custom row lists | rows at their optimal from the card's top edge, as many as it reaches (`KitPlanner.Reach`, `ItemSize.Rows`, `RowsAbove`, [S-14810]), headings and the add row at their own ([S-14811]) | the last row cut by the card's foot or the add row; a shorter list leaves the room under it empty |
   | Grid cell (calendar month) | its share of the card, the month being a grid of the card and not a list: the weeks from under the weekday line to the foot, the columns edge to edge ([S-14101], [S-14500], WR-9) | none: the cells touch |
   | Readout, Status, Controls, Header | never (text stays on the family's steps) | [S-12808] the block's parts together, planned at the natural box (`ReadingFit`) and scaled up as one until the card's height or width stops it (`BlockFit`); one line alone centred by its ink (`MeterView.CentringTop`) |
-  | Clock face (planned on its natural box) | scaled as one with the card, up and down to its floor (`InkFit`) | spacing round it |
+  | Clock face (planned on its natural box) | scaled as one with the card, up and down to its floor (`ReadingFit`) | spacing round it |
   | Chart, dial, tile, picture | the box | none |
 
 - **No inset to the card's border.** The card has no padding ([S-6711]); each block decides: rows, list

@@ -5256,7 +5256,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   timers' icon-button row at Small, the calendar year's Size (now its **Day numbers**, a mode, [S-11542]) and the
   gallery grid's cell Size. Every face that had one (clock, date, alarm, countdown, stopwatch, pomodoro, focus
   session, quote, album art, the screen-time donut) states its natural and least size from its content on the
-  family's default step and follows its card: the face scales up and down as one (`ReadingFit`, `InkFit`, [S-12804],
+  family's default step and follows its card: the face scales up and down as one (`ReadingFit`, [S-12804],
   [S-12808]) to its floor ([S-12833], WR-14: its main reading at 9 where the face states its parts, its smaller parts
   giving way; else its smallest text); a picture (the cover) or a ring (the donut) is as large
   as its card holds. A state file that still has a widget's `size` loads with the key dropped loudly
@@ -5317,14 +5317,14 @@ its content. What is left of this section is how a view measures the fixed parts
   line, a button keep their length (the family's type steps); with no row among them the items stand together,
   centred ([S-11800]: no item is ever added or dropped). Rows: [S-12807];
   a one-readout block (a reading, its lines, its controls) scales up as one ([S-12808], `ReadingFit`); a clock or a
-  date face as one by its ink ([S-12804], `InkFit`); the calendar's month cells ([S-12809], `ScaleBox`); a meter's
+  date face as one by its ink ([S-12804], `ReadingFit`); the calendar's month cells ([S-12809], `ScaleBox`); a meter's
   reading alone (Number) as one block too ([S-12814], `ReadingFit` in `MeterView`), its battery and signal pictures
   centred at their natural size. Across, rows, bars and charts span the content's width.
   **No inset to the card's border**: rows, list rows and their fills run edge to edge (the 12 side inset is the
   row's own padding, so text stays off the border) and from the content's top to the foot's inset line ([S-12807]);
   charts and tiles run edge to edge; the header keeps its inset. A fill at a card corner takes the card's corners
   (the card's clip; a tile's own round fill through `IWidgetCorners`, [S-11883]). docs/WIDGET-KIT.md 17.4. Tests
-  `ItemSizeTests.S12807_`, `KitTests.S12807_S14810_`, `KitRowsTests.S11541_`, `BlockFitTests.S12808_`.
+  `ItemSizeTests.S12807_`, `KitTests.S12807_S14810_`, `KitRowsTests.S11541_`, `BlockFillTests.S12808_`.
 - **[S-12411]** **A relaxed range, no practical maximum** (owner, 2026-11-15: "relax the size limitations on all
   the widgets"; 2026-11-16: "relax sizing constraints in general even more. especially maximum sizes should not
   really be a thing as this is for the user to decide"). A kind states the range its content needs ([S-2438]); the
@@ -8584,7 +8584,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-12804]** **A one-readout face fills its card** (owner, 2026-11-17: "the clock widget does not stretch out to
   fill the space properly, there is way too much spacing in it"; 2026-11-19: "the clock widget has too big of a
   space at the top and bottom"). The clock and the Date widget plan their face on the family's step (no Size,
-  [S-2449] retired) in their natural box and scale it up as one to the card (`InkFit`, the rule `BlockFit` of [S-12808]: uniform, up only) until
+  [S-2449] retired) in their natural box and scale it up as one to the card (`ReadingFit` with one part, the rule `BlockLayout` of [S-12808]: uniform) until
   its ink, the digits' capitals and baseline rather than their line's leading, fills the card's height or the width
   stops it, as a display clock is: a larger card is a larger face, never a band round a small one; what is left is
   only what the card's other axis leaves, the face centred on its ink there, placed across by the alignment. The clock's dial is planned in
@@ -8632,14 +8632,14 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   Drive, Recycle Bin, Brightness, Volume, Music, Music progress, Quote, Alarm, Stopwatch, Pomodoro, Focus session,
   Countdown) plans the block in the room its kind's natural box gives it, its parts at their natural spacing (a
   `SpreadStack` of them; a reading and its line under one part, `ReadoutBlock`), and draws that plan as one
-  (`ReadingFit`, the rule `BlockFit`; `NaturalBlock` is gone): in a larger card it scales up until its ink fills the
+  (`ReadingFit`, the rule `BlockLayout`; `NaturalBlock` is gone): in a larger card it scales up until its ink fills the
   card's height (its first ink on the content's top, its last on the foot's inset) or the card's width stops it,
   then it stands centred on its ink in the height left over (unavoidable). It never pulls its parts apart and never
   shrinks; at its natural box nothing scales. The sides' and the foot's insets do not scale (the fit's margin or its
   view's padding); Screen time's day line is one of its parts ([S-14282]). No cap beyond the card: the
   user decides how large the card is ([S-12411]). Kept: toggles and power buttons ([S-5700], [S-12806]), pictures,
   graphs and charts ([S-12800]), Drive's ring style (its ring grows with the box), the Header, Next meeting's and
-  Rain next hour's lines over their join or chart, Sun's picture. Tests `BlockFitTests.S12808_`; renders
+  Rain next hour's lines over their join or chart, Sun's picture. Tests `BlockFillTests.S12808_`; renders
   `--widget-png weatherNow|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
 - **[S-12809]** **The calendar's month fills its card** (owner, 2026-11-19: "the calendar does not follow this design
   philosophy for example. fix that"; then "Bigger numbers too"). The weekday line and the six weeks fill the content
@@ -8695,10 +8695,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   stood for and placed by its dashes, which left the difference as a band under its last ink (the drive's "--%" and "Not
   connected" 13 over and 33 under at 330x140, the battery's "--" 32 over and 69 under at 300x164). Brightness and volume without a display or device keep their readout, "--"
   disabled, the reason its line under, over the disabled slider; brightness draws the same before the displays are
-  read. Tests `FactsDefaultsTests.S12813_`, `BlockFitTests.S12813_`, the modules' own.
+  read. Tests `FactsDefaultsTests.S12813_`, `BlockFillTests.S12813_`, the modules' own.
 - **[S-12814]** **A block has no band over its first ink or under its last** (owner, 2026-11-19: "the drive widget
   still has a fucking space at the top, maybe also at the bottom. make sure that this does not happen anywhere"). A
-  one-readout block ([S-12808], `ReadingFit`, the rule `BlockFit.Fill`) scales up as one to the largest size at which
+  one-readout block ([S-12808], `ReadingFit`, the rule `BlockLayout.Fill`) scales up as one to the largest size at which
   the parts with a width of their own (the reading, its caption, an icon) fit the content's width and the parts packed
   together fit its height: a bar, a slider or a graph spans any width and never holds the block small. Where the height
   stops it, its first ink stands on the content's top and its last on the foot's inset; its parts always stand together
@@ -8712,10 +8712,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   reading showing a linked moment's value and time) and keeps its scale. A smaller room scales it down, to its floor
   ([S-12833]); a room shorter than its parts at that floor keeps them packed from the top. A drive, a reading or a facts list without data draws its
   default ([S-12813]: the drive's "--", its reason under it and its empty bar), never a status line at the top of an
-  empty card. Tests `BlockFitTests.S12814_` (the owner's 330x130 drive card among them).
+  empty card. Tests `BlockFillTests.S12814_` (the owner's 330x130 drive card among them).
 - **[S-14280]** **A block's parts stay together** (owner, 2026-11-19, docs/WIDGET-RULES.md WR-7: "A reading and its
   caption stay together and scale up", answers "All together, scaled", "Keep them together"; WR-2: "the items have no
-  spacing between them"). A one-readout block (`ReadingFit`, the rule `BlockFit.Fill`) is laid out in its parts' own
+  spacing between them"). A one-readout block (`ReadingFit`, the rule `BlockLayout.Fill`) is laid out in its parts' own
   height, never the room's: the reading, its caption, its bar and its controls stand at their natural spacing, touching,
   at every size and in every state, and the block scales as one, controls included. Where the height stops the scale,
   its first ink stands on the content's top and its last on the foot's inset ([S-12814]); where the width stops it, the
@@ -8727,11 +8727,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (centred, at the start, or a reflow that fills it) was the owner's open question, answered 2026-11-20 ([S-14301]:
   "Centred is fine"): centred down, as above, and across where the card's alignment puts it, centred for a kind that
   does not align. The pomodoro's side-by-side column ([S-14281]) and the screen-time day line ([S-14282], [S-14284]) follow.
-  Tests `BlockFitTests.S14280_`; renders `--widget-png stock|exchangeRate|screenTime|music|focusSession|alarm|moon|
+  Tests `BlockFillTests.S14280_`; renders `--widget-png stock|exchangeRate|screenTime|music|focusSession|alarm|moon|
   airQuality --sizes range` and `--sizes 330x140,300x164,600x200`.
 - **[S-14283]** **A Controls row's switch is drawn whole** (WR-7: the controls are the block's). The switch
   (`ControlsBlock.Switch`, the alarm's) stands at its template's own height, its track (20, `ControlsRules.SwitchTrack`)
-  centred in it, and its ink is that track (`PartInk`, as a slider's is its thumb), so the block's last ink is the
+  centred in it, and its ink is that track (`Ink`, as a slider's is its thumb), so the block's last ink is the
   track's foot. Before, the switch was held to the Controls row's 32 and the template cut its track's foot flat at
   every size. Renders `--widget-png alarm --state sample|off|snoozed|ringing --sizes range`.
 - **[S-14261]** **A text the block cuts never holds it small** (owner, 2026-11-19, WR-4: "they should stretch if they dont
@@ -8748,11 +8748,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   clips the time into the title"; docs/WIDGET-RULES.md exemption 2026-11-20, a reading that fills one axis may stand
   centred on the other: "Centred is fine"). A `CutLine` names the line whose whole width holds the block (`Holds`: the
   meeting's title) and measures it unbounded (`Whole`); `ReadingFit` draws the block no larger than where that row (the
-  line whole, and what stands beside it) fits the room's width (`BlockFit.Uncut`, `BlockFit.Fill`'s `most`) and never
+  line whole, and what stands beside it) fits the room's width (`BlockLayout.Uncut`, `BlockLayout.Fill`'s `most`) and never
   under the floor of the parts it draws ([S-12833]), so the line is cut only at the floor ([S-14261]: it still never holds
   the block under it). Before, the next meeting's title alone in a 370 × 80 card, asking for its least, filled the height at
   2.8 times and was drawn 56 DIP and cut ("Design re…"); now it stands whole. A kind with no cut line: no change. Tests
-  `BlockFitTests.S14791_`, `NextMeetingJoinTests.S14793_`.
+  `BlockFillTests.S14791_`, `BlockLayoutTests.S14791_`, `NextMeetingJoinTests.S14793_`.
 - **[S-14790]** **Parts of one size give way in their kind's order** ([S-12833]; owner, 2026-11-20: "the next meeting clips
   the time into the title"). Parts give way smallest first; parts of one size went together, so a meeting's three Body
   lines left its title alone. A kind that orders them states each a hair under the size (`FaceFloor.Before(size, places)`,
@@ -8807,6 +8807,24 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   with its own layout entry: it never finds cards by their alpha, which merged a size label over a card into its top
   rows and skipped a card under 20 px (a quick toggle's least, 10x10), so every later card was judged with the layout
   of the one before it (126 "centred face off centre" findings on tiles that were centred).
+- **[S-14323]** **One layout for every one-readout block** (owner, 2026-11-21, of the code audit: "do all of them … be
+  thorough"; WR-7, WR-14). Every block that scales as one (a reading and its caption, its controls and bar, a meter's
+  Number looks, a clock's face, a date, the Header's line, a tile's face, a text kind's line) is laid by one pure rule,
+  `BlockLayout.Solve`: its parts measured at their own size (`PartBox`: box, ink over, under and across, whether it
+  spans, its cut lines' whole width, its smallest text and glyph, the size it gives way at), the face's stated sizes
+  (`BlockFace`), the alignment, the spacing and the foot give the floor (the pieces under it give way, smallest first and
+  in their kind's order, decided on the parts as drawn at each floor, [S-14243]), the fill (scale, packed height, top,
+  [S-12808]) and every part's place ([S-14301]). One panel draws it (`ReadingFit`: the layout computed in the measure,
+  applied in the arrange, its parts its own children under its one transform; a part measured again measures the block
+  again); the one-part case is the same panel, never a second fit (`InkFit` is gone). What a part draws is read in one
+  walk (`Ink.Of`; `Ink.Keep` hands the floor to the blocks whose pieces give way): the ink as drawn (the meter,
+  [S-14200]; a slider's thumb and a toggle's track read from their templates), the family's model of capitals on the
+  baseline only for pure sizing and where nothing is measured. The clock's meridiem and line under, the date page's weekday
+  and month, and which words the clock's line under holds are decided on the face as drawn, never on an estimate of it
+  (`HeroFit` stays for sizing). A meter's reading block that does not scale (the battery, the signal bars) is centred by
+  the same rule at its own size, a whole device pixel down (the one rounding token, `LayoutMath.Pixel`). Tests
+  `BlockLayoutTests` (the give-way order, held templates, cut lines' caps, placeholder ink, alignment, cross-axis
+  centring, the face floor), `BlockFillTests`, `ResponsiveLayoutTests.S662_`.
 - **[S-14301]** **A reading fills one axis and stands centred on the other** (owner, 2026-11-20, asked whether a reading
   and its caption that fill the card's height but not its width, or the reverse, may stand centred like the clock or the
   widget should rearrange to fill: "Centred is fine"; docs/WIDGET-RULES.md, Exemptions). Its block grows as one until
@@ -8821,13 +8839,13 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   stands centred, the owner's words. Down, a reading that fills the width is always centred. The layout dump writes each
   card's `align` (`ItemDump`: `ContentAlignment.Shown` where the kind aligns in its style, else `center`) and the check
   judges by it (`python scripts/gap-check.py --self-test` holds the cases). The faces follow the same rule through the one
-  fit (`ReadingFit.Align`, `BlockFit.Across`): every part of a one-readout block with a width of its own stands where the
+  fit (`ReadingFit.Align`, `BlockLayout.Place`): every part of a one-readout block with a width of its own stands where the
   card's alignment puts it (a view that aligns hands the fit the alignment it draws, [S-6583]; a view that does not
   leaves it centred), a part that takes the width it is given (a bar, a slider's row, a line cut to its room:
   `ReadingFit.Span`, or a part that asks for no width) runs across the content; no view sets a fit's part's alignment of
   its own. Before, every block stood from the start (the recycle bin's "1.2 GB" 12 from the start and 424 from the end of
   a 600x200 card; the CPU's, the music's, the pomodoro's, the screen time's alike). Each part stands its ink, not its
-  box, where the alignment puts it, and the block's width is its parts' ink (`PartInk.Across`: a text's side bearings, a
+  box, where the alignment puts it, and the block's width is its parts' ink (`Ink.Of`: a text's side bearings, a
   column's or a row's ends), placed once in the plan's one arrange (`SpreadStack.Lay`); the plan is laid no narrower than
   its widest part's box, so nothing of it is clipped. The plan, drawn scaled, is laid out unrounded: a pixel of rounding
   in its own units was the scale's pixels drawn (the GPU's "--" 2.6 off the middle at 600x200). A line with nothing to say
@@ -8835,7 +8853,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   gap that belongs to a part that gives way goes with it (the next meeting's end column: its grid spacing stayed, so the
   cut title stood 40 short of the end at 350x70). A tool line in a block (the screen-time day line, [S-14284]) inks
   where its words and its buttons' glyphs are drawn (`ToolLine.Ink`, measured): a chevron's points stand over the
-  capitals, and read as the capitals they stood the donut's block 6 off centre at 520x600. Tests `BlockFitTests.S14301_`.
+  capitals, and read as the capitals they stood the donut's block 6 off centre at 520x600. Tests `BlockLayoutTests.S14301_`.
 - **[S-14302]** **A mark over the content is no ink of the content's.** The sources' problem glyph (`KitStatus`, [S-7042],
   over the content's top end) stands over a reading, not in it: the layout dump writes each mark's box (`marks`) and the
   gap check leaves it out of the measure, as the item check leaves a status glyph over a row's value. Was: a stale
@@ -8867,24 +8885,24 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-14306]** **A tile's face scales up as one** (WR-7: "A reading and its caption stay together and scale up";
   docs/WIDGET-RULES.md, tiles: "The bands over and under a tile's face are alike; nothing else of WR-1..WR-4 is
   relaxed"; decided 2026-11-20). The Tile block's face (the glyph or its circle or ring, the name, a toggle's state line)
-  is one block planned on the step its box holds (`TileRules.Face`) and scaled up by its `InkFit` until its
+  is one block planned on the step its box holds (`TileRules.Face`) and scaled up by its `ReadingFit` until its
   ink fills the tile's height or the width stops it, then centred on the other axis; its words wrap at the inset's width
   as planned and the block is as wide as its widest part (`MaxWidth`, not the inset's width). The small end keeps
   [S-12806] (a 30x30 tile's glyph in its tight inset, WR-14). A glyph's and a one-cell grid's sides are their ink
-  (`PartInk.Across`: a glyph's room in its em box). The gap check judges a tile's face that fills the height as centred
+  (`Ink.Of`: a glyph's room in its em box). The gap check judges a tile's face that fills the height as centred
   across ([S-14305]). Before, the face stood at its planned size (a cap of 1), 25 to 250 DIP in from the sides.
 - **[S-14307]** **The Header's line grows until the width stops it** (the owner's one-line exemption: "the Header widget,
-  whose one line grows until the width stops it"). The Header block stands in an `InkFit`: scaled up as one until its
+  whose one line grows until the width stops it"). The Header block stands in a `ReadingFit`: scaled up as one until its
   ink fills the card's height or its width, centred top and foot, across where its alignment puts it. Its natural strip
   ([S-9601], `HeaderLayout.Height`) keeps the line at its own size: the band over and under the line is what that strip
   leaves round the title's size (11). A title longer than the card is cut with its ellipsis at its own size (the
   block's width is at most the card's inside, `ApplySize`). A glyph the meter measures says where its own ink is beside a
-  text (`PartInk`; the Header's glyph stands over its title's capitals). Before, the line stayed at its own size in any
+  text (`Ink`; the Header's glyph stands over its title's capitals). Before, the line stayed at its own size in any
   card (a 900x300 header 12 from the start and 818 from the end).
 - **[S-14308]** **The date fills with today's text** (decided 2026-11-20). The face is as wide as today's line, not the
   box the sizing made for the language's widest day (`DateLayout.Face`'s width), so today's line reaches the sides at
-  its alignment where the width stops it; a shorter day is drawn larger, the day-to-day change accepted. `InkFit` fills
-  and places by ink across too (`PartInk.Across`, unrounded). The clock's world style at 350x70 stays smaller: its city
+  its alignment where the width stops it; a shorter day is drawn larger, the day-to-day change accepted. `ReadingFit` fills
+  and places by ink across too (`Ink.Of`, unrounded). The clock's world style at 350x70 stays smaller: its city
   line gave way and its figures fill the card as any face's parts left do ([S-14318]).
 - **[S-14311]** **A quote wraps at whole words in the card** (WR-3). The quote's text wraps at the width the card's inset
   gives it (`ApplySize`), at whole words, the last line cut after a whole word; the fit plans the block on those lines
@@ -8924,8 +8942,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   a second line, and its strip is the one a header with a caption states (52 tall), never the 36 of one without. Was:
   the caption drawn in a 36 strip, "centred face off centre 11.3/4.0; text in the inset foot 4.0".
 - **[S-14317]** **A mark stands over a text's letters, or not at all** (the item check's marks rule, [S-12831]). The layout
-  dump writes each text in an item with its letters' box (`ink`: its box less its side bearings, `PartInk.Across`, and the
-  leading over and under its line, `PartInk.Of`), and the item check finds a status glyph or ring over an item's text by
+  dump writes each text in an item with its letters' box (`ink`: its box less its side bearings, `Ink.Of`, and the
+  leading over and under its line, `Ink.Of`), and the item check finds a status glyph or ring over an item's text by
   those letters. A reading placed by its ink at its room's end ([S-14301]) reaches past its letters with its box: the
   stale UV index's "1", its letters ending where the status glyph's room begins, ran under the glyph by 1 to 10 DIP of
   side bearing ("a FontIcon at 302,16 stands over an item's text"). A glyph over the letters is still a finding.
@@ -8971,8 +8989,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-12833]** **A face that scales scales down too** (owner, 2026-11-19: "you should be able to make the clock even
   smaller than it is right now. for the widgets that can scale there should basically be no lower limit except for one
   that makes sense so you can still see the widget."; docs/WIDGET-RULES.md WR-14). A face that scales as one (a clock,
-  a date, a reading on `ReadingFit` or `InkFit`) scales down as well as up, until its smallest text is 9 DIP or its
-  smallest glyph 12 (`ScaleFloor`, one floor for every kind; `ScaleFloors.Of` reads a face's parts); its kind's least
+  a date, a reading on `ReadingFit`) scales down as well as up, until its smallest text is 9 DIP or its
+  smallest glyph 12 (`ScaleFloor`, one floor for every kind; `Ink.Of` reads a face's parts); its kind's least
   size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`; the
   drive's ring and the quote still at the family's Caption: the quote's words are measured as one unwrapped line in
   its fit, so it runs off its card at every size and cannot scale as one until that is fixed; the pomodoro's block at
@@ -8983,7 +9001,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   that states its parts (`FaceFloor`: their text sizes and its plan with the parts of at least a size) goes down until
   its **main reading** (its largest text: the clock's figures or words, the date's line or its day's number) is at 9.
   A smaller part (a meridiem, the line under, the page's weekday and month) is drawn while the card keeps it at 9 and
-  gives way under that, the smallest first (`FaceFloor.Fit`, `FaceFit.Floor`), so no drawn text is ever under 9 and
+  gives way under that, the smallest first (`BlockLayout.Decide`, on the parts as drawn), so no drawn text is ever under 9 and
   none holds the reading large; a part that went never comes back in a smaller card, and while none went every piece
   is drawn (`FaceFit.Floor` 0). What is left fills the card ([S-14318], `FaceFit.Scale`): the clock and the date too,
   one-line faces the owner lets stand centred on the axis they do not fill. Its least
@@ -8992,7 +9010,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (55 with seconds), Flip 51..58 × 36..37 (its cards' room), Words 87 × 66, whatever its meridiem and line under; the dial goes down
   to its floor (`ClockFace.DialFloor`, 40) in the inset, 64 × 64; the date's line its widest day at 9 by 32, its page
   its number alone, 35 × 32. Seconds are figures and never give way; the clock is planned in its natural box at every
-  size, never folded (never stacked, never without its seconds). Tests `BlockFitTests.S12833_` (the floor, scaling
+  size, never folded (never stacked, never without its seconds). Tests `BlockFillTests.S12833_` (the floor, scaling
   down, monotonic), `FaceFloorTests.S12833_` (the main reading's floor, parts giving way smallest first, never drawn
   under 9, the scale only falling), `ClockFaceTests.S6011_S12833_`, `.S6741_S12833_` (each style's least height, the figures at 9, every part at
   the natural box, monotonic), `DateTests.S10802_S12833_`. **Every one-reading face states its parts** (owner, 2026-11-19:
@@ -9018,7 +9036,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   most glyphs ink only part of it: the memory chip leaves an eighth over and under, the drive is a flat bar through
   the middle, the battery a third over and under and an eighth before it. A Readout led by one (`ReadoutBlock`: the
   meters' Number look, the network's arrows, Weather now's sky) reads its ink as where the glyph draws in its box,
-  measured as every glyph's is ([S-14200]: `InkMeter`, `PartInk`'s glyph; unmeasured, its whole box;
+  measured as every glyph's is ([S-14200]: `InkMeter`, `Ink`'s glyph; unmeasured, its whole box;
   `LineInk.With(LineInk, …)`), so its block scales until the glyph's or the figures' ink, whichever reaches further,
   fills the height, and on the start side its box reaches back over the room its glyph leaves there, as measured
   (`InkMeter.Room`, `InkRoom.Start`; right to left, its right), so the glyph's ink stands on the start inset as a text's
@@ -9048,7 +9066,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   Was: a brightness card waiting for its displays drew its "--" 26 under the top in a 300 × 164 card, its fit still
   placing the "0%" the dashes had replaced.
 - **[S-14245]** **A part of a height of its own inks where it stands in its row** (WR-4). In a row of parts side by side
-  (`PartInk`), a part with a height of its own (a Controls row's 28 icon button, centred beside its 32 slider) stands
+  (`Ink`), a part with a height of its own (a Controls row's 28 icon button, centred beside its 32 slider) stands
   where its alignment puts it, as a text does; only a part the row sizes inks the row's whole height. Was: the volume's
   mute button was read as reaching the row's foot, and the block stood 2 (5 drawn) over the foot's inset.
 - **[S-14246]** *(Replaced 2026-11-21 by [S-14818]: a core's column is its item, from the card's edge.)* **The cores'
@@ -9060,10 +9078,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   start (where no glyph leads it) and its end (its delta's, else its unit's, else its value's), as the meter measures
   it on the text drawn ([S-14200]: `InkMeter.Room`, the rule `InkRoom.Ends`; right to left, where the runs' order
   across follows their own direction, each side the least either run leaves there), so it never reaches past its ink;
-  unmeasured, its box. Tests `GlyphInkTests.S14247_`. The fit's one DIP of room over its parts' width ([S-12814], `BlockFit.WidthSlack`) stays: a part laid
-  at exactly its width would be trimmed by layout rounding. Since 2026-11-20 ([S-14301]) it is laid beyond the room, on
-  the side the alignment leaves free (`BlockFit.Across`), never in the scale: before, drawn, it was the block's scale in
-  DIPs at its end (the stock's 900x300 price 17.3 from the end against 12.7 from the start). The line under is stood on
+  unmeasured, its box. Tests `GlyphInkTests.S14247_`. Each part is laid at its own measured width (`BlockLayout.Place`), never narrower, so layout rounding never trims it
+  and no slack stands in the scale ([S-14323]; to 2026-11-21 the fit held one DIP of room over its parts' width,
+  `BlockFit.WidthSlack`, laid beyond the room: before 2026-11-20 it stood in the scale, the block's scale in DIPs at its
+  end, the stock's 900x300 price 17.3 from the end against 12.7 from the start). The line under is stood on
   its ink at its ends too (the weather's "Can't reach the service" stood 4.7 short of the end's inset).
 - **[S-14249]** **A text is measured in the face XAML draws it in** ([S-14200], [S-14247]). A family text names no
   family of its own: XAML draws it in Segoe UI Variable at the optical size its size sets, and the meter (`InkMeter`,
@@ -9083,17 +9101,17 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   the family's model of capitals on the baseline (`LineInk.Of`), which missed a descender ("Friday, 20 November", "Sleep",
   "Sign out": 0.23 of the size), the letters over the capitals and the figures' overshoot (the clock's "10:42", 0.03),
   and a glyph's own room in its em box (Wi-Fi's arcs start an eighth under its top, its dot a sixth over its foot).
-  `PartInk` reads a family text and a glyph so (a glyph alone in a panel stands where its box does), and the Readout
+  `Ink` reads a family text and a glyph so (a glyph alone in a panel stands where its box does), and the Readout
   block its value, unit and line under (`ReadoutBlock.Ink`). A line saying nothing yet, and a placeholder read as what it
   stands for ([S-12813]), keep the model; without a meter (Core's tests) the model stands. Tests
   `InkCentringTests.S14200_`.
 - **[S-14201]** **A tile's face is centred on its ink** (owner, 2026-11-19, of a quick toggle's or a power button's icon
   and name: "Centred is fine"). The Tile block's face (the glyph, its circle or arm ring, the name and a toggle's state
-  line) stands in an `InkFit` in the tile's inset (since 2026-11-20 scaled up as one, [S-14306]), so its
+  line) stands in a `ReadingFit` in the tile's inset (since 2026-11-20 scaled up as one, [S-14306]), so its
   first ink (the glyph's top, the ring's, the circle's) and its last (the last line's baseline or descender) stand as far
   from the top as from the foot; it stood centred by its box, 8 to 15 DIP more room over the glyph than under the words
   (the Wi-Fi tile at 232: 52 over, 44 under). A face whose ink changes in a box of the same size (a sentence with a
-  descender for one without, the arm ring shown, "--" for "Off") is placed again (`InkFit` re-arranges when its face's
+  descender for one without, the arm ring shown, "--" for "Off") is placed again (`ReadingFit` re-arranges when its face's
   ink moved). Arming draws the ring round the glyph and the face takes it in, centred again. The clock's and the date's
   faces are centred on their measured ink the same way where their width stops them ([S-12804], [S-12808]). Tests
   `InkCentringTests.S14201_`; renders `--widget-png wifiToggle|lock|shutdown --state on|hover|armed --sizes range` and
@@ -9172,7 +9190,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   the start, with a track or without (`HoldWidths`), and measures its fit again when they change (`ReadingFit.Refit`);
   measured first with no track (no times, the bar at its least), its scale stayed far too large (340x80: 43 px
   figures for 13) until a later layout pass, under the pointer or not, drew it small. Audited, paint only: the
-  Controls row's sliders (Brightness, Volume: their thumb's ink is the constant `PartInk.SliderThumb`, their
+  Controls row's sliders (Brightness, Volume: their thumb's ink is the constant read from the slider's template, `Ink`, their
   PointerOver states recolour), buttons and tiles (quick toggles, power buttons: the face recolours), link cards and
   lit rows (`LinkLook`, `ItemFill`, the selection chrome: fills and colours), list rows' hover bands. Not a hover
   look but a reading: a meter's number standing at a moment pointed at on a linked chart ([S-11914]) says other text
@@ -10299,7 +10317,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   Two rows or more (and no graph) it is the **readout**, the whole card: the value as the reading (a Readout at Big28, its
   unit smaller after it, `ReadoutRules.Split`; the arrow beside the value) and the glyph and the name as its caption
   (Caption, secondary), one block scaled up together until the height or the width stops it (WR-7, "All together, scaled";
-  `ReadingFit`/`BlockFit`, the family's inset off the card's edges), down to its legibility floor (WR-14: the 16 glyph and
+  `ReadingFit`/`BlockLayout`, the family's inset off the card's edges), down to its legibility floor (WR-14: the 16 glyph and
   the Caption alike, 0.75); the cross axis stands centred (owner, 2026-11-19: "Centred is fine"). The caption stands
   **beside** the value on one line where that block scales larger in the room, else **over** it (narrow or tall boxes:
   the name over the value), on the parts' own boxes (`MetricRules.Arrange`). Without a reading the same look with "--",
@@ -10414,7 +10432,7 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   alignment puts it (`IContentAligned`, Left by default, [S-6581]); on the other axis it stands centred (owner,
   2026-11-19: "Centred is fine").
 - **[S-14931]** **One face** (`TextView`): the kind's glyph leading its line where the kind has one ([S-14934]), and its
-  text, one block in the inset (`InkFit`). The line takes the width the box gives it at the scale the height gives it
+  text, one block in the inset (`ReadingFit`). The line takes the width the box gives it at the scale the height gives it
   (`TextRules.Room`: the room's width at its own size or larger, wider where a shorter box draws it smaller, never past
   the floor's scale), so a text longer than the card is cut with its ellipsis at the card's edge (its whole text the
   tooltip) and a shorter one grows until one axis stops it; a kind of two lines wraps by words first. Somebody else's

@@ -314,7 +314,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   viewport; `SpreadStack` lays a family row, `IInked.IsRow`, at its optimal); rows and fills run to the card's edge (no
   content inset; text keeps the item's own); items have no spacing between them (owner, 2026-11-19); what fills the box
   is a one-readout block, which keeps its parts together and scales up as one until its ink fills the height or the
-  width stops it (`ReadingFit`/`InkFit`, `BlockFit`, `LineInk`/`PartInk`, [S-12808], [S-12804]), a graph's plot, a
+  width stops it (`ReadingFit`, the rule `BlockLayout`, `LineInk`/`Ink`, [S-12808], [S-12804], [S-14323]), a graph's plot, a
   single metric's one row (its whole face, [S-14705]) and the month, a grid of the card, not a list, whose cells fill and
   whose type grows (`ScaleBox`, [S-12809], WR-9). Never a per-widget stretch of its own.
 - **No card header** ([S-12480], [S-12481]; owner 2026-11-16): a card draws its view and nothing over it,
