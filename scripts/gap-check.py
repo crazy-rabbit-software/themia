@@ -37,6 +37,8 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   card's sides; where it reaches the card's foot it is the foot, and where it starts on the card's top the top, so the
   text or strokes in it are not judged by their bands there; what stands over or under it (a tool line, a pad's
   toolbar) is judged by its ink as any card's.
+- [S-14712] a card one grid cell tall (a metric's graph alone) is all rim to the measure: where a plot fills it edge
+  to edge, its line in the rim (a flat or least value on the foot) is no "nothing drawn".
 - [S-14302] a mark over the content (`marks`: the sources' problem glyph, KitStatus, over the content's top end) is no
   ink of the content's: it is left out of the measure.
 - [S-14319] a held reading (`holds`: a running time held to its format's widest form, owner 2026-11-20: "the clock
@@ -106,6 +108,7 @@ ONE_LINE = {'clock', 'date', 'header'}
 GRAPH = re.compile(r'(History|Graph)$')
 GRAPHS = {'rainNextHour'}
 EDGE = 0.5  # DIP: layout rounding
+RIM = 4.0  # DIP: the card's own rim the measure leaves out (its outline and antialiased corners)
 
 
 def classify(kind):
@@ -136,6 +139,16 @@ def plot_box(layout):
         return None
     return (min(p['x'] for p in plots), min(p['y'] for p in plots),
             max(p['x'] + p['w'] for p in plots), max(p['y'] + p['h'] for p in plots))
+
+
+def is_rim_plot(w, h, layout):
+    """[S-14712] Whether the card is too short for the measure past its rim (a third of a side, at most 4 DIP) and a plot
+    fills it edge to edge: its ink is the plot's, standing in the rim the measure leaves out."""
+    plot = plot_box(layout)
+    if plot is None or h > 3 * RIM:
+        return False
+    l, t, r, b = plot
+    return l <= EDGE and t <= EDGE and r >= w - EDGE and b >= h - EDGE
 
 
 def field_box(layout):
@@ -194,6 +207,11 @@ def measure(path, layouts):
 def judge(kind, card, layout):
     w, h, top, foot, left, right = card
     if top is None:
+        # [S-14712] A card one grid cell tall (a metric's graph alone: owner, 2026-11-21, "i want it to scale down all the
+        # way to a one or two block height") is all rim to the measure; a plot from its edges to its edges is its face
+        # there, its line where its value is (a flat or least value on the foot).
+        if is_rim_plot(w, h, layout):
+            return []
         return ['WR-10 nothing drawn']
     kind_class = classify(kind)
     if kind_class in ('picture', 'windows'):
@@ -428,6 +446,12 @@ def self_test():
                                                    plots=[{'x': 0, 'y': 0, 'w': 330, 'h': 130}]), [], False),
         ('a graph whose plot stops short', card(330, 130, 12.7, 0, 12.7, 254.7,
                                                 plots=[{'x': 0, 'y': 0, 'w': 300, 'h': 130}]), [], True),
+        # [S-14712] A metric's graph alone in one grid cell, its flat line on the foot, all in the rim.
+        ('a one-cell graph whose line stands in the rim', card(200, 10, None, None, None, None,
+                                                               plots=[{'x': 0, 'y': 0, 'w': 200, 'h': 10}]), [], False),
+        ('a one-cell card with no plot and no ink', card(200, 10, None, None, None, None), [], True),
+        ('a tall card with a plot and no ink', card(200, 60, None, None, None, None,
+                                                    plots=[{'x': 0, 'y': 0, 'w': 200, 'h': 60}]), [], True),
         # [S-14303] A note's text from the top of its editor, the editor the card's sides and foot.
         ('a short note in its editor', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 566}]), [], False),
         ('a drawing low on its pad', card(384, 160, 34, 14, 8, 12.7, fields=[{'x': 0, 'y': 0, 'w': 384, 'h': 160}]), [], False),
