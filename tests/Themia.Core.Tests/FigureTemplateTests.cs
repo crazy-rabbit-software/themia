@@ -19,9 +19,9 @@ public sealed class FigureTemplateTests
         => Assert.Equal(template, FigureTemplate.Of(text));
 
     [Theory]
-    [InlineData("1:11", "88:88", " 1:11")]
+    [InlineData("1:11", "88:88", "\u20071:11")]
     [InlineData("10:08", "88:88", "10:08")]
-    [InlineData("9\n41\n18", "88\n88\n88", " 9\n41\n18")]
+    [InlineData("9\n41\n18", "88\n88\n88", "\u20079\n41\n18")]
     [InlineData("--", "88:88", "--")]
     [InlineData("3d 5h", "88d 88h", "3d 5h")]
     public void S14319_a_shorter_time_is_padded_at_its_start_to_the_templates_places(string value, string template, string held)
@@ -40,6 +40,14 @@ public sealed class FigureTemplateTests
             Assert.Equal(template, FigureTemplate.Of(held));
         }
     }
+
+    [Theory]
+    [InlineData("88:88:88", "88888888")]
+    [InlineData("88:88.8", "8888888")]
+    [InlineData("88d 88h", "88d 88h")]
+    [InlineData("\u20078:88", "88888")]
+    public void S14319_tabular_figures_set_its_separators_a_figure_wide(string template, string tabular)
+        => Assert.Equal(tabular, FigureTemplate.Tabular(template));
 
     [Fact]
     public void S14319_a_formats_widest_form_is_its_longest_line_by_line()

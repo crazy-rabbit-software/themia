@@ -53,6 +53,19 @@ public sealed class StopwatchFaceTests
     }
 
     [Fact]
+    public void S4603_its_least_card_holds_the_widest_hours_time_as_tabular_figures_set_it()
+    {
+        // Held to "88:88:88" in tabular figures (its colons a figure wide each), the face at the least scale stood 7 into
+        // the inset of its 201 card: its width was modelled with quarter-em colons (3.98 em, not 8 figures' 4.64).
+        var face = StopwatchFace.Sized(new StopwatchConfig());
+        Assert.Equal(ReadoutRules.Width(FamilyType.Hero68, new ReadoutText("88888888", OneReadout: true)), face.Width, 6);
+
+        var sizing = Sizing(new StopwatchConfig());
+        var least = ScaleFloor.Least(Math.Min(FamilyType.Under(face.Step).FontSize, FamilyType.Body.FontSize));
+        Assert.True(sizing.Min.Width - (2 * FamilySpace.Inset) >= (face.Width * least) - 1e-6, $"{sizing.Min.Width}: {face.Width * least}");
+    }
+
+    [Fact]
     public void S11302_S14502_a_stored_lap_count_is_dropped_loudly()
     {
         // How many laps it lists is the card's: no field holds it, so a file that still stores one loads without it.

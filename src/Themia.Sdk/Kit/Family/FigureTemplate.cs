@@ -66,6 +66,25 @@ public static class FigureTemplate
     }
 
     /// <summary>
+    /// [S-14319] <paramref name="template"/> as wide as tabular figures set it, for a width model that counts letters
+    /// (<c>HeroFit.Ems</c>): tabular figures set a colon, a stop and a comma a figure wide too, so each is written as the
+    /// figure (a stopwatch's "88:88:88" is eight figures wide: modelled with its colons a quarter em, its held face stood
+    /// 7 into the inset of its least card).
+    /// </summary>
+    public static string Tabular(string template)
+    {
+        ArgumentNullException.ThrowIfNull(template);
+        return string.Create(template.Length, template, static (span, source) =>
+        {
+            for (var i = 0; i < source.Length; i++)
+            {
+                var c = source[i];
+                span[i] = c is FigureSpace or ':' or '.' or ',' or '٫' or '٬' ? Digit : c;
+            }
+        });
+    }
+
+    /// <summary>
     /// [S-14319] The template the clock's figures are held to: its time at a two-digit hour ("88:88:88", "88:88"), in the
     /// language's own digits (<paramref name="time"/>: the format of 10:58:58, or of 10:58 without seconds).
     /// </summary>

@@ -33,11 +33,15 @@ public static class StopwatchFace
         return HeroFit.Ems(over.Value) > HeroFit.Ems(under.Value) ? over : under;
     }
 
-    /// <summary>[S-11302] The face.</summary>
+    /// <summary>
+    /// [S-11302] [S-14319] The face, sized on its widest time as it is held and drawn: tabular figures, its colons and its
+    /// stop a figure wide each (<see cref="FigureTemplate.Tabular"/>), so the least card holds "88:88:88" at the least scale.
+    /// </summary>
     public static TimerSized Sized(StopwatchConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return TimerFace.Sized(Worst());
+        var worst = Worst();
+        return TimerFace.Sized(worst with { Value = FigureTemplate.Tabular(worst.Value) });
     }
 
     /// <summary>[S-11302] The most lap rows it lists, however tall its card.</summary>

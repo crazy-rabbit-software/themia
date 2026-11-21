@@ -32,6 +32,9 @@ key map `StopwatchKeys`), `StopwatchFace.cs` (the face, the sizing and its lap r
   shows its hours and no tenth ("1:02:03"). Laps always carry their tenth. The Readout is sized for the
   widest it draws (every figure an 8: "88:88.8" or "88:88:88", the wider, `StopwatchFace.Worst`), so
   nothing moves as it counts; it stops at 99:59:59.9.
+  Held to that widest time in tabular figures ([S-14319]), its colons and stop a figure wide each, the face is
+  sized on it as drawn (`FigureTemplate.Tabular`): the least card holds "88:88:88" at the least scale (modelled with
+  quarter-em colons, the held face stood 7 into the inset of its 201 card).
 - **[S-4604]** Keys (the lease, [S-800]): Space or Enter start and pause, Right takes a lap, Home resets;
   the letters L and R do the same (type-ahead, `StopwatchKeys.Letter`).
 - **[S-4605]** *(Retired: the face by the tile's size, the laps' column from an expanded width; [S-11302].)*
