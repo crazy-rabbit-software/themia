@@ -56,6 +56,9 @@ public static class SampleMachine
         public override bool Live => false;
 
         public override HubSource<T> Open<T>(SourceId<T> source, string target) => new Recorded<T>(SamplePc.Readings(source, target));
+
+        /// <summary>[S-14961] The sample PC's Wi-Fi and its dock's Ethernet.</summary>
+        public override IReadOnlyList<Themia.Core.Widgets.NetworkAdapterEntry> Adapters() => SamplePc.Adapters;
     }
 
     /// <summary>One source's readings: the newest is every read, the rest its past ([S-1932]).</summary>

@@ -18,6 +18,8 @@
     <!-- Glyphs: pure code points, read by the descriptors in Core and by every view. -->
     <InternalsVisibleTo Include="Themia.Sdk.WinUI" />
     <InternalsVisibleTo Include="Themia" />
+    <!-- [S-14961] The module test host installs the hosted lists a widget's lines read (the network adapters) as the app does. -->
+    <InternalsVisibleTo Include="Themia.Modules.Tests" />
   </ItemGroup>
 
   <!--

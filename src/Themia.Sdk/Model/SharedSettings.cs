@@ -139,6 +139,16 @@ public static class SharedSettings
     /// <summary>[S-433] The GPU atoms' adapter.</summary>
     public static SharedSetting<IGpuAdapter> GpuAdapter { get; } = new("gpuAdapter", (a, b) => a.Adapter == b.Adapter, (from, to) => to.Adapter = from.Adapter);
 
+    /// <summary>[S-14960] The network kinds' adapter: Automatic, or one adapter by its id (its name as last seen with it).</summary>
+    public static SharedSetting<IHoldsAdapter> NetworkAdapter { get; } = new(
+        "networkAdapter",
+        (a, b) => string.Equals(NetworkAdapterRules.Normalise(a.Adapter), NetworkAdapterRules.Normalise(b.Adapter), StringComparison.OrdinalIgnoreCase),
+        (from, to) =>
+        {
+            to.Adapter = NetworkAdapterRules.Normalise(from.Adapter);
+            to.AdapterName = to.Adapter is null ? null : from.AdapterName;
+        });
+
     /// <summary>[S-1121] How much history the history atoms' charts span.</summary>
     public static SharedSetting<ISpansHistory> HistorySpan { get; } = new(
         "historySpan",
@@ -240,7 +250,7 @@ public static class SharedSettings
     /// <summary>[S-11750] Every shared setting, in the order a group's page shows them: what a widget is about first, then how it shows it.</summary>
     public static IReadOnlyList<SharedSetting> All { get; } =
     [
-        Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, PingHost, GpuAdapter, AudioOutput,
+        Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, NetworkAdapter, PingHost, GpuAdapter, AudioOutput,
         ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, MetricTrend, MetricSpan, ListRows, ListLines, HideWhenIdle,
     ];
 

@@ -32,6 +32,19 @@ public static class SamplePc
     /// <summary>The Wi-Fi adapter's id: its key in the local addresses.</summary>
     public const string WifiId = "{5A3F2C1E-0B7D-4E8A-9C61-2D4F8B0E7A13}";
 
+    /// <summary>[S-14961] The dock's Ethernet adapter's id: unplugged on the sample day (the laptop is on Wi-Fi).</summary>
+    public const string EthernetId = "{C81E7D42-6F0A-4B3D-8E25-71A9D0F4B6C8}";
+
+    /// <summary>
+    /// [S-14961] The sample PC's adapters as the Adapter line lists them: its Wi-Fi, connected, and the dock's Ethernet,
+    /// not connected (so a card on it shows "--" and why). The throughput counts the Wi-Fi alone, as Windows would.
+    /// </summary>
+    public static IReadOnlyList<NetworkAdapterEntry> Adapters { get; } =
+    [
+        new(WifiId, "Wi-Fi", AdapterMedium.Wireless, true),
+        new(EthernetId, "Ethernet", AdapterMedium.Ethernet, false),
+    ];
+
     /// <summary>A private sample address (RFC 1918), never this PC's.</summary>
     public const string LocalAddress = "192.168.1.42";
 

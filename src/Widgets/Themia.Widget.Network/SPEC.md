@@ -14,7 +14,8 @@ the shared `MeterView`), `Localization/Locales/` (its own `NetworkStr`). Tests: 
   arrow ([S-6264], [S-11001]): one height (84), 344..480 wide (the line's own width at 100 %). It has no style: the old Graph style is the download metric's graph, and the old
   Numbers style is this reading. Nothing appears with size; no tier ladder is left.
 - **[S-6270]** *(Retired: Network has no styles; its reading is both numbers, its history an atom of its own.)*
-- Its options are on the properties menu ([S-3719]): Appearance; nothing of its own.
+- Its options are on the properties menu ([S-3719]): its Adapter, the network kinds' shared line ([S-14960]..[S-14964],
+  Network facts' SPEC: Automatic, every counted adapter together; or one adapter's own download and upload), then Appearance.
 - **[S-2018]** A click on the card ([S-2000]) opens Windows' network status page
   (`ms-settings:network-status`); the module decides it (`NetworkModule.Opens`, through its part's
   `Opens`).

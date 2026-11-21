@@ -35,6 +35,9 @@ internal abstract class SystemMachine
 
     /// <summary>A reader of <paramref name="source"/> (<paramref name="target"/>: a ping host, else empty); the hub opens it.</summary>
     public abstract HubSource<T> Open<T>(SourceId<T> source, string target);
+
+    /// <summary>[S-14961] Its network adapters as the Adapter line lists them (<see cref="NetworkAdapterRules.Ordered"/>).</summary>
+    public abstract IReadOnlyList<NetworkAdapterEntry> Adapters();
 }
 
 /// <summary>

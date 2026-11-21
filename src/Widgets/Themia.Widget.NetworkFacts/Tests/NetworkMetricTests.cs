@@ -21,9 +21,10 @@ public sealed class NetworkMetricTests
         ((IWidgetModule)new NetworkPublicAddressModule()).MenuLines(menu, new NetworkPublicAddressConfig());
         Assert.True(Assert.Single(menu.Lines).Note);
 
+        // [S-14962] Another fact's page has its Adapter line alone, no note.
         var local = new WidgetMenuLines(() => { });
         ((IWidgetModule)new NetworkLocalAddressModule()).MenuLines(local, new NetworkLocalAddressConfig());
-        Assert.Empty(local.Lines);
+        Assert.Equal(SharedSettings.NetworkAdapter.Key, Assert.Single(local.Lines).Shares);
     }
 
     [Fact]

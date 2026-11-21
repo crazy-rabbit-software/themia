@@ -39,9 +39,11 @@ public sealed class NetworkModule : IWidgetModule
         Add = new(AddFolderId.NetworkReading, 0, 0),
     };
 
-    /// <summary>[S-3719] Nothing to set but the card's look.</summary>
+    /// <summary>[S-14962] Its adapter, the network kinds' shared line; then the card's look.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
+        ArgumentNullException.ThrowIfNull(menu);
+        menu.Lines.Add(AdapterMenuLines.Adapter(menu, (NetworkConfig)config, AdapterList.Now()));
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new NetworkMeter());

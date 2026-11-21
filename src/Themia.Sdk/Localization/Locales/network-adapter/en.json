@@ -1,0 +1,17 @@
+{
+  "$comment": "[S-14960]..[S-14964] The network kinds' Adapter line and what a chosen adapter that is not there shows.",
+  "$englishOnly": [
+    "networkAdapter.label",
+    "networkAdapter.automatic",
+    "networkAdapter.notConnected",
+    "networkAdapter.gone",
+    "networkAdapter.goneUnnamed",
+    "networkAdapter.unnamed"
+  ],
+  "networkAdapter.label": "Adapter",
+  "networkAdapter.automatic": "Automatic",
+  "networkAdapter.notConnected": "{adapter} (not connected)",
+  "networkAdapter.gone": "{adapter} is not connected",
+  "networkAdapter.goneUnnamed": "The chosen adapter is not connected",
+  "networkAdapter.unnamed": "Adapter"
+}

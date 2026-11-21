@@ -47,28 +47,14 @@ internal static class SeriesProjections
         return MeterSample.Of(reading, DiskRules.Scale);
     }
 
-    /// <summary>[S-1190] [S-1191] Download (filled) and upload.</summary>
+    /// <summary>
+    /// [S-1190] [S-1191] Download (filled) and upload; [S-14963] the instance is an adapter's id (empty: every counted
+    /// adapter together), a chosen adapter that is not there "--" with the reason, never another's traffic.
+    /// </summary>
     public static MeterSample Network(ThroughputSample? snapshot, string instance)
     {
-        if (snapshot is null)
-        {
-            return new MeterSample(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()), null);
-        }
-
-        if (snapshot.Interfaces.Count == 0)
-        {
-            return new MeterSample(MeterReading.Unavailable(Str.WidgetsB_Network_NoConnection.Text()), null);
-        }
-
-        // The fraction only marks a sample: the chart is window-scaled and plots the values.
-        var reading = new MeterReading(
-            ChartScale.Fraction(snapshot.Down, Sources.NetworkChartFloor),
-            Formatting.Rate(snapshot.Down),
-            true,
-            Value: snapshot.Down,
-            Second: snapshot.Up);
-
-        return MeterSample.Of(reading, ChartScale.Peak(Sources.NetworkChartFloor));
+        var reading = NetworkAdapterRules.Reading(Strings.Current, snapshot, instance);
+        return reading.Available ? MeterSample.Of(reading, ChartScale.Peak(Sources.NetworkChartFloor)) : new MeterSample(reading, null);
     }
 
     /// <summary>[S-1180] [S-1187] The charge, and whether it is charging.</summary>

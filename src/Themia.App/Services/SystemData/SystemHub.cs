@@ -88,6 +88,9 @@ internal sealed partial class SystemHub : ISystemFeeds, IDisposable
         return new Feed<T>(key, reader, project);
     }
 
+    /// <summary>[S-14961] The network adapters of the machine it reads (this PC, or the sample PC in a render), for the Adapter line.</summary>
+    public IReadOnlyList<Themia.Core.Widgets.NetworkAdapterEntry> Adapters() => _machine.Adapters();
+
     /// <summary>Open feeds (each one source read). Exposed for diagnostics (the switch check, [S-2511]).</summary>
     public int FeedCount => _feeds.Count;
 

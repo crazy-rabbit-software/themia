@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
+using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Details;
 using Themia.Core.Localization;
@@ -20,10 +21,19 @@ namespace Themia.Widget.NetworkFacts;
 public abstract class NetworkMetricModule(string key)
     : MetricModule(NetworkKinds.Of(key), NetworkFactsJsonContext.Default, AddFolderId.NetworkFacts, NetworkKinds.Rank(key))
 {
-    /// <summary>[S-2417] The public address asks a third party: whom, and how often, is said on its page.</summary>
+    /// <summary>
+    /// [S-14962] A fact of one adapter: its Adapter line, the network kinds' shared one. [S-2417] The public address asks a
+    /// third party (the machine's address on the internet, whatever adapter it leaves by): whom, and how often, is said on
+    /// its page.
+    /// </summary>
     protected override void SourceLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
+        if (config is NetworkAdapterMetricConfig held)
+        {
+            menu.Lines.Add(AdapterMenuLines.Adapter(menu, held, AdapterList.Now()));
+        }
+
         if (config is NetworkMetricConfig { ShowsPublicAddress: true })
         {
             menu.Lines.Add(WidgetMenuLines.Note(NetworkFactsStr.Details_Settings_Network_Public_Desc.Format(("minutes", (long)NetworkDetailRules.PublicAddressLifetime.TotalMinutes))));
@@ -34,7 +44,7 @@ public abstract class NetworkMetricModule(string key)
         => new SystemMetricView(host, Kind, new NetworkMetricPart(Kind.Key));
 }
 
-/// <summary>[S-14640] What a network fact card remembers: its trend; its fact is its kind's.</summary>
+/// <summary>[S-14640] What a network fact card remembers: its trend; its fact is its kind's (the public address's holds no adapter).</summary>
 public abstract class NetworkMetricConfig(string key) : MetricConfig, IReadsSystem
 {
     /// <summary>The fact its kind shows.</summary>
@@ -61,7 +71,10 @@ public abstract class NetworkMetricConfig(string key) : MetricConfig, IReadsSyst
             ? [SystemSource.LocalAddresses, SystemSource.PublicAddress, SystemSource.Network]
             : [SystemSource.LocalAddresses, SystemSource.Network];
         var read = SystemInterests.Read(feeds);
-        return MetricRules.Effective(this) == MetricTrend.Line ? read with { Series = SystemInterests.Chart(SystemSource.Network).Series } : read;
+
+        // [S-14963] A chosen adapter's line is its own series of the one throughput feed.
+        var adapter = NetworkAdapterRules.Normalise((this as IHoldsAdapter)?.Adapter) ?? string.Empty;
+        return MetricRules.Effective(this) == MetricTrend.Line ? read with { Series = SystemInterests.Chart(SystemSource.Network, adapter).Series } : read;
     }
 
     public override WidgetConfig Clone()
@@ -70,6 +83,29 @@ public abstract class NetworkMetricConfig(string key) : MetricConfig, IReadsSyst
         CopyTo(copy);
         return copy;
     }
+}
+
+/// <summary>
+/// [S-14960] A network fact of one adapter (the six but the public address): its Adapter, Automatic or one of Windows' adapters
+/// by its id; one that is not there is kept, its fact "--" with the reason ([S-14964]).
+/// </summary>
+public abstract class NetworkAdapterMetricConfig(string key) : NetworkMetricConfig(key), IHoldsAdapter
+{
+    /// <summary>[S-14960] The adapter's id; null for Automatic.</summary>
+    public string? Adapter { get; set; }
+
+    /// <summary>[S-14960] Its name as last seen, for when it is not connected.</summary>
+    public string? AdapterName { get; set; }
+
+    public override WidgetConfig Clone()
+    {
+        var copy = (NetworkAdapterMetricConfig)base.Clone();
+        copy.Adapter = Adapter;
+        copy.AdapterName = AdapterName;
+        return copy;
+    }
+
+    public override IReadOnlyList<string> Repair() => [.. base.Repair(), .. NetworkAdapterRules.Repair(this, Kind.Value)];
 }
 
 /// <summary>
@@ -85,12 +121,14 @@ internal sealed class NetworkMetricPart(string key) : SystemMetricPart
     private ISeriesWatch? _series;
     private WidgetConfig? _config;
     private ISystemMetricHost? _host;
+    private IHoldsAdapter? _adapter;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, ISystemMetricHost host)
     {
         _host = host;
         _config = config;
         var own = config as NetworkMetricConfig;
+        _adapter = config as IHoldsAdapter;
         _addresses.Hold(hub, Sources.LocalAddresses, static _ => { });
 
         // [S-2417] The public lookup runs only for the public address's card.
@@ -135,7 +173,8 @@ internal sealed class NetworkMetricPart(string key) : SystemMetricPart
             ? new PublicAddressReading(PublicAddressState.Off)
             : _public.HasValue ? _public.Value : new PublicAddressReading(PublicAddressState.Checking);
 
-        var shown = MetricRules.Pick(NetworkDetailRules.Sheet(Strings.Current, _throughput.Value, addresses, publicAddress), key) with { Reading = LastReading };
+        // [S-14963] The chosen adapter's own figures (Automatic: as always); one not there is "--" and why.
+        var shown = MetricRules.Pick(NetworkAdapterRules.Sheet(Strings.Current, _throughput.Value, addresses, publicAddress, _adapter), key) with { Reading = LastReading };
         if (_series is { } series)
         {
             var upload = key == "upload";
@@ -154,6 +193,7 @@ internal sealed class NetworkMetricPart(string key) : SystemMetricPart
         _public.Release();
         _addresses.Release();
         _host = null;
+        _adapter = null;
     }
 }
 

@@ -10051,18 +10051,18 @@ model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
   next, Week planner); the mail and the contacts accounts (`IChoosesAccounts`, by the feature they offer:
   Email; Contacts); the disk activity's drive (`IDiskScope`: Disk, Disk history); the drive's
   (`IDriveChoice`: Drive, Drive facts); the ping host (`IPingHost`: Ping, Ping facts, Ping history); the
-  GPU adapter (`IGpuAdapter`, now settable in the SDK: GPU, GPU engines, GPU facts, GPU history); the
+  GPU adapter (`IGpuAdapter`, now settable in the SDK: GPU, GPU engines, GPU facts, GPU history); the network adapter
+  (`IHoldsAdapter`: Network, Network history and the network facts but the public address, [S-14960]); the
   output device (`IAudioOutput`: Volume, Mixer); the currency pair (`ExchangePairConfig`); the stock
   symbol and its timeframe (`StockQuoteConfig`, two settings); the screen-time period
   (`IScreenTimePeriod`: Screen time, its apps, chart and donut); the history span (`ISpansHistory`: the
   eight history atoms and the cores); a list's Rows, its
   Lines where they are the user's (`IKitRows.OffersLines`), shared only
   among lists; when the music atoms hide (`IHidesWhenIdle`: the track, the cover, the progress). Not
-  shared: the units and formats, which the widgets follow ([S-3590]); the network adapter (no network atom
-  chooses one); a list's own source (a feed, a folder, a task list).
+  shared: the units and formats, which the widgets follow ([S-3590]); a list's own source (a feed, a folder, a task list).
 - **[S-11753]** Each shared setting's standard line marks the setting it sets (`ItemMenuEntry.Shares`,
   `WidgetMenuLines.Shared`): the place rows, the calendar and mail and contacts accounts, the disk and
-  drive choices, the ping host, the GPU adapter, the output device, the pair, the symbol and timeframe,
+  drive choices, the network adapter, the ping host, the GPU adapter, the output device, the pair, the symbol and timeframe,
   the screen-time period, the span, Size, Rows, Lines, Columns and Hide when idle. Every kind that holds
   a setting marks its line wherever its look offers it (a look that offers none, a calendar's month, has
   no row to share), and a mark names only a setting its config holds.

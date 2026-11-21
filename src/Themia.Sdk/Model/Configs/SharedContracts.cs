@@ -8,6 +8,20 @@ public interface IGpuAdapter
     int Adapter { get; set; }
 }
 
+/// <summary>
+/// [S-14960] [S-11752] A network kind's config that reads one adapter's figures (owner, 2026-11-21: "local address you should
+/// be able to select the network adapter, for the similar widgets the same"): the adapter's id (Windows' GUID, a rename is
+/// still the same adapter), null for Automatic (the busiest adapter's address and link, every counted adapter's traffic).
+/// </summary>
+public interface IHoldsAdapter
+{
+    /// <summary>The adapter's id, or null for Automatic.</summary>
+    string? Adapter { get; set; }
+
+    /// <summary>The adapter's name as last seen ("Wi-Fi"), for an adapter that is not connected now.</summary>
+    string? AdapterName { get; set; }
+}
+
 /// <summary>[S-11752] A drive atom's config (the space on one drive, its facts): the drive's root, empty for the system drive.</summary>
 public interface IDriveChoice
 {

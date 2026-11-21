@@ -39,6 +39,9 @@ internal sealed partial class ThisPc(Ticker ticker) : SystemMachine
         _ => throw new ArgumentOutOfRangeException(nameof(source), source, "not a hub source"),
     });
 
+    /// <inheritdoc />
+    public override IReadOnlyList<NetworkAdapterEntry> Adapters() => NetworkAdapterWalk.Now();
+
     // ---- sources --------------------------------------------------------------------------------
 
     /// <summary>[S-1140] [S-81] Load across all cores: a delta between two reads, so the hub must be its only reader.</summary>

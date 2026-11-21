@@ -76,16 +76,16 @@ public sealed class NetworkDownloadModule() : NetworkMetricModule("download");
 
 public sealed class NetworkUploadModule() : NetworkMetricModule("upload");
 
-public sealed class NetworkLocalAddressConfig() : NetworkMetricConfig("localAddress");
+public sealed class NetworkLocalAddressConfig() : NetworkAdapterMetricConfig("localAddress");
 
-public sealed class NetworkReceivedConfig() : NetworkMetricConfig("received");
+public sealed class NetworkReceivedConfig() : NetworkAdapterMetricConfig("received");
 
-public sealed class NetworkSentConfig() : NetworkMetricConfig("sent");
+public sealed class NetworkSentConfig() : NetworkAdapterMetricConfig("sent");
 
-public sealed class NetworkLinkSpeedConfig() : NetworkMetricConfig("linkSpeed");
+public sealed class NetworkLinkSpeedConfig() : NetworkAdapterMetricConfig("linkSpeed");
 
 public sealed class NetworkPublicAddressConfig() : NetworkMetricConfig("publicAddress");
 
-public sealed class NetworkDownloadConfig() : NetworkMetricConfig("download");
+public sealed class NetworkDownloadConfig() : NetworkAdapterMetricConfig("download");
 
-public sealed class NetworkUploadConfig() : NetworkMetricConfig("upload");
+public sealed class NetworkUploadConfig() : NetworkAdapterMetricConfig("upload");
