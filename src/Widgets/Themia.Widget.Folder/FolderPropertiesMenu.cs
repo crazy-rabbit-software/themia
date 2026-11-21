@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Folder;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -25,10 +26,10 @@ internal static class FolderPropertiesMenu
         // [S-1337] After the look, each group behind a divider: the folder and what of it is
         // listed; then how its items and its folders open.
         var lines = menu.Lines;
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(FolderLine(menu, config));
         lines.Add(menu.Toggle(Glyphs.Hidden, FolderStr.WidgetsB_Folder_ShowHiddenItems.Text(), config.ShowHidden, on => config.ShowHidden = on));
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.Choice(Glyphs.Open, FolderStr.WidgetsB_Settings_Folder_OpenWith_Label.Text(),
             [(ItemClickMode.Double, FolderStr.WidgetsB_Settings_Folder_DoubleClick.Text()), (ItemClickMode.Single, FolderStr.WidgetsB_Settings_Folder_SingleClick.Text())],
             config.ClickMode, value => config.ClickMode = value));
@@ -76,10 +77,8 @@ internal static class FolderPropertiesMenu
             var sort = menu.Choice(Glyphs.Sort, FolderStr.WidgetsB_Settings_Folder_SortBy_Label.Text(),
                 [(FolderSort.Name, Str.Folder_ColName.Text()), (FolderSort.Modified, FolderStr.WidgetsB_Settings_Folder_DateModified.Text()), (FolderSort.Size, FolderStr.Folder_ColSize.Text())],
                 config.Sort, value => config.Sort = value);
-            look.Add(sort with
-            {
-                Children = [.. sort.Children!, ItemMenuEntry.Separator, menu.Toggle(null, FolderStr.WidgetsB_Settings_Folder_Reverse_Label.Text(), config.Descending, on => config.Descending = on)],
-            });
+            look.Add(WidgetMenuLines.Submenu(sort.Glyph, sort.Text,
+                [.. sort.Options, SettingsLine.Separator, menu.Toggle(null, FolderStr.WidgetsB_Settings_Folder_Reverse_Label.Text(), config.Descending, on => config.Descending = on)]));
         }
     }
 
@@ -90,7 +89,7 @@ internal static class FolderPropertiesMenu
     /// and refused with the reason, never corrected into a working one (a relative path is a request
     /// to type a full one). Empty is a deliberate "my user folder", which an empty setting means.
     /// </summary>
-    private static ItemMenuEntry FolderLine(WidgetMenuLines menu, FolderConfig config)
+    private static SettingsLine FolderLine(WidgetMenuLines menu, FolderConfig config)
     {
         var current = config.Path;
 
@@ -100,7 +99,7 @@ internal static class FolderPropertiesMenu
             menu.Save();
         }
 
-        var lines = new List<ItemMenuEntry>
+        var lines = new List<SettingsLine>
         {
             menu.PickFolder(Glyphs.Folder, Str.WidgetsB_Settings_Folder_Browse.Text(), current, picked =>
             {
@@ -128,7 +127,7 @@ internal static class FolderPropertiesMenu
         };
 
         var shown = WidgetMenuLines.FolderName(current) ?? WidgetMenuLines.FolderName(ProfileFolder());
-        return WidgetMenuLines.Submenu(Glyphs.Folder, FolderStr.Folder_Label_Label.Text(), lines) with { Value = shown };
+        return WidgetMenuLines.Submenu(Glyphs.Folder, FolderStr.Folder_Label_Label.Text(), lines, value: shown);
     }
 
     /// <summary>[S-1337] Why a typed path cannot be listed, or null when it can (empty: the user folder).</summary>

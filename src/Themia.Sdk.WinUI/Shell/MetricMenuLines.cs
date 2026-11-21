@@ -3,6 +3,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Core.Settings;
 
 namespace Themia.Sdk.WinUI;
 
@@ -15,7 +16,7 @@ namespace Themia.Sdk.WinUI;
 public static class MetricMenuLines
 {
     /// <summary>The trend's line for <paramref name="config"/>, or null where its metric has no history.</summary>
-    public static ItemMenuEntry? Trend(WidgetMenuLines menu, IMetricTrend config)
+    public static SettingsLine? Trend(WidgetMenuLines menu, IMetricTrend config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -58,7 +59,7 @@ public static class MetricMenuLines
     /// which span of time a chart covers) stays a setting"): a hub series' as the meters' Chart span (a minute to an hour),
     /// a place's hours as the weather graphs' Time span (hours, or days past two); none where its graph offers one span.
     /// </summary>
-    public static ItemMenuEntry? Span(WidgetMenuLines menu, IMetricGraph config)
+    public static SettingsLine? Span(WidgetMenuLines menu, IMetricGraph config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);

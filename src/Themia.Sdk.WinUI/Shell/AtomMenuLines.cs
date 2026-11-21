@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -10,7 +11,7 @@ namespace Themia.App.Shell.Config;
 public static class AtomMenuLines
 {
     /// <summary>[S-1122] [S-11002] A history atom's one setting: how much history its chart spans, on the first level.</summary>
-    public static ItemMenuEntry Span(WidgetMenuLines menu, HistoryConfig history)
+    public static SettingsLine Span(WidgetMenuLines menu, HistoryConfig history)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(history);

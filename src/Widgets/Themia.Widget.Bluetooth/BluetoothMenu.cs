@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Bluetooth;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -22,7 +23,7 @@ internal static class BluetoothMenu
 
         var lines = menu.Lines;
         lines.Add(menu.Toggle(Glyphs.Link, BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text(), config.ConnectedOnly, on => config.ConnectedOnly = on));
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.Toggle(Glyphs.Bluetooth, BluetoothStr.WidgetsA_Bluetooth_Settings_Icon_Label.Text(), config.ShowIcon, on => config.ShowIcon = on));
         if (config.Offers(BluetoothSetting.Connection))
         {
@@ -35,7 +36,7 @@ internal static class BluetoothMenu
         lines.Add(menu.Toggle(Glyphs.Signal, BluetoothStr.WidgetsA_Bluetooth_Settings_Signal_Label.Text(), config.ShowSignal, on => config.ShowSignal = on));
 
         // [S-11310] How many rows, and one line or two each; the card follows.
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.AddRange(KitMenuLines.Rows(menu, config));
     }
 }

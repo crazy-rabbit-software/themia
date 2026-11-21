@@ -22,7 +22,7 @@ public sealed class AudioDeviceLineTests
 
         Assert.Equal([Str.WidgetsC_Volume_Settings_DefaultOutput.Text(), "Speakers", "Headphones"], answer.Lines.Select(l => l.Text));
         Assert.Equal([true, false, false], answer.Lines.Select(l => l.Checked == true));
-        Assert.All(answer.Lines, l => Assert.NotNull(l.Group));
+        Assert.All(answer.Lines, l => Assert.IsType<SettingsRadio>(l));
     }
 
     [Fact]

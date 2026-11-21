@@ -11,6 +11,7 @@ using Themia.Sdk.WinUI.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 
@@ -26,7 +27,7 @@ public sealed class AccountMenuLinesTests
     private WidgetMenuLines Lines(bool host = true)
         => new(() => _saves++) { OpenSetting = host ? _ => _shown++ : null };
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     // ---- the kit's Accounts submenu ----------------------------------------------------------
 
@@ -34,7 +35,7 @@ public sealed class AccountMenuLinesTests
 
     private static readonly IReadOnlyList<KitAccountLine> Two = [new("a", "Work", "Microsoft"), new("b", "Home", "Google")];
 
-    private ItemMenuEntry Accounts(IReadOnlyList<KitAccountLine> accounts, List<string> ids)
+    private SettingsLine Accounts(IReadOnlyList<KitAccountLine> accounts, List<string> ids)
         => KitMenuLines.Accounts(Lines(), null, accounts, Words, ids, next =>
         {
             ids.Clear();
@@ -120,7 +121,7 @@ public sealed class AccountMenuLinesTests
 
     private static readonly IReadOnlyList<CalendarInfo> WorkCalendars = [new("cal-1", "Calendar", true, null), new("cal-2", "Team", false, null)];
 
-    private List<ItemMenuEntry> CalendarLines(CalendarConfig config, IOfficeSource? office)
+    private List<SettingsLine> CalendarLines(CalendarConfig config, IOfficeSource? office)
         => [.. OfficeMenuLines.CalendarAccounts(Lines(), config, office)];
 
     [Fact]

@@ -6,6 +6,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Disk.Tests;
 
@@ -28,7 +29,7 @@ public sealed class DiskMenuTests
         return menu;
     }
 
-    private ItemMenuEntry Drive(DiskConfig disk) => Assert.Single(Build(disk).Lines);
+    private SettingsLine Drive(DiskConfig disk) => Assert.Single(Build(disk).Lines);
 
     [Fact]
     public void S1168_the_first_level_is_the_drive_and_there_is_nothing_under_style()

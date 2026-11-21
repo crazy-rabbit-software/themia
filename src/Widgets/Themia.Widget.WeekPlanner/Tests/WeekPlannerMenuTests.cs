@@ -9,6 +9,7 @@ using Themia.Core.Office;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.WeekPlanner.Tests;
 
@@ -46,7 +47,7 @@ public sealed class WeekPlannerMenuTests
             => throw new NotSupportedException();
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     [Fact]
     public void S5324_the_menu_is_appearance_the_calendar_lines_then_todays_tasks_and_their_account()

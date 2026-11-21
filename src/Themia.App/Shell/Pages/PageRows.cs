@@ -15,14 +15,27 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-2302] The settings' lines and the selection's entries as a page's rows: one mapping each, the kinds
-/// Core's. [S-2351] What a line asks (a line of text, an "are you sure?") it carries to its row, which asks it in place.
+/// [S-2302] The settings' lines as a page's rows: one mapping of the one settings-row model (<see cref="SettingsLine"/>),
+/// the kinds Core's (<see cref="SettingsRows.KindOf"/>), for a settings page's lines and a widget's own alike.
+/// [S-2351] What a line asks (a line of text, an "are you sure?") it carries to its row, which asks it in place.
 /// </summary>
 internal static class PageRows
 {
     private const string Scope = "pages";
 
     private static readonly Uri FontsPage = new("ms-settings:fonts");
+
+    /// <summary>
+    /// Where the lines come from, which says how a row is keyed and its glyph drawn: a settings page's lines carry
+    /// their own paths and draw a glyph as the page's icon; a widget's lines are keyed by where they stand under
+    /// their prefix (their words, a divider its place) and draw a glyph as its item menu draws it (Explorer's
+    /// two-tone picture of it, a file's own icon).
+    /// </summary>
+    private enum Source
+    {
+        Settings,
+        Widget,
+    }
 
     /// <summary>
     /// [S-2301] A settings page's sections as drawn; [S-2311] its preview (the Appearance's) built by
@@ -38,15 +51,66 @@ internal static class PageRows
     public static PageRow Of(SettingsLine line, Func<FrameworkElement>? preview = null)
     {
         ArgumentNullException.ThrowIfNull(line);
-        var row = RowOf(line, preview) with { Disabled = line.Disabled, Marked = line.Marked || line.GlyphColour is not null || line.Picture is not null };
+        return Row(line, line.Key, Source.Settings, preview);
+    }
+
+    /// <summary>
+    /// [S-2302] [S-3719] A widget's own lines (and the card's) as rows, keyed under <paramref name="prefix"/> by where they
+    /// stand: a choice a choice, a submenu an expander, a search a lookup, a switch a switch, a link a link, [S-2351] a
+    /// line that asks (a line of text, an "are you sure?") a card asking it in place.
+    /// </summary>
+    public static List<PageRow> Of(IReadOnlyList<SettingsLine> lines, string prefix)
+    {
+        ArgumentNullException.ThrowIfNull(lines);
+        return Children(lines, prefix, Source.Widget, null);
+    }
+
+    /// <summary>The rows of <paramref name="lines"/> under the row keyed <paramref name="parent"/>.</summary>
+    private static List<PageRow> Children(IReadOnlyList<SettingsLine> lines, string parent, Source source, Func<FrameworkElement>? preview)
+    {
+        var rows = new List<PageRow>(lines.Count);
+        for (var i = 0; i < lines.Count; i++)
+        {
+            var line = lines[i];
+            var key = source == Source.Settings ? line.Key : parent + "/" + (line is SettingsSeparator ? "-" + i : line.Key);
+            rows.Add(Row(line, key, source, preview));
+        }
+
+        return rows;
+    }
+
+    /// <summary>
+    /// [S-2302] One line as its row keyed <paramref name="key"/>; [S-2317] its icon its own where it is a colour's, a
+    /// picture's, a file's or the icon it chose; [S-2375] greyed, it says why.
+    /// </summary>
+    private static PageRow Row(SettingsLine line, string key, Source source, Func<FrameworkElement>? preview)
+    {
+        var row = RowOf(line, key, source, preview) with
+        {
+            Disabled = line.Disabled,
+            Marked = line.Marked || line.GlyphColour is not null || line.Picture is not null || line.IconFile is not null,
+            SetsUp = line.SetsUp,
+        };
         row = Greyed(row, line.Disabled, line.Why);
         return line.Picture is { } picture ? row with { Icon = () => MenuPictures.Create(picture) } : row;
     }
 
-    private static PageRow RowOf(SettingsLine line, Func<FrameworkElement>? preview)
+    /// <summary>
+    /// [S-2375] A greyed row says why under its name (Karpo's §309, <c>OptionRow.Why</c>): its caption while it is greyed,
+    /// in place of what it would say there otherwise.
+    /// </summary>
+    private static PageRow Greyed(PageRow row, bool disabled, string? why)
+        => disabled && !string.IsNullOrWhiteSpace(why) ? row with { Caption = why } : row;
+
+    private static PageRow RowOf(SettingsLine line, string key, Source source, Func<FrameworkElement>? preview)
     {
         var kind = SettingsRows.KindOf(line);
-        var row = new PageRow(line.Key, kind);
+        var row = new PageRow(key, kind);
+        Func<UIElement?>? Icon(string? glyph, string? colour = null) => source == Source.Widget
+            ? glyph is null && line.IconFile is null ? null : () => ItemMenu.IconFor(glyph, line.Disabled, line.IconFile)
+            : IconOf(glyph, colour);
+        List<PageRow> Under(IReadOnlyList<SettingsLine> lines, string at) => Children(lines, at, source, preview);
+
         return line switch
         {
             SettingsSeparator => row,
@@ -57,7 +121,7 @@ internal static class PageRows
                 Text = reading.Text,
                 Value = reading.Value,
                 Caption = reading.Caption,
-                Icon = IconOf(reading.Glyph, null),
+                Icon = Icon(reading.Glyph),
                 Beside = reading.Beside is { } beside ? Of(beside) : null,
             },
 
@@ -78,24 +142,26 @@ internal static class PageRows
             {
                 Text = toggle.Text,
                 Caption = toggle.Value,
-                Icon = IconOf(toggle.Glyph, toggle.GlyphColour),
+                Icon = Icon(toggle.Glyph, toggle.GlyphColour),
                 On = toggle.On,
                 Toggle = toggle.Set,
             },
-            SettingsRadio radio => row with { Text = radio.Text, Icon = IconOf(radio.Glyph, radio.GlyphColour), Holds = radio.Holds, Run = radio.Pick, Keywords = radio.Keywords },
+            SettingsRadio radio => row with { Text = radio.Text, Icon = Icon(radio.Glyph, radio.GlyphColour), Holds = radio.Holds, Run = radio.Pick, Keywords = radio.Keywords },
             SettingsChoice choice => row with
             {
                 Text = choice.Text,
                 Value = choice.Value,
-                Icon = IconOf(choice.Glyph, null),
-                Rows = [.. choice.Options.Select(o => Of(o))],
+                Icon = Icon(choice.Glyph),
+
+                // [S-3636] What its picker holds after its options (Custom…) follows them.
+                Rows = Under([.. choice.Options, .. choice.More], key),
                 Filter = choice.Filter,
             },
             SettingsSlider slider => row with
             {
                 Text = slider.Text,
-                Value = slider.Format(slider.Value),
-                Icon = IconOf(slider.Glyph, null),
+                Value = slider.ValueText ?? slider.Format(slider.Value),
+                Icon = Icon(slider.Glyph),
                 Number = new MenuSlider(slider.Value, slider.Min, slider.Max, slider.Step, slider.Format, slider.Set),
             },
             SettingsColour colour => row with
@@ -105,7 +171,7 @@ internal static class PageRows
                 {
                     DefaultLabel = colour.DefaultText,
                     Presets = colour.Presets,
-                    DefaultColor = colour.DefaultIsWindowsAccent ? ColorChoice.WindowsAccent : null,
+                    DefaultColor = colour.DefaultIsWindowsAccent ? ColorChoice.WindowsAccent : colour.DefaultHex is { } hex ? () => HexColour(hex) : null,
                 }),
             },
             SettingsFill fill => row with { Text = fill.Text, Colour = MenuColour.OfFill(fill.Current, fill.Set, new FillChoiceOptions { DefaultLabel = fill.DefaultText }) },
@@ -113,7 +179,7 @@ internal static class PageRows
             {
                 Text = font.Text,
                 Value = font.Value,
-                Icon = IconOf(font.Glyph, null),
+                Icon = Icon(font.Glyph),
                 Picker = () => FontPickerFor(font.Current, family =>
                 {
                     if (!string.Equals(family, font.Current, StringComparison.Ordinal))
@@ -134,7 +200,7 @@ internal static class PageRows
             SettingsIcon icon => row with
             {
                 Text = icon.Text,
-                Icon = IconOf(icon.Glyph, icon.GlyphColour),
+                Icon = Icon(icon.Glyph, icon.GlyphColour),
 
                 // [S-14322] Folded, its head shows what it holds: the chosen icon, or the default's words.
                 Shows = IconOf(icon.Head.Glyph, icon.GlyphColour),
@@ -151,10 +217,13 @@ internal static class PageRows
             {
                 Text = submenu.Text,
                 Value = submenu.Value,
-                Icon = IconOf(submenu.Glyph, submenu.GlyphColour),
-                Rows = [.. submenu.Lines.Select(l => Of(l, preview))],
+                Icon = Icon(submenu.Glyph, submenu.GlyphColour),
+                Rows = Under(submenu.Lines, key),
                 Run = submenu.Run,
-                Order = submenu.Order is { } order ? new MenuOrder(order.Index, order.Count, order.Move) : null,
+
+                // [S-3732] A widget's list item does not carry its place to its row (as before the one row model): its
+                // line holds it, its card draws no grip yet.
+                Order = source == Source.Settings ? submenu.Order : null,
 
                 // [S-2310] A thing's card: its line under its name, its icon buttons at its head's end.
                 Caption = submenu.Caption,
@@ -165,7 +234,7 @@ internal static class PageRows
                 Text = command.Text,
                 Value = command.Value,
                 Caption = command.Caption,
-                Icon = IconOf(command.Glyph, command.GlyphColour),
+                Icon = Icon(command.Glyph, command.GlyphColour),
                 Danger = command.Danger,
                 Run = command.Run,
 
@@ -177,8 +246,37 @@ internal static class PageRows
             SettingsAsk text => row with
             {
                 Text = text.Text,
-                Icon = IconOf(text.Glyph, null),
-                Edit = EditOf(text),
+                Icon = Icon(text.Glyph),
+                Edit = new PageEdit(text.Placeholder, text.Initial, text.Done) { Refuse = text.Refuse, AllowEmpty = text.AllowEmpty },
+            },
+
+            // [S-2351] A line of text asked in place: its card's head (what it holds, the expand chevron) and, opened, the
+            // field and its accept. Never a page of its own.
+            SettingsPrompt prompt => row with
+            {
+                Text = prompt.Text,
+                Value = prompt.Value,
+                Icon = Icon(prompt.Glyph),
+                Danger = prompt.Danger,
+                Edit = new PageEdit(prompt.Ask.Placeholder, prompt.Ask.Initial ?? string.Empty, prompt.Ask.Done)
+                {
+                    Refuse = prompt.Ask.Refuse,
+                    AllowEmpty = prompt.Ask.AllowEmpty,
+                    Accept = prompt.Ask.Accept,
+                },
+            },
+
+            // [S-3749] Somewhere the user must go to do something: the open mark at its end, no chevron.
+            SettingsLink link => row with { Text = link.Text, Icon = Icon(link.Glyph), Owner = link.Owner, Run = link.Run },
+
+            // [S-3722] A lookup that asks: its box, its answers, the lines that always follow them.
+            SettingsSearch search => row with
+            {
+                Text = search.Text,
+                Value = search.Value,
+                Icon = Icon(search.Glyph),
+                Search = search,
+                Rows = Under(search.Fixed, key + "/fixed"),
             },
 
             // [S-2311] The Appearance's preview, the page host's; none where the page was built without one (a test's).
@@ -187,19 +285,17 @@ internal static class PageRows
             SettingsItem item => row with
             {
                 Text = item.Text,
-                Icon = IconOf(item.Glyph, item.GlyphColour),
-                Order = item.Order is { } order ? new MenuOrder(order.Index, order.Count, order.Move) : null,
+                Icon = Icon(item.Glyph, item.GlyphColour),
+                Order = item.Order,
                 Tools = [.. item.Tools.Select(ToolOf)],
             },
             _ => throw new ArgumentOutOfRangeException(nameof(line), line.GetType().Name, "a settings line no page draws"),
         };
     }
 
-    private static PageEdit EditOf(SettingsAsk ask) => new(ask.Placeholder, ask.Initial, ask.Done)
-    {
-        Refuse = ask.Refuse,
-        AllowEmpty = ask.AllowEmpty,
-    };
+    /// <summary>[S-566] A colour of its own for Default's swatch (<c>#RRGGBB</c>); null where it does not read as one.</summary>
+    private static Windows.UI.Color? HexColour(string hex)
+        => HexColor.TryParse(hex, out var r, out var g, out var b) ? HexBrush.Colour(new RgbColor(r, g, b)) : null;
 
     /// <summary>[S-2351] [S-3727] An "are you sure?" as its row or tool asks it in place.</summary>
     internal static PageQuestion QuestionOf(SettingsConfirm confirm)
@@ -222,179 +318,6 @@ internal static class PageRows
         tool.Run ?? (() => { }),
         tool.Disabled,
         tool.Confirm is { } confirm ? QuestionOf(confirm) : null);
-
-    /// <summary>
-    /// [S-2302] [S-3719] A widget's own entries (and the card's) as rows: a submenu of choices a choice, any
-    /// other submenu an expander, a search a lookup, a toggle a toggle, a link a link, [S-2351] a line that asks
-    /// (a line of text, an "are you sure?") a card asking it in place, an ordered entry an item.
-    /// </summary>
-    public static List<PageRow> Of(IReadOnlyList<ItemMenuEntry> entries, string prefix)
-    {
-        ArgumentNullException.ThrowIfNull(entries);
-
-        var rows = new List<PageRow>(entries.Count);
-        for (var i = 0; i < entries.Count; i++)
-        {
-            var entry = entries[i];
-            var key = prefix + "/" + (entry.IsSeparator ? "-" + i : entry.Text);
-            rows.Add(Of(entry, key));
-        }
-
-        return rows;
-    }
-
-    /// <summary>One entry as a row; [S-2317] its icon its own where it is a file's or the icon it chose.</summary>
-    private static PageRow Of(ItemMenuEntry entry, string key)
-        => Greyed(RowOf(entry, key) with { Marked = entry.IconFile is not null || entry.Icon is not null }, entry.Disabled, entry.Why);
-
-    /// <summary>
-    /// [S-2375] A greyed row says why under its name (Karpo's §309, <c>OptionRow.Why</c>): its caption while it is greyed,
-    /// in place of what it would say there otherwise.
-    /// </summary>
-    private static PageRow Greyed(PageRow row, bool disabled, string? why)
-        => disabled && !string.IsNullOrWhiteSpace(why) ? row with { Caption = why } : row;
-
-    private static PageRow RowOf(ItemMenuEntry entry, string key)
-    {
-        Func<UIElement?>? icon = entry.Glyph is null && entry.IconFile is null ? null : () => ItemMenu.IconFor(entry);
-        var value = entry.Value ?? (entry.Shortcut is { } chord ? KeyChordText.Format(chord) : entry.Search?.Value);
-        if (entry.IsSeparator)
-        {
-            return new PageRow(key, SettingsRowKind.Break);
-        }
-
-        if (entry.Colour is { } colour)
-        {
-            return new PageRow(key, SettingsRowKind.Colour) { Text = entry.Text, Colour = colour, Disabled = entry.Disabled, SetsUp = entry.SetsUp };
-        }
-
-        if (entry.Note)
-        {
-            return new PageRow(key, SettingsRowKind.Note) { Text = entry.Text };
-        }
-
-        // [S-9602] A widget's icon: the one icon picker inline in its card, as a view's.
-        if (entry.Icon is { } pick)
-        {
-            return new PageRow(key, SettingsRowKind.Icon)
-            {
-                Text = entry.Text,
-                Icon = icon,
-
-                // [S-14322] Folded, its head shows what it holds: the chosen icon, or the default's words.
-                Shows = IconOf(IconHead.Of(pick.Current, pick.NoneName, null).Glyph, null),
-                Value = IconHead.Of(pick.Current, pick.NoneName, null).Words,
-                Picker = () => new IconPicker(pick.Current, pick.NoneName, null, pick.Set),
-                Disabled = entry.Disabled,
-            };
-        }
-
-        // [S-2332] A line of text the widget holds: its box at the line's end, typed in place.
-        if (entry.Field is { } field)
-        {
-            return new PageRow(key, SettingsRowKind.Text)
-            {
-                Text = entry.Text,
-                Icon = icon,
-                Edit = new PageEdit(field.Placeholder, field.Current, field.Keep) { Refuse = field.Refuse, AllowEmpty = field.AllowEmpty },
-                Disabled = entry.Disabled,
-                SetsUp = entry.SetsUp,
-            };
-        }
-
-        // [S-2351] A line of text or a question asked in place: its card's head (what it holds, the expand chevron) and,
-        // opened, the field and its accept or the question and its answers. Never a page of its own.
-        if (entry.Ask is { } ask)
-        {
-            return new PageRow(key, SettingsRowKind.Ask)
-            {
-                Text = entry.Text,
-                Value = entry.Value,
-                Icon = icon,
-                Edit = new PageEdit(ask.Placeholder, ask.Initial ?? string.Empty, ask.Done) { Refuse = ask.Refuse, AllowEmpty = ask.AllowEmpty, Accept = ask.Accept },
-                Danger = entry.Danger,
-                Disabled = entry.Disabled,
-                SetsUp = entry.SetsUp,
-            };
-        }
-
-        if (entry.Confirm is { } confirm)
-        {
-            return new PageRow(key, SettingsRowKind.Ask)
-            {
-                Text = entry.Text,
-                Value = entry.Value,
-                Icon = icon,
-                Question = new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail),
-                Danger = entry.Danger,
-                Disabled = entry.Disabled,
-                SetsUp = entry.SetsUp,
-            };
-        }
-
-        if (entry.Slider is { } slider)
-        {
-            return new PageRow(key, SettingsRowKind.Number) { Text = entry.Text, Value = entry.Value, Icon = icon, Number = slider, Disabled = entry.Disabled, SetsUp = entry.SetsUp };
-        }
-
-        if (entry.Search is { } search)
-        {
-            return new PageRow(key, SettingsRowKind.Lookup)
-            {
-                Text = entry.Text,
-                Value = value,
-                Icon = icon,
-                Search = search,
-                Rows = Of(search.Fixed, key + "/fixed"),
-                Disabled = entry.Disabled,
-                SetsUp = entry.SetsUp,
-            };
-        }
-
-        if (entry.Children is { } children)
-        {
-            var rows = Of(children, key);
-            var chosen = children.FirstOrDefault(k => k is { Checked: true, Group: not null });
-            var choice = children.Count > 0 && children.All(c => c.IsSeparator || c.Group is not null);
-            return new PageRow(key, choice ? SettingsRowKind.Choice : SettingsRowKind.Expander)
-            {
-                Text = entry.Text,
-                Value = value ?? (chosen.Group is not null ? chosen.Text : null),
-                Icon = icon,
-                Rows = rows,
-                Disabled = entry.Disabled,
-                SetsUp = entry.SetsUp,
-            };
-        }
-
-        var action = entry.Action;
-        if (entry.Group is not null && entry.Checked is { } holds)
-        {
-            return new PageRow(key, SettingsRowKind.Radio) { Text = entry.Text, Icon = icon, Holds = holds, Run = action, Disabled = entry.Disabled };
-        }
-
-        if (entry.Checked is { } on)
-        {
-            return new PageRow(key, SettingsRowKind.Toggle) { Text = entry.Text, Caption = entry.Value, Icon = icon, On = on, Toggle = _ => action?.Invoke(), Disabled = entry.Disabled, SetsUp = entry.SetsUp };
-        }
-
-        if (entry.LinkTo is { } owner)
-        {
-            return new PageRow(key, SettingsRowKind.Link) { Text = entry.Text, Icon = icon, Owner = owner, Run = action, Disabled = entry.Disabled };
-        }
-
-        return new PageRow(key, entry.Order is not null ? SettingsRowKind.Item : SettingsRowKind.Action)
-        {
-            Text = entry.Text,
-            Value = value,
-            Icon = icon,
-            Run = action,
-            Danger = entry.Danger,
-            Disabled = entry.Disabled,
-            Order = entry.Order,
-            SetsUp = entry.SetsUp,
-        };
-    }
 
     /// <summary>A glyph's icon, in a colour of its own where it has one (a view's mark, [S-3810]); null for none.</summary>
     internal static Func<UIElement?>? IconOf(string? glyph, string? colour)

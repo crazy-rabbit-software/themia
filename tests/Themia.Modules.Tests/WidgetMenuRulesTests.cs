@@ -33,7 +33,7 @@ public sealed class WidgetMenuRulesTests
     private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
 
     /// <summary>[S-2374] A widget's entry as the rules read it.</summary>
-    internal static RuleRow RowOf(ItemMenuEntry entry)
+    internal static RuleRow RowOf(SettingsLine entry)
     {
         RuleRow Row(RuleKind kind) => new(entry.Text, kind)
         {
@@ -44,58 +44,24 @@ public sealed class WidgetMenuRulesTests
             Why = entry.Why,
         };
 
-        if (entry.IsSeparator)
+        return entry switch
         {
-            return new RuleRow(string.Empty, RuleKind.Separator);
-        }
-
-        if (entry.Note)
-        {
-            return Row(RuleKind.Note);
-        }
-
-        if (entry.Slider is not null)
-        {
-            return Row(RuleKind.Number);
-        }
-
-        if (entry.Colour is not null || entry.Icon is not null || entry.Field is not null)
-        {
-            return Row(RuleKind.Value);
-        }
-
-        if (entry.Search is { } search)
-        {
-            return Row(RuleKind.Value) with { Value = entry.Value ?? search.Value };
-        }
-
-        if (entry.Children is { } children)
-        {
-            var choice = children.Count > 0 && children.All(c => c.IsSeparator || c.Group is not null);
-            var chosen = children.FirstOrDefault(c => c is { Checked: true, Group: not null });
-            return Row(choice ? RuleKind.Choice : RuleKind.Level) with
-            {
-                Value = entry.Value ?? (chosen.Group is not null ? chosen.Text : null),
-                Thing = entry.Order is not null,
-                Below = [.. children.Select(Inside)],
-            };
-        }
-
-        if (entry.Group is not null && entry.Checked is not null)
-        {
-            return Row(RuleKind.Option);
-        }
-
-        if (entry.Checked is not null)
-        {
-            return Row(RuleKind.Toggle);
-        }
-
-        return Row(entry.LinkTo is not null ? RuleKind.Link : RuleKind.Action) with { Thing = entry.Order is not null };
+            SettingsSeparator => new RuleRow(string.Empty, RuleKind.Separator),
+            SettingsNote => Row(RuleKind.Note),
+            SettingsSlider => Row(RuleKind.Number),
+            SettingsColour or SettingsFill or SettingsIcon or SettingsAsk => Row(RuleKind.Value),
+            SettingsSearch => Row(RuleKind.Value),
+            SettingsChoice choice => Row(RuleKind.Choice) with { Below = [.. entry.Children!.Select(Inside)] },
+            SettingsSubmenu submenu => Row(RuleKind.Level) with { Thing = submenu.Order is not null, Below = [.. submenu.Lines.Select(Inside)] },
+            SettingsRadio => Row(RuleKind.Option),
+            SettingsToggle => Row(RuleKind.Toggle),
+            SettingsLink => Row(RuleKind.Link),
+            _ => Row(RuleKind.Action),
+        };
     }
 
     /// <summary>[S-2348] An entry inside a card as drawn: no glyph of its setting, an icon of its own (a file's, a chosen one) kept.</summary>
-    private static RuleRow Inside(ItemMenuEntry entry)
+    private static RuleRow Inside(SettingsLine entry)
     {
         var row = RowOf(entry);
         return entry.IconFile is not null || entry.Icon is not null ? row : row with { Glyph = null };

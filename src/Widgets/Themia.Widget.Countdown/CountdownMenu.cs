@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Countdown;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -43,7 +44,7 @@ internal static class CountdownMenu
 
         // [S-6037] After the look, each group behind a divider: what is counted to (its name, its
         // day and time); how the time left reads.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
 
         // [S-2332] Each typed in place in its box.
         menu.Lines.Add(menu.Text(Glyphs.Rename, CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), config.Label,
@@ -68,40 +69,34 @@ internal static class CountdownMenu
         }
 
         // [S-1862] A countdown waits for its day: Set up asks for it.
-        menu.Lines.Add(WidgetMenuLines.SetsUp(new ItemMenuEntry(Glyphs.Calendar, CountdownStr.WidgetsA_Countdown_Menu_Date.Text(), null,
-            Value: day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null,
-            Field: new MenuField(
-                day is { } shown ? TypedTime.DateText(shown) : string.Empty,
-                "2026-12-24",
-                typed => TypedTime.Date(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_DateRefused.Text() : null,
-                typed =>
+        menu.Lines.Add(WidgetMenuLines.SetsUp(new SettingsAsk(CountdownStr.WidgetsA_Countdown_Menu_Date.Text(), CountdownStr.WidgetsA_Countdown_Menu_Date.Text(), Glyphs.Calendar, "2026-12-24", day is { } shown ? TypedTime.DateText(shown) : string.Empty, typed => TypedTime.Date(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_DateRefused.Text() : null, typed =>
                 {
                     if (TypedTime.Date(typed) is { } picked)
                     {
                         Retarget(picked, time);
                     }
-                },
-                AllowEmpty: false))));
+                })
+        {
+            AllowEmpty = false,
+            Value = day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null,
+        }));
 
         // The time needs a day to fall on: greyed until there is one.
-        menu.Lines.Add(new ItemMenuEntry(Glyphs.Clock, CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), null,
-            Disabled: day is null,
-            Why: day is null ? Str.SettingsPages_Why_DayFirst.Text() : null,
-            Value: day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time)),
-            Field: new MenuField(
-                AlarmTimes.Text((int)time.TotalMinutes),
-                "18:00",
-                typed => TypedTime.TimeOfDay(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_TimeRefused.Text() : null,
-                typed =>
+        menu.Lines.Add(new SettingsAsk(CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), Glyphs.Clock, "18:00", AlarmTimes.Text((int)time.TotalMinutes), typed => TypedTime.TimeOfDay(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_TimeRefused.Text() : null, typed =>
                 {
                     if (day is { } onDay && TypedTime.TimeOfDay(typed) is { } minutes)
                     {
                         Retarget(onDay, TimeSpan.FromMinutes(minutes));
                     }
-                },
-                AllowEmpty: false)));
+                })
+        {
+            AllowEmpty = false,
+            Disabled = day is null,
+            Why = day is null ? Str.SettingsPages_Why_DayFirst.Text() : null,
+            Value = day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time)),
+        });
 
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Countdown, CountdownStr.WidgetsA_Countdown_Settings_Format_Label.Text(), Formats(), config.Format, value => config.Format = value));
     }
 

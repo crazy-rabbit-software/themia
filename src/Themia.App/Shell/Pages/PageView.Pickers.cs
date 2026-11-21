@@ -379,7 +379,7 @@ internal sealed partial class PageView
     /// [S-3722] [S-13609] Ask a lookup's search for what is typed once it settles; the page is drawn again with its
     /// answer, unless something newer was typed since (<see cref="LookupAnswers{T}"/>: the latest wins).
     /// </summary>
-    private async void Find(string key, MenuSearch search, string typed)
+    private async void Find(string key, SettingsSearch search, string typed)
     {
         Cancel();
         _finding = new CancellationTokenSource();
@@ -406,7 +406,7 @@ internal sealed partial class PageView
         catch (Exception ex)
         {
             Log.Error(Scope, "a page's lookup failed", ex);
-            if (_found.Answered(key, typed, new MenuSearchAnswer([], Str.Common_NoResults.Text())))
+            if (_found.Answered(key, typed, new SettingsSearchAnswer([], Str.Common_NoResults.Text())))
             {
                 _answered[key] = _answered.GetValueOrDefault(key) + 1;
                 Redraw();

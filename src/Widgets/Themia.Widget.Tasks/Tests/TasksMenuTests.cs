@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Tasks.Tests;
 
@@ -45,7 +46,7 @@ public sealed class TasksMenuTests
 
     private WidgetTextAsk? _asked;
 
-    private WidgetConfirm? _confirm;
+    private SettingsConfirm? _confirm;
 
     private static readonly IReadOnlyList<TaskAccount> Work = [new("a", HostProviders.Microsoft, "Work", null)];
 
@@ -61,7 +62,7 @@ public sealed class TasksMenuTests
         return lines;
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     private static string From => TasksStr.WidgetsC_Tasks_Settings_ShowFrom_Label.Text();
 

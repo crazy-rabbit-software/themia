@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -16,7 +17,7 @@ public static class DriveMenuLines
     /// shares. A chosen drive that is not there stays offered as "not connected".
     /// </summary>
     /// <param name="drives">Every drive Windows has (the host's walk, <c>DriveList.Now()</c>).</param>
-    public static ItemMenuEntry Drive(WidgetMenuLines menu, string chosen, Action<string> choose, IReadOnlyList<DriveEntry> drives)
+    public static SettingsLine Drive(WidgetMenuLines menu, string chosen, Action<string> choose, IReadOnlyList<DriveEntry> drives)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(drives);

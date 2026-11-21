@@ -7,6 +7,7 @@ using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Core.Sync;
 using Themia.Sdk;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Rss;
 
@@ -32,7 +33,7 @@ internal static class RssMenu
         ArgumentNullException.ThrowIfNull(config);
 
         menu.Lines.Add(WidgetMenuLines.SetsUp(Feeds(menu, config)));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(KitMenuLines.Shows(menu,
         [
             new(RssStr.WidgetsC_Rss_Settings_Source_Label.Text(), () => config.ShowSource, on => config.ShowSource = on),
@@ -43,7 +44,7 @@ internal static class RssMenu
 
         // [S-11403] How many headlines and their lines where a headline has more than one; the columns are the card's
         // width ([S-14410]).
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(KitMenuLines.Rows(menu, config, mostLines: config.MostLines));
     }
 
@@ -51,7 +52,7 @@ internal static class RssMenu
     /// [S-7510] The feeds, in their order: each a submenu of Change address…, Move up, Move down and
     /// Remove; Add… asks for an address; at twelve the add line is greyed.
     /// </summary>
-    private static ItemMenuEntry Feeds(WidgetMenuLines menu, RssConfig config)
+    private static SettingsLine Feeds(WidgetMenuLines menu, RssConfig config)
         => menu.List(Glyphs.Rss, RssStr.WidgetsC_Rss_Settings_Feeds.Text(), config.Feeds,
             new MenuList<RssFeed>(Name, RssStr.WidgetsC_Rss_Settings_Empty.Text())
             {

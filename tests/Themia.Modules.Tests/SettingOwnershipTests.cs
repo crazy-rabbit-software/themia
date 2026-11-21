@@ -262,7 +262,7 @@ public sealed class SettingOwnershipTests
     }
 
     /// <summary>What a widget's line sets under: a switch, a choice, a colour, a slider or a line of text by its words; links, notes and commands set nothing.</summary>
-    private static IEnumerable<(string Words, string Where)> SettingLines(IEnumerable<ItemMenuEntry> lines, string where)
+    private static IEnumerable<(string Words, string Where)> SettingLines(IEnumerable<SettingsLine> lines, string where)
     {
         foreach (var line in lines)
         {
@@ -271,8 +271,8 @@ public sealed class SettingOwnershipTests
                 continue;
             }
 
-            var choice = line.Children is { Count: > 0 } options && options.All(o => o.Group == line.Text);
-            if (choice || (line.Checked is not null && line.Group is null) || line.Colour is not null || line.Slider is not null || line.Field is not null || (line.Asks && line.Children is null))
+            var choice = line is SettingsChoice;
+            if (choice || line is SettingsToggle or SettingsColour or SettingsFill or SettingsSlider or SettingsAsk || line.Asks)
             {
                 yield return (line.Text, where + " › " + line.Text);
             }
@@ -345,8 +345,8 @@ public sealed class SettingOwnershipTests
         Assert.True(links.Count == 0, "a widget links to a setting it follows (no link row, [S-3749]): " + string.Join("; ", links));
     }
 
-    private static IEnumerable<ItemMenuEntry> Links(IEnumerable<ItemMenuEntry> lines)
-        => lines.SelectMany(l => (l.LinkTo is not null ? [l] : Array.Empty<ItemMenuEntry>()).Concat(l.Children is { } children ? Links(children) : []));
+    private static IEnumerable<SettingsLine> Links(IEnumerable<SettingsLine> lines)
+        => lines.SelectMany(l => (l.LinkTo is not null ? [l] : Array.Empty<SettingsLine>()).Concat(l.Children is { } children ? Links(children) : []));
 
     /// <summary>[S-3590] The types only a higher level holds: a widget follows them, never keeps its own.</summary>
     private static readonly Type[] OwnedTypes =

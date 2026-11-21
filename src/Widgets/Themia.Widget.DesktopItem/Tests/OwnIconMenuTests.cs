@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.DesktopItem.Tests;
 
@@ -38,10 +39,10 @@ public sealed class OwnIconMenuTests
         return built;
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text)
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text)
         => Assert.Single(lines, l => l.Text == text);
 
-    private static ItemMenuEntry Target(Built built) => Line(built.Lines.Lines, DesktopItemStr.WidgetsC_Shortcuts_Column_Target.Text());
+    private static SettingsLine Target(Built built) => Line(built.Lines.Lines, DesktopItemStr.WidgetsC_Shortcuts_Column_Target.Text());
 
     [Fact]
     public void S9509_the_page_is_target_name_icon_then_name_lines_and_open_with()
@@ -134,13 +135,13 @@ public sealed class OwnIconMenuTests
         var name = LaunchTargets.WellKnownShellNames[0];
         var label = LaunchTargets.ShellDisplayName(LaunchTargets.ShellTarget(name));
 
-        IReadOnlyList<ItemMenuEntry> Locations(Built built)
+        IReadOnlyList<SettingsLine> Locations(Built built)
             => Line(Target(built).Children!, DesktopItemStr.WidgetsC_Shortcuts_Settings_Locations.Text()).Children!;
 
         var first = Build(config);
         Assert.Equal(LaunchTargets.WellKnownShellNames.Count, Locations(first).Count);
         Assert.All(Locations(first), l => Assert.False(l.Checked));
-        Assert.All(Locations(first), l => Assert.NotNull(l.Group));
+        Assert.All(Locations(first), l => Assert.IsType<SettingsRadio>(l));
         Line(Locations(first), label).Action!();
         Assert.Equal(LaunchTargets.ShellTarget(name), config.Target);
         Assert.Equal(1, first.Saves);
@@ -222,7 +223,7 @@ public sealed class OwnIconMenuTests
         var built = Build(config);
         var options = Line(built.Lines.Lines, DesktopItemStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text()).Children!;
 
-        Assert.All(options, o => Assert.NotNull(o.Group));
+        Assert.All(options, o => Assert.IsType<SettingsRadio>(o));
         Assert.Equal([true, false], options.Select(o => o.Checked == true));
 
         options[0].Action!();

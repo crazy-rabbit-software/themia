@@ -10,6 +10,7 @@ using Themia.Sdk;
 using Themia.App.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 
@@ -30,7 +31,7 @@ public sealed class DevicePlaceTests
         return widget;
     }
 
-    private static List<ItemMenuEntry> Lines(WidgetInstance widget, DeviceLocation device, Action? settings = null)
+    private static List<SettingsLine> Lines(WidgetInstance widget, DeviceLocation device, Action? settings = null)
     {
         var menu = new WidgetMenuLines(() => { }) { Device = device, OpenLocationSettings = settings };
         ModuleRegistry.Widgets.Single(m => m.Descriptor.Id == widget.Kind).MenuLines(menu, widget.Config);

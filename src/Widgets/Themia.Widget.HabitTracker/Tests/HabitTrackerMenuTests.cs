@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.HabitTracker.Tests;
 
@@ -14,7 +15,7 @@ public sealed class HabitTrackerMenuTests
 {
     private int _saves;
     private WidgetTextAsk? _asked;
-    private WidgetConfirm? _confirm;
+    private SettingsConfirm? _confirm;
     private string? _opened;
 
     private WidgetMenuLines Build(HabitTrackerConfig config, IHabitLists? pool)
@@ -28,7 +29,7 @@ public sealed class HabitTrackerMenuTests
 
     private static string ListTitle => HabitTrackerStr.WidgetsB_Settings_Habits_List.Text();
 
-    private static ItemMenuEntry Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
+    private static SettingsLine Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
 
     [Fact]
     public void S11531_S14410_the_dots_offer_streaks_words_and_lines_under_style_never_a_history_count_and_the_checklist_nothing()
@@ -116,7 +117,7 @@ public sealed class HabitTrackerMenuTests
 
         _confirm = delete.Confirm;
         Assert.Equal(2, pool.Lists.Count);
-        var confirm = Assert.IsType<WidgetConfirm>(_confirm);
+        var confirm = Assert.IsType<SettingsConfirm>(_confirm);
         Assert.Equal(HabitTrackerStr.WidgetsB_Settings_Habits_DeleteQuestion.Text(), confirm.Question);
         Assert.Equal(HabitTrackerStr.WidgetsB_Settings_Habits_DeleteFull.Plural(2, ("name", "Gym")), confirm.Detail);
 

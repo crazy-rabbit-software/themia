@@ -1,3 +1,4 @@
+using Themia.Sdk.WinUI;
 using Themia.Core.Model;
 
 namespace Themia.Core.Settings;
@@ -44,6 +45,24 @@ public abstract record SettingsLine(string Key)
     /// setting's glyph is left out (Karpo's §644). A colour or a picture is always the line's own.
     /// </summary>
     public bool Marked { get; init; }
+
+    /// <summary>
+    /// [S-1862] Where what its widget waits for is set (a place, a feed, a target): the card's Set up button opens the page
+    /// at this line (<c>WidgetMenuLines.SetsUp</c>). One line per widget.
+    /// </summary>
+    public bool SetsUp { get; init; }
+
+    /// <summary>
+    /// [S-11753] The shared setting (<c>SharedSettings</c>, by its key) a widget's line sets: the page of several finds it
+    /// among a member's lines and shows it once for every member that holds the setting. Null for a line of its own.
+    /// </summary>
+    public string? Shares { get; init; }
+
+    /// <summary>[S-6416] A file whose shell icon is the line's icon in place of its glyph (a shortcut's target).</summary>
+    public string? IconFile { get; init; }
+
+    /// <summary>A divider between a widget's groups of lines (its key is given by where it stands).</summary>
+    public static SettingsLine Separator { get; } = new SettingsSeparator("-");
 }
 
 /// <summary>A divider between groups; leading, trailing and doubled ones are dropped.</summary>
@@ -121,11 +140,17 @@ public sealed record SettingsRadio(string Key, string Text, bool Holds, Action P
 
     /// <summary>[S-3537] Words its choice's box finds it by besides its own (a language's English name and code).</summary>
     public string? Keywords { get; init; }
+
+    /// <summary>[S-1429] What it says of itself beside its words (a list's count); its row does not draw it yet.</summary>
+    public string? Value { get; init; }
 }
 
 /// <summary>[S-3718] A choice of one: a line whose submenu is its options, the one that holds at its end.</summary>
 public sealed record SettingsChoice(string Key, string Text, string? Glyph, IReadOnlyList<SettingsRadio> Options) : SettingsLine(Key)
 {
+    /// <summary>[S-3636] Lines its picker holds after its options (Custom…, asking for a value of its own).</summary>
+    public IReadOnlyList<SettingsLine> More { get; init; } = [];
+
     private readonly string? _value;
 
     /// <summary>
@@ -146,15 +171,24 @@ public sealed record SettingsChoice(string Key, string Text, string? Glyph, IRea
 }
 
 /// <summary>[S-3731] A number set by feel: an inline slider, stored once on the release.</summary>
-public sealed record SettingsSlider(string Key, string Text, string? Glyph, double Value, double Min, double Max, double Step, Func<double, string> Format, Action<double> Set) : SettingsLine(Key);
+public sealed record SettingsSlider(string Key, string Text, string? Glyph, double Value, double Min, double Max, double Step, Func<double, string> Format, Action<double> Set) : SettingsLine(Key)
+{
+    /// <summary>[S-11751] What it says at its end in place of its value as <see cref="Format"/> writes it (Mixed); null for that.</summary>
+    public string? ValueText { get; init; }
+}
 
 /// <summary>
 /// [S-3724] A colour (<c>#RRGGBB</c>, empty for the default): the one colour submenu. <see cref="DefaultText"/>
-/// is Default's words; <see cref="DefaultIsWindowsAccent"/> paints Default's swatch in the Windows accent.
+/// is Default's words (null where a colour is required: no Default, the first swatch while none holds);
+/// <see cref="DefaultIsWindowsAccent"/> paints Default's swatch in the Windows accent, <see cref="DefaultHex"/> in a colour
+/// of its own (a calendar's automatic colour).
 /// </summary>
-public sealed record SettingsColour(string Key, string Text, string Current, Action<string> Set, string DefaultText, IReadOnlyList<ColorPreset> Presets) : SettingsLine(Key)
+public sealed record SettingsColour(string Key, string Text, string Current, Action<string> Set, string? DefaultText, IReadOnlyList<ColorPreset> Presets) : SettingsLine(Key)
 {
     public bool DefaultIsWindowsAccent { get; init; }
+
+    /// <summary>[S-566] The colour Default's swatch is painted in (<c>#RRGGBB</c>); null for none of its own.</summary>
+    public string? DefaultHex { get; init; }
 }
 
 /// <summary>[S-3724] A fill (<see cref="FillChoice"/>): the one colour submenu with Transparent and Opacity.</summary>
@@ -183,6 +217,12 @@ public sealed record SettingsSubmenu(string Key, string Text, string? Glyph, IRe
 
     /// <summary>[S-2303] It opens as a page of its own behind a back head, not inside its card.</summary>
     public bool Page { get; init; }
+
+    /// <summary>
+    /// [S-3729] It opens inside its card whatever it holds (a widget's submenu: a list whose items open their own lines
+    /// one level further in), never as a page of its own.
+    /// </summary>
+    public bool Inline { get; init; }
 
     /// <summary>
     /// [S-2301] [S-2310] It is one of the user's own things on its section, a card that opens in place (a view, a
@@ -232,7 +272,7 @@ public sealed record SettingsAsk(string Key, string Text, string? Glyph, string 
 /// Segoe Fluent glyph, its default cell <see cref="DefaultText"/> (a view's initials) named
 /// <see cref="DefaultName"/>. <see cref="Glyph"/> is the line's own glyph (the icon that holds).
 /// </summary>
-public sealed record SettingsIcon(string Key, string Text, string? Glyph, string? Current, string DefaultText, string DefaultName, Action<string?> Set) : SettingsLine(Key)
+public sealed record SettingsIcon(string Key, string Text, string? Glyph, string? Current, string? DefaultText, string DefaultName, Action<string?> Set) : SettingsLine(Key)
 {
     /// <summary>[S-14322] What its picker's head says it holds while folded (<see cref="IconHead.Of"/>).</summary>
     public IconHead Head => IconHead.Of(Current, DefaultName, DefaultText);
@@ -325,3 +365,48 @@ public sealed record SettingsTool(string Key, string Glyph, string Name, Setting
 /// Cancel, Escape or a press elsewhere do nothing.
 /// </summary>
 public sealed record SettingsConfirm(string Question, string Accept, Action Done, string? Detail = null, bool Danger = false);
+
+/// <summary>
+/// [S-3749] A link row: somewhere the user must go to do something (settings › Accounts, to add or manage an account),
+/// <see cref="Owner"/> naming it (the tooltip says "Opens Accounts"), Windows' "open in new window" mark at its end;
+/// <see cref="Run"/> closes the page and opens it. Never a copy of a setting it leads to.
+/// </summary>
+public sealed record SettingsLink(string Key, string Text, string? Glyph, string Owner, Action Run) : SettingsLine(Key);
+
+/// <summary>
+/// [S-2351] [S-3721] A line that asks for one line of text in place (a web address, a path, Rename…, Add…): its row says its
+/// words and <see cref="Value"/> with the expand chevron, and opens in its own card on <see cref="Ask"/>'s field and accept.
+/// Never a page of its own.
+/// </summary>
+public sealed record SettingsPrompt(string Key, string Text, string? Glyph, WidgetTextAsk Ask) : SettingsLine(Key)
+{
+    /// <summary>What it holds, at its end.</summary>
+    public string? Value { get; init; }
+
+    /// <summary>It destroys something: in the critical colour.</summary>
+    public bool Danger { get; init; }
+
+    /// <summary>[S-7513] Among a choice's lines (Custom…), it holds the choice: what it gave is in force; its row does not draw it yet.</summary>
+    public bool Holds { get; init; }
+}
+
+/// <summary>
+/// [S-3722] A search (a place, a symbol, a zone): its line shows <see cref="Value"/> (what is chosen) and opens on a box,
+/// the answer for what is typed (the empty text included, asked as it opens) under it and <see cref="Fixed"/> after the
+/// answers; typing settles for <see cref="Settle"/> before it is asked (zero for an answer in hand).
+/// </summary>
+public sealed record SettingsSearch(
+    string Key,
+    string Text,
+    string? Glyph,
+    string Placeholder,
+    Func<string, CancellationToken, Task<SettingsSearchAnswer>> Find,
+    IReadOnlyList<SettingsLine> Fixed,
+    TimeSpan Settle = default) : SettingsLine(Key)
+{
+    /// <summary>What is chosen now, at the end of its line.</summary>
+    public string? Value { get; init; }
+}
+
+/// <summary>[S-3722] What a search found: its lines (a pick chooses), or a word in their place (searching, no match, offline).</summary>
+public sealed record SettingsSearchAnswer(IReadOnlyList<SettingsLine> Lines, string? Note = null);

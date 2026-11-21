@@ -3,6 +3,7 @@ using Themia.App.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 
@@ -10,7 +11,7 @@ namespace Themia.Modules.Tests;
 /// [S-2351] No widget line opens a page of its own for one input (owner, 2026-11-20: "fence name setting opens a new
 /// subpage where i can enter the name, this should be a section not an own page. this type of settings component should
 /// not exist anywhere in themia settings. implement and replace everywhere."): what a line asks it carries
-/// (<see cref="ItemMenuEntry.Ask"/>, <see cref="ItemMenuEntry.Confirm"/>) and the page asks it in place in the line's card;
+/// (<see cref="SettingsLine.Ask"/>, <see cref="SettingsLine.Confirm"/>) and the page asks it in place in the line's card;
 /// nothing in the SDK can ask on a page of its own, and no level is opened only to hold one asking line.
 /// </summary>
 public sealed class AskInPlaceGuardTests
@@ -19,7 +20,7 @@ public sealed class AskInPlaceGuardTests
     private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
 
     /// <summary>What is wrong with <paramref name="lines"/> (at any depth) for [S-2351], each with its path.</summary>
-    private static IEnumerable<string> Offences(string path, IEnumerable<ItemMenuEntry> lines)
+    private static IEnumerable<string> Offences(string path, IEnumerable<SettingsLine> lines)
     {
         foreach (var line in lines)
         {
@@ -89,7 +90,7 @@ public sealed class AskInPlaceGuardTests
     public void S2351_nothing_in_the_sdk_can_ask_on_a_page_of_its_own()
     {
         // The one way a line asks is carrying what it asks: no member of the SDK takes a callback that would ask elsewhere.
-        Type[] asking = [typeof(Action<WidgetTextAsk>), typeof(Action<WidgetConfirm>)];
+        Type[] asking = [typeof(Action<WidgetTextAsk>), typeof(Action<SettingsConfirm>)];
         var found = typeof(WidgetMenuLines).Assembly.GetExportedTypes()
             .SelectMany(t => t.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly))
             .Where(m => m switch
@@ -120,6 +121,6 @@ public sealed class AskInPlaceGuardTests
         Assert.True(name.Ask!.AllowEmpty);
     }
 
-    private static IEnumerable<ItemMenuEntry> Flat(IEnumerable<ItemMenuEntry> lines)
-        => lines.SelectMany(l => l.Children is { } children ? [l, .. Flat(children)] : (IEnumerable<ItemMenuEntry>)[l]);
+    private static IEnumerable<SettingsLine> Flat(IEnumerable<SettingsLine> lines)
+        => lines.SelectMany(l => l.Children is { } children ? [l, .. Flat(children)] : (IEnumerable<SettingsLine>)[l]);
 }

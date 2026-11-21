@@ -3,6 +3,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -19,7 +20,7 @@ internal static class WeatherNowMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // The look (Style, Appearance), a divider, then the place.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
     }
 }

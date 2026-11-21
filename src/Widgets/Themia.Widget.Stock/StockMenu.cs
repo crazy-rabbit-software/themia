@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Stock;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -28,7 +29,7 @@ internal static class StockMenu
 
         // [S-2776] How many the user owns: the holding's row under the price.
         lines.Add(HoldingLine(menu, config));
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.AddRange(StockQuoteLines.Period(menu, config));
 
         // [S-6074] Only where the market closes: not a coin.
@@ -44,23 +45,23 @@ internal static class StockMenu
     /// decimals, refused rather than coerced (<see cref="StockHolding.TryParse"/>), the setting keeps
     /// its last good value. Empty or 0 is no holding.
     /// </summary>
-    private static ItemMenuEntry HoldingLine(WidgetMenuLines menu, StockConfig config)
+    private static SettingsLine HoldingLine(WidgetMenuLines menu, StockConfig config)
     {
         var locale = Strings.Current;
         var owned = config.SharesOwned is { } amount ? StockHolding.Amount(locale, amount) : null;
 
-        return new ItemMenuEntry(Glyphs.Calculator, StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text(), null, Value: owned, Field: new MenuField(
-            owned ?? string.Empty,
-            StockHolding.Amount(locale, 0),
-            HoldingRefusal,
-            typed =>
+        return new SettingsAsk(StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text(), StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text(), Glyphs.Calculator, StockHolding.Amount(locale, 0), owned ?? string.Empty, HoldingRefusal, typed =>
             {
                 if (StockHolding.TryParse(Strings.Current, typed, out var parsed) && parsed != config.SharesOwned)
                 {
                     config.SharesOwned = parsed;
                     menu.Save();
                 }
-            }));
+            })
+        {
+            AllowEmpty = true,
+            Value = owned,
+        };
     }
 
     /// <summary>[S-2776] Why a typed holding cannot be used, or null when it can.</summary>

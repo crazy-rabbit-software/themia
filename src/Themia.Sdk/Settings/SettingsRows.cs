@@ -87,6 +87,9 @@ public static class SettingsRows
             SettingsToggle => SettingsRowKind.Toggle,
             SettingsSlider => SettingsRowKind.Number,
             SettingsField or SettingsAsk => SettingsRowKind.Text,
+            SettingsPrompt => SettingsRowKind.Ask,
+            SettingsLink => SettingsRowKind.Link,
+            SettingsSearch => SettingsRowKind.Lookup,
 
             // [S-2351] A command asked first asks in place, in its own card.
             SettingsCommand { Confirm: not null } => SettingsRowKind.Ask,
@@ -107,11 +110,14 @@ public static class SettingsRows
         };
     }
 
-    /// <summary>[S-2303] A submenu that is a page of its own: marked so, or one whose own lines open further.</summary>
+    /// <summary>
+    /// [S-2303] A submenu that is a page of its own: marked so, or one whose own lines open further; [S-3729] never one
+    /// that opens inside its card whatever it holds (<see cref="SettingsSubmenu.Inline"/>).
+    /// </summary>
     public static bool IsPage(SettingsSubmenu submenu)
     {
         ArgumentNullException.ThrowIfNull(submenu);
-        return submenu.Page || submenu.Lines.Any(l => l is SettingsSubmenu);
+        return !submenu.Inline && (submenu.Page || submenu.Lines.Any(l => l is SettingsSubmenu));
     }
 
     /// <summary>

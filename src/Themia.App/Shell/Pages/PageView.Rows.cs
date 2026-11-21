@@ -874,7 +874,7 @@ internal sealed partial class PageView
     /// a thing's whole card) follows the pointer pressed on <paramref name="handle"/> (the row itself, a card's grip);
     /// where it is let go, it is moved to, once, a step being its height and <paramref name="gap"/>.
     /// </summary>
-    private void Draggable(FrameworkElement moved, UIElement handle, MenuOrder order, double gap)
+    private void Draggable(FrameworkElement moved, UIElement handle, SettingsOrder order, double gap)
     {
         double? start = null;
         var moving = false;

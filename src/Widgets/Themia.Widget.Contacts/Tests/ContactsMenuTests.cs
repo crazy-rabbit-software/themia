@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Contacts.Tests;
 
@@ -25,7 +26,7 @@ public sealed class ContactsMenuTests
         return lines;
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     [Fact]
     public void S7511_the_first_level_is_appearance_accounts_then_after_a_divider_layout_and_people()

@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.VideoStream;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -31,7 +32,7 @@ internal static class VideoStreamMenu
             VideoStreamRules.LiveRefreshSeconds, VideoStreamRules.MaxRefreshSeconds, 1, Interval, value => config.RefreshSeconds = value));
 
         // [S-466] Whole picture, fill and crop, or stretch.
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.Choice(Glyphs.Fit, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Label.Text(),
             [(StreamFit.Contain, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Whole.Text()), (StreamFit.Cover, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Crop.Text()), (StreamFit.Stretch, VideoStreamStr.VideoStream_FitStretch.Text())],
             config.EffectiveFit, value => config.Fit = value));
@@ -47,11 +48,11 @@ internal static class VideoStreamMenu
             config.EffectiveAspect, value => config.Aspect = value));
 
         // [S-1312] [S-11208] Each a setting, at every size.
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.Toggle(Glyphs.Mouse, VideoStreamStr.WidgetsC_VideoStream_Settings_Hover_Label.Text(), config.HoverControls, on => config.HoverControls = on));
         lines.Add(menu.Toggle(Glyphs.Info, VideoStreamStr.WidgetsC_VideoStream_Settings_Chip_Label.Text(), config.ShowStatus, on => config.ShowStatus = on));
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(WidgetMenuLines.Note(VideoStreamStr.WidgetsC_VideoStream_Settings_Note.Text()));
     }
 
@@ -61,7 +62,7 @@ internal static class VideoStreamMenu
     /// <see cref="WebInput"/> as it is typed and a refusal says why, never repaired into one that
     /// works. Empty clears it: the widget waits for setup again.
     /// </summary>
-    private static ItemMenuEntry AddressLine(WidgetMenuLines menu, VideoStreamConfig config)
+    private static SettingsLine AddressLine(WidgetMenuLines menu, VideoStreamConfig config)
     {
         return menu.Text(Glyphs.Link, VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Label.Text(), config.Url,
             typed => config.Url = typed.Trim(), Example, AddressRefusal);

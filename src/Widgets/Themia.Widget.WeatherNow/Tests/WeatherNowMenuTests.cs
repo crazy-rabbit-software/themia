@@ -49,7 +49,7 @@ public sealed class WeatherNowMenuTests
         var location = Build(new WeatherNowConfig()).Lines.First(l => l.Search is not null);
 
         Assert.Null(location.Search!.Value);
-        Assert.True(Assert.Single(location.Search.Fixed, f => f.Text == Str.Shell_Place_Clear.Text()).Disabled);
+        Assert.True(Assert.Single(location.Search!.Fixed, f => f.Text == Str.Shell_Place_Clear.Text()).Disabled);
     }
 
     [Fact]

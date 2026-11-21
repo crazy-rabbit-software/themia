@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Countdown.Tests;
 
@@ -22,7 +23,7 @@ public sealed class CountdownMenuTests
         return lines;
     }
 
-    private ItemMenuEntry Line(CountdownConfig config, string text) => Build(config).Lines.Single(l => l.Text == text);
+    private SettingsLine Line(CountdownConfig config, string text) => Build(config).Lines.Single(l => l.Text == text);
 
     private static string Date => CountdownStr.WidgetsA_Countdown_Menu_Date.Text();
 

@@ -88,13 +88,3 @@ public sealed class MenuSlider
     /// <summary>A drag that ended without a release that counts (the pointer taken away): nothing stored, the preview ended.</summary>
     public void Cancel() => _preview?.Invoke(null);
 }
-
-/// <summary>
-/// [S-3732] An item line of an ordered list on the selection's page: its place in the list and what a
-/// drop or Alt+Shift+Up / Down does. The host lets the lines of one list (they stand together) be
-/// dragged up and down among themselves; <see cref="Move"/> moves the item and saves, once.
-/// </summary>
-/// <param name="Index">The item's place as the lines were built.</param>
-/// <param name="Count">How many items the list has.</param>
-/// <param name="Move">Moves the item at the first index to the second and saves; nothing for the same place or one outside the list.</param>
-public sealed record MenuOrder(int Index, int Count, Action<int, int> Move);

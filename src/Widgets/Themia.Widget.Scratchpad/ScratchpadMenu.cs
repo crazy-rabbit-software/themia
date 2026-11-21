@@ -34,7 +34,7 @@ internal static class ScratchpadMenu
 
         // A pen always has a colour: no Default line.
         menu.Lines.Add(menu.Colour(ScratchpadStr.Scratchpad_PenColorLabel.Text(), config.EffectivePenColor, value => config.PenColor = value,
-            new ColorChoiceOptions { DefaultLabel = null, Presets = PenColors() }));
+            PenColors(), defaultText: null));
 
         // The width is in pixels and stays in pixels however the widget is resized: a pen has a nib,
         // so a bigger pad shows more drawing rather than a fatter line.
@@ -42,7 +42,7 @@ internal static class ScratchpadMenu
             config.EffectivePenWidth, InkGeometry.ThinnestPen, InkGeometry.WidestPen, 1d, Pixels, value => config.PenWidth = value));
 
         // The pad's tools, apart from the pen.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Toggle(Glyphs.EraseTool, ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text(), config.ShowTools, on => config.ShowTools = on));
     }
 

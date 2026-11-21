@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.App.Services;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -14,7 +15,7 @@ public static class GpuAdapterLine
     /// list, <c>GpuAdapters.List()</c>), offered only with two or more (null otherwise). A chosen
     /// adapter that is gone shows as the first.
     /// </summary>
-    public static ItemMenuEntry? Line(WidgetMenuLines menu, int adapter, Action<int> choose, IReadOnlyList<GpuAdapter> adapters)
+    public static SettingsLine? Line(WidgetMenuLines menu, int adapter, Action<int> choose, IReadOnlyList<GpuAdapter> adapters)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(choose);

@@ -8,6 +8,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Sdk;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.WeekPlanner;
 
@@ -30,7 +31,7 @@ internal static class WeekPlannerMenu
 
         // [S-11410] How many rows a day: the planner's height follows them. [S-14410] How many days is the card's width.
         menu.Lines.Add(KitMenuLines.Count(menu, null, WeekPlannerStr.WeekPlanner_RowsPerDay.Text(), Math.Clamp(planner.RowsPerDay, 1, WeekPlannerRules.MaxRows), 1, WeekPlannerRules.MaxRows, 1, v => planner.RowsPerDay = v));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
 
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, planner, office));
 
@@ -40,7 +41,7 @@ internal static class WeekPlannerMenu
             menu.Lines.Add(birthdays);
         }
 
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Toggle(Glyphs.Task, WeekPlannerStr.Planner_ShowTasks.Text(), planner.ShowTasks, on => planner.ShowTasks = on));
 
         // [S-6074] The account is offered while the tasks show, and only where there is a choice.

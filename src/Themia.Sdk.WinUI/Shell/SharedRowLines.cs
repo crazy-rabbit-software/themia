@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell;
 
@@ -11,7 +12,7 @@ public delegate WidgetMenuLines? LinesOver(WidgetId kind, WidgetConfig config, A
 
 /// <summary>
 /// [S-11751] [S-11753] A shared setting's lines on several widgets' page: the very lines one
-/// holder's module builds for it (marked <see cref="ItemMenuEntry.Shares"/>), over a scratch copy of that
+/// holder's module builds for it (marked <see cref="SettingsLine.Shares"/>), over a scratch copy of that
 /// holder's config; every write they make (a pick, a toggle, a typed value, a place found by a lookup, run
 /// once) is then set on every holder at once, as one change. While the holders disagree the lines read
 /// "Mixed": a choice holds no option, a value or a toggle's words say Mixed, and any pick makes them agree.
@@ -23,7 +24,7 @@ public static class SharedRowLines
     /// <param name="holders">The widgets that may hold the setting (their kind and config), in view order: the first whose module offers its line builds it.</param>
     /// <param name="spread">Sets what the scratch copy holds on every holder (the host's one mutation; nothing where they agree).</param>
     /// <param name="built">Told of the lines built, so a line still reading ([S-3746]) can ask for the page again.</param>
-    public static IReadOnlyList<ItemMenuEntry> Of(
+    public static IReadOnlyList<SettingsLine> Of(
         SharedSetting setting,
         bool mixed,
         IReadOnlyList<(WidgetId Kind, WidgetConfig Config)> holders,
@@ -58,15 +59,14 @@ public static class SharedRowLines
         return [];
     }
 
-    private static List<ItemMenuEntry> Marked(WidgetMenuLines lines, SharedSetting setting)
+    private static List<SettingsLine> Marked(WidgetMenuLines lines, SharedSetting setting)
         => [.. lines.StyleLines.Concat(lines.Lines).Where(l => l.Shares == setting.Key)];
 
     /// <summary>
-    /// [S-11751] Which of the lines read differently on another holder (its value, its switch, the option
-    /// that holds): those say Mixed, a line all of them read alike does not (Use my location stays Off while
-    /// only the places differ). Where no line shows the difference (two places under one name), all do.
+    /// [S-11751] Which of <paramref name="marked"/> read otherwise on any of <paramref name="others"/> (its value, its
+    /// switch, its choice): those say Mixed. Where none can tell (the lines read alike), all of them do.
     /// </summary>
-    private static bool[] Differing(List<ItemMenuEntry> marked, IEnumerable<(WidgetId Kind, WidgetConfig Config)> others, SharedSetting setting, LinesOver build)
+    private static bool[] Differing(List<SettingsLine> marked, IEnumerable<(WidgetId Kind, WidgetConfig Config)> others, SharedSetting setting, LinesOver build)
     {
         var differ = new bool[marked.Count];
         foreach (var other in others)
@@ -86,51 +86,81 @@ public static class SharedRowLines
         return differ;
     }
 
-    /// <summary>What a line reads as: its value, its switch, the option of its choice that holds.</summary>
-    private static (string? Value, bool? On, string? Holds) Reading(ItemMenuEntry line)
-        => (line.Value ?? line.Search?.Value, line.Checked, line.Children?.FirstOrDefault(c => c is { Checked: true, Group: not null }).Text);
+    /// <summary>What a line reads as: what it says at its end, its switch, the option that holds.</summary>
+    private static (string? Value, bool? On, string? Holds) Reading(SettingsLine line) => line switch
+    {
+        SettingsToggle toggle => (toggle.Value, toggle.On, null),
+        SettingsRadio radio => (null, radio.Holds, null),
+        SettingsChoice choice => (choice.Value, null, choice.Options.FirstOrDefault(o => o.Holds)?.Text),
+        SettingsSubmenu submenu => (submenu.Value, null, submenu.Lines.OfType<SettingsRadio>().FirstOrDefault(r => r.Holds)?.Text),
+        SettingsSearch search => (search.Value, null, null),
+        SettingsSlider slider => (slider.ValueText, null, null),
+        SettingsCommand command => (command.Value, null, null),
+        SettingsPrompt prompt => (prompt.Value, null, null),
+        SettingsAsk ask => (ask.Value, null, null),
+        _ => (null, null, null),
+    };
 
     /// <summary>
-    /// The line with every write it makes followed by the spread (a pick of what the scratch copy already
-    /// holds then still makes the holders agree); while mixed, read as no option and "Mixed".
+    /// <paramref name="line"/> with every write it makes followed by <paramref name="spread"/>, its children's too; reading
+    /// Mixed where <paramref name="mixed"/> (a top line its value, a switch off with its words Mixed, no option holding).
     /// </summary>
-    private static ItemMenuEntry Wired(ItemMenuEntry line, Action spread, bool mixed, bool top)
+    private static SettingsLine Wired(SettingsLine line, Action spread, bool mixed, bool top)
     {
-        if (line.IsSeparator || line.Note)
+        var wired = line switch
         {
-            return line;
-        }
+            SettingsToggle toggle => toggle with { Set = on => After(() => toggle.Set(on), spread) },
+            SettingsRadio radio => radio with { Pick = () => After(radio.Pick, spread) },
+            SettingsCommand command => command with
+            {
+                Run = () => After(command.Run, spread),
 
-        var wired = line with
-        {
-            Action = line.Action is { } run ? () => After(run, spread) : null,
-            Children = line.Children is { } children ? [.. children.Select(c => Wired(c, spread, mixed, top: false))] : null,
-            Search = line.Search is { } search ? Wired(search, spread, mixed) : null,
+                // [S-2351] What a line asks in place, answered, is set on every holder too.
+                Confirm = command.Confirm is { } sure ? sure with { Done = () => After(sure.Done, spread) } : null,
+            },
+            SettingsLink link => link with { Run = () => After(link.Run, spread) },
+            SettingsChoice choice => choice with
+            {
+                Options = [.. choice.Options.Select(o => (SettingsRadio)Wired(o, spread, mixed, top: false))],
+                More = [.. choice.More.Select(l => Wired(l, spread, mixed, top: false))],
+            },
+            SettingsSubmenu submenu => submenu with { Lines = [.. submenu.Lines.Select(c => Wired(c, spread, mixed, top: false))] },
+            SettingsSearch search => Wired(search, spread, mixed),
 
             // [S-2332] A text typed in place is set on every holder; while they disagree its box is empty, its hint Mixed.
-            Field = line.Field is { } field ? Wired(field, spread, mixed && top) : null,
-
-            // [S-2351] What a line asks in place, given or answered, is set on every holder too.
-            Ask = line.Ask is { } ask ? ask with { Done = typed => After(() => ask.Done(typed), spread) } : null,
-            Confirm = line.Confirm is { } sure ? sure with { Done = () => After(sure.Done, spread) } : null,
+            SettingsAsk ask => Wired(ask, spread, mixed && top),
+            SettingsPrompt prompt => prompt with { Ask = prompt.Ask with { Done = typed => After(() => prompt.Ask.Done(typed), spread) } },
+            _ => line,
         };
 
-        if (!mixed)
+        if (!mixed || line is SettingsSeparator or SettingsNote)
         {
             return wired;
         }
 
         // [S-11751] A value they disagree on: no option of a choice holds, a top line's value and a switch's words say Mixed.
-        if (line.Group is not null && line.Checked is not null)
+        if (wired is SettingsRadio held)
         {
-            return wired with { Checked = false };
+            return held with { Holds = false };
         }
 
-        return top ? wired with { Value = Str.Groups_Page_Mixed.Text(), Checked = line.Checked is null ? null : false } : wired;
+        return !top ? wired : wired switch
+        {
+            SettingsToggle toggle => toggle with { On = false, Value = Mixed },
+            SettingsChoice choice => choice with { Value = Mixed },
+            SettingsSubmenu submenu => submenu with { Value = Mixed },
+            SettingsSearch search => search with { Value = Mixed },
+            SettingsSlider slider => slider with { ValueText = Mixed },
+            SettingsCommand command => command with { Value = Mixed },
+            SettingsPrompt prompt => prompt with { Value = Mixed },
+            SettingsAsk ask => ask with { Value = Mixed },
+            _ => wired,
+        };
     }
 
-    /// <summary>A lookup's answers and fixed lines wired as the line is: a place found once is set on every holder.</summary>
-    private static MenuSearch Wired(MenuSearch search, Action spread, bool mixed) => search with
+    private static string Mixed => Str.Groups_Page_Mixed.Text();
+
+    private static SettingsSearch Wired(SettingsSearch search, Action spread, bool mixed) => search with
     {
         Find = async (typed, cancel) =>
         {
@@ -140,11 +170,10 @@ public static class SharedRowLines
         Fixed = [.. search.Fixed.Select(l => Wired(l, spread, mixed, top: false))],
     };
 
-    /// <summary>[S-2332] A text typed in place set on every holder; while they disagree its box empty, its hint Mixed.</summary>
-    private static MenuField Wired(MenuField field, Action spread, bool mixed)
+    private static SettingsAsk Wired(SettingsAsk ask, Action spread, bool mixed)
     {
-        var kept = field with { Keep = typed => After(() => field.Keep(typed), spread) };
-        return mixed ? kept with { Current = string.Empty, Placeholder = Str.Groups_Page_Mixed.Text() } : kept;
+        var kept = ask with { Done = typed => After(() => ask.Done(typed), spread) };
+        return mixed ? kept with { Initial = string.Empty, Placeholder = Mixed } : kept;
     }
 
     private static void After(Action first, Action then)

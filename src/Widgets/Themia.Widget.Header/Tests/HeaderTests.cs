@@ -62,10 +62,10 @@ public sealed class HeaderTests
         Assert.Equal(SharedSettings.Place.Key, lines[3].Shares);
         Assert.True(menu.Lines[3].IsSeparator);
 
-        Assert.Equal("Weather", title.Current);
-        title.Keep(" Weather now ");
-        caption.Keep("Zürich");
-        title.Keep("Weather");
+        Assert.Equal("Weather", title.Initial);
+        title.Done(" Weather now ");
+        caption.Done("Zürich");
+        title.Done("Weather");
         Assert.Equal(("Weather now", "Zürich"), (header.Text, header.Caption));
         Assert.Equal(2, saves);
         Assert.DoesNotContain(menu.Lines, l => l.Asks);

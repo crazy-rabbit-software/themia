@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Drive;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -19,7 +20,7 @@ internal static class DriveMenu
         ArgumentNullException.ThrowIfNull(drives);
 
         // [S-4674] The look (Style, Appearance), a divider, then which drive.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(DriveMenuLines.Drive(menu, config.Drive, value => config.Drive = value, drives));
     }
 }

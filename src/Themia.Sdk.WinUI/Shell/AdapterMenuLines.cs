@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -27,7 +28,7 @@ public static class AdapterMenuLines
     /// Picking one stores its id and its name. The menu is built again when the adapters change while it is shown.
     /// </summary>
     /// <param name="adapters">The adapters Windows has (the host's walk, <c>AdapterList.Now()</c>).</param>
-    public static ItemMenuEntry Adapter(WidgetMenuLines menu, IHoldsAdapter held, IReadOnlyList<NetworkAdapterEntry> adapters)
+    public static SettingsLine Adapter(WidgetMenuLines menu, IHoldsAdapter held, IReadOnlyList<NetworkAdapterEntry> adapters)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(held);

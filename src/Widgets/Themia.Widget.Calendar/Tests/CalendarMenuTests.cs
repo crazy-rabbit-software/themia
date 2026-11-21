@@ -8,6 +8,7 @@ using Themia.Core.Office;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Calendar.Tests;
 
@@ -52,7 +53,7 @@ public sealed class CalendarMenuTests
             => throw new NotSupportedException();
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     private static string Range => CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Label.Text();
 

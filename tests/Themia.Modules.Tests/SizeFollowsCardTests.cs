@@ -10,6 +10,7 @@ using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 
@@ -53,9 +54,9 @@ public sealed class SizeFollowsCardTests
     internal static List<string> MenuLines(out int built) => [.. MenuEntries(out built).Select(e => $"{e.Kind} › {e.Line.Text}")];
 
     /// <summary>Every setting line of every kind's menu (its Style lines and its own), submenus walked, with its kind.</summary>
-    private static List<(string Kind, ItemMenuEntry Line)> MenuEntries(out int built)
+    private static List<(string Kind, SettingsLine Line)> MenuEntries(out int built)
     {
-        var lines = new List<(string Kind, ItemMenuEntry Line)>();
+        var lines = new List<(string Kind, SettingsLine Line)>();
         built = 0;
         foreach (var (kind, config) in Configs())
         {
@@ -77,7 +78,7 @@ public sealed class SizeFollowsCardTests
         return lines;
 
         // A submenu's lines are settings too; a choice's options (checked or not: a sort's "Size", a file's) are not.
-        static IEnumerable<ItemMenuEntry> Walk(IEnumerable<ItemMenuEntry> entries)
+        static IEnumerable<SettingsLine> Walk(IEnumerable<SettingsLine> entries)
             => entries.Where(e => !e.IsSeparator).SelectMany(e => new[] { e }.Concat(e.Children is { } children ? Walk(children.Where(c => c.Checked is null)) : []));
     }
 

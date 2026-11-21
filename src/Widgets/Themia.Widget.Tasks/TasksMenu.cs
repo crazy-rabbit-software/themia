@@ -11,6 +11,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Tasks;
 
@@ -66,7 +67,7 @@ internal static class TasksMenu
         }
 
         // [S-7516] What each task shows. [S-2440] How many tasks, and their lines where a task has a second.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
 
         // [S-6074] Due dates exist only on an account's tasks.
@@ -76,7 +77,7 @@ internal static class TasksMenu
         }
 
         // [S-7516] Which tasks the list keeps, and where a new one lands.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Toggle(Glyphs.Task, TasksStr.Todo_ShowCompleted_Label.Text(), config.ShowCompleted, on => config.ShowCompleted = on));
         menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Search, TasksStr.WidgetsC_Tasks_Settings_Filter.Text(), Filters(menu, config, Importance(config, service))));
 
@@ -113,13 +114,13 @@ internal static class TasksMenu
     /// since signed out stays listed by its id, never swapped, [S-590]), or this PC; then the line that
     /// opens settings › Accounts ([S-3745]). Another account starts from its default list and order.
     /// </summary>
-    private static ItemMenuEntry Source(WidgetMenuLines menu, TasksConfig config, ITaskSource service)
+    private static SettingsLine Source(WidgetMenuLines menu, TasksConfig config, ITaskSource service)
     {
         var text = TasksStr.WidgetsC_Tasks_Settings_ShowFrom_Label.Text();
         var accounts = service.Accounts;
         var onAccount = config.Source == TaskSource.Account;
 
-        ItemMenuEntry Account(string id, string words) => new(null, words, () =>
+        SettingsRadio Account(string id, string words) => new SettingsRadio(words, words, onAccount && config.AccountId == id, () =>
         {
             if (onAccount && config.AccountId == id)
             {
@@ -133,9 +134,9 @@ internal static class TasksMenu
             config.ListName = string.Empty;
             config.TaskOrder = [];
             menu.Save();
-        }, Checked: onAccount && config.AccountId == id, Group: text);
+        });
 
-        var lines = new List<ItemMenuEntry>
+        var lines = new List<SettingsLine>
         {
             Account(string.Empty, accounts.Count > 0
                 ? TasksStr.WidgetsC_Tasks_Settings_FirstAccountNamed.Format(("account", accounts[0].Label))
@@ -153,7 +154,7 @@ internal static class TasksMenu
             lines.Add(Account(config.AccountId, config.AccountId));
         }
 
-        lines.Add(new(null, TasksStr.WidgetsC_Tasks_Settings_ThisPc.Text(), () =>
+        lines.Add(new SettingsRadio(TasksStr.WidgetsC_Tasks_Settings_ThisPc.Text(), TasksStr.WidgetsC_Tasks_Settings_ThisPc.Text(), !onAccount, () =>
         {
             if (config.Source == TaskSource.Local)
             {
@@ -164,9 +165,9 @@ internal static class TasksMenu
             config.Source = TaskSource.Local;
             config.LocalListId = service.Local.Ensure(config.LocalListId, TasksStr.Todo_LocalLists_DefaultName.Text());
             menu.Save();
-        }, Checked: !onAccount, Group: text));
+        }));
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         if (accounts.Count == 0)
         {
             lines.Add(WidgetMenuLines.Note(TasksStr.WidgetsC_Tasks_Settings_NoAccount.Text()));
@@ -177,11 +178,11 @@ internal static class TasksMenu
         var shown = !onAccount ? TasksStr.WidgetsC_Tasks_Settings_ThisPc.Text()
             : config.AccountId.Length == 0 ? accounts.FirstOrDefault()?.Label
             : service.Find(config.AccountId)?.Label ?? config.AccountId;
-        return WidgetMenuLines.Submenu(Glyphs.Contact, text, lines) with { Value = shown };
+        return WidgetMenuLines.Submenu(Glyphs.Contact, text, lines, value: shown);
     }
 
     /// <summary>Which list: the account's, or this PC's. None while the account is gone.</summary>
-    private static ItemMenuEntry? List(WidgetMenuLines menu, TasksConfig config, ITaskSource service)
+    private static SettingsLine? List(WidgetMenuLines menu, TasksConfig config, ITaskSource service)
     {
         if (config.Source == TaskSource.Local)
         {
@@ -198,7 +199,7 @@ internal static class TasksMenu
     /// service's cache ([S-3746]). A list that has gone since it was picked falls back to the default
     /// line's dot rather than none on a setting that means something.
     /// </summary>
-    private static ItemMenuEntry AccountLists(WidgetMenuLines menu, TasksConfig config, ITaskSource service, TaskAccount account)
+    private static SettingsLine AccountLists(WidgetMenuLines menu, TasksConfig config, ITaskSource service, TaskAccount account)
     {
         var text = TasksStr.WidgetsC_Tasks_Settings_List_Label.Text();
         var loads = Listings.GetValue(service, _ => new MenuLoads<TaskListing>(TaskListing.Same));
@@ -207,7 +208,7 @@ internal static class TasksMenu
         if (listing.Value is not { Lists: { } lists })
         {
             var note = listing.Value?.Problem ?? (listing.Failed ? TasksStr.WidgetsC_Tasks_Settings_List_Failed.Text() : TasksStr.Todo_LoadingLists.Text());
-            return WidgetMenuLines.Submenu(Glyphs.Task, text, [WidgetMenuLines.Note(note)]) with { Value = config.ListName.Length > 0 ? config.ListName : null };
+            return WidgetMenuLines.Submenu(Glyphs.Task, text, [WidgetMenuLines.Note(note)], value: config.ListName.Length > 0 ? config.ListName : null);
         }
 
         var fallback = TaskRules.DefaultList(lists);
@@ -219,7 +220,7 @@ internal static class TasksMenu
         options.AddRange(lists.Select(l => (l.Id, l.Name, string.IsNullOrWhiteSpace(l.Name) ? TasksStr.WidgetsC_Tasks_Settings_List_Unnamed.Text() : l.Name)));
 
         var current = options.Any(o => o.Id == config.ListId) ? config.ListId : string.Empty;
-        var lines = options.Select(o => new ItemMenuEntry(null, o.Words, () =>
+        var lines = options.Select(o => new SettingsRadio(o.Words, o.Words, o.Id == current, () =>
         {
             if (o.Id == config.ListId)
             {
@@ -230,9 +231,9 @@ internal static class TasksMenu
             config.ListName = o.Name;
             config.TaskOrder = [];
             menu.Save();
-        }, Checked: o.Id == current, Group: text)).ToList();
+        })).ToList();
 
-        return WidgetMenuLines.Submenu(Glyphs.Task, text, lines) with { Value = options.First(o => o.Id == current).Words };
+        return WidgetMenuLines.Submenu(Glyphs.Task, text, lines, value: options.First(o => o.Id == current).Words);
     }
 
     /// <summary>[S-592] An account's lists through the service's cache, or why they could not be read.</summary>
@@ -254,10 +255,10 @@ internal static class TasksMenu
     /// shown, delete it after asking. A pool every Tasks widget shares, so a rename retitles each
     /// widget showing it.
     /// </summary>
-    private static ItemMenuEntry LocalLists(WidgetMenuLines menu, TasksConfig config, ILocalTaskLists pool)
+    private static SettingsLine LocalLists(WidgetMenuLines menu, TasksConfig config, ILocalTaskLists pool)
     {
         var text = TasksStr.WidgetsC_Tasks_Settings_List_Label.Text();
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         if (pool.Problem is { } problem)
         {
             lines.Add(WidgetMenuLines.Note(problem));
@@ -266,14 +267,14 @@ internal static class TasksMenu
         foreach (var list in pool.Lists)
         {
             var listId = list.Id;
-            lines.Add(new(null, Display(list.Name), () =>
+            lines.Add(new SettingsRadio(Display(list.Name), Display(list.Name), list.Id == config.LocalListId, () =>
             {
                 if (config.LocalListId != listId)
                 {
                     config.LocalListId = listId;
                     menu.Save();
                 }
-            }, Checked: list.Id == config.LocalListId, Group: text, Value: TasksStr.WidgetsC_Tasks_Settings_TaskCount.Plural(list.Tasks.Count)));
+            }) { Value = TasksStr.WidgetsC_Tasks_Settings_TaskCount.Plural(list.Tasks.Count) });
         }
 
         if (pool.Lists.Count == 0)
@@ -281,7 +282,7 @@ internal static class TasksMenu
             lines.Add(WidgetMenuLines.Note(TasksStr.WidgetsC_Tasks_Settings_NoLocalLists.Text()));
         }
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.Command(Glyphs.Add, TasksStr.WidgetsC_Tasks_Settings_AddList.Text(), () => config.LocalListId = pool.Create(LocalTaskLists.NewListName), disabled: !pool.Writable));
 
         var shown = pool.Find(config.LocalListId);
@@ -318,7 +319,7 @@ internal static class TasksMenu
             }, disabled: !pool.Writable, detail: detail));
         }
 
-        return WidgetMenuLines.Submenu(Glyphs.Task, text, lines) with { Value = shown is null ? null : Display(shown.Name) };
+        return WidgetMenuLines.Submenu(Glyphs.Task, text, lines, value: shown is null ? null : Display(shown.Name));
     }
 
     /// <summary>
@@ -326,9 +327,9 @@ internal static class TasksMenu
     /// only where the account has it, [S-7516]), and the words the titles must hold, asked for as
     /// text (at most <see cref="TasksConfig.TextFilterMax"/> characters; an empty box clears it).
     /// </summary>
-    private static List<ItemMenuEntry> Filters(WidgetMenuLines menu, TasksConfig config, bool importance)
+    private static List<SettingsLine> Filters(WidgetMenuLines menu, TasksConfig config, bool importance)
     {
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         if (config.Offers(TasksSetting.DueFilter))
         {
             lines.Add(menu.Choice(null, TasksStr.WidgetsC_Tasks_Settings_DueFilter_Label.Text(),

@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Sdk.WinUI;
 using Themia.Core.Sync;
 using Themia.Sdk;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -19,9 +20,9 @@ internal static class RainNextHourMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // Appearance, then behind a divider each: the place; the data's credit.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(WidgetMenuLines.Note(Str.Online_Source.Format(("name", "Open-Meteo"))));
     }
 }

@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Notes;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Notes.Tests;
 
@@ -15,7 +16,7 @@ public sealed class NotesMenuTests
 
     private int _saves;
     private WidgetTextAsk? _asked;
-    private WidgetConfirm? _confirm;
+    private SettingsConfirm? _confirm;
 
     private WidgetMenuLines Build(NotesConfig config, INotes? pool)
     {
@@ -30,7 +31,7 @@ public sealed class NotesMenuTests
 
     private static string Clear => NotesStr.WidgetsC_Notes_Settings_Clear_Label.Text();
 
-    private static ItemMenuEntry Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
+    private static SettingsLine Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
 
     [Fact]
     public void S1349_appearance_then_the_note_and_clear_last_with_no_size_of_its_own()
@@ -88,7 +89,7 @@ public sealed class NotesMenuTests
         _confirm = (Line(Build(new NotesConfig { NoteId = "a" }, pool), NoteTitle).Children!.Single(l => l.Text == NotesStr.Notes_DeleteTitle.Text())).Confirm;
         Assert.Equal(2, pool.Notes.Count);
 
-        var confirm = Assert.IsType<WidgetConfirm>(_confirm);
+        var confirm = Assert.IsType<SettingsConfirm>(_confirm);
         Assert.Equal(NotesStr.WidgetsC_Notes_DeleteConfirmTitle.Text(), confirm.Question);
         Assert.Equal(NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", "Shopping")), confirm.Detail);
         confirm.Done();

@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -20,7 +21,7 @@ public static class PingHostLine
     /// rejection: it means the default resolver.
     /// </para>
     /// </summary>
-    public static ItemMenuEntry Line(WidgetMenuLines menu, string host, Action<string> set)
+    public static SettingsLine Line(WidgetMenuLines menu, string host, Action<string> set)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(set);
@@ -28,11 +29,7 @@ public static class PingHostLine
 
         // [S-2332] Typed in place in its box, the default resolver its hint.
         var title = Str.WidgetsB_Settings_Ping_Host_Label.Text();
-        return new(Glyphs.Link, title, null, Value: host.Length == 0 ? HostAddress.DefaultPingHost : host, Shares: SharedSettings.PingHost.Key, Field: new MenuField(
-            host,
-            HostAddress.DefaultPingHost,
-            Refuse,
-            typed =>
+        return new SettingsAsk(title, title, Glyphs.Link, HostAddress.DefaultPingHost, host, Refuse, typed =>
             {
                 var value = (typed ?? string.Empty).Trim();
                 if (Refuse(value) is null && value != host)
@@ -40,7 +37,12 @@ public static class PingHostLine
                     set(value);
                     menu.Save();
                 }
-            }));
+            })
+        {
+            AllowEmpty = true,
+            Value = host.Length == 0 ? HostAddress.DefaultPingHost : host,
+            Shares = SharedSettings.PingHost.Key,
+        };
     }
 
     /// <summary>[S-109] Why a typed host cannot be measured, or null: empty (the default) or a plausible name or address.</summary>

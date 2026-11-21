@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Folder.Tests;
 
@@ -60,7 +61,7 @@ public sealed class FolderPropertiesMenuTests
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 
-    private static ItemMenuEntry FolderOf(WidgetMenuLines lines) => lines.Lines.First(l => !l.IsSeparator);
+    private static SettingsLine FolderOf(WidgetMenuLines lines) => lines.Lines.First(l => !l.IsSeparator);
 
     [Fact]
     public void S1337_the_folder_line_shows_its_name_and_offers_browse_and_a_typed_path()

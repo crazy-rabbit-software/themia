@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -18,7 +19,7 @@ public static class ScreenTimeMenuLines
     public const int NewAppLimitSeconds = 3600;
 
     /// <summary>[S-3321] One day, or a rolling window that ends today.</summary>
-    public static ItemMenuEntry Period(WidgetMenuLines menu, ScreenTimePeriod period, Action<ScreenTimePeriod> set)
+    public static SettingsLine Period(WidgetMenuLines menu, ScreenTimePeriod period, Action<ScreenTimePeriod> set)
     {
         ArgumentNullException.ThrowIfNull(menu);
         return WidgetMenuLines.Shared(SharedSettings.ScreenTimePeriod, menu.Choice(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(),
@@ -43,7 +44,7 @@ public static class ScreenTimeMenuLines
         ArgumentNullException.ThrowIfNull(widget);
 
         // The machine's lines stand apart from the widget's own: they change every screen-time widget.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         if (source is null)
         {
             menu.Lines.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_NotRecording.Text()));
@@ -51,7 +52,7 @@ public static class ScreenTimeMenuLines
             return;
         }
 
-        var limits = new List<ItemMenuEntry>();
+        var limits = new List<SettingsLine>();
         if (widget.Offers(ScreenTimeSetting.DailyLimit))
         {
             limits.Add(DailyLimit(menu, source));
@@ -61,22 +62,22 @@ public static class ScreenTimeMenuLines
         {
             if (limits.Count > 0)
             {
-                limits.Add(ItemMenuEntry.Separator);
+                limits.Add(SettingsLine.Separator);
             }
 
             limits.AddRange(AppLimits(menu, source));
         }
 
-        limits.Add(ItemMenuEntry.Separator);
+        limits.Add(SettingsLine.Separator);
         limits.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_Settings_Shared.Text()));
         menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Timer, Str.WidgetsC_ScreenTime_Settings_Limits.Text(), limits));
 
         var hidden = HiddenApps(menu, source);
-        hidden.Add(ItemMenuEntry.Separator);
+        hidden.Add(SettingsLine.Separator);
         hidden.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_Settings_Shared.Text()));
         menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Hidden, Str.Screentime_Cfg_Hidden.Text(), hidden));
 
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_Settings_Privacy.Text()));
     }
 
@@ -85,12 +86,12 @@ public static class ScreenTimeMenuLines
     /// than dots), stored in seconds. Zero is no limit at all, never one everything instantly exceeds,
     /// and the line says Off.
     /// </summary>
-    private static ItemMenuEntry DailyLimit(WidgetMenuLines menu, IScreenTimeSource source)
+    private static SettingsLine DailyLimit(WidgetMenuLines menu, IScreenTimeSource source)
     {
         var minutes = (int)Math.Clamp(source.Preferences.GoalSeconds / 60, 0, 1440);
         var line = menu.Number(Glyphs.Timer, Str.WidgetsC_ScreenTime_DailyLimit.Text(), minutes, 0, 1440, 15, Minutes,
             value => Change(source, next => next.GoalSeconds = value * 60L));
-        return minutes == 0 ? line with { Value = Str.Toggle_Off.Text() } : line;
+        return minutes == 0 ? line with { ValueText = Str.Toggle_Off.Text() } : line;
     }
 
     /// <summary>
@@ -98,13 +99,13 @@ public static class ScreenTimeMenuLines
     /// quarter hours up to 12 hours, Remove), then Limit an app: a search over the apps the history
     /// knows, so a limit is picked rather than typed and mistyped.
     /// </summary>
-    private static List<ItemMenuEntry> AppLimits(WidgetMenuLines menu, IScreenTimeSource source)
+    private static List<SettingsLine> AppLimits(WidgetMenuLines menu, IScreenTimeSource source)
     {
         var known = KnownApps(source);
         var names = known.ToDictionary(a => a.App, a => a.Name, StringComparer.Ordinal);
         var limits = source.Preferences.AppLimits.OrderBy(limit => limit.Key, StringComparer.Ordinal).ToList();
 
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         if (limits.Count == 0)
         {
             lines.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_Settings_NoAppLimits.Text()));
@@ -117,16 +118,16 @@ public static class ScreenTimeMenuLines
                 [
                     menu.Number(Glyphs.Timer, Str.WidgetsC_ScreenTime_DailyLimit.Text(), minutes, 15, 720, 15, Minutes,
                         value => Change(source, next => next.AppLimits[app] = value * 60L)),
-                    ItemMenuEntry.Separator,
+                    SettingsLine.Separator,
                     menu.Command(Glyphs.Delete, Str.Common_Remove.Text(), () => Change(source, next => next.AppLimits.Remove(app))),
-                ]) with { Value = ScreenTimeRules.FormatLimit(seconds) });
+                ], value: ScreenTimeRules.FormatLimit(seconds)));
         }
 
-        Task<MenuSearchAnswer> Find(string typed, CancellationToken cancel)
+        Task<SettingsSearchAnswer> Find(string typed, CancellationToken cancel)
         {
             var query = typed.Trim();
             var limited = source.Preferences.AppLimits;
-            return Task.FromResult(new MenuSearchAnswer([.. known
+            return Task.FromResult(new SettingsSearchAnswer([.. known
                 .Where(a => !limited.ContainsKey(a.App) && (query.Length == 0 || a.Name.Contains(query, StringComparison.OrdinalIgnoreCase)))
                 .Select(a => WidgetMenuLines.Found(a.Name, false, () =>
                 {
@@ -136,7 +137,7 @@ public static class ScreenTimeMenuLines
         }
 
         lines.Add(WidgetMenuLines.Search(Glyphs.Add, Str.WidgetsC_ScreenTime_Settings_LimitApp.Text(), null,
-            new MenuSearch(Str.WidgetsC_ScreenTime_Settings_LimitApp.Text(), Find, [])));
+            Str.WidgetsC_ScreenTime_Settings_LimitApp.Text(), Find, []));
         return lines;
     }
 
@@ -144,7 +145,7 @@ public static class ScreenTimeMenuLines
     /// [S-455] [S-3322] The apps hidden from every screen-time widget, each with Show again. Keys only:
     /// no durations, no dates.
     /// </summary>
-    private static List<ItemMenuEntry> HiddenApps(WidgetMenuLines menu, IScreenTimeSource source)
+    private static List<SettingsLine> HiddenApps(WidgetMenuLines menu, IScreenTimeSource source)
     {
         var hidden = source.Preferences.Hidden.Order(StringComparer.Ordinal).ToList();
         if (hidden.Count == 0)

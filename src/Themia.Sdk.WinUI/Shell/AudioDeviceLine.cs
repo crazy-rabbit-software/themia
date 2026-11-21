@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -41,7 +42,7 @@ public static class AudioDeviceLine
     /// was chosen under, so the choice is never silently lost. Null where it would change nothing
     /// (<see cref="Offers"/>, [S-1236]).
     /// </summary>
-    public static ItemMenuEntry? Line(WidgetMenuLines menu, MenuLoaded<IReadOnlyList<AudioDevice>> outputs, string? chosenId, string? chosenName, Action<string?, string?> set)
+    public static SettingsLine? Line(WidgetMenuLines menu, MenuLoaded<IReadOnlyList<AudioDevice>> outputs, string? chosenId, string? chosenName, Action<string?, string?> set)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(set);
@@ -57,7 +58,7 @@ public static class AudioDeviceLine
             menu.Save();
         }
 
-        async Task<MenuSearchAnswer> Find(string typed, CancellationToken cancel)
+        async Task<SettingsSearchAnswer> Find(string typed, CancellationToken cancel)
         {
             IReadOnlyList<AudioDevice> devices;
             try
@@ -80,7 +81,7 @@ public static class AudioDeviceLine
             : chosenName is { Length: > 0 } name ? name : Str.WidgetsC_Volume_Settings_ChosenDevice.Text();
 
         return WidgetMenuLines.Shared(SharedSettings.AudioOutput, WidgetMenuLines.Search(Glyphs.Speakers, Str.WidgetsC_Volume_Settings_Device_Label.Text(), value,
-            new MenuSearch(Str.AudioDevice_Search.Text(), Find, [])));
+            Str.AudioDevice_Search.Text(), Find, []));
     }
 
     /// <summary>
@@ -88,14 +89,14 @@ public static class AudioDeviceLine
     /// connected devices whose name holds it, then the chosen one where it is not connected. Picking
     /// the one that holds calls nothing.
     /// </summary>
-    public static MenuSearchAnswer Answer(IReadOnlyList<AudioDevice> devices, string typed, string? chosenId, string? chosenName, Action<string?, string?> pick)
+    public static SettingsSearchAnswer Answer(IReadOnlyList<AudioDevice> devices, string typed, string? chosenId, string? chosenName, Action<string?, string?> pick)
     {
         ArgumentNullException.ThrowIfNull(devices);
         ArgumentNullException.ThrowIfNull(pick);
 
         var query = (typed ?? string.Empty).Trim();
 
-        ItemMenuEntry Line(string? id, string? name, string text)
+        SettingsLine Line(string? id, string? name, string text)
         {
             var holds = string.Equals(id, chosenId, StringComparison.OrdinalIgnoreCase);
             return WidgetMenuLines.Found(text, holds, () =>
@@ -107,7 +108,7 @@ public static class AudioDeviceLine
             });
         }
 
-        var lines = new List<ItemMenuEntry> { Line(null, null, Str.WidgetsC_Volume_Settings_DefaultOutput.Text()) };
+        var lines = new List<SettingsLine> { Line(null, null, Str.WidgetsC_Volume_Settings_DefaultOutput.Text()) };
         var connected = false;
         foreach (var device in devices)
         {
@@ -124,6 +125,6 @@ public static class AudioDeviceLine
             lines.Add(Line(chosenId, chosenName, Str.WidgetsC_Volume_Settings_DeviceNotConnected.Format(("device", AudioRules.DeviceName(chosenId, devices, chosenName)))));
         }
 
-        return new MenuSearchAnswer(lines);
+        return new SettingsSearchAnswer(lines);
     }
 }

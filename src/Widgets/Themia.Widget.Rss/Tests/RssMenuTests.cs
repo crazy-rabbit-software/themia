@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Rss.Tests;
 
@@ -20,7 +21,7 @@ public sealed class RssMenuTests
         return lines;
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     private static RssConfig Two() => new() { Feeds = [new() { Url = "https://a.example/feed.xml" }, new() { Url = "https://b.example/rss" }] };
 

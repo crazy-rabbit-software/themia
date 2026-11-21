@@ -7,6 +7,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.HabitTracker;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -74,7 +75,7 @@ internal static class HabitTrackerMenu
         menu.Lines.Add(Lists(menu, config, pool));
 
         // How often the boxes clear, apart from which list they are.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Calendar, HabitTrackerStr.WidgetsB_Settings_Habits_Resets_Label.Text(), Periods(), config.Cadence.Period, value => config.Period = value));
 
         // [S-6074] The minutes mean something under the custom period only; picking it builds the
@@ -82,21 +83,18 @@ internal static class HabitTrackerMenu
         if (config.Offers(HabitsSetting.Interval))
         {
             // [S-2332] Typed in place in its box.
-            menu.Lines.Add(new ItemMenuEntry(Glyphs.Countdown, HabitTrackerStr.HabitTracker_IntervalLabel.Text(), null,
-                Value: $"{config.Cadence.Minutes}{Str.WidgetsC_Pomodoro_MinutesUnit.Text()}",
-                Field: new MenuField(
-                    config.Cadence.Minutes.ToString(CultureInfo.InvariantCulture),
-                    HabitTrackerStr.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)),
-                    typed => HabitCadence.TryParseMinutes(typed, out _, out var refusal) ? null : refusal ?? string.Empty,
-                    typed =>
+            menu.Lines.Add(new SettingsAsk(HabitTrackerStr.HabitTracker_IntervalLabel.Text(), HabitTrackerStr.HabitTracker_IntervalLabel.Text(), Glyphs.Countdown, HabitTrackerStr.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)), config.Cadence.Minutes.ToString(CultureInfo.InvariantCulture), typed => HabitCadence.TryParseMinutes(typed, out _, out var refusal) ? null : refusal ?? string.Empty, typed =>
                     {
                         if (HabitCadence.TryParseMinutes(typed, out var minutes, out _) && minutes != config.CustomMinutes)
                         {
                             config.CustomMinutes = minutes;
                             menu.Save();
                         }
-                    },
-                    AllowEmpty: false)));
+                    })
+            {
+                AllowEmpty = false,
+                Value = $"{config.Cadence.Minutes}{Str.WidgetsC_Pomodoro_MinutesUnit.Text()}",
+            });
         }
 
         // [S-1430] The way to the file itself, for a backup or another program: the habits are kept
@@ -104,11 +102,11 @@ internal static class HabitTrackerMenu
         // file (no pool, or one kept in memory) have no folder to open, so the line is not there.
         if (pool?.FilePath is { } file)
         {
-            menu.Lines.Add(ItemMenuEntry.Separator);
+            menu.Lines.Add(SettingsLine.Separator);
             menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Folder, HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text(),
             [
                 WidgetMenuLines.Note(HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Desc.Text()),
-                new(Glyphs.FolderOpen, Str.Folder_OpenInExplorer.Text(), () => openFolder(file)),
+                new SettingsCommand(Str.Folder_OpenInExplorer.Text(), Str.Folder_OpenInExplorer.Text(), Glyphs.FolderOpen, () => openFolder(file)),
             ]));
         }
     }
@@ -118,7 +116,7 @@ internal static class HabitTrackerMenu
     /// count at its end), then Rename and Delete for that list and Add a list. A pool every Habits
     /// widget shares, so renaming retitles each widget showing it, and deleting is always asked first.
     /// </summary>
-    private static ItemMenuEntry Lists(WidgetMenuLines menu, HabitTrackerConfig config, IHabitLists? pool)
+    private static SettingsLine Lists(WidgetMenuLines menu, HabitTrackerConfig config, IHabitLists? pool)
     {
         var title = HabitTrackerStr.WidgetsB_Settings_Habits_List.Text();
         if (pool is null)
@@ -126,7 +124,7 @@ internal static class HabitTrackerMenu
             return WidgetMenuLines.Submenu(Glyphs.Checklist, title, [WidgetMenuLines.Note(HabitTrackerStr.WidgetsB_Settings_Habits_ListsUnavailable.Text())]);
         }
 
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         if (pool.Problem is { } problem)
         {
             lines.Add(WidgetMenuLines.Note(problem));
@@ -135,14 +133,14 @@ internal static class HabitTrackerMenu
         foreach (var list in pool.Lists)
         {
             var id = list.Id;
-            lines.Add(new ItemMenuEntry(null, Shown(list), () =>
+            lines.Add(new SettingsRadio(Shown(list), Shown(list), id == config.ListId, () =>
             {
                 if (config.ListId != id)
                 {
                     config.ListId = id;
                     menu.Save();
                 }
-            }, Checked: id == config.ListId, Group: title, Value: HabitTrackerStr.WidgetsB_Settings_Habits_HabitCount.Plural(list.Habits.Count)));
+            }) { Value = HabitTrackerStr.WidgetsB_Settings_Habits_HabitCount.Plural(list.Habits.Count) });
         }
 
         if (pool.Lists.Count == 0)
@@ -150,7 +148,7 @@ internal static class HabitTrackerMenu
             lines.Add(WidgetMenuLines.Note(HabitTrackerStr.WidgetsB_Settings_Habits_NoLists.Text()));
         }
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         var current = pool.Find(config.ListId);
         if (current is not null)
         {
@@ -189,14 +187,14 @@ internal static class HabitTrackerMenu
                 : HabitTrackerStr.WidgetsB_Settings_Habits_DeleteFull.Plural(current.Habits.Count, ("name", label));
             var currentId = current.Id;
 
-            lines.Add(ItemMenuEntry.Separator);
+            lines.Add(SettingsLine.Separator);
 
             // Every widget showing it says so rather than being handed another list's habits.
             lines.Add(menu.Confirm(Glyphs.Delete, HabitTrackerStr.WidgetsB_Settings_Habits_DeleteList.Text(), HabitTrackerStr.WidgetsB_Settings_Habits_DeleteQuestion.Text(), Str.Common_Delete.Text(),
                 () => pool.Delete(currentId), danger: true, disabled: !pool.Writable, detail: detail));
         }
 
-        return WidgetMenuLines.Submenu(Glyphs.Checklist, title, lines) with { Value = current is null ? null : Shown(current) };
+        return WidgetMenuLines.Submenu(Glyphs.Checklist, title, lines, value: current is null ? null : Shown(current));
     }
 
     /// <summary>A list's name, or "Untitled list".</summary>

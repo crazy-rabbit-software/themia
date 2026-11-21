@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -20,7 +21,7 @@ public static class DiskMenuLines
     /// so the choice still reads true.
     /// </summary>
     /// <param name="drives">The drives Windows lists (the host's walk, <c>DriveList.Now()</c>).</param>
-    public static ItemMenuEntry Drive(WidgetMenuLines menu, IDiskScope disk, IReadOnlyList<DriveEntry> drives)
+    public static SettingsLine Drive(WidgetMenuLines menu, IDiskScope disk, IReadOnlyList<DriveEntry> drives)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(disk);

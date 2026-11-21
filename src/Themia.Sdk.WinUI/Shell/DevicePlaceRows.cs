@@ -2,6 +2,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -17,12 +18,12 @@ public static class DevicePlaceRows
     /// it, turned off, not available), and while location is turned off, the line that opens
     /// Windows' location settings, where it is turned on.
     /// </summary>
-    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, IPlaced config)
+    public static IReadOnlyList<SettingsLine> Lines(WidgetMenuLines menu, IPlaced config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        List<ItemMenuEntry> lines = [menu.Toggle(Glyphs.Location, Str.Shell_Place_UseDevice.Text(), config.UseDeviceLocation, on => config.UseDeviceLocation = on)];
+        List<SettingsLine> lines = [menu.Toggle(Glyphs.Location, Str.Shell_Place_UseDevice.Text(), config.UseDeviceLocation, on => config.UseDeviceLocation = on)];
         if (!config.UseDeviceLocation || DevicePlaces.Waits((WidgetConfig)config, menu.Device) is not { } waits)
         {
             return lines;
@@ -31,7 +32,8 @@ public static class DevicePlaceRows
         lines.Add(WidgetMenuLines.Note(Sentence(waits)));
         if (waits == DeviceLocationState.Denied)
         {
-            lines.Add(new(Glyphs.Settings, Str.Shell_Place_DeviceSettings.Text(), () => menu.OpenLocationSettings?.Invoke(), Disabled: menu.OpenLocationSettings is null));
+            var opens = Str.Shell_Place_DeviceSettings.Text();
+            lines.Add(new SettingsCommand(opens, opens, Glyphs.Settings, () => menu.OpenLocationSettings?.Invoke()) { Disabled = menu.OpenLocationSettings is null });
         }
 
         return lines;

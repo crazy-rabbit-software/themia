@@ -8,6 +8,7 @@ using Themia.Core.Office;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Contacts;
 
@@ -34,7 +35,7 @@ internal static class ContactsMenu
             config.AccountIds, ids => config.AccountIds = ids)));
 
         // [S-7511] Where the people come from, then how they are listed.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.View, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(),
             [(ContactsLayout.List, ContactsStr.Apps_ViewList.Text()), (ContactsLayout.Compact, ContactsStr.Apps_ViewCompact.Text()), (ContactsLayout.Details, Str.CtxMenu_Details.Text()), (ContactsLayout.Grid, ContactsStr.Apps_ViewGrid.Text())],
             config.EffectiveLayout, value => config.Layout = value));
@@ -63,7 +64,7 @@ internal static class ContactsMenu
         menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Count, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text(), config.EffectiveCount, 5, MaxCount, 5, value => config.Count = value));
     }
 
-    private static List<ItemMenuEntry> Columns(WidgetMenuLines menu, ContactsConfig config)
+    private static List<SettingsLine> Columns(WidgetMenuLines menu, ContactsConfig config)
     {
         var shown = config.EffectiveColumns;
         return

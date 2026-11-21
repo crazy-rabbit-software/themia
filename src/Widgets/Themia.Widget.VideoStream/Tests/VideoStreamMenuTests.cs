@@ -71,7 +71,7 @@ public sealed class VideoStreamMenuTests
         _asked.Done("  http://octopi.local/webcam/?action=stream ");
         Assert.Equal("http://octopi.local/webcam/?action=stream", config.Url);
         Assert.Equal(1, _saves);
-        Assert.Equal("http://octopi.local/webcam/?action=stream", Build(config).Lines[0].Field!.Current);
+        Assert.Equal("http://octopi.local/webcam/?action=stream", Build(config).Lines[0].Field!.Initial);
 
         _asked = Typed.Ask(Build(config).Lines[0]);
         _asked!.Done(string.Empty);

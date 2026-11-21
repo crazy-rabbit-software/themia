@@ -4,6 +4,7 @@ using Themia.App.Widgets;
 using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.NextMeeting;
 
@@ -24,7 +25,7 @@ internal static class NextMeetingMenu
         // [S-11407] Which of the meeting's lines show under its title and time.
         menu.Lines.Add(menu.Toggle(Glyphs.Place, NextMeetingStr.NextMeeting_ShowPlace.Text(), config.ShowPlace, on => config.ShowPlace = on));
         menu.Lines.Add(menu.Toggle(Glyphs.Contact, NextMeetingStr.NextMeeting_ShowOrganizer.Text(), config.ShowOrganizer, on => config.ShowOrganizer = on));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
 
         // [S-4826] It draws no calendar colours, so the calendars are switches only.
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, config, office, colours: false));

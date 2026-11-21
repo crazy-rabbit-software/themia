@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.DesktopItem;
 
@@ -37,7 +38,7 @@ internal static class OwnIconMenu
         menu.Lines.Add(WidgetMenuLines.SetsUp(Target(menu, config, layouts)));
         menu.Lines.Add(Name(menu, config));
         menu.Lines.Add(Icon(menu, config));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(DesktopItemModule.NameLines(menu, config));
         menu.Lines.Add(menu.Choice(
             Glyphs.Open,
@@ -56,7 +57,7 @@ internal static class OwnIconMenu
     /// menu, [S-3721]), a Windows location by name, or an app layout (made, then its editor, [S-1411]; an
     /// existing one opens in its editor).
     /// </summary>
-    private static ItemMenuEntry Target(WidgetMenuLines menu, DesktopItemConfig config, IAppLayouts layouts)
+    private static SettingsLine Target(WidgetMenuLines menu, DesktopItemConfig config, IAppLayouts layouts)
     {
         void Set(string target)
         {
@@ -67,10 +68,10 @@ internal static class OwnIconMenu
             }
         }
 
-        var lines = new List<ItemMenuEntry>
+        var lines = new List<SettingsLine>
         {
-            new(Glyphs.File, DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_File.Text(), () => _ = FolderBrowse.PickFileAsync(["*"], Set)),
-            new(Glyphs.Folder, DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_Folder.Text(), () => _ = FolderBrowse.PickAsync(Set)),
+            new SettingsCommand(DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_File.Text(), DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_File.Text(), Glyphs.File, () => _ = FolderBrowse.PickFileAsync(["*"], Set)),
+            new SettingsCommand(DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_Folder.Text(), DesktopItemStr.WidgetsC_Shortcuts_Settings_Pick_Folder.Text(), Glyphs.Folder, () => _ = FolderBrowse.PickAsync(Set)),
             WidgetMenuLines.Ask(Glyphs.Link, DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLink.Text(), new WidgetTextAsk(
                 DesktopItemStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text().TrimEnd('…'),
                 TargetExamples,
@@ -79,20 +80,20 @@ internal static class OwnIconMenu
                 Set,
                 Initial: config.IsLayout ? null : config.Target)),
             Locations(config, Set),
-            ItemMenuEntry.Separator,
+            SettingsLine.Separator,
             config.IsLayout
-                ? new(Glyphs.Edit, Str.Shortcut_EditLayoutMenu.Text(), () => layouts.Edit(config.ItemId), Disabled: !layouts.CanEdit)
+                ? new SettingsCommand(Str.Shortcut_EditLayoutMenu.Text(), Str.Shortcut_EditLayoutMenu.Text(), Glyphs.Edit, () => layouts.Edit(config.ItemId)) { Disabled = !layouts.CanEdit }
 
                 // [S-1411] An app layout: made, then straight into its editor.
-                : new(Glyphs.AppLayout, DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLayout.Text(), () =>
+                : new SettingsCommand(DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLayout.Text(), DesktopItemStr.WidgetsC_Shortcuts_Menu_AddLayout.Text(), Glyphs.AppLayout, () =>
                 {
                     config.MakeLayout();
                     menu.Save();
                     layouts.Edit(config.ItemId);
-                }, Disabled: !layouts.CanEdit),
+                }) { Disabled = !layouts.CanEdit },
         };
 
-        return WidgetMenuLines.Submenu(Glyphs.Link, DesktopItemStr.WidgetsC_Shortcuts_Column_Target.Text(), lines) with { Value = TargetValue(config) };
+        return WidgetMenuLines.Submenu(Glyphs.Link, DesktopItemStr.WidgetsC_Shortcuts_Column_Target.Text(), lines, value: TargetValue(config));
     }
 
     /// <summary>What the Target line says the shortcut opens now; nothing while it opens nothing.</summary>
@@ -102,28 +103,28 @@ internal static class OwnIconMenu
             : OwnIconRules.KindLabel(LaunchTargets.Classify(config.Target), TargetHealth.Unknown);
 
     /// <summary>[S-9509] The Windows locations by name, each with Explorer's icon: a choice of one, the current one marked.</summary>
-    private static ItemMenuEntry Locations(DesktopItemConfig config, Action<string> set)
+    private static SettingsLine Locations(DesktopItemConfig config, Action<string> set)
     {
         var text = DesktopItemStr.WidgetsC_Shortcuts_Settings_Locations.Text();
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         foreach (var name in LaunchTargets.WellKnownShellNames)
         {
             var uri = LaunchTargets.ShellTarget(name);
             var current = !config.IsLayout && LaunchTargets.SameTarget(config.Target, uri);
-            lines.Add(new(null, LaunchTargets.ShellDisplayName(uri), () =>
+            lines.Add(new SettingsRadio(LaunchTargets.ShellDisplayName(uri), LaunchTargets.ShellDisplayName(uri), current, () =>
             {
                 if (!current)
                 {
                     set(uri);
                 }
-            }, Checked: current, IconFile: uri, Group: text));
+            }) { IconFile = uri });
         }
 
         return WidgetMenuLines.Submenu(Glyphs.Folder, text, lines);
     }
 
     /// <summary>[S-9507] The Name line: asked in place in its card ([S-2351]); the target's own name (or nothing) clears the label.</summary>
-    private static ItemMenuEntry Name(WidgetMenuLines menu, DesktopItemConfig config)
+    private static SettingsLine Name(WidgetMenuLines menu, DesktopItemConfig config)
         => WidgetMenuLines.Ask(Glyphs.Rename, Str.Folder_ColName.Text(), new WidgetTextAsk(
             Str.Folder_ColName.Text(),
             OwnIconRules.DerivedName(config),
@@ -144,12 +145,12 @@ internal static class OwnIconMenu
     /// or from Windows' emoji panel, Win + .), and Automatic icon back to what Windows gives the target.
     /// Its line ends with what is chosen: the emoji, or the picture's file name.
     /// </summary>
-    internal static ItemMenuEntry Icon(WidgetMenuLines menu, DesktopItemConfig config)
+    internal static SettingsLine Icon(WidgetMenuLines menu, DesktopItemConfig config)
     {
-        var lines = new List<ItemMenuEntry>
+        var lines = new List<SettingsLine>
         {
             // The chosen file is checked again by SetPicture: a picker can hand back a network path.
-            new(Glyphs.Photo, DesktopItemStr.WidgetsC_Shortcuts_Icon_Picture.Text(), () => _ = FolderBrowse.PickFileAsync(OwnIcons.PictureExtensions, path =>
+            new SettingsCommand(DesktopItemStr.WidgetsC_Shortcuts_Icon_Picture.Text(), DesktopItemStr.WidgetsC_Shortcuts_Icon_Picture.Text(), Glyphs.Photo, () => _ = FolderBrowse.PickFileAsync(OwnIcons.PictureExtensions, path =>
             {
                 if (OwnIcons.SetPicture(config, path))
                 {
@@ -169,18 +170,18 @@ internal static class OwnIconMenu
                     }
                 },
                 Initial: config.IconEmoji)),
-            ItemMenuEntry.Separator,
-            new(Glyphs.Reset, DesktopItemStr.WidgetsC_Shortcuts_Icon_Automatic.Text(), () =>
+            SettingsLine.Separator,
+            new SettingsCommand(DesktopItemStr.WidgetsC_Shortcuts_Icon_Automatic.Text(), DesktopItemStr.WidgetsC_Shortcuts_Icon_Automatic.Text(), Glyphs.Reset, () =>
             {
                 if (OwnIcons.Reset(config))
                 {
                     menu.Save();
                 }
-            }, Disabled: !OwnIcons.HasOwn(config)),
+            }) { Disabled = !OwnIcons.HasOwn(config) },
         };
 
         var value = config.IconEmoji ?? (config.IconPicture is { } picture ? Path.GetFileName(picture) : null);
-        return WidgetMenuLines.Submenu(Glyphs.Photo, DesktopItemStr.WidgetsC_Shortcuts_Icon_Label.Text(), lines) with { Value = value };
+        return WidgetMenuLines.Submenu(Glyphs.Photo, DesktopItemStr.WidgetsC_Shortcuts_Icon_Label.Text(), lines, value: value);
     }
 
     /// <summary>[S-9503] Why a typed emoji cannot be the icon, or null when it can.</summary>

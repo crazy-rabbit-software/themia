@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Gallery.Tests;
 
@@ -70,7 +71,7 @@ public sealed class GalleryMenuTests
             ],
             Build(new GalleryConfig { Source = GallerySource.Folder }).Lines.Select(l => l.IsSeparator ? "-" : l.Text));
 
-    private static List<ItemMenuEntry> Own(WidgetMenuLines lines) => [.. lines.Lines.Where(l => !l.IsSeparator)];
+    private static List<SettingsLine> Own(WidgetMenuLines lines) => [.. lines.Lines.Where(l => !l.IsSeparator)];
 
     [Fact]
     public void S778_a_picture_shows_its_turn_and_outline_and_the_outline_its_colour_and_width()

@@ -112,7 +112,7 @@ public sealed class StockMenuTests
         Assert.All(answer.Lines, l =>
         {
             Assert.Null(l.Glyph);
-            Assert.Equal(WidgetMenuLines.FoundGroup, l.Group);
+            Assert.IsType<SettingsRadio>(l);
             Assert.NotNull(l.Checked);
         });
         Assert.Equal([false, true, false], answer.Lines.Select(l => l.Checked == true));

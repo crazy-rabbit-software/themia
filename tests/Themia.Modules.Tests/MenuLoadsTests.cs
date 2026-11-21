@@ -2,6 +2,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Modules.Tests;
 
@@ -17,7 +18,7 @@ public sealed class MenuLoadsTests
     private WidgetMenuLines Lines(bool host = true)
         => new(() => _saves++) { OpenSetting = host ? _ => _shown++ : null };
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     [Fact]
     public void S3745_the_accounts_line_opens_settings_accounts_and_saves_nothing()

@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Quote.Tests;
 
@@ -23,7 +24,7 @@ public sealed class QuoteMenuTests
 
     private static QuoteConfig Two() => new() { Quotes = [new() { Text = "First", Author = "A" }, new() { Text = "Second" }] };
 
-    private ItemMenuEntry Quotes(QuoteConfig config) => Build(config).Lines[0];
+    private SettingsLine Quotes(QuoteConfig config) => Build(config).Lines[0];
 
     [Fact]
     public void S1502_appearance_then_quotes_author_shuffle_and_refresh()

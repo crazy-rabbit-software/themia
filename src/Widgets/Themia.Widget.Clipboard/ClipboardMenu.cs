@@ -4,6 +4,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Clipboard;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -32,7 +33,7 @@ internal static class ClipboardMenu
 
         // [S-1440] What is kept, apart from how it reads: the one setting that changes exposure (fewer
         // entries kept is less in memory), and the privacy sentence with it.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Number(Glyphs.Count, ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(),
             config.EffectiveCapacity, ClipboardHistory.MinCapacity, ClipboardHistory.MaxCapacity, 1,
             KitMenuLines.Items, value => config.Capacity = value));

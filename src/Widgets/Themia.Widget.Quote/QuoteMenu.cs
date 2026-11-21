@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Quote;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -44,7 +45,7 @@ internal static class QuoteMenu
             return;
         }
 
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Toggle(Glyphs.Shuffle, QuoteStr.Quote_Shuffle.Text(), config.Shuffle, on => config.Shuffle = on));
 
         // The shuffle is a pure function of a seed, so "reshuffle" is a new seed and nothing else.
@@ -66,7 +67,7 @@ internal static class QuoteMenu
     /// list ([S-3729]): each a submenu of Rename… (its text), Author…, Move up, Move down and Remove;
     /// Add… asks for a new one's text, up to <see cref="QuoteRotation.MaxQuotes"/>.
     /// </summary>
-    private static ItemMenuEntry Quotes(WidgetMenuLines menu, QuoteConfig config)
+    private static SettingsLine Quotes(WidgetMenuLines menu, QuoteConfig config)
         => menu.List(Glyphs.Quote, QuoteStr.WidgetsC_Quote_Settings_Quotes.Text(), config.Quotes,
             new MenuList<QuoteItem>(Name, QuoteStr.WidgetsC_Quote_Settings_EmptyList.Text())
             {

@@ -638,7 +638,7 @@ internal static partial class EditBarRender
             // [S-2351] A check that refuses: why under the field, the accept greyed.
             Add = new MenuListAdd<string>("Add a feed", "https://…", t => t.Contains("://", StringComparison.Ordinal) ? null : "Type a web address, such as https://example.com/feed", f => f),
         }));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(new WidgetMenuLines(() => { }) { OpenSetting = _ => { } }.AccountsLine(Glyphs.Contact, "Manage accounts"));
         menu.Lines.Add(menu.Confirm(Glyphs.Delete, "Clear history", "Clear the whole history?", "Clear", () => { }, detail: "Every entry goes, and it cannot be undone."));
         menu.Lines.Add(WidgetMenuLines.Note("Weather data by Open-Meteo.com, under CC BY 4.0, with a long credit that wraps onto a second line"));

@@ -8,6 +8,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Fence;
+using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("fence", typeof(FenceModule))]
 
@@ -136,12 +137,12 @@ public sealed class FenceModule : IWidgetModule
             by => fence.Sort = Enum.IsDefined((DesktopSortBy)by) && by >= 0 ? (DesktopSortBy)by : null));
         menu.Lines.Add(menu.Toggle(Glyphs.ChevronUp, FenceStr.Fence_RollUpOnClick.Text(), fence.RollUpOnClick, on => fence.RollUpOnClick = on));
         menu.Lines.Add(menu.Toggle(null, FenceStr.Fence_HoverPeek.Text(), fence.HoverPeek, on => fence.HoverPeek = on));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Folder, (fence.Source == FenceSource.Held ? FenceStr.Fence_Rules : FenceStr.Fence_Rules_Which).Text(), RuleLines(menu, fence)));
     }
 
     /// <summary>[S-10914] [S-13004] The rules' page: a switch per file type, the user's own extensions and a name's text, each asked.</summary>
-    private static IReadOnlyList<ItemMenuEntry> RuleLines(WidgetMenuLines menu, FenceConfig fence)
+    private static IReadOnlyList<SettingsLine> RuleLines(WidgetMenuLines menu, FenceConfig fence)
     {
         var rules = fence.Rules;
         var note = fence.Source switch
@@ -150,7 +151,7 @@ public sealed class FenceModule : IWidgetModule
             FenceSource.Search => FenceStr.Fence_Rules_NoteSearch,
             _ => FenceStr.Fence_Rules_Note,
         };
-        var lines = new List<ItemMenuEntry> { WidgetMenuLines.Note(note.Text()) };
+        var lines = new List<SettingsLine> { WidgetMenuLines.Note(note.Text()) };
         foreach (var type in Enum.GetValues<FenceFileType>())
         {
             lines.Add(menu.Toggle(null, TypeName(type), rules.Types.Contains(type), on =>
@@ -187,7 +188,7 @@ public sealed class FenceModule : IWidgetModule
     }).Text();
 
     /// <summary>[S-2351] A line of text asked in place, in its own card; an empty one clears it.</summary>
-    private static ItemMenuEntry Ask(WidgetMenuLines menu, string? glyph, string text, string current, string? hint, Action<string> set)
+    private static SettingsLine Ask(WidgetMenuLines menu, string? glyph, string text, string current, string? hint, Action<string> set)
         => WidgetMenuLines.Ask(glyph, text, new WidgetTextAsk(
             text,
             hint ?? text,

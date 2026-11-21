@@ -9,6 +9,7 @@ using Themia.Sdk;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Calendar;
 
@@ -40,13 +41,13 @@ internal static class CalendarMenu
         // while a chosen account has the contacts the birthdays are read from.
         if (OfficeMenuLines.Birthdays(menu, calendar, office) is { } birthdays)
         {
-            menu.Lines.Add(ItemMenuEntry.Separator);
+            menu.Lines.Add(SettingsLine.Separator);
             menu.Lines.Add(birthdays);
         }
     }
 
     /// <summary>[S-3601] A style's own lines for one setting: what it shows and so how large it is ([S-11540]..[S-11546]).</summary>
-    private static IEnumerable<ItemMenuEntry> StyleLines(WidgetMenuLines menu, CalendarWidgetConfig config, CalendarSetting setting) => setting switch
+    private static IEnumerable<SettingsLine> StyleLines(WidgetMenuLines menu, CalendarWidgetConfig config, CalendarSetting setting) => setting switch
     {
         // [S-11540] The agenda's rows and their lines (the kit's rows contract).
         CalendarSetting.AgendaRows => KitMenuLines.Rows(menu, config),
@@ -68,13 +69,13 @@ internal static class CalendarMenu
     };
 
     /// <summary>[S-11544] The month's Events as: Dots or Titles.</summary>
-    private static ItemMenuEntry MonthEventsLine(WidgetMenuLines menu, CalendarWidgetConfig config)
+    private static SettingsLine MonthEventsLine(WidgetMenuLines menu, CalendarWidgetConfig config)
         => menu.Choice(null, CalendarStr.Calendar_MonthEvents.Text(),
             [(MonthEvents.Dots, CalendarStr.Calendar_MonthEvents_Dots.Text()), (MonthEvents.Chips, CalendarStr.Calendar_MonthEvents_Chips.Text())],
             config.MonthEvents, value => config.MonthEvents = value);
 
     /// <summary>[S-3601] One of a style's own lines: the week's first column and length, the agenda's range and count.</summary>
-    private static ItemMenuEntry StyleLine(WidgetMenuLines menu, CalendarWidgetConfig config, CalendarSetting setting) => setting switch
+    private static SettingsLine StyleLine(WidgetMenuLines menu, CalendarWidgetConfig config, CalendarSetting setting) => setting switch
     {
         // [S-3637] Where the columns start.
         CalendarSetting.WeekFrom => menu.Choice(Glyphs.Calendar, CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(),
@@ -95,23 +96,23 @@ internal static class CalendarMenu
     /// Custom…, which asks for a number of days of its own (1 to 365) and holds the dot while the
     /// range is not one of the others.
     /// </summary>
-    private static ItemMenuEntry AgendaRange(WidgetMenuLines menu, CalendarWidgetConfig agenda)
+    private static SettingsLine AgendaRange(WidgetMenuLines menu, CalendarWidgetConfig agenda)
     {
         var text = CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Label.Text();
         var days = agenda.EffectiveAgendaDays;
         var preset = CalendarPeriod.AgendaDayPresets.Contains(days);
 
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         foreach (var option in CalendarPeriod.AgendaDayPresets)
         {
-            lines.Add(new(null, DaysText(option), () =>
+            lines.Add(new SettingsRadio(DaysText(option), DaysText(option), option == days, () =>
             {
                 if (option != days)
                 {
                     agenda.AgendaDays = option;
                     menu.Save();
                 }
-            }, Checked: option == days, Group: text));
+            }));
         }
 
         var custom = CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Custom.Text();
@@ -119,8 +120,7 @@ internal static class CalendarMenu
         var reason = Str.Menu_NumberRange.Format(
             ("min", CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Days.Plural(CalendarPeriod.AgendaMinDays)),
             ("max", CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Days.Plural(CalendarPeriod.AgendaMaxDays)));
-        lines.Add(ItemMenuEntry.Separator);
-        lines.Add(WidgetMenuLines.Ask(null, custom + "…", new WidgetTextAsk(
+        var ask = WidgetMenuLines.Ask(null, custom + "…", new WidgetTextAsk(
             CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(),
             reason,
             Str.Common_Save.Text(),
@@ -133,9 +133,14 @@ internal static class CalendarMenu
                     menu.Save();
                 }
             },
-            Initial: LocaleFormat.Integer(days))) with { Checked = !preset, Group = text, Value = preset ? null : DaysText(days) });
+            Initial: LocaleFormat.Integer(days))) with { Holds = !preset, Value = preset ? null : DaysText(days) };
 
-        return WidgetMenuLines.Submenu(Glyphs.Calendar, text, lines) with { Value = DaysText(days) };
+        // [S-3636] Custom… after the presets, in the same picker.
+        return new SettingsChoice(text, text, Glyphs.Calendar, [.. lines.OfType<SettingsRadio>()])
+        {
+            Value = DaysText(days),
+            More = [SettingsLine.Separator, ask],
+        };
     }
 
     /// <summary>[S-3636] A typed number of days: 1 to 365, whole.</summary>

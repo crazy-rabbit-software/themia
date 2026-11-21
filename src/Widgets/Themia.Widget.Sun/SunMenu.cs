@@ -3,6 +3,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Sun;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -19,7 +20,7 @@ internal static class SunMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // The look (Style, Appearance), a divider, then the place.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(SkyPlaceRows.Lines(menu, config));
     }
 }

@@ -8,6 +8,7 @@ using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.DesktopItem;
 using Themia.App.Shell;
+using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("desktopItem", typeof(DesktopItemModule))]
 
@@ -75,7 +76,7 @@ public sealed class DesktopItemModule : IWidgetModule
     }
 
     /// <summary>[S-11204] The Name lines choice, the one line both sources share.</summary>
-    internal static ItemMenuEntry NameLines(WidgetMenuLines menu, DesktopItemConfig config) => menu.Choice(
+    internal static SettingsLine NameLines(WidgetMenuLines menu, DesktopItemConfig config) => menu.Choice(
         null,
         DesktopItemStr.DesktopItem_NameLines.Text(),
         [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())],

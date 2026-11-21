@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -13,7 +14,7 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 public static class ExchangePairLines
 {
-    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, ExchangePairConfig config, string glyph)
+    public static IReadOnlyList<SettingsLine> Lines(WidgetMenuLines menu, ExchangePairConfig config, string glyph)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -24,7 +25,7 @@ public static class ExchangePairLines
         [
             WidgetMenuLines.Shared(SharedSettings.ExchangePair, Currency(menu, glyph, Str.Online_Rates_Settings_Base_Label.Text(), region, config.BaseCurrency, code => config.BaseCurrency = code)),
             WidgetMenuLines.Shared(SharedSettings.ExchangePair, Currency(menu, glyph, Str.Online_Rates_Settings_Quote_Label.Text(), quoteDefault, config.QuoteCurrency, code => config.QuoteCurrency = code)),
-            ItemMenuEntry.Separator,
+            SettingsLine.Separator,
             WidgetMenuLines.Note(Str.Online_Source.Format(("name", "European Central Bank"))),
         ];
     }
@@ -34,9 +35,9 @@ public static class ExchangePairLines
     /// quote, naming it) first whatever is typed, then the published codes that start with what is
     /// typed; the one that holds has the dot and picking it stores nothing.
     /// </summary>
-    private static ItemMenuEntry Currency(WidgetMenuLines menu, string glyph, string text, string unset, string current, Action<string> set)
+    private static SettingsLine Currency(WidgetMenuLines menu, string glyph, string text, string unset, string current, Action<string> set)
     {
-        ItemMenuEntry Pick(string code, string words) => WidgetMenuLines.Found(words, string.Equals(code, current, StringComparison.Ordinal), () =>
+        SettingsLine Pick(string code, string words) => WidgetMenuLines.Found(words, string.Equals(code, current, StringComparison.Ordinal), () =>
         {
             if (!string.Equals(code, current, StringComparison.Ordinal))
             {
@@ -45,17 +46,17 @@ public static class ExchangePairLines
             }
         });
 
-        Task<MenuSearchAnswer> Find(string typed, CancellationToken cancel)
+        Task<SettingsSearchAnswer> Find(string typed, CancellationToken cancel)
         {
             var query = typed.Trim();
-            List<ItemMenuEntry> lines = [Pick(string.Empty, unset)];
+            List<SettingsLine> lines = [Pick(string.Empty, unset)];
             lines.AddRange(ExchangeRules.Published
                 .Where(code => code.StartsWith(query, StringComparison.OrdinalIgnoreCase))
                 .Select(code => Pick(code, code)));
-            return Task.FromResult(new MenuSearchAnswer(lines));
+            return Task.FromResult(new SettingsSearchAnswer(lines));
         }
 
         return WidgetMenuLines.Search(glyph, text, current.Length > 0 ? current : unset,
-            new MenuSearch(Str.Online_Rates_Menu_Find.Text(), Find, []));
+            Str.Online_Rates_Menu_Find.Text(), Find, []);
     }
 }

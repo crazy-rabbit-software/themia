@@ -8,6 +8,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Email;
 
@@ -50,7 +51,7 @@ internal static class EmailMenu
 
         // [S-11402] How many messages, and their lines where a message has more than one.
         menu.Lines.AddRange(KitMenuLines.Rows(menu, email, mostLines: email.MostLines));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
 
         menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.MailAccounts, OfficeMenuLines.Accounts(menu, accounts, Glyphs.Mail,
             new KitAccountWords(EmailStr.WidgetsB_Settings_Email_NoAccount_Label.Text(), EmailStr.WidgetsB_Settings_Email_Every_Label.Text()),
@@ -60,7 +61,7 @@ internal static class EmailMenu
     }
 
     /// <summary>[S-543] One optional line's switch, the fields kept in their canonical order.</summary>
-    private static ItemMenuEntry Field(WidgetMenuLines menu, EmailConfig email, MailListField field, string text)
+    private static SettingsLine Field(WidgetMenuLines menu, EmailConfig email, MailListField field, string text)
         => menu.Toggle(null, text, email.EffectiveListFields.Contains(field), on =>
         {
             var fields = email.EffectiveListFields.ToList();
@@ -79,19 +80,19 @@ internal static class EmailMenu
     /// Move up, Move down and Remove (greyed on the last one: one always stays); the ones that are off
     /// to add after them; then what a narrow table drops first.
     /// </summary>
-    private static ItemMenuEntry Columns(WidgetMenuLines menu, EmailConfig email)
+    private static SettingsLine Columns(WidgetMenuLines menu, EmailConfig email)
     {
         // The defaults made the widget's own so the list edits them in place: the same columns.
         var columns = email.RowColumns is { Count: > 0 } chosen ? chosen : [.. EmailConfig.DefaultColumns];
         email.RowColumns = columns;
 
-        var add = new List<ItemMenuEntry>();
+        var add = new List<SettingsLine>();
         foreach (var column in Enum.GetValues<MailColumn>().Where(c => !columns.Contains(c)))
         {
             add.Add(menu.Command(Glyphs.Add, column.Label(), () => columns.Add(column)));
         }
 
-        add.Add(ItemMenuEntry.Separator);
+        add.Add(SettingsLine.Separator);
         add.Add(WidgetMenuLines.Note(EmailStr.WidgetsB_Settings_Email_ColumnsNote.Text()));
 
         return menu.List(Glyphs.Grid, EmailStr.WidgetsB_Email_Menu_Columns.Text(), columns,

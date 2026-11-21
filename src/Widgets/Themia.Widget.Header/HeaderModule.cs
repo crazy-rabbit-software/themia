@@ -8,6 +8,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Header;
+using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("header", typeof(HeaderModule))]
 
@@ -57,12 +58,12 @@ public sealed class HeaderModule : IWidgetModule
         menu.Lines.Add(Text(menu, Glyphs.Rename, HeaderStr.Header_Title.Text(), header.Text, typed => header.Text = typed));
         menu.Lines.Add(Text(menu, Glyphs.Font, HeaderStr.Header_Caption.Text(), header.Caption, typed => header.Caption = typed));
         menu.Lines.Add(menu.Icon(HeaderStr.Header_Icon.Text(), header.Glyph, HeaderStr.Header_NoIcon.Text(), glyph => header.Glyph = glyph ?? string.Empty));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(WeatherPlaceRows.Named(menu, header));
     }
 
     /// <summary>[S-2332] A line of text typed in place, kept as load repair keeps it; an empty one clears it.</summary>
-    private static ItemMenuEntry Text(WidgetMenuLines menu, string glyph, string text, string current, Action<string> set)
+    private static SettingsLine Text(WidgetMenuLines menu, string glyph, string text, string current, Action<string> set)
         => menu.Text(glyph, text, current, typed => set(HeaderLayout.Clean(typed)));
 }
 

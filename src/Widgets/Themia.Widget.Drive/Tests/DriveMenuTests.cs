@@ -6,6 +6,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Drive.Tests;
 
@@ -21,7 +22,7 @@ public sealed class DriveMenuTests
 
     private int _saves;
 
-    private ItemMenuEntry Drive(DriveConfig config)
+    private SettingsLine Drive(DriveConfig config)
     {
         var menu = new WidgetMenuLines(() => _saves++);
         DriveMenu.Lines(menu, config, Drives);

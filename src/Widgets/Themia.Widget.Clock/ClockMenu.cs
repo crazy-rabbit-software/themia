@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Clock;
 using Themia.Sdk;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -35,7 +36,7 @@ internal static class ClockMenu
         }
 
         // [S-1478] The look (Style, Appearance), a divider, then what time it tells.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(Zone(menu, clock));
         if (clock.Offers(ClockSetting.Offset))
         {
@@ -55,20 +56,20 @@ internal static class ClockMenu
     /// it resolves through <see cref="ZoneCatalog"/> because IANA ids do not resolve under
     /// <c>InvariantGlobalization</c>.
     /// </summary>
-    private static ItemMenuEntry Zone(WidgetMenuLines menu, ClockConfig clock)
+    private static SettingsLine Zone(WidgetMenuLines menu, ClockConfig clock)
     {
         var current = Current();
         var group = ClockStr.Clock_TimezoneLabel.Text();
 
-        Task<MenuSearchAnswer> Find(string query, CancellationToken cancel)
+        Task<SettingsSearchAnswer> Find(string query, CancellationToken cancel)
         {
             // The local choice heads the list whatever is typed, so getting back is one click.
-            List<ItemMenuEntry> lines = [Pick(null, current)];
+            List<SettingsLine> lines = [Pick(null, current)];
             lines.AddRange(ZoneCatalog.Search(query, ZoneSuggestions).Select(entry => Pick(entry.IanaId, DescribeZone(entry, offset: true))));
-            return Task.FromResult(new MenuSearchAnswer(lines));
+            return Task.FromResult(new SettingsSearchAnswer(lines));
         }
 
-        ItemMenuEntry Pick(string? ianaId, string text) => WidgetMenuLines.Found(text, clock.TimeZoneId == ianaId, () =>
+        SettingsLine Pick(string? ianaId, string text) => WidgetMenuLines.Found(text, clock.TimeZoneId == ianaId, () =>
         {
             if (clock.TimeZoneId != ianaId)
             {
@@ -78,7 +79,7 @@ internal static class ClockMenu
         });
 
         return WidgetMenuLines.Search(Glyphs.Place, group, ZoneText(clock.TimeZoneId) ?? current,
-            new MenuSearch(ClockStr.LocationSearch_Placeholder.Text(), Find, []));
+            ClockStr.LocationSearch_Placeholder.Text(), Find, []);
     }
 
     /// <summary>"Current: Amsterdam, Berlin, …": the machine's own zone, its places without the offset (it moves with daylight saving).</summary>

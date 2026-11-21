@@ -10,6 +10,7 @@ using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.StockHistory;
+using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("stockHistory", typeof(StockHistoryModule))]
 
@@ -80,7 +81,7 @@ public sealed class StockHistoryModule : IWidgetModule
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
         menu.Lines.Add(StockQuoteLines.Symbol(menu, config, lookup));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(StockQuoteLines.Period(menu, config));
         menu.Lines.Add(menu.Toggle(null, StockHistoryStr.Stocks_ShowMinMax.Text(), config.ShowMinMax, on => config.ShowMinMax = on));
         ChartMenuLines.Add(menu, config);

@@ -31,7 +31,7 @@ public sealed class AirQualityMenuTests
         var index = Build(config).Lines.Single(l => l.Text == AirQualityStr.Online_Air_Settings_Index_Label.Text()).Children!;
 
         Assert.Equal([true, false, false], index.Take(3).Select(o => o.Checked == true));
-        Assert.True(index[^1].Disabled);
+        Assert.True(index[^1].Note);
         Assert.Contains("CAMS", index[^1].Text, StringComparison.Ordinal);
 
         index[2].Action!();

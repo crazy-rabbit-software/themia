@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -23,12 +24,12 @@ public static class SkyPlaceRows
     /// [S-3101] [S-2850] The place's lines: Use my location (with what Windows says while it gives no
     /// position), then, while it is off, the location's search (<see cref="LocationLine"/>).
     /// </summary>
-    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude = true)
+    public static IReadOnlyList<SettingsLine> Lines(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude = true)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        List<ItemMenuEntry> lines = [.. DevicePlaceRows.Lines(menu, config)];
+        List<SettingsLine> lines = [.. DevicePlaceRows.Lines(menu, config)];
         if (!config.UseDeviceLocation)
         {
             lines.Add(LocationLine(menu, config, longitude));
@@ -45,9 +46,9 @@ public static class SkyPlaceRows
     /// (<paramref name="longitude"/>, [S-6074]), the longitude. The place's name is what the search
     /// found; the header's title is the Header row's to change ([S-3590]), never a second line here.
     /// </summary>
-    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude)
+    private static SettingsLine LocationLine(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude)
     {
-        List<ItemMenuEntry> under =
+        List<SettingsLine> under =
         [
             menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation),
             Coordinate(menu, Str.SunMoon_Latitude_Label.Text(), config.Latitude, -90, 90, value => config.Latitude = value),
@@ -58,7 +59,7 @@ public static class SkyPlaceRows
             under.Add(Coordinate(menu, Str.SunMoon_Longitude_Label.Text(), config.Longitude, -180, 180, value => config.Longitude = value));
         }
 
-        var search = new MenuSearch(
+        return WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(), Chosen(config),
             Str.Shell_Place_SearchPlaceholder.Text(),
             (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => config.HasLocation && config.Place == Cut(place.Label), place =>
             {
@@ -69,8 +70,6 @@ public static class SkyPlaceRows
             }, cancel),
             under,
             PlaceQuery.Debounce);
-
-        return WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(), Chosen(config), search);
     }
 
     /// <summary>
@@ -113,20 +112,19 @@ public static class SkyPlaceRows
     /// [S-171] [S-2332] A coordinate typed in place in its box, refused (with the range as the reason) unless it
     /// is a number in range; [S-2848] the box of a cleared place starts empty.
     /// </summary>
-    private static ItemMenuEntry Coordinate(WidgetMenuLines menu, string title, double? current, double minimum, double maximum, Action<double> set)
-        => new(Glyphs.Grid, title, null, Value: current is { } shown ? FormatCoordinate(shown) : null, Field: new MenuField(
-            current is { } known ? FormatCoordinate(known) : string.Empty,
-            FormatCoordinate(0),
-            typed => RefuseCoordinate(typed, minimum, maximum),
-            typed =>
+    private static SettingsLine Coordinate(WidgetMenuLines menu, string title, double? current, double minimum, double maximum, Action<double> set)
+        => new SettingsAsk(title, title, Glyphs.Grid, FormatCoordinate(0), current is { } known ? FormatCoordinate(known) : string.Empty, typed => RefuseCoordinate(typed, minimum, maximum), typed =>
             {
                 if (ParseCoordinate(typed, minimum, maximum) is { } value && value != current)
                 {
                     set(value);
                     menu.Save();
                 }
-            },
-            AllowEmpty: false));
+            })
+        {
+            AllowEmpty = false,
+            Value = current is { } shown ? FormatCoordinate(shown) : null,
+        };
 
     /// <summary>A place name is a header title, not a document: cut as load repair cuts it ([S-3101]).</summary>
     private static string Cut(string name) => name.Length > SkyPlaceConfig.MaxPlaceLength ? name[..SkyPlaceConfig.MaxPlaceLength] : name;

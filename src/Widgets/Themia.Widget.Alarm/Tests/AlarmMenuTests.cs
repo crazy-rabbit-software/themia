@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Alarm.Tests;
 
@@ -21,7 +22,7 @@ public sealed class AlarmMenuTests
         return lines;
     }
 
-    private static ItemMenuEntry Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
+    private static SettingsLine Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
 
     [Fact]
     public void S4631_appearance_then_when_it_rings_what_it_says_how_it_sounds_and_the_note_each_apart_and_no_size()

@@ -542,11 +542,12 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   name, Cut / Copy / Remove), then two tabs ([S-2345], `SelectionPage.Tabs`, the one tab component
   `PageTabButton`): Settings (What it shows) and Appearance. Every option a widget has lives
   there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines, config)` adds
-  `Lines` and `StyleLines` (under the Style picker, what `config.Offers` says the look draws) as
-  `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`,
-  `Ask` (`WidgetMenuLines.Ask`: the line carries its `WidgetTextAsk`), `Confirm`, `Note`, `List` (its items dragged or Ctrl+Up/Down to reorder),
-  `PickFolder`, a link row `LinkTo` (to the accounts only, [S-3749])), separators between its groups, and marks the line the Set up button
-  opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` turns each into the page's row of its kind. An
+  `Lines` and `StyleLines` (under the Style picker, what `config.Offers` says the look draws) as `SettingsLine`s, the
+  settings pages' one row model (the pure SDK's `SettingsLines`; `ItemMenuEntry` is the context menus' alone): `Toggle`,
+  `Choice`, `Number`, `Slider`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`, `Ask` (a `SettingsPrompt` carrying its
+  `WidgetTextAsk`), `Confirm`, `Note`, `List` (its items dragged or Ctrl+Up/Down to reorder), `PickFolder`, a link row
+  `AccountsLine` (a `SettingsLink`, to the accounts only, [S-3749]), separators between its groups, and marks the line the Set up button
+  opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` maps the one type into the page's row of its kind. An
   Ask or a Confirm is asked in place, in its own card ([S-2351]): never a page of its own. The desktop icon (an own icon's lines, `OwnIconMenu`) and Clock are the references; docs/WIDGET-KIT.md 15 is
   the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Rows) is an
   entry of the SDK's `SharedSettings` over a config contract, and its standard line is marked with

@@ -57,7 +57,7 @@ internal static class GalleryMenu
         // [S-778] After the look, each group behind a divider: where the pictures come from (the
         // source and its folder or picture); which pictures (a folder's) or how the one is drawn (a
         // picture file's); the way out to Explorer. [S-760] The source first: every other line depends on it.
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.Choice(GalleryModule.Glyph, GalleryStr.Gallery_SourceLabel.Text(),
             [(GallerySource.Folder, GalleryStr.WidgetsB_Settings_Gallery_SourceFolder.Text()), (GallerySource.File, GalleryStr.WidgetsB_Settings_Gallery_SourceFile.Text()), (GallerySource.Bing, GalleryStr.WidgetsB_Settings_Gallery_SourceBing.Text())],
             config.Source, value => config.Source = value));
@@ -72,7 +72,7 @@ internal static class GalleryMenu
             lines.Add(WidgetMenuLines.SetsUp(PathLine(menu, config, picture: true)));
         }
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         if (config.Offers(GallerySetting.Recursive))
         {
             lines.Add(menu.Toggle(Glyphs.Folder, GalleryStr.Gallery_RecursiveLabel.Text(), config.Recursive, on => config.Recursive = on));
@@ -105,7 +105,7 @@ internal static class GalleryMenu
         if (config.Offers(GallerySetting.OutlineColor))
         {
             lines.Add(menu.Colour(GalleryStr.WidgetsB_Settings_Gallery_OutlineColour_Label.Text(), config.EffectiveOutlineColor,
-                value => config.OutlineColor = value, new ColorChoiceOptions { DefaultLabel = null, Presets = ColorPresets.Surfaces }));
+                value => config.OutlineColor = value, ColorPresets.Surfaces, defaultText: null));
         }
 
         if (config.Offers(GallerySetting.OutlineWidth))
@@ -118,9 +118,8 @@ internal static class GalleryMenu
         if (config.Offers(GallerySetting.OpenFolder))
         {
             var folder = FolderPath.Validate(config.Path);
-            lines.Add(ItemMenuEntry.Separator);
-            lines.Add(new ItemMenuEntry(Glyphs.Open, Str.Folder_OpenInExplorer.Text(), () => _ = SettingsHost.Launcher.Open(folder.Path), Disabled: !folder.IsValid,
-                Why: folder.IsValid ? null : Str.SettingsPages_Why_FolderFirst.Text()));
+            lines.Add(SettingsLine.Separator);
+            lines.Add(new SettingsCommand(Str.Folder_OpenInExplorer.Text(), Str.Folder_OpenInExplorer.Text(), Glyphs.Open, () => _ = SettingsHost.Launcher.Open(folder.Path)) { Disabled = !folder.IsValid, Why = folder.IsValid ? null : Str.SettingsPages_Why_FolderFirst.Text() });
         }
     }
 
@@ -130,7 +129,7 @@ internal static class GalleryMenu
     /// name at the line's end or "No folder chosen". One shape for both, so the two cannot drift on
     /// what a valid path is.
     /// </summary>
-    private static ItemMenuEntry PathLine(WidgetMenuLines menu, GalleryConfig config, bool picture)
+    private static SettingsLine PathLine(WidgetMenuLines menu, GalleryConfig config, bool picture)
     {
         var current = picture ? config.FilePath : config.Path;
 
@@ -154,7 +153,7 @@ internal static class GalleryMenu
         }
 
         var browse = picture
-            ? new ItemMenuEntry(Glyphs.File, Str.WidgetsB_Settings_Folder_Browse.Text(), () => _ = BrowsePictureAsync(chosen =>
+            ? new SettingsCommand(Str.WidgetsB_Settings_Folder_Browse.Text(), Str.WidgetsB_Settings_Folder_Browse.Text(), Glyphs.File, () => _ = BrowsePictureAsync(chosen =>
             {
                 if (PathRefusal(chosen, picture: true) is null)
                 {
@@ -182,7 +181,7 @@ internal static class GalleryMenu
             AllowEmpty: true));
 
         var shown = current.Trim().Length == 0 ? none : FolderPath.DisplayName(current);
-        return WidgetMenuLines.Submenu(picture ? Glyphs.File : Glyphs.Folder, title, [browse, typePath]) with { Value = shown };
+        return WidgetMenuLines.Submenu(picture ? Glyphs.File : Glyphs.Folder, title, [browse, typePath], value: shown);
     }
 
     /// <summary>

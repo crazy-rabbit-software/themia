@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Volume;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -29,7 +30,7 @@ internal static class VolumeMenu
         }) is { } device)
         {
             lines.Add(device);
-            lines.Add(ItemMenuEntry.Separator);
+            lines.Add(SettingsLine.Separator);
         }
 
         // Named for what it does rather than "read-only": a desktop widget sits under the path of

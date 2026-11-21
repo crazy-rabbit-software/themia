@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Pomodoro;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -32,7 +33,7 @@ internal static class PomodoroMenu
 
         // [S-1460] Off or one of twelve ringtones, gentle to insistent; the volume only while a sound
         // is chosen ([S-6074]). Changing either previews the focus cue, so a choice is made by ear.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Music, PomodoroStr.Pomodoro_AlarmSound_Label.Text(),
             [.. PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound)))],
             config.Sound,
@@ -60,7 +61,7 @@ internal static class PomodoroMenu
     /// kind, its duration (1–180 min, typed) and Remove (greyed on the last one); then Add a focus phase, Add a short
     /// break and Add a long break, each at its classic length, greyed at sixteen.
     /// </summary>
-    internal static ItemMenuEntry Phases(WidgetMenuLines menu, PomodoroConfig config)
+    internal static SettingsLine Phases(WidgetMenuLines menu, PomodoroConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);

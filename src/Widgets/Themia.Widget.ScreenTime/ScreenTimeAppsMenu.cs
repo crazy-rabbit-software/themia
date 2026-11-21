@@ -6,6 +6,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.ScreenTime;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -24,7 +25,7 @@ internal static class ScreenTimeAppsMenu
         menu.Lines.Add(ScreenTimeMenuLines.Period(menu, config.Period, value => config.Period = value));
 
         // The list's own: how many apps and the figures beside each, apart from the period.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
 
         // [S-11510] Rows (the height follows), and Lines where a row has figures for a second one.
         menu.Lines.AddRange(KitMenuLines.Rows(menu, config));

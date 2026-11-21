@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
+using Themia.Core.Settings;
 
 namespace Themia.Sdk.WinUI.Kit;
 
@@ -34,7 +35,7 @@ public static class KitMenuLines
     /// an empty list means "every". Then Manage accounts, which opens settings › Accounts. With no
     /// account at all: the widget's sentence and Add an account.
     /// </summary>
-    public static ItemMenuEntry Accounts(
+    public static SettingsLine Accounts(
         WidgetMenuLines menu,
         string? glyph,
         IReadOnlyList<KitAccountLine> accounts,
@@ -54,7 +55,7 @@ public static class KitMenuLines
             return WidgetMenuLines.Submenu(glyph, label,
             [
                 WidgetMenuLines.Note(words.None),
-                ItemMenuEntry.Separator,
+                SettingsLine.Separator,
                 menu.AccountsLine(Glyphs.Add, Str.WidgetsA_Office_AddAccount.Text()),
             ]);
         }
@@ -63,10 +64,10 @@ public static class KitMenuLines
         var all = accounts.Select(a => a.Id).ToList();
         var chosen = every ? all : all.Where(chosenIds.Contains).ToList();
 
-        var lines = new List<ItemMenuEntry>(accounts.Count + 4)
+        var lines = new List<SettingsLine>(accounts.Count + 4)
         {
             menu.Toggle(null, words.Every, every, on => setIds(on ? [] : [.. all])),
-            ItemMenuEntry.Separator,
+            SettingsLine.Separator,
         };
 
         foreach (var account in accounts)
@@ -81,12 +82,12 @@ public static class KitMenuLines
             });
         }
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.AccountsLine(Glyphs.Contact, Str.WidgetsA_Office_ManageAccounts.Text()));
 
         // The line says what holds: every account, or the one chosen, or how many.
         var value = every ? null : chosen.Count == 1 ? accounts.First(a => a.Id == chosen[0]).Label : LocaleFormat.Integer(chosen.Count);
-        return WidgetMenuLines.Submenu(glyph, label, lines) with { Value = value };
+        return WidgetMenuLines.Submenu(glyph, label, lines, value: value);
     }
 
     /// <summary>
@@ -106,7 +107,7 @@ public static class KitMenuLines
     /// [S-7063] How many items: a number within the widget's bounds ([S-3726]), [S-2371] saying its unit as Karpo's counts do
     /// ("12 rows", its §302): <paramref name="say"/>'s words, else the kit's own for its Rows, Columns and Lines, else items.
     /// </summary>
-    public static ItemMenuEntry Count(WidgetMenuLines menu, string? glyph, string label, int value, int min, int max, int step, Action<int> set, Func<int, string>? say = null)
+    public static SettingsLine Count(WidgetMenuLines menu, string? glyph, string label, int value, int min, int max, int step, Action<int> set, Func<int, string>? say = null)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(label);
@@ -135,7 +136,7 @@ public static class KitMenuLines
     /// how many lines each has.
     /// </summary>
     /// <param name="mostLines">[S-11400] The most lines its rows have (3 where a row has a preview).</param>
-    public static IEnumerable<ItemMenuEntry> Rows(WidgetMenuLines menu, IKitRows config, int mostLines = 2)
+    public static IEnumerable<SettingsLine> Rows(WidgetMenuLines menu, IKitRows config, int mostLines = 2)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -155,7 +156,7 @@ public static class KitMenuLines
     }
 
     /// <summary>[S-7063] One switch per optional field the widget offers ([S-6070]: only fields the current style draws).</summary>
-    public static IEnumerable<ItemMenuEntry> Shows(WidgetMenuLines menu, IReadOnlyList<KitShowLine> fields)
+    public static IEnumerable<SettingsLine> Shows(WidgetMenuLines menu, IReadOnlyList<KitShowLine> fields)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(fields);

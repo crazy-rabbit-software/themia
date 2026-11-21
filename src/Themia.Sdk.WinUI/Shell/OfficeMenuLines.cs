@@ -46,7 +46,7 @@ public static class OfficeMenuLines
     }
 
     /// <summary>[S-561] [S-580] The Accounts submenu of an account widget over the accounts offering <paramref name="feature"/>.</summary>
-    public static ItemMenuEntry Accounts(
+    public static SettingsLine Accounts(
         WidgetMenuLines menu,
         IReadOnlyList<AccountInfo> accounts,
         string? glyph,
@@ -66,7 +66,7 @@ public static class OfficeMenuLines
     /// there are no colour lines, and an account with one calendar has nothing to choose, so it is
     /// left out, and the Calendars line with it when no chosen account has two ([S-6070]).
     /// </param>
-    public static IEnumerable<ItemMenuEntry> CalendarAccounts(WidgetMenuLines menu, CalendarConfig config, IOfficeSource? source, bool colours = true)
+    public static IEnumerable<SettingsLine> CalendarAccounts(WidgetMenuLines menu, CalendarConfig config, IOfficeSource? source, bool colours = true)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -89,7 +89,7 @@ public static class OfficeMenuLines
     /// [S-575] Whether the calendar shows the accounts' contacts' birthdays: offered only while a
     /// chosen calendar account has an address book (<see cref="OffersBirthdays"/>), null otherwise.
     /// </summary>
-    public static ItemMenuEntry? Birthdays(WidgetMenuLines menu, CalendarConfig config, IOfficeSource? source)
+    public static SettingsLine? Birthdays(WidgetMenuLines menu, CalendarConfig config, IOfficeSource? source)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -118,7 +118,7 @@ public static class OfficeMenuLines
     /// the account says it is looking, and a list that could not be read says why (the default
     /// calendar is shown meanwhile).
     /// </summary>
-    private static ItemMenuEntry? CalendarsLine(WidgetMenuLines menu, CalendarConfig config, IOfficeSource source, IReadOnlyList<AccountInfo> accounts, bool colours)
+    private static SettingsLine? CalendarsLine(WidgetMenuLines menu, CalendarConfig config, IOfficeSource source, IReadOnlyList<AccountInfo> accounts, bool colours)
     {
         var selected = CalendarRules.SelectAccounts(config.AccountIds, [.. accounts.Select(a => a.Id)]);
         if (selected.Count == 0)
@@ -130,7 +130,7 @@ public static class OfficeMenuLines
         var loads = Listings.GetValue(source, _ => new MenuLoads<CalendarListing>(CalendarListing.Same));
         var label = Str.WidgetsA_Calendar_Settings_Calendars.Text();
 
-        List<ItemMenuEntry> Of(AccountInfo account)
+        List<SettingsLine> Of(AccountInfo account)
         {
             var listing = loads.Read(account.Id, menu, () => ListAsync(source, account.Id));
             if (listing.Value is not { Calendars: { } calendars })
@@ -154,14 +154,14 @@ public static class OfficeMenuLines
     /// [S-567] One account's calendars: a switch each when there are several, then their colours
     /// where the widget draws them (<paramref name="withColours"/>); nothing when there is nothing to choose.
     /// </summary>
-    private static List<ItemMenuEntry> CalendarLines(WidgetMenuLines menu, CalendarConfig config, string accountId, IReadOnlyList<CalendarInfo> calendars, IReadOnlyList<CalendarTarget> targets, bool withColours)
+    private static List<SettingsLine> CalendarLines(WidgetMenuLines menu, CalendarConfig config, string accountId, IReadOnlyList<CalendarInfo> calendars, IReadOnlyList<CalendarTarget> targets, bool withColours)
     {
         if (calendars.Count == 0)
         {
             return withColours ? [WidgetMenuLines.Note(Str.WidgetsA_Calendar_Settings_DefaultCalendar.Text())] : [];
         }
 
-        var colours = new List<ItemMenuEntry>();
+        var colours = new List<SettingsLine>();
         IReadOnlyList<CalendarInfo> coloured = withColours ? calendars : [];
         foreach (var calendar in coloured)
         {
@@ -190,7 +190,7 @@ public static class OfficeMenuLines
             return colours;
         }
 
-        var lines = new List<ItemMenuEntry>(calendars.Count + 2);
+        var lines = new List<SettingsLine>(calendars.Count + 2);
         foreach (var calendar in calendars)
         {
             var calendarId = calendar.Id;
@@ -201,7 +201,7 @@ public static class OfficeMenuLines
 
         if (colours.Count > 0)
         {
-            lines.Add(ItemMenuEntry.Separator);
+            lines.Add(SettingsLine.Separator);
             lines.Add(WidgetMenuLines.Submenu(null, Str.WidgetsA_Calendar_Settings_Colors.Text(), colours));
         }
 
@@ -212,7 +212,7 @@ public static class OfficeMenuLines
     /// [S-566] A calendar's colour: Automatic (the palette colour at its index), one of the six, or any
     /// colour from the shared picker ([S-1549]), never typed. Stored lower-case; Automatic removes it.
     /// </summary>
-    private static ItemMenuEntry Colour(WidgetMenuLines menu, CalendarConfig config, string text, string key, int index)
+    private static SettingsLine Colour(WidgetMenuLines menu, CalendarConfig config, string text, string key, int index)
     {
         var automatic = CalendarRules.PaletteColor(index);
         var presets = new List<ColorPreset>();
@@ -222,14 +222,8 @@ public static class OfficeMenuLines
         }
 
         var chosen = config.CalendarColors.TryGetValue(key, out var hex) && CalendarRules.IsHexColor(hex) ? hex : string.Empty;
-        return menu.Colour(text, chosen, value => config.CalendarColors = SetColour(config.CalendarColors, key, value), new ColorChoiceOptions
-        {
-            Presets = presets,
-            DefaultLabel = Str.WidgetsA_Calendar_Settings_ColorAuto.Text(),
-            DefaultColor = () => HexColor.TryParse(automatic, out var r, out var g, out var b)
-                ? HexBrush.Colour(new RgbColor(r, g, b))
-                : null,
-        });
+        return menu.Colour(text, chosen, value => config.CalendarColors = SetColour(config.CalendarColors, key, value), presets,
+            Str.WidgetsA_Calendar_Settings_ColorAuto.Text(), HexColor.TryParse(automatic, out _, out _, out _) ? automatic : null);
     }
 
     /// <summary>[S-566] The colours after one is picked: a colour stored lower-case, Automatic (empty) taken out.</summary>

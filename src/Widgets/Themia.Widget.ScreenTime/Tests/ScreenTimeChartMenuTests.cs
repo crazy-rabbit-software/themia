@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.ScreenTime.Tests;
 
@@ -20,7 +21,7 @@ public sealed class ScreenTimeChartMenuTests
         return lines;
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     [Fact]
     public void S3335_the_first_level_is_appearance_the_period_and_the_shared_lines()

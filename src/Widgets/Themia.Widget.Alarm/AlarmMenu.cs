@@ -8,6 +8,7 @@ using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Alarm;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -35,30 +36,29 @@ internal static class AlarmMenu
         // When it rings: the time, the days and whether it is set at all.
         // [S-4621] Typed ([S-3738]), in either clock; the line shows it in the language's.
         // [S-2332] Typed in place in its box.
-        menu.Lines.Add(new ItemMenuEntry(AlarmModule.Glyph, AlarmStr.Alarm_Settings_Time_Label.Text(), null, Value: AlarmWords.Time(locale, alarm.Plan), Field: new MenuField(
-            AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)),
-            "07:30",
-            typed => TypedTime.TimeOfDay(typed) is null ? AlarmStr.Alarm_Menu_TimeRefused.Text() : null,
-            typed =>
+        menu.Lines.Add(new SettingsAsk(AlarmStr.Alarm_Settings_Time_Label.Text(), AlarmStr.Alarm_Settings_Time_Label.Text(), AlarmModule.Glyph, "07:30", AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)), typed => TypedTime.TimeOfDay(typed) is null ? AlarmStr.Alarm_Menu_TimeRefused.Text() : null, typed =>
             {
                 if (TypedTime.TimeOfDay(typed) is { } minutes && AlarmTimes.Text(minutes) != alarm.Time)
                 {
                     alarm.Time = AlarmTimes.Text(minutes);
                     menu.Save();
                 }
-            },
-            AllowEmpty: false)));
+            })
+        {
+            AllowEmpty = false,
+            Value = AlarmWords.Time(locale, alarm.Plan),
+        });
 
         menu.Lines.Add(Days(menu, alarm, locale, weekStart));
         menu.Lines.Add(menu.Toggle(Glyphs.Bell, AlarmStr.Alarm_Settings_On_Label.Text(), alarm.On, on => alarm.On = on));
 
         // What it says.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Text(Glyphs.Rename, AlarmStr.Alarm_Settings_Name_Label.Text(), alarm.Label,
             typed => alarm.Label = typed.Trim(), AlarmStr.Alarm_Settings_NamePlaceholder.Text(), NameRefusal));
 
         // How it sounds.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Music, AlarmStr.Alarm_Settings_Sound_Label.Text(),
             [.. PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound)))],
             alarm.Sound,
@@ -85,7 +85,7 @@ internal static class AlarmMenu
             Minutes, value => alarm.SnoozeMinutes = value));
 
         // [S-4627] Said where alarms are set: they ring only while Themia runs.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(WidgetMenuLines.Note(AlarmStr.Alarm_Settings_WhileRunning.Text()));
     }
 
@@ -94,10 +94,10 @@ internal static class AlarmMenu
     /// follows ([S-3770]: settings › Language &amp; region's, never the language's own guess), the days at the
     /// end of the line; none chosen rings once, which the note under the days says.
     /// </summary>
-    private static ItemMenuEntry Days(WidgetMenuLines menu, AlarmConfig alarm, Locale locale, WeekStartDay weekStart)
+    private static SettingsLine Days(WidgetMenuLines menu, AlarmConfig alarm, Locale locale, WeekStartDay weekStart)
     {
         var mask = AlarmDays.Mask(alarm.Days);
-        var lines = new List<ItemMenuEntry>(9);
+        var lines = new List<SettingsLine>(9);
         foreach (var day in AlarmDays.From(CalendarDays.FirstDay(weekStart)))
         {
             var bit = AlarmDays.Bit(day);
@@ -105,11 +105,10 @@ internal static class AlarmMenu
                 on => alarm.Days = AlarmDays.Of(on ? mask | bit : mask & ~bit)));
         }
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(WidgetMenuLines.Note(AlarmStr.Alarm_Settings_Repeat_Desc.Text()));
 
-        return WidgetMenuLines.Submenu(Glyphs.Calendar, AlarmStr.Alarm_Settings_Repeat.Text(), lines)
-            with { Value = mask == 0 ? null : AlarmWords.Days(locale, mask) };
+        return WidgetMenuLines.Submenu(Glyphs.Calendar, AlarmStr.Alarm_Settings_Repeat.Text(), lines, value: mask == 0 ? null : AlarmWords.Days(locale, mask));
     }
 
     /// <summary>Why a typed name cannot be the alarm's, or null: longer than <see cref="AlarmConfig.MostName"/>.</summary>

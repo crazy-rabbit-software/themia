@@ -3,6 +3,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.Kit;
+using Themia.Core.Settings;
 
 namespace Themia.Sdk.WinUI;
 
@@ -25,11 +26,11 @@ public static class ChartMenuLines
     /// setting's ([S-11750]), for a page that stands them where its kind draws its chart (a single metric's under its Trend
     /// line, [S-14703]).
     /// </summary>
-    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, IChartLooks looks)
+    public static IReadOnlyList<SettingsLine> Lines(WidgetMenuLines menu, IChartLooks looks)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(looks);
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         if (looks.ChartTypes.Count > 1)
         {
             lines.Add(WidgetMenuLines.Shared(SharedSettings.ChartType, menu.Choice(Glyphs.ChartType, Str.Chart_Type.Text(),

@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
 using Themia.Widget.AirQuality;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -20,9 +21,9 @@ internal static class AirQualityMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // The look (Style, Appearance), then behind a divider each: the place; the index it is read on.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
 
         (AirQualityScale, string)[] scales =
         [
@@ -32,14 +33,11 @@ internal static class AirQualityMenu
         ];
 
         var index = menu.Choice(AirQualityModule.Glyph, AirQualityStr.Online_Air_Settings_Index_Label.Text(), scales, config.Scale, value => config.Scale = value);
-        menu.Lines.Add(index with
-        {
-            Children =
+        menu.Lines.Add(WidgetMenuLines.Submenu(index.Glyph, index.Text,
             [
-                .. index.Children!,
-                ItemMenuEntry.Separator,
+                .. index.Options,
+                SettingsLine.Separator,
                 WidgetMenuLines.Note(Str.Online_Source.Format(("name", "Copernicus Atmosphere Monitoring Service (CAMS) · Open-Meteo"))),
-            ],
-        });
+            ]));
     }
 }

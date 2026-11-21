@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Pomodoro.Tests;
 
@@ -21,9 +22,9 @@ public sealed class PomodoroMenuTests
         return lines;
     }
 
-    private ItemMenuEntry PhasesLine(PomodoroConfig config) => Build(config).Lines.Single(l => l.Text == PomodoroStr.Pomodoro_Phases_Label.Text());
+    private SettingsLine PhasesLine(PomodoroConfig config) => Build(config).Lines.Single(l => l.Text == PomodoroStr.Pomodoro_Phases_Label.Text());
 
-    private static IReadOnlyList<ItemMenuEntry> Items(ItemMenuEntry phases) => [.. phases.Children!.Where(l => l.Order is not null)];
+    private static IReadOnlyList<SettingsLine> Items(SettingsLine phases) => [.. phases.Children!.Where(l => l.Order is not null)];
 
     [Fact]
     public void S8110_the_phases_then_repeat_then_the_sound_and_its_volume_and_no_size()

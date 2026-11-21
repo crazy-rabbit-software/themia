@@ -12,6 +12,7 @@ using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.UpNext;
+using Themia.Core.Settings;
 
 [assembly: ThemiaWidget("upNext", typeof(UpNextModule))]
 
@@ -49,7 +50,7 @@ public sealed class UpNextModule : IWidgetModule
         ArgumentNullException.ThrowIfNull(menu);
         var upNext = (UpNextConfig)config;
         menu.Lines.AddRange(Themia.Sdk.WinUI.Kit.KitMenuLines.Rows(menu, upNext));
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, upNext, SettingsHost.Office, colours: false));
     }
 }

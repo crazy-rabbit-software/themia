@@ -64,7 +64,7 @@ internal sealed partial class PageView : ContentControl
     private readonly Dictionary<string, string> _typed = new(StringComparer.Ordinal);
 
     /// <summary>[S-2308] A lookup's last answer, by its row's key, with what it was asked for.</summary>
-    private readonly LookupAnswers<MenuSearchAnswer> _found = new();
+    private readonly LookupAnswers<SettingsSearchAnswer> _found = new();
 
     private CancellationTokenSource? _finding;
 

@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Notes;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -40,7 +41,7 @@ internal static class NotesMenu
         }
 
         var hasText = pool.Read(config.NoteId).Text.Length > 0;
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Confirm(Glyphs.Clear, NotesStr.WidgetsC_Notes_Settings_Clear_Label.Text(),
             NotesStr.WidgetsC_Notes_Settings_Clear_ConfirmBody.Text(), Str.Common_Clear.Text(),
             () =>
@@ -57,7 +58,7 @@ internal static class NotesMenu
     /// when the shown note was deleted, then Rename… and Delete note for the note shown and New note,
     /// which makes one and shows it. Deleting is always asked first: the text cannot be recovered.
     /// </summary>
-    private static ItemMenuEntry Notes(WidgetMenuLines menu, NotesConfig config, INotes? pool, DateTimeOffset now)
+    private static SettingsLine Notes(WidgetMenuLines menu, NotesConfig config, INotes? pool, DateTimeOffset now)
     {
         var title = NotesStr.WidgetsC_Notes_Settings_Note.Text();
         if (pool is null)
@@ -65,7 +66,7 @@ internal static class NotesMenu
             return WidgetMenuLines.Submenu(Glyphs.Note, title, [WidgetMenuLines.Note(NotesStr.WidgetsC_Notes_Unavailable.Text())]);
         }
 
-        var lines = new List<ItemMenuEntry>();
+        var lines = new List<SettingsLine>();
         var current = pool.Find(config.NoteId);
         if (config.NoteId is not null && current is null)
         {
@@ -75,15 +76,14 @@ internal static class NotesMenu
         foreach (var note in pool.Notes)
         {
             var id = note.Id;
-            lines.Add(new ItemMenuEntry(null, Shown(note.Title), () =>
+            lines.Add(new SettingsRadio(Shown(note.Title), Shown(note.Title), id == config.NoteId, () =>
             {
                 if (config.NoteId != id)
                 {
                     config.NoteId = id;
                     menu.Save();
                 }
-            }, Checked: id == config.NoteId, Group: title,
-            Value: Formatting.Ago(DateTimeOffset.FromUnixTimeSeconds(note.UpdatedAt).ToLocalTime(), now)));
+            }));
         }
 
         if (pool.Notes.Count == 0)
@@ -91,7 +91,7 @@ internal static class NotesMenu
             lines.Add(WidgetMenuLines.Note(NotesStr.WidgetsC_Notes_Settings_NoNotes.Text()));
         }
 
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         if (current is not null)
         {
             var currentId = current.Id;
@@ -116,7 +116,7 @@ internal static class NotesMenu
         if (current is not null)
         {
             var currentId = current.Id;
-            lines.Add(ItemMenuEntry.Separator);
+            lines.Add(SettingsLine.Separator);
 
             // Every widget showing it then says so ([S-1347]) rather than showing another note.
             lines.Add(menu.Confirm(Glyphs.Delete, NotesStr.Notes_DeleteTitle.Text(),
@@ -124,7 +124,7 @@ internal static class NotesMenu
                 () => pool.Delete(currentId), danger: true, detail: NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", Shown(current.Title)))));
         }
 
-        return WidgetMenuLines.Submenu(Glyphs.Note, title, lines) with { Value = current is null ? null : Shown(current.Title) };
+        return WidgetMenuLines.Submenu(Glyphs.Note, title, lines, value: current is null ? null : Shown(current.Title));
     }
 
     /// <summary>A note's title, or its placeholder for an untitled one.</summary>

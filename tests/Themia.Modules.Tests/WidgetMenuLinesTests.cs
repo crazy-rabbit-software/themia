@@ -28,7 +28,7 @@ public sealed class WidgetMenuLinesTests
         var options = choice.Children!;
         Assert.Equal(["Double", "Single"], options.Select(o => o.Text));
         Assert.Equal([false, true], options.Select(o => o.Checked == true));
-        Assert.All(options, o => Assert.Equal("Open with", o.Group));
+        Assert.All(options, o => Assert.IsType<SettingsRadio>(o));
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public sealed class WidgetMenuLinesTests
         var toggle = Lines().Toggle(null, "Icons only", on, value => set = value);
 
         Assert.Equal(on, toggle.Checked);
-        Assert.Null(toggle.Group);
+        Assert.IsType<SettingsToggle>(toggle);
         toggle.Action!();
         Assert.Equal(!on, set);
         Assert.Equal(1, _saves);
@@ -107,16 +107,16 @@ public sealed class WidgetMenuLinesTests
         var saves = 0;
         var kept = new List<string>();
         var menu = new WidgetMenuLines(() => saves++);
-        var line = menu.Text(null, "Title", "Weather", kept.Add, "A title", t => t.Length > 5 ? "too long" : null, allowEmpty: false);
+        SettingsLine line = menu.Text(null, "Title", "Weather", kept.Add, "A title", t => t.Length > 5 ? "too long" : null, allowEmpty: false);
 
-        var field = Assert.IsType<MenuField>(line.Field);
-        Assert.Equal(("Weather", "A title", false), (field.Current, field.Placeholder, field.AllowEmpty));
+        var field = Assert.IsType<SettingsAsk>(line.Field);
+        Assert.Equal(("Weather", "A title", false), (field.Initial, field.Placeholder, field.AllowEmpty));
         Assert.Equal("Weather", line.Value);
         Assert.Equal("too long", field.Refuse("Weather now"));
 
-        field.Keep("Weather");
+        field.Done("Weather");
         Assert.Equal(0, saves);
-        field.Keep("Rain");
+        field.Done("Rain");
         Assert.Equal(["Rain"], kept);
         Assert.Equal(1, saves);
 
@@ -173,14 +173,12 @@ public sealed class WidgetMenuLinesTests
     public void S3724_a_colour_that_is_required_has_no_default_and_shows_its_first_swatch()
     {
         var set = new List<string>();
-        var options = new ColorChoiceOptions { DefaultLabel = null, Presets = ColorPresets.Windows, AllowCustom = false };
-        var colour = Lines().Colour("Ink", string.Empty, set.Add, options).Colour!;
+        var colour = Lines().Colour("Ink", string.Empty, set.Add, ColorPresets.Windows, defaultText: null).Colour!;
 
         Assert.Equal(HexColor.Normalise(ColorPresets.Windows[0].Hex), colour.Chosen);
         Assert.False(colour.DefaultHolds);
         colour.ChooseDefault();
         Assert.Empty(set);
-        Assert.False(colour.Options.AllowCustom);
     }
 
     [Fact]
@@ -242,7 +240,7 @@ public sealed class WidgetMenuLinesTests
         // too"): a number is its box with − and +, whatever its range, saying its unit; until now a Rows of 1..10 was a
         // choice of ten dots.
         var set = new List<int>();
-        var line = Lines().Number(null, "Rows", 4, 1, 10, 1, n => n + " rows", set.Add);
+        SettingsLine line = Lines().Number(null, "Rows", 4, 1, 10, 1, n => n + " rows", set.Add);
 
         Assert.Null(line.Children);
         Assert.Null(line.Field);
@@ -263,7 +261,7 @@ public sealed class WidgetMenuLinesTests
     public void S2370_a_number_of_many_steps_is_the_same_box_held_to_its_range_and_rounded_to_a_step()
     {
         var set = new List<int>();
-        var line = Lines().Number(null, "Minutes", 30, 5, 600, 5, n => n + " min", set.Add);
+        SettingsLine line = Lines().Number(null, "Minutes", 30, 5, 600, 5, n => n + " min", set.Add);
 
         Assert.Null(line.Children);
         Assert.Null(line.Field);
@@ -303,7 +301,7 @@ public sealed class WidgetMenuLinesTests
     [Fact]
     public void S3731_a_slider_is_one_line_with_its_value_at_the_end_and_no_submenu()
     {
-        var line = Lines().Slider(Glyphs.Volume, "Volume", 40, 0, 100, 5, v => v + " %", _ => { });
+        SettingsLine line = Lines().Slider(Glyphs.Volume, "Volume", 40, 0, 100, 5, v => v + " %", _ => { });
 
         Assert.NotNull(line.Slider);
         Assert.Null(line.Children);
@@ -311,7 +309,7 @@ public sealed class WidgetMenuLinesTests
         Assert.False(line.IsSeparator);
         Assert.Equal("40 %", line.Value);
         Assert.Equal(40, line.Slider!.Value);
-        Assert.Equal((0, 100, 5), (line.Slider.Min, line.Slider.Max, line.Slider.Step));
+        Assert.Equal((0, 100, 5), (line.Slider!.Min, line.Slider!.Max, line.Slider!.Step));
     }
 
     [Fact]
@@ -409,7 +407,7 @@ public sealed class WidgetMenuLinesTests
 
         Assert.True(line.Danger);
         Assert.Null(line.Action);
-        var confirm = Assert.IsType<WidgetConfirm>(line.Confirm);
+        var confirm = Assert.IsType<SettingsConfirm>(line.Confirm);
         Assert.Equal("Clear the whole history?", confirm.Question);
         Assert.Null(confirm.Detail);
         Assert.Equal("Clear", confirm.Accept);
@@ -424,7 +422,7 @@ public sealed class WidgetMenuLinesTests
     [Fact]
     public void S3727_a_confirmed_line_may_say_what_goes_under_its_question()
     {
-        var confirm = Assert.IsType<WidgetConfirm>(Lines().Confirm(null, "Delete this list", "Delete this list?", "Delete", () => { }, detail: "Its 4 habits go too.").Confirm);
+        var confirm = Assert.IsType<SettingsConfirm>(Lines().Confirm(null, "Delete this list", "Delete this list?", "Delete", () => { }, detail: "Its 4 habits go too.").Confirm);
         Assert.Equal("Delete this list?", confirm.Question);
         Assert.Equal("Its 4 habits go too.", confirm.Detail);
     }
@@ -472,7 +470,6 @@ public sealed class WidgetMenuLinesTests
         var note = WidgetMenuLines.Note("Data: Open-Meteo");
 
         Assert.True(note.Note);
-        Assert.True(note.Disabled);
         Assert.Null(note.Action);
         Assert.False(note.IsSeparator);
     }
@@ -605,7 +602,7 @@ public sealed class WidgetMenuLinesTests
     [Fact]
     public void S3729_the_callers_add_lines_follow_the_items_and_an_unordered_list_is_not_dragged()
     {
-        var pick = new ItemMenuEntry(null, "Pick a file…", () => { });
+        var pick = new SettingsCommand("Pick a file…", "Pick a file…", null, () => { });
         var list = new MenuList<string>(s => s, "None") { AddLines = [pick], Reorder = false };
         var lines = Lines().List(null, "Files", new List<string> { "x" }, list).Children!;
 

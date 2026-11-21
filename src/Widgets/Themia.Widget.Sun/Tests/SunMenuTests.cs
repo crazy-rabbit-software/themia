@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Sun.Tests;
 
@@ -21,9 +22,9 @@ public sealed class SunMenuTests
         return lines;
     }
 
-    private MenuSearch Location(SunConfig config) => Assert.Single(Build(config).Lines, l => l.Search is not null).Search!;
+    private SettingsSearch Location(SunConfig config) => Assert.Single(Build(config).Lines, l => l.Search is not null).Search!;
 
-    private static ItemMenuEntry Fixed(MenuSearch search, string text) => Assert.Single(search.Fixed, f => f.Text == text);
+    private static SettingsLine Fixed(SettingsSearch search, string text) => Assert.Single(search.Fixed, f => f.Text == text);
 
     [Fact]
     public void S3107_nothing_stands_under_style()

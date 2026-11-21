@@ -6,6 +6,7 @@ using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
 using Xunit;
+using Themia.Core.Settings;
 
 namespace Themia.Widget.Email.Tests;
 
@@ -27,7 +28,7 @@ public sealed class EmailMenuTests
         return lines;
     }
 
-    private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
+    private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     private static string Columns => EmailStr.WidgetsB_Email_Menu_Columns.Text();
 

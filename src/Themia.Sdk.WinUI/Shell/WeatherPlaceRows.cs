@@ -3,6 +3,7 @@ using Themia.App.Widgets;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -20,12 +21,12 @@ public static class WeatherPlaceRows
     /// ([S-2848]: the widget waits for setup again). Any widget about a place takes them, the Header widget too
     /// ([S-9604]), over the shared <see cref="IPlaced"/>.
     /// </summary>
-    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, IPlaced config)
+    public static IReadOnlyList<SettingsLine> Lines(WidgetMenuLines menu, IPlaced config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        List<ItemMenuEntry> lines = [.. DevicePlaceRows.Lines(menu, config)];
+        List<SettingsLine> lines = [.. DevicePlaceRows.Lines(menu, config)];
 
         // [S-3718] One source of the place at a time: the search is not there while the device's is used.
         if (!config.UseDeviceLocation)
@@ -42,7 +43,7 @@ public static class WeatherPlaceRows
     /// search alone, no Use my location (owner, 2026-11-19: "show the place should not be a caption setting, use my
     /// location neither"); a place found there replaces the device's. Marked as the shared place's line.
     /// </summary>
-    public static ItemMenuEntry Named(WidgetMenuLines menu, IPlaced config)
+    public static SettingsLine Named(WidgetMenuLines menu, IPlaced config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -50,11 +51,12 @@ public static class WeatherPlaceRows
     }
 
     /// <summary>[S-2840] The location's search: what is found, and Clear location under it.</summary>
-    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, IPlaced config, bool named = false)
+    private static SettingsLine LocationLine(WidgetMenuLines menu, IPlaced config, bool named = false)
     {
-        List<ItemMenuEntry> under = [menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation)];
+        List<SettingsLine> under = [menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation)];
 
-        var search = new MenuSearch(
+        var line = WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
+            config.HasLocation ? config.PlaceName.Split(',', 2)[0].Trim() : null,
             Str.Shell_Place_SearchPlaceholder.Text(),
             (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => config.HasLocation && config.PlaceName == place.Label, place =>
             {
@@ -66,9 +68,6 @@ public static class WeatherPlaceRows
             }, cancel),
             under,
             PlaceQuery.Debounce);
-
-        var line = WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
-            config.HasLocation ? config.PlaceName.Split(',', 2)[0].Trim() : null, search);
 
         // [S-1862] A widget of the family waits for its place: Set up opens this search. One that only names it waits for none.
         return named ? line : WidgetMenuLines.SetsUp(line);

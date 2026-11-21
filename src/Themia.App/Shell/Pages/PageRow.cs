@@ -70,7 +70,7 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
     public Func<FrameworkElement>? Picker { get; init; }
 
     /// <summary>A lookup that asks (a place): its box, its answers.</summary>
-    public MenuSearch? Search { get; init; }
+    public SettingsSearch? Search { get; init; }
 
     /// <summary>A lookup over its own options: the box's hint.</summary>
     public string? Filter { get; init; }
@@ -82,7 +82,7 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
     public IReadOnlyList<PageTool>? Tools { get; init; }
 
     /// <summary>An item's place in its list.</summary>
-    public MenuOrder? Order { get; init; }
+    public SettingsOrder? Order { get; init; }
 
     /// <summary>A link's owner (its tooltip: "Opens Accounts").</summary>
     public string? Owner { get; init; }

@@ -13,19 +13,20 @@ namespace Themia.Sdk.WinUI;
 /// </summary>
 internal static class Typed
 {
-    public static WidgetTextAsk Ask(ItemMenuEntry line)
+    public static WidgetTextAsk Ask(SettingsLine line)
     {
-        if (line.Ask is { } asked)
+        if (line is SettingsPrompt prompt)
         {
-            return asked;
+            return prompt.Ask;
         }
 
-        if (line.Slider is { } box)
+        if (line is SettingsSlider slider)
         {
-            string? Refuse(string typed) => NumberEntry.Value(typed, box.Max != 0 ? box.Max : box.Min, box.Format) is null ? line.Text : null;
+            var box = new MenuSlider(slider.Value, slider.Min, slider.Max, slider.Step, slider.Format, slider.Set);
+            string? Refuse(string typed) => NumberEntry.Value(typed, box.Max != 0 ? box.Max : box.Min, box.Format) is null ? slider.Text : null;
             return new WidgetTextAsk(
-                line.Text,
-                line.Text,
+                slider.Text,
+                slider.Text,
                 string.Empty,
                 Refuse,
                 typed =>
@@ -38,9 +39,9 @@ internal static class Typed
                 Initial: box.Value is { } held ? box.Format(held) : null);
         }
 
-        var field = line.Field ?? throw new InvalidOperationException($"'{line.Text}' has no box typed in place");
+        var field = line as SettingsAsk ?? throw new InvalidOperationException($"'{line.Text}' has no box typed in place");
         return new WidgetTextAsk(
-            line.Text,
+            field.Text,
             field.Placeholder,
             string.Empty,
             field.Refuse,
@@ -49,10 +50,10 @@ internal static class Typed
                 var text = (typed ?? string.Empty).Trim();
                 if ((text.Length > 0 || field.AllowEmpty) && field.Refuse(text) is null)
                 {
-                    field.Keep(text);
+                    field.Done(text);
                 }
             },
-            Initial: field.Current.Length > 0 ? field.Current : null,
+            Initial: field.Initial.Length > 0 ? field.Initial : null,
             AllowEmpty: field.AllowEmpty);
     }
 }

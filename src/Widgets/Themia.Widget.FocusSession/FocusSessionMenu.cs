@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.FocusSession;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -28,7 +29,7 @@ internal static class FocusSessionMenu
         menu.Lines.Add(menu.Toggle(Glyphs.QuietHours, FocusSessionStr.Panels_Focus_QuietLabel.Text(), config.DoNotDisturb, on => config.DoNotDisturb = on));
 
         // [S-11305] Whether the time stands in its ring; the card follows.
-        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.Add(menu.Toggle(null, FocusSessionStr.FocusSession_Ring.Text(), config.Ring, on => config.Ring = on));
     }
 

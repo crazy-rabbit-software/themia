@@ -42,7 +42,7 @@ internal sealed record SelectionCommands(
     Action<string>? SetBackgroundImage = null)
 {
     /// <summary>[S-11751] A shared setting's lines, wired to every widget that holds it (<see cref="SharedRowLines"/>); null: none.</summary>
-    public Func<SharedRow, IReadOnlyList<ItemMenuEntry>>? SharedLines { get; init; }
+    public Func<SharedRow, IReadOnlyList<SettingsLine>>? SharedLines { get; init; }
 }
 
 /// <summary>[S-3731] What the selected cards show while a value is tried: a scale or a fill not yet kept.</summary>

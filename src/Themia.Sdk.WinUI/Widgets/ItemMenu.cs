@@ -16,7 +16,8 @@ using Windows.Foundation;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// One line of a context menu: a command, a checkable command, a submenu, or a separator.
+/// One line of a context menu: a command, a checkable command, a submenu, or a separator. Context menus only: a
+/// settings page's line, a widget's own included, is a <see cref="Themia.Core.Settings.SettingsLine"/>.
 /// </summary>
 /// <param name="Glyph">Segoe Fluent glyph, or null for none.</param>
 /// <param name="Text">The label; on an icon-row command it is the tooltip and the accessible name.</param>
@@ -44,43 +45,6 @@ namespace Themia.App.Widgets;
 /// [S-3718] With <paramref name="Checked"/>, the entry is one of a set of choices of which one holds
 /// (Windows draws a dot, not a tick): the entries of one group sharing this name.
 /// </param>
-/// <param name="Search">[S-3722] The selection's page's search, opened beside the line; item menus have none.</param>
-/// <param name="Value">
-/// [S-3726] What the line holds, at its end in the secondary colour (a number, a folder's name); the
-/// selection's page draws it, item menus write a shortcut there instead.
-/// </param>
-/// <param name="Colour">[S-3724] The selection's page's colour line: its submenu is the one colour submenu; item menus have none.</param>
-/// <param name="Note">[S-3728] A line of words only (a data source's credit): greyed, never clickable, trimmed with the whole as its tooltip.</param>
-/// <param name="SetsUp">
-/// [S-1862] The selection's page's line where what the widget waits for is set: the card's Set up
-/// button opens the menu at it (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.SetsUp"/>); item menus have none.
-/// </param>
-/// <param name="Slider">[S-3731] The selection's page's inline slider (words, slider, value in one line); item menus have none.</param>
-/// <param name="Order">[S-3732] The selection's page's ordered list item: its line is dragged up and down among the list's; item menus have none.</param>
-/// <param name="Ask">
-/// [S-2351] [S-3721] The selection's page's line of text asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Ask"/>:
-/// Rename…, Add…, a path typed): its card opens on the field and its accept, never a page of its own; item menus have none.
-/// </param>
-/// <param name="Confirm">
-/// [S-2351] [S-3727] The selection's page's "are you sure?" asked in place (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.Confirm"/>):
-/// its card opens on the question and its answers; only the answer does it. Item menus have none.
-/// </param>
-/// <param name="LinkTo">
-/// [S-3749] A link row: its <paramref name="Action"/> closes the menu and opens another menu at the level that owns
-/// the setting (settings › Accounts), whose name this is (the tooltip says "Opens Accounts"); drawn with Windows' "open in
-/// new window" mark at its end, no chevron. Null for any other line; item menus ignore it.
-/// </param>
-/// <param name="Shares">
-/// [S-11753] The shared setting (<see cref="Themia.Core.Model.SharedSettings"/>, by its key) this line sets: a group's
-/// page finds it among a member's lines and shows it once for every member that holds the setting. Null for a
-/// line of the widget's own; item menus ignore it.
-/// </param>
-/// <param name="Icon">[S-9602] The selection's page's icon line: the one icon picker inline in its card; item menus have none.</param>
-/// <param name="Field">[S-2332] The selection's page's line of text typed in place, its box at the line's end; item menus have none.</param>
-/// <param name="Why">
-/// [S-2375] Why a <paramref name="Disabled"/> line is greyed, said under its name on the page (Karpo's §309); item menus
-/// ignore it. Null for nothing said.
-/// </param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -92,29 +56,12 @@ public readonly record struct ItemMenuEntry(
     QuickCommand? Quick = null,
     KeyChord? Shortcut = null,
     string? IconFile = null,
-    string? Group = null,
-    Themia.Sdk.WinUI.MenuSearch? Search = null,
-    string? Value = null,
-    Themia.Sdk.WinUI.MenuColour? Colour = null,
-    bool Note = false,
-    bool SetsUp = false,
-    Themia.Sdk.WinUI.MenuSlider? Slider = null,
-    Themia.Sdk.WinUI.MenuOrder? Order = null,
-    Themia.Sdk.WinUI.WidgetTextAsk? Ask = null,
-    Themia.Sdk.WinUI.WidgetConfirm? Confirm = null,
-    string? LinkTo = null,
-    string? Shares = null,
-    Themia.Sdk.WinUI.MenuIcon? Icon = null,
-    Themia.Sdk.WinUI.MenuField? Field = null,
-    string? Why = null)
+    string? Group = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
 
-    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && Icon is null && Field is null && !Asks && !Note;
-
-    /// <summary>[S-2351] It asks in place (a line of text or a question): its card opens on what it asks.</summary>
-    public bool Asks => Ask is not null || Confirm is not null;
+    public bool IsSeparator => Action is null && Children is null;
 
     /// <summary>
     /// [S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow. [S-14772] A text
@@ -518,6 +465,13 @@ public static class ItemMenu
             Log.Error(Scope, "a menu command failed", ex);
         }
     }
+
+    /// <summary>
+    /// [S-2302] A settings page's widget line's icon, drawn as its item menu draws one: its glyph (or Explorer's picture of
+    /// it), greyed where <paramref name="disabled"/>, or the shell icon of <paramref name="iconFile"/>.
+    /// </summary>
+    internal static IconElement? IconFor(string? glyph, bool disabled, string? iconFile)
+        => IconFor(new ItemMenuEntry(glyph, string.Empty, null, Disabled: disabled, IconFile: iconFile));
 
     /// <summary>
     /// A line's icon: the shell icon of its <see cref="ItemMenuEntry.IconFile"/>; else, for a line that

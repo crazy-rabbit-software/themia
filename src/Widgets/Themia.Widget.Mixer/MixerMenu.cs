@@ -5,6 +5,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Mixer;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -31,7 +32,7 @@ internal static class MixerMenu
         }) is { } device)
         {
             lines.Add(device);
-            lines.Add(ItemMenuEntry.Separator);
+            lines.Add(SettingsLine.Separator);
         }
 
         // [S-442] The original request: one slider per app, not one per tab. [S-445] Which apps.
@@ -40,7 +41,7 @@ internal static class MixerMenu
         lines.Add(menu.Toggle(Glyphs.Bell, MixerStr.Mixer_Cfg_SystemLabel.Text(), config.ShowSystemSounds, on => config.ShowSystemSounds = on));
 
         // [S-446] What a row shows.
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(menu.Toggle(Glyphs.Apps, MixerStr.Mixer_Cfg_IconsLabel.Text(), config.ShowIcons, on => config.ShowIcons = on));
 
         // [S-11309] How many rows, and one line or two each; the card follows. [S-11753] A kit list's Rows and Lines, the
@@ -49,7 +50,7 @@ internal static class MixerMenu
         lines.Add(WidgetMenuLines.Shared(SharedSettings.ListLines, menu.Choice(null, Str.Kit_Lines.Text(), [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())], Math.Clamp(config.Lines, 1, 2), v => config.Lines = v)));
 
         // [S-1225] The keys are found nowhere else.
-        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(SettingsLine.Separator);
         lines.Add(WidgetMenuLines.Note(MixerStr.WidgetsB_Settings_Mixer_Note.Text()));
     }
 }

@@ -3,6 +3,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -50,7 +51,7 @@ public static class PlaceSearch
     /// a click on one <paramref name="picked"/>, the one <paramref name="holds"/> says is in force dotted ([S-13606]:
     /// every search's rows); no match, offline and failed said in their place ([S-2843]).
     /// </summary>
-    public static async Task<MenuSearchAnswer> MenuAnswerAsync(string typed, Func<PlaceMatch, bool> holds, Action<PlaceMatch> picked, CancellationToken cancel)
+    public static async Task<SettingsSearchAnswer> MenuAnswerAsync(string typed, Func<PlaceMatch, bool> holds, Action<PlaceMatch> picked, CancellationToken cancel)
     {
         ArgumentNullException.ThrowIfNull(holds);
         ArgumentNullException.ThrowIfNull(picked);
@@ -59,9 +60,9 @@ public static class PlaceSearch
         {
             case PlaceQueryStep.Idle:
             case PlaceQueryStep.TooShort:
-                return new MenuSearchAnswer([]);
+                return new SettingsSearchAnswer([]);
             case PlaceQueryStep.NotAName:
-                return new MenuSearchAnswer([], Str.Shell_Place_TypeName.Text());
+                return new SettingsSearchAnswer([], Str.Shell_Place_TypeName.Text());
         }
 
 #if DEBUG
@@ -73,17 +74,17 @@ public static class PlaceSearch
         switch (outcome)
         {
             case PlaceOutcome.Matches:
-                return new MenuSearchAnswer([.. places.Select(place => WidgetMenuLines.Found(
+                return new SettingsSearchAnswer([.. places.Select(place => WidgetMenuLines.Found(
                     place.Detail.Length > 0 ? place.Name + " · " + place.Detail : place.Name, holds(place), () => picked(place)))]);
             case PlaceOutcome.NoMatch:
-                return new MenuSearchAnswer([], Str.Shell_Place_NoMatch.Format(("query", query)));
+                return new SettingsSearchAnswer([], Str.Shell_Place_NoMatch.Format(("query", query)));
             case PlaceOutcome.Offline:
-                return new MenuSearchAnswer([], Str.Shell_Place_Offline.Text());
+                return new SettingsSearchAnswer([], Str.Shell_Place_Offline.Text());
             case PlaceOutcome.NotAName:
-                return new MenuSearchAnswer([], Str.Shell_Place_TypeName.Text());
+                return new SettingsSearchAnswer([], Str.Shell_Place_TypeName.Text());
             default:
                 Log.Warn(Scope, $"place search failed: {detail}".TrimEnd());
-                return new MenuSearchAnswer([], Str.Shell_Place_Failed.Text());
+                return new SettingsSearchAnswer([], Str.Shell_Place_Failed.Text());
         }
     }
 }

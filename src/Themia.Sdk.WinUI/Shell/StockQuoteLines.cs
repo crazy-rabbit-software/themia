@@ -8,6 +8,7 @@ using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Core.Settings;
 
 namespace Themia.App.Shell.Config;
 
@@ -24,11 +25,11 @@ public static class StockQuoteLines
     private static readonly TimeSpan SearchPause = TimeSpan.FromMilliseconds(300);
 
     /// <summary>[S-1307] The symbol's line, the line Set up opens.</summary>
-    public static ItemMenuEntry Symbol(WidgetMenuLines menu, StockQuoteConfig config, Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> lookup)
+    public static SettingsLine Symbol(WidgetMenuLines menu, StockQuoteConfig config, Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> lookup)
         => WidgetMenuLines.Shared(SharedSettings.StockSymbol, WidgetMenuLines.SetsUp(SymbolLine(menu, config, lookup)));
 
     /// <summary>[S-2778] The period and what depends on it: Timeframe, then Extended hours where they apply.</summary>
-    public static IEnumerable<ItemMenuEntry> Period(WidgetMenuLines menu, StockQuoteConfig config)
+    public static IEnumerable<SettingsLine> Period(WidgetMenuLines menu, StockQuoteConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -97,18 +98,18 @@ public static class StockQuoteLines
     /// leads with the kind's glyph and its answers are every search's rows (<see cref="WidgetMenuLines.Found"/>: the
     /// symbol in force dotted), as the place's, the currency's and the zone's.
     /// </summary>
-    private static ItemMenuEntry SymbolLine(WidgetMenuLines menu, StockQuoteConfig config, Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> lookup)
+    private static SettingsLine SymbolLine(WidgetMenuLines menu, StockQuoteConfig config, Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> lookup)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(lookup);
 
-        async Task<MenuSearchAnswer> Find(string typed, CancellationToken cancel)
+        async Task<SettingsSearchAnswer> Find(string typed, CancellationToken cancel)
         {
             var query = typed.Trim();
             if (!MarketSearch.IsQuery(query))
             {
-                return new MenuSearchAnswer([]);
+                return new SettingsSearchAnswer([]);
             }
 
             IReadOnlyList<SymbolHit> hits;
@@ -132,7 +133,7 @@ public static class StockQuoteLines
                 unanswered = FetchState.Message(FetchStatus.Unreachable);
             }
 
-            var lines = new List<ItemMenuEntry>();
+            var lines = new List<SettingsLine>();
             if (WebInput.IsPlausibleSymbol(query))
             {
                 // One row dotted: the typed symbol only where no hit is the instrument in force.
@@ -156,17 +157,17 @@ public static class StockQuoteLines
             // [S-13608] Why no service answered is the status line's, under the typed symbol that still works.
             if (unanswered is not null)
             {
-                return new MenuSearchAnswer(lines, unanswered);
+                return new SettingsSearchAnswer(lines, unanswered);
             }
 
             return lines.Count > 0
-                ? new MenuSearchAnswer(lines)
-                : new MenuSearchAnswer([], Str.WidgetsC_Stocks_Settings_SymbolRefused.Text());
+                ? new SettingsSearchAnswer(lines)
+                : new SettingsSearchAnswer([], Str.WidgetsC_Stocks_Settings_SymbolRefused.Text());
         }
 
         var shown = config.EffectiveSymbol is { Length: > 0 } symbol ? symbol.ToUpperInvariant() : null;
         return WidgetMenuLines.Search(Glyphs.Stocks, Str.Stocks_Tab_Symbols.Text(), shown,
-            new MenuSearch("AAPL, ^GSPC, EURUSD=X, BTC-USD", Find, [], SearchPause));
+            "AAPL, ^GSPC, EURUSD=X, BTC-USD", Find, [], SearchPause);
     }
 
     /// <summary>[S-13606] Whether <paramref name="hit"/> is the instrument in force: its symbol on its market.</summary>

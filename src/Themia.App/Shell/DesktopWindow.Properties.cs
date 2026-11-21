@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Sdk.WinUI;
 
@@ -60,7 +61,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>[S-11751] A shared setting's lines, built over a scratch copy of one holder and set on every holder.</summary>
-    private IReadOnlyList<ItemMenuEntry> SharedLinesOf(SharedRow row)
+    private IReadOnlyList<SettingsLine> SharedLinesOf(SharedRow row)
     {
         if (ViewForThisMonitor(_host.State) is not { } view)
         {
