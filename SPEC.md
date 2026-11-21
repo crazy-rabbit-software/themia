@@ -17,7 +17,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Fences on the desktop (FENCES); Repeaters (REPEATER); Windows' desktop parity (PARITY); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP, retired); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Single metrics (METRICS); Text widgets (TEXTS); Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
+- **Look and layout.** Rows and the card edge; Single metrics (METRICS); Text widgets (TEXTS); Icon widgets (ICONS); Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, the Desktop icon and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Own desktop icons: drops and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
@@ -10597,6 +10597,51 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   them), **Now playing, large** (the cover over the title, the artist, the album, the progress and the
   buttons) and **Rain** (the sentence over the graph over the total); **Weather station** ends with the rain's sentence
   over its graph. Each starts with its Header ([S-12485]), its parts touching.
+
+## Icon widgets (ICONS)
+
+Owner, 2026-11-21: "there should be a shared widget backend for widgets that show just an icon. you should also create a
+new widget that just shows a selectable icon." Every widget whose face is one icon is an **icon kind** on one base, as
+every line of text is a text kind (TEXTS) and every one reading a single metric (METRICS). Owning files:
+`Themia.Sdk/Widgets/Icons.cs` (the pure rules: `IconRules`, `IconShown`, `IconOpen`, `IconOpens`),
+`Themia.Sdk/Modules/IconKind.cs` (a kind as data), `Themia.Sdk.WinUI/Widgets/IconView.cs` (+ `.Preview.cs`, the one face,
+on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the Icon widget (`Themia.Widget.Icon`,
+[S-15010]), the now-playing buttons (`Themia.Widget.Music`, [S-14922]) and the sky now (`weatherSky`,
+`Themia.Widget.WeatherNow`, [S-15020]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
+
+- **[S-15000]** **Its size is a square round its glyph.** An icon kind's card lands at the 40 glyph in the family's inset,
+  64 square (`IconRules.Sizing`, `NaturalSide`), resizes freely on both axes from the grid's least widget, 32 (WR-14: a
+  glyph is read down to 12, which 32 holds in the least inset), to 480, relaxed past it ([S-12411], a picture's stretch),
+  every cell between ([S-14500]). Its glyph grows with its card (a one-readout face, `WidgetTraits.OneReadout`).
+- **[S-15001]** **One face** (`IconView`): one glyph, the Tile block's face without words ([S-11882]): the card edge to edge
+  is its one item (the item layer's tile at rest; the accent, its glyph on it, while it is on: play while it plays; every
+  part disabled while it cannot be read or pressed, [S-1940]), the glyph in the item's text role, so the widget's **Item
+  text** colour on its Appearance page colours it as it colours every glyph face's ([S-6540]; no colour line of its own,
+  one setting one level, [S-3590]). Its name is its tooltip and its screen reader's name ("Play", "Partly cloudy"); while
+  unavailable, why (`IconShown.Tooltip`). A family subclasses the face for its data and hands each read to it
+  (`IconShown`); the face, its fit, its light and what a click does are the base's alone.
+- **[S-15002]** **The glyph fills the card.** It is planned on the largest glyph step its room holds (28, 40, 68, 96, 136;
+  `IconRules.Step`) and scaled as one until its ink fills the inset's height or the width stops it (`InkFit`, WR-7, WR-14),
+  standing centred on the other axis (owner, 2026-11-19, of the tiles: "Centred is fine"). The inset is the family's (12)
+  while the card's short side holds the 28 glyph in it; under that, what the side leaves the 28 glyph on each side, down
+  to 4 (`IconRules.Inset`, as a tile's, [S-12806]). Without a reading the face stays (WR-10): its kind's glyph drawn
+  unavailable, why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so, the
+  glyph leaving it its room ([S-12813]).
+- **[S-15003]** **A family a project, a kind an icon.** A family's kinds are data (`IconKind`: id, glyph, the add page's
+  name, description and search words, its config, what it opens); each kind is a sealed module (`IconModule`: the one
+  sizing, a one-readout face with its item, at home in its family's add-page folder in the family's order, the removed
+  kinds it stands in for, [S-15022]) and config of its own; its page holds its family's lines (which icon, a place, when
+  it hides).
+- **[S-15004]** **An icon lights and opens its source**, declared on its kind (`IconKind.Opens`, an `IconOpen`: the target
+  for the card's config and what it shows, and the card menu's words): lit under the pointer and pressed (WR-13; WR-12:
+  only the fill changes), a click (the card's, [S-2000]), Enter and the card menu's first line open it through the host's
+  launcher: the place's forecast ("Open on MSN Weather", `IconOpens.Weather`, [S-2006]).
+- **[S-15005]** **Or it presses something**: a family whose icon is a button (a transport button) makes its face one
+  button edge to edge that takes the press itself (`IWidgetButton`, [S-2007]) and acts on the release (a press that slid
+  off is no click), on Space and on Enter, never optimistic: its data draws the result; lit while it can act. In edit mode
+  the press is the card's (select, move), never the icon's ([S-1911]). An icon that neither opens nor presses (the Icon
+  widget) lights nothing.
+- **[S-15006]** Debug renders: every family's own states (sample, playing, idle, stale, failed, ...).
 
 ## Weather, sky and money as atoms (ATOMS-SKY)
 
