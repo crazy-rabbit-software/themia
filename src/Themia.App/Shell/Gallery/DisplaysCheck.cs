@@ -21,8 +21,14 @@ namespace Themia.App.Shell.Gallery;
 /// joined pair at the right, a clock at one work area's centre). Once the surfaces have settled, every card is
 /// checked against each display's own work area: a card under that display's taskbar is a finding. Then where a new
 /// widget lands when placed at either display's far edge, and where each display's edit bar stands (centred in its
-/// own work area). Writes <c>displays.txt</c> (PASS or FAIL per check) and <c>display-left.png</c> /
-/// <c>display-right.png</c> with each taskbar's strip tinted. Nothing reaches the real displays or the user's state.
+/// own work area). [S-6608] Then a widget dragged half over each display's own taskbar (owner, 2026-11-21: "the widgets
+/// should be able to go over the screen"): it lands there and stays through the settles that follow, partly behind the
+/// taskbar, the visible minimum on both work areas. Last a second view laid on the left display alone (a widget hung over
+/// its taskbar, one flush with the monitor's right edge) is shown on the right display too: the flush one moves clear of
+/// the right display's taskbar, the hung one stays, and a widget placed at either far edge lands clear of both. Writes
+/// <c>displays.txt</c> (PASS or FAIL per check) and <c>display-left.png</c> / <c>display-right.png</c> (the first view,
+/// the dragged widgets over the taskbars) and <c>display-left-work.png</c> / <c>display-right-work.png</c> (the second),
+/// each taskbar's strip tinted. Nothing reaches the real displays or the user's state.
 /// </summary>
 internal static class DisplaysCheck
 {
@@ -117,7 +123,8 @@ internal static class DisplaysCheck
             // The view as laid out on one display or the other, each clock at the size the display paints it (its sizing
             // on the grid): flush with the left display's taskbar and with the right monitor edge, flush with the left
             // monitor edge and with the right display's taskbar, a clock at the left display's work area's centre, and a
-            // joined pair (touching cells) at the right monitor edge. Laid in one change, as an arrangement arrives.
+            // joined pair (touching cells) at the right monitor edge. Laid in one change, as an arrangement arrives: laid on no
+            // work area of these displays (a file from before, another PC), so the view's own area is none.
             var screen = left.Metrics;
             var probe = WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.4, 0.4, 0.1, 0.1));
             var size = SizeFit.Shown(probe.Rect, SizeFit.Limits(probe, screen, 1), screen);
@@ -133,7 +140,7 @@ internal static class DisplaysCheck
                 ("pair-b", WidgetInstance.Create(new WidgetId("clock"), new FracRect(1 - w, 0.60, w, h))),
                 ("centred", WidgetInstance.Create(new WidgetId("clock"), new FracRect(t + ((1 - t - w) / 2), 0.80, w, h))),
             };
-            host.Mutate(s => s.Views[0].Widgets.AddRange(widgets.Select(it => it.Widget)), undo: null);
+            host.Mutate(s => { s.Views[0].Widgets.AddRange(widgets.Select(it => it.Widget)); s.Views[0].WorkArea = null; }, undo: null);
             await Task.Delay(800).ConfigureAwait(true);
             host.SettleSurfaces();
             await Task.Delay(500).ConfigureAwait(true);
@@ -179,6 +186,36 @@ internal static class DisplaysCheck
                     (onRight >= Rounding ? $", under the right display's taskbar by {onRight:0.#}" : string.Empty));
             }
 
+            // [S-6608] A widget dragged half its width over each display's own taskbar through the drag's rules (BlockMove's,
+            // BlockGeometry.Move), landed as a drag lands (LandMoved), then every settle that follows a change: it stays.
+            foreach (var (surface, name, index, sign) in new[] { (left, "left", 0, -1.0), (right, "right", 3, 1.0) })
+            {
+                var id = widgets[index].Widget.Id;
+                var model = host.State.Views[0].Find(id)!;
+                var start = model.Rect;
+                var dragged = BlockGeometry.Apply(start, BlockGeometry.Move([start], sign * start.W / 2, 0, surface.Metrics), surface.Metrics);
+                model.Rect = dragged;
+                host.LandMoved(surface, [id], UndoAction.Move);
+                host.Mutate(_ => { }, undo: null);
+                host.SettleSurfaces();
+                await Task.Delay(500).ConfigureAwait(true);
+
+                var kept = host.State.Views[0].Find(id)!.Rect;
+                Check(kept == dragged, $"{name}: {widgets[index].Name} dragged over its taskbar to x {dragged.X:0.####}..{dragged.Right:0.####} stays at x {kept.X:0.####}..{kept.Right:0.####}");
+                foreach (var (on, onName) in new[] { (left, "left"), (right, "right") })
+                {
+                    var work = WorkDips(on);
+                    var box = on.CardFor(id) is { } card ? new PixelRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height) : Box(kept, on.Metrics);
+                    var shows = Math.Min(box.X + box.Width, work.X + work.Width) - Math.Max(box.X, work.X);
+                    Check(shows >= GridGeometry.MinVisiblePx - Rounding, $"  on the {onName} display {shows:0.#} DIPs of it show on the work area (at least {GridGeometry.MinVisiblePx:0})");
+                    if (ReferenceEquals(on, surface))
+                    {
+                        var under = Under(box, work, on.Metrics);
+                        Check(under >= Rounding, $"  on the {onName} display {under:0.#} DIPs of it are behind the taskbar");
+                    }
+                }
+            }
+
             // [S-852] Each display's edit bar between its own work area's sides, so centred in it (read from its margins:
             // edit mode is not entered, an activatable surface could take the foreground).
             foreach (var (surface, name) in new[] { (left, "left"), (right, "right") })
@@ -199,6 +236,39 @@ internal static class DisplaysCheck
             foreach (var (surface, name) in new[] { (left, "left"), (right, "right") })
             {
                 await Picture(surface, Path.Combine(outDir, $"display-{name}.png")).ConfigureAwait(true);
+            }
+
+            // [S-855] A second view laid on the left display alone, then shown on the right display too.
+            var second = ViewState.Create("Work");
+            host.Mutate(s => { s.Views.Add(second); s.ShowViewOn(LeftId, second.Id); }, undo: null);
+            await Task.Delay(800).ConfigureAwait(true);
+            var hung = WidgetInstance.Create(new WidgetId("clock"), new FracRect(t - (w / 2), 0.2, w, h));
+            var flush = WidgetInstance.Create(new WidgetId("clock"), new FracRect(1 - w, 0.5, w, h));
+            host.Mutate(s => s.FindView(second.Id)!.Widgets.AddRange([hung, flush]), undo: null);
+            var hungAt = hung.Rect;
+            await Task.Delay(500).ConfigureAwait(true);
+            host.ShowView(RightId, second.Id);
+            await Task.Delay(800).ConfigureAwait(true);
+            host.SettleSurfaces();
+            await Task.Delay(500).ConfigureAwait(true);
+
+            Say("  a second view laid on the left display alone, then shown on the right display too:");
+            var flushAt = host.State.FindView(second.Id)!.Find(flush.Id)!.Rect;
+            Check(Under(Box(flushAt, right.Metrics), WorkDips(right), right.Metrics) < Rounding,
+                $"  the widget flush with the monitor's right edge moves clear of the right display's taskbar: x {flushAt.X:0.####}..{flushAt.Right:0.####}");
+            var hungNow = host.State.FindView(second.Id)!.Find(hung.Id)!.Rect;
+            Check(hungNow == hungAt, $"  the widget hung over the left display's taskbar stays: x {hungNow.X:0.####} (was {hungAt.X:0.####})");
+            foreach (var (surface, name, x) in new[] { (left, "left", 0.005), (right, "right", 0.995) })
+            {
+                var landed = PlacementPayload.ForNew(new WidgetId("clock"), 200, 160).Plan(x, 0.5, surface.Metrics, surface.SizesNow).Added[0].Rect;
+                var onLeft = Under(Box(landed, left.Metrics), WorkDips(left), left.Metrics);
+                var onRight = Under(Box(landed, right.Metrics), WorkDips(right), right.Metrics);
+                Check(onLeft < Rounding && onRight < Rounding, $"  placed on the {name} display at x {x}: lands at x {landed.X:0.####}..{landed.Right:0.####}, clear of both taskbars");
+            }
+
+            foreach (var (surface, name) in new[] { (left, "left"), (right, "right") })
+            {
+                await Picture(surface, Path.Combine(outDir, $"display-{name}-work.png")).ConfigureAwait(true);
             }
 
             Say(failures == 0 ? "displays-check: PASS" : $"displays-check: FAIL ({failures})");

@@ -80,7 +80,8 @@ Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appeara
            # (marks-*-block*, [S-2460]); a flyout following its page as a card opens and closes (-follow-*, PASS or
            # FAIL, [S-2350]). --picker-png takes --theme too. There is no settings window [S-3585]
 Themia.exe --displays-check <outDir>   # one view on two stand-in displays, the taskbar left on one and right on the other,
-           # through a real host and surfaces: every card clear of both taskbars, placement at the far edges, PASS or FAIL [S-855]
+           # through a real host and surfaces: every card clear of both taskbars, placement at the far edges, a widget dragged
+           # over each taskbar staying there (the visible minimum kept), a view shown on the other display, PASS or FAIL [S-855]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at its min, natural and max; quit Themia first
 Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
