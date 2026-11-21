@@ -5,7 +5,7 @@ using Themia.Widget.RemovableDrives;
 namespace Themia.Core.Model;
 
 /// <summary>[S-4660] [S-11027] The removable devices: how many rows the list shows, its one setting.</summary>
-public sealed class RemovableDrivesConfig : WidgetConfig, IKitRows
+public sealed class RemovableDrivesConfig : WidgetConfig, IKitLocalConfig, IKitRows
 {
     /// <summary>[S-11027] How many rows the list shows (1..20); more devices scroll inside them.</summary>
     public int Rows { get; set; } = RemovableDrivesPlan.DefaultRows;
@@ -23,6 +23,10 @@ public sealed class RemovableDrivesConfig : WidgetConfig, IKitRows
             // ignore: a device's row always has its two lines; the menu offers no choice.
         }
     }
+
+    /// <summary>[S-4662] The picture, the space line and the used share are always the row's: no switch for them.</summary>
+    [JsonIgnore]
+    public KitShow Shows => KitShow.Lead | KitShow.Subtitle | KitShow.When;
 
     public override WidgetConfig Clone() => new RemovableDrivesConfig { Rows = Rows };
 

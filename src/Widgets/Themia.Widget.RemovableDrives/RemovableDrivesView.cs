@@ -1,9 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Shell;
-using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -15,354 +13,185 @@ using Themia.Widget.RemovableDrives;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4660]..[S-4664] What is plugged in (Karpo §91), on the family's Row block: a row per USB stick,
-/// card, disc or external disk with its picture, its name as This PC names it, the used share, and by
-/// the tier what it holds and its kind (<see cref="RemovableDrivesPlan"/>). Eject is the row's menu and
-/// the keys (Delete, E), never a button in the row: the shell's own eject, which says how it went in
-/// Windows' own notice. Live: a device plugged in or out shows at once (the host's walk,
-/// <see cref="IDrives"/>, runs again on <c>WM_DEVICECHANGE</c>). Nothing plugged in is the Status row.
+/// [S-4660]..[S-4664] What is plugged in (Karpo §91) as a kit list ([S-7074]) over the host's drives
+/// (<see cref="IDrives"/>, walked again on <c>WM_DEVICECHANGE</c>: a device plugged in or out shows at once), shaped by
+/// <see cref="RemovableDrivesSpec"/>: each device's picture as the rich look's lead, its used bar in the meter's place.
+/// Nothing plugged in is the kit's state row.
 /// </summary>
 internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
-    private readonly ScrollViewer _scroll = new()
-    {
-        VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-        HorizontalScrollMode = ScrollMode.Disabled,
-        VerticalAlignment = VerticalAlignment.Top,
-    };
+    /// <summary>Nothing on a row ages: the list is redrawn when the drives change; this is only the binding's slowest tick.</summary>
+    private static readonly TimeSpan Redraw = TimeSpan.FromMinutes(15);
 
-    private readonly StackPanel _list = new();
-    private readonly List<DeviceRow> _rows = [];
-    private readonly StatusBlock _empty = StatusBlock.Line();
-    private readonly EmptyRows _face = EmptyRows.UnderStatus();
-    private ScrollFade? _fade;
+    private readonly IWidgetHost _host;
+    private readonly KitBinding _binding;
+    private readonly DriveSource _source;
+    private RemovableDrivesConfig _config = new();
     private IWidgetSurface? _surface;
-    private IDisposable? _watch;
-    private IReadOnlyList<DriveEntry> _devices = [];
-    /// <summary>[S-11850] The sample's devices in place of this PC's (<see cref="ShowSampleAsync"/>), or null.</summary>
-    private IReadOnlyList<DriveEntry>? _previewDevices;
     private WidgetArea _area;
-    private double _lead = -1;
-    private int _focus = -1;
-    private bool _detached;
-
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the drives.</summary>
-    private readonly IWidgetHost _widgetHost;
+    private bool _attached;
 
     public RemovableDrivesView(IWidgetHost host)
     {
-        _widgetHost = host;
-        _scroll.Content = _list;
-        Children.Add(_scroll);
-        _fade = new ScrollFade(_scroll, _list);
+        _host = host;
+        _source = new DriveSource(host.Drives);
+        _binding = new KitBinding(host, RemovableDrivesSpec.Spec, Glyphs.Usb, RemovableDrivesSpec.Actions, Run)
+        {
+            Look = new KitRichLook { Lead = Picture, LeadSize = FamilyShape.IconLarge, Trail = Bar },
+            Decorate = LinkRow,
+            Redrawing = ForgetRows,
+            CursorMoved = PointCursor,
+        };
 
-        _empty.Hide();
-        Children.Add(_empty);
-
-        // [S-12835] No drive to list: the rows kept, "--", under the status's line.
-        Children.Add(_face);
+        Children.Add(_binding.List);
+        Children.Add(_binding.State);
+        _binding.Status.Place(this);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _detached = false;
-        Strings.Changed -= OnLanguage;
-        Strings.Changed += OnLanguage;
-        _watch?.Dispose();
-        _watch = _widgetHost.Drives.Watch(ticker, Show);
+        _config = config as RemovableDrivesConfig ?? new RemovableDrivesConfig();
+        _attached = true;
+        _source.Start(ticker);
         _links.Join(_surface?.Links);
-        Show();
+        _binding.Attach(ticker, _source, _config, Redraw);
     }
 
     /// <summary>[S-11027] [S-14500] The config's rows decide the natural height alone: the rows shown are the card's.</summary>
-    public void ApplyConfig(WidgetConfig config) => Show();
+    public void ApplyConfig(WidgetConfig config)
+    {
+        _config = config as RemovableDrivesConfig ?? new RemovableDrivesConfig();
+        if (_attached)
+        {
+            _binding.Apply(_source, _config, Redraw, show: false);
+        }
+    }
 
     public void ApplySize(WidgetArea area)
     {
         _area = area;
-        Lay();
+        _binding.Size(area);
     }
 
-    private void OnLanguage(Locale locale) => Lay();
-
-    private void Show()
-    {
-        if (_previewDevices is null && !_widgetHost.Drives.HasValue)
-        {
-            return;
-        }
-
-        _devices = _previewDevices ?? DriveRules.Removables(_widgetHost.Drives.Drives);
-        Lay();
-    }
-
-    /// <summary>[S-4662] The rows the tier gives, whole rows only; nothing plugged in, the Status row.</summary>
-    private void Lay()
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        var look = RemovableDrivesPlan.Of(_area.IsMeasured ? _area.Width : ActualWidth);
-
-        if (_devices.Count == 0)
-        {
-            // [S-14810] The state's row in the first row's place and the empty rows under it at the rows' one size (two lines a
-            // row: four cells).
-            var pitch = (_area.IsMeasured
-                ? RemovableDrivesPlan.Reach(_area.Height, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-                : ItemSize.Natural(RemovableDrivesPlan.Lines, _area.Grid())).Pitch;
-            _empty.Height = pitch;
-            _face.Pitch = pitch;
-            _face.Margin = new Thickness(0, pitch - FamilySpace.Inset, 0, 0);
-            _empty.Show(StatusKind.Empty, Glyphs.Usb, RemovableDrivesStr.Drives_Nothing.Text());
-            _face.Visibility = Visibility.Visible;
-            _scroll.Visibility = Visibility.Collapsed;
-        }
-        else
-        {
-            _empty.Hide();
-            _face.Visibility = Visibility.Collapsed;
-            _scroll.Visibility = Visibility.Visible;
-        }
-
-        // A row's lead is fixed when it is built: a tile crossing 180 builds its rows again.
-        if (look.Lead != _lead)
-        {
-            _lead = look.Lead;
-            foreach (var row in _rows)
-            {
-                row.Dispose();
-            }
-
-            _rows.Clear();
-            _list.Children.Clear();
-            Drives.Clear();
-        }
-
-        while (_rows.Count < _devices.Count)
-        {
-            var row = new DeviceRow(this, look.Lead);
-            _rows.Add(row);
-            _list.Children.Add(row.Block);
-        }
-
-        var locale = Strings.Current;
-        var picture = !(_surface?.IsPreview ?? false) && _previewDevices is null;
-        var reach = _area.IsMeasured
-            ? RemovableDrivesPlan.Reach(_area.Height, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemSize.Natural(RemovableDrivesPlan.Lines, _area.Grid());
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            var shown = i < _devices.Count;
-            _rows[i].Block.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-            if (shown)
-            {
-                _rows[i].Show(_devices[i], look, picture, locale);
-                _rows[i].Block.Height = reach.Height(i);
-            }
-        }
-
-        // [S-12807] The first row's band over the view's top, so its text stands on the card's inset; [S-14500] the rows
-        // the card holds fill it.
-        _scroll.Height = _area.IsMeasured ? reach.Room : double.NaN;
-        ListEdge.Apply(_scroll);
-        LinkRows();
-
-        if (_focus >= _devices.Count)
-        {
-            Focus(ListKeys.AfterRemoval(_focus, _devices.Count));
-        }
-        else
-        {
-            Focus(_focus);
-        }
-
-        _fade?.Refresh();
-    }
-
-    private void Open(DriveEntry device)
-    {
-        if (_surface?.IsPreview ?? false)
-        {
-            return;
-        }
-
-        _widgetHost.Launcher.Open(device.Root);
-    }
-
-    private void Eject(DriveEntry device)
-    {
-        if (_surface?.IsPreview ?? false)
-        {
-            return;
-        }
-
-        _widgetHost.Launcher.Eject(device.Root);
-    }
-
-    // ---- keys ([S-4664]) ----------------------------------------------------------------------
-
-    public bool WantsKeys => !_detached && _devices.Count > 0;
-
-    /// <summary>Up/Down walk the devices, Enter opens one, Delete ejects it, Escape lets go.</summary>
+    /// <summary>[S-4664] The kit's keys; Delete ejects the focused device as its menu's Eject does.</summary>
     public bool HandleKey(WidgetKey key)
-    {
-        if (_detached)
-        {
-            return false;
-        }
+        => key == WidgetKey.Delete && _binding.List.CursorIndex >= 0 ? Eject(_binding.List.CursorIndex) : _binding.HandleKey(key);
 
-        var decision = ListKeys.Decide(key, _focus, _devices.Count);
-
-        switch (decision.Command)
-        {
-            case ListCommand.Focus:
-                Focus(decision.Index);
-                PointCursor();
-                return true;
-            case ListCommand.Open when decision.Index >= 0 && decision.Index < _devices.Count:
-                Open(_devices[decision.Index]);
-                return true;
-            case ListCommand.Delete when decision.Index >= 0 && decision.Index < _devices.Count:
-                Eject(_devices[decision.Index]);
-                return true;
-            case ListCommand.Release:
-                var had = _focus >= 0;
-                Focus(-1);
-                PointCursor();
-                return had;
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>E ejects the focused device.</summary>
+    /// <summary>[S-4664] E ejects the focused device.</summary>
     public bool HandleText(char character)
-    {
-        if (_detached || char.ToUpperInvariant(character) != 'E' || _focus < 0 || _focus >= _devices.Count)
-        {
-            return false;
-        }
-
-        Eject(_devices[_focus]);
-        return true;
-    }
-
-    /// <summary>[S-1288] The keyboard's ring on the focused row (the Row block's own, moving nothing).</summary>
-    private void Focus(int index)
-    {
-        _focus = index;
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            _rows[i].Block.Focused = i == index;
-        }
-    }
+        => char.ToUpperInvariant(character) == 'E' && Eject(_binding.List.CursorIndex);
 
     public void Detach()
     {
-        _detached = true;
-        Strings.Changed -= OnLanguage;
-        _watch?.Dispose();
-        _watch = null;
-        _fade?.Dispose();
-        _fade = null;
-
-        foreach (var row in _rows)
-        {
-            row.Dispose();
-        }
-
-        _rows.Clear();
-        _list.Children.Clear();
-        Drives.Clear();
+        _attached = false;
+        _binding.Dispose();
+        _source.Stop();
         _links.Leave();
-        _lead = -1;
     }
 
-    /// <summary>One device: its picture, name, used share, and by the tier its space line and kind; Open and Eject on its menu.</summary>
-    private sealed class DeviceRow : IDisposable
+    private bool Eject(int index)
     {
-        private readonly RemovableDrivesView _owner;
-        private readonly DriveIcon? _icon;
-        private readonly ChartBar _bar = DriveBar.Create();
-        private readonly IDisposable _menu;
-        private DriveEntry? _device;
-
-        public DeviceRow(RemovableDrivesView owner, double lead)
+        if (index < 0 || index >= _binding.List.Items.Count)
         {
-            _owner = owner;
-            Block = new RowBlock(RowKind.List, lead) { Interactive = true };
-            if (lead > 0)
-            {
-                _icon = new DriveIcon();
-                Block.Lead(_icon);
-            }
-
-            Block.Tapped += OnTapped;
-            Block.DoubleTapped += OnDoubleTapped;
-            _menu = ItemMenu.Attach(Block, Entries);
-            WidgetItems.Mark(Block);
+            return false;
         }
 
-        public RowBlock Block { get; }
+        var item = _binding.List.Items[index];
+        Run(item, RemovableDrivesSpec.Actions(item)[1]);
+        return true;
+    }
 
-        private IEnumerable<ItemMenuEntry> Entries()
+    /// <summary>[S-4663] Open in Explorer, or the shell's own eject; a preview does neither.</summary>
+    private void Run(KitItem item, KitAction action)
+    {
+        if (_surface?.IsPreview == true || _source.DeviceOf(item.Id) is not { } device)
         {
-            if (_device is not { } device || _owner._detached)
-            {
-                return [];
-            }
-
-            return
-            [
-                new(Glyphs.Open, Str.Common_Open.Text(), () => _owner.Open(device)),
-                new(Glyphs.Usb, Str.Drives_Eject.Text(), () => _owner.Eject(device)),
-            ];
+            return;
         }
 
-        /// <summary>[S-13060] A click focuses the drive's row on the tap, never the press: a press that becomes the card's move focuses nothing.</summary>
-        private void OnTapped(object sender, TappedRoutedEventArgs args)
+        switch (action.Id)
         {
-            var index = _owner._rows.IndexOf(this);
-            if (index >= 0)
-            {
-                _owner.Focus(index);
-            }
+            case RemovableDrivesSpec.OpenId:
+                _host.Launcher.Open(device.Root);
+                break;
+
+            case RemovableDrivesSpec.EjectId:
+                _host.Launcher.Eject(device.Root);
+                break;
+        }
+    }
+
+    /// <summary>[S-4661] The device's picture, 32: the shell's own for this PC's devices, the kind's glyph in a render.</summary>
+    private FrameworkElement? Picture(KitItem item)
+    {
+        if (_source.DeviceOf(item.Id) is not { } device)
+        {
+            return null;
         }
 
-        private void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
+        var icon = new DriveIcon();
+        icon.Show(device, FamilyShape.IconLarge, picture: _surface?.IsPreview != true && !_source.Holding);
+        return icon;
+    }
+
+    /// <summary>[S-4662] The used share's bar, a third of the content at most 140, where the device says how full it is.</summary>
+    private KitTrail? Bar(KitItem item)
+    {
+        var width = RemovableDrivesPlan.Of(_area.IsMeasured ? _area.Width : ActualWidth).Meter;
+        if (width <= 0 || _source.DeviceOf(item.Id) is not { UsedFraction: not null } device)
         {
-            if (_device is { } device)
-            {
-                _owner.Open(device);
-            }
+            return null;
         }
 
-        public void Show(DriveEntry device, RemovableDrivesLook look, bool picture, Locale locale)
-        {
-            _device = device;
-            var name = DriveRules.Title(locale, device);
-            var share = device.UsedFraction is { } used ? Formatting.Percent(locale, used) : null;
-            Block.Lines = look.Lines;
-            Block.Show(name, share, DriveRules.SpaceLine(locale, device), DriveRules.Description(locale, device));
-            _icon?.Show(device, FamilyShape.IconLarge, picture);
+        var bar = DriveBar.Create();
+        DriveBar.Show(bar, device);
+        return new KitTrail(bar, width);
+    }
 
-            DriveBar.Show(_bar, device);
-            Block.Meter(look.Meter > 0 && device.UsedFraction is not null ? _bar : null, look.Meter);
-            ToolTipService.SetToolTip(Block, $"{name} · {DriveRules.SpaceLine(locale, device)}");
+    /// <summary>[S-4660] The host's drives as a kit source: the removable ones, in its order.</summary>
+    private sealed class DriveSource(IDrives drives) : IKitSource
+    {
+        private IDisposable? _watch;
+
+        /// <summary>[S-11850] The sample's devices in place of this PC's, or null.</summary>
+        private IReadOnlyList<DriveEntry>? _held;
+
+        public event Action? Changed;
+
+        public bool Busy => false;
+
+        public bool Holding => _held is not null;
+
+        private IReadOnlyList<DriveEntry> Devices => _held ?? (drives.HasValue ? DriveRules.Removables(drives.Drives) : []);
+
+        public void Start(Ticker ticker) => _watch ??= drives.Watch(ticker, () => Changed?.Invoke());
+
+        public void Stop()
+        {
+            _watch?.Dispose();
+            _watch = null;
         }
 
-        public void Dispose()
+        public void Show(bool refresh)
         {
-            Block.Tapped -= OnTapped;
-            Block.DoubleTapped -= OnDoubleTapped;
-            _menu.Dispose();
-            Block.Detach();
+            // ignore: the host walks the drives again on every device change; there is nothing to ask.
+        }
+
+        public KitRead Read()
+        {
+            var locale = Strings.Current;
+            var status = _held is not null || drives.HasValue ? FetchStatus.Ok : FetchStatus.Loading;
+            return new KitRead([.. Devices.Select(device => RemovableDrivesSpec.Item(device, locale))], [new KitOutcome(null, status)]);
+        }
+
+        public DriveEntry? DeviceOf(string id) => Devices.FirstOrDefault(d => d.Root == id);
+
+        public void HoldForPreview(IReadOnlyList<DriveEntry> devices)
+        {
+            _held = devices;
+            Changed?.Invoke();
         }
     }
 }

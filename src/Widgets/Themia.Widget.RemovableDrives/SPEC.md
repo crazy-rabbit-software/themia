@@ -8,8 +8,9 @@ the drives coming from the host's one walk (`IWidgetHost.Drives`, [S-4655]) and 
 host's launcher's ([S-4661]'s verb).
 
 Owning files: everything in this folder: `RemovableDrivesModule.cs` (descriptor, view factory, JSON
-context; no settings rows, [S-1750]), `RemovableDrivesConfig.cs`, `RemovableDrivesPlan.cs` (the rows'
-look by the tier), `RemovableDrivesView.cs` (the rows, their menu and the keys), `Preview/` (Debug
+context; no settings rows, [S-1750]), `RemovableDrivesConfig.cs` (an `IKitLocalConfig`), `RemovableDrivesPlan.cs` (the bar's width),
+`RemovableDrivesSpec.cs` (its kit spec, a device as a kit item, its actions), `RemovableDrivesView.cs` (a kit list,
+[S-7074]: the binding over the host's drives, the picture as the rich look's lead and the bar in its meter's place), `Preview/` (Debug
 renders: `--state sample|devices|none`), `Localization/Locales/` (its own `RemovableDrivesStr`, 30
 languages). Tests: `Tests/RemovableDrivesTests.cs` (run by `tests/Themia.Modules.Tests`).
 
@@ -26,9 +27,11 @@ languages). Tests: `Tests/RemovableDrivesTests.cs` (run by `tests/Themia.Modules
   the second line ([S-11027]); the drive's picture a 32 lead; the used share's bar ([S-4653]) inline
   between the name and the share, a third of the content at most 140. The rest scrolls under the fade. Eject is not a button in the
   row (it was "Eject" from 260 DIP, else the stick glyph): it is the row's menu (Open, Eject) and the
-  keys ([S-4664]), as no list row carries a control of its own (G2). A double click opens the device.
+  keys ([S-4664]), as no list row carries a control of its own (G2). A click focuses, a double click opens the device
+  (the kit's, [S-7065]). Nothing plugged in is the kit's state row, the drives not yet walked its loading row.
   A render draws the kind's glyph, not the shell's picture ([S-4657]).
-- **[S-4664]** Keys: Up and Down walk the devices, Enter opens one, Delete or E ejects it, Escape lets go.
+- **[S-4664]** Keys: the kit's one key map ([S-7020]): Up and Down walk the devices, Enter opens one, the Menu key opens
+  its menu, Escape lets go; Delete or E ejects it.
 - View links: a row is its drive; the pointer or the keyboard cursor on it publishes the drive pointed at, and a row
   takes the hover fill while its drive is pointed at elsewhere on the view ([S-11950]).
 

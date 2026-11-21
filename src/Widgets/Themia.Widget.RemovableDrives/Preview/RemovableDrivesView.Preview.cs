@@ -15,7 +15,7 @@ internal sealed partial class RemovableDrivesView : IWidgetPreviewState
             return ShowSampleAsync();
         }
 
-        _previewDevices = state switch
+        _source.HoldForPreview(state switch
         {
             "devices" =>
             [
@@ -25,9 +25,7 @@ internal sealed partial class RemovableDrivesView : IWidgetPreviewState
                 new DriveEntry("H:\\", VolumeKind.Optical, DriveState.Ready, "HOLIDAY_2025", "UDF", 4 * Gb, 0),
             ],
             _ => [],
-        };
-
-        Show();
+        });
         return Task.CompletedTask;
     }
 }

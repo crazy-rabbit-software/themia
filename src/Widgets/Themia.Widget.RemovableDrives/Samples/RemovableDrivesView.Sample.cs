@@ -12,8 +12,7 @@ internal sealed partial class RemovableDrivesView : IWidgetSample
 
     public Task ShowSampleAsync()
     {
-        _previewDevices = [SampleStick()];
-        Show();
+        _source.HoldForPreview([SampleStick()]);
         return Task.CompletedTask;
     }
 }
