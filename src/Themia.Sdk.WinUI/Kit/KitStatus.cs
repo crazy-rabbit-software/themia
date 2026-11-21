@@ -63,11 +63,27 @@ public sealed partial class KitStatus : StackPanel
         ArgumentNullException.ThrowIfNull(view);
         if (Parent is null)
         {
-            Margin = Margin with { Top = (view is IWidgetTopEdge { OwnsTopEdge: true } ? FamilySpace.Inset : 0) + FamilySpace.S1 };
+            _placedTop = (view is IWidgetTopEdge { OwnsTopEdge: true } ? FamilySpace.Inset : 0) + FamilySpace.S1;
+            Margin = Margin with { Top = _placedTop };
             view.Children.Add(this);
             LeaveRoom();
         }
     }
+
+    private double _placedTop = FamilySpace.S1;
+
+    /// <summary>
+    /// [S-12813] Where the status stands down the view: <paramref name="top"/> under the view's top (a face that stands on
+    /// the card's top edge with a head band of its own, the month's weekday line, holds the glyph in that band, beside its
+    /// words and over nothing of its cells), or, null, where <see cref="Place"/> put it.
+    /// </summary>
+    public void StandAt(double? top) => Margin = Margin with { Top = top ?? _placedTop };
+
+    /// <summary>[S-12813] How much of the content's top end the status takes, from the inset in (0: none shown).</summary>
+    public double Room => _room;
+
+    /// <summary>[S-12813] The glyph's side: what a head band must hold to take the status (<see cref="StandAt"/>).</summary>
+    public static double Side => FamilyShape.Icon;
 
     /// <summary>
     /// Show the state: the problem lines (none hides the glyph), whether a fetch is out and whether the
