@@ -24,11 +24,45 @@ internal sealed partial class DesktopWindow
     /// <summary>The open flyout, if any.</summary>
     private PageFlyout? _flyout;
 
-    /// <summary>The page whose flyout is open; null with the selection's open or none.</summary>
-    private SettingsPageId? _openPage;
+    /// <summary>
+    /// [S-2325]..[S-2327] The one flyout of the bar open on this display (a page's, the selection's, the Unplaced icons', the
+    /// add page, the gallery), as one value: set by <see cref="Become"/> alone.
+    /// </summary>
+    private OpenFlyout _open = OpenFlyout.None;
 
-    /// <summary>[S-2343] The selection's flyout is open.</summary>
-    private bool _selectionOpen;
+    /// <summary>[S-2320] The bar is held: a step under way shows it once, as it ends (<see cref="Step"/>).</summary>
+    private int _barHeld;
+
+    /// <summary>[S-2320] The bar was asked to show while held.</summary>
+    private bool _barAsked;
+
+    /// <summary>[S-2327] The one transition of the bar's open flyout: <paramref name="next"/> is what is open now, and the bar shows it.</summary>
+    private void Become(OpenFlyout next)
+    {
+        _open = next;
+        ShowEditBar();
+    }
+
+    /// <summary>
+    /// [S-2320] A step of the bar's flyouts (one closing, another opening, the selection's page following it): the bar is
+    /// shown once as the step ends, whatever it asked on the way, not again by every flyout it closes and opens.
+    /// </summary>
+    private void Step(Action step)
+    {
+        _barHeld++;
+        try
+        {
+            step();
+        }
+        finally
+        {
+            if (--_barHeld == 0 && _barAsked)
+            {
+                _barAsked = false;
+                ShowEditBar();
+            }
+        }
+    }
 
     /// <summary>
     /// [S-2346] The open flyout drawn again: never under a press held on it, never inside the event that asked;
@@ -37,7 +71,7 @@ internal sealed partial class DesktopWindow
     private FlyoutRedraws? _redraws;
 
     /// <summary>[S-2327] Whether one of the edit bar's flyouts is open on this display.</summary>
-    internal bool BarMenuOpen => _flyout is not null || _addPage is not null || _widgetGallery is not null;
+    internal bool BarMenuOpen => _open.IsOpen;
 
     /// <summary>[S-2300] A page's rows, as the state and Windows hold them now.</summary>
     private Func<PageModel> PageOf(SettingsPageId page)
@@ -102,9 +136,9 @@ internal sealed partial class DesktopWindow
     private void ConfirmOnFlyout(string at, SettingsConfirm confirm) => _flyout?.Page.ConfirmAt(at, PageRows.QuestionOf(confirm));
 
     /// <summary>[S-2327] A page's entry opens its flyout, or closes it again; another open closes first.</summary>
-    private void TogglePage(SettingsPageId page)
+    private void TogglePage(SettingsPageId page) => Step(() =>
     {
-        if (_openPage == page)
+        if (_open.PageId == page)
         {
             CloseFlyout(focusEntry: false);
         }
@@ -112,7 +146,7 @@ internal sealed partial class DesktopWindow
         {
             OpenPage(page, []);
         }
-    }
+    });
 
     /// <summary>
     /// [S-2327] [S-3534] Open a page's flyout on this display at the row along <paramref name="path"/> (a
@@ -122,16 +156,21 @@ internal sealed partial class DesktopWindow
     internal void OpenPage(SettingsPageId page, IReadOnlyList<string> path)
     {
         ArgumentNullException.ThrowIfNull(path);
+        Step(() => OpenPageAt(page, path));
+    }
+
+    private void OpenPageAt(SettingsPageId page, IReadOnlyList<string> path)
+    {
         if (_closed || !EditMode || _host.Placing is not null)
         {
             return;
         }
 
-        if (_openPage != page)
+        if (_open.PageId != page)
         {
             CloseFlyout(focusEntry: false);
             Show(new PageView(PageOf(page)));
-            _openPage = page;
+            _open = OpenFlyout.Of(page);
             if (page is SettingsPageId.General or SettingsPageId.Accounts)
             {
                 _host.SettingsMenuOpened();
@@ -150,7 +189,9 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>[S-2343] The selection's flyout: its page built over the selection as it is now.</summary>
-    private void OpenSelectionPage(bool focus)
+    private void OpenSelectionPage(bool focus) => Step(() => OpenSelectionPageNow(focus));
+
+    private void OpenSelectionPageNow(bool focus)
     {
         // [S-14916] Widgets placed off the gallery land selected under it: the gallery stays, their page does not open over it.
         if (_closed || !EditMode || _host.Placing is not null || !_selectionOffer.Shows || _widgetGallery is not null)
@@ -160,16 +201,16 @@ internal sealed partial class DesktopWindow
 
         // [S-13715] The Unplaced icons page stays while the desktop is used beside it: a selection made there opens its page from
         // its entry (focus: the bar's entry asked), never on its own over the page.
-        if (!focus && !_selectionOpen && SettingsPages.StaysOpen(_openPage))
+        if (!focus && !_open.IsSelection && _open.StaysOpen)
         {
             return;
         }
 
-        if (!_selectionOpen)
+        if (!_open.IsSelection)
         {
             CloseFlyout(focusEntry: false);
             Show(new PageView(SelectionModel));
-            _selectionOpen = true;
+            _open = OpenFlyout.Selection;
         }
 
         _flyout!.Page.Show();
@@ -206,7 +247,9 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>[S-2327] Close the open flyout; the keyboard back on its entry where it was closed from the keyboard.</summary>
-    private void CloseFlyout(bool focusEntry)
+    private void CloseFlyout(bool focusEntry) => Step(() => CloseFlyoutNow(focusEntry));
+
+    private void CloseFlyoutNow(bool focusEntry)
     {
         // [S-11707] The add page is one of the bar's flyouts: one at a time, closed with the rest; [S-14910] the gallery too.
         CloseAddPage(focusAdd: false);
@@ -216,8 +259,8 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var page = _openPage;
-        var selection = _selectionOpen;
+        var page = _open.PageId;
+        var selection = _open.IsSelection;
         flyout.Page.Close();
         if (_redraws is { } redraws)
         {
@@ -228,14 +271,12 @@ internal sealed partial class DesktopWindow
 
         _flyoutLayer.Children.Remove(flyout);
         _flyout = null;
-        _openPage = null;
-        _selectionOpen = false;
         if (page is SettingsPageId.General or SettingsPageId.Accounts)
         {
             _host.SettingsMenuClosed();
         }
 
-        ShowEditBar();
+        Become(OpenFlyout.None);
         if (focusEntry)
         {
             _editBar.FocusEntry(selection ? null : page);
@@ -287,14 +328,14 @@ internal sealed partial class DesktopWindow
     private void OnPressForBarMenu(object sender, PointerRoutedEventArgs e)
     {
         FrameworkElement? open = (FrameworkElement?)_flyout ?? _addPage;
-        if (open is null || e.OriginalSource is not DependencyObject source || (_flyout is not null && SettingsPages.StaysOpen(_openPage)))
+        if (open is null || e.OriginalSource is not DependencyObject source || (_flyout is not null && _open.StaysOpen))
         {
             return;
         }
 
         for (var node = source; node is not null; node = VisualTreeHelper.GetParent(node))
         {
-            if (ReferenceEquals(node, open) || ReferenceEquals(node, _editBar) || (_selectionOpen && node is WidgetCard))
+            if (ReferenceEquals(node, open) || ReferenceEquals(node, _editBar) || (_open.IsSelection && node is WidgetCard))
             {
                 return;
             }
@@ -355,10 +396,10 @@ internal sealed partial class DesktopWindow
 
         var area = WorkArea;
         var bar = EditBarRect(area);
-        var entry = _editBar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new DipRect(bar.X, bar.Y, bar.Width, bar.Height);
+        var entry = _editBar.EntryBox(_open.PageId, _flyoutLayer) ?? new DipRect(bar.X, bar.Y, bar.Width, bar.Height);
 
         // [S-13707] The Unplaced icons page is as wide as the bar, as the add page is: measured at that width.
-        flyout.Place(!_selectionOpen && _openPage is { } page && SettingsPages.BarWide(page)
+        flyout.Place(_open.PageId is { } page && SettingsPages.BarWide(page)
             ? FlyoutPlacement.Wide(entry, bar, area, flyout.ContentHeightAt(bar.Width))
             : FlyoutPlacement.Place(entry, bar, area, flyout.ContentHeight));
         ShineSelection();
@@ -376,7 +417,7 @@ internal sealed partial class DesktopWindow
         }
 
         var under = new List<DipRect>();
-        if (_selectionOpen)
+        if (_open.IsSelection)
         {
             foreach (var card in _cards)
             {

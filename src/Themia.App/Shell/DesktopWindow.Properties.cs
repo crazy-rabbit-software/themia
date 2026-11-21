@@ -139,7 +139,7 @@ internal sealed partial class DesktopWindow
         if (!_selectionOffer.Shows)
         {
             _selectionShown = null;
-            if (_selectionOpen)
+            if (_open.IsSelection)
             {
                 CloseFlyout(focusEntry: false);
             }
@@ -162,7 +162,7 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-2343] A widget selected again by a command (not the pointer): its flyout opened again.</summary>
     private void ReopenSelectionPage()
     {
-        if (SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _selectionOpen, _host.Placing is not null) && !_propertiesHeld)
+        if (SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _open.IsSelection, _host.Placing is not null) && !_propertiesHeld)
         {
             OpenSelectionPage(focus: false);
         }
@@ -171,7 +171,7 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-2343] The selection's entry: its flyout opened, or closed again.</summary>
     private void ToggleSelectionPage()
     {
-        if (_selectionOpen)
+        if (_open.IsSelection)
         {
             CloseFlyout(focusEntry: false);
         }
@@ -194,7 +194,7 @@ internal sealed partial class DesktopWindow
     {
         HoldProperties(false);
         SyncProperties();
-        if (SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _selectionOpen, _host.Placing is not null))
+        if (SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _open.IsSelection, _host.Placing is not null))
         {
             OpenSelectionPage(focus: false);
         }
@@ -206,7 +206,7 @@ internal sealed partial class DesktopWindow
     private void ClearForDrag()
     {
         HoldProperties(true);
-        if (_selectionOpen)
+        if (_open.IsSelection)
         {
             CloseFlyout(focusEntry: false);
         }

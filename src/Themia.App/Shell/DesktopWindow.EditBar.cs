@@ -34,10 +34,10 @@ internal sealed partial class DesktopWindow
 
         var metrics = Metrics;
         var widest = metrics.IsUsable ? WorkArea.Width - (2 * Sdk.Kit.ShellMetrics.Bar.Top) : double.PositiveInfinity;
-        return new EditBarState(selection, 0, _openPage, _selectionOpen, widest)
+        return new EditBarState(selection, 0, _open.PageId, _open.IsSelection, widest)
         {
-            AddOpen = _addPage is not null,
-            GalleryOpen = _widgetGallery is not null,
+            AddOpen = _open.IsAdd,
+            GalleryOpen = _open.IsGallery,
             Unplaced = UnplacedCount(),
         };
     }
@@ -46,16 +46,23 @@ internal sealed partial class DesktopWindow
     /// [S-2320] The bar follows a change made elsewhere (an undo, an import, another display), the
     /// selection's entry the selection as it is now, and the open flyout the state.
     /// </summary>
-    private void SyncEditBar()
+    private void SyncEditBar() => Step(() =>
     {
         SyncProperties();
         ShowEditBar();
         SyncBarMenu();
-    }
+    });
 
     /// <summary>[S-2320] The bar's entries as they are now; nothing while it is not built.</summary>
     private void ShowEditBar()
     {
+        // [S-2320] Within a step the bar shows once, as the step ends.
+        if (_barHeld > 0)
+        {
+            _barAsked = true;
+            return;
+        }
+
         if (!_closed && _editBar.Built)
         {
             _editBar.Show(BarState());

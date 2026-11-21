@@ -19,7 +19,7 @@ internal sealed partial class DesktopWindow
         TrySettleMetrics(tellHost: false);
 
 
-        if (_openPage == SettingsPageId.Display)
+        if (_open.PageId == SettingsPageId.Display)
         {
             SyncBarMenu();
         }

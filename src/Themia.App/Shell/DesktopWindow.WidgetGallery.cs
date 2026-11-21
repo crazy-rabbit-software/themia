@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Input;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Windows.Foundation;
@@ -66,7 +67,7 @@ internal sealed partial class DesktopWindow
         _widgetGallery = gallery;
         _galleryLayer.Children.Add(gallery);
         PlaceWidgetGallery();
-        ShowEditBar();
+        Become(OpenFlyout.Gallery);
         Log.Info(Scope, $"widget gallery open on {_monitor.GdiName}: {gallery.Screens.Count} screen(s)");
     }
 
@@ -81,7 +82,7 @@ internal sealed partial class DesktopWindow
         _galleryLayer.Children.Remove(gallery);
         gallery.Dispose();
         _widgetGallery = null;
-        ShowEditBar();
+        Become(OpenFlyout.None);
     }
 
     /// <summary>[S-14911] Over the work area under the bar, on this display's grid.</summary>

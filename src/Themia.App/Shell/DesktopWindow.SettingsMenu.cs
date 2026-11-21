@@ -36,7 +36,7 @@ internal sealed partial class DesktopWindow
             if (SettingsPages.PathTo(page, key) is { } path)
             {
                 OpenPage(page.Id, path);
-                return _openPage == page.Id;
+                return _open.PageId == page.Id;
             }
         }
 
@@ -63,14 +63,14 @@ internal sealed partial class DesktopWindow
                 Core.Diagnostics.Log.Info(Scope, "could not take the foreground for the settings menu; typing will not reach it");
             }
 
-            if (_openPage == SettingsPageId.General)
+            if (_open.PageId == SettingsPageId.General)
             {
                 CloseFlyout(focusEntry: false);
             }
 
             _host.SetEditMode(true);
             OpenPage(SettingsPageId.General, []);
-            if (_openPage != SettingsPageId.General)
+            if (_open.PageId != SettingsPageId.General)
             {
                 Core.Diagnostics.Log.Warn(Scope, "Themia was started again, but the settings menu did not open");
             }
@@ -86,7 +86,7 @@ internal sealed partial class DesktopWindow
     /// [S-3576] settings open at <paramref name="path"/> on this display, for a question asked once Windows'
     /// dialog has gone (an import's): opened again where it was closed meanwhile. Whether it is open.
     /// </summary>
-    private bool SettingsOpenAt(string key) => _openPage == SettingsPageId.General || RequestSettings(key);
+    private bool SettingsOpenAt(string key) => _open.PageId == SettingsPageId.General || RequestSettings(key);
 
     /// <summary>[S-3572] [S-3576] This display's window: what the Store's dialog and Windows' file dialogs are owned by.</summary>
     private Microsoft.UI.WindowId WindowId => Microsoft.UI.Win32Interop.GetWindowIdFromWindow(_hwnd);
@@ -110,7 +110,7 @@ internal sealed partial class DesktopWindow
 
         _host.SetEditMode(true);
         OpenPage(SettingsPageId.Accounts, []);
-        return _openPage == SettingsPageId.Accounts;
+        return _open.PageId == SettingsPageId.Accounts;
     }
 
     /// <summary>

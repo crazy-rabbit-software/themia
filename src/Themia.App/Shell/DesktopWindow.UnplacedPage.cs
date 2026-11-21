@@ -35,7 +35,7 @@ internal sealed partial class DesktopWindow
         Icon: HostDesktopItems.Instance.IconAsync));
 
     /// <summary>[S-13713] The page's live part while its flyout is open here; null otherwise.</summary>
-    internal UnplacedPageView? OpenUnplacedPart => _openPage == SettingsPageId.DesktopItems && _flyout is not null ? _unplacedPart : null;
+    internal UnplacedPageView? OpenUnplacedPart => _open.PageId == SettingsPageId.DesktopItems && _flyout is not null ? _unplacedPart : null;
 
     /// <summary>
     /// [S-13713] Whether <paramref name="at"/> (the root's DIPs) is over the Unplaced icons page open on this display, its panel
@@ -43,7 +43,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     internal bool OverUnplacedPage(Windows.Foundation.Point at)
     {
-        if (!EditMode || _openPage != SettingsPageId.DesktopItems || _flyout is not { } flyout)
+        if (!EditMode || _open.PageId != SettingsPageId.DesktopItems || _flyout is not { } flyout)
         {
             return false;
         }
@@ -86,7 +86,7 @@ internal sealed partial class DesktopWindow
         }
 
         ShowEditBar();
-        if (_openPage == SettingsPageId.DesktopItems)
+        if (_open.PageId == SettingsPageId.DesktopItems)
         {
             SyncBarMenu();
         }
@@ -110,7 +110,7 @@ internal sealed partial class DesktopWindow
             _root.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(OnUnplacedDragReleased), handledEventsToo: true);
         }
 
-        _reopenUnplaced = _openPage == SettingsPageId.DesktopItems;
+        _reopenUnplaced = _open.PageId == SettingsPageId.DesktopItems;
         _unplacedDrag = true;
         _host.BeginPlacement(items, Metrics);
         if (_host.Placing is null)

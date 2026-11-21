@@ -17,6 +17,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -31,9 +32,6 @@ internal sealed partial class DesktopWindow
 {
     /// <summary>[S-11707] The add page, while it is open on this display.</summary>
     private AddPageFlyout? _addPage;
-
-    /// <summary>[S-13018] The lassoed area the open add page places into (fractions of this display); null for the bar's Add.</summary>
-    private FracRect? _addArea;
 
     /// <summary>
     /// [S-13018] Add widget here, from a lassoed area's menu: edit mode on, the add page opened; the widget picked there is
@@ -51,12 +49,18 @@ internal sealed partial class DesktopWindow
             _host.SetEditMode(true);
         }
 
-        OpenAddPage();
-        _addArea = _addPage is null ? null : area;
+        Step(() =>
+        {
+            OpenAddPage();
+            if (_addPage is not null)
+            {
+                Become(OpenFlyout.Adding(area));
+            }
+        });
     }
 
     /// <summary>[S-11707] The bar's Add: the add page opened, or closed again.</summary>
-    private void ToggleAddPage()
+    private void ToggleAddPage() => Step(() =>
     {
         if (_addPage is not null)
         {
@@ -66,7 +70,7 @@ internal sealed partial class DesktopWindow
         {
             OpenAddPage();
         }
-    }
+    });
 
     /// <summary>
     /// [S-11700] [S-11707] The add page under the bar, the caret in its search box so typing searches at
@@ -74,7 +78,9 @@ internal sealed partial class DesktopWindow
     /// time it opens, so a language switch, a new kind and a placed item are followed ([S-1109]). Only in
     /// edit mode and not while placing: the bar is not there otherwise. Any other flyout closes first.
     /// </summary>
-    internal void OpenAddPage()
+    internal void OpenAddPage() => Step(OpenAddPageNow);
+
+    private void OpenAddPageNow()
     {
         if (_closed || !EditMode || _host.Placing is not null)
         {
@@ -90,6 +96,7 @@ internal sealed partial class DesktopWindow
             UiLanguage.ApplyFlow(_addPage);
             _addPage.View.Drawn += PlaceAddPage;
             _flyoutLayer.Children.Add(_addPage);
+            Become(OpenFlyout.Adding());
         }
 
         ShowEditBar();
@@ -107,8 +114,7 @@ internal sealed partial class DesktopWindow
 
         _flyoutLayer.Children.Remove(page);
         _addPage = null;
-        _addArea = null;
-        ShowEditBar();
+        Become(OpenFlyout.None);
         if (focusAdd)
         {
             _editBar.FocusAdd();
@@ -137,7 +143,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void PickFromAddPage(AddTile tile)
     {
-        var area = _addArea;
+        var area = _open.AddArea;
         CloseAddPage(focusAdd: false);
 
         // [S-13018] Opened for a lassoed area: the widget goes into it.
