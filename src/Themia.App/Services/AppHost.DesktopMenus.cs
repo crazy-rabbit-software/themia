@@ -228,14 +228,20 @@ internal sealed partial class AppHost
     }
 
     /// <summary>
-    /// [S-5545] [S-5582] Alt+Enter and the menu's Properties: with an own icon focused, that icon's page;
-    /// else the shell's Properties of the selected desktop items.
+    /// [S-5545] [S-5582] Alt+Enter and the menu's Properties: with an own icon focused, that icon's page; [S-15102] with a
+    /// widget card focused, its settings (its page, or the page of several); else the shell's Properties of the selected
+    /// desktop items.
     /// </summary>
     private void ShowSelectionProperties()
     {
         if (DeskIconOf(_desk.Focus) is { Own: true } own)
         {
             ShowIconProperties(own.Key);
+        }
+        else if (DeskIconOf(_desk.Focus) is null && DeskPlace(_desk.Focus) is { } card)
+        {
+            // [S-15102] A widget card focused: its settings, as its menu's Widget settings.
+            card.Surface.RequestSettingsFor(card.Widget);
         }
         else if (DeskIcons(_desk.Selected).Where(icon => !icon.Own).Select(icon => icon.Value).ToList() is { Count: > 0 } items)
         {
@@ -405,6 +411,30 @@ internal sealed partial class AppHost
         DesktopTakeKeys(surface);
         _deskActive = true;
         RepaintDesk();
+    }
+
+    /// <summary>[S-15103] How many things (icons and cards) the desktop's one selection holds now: the card menu's row is for one widget or for all of them.</summary>
+    public int DeskSelectedCount => _desk.Selected.Count;
+
+    /// <summary>
+    /// [S-15102] A widget's settings from the locked desktop (the card menu's Widget settings, Alt+Enter on a focused card):
+    /// edit mode on, and the widget selected (its page opens as a new selection's does, [S-2343]); with the widget one of
+    /// several the desktop's selection holds on <paramref name="surface"/>, all of those (the page of several, [S-11754]).
+    /// </summary>
+    public void ShowWidgetSettings(DesktopWindow surface, WidgetInstance widget)
+    {
+        LayoutDesk();
+        var picked = _desk.Selected
+            .Select(DeskPlace)
+            .OfType<(DesktopWindow Surface, WidgetInstance Widget)>()
+            .Where(place => ReferenceEquals(place.Surface, surface))
+            .Select(place => place.Widget.Id)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        List<string> ids = picked.Contains(widget.Id, StringComparer.Ordinal) ? picked : [widget.Id];
+
+        SetEditMode(true);
+        SelectMany(surface.CurrentViewId, ids);
     }
 
     /// <summary>[S-14321] How the card menu's Delete line reads outside edit mode: what Del would do to the desktop's one selection now.</summary>

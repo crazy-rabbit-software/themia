@@ -135,8 +135,9 @@ public sealed class ContextMenuTests
         bool front = true,
         bool back = true,
         int count = 1,
-        bool paste = false)
-        => new(edit, front, back, count, paste);
+        bool paste = false,
+        bool refresh = false)
+        => new(edit, front, back, count, paste, CanRefresh: refresh);
 
     private static List<ShellCommand> Commands(IReadOnlyList<ShellMenuItem> items) => [.. items.Select(i => i.Command)];
 
@@ -209,14 +210,11 @@ public sealed class ContextMenuTests
     {
         // Owner, 2026-11-20, asked what "extended" holds: "Widget + desktop menu".
         var items = ShellMenus.ForCard(Card(edit: false));
-        var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
-        // [S-6536] No Settings: a widget's options are on its page, in edit mode.
-        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.DeleteOnDesktop, ShellCommand.Separator, ShellCommand.DesktopMenu], Commands(items));
-
-        // No icon row: Delete is a line of the list, as on the desktop's own menus (the desktop menu's Paste stays a line).
-        Assert.Empty(split.Row);
-        Assert.All(items, i => Assert.Null(i.Quick));
+        // [S-15102] Widget settings and [S-15101] Delete stand among the widget's own lines (the row takes them, below).
+        Assert.Equal(
+            [ShellCommand.WidgetActions, ShellCommand.WidgetSettings, ShellCommand.DeleteOnDesktop, ShellCommand.Separator, ShellCommand.DesktopMenu],
+            Commands(items));
     }
 
     [Fact]
@@ -224,7 +222,7 @@ public sealed class ContextMenuTests
     {
         var items = ShellMenus.ForCard(Card(edit: false) with { WidgetsLocked = true });
 
-        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.DesktopMenu], Commands(items));
+        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.WidgetSettings, ShellCommand.Separator, ShellCommand.DesktopMenu], Commands(items));
     }
 
     [Theory]
@@ -262,6 +260,89 @@ public sealed class ContextMenuTests
         Assert.Contains(items, i => i.Command == ShellCommand.Cut);
         Assert.Contains(items, i => i.Command == ShellCommand.Delete);
         Assert.Contains(items, i => i.Command == ShellCommand.BringToFront);
+    }
+
+    // ---- [S-15100]..[S-15103] the widget's icon row -------------------------------------------------
+
+    private static List<ShellCommand> Row(CardMenuFacts facts)
+    {
+        var items = ShellMenus.ForCard(facts);
+        return [.. ContextMenuLayout.Split([.. items.Select(i => i.Line)]).Row.Select(i => items[i].Command)];
+    }
+
+    private static List<ShellCommand> List(CardMenuFacts facts)
+    {
+        var items = ShellMenus.ForCard(facts);
+        return [.. ContextMenuLayout.Split([.. items.Select(i => i.Line)]).List.Where(i => i >= 0).Select(i => items[i].Command)];
+    }
+
+    [Fact]
+    public void S15100_a_widget_that_refreshes_has_refresh_settings_and_delete_in_its_row()
+    {
+        // Owner, 2026-11-21: "add a top row for the right click menus on the widgets ... for example for the delete button or
+        // the refresh button".
+        var facts = Card(edit: false, refresh: true);
+
+        Assert.Equal([ShellCommand.Refresh, ShellCommand.WidgetSettings, ShellCommand.DeleteOnDesktop], Row(facts));
+
+        // Each once: none of them stays a line too; the view's other commands and the desktop's menu are the list.
+        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.DesktopMenu], List(facts));
+    }
+
+    [Fact]
+    public void S15100_the_rows_commands_are_the_row_commands_windows_names_in_its_order()
+    {
+        var items = ShellMenus.ForCard(Card(edit: false, refresh: true));
+        Assert.Equal(QuickCommand.Refresh, items.Single(i => i.Command == ShellCommand.Refresh).Quick);
+        Assert.Equal(QuickCommand.Settings, items.Single(i => i.Command == ShellCommand.WidgetSettings).Quick);
+        Assert.Equal(QuickCommand.Delete, items.Single(i => i.Command == ShellCommand.DeleteOnDesktop).Quick);
+
+        // Refresh before Settings before Delete, whatever order a caller lists them in.
+        var split = ContextMenuLayout.Split([Q(QuickCommand.Delete), Q(QuickCommand.Refresh), Q(QuickCommand.Settings)]);
+        Assert.Equal([1, 2, 0], split.Row);
+    }
+
+    [Fact]
+    public void S15101_a_widget_without_refresh_has_settings_and_delete_in_its_row()
+    {
+        Assert.Equal([ShellCommand.WidgetSettings, ShellCommand.DeleteOnDesktop], Row(Card(edit: false)));
+        Assert.DoesNotContain(ShellCommand.Refresh, Commands(ShellMenus.ForCard(Card(edit: false))));
+    }
+
+    [Fact]
+    public void S15101_with_lock_widgets_on_the_row_loses_delete_and_one_command_left_is_no_row()
+    {
+        // Refresh and Settings are still two: a row.
+        Assert.Equal([ShellCommand.Refresh, ShellCommand.WidgetSettings], Row(Card(edit: false, refresh: true) with { WidgetsLocked = true }));
+
+        // Settings alone is a labelled line ([S-1741]): no row, never an empty one.
+        var locked = Card(edit: false) with { WidgetsLocked = true };
+        Assert.Empty(Row(locked));
+        Assert.Contains(ShellCommand.WidgetSettings, List(locked));
+    }
+
+    [Fact]
+    public void S15103_several_selected_the_row_holds_what_acts_on_all_and_refresh_stays_a_line()
+    {
+        // Settings is the page of several, Delete deletes them all; the clicked widget's Refresh is its own, a line among its commands.
+        var many = Card(edit: false, count: 3, refresh: true);
+
+        Assert.Equal([ShellCommand.WidgetSettings, ShellCommand.DeleteOnDesktop], Row(many));
+        Assert.DoesNotContain(ShellCommand.Refresh, Commands(ShellMenus.ForCard(many)));
+        Assert.False(ShellMenus.RefreshInRow(many));
+        Assert.True(ShellMenus.RefreshInRow(Card(edit: false, refresh: true)));
+    }
+
+    [Fact]
+    public void S15100_in_edit_mode_the_widgets_refresh_joins_cut_copy_paste_and_delete_for_one_widget()
+    {
+        Assert.Equal(
+            [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Refresh, ShellCommand.Delete],
+            Row(Card(edit: true, refresh: true)));
+
+        // Several selected: the row is the selection's; no Settings in edit mode, its page opens beside the selection ([S-1743]).
+        Assert.Equal([ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Delete], Row(Card(edit: true, count: 2, refresh: true)));
+        Assert.DoesNotContain(ShellCommand.WidgetSettings, Commands(ShellMenus.ForCard(Card(edit: true, refresh: true))));
     }
 
     // ---- [S-1744] empty surface --------------------------------------------------------------------

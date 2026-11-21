@@ -40,9 +40,21 @@ public enum ShellCommand
 
     /// <summary>
     /// [S-14320] [S-14321] Delete on the card menu outside edit mode: what Del does on the desktop's one selection
-    /// (<see cref="Desktop.DesktopDelete"/>), a line of the list as the desktop's own menus have it, never the icon row.
+    /// (<see cref="Desktop.DesktopDelete"/>); [S-15101] the icon row's Delete.
     /// </summary>
     DeleteOnDesktop,
+
+    /// <summary>
+    /// [S-15100] The widget's own Refresh, pulled out of its view's commands (<see cref="WidgetActions"/>) into the icon row:
+    /// only for one widget, whose Refresh it is ([S-15103]); the host supplies its words and what it does.
+    /// </summary>
+    Refresh,
+
+    /// <summary>
+    /// [S-15102] The widget's settings outside edit mode: its page (several selected: the page of several, [S-11754]), edit
+    /// mode entered for it, as Alt+Enter on a focused card; the icon row's Settings.
+    /// </summary>
+    WidgetSettings,
 
     /// <summary>
     /// [S-14321] Where the desktop's background menu goes on the card menu outside edit mode: its lines exactly as
@@ -63,7 +75,9 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
         ShellCommand.Cut => QuickCommand.Cut,
         ShellCommand.Copy => QuickCommand.Copy,
         ShellCommand.Paste => QuickCommand.Paste,
-        ShellCommand.Delete => QuickCommand.Delete,
+        ShellCommand.Delete or ShellCommand.DeleteOnDesktop => QuickCommand.Delete,
+        ShellCommand.Refresh => QuickCommand.Refresh,
+        ShellCommand.WidgetSettings => QuickCommand.Settings,
         _ => null,
     };
 
@@ -79,13 +93,15 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
 /// <param name="SelectionCount">How many widgets the commands act on ([S-1592]).</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
 /// <param name="WidgetsLocked">[S-12951] Lock widgets is on: its line is checked.</param>
+/// <param name="CanRefresh">[S-15100] The widget's view offers a Refresh now (a line with the refresh glyph among its commands).</param>
 public readonly record struct CardMenuFacts(
     bool EditMode,
     bool CanBringToFront,
     bool CanSendToBack,
     int SelectionCount,
     bool CanPaste,
-    bool WidgetsLocked = false);
+    bool WidgetsLocked = false,
+    bool CanRefresh = false);
 
 /// <summary>What the empty-surface menu depends on.</summary>
 /// <param name="EditMode">Whether the desktop is in edit mode; outside it empty surface is the desktop, whose own background menu opens ([S-5548]).</param>
@@ -99,7 +115,8 @@ public static class ShellMenus
 {
     /// <summary>
     /// [S-1743] A widget card's menu in edit mode (outside it, [S-1758]). The icon row is Cut, Copy, Paste and Delete
-    /// ([S-1740]); there is no Duplicate, Copy then Paste does that. The list holds the view's own
+    /// ([S-1740]), and the widget's Refresh before Delete when one widget is selected and its view offers one ([S-15100]);
+    /// there is no Duplicate, Copy then Paste does that. The list holds the view's own
     /// commands, the layering pair, and entering or leaving edit mode. Nothing on it changes how the
     /// widget looks: that is its page's ([S-1746], [S-6536]), so there is no Settings.
     /// </summary>
@@ -107,7 +124,7 @@ public static class ShellMenus
     {
         if (!facts.EditMode)
         {
-            return ForCardInUse(facts.WidgetsLocked);
+            return ForCardInUse(facts);
         }
 
         var many = facts.SelectionCount > 1;
@@ -118,6 +135,11 @@ public static class ShellMenus
             new(ShellCommand.Paste, Enabled: facts.CanPaste),
             new(ShellCommand.Delete),
         };
+
+        if (RefreshInRow(facts))
+        {
+            items.Add(new(ShellCommand.Refresh));
+        }
 
         items.Add(new(ShellCommand.WidgetActions));
         items.Add(ShellMenuItem.Divider);
@@ -138,12 +160,41 @@ public static class ShellMenus
     /// desktop's background menu whole ([S-5548]), so a right-click on a widget never loses the desktop's menu. Its Edit
     /// mode, Lock widgets and Add widget are the desktop menu's, once. No Cut, Copy or Paste of widgets and no layering:
     /// those arrange the desktop, and outside edit mode there is nowhere to paste a widget (user report 2026-10-17: "I
-    /// right click and cut a widget, nothing happens"). No icon row: Delete is a line of the list, as on the desktop's menus.
+    /// right click and cut a widget, nothing happens").
+    /// <para>
+    /// [S-15100]..[S-15103] (owner, 2026-11-21: "add a top row for the right click menus on the widgets if it makes sense. for
+    /// example for the delete button or the refresh button") The widget's own commands that are short, frequent and have a
+    /// clear picture stand in Windows' icon row: its Refresh (one widget only: it is that widget's), Widget settings and
+    /// Delete, in the row's order (Refresh, Settings, Delete), each once; the rest of its commands and the desktop's menu are
+    /// the list. With fewer than two of them (Lock widgets on and no Refresh) there is no row ([S-1741]).
+    /// </para>
     /// </summary>
-    private static List<ShellMenuItem> ForCardInUse(bool widgetsLocked)
-        => widgetsLocked
-            ? [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.DesktopMenu)]
-            : [new(ShellCommand.WidgetActions), new(ShellCommand.DeleteOnDesktop), ShellMenuItem.Divider, new(ShellCommand.DesktopMenu)];
+    private static List<ShellMenuItem> ForCardInUse(CardMenuFacts facts)
+    {
+        var items = new List<ShellMenuItem>();
+        if (RefreshInRow(facts))
+        {
+            items.Add(new(ShellCommand.Refresh));
+        }
+
+        items.Add(new(ShellCommand.WidgetActions));
+        items.Add(new(ShellCommand.WidgetSettings));
+        if (!facts.WidgetsLocked)
+        {
+            items.Add(new(ShellCommand.DeleteOnDesktop));
+        }
+
+        items.Add(ShellMenuItem.Divider);
+        items.Add(new(ShellCommand.DesktopMenu));
+        return items;
+    }
+
+    /// <summary>
+    /// [S-15100] [S-15103] Whether the widget's Refresh goes to the row: its view offers one, and the menu is for that widget
+    /// alone. With several selected it stays a line among the widget's own commands, since it refreshes the one clicked, not
+    /// all of them (the row holds what acts on the whole selection).
+    /// </summary>
+    public static bool RefreshInRow(CardMenuFacts facts) => facts.CanRefresh && facts.SelectionCount <= 1;
 
     /// <summary>
     /// [S-14321] A widget's own line on the card menu outside edit mode, worded beside the desktop's: a line that reads

@@ -103,7 +103,13 @@ internal static class MenuRender
                 host.Set(editMode: true, selection: 1, canPaste: true);
                 await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit.png")).ConfigureAwait(true);
 
-                // [S-14321] Outside edit mode, three widgets selected: "Delete 3 widgets", then the desktop's menu.
+                // [S-15101] Outside edit mode, one widget with no Refresh: Widget settings and Delete widget in the row.
+                host.Set(editMode: false, selection: 1, canPaste: false);
+                host.DeskDelete = (DeleteWords.OneWidget, 1);
+                await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-one.png")).ConfigureAwait(true);
+
+                // [S-14321] Outside edit mode, three widgets selected: "Delete 3 widgets", then the desktop's menu. [S-15103] The
+                // row holds Widget settings and Delete 3 widgets, what acts on all of them.
                 host.Set(editMode: false, selection: 3, canPaste: false);
                 host.DeskDelete = (DeleteWords.Widgets, 3);
                 await RenderAsync(root, card.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
@@ -129,6 +135,18 @@ internal static class MenuRender
                 root.Children.Add(new Canvas { Children = { withActions } });
                 await Task.Delay(300).ConfigureAwait(true);
                 await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-actions.png")).ConfigureAwait(true);
+
+                // [S-15101] Lock widgets on: no Delete; Refresh and Widget settings are still a row.
+                host.WidgetsLocked = true;
+                host.DeskDelete = (DeleteWords.None, 0);
+                await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-locked-actions.png")).ConfigureAwait(true);
+                host.WidgetsLocked = false;
+                host.DeskDelete = (DeleteWords.OneWidget, 1);
+
+                // [S-15100] Edit mode, one widget with a Refresh: Cut, Copy, Paste, Refresh, Delete.
+                host.Set(editMode: true, selection: 1, canPaste: true);
+                await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit-actions.png")).ConfigureAwait(true);
+                host.Set(editMode: false, selection: 1, canPaste: true);
 
                 // [S-14321] The same widget's menu from a card in another design (Liquid glass): the menu never takes a card's
                 // look, it is the desktop's (no element of the card is its anchor any more).

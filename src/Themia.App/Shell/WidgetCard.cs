@@ -150,6 +150,21 @@ internal interface IWidgetCardHost
     /// <summary>How many widgets are selected, so the card menu can say what its commands act on.</summary>
     int SelectionCount => 1;
 
+    /// <summary>
+    /// [S-15103] Outside edit mode: how many things the card menu acts on, for its row: the desktop's one selection's count
+    /// (icons and cards) when it holds the card, else 1 (a card Lock widgets holds is in none, [S-12953]).
+    /// </summary>
+    int DeskSelectionCount(WidgetCard card) => SelectionCount;
+
+    /// <summary>
+    /// [S-15102] The card menu's Widget settings (outside edit mode): edit mode entered and the card's page opened, or with
+    /// the card one of several selected on the desktop the page of several.
+    /// </summary>
+    void RequestSettings(WidgetCard card)
+    {
+        // ignore: a debug render's cards have no page to open
+    }
+
     /// <summary>[S-5524] Whether this card's Delete takes desktop items' widgets off the view only ("Remove from this view").</summary>
     bool DeleteRemovesFromView(WidgetCard card) => Themia.Core.Desktop.DesktopBackground.RemovesFromView([card.Model.Config]);
 
@@ -1171,32 +1186,48 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     internal List<ItemMenuEntry> CardMenu(Point at)
     {
+        // The view's own commands — pause a camera, refresh a page — read fresh each time so their text can follow the state
+        // they toggle. [S-1746] None of them changes how the widget looks: that is its settings' job.
+        IReadOnlyList<WidgetAction> actions = _running && _view is IWidgetContextActions { ContextActions: { } own } ? own : [];
+        var refresh = actions.FirstOrDefault(action => action.Quick == QuickCommand.Refresh);
+
         var cards = _host.ViewForCards;
         var facts = new CardMenuFacts(
             EditMode: _host.EditMode,
             CanBringToFront: cards?.CanBringToFront(Model.Id) == true,
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
-            SelectionCount: _host.SelectionCount,
+            // [S-15103] Outside edit mode what the menu acts on is the desktop's one selection, not edit mode's.
+            SelectionCount: _host.EditMode ? _host.SelectionCount : _host.DeskSelectionCount(this),
             CanPaste: _host.CanPaste,
-            WidgetsLocked: _host.WidgetsLocked);
+            WidgetsLocked: _host.WidgetsLocked,
+            CanRefresh: refresh.Invoke is not null);
+
+        // [S-14321] Beside the desktop's lines the widget's Refresh says it is the widget's.
+        string Words(WidgetAction action)
+            => facts.EditMode ? action.Text : ShellMenus.WidgetLine(action.Text, Str.Desktop_Menu_Refresh.Text(), Str.Shell_Card_RefreshWidget.Text());
 
         var entries = new List<ItemMenuEntry>();
+        var refreshInRow = false;
         foreach (var item in ShellMenus.ForCard(facts))
         {
             switch (item.Command)
             {
-                case ShellCommand.WidgetActions:
-                    // The view's own commands — pause a camera, refresh a page — read fresh each time so
-                    // their text can follow the state they toggle. [S-1746] None of them changes how the
-                    // widget looks: that is its settings' job. [S-14321] Beside the desktop's lines its Refresh says it is the widget's.
-                    if (_running && _view is IWidgetContextActions { ContextActions: { Count: > 0 } actions })
-                    {
-                        entries.AddRange(actions.Select(action => new ItemMenuEntry(
-                            action.Glyph,
-                            facts.EditMode ? action.Text : ShellMenus.WidgetLine(action.Text, Str.Desktop_Menu_Refresh.Text(), Str.Shell_Card_RefreshWidget.Text()),
-                            action.Invoke)));
-                    }
+                case ShellCommand.Refresh:
+                    // [S-15100] The widget's Refresh in the icon row, its words the tooltip; no key does it (F5 is the desktop's).
+                    entries.Add(new ItemMenuEntry(refresh.Glyph, Words(refresh), refresh.Invoke, Quick: item.Quick));
+                    refreshInRow = true;
+                    continue;
 
+                case ShellCommand.WidgetActions:
+                    entries.AddRange(actions
+                        .Where(action => !(refreshInRow && action == refresh))
+                        .Select(action => new ItemMenuEntry(action.Glyph, Words(action), action.Invoke)));
+                    continue;
+
+                case ShellCommand.WidgetSettings:
+                    // [S-15102] Its page, edit mode entered for it; Alt+Enter on a focused card does the same (Windows' Properties).
+                    entries.Add(new ItemMenuEntry(Glyphs.Settings, Str.Shell_Card_WidgetSettings.Text(), () => _host.RequestSettings(this),
+                        Quick: item.Quick, Shortcut: KeyChord.Alt(ChordKey.Enter)));
                     continue;
 
                 case ShellCommand.DeleteOnDesktop:
@@ -1208,8 +1239,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                     continue;
 
                 case ShellCommand.DesktopMenu:
-                    // [S-14321] The desktop's background menu whole, as a right-click on empty desktop opens it.
-                    entries.AddRange(_host.DesktopLines(this, at));
+                    // [S-14321] The desktop's background menu whole, as a right-click on empty desktop opens it. [S-15101] Its lines
+                    // stay the list: the row is the widget's, so the desktop's Paste (of files) is not pulled up beside its Delete.
+                    entries.AddRange(_host.DesktopLines(this, at).Select(line => line with { Quick = null }));
                     continue;
             }
 
@@ -1234,7 +1266,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             Themia.Core.Desktop.DeleteWords.Widgets => Str.Shell_Card_DeleteMany.Plural(count),
             _ => null,
         };
-        return text is null ? null : new(Glyphs.Delete, text, () => _host.RequestDelete(this), Danger: true, Shortcut: KeyChord.Plain(ChordKey.Delete));
+        return text is null ? null : new(Glyphs.Delete, text, () => _host.RequestDelete(this), Danger: true, Quick: QuickCommand.Delete, Shortcut: KeyChord.Plain(ChordKey.Delete));
     }
 
     /// <summary>One of the card's own commands, worded and wired.</summary>

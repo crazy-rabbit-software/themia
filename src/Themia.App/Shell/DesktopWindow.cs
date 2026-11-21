@@ -375,6 +375,26 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         }
     }
 
+    /// <summary>[S-15102] The card menu's Widget settings: <see cref="RequestSettingsFor"/> its widget.</summary>
+    public void RequestSettings(WidgetCard card) => RequestSettingsFor(card.Model);
+
+    /// <summary>
+    /// [S-15102] A widget's settings from the locked desktop (its card menu's Widget settings, Alt+Enter on its focused card):
+    /// edit mode on, the widget selected (with the several the desktop's selection holds here when it is one of them) and the
+    /// selection's page opened beside it, as the Set up button opens it ([S-1862]).
+    /// </summary>
+    public void RequestSettingsFor(WidgetInstance widget)
+    {
+        if (_closed)
+        {
+            return;
+        }
+
+        _host.ShowWidgetSettings(this, widget);
+        SyncProperties();
+        OpenSelectionPage(focus: false);
+    }
+
     /// <summary>
     /// [S-1592] Delete the selection (the right-clicked card is in it): in edit mode its own; [S-14320] outside it the desktop's
     /// one selection, as Del there does.
@@ -416,6 +436,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public bool IsSelected(WidgetCard card) => EditMode ? _host.Selection.Contains(card.Model.Id) : _host.DeskSelects(card.Model);
 
     public int SelectionCount => _host.Selection.Count;
+
+    /// <summary>[S-15103] The desktop's one selection's count (icons and cards) when it holds the card, else 1: what the card menu acts on outside edit mode.</summary>
+    public int DeskSelectionCount(WidgetCard card) => _host.DeskSelects(card.Model) ? _host.DeskSelectedCount : 1;
 
     /// <summary>[S-5524] The selection's Delete (the card alone when it is not selected) on desktop items only takes them off this view.</summary>
     public bool DeleteRemovesFromView(WidgetCard card)
