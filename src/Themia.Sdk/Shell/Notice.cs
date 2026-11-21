@@ -37,6 +37,12 @@ public sealed class Notice
 
     public string? Message { get; init; }
 
+    /// <summary>
+    /// [S-881a] A title alone, no detail line: drawn as one line centred in the notice, the same inset over and under it
+    /// (its button on that line too).
+    /// </summary>
+    public bool OneLine => string.IsNullOrWhiteSpace(Message);
+
     public NoticeAction? Action { get; init; }
 
     /// <summary>

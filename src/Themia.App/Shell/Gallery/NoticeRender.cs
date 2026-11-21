@@ -18,7 +18,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug only: draw a notice stack ([S-880]..[S-883]) and widget error cards ([S-891]/[S-890]) to
-/// PNGs, off-screen. <c>Themia.exe --notices-png &lt;outDir&gt;</c>.
+/// PNGs, off-screen. <c>Themia.exe --notices-png &lt;outDir&gt; [--theme light|dark]</c>.
 /// <para>
 /// The notices are the real <see cref="NoticeCard"/>s, stacked as the surface stacks them in the
 /// bottom-right corner of a stand-in work area above a taskbar strip. The error cards are real
@@ -59,6 +59,7 @@ internal static class NoticeRender
             try
             {
                 System.IO.Directory.CreateDirectory(outDir);
+                EditBarRender.ApplyDesignTheme(app);
 
                 var screen = new Grid
                 {
@@ -124,7 +125,11 @@ internal static class NoticeRender
         return true;
     }
 
-    /// <summary>The stack as a surface draws it: three notices, newest at the bottom, over the taskbar.</summary>
+    /// <summary>
+    /// The stack as a surface draws it: three notices, newest at the bottom, over the taskbar; at the left, [S-881a] every
+    /// shape a notice has: a title alone, a title with its button on its line, a title over its detail, and the detail with
+    /// its button under it (a sticky one).
+    /// </summary>
     private static void DrawNotices(Grid screen)
     {
         screen.Children.Clear();
@@ -160,30 +165,34 @@ internal static class NoticeRender
         UiLanguage.ApplyFlow(layer);
         screen.Children.Add(layer);
 
-        var single = new NoticeCard(new Notice(NoticeKind.Success, "Settings reset") { Message = "Your previous settings are kept next to the settings file." }, _ => { })
+        // [S-881a] Every shape, one under another: the same inset over and under each.
+        var shapes = new StackPanel
         {
+            Spacing = Fluent.Space2,
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(Fluent.Space4),
         };
-        UiLanguage.ApplyFlow(single);
-        screen.Children.Add(single);
-
-        var safe = new NoticeCard(
-            new Notice(NoticeKind.Warning, "Widgets are paused")
+        Notice[] every =
+        [
+            Notice.Info("Copied 2 widgets"),
+            new(NoticeKind.Info, "Deleted 3 widgets") { Action = new NoticeAction("Undo", () => { }) },
+            new(NoticeKind.Success, "Settings reset") { Message = "Your previous settings are kept next to the settings file." },
+            new(NoticeKind.Warning, "Widgets are paused")
             {
                 Message = "Themia didn't finish starting the last few times. Start your widgets here, or reset your settings in Settings › Back up & reset.",
                 Action = new NoticeAction("Start widgets", () => { }),
                 Sticky = true,
             },
-            _ => { })
+        ];
+
+        foreach (var notice in every)
         {
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(Fluent.Space4, 120, 0, 0),
-        };
-        UiLanguage.ApplyFlow(safe);
-        screen.Children.Add(safe);
+            shapes.Children.Add(new NoticeCard(notice, _ => { }));
+        }
+
+        UiLanguage.ApplyFlow(shapes);
+        screen.Children.Add(shapes);
     }
 
     /// <summary>Failed cards at XS, S and M, and a paused one at S.</summary>

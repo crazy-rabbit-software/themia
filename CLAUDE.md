@@ -57,7 +57,7 @@ Themia.exe --widget-batch <jobs.json> [--theme dark] [--timeout s]   # many --wi
 Themia.exe --catalog-json <out.json>   # every kind of the build: id, project, traits, styles, states [S-14342]
 Themia.exe --picker-png <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
 Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
-Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
+Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>   # --notices-png takes --theme: every notice shape [S-881a]
 Themia.exe --desktop-png <outDir> [--icon-size small|medium|large] [--icon-layout below|beside|icononly]   # a stand-in desktop
            # of icons of both sources, their states, the band and the tips [S-5605]; the desktop's icon size [S-5593] and layout [S-13970]
 Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local grid, icons on the widget grid at each icon

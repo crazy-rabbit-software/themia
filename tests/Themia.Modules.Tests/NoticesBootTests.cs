@@ -39,6 +39,17 @@ public sealed class NoticesBootTests : IDisposable
     }
 
     [Fact]
+    public void S881a_a_notice_of_a_title_alone_is_one_line_with_or_without_its_button()
+    {
+        // Regression (owner, 2026-11-21): "the toast on the bottom right has a weird shape if there is not desctiption in
+        // it, the spacing on the bottom is too big". A title alone is one line, centred in the notice; a detail line is not.
+        Assert.True(Notice.Info("Deleted 3 widgets").OneLine);
+        Assert.True(new Notice(NoticeKind.Info, "Deleted 3 widgets") { Action = new NoticeAction("Undo", () => { }) }.OneLine);
+        Assert.True(Notice.Warning("Paused", "  ").OneLine);
+        Assert.False(Notice.Error("Default output not changed", "Windows did not allow it.").OneLine);
+    }
+
+    [Fact]
     public void S882_at_most_three_show_and_the_oldest_goes_first()
     {
         var stack = new NoticeStack();

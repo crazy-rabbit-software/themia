@@ -13,7 +13,8 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-881] One notice as drawn: Windows 11's notification shape — a severity mark, a bold title, a
-/// line of detail, an optional button, and a close button — on an opaque flyout surface.
+/// line of detail, an optional button, and a close button — on an opaque flyout surface. The same inset over and
+/// under what it holds ([S-881a]): a notice of a title alone is one line centred in it, never a row of nothing under it.
 /// <para>
 /// Opaque rather than acrylic: the surface window is genuinely transparent, so an in-app acrylic
 /// brush has nothing behind it to blur and reads as a hole. Every control refuses focus on
@@ -48,17 +49,24 @@ internal sealed partial class NoticeCard : Grid
             _ => (Glyphs.Info, ColourRole.Accent),
         };
 
+        // [S-881a] A notice of a title alone (no detail line) is one line: its glyph, title, button and close all centred on
+        // it, so the inset over it is the inset under it (owner, 2026-11-21: "the toast on the bottom right has a weird
+        // shape if there is not desctiption in it, the spacing on the bottom is too big"). With a detail line, each part
+        // stands from the top: the glyph on the title's line, the close button by it.
+        var inline = notice.OneLine;
+        var along = inline ? VerticalAlignment.Center : VerticalAlignment.Top;
+
         // The 16 glyph on the title's 20 line: as far down as centres it there.
         var icon = Family.Glyph(glyph, FamilyShape.Icon, role);
-        icon.VerticalAlignment = VerticalAlignment.Top;
-        icon.Margin = new Thickness(0, GlyphDrop, FamilySpace.S3, 0);
+        icon.VerticalAlignment = along;
+        icon.Margin = new Thickness(0, inline ? 0 : GlyphDrop, FamilySpace.S3, 0);
 
         var title = Family.Text(FamilyType.BodyStrong, ColourRole.TextPrimary, notice.Title);
         title.TextWrapping = TextWrapping.Wrap;
 
-        var text = new StackPanel { Children = { title } };
+        var text = new StackPanel { Children = { title }, VerticalAlignment = along };
 
-        if (!string.IsNullOrWhiteSpace(notice.Message))
+        if (!inline)
         {
             var message = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
             message.Text = notice.Message;
@@ -72,14 +80,13 @@ internal sealed partial class NoticeCard : Grid
         // line, so it stays one row; with a detail line the button goes under it, as Windows' toasts
         // do, so the detail keeps the card's width.
         Button? actionButton = null;
-        var inline = string.IsNullOrWhiteSpace(notice.Message);
         if (notice.Action is { } action)
         {
             var button = new Button
             {
                 Content = action.Label,
-                Margin = inline ? new Thickness(FamilySpace.S3, -FamilySpace.S1, 0, 0) : new Thickness(0, FamilySpace.S2, 0, 0),
-                VerticalAlignment = VerticalAlignment.Top,
+                Margin = inline ? new Thickness(FamilySpace.S3, 0, 0, 0) : new Thickness(0, FamilySpace.S2, 0, 0),
+                VerticalAlignment = along,
                 AllowFocusOnInteraction = false,
                 MinWidth = inline ? 0 : ShellMetrics.Notice.ActionMinWidth,
             };
@@ -112,8 +119,8 @@ internal sealed partial class NoticeCard : Grid
             Width = FamilyShape.LineButton,
             Height = FamilyShape.LineButton,
             Padding = new Thickness(0),
-            Margin = new Thickness(FamilySpace.S2, -FamilySpace.ButtonOverflow, -FamilySpace.S1, 0),
-            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(FamilySpace.S2, inline ? 0 : -FamilySpace.ButtonOverflow, -FamilySpace.S1, 0),
+            VerticalAlignment = along,
             Background = Family.Brush(ColourRole.Clear),
             BorderThickness = new Thickness(0),
             AllowFocusOnInteraction = false,
@@ -146,7 +153,7 @@ internal sealed partial class NoticeCard : Grid
 
         Children.Add(row);
         Width = CardWidth;
-        Padding = new Thickness(FamilySpace.S4, FamilySpace.S3, FamilySpace.S3, FamilySpace.S4);
+        Padding = new Thickness(FamilySpace.S4, FamilySpace.Inset, FamilySpace.S3, FamilySpace.Inset);
         CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
         BorderThickness = new Thickness(FamilyShape.Hairline);
         BorderBrush = ShellBrush.Of(ShellRole.FlyoutStroke);

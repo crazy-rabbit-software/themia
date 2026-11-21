@@ -11011,8 +11011,17 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   and Critical for a warning and an error; the title BodyStrong, the message Body secondary right
   under it (4 lines max), the action as a button (on the title's line when there is no message, so
   "Deleted 3 widgets · Undo" stays one row; under the message otherwise), a close button of the
-  header's 24 with its 16 glyph; 364 DIP wide (never wider than the work area), padded 16, 12, 12, 16,
-  the raised sheet's opaque fill and the flyout's stroke (`ShellRole`). Its buttons never take focus.
+  header's 24 with its 16 glyph; 364 DIP wide (never wider than the work area), padded 16, 12, 12, 12 (the family's
+  inset over and under, [S-881a]), the raised sheet's opaque fill and the flyout's stroke (`ShellRole`). Its buttons
+  never take focus.
+- **[S-881a]** **A title alone is one line, centred** (owner, 2026-11-21: "the toast on the bottom right has a weird
+  shape if there is not desctiption in it, the spacing on the bottom is too big"): a notice with no message
+  (`Notice.OneLine`) has its glyph, title, button (on that line) and close button all centred on one line, the same 12
+  over and under it, and no empty row under it (until then its parts hung from the top, the button 4 over the title, and
+  16 stood under it: 12 over the title, 24 under it with a button). With a message each part stands from the top as
+  before, 12 over the title and 12 under the last line or the button. A notice has no progress shape. `--notices-png
+  <outDir> [--theme light|dark]` draws every shape (a title alone, with its button, over a message, with a message and a
+  button) beside the stack. Tests `NoticesBootTests.S881a_`.
 - **[S-882]** `NoticeStack`: at most 3 at once, newest at the bottom; a fourth pushes out the oldest
   non-sticky one; a notice with the key of one showing replaces it and becomes the newest ("undo"
   notices replace each other, "license" refusals too).
