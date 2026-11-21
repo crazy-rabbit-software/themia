@@ -98,14 +98,40 @@ public static class CalendarSizing
     public static DayBandFit DayBand(int items)
         => items <= 0 ? new DayBandFit(0, 0, false) : new DayBandFit(1, CalendarFit.DayBar, items > 1);
 
-    /// <summary>
-    /// [S-11543] [S-14502] [S-14810] The hours a timeline <paramref name="available"/> tall shows: every one it reaches at an
-    /// hour's one fixed size (a row's optimal, whole cells), the last cut by the card's foot, <see cref="MinHours"/>..<see cref="MaxHours"/>.
-    /// </summary>
-    public static int HoursIn(double available, ItemGrid grid) => ItemSize.Count(available, Hour, grid, MinHours, MaxHours);
+    /// <summary>[S-15671] A day's hours: a timeline never shows more.</summary>
+    public const int HoursInDay = 24;
 
-    /// <summary>[S-11543] The day's height over its hours: the inset, the band's line and 4, the inset.</summary>
-    public static double DayOver => ContentTop + CalendarFit.DayBar + FamilySpace.S1 + FamilySpace.Inset;
+    /// <summary>
+    /// [S-11543] [S-14502] [S-14810] [S-15671] The hours a timeline <paramref name="available"/> tall shows: every one it
+    /// reaches at an hour's one fixed size (a row's optimal, whole cells), the last cut by the card's foot,
+    /// <see cref="MinHours"/>..<see cref="HoursInDay"/> (the hours follow the card: a taller one shows more of the day).
+    /// </summary>
+    public static int HoursIn(double available, ItemGrid grid) => ItemSize.Count(available, Hour, grid, MinHours, HoursInDay);
+
+    /// <summary>
+    /// [S-15671] The day's hour rows in a room <paramref name="available"/> tall, from the first row's top to the card's foot:
+    /// each an item at an hour's one fixed size, touching, every one the room reaches (<see cref="HoursIn"/>), the last cut by
+    /// the foot, every edge on a whole device pixel.
+    /// </summary>
+    public static RowReach DayHours(double available, ItemGrid grid)
+    {
+        var room = double.IsFinite(available) ? Math.Max(0, available) : 0;
+        return new RowReach(ItemSize.Optimal(Hour, grid), HoursIn(room, grid), grid.Raster) { Room = room };
+    }
+
+    /// <summary>
+    /// [S-15671] The day's band row over its hours: <paramref name="lift"/> (the card's inset where the row stands on the
+    /// card's top edge, none under a state's row), its line and 4 under it, the line's inset its own padding; none without
+    /// an all-day item.
+    /// </summary>
+    public static double DayBandRow(DayBandFit band, double lift)
+    {
+        ArgumentNullException.ThrowIfNull(band);
+        return band.Lines > 0 ? Math.Max(0, lift) + (band.Lines * band.LineHeight) + FamilySpace.S1 : 0;
+    }
+
+    /// <summary>[S-11543] [S-15671] The day's height over its hours: its band row on the card's top edge (the hours run to the foot).</summary>
+    public static double DayOver => DayBandRow(DayBand(1), ContentTop);
 
     /// <summary>[S-11543] [S-14500] The day: 240..480 wide (a new one 300), its height <see cref="DefaultHours"/> hours, 4..16 at least and most.</summary>
     public static WidgetSizing DaySizing()

@@ -36,44 +36,58 @@ internal sealed partial class CalendarView
         var allDay = items.Where(i => i.Birthday is not null || i.Event!.AllDay || CalendarFit.IsMultiDay(i.Event, zone)).ToList();
         var timed = items.Where(i => i.Event is { AllDay: false } e && !CalendarFit.IsMultiDay(e, zone)).Select(i => i.Event!).ToList();
 
-        // [S-11543] One band line, its own bar or chips shared among several; the config's hours take the rest.
+        // [S-15671] The day is rows from the card's top edge (under a state's row, right under it): its band's row when it
+        // has all-day items ([S-11543]: its own bar, or chips shared among several), then its hours, each an item at an
+        // hour's one fixed size, every one the card reaches, the last cut by its foot (WR-4, WR-6).
+        var lift = _stated ? 0 : FamilySpace.ContentTop;
         var band = CalendarSizing.DayBand(allDay.Count);
-        var available = Math.Max(0, height - FamilySpace.Inset - (band.Lines > 0 ? band.LineHeight + FamilySpace.S1 : 0));
-
+        var bandRow = CalendarSizing.DayBandRow(band, lift);
         var gutter = width >= HourLabelsLongFrom ? HourLabelWidth : HourLabelNarrowWidth;
         var timelineWidth = Math.Max(0, width - gutter - (2 * FamilySpace.Inset));
+        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var hours = CalendarSizing.DayHours(height + lift - bandRow, cells);
 
-        var root = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset), Background = Family.Brush(ColourRole.Clear) };
+        var root = new Grid { Margin = new Thickness(0, -lift, 0, 0), Background = Family.Brush(ColourRole.Clear) };
 
         // [S-11923] [S-11903] The day view is its one day: the pointer on it is that day, and that day pointed
         // at elsewhere lights it whole, as a card that is the match.
         LinkDay(root, day);
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(gutter) });
-        root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
         if (band.Lines > 0)
         {
-            root.Children.Add(DayBand(allDay, day, timelineWidth, band, showColors));
+            // [S-15671] The band's row runs from edge to edge, its line in the inset and the hours' gutter, its padding.
+            var row = new Border
+            {
+                Child = DayBand(allDay, day, timelineWidth, band, showColors),
+                Height = bandRow,
+                Padding = new Thickness(FamilySpace.Inset + gutter, lift, FamilySpace.Inset, 0),
+                Background = Family.Brush(ColourRole.Clear),
+            };
+            ItemMark.Mark(row);
+            root.Children.Add(row);
         }
 
         var (earliest, latest) = CalendarFit.EventHours(timed, day, zone);
-        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
-        var window = CalendarFit.HoursOf(CalendarSizing.HoursIn(available, cells), ItemSize.Optimal(CalendarSizing.Hour, cells), earliest, latest, CalendarFit.FocusHour(timed, day, Today, _clock(), zone));
+        var window = CalendarFit.HoursOf(hours.Shown, hours.Pitch, earliest, latest, CalendarFit.FocusHour(timed, day, Today, _clock(), zone));
 
-        var labels = HourLabels(window, long_: gutter == HourLabelWidth);
-        SetRow(labels, 1);
-        root.Children.Add(labels);
+        // The hours' rows, the first one's rule left out where it would stand on the card's top edge.
+        var rows = new StackPanel { VerticalAlignment = VerticalAlignment.Top };
+        for (var i = 0; i < window.Count; i++)
+        {
+            rows.Children.Add(HourRow(window.First + i, hours.Height(i), gutter, long_: gutter == HourLabelWidth, rule: i > 0 || bandRow > 0 || lift == 0));
+        }
 
-        var rules = HourRules(window);
-        SetRow(rules, 1);
-        SetColumn(rules, 1);
-        root.Children.Add(rules);
+        SetRow(rows, 1);
+        root.Children.Add(rows);
 
+        // The events over the rows, on the timeline beside the hours' labels.
         var canvas = TimelineCanvas(timed, day, window, timelineWidth, showColors);
+        canvas.Margin = new Thickness(FamilySpace.Inset + gutter, 0, FamilySpace.Inset, 0);
+        canvas.VerticalAlignment = VerticalAlignment.Top;
+        canvas.Height = hours.Start(window.Count);
         SetRow(canvas, 1);
-        SetColumn(canvas, 1);
         root.Children.Add(canvas);
 
         if (items.Count == 0)
@@ -82,12 +96,47 @@ internal sealed partial class CalendarView
             none.Text = (day == Today ? CalendarStr.Calendar_NoEventsToday : CalendarStr.WidgetsA_Calendar_NoEvents).Text();
             none.HorizontalAlignment = HorizontalAlignment.Center;
             none.VerticalAlignment = VerticalAlignment.Center;
+            none.Margin = new Thickness(FamilySpace.Inset + gutter, 0, FamilySpace.Inset, 0);
             SetRow(none, 1);
-            SetColumn(none, 1);
             root.Children.Add(none);
         }
 
         _content.Children.Add(root);
+    }
+
+    /// <summary>
+    /// [S-15671] One hour of the day: a row of the hour's one fixed size from the card's left edge to its right (an item,
+    /// WR-3), its label centred in it in the gutter on the row's inset, a hairline at its top across the timeline.
+    /// </summary>
+    private static Border HourRow(int hour, double height, double gutter, bool long_, bool rule)
+    {
+        var body = new Grid();
+        if (rule)
+        {
+            body.Children.Add(new Border
+            {
+                Height = FamilyShape.Hairline,
+                Margin = new Thickness(gutter, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Top,
+                Background = Family.Brush(ColourRole.Track),
+            });
+        }
+
+        var label = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, LocaleFormat.Digits(Strings.Current, hour.ToString("00", System.Globalization.CultureInfo.InvariantCulture) + (long_ ? ":00" : string.Empty)));
+        label.TextTrimming = TextTrimming.None;
+        label.VerticalAlignment = VerticalAlignment.Center;
+        body.Children.Add(label);
+
+        var row = new Border
+        {
+            Child = body,
+            Height = height,
+            Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0),
+            Background = Family.Brush(ColourRole.Clear),
+            IsHitTestVisible = false,
+        };
+        ItemMark.Mark(row);
+        return row;
     }
 
     /// <summary>
@@ -97,7 +146,6 @@ internal sealed partial class CalendarView
     private StackPanel DayBand(IReadOnlyList<DayItem> allDay, DateOnly day, double width, DayBandFit band, bool showColors)
     {
         var stack = new StackPanel { Margin = new Thickness(0, 0, 0, FamilySpace.S1) };
-        SetColumn(stack, 1);
 
         var own = band.SharedLast ? band.Lines - 1 : band.Lines;
         for (var i = 0; i < own; i++)

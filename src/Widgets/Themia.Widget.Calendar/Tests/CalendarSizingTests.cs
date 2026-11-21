@@ -58,14 +58,36 @@ public sealed class CalendarSizingTests
     [Fact]
     public void S11543_S14502_a_day_is_its_band_line_over_its_hours_and_its_hours_what_the_card_holds()
     {
-        // A new one's eight hours at their optimal (30); [S-14810] the hours shown after are every one its timeline reaches,
-        // the last cut by the card's foot, 4..16.
+        // A new one's eight hours at their optimal (30) under its band row; [S-14810] [S-15671] the hours shown after are every
+        // one its timeline reaches, the last cut by the card's foot, 4..24 (a day's).
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Day };
-        Assert.Equal(CalendarSizing.ContentTop + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30) + FamilySpace.Inset, Of(config).Natural.Height);
+        Assert.Equal(CalendarSizing.ContentTop + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30), Of(config).Natural.Height);
         var grid = Themia.Core.Widgets.ItemGrid.Default();
-        Assert.Equal((4, 8, 9, 16), (CalendarSizing.HoursIn(10, grid), CalendarSizing.HoursIn(240, grid), CalendarSizing.HoursIn(269, grid), CalendarSizing.HoursIn(2000, grid)));
+        Assert.Equal((4, 8, 9, 24), (CalendarSizing.HoursIn(10, grid), CalendarSizing.HoursIn(240, grid), CalendarSizing.HoursIn(269, grid), CalendarSizing.HoursIn(2000, grid)));
         Assert.Equal(new DayBandFit(0, 0, false), CalendarSizing.DayBand(0));
         Assert.Equal(new DayBandFit(1, CalendarFit.DayBar, true), CalendarSizing.DayBand(3));
+    }
+
+    [Fact]
+    public void S15671_the_days_hours_are_rows_of_one_size_from_its_band_row_to_the_foot_the_last_cut()
+    {
+        var grid = Themia.Core.Widgets.ItemGrid.Default();
+
+        // The band's row on the card's top edge: the inset, the line and 4; under a state's row no inset; none without an item.
+        Assert.Equal(12 + CalendarFit.DayBar + 4, CalendarSizing.DayBandRow(CalendarSizing.DayBand(1), FamilySpace.ContentTop));
+        Assert.Equal(CalendarFit.DayBar + 4, CalendarSizing.DayBandRow(CalendarSizing.DayBand(2), 0));
+        Assert.Equal(0, CalendarSizing.DayBandRow(CalendarSizing.DayBand(0), FamilySpace.ContentTop));
+
+        // 176 tall under its band row of 44: four rows of 30 and a fifth cut after 12 by the foot.
+        var hours = CalendarSizing.DayHours(176 - 44, grid);
+        Assert.Equal((30.0, 5, 120.0), (hours.Pitch, hours.Shown, hours.Start(4)));
+        Assert.All(Enumerable.Range(0, 5), i => Assert.Equal(30, hours.Height(i)));
+
+        // Exactly whole: no row cut, none past the foot; shorter than four: four, cut; taller than a day: 24, the room under empty.
+        Assert.Equal(4, CalendarSizing.DayHours(120, grid).Shown);
+        Assert.Equal(4, CalendarSizing.DayHours(50, grid).Shown);
+        Assert.Equal(24, CalendarSizing.DayHours(900, grid).Shown);
+        Assert.Equal(4, CalendarSizing.DayHours(double.NaN, grid).Shown);
     }
 
     [Fact]
@@ -171,7 +193,7 @@ public sealed class CalendarSizingTests
         {
             CalendarStyle.Month => CalendarSizing.MonthOver + (6 * 30),
             CalendarStyle.Week => CalendarSizing.StripBand(Themia.Core.Widgets.ItemGrid.Default()) + (3 * 30),
-            CalendarStyle.Day => FamilySpace.Inset + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30) + FamilySpace.Inset,
+            CalendarStyle.Day => FamilySpace.Inset + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30),
             CalendarStyle.Year => FamilySpace.Inset + CalendarSizing.YearBlock(CalendarSizing.Year(false)).Height + FamilySpace.Inset,
             _ => 6 * 30d,
         };

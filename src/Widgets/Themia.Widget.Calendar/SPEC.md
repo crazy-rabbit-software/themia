@@ -37,13 +37,21 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   2026-11-20: "the size should not be settable, it is set by the size of the widget"; the old Size line, [S-2449], is
   gone): a larger card draws the twelve months larger as one block (`CalendarSizing.YearScale`, a `ScaleBox`, never
   under 1), at the content's top-left in the inset. Tests `CalendarSizingTests.S11542_`.
-- **[S-11543]** **Day**: its **hours** (4..16, a new one 8; the card's height, no line, none stored: as many as the
-  card holds at an hour's optimal, `CalendarSizing.HoursIn`, [S-14502]), an hour a 28 row at its optimal, over one
+- **[S-11543]** **Day**: its **hours** (4..24, a new one 8; the card's height, no line, none stored: as many as the
+  card reaches at an hour's optimal, `CalendarSizing.HoursIn`, [S-14502]), an hour a 28 row at its optimal, under one
   band line for the all-day items (its item's bar, or chips shared among several, "+N"; a day without
-  gives that line to its hours): 36 + the band's line and 4 + the hours + 12, 240..480 wide (a new one
-  300), the hours stretched to fill it. The hours are the wanted day (07-22 widened to its
+  gives that line to its hours): the band's row (12 + its line and 4) + the hours, 240..480 wide (a new one
+  300). The hours are the wanted day (07-22 widened to its
   events) where it is no longer, else that many from just before the next event or now
   (`CalendarFit.HoursOf`).
+- **[S-15671]** **The day's hours are its items** (docs/WIDGET-RULES.md WR-3..WR-6; owner, 2026-11-20: "they should just
+  keep their size and the last item will be cutoff to some extent then"): from the card's top edge (under a state's row,
+  right under it) the band's row when the day has all-day items (`CalendarSizing.DayBandRow`: the inset, its line and 4,
+  from edge to edge, the line in the inset and the gutter as its padding), then the hours, each a row of the hour's one
+  fixed size from the card's left edge to its right (`CalendarSizing.DayHours`), its label centred in it in the gutter
+  and a hairline at its top across the timeline (none on the card's top edge), touching, every hour the card reaches,
+  the last cut by its foot; a card taller than a day's 24 leaves the room under the last empty. The events stand over
+  the rows on the timeline at their times. Tests `CalendarSizingTests.S15671_`.
 - **[S-11544]** **Month**: six weeks always (the month's and the next days', dimmed), so every month is
   one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; the card's inset, the weekday
   line and six weeks at their optimal, every cell between, the weeks and the columns stretched to fill the card, 280
