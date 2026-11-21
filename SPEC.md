@@ -6090,6 +6090,11 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   draws them and let go when another style is chosen ([S-6005]). Show history and Chart span stay
   the Graph style's settings. Debug: `--machine sample` draws the sample machine's reading and items ([S-1931]) in
   every style.
+- **[S-15161]** **Items before the first read** (WR-10: no data keeps the face): until the hub's first read of a kind's
+  items (or while a read has none for it: the disk counters' first collection, a drive not listed) its looks draw the
+  kind's items as they will stand, each without a reading ("--", no bar lit, the disabled role; `MeterPart.WaitingItems`):
+  the disk's Read and Write rows. Never the reading alone over an empty card (the bars style showed its glyph and "--"
+  alone wherever a render or a start beat the counters' first rate). Debug renders: `--state waiting` draws it.
 - **[S-6301]** An item's role: the usage pressure's ([S-1123]: the accent, Caution from 70 %, Critical
   from 90 %); an item with no reading is the disabled role, never "idle". The heat-map shades
   (`LoadTint`) are gone with the tiles ([S-6305]).

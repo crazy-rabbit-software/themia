@@ -208,4 +208,10 @@ public abstract class MeterPart
 
     /// <summary>[S-1940] The items a look draws for a thing not on this PC (the GPU's engines, each "--"); none by default.</summary>
     public virtual IReadOnlyList<MeterItem> AbsentItems => [];
+
+    /// <summary>
+    /// [S-15161] The items a look draws before the hub's first read of them (WR-10: no data keeps the face, never an empty
+    /// card): the kind's items as they will stand, each without a reading ("--", no bar); none by default.
+    /// </summary>
+    public virtual IReadOnlyList<MeterItem> WaitingItems => [];
 }

@@ -126,11 +126,19 @@ public abstract class DiskPart(IWidgetHost widgetHost) : MeterPart
         }
     }
 
+    /// <summary>[S-15161] A read without a rate (the counters' first collection, a drive not there) keeps the rows, each "--".</summary>
     private IReadOnlyList<MeterItem> Items(IReadOnlyDictionary<string, DiskRates>? byInstance)
     {
         var sample = DiskRules.Read(_config.Scope, _root, byInstance);
-        return sample.State == DiskReadingState.Rate ? Items(sample.Rates, [.. _recent]) : [];
+        return sample.State == DiskReadingState.Rate ? Items(sample.Rates, [.. _recent]) : WaitingItems;
     }
+
+    /// <summary>[S-15161] [S-6271] Before a rate: "Read --" and "Write --", no bar (WR-10: the bars' face, never the reading alone).</summary>
+    public override IReadOnlyList<MeterItem> WaitingItems =>
+    [
+        new MeterItem(null, MeterPressure.Normal, Str.Details_Disk_Read.Text(), "--"),
+        new MeterItem(null, MeterPressure.Normal, Str.Details_Disk_Write.Text(), "--"),
+    ];
 
     /// <summary>[S-6271] "Read 42 MB/s" and "Write 8 MB/s", each a bar against the graph's top.</summary>
     private static IReadOnlyList<MeterItem> Items(DiskRates rates, double[] recent)

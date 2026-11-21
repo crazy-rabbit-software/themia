@@ -148,6 +148,7 @@ public sealed partial class MeterView
         if (_host.System is not { } hub)
         {
             Log.Warn(Scope, $"no system hub for {_kind}'s items");
+            ShowItems(_part.WaitingItems, point: false);
             return;
         }
 
@@ -158,6 +159,11 @@ public sealed partial class MeterView
             // [S-2506] What is read so far, and (the core graphs) every item's history with it.
             ShowItems(current, point: false);
             (_shown as Graphs)?.Load();
+        }
+        else
+        {
+            // [S-15161] Nothing read yet (the hub's first read still out): the items as they will stand, each "--".
+            ShowItems(_part.WaitingItems, point: false);
         }
     }
 

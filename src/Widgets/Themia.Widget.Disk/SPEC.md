@@ -27,6 +27,9 @@ I/O meters' are `IoStylesHostTests`.
   offered as "not connected", the one held with the dot). Its styles (`DiskStyle`): **Number** (the rate
   alone, [S-11001]) and **Bars** (the rate over reads and writes as two rows, [S-6271]: one height, 148,
   240..480 wide); the old Graph style is the drive activity metric's graph. No tier ladder is left.
+- **[S-15164]** Before a rate (the counters' first collection, a drive they do not list) the Bars style's two rows stand,
+  Read and Write, each "--" without a bar (`DiskPart.WaitingItems`, the root's [S-15161]); it drew its glyph and "--"
+  alone over an empty card.
 - **[S-2016]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
   folder's `Taskmgr.exe`); the module decides it (`DiskModule.Opens`, through its part's `Opens`).
 - View links: a reading of one drive is that drive as a card: the pointer on it publishes the drive and the card
