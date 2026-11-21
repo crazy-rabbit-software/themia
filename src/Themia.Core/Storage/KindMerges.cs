@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using Themia.Core.Geometry;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -14,8 +15,12 @@ namespace Themia.Core.Storage;
 /// </summary>
 public static class KindMerges
 {
-    /// <summary>[S-14713] Replace every placed widget of a merged kind in <paramref name="document"/>; one line each.</summary>
-    public static List<string> Replace(JsonNode? document) => Replace(document, ModuleCatalog.Widgets);
+    /// <summary>
+    /// [S-14713] Replace every placed widget of a merged kind in <paramref name="document"/>; one line each. [S-15026] Each
+    /// card shared out by several kinds is added to <paramref name="sharedOut"/> (when given), for its display to lay once
+    /// its metrics are known (<see cref="ShareOuts"/>).
+    /// </summary>
+    public static List<string> Replace(JsonNode? document, List<ShareOut>? sharedOut = null) => Replace(document, ModuleCatalog.Widgets, sharedOut);
 
     /// <summary>The span keys of the removed graph kinds (a weather graph's window, a history's span), the metric's <c>span</c> now.</summary>
     private static readonly string[] Spans = ["hours", "graphSpanSeconds"];
@@ -31,7 +36,7 @@ public static class KindMerges
     /// metric's <c>span</c>; the keys the old kind was shared out by go; a key a new kind does not have is then the load's to
     /// drop, loudly (<see cref="StateDocument"/>). One logged line a replaced widget.
     /// </summary>
-    internal static List<string> Replace(JsonNode? document, IReadOnlyList<WidgetDescriptor> widgets)
+    internal static List<string> Replace(JsonNode? document, IReadOnlyList<WidgetDescriptor> widgets, List<ShareOut>? sharedOut = null)
     {
         var notes = new List<string>();
         var merges = widgets.SelectMany(w => w.Merges.Select(m => (Into: w.Id.Value, From: m)))
@@ -51,6 +56,7 @@ public static class KindMerges
             }
 
             var viewName = entry["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var viewText) ? viewText : "?";
+            var viewId = entry["id"] is JsonValue viewIdValue && viewIdValue.TryGetValue<string>(out var viewIdText) ? viewIdText : null;
             for (var at = 0; at < placed.Count; at++)
             {
                 if (placed[at] is not JsonObject widget
@@ -70,6 +76,14 @@ public static class KindMerges
                     Become(widget, targets[0], keys);
                     notes.Add($"replaced {kind} '{id}' in view '{viewName}' in place by {Name(targets[0])}");
                     continue;
+                }
+
+                // [S-15026] The card's rect and each part's share: its display lays them once its metrics are known.
+                if (sharedOut is not null && viewId is not null && Rect(widget) is var (cx, cy, cw, ch)
+                    && targets.All(t => t.From.Share is not null))
+                {
+                    sharedOut.Add(new ShareOut(viewId, kind, new FracRect(cx, cy, cw, ch),
+                        [.. targets.Select(t => new SharedPart($"{id}-{t.Into}", t.From.Share!.Value))]));
                 }
 
                 placed.RemoveAt(at);
@@ -152,3 +166,12 @@ public static class KindMerges
     private static bool Holds(JsonObject config, (string Key, string Value) pair)
         => config[pair.Key] is JsonValue value && value.TryGetValue<string>(out var held) && string.Equals(held, pair.Value, StringComparison.OrdinalIgnoreCase);
 }
+
+/// <summary>[S-15026] A part of a card shared out: its widget's id and its share of the card.</summary>
+public readonly record struct SharedPart(string Id, MergeShare Share);
+
+/// <summary>
+/// [S-15026] A placed card the load shared out among several kinds (<see cref="KindMerges"/>): the view it stands on, its
+/// removed kind, its rect and its parts in their order (top to bottom, left to right), each in its share of the rect.
+/// </summary>
+public sealed record ShareOut(string ViewId, string Kind, FracRect Card, IReadOnlyList<SharedPart> Parts);

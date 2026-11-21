@@ -104,7 +104,7 @@ internal sealed class SettingsBackup(AppHost host, SettingsOutcomes outcomes)
             outcomes.Say(row, null);
             confirm(SettingsMenu.ImportQuestion(preview, stateName, backupName, () =>
             {
-                if (host.ImportState(incoming, out var backup) is { } problem)
+                if (host.ImportState(incoming, read.SharedOut, out var backup) is { } problem)
                 {
                     outcomes.Say(row, new MenuOutcome(problem, Failed: true));
                     return;

@@ -10549,6 +10549,18 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   shared out by (its style) goes, what a part does not have is dropped by the load, loudly. Only a graph's merge
   (`MergeFrom.Graph`) shows the graph (its trend Line, its window its `span`). One logged line a replaced card. Tests
   `KindMergesTests.S15022_` (Core); the weather summary's, [S-15025].
+- **[S-15026]** **A card shared out is laid on its display, each part at least its minimum** (owner, 2026-11-21: the
+  split must respect each part's minimum, never growing past the old card where avoidable). The load lays the parts in
+  their fixed shares without knowing a display, so on a narrow card a part (the temperature, 200 DIPs at least) could be
+  under its minimum and, painted at it, run past the card over its neighbours. Each card the load shared out
+  (`ShareOut`, from `KindMerges`) waits in the host (`ShareOuts`) until the surface showing its view has settled metrics
+  ([S-854]), then is laid once, in that mutation, at each part's own scale and on the grid's minimums (`SizeFit.Limits`):
+  a lead beside a stack (the sky on the left, the temperature over the condition) keeps its shares where they hold; else
+  the line beside the lead and the stack's lines move as far as the minimums need; else the parts stack, the lead on top,
+  each the card's width; else the arrangement that grows the card least, right and down from its corner, never one part
+  over another. Parts moved, resized or removed before then are the user's and stay; a card whose view no display shows
+  waits; an import's cards wait the same way, a reset's are forgotten. Tests `ShareOutsTests.S15026_` (Core),
+  `WeatherNowSplitTests.S15026_`.
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,

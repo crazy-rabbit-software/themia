@@ -20,6 +20,9 @@ public readonly record struct ParseResult(
 {
     public static ParseResult Refused(ParseRefusal refusal, string problem, Exception? error = null)
         => new(null, refusal, problem, error, []);
+
+    /// <summary>[S-15026] The cards the load shared out among several kinds, for their displays to lay (<see cref="ShareOuts"/>).</summary>
+    public IReadOnlyList<ShareOut> SharedOut { get; init; } = [];
 }
 
 /// <summary>Why a document was refused. A closed set, so a caller can say it in its own words.</summary>
@@ -82,7 +85,8 @@ public static class StateDocument
         }
 
         // [S-14713] A placed widget of a kind merged into another becomes it first, in its place.
-        var dropped = KindMerges.Replace(document);
+        var sharedOut = new List<ShareOut>();
+        var dropped = KindMerges.Replace(document, sharedOut);
         dropped.AddRange(DropUnknownKinds(document));
         dropped.AddRange(DropUnknownKeys(document));
         dropped.AddRange(ReplaceUnknownNames(document));
@@ -123,7 +127,7 @@ public static class StateDocument
         }
 
         dropped.AddRange(StateRepair.Repair(parsed));
-        return new ParseResult(parsed, ParseRefusal.None, null, null, dropped);
+        return new ParseResult(parsed, ParseRefusal.None, null, null, dropped) { SharedOut = sharedOut };
     }
 
     /// <summary>

@@ -157,6 +157,9 @@ internal sealed partial class AppHost
         // refits below. The icons follow a setting, which no undo takes back: adopted without a step.
         var adopted = ApplyDesktopIconLook();
 
+        // [S-15026] A card the load shared out among several kinds laid on its display, each part at least its minimum.
+        LaySharedOut();
+
         // [S-2447] A config the change gave another sizing refits its widget in this same mutation;
         // [S-854] on a display whose metrics have not settled, once they have.
         _sizings.Refit(State, SurfacesNow());
@@ -184,6 +187,24 @@ internal sealed partial class AppHost
 
     /// <summary>The sizing each widget had at the last mutation, by instance: what a config change is compared with ([S-2447]).</summary>
     private readonly SizingNotes _sizings = new();
+
+    /// <summary>[S-15026] The cards the load shared out among several kinds, waiting for the display that shows them.</summary>
+    private readonly ShareOuts _shareOuts = new();
+
+    /// <summary>
+    /// [S-15026] The cards <paramref name="sharedOut"/> names (the state's load shared them out among several kinds) are laid
+    /// on the display that shows them once its metrics settle, each part at least its minimum.
+    /// </summary>
+    public void LayShareOuts(IReadOnlyList<ShareOut> sharedOut) => _shareOuts.Add(sharedOut);
+
+    /// <summary>[S-15026] The parts of every card the load shared out laid on their display's settled metrics, loudly.</summary>
+    private void LaySharedOut()
+    {
+        if (_shareOuts.Apply(State, SurfacesNow()) is { Count: > 0 } notes)
+        {
+            Log.Info(Scope, $"{notes.Count} card(s) the load shared out laid on their display: {string.Join("; ", notes)}");
+        }
+    }
 
     /// <summary>[S-11892] The cards of every shown view whose edges drifted off their display's grid lines put on them (<see cref="GridSettle"/>), loudly.</summary>
     private void SettleOnGrid()
@@ -250,7 +271,7 @@ internal sealed partial class AppHost
         // [S-13040] A fence is laid on its display's icon grid at the real metrics (a start, another resolution or scale);
         // [S-855] a widget a change of the work area would hide behind a taskbar moves clear of it; [S-11892] a card off its
         // display's grid lines by less than a DIP is put on them.
-        if (_sizings.Waits(State) || State.Views.Exists(v => v.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
+        if (_sizings.Waits(State) || _shareOuts.Waits(SurfacesNow()) || State.Views.Exists(v => v.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
             || WorkAreaSettle.Waits(State, SurfacesNow()) || GridSettle.Waits(State, SurfacesNow()))
         {
             Mutate(_ => { }, undo: null);
@@ -366,14 +387,15 @@ internal sealed partial class AppHost
     /// loss the backup exists to prevent.
     /// </para>
     /// </summary>
-    public string? ImportState(AppState incoming, out string backup) => ReplaceState(incoming, SettingsTransfer.ImportOccasion, out backup);
+    public string? ImportState(AppState incoming, IReadOnlyList<ShareOut> sharedOut, out string backup)
+        => ReplaceState(incoming, sharedOut, SettingsTransfer.ImportOccasion, out backup);
 
     /// <summary>
     /// Replace the whole state, keeping the current one beside the state file under
     /// <paramref name="occasion"/>'s name first (<paramref name="backup"/>): an import ([S-497]) or a reset ([S-892]). The undo
     /// history starts again: there is no step from one whole profile to another.
     /// </summary>
-    private string? ReplaceState(AppState incoming, string occasion, out string backup)
+    private string? ReplaceState(AppState incoming, IReadOnlyList<ShareOut> sharedOut, string occasion, out string backup)
     {
         ArgumentNullException.ThrowIfNull(incoming);
 
@@ -391,6 +413,10 @@ internal sealed partial class AppHost
         // as they are, so the mutation below fits nothing from the old box to theirs.
         DesktopCell.Apply(incoming.Preferences.DesktopIconSize);
         DesktopCell.Apply(incoming.Preferences.DesktopIconLayout);
+
+        // [S-15026] The cards the incoming file shared out wait for their displays; the old state's are gone with it.
+        _shareOuts.Clear();
+        _shareOuts.Add(sharedOut);
 
         var replaced = Mutate(state =>
         {

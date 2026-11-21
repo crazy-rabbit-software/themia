@@ -39,7 +39,8 @@ a part declare one split. Tests: `Tests/WeatherNowTests.cs`, `Tests/WeatherNowMe
   third, its whole height; the temperature over the condition in the two thirds beside it, half its height each; each a copy
   with its id and the kind's (`w07-weatherSky`), its look and its place; its Minimal look (the temperature alone) the
   temperature alone, in its whole spot with its id. Its style goes; its alignment is the widget's and stays. The parts
-  declare it (`WeatherSummary.Sky`, `.Condition`, `.Temperature`).
+  declare it (`WeatherSummary.Sky`, `.Condition`, `.Temperature`); once its display's metrics settle the three are laid
+  so each keeps its minimum (the line beside the sky moved, else the sky stacked above the two), root `SPEC.md` [S-15026].
 - **[S-15023]** **The condition** is a text kind ([S-14934]): "Partly cloudy", one line on a detail's tone (regular,
   secondary, [S-14933]: it was the caption under the temperature), no lead (the sky is its own widget), alone on its line
   (the place is the group's Header widget's to name, [S-12801]); with no reading why, drawn unavailable ([S-14932]).
