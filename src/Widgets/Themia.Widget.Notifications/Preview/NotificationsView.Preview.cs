@@ -14,9 +14,9 @@ internal sealed partial class NotificationsView : IWidgetPreviewState
 
     partial void PreviewAttached()
     {
-        if (_preview.Access == NotificationAccess.Pending)
+        if (_source.Pending)
         {
-            _preview = new NotificationSnapshot(NotificationAccess.Allowed, Sample(5));
+            _source.Hold(new NotificationSnapshot(NotificationAccess.Allowed, Sample(5)));
         }
     }
 

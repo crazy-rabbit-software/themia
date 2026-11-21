@@ -22,10 +22,14 @@ internal sealed partial class NotificationsView
 
     private LinkLights<AppLink> Apps => _apps ??= new LinkLights<AppLink>(_links, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
 
-    /// <summary>An app's heading: that app. The whole heading takes the pointer, not only its icon and name.</summary>
-    private void LinkHeading(Grid heading, NotificationGroup group)
+    /// <summary>An app's heading the kit's list drew: that app. The whole heading takes the pointer, not only its icon and name.</summary>
+    private void LinkHeading(KitGroup group, Microsoft.UI.Xaml.FrameworkElement heading)
     {
-        heading.Background ??= Family.Brush(ColourRole.Clear);
-        Apps.Row(heading, NotificationRules.AppKey(group.AppId) is { } key ? new AppLink(key) : null);
+        if (heading is Microsoft.UI.Xaml.Controls.Panel panel)
+        {
+            panel.Background ??= Family.Brush(ColourRole.Clear);
+        }
+
+        Apps.Row(heading, NotificationRules.AppKey(group.Key) is { } key ? new AppLink(key) : null);
     }
 }

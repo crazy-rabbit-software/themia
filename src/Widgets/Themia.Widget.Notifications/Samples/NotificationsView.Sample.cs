@@ -20,16 +20,8 @@ internal sealed partial class NotificationsView : IWidgetSample
     /// <summary>Show <paramref name="snapshot"/> (null keeps what is shown) at the sample moment, the app <paramref name="open"/> opened.</summary>
     internal void ShowSnapshot(NotificationSnapshot? snapshot, string? open)
     {
-        _open.Clear();
-        _clock = static () => SampleDay.Now;
-        _preview = snapshot ?? _preview;
-
-        if (open is not null)
-        {
-            _open.Add(open);
-        }
-
-        Render();
+        _binding.Clock = static () => SampleDay.Now;
+        _source.Hold(snapshot ?? _source.Snapshot, open);
     }
 
     /// <summary>

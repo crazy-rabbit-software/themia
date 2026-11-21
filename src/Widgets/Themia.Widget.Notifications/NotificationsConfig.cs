@@ -11,7 +11,7 @@ namespace Themia.Core.Model;
 /// (<see cref="Rows"/>), their lines (the title; the body under it) and whether they stand under their
 /// apps' headings; its size follows.
 /// </summary>
-public sealed class NotificationsConfig : WidgetConfig, Themia.Sdk.Kit.IKitRows
+public sealed class NotificationsConfig : WidgetConfig, Themia.Sdk.Kit.IKitLocalConfig, Themia.Sdk.Kit.IKitRows
 {
     /// <summary>[S-11404] A new notification list's rows.</summary>
     public const int DefaultRows = 4;
@@ -28,6 +28,10 @@ public sealed class NotificationsConfig : WidgetConfig, Themia.Sdk.Kit.IKitRows
     /// <summary>[S-11404] The rows as drawn.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
     public Themia.Sdk.Kit.KitRowsChoice RowsShown => new(Themia.Sdk.Kit.KitSizing.ClampRows(Rows), Themia.Sdk.Kit.KitSizing.ClampLines(Lines));
+
+    /// <summary>[S-11404] The icon, the body and when it came are always the row's; the lines decide whether the body shows.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Themia.Sdk.Kit.KitShow Shows => Themia.Sdk.Kit.KitShow.Lead | Themia.Sdk.Kit.KitShow.Subtitle | Themia.Sdk.Kit.KitShow.When;
 
     public override IReadOnlyList<string> Repair()
     {

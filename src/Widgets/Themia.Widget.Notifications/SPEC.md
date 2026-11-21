@@ -9,8 +9,10 @@ sender's name ([S-4405]), opening a sender ([S-4406]), dismissals ([S-4407]) and
 
 Owning files: everything in this folder: `NotificationsModule.cs` (descriptor, glyph, view factory,
 JSON context), `NotificationsConfig.cs` (its rows, lines and app headings, [S-11404]),
-`NotificationsView.cs` (the list through its host, the senders' icons through the installed
-`AppIconSource`, the keys), `NotificationsLayout.cs` (the plan from the config), `Preview/` (Debug renders:
+`NotificationsSpec.cs` (its kit spec, the notifications as kit items with their groups and folds, their actions),
+`NotificationsView.cs` (a kit list, [S-7074]: the binding over its host's feed, the senders' icons through the
+installed `AppIconSource` as the rich look's leads and the headings'), `NotificationsLayout.cs` (the plan from the
+config), `Preview/` (Debug renders:
 `--state sample|many|open|empty|denied|unspecified|unsupported`), `Localization/Locales/` (its own
 `NotificationsStr`, 30 languages). Tests: `Tests/NotificationsTests.cs` (run by
 `tests/Themia.Modules.Tests`); that it asks no setting up is the module host's `WindowsPanelsHostTests`.
@@ -35,9 +37,11 @@ JSON context), `NotificationsConfig.cs` (its rows, lines and app headings, [S-11
   apart and stay ([S-6711]); the widget's bell stands in only while an icon loads and for a sender
   Windows gives none. A render reads no notification list and so no sender's icon: every preview row
   shows that fallback, the bell, which is what a live row shows for a sender without an icon.
-- **[S-4409]** Keys while the widget holds the lease: Up/Down, Page Up/Down, Home/End move the row
-  cursor (`ListKeys`), Enter opens the app, Delete dismisses, the Menu key opens the row's menu (Open,
-  Dismiss, Clear all from the app), Escape lets go. In edit mode nothing is opened or cleared.
+- **[S-4409]** Keys while the widget holds the lease, the kit's one key map ([S-7020]): Up/Down, Page Up/Down,
+  Home/End move the row cursor, Enter opens the app, Delete dismisses, the Menu key opens the row's menu (the kit's:
+  Open, Clear all from the app, then Dismiss), Escape lets go. In edit mode nothing is opened or cleared. Access
+  Windows has not given (Denied: a problem with Open settings; Unspecified: Allow) and an unsupported Windows are the
+  kit's state row ([S-7076]); before Windows answers, its loading row. Its time is the kit's compact age.
 - View links: an app's heading (grouped) is that app where its id names one (Windows' own toasts none); the pointer
   on it publishes the app, and a heading lights for the app pointed at or picked on the view, never picking it. A
   notification is not its app and takes no part ([S-11930], [S-11933], [S-11965]).

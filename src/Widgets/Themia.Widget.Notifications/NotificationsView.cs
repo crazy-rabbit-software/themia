@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -8,7 +7,6 @@ using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
-using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
@@ -18,17 +16,11 @@ using Themia.Widget.Notifications;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4400] Windows' notification list on the family's rows ([S-6711]), as Windows 11's notification
-/// center groups it (Karpo §19, §100): a notification's title primary, when it came as the value, its
-/// body on the second line; grouped by app under a heading (its icon, its name) from an expanded height,
-/// each app's newest three and a "See more (n)" row. A click focuses a row, a double-click opens the
-/// app; Clear all is the card menu's line ([S-12481]).
-/// <para>
-/// [S-4404] The ladder (<see cref="NotificationsLayout"/>): the list at every size, the body from a
-/// regular tile, the headings from an expanded height. The list is the host's one feed's
-/// (<see cref="IWidgetHost.Notifications"/>), which follows Windows' changes; access Windows has not
-/// given is the state row's sentence and the one button that fixes it ([S-4403]).
-/// </para>
+/// [S-4400] Windows' notification list as a kit list ([S-7074]) over the host's one feed
+/// (<see cref="IWidgetHost.Notifications"/>, which follows Windows' changes), shaped by <see cref="NotificationsSpec"/>:
+/// each app's icon as the rich look's lead, or grouped under app headings with the icon before the name ([S-4402]). A
+/// click focuses a row, a double-click opens the app; a "See more" row opens on the click. Access Windows has not given
+/// is the kit's state row with the one button that fixes it ([S-4403], [S-7076]); Clear all is the card menu's line.
 /// </summary>
 internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
@@ -37,60 +29,46 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     /// <summary>Where Windows keeps notification access: Settings › Privacy › Notifications.</summary>
     private static readonly Uri AccessPage = new("ms-settings:privacy-notifications");
 
-    /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
-    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
-
-    private readonly StackPanel _list = new();
-    private RowReach _reach = ItemSize.Natural(1, ItemGrid.Default());
-    private readonly ScrollViewer _scroll;
-    private ScrollFade? _fade;
-    private readonly KitStatePanel _state;
-
-    /// <summary>One per row, so its handlers come off with it.</summary>
-    private readonly List<IDisposable> _rowHandles = [];
-
-    /// <summary>The rows a key can land on, in order, with the notification each stands for.</summary>
-    private readonly List<(RowBlock Row, NotificationItem Item)> _rows = [];
-
-    /// <summary>The bottom of each line of the list and whether it is a heading, for the whole-line cap ([S-6712]).</summary>
-    private readonly List<(double Bottom, bool Heading)> _lines = [];
-
-    /// <summary>The apps whose group shows every notification ("See more" opened); the showing's, never saved.</summary>
-    private readonly HashSet<string> _open = new(StringComparer.OrdinalIgnoreCase);
-
-    private IWidgetSurface? _surface;
-    private IDisposable? _lease;
-    private Ticker? _ticker;
-    private IDisposable? _minutes;
-    private NotificationPlan _plan = NotificationsLayout.Plan(new NotificationsConfig());
-    private WidgetArea _area;
-    private NotificationSnapshot _preview = NotificationSnapshot.Pending;
-    private int? _cursor;
-    private bool _detached = true;
+    /// <summary>"4m" goes stale on its own: once a minute is the slowest cadence that keeps it true.</summary>
+    private static readonly TimeSpan Minute = TimeSpan.FromMinutes(1);
 
     /// <summary>[S-6913] What the view asks of the host: the notification feed and the launcher.</summary>
     private readonly IWidgetHost _widgetHost;
+    private readonly KitBinding _binding;
+    private readonly NotificationSource _source;
+
+    /// <summary>The fold rows a click was hooked onto, forgotten with the rows.</summary>
+    private readonly HashSet<FrameworkElement> _folds = [];
+
+    private NotificationsConfig _config = new();
+    private IWidgetSurface? _surface;
+    private bool _attached;
 
     public NotificationsView(IWidgetHost host)
     {
         _widgetHost = host;
-        _scroll = new ScrollViewer
+        _source = new NotificationSource(this);
+        _binding = new KitBinding(host, NotificationsSpec.Spec, NotificationsModule.Glyph, item => NotificationsSpec.Actions(item, _source.Of(item.Id)), Run)
         {
-            Content = _list,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-            VerticalAlignment = VerticalAlignment.Top,
+            Look = new KitRichLook
+            {
+                Lead = item => item.Lead.Value is { } app ? AppIcon(app) : null,
+                HeadingLead = group => AppIcon(group.Key),
+                Touch = Quiet,
+            },
+            Decorate = HookFold,
+            DecorateHeading = LinkHeading,
+            Redrawing = ForgetRows,
         };
-        _state = new KitStatePanel(NotificationsModule.Glyph, host) { Visibility = Visibility.Collapsed };
 
-        Children.Add(_scroll);
-        Children.Add(_state);
+        Children.Add(_binding.List);
+        Children.Add(_binding.State);
+        _binding.Status.Place(this);
     }
 
     /// <summary>[S-4402] [S-12481] Clear all, on the card menu while Windows allows reading and there is something to clear.</summary>
     public IReadOnlyList<WidgetAction> ContextActions
-        => Snapshot is { Access: NotificationAccess.Allowed, Items.Count: > 0 }
+        => _source.Snapshot is { Access: NotificationAccess.Allowed, Items.Count: > 0 }
             ? [new WidgetAction(Glyphs.Clear, NotificationsStr.Panels_Notifications_ClearAll.Text(), ClearAll)]
             : [];
 
@@ -101,444 +79,146 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _detached = false;
-        _ticker = ticker;
-        _plan = NotificationsLayout.Plan((NotificationsConfig)config);
+        _config = config as NotificationsConfig ?? new NotificationsConfig();
+        _attached = true;
 
         // [S-1251] A debug render never reads the person's notifications.
         if (_surface is not { IsPreview: true })
         {
-            _lease = _widgetHost.Notifications.Acquire(Render);
+            _source.Start(_widgetHost.Notifications);
         }
         else
         {
             PreviewAttached();
         }
 
-        _fade ??= new ScrollFade(_scroll, _list);
         _links.Join(_surface?.Links);
         PointerEntered += OnPointerEntered;
-        Strings.Changed += OnLanguage;
-
-        // "4m" goes stale on its own: once a minute is the slowest cadence that keeps it true.
-        _minutes = ticker.Subscribe(TimeSpan.FromMinutes(1), Render);
-        Render();
+        _binding.Attach(ticker, _source, _config, Minute);
     }
 
-    /// <summary>[S-11404] The config's plan: its lines and its headings.</summary>
+    /// <summary>[S-11404] The config's lines and headings.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
-        _plan = NotificationsLayout.Plan((NotificationsConfig)config);
-        Render();
-    }
-
-    /// <summary>[S-11404] A new size: the same plan, the whole lines that fit the new height.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        var moved = area.Height != _area.Height;
-        _area = area;
-        if (moved)
+        _config = config as NotificationsConfig ?? new NotificationsConfig();
+        if (_attached)
         {
-            Render();
+            _binding.Apply(_source, _config, Minute, show: false);
         }
     }
+
+    public void ApplySize(WidgetArea area) => _binding.Size(area);
+
+    public bool HandleKey(WidgetKey key) => !Inert && _binding.HandleKey(key);
+
+    /// <summary>[S-1564] Rows to move through, and not in edit mode.</summary>
+    public bool WantsKeys => !Inert && _binding.List.WantsKeys;
 
     public void Detach()
     {
-        if (_detached)
+        if (!_attached)
         {
             return;
         }
 
-        _detached = true;
+        _attached = false;
         PointerEntered -= OnPointerEntered;
-        Strings.Changed -= OnLanguage;
-        _minutes?.Dispose();
-        _minutes = null;
-        _lease?.Dispose();
-        _lease = null;
-        _fade?.Dispose();
-        _fade = null;
-        ClearRows();
+        _binding.Dispose();
+        _source.Stop();
         _links.Leave();
-        _state.Detach();
-        _open.Clear();
-        _ticker = null;
+        _folds.Clear();
     }
 
-    private NotificationSnapshot Snapshot => _lease is null ? _preview : _widgetHost.Notifications.Snapshot;
-
-    // ---- drawing -----------------------------------------------------------------------------
-
-    private void Render()
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        ClearRows();
-        var snapshot = Snapshot;
-        var items = snapshot.Items;
-        var allowed = snapshot.Access == NotificationAccess.Allowed;
-
-        _scroll.Visibility = Visibility.Collapsed;
-        _state.Hide();
-
-        // [S-14810] The state's row and the empty rows under it at the list's one row size, from the card's top edge.
-        _reach = _area.IsMeasured
-            ? ItemSize.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemSize.Natural(_plan.Lines, _area.Grid());
-        _state.RowPitch = _reach.Pitch;
-
-        if (snapshot.Access == NotificationAccess.Pending)
-        {
-            // Not answered yet: the frame, never a wrong "nothing" (§11).
-            return;
-        }
-
-        if (!allowed)
-        {
-            ShowAccess(snapshot.Access);
-            return;
-        }
-
-        if (items.Count == 0)
-        {
-            _state.Show(NotificationsStr.Panels_Notifications_None.Text(), offerAccounts: false);
-            _cursor = null;
-            return;
-        }
-
-        _scroll.Visibility = Visibility.Visible;
-        var now = _clock();
-
-        // [S-12807] [S-14810] The rows at their one fixed size from the card's top edge, the last its foot reaches cut by it; a
-        // heading or a fold line is one row of 28 at its own.
-        _reach = _area.IsMeasured
-            ? ItemSize.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemSize.Natural(_plan.Lines, _area.Grid());
-        ListEdge.Apply(_scroll);
-
-        if (_plan.Grouped)
-        {
-            foreach (var group in NotificationRules.Groups(items))
-            {
-                var heading = Heading(group);
-                LinkHeading(heading, group); // [S-11930]
-                AddLine(heading, LinePitch, heading: true);
-                var (rows, more) = NotificationRules.Fold(group, _open.Contains(group.AppId), _plan.Folded);
-                foreach (var item in rows)
-                {
-                    AddRow(item, now, withIcon: false);
-                }
-
-                if (more > 0 || (_open.Contains(group.AppId) && group.Items.Count > _plan.Folded))
-                {
-                    AddLine(Fold(group, more), LinePitch, heading: false);
-                }
-            }
-        }
-        else
-        {
-            foreach (var item in NotificationRules.Newest(items))
-            {
-                AddRow(item, now, withIcon: true);
-            }
-        }
-
-        // [S-6712] [S-14810] As tall as the lines, at most the room (the last line in it cut), never ending in a heading.
-        var room = _area.Height + FamilySpace.Inset;
-        var bottoms = _lines.Select(l => l.Bottom).ToList();
-        var content = bottoms.Count > 0 ? bottoms[^1] : 0;
-        _scroll.Height = !_area.IsMeasured ? double.NaN
-            : content <= room + LayoutMath.Tolerance ? content
-            : KitChecks.ViewEnd(bottoms, room, [.. _lines.Select(l => l.Heading)]);
-
-        _cursor = _cursor is { } cursor && cursor < _rows.Count ? cursor : null;
-        ShowCursor();
-        _fade?.Refresh();
-    }
-
-    /// <summary>[S-12807] [S-14810] A heading's or a fold line's height: one row of 28 at its optimal, whole cells.</summary>
-    private double LinePitch => ItemSize.Optimal(FamilyShape.Row1, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
-
-    /// <summary>[S-14810] A line under the ones before: its edges on whole device pixels.</summary>
-    private void AddLine(FrameworkElement line, double height, bool heading)
-    {
-        var scale = XamlRoot?.RasterizationScale ?? 1;
-        var top = _lines.Count > 0 ? _lines[^1].Bottom : 0;
-        _laid += height;
-        var bottom = ItemSize.OnPixels(_laid, scale);
-        line.Height = bottom - top;
-        _list.Children.Add(line);
-        _lines.Add((bottom, heading));
-    }
-
-    /// <summary>[S-14500] The lines' length laid so far, before their edges are put on pixels.</summary>
-    private double _laid;
-
-    /// <summary>[S-4403] Access Windows has not given: the state row's sentence and the one button that fixes it.</summary>
-    private void ShowAccess(NotificationAccess access)
-    {
-        switch (access)
-        {
-            case NotificationAccess.Denied:
-                _state.Show(NotificationsStr.Panels_Notifications_Denied.Text(), offerAccounts: false, action: (NotificationsStr.Panels_Notifications_OpenSettings.Text(), OpenAccessPage), problem: true);
-                break;
-
-            case NotificationAccess.Unspecified:
-                _state.Show(NotificationsStr.Panels_Notifications_Unspecified.Text(), offerAccounts: false, action: (NotificationsStr.Panels_Notifications_Allow.Text(), () => _ = AskAsync()));
-                break;
-
-            default:
-                _state.Show(NotificationsStr.Panels_Notifications_Unsupported.Text(), offerAccounts: false);
-                break;
-        }
-    }
-
-    /// <summary>[S-4402] An app's heading: one row of 28, its icon and its name in BodyStrong, secondary.</summary>
-    private Grid Heading(NotificationGroup group)
-    {
-        var icon = AppIcon(group.AppId);
-        icon.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
-        var name = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, group.AppName);
-        name.VerticalAlignment = VerticalAlignment.Center;
-        SetColumn(name, 1);
-
-        return new Grid
-        {
-            Height = FamilyShape.Row1,
-            Padding = Family.SideInset,
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            },
-            Children = { icon, name },
-        };
-    }
-
-    /// <summary>[S-4402] "See more (n)" / "See fewer": a row of the list's own, its name secondary at the rows' text edge.</summary>
-    private RowBlock Fold(NotificationGroup group, int more)
-    {
-        var row = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Interactive = true };
-        row.Show(more > 0 ? NotificationsStr.Panels_Notifications_SeeMore.Format(("count", LocaleFormat.Integer(more))) : NotificationsStr.Panels_Notifications_SeeFewer.Text());
-        row.NameText.Foreground = Family.Brush(ColourRole.TextSecondary);
-
-        var appId = group.AppId;
-        TappedEventHandler onTap = (_, args) =>
-        {
-            args.Handled = true;
-            if (!_open.Remove(appId))
-            {
-                _open.Add(appId);
-            }
-
-            Render();
-        };
-        row.Tapped += onTap;
-        _rowHandles.Add(new Unhook(() =>
-        {
-            row.Tapped -= onTap;
-            row.Detach();
-        }));
-        return row;
-    }
-
-    /// <summary>
-    /// One notification as a Row block: the title, when it came, the body (on one line, its own breaks
-    /// read as spaces) on the second line where the plan gives two; flat, its app's icon as the lead.
-    /// </summary>
-    private void AddRow(NotificationItem item, DateTimeOffset now, bool withIcon)
-    {
-        var row = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Interactive = true };
-        var title = item.Title.Length > 0 ? item.Title : NotificationRules.FallbackName(item.AppId);
-        row.Show(title, _plan.Time ? Formatting.Ago(item.Arrived, now) : null, item.Body.Length > 0 ? ClipboardFormatting.Preview(item.Body, NotificationRules.MostBody) : null);
-        if (withIcon && _plan.Lead)
-        {
-            row.Lead(AppIcon(item.AppId));
-        }
-
-        _rowHandles.Add(ItemMenu.Attach(row, () => RowMenu(item)));
-        WidgetItems.Mark(row); // [S-814]
-
-        // [S-7065] A click focuses the row; a double-click opens the sender, as Enter does.
-        TappedEventHandler onTap = (_, args) =>
-        {
-            args.Handled = true;
-            Focus(row);
-        };
-        DoubleTappedEventHandler onDoubleTap = (_, args) =>
-        {
-            args.Handled = true;
-            Open(item);
-        };
-
-        row.Tapped += onTap;
-        row.DoubleTapped += onDoubleTap;
-        _rowHandles.Add(new Unhook(() =>
-        {
-            row.Tapped -= onTap;
-            row.DoubleTapped -= onDoubleTap;
-            row.Detach();
-        }));
-
-        var app = item.AppName.Length > 0 ? item.AppName : NotificationRules.FallbackName(item.AppId);
-        AutomationProperties.SetName(row, $"{app}: {title}");
-        ToolTipService.SetToolTip(row, NotificationsStr.Panels_Notifications_Open.Format(("app", app)));
-
-        _rows.Add((row, item));
-        AddLine(row, _reach.Pitch, heading: false);
-    }
-
-    /// <summary>[S-4405] The sender's icon, 16: the bell until one comes, and where none does.</summary>
-    private Grid AppIcon(string appId)
-    {
-        var host = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center };
-        var fallback = Family.Glyph(NotificationsModule.Glyph);
-        host.Children.Add(fallback);
-
-        if (_lease is not null && NotificationRules.AppTarget(appId) is { } target)
-        {
-            _ = LoadIconAsync(host, fallback, target);
-        }
-
-        return host;
-    }
-
-    private async Task LoadIconAsync(Grid host, FontIcon fallback, string target)
-    {
-        try
-        {
-            var image = await AppIconSource.GetAsync(target, (int)Math.Ceiling(FamilyShape.Icon * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true);
-            if (image is null || _detached)
-            {
-                return;
-            }
-
-            host.Children.Remove(fallback);
-            host.Children.Add(new Image { Source = image, Width = FamilyShape.Icon, Height = FamilyShape.Icon, Stretch = Stretch.Uniform });
-        }
-        catch (Exception ex)
-        {
-            // The bell stays: an icon is a nicety, never a reason for the row to go.
-            Log.Debug(Scope, $"no icon for a sender ({ex.GetType().Name})");
-        }
-    }
-
-    private void ClearRows()
-    {
-        foreach (var handle in _rowHandles)
-        {
-            handle.Dispose();
-        }
-
-        _rowHandles.Clear();
-        Apps.Clear();
-        _rows.Clear();
-        _lines.Clear();
-        _laid = 0;
-        _list.Children.Clear();
-    }
+    /// <summary>In edit mode nothing is opened or cleared ([S-4409]).</summary>
+    private bool Inert => !_attached || _surface?.EditMode == true;
 
     // ---- acting ------------------------------------------------------------------------------
 
-    /// <summary>In edit mode nothing is opened or cleared ([S-4409]).</summary>
-    private bool Inert => _detached || _surface?.EditMode == true;
-
-    private IEnumerable<ItemMenuEntry> RowMenu(NotificationItem item)
-    {
-        if (Inert)
-        {
-            return [];
-        }
-
-        var app = item.AppName.Length > 0 ? item.AppName : NotificationRules.FallbackName(item.AppId);
-        return
-        [
-            new(Glyphs.OpenWith, NotificationsStr.Panels_Notifications_Open.Format(("app", app)), () => Open(item)),
-            new(Glyphs.Dismiss, NotificationsStr.Panels_Notifications_Dismiss.Text(), () => Dismiss(item), Quick: QuickCommand.Delete),
-            ItemMenuEntry.Separator,
-            new(Glyphs.Clear, NotificationsStr.Panels_Notifications_ClearApp.Format(("app", app)), () => ClearApp(item.AppId), Danger: true),
-        ];
-    }
-
-    private void Open(NotificationItem item)
-    {
-        if (Inert || _lease is null)
-        {
-            return;
-        }
-
-        if (_widgetHost.Launcher.OpenApp(item.AppId) != LaunchOutcome.Opened)
-        {
-            Log.Info(Scope, "the sender of a notification could not be opened");
-        }
-    }
-
-    private void Dismiss(NotificationItem item)
+    private void Run(KitItem item, KitAction action)
     {
         if (Inert)
         {
             return;
         }
 
-        if (_lease is null)
+        if (NotificationsSpec.FoldOf(item) is { } app)
         {
-            _preview = _preview with { Items = [.. _preview.Items.Where(each => each.Id != item.Id)] };
-            Render();
+            _source.Fold(app);
             return;
         }
 
-        _widgetHost.Notifications.Dismiss(item.Id);
-    }
-
-    private void ClearApp(string appId)
-    {
-        if (Inert)
+        if (_source.Of(item.Id) is not { } notification)
         {
             return;
         }
 
-        if (_lease is null)
+        switch (action.Id)
         {
-            _preview = _preview with { Items = [.. _preview.Items.Where(each => !string.Equals(each.AppId, appId, StringComparison.OrdinalIgnoreCase))] };
-            Render();
-            return;
-        }
+            case NotificationsSpec.OpenId when _source.Live && _widgetHost.Launcher.OpenApp(notification.AppId) != LaunchOutcome.Opened:
+                Log.Info(Scope, "the sender of a notification could not be opened");
+                break;
 
-        _widgetHost.Notifications.DismissApp(appId);
+            case NotificationsSpec.DismissId:
+                _source.Dismiss(notification);
+                break;
+
+            case NotificationsSpec.ClearAppId:
+                _source.ClearApp(notification.AppId);
+                break;
+        }
     }
 
     private void ClearAll()
     {
-        if (Inert)
+        if (!Inert)
+        {
+            _source.ClearAll();
+        }
+    }
+
+    /// <summary>[S-4402] "See more" opens on the click, as Windows' own does: its row's click is the fold's.</summary>
+    private void HookFold(KitItem item, FrameworkElement row)
+    {
+        if (NotificationsSpec.FoldOf(item) is not { } app || !_folds.Add(row))
         {
             return;
         }
 
-        if (_lease is null)
+        row.Tapped += (_, _) =>
         {
-            _preview = _preview with { Items = [] };
-            Render();
-            return;
-        }
+            if (!Inert)
+            {
+                _source.Fold(app);
+            }
+        };
+    }
 
-        _widgetHost.Notifications.ClearAll();
+    /// <summary>[S-4402] A fold row's words in the secondary role, at the rows' text edge.</summary>
+    private static void Quiet(KitItem item, RowBlock row)
+    {
+        if (NotificationsSpec.FoldOf(item) is not null)
+        {
+            row.NameText.Foreground = Family.Brush(ColourRole.TextSecondary);
+        }
+    }
+
+    private void ForgetRows()
+    {
+        _folds.Clear();
+        Apps.Clear();
     }
 
     private void OpenAccessPage()
     {
-        if (!Inert && _lease is not null)
+        if (!Inert && _source.Live)
         {
             _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
         }
     }
 
-    private async Task AskAsync()
+    private async void Ask()
     {
-        if (Inert || _lease is null)
+        if (Inert || !_source.Live)
         {
             return;
         }
@@ -546,7 +226,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         try
         {
             var answer = await _widgetHost.Notifications.RequestAccessAsync().ConfigureAwait(true);
-            if (answer == NotificationAccess.Denied && !_detached)
+            if (answer == NotificationAccess.Denied && _attached)
             {
                 // Said no (or could not ask): the page where it can be turned on.
                 _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
@@ -561,87 +241,173 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     /// <summary>[S-4403] Access has no change event: it is looked at again when the pointer comes onto the widget.</summary>
     private void OnPointerEntered(object sender, PointerRoutedEventArgs args)
     {
-        if (_lease is not null)
+        if (_source.Live)
         {
             _widgetHost.Notifications.Refresh();
         }
     }
 
-    // ---- keys ([S-4409]) ---------------------------------------------------------------------
-
-    public bool HandleKey(WidgetKey key)
+    /// <summary>[S-4405] The sender's icon, 16: the bell until one comes, and where none does.</summary>
+    private Grid AppIcon(string appId)
     {
-        if (_detached)
+        var host = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center };
+        var fallback = Family.Glyph(NotificationsModule.Glyph);
+        host.Children.Add(fallback);
+
+        if (_source.Live && NotificationRules.AppTarget(appId) is { } target)
         {
-            return false;
+            _ = LoadIconAsync(host, fallback, target);
         }
 
-        var decision = ListKeys.Decide(key, _cursor ?? -1, _rows.Count);
-        switch (decision.Command)
+        return host;
+    }
+
+    private async Task LoadIconAsync(Grid host, FontIcon fallback, string target)
+    {
+        try
         {
-            case ListCommand.Focus:
-                _cursor = decision.Index;
-                ShowCursor();
-                return true;
+            var image = await AppIconSource.GetAsync(target, (int)Math.Ceiling(FamilyShape.Icon * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true);
+            if (image is null || !_attached)
+            {
+                return;
+            }
 
-            case ListCommand.Open:
-                Open(_rows[decision.Index].Item);
-                return true;
-
-            case ListCommand.Delete:
-                _cursor = ListKeys.AfterRemoval(decision.Index, _rows.Count - 1) is var next and >= 0 ? next : null;
-                Dismiss(_rows[decision.Index].Item);
-                return true;
-
-            case ListCommand.Menu when decision.Index < _rows.Count:
-                ItemMenu.Open(_rows[decision.Index].Row, RowMenu(_rows[decision.Index].Item));
-                return true;
-
-            case ListCommand.Release:
-                var had = _cursor is not null;
-                _cursor = null;
-                ShowCursor();
-                return had;
-
-            default:
-                return false;
+            host.Children.Remove(fallback);
+            host.Children.Add(new Image { Source = image, Width = FamilyShape.Icon, Height = FamilyShape.Icon, Stretch = Stretch.Uniform });
+        }
+        catch (Exception ex)
+        {
+            // The bell stays: an icon is a nicety, never a reason for the row to go.
+            Log.Debug(Scope, $"no icon for a sender ({ex.GetType().Name})");
         }
     }
 
-    /// <summary>[S-1564] Rows to move through, and not in edit mode.</summary>
-    public bool WantsKeys => !Inert && _rows.Count > 0;
-
-    private void Focus(RowBlock row)
+    /// <summary>
+    /// [S-4400] The host's notification feed as a kit source: the list as the config shows it (flat, or under app
+    /// headings with their folds), access Windows has not given as the state row with its way out ([S-4403]).
+    /// </summary>
+    private sealed class NotificationSource(NotificationsView owner) : IKitSource
     {
-        var index = _rows.FindIndex(r => ReferenceEquals(r.Row, row));
-        if (index < 0 || Inert)
+        private INotifications? _feed;
+        private IDisposable? _lease;
+
+        /// <summary>The apps whose group shows every notification ("See more" opened); the showing's, never saved.</summary>
+        private readonly HashSet<string> _open = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>A render's or a sample's notifications in place of the person's.</summary>
+        private NotificationSnapshot _preview = NotificationSnapshot.Pending;
+
+        public event Action? Changed;
+
+        public bool Busy => false;
+
+        /// <summary>Whether it reads the person's notifications (not a render's).</summary>
+        public bool Live => _lease is not null;
+
+        public NotificationSnapshot Snapshot => _lease is not null && _feed is not null ? _feed.Snapshot : _preview;
+
+        public void Start(INotifications feed)
         {
-            return;
+            _feed = feed;
+            _lease ??= feed.Acquire(() => Changed?.Invoke());
         }
 
-        _cursor = index;
-        ShowCursor();
-    }
-
-    /// <summary>[S-1288] The keyboard's ring: the Row block's own.</summary>
-    private void ShowCursor()
-    {
-        for (var i = 0; i < _rows.Count; i++)
+        public void Stop()
         {
-            _rows[i].Row.Focused = _cursor == i;
+            _lease?.Dispose();
+            _lease = null;
+            _open.Clear();
         }
-    }
 
-    private void OnLanguage(Locale locale) => Render();
-
-    private sealed class Unhook(Action undo) : IDisposable
-    {
-        private Action? _undo = undo;
-
-        public void Dispose()
+        public void Show(bool refresh)
         {
-            _undo?.Invoke();
-            _undo = null;
+            if (refresh && Live)
+            {
+                _feed?.Refresh();
+            }
         }
+
+        public KitRead Read()
+        {
+            var snapshot = Snapshot;
+            var locale = Strings.Current;
+            return snapshot.Access switch
+            {
+                // Not answered yet: the loading row, never a wrong "nothing" (§11).
+                NotificationAccess.Pending => new KitRead([], []),
+                NotificationAccess.Allowed => new KitRead(NotificationsSpec.Items(snapshot.Items, owner._config.AppHeadings, _open, locale), [new KitOutcome(null, FetchStatus.Ok)]),
+                NotificationAccess.Denied => new KitRead([], [], Stated: new KitStated(NotificationsStr.Panels_Notifications_Denied.Text(locale))
+                {
+                    Fix = new KitFix(NotificationsStr.Panels_Notifications_OpenSettings.Text(locale), owner.OpenAccessPage),
+                }),
+                NotificationAccess.Unspecified => new KitRead([], [], Stated: new KitStated(NotificationsStr.Panels_Notifications_Unspecified.Text(locale), Problem: false)
+                {
+                    Fix = new KitFix(NotificationsStr.Panels_Notifications_Allow.Text(locale), owner.Ask),
+                }),
+                _ => new KitRead([], [], Stated: new KitStated(NotificationsStr.Panels_Notifications_Unsupported.Text(locale), Problem: false)),
+            };
+        }
+
+        public NotificationItem? Of(string id) => Snapshot.Items.FirstOrDefault(n => NotificationsSpec.Id(n) == id);
+
+        /// <summary>[S-4402] Open or close an app's group.</summary>
+        public void Fold(string app)
+        {
+            if (!_open.Remove(app))
+            {
+                _open.Add(app);
+            }
+
+            Changed?.Invoke();
+        }
+
+        public void Dismiss(NotificationItem item)
+        {
+            if (Live)
+            {
+                _feed!.Dismiss(item.Id);
+                return;
+            }
+
+            Hold(_preview with { Items = [.. _preview.Items.Where(each => each.Id != item.Id)] });
+        }
+
+        public void ClearApp(string appId)
+        {
+            if (Live)
+            {
+                _feed!.DismissApp(appId);
+                return;
+            }
+
+            Hold(_preview with { Items = [.. _preview.Items.Where(each => !string.Equals(each.AppId, appId, StringComparison.OrdinalIgnoreCase))] });
+        }
+
+        public void ClearAll()
+        {
+            if (Live)
+            {
+                _feed!.ClearAll();
+                return;
+            }
+
+            Hold(_preview with { Items = [] });
+        }
+
+        /// <summary>[S-11850] A sample's or a render's notifications, <paramref name="open"/> the app opened.</summary>
+        public void Hold(NotificationSnapshot snapshot, string? open = null)
+        {
+            _preview = snapshot;
+            if (open is not null)
+            {
+                _open.Clear();
+                _open.Add(open);
+            }
+
+            Changed?.Invoke();
+        }
+
+        /// <summary>[S-11850] What a render shows before a state is asked for.</summary>
+        public bool Pending => _preview.Access == NotificationAccess.Pending;
     }
 }

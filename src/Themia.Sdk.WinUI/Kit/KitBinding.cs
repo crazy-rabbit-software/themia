@@ -80,6 +80,9 @@ public sealed class KitBinding : IDisposable
     /// <summary>[S-3307] The cursor moved onto an item (null: it let go).</summary>
     public Action<KitItem?>? CursorMoved { get; init; }
 
+    /// <summary>[S-11930] What only the widget knows of a group's heading the list drew (its place on the view's links).</summary>
+    public Action<KitGroup, FrameworkElement>? DecorateHeading { get; init; }
+
     private KitList NewList(KitSpec spec) => new(_host, spec, _actions, Run, Look is not null && ReferenceEquals(spec, _first) ? Look : null)
     {
         Clock = _clock,
@@ -87,6 +90,7 @@ public sealed class KitBinding : IDisposable
         Redrawing = Redrawing,
         UnderLine = UnderLine,
         CursorMoved = CursorMoved,
+        DecorateHeading = DecorateHeading,
     };
 
     /// <summary>[S-12481] [S-7064] The sources' state: the view lays it over its content (<see cref="KitStatus.Place"/>).</summary>
