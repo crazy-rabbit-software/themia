@@ -109,11 +109,11 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
     /// <summary>The item a press is on and where it began.</summary>
     private (string Key, Windows.Foundation.Point At)? _press;
 
-    /// <summary>[S-13714] A press on empty room of the icons' area, where it began (the icons' DIPs) and how its band combines.</summary>
-    private (Windows.Foundation.Point At, BandMode Mode)? _emptyPress;
-
-    /// <summary>[S-13714] The press on empty room travelled past the dead zone: it is a band.</summary>
-    private bool _banding;
+    /// <summary>
+    /// [S-13714] [S-1581] A press on empty room of the icons' area: the one rubber band's gesture (<see cref="BandGesture"/>,
+    /// from where it began, in the icons' DIPs; drawn once past the dead zone, until let go) and how its band combines.
+    /// </summary>
+    private (BandGesture Gesture, BandMode Mode)? _emptyPress;
 
     /// <summary>One item's icon: the desktop's own icon view in its box.</summary>
     private sealed record Cell(string Key, Grid Root, FrameworkElement View);
@@ -236,7 +236,7 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
     internal void DebugBand((double X, double Y) from, (double X, double Y) to)
     {
         var size = _icons.Area;
-        _emptyPress = (new Windows.Foundation.Point(from.X * size.Width, from.Y * size.Height), BandMode.Replace);
+        _emptyPress = (new BandGesture(from.X * size.Width, from.Y * size.Height), BandMode.Replace);
         Band(new Windows.Foundation.Point(to.X * size.Width, to.Y * size.Height));
     }
 
@@ -285,7 +285,6 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
 
         _disposed = true;
         _emptyPress = null;
-        _banding = false;
         foreach (var cell in _cells.Values)
         {
             DropCell(cell);
@@ -575,8 +574,8 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
 
         var ctrl = (e.KeyModifiers & VirtualKeyModifiers.Control) != 0;
         var shift = (e.KeyModifiers & VirtualKeyModifiers.Shift) != 0;
-        _emptyPress = (Inside(e.GetCurrentPoint(_icons).Position), SelectionBand.Mode(ctrl, shift));
-        _banding = false;
+        var at = Inside(e.GetCurrentPoint(_icons).Position);
+        _emptyPress = (new BandGesture(at.X, at.Y), SelectionBand.Mode(ctrl, shift));
         _ = _desk.CapturePointer(e.Pointer);
         _ = _desk.Focus(FocusState.Pointer);
         e.Handled = true;
@@ -602,7 +601,7 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
             return;
         }
 
-        var banded = _banding;
+        var banded = press.Gesture.Drawn;
         _desk.ReleasePointerCapture(e.Pointer);
         EndBand();
         if (!banded && press.Mode == BandMode.Replace && _selection.Clear())
@@ -626,18 +625,19 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
         }
 
         now = Inside(now);
-        if (!_banding)
+        var gesture = press.Gesture.Moved(now.X, now.Y);
+        if (!gesture.Drawn)
         {
-            if (!SelectionBand.PastThreshold(now.X - press.At.X, now.Y - press.At.Y))
-            {
-                return;
-            }
-
-            _banding = true;
-            _selection.BeginBand(press.Mode);
+            return;
         }
 
-        var band = new BandRect(press.At.X, press.At.Y, now.X, now.Y);
+        if (!press.Gesture.Drawn)
+        {
+            _selection.BeginBand(press.Mode);
+            _emptyPress = press with { Gesture = gesture };
+        }
+
+        var band = gesture.To(now.X, now.Y);
         Canvas.SetLeft(_band, band.Left);
         Canvas.SetTop(_band, band.Top);
         _band.Width = band.Width;
@@ -659,13 +659,12 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
     /// <summary>[S-13714] The band goes; what it selected stays.</summary>
     private void EndBand()
     {
-        if (_banding)
+        if (_emptyPress is { Gesture.Drawn: true })
         {
             _selection.EndBand();
         }
 
         _emptyPress = null;
-        _banding = false;
         _band.Visibility = Visibility.Collapsed;
     }
 
