@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
+/// [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample] [--config json]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
 /// (<see cref="SizeFit.CheckedAt"/>, [S-2448]), labelled, side by side on one page; with one, once at that size. The widget has its
 /// kind's default config; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -52,6 +52,9 @@ internal static class WidgetRender
     private static ChartType? _chart;
     private static ChartDetail? _detail;
     private static MetricTrend? _trend;
+
+    // [S-14962] --config <json>: a fragment of the kind's config merged over its default (a network card's adapter).
+    private static string? _fragment;
 
     /// <summary>[S-6547] The cards' own item colour and item text colour (<c>--own-items</c>, <c>--own-item-text</c>), empty to follow the design.</summary>
     private static FillChoice _ownItems = new();
@@ -174,7 +177,8 @@ internal static class WidgetRender
         _chart = Option(args, "--chart") is { } chartText && Enum.TryParse<ChartType>(chartText, ignoreCase: true, out var chartValue) && Enum.IsDefined(chartValue) ? chartValue : null;
         _detail = Option(args, "--detail") is { } detailText && Enum.TryParse<ChartDetail>(detailText, ignoreCase: true, out var detailValue) && Enum.IsDefined(detailValue) ? detailValue : null;
         _trend = Option(args, "--trend") is { } trendText && Enum.TryParse<MetricTrend>(trendText, ignoreCase: true, out var trendValue) && Enum.IsDefined(trendValue) ? trendValue : null;
-        var sized = WidgetConfig.CreateDefault(kind);
+        _fragment = Option(args, "--config");
+        var sized = Fragment(WidgetConfig.CreateDefault(kind));
         if (style is { } styled)
         {
             WidgetStyles.Set(sized, styled);
@@ -476,6 +480,8 @@ internal static class WidgetRender
                 WidgetStyles.Set(model.Config, chosen);
             }
 
+            model.Config = Fragment(model.Config);
+
             // [S-2848] --place-cleared: a widget about a place, with its place cleared.
             PlaceRender.Apply(model.Config, _args);
             ChartLook(model.Config);
@@ -500,6 +506,10 @@ internal static class WidgetRender
         Arrange(page, cards, labels, tiers);
         return labels;
     }
+
+    /// <summary>[S-14962] The config with --config's fragment merged over it (as a state file's would load), or as it is.</summary>
+    private static WidgetConfig Fragment(WidgetConfig config)
+        => _fragment is { Length: > 0 } fragment ? Themia.Core.Storage.StateJson.Merged(config, fragment) : config;
 
     /// <summary>
     /// [S-6752] The chart look --chart and --detail ask for, on a graph kind (a type it does not offer is its own, as on load);

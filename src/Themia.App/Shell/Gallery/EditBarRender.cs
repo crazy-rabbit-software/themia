@@ -536,6 +536,48 @@ internal static partial class EditBarRender
         {
             await SelectionShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"select-{theme}-{name}.png"), click, type, lines, scrollToEnd: name.EndsWith("-end", StringComparison.Ordinal)).ConfigureAwait(true);
         }
+
+        await AdapterShots(screen, ticker, outDir, theme).ConfigureAwait(true);
+    }
+
+    /// <summary>
+    /// [S-14962] The network kinds' Adapter line over the sample PC ([S-1931]: its Wi-Fi and its dock's unplugged Ethernet):
+    /// a local address's page with the line open, one on an adapter that is gone (kept, "not connected"), and several
+    /// network widgets set at once.
+    /// </summary>
+    private static async Task AdapterShots(Grid screen, Ticker ticker, string outDir, string theme)
+    {
+        using var machine = RenderMachine.Install(ticker, screen.DispatcherQueue);
+        var adapter = "w/" + Str.NetworkAdapter_Label.Text();
+        const string Gone = """{"adapter":"{99999999-8888-7777-6666-555555555555}","adapterName":"USB Ethernet"}""";
+        var ethernet = $$"""{"adapter":"{{Themia.Core.SystemData.SamplePc.EthernetId}}","adapterName":"Ethernet"}""";
+        PropsCard[] local = [new(new WidgetId("networkLocalAddress"), 140, 160, 300, 84, true)];
+        PropsCard[] chosen = [new(new WidgetId("networkLocalAddress"), 140, 160, 300, 84, true, Config: $$"""{"adapter":"{{Themia.Core.SystemData.SamplePc.WifiId}}","adapterName":"Wi-Fi"}""")];
+        PropsCard[] unplugged = [new(new WidgetId("networkDownload"), 140, 160, 300, 84, true, Config: ethernet)];
+        PropsCard[] gone = [new(new WidgetId("networkLocalAddress"), 140, 160, 300, 84, true, Config: Gone)];
+        PropsCard[] several =
+        [
+            new(new WidgetId("networkLocalAddress"), 20, 160, 344, 84, true),
+            new(new WidgetId("networkDownload"), 20, 244, 344, 84, true),
+            new(new WidgetId("network"), 20, 328, 344, 84, true),
+            new(new WidgetId("networkHistory"), 20, 412, 344, 120, true),
+        ];
+
+        (PropsCard[] Layout, string Name, string? Click)[] cases =
+        [
+            (local, "network-adapter", null),
+            (local, "network-adapter-open", adapter),
+            (chosen, "network-adapter-wifi", adapter),
+            (unplugged, "network-adapter-unplugged", adapter),
+            (gone, "network-adapter-gone", adapter),
+            (several, "network-adapter-several", null),
+            (several, "network-adapter-several-open", "shared/" + SharedSettings.NetworkAdapter.Key + "/" + Str.NetworkAdapter_Label.Text()),
+        ];
+
+        foreach (var (layout, name, click) in cases)
+        {
+            await SelectionShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"select-{theme}-{name}.png"), click).ConfigureAwait(true);
+        }
     }
 
     /// <summary>
