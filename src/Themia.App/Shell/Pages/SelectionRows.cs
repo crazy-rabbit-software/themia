@@ -178,12 +178,14 @@ internal static class SelectionRows
                 Text = Str.Styles_Label.Text(),
                 Value = now is null ? Mixed : shown.Label.Text(),
                 Icon = PageRows.IconOf(char.ConvertFromUtf32(shown.Glyph), null),
+                IconKey = char.ConvertFromUtf32(shown.Glyph),
                 Rows =
                 [
                     .. styles.Select(style => new PageRow("style/" + style.Value, SettingsRowKind.Radio)
                     {
                         Text = style.Label.Text(),
                         Icon = PageRows.IconOf(char.ConvertFromUtf32(style.Glyph), null),
+                        IconKey = char.ConvertFromUtf32(style.Glyph),
                         Holds = now == style.Value,
                         Run = () => commands.SetStyle(style.Value),
                     }),
@@ -226,12 +228,14 @@ internal static class SelectionRows
                 Text = Str.Widget_Align_Label.Text(),
                 Value = at >= 0 ? align[at].Name.Text() : Mixed,
                 Icon = PageRows.IconOf(at >= 0 ? align[at].Glyph : Glyphs.AlignLeft, null),
+                IconKey = at >= 0 ? align[at].Glyph : Glyphs.AlignLeft,
                 Rows =
                 [
                     .. align.Select(o => new PageRow("align/" + o.Value, SettingsRowKind.Radio)
                     {
                         Text = o.Name.Text(),
                         Icon = PageRows.IconOf(o.Glyph, null),
+                        IconKey = o.Glyph,
                         Holds = offer.Align == o.Value,
                         Run = () => commands.SetAlign?.Invoke(o.Value),
                     }),
@@ -277,6 +281,7 @@ internal static class SelectionRows
             Text = Str.Shell_Fill_Image.Text(),
             Value = image is null ? Mixed : BackgroundImage.Name(image),
             Icon = PageRows.IconOf(Glyphs.Photo, null),
+            IconKey = Glyphs.Photo,
             Rows =
             [
                 new PageRow("image/choose", SettingsRowKind.Action)
@@ -305,6 +310,7 @@ internal static class SelectionRows
             Text = Str.Widget_Scale_Label.Text(),
             Value = scale is { } s ? ScaleText(s) : Mixed,
             Icon = PageRows.IconOf(Glyphs.Scale, null),
+            IconKey = Glyphs.Scale,
             Number = new MenuSlider(scale, WidgetScale.Min, WidgetScale.Max, WidgetScale.Step, ScaleText, commands.SetScale),
         });
 

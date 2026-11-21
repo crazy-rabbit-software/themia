@@ -326,11 +326,13 @@ internal sealed partial class PageView
             var holder = _model is { } model ? HolderOf(model, key)?.Key : null;
             var keys = FromKeys();
             Do(() => edit.Commit(answer.Text));
-            Show();
-            if (holder is not null)
+            Rebuild(() =>
             {
-                Refocus(new FocusTag(holder + "#head", 0, keys));
-            }
+                if (holder is not null)
+                {
+                    Refocus(new FocusTag(holder + "#head", 0, keys));
+                }
+            });
         }
 
         box.TextChanged += (_, _) =>
@@ -414,7 +416,7 @@ internal sealed partial class PageView
             {
                 _question = null;
                 Do(question.Done);
-                Show();
+                Rebuild();
             }
         };
         cancel.Click += (_, _) => CloseAsk();

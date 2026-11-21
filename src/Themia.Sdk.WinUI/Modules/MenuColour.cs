@@ -196,4 +196,21 @@ public sealed class MenuColour
             _setFill!(next);
         }
     }
+
+    /// <summary>
+    /// [S-2361] This picker as drawn, its stores and its preview bound late: they are those of <paramref name="live"/>'s picker
+    /// (the newest model's row of the same key), nothing where there is none.
+    /// </summary>
+    internal MenuColour Rebound(Func<MenuColour?> live)
+    {
+        ArgumentNullException.ThrowIfNull(live);
+        return new MenuColour(
+            Hex,
+            Fill,
+            IsFill,
+            Options,
+            _setColour is null ? null : hex => live()?._setColour?.Invoke(hex),
+            _setFill is null ? null : fill => live()?._setFill?.Invoke(fill),
+            _previewFill is null ? null : fill => live()?._previewFill?.Invoke(fill));
+    }
 }

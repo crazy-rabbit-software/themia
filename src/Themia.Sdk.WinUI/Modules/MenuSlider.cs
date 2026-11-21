@@ -87,4 +87,24 @@ public sealed class MenuSlider
 
     /// <summary>A drag that ended without a release that counts (the pointer taken away): nothing stored, the preview ended.</summary>
     public void Cancel() => _preview?.Invoke(null);
+
+    /// <summary>
+    /// [S-2361] This box as drawn, its store and its preview bound late: they are those of <paramref name="live"/>'s box (the
+    /// newest model's row of the same key), nothing where there is none.
+    /// </summary>
+    internal MenuSlider Rebound(Func<MenuSlider?> live)
+    {
+        ArgumentNullException.ThrowIfNull(live);
+        return new MenuSlider(Value, Min, Max, Step, _format, v => live()?.Commit(v), _preview is null ? null : v =>
+        {
+            if (v is { } shown)
+            {
+                live()?.Preview(shown);
+            }
+            else
+            {
+                live()?.Cancel();
+            }
+        });
+    }
 }

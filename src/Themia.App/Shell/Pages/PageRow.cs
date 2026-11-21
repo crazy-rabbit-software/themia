@@ -22,8 +22,14 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
     /// <summary>Its icon, built as the row is; null for none.</summary>
     public Func<UIElement?>? Icon { get; init; }
 
+    /// <summary>[S-2361] What <see cref="Icon"/> draws, as a key: equal keys draw the same icon; null, never the same.</summary>
+    public string? IconKey { get; init; }
+
     /// <summary>[S-14322] What its picker holds pictured at its head's end, before what it says (an icon picker's chosen icon).</summary>
     public Func<UIElement?>? Shows { get; init; }
+
+    /// <summary>[S-2361] What <see cref="Shows"/> draws, as a key.</summary>
+    public string? ShowsKey { get; init; }
 
     /// <summary>
     /// [S-2317] Its icon is its own colour or picture (a view's mark, an app's icon), not a glyph naming the setting: it
@@ -68,6 +74,9 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
 
     /// <summary>A font's or an icon's picker, built as it opens.</summary>
     public Func<FrameworkElement>? Picker { get; init; }
+
+    /// <summary>[S-2361] What <see cref="Picker"/> builds, as a key (a font picker over the font it holds).</summary>
+    public string? PickerKey { get; init; }
 
     /// <summary>A lookup that asks (a place): its box, its answers.</summary>
     public SettingsSearch? Search { get; init; }

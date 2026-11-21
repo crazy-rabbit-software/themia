@@ -92,8 +92,42 @@ internal static class PageRows
             SetsUp = line.SetsUp,
         };
         row = Greyed(row, line.Disabled, line.Why);
-        return line.Picture is { } picture ? row with { Icon = () => MenuPictures.Create(picture) } : row;
+        row = line.Picture is { } picture ? row with { Icon = () => MenuPictures.Create(picture) } : row;
+
+        // [S-2361] What its icon, its head's picture and its picker draw, as keys: a row drawn the same keeps its card.
+        return row with
+        {
+            IconKey = row.Icon is null ? null : string.Join('|', source, GlyphOf(line), line.GlyphColour, line.Disabled, line.IconFile, line.Picture),
+            ShowsKey = row.Shows is null || line is not SettingsIcon shown ? null : string.Join('|', shown.Head.Glyph, line.GlyphColour),
+            PickerKey = line switch
+            {
+                SettingsFont font => "font|" + font.Current,
+                SettingsIcon icon => string.Join('|', "icon", icon.Current, icon.DefaultName, icon.DefaultText),
+                _ => null,
+            },
+        };
     }
+
+    /// <summary>The glyph a line's icon is drawn from; null for none.</summary>
+    private static string? GlyphOf(SettingsLine line) => line switch
+    {
+        SettingsHeading l => l.Glyph,
+        SettingsReading l => l.Glyph,
+        SettingsToggle l => l.Glyph,
+        SettingsRadio l => l.Glyph,
+        SettingsChoice l => l.Glyph,
+        SettingsSlider l => l.Glyph,
+        SettingsFont l => l.Glyph,
+        SettingsIcon l => l.Glyph,
+        SettingsSubmenu l => l.Glyph,
+        SettingsCommand l => l.Glyph,
+        SettingsAsk l => l.Glyph,
+        SettingsPrompt l => l.Glyph,
+        SettingsLink l => l.Glyph,
+        SettingsSearch l => l.Glyph,
+        SettingsItem l => l.Glyph,
+        _ => null,
+    };
 
     /// <summary>
     /// [S-2375] A greyed row says why under its name (Karpo's §309, <c>OptionRow.Why</c>): its caption while it is greyed,
@@ -193,6 +227,7 @@ internal static class PageRows
                     {
                         Text = Str.Shell_Font_Add.Text(),
                         Icon = IconOf(Glyphs.Add, null),
+                        IconKey = Glyphs.Add,
                         Run = () => _ = ShellLauncher.OpenWindowsSettings(FontsPage),
                     },
                 ],

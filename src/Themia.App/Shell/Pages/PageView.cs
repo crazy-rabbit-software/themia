@@ -22,18 +22,18 @@ namespace Themia.App.Shell;
 /// [S-2351] a line of text or a question asked in place: one at a time, scrolled into view); a page of its own
 /// (a view's list of desktop icons: many lines, never one input) stands in the page's place behind a back head.
 /// <para>
-/// The page is drawn again from its model on every change (<see cref="Show"/>): what is open, the
+/// The page's rows are built again from the state on every change (<see cref="Show"/>): what is open, the
 /// sub-page, the scroll and the keyboard's place are kept by the rows' keys, so a change made while one
-/// is typing, dragging or picking leaves it where it was. [S-2361] A change of the page's own (what is
-/// open, unfolded, typed or shown: <see cref="Redraw"/>) draws the same rows again after the event that
-/// asked, in the panel that stands: every card that would be drawn the same stays where it is, untouched
-/// (<see cref="KeptCards"/>), and only the cards it changed are built and put in.
+/// is typing, dragging or picking leaves it where it was. [S-2361] A change of the state or of the page's own (what is
+/// open, unfolded, typed or shown: <see cref="Redraw"/>) is drawn in the panel that stands: every card whose rows read
+/// the same as when it was drawn (<see cref="PageBinding.Signature(PageRow)"/>) under the same marks (<see cref="KeptCards"/>)
+/// stays where it is, untouched, doing what the newest rows of its keys do (<see cref="PageBinding"/>), and only the
+/// cards that changed are built and put in: switching one setting draws its card alone.
 /// </para>
 /// <para>
-/// [S-2346] Never the panel changed inside an event: a drawing of new rows is a new panel put in the old one's place,
-/// and a drawing of the same rows is posted ([S-2361]). A drawing inside a row's own pointer event (a click, a
-/// release) that emptied the panel took that row out of the panel XAML was still handing the event through, and XAML
-/// threw out of the panel's <c>Clear</c>.
+/// [S-2346] Never the panel changed inside an event in it: a drawing the page's own events ask for is posted (<see cref="Redraw"/>,
+/// <see cref="Rebuild"/>), and a change of the state reaches the page posted too. A drawing inside a row's own pointer event
+/// (a click, a release) that took that row out of the panel while XAML was still handing the event through made XAML throw.
 /// </para>
 /// </summary>
 internal sealed partial class PageView : ContentControl
@@ -88,11 +88,24 @@ internal sealed partial class PageView : ContentControl
     /// <summary>[S-3557] The page went: a posted drawing draws nothing.</summary>
     private bool _closed;
 
-    /// <summary>[S-2361] The cards drawn over <see cref="_keptFor"/>'s rows, by their first row's key, with the marks they were drawn with.</summary>
-    private readonly Dictionary<string, (CardMarks Marks, FrameworkElement Card)> _kept = new(StringComparer.Ordinal);
+    /// <summary>
+    /// [S-2361] The cards drawn, by their first row's key, with the marks they were drawn with and what their rows drew
+    /// (<see cref="PageBinding.Signature(PageRow)"/>): a card whose rows and marks read the same is kept, whatever model it
+    /// was drawn from.
+    /// </summary>
+    private readonly Dictionary<string, (CardMarks Marks, string Signature, FrameworkElement Card)> _kept = new(StringComparer.Ordinal);
 
-    /// <summary>[S-2361] The model whose cards <see cref="_kept"/> holds: a new model keeps none.</summary>
-    private PageModel? _keptFor;
+    /// <summary>[S-2361] The rows' handlers bound late, by key, to the newest model's: a kept card does what the newest rows do.</summary>
+    private readonly PageBinding _binding = new();
+
+    /// <summary>[S-2361] The signature of each row of the model drawn, read once a model.</summary>
+    private readonly Dictionary<PageRow, string> _signatures = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>[S-2361] The keys of the cards this drawing put: a card kept for a row no longer drawn is let go.</summary>
+    private readonly HashSet<string> _drawnKeys = new(StringComparer.Ordinal);
+
+    /// <summary>[S-2361] A drawing of new rows is posted (<see cref="Rebuild"/>).</summary>
+    private bool _rebuildPosted;
 
     /// <summary>[S-2361] How many answers each lookup has had, by its row's key: an answer draws its card anew.</summary>
     private readonly Dictionary<string, int> _answered = new(StringComparer.Ordinal);
@@ -150,6 +163,21 @@ internal sealed partial class PageView : ContentControl
             _afterRedraw.Add(after);
         }
 
+        Post();
+    }
+
+    /// <summary>
+    /// [S-2361] Build the rows again and draw them for a change the page's own event made (an answer given), then do
+    /// <paramref name="after"/>: posted as <see cref="Redraw"/> is ([S-2346]), every card that reads the same kept.
+    /// </summary>
+    private void Rebuild(Action? after = null)
+    {
+        _rebuildPosted = true;
+        Redraw(after);
+    }
+
+    private void Post()
+    {
         if (_redrawPosted)
         {
             return;
@@ -160,6 +188,7 @@ internal sealed partial class PageView : ContentControl
         {
             // The dispatcher is shutting down: the window goes with it, there is nothing to draw on.
             _redrawPosted = false;
+            _rebuildPosted = false;
             _afterRedraw.Clear();
             Log.Warn(Scope, "a page's drawing could not be posted; the dispatcher is shutting down");
         }
@@ -169,6 +198,8 @@ internal sealed partial class PageView : ContentControl
     private void Redrawn()
     {
         _redrawPosted = false;
+        var rebuild = _rebuildPosted;
+        _rebuildPosted = false;
         var after = _afterRedraw.ToList();
         _afterRedraw.Clear();
         if (_closed)
@@ -178,7 +209,7 @@ internal sealed partial class PageView : ContentControl
 
         try
         {
-            Draw(rebuild: false);
+            Draw(rebuild);
             foreach (var then in after)
             {
                 then();
@@ -199,7 +230,9 @@ internal sealed partial class PageView : ContentControl
         {
             try
             {
-                _model = _build();
+                // [S-2361] Its handlers bound late: a card kept from the drawing before does what the new rows do.
+                _model = _binding.Bind(_build());
+                _signatures.Clear();
             }
             catch (Exception ex)
             {
@@ -208,21 +241,8 @@ internal sealed partial class PageView : ContentControl
             }
         }
 
-        if (!ReferenceEquals(_keptFor, _model))
-        {
-            _kept.Clear();
-            _keptFor = _model;
-        }
-
-        // [S-2346] New rows go into a new panel, the old one left whole: the row under the pointer stays in it until XAML is
-        // done with it. Only the preview, kept from one drawing to the next ([S-2311]), comes out of it to go into the new one.
-        if (rebuild && _preview is not null)
-        {
-            // ignore: false where the last drawing did not show it (a sub-page, a question).
-            _ = _body.Children.Remove(_preview);
-        }
-
         _drawn = [];
+        _drawnKeys.Clear();
         _used.Clear();
         _grips.Clear();
         Drawings++;
@@ -256,20 +276,13 @@ internal sealed partial class PageView : ContentControl
 
         try
         {
-            if (rebuild)
+            // [S-2361] What stays stays where it is, what changed is put in. [S-2346] Never inside an event in the panel: a
+            // drawing the page's own events ask for is posted (Redraw, Rebuild), and a change of the state reaches the page
+            // posted too (the bar's redraws, never under a press held on it).
+            Lay(_body.Children, _drawn);
+            foreach (var gone in _kept.Keys.Where(k => !_drawnKeys.Contains(k)).ToList())
             {
-                _body = Body();
-                foreach (var element in _drawn)
-                {
-                    _body.Children.Add(element);
-                }
-
-                Content = _body;
-            }
-            else
-            {
-                // [S-2361] Posted, so no event is in the panel: what stays stays where it is, what changed is put in.
-                Lay(_body.Children, _drawn);
+                _kept.Remove(gone);
             }
 
             if (focused is not null)
@@ -372,7 +385,6 @@ internal sealed partial class PageView : ContentControl
         }
 
         _kept.Clear();
-        _keptFor = null;
         _closed = true;
         _afterRedraw.Clear();
         Cancel();
@@ -398,7 +410,7 @@ internal sealed partial class PageView : ContentControl
     {
         if (model.Header is { } header)
         {
-            Children.Add(Kept("header#card", KeptCards.Of([], false, _marks!), () => HeaderCard(header)));
+            Children.Add(Kept("header#card", KeptCards.Of([], false, _marks!), PageBinding.Signature(header), () => HeaderCard(header)));
         }
 
         var first = model.Header is null;
@@ -481,28 +493,50 @@ internal sealed partial class PageView : ContentControl
         }
     }
 
-    /// <summary>[S-2361] A card of this drawing: the one drawn last over the same rows where its marks are the same, else drawn now.</summary>
+    /// <summary>
+    /// [S-2361] A card of this drawing: the one drawn last over rows that read the same (in this model or one before) where
+    /// its marks are the same, else drawn now.
+    /// </summary>
     private FrameworkElement Kept(IReadOnlyList<PageRow> rows, bool inside)
-        => Kept(rows[0].Key, KeptCards.Of(Keys(rows), inside, _marks!), () => rows is [{ Kind: SettingsRowKind.Preview } preview] ? PreviewRow(preview) : Card(rows, inside));
+        => Kept(rows[0].Key, KeptCards.Of(Keys(rows), inside, _marks!), string.Concat(rows.Select(Signature)), () => rows is [{ Kind: SettingsRowKind.Preview } preview] ? PreviewRow(preview) : Card(rows, inside));
 
-    /// <summary>[S-2361] The element kept under <paramref name="key"/> where it was drawn with <paramref name="marks"/> (and is not put yet), else <paramref name="draw"/>'s.</summary>
-    private FrameworkElement Kept(string key, CardMarks marks, Func<FrameworkElement> draw)
+    /// <summary>
+    /// [S-2361] The element kept under <paramref name="key"/> where it was drawn with <paramref name="marks"/> over rows of
+    /// <paramref name="signature"/> (and is not put yet), else <paramref name="draw"/>'s.
+    /// </summary>
+    private FrameworkElement Kept(string key, CardMarks marks, string signature, Func<FrameworkElement> draw)
     {
-        if (!_kept.TryGetValue(key, out var kept) || !kept.Marks.Equals(marks) || _used.Contains(kept.Card))
+        if (!_kept.TryGetValue(key, out var kept) || !kept.Marks.Equals(marks) || kept.Signature != signature || _used.Contains(kept.Card))
         {
-            kept = (marks, draw());
+            kept = (marks, signature, draw());
             _kept[key] = kept;
         }
 
+        _drawnKeys.Add(key);
         _used.Add(kept.Card);
         return kept.Card;
     }
 
     /// <summary>
+    /// [S-2361] What <paramref name="row"/> draws, read once a model. [S-2311] A picker standing open (or the Appearance's
+    /// preview) builds what it shows from its row as it opens, so it never reads the same as in a model before.
+    /// </summary>
+    private string Signature(PageRow row)
+    {
+        if (!_signatures.TryGetValue(row, out var signature))
+        {
+            var open = row.Picker is not null && (_nav.Open == row.Key || _nav.Unfolded.Contains(row.Key));
+            signature = PageBinding.Signature(row) + (open ? "\u0001" + Guid.NewGuid().ToString("N") : string.Empty);
+            _signatures[row] = signature;
+        }
+
+        return signature;
+    }
+
+    /// <summary>
     /// [S-2361] <paramref name="children"/> made <paramref name="wanted"/>, in its order: what goes is taken out, what is
     /// new put in, and what stays is left where it stands (never taken out and put back: it is not laid out again). A kept
-    /// card is in this panel or in none: a drawing of the same rows takes what it does not show out of this panel, and new
-    /// rows keep no card (the preview leaves the old panel before they are drawn).
+    /// card is in this panel or in none.
     /// </summary>
     private static void Lay(UIElementCollection children, List<UIElement> wanted)
     {
