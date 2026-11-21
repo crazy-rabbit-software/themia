@@ -311,7 +311,6 @@ public sealed record OutlineFigure(double StartX, double StartY, IReadOnlyList<O
 /// </summary>
 public static class CardJoins
 {
-
     /// <summary>A join: <paramref name="First"/> is the upper or the left card, <paramref name="Second"/> the lower or the right.</summary>
     private readonly record struct Join(int First, int Second, bool Stacked)
     {
