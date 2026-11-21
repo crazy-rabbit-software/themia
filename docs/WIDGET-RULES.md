@@ -86,7 +86,13 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   widgets and a scaling progress bar that also fills up to the universal spacing given"; "the art cover should also get
   a spacing now, also the universal spacing." Asked the same day: which part of a too-long text stays, "Start stays, end
   cut"; how the cut looks, "Ellipsis"; what fills a transport button, "Glyph only"; the lead glyphs of the title, the
-  artist and the album, "Drop them". (SPEC ATOMS, [S-15100]..[S-15107].)
+  artist and the album, "Drop them". Of the first build, which kept descenders inside the spacing lines: "the text feels
+  as if it has too much space at the bottom. its because of letters like y for example that take up space further
+  down. i dont know if there is anything that we can do about that?"; shown three fits, chose "C: capitals fill"
+  (capitals touch the top spacing line, the line sits on its baseline at the bottom one, descenders hang into the
+  spacing). Also: "the text should update when scrubbing, this can be done with the shared global state."; "all the
+  now playing widgets should have the option to be hidden when noting plays. in edit mode they should appear normally
+  though". (SPEC ATOMS, [S-15100]..[S-15107].)
 
 ## Content
 

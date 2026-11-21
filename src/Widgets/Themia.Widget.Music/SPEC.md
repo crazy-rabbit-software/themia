@@ -60,9 +60,10 @@ buttons' module, their words and looks, their view on the icon face), `MusicMenu
   can be done with the shared global state"): while a bar of the view is scrubbed in the same track (the view's links,
   `ScrubbedTrack`, root [S-11970]), the elapsed time shows the position under the pointer; let go or abandoned, the
   session's again. A scrub of another track, and one while nothing plays here, changes nothing. `MusicKinds.Position`.
-- **[S-15108]** **Every part is an atom** ([S-15100]..[S-15105]): a new title is 240 by 40, a new artist or album 240 by
-  30, a new time 60 by 30 (`MusicTextModule.Sizing`, `AtomRules`); every axis is free, a taller card a larger text. The
-  buttons are icon kinds, not atoms (owner, 2026-11-22: "Icon base"): a new one the icon base's square ([S-15000]).
+- **[S-15108]** **Every part is an atom** ([S-15100]..[S-15105]): a new title, artist or album is 240 by 30, a new time
+  60 by 30 (`MusicTextModule.Sizing`, `AtomRules`); every axis is free, a taller card a larger text. The title is told
+  from the artist and the album by its weight and tone, not its size. The buttons are icon kinds, not atoms (owner,
+  2026-11-22: "Icon base"): a new one the icon base's square ([S-15000]).
 - **[S-2155]** *(Retired with the split: the side cover is the cover atom beside the track atom, the
   Now playing group, [S-11340].)*
 - **[S-6406]** *(Retired with the split: the styles Artwork and text, Full artwork and Text only; the

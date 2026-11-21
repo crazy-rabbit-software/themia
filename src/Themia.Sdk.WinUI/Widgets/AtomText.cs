@@ -11,9 +11,10 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-15101] An atom's line of text: one line in its card's box less the universal spacing (<see cref="AtomSpace.Pad"/>) on
-/// every side, its letters filling that room's height from their capitals' top to their descenders' foot
-/// (<see cref="AtomRules.FontSize"/>), whatever the text says and however long it is (owner, 2026-11-21: "the text should
-/// grow in height to fill up to the universal spacing"; "the text should rather overflow ... than to shrink"). Its first
+/// every side, its capitals filling that room's height and the line standing on its baseline at the room's foot, its
+/// descenders hanging into the spacing under it (<see cref="AtomRules.FontSize"/>), whatever the text says and however
+/// long it is (owner, 2026-11-21: "the text should grow in height to fill up to the universal spacing"; "the text should
+/// rather overflow ... than to shrink"; "the text feels as if it has too much space at the bottom"). Its first
 /// ink stands on the room's start, its last on the room's end when it sits there; a text longer than the room keeps its
 /// start and is cut at the room's end with its ellipsis. The panel takes its whole box.
 /// </summary>
@@ -34,7 +35,7 @@ public sealed partial class AtomText : Panel
     public AtomText(ColourRole role, bool strong)
     {
         _strong = strong;
-        _text = Family.Text(Step(AtomRules.FontSize(AtomRules.TitleInk)), role);
+        _text = Family.Text(Step(AtomRules.FontSize(AtomRules.TextRoom)), role);
         _text.MaxLines = 1;
 
         // The line is placed on its ink, to the fraction: rounding its box would move its capitals off the room's top.
@@ -126,31 +127,26 @@ public sealed partial class AtomText : Panel
     }
 
     /// <summary>
-    /// [S-15101] Set the line on the size at which the face's letters (<see cref="AtomRules.Letters"/>) ink exactly a room
-    /// <paramref name="height"/> tall, as the meter measures them at that size (the face's optical size changes its
-    /// proportions a little); no meter: the model's proportions.
+    /// [S-15101] Set the line on the size at which the face's capitals (<see cref="AtomRules.Capital"/>) are exactly a
+    /// room <paramref name="height"/> tall, as the meter measures them at that size (the face's optical size changes its
+    /// proportions a little), held so that its descenders stay in the card (<see cref="AtomRules.Held"/>); no meter: the
+    /// model's proportions.
     /// </summary>
     private void Fit(double height)
     {
         var font = Math.Max(1, AtomRules.FontSize(height));
-        double lift = AtomRules.Lift(font);
+        var lift = AtomRules.Lift(font);
 
-        // Twice: the first measure corrects the model's size, the second places the line at the size it then has.
-        for (var pass = 0; pass < 2; pass++)
+        // The capitals at the model's size correct the size; the descenders at that size hold it; the capitals at the
+        // size it then has place the line.
+        if (Capitals(font) is { } first)
         {
-            var line = AtomRules.LineHeight(font);
-            if (InkMeter.Measure(new InkText(AtomRules.Letters, Ink.FontOf(_text.FontFamily), font, Weight(font), line)) is not { } ink)
+            font = Math.Max(1, AtomRules.Refit(font, first.Height, height));
+            if (Capitals(font) is { } caps)
             {
-                break;
-            }
-
-            if (pass == 0)
-            {
-                font = Math.Max(1, AtomRules.Refit(font, line - ink.Over - ink.Under, height));
-            }
-            else
-            {
-                lift = ink.Over;
+                var deep = Measure(AtomRules.Deep, font);
+                font = Math.Max(1, AtomRules.Held(font, caps.Height, deep is { } d ? caps.Under - d.Under : 0, height));
+                lift = Capitals(font)?.Over ?? AtomRules.Lift(font);
             }
         }
 
@@ -161,6 +157,13 @@ public sealed partial class AtomText : Panel
             Family.Step(_text, Step(font));
         }
     }
+
+    /// <summary>The line's room over its capitals and under its baseline at <paramref name="font"/>, and how tall they are; no meter: none.</summary>
+    private (double Over, double Under, double Height)? Capitals(double font)
+        => Measure(AtomRules.Capital, font) is { } ink ? (ink.Over, ink.Under, AtomRules.LineHeight(font) - ink.Over - ink.Under) : null;
+
+    private LineInk? Measure(string letters, double font)
+        => InkMeter.Measure(new InkText(letters, Ink.FontOf(_text.FontFamily), font, Weight(font), AtomRules.LineHeight(font)));
 
     /// <summary>The weight the family draws a line of <paramref name="font"/> in: set it on the step, read it back.</summary>
     private int Weight(double font)

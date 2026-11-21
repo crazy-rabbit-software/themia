@@ -84,13 +84,14 @@ public sealed class MusicTests
     }
 
     [Fact]
-    public void S15108_each_text_is_a_text_atom_a_titles_ink_for_the_title_a_details_for_the_rest_the_times_short()
+    public void S15108_each_text_is_a_text_atom_of_one_new_height_the_times_short()
     {
-        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TextWidth, AtomRules.TitleInk).Natural, Modules[0].Descriptor.Sizing(new MusicConfig()).Natural);
-        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TextWidth, AtomRules.DetailInk).Natural, Modules[1].Descriptor.Sizing(new MusicArtistConfig()).Natural);
-        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TextWidth, AtomRules.DetailInk).Natural, Modules[2].Descriptor.Sizing(new MusicAlbumConfig()).Natural);
-        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TimeWidth, AtomRules.DetailInk).Natural, Modules[6].Descriptor.Sizing(new MusicElapsedConfig()).Natural);
-        Assert.Equal(AtomRules.TextSizing(MusicTextModule.TimeWidth, AtomRules.DetailInk).Natural, Modules[7].Descriptor.Sizing(new MusicDurationConfig()).Natural);
+        var text = AtomRules.TextSizing(MusicTextModule.TextWidth, AtomRules.TextRoom).Natural;
+        var time = AtomRules.TextSizing(MusicTextModule.TimeWidth, AtomRules.TextRoom).Natural;
+        Assert.Equal(new SizeDip(240, 30), text);
+        Assert.Equal(new SizeDip(60, 30), time);
+        Assert.All(Modules.Take(3), m => Assert.Equal(text, m.Descriptor.Sizing(m.Descriptor.CreateDefault()).Natural));
+        Assert.All(Modules.Skip(6), m => Assert.Equal(time, m.Descriptor.Sizing(m.Descriptor.CreateDefault()).Natural));
 
         // [S-12411] A taller card is a larger text: no height is fixed.
         Assert.All(Modules, m => Assert.False(m.Descriptor.Sizing(m.Descriptor.CreateDefault()).FixedHeight));

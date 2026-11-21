@@ -14,8 +14,7 @@ namespace Themia.Widget.Music;
 /// <summary>
 /// [S-14921] One text of the track as a text kind ([S-14934]): at home in the Now playing family under Music &amp; media
 /// (<see cref="AddFolderId.NowPlaying"/>); its one option when it hides ([S-1464]). [S-15108] It is a text atom: its card
-/// is the atom's (<see cref="AtomRules.TextSizing"/>), a title's ink for the title, a detail's for the rest, the times a
-/// short card. SPEC.md beside this file.
+/// is the atom's (<see cref="AtomRules.TextSizing"/>), the same new height for every text, the times a short card. SPEC.md beside this file.
 /// </summary>
 public abstract class MusicTextModule(string key)
     : TextModule(MusicKinds.Text(key), MusicJsonContext.Default, AddFolderId.NowPlaying, MusicKinds.Rank(key), key == MusicKinds.Title ? 7 : null,
@@ -30,12 +29,8 @@ public abstract class MusicTextModule(string key)
     protected override void SourceLines(WidgetMenuLines menu, WidgetConfig config) => MusicMenu.Lines(menu, (MusicPartConfig)config);
 
     /// <inheritdoc />
-    protected override WidgetSizing Sizing() => _key switch
-    {
-        MusicKinds.Title => AtomRules.TextSizing(TextWidth, AtomRules.TitleInk),
-        MusicKinds.Elapsed or MusicKinds.Duration => AtomRules.TextSizing(TimeWidth, AtomRules.DetailInk),
-        _ => AtomRules.TextSizing(TextWidth, AtomRules.DetailInk),
-    };
+    protected override WidgetSizing Sizing()
+        => AtomRules.TextSizing(MusicKinds.IsTime(_key) ? TimeWidth : TextWidth, AtomRules.TextRoom);
 
     public override FrameworkElement CreateView(IWidgetHost host) => new MusicTextView(host, Kind);
 }

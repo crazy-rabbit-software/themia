@@ -327,15 +327,15 @@ public static class ReadyMadeGroups
     /// </summary>
     public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.NowPlaying,
     [
-        new("musicCover", new(0, 0, 110, 110)),
-        new("music", new(110, 0, 240, 40)),
-        new("musicArtist", new(110, 40, 240, 30)),
-        new("musicPrevious", new(110, 70, 80, 40)),
-        new("musicPlayPause", new(190, 70, 80, 40)),
-        new("musicNext", new(270, 70, 80, 40)),
-        new("musicElapsed", new(0, 110, 50, 30)),
-        new("musicProgress", new(50, 110, 250, 30)),
-        new("musicDuration", new(300, 110, 50, 30)),
+        new("musicCover", new(0, 0, 100, 100)),
+        new("music", new(100, 0, 240, 30)),
+        new("musicArtist", new(100, 30, 240, 30)),
+        new("musicPrevious", new(100, 60, 80, 40)),
+        new("musicPlayPause", new(180, 60, 80, 40)),
+        new("musicNext", new(260, 60, 80, 40)),
+        new("musicElapsed", new(0, 100, 60, 30)),
+        new("musicProgress", new(60, 100, 220, 30)),
+        new("musicDuration", new(280, 100, 60, 30)),
     ]) { Starter = 4 });
 
     /// <summary>
@@ -345,15 +345,15 @@ public static class ReadyMadeGroups
     public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.NowPlaying,
     [
         new("musicCover", new(0, 0, 240, 240)),
-        new("music", new(0, 240, 240, 40)),
-        new("musicArtist", new(0, 280, 240, 30)),
-        new("musicAlbum", new(0, 310, 240, 30)),
-        new("musicProgress", new(0, 340, 240, 20)),
-        new("musicElapsed", new(0, 360, 120, 30)),
-        new("musicDuration", new(120, 360, 120, 30)),
-        new("musicPrevious", new(0, 390, 80, 50)),
-        new("musicPlayPause", new(80, 390, 80, 50)),
-        new("musicNext", new(160, 390, 80, 50)),
+        new("music", new(0, 240, 240, 30)),
+        new("musicArtist", new(0, 270, 240, 30)),
+        new("musicAlbum", new(0, 300, 240, 30)),
+        new("musicProgress", new(0, 330, 240, 20)),
+        new("musicElapsed", new(0, 350, 120, 30)),
+        new("musicDuration", new(120, 350, 120, 30)),
+        new("musicPrevious", new(0, 380, 80, 50)),
+        new("musicPlayPause", new(80, 380, 80, 50)),
+        new("musicNext", new(160, 380, 80, 50)),
     ]), Str.Groups_Recipe_NowPlaying);
 
     /// <summary>[S-14944] Rain: the sentence over the graph over the total, the rain family's three parts as one panel.</summary>

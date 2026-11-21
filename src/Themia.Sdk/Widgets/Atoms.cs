@@ -26,17 +26,16 @@ public readonly record struct AtomRoom(double Width, double Height)
 /// <summary>
 /// [S-15100]..[S-15105] The atoms' rules, pure: one small widget a part of a composition (a now-playing group's title, its
 /// buttons, its cover, its bar), every one drawn in its card's box less the universal spacing (<see cref="AtomSpace.Pad"/>)
-/// and filling that room: a text's letters from their capitals' top to their descenders' foot, a glyph's ink, a bar, a
-/// picture. The card's size is the content's size: a text never shrinks to show more of itself, it is cut at the room's
+/// and filling that room: a text's capitals, standing on the baseline, a glyph's ink, a bar, a picture. The card's size is the content's size: a text never shrinks to show more of itself, it is cut at the room's
 /// end with its ellipsis.
 /// </summary>
 public static class AtomRules
 {
     /// <summary>
-    /// [S-15101] How far the family's face (Segoe UI Variable) inks over its baseline, a fraction of the font size: the
-    /// top of an "l", a "d", an "h" (its capitals stand a little under it, 0.71). Measured on the renders.
+    /// [S-15101] How tall the family's face (Segoe UI Variable) draws its capitals and figures, a fraction of the font
+    /// size (<see cref="LineInk.FaceCap"/>): what fills a text atom's room.
     /// </summary>
-    public const double Rise = 0.75;
+    public const double Cap = LineInk.FaceCap;
 
     /// <summary>
     /// [S-15101] How far the face inks under its baseline, a fraction of the font size: the foot of a "g", a "y", a "p".
@@ -44,18 +43,11 @@ public static class AtomRules
     /// </summary>
     public const double Descent = 0.24;
 
-    /// <summary>
-    /// [S-15101] The letters a text atom is sized and placed by, whatever it says: the face's tallest and deepest plain
-    /// letters. A title with no descender is the size and stands where one with a "g" does, so a line never changes size
-    /// or moves when its text changes.
-    /// </summary>
-    public const string Letters = "Hldgjpqy";
+    /// <summary>[S-15101] The letter a text atom is sized and placed by, whatever it says: a capital, standing on the baseline.</summary>
+    public const string Capital = "H";
 
-    /// <summary>
-    /// [S-15101] A text's ink, a fraction of its font size: from its tallest letters' top (<see cref="Rise"/>) to its
-    /// descenders' foot. What fills an atom's room, so no letter of any text reaches into the spacing.
-    /// </summary>
-    public const double TextInk = Rise + Descent;
+    /// <summary>[S-15101] The letters that say how far the face inks under its baseline at a size: a capital beside its deepest plain letters.</summary>
+    public const string Deep = "Hgjpqy";
 
     /// <summary>
     /// [S-15101] The line a text atom is set on, a multiple of its font size: its baseline (<see cref="LineInk.FaceBaseline"/>
@@ -66,11 +58,8 @@ public static class AtomRules
     /// <summary>[S-15101] The smallest text an atom draws: the legibility floor (WR-14).</summary>
     public const double LeastFont = 9;
 
-    /// <summary>[S-15102] The ink of a new title: its room's height (a text of 26).</summary>
-    public const double TitleInk = 24;
-
-    /// <summary>[S-15102] The ink of a new detail line (an artist, an album, a time): its room's height (a text of 15).</summary>
-    public const double DetailInk = 14;
+    /// <summary>[S-15102] A new text's room: capitals of 14, a text of about 20 (a title, an artist, a time alike; a taller card is a larger text).</summary>
+    public const double TextRoom = 14;
 
     /// <summary>[S-15102] A new button's glyph: its room's side.</summary>
     public const double GlyphInk = 24;
@@ -89,24 +78,46 @@ public static class AtomRules
     public static double Side(double ink) => ink + (2 * AtomSpace.Pad);
 
     /// <summary>
-    /// [S-15101] The font size of a text that fills a room <paramref name="height"/> tall: its ink
-    /// (<see cref="TextInk"/>) is the room's height. The width never makes it smaller (owner, 2026-11-21: "the text should
-    /// rather overflow ... than to shrink and not fill the height up to the spacing").
+    /// [S-15101] The font size of a text that fills a room <paramref name="height"/> tall: its capitals are the room's
+    /// height and it stands on its baseline at the room's foot (owner, 2026-11-21: "the text feels as if it has too much
+    /// space at the bottom. its because of letters like y for example that take up space further down"; asked which fit:
+    /// "C: capitals fill"), its descenders hanging into the spacing under it, never past the card's edge
+    /// (<see cref="Held"/>). The width never makes it smaller (owner: "the text should rather overflow ... than to shrink
+    /// and not fill the height up to the spacing").
     /// </summary>
-    public static double FontSize(double height) => height > 0 && double.IsFinite(height) ? height / TextInk : 0;
+    public static double FontSize(double height)
+    {
+        if (!(height > 0) || !double.IsFinite(height))
+        {
+            return 0;
+        }
+
+        var font = height / Cap;
+        return Held(font, height, font * Descent, height);
+    }
+
+    /// <summary>
+    /// [S-15101] <paramref name="fontSize"/>, at which the face draws capitals <paramref name="cap"/> tall and inks
+    /// <paramref name="descent"/> under its baseline, held so that its descenders stay in the card: in a room
+    /// <paramref name="height"/> tall they may hang into the spacing under it (<see cref="AtomSpace.Pad"/>) and no
+    /// further. A text taller than that is drawn at the size at which its capitals' top is the room's top and its
+    /// descenders' foot the card's edge.
+    /// </summary>
+    public static double Held(double fontSize, double cap, double descent, double height)
+        => fontSize > 0 && cap > 0 && descent > AtomSpace.Pad && height > 0 ? fontSize * (height + AtomSpace.Pad) / (cap + descent) : fontSize;
 
     /// <summary>[S-15101] The line height of a text atom at <paramref name="fontSize"/>.</summary>
     public static double LineHeight(double fontSize) => fontSize * Line;
 
     /// <summary>
-    /// [S-15101] How far a text atom's line stands over its room's top, so that its tallest letters' top is the room's
-    /// top: the line's room over them (the model's; a view that can measure the face asks the meter instead).
+    /// [S-15101] How far a text atom's line stands over its room's top, so that its capitals' top is the room's top: the
+    /// line's room over them (the model's; a view that can measure the face asks the meter instead).
     /// </summary>
-    public static double Lift(double fontSize) => (LineHeight(fontSize) * LineInk.FaceBaseline) - (fontSize * Rise);
+    public static double Lift(double fontSize) => (LineHeight(fontSize) * LineInk.FaceBaseline) - (fontSize * Cap);
 
     /// <summary>
     /// [S-15101] The font size at which a text measured at <paramref name="fontSize"/> to ink <paramref name="ink"/> tall
-    /// (its <see cref="Letters"/>) inks exactly a room <paramref name="height"/> tall: ink is proportional to the size.
+    /// (its capitals) inks exactly a room <paramref name="height"/> tall: ink is proportional to the size.
     /// </summary>
     public static double Refit(double fontSize, double ink, double height)
         => ink > 0 && fontSize > 0 && height > 0 && double.IsFinite(ink) ? fontSize * height / ink : fontSize;
@@ -153,7 +164,7 @@ public static class AtomRules
     /// </summary>
     public static WidgetSizing TextSizing(double width, double ink)
     {
-        var least = Math.Ceiling(Side(LeastFont * TextInk));
+        var least = Math.Ceiling(Side(LeastFont * Cap));
         var natural = new SizeDip(width, Side(ink));
         return WidgetSizing.Range(new SizeDip(Math.Min(width, Side(3 * LeastFont)), least), natural, natural);
     }

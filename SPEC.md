@@ -10756,23 +10756,30 @@ families' own.
   side by side stand their contents 16 apart; every content edge of a composition is on a line 8 inside a card's edge.
   An atom owns its card's top edge ([S-5700]): the spacing is its own on all four sides. Its item (what lights under
   the pointer) is still the card edge to edge (WR-3: the spacing is padding inside the item).
-- **[S-15101]** **A text fills its room's height and is cut by its width** (`AtomText`, `AtomRules.FontSize`; owner: "the
-  text should grow in height to fill up to the universal spacing"; "the text should rather overflow ... than to shrink
-  and not fill the height up to the spacing"). One line, set on the size at which the face's tallest and deepest plain
-  letters (`AtomRules.Letters`) ink exactly the room's height, measured (`InkMeter`; the model's proportions, rise 0.75
-  and descent 0.24 of the size, without a meter): the tops of an "l" or an "h" on the room's top, the foot of a "g" on
-  the room's foot, so no letter of any text reaches into the spacing and a line is the same size whatever it says. The
-  width never changes the size. A text longer than the room keeps its start and is cut at the room's end with its
-  ellipsis (owner, asked which part stays: "Start stays, end cut"; asked how the cut looks: "Ellipsis"), its whole text
-  its tooltip. Its first ink (not its advance) stands on the room's start, its last on the room's end when it sits
-  there. A running reading (a time) has tabular figures and stands on its advance, so it never moves as it runs
-  (WR-15). No lead glyph (owner, asked: "Drop them"). Nothing changes under the pointer but the item's fill (WR-12).
+- **[S-15101]** **A text's capitals fill its room's height, and it is cut by its width** (`AtomText`,
+  `AtomRules.FontSize`; owner: "the text should grow in height to fill up to the universal spacing"; "the text should
+  rather overflow ... than to shrink and not fill the height up to the spacing"). One line, set on the size at which
+  the face's capitals and figures (`AtomRules.Capital`) are exactly the room's height, measured (`InkMeter`; the
+  model's proportions, capitals 0.7 and descent 0.24 of the size, without a meter): their top on the room's top, the
+  baseline on the room's foot, so a line is the same size and stands in the same place whatever it says, and a time's
+  figures are as tall as the bar beside them. Descenders hang into the spacing under the line (owner, 2026-11-21, of the
+  first fit, which kept them inside the room: "the text feels as if it has too much space at the bottom. its because
+  of letters like y for example that take up space further down"; shown three fits, chose "C: capitals fill"), never
+  past the card's edge: a text so large that they would is held to the size at which its capitals' top is the room's top
+  and its descenders' foot the card's edge (`AtomRules.Held`: past a room of about 23). The few letters taller than a
+  capital (an "l", an "h") reach a twentieth of the size over the room's top. The width never changes the size. A text
+  longer than the room keeps its start and is cut at the room's end with its ellipsis (owner, asked which part stays:
+  "Start stays, end cut"; asked how the cut looks: "Ellipsis"), its whole text its tooltip. Its first ink (not its
+  advance) stands on the room's start, its last on the room's end when it sits there. A running reading (a time) has
+  tabular figures and stands on its advance less a figure's own side room, so it never moves as it runs (WR-15). No
+  lead glyph (owner, asked: "Drop them"). Nothing changes under the pointer but the item's fill (WR-12).
 - **[S-15102]** **An atom's card is its content in the spacing** (`AtomRules.Side`, `TextSizing`, `GlyphSizing`,
-  `BarSizing`, `PictureSizing`): a new title 40 tall (a room of 24: a text of about 24), a new detail line or time 30 (a
-  room of 14: about 14), a new button 40 by 40, a new bar 20 (the family's 4 track), a new picture a square. Every axis
-  is free ([S-12411], [S-14500]): a taller card is a larger text, a thicker bar, a larger glyph; the least is the
-  legibility floor's text (9) in the spacing, a bar of 2, a glyph of 9, a picture the grid's least widget. On the
-  default grid (10) the heights 20, 30, 40, 50 give a bar of 4 and texts of about 14, 24 and 34.
+  `BarSizing`, `PictureSizing`): a new text 30 tall (a room of 14: capitals of 14, a text of about 20; a title, an
+  artist and a time alike, told apart by weight and tone), a new button 40 by 40, a new bar 20 (the family's 4 track),
+  a new picture a square. Every axis is free ([S-12411], [S-14500]): a taller card is a larger text, a thicker bar, a
+  larger glyph; the least is the legibility floor's text (9) in the spacing, a bar of 2, a glyph of 9, a picture the
+  grid's least widget. On the default grid (10) the heights 30, 40 and 50 give texts of about 20, 34 and 44, and 20 a
+  bar of 4.
 - **[S-15103]** **A glyph's ink fills its room** (`AtomGlyph`, `AtomRules.GlyphSize`; owner, asked what fills a button:
   "Glyph only"): the glyph alone, scaled until its ink (as the meter measures it in its em box) fills the room's height
   or its width stops it, in the middle of the room. The glyphs of the atoms drawn alike are one **set** (a
@@ -10787,11 +10794,11 @@ families' own.
   default"): at the room's start, its middle or its end, by the card's content alignment ([S-6581], [S-6583],
   `IContentAligned`); the start unless the kind's config says otherwise or the user chose. A glyph stands in the middle.
 - **[S-15107]** **The now-playing groups are compositions of atoms** (`ReadyMadeGroups`, [S-11340]): **Now playing**
-  350 by 140: the cover 110 by 110, beside it the title (240 by 40) over the artist (240 by 30) over the three buttons
-  (80 by 40 each: their glyphs as tall as the title's capitals), and under both the progress's line: the elapsed time
-  (50 by 30), the bar (250 by 30) and the track's length (50 by 30). **Now playing, large** 240 by 440: the cover 240 by 240, the title (40), the artist and the album
-  (30 each), a thin bar (20), the elapsed time and the track's length under its ends (120 by 30 each) and the buttons
-  (80 by 50 each).
+  340 by 130: the cover 100 by 100, beside it the title over the artist (240 by 30 each) over the three buttons (80 by
+  40 each), and under both the progress's line: the elapsed time (60 by 30), the bar (220 by 30, as thick as the times'
+  figures are tall) and the track's length (60 by 30). **Now playing, large** 240 by 430: the cover 240 by 240, the
+  title, the artist and the album (30 each), a thin bar (20), the elapsed time and the track's length under its ends
+  (120 by 30 each) and the buttons (80 by 50 each).
 
 ## Weather, sky and money as atoms (ATOMS-SKY)
 

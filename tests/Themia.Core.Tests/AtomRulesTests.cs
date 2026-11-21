@@ -9,7 +9,7 @@ namespace Themia.Core.Tests;
 /// <summary>
 /// [S-15100]..[S-15104] The atoms' rules (owner, 2026-11-21: "the spacing inside the atoms should be universal and the same
 /// for all the widgets (also buttons and text)"): one spacing on every side of every atom, and a content that fills the
-/// room left: a text by its height alone, a glyph by its ink, a bar, a picture.
+/// room left: a text's capitals by its height alone, a glyph by its ink, a bar, a picture.
 /// </summary>
 public class AtomRulesTests
 {
@@ -38,32 +38,59 @@ public class AtomRulesTests
     [Fact]
     public void S15100_a_cards_side_is_its_content_in_the_spacing()
     {
-        Assert.Equal(40, AtomRules.Side(AtomRules.TitleInk));
-        Assert.Equal(AtomRules.TitleInk, AtomRules.Room(AtomRules.Side(AtomRules.TitleInk), AtomRules.Side(AtomRules.TitleInk)).Height);
+        Assert.Equal(30, AtomRules.Side(AtomRules.TextRoom));
+        Assert.Equal(AtomRules.TextRoom, AtomRules.Room(AtomRules.Side(AtomRules.TextRoom), AtomRules.Side(AtomRules.TextRoom)).Height);
     }
 
     [Theory]
+    [InlineData(6)]
     [InlineData(14)]
-    [InlineData(24)]
-    [InlineData(64)]
-    public void S15101_a_texts_ink_fills_its_rooms_height_whatever_the_width(double height)
+    [InlineData(23)]
+    public void S15101_a_texts_capitals_fill_its_room_and_it_stands_on_its_baseline_at_the_rooms_foot(double height)
     {
         var font = AtomRules.FontSize(height);
-        Assert.Equal(height, font * AtomRules.TextInk, 6);
+        Assert.Equal(height, font * AtomRules.Cap, 6);
 
-        // Its tallest letters' top is the room's top and its descenders' foot the room's foot: the line stands its lift
-        // over the room, its baseline the rise under the room's top.
+        // The capitals' top is the room's top and the baseline the room's foot: the line stands its lift over the room.
         var baseline = (AtomRules.LineHeight(font) * LineInk.FaceBaseline) - AtomRules.Lift(font);
-        Assert.Equal(font * AtomRules.Rise, baseline, 6);
-        Assert.Equal(height, baseline + (font * AtomRules.Descent), 6);
-        Assert.True(AtomRules.LineHeight(font) >= AtomRules.Lift(font) + height);
+        Assert.Equal(height, baseline, 6);
+
+        // Its descenders hang into the spacing under the room, and stay in it.
+        Assert.InRange(font * AtomRules.Descent, 0, AtomSpace.Pad);
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(34)]
+    [InlineData(64)]
+    public void S15101_a_text_too_large_for_the_spacing_is_held_so_its_descenders_end_on_the_cards_edge(double height)
+    {
+        var font = AtomRules.FontSize(height);
+        Assert.True(font * AtomRules.Cap < height);
+
+        // Its capitals' top is still the room's top; its descenders' foot is the card's edge, the spacing under the room.
+        var baseline = (AtomRules.LineHeight(font) * LineInk.FaceBaseline) - AtomRules.Lift(font);
+        Assert.Equal(font * AtomRules.Cap, baseline, 6);
+        Assert.Equal(height + AtomSpace.Pad, baseline + (font * AtomRules.Descent), 6);
+    }
+
+    [Fact]
+    public void S15101_held_changes_nothing_while_the_descenders_fit_the_spacing()
+    {
+        Assert.Equal(20, AtomRules.Held(20, 14, 4.8, 14));
+        Assert.Equal(20, AtomRules.Held(20, 14, AtomSpace.Pad, 14));
+
+        // Capitals of 28 and a descent of 9.6 in a room of 28: (28 + 8) / (28 + 9.6) of the size.
+        Assert.Equal(40 * 36 / 37.6, AtomRules.Held(40, 28, 9.6, 28), 6);
+        Assert.Equal(40, AtomRules.Held(40, 0, 9.6, 28));
     }
 
     [Fact]
     public void S15101_a_taller_room_is_a_larger_text_and_no_room_no_text()
     {
-        Assert.True(AtomRules.FontSize(24) > AtomRules.FontSize(14));
-        Assert.Equal(2 * AtomRules.FontSize(24), AtomRules.FontSize(48), 6);
+        Assert.True(AtomRules.FontSize(14) > AtomRules.FontSize(6));
+        Assert.Equal(2 * AtomRules.FontSize(7), AtomRules.FontSize(14), 6);
+        Assert.True(AtomRules.FontSize(48) > AtomRules.FontSize(24));
         Assert.Equal(0, AtomRules.FontSize(0));
         Assert.Equal(0, AtomRules.FontSize(double.NaN));
     }
@@ -80,21 +107,18 @@ public class AtomRulesTests
     }
 
     [Fact]
-    public void S15102_a_text_atoms_card_is_its_ink_in_the_spacing_down_to_the_legibility_floor()
+    public void S15102_a_text_atoms_card_is_its_capitals_in_the_spacing_down_to_the_legibility_floor()
     {
-        var title = AtomRules.TextSizing(240, AtomRules.TitleInk);
-        Assert.Equal(new SizeDip(240, 40), title.Natural);
-        Assert.Empty(title.Problems());
-        Assert.True(title.Min.Height >= AtomRules.Side(AtomRules.LeastFont * AtomRules.TextInk));
-        Assert.True(title.Min.Height < title.Natural.Height);
-        Assert.True(title.Min.Width < title.Natural.Width);
-
-        var detail = AtomRules.TextSizing(240, AtomRules.DetailInk);
-        Assert.Equal(new SizeDip(240, 30), detail.Natural);
-        Assert.True(AtomRules.FontSize(AtomRules.DetailInk) >= AtomRules.LeastFont);
+        var text = AtomRules.TextSizing(240, AtomRules.TextRoom);
+        Assert.Equal(new SizeDip(240, 30), text.Natural);
+        Assert.Empty(text.Problems());
+        Assert.True(text.Min.Height >= AtomRules.Side(AtomRules.LeastFont * AtomRules.Cap));
+        Assert.True(text.Min.Height < text.Natural.Height);
+        Assert.True(text.Min.Width < text.Natural.Width);
+        Assert.True(AtomRules.FontSize(AtomRules.TextRoom) >= AtomRules.LeastFont);
 
         // A short card (a time) is never asked to be narrower than itself.
-        var time = AtomRules.TextSizing(40, AtomRules.DetailInk);
+        var time = AtomRules.TextSizing(40, AtomRules.TextRoom);
         Assert.Empty(time.Problems());
     }
 
