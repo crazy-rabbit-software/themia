@@ -42,7 +42,8 @@ Sections, grouped by area (file order below; search for the heading).
   rect" and nine tolerances, from none to half a device pixel, so a lasso, a join and a packed icon could disagree about
   one pair of edges). Every geometry rule of Core compares by `Lattice` alone: two values are one edge (`Same`), two
   spans lie across each other (`Across`), two rects overlap (`Overlaps`: touching edges do not), meet side to side
-  (`Meeting`, `Touches`, `Follows`; a corner alone does not), touch in sets (`Touching`), are the same rect (`Same`).
+  (`Meeting`, `Touches`, `Follows`; a corner alone does not), touch in sets (`Touching`), are the same rect (`Same`), and
+  which of a rule's edges in order a value is (`Edges`, `Index`: a group's fit, a block's resize).
   The joins ([S-2248]), the refit's followers ([S-14104]), a block's resize ([S-2460]), the work-area settle ([S-855]), the
   grid settle ([S-11892]), the desktop grid ([S-11876]), the fences ([S-13040]), the displays' stand-ins, the lasso
   ([S-1581]) and the lasso's area ([S-13018]) keep no rule or tolerance of their own. The one tolerance,
@@ -77,9 +78,9 @@ Sections, grouped by area (file order below; search for the heading).
      rarely a line) and the work-area settle's moves by the exact amount a taskbar asks ([S-855]: `WorkAreaSettle`'s shift,
      carry and reach) write edges between lines. On an integer grid these land on lines (the magnet goes, or the work
      area's edges become lines of their own).
-  4. *Keys that group by rounding*: a group's fit groups edges at 1e-9 (`GridFit.LayoutAxis`), a block's resize its
-     distances at a millionth of a cell (`BlockResize.Axis`), the desktop grid and the displays' stand-ins order by X at
-     1e-6; on an integer grid they are the lines' indexes.
+  4. *Sort keys that round*: the desktop grid's reading order and the displays' stand-ins order by X rounded to 1e-6;
+     on an integer grid they are the lines' indexes. (A group's fit and a block's resize told their edges apart by
+     rounding too, 1e-9 and a millionth of a cell, until 2026-11-21: now `Lattice.Edges`.)
   5. *Stored names*: the design's `cornerRadiusPx` and `borderWidthPx` hold DIPs ([S-11894]); renaming a state file's keys
      drops the owner's values once.
 - **[S-11894]** **Units by type** (code audit 2026-11-21): a box in DIPs is a `DipRect` (a card's cell, a face part, a

@@ -29,6 +29,9 @@ public readonly record struct GridSpace(int Cols, int Rows)
     /// <summary>The row line nearest <paramref name="y"/> (a fraction of the height).</summary>
     public int Row(double y) => Nearest(y * Rows);
 
+    /// <summary>[S-11895] [S-14912] A run of whole cells on this grid as a fraction of the screen.</summary>
+    public FracRect Frac(Themia.Core.Widgets.CellBox box) => new(X(box.X), Y(box.Y), X(box.W), Y(box.H));
+
     /// <summary>[S-11895] The line nearest a position of <paramref name="cells"/>: half a cell up, float noise on the line.</summary>
     public static int Nearest(double cells) => (int)Math.Floor(cells + 0.5 + Lattice.Epsilon);
 

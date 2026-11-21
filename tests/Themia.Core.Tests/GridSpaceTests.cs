@@ -25,6 +25,7 @@ public sealed class GridSpaceTests
         Assert.Equal(7 / 108.0, grid.Y(7));
         Assert.Equal(7, grid.Col(7.4 / 192));
         Assert.Equal(8, grid.Row(7.5 / 108));
+        Assert.Equal(new FracRect(3 / 192.0, 4 / 108.0, 5 / 192.0, 6 / 108.0), grid.Frac(new Themia.Core.Widgets.CellBox(3, 4, 5, 6)));
     }
 
     [Fact]

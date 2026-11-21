@@ -199,7 +199,7 @@ internal static class WidgetGalleryRender
             Say($"{(ok ? "ok  " : "FAIL")} {what}");
         }
 
-        static bool Same(FracRect a, FracRect b) => Math.Abs(a.X - b.X) < 1e-9 && Math.Abs(a.Y - b.Y) < 1e-9 && Math.Abs(a.W - b.W) < 1e-9 && Math.Abs(a.H - b.H) < 1e-9;
+        static bool Same(FracRect a, FracRect b) => Lattice.Same(a, b);
 
         try
         {
@@ -216,14 +216,14 @@ internal static class WidgetGalleryRender
             {
                 gallery.Show(i);
                 var rects = gallery.Screen.Widgets.Select(w => w.Rect).ToList();
-                bool Whole(double v, int n) => Math.Abs((v * n) - Math.Round(v * n)) < 1e-6;
+                bool Whole(double v, int n) => Lattice.Same(v * n, Math.Round(v * n));
                 tidy &= rects.TrueForAll(r => Whole(r.X, cols) && Whole(r.Y, rows) && Whole(r.W, cols) && Whole(r.H, rows)
                     && r.X >= work.X && r.Y >= work.Y && r.Right <= work.Right && r.Bottom <= work.Bottom);
                 for (var a = 0; a < rects.Count; a++)
                 {
                     for (var b = a + 1; b < rects.Count; b++)
                     {
-                        tidy &= !(Math.Min(rects[a].Right, rects[b].Right) - Math.Max(rects[a].X, rects[b].X) > 1e-6 && Math.Min(rects[a].Bottom, rects[b].Bottom) - Math.Max(rects[a].Y, rects[b].Y) > 1e-6);
+                        tidy &= !Lattice.Overlaps(rects[a], rects[b]);
                     }
                 }
 

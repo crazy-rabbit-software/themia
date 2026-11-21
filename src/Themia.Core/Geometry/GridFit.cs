@@ -112,7 +112,6 @@ public static class GridFit
     /// </summary>
     private static (double Start, double Size)[] LayoutAxis((double Start, double End, double Asked)[] spans, AxisLimits?[] limits, int lines)
     {
-        static double Key(double v) => Math.Round(v, 9);
         var grid = lines > 0;
         double unit = grid ? lines : 1;
         double Snap(double v) => grid ? GridSpace.Nearest(v) : v;
@@ -120,28 +119,31 @@ public static class GridFit
         // A box's own size for a span (in fractions), in units: what its limits hold it to.
         double Own(int i, double span) => Snap((limits[i] is { } l ? l.Range(span) : grid ? Up(span, lines) : span) * unit);
 
-        var edges = spans.SelectMany(s => new[] { Key(s.Start), Key(s.End) }).Distinct().Order().ToArray();
-        var line = new Dictionary<double, double>(edges.Length) { [edges[0]] = Snap(edges[0] * unit) };
+        // [S-11893] The edges as the lattice tells them apart: values within float noise are one edge.
+        var edges = Lattice.Edges(spans.SelectMany(s => new[] { s.Start, s.End }));
+        int Edge(double v) => Lattice.Index(edges, v);
+        var line = new double[edges.Length];
+        line[0] = Snap(edges[0] * unit);
         var own = spans.Select((s, i) => Own(i, s.Asked)).ToArray();
 
         for (var k = 1; k < edges.Length; k++)
         {
-            var at = line[edges[k - 1]] + Math.Max(0, Snap((edges[k] - edges[k - 1]) * unit));
+            var at = line[k - 1] + Math.Max(0, Snap((edges[k] - edges[k - 1]) * unit));
             for (var i = 0; i < spans.Length; i++)
             {
-                if (Key(spans[i].End) == edges[k])
+                if (Edge(spans[i].End) == k)
                 {
-                    at = Math.Max(at, line[Key(spans[i].Start)] + own[i]);
+                    at = Math.Max(at, line[Edge(spans[i].Start)] + own[i]);
                 }
             }
 
-            line[edges[k]] = at;
+            line[k] = at;
         }
 
         return [.. spans.Select((s, i) =>
         {
-            var start = line[Key(s.Start)];
-            var span = line[Key(s.End)] - start;
+            var start = line[Edge(s.Start)];
+            var span = line[Edge(s.End)] - start;
             return (start / unit, Math.Min(span, Own(i, span / unit)) / unit);
         })];
     }

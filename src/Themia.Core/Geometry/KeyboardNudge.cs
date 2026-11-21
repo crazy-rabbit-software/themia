@@ -18,12 +18,9 @@ public static class KeyboardNudge
             return (0, 0);
         }
 
-        var (cols, rows) = GridGeometry.GridDims(screen);
-        var (dx, dy) = step switch
-        {
-            NudgeStep.Far => ((double)KeyboardNudgeDefaults.FarCells / cols, (double)KeyboardNudgeDefaults.FarCells / rows),
-            _ => (1.0 / cols, 1.0 / rows),
-        };
+        var grid = GridGeometry.GridDims(screen);
+        var cells = step == NudgeStep.Far ? KeyboardNudgeDefaults.FarCells : 1;
+        var (dx, dy) = (grid.X(cells), grid.Y(cells));
 
         return direction switch
         {

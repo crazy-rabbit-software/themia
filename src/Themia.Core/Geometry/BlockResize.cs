@@ -239,10 +239,12 @@ public static class BlockResize
             var spans = rects.Select(r => horizontal ? (Start: r.X, End: r.Right) : (Start: r.Y, End: r.Bottom)).ToArray();
             var lo = spans.Min(s => s.Start);
             var hi = spans.Max(s => s.End);
-            double Distance(double edge) => Math.Round((fromEnd ? hi - edge : edge - lo) * lines, 6);
+            double Distance(double edge) => (fromEnd ? hi - edge : edge - lo) * lines;
 
-            var d = spans.SelectMany(s => new[] { Distance(s.Start), Distance(s.End) }).Distinct().Order().ToArray();
-            int Index(double edge) => Array.IndexOf(d, Distance(edge));
+            // [S-11893] The distinct edges as the lattice tells them apart, each a whole cell where it is within noise of one.
+            var raw = Lattice.Edges(spans.SelectMany(s => new[] { Distance(s.Start), Distance(s.End) }));
+            var d = raw.Select(Whole).ToArray();
+            int Index(double edge) => Lattice.Index(raw, Distance(edge));
             var near = spans.Select(s => Index(fromEnd ? s.End : s.Start)).ToArray();
             var far = spans.Select(s => Index(fromEnd ? s.Start : s.End)).ToArray();
             AxisLimits? Own(int i) => i < limits.Count && limits[i] is { } l ? (horizontal ? l.Width : l.Height) : null;

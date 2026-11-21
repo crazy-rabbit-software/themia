@@ -89,6 +89,47 @@ public static class Lattice
     }
 
     /// <summary>
+    /// [S-11893] The distinct edges among <paramref name="values"/>, in order: values within float noise of an edge's first
+    /// (<see cref="Epsilon"/>) are that edge. What a rule that lays edges in order (a group's fit, a block's resize) counts.
+    /// </summary>
+    public static double[] Edges(IEnumerable<double> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var edges = new List<double>();
+        foreach (var v in values.Where(double.IsFinite).Order())
+        {
+            if (edges.Count == 0 || v - edges[^1] > Epsilon)
+            {
+                edges.Add(v);
+            }
+        }
+
+        return [.. edges];
+    }
+
+    /// <summary>[S-11893] Which of <paramref name="edges"/> (<see cref="Edges"/>) <paramref name="value"/> is; -1 for none.</summary>
+    public static int Index(IReadOnlyList<double> edges, double value)
+    {
+        ArgumentNullException.ThrowIfNull(edges);
+        int lo = 0, hi = edges.Count - 1, at = -1;
+        while (lo <= hi)
+        {
+            var mid = (lo + hi) / 2;
+            if (edges[mid] <= value)
+            {
+                at = mid;
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid - 1;
+            }
+        }
+
+        return at >= 0 && value - edges[at] <= Epsilon ? at : -1;
+    }
+
+    /// <summary>
     /// [S-11893] [S-11873] A painted cell (DIPs on device pixels, <see cref="GridGeometry.PaintedCell"/>) on the device lattice:
     /// each edge the whole device pixel it stands on at <paramref name="rasterScale"/>. Two edges a card shares are one
     /// pixel there, two that are not at least a pixel apart, at 100 % as at 150 %; a non-positive scale counts as 1.

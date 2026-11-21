@@ -51,6 +51,17 @@ public sealed class LatticeTests
         Assert.Equal([2], sets[1]);
     }
 
+    [Fact]
+    public void S11893_a_rule_s_edges_in_order_float_noise_one_edge()
+    {
+        var edges = Lattice.Edges([0.3, 0.1 + 0.2, 0.1, double.NaN, 0.2, 0.1 + 1e-9]);
+        Assert.Equal([0.1, 0.2, 0.3], edges);
+        Assert.Equal(2, Lattice.Index(edges, 0.1 + 0.2));
+        Assert.Equal(0, Lattice.Index(edges, 0.1 + 1e-9));
+        Assert.Equal(-1, Lattice.Index(edges, 0.15));
+        Assert.Equal(-1, Lattice.Index(edges, 0.05));
+    }
+
     [Theory]
     [InlineData(1)]
     [InlineData(1.25)]

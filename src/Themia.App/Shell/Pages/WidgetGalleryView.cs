@@ -257,15 +257,15 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _panel.Height = Math.Max(0, bottom - panelTop);
 
         // [S-14912] The cards' room in whole cells of the display's grid, inside the work area and the part new geometry may use.
-        var (cols, rows) = GridGeometry.GridDims(metrics);
-        var (pitchX, pitchY) = (metrics.Width / cols, metrics.Height / rows);
+        var grid = GridGeometry.GridDims(metrics);
+        var (pitchX, pitchY) = (metrics.Width / grid.Cols, metrics.Height / grid.Rows);
         var x0 = Math.Max(left, allowed.X + G.Margin);
         var y0 = Math.Max(top, allowed.Y + G.Margin);
         var x1 = Math.Min(panelLeft - G.Margin, allowed.X + allowed.Width - G.Margin);
         var y1 = Math.Min(bottom, allowed.Y + allowed.Height - G.Margin);
-        var cx = (int)Math.Ceiling((x0 / pitchX) - 1e-9);
-        var cy = (int)Math.Ceiling((y0 / pitchY) - 1e-9);
-        var area = new CellBox(cx, cy, Math.Max(1, (int)Math.Floor((x1 / pitchX) + 1e-9) - cx), Math.Max(1, (int)Math.Floor((y1 / pitchY) + 1e-9) - cy));
+        var cx = GridSpace.Up(x0 / pitchX);
+        var cy = GridSpace.Up(y0 / pitchY);
+        var area = new CellBox(cx, cy, Math.Max(1, GridSpace.Down(x1 / pitchX) - cx), Math.Max(1, GridSpace.Down(y1 / pitchY) - cy));
         SetBox(_input, new DipRect(x0, y0, Math.Max(0, x1 - x0), Math.Max(0, y1 - y0)));
 
         if (same && area == _area && _screens.Count > 0)
@@ -284,8 +284,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     {
         var natural = ModuleCatalog.Of(kind).Natural;
         var box = PlacementPayload.NewSize(kind, natural.Width, natural.Height, _metrics, new PlacementSizes(_contentScale));
-        var (cols, rows) = GridGeometry.GridDims(_metrics);
-        return ((int)Math.Round(box.W * cols), (int)Math.Round(box.H * rows));
+        var grid = GridGeometry.GridDims(_metrics);
+        return (grid.Col(box.W), grid.Row(box.H));
     }
 
     /// <summary>[S-14913] Show screen <paramref name="at"/>: its title, its families' names and its cards, nothing picked.</summary>
@@ -302,8 +302,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _selection.Clear();
         _selected.Clear();
 
-        var (cols, rows) = GridGeometry.GridDims(_metrics);
-        FracRect Rect(CellBox box) => new(box.X / (double)cols, box.Y / (double)rows, box.W / (double)cols, box.H / (double)rows);
+        var grid = GridGeometry.GridDims(_metrics);
+        FracRect Rect(CellBox box) => grid.Frac(box);
 
         // The screen's widgets: new widgets on the cells they stand on, a style picked here kept on their kind.
         var view = Empty();
