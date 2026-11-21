@@ -82,7 +82,6 @@ internal static partial class UiBench
         {
             var (view, others, rows, icons) = Scene();
             var state = new AppState { Views = [view, .. others], ActiveViewId = view.Id };
-            state.Design.WidgetCollisions = true;
             state.ShowViewOn(DisplayId, view.Id);
 
             var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 1920, Bottom = -32000 + 1080 };

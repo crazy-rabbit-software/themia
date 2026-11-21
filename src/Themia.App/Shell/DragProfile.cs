@@ -8,9 +8,6 @@ internal enum DragStage
     /// <summary>The block's translation: the snap and the reach (<c>BlockGeometry.Move</c>, the follow).</summary>
     Geometry,
 
-    /// <summary>[S-11959] Keeping the block apart from the cards that stay.</summary>
-    Apart,
-
     /// <summary>Putting the moving cards where they stand (<c>PositionCard</c>, the canvas offsets, what follows them).</summary>
     Position,
 

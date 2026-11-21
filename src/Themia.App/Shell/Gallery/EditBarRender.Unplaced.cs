@@ -14,8 +14,8 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-13700]..[S-13707] The Unplaced icons page in a render (<c>--editbar-png … [--only unplaced]</c>): the bar with its
 /// entry's badge (<c>editbar-&lt;theme&gt;-unplaced.png</c>), and the page as wide as the bar, hung from its entry, its icons
-/// the desktop's own icon view with its corner marks on the page's ground (<c>page-&lt;theme&gt;-unplaced.png</c>: six, two selected, two
-/// fences; <c>-long</c>: fourteen; <c>-search</c>: fourteen with the search box and a word typed; <c>-none</c>: every icon
+/// the desktop's own icon view with its corner marks on the page's ground (<c>page-&lt;theme&gt;-unplaced.png</c>: six, two selected;
+/// <c>-long</c>: fourteen; <c>-search</c>: fourteen with the search box and a word typed; <c>-none</c>: every icon
 /// placed; <c>-noview</c>: a view that shows no desktop icons); the six and the fourteen again on a narrower display
 /// (<c>-narrow</c>, a bar of 884) and at large icons (<c>-large</c>, <c>-large-narrow</c>), so the rows follow the bar's
 /// width and the desktop's icon size. The items are stand-ins (no desktop is read); their icons are the shell's for their types.
@@ -53,7 +53,6 @@ internal static partial class EditBarRender
         await Shot(screen, Bar(new EditBarState(null, 0, null, false, 1600 - (2 * ShellMetricsBarTop)) { Unplaced = 3 }), outDir, $"editbar-{theme}-unplaced-wide.png", room: 1600).ConfigureAwait(true);
         await Shot(screen, Bar(new EditBarState(null, 0, null, false, 900 - (2 * ShellMetricsBarTop)) { Unplaced = 120 }), outDir, $"editbar-{theme}-unplaced-narrow.png", room: 900).ConfigureAwait(true);
 
-        (string Id, string Name)[] fences = [("f1", "Documents"), ("f2", "Projects")];
         var six = SampleItems.Take(6).ToArray();
         var held = DesktopCell.Current;
         try
@@ -64,18 +63,18 @@ internal static partial class EditBarRender
                 DesktopCell.Apply(size);
                 foreach (var (width, narrow) in new[] { (ScreenWidth, string.Empty), (NarrowWidth, "-narrow") })
                 {
-                    await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced{suffix}{narrow}.png"), new UnplacedModel(true, DesktopItemOrder.Sort(six), fences),
+                    await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced{suffix}{narrow}.png"), new UnplacedModel(true, DesktopItemOrder.Sort(six)),
                         view => view.DebugSelect([six[1].Key, six[4].Key]), width).ConfigureAwait(true);
-                    await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced{suffix}{narrow}-long.png"), new UnplacedModel(true, DesktopItemOrder.Sort(SampleItems), fences),
+                    await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced{suffix}{narrow}-long.png"), new UnplacedModel(true, DesktopItemOrder.Sort(SampleItems)),
                         null, width).ConfigureAwait(true);
                 }
             }
 
             DesktopCell.Apply(DesktopIconSize.Medium);
-            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-search.png"), new UnplacedModel(true, DesktopItemOrder.Sort(SampleItems), fences),
+            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-search.png"), new UnplacedModel(true, DesktopItemOrder.Sort(SampleItems)),
                 view => view.DebugSearch("report"), ScreenWidth).ConfigureAwait(true);
-            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-none.png"), new UnplacedModel(true, [], []), null, ScreenWidth).ConfigureAwait(true);
-            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-noview.png"), new UnplacedModel(false, [], []), null, ScreenWidth).ConfigureAwait(true);
+            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-none.png"), new UnplacedModel(true, []), null, ScreenWidth).ConfigureAwait(true);
+            await UnplacedShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-unplaced-noview.png"), new UnplacedModel(false, []), null, ScreenWidth).ConfigureAwait(true);
         }
         finally
         {
@@ -106,7 +105,7 @@ internal static partial class EditBarRender
         var barRect = PlaceBar(canvas, bar, width);
 
         UnplacedPageView? part = null;
-        var commands = new UnplacedCommands(() => model, _ => { }, (_, _) => { }, _ => { }, HostDesktopItems.Instance.IconAsync);
+        var commands = new UnplacedCommands(() => model, _ => { }, _ => { }, HostDesktopItems.Instance.IconAsync);
         var view = new PageView(() => PageRows.Of(SettingsPages.DesktopItems(), () => part = new UnplacedPageView(commands)));
         UiLanguage.ApplyFlow(view);
         var area = new PixelRect(0, 0, width, OpenHeight);

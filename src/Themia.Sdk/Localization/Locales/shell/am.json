@@ -138,7 +138,6 @@
   "shell.setup.button": "አዘጋጅ",
   "shell.setup.hint": "ይህ ዊጀት የሚያስፈልገውን ያዘጋጁ",
   "shell.toolbar.addWidget": "ዊጀት አክል",
-  "shell.toolbar.collisionsName": "ምግብሮች እንዳይደራረቡ ከልክል",
   "shell.editBar.selected": {
     "one": "{count} ተመርጧል",
     "other": "{count} ተመርጠዋል"

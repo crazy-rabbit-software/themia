@@ -138,7 +138,6 @@
   "shell.setup.button": "সেট আপ",
   "shell.setup.hint": "এই উইজেটের যা প্রয়োজন তা সেট আপ করুন",
   "shell.toolbar.addWidget": "উইজেট যোগ করুন",
-  "shell.toolbar.collisionsName": "উইজেটগুলোকে একে অপরের উপর পড়তে দেবেন না",
   "shell.editBar.selected": {
     "one": "{count}টি নির্বাচিত",
     "other": "{count}টি নির্বাচিত"

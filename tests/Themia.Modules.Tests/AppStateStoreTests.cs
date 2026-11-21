@@ -280,6 +280,26 @@ public sealed class AppStateStoreTests : IDisposable
     }
 
     [Fact]
+    public void S11959_a_keep_apart_key_left_in_a_file_is_dropped_loudly_and_the_design_loads()
+    {
+        // [S-1050] The schema changed in place (owner, 2026-11-21: "keep widgets from overlapping should not be a selectable
+        // option anymore"): the key goes, one line, wherever it was left (the design, or the preferences it once moved to).
+        var state = AppState.CreateDefault();
+        state.Design.FontScale = 1.25;
+        var root = System.Text.Json.Nodes.JsonNode.Parse(SettingsTransfer.Serialize(state))!;
+        root["design"]!.AsObject()["widgetCollisions"] = true;
+        root["preferences"]!.AsObject()["widgetCollisions"] = true;
+
+        var read = StateDocument.Parse(root.ToJsonString());
+
+        Assert.NotNull(read.State);
+        Assert.Equal(1.25, read.State!.Design.FontScale);
+        Assert.Contains(read.Repairs, r => r.Contains("design", StringComparison.Ordinal) && r.Contains("unknown key 'widgetCollisions'", StringComparison.Ordinal));
+        Assert.Contains(read.Repairs, r => r.Contains("preferences", StringComparison.Ordinal) && r.Contains("unknown key 'widgetCollisions'", StringComparison.Ordinal));
+        Assert.DoesNotContain("widgetCollisions", SettingsTransfer.Serialize(read.State), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void S1050_a_design_written_by_this_build_loads_with_no_repair()
         => Assert.Empty(StateDocument.Parse(SettingsTransfer.Serialize(AppState.CreateDefault())).Repairs);
 

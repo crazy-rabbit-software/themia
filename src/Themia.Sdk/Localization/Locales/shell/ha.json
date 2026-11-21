@@ -138,7 +138,6 @@
   "shell.setup.button": "Saita",
   "shell.setup.hint": "Saita abin da wannan widget ke bukata",
   "shell.toolbar.addWidget": "Ƙara widget",
-  "shell.toolbar.collisionsName": "Hana widget su hau kan juna",
   "shell.editBar.selected": {
     "one": "An zaɓi {count}",
     "other": "An zaɓi {count}"

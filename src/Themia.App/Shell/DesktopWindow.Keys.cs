@@ -178,9 +178,9 @@ internal sealed partial class DesktopWindow
 
         // [S-2464] Several resized by the keys are one block, as the selection's frame resizes them.
         IReadOnlyList<FracRect> rects = action.Command == EditCommand.Move
-            ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics, Design.WidgetCollisions ? Staying(cards) : null)
+            ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics)
             : cards.Count > 1
-                ? BlockResize.Nudge([.. cards.Select(c => c.LiveRect)], [.. cards.Select(c => c.Limits)], action.Direction, action.Step, metrics, Design.WidgetCollisions ? Staying(cards) : null)
+                ? BlockResize.Nudge([.. cards.Select(c => c.LiveRect)], [.. cards.Select(c => c.Limits)], action.Direction, action.Step, metrics)
                 : [.. cards.Select(c => KeyboardNudge.Resize(c.LiveRect, action.Direction, action.Step, metrics, c.Limits))];
 
         for (var i = 0; i < cards.Count; i++)

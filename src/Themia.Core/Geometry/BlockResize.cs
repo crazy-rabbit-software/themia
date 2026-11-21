@@ -20,9 +20,9 @@ namespace Themia.Core.Geometry;
 /// Otherwise cell by cell, each edge on its nearest line.</item>
 /// <item>The block stops at the last length at which every member stays inside its sizing (one member at its Min or Max
 /// stops them all), stays in reach as a single widget does (over the monitor's own edge by all but the visible minimum,
-/// [S-6608]; never under a taskbar of a display showing the view, [S-855]) and, with widgets kept apart ([S-11959]),
-/// comes over no widget that stays: on the common step where one was passed, else (a limit nearer than one step) that
-/// last length itself.</item>
+/// [S-6608]; never under a taskbar of a display showing the view, [S-855]): on the common step where one was passed, else
+/// (a limit nearer than one step) that last length itself. It may come over a widget that stays: nothing keeps widgets
+/// apart ([S-2465] retired with [S-11959]).</item>
 /// <item>A member fixed on an axis (a desktop icon) keeps its size there and moves with its nearer edge; an axis every
 /// member is fixed on does not resize (<see cref="Free"/>).</item>
 /// </list>
@@ -39,10 +39,9 @@ public static class BlockResize
     /// <summary>
     /// [S-2460] The rects a drag of the block's <paramref name="handle"/> by (<paramref name="dxFrac"/>,
     /// <paramref name="dyFrac"/>) of the screen leaves, from <paramref name="start"/>; each member held to its own
-    /// <paramref name="limits"/> (null: none known). With <paramref name="apart"/> (the widgets that stay, widgets kept
-    /// apart) the block comes over none of them. A handle on an axis no member may resize leaves that axis.
+    /// <paramref name="limits"/> (null: none known). A handle on an axis no member may resize leaves that axis.
     /// </summary>
-    public static IReadOnlyList<FracRect> Resize(IReadOnlyList<FracRect> start, IReadOnlyList<SizeLimits?> limits, ResizeHandle handle, double dxFrac, double dyFrac, ScreenMetrics screen, IReadOnlyList<FracRect>? apart = null)
+    public static IReadOnlyList<FracRect> Resize(IReadOnlyList<FracRect> start, IReadOnlyList<SizeLimits?> limits, ResizeHandle handle, double dxFrac, double dyFrac, ScreenMetrics screen)
     {
         ArgumentNullException.ThrowIfNull(start);
         ArgumentNullException.ThrowIfNull(limits);
@@ -58,7 +57,7 @@ public static class BlockResize
         var y = vertical ? Axis.Of(start, limits, false, GridGeometry.MovesTop(handle), screen) : null;
         var wantX = x is null ? 0 : x.Length + ((GridGeometry.MovesLeft(handle) ? -dxFrac : dxFrac) * x.Lines);
         var wantY = y is null ? 0 : y.Length + ((GridGeometry.MovesTop(handle) ? -dyFrac : dyFrac) * y.Lines);
-        return Solve(start, x, wantX, y, wantY, apart, untilChanged: false);
+        return Solve(start, x, wantX, y, wantY, untilChanged: false);
     }
 
     /// <summary>
@@ -67,7 +66,7 @@ public static class BlockResize
     /// Ctrl, on the common step); a press that leaves every member as it was (a list between two of its rows) goes on to
     /// the next length that changes one. It stops where a drag would.
     /// </summary>
-    public static IReadOnlyList<FracRect> Nudge(IReadOnlyList<FracRect> start, IReadOnlyList<SizeLimits?> limits, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, IReadOnlyList<FracRect>? apart = null)
+    public static IReadOnlyList<FracRect> Nudge(IReadOnlyList<FracRect> start, IReadOnlyList<SizeLimits?> limits, NudgeDirection direction, NudgeStep step, ScreenMetrics screen)
     {
         ArgumentNullException.ThrowIfNull(start);
         ArgumentNullException.ThrowIfNull(limits);
@@ -88,7 +87,7 @@ public static class BlockResize
         var cells = step == NudgeStep.Far ? KeyboardNudgeDefaults.FarCells : 1;
         var press = Math.Ceiling(cells / (double)axis.Step) * axis.Step;
         var want = axis.Length + ((grow ? 1 : -1) * press);
-        var moved = across ? Solve(start, axis, want, null, 0, apart, untilChanged: false) : Solve(start, null, 0, axis, want, apart, untilChanged: false);
+        var moved = across ? Solve(start, axis, want, null, 0, untilChanged: false) : Solve(start, null, 0, axis, want, untilChanged: false);
         if (!Same(moved, start))
         {
             return moved;
@@ -96,7 +95,7 @@ public static class BlockResize
 
         // A press that changed nothing (a member's next whole cell not yet reached): on to the first length that does.
         var far = grow ? double.PositiveInfinity : double.NegativeInfinity;
-        return across ? Solve(start, axis, far, null, 0, apart, untilChanged: true) : Solve(start, null, 0, axis, far, apart, untilChanged: true);
+        return across ? Solve(start, axis, far, null, 0, untilChanged: true) : Solve(start, null, 0, axis, far, untilChanged: true);
     }
 
     /// <summary>
@@ -144,44 +143,9 @@ public static class BlockResize
         return true;
     }
 
-    /// <summary>
-    /// Both axes laid, and with <paramref name="apart"/> kept clear of the widgets that stay: each axis then walks with the
-    /// other held, both orders tried, and the one that goes further taken (as a move slides along the clear axis, [S-11959]).
-    /// </summary>
-    private static IReadOnlyList<FracRect> Solve(IReadOnlyList<FracRect> start, Axis? x, double wantX, Axis? y, double wantY, IReadOnlyList<FracRect>? apart, bool untilChanged)
-    {
-        if (apart is not { Count: > 0 } others)
-        {
-            return Compose(start, x?.Walk(wantX, null, untilChanged), y?.Walk(wantY, null, untilChanged));
-        }
-
-        bool Clear(Laid? xs, Laid? ys)
-        {
-            var rects = Compose(start, xs, ys);
-            for (var i = 0; i < rects.Count; i++)
-            {
-                foreach (var other in others)
-                {
-                    if (other.IsFinite && BlockGeometry.Over(rects[i], other) && !BlockGeometry.Over(start[i], other))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        var ax = x?.Walk(wantX, xs => Clear(xs, null), untilChanged);
-        var ay = y?.Walk(wantY, ys => Clear(ax, ys), untilChanged);
-        var by = y?.Walk(wantY, ys => Clear(null, ys), untilChanged);
-        var bx = x?.Walk(wantX, xs => Clear(xs, by), untilChanged);
-
-        double Progress(Laid? laid, Axis? axis) => laid is null || axis is null ? 0 : Math.Abs(laid.Length - axis.Length);
-        return Progress(bx, x) + Progress(by, y) > Progress(ax, x) + Progress(ay, y) + Eps
-            ? Compose(start, bx, by)
-            : Compose(start, ax, ay);
-    }
+    /// <summary>Both axes laid, each on its own.</summary>
+    private static IReadOnlyList<FracRect> Solve(IReadOnlyList<FracRect> start, Axis? x, double wantX, Axis? y, double wantY, bool untilChanged)
+        => Compose(start, x?.Walk(wantX, untilChanged), y?.Walk(wantY, untilChanged));
 
     private static List<FracRect> Compose(IReadOnlyList<FracRect> start, Laid? x, Laid? y)
     {
@@ -296,7 +260,7 @@ public static class BlockResize
         /// on the common step, or the last length allowed where it stops first; null when it does not change. With
         /// <paramref name="untilChanged"/>, the first length (towards <paramref name="want"/>) that changes a member.
         /// </summary>
-        public Laid? Walk(double want, Func<Laid, bool>? clear, bool untilChanged)
+        public Laid? Walk(double want, bool untilChanged)
         {
             var n = Length;
             if (!double.IsFinite(n) || n <= 0 || double.IsNaN(want) || Math.Abs(want - n) < Eps)
@@ -319,7 +283,7 @@ public static class BlockResize
             for (var c = first; dir > 0 ? c <= goal + Eps : c >= goal - Eps; c += dir)
             {
                 var laid = c >= 1 && c <= 4 * Lines ? Lay(c) : null;
-                if (laid is null || (clear is not null && !clear(laid)))
+                if (laid is null)
                 {
                     stopped = true;
                     break;

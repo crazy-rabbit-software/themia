@@ -3,8 +3,9 @@ namespace Themia.Core.Geometry;
 /// <summary>
 /// [S-11890] [S-11891] A block of cards dragged by the pointer (a selection in edit mode, the locked desktop's move):
 /// one translation, <see cref="Landing"/>, the move snapped to the grid as a block (<see cref="BlockGeometry.Move"/>,
-/// [S-1584]) and, with widgets kept apart ([S-11959]), kept apart (<see cref="BlockGeometry.Apart"/>). The cards are
-/// drawn there while they are dragged and land there: they always stick to the grid.
+/// [S-1584]). The cards are drawn there while they are dragged and land there: they always stick to the grid. A move
+/// never keeps widgets apart: it may land over another (owner, 2026-11-21: "keep widgets from overlapping should not be a
+/// selectable option anymore"; [S-11959] retired).
 /// <para>
 /// <see cref="Step"/> says whether it changed (another cell), so the surface touches the cards, the local grid and the
 /// border marks only then. Pure; the surface holds one per move.
@@ -21,11 +22,10 @@ public sealed class BlockMove
     private readonly int _held;
     private readonly Func<FracRect, FracRect>? _cell;
 
-    public BlockMove(IReadOnlyList<FracRect> start, IReadOnlyList<FracRect>? apart, ScreenMetrics screen, int held = -1, Func<FracRect, FracRect>? cell = null)
+    public BlockMove(IReadOnlyList<FracRect> start, ScreenMetrics screen, int held = -1, Func<FracRect, FracRect>? cell = null)
     {
         ArgumentNullException.ThrowIfNull(start);
         Start = start;
-        Apart = apart;
         _screen = screen;
         _held = held;
         _cell = cell;
@@ -34,10 +34,7 @@ public sealed class BlockMove
     /// <summary>The rects the moving cards started at.</summary>
     public IReadOnlyList<FracRect> Start { get; }
 
-    /// <summary>[S-11959] The rects of the cards that stay, with widgets kept apart; null when they may overlap.</summary>
-    public IReadOnlyList<FracRect>? Apart { get; }
-
-    /// <summary>[S-1584] [S-11891] The translation the cards are drawn at and land at: on the grid, kept apart.</summary>
+    /// <summary>[S-1584] [S-11891] The translation the cards are drawn at and land at: on the grid.</summary>
     public BlockGeometry.Delta Landing { get; private set; }
 
     /// <summary>
@@ -47,10 +44,6 @@ public sealed class BlockMove
     public bool Step(double dxFrac, double dyFrac)
     {
         var landing = BlockGeometry.Move(Start, dxFrac, dyFrac, _screen);
-        if (Apart is { } apart)
-        {
-            landing = BlockGeometry.Apart(Start, landing, Landing, apart, _screen);
-        }
 
         // [S-13041] The held card on the cell of what it lands in: the block follows it.
         if (_cell is { } cellOf && _held >= 0 && _held < Start.Count)

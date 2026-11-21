@@ -16,7 +16,7 @@ namespace Themia.App.Shell;
 internal sealed partial class DesktopWindow
 {
     /// <summary>[S-2460] A drag of the frame: its handle, where the pointer pressed, the members with their start rects and sizing.</summary>
-    private sealed class BlockResizeSession(ResizeHandle handle, Point pressed, List<(WidgetCard Card, FracRect Start)> cards, SizeLimits?[] limits, List<FracRect>? apart)
+    private sealed class BlockResizeSession(ResizeHandle handle, Point pressed, List<(WidgetCard Card, FracRect Start)> cards, SizeLimits?[] limits)
     {
         public ResizeHandle Handle { get; } = handle;
 
@@ -25,9 +25,6 @@ internal sealed partial class DesktopWindow
         public List<(WidgetCard Card, FracRect Start)> Cards { get; } = cards;
 
         public SizeLimits?[] Limits { get; } = limits;
-
-        /// <summary>[S-2465] The cards that stay, with widgets kept apart; null when they may overlap.</summary>
-        public List<FracRect>? Apart { get; } = apart;
 
         /// <summary>Where the members stand now: where they land.</summary>
         public IReadOnlyList<FracRect> Now { get; set; } = [.. cards.Select(c => c.Start)];
@@ -123,8 +120,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var apart = Design.WidgetCollisions ? Staying(cards) : null;
-        _blockResize = new BlockResizeSession(handle, e.GetCurrentPoint(_root).Position, cards.ConvertAll(c => (c, c.LiveRect)), [.. cards.Select(c => c.Limits)], apart);
+        _blockResize = new BlockResizeSession(handle, e.GetCurrentPoint(_root).Position, cards.ConvertAll(c => (c, c.LiveRect)), [.. cards.Select(c => c.Limits)]);
 
         // [S-2343] [S-3710] Nothing hangs over the selection while it is resized; its page opens as it lands. The keys stay the surface's.
         ClearForDrag();
@@ -150,8 +146,7 @@ internal sealed partial class DesktopWindow
             session.Handle,
             (now.X - session.Pressed.X) / metrics.Width,
             (now.Y - session.Pressed.Y) / metrics.Height,
-            metrics,
-            session.Apart);
+            metrics);
         if (rects.SequenceEqual(session.Now))
         {
             return;

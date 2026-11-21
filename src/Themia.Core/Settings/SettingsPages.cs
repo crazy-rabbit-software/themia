@@ -10,10 +10,13 @@ public enum SettingsPageId
     Accounts,
     Display,
     Views,
-
-    /// <summary>[S-13700] The desktop's icons the view shown on the bar's display does not place.</summary>
-    DesktopItems,
     Appearance,
+
+    /// <summary>
+    /// [S-13700] The desktop's icons the view shown on the bar's display does not place. [S-13701] Its entry stands beside
+    /// Add widget, not among the pages' (<see cref="SettingsPages.Entries"/>).
+    /// </summary>
+    DesktopItems,
 }
 
 /// <summary>
@@ -33,7 +36,8 @@ public sealed record SettingsPage(SettingsPageId Id, IReadOnlyList<SettingsSecti
 /// <summary>
 /// [S-2300]..[S-2306] [S-13700] The edit bar's six pages over the settings' lines, after Karpo's edit bar
 /// (karpo-app, docs/widgets.md §575): <b>General</b> ([S-2315]), <b>Accounts</b> ([S-2312]), <b>Display</b>
-/// (every display a card, [S-2314]), <b>Views</b> (every view a card, [S-2313]), <b>Unplaced icons</b> ([S-13700]) and <b>Appearance</b> ([S-2316]).
+/// (every display a card, [S-2314]), <b>Views</b> (every view a card, [S-2313]) and <b>Appearance</b> ([S-2316]), the
+/// pages' entries; and <b>Unplaced icons</b> ([S-13700]), its entry beside Add widget ([S-13701]).
 /// The lines stay what they are (<see cref="SettingsMenu"/>, <see cref="DisplayMenu"/>,
 /// <see cref="ViewsMenu"/>): a page only groups them, one rule for all ([S-2301]), so every setting
 /// has exactly one home ([S-2306]).
@@ -42,6 +46,13 @@ public static class SettingsPages
 {
     /// <summary>[S-2300] The pages in the bar's order.</summary>
     public static IReadOnlyList<SettingsPageId> Order { get; } = Enum.GetValues<SettingsPageId>();
+
+    /// <summary>
+    /// [S-2320] The pages whose entries stand at the bar's start, in its order: every page but Unplaced icons, whose entry
+    /// stands beside Add widget (owner, 2026-11-21: "the selector settings page should be moved next to add widget and
+    /// given another icon", [S-13701]).
+    /// </summary>
+    public static IReadOnlyList<SettingsPageId> Entries { get; } = [.. Order.Where(p => p != SettingsPageId.DesktopItems)];
 
     /// <summary>[S-2300] A page's entry words.</summary>
     public static string Name(SettingsPageId page) => page switch
@@ -62,7 +73,7 @@ public static class SettingsPages
         SettingsPageId.Accounts => Glyphs.Contact,
         SettingsPageId.Display => Glyphs.Display,
         SettingsPageId.Views => Glyphs.View,
-        SettingsPageId.DesktopItems => Glyphs.DesktopIcons,
+        SettingsPageId.DesktopItems => Glyphs.UnplacedIcons,
         SettingsPageId.Appearance => Glyphs.Palette,
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, "not a page"),
     };
@@ -138,13 +149,6 @@ public static class SettingsPages
     /// desktop not on home view should be as wide as the edit bar").
     /// </summary>
     public static bool BarWide(SettingsPageId page) => page == SettingsPageId.DesktopItems;
-
-    /// <summary>
-    /// [S-13701] Whether a page's entry shows its icon alone at every width (its words the tooltip): Unplaced icons, an
-    /// icon with its count badge (owner, 2026-11-19: "own entry in the topbar"), so the bar keeps its words on the
-    /// displays it kept them on before it.
-    /// </summary>
-    public static bool IconAlone(SettingsPageId page) => page == SettingsPageId.DesktopItems;
 
     /// <summary>[S-13700] The Unplaced icons page's one line: the list of the view's unplaced desktop icons.</summary>
     public const string UnplacedKey = "unplaced";

@@ -156,7 +156,6 @@
   "shell.setup.place": "Choose a place",
   "shell.setup.account": "Add an account to show this",
   "shell.toolbar.addWidget": "Add widget",
-  "shell.toolbar.collisionsName": "Keep widgets from overlapping",
   "shell.editBar.selected": {
     "one": "{count} selected",
     "other": "{count} selected"

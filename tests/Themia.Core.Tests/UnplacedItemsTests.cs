@@ -89,24 +89,6 @@ public sealed class UnplacedItemsTests
     }
 
     [Fact]
-    public void S13704_its_items_go_into_any_fence_of_the_view_but_a_search_fence()
-    {
-        var home = ViewState.Create("Home");
-        home.Widgets.Add(Fence("search", FenceSource.Search));
-        home.Widgets.Add(Fence("docs"));
-        DesktopItem[] listing = [File("a.txt"), File("b.txt")];
-
-        var fences = UnplacedItems.Fences(home);
-        Assert.Equal(["docs"], fences.Select(f => f.Widget.Id));
-
-        // Put in: it is shown on the view now, in the fence, and leaves the list.
-        // [S-13040] As AppHost.PlaceInFence: the item gets its icon on the view, the fence's cell its place.
-        DesktopFences.MoveIn(home, "docs", [Desk + "b.txt"], int.MaxValue, key => Icon(key[Desk.Length..], new FracRect(0, 0, 0.09, 0.125)));
-        Assert.Equal(["a.txt"], Names(UnplacedItems.Of(home, listing)));
-        Assert.Equal([Desk + "b.txt"], ((FenceFake)home.Widgets[1].Config).Items);
-    }
-
-    [Fact]
     public void S13703_a_press_acts_on_the_selection_that_holds_it_else_on_its_item_alone()
     {
         IReadOnlyList<string> selected = [Desk + "a.txt", Desk + "c.txt"];

@@ -138,7 +138,6 @@
   "shell.setup.button": "સેટ અપ કરો",
   "shell.setup.hint": "આ વિજેટને જે જોઈએ તે સેટ કરો",
   "shell.toolbar.addWidget": "વિજેટ ઉમેરો",
-  "shell.toolbar.collisionsName": "વિજેટ્સને એકબીજા પર આવવા ન દો",
   "shell.editBar.selected": {
     "one": "{count} પસંદ કરેલ",
     "other": "{count} પસંદ કરેલ"

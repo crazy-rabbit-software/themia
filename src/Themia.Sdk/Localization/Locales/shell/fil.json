@@ -138,7 +138,6 @@
   "shell.setup.button": "I-set up",
   "shell.setup.hint": "I-set up ang kailangan ng widget na ito",
   "shell.toolbar.addWidget": "Magdagdag ng widget",
-  "shell.toolbar.collisionsName": "Pigilan ang pagpapatong ng mga widget",
   "shell.editBar.selected": {
     "one": "{count} napili",
     "other": "{count} napili"

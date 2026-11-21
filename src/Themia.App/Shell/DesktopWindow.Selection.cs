@@ -40,7 +40,7 @@ internal sealed partial class DesktopWindow
         /// <summary>[S-2244] The cards have moved: they are free of their neighbours until dropped.</summary>
         public bool Moved { get; set; }
 
-        /// <summary>[S-11890] [S-11891] Where the block is drawn and lands: on the grid ([S-11959]: kept apart with it).</summary>
+        /// <summary>[S-11890] [S-11891] Where the block is drawn and lands: on the grid.</summary>
         public BlockMove Block { get; } = block;
 
         /// <summary>[S-11890] The pointer's moves since the last frame, the latest kept.</summary>
@@ -163,20 +163,17 @@ internal sealed partial class DesktopWindow
             cards.Add((card, card.LiveRect));
         }
 
-        // [S-11959] Kept apart in edit mode and on the locked desktop alike: whatever moves (a selection, whole
-        // icons among cards) never lands over a card that stays.
-        // [S-13041] Icons alone land on a fence too (its cells are the grid's): its card and its icons are no obstacle then,
-        // and the held icon lands by the one drop computation (on a fence's body, on its cell).
+        // [S-13041] Icons alone land on a fence too (its cells are the grid's): the held icon lands by the one drop
+        // computation (on a fence's body, on its cell). A move may land over a card that stays: nothing keeps widgets apart.
         var models = cards.ConvertAll(c => c.Card.Model);
         var cell = _host.DropCellFor(this, models);
-        var apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card), skipFences: cell is not null) : null;
 
         // [S-13046] Held by a desktop icon: the held icon under the pointer, held where it was grabbed; [S-13048] it alone,
         // however many icons move.
         HandedMove = null;
         var heldByIcon = card.View is IDesktopIconView;
         var pressAt = _widgetLayer.TransformToVisual(_root).TransformPoint(press);
-        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, apart, cards.FindIndex(c => ReferenceEquals(c.Card, card)), cell))
+        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, cards.FindIndex(c => ReferenceEquals(c.Card, card)), cell))
         {
             HeldByIcon = heldByIcon,
             Picture = heldByIcon ? DeskDragPicture(card, cards.Count(c => c.Card.View is IDesktopIconView), pressAt) : null,
@@ -185,20 +182,8 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>[S-11890] The two translations of a move of <paramref name="cards"/>, on this display as it is now; [S-13041] the held card's landing on the cell of what it lands on.</summary>
-    private BlockMove Block(List<(WidgetCard Card, FracRect Start)> cards, List<FracRect>? apart, int held = -1, Func<FracRect, FracRect>? cell = null)
-        => new([.. cards.Select(c => c.Start)], apart, Metrics, held, cell);
-
-    /// <summary>
-    /// [S-11959] The rects of this display's drawn cards other than <paramref name="moving"/> (widgets and desktop
-    /// icons alike; a card that hides itself, [S-873], is not drawn): what a move keeps apart from. [S-13041] With
-    /// <paramref name="skipFences"/> (icons alone moving) a fence and its icons are not: icons land in a fence.
-    /// </summary>
-    private List<FracRect> Staying(IEnumerable<WidgetCard> moving, bool skipFences = false)
-    {
-        var set = moving.ToHashSet();
-        var fenced = skipFences ? Services.AppHost.FencesAndTheirIcons(ViewForThisMonitor(_host.State)) : [];
-        return [.. _cards.Where(c => c.Visibility == Visibility.Visible && c.IsShown(EditMode) && !set.Contains(c) && !fenced.Contains(c.Model.Id)).Select(c => c.LiveRect)];
-    }
+    private BlockMove Block(List<(WidgetCard Card, FracRect Start)> cards, int held = -1, Func<FracRect, FracRect>? cell = null)
+        => new([.. cards.Select(c => c.Start)], Metrics, held, cell);
 
     /// <summary>
     /// [S-1584] The pointer moved: every moving card follows by the same translation ([S-11892]: whole cells, every card
@@ -475,7 +460,7 @@ internal sealed partial class DesktopWindow
         FlushMove();
         var move = _move is { } session && ReferenceEquals(session.Anchor, card)
             ? session
-            : new MoveSession(card, [(card, card.LiveRect)], null, Block([(card, card.LiveRect)], null));
+            : new MoveSession(card, [(card, card.LiveRect)], null, Block([(card, card.LiveRect)]));
         _move = null;
 
         _host.EndHandOffPreview();
@@ -492,7 +477,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        // [S-11891] They land where they were drawn and the local grid lit: on the grid, kept apart.
+        // [S-11891] They land where they were drawn and the local grid lit: on the grid.
         foreach (var (moving, start) in move.Cards)
         {
             moving.Model.Rect = move.Moved ? move.Block.At(start, move.Block.Landing) : moving.LiveRect;

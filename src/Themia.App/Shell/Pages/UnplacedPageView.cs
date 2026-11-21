@@ -21,9 +21,9 @@ using P = Themia.Sdk.Kit.ShellMetrics.Page;
 
 namespace Themia.App.Shell;
 
-/// <summary>[S-13700] What the Unplaced icons page shows now: the view's unplaced items and the fences they can go in.</summary>
+/// <summary>[S-13700] What the Unplaced icons page shows now: the view's unplaced items.</summary>
 /// <param name="Holds">Whether the view shown on the page's display shows desktop icons at all (<see cref="DesktopViews.Holds"/>).</param>
-internal sealed record UnplacedModel(bool Holds, IReadOnlyList<DesktopItem> Items, IReadOnlyList<(string Id, string Name)> Fences)
+internal sealed record UnplacedModel(bool Holds, IReadOnlyList<DesktopItem> Items)
 {
     /// <summary>
     /// [S-13707] The box the desktop gives an icon on the page's display, in DIPs (<see cref="UnplacedItems.Dips"/> of the
@@ -34,22 +34,21 @@ internal sealed record UnplacedModel(bool Holds, IReadOnlyList<DesktopItem> Item
 
 /// <summary>What the Unplaced icons page does, given by its display (or a render's stand-in).</summary>
 /// <param name="Read">[S-13700] The page's model as the desktop and the view are now.</param>
-/// <param name="Place">[S-13703] Place these items on the view at its next free cells.</param>
-/// <param name="PutIn">[S-13704] Put these items into the fence of that id.</param>
+/// <param name="Place">[S-13703] Place these items on the view at its next free cells (a double-click, Enter).</param>
 /// <param name="Drag">[S-13705] These items were dragged off the page: their placement follows the pointer.</param>
 /// <param name="Icon">The shell's icon of an item at so many physical pixels.</param>
 internal sealed record UnplacedCommands(
     Func<UnplacedModel> Read,
     Action<IReadOnlyList<string>> Place,
-    Action<string, IReadOnlyList<string>> PutIn,
     Action<IReadOnlyList<string>> Drag,
     Func<DesktopItem, int, Task<ImageSource?>> Icon);
 
 /// <summary>
 /// [S-13700]..[S-13707] The Unplaced icons page's live part (the page's one line, drawn as the Appearance's preview is,
-/// <see cref="IPagePreview"/>): no words over it (owner, 2026-11-20: "remove the text from the on desktop not home page"), a
-/// search box once the list is long (<see cref="UnplacedItems.Searches"/>) and the selection's actions (Place on this view,
-/// Put in each fence), then the icons on the page's own ground, each the desktop's own icon view (<c>.Icons.cs</c>) at the
+/// <see cref="IPagePreview"/>): no words over it (owner, 2026-11-20: "remove the text from the on desktop not home page") and
+/// no buttons (owner, 2026-11-21: "place on fence and put in this view buttons should be removed from the desktop icons
+/// selector at the top", [S-13704] retired), a search box once the list is long (<see cref="UnplacedItems.Searches"/>), then
+/// the icons on the page's own ground, each the desktop's own icon view (<c>.Icons.cs</c>) at the
 /// desktop's icon size in the box the desktop gives it, with the corner marks the desktop's icons show in edit mode
 /// (<see cref="IconMarks"/>), box against box in rows across the page as the desktop lays them
 /// (<see cref="UnplacedItems.Cells"/>): what is seen is what is placed (owner, 2026-11-19: "it should show the icons
@@ -74,7 +73,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
     private readonly Border _desk;
     private readonly TextBlock _note = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
     private readonly Border _noteCard;
-    private readonly StackPanel _foot = new() { Spacing = P.FootGap };
     private readonly Dictionary<string, Cell> _cells = new(DesktopItemKeys.Comparer);
     private readonly List<Cell> _shown = [];
     private readonly Ticker _ticker;
@@ -83,7 +81,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 
     /// <summary>[S-13707] The desktop icon's kind (the one whose config is an <see cref="IDesktopItemConfig"/>), or null in a build without it.</summary>
     private readonly WidgetDescriptor? _kind = ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
-    private UnplacedModel _model = new(true, [], []);
+    private UnplacedModel _model = new(true, []);
     private bool _disposed;
 
     /// <summary>The item a press is on and where it began.</summary>
@@ -112,10 +110,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         AutomationProperties.SetName(_search, Str.Unplaced_Page_Search.Text());
         _search.TextChanged += (_, _) => Draw();
         Children.Add(_search);
-
-        // [S-13703] The selection's actions over the icons, as a command bar: in reach however many rows there are.
-        _foot.Margin = new Thickness(0, 0, 0, P.HeadingGap);
-        Children.Add(_foot);
 
         // [S-13707] The icons on the page's own ground (owner, 2026-11-20: "make the background of the icons area the same as
         // the rest of the configuration page"), their corner marks over them; room round them for the marks' outer half.
@@ -160,7 +154,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         catch (Exception ex)
         {
             Log.Error(Scope, "the unplaced icons could not be read; the page shows none", ex);
-            _model = new(true, [], []);
+            _model = new(true, []);
         }
 
         _search.Visibility = UnplacedItems.Searches(_model.Items.Count) ? Visibility.Visible : Visibility.Collapsed;
@@ -208,7 +202,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
     /// <summary>[S-6626] The selection is drawn active while the page has the keyboard or holds a selection.</summary>
     private bool Active => _desk.FocusState != FocusState.Unfocused || _selection.Count > 0;
 
-    /// <summary>[S-13702] [S-13707] The icons of what the search matches, in their cells; the selection kept over them; the selection's actions.</summary>
+    /// <summary>[S-13702] [S-13707] The icons of what the search matches, in their cells; the selection kept over them.</summary>
     private void Draw()
     {
         if (_disposed)
@@ -432,7 +426,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
     }
 
-    /// <summary>[S-13707] Every icon paints the selection as the page has it, in the desktop icon's look, its marks too; then the foot's actions for it.</summary>
+    /// <summary>[S-13707] Every icon paints the selection as the page has it, in the desktop icon's look, its marks too.</summary>
     private void Paint()
     {
         if (_disposed)
@@ -442,7 +436,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 
         _iconDesk.Paint();
         DrawMarks();
-        DrawFoot();
     }
 
     /// <summary>
@@ -464,69 +457,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
 
         _marks.Draw(boxes, XamlRoot?.RasterizationScale ?? 1.0);
-    }
-
-    /// <summary>
-    /// [S-13703] [S-13704] Over the icons: what to do with the selection (Place, its count in the button's words; Put in each
-    /// fence), no words of their own (owner, 2026-11-20).
-    /// </summary>
-    private void DrawFoot()
-    {
-        _foot.Children.Clear();
-        _foot.Visibility = _shown.Count == 0 || (!_model.Holds && _model.Fences.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
-        if (_foot.Visibility == Visibility.Collapsed)
-        {
-            return;
-        }
-
-        var selected = _selection.Selected;
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = P.FootGap };
-        if (_model.Holds)
-        {
-            var place = Action(selected.Count > 1 ? Str.Unplaced_Page_PlaceMany.Plural(selected.Count) : Str.Unplaced_Page_PlaceOne.Text(), Glyphs.Add, selected.Count > 0,
-                () => _commands.Place(selected), "#place");
-            FluentLayout.ApplyStyle(place, "AccentButtonStyle");
-            buttons.Children.Add(place);
-        }
-
-        foreach (var (id, name) in _model.Fences)
-        {
-            buttons.Children.Add(Action(Str.Unplaced_Page_PutIn.Format(("fence", name)), Glyphs.DesktopIcons, selected.Count > 0, () => _commands.PutIn(id, selected), "#fence:" + id));
-        }
-
-        _foot.Children.Add(new ScrollViewer
-        {
-            Content = buttons,
-            HorizontalScrollMode = ScrollMode.Enabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-            VerticalScrollMode = ScrollMode.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            IsTabStop = false,
-        });
-    }
-
-    /// <summary>A standard button of a glyph and words, 32 tall, its words in from its sides.</summary>
-    private Button Action(string words, string glyph, bool enabled, Action run, string tag)
-    {
-        var content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
-        content.Children.Add(UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center }));
-        var text = Fluent.Text(FamilyType.Body);
-        text.ClearValue(TextBlock.ForegroundProperty);
-        text.Text = words;
-        text.VerticalAlignment = VerticalAlignment.Center;
-        content.Children.Add(text);
-        var button = new Button
-        {
-            Content = content,
-            MinWidth = P.ActionLeast,
-            Height = P.Control,
-            Padding = new Thickness(P.Label, 0, P.Label, 0),
-            IsEnabled = enabled,
-            Tag = "unplaced" + tag,
-        };
-        AutomationProperties.SetName(button, words);
-        button.Click += (_, _) => Do(run);
-        return button;
     }
 
     /// <summary>A page card: the cards' fill and rim, radius 4.</summary>

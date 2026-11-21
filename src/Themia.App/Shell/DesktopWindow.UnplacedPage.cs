@@ -9,8 +9,8 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-13700]..[S-13707] The Unplaced icons page on this display: the desktop's icons the view shown here does not
-/// place, read for this display's view each time it is drawn; placing them at the next free cells, putting them in a
-/// fence, dragging them onto the desktop (the one placement session, let go where the pointer lets go); and the
+/// place, read for this display's view each time it is drawn; placing them at the next free cells (a double-click,
+/// Enter), dragging them onto the desktop (the one placement session, let go where the pointer lets go); and the
 /// entry's badge on the bar. The rules are Core's (<see cref="UnplacedItems"/>).
 /// </summary>
 internal sealed partial class DesktopWindow
@@ -27,12 +27,11 @@ internal sealed partial class DesktopWindow
     private UnplacedPageView UnplacedPart() => new(new UnplacedCommands(
         Read: UnplacedNow,
         Place: keys => _host.PlaceDesktopItems(CurrentViewId, keys),
-        PutIn: (fence, keys) => _host.PutDesktopItemsInFence(CurrentViewId, fence, keys),
         Drag: BeginUnplacedDrag,
         Icon: HostDesktopItems.Instance.IconAsync));
 
     /// <summary>
-    /// [S-13700] What the page shows now: what this display's view does not place, and its fences; [S-13707] its icons in
+    /// [S-13700] What the page shows now: what this display's view does not place; [S-13707] its icons in
     /// the box the desktop gives an icon on this display (the desktop's own, <c>DeskIconBox</c>: it follows the icon size).
     /// </summary>
     private UnplacedModel UnplacedNow()
@@ -41,8 +40,7 @@ internal sealed partial class DesktopWindow
         var metrics = Metrics;
         return new UnplacedModel(
             DesktopViews.Holds(view),
-            _host.UnplacedDesktopItems(view.Id),
-            [.. UnplacedItems.Fences(view).Select(f => (f.Widget.Id, string.IsNullOrWhiteSpace(f.Fence.Name) ? ModuleCatalog.Of(f.Widget.Kind).Name : f.Fence.Name))])
+            _host.UnplacedDesktopItems(view.Id))
         {
             Box = UnplacedItems.Dips(_host.DeskIconBox(metrics), metrics),
         };

@@ -64,9 +64,6 @@ public sealed partial class SettingsMenuTests
             {
                 yield return (page.Id.ToString().ToLowerInvariant(), Levels(page));
             }
-
-            // [S-2330] The toggles at the edit bar's root: a level of their own.
-            yield return ("bar", [.. EditBarToggles.Of(Settings)]);
         }
 
         /// <summary>A page's sections as the levels the walk goes down: a section's key, then its lines' keys.</summary>
@@ -414,21 +411,14 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S11959_keep_apart_is_the_bars_one_toggle_and_nothing_else_sets_it()
+    public void S11959_retired_nothing_keeps_widgets_from_overlapping()
     {
-        // Regression (owner, 2026-11-16): "is the collision feature implemented? i cannot see the toggle button anywhere".
-        Assert.Equal(["bar"], WritersByPath()["design.widgetCollisions"]);
-
-        var host = new FakeHost();
-        Assert.False(host.State.Design.WidgetCollisions);
-        var toggles = EditBarToggles.Of(host);
-        Assert.Equal([EditBarToggles.Collisions], toggles.Select(t => t.Key));
-        Assert.Equal(1, EditBarToggles.Count);
-
-        toggles[0].Set(true);
-        Assert.True(host.State.Design.WidgetCollisions);
-        Assert.True(host.State.Design.Clone().WidgetCollisions);
-        Assert.False(toggles[0].On);
-        Assert.True(EditBarToggles.Of(host)[0].On);
+        // Owner, 2026-11-21: "keep widgets from overlapping should not be a selectable option anymore". No setting anywhere
+        // (the design, the preferences), nothing writes one, and no keep-apart rule is left for a move to go through.
+        Assert.DoesNotContain(WritersByPath().Keys, key => key.Contains("collision", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(typeof(DesignState).GetProperties(), p => p.Name.Contains("Collision", StringComparison.Ordinal));
+        Assert.DoesNotContain(typeof(AppPreferences).GetProperties(), p => p.Name.Contains("Collision", StringComparison.Ordinal));
+        Assert.DoesNotContain(typeof(Geometry.BlockGeometry).GetMethods(), m => m.Name == "Apart");
+        Assert.Null(typeof(DesignState).Assembly.GetType("Themia.Core.Shell.EditBarToggles"));
     }
 }

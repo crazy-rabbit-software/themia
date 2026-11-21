@@ -26,14 +26,12 @@ namespace Themia.App.Shell;
 /// <param name="Selection">[S-2343] The selection's entry: its flyout opened, or closed again.</param>
 /// <param name="IntoFlyout">[S-2327] Down from the bar: the keyboard into the open flyout.</param>
 /// <param name="Done">Leaves edit mode.</param>
-/// <param name="Toggled">[S-2330] A toggle at the bar's root was flipped (its line set it): the bar shows it.</param>
 internal sealed record EditBarCommands(
     Action Add,
     Action<SettingsPageId> Page,
     Action Selection,
     Action IntoFlyout,
-    Action Done,
-    Action Toggled);
+    Action Done);
 
 /// <summary>[S-2341] The selection's entry: its words ("Clock", "2 × Clock", "3 widgets") and its kind's glyph.</summary>
 internal sealed record BarSelection(string Words, string Glyph);
@@ -45,9 +43,6 @@ internal sealed record EditBarState(BarSelection? Selection, int Errors, Setting
     /// <summary>[S-11707] The add page is open: Add is marked as an open entry is.</summary>
     public bool AddOpen { get; init; }
 
-    /// <summary>[S-2330] The toggles at the bar's root (<see cref="EditBarToggles"/>), as the state is now.</summary>
-    public IReadOnlyList<SettingsToggle> Toggles { get; init; } = [];
-
     /// <summary>[S-13701] How many desktop icons the display's view does not place: the Unplaced icons entry's badge.</summary>
     public int Unplaced { get; init; }
 }
@@ -58,8 +53,8 @@ internal sealed record EditBarState(BarSelection? Selection, int Errors, Setting
 /// one width whatever is selected. Left to right: the pages' entries (General, Accounts, Display, Views,
 /// Appearance) 4 apart, no fill until pointed at, the open one on the subtle fill with the accent's pill at
 /// its foot; 8, a hairline 20 tall while something is selected, 8; the selection's entry in its 256 room;
-/// a 16 gutter; the problems' button while there are any, in its room; 4; Add widget; 8; Done (the one
-/// accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
+/// a 16 gutter; the problems' button while there are any, in its room; 4; Unplaced icons (its icon and count badge,
+/// [S-13701]); 4; Add widget; 8; Done (the one accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
 /// the tooltip). Laid out by <see cref="EditBarLayout"/>. No grip, no undo, no search, no close.
 /// <para>
 /// Its own control so the debug render draws the real bar; its buttons are built as edit mode starts
@@ -75,16 +70,12 @@ internal sealed partial class EditBar : Grid
     /// <summary>[S-2320] A button's height (the placement line's too).</summary>
     public const double ButtonSize = B.Control;
 
-    /// <summary>[S-2330] How many toggles stand at the bar's root: their room is always kept, so the bar keeps one width.</summary>
-    private const int EditBarToggleCount = EditBarToggles.Count;
-
     private readonly Border _frame = new();
     private readonly Canvas _row = new() { Height = B.Control };
 
     private readonly Dictionary<SettingsPageId, Entry> _pages = [];
     private Entry? _selection;
     private Rectangle? _divider;
-    private readonly List<ToggleButton> _toggles = [];
     private Button? _errors;
     private Button? _add;
     private Rectangle? _addPill;
@@ -134,6 +125,7 @@ internal sealed partial class EditBar : Grid
         _row.Children.Clear();
         _pages.Clear();
 
+        // [S-13701] Every page's entry, Unplaced icons' too: it stands beside Add, as the plan lays it.
         foreach (var page in SettingsPages.Order)
         {
             var entry = new Entry(SettingsPages.Glyph(page), SettingsPages.Name(page)) { Tag = "page:" + page };
@@ -154,26 +146,6 @@ internal sealed partial class EditBar : Grid
         _selection = new Entry(Glyphs.Apps, string.Empty) { Tag = "selection" };
         _selection.Click += (_, _) => commands.Selection();
         _row.Children.Add(_selection);
-
-        // [S-2330] The toggles at the bar's root: icon buttons, their words the tooltip, lit while on.
-        _toggles.Clear();
-        for (var i = 0; i < EditBarToggleCount; i++)
-        {
-            var at = i;
-            var toggle = new ToggleButton { Width = B.IconOnly, Tag = "toggle:" + i };
-            Entry.Toggle(toggle);
-            toggle.Click += (_, _) =>
-            {
-                if (_state.Toggles.ElementAtOrDefault(at) is { } line)
-                {
-                    line.Set(!line.On);
-                }
-
-                commands.Toggled();
-            };
-            _toggles.Add(toggle);
-            _row.Children.Add(toggle);
-        }
 
         _errors = new Button { Content = new FontIcon { Glyph = Glyphs.ErrorBadge, FontSize = B.Icon, Foreground = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed) }, Width = B.IconOnly, Tag = "errors" };
         Entry.Subtle(_errors);
@@ -211,7 +183,6 @@ internal sealed partial class EditBar : Grid
         _row.Children.Clear();
         _pages.Clear();
         _selection = null;
-        _toggles.Clear();
         _divider = null;
         _addPill = null;
         _errors = _add = _done = null;
@@ -227,14 +198,12 @@ internal sealed partial class EditBar : Grid
         }
 
         var plan = EditBarLayout.Lay(
-            [.. SettingsPages.Order.Select(p => Measure(SettingsPages.Name(p)))],
+            [.. SettingsPages.Entries.Select(p => Measure(SettingsPages.Name(p)))],
             state.Selection is { } selection ? Measure(selection.Words) : null,
-            EditBarToggleCount,
             state.Errors > 0,
             Measure(Str.Shell_Toolbar_AddWidget.Text()),
             Measure(Str.Common_Done.Text()),
-            state.Widest,
-            SettingsPages.Order.Select((p, i) => (p, i)).Where(e => SettingsPages.IconAlone(e.p)).Select(e => e.i).ToHashSet());
+            state.Widest);
 
         BarWidth = plan.Width;
         Width = plan.Width;
@@ -242,12 +211,15 @@ internal sealed partial class EditBar : Grid
 
         foreach (var (page, entry) in _pages)
         {
-            var part = plan.Of(BarPartKind.Page, SettingsPages.Order.ToList().IndexOf(page))!.Value;
+            var unplaced = page == SettingsPageId.DesktopItems;
+            var part = unplaced
+                ? plan.Of(BarPartKind.Unplaced)!.Value
+                : plan.Of(BarPartKind.Page, SettingsPages.Entries.ToList().IndexOf(page))!.Value;
             entry.Lay(part, state.Open == page);
 
             // [S-13701] Unplaced icons counts what the display's view does not place, while there is any.
-            entry.Badge(page == SettingsPageId.DesktopItems ? Core.Desktop.UnplacedItems.Badge(state.Unplaced) : null,
-                state.Unplaced > 0 ? Str.Unplaced_Badge.Plural(state.Unplaced) : null);
+            entry.Badge(unplaced ? Core.Desktop.UnplacedItems.Badge(state.Unplaced) : null,
+                unplaced && state.Unplaced > 0 ? Str.Unplaced_Badge.Plural(state.Unplaced) : null);
         }
 
         if (plan.Of(BarPartKind.Divider) is { } divider)
@@ -270,25 +242,6 @@ internal sealed partial class EditBar : Grid
         else
         {
             _selection!.Visibility = Visibility.Collapsed;
-        }
-
-        for (var i = 0; i < _toggles.Count; i++)
-        {
-            var toggle = _toggles[i];
-            var part = plan.Of(BarPartKind.Toggle, i)!.Value;
-            Canvas.SetLeft(toggle, part.X);
-            if (state.Toggles.ElementAtOrDefault(i) is { } line)
-            {
-                toggle.Visibility = Visibility.Visible;
-                toggle.Content = new FontIcon { Glyph = line.Glyph ?? string.Empty, FontSize = B.Icon };
-                toggle.IsChecked = line.On;
-                ToolTipService.SetToolTip(toggle, line.Text);
-                AutomationProperties.SetName(toggle, line.Text);
-            }
-            else
-            {
-                toggle.Visibility = Visibility.Collapsed;
-            }
         }
 
         if (plan.Of(BarPartKind.Errors) is { } errors)
@@ -535,27 +488,6 @@ internal sealed partial class EditBar : Grid
             button.Padding = new Thickness(B.Lead, 0, B.Lead, 0);
             button.CornerRadius = new CornerRadius(Fluent.ControlRadius);
             button.HorizontalContentAlignment = HorizontalAlignment.Center;
-        }
-
-        /// <summary>
-        /// [S-2330] A toggle at the bar's root, Windows' command bar toggle: off, a subtle button like the
-        /// entries; on, the accent's fill with the glyph on it (WinUI's own checked look, kept).
-        /// </summary>
-        internal static void Toggle(ToggleButton toggle)
-        {
-            Sized(toggle);
-            toggle.MinWidth = 0;
-            toggle.Padding = new Thickness(0);
-            toggle.BorderThickness = new Thickness(0);
-            var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-            toggle.Resources["ToggleButtonBackground"] = clear;
-            toggle.Resources["ToggleButtonBackgroundPointerOver"] = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
-            toggle.Resources["ToggleButtonBackgroundPressed"] = ThemeBrush.Of("SubtleFillColorTertiaryBrush", Colors.DimGray);
-            toggle.Resources["ToggleButtonBackgroundDisabled"] = clear;
-            foreach (var state in new[] { string.Empty, "PointerOver", "Pressed", "Disabled" })
-            {
-                toggle.Resources["ToggleButton" + nameof(Control.BorderBrush) + state] = clear;
-            }
         }
 
         /// <summary>No fill and no rim at rest, the subtle fills under the pointer and pressed.</summary>

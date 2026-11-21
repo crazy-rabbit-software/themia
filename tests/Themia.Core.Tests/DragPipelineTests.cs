@@ -5,9 +5,8 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-11890] A move touches only what changed: pointer moves coalesced to one step a frame, the keep-apart check
-/// looking only at the cards near the block, the landing reported changed only on another cell, the local grid as
-/// clipped layers. [S-11891] The cards are drawn on the grid while dragged, where they land.
+/// [S-11890] A move touches only what changed: pointer moves coalesced to one step a frame, the landing reported
+/// changed only on another cell, the local grid as clipped layers. [S-11891] The cards are drawn on the grid while dragged, where they land.
 /// </summary>
 public sealed class DragPipelineTests
 {
@@ -37,34 +36,9 @@ public sealed class DragPipelineTests
     }
 
     [Fact]
-    public void S11890_the_keep_apart_check_looks_only_at_cards_near_the_block_and_decides_as_the_full_scan()
-    {
-        var random = new Random(11890);
-        for (var round = 0; round < 400; round++)
-        {
-            var block = Enumerable.Range(0, 1 + random.Next(3)).Select(_ => Rect(random)).ToList();
-            var others = Enumerable.Range(0, random.Next(25)).Select(_ => Rect(random)).ToList();
-            var wanted = new BlockGeometry.Delta(Cells(random, 30), Cells(random, 30));
-            var last = new BlockGeometry.Delta(Cells(random, 30), Cells(random, 30));
-            Assert.Equal(FullScanApart(block, wanted, last, others), BlockGeometry.Apart(block, wanted, last, others, Screen));
-
-            // Every card the prune leaves out could not have held any of the three tries.
-            BlockGeometry.Delta[] tries = [wanted, wanted with { Dy = last.Dy }, wanted with { Dx = last.Dx }];
-            var near = BlockGeometry.Near(block, tries, others, Screen);
-            foreach (var other in others.Except(near))
-            {
-                Assert.All(tries, d => Assert.True(BlockGeometry.Clear(block, d, [other], Screen)));
-            }
-        }
-
-        static FracRect Rect(Random random) => R(Cells(random, 90) + 0.05, Cells(random, 90) + 0.05, 0.01 * (1 + random.Next(15)), 0.01 * (1 + random.Next(15)));
-        static double Cells(Random random, int span) => 0.01 * (random.Next((2 * span) + 1) - span);
-    }
-
-    [Fact]
     public void S11890_a_step_says_the_block_moved_only_when_it_reaches_another_cell()
     {
-        var move = new BlockMove([R(0.4, 0.4, 0.1, 0.1)], apart: null, Screen);
+        var move = new BlockMove([R(0.4, 0.4, 0.1, 0.1)], Screen);
         var moves = 0;
 
         // 30 DIPs to the right, one DIP at a time: it moves on to the 10, 20 and 30 DIP cells (the snap's half cell).
@@ -91,7 +65,7 @@ public sealed class DragPipelineTests
         // Regression (owner, 2026-11-19: "the items dont stick to the grid anymore when moving in the preview"): the
         // one translation the cards are drawn at is the snapped move, so mid-drag they stand where they will land.
         var start = new[] { R(0.4, 0.4, 0.1, 0.1), R(0.5, 0.4, 0.1, 0.1) };
-        var move = new BlockMove(start, apart: null, Screen);
+        var move = new BlockMove(start, Screen);
         move.Step(pointerDip / 1000, pointerDip / 2000);
 
         Assert.Equal(BlockGeometry.Move(start, pointerDip / 1000, pointerDip / 2000, Screen), move.Landing);
@@ -107,19 +81,23 @@ public sealed class DragPipelineTests
     }
 
     [Fact]
-    public void S11891_kept_apart_the_block_stops_flush_by_a_card_and_slides_along_the_free_axis_on_the_grid()
+    public void S11959_retired_a_move_goes_where_the_pointer_takes_it_over_any_widget()
     {
-        var neighbour = R(0.3, 0.1, 0.1, 0.1);
-        var move = new BlockMove([R(0.1, 0.1, 0.1, 0.1)], [neighbour], Screen);
+        // Owner, 2026-11-21: "keep widgets from overlapping should not be a selectable option anymore". A move never stops
+        // flush by a neighbour nor slides along it: the block lands where the pointer takes it, on the grid, over whatever
+        // stands there (a neighbour at 0.3..0.4 here, which kept apart once held it at Dx 0.1).
+        var start = new[] { R(0.1, 0.1, 0.1, 0.1) };
+        var move = new BlockMove(start, Screen);
 
-        // 4 DIPs past flush: it stands flush, not over the neighbour.
-        move.Step(0.104, 0);
-        Assert.Equal(0.1, move.Landing.Dx, 9);
+        move.Step(0.25, 0.016);
 
-        // Pushed on along the neighbour's side and down, it slides down by whole cells.
-        move.Step(0.13, 0.016);
-        Assert.Equal(0.1, move.Landing.Dx, 9);
+        Assert.Equal(BlockGeometry.Move(start, 0.25, 0.016, Screen), move.Landing);
+        Assert.Equal(0.25, move.Landing.Dx, 9);
         Assert.Equal(0.02, move.Landing.Dy, 9);
+
+        // The arrow keys alike: one cell a press, whatever is there.
+        var nudged = KeyboardNudge.Move([R(0.29, 0.1, 0.1, 0.1)], Shell.NudgeDirection.Right, Shell.NudgeStep.Cell, Screen);
+        Assert.Equal(0.3, nudged[0].X, 9);
     }
 
     [Theory]
@@ -178,23 +156,5 @@ public sealed class DragPipelineTests
         }
 
         Assert.Empty(LocalGrid.Levels(target, new ScreenMetrics(0, 0)));
-    }
-
-    /// <summary>[S-11959] The keep-apart rule as it was before the prune: every staying card looked at.</summary>
-    private static BlockGeometry.Delta FullScanApart(List<FracRect> start, BlockGeometry.Delta wanted, BlockGeometry.Delta last, List<FracRect> others)
-    {
-        if (others.Count == 0 || BlockGeometry.Clear(start, wanted, others, Screen))
-        {
-            return wanted;
-        }
-
-        var alongX = wanted with { Dy = last.Dy };
-        if (BlockGeometry.Clear(start, alongX, others, Screen))
-        {
-            return alongX;
-        }
-
-        var alongY = wanted with { Dx = last.Dx };
-        return BlockGeometry.Clear(start, alongY, others, Screen) ? alongY : last;
     }
 }

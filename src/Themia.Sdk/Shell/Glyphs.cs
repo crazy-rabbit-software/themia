@@ -136,11 +136,11 @@ public static class Glyphs
     // [S-1910] Power widget glyphs beyond the shared ones (Power, Reset, Moon, Display).
     public static readonly string Lock = From(0xE72E);
 
-    /// <summary>[S-11959] The edit bar's Keep widgets from overlapping: tiles standing apart (Segoe "GridView").</summary>
-    public static readonly string KeepApart = From(0xF0E2);
-
-    /// <summary>[S-13701] The edit bar's Unplaced icons: icons in rows (Segoe "Tiles").</summary>
-    public static readonly string DesktopIcons = From(0xECA5);
+    /// <summary>
+    /// [S-13701] The edit bar's Unplaced icons, beside Add widget: an app's icon with a plus, icons still to put on this view
+    /// (Segoe "AppIconDefaultAdd"; owner, 2026-11-21: "given another icon", not a grid).
+    /// </summary>
+    public static readonly string UnplacedIcons = From(0xEFDA);
 
     /// <summary>[S-5548] The desktop menu's "Paste shortcut" (Explorer's picture, [S-1754]; Segoe "ClipboardList" without it).</summary>
     public static readonly string PasteShortcut = From(0xF0E3);

@@ -1983,9 +1983,10 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 - **[S-2300]** The bar's **pages**, in its order, each an entry (its glyph and its name) and the flyout
   it opens: **General** (the gear, Karpo's sections, [S-2315]), **Accounts** (your accounts, each a card,
   then the ways to add one, [S-2312]), **Display** (every display a card, then what every display shares,
-  [S-2314]), **Views** (every view a card, then Add a view, [S-2313]), **Unplaced icons** (the desktop's icons the
-  display's view does not place, its icon alone with a count badge, [S-13700]) and **Appearance** (the live preview,
-  the style, theme and colours, item background, the cards, text and size, Motion, [S-2316]). The lines are
+  [S-2314]), **Views** (every view a card, then Add a view, [S-2313]) and **Appearance** (the live preview,
+  the style, theme and colours, item background, the cards, text and size, Motion, [S-2316]), their entries at the bar's
+  start (`SettingsPages.Entries`); and **Unplaced icons** (the desktop's icons the display's view does not place, its
+  icon alone with a count badge, [S-13700]), its entry right beside Add widget ([S-13701]). The lines are
   the settings' own (`SettingsMenu.*`, `DisplayMenu.Root`, `ViewsMenu.Root`); a page only groups them
   (`SettingsPages.General` … `.Appearance`).
 - **[S-2301]** One rule makes a page of lines (`SettingsPages.Sectioned`): a heading line starts a
@@ -2176,10 +2177,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 - **[S-2320]** The **bar** (`EditBar`, laid out by `EditBarLayout.Lay`): one row 48 DIPs tall (8, a 32
   control, 8) centred on each display's work area, 8 under its top (it never moves, [S-2329]), Windows' ground with the
   flyout's rim, radius 8 and a flyout's shadow. Left to right: the pages' entries 4 apart (each 12, its
-  16 icon, 8, its words in Body, 12; no fill or rim until pointed at; Unplaced icons its icon alone, [S-13701]); 8, a 1-DIP hairline 20 tall, 8
+  16 icon, 8, its words in Body, 12; no fill or rim until pointed at); 8, a 1-DIP hairline 20 tall, 8
   (drawn only while something is selected, its room always kept); the **selection's room**, 256 DIPs
-  always kept ([S-2324]); a 16 gutter; the **toggles** ([S-2330], 40 each, 4 apart); 4; the **problems' room** (a 40 icon button while there are
-  problems; Themia keeps no standing list of them yet, so the room stays empty); 4; **Add widget**
+  always kept ([S-2324]); a 16 gutter; the **problems' room** (a 40 icon button while there are
+  problems; Themia keeps no standing list of them yet, so the room stays empty); 4; **Unplaced icons** (its icon alone, 40,
+  and its count badge, [S-13701]); 4; **Add widget**
   ([S-3501]; a command bar's button as the entries, no fill nor rim until pointed at, as Karpo's "+ Add", its §575;
   owner, 2026-11-19: "the individual settings components between karpo and themia should bascially be the same ...
   same with the topbar"); 8; **Done** (the one accent button, at
@@ -2190,11 +2192,10 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   the work area's top on every display, whatever is selected or dragged, and its flyouts hang under it. A
   selected widget its page covers is seen through the page instead ([S-2344]). *(2026-11-14 to -15 it went
   to the foot while it or its flyout covered a selected widget; removed whole.)*
-- **[S-2330]** **One toggle at the bar's root** (`EditBarToggles`, Core lines the bar draws, `Count` its kept room):
-  **Keep widgets from overlapping** (`design.widgetCollisions`, default off, [S-11959]), an icon toggle button 40
-  wide after the gutter, its words the tooltip and name; off a subtle button like the entries, on WinUI's checked
-  toggle (the accent's fill, the glyph on it). It is its setting's one place ([S-3590]): no page sets it.
-  *(Retired 2026-11-15: the Snap to grid toggle; the grid is always on, [S-06].)* **Widgets always go over the
+- **[S-2330]** **No toggle at the bar's root** (owner, 2026-11-21: "keep widgets from overlapping should not be a
+  selectable option anymore"). *(2026-11-15 to -21 the bar had one, **Keep widgets from overlapping**, `EditBarToggles`,
+  [S-11959]; removed whole with its setting. Retired 2026-11-15: the Snap to grid toggle; the grid is always on, [S-06].)*
+  **Widgets always go over the
   screen edge** (owner, 2026-11-20: "widgets can go over screen edge should not be a setting anymore, they should
   always be able to go over the screen"): every gesture (placing, moving, a block's move or resize, resizing,
   pasting) may hang a widget over the **monitor's own** edges. The rules that stay: [S-6608]'s visible minimum (32 DIP
@@ -2205,22 +2206,13 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   widget on the work area while off; removed whole. A state file that still holds the key loads with it dropped,
   one repair line, [S-1050].)* Tests `EditBarLayoutTests.S2320_`, `SettingsMenuTests.S2330_`,
   `EdgeOverhangTests.S2330_`, `AppStateStoreTests.S2330_`.
-- **[S-11959]** **Keep widgets from overlapping** (`Design.WidgetCollisions`, off by default; key `collisions`), the
-  bar's toggle ([S-2330]; owner, 2026-11-16: "is the collision feature implemented? i cannot see the toggle
-  button anywhere"; first, 2026-11-15, a General switch under Snap to grid). On, a widget moved never lands over
-  another: every move there is, a drag in edit mode or on the locked desktop ([S-2008], a mixed selection of icons
-  and cards, [S-11879]) and the arrow keys (one cell a press on the always-on grid, [S-06];
-  a press that would land over another does not move). The block goes all the way where it lands clear, else
-  slides along the clear axis, else stays where it stood (`BlockGeometry.Apart`). What moves is held, never what
-  stays: desktop icons and cards alike stay clear (a card that hides itself, [S-873], is not drawn, so not in the
-  way); the selected widgets move together and never hold each other. Touching edges are no overlap, nor a sliver
-  under the fractions' rounding; a block lands on the lines ([S-11892]), so it stops flush beside a neighbour on them at
-  any scale (until 2026-11-20 an overlap under one whole pixel step of the drag counted as touching, the step having
-  left blocks off the lines). Widgets already lying over each other are left as they are, and a
-  moved one may stay over or leave the one it started over, but never comes over another. A block's resize by the
-  selection's frame or Shift+arrows is held too ([S-2465]). A single widget's resize, placing, a
-  paste, icons dropped back from the shell's drag and a hand-off to another display are not held. Tests
-  `WidgetCollisionsTests.S11959_`, `SettingsMenuTests.S11959_`.
+- **[S-11959]** *(Retired 2026-11-21, owner: "keep widgets from overlapping should not be a selectable option anymore".
+  Widgets may overlap, as they did by default: every move (a drag in edit mode or on the locked desktop, the arrow keys)
+  and a block's resize ([S-2465]) goes where the pointer or the key takes it, over any widget; nothing keeps widgets
+  apart. Gone whole: the setting (`Design.WidgetCollisions`; a state file that still holds `widgetCollisions`, in the
+  design or the preferences, loads with it dropped, one repair line, [S-1050]), the bar's toggle ([S-2330]) and the rule
+  (`BlockGeometry.Apart`). From 2026-11-15 a widget moved with it on never landed over another.)* Tests
+  `SettingsMenuTests.S11959_retired_`, `DragPipelineTests.S11959_retired_`, `AppStateStoreTests.S11959_`.
 - **[S-2321]** The entry whose flyout is open is lit: the subtle fill and the accent's 16 × 3 pill at
   its foot. Each entry's words are its tooltip and its name.
 - **[S-2322]** On a display too narrow for the bar the pages' entries show their **icon alone** (40
@@ -2813,12 +2805,12 @@ as the rest of the configuration page. make sure that the icons look the same as
 corners are not shown"*; *"when dragging a desktop item from the topbar of non placed items it should already look like
 the ones on the desktop"*.
 Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`SettingsPageId.DesktopItems`,
-`DesktopItems()`, `IconAlone`, `BarWide`), `Shell/EditBarLayout.cs` (`iconAlone`), `Geometry/FlyoutPlacement.cs`
+`DesktopItems()`, `Entries`, `BarWide`), `Shell/EditBarLayout.cs` (`BarPartKind.Unplaced`), `Geometry/FlyoutPlacement.cs`
 (`Wide`), `Model/PlacementPayload.cs` (`GhostOutline.Config`); App `Shell/Pages/UnplacedPageView.cs` (+ `.Icons.cs`: the
 icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.cs` (their corners),
 `Shell/DesktopWindow.UnplacedPage.cs`, `DesktopWindow.IconGhosts.cs` (a placement's icons, [S-13708]),
 `DesktopWindow.BarMenus.cs` (`PlaceFlyout`), `PageFlyout.ContentHeightAt`, `AppHost.DesktopViews.cs`
-(`PlaceDesktopItems`, `PutDesktopItemsInFence`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
+(`PlaceDesktopItems`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
 `BeginPlacement(items, screen)`, `DesktopListed`), the entry's badge in `EditBar.cs`; render
 `Gallery/EditBarRender.Unplaced.cs`, `Gallery/DeskSelectCheck.cs` (`<out>.place-icon.png`). Tests `UnplacedItemsTests`,
 `SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`, `MultiSelectPlacementTests.S13708_`, `.S13710_`,
@@ -2832,12 +2824,15 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   list Add widget's On the desktop offers, [S-5523]), in `DesktopItemOrder`. Each item is **its desktop icon, drawn
   exactly as the desktop draws it** ([S-13707]: never a list row), with **no words over them** (owner, 2026-11-20:
   "remove the text from the on desktop not home page"; before, "On the desktop, not on <view>" over the page and "n
-  selected" or a hint how to drag them over the icons): what is selected counts in the Place button's own words. A view
+  selected" or a hint how to drag them over the icons), and **no buttons** over them ([S-13704] retired). A view
   that shows no desktop icons (None, [S-5525]) lists none and says so, pointing at Views › Desktop icons; with every
   icon placed the page says that.
-- **[S-13701]** **Its entry** on the edit bar is its icon alone at every width (`SettingsPages.IconAlone`; its name
-  "Unplaced icons" the tooltip and the screen reader's), so the bar keeps its words on every display it kept them on
-  before; while the display's view leaves any icon unplaced, a count badge (Windows' InfoBadge look: the accent pill
+- **[S-13701]** **Its entry** on the edit bar stands **right beside Add widget**, not among the pages' (owner,
+  2026-11-21: "the selector settings page should be moved next to add widget and given another icon";
+  `BarPartKind.Unplaced`, `SettingsPages.Entries` the pages without it): its icon alone at every width (its name
+  "Unplaced icons" the tooltip and the screen reader's), an app's icon with a plus (`Glyphs.UnplacedIcons`, Segoe
+  "AppIconDefaultAdd"; until 2026-11-21 the grid of "Tiles", among the pages after Views); while the display's view
+  leaves any icon unplaced, a count badge (Windows' InfoBadge look: the accent pill
   over the icon's top end corner, at most "99+", `UnplacedItems.Badge`; the screen reader hears "n desktop icons are
   not on this view"). It opens the page under the bar like every entry ([S-2327]).
 - **[S-13702]** **Search**: from nine items on (`UnplacedItems.SearchFrom`) a search box over the icons narrows them to
@@ -2846,13 +2841,14 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   Ctrl/Shift+click, the arrows across a row and down to the same column of the next row as laid, Page Up/Down,
   Home/End, Ctrl+A, Ctrl+Space), painted in the desktop icon's selection look (`SelectionLook.DesktopIcon`, through the
   icon's own view, [S-13707]; active while the page has the keyboard or a selection). A double-click on an icon places
-  it, Enter places the selection, and the action row over the icons ("Place n icons", the accent button) places the
-  selection: at the view's **next free grid cells** in the desktop's order, the arrivals' and Auto arrange's reading
-  order ([S-11876], [S-5594]; `DesktopViews.Fill` through `AppHost.PlaceDesktopItems`), one undo step. An icon has no
-  button of its own (a desktop icon has none). Nothing on a None view.
-- **[S-13704]** **Put in a fence**: the action row has "Put in <fence>" for every fence of the view but a search fence
-  (`UnplacedItems.Fences`, [S-13023]); it moves the selection into that fence at its end (`DesktopFences.MoveIn`), one
-  undo step.
+  it and Enter places the selection: at the view's **next free grid cells** in the desktop's order, the arrivals' and
+  Auto arrange's reading order ([S-11876], [S-5594]; `DesktopViews.Fill` through `AppHost.PlaceDesktopItems`), one undo
+  step. There is no button for it, nor for an icon (a desktop icon has none): until 2026-11-21 an action row over the
+  icons had "Place on this view" / "Place n icons", the accent button, and "Put in <fence>" ([S-13704]); removed (owner:
+  "place on fence and put in this view buttons should be removed from the desktop icons selector at the top").
+  Dragged onto the desktop ([S-13705]) is the way to put icons where they go, a fence included. Nothing on a None view.
+- **[S-13704]** *(Retired 2026-11-21 with the action row, [S-13703]: there is no "Put in <fence>" button; icons dragged
+  off the page land in a fence as any move of icons does, [S-13041].)*
 - **[S-13705]** **Dragged onto the desktop**: a press on an icon moved past the dead zone ([S-2008]'s `Travelled`) starts
   the one placement session ([S-421]) with what the press acts on, laid as one block of rows four wide
   (`UnplacedItems.Block`, `AppHost.BeginPlacement(items, screen)`); the page closes for it (posted after the
@@ -2911,8 +2907,8 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   before.
 
 Needs a live pass: the drag off the page onto the desktop (the icons under the real pointer from its first frame, the
-release landing them, on another display too, and the page opening again), placing and putting in a fence with the real
-listing, the badge following files
+release landing them, on another display too, a fence too, and the page opening again), placing by a double-click and
+Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
 ### The edit bar's settings menu (SETTINGS-MENU)
@@ -4925,8 +4921,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   pixels after the snap ([S-11873] as it was), so on any pitch that is no whole number of pixels (that window at 100 %,
   every 125 % display, 150 % at 2560) a block landed up to half a step off its line, and two blocks moved on their own
   met a pixel or more apart. Now: (1) `Metrics` is the display's bounds in DIPs (`GridGeometry.DisplayScreen`, [S-05]);
-  (2) a block's move is the snap's whole cells at any scale (`BlockGeometry.Move`, no raster scale; kept apart by
-  the fractions' rounding alone, [S-11959]), so blocks laid side by side meet on one line and paint one body
+  (2) a block's move is the snap's whole cells at any scale (`BlockGeometry.Move`, no raster scale), so blocks laid side by side meet on one line and paint one body
   ([S-2249]); (3) a card whose edges drifted off the lines by less than a DIP is put on them (`GridSettle`, in every
   mutation on settled metrics, [S-854], before the taskbars are cleared, [S-855]; one warning line in the log naming
   each card, before and after): every edge that is one value (a join, an alignment) moves with the others or not at
@@ -9696,11 +9691,10 @@ makes a composition one thing. Several widgets selected together are arranged an
   (the selection's frame's resizes the block, [S-2460]). Tests
   `NoGroupsTests.S1593_`, `.S1580_`, `.S1581_`, `.S1973_`.
 - **[S-2452]** **Several selected act as one**: they move as one block, by one translation, snapped by whole
-  cells ([S-1584], [S-11873], [S-11892]), kept apart from the cards that stay when Keep widgets from overlapping is on
-  ([S-11959]); they are resized together by the selection's frame and Shift+arrows ([S-2460]..[S-2465]); they copy,
+  cells ([S-1584], [S-11873], [S-11892]), over any card that stays ([S-11959] retired); they are resized together by
+  the selection's frame and Shift+arrows ([S-2460]..[S-2464]); they copy,
   cut, paste, delete and are layered together ([S-1592]); the arrow keys nudge them whole ([S-1970]). Their page is **For all of them** (each shared setting once, [S-11751]) and the Appearance tab, set on
-  every one ([S-11754], [S-11755]). Tests `NoGroupsTests.S1584_`, `BlockMoveTests.S11873_`,
-  `WidgetCollisionsTests.S11959_a_selection_moves_as_one_block_its_touching_widgets_never_holding_each_other`.
+  every one ([S-11754], [S-11755]). Tests `NoGroupsTests.S1584_`, `BlockMoveTests.S11873_`.
 - **[S-2453]** **Every selected widget is marked**: in edit mode each card draws its eight markers (a
   selected one in the accent, every other neutral, [S-31c]) and its handles; several selected draw none of their own,
   the selection's frame round them all marks them ([S-2460], [S-14310]).
@@ -9784,9 +9778,9 @@ makes a composition one thing. Several widgets selected together are arranged an
   one cell; Ctrl ten cells, on the common step); a press that would change nothing (a list between two of its rows)
   goes on to the next length that changes one. One press-and-hold is one undo step ([S-1972]). Tests
   `BlockResizeTests.S2464_`.
-- **[S-2465]** **Kept apart.** With Keep widgets from overlapping on ([S-11959]) a block's resize comes over no widget
-  that stays: it stops at the last length clear of them (a corner still grows along the axis that is clear, both
-  orders tried, the one that goes further taken). Tests `BlockResizeTests.S2465_`.
+- **[S-2465]** *(Retired 2026-11-21 with [S-11959]: a block's resize may come over a widget that stays; nothing holds
+  it. Until then, with Keep widgets from overlapping on, it stopped at the last length clear of them.)* Tests
+  `BlockResizeTests.S2465_retired_`.
   Not live-verified: the frame's drag with a real pointer (its grips over a member's own, the cursor shapes, the
   capture lost to another window), the frame across a hand-off to another display, mixed DPI.
 - **[S-2458]** *(Retired 2026-11-17: a scene has no `group` key and its `edit` block no `group` or `enter`; a scene
@@ -12336,8 +12330,7 @@ module's `FenceTests`.
   nor a row its body does not show; the move's block follows the held icon there (`BlockMove`'s cell). Let go,
   `DesktopFences.Land` makes each icon the fence's whose body it landed on, at the place its cell stands for, or a free icon
   where it stands; the same for a shell drag of the desktop's icons dropped back on the desktop or over a fence
-  (`AppHost.MoveDeskDrag`) and for icons nudged with the keys. With Keep widgets from overlapping on, a move of icons alone
-  is kept apart from everything but fences and their icons. The desktop's own drop has no glide, so neither has a fence's.
+  (`AppHost.MoveDeskDrag`) and for icons nudged with the keys. The desktop's own drop has no glide, so neither has a fence's.
   Tests `FenceGridTests.S13041_`.
 - **[S-13042]** **A fence's items are desktop icons**: each held item has its one item widget on the fence's view (made at
   the fence's corner when an item comes in with none there: a rule, a drop of files, a paste, `MoveIn`), drawn right over its
@@ -13163,16 +13156,14 @@ power buttons, whose whole body is their button) open nothing.
   no size, resize grips, relayout, state change or event; the cards are freed from their neighbours by one join pass
   on the first step ([S-2244]) and joined again by one on the drop, none between (the moving cards keep their places
   to one another, [S-2457]); the local grid and the border marks ([S-11874], [S-11881]) change with them, or when the
-  hand-off preview comes or goes; the keep-apart check ([S-11959]) looks
-  only at the cards that share area with the box the three tries land in (`BlockGeometry.Near`: exact, the same answer
-  as every card). The drop: one store of the rects, one join pass, one undo step. `--drag-bench <out.txt>` (Debug)
+  hand-off preview comes or goes. The drop: one store of the rects, one join pass, one undo step. `--drag-bench <out.txt>` (Debug)
   times each stage (`DragProfile`) over a 120-frame pointer path on a real surface of 21 widgets (joined rows, icons),
   locked and edit mode, solid and Liquid glass. Tests `DragPipelineTests.S11890_`.
 - **[S-11891]** **The dragged cards stick to the grid** (owner, 2026-11-19: "now the items dont stick to the grid
   anymore when moving in the preview. they should always stick to the grid"; replaces the same day's glue to the
   pointer): while dragged a block is drawn at the one translation it lands at, the snapped move ([S-1584]: on the grid
-  or an edge magnet, [S-6609]; kept in reach, [S-6608]; on the lines at any scale, [S-11892]; kept apart, [S-11959]: by a
-  card that stays it stops flush and slides along the free axis), stepping cell by cell; the local grid lights that
+  or an edge magnet, [S-6609]; kept in reach, [S-6608]; on the lines at any scale, [S-11892]; over any card that stays,
+  [S-11959] retired), stepping cell by cell; the local grid lights that
   box ([S-11874]; in edit mode the box alone over the whole grid), and the drop leaves it there. Tests
   `DragPipelineTests.S11891_`.
 - **[S-11881]** **A locked move shows the borders** (owner, 2026-11-15: "when moving the widgets around in non edit

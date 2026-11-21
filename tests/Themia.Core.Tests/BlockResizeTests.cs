@@ -34,8 +34,8 @@ public sealed class BlockResizeTests
 
     private static SizeLimits?[] FreeAll(int n) => [.. Enumerable.Range(0, n).Select(_ => (SizeLimits?)Free())];
 
-    private static IReadOnlyList<FracRect> Drag(FracRect[] start, ResizeHandle handle, double dxCells, double dyCells, SizeLimits?[]? limits = null, IReadOnlyList<FracRect>? apart = null)
-        => BlockResize.Resize(start, limits ?? FreeAll(start.Length), handle, dxCells / Cols, dyCells / Rows, Screen, apart);
+    private static IReadOnlyList<FracRect> Drag(FracRect[] start, ResizeHandle handle, double dxCells, double dyCells, SizeLimits?[]? limits = null)
+        => BlockResize.Resize(start, limits ?? FreeAll(start.Length), handle, dxCells / Cols, dyCells / Rows, Screen);
 
     // ---- proportional, on the grid -------------------------------------------------------------------
 
@@ -372,40 +372,16 @@ public sealed class BlockResizeTests
     }
 
     [Fact]
-    public void S2465_with_widgets_kept_apart_the_block_stops_against_one_that_stays()
+    public void S2465_retired_a_blocks_resize_goes_over_a_widget_that_stays()
     {
+        // [S-11959] retired (owner, 2026-11-21): nothing keeps widgets apart. Dragged 30 cells right, the row grows a cell
+        // each step all the way, over the widget standing at 56 (kept apart once stopped it flush there, at 23 each).
         FracRect[] row = [C(10, 10, 20, 12), C(30, 10, 20, 12)];
-        FracRect[] staying = [C(56, 8, 10, 20)];
 
-        // On the common step (a cell each): flush where the step lands there.
-        var grown = Drag(row, ResizeHandle.Right, 30, 0, apart: staying);
-        Assert.Equal((10, 10, 23, 12), Cells(grown[0]));
-        Assert.Equal((33, 10, 23, 12), Cells(grown[1]));
+        var grown = Drag(row, ResizeHandle.Right, 30, 0);
 
-        // One cell further off, the last step short of it: a cell before it, the two still equal.
-        var short1 = Drag(row, ResizeHandle.Right, 30, 0, apart: [C(57, 8, 10, 20)]);
-        Assert.Equal((23, 23), (Cells(short1[0]).W, Cells(short1[1]).W));
-
-        // Cell by cell (no fine common step): flush.
-        FracRect[] odd = [C(10, 10, 17, 12), C(27, 10, 23, 12)];
-        var flush = Drag(odd, ResizeHandle.Right, 30, 0, apart: [C(57, 8, 10, 20)]);
-        Assert.Equal(57, Cells(flush[1]).X + Cells(flush[1]).W, 6);
-        Assert.Equal(Cells(flush[0]).X + Cells(flush[0]).W, Cells(flush[1]).X);
-
-        // Without keeping apart it goes over.
-        Assert.True(Cells(Drag(row, ResizeHandle.Right, 30, 0)[1]).X + 20 > 57);
-    }
-
-    [Fact]
-    public void S2465_a_corner_kept_apart_still_grows_along_the_axis_that_is_clear()
-    {
-        FracRect[] row = [C(10, 10, 20, 12), C(30, 10, 20, 12)];
-        FracRect[] below = [C(10, 24, 60, 10)];
-
-        var grown = Drag(row, ResizeHandle.BottomRight, 10, 10, apart: below);
-
-        Assert.True(Cells(grown[1]).X + Cells(grown[1]).W > 50);
-        Assert.True(Cells(grown[0]).Y + Cells(grown[0]).H <= 24);
+        Assert.True(Cells(grown[1]).X + Cells(grown[1]).W > 66);
+        Assert.Equal(Cells(grown[0]).W, Cells(grown[1]).W);
     }
 
     // ---- the keys ------------------------------------------------------------------------------------

@@ -135,7 +135,6 @@
   "shell.setup.button": "ပြင်ဆင်ရန်",
   "shell.setup.hint": "ဤဝစ်ဂျက် လိုအပ်သည်ကို ပြင်ဆင်ပါ",
   "shell.toolbar.addWidget": "ဝစ်ဂျက် ထည့်ရန်",
-  "shell.toolbar.collisionsName": "ဝစ်ဂျက်များ ထပ်မနေစေရန်",
   "shell.editBar.selected": {
     "other": "{count} ခု ရွေးထားသည်"
   },

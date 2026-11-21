@@ -135,7 +135,6 @@
   "shell.setup.button": "セットアップ",
   "shell.setup.hint": "このウィジェットに必要なものを設定",
   "shell.toolbar.addWidget": "ウィジェットを追加",
-  "shell.toolbar.collisionsName": "ウィジェットを重ねない",
   "shell.editBar.selected": {
     "other": "{count} 個を選択中"
   },

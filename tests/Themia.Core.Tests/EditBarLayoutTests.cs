@@ -18,26 +18,28 @@ public sealed class EditBarLayoutTests
     private static readonly double[] Pages = [52, 60, 48, 40, 76];
 
     private static EditBarPlan Lay(double? selection = null, bool errors = false, double widest = double.PositiveInfinity)
-        => EditBarLayout.Lay(Pages, selection, EditBarToggles.Count, errors, 80, 20, widest);
+        => EditBarLayout.Lay(Pages, selection, errors, 80, 20, widest);
 
     [Fact]
-    public void S13701_unplaced_icons_is_an_icon_alone_and_costs_the_bar_no_more()
+    public void S13701_unplaced_icons_stands_right_beside_add_widget_its_icon_alone()
     {
-        // Its entry is its icon and its badge at every width: the bar keeps the words of the other five where it kept them.
-        Assert.True(Settings.SettingsPages.IconAlone(Settings.SettingsPageId.DesktopItems));
-        Assert.All(Settings.SettingsPages.Order.Where(p => p != Settings.SettingsPageId.DesktopItems), p => Assert.False(Settings.SettingsPages.IconAlone(p)));
+        // Owner, 2026-11-21: "the selector settings page should be moved next to add widget and given another icon". Its
+        // entry is not among the pages' any more: the five pages, then right before Add its icon alone, at every width.
+        Assert.DoesNotContain(Settings.SettingsPageId.DesktopItems, Settings.SettingsPages.Entries);
+        Assert.Equal(Settings.SettingsPages.Order.Count - 1, Settings.SettingsPages.Entries.Count);
+        Assert.Equal(Glyphs.UnplacedIcons, Settings.SettingsPages.Glyph(Settings.SettingsPageId.DesktopItems));
+        Assert.NotEqual(Glyphs.GridLayout, Glyphs.UnplacedIcons);
+        Assert.NotEqual(Glyphs.Apps, Glyphs.UnplacedIcons);
 
-        double[] six = [52, 60, 48, 40, 100, 76];
-        var withIcon = EditBarLayout.Lay(six, null, EditBarToggles.Count, false, 80, 20, double.PositiveInfinity, new HashSet<int> { 4 });
-        var entry = withIcon.Of(BarPartKind.Page, 4)!.Value;
-        Assert.True(entry.IconOnly);
-        Assert.Equal(B.IconOnly, entry.Width);
-        Assert.False(withIcon.Of(BarPartKind.Page, 3)!.Value.IconOnly);
-        Assert.Equal(Lay().Width + B.IconOnly + B.EntryGap, withIcon.Width);
-
-        // Just as wide as the five words need: the others keep their words.
-        var tight = EditBarLayout.Lay(six, null, EditBarToggles.Count, false, 80, 20, withIcon.Width, new HashSet<int> { 4 });
-        Assert.False(tight.Of(BarPartKind.Page, 0)!.Value.IconOnly);
+        foreach (var plan in new[] { Lay(), Lay(selection: 100, errors: true), Lay(selection: 100, widest: Lay(selection: 100).Width - 1) })
+        {
+            var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
+            var add = plan.Of(BarPartKind.Add)!.Value;
+            Assert.Equal((B.IconOnly, true), (unplaced.Width, unplaced.IconOnly));
+            Assert.Equal(unplaced.Right + B.EntryGap, add.X);
+            Assert.Equal(Pages.Length, plan.Parts.Count(p => p.Kind == BarPartKind.Page));
+            Assert.True(plan.Parts.Where(p => p.Kind == BarPartKind.Page).Max(p => p.Right) < plan.SelectionX);
+        }
     }
 
     [Fact]
@@ -55,16 +57,15 @@ public sealed class EditBarLayoutTests
         Assert.Equal(divider.Right + B.DividerRoom, plan.SelectionX);
         Assert.Equal(plan.SelectionX, plan.Of(BarPartKind.Selection)!.Value.X);
 
-        // [S-2330] The one toggle (Keep widgets from overlapping) after the gutter, an icon button, then the errors' room.
-        var apart = plan.Of(BarPartKind.Toggle, 0)!.Value;
-        Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly, true), (apart.X, apart.Width, apart.IconOnly));
-        Assert.Null(plan.Of(BarPartKind.Toggle, 1));
-
+        // [S-11959] retired: no toggle at the bar's root. After the gutter the errors' room, then [S-13701] Unplaced icons
+        // right beside Add.
+        Assert.DoesNotContain("Toggle", Enum.GetNames<BarPartKind>());
         var errors = plan.Of(BarPartKind.Errors)!.Value;
-        Assert.Equal(apart.Right + B.EntryGap, errors.X);
-        Assert.Equal(B.IconOnly, errors.Width);
+        Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly), (errors.X, errors.Width));
+        var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
+        Assert.Equal(errors.Right + B.EntryGap, unplaced.X);
         var add = plan.Of(BarPartKind.Add)!.Value;
-        Assert.Equal(errors.Right + B.EntryGap, add.X);
+        Assert.Equal(unplaced.Right + B.EntryGap, add.X);
         var done = plan.Of(BarPartKind.Done)!.Value;
         Assert.Equal(add.Right + B.Pad, done.X);
         Assert.Equal(B.DoneLeast, done.Width);
@@ -83,8 +84,8 @@ public sealed class EditBarLayoutTests
         Assert.Null(bare.Of(BarPartKind.Selection));
         Assert.Null(bare.Of(BarPartKind.Errors));
 
-        // [S-2330] The toggle stands whatever is selected.
-        Assert.Equal(bare.Of(BarPartKind.Toggle, 0), Lay(selection: 300, errors: true).Of(BarPartKind.Toggle, 0));
+        // [S-13701] Unplaced icons stands whatever is selected.
+        Assert.Equal(bare.Of(BarPartKind.Unplaced), Lay(selection: 300, errors: true).Of(BarPartKind.Unplaced));
     }
 
     [Fact]

@@ -130,110 +130,14 @@ public static class BlockGeometry
     }
 
     /// <summary>
-    /// [S-11959] With widgets kept apart (<c>Design.WidgetCollisions</c>): the translation a moving block really takes when
-    /// it may not land over a widget that stays. <paramref name="wanted"/> is the drag's or the key's (already
-    /// <see cref="Move"/>d); <paramref name="last"/> where the block stands now. The block goes all the way where it
-    /// lands clear, else slides along whichever axis is clear, else stays. Only the moving widgets are held: one
-    /// already lying over another may stay there, and may leave it, but never comes over one it was not over at the
-    /// start of the move (<paramref name="start"/>); the widgets that stay are never touched.
-    /// <para>
-    /// The grid is always on ([S-06]), so a drag's <paramref name="wanted"/> is already whole cells and a key's one
-    /// cell: the block slides cell by cell, and lands flush beside a neighbour on the lines ([S-11892]).
-    /// </para>
-    /// </summary>
-    public static Delta Apart(IReadOnlyList<FracRect> start, Delta wanted, Delta last, IReadOnlyList<FracRect> others, ScreenMetrics screen)
-    {
-        ArgumentNullException.ThrowIfNull(start);
-        ArgumentNullException.ThrowIfNull(others);
-
-        var alongX = wanted with { Dy = last.Dy };
-        var alongY = wanted with { Dx = last.Dx };
-
-        // [S-11890] Only the cards near where any of the three tries lands can hold it: the rest are never looked at.
-        others = Near(start, [wanted, alongX, alongY], others, screen);
-        if (others.Count == 0 || Clear(start, wanted, others, screen))
-        {
-            return wanted;
-        }
-
-        if (Clear(start, alongX, others, screen))
-        {
-            return alongX;
-        }
-
-        return Clear(start, alongY, others, screen) ? alongY : last;
-    }
-
-    /// <summary>
-    /// [S-11890] The rects of <paramref name="others"/> that share area with the box every rect of
-    /// <paramref name="start"/> lands in under any of <paramref name="deltas"/>: the only ones that can hold the
-    /// block (<see cref="Clear"/>). Exact, not a guess: a rect that shares more than the fractions' rounding with a
-    /// landed rect shares at least as much with the box round all of them.
-    /// </summary>
-    internal static IReadOnlyList<FracRect> Near(IReadOnlyList<FracRect> start, ReadOnlySpan<Delta> deltas, IReadOnlyList<FracRect> others, ScreenMetrics screen)
-    {
-        var landed = new List<FracRect>(start.Count * deltas.Length);
-        foreach (var delta in deltas)
-        {
-            foreach (var from in start)
-            {
-                if (from.IsFinite)
-                {
-                    landed.Add(Apply(from, delta, screen));
-                }
-            }
-        }
-
-        if (landed.Count == 0)
-        {
-            return others;
-        }
-
-        var box = Bounds(landed);
-        var near = new List<FracRect>();
-        foreach (var other in others)
-        {
-            if (other.IsFinite && Over(box, other))
-            {
-                near.Add(other);
-            }
-        }
-
-        return near;
-    }
-
-    /// <summary>[S-11959] No moving rect lands over a staying one it did not already lie over at the start.</summary>
-    internal static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen)
-    {
-        foreach (var from in start)
-        {
-            if (!from.IsFinite)
-            {
-                continue;
-            }
-
-            var landed = Apply(from, delta, screen);
-            foreach (var other in others)
-            {
-                if (other.IsFinite && Over(landed, other) && !Over(from, other))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// [S-11959] Two rects share area: touching edges do not, nor a sliver under a pixel's thousandth
-    /// (the fractions' rounding).
+    /// Two rects share area: touching edges do not, nor a sliver under a pixel's thousandth (the fractions' rounding).
+    /// A work-area settle checks it; [S-2463]'s tests pin a block's resize with it.
     /// </summary>
     internal static bool Over(FracRect a, FracRect b)
         => Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X) > Rounding
             && Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y) > Rounding;
 
-    /// <summary>[S-11959] How thin an overlap may be and still count as touching, in fractions: the fractions' rounding.</summary>
+    /// <summary>How thin an overlap may be and still count as touching, in fractions: the fractions' rounding.</summary>
     private const double Rounding = 1e-6;
 
     /// <summary>A translation, in fractions of the screen.</summary>

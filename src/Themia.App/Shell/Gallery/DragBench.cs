@@ -22,7 +22,7 @@ namespace Themia.App.Shell.Gallery;
 /// run drives a synthetic pointer path of <c>--frames</c> frames (120) with <c>--events</c> pointer moves a frame (4,
 /// a fast mouse at 120 Hz) through <see cref="DesktopWindow.BeginMove"/>, <see cref="DesktopWindow.PreviewMove"/> and
 /// <see cref="DesktopWindow.CommitMove"/>, the surface's own path, then undoes it; runs: the locked desktop and edit
-/// mode, solid and Liquid glass, widgets kept apart ([S-11959]) in all. Printed per run: the milliseconds per frame
+/// mode, solid and Liquid glass. Printed per run: the milliseconds per frame
 /// each stage took (<see cref="DragProfile"/>), the frame's whole time (median, 95th percentile, worst) with the
 /// synchronous layout pass, and the drop.
 /// </summary>
@@ -76,7 +76,6 @@ internal static class DragBench
         {
             var (view, rows, icons) = Scene();
             var state = new AppState { Views = [view], ActiveViewId = view.Id };
-            state.Design.WidgetCollisions = true;
             state.ShowViewOn(DisplayId, view.Id);
 
             var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 1920, Bottom = -32000 + 1080 };

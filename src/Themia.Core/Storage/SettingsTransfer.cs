@@ -442,7 +442,6 @@ public static class SettingsTransfer
         Line(Str.Shell_Appearance_TextSize, old.FontScale, @new.FontScale, Percent);
         Line(Str.Shell_Motion_Startup, old.IntroAnimation, @new.IntroAnimation, Intro);
         Line(Str.Shell_Transfer_StartupLength, old.IntroAnimationMs, @new.IntroAnimationMs, Ms);
-        Line(Str.Shell_Toolbar_CollisionsName, old.WidgetCollisions, @new.WidgetCollisions, OnOff);
         Line(Str.Shell_Motion_Transition, old.TransitionAnimation, @new.TransitionAnimation, Intro);
         Line(Str.Shell_Transfer_TransitionLength, old.TransitionAnimationMs, @new.TransitionAnimationMs, Ms);
         Line(Str.Shell_Motion_Unlock, old.UnlockAnimation, @new.UnlockAnimation, Intro);

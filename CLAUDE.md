@@ -383,11 +383,11 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   as in Karpo's) and the eyedropper; layout and rules in `ColourPicker`. Stored as `#RRGGBB`.
 - **The edit bar** ([S-2320]..[S-2329], Karpo's command bar, `karpo-app` docs/widgets.md §575): one 48-DIP row
   per display, one width, at the top, never moved or dragged ([S-2329]; a selected widget under its page is
-  seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Unplaced icons (its icon and
-  a count badge, [S-13700]), Appearance),
-  the divider and the selection's entry in its kept room, the toggle (Keep widgets from overlapping:
-  `EditBarToggles`, its setting's one place, [S-2330], [S-11959]; the grid is always on, no Snap to grid, [S-06]; widgets
-  always go over the screen edge, no Over the edge, [S-2330]), the problems' room, Add widget, Done. Each entry opens
+  seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Appearance;
+  `SettingsPages.Entries`), the divider and the selection's entry in its kept room, no toggle (the grid is always on,
+  no Snap to grid, [S-06]; widgets always go over the screen edge, no Over the edge, [S-2330]; widgets may always
+  overlap, no Keep widgets from overlapping, [S-11959] retired), the problems' room, Unplaced icons right beside Add
+  (its icon alone and a count badge, [S-13700], [S-13701]), Add widget, Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
   never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
@@ -431,7 +431,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   group page; a state file that still names them loads with those keys dropped loudly (`StateDocument.DropUnknownKeys`).
   Edit mode selects widgets (`WidgetSelection`: a press the widget alone or keeps a selection that holds it, a click
   narrows, Ctrl/Shift+click toggles one, the lasso what it touches, Tab one by one, Escape clears); several selected
-  move as one block (snapped, whole device pixels, [S-11873]; kept apart, [S-11959]), resize as one block by the
+  move as one block (snapped, whole device pixels, [S-11873]; over any widget, nothing keeps them apart), resize as one block by the
   selection's frame round them or Shift+arrows (`BlockResize`: scaled about the opposite edge, every edge on a grid line,
   on a common step, each member in its own sizing, [S-2460]..[S-2465]) and are set together on the page
   of several ("For all of them" and Appearance, [S-11754], [S-11755]). One selected card shows its marks; **two or more
@@ -479,8 +479,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   marks ([S-11881]; several selected moving: the selection's frame's corners instead of theirs, [S-14310]); edit mode never turns
   on by a drag; **Lock widgets** ([S-12950], [S-12951]; its home General › Desktop icons, the menus' line under Edit
   mode flips it) keeps every widget where it is outside edit mode, icons alone move (`WidgetLock`: a mixed selection
-  moves its icons; edit mode moves everything); with Keep widgets from overlapping on, every move (both modes, keys too) goes through
-  `BlockGeometry.Apart` ([S-11959]). Edit mode is entered and left by one checked menu line, **Edit mode** ([S-65]). Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
+  moves its icons; edit mode moves everything); a move may land over any widget (no keep-apart rule, [S-11959]
+  retired). Edit mode is entered and left by one checked menu line, **Edit mode** ([S-65]). Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
   an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`); under the pointer it
   shows the held icon alone however many move, never a stack or a count, and the shell's drag carries that picture
   ([S-13046]..[S-13048], `DragGhost.OfMove`). One

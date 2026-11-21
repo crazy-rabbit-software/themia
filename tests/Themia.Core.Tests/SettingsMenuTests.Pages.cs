@@ -11,8 +11,10 @@ public sealed partial class SettingsMenuTests
     [Fact]
     public void S2300_the_bar_has_six_pages_in_order_each_with_its_glyph()
     {
-        // [S-13700] Unplaced icons has its own entry, after Views (owner, 2026-11-19: "own entry in the topbar").
-        Assert.Equal([SettingsPageId.General, SettingsPageId.Accounts, SettingsPageId.Display, SettingsPageId.Views, SettingsPageId.DesktopItems, SettingsPageId.Appearance], SettingsPages.Order);
+        // [S-13700] Unplaced icons has its own entry (owner, 2026-11-19: "own entry in the topbar"); [S-13701] it stands beside
+        // Add widget, not among the pages' (owner, 2026-11-21: "the selector settings page should be moved next to add widget").
+        Assert.Equal([SettingsPageId.General, SettingsPageId.Accounts, SettingsPageId.Display, SettingsPageId.Views, SettingsPageId.Appearance, SettingsPageId.DesktopItems], SettingsPages.Order);
+        Assert.Equal([SettingsPageId.General, SettingsPageId.Accounts, SettingsPageId.Display, SettingsPageId.Views, SettingsPageId.Appearance], SettingsPages.Entries);
         Assert.Equal(Glyphs.Settings, SettingsPages.Glyph(SettingsPageId.General));
         Assert.Equal(6, SettingsPages.Order.Select(SettingsPages.Glyph).Distinct().Count());
         Assert.Equal(6, SettingsPages.Order.Select(SettingsPages.Name).Distinct().Count());

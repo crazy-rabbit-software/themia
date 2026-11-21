@@ -81,7 +81,6 @@ public sealed class StateCopyGuardTests
         Theme = AppTheme.Dark,
         FontFamily = "Georgia",
         FontScale = 1.25,
-        WidgetCollisions = true,
         CornerRadiusPx = 12,
         Background = FillChoice.Of("#112233", 0.6),
         BlurBehind = false,

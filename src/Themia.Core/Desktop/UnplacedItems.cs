@@ -52,17 +52,7 @@ public static class UnplacedItems
         => count <= 0 ? null : count > BadgeMost ? LocaleFormat.Integer(BadgeMost) + "+" : LocaleFormat.Integer(count);
 
     /// <summary>
-    /// [S-13704] The fences of <paramref name="view"/> an item can be put in, in the view's order: every fence but a search
-    /// fence, which holds no desktop item ([S-13023]).
-    /// </summary>
-    public static IReadOnlyList<FenceOn> Fences(ViewState view)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        return [.. DesktopFences.On(view).Where(on => on.Fence.Source != FenceSource.Search)];
-    }
-
-    /// <summary>
-    /// [S-13703] What a press on <paramref name="pressed"/> acts on (its place button, its drag): the whole selection while it
+    /// [S-13703] What a press on <paramref name="pressed"/> acts on (its drag): the whole selection while it
     /// holds the pressed item, else the pressed item alone. In the list's order.
     /// </summary>
     public static IReadOnlyList<string> Acting(IReadOnlyList<string> selected, string pressed)

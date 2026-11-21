@@ -112,29 +112,6 @@ internal sealed partial class AppHost
         }
     }
 
-    /// <summary>
-    /// [S-13704] Put the desktop items <paramref name="keys"/> into the fence <paramref name="fenceId"/> of a view, at its end
-    /// (<see cref="PlaceInFence"/>: each leaves the free desktop and every other fence of that view); one undo step.
-    /// Only listed items: an own icon is never a fence's.
-    /// </summary>
-    public void PutDesktopItemsInFence(string viewId, string fenceId, IReadOnlyList<string> keys)
-    {
-        ArgumentNullException.ThrowIfNull(keys);
-        var listed = keys.Where(key => HostDesktopItems.Instance.Find(key) is not null).ToList();
-        if (listed.Count == 0 || State.FindView(viewId) is not { } current || !UnplacedItems.Fences(current).Any(f => f.Widget.Id == fenceId))
-        {
-            return;
-        }
-
-        // [S-13040] Through the fence's one way in: each item gets its icon on the view, laid on the fence's cells.
-        if (!PlaceInFence(fenceId, listed))
-        {
-            return;
-        }
-
-        Log.Info(Scope, $"{listed.Count} desktop item(s) were put in a fence");
-    }
-
     /// <summary>[S-5527] The icon menu's Hide from this view: each desktop item's icon off the view it stands on, one undo step.</summary>
     private void HideDesktopIcons(IReadOnlyList<DeskIcon> icons)
     {

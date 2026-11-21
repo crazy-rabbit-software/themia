@@ -138,7 +138,6 @@
   "shell.setup.button": "Weka",
   "shell.setup.hint": "Weka kile ambacho wijeti hii inahitaji",
   "shell.toolbar.addWidget": "Ongeza wijeti",
-  "shell.toolbar.collisionsName": "Zuia wijeti kupishana",
   "shell.editBar.selected": {
     "one": "{count} imechaguliwa",
     "other": "{count} zimechaguliwa"

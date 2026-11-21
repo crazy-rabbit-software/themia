@@ -15,11 +15,11 @@ public enum BarPartKind
     /// <summary>The selection's entry.</summary>
     Selection,
 
-    /// <summary>[S-2330] A toggle at the bar's root (<see cref="BarPart.Index"/> its place among them): Keep widgets from overlapping ([S-11959]).</summary>
-    Toggle,
-
     /// <summary>The errors' icon button: only while there are problems.</summary>
     Errors,
+
+    /// <summary>[S-13701] Unplaced icons' entry, its icon alone and its count badge, right beside Add widget.</summary>
+    Unplaced,
 
     Add,
 
@@ -55,7 +55,8 @@ public sealed record EditBarPlan(IReadOnlyList<BarPart> Parts, double Width, dou
 /// <summary>
 /// [S-2320]..[S-2324] The edit bar's layout, Karpo's command bar (karpo-app, docs/widgets.md §575, §578,
 /// §596, §608; <c>PanelLayout.Lay</c>): the pages' entries 4 apart; 8, the divider, 8; the selection's
-/// room; a 16 gutter; the toggles (40 each, 4 apart, [S-2330]); 4; the errors' room; 4; Add; 8; Done, 8 from the bar's end. One width whatever is
+/// room; a 16 gutter; the errors' room; 4; Unplaced icons (its icon alone, [S-13701]); 4; Add; 8; Done, 8 from the
+/// bar's end. One width whatever is
 /// selected and whether there are errors: the divider's, the selection's and the errors' rooms are kept
 /// empty. On a display too narrow for it the pages' entries show their icon alone first, then the
 /// selection's room narrows. Pure: the bar measures its words and asks.
@@ -65,38 +66,29 @@ public static class EditBarLayout
     /// <summary>An entry of an icon and <paramref name="words"/> DIPs of words: 12, the icon, 8, the words, 12.</summary>
     public static double EntryWidth(double words) => M.Lead + M.Icon + M.IconGap + Math.Ceiling(words) + M.Lead;
 
-    /// <summary>[S-13701] A page entry's words that are never shown: its icon alone.</summary>
-    private const double IconAloneWords = double.NaN;
-
     /// <summary>[S-2324] An entry cut short keeps at least this: 12, the icon, 8, a name's least, 12.</summary>
     public static double CutLeast => EntryWidth(M.NameLeast);
 
     /// <summary>
     /// [S-2320] The bar: <paramref name="pages"/> the widths of the pages' words, <paramref name="selection"/>
-    /// the selection entry's (null: nothing selected), how many <paramref name="toggles"/> stand at its root
-    /// ([S-2330]), whether there are <paramref name="errors"/>, Add's and Done's words, and the widest the bar
-    /// may be (the work area less its margins; infinity for no limit). [S-13701] The pages at <paramref name="iconAlone"/>
-    /// show their icon alone at every width (their words the tooltip).
+    /// the selection entry's (null: nothing selected), whether there are <paramref name="errors"/>, Add's and Done's words,
+    /// and the widest the bar may be (the work area less its margins; infinity for no limit). Unplaced icons' entry
+    /// ([S-13701]) is its icon alone at every width, beside Add.
     /// </summary>
-    public static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, int toggles, bool errors, double add, double done, double widest, IReadOnlySet<int>? iconAlone = null)
+    public static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, bool errors, double add, double done, double widest)
     {
         ArgumentNullException.ThrowIfNull(pages);
-        if (iconAlone is { Count: > 0 })
-        {
-            pages = [.. pages.Select((words, i) => iconAlone.Contains(i) ? IconAloneWords : words)];
-        }
-
-        var plan = Lay(pages, selection, toggles, errors, add, done, M.Selection, compact: false);
+        var plan = Lay(pages, selection, errors, add, done, M.Selection, compact: false);
         if (plan.Width <= widest)
         {
             return plan;
         }
 
         // [S-2322] Too wide: the pages' entries their icon alone (the words in the tooltip), then the selection's room narrower.
-        plan = Lay(pages, selection, toggles, errors, add, done, M.Selection, compact: true);
+        plan = Lay(pages, selection, errors, add, done, M.Selection, compact: true);
         var over = plan.Width - widest;
         return over > 0
-            ? Lay(pages, selection, toggles, errors, add, done, Math.Max(M.IconOnly, M.Selection - over), compact: true)
+            ? Lay(pages, selection, errors, add, done, Math.Max(M.IconOnly, M.Selection - over), compact: true)
             : plan;
     }
 
@@ -112,15 +104,14 @@ public static class EditBarLayout
             : (M.IconOnly, true);
     }
 
-    private static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, int toggles, bool errors, double add, double done, double room, bool compact)
+    private static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, bool errors, double add, double done, double room, bool compact)
     {
         var parts = new List<BarPart>();
         var x = M.Pad;
         for (var i = 0; i < pages.Count; i++)
         {
-            var alone = compact || double.IsNaN(pages[i]);
-            var wide = alone ? M.IconOnly : EntryWidth(pages[i]);
-            parts.Add(new BarPart(BarPartKind.Page, i, x, wide, alone));
+            var wide = compact ? M.IconOnly : EntryWidth(pages[i]);
+            parts.Add(new BarPart(BarPartKind.Page, i, x, wide, compact));
             x += wide + M.EntryGap;
         }
 
@@ -140,19 +131,16 @@ public static class EditBarLayout
 
         x = selectionX + roomWidth + M.Gutter;
 
-        // [S-2330] The toggles at the bar's root, icon buttons, always there.
-        for (var i = 0; i < toggles; i++)
-        {
-            parts.Add(new BarPart(BarPartKind.Toggle, i, x, M.IconOnly, true));
-            x += M.IconOnly + M.EntryGap;
-        }
-
         // The errors' room, kept whether there are any or not.
         if (errors)
         {
             parts.Add(new BarPart(BarPartKind.Errors, 0, x, M.IconOnly, true));
         }
 
+        x += M.IconOnly + M.EntryGap;
+
+        // [S-13701] Unplaced icons, its icon alone, right beside Add (owner, 2026-11-21: "moved next to add widget").
+        parts.Add(new BarPart(BarPartKind.Unplaced, 0, x, M.IconOnly, true));
         x += M.IconOnly + M.EntryGap;
         // Add and Done are Windows' standard and accent buttons: their rim round the entry's room.
         var addWidth = EntryWidth(add) + (2 * FamilyShape.Hairline);
