@@ -233,6 +233,9 @@ internal sealed partial class PageView : ContentControl
                 // [S-2361] Its handlers bound late: a card kept from the drawing before does what the new rows do.
                 _model = _binding.Bind(_build());
                 _signatures.Clear();
+
+                // [S-3534] New rows end a card's light, as they did when every card was drawn anew.
+                Unlight();
             }
             catch (Exception ex)
             {
@@ -626,14 +629,35 @@ internal sealed partial class PageView : ContentControl
             return;
         }
 
+        // [S-2361] A card lit still (a kept card lit again before its light went out) gets its own fill back first, so the
+        // fill it goes back to is never the light's.
+        Unlight();
         var rest = card.Background;
         card.Background = ShellBrush.Of(ShellRole.ControlHover);
-        _lit?.Stop();
+        _litCard = (card, rest);
         _lit = DispatcherQueue.CreateTimer();
         _lit.Interval = TimeSpan.FromMilliseconds(P.LitMs);
         _lit.IsRepeating = false;
-        _lit.Tick += (_, _) => card.Background = rest;
+        _lit.Tick += (_, _) =>
+        {
+            card.Background = rest;
+            _litCard = null;
+        };
         _lit.Start();
+    }
+
+    /// <summary>[S-3534] The card lit now and the fill it goes back to.</summary>
+    private (Border Card, Brush Fill)? _litCard;
+
+    /// <summary>[S-3534] The light out now: the card lit gets its own fill back.</summary>
+    private void Unlight()
+    {
+        _lit?.Stop();
+        if (_litCard is { } lit)
+        {
+            lit.Card.Background = lit.Fill;
+            _litCard = null;
+        }
     }
 
     /// <summary>The row of <paramref name="model"/> at <paramref name="key"/>, at any depth.</summary>
