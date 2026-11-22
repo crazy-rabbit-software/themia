@@ -121,10 +121,13 @@ public static class IconRules
     /// <summary>
     /// [S-15716] Where a card too short to say why under its glyph (<see cref="SaysWhy"/>) says it beside it: the glyph on the
     /// inset box's height, the why after it a column's gap on, at most what the width leaves (<paramref name="sentence"/>: its
-    /// own width), the two one block centred across in the room left of the status mark (<paramref name="marked"/>); none
+    /// own width), the two one block centred across the card, clear of the status mark (<paramref name="marked"/>: its room
+    /// kept at both ends, so the block stays centred); none
     /// where the card is under a Caption line's height, the glyph under its floor or the room under <see cref="WhyLine.MinBeside"/>.
+    /// The glyph's ink fills the inset box's height: its box is as wide as its ink is then (<paramref name="aspect"/>: its
+    /// ink's width over its height, a cloud's wider than tall), so the block is centred on what it draws.
     /// </summary>
-    public static IconBeside? Beside(double width, double height, double sentence, bool marked)
+    public static IconBeside? Beside(double width, double height, double sentence, bool marked, double aspect = 1)
     {
         if (!double.IsFinite(Side(width, height)) || SaysWhy(width, height) || height < WhyLine.BesideHeight)
         {
@@ -132,17 +135,18 @@ public static class IconRules
         }
 
         var inset = Inset(width, height);
-        var glyph = height - (2 * inset);
-        var across = width - (2 * inset) - (marked ? MarkRoom : 0);
+        var tall = height - (2 * inset);
+        var glyph = tall * (aspect > 0 && double.IsFinite(aspect) ? aspect : 1);
+        var across = width - (2 * inset) - (marked ? 2 * MarkRoom : 0);
         var room = across - glyph - FamilySpace.ColumnGap;
-        if (glyph < ScaleFloor.Glyph || room < WhyLine.MinBeside)
+        if (tall < ScaleFloor.Glyph || room < WhyLine.MinBeside)
         {
             return null;
         }
 
         var text = Math.Min(double.IsFinite(sentence) ? Math.Max(0, sentence) : room, room);
-        var left = inset + ((across - glyph - FamilySpace.ColumnGap - text) / 2);
-        return new IconBeside(left, glyph, left + glyph + FamilySpace.ColumnGap, text);
+        var left = (width - glyph - FamilySpace.ColumnGap - text) / 2;
+        return new IconBeside(left, glyph, tall, left + glyph + FamilySpace.ColumnGap, text);
     }
 
     /// <summary>[S-15716] What the status mark takes at the card's end: its glyph and the gap before it.</summary>
@@ -213,8 +217,8 @@ public static class IconRules
         => width > 0 && height > 0 && double.IsFinite(width) && double.IsFinite(height) ? Math.Min(width, height) : double.PositiveInfinity;
 }
 
-/// <summary>[S-15716] A why beside the glyph: the glyph's box from the card's start and its side, the why's start and width.</summary>
-public readonly record struct IconBeside(double GlyphLeft, double Glyph, double TextLeft, double TextWidth);
+/// <summary>[S-15716] A why beside the glyph: the glyph's box from the card's start, its width and height, the why's start and width.</summary>
+public readonly record struct IconBeside(double GlyphLeft, double Glyph, double GlyphHeight, double TextLeft, double TextWidth);
 
 /// <summary>[S-15717] The glyph's box in a card (its distance from each edge) and where the status mark stands in from the top end corner.</summary>
 public readonly record struct IconBox(IconEdges Glyph, double Mark);

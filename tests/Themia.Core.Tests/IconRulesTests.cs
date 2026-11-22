@@ -151,12 +151,22 @@ public sealed class IconRulesTests
     }
 
     [Fact]
-    public void S15716_the_mark_takes_its_room_at_the_end_and_a_long_why_is_cut_at_what_is_left()
+    public void S15716_a_glyph_wider_than_tall_takes_the_width_its_ink_has_at_the_boxs_height()
+    {
+        var beside = IconRules.Beside(350, 70, 130, marked: false, aspect: 1.5)!.Value;
+
+        Assert.Equal((69, 46), (beside.Glyph, beside.GlyphHeight));
+        Assert.Equal(350 - (beside.TextLeft + beside.TextWidth), beside.GlyphLeft, 6);
+    }
+
+    [Fact]
+    public void S15716_the_marks_room_is_kept_at_both_ends_and_a_long_why_is_cut_at_what_is_left()
     {
         var beside = IconRules.Beside(350, 70, 1000, marked: true)!.Value;
 
-        Assert.Equal(326 - IconRules.MarkRoom - 46 - FamilySpace.ColumnGap, beside.TextWidth, 6);
-        Assert.Equal(12, beside.GlyphLeft, 6);
+        Assert.Equal(326 - (2 * IconRules.MarkRoom) - 46 - FamilySpace.ColumnGap, beside.TextWidth, 6);
+        Assert.Equal(12 + IconRules.MarkRoom, beside.GlyphLeft, 6);
+        Assert.Equal(350 - (beside.TextLeft + beside.TextWidth), beside.GlyphLeft, 6);
     }
 
     [Theory]

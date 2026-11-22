@@ -10727,9 +10727,11 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   string is one line (`TextRules.Line`). A family subclasses the face for its data and hands each read to it
   (`TextShown`); the face, its fit and what a click opens are the base's alone.
 - **[S-15715]** **A long text keeps the height a short one has, and is cut** (WR-1, WR-7: "All together, scaled"; the
-  atoms' words, WR-16: "the text should rather overflow ... than to shrink and not fill the height"): the line's room is
-  the width at the scale the height gives the line at every height (`TextRules.Room`), a taller room a narrower one, so a
-  text longer than the card fills its height as "Overcast" does and is cut with its ellipsis at the room's end, start kept.
+  atoms' words, WR-16: "the text should rather overflow ... than to shrink and not fill the height"): a one-line text cut
+  even at its own size is cut anyway, so its room is the width at the scale the height gives the line (`TextRules.Room`
+  with its own width), and it fills its height as "Overcast" does, cut with its ellipsis at the room's end, start kept. A
+  text that stands whole at its own size is drawn whole, grown until one axis stops it ("Overcast" in 240 × 130, never
+  "O…"); a kind of more lines wraps first, as before.
   It had been held at its own size over one (a long condition 14 DIP tall in a 480 × 104 card where "Overcast" is 80).
   Test `TextRulesTests.S15715_`; renders `--widget-png weatherCondition --state long --sizes range`.
 - **[S-14932]** **Defaults, never hidden** (WR-10): without a text the face stays, the kind's words for none ("No album",
@@ -10825,7 +10827,7 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   least a Caption line and 4 over and under it tall (`WhyLine.BesideHeight`, 24) and the width leaves the why ten
   characters of Caption (`WhyLine.MinBeside`, 64) after the face and a column's gap, the why stands beside the face, one
   Caption line cut with its ellipsis, whole in its tooltip. An **icon**: the glyph on the inset box's height and the why
-  after it, the two one block centred across in the room left of the status mark (`IconRules.Beside`). A **text**: the
+  after it, its box as wide as its ink is at that height, the two one block centred across the card, the status mark's room kept at both ends (`IconRules.Beside`). A **text**: the
   why at the card's end, "--" in the room before it (`TextRules.WhyBeside`). A **single metric's row**: the why in the
   row's inline slot between the name and "--", right-aligned to "--" (a sparkline keeps that slot); there it stands for
   the status mark, which gives it its room where the two hold ten characters, and stays where they do not (a "C…" says

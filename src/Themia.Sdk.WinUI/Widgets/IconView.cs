@@ -300,9 +300,10 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
             // A collapsed text measures nothing: it is shown to be measured, and collapsed again where it has no room.
             _beside.Text = why;
             _beside.Width = double.NaN;
+            _beside.Margin = default;
             _beside.Visibility = Visibility.Visible;
             _beside.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            beside = IconRules.Beside(width, height, _beside.DesiredSize.Width, marked);
+            beside = IconRules.Beside(width, height, _beside.DesiredSize.Width, marked, Aspect(_shown.Glyph is { Length: > 0 } g ? g : _kind.Glyph));
         }
 
         // [S-15717] Where the inset has given way the glyph stands clear of the status mark.
@@ -311,7 +312,7 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         if (beside is { } at)
         {
             _tile.Padding = new Thickness(at.GlyphLeft, inset, width - at.GlyphLeft - at.Glyph, inset);
-            _tile.Use(IconRules.Step(at.Glyph, at.Glyph), at.Glyph, label: false, state: false);
+            _tile.Use(IconRules.Step(at.GlyphHeight, at.GlyphHeight), at.Glyph, label: false, state: false);
             _beside.Margin = new Thickness(at.TextLeft, 0, 0, 0);
             _beside.Width = at.TextWidth;
             _beside.Visibility = Visibility.Visible;
@@ -323,6 +324,23 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         _tile.Padding = new Thickness(edges.Left, edges.Top, edges.Right, edges.Bottom);
         _tile.Use(IconRules.Step(width, height, _why), width - edges.Left - edges.Right, label: false, state: _why, stateStep: FamilyType.Caption);
     }
+
+    /// <summary>[S-15716] A glyph's ink, its width over its height, as the meter measures it (1 where it cannot).</summary>
+    private static double Aspect(string glyph)
+    {
+        if (Aspects.TryGetValue(glyph, out var known))
+        {
+            return known;
+        }
+
+        var probe = Family.Glyph(glyph, 100, ColourRole.TextPrimary);
+        var room = InkMeter.Room(new InkText(glyph, Ink.FontOf(probe.FontFamily), 100, probe.FontWeight.Weight, 0));
+        var aspect = room is { } r && 100 - r.Over - r.Under > 0 && 100 - r.Left - r.Right > 0 ? (100 - r.Left - r.Right) / (100 - r.Over - r.Under) : 1;
+        Aspects[glyph] = aspect;
+        return aspect;
+    }
+
+    private static readonly Dictionary<string, double> Aspects = [];
 
     /// <summary>[S-15710] Why it cannot be read, where it says: null while it can be, or with no reason given.</summary>
     private string? Why => _shown.State == TileState.Unavailable && _shown.Why is { Length: > 0 } why ? why : null;

@@ -307,7 +307,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         _fit.Align = _align;
         _text.TextAlignment = Aligned.Text(_align);
         var room = _area.IsMeasured
-            ? TextRules.Room(_area.Width - FamilySpace.Inset - end, height - (2 * FamilySpace.Inset) - band, _kind.Lines, _kind.Lead)
+            ? TextRules.Room(_area.Width - FamilySpace.Inset - end, height - (2 * FamilySpace.Inset) - band, _kind.Lines, _kind.Lead, Natural())
             : double.PositiveInfinity;
 
         // [S-15713] "--" is drawn at the scale the line it stands for has in the room, never blown up by its thin ink.
@@ -316,6 +316,17 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         {
             _text.MaxWidth = room;
         }
+    }
+
+    /// <summary>[S-15715] The text's own width at its step, uncut.</summary>
+    private double Natural()
+    {
+        var max = _text.MaxWidth;
+        _text.MaxWidth = double.PositiveInfinity;
+        _text.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        var natural = _text.DesiredSize.Width;
+        _text.MaxWidth = max;
+        return natural;
     }
 
     /// <summary>
@@ -328,7 +339,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         _why.Width = double.NaN;
         _why.Visibility = Visibility.Visible;
         _why.Measure(infinite);
-        var sentence = _why.DesiredSize.Width;
+        var sentence = _why.DesiredSize.Width - _why.Margin.Left - _why.Margin.Right;
         var max = _text.MaxWidth;
         _text.MaxWidth = double.PositiveInfinity;
         _text.Measure(infinite);

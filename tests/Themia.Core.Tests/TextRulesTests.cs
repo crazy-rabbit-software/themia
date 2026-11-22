@@ -54,23 +54,31 @@ public sealed class TextRulesTests
     // ---- [S-14931] the line's room ------------------------------------------------------------------------
 
     [Fact]
-    public void S14931_at_its_own_size_the_line_takes_the_room_less_its_lead()
+    public void S14931_at_its_own_size_or_larger_the_line_takes_the_room_less_its_lead()
     {
         var lead = TextRules.LeadRoom(lead: true);
 
         Assert.Equal(20 + FamilySpace.GlyphGap, lead);
-        Assert.Equal(216 - lead, TextRules.Room(216, TextRules.Ink(1), 1, lead: true), 6);
+        Assert.Equal(216 - lead, TextRules.Room(216, 28, 1, lead: true));
+        Assert.Equal(216 - lead, TextRules.Room(216, 400, 1, lead: true));
+        Assert.Equal(216, TextRules.Room(216, 400, 1, lead: false));
+
+        // A text that stands whole at its own size stays whole however tall the room ("Overcast" in 240 x 130).
+        Assert.Equal(216, TextRules.Room(216, 400, 1, lead: false, natural: 80));
     }
 
     [Fact]
-    public void S15715_a_taller_room_draws_the_line_larger_so_a_long_text_keeps_the_height_and_is_cut()
+    public void S15715_a_one_line_text_cut_even_at_its_own_size_keeps_the_height_and_is_cut()
     {
         // 80 of ink is the scale 80 / Ink: the line takes the width at that scale, so a long text fills the height, cut.
         var scale = 80 / TextRules.Ink(1);
 
         Assert.True(scale > 1);
-        Assert.Equal(216 / scale, TextRules.Room(216, 80, 1, lead: false), 6);
-        Assert.Equal((216 / scale) - TextRules.LeadRoom(lead: true), TextRules.Room(216, 80, 1, lead: true), 6);
+        Assert.Equal(216 / scale, TextRules.Room(216, 80, 1, lead: false, natural: 500), 6);
+        Assert.Equal((216 / scale) - TextRules.LeadRoom(lead: true), TextRules.Room(216, 80, 1, lead: true, natural: 500), 6);
+
+        // A kind of more lines wraps first: never cut at the height's scale.
+        Assert.Equal(216, TextRules.Room(216, 400, 2, lead: false, natural: 500));
     }
 
     [Fact]
