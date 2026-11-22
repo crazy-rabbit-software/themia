@@ -662,6 +662,11 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             if (compact)
             {
                 block.Show(contact.Name, plan.Aside ? ContactRules.CompactDetail(contact) : null);
+
+                // [S-15797] The one field never takes the name's room: at most half the row's text, its end cut with an
+                // ellipsis (WR-14: at the least width the name was 19 DIP of a stub, the field's text over it).
+                block.ValueText.MaxWidth = ContactsPlan.CompactFieldWidth(plan.ColumnWidth);
+                block.ValueText.TextTrimming = TextTrimming.CharacterEllipsis;
             }
             else
             {

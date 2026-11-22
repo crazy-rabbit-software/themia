@@ -9447,6 +9447,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   for the same height either way and never swings between the two (a first build that collapsed it hung the calendar's
   renders in a layout cycle). Only a panel given a slot of its own (a list's room) keeps the face so; one its content sizes
   (the calendar's line over its month) always shows its line. Whether such a card should rather say why is an owner question. Tests `KitPagesTests.S15784_`.
+- **[S-15796]** **The state's line says why before it offers the way out** (WR-10): a state row whose action's own
+  words ("Open Accounts settings") would leave its sentence no room takes the action's short words ("Accounts",
+  `StatusBlock.ShortAction`) and keeps the sentence; contacts with no account at 300 wide had shown only its glyph and
+  the button.
 - **[S-14260]** **The state's line is a row of the list** (owner, 2026-11-19, docs/WIDGET-RULES.md WR-3: "the items dont
   reach from edge to edge"; WR-10 above). The compact line a list's state stands in (`KitStatePanel`'s, Bluetooth's off,
   removable drives' none: `StatusBlock.Line`) is in the list's first row's place, its box from the card's left edge to

@@ -123,6 +123,11 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
   every day's bar is its column's whole width, the bars touching from the card's left edge to its right, no padding
   between them (8 or 4 had stood between them, 4 at each side of the card); with nothing in the window every day keeps
   its bar as an empty track the plot's full height, in the track's role, the caption over it saying why.
+- **[S-15799]** **The bars' feet are square; their least is the labels over a plot** (WR-2, WR-14): a bar's foot stands
+  square on the card's foot and an empty track is square, so touching bars leave no notch of the card between them (the
+  rounded feet had left a 4 DIP notch at every seam); the top part keeps the family's radius at its top. The bars go down
+  to the inset, their end labels' row and the inset in whole cells (50; 116 before), the plot what is left under the
+  labels. Tests `ScreenTimeChartTests.S15799_`.
 - **[S-3333]** Linked focus ([S-3310]) in the links' one look ([S-11902]): the part pointed at or picked (one app on one
   day, [S-15773]) whole and every other part at its tone times 0.6 (pointed) or 0.3 (picked); the calendar's rings show the focused app's seconds per day against its
   busiest (the reading atom says that app's time, [S-11503]). A day pointed at (the pointer over its bar

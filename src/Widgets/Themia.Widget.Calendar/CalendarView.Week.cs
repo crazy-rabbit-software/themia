@@ -167,8 +167,11 @@ internal sealed partial class CalendarView
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(columns[c]) });
 
             var day = start.AddDays(c);
-            var column = new StackPanel { Padding = new Thickness(0, FamilySpace.Inset, 0, 0) };
+            // [S-15795] The day's head is its item's top: the inset over its words is the head's own padding, so its fill (the
+            // chosen day's) starts at the card's top edge with its item (WR-1), no longer the inset under it.
+            var column = new StackPanel();
             var header = WeekHeader(day, day == today, labels == WeekdayLabel.None ? WeekdayLabel.Narrow : labels);
+            header.Padding = new Thickness(0, FamilySpace.Inset, 0, FamilySpace.S1);
             header.CornerRadius = Family.Radius;
             if (day == chosen)
             {

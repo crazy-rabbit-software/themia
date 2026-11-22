@@ -91,3 +91,6 @@ the menu's email, call and message hand-offs), and the search box under the keyb
   one size (`KitStatePanel.RowPitch`). With no account contacts sets up in place, as the calendar does
   (`ISetupRule.SetsUpInPlace`): its own line "Add an account to show your contacts" (its setup sentence) with the way to
   Accounts over the empty rows, never the rows alone. Tests `ContactsPlanTests.S11406_S15785_`, `WidgetLivenessTests`.
+- **[S-15797]** **A compact row's field never takes its name** (WR-14): the one field takes at most half the row's text
+  room (`ContactsPlan.CompactFieldWidth`), its end cut with an ellipsis; the name keeps the other half at every width (at
+  the 220 least the name had been a 19 DIP stub under the field's text). Tests `ContactsPlanTests.S15797_`.

@@ -66,8 +66,14 @@ internal sealed partial class CalendarView
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(Math.Max(0, to - from)) });
         }
 
-        // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
-        var weekdays = CalendarFit.Weekdays(layout.LeastColumn);
+        // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds; [S-15795] with the status's
+        // glyph in the last column's room, as much as that column holds beside it (no letter cut or pushed past it).
+        var glyphRoom = layout.HeaderHeight >= KitStatus.Side ? _status.Room : 0;
+        var weekdays = CalendarFit.Weekdays(layout.LeastColumn - (glyphRoom > 0 ? FamilySpace.S1 + glyphRoom : 0));
+        if (weekdays == WeekdayLabel.None && CalendarFit.Weekdays(layout.LeastColumn) != WeekdayLabel.None)
+        {
+            weekdays = WeekdayLabel.Narrow;
+        }
         var chipped = layout.Face == MonthFace.Chips;
 
         // [S-12813] The month stands on the card's edges: the status's glyph stands in its weekday line's band, at its end
@@ -256,13 +262,13 @@ internal sealed partial class CalendarView
         }
         else if (layout.Face == MonthFace.Dots && items.Count > 0)
         {
-            // The number over its dots, the two one block in the middle of the cell.
-            face = new StackPanel
-            {
-                Spacing = FamilySpace.S1,
-                VerticalAlignment = VerticalAlignment.Center,
-                Children = { numberHost, Dots(items, showColors, dotLimit) },
-            };
+            // [S-15794] The number in the middle of its line, its dots in the cell's foot padding under it: the dots take
+            // nothing off the number.
+            numberHost.VerticalAlignment = VerticalAlignment.Center;
+            var dots = Dots(items, showColors, dotLimit);
+            dots.VerticalAlignment = VerticalAlignment.Bottom;
+            dots.Margin = new Thickness(0, 0, 0, -FamilySpace.S1);
+            face = new Grid { Children = { numberHost, dots } };
         }
         else
         {

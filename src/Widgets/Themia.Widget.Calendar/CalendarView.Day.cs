@@ -42,7 +42,7 @@ internal sealed partial class CalendarView
         var lift = _stated ? 0 : FamilySpace.ContentTop;
         var band = CalendarSizing.DayBand(allDay.Count);
         var gutter = width >= HourLabelsLongFrom ? HourLabelWidth : HourLabelNarrowWidth;
-        var timelineWidth = Math.Max(0, width - gutter - (2 * FamilySpace.Inset));
+        var timelineWidth = Math.Max(0, width - gutter - FamilySpace.Inset);
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
         var bandRow = CalendarSizing.DayBandRow(band, cells);
         var hours = CalendarSizing.DayHours(height + lift - bandRow, cells);
@@ -64,7 +64,7 @@ internal sealed partial class CalendarView
             {
                 Child = DayBand(allDay, day, timelineWidth, band, showColors),
                 Height = bandRow,
-                Padding = new Thickness(FamilySpace.Inset + gutter, Math.Max(0, (bandRow - (band.Lines * band.LineHeight)) / 2), FamilySpace.Inset, 0),
+                Padding = new Thickness(FamilySpace.Inset + gutter, Math.Max(0, (bandRow - (band.Lines * band.LineHeight)) / 2), 0, 0),
                 Background = Family.Brush(ColourRole.Clear),
             };
             ItemMark.Mark(row);
@@ -91,7 +91,9 @@ internal sealed partial class CalendarView
 
         // The events over the rows, on the timeline beside the hours' labels.
         var canvas = TimelineCanvas(timed, day, window, timelineWidth, showColors);
-        canvas.Margin = new Thickness(FamilySpace.Inset + gutter, bandRow, FamilySpace.Inset, 0);
+        // [S-15795] The timeline runs to the card's right edge (WR-3): its events' boxes end there, their words keep their
+        // own padding; the hours' labels hold the gutter at its left.
+        canvas.Margin = new Thickness(FamilySpace.Inset + gutter, bandRow, 0, 0);
         canvas.VerticalAlignment = VerticalAlignment.Top;
         canvas.Height = hours.Start(window.Count);
         SetRow(canvas, 1);
@@ -138,7 +140,7 @@ internal sealed partial class CalendarView
         {
             Child = body,
             Height = height,
-            Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0),
+            Padding = new Thickness(FamilySpace.Inset, 0, 0, 0),
             Background = Family.Brush(ColourRole.Clear),
             IsHitTestVisible = false,
         };

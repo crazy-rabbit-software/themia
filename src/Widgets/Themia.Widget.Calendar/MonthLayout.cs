@@ -61,6 +61,10 @@ public static class MonthLayouts
     /// <summary>The largest a day's number line grows.</summary>
     public const double MostNumberLine = 64;
 
+    /// <summary>[S-15794] The largest a day's number line grows over its chip lines: past it a taller week lists more chips.</summary>
+    public const double MostChipNumberLine = 32;
+
+
     /// <summary>[S-15782] A figure's advance in Segoe UI Variable, a fraction of its size (tabular figures).</summary>
     public const double FigureAdvance = 0.56;
 
@@ -94,18 +98,18 @@ public static class MonthLayouts
         var column = columns.Min();
         var pad = FamilySpace.S1;
         var chipLine = CalendarFit.ChipLine;
-        var lanesFit = (int)Math.Floor((rowHeight - pad - FamilyType.Caption.LineHeight + 1e-6) / chipLine);
+
+        // [S-15794] With chips the number takes what the chip lines the cell must show (its least) leave of the row, up to
+        // its largest; more chip lines only where the number has grown to it: a taller week grows the number first, never
+        // the chips at its cost (a 700 × 510 month with titles had its numbers at the 16 floor, 9 DIP of ink).
+        var chipNumber = Math.Floor(Math.Clamp(Math.Min(Math.Min(rowHeight - pad - (Math.Max(1, need.Lanes) * chipLine), NumberFits(column)), MostChipNumberLine), FamilyType.Caption.LineHeight, MostNumberLine));
+        var lanesFit = (int)Math.Floor((rowHeight - pad - chipNumber + 1e-6) / chipLine);
         var lanes = column >= need.Column && lanesFit >= Math.Max(1, need.Lanes) ? Math.Clamp(Math.Min(lanesFit, Math.Max(0, mostItems)), 0, MonthPlan.MaxLines) : 0;
-        var dotRoom = CalendarFit.Dot + FamilySpace.S1;
-        var face = lanes >= 1 ? MonthFace.Chips
-            : mostItems > 0 && rowHeight - (2 * pad) - FamilyType.Caption.LineHeight >= dotRoom ? MonthFace.Dots
-            : MonthFace.Number;
-        var tall = face switch
-        {
-            MonthFace.Chips => rowHeight - pad - (lanes * chipLine),
-            MonthFace.Dots => rowHeight - (2 * pad) - dotRoom,
-            _ => rowHeight - (2 * pad),
-        };
+
+        // [S-15794] A day's dots stand in its cell's foot padding, under the number's line, so a cell with dots draws its
+        // number as large as one without (the dots had taken 8 off it: 300 × 220 drew its numbers smaller than 300 × 210).
+        var face = lanes >= 1 ? MonthFace.Chips : mostItems > 0 ? MonthFace.Dots : MonthFace.Number;
+        var tall = face == MonthFace.Chips ? chipNumber : rowHeight - (2 * pad);
         var number = Math.Floor(Math.Clamp(Math.Min(tall, NumberFits(column)), FamilyType.Caption.LineHeight, MostNumberLine));
         return new MonthLayout(columns, headerEnd - top, rows, first, rowHeight, face, lanes, number);
     }

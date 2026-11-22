@@ -18,7 +18,7 @@ public sealed class ScreenTimeChartTests
         var height = FamilySpace.Inset + ScreenTimeChartLayout.DayLine(ScreenTimePeriod.Week) + ScreenTimeChartLayout.BarHeight + FamilySpace.S1 + FamilyType.Caption.LineHeight + FamilySpace.Inset;
         Assert.Equal(new SizeDip(300, height), sizing.Natural);
         Assert.Equal((200d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        Assert.Equal(50, sizing.Min.Height); // [S-15799] its least: the labels over a plot
         Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
 
         // A month's bars are as tall as a week's.
@@ -65,5 +65,16 @@ public sealed class ScreenTimeChartTests
         // Picked: the others at the picked strength; nothing pointed or picked: every part at its tone.
         Assert.Equal(0.8 * FamilyShape.LinkPicked, ScreenTimeChartLayout.PartStrength(0.8, new ChartPart("code", 5), null, pointed), 6);
         Assert.Equal(0.8, ScreenTimeChartLayout.PartStrength(0.8, new ChartPart("code", 5), null, null), 6);
+    }
+
+    [Fact]
+    public void S15799_the_bars_least_is_their_labels_over_a_plot_the_calendars_its_own()
+    {
+        var bars = Kind.Sizing(new ScreenTimeChartConfig());
+        Assert.Equal(50, bars.Min.Height);
+        Assert.Equal(116, bars.Natural.Height);
+
+        var calendar = Kind.Sizing(new ScreenTimeChartConfig { Style = ScreenTimeChartStyle.Calendar });
+        Assert.Equal(calendar.Natural.Height, calendar.Min.Height);
     }
 }

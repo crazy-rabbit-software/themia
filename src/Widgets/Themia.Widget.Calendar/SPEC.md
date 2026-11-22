@@ -118,6 +118,22 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   letters): a dots month shows chips from two chip lines in a column of 100 (`CalendarFit.ChipTimeFrom`: a chip's start
   and a title of words), a month with titles from one line in that column; narrower, both keep their dots. Tests
   `MonthLayoutTests.S14101_S15792_`.
+- **[S-15794]** **A larger card never draws smaller numbers** (WR-9: "Bigger numbers too"; a regression of [S-15792] and
+  [S-15782] the third audit measured: 300 × 220 drew 9 DIP numbers against 12 at 300 × 210, a month with titles 9 at
+  700 × 510 against 13.5 at 392 × 270): a day's dots stand in its cell's foot padding under the number's line, so a cell
+  with dots draws its number as large as one without; with chips the number takes what the chip lines the cell must
+  show leave of its row, up to a line of 32 (`MonthLayouts.MostChipNumberLine`), and more chip lines only past that.
+  Within a face the number line never shrinks as the card grows. Tests `MonthLayoutTests.S15794_`, `CalendarSizingTests.S11547_`.
+- **[S-15795]** **Edges in the week and the day** (WR-1, WR-3): the week strip's day head carries the inset over its words
+  as its own padding, so the chosen day's fill starts on the card's top edge with its item (it stood 12.7 under it); the
+  day's timeline, its events and its hours' rules run to the card's right edge (12 short of it before), the hours' labels
+  holding the gutter at its left. With the status's glyph in the weekday line's last column (a stale sync), the weekday
+  letters take the form a column holds beside it, so none is cut or pushed out of its column (at 260 wide "Sa" stood
+  14 DIP off its column, its "S" cut).
+- **[S-15798]** **The month's least is where its numbers still read** (WR-14: "sized down to where its smallest text is
+  still read"): a dots month goes down to a Caption number line of 16 in its cell's 4 over and under, six weeks under the
+  weekday line (180 tall), in columns its two figures fit across (160 wide), no longer 260 × 210. Tests
+  `MonthLayoutTests.S15798_`.
 - **[S-11545]** **Week, the day strip** (a new one's): a row of day items on the card's top edge (WR-1..WR-3,
   [S-12815]): the days stand from its left edge at their one column ([S-15780]), touching, each its
   head (its weekday, its number) at the card's inset over the room its marks take at most ([S-2282]: three, then "+n");

@@ -94,4 +94,12 @@ public sealed class ContactsPlanTests
         Assert.Equal((null, null), ContactsPlan.Lines(bare, 3));
         Assert.Equal((null, null), ContactsPlan.Lines(full, 1));
     }
+
+    [Fact]
+    public void S15797_a_compact_rows_field_takes_at_most_half_its_text_room()
+    {
+        Assert.Equal(98, ContactsPlan.CompactFieldWidth(220));
+        Assert.Equal(138, ContactsPlan.CompactFieldWidth(300));
+        Assert.Equal(0, ContactsPlan.CompactFieldWidth(10));
+    }
 }

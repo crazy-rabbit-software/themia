@@ -129,9 +129,8 @@ public sealed class CalendarSizingTests
     {
         // [S-14903] The inset and the weekday line (30, no period's line), six weeks of three cells; every cell from there.
         var sizing = Of(new CalendarWidgetConfig());
-        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
         Assert.Equal(30 + (6 * 30), sizing.Natural.Height);
-        Assert.Equal((260d, 300d), (sizing.Min.Width, sizing.Natural.Width));
+        Assert.Equal((160d, 180d, 300d), (sizing.Min.Width, sizing.Min.Height, sizing.Natural.Width)); // [S-15798]
         Assert.Equal(253, sizing.FitHeight(253));
         Assert.True(sizing.Max.Height > 1000 && sizing.Max.Width > 1000);
         Assert.Empty(sizing.Problems());
@@ -165,10 +164,11 @@ public sealed class CalendarSizingTests
     [Fact]
     public void S11547_S14502_a_month_with_titles_lists_the_chip_lines_its_weeks_hold()
     {
-        // [S-14502] No stored count of lines: a week as tall as a number line and five chip lines lists five.
+        // [S-14502] [S-15794] No stored count of lines: a week as tall as its largest number line over chips and five chip
+        // lines lists five.
         var grid = Themia.Core.Widgets.ItemGrid.Default();
         var top = FamilySpace.Inset;
-        var week = CalendarSizing.MonthNumberLine + (5 * CalendarFit.ChipLine);
+        var week = FamilySpace.S1 + MonthLayouts.MostChipNumberLine + (5 * CalendarFit.ChipLine);
         var month = MonthLayouts.Plan(724, top + 20 + (6 * week), top, grid, anchorRow: 2, mostItems: 9, MonthChipRoom.Titles);
         Assert.Equal((MonthFace.Chips, 5), (month.Face, month.ChipLanes));
     }

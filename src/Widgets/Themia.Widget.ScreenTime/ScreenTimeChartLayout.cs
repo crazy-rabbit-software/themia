@@ -60,7 +60,11 @@ public static class ScreenTimeChartLayout
     public static WidgetSizing Sizing(ScreenTimeChartStyle style, ScreenTimePeriod period)
     {
         var height = Top(period) + Drawing(style, period);
-        return WidgetSizing.Range(new(Narrowest, height), new(NaturalWidth, height), new(Widest, height));
+
+        // [S-15799] The bars' least is where their end labels still stand over a plot (WR-14: "sized down to where its
+        // smallest text is still read"): the inset, the labels' row and the inset, in whole cells; the calendar's its own.
+        var least = style == ScreenTimeChartStyle.Calendar ? height : Math.Min(height, ItemGrid.Default().Whole(Top(period) + FamilySpace.Inset + LabelRow + FamilySpace.Inset));
+        return WidgetSizing.Range(new(Narrowest, least), new(NaturalWidth, height), new(Widest, height));
     }
 
     /// <summary>

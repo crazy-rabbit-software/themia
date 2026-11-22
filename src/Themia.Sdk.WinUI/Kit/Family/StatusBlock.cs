@@ -79,6 +79,15 @@ public sealed partial class StatusBlock : Grid
     public Button? ActionButton => _action;
 
     /// <summary>
+    /// [S-15796] The action's short words ("Accounts"), taken where its own words would leave the sentence no room: the row
+    /// says why before it offers the way out (WR-10: "says why in a compact line"); null, the action keeps its words.
+    /// </summary>
+    public string? ShortAction { get; set; }
+
+    /// <summary>The action's own words, as <see cref="Show"/> was given them.</summary>
+    private string? _longAction;
+
+    /// <summary>
     /// Say <paramref name="sentence"/> as a <paramref name="kind"/> state, led by <paramref name="glyph"/>
     /// (the widget's own; a problem's is always the warning), with its one action when it has one.
     /// </summary>
@@ -97,6 +106,7 @@ public sealed partial class StatusBlock : Grid
         }
 
         _run = run;
+        _longAction = action;
         if (action is not null && run is not null)
         {
             _action = ControlsBlock.TextButton(action, look.MainAction, () => _run?.Invoke());
@@ -121,6 +131,17 @@ public sealed partial class StatusBlock : Grid
         var actionWidth = 0.0;
         if (_action is not null)
         {
+            // [S-15796] Its own words where the sentence keeps its room beside them, else its short words.
+            if (_longAction is not null && ShortAction is not null && _action.Content is TextBlock words)
+            {
+                words.Text = _longAction;
+                _action.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+                if (!StatusRules.ShowsSentence(inner, _action.DesiredSize.Width - _action.Margin.Left))
+                {
+                    words.Text = ShortAction;
+                }
+            }
+
             _action.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
             actionWidth = _action.DesiredSize.Width - _action.Margin.Left;
         }

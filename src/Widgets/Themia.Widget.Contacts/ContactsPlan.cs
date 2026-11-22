@@ -98,6 +98,13 @@ public static class ContactsPlan
     /// <summary>[S-14817] A grid cell's box's height: the monogram and name with 6 over and under, inside the cell.</summary>
     public static double CellNaturalHeight => CellHeight + FamilySpace.ColumnGap;
 
+    /// <summary>
+    /// [S-15797] The most a compact row's one field takes of a row <paramref name="width"/> wide: half its text room (the
+    /// side insets off), so the name keeps the other half at every width.
+    /// </summary>
+    public static double CompactFieldWidth(double width)
+        => double.IsFinite(width) ? Math.Max(0, (width - (2 * FamilySpace.Inset)) / 2) : double.PositiveInfinity;
+
     /// <summary>[S-582] The narrowest a details column says anything in.</summary>
     public const double DetailColumn = 88;
 

@@ -135,4 +135,42 @@ public sealed class MonthLayoutTests
         Assert.Equal(MonthFace.Dots, narrow.Face);
         Assert.Equal(0, narrow.ChipLanes);
     }
+
+    [Fact]
+    public void S15794_a_larger_card_never_draws_smaller_numbers()
+    {
+        // A dots month 300 wide from its least up (its dots stand in the cell's foot padding), and a month with titles with
+        // chips from 700 × 510 up (the number takes what its least chip line leaves): the day's number never shrinks as the
+        // card grows within a face.
+        foreach (var (chips, widths, heights) in new[]
+        {
+            (MonthChipRoom.Dots, new[] { 300.0 }, Enumerable.Range(0, 30).Select(i => 210.0 + (i * 10)).ToArray()),
+            (MonthChipRoom.Titles, Enumerable.Range(0, 11).Select(i => 700.0 + (i * 20)).ToArray(), new[] { 510.0 * 392 / 700 }),
+        })
+        {
+            var last = 0.0;
+            foreach (var width in widths)
+            {
+                foreach (var height in heights)
+                {
+                    var scale = chips.Equals(MonthChipRoom.Titles) ? width / 392 : 1;
+                    var month = MonthLayouts.Plan(width, height * scale, 12, Grid, anchorRow: 2, mostItems: 3, chips);
+                    Assert.True(month.NumberLine >= last - 1e-6, $"{width} x {height * scale}: {month.NumberLine} after {last}");
+                    last = month.NumberLine;
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void S15798_the_months_least_holds_a_readable_number_in_every_cell()
+    {
+        var sizing = CalendarSizing.MonthSizing(new Themia.Core.Model.CalendarWidgetConfig { MonthEvents = Themia.Core.Model.MonthEvents.Dots });
+        Assert.Equal((160.0, 180.0), (sizing.Min.Width, sizing.Min.Height));
+
+        // At its least every week's number is a Caption line, its two figures across the column.
+        var least = MonthLayouts.Plan(sizing.Min.Width, sizing.Min.Height, FamilySpace.Inset, Grid, anchorRow: 2, mostItems: 2);
+        Assert.Equal(FamilyType.Caption.LineHeight, least.NumberLine);
+        Assert.True(MonthLayouts.NumberFits(least.LeastColumn) >= FamilyType.Caption.LineHeight);
+    }
 }

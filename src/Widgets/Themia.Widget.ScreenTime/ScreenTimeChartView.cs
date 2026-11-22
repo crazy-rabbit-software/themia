@@ -318,7 +318,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
                 column.Children.Add(new Border
                 {
                     Background = Family.Brush(ColourRole.Track),
-                    CornerRadius = Corners(true, true),
+                    CornerRadius = default, // [S-15799] square: touching tracks leave no notch between them
                     IsHitTestVisible = false,
                 });
             }
@@ -408,7 +408,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
                 var part = parts[parts.Count - 1 - b];
                 var block = blocks[b];
                 block.Height = Math.Max(FamilyShape.Hairline, part.Fraction * area);
-                block.CornerRadius = Corners(b == 0, b == blocks.Count - 1);
+                block.CornerRadius = Corners(b == 0);
                 block.Background = ScreenTimeLook.Brush(ScreenTimeRules.ToneOf(_tones, part.Key));
                 _parts.Add((new ChartPart(part.Key, i), block));
             }
@@ -422,9 +422,12 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         }
     }
 
-    /// <summary>[S-6704] A stack is one rectangle of the family's radius: its top part's top corners, its foot part's foot.</summary>
-    private static CornerRadius Corners(bool top, bool foot)
-        => new(top ? FamilyShape.Radius : 0, top ? FamilyShape.Radius : 0, foot ? FamilyShape.Radius : 0, foot ? FamilyShape.Radius : 0);
+    /// <summary>
+    /// [S-6704] [S-15799] A stack's top part takes the family's radius at its top corners; its foot stands square on the
+    /// card's foot, so touching bars leave no notch of the card between their feet (WR-2: "no spacing between them").
+    /// </summary>
+    private static CornerRadius Corners(bool top)
+        => new(top ? FamilyShape.Radius : 0, top ? FamilyShape.Radius : 0, 0, 0);
 
     /// <summary>
     /// [S-3325] [S-15773] An app's part of a day's bar, made the first time the app is in that bar: its hover (that part

@@ -221,7 +221,13 @@ public static class CalendarSizing
         }
 
         var week = MonthOver + (MonthWeeks * ItemSize.Optimal(MonthCell(MonthEvents.Dots), grid));
-        return WidgetSizing.Range(new(260, week), new(300, week), new(420, week));
+
+        // [S-15798] Its least is where a day's number is still read (WR-14: "sized down to where its smallest text is still
+        // read"): a Caption number line of 16 in the cell's 4 over and under, in a column its two figures fit across.
+        var least = new SizeDip(
+            grid.Whole((7 * (2 * FamilySpace.S1 + (2 * MonthLayouts.FigureAdvance * FamilyType.Caption.FontSize))) + 1),
+            grid.Whole(MonthOver + (MonthWeeks * (FamilyType.Caption.LineHeight + (2 * FamilySpace.S1)))));
+        return WidgetSizing.Range(least, new(300, week), new(420, week));
     }
 
     // ---- [S-11545] [S-11546] week -------------------------------------------------------------------

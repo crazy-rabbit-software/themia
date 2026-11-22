@@ -193,6 +193,8 @@ public sealed partial class KitStatePanel : Grid
             _run = null;
         }
 
+        // [S-15796] The Accounts button's short words where its own would take the sentence's room.
+        _row.ShortAction = shown.Accounts ? Str.WidgetUi_AccountsLabel.Text() : null;
         _row.Show(shown.Problem ? StatusKind.Problem : StatusKind.Empty, _glyph, shown.Message, label, label is null ? null : () => _run?.Invoke());
 
         if (shown.Details.Count > 1)
