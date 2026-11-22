@@ -65,6 +65,13 @@ internal static partial class FileIcons
         return Shared.GetAsync(key, () => AppIcons.LoadTypeAsync(type.Folder ? "folder" : type.Extension, type.Folder, pixels));
     }
 
+    /// <summary>[S-15165] The stock icon of a kind of drive at <paramref name="pixels"/>, shared by every card that draws one.</summary>
+    public static Task<ImageSource?> DriveIconAsync(DriveStockIcon icon, int pixels)
+    {
+        var key = string.Concat(pixels.ToString(System.Globalization.CultureInfo.InvariantCulture), "|drive:", icon.ToString());
+        return Shared.GetAsync(key, () => AppIcons.LoadStockAsync(AppIcons.StockId(icon), pixels));
+    }
+
     /// <summary>
     /// A thumbnail for an image file, or null for one that has none, is not an image, or is a cloud
     /// placeholder (reading its pixels would download it).

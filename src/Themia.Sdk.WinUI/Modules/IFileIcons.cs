@@ -20,6 +20,12 @@ public interface IFileIcons
     /// <summary>The shell icon for an entry at <paramref name="pixels"/> (physical) pixels, or null.</summary>
     Task<ImageSource?> IconAsync(FolderEntry entry, int pixels);
 
+    /// <summary>
+    /// [S-15165] The shell's stock icon of a kind of drive at <paramref name="pixels"/> (physical) pixels, or null: for a drive
+    /// that is not this PC's (a preview's), whose own icon would be whatever this PC's shell says of a letter it may not have.
+    /// </summary>
+    Task<ImageSource?> DriveIconAsync(DriveStockIcon icon, int pixels);
+
     /// <summary>A thumbnail for an image file, or null for one that has none, is not an image, or is a cloud placeholder.</summary>
     Task<ImageSource?> ThumbnailAsync(FolderEntry entry, int pixels);
 

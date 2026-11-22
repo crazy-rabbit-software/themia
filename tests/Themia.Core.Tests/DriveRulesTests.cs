@@ -146,4 +146,20 @@ public sealed class DriveRulesTests
         Assert.Empty(DriveRules.LocalVolumes([]));
     }
 
+    /// <summary>
+    /// [S-15165] A preview's disconnected share was drawn with whatever this PC's shell said of a letter it lacks (a plain
+    /// fixed drive, or the share's icon with a stray row): a preview drive takes its kind's stock icon, the red X for a share
+    /// that cannot be reached.
+    /// </summary>
+    [Fact]
+    public void S15165_a_drive_s_stock_icon_is_its_kind_and_a_share_it_cannot_reach_is_the_red_x()
+    {
+        Assert.Equal(DriveStockIcon.NetworkDisconnected, DriveRules.StockIcon(new DriveEntry("Z:\\", VolumeKind.Network, DriveState.Disconnected)));
+        Assert.Equal(DriveStockIcon.Network, DriveRules.StockIcon(new DriveEntry("Z:\\", VolumeKind.Network, DriveState.Ready)));
+        Assert.Equal(DriveStockIcon.Network, DriveRules.StockIcon(new DriveEntry("Y:\\", VolumeKind.Network, DriveState.Pending)));
+        Assert.Equal(DriveStockIcon.Removable, DriveRules.StockIcon(new DriveEntry("E:\\", VolumeKind.Removable, DriveState.Ready)));
+        Assert.Equal(DriveStockIcon.Removable, DriveRules.StockIcon(new DriveEntry("F:\\", VolumeKind.Fixed, DriveState.Ready, Hotplug: true)));
+        Assert.Equal(DriveStockIcon.Fixed, DriveRules.StockIcon(new DriveEntry("D:\\", VolumeKind.Fixed, DriveState.Ready)));
+        Assert.Null(DriveRules.StockIcon(new DriveEntry("Q:\\", VolumeKind.Unknown, DriveState.Missing)));
+    }
 }

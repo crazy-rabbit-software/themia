@@ -20,6 +20,8 @@ internal sealed class HostFileIcons : IFileIcons
 
     public Task<ImageSource?> IconAsync(FolderEntry entry, int pixels) => FileIcons.IconAsync(entry, pixels);
 
+    public Task<ImageSource?> DriveIconAsync(DriveStockIcon icon, int pixels) => FileIcons.DriveIconAsync(icon, pixels);
+
     public Task<ImageSource?> ThumbnailAsync(FolderEntry entry, int pixels) => FileIcons.ThumbnailAsync(entry, pixels);
 
     public string TypeName(FolderEntry entry) => FileIcons.TypeName(entry);

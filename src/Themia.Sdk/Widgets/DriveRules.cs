@@ -15,6 +15,20 @@ public enum VolumeKind
     RamDisk = 5,
 }
 
+/// <summary>
+/// [S-15165] The shell's stock icon of a kind of drive (its SIID, the host's): what a drive that is not this PC's (a preview's
+/// mapped share, stick or games disk) is drawn with, the same on every PC and every run.
+/// </summary>
+public enum DriveStockIcon
+{
+    Fixed = 1,
+    Removable = 2,
+    Optical = 3,
+    Network = 4,
+    NetworkDisconnected = 5,
+    RamDisk = 6,
+}
+
 /// <summary>[S-4650] Whether a drive can be read right now.</summary>
 public enum DriveState
 {
@@ -76,6 +90,25 @@ public sealed record DriveEntry(
 /// </summary>
 public static class DriveRules
 {
+    /// <summary>
+    /// [S-15165] The stock icon a drive of <paramref name="drive"/>'s kind and state is drawn with: Explorer's red X on a mapped
+    /// share it cannot reach; none for a drive of no known kind (one that is not there draws no icon, as the shell gives none).
+    /// </summary>
+    public static DriveStockIcon? StockIcon(DriveEntry drive)
+    {
+        ArgumentNullException.ThrowIfNull(drive);
+        return drive.Kind switch
+        {
+            VolumeKind.Fixed when drive.Hotplug => DriveStockIcon.Removable,
+            VolumeKind.Fixed => DriveStockIcon.Fixed,
+            VolumeKind.Removable => DriveStockIcon.Removable,
+            VolumeKind.Optical => DriveStockIcon.Optical,
+            VolumeKind.Network => drive.State == DriveState.Disconnected ? DriveStockIcon.NetworkDisconnected : DriveStockIcon.Network,
+            VolumeKind.RamDisk => DriveStockIcon.RamDisk,
+            _ => null,
+        };
+    }
+
     /// <summary>
     /// [S-11026] [S-14604] A drive's facts as a sheet its metrics read (<see cref="MetricRules.Pick"/>): used, free and
     /// capacity while the drive has figures, its file system where Windows names one, and its type. A
