@@ -44,6 +44,12 @@ public enum WeatherLook
 /// </summary>
 public static class WeatherReport
 {
+    /// <summary>
+    /// [S-720] [S-15560] The days the current request asks for and keeps, today first: open-meteo's own limit, as far as a
+    /// fact's Day reaches and as many as the forecast shows ([S-11145]).
+    /// </summary>
+    public const int ForecastDays = 14;
+
     private static readonly Dictionary<int, (WeatherLook Look, Str Text)> Codes = new()
     {
         [0] = (WeatherLook.Clear, Str.Forecast_Wmo_Clear),
@@ -93,16 +99,6 @@ public static class WeatherReport
     }
 
     /// <summary>Which icon family the condition belongs to.</summary>
-    /// <summary>
-    /// [S-13919] The sky's code on day <paramref name="day"/> from today: the code now for today, the day's forecast code for
-    /// a day ahead; null past the forecast or where the service sent none.
-    /// </summary>
-    public static int? SkyCode(CurrentWeather reading, int day)
-    {
-        ArgumentNullException.ThrowIfNull(reading);
-        return day <= 0 ? reading.Code : day < reading.Days.Count ? reading.Days[day].Code : null;
-    }
-
     public static WeatherLook Look(int? code)
         => code is { } value && Codes.TryGetValue(value, out var entry) ? entry.Look : WeatherLook.Unknown;
 

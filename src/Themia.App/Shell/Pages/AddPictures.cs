@@ -264,16 +264,6 @@ internal sealed class AddPictures : IDisposable
             case AddWidgetTile one:
                 var natural = Sdk.ModuleCatalog.Of(one.Kind).Natural;
                 models = [WidgetInstance.Create(one.Kind, Core.Geometry.FracRect.FromDips(0, 0, natural.Width, natural.Height, metrics))];
-
-                // [S-13915] A container as it is placed: with the parts a new one starts with.
-                if (models[0].Config is IRepeater container)
-                {
-                    var scratch = ViewState.Create("picture");
-                    scratch.Widgets.Add(models[0]);
-                    Repeaters.Seed(scratch, new RepeaterOn(models[0], container), metrics);
-                    models = [.. scratch.Widgets];
-                }
-
                 break;
             case AddGroupTile group when ReadyMadeGroups.Build(group.Group, metrics) is { } built:
                 models = built;
@@ -290,17 +280,7 @@ internal sealed class AddPictures : IDisposable
             // [S-11809] A recipe's boxes as its placement lays them out, as one block.
             IReadOnlyList<Core.Geometry.FracRect> boxes = tile is AddGroupTile recipe
                 ? ReadyMadeGroups.Laid(recipe.Group, metrics, new Core.Geometry.PlacementSizes(1))
-                : models.Count > 1 ? [.. models.Select(m => m.Rect)]
                 : [.. models.Select(m => Core.Geometry.SizeFit.Shown(m.Rect, Core.Geometry.SizeFit.Limits(m, metrics, 1), metrics))];
-            // [S-15502] A recipe's repeaters drawn with their copied rows, as the desktop draws them.
-            for (var i = 0; i < models.Count; i++)
-            {
-                models[i].Rect = boxes[i];
-            }
-
-            var baked = Repeaters.Bake(models, metrics, editing: false);
-            models = [.. baked.Select(b => b.Drawn)];
-            boxes = [.. models.Select(m => m.Rect)];
             for (var i = 0; i < models.Count; i++)
             {
                 var model = models[i];

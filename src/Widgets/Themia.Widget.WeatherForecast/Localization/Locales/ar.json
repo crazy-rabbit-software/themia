@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "أعمدة",
+  "forecast.layoutRows": "صفوف",
+  "styles.forecast.curve": "منحنى درجة الحرارة",
+  "styles.forecast.grid": "شبكة",
+  "widgetsA.catalog.forecast.description": "الأيام القليلة القادمة",
+  "widgetsA.catalog.forecast.label": "التوقعات",
   "widgetsC.weather.settings.showPrecipitation.label": "إظهار الهطول"
 }

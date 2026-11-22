@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "Safu wima",
+  "forecast.layoutRows": "Safu mlalo",
+  "styles.forecast.curve": "Mkunjo wa halijoto",
+  "styles.forecast.grid": "Gridi",
+  "widgetsA.catalog.forecast.description": "Siku chache zijazo",
+  "widgetsA.catalog.forecast.label": "Utabiri",
   "widgetsC.weather.settings.showPrecipitation.label": "Onyesha mvua"
 }

@@ -66,14 +66,6 @@ public sealed class GridPlacementTests
         }
     }
 
-    /// <summary>[S-15540] Whether placed widget <paramref name="a"/> or <paramref name="b"/> holds the other (a repeater and what stands inside it).</summary>
-    private static bool Held(IReadOnlyList<WidgetInstance> added, int a, int b)
-    {
-        var view = ViewState.Create("held");
-        view.Widgets.AddRange(added);
-        return Repeaters.Descendants(view, added[a].Id).Contains(added[b].Id) || Repeaters.Descendants(view, added[b].Id).Contains(added[a].Id);
-    }
-
     [Theory]
     [MemberData(nameof(Recipes))]
     public void S11808_every_ready_made_group_lands_on_whole_cells_touching_as_it_was_and_shown_where_it_landed(string id)
@@ -96,12 +88,6 @@ public sealed class GridPlacementTests
             {
                 for (var j = i + 1; j < rects.Count; j++)
                 {
-                    // [S-15540] A repeater's members stand inside its box; it draws no card to touch.
-                    if (Held(plan.Added, i, j) || recipe.Widgets[i].Kind == "repeater" || recipe.Widgets[j].Kind == "repeater")
-                    {
-                        continue;
-                    }
-
                     var (a, b) = (rects[i], rects[j]);
                     var overlapW = Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X);
                     var overlapH = Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y);

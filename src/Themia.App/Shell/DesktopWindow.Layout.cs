@@ -151,9 +151,6 @@ internal sealed partial class DesktopWindow
 
         _gridOverlay.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
 
-        // [S-15501] The repeaters' outlines come and go with edit mode.
-        RefreshRepeaters();
-
         foreach (var card in _cards)
         {
             card.ApplyEditMode(editing);
@@ -252,14 +249,6 @@ internal sealed partial class DesktopWindow
         var view = ViewForThisMonitor(_host.State);
         var wanted = view.Widgets;
 
-        // [S-15502] What the repeaters draw, read before any card is built or given its config: a member's config is its row's.
-        var rowsBefore = _repeaterPlan.Templates;
-        PlanRepeaters(view);
-
-        // [S-15529] [S-15660] A container's part shows its container's settings (its place, its first day) and its row's
-        // value: it applies its config again where its container's changed or its row did, though its own did not.
-        var rowChanged = RowsChanged(view, change, rowsBefore);
-
         // Reuse the cards that survived the change: rebuilding every card on every state change
         // would restart each widget's tick subscription and flash the whole surface. [S-1882] The
         // cards that go are released before any new one is built, so a view switch never holds the
@@ -288,7 +277,7 @@ internal sealed partial class DesktopWindow
         {
             if (existing is not null)
             {
-                if (change.Reapplies(model.Id) || rowChanged.Contains(model.Id))
+                if (change.Reapplies(model.Id))
                 {
                     existing.ApplyConfig();
                 }
@@ -328,9 +317,6 @@ internal sealed partial class DesktopWindow
             // [S-1972] A card a run of held arrows is moving stays where the run put it until the run lands.
             PositionCard(card, Standing(card));
         }
-
-        // [S-15502] Each copied row's widgets, over the real cards' paint order.
-        LayCopies();
 
         JoinCards();
 
@@ -419,8 +405,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void JoinCards()
     {
-        // [S-15502] A copied row's widgets join as the template's do: touching atoms one panel.
-        WidgetCard.Join(_copies.Count == 0 ? _cards : [.. _cards, .. _copies.Values], Metrics, RasterScale, EditMode, JoinSet);
+        WidgetCard.Join(_cards, Metrics, RasterScale, EditMode, JoinSet);
 
         // [S-2460] The selection's frame round where its cards now stand.
         SyncFrame();

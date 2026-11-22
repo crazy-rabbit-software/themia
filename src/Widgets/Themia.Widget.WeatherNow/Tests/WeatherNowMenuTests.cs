@@ -38,12 +38,7 @@ public sealed class WeatherNowMenuTests
             {
                 Assert.NotNull(location.Search);
                 Assert.Equal(Str.Shell_Place_Location.Text(), location.Text);
-            },
-            // [S-13919] The sky takes a day: Today, or a day ahead (what a weather forecast's day sets for it).
-            day => Assert.Equal("day", day.Shares));
-
-        // The condition in words is the sky now: no day.
-        Assert.DoesNotContain(Build(new WeatherConditionConfig()).Lines, l => l.Shares == "day");
+            });
     }
 
     [Fact]

@@ -17,9 +17,10 @@ public sealed class OnlineStylesTests
     [Fact]
     public void S6000_each_kind_offers_its_styles_in_menu_order_the_default_first()
     {
-        Assert.Empty(Names(new WidgetId("weatherForecast"))); // [S-15540] the forecast curve: one look, no style
+        Assert.Equal(["rows", "columns", "curve", "grid"], Names(new WidgetId("weatherForecast")));
         Assert.Equal(["number", "gauge"], Names(new WidgetId("airQuality")));
 
+        Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);
         Assert.Equal(AirQualityStyle.Number, new AirQualityConfig().Style);
     }
 

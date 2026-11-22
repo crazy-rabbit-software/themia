@@ -36,9 +36,6 @@ a part declare one split. Tests: `Tests/WeatherNowTests.cs`, `Tests/WeatherNowMe
   ("Set a place", "Offline", WR-10) and its line under the glyph where the card has the room, a failure the status's problem
   glyph ([S-15710], [S-15711]); a reading kept through a failed refresh stays and the status's problem glyph says so
   ([S-7042]). Its colour is the item text's ([S-15001]).
-  It takes a **Day** (`IDayChoice`: Today, or a day ahead; the shared `day` setting, after its place): a day ahead's sky
-  is that day's forecast code (`WeatherReport.SkyCode`), unavailable past the forecast; what a weather forecast's day
-  shows of the sky (the weather facts' [S-13919]).
 - **[S-15025]** **A placed summary becomes its parts in place** (root `SPEC.md` [S-15022], `KindMerges`): the sky in its left
   third, its whole height; the temperature over the condition in the two thirds beside it, half its height each; each a copy
   with its id and the kind's (`w07-weatherSky`), its look and its place; its Minimal look (the temperature alone) the

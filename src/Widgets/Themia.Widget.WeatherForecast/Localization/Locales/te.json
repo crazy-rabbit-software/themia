@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "నిలువు వరుసలు",
+  "forecast.layoutRows": "వరుసలు",
+  "styles.forecast.curve": "ఉష్ణోగ్రత వక్రరేఖ",
+  "styles.forecast.grid": "గ్రిడ్",
+  "widgetsA.catalog.forecast.description": "తదుపరి కొన్ని రోజులు",
+  "widgetsA.catalog.forecast.label": "సూచన",
   "widgetsC.weather.settings.showPrecipitation.label": "అవపాతాన్ని చూపించు"
 }

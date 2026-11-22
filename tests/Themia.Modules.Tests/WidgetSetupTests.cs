@@ -25,7 +25,7 @@ public class WidgetSetupTests
     [
         new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherCondition"), new WidgetId("weatherSky"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"), new WidgetId("rainOutlook"), new WidgetId("rainTotal"),
         new WidgetId("airUv"), new WidgetId("airPm25"), new WidgetId("airPollen"), new WidgetId("airPm10"), new WidgetId("airOzone"), new WidgetId("airAlder"), new WidgetId("airBirch"), new WidgetId("airGrass"), new WidgetId("airMugwort"), new WidgetId("airOlive"), new WidgetId("airRagweed"),
-        new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"), new WidgetId("weatherDay"), new WidgetId("weatherHigh"), new WidgetId("weatherLow"), new WidgetId("weatherRange"),
+        new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"),
         new WidgetId("weatherTemperature"), new WidgetId("airIndex"),
         new WidgetId("videoStream"), new WidgetId("gallery"), new WidgetId("desktopItem"),
         new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"), new WidgetId("upNext"),

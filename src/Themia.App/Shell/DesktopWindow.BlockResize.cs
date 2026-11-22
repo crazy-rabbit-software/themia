@@ -70,10 +70,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <inheritdoc />
-    public int FramedWith(WidgetCard card)
-        // [S-13917] The container whose layout is edited shows no marks of its own and its grips take no press, as a member of a
-        // framed selection: its day box's frame is what is resized there.
-        => LayoutEditing.HeldStill(_composing, card.Model.Id) ? 2 : _framed.Contains(card) ? _framed.Count : 0;
+    public int FramedWith(WidgetCard card) => _framed.Contains(card) ? _framed.Count : 0;
 
     /// <summary>
     /// [S-2460] The frame round the selection as it stands now: round two or more selected cards of this display
@@ -91,9 +88,6 @@ internal sealed partial class DesktopWindow
             _markerLayer.Frame.Released += EndBlockResize;
         }
 
-        // [S-13917] The selection decides whether a layout's editing goes on, and so its day box's frame and its bento.
-        FollowCompose();
-        SyncDayBox();
         var cards = FrameMembers();
         var before = _framed;
         _framed = cards;

@@ -95,11 +95,7 @@ public sealed class SizeFollowsCardTests
         // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the
         // card's size. What the items are (which facts, which span of time a chart covers) stays a setting." A count line
         // is a number box or a choice of numbers; a submenu of which columns a table shows (what the items are) is not.
-        // The weather forecast's Days is the one count that is set (owner, 2026-11-21: "you should be able to set how many items
-        // the weather forecast should show. it should then get scrollable if it overflows", [S-13918]): its days scroll in
-        // its card, so its size does not say how many there are.
         var found = MenuEntries(out var built)
-            .Where(e => !(e.Kind == "weatherDays" && e.Line.Text == "Days"))
             .Where(e => CountWords.Contains(e.Line.Text) && (e.Line.Slider is not null || (e.Line.Children is { Count: > 0 } options && options.All(o => o.Checked is not null))))
             .Select(e => $"{e.Kind} › {e.Line.Text}")
             .ToList();

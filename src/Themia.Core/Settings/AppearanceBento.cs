@@ -52,7 +52,7 @@ public static class AppearanceBento
     /// <summary>
     /// [S-2311] The tiles, in reading order: the clock and the month on top, a meter and a toggle under the clock, the
     /// tasks and a network graph and the music under them; down the right the weather station joined (the temperature, a
-    /// fact, the rain's hours ahead: the forecast curve needs 160 tall, [S-15540]), and under it the battery and a power tile.
+    /// fact, the days ahead), and under it the battery and a power tile.
     /// </summary>
     public static IReadOnlyList<BentoTile> Tiles { get; } =
     [
@@ -64,7 +64,7 @@ public static class AppearanceBento
         new("weatherHumidity", 4, 1, 2, 1, Station),
         new("tasks", 0, 2, 2, 2),
         new("networkDownload", 2, 2, 2, 1) { Graph = true },
-        new("weatherPrecipitation", 4, 2, 2, 1, Station) { Graph = true },
+        new("weatherForecast", 4, 2, 2, 1, Station),
         new("music", 2, 3, 2, 1),
         new("battery", 4, 3, 1, 1),
         new("lock", 5, 3, 1, 1),

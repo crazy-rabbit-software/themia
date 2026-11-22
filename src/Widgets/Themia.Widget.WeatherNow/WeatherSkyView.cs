@@ -29,32 +29,20 @@ internal sealed partial class WeatherSkyView : IconView
     /// <summary>[S-730] Refresh.</summary>
     protected override IReadOnlyList<WidgetAction> OwnActions => _feed.Actions;
 
-    protected override void OnAttach(Ticker ticker, WidgetConfig config)
-    {
-        _day = (config as WeatherSkyConfig)?.Day ?? 0;
-        _feed.Attach(ticker, config);
-    }
+    protected override void OnAttach(Ticker ticker, WidgetConfig config) => _feed.Attach(ticker, config);
 
-    protected override void OnApply(WidgetConfig config)
-    {
-        _day = (config as WeatherSkyConfig)?.Day ?? 0;
-        _feed.Apply(config);
-        Render();
-    }
+    protected override void OnApply(WidgetConfig config) => _feed.Apply(config);
 
     protected override void OnDetach() => _feed.Detach();
 
-    private int _day;
-
-    private void Render() => Present(Shown(_feed.Reading, _feed.Why, _feed.Problems, _day));
+    private void Render() => Present(Shown(_feed.Reading, _feed.Why, _feed.Problems));
 
     /// <summary>
     /// [S-15021] The sky for <paramref name="reading"/>; with none, the weather's glyph unavailable, why its tooltip and its line
     /// where the card has the room ([S-15710]), a failure the status mark's ([S-15711]).
-    /// [S-13919] On day <paramref name="day"/> from today: that day's sky; a day the forecast does not reach, unavailable.
     /// </summary>
-    internal static IconShown Shown(CurrentWeather? reading, string why, IReadOnlyList<string> problems, int day = 0)
-        => reading is null || WeatherReport.SkyCode(reading, day) is not { } code
+    internal static IconShown Shown(CurrentWeather? reading, string why, IReadOnlyList<string> problems)
+        => reading is null
             ? IconShown.None(Glyphs.Weather, why) with { Name = WeatherNowKinds.Sky.Label.Text(), Problems = problems }
-            : new IconShown(WeatherGlyph.Of(WeatherReport.Look(code))) { Name = WeatherReport.Describe(code), Problems = problems };
+            : new IconShown(WeatherGlyph.Of(WeatherReport.Look(reading.Code))) { Name = WeatherReport.Describe(reading.Code), Problems = problems };
 }

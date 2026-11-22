@@ -110,19 +110,6 @@ internal interface IWidgetCardHost
     /// </summary>
     bool DeskPick(WidgetCard card, bool ctrl, bool shift) => false;
 
-    /// <summary>
-    /// [S-15511] <paramref name="config"/> (the card's own) as the card's row of a repeater shows it: the row's values in its
-    /// bound slots. The stored config is never touched; a host with no repeater hands it back as it is.
-    /// </summary>
-    WidgetConfig SeriesConfig(WidgetCard card, WidgetConfig config) => config;
-
-    /// <summary>
-    /// [S-15529] Whether <paramref name="card"/> is a container's part or one of its copied days: what it lacks (a place, the
-    /// device's position) is its container's to set, so the card draws no Set up row and no waiting row of its own; it shows
-    /// its own empty reading.
-    /// </summary>
-    bool HeldByContainer(WidgetCard card) => false;
-
     /// <summary>[S-1251] True for a debug render's host: its cards are previews and must not act on the machine.</summary>
     bool IsPreview => false;
 
@@ -307,7 +294,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// <summary>[S-78] [S-13046] The move's look: going to another display, a ghost where it lands.</summary>
     private bool _leaving;
     private bool _ghost;
-    private bool _muted;
     private ResizeHandle? _activeHandle;
 
     /// <summary>[S-1593] The press landed on a card of a multi-selection: a click without a drag narrows the selection to it.</summary>
@@ -1125,15 +1111,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         ShowMoveOpacity();
     }
 
-    /// <summary>[S-15534] A repeater's copied row in edit mode: muted, so the template row it repeats stands out.</summary>
-    public void SetMuted(bool muted)
-    {
-        _muted = muted;
-        ShowMoveOpacity();
-    }
-
-    /// <summary>[S-78] [S-13046] Faded going to another display, a ghost where it lands, [S-15534] a copied row muted in edit mode, else whole.</summary>
-    private void ShowMoveOpacity() => Opacity = _leaving ? 0.35 : _ghost ? SelectionLook.Landing : _muted ? RepeaterLook.CopyEditing : 1.0;
+    /// <summary>[S-78] [S-13046] Faded going to another display, a ghost where it lands, else whole.</summary>
+    private void ShowMoveOpacity() => Opacity = _leaving ? 0.35 : _ghost ? SelectionLook.Landing : 1.0;
 
     /// <summary>[S-13046] Where the pointer pressed the card, in its parent's (the surface's widget layer's) DIPs.</summary>
     internal Point PressPoint => _dragStartPoint;

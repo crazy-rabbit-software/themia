@@ -85,14 +85,6 @@ public sealed class ReadyMadePlacementTests
         return data;
     }
 
-    /// <summary>[S-15540] Whether placed widget <paramref name="a"/> or <paramref name="b"/> holds the other (a repeater and what stands inside it).</summary>
-    private static bool Held(IReadOnlyList<WidgetInstance> added, int a, int b)
-    {
-        var view = ViewState.Create("held");
-        view.Widgets.AddRange(added);
-        return Repeaters.Descendants(view, added[a].Id).Contains(added[b].Id) || Repeaters.Descendants(view, added[b].Id).Contains(added[a].Id);
-    }
-
     /// <summary>
     /// [S-11809] [S-2248] [S-2249] Regression (owner, 2026-11-15: "the groups that get placed as
     /// combinations they dont actually touch / connect to each other anymore"): on every display, at
@@ -112,9 +104,7 @@ public sealed class ReadyMadePlacementTests
             for (var j = i + 1; j < recipe.Widgets.Count; j++)
             {
                 var (a, b) = (recipe.Widgets[i].Box, recipe.Widgets[j].Box);
-                // [S-15501] A container draws no card: it neither meets nor joins.
-                if (recipe.Widgets[i].Kind != "weatherDays" && recipe.Widgets[j].Kind != "weatherDays"
-                    && CardJoins.Meeting(new DipRect(a.X, a.Y, a.Width, a.Height), new DipRect(b.X, b.Y, b.Width, b.Height), 1) is not null)
+                if (CardJoins.Meeting(new DipRect(a.X, a.Y, a.Width, a.Height), new DipRect(b.X, b.Y, b.Width, b.Height), 1) is not null)
                 {
                     neighbours.Add((i, j));
                 }
@@ -160,11 +150,6 @@ public sealed class ReadyMadePlacementTests
                     {
                         for (var j = i + 1; j < cells.Length; j++)
                         {
-                            if (Held(plan.Added, i, j))
-                            {
-                                continue;
-                            }
-
                             var (a, b) = (cells[i], cells[j]);
                             var overlapW = Math.Min(a.X + a.Width, b.X + b.Width) - Math.Max(a.X, b.X);
                             var overlapH = Math.Min(a.Y + a.Height, b.Y + b.Height) - Math.Max(a.Y, b.Y);

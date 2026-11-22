@@ -79,14 +79,12 @@ internal sealed partial class HeaderView : Grid, IWidgetView, IWidgetAligned, IW
 
     private void Render()
     {
-        var untitled = string.IsNullOrWhiteSpace(_config.Text);
-        var title = untitled ? HeaderStr.Header_TitleDefault.Text() : _config.Text;
+        var title = string.IsNullOrWhiteSpace(_config.Text) ? HeaderStr.Header_TitleDefault.Text() : _config.Text;
 
         // [S-9604] The place of the widgets it heads, once, after the title: they name none of their own ([S-12801]).
-        // [S-15563] With no title of its own the place is the title (a repeater's row of places names each row's).
         if (_config.PlaceLabel is { } place)
         {
-            title = untitled ? place : $"{title} · {place}";
+            title = $"{title} · {place}";
         }
 
         _fit.Align = _align;

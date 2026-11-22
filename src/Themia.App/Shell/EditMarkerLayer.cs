@@ -17,8 +17,7 @@ internal sealed class EditMarkerLayer
     public EditMarkerLayer()
     {
         // [S-2460] The frame's parts over every card's on each plate, whatever joins later.
-        // [S-13912] An open container's day box framed the same way, over its parts.
-        foreach (var (plate, part) in new[] { (Halos, Frame.Halos), (Inks, Frame.Inks), (Lifts, Frame.Grips), (Halos, DayFrame.Halos), (Inks, DayFrame.Inks), (Lifts, DayFrame.Grips) })
+        foreach (var (plate, part) in new[] { (Halos, Frame.Halos), (Inks, Frame.Inks), (Lifts, Frame.Grips) })
         {
             Canvas.SetZIndex(part, FrameOrder);
             plate.Children.Add(part);
@@ -30,9 +29,6 @@ internal sealed class EditMarkerLayer
 
     /// <summary>[S-2460] The frame round a selection of several, with its grips.</summary>
     public SelectionFrame Frame { get; } = new();
-
-    /// <summary>[S-13912] The frame round an open container's day box, with its grips.</summary>
-    public SelectionFrame DayFrame { get; } = new();
 
     /// <summary>Every card's halos, drawn first.</summary>
     public Canvas Halos { get; } = UiLanguage.KeepLeftToRight(new Canvas { IsHitTestVisible = false });

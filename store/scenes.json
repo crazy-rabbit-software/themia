@@ -844,6 +844,7 @@
         {
           "id": "forecast-curve",
           "kind": "weatherForecast",
+          "style": "curve",
           "at": [
             636,
             0,
@@ -1081,7 +1082,8 @@
             24,
             300,
             188
-          ]
+          ],
+          "style": "curve"
         },
         {
           "id": "countdown",
@@ -1407,7 +1409,8 @@
             24,
             300,
             188
-          ]
+          ],
+          "style": "curve"
         },
         {
           "readyMade": "sun",

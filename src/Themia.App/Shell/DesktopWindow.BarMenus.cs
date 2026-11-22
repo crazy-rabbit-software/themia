@@ -193,12 +193,6 @@ internal sealed partial class DesktopWindow
 
     private void OpenSelectionPageNow(bool focus)
     {
-        // [S-13917] While a layout is edited no page opens: the desktop is the editor, whatever selects a part.
-        if (_composing is not null)
-        {
-            return;
-        }
-
         // [S-14916] Widgets placed off the gallery land selected under it: the gallery stays, their page does not open over it.
         if (_closed || !EditMode || _host.Placing is not null || !_selectionOffer.Shows || _widgetGallery is not null)
         {

@@ -28,7 +28,7 @@ public abstract class WeatherFactModule(WeatherFactKind fact)
         // [S-15513] Which day, where its fact means something for one ahead: what a repeater's day series sets.
         if (fact.TakesDay)
         {
-            var days = Enumerable.Range(0, Themia.Core.Series.DayRangeSource.Reach).Select(d => (d, DayName(d))).ToList();
+            var days = Enumerable.Range(0, WeatherReport.ForecastDays).Select(d => (d, DayName(d))).ToList();
             menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.Day, menu.Choice(Glyphs.Calendar, WeatherFactsStr.WeatherFacts_Day_Line.Text(), days, fact.Day, d => fact.Day = d)));
         }
     }
@@ -61,9 +61,4 @@ public abstract class WeatherFactModule(WeatherFactKind fact)
 [JsonSerializable(typeof(WeatherGustsConfig))]
 [JsonSerializable(typeof(WeatherSunriseConfig))]
 [JsonSerializable(typeof(WeatherSunsetConfig))]
-[JsonSerializable(typeof(WeatherDayConfig))]
-[JsonSerializable(typeof(WeatherHighConfig))]
-[JsonSerializable(typeof(WeatherLowConfig))]
-[JsonSerializable(typeof(WeatherRangeConfig))]
-[JsonSerializable(typeof(WeatherDaysConfig))]
 internal sealed partial class WeatherFactJsonContext : JsonSerializerContext;

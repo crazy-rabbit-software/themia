@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "स्तंभ",
+  "forecast.layoutRows": "ओळी",
+  "styles.forecast.curve": "तापमान वक्र",
+  "styles.forecast.grid": "ग्रिड",
+  "widgetsA.catalog.forecast.description": "पुढील काही दिवस",
+  "widgetsA.catalog.forecast.label": "अंदाज",
   "widgetsC.weather.settings.showPrecipitation.label": "पर्जन्य दाखवा"
 }

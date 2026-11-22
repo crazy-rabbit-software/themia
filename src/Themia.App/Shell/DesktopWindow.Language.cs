@@ -51,7 +51,6 @@ internal sealed partial class DesktopWindow
             }
 
             _cards.Clear();
-            ReleaseCopies();
         }
 
         // Rebuilds the cards (none survive the clear above) and the view bar.

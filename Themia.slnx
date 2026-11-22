@@ -9,7 +9,6 @@
   </Folder>
   <Folder Name="/src/Widgets/">
     <Project Path="src/Widgets/Themia.Widget.Icon/Themia.Widget.Icon.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.Elements/Themia.Widget.Elements.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Fence/Themia.Widget.Fence.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Date/Themia.Widget.Date.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Header/Themia.Widget.Header.csproj" />

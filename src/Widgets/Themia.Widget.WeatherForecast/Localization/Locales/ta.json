@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "நெடுவரிசைகள்",
+  "forecast.layoutRows": "வரிசைகள்",
+  "styles.forecast.curve": "வெப்பநிலை வளைவு",
+  "styles.forecast.grid": "கட்டம்",
+  "widgetsA.catalog.forecast.description": "அடுத்த சில நாட்கள்",
+  "widgetsA.catalog.forecast.label": "முன்னறிவிப்பு",
   "widgetsC.weather.settings.showPrecipitation.label": "மழைப்பொழிவைக் காட்டு"
 }

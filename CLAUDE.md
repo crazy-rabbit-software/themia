@@ -76,9 +76,6 @@ Themia.exe --check desk-select <out.txt> [--locked] [--live] [--twice] [--glass]
            # window), PASS or FAIL [S-12954]; host-level it also moves an icon into the fence and one on the free desktop, drawn
            # mid-move to <out>.move-fence.png / .move-free.png [S-13046], and two icons on the free desktop and into the fence,
            # the held icon alone under the pointer (<out>.move-several-free.png / .move-several-fence.png, [S-13048])
-Themia.exe --check forecast-edit <out.txt>   # a weather forecast's three states through a real host and surface: locked and edit
-           # mode (one widget), its layout editing (parts picked, the bento, a part dragged in and out, the day box), PASS or
-           # FAIL, pictures beside the text (<out>.layout.png, .part.png, .added.png, .resized.png, .done.png) [S-15526]
 Themia.exe --check first-drag <out.txt> [--locked] [--kinds a,b]   # every kind's first press on a row, a button, a track,
            # a thumb, a text box, a chart, an empty spot, dragged through the card's own steps off-screen, PASS or FAIL [S-13060]
 Themia.exe --check drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real

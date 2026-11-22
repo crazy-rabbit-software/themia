@@ -118,10 +118,10 @@ internal static class WeatherService
             $"{CurrentEndpoint}?latitude={Coordinate(latitude)}&longitude={Coordinate(longitude)}"
             + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
             + ",precipitation,pressure_msl,wind_direction_10m,wind_gusts_10m,cloud_cover,uv_index"
-            // [S-720] Today and the days after it in the same request: the larger tiles draw them, and asking once costs
-            // the service less than asking twice. [S-15513] As far as a repeater's day range reaches (fourteen days).
+            // [S-720] Today and the days after it in the same request: a fact's day ahead reads them ([S-15560]), and asking
+            // once costs the service less than asking twice.
             + "&daily=" + DailyFields
-            + "&forecast_days=" + Themia.Core.Series.DayRangeSource.Reach.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + "&forecast_days=" + WeatherReport.ForecastDays.ToString(CultureInfo.InvariantCulture)
             + "&timezone=auto"
             + "&wind_speed_unit=kmh"
             + $"&temperature_unit={UnitParameter(unit)}");
@@ -165,8 +165,8 @@ internal static class WeatherService
             UvIndex = Sane(current.UvIndex, 0, 30),
 
             // The extras are extras: a reply whose daily block is missing or malformed still
-            // yields a reading, just without it.
-            Days = reply.Daily is { } daily ? ParseDays(daily, 6) : [],
+            // yields a reading, just without it. [S-15560] Every day it asked for is kept (a day ahead reads its own).
+            Days = reply.Daily is { } daily ? ParseDays(daily, WeatherReport.ForecastDays) : [],
         };
 
         // A "current" block with no temperature in it is not a reading, whatever else it carries.

@@ -150,11 +150,6 @@ internal sealed partial class DesktopWindow
             // [S-2327] Escape closes the open flyout before it ends edit mode.
             CloseFlyout(focusEntry: false);
         }
-        else if (_composing is not null)
-        {
-            // [S-13917] Then out of a layout's editing, the container still selected.
-            EndCompose();
-        }
         else if (_host.Placing is not null)
         {
             _host.CancelPlacement();

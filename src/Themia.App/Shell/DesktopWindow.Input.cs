@@ -175,7 +175,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <inheritdoc cref="IWidgetCardHost.DeskPick"/>
-    public bool DeskPick(WidgetCard card, bool ctrl, bool shift) => !_closed && !EditMode && _host.DeskPick(Stand(card).Model, ctrl, shift);
+    public bool DeskPick(WidgetCard card, bool ctrl, bool shift) => !_closed && !EditMode && _host.DeskPick(card.Model, ctrl, shift);
 
     /// <summary>
     /// [S-800] The host's lease gave <paramref name="card"/> the keyboard: become activatable and the

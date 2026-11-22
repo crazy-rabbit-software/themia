@@ -32,9 +32,6 @@ public sealed record TextKind(
     /// </summary>
     public bool Lead { get; init; } = true;
 
-    /// <summary>[S-13921] A new card's width: the text face's, or a short text's own (a weekday, a temperature).</summary>
-    public double Width { get; init; } = TextRules.NaturalWidth;
-
     /// <summary>[S-14933] The role its line is drawn in at rest.</summary>
     public TextTone Tone { get; init; } = TextTone.Primary;
 

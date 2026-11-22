@@ -112,7 +112,7 @@ public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, I
             notes.Add(span);
         }
 
-        if (Day != 0 && (!TakesDay || Day < 0 || Day >= Themia.Core.Series.DayRangeSource.Reach))
+        if (Day != 0 && (!TakesDay || Day < 0 || Day >= WeatherReport.ForecastDays))
         {
             notes.Add($"{GetType().Name}: day {Day} is not one it shows; today");
             Day = 0;

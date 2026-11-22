@@ -29,16 +29,10 @@ public static class ViewOps
         copy.Color = source.Color;
         copy.DesktopIcons = source.DesktopIcons;
 
-        var ids = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var widget in source.Widgets)
         {
-            var clone = widget.Clone();
-            ids[widget.Id] = clone.Id;
-            copy.Widgets.Add(clone);
+            copy.Widgets.Add(widget.Clone());
         }
-
-        // [S-15500] A copied repeater holds the copies of its members.
-        Repeaters.Remap(copy.Widgets, ids);
 
         state.Views.Insert(index + 1, copy);
         return copy;

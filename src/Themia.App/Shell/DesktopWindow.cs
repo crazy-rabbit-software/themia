@@ -317,9 +317,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     {
         PositionCard(card, card.LiveRect);
 
-        // [S-13916] A container resized: its parts and days follow at once, as the drop will lay them.
-        PreviewContainerResize(card);
-
         // [S-2244] The card being resized is free; its neighbours get their corners back.
         JoinCards();
 
@@ -426,7 +423,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public bool Pins(WidgetCard card)
     {
         ArgumentNullException.ThrowIfNull(card);
-        return Core.Desktop.WidgetLock.Pins(ViewForThisMonitor(_host.State), Stand(card).Model.Id, WidgetsLocked, EditMode);
+        return Core.Desktop.WidgetLock.Pins(ViewForThisMonitor(_host.State), card.Model.Id, WidgetsLocked, EditMode);
     }
 
     /// <inheritdoc />
@@ -436,7 +433,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public void RequestSaveConfig() => _host.SaveSoon();
 
     /// <summary>[S-11877] In edit mode its selection's; on the locked desktop the desktop's one selection (icons and cards).</summary>
-    public bool IsSelected(WidgetCard card) => !IsCopy(card) && (EditMode ? _host.Selection.Contains(card.Model.Id) : _host.DeskSelects(card.Model));
+    public bool IsSelected(WidgetCard card) => EditMode ? _host.Selection.Contains(card.Model.Id) : _host.DeskSelects(card.Model);
 
     public int SelectionCount => _host.Selection.Count;
 
@@ -449,73 +446,26 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             ? Themia.Core.Desktop.DesktopBackground.RemovesFromView([card.Model.Config])
             : Themia.Core.Desktop.DesktopBackground.RemovesFromView(view.Widgets.Where(w => _host.Selection.Contains(w.Id)).Select(w => w.Config));
 
-    /// <summary>
-    /// [S-13917] Whether <paramref name="stands"/> is the container whose layout is being edited (a press on its empty room or
-    /// on another day): not picked, moved or resized; a press there lets go of the part selected.
-    /// </summary>
-    private bool HeldStill(WidgetCard stands) => LayoutEditing.HeldStill(_composing, stands.Model.Id);
-
     public void RequestSelect(WidgetCard card)
     {
-        if (HeldStill(Stand(card)))
-        {
-            _host.StepOutOfSelection();
-            return;
-        }
+        _host.Select(card.Model.Id);
 
-        // [S-15526] A copied row stands for its repeater.
-        _host.Select(Stand(card).Model.Id);
-
-        // [S-2343] A click on the widget again opens its page again; [S-13917] not while a layout is being edited.
-        if (_composing is null)
-        {
-            ReopenSelectionPage();
-        }
+        // [S-2343] A click on the widget again opens its page again.
+        ReopenSelectionPage();
     }
 
-    public void RequestToggleSelect(WidgetCard card)
-    {
-        if (!HeldStill(Stand(card)))
-        {
-            _host.ToggleSelect(Stand(card).Model.Id);
-        }
-    }
+    public void RequestToggleSelect(WidgetCard card) => _host.ToggleSelect(card.Model.Id);
 
     /// <inheritdoc />
     public bool RequestPress(WidgetCard card, bool onHandle)
     {
         // [S-2343] The pointer holds the widget from here to its release: the selection this press makes opens its page then.
         HoldProperties(true);
-        var stands = Stand(card);
-        if (HeldStill(stands))
-        {
-            _host.StepOutOfSelection();
-            return true;
-        }
-
-        // [S-13917] A container selected alone before the press: a click on it starts its layout editing.
-        _pressedSelected = LayoutEditing.Enters(ViewForThisMonitor(_host.State), stands.Model.Id, EditMode, _composing, _host.Selection.ViewId, _host.Selection.Ids);
-        return _host.PressSelect(stands.Model.Id, onHandle);
+        return _host.PressSelect(card.Model.Id, onHandle);
     }
 
     /// <inheritdoc />
-    public void RequestClick(WidgetCard card)
-    {
-        var stands = Stand(card);
-        if (HeldStill(stands))
-        {
-            return;
-        }
-
-        _host.ClickSelect(stands.Model.Id);
-
-        // [S-13917] A click on a container already selected: its layout editing starts, its page closes.
-        if (_pressedSelected && stands.Model.Config is IRepeater)
-        {
-            _pressedSelected = false;
-            Compose(stands.Model.Id);
-        }
-    }
+    public void RequestClick(WidgetCard card) => _host.ClickSelect(card.Model.Id);
 
     public void RequestCopy(WidgetCard card) => _host.CopySelected();
 
@@ -531,17 +481,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     /// <summary>Debug only: the selection's frame, for the desk select check's [S-14310] steps.</summary>
     internal SelectionFrame DebugFrame => _markerLayer.Frame;
-
-    /// <summary>Debug checks: the container whose layout is edited, the bento, the smoke, an open flyout, what a press stands for.</summary>
-    internal string? DebugComposing => _composing;
-
-    internal bool DebugPaletteShown => _palette is { Visibility: Visibility.Visible };
-
-    internal bool DebugDimmed => _dim is not null;
-
-    internal bool DebugFlyoutOpen => BarMenuOpen;
-
-    internal string DebugStands(WidgetCard card) => Stand(card).Model.Id;
 
     /// <summary>Debug renders and checks: the surface's window.</summary>
     internal Window DebugWindow => _window;

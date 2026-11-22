@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "Colunas",
+  "forecast.layoutRows": "Linhas",
+  "styles.forecast.curve": "Curva de temperatura",
+  "styles.forecast.grid": "Grade",
+  "widgetsA.catalog.forecast.description": "Os próximos dias",
+  "widgetsA.catalog.forecast.label": "Previsão",
   "widgetsC.weather.settings.showPrecipitation.label": "Mostrar precipitação"
 }

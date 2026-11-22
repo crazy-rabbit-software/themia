@@ -66,13 +66,7 @@ internal sealed partial class AppHost
             return;
         }
 
-        // [S-15527] A repeater goes with everything it holds.
         var gone = new HashSet<string>(ids, StringComparer.Ordinal);
-        foreach (var view in State.Views)
-        {
-            gone.UnionWith(WithHeld(view, ids.Where(id => view.Find(id) is not null)));
-        }
-
         CloseRenameFor(null);
         Mutate(state =>
         {

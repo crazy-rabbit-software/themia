@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "Kolumny",
+  "forecast.layoutRows": "Wiersze",
+  "styles.forecast.curve": "Krzywa temperatury",
+  "styles.forecast.grid": "Siatka",
+  "widgetsA.catalog.forecast.description": "Najbliższe dni",
+  "widgetsA.catalog.forecast.label": "Prognoza",
   "widgetsC.weather.settings.showPrecipitation.label": "Pokaż opady"
 }

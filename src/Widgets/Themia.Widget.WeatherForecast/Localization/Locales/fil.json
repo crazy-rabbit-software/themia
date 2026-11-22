@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "Mga column",
+  "forecast.layoutRows": "Mga row",
+  "styles.forecast.curve": "Kurba ng temperatura",
+  "styles.forecast.grid": "Grid",
+  "widgetsA.catalog.forecast.description": "Ang susunod na ilang araw",
+  "widgetsA.catalog.forecast.label": "Taya ng panahon",
   "widgetsC.weather.settings.showPrecipitation.label": "Ipakita ang presipitasyon"
 }

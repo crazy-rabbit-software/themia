@@ -16,11 +16,18 @@ using Themia.Widget.WeatherForecast;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-6164] The forecast curve: the next few days from open-meteo's daily block, each day a column (its day, its sky's
-/// glyph, its precipitation) over one chart of the highs and lows, drawn from the family's blocks.
+/// The next few days, from open-meteo's daily block, in one of four styles ([S-6163]), drawn from the
+/// family's blocks: the days as rows (the Row block with its range bar), side by side as columns, the
+/// highs and lows as a temperature curve (the Chart block), or as cells in a grid shaped to the tile
+/// ([S-6171]).
 /// <para>
-/// [S-11145] The days are every one the card's width reaches (<see cref="ForecastCurve.Plan"/>); the chart takes the
-/// height the other parts leave.
+/// [S-11145] The days are the config's in every style and at every size; each style's plan
+/// (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>, <see cref="ForecastGrid"/>) only
+/// shares the box among them: a bar or a chart longer, a column wider.
+/// </para>
+/// <para>
+/// The bar on each day is scaled against the whole forecast rather than that day's own range: a
+/// week that runs 12° to 14° every day should draw seven short marks in the same place.
 /// </para>
 /// </summary>
 internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens,
@@ -44,12 +51,12 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// </summary>
     private readonly SkyFeed<WeatherInterest, Forecast> _feed;
 
-    /// <summary>[S-12813] Without a forecast: its days with nothing read, drawn as the curve's columns.</summary>
+    /// <summary>[S-12813] Without a forecast: its days with nothing read, drawn in the style ("--").</summary>
     private IReadOnlyList<ForecastDay>? _unread;
     private WidgetArea _area;
 
-    /// <summary>What is on screen: the plan and the day the labels were computed for.</summary>
-    private (ForecastCurvePlan Plan, DateOnly Today)? _built;
+    /// <summary>What is on screen: the style, its plan and the day the labels were computed for.</summary>
+    private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation)? _built;
     private bool _detached;
 
     public WeatherForecastView(IWidgetHost host)
@@ -70,7 +77,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         _mark.Place(this);
     }
 
-    /// <summary>[S-730] Refresh.</summary>
+    /// <summary>
+    /// [S-730] Refresh. The style is chosen on the selection's page ([S-6007]).
+    /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)] : [];
 
@@ -91,7 +100,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         _config = next;
 
         // [S-2663] Always through the sync: it asks nothing for a forecast already held and fresh. Another place is
-        // another want, so the forecast in hand goes with it; the precipitation line redraws what is held.
+        // another want, so the forecast in hand goes with it; the precipitation column or the style redraws what is held.
         _feed.Cadence(_config.TickInterval);
         _feed.Reload();
     }
@@ -115,8 +124,8 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
 
         if (days is null || days.Count == 0)
         {
-            // [S-12813] The days stay as the curve's columns with the unknown sky and no line; why is their tooltip (not set
-            // up is the card's Set up row, [S-1862]); a status glyph would stand over the first day's name.
+            // [S-12813] The days stay in the style, "--" and the unknown sky; why is their tooltip (not set up is the
+            // card's Set up row, [S-1862]); a status glyph would stand over the first day's "--".
             _unread = ForecastDefaults.Unread(DateOnly.FromDateTime(DateTime.Now), WeatherForecastConfig.MostDays);
             _body.Visibility = Visibility.Visible;
             _mark.Clear();
@@ -136,7 +145,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         Lay();
     }
 
-    /// <summary>The curve's plan for the current area, rebuilt only if it changed.</summary>
+    /// <summary>Pick the style's plan for the current area, and rebuild only if it changed.</summary>
     private void Lay()
     {
         if (_detached || (_feed.Held?.Value?.Days is { Count: > 0 } held ? held : _unread) is not { Count: > 0 } days || !_area.IsMeasured)
@@ -144,17 +153,71 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             return;
         }
 
-        // The plan holds the precipitation switch, so a toggle rebuilds. One clock reading for the whole build, so a
-        // forecast drawn across midnight cannot label two different days "Today".
-        var key = (Plan: ForecastCurve.Plan(_area, _config), Today: DateOnly.FromDateTime(DateTime.Now));
-        if (_built == key)
+        var style = _config.Style;
+        object plan = style switch
+        {
+            ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, _config),
+            ForecastStyle.Curve => ForecastCurve.Plan(_area, _config),
+            ForecastStyle.Grid => ForecastGrid.Plan(_area, _config),
+            _ => WeatherForecastLayout.Rows(_area, _config),
+        };
+
+        // One clock reading for the whole build, so a forecast drawn across midnight cannot label
+        // two different days "Today".
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        var key = (style, plan, today, _config.ShowPrecipitation);
+
+        if (_built is { } built && built.Style == key.style && Equals(built.Plan, key.plan)
+            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation)
         {
             return;
         }
 
         ClearBody();
         _built = key;
-        _body.Children.Add(BuildCurve(days, key.Today, key.Plan));
+
+        // The bars scale against the days shown, not the ones left out for room.
+        var shown = plan switch
+        {
+            ForecastRowsPlan r => r.Days,
+            ForecastColumnsPlan c => c.Days,
+            _ => days.Count,
+        };
+        var (coldest, warmest) = Extremes([.. days.Take(shown)]);
+        var range = new Range(coldest, warmest);
+
+        _body.Children.Add(plan switch
+        {
+            ForecastColumnsPlan columns => BuildColumns(days, today, range, columns),
+            ForecastCurvePlan curve => BuildCurve(days, today, curve),
+            ForecastGridPlan cells => BuildGrid(days, today, cells),
+            ForecastRowsPlan rows => BuildRows(days, today, range, rows),
+            _ => new Grid(),
+        });
+    }
+
+    /// <summary>The coldest low and warmest high across the forecast, which every bar scales against.</summary>
+    private readonly record struct Range(double Coldest, double Warmest);
+
+    private static (double Coldest, double Warmest) Extremes(IReadOnlyList<ForecastDay> days)
+    {
+        var coldest = double.MaxValue;
+        var warmest = double.MinValue;
+
+        foreach (var day in days)
+        {
+            foreach (var value in new[] { day.Low, day.High })
+            {
+                if (value is { } v && double.IsFinite(v))
+                {
+                    coldest = Math.Min(coldest, v);
+                    warmest = Math.Max(warmest, v);
+                }
+            }
+        }
+
+        // Every day missing both numbers: the bar spans the row, which RangeBar does for no span.
+        return coldest <= warmest ? (coldest, warmest) : (0, 1);
     }
 
     /// <summary>The same glyph the current-conditions widget draws for a condition. [S-652]</summary>

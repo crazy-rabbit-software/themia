@@ -37,12 +37,6 @@ public sealed record ReadyMadeWidget(string Kind, ReadyMadeBox Box, string? Conf
     public string? Fragment => Heading is var (title, glyph)
         ? $$"""{ "text": "{{JsonEncodedText.Encode(title.Text()).Value}}", "glyph": "{{JsonEncodedText.Encode(glyph).Value}}" }"""
         : Config;
-
-    /// <summary>
-    /// [S-15540] A repeater's members: the places in its group's widgets of the widgets it holds as its template row (they
-    /// stand inside its box, at its corner); placing the group makes them its members by their new ids. Null for any other.
-    /// </summary>
-    public IReadOnlyList<int>? Holds { get; init; }
 }
 
 /// <summary>
@@ -119,13 +113,10 @@ public static class ReadyMadeGroups
     [
         .. Summary(0, 300),
         .. Metrics(SummaryHeight, 300, "weatherHighLow", "weatherWind"),
-        // [S-13915] The days ahead: the forecast from tomorrow, each day a high and low row named after its day.
-        new("weatherDays", new(0, SummaryHeight + (2 * Row), 300, 5 * Row), Config: """{ "start": 1 }""") { Holds = [8] },
-        new("rainOutlook", new(0, SummaryHeight + (7 * Row), 300, 52)),
-        new("rainNextHour", new(0, SummaryHeight + 52 + (7 * Row), 300, 92)),
-        new("weatherHighLow", new(0, SummaryHeight + (2 * Row), 300, Row)),
+        new("weatherForecast", new(0, SummaryHeight + (2 * Row), 300, 150)),
+        new("rainOutlook", new(0, SummaryHeight + 150 + (2 * Row), 300, 52)),
+        new("rainNextHour", new(0, SummaryHeight + 202 + (2 * Row), 300, 92)),
     ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
-
 
     /// <summary>
     /// [S-11209] My files: the Documents folder as a list on the left; beside it the files opened last,
@@ -465,29 +456,7 @@ public static class ReadyMadeGroups
     {
         var bounds = group.Bounds;
         var header = new ReadyMadeWidget("header", new(bounds.X, bounds.Y, bounds.Width, HeaderHeight)) { Heading = (title ?? group.Name, group.Glyph) };
-        return group with
-        {
-            Widgets = [header, .. group.Widgets.Select(w => w with { Box = w.Box with { Y = w.Box.Y + HeaderHeight }, Holds = w.Holds?.Select(i => i + 1).ToList() })],
-        };
-    }
-
-    /// <summary>
-    /// [S-15540] Widget <paramref name="index"/>'s config fragment where it is not placed by <see cref="Build"/> (a scene of the
-    /// recipe): a repeater's names its members by <paramref name="idOf"/> (each held widget's id in the scene).
-    /// </summary>
-    public static string? SceneFragment(ReadyMadeGroup recipe, int index, Func<int, string> idOf)
-    {
-        ArgumentNullException.ThrowIfNull(recipe);
-        ArgumentNullException.ThrowIfNull(idOf);
-        var part = recipe.Widgets[index];
-        if (part.Holds is not { } holds)
-        {
-            return part.Fragment;
-        }
-
-        var node = System.Text.Json.Nodes.JsonNode.Parse(part.Fragment ?? "{}") as System.Text.Json.Nodes.JsonObject ?? [];
-        node["members"] = new System.Text.Json.Nodes.JsonArray([.. holds.Select(h => (System.Text.Json.Nodes.JsonNode?)System.Text.Json.Nodes.JsonValue.Create(idOf(h)))]);
-        return node.ToJsonString();
+        return group with { Widgets = [header, .. group.Widgets.Select(w => w with { Box = w.Box with { Y = w.Box.Y + HeaderHeight } })] };
     }
 
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
@@ -551,15 +520,6 @@ public static class ReadyMadeGroups
             }
 
             widgets.Add(widget);
-        }
-
-        // [S-15540] A repeater of the recipe holds the widgets it names, by their new ids.
-        for (var i = 0; i < widgets.Count; i++)
-        {
-            if (recipe.Widgets[i].Holds is { } holds && widgets[i].Config is IRepeater repeater)
-            {
-                repeater.Members = [.. holds.Where(h => h >= 0 && h < widgets.Count).Select(h => widgets[h].Id)];
-            }
         }
 
         return widgets;

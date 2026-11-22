@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "Cột",
+  "forecast.layoutRows": "Hàng",
+  "styles.forecast.curve": "Đường cong nhiệt độ",
+  "styles.forecast.grid": "Lưới",
+  "widgetsA.catalog.forecast.description": "Vài ngày tới",
+  "widgetsA.catalog.forecast.label": "Dự báo",
   "widgetsC.weather.settings.showPrecipitation.label": "Hiện lượng mưa"
 }

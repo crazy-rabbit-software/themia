@@ -120,22 +120,7 @@ internal sealed partial class AppHost
             return false;
         }
 
-        Mutate(state =>
-        {
-            state.ApplyPlacement(plan, viewId);
-
-            // [S-15526] A widget placed, pasted or handed over onto a repeater joins its template, in the same step.
-            if (state.FindView(viewId) is { } view && view.Widgets.Exists(w => w.Config is IRepeater) && ScreenOfView(view.Id) is { IsUsable: true } screen)
-            {
-                Repeaters.Land(view, [.. plan.Added.Select(w => w.Id)], screen);
-
-                // Prototype: a forecast placed bare starts with the day, its sky and its high and low.
-                if (plan.Added.Count == 1)
-                {
-                    SeedParts(view, plan.Added);
-                }
-            }
-        }, undo: undo);
+        Mutate(state => state.ApplyPlacement(plan, viewId), undo: undo);
 
         var landedIn = State.FindView(viewId)?.Id ?? State.ActiveView().Id;
         SelectMany(landedIn, plan.Roots);

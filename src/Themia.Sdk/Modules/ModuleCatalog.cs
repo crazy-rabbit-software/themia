@@ -88,20 +88,6 @@ public static class ModuleCatalog
             ? widget
             : throw new KeyNotFoundException($"no widget module declares the id '{id}'");
 
-    /// <summary>The descriptor whose config <paramref name="config"/> is, or false (a config no module declares: a test's own).</summary>
-    public static bool TryOf(WidgetConfig config, out WidgetDescriptor widget)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        if (Volatile.Read(ref _installed) is { } installed && installed.ByConfig.TryGetValue(config.GetType(), out var found))
-        {
-            widget = found;
-            return true;
-        }
-
-        widget = null!;
-        return false;
-    }
-
     /// <summary>The descriptor of an id read from outside (a file, a command line), or false.</summary>
     public static bool TryGet(WidgetId id, out WidgetDescriptor widget)
     {

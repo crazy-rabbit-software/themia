@@ -19,7 +19,7 @@ public class PlaceClearTests
         new WidgetId("sun"), new WidgetId("moon"),
         new WidgetId("airUv"), new WidgetId("airPm25"), new WidgetId("airPollen"), new WidgetId("airPm10"), new WidgetId("airOzone"), new WidgetId("airAlder"), new WidgetId("airBirch"), new WidgetId("airGrass"), new WidgetId("airMugwort"), new WidgetId("airOlive"), new WidgetId("airRagweed"),
         new WidgetId("sunrise"), new WidgetId("sunset"), new WidgetId("daylight"), new WidgetId("solarNoon"), new WidgetId("dawn"), new WidgetId("dusk"), new WidgetId("moonrise"), new WidgetId("moonset"), new WidgetId("nextFullMoon"), new WidgetId("nextNewMoon"),
-        new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"), new WidgetId("weatherDay"), new WidgetId("weatherHigh"), new WidgetId("weatherLow"), new WidgetId("weatherRange"), new WidgetId("weatherDays"),
+        new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"),
         new WidgetId("weatherTemperature"), new WidgetId("airIndex"),
     ];
 

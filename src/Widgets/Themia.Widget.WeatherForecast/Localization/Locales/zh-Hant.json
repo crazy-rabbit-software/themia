@@ -1,3 +1,9 @@
 {
+  "forecast.layoutColumns": "欄",
+  "forecast.layoutRows": "列",
+  "styles.forecast.curve": "溫度曲線",
+  "styles.forecast.grid": "格線",
+  "widgetsA.catalog.forecast.description": "未來幾天",
+  "widgetsA.catalog.forecast.label": "預報",
   "widgetsC.weather.settings.showPrecipitation.label": "顯示降水量"
 }

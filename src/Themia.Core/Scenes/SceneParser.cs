@@ -464,9 +464,6 @@ public static class SceneParser
             }
         }
 
-        string IdOf(int i) => recipe.Widgets.Take(i).Any(o => string.Equals(o.Kind, recipe.Widgets[i].Kind, StringComparison.Ordinal))
-            ? $"{prefix}-{recipe.Widgets[i].Kind}-{i}"
-            : $"{prefix}-{recipe.Widgets[i].Kind}";
         var widgets = new List<SceneWidget>(recipe.Widgets.Count);
         for (var i = 0; i < recipe.Widgets.Count; i++)
         {
@@ -477,13 +474,14 @@ public static class SceneParser
                 throw Refuse(path + ".at", $"\"{recipe.Id}\" at [{Show(x)}, {Show(y)}] does not stand inside the {Show(screen.Width)} × {Show(screen.Height)} display (its {part.Kind} would be [{Show(rect.X)}, {Show(rect.Y)}, {Show(rect.Width)}, {Show(rect.Height)}])");
             }
 
+            var second = recipe.Widgets.Take(i).Any(o => string.Equals(o.Kind, part.Kind, StringComparison.Ordinal));
             widgets.Add(new SceneWidget(
                 $"{path}.{part.Kind}",
-                IdOf(i),
+                second ? $"{prefix}-{part.Kind}-{i}" : $"{prefix}-{part.Kind}",
                 new WidgetId(part.Kind),
                 rect,
                 State: states.TryGetValue(part.Kind, out var chosen) ? chosen : null,
-                Config: ReadyMadeGroups.SceneFragment(recipe, i, IdOf),
+                Config: part.Fragment,
                 Selected: selected));
         }
 

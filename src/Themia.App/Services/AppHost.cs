@@ -455,8 +455,6 @@ internal sealed partial class AppHost : IDisposable
         }
 
         _disposed = true;
-        _liveSeries?.Dispose();
-        _liveSeries = null;
         _saveTimer.Stop();
         _saveTimer.Tick -= OnSaveTimer;
         StopDesktop();

@@ -1,5 +1,4 @@
 using Themia.Core.Model;
-using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
@@ -19,7 +18,7 @@ public readonly record struct CurveSegment(CurvePoint Control1, CurvePoint Contr
 /// <param name="Segments">The pieces after <see cref="Start"/>, one per following day.</param>
 public sealed record CurveRun(int FirstDay, CurvePoint Start, IReadOnlyList<CurveSegment> Segments);
 
-/// <summary>What the forecast curve draws at one size ([S-6164]).</summary>
+/// <summary>What the temperature-curve style draws at one size ([S-6164]).</summary>
 /// <param name="Days">How many days are shown: the first ones, as many as have a column's width.</param>
 /// <param name="ColumnWidth">Each day's column; a day's point sits on its middle.</param>
 /// <param name="Icon">The sky's glyph under each day's label.</param>
@@ -36,10 +35,10 @@ public sealed record ForecastCurvePlan(int Days, double ColumnWidth, bool Icon, 
 }
 
 /// <summary>
-/// [S-6164] The forecast curve: each day's high and low as a point on its column's middle, against the
-/// range of the days shown, joined by a smooth line that never swings past a day's own value, drawn by
-/// the Chart block ([S-6717]); its days and its sizes ([S-11145], [S-11146]). Pure geometry, tested; the
-/// view only draws it.
+/// [S-6164] The forecast's temperature curve: each day's high (and, with the height, its low) as a
+/// point on its column's middle, against the range of the days shown, joined by a smooth line that
+/// never swings past a day's own value, drawn by the Chart block ([S-6717]). Pure geometry, tested;
+/// the view only draws it.
 /// </summary>
 public static class ForecastCurve
 {
@@ -80,41 +79,10 @@ public static class ForecastCurve
     public static ForecastCurvePlan Plan(WidgetArea area, WeatherForecastConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var chart = Math.Max(ChartMin, ContentHeight(area) - Parts(config.ShowPrecipitation));
-        return new ForecastCurvePlan(DaysIn(area), ItemSize.Optimal(ColumnStart, area.Grid()), true, true, config.ShowPrecipitation, chart);
+        var days = WeatherForecastLayout.DaysIn(area, config);
+        var chart = Math.Max(ChartMin, WeatherForecastLayout.ContentHeight(area) - Parts(config.ShowPrecipitation));
+        return new ForecastCurvePlan(days, ItemSize.Optimal(ColumnStart, area.Grid()), true, true, config.ShowPrecipitation, chart);
     }
-
-    /// <summary>
-    /// [S-14502] [S-14810] The days the curve shows in <paramref name="area"/> (its view's box): as many columns of
-    /// <see cref="ColumnStart"/> (in whole cells) as its width reaches from the card's left edge, the last cut by its right
-    /// edge; 1..<see cref="WeatherForecastConfig.MostDays"/>. Before the box is measured, a new one's days.
-    /// </summary>
-    public static int DaysIn(WidgetArea area)
-        => area.IsMeasured
-            ? ItemSize.Count(area.Width, ColumnStart, area.Grid(), 1, WeatherForecastConfig.MostDays)
-            : WeatherForecastConfig.DefaultDays;
-
-    /// <summary>
-    /// [S-11146] [S-14500] [S-14810] The curve's sizing from the config: a column a day (<see cref="ColumnStart"/> in whole
-    /// cells), a new one <see cref="WeatherForecastConfig.DefaultDays"/> days, one day at least, every cell between (the
-    /// days keep their size; the last one the card reaches is cut); the chart's band <see cref="ChartMin"/>..<see cref="ChartMax"/>
-    /// (a new one <see cref="ChartStart"/>) under the days' parts.
-    /// </summary>
-    public static WidgetSizing Sizing(WeatherForecastConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        var grid = ItemGrid.Default();
-        var chrome = FamilySpace.ContentTop + FamilySpace.Inset;
-        var parts = Parts(config.ShowPrecipitation);
-        double Across(int n) => n * ItemSize.Optimal(ColumnStart, grid);
-        return WidgetSizing.Range(
-            new(Across(1), chrome + parts + ChartMin),
-            new(Across(WeatherForecastConfig.DefaultDays), chrome + parts + ChartStart),
-            new(Across(WeatherForecastConfig.MostDays), chrome + parts + ChartMax));
-    }
-
-    /// <summary>The content's height: the view (its top is the content's) less the bottom inset.</summary>
-    public static double ContentHeight(WidgetArea area) => Math.Max(0, area.Height - FamilySpace.Inset);
 
     /// <summary>
     /// The smooth line of a run as straight steps for the Chart block: its start, then
@@ -289,12 +257,4 @@ public static class ForecastCurve
 
         return segments;
     }
-}
-
-/// <summary>[S-12813] The forecast's default: the days it shows, nothing read for any.</summary>
-public static class ForecastDefaults
-{
-    /// <summary><paramref name="days"/> days from <paramref name="today"/>, no sky and no figures (the unknown sky's glyph, no line and no figure on the curve).</summary>
-    public static IReadOnlyList<ForecastDay> Unread(DateOnly today, int days)
-        => [.. Enumerable.Range(0, Math.Max(0, days)).Select(i => new ForecastDay(today.AddDays(i), null, null, null, null))];
 }

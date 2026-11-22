@@ -23,13 +23,13 @@ public sealed class SharedSettingsTests
     /// <summary>[S-11752] Which kinds carry each shared setting: the table the SPEC states, pinned.</summary>
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
-        ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "rainOutlook", "rainTotal", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherCondition", "weatherDay", "weatherDays", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHigh", "weatherHighLow", "weatherHumidity", "weatherLow", "weatherPrecipitation", "weatherPressure", "weatherRange", "weatherSky", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
+        ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "rainOutlook", "rainTotal", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherCondition", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherPrecipitation", "weatherPressure", "weatherSky", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
         ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],
         ["diskScope"] = ["disk"],
         ["drive"] = ["drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed"],
-        ["day"] = ["weatherDay", "weatherHigh", "weatherHighLow", "weatherLow", "weatherPrecipitation", "weatherRange", "weatherSky", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind"],
+        ["day"] = ["weatherHighLow", "weatherPrecipitation", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind"],
         ["networkAdapter"] = ["network", "networkDownload", "networkLinkSpeed", "networkLocalAddress", "networkReceived", "networkSent", "networkUpload"],
         ["pingHost"] = ["ping", "pingAnswered", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum"],
         ["gpuAdapter"] = ["gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"],

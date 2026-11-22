@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Fences on the desktop (FENCES); Repeaters (REPEATER); Windows' desktop parity (PARITY); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP, retired); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Fences on the desktop (FENCES); Repeaters (REPEATER, retired); Windows' desktop parity (PARITY); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP, retired); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Single metrics (METRICS); Text widgets (TEXTS); Icon widgets (ICONS); Atoms and the universal spacing (ATOMS); Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -1466,8 +1466,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   and text widgets are on the blocks (G3, 2026-10-29): weather now, air quality, stocks and the rates
   are a Readout (28/40/68 then; 28/40 since [S-2220]) and fact rows laid out as the details are (`DetailFace`), a falling price or
   rate Critical (its delta and its line, [S-6707]); the forecast's days are Row blocks with a range
-  `ChartBar`, its columns, curve and grid from tokens (its rows, columns and grid retired 2026-11-21 by [S-15540]: the
-  curve is its one look); rain's bars are `ChartBar` columns; the air
+  `ChartBar`, its columns, curve and grid from tokens; rain's bars are `ChartBar` columns; the air
   quality's gauge is `ChartRing` half; the sun and the moon have the Header and their shared rows and
   disc are on the blocks ([S-6735]); the quote is set on the Big ramp and notes on Title and Body with
   their marks tertiary ([S-6738]); an online widget without an answer says so in the Status row
@@ -2289,8 +2288,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   bento cells, each 14 grid cells square ([S-06]: 140 DIPs on a 10-DIP grid), the tiles 2 grid cells apart, twelve
   cards of 1 × 1, 2 × 1 and 2 × 2 cells packed with no hole and no overlap: Clock and Calendar (the month) on top, a
   CPU meter and the Wi-Fi toggle tile under the clock, Tasks, the network history graph and Music (now playing) under
-  them, down the right the weather station joined (the temperature, [S-15024], its humidity ([S-13900]), the temperature graph (the forecast
-  until 2026-11-21: its curve, [S-15540], needs 160 tall, more than the tile's 150): one join's tiles split the gap
+  them, down the right the weather station joined (the temperature, [S-15024], its humidity ([S-13900]), the forecast: one join's tiles split the gap
   between them and meet, so they draw as one panel, [S-2240]), and under it the battery meter and the Lock tile. Each
   box holds its kind's least size; a kind whose size follows a count shows what its box holds ([S-2442]). The bento
   stands in the display's middle on its grid lines, placed as the desktop places cards so their frost is the
@@ -2776,13 +2774,13 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   itself in one ([S-6907]). **Popular** and **Browse**; Browse is a folder per subject (an item of the
   page's rail, [S-13610]); inside a subject a **family** (one widget in several parts) is a folder of its own (a
   stack on the page, [S-13612]). Never deeper than that. The catalogue has no sections of its own.
-- **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast curve,
+- **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,
   Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcut (the desktop icon kind's tile, which
   makes an own icon, [S-5523]). **Browse**, in
   order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session);
   **Calendar & mail** (calendar, next meeting, week planner | mail, tasks,
-  contacts | notifications); **Weather & sky** (weather summary, Weather facts › a widget a fact ([S-13900]), rain next
-  hour, air quality | sun, moon | the weather graphs, then the forecast curve, [S-15540]); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
+  contacts | notifications); **Weather & sky** (weather summary, Weather facts › a widget a fact ([S-13900]), forecast, rain next
+  hour, air quality | sun, moon); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
   audio visualizer, volume, mixer | gallery, video stream); **Notes & tools** (notes,
   scratchpad, clipboard | habits, quote); **Files & apps** (folder,
   shortcut, recent files, recycle bin); **System** (CPU › meter, details, top processes; Memory ›,
@@ -2857,7 +2855,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   1032 unless sized), every picture drawn before the shot (a minute at most, said when cut short);
   `--render editbar`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
   `-add-weather`, `-add-family` (System, the CPU family open and its head pointed at), `-add-search` ("music"),
-  `-add-none` (nothing found), `-add-narrow` (a 900-wide display), `-add-hover` (the pointer on Forecast curve) and
+  `-add-none` (nothing found), `-add-narrow` (a 900-wide display), `-add-hover` (the pointer on Forecast) and
   `-add-hover-group` (on This PC in System). `--tab <Id>` shows that rail item; `--hover <key>` (a tile's key:
   `kind:clock`, `group:thisPc`; a family's: `family:Processor`) rests the pointer on that tile or family head, its
   preview shown ([S-13602], [S-13614]); `--open family:<Id>` opens that family in place ([S-13612]).
@@ -4071,11 +4069,10 @@ A different look of the same widget with the same data and the same settings, ch
 widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files:
 `Themia.Core/Widgets/WidgetStyles.cs` (the registry), each styled kind's config (its style enum),
 `Themia.App/Shell/Pages/SelectionRows.cs`. Tests:
-`WidgetStylesTests`; the weather, stock, exchange-rate and air styles in `WeatherStylesTests` (the forecast's retired
-2026-11-21 by [S-15540]: one look, the curve).
+`WidgetStylesTests`; the weather, forecast, stock, exchange-rate and air styles in `WeatherStylesTests`.
 
 - **[S-6000]** A kind's styles are one setting: where a kind already had a look option (the clock's
-  face, a gallery's layout, a forecast's layout until [S-15540] left it one look), that option **is** the style, never a second
+  face, a gallery's layout, a forecast's layout), that option **is** the style, never a second
   setting beside it. A style never adds or removes data, only how it is drawn.
 - **[S-6001]** A styled kind's config implements `IStyled` over its own int-backed enum
   (`<Kind>Style`, property `Style`, the default the first value): `Styles` lists one
@@ -4737,8 +4734,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   step its widest case takes, [S-6702]; the condition is its line under and the glyph its lead.)*
 - **[S-657]** *(Retired 2026-10-29, group G3: the price is the family's Readout and its change folds
   beside it or under it by `ReadoutRules.Fold`, [S-6707]; the session is the line under it.)*
-- **[S-658]** *(Retired 2026-11-21 by [S-15540]: the forecast has no rows; its rows came back as a ready-made repeater.)*
-  A forecast row on a content narrower than 120 (the smallest tile) is the day and its high, and no
+- **[S-658]** A forecast row on a content narrower than 120 (the smallest tile) is the day and its high, and no
   row leads (they all lead or none do, [S-6711]); the sky's glyph and the low come back from 120 ([S-725]).
 - **[S-659]** *(Retired, group G5, 2026-10-29: a readout no longer fills its tile. The clock's time
   was its last user (`HeroFit.Row`, `Stacked`, `Figures`, `BaselineDrop`, the solid leading, the 0.45
@@ -5396,8 +5392,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   have a fixed size. then when you change the height of a widget the items should not grow or shrink to fit all the way
   from the top to the bottom, they should just keep their size and the last item will be cutoff to some extent then."
   docs/WIDGET-RULES.md WR-4, WR-5 and WR-6, which it replaced; [S-14500]'s stretch, [S-12807]'s and [S-12410]'s fill
-  amended). Every repeated item (a list's row, a kit row, a check list's row and its headings, a fact row, a forecast
-  curve's day column, an hour, a week planner's day and line, a contact, a habit, a mixer channel, a process, a
+  amended). Every repeated item (a list's row, a kit row, a check list's row and its headings, a fact row, a forecast's
+  day as a row or a column, an hour, a week planner's day and line, a contact, a habit, a mixer channel, a process, a
   lap, a top list's row, a notification) has **one size**: its optimal, its natural length in whole grid cells
   (`ItemSize.Optimal`), at every size of its card. Along the axis it repeats the items stand from the content's top (the
   card's top edge, or right under what stands over them; for items side by side the card's left edge), touching, each at
@@ -5417,9 +5413,9 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   one (WR-7, [S-12808], [S-12804]); a single metric, one item that is its whole face ([S-14705]: its one row is the
   card's height, `FactList.Face`; its readout unchanged); a graph's plot (owner, "Plot edge to edge"); a fence's icon
   boxes stay the desktop's ([S-14501]). Tests `ItemSizeTests.S14810_`, `FixedItemTests.S14810_`,
-  `FixedItemKindsTests.S14810_` (the forecast curve's days, a feed's rows at every cell on several displays),
+  `FixedItemKindsTests.S14810_` (the forecast's days, a feed's rows at every cell on several displays),
   `KitTests.S12807_S14810_`, `TaskLayoutTests.S781_S14810_`, the modules' (`ContactsPitchTests`, `FolderPitchTests`,
-  `RemovableDrivesTests`, `ForecastCurveTests`, `CalendarSizingTests`, `WeekPlannerTests`).
+  `RemovableDrivesTests`, `WeatherLayoutTests`, `ForecastCurveTests`, `CalendarSizingTests`, `WeekPlannerTests`).
 - **[S-14811]** **An add row keeps its size under rows that keep theirs** ([S-14810], [S-3850]). A list that adds in
   place (Tasks, Habits) stands its rows from the card's top edge and its add row right under the last of them, each at
   its optimal (`ItemSize.RowsAbove`: the rows' room the card less the add row's, `RowReach.Foot` the add row's own): a
@@ -5433,12 +5429,12 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   DIP of nothing).
 - **[S-14812]** **Counts that follow the card are every item it reaches** ([S-14410], [S-14502], [S-14810]). How many
   days, hours, laps, lines or columns a card shows is every one its box reaches at the item's one size
-  (`ItemSize.Count`), the last cut: the forecast curve's days (its columns of 60, its 56 in whole cells, from the card's
-  left edge, `ForecastCurve.DaysIn`), the calendar's hours (each
+  (`ItemSize.Count`), the last cut: the forecast's days (rows from the card's top edge; columns and the curve's columns
+  of 60, its 56 in whole cells, from the card's left edge, `WeatherForecastLayout.DaysIn`), the calendar's hours (each
   its optimal, `CalendarFit.HoursOf` takes the hour's size, not the room), the week planner's days (200 each, from the
   card's left edge) and lines, the stopwatch's laps, screen time's apps, the contacts grid's lines (its cells their own
   size, every column the width reaches, the last cut, [S-14816]). The month's seven columns share the card's width
-  (`ItemSize.Columns`, [S-12832]). Tests `ForecastCurveTests.S11145_S14502_S14810_`,
+  (`ItemSize.Columns`, [S-12832]). Tests `WeatherLayoutTests.S11146_S14502_S14810_`, `ForecastCurveTests`,
   `WeekPlannerTests.S14410_S14502_S14810_`, `CalendarSizingTests`, `ContactsPitchTests.S12450_S14810_`.
 - **[S-14813]** **The item check judges the fixed size** (docs/WIDGET-RULES.md WR-1..WR-6 as of 2026-11-20).
   `scripts/item-check.py` holds the items of a group alike and at their fixed size (a family row's `o` in the dump, to
@@ -7494,8 +7490,8 @@ A day (`HoveredDate`, `DateLink`, a hover), and the selected day's (`SelectedDat
   colour keep their face and publish only), the day view whole (its one day, as a card that is the match,
   [S-11903]), and the agenda's day heading (its event rows are their events, [S-3623], never their day, [S-11965]).
   A day redrawn under the pointer lets its hover go.
-- **[S-11924]** `weatherForecast` publishes and lights a day's column marker behind the line (its rows, columns
-  and cells retired 2026-11-21 by [S-15540]); `weekPlanner` its day heads; `screenTimeChart` the day its pointer or Left / Right is on
+- **[S-11924]** `weatherForecast` publishes and lights a day's row, column, cell or (curve) column marker
+  behind the line; `weekPlanner` its day heads; `screenTimeChart` the day its pointer or Left / Right is on
   ([S-3307]) as it always lit it, and another widget's day the same way (its bar or ring whole, the others at
   0.6) when its period holds it (`ScreenTimeRules.DayIndex`); `habitTracker` the cells of its one heatmap for the
   list as marks of their day, under a daily cadence (`HabitPeriods.Day`, [S-11926]); a habit's dot and a cell of a
@@ -7507,7 +7503,7 @@ A day (`HoveredDate`, `DateLink`, a hover), and the selected day's (`SelectedDat
 - **[S-11926]** A habit's period is a day only when it is daily: an hour, a week, a month or a custom
   interval is none, so a weekly habit's dots take no part.
 - **[S-11927]** The selected day is also followed by `weatherForecast`, which marks it with the picked look
-  where it shows it (the selected fill and the accent pill on its column), and by
+  where it shows it (the selected fill and the accent pill on its row, column or cell), and by
   `weekPlanner`, which starts at it (`WeekPlannerRules.Start`): that day and the six after it, on either side
   of today, the tasks still under today when today is among them; a selection pages the planner and letting
   it go brings back today.
@@ -8923,7 +8919,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   one size from the card's top edge and the last is cut by its foot; they no longer grow to meet it)* (owner, 2026-11-19: "the forecast widget still has
   space on the top and bottom of its items this should not be, the items should reach the top and bottom"; "the
   items still dont reach to the top and bottom. they still have a little / small gap. they should stretch if they
-  dont reach all the way"; then, asked how: "Rows grow, touch"). Every list of rows (a facts atom's, a meter's items, the sun's and moon's times, the kit's lists and the schedule, the details' lists, the
+  dont reach all the way"; then, asked how: "Rows grow, touch"). Every list of rows (a facts atom's, the forecast's
+  days, a meter's items, the sun's and moon's times, the kit's lists and the schedule, the details' lists, the
   clipboard, contacts, habits, mixer, Bluetooth, removable drives, notifications, up next, recent files, screen
   time's apps, the week planner's lines, the folder's list) lays its rows from the card's top edge to its foot edge
   ([S-12815]: under a tool line, a search box or column titles from under them), every row as tall as the room over
@@ -8937,7 +8934,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   and the contacts' grids keep their foot inside the inset for their cells' marks ([S-12800]). Replaces the rows'
   1.5 x cap, their spacing and the reach by ink (`ListReach`, `RowReach.Over`/`Gap`/`Under` are gone). Tests
   `ItemSizeTests.S12807_`, `KitTests.S12807_S14810_`, `KitRowsTests.S11541_`, the modules' `S12450_`, `S12451_`,
-  `S12452_`; renders `--render widget weatherHumidity|rss|topProcesses|habitTracker --state sample --sizes
+  `S12452_`; renders `--render widget weatherHumidity|weatherForecast|rss|topProcesses|habitTracker --state sample --sizes
   range`.
 - **[S-12808]** **A one-readout block fills its card as one** (owner, 2026-11-19, asked whether the one-reading
   widgets should also fill to the edges: "Yes, those too"; asked whether a reading and its caption should split to
@@ -9003,7 +9000,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   "--" disabled, the reason as its line under (`OnlineParts.ShowDefault`); Retry is the card menu's Refresh, and
   not set up stays the card's Set up row ([S-1862]). The graphs follow it in their own widgets. The air and weather
   facts keep their picked rows ("--", the reason their tooltip, where a status glyph would cover the first "--"); the
-  forecast curve its days, the unknown sky and no line, the reason their tooltip (`ForecastDefaults.Unread`); screen time its readout and the donut its
+  forecast its days in its style, "--" and the unknown sky, the reason their tooltip (`ForecastDefaults.Unread`); screen time its readout and the donut its
   ring's track, "--" while nothing records and "0m" for a period with none spent, the reason under it; music its
   face, the reason in the title's place and the transport disabled. A list with nothing to list (Bluetooth, removable
   drives, the screen time apps, habits, the mixer's sessions) keeps its one Status row on its top edge, its stated
@@ -9490,7 +9487,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   rows is the family's control of 28 grown to a grid line (`SearchBox.Fill`, `LineRules.Under`), the rows right under it;
   the search opened on a tool line stands in the label's whole box ([S-13950]); one opened in a list's first line is
   that line (an item, a row's height). The **add row** stands right under the last row ([S-3850], [S-14811]). A list of
-  rows laid by `SpreadStack` (facts, screen time's apps) shows its rows at their size, the last cut by
+  rows laid by `SpreadStack` (facts, a forecast's days, screen time's apps) shows its rows at their size, the last cut by
   the card ([S-14810]; was: only the rows its room held whole). **Rows under a reading** (a stock's holding and
   extended print, a stopwatch's laps) are rows, never scaled with the face: the reading stands at its own size (the
   price) or at its block's natural lines (the stopwatch's face and controls, `ReadingFit.Natural`), grown to a grid line,
@@ -10459,7 +10456,7 @@ model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
   the calendars' accounts with their calendars and colours (`CalendarConfig`: Calendar, Next meeting, Up
   next, Week planner); the mail and the contacts accounts (`IChoosesAccounts`, by the feature they offer:
   Email; Contacts); the disk activity's drive (`IDiskScope`: Disk, Disk history); the drive's
-  (`IDriveChoice`: Drive, Drive facts); the ping host (`IPingHost`: Ping, Ping facts, Ping history); the
+  (`IDriveChoice`: Drive, Drive facts); a day ahead (`IDayChoice`: the weather facts that take one, [S-15560]); the ping host (`IPingHost`: Ping, Ping facts, Ping history); the
   GPU adapter (`IGpuAdapter`, now settable in the SDK: GPU, GPU engines, GPU facts, GPU history); the network adapter
   (`IHoldsAdapter`: Network, Network history and the network facts but the public address, [S-14960]); the
   output device (`IAudioOutput`: Volume, Mixer); the currency pair (`ExchangePairConfig`); the stock
@@ -11087,7 +11084,7 @@ are single metrics (METRICS). Tests: each module's, `ReadyMadeGroupsTests`.
   (the first carries the header, the others none; [S-2472]): **Weather** (the summary's three parts over its facts, [S-15024]),
   **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its readings),
   **Weather facts** (every weather fact, [S-14607]), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
-  **Weather station** (the reading, its facts, the days ahead as a repeater of high and low rows ([S-15540]) and the rain, stacked: the seed once
+  **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
   weather's none, the sky's Zürich); the previews and `--render recipe` draw every atom at the one sample
   place (`SamplePlace`) on the sample day.
@@ -13498,183 +13495,47 @@ Needs a manual pass on the live desktop: everything above that a pointer does (t
 drag into, out of and between fences, a drop from Explorer onto a fence, the band reaching into one, the arrows across),
 on one display and two of different scales; a rule taking a downloaded file; Remove fence's question and its undo.
 
-## Repeaters (REPEATER)
+## Repeaters (REPEATER, retired)
 
-Decided with the owner 2026-11-21, built the same day, and made specific the same evening (owner: "i think that the
-repeater approach is too generic and will only confuse people ... lets make it less generic. lets start for the weather
-forecast"; "the generic aspect should be removed mostly. stuff may be reused but should not make it harder to use. mostly
-backend stuff should be reused"). What this section describes is the **engine** under the weather forecast ([S-13910]):
-there is no generic Repeater widget any more, no Repeat by, no drives or places as a series and no nesting; the one
-container of this kind is the weather forecast, which repeats days. Owning files: SDK `Themia.Sdk/Series/`,
-`Themia.Sdk/Model/Configs/IRepeater.cs` (with `Accepts`, the day box), `IDesignElement.cs`; Core `Model/Repeaters.cs`,
-`Geometry/RepeaterGrid.cs`; App `Services/AppHost.Repeaters.cs` (laid in every change, the parts' Add lines, a part's page
-without its container's settings, the day box stored), `Shell/DesktopWindow.Repeaters.cs` (the copied days' cards, a press
-standing for its container), `Shell/DesktopWindow.DayBox.cs` (the container's edit mode, the day box's frame and grips).
-Tests `SeriesTests`, `RepeatersTests` (Core). Where a line below speaks of a repeater it is the forecast; where it speaks of
-choosing a type, a source, drives, places or nesting, it is retired by the lines after [S-15532].
+The repeater (a container that repeated a template row of widgets over a series: days, places, drives) and the weather
+forecast composed of day parts on it (`weatherDays`, [S-13910]..[S-13922]) were built 2026-11-21 and removed 2026-11-22
+(owner: "they should not all have a shared base. i think it makes more sense for them to keep their individuality.
+basically reset them to what they were a few days ago without the additional layouting engine ontop of the weather widget
+for example"). Its tags stay reserved:
 
-The container:
+- **[S-15500]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* A real container, as the fence.
+- **[S-15501]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* No body of its own.
+- **[S-15502]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* One template row, live copies.
+- **[S-15503]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* The template row is a free canvas.
+- **[S-15504]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* Direction.
+- **[S-15510]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* A series is typed and generic.
+- **[S-15511]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* One series per repeater.
+- **[S-15512]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* Binding is automatic and can be undone.
+- **[S-15513]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* v1's types and sources.
+- **[S-15514]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* The card's size decides how many rows.
+- **[S-15515]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* More values than room scroll, as the fence.
+- **[S-15520]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* Nothing to show.
+- **[S-15525]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* On the locked desktop.
+- **[S-15526]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* In edit mode.
+- **[S-15527]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* Deleting a repeater deletes its members.
+- **[S-15528]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* What can be a member.
+- **[S-15529]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* One setup, the container's.
+- **[S-15530]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* A repeater can be a member of a repeater.
+- **[S-15531]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* A slot binds to the nearest enclosing repeater of its type.
+- **[S-15532]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* Scroll and depth.
+- **[S-15533]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* A move shows its drop at once.
+- **[S-15534]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* Copies are muted in edit mode.
+- **[S-15535]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* The day box and the container's size are one.
+- **[S-15536]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* A set count scrolls.
+- **[S-15537]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* The parts' shelf stands on the desktop's grid.
+- **[S-15540]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* The forecast's looks are repeaters.
 
-- **[S-15500]** **A real container, as the fence** (owner: "it should be a real container, somewhat like the fences
-  widget does it"): `RepeaterConfig.Members` holds widgets of its view by id, in order; each member stays a real widget
-  of the view (its own kind, config and module), laid by the repeater inside its template row and never free besides.
-  Membership is the arrangement: the undo snapshot copies it ([S-13010]'s way), and a move in or out, a delete and a
-  paste are each one undo step. Copy, cut, paste, export and a move to another view carry the members with the repeater
-  ([S-13014]'s way). Load repairs a member id that names no widget of the view, a widget in two repeaters (the first in
-  the view's order keeps it) and a cycle ([S-15532]), each said.
-- **[S-15501]** **No body of its own** (owner, 2026-11-21): the repeater draws nothing on the locked desktop; only its
-  members' atoms draw, each in its own glass, and atoms that touch join into one panel ([S-2240]) as anywhere on the
-  desktop. A header is a member (the Header atom in the template) or a widget above it. Edit mode draws its frame, its
-  rows' bounds and its spacing marks so it can be seen and grabbed.
-- **[S-15502]** **One template row, live copies** (owner: "Live copies"): the members are row 0, the **template**.
-  Rows 1..N are drawn at runtime, each a view of every member over the template's config with the row's value put in
-  its bound slots ([S-15511]); only the template is stored. A change to a member changes every row.
-- **[S-15503]** **The template row is a free canvas** (owner: "Free mini-canvas"): members stand anywhere inside the
-  row on the widget grid ([S-06]), sized and placed as on the desktop; the row's extent on each axis is its members'
-  bounding box. The **pitch** from one row to the next is that extent plus the **Spacing**, a count of grid cells
-  ([S-06b]: 10 DIP a cell; 0 lets the rows touch and join).
-- **[S-15504]** **Direction** (owner: "Also wrap grid"): **Down** (rows under each other, the default), **Across**
-  (side by side) or **Wrap** (across, then down). Wrap has two spacings, **Row spacing** and **Column spacing**; Down and
-  Across show the one that applies. The slots fill from the template's corner in every language: the template is real
-  widgets where the person put them, so a right-to-left language does not move them (agreed mirroring dropped at build).
+The design elements that came with the composed forecast (the Elements family, its own SPEC until then) went with it:
 
-The series:
-
-- **[S-15510]** **A series is typed and generic** (owner: "you should implement it generically that the widgets inside
-  can actually expose what value can be listed and changed in what way. for example if i want to show all the connected
-  drives this should be possible without a problem as well. the data / function on how to get all the drive values
-  should not be put into the main list widget"): a `SeriesType` names a kind of value (Day, Drive, Place); a member's
-  config declares the settings that can take one (`ISeriesSlot`: its type, read and write of the value, the fixed
-  value it keeps); the values come from an `ISeriesSource` of that type, registered by whoever owns the data (the
-  drives service, the weather's days, the places), never by the repeater. A source gives an ordered sequence of values,
-  live where its data is (`Changed`), at most a bound of its own (a range's days stop where the forecast's do), and the
-  sentence for none ([S-15520]). The repeater knows only types, sources and indices.
-- **[S-15511]** **One series per repeater** (owner: "One shared series"): **Repeat by** picks the type among those its
-  members' slots have (nothing to pick while none has one), and **Values** one of that type's sources with its own
-  settings (a range's start and step, a picked list). Every bound slot of every member reads row *i*'s one value, so a
-  row is one day, one drive or one place throughout.
-- **[S-15512]** **Binding is automatic and can be undone** (owner: "Auto, can unbind"): a member that enters the
-  repeater with exactly one slot of its type is bound at once; its menu shows that setting as **From repeater** in its
-  picker's place, and picking a value there unbinds it (that value in every row). A member with two slots of the type
-  (a pair's two currencies) binds neither until one is chosen; a member with none shows the same in every row. A
-  repeater whose Repeat by changes rebinds by the same rule.
-- **[S-15513]** **v1's types and sources** (owner: "Also places"): **Drive** (`IDriveChoice`: Drive, the drive facts,
-  the disk history): **All connected** (live, the drives service's order) and **Picked**; **Day** (a new slot, the day
-  from today, 0 = today): **Range** (start, step; how many is the card's, [S-15514]), on the weather atoms that mean
-  something for a day ahead (high and low, precipitation, wind, UV, sunrise, sunset), a new sky-condition atom and a new
-  **day name** atom ("Today", "Tue"); feels like, humidity, pressure and cloud cover stay the present's, with no slot;
-  **Place** (`IPlaced`, every weather and sky atom and the Header, [S-15563]): **Picked places**, a list edited with the
-  weather family's place search ([S-3722]). The day slot and the two new atoms are the weather facts' [S-15560]..[S-15562];
-  the current-conditions request carries the fourteen days a day range reaches. A value is carried as a token
-  (`SeriesTokens`: a day's offset, a drive's root, a place's `latitude|longitude|name`); a row with no value puts each
-  bound slot in its own empty state (`SeriesSlot.Blank`: a day past any forecast, a drive no machine has; a place stays).
-
-Count, scroll and nothing to show:
-
-- **[S-15514]** **The card's size decides how many rows** (owner: "Size decides"; [S-14502]): the rows that fit along the
-  direction (Wrap: the columns the width takes times the lines the height takes), at most the source's count; nothing
-  stored. Live data never resizes the card: its size is the user's. A change of Repeat by, Values
-  or its settings is a config change and puts the card at its new natural ([S-14503]): every value's row, at most the
-  kind's max; Wrap keeps its width and takes the height its lines need. Fewer values than room leaves the rest empty.
-- **[S-15515]** **More values than room scroll, as the fence** (owner: "Scroll like fence"): the wheel over a repeater
-  scrolls along its direction a whole row at a time (Wrap: a line, downwards), the fence's scroll and look
-  ([S-13000]'s `Scroll`); the template's scroll is stored, a value gone shortens it.
-- **[S-15520]** **Nothing to show** (owner: "Template + status"): a source with no values draws the template row in
-  its members' own empty state (the em dash, the unknown sky, [S-724]'s way) and in the next row's place the family's
-  Status block with the source's sentence ("No drives connected", "No places picked yet"). A value a member cannot
-  serve (a day past its forecast, a drive with no history) is that member's own empty state in that row; the row
-  counts. A repeater that holds nothing yet says how it is used ("Drag widgets in to repeat them") on its top, never
-  nothing at all (docs/WIDGET-RULES.md WR-10).
-
-Gestures (owner: "take them but change 8, delete the widgets too"):
-
-- **[S-15525]** **On the locked desktop** a drag on any row moves the whole repeater (with Lock widgets on, nothing
-  moves, [S-12950]); a member is never dragged out there. A click is the member's own click with its row's value
-  (drive E: in row 3 opens E:). Each row's value is its own for view links ([S-3300]): a hover on drive E: lights E:
-  wherever it is.
-- **[S-15527]** **Deleting a repeater deletes its members** with it (not the fence's put-back, [S-13009]); one undo
-  step brings them all back.
-- **[S-15530]** *(Retired 2026-11-21 by [S-15528]: no container holds another.)* **A repeater can be a member of a repeater**: each row of the outer one draws its own copy of the inner
-  one; the inner template is edited inside the outer template row only. The inner repeater's box is part of the outer
-  row's canvas: its count follows that box, the outer pitch the outer row's extent.
-- **[S-15531]** **A slot binds to the nearest enclosing repeater of its type** (Place × Day: a high and low's day from
-  the inner repeater, its place from the outer); with the same type at two levels the inner one wins. [S-15512]'s rule
-  holds at each level.
-- **[S-15532]** **Scroll and depth**: the wheel scrolls the innermost repeater under it that can still scroll, then
-  the next one out; only a template's scroll is stored, a copy's lives while it is drawn and starts at the stored one.
-  No depth limit; a drop that would put a repeater inside itself or its own ancestor is refused.
-
-The forecast as repeaters (owner: "Ready-made + curve"):
-
-- **[S-15528]** *(Made specific 2026-11-21.)* **What a container takes** (`IRepeater.Accepts`; owner: "you should not be
-  able to place any widget on there, there is basically a selection of widgets that make sense in that specific
-  context"): the forecast takes a fact a day ahead means something for (one with a day slot) and the design elements
-  (`IDesignElement`, [S-10100]); never a fence, a desktop icon or another container (owner: "nesting repeaters in itself
-  should also not be possible anymore"). Anything else let go over it stays where it lands, outside.
-- **[S-15529]** **One setup, the container's** (owner: "the setup should not be duplicated accross everything"; "settings
-  like location should not be settable per widget"): a part shows its container's place (`Repeaters.Placer`, written into
-  the config it is drawn with, never stored) and its day; its page has no line for either. A part let go outside keeps the
-  place and the day it showed, as its own.
-- **[S-15526]** *(Made specific 2026-11-21.)* **A container's three states** (owner: "when i select the widget it should
-  just select it and you should be able to change its size but not the contents. then you should be able to click somewhere
-  when you have the widget selected and get into a widget layout editing mode, this is on the desktop, the settings menu is
-  not shown then"; "when in the row edit mode you should not be able to move the widget around, only the atoms inside it";
-  "when in edit mode of the row the rest of the desktop should be darkened"; "the interaction should be intuitive and
-  simple"). The rules are Core's (`LayoutEditing`, tested): **locked desktop**: any press on a part or a day stands for the
-  container. **Edit mode**: the same: it is selected, moved and resized as one widget, its parts never picked. A click on it
-  while it is the one widget selected (or **Edit layout** on its page) starts its **layout editing**: its page closes and
-  stays closed, nothing is selected, the rest of the desktop is under Windows' smoke (a press there ends the editing), and
-  the container itself holds still (a press on its empty room or on another day picks, moves and resizes nothing; it lets
-  go of the part selected). Its parts are picked, moved and resized as any widget on the desktop's grid; its day box is
-  framed with the selection's grips ([S-15535]); the parts' bento stands beside it ([S-13917]). Escape, Done, a press on the
-  darkened desktop or leaving edit mode ends it, and the container is selected again.
-- **[S-15533]** **A move shows its drop at once** (owner, 2026-11-21: "they should immeadiately update the repeated
-  items when i move something"): while a widget is dragged, each time the block lands on another cell the repeaters are
-  drawn as if it were let go there (`Repeaters.Preview`: the moving widgets at their landing, landed and laid on a scratch
-  copy of the view): a member moved on its template moves its copies, a widget over a row shows its copies, a member
-  dragged out loses them, a repeater moved draws its rows where it goes. Nothing is stored and no slot written until the
-  drop ([S-15526]); a cancelled move puts them back. Tests `RepeatersTests.S15533_`.
-- **[S-15534]** **Copies are muted in edit mode** (owner, 2026-11-21: "the repeaters should show the repeated items muted
-  in edit mode or darker"): a copied row's cards are drawn at `RepeaterLook.CopyEditing` (0.4) in edit mode, so the
-  template row, the one edited, stands out; on the locked desktop every row is whole.
-- **[S-15535]** **The day box and the container's size are one** (owner, 2026-11-21: "when you resize the width the
-  widgets inside get resized accordingly and when you resize the row width the widgets and the widget gets resized too";
-  "when resizing the row sometimes a gap appears between two widgets that previously touched, this should not be"): Rows
-  tie the container's width to its day box's, Columns its height, a grid neither. Resizing either resizes the other and
-  the parts with it by the selection's block resize ([S-2460], `BlockResize`, through `Repeaters.Resize`): about the
-  container's corner, every edge the parts share kept shared, every edge on a whole cell, each part in its own sizing (one
-  at its least or most stops the box there), drawn at once while the pointer moves. A part moved or grown past the day box
-  grows it and the tied side, nothing scaled. Tests `RepeatersTests.S15535_`, `BlockResizeSharedEdgeTests`.
-- **[S-15536]** **A set count scrolls** (owner, 2026-11-21: "you should be able to set how many items the weather forecast
-  should show. it should then get scrollable if it overflows"): a container may state how many values it runs over
-  (`IRepeater.Count`; the forecast's **Days**); its card shows the days it holds and the wheel over it scrolls the rest, a
-  day a notch ([S-15515]). Setting the count never resizes the card. Tests `RepeatersTests.S15536_`.
-- **[S-15537]** **The parts' shelf stands on the desktop's grid** (owner, 2026-11-22: "the menu that comes up with the items
-  that you can place onto the row should be on the background grid already. the items should appear aligned to the
-  background grid, somewhat like the not on home page does it"): beside a container whose layout is edited, a panel whose
-  every edge is on the desktop's own grid lines: its head (what to do, Done) whole cells tall, under it the desktop's grid
-  drawn in the edit mode's look ([S-13712]'s drawing) and each part the day takes as a real card on the sample day's data,
-  at the size it lands with (`AppHost.PartCells`), on the cells `PartShelf` gives it: reading order, a cell round the shelf
-  and between parts, its name in the two cells under it. Two cells from the container (right where the display has the
-  room, else left), from the container's top where it fits, never under the edit bar or past the work area; where its lines
-  do not fit the room's height it is wider, with fewer lines (`PartShelf.Fit`), never scrolled. A part dragged off it shows
-  the box it lands in, on whole cells under the pointer. Tests `PartShelfTests`.
-- **[S-15540]** **The forecast's looks are repeaters**: its Rows, Columns and Grid come back as ready-made repeaters
-  ([S-2470]; a recipe widget names the widgets a repeater holds, `ReadyMadeWidget.Holds`, made its members by their new
-  ids when placed, and a recipe's scene names them by their scene ids, `ReadyMadeGroups.SceneFragment`): **Forecast**
-  (Down: the day, its sky, its high and low), **Forecast columns** (Across) and **Forecast grid** (Wrap), each a Day
-  range from today; **Weather by place** (Picked places, three to start: each row the place's Header over a Day
-  repeater across); and the Weather station's days ahead are a repeater of high and low rows from tomorrow. The kind
-  `weatherForecast` keeps its id and is its temperature curve alone ([S-6164]), named **Forecast curve**, among the
-  weather graphs: a state file's forecast widget is that curve. The recipes' rules ([S-2472], [S-11606]) count a
-  repeater's box as its rows: its members stand inside it and it draws no card to join.
-
-Pictures (the add page, `--render scene`, `--render recipe`) draw a repeater's copied rows as widgets of their own
-(`Repeaters.Bake`), each with its row's config, as the desktop draws them.
-
-Names (owner: "Repeater names"): the kind **Repeater**; its settings **Direction** (Down, Across, Wrap), **Repeat by**,
-**Values**, **Spacing** (Row spacing, Column spacing); a bound setting reads **From repeater**. In code `SeriesType`,
-`ISeriesSlot`, `ISeriesSource`, `RepeaterConfig`.
+- **[S-10100]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* A design element's config is an `IDesignElement`, in any composition.
+- **[S-10101]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* Text (`text`): one line of the person's own words on the text face.
+- **[S-10102]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* The Icon widget as a design element (`IconWidgetConfig` an `IDesignElement`); the Icon widget itself stays ([S-15010]).
+- **[S-10103]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* Divider (`divider`): a hairline through its box's middle along its long side.
 
 ## Windows' desktop parity (PARITY)
 

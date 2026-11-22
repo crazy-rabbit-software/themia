@@ -92,12 +92,7 @@ internal sealed partial class AppHost
     /// until here; nothing writes the state outside this. A null <paramref name="surface"/> (a widget's page): the widgets
     /// wherever they are, no fence landing.
     /// </summary>
-    /// <remarks>
-    /// [S-15526] [S-15528] The widgets among them land in a container or out of one by where they stand too
-    /// (<see cref="Repeaters.Land"/>); [S-13917] while <paramref name="composing"/>'s layout is edited, a part let go out of its
-    /// day is removed, not left free (<see cref="LayoutEditing.Removed"/>).
-    /// </remarks>
-    internal bool Land(DesktopWindow? surface, IReadOnlyList<Landing> landings, UndoAction undo, string? composing = null)
+    internal bool Land(DesktopWindow? surface, IReadOnlyList<Landing> landings, UndoAction undo)
     {
         ArgumentNullException.ThrowIfNull(landings);
         var viewId = surface?.CurrentViewId;
@@ -127,18 +122,6 @@ internal sealed partial class AppHost
                 if (view is not null && metrics is { } screen && view.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
                 {
                     DesktopFences.Land(view, [.. landings.Select(l => l.Id)], screen, DeskIconSize(screen));
-                }
-
-                if (view is not null && metrics is { IsUsable: true } on && view.Widgets.Exists(w => w.Config is IRepeater))
-                {
-                    List<string> moved = [.. landings.Where(l => l.Rect is not null).Select(l => l.Id)];
-                    var held = composing is not null && view.Find(composing)?.Config is IRepeater editing ? [.. editing.Members] : new List<string>();
-                    Repeaters.Land(view, moved, on);
-                    if (composing is not null && view.Find(composing)?.Config is IRepeater after)
-                    {
-                        var gone = LayoutEditing.Removed(held, moved, after.Members);
-                        view.Widgets.RemoveAll(w => gone.Contains(w.Id));
-                    }
                 }
             },
             undo: undo);
@@ -198,9 +181,6 @@ internal sealed partial class AppHost
         {
             Log.Error(Scope, "laying the fences threw; their icons stay where they were", ex);
         }
-
-        // [S-15500] [S-15503] Every repeater kept whole and laid on its display, in the same step.
-        SettleRepeaters();
 
         return adopted;
     }

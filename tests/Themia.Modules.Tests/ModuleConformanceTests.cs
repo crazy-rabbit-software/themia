@@ -482,8 +482,6 @@ public sealed partial class ModuleConformanceTests
             // [S-14930] [S-15003] [S-15106] The text kinds' one face (the track's times too) and the icon kinds' (the transport buttons, the Icon widget).
             "music", "musicArtist", "musicAlbum", "musicElapsed", "musicDuration", "rainOutlook", "musicPrevious", "musicPlayPause", "musicNext", "icon",
             "weatherSky", "weatherCondition",
-            // [S-13919] [S-10101] The day parts on the text face and own text.
-            "weatherDay", "weatherHigh", "weatherLow", "text",
         ];
 
         var declared = ModuleCatalog.Widgets.Where(w => Themia.Sdk.Kit.ReadoutRules.OneReadout(w.Traits)).Select(w => w.Id.Value).Order(StringComparer.Ordinal);

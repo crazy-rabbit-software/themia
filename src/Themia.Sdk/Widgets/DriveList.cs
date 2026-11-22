@@ -14,12 +14,6 @@ public static class DriveList
     public static IReadOnlyList<DriveEntry> Now()
         => (Volatile.Read(ref _now) ?? throw new InvalidOperationException("no drive list installed: the host installs it before any menu is shown"))();
 
-    /// <summary>
-    /// [S-15513] As <see cref="Now"/>, or no drive where no host installed the list (Core's own tests, a render
-    /// with no drive service): a repeater over the connected drives then has none to show, never a crash.
-    /// </summary>
-    public static IReadOnlyList<DriveEntry> NowOrNone() => Volatile.Read(ref _now) is { } now ? now() : [];
-
     /// <summary>The host's drive service. Once per process.</summary>
     internal static void Install(Func<IReadOnlyList<DriveEntry>> now)
     {

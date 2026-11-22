@@ -74,23 +74,11 @@ internal sealed partial class WidgetCard
     /// uses the device's location, a copy at the device's position (rounded) named "My location".
     /// The stored config is never touched.
     /// </summary>
-    private WidgetConfig ViewConfig => DevicePlaces.Resolve(RowConfig, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
-
-    /// <summary>
-    /// [S-15511] The config as the card's row of a repeater shows it (its bound slots set to the row's values; a place
-    /// given by the row is a place, so the widget waits for no setup): what its setup, its waiting and its view read.
-    /// </summary>
-    private WidgetConfig RowConfig => _host.SeriesConfig(this, Model.Config);
+    private WidgetConfig ViewConfig => DevicePlaces.Resolve(Model.Config, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
 
     /// <summary>[S-12835] [S-2854] Whether the view runs: set up or not ([S-12835]: it keeps its face), unless it waits for the device's location.</summary>
     private bool Runs(FeatureSet signedIn)
-        => WidgetLiveness.Runs(RowConfig, signedIn) && (Unprompted || DevicePlaces.Waits(RowConfig, AppServices.DeviceLocationNow) is null);
-
-    /// <summary>
-    /// [S-15529] [S-13913] A container (it draws nothing of its own: its parts speak) and a container's part (its container's
-    /// page sets what it lacks) show no Set up row and no waiting row.
-    /// </summary>
-    private bool Unprompted => Model.Config is IRepeater || _host.HeldByContainer(this);
+        => WidgetLiveness.Runs(Model.Config, signedIn) && DevicePlaces.Waits(Model.Config, AppServices.DeviceLocationNow) is null;
 
     /// <summary>
     /// [S-2854] While the widget uses the device's location and Windows gives none, its body says why
@@ -126,9 +114,8 @@ internal sealed partial class WidgetCard
         var signedIn = SignedIn();
         // [S-1881] [S-12835] A widget set up in place draws its own line (or its own waiting look, taking the drop itself):
         // no line from the card over it.
-        var config = RowConfig;
-        var needed = !IsFaulted && !Unprompted && WidgetSetup.Needed(config, signedIn) && !WidgetLiveness.SetUpInPlace(config);
-        ApplyWaiting(IsFaulted || needed || Unprompted ? null : DevicePlaces.Waits(config, AppServices.DeviceLocationNow));
+        var needed = !IsFaulted && WidgetSetup.Needed(Model.Config, signedIn) && !WidgetLiveness.SetUpInPlace(Model.Config);
+        ApplyWaiting(IsFaulted || needed ? null : DevicePlaces.Waits(Model.Config, AppServices.DeviceLocationNow));
 
         if (needed && _setup is null)
         {
@@ -226,7 +213,7 @@ internal sealed partial class WidgetCard
         var signedIn = SignedIn();
         // Only where the state's config is what makes it wait (the card's own does not): a preview runs every account widget
         // past its line on fixture data ([S-2711]), and that stays so.
-        if (!_host.IsPreview || _setup is not null || IsFaulted || Unprompted || WidgetSetup.Needed(Model.Config, signedIn)
+        if (!_host.IsPreview || _setup is not null || IsFaulted || WidgetSetup.Needed(Model.Config, signedIn)
             || !WidgetSetup.Needed(drawn, signedIn) || WidgetLiveness.SetUpInPlace(drawn))
         {
             return;

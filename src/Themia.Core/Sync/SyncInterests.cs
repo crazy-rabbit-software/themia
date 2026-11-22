@@ -148,19 +148,10 @@ public sealed record SyncInterests(
         // [S-3770] [S-3780] The shared unit and cadences, from the state itself rather than from what
         // the app last put in force, so the sync follows a change on the same state change.
         var interests = new InterestsBuilder(state.Preferences.Refresh, RegionFormat.For(state.Preferences.Region).Temperature);
-        foreach (var view in state.Views)
+        foreach (var widget in state.Views.SelectMany(v => v.Widgets))
         {
-            // [S-15511] A repeater's member wants what each of its rows shows (each place, each day).
-            var values = view.Widgets.Exists(w => w.Config is IRepeater) ? Repeaters.ValuesOf(view) : null;
-            foreach (var widget in view.Widgets)
-            {
-                var configs = values is null ? [widget.Config] : Repeaters.EveryRow(view, widget, values);
-                foreach (var config in configs)
-                {
-                    // [S-6906] Each widget says what it wants; the host names none.
-                    (DevicePlaces.Resolve(config, device, string.Empty) as IInterests)?.AddInterests(interests);
-                }
-            }
+            // [S-6906] Each widget says what it wants; the host names none.
+            (DevicePlaces.Resolve(widget.Config, device, string.Empty) as IInterests)?.AddInterests(interests);
         }
 
         return new SyncInterests(
