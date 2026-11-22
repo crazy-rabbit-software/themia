@@ -23,8 +23,9 @@ namespace Themia.App.Widgets;
 /// faces: "Centred is fine"); its line takes the width the box gives it at that scale (<see cref="TextRules.Room"/>), so a
 /// longer text is cut at the card's edge, never drawn past it. The whole text is one item, the card edge to edge, lit under
 /// the pointer where it opens something ([S-14935], <see cref="ItemLight"/>); a click, Enter and the card menu's first line
-/// open its kind's source. Without a text the face stays: the kind's words or the family's why, drawn unavailable
-/// ([S-14932]); a text kept through a failed refresh stays and the status's problem glyph says so. A family subclasses it
+/// open its kind's source. Without a text the face stays: the kind's words for none, else "--", drawn unavailable
+/// ([S-14932], [S-15713]), and a card with the room says why in one Caption line at its foot ([S-15710]); a text kept
+/// through a failed refresh, or a failure with none, is the status's problem glyph's ([S-15711]). A family subclasses it
 /// for its data and hands each read to <see cref="Present"/>; the face, its fit and what a click opens are this base's alone.
 /// </summary>
 public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys,
@@ -47,8 +48,14 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly FontIcon? _lead;
     private readonly TextBlock _text;
 
+    /// <summary>[S-15710] Why there is no text, one Caption line at the card's foot where the card has the room.</summary>
+    private readonly TextBlock _why = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+
     private TextShown _shown = TextShown.None();
     private WidgetConfig? _config;
+
+    /// <summary>[S-15712] The config a click opens for in place of the card's: a preview's sample place; null for the card's.</summary>
+    private WidgetConfig? _openFor;
     private IWidgetSurface? _surface;
     private WidgetArea _area;
     private ContentAlign _align = ContentAlign.Left;
@@ -56,6 +63,12 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
 
     // [S-12813] The status glyph's width over the card's top end corner while it shows (0: none).
     private double _statusRoom;
+
+    // [S-15710] Why there is no text, while there is none and a reason is given.
+    private string? _whyText;
+
+    // [S-15713] Whether the face draws "--" for a reading it does not have.
+    private bool _dashes;
 
     /// <param name="host">The card's host: the status glyph's account link, the launcher a click opens through.</param>
     /// <param name="kind">The kind: its glyph, its lines, its tone, its words for none and what it opens.</param>
@@ -101,12 +114,20 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         _fit.Margin = new Thickness(FamilySpace.Inset);
         _face.Children.Add(_fit);
 
+        // [S-15710] The why's line: at the foot of the inset, as wide as it, cut with its ellipsis; never a target of its own.
+        _why.TextWrapping = TextWrapping.NoWrap;
+        _why.TextTrimming = TextTrimming.CharacterEllipsis;
+        _why.VerticalAlignment = VerticalAlignment.Bottom;
+        _why.IsHitTestVisible = false;
+        _why.Visibility = Visibility.Collapsed;
+        _face.Children.Add(_why);
+
         Children.Add(_item);
         _status.Place(this);
     }
 
     /// <summary>[S-14935] What a click opens: the kind's source for the card's config and what it shows; null for none now.</summary>
-    public CardOpen? Opens => _config is { } config && _kind.Opens is { } open ? open.Target(config, _shown) : null;
+    public CardOpen? Opens => (_openFor ?? _config) is { } config && _kind.Opens is { } open ? open.Target(config, _shown) : null;
 
     /// <summary>[S-14935] The card menu's own lines: the line that opens the source first, then the family's.</summary>
     public IReadOnlyList<WidgetAction> ContextActions
@@ -142,6 +163,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config;
+        _openFor = null;
         OnApply(config);
         Draw();
     }
@@ -195,6 +217,16 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
     }
 
     /// <summary>
+    /// [S-15712] A preview's sample stands somewhere the card's config does not say (the sample place): a click opens, and the
+    /// item lights, for <paramref name="config"/> until the card's config changes.
+    /// </summary>
+    protected void OpenFor(WidgetConfig config)
+    {
+        _openFor = config ?? throw new ArgumentNullException(nameof(config));
+        Draw();
+    }
+
+    /// <summary>
     /// [S-1464] Paint nothing (a family's hide-when-idle), or paint again. Never in a preview card: it always draws; edit mode
     /// always shows it (the card's rule).
     /// </summary>
@@ -228,22 +260,19 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
     {
         var (text, available) = TextRules.Drawn(_shown, _kind.None?.Text() ?? string.Empty);
         _text.Text = text;
+        _dashes = !available && text == TextRules.NoText;
         _text.Foreground = Family.Brush(Role(available));
         if (_lead is not null)
         {
             _lead.Foreground = Family.Brush(available ? ColourRole.TextSecondary : ColourRole.TextDisabled);
         }
 
-        // [S-14932] Why there is none is the face's tooltip; a text the card cuts is whole in its tooltip.
-        ToolTipService.SetToolTip(_item, !available ? (_shown.Why is { Length: > 0 } why ? why : null) : text);
-        if (available)
-        {
-            _status.Show(_shown.Problems, busy: false);
-        }
-        else
-        {
-            _status.Clear();
-        }
+        // [S-14932] Why there is none is the face's tooltip; a text the card cuts is whole in its tooltip. [S-15710] It is
+        // the line at the foot too where the card has the room (Lay); [S-15711] a failure the status mark's, as a stale text's.
+        _whyText = !available && _shown.Why is { Length: > 0 } why ? why : null;
+        ToolTipService.SetToolTip(_item, !available ? _whyText : text);
+        _why.Text = _whyText ?? string.Empty;
+        _status.Show(_shown.Problems, busy: false);
 
         _light.Set(Opens is not null);
         Lay();
@@ -261,12 +290,22 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         // The item stands on the card's top edge: the card's box is the view's and the inset over it.
         var height = _area.IsMeasured ? _area.Height - ListEdge.Margin.Top : 0;
         var end = FamilySpace.Inset + _statusRoom;
-        _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, FamilySpace.Inset);
+
+        // [S-15710] The why's line takes its band at the foot; the face fills what is over it.
+        var why = _whyText is not null && _area.IsMeasured && TextRules.SaysWhy(_area.Width, height, _kind.Lines);
+        var band = why ? WhyLine.Band : 0;
+        _why.Visibility = why ? Visibility.Visible : Visibility.Collapsed;
+        _why.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _why.TextAlignment = Aligned.Text(_align);
+        _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, FamilySpace.Inset + band);
         _fit.Align = _align;
         _text.TextAlignment = Aligned.Text(_align);
         var room = _area.IsMeasured
-            ? TextRules.Room(_area.Width - FamilySpace.Inset - end, height - (2 * FamilySpace.Inset), _kind.Lines, _kind.Lead)
+            ? TextRules.Room(_area.Width - FamilySpace.Inset - end, height - (2 * FamilySpace.Inset) - band, _kind.Lines, _kind.Lead)
             : double.PositiveInfinity;
+
+        // [S-15713] "--" is drawn at the scale the line it stands for has in the room, never blown up by its thin ink.
+        _fit.Most = _dashes && _area.IsMeasured ? TextRules.DashScale(height - (2 * FamilySpace.Inset) - band, _kind.Lines) : double.PositiveInfinity;
         if (!_text.MaxWidth.Equals(room))
         {
             _text.MaxWidth = room;

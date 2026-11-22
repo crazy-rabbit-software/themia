@@ -153,14 +153,40 @@ public static class TextRules
 
     /// <summary>
     /// [S-14932] What the face draws for <paramref name="shown"/>: its text where it has one, else the kind's words for none
-    /// (<paramref name="none"/>), unavailable (WR-10: the face stays, never a blank card).
+    /// (<paramref name="none"/>), unavailable (WR-10: the face stays, never a blank card). [S-15713] A kind without words for
+    /// none draws its reading as <see cref="NoText"/> (WR-10: "its reading as "--""), never its why in the face's place.
     /// </summary>
     public static (string Text, bool Available) Drawn(TextShown shown, string none)
     {
         ArgumentNullException.ThrowIfNull(shown);
         var text = Line(shown.Text);
-        return text.Length > 0 ? (text, shown.Available) : (Line(none), false);
+        if (text.Length > 0)
+        {
+            return (text, shown.Available);
+        }
+
+        var words = Line(none);
+        return (words.Length > 0 ? words : NoText, false);
     }
+
+    /// <summary>[S-15713] The face's reading where there is none and the kind has no words for it: "--".</summary>
+    public const string NoText = "--";
+
+    /// <summary>
+    /// [S-15713] The most "--" is drawn at in a content room <paramref name="height"/> tall: the scale a line of the kind's
+    /// (<paramref name="lines"/>, its capitals' ink) has there, so the dashes stand as large as the reading they stand for,
+    /// never blown up until their thin ink fills the room; never under the legibility floor's scale.
+    /// </summary>
+    public static double DashScale(double height, int lines)
+        => double.IsFinite(height) && height > 0 ? Math.Max(ScaleFloor.Least(Step.FontSize), height / Ink(lines)) : double.PositiveInfinity;
+
+    /// <summary>
+    /// [S-15710] Whether a <paramref name="width"/> by <paramref name="height"/> card says why under its face while it has no
+    /// text (<see cref="WhyLine"/>): its inset box holds the kind's <paramref name="lines"/> on the step over the why's band
+    /// and a sentence's room across. A new card (one line, 52 tall) does not (the why its tooltip).
+    /// </summary>
+    public static bool SaysWhy(double width, double height, int lines)
+        => width > 0 && height > 0 && WhyLine.Fits(width - (2 * FamilySpace.Inset), height - (2 * FamilySpace.Inset), Lines(lines) * Step.LineHeight);
 
     /// <summary>
     /// [S-14931] [S-14934] The width the text takes at its own step in a content room <paramref name="width"/> by

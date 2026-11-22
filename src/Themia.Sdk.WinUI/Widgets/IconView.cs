@@ -29,6 +29,11 @@ namespace Themia.App.Widgets;
 /// button) is a button edge to edge that takes the press itself (<see cref="IWidgetButton"/>) and acts on the release,
 /// Space or Enter. In edit mode the press is the card's, never the icon's ([S-1911]). A kind that does neither lights
 /// nothing. A family subclasses it for its data and hands each read to <see cref="Present"/>.
+/// <para>
+/// [S-15710] [S-15711] WR-10: while it cannot be read the glyph stays, drawn unavailable, and a card with the room says why in
+/// the Tile block's state line under it (<see cref="IconRules.SaysWhy"/>); a failure is the status mark's too, at every size,
+/// as a stale reading's.
+/// </para>
 /// </summary>
 public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys,
     IWidgetCorners, IWidgetTopEdge, IWidgetSurfaceAware
@@ -45,6 +50,9 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
 
     private IconShown _shown;
     private WidgetConfig? _config;
+
+    /// <summary>[S-15712] The config a click opens for in place of the card's: a preview's sample place; null for the card's.</summary>
+    private WidgetConfig? _openFor;
     private IWidgetSurface? _surface;
     private WidgetArea _area;
     private bool _hover;
@@ -82,7 +90,7 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     public bool OwnsTopEdge => true;
 
     /// <summary>[S-15004] What a click opens: the kind's source for the card's config and what it shows; null for none now.</summary>
-    public CardOpen? Opens => !Presses && _config is { } config && _kind.Opens is { } open && !_hidden ? open.Target(config, _shown) : null;
+    public CardOpen? Opens => !Presses && (_openFor ?? _config) is { } config && _kind.Opens is { } open && !_hidden ? open.Target(config, _shown) : null;
 
     /// <summary>[S-15004] The card menu's own lines: the line that opens the source first, then the family's.</summary>
     public IReadOnlyList<WidgetAction> ContextActions
@@ -142,6 +150,7 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config;
+        _openFor = null;
         OnApply(config);
         Paint();
     }
@@ -170,6 +179,7 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     {
         _area = area;
         Lay();
+        Paint();
     }
 
     /// <summary>[S-11883] The item's fill reaches the card's edges: it takes the card's corners.</summary>
@@ -211,21 +221,25 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     {
     }
 
-    /// <summary>[S-15001] Put one read on the face.</summary>
+    /// <summary>
+    /// [S-15001] Put one read on the face. [S-15711] Its problems are the status mark's whatever its state: a reading kept
+    /// through a failed refresh, or the failure that left it unreadable, so a failure is never quieter than a stale reading.
+    /// </summary>
     protected void Present(IconShown shown)
     {
         _shown = shown ?? throw new ArgumentNullException(nameof(shown));
+        _status.Show(_shown.Problems, busy: false);
+        Lay();
+        Paint();
+    }
 
-        // The status speaks only when a read lands: what it says changes the glyph's room (Lay), never the other way round.
-        if (_shown.State == TileState.Unavailable)
-        {
-            _status.Clear();
-        }
-        else
-        {
-            _status.Show(_shown.Problems, busy: false);
-        }
-
+    /// <summary>
+    /// [S-15712] A preview's sample stands somewhere the card's config does not say (the sample place): a click opens, and the
+    /// item lights, for <paramref name="config"/> until the card's config changes.
+    /// </summary>
+    protected void OpenFor(WidgetConfig config)
+    {
+        _openFor = config ?? throw new ArgumentNullException(nameof(config));
         Paint();
     }
 
@@ -265,15 +279,22 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         var natural = IconRules.NaturalSide;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural, natural);
         var inset = IconRules.Inset(width, height);
+        _why = Why is not null && _area.IsMeasured && IconRules.SaysWhy(width, height);
         _tile.Padding = new Thickness(inset);
-        _tile.Use(IconRules.Step(width, height), width - (2 * inset), label: false, state: false);
+        _tile.Use(IconRules.Step(width, height, _why), width - (2 * inset), label: false, state: _why, stateStep: FamilyType.Caption);
     }
+
+    /// <summary>[S-15710] Why it cannot be read, where it says: null while it can be, or with no reason given.</summary>
+    private string? Why => _shown.State == TileState.Unavailable && _shown.Why is { Length: > 0 } why ? why : null;
+
+    /// <summary>[S-15710] Whether the card says why under its glyph now (<see cref="IconRules.SaysWhy"/>).</summary>
+    private bool _why;
 
     /// <summary>The whole look from the read: the glyph, its state, hover and pressed, its tooltip and its name.</summary>
     private void Paint()
     {
         var name = _shown.Name ?? _kind.Label.Text();
-        _tile.Show(_shown.Glyph is { Length: > 0 } glyph ? glyph : _kind.Glyph, name, string.Empty, _shown.State);
+        _tile.Show(_shown.Glyph is { Length: > 0 } glyph ? glyph : _kind.Glyph, name, _why ? Why ?? string.Empty : string.Empty, _shown.State);
         _tile.Face(_shown.State == TileState.Unavailable || Inert ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
         ToolTipService.SetToolTip(_face, _shown.Tooltip);
         AutomationProperties.SetName(_face, name);

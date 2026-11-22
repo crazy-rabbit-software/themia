@@ -30,6 +30,9 @@ internal sealed partial class WeatherFactView : IWidgetSample
         config.Trend = _config.Trend;
         config.Day = _config.Day;
         _config = config;
+
+        // [S-15712] The sample stands at the sample place: a click opens the forecast there, so the item lights.
+        OpenFor(config);
         return new Fetched<CurrentWeather>(FetchStatus.Ok, SampleWeather.Reading(), null, SampleDay.MinutesAgo(4));
     }
 }

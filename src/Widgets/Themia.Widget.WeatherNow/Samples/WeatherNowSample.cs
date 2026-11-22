@@ -35,8 +35,16 @@ internal sealed partial class WeatherSkyView : IWidgetSample
 {
     public Task ShowSampleAsync()
     {
-        _feed.Preview(WeatherNowSample.Placed(new WeatherSkyConfig()), WeatherNowSample.Answer(), FetchStatus.Ok);
+        Hold(WeatherNowSample.Answer(), FetchStatus.Ok);
         return Task.CompletedTask;
+    }
+
+    /// <summary>[S-11850] Hold <paramref name="answer"/> at the sample place; [S-15712] a click opens the forecast there.</summary>
+    private void Hold(Fetched<CurrentWeather>? answer, FetchStatus status)
+    {
+        var config = WeatherNowSample.Placed(new WeatherSkyConfig());
+        _feed.Preview(config, answer, status);
+        OpenFor(config);
     }
 }
 
@@ -45,7 +53,15 @@ internal sealed partial class WeatherConditionView : IWidgetSample
 {
     public Task ShowSampleAsync()
     {
-        _feed.Preview(WeatherNowSample.Placed(new WeatherConditionConfig()), WeatherNowSample.Answer(), FetchStatus.Ok);
+        Hold(WeatherNowSample.Answer(), FetchStatus.Ok);
         return Task.CompletedTask;
+    }
+
+    /// <summary>[S-11850] Hold <paramref name="answer"/> at the sample place; [S-15712] a click opens the forecast there.</summary>
+    private void Hold(Fetched<CurrentWeather>? answer, FetchStatus status)
+    {
+        var config = WeatherNowSample.Placed(new WeatherConditionConfig());
+        _feed.Preview(config, answer, status);
+        OpenFor(config);
     }
 }

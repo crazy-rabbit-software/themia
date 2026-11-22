@@ -20,7 +20,10 @@ public sealed record IconShown(string Glyph, TileState State = TileState.Off)
     /// <summary>[S-15001] Why it is unavailable: its tooltip then.</summary>
     public string? Why { get; init; }
 
-    /// <summary>[S-15001] The status glyph's problems (a reading kept through a failed refresh).</summary>
+    /// <summary>
+    /// [S-15001] The status glyph's problems (a reading kept through a failed refresh); [S-15711] while it cannot be read,
+    /// the failure that left it so (a service out of reach), never an idle player's or a place not set.
+    /// </summary>
     public IReadOnlyList<string> Problems { get; init; } = [];
 
     /// <summary>The app the icon came from (a media session's player); null for none.</summary>
@@ -101,12 +104,30 @@ public static class IconRules
     }
 
     /// <summary>
+    /// [S-15710] Whether a card says why under its glyph while it cannot be read (<see cref="WhyLine"/>): its inset box holds
+    /// the 28 glyph over the why's band and a sentence's room across. A 76 square does not (the why its tooltip).
+    /// </summary>
+    public static bool SaysWhy(double width, double height)
+    {
+        if (!double.IsFinite(Side(width, height)))
+        {
+            return false;
+        }
+
+        var inset = Inset(width, height);
+        return WhyLine.Fits(width - (2 * inset), height - (2 * inset), FamilyType.Big28.FontSize);
+    }
+
+    /// <summary>
     /// [S-15002] The step the glyph is planned on in a card: the largest of <see cref="Steps"/> whose size its room holds
     /// (28 when none does), so the face's fit scales it up by less than one step's ratio and it is drawn sharp at any size.
+    /// [S-15710] Over the why's line (<paramref name="why"/>) its room is the inset box less the line's band.
     /// </summary>
-    public static TypeStep Step(double width, double height)
+    public static TypeStep Step(double width, double height, bool why = false)
     {
-        var room = Room(width, height);
+        var room = why && double.IsFinite(Side(width, height))
+            ? Math.Max(0, Math.Min(width, height - WhyLine.Band) - (2 * Inset(width, height)))
+            : Room(width, height);
         var best = Steps[0];
         foreach (var step in Steps)
         {

@@ -35,8 +35,11 @@ internal sealed class WeatherNowFeed
     /// <summary>Why there is no reading, in words ("Set a place", "Offline").</summary>
     public string Why => OnlineParts.Caption(_feed.Status);
 
-    /// <summary>[S-7042] The status glyph's problems: the reading kept through a failed refresh.</summary>
-    public IReadOnlyList<string> Problems => _feed.Held is { } held ? OnlineParts.Problems(held) : [];
+    /// <summary>
+    /// [S-7042] The status glyph's problems: the reading kept through a failed refresh; [S-15711] with no reading, the failure
+    /// that left it so (never a place not set).
+    /// </summary>
+    public IReadOnlyList<string> Problems => _feed.Held is { Value: not null } held ? OnlineParts.Problems(held) : OnlineParts.Failure(_feed.Status);
 
     /// <summary>[S-730] Refresh, on the card menu while it has a place.</summary>
     public IReadOnlyList<WidgetAction> Actions

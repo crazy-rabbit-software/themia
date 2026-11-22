@@ -7,7 +7,7 @@ namespace Themia.Widget.WeatherNow;
 /// <summary>
 /// Debug renders only ([S-1917], [S-2052]): <c>sample</c> the sample day's reading; <c>stale</c> that reading through a failed
 /// refresh (the status's problem glyph); <c>failed</c> no reading and the service out of reach (the face kept, why its
-/// tooltip, [S-15002]).
+/// tooltip and its line where the card has the room, the failure the status's problem glyph, [S-15710], [S-15711]).
 /// </summary>
 internal sealed partial class WeatherSkyView
 {
@@ -18,10 +18,10 @@ internal sealed partial class WeatherSkyView
         switch (state)
         {
             case "stale":
-                _feed.Preview(WeatherNowSample.Placed(new WeatherSkyConfig()), WeatherNowSample.Answer(stale: true), FetchStatus.Ok);
+                Hold(WeatherNowSample.Answer(stale: true), FetchStatus.Ok);
                 return Task.CompletedTask;
             case "failed":
-                _feed.Preview(WeatherNowSample.Placed(new WeatherSkyConfig()), null, FetchStatus.Unreachable);
+                Hold(null, FetchStatus.Unreachable);
                 return Task.CompletedTask;
             default:
                 return ShowSampleAsync();
@@ -39,10 +39,10 @@ internal sealed partial class WeatherConditionView
         switch (state)
         {
             case "stale":
-                _feed.Preview(WeatherNowSample.Placed(new WeatherConditionConfig()), WeatherNowSample.Answer(stale: true), FetchStatus.Ok);
+                Hold(WeatherNowSample.Answer(stale: true), FetchStatus.Ok);
                 return Task.CompletedTask;
             case "failed":
-                _feed.Preview(WeatherNowSample.Placed(new WeatherConditionConfig()), null, FetchStatus.Unreachable);
+                Hold(null, FetchStatus.Unreachable);
                 return Task.CompletedTask;
             default:
                 return ShowSampleAsync();

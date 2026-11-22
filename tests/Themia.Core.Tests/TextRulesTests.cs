@@ -93,6 +93,32 @@ public sealed class TextRulesTests
     // ---- [S-14932] none --------------------------------------------------------------------------------------
 
     [Fact]
+    public void S15713_a_kind_without_words_for_none_draws_its_reading_as_dashes_never_its_why()
+    {
+        Assert.Equal(("--", false), TextRules.Drawn(TextShown.None("Can't reach the service"), string.Empty));
+        Assert.Equal(("--", false), TextRules.Drawn(TextShown.None(), "   "));
+    }
+
+    [Fact]
+    public void S15713_dashes_stand_as_large_as_the_line_they_stand_for()
+    {
+        Assert.Equal(92 / TextRules.Ink(1), TextRules.DashScale(92, 1), 6);
+        Assert.Equal(ScaleFloor.Least(TextRules.Step.FontSize), TextRules.DashScale(1, 1));
+        Assert.Equal(double.PositiveInfinity, TextRules.DashScale(double.NaN, 1));
+    }
+
+    [Theory]
+    [InlineData(240, 52, 1, false)] // a new one-line text: no room under its line (the tooltip)
+    [InlineData(330, 140, 1, true)]
+    [InlineData(600, 200, 1, true)]
+    [InlineData(330, 75, 1, false)] // 51 down: its 28 line and the band (24) need 52
+    [InlineData(330, 76, 1, true)]
+    [InlineData(330, 100, 3, false)] // three lines (84) over the band
+    [InlineData(110, 200, 1, false)] // 86 across: under a sentence's room
+    public void S15710_a_text_says_why_at_its_foot_where_its_inset_holds_its_lines_over_the_line(double width, double height, int lines, bool says)
+        => Assert.Equal(says, TextRules.SaysWhy(width, height, lines));
+
+    [Fact]
     public void S14932_no_text_is_the_kinds_words_for_none_unavailable()
     {
         Assert.Equal(("No album", false), TextRules.Drawn(TextShown.None("Nothing playing"), "No album"));

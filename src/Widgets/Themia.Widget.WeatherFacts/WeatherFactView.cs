@@ -98,8 +98,9 @@ internal sealed partial class WeatherFactView : MetricView
     {
         if (_feed.Held is not { Value: { } reading } held)
         {
-            // [S-13902] The row stays, "--", the reason its tooltip (a status glyph would stand over the "--").
-            Present(new MetricShown(MetricValue.Unread) { Why = OnlineParts.Caption(_feed.Status) });
+            // [S-13902] The row stays, "--", the reason its tooltip and the readout's line ([S-15710]); [S-15711] a failure
+            // the status glyph's, as a stale reading's.
+            Present(new MetricShown(MetricValue.Unread) { Why = OnlineParts.Caption(_feed.Status), Problems = OnlineParts.Failure(_feed.Status) });
             return;
         }
 

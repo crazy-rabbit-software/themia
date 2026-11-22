@@ -1,6 +1,7 @@
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.App.Widgets;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -72,8 +73,36 @@ public sealed class WeatherNowTests
         Assert.Equal(TextRules.Sizing(kind).Natural, Condition.Descriptor.Natural);
 
         Assert.Equal((WeatherReport.Describe(3), true), (WeatherConditionView.Shown(Overcast, "x", []).Text, WeatherConditionView.Shown(Overcast, "x", []).Available));
-        var none = WeatherConditionView.Shown(null, "Offline", []);
-        Assert.Equal(("Offline", false, "Offline"), (none.Text, none.Available, none.Why));
+    }
+
+    [Fact]
+    public void S15023_without_a_reading_the_condition_keeps_its_face_and_says_why_beside_it_never_in_its_place()
+    {
+        var none = WeatherConditionView.Shown(null, "Can't reach the service", ["Can't reach the service"]);
+
+        Assert.Equal((string.Empty, false, "Can't reach the service"), (none.Text, none.Available, none.Why));
+        Assert.Equal((TextRules.NoText, false), TextRules.Drawn(none, ((TextModule)Condition).Kind.None?.Text() ?? string.Empty));
+        Assert.Equal(["Can't reach the service"], none.Problems);
+    }
+
+    [Fact]
+    public void S15021_a_sky_that_failed_is_the_status_marks_as_a_stale_one_is()
+    {
+        var failed = WeatherSkyView.Shown(null, "Can't reach the service", ["Can't reach the service"]);
+
+        Assert.Equal((TileState.Unavailable, "Can't reach the service"), (failed.State, failed.Tooltip));
+        Assert.Equal(["Can't reach the service"], failed.Problems);
+    }
+
+    [Fact]
+    public void S15021_only_a_failure_is_a_problem_never_a_place_not_set_offline_or_loading()
+    {
+        Assert.Equal([FetchState.Message(FetchStatus.Unreachable)], OnlineParts.Failure(FetchStatus.Unreachable));
+        Assert.Single(OnlineParts.Failure(FetchStatus.TimedOut));
+        Assert.Empty(OnlineParts.Failure(FetchStatus.NotConfigured));
+        Assert.Empty(OnlineParts.Failure(FetchStatus.Offline));
+        Assert.Empty(OnlineParts.Failure(FetchStatus.Loading));
+        Assert.Empty(OnlineParts.Failure(FetchStatus.Ok));
     }
 
     [Fact]

@@ -82,6 +82,9 @@ public sealed partial class TileBlock : Grid
         _label.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         _state = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
         _state.HorizontalAlignment = HorizontalAlignment.Center;
+
+        // [S-15710] A state line longer than the tile's inset (an icon's why) is cut with its ellipsis, never past the edge.
+        _state.TextTrimming = TextTrimming.CharacterEllipsis;
         _stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { _mark, _label, _state } };
 
         // The switch look: a row, the label and state at the text edge, the switch at the end.

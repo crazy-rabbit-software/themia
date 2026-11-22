@@ -10453,7 +10453,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   readings an arrow compares and what a click opens are the base's alone. A click opens the kind's source ([S-14706]);
   Refresh, where the source has one, is on the card menu after the line that opens it ([S-14707]).
 - **[S-14602]** **Defaults, never hidden** (WR-10): without a reading the row stays, its value "--" drawn unavailable and
-  why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
+  why its tooltip (the readout's line under "--" too, [S-15710]; a failure the problem glyph's, [S-15711]); a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
   the glyph its room at its end so it never stands on the value ([S-12834]).
 - **[S-14603]** **Trend**, a widget's setting (`IMetricTrend.Trend`, stored only when not None): **None**, **Arrow** (up,
   down or flat against the reading before, beside the value: in the row's inline slot, beside the readout's value inside its
@@ -10685,6 +10685,11 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   `TextKind.None`) or the family's why ("Nothing playing", "Set a place") drawn unavailable, why its tooltip
   (`TextRules.Drawn`); a text kept through a failed refresh stays and the status's problem glyph says so, the block
   leaving it its room ([S-12813]).
+- **[S-15713]** **A kind without words for none draws "--"** (WR-10: "its reading as "--""; "it never swaps its face for
+  a status line alone"): where a kind has no words for none, its face is `TextRules.NoText` drawn unavailable, never its
+  why in the face's place; the why is the card's line under it ([S-15710]) and its tooltip. The dashes are drawn at most
+  at the scale a line of the kind has in the room (`TextRules.DashScale`, `ReadingFit.Most`), as large as the reading they
+  stand for, never blown up until their thin ink fills the card. The weather's condition. Test `TextRulesTests.S15713_`.
 - **[S-14933]** **Its tone**: the reading's own text primary on the Title step (a song's title, the rain's sentence); a
   detail's (an artist, an album) regular and secondary (`TextTone`, `TextRules.StepOf`). The lead glyph is secondary.
 - **[S-14934]** **A family a project, a kind a text.** A family's kinds are data (`TextKind`: id, the text's key in its
@@ -10733,13 +10738,37 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   standing centred on the other axis (owner, 2026-11-19, of the tiles: "Centred is fine"). The inset is the family's (12)
   while the card's short side holds the 28 glyph in it; under that, what the side leaves the 28 glyph on each side, down
   to 4 (`IconRules.Inset`, as a tile's, [S-12806]). Without a reading the face stays (WR-10): its kind's glyph drawn
-  unavailable, why its tooltip; a reading kept through a failed refresh stays and the status's problem glyph says so
+  unavailable, why its tooltip and, where the card has the room, its line under the glyph ([S-15710]); a reading kept through a failed refresh stays and the status's problem glyph says so
   ([S-12813]), standing in the card's corner ([S-15160]).
 - **[S-15160]** **The status takes none of the glyph's room.** The status's problem glyph (a sky kept through a failed
   refresh, a player that failed) stands in the card's top end corner, 4 from its top and its end, on the inset round the
   glyph; the glyph keeps its whole inset box alike on every side, centred at its full size whatever the status says (a
   stale sky's cloud stood left of centre and smaller, giving the glyph its room). The same for every icon kind: the face
   is the base's.
+- **[S-15710]** **Without a reading the card says why under its face** (WR-10: "keeps its face ... and says why in a
+  compact line; it never swaps its face for a status line alone"; the audit of 2026-11-22 found the why on the tooltip
+  alone). One rule for the one-reading faces (`WhyLine`): the line is one Caption line under the face, the band of the
+  Tile block's state line (8 and 16, `WhyLine.Band`), shown where the card's inset box holds the face's least over that band
+  and a sentence's room across (`StatusRules.MinSentence`, 96); a smaller card keeps the face alone, why its tooltip. An
+  **icon** says it in the Tile block's own state line under its glyph, the block scaled as one (`IconRules.SaysWhy`, the
+  glyph planned on the room over the band, `IconRules.Step`; a 76 square has no room, a 330 by 140 card has): "Nothing
+  playing" under an idle transport button, "Can't reach the service" under a failed sky. A **text** keeps its face
+  ([S-15713]) and says it in a Caption line at the card's foot, at its content alignment, cut with its ellipsis, the block
+  filling what is over it (`TextRules.SaysWhy`). A **single metric** says it in its readout's line under "--" (the
+  readout's own, [S-12813]); its one row has no room (the tooltip, and [S-15711]). Tests `IconRulesTests.S15710_`,
+  `TextRulesTests.S15710_`; renders `--widget-png weatherSky|weatherCondition|weatherTemperature --state failed`,
+  `musicPlayPause|musicNext|musicPrevious --state idle`.
+- **[S-15711]** **A failure is never quieter than a stale reading**: the status's problem glyph ([S-7042], [S-12813]) shows
+  a read's problems whatever its state, so an icon, a text or a single metric left without a reading by a failure (the
+  service out of reach, timed out, refused: `FetchState.Look` a problem, `OnlineParts.Failure`) shows the glyph in its
+  corner, its tooltip the failure, at every size, as one kept through a failed refresh does. Not set up (the card's Set up
+  row says it), loading, offline, empty and an idle player are not failures: no glyph. The weather now's parts and the
+  weather facts. Tests `WeatherNowTests.S15021_a_sky_that_failed_...`, `S15021_only_a_failure_...` (the family's tags).
+- **[S-15712]** **A sample lights where it opens**: a preview's sample stands where the card's config does not say (the
+  sample place), so the face opens for the sample's config (`OpenFor` on the icon, text and metric bases; the card's own
+  config keeps its trend and look) and lights under the pointer and pressed as a placed card does (WR-13; the audit's
+  hover renders of the weather now found no light). A changed config ends it. Renders `--widget-png weatherSky|
+  weatherCondition|weatherTemperature --state sample --hover 0.5,0.3`.
 - **[S-15003]** **A family a project, a kind an icon.** A family's kinds are data (`IconKind`: id, glyph, the add page's
   name, description and search words, its config, what it opens); each kind is a sealed module (`IconModule`: the one
   sizing, a one-readout face with its item, at home in its family's add-page folder in the family's order, the removed

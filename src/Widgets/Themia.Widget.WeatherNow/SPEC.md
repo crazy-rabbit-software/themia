@@ -33,7 +33,8 @@ a part declare one split. Tests: `Tests/WeatherNowTests.cs`, `Tests/WeatherNowMe
   style, no unit, no cadence (followed, [S-3590]).
 - **[S-15021]** **The sky** is an icon kind ([S-15003]): the condition's glyph (`WeatherGlyph`, [S-733]) filling its card
   ([S-15002]), the condition in words its tooltip; without a reading the weather's glyph drawn unavailable, why its tooltip
-  ("Set a place", "Offline", WR-10); a reading kept through a failed refresh stays and the status's problem glyph says so
+  ("Set a place", "Offline", WR-10) and its line under the glyph where the card has the room, a failure the status's problem
+  glyph ([S-15710], [S-15711]); a reading kept through a failed refresh stays and the status's problem glyph says so
   ([S-7042]). Its colour is the item text's ([S-15001]).
   It takes a **Day** (`IDayChoice`: Today, or a day ahead; the shared `day` setting, after its place): a day ahead's sky
   is that day's forecast code (`WeatherReport.SkyCode`), unavailable past the forecast; what a weather forecast's day
@@ -46,7 +47,9 @@ a part declare one split. Tests: `Tests/WeatherNowTests.cs`, `Tests/WeatherNowMe
   so each keeps its minimum (the line beside the sky moved, else the sky stacked above the two), root `SPEC.md` [S-15026].
 - **[S-15023]** **The condition** is a text kind ([S-14934]): "Partly cloudy", one line on a detail's tone (regular,
   secondary, [S-14933]: it was the caption under the temperature), no lead (the sky is its own widget), alone on its line
-  (the place is the group's Header widget's to name, [S-12801]); with no reading why, drawn unavailable ([S-14932]).
+  (the place is the group's Header widget's to name, [S-12801]); with no reading "--" drawn unavailable, why its line at
+  the card's foot where it has the room and its tooltip, a failure the status's problem glyph ([S-14932], [S-15713],
+  [S-15710], [S-15711]); never the why in the condition's place.
 - **[S-15024]** **The groups**: **Weather summary** (new: the sky on the left, as tall as the temperature's readout, two
   rows, over the condition's line beside it, one panel under its Header), and **Weather** and **Weather station** start
   with the same three parts where the card stood (`ReadyMadeGroups.Summary`); the first-run desktop's bare weather is the

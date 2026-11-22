@@ -49,11 +49,12 @@ internal sealed partial class WeatherSkyView : IconView
     private void Render() => Present(Shown(_feed.Reading, _feed.Why, _feed.Problems, _day));
 
     /// <summary>
-    /// [S-15021] The sky for <paramref name="reading"/>; with none, the weather's glyph unavailable, why its tooltip.
+    /// [S-15021] The sky for <paramref name="reading"/>; with none, the weather's glyph unavailable, why its tooltip and its line
+    /// where the card has the room ([S-15710]), a failure the status mark's ([S-15711]).
     /// [S-13919] On day <paramref name="day"/> from today: that day's sky; a day the forecast does not reach, unavailable.
     /// </summary>
     internal static IconShown Shown(CurrentWeather? reading, string why, IReadOnlyList<string> problems, int day = 0)
         => reading is null || WeatherReport.SkyCode(reading, day) is not { } code
-            ? IconShown.None(Glyphs.Weather, why) with { Name = WeatherNowKinds.Sky.Label.Text() }
+            ? IconShown.None(Glyphs.Weather, why) with { Name = WeatherNowKinds.Sky.Label.Text(), Problems = problems }
             : new IconShown(WeatherGlyph.Of(WeatherReport.Look(code))) { Name = WeatherReport.Describe(code), Problems = problems };
 }

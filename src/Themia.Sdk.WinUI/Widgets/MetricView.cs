@@ -26,7 +26,8 @@ namespace Themia.App.Widgets;
 /// in the chart look its page sets, [S-14703]) takes the foot and the reading the top. The whole metric is one item, the
 /// card edge to edge, lit under the pointer where it opens something ([S-14705]); a click, Enter and the card menu's first
 /// line open its kind's source ([S-14706], [S-14707]). Without a reading the face stays with "--" drawn unavailable and why
-/// as its tooltip ([S-14602]); a reading kept through a failed refresh stays and the status's problem glyph says so. A
+/// as its tooltip ([S-14602]), the readout's line under it too ([S-15710]); a reading kept through a failed refresh, or a
+/// failure with none, is the status's problem glyph's ([S-15711]). A
 /// family subclasses it for its data and hands each read to <see cref="Present"/>; the face, the trend, the readings an
 /// arrow compares and what a click opens are this base's alone.
 /// </summary>
@@ -66,6 +67,9 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private MetricShown? _shown;
     private MetricTrend _trend;
     private WidgetConfig? _config;
+
+    /// <summary>[S-15712] The config a click opens for in place of the card's: a preview's sample place; null for the card's.</summary>
+    private WidgetConfig? _openFor;
     private WidgetArea _area;
 
     // [S-12813] The status glyph's width over the card's top end corner while it shows (0: none).
@@ -130,7 +134,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     protected virtual string MetricName => _kind.Name.Text();
 
     /// <summary>[S-14706] What a click opens: the kind's source for the card's config; null for a kind with none or none now.</summary>
-    public CardOpen? Opens => _config is { } config && _kind.Opens is { } open ? open.Target(config) : null;
+    public CardOpen? Opens => (_openFor ?? _config) is { } config && _kind.Opens is { } open ? open.Target(config) : null;
 
     /// <summary>[S-14707] The card menu's own lines: the line that opens the source first, then the family's.</summary>
     public IReadOnlyList<WidgetAction> ContextActions
@@ -156,6 +160,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     public void ApplyConfig(WidgetConfig config)
     {
         Follow(config);
+        _openFor = null;
         OnApply(config);
         Draw();
     }
@@ -194,6 +199,16 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     /// A family calls it when what its data is about changes.
     /// </summary>
     protected void Restart() => _readings.Clear();
+
+    /// <summary>
+    /// [S-15712] A preview's sample stands somewhere the card's config does not say (the sample place): a click opens, and the
+    /// item lights, for <paramref name="config"/> until the card's config changes. The card's own config keeps its trend and look.
+    /// </summary>
+    protected void OpenFor(WidgetConfig config)
+    {
+        _openFor = config ?? throw new ArgumentNullException(nameof(config));
+        Draw();
+    }
 
     /// <summary>[S-14601] Put one read on the face: its value, its trend and its state.</summary>
     protected void Present(MetricShown shown)
@@ -243,19 +258,15 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         var captionRole = value.Available ? ColourRole.TextSecondary : ColourRole.TextDisabled;
         _name.Foreground = Family.Brush(captionRole);
         _captionGlyph.Foreground = Family.Brush(captionRole);
+        // [S-15710] Without a reading the readout says why in its line under "--" (the readout's, [S-12813]).
         var split = ReadoutRules.Split(value.Text);
-        _reading.Show(split.Value, split.Unit, valueRole: value.Available ? ColourRole.TextPrimary : ColourRole.TextDisabled);
+        var why = !value.Available && shown.Why is { Length: > 0 } reason ? reason : null;
+        _reading.Show(split.Value, split.Unit, under: why, valueRole: value.Available ? ColourRole.TextPrimary : ColourRole.TextDisabled);
 
         // [S-14602] A reading kept through a failed refresh stays, and the status's problem glyph says so, its room at the
-        // row's end; "--" says there is no reading, why its tooltip (Lay's, with the face).
-        if (value.Available)
-        {
-            _status.Show(shown.Problems, busy: false);
-        }
-        else
-        {
-            _status.Clear();
-        }
+        // row's end; "--" says there is no reading, why its tooltip (Lay's, with the face). [S-15711] A failure that left it
+        // without one is the problem glyph's too, as a stale reading's.
+        _status.Show(shown.Problems, busy: false);
 
         var trend = _trend;
         PreviewTrend(ref shown, ref trend);

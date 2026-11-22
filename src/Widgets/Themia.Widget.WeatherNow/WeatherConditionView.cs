@@ -13,7 +13,7 @@ namespace Themia.Widget.WeatherNow;
 
 /// <summary>
 /// [S-15023] The condition now on the text face (<see cref="TextView"/>): "Partly cloudy", alone on its line (the place is the
-/// group's Header widget's to name, [S-12801]); with no reading why ("Set a place", "Offline"), drawn unavailable; a
+/// group's Header widget's to name, [S-12801]); with no reading "--" drawn unavailable, why ("Offline") its line; a
 /// condition kept through a failed refresh stays and the status's problem glyph says so.
 /// </summary>
 internal sealed partial class WeatherConditionView : TextView
@@ -37,9 +37,12 @@ internal sealed partial class WeatherConditionView : TextView
 
     private void Render() => Present(Shown(_feed.Reading, _feed.Why, _feed.Problems));
 
-    /// <summary>[S-15023] The condition for <paramref name="reading"/>; with none, why, unavailable.</summary>
+    /// <summary>
+    /// [S-15023] The condition for <paramref name="reading"/>; with none, "--" unavailable (WR-10: the face kept, never its why
+    /// in its place, [S-15713]), why its tooltip and its line ([S-15710]), a failure the status mark's ([S-15711]).
+    /// </summary>
     internal static TextShown Shown(CurrentWeather? reading, string why, IReadOnlyList<string> problems)
         => reading is null
-            ? new TextShown(why, false) { Why = why }
+            ? TextShown.None(why) with { Problems = problems }
             : new TextShown(WeatherReport.Describe(reading.Code)) { Problems = problems };
 }

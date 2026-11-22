@@ -29,6 +29,14 @@ public static class OnlineParts
         where T : class
         => held is { Value: not null } ? KitFreshness.Lines(Strings.Current, [Outcome(held)], DateTimeOffset.Now) : [];
 
+    /// <summary>
+    /// [S-15711] The status's problem lines while nothing is on screen: the sentence for <paramref name="status"/> where it is a
+    /// problem (<see cref="FetchState.Look"/>: out of reach, timed out, refused), so a failure is never quieter than a stale
+    /// answer; none while not set up (the card's Set up row says it), loading, offline or empty.
+    /// </summary>
+    public static IReadOnlyList<string> Failure(FetchStatus status)
+        => FetchState.Look(status).Kind == StatusKind.Problem ? [FetchState.Message(status)] : [];
+
     /// <summary>The card menu's Refresh line: "Refresh · updated 4 min ago", or "Refresh" while nothing is held.</summary>
     public static string RefreshLabel<T>(Fetched<T>? held)
         where T : class

@@ -112,4 +112,27 @@ public sealed class IconRulesTests
         Assert.Equal("Play", (IconShown.None(Glyphs.Play) with { Name = "Play" }).Tooltip);
         Assert.Equal(TileState.Unavailable, IconShown.None(Glyphs.Play).State);
     }
+
+    // ---- [S-15710] why, under the glyph --------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(76, 76, false)] // a new icon: no room across or under (the tooltip)
+    [InlineData(330, 140, true)]
+    [InlineData(300, 164, true)]
+    [InlineData(600, 200, true)]
+    [InlineData(152, 152, true)] // 128 across holds a sentence's 96, 128 down the 28 glyph over the band
+    [InlineData(330, 70, false)] // 46 down: the 28 glyph and its band (24) need 52
+    [InlineData(110, 400, false)] // 86 across: under a sentence's room
+    [InlineData(double.NaN, double.NaN, false)]
+    public void S15710_a_card_says_why_under_its_glyph_where_its_inset_holds_the_line(double width, double height, bool says)
+        => Assert.Equal(says, IconRules.SaysWhy(width, height));
+
+    [Fact]
+    public void S15710_over_the_why_the_glyph_is_planned_on_the_room_left_above_the_band()
+    {
+        // 330 by 140: 116 down, 92 over the band; the 68 step fits both ways, the 96 step no longer does.
+        Assert.Equal(96, IconRules.Step(330, 140).FontSize);
+        Assert.Equal(68, IconRules.Step(330, 140, why: true).FontSize);
+        Assert.Equal(24, WhyLine.Band);
+    }
 }
