@@ -56,14 +56,33 @@ public static class ZOrderPolicy
     /// [S-33e] Whether an ordinary application window is on screen again (not minimised, not
     /// cloaked, not topmost). Only read while the pin is held and a shell or own surface is in front.
     /// </param>
+    /// <param name="desktopRaised">
+    /// [S-15870] Whether the desktop window stands over other windows in the z-order right now
+    /// (<see cref="DesktopRaised"/>), whoever has the foreground.
+    /// </param>
     public static ZAction Decide(
         bool showDesktopActive,
         bool pinnedTopmost,
         bool shellSurfaceForeground,
         bool ownSurfaceForeground,
-        bool applicationOnScreen)
+        bool applicationOnScreen,
+        bool desktopRaised)
     {
         if (showDesktopActive)
+        {
+            return ZAction.PinTopmost;
+        }
+
+        // [S-15870] The lift lasts as long as the desktop is raised, not as long as it has the
+        // foreground. Show Desktop ends by handing the foreground to the first window it brings back
+        // and only then restoring the rest, one by one, each waiting on its program; the desktop
+        // window stays raised until the last is back. Dropping to the anchor at that foreground change
+        // put the surfaces under the still-raised desktop: the widgets were gone for as long as the
+        // restore took (the owner, 2026-11-22: "when i click again there is weird behaviour. themia
+        // hides for some time"), and every window coming back meanwhile was "a window below a
+        // surface", so the repairs ran out before the desktop went down ([S-34d]'s warning at every
+        // Win+D). While it is raised a surface belongs directly above it, wherever the foreground is.
+        if (desktopRaised)
         {
             return ZAction.PinTopmost;
         }
@@ -96,6 +115,57 @@ public static class ZOrderPolicy
         }
 
         return shellSurfaceForeground || ownSurfaceForeground ? ZAction.HoldTopmost : ZAction.DropToAnchor;
+    }
+
+    /// <summary>
+    /// [S-15870] Whether the desktop window is raised: at rest it is the last window of the z-order
+    /// (read live: nothing below <c>Progman</c>, not even a hidden window), and Show Desktop lifts it
+    /// over the windows it sends away, which then lie below it, minimised, until they are brought back
+    /// and it goes down again. So a window below it that is shown or minimised (never a hidden one, and
+    /// never another desktop-layer window: a <c>WorkerW</c> under <c>Progman</c> is the wallpaper's
+    /// host on some PCs) says it is raised. One of our own surfaces counts: one under the desktop is
+    /// exactly what the lift undoes.
+    /// </summary>
+    /// <param name="below">Every window below the desktop window, as <see cref="BelowDesktop"/> sees it.</param>
+    public static bool DesktopRaised(ReadOnlySpan<BelowDesktop> below)
+    {
+        foreach (var window in below)
+        {
+            if (window == BelowDesktop.Window)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// [S-15871] What a window in the z-order is to a surface's place (<see cref="StackWindow"/>).
+    /// On screen means on a display: a window parked off every display (a program's off-screen helper,
+    /// this app's own check renders at -32000,-32000) covers nothing and is covered by nothing, and
+    /// counting it as "a window under a surface" had the running app re-anchor against it until the
+    /// repairs ran out.
+    /// </summary>
+    /// <param name="own">One of this app's surfaces.</param>
+    /// <param name="visible"><c>IsWindowVisible</c>.</param>
+    /// <param name="minimised"><c>IsIconic</c>.</param>
+    /// <param name="cloaked">DWM does not compose it.</param>
+    /// <param name="onADisplay">Its rectangle meets a display.</param>
+    /// <param name="desktopLayer"><c>Progman</c> or a <c>WorkerW</c>.</param>
+    public static StackWindow Seen(bool own, bool visible, bool minimised, bool cloaked, bool onADisplay, bool desktopLayer)
+    {
+        if (own)
+        {
+            return StackWindow.Own;
+        }
+
+        if (!visible || minimised || cloaked || !onADisplay)
+        {
+            return StackWindow.Hidden;
+        }
+
+        return desktopLayer ? StackWindow.DesktopLayer : StackWindow.Other;
     }
 
     /// <summary>
@@ -249,6 +319,16 @@ public enum LiftMove
 /// <param name="Move">What to do.</param>
 /// <param name="After">For <see cref="LiftMove.Under"/>, the position in the stack of the window to go under; -1 otherwise.</param>
 public readonly record struct LiftPlace(LiftMove Move, int After);
+
+/// <summary>[S-15870] One window below the desktop window, as <see cref="ZOrderPolicy.DesktopRaised"/> sees it.</summary>
+public enum BelowDesktop
+{
+    /// <summary>Hidden (no <c>WS_VISIBLE</c>), or another window of the desktop layer: says nothing.</summary>
+    Nothing = 0,
+
+    /// <summary>A window that is shown or minimised: the desktop stands over it.</summary>
+    Window = 1,
+}
 
 /// <summary>What one window in the z-order is, as far as a surface's place is concerned.</summary>
 public enum StackWindow

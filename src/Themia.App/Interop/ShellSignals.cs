@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
+using Themia.Core.Shell;
 
 namespace Themia.App.Interop;
 
@@ -49,6 +50,9 @@ internal static unsafe class ShellSignals
     private static readonly string[] NonAppClasses =
         [.. DesktopClasses, .. ShellSurfaceClasses];
 
+    /// <summary>How far the walk below the desktop window goes; the z-order can change under it.</summary>
+    private const int BelowLimit = 4096;
+
     /// <summary>Set while a sweep is running, so the callback can report back without allocating.</summary>
     private static bool _sweepFound;
 
@@ -92,6 +96,41 @@ internal static unsafe class ShellSignals
 
     /// <summary>[S-34b] Whether a top-level window is one of the desktop layer's own (<c>Progman</c>, a <c>WorkerW</c>).</summary>
     public static bool IsDesktopLayerWindow(nint hwnd) => IsClass(hwnd, DesktopLayerClasses);
+
+    /// <summary>
+    /// [S-15870] Whether the desktop window is raised over other windows (<see cref="ZOrderPolicy.DesktopRaised"/>):
+    /// at rest it is the last window of the z-order, so the walk below it is empty and costs one call.
+    /// </summary>
+    public static bool DesktopIsRaised()
+    {
+        var desktop = DesktopWindow();
+        if (desktop == 0)
+        {
+            return false;
+        }
+
+        Span<BelowDesktop> one = stackalloc BelowDesktop[1];
+        var next = Win32.GetWindow(desktop, Win32.GwHwndNext);
+        for (var hops = 0; next != 0 && hops < BelowLimit; hops++)
+        {
+            one[0] = Win32.IsWindowVisible(next) && !IsDesktopLayerWindow(next) ? BelowDesktop.Window : BelowDesktop.Nothing;
+            if (ZOrderPolicy.DesktopRaised(one))
+            {
+                return true;
+            }
+
+            next = Win32.GetWindow(next, Win32.GwHwndNext);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// [S-15871] Whether a window's rectangle meets a display. One parked off every display is not on
+    /// screen, whatever <c>IsWindowVisible</c> says.
+    /// </summary>
+    public static bool IsOnADisplay(nint hwnd)
+        => Win32.GetWindowRect(hwnd, out var rect) && Win32.MonitorFromRect(in rect, Win32.MonitorDefaultToNull) != 0;
 
     /// <summary>Whether a window is currently cloaked by DWM: visible to Windows, but not composited.</summary>
     public static bool IsCloaked(nint hwnd)
@@ -175,7 +214,9 @@ internal static unsafe class ShellSignals
 
             // "Still on screen" means genuinely on screen. Show Desktop minimises on this build of
             // Windows and cloaks on others, so both count as hidden.
-            if (!Win32.IsWindowVisible(hwnd) || Win32.IsIconic(hwnd) || IsCloaked(hwnd))
+            // [S-15871] And on a display: a window parked off all of them is not what Show Desktop
+            // would have had to send away.
+            if (!Win32.IsWindowVisible(hwnd) || Win32.IsIconic(hwnd) || IsCloaked(hwnd) || !IsOnADisplay(hwnd))
             {
                 return 1;
             }

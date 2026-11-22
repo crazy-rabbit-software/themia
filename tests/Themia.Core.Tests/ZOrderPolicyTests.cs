@@ -18,11 +18,11 @@ public sealed class ZOrderPolicyTests
     [InlineData(true, false, true)]
     [InlineData(false, false, true)]
     public void ShowDesktopAlwaysPins(bool pinned, bool shellSurface, bool ownSurface)
-        => Assert.Equal(ZAction.PinTopmost, ZOrderPolicy.Decide(true, pinned, shellSurface, ownSurface, applicationOnScreen: false));
+        => Assert.Equal(ZAction.PinTopmost, ZOrderPolicy.Decide(true, pinned, shellSurface, ownSurface, applicationOnScreen: false, desktopRaised: false));
 
     [Fact]
     public void DismissedShowDesktopDropsTheHeldPin()
-        => Assert.Equal(ZAction.DropToAnchor, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurfaceForeground: false, ownSurfaceForeground: false, applicationOnScreen: false));
+        => Assert.Equal(ZAction.DropToAnchor, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurfaceForeground: false, ownSurfaceForeground: false, applicationOnScreen: false, desktopRaised: false));
 
     /// <summary>
     /// The bug: Win+D, then click a widget. The click gives the surface the foreground, Show Desktop
@@ -31,12 +31,12 @@ public sealed class ZOrderPolicyTests
     /// </summary>
     [Fact]
     public void S28_ClickingAWidgetDuringShowDesktopHoldsThePin()
-        => Assert.Equal(ZAction.HoldTopmost, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurfaceForeground: false, ownSurfaceForeground: true, applicationOnScreen: false));
+        => Assert.Equal(ZAction.HoldTopmost, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurfaceForeground: false, ownSurfaceForeground: true, applicationOnScreen: false, desktopRaised: false));
 
     /// <summary>Outside Show Desktop, clicking a widget is ordinary and must not lift anything.</summary>
     [Fact]
     public void S28_ClickingAWidgetWithoutAPinIsOrdinary()
-        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: false, ownSurfaceForeground: true, applicationOnScreen: false));
+        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: false, ownSurfaceForeground: true, applicationOnScreen: false, desktopRaised: false));
 
     /// <summary>
     /// Pressing the Windows key must not drop the pin: the desktop layer is still elevated, so
@@ -45,11 +45,11 @@ public sealed class ZOrderPolicyTests
     /// </summary>
     [Fact]
     public void ShellSurfaceHoldsTheHeldPin()
-        => Assert.Equal(ZAction.HoldTopmost, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurfaceForeground: true, ownSurfaceForeground: false, applicationOnScreen: false));
+        => Assert.Equal(ZAction.HoldTopmost, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurfaceForeground: true, ownSurfaceForeground: false, applicationOnScreen: false, desktopRaised: false));
 
     [Fact]
     public void NothingHappeningSelfHeals()
-        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: false, ownSurfaceForeground: false, applicationOnScreen: false));
+        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: false, ownSurfaceForeground: false, applicationOnScreen: false, desktopRaised: false));
 
     /// <summary>
     /// A shell surface while nothing is pinned is an ordinary moment, not a reason to act: the user
@@ -57,7 +57,7 @@ public sealed class ZOrderPolicyTests
     /// </summary>
     [Fact]
     public void ShellSurfaceWithoutAPinIsOrdinary()
-        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: true, ownSurfaceForeground: false, applicationOnScreen: false));
+        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: true, ownSurfaceForeground: false, applicationOnScreen: false, desktopRaised: false));
 
     /// <summary>
     /// [S-33e] The bug (issues #132, #167): Show Desktop, then the taskbar's Show Desktop button,
@@ -69,12 +69,79 @@ public sealed class ZOrderPolicyTests
     [InlineData(true, false)]
     [InlineData(false, true)]
     public void S33e_windows_back_on_screen_drop_the_pin_whoever_has_the_foreground(bool shellSurface, bool ownSurface)
-        => Assert.Equal(ZAction.DropToAnchor, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurface, ownSurface, applicationOnScreen: true));
+        => Assert.Equal(ZAction.DropToAnchor, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurface, ownSurface, applicationOnScreen: true, desktopRaised: false));
 
     /// <summary>[S-33e] Without a pin there is nothing to drop: an application on screen is ordinary.</summary>
     [Fact]
     public void S33e_an_application_on_screen_without_a_pin_is_ordinary()
-        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: true, ownSurfaceForeground: false, applicationOnScreen: true));
+        => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: true, ownSurfaceForeground: false, applicationOnScreen: true, desktopRaised: false));
+
+    /// <summary>
+    /// [S-15870] The bug (the owner, 2026-11-22: "when i click win +d themia actually still shows up, but when i click
+    /// again there is weird behaviour. themia hides for some time"): the second Win+D hands the foreground to the first
+    /// window it brings back while the desktop window is still raised over the rest. Dropping the lift at that
+    /// foreground change put the surfaces under the raised desktop until the last window was back.
+    /// </summary>
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void S15870_the_lift_holds_while_the_desktop_is_still_raised_whoever_has_the_foreground(bool shellSurface, bool ownSurface)
+    {
+        Assert.Equal(ZAction.PinTopmost, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurface, ownSurface, applicationOnScreen: false, desktopRaised: true));
+
+        // An application back on screen does not end it either ([S-33e] is for a desktop that went down).
+        Assert.Equal(ZAction.PinTopmost, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurface, ownSurface, applicationOnScreen: true, desktopRaised: true));
+    }
+
+    /// <summary>[S-15870] A surface found under a raised desktop with no lift held (a start during Show Desktop, a drop that came too early) is lifted out.</summary>
+    [Fact]
+    public void S15870_a_raised_desktop_lifts_surfaces_that_were_not_lifted()
+        => Assert.Equal(ZAction.PinTopmost, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: false, ownSurfaceForeground: false, applicationOnScreen: false, desktopRaised: true));
+
+    /// <summary>[S-15870] The desktop back at the bottom ends the lift as before.</summary>
+    [Fact]
+    public void S15870_the_desktop_gone_down_drops_the_lift()
+        => Assert.Equal(ZAction.DropToAnchor, ZOrderPolicy.Decide(false, pinnedTopmost: true, shellSurfaceForeground: false, ownSurfaceForeground: false, applicationOnScreen: false, desktopRaised: false));
+
+    /// <summary>[S-15870] At rest the desktop window is the last of the z-order: nothing below it, or only hidden windows and the wallpaper's host.</summary>
+    [Fact]
+    public void S15870_a_desktop_with_nothing_shown_below_it_is_not_raised()
+    {
+        Assert.False(ZOrderPolicy.DesktopRaised([]));
+        Assert.False(ZOrderPolicy.DesktopRaised([BelowDesktop.Nothing, BelowDesktop.Nothing]));
+    }
+
+    /// <summary>[S-15870] Show Desktop: the windows it sent away lie below the desktop window, minimised.</summary>
+    [Fact]
+    public void S15870_a_window_below_the_desktop_says_it_is_raised()
+        => Assert.True(ZOrderPolicy.DesktopRaised([BelowDesktop.Nothing, BelowDesktop.Window, BelowDesktop.Nothing]));
+
+    /// <summary>
+    /// [S-15871] The bug: a check render's window parked at -32000,-32000 ended up between a surface and the desktop
+    /// window, the running app took it for a window its widgets covered and re-anchored against it until its repairs
+    /// ran out ("16 z-order repairs since the last user action were all undone", at every check run).
+    /// </summary>
+    [Fact]
+    public void S15871_a_window_parked_off_every_display_is_not_on_screen()
+    {
+        Assert.Equal(StackWindow.Hidden, ZOrderPolicy.Seen(own: false, visible: true, minimised: false, cloaked: false, onADisplay: false, desktopLayer: false));
+        Assert.True(ZOrderPolicy.AnchorHolds(topmost: false,
+        [
+            ZOrderPolicy.Seen(own: false, visible: true, minimised: false, cloaked: false, onADisplay: false, desktopLayer: false),
+        ]));
+    }
+
+    [Theory]
+    [InlineData(true, true, false, false, true, false, StackWindow.Own)]
+    [InlineData(true, false, false, false, false, false, StackWindow.Own)]
+    [InlineData(false, false, false, false, true, false, StackWindow.Hidden)]
+    [InlineData(false, true, true, false, true, false, StackWindow.Hidden)]
+    [InlineData(false, true, false, true, true, false, StackWindow.Hidden)]
+    [InlineData(false, true, false, false, true, true, StackWindow.DesktopLayer)]
+    [InlineData(false, true, false, false, true, false, StackWindow.Other)]
+    public void S15871_what_a_window_is_to_a_surfaces_place(bool own, bool visible, bool minimised, bool cloaked, bool onADisplay, bool desktopLayer, StackWindow expected)
+        => Assert.Equal(expected, ZOrderPolicy.Seen(own, visible, minimised, cloaked, onADisplay, desktopLayer));
 
     /// <summary>[S-34c] Its own siblings, hidden windows and the desktop layer below a surface are its resting place.</summary>
     [Fact]

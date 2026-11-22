@@ -83,6 +83,13 @@ internal static unsafe partial class Win32
     [LibraryImport("user32.dll")]
     internal static partial nint GetForegroundWindow();
 
+    /// <summary><c>MONITOR_DEFAULTTONULL</c>: no display where the rectangle meets none.</summary>
+    internal const uint MonitorDefaultToNull = 0;
+
+    /// <summary>[S-15871] The display a rectangle meets most of; 0 with <see cref="MonitorDefaultToNull"/> where it meets none.</summary>
+    [LibraryImport("user32.dll")]
+    internal static partial nint MonitorFromRect(in Rect rect, uint flags);
+
     [LibraryImport("user32.dll", SetLastError = true)]
     internal static partial nint GetWindow(nint hWnd, uint uCmd);
 

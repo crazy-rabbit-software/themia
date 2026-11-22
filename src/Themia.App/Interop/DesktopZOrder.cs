@@ -109,6 +109,21 @@ internal static unsafe class DesktopZOrder
     /// <summary>A check is already queued, so the next event need not queue another.</summary>
     private static bool _checkQueued;
 
+    /// <summary>[S-15872] This process is a render or a check: it takes no part in the desktop's z-order (<see cref="StandAside"/>).</summary>
+    private static bool _aside;
+
+    /// <summary>
+    /// [S-15872] For a process that runs a render or a check instead of the app, called once before
+    /// it builds anything: its surfaces are parked off every display, so they have no place on the
+    /// desktop to keep. From here <see cref="Start"/> installs no hook, <see cref="Track"/> subclasses
+    /// and anchors nothing and no check runs. A check that built the real host used to run the whole
+    /// controller beside the user's running copy: both anchored their surfaces just above the desktop
+    /// window, each saw the other's as "a window under a surface", and they re-anchored against each
+    /// other until both ran out of repairs ([S-34d]'s warning in the user's log at every check run);
+    /// during Show Desktop both lifted, for the same place.
+    /// </summary>
+    public static void StandAside() => _aside = true;
+
     /// <summary>
     /// Start watching the shell. Idempotent. The hooks are installed out-of-context so their
     /// callbacks arrive on this thread's message queue rather than inside another process.
@@ -116,6 +131,11 @@ internal static unsafe class DesktopZOrder
     public static void Start(DispatcherQueue dispatcher)
     {
         ArgumentNullException.ThrowIfNull(dispatcher);
+        if (_aside)
+        {
+            return;
+        }
+
         _dispatcher = dispatcher;
         _started = true;
 
@@ -151,7 +171,7 @@ internal static unsafe class DesktopZOrder
     /// <summary>Start managing a surface. Idempotent.</summary>
     public static void Track(nint hwnd)
     {
-        if (hwnd == 0 || !Win32.IsWindow(hwnd))
+        if (_aside || hwnd == 0 || !Win32.IsWindow(hwnd))
         {
             return;
         }
@@ -216,6 +236,11 @@ internal static unsafe class DesktopZOrder
     /// </summary>
     public static void Reconcile()
     {
+        if (_aside)
+        {
+            return;
+        }
+
         Repairs.Refill();
         Check();
     }
@@ -268,7 +293,10 @@ internal static unsafe class DesktopZOrder
             // only while a hold is on the table (pinned, with a shell or own surface in front).
             var applicationOnScreen = (shellSurface || ownSurface) && ShellSignals.AnyOrdinaryAppVisible();
 
-            Apply(ZOrderPolicy.Decide(showDesktop, pinned, shellSurface, ownSurface, applicationOnScreen));
+            // [S-15870] The lift lasts while the desktop window is raised, whoever has the foreground.
+            var desktopRaised = !showDesktop && ShellSignals.DesktopIsRaised();
+
+            Apply(ZOrderPolicy.Decide(showDesktop, pinned, shellSurface, ownSurface, applicationOnScreen, desktopRaised));
         }
         catch (Exception ex)
         {
@@ -566,20 +594,24 @@ internal static unsafe class DesktopZOrder
 
     private static StackWindow Describe(nint hwnd)
     {
+        bool own;
         lock (Gate)
         {
-            if (OriginalProcs.ContainsKey(hwnd))
-            {
-                return StackWindow.Own;
-            }
+            own = OriginalProcs.ContainsKey(hwnd);
         }
 
-        if (!Win32.IsWindowVisible(hwnd) || Win32.IsIconic(hwnd) || ShellSignals.IsCloaked(hwnd))
-        {
-            return StackWindow.Hidden;
-        }
-
-        return ShellSignals.IsDesktopLayerWindow(hwnd) ? StackWindow.DesktopLayer : StackWindow.Other;
+        // Asked in the order that settles it soonest: most windows of a z-order are hidden.
+        var visible = own || Win32.IsWindowVisible(hwnd);
+        var minimised = visible && !own && Win32.IsIconic(hwnd);
+        var cloaked = visible && !own && !minimised && ShellSignals.IsCloaked(hwnd);
+        var shown = visible && !minimised && !cloaked;
+        return ZOrderPolicy.Seen(
+            own,
+            visible,
+            minimised,
+            cloaked,
+            onADisplay: shown && !own && ShellSignals.IsOnADisplay(hwnd),
+            desktopLayer: shown && !own && ShellSignals.IsDesktopLayerWindow(hwnd));
     }
 
     private static bool IsTopmost(nint hwnd)
