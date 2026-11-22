@@ -123,10 +123,7 @@ internal static partial class RenderCommands
 
         try
         {
-#if DEBUG
-            // [S-15900] The host's loads that draw later are the page's work: a render's settle waits for them.
-            Services.LoadWatch.Listener = Themia.App.Shell.Gallery.RenderSettle.Track;
-#endif
+            Starting();
             return await command.Run(new RenderRun(command, asked.Args, app, dispatcher)).ConfigureAwait(true);
         }
         catch (RenderUsageException usage)
@@ -142,14 +139,17 @@ internal static partial class RenderCommands
             Console.WriteLine($"{command.Name}: failed: {ex.Message}");
             return RenderCommandLine.Crashed;
         }
-#if DEBUG
         finally
         {
-            // [S-15900] How long the command waited for its pages, and how many it never saw settle.
-            Themia.App.Shell.Gallery.RenderSettle.Report();
+            Ended();
         }
-#endif
     }
+
+    /// <summary>[S-15900] Before a command runs: the Debug build's renders listen for the host's loads (none in Release).</summary>
+    static partial void Starting();
+
+    /// <summary>[S-15900] After a command ran: the Debug build says how long its settles took (none in Release).</summary>
+    static partial void Ended();
 
     /// <summary><c>--render list</c>: every command's line and summary, renders first.</summary>
     private static Task<int> List(RenderRun run)

@@ -6,6 +6,12 @@ namespace Themia.App.Shell;
 /// <summary>[S-69] The Debug build's renders and checks: each one's <see cref="RenderCommand"/>, by its class. A new render adds its line here.</summary>
 internal static partial class RenderCommands
 {
+    /// <summary>[S-15900] The host's loads that draw later are the page's work: a render's settle waits for them.</summary>
+    static partial void Starting() => Services.LoadWatch.Listener = RenderSettle.Track;
+
+    /// <summary>[S-15900] How long the command waited for its pages, and how many it never saw settle.</summary>
+    static partial void Ended() => RenderSettle.Report();
+
     private static partial IEnumerable<RenderCommand> Gallery() =>
     [
         WidgetRender.Command,
