@@ -11384,6 +11384,11 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 - **[S-15756]** **A power button's failure render is one its action can have**: sleep and hibernate a suspend refused, the
   session's ends (shut down, restart, sign out) the privilege denied by policy, the rest access denied; restart's had read
   "Windows refused to sleep".
+- **[S-15761]** **A text drawn on one line is measured on one line** (`Ink`'s wrap width): the ink meter's face (Segoe UI
+  Variable at its nearest optical size) sets a line a little wider than XAML's, so at the width XAML drew a one-line text
+  it wrapped its last word onto a second line and read that line's foot; a descender on the drawn line went unseen. A
+  wrapping text XAML laid on one line is measured unwrapped. signOut's failure at 600 × 200, 520 × 600 and 900 × 300 had
+  stood 4.0 to 4.7 DIP low, its "g" in the inset foot.
 - **[S-15757]** **A refused click says so on the toggle's state line** (WR-10): after a click Windows did not carry out
   the line reads "Windows did not switch it" (`QuickToggleRules.StateLine(…, refused)`), not the unchanged state as if
   nothing had been asked; unavailable and not-known lines keep theirs. Test `QuickToggleTests.S15757_`.

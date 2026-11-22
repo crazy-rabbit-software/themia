@@ -466,6 +466,16 @@ public static class Ink
             return double.PositiveInfinity;
         }
 
+        // [S-15761] A text XAML laid on one line is one line to the meter too: the meter's face (Segoe UI Variable at its nearest
+        // optical size) sets a line a little wider than XAML's continuous optical size, so at the drawn width it wrapped the
+        // last word under ("Could not sign out: this account is not allowed to" at Title, its "to" alone on a second line)
+        // and read that line's foot, the "g" of "sign" unseen: the tile stood 4.7 DIP low, its line in the inset foot.
+        var height = text.DesiredSize.Height - text.Margin.Top - text.Margin.Bottom;
+        if (text.LineHeight > 0 && height > 0 && height < (2 * text.LineHeight) - LayoutMath.Tolerance)
+        {
+            return double.PositiveInfinity;
+        }
+
         var width = text.DesiredSize.Width - text.Margin.Left - text.Margin.Right;
         return width > 0 ? width + LayoutMath.Pixel(text.XamlRoot?.RasterizationScale ?? 0) : double.PositiveInfinity;
     }
