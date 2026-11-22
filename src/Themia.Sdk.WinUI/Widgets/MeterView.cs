@@ -94,7 +94,13 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
 
         // [S-11953] The drive pointed at on the view, for a meter of one drive.
         JoinDrives();
+
+        // [S-15745] A meter that opens something on a click (Task Manager) lights as one item under the pointer.
+        _opensLight = new OpensLight(this, () => !_detached && _surface?.EditMode != true && Opens is not null);
     }
+
+    /// <summary>[S-15745] The whole card's hover and pressed light while a click opens something.</summary>
+    private readonly OpensLight _opensLight;
 
     /// <summary>[S-663] The card's word on how much room the meter has.</summary>
     public void ApplySize(WidgetArea area)
@@ -122,6 +128,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         ApplyConfig(config);
         _links.Join(_surface?.Links);
         _driveCard?.Publishes(this);
+        _opensLight.Attach();
     }
 
     public void ApplyConfig(WidgetConfig config)
@@ -327,6 +334,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     public void Detach()
     {
         _detached = true;
+        _opensLight.Detach();
         _driveCard?.Release();
         _links.Leave();
         _standsAt = null;

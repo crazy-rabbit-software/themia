@@ -84,12 +84,13 @@ public static class TileRules
     public static double RoundGlyph(double circle) => Largest(circle / 2);
 
     /// <summary>
-    /// [S-6736] A ringed tile's glyph (a power button's, whose arm ring is drawn round it): the largest
-    /// of the family's glyph sizes at most <see cref="RingShare"/> of the ring, 16 at least, so arming
-    /// draws the ring without the glyph changing size. [S-14203] Never larger than the ring itself: a
-    /// mark smaller than 16 (a tile at the floor, [S-12806]) is the glyph's whole box.
+    /// [S-15740] A ringed tile's arm ring (a power button's) round its glyph of <paramref name="glyph"/>: the glyph is
+    /// <see cref="RingShare"/> of the ring, so the ring stands clear of it. The ring is drawn over the glyph's box, past
+    /// it on every side, never laid out: the glyph is the face's mark at its full step as every tile's, its name 8 under it
+    /// (WR-7: "Keep them together"; the ring's room had stood as a band between them, a 16 glyph in a 28 mark, the name 34
+    /// under a 27 glyph at 300 × 100), and arming, which shows the ring, moves nothing.
     /// </summary>
-    public static double RingGlyph(double ring) => ring > 0 && double.IsFinite(ring) ? Math.Min(ring, Largest(ring * RingShare)) : Largest(ring * RingShare);
+    public static double RingAround(double glyph) => glyph > 0 && double.IsFinite(glyph) ? glyph / RingShare : 0;
 
     /// <summary>
     /// [S-6736] The switch look's row in <paramref name="width"/>: [glyph 16] 8 [name over state] 12
@@ -188,7 +189,26 @@ public static class TileRules
             }
         }
 
-        return texted ?? alone;
+        // [S-15741] No step holds its words at their own size: the 28 glyph and its words are still one block, scaled down
+        // as one into the inset box (the tile's ReadingFit) while its smallest text stays read (WR-7: "All together,
+        // scaled"; WR-14: down to 9), so a wide short tile (300 x 100) keeps its name and state line under the glyph; only
+        // under that floor the glyph stands alone.
+        return texted ?? (WordsKept(w, h, stateLine) ? new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption) : alone);
+    }
+
+    /// <summary>
+    /// [S-15741] Whether the 28 glyph, its name on <see cref="NameLines"/> lines and (<paramref name="stateLine"/>) its state
+    /// line, scaled down as one block into an inset box <paramref name="w"/> × <paramref name="h"/>, draw their smallest
+    /// text at <see cref="ScaleFloor.Text"/> or more.
+    /// </summary>
+    public static bool WordsKept(double w, double h, bool stateLine)
+    {
+        var (name, state) = TextAt(FamilyType.Big28);
+        var blockWidth = Math.Max(FamilyType.Big28.FontSize, NameRoom(name));
+        var blockHeight = FamilyType.Big28.FontSize + FamilySpace.S2 + (NameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
+        var smallest = stateLine ? state.FontSize : name.FontSize;
+        var scale = Math.Min(1, Math.Min(w / blockWidth, h / blockHeight));
+        return w > 0 && h > 0 && scale * smallest >= ScaleFloor.Text - 1e-9;
     }
 
     /// <summary>[S-11882] A glyph alone is at most this share of its inset box's short side: one third.</summary>

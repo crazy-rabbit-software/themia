@@ -110,6 +110,15 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         PointerCanceled += OnPointerLost;
         Strings.Changed += OnLanguage;
 
+        // [S-15742] What the tile shows under the pointer and pressed, for the renders' --hover and --pressed (WR-13): the
+        // same fill the pointer's own handlers paint, the whole tile lit.
+        PointerPreview.Register(this, pressed =>
+        {
+            _hover = !Inert && Reading.CanSwitch;
+            _pressed = pressed && _hover;
+            Paint();
+        });
+
         AutomationProperties.SetName(this, QuickToggleRules.Name(_toggle));
         ApplyConfig(config);
     }
@@ -152,6 +161,7 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         PointerCaptureLost -= OnPointerLost;
         PointerCanceled -= OnPointerLost;
         Strings.Changed -= OnLanguage;
+        PointerPreview.Forget(this);
 
         _lease?.Dispose();
         _lease = null;

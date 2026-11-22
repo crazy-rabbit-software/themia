@@ -1183,10 +1183,9 @@ module author's guide is docs/WIDGET-KIT.md 16.
   anything now (a reading not answered says "--" on its state line, [S-14202]), so a change of state keeps the face's
   size; the face stands centred on its ink ([S-14201]).
   The owner keeps the whole tile as its hit target and tells the block the pointer (`Face`): the item
-  layer's hover and press, or over the accent the subtle fills laid on it. A **ringed** tile keeps
-  its glyph inside its ring, at the largest family glyph size within three quarters of the step
-  (`TileRules.RingGlyph`), so the arm ring shows without the glyph changing size (the face, centred on its ink, takes
-  the ring in, [S-14201]); the ring is the Chart's
+  layer's hover and press, or over the accent the subtle fills laid on it. A **ringed** tile draws
+  its arm ring round its glyph, past the mark's box and never laid out (`TileRules.RingAround`, [S-15740]), so the ring
+  shows without anything moving; the ring is the Chart's
   (`ChartRing`, stroke 2 over its track) and drains on the compositor (`ChartRing.Drain`: one linear
   animation of the arc's end over the time left, nothing on the UI thread, [S-1913]). The **switch**
   look is a row: [glyph 16] 8 [name over state] 12 [Windows' toggle switch, 40 wide, drawn and
@@ -6120,6 +6119,15 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   kind's items as they will stand, each without a reading ("--", no bar lit, the disabled role; `MeterPart.WaitingItems`):
   the disk's Read and Write rows. Never the reading alone over an empty card (the bars style showed its glyph and "--"
   alone wherever a render or a start beat the counters' first rate). Debug renders: `--state waiting` draws it.
+- **[S-15744]** **A meter's sample state** (WR-10, WR-15: the audit judges a running reading by its pictures): every
+  meter (`MeterView`) offers the render state `sample` first, drawn on the sample machine ([S-1931]: the render installs
+  it for a system kind's `sample` state, as `--machine sample`), so each style is drawn with its readings and items (the
+  cores' bars, rings and graphs, the disk's rate and rows) and a hover or pressed render reads the same values as rest.
+- **[S-15745]** **A card that opens something lights under the pointer** (WR-13, owner 2026-11-19: "when hovering over a
+  widget it also does not show the hover effect"): a meter whose click opens Task Manager (`MeterView`) and the drive card
+  (its root in Explorer) light as one item, the item layer's hover fill over the card's whole box and its pressed fill
+  pressed (`OpensLight`, through `LinkLook.Opens`), registered for the pointer renders; never in edit mode, never while
+  the click opens nothing. A meter of one drive still publishes its drive and lights for it elsewhere ([S-11953]).
 - **[S-6301]** An item's role: the usage pressure's ([S-1123]: the accent, Caution from 70 %, Critical
   from 90 %); an item with no reading is the disabled role, never "idle". The heat-map shades
   (`LoadTint`) are gone with the tiles ([S-6305]).
@@ -9332,10 +9340,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   `MetricRules.Default`) rather than nothing, so its face is the same block, centred on the same ink, before and after
   the answer; the tooltip and the item status still say what is known. Test
   `QuickToggleTests.S14202_`.
-- **[S-14203]** **A ringed glyph never outgrows its ring** ([S-12806]: a tile has no real minimum). A power button's
-  glyph is the largest family glyph within three quarters of its ring, 16 at least, but never larger than the ring
-  itself (`TileRules.RingGlyph`): at the floor (10 x 10, a 6 mark) the 16 glyph drew past the card and was cut to its
-  shackle; it is now the mark's whole box, as a toggle's glyph is. Test `FamilyBlockRulesTests.S14203_`.
+- **[S-14203]** *(Replaced 2026-11-22 by [S-15740]: the glyph is the mark itself and the ring stands round it, so it can
+  never outgrow it; `TileRules.RingGlyph` is gone.)*
 - **[S-12834]** **What stands over a list is whole cells, and the rows start right under it** (owner, 2026-11-19,
   docs/WIDGET-RULES.md WR-1: "there should not be a space at the top"; WR-5: "Empty stated rows / leftover whole cells
   may stand at the foot; never above the first item, never between items"; WR-6: "Every repeated item is a whole number
@@ -11262,6 +11268,26 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   glyph shrink. Centred both ways. The words take the box only as a one-readout widget's glyph takes its
   Hero steps ([S-6737]). Tests `FamilyBlockRulesTests.S11882_`, `ToggleStylesTests.S3916_`,
   `PowerActionTests.S1912_`.
+- **[S-15740]** **A power button's glyph is its mark, the arm ring round it** (docs/WIDGET-RULES.md WR-7, owner 2026-11-19:
+  "Keep them together"): the glyph is the face's mark at its step, as a toggle's, and the arm ring (`TileRules.RingAround`,
+  the glyph three quarters of it) is drawn round it past the mark's box, never laid out and never the face's ink
+  (`RingRoom`, an `IInked` that inks nothing), so the name stands 8 under the glyph and arming moves nothing. The ring's
+  room had stood between them: a 16 glyph in a 28 mark, the name 34 DIP under a 27 DIP glyph at 300 × 100. Test
+  `FamilyBlockRulesTests.S15740_`.
+- **[S-15741]** **A short tile keeps its words, scaled down with its glyph** (WR-7: "All together, scaled"; WR-14): where
+  no glyph step holds its words at their own size, the 28 glyph, its name and (a toggle's) state line are still planned
+  and the block is scaled down as one into the inset box (the tile's `ReadingFit`) while its smallest text stays at 9 or
+  more (`TileRules.WordsKept`: the two-line name and the state line counted); only under that the glyph stands alone. A
+  300 × 100 or 240 × 100 toggle had dropped its name and state line (and an unavailable one its "Unavailable"). Tests
+  `FamilyBlockRulesTests.S15741_`.
+- **[S-15742]** **A tile lights in the pointer renders** (WR-13): the quick toggles and the power buttons register what
+  they show under the pointer and pressed (`PointerPreview`, [S-12831]) beside their pointer handlers, so `--hover` and
+  `--pressed` draw the whole tile lit as the pointer does; they had drawn it at rest.
+- **[S-15743]** **A power button states only what its action has, and an unavailable one says why** (WR-10): its render
+  states offer "armed" only for an action that arms and "unavailable" only for one a PC can lack (hibernate, [S-1914]);
+  restart's and the display's "unavailable" had drawn their idle face. Unavailable, the glyph stays and the name's line
+  says why ("Hibernation is turned off on this PC", disabled), as a failure does ([S-1915]); the tooltip names the action
+  and the reason.
 - **[S-11883]** **A tile's fill takes the card's corners** (owner, 2026-11-15: "the button widgets when in a
   group have rounded corners which looks off"): the tile's own fill, hover, pressed and on (accent)
   backgrounds reach the card's edge, and kept the family's round corners inside a joined panel, a notch at

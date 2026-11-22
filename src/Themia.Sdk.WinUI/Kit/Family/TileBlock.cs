@@ -26,9 +26,9 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <para>
 /// [S-6736] It only draws: its owner keeps the whole tile as the hit target and tells it the
 /// pointer's state (<see cref="Face"/>): the item layer's hover and press, or over the accent the
-/// subtle fills laid on it. A ringed tile (a power button's) keeps its glyph inside the ring
-/// (<see cref="TileRules.RingGlyph"/>), so the arm ring (<see cref="Ring"/>, the Chart's ring, drained
-/// on the compositor) moves nothing when it shows.
+/// subtle fills laid on it. A ringed tile (a power button's) draws its arm ring (<see cref="Ring"/>, the Chart's ring,
+/// drained on the compositor) round the glyph, past the mark's box (<see cref="TileRules.RingAround"/>, [S-15740]), so it
+/// moves nothing when it shows.
 /// </para>
 /// </summary>
 public sealed partial class TileBlock : Grid
@@ -42,6 +42,9 @@ public sealed partial class TileBlock : Grid
     private readonly Border _circle;
     private readonly Border _circleOverlay = new() { IsHitTestVisible = false };
     private readonly FontIcon _glyph;
+
+    /// <summary>[S-15740] The arm ring's box round the glyph, past the mark's on every side.</summary>
+    private readonly RingRoom _ringRoom;
 
     /// <summary>[S-12806] The glyph's box when the face gives one smaller than its step's, else 0.</summary>
     private double _mark0;
@@ -75,7 +78,8 @@ public sealed partial class TileBlock : Grid
         _circle = new Border { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Child = _circleOverlay };
         Ring = new ChartRing { Visibility = Visibility.Collapsed };
         Ring.Role(ColourRole.Critical);
-        _mark = new Grid { HorizontalAlignment = HorizontalAlignment.Center, Children = { _circle, _glyph, Ring } };
+        _ringRoom = new RingRoom { Children = { Ring } };
+        _mark = new Grid { HorizontalAlignment = HorizontalAlignment.Center, Children = { _circle, _glyph, _ringRoom } };
 
         _label = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
         _label.HorizontalAlignment = HorizontalAlignment.Center;
@@ -301,11 +305,18 @@ public sealed partial class TileBlock : Grid
         else
         {
             _circle.Visibility = Visibility.Collapsed;
-            var inner = _ringed ? TileRules.RingGlyph(size) : size;
-            _glyph.FontSize = inner;
-            _glyph.Width = inner;
-            _glyph.Height = inner;
+            _glyph.FontSize = size;
+            _glyph.Width = size;
+            _glyph.Height = size;
         }
+
+        // [S-15740] The arm ring round the glyph, drawn past the mark's box on every side and never laid out: the glyph is the
+        // mark at its step and the name stands 8 under it, armed or not.
+        var ring = _ringed && _look != TileLook.Round ? TileRules.RingAround(size) : size;
+        var past = -(ring - size) / 2;
+        _ringRoom.Width = ring;
+        _ringRoom.Height = ring;
+        _ringRoom.Margin = new Thickness(past);
 
         _glyph.Foreground = Family.Brush(roles.Glyph);
         _mark.Width = size;
@@ -321,4 +332,17 @@ public sealed partial class TileBlock : Grid
         // for "Off"), which XAML does not arrange again on its own: the fit places it again.
         _fit.Refit();
     }
+}
+
+/// <summary>
+/// [S-15740] The arm ring's box: drawn round the glyph, never the face's ink (the glyph's and the words' say where the block
+/// stands), so the ring showing moves nothing (<see cref="ReadingFit"/> fits the face on its ink).
+/// </summary>
+internal sealed partial class RingRoom : Grid, IInked
+{
+    /// <inheritdoc />
+    public LineInk Ink => new(DesiredSize.Height, DesiredSize.Height);
+
+    /// <inheritdoc />
+    public bool IsRow => false;
 }

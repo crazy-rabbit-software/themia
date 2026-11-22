@@ -124,6 +124,15 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         PointerCanceled += OnPointerLost;
         Strings.Changed += OnLanguage;
 
+        // [S-15742] What the tile shows under the pointer and pressed, for the renders' --hover and --pressed (WR-13): the
+        // same fill the pointer's own handlers paint, the whole tile lit.
+        PointerPreview.Register(this, pressed =>
+        {
+            _hover = !Inert;
+            _pressed = pressed && _hover;
+            Paint();
+        });
+
         if (_expiry is not null)
         {
             _expiry.Tick += OnExpiry;
@@ -172,6 +181,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         PointerCaptureLost -= OnPointerLost;
         PointerCanceled -= OnPointerLost;
         Strings.Changed -= OnLanguage;
+        PointerPreview.Forget(this);
 
         if (_expiry is not null)
         {
@@ -222,9 +232,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         var name = PowerActionRules.Label(_action);
 
         // [S-1913] The tile says what the next click does; [S-1915] after a failure, why (the
-        // machine is still up), until the next press; [S-1914] greyed with the reason on hover.
+        // machine is still up), until the next press; [S-1914] greyed, the reason in the name's line.
+        // [S-15743] Unavailable, the face stays (its glyph) and the name's line says why, as a failure does (WR-10).
         var (glyph, text, tooltip) = !button.Available
-            ? (Glyph(_action), name, PowerActionRules.UnavailableHint)
+            ? (Glyph(_action), PowerActionRules.UnavailableHint, $"{name}: {PowerActionRules.UnavailableHint}")
             : armed
                 ? (Glyph(_action), PowerActionRules.ArmedLabel(_action), PowerActionRules.ArmedLabel(_action))
                 : failure is not null

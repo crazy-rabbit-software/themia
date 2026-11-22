@@ -266,8 +266,10 @@ internal static class WidgetRender
                 ConfirmFlyout.RenderInWindow = true;
 
                 // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
-                // [S-1931] --machine sample: they read the sample machine instead of this PC.
-                if (string.Equals(Option(args, "--machine"), "sample", StringComparison.OrdinalIgnoreCase))
+                // [S-1931] --machine sample: they read the sample machine instead of this PC. [S-15744] So does a system kind's
+                // "sample" state (a meter's own: its reading and items are the sample machine's, never this PC's moving ones).
+                if (string.Equals(Option(args, "--machine"), "sample", StringComparison.OrdinalIgnoreCase)
+                    || (state == "sample" && WidgetConfig.CreateDefault(kind) is Themia.Core.SystemData.IReadsSystem))
                 {
                     machine = RenderMachine.Install(ticker, dispatcher);
                 }

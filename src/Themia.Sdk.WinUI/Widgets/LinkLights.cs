@@ -289,6 +289,17 @@ public static class LinkLook
         }
     }
 
+    /// <summary>
+    /// [S-15745] Light the whole card <paramref name="view"/> stands in as the thing a click on it opens, under the pointer
+    /// (<see cref="ItemState.Hover"/>), pressed (<see cref="ItemState.Pressed"/>) or not (<see cref="ItemState.Rest"/>): the
+    /// same fill over the card's whole box as <see cref="Card"/>'s (<see cref="OpensLight"/>).
+    /// </summary>
+    public static void Opens(FrameworkElement view, ItemState state)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        SurfaceOf(view)?.LightCard(state);
+    }
+
     /// <summary>What each view last asked of its card, for one that asked before it stood in it.</summary>
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<FrameworkElement, CardLight> Wanted = [];
 

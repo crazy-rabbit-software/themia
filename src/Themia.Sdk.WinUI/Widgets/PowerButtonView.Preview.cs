@@ -8,7 +8,17 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only: the states a render cannot click its way into ([S-1917]).</summary>
 public sealed partial class PowerButtonView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["hover", "pressed", "armed", "failed", "unavailable"];
+    /// <summary>
+    /// [S-15743] The states this action has: "armed" only for one that arms ([S-1913]), "unavailable" only for one a PC can
+    /// lack (hibernate, [S-1914]); restart and the display are always there, and their "unavailable" drew the idle face.
+    /// </summary>
+    public IReadOnlyList<string> PreviewStates =>
+    [
+        "hover", "pressed",
+        .. PowerActionRules.NeedsArming(_action) ? ["armed"] : Array.Empty<string>(),
+        "failed",
+        .. PowerActionRules.Available(_action, canHibernate: false) ? Array.Empty<string>() : ["unavailable"],
+    ];
 
     public async Task ShowPreviewStateAsync(string state)
     {

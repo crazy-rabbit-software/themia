@@ -209,24 +209,16 @@ public sealed class FamilyBlockRulesTests
     }
 
     [Theory]
-    [InlineData(28, 16)]
-    [InlineData(40, 28)]
-    [InlineData(68, 48)]
-    [InlineData(96, 68)]
-    [InlineData(136, 96)]
-    [InlineData(192, 136)]
-    public void S6736_a_ringed_glyph_is_the_largest_family_size_within_three_quarters_of_its_ring(double ring, double glyph)
-        => Assert.Equal(glyph, TileRules.RingGlyph(ring));
-
-    [Theory]
-    [InlineData(16, 16)]
-    [InlineData(10, 10)]
-    [InlineData(6, 6)]
-    public void S14203_a_ringed_glyph_never_outgrows_its_ring(double ring, double glyph)
+    [InlineData(28, 37.333)]
+    [InlineData(96, 128)]
+    [InlineData(12, 16)]
+    public void S15740_a_ringed_glyph_is_the_mark_and_its_ring_stands_round_it(double glyph, double ring)
     {
-        // A power button at the floor (10 x 10) has a 6 mark: the family's least glyph, 16, drew past the card and was cut.
-        Assert.Equal(glyph, TileRules.RingGlyph(ring));
-        Assert.Equal(TileRules.Face(10, 10, stateLine: false).MarkSize, TileRules.RingGlyph(TileRules.Face(10, 10, stateLine: false).MarkSize));
+        // The ring's room no longer stands between the glyph and its name (WR-7): the glyph is the mark at its step, the
+        // ring three quarters out from it, drawn past the mark's box.
+        Assert.Equal(ring, TileRules.RingAround(glyph), 3);
+        Assert.Equal(TileRules.RingShare, glyph / TileRules.RingAround(glyph), 6);
+        Assert.Equal(0, TileRules.RingAround(0));
     }
 
     [Theory]
@@ -383,6 +375,28 @@ public sealed class FamilyBlockRulesTests
         }
     }
 
+    [Theory]
+    [InlineData(300, 100, true)]
+    [InlineData(240, 100, true)]
+    [InlineData(100, 100, true)]
+    [InlineData(300, 100, false)]
+    [InlineData(80, 80, false)]
+    public void S15741_a_short_tile_keeps_its_words_scaled_down_with_its_glyph(double width, double height, bool stateLine)
+    {
+        // WR-7, owner 2026-11-19: Readouts "All together, scaled": at 300 x 100 a toggle dropped its name and state line and
+        // drew its glyph alone, though the block scaled down still drew its caption over the floor.
+        var face = TileRules.Face(width, height, stateLine);
+        Assert.True(face.Texted, $"{width} x {height}: {face}");
+        Assert.Equal(FamilyType.Big28, face.Glyph);
+    }
+
+    [Theory]
+    [InlineData(400, 60, true)]
+    [InlineData(60, 300, true)]
+    [InlineData(70, 70, true)]
+    public void S15741_under_the_words_floor_the_glyph_stands_alone(double width, double height, bool stateLine)
+        => Assert.False(TileRules.Face(width, height, stateLine).Texted);
+
     [Fact]
     public void S11882_the_glyph_and_its_words_grow_with_the_box_and_always_fit_it()
     {
@@ -396,12 +410,13 @@ public sealed class FamilyBlockRulesTests
         Assert.True(TileRules.Face(480, 480).Glyph.FontSize >= 96);
         Assert.Equal(FamilyType.Regular(FamilyType.Title), TileRules.Face(480, 480).Name);
 
-        // Wide and short, or tall and narrow: the glyph alone, as large as the short side holds.
+        // Wide and short, or tall and narrow, under the words' floor: the glyph alone, as large as the short side holds.
         Assert.False(TileRules.Face(400, 60).Texted);
         Assert.False(TileRules.Face(52, 400).Texted);
         Assert.Equal(FamilyType.Big28, TileRules.Face(52, 400).Glyph);
 
-        // Never larger than the box: every box from the least to the most, on both axes.
+        // Never larger than the box: every box from the least to the most, on both axes; a face that holds its words only
+        // scaled down holds them at the floor at least ([S-15741]).
         for (var w = 52.0; w <= TileRules.MaxSide; w += 12)
         {
             for (var h = 52.0; h <= TileRules.MaxSide; h += 20)
@@ -411,8 +426,8 @@ public sealed class FamilyBlockRulesTests
                     var face = TileRules.Face(w, h, stateLine);
                     var (iw, ih) = (w - 24, h - 24);
                     var below = face.Texted ? FamilySpace.S2 + (TileRules.NameLines * face.Name.LineHeight) + (stateLine ? face.State.LineHeight : 0) : 0;
-                    Assert.True(face.Glyph.FontSize <= iw && face.Glyph.FontSize + below <= ih, $"{w} x {h}: {face}");
-                    Assert.True(!face.Texted || TileRules.NameRoom(face.Name) <= iw, $"{w} x {h}: {face}");
+                    var whole = face.Glyph.FontSize <= iw && face.Glyph.FontSize + below <= ih && (!face.Texted || TileRules.NameRoom(face.Name) <= iw);
+                    Assert.True(whole || (face.Texted && face.Glyph == FamilyType.Big28 && TileRules.WordsKept(iw, ih, stateLine)), $"{w} x {h}: {face}");
                 }
             }
         }

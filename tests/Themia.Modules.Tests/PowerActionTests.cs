@@ -356,11 +356,11 @@ public class PowerActionTests
         {
             var face = Themia.Sdk.Kit.TileRules.Face(side, side, stateLine: false);
             var h = side - (2 * Themia.Sdk.Kit.FamilySpace.Inset);
-            var ring = face.Glyph.FontSize;
-            var glyph = Themia.Sdk.Kit.TileRules.RingGlyph(ring);
+            var glyph = face.Glyph.FontSize;
+            var ring = Themia.Sdk.Kit.TileRules.RingAround(glyph);
             var below = face.Texted ? Themia.Sdk.Kit.FamilySpace.S2 + (2 * face.Name.LineHeight) : 0;
-            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            Assert.True(ring + below <= h, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare + 1e-9, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Assert.True(glyph + below <= h, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
     }
 

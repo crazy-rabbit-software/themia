@@ -67,7 +67,13 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _fit.Span(_figure);
         Children.Add(_fit);
         Children.Add(_status);
+
+        // [S-15745] A click opens the drive's root: the card lights as that one item under the pointer and pressed.
+        _opensLight = new OpensLight(this, () => _surface?.EditMode != true && Opens is not null);
     }
+
+    /// <summary>[S-15745] The whole card's hover and pressed light.</summary>
+    private readonly OpensLight _opensLight;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -81,6 +87,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _watch?.Dispose();
         _watch = _widgetHost.Drives.Watch(ticker, Show);
         JoinLinks();
+        _opensLight.Attach();
 
         Show();
     }
@@ -222,6 +229,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _watch?.Dispose();
         _watch = null;
         LeaveLinks();
+        _opensLight.Detach();
     }
 
     /// <summary>[S-11850] A sample's or a render's own drive, in place of the walk.</summary>
