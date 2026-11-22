@@ -14,11 +14,14 @@ namespace Themia.App.Interop;
 /// </para>
 /// <para>
 /// One hook on this process's own shown windows instead of a call at each of the renders' twenty-odd
-/// windows: a render added later is covered without knowing of it. Show Desktop passes over a window
-/// that cannot be minimised and is not an application's (the real surfaces are such windows,
-/// <see cref="DesktopLayer"/>), so each top-level window loses its minimise box and becomes a tool
-/// window that is never activated. Nothing about its frame is recalculated: its size and its client
-/// area stay what the render gave it.
+/// windows: a render added later is covered without knowing of it. Show Desktop minimises a window
+/// that has a minimise box and passes over one that has none (measured with six windows parked at
+/// -32000,-32000: the two with the box went down, a tool window that is never activated among them;
+/// the four without it stayed, as the real surfaces do, <see cref="DesktopLayer"/>). So each top-level
+/// window loses the box. It also becomes a tool window that is never activated, which is what keeps
+/// it out of the taskbar, Alt+Tab and any program's sweep for applications on screen ([S-33a]).
+/// Nothing about its frame is recalculated: its size and client area stay what the render gave it
+/// (the edit bar's pictures keep their sizes).
 /// </para>
 /// </summary>
 internal static unsafe class OffDesktop

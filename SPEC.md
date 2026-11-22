@@ -276,6 +276,8 @@ Sections, grouped by area (file order below; search for the heading).
   window *past* normal z-order, above anything anchored below it, so the widgets would otherwise
   vanish at the one moment the user asked to see their desktop. *(Until 2026-11-14 the lift was "the
   top of the topmost band", on the reasoning that nothing else is on screen then. A dock is: [S-33f].)*
+  The lift lasts while the desktop window is raised, not while it has the foreground ([S-15870]).
+  Verified live (2026-11-22, two displays, Karpo running, the z-order read every 10 ms): [S-15874].
 - **[S-33a]** "Genuinely" is two signals: the desktop layer owns the foreground, **and** no ordinary
   application window is still on screen. Foreground alone is also true of a plain click on the
   wallpaper, and acting on it would throw the widgets in front of the user's work every time they
@@ -387,14 +389,13 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-34e]** What no event covers, and needs a live pass: a cloak or a window under a surface that
   arrives with no window-manager event at all after it (not seen; the next foreground change repairs
   it); a display powering on without a mode change (`GUID_CONSOLE_DISPLAY_STATE`) is not heard, only a
-  mode or monitor change is ([S-848]). Verified only by reasoning and the pure tests: Win+D and back,
-  Win+M, the taskbar's Show Desktop button, a fullscreen exclusive game, an Explorer restart,
-  sleep/resume, lock/unlock, a display unplugged and replugged, two displays, clicking widgets in edit
-  mode during Show Desktop. Since [S-33f] also: that the widgets are still seen during Show Desktop
-  with the surface just above the raised desktop window instead of at the top of the topmost band
-  (the first rung taking, on one and on two displays), and with Karpo running: its bar, a flyout and a
-  tooltip opened from it stay in front of the widgets during Win+D, with Karpo's edge holding its
-  strip, floating over the windows and on hover.
+  mode or monitor change is ([S-848]). Verified live on two displays with Karpo running ([S-15874]):
+  Win+D and back, Win+M and back, Karpo's Show desktop control, the widgets seen during Show Desktop
+  just above the raised desktop window (the first rung taking) and under Karpo's bars. Still verified
+  only by reasoning and the pure tests: Explorer's own Show Desktop corner (its taskbar is hidden on
+  the PC of the live pass), a fullscreen exclusive game, an Explorer restart, sleep/resume,
+  lock/unlock, a display unplugged and replugged, one display alone, clicking widgets in edit mode
+  during Show Desktop, a flyout and a tooltip opened from Karpo's bar during Win+D.
 - **[S-34f]** **A surface never takes the foreground under a full-screen app** (the owner, 2026-11-19: "in
   fullscreen mode when clicking themia sometimes karpo comes to front"). Every way a surface takes the
   foreground goes through `DesktopWindow.TakeForeground` (the keyboard lease, the empty desktop's keys, the add
@@ -414,6 +415,72 @@ Sections, grouped by area (file order below; search for the heading).
   foreground, so the desktop no longer owns it and Show Desktop stops reading as active — but
   nothing has been restored and the desktop is still elevated. Dropping the pin there buried the
   widgets under it on the first click after Win+D.
+
+- **[S-15870]** **The lift lasts as long as the desktop window is raised, whoever has the foreground**
+  (the owner, 2026-11-22: "when i click win +d themia actually still shows up, but when i click again there
+  is weird behaviour. themia hides for some time"). Show Desktop ends by handing the foreground to the first
+  window it brings back and only then restoring the others, each waiting on its own program, with the desktop
+  window raised until the last is back. [S-33] dropped the lift at that foreground change: the surfaces were
+  put "after `Progman`" while `Progman` was still over everything, so the widgets were under the desktop for
+  as long as the restore took (read live: `Progman`, then both surfaces, 24 to 28 ms with three windows to
+  bring back, longer with every window and with every program slow to answer, a check render among them),
+  and each window coming back meanwhile was "a window below a surface", a repair that could not take, until
+  the sixteen were gone ([S-34d]'s warning, read in the log at every Win+D and back with a handful of windows
+  open). Now a check also asks whether the desktop window is raised (`ShellSignals.DesktopIsRaised`,
+  `ZOrderPolicy.DesktopRaised`): at rest it is the last window of the z-order (read live: nothing below
+  `Progman`, hidden windows included), and during Show Desktop the windows sent away lie below it, minimised
+  (read live: 14 shown of 200 below it). A window below it that is shown or minimised, one of our own
+  surfaces too, says raised; a hidden one and another desktop-layer window (a `WorkerW` under `Progman` on
+  some PCs) do not. While raised the decision is the lift (`ZOrderPolicy.Decide(..., desktopRaised)`), so the
+  surfaces stay directly above the desktop window and under every other window ([S-33f]) through the whole
+  restore, and a surface found under a raised desktop with no lift held is lifted out. The desktop going down
+  is a z-order change ([S-34a]); the check it queues drops the lift as before. Tests
+  `ZOrderPolicyTests.S15870_`.
+- **[S-15871]** **A window parked off every display is not on screen.** What a window in the z-order is to a
+  surface's place (`ZOrderPolicy.Seen`: ours, hidden, the desktop layer, another window on screen) and whether
+  an application is still on screen ([S-33a]) both ask that its rectangle meets a display
+  (`ShellSignals.IsOnADisplay`, `MonitorFromRect`). It was `IsWindowVisible`, not minimised, not cloaked: a
+  program's off-screen helper window, and this app's own check renders at -32000,-32000, counted as "a
+  window under a surface" wherever they came to lie in the z-order, and the running app re-anchored against
+  them until its repairs ran out. Tests `ZOrderPolicyTests.S15871_`.
+- **[S-15872]** **A render or check takes no part in the desktop's z-order.** A start that is a render
+  ([S-68], `StartRequest.Render`: every render flag, the shipped `--add-pictures-check` too) tells the
+  controller to stand aside before anything is built (`DesktopZOrder.StandAside`, from `App.OnLaunched`):
+  no WinEvent hook, no surface subclassed or anchored, no check. A check that builds the real host
+  (`--startup-check`, `--desk-select-check`, `--displays-check`, the benches) used to run the whole controller
+  beside the user's running copy: both anchored their surfaces directly above the desktop window, each read
+  the other's as "a window under a surface", and they answered each other's writes until both ran out of
+  repairs (the user's log, 2026-11-22: "16 z-order repairs since the last user action were all undone;
+  another program may be fighting for the same place" at 16:26:36 and 16:27:14, with no key pressed, while
+  another session's `--startup-check` ran); during Show Desktop both lifted, for the same place.
+- **[S-15873]** **Show Desktop does not see a render's window** (the owner, 2026-11-22: "the hidden themia ui
+  tests appear when doing win+d"). A render draws in an ordinary window parked at -32000,-32000 and shown
+  without activation. Show Desktop minimised it with the applications, and bringing them back restored it
+  onto the screen: -32000,-32000 is where Windows itself parks a minimised window, so the place it was
+  restored to was not one (read live: "Themia edit bar render" at -32000,-32000 1980x1470, minimised 14 ms
+  after Win+D, at 0,0 1980x1470 on the primary display 44 ms after the second Win+D, and there until the
+  render ended). From the start of a render process every top-level window it shows is taken out of what Show
+  Desktop minimises (`OffDesktop.Enter`, from `App.OnLaunched` beside [S-15872]; one WinEvent hook on the
+  process's own shown windows, so no render names it): it loses its minimise box and becomes a tool
+  window that is never activated. Measured with six windows parked at -32000,-32000: Show Desktop minimised
+  the two that had a minimise box, a never-activated tool window among them, and passed over the four that had
+  none, as it passes over the real surfaces; the tool style is what keeps the window out of the taskbar,
+  Alt+Tab and a sweep for applications on screen ([S-33a]). Its frame is not recalculated: the edit bar's
+  pictures keep their sizes. Read live after it: the render's window at -32000,-32000 through Win+D and back,
+  never minimised, never on a display.
+- **[S-15874]** **The live pass of Show Desktop** (2026-11-22; two displays at 150 %, Karpo's bars on both,
+  the build of [S-15870]..[S-15873] installed; every top-level window's place, state and rectangle read every
+  10 ms while the keys were sent). Before: after Win+D both of Karpo's bars lay under
+  `Progman` for the whole Show Desktop (3525 ms of 3525), and on the second Win+D both surfaces lay under it
+  for 24 to 28 ms with three windows to restore; with five more windows open the log took [S-34d]'s warning
+  72 ms after the second Win+D. After, over Win+D and back four times, Win+M and Win+Shift+M, and
+  `Shell.Application.ToggleDesktop` twice (what Karpo's Show desktop control calls), once alone and once with
+  an edit bar render and a `--startup-check --twice` running: the surfaces under the desktop window 0 ms
+  (they stay directly above it while the windows come back, the restored ones over them), a surface over a
+  bar of Karpo's 0 ms, Karpo's bars under the desktop window 0 ms at the 10 ms reading (Karpo §712 puts them
+  back within one), the render's and the check's windows never minimised and never on a display, the check
+  ending "every card at rest", and no line in the log. Not driven: a pointer click on Karpo's control or on a
+  widget during Show Desktop (the pass sends keys only).
 
 ## Transparency
 
