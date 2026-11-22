@@ -73,36 +73,55 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
   `ScreenTimeChartConfig.Style` over `IStyled`, stored as `"style": "bars" | "calendar"`
   (`StyleJsonConverter`; an unknown name is repaired to Bars at load, [S-6004]), copied in `Clone`,
   its labels `styles.screenTimeChart.*`. `--widget-png ScreenTimeChart … --style calendar` draws it.
-- **[S-3331]** Bars: one bar per day, oldest left, 8 apart for a week and 4 for a month, stacked by
+- **[S-3331]** Bars: one bar per day, oldest left, 8 apart for a week and 4 for a month (the padding inside their touching
+  day columns, [S-15772]), stacked by
   app in the ring's order (the busiest seven, `ScreenTimeRules.DrawingApps`, then Other) in the
   accent's ramp by rank, Other and the apps past the fourth tertiary at the wash ([S-2272]), scaled to the busiest day, the stack one
   rectangle of the family's radius (its top part's top corners, its foot part's foot, [S-6704]); under
   them only the two ends are labelled, always ([S-6717]: Caption, tertiary): the first day and today, a
   week's by weekday ("Fri", "Thu"), a month's by date ("Sep 30", "Oct 29"). Calendar ([S-456]): seven
-  columns 4 apart sharing the width, a cell a ring of its day's share of the busiest day (the Chart
-  block's `ChartRing`, the accent over the track) of 20, centred in its column, the weekday letters
+  columns of day cells ([S-15772]), a cell a ring of its day's share of the busiest day (the Chart
+  block's `ChartRing`, the accent over the track) in its box's padding, the weekday letters
   over them (Caption, tertiary, today's column primary), every week of the window.
 - **[S-3332]** *(Retired by [S-11505]: no ladder; the figure and its line are the reading atom's,
   [S-11500].)*
 - **[S-11505]** **The chart is the drawing alone** (owner decision 2026-11-12, [S-2438]): its first line
-  the day line naming the window (a tool line, [S-454], [S-12481]: 20 + 4), the drawing in the card's 12
-  inset on every side, 200..520 wide (a new one 300), one height per style (`ScreenTimeChartLayout.Sizing`):
-  Bars 12 + 24 + 72 of bars + their labels' row (4 + 16) + 12 = 140; Calendar 12 + 24 + the letters
-  (16 + 4) + its weeks of 20 rings 4 apart + 12 (a week 88, a month's five weeks 184). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
-  The calendar's letters and rings are one block (WR-7, [S-12808]): in a larger box its rings grow as one until the
-  block fills the room under the day line or a ring is its column's width, centred on the other axis
-  (`ScreenTimeChartLayout.CalendarCell`, never under 20, whole DIPs); before, the rings stayed 20 and stood centred in a
-  room up to 280 DIP too large.
+  the day line naming the window where it has one (a tool line, [S-454], [S-12481]), 200..520 wide (a new one 300), one
+  height per style (`ScreenTimeChartLayout.Sizing`): Bars 12 + 72 of bars + their labels' row (4 + 16) + 12 = 116;
+  Calendar its letters' row (20) over its weeks of 30 cells from the card's top edge (a week 50, a month's five weeks
+  170). A wider card draws wider bars or more room right of the calendar; nothing appears or goes with the size.
   The bars are a graph's plot, the card's whole box (owner, 2026-11-19: "Plot edge to edge", [S-6754]): the view owns
-  the card's top edge with them, the first bar stands on the card's left edge and the last on its right, the bars rise
-  from over their end labels (at the inset off the foot and the sides) to the card's top (under the day line where a
-  day has one), so the same card holds 12 more of bars; the caption and the Status row keep the inset over them.
+  the card's top edge, the first day's column stands on the card's left edge and the last on its right, the bars rise
+  from the card's foot to its top (under the day line where a day has one), the end labels standing over the bars' feet
+  at the inset; the caption keeps the inset over it.
   The total over it is the reading atom's ([S-11500]); the ready-made group "Screen time" stands that
-  reading over it ([S-11520]). A window with no use is the chart all the same: its days on a foot hairline, the sentence as a caption
-  ([S-6753]); only no recording at all is the Status block's one row ([S-6714]).
-- **[S-3333]** Linked focus ([S-3310]) in the links' one look ([S-11902]): the app pointed at or picked
-  has its part of every bar whole and every other part at its tone times 0.6 (pointed) or 0.3 (picked,
-  `ScreenTimeRules.Opacity`); the calendar's rings show the focused app's seconds per day against its
+  reading over it ([S-11520]). A window with no use, or no recording at all, is the chart all the same: its days on a
+  foot hairline, why as a caption ([S-6753], [S-15774]).
+- **[S-15772]** **The days are items of one fixed size, touching from the card's edges** (docs/WIDGET-RULES.md WR-1..WR-6):
+  the bars' day columns touch from the card's left edge to its right and from its top to its foot (a plot: they share
+  the width), each bar standing in its column's padding (4 each side for a week, 2 for a month; the 8 or 4 between two
+  bars is that padding); the calendar's cells are boxes of one size at every size of the card
+  (`ScreenTimeChartLayout.CellBox`: the ring's 20 and 8 in whole grid cells, 30 on the default grid; the ring the box
+  less 8), touching from the card's top-left edge, the weekday letters' row first (`HeadRow`, a Caption line in whole
+  cells, each letter its column's head, `HeadMark`), every week under it, the last the card reaches cut by its foot and
+  the seventh column by its right edge where the card is narrower; a wider card leaves the room right of the seventh
+  column empty (seven weekdays, a short row). Before, the rings grew with the card (20 to 78) and stood centred in the
+  inset. Each cell and each day column lights under the pointer (the item layer's row fill, `PointerPreview`). Tests
+  `ScreenTimeChartTests.S11505_S15772_`, `S3331_S15772_`.
+- **[S-15773]** **The part pointed at is one app on one day** (WR-13: "Hover lights exactly the item under the pointer";
+  "never several items that share a sender, organiser or kind"): the pointer on an app's part of a day's bar lights that
+  part alone (every other part at its tone times 0.6; a click picks that part, the others at 0.3,
+  `ScreenTimeChartLayout.PartStrength` over a `ChartPart`), never that app's parts on every day; the app is still the
+  view's hover and selection for the other screen-time widgets (the donut's slice, the list's row: one item there). An
+  app pointed at or picked elsewhere lights a part here only with a day pointed at too (that app on that day); the
+  calendar's rings still show the focused app's seconds per day ([S-3333]). Tests `ScreenTimeChartTests.S15773_`.
+- **[S-15774]** **No recording keeps the chart** (WR-10: "the widget keeps its face ... and says why in a compact line"):
+  with no tracker the chart draws the window's days with nothing in them (`NoRecording`, read by the same rules) and the
+  "recorded while Themia runs" sentence as its caption, never the Status block's row alone; the caption stands over the
+  bars' empty plot at the inset, or on the calendar's foot. Preview states `empty` (a recording with nothing in the window)
+  and `off`.
+- **[S-3333]** Linked focus ([S-3310]) in the links' one look ([S-11902]): the part pointed at or picked (one app on one
+  day, [S-15773]) whole and every other part at its tone times 0.6 (pointed) or 0.3 (picked); the calendar's rings show the focused app's seconds per day against its
   busiest (the reading atom says that app's time, [S-11503]). A day pointed at (the pointer over its bar
   or ring, or Left / Right) keeps every other day at 0.6.
   Hovering a part hovers its app; clicking it selects (again: lets go); clicking empty space clears

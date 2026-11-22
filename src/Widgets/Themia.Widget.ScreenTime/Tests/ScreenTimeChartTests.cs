@@ -26,44 +26,45 @@ public sealed class ScreenTimeChartTests
     }
 
     [Fact]
-    public void S11505_the_calendar_is_its_letters_over_its_weeks_of_rings()
+    public void S11505_S15772_the_calendar_is_its_letters_row_over_its_weeks_of_cells_from_the_top_edge()
     {
         Assert.Equal(1, ScreenTimeChartLayout.Weeks(ScreenTimePeriod.Week));
         Assert.Equal(5, ScreenTimeChartLayout.Weeks(ScreenTimePeriod.Month));
         Assert.Equal(1, ScreenTimeChartLayout.Weeks(ScreenTimePeriod.Day));
-        Assert.True(ScreenTimeChartLayout.Cell >= FamilyShape.Icon);
 
+        // A cell is its ring and 8 in whole grid cells, the ring the box less its padding; the letters a Caption line in whole cells.
+        var grid = ItemGrid.Default();
+        Assert.Equal(30, ScreenTimeChartLayout.CellBox(grid));
+        Assert.Equal(22, ScreenTimeChartLayout.Ring(grid));
+        Assert.Equal(20, ScreenTimeChartLayout.HeadRow(grid));
+        Assert.True(ScreenTimeChartLayout.Ring(grid) >= ScreenTimeChartLayout.Cell);
+
+        // From the card's top edge to its foot: the letters' row over the weeks, touching, nothing round them.
         double Height(ScreenTimePeriod period) => Kind.Sizing(new ScreenTimeChartConfig { Style = ScreenTimeChartStyle.Calendar, Period = period }).Natural.Height;
-        var top = FamilySpace.Inset + ScreenTimeChartLayout.DayLine(ScreenTimePeriod.Week) + FamilyType.Caption.LineHeight + FamilySpace.S1;
-        Assert.Equal(top + ScreenTimeChartLayout.Cell + FamilySpace.Inset, Height(ScreenTimePeriod.Week));
-        Assert.Equal(top + (5 * ScreenTimeChartLayout.Cell) + (4 * FamilySpace.S1) + FamilySpace.Inset, Height(ScreenTimePeriod.Month));
-
-        // Seven rings 4 apart fit the least width inside the inset.
-        Assert.True((7 * ScreenTimeChartLayout.Cell) + (6 * FamilySpace.S1) <= ScreenTimeChartLayout.Narrowest - (2 * FamilySpace.Inset));
+        Assert.Equal(20 + 30, Height(ScreenTimePeriod.Week));
+        Assert.Equal(20 + (5 * 30), Height(ScreenTimePeriod.Month));
     }
 
     [Fact]
-    public void S3331_bars_stand_8_apart_for_a_week_and_4_for_a_month()
+    public void S3331_S15772_bars_stand_8_apart_for_a_week_and_4_for_a_month_inside_their_touching_columns()
     {
         Assert.Equal(FamilySpace.S2, ScreenTimeChartLayout.BarGap(7));
         Assert.Equal(FamilySpace.S1, ScreenTimeChartLayout.BarGap(30));
+        Assert.Equal(0, ScreenTimeChartLayout.Top(ScreenTimePeriod.Week));
     }
 
     [Fact]
-    public void S11505_S12808_the_calendars_rings_grow_as_one_block_until_the_height_or_the_width_stops_them()
+    public void S15773_the_part_pointed_at_is_one_app_on_one_day_never_that_app_on_every_day()
     {
-        // At its natural box the rings are their 20; a taller and wider box grows them until the height stops them, a
-        // wide and short one until the height does, a narrow and tall one until a ring is a column wide (whole DIPs).
-        var natural = ScreenTimeChartLayout.CalendarHeight(ScreenTimePeriod.Week, ScreenTimeChartLayout.Cell);
-        Assert.Equal(ScreenTimeChartLayout.Cell, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 276, natural));
-        Assert.Equal(80, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 876, 80 + ScreenTimeChartLayout.CalendarHeader));
-        Assert.Equal(36, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 276, 500));
-        Assert.Equal(ScreenTimeChartLayout.Cell, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, 50, 10));
-        Assert.Equal(ScreenTimeChartLayout.Cell, ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Week, double.NaN, 100));
+        var pointed = new ChartPart("code", 6);
+        Assert.Equal(1, ScreenTimeChartLayout.PartStrength(0.8, pointed, pointed, null));
 
-        // A month's five weeks share the height, 4 apart.
-        var month = ScreenTimeChartLayout.CalendarCell(ScreenTimePeriod.Month, 876, 300);
-        Assert.Equal(Math.Floor((300 - ScreenTimeChartLayout.CalendarHeader - (4 * FamilySpace.S1)) / 5), month);
-        Assert.True(ScreenTimeChartLayout.CalendarHeight(ScreenTimePeriod.Month, month) <= 300);
+        // The same app on another day dims as every other part does (WR-13: never the items that share an app).
+        Assert.Equal(0.8 * FamilyShape.LinkPointed, ScreenTimeChartLayout.PartStrength(0.8, new ChartPart("code", 5), pointed, null), 6);
+        Assert.Equal(0.8 * FamilyShape.LinkPointed, ScreenTimeChartLayout.PartStrength(0.8, new ChartPart("edge", 6), pointed, null), 6);
+
+        // Picked: the others at the picked strength; nothing pointed or picked: every part at its tone.
+        Assert.Equal(0.8 * FamilyShape.LinkPicked, ScreenTimeChartLayout.PartStrength(0.8, new ChartPart("code", 5), null, pointed), 6);
+        Assert.Equal(0.8, ScreenTimeChartLayout.PartStrength(0.8, new ChartPart("code", 5), null, null), 6);
     }
 }

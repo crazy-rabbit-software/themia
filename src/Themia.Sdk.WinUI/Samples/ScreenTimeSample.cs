@@ -38,7 +38,8 @@ public sealed class SampleScreenTime : IScreenTimeSource
 
     public SampleScreenTime(string state = "sample")
     {
-        _apps = state == "packaged" ? RunningPackagedApps() : SampleApps;
+        // [S-15774] "empty": a recording with nothing in the window, for the chart's empty face.
+        _apps = state == "packaged" ? RunningPackagedApps() : state == "empty" ? [] : SampleApps;
 
         // [S-2056] The sample is under its limits (six hours a day, an hour of Edge); "over" is
         // the same morning against tight ones (ninety minutes, a quarter of an hour of Edge).
