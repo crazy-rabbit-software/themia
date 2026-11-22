@@ -29,20 +29,20 @@ public sealed class MeterPlanTests
     [Fact]
     public void S15746_rings_and_graphs_keep_their_cell_from_the_cards_top_left_and_are_cut_by_its_edges()
     {
-        // [S-15758] Whole lines only: the cores fill column by column, the last column the width reaches cut by the right edge.
+        // [S-15758] Whole columns only: the cores fill line by line, the last line the height reaches cut by the foot.
         var grid = ItemGrid.Default();
         foreach (var (w, h) in new[] { (144.0, 144.0), (150.0, 170.0), (360.0, 360.0) })
         {
             var rings = MeterPlan.CoreCells(w, h, new SizeDip(MeterPlan.CoreRing, MeterPlan.CoreRing), grid);
             Assert.Equal((30.0, 30.0), (rings.Across.Pitch, rings.Down.Pitch));
-            Assert.Equal(((int)Math.Ceiling(w / 30), (int)Math.Floor(h / 30)), (rings.Columns, rings.Lines));
+            Assert.Equal(((int)Math.Floor(w / 30), (int)Math.Ceiling(h / 30)), (rings.Columns, rings.Lines));
         }
 
         foreach (var (w, h) in new[] { (280.0, 200.0), (330.0, 130.0), (280.0, 210.0) })
         {
             var graphs = MeterPlan.CoreCells(w, h, MeterPlan.CoreGraph, grid);
             Assert.Equal((60.0, 40.0), (graphs.Across.Pitch, graphs.Down.Pitch));
-            Assert.Equal(((int)Math.Ceiling(w / 60), (int)Math.Floor(h / 40)), (graphs.Columns, graphs.Lines));
+            Assert.Equal(((int)Math.Floor(w / 60), (int)Math.Ceiling(h / 40)), (graphs.Columns, graphs.Lines));
         }
     }
 

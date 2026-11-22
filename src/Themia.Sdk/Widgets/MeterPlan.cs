@@ -58,8 +58,8 @@ public static class MeterPlan
     /// [S-15746] The cores' cells in a card <paramref name="width"/> × <paramref name="height"/> (owner, 2026-11-20: "the widget
     /// items should actually have a fixed size ... the last item will be cutoff to some extent then"; WR-4, WR-6): each
     /// core's cell its natural (<paramref name="cell"/>) in whole grid cells at every size of its card, touching from the
-    /// card's left and top edges, column by column ([S-15758]); every column the width reaches (the last cut by the right
-    /// edge) and every whole line the height holds. A core past the cells the card reaches is not drawn; a columns look
+    /// card's left and top edges, line by line ([S-15758]); every whole column the width holds and every line the height
+    /// reaches (the last cut by the foot). A core past the cells the card reaches is not drawn; a columns look
     /// (<paramref name="column"/>) is one line the card's whole height.
     /// </summary>
     public static CellReach CoreCells(double width, double height, SizeDip cell, ItemGrid grid, bool column = false)
@@ -71,11 +71,13 @@ public static class MeterPlan
             return reach with { Down = new RowReach(tall, 1, grid.Raster) { Room = tall } };
         }
 
-        // [S-15758] Whole lines only, filled column by column (WR-4: "the last item will be cutoff"): only the last column the
-        // width reaches is cut by the right edge, never a core in every line; under the last whole line less than a cell.
-        var pitch = reach.Down.Pitch;
-        var lines = Math.Max(1, (int)Math.Floor((tall + LayoutMath.Tolerance) / pitch));
-        return reach with { Down = new RowReach(pitch, lines, grid.Raster) { Room = tall } };
+        // [S-15758] Whole columns only, filled line by line (WR-4: "the last item will be cutoff"): no line's last core is cut
+        // by the right edge while lines go on under it; only the last line the height reaches is cut by the foot. What the
+        // width leaves past the last whole column is less than a cell.
+        var wide = double.IsFinite(width) && width > 0 ? width : cell.Width;
+        var pitch = reach.Across.Pitch;
+        var columns = Math.Max(1, (int)Math.Floor((wide + LayoutMath.Tolerance) / pitch));
+        return reach with { Across = new RowReach(pitch, columns, grid.Raster) { Room = wide } };
     }
 
     /// <summary>[S-6262] [S-11004] The battery's picture for a body <paramref name="height"/> tall: its cap and the bolt that fits it.</summary>

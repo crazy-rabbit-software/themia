@@ -6171,15 +6171,13 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
 - **[S-15752]** **A meter's number scales down whole** (WR-7, WR-14): the Number look's glyph, figures and unit are one
   block scaled down together to where its unit is read at 9 (`MeterSizing.Face`: its smallest piece is its main size, so
   nothing gives way); the disk had drawn "16" alone at 48 × 32. Its least card rises with it (the disk's 119 × 42).
-- **[S-15753]** **A meter's reading says why it waits** (WR-10): before its first reading the reading shows "--" with
-  "Loading" beside it in the delta's place (the items' looks have their line over the plot, [S-15747]).
 - **[S-15754]** **The whole view is the item that lights** ([S-15745]; WR-3, WR-13): `OpensLight` gives a view with no
   fill the clear one, so the pointer anywhere on it (not only over its centred block) lights the card; the disk and the
   drive had lit nothing at 172 × 130, 172 × 200 and 200 × 200 with the pointer over the card above their block.
-- **[S-15758]** **The cores fill column by column, whole lines only** ([S-15746]; WR-4: "the last item will be cutoff"):
-  the grid and graphs styles lay their cells down every whole line the height holds, then the next column; only the last
-  column the width reaches is cut by the right edge. Filled row by row, the last cell of every line had been cut while
-  the lines went on under it. Test `MeterPlanTests.S15746_`.
+- **[S-15758]** **The cores stand in whole columns, the last line cut** ([S-15746]; WR-4: "the last item will be cutoff"):
+  the grid and graphs styles lay their cells line by line across every whole column the width holds, the last line the
+  height reaches cut by the foot; the width past the last whole column is less than a cell. With the columns the width
+  merely reached, the last cell of every line had been cut while the lines went on under it. Test `MeterPlanTests.S15746_`.
 - **[S-15760]** **A core graph's load keeps its % sign in place** (WR-15): its figures are tabular (`Family.Figures`) and it
   stands at the end of its held box (the width of "100%"), so "9%", "31%" and "100%" put the sign in one place.
 - **[S-6302]** **Gauge**: the Chart block's ring, its upper half (`ChartRing` half: from nine o'clock

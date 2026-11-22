@@ -363,13 +363,13 @@ public sealed partial class MeterView
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(reach.Down.Height(r)) });
         }
 
-        // [S-15758] Column by column: down every whole line, then the next column, the last column the width reaches cut.
+        // [S-15758] Line by line across every whole column, the last line the height reaches cut by the foot.
         for (var i = 0; i < cells.Count; i++)
         {
             var shown = i < reach.Count;
             cells[i].Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-            SetColumn(cells[i], shown ? i / reach.Lines : 0);
-            SetRow(cells[i], shown ? i % reach.Lines : 0);
+            SetColumn(cells[i], shown ? i % reach.Columns : 0);
+            SetRow(cells[i], shown ? i / reach.Columns : 0);
         }
 
         return reach;
@@ -461,6 +461,7 @@ public sealed partial class MeterView
 
         /// <summary>The worst case may follow the config (a drive, an adapter): held again with every layout.</summary>
         public void Lay(double width, double height) => Hold();
+
 
         /// <summary>
         /// [S-15748] WR-15 (owner, 2026-11-20: "the clock right now changes its layout depending on the time that it shows"): the
