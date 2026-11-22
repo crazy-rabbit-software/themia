@@ -9432,7 +9432,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   of 40 under a line of 40), the line goes and the face's empty rows stand from the card's top edge, the sentence on the
   panel's tooltip. The line keeps its place in the layout (unseen, taking no pointer), so a panel its content sizes asks
   for the same height either way and never swings between the two (a first build that collapsed it hung the calendar's
-  renders in a layout cycle). Whether such a card should rather say why is an owner question. Tests `KitPagesTests.S15784_`.
+  renders in a layout cycle). Only a panel given a slot of its own (a list's room) keeps the face so; one its content sizes
+  (the calendar's line over its month) always shows its line. Whether such a card should rather say why is an owner question. Tests `KitPagesTests.S15784_`.
 - **[S-14260]** **The state's line is a row of the list** (owner, 2026-11-19, docs/WIDGET-RULES.md WR-3: "the items dont
   reach from edge to edge"; WR-10 above). The compact line a list's state stands in (`KitStatePanel`'s, Bluetooth's off,
   removable drives' none: `StatusBlock.Line`) is in the list's first row's place, its box from the card's left edge to
