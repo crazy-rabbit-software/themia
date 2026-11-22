@@ -209,6 +209,18 @@ public sealed partial class KitStatePanel : Grid
     /// stand from the card's top edge with nothing in them, the sentence on the panel's tooltip. Whether a card that
     /// cannot hold both should rather say why is the owner's to decide; until then the face stays.
     /// </summary>
+    /// <summary>
+    /// [S-15784] Whether the panel was given a slot of its own (a list's room): a panel its content sizes (a view that draws
+    /// its own face under the line, the calendar's month) has none to keep a face in, and its line always shows.
+    /// </summary>
+    private bool _bounded;
+
+    protected override Windows.Foundation.Size MeasureOverride(Windows.Foundation.Size availableSize)
+    {
+        _bounded = double.IsFinite(availableSize.Height);
+        return base.MeasureOverride(availableSize);
+    }
+
     private void Fit()
     {
         if (_shown is not { } shown)
@@ -218,7 +230,7 @@ public sealed partial class KitStatePanel : Grid
 
         // The line keeps its place in the layout (shown or not, the panel asks for the same height, so a panel its content
         // sizes never swings between the two); the face's rows stand over it from the card's top edge.
-        var squeezed = _height > 0 && KitStateFit.Squeezed(_height, _row.Height, FamilySpace.Inset);
+        var squeezed = _bounded && _height > 0 && KitStateFit.Squeezed(_height, _row.Height, FamilySpace.Inset);
         _row.Opacity = squeezed ? 0 : 1;
         _row.IsHitTestVisible = !squeezed;
         SetRow(_empty, squeezed ? 0 : 1);
