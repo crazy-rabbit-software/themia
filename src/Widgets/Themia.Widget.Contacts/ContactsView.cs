@@ -126,6 +126,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _fieldSlot.Child = _search;
         SetRow(_fieldSlot, 0);
 
+        // [S-15775] The band is a line of the list's own, as the search line is: an item band edge to edge, the field its content.
+        ItemMark.Mark(_fieldSlot);
+
         // [S-13950] The same box at the line's size, in the list's first line; Escape on it empty folds it away.
         _lineSearch.LetGo = CloseLineSearch;
         _searchSlot.Child = _lineSearch;

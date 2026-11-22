@@ -463,11 +463,11 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
     /// <summary>
     /// [S-3331] [S-456] [S-15772] Seven day cells wide, padded so the window ends on the last cell: every column is one
-    /// weekday, its letter over it in the head row (Caption, tertiary; today's column primary). Every cell is a box of one
-    /// fixed size (<see cref="ScreenTimeChartLayout.CellBox"/>, whole grid cells) holding a ring of its day's share of the
-    /// busiest day ([S-6717]: the Chart block's ring, the accent over its track) in its padding; the boxes touch from the
-    /// card's top-left edge (under the day line where there is one), the head row first, every week after it, the last one
-    /// the card reaches cut by its foot and the seventh column by its right edge where the card is narrower.
+    /// weekday, its letter over it in the head row (Caption, tertiary; today's column primary), the seven sharing the card's
+    /// width from its left edge to its right. Every week is a row of one fixed height (<see cref="ScreenTimeChartLayout.CellBox"/>,
+    /// whole grid cells) whose cells hold a ring of one size, its day's share of the busiest day ([S-6717]: the Chart block's
+    /// ring, the accent over its track), centred in its padding; the rows touch from the card's top edge (under the day line
+    /// where there is one), the head row first, every week after it, the last one the card reaches cut by its foot.
     /// </summary>
     private Grid Calendar(ScreenTimeData data, double width, double height)
     {
@@ -486,12 +486,13 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             HorizontalAlignment = HorizontalAlignment.Left,
         };
 
-        for (var c = 0; c < ScreenTimeRules.HeatmapColumns; c++)
+        // [S-15772] A week is seven days: its columns share the card's width from its left edge to its right (WR-3), each
+        // edge on a whole device pixel; the rings in them keep their one size.
+        foreach (var share in ItemSize.Columns(width, ScreenTimeRules.HeatmapColumns, items))
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(box) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(share) });
         }
 
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(BarsTop) });
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(head) });
         for (var r = 0; r < weeks; r++)
@@ -570,7 +571,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
         public Cell(double box, double ring)
         {
-            Box = new Grid { Width = box, Height = box, Background = Family.Brush(ColourRole.Clear) };
+            Box = new Grid { Height = box, Background = Family.Brush(ColourRole.Clear) };
             _ring.Width = ring;
             _ring.Height = ring;
             _ring.HorizontalAlignment = HorizontalAlignment.Center;

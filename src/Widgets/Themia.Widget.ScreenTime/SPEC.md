@@ -100,13 +100,13 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
 - **[S-15772]** **The days are items of one fixed size, touching from the card's edges** (docs/WIDGET-RULES.md WR-1..WR-6):
   the bars' day columns touch from the card's left edge to its right and from its top to its foot (a plot: they share
   the width), each bar standing in its column's padding (4 each side for a week, 2 for a month; the 8 or 4 between two
-  bars is that padding); the calendar's cells are boxes of one size at every size of the card
-  (`ScreenTimeChartLayout.CellBox`: the ring's 20 and 8 in whole grid cells, 30 on the default grid; the ring the box
-  less 8), touching from the card's top-left edge, the weekday letters' row first (`HeadRow`, a Caption line in whole
-  cells, each letter its column's head, `HeadMark`), every week under it, the last the card reaches cut by its foot and
-  the seventh column by its right edge where the card is narrower; a wider card leaves the room right of the seventh
-  column empty (seven weekdays, a short row). Before, the rings grew with the card (20 to 78) and stood centred in the
-  inset. Each cell and each day column lights under the pointer (the item layer's row fill, `PointerPreview`). Tests
+  bars is that padding); the calendar's weeks are rows of one height at every size of the card
+  (`ScreenTimeChartLayout.CellBox`: the ring's 20 and 8 in whole grid cells, 30 on the default grid) whose rings keep one
+  size (`Ring`, the box less 8), touching from the card's top edge, the weekday letters' row first (`HeadRow`, a Caption
+  line in whole cells, each letter its column's head, `HeadMark`), every week under it, the last the card reaches cut by
+  its foot; a week is seven days, so its seven columns share the card's width from its left edge to its right (WR-3,
+  `ItemSize.Columns`), each ring centred in its cell. Before, the rings grew with the card (20 to 78) and stood centred in
+  the inset. Each cell and each day column lights under the pointer (the item layer's row fill, `PointerPreview`). Tests
   `ScreenTimeChartTests.S11505_S15772_`, `S3331_S15772_`.
 - **[S-15773]** **The part pointed at is one app on one day** (WR-13: "Hover lights exactly the item under the pointer";
   "never several items that share a sender, organiser or kind"): the pointer on an app's part of a day's bar lights that
