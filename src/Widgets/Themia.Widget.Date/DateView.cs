@@ -1,4 +1,6 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
@@ -15,19 +17,18 @@ namespace Themia.Widget.Date;
 /// <summary>
 /// [S-10800] [S-10803] Today in its style: the face laid out at the step its Size names, then scaled up as one until its
 /// ink fills the card (<see cref="ReadingFit"/>, [S-12808]), so a larger card is a larger date, never a band round it.
-/// [S-14308] The face is today's text, not the box the sizing made for the language's widest day: today's line reaches
-/// the sides at its alignment where the width stops it (owner, of the one-line faces: "whose one line grows until the
-/// width stops it"); a shorter day is drawn larger, the day-to-day change accepted. The family's inset at the sides and the foot (the card gives the
-/// top); a mate joined under it takes the foot ([S-12483]). Turns over within a minute of midnight. [S-12833] A smaller card
-/// scales it down as one to its main reading at the legibility floor, the page's weekday and month giving way first
-/// (<see cref="DateLayout.Fit"/>).
+/// [S-15804] Each line is held to the language's widest day in the style (WR-15: a running reading never moves): the face is
+/// sized and stood by that template, today's text drawn in its box at the widget's alignment, so the date keeps its size
+/// and place from one day to the next. The family's inset at the sides and the foot (the card gives the top); a mate
+/// joined under it takes the foot ([S-12483]). Turns over within a minute of midnight. [S-12833] A smaller card scales it
+/// down as one to its main reading at the legibility floor, the page's weekday and month giving way first.
 /// </summary>
 internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWidgetSizeAware
 {
-    private readonly TextBlock _line = Family.Text(FamilyType.Big40);
-    private readonly TextBlock _weekday = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
-    private readonly TextBlock _number = Family.Text(FamilyType.Hero68);
-    private readonly TextBlock _month = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+    private readonly Held _line = new(FamilyType.Big40, ColourRole.TextPrimary);
+    private readonly Held _weekday = new(FamilyType.Body, ColourRole.TextSecondary);
+    private readonly Held _number = new(FamilyType.Hero68, ColourRole.TextPrimary);
+    private readonly Held _month = new(FamilyType.Body, ColourRole.TextSecondary);
     private readonly ReadingFit _fit = new() { Margin = default };
 
     /// <summary>
@@ -47,14 +48,9 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
 
     public DateView()
     {
-        foreach (var text in new[] { _line, _weekday, _number, _month })
-        {
-            text.TextWrapping = TextWrapping.NoWrap;
-        }
-
         var under = FamilyType.Under(DateLayout.NumberStep).FontSize;
-        _weekdayBox = _fit.GivesWayBox(_weekday, under);
-        _monthBox = _fit.GivesWayBox(_month, under);
+        _weekdayBox = _fit.GivesWayBox(_weekday.Cell, under);
+        _monthBox = _fit.GivesWayBox(_month.Cell, under);
         Children.Add(_fit);
         Padding = Family.SideInset with { Bottom = FamilySpace.Inset };
     }
@@ -106,7 +102,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
 
     private void OnLanguage(Locale locale) => Lay();
 
-    /// <summary>Build the face for the style and Size at its natural box; the viewbox scales it to the card.</summary>
+    /// <summary>Build the face for the style at its step, held to the language's widest day; the fit scales it to the card.</summary>
     private void Lay()
     {
         // [S-12833] The page's weekday and month give way where the card would draw them under the floor, decided by the fit
@@ -115,33 +111,23 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
         _fit.Parts.Clear();
 
         _fit.Align = _align;
-        var text = _align switch
-        {
-            ContentAlign.Center => TextAlignment.Center,
-            ContentAlign.Right => TextAlignment.Right,
-            _ => TextAlignment.Left,
-        };
-
+        var locale = Strings.Current;
         if (_config.Style == DateWidgetStyle.Page)
         {
             var number = DateLayout.NumberStep;
-            Family.Step(_number, number);
-            Family.Step(_weekday, FamilyType.Under(number));
-            Family.Step(_month, FamilyType.Under(number));
-            foreach (var part in new[] { _weekday, _number, _month })
-            {
-                part.TextAlignment = text;
-            }
+            var held = DateLayout.HeldPage(locale);
+            _number.Lay(number, held.Number, _align);
+            _weekday.Lay(FamilyType.Under(number), held.Weekday, _align);
+            _month.Lay(FamilyType.Under(number), held.Month, _align);
 
             _fit.Parts.Add(_weekdayBox);
-            _fit.Parts.Add(_number);
+            _fit.Parts.Add(_number.Cell);
             _fit.Parts.Add(_monthBox);
         }
         else
         {
-            Family.Step(_line, DateLayout.LineStep);
-            _line.TextAlignment = text;
-            _fit.Parts.Add(_line);
+            _line.Lay(DateLayout.LineStep, DateLayout.HeldLine(_config.Style, locale), _align);
+            _fit.Parts.Add(_line.Cell);
         }
 
         Render();
@@ -154,13 +140,13 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
         if (_config.Style == DateWidgetStyle.Page)
         {
             var (weekday, number, month) = DateLayout.Page(locale, day);
-            _weekday.Text = weekday;
-            _number.Text = number;
-            _month.Text = month;
+            _weekday.Shown.Text = weekday;
+            _number.Shown.Text = number;
+            _month.Shown.Text = month;
         }
         else
         {
-            _line.Text = DateLayout.Line(_config.Style, locale, day);
+            _line.Shown.Text = DateLayout.Line(_config.Style, locale, day);
         }
 
         ToolTipService.SetToolTip(this, DateLayout.Full(locale, day));
@@ -168,5 +154,53 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
         // [S-14201] Another day may ink lower in the same box (a descender): the fit places the face on its ink again,
         // which XAML does not do while its size stays.
         _fit.Refit();
+    }
+
+    /// <summary>
+    /// [S-15804] A line held to its template (WR-15): today's text drawn over the widest day's, unseen, in one cell as wide as
+    /// the wider, so the fit sizes and stands the line by the template whatever day it shows (<see cref="HoldMark"/>: the
+    /// layout dump and the gap check judge its sides there, as a clock's held figures).
+    /// </summary>
+    private sealed class Held
+    {
+        public Held(TypeStep step, ColourRole role)
+        {
+            Shown = Family.Text(step, role);
+            Template = Family.Text(step, role);
+            Template.Opacity = 0;
+            Template.IsHitTestVisible = false;
+            AutomationProperties.SetAccessibilityView(Template, AccessibilityView.Raw);
+            foreach (var text in new[] { Shown, Template })
+            {
+                text.TextWrapping = TextWrapping.NoWrap;
+            }
+
+            Cell = new Grid { Children = { Template, Shown } };
+            HoldMark.Mark(Cell);
+        }
+
+        /// <summary>Today's text.</summary>
+        public TextBlock Shown { get; }
+
+        /// <summary>The widest day's text, unseen: the cell's size and the ink it stands by.</summary>
+        public TextBlock Template { get; }
+
+        /// <summary>The part the fit lays.</summary>
+        public Grid Cell { get; }
+
+        /// <summary>Its step, its template and where today's text stands in it.</summary>
+        public void Lay(TypeStep step, string template, ContentAlign align)
+        {
+            Family.Step(Shown, step);
+            Family.Step(Template, step);
+            Template.Text = template;
+            var across = Aligned.Horizontal(align);
+            var text = Aligned.Text(align);
+            foreach (var line in new[] { Shown, Template })
+            {
+                line.HorizontalAlignment = across;
+                line.TextAlignment = text;
+            }
+        }
     }
 }

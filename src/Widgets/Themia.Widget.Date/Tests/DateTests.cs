@@ -122,4 +122,32 @@ public sealed class DateTests
 
         Assert.False(lines);
     }
+
+    [Fact]
+    public void S15804_every_style_is_held_to_its_widest_day_so_the_face_never_changes_size_with_the_day()
+    {
+        // WR-15 (owner, 2026-11-20): a running reading never moves. At 388x60 "Sunday, November 22" stood 36 tall and
+        // "Wednesday, September 30" 29.4: each day was its own box. The held text is one of the days, and none is wider.
+        foreach (var locale in new[] { Locale.En, Locale.De, Locale.Ja })
+        {
+            foreach (var style in new[] { DateWidgetStyle.Long, DateWidgetStyle.Short, DateWidgetStyle.Numeric })
+            {
+                var held = DateLayout.HeldLine(style, locale);
+                Assert.False(string.IsNullOrEmpty(held));
+                for (var day = new DateOnly(2026, 1, 1); day.Year == 2026; day = day.AddDays(1))
+                {
+                    Assert.True(HeroFit.Ems(DateLayout.Line(style, locale, day)) <= HeroFit.Ems(held) + 1e-9, $"{locale} {style} {day}");
+                }
+            }
+
+            var page = DateLayout.HeldPage(locale);
+            for (var day = new DateOnly(2026, 1, 1); day.Year == 2026; day = day.AddDays(1))
+            {
+                var (weekday, number, month) = DateLayout.Page(locale, day);
+                Assert.True(HeroFit.Ems(weekday) <= HeroFit.Ems(page.Weekday) + 1e-9);
+                Assert.True(HeroFit.Ems(number) <= HeroFit.Ems(page.Number) + 1e-9);
+                Assert.True(HeroFit.Ems(month) <= HeroFit.Ems(page.Month) + 1e-9);
+            }
+        }
+    }
 }

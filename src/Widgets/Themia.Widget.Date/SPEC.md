@@ -27,11 +27,21 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   card would draw them under 9 (owner, 2026-11-19: "for the widgets that can scale there should basically be no lower
   limit except for one that makes sense so you can still see the widget"). It has no menu lines of its own. A stored
   `size` is an unknown key, dropped loudly on load.
-- **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step, as wide as today's text
-  ([S-14308]: not the widest day's box), and scaled up as one to the card (`ReadingFit`, uniform; down only as [S-12833]
-  says), so today's line reaches the sides where the width stops it, placed by the widget's alignment ([S-6581],
+- **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step, held to the language's widest
+  day ([S-15804]), and scaled up as one to the card (`ReadingFit`, uniform; down only as [S-12833] says), so the widest
+  day's line reaches the sides where the width stops it, today's standing in its box by the widget's alignment ([S-6581],
   centred by default); the family's inset at the sides and the foot, joined or alone
   ([S-12483]).
+- **[S-15804]** **The date never changes size with the day** (WR-15, owner 2026-11-20: "the clock right now changes its
+  layout depending on the time that it shows"). Each line is held to its template, the language's widest text of it over
+  two whole years (`DateLayout.HeldLine`, `HeldPage`: the widest weekday, day number and month for the page): today's
+  text is drawn in a cell as wide as the template, which stands there unseen (`HoldMark`), so the fit sizes and stands the
+  face by the template every day, as the clock's figures by "88:88" ([S-14319]); the gap check judges its sides there.
+  Before, each day was its own box ([S-14308], retired here): at 388 × 60 "Sunday, November 22" stood 36 tall and
+  "Wednesday, September 30" 29.4. Tests `DateTests.S15804_`; the Debug state `longest` beside `sample` shows one box.
+  The page's weekday and month giving way where they would be drawn under 9 (300 × 100, 350 × 70) is the floor
+  ([S-12833], WR-14: "sized down to where its smallest text is still read"), the number left filling the room
+  ([S-14318], WR-1).
 - **[S-15700]** **The page's three lines each stand on their own ink** (WR-3, [S-14301]): the weekday, the number and the
   month are the fit's parts, each placed across by its own ink where the alignment puts it, not the three in one box
   centred by its widest. A number whose figures ink off their box's middle (the 22nd's "22", 3 DIP right at 900 x 300)

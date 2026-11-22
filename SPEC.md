@@ -9090,9 +9090,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   block's width is at most the card's inside, `ApplySize`). A glyph the meter measures says where its own ink is beside a
   text (`Ink`; the Header's glyph stands over its title's capitals). Before, the line stayed at its own size in any
   card (a 900x300 header 12 from the start and 818 from the end).
-- **[S-14308]** **The date fills with today's text** (decided 2026-11-20). The face is as wide as today's line, not the
-  box the sizing made for the language's widest day (`DateLayout.Face`'s width), so today's line reaches the sides at
-  its alignment where the width stops it; a shorter day is drawn larger, the day-to-day change accepted. `ReadingFit` fills
+- **[S-14308]** *(The date's part retired by the date's [S-15804], WR-15: the date is held to the language's widest day,
+  as the clock to its widest time, [S-14319], and judged by that template's ink.)* **The date fills with today's text**
+  (decided 2026-11-20): it had been as wide as today's line, a shorter day drawn larger. `ReadingFit` fills
   and places by ink across too (`Ink.Of`, unrounded). The clock's world style at 350x70 stays smaller: its city
   line gave way and its figures fill the card as any face's parts left do ([S-14318]).
 - **[S-14311]** **A quote wraps at whole words in the card** (WR-3). The quote's text wraps at the width the card's inset
@@ -9252,7 +9252,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-14242]** **The sun's arc reaches the content's top** (owner, 2026-11-19, WR-1). The noon point of the day's arc
   stands on the content's top and the night's lowest point on its foot ([S-11806]); the marker on the arc reaches its
   half (6) over either into the card's inset, clipped there and no further. Was: the noon point 6 under the top, a
-  band of 17 over every arc. Tests `SunPathGeometryTests.S11806_`, `.S14242_`.
+  band of 17 over every arc. Tests `SunPathGeometryTests.S11806_`, `.S14242_`. (Since the sun's [S-15806] the plot is the
+  card's whole box, the path in it less the marker's half, so the marker at noon touches the card's top.)
 - **[S-14243]** **A face's pieces give way by the block as it is drawn** (owner, 2026-11-19, WR-7: "Keep them
   together"; content decides size, size never content). The pieces a face states ([S-12833]: a name, a date under the
   time, a unit, a lead glyph) give way, smallest first, only where the scale the drawn block fills the room at would

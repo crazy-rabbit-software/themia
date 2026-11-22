@@ -22,7 +22,20 @@ public static class DateLayout
 
     private const int Days = 731;
 
-    private static readonly ConcurrentDictionary<(Locale, DateWidgetStyle, int), double> Widest = new();
+    private static readonly ConcurrentDictionary<(Locale, DateWidgetStyle, int), (double Ems, string Text)> Widest = new();
+
+    /// <summary>The page's parts as <see cref="WidestOf"/> names them: its weekday, its month and its day's number.</summary>
+    private const int WeekdayPart = 0, MonthPart = 1, NumberPart = 2;
+
+    /// <summary>
+    /// [S-15804] The text a one-line style is held to (WR-15): the language's widest day in it over two whole years, so the
+    /// face is sized and stood by it whatever day it shows.
+    /// </summary>
+    public static string HeldLine(DateWidgetStyle style, Locale locale) => WidestText(locale, style, 0);
+
+    /// <summary>[S-15804] The page's parts held (WR-15): its widest weekday, its widest day's number and its widest month.</summary>
+    public static (string Weekday, string Number, string Month) HeldPage(Locale locale)
+        => (WidestText(locale, DateWidgetStyle.Page, WeekdayPart), WidestText(locale, DateWidgetStyle.Page, NumberPart), WidestText(locale, DateWidgetStyle.Page, MonthPart));
 
     /// <summary>[S-10802] A one-line style's step: 28, a line of words.</summary>
     public static TypeStep LineStep => FamilyType.Big28;
@@ -136,21 +149,34 @@ public static class DateLayout
 
     /// <summary>The widest text of <paramref name="style"/> (the page: its weekday, part 0, or its month, part 1) on <paramref name="step"/> over two years.</summary>
     private static double WidestOf(Locale locale, DateWidgetStyle style, int part, TypeStep step)
-    {
-        var ems = Widest.GetOrAdd((locale, style, part), key =>
-        {
-            var most = 0.0;
-            for (var i = 0; i < Days; i++)
-            {
-                var day = First.AddDays(i);
-                var text = key.Item2 == DateWidgetStyle.Page
-                    ? (key.Item3 == 0 ? Page(key.Item1, day).Weekday : Page(key.Item1, day).Month)
-                    : Line(key.Item2, key.Item1, day);
-                most = Math.Max(most, HeroFit.Ems(text));
-            }
+        => Widest.GetOrAdd((locale, style, part), Measure).Ems * step.FontSize;
 
-            return most;
-        });
-        return ems * step.FontSize;
+    /// <summary>[S-15804] The widest text itself (the page: its weekday, its month or its day's number).</summary>
+    private static string WidestText(Locale locale, DateWidgetStyle style, int part)
+        => Widest.GetOrAdd((locale, style, part), Measure).Text;
+
+    /// <summary>The widest text of a style's part over two years, and its width in ems; the first of the widest kept.</summary>
+    private static (double Ems, string Text) Measure((Locale Locale, DateWidgetStyle Style, int Part) key)
+    {
+        var most = (Ems: 0.0, Text: string.Empty);
+        for (var i = 0; i < Days; i++)
+        {
+            var day = First.AddDays(i);
+            var text = key.Style == DateWidgetStyle.Page
+                ? key.Part switch
+                {
+                    WeekdayPart => Page(key.Locale, day).Weekday,
+                    MonthPart => Page(key.Locale, day).Month,
+                    _ => Page(key.Locale, day).Number,
+                }
+                : Line(key.Style, key.Locale, day);
+            var ems = HeroFit.Ems(text);
+            if (ems > most.Ems)
+            {
+                most = (ems, text);
+            }
+        }
+
+        return most;
     }
 }
