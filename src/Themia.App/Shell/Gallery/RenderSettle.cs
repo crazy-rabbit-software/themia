@@ -119,12 +119,14 @@ internal static class RenderSettle
         (PixelBox? Box, string? Size, double Scale)? moved = null;
         Survey? survey = null;
         var changed = 0;
+        var frames = 0;
         try
         {
             while (true)
             {
                 root.UpdateLayout();
                 await FramesAsync(1).ConfigureAwait(true);
+                frames++;
 
                 if (survey is null || changed >= RewalkAfter)
                 {
@@ -138,6 +140,11 @@ internal static class RenderSettle
                 {
                     // A check that draws nothing: laid out, a frame drawn and nothing loading is settled.
                     same = true;
+                }
+                else if (pending.Count == 0 && frames < FirstLookAfter)
+                {
+                    // A page just built is drawn a few frames before it is looked at: no look while it first draws.
+                    same = null;
                 }
                 else if (pending.Count == 0)
                 {
@@ -475,6 +482,9 @@ internal static class RenderSettle
 
         return masks;
     }
+
+    /// <summary>The frames a page draws in a settle before its first look.</summary>
+    private const int FirstLookAfter = 4;
 
     /// <summary>The looks that changed after which the page is walked again (a ring or a caret that came since).</summary>
     private const int RewalkAfter = 8;
