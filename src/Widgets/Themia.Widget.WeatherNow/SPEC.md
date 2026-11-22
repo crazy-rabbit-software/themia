@@ -26,8 +26,8 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
   the Caption under it, the sky's glyph per [S-6160]'s style. The readings are the weather facts'
   ([S-11105]), the days the forecast's: never drawn here. A reading kept through a failed refresh
   stays and the status's problem glyph over its top end says so ([S-7042], [S-12481]); with none, the
-  reading stays "--", why its caption ([S-12813]), and a failure that left it so (out of reach, timed out, refused) is the
-  status's problem glyph too ([S-15711]; not a place not set, loading or offline). The condition stands alone on its line ("Overcast"): the place
+  reading stays "--", why its caption ([S-12813]) (the root's [S-15711], a failure's problem glyph, was the parts'; here
+  the caption says it: at the card's least, 39 x 32, the glyph would stand over the face). The condition stands alone on its line ("Overcast"): the place
   is the group's Header widget's to name, once ([S-12801], [S-9604]). The reading keeps the inset at its
   sides and foot, so it is centred in what the sizing counted ([S-12800]); in a group it stands against a
   side a mate joins, its foot's inset gone there ([S-12483]).

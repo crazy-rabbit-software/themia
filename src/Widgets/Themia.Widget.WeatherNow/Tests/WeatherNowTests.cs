@@ -51,15 +51,4 @@ public sealed class WeatherNowTests
         Assert.True(ReadoutRules.Width(FamilyType.Big28, WeatherNowStyles.Worst) <= room);
         Assert.True(WeatherNowStyles.LargeGlyph + FamilySpace.GlyphGap + ReadoutRules.Width(FamilyType.Big28, WeatherNowStyles.Beside) <= room + 0.01);
     }
-
-    [Fact]
-    public void S11100_only_a_failure_is_a_problem_never_a_place_not_set_offline_or_loading()
-    {
-        Assert.Equal([FetchState.Message(FetchStatus.Unreachable)], Themia.App.Widgets.OnlineParts.Failure(FetchStatus.Unreachable));
-        Assert.Single(Themia.App.Widgets.OnlineParts.Failure(FetchStatus.TimedOut));
-        Assert.Empty(Themia.App.Widgets.OnlineParts.Failure(FetchStatus.NotConfigured));
-        Assert.Empty(Themia.App.Widgets.OnlineParts.Failure(FetchStatus.Offline));
-        Assert.Empty(Themia.App.Widgets.OnlineParts.Failure(FetchStatus.Loading));
-        Assert.Empty(Themia.App.Widgets.OnlineParts.Failure(FetchStatus.Ok));
-    }
 }

@@ -114,9 +114,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
             _bigGlyph.Visibility = Visibility.Collapsed;
             OnlineParts.ShowDefault(_reading, _feed.Status, "°");
             _face.Visibility = Visibility.Visible;
-
-            // [S-15711] A failure that left it without a reading is the status's problem glyph, as a stale reading's is.
-            _status.Show(OnlineParts.Failure(_feed.Status), busy: false);
+            _status.Clear();
             return;
         }
 
