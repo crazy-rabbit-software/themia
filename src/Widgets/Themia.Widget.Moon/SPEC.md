@@ -18,19 +18,25 @@ renders), `Localization/Locales/` (its own `MoonStr`). Tests: `Tests/MoonTests.c
   start by default ([S-6582]); in **Phase month** the month's discs ([S-6050]). A Header widget over it
   names it ([S-12481]); in a group it stands against a side a mate joins ([S-12483]).
 - **[S-11121]** **Sizes** (`MoonLayout.Sizing`): the disc one height (76: the 28's
-  line, the Caption, the insets), 140..320 wide, a new one 160; the month one size: seven columns and
+  line, the Caption, the insets), 140..320 wide, a new one 160; the month a new card's size of seven columns and
   five rows of 28 cells (a 20 disc in each), the month's name 8 over them (212 × 180: the grid its discs' ink, [S-15673]).
 - **[S-6050]** The moon's styles ([S-6000]), `MoonConfig.Style` (`MoonStyle`): **Disc** (the default)
   and **Phase month**: one small disc a day of the month holding now, each that day's phase at its
   local noon (`MoonMonth`, [S-6051]; the [S-169] drawing, mirrored for a southern observer), in reading
-  order on the fixed grid from the inset's start, today ringed in the accent at the Chart's stroke, the
+  order in the month's day cells ([S-15805]), today ringed in the accent at the Chart's stroke, the
   month's name (Caption, secondary) over them. Each disc's tooltip names its day and phase. Debug:
   `--state sample` pins the sample place at the sample moment.
-- **[S-15673]** **The month's grid is its ink** (`MoonLayout.GridOf`): its box runs from its outer discs' edges, today's
-  ring (4 past its disc) where it stands on an edge, and its lines are the month's days' (a February of 28 four), never
-  the pitch's gap round the outer discs nor an empty line: the face scales and centres by its parts' boxes
-  ([S-12808]), and the 4 DIP the outer discs stood inside the grid's box stood the face off centre at twice its size and
-  short of a wide card's foot. Tests `MoonTests.S15673_`.
+- **[S-15673]** *(Retired by [S-15805]: the month's discs no longer stand on a fixed pitch whose box was its ink; its
+  cells are the card's grid.)*
+- **[S-15805]** **The month's day cells are the card's grid** (WR-9, owner 2026-11-19: "the calendar does not follow this
+  design philosophy for example. fix that"; WR-2, WR-3, WR-5): under the month's name (Caption, in the inset at the
+  card's top) seven columns run from the card's left edge to its right and a line a week from under the name to the
+  card's foot, every cell the same and touching, each one of the month's items (`ItemMark`); a cell holds its day's disc
+  in its middle at the share of its cell's shorter side a disc had of its 28 pitch (20), today's ring the whole of it
+  (`MoonLayout.Cells`, the view's `ApplySize`). At a new card's size (212 × 180) a disc is about 20 as before; a larger
+  card has larger cells and discs; a smaller one goes down to where a disc is the glyph floor, 12 (WR-14), its name kept
+  over the cells (119 × 121, `MoonLayout.Sizing`). Before, the discs stood on a fixed pitch centred in the card: 275 DIP of a 900 × 300
+  card empty either side. Tests `MoonTests.S15805_`.
 - **[S-3108]** Every option is on the properties menu ([S-3719]); there is no settings page: Appearance
   ([S-3723]), then behind a divider **Location**, the sky's shared search ([S-3101], as the Sun's
   [S-3107]). The month of phases offers no Longitude line ([S-6074]); nothing stands under Style.

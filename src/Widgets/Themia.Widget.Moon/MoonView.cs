@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 /// grid, today ringed in the accent, the month's name over it. The rise, set and next full and new moon
 /// are the moon times' atom.
 /// </summary>
-internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
+internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWidgetSizeAware
 {
     private readonly SkyMoonDisc _disc = new();
     private readonly ReadoutBlock _value = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -39,12 +39,22 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private IDisposable? _subscription;
     private DateTimeOffset _now = DateTimeOffset.Now;
 
-    /// <summary>[S-6050] The Phase month style: the month's name over a disc a day.</summary>
-    private readonly SpreadStack _month = new() { Visibility = Visibility.Collapsed };
+    /// <summary>
+    /// [S-6050] [S-15805] The Phase month style: the month's name in the inset over its day cells, which are the card's grid
+    /// under it, its sides to its sides and its foot (<see cref="MoonLayout.Cells"/>).
+    /// </summary>
+    private readonly Grid _month = new() { Visibility = Visibility.Collapsed };
     private readonly TextBlock _monthName = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly Canvas _monthGrid = new() { HorizontalAlignment = HorizontalAlignment.Left, FlowDirection = FlowDirection.LeftToRight };
+    private readonly Grid _monthGrid = new() { FlowDirection = FlowDirection.LeftToRight };
     private readonly List<SkyMoonDisc> _monthDiscs = [];
-    private readonly Ellipse _todayRing = new() { StrokeThickness = FamilyShape.Stroke };
+    private readonly List<Border> _monthCells = [];
+    private readonly Ellipse _todayRing = new() { StrokeThickness = FamilyShape.Stroke, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false };
+
+    /// <summary>The cell's panel today's ring stands in.</summary>
+    private Panel? _ringHolder;
+
+    /// <summary>[S-15805] The view's room, the month's cells laid in what its name leaves of it.</summary>
+    private WidgetArea _area;
 
     /// <summary>The day the month was last drawn for: a new day redraws it, a tick on the same day does not.</summary>
     private DateOnly _monthDrawn;
@@ -64,23 +74,28 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         // ([S-12483]: the same joined or alone).
 
         _todayRing.Stroke = Family.Brush(ColourRole.Accent);
-        _todayRing.Width = MoonLayout.Pitch;
-        _todayRing.Height = MoonLayout.Pitch;
-        _month.Spacing = FamilySpace.S2;
-        _month.Children.Add(_monthName);
+
+        // [S-15805] The name in the inset at the card's top (the card gives it); the cells from under it to the card's sides
+        // and foot, seven columns of one width.
+        _month.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _month.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _monthName.TextTrimming = TextTrimming.CharacterEllipsis;
+        var name = new Border { Child = _monthName, Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2) };
+        SetRow(_monthGrid, 1);
+        for (var column = 0; column < MoonLayout.Columns; column++)
+        {
+            _monthGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        }
+
+        _month.Children.Add(name);
         _month.Children.Add(_monthGrid);
-        _monthGrid.Width = MoonLayout.Grid.Width;
-        _monthGrid.Height = MoonLayout.Grid.Height;
 
         _fit.Parts.Add(_readout);
-        // [S-14324] The month stands its own width where the alignment puts it (centred by default), never spread over the
-        // content's width with its days at the start (WR-3, owner 2026-11-20: "Centred is fine").
-        _fit.Parts.Add(_month);
 
-        // [S-12833] The phase's name and the month's give way where the card would draw them under the floor.
+        // [S-12833] The phase's name gives way where the card would draw it under the floor.
         _fit.GivesWay(_name, FamilyType.Under(FamilyType.Big28).FontSize);
-        _fit.GivesWay(_monthName, FamilyType.Caption.FontSize);
         Children.Add(_fit);
+        Children.Add(_month);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -102,11 +117,12 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as MoonConfig ?? new MoonConfig();
+        var month = _config.Style == MoonStyle.PhaseMonth;
         _fit.Face = MoonLayout.Face(_config);
 
         // One cadence for good: the config cannot change it, so subscribe once.
         _subscription ??= _ticker?.Subscribe(_config.TickInterval, Tick);
-        var month = _config.Style == MoonStyle.PhaseMonth;
+        _fit.Visibility = Show(!month);
         _readout.Visibility = Show(!month);
         _month.Visibility = Show(month);
         _monthDrawn = default;
@@ -147,6 +163,13 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         Refresh();
     }
 
+    /// <summary>[S-15805] The card's word on its room: the month's cells share it.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        _area = area;
+        SizeMonth();
+    }
+
     /// <summary>[S-6051] The discs for the month holding now, rebuilt when the day changes.</summary>
     private void RefreshMonth()
     {
@@ -162,38 +185,76 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         var locale = Strings.Current;
         while (_monthDiscs.Count < days.Count)
         {
-            _monthDiscs.Add(new SkyMoonDisc());
+            var disc = new SkyMoonDisc();
+            disc.Root.HorizontalAlignment = HorizontalAlignment.Center;
+            disc.Root.VerticalAlignment = VerticalAlignment.Center;
+            _monthDiscs.Add(disc);
+
+            // [S-15805] A day's cell is one of the month's items: it tiles the card with the others (WR-2, WR-3).
+            var cell = new Border { Background = Family.Brush(ColourRole.Clear), Child = new Grid { Children = { disc.Root } } };
+            ItemMark.Mark(cell);
+            _monthCells.Add(cell);
         }
 
         _monthDiscs.RemoveRange(days.Count, _monthDiscs.Count - days.Count);
+        _monthCells.RemoveRange(days.Count, _monthCells.Count - days.Count);
         _monthGrid.Children.Clear();
-        _monthName.Text = LocaleFormat.MonthName(locale, today.Month);
+        // The ring leaves the cell it ringed (its Parent is not set for a child added in code: kept here).
+        _ringHolder?.Children.Remove(_todayRing);
+        _ringHolder = null;
 
-        // [S-15673] The grid's box is its ink: the discs from its edges, today's ring where it stands on one.
-        var box = MoonLayout.GridOf(days.Count, days.ToList().FindIndex(d => d.Today));
-        _monthGrid.Width = box.Width;
-        _monthGrid.Height = box.Height;
+        _monthName.Text = LocaleFormat.MonthName(locale, today.Month);
+        Ink.InkStart(_monthName);
+
+        var rows = MoonLayout.Cells(1, 1, days.Count).Rows;
+        while (_monthGrid.RowDefinitions.Count < rows)
+        {
+            _monthGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        }
+
+        while (_monthGrid.RowDefinitions.Count > rows)
+        {
+            _monthGrid.RowDefinitions.RemoveAt(_monthGrid.RowDefinitions.Count - 1);
+        }
+
         for (var i = 0; i < days.Count; i++)
         {
-            var disc = _monthDiscs[i];
-            var (column, row) = (i % MoonLayout.Columns, i / MoonLayout.Columns);
-            disc.Resize(MoonLayout.Disc);
-            disc.Update(days[i].Phase, southern, up: true);
-            Canvas.SetLeft(disc.Root, box.Left + (column * MoonLayout.Pitch));
-            Canvas.SetTop(disc.Root, box.Top + (row * MoonLayout.Pitch));
-            ToolTipService.SetToolTip(disc.Root, $"{LocaleFormat.Date(locale, days[i].Date, DateStyle.MonthDay)} · {MoonPhase.Label(days[i].Name)}");
-            _monthGrid.Children.Add(disc.Root);
+            var cell = _monthCells[i];
+            SetColumn(cell, i % MoonLayout.Columns);
+            SetRow(cell, i / MoonLayout.Columns);
+            _monthDiscs[i].Update(days[i].Phase, southern, up: true);
+            ToolTipService.SetToolTip(cell, $"{LocaleFormat.Date(locale, days[i].Date, DateStyle.MonthDay)} · {MoonPhase.Label(days[i].Name)}");
+            _monthGrid.Children.Add(cell);
 
-            if (days[i].Today)
+            if (days[i].Today && cell.Child is Grid inside)
             {
                 // [S-6050] Today ringed in the accent at the Chart's stroke, in the gap round its disc.
-                Canvas.SetLeft(_todayRing, box.Left + (column * MoonLayout.Pitch) - MoonLayout.Ring);
-                Canvas.SetTop(_todayRing, box.Top + (row * MoonLayout.Pitch) - MoonLayout.Ring);
-                _monthGrid.Children.Add(_todayRing);
+                inside.Children.Add(_todayRing);
+                _ringHolder = inside;
             }
         }
+
+        SizeMonth();
     }
 
+    /// <summary>[S-15805] The discs and today's ring at the size the month's cells give them (<see cref="MoonLayout.Cells"/>).</summary>
+    private void SizeMonth()
+    {
+        if (_config.Style != MoonStyle.PhaseMonth || !_area.IsMeasured || _monthDiscs.Count == 0)
+        {
+            return;
+        }
+
+        var height = _area.Height - FamilyType.Caption.LineHeight - FamilySpace.S2;
+        var cells = MoonLayout.Cells(_area.Width, height, _monthDiscs.Count);
+        foreach (var disc in _monthDiscs)
+        {
+            disc.Resize(cells.Disc);
+        }
+
+        _todayRing.Width = cells.Ring;
+        _todayRing.Height = cells.Ring;
+    }
     /// <summary>Recompute the readout. Called on a tick, a config change and a language change.</summary>
     private void Refresh()
     {

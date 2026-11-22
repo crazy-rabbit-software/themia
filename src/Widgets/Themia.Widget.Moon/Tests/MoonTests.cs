@@ -25,34 +25,46 @@ public sealed class MoonTests
     }
 
     [Fact]
-    public void S11121_the_phase_month_is_one_size_seven_discs_across_five_rows_down_its_name_over_them()
+    public void S11121_S15805_the_phase_month_is_seven_discs_across_five_rows_down_its_name_over_them_down_to_12_discs()
     {
         var sizing = MoonLayout.Sizing(new MoonConfig { Style = MoonStyle.PhaseMonth });
 
-        Assert.True(sizing.FixedHeight && sizing.FixedWidth);
+        // [S-15805] WR-14: down to where a cell's disc is the glyph floor, 12, its name kept over the cells.
+        var room = Math.Ceiling(ScaleFloor.Glyph * MoonLayout.Pitch / MoonLayout.Disc);
+        Assert.Equal(new SizeDip(7 * room, 12 + 16 + 8 + (5 * room)), sizing.Min);
+        Assert.True(MoonLayout.Cells(sizing.Min.Width, sizing.Min.Height - 12 - 16 - 8, 31).Disc >= ScaleFloor.Glyph);
         // [S-15673] The grid its discs' ink: six pitches and a disc across, four and a disc down.
         Assert.Equal(new SizeDip(24 + (6 * 28) + 20, 12 + 16 + 8 + (4 * 28) + 20 + 12), sizing.Natural);
         Assert.True(MoonLayout.Columns * MoonLayout.Rows >= 31);
     }
 
-    [Fact]
-    public void S15673_the_month_grids_box_is_its_ink_the_discs_and_todays_ring_where_it_stands_on_an_edge()
+    [Theory]
+    [InlineData(212, 144, 31)]
+    [InlineData(900, 264, 30)]
+    [InlineData(330, 94, 28)]
+    public void S15805_the_months_day_cells_are_the_cards_grid_a_disc_in_the_middle_of_each(double width, double height, int days)
     {
-        // Thirty days, today inside: the discs from every edge, five lines.
-        Assert.Equal(new MoonGridBox((6 * 28) + 20, (4 * 28) + 20, 0, 0), MoonLayout.GridOf(30, 9));
+        // WR-9, WR-2, WR-3: at 900x300 the discs had stood on a fixed 28 pitch, 275 DIP of the card empty either side.
+        var cells = MoonLayout.Cells(width, height, days);
 
-        // Today in the last column and the first line: its ring 4 past the disc on the right and the top.
-        Assert.Equal(new MoonGridBox((6 * 28) + 20 + 4, 4 + (4 * 28) + 20, 0, 4), MoonLayout.GridOf(30, 6));
+        Assert.Equal((days + 6) / 7, cells.Rows);
+        Assert.Equal(width, MoonLayout.Columns * cells.CellWidth, 6);
+        Assert.Equal(height, cells.Rows * cells.CellHeight, 6);
 
-        // Today the 29th of thirty: the last line's, in its first column; the ring on the left and the foot.
-        Assert.Equal(new MoonGridBox(4 + (6 * 28) + 20, (4 * 28) + 20 + 4, 4, 0), MoonLayout.GridOf(30, 28));
-
-        // A February of 28: four lines; no today: no ring; the right edge is the full lines', a short last line's today none.
-        Assert.Equal(new MoonGridBox((6 * 28) + 20, (3 * 28) + 20, 0, 0), MoonLayout.GridOf(28, -1));
-        Assert.Equal((6 * 28) + 20, MoonLayout.GridOf(31, 29).Width);
-        Assert.Equal(MoonLayout.Ring, (MoonLayout.Pitch - MoonLayout.Disc) / 2);
+        // The disc keeps its share of the cell's shorter side (a 20 in a 28), today's ring the whole of it.
+        Assert.Equal(Math.Min(cells.CellWidth, cells.CellHeight), cells.Ring, 6);
+        Assert.Equal(cells.Ring * MoonLayout.Disc / MoonLayout.Pitch, cells.Disc, 6);
+        Assert.True(cells.Disc < cells.Ring);
     }
 
+    [Fact]
+    public void S15805_a_new_month_card_draws_its_discs_at_their_own_size()
+    {
+        // The natural card (212x180) gives the cells 212 x 144 (its name and the gap over them): about the old 28 pitch.
+        var sizing = MoonLayout.Sizing(new MoonConfig { Style = MoonStyle.PhaseMonth });
+        var cells = MoonLayout.Cells(sizing.Natural.Width, sizing.Natural.Height - 12 - FamilyType.Caption.LineHeight - FamilySpace.S2, 31);
+        Assert.InRange(cells.Disc, MoonLayout.Disc - 1, MoonLayout.Disc + 2);
+    }
     [Fact]
     public void S6051_the_phase_month_is_every_day_of_this_month_today_marked_once()
     {

@@ -29,7 +29,7 @@ public sealed class MoonModule : IWidgetModule
         Label = MoonStr.WidgetsC_Moon_Label.Local(),
         Description = MoonStr.WidgetsC_Moon_Desc.Local(),
         Glyph = Glyphs.Moon,
-        Sizing = c => MoonLayout.Sizing((MoonConfig)c).ScalesDownTo(MoonLayout.Face((MoonConfig)c)),
+        Sizing = c => MoonLayout.Face((MoonConfig)c) is { } face ? MoonLayout.Sizing((MoonConfig)c).ScalesDownTo(face) : MoonLayout.Sizing((MoonConfig)c),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Weather, 1, 2),
     };
