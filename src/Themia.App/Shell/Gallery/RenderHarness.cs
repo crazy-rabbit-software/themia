@@ -109,9 +109,10 @@ internal sealed class RenderHarness : IDisposable
     /// [S-15900] The one wait of every render: <paramref name="root"/> settled (laid out, nothing under it loading, nothing
     /// <paramref name="busy"/> names, its picture the same frame after frame) or the ceiling passed, said loudly as
     /// <paramref name="what"/>'s (<see cref="RenderSettle"/>). Never a fixed sleep. Returns whether it settled.
+    /// <paramref name="looks"/> false, for a check that draws no picture: its picture is not compared, the rest is the same.
     /// </summary>
-    public static Task<bool> SettleAsync(UIElement root, string what, TimeSpan? ceiling = null, Func<string?>? busy = null)
-        => RenderSettle.SettleAsync(root, what, ceiling, busy);
+    public static Task<bool> SettleAsync(UIElement root, string what, TimeSpan? ceiling = null, Func<string?>? busy = null, bool looks = true)
+        => RenderSettle.SettleAsync(root, what, ceiling, busy, looks);
 
     /// <summary><paramref name="element"/> written to <paramref name="path"/> (its folder made), said on stdout as <c>&lt;say&gt;: wrote &lt;path&gt;</c>.</summary>
     public static async Task SaveAsync(UIElement element, string path, string say)

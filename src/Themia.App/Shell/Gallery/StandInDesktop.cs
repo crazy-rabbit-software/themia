@@ -78,13 +78,15 @@ internal sealed class StandInDesktop : IDisposable
     /// at rest (its root loaded, a usable size, its first layout pass run, no intro playing:
     /// <see cref="DesktopWindow.NotAtRestForCheck"/>) and settled ([S-15900], <see cref="RenderHarness.SettleAsync"/>), each
     /// under the ceiling; one past it is said loudly as <paramref name="what"/>'s. Returns whether every one settled.
+    /// <paramref name="looks"/> false, for a check that draws no picture (the first drag, the benches): at rest and nothing
+    /// loading is ready, its pictures are not compared (a live reading, the PC's own sound in a visualizer, moves forever).
     /// </summary>
-    public async Task<bool> ReadyAsync(string what, DesktopWindow? surface = null)
+    public async Task<bool> ReadyAsync(string what, DesktopWindow? surface = null, bool looks = true)
     {
         var all = true;
         foreach (var shown in surface is null ? _surfaces : [surface])
         {
-            all &= await RenderHarness.SettleAsync(shown.DebugRoot, $"{what} ({shown.Monitor.Id})", busy: () => shown.NotAtRestForCheck).ConfigureAwait(true);
+            all &= await RenderHarness.SettleAsync(shown.DebugRoot, $"{what} ({shown.Monitor.Id})", busy: () => shown.NotAtRestForCheck, looks: looks).ConfigureAwait(true);
         }
 
         return all;

@@ -794,7 +794,9 @@ busy desktop ([S-6601]), Debug, private bytes.
 - **[S-15902]** **A stand-in desktop is ready when its surfaces are at rest.** `StandInDesktop.ReadyAsync` settles every
   surface (or one) with what keeps it from rest as its busy signal (`DesktopWindow.NotAtRestForCheck`: its root not
   loaded, no usable size, its first layout pass not run (`IntroArming.StartupPending`), an intro playing): the checks
-  wait for it after a show, a mode, a move or a drop, never a diagnostic's sleep.
+  wait for it after a show, a mode, a move or a drop, never a diagnostic's sleep. A check that draws no picture (the first
+  drag, the drag and UI benches) asks for it without the picture compare: at rest and nothing loading is ready, so a
+  live reading (the PC's own sound in a visualizer) cannot hold it to the ceiling.
 
 ## Not on this machine (UNAVAILABLE)
 

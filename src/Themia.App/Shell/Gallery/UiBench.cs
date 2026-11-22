@@ -68,9 +68,9 @@ internal static partial class UiBench
             desk.Show();
 
             // The surface laid out and settled, its intro ended ([S-15902]).
-            await stand.ReadyAsync("the surface").ConfigureAwait(true);
+            await stand.ReadyAsync("the surface", looks: false).ConfigureAwait(true);
             DragBench.Touch(host, surface, rows);
-            await stand.ReadyAsync("the rows touched").ConfigureAwait(true);
+            await stand.ReadyAsync("the rows touched", looks: false).ConfigureAwait(true);
 
             var root = surface.DebugRoot;
             probe = new Probe(root, frames);

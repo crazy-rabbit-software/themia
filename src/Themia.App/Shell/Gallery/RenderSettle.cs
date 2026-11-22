@@ -90,7 +90,7 @@ internal static class RenderSettle
     /// <paramref name="ceiling"/> (default <see cref="RenderSettling.DefaultCeiling"/>) passed, said loudly as
     /// <paramref name="what"/>'s. Returns whether it settled.
     /// </summary>
-    public static async Task<bool> SettleAsync(UIElement root, string what, TimeSpan? ceiling = null, Func<string?>? busy = null)
+    public static async Task<bool> SettleAsync(UIElement root, string what, TimeSpan? ceiling = null, Func<string?>? busy = null, bool looks = true)
     {
         ArgumentNullException.ThrowIfNull(root);
         var clock = Stopwatch.StartNew();
@@ -106,7 +106,12 @@ internal static class RenderSettle
 
                 var pending = Pending(root, busy);
                 bool? same = null;
-                if (pending.Count == 0)
+                if (pending.Count == 0 && !looks)
+                {
+                    // A check that draws nothing: laid out, a frame drawn and nothing loading is settled.
+                    same = true;
+                }
+                else if (pending.Count == 0)
                 {
                     var now = await LookAsync(root).ConfigureAwait(true);
                     // A page that draws nothing (no size, not in a window) cannot change in a picture: quiet.

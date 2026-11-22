@@ -531,9 +531,9 @@ internal static partial class FirstDragCheck
                 stand.Show();
 
                 // The surface laid out and its intro ended, then every card showing its sample, settled ([S-15902]).
-                await stand.ReadyAsync("the surface").ConfigureAwait(true);
+                await stand.ReadyAsync("the surface", looks: false).ConfigureAwait(true);
                 var cards = await SamplesAsync(surface, placed).ConfigureAwait(true);
-                await stand.ReadyAsync("the samples").ConfigureAwait(true);
+                await stand.ReadyAsync("the samples", looks: false).ConfigureAwait(true);
                 return new Desk(stand, surface, cards);
             }
             catch
