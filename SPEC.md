@@ -11384,6 +11384,12 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 - **[S-15756]** **A power button's failure render is one its action can have**: sleep and hibernate a suspend refused, the
   session's ends (shut down, restart, sign out) the privilege denied by policy, the rest access denied; restart's had read
   "Windows refused to sleep".
+- **[S-15762]** **A metric's readout never runs past its room** (the status mark's room at its end; WR-14): the readout's
+  fit states its face (`MetricRules.ReadoutFace`: the value on the 28 step its main reading, the caption and the unit
+  giving way, smallest first), so where the block at its floor is wider than its room the caption (the kind's glyph and
+  name) gives way and the value stands clear. A stale "Grass · Moderate" at 240 × 60 had run under the warning mark: its
+  arrangement follows the card's room alone ([S-15719]) and its floor held it 19 DIP wider than the room beside the mark.
+  Test `MetricRulesTests.S15762_`.
 - **[S-15761]** **A text drawn on one line is measured on one line** (`Ink`'s wrap width): the ink meter's face (Segoe UI
   Variable at its nearest optical size) sets a line a little wider than XAML's, so at the width XAML drew a one-line text
   it wrapped its last word onto a second line and read that line's foot; a descender on the drawn line went unseen. A

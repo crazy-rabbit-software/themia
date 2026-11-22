@@ -409,6 +409,15 @@ public static class MetricRules
     }
 
     /// <summary>
+    /// [S-15762] The readout block's face for its fit (<c>ReadingFit.Face</c>): its value on the 28 step its main reading,
+    /// its caption (the kind's glyph and name, Caption) and then its unit giving way, smallest first, only where the room
+    /// would draw them under the legibility floor (WR-14). A block too wide for its room at its floor had been drawn past it,
+    /// under the status mark at the card's top end (a stale "Grass · Moderate" at 240 × 60).
+    /// </summary>
+    public static BlockFace ReadoutFace()
+        => new(FamilyType.Big28.FontSize, [FamilyType.Big28.FontSize, FamilyType.Unit(FamilyType.Big28).FontSize, FamilyType.Caption.FontSize]);
+
+    /// <summary>
     /// [S-14220] [S-14703] [S-14711] The metric's graph on the one chart ([S-6750]) <paramref name="width"/> wide, in its chart
     /// look (<paramref name="type"/>, <paramref name="detail"/>): the newest <paramref name="slots"/> values of
     /// <paramref name="series"/> (its span's points; <see cref="LinePoints"/> by default), oldest first, on their own range

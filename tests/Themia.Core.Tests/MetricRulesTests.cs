@@ -406,6 +406,27 @@ public sealed class MetricRulesTests
     }
 
     [Fact]
+    public void S15762_a_readout_too_wide_at_its_floor_drops_its_caption_never_runs_past_its_room()
+    {
+        // The stale pollen readout at 240 x 60: its room 192 x 36 beside the mark; beside, the block (57 caption, 12 gap,
+        // 213 value) at its floor (the caption at 9: 0.75) is 211.5 wide and ran under the mark. Its caption gives way and
+        // the value alone fits.
+        var face = MetricRules.ReadoutFace();
+        Assert.Equal(FamilyType.Big28.FontSize, face.Main);
+        Assert.Equal(FamilyType.Caption.FontSize, face.Sizes.Min());
+        IReadOnlyList<PartBox> Parts(double floor) => face.Keeps(FamilyType.Caption.FontSize, floor)
+            ? [new PartBox(57 + 12 + 213, 36, Text: FamilyType.Caption.FontSize)]
+            : [new PartBox(213, 36, Text: FamilyType.Big28.FontSize)];
+        var solution = BlockLayout.Solve(192, 36, Parts, face, ContentAlign.Center);
+        Assert.False(face.Keeps(FamilyType.Caption.FontSize, solution.Floor));
+        Assert.True(213 * solution.Fill.Scale <= 192 + 1e-6);
+
+        // A room that holds the whole block at its floor keeps the caption.
+        var roomy = BlockLayout.Solve(240, 36, Parts, face, ContentAlign.Center);
+        Assert.True(face.Keeps(FamilyType.Caption.FontSize, roomy.Floor));
+    }
+
+    [Fact]
     public void S14701_the_caption_stands_beside_the_value_where_that_scales_larger_else_over_it()
     {
         var caption = new SizeDip(80, 16);

@@ -110,6 +110,11 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         _value.Children.Add(_reading);
         _value.Children.Add(_readoutArrow);
         _fit.Visibility = Visibility.Collapsed;
+
+        // [S-15762] Where the block cannot stand in its room at its floor (the status mark's room taken at its end), its
+        // caption gives way rather than the block running past the room, under the mark.
+        _fit.GivesWay(_caption, FamilyType.Caption.FontSize);
+        _fit.Face = MetricRules.ReadoutFace();
         _face.Children.Add(_fit);
         _rowWhy.TextWrapping = TextWrapping.NoWrap;
         _rowWhy.TextTrimming = TextTrimming.CharacterEllipsis;
