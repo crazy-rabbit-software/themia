@@ -5346,9 +5346,10 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   shorter one has the room under its add row empty. A state's line standing in the add row's place is that row's size.
   Tests `ItemSizeTests.S14811_`, `FixedItemTests.S14811_`, `FixedItemKindsTests.S14811_`.
 - **[S-15786]** **An empty list with an add row keeps its rows** (WR-10): the state over a list that adds in place takes
-  the rows' room (the card's less the add row's, `RowReach.Room`), its line and the face's empty rows filling the card
-  over the add row on its foot, as a list longer than its card stands; before, the line and the add row stood alone over
-  an empty card (an empty habit list at 520 × 600: 540 DIP of nothing).
+  the whole rows of the rows' room (the card's less the add row's, `RowReach.Room`), its line and the face's empty rows
+  over the add row right under the last of them, the part of a row left over the foot's (WR-5: an empty list is shorter
+  than its card); before, the line and the add row stood alone over an empty card (an empty habit list at 520 × 600: 540
+  DIP of nothing).
 - **[S-14812]** **Counts that follow the card are every item it reaches** ([S-14410], [S-14502], [S-14810]). How many
   days, hours, laps, lines or columns a card shows is every one its box reaches at the item's one size
   (`ItemSize.Count`), the last cut: the forecast curve's days (its columns of 60, its 56 in whole cells, from the card's
