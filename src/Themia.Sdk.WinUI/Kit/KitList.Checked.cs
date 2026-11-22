@@ -104,9 +104,9 @@ public sealed partial class KitList
 
     /// <summary>
     /// [S-12835] [S-15786] The state over the list takes the list's room down to the foot (its empty rows, WR-10); with the
-    /// add row under it, the rows' room the card's less the add row's (<see cref="ItemSize.RowsAbove"/>), so its line and
-    /// the empty rows under it fill the card over the add row on its foot, as a list longer than its card stands (the face
-    /// kept, never the line and the add row alone over an empty card).
+    /// add row under it, the whole rows of the rows' room (the card's less the add row's, <see cref="ItemSize.RowsAbove"/>),
+    /// so its line and the empty rows under it fill the card over the add row (the face kept, never the line and the add row
+    /// alone over an empty card).
     /// </summary>
     private void SpanOverlay()
     {
@@ -117,7 +117,11 @@ public sealed partial class KitList
 
         var under = _addRow?.Element.Visibility == Visibility.Visible;
         SetRowSpan(_overlay, under ? 1 : 3);
-        var room = _plan.Reach.Foot > 0 ? _plan.Reach.Room - FamilySpace.Inset : double.NaN;
+        // Whole rows only: an empty list is shorter than its card, so the add row stands right under its last empty row and
+        // the room a part of a row would take is the foot's (WR-5), never a row cut by the add row.
+        var pitch = _plan.Reach.Pitch;
+        var whole = pitch > 0 ? Math.Floor((_plan.Reach.Room + LayoutMath.Tolerance) / pitch) * pitch : 0;
+        var room = _plan.Reach.Foot > 0 && whole > 0 ? whole - FamilySpace.Inset : double.NaN;
         _overlay.Height = under && double.IsFinite(room) && room > 0 ? room : double.NaN;
     }
 

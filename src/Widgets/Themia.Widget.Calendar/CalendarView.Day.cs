@@ -55,6 +55,8 @@ internal sealed partial class CalendarView
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
+        // [S-15789] The band's row is the first of the day's rows, the hours under it in the same stack (one list of rows).
+        Border? bandItem = null;
         if (band.Lines > 0)
         {
             // [S-15671] The band's row runs from edge to edge, its line in the inset and the hours' gutter, its padding.
@@ -66,7 +68,7 @@ internal sealed partial class CalendarView
                 Background = Family.Brush(ColourRole.Clear),
             };
             ItemMark.Mark(row);
-            root.Children.Add(row);
+            bandItem = row;
         }
 
         var (earliest, latest) = CalendarFit.EventHours(timed, day, zone);
@@ -74,6 +76,11 @@ internal sealed partial class CalendarView
 
         // The hours' rows, the first one's rule left out where it would stand on the card's top edge.
         var rows = new StackPanel { VerticalAlignment = VerticalAlignment.Top };
+        if (bandItem is not null)
+        {
+            rows.Children.Add(bandItem);
+        }
+
         for (var i = 0; i < window.Count; i++)
         {
             rows.Children.Add(HourRow(window.First + i, hours.Height(i), gutter, long_: gutter == HourLabelWidth, rule: i > 0 || bandRow > 0 || lift == 0));
@@ -84,7 +91,7 @@ internal sealed partial class CalendarView
 
         // The events over the rows, on the timeline beside the hours' labels.
         var canvas = TimelineCanvas(timed, day, window, timelineWidth, showColors);
-        canvas.Margin = new Thickness(FamilySpace.Inset + gutter, 0, FamilySpace.Inset, 0);
+        canvas.Margin = new Thickness(FamilySpace.Inset + gutter, bandRow, FamilySpace.Inset, 0);
         canvas.VerticalAlignment = VerticalAlignment.Top;
         canvas.Height = hours.Start(window.Count);
         SetRow(canvas, 1);
@@ -96,7 +103,7 @@ internal sealed partial class CalendarView
             none.Text = (day == Today ? CalendarStr.Calendar_NoEventsToday : CalendarStr.WidgetsA_Calendar_NoEvents).Text();
             none.HorizontalAlignment = HorizontalAlignment.Center;
             none.VerticalAlignment = VerticalAlignment.Center;
-            none.Margin = new Thickness(FamilySpace.Inset + gutter, 0, FamilySpace.Inset, 0);
+            none.Margin = new Thickness(FamilySpace.Inset + gutter, bandRow, FamilySpace.Inset, 0);
             SetRow(none, 1);
             root.Children.Add(none);
         }
@@ -145,7 +152,8 @@ internal sealed partial class CalendarView
     /// </summary>
     private StackPanel DayBand(IReadOnlyList<DayItem> allDay, DateOnly day, double width, DayBandFit band, bool showColors)
     {
-        var stack = new StackPanel { Margin = new Thickness(0, 0, 0, FamilySpace.S1) };
+        // [S-15789] The band's lines centred in their row (an hour's size): nothing under them past the row.
+        var stack = new StackPanel();
 
         var own = band.SharedLast ? band.Lines - 1 : band.Lines;
         for (var i = 0; i < own; i++)
