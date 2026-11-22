@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "કૉલમ",
-  "forecast.layoutRows": "પંક્તિઓ",
-  "styles.forecast.curve": "તાપમાન વળાંક",
-  "styles.forecast.grid": "ગ્રીડ",
-  "widgetsA.catalog.forecast.description": "આગલા થોડા દિવસ",
-  "widgetsA.catalog.forecast.label": "આગાહી",
   "widgetsC.weather.settings.showPrecipitation.label": "વરસાદ બતાવો"
 }

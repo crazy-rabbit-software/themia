@@ -35,6 +35,17 @@ public sealed class ReadyMadeGroupsTests
 
     private static ReadyMadeGroup Of(string id) => ReadyMadeGroups.Find(id)!;
 
+    /// <summary>[S-15540] Whether widget <paramref name="a"/> of <paramref name="recipe"/> holds <paramref name="b"/>, itself or through a repeater it holds.</summary>
+    private static bool Holds(ReadyMadeGroup recipe, int a, int b)
+        => recipe.Widgets[a].Holds is { } holds && (holds.Contains(b) || holds.Any(h => h != a && Holds(recipe, h, b)));
+
+    /// <summary>
+    /// [S-15540] The panel's tiles: every widget no repeater holds, a repeater standing for its rows (its box, which its
+    /// members and their copies fill).
+    /// </summary>
+    private static List<ReadyMadeWidget> Drawn(ReadyMadeGroup recipe)
+        => [.. recipe.Widgets.Where((_, j) => !Enumerable.Range(0, recipe.Widgets.Count).Any(i => Holds(recipe, i, j)))];
+
     // ---- [S-2472] the rules every recipe keeps ---------------------------------------------------
 
     [Theory]
@@ -64,7 +75,8 @@ public sealed class ReadyMadeGroupsTests
     [MemberData(nameof(Recipes))]
     public void S2472_has_two_widgets_or_more_and_no_two_boxes_overlap(string id)
     {
-        var boxes = Of(id).Widgets.Select(w => w.Box).ToList();
+        var recipe = Of(id);
+        var boxes = recipe.Widgets.Select(w => w.Box).ToList();
 
         Assert.True(boxes.Count >= 2, $"{id}: a group holds two widgets or more");
         Assert.All(boxes, b => Assert.True(b.Width > 0 && b.Height > 0 && b.X >= 0 && b.Y >= 0, $"{id}: a box is empty or before the corner"));
@@ -72,6 +84,12 @@ public sealed class ReadyMadeGroupsTests
         {
             for (var j = i + 1; j < boxes.Count; j++)
             {
+                // [S-15540] A repeater's members stand inside its box.
+                if (Holds(recipe, i, j) || Holds(recipe, j, i))
+                {
+                    continue;
+                }
+
                 var (a, b) = (boxes[i], boxes[j]);
                 var overlaps = a.X < b.Right && b.X < a.Right && a.Y < b.Bottom && b.Y < a.Bottom;
                 Assert.False(overlaps, $"{id}: widgets {i} and {j} overlap");
@@ -83,7 +101,7 @@ public sealed class ReadyMadeGroupsTests
     [MemberData(nameof(Recipes))]
     public void S2472_every_widget_touches_another_so_the_recipe_draws_as_one_panel(string id)
     {
-        DipRect?[] boxes = [.. Of(id).Widgets.Select(w => (DipRect?)new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height))];
+        DipRect?[] boxes = [.. Drawn(Of(id)).Select(w => (DipRect?)new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height))];
 
         var outlines = CardJoins.Outlines(boxes, 1);
 
@@ -97,7 +115,7 @@ public sealed class ReadyMadeGroupsTests
     [MemberData(nameof(Recipes))]
     public void S11870_a_recipe_placed_draws_its_outer_border_only(string id)
     {
-        var boxes = Of(id).Widgets.Select(w => new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height)).ToList();
+        var boxes = Drawn(Of(id)).Select(w => new DipRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height)).ToList();
         var tol = 0.5;
 
         var outlines = CardJoins.Outlines([.. boxes.Select(b => (DipRect?)b)], 1);
@@ -174,8 +192,10 @@ public sealed class ReadyMadeGroupsTests
         var recipe = Of(id);
         var bounds = recipe.Bounds;
 
-        // No two overlap (S2472_), so they fill the box round them exactly when their areas add up to it.
-        Assert.Equal(bounds.Width * bounds.Height, recipe.Widgets.Sum(w => w.Box.Width * w.Box.Height), 3);
+        // No two overlap (S2472_), so they fill the box round them exactly when their areas add up to it. [S-15540] A
+        // repeater's box is its rows: it counts, what it holds (inside it) does not.
+        var held = Enumerable.Range(0, recipe.Widgets.Count).Where(j => Enumerable.Range(0, recipe.Widgets.Count).Any(i => Holds(recipe, i, j))).ToHashSet();
+        Assert.Equal(bounds.Width * bounds.Height, recipe.Widgets.Where((_, j) => !held.Contains(j)).Sum(w => w.Box.Width * w.Box.Height), 3);
     }
 
     /// <summary>[S-12485] The groups whose Header says less than their name: the subject alone.</summary>
@@ -204,7 +224,7 @@ public sealed class ReadyMadeGroupsTests
         Assert.Equal("header", header.Kind);
         Assert.Equal(new ReadyMadeBox(bounds.X, bounds.Y, bounds.Width, ReadyMadeGroups.HeaderHeight), header.Box);
         Assert.Equal(36, ReadyMadeGroups.HeaderHeight);
-        Assert.DoesNotContain(recipe.Widgets.Skip(1), w => w.Kind == "header");
+        Assert.DoesNotContain(Drawn(recipe).Skip(1), w => w.Kind == "header");
 
         // Its fragment: the recipe's title (or the shorter one) in the language now, and the recipe's glyph.
         var title = ShorterTitles.TryGetValue(id, out var shorter) ? shorter : recipe.Name;
@@ -214,7 +234,7 @@ public sealed class ReadyMadeGroupsTests
 
         // Every member stands under it, and something meets its foot all along: the group is one panel under its header.
         Assert.All(recipe.Widgets.Skip(1), w => Assert.True(w.Box.Y >= header.Box.Bottom, $"{id}: {w.Kind} stands over the header"));
-        var under = recipe.Widgets.Skip(1).Where(w => w.Box.Y == header.Box.Bottom).ToList();
+        var under = Drawn(recipe).Skip(1).Where(w => w.Box.Y == header.Box.Bottom).ToList();
         Assert.Equal(header.Box.Width, under.Sum(w => w.Box.Width), 3);
     }
 
@@ -259,6 +279,33 @@ public sealed class ReadyMadeGroupsTests
         Assert.False(string.IsNullOrWhiteSpace(recipe.About.Text()));
         Assert.False(string.IsNullOrEmpty(recipe.Glyph));
         Assert.Single(ReadyMadeGroups.All, r => r.Id == id);
+    }
+
+    [Fact]
+    public void S15540_a_recipes_repeater_holds_its_members_by_their_new_ids_and_its_rows_fill_its_box()
+    {
+        foreach (var recipe in ReadyMadeGroups.All.Where(r => r.Widgets.Any(w => w.Holds is not null)))
+        {
+            var widgets = ReadyMadeGroups.Build(recipe, Screen)!;
+            for (var i = 0; i < widgets.Count; i++)
+            {
+                if (recipe.Widgets[i].Holds is not { } holds)
+                {
+                    continue;
+                }
+
+                var repeater = Assert.IsAssignableFrom<IRepeater>(widgets[i].Config);
+                Assert.Equal(holds.Select(h => widgets[h].Id), repeater.Members);
+            }
+
+            // Placed, every repeater keeps its members and no repair is needed.
+            var state = new AppState { Views = [ViewState.Create("v")] };
+            state.Views[0].Widgets.AddRange(widgets);
+            Assert.Empty(Repeaters.Repair(state));
+        }
+
+        // The Weather station's days ahead are a forecast holding its high and low part.
+        Assert.Contains(ReadyMadeGroups.WeatherStation.Widgets, w => w.Kind == "weatherDays" && w.Holds is { Count: 1 });
     }
 
     [Fact]

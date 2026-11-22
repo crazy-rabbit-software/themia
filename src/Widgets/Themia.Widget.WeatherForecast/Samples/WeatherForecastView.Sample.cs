@@ -6,8 +6,7 @@ using Themia.Sdk.Samples;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-11850] [S-1917] [S-2052] The forecast's sample: the sample day's week at its place, in the card's own
-/// style ([S-6006]), without a place, the network or the sync service. Nothing is fetched or saved.
+/// [S-11850] [S-1917] [S-2052] The forecast curve's sample: the sample day's week at its place, without a place, the network or the sync service. Nothing is fetched or saved.
 /// </summary>
 internal sealed partial class WeatherForecastView : IWidgetSample
 {
@@ -17,7 +16,7 @@ internal sealed partial class WeatherForecastView : IWidgetSample
         return Task.CompletedTask;
     }
 
-    /// <summary>[S-2448] The card's own config (its style, its days: what its size was drawn for) at the sample place, holding the sample week.</summary>
+    /// <summary>[S-2448] The card's own config (its precipitation line; its days are what its size reaches) at the sample place, holding the sample week.</summary>
     private void HoldSampleWeek()
     {
         var sample = (WeatherForecastConfig)_config.Clone();

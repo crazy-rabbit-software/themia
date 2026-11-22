@@ -28,6 +28,20 @@ public interface IDriveChoice
     string Drive { get; set; }
 }
 
+/// <summary>
+/// [S-15513] A widget about one day: which day from today it shows (0 today, 1 tomorrow). Only a kind
+/// whose reading means something for a day ahead says so (<see cref="TakesDay"/>): the present's readings
+/// (feels like, humidity) hold no day.
+/// </summary>
+public interface IDayChoice
+{
+    /// <summary>The day from today, 0 or more.</summary>
+    int Day { get; set; }
+
+    /// <summary>Whether this kind reads a day at all.</summary>
+    bool TakesDay { get; }
+}
+
 /// <summary>[S-3321] [S-11752] A screen-time widget's config: the day, or the rolling window ending today, it covers.</summary>
 public interface IScreenTimePeriod
 {

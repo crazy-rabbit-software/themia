@@ -130,6 +130,13 @@ public static class SharedSettings
         (a, b) => string.Equals(a.Drive ?? string.Empty, b.Drive ?? string.Empty, StringComparison.OrdinalIgnoreCase),
         (from, to) => to.Drive = from.Drive ?? string.Empty);
 
+    /// <summary>[S-15513] The day atoms' day from today.</summary>
+    public static SharedSetting<IDayChoice> Day { get; } = new(
+        "day",
+        (a, b) => a.Day == b.Day,
+        (from, to) => to.Day = from.Day,
+        held => held.TakesDay);
+
     /// <summary>[S-2508] The ping atoms' host.</summary>
     public static SharedSetting<IPingHost> PingHost { get; } = new(
         "pingHost",
@@ -250,7 +257,7 @@ public static class SharedSettings
     /// <summary>[S-11750] Every shared setting, in the order a group's page shows them: what a widget is about first, then how it shows it.</summary>
     public static IReadOnlyList<SharedSetting> All { get; } =
     [
-        Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, NetworkAdapter, PingHost, GpuAdapter, AudioOutput,
+        Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, Day, NetworkAdapter, PingHost, GpuAdapter, AudioOutput,
         ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, MetricTrend, MetricSpan, ListRows, ListLines, HideWhenIdle,
     ];
 

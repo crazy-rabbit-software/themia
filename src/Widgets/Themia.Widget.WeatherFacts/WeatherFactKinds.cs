@@ -18,6 +18,7 @@ using Themia.Widget.WeatherFacts;
 [assembly: ThemiaWidget("weatherGusts", typeof(WeatherGustsModule))]
 [assembly: ThemiaWidget("weatherSunrise", typeof(WeatherSunriseModule))]
 [assembly: ThemiaWidget("weatherSunset", typeof(WeatherSunsetModule))]
+[assembly: ThemiaWidget("weatherDays", typeof(WeatherDaysModule))]
 
 namespace Themia.Widget.WeatherFacts;
 
@@ -162,3 +163,7 @@ public sealed class WeatherGustsConfig() : WeatherFactConfig(WeatherFactKind.Gus
 public sealed class WeatherSunriseConfig() : WeatherFactConfig(WeatherFactKind.Sunrise);
 
 public sealed class WeatherSunsetConfig() : WeatherFactConfig(WeatherFactKind.Sunset);
+
+
+
+

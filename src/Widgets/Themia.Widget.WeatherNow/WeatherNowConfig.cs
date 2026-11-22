@@ -35,8 +35,36 @@ public abstract class WeatherNowPartConfig : WeatherConfig, IInterests
 }
 
 /// <summary>[S-15021] The sky now as one icon, on the icon base.</summary>
-public sealed class WeatherSkyConfig : WeatherNowPartConfig
+/// <remarks>[S-13919] It takes a day (0 today): the sky of a day ahead, what a weather forecast's day shows of it.</remarks>
+public sealed class WeatherSkyConfig : WeatherNowPartConfig, IDayChoice
 {
+    /// <summary>[S-13919] The day from today whose sky it shows: 0 now.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int Day { get; set; }
+
+    [JsonIgnore]
+    public bool TakesDay => true;
+
+    /// <summary>[S-13919] A day past the forecast is today, loudly.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        var notes = new List<string>(base.Repair());
+        if (Day < 0 || Day >= Themia.Core.Series.DayRangeSource.Reach)
+        {
+            notes.Add($"{nameof(WeatherSkyConfig)}: day {Day} is not one it shows; today");
+            Day = 0;
+        }
+
+        return notes;
+    }
+
+    public override WidgetConfig Clone()
+    {
+        var copy = (WeatherSkyConfig)base.Clone();
+        copy.Day = Day;
+        return copy;
+    }
+
     protected override WeatherNowPartConfig Fresh() => new WeatherSkyConfig();
 }
 

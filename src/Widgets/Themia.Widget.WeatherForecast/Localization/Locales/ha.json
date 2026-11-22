@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "Ginshiƙai",
-  "forecast.layoutRows": "Layuka",
-  "styles.forecast.curve": "Lanƙwasar zafin jiki",
-  "styles.forecast.grid": "Grid",
-  "widgetsA.catalog.forecast.description": "Ƴan kwanaki masu zuwa",
-  "widgetsA.catalog.forecast.label": "Hasashe",
   "widgetsC.weather.settings.showPrecipitation.label": "Nuna ruwan sama"
 }

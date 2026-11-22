@@ -29,13 +29,14 @@ public static class ReadyMadeScene
         ArgumentNullException.ThrowIfNull(recipe);
         ArgumentNullException.ThrowIfNull(states);
 
+        string IdOf(int i) => recipe.Widgets.Take(i).Any(o => o.Kind == recipe.Widgets[i].Kind) ? $"{recipe.Widgets[i].Kind}-{i}" : recipe.Widgets[i].Kind;
         var widgets = recipe.Widgets.Select((w, i) => new SceneWidget(
             $"$.readyMade.{recipe.Id}.widgets[{i}]",
-            recipe.Widgets.Take(i).Any(o => o.Kind == w.Kind) ? $"{w.Kind}-{i}" : w.Kind,
+            IdOf(i),
             new WidgetId(w.Kind),
             new SceneRect(Origin + w.Box.X, Origin + w.Box.Y, w.Box.Width, w.Box.Height),
             State: states.TryGetValue(w.Kind, out var state) ? state : null,
-            Config: w.Fragment,
+            Config: ReadyMadeGroups.SceneFragment(recipe, i, IdOf),
             Selected: edit)).ToList();
 
         // A selection's page hangs from the bar's entry ([S-2343]): edit mode is the bar, the placed widgets selected ([S-2475]).

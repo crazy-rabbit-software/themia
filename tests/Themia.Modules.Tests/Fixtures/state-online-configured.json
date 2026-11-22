@@ -51,9 +51,7 @@
           "scale": 1,
           "config": {
             "kind": "weatherForecast",
-            "lines": 1,
             "showPrecipitation": false,
-            "style": "curve",
             "latitude": -33.8688,
             "longitude": 151.2093,
             "locationName": "Sydney, New South Wales, Australia",

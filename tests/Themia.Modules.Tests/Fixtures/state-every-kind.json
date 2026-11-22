@@ -558,9 +558,7 @@
           "scale": 1,
           "config": {
             "kind": "weatherForecast",
-            "lines": 1,
             "showPrecipitation": true,
-            "style": "rows",
             "locationName": "",
             "useDeviceLocation": false
           }

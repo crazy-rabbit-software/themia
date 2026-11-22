@@ -60,7 +60,18 @@ internal sealed partial class AppHost
     /// [S-3749] <paramref name="openSetting"/> opens a link row's level on the display the menu is on.
     /// </summary>
     public WidgetMenuLines? WidgetMenuLines(string widgetId, Action<SettingLink>? openSetting)
-        => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget.Kind, widget.Config, () => Land(null, [new Landing(widget.Id, Config: widget.Config)], UndoAction.Change), openSetting) : null;
+    {
+        if (Find(widgetId) is not var (view, widget) || widget is null)
+        {
+            return null;
+        }
+
+        var lines = ModuleHost.MenuLines(widget.Kind, widget.Config, () => Land(null, [new Landing(widget.Id, Config: widget.Config)], UndoAction.Change), openSetting);
+
+        // [S-15529] A container's part has no line for what its container gives it; a container's page gains Edit layout.
+        RepeaterLines(view, widget, lines);
+        return lines;
+    }
 
     /// <summary>The selection's view, the widgets of <paramref name="ids"/> in it changed by <paramref name="change"/> in one step.</summary>
     private void Change(IReadOnlyList<string> ids, Func<ViewState, IReadOnlyList<string>, int> change)

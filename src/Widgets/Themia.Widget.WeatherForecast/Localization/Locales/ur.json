@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "کالم",
-  "forecast.layoutRows": "قطاریں",
-  "styles.forecast.curve": "درجہ حرارت کا خم",
-  "styles.forecast.grid": "گرڈ",
-  "widgetsA.catalog.forecast.description": "اگلے چند دن",
-  "widgetsA.catalog.forecast.label": "پیشگوئی",
   "widgetsC.weather.settings.showPrecipitation.label": "بارش دکھائیں"
 }

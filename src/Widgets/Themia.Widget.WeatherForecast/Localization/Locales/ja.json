@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "列",
-  "forecast.layoutRows": "行",
-  "styles.forecast.curve": "気温カーブ",
-  "styles.forecast.grid": "グリッド",
-  "widgetsA.catalog.forecast.description": "今後数日間",
-  "widgetsA.catalog.forecast.label": "予報",
   "widgetsC.weather.settings.showPrecipitation.label": "降水量を表示"
 }

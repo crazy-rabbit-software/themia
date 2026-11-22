@@ -169,7 +169,8 @@ public sealed class PlacementPayload
             throw new ArgumentException("a payload taken from a view copies or moves; it does not create", nameof(mode));
         }
 
-        var roots = SelectionRules.InView(view, ids);
+        // [S-15500] A repeater carries what it holds: its members are copied and moved with it.
+        var roots = SelectionRules.InView(view, Repeaters.WithDescendants(view, ids));
         if (roots.Count == 0)
         {
             return null;
@@ -315,6 +316,12 @@ public sealed class PlacementPayload
             copy.Rect = BlockGeometry.Land(w.Rect, at, screen);
             return copy;
         }).ToList();
+
+        // [S-15500] A copied repeater holds the copies of its members.
+        if (!move)
+        {
+            Repeaters.Remap(added, ids);
+        }
 
         return new PastePlan(added, [.. _roots.Select(r => ids[r])], move ? [.. _roots] : []);
     }

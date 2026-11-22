@@ -87,6 +87,13 @@ internal sealed partial class DesktopWindow
             return false;
         }
 
+        // [S-15526] A copied row's menu is its repeater's, opened where it was asked for.
+        if (IsCopy(card) && Stand(card) is var stands && !ReferenceEquals(stands, card))
+        {
+            at = at is { } p ? card.TransformToVisual(stands).TransformPoint(p) : null;
+            card = stands;
+        }
+
         var point = at is { } on ? card.TransformToVisual(_root).TransformPoint(on) : CentreOf(card);
         if (!EditMode)
         {

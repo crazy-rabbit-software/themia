@@ -42,7 +42,7 @@ public sealed class OnlineStateFixtureTests
         Assert.Equal((47.3667, 8.55, "Zürich, Zurich, Switzerland"), (now.Latitude, now.Longitude, now.LocationName));
 
         var forecast = Assert.IsType<WeatherForecastConfig>(configs[1]);
-        Assert.Equal((-33.8688, 151.2093, false, ForecastStyle.Curve), (forecast.Latitude, forecast.Longitude, forecast.ShowPrecipitation, forecast.Style));
+        Assert.Equal((-33.8688, 151.2093, false), (forecast.Latitude, forecast.Longitude, forecast.ShowPrecipitation));
 
         var air = Assert.IsType<AirQualityConfig>(configs[2]);
         Assert.Equal((40.7128, -74.006, AirQualityScale.Us, AirQualityStyle.Gauge), (air.Latitude, air.Longitude, air.Scale, air.Style));

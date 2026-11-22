@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "열",
-  "forecast.layoutRows": "행",
-  "styles.forecast.curve": "기온 곡선",
-  "styles.forecast.grid": "격자",
-  "widgetsA.catalog.forecast.description": "앞으로 며칠간의 날씨",
-  "widgetsA.catalog.forecast.label": "일기 예보",
   "widgetsC.weather.settings.showPrecipitation.label": "강수량 표시"
 }

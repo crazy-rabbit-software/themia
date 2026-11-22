@@ -1,10 +1,6 @@
 {
-  "$englishOnly": [],
-  "forecast.layoutColumns": "Columns",
-  "forecast.layoutRows": "Rows",
-  "styles.forecast.curve": "Temperature curve",
-  "styles.forecast.grid": "Grid",
-  "widgetsA.catalog.forecast.description": "The next few days",
-  "widgetsA.catalog.forecast.label": "Forecast",
+  "$englishOnly": ["forecastCurve.label", "forecastCurve.desc"],
+  "forecastCurve.label": "Forecast curve",
+  "forecastCurve.desc": "The next days' highs and lows as a curve",
   "widgetsC.weather.settings.showPrecipitation.label": "Show precipitation"
 }

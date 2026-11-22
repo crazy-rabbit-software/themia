@@ -194,7 +194,9 @@ internal sealed partial class DesktopWindow
     {
         HoldProperties(false);
         SyncProperties();
-        if (SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _open.IsSelection, _host.Placing is not null))
+
+        // [S-13917] While a layout is being edited the page stays closed: the desktop is the editor.
+        if (_composing is null && SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _open.IsSelection, _host.Placing is not null))
         {
             OpenSelectionPage(focus: false);
         }

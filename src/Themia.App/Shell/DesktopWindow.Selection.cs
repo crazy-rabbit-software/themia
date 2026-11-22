@@ -132,15 +132,28 @@ internal sealed partial class DesktopWindow
         ArgumentNullException.ThrowIfNull(card);
 
         var view = ViewForThisMonitor(_host.State);
+
+        // [S-15525] [S-15526] A press on a copied row (or, locked, on any row) moves the repeater it stands for; [S-13917] not
+        // while its layout is edited: then the forecast stays where it is.
+        var stands = Stand(card);
+        if (HeldStill(stands))
+        {
+            _move = null;
+            return;
+        }
+
         var ids = !EditMode
-            ? _host.DeskMoving(view, card.Model.Id)
-            : _host.Selection.Contains(card.Model.Id) && string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal)
+            ? _host.DeskMoving(view, stands.Model.Id)
+            : _host.Selection.Contains(stands.Model.Id) && string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal)
                 ? SelectionRules.InView(view, _host.Selection.Ids)
                 : [];
-        if (!ids.Contains(card.Model.Id))
+        if (!ids.Contains(stands.Model.Id))
         {
-            ids.Add(card.Model.Id);
+            ids.Add(stands.Model.Id);
         }
+
+        // [S-15500] A repeater moves what it holds with it, its copied rows too.
+        ids = Services.AppHost.WithHeld(view, ids);
 
         // [S-13042] A fence moves its icons with it: they stay on its cells.
         foreach (var fence in ids.Where(id => view.Find(id)?.Config is IHoldsDesktopItems).ToList())
@@ -287,6 +300,12 @@ internal sealed partial class DesktopWindow
             }
         }
 
+        // [S-15533] The repeaters as if it were let go where it lands: their copied rows laid again at once.
+        if (first || landed)
+        {
+            PreviewRepeaters(move);
+        }
+
         var leaving = move.Payload is { } payload && _host.PreviewHandOff(this, payload);
 
         // [S-13713] Over the open Unplaced icons page with icons it takes: let go there, they leave the view. The page is lit, and the
@@ -360,8 +379,14 @@ internal sealed partial class DesktopWindow
         foreach (var (moving, _) in move.Cards)
         {
             moving.SetGhost(false);
+            if (!IsCopy(moving))
+            {
+                moving.SetMuted(false);
+            }
         }
 
+        // [S-15533] The copies are the stored view's again; a drop's change lays them where it landed.
+        EndRepeaterPreview();
         ApplyPaintOrder(ViewForThisMonitor(_host.State));
     }
 
@@ -471,6 +496,12 @@ internal sealed partial class DesktopWindow
     {
         ArgumentNullException.ThrowIfNull(card);
 
+        // [S-13917] A press held still (the container whose layout is edited) moved nothing: nothing lands.
+        if (_move is null && HeldStill(Stand(card)))
+        {
+            return;
+        }
+
         // [S-11890] The pointer's last place counts: a step still waiting for its frame is taken first.
         FlushMove();
         var move = _move is { } session && ReferenceEquals(session.Anchor, card)
@@ -520,8 +551,9 @@ internal sealed partial class DesktopWindow
         // [S-2244] Dropped: they join where they landed, one join pass.
         JoinCards();
 
-        // [S-884] [S-15662] The whole drag, every selected widget, is one undo step; [S-13041] its icons land in a fence or out of one in it.
-        _host.Land(this, landings, UndoAction.Move);
+        // [S-884] [S-15662] The whole drag, every selected widget, is one undo step; [S-13041] its icons land in a fence or out of
+        // one in it, [S-15526] its widgets in a container or out of one.
+        _host.Land(this, landings, UndoAction.Move, _composing);
     }
 
     /// <summary>

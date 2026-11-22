@@ -234,7 +234,9 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         var shown = _shown ?? new MetricShown(MetricValue.Unread);
         var value = shown.Value;
         var name = shown.Name ?? MetricName;
-        _row.Show([new FactLine(_kind.Glyph, name, value.Text, value.Available)]);
+        var glyph = shown.Glyph ?? _kind.Glyph;
+        _row.Show([new FactLine(glyph, name, value.Text, value.Available)]);
+        _captionGlyph.Glyph = glyph;
 
         // [S-14701] The readout's parts are the row's: the name its caption, the value its reading (the unit smaller after it).
         _name.Text = name;

@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "ਕਾਲਮ",
-  "forecast.layoutRows": "ਕਤਾਰਾਂ",
-  "styles.forecast.curve": "ਤਾਪਮਾਨ ਵਕਰ",
-  "styles.forecast.grid": "ਗ੍ਰਿਡ",
-  "widgetsA.catalog.forecast.description": "ਅਗਲੇ ਕੁਝ ਦਿਨ",
-  "widgetsA.catalog.forecast.label": "ਪੂਰਵ-ਅਨੁਮਾਨ",
   "widgetsC.weather.settings.showPrecipitation.label": "ਵਰਖਾ ਦਿਖਾਓ"
 }

@@ -28,6 +28,7 @@ internal sealed partial class WeatherFactView : IWidgetSample
         config.Longitude = SamplePlace.Longitude;
         config.LocationName = SamplePlace.LocationName;
         config.Trend = _config.Trend;
+        config.Day = _config.Day;
         _config = config;
         return new Fetched<CurrentWeather>(FetchStatus.Ok, SampleWeather.Reading(), null, SampleDay.MinutesAgo(4));
     }

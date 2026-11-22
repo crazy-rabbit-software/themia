@@ -79,6 +79,9 @@ public sealed record MetricShown(MetricValue Value)
     /// <summary>[S-14604] The reading's own name where its source says it more exactly ("Full in" while charging); null: the kind's.</summary>
     public string? Name { get; init; }
 
+    /// <summary>[S-15513] The glyph leading it in place of its kind's (the day's sky), or null for the kind's.</summary>
+    public string? Glyph { get; init; }
+
     /// <summary>
     /// [S-14703] How a value of <see cref="Series"/> is written as the shown figure is (a Detailed graph's values, its low,
     /// its high and its latest: "1,013 hPa"); null where the family writes none (plain numbers).

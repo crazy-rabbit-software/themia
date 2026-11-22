@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "Столбцы",
-  "forecast.layoutRows": "Строки",
-  "styles.forecast.curve": "Кривая температуры",
-  "styles.forecast.grid": "Сетка",
-  "widgetsA.catalog.forecast.description": "Ближайшие несколько дней",
-  "widgetsA.catalog.forecast.label": "Прогноз",
   "widgetsC.weather.settings.showPrecipitation.label": "Показывать осадки"
 }

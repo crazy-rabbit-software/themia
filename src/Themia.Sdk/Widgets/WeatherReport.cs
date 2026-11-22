@@ -93,6 +93,16 @@ public static class WeatherReport
     }
 
     /// <summary>Which icon family the condition belongs to.</summary>
+    /// <summary>
+    /// [S-13919] The sky's code on day <paramref name="day"/> from today: the code now for today, the day's forecast code for
+    /// a day ahead; null past the forecast or where the service sent none.
+    /// </summary>
+    public static int? SkyCode(CurrentWeather reading, int day)
+    {
+        ArgumentNullException.ThrowIfNull(reading);
+        return day <= 0 ? reading.Code : day < reading.Days.Count ? reading.Days[day].Code : null;
+    }
+
     public static WeatherLook Look(int? code)
         => code is { } value && Codes.TryGetValue(value, out var entry) ? entry.Look : WeatherLook.Unknown;
 

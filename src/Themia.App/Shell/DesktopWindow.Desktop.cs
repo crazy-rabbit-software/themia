@@ -142,6 +142,12 @@ internal sealed partial class DesktopWindow
                 e.Handled = true;
             }
 
+            // [S-15515] Over a repeater (a row, a gap) the wheel scrolls its values a row a notch.
+            if (!e.Handled && _host.RepeaterWheel(this, wheel.Position, wheel.Properties.MouseWheelDelta))
+            {
+                e.Handled = true;
+            }
+
             return;
         }
 

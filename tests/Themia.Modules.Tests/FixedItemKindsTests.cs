@@ -60,26 +60,24 @@ public sealed class FixedItemKindsTests
     }
 
     [Fact]
-    public void S14810_the_forecast_shows_every_day_its_card_reaches_each_at_its_size()
+    public void S14810_the_forecast_curve_shows_every_day_its_card_reaches_each_a_column_of_its_size()
     {
+        var config = new WeatherForecastConfig();
         foreach (var (screen, scale) in Displays)
         {
             var grid = SizeFit.Grid(screen, scale);
-            foreach (var lines in new[] { 1, 2 })
+            var limits = SizeFit.Limits(SizeFit.Of(config), screen, scale)!;
+            var (cols, _) = GridGeometry.GridDims(screen);
+            var least = (int)Math.Round(limits.Width.Min * cols);
+            foreach (var card in Enumerable.Range(least, 31).Select(cells => Math.Round(cells / (double)cols * screen.Width) / scale))
             {
-                var config = new WeatherForecastConfig { Lines = lines };
-                foreach (var card in Heights(config, screen, scale))
-                {
-                    // The rows style's RowStack (SpreadStack): a row a day from the card's top edge, at its optimal.
-                    var days = WeatherForecastLayout.DaysIn(new WidgetArea(300, card - FamilySpace.Inset, grid.Pitch), config);
-                    var slots = ItemSize.Lay(card, [.. Enumerable.Repeat(StackItem.Row(lines), days)], grid);
-                    var optimal = grid.Whole(FamilyShape.RowHeight(lines));
-                    var why = $"{days} days of {lines} lines in {card:0.##} on {screen.Width}x{screen.Height} at {scale}";
+                // [S-6164] The curve's columns from the card's left edge, a day each at its optimal, the last cut by its right edge.
+                var plan = ForecastCurve.Plan(new WidgetArea(card, 200, grid.Pitch), config);
+                var why = $"{plan.Days} days in {card:0.##} on {screen.Width}x{screen.Height} at {scale}";
 
-                    Assert.All(slots, s => Assert.True(Math.Abs(s.Length - optimal) <= 1, why));
-                    Assert.True(days == WeatherForecastConfig.MostDays || slots[^1].End >= card - 1, why);
-                    Assert.True(slots[^1].Start < card, why);
-                }
+                Assert.True(Math.Abs(plan.ColumnWidth - grid.Whole(ForecastCurve.ColumnStart)) <= 1, why);
+                Assert.True(plan.Days == WeatherForecastConfig.MostDays || plan.Days * plan.ColumnWidth >= card - 1, why);
+                Assert.True((plan.Days - 1) * plan.ColumnWidth < card, why);
             }
         }
     }
@@ -121,14 +119,14 @@ public sealed class FixedItemKindsTests
     }
 
     [Fact]
-    public void S14500_a_ready_made_group_lands_its_forecast_at_its_days_and_still_touching()
+    public void S15540_a_ready_made_group_lands_its_days_ahead_at_their_rows_and_still_touching()
     {
         var screen = new ScreenMetrics(1920, 1080);
         var recipe = ReadyMadeGroups.WeatherStation;
         var laid = ReadyMadeGroups.Laid(recipe, screen, new PlacementSizes(1));
-        var at = recipe.Widgets.ToList().FindIndex(w => w.Kind == "weatherForecast");
+        var at = recipe.Widgets.ToList().FindIndex(w => w.Kind == "weatherDays");
 
-        Assert.True(laid[at].H * 1080 >= WeatherForecastConfig.DefaultDays * 30 - 1e-6);
+        Assert.True(laid[at].H * 1080 >= 5 * MetricRules.RowHeight - 1e-6);
 
         // The card under it starts where it ends: no cell between them.
         var under = laid.Where((r, i) => i != at && Math.Abs(r.Y - laid[at].Bottom) < 1e-9).ToList();

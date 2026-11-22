@@ -10,7 +10,8 @@ namespace Themia.Core.Model;
 /// <param name="Held">
 /// [S-13010] A fence's items as they were (<see cref="IHoldsDesktopItems"/>), copied: which desktop items stand in a
 /// fence and which on the free desktop is the arrangement, so a move into or out of a fence is undone with the icons'
-/// places. Null for every other widget.
+/// places. [S-15500] A repeater's members likewise (<see cref="IRepeater.Members"/>): which widgets stand in its
+/// template row is the arrangement. Null for every other widget.
 /// </param>
 public sealed record WidgetShape(WidgetInstance Look, IReadOnlyList<string>? Held)
 {
@@ -24,7 +25,12 @@ public sealed record WidgetShape(WidgetInstance Look, IReadOnlyList<string>? Hel
 
         var look = new WidgetInstance { Id = widget.Id, Config = widget.Config };
         look.CopyArrangementFrom(widget);
-        return new(look, widget.Config is IHoldsDesktopItems fence ? [.. fence.Items] : null);
+        return new(look, widget.Config switch
+        {
+            IHoldsDesktopItems fence => [.. fence.Items],
+            IRepeater repeater => [.. repeater.Members],
+            _ => null,
+        });
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -186,6 +192,12 @@ public sealed class LayoutShape
                 if (w.Held is { } held && widget.Config is IHoldsDesktopItems fence)
                 {
                     fence.Items = [.. held];
+                }
+
+                // [S-15500] A repeater's members too.
+                if (w.Held is { } members && widget.Config is IRepeater repeater)
+                {
+                    repeater.Members = [.. members];
                 }
 
                 widgets.Add(widget);

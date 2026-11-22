@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "Kolom",
-  "forecast.layoutRows": "Baris",
-  "styles.forecast.curve": "Kurva suhu",
-  "styles.forecast.grid": "Kisi",
-  "widgetsA.catalog.forecast.description": "Beberapa hari ke depan",
-  "widgetsA.catalog.forecast.label": "Prakiraan",
   "widgetsC.weather.settings.showPrecipitation.label": "Tampilkan curah hujan"
 }

@@ -352,6 +352,14 @@ internal static class SceneRender
         var canvas = new Canvas { Width = width, Height = height };
         screen.Children.Add(canvas);
 
+        // [S-15502] A repeater's copied rows drawn as the desktop draws them: each a widget of the picture's own.
+        var specs = job.Widgets.ToDictionary(w => w.Model.Id, w => w.Spec, StringComparer.Ordinal);
+        var baked = Repeaters.Bake([.. job.Widgets.Select(w => w.Model)], metrics, edit is not null);
+        job = job with { Widgets = [.. baked.Select(b => (specs[b.From.Id], b.Drawn))] };
+
+        // [S-15534] The copied rows (each under its copy's key, not its template's id) muted in edit mode, as the desktop draws them.
+        var copied = baked.Where(b => !string.Equals(b.Drawn.Id, b.From.Id, StringComparison.Ordinal)).Select(b => b.Drawn.Id).ToHashSet(StringComparer.Ordinal);
+
         var view = ViewState.Create("scene");
         view.Widgets.AddRange(job.Widgets.Select(w => w.Model));
 
@@ -392,6 +400,7 @@ internal static class SceneRender
             hosts.Add(host);
             card.SetLiveRect(shown);
             card.ApplyEditMode(edit is not null);
+            card.SetMuted(edit is not null && copied.Contains(model.Id));
             card.ApplySelection();
             // [S-1080] The scene's display scale times the widget's own, as the desktop applies them.
             card.ApplyContentScale(contentScale);

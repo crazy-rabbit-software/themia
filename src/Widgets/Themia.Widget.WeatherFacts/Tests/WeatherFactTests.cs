@@ -175,9 +175,56 @@ public sealed class WeatherFactTests
         Assert.Equal([.. place, Str.Metric_Trend.Text()], menu.Lines.Select(l => l.Text));
         Assert.DoesNotContain(menu.Lines, l => l.LinkTo is not null);
 
+        // [S-15560] A fact that means something for a day ahead has its Day after the place.
         var sunrise = new WidgetMenuLines(() => { });
         ((IWidgetModule)new WeatherSunriseModule()).MenuLines(sunrise, new WeatherSunriseConfig());
-        Assert.Equal(place, sunrise.Lines.Select(l => l.Text));
+        Assert.Equal([.. place, "Day"], sunrise.Lines.Select(l => l.Text));
+        Assert.Equal("day", sunrise.Lines[^1].Shares);
+    }
+
+    // ---- [S-15560] a day ahead --------------------------------------------------------------------
+
+    [Fact]
+    public void S15560_exactly_the_facts_that_mean_something_for_a_day_ahead_take_a_day()
+    {
+        Assert.Equal(
+            [WeatherFactKind.Today, WeatherFactKind.Wind, WeatherFactKind.Precipitation, WeatherFactKind.Uv, WeatherFactKind.Sunrise, WeatherFactKind.Sunset],
+            WeatherFactRules.All.Where(WeatherFactRules.TakesDay));
+        Assert.True(new WeatherHighLowConfig().TakesDay);
+        Assert.False(new WeatherHumidityConfig().TakesDay);
+    }
+
+    [Fact]
+    public void S15560_a_day_ahead_reads_that_days_forecast_and_a_day_past_it_has_none()
+    {
+        var today = new DateOnly(2026, 11, 21);
+        var reading = new CurrentWeather(18, 17, 63, 11, 2)
+        {
+            Days =
+            [
+                new ForecastDay(today, 61, 6, 13, 2.6) { PrecipitationChance = 75, WindMax = 21, UvMax = 2 },
+                new ForecastDay(today.AddDays(1), 0, 3, 14, 0) { PrecipitationChance = 5, WindMax = 9, UvMax = 3 },
+            ],
+        };
+
+        Assert.Equal("H 14°  L 3°", WeatherFactRules.Value(Locale.En, WeatherFactKind.Today, reading, TemperatureUnit.Celsius, 1));
+        Assert.Equal("5%", WeatherFactRules.Value(Locale.En, WeatherFactKind.Precipitation, reading, TemperatureUnit.Celsius, 1));
+        Assert.Equal("9 km/h", WeatherFactRules.Value(Locale.En, WeatherFactKind.Wind, reading, TemperatureUnit.Celsius, 1));
+        Assert.Equal("Sun", WeatherFactRules.DayRowName(Locale.En, WeatherFactKind.Today, reading, 1));
+        Assert.Null(WeatherFactRules.DayRowName(Locale.En, WeatherFactKind.Today, reading, 0));
+        Assert.Equal(WeatherFactRules.Missing, WeatherFactRules.Value(Locale.En, WeatherFactKind.Today, reading, TemperatureUnit.Celsius, 5));
+        Assert.Null(WeatherFactRules.Metric(Locale.En, WeatherFactKind.Uv, reading, TemperatureUnit.Celsius, 1).Number);
+    }
+
+    [Fact]
+    public void S15560_a_day_survives_a_copy_and_a_day_a_fact_cannot_show_is_today_after_repair()
+    {
+        var config = new WeatherSunsetConfig { Day = 3 };
+        Assert.Equal(3, ((WeatherSunsetConfig)config.Clone()).Day);
+
+        var humidity = new WeatherHumidityConfig { Day = 2 };
+        Assert.NotEmpty(humidity.Repair());
+        Assert.Equal(0, humidity.Day);
     }
 
     [Fact]

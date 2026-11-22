@@ -280,6 +280,12 @@ public partial class App : Application
             return;
         }
 
+        // And a weather forecast's three states, its layout editing driven through a real host and surface ([S-15526]).
+        if (Shell.Gallery.ForecastEditCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And one view on two stand-in displays whose taskbars are on opposite sides: every widget clear of both ([S-855]).
         if (Shell.Gallery.DisplaysCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

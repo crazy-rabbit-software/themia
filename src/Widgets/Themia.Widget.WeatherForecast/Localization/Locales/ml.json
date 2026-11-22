@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "കോളങ്ങൾ",
-  "forecast.layoutRows": "വരികൾ",
-  "styles.forecast.curve": "താപനില വക്രരേഖ",
-  "styles.forecast.grid": "ഗ്രിഡ്",
-  "widgetsA.catalog.forecast.description": "അടുത്ത ഏതാനും ദിവസങ്ങൾ",
-  "widgetsA.catalog.forecast.label": "പ്രവചനം",
   "widgetsC.weather.settings.showPrecipitation.label": "മഴ കാണിക്കുക"
 }

@@ -8,8 +8,7 @@ using static Themia.Core.Tests.StyleTiers;
 namespace Themia.Widget.WeatherForecast.Tests;
 
 /// <summary>
-/// [S-6164] The temperature curve style. Moved with the widget from Core's WeatherStylesTests,
-/// unchanged in what they assert.
+/// [S-6164] The forecast curve, the forecast's one look ([S-15540]): its geometry, its days and its sizes.
 /// </summary>
 public sealed class ForecastCurveTests
 {
@@ -77,14 +76,14 @@ public sealed class ForecastCurveTests
     [Fact]
     public void S11146_S14810_the_curve_shows_the_days_its_width_reaches_each_a_column_of_its_one_width_and_every_part()
     {
-        var config = new WeatherForecastConfig { Style = ForecastStyle.Curve };
+        var config = new WeatherForecastConfig();
         var plan = ForecastCurve.Plan(new WidgetArea(300, 160), config);
 
         Assert.Equal(5, plan.Days);
         Assert.Equal(60, plan.ColumnWidth, 6);
         Assert.True(plan.Icon && plan.Low && plan.Precipitation);
         Assert.Equal(148 - ForecastCurve.Parts(true), plan.ChartHeight, 6);
-        Assert.False(ForecastCurve.Plan(new WidgetArea(304, 160), new WeatherForecastConfig { Style = ForecastStyle.Curve, ShowPrecipitation = false }).Precipitation);
+        Assert.False(ForecastCurve.Plan(new WidgetArea(304, 160), new WeatherForecastConfig { ShowPrecipitation = false }).Precipitation);
 
         // The points stand under the highs' figures and over the lows', the stroke inside the band.
         Assert.Equal(17, plan.Top);
@@ -94,8 +93,8 @@ public sealed class ForecastCurveTests
     [Fact]
     public void S11146_S14410_the_curve_is_a_60_day_a_new_one_five_and_its_days_what_its_width_reaches()
     {
-        var config = new WeatherForecastConfig { Style = ForecastStyle.Curve };
-        var sizing = WeatherForecastLayout.Sizing(config);
+        var config = new WeatherForecastConfig();
+        var sizing = ForecastCurve.Sizing(config);
 
         Assert.Equal((60.0, 5 * 60.0, 14 * 60.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
         // [S-6755] The chart is the one band (72 new, 48 least) and the figures' two Caption lines.
@@ -122,5 +121,45 @@ public sealed class ForecastCurveTests
             Assert.True(line[k].X > line[k - 1].X);
             Assert.InRange(line[k].Y, -1e-9, 100 + 1e-9);
         }
+    }
+
+    [Fact]
+    public void S11145_S14502_S14810_the_days_are_every_column_the_width_reaches_never_stored()
+    {
+        // Owner, 2026-11-20: "they should just keep their size and the last item will be cutoff to some extent then":
+        // three columns wide three days, a sliver more a cut fourth; a box not yet measured a new one's five.
+        Assert.Equal(WeatherForecastConfig.DefaultDays, ForecastCurve.DaysIn(default));
+        Assert.Equal(3, ForecastCurve.DaysIn(new WidgetArea(3 * 60, 200)));
+        Assert.Equal(4, ForecastCurve.DaysIn(new WidgetArea((3 * 60) + 10, 200)));
+        Assert.Equal(WeatherForecastConfig.MostDays, ForecastCurve.DaysIn(new WidgetArea(4000, 200)));
+        Assert.Equal(WeatherForecastConfig.MostDays, new WeatherForecastConfig().ForecastDays);
+    }
+
+    [Fact]
+    public void S11146_the_rain_line_is_counted_in_the_height_and_a_copy_keeps_the_switch()
+    {
+        var wet = ForecastCurve.Sizing(new WeatherForecastConfig());
+        var dry = ForecastCurve.Sizing(new WeatherForecastConfig { ShowPrecipitation = false });
+
+        Assert.Equal(ForecastCurve.Parts(true) - ForecastCurve.Parts(false), wet.Natural.Height - dry.Natural.Height, 6);
+        Assert.Equal(wet.Natural.Width, dry.Natural.Width);
+        Assert.False(((WeatherForecastConfig)new WeatherForecastConfig { ShowPrecipitation = false }.Clone()).ShowPrecipitation);
+    }
+
+    [Fact]
+    public void S724_without_a_forecast_the_days_stay_from_today_with_nothing_read()
+    {
+        var today = new DateOnly(2026, 11, 19);
+
+        var days = ForecastDefaults.Unread(today, 5);
+
+        Assert.Equal(Enumerable.Range(0, 5).Select(i => today.AddDays(i)), days.Select(d => d.Day));
+        Assert.All(days, d =>
+        {
+            Assert.Null(d.Code);
+            Assert.Null(d.Low);
+            Assert.Null(d.High);
+            Assert.Equal("--", WeatherReport.Degrees(d.High));
+        });
     }
 }

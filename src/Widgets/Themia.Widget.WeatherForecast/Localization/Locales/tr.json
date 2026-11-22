@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "Sütunlar",
-  "forecast.layoutRows": "Satırlar",
-  "styles.forecast.curve": "Sıcaklık eğrisi",
-  "styles.forecast.grid": "Izgara",
-  "widgetsA.catalog.forecast.description": "Önümüzdeki birkaç gün",
-  "widgetsA.catalog.forecast.label": "Tahmin",
   "widgetsC.weather.settings.showPrecipitation.label": "Yağışı göster"
 }

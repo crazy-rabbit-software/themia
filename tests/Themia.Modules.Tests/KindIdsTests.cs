@@ -19,7 +19,7 @@ public sealed class KindIdsTests
         "batteryVoltage", "bluetooth", "bluetoothToggle", "brightness", "calendar", "calendarHeader", "clipboard",
         "clock", "colorFiltersToggle", "contacts", "countdown", "cpu", "cpuBaseSpeed", "cpuCoreCount", "cpuCores",
         "cpuHandles", "cpuLoad", "cpuLogical", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "cpuUptime",
-        "date", "dawn", "daylight", "desktopItem", "deviceBatteries", "disk", "doNotDisturbToggle", "drive",
+        "date", "dawn", "daylight", "desktopItem", "deviceBatteries", "disk", "divider", "doNotDisturbToggle", "drive",
         "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "dusk", "email",
         "energySaverToggle", "exchangeHistory", "exchangeRate", "fence", "focusSession", "folder", "gallery",
         "gameModeToggle", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock",
@@ -34,9 +34,10 @@ public sealed class KindIdsTests
         "rainTotal", "recentFiles", "recycleBin", "removableDrives", "restart", "rotationLockToggle", "rss",
         "scratchpad", "screenOff", "screenTime", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
         "signOut", "sleep", "solarNoon", "soundToggle", "spatialSoundToggle", "stock", "stockHistory", "stopwatch",
-        "sun", "sunrise", "sunset", "tasks", "topProcesses", "upNext", "videoStream", "volume", "weatherCloudCover",
-        "weatherCondition", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity",
-        "weatherPrecipitation", "weatherPressure", "weatherSky", "weatherSunrise", "weatherSunset",
+        "sun", "sunrise", "sunset", "tasks", "text", "topProcesses", "upNext", "videoStream", "volume", "weatherCloudCover",
+        "weatherCondition", "weatherDay", "weatherDays", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHigh",
+        "weatherHighLow", "weatherHumidity", "weatherLow", "weatherPrecipitation", "weatherPressure", "weatherRange",
+        "weatherSky", "weatherSunrise", "weatherSunset",
         "weatherTemperature", "weatherUv", "weatherWind", "weekPlanner", "wifiToggle",
     ];
 

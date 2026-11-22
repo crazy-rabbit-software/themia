@@ -13,11 +13,19 @@ namespace Themia.Widget.WeatherFacts;
 /// place is one request ([S-2663]); a trend over the service's hours asks the place's hours too (the weather graphs'
 /// one answer), only while it draws one.
 /// </summary>
-public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, IInterests, IMetricGraph
+public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, IInterests, IMetricGraph, IDayChoice
 {
     /// <summary>[S-13900] The one reading its kind shows.</summary>
     [JsonIgnore]
     public WeatherFactKind Fact { get; } = fact;
+
+    /// <summary>[S-15513] The day from today it shows (0 today), where its fact means something for a day ahead.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int Day { get; set; }
+
+    /// <inheritdoc />
+    [JsonIgnore]
+    public bool TakesDay => WeatherFactRules.TakesDay(Fact);
 
     [JsonIgnore]
     public override bool ReadsWeather => true;
@@ -89,16 +97,36 @@ public abstract class WeatherFactConfig(WeatherFactKind fact) : WeatherConfig, I
     public HoursInterest? HoursInterest(TimeSpan interval)
         => ReadsHours && WebInput.AreCoordinates(Latitude, Longitude) ? new HoursInterest(Latitude!.Value, Longitude!.Value, interval) : null;
 
-    /// <summary>[S-14603] A trend its fact cannot draw is the one it can, loudly.</summary>
+    /// <summary>[S-14603] A trend its fact cannot draw is the one it can, loudly; [S-15513] a day past the forecast, or one a fact of the present holds, is today.</summary>
     public override IReadOnlyList<string> Repair()
-        => [.. base.Repair(), .. MetricRules.Repair(this) is { } note ? [note] : Array.Empty<string>(), .. ChartLooks.Repair(this, GetType().Name),
-            .. MetricGraphs.RepairSpan(this, GetType().Name) is { } span ? [span] : Array.Empty<string>()];
+    {
+        var notes = new List<string>(base.Repair());
+        if (MetricRules.Repair(this) is { } note)
+        {
+            notes.Add(note);
+        }
+
+        notes.AddRange(ChartLooks.Repair(this, GetType().Name));
+        if (MetricGraphs.RepairSpan(this, GetType().Name) is { } span)
+        {
+            notes.Add(span);
+        }
+
+        if (Day != 0 && (!TakesDay || Day < 0 || Day >= Themia.Core.Series.DayRangeSource.Reach))
+        {
+            notes.Add($"{GetType().Name}: day {Day} is not one it shows; today");
+            Day = 0;
+        }
+
+        return notes;
+    }
 
     public override WidgetConfig Clone()
     {
         var copy = (WeatherFactConfig)WeatherFactKinds.Of(Fact).Create();
         CopyTo(copy);
         MetricGraphs.Copy(this, copy);
+        copy.Day = Day;
         return copy;
     }
 }

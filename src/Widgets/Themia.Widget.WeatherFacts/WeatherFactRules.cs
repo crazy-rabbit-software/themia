@@ -91,10 +91,54 @@ public static class WeatherFactRules
     /// <summary>[S-14603] The digits a fact is shown with: what a move under them is not (UV and an amount of rain one, the rest whole).</summary>
     public static int Digits(WeatherFactKind kind) => kind is WeatherFactKind.Uv or WeatherFactKind.Precipitation ? 1 : 0;
 
-    /// <summary>[S-14603] [S-722] A fact's reading as a metric: its value and the number a trend compares.</summary>
-    public static MetricValue Metric(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)
+    /// <summary>
+    /// [S-15513] Whether a fact means something for a day ahead, and so takes a repeater's day: the day's high and low, its
+    /// rain, its strongest wind, its UV, and its sun's times (a day's name and sky are day parts, [S-13919]). The present's readings (feels like, humidity,
+    /// pressure, cloud cover, gusts) do not.
+    /// </summary>
+    public static bool TakesDay(WeatherFactKind kind) => kind is WeatherFactKind.Today or WeatherFactKind.Precipitation
+        or WeatherFactKind.Wind or WeatherFactKind.Uv or WeatherFactKind.Sunrise or WeatherFactKind.Sunset;
+
+    /// <summary>[S-15513] Day <paramref name="day"/> from today of <paramref name="reading"/>'s days (the place's calendar), or null past them.</summary>
+    public static ForecastDay? DayOf(CurrentWeather reading, int day)
     {
         ArgumentNullException.ThrowIfNull(reading);
+        return day >= 0 && day < reading.Days.Count ? reading.Days[day] : null;
+    }
+
+    /// <summary>
+    /// [S-15513] The name a fact's row shows on day <paramref name="day"/>: its kind's, but a day ahead's high and low is that
+    /// day's ("Tue"); null for the kind's own.
+    /// </summary>
+    public static string? DayRowName(Locale locale, WeatherFactKind kind, CurrentWeather reading, int day)
+    {
+        ArgumentNullException.ThrowIfNull(reading);
+        if (DayOf(reading, day) is not { } on || DayOf(reading, 0) is not { } today)
+        {
+            return null;
+        }
+
+        return kind switch
+        {
+            WeatherFactKind.Today when day > 0 => WeatherReport.DayLabel(locale, on.Day, today.Day),
+            _ => null,
+        };
+    }
+
+    /// <summary>[S-14603] [S-722] A fact's reading as a metric: its value and the number a trend compares.</summary>
+    public static MetricValue Metric(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)
+        => Metric(locale, kind, reading, unit, 0);
+
+    /// <summary>[S-15513] A fact's reading on day <paramref name="day"/> from today: a day ahead's has no number a trend compares.</summary>
+    public static MetricValue Metric(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit, int day)
+    {
+        ArgumentNullException.ThrowIfNull(reading);
+        if (day > 0)
+        {
+            var said = Value(locale, kind, reading, unit, day);
+            return new MetricValue(said, null);
+        }
+
         var text = Value(locale, kind, reading, unit);
         double? number = kind switch
         {
@@ -110,6 +154,36 @@ public static class WeatherFactRules
             _ => null,
         };
         return new MetricValue(text, text == Missing ? null : number);
+    }
+
+    /// <summary>
+    /// [S-15513] One reading's value on day <paramref name="day"/> from today (0: as <see cref="Value(Locale, WeatherFactKind, CurrentWeather, TemperatureUnit)"/>):
+    /// a day ahead's high and low, its chance of rain (else its amount), its strongest wind, its highest UV, its sun's times;
+    /// a day past the forecast, or a fact of the present, is <see cref="Missing"/>.
+    /// </summary>
+    public static string Value(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit, int day)
+    {
+        ArgumentNullException.ThrowIfNull(reading);
+        if (day == 0)
+        {
+            return Value(locale, kind, reading, unit);
+        }
+
+        var on = DayOf(reading, day);
+        var value = on is null ? string.Empty : kind switch
+        {
+            WeatherFactKind.Today => WeatherReport.HighLow(locale, on.High, on.Low),
+            WeatherFactKind.Precipitation => on.PrecipitationChance is not null
+                ? WeatherReport.Chance(locale, on.PrecipitationChance)
+                : WeatherReport.Precipitation(locale, on.Precipitation),
+            WeatherFactKind.Wind => WeatherReport.Wind(on.WindMax),
+            WeatherFactKind.Uv => WeatherReport.Uv(on.UvMax),
+            WeatherFactKind.Sunrise => on.Sunrise is null ? string.Empty : WeatherReport.Clock(locale, on.Sunrise),
+            WeatherFactKind.Sunset => on.Sunset is null ? string.Empty : WeatherReport.Clock(locale, on.Sunset),
+            _ => string.Empty,
+        };
+
+        return value.Length == 0 || value == "--" ? Missing : value;
     }
 
     /// <summary>[S-722] One reading's value, or <see cref="Missing"/> where the service sent none.</summary>

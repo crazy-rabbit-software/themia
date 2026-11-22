@@ -3,7 +3,7 @@ using Themia.Core.Model;
 namespace Themia.Widget.Icon;
 
 /// <summary>[S-15011] What one Icon widget remembers: the glyph picked (a Segoe Fluent glyph from the icon picker), or none.</summary>
-public sealed class IconWidgetConfig : WidgetConfig
+public sealed class IconWidgetConfig : WidgetConfig, IDesignElement
 {
     /// <summary>[S-15011] The glyph picked, one character of the icon font; empty: the default, the star.</summary>
     public string Glyph { get; set; } = string.Empty;

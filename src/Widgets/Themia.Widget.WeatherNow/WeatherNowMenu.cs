@@ -1,3 +1,5 @@
+using Themia.Core.Localization;
+using Themia.Core.Widgets;
 using Themia.App.Widgets;
 using Themia.Core.Model;
 using Themia.Core.Settings;
@@ -20,5 +22,12 @@ internal static class WeatherNowMenu
         // The look (Appearance), a divider, then the place.
         menu.Lines.Add(SettingsLine.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
+
+        // [S-13919] The sky's day (Today, Tomorrow, In n days): what a forecast's day sets for it.
+        if (config is WeatherSkyConfig sky)
+        {
+            var days = Enumerable.Range(0, Themia.Core.Series.DayRangeSource.Reach).Select(d => (d, WeatherReport.DayLabel(DateOnly.FromDateTime(DateTime.Now).AddDays(d), DateOnly.FromDateTime(DateTime.Now)))).ToList();
+            menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.Day, menu.Choice(Glyphs.Calendar, Str.Series_Type_Day.Text(), days, sky.Day, d => sky.Day = d)));
+        }
     }
 }

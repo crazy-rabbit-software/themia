@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "कॉलम",
-  "forecast.layoutRows": "पंक्तियाँ",
-  "styles.forecast.curve": "तापमान वक्र",
-  "styles.forecast.grid": "ग्रिड",
-  "widgetsA.catalog.forecast.description": "अगले कुछ दिन",
-  "widgetsA.catalog.forecast.label": "पूर्वानुमान",
   "widgetsC.weather.settings.showPrecipitation.label": "वर्षा दिखाएँ"
 }

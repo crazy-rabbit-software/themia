@@ -36,6 +36,9 @@ public static class SceneWidgets
         var at = widget.At;
         var model = WidgetInstance.Create(widget.Kind, new FracRect(at.X / screen.Width, at.Y / screen.Height, at.Width / screen.Width, at.Height / screen.Height));
 
+        // [S-15500] Named by its id in the scene, so a repeater's config can name its members by theirs.
+        model.Id = widget.Id;
+
         if (widget.Config is { } fragment)
         {
             if (Config(descriptor, model.Config, fragment, widget.Path + ".config", out refusal) is not { } config)

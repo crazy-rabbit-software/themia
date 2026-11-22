@@ -118,10 +118,10 @@ internal static class WeatherService
             $"{CurrentEndpoint}?latitude={Coordinate(latitude)}&longitude={Coordinate(longitude)}"
             + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
             + ",precipitation,pressure_msl,wind_direction_10m,wind_gusts_10m,cloud_cover,uv_index"
-            // [S-720] Today and the next five days in the same request: the larger tiles draw them,
-            // and asking once costs the service less than asking twice.
+            // [S-720] Today and the days after it in the same request: the larger tiles draw them, and asking once costs
+            // the service less than asking twice. [S-15513] As far as a repeater's day range reaches (fourteen days).
             + "&daily=" + DailyFields
-            + "&forecast_days=6"
+            + "&forecast_days=" + Themia.Core.Series.DayRangeSource.Reach.ToString(System.Globalization.CultureInfo.InvariantCulture)
             + "&timezone=auto"
             + "&wind_speed_unit=kmh"
             + $"&temperature_unit={UnitParameter(unit)}");

@@ -144,6 +144,9 @@ public static class StateRepair
         // [S-13002] Every fence's items whole, and no item in two places of one view.
         repairs.AddRange(Desktop.DesktopFences.Repair(state));
 
+        // [S-15500] Every repeater's members whole: held once, holdable, no cycle; its settings in range.
+        repairs.AddRange(Model.Repeaters.Repair(state));
+
         repairs.AddRange(state.Desktop.Repair());
         repairs.AddRange(Desktop.DesktopDisplays.RepairFallbacks(state));
         return repairs;

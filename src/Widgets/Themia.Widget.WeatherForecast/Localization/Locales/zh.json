@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "列",
-  "forecast.layoutRows": "行",
-  "styles.forecast.curve": "温度曲线",
-  "styles.forecast.grid": "网格",
-  "widgetsA.catalog.forecast.description": "未来几天",
-  "widgetsA.catalog.forecast.label": "预报",
   "widgetsC.weather.settings.showPrecipitation.label": "显示降水量"
 }

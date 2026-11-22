@@ -5,7 +5,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-11924] [S-11927] The forecast's place on its view's links: a day's row, column, cell or curve column
+/// [S-11924] [S-11927] The forecast's place on its view's links: a day's column
 /// publishes its day under the pointer (<see cref="LinkTopics.HoveredDate"/>) and takes the item layer's
 /// hover fill while that day is pointed at anywhere on the view; the day selected there
 /// (<see cref="LinkTopics.SelectedDate"/>, a calendar's click) is marked with the picked look when the

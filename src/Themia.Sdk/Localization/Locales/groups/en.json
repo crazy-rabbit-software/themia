@@ -77,7 +77,15 @@
     "groups.page.shared",
     "groups.page.mixed",
     "groups.recipe.weatherFacts",
-    "groups.recipe.weatherFactsAbout"
+    "groups.recipe.weatherFactsAbout",
+    "groups.recipe.forecast",
+    "groups.recipe.forecastAbout",
+    "groups.recipe.forecastColumns",
+    "groups.recipe.forecastColumnsAbout",
+    "groups.recipe.forecastGrid",
+    "groups.recipe.forecastGridAbout",
+    "groups.recipe.weatherByPlace",
+    "groups.recipe.weatherByPlaceAbout"
   ],
   "groups.page.shared": "For all of them",
   "groups.page.mixed": "Mixed",
@@ -159,5 +167,13 @@
   "groups.recipe.power": "Power",
   "groups.recipe.powerAbout": "Lock, sleep, restart and shut down",
   "groups.recipe.screenTime": "Screen time",
-  "groups.recipe.screenTimeAbout": "Your week's screen time, day by day, and the apps it went to"
+  "groups.recipe.screenTimeAbout": "Your week's screen time, day by day, and the apps it went to",
+  "groups.recipe.forecast": "Forecast",
+  "groups.recipe.forecastAbout": "The next week, a row a day: the day, its sky, its high and low",
+  "groups.recipe.forecastColumns": "Forecast columns",
+  "groups.recipe.forecastColumnsAbout": "The days ahead side by side, each its sky and its high and low",
+  "groups.recipe.forecastGrid": "Forecast grid",
+  "groups.recipe.forecastGridAbout": "The days ahead as cells, across then down",
+  "groups.recipe.weatherByPlace": "Weather by place",
+  "groups.recipe.weatherByPlaceAbout": "The days ahead for each place you choose, a row a place"
 }

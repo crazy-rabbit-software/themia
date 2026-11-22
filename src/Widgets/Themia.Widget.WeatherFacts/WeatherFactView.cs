@@ -103,9 +103,17 @@ internal sealed partial class WeatherFactView : MetricView
             return;
         }
 
-        var value = WeatherFactRules.Metric(Strings.Current, _fact, reading, _feed.Want?.Unit ?? RegionFormat.Current.Temperature);
-        var shown = new MetricShown(value) { Reading = held.At.UtcTicks, Problems = OnlineParts.Problems(held) };
-        if (History == MetricHistory.Series && _hours.Held is { Value: { } hours })
+        // [S-15513] A day from today: that day's reading, its name and its sky; no trend over the hours under way.
+        var day = _config.TakesDay ? _config.Day : 0;
+        var locale = Strings.Current;
+        var value = WeatherFactRules.Metric(locale, _fact, reading, _feed.Want?.Unit ?? RegionFormat.Current.Temperature, day);
+        var shown = new MetricShown(value)
+        {
+            Reading = held.At.UtcTicks,
+            Problems = OnlineParts.Problems(held),
+            Name = WeatherFactRules.DayRowName(locale, _fact, reading, day),
+        };
+        if (day == 0 && History == MetricHistory.Series && _hours.Held is { Value: { } hours })
         {
             // [S-14711] The graph's window: the hours its span holds.
             var span = MetricGraphs.EffectiveSpan(_config);

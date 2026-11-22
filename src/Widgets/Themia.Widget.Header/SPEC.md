@@ -39,4 +39,7 @@ Owning files: everything in this folder. Tests: `Tests/HeaderTests.cs` (run by
   every ready-made group comes with one preplaced at its top ([S-12485]). Groupable like any widget: in a
   group it joins its mates as one panel ([S-2249]).
 
+- **[S-15563]** **A header with no title of its own names its place alone** ("Zürich", not "Title · Zürich"): what a
+  repeater's row of places ([S-15540]) heads each row with; its picture keeps the place too (no sample title over it).
+
 Needs a manual pass: its min, natural and max on the live desktop (showcase views, [S-1810]).

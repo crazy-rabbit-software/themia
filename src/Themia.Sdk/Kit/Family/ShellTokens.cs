@@ -538,6 +538,9 @@ public enum ShellRole
     /// <summary>A window's page layer (the layout editor's assigned pane).</summary>
     Layer,
 
+    /// <summary>[S-13917] Windows' smoke: what lies behind a thing worked on alone (the desktop round a layout being edited).</summary>
+    Smoke,
+
     /// <summary>The card's opaque base, under its fill (the card, its markers, the view bar's fill).</summary>
     CardBase,
 
@@ -592,6 +595,7 @@ public static class ShellRoles
         [ShellRole.Acrylic] = "AcrylicBackgroundFillColorDefaultBrush",
         [ShellRole.Raised] = "SolidBackgroundFillColorTertiaryBrush",
         [ShellRole.Layer] = "LayerFillColorDefaultBrush",
+        [ShellRole.Smoke] = "SmokeFillColorDefaultBrush",
         [ShellRole.CardBase] = ColourRoles.CardBase,
         [ShellRole.CardFill] = ColourRoles.CardFill,
         [ShellRole.CardStroke] = "CardStrokeColorDefaultBrush",

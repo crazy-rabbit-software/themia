@@ -27,11 +27,10 @@ public sealed class WeatherForecastMenuTests
         Assert.Equal(
             ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
-        foreach (var style in Enum.GetValues<ForecastStyle>())
-        {
-            var menu = Build(new WeatherForecastConfig { Style = style });
-            Assert.DoesNotContain(menu.StyleLines.Concat(menu.Lines), l => l.Text == "Days shown");
-        }
+        Assert.DoesNotContain(lines.StyleLines.Concat(lines.Lines), l => l.Text == "Days shown");
+
+        // [S-15540] One look: nothing stands under a style.
+        Assert.Empty(lines.StyleLines);
     }
 
     [Fact]
@@ -41,17 +40,5 @@ public sealed class WeatherForecastMenuTests
         Build(config).Lines.Single(l => l.Text == WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()).Action!();
 
         Assert.False(config.ShowPrecipitation);
-    }
-
-    [Fact]
-    public void S11147_lines_per_row_stand_under_style_in_the_rows_style_only_and_a_pick_stores_it()
-    {
-        var config = new WeatherForecastConfig();
-        var lines = Assert.Single(Build(config).StyleLines);
-        Assert.Equal(Str.Kit_Lines.Text(), lines.Text);
-        lines.Children![1].Action!();
-        Assert.Equal(2, config.Lines);
-
-        Assert.Empty(Build(new WeatherForecastConfig { Style = ForecastStyle.Columns }).StyleLines);
     }
 }

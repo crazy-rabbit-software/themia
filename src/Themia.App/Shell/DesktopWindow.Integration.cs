@@ -48,6 +48,7 @@ internal sealed partial class DesktopWindow
         }
 
         _cards.Clear();
+        ReleaseCopies();
 
         // Out of the z-order controller's hands while hidden: its cloak repair shows any cloaked
         // surface it manages, and a full-screen game is exactly what cloaks windows.

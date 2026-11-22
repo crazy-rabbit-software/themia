@@ -1,9 +1,3 @@
 {
-  "forecast.layoutColumns": "Kolommen",
-  "forecast.layoutRows": "Rijen",
-  "styles.forecast.curve": "Temperatuurcurve",
-  "styles.forecast.grid": "Raster",
-  "widgetsA.catalog.forecast.description": "De komende dagen",
-  "widgetsA.catalog.forecast.label": "Weersvoorspelling",
   "widgetsC.weather.settings.showPrecipitation.label": "Neerslag weergeven"
 }

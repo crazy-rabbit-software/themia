@@ -148,10 +148,10 @@ public sealed partial class AddPictureSamplesTests
             }
 
             // [S-2311] The Appearance's preview is a picture of cards on sample data too, its world handed to its host.
-            // [S-14912] The widget gallery's cards too.
-            if (name is not ("AddPictures.cs" or "AppearancePreview.cs" or "WidgetGalleryView.cs") && code.Contains("new SampleWorld(", StringComparison.Ordinal))
+            // [S-14912] The widget gallery's cards too. [S-15537] And the parts' shelf's, handed to its own preview host.
+            if (name is not ("AddPictures.cs" or "AppearancePreview.cs" or "WidgetGalleryView.cs" or "PartPalette.cs") && code.Contains("new SampleWorld(", StringComparison.Ordinal))
             {
-                offending.Add($"{Relative(file)}: a sample world outside the add page's pictures, the Appearance's preview and the widget gallery");
+                offending.Add($"{Relative(file)}: a sample world outside the add page's pictures, the Appearance's preview, the widget gallery and the parts' shelf");
             }
         }
 

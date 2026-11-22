@@ -15,7 +15,7 @@ using Themia.Widget.WeatherForecast;
 
 namespace Themia.Widget.WeatherForecast;
 
-/// <summary>[S-724] The next few days at a place, from open-meteo: rows, columns, the temperature curve or the grid. SPEC.md beside this file.</summary>
+/// <summary>[S-724] The forecast curve: the next few days' highs and lows at a place, from open-meteo. SPEC.md beside this file.</summary>
 public sealed class WeatherForecastModule : IWidgetModule
 {
     /// <summary>[S-2036] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
@@ -31,14 +31,15 @@ public sealed class WeatherForecastModule : IWidgetModule
         ConfigType = typeof(WeatherForecastConfig),
         CreateDefault = () => new WeatherForecastConfig(),
         Json = WeatherForecastJsonContext.Default,
-        Keywords = ["weather", "temperature", "rain", "week", "outlook", "climate", "degrees"],
-        Label = WeatherForecastStr.WidgetsA_Catalog_Forecast_Label.Local(),
-        Description = WeatherForecastStr.WidgetsA_Catalog_Forecast_Description.Local(),
+        Keywords = ["weather", "forecast", "temperature", "curve", "graph", "chart", "rain", "week", "outlook", "climate", "degrees"],
+        Label = WeatherForecastStr.ForecastCurve_Label.Local(),
+        Description = WeatherForecastStr.ForecastCurve_Desc.Local(),
         Glyph = Glyph,
-        Sizing = c => WeatherForecastLayout.Sizing((WeatherForecastConfig)c),
+        Sizing = c => ForecastCurve.Sizing((WeatherForecastConfig)c),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate, LinkTopicId.SelectedDate]),
-        Add = new(AddFolderId.Weather, 0, 2, Popular: 2),
+        // [S-15540] Among the weather graphs (their run, after them); still one of Popular's handful.
+        Add = new(AddFolderId.Weather, 2, 7),
     };
 
     /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>

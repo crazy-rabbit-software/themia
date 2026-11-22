@@ -21,7 +21,25 @@ public abstract class WeatherFactModule(WeatherFactKind fact)
 {
     /// <summary>[S-13903] The place's search ([S-3722]); the fact is its kind, never a setting.</summary>
     protected override void SourceLines(WidgetMenuLines menu, WidgetConfig config)
-        => menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, (WeatherFactConfig)config));
+    {
+        var fact = (WeatherFactConfig)config;
+        menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, fact));
+
+        // [S-15513] Which day, where its fact means something for one ahead: what a repeater's day series sets.
+        if (fact.TakesDay)
+        {
+            var days = Enumerable.Range(0, Themia.Core.Series.DayRangeSource.Reach).Select(d => (d, DayName(d))).ToList();
+            menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.Day, menu.Choice(Glyphs.Calendar, WeatherFactsStr.WeatherFacts_Day_Line.Text(), days, fact.Day, d => fact.Day = d)));
+        }
+    }
+
+    /// <summary>[S-15513] A day from today in words: Today, Tomorrow, In 3 days.</summary>
+    internal static string DayName(int day) => day switch
+    {
+        <= 0 => Str.Common_Today.Text(),
+        1 => WeatherFactsStr.WeatherFacts_Day_Tomorrow.Text(),
+        _ => WeatherFactsStr.WeatherFacts_Day_In.Plural(day),
+    };
 
     public override FrameworkElement CreateView(IWidgetHost host) => new WeatherFactView(host, fact);
 }
@@ -43,4 +61,9 @@ public abstract class WeatherFactModule(WeatherFactKind fact)
 [JsonSerializable(typeof(WeatherGustsConfig))]
 [JsonSerializable(typeof(WeatherSunriseConfig))]
 [JsonSerializable(typeof(WeatherSunsetConfig))]
+[JsonSerializable(typeof(WeatherDayConfig))]
+[JsonSerializable(typeof(WeatherHighConfig))]
+[JsonSerializable(typeof(WeatherLowConfig))]
+[JsonSerializable(typeof(WeatherRangeConfig))]
+[JsonSerializable(typeof(WeatherDaysConfig))]
 internal sealed partial class WeatherFactJsonContext : JsonSerializerContext;

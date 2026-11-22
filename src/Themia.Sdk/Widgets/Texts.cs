@@ -72,6 +72,9 @@ public static class TextRules
     /// <summary>[S-14930] A new card's width.</summary>
     public const double NaturalWidth = 240;
 
+    /// <summary>[S-13921] A short text's new card (a weekday, a temperature): the narrowest a widget is new at ([S-5601]).</summary>
+    public const double ShortWidth = 80;
+
     /// <summary>[S-14930] The widest the content asks for (relaxed past it, [S-12411]).</summary>
     public const double MaxWidth = 420;
 
@@ -98,10 +101,13 @@ public static class TextRules
     /// [S-12833] The face's parts (<see cref="FaceParts"/>): its line or lines on the step, the first led by the glyph where the
     /// kind has one (it gives way as the text it reads like), each as wide as a new card's room holds.
     /// </summary>
-    public static FaceParts Face(int lines, bool lead)
+    public static FaceParts Face(int lines, bool lead) => Face(lines, lead, NaturalWidth);
+
+    /// <summary>[S-13921] <see cref="Face(int, bool)"/> for a new card <paramref name="width"/> wide: a short text's room.</summary>
+    public static FaceParts Face(int lines, bool lead, double width)
     {
         var step = Step;
-        var room = NaturalWidth - (2 * FamilySpace.Inset);
+        var room = Math.Max(1, width - (2 * FamilySpace.Inset));
         var rows = new List<FaceRow>(Lines(lines));
         for (var i = 0; i < Lines(lines); i++)
         {
@@ -125,17 +131,24 @@ public static class TextRules
     /// new one 240), one height; the descriptor relaxes it ([S-12411]) and a larger box scales the face up as one
     /// ([S-12804]). [S-12833] A smaller box scales it down as one, to its line at the legibility floor in the inset (WR-14).
     /// </summary>
-    public static WidgetSizing Sizing(int lines, bool lead)
+    public static WidgetSizing Sizing(int lines, bool lead) => Sizing(lines, lead, NaturalWidth);
+
+    /// <summary>
+    /// [S-13921] <see cref="Sizing(int, bool)"/> for a short text (a weekday, a temperature, owner, 2026-11-21: "the widget
+    /// atoms" of a forecast's day): a new card <paramref name="width"/> wide, its least no wider, its face scaling down from it.
+    /// </summary>
+    public static WidgetSizing Sizing(int lines, bool lead, double width)
     {
+        var natural = double.IsFinite(width) && width > 0 ? width : NaturalWidth;
         var height = (2 * FamilySpace.Inset) + (Lines(lines) * Step.LineHeight);
-        return WidgetSizing.Range(new(MinWidth, height), new(NaturalWidth, height), new(MaxWidth, height)).ScalesDownTo(Face(lines, lead));
+        return WidgetSizing.Range(new(Math.Min(MinWidth, natural), height), new(natural, height), new(Math.Max(MaxWidth, natural), height)).ScalesDownTo(Face(lines, lead, natural));
     }
 
     /// <summary>[S-14930] <see cref="Sizing(int, bool)"/> of <paramref name="kind"/>.</summary>
     public static WidgetSizing Sizing(TextKind kind)
     {
         ArgumentNullException.ThrowIfNull(kind);
-        return Sizing(kind.Lines, kind.Lead);
+        return Sizing(kind.Lines, kind.Lead, kind.Width);
     }
 
     /// <summary>

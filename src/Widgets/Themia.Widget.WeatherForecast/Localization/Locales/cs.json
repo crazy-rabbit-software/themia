@@ -1,10 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "forecast.layoutColumns": "Sloupce",
-  "forecast.layoutRows": "Řádky",
-  "styles.forecast.curve": "Křivka teploty",
-  "styles.forecast.grid": "Mřížka",
-  "widgetsA.catalog.forecast.description": "Několik příštích dní",
-  "widgetsA.catalog.forecast.label": "Předpověď",
   "widgetsC.weather.settings.showPrecipitation.label": "Zobrazit srážky"
 }

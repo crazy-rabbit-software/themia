@@ -6,9 +6,29 @@ using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
-/// <summary>[S-6164] The forecast's temperature-curve style, on the Chart block.</summary>
+/// <summary>[S-6164] The forecast curve, on the Chart block.</summary>
 internal sealed partial class WeatherForecastView
 {
+    /// <summary>
+    /// [S-14810] [S-14815] A column of a day's parts: from the card's top edge to its foot (the columns stand on
+    /// <see cref="ListEdge"/>, the inset over and under the parts their padding inside the column, WR-3), from the card's
+    /// left edge.
+    /// </summary>
+    private static Thickness ColumnPadding => new(0, FamilySpace.Inset, 0, FamilySpace.Inset);
+
+    /// <summary>[S-14815] The columns' widths, each its one size on whole device pixels, from the card's left edge.</summary>
+    private void AddColumns(Grid grid, double width, int count)
+    {
+        var reach = new RowReach(width, count, _area.Grid().Raster);
+        for (var i = 0; i < count; i++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(reach.Height(i)) });
+        }
+    }
+
+    /// <summary>[S-14810] The days' columns stand from the card's left edge (their own padding inside them), the foot's inset under them.</summary>
+    private static Thickness ColumnsInset => new(0, 0, 0, FamilySpace.Inset);
+
     /// <summary>
     /// The days as columns (the day, its glyph, its precipitation) over one chart that spans them: the
     /// highs as the Chart block's line in the accent with each day's figure over its point, and with
@@ -162,5 +182,23 @@ internal sealed partial class WeatherForecastView
             Canvas.SetTop(slot, above ? p.Y - edge - line : p.Y + edge);
             canvas.Children.Add(slot);
         }
+    }
+
+    /// <summary>[S-727] "Today" or the weekday, in Body; today strong, never in the accent.</summary>
+    private static TextBlock DayText(ForecastDay day, DateOnly today)
+        => Family.Text(day.Day == today ? FamilyType.BodyStrong : FamilyType.Body, ColourRole.TextPrimary, WeatherReport.DayLabel(day.Day, today));
+
+    /// <summary>A day's tooltip: its date, its sky in words and its precipitation where there is any.</summary>
+    private static string Describe(ForecastDay day)
+    {
+        var parts = new List<string> { Formatting.ShortDate(day.Day), WeatherReport.Describe(day.Code) };
+        var rain = WeatherReport.Precipitation(day.Precipitation);
+
+        if (rain.Length > 0)
+        {
+            parts.Add(rain);
+        }
+
+        return string.Join(" · ", parts);
     }
 }
