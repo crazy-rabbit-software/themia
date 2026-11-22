@@ -772,21 +772,23 @@ busy desktop ([S-6601]), Debug, private bytes.
   stand-in desktop through its ready signal ([S-15902]); a run ends with one `settle:` line (how many settles, how long,
   how many hit their ceiling). Tests `RenderCommandLineTests`.
 - **[S-15900]** **A render settles on its page, never on a clock.** `RenderHarness.SettleAsync` (the app's
-  `RenderSettle`; Core's `RenderSettling` decides) looks at a page once a frame (the compositor's own clock): laid out;
-  while anything under it is still loading (a bitmap read from a URI, the host's loads announced through `LoadWatch`: a
-  file's or desktop icon's shell icon, a thumbnail, a folder's count, a picture read from disk, a live preview's cards
-  shown on their samples (`SampleCards`); a replayed recording's answers; what the caller names, such as a lookup's search, `PageView.DebugSearching`, or for a shot that draws a
-  search still waiting on purpose only its typing settling, `DebugTyping`) it waits for that; then it draws
-  the page to a bitmap each frame until the picture is the same `RenderSettling.QuietFrames` (2) frames in a row, so an
-  entrance, a glide or a fade has ended. All under one ceiling (`RenderSettling.DefaultCeiling`, 15 s; a page's own
-  signal, the add page's pictures, a minute): past it the run says `settle: <what> NOT SETTLED after n s: still loading
-  …` (or `the picture was still changing at (x,y w×h DIPs: the elements there)`) on stdout and in the log and takes the picture as it stands. A menu is
-  waited for by its popups opening and closing (`RenderSettle.PopupsAsync`), a check that reads a model after a step and
-  draws nothing by the UI thread's queue drained (`IdleAsync`), the card's own drag steps a frame apart. What stays a
-  time is a time on purpose and says so: a pose frozen at its moment (the motion render's ms are the pose's), `--hold`
-  and `--interrupt` (the startup check's moment), `--live`'s real input paced as a hand moves, the switch check's
-  dwells and soaks (what the process holds that long after is what it measures), the layout editor's `waitMs`.
-  Tests `RenderSettlingTests`.
+  `RenderSettle`; Core's `RenderSettling` decides) looks at a page once a frame (the compositor's own clock): laid
+  out; while anything under it is still loading (a bitmap read from a URI, the host's loads announced through
+  `LoadWatch`: a file's or desktop icon's shell icon, a thumbnail, a folder's count, a picture read from disk, a live
+  preview's cards shown on their samples (`SampleCards`); a replayed recording's answers; what the caller names, such
+  as a lookup's search, `PageView.DebugSearching`, or for a shot that draws a search still waiting on purpose only its
+  typing settling, `DebugTyping`) it waits for that; then it draws the page to one small bitmap (its long side at most
+  1024 px) each frame until the picture is the same `RenderSettling.QuietFrames` (2) frames in a row, so an entrance,
+  a glide or a fade has ended. All under one ceiling (`RenderSettling.DefaultCeiling`, 15 s; a page's own signal, the
+  add page's pictures, a minute): past it the run says `settle: <what> NOT SETTLED after n s: still loading …` (or
+  `the picture was still changing at (x,y w×h DIPs: the elements there)`) on stdout and in the log and takes the
+  picture as it stands. A page that only has to be laid out before something is measured on it (a flyout hung at its
+  height) skips the picture. A menu is waited for by its popups opening and closing (`RenderSettle.PopupsAsync`), a
+  check that reads a model after a step and draws nothing by the UI thread's queue drained (`IdleAsync`), the card's
+  own drag steps a frame apart. What stays a time is a time on purpose and says so: a pose frozen at its moment (the
+  motion render's ms are the pose's), `--hold` and `--interrupt` (the startup check's moment), `--live`'s real input
+  paced as a hand moves, the switch check's dwells and soaks (what the process holds that long after is what it
+  measures), the layout editor's `waitMs`. Tests `RenderSettlingTests`.
 - **[S-15901]** **What turns forever is no change.** A settle compares two looks at a page byte for byte, outside what
   turns forever on purpose (an active indeterminate `ProgressRing`, masked by its box and a ring's size round it, as
   its animation draws past its box; an indeterminate `ProgressBar`, by its box; the caret of a focused text box, which
