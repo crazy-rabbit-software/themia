@@ -97,7 +97,14 @@ public static class ClockFace
     private static bool FitsWidth(TypeStep step, ReadoutText text, double width) => ReadoutRules.Width(step, text) <= width;
 
     private static ClockReadoutPlan Plan(TypeStep step, bool stacked, bool meridiem, bool seconds, bool under, double height, int lines)
-        => new(step, stacked, meridiem, seconds, under && (lines * step.LineHeight) + FamilyType.Under(step).LineHeight <= height);
+        => new(step, stacked, meridiem, seconds, under && (lines * (stacked ? Solid(step) : step).LineHeight) + FamilyType.Under(step).LineHeight <= height);
+
+    /// <summary>
+    /// [S-15800] The lines of a stacked readout, set solid: each line as tall as its figures' size, so the hours and the
+    /// minutes stand together (WR-7, owner 2026-11-19: "Keep them together"). On the step's own line (68 on 92) the gap
+    /// between the "10" and the "42" was 85 % of a figure's height and grew with the card.
+    /// </summary>
+    public static TypeStep Solid(TypeStep step) => step with { LineHeight = step.FontSize };
 
     /// <summary>[S-6741] The largest step on which <paramref name="lines"/> lines of the figures, the unit after the last, and the line under fit.</summary>
     public static TypeStep StackedStep(double width, double height, ReadoutText text, int lines)
@@ -105,7 +112,7 @@ public static class ClockFace
         var chosen = FamilyType.Big28;
         foreach (var step in ReadoutRules.Steps(oneReadout: true))
         {
-            var tall = (lines * step.LineHeight) + (text.LineUnder ? FamilyType.Under(step).LineHeight : 0);
+            var tall = (lines * Solid(step).LineHeight) + (text.LineUnder ? FamilyType.Under(step).LineHeight : 0);
             if (ReadoutRules.Width(step, text) <= width && tall <= height)
             {
                 chosen = step;
@@ -203,16 +210,31 @@ public static class ClockFace
     {
         ArgumentNullException.ThrowIfNull(config);
 
+        // [S-15801] WR-8 (owner, 2026-11-19: "the clock widget has too big of a space at the top and bottom"): the natural
+        // card is the face's ink in the inset, not its lines' leading: a 68 line is 92 tall over 48 of figures, which left
+        // 32 DIP of card over and under the digits of a new clock.
         var face = Face(config, meridiem, meridiemShown: true, underShown: true);
         var box = new SizeDip(
             Math.Ceiling(face.Width) + (2 * FamilySpace.Inset) + LayoutMath.Slack,
-            Math.Ceiling(face.Height) + (2 * FamilySpace.Inset) + LayoutMath.Slack);
+            Math.Ceiling(face.Ink) + (2 * FamilySpace.Inset) + LayoutMath.Slack);
         var widens = config.Style is not (ClockStyle.Analog or ClockStyle.Word);
         var least = config.Style == ClockStyle.Analog
             ? new SizeDip(DialFloor, DialFloor)
             : FaceFloor.LeastBox(PartSizes(config, meridiem), floor => Plan(config, meridiem, floor));
         return WidgetSizing.Range(box, box, widens ? box with { Width = 2 * box.Width } : box)
             .ScalesDownTo(new SizeDip(least.Width + (2 * FamilySpace.Inset), least.Height + (2 * FamilySpace.Inset)));
+    }
+
+    /// <summary>
+    /// [S-15801] The box a time face is planned in at its step (its lines with their leading and the line under, no inset):
+    /// the view lays the face there and scales it to its card ([S-12804]), whose natural size is the face's ink alone
+    /// (<see cref="Sizing"/>).
+    /// </summary>
+    public static (double Width, double Height) PlanBox(ClockConfig config, string meridiem)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var face = Face(config, meridiem, meridiemShown: true, underShown: true);
+        return (Math.Ceiling(face.Width) + LayoutMath.Slack, Math.Ceiling(face.Height) + LayoutMath.Slack);
     }
 
     /// <summary>
@@ -261,7 +283,7 @@ public static class ClockFace
 
     /// <summary>Whether the face has a line under: a world clock's city or the offset, never on the minimal clock ([S-6014]).</summary>
     private static bool Under(ClockConfig config)
-        => config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.OffsetMode != ClockOffsetMode.None);
+        => config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.ZoneMissing || config.OffsetMode != ClockOffsetMode.None);
 
     /// <summary>
     /// The face at its step with the parts asked for: its width, its height (its lines and the line under) and its ink
@@ -279,17 +301,20 @@ public static class ClockFace
         var seconds = config.DrawsSeconds;
 
         // The leading over the first ink and under the last: a text line's, none over a flip card (its box is its ink).
-        double Ink(double height, bool cards) => height - (cards ? 0 : LineInk.Of(step).Over) - (under ? LineInk.Of(underStep).Under : cards ? 0 : LineInk.Of(step).Under);
+        double Ink(double height, bool cards, TypeStep line) => height - (cards ? 0 : LineInk.Of(line).Over) - (under ? LineInk.Of(underStep).Under : cards ? 0 : LineInk.Of(line).Under);
+        double Inked(double height, bool cards) => Ink(height, cards, step);
 
         switch (config.Style)
         {
             case ClockStyle.Stacked:
-                var stacked = ((seconds ? 3 : 2) * step.LineHeight) + underLine;
-                return (ReadoutRules.Width(step, new ReadoutText(Figures, unit, OneReadout: true)), stacked, Ink(stacked, cards: false));
+                // [S-15800] Its lines set solid.
+                var solid = Solid(step);
+                var stacked = ((seconds ? 3 : 2) * solid.LineHeight) + underLine;
+                return (ReadoutRules.Width(step, new ReadoutText(Figures, unit, OneReadout: true)), stacked, Ink(stacked, cards: false, solid));
             case ClockStyle.Flip:
                 var flip = step.LineHeight + underLine;
                 var beside = withMeridiem ? FamilySpace.S2 + (HeroFit.Ems(meridiem) * FamilyType.Unit(step).FontSize) : 0;
-                return (FlipRules.RowWidth(step, seconds ? 3 : 2, Figures) + beside, flip, Ink(flip, cards: true));
+                return (FlipRules.RowWidth(step, seconds ? 3 : 2, Figures) + beside, flip, Inked(flip, cards: true));
             case ClockStyle.Analog:
                 var dial = DialSide;
                 var tall = dial + (under ? DialGap + FamilyType.Body.LineHeight : 0);
@@ -297,10 +322,10 @@ public static class ClockFace
             case ClockStyle.Word:
                 var width = WordsWidth;
                 var words = (WordClock.Lines(WordClock.Longest(Strings.Current), width * WordClock.WidthMargin, step) * step.LineHeight) + underLine;
-                return (width, words, Ink(words, cards: false));
+                return (width, words, Inked(words, cards: false));
             default:
                 var line = step.LineHeight + underLine;
-                return (ReadoutRules.Width(step, new ReadoutText(seconds ? "88:88:88" : "88:88", unit, OneReadout: true)), line, Ink(line, cards: false));
+                return (ReadoutRules.Width(step, new ReadoutText(seconds ? "88:88:88" : "88:88", unit, OneReadout: true)), line, Inked(line, cards: false));
         }
     }
 

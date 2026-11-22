@@ -36,8 +36,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   gone, root [S-12805]). Every style is one block in the card's inset of 12 (the clock has no header), placed
   by the alignment, planned on the family's one-readout step (68; the words 40; the dial 144; no Size since
   2026-11-20, owner: "the size should not be settable, it is set by the size of the widget", [S-2449] retired). The
-  clock is converted to the sizing ([S-2438], `ClockFace.Sizing`): its natural card is its face plus the inset (and 2
-  of slack for pixel rounding); Digital, Minimal, Stacked and Flip may be widened to twice their face (the
+  clock is converted to the sizing ([S-2438], `ClockFace.Sizing`): its natural card is its face's ink plus the inset
+  (and 2 of slack for pixel rounding; [S-15801]); Digital, Minimal, Stacked and Flip may be widened to twice their face (the
   line under then takes its longer form). **It scales down to its figures at 9** (owner, 2026-11-19: "the clock has a
   min height that is way to big"; root [S-12833], `ClockFace.Sizing`, `.Fit`): its least card is its figures (the
   words) alone at 9 DIP in the inset, never under 32 (Digital and Minimal 48 × 32, Stacked 35 × 43, Flip about
@@ -179,6 +179,27 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   stored `showDate` is an unknown property, not read, [S-1050].)*
 - **[S-2028]** A click on the card ([S-2000]) opens Windows' Clock app (`CardOpen.ClockApp`, its
   Apps-folder item); the module decides it (`ClockModule.Opens`).
+- **[S-15800]** **A stacked face's lines stand together** (WR-7, owner 2026-11-19: "Keep them together"): the hours over
+  the minutes (over the seconds) are set solid, each line as tall as its figures' size (`ClockFace.Solid`: 68 on 68, not
+  the step's 92), planned and drawn so (`StackedStep`, the readout on the solid step). On the step's own line the "10"
+  and the "42" stood 48 apart at 160 × 210, 85 % of a figure, and the gap grew with the card. Tests
+  `ClockFaceTests.S15800_`.
+- **[S-15801]** **No space over and under a new clock** (WR-8, owner 2026-11-19: "the clock widget has too big of a space
+  at the top and bottom"): the natural card is the face's ink in the inset (`ClockFace.Sizing`: the figures' capitals to
+  their baseline, the line under's baseline), not its lines' leading; the face is still planned on its lines with their
+  leading (`ClockFace.PlanBox`) and scaled to the card ([S-12804]). At 256 × 118 the digits' ink had stood 32 under
+  the card's top and 31 over its foot. A taller card than the face's ink leaves its room shared alike over and under
+  the face where the width stops it (WR-1 exemption, owner 2026-11-20: "Centred is fine"); the word style keeps the room
+  its day's longest sentence takes ([S-6024]). Tests `ClockFaceTests.S15801_`.
+- **[S-15802]** **A zone this Windows lacks keeps the face and says why** (WR-10): a clock whose chosen zone does not
+  resolve (`ClockConfig.ZoneMissing`: unknown, or missing on this Windows) tells local time ([S-53]) and its line under
+  says so, "Zone not found, local time" (`ClockFormatter.Lead`, `clock.zoneMissing`), in the city's place, the offset
+  after it where it fits; its sizing counts that line. The Debug state `noZone` draws it. Tests
+  `ClockFaceTests.S15802_`.
+- **[S-15803]** **The card lights under the pointer** (WR-13): a click opens the Clock app ([S-2028]), so the card is one
+  item edge to edge (`ItemMark`, `ListEdge`), lit at hover and pressed by the item layer's row fill (`ItemLight`, as a
+  single metric's or a text widget's that opens its source) and taking the card's corners (`IWidgetCorners`); only
+  its fill changes (WR-12). The face stands in the inset inside it, as before.
 
 Needs a manual pass: every style at every tier on the live desktop (showcase views, [S-1810]); a
 flip turning over on the minute; the zone picker with a live search.

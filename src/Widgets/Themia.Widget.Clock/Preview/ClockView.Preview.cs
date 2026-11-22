@@ -10,11 +10,12 @@ namespace Themia.App.Widgets;
 /// the sample as a world clock (Tokyo, its offset, seconds) and <c>world12</c> that in 12-hour time, to see its meridiem
 /// and line under give way as the card gets smaller (render them at explicit <c>--sizes</c>: the card's range is the
 /// default clock's); [S-14319] <c>at0111</c> and <c>at1008</c> the sample at 1:11:11 and at 10:08:08, to see the face hold
-/// its size and place whatever time it shows (compare their layouts with the sample's).
+/// its size and place whatever time it shows (compare their layouts with the sample's); [S-15802] <c>noZone</c> a world clock whose
+/// zone this Windows does not resolve: its face tells local time and its line under says why (WR-10).
 /// </summary>
 public sealed partial class ClockView : IWidgetPreviewState
 {
-    IReadOnlyList<string> IWidgetPreviewState.PreviewStates { get; } = ["sample", "world", "world12", "at0111", "at1008"];
+    IReadOnlyList<string> IWidgetPreviewState.PreviewStates { get; } = ["sample", "world", "world12", "at0111", "at1008", "noZone"];
 
     /// <summary>
     /// [S-11603] A world state's own config (seconds, its city line): a render sizes the card by it, never at the default
@@ -41,6 +42,13 @@ public sealed partial class ClockView : IWidgetPreviewState
             _drawn = _config;
         }
 
+        if (state == "noZone")
+        {
+            _config = (ClockConfig)_config.Clone();
+            _config.TimeZoneId = "Etc/Nowhere";
+            _drawn = _config;
+        }
+
         if (state is "at0111" or "at1008")
         {
             var time = state == "at0111" ? new TimeOnly(1, 11, 11) : new TimeOnly(10, 8, 8);
@@ -49,6 +57,6 @@ public sealed partial class ClockView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        return state is "sample" or "world" or "world12" ? ShowSampleAsync() : Task.CompletedTask;
+        return state is "sample" or "world" or "world12" or "noZone" ? ShowSampleAsync() : Task.CompletedTask;
     }
 }

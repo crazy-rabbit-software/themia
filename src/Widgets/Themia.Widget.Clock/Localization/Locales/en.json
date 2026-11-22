@@ -1,5 +1,5 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["clock.zoneMissing"],
   "$comment": "[S-6020] The Clock's word style. wordClock.hours: one or more hour forms separated by ';', each 12 entries (index 0 = twelve, then one..eleven) or 24 entries (index 0 = midnight .. 23) separated by '|'. wordClock.mNN: the sentence for NN minutes past the hour (rounded to the nearest five). In a sentence [h] is the hour in form 1, [n] the next hour in form 1, [h2]/[n2] form 2, and so on. The first letter of the result is capitalised.",
   "clock.offsetLabel": "Offset",
   "clock.secondsLabel": "Show seconds",
@@ -8,6 +8,7 @@
   "clock.styleStacked": "Stacked",
   "clock.timezoneLabel": "Timezone",
   "clock.tzCurrent": "Current: {city}",
+  "clock.zoneMissing": "Zone not found, local time",
   "locationSearch.placeholder": "Search city…",
   "styles.clock.flip": "Flip",
   "styles.clock.minimal": "Minimal",

@@ -85,6 +85,17 @@ public static class ClockFormatter
         return config.IsWorldClock && ZoneCatalog.Find(config.TimeZoneId) is { } entry ? entry.City : null;
     }
 
+    /// <summary>
+    /// [S-15802] The first part of the line under the face: the city of a world clock (<see cref="Label"/>), or, for a zone
+    /// chosen that this Windows does not resolve, why the face tells local time (WR-10: the face stays and says why in a
+    /// compact line). Null for a clock on the machine's own zone.
+    /// </summary>
+    public static string? Lead(ClockConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return Label(config) ?? (config.ZoneMissing ? ClockStr.Clock_ZoneMissing.Text(locale) : null);
+    }
+
     /// <summary>[S-1485] The offset line for this instant, or null when the mode is None.</summary>
     public static string? OffsetLine(DateTimeOffset utcNow, ClockConfig config, Locale locale)
     {

@@ -106,6 +106,13 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public bool IsWorldClock => ZoneCatalog.Resolve(TimeZoneId) is not null;
 
     /// <summary>
+    /// [S-15802] A zone is chosen but does not resolve on this Windows (or is unknown): the clock tells local time and its
+    /// line under says so (WR-10: it keeps its face and says why in a compact line).
+    /// </summary>
+    [JsonIgnore]
+    public bool ZoneMissing => !string.IsNullOrWhiteSpace(TimeZoneId) && !IsWorldClock;
+
+    /// <summary>
     /// [S-6074] The rows the menu offers: seconds where the face ticks them; the offset line wherever there
     /// is a line under the time, so not on the minimal clock ([S-6014]). The date is the Date widget's
     /// ([S-12805]). The line's size is its step's ([S-6741]): the clock has no text size of its own. The zone

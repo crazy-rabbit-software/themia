@@ -22,17 +22,15 @@ public sealed class ClockFaceTests
             : BlockLayout.Decide(width, height, ClockFace.PartSizes(config, meridiem), floor => ClockFace.Plan(config, meridiem, floor));
 
 
-    /// <summary>The content box a card of <paramref name="box"/> gives the face: the card less its inset of 12 (the clock has no header).</summary>
-    private static (double Width, double Height) Content(SizeDip box) => (box.Width - (2 * FamilySpace.Inset), box.Height - (2 * FamilySpace.Inset));
-
     /// <summary>
-    /// The boxes of a clock's range the face is planned in at its step: its Natural and its Max (under its Natural the
-    /// face is the same plan scaled down, [S-12833]).
+    /// The boxes of a clock's range the face is planned in at its step: its plan box at the Natural and at the Max, twice
+    /// the card's width (under its Natural the face is the same plan scaled down, [S-12833]; [S-15801] its natural card is
+    /// the face's ink, its plan box its lines with their leading).
     /// </summary>
     private static IEnumerable<(double Width, double Height)> Range(ClockConfig config, string meridiem)
     {
-        var sizing = ClockFace.Sizing(config, meridiem);
-        return [Content(sizing.Natural), Content(sizing.Max)];
+        var plan = ClockFace.PlanBox(config, meridiem);
+        return [plan, ((2 * plan.Width) + (2 * FamilySpace.Inset), plan.Height)];
     }
 
     /// <summary>Every clock a config can make: each style, seconds, 12- or 24-hour time, with or without the line under.</summary>
@@ -256,8 +254,64 @@ public sealed class ClockFaceTests
         Assert.DoesNotContain("Date", Enum.GetNames<ClockSetting>());
         Assert.Null(typeof(ClockConfig).GetProperty("ShowDate"));
 
-        // A plain clock has no line under its face: its natural box is the face's step alone in the inset.
+        // A plain clock has no line under its face: its natural box is the face's step alone in the inset ([S-15801]: its ink).
         var plain = ClockFace.Sizing(new ClockConfig(), string.Empty).Natural;
-        Assert.Equal(ClockFace.Step.LineHeight + 24 + LayoutMath.Slack, plain.Height);
+        var ink = LineInk.Of(ClockFace.Step);
+        Assert.Equal(Math.Ceiling(ClockFace.Step.LineHeight - ink.Over - ink.Under) + 24 + LayoutMath.Slack, plain.Height);
+    }
+
+    [Fact]
+    public void S15801_a_new_clock_has_no_space_over_and_under_its_face_but_the_inset()
+    {
+        // Owner, 2026-11-19: "the clock widget has too big of a space at the top and bottom". At 256x118 the digits' ink
+        // stood 32 under the card's top and 31 over its foot: the 68 line's leading (92 over 48 of figures) in the box.
+        foreach (var (config, meridiem) in Clocks().Where(c => c.Config.Style != ClockStyle.Analog))
+        {
+            var sizing = ClockFace.Sizing(config, meridiem);
+            var plan = ClockFace.Plan(config, meridiem, 0);
+            var spare = sizing.Natural.Height - (2 * FamilySpace.Inset) - plan.Ink;
+            Assert.InRange(spare, 0, LayoutMath.Slack + 1);
+
+            // The face is still planned on its lines with their leading, so its step is the one-readout step's.
+            var box = ClockFace.PlanBox(config, meridiem);
+            Assert.True(box.Height > plan.Ink, $"{config.Style}");
+        }
+    }
+
+    [Fact]
+    public void S15800_a_stacked_clocks_lines_are_set_solid_and_stand_together()
+    {
+        // At 160x210 the "10" and the "42" stood 48 apart, 85 % of a figure: the 68 step's line is 92.
+        var solid = ClockFace.Solid(ClockFace.Step);
+        Assert.Equal(ClockFace.Step.FontSize, solid.LineHeight);
+        var cap = ClockFace.Step.FontSize * LineInk.FaceCap;
+        Assert.True((solid.LineHeight - cap) / cap < 0.5);
+
+        // The stacked face is planned on those lines: two of them, its step the one-readout step.
+        var config = new ClockConfig { Style = ClockStyle.Stacked };
+        var box = ClockFace.PlanBox(config, "AM");
+        Assert.Equal((2 * solid.LineHeight) + LayoutMath.Slack, box.Height, 6);
+        var plan = ClockFace.Readout(box.Width, box.Height, ClockStyle.Stacked, seconds: false, "AM", under: false);
+        Assert.Equal(ClockFace.Step, plan.Step);
+        Assert.True(plan.Stacked);
+    }
+
+    [Fact]
+    public void S15802_a_zone_this_windows_lacks_keeps_the_face_on_local_time_and_says_why_under_it()
+    {
+        var en = Themia.Core.Localization.Locale.En;
+        var missing = new ClockConfig { TimeZoneId = "Etc/Nowhere" };
+        Assert.False(missing.IsWorldClock);
+        Assert.True(missing.ZoneMissing);
+        Assert.Equal(ClockStr.Clock_ZoneMissing.Text(en), ClockFormatter.Lead(missing, en));
+
+        // Its line under is part of the face, so the card has room for it.
+        var plain = ClockFace.Sizing(new ClockConfig(), string.Empty).Natural;
+        Assert.True(ClockFace.Sizing(missing, string.Empty).Natural.Height > plain.Height);
+
+        // The machine's own zone and a world clock say nothing of the kind.
+        Assert.False(new ClockConfig().ZoneMissing);
+        Assert.Null(ClockFormatter.Lead(new ClockConfig(), en));
+        Assert.Equal("Tokyo", ClockFormatter.Lead(new ClockConfig { TimeZoneId = "Asia/Tokyo" }, en));
     }
 }

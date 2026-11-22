@@ -186,7 +186,9 @@ public sealed class WidgetSizingTests
         WidgetSizing At(ClockStyle style) => kind.Sizing(new ClockConfig { Style = style });
 
         var digital = At(ClockStyle.Digital);
-        Assert.Equal(ClockFace.Step.LineHeight + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + LayoutMath.Slack, digital.Natural.Height);
+        // [S-15801] Its natural card is the step's figures' ink in the inset, not the step's line (WR-8).
+        var ink = Themia.Sdk.Kit.LineInk.Of(ClockFace.Step);
+        Assert.Equal(Math.Ceiling(ClockFace.Step.LineHeight - ink.Over - ink.Under) + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + LayoutMath.Slack, digital.Natural.Height);
         // [S-12833] It scales down to its smallest text's floor: its least height under its natural one.
         Assert.True(digital.Min.Height < digital.Natural.Height && !digital.FixedWidth);
 

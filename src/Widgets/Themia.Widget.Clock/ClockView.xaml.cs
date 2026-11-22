@@ -33,10 +33,18 @@ namespace Themia.App.Widgets;
 /// a band round a small one (owner, 2026-11-19: "the clock widget has too big of a space at the top and bottom"). The dial is planned in the whole box.
 /// </para>
 /// </summary>
-public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned
+public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned, IWidgetCorners
 {
     /// <inheritdoc />
     public CardOpen? Opens => ClockModule.Opens;
+
+    /// <summary>
+    /// [S-15803] The card's one item, edge to edge: a click opens Windows' Clock app ([S-2028]), so it lights under the
+    /// pointer and pressed (WR-13, <see cref="ItemLight"/>), as a single metric or a text widget that opens its source.
+    /// </summary>
+    private readonly Border _item = new();
+
+    private readonly ItemLight _light;
 
     /// <summary>The face's one block, at its planned step; the fit scales it to the box.</summary>
     private readonly StackPanel _stack = new();
@@ -98,12 +106,15 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     {
         InitializeComponent();
 
-        // [S-6703] The card's inset on the sides and the foot; the top is the card's ([S-11600]: the inset
-        // when no header stands above, the header's gap under one), so a header added moves the face down
-        // by its own cost and leaves it its size.
-        Root.Padding = Family.Inset with { Top = 0 };
+        // [S-15803] The item stands on the card's top edge and runs to its foot and sides (a list's first row's edge,
+        // ListEdge); [S-6703] the face stands in the card's inset inside it on every side, as before.
+        ItemMark.Mark(_item);
+        ListEdge.Apply(_item);
+        _light = new ItemLight(_item);
+        _fit.Margin = Family.Inset;
         _fit.Parts.Add(_stack);
-        Root.Children.Add(_fit);
+        _item.Child = _fit;
+        Root.Children.Add(_item);
         _under.TextTrimming = TextTrimming.CharacterEllipsis;
         _flipMeridiem.VerticalAlignment = VerticalAlignment.Bottom;
         _flipMeridiem.Margin = new Thickness(FamilySpace.S2, 0, 0, 0);
@@ -118,8 +129,12 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     {
         _ticker = ticker;
         Strings.Changed += OnLanguage;
+        _light.Set(Opens is not null);
         ApplyConfig(config);
     }
+
+    /// <summary>[S-11883] The hover fill reaches the card's edges: it takes the card's corners.</summary>
+    public void ApplyCorners(CornerRadius corners) => _item.CornerRadius = corners;
 
     /// <summary>[S-1109] Names and the meridiem follow the language at once, not at the next tick.</summary>
     private void OnLanguage(Locale locale) => ApplyConfig(_config);
@@ -128,7 +143,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ClockConfig ?? new ClockConfig();
-        _label = ClockFormatter.Label(_config);
+        _label = ClockFormatter.Lead(_config, Strings.Current);
         ToolTipService.SetToolTip(this, null);
 
         // [S-6016] A style lets go of what the last one built before the next is laid.
@@ -186,11 +201,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         if (_config.Style != ClockStyle.Analog)
         {
             var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
-            var natural = ClockFace.Sizing(_config, meridiem).Natural;
             // [S-12833] Planned in the natural box at every size: a smaller card scales the same face down (to its figures
             // at the floor), never a folded one (seconds kept, never stacked); only the meridiem and the line under give way (Fit).
-            width = natural.Width - (2 * FamilySpace.Inset);
-            height = natural.Height - FamilySpace.Inset - FamilySpace.Inset;
+            // [S-15801] The face's lines with their leading: the natural card is their ink alone.
+            (width, height) = ClockFace.PlanBox(_config, meridiem);
         }
 
         return (Math.Max(0, width), Math.Max(0, height));
@@ -238,8 +252,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
                 _digits = ClockFace.Readout(width, height, style, _config.DrawsSeconds, meridiem, wantsLine);
                 _secondsDrawn = _config.DrawsSeconds && _digits.Seconds;
 
-                // [S-6014] The minimal clock: the same readout at the regular weight, alone.
-                _readout.Use(style == ClockStyle.Minimal ? FamilyType.Regular(_digits.Step) : _digits.Step, Aligned.Horizontal(_align));
+                // [S-6014] The minimal clock: the same readout at the regular weight, alone. [S-15800] Stacked lines set solid.
+                var drawn = style == ClockStyle.Minimal ? FamilyType.Regular(_digits.Step) : _digits.Step;
+                _readout.Use(_digits.Stacked ? ClockFace.Solid(drawn) : drawn, Aligned.Horizontal(_align));
 
                 // [S-14319] Held to its widest time and meridiem: the face never moves or grows as the time runs.
                 var template = ClockFormatter.Template(_config, Strings.Current).Split(':');
@@ -547,6 +562,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     public void Detach()
     {
         Strings.Changed -= OnLanguage;
+        _light.Set(false);
         _tick.Dispose();
     }
 }
