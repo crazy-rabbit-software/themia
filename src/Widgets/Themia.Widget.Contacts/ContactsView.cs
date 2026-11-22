@@ -558,7 +558,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             {
                 SetRow(_state, 2);
                 SetRowSpan(_state, 1);
-                _state.Margin = line ? new Thickness(0, plan.Top, 0, 0) : default;
+                // [S-15776] The state's row stands on the card's top edge as a list's first row does (ListEdge): under the
+                // field's band it stands the inset lower, right under the band; under the line, one line down.
+                _state.Margin = showSearch ? new Thickness(0, FamilySpace.Inset, 0, 0) : line ? new Thickness(0, plan.Top, 0, 0) : default;
             }
 
             _state.Show((Contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);

@@ -187,7 +187,9 @@ internal sealed partial class FolderView
 
         // [S-1334] [S-6714] [S-15779] A folder with nothing to show says which state it is in the kit's state row where its
         // first item would be, its rows kept empty under it (WR-10).
-        _status = new KitStatePanel(Glyphs.Folder, _widgetHost) { Visibility = Visibility.Collapsed };
+        // The state's row is a list's first row, which stands on the card's top edge (ListEdge); the folder's list stands
+        // under its tool line, so the panel stands the inset lower: its row in the first item's place, right under the line.
+        _status = new KitStatePanel(Glyphs.Folder, _widgetHost) { Visibility = Visibility.Collapsed, Margin = new Thickness(0, FamilySpace.Inset, 0, 0) };
         SetRow(_status, 4);
 
         Children.Add(_line);
