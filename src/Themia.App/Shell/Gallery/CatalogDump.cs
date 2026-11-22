@@ -76,7 +76,7 @@ internal static class CatalogDump
             cards.Add(card);
         }
 
-        await Task.WhenAny(Task.WhenAll(loaded), Task.Delay(TimeSpan.FromSeconds(60))).ConfigureAwait(true);
+        await RenderSettle.SignalAsync(Task.WhenAll(loaded), "every card loaded", TimeSpan.FromSeconds(60)).ConfigureAwait(true);
         foreach (var card in cards.Where(c => c.ShowsSetup))
         {
             card.RunForPreview();

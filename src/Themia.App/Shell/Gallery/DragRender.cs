@@ -216,7 +216,7 @@ internal static class DragRender
         screen.Children.Add(markers.Inks);
 
         local.Show(target, metrics, scale);
-        await Task.Delay(700).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, System.IO.Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
@@ -257,7 +257,7 @@ internal static class DragRender
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 
-        await Task.Delay(900).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, System.IO.Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
@@ -301,7 +301,7 @@ internal static class DragRender
         screen.Children.Add(markers.Halos);
         screen.Children.Add(markers.Inks);
 
-        await Task.Delay(900).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, System.IO.Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
@@ -404,7 +404,7 @@ internal static class DragRender
         Canvas.SetTop(band, 0.68 * ScreenHeight);
         layer.Children.Add(band);
 
-        await Task.Delay(900).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, System.IO.Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 
@@ -438,7 +438,7 @@ internal static class DragRender
         WidgetCard.Join([.. layer.Children.OfType<WidgetCard>()], metrics, scale, editMode: false, _ => 0);
         Hang(layer);
 
-        await Task.Delay(900).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, System.IO.Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "drag").ConfigureAwait(true);
     }
 

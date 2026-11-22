@@ -151,7 +151,8 @@ internal static class InlineCheckRender
         try
         {
             WidgetRender.Place(page, host, kind, style, [tier], cards);
-            await Task.Delay(700).ConfigureAwait(true);
+            var what = $"{kind.Value} {state} {tier.Width:0}x{tier.Height:0}";
+            await RenderHarness.SettleAsync(page, what).ConfigureAwait(true);
             var card = cards[0];
             if (card.ShowsSetup)
             {
@@ -163,7 +164,7 @@ internal static class InlineCheckRender
                 await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
             }
 
-            await Task.Delay(400).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(page, what).ConfigureAwait(true);
             card.UpdateLayout();
             var (parts, box) = Collect(card);
             return ((card.ActualWidth, card.ActualHeight), parts, box);

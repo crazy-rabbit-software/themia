@@ -133,6 +133,7 @@ internal static partial class DeskSelectCheck
             desk = StandInDesktop.Create(Scope, state);
             var host = desk.Host;
             var surface = desk.Add(StandInDesktop.Display(DisplayId, bounds));
+            StandInDesktop stand = desk;
             DesktopWindow? second = null;
             string? homeTwin = null;
             if (twice)
@@ -167,8 +168,8 @@ internal static partial class DeskSelectCheck
             Services.Files.HostDesktopItems.Instance.AdoptForCheck([.. twins.Select(key => new DesktopItem(key, "Twin (Check 1.0)", DesktopItemKind.Shortcut))]);
             desk.Show(surface);
 
-            // A diagnostic's wait, not a correctness path: the surface lays out and the intro ends.
-            await Task.Delay(2500).ConfigureAwait(true);
+            // The surface laid out, its intro ended and its icons drawn ([S-15902]).
+            await stand.ReadyAsync("the surface").ConfigureAwait(true);
 
             var shown = surface;
             var running = host;
@@ -374,7 +375,7 @@ internal static partial class DeskSelectCheck
 
                     surface.PreviewMove(held, (target.X - press.X) / metrics.Width, (target.Y - press.Y) / metrics.Height);
                     surface.FlushMove();
-                    await Task.Delay(500).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{name} held over its target").ConfigureAwait(true);
                     var ghost = Math.Abs(held.Opacity - Themia.Core.Widgets.SelectionLook.Landing) < 0.001;
                     var lifted = others.TrueForAll(o => Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(held) > Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(o));
                     var picture = surface.ShowsDragPicture;
@@ -382,7 +383,7 @@ internal static partial class DeskSelectCheck
                     handed |= Handed(target);
                     await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
-                    await Task.Delay(400).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{name} dropped").ConfigureAwait(true);
                     var after = surface.CardFor(items[Index(name)].Widget.Id);
                     var whole = after is { Opacity: 1 } && !surface.ShowsDragPicture;
                     var ok = ghost && lifted && picture && same && !handed && whole && landed();
@@ -467,12 +468,12 @@ internal static partial class DeskSelectCheck
                     surface.BeginMove(held, press);
                     surface.PreviewMove(held, (target.X - press.X) / metrics.Width, (target.Y - press.Y) / metrics.Height);
                     surface.FlushMove();
-                    await Task.Delay(500).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{name} and {along.Length} more held").ConfigureAwait(true);
                     var ghosts = moving.TrueForAll(c => Math.Abs(c.Opacity - SelectionLook.Landing) < 0.001);
                     var (alone, said) = HeldAlone(surface.ShownDragPicture, grab);
                     await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-several-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
-                    await Task.Delay(400).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{name} and {along.Length} more dropped").ConfigureAwait(true);
                     var whole = moving.TrueForAll(c => surface.CardFor(c.Model.Id) is { Opacity: 1 }) && !surface.ShowsDragPicture;
                     var ok = alone && ghosts && whole && landed();
                     report.Expect(ok, $"move {name} with {string.Join(",", along)} ({tag}): under the pointer the held icon alone {alone} ({said})"
@@ -603,7 +604,7 @@ internal static partial class DeskSelectCheck
                 if (host.Placing is { } placing)
                 {
                     surface.ShowGhosts(placing.Outlines(0.30, 0.80, metrics, surface.SizesNow));
-                    await Task.Delay(1200).ConfigureAwait(true);
+                    await stand.ReadyAsync("the page's icon held").ConfigureAwait(true);
                     var drawnAsIcon = surface.IconGhostsShown;
                     await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".place-icon.png"), Scope).ConfigureAwait(true);
                     host.CancelPlacement();
@@ -622,9 +623,9 @@ internal static partial class DeskSelectCheck
                 // is placed there again. twinP out of the fence it stands in, then twinU from the free desktop (drawn mid-drop:
                 // <out>.unplace-fence.png, .unplace-free.png).
                 host.SetEditMode(true);
-                await Task.Delay(400).ConfigureAwait(true);
+                await stand.ReadyAsync("edit mode").ConfigureAwait(true);
                 surface.OpenPage(Themia.Core.Settings.SettingsPageId.DesktopItems, []);
-                await Task.Delay(800).ConfigureAwait(true);
+                await stand.ReadyAsync("the Unplaced icons page open").ConfigureAwait(true);
                 var homeViewId = running.State.Views[0].Id;
                 bool Listed(string key) => host.UnplacedDesktopItems(homeViewId).Any(i => DesktopItemKeys.Comparer.Equals(i.Key, key));
                 bool OnView(string key) => Themia.Core.Desktop.DesktopViews.Shown(running.State.Views[0]).Contains(key);
@@ -654,13 +655,13 @@ internal static partial class DeskSelectCheck
                     surface.BeginMove(held, press);
                     surface.PreviewMove(held, (target.X - pressAt.X) / metrics.Width, (target.Y - pressAt.Y) / metrics.Height);
                     surface.FlushMove();
-                    await Task.Delay(500).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{name} held over the page").ConfigureAwait(true);
                     var lit = page.DropShown;
                     var picture = surface.ShowsDragPicture;
                     await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".unplace-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
                     surface.PressEnded(held);
-                    await Task.Delay(800).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{name} dropped on the page").ConfigureAwait(true);
                     var stays = surface.OpenUnplacedPart is { DropShown: false };
                     var all = running.State.Views[0].DesktopIcons == ViewDesktopIcons.All;
                     var ok = over && lit && picture && Listed(key) && !OnView(key) && !InFence(key) && stays && all;
@@ -673,7 +674,7 @@ internal static partial class DeskSelectCheck
                     var key = KeyOf(name);
                     surface.DebugUnplacedDrag([key]);
                     var placed = host.Placing is not null && host.CompletePlacement(surface, x, y);
-                    await Task.Delay(800).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{name} placed from the page").ConfigureAwait(true);
                     var reopened = surface.OpenUnplacedPart is not null;
                     var ok = placed && !Listed(key) && OnView(key) && !InFence(key) && reopened;
                     report.Expect(ok, $"{name} dragged off the page onto the free desktop ({tag}): placed {placed}, off the page {!Listed(key)}, on the view {OnView(key)}, free {!InFence(key)}, the page open again {reopened}");
@@ -715,6 +716,9 @@ internal static partial class DeskSelectCheck
                     return true;
                 }
 
+                // --live only: real input through SendInput, paced as a hand moves (a pause after the button, a step a
+                // frame-or-two apart, the double-click time between clicks). Times on purpose: the OS's input queue and its
+                // double-click rule read them, there is no signal of ours to wait for ([S-15900]).
                 async Task<bool> Press(Point from, Point to, ushort modifier, int steps)
                 {
                     var a = Screen(from);

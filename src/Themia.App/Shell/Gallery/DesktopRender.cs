@@ -133,8 +133,8 @@ internal static class DesktopRender
                 layer.Children.Add(tips);
                 screen.Children.Add(layer);
 
-                await Task.Delay(900).ConfigureAwait(true);
                 var tag = theme == AppTheme.Light ? "light" : "dark";
+                await RenderHarness.SettleAsync(screen, $"{prefix}-{tag}-{wallName}.png").ConfigureAwait(true);
                 await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, $"{prefix}-{tag}-{wallName}.png"), "desktop").ConfigureAwait(true);
 
                 if (wallName != "busywall")
@@ -219,7 +219,7 @@ internal static class DesktopRender
 
         desktop.Visibility = Visibility.Collapsed;
         screen.Children.Add(strip);
-        await Task.Delay(300).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, System.IO.Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "desktop").ConfigureAwait(true);
         screen.Children.Remove(strip);
         desktop.Visibility = held;

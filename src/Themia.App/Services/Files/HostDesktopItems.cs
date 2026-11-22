@@ -258,7 +258,7 @@ internal sealed class HostDesktopItems : IDesktopItems
     public Task<ImageSource?> IconAsync(DesktopItem item, int pixels)
     {
         ArgumentNullException.ThrowIfNull(item);
-        return _icons.GetAsync(IconKey(item, pixels), () => AppIcons.LoadOverlaidAsync(item.Key, item.Name, item.Kind, pixels));
+        return LoadWatch.Of(_icons.GetAsync(IconKey(item, pixels), () => AppIcons.LoadOverlaidAsync(item.Key, item.Name, item.Kind, pixels)));
     }
 
     private static string IconKey(DesktopItem item, int pixels)

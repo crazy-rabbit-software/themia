@@ -74,8 +74,8 @@ internal static class GridRender
                 layer.Children.Add(card);
                 screen.Children.Add(layer);
 
-                await Task.Delay(600).ConfigureAwait(true);
                 var name = $"grid-{(theme == AppTheme.Light ? "light" : "dark")}-{wallName}.png";
+                await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
                 await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, name), "grid").ConfigureAwait(true);
             }
         }

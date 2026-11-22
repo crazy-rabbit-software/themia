@@ -72,12 +72,13 @@ internal static class IconPickerRender
         UiLanguage.Apply(root);
         RenderRaster.Show(window, 660, 560);
 
-        // A render, not app code: the box takes text once it is loaded, and the grid realises its rows on the next layout passes.
-        await Task.Delay(500).ConfigureAwait(true);
+        // The box takes text once it is loaded, and the grid realises its rows on the next layout passes: settled each time.
+        var name = System.IO.Path.GetFileName(outPath);
+        await RenderHarness.SettleAsync(root, name).ConfigureAwait(true);
         if (search is not null)
         {
             picker.SetQuery(search);
-            await Task.Delay(500).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(root, name).ConfigureAwait(true);
         }
 
         await RenderHarness.SaveAsync(root, outPath, "iconpicker").ConfigureAwait(true);

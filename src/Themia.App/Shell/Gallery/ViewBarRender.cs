@@ -166,7 +166,7 @@ internal static class ViewBarRender
         foreach (var c in cases)
         {
             var (bar, area) = Draw(screen, c, items);
-            await Task.Delay(400).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(screen, $"{prefix}{c.Name}.png").ConfigureAwait(true);
             await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, $"{prefix}{c.Name}.png"), "viewbar").ConfigureAwait(true);
 
             if (((many is not null && c.Name is "bottomleft-names" or "bottomleft-text") || c.DrawsMenu) && bar.MenuButton is { } chip)
@@ -297,9 +297,8 @@ internal static class ViewBarRender
         var menu = ViewBar.ViewMenu(bar.MenuViews, c.Labels, _ => { }, cap);
         menu.ShouldConstrainToRootBounds = true;
         menu.ShowAt(chip, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard, Placement = ViewBar.MenuPlacement(side) });
-        await Task.Delay(900).ConfigureAwait(true);
-
-        var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(screen.XamlRoot);
+        var name = System.IO.Path.GetFileName(path);
+        var popups = await RenderSettle.PopupsAsync(screen.XamlRoot, 1, name).ConfigureAwait(true);
         if (popups.Count > 0 && popups[0].Child is FrameworkElement content)
         {
             await RenderPng.SaveOnGroundAsync(content, path, RenderPng.MenuGround).ConfigureAwait(true);
@@ -311,7 +310,7 @@ internal static class ViewBarRender
         }
 
         menu.Hide();
-        await Task.Delay(300).ConfigureAwait(true);
+        _ = await RenderSettle.PopupsClosedAsync(screen.XamlRoot, name).ConfigureAwait(true);
     }
 
     /// <summary>The render takes no clicks.</summary>

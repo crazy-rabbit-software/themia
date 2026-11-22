@@ -98,13 +98,13 @@ internal static class WidgetGalleryRender
         desk.UseCheckButton(static () => false);
         desk.Show();
 
-        // A diagnostic's wait, not a correctness path: the surface lays out and its intro ends.
-        await Task.Delay(2000).ConfigureAwait(true);
+        // The surface laid out and its intro ended, edit mode drawn, the gallery open with its cards drawn: each settled.
+        await desk.ReadyAsync($"{tag}: the surface").ConfigureAwait(true);
         desk.Host.SetEditMode(true);
-        await Task.Delay(500).ConfigureAwait(true);
+        await desk.ReadyAsync($"{tag}: edit mode").ConfigureAwait(true);
         surface.OpenWidgetGallery();
         var gallery = surface.DebugGallery ?? throw new InvalidOperationException("the gallery did not open");
-        await Task.Delay(2500).ConfigureAwait(true);
+        await desk.ReadyAsync($"{tag}: the gallery open").ConfigureAwait(true);
         return (desk, surface, gallery);
     }
 
@@ -117,10 +117,11 @@ internal static class WidgetGalleryRender
         {
             Directory.CreateDirectory(outDir);
             (desk, var surface, var gallery) = await StandAsync(run, dark, "gallery-render", display).ConfigureAwait(true);
+            StandInDesktop stand = desk;
             var host = desk.Host;
             async Task Shot(string name)
             {
-                await Task.Delay(1500).ConfigureAwait(true);
+                await stand.ReadyAsync($"gallery-{theme}-{display.Width}x{display.Height}-{name}.png").ConfigureAwait(true);
                 await RenderHarness.SaveAsync(surface.DebugRoot, Path.Combine(outDir, $"gallery-{theme}-{display.Width}x{display.Height}-{name}.png"), "gallery").ConfigureAwait(true);
             }
 
@@ -200,6 +201,7 @@ internal static class WidgetGalleryRender
         try
         {
             (desk, var surface, var gallery) = await StandAsync(run, dark: true, "gallery-check", display).ConfigureAwait(true);
+            StandInDesktop stand = desk;
             var host = desk.Host;
             var metrics = surface.Metrics;
             var (cols, rows) = GridGeometry.GridDims(metrics);
@@ -316,7 +318,7 @@ internal static class WidgetGalleryRender
                     $"{what}: moved {cellsX:0.#},{cellsY:0.#} cells, the ghost went {Math.Round(cellsX)},{Math.Round(cellsY)} whole cells, offsets kept");
 
                 var landed = surface.ReleasePlacementForCheck(to);
-                await Task.Delay(600).ConfigureAwait(true);
+                await stand.ReadyAsync($"{what}: dropped").ConfigureAwait(true);
                 var added = host.State.Views[0].Widgets.Where(w => !before.Contains(w.Id)).ToList();
                 var placedRight = landed && added.Count == picked.Count
                     && picked.Select((w, i) => added[i].Kind == w.Kind && Same(added[i].Rect, moved[i].Rect)).All(x => x);
@@ -333,7 +335,7 @@ internal static class WidgetGalleryRender
 
             // One widget, then three, from the Time screen.
             gallery.ShowCategory(AddFolderId.Time);
-            await Task.Delay(500).ConfigureAwait(true);
+            await stand.ReadyAsync("the Time screen").ConfigureAwait(true);
             await DragAndDrop("one", [gallery.Screen.Widgets[0].Id], 37.4, 12.6).ConfigureAwait(true);
             await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".dropped.png"), "gallery-check").ConfigureAwait(true);
             await DragAndDrop("three", [.. gallery.Screen.Widgets.Take(3).Select(w => w.Id)], 3.3, 2.7).ConfigureAwait(true);
@@ -343,7 +345,7 @@ internal static class WidgetGalleryRender
             gallery.Pick([gallery.Screen.Widgets[0].Id]);
             surface.BeginGalleryDragForCheck(gallery.Screen, gallery.Picked, Centre(gallery.Screen.Widgets[0].Rect, metrics));
             host.CancelPlacement();
-            await Task.Delay(300).ConfigureAwait(true);
+            await stand.ReadyAsync("given up").ConfigureAwait(true);
             Expect(host.State.Views[0].Widgets.Count == count && !gallery.Following && surface.DebugGallery is not null, "given up: nothing placed, the gallery back");
 
             // A style picked in the panel lands with the widget.

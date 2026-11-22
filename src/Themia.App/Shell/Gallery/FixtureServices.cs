@@ -70,7 +70,8 @@ internal static class FixtureServices
             };
 
             var named = state == "gone" ? new ServiceInterest(interest.Provider, interest.Query!, ["sample:gone"], interest.Count) : interest;
-            var sync = new ServiceSync(ticker, replay, () => accounts);
+            // [S-15900] A recording's answers are the page's own work: a render settles once they are in.
+            var sync = new ServiceSync(ticker, replay is Never ? replay : new Tracked(replay), () => accounts);
             var source = sync.Open(named);
             if (state == "stale")
             {
@@ -116,6 +117,13 @@ internal static class FixtureServices
         }
 
         return replay;
+    }
+
+    /// <summary>[S-15900] A recording whose answers a render's settle waits for (<see cref="RenderSettle.Track{T}"/>).</summary>
+    private sealed class Tracked(IServiceTransport inner) : IServiceTransport
+    {
+        public Task<ServiceReply> SendAsync(string? accountId, ServiceDescriptor descriptor, ServiceRequest request, string? ifNoneMatch, CancellationToken cancellation)
+            => RenderSettle.Track(inner.SendAsync(accountId, descriptor, request, ifNoneMatch, cancellation));
     }
 
     /// <summary>A first answer that never arrives.</summary>

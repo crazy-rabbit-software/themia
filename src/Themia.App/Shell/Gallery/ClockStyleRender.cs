@@ -53,7 +53,7 @@ internal static class ClockStyleRender
             });
 
             screen.Children.Add(card);
-            await Task.Delay(1000).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(screen, "the clock card").ConfigureAwait(true);
 
             var step = 0;
             foreach (var (fragment, size) in Steps())
@@ -67,8 +67,8 @@ internal static class ClockStyleRender
                 card.Model.Config = StateJson.Merged(card.Model.Config, fragment);
                 card.ApplyConfig();
 
-                // A layout pass, so a resize reaches the view's ApplySize before the next config.
-                await Task.Delay(40).ConfigureAwait(true);
+                // A frame (its layout pass), so a resize reaches the view's ApplySize before the next config.
+                await RenderSettle.FramesAsync(1).ConfigureAwait(true);
                 if (!report.Expect(!card.IsFaulted, $"{step,3} {card.Width}x{card.Height} {fragment}" + (card.IsFaulted ? "  (the error card)" : string.Empty)))
                 {
                     break;

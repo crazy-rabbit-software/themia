@@ -49,6 +49,8 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class SwitchCheck
 {
+    // [S-15900] Its surfaces are waited for by their ready signal (StandInDesktop.ReadyAsync); every other wait here is a
+    // timing on purpose: what the process holds a dwell, a soak interval or a release later is what it measures.
     private const string Scope = "switch-check";
     private const string DisplayId = "switch-check-display";
     private const string SecondId = "switch-check-display-2";
@@ -157,7 +159,7 @@ internal static class SwitchCheck
             }
 
             desk.Show();
-            await Task.Delay(1000).ConfigureAwait(true);
+            await desk.ReadyAsync("the surfaces").ConfigureAwait(true);
 
             // [S-6612] As the app does at start, so the process measured is the app's.
             MemoryPriority.Lower();
@@ -188,7 +190,7 @@ internal static class SwitchCheck
                         scrolled += scroller.ChangeView(null, scroller.ScrollableHeight, null, disableAnimation: true) ? 1 : 0;
                     }
 
-                    await Task.Delay(1500).ConfigureAwait(true);
+                    await desk.ReadyAsync("the lists scrolled").ConfigureAwait(true);
                     await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".scrolled.png"), Scope).ConfigureAwait(true);
                     Measured(Measure($"'{view.Name}' {scrolled} list(s) scrolled to the end", host, view));
                 }
@@ -297,7 +299,7 @@ internal static class SwitchCheck
             var host = desk.Host;
             var surface = desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(Width, Height)));
             desk.Show();
-            await Task.Delay(2000).ConfigureAwait(true);
+            await desk.ReadyAsync("the surface").ConfigureAwait(true);
             MemoryPriority.Lower();
 
             string Timed(string label, Action open)

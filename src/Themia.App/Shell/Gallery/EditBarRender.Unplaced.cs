@@ -163,15 +163,16 @@ internal static partial class EditBarRender
             Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: the page built no list");
         }
 
-        await Task.Delay(300).ConfigureAwait(true);
+        var name = System.IO.Path.GetFileName(path);
+        await RenderHarness.SettleAsync(canvas, name).ConfigureAwait(true);
         canvas.UpdateLayout();
         var spot = FlyoutPlacement.Wide(bar.EntryBox(SettingsPageId.DesktopItems, canvas) ?? barRect, barRect, area, flyout.ContentHeightAt(barRect.Width));
         flyout.Place(spot);
         canvas.UpdateLayout();
         Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: flyout {spot.Width} wide (bar {barRect.Width}), icon box {model.Box.Width:0.#}x{model.Box.Height:0.#}");
 
-        // The shell's icons come off the UI thread: given time to land before the picture.
-        await Task.Delay(1500).ConfigureAwait(true);
+        // The shell's icons come off the UI thread: each is a load the settle waits for (LoadWatch).
+        await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
         if (part is not null && late?.Invoke(part, model, spot) is { } next)
         {
             model = next.Next;
@@ -187,7 +188,7 @@ internal static partial class EditBarRender
             }
 
             canvas.UpdateLayout();
-            await Task.Delay(300).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
         }
 
         Probe(screen, flyout, path);

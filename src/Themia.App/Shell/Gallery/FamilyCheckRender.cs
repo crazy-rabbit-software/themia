@@ -123,7 +123,7 @@ internal static class FamilyCheckRender
         // One card tells the kind's states.
         var probe = new List<WidgetCard>();
         WidgetRender.Place(page, host, kind, null, [SizeFit.CheckedAt(SizeFit.Of(kind))[1]], probe);
-        await Task.Delay(100).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(page, $"{kind.Value}'s states").ConfigureAwait(true);
         var states = probe[0].View is IWidgetPreviewState preview ? preview.PreviewStates.Where(s => !Skip.Contains(s)).ToList() : [];
         Clear(page, probe);
 
@@ -143,7 +143,7 @@ internal static class FamilyCheckRender
         try
         {
             var labels = WidgetRender.Place(page, host, kind, style, tiers, cards);
-            await Task.Delay(700).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(page, variant).ConfigureAwait(true);
 
             if (state is not null)
             {
@@ -162,7 +162,7 @@ internal static class FamilyCheckRender
 
                 // [S-11603] A state that holds its own items is judged at their size.
                 tiers = WidgetRender.Refit(page, cards, labels, tiers);
-                await Task.Delay(300).ConfigureAwait(true);
+                await RenderHarness.SettleAsync(page, variant).ConfigureAwait(true);
             }
 
             // [S-6737] The one-readout widgets, the only ones a Hero step is allowed in, by their module's trait.

@@ -377,6 +377,7 @@ internal sealed partial class PageView
         _finding = new CancellationTokenSource();
         var token = _finding.Token;
         _found.Asking(key, typed);
+        _searches++;
         try
         {
             if (search.Settle > TimeSpan.Zero)
@@ -404,7 +405,19 @@ internal sealed partial class PageView
                 Redraw();
             }
         }
+        finally
+        {
+            _searches--;
+        }
     }
+
+    /// <summary>The lookups' searches still running (waiting for the typing to settle, or asked).</summary>
+    private int _searches;
+
+#if DEBUG
+    /// <summary>[S-15900] Debug renders: a lookup's search still running, which a render's settle waits for; null when none.</summary>
+    internal string? DebugSearching => _searches > 0 ? "a lookup's search" : null;
+#endif
 
     /// <summary>A font's or an icon's picker, with the rows that go with it (Add fonts).</summary>
     private FrameworkElement Picked(PageRow row)

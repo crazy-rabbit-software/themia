@@ -18,7 +18,8 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1411] Debug only: <c>Themia.exe --render layout-editor &lt;out.png&gt; [waitMs] [--empty]</c> draws the app-layout
-/// editor off-screen over a demo state that is never saved, <c>waitMs</c> (2500) after it opens, then exits. <c>--empty</c> shows a fresh one-pane layout.
+/// editor off-screen over a demo state that is never saved, once it has settled ([S-15900]) and <c>waitMs</c> after that
+/// when asked (a time on purpose: a moment of its opening; none by default), then exits. <c>--empty</c> shows a fresh one-pane layout.
 /// Nothing is launched and no window but its own is touched.
 /// </summary>
 internal static class LayoutEditorRender
@@ -29,14 +30,14 @@ internal static class LayoutEditorRender
         "<out.png> [waitMs] [--empty]",
         """
         the app-layout editor over a demo state that is never saved: a desktop icon's three-pane layout "Morning" [S-1411] [S-1405];
-        waitMs: drawn that long after it opens (2500); --empty: a fresh one-pane layout. Nothing is launched
+        drawn once it has settled; waitMs: that long after (a moment on purpose); --empty: a fresh one-pane layout. Nothing is launched
         """,
         RunAsync);
 
     private static async Task<int> RunAsync(RenderRun run)
     {
         var outPath = run.PathArg(0);
-        var wait = run.Args.Count > 1 && int.TryParse(run.Args[1], out var ms) ? ms : 2500;
+        var wait = run.Args.Count > 1 && int.TryParse(run.Args[1], out var ms) ? ms : 0;
 
         // A desktop icon, named by id, that is an own icon with an app layout: empty, or the demo layout.
         var view = ViewState.Create("Desktop");
@@ -73,7 +74,13 @@ internal static class LayoutEditorRender
             }
 
             editor.DebugShow(itemId);
-            await Task.Delay(wait).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(editor.DebugRoot, Path.GetFileName(outPath)).ConfigureAwait(true);
+            if (wait > 0)
+            {
+                // A time on purpose: the moment after it settled that the command line asked to see.
+                await Task.Delay(wait).ConfigureAwait(true);
+            }
+
             await RenderHarness.SaveAsync(editor.DebugRoot, outPath, "layout editor").ConfigureAwait(true);
             return RenderCommandLine.Passed;
         }

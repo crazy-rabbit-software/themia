@@ -768,8 +768,31 @@ busy desktop ([S-6601]), Debug, private bytes.
   hosts, the services its cards read, the cleanup whatever threw); the checks that need the desktop build a real host
   and surfaces on stand-in displays over a detached store (`StandInDesktop`). A command may read the application theme
   it draws in before the resources load (a scene's own; a ready-made group and the family walk dark unless `--theme
-  light`). Each render keeps its own fixed waits, so a picture and its timing are what they were. Tests
-  `RenderCommandLineTests`.
+  light`). No render or check sleeps for a fixed time: each waits through the harness's one settle ([S-15900]) and a
+  stand-in desktop through its ready signal ([S-15902]); a run ends with one `settle:` line (how many settles, how long,
+  how many hit their ceiling). Tests `RenderCommandLineTests`.
+- **[S-15900]** **A render settles on its page, never on a clock.** `RenderHarness.SettleAsync` (the app's
+  `RenderSettle`; Core's `RenderSettling` decides) looks at a page once a frame (the compositor's own clock): laid out;
+  while anything under it is still loading (a bitmap read from a URI, the host's loads announced through `LoadWatch`: a
+  file's or desktop icon's shell icon, a thumbnail, a folder's count, a picture read from disk; a replayed recording's
+  answers; what the caller names, such as a lookup's search, `PageView.DebugSearching`) it waits for that; then it draws
+  the page to a bitmap each frame until the picture is the same `RenderSettling.QuietFrames` (2) frames in a row, so an
+  entrance, a glide or a fade has ended. All under one ceiling (`RenderSettling.DefaultCeiling`, 15 s; a page's own
+  signal, the add page's pictures, a minute): past it the run says `settle: <what> NOT SETTLED after n s: still loading
+  …` (or `the picture was still changing`) on stdout and in the log and takes the picture as it stands. A menu is
+  waited for by its popups opening and closing (`RenderSettle.PopupsAsync`), a check that reads a model after a step and
+  draws nothing by the UI thread's queue drained (`IdleAsync`), the card's own drag steps a frame apart. What stays a
+  time is a time on purpose and says so: a pose frozen at its moment (the motion render's ms are the pose's), `--hold`
+  and `--interrupt` (the startup check's moment), `--live`'s real input paced as a hand moves, the switch check's
+  dwells and soaks (what the process holds that long after is what it measures), the layout editor's `waitMs`.
+  Tests `RenderSettlingTests`.
+- **[S-15901]** **What turns forever is no change.** A settle compares two looks at a page byte for byte, outside what
+  turns forever on purpose (an active indeterminate `ProgressRing` or `ProgressBar`, masked by its box): a loading
+  state settles like any other. Tests `RenderSettlingTests.S15901_`.
+- **[S-15902]** **A stand-in desktop is ready when its surfaces are at rest.** `StandInDesktop.ReadyAsync` settles every
+  surface (or one) with what keeps it from rest as its busy signal (`DesktopWindow.NotAtRestForCheck`: its root not
+  loaded, no usable size, its first layout pass not run (`IntroArming.StartupPending`), an intro playing): the checks
+  wait for it after a show, a mode, a move or a drop, never a diagnostic's sleep.
 
 ## Not on this machine (UNAVAILABLE)
 
@@ -12282,7 +12305,8 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   unseen, and no longer refuses every replay ([S-1012]) for good.
 - **[S-1018]** Debug: `Themia.exe --check startup <out.txt> [--state <state.json>] [--show <view>] [--hold ms]
   [--hide] [--twice] [--wallpaper <picture>] [--interrupt ms]` starts a real surface on a stand-in display
-  off-screen on that view as the app starts (a copy of the state, read only; a detached store) and reports
+  off-screen on that view as the app starts (a copy of the state, read only; a detached store) and, once the start
+  has settled ([S-15902]: the intro's end heard; `--hold ms` instead reads that far into it, on purpose), reports
   every card as the compositor holds it (NOT AT REST marks one that is not), the desktop's list and its
   children as UI Automation sees them ([S-5576]), and draws the surface to `out.png`.
 
@@ -13572,8 +13596,8 @@ Tests: `ShortcutsDropLayoutTests`; a drop onto an own icon, the module's `OwnIco
 - [S-1413] Each pane: split side by side / top and bottom / remove (not on the only pane), and centred
   the icon and name when assigned, the source, then a searchable Start menu app box, a URL box, or a
   path box with Browse (checked by `LaunchTargets`, the reason shown), reuse, Clear. Shrinks with the pane.
-- [S-1414] Debug: `--render layout-editor <out.png> [waitMs] [--empty]` renders the editor off-screen over
-  a demo state (one `desktopItem` widget, an own icon that is the layout); nothing is launched.
+- [S-1414] Debug: `--render layout-editor <out.png> [waitMs] [--empty]` renders the editor off-screen, once it has
+  settled ([S-15900]; `waitMs` later when asked, a moment on purpose), over a demo state (one `desktopItem` widget, an own icon that is the layout); nothing is launched.
 
 Not ported: per-pane command-line arguments (allow-list rule: nothing is ever a command line); drag-out
 of web, Windows-location and layout items (no file to hand over: such a drag carries nothing and only the

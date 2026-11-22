@@ -11,7 +11,7 @@ namespace Themia.App.Shell.Gallery;
 /// [S-69] Debug only: the real host and its real surfaces on stand-in displays, off-screen, for the checks that need
 /// the desktop itself (desk select, displays, first drag, the drag bench, startup, switch). Built over a state the
 /// check makes, on a detached store (<c>%TEMP%\themia-&lt;name&gt;\state.json</c>: never the user's), with a surface per
-/// stand-in display the check adds. Disposed, the surfaces close and the host goes.
+/// stand-in display the check adds; <see cref="ReadyAsync"/> is its one wait. Disposed, the surfaces close and the host goes.
 /// </summary>
 internal sealed class StandInDesktop : IDisposable
 {
@@ -64,16 +64,30 @@ internal sealed class StandInDesktop : IDisposable
         }
     }
 
-    /// <summary>
-    /// Show <paramref name="surface"/> (or every surface added). What the check waits for after is its own fixed wait, as
-    /// a diagnostic's, not a correctness path: the roots load and settle, the intro ends.
-    /// </summary>
+    /// <summary>Show <paramref name="surface"/> (or every surface added); <see cref="ReadyAsync"/> waits until they stand.</summary>
     public void Show(DesktopWindow? surface = null)
     {
         foreach (var shown in surface is null ? _surfaces : [surface])
         {
             shown.ShowSurface();
         }
+    }
+
+    /// <summary>
+    /// [S-15902] The stand-in desktop's ready signal, never a fixed sleep: every surface (or <paramref name="surface"/>)
+    /// at rest (its root loaded, a usable size, its first layout pass run, no intro playing:
+    /// <see cref="DesktopWindow.NotAtRestForCheck"/>) and settled ([S-15900], <see cref="RenderHarness.SettleAsync"/>), each
+    /// under the ceiling; one past it is said loudly as <paramref name="what"/>'s. Returns whether every one settled.
+    /// </summary>
+    public async Task<bool> ReadyAsync(string what, DesktopWindow? surface = null)
+    {
+        var all = true;
+        foreach (var shown in surface is null ? _surfaces : [surface])
+        {
+            all &= await RenderHarness.SettleAsync(shown.DebugRoot, $"{what} ({shown.Monitor.Id})", busy: () => shown.NotAtRestForCheck).ConfigureAwait(true);
+        }
+
+        return all;
     }
 
     public void Dispose()

@@ -172,20 +172,23 @@ internal static partial class FirstDragCheck
                 _ = control.Focus(FocusState.Pointer);
             }
 
+            // The card's own steps a frame apart, as a pointer's moves arrive ([S-15900]: the compositor's frames, not a sleep).
             card.CheckPress(found.Source, found.At, found.Routing.Handled);
-            await Task.Delay(16).ConfigureAwait(true);
+            await RenderSettle.FramesAsync(1).ConfigureAwait(true);
             const int steps = 8;
             for (var step = 1; step <= steps; step++)
             {
                 var dx = sign * Math.Max(3.5, Reach * step / steps);
                 _ = card.CheckMove(new Point(found.At.X + dx, found.At.Y), found.Routing.HandlesMoves);
-                await Task.Delay(16).ConfigureAwait(true);
+                await RenderSettle.FramesAsync(1).ConfigureAwait(true);
             }
 
             held = false;
             card.CheckRelease();
             desk.Surface.CheckLetGo();
-            await Task.Delay(120).ConfigureAwait(true);
+
+            // What the release posted (its landing, the store) done before the model is read.
+            await RenderSettle.IdleAsync().ConfigureAwait(true);
         }
         finally
         {
@@ -527,10 +530,10 @@ internal static partial class FirstDragCheck
                 var surface = stand.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(3600, 2400)));
                 stand.Show();
 
-                // A diagnostic's wait, not a correctness path: the surface lays out and the intro ends.
-                await Task.Delay(2500).ConfigureAwait(true);
+                // The surface laid out and its intro ended, then every card showing its sample, settled ([S-15902]).
+                await stand.ReadyAsync("the surface").ConfigureAwait(true);
                 var cards = await SamplesAsync(surface, placed).ConfigureAwait(true);
-                await Task.Delay(800).ConfigureAwait(true);
+                await stand.ReadyAsync("the samples").ConfigureAwait(true);
                 return new Desk(stand, surface, cards);
             }
             catch
@@ -612,6 +615,8 @@ internal static partial class FirstDragCheck
             var x = -32000 + (int)Math.Round(centre.X * scale) - origin.X;
             var y = -32000 + (int)Math.Round(centre.Y * scale) - origin.Y;
             var at = (nint)(((y & 0xFFFF) << 16) | (x & 0xFFFF));
+            // --probe only, a diagnostic: window messages posted a moment apart, as a hand clicks (times on purpose: the
+            // messages go through the window's own queue, no signal of ours says they were read).
             _ = Win32.PostMessage(hwnd, WmMouseMove, 0, at);
             await Task.Delay(60).ConfigureAwait(true);
             _ = Win32.PostMessage(hwnd, WmLButtonDown, 1, at);

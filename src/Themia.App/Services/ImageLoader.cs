@@ -85,7 +85,10 @@ internal sealed class ImageLoader
     /// comes back without an await, so a widget built again draws it in the same pass. Never throws
     /// for one bad file: a corrupt picture costs that one tile, not the widget.
     /// </summary>
-    public async Task<PictureHandle?> LoadAsync(string path, double pixelWidth, CancellationToken token)
+    public Task<PictureHandle?> LoadAsync(string path, double pixelWidth, CancellationToken token)
+        => LoadWatch.Of(ReadAsync(path, pixelWidth, token));
+
+    private async Task<PictureHandle?> ReadAsync(string path, double pixelWidth, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(path))
         {

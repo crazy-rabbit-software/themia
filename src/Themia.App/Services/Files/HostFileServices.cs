@@ -18,15 +18,15 @@ internal sealed class HostFileIcons : IFileIcons
 
     public bool TryIcon(FolderEntry entry, int pixels, out ImageSource? image) => FileIcons.TryIcon(entry, pixels, out image);
 
-    public Task<ImageSource?> IconAsync(FolderEntry entry, int pixels) => FileIcons.IconAsync(entry, pixels);
+    public Task<ImageSource?> IconAsync(FolderEntry entry, int pixels) => LoadWatch.Of(FileIcons.IconAsync(entry, pixels));
 
-    public Task<ImageSource?> DriveIconAsync(DriveStockIcon icon, int pixels) => FileIcons.DriveIconAsync(icon, pixels);
+    public Task<ImageSource?> DriveIconAsync(DriveStockIcon icon, int pixels) => LoadWatch.Of(FileIcons.DriveIconAsync(icon, pixels));
 
-    public Task<ImageSource?> ThumbnailAsync(FolderEntry entry, int pixels) => FileIcons.ThumbnailAsync(entry, pixels);
+    public Task<ImageSource?> ThumbnailAsync(FolderEntry entry, int pixels) => LoadWatch.Of(FileIcons.ThumbnailAsync(entry, pixels));
 
     public string TypeName(FolderEntry entry) => FileIcons.TypeName(entry);
 
-    public Task<int?> CountAsync(FolderEntry folder) => FileIcons.CountAsync(folder);
+    public Task<int?> CountAsync(FolderEntry folder) => LoadWatch.Of(FileIcons.CountAsync(folder));
 }
 
 /// <summary>[S-1329] <see cref="IWidgetHost.FileClipboard"/>: the real Windows clipboard, with the host's memory of a cut.</summary>

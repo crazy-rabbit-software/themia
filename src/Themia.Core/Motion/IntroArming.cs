@@ -37,6 +37,9 @@ public sealed class IntroArming
     /// <summary>A show is running on this surface: started, its end not heard yet.</summary>
     private bool _running;
 
+    /// <summary>[S-15902] The startup intro's pass has not run yet: the surface is not yet laid out as it will stand.</summary>
+    public bool StartupPending => _startupPending;
+
     /// <summary>[S-1017] The surface started a show (after the pass that armed it placed every card).</summary>
     public void ShowStarted() => _running = true;
 

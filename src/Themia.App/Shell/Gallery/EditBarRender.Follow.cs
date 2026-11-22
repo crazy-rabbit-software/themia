@@ -56,7 +56,7 @@ internal static partial class EditBarRender
         async Task Step(string name, Action act)
         {
             act();
-            await Task.Delay(600).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(screen, $"page-{theme}-follow-{name}.png").ConfigureAwait(true);
             canvas.UpdateLayout();
 
             // What the flyout should stand at for the page as it is now: its rows' height up to 70 % of the work area.

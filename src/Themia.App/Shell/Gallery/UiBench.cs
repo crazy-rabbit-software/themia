@@ -64,12 +64,13 @@ internal static partial class UiBench
             desk = StandInDesktop.Create(Scope, state);
             var host = desk.Host;
             var surface = desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(1920, 1080)));
+            StandInDesktop stand = desk;
             desk.Show();
 
-            // A diagnostic's wait, not a correctness path: the surface settles and its intro ends.
-            await Task.Delay(2500).ConfigureAwait(true);
+            // The surface laid out and settled, its intro ended ([S-15902]).
+            await stand.ReadyAsync("the surface").ConfigureAwait(true);
             DragBench.Touch(host, surface, rows);
-            await Task.Delay(800).ConfigureAwait(true);
+            await stand.ReadyAsync("the rows touched").ConfigureAwait(true);
 
             var root = surface.DebugRoot;
             probe = new Probe(root, frames);

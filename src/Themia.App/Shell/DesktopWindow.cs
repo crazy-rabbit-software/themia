@@ -479,6 +479,17 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>Debug only: the surface's content, for the switch check's picture ([S-1883]).</summary>
     internal FrameworkElement DebugRoot => _root;
 
+    /// <summary>
+    /// [S-15902] Debug checks: why the surface is not yet at rest (not loaded, no usable size, its first layout pass not run,
+    /// an intro playing), or null when it is: the stand-in desktop's ready signal (<c>StandInDesktop.ReadyAsync</c>).
+    /// </summary>
+    internal string? NotAtRestForCheck
+        => !_root.IsLoaded ? "its root not loaded"
+            : !Metrics.IsUsable ? "no usable size"
+            : _arming.StartupPending ? "its first layout pass not run"
+            : _show is not null ? $"its {_show.Mode} intro playing"
+            : null;
+
     /// <summary>Debug only: the selection's frame, for the desk select check's [S-14310] steps.</summary>
     internal SelectionFrame DebugFrame => _markerLayer.Frame;
 

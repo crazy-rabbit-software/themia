@@ -13,7 +13,7 @@ namespace Themia.App.Shell.Gallery;
 /// force by <see cref="PutDesignInForce"/> where the render draws with it, before it builds what reads its brushes), its
 /// off-screen window (<see cref="MakeWindow"/>, holding the content, shown by <see cref="OffscreenWindow.Show(double, double, double?)"/>
 /// once the content is in place), a ticker, preview card hosts, the system and gallery services its cards read, and the PNG
-/// writer; and disposes it: the cards detach, the services and the ticker go and the window closes, whatever threw. Each
+/// writer, and the one wait (<see cref="SettleAsync"/>, [S-15900]); and disposes it: the cards detach, the services and the ticker go and the window closes, whatever threw. Each
 /// render keeps the order its steps always had, so its pictures are the same.
 /// </summary>
 internal sealed class RenderHarness : IDisposable
@@ -104,6 +104,14 @@ internal sealed class RenderHarness : IDisposable
         _owned.Add(disposable);
         return disposable;
     }
+
+    /// <summary>
+    /// [S-15900] The one wait of every render: <paramref name="root"/> settled (laid out, nothing under it loading, nothing
+    /// <paramref name="busy"/> names, its picture the same frame after frame) or the ceiling passed, said loudly as
+    /// <paramref name="what"/>'s (<see cref="RenderSettle"/>). Never a fixed sleep. Returns whether it settled.
+    /// </summary>
+    public static Task<bool> SettleAsync(UIElement root, string what, TimeSpan? ceiling = null, Func<string?>? busy = null)
+        => RenderSettle.SettleAsync(root, what, ceiling, busy);
 
     /// <summary><paramref name="element"/> written to <paramref name="path"/> (its folder made), said on stdout as <c>&lt;say&gt;: wrote &lt;path&gt;</c>.</summary>
     public static async Task SaveAsync(UIElement element, string path, string say)

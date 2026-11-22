@@ -61,7 +61,7 @@ internal static class MenuRender
         var window = harness.MakeWindow("Themia menu render", root);
         UiLanguage.Apply(root);
         window.Show(860, 820);
-        await Task.Delay(400).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(root, "the menu render's window").ConfigureAwait(true);
 
         // A view with a second widget, so the layering commands have something to act on.
         var view = ViewState.Create("Render");
@@ -75,7 +75,7 @@ internal static class MenuRender
         var host = new MenuRenderHost(harness.Ticker, view, templates);
         var card = new WidgetCard(host, clock) { Width = 200, Height = 160 };
         root.Children.Add(new Canvas { Children = { card } });
-        await Task.Delay(300).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(root, "the clock card").ConfigureAwait(true);
         var menuAt = new Point(16, 16);
 
         host.Set(editMode: true, selection: 1, canPaste: true);
@@ -111,7 +111,7 @@ internal static class MenuRender
         view.Widgets.Add(drive);
         var withActions = new WidgetCard(host, drive) { Width = 200, Height = 120 };
         root.Children.Add(new Canvas { Children = { withActions } });
-        await Task.Delay(300).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(root, "the drive card").ConfigureAwait(true);
         await RenderAsync(root, withActions.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-actions.png")).ConfigureAwait(true);
 
         // [S-15831] Lock widgets on: no Delete; Refresh and Widget settings are still a row.
@@ -133,7 +133,7 @@ internal static class MenuRender
         glassHost.Set(editMode: false, selection: 1, canPaste: true);
         var glassCard = new WidgetCard(glassHost, drive) { Width = 200, Height = 120 };
         root.Children.Add(new Canvas { Children = { glassCard } });
-        await Task.Delay(300).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(root, "the glass card").ConfigureAwait(true);
         await RenderAsync(root, glassCard.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-desktop-glass.png")).ConfigureAwait(true);
 
         var noop = static () => { };
@@ -147,7 +147,7 @@ internal static class MenuRender
         view.Widgets.Add(deskItem);
         var itemCard = new WidgetCard(host, deskItem) { Width = 90, Height = 110 };
         root.Children.Add(new Canvas { Children = { itemCard } });
-        await Task.Delay(300).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(root, "the desktop item's card").ConfigureAwait(true);
         host.Set(editMode: true, selection: 1, canPaste: true);
         await RenderAsync(root, itemCard.CardMenu(menuAt), System.IO.Path.Combine(outDir, "card-edit-desktopitem.png")).ConfigureAwait(true);
 
@@ -321,7 +321,8 @@ internal static class MenuRender
     {
         menu.ShouldConstrainToRootBounds = true;
         menu.ShowAt(root, new FlyoutShowOptions { Position = new Point(16, 16), ShowMode = FlyoutShowMode.Standard });
-        await Task.Delay(700).ConfigureAwait(true);
+        var name = System.IO.Path.GetFileName(path);
+        var open = (await RenderSettle.PopupsAsync(root.XamlRoot, 1, name).ConfigureAwait(true)).Count;
 
         // A sub item opened where it stands, as the pointer opens it: through its automation peer.
         if (expand is not null && menu is MenuFlyout list
@@ -329,13 +330,7 @@ internal static class MenuRender
             && Microsoft.UI.Xaml.Automation.Peers.FrameworkElementAutomationPeer.CreatePeerForElement(sub) is Microsoft.UI.Xaml.Automation.Provider.IExpandCollapseProvider opener)
         {
             opener.Expand();
-            await Task.Delay(900).ConfigureAwait(true);
-        }
-
-        // The first menu of a fresh window can take a moment longer to open.
-        if (VisualTreeHelper.GetOpenPopupsForXamlRoot(root.XamlRoot).Count == 0)
-        {
-            await Task.Delay(1500).ConfigureAwait(true);
+            _ = await RenderSettle.PopupsAsync(root.XamlRoot, open + 1, name).ConfigureAwait(true);
         }
 
         // The command bar and its list (the "overflow") can be separate popups; each is written, the
@@ -361,7 +356,7 @@ internal static class MenuRender
         }
 
         menu.Hide();
-        await Task.Delay(300).ConfigureAwait(true);
+        _ = await RenderSettle.PopupsClosedAsync(root.XamlRoot, name).ConfigureAwait(true);
     }
 
     /// <summary>A card host whose mode, selection and clipboard the render sets.</summary>

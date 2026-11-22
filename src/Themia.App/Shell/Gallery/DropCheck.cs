@@ -52,7 +52,9 @@ internal static partial class DropCheck
             var content = new Grid { AllowDrop = true };
             window = OffscreenWindow.Open("Themia drop check", content, 400, 300);
             var hwnd = window.Hwnd;
-            await Task.Delay(1000).ConfigureAwait(true);
+
+            // Its content loaded and drawn (XAML's child windows made), settled before they are walked.
+            await RenderHarness.SettleAsync(content, "the drop check's window").ConfigureAwait(true);
 
             report.Say("before registration:");
             Walk(hwnd, 0, report);
@@ -156,8 +158,8 @@ internal static partial class DropCheck
         watcher.EnableRaisingEvents = true;
         if (!File.Exists(path))
         {
-            // a timing, not a wait: the ceiling on the shell's copy; the file's arrival ends it.
-            await Task.WhenAny(made.Task, Task.Delay(CopyCeiling)).ConfigureAwait(true);
+            // The shell's copy under a ceiling: the file's arrival ends it ([S-15900]), loudly when it never comes.
+            await RenderSettle.SignalAsync(made.Task, "the shell's copy", CopyCeiling).ConfigureAwait(true);
         }
 
         return File.Exists(path);

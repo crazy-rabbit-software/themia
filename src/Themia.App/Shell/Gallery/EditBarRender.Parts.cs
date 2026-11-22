@@ -135,14 +135,12 @@ internal static partial class EditBarRender
             }
         }
 
-        canvas.UpdateLayout();
-        await Task.Delay(300).ConfigureAwait(true);
-        // A render is bounded: a picture that never finishes is said, and the shot shows its glyph.
-        if (await Task.WhenAny(page.View.PicturesDrawn, Task.Delay(TimeSpan.FromMinutes(1))).ConfigureAwait(true) != page.View.PicturesDrawn)
-        {
-            Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: the pictures did not finish within a minute");
-        }
-        await Task.Delay(300).ConfigureAwait(true);
+        // The page laid out (its pictures asked for), its pictures drawn, and then the page settled with them in it. A render
+        // is bounded: a picture that never finishes is said, and the shot shows its glyph.
+        var name = System.IO.Path.GetFileName(path);
+        await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
+        await RenderSettle.SignalAsync(page.View.PicturesDrawn, $"{name}: the add page's pictures", TimeSpan.FromMinutes(1)).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
 
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");

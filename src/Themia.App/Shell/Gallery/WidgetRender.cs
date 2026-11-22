@@ -246,8 +246,9 @@ internal static class WidgetRender
 
             harness.Window.Resize(page.Width, page.Height);
 
-            await Task.Delay(800).ConfigureAwait(true);
+            var shot = System.IO.Path.GetFileName(outPath);
             await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
+            await RenderHarness.SettleAsync(page, shot).ConfigureAwait(true);
 
             if (state is not null)
             {
@@ -259,7 +260,7 @@ internal static class WidgetRender
                         if (card.ShowsSetup)
                         {
                             card.RunForPreview();
-                            await Task.Delay(200).ConfigureAwait(true);
+                            await RenderHarness.SettleAsync(page, shot).ConfigureAwait(true);
                         }
 
                         if (!preview.PreviewStates.Contains(state, StringComparer.Ordinal))
@@ -281,14 +282,14 @@ internal static class WidgetRender
                     }
                 }
 
-                await Task.Delay(400).ConfigureAwait(true);
+                await RenderHarness.SettleAsync(page, shot).ConfigureAwait(true);
 
                 // [S-11603] A state that holds its own items is drawn at their size.
                 if (!reference && cards.Any(c => c.View is IWidgetPreviewState { DrawnConfig: not null }))
                 {
                     tiers = Refit(page, cards, labels, tiers);
                     harness.Window.Resize(page.Width, page.Height);
-                    await Task.Delay(400).ConfigureAwait(true);
+                    await RenderHarness.SettleAsync(page, shot).ConfigureAwait(true);
                 }
             }
 
@@ -301,7 +302,7 @@ internal static class WidgetRender
                     SendKeys(card, keys);
                 }
 
-                await Task.Delay(400).ConfigureAwait(true);
+                await RenderHarness.SettleAsync(page, shot).ConfigureAwait(true);
             }
 
             // [S-12831] --hover fx,fy / --pressed fx,fy: each card's item (or control) under that point of it (fractions
@@ -315,7 +316,7 @@ internal static class WidgetRender
                         PointAt(card, point, pressed);
                     }
 
-                    await Task.Delay(400).ConfigureAwait(true);
+                    await RenderHarness.SettleAsync(page, shot).ConfigureAwait(true);
                 }
             }
 

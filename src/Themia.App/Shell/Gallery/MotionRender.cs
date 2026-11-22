@@ -101,11 +101,12 @@ internal static class MotionRender
             cards.Add(harness.Track(card));
         }
 
-        await Task.Delay(1200).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, "the motion render's cards").ConfigureAwait(true);
 
+        // Each pose is the intro frozen at its moment (the ms in its name are the pose's, not a wait): settled, then drawn.
         async Task Save(string name)
         {
-            await Task.Delay(150).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(screen, name + ".png").ConfigureAwait(true);
             await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, name + ".png"), "motion").ConfigureAwait(true);
         }
 

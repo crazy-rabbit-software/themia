@@ -62,12 +62,13 @@ internal static class DragBench
             desk = StandInDesktop.Create(Scope, state);
             var host = desk.Host;
             var surface = desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(1920, 1080)));
+            StandInDesktop stand = desk;
             desk.Show();
 
-            // A diagnostic's wait, not a correctness path: the surface settles and its intro ends.
-            await Task.Delay(2500).ConfigureAwait(true);
+            // The surface laid out and settled, its intro ended ([S-15902]).
+            await stand.ReadyAsync("the surface").ConfigureAwait(true);
             Touch(host, surface, rows);
-            await Task.Delay(800).ConfigureAwait(true);
+            await stand.ReadyAsync("the rows touched").ConfigureAwait(true);
 
             var cards = view.Widgets.Select(w => surface.CardFor(w.Id)).OfType<WidgetCard>().ToList();
             Say($"drag-bench: {cards.Count} cards ({icons.Count} icons), {cards.Count(c => c.Outline != CardOutline.Free)} joined, " +
@@ -85,7 +86,7 @@ internal static class DragBench
                 foreach (var edit in new[] { false, true })
                 {
                     host.SetEditMode(edit);
-                    await Task.Delay(600).ConfigureAwait(true);
+                    await stand.ReadyAsync($"{(edit ? "edit" : "locked")} {(glass ? "glass" : "solid")}").ConfigureAwait(true);
 
                     // Locked: a card of a joined row, alone (the press selected nothing). Edit: a joined row and an icon.
                     var held = surface.CardFor(rows[0][1])!;
@@ -97,7 +98,7 @@ internal static class DragBench
                     await RunAsync(surface, held, frames, events, $"{(edit ? "edit" : "locked")} {(glass ? "glass" : "solid")}", Say).ConfigureAwait(true);
                     host.Undo();
                     host.Select(null);
-                    await Task.Delay(400).ConfigureAwait(true);
+                    await stand.ReadyAsync("undone").ConfigureAwait(true);
                 }
             }
         }

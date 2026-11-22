@@ -60,11 +60,11 @@ internal static class NoticeRender
         window.Show(ScreenWidth, ScreenHeight);
 
         DrawNotices(screen);
-        await Task.Delay(800).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, "notices-stack.png").ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, "notices-stack.png"), "notices").ConfigureAwait(true);
 
         var cards = DrawCards(screen, harness);
-        await Task.Delay(800).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, "error-cards.png").ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, "error-cards.png"), "notices").ConfigureAwait(true);
 
         // Retry on a card whose view is fine: the real view comes back in its place.
@@ -73,7 +73,7 @@ internal static class NoticeRender
             card.Retry();
         }
 
-        await Task.Delay(800).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, "error-cards-retried.png").ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, "error-cards-retried.png"), "notices").ConfigureAwait(true);
         return RenderCommandLine.Passed;
     }

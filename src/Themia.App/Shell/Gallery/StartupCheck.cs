@@ -17,8 +17,8 @@ namespace Themia.App.Shell.Gallery;
 /// [--hold ms] [--hide] [--twice] [--wallpaper &lt;picture&gt;] [--interrupt ms]</c>.
 /// A real <see cref="AppHost"/> over a detached store (a copy of the state is read, never written) and a
 /// real <see cref="DesktopWindow"/> on a stand-in display off-screen (<see cref="StandInDesktop"/>), started on the
-/// view as the app starts on it: the provisional pass, the root loaded, the startup intro. Once the intro should long
-/// have ended (<c>--hold</c>, 3 s), every card is reported as the compositor holds it (its visual's opacity, scale and
+/// view as the app starts on it: the provisional pass, the root loaded, the startup intro. Once the start has settled (the
+/// intro's end heard, the surface drawn: <see cref="StandInDesktop.ReadyAsync"/>; or <c>--hold</c> ms after it), every card is reported as the compositor holds it (its visual's opacity, scale and
 /// translation), with its layout and what UI Automation sees under the surface (the desktop's list
 /// and its children, [S-5576]); a card not at rest is marked NOT AT REST and fails the check; <c>out.png</c> is the
 /// surface drawn. <c>--hide</c> hides the window through the intro, <c>--twice</c> shows the view
@@ -30,7 +30,7 @@ internal static class StartupCheck
     private const string Scope = "startup-check";
     private const string DisplayId = "startup-check-display";
 
-    /// <summary>How long the check waits for the start (and <c>--hide</c> keeps the window hidden) when no <c>--hold</c> is given.</summary>
+    /// <summary>How long <c>--hide</c> keeps the window hidden through its start when no <c>--hold</c> is given.</summary>
     private const int HoldMs = 3000;
 
     public static RenderCommand Command { get; } = new(
@@ -42,8 +42,8 @@ internal static class StartupCheck
         (opacity, scale, translation), its layout and what UI Automation sees; a card NOT AT REST fails; <out>.png [S-1018]
         --state <state.json>   the views from a copy of a state file (read, never written)
         --show <view>          that view (the first by default)
-        --hold ms              read the cards that long after the start (3 s by default; less: an intro caught in flight)
-        --hide                 the window hidden through the intro, --hold long, then shown and --hold waited again [S-1018]
+        --hold ms              read the cards that long after the start (by default once it has settled; short: an intro caught in flight)
+        --hide                 the window hidden through the intro, --hold long (3 s), then shown and the start settled (or --hold) [S-1018]
         --twice                the view on a second stand-in display too
         --wallpaper <picture>  the cards frosted over that picture
         --interrupt ms         a layout pass that long after, the cards read at once after it [S-1017]
@@ -53,7 +53,7 @@ internal static class StartupCheck
     private static async Task<int> RunAsync(RenderRun run)
     {
         var outPath = run.PathArg(0);
-        var hold = Milliseconds(run, "--hold", least: 1) ?? HoldMs;
+        var hold = Milliseconds(run, "--hold", least: 1);
         var interrupt = Milliseconds(run, "--interrupt", least: 0);
         var report = new CheckReport(Scope, outPath);
         void Say(string line) => report.Say(line);
@@ -90,12 +90,21 @@ internal static class StartupCheck
                 Microsoft.UI.Windowing.AppWindow.GetFromWindowId(id).Hide();
 
                 // a timing, not a wait: how long the window stays hidden through its start.
-                await Task.Delay(hold).ConfigureAwait(true);
+                await Task.Delay(hold ?? HoldMs).ConfigureAwait(true);
                 Microsoft.UI.Windowing.AppWindow.GetFromWindowId(id).Show(activateWindow: false);
             }
 
-            // A diagnostic's wait, not a correctness path: the intro is 500 ms; this is long past it (or --hold's).
-            await Task.Delay(hold).ConfigureAwait(true);
+            // [S-15902] The start settled: every surface laid out, its intro ended (its compositor said so) and drawn; a show
+            // that never ends is said at the ceiling and its cards read as they stand. --hold instead: a timing on purpose,
+            // the cards read that far into the start (an intro caught in flight).
+            if (hold is { } ms)
+            {
+                await Task.Delay(ms).ConfigureAwait(true);
+            }
+            else
+            {
+                await desk.ReadyAsync("the start").ConfigureAwait(true);
+            }
 
             // [S-1017] A layout pass while the intro is still in flight: the cards are read at once after it.
             if (interrupt is { } after)

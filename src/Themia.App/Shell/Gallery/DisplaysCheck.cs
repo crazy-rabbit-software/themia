@@ -91,9 +91,10 @@ internal static class DisplaysCheck
             var left = desk.Add(leftMonitor);
             var right = desk.Add(rightMonitor);
             desk.Show();
+            StandInDesktop stand = desk;
 
-            // A diagnostic's wait, not a correctness path: both roots load and settle, the intro ends.
-            await Task.Delay(2500).ConfigureAwait(true);
+            // Both roots loaded, laid out and settled, the intro ended ([S-15902]).
+            await stand.ReadyAsync("both displays").ConfigureAwait(true);
 
             // The view as laid out on one display or the other, each clock at the size the display paints it (its sizing
             // on the grid): flush with the left display's taskbar and with the right monitor edge, flush with the left
@@ -116,9 +117,9 @@ internal static class DisplaysCheck
                 ("centred", WidgetInstance.Create(new WidgetId("clock"), new FracRect(t + ((1 - t - w) / 2), 0.80, w, h))),
             };
             host.Mutate(s => { s.Views[0].Widgets.AddRange(widgets.Select(it => it.Widget)); s.Views[0].WorkArea = null; }, undo: null);
-            await Task.Delay(800).ConfigureAwait(true);
+            await stand.ReadyAsync("the widgets added").ConfigureAwait(true);
             host.SettleSurfaces();
-            await Task.Delay(500).ConfigureAwait(true);
+            await stand.ReadyAsync("the surfaces settled").ConfigureAwait(true);
 
             Say($"displays-check: one view on two displays, the taskbar {Taskbar} px on the left of one and the right of the other");
             var running = host;
@@ -172,7 +173,7 @@ internal static class DisplaysCheck
                 host.Land(surface, [new Landing(id, dragged)], UndoAction.Move);
                 host.Mutate(_ => { }, undo: null);
                 host.SettleSurfaces();
-                await Task.Delay(500).ConfigureAwait(true);
+                await stand.ReadyAsync($"a widget dragged over the {name} taskbar").ConfigureAwait(true);
 
                 var kept = host.State.Views[0].Find(id)!.Rect;
                 Check(kept == dragged, $"{name}: {widgets[index].Name} dragged over its taskbar to x {dragged.X:0.####}..{dragged.Right:0.####} stays at x {kept.X:0.####}..{kept.Right:0.####}");
@@ -215,16 +216,16 @@ internal static class DisplaysCheck
             // [S-855] A second view laid on the left display alone, then shown on the right display too.
             var second = ViewState.Create("Work");
             host.Mutate(s => { s.Views.Add(second); s.ShowViewOn(LeftId, second.Id); }, undo: null);
-            await Task.Delay(800).ConfigureAwait(true);
+            await stand.ReadyAsync("a second view").ConfigureAwait(true);
             var hung = WidgetInstance.Create(new WidgetId("clock"), new FracRect(t - (w / 2), 0.2, w, h));
             var flush = WidgetInstance.Create(new WidgetId("clock"), new FracRect(1 - w, 0.5, w, h));
             host.Mutate(s => s.FindView(second.Id)!.Widgets.AddRange([hung, flush]), undo: null);
             var hungAt = hung.Rect;
-            await Task.Delay(500).ConfigureAwait(true);
+            await stand.ReadyAsync("its widgets added").ConfigureAwait(true);
             host.ShowView(RightId, second.Id);
-            await Task.Delay(800).ConfigureAwait(true);
+            await stand.ReadyAsync("the view shown on the right too").ConfigureAwait(true);
             host.SettleSurfaces();
-            await Task.Delay(500).ConfigureAwait(true);
+            await stand.ReadyAsync("the surfaces settled").ConfigureAwait(true);
 
             Say("  a second view laid on the left display alone, then shown on the right display too:");
             var flushAt = host.State.FindView(second.Id)!.Find(flush.Id)!.Rect;
@@ -340,7 +341,7 @@ internal static class DisplaysCheck
 
         var root = (Panel)surface.DebugRoot;
         root.Children.Add(tint);
-        await Task.Delay(200).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(root, Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(root, path, Scope).ConfigureAwait(true);
         root.Children.Remove(tint);
     }

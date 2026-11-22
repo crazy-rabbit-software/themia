@@ -205,7 +205,7 @@ internal static partial class EditBarRender
         Canvas.SetLeft(bar, barX);
         Canvas.SetTop(bar, ShellMetricsBarTop);
 
-        await Task.Delay(500).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, System.IO.Path.Combine(outDir, name), "editbar").ConfigureAwait(true);
         screen.Width = ScreenWidth;
     }
@@ -237,13 +237,16 @@ internal static partial class EditBarRender
         }
 
         then?.Invoke(view);
-        await Task.Delay(300).ConfigureAwait(true);
+
+        // The page drawn (and a lookup typed into it answered) before the flyout is hung at its height.
+        var name = System.IO.Path.GetFileName(path);
+        await RenderHarness.SettleAsync(canvas, name, busy: () => view.DebugSearching).ConfigureAwait(true);
         canvas.UpdateLayout();
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(page, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
         canvas.UpdateLayout();
         after?.Invoke(flyout);
 
-        await Task.Delay(500).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, name, busy: () => view.DebugSearching).ConfigureAwait(true);
         Probe(screen, flyout, path);
         await PressCheck(view, path).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
@@ -720,11 +723,12 @@ internal static partial class EditBarRender
             if (type is not null)
             {
                 page.DebugType(type);
-                await Task.Delay(900).ConfigureAwait(true);
             }
         }
 
-        await Task.Delay(300).ConfigureAwait(true);
+        // The page drawn (and what was typed into it answered) before the flyout is hung at its height.
+        var name = System.IO.Path.GetFileName(path);
+        await RenderHarness.SettleAsync(canvas, name, busy: () => page.DebugSearching).ConfigureAwait(true);
         canvas.UpdateLayout();
 
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
@@ -737,7 +741,7 @@ internal static partial class EditBarRender
             flyout.Scroll(Windows.System.VirtualKey.End);
         }
 
-        await Task.Delay(700).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, name, busy: () => page.DebugSearching).ConfigureAwait(true);
         Probe(screen, flyout, path);
         await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
         page.Close();
@@ -877,7 +881,7 @@ internal static partial class EditBarRender
         // [S-2460] Several selected: the frame round them, [S-14310] and no marks of their own.
         RenderFrame.Round(markers, [.. cards.Zip(models).Select(c => (c.First, new DipRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], host.Selected, editing: true, screen.XamlRoot?.RasterizationScale ?? 1, [host]);
 
-        await Task.Delay(800).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, System.IO.Path.GetFileName(path)).ConfigureAwait(true);
         await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
 
         foreach (var card in cards)

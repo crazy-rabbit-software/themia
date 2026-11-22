@@ -370,9 +370,10 @@ internal static class SceneRender
 
         // [S-1500] A confirmation a state opens is drawn inside the window, as on --render widget.
         ConfirmFlyout.RenderInWindow = true;
-        await Task.Delay(800).ConfigureAwait(true);
+        var shot = Path.GetFileName(job.OutPath);
+        await RenderHarness.SettleAsync(canvas, shot).ConfigureAwait(true);
 
-        if (!await ShowStatesAsync(job, cards).ConfigureAwait(true))
+        if (!await ShowStatesAsync(job, cards, canvas).ConfigureAwait(true))
         {
             return RenderCommandLine.Failed;
         }
@@ -382,7 +383,7 @@ internal static class SceneRender
         if (job.Scene.Links is { } pointing)
         {
             pointing.Apply(links.Join(), DateTimeOffset.Now);
-            await Task.Delay(300).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(canvas, shot).ConfigureAwait(true);
         }
 
         if (edit is not null && !await ComposeEditAsync(canvas, edit, view, job, metrics, design).ConfigureAwait(true))
@@ -390,14 +391,14 @@ internal static class SceneRender
             return RenderCommandLine.Failed;
         }
 
-        await Task.Delay(800).ConfigureAwait(true);
         await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, shot).ConfigureAwait(true);
 
         // [S-2200] Windows' taskbar over the desktop layer, over the same frosted wallpaper as the cards.
         if (job.Scene.Taskbar)
         {
             screen.Children.Add(await TaskbarStandIn.BuildAsync(job.Scene, width, height, job.Scale, RenderWallpaper.Backdrop?.Picture).ConfigureAwait(true));
-            await Task.Delay(300).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(screen, shot).ConfigureAwait(true);
         }
 
         if (cards.FirstOrDefault(c => c.IsFaulted) is { } broken)
@@ -412,8 +413,11 @@ internal static class SceneRender
             Show(tile);
             frame.UpdateLayout();
 
-            // A frame for the moved display to be drawn (the first tile is already showing).
-            await Task.Delay(tile is (0, 0, _, _) ? 0 : 150).ConfigureAwait(true);
+            // The moved display drawn before its tile is taken (the first tile is already showing).
+            if (tile is not (0, 0, _, _))
+            {
+                await RenderSettle.FramesAsync(2).ConfigureAwait(true);
+            }
         }).ConfigureAwait(true);
         Console.WriteLine($"scene: wrote {job.OutPath} ({pixelWidth} x {pixelHeight})");
         return RenderCommandLine.Passed;
@@ -461,7 +465,7 @@ internal static class SceneRender
     /// waiting for setup runs for the preview first. A state the view does not have, or a view with
     /// none, fails the run rather than drawing something half-right.
     /// </summary>
-    private static async Task<bool> ShowStatesAsync(Job job, List<WidgetCard> cards)
+    private static async Task<bool> ShowStatesAsync(Job job, List<WidgetCard> cards, UIElement page)
     {
         for (var i = 0; i < cards.Count; i++)
         {
@@ -475,7 +479,7 @@ internal static class SceneRender
                 if (card.ShowsSetup)
                 {
                     card.RunForPreview();
-                    await Task.Delay(200).ConfigureAwait(true);
+                    await RenderHarness.SettleAsync(page, Path.GetFileName(job.OutPath)).ConfigureAwait(true);
                 }
 
                 await shipped.ShowSampleAsync().ConfigureAwait(true);
@@ -500,7 +504,7 @@ internal static class SceneRender
             if (card.ShowsSetup)
             {
                 card.RunForPreview();
-                await Task.Delay(200).ConfigureAwait(true);
+                await RenderHarness.SettleAsync(page, Path.GetFileName(job.OutPath)).ConfigureAwait(true);
             }
 
             if (!preview.PreviewStates.Contains(state, StringComparer.Ordinal))
@@ -512,7 +516,7 @@ internal static class SceneRender
             await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
         }
 
-        await Task.Delay(400).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(page, Path.GetFileName(job.OutPath)).ConfigureAwait(true);
         return true;
     }
 
@@ -549,13 +553,10 @@ internal static class SceneRender
             var addPage = EditBarRender.AddMenu();
             EditBarRender.HangAddMenu(canvas, addPage, bar, barRect.X, barRect.Y, width, job.Scene.WorkBottom(job.File.Screen));
             canvas.UpdateLayout();
-            await Task.Delay(300).ConfigureAwait(true);
-            if (await Task.WhenAny(addPage.View.PicturesDrawn, Task.Delay(TimeSpan.FromMinutes(1))).ConfigureAwait(true) != addPage.View.PicturesDrawn)
-            {
-                Console.WriteLine($"scene: {job.Scene.Name}: the add page's pictures did not finish within a minute");
-            }
-
-            await Task.Delay(300).ConfigureAwait(true);
+            var shot = Path.GetFileName(job.OutPath);
+            await RenderHarness.SettleAsync(canvas, shot).ConfigureAwait(true);
+            await RenderSettle.SignalAsync(addPage.View.PicturesDrawn, $"scene {job.Scene.Name}: the add page's pictures", TimeSpan.FromMinutes(1)).ConfigureAwait(true);
+            await RenderHarness.SettleAsync(canvas, shot).ConfigureAwait(true);
         }
 
         if (selected.Count == 0)
@@ -582,7 +583,7 @@ internal static class SceneRender
 
         canvas.UpdateLayout();
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, new DipRect(0, 0, metrics.Width, bottom), flyout.ContentHeight));
-        await Task.Delay(400).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(canvas, Path.GetFileName(job.OutPath), busy: () => page.DebugSearching).ConfigureAwait(true);
 
         return true;
     }
