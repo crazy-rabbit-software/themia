@@ -11290,8 +11290,9 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   `PowerActionTests.S1912_`.
 - **[S-15740]** **A power button's glyph is its mark, the arm ring round it** (docs/WIDGET-RULES.md WR-7, owner 2026-11-19:
   "Keep them together"): the glyph is the face's mark at its step, as a toggle's, and the arm ring (`TileRules.RingAround`,
-  the glyph three quarters of it) is drawn round it past the mark's box, never laid out and never the face's ink
-  (`RingRoom`, an `IInked` that inks nothing), so the name stands 8 under the glyph and arming moves nothing. The ring's
+  the glyph three quarters of it) is drawn round it past the mark's box, never laid out (`RingRoom`), so the name stands 8
+  under the glyph; it is the face's ink only while it shows, so armed the face (ring, glyph, sentence) stands centred as at
+  rest (the tile exemption's bands alike) and is fitted again with its sentence. The ring's
   room had stood between them: a 16 glyph in a 28 mark, the name 34 DIP under a 27 DIP glyph at 300 × 100. Test
   `FamilyBlockRulesTests.S15740_`.
 - **[S-15741]** **A short tile keeps its words, scaled down with its glyph** (WR-7: "All together, scaled"; WR-14): where

@@ -88,7 +88,7 @@ public static class TileRules
     /// <see cref="RingShare"/> of the ring, so the ring stands clear of it. The ring is drawn over the glyph's box, past
     /// it on every side, never laid out: the glyph is the face's mark at its full step as every tile's, its name 8 under it
     /// (WR-7: "Keep them together"; the ring's room had stood as a band between them, a 16 glyph in a 28 mark, the name 34
-    /// under a 27 glyph at 300 × 100), and arming, which shows the ring, moves nothing.
+    /// under a 27 glyph at 300 × 100); armed, the ring is the face's ink and the face is centred on it with its sentence.
     /// </summary>
     public static double RingAround(double glyph) => glyph > 0 && double.IsFinite(glyph) ? glyph / RingShare : 0;
 

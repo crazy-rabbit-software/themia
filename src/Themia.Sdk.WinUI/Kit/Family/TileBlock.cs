@@ -27,8 +27,8 @@ namespace Themia.Sdk.WinUI.Kit;
 /// [S-6736] It only draws: its owner keeps the whole tile as the hit target and tells it the
 /// pointer's state (<see cref="Face"/>): the item layer's hover and press, or over the accent the
 /// subtle fills laid on it. A ringed tile (a power button's) draws its arm ring (<see cref="Ring"/>, the Chart's ring,
-/// drained on the compositor) round the glyph, past the mark's box (<see cref="TileRules.RingAround"/>, [S-15740]), so it
-/// moves nothing when it shows.
+/// drained on the compositor) round the glyph, past the mark's box (<see cref="TileRules.RingAround"/>, [S-15740]); while it
+/// shows it is the face's ink, so the armed face stands centred too.
 /// </para>
 /// </summary>
 public sealed partial class TileBlock : Grid
@@ -79,6 +79,9 @@ public sealed partial class TileBlock : Grid
         Ring = new ChartRing { Visibility = Visibility.Collapsed };
         Ring.Role(ColourRole.Critical);
         _ringRoom = new RingRoom { Children = { Ring } };
+
+        // [S-15740] The ring showing (armed) or going is a change of the face's ink: laid out again.
+        Ring.RegisterPropertyChangedCallback(VisibilityProperty, (_, _) => Apply());
         _mark = new Grid { HorizontalAlignment = HorizontalAlignment.Center, Children = { _circle, _glyph, _ringRoom } };
 
         _label = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
@@ -318,6 +321,9 @@ public sealed partial class TileBlock : Grid
         _ringRoom.Height = ring;
         _ringRoom.Margin = new Thickness(past);
 
+        // While the ring shows, the mark makes room for it, so the face (ring, glyph, sentence) is fitted and centred on it.
+        _mark.Margin = Ring.Visibility == Visibility.Visible ? new Thickness(-past) : default;
+
         _glyph.Foreground = Family.Brush(roles.Glyph);
         _mark.Width = size;
         _mark.Height = size;
@@ -335,13 +341,14 @@ public sealed partial class TileBlock : Grid
 }
 
 /// <summary>
-/// [S-15740] The arm ring's box: drawn round the glyph, never the face's ink (the glyph's and the words' say where the block
-/// stands), so the ring showing moves nothing (<see cref="ReadingFit"/> fits the face on its ink).
+/// [S-15740] The arm ring's box, drawn round the glyph past the mark's: the face's ink only while the ring shows (armed), so
+/// the face stands centred on what it draws (the tile exemption: "the bands over and under a tile's face are alike"), the
+/// ring's top included; at rest the glyph's and the words' ink say where the block stands.
 /// </summary>
 internal sealed partial class RingRoom : Grid, IInked
 {
     /// <inheritdoc />
-    public LineInk Ink => new(DesiredSize.Height, DesiredSize.Height);
+    public LineInk Ink => Children.Any(c => c.Visibility == Visibility.Visible) ? LineInk.None : new(DesiredSize.Height, DesiredSize.Height);
 
     /// <inheritdoc />
     public bool IsRow => false;
