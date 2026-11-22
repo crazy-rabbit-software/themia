@@ -78,7 +78,6 @@ public sealed class DateTests
     [InlineData(DateWidgetStyle.Long)]
     [InlineData(DateWidgetStyle.Short)]
     [InlineData(DateWidgetStyle.Numeric)]
-    [InlineData(DateWidgetStyle.Page)]
     public void S10802_S12833_the_date_scales_down_to_its_main_reading_at_the_floor_in_the_inset(DateWidgetStyle style)
     {
         // Owner, 2026-11-19: "for the widgets that can scale there should basically be no lower limit except for one that
@@ -102,27 +101,28 @@ public sealed class DateTests
     }
 
     [Fact]
-    public void S10802_S12833_the_pages_weekday_and_month_give_way_together_and_the_number_only_shrinks()
+    public void S15813_the_page_scales_down_as_one_its_weekday_and_month_kept_at_every_size()
     {
+        // WR-7 (owner, 2026-11-19: "Keep them together"; "All together, scaled"): at 350x70 the page had dropped its
+        // weekday and month and drawn the "22" alone, large. Now its least card is the whole page with its lines at 9.
         var config = new DateConfig { Style = DateWidgetStyle.Page };
         var sizing = DateLayout.Sizing(config, Locale.En);
-        var lines = true;
+        Assert.Equal([FamilyType.Under(DateLayout.NumberStep).FontSize], DateLayout.PartSizes(config));
+        var page = DateLayout.Plan(config, Locale.En, 0);
+        var floor = ScaleFloor.Text / FamilyType.Under(DateLayout.NumberStep).FontSize;
+        // Whole DIPs, rounded up.
+        Assert.InRange(sizing.Min.Width, (page.Width * floor) + (2 * FamilySpace.Inset), (page.Width * floor) + (2 * FamilySpace.Inset) + 1);
+        Assert.InRange(sizing.Min.Height, (page.Ink * floor) + (2 * FamilySpace.Inset), (page.Ink * floor) + (2 * FamilySpace.Inset) + 1);
+
         for (var t = 1.0; t >= 0; t -= 0.02)
         {
             var width = sizing.Min.Width + (t * (sizing.Natural.Width - sizing.Min.Width)) - 24;
             var height = sizing.Min.Height + (t * (sizing.Natural.Height - sizing.Min.Height)) - 24;
             var fit = Fit(width, height, config, Locale.En);
-            var drawn = DateLayout.Lines(config, fit.Floor);
-
-            Assert.True(lines || !drawn, $"{width}x{height}: the lines came back");
-            Assert.True(!drawn || FamilyType.Under(DateLayout.NumberStep).FontSize * fit.Scale >= ScaleFloor.Text - 1e-6);
-            Assert.Equal(drawn ? DateLayout.Face(config, Locale.En) : new SizeDip(Math.Ceiling(HeroFit.Ems("88") * DateLayout.NumberStep.FontSize), DateLayout.NumberStep.LineHeight), DateLayout.Face(config, Locale.En, fit.Floor));
-            lines = drawn;
+            Assert.True(DateLayout.Lines(config, fit.Floor), $"{width}x{height}: the lines went");
+            Assert.True(FamilyType.Under(DateLayout.NumberStep).FontSize * fit.Scale >= ScaleFloor.Text - 1e-6, $"{width}x{height}");
         }
-
-        Assert.False(lines);
     }
-
     [Fact]
     public void S15804_every_style_is_held_to_its_widest_day_so_the_face_never_changes_size_with_the_day()
     {

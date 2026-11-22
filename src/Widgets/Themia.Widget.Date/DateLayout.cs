@@ -63,19 +63,15 @@ public static class DateLayout
     public static string Full(Locale locale, DateOnly day) => LocaleFormat.Date(locale, day, DateStyle.Full);
 
     /// <summary>
-    /// [S-12833] The text sizes of the face (<see cref="FaceFloor"/>): its main reading (the date's one line, the page's day
-    /// number) and, on the page, the weekday's and the month's line, which give way first.
+    /// [S-12833] The text sizes of the face (<see cref="FaceFloor"/>): the date's one line. [S-15813] The page is one block
+    /// that scales down as one (WR-7, owner 2026-11-19: "Keep them together"; "All together, scaled"): its smallest text, the
+    /// weekday's and the month's line, sets how small it goes (9, WR-14), so nothing of it gives way; its least card is the
+    /// whole page at that floor.
     /// </summary>
     public static IReadOnlyList<double> PartSizes(DateConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        if (config.Style != DateWidgetStyle.Page)
-        {
-            return [LineStep.FontSize];
-        }
-
-        var number = NumberStep;
-        return [number.FontSize, FamilyType.Under(number).FontSize];
+        return config.Style != DateWidgetStyle.Page ? [LineStep.FontSize] : [FamilyType.Under(NumberStep).FontSize];
     }
 
     /// <summary>
@@ -135,8 +131,8 @@ public static class DateLayout
     /// <summary>
     /// [S-10802] The sizing: the face in the card's inset of 12 on every side, one height by the style, widened
     /// up to twice (beside a wider mate, under a clock); the host relaxes it ([S-12411]) and a larger box scales the face
-    /// up to fill it ([S-10803]). [S-12833] A smaller box scales it down as one: its least box is its main reading alone (the
-    /// line, the page's number) at the legibility floor in the inset, the page's weekday and month having given way.
+    /// up to fill it ([S-10803]). [S-12833] A smaller box scales it down as one: its least box is its line at the legibility floor
+    /// in the inset, the page whole with its weekday and month at it ([S-15813]).
     /// </summary>
     public static WidgetSizing Sizing(DateConfig config, Locale locale)
     {

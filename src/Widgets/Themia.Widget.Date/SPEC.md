@@ -23,8 +23,7 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   inset of 12: as wide as the language's widest day in the style (measured over two whole years: every weekday with
   every month and day), widened up to twice that (beside a wider mate, under a clock); the card is the user's past
   that. It scales down to its main reading at 9 DIP in the inset (root [S-12833], decided by its `ReadingFit` on the face as drawn): a line to its
-  widest day at 9 by 32, the page to its number alone (35 × 32), its weekday and month giving way together where the
-  card would draw them under 9 (owner, 2026-11-19: "for the widgets that can scale there should basically be no lower
+  widest day at 9 by 32, the page whole with its weekday and month at 9 ([S-15813]) (owner, 2026-11-19: "for the widgets that can scale there should basically be no lower
   limit except for one that makes sense so you can still see the widget"). It has no menu lines of its own. A stored
   `size` is an unknown key, dropped loudly on load.
 - **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step, held to the language's widest
@@ -39,9 +38,11 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   face by the template every day, as the clock's figures by "88:88" ([S-14319]); the gap check judges its sides there.
   Before, each day was its own box ([S-14308], retired here): at 388 × 60 "Sunday, November 22" stood 36 tall and
   "Wednesday, September 30" 29.4. Tests `DateTests.S15804_`; the Debug state `longest` beside `sample` shows one box.
-  The page's weekday and month giving way where they would be drawn under 9 (300 × 100, 350 × 70) is the floor
-  ([S-12833], WR-14: "sized down to where its smallest text is still read"), the number left filling the room
-  ([S-14318], WR-1).
+- **[S-15813]** **The page scales down as one** (WR-7, owner 2026-11-19: "Keep them together"; "All together, scaled";
+  WR-14): its weekday, number and month are one block whose smallest text, the weekday's and the month's line, sets how
+  small it goes (`DateLayout.PartSizes`: that line's size alone, so nothing gives way): its least card is the whole page
+  with those lines at 9 (`DateLayout.Sizing`), and a card is never smaller. Before, its weekday and month gave way under 9
+  (350 × 70, 350 × 80, 35 × 32) and the "22" alone grew back into the room. Tests `DateTests.S15813_`.
 - **[S-15700]** **The page's three lines each stand on their own ink** (WR-3, [S-14301]): the weekday, the number and the
   month are the fit's parts, each placed across by its own ink where the alignment puts it, not the three in one box
   centred by its widest. A number whose figures ink off their box's middle (the 22nd's "22", 3 DIP right at 900 x 300)
