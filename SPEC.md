@@ -477,7 +477,7 @@ Sections, grouped by area (file order below; search for the heading).
   `Shell.Application.ToggleDesktop` twice (what Karpo's Show desktop control calls), once alone and once with
   an edit bar render and a `--startup-check --twice` running: the surfaces under the desktop window 0 ms
   (they stay directly above it while the windows come back, the restored ones over them), a surface over a
-  bar of Karpo's 0 ms, Karpo's bars under the desktop window 0 ms at the 10 ms reading (Karpo §712 puts them
+  bar of Karpo's 0 ms, Karpo's bars under the desktop window 0 ms at the 10 ms reading (Karpo §714 puts them
   back within one), the render's and the check's windows never minimised and never on a display, the check
   ending "every card at rest", and no line in the log. Not driven: a pointer click on Karpo's control or on a
   widget during Show Desktop (the pass sends keys only).
