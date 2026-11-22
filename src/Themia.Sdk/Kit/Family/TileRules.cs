@@ -154,8 +154,10 @@ public static class TileRules
     /// most a third of the inset box's short side, never under 28, so a box that grows into its words
     /// never sees its glyph shrink. Centred both ways in the box by the block.
     /// </summary>
-    public static TileFace Face(double width, double height, bool stateLine = true)
+    public static TileFace Face(double width, double height, bool stateLine = true, int nameLines = NameLines)
     {
+        // [S-15755] The name's lines as it stands at the inset's width (1 or 2): a short name in a wide card takes one.
+        nameLines = Math.Clamp(nameLines, 1, NameLines);
         // [S-12806] A box too small for the 28 glyph in the inset: the glyph alone, as large as it can be (28, else the
         // family's smallest, 16) with the inset given up down to 4 round it; under the 16's room (24) the glyph is two
         // thirds of the box, the inset the rest, down to the floor's box.
@@ -177,7 +179,7 @@ public static class TileRules
         foreach (var glyph in GlyphSteps)
         {
             var (name, state) = TextAt(glyph);
-            var below = FamilySpace.S2 + (NameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
+            var below = FamilySpace.S2 + (nameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
             if (glyph.FontSize <= w && glyph.FontSize + below <= h && NameRoom(name) <= w)
             {
                 texted = new TileFace(glyph, true, name, state);
@@ -193,7 +195,7 @@ public static class TileRules
         // as one into the inset box (the tile's ReadingFit) while its smallest text stays read (WR-7: "All together,
         // scaled"; WR-14: down to 9), so a wide short tile (300 x 100) keeps its name and state line under the glyph; only
         // under that floor the glyph stands alone.
-        return texted ?? (WordsKept(w, h, stateLine) ? new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption) : alone);
+        return texted ?? (WordsKept(w, h, stateLine, nameLines) ? new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption) : alone);
     }
 
     /// <summary>
@@ -201,11 +203,12 @@ public static class TileRules
     /// line, scaled down as one block into an inset box <paramref name="w"/> × <paramref name="h"/>, draw their smallest
     /// text at <see cref="ScaleFloor.Text"/> or more.
     /// </summary>
-    public static bool WordsKept(double w, double h, bool stateLine)
+    public static bool WordsKept(double w, double h, bool stateLine, int nameLines = NameLines)
     {
+        nameLines = Math.Clamp(nameLines, 1, NameLines);
         var (name, state) = TextAt(FamilyType.Big28);
         var blockWidth = Math.Max(FamilyType.Big28.FontSize, NameRoom(name));
-        var blockHeight = FamilyType.Big28.FontSize + FamilySpace.S2 + (NameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
+        var blockHeight = FamilyType.Big28.FontSize + FamilySpace.S2 + (nameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
         var smallest = stateLine ? state.FontSize : name.FontSize;
         var scale = Math.Min(1, Math.Min(w / blockWidth, h / blockHeight));
         return w > 0 && h > 0 && scale * smallest >= ScaleFloor.Text - 1e-9;

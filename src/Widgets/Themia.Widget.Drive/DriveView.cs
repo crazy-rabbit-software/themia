@@ -57,7 +57,9 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _widgetHost = host;
         _bar.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         _readout.Use(FamilyType.Big28);
-        _figure.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Children = { _icon, _readout } });
+        // [S-15759] The icon and the share centred over the bar that spans the card (owner, 2026-11-20, of a reading that fills
+        // one axis: "Centred is fine"): the room the width leaves is shared alike on both sides, not all on the right.
+        _figure.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Children = { _icon, _readout } });
         _figure.Children.Add(_bar);
 
         _status.Hide();

@@ -38,9 +38,42 @@ public static class DriveFace
         var sizing = Sizing(style);
         var k = ScaleFloor.Least(style == DriveStyle.Bar ? FamilyType.Caption.FontSize : FamilyType.Body.FontSize);
         var natural = sizing.Natural;
-        return sizing.ScalesDownTo(new SizeDip(
+
+        // [S-15759] Never narrower than the widest line the bar's face says (its space line's forms, the reasons a drive has
+        // no figures) beside its icon at that scale: "Disconnected network drive" had been cut mid-word at 156 x 72.
+        var scaled = sizing.ScalesDownTo(new SizeDip(
             ((natural.Width - (2 * FamilySpace.Inset)) * k) + (2 * FamilySpace.Inset),
             ((natural.Height - FamilySpace.ContentTop - FamilySpace.Inset) * k) + FamilySpace.ContentTop + FamilySpace.Inset));
+        if (style != DriveStyle.Bar)
+        {
+            return scaled;
+        }
+
+        var least = Math.Ceiling((WidestLine(Strings.Current) * k) + (2 * FamilySpace.Inset));
+        var min = new SizeDip(Math.Max(scaled.Min.Width, least), scaled.Min.Height);
+        return scaled with
+        {
+            Min = min,
+            Natural = new SizeDip(Math.Max(scaled.Natural.Width, min.Width), scaled.Natural.Height),
+            Max = new SizeDip(Math.Max(scaled.Max.Width, min.Width), scaled.Max.Height),
+        };
+    }
+
+    /// <summary>
+    /// [S-15759] The bar face's widest row at its own size: the drive's icon, the glyph gap and the widest line under the share
+    /// (Caption: its space line's forms and every reason a drive has no figures), estimated by <see cref="HeroFit.Ems"/>.
+    /// </summary>
+    public static double WidestLine(Locale locale)
+    {
+        string[] reasons =
+        [
+            DriveRules.Description(locale, new DriveEntry("Z:\\", VolumeKind.Network, DriveState.Disconnected)),
+            DriveRules.SpaceLine(locale, new DriveEntry("Y:\\", VolumeKind.Network, DriveState.Pending)),
+            DriveRules.SpaceLine(locale, new DriveEntry("Q:\\", VolumeKind.Unknown, DriveState.Missing)),
+            DriveRules.SpaceLine(locale, new DriveEntry("F:\\", VolumeKind.Optical, DriveState.NoMedia)),
+        ];
+        var line = SpaceTemplates(locale).Concat(reasons).Max(HeroFit.Ems) * FamilyType.Caption.FontSize;
+        return FamilyType.Big28.LineHeight + FamilySpace.GlyphGap + line;
     }
 
     /// <summary>

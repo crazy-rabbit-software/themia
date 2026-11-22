@@ -46,6 +46,11 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   natural ring (104, `DriveFace.PlannedRing`) with its share at 28 and its line 8 under it, and scales as one, centred
   where one axis stops it; the ring had grown alone while the share and its line kept their size (and its line was cut at
   its least). Tests `DriveTests.S15749_`.
+- **[S-15759]** **The bar's share stands centred over its bar, never cut** (owner, 2026-11-20, of a reading that fills one
+  axis: "Centred is fine"; WR-10): the icon and the share stand centred across the bar that spans the card (all the
+  room had stood on their right at 350 × 72), and the bar style is never narrower than its widest line (its space line's
+  forms and every reason a drive has no figures, `DriveFace.WidestLine`) beside its icon at the line's 9: "Disconnected
+  network drive" had been cut mid-word at 156 × 72. Test `DriveTests.S15749_`.
 - **[S-15750]** **A filling drive never moves its face** (WR-15; WR-10): the share is held to its widest ("100%",
   `ReadoutBlock.Hold`) and the space line stands in the box of its widest forms in the language (`DriveFace.SpaceTemplates`:
   every unit pair, figures as 8s), so the block keeps its size and place as the free space changes. A drive that is not

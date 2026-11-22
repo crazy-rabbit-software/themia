@@ -58,15 +58,24 @@ public static class MeterPlan
     /// [S-15746] The cores' cells in a card <paramref name="width"/> × <paramref name="height"/> (owner, 2026-11-20: "the widget
     /// items should actually have a fixed size ... the last item will be cutoff to some extent then"; WR-4, WR-6): each
     /// core's cell its natural (<paramref name="cell"/>) in whole grid cells at every size of its card, touching from the
-    /// card's left and top edges, row by row; every column the width reaches (the last cut by the right edge) and every
-    /// line the height reaches (the last cut by the foot). A core past the cells the card reaches is not drawn; a columns
-    /// look (<paramref name="column"/>) is one line the card's whole height.
+    /// card's left and top edges, column by column ([S-15758]); every column the width reaches (the last cut by the right
+    /// edge) and every whole line the height holds. A core past the cells the card reaches is not drawn; a columns look
+    /// (<paramref name="column"/>) is one line the card's whole height.
     /// </summary>
     public static CellReach CoreCells(double width, double height, SizeDip cell, ItemGrid grid, bool column = false)
     {
         var reach = ItemSize.Cells(width, height, cell.Width, cell.Height, grid);
         var tall = double.IsFinite(height) && height > 0 ? height : cell.Height;
-        return column ? reach with { Down = new RowReach(tall, 1, grid.Raster) { Room = tall } } : reach;
+        if (column)
+        {
+            return reach with { Down = new RowReach(tall, 1, grid.Raster) { Room = tall } };
+        }
+
+        // [S-15758] Whole lines only, filled column by column (WR-4: "the last item will be cutoff"): only the last column the
+        // width reaches is cut by the right edge, never a core in every line; under the last whole line less than a cell.
+        var pitch = reach.Down.Pitch;
+        var lines = Math.Max(1, (int)Math.Floor((tall + LayoutMath.Tolerance) / pitch));
+        return reach with { Down = new RowReach(pitch, lines, grid.Raster) { Room = tall } };
     }
 
     /// <summary>[S-6262] [S-11004] The battery's picture for a body <paramref name="height"/> tall: its cap and the bolt that fits it.</summary>

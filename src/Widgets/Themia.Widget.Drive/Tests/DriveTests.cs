@@ -52,7 +52,9 @@ public sealed class DriveTests
         var sizing = DriveFace.Scaled(style);
         var natural = DriveFace.Sizing(style).Natural;
         var k = 9 / line;
-        Assert.Equal(Math.Ceiling(((natural.Width - 24) * k) + 24), sizing.Min.Width);
+        // [S-15759] The bar's never narrower than its widest line beside its icon at that scale.
+        var least = style == DriveStyle.Bar ? Math.Max(Math.Ceiling(((natural.Width - 24) * k) + 24), Math.Ceiling((DriveFace.WidestLine(Locale.En) * k) + 24)) : Math.Ceiling(((natural.Width - 24) * k) + 24);
+        Assert.Equal(least, sizing.Min.Width);
         Assert.Equal(Math.Ceiling(((natural.Height - 24) * k) + 24), sizing.Min.Height);
         Assert.Empty(sizing.Problems());
     }

@@ -398,6 +398,16 @@ public sealed class FamilyBlockRulesTests
         => Assert.False(TileRules.Face(width, height, stateLine).Texted);
 
     [Fact]
+    public void S15755_a_name_on_one_line_keeps_its_words_in_a_wide_short_tile()
+    {
+        // A power button at 350 x 70: "Restart" on one line fits the floor beside nothing; planned on two it dropped them.
+        Assert.True(TileRules.Face(350, 70, stateLine: false, nameLines: 1).Texted);
+        Assert.False(TileRules.Face(350, 70, stateLine: false, nameLines: 2).Texted);
+        Assert.True(TileRules.Face(350, 80, stateLine: true, nameLines: 1).Texted);
+        Assert.Equal(TileRules.Face(300, 300), TileRules.Face(300, 300, nameLines: 9));
+    }
+
+    [Fact]
     public void S11882_the_glyph_and_its_words_grow_with_the_box_and_always_fit_it()
     {
         // The smallest box is the glyph alone; the natural ones hold the glyph, two name lines and the state line.

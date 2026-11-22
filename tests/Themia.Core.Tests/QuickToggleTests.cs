@@ -159,6 +159,16 @@ public class QuickToggleTests
     }
 
     [Fact]
+    public void S15757_a_refused_click_says_so_on_the_state_line()
+    {
+        var en = Locale.En;
+        Assert.Equal("Windows did not switch it", QuickToggleRules.StateLine(en, ToggleLook.Off, refused: true));
+        Assert.Equal("Windows did not switch it", QuickToggleRules.StateLine(en, ToggleLook.On, refused: true));
+        Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Unavailable), QuickToggleRules.StateLine(en, ToggleLook.Unavailable, refused: true));
+        Assert.Equal("--", QuickToggleRules.StateLine(en, ToggleLook.Unknown, refused: true));
+    }
+
+    [Fact]
     public void S14202_a_reading_not_known_yet_says_the_default_on_its_state_line()
     {
         var en = Locale.En;

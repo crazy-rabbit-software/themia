@@ -6168,6 +6168,20 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
  ([S-1123]: the accent, Caution from 70 %, Critical
   from 90 %); an item with no reading is the disabled role, never "idle". The heat-map shades
   (`LoadTint`) are gone with the tiles ([S-6305]).
+- **[S-15752]** **A meter's number scales down whole** (WR-7, WR-14): the Number look's glyph, figures and unit are one
+  block scaled down together to where its unit is read at 9 (`MeterSizing.Face`: its smallest piece is its main size, so
+  nothing gives way); the disk had drawn "16" alone at 48 × 32. Its least card rises with it (the disk's 119 × 42).
+- **[S-15753]** **A meter's reading says why it waits** (WR-10): before its first reading the reading shows "--" with
+  "Loading" beside it in the delta's place (the items' looks have their line over the plot, [S-15747]).
+- **[S-15754]** **The whole view is the item that lights** ([S-15745]; WR-3, WR-13): `OpensLight` gives a view with no
+  fill the clear one, so the pointer anywhere on it (not only over its centred block) lights the card; the disk and the
+  drive had lit nothing at 172 × 130, 172 × 200 and 200 × 200 with the pointer over the card above their block.
+- **[S-15758]** **The cores fill column by column, whole lines only** ([S-15746]; WR-4: "the last item will be cutoff"):
+  the grid and graphs styles lay their cells down every whole line the height holds, then the next column; only the last
+  column the width reaches is cut by the right edge. Filled row by row, the last cell of every line had been cut while
+  the lines went on under it. Test `MeterPlanTests.S15746_`.
+- **[S-15760]** **A core graph's load keeps its % sign in place** (WR-15): its figures are tabular (`Family.Figures`) and it
+  stands at the end of its held box (the width of "100%"), so "9%", "31%" and "100%" put the sign in one place.
 - **[S-6302]** **Gauge**: the Chart block's ring, its upper half (`ChartRing` half: from nine o'clock
   over the top to three, stroke 2, the track in the Track role, the arc the reading's share in its role,
   round caps), as wide as the content while its half and a stroke fit the height, start-aligned
@@ -11363,6 +11377,18 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   is fitted and centred on the glyph's own ink. Visible and empty, it had read as ink across the mark's whole width, and a
   glyph whose ink stands off its em box's middle (the speaker, the microphone, the moon, the power glyphs) stood off centre
   across (the gap check's "reading off centre sides" on 20 tile kinds' sweeps).
+- **[S-15755]** **A tile's name is planned on the lines it takes** ([S-15741]): the name (a power button's sentence: its
+  name, "Click again to restart", a failure) is measured at the inset's width on Body (`TileBlock.NameLines`: 1, or 2
+  where it wraps) and the face planned on that (`TileRules.Face(…, nameLines)`); a power button lays its face again when
+  its sentence takes other lines. A short name in a wide, short card (a power button at 350 × 70, a toggle at 350 × 80)
+  keeps its words; planned on two lines it had dropped them. Under the floor even on its lines (a toggle at 350 × 70, a
+  failure on two lines at 156 × 72) the glyph stands alone. Test `FamilyBlockRulesTests.S15755_`.
+- **[S-15756]** **A power button's failure render is one its action can have**: sleep and hibernate a suspend refused, the
+  session's ends (shut down, restart, sign out) the privilege denied by policy, the rest access denied; restart's had read
+  "Windows refused to sleep".
+- **[S-15757]** **A refused click says so on the toggle's state line** (WR-10): after a click Windows did not carry out
+  the line reads "Windows did not switch it" (`QuickToggleRules.StateLine(…, refused)`), not the unchanged state as if
+  nothing had been asked; unavailable and not-known lines keep theirs. Test `QuickToggleTests.S15757_`.
 - **[S-15741]** **A short tile keeps its words, scaled down with its glyph** (WR-7: "All together, scaled"; WR-14): where
   no glyph step holds its words at their own size, the 28 glyph, its name and (a toggle's) state line are still planned
   and the block is scaled down as one into the inset box (the tile's `ReadingFit`) while its smallest text stays at 9 or

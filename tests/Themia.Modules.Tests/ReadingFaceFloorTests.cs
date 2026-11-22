@@ -71,12 +71,12 @@ public sealed class ReadingFaceFloorTests
         { "rainOutlook", "default", 48, 80 },
         { "weatherCondition", "default", 48, 52 },
         { "nextMeeting", "default", 32, 93 },
-        { "cpu", "number", 32, 45 },
-        { "gpu", "number", 32, 45 },
-        { "memory", "number", 32, 45 },
-        { "disk", "number", 32, 45 },
-        { "ping", "number", 32, 45 },
-        { "battery", "number", 32, 45 },
+        { "cpu", "number", 45, 45 },
+        { "gpu", "number", 45, 45 },
+        { "memory", "number", 45, 45 },
+        { "disk", "number", 45, 45 },
+        { "ping", "number", 45, 45 },
+        { "battery", "number", 45, 45 },
     };
 
     [Theory]

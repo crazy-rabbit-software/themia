@@ -40,11 +40,12 @@ public sealed class SystemAtomsTests
     {
         var one = MeterSizing.Reading(MeterLook.Number, Percent);
 
-        // [S-12833] The reading alone is 60 tall at its natural size and scales down as one to its figures at 9, its glyph
-        // and its unit giving way: "100" at 9 in the inset, 40 x 32.
+        // [S-12833] [S-15752] The reading alone is 60 tall at its natural size and scales down as one, its glyph, figures and
+        // unit together, to its unit at 9 in the inset; nothing gives way.
         var face = MeterSizing.Face(Percent).LeastBox();
         Assert.Equal((Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(face.Height + 24)), 60), (one.Min.Height, one.Max.Height));
-        Assert.Equal(32, one.Min.Height);
+        Assert.InRange(one.Min.Height, 33, 45);
+        Assert.Equal(MeterSizing.Face(Percent).Sizes.Min(), MeterSizing.Face(Percent).Main);
         var least = Math.Max(120, Math.Ceiling((MeterSizing.ReadingWidth(Percent with { Lead = true }) + 24) / 4) * 4);
         Assert.Equal((Math.Min(least, Math.Ceiling(face.Width + 24)), 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
 

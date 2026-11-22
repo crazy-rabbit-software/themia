@@ -142,7 +142,7 @@ public static class MeterSizing
                 var w = Widths(reading);
                 var h = top + Line + foot;
 
-                // [S-12833] The reading alone scales down as one to its figures at the floor, its glyph and unit giving way.
+                // [S-12833] [S-15752] The reading alone scales down as one, its glyph, figures and unit together, to its unit at the floor.
                 var alone = WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(Math.Max(w.Max, NumbersMaxWidth), h));
                 return look == MeterLook.Number ? alone.ScalesDownTo(Face(worst)) : alone;
             }
@@ -150,10 +150,16 @@ public static class MeterSizing
     }
 
     /// <summary>
-    /// [S-12833] The Number look's parts (<see cref="FaceParts"/>): the figures its main reading, at 9 in its least card;
-    /// its kind's glyph and its unit give way on the way down.
+    /// [S-12833] [S-15752] The Number look's parts (<see cref="FaceParts"/>): its kind's glyph, its figures and its unit are
+    /// one block (WR-7: "A reading and its caption stay together"), scaled down as one to where its smallest text, the unit,
+    /// is read at 9 (WR-14); nothing gives way (its smallest piece is the face's main size). At 48 × 32 the disk had drawn
+    /// its figures alone, its glyph and unit dropped.
     /// </summary>
-    public static FaceParts Face(ReadoutText worst) => FaceParts.Readout(FamilyType.Big28, Identified(MeterLook.Number, worst));
+    public static FaceParts Face(ReadoutText worst)
+    {
+        var parts = FaceParts.Readout(FamilyType.Big28, Identified(MeterLook.Number, worst));
+        return parts with { Main = parts.Sizes.Min() };
+    }
 
     /// <summary>
     /// [S-12801] Whether a reading in <paramref name="look"/> leads with a glyph: its kind's (what it measures, so a bare

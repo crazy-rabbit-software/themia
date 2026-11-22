@@ -136,6 +136,24 @@ public sealed partial class TileBlock : Grid
         Apply();
     }
 
+    /// <summary>
+    /// [S-15755] The lines <paramref name="name"/> takes under a tile's glyph at <paramref name="width"/> (the inset's), on
+    /// the Body step it is planned at: 1, or 2 where it wraps (<see cref="TileRules.NameLines"/> at most).
+    /// </summary>
+    public static int NameLines(string name, double width)
+    {
+        if (string.IsNullOrEmpty(name) || !(width > 0) || !double.IsFinite(width))
+        {
+            return TileRules.NameLines;
+        }
+
+        var probe = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
+        probe.Text = name;
+        probe.TextWrapping = TextWrapping.WrapWholeWords;
+        probe.Measure(new Windows.Foundation.Size(width, double.PositiveInfinity));
+        return Math.Clamp((int)Math.Round(probe.DesiredSize.Height / FamilyType.Body.LineHeight), 1, TileRules.NameLines);
+    }
+
     /// <summary>[S-6736] The arm ring over the glyph (a power button's), the Critical role, hidden until it drains.</summary>
     public ChartRing Ring { get; }
 

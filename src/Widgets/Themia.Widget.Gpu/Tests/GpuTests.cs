@@ -54,7 +54,8 @@ public sealed class GpuTests
     {
         var kind = ModuleCatalog.Of(new WidgetId("gpu"));
         Assert.Equal(60, kind.Sizing(new GpuConfig()).Natural.Height);
-        Assert.Equal((32d, Themia.Sdk.SizeStretch.Ceiling), (kind.Sizing(new GpuConfig()).Min.Height, kind.Sizing(new GpuConfig()).Max.Height)); // [S-12833] scales down to its figures at 9; relaxed, [S-12411]
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, kind.Sizing(new GpuConfig()).Max.Height); // relaxed, [S-12411]
+        Assert.InRange(kind.Sizing(new GpuConfig()).Min.Height, 33, 45); // [S-15752] scales down as one to its unit at 9
         Assert.Empty(kind.Sizing(new GpuConfig { Style = GpuStyle.Gauge }).Problems());
     }
 }

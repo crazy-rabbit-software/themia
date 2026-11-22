@@ -56,6 +56,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
     private IWidgetSurface? _surface;
     private PowerButton? _button;
     private WidgetArea _area;
+
+    /// <summary>[S-15755] The inset's width the name wraps at, and the lines what the tile says now takes there.</summary>
+    private double _inner;
+    private int _nameLines = TileRules.NameLines;
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -210,7 +214,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
 
         var natural = TileRules.Sizing(_tile.Look, stateLine: false).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
-        var face = TileRules.Face(width, height, stateLine: false);
+        // [S-15755] The name's line planned on the lines what it says now takes at the inset's width (the name, the armed
+        // sentence, a failure); a sentence of another length lays the face again.
+        _inner = width - (2 * FamilySpace.Inset);
+        var face = TileRules.Face(width, height, stateLine: false, nameLines: _nameLines);
         // [S-12806] A box too small for the family's inset gives it up round the glyph.
         var row = _tile.Look == TileLook.Switch;
         _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
@@ -241,6 +248,14 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
                 : failure is not null
                     ? (Glyphs.Warning, failure, failure)
                     : (Glyph(_action), name, name);
+
+        var lines = TileBlock.NameLines(text, _inner);
+        if (lines != _nameLines)
+        {
+            _nameLines = lines;
+            Lay();
+            return;
+        }
 
         _tile.Show(glyph, text, string.Empty, PowerActionRules.Tile(button.Available, armed, failure is not null));
         _tile.Face(!button.Available ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);

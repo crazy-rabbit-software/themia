@@ -175,12 +175,15 @@ public static class QuickToggleRules
     };
 
     /// <summary>
+    /// [S-15757] After a click Windows refused (<paramref name="refused"/>), the state line says so ("Windows did not switch
+    /// it", WR-10: the face says why), not the unchanged state it showed as if nothing had been asked.
     /// [S-14202] What the tile's state line says: <see cref="StateText"/>, and while the reading is not known yet the
     /// default "--" (docs/WIDGET-RULES.md WR-10: the face keeps its reading as "--"), so the line is drawn in every state
     /// and the face stands centred on the same ink whether Windows has answered or not.
     /// </summary>
-    public static string StateLine(Locale locale, ToggleLook look)
-        => look == ToggleLook.Unknown ? MetricRules.Default : StateText(locale, look);
+    public static string StateLine(Locale locale, ToggleLook look, bool refused = false)
+        => refused && look is ToggleLook.On or ToggleLook.Off ? Strings.Get(locale, Str.Toggles_Reason_Refused)
+            : look == ToggleLook.Unknown ? MetricRules.Default : StateText(locale, look);
 
     /// <summary>The longest state line in a language: the face is planned for it, so switching moves nothing.</summary>
     public static int LongestStateChars(Locale locale)

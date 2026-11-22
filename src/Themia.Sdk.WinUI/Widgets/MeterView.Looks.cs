@@ -363,12 +363,13 @@ public sealed partial class MeterView
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(reach.Down.Height(r)) });
         }
 
+        // [S-15758] Column by column: down every whole line, then the next column, the last column the width reaches cut.
         for (var i = 0; i < cells.Count; i++)
         {
             var shown = i < reach.Count;
             cells[i].Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-            SetColumn(cells[i], shown ? i % reach.Columns : 0);
-            SetRow(cells[i], shown ? i / reach.Columns : 0);
+            SetColumn(cells[i], shown ? i / reach.Lines : 0);
+            SetRow(cells[i], shown ? i % reach.Lines : 0);
         }
 
         return reach;
@@ -948,12 +949,17 @@ public sealed partial class MeterView
 
         public GraphCell(int capacity)
         {
-            // [S-15747] WR-15: the load stands in the box of its widest ("100%"), so a running figure never moves.
+            // [S-15747] WR-15: the load stands in the box of its widest ("100%"), so a running figure never moves; [S-15760] its
+            // figures tabular and the box's end its anchor, so the % sign keeps its place whatever the digits ("9%", "31%",
+            // "100%" had each put it elsewhere).
+            Family.Figures(_figure);
             var widest = Family.Text(FamilyType.Caption);
+            Family.Figures(widest);
             widest.Text = Formatting.Percent(1);
             widest.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
             _figure.Width = Math.Ceiling(widest.DesiredSize.Width);
             _figure.HorizontalAlignment = HorizontalAlignment.Left;
+            _figure.TextAlignment = TextAlignment.Right;
             HoldMark.Mark(_figure);
 
             Band = new SparkBand(capacity, ChartScale.Share) { Captions = false };

@@ -29,6 +29,13 @@ public sealed class OpensLight
     {
         _view = view ?? throw new ArgumentNullException(nameof(view));
         _lights = lights ?? throw new ArgumentNullException(nameof(lights));
+
+        // [S-15754] The whole view is the item: a panel with no fill took the pointer only over its parts (a centred block),
+        // so a card larger than its block lit nowhere else (WR-3, WR-13).
+        if (view is Microsoft.UI.Xaml.Controls.Panel { Background: null } panel)
+        {
+            panel.Background = Themia.Sdk.WinUI.Kit.Family.Brush(Themia.Sdk.Kit.ColourRole.Clear);
+        }
         _pressed = (_, _) => Paint(ItemState.Pressed);
         _released = (_, _) => Paint(_pointed ? ItemState.Hover : ItemState.Rest);
     }

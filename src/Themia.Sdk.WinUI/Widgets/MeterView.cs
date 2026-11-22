@@ -280,7 +280,9 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         // [S-11912] Not while the reading stands at a moment pointed at on a chart of its subject.
         if (_standsAt is null)
         {
-            ShowReading(_reading, reading.Primary, reading.Available, Lead(reading), role);
+            // [S-15753] Before the first reading, "--" and a compact line beside it, in the delta's place, saying why (WR-10).
+            var waiting = !reading.Available && reading.Equals(_part.Waiting);
+            ShowReading(_reading, reading.Primary, reading.Available, Lead(reading), role, waiting ? Str.Shell_Fetch_Loading.Text() : null);
         }
 
         // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.

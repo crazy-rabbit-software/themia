@@ -46,7 +46,14 @@ public sealed partial class PowerButtonView : IWidgetPreviewState
                 break;
 
             case "failed":
-                _button = new PowerButton(_action, new PreviewBackend(canHibernate: true, PowerActionRules.SuspendOutcome(false, hibernate: _action == PowerAction.Hibernate)));
+                // [S-15756] A failure this action can have: a suspend refused for sleep and hibernate, the privilege denied
+                // by policy for the session's ends, access denied for the rest (restart's had read "Windows refused to sleep").
+                _button = new PowerButton(_action, new PreviewBackend(canHibernate: true, _action switch
+                {
+                    PowerAction.Sleep or PowerAction.Hibernate => PowerActionRules.SuspendOutcome(false, hibernate: _action == PowerAction.Hibernate),
+                    PowerAction.Shutdown or PowerAction.Restart or PowerAction.SignOut => new PowerOutcome(PowerFailure.NotAllowed, 0),
+                    _ => PowerOutcome.Error(5),
+                }));
                 if (PowerActionRules.NeedsArming(_action))
                 {
                     await _button.PressAsync(now).ConfigureAwait(true);

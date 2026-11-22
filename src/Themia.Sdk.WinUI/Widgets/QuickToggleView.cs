@@ -187,7 +187,9 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         var row = _tile.Look == TileLook.Switch;
         var natural = TileRules.Sizing(_tile.Look).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
-        var face = TileRules.Face(width, height);
+        // [S-15755] The name planned on the lines it takes at the inset's width.
+        var lines = TileBlock.NameLines(QuickToggleRules.Name(Strings.Current, _toggle), width - (2 * FamilySpace.Inset));
+        var face = TileRules.Face(width, height, nameLines: lines);
         var texted = row || face.Texted;
         // [S-12806] A box too small for the family's inset gives it up round the glyph (its switch row keeps it).
         _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
@@ -208,7 +210,7 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         var look = _switch.Look(reading);
         var live = look is ToggleLook.On or ToggleLook.Off;
 
-        _tile.Show(Glyph(_toggle, on: look != ToggleLook.Off), QuickToggleRules.Name(locale, _toggle), QuickToggleRules.StateLine(locale, look), QuickToggleRules.Tile(look));
+        _tile.Show(Glyph(_toggle, on: look != ToggleLook.Off), QuickToggleRules.Name(locale, _toggle), QuickToggleRules.StateLine(locale, look, _switch.Refused), QuickToggleRules.Tile(look));
         _tile.Face(!live ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
 
         var tooltip = QuickToggleRules.Tooltip(locale, _toggle, reading, look, _switch.Refused);
