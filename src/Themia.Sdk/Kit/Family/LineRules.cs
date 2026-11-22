@@ -20,7 +20,10 @@ public enum LinePartKind
 }
 
 /// <summary>[S-6710] One trailing part of a tool line and the width it takes.</summary>
-public readonly record struct LinePart(LinePartKind Kind, double Width);
+/// <param name="Kind">What the part is.</param>
+/// <param name="Width">Its measured width.</param>
+/// <param name="Paired">[S-16232] A button of a pair that means nothing alone (back and forward): the pair gives way together.</param>
+public readonly record struct LinePart(LinePartKind Kind, double Width, bool Paired = false);
 
 /// <summary>
 /// [S-6710] [S-12481] A tool line (<c>ToolLine</c>): [label, Body, secondary, ellipsis] … [trailing], one line
@@ -107,6 +110,18 @@ public static class LineRules
             }
 
             shown[index] = false;
+
+            // [S-16232] A pair of buttons (back and forward) gives way as one: one arrow alone pages one way only.
+            if (parts[index].Paired)
+            {
+                for (var other = 0; other < parts.Count; other++)
+                {
+                    if (parts[other].Paired)
+                    {
+                        shown[other] = false;
+                    }
+                }
+            }
         }
 
         return shown;

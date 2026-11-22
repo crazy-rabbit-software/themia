@@ -47,6 +47,20 @@ public sealed class FamilyBlockRulesTests
     }
 
     [Fact]
+    public void S16232_a_pair_of_buttons_gives_way_together()
+    {
+        LinePart[] parts = [new(LinePartKind.Button, 24, Paired: true), new(LinePartKind.Button, 24, Paired: true)];
+
+        // Room for both: both; room for one only: neither, never a lone back arrow.
+        Assert.Equal([true, true], LineRules.Shown(LineRules.Needs(80, parts, [true, true]), 80, parts));
+        Assert.Equal([false, false], LineRules.Shown(LineRules.Needs(80, parts, [true, false]), 80, parts));
+
+        // Unpaired buttons still give way one at a time.
+        LinePart[] single = [new(LinePartKind.Button, 24), new(LinePartKind.Button, 24)];
+        Assert.Equal([true, false], LineRules.Shown(LineRules.Needs(80, single, [true, false]), 80, single));
+    }
+
+    [Fact]
     public void S6710_the_label_gives_way_first_then_buttons_from_the_last_then_the_count()
     {
         LinePart[] parts =
