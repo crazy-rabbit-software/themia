@@ -13,6 +13,38 @@ namespace Themia.Core.Widgets;
 public static class FolderRules
 {
     /// <summary>
+    /// [S-15777] Where the list scrolls to bring item <paramref name="index"/> into sight (items <paramref name="extent"/>
+    /// apart, <paramref name="columns"/> a line, a viewport <paramref name="viewport"/> tall now at <paramref name="offset"/>):
+    /// on a whole line, so the first line in sight stands whole from the list's top and only the last one is cut by the
+    /// card's foot (WR-4: "the last item will be cutoff"); the least scroll that shows the item's line whole, or null where
+    /// it is in sight whole already. A line taller than the viewport stands from its top.
+    /// </summary>
+    public static double? ScrollTo(int index, int columns, double extent, double offset, double viewport)
+    {
+        if (index < 0 || !double.IsFinite(extent) || extent <= 0 || !double.IsFinite(viewport) || viewport <= 0)
+        {
+            return null;
+        }
+
+        var line = index / Math.Max(1, columns);
+        var top = line * extent;
+        var bottom = top + extent;
+        if (top >= offset - LayoutMath.Tolerance && bottom <= offset + viewport + LayoutMath.Tolerance)
+        {
+            return null;
+        }
+
+        if (top < offset)
+        {
+            return top;
+        }
+
+        // The fewest whole lines scrolled that bring its foot into the viewport, never past its top.
+        var lines = Math.Ceiling(((bottom - viewport) / extent) - LayoutMath.Tolerance);
+        return Math.Min(top, Math.Max(0, lines) * extent);
+    }
+
+    /// <summary>
     /// Filter, order and cap a listing, the way Explorer would.
     /// </summary>
     /// <param name="entries">Everything the enumeration returned, in whatever order it returned it.</param>

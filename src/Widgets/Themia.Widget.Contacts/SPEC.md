@@ -73,7 +73,6 @@ the menu's email, call and message hand-offs), and the search box under the keyb
   no gap between them: every column the width reaches, the last cut by its right edge (2 at least, no most, the shared rule `ItemSize.Cells`, [S-14816]), the
   lines past the card's foot a scroll away, the last in sight cut by it. A new grid is 330 wide, its lines 80 each. The
   `compact`, `details` and `grid` renders show each layout ([S-14814]). Tests `ContactsPitchTests.S14817_`.
-
 - **[S-15775]** **Nothing stands over the field and the titles** (docs/WIDGET-RULES.md WR-1, WR-4, WR-5): the search
   field stands in a band on the card's top edge (`ContactsPlan.Bands`: the family's control of 28 in whole grid cells,
   30 on the default grid; the field at the card's side inset in it), the details table's column titles in a band of

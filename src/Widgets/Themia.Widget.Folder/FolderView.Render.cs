@@ -44,7 +44,7 @@ internal sealed partial class FolderView
     private Panel _items = null!;
     private Canvas _overlay = null!;
     private SelectionLabel _fullName = null!;
-    private StatusBlock _status = null!;
+    private KitStatePanel _status = null!;
     private ScrollFade? _fade;
 
     private WidgetArea _area;
@@ -185,9 +185,9 @@ internal sealed partial class FolderView
             RealizeMore();
         };
 
-        // [S-1334] [S-6714] A folder with nothing to show says which state it is in the Status row, at the top.
-        _status = new StatusBlock { VerticalAlignment = VerticalAlignment.Top };
-        _status.Hide();
+        // [S-1334] [S-6714] [S-15779] A folder with nothing to show says which state it is in the kit's state row where its
+        // first item would be, its rows kept empty under it (WR-10).
+        _status = new KitStatePanel(Glyphs.Folder, _widgetHost) { Visibility = Visibility.Collapsed };
         SetRow(_status, 4);
 
         Children.Add(_line);
@@ -549,10 +549,14 @@ internal sealed partial class FolderView
         return -1;
     }
 
-    /// <summary>[S-1334] [S-6714] The Status row where the first item would be: the folder's glyph for a plain state, the warning for a problem.</summary>
+    /// <summary>
+    /// [S-1334] [S-6714] [S-15779] The kit's state row where the first item would be (the folder's glyph for a plain state, the
+    /// warning for a problem), the list's rows under it kept empty at their one size: the face stays, why in one line (WR-10).
+    /// </summary>
     private void ShowMessage(StatusKind kind, string text)
     {
-        _status.Show(kind, Glyphs.Folder, text);
+        _status.RowPitch = _plan?.Grid is null ? _rowPitch : FolderLayout.RowHeight;
+        _status.Show(text, offerAccounts: false, problem: kind == StatusKind.Problem);
         _scroll.Visibility = Visibility.Collapsed;
         _columnHeader.Visibility = Visibility.Collapsed;
         _itemsKey = string.Empty;

@@ -175,6 +175,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
 
         _detached = true;
         _widgetHost.FileClipboard.Changed -= OnClipboardChanged;
+        _status.Detach();
 
         _tick.Dispose();
         _watch?.Dispose();

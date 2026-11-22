@@ -12,7 +12,8 @@ namespace Themia.App.Widgets;
 /// folder's sample (<see cref="ShowSampleAsync"/>), "pictures" the sample pictures (drawn in code),
 /// "selected" the documents with two items selected, a third under the pointer and the focus moved
 /// on by Ctrl+Right ([S-6627]), "inactive" the same selection after the widget lost the keyboard
-/// ([S-6626]), and "fullname" a tile whose long name is selected and shown in full ([S-6629]).
+/// ([S-6626]), and "fullname" a tile whose long name is selected and shown in full ([S-6629]). [S-15779] "empty" an empty
+/// folder and "missing" a folder that is not there: the face kept, why in the state row where the first item would be.
 /// </summary>
 internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMenus
 {
@@ -44,7 +45,7 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         return ItemEntries();
     }
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "pictures", "selected", "inactive", "fullname", "renaming", "search", "searching", "searchClosed"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "pictures", "selected", "inactive", "fullname", "renaming", "search", "searching", "searchClosed", "empty", "missing"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -61,7 +62,8 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
             await ShowSampleAsync().ConfigureAwait(true);
             if (state == "renaming" && _visuals.Count > 0)
             {
-                BeginRename(_visuals[0]);
+                // Without the keys: every card of a render shows its box, where one taking the focus closed the others'.
+                BeginRename(_visuals[0], takeKeys: false);
             }
             else if (state != "renaming")
             {
@@ -84,6 +86,8 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         {
             "selected" or "inactive" or "fullname" => SampleFiles.Write("Documents", SampleFiles.Documents),
             "pictures" => await SamplePictureFiles.WriteAsync("Pictures", SamplePictures.Names).ConfigureAwait(true),
+            "empty" => SampleFiles.Write("Empty", []),
+            "missing" => SampleFiles.Write("Empty", []) is { } beside ? System.IO.Path.Combine(System.IO.Path.GetDirectoryName(beside)!, "Archive") : null,
             _ => null,
         };
 

@@ -269,4 +269,22 @@ public class FolderRulesTests
     {
         Assert.False(FolderRules.SameContent([File("thing")], [Dir("thing")]));
     }
+
+    [Fact]
+    public void S15777_an_item_is_scrolled_into_sight_on_whole_lines_the_first_in_sight_whole()
+    {
+        // In sight whole already: no scroll.
+        Assert.Null(FolderRules.ScrollTo(2, 1, 30, 0, 120));
+
+        // Under the foot: the fewest whole rows that bring its foot in (row 8 ends at 270, the viewport 125 tall: 5 rows).
+        Assert.Equal(150, FolderRules.ScrollTo(8, 1, 30, 0, 125));
+
+        // Over the top: its own top.
+        Assert.Equal(60, FolderRules.ScrollTo(2, 1, 30, 120, 125));
+
+        // Tiles: a line of three, the item's line; a line taller than the viewport stands from its top.
+        Assert.Equal(160, FolderRules.ScrollTo(7, 3, 80, 0, 100));
+        Assert.Equal(160, FolderRules.ScrollTo(7, 3, 80, 0, 50));
+        Assert.Null(FolderRules.ScrollTo(-1, 1, 30, 0, 100));
+    }
 }

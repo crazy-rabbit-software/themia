@@ -39,7 +39,9 @@ public sealed partial class InlineBox : TextBox
 
         // The words' type, exactly: the box's text is theirs, at their place.
         FontSize = words.FontSize;
-        FontFamily = words.FontFamily;
+        // [S-15778] The words' face as DirectWrite draws it: XAML draws Segoe UI Variable at the optical size its size takes
+        // (Text at 14), the platform's box the variable font's own default, wider and shorter; named, the box draws theirs.
+        FontFamily = new Microsoft.UI.Xaml.Media.FontFamily(InkMeter.FaceOf(words.FontFamily?.Source, words.FontSize));
         FontWeight = words.FontWeight;
         FontStretch = words.FontStretch;
         CharacterSpacing = words.CharacterSpacing;

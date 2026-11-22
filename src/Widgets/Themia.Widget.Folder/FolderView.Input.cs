@@ -271,8 +271,16 @@ internal sealed partial class FolderView : IWidgetDropTarget
         visual.Root.PointerExited += Exited;
         visual.Root.PointerCanceled += Exited;
 
+        // [S-15778] What the item shows under the pointer, for the renders' --hover and --pressed (WR-13): its hover.
+        PointerPreview.Register(visual.Root, _ =>
+        {
+            visual.Hovered = true;
+            Paint(visual);
+        });
+
         _itemHovers.Add(new Unhook(() =>
         {
+            PointerPreview.Forget(visual.Root);
             visual.Root.PointerEntered -= Entered;
             visual.Root.PointerExited -= Exited;
             visual.Root.PointerCanceled -= Exited;
@@ -488,8 +496,13 @@ internal sealed partial class FolderView : IWidgetDropTarget
             return;
         }
 
+        // [S-15777] On whole lines: the first line in sight stands whole, the last cut by the foot.
         _scroll.UpdateLayout();
-        _visuals[index].Root.StartBringIntoView();
+        var (extent, columns) = ItemExtent();
+        if (FolderRules.ScrollTo(index, columns, extent, _scroll.VerticalOffset, Viewport()) is { } offset)
+        {
+            _scroll.ChangeView(null, offset, null, disableAnimation: true);
+        }
     }
 
     // ---- drag out -------------------------------------------------------------------------------

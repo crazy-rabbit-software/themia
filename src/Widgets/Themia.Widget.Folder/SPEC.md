@@ -189,3 +189,18 @@ states, edit mode leaving it inert, multi-monitor and mixed DPI.
   rows of 28 that fit the items' room, grown until they touch and fill it from the items' top to the foot's inset
   (`FolderLayout.Reach`); the Grid's and the Icons' cells keep their size and the inset their marks stand in.
   Tests `FolderPitchTests.S12451_`.
+- **[S-15777]** **Scrolled into sight on whole lines** (docs/WIDGET-RULES.md WR-4: "the last item will be cutoff"): the
+  keys' cursor, a type-ahead and a rename bring an item into sight by the least scroll that shows its line whole on a whole
+  line (`FolderRules.ScrollTo`), so the first line in sight stands whole under the tool line and only the last is cut by
+  the card's foot; before, the platform's bring-into-view left the first row cut at the top (the `fullname` render).
+  Tests `FolderRulesTests.S15777_`.
+- **[S-15778]** **The item under the pointer lights in a render too, and the rename box draws its words' face**
+  (WR-13, WR-12): every item registers its hover for the renders' `--hover`/`--pressed` (`PointerPreview`); the
+  one inline box (`InlineBox`, every widget's) draws the words' face as DirectWrite draws it (Segoe UI Variable at the
+  optical size its size takes, `InkMeter.FaceOf`): the platform's box drew the variable font's default instance, 2.7
+  DIP wider over "Northwind". The `renaming` render opens the box in every card without the keys (one box holds the
+  focus at a time; the focus moving on closed the others' boxes).
+- **[S-15779]** **A folder with nothing to show keeps its rows** (WR-10): the state (empty, no matches, missing,
+  unreadable, loading) is the kit's state row where the first item would be (`KitStatePanel`: the folder's glyph, or
+  the warning for a problem), the list's rows kept empty under it at their one size; renders `empty` (an empty folder)
+  and `missing` (a folder that is not there).

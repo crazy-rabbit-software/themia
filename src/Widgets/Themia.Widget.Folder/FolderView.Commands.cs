@@ -214,7 +214,8 @@ internal sealed partial class FolderView
     /// Escape cancels. [S-13950] The box stands in the name's own box (its line, its type, its text edge):
     /// the row or the cell keeps its size and nothing round it moves.
     /// </summary>
-    private void BeginRename(ItemVisual visual)
+    /// <param name="takeKeys">Whether the box takes the keys as it opens (a render of several cards opens each without them: one box holds the focus at a time).</param>
+    private void BeginRename(ItemVisual visual, bool takeKeys = true)
     {
         CancelRename();
 
@@ -246,6 +247,11 @@ internal sealed partial class FolderView
 
         box.Loaded += (_, _) =>
         {
+            if (!takeKeys)
+            {
+                return;
+            }
+
             box.Focus(FocusState.Programmatic);
 
             // The stem selected, the extension left alone, as Explorer selects it.
