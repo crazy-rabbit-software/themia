@@ -14,8 +14,8 @@ the module host's `MeterHostTests` (`S6310_`, `S6318_`).
   headerless ([S-2590]). Styles (`CpuCoresStyle`, the CPU's old core styles): **Bars** (a column per
   core, [S-6303]; 120..640 × 48..200, a new one 160 × 64), **Grid** (a ring per core, [S-6305];
   112..360 square, a new one 144) and **Graphs** (a cell per core, its own history edge to edge with its
-  load in Caption over its top corner, [S-6317]; 200..640 × 128..400, a new one 280 × 200). Sixteen
-  cores fit every style at its least; the cells only grow. The Graphs style offers the Chart span under
+  load in Caption over its top corner, [S-6317]; 200..640 × 128..400, a new one 280 × 200). The cores keep one
+  size in every style, the last the card reaches cut by it (root [S-15746]). The Graphs style offers the Chart span under
   Style ([S-6318]: the hub keeps each core's history for it); the others have no setting.
 - **[S-15162]** Before the hub's first per-core read (the root's [S-15161]) a core per logical processor of this PC
   stands in every style, none lit (`CpuCoresRules.Waiting`); the read's own count replaces them. The card was empty

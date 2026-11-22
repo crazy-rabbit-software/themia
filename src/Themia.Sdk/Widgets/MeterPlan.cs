@@ -1,14 +1,7 @@
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
-
-/// <summary>[S-1762] A grid of a meter's items (a core's ring, a core's graph): its columns, rows and one cell's size.</summary>
-public readonly record struct MeterGrid(int Columns, int Rows, double CellWidth, double CellHeight)
-{
-    public static MeterGrid None { get; } = new(0, 0, 0, 0);
-
-    public bool Shown => Columns > 0;
-}
 
 /// <summary>[S-6262] The battery style's picture: the body (stroke 2, the one radius), its fill's room and the terminal cap.</summary>
 /// <param name="Height">The body's height; its width is twice that.</param>
@@ -34,17 +27,11 @@ public readonly record struct BatteryPicture(double Height, double CapHeight, do
 /// </summary>
 public static class MeterPlan
 {
-    /// <summary>The least ring of an item worth drawing; under it the grid is not shown.</summary>
-    public const double RingFloor = FamilyShape.Icon;
 
     /// <summary>The least dial (a gauge, a ring) a reading atom draws.</summary>
     public const double GaugeFloor = FamilyShape.IconHuge;
 
-    /// <summary>The least core's graph cell: an icon's height of graph, its figure over its corner ([S-11005]).</summary>
-    public const double GraphCellFloor = FamilyShape.Icon;
 
-    /// <summary>The least width of a core's graph cell.</summary>
-    public const double GraphCellWidthFloor = FamilyShape.IconLarge;
 
     /// <summary>The battery's terminal cap's width.</summary>
     public const double Cap = FamilySpace.S1;
@@ -56,66 +43,30 @@ public static class MeterPlan
     public const double SignalAspect = 1.25;
 
     /// <summary>
-    /// [S-6305] [S-11005] The rings' grid in a box of <paramref name="width"/> × <paramref name="height"/>. [S-14324] WR-10
-    /// (owner, 2026-11-19: "it should show the default values ... and not just not show the graph"): a box too small for
-    /// icon-sized rings still draws every core, the rings as large as it holds them; only a box of no room draws none.
+    /// [S-15746] A core's column (the bars): one grid cell across, its 4 bar standing in the middle from the card's top edge
+    /// to its foot (WR-4, WR-6: one fixed size; "Plot edge to edge").
     /// </summary>
-    public static MeterGrid Rings(double width, double height, int count)
-    {
-        var best = Rings(width, height, count, RingFloor);
-        return best.Shown ? best : Rings(width, height, count, 1);
-    }
+    public const double CoreColumn = 10;
 
-    private static MeterGrid Rings(double width, double height, int count, double floor)
-    {
-        var best = MeterGrid.None;
-        for (var columns = 1; columns <= count; columns++)
-        {
-            var rows = (count + columns - 1) / columns;
-            var size = Math.Floor(Math.Min(Cell(width, columns), Cell(height, rows)));
-            if (size >= floor && size > best.CellWidth)
-            {
-                best = new MeterGrid(columns, rows, size, size);
-            }
-        }
+    /// <summary>[S-15746] A core's ring cell (the grid): three grid cells square, the ring 4 inside it on every side.</summary>
+    public const double CoreRing = 30;
 
-        return best;
-    }
+    /// <summary>[S-15746] A core's graph cell: its history edge to edge with its load in Caption over its top corner.</summary>
+    public static SizeDip CoreGraph => new(60, 40);
 
     /// <summary>
-    /// [S-6317] [S-11005] The graphs' grid in a box of <paramref name="width"/> × <paramref name="height"/>. [S-14324] WR-10:
-    /// a box too small for the least graph still draws every core's, as large as it holds them.
+    /// [S-15746] The cores' cells in a card <paramref name="width"/> × <paramref name="height"/> (owner, 2026-11-20: "the widget
+    /// items should actually have a fixed size ... the last item will be cutoff to some extent then"; WR-4, WR-6): each
+    /// core's cell its natural (<paramref name="cell"/>) in whole grid cells at every size of its card, touching from the
+    /// card's left and top edges, row by row; every column the width reaches (the last cut by the right edge) and every
+    /// line the height reaches (the last cut by the foot). A core past the cells the card reaches is not drawn; a columns
+    /// look (<paramref name="column"/>) is one line the card's whole height.
     /// </summary>
-    public static MeterGrid Graphs(double width, double height, int count)
+    public static CellReach CoreCells(double width, double height, SizeDip cell, ItemGrid grid, bool column = false)
     {
-        var best = Graphs(width, height, count, GraphCellWidthFloor, GraphCellFloor);
-        return best.Shown ? best : Graphs(width, height, count, 1, 1);
-    }
-
-    private static MeterGrid Graphs(double width, double height, int count, double widthFloor, double heightFloor)
-    {
-        var best = MeterGrid.None;
-        var bestScore = 0.0;
-
-        for (var columns = 1; columns <= count; columns++)
-        {
-            var rows = (count + columns - 1) / columns;
-            var cellWidth = Math.Floor(Cell(width, columns));
-            var cellHeight = Math.Floor(Cell(height, rows));
-            if (cellWidth < widthFloor || cellHeight < heightFloor)
-            {
-                continue;
-            }
-
-            var score = Math.Min(cellWidth / 1.5, cellHeight);
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = new MeterGrid(columns, rows, cellWidth, cellHeight);
-            }
-        }
-
-        return best;
+        var reach = ItemSize.Cells(width, height, cell.Width, cell.Height, grid);
+        var tall = double.IsFinite(height) && height > 0 ? height : cell.Height;
+        return column ? reach with { Down = new RowReach(tall, 1, grid.Raster) { Room = tall } } : reach;
     }
 
     /// <summary>[S-6262] [S-11004] The battery's picture for a body <paramref name="height"/> tall: its cap and the bolt that fits it.</summary>
@@ -159,6 +110,4 @@ public static class MeterPlan
         _ => ColourRole.Accent,
     };
 
-    /// <summary>A cell's side when <paramref name="count"/> of them, 8 apart, share <paramref name="length"/>.</summary>
-    private static double Cell(double length, int count) => count <= 0 ? 0 : (length - ((count - 1) * FamilySpace.S2)) / count;
 }

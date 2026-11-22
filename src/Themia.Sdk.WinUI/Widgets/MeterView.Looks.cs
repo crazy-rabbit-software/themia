@@ -4,9 +4,11 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Widgets.Meters;
 using Themia.Core.Diagnostics;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
 
@@ -184,11 +186,42 @@ public sealed partial class MeterView
         var recount = items.Count != _itemList.Count;
         _itemList = items;
         _shown.ShowItems(items, point);
+        ShowWaiting(_part.Atom == MeterAtom.Items && items.Count > 0 && items.All(i => i.Fraction is null));
         if (recount)
         {
             Lay();
         }
     }
+
+    /// <summary>
+    /// [S-15747] Items with no reading yet (the hub's first read not in, [S-15161]): their face stands and a compact line over
+    /// its top end says why (WR-10: "keeps its face ... and says why in a compact line"), the Caption "Loading" in the
+    /// secondary role over the plot, as a graph's labels stand inside it.
+    /// </summary>
+    private void ShowWaiting(bool waiting)
+    {
+        if (waiting && _waitLine is null)
+        {
+            _waitLine = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+            _waitLine.HorizontalAlignment = HorizontalAlignment.Left;
+            _waitLine.VerticalAlignment = VerticalAlignment.Top;
+            _waitLine.Margin = new Thickness(FamilySpace.S2, FamilySpace.S1, 0, 0);
+            _waitLine.IsHitTestVisible = false;
+            Canvas.SetZIndex(_waitLine, 1);
+            SetRowSpan(_waitLine, 8);
+            SetColumnSpan(_waitLine, 8);
+            Children.Add(_waitLine);
+        }
+
+        if (_waitLine is not null)
+        {
+            _waitLine.Text = waiting ? Str.Shell_Fetch_Loading.Text() : string.Empty;
+            _waitLine.Visibility = waiting ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+
+    /// <summary>[S-15747] The line over waiting items, made when first needed.</summary>
+    private TextBlock? _waitLine;
 
     /// <summary>[S-11000] Place the atom's parts for the current area.</summary>
     private void Lay()
@@ -273,8 +306,11 @@ public sealed partial class MeterView
         }
     }
 
-    /// <summary>[S-14818] A core's column: its bar from the inset under the card's top edge to the inset over its foot.</summary>
-    private static Thickness ColumnPadding => new(0, FamilySpace.Inset, 0, FamilySpace.Inset);
+    /// <summary>[S-15746] A core's column: its bar from the card's top edge to its foot (the plot edge to edge).</summary>
+    private static Thickness ColumnPadding => default;
+
+    /// <summary>[S-15746] A core's ring: 4 inside its cell on every side.</summary>
+    private static Thickness RingPadding => new(FamilySpace.S1);
 
     /// <summary>
     /// [S-14818] Keep one part per item, each in its item's cell (<see cref="ItemMark"/>: the box the checks judge), the
@@ -305,38 +341,37 @@ public sealed partial class MeterView
     private static FrameworkElement Cell(FrameworkElement part) => part.Parent as FrameworkElement ?? part;
 
     /// <summary>
-    /// [S-14818] A grid of ring or graph cells, row by row from the top left, the plan's columns and rows sharing the card
-    /// from its left edge to its right and its top edge to its foot, touching (every core is shown: the cells are the
-    /// card's, as the month's days are); none when the plan shows none.
+    /// [S-15746] The cores' cells at one fixed size (<see cref="MeterPlan.CoreCells"/>), row by row from the card's top left,
+    /// touching: every column the card's width reaches, the last cut by its right edge, every line its height reaches, the
+    /// last cut by its foot; a core past them is not drawn (owner, 2026-11-20: "they should just keep their size and the last
+    /// item will be cutoff to some extent then").
     /// </summary>
-    private void LayGrid(Grid grid, MeterGrid plan, IReadOnlyList<FrameworkElement> cells)
+    private CellReach LayCells(Grid grid, SizeDip cell, IReadOnlyList<FrameworkElement> cells, bool column = false)
     {
-        grid.Visibility = plan.Shown ? Visibility.Visible : Visibility.Collapsed;
-        if (!plan.Shown)
-        {
-            return;
-        }
-
         var lattice = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
-        var widths = ItemSize.Columns(_area.Width, plan.Columns, lattice);
-        var heights = ItemSize.Columns(_area.Height + FamilySpace.Inset, plan.Rows, lattice);
+        var reach = MeterPlan.CoreCells(_area.Width, _area.Height + FamilySpace.Inset, cell, lattice, column);
+        grid.Visibility = Visibility.Visible;
         grid.ColumnDefinitions.Clear();
         grid.RowDefinitions.Clear();
-        foreach (var w in widths)
+        for (var c = 0; c < reach.Columns; c++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(w) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(reach.Across.Height(c)) });
         }
 
-        foreach (var h in heights)
+        for (var r = 0; r < reach.Lines; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(h) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(reach.Down.Height(r)) });
         }
 
         for (var i = 0; i < cells.Count; i++)
         {
-            SetColumn(cells[i], i % plan.Columns);
-            SetRow(cells[i], i / plan.Columns);
+            var shown = i < reach.Count;
+            cells[i].Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
+            SetColumn(cells[i], shown ? i % reach.Columns : 0);
+            SetRow(cells[i], shown ? i / reach.Columns : 0);
         }
+
+        return reach;
     }
 
     /// <summary>No look yet (before the first config): the reading in its row, nothing beside it.</summary>
@@ -512,15 +547,12 @@ public sealed partial class MeterView
             LayColumns();
         }
 
-        /// <summary>[S-14818] The columns share the card's width from its left edge to its right, whole device pixels each.</summary>
+        /// <summary>[S-15746] The columns at one width from the card's left edge, the last cut by its right edge.</summary>
         private void LayColumns()
         {
-            var widths = ItemSize.Columns(view._area.Width, _columns.Count, view._area.Grid(view.XamlRoot?.RasterizationScale ?? 1));
-            _body.ColumnDefinitions.Clear();
-            for (var i = 0; i < _columns.Count; i++)
+            if (view._area.IsMeasured)
             {
-                _body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(widths[i]) });
-                SetColumn(Cell(_columns[i]), i);
+                view.LayCells(_body, new SizeDip(MeterPlan.CoreColumn, MeterPlan.CoreColumn), [.. _columns.Select(c => Cell(c))], column: true);
             }
         }
 
@@ -614,7 +646,7 @@ public sealed partial class MeterView
         {
             if (items.Count != _rings.Count)
             {
-                ResizeCells(_rings, items.Count, _body, () => new ChartRing(), default);
+                ResizeCells(_rings, items.Count, _body, () => new ChartRing(), RingPadding);
             }
 
             for (var i = 0; i < items.Count && i < _rings.Count; i++)
@@ -629,13 +661,13 @@ public sealed partial class MeterView
         {
             view.ItemsAlone(_body);
 
-            // The rings at the plan's size, each in the middle of its cell, the cell's room round it its padding.
-            var rings = MeterPlan.Rings(width, height, _rings.Count);
-            view.LayGrid(_body, rings, [.. _rings.Select(r => Cell(r))]);
+            // [S-15746] The rings at one size, each 4 inside its cell.
+            var reach = view.LayCells(_body, new SizeDip(MeterPlan.CoreRing, MeterPlan.CoreRing), [.. _rings.Select(r => Cell(r))]);
+            var side = Math.Max(0, reach.Across.Pitch - (2 * FamilySpace.S1));
             foreach (var ring in _rings)
             {
-                ring.Width = rings.CellWidth;
-                ring.Height = rings.CellHeight;
+                ring.Width = side;
+                ring.Height = side;
             }
         }
 
@@ -704,7 +736,7 @@ public sealed partial class MeterView
         public void Lay(double width, double height)
         {
             view.ItemsAlone(_body);
-            view.LayGrid(_body, MeterPlan.Graphs(width, height, Cells.Count), [.. Cells.Select(c => (FrameworkElement)c.Item)]);
+            view.LayCells(_body, MeterPlan.CoreGraph, [.. Cells.Select(c => (FrameworkElement)c.Item)]);
             foreach (var cell in Cells)
             {
                 cell.Overlay();
@@ -900,6 +932,14 @@ public sealed partial class MeterView
 
         public GraphCell(int capacity)
         {
+            // [S-15747] WR-15: the load stands in the box of its widest ("100%"), so a running figure never moves.
+            var widest = Family.Text(FamilyType.Caption);
+            widest.Text = Formatting.Percent(1);
+            widest.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            _figure.Width = Math.Ceiling(widest.DesiredSize.Width);
+            _figure.HorizontalAlignment = HorizontalAlignment.Left;
+            HoldMark.Mark(_figure);
+
             Band = new SparkBand(capacity, ChartScale.Share) { Captions = false };
             SetRow(Band, 1);
             Root = new Grid

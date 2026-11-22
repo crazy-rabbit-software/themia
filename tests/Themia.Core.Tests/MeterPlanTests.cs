@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Xunit;
 
@@ -10,37 +11,38 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class MeterPlanTests
 {
-    [Fact]
-    public void S6305_the_rings_take_the_grid_with_the_largest_ring_and_hold_every_item()
+    [Theory]
+    [InlineData(160, 64)]
+    [InlineData(165, 64)]
+    [InlineData(640, 200)]
+    public void S15746_a_cores_column_keeps_one_width_and_the_last_is_cut(double width, double height)
     {
-        var grid = MeterPlan.Rings(336, 300, 16);
-        Assert.True(grid.Shown);
-        Assert.True(grid.Columns * grid.Rows >= 16);
-        Assert.True((grid.Columns * grid.CellWidth) + ((grid.Columns - 1) * FamilySpace.S2) <= 336);
-        Assert.True((grid.Rows * grid.CellHeight) + ((grid.Rows - 1) * FamilySpace.S2) <= 300);
-
-        // [S-14324] WR-10: a box too small for icon-sized rings still draws every core, the rings as large as it holds them.
-        var small = MeterPlan.Rings(72, 40, 24);
-        Assert.True(small.Shown);
-        Assert.True(small.Columns * small.Rows >= 24);
-        Assert.True(small.CellWidth is > 0 and < MeterPlan.RingFloor);
+        // Owner, 2026-11-20: "the widget items should actually have a fixed size ... the last item will be cutoff".
+        var grid = ItemGrid.Default();
+        var reach = MeterPlan.CoreCells(width, height, new SizeDip(MeterPlan.CoreColumn, MeterPlan.CoreColumn), grid, column: true);
+        Assert.Equal(MeterPlan.CoreColumn, reach.Across.Pitch);
+        Assert.Equal((int)Math.Ceiling(width / MeterPlan.CoreColumn), reach.Columns);
+        Assert.Equal(1, reach.Lines);
+        Assert.Equal(height, reach.Down.Height(0), 6);
     }
 
     [Fact]
-    public void S6317_a_core_graph_is_at_least_an_icons_height_and_32_wide()
+    public void S15746_rings_and_graphs_keep_their_cell_from_the_cards_top_left_and_are_cut_by_its_edges()
     {
-        var grid = MeterPlan.Graphs(256, 176, 16);
-        Assert.True(grid.Shown);
-        Assert.True(grid.CellWidth >= MeterPlan.GraphCellWidthFloor);
-        Assert.True(grid.CellHeight >= MeterPlan.GraphCellFloor);
-        Assert.True(grid.Columns * grid.Rows >= 16);
+        var grid = ItemGrid.Default();
+        foreach (var (w, h) in new[] { (144.0, 144.0), (150.0, 170.0), (360.0, 360.0) })
+        {
+            var rings = MeterPlan.CoreCells(w, h, new SizeDip(MeterPlan.CoreRing, MeterPlan.CoreRing), grid);
+            Assert.Equal((30.0, 30.0), (rings.Across.Pitch, rings.Down.Pitch));
+            Assert.Equal(((int)Math.Ceiling(w / 30), (int)Math.Ceiling(h / 30)), (rings.Columns, rings.Lines));
+        }
 
-        // [S-14324] WR-10: a box too small for the least graph still draws every core's, as large as it holds them.
-        var small = MeterPlan.Graphs(96, 40, 16);
-        Assert.True(small.Shown);
-        Assert.True(small.Columns * small.Rows >= 16);
-        Assert.True(small.CellWidth > 0 && small.CellHeight > 0);
-        Assert.False(MeterPlan.Graphs(0, 40, 16).Shown);
+        foreach (var (w, h) in new[] { (280.0, 200.0), (330.0, 130.0), (280.0, 210.0) })
+        {
+            var graphs = MeterPlan.CoreCells(w, h, MeterPlan.CoreGraph, grid);
+            Assert.Equal((60.0, 40.0), (graphs.Across.Pitch, graphs.Down.Pitch));
+            Assert.Equal(((int)Math.Ceiling(w / 60), (int)Math.Ceiling(h / 40)), (graphs.Columns, graphs.Lines));
+        }
     }
 
     [Fact]

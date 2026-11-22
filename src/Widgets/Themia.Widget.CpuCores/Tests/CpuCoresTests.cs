@@ -24,13 +24,18 @@ public sealed class CpuCoresTests
     }
 
     [Fact]
-    public void S11011_sixteen_cores_fit_every_drawing_at_its_least()
+    public void S11011_every_drawing_shows_whole_cores_at_its_least()
     {
-        var grid = Kind.Sizing(new CpuCoresConfig { Style = CpuCoresStyle.Grid }).Min;
-        Assert.True(MeterPlan.Rings(grid.Width - 24, grid.Height - 24, 16).Shown);
+        // The cores keep one size (WR-4, WR-6); the least card still holds a whole core of each drawing.
+        var grid = ItemGrid.Default();
+        var bars = Kind.Sizing(new CpuCoresConfig { Style = CpuCoresStyle.Bars }).Min;
+        Assert.True(MeterPlan.CoreCells(bars.Width, bars.Height, new SizeDip(MeterPlan.CoreColumn, MeterPlan.CoreColumn), grid, column: true).Columns >= 12);
+
+        var rings = Kind.Sizing(new CpuCoresConfig { Style = CpuCoresStyle.Grid }).Min;
+        Assert.True(MeterPlan.CoreCells(rings.Width, rings.Height, new SizeDip(MeterPlan.CoreRing, MeterPlan.CoreRing), grid).Count >= 9);
 
         var graphs = Kind.Sizing(new CpuCoresConfig { Style = CpuCoresStyle.Graphs }).Min;
-        Assert.True(MeterPlan.Graphs(graphs.Width - 24, graphs.Height - 24, 16).Shown);
+        Assert.True(MeterPlan.CoreCells(graphs.Width, graphs.Height, MeterPlan.CoreGraph, grid).Count >= 6);
     }
 
     [Fact]

@@ -5378,7 +5378,21 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   its foot, sharing them on whole device pixels (`ItemSize.Columns`); a bar stands in its column's middle from the inset
   under the top to the inset over the foot, a ring at the plan's size in its cell's middle, a graph inside 4 of padding.
   Every core is shown at every size (how many there are is the PC's, not the card's), so the cells are the card's, as
-  the month's days are, and grow with it; no inset round them and no gap between them.
+  the month's days are, and grow with it; no inset round them and no gap between them. *(The cells' size and the bars'
+  insets replaced 2026-11-22 by [S-15746]: WR-4 and WR-6 exempt only the month.)*
+- **[S-15746]** **The cores keep one size; the last the card reaches is cut** (docs/WIDGET-RULES.md WR-4, WR-6, owner
+  2026-11-20: "the widget items should actually have a fixed size ... they should just keep their size and the last item
+  will be cutoff to some extent then"; WR-1: "Plot edge to edge"): each core's cell is its natural in whole grid cells at
+  every size of its card (`MeterPlan.CoreCells` on `ItemSize.Cells`): a bar's column one cell (10) across and the card's
+  whole height, its bar from the card's top edge to its foot; a ring's cell three cells square (30), the ring 4 inside it;
+  a graph's cell 60 × 40, its load over its top corner. The cells touch from the card's top left, row by row; every
+  column the width reaches and every line the height reaches, the last cut by the card's right edge or foot; a core past
+  them is not drawn. They had shared the card (4.67 to 38 DIP bars, 28 to 34 DIP rings, unequal tiles in one card) and
+  the bars stood 12 under the top and over the foot. Tests `MeterPlanTests.S15746_`, `CpuCoresTests.S15746_`.
+- **[S-15747]** **Waiting cores say so; a core's load holds its box** (WR-10, WR-15): items with no reading yet
+  ([S-15161]) keep their face and a compact line over its top end says why ("Loading", Caption, secondary, inside the
+  plot as a graph's labels); a core graph's load stands in the box of its widest, "100%" (`HoldMark`), so a running
+  figure never moves its cell's ink.
 - **[S-2449]** *(Retired 2026-11-20. Owner: "the size should not be settable, it is set by the size of the widget.
   do this for the other widgets too". The readout size setting is gone with everything that existed for it:
   `ReadoutSize`, `IReadoutSized`, `ReadoutSizes`, the shared setting `readoutSize`, `KitMenuLines.ReadoutSize`, the
@@ -6140,14 +6154,14 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
 - **[S-6303]** **Columns**: one column per item, the Chart block's 4 track standing up (`ChartBar`
   vertical, round, the track in the Track role, the fill from its foot in the item's role), each centred
   in an equal share of the content width, from 8 under the reading to the foot's inset; not drawn when
-  the room is under 16 or a share under 8 (`MeterPlan.Columns`).
+  the room is under 16 or a share under 8 (`MeterPlan.Columns`). *(The cores' columns: one fixed width, [S-15746].)*
 - **[S-6304]** **Rows**: per item a fact row ([S-6711]: the label secondary, the value primary and
   end-aligned) whose inline meter (`ChartBar`) takes all the room between them, the label at most half
   the content; whole 28 rows from 8 under the reading, the rest shed from the end (`MeterPlan.Rows`).
 - **[S-6305]** **Rings** (the Grid style): one Chart ring per item (stroke 2, its share in the item's
   role), in the grid of square cells 8 apart whose ring is largest in the room under the reading and
   holds every item (16 cores as 4 × 4 or 8 × 2 by the room); not drawn when a ring would be under 16
-  (`MeterPlan.Rings`).
+  (`MeterPlan.Rings`). *(Replaced for the cores by one fixed cell, the last cut, [S-15746]; `MeterPlan.Rings` is gone.)*
 - Not ported / different: the original's `visibleMetrics` multi-select and everything it switched
   (removed by [S-1762]). The audit's `MeterLadder` was not built; `MeterFace` and `Disclosure` went
   with [S-11000] and [S-11800].
