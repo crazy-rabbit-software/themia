@@ -214,6 +214,29 @@ internal sealed partial class WidgetCard
 
         yield return _view;
     }
+
+    /// <summary>
+    /// [S-15809] Debug renders only: a preview state that draws a config the card would set up (a sun with its place
+    /// cleared, <c>IWidgetPreviewState.DrawnConfig</c>) is drawn as the desktop draws it (WR-10, [S-12835]): its face under
+    /// the card's compact Set up line, so a render can show the line and the face it keeps.
+    /// </summary>
+    internal void SetupForPreview(WidgetConfig drawn)
+    {
+        ArgumentNullException.ThrowIfNull(drawn);
+        var signedIn = SignedIn();
+        // Only where the state's config is what makes it wait (the card's own does not): a preview runs every account widget
+        // past its line on fixture data ([S-2711]), and that stays so.
+        if (!_host.IsPreview || _setup is not null || IsFaulted || Unprompted || WidgetSetup.Needed(Model.Config, signedIn)
+            || !WidgetSetup.Needed(drawn, signedIn) || WidgetLiveness.SetUpInPlace(drawn))
+        {
+            return;
+        }
+
+        _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, SetupSentence(signedIn), () => _host.RequestSetup(this));
+        _setup.Margin = OverlayTop;
+        _content.Children.Add(_setup);
+        ApplyEdges();
+    }
 #endif
 
     /// <summary>

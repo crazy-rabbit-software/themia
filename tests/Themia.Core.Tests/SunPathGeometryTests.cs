@@ -104,16 +104,16 @@ public class SunPathGeometryTests
     }
 
     /// <summary>
-    /// The layout the view asks for at its current size. The curve is inset to the 13% and 87%
-    /// gridlines because the number strip is centred on the same anchors. [S-16]
+    /// [S-15806] The layout the view asks for at its current size: the curve runs the box's whole width (owner,
+    /// 2026-11-19: "Plot edge to edge"); it was inset to 13%..87% for a number strip that is gone.
     /// </summary>
     [Fact]
-    public void S_11_The_plot_anchors_the_ends_on_the_label_gridlines()
+    public void S15806_the_plot_runs_the_whole_width_of_its_box()
     {
         var plot = SunPathPlot.For(200, 150, 47.37, 15.6);
 
-        Assert.Equal(26, plot.X0, 9);
-        Assert.Equal(174, plot.X1, 9);
+        Assert.Equal(0, plot.X0, 9);
+        Assert.Equal(200, plot.X1, 9);
         Assert.True(plot.HorizonY < 150, "the horizon must leave room for the night band");
         Assert.True(plot.HorizonY - plot.AboveHeight >= 0, "the curve must stay inside the drawing");
     }

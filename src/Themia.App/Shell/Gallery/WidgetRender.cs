@@ -311,6 +311,12 @@ internal static class WidgetRender
                             }
 
                             await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
+
+                            // [S-15809] A state drawing a config the card would set up stands under its Set up line (WR-10).
+                            if (preview.DrawnConfig is { } drawn)
+                            {
+                                card.SetupForPreview(drawn);
+                            }
                         }
                         else
                         {

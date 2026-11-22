@@ -13,13 +13,13 @@ JSON context), `SunConfig.cs`, `SunLayout.cs` (its sizes), `SunDayBar.cs` (the d
 
 - **[S-170]**, **[S-3102]** *(Retired by [S-11110]: no rows and no ladder in the sun; its times are the
   sun times' atom, [S-11115].)*
-- **[S-11110]** **What it shows** is the graphic alone, in the style's look, filling its box in the
-  inset at every size in its range: nothing appears or disappears. A picture says what it is; a Header
+- **[S-11110]** **What it shows** is the graphic alone, in the style's look, filling its box
+  (the arc the card, [S-15806]; the bar the inset's width, [S-15807]) at every size in its range: nothing appears or disappears. A picture says what it is; a Header
   widget over it names it ([S-12481]). In a group it runs to a foot a mate joins ([S-12483]).
-- **[S-11111]** **Sizes** (`SunLayout.Sizing`): 200..480 wide, a new one 280. The arc's
-  height a free range round half its content's width (112..252, a new one 152); the day bar one dot
-  tall in the inset, one height (36). The arc fits its box in every season ([S-11806], root): the
-  horizon near the foot (the night's dip under it), the day's curve up to the top inset.
+- **[S-11111]** **Sizes** (`SunLayout.Sizing`): 64..480 wide ([S-15808]), a new one 280. The arc's
+  height a free range (40..252, a new one 152: half its content's width); the day bar one dot
+  tall in the inset at its stated height (36). The arc fits its box in every season ([S-11806], root): the
+  horizon near the foot (the night's dip under it), the day's curve up to the top ([S-15806]).
 - **[S-6045]** The sun's styles ([S-6000]), `SunConfig.Style` (`SunStyle`): **Arc** (the default: the
   path, [S-167], from the Chart's tokens: where the sun has been the accent at the stroke over its 16 %
   wash, the stretch still to come the Track role at the stroke, the night stretch a Track hairline,
@@ -31,7 +31,29 @@ JSON context), `SunConfig.cs`, `SunLayout.cs` (its sizes), `SunDayBar.cs` (the d
   accent fill between sunrise and sunset, now a 12 dot on it (primary in daylight, tertiary at night),
   the track inset by the dot's half either end so the dot at midnight is not cut. Each mark is its
   instant's share of the day in real time; a sunrise or sunset not on this day fills from or to the
-  bar's end; polar day fills the whole bar, polar night none of it.
+  bar's end; polar day fills the whole bar, polar night none of it. ([S-15807]: the track runs the content's whole
+  width, the dot's centre kept a half dot inside its ends.)
+- **[S-15806]** **The arc is a plot edge to edge** (owner, 2026-11-19, asked whether a graph's plot should reach the
+  card's edges: "Plot edge to edge"; WR-1, WR-3, WR-5): the arc's plot is the card's whole box (`PlotMark`): the horizon
+  runs from the card's left edge to its right, the path (`SunPathPlot.For`: the day from the box's left edge to its right,
+  no longer 13 %..87 % for a number strip that went with the times) from its left to its right and from its top to its
+  foot, in the plot less the marker's half (6) on every side so the marker is never cut. Before, the plot stood in the
+  inset: its noon 11.3 under the card's top, the horizon 12 short of either side, the day's arc narrower still. Tests
+  `SunPathGeometryTests.S15806_`.
+- **[S-15807]** **The day bar grows as one with its card** (WR-7, owner 2026-11-19: "All together, scaled"): its track runs
+  the content's whole width at the inset (the dot's centre a half dot inside its ends, `SunLayout.DotAt`) and the bar,
+  drawn at its natural size, scales as one (`SunLayout.BarScale`) until its dot fills the room's height or the room's
+  width is its natural width's share of it, never under its natural size; where the width stops it, it stands centred in
+  the height (it fills the width: owner, 2026-11-20, "Centred is fine"). Before, its thumb and track stayed 12 DIP at
+  every size and the track stood 18 in from either side. Tests `SunTests.S15807_`.
+- **[S-15808]** **It goes down to 64 wide** (WR-14, owner 2026-11-19: "for the widgets that can scale there should basically
+  be no lower limit except for one that makes sense so you can still see the widget"): a drawing with no text, its least
+  is where its 12 marker (a glyph's floor) still reads on a 40 track or a 64 × 40 arc, over the grid's least 32
+  (`SunLayout.Narrowest`, `ArcLeast`). It had stopped at 200 × 112 (the bar 200 × 36). Tests `SunTests.S11111_S15808_`.
+- **[S-15809]** **A cleared place keeps the face** (WR-10, [S-2848], [S-1881]): the sun with its place cleared runs under
+  the card's compact Set up line, its face drawn for the default place. The Debug state `noPlace` draws it so: a render
+  whose state draws a config the card would set up while the card's own would not stands it under that line
+  (`WidgetCard.SetupForPreview`, `IWidgetPreviewState.DrawnConfig`).
 - **[S-3107]** Every option is on the properties menu ([S-3719]); there is no settings page: Style and
   Appearance ([S-3723]), nothing under Style; then behind a divider **Location**, the sky's shared
   search ([S-3101]): the place's city (or its coordinates) at the line's end; under the answers Clear

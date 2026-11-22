@@ -38,8 +38,9 @@ public readonly record struct SunPathPlot(
     /// <summary>
     /// The plot for a drawing surface of this size at this place and date.
     /// <para>
-    /// The curve is inset to 13%..87% of the width because the number strip anchors on the same two
-    /// gridlines, so a time sits centred under the end of the curve it names. [S-16]
+    /// [S-15806] The curve runs the whole width: the day from the box's left edge to its right, as a graph's plot reaches
+    /// its card's edges (owner, 2026-11-19: "Plot edge to edge"). (It was inset to 13%..87% for a number strip under its
+    /// ends, gone with the sun's times, [S-11110].)
     /// </para>
     /// </summary>
     public static SunPathPlot For(double width, double height, double latitudeDegrees, double sunDeclinationDegrees)
@@ -54,8 +55,8 @@ public readonly record struct SunPathPlot(
         var horizon = h - below;
 
         return new SunPathPlot(
-            X0: w * 0.13,
-            X1: w * 0.87,
+            X0: 0,
+            X1: w,
             HorizonY: horizon,
             AboveHeight: Math.Max(1, horizon),
             AxisMaxDegrees: NoonAltitude(latitudeDegrees, sunDeclinationDegrees),

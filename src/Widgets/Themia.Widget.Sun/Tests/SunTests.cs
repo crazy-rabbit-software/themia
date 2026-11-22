@@ -57,26 +57,48 @@ public sealed class SunTests
     }
 
     [Fact]
-    public void S11111_the_arc_is_200_to_480_wide_in_the_inset_its_natural_height_half_its_content_s_width()
+    public void S11111_S15808_the_arc_is_up_to_480_wide_its_natural_height_half_its_content_s_width_down_to_64_by_40()
     {
         var sizing = SunLayout.Sizing(new SunConfig());
 
         Assert.Equal(new Themia.Sdk.SizeDip(280, 24 + 128), sizing.Natural);
-        Assert.Equal((200.0, 480.0), (sizing.Min.Width, sizing.Max.Width));
-        Assert.Equal((24 + 88.0, 24 + 228.0), (sizing.Min.Height, sizing.Max.Height));
+        // [S-15808] WR-14: a drawing with no text goes down to where its 12 marker still reads, over the grid's 32.
+        Assert.Equal(new Themia.Sdk.SizeDip(64, 40), sizing.Min);
+        Assert.Equal((480.0, 24 + 228.0), (sizing.Max.Width, sizing.Max.Height));
         Assert.Empty(sizing.Problems());
     }
 
     [Fact]
-    public void S11111_the_day_bar_is_one_dot_tall_in_the_inset_at_one_height()
+    public void S11111_S15808_the_day_bar_is_one_dot_tall_in_the_inset_at_one_height_down_to_64_wide()
     {
         var sizing = SunLayout.Sizing(new SunConfig { Style = SunStyle.DayBar });
 
         Assert.True(sizing.FixedHeight);
         Assert.Equal(24 + SunLayout.Dot, sizing.Natural.Height);
-        Assert.Equal((200.0, 280.0, 480.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal((64.0, 280.0, 480.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
 
+    [Theory]
+    [InlineData(256, 12, 1)]          // a new card: its natural size
+    [InlineData(176, 12, 1)]          // narrower: never under it (its dot the glyph floor)
+    [InlineData(536, 48, 536 / 256d)] // 560x72: the width's share of its natural width stops it
+    [InlineData(276, 276, 276 / 256d)] // 300x300: the width stops it, centred in the height
+    [InlineData(900, 24, 2)]          // a long low card: its height stops it
+    public void S15807_the_day_bar_grows_as_one_with_its_card(double width, double height, double scale)
+    {
+        // WR-7: at 200x36, 560x72 and 300x300 the thumb and the track had stayed 12 DIP tall.
+        Assert.Equal(scale, SunLayout.BarScale(width, height), 6);
+        Assert.True(SunLayout.Dot * SunLayout.BarScale(width, height) <= Math.Max(height, SunLayout.Dot) + 1e-9);
+    }
+
+    [Fact]
+    public void S15807_the_day_bar_s_dot_stands_at_its_share_of_the_track_never_cut_at_its_ends()
+    {
+        Assert.Equal(128, SunLayout.DotAt(0.5, 256), 9);
+        Assert.Equal(SunLayout.Dot / 2, SunLayout.DotAt(0, 256), 9);
+        Assert.Equal(256 - (SunLayout.Dot / 2), SunLayout.DotAt(1, 256), 9);
+        Assert.Equal(64, SunLayout.DotAt(0.25, 256), 9);
+    }
     [Fact]
     public void S11110_the_sun_s_styles_are_the_arc_and_the_day_bar()
     {
