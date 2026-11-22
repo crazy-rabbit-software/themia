@@ -382,7 +382,15 @@ internal sealed partial class PageView
         {
             if (search.Settle > TimeSpan.Zero)
             {
-                await Task.Delay(search.Settle, token).ConfigureAwait(true);
+                _typing++;
+                try
+                {
+                    await Task.Delay(search.Settle, token).ConfigureAwait(true);
+                }
+                finally
+                {
+                    _typing--;
+                }
             }
 
             var answer = await search.Find(typed, token).ConfigureAwait(true);
@@ -414,9 +422,15 @@ internal sealed partial class PageView
     /// <summary>The lookups' searches still running (waiting for the typing to settle, or asked).</summary>
     private int _searches;
 
+    /// <summary>The lookups' searches still waiting for the typing to settle (not asked yet).</summary>
+    private int _typing;
+
 #if DEBUG
     /// <summary>[S-15900] Debug renders: a lookup's search still running, which a render's settle waits for; null when none.</summary>
     internal string? DebugSearching => _searches > 0 ? "a lookup's search" : null;
+
+    /// <summary>[S-15900] Debug renders: a lookup's search not asked yet (the typing settling); null once it is asked.</summary>
+    internal string? DebugTyping => _typing > 0 ? "a lookup's typing settling" : null;
 #endif
 
     /// <summary>A font's or an icon's picker, with the rows that go with it (Add fonts).</summary>

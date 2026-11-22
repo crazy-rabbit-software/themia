@@ -96,7 +96,8 @@ internal static class RenderSettle
         var clock = Stopwatch.StartNew();
         var rule = new RenderSettling(ceiling ?? RenderSettling.DefaultCeiling);
         byte[]? last = null;
-        (byte[] Before, byte[] After, int Width, double Scale)? moved = null;
+        (byte[] Before, int BeforeWidth, byte[] After, int Width, double Scale)? moved = null;
+        var lastWidth = 0;
         try
         {
             while (true)
@@ -120,10 +121,11 @@ internal static class RenderSettle
                         : RenderSettling.SamePicture(last, look.Pixels, look.Width, 4, look.Masks);
                     if (same == false && now is { } changed)
                     {
-                        moved = (last!, changed.Pixels, changed.Width, changed.Scale);
+                        moved = (last!, lastWidth, changed.Pixels, changed.Width, changed.Scale);
                     }
 
                     last = now?.Pixels;
+                    lastWidth = now?.Width ?? 0;
                 }
                 else
                 {
@@ -282,9 +284,19 @@ internal static class RenderSettle
         => root is not FrameworkElement { ActualWidth: > 0, ActualHeight: > 0, XamlRoot: not null } || root.Visibility != Visibility.Visible;
 
     /// <summary>Where the last two looks differed (DIPs) and the elements there, deepest first: what kept the page moving.</summary>
-    private static string? Moving(UIElement root, (byte[] Before, byte[] After, int Width, double Scale)? moved)
+    private static string? Moving(UIElement root, (byte[] Before, int BeforeWidth, byte[] After, int Width, double Scale)? moved)
     {
-        if (moved is not { } m || RenderSettling.ChangedBox(m.Before, m.After, m.Width, 4) is not { } box)
+        if (moved is not { } m)
+        {
+            return null;
+        }
+
+        if (m.Before.Length != m.After.Length || m.BeforeWidth != m.Width)
+        {
+            return $"(its size changing: {m.BeforeWidth}x{m.Before.Length / Math.Max(1, m.BeforeWidth * 4)} px, then {m.Width}x{m.After.Length / Math.Max(1, m.Width * 4)} px)";
+        }
+
+        if (RenderSettling.ChangedBox(m.Before, m.After, m.Width, 4) is not { } box)
         {
             return null;
         }

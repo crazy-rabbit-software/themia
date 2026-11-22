@@ -775,7 +775,8 @@ busy desktop ([S-6601]), Debug, private bytes.
   `RenderSettle`; Core's `RenderSettling` decides) looks at a page once a frame (the compositor's own clock): laid out;
   while anything under it is still loading (a bitmap read from a URI, the host's loads announced through `LoadWatch`: a
   file's or desktop icon's shell icon, a thumbnail, a folder's count, a picture read from disk, a live preview's cards
-  shown on their samples (`SampleCards`); a replayed recording's answers; what the caller names, such as a lookup's search, `PageView.DebugSearching`) it waits for that; then it draws
+  shown on their samples (`SampleCards`); a replayed recording's answers; what the caller names, such as a lookup's search, `PageView.DebugSearching`, or for a shot that draws a
+  search still waiting on purpose only its typing settling, `DebugTyping`) it waits for that; then it draws
   the page to a bitmap each frame until the picture is the same `RenderSettling.QuietFrames` (2) frames in a row, so an
   entrance, a glide or a fade has ended. All under one ceiling (`RenderSettling.DefaultCeiling`, 15 s; a page's own
   signal, the add page's pictures, a minute): past it the run says `settle: <what> NOT SETTLED after n s: still loading

@@ -726,9 +726,13 @@ internal static partial class EditBarRender
             }
         }
 
-        // The page drawn (and what was typed into it answered) before the flyout is hung at its height.
+        // The page drawn (and what was typed into it answered) before the flyout is hung at its height. A search that never
+        // answers (the -wait shots draw it waiting, on purpose) is waited for until it is asked, not answered.
         var name = System.IO.Path.GetFileName(path);
-        await RenderHarness.SettleAsync(canvas, name, busy: () => page.DebugSearching).ConfigureAwait(true);
+        Func<string?> searching = string.Equals(type, PlaceRender.Unanswered, StringComparison.Ordinal) || string.Equals(type, SymbolRender.Unanswered, StringComparison.Ordinal)
+            ? () => page.DebugTyping
+            : () => page.DebugSearching;
+        await RenderHarness.SettleAsync(canvas, name, busy: searching).ConfigureAwait(true);
         canvas.UpdateLayout();
 
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
@@ -741,7 +745,7 @@ internal static partial class EditBarRender
             flyout.Scroll(Windows.System.VirtualKey.End);
         }
 
-        await RenderHarness.SettleAsync(screen, name, busy: () => page.DebugSearching).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, name, busy: searching).ConfigureAwait(true);
         Probe(screen, flyout, path);
         await RenderHarness.SaveAsync(screen, path, "editbar").ConfigureAwait(true);
         page.Close();
