@@ -11,8 +11,14 @@ namespace Themia.App.Shell;
 /// </summary>
 internal static class SampleCards
 {
-    /// <summary>Show each of <paramref name="cards"/>' samples in turn; <paramref name="stopped"/> ends the run early (the preview went).</summary>
-    public static async Task ShowAsync(IReadOnlyList<WidgetCard> cards, Func<bool> stopped, string scope)
+    /// <summary>
+    /// Show each of <paramref name="cards"/>' samples in turn; <paramref name="stopped"/> ends the run early (the preview went).
+    /// [S-15900] A load that draws later: announced (<see cref="Services.LoadWatch"/>), a render settles once it is done.
+    /// </summary>
+    public static Task ShowAsync(IReadOnlyList<WidgetCard> cards, Func<bool> stopped, string scope)
+        => Services.LoadWatch.Of(RunAsync(cards, stopped, scope));
+
+    private static async Task RunAsync(IReadOnlyList<WidgetCard> cards, Func<bool> stopped, string scope)
     {
         ArgumentNullException.ThrowIfNull(cards);
         ArgumentNullException.ThrowIfNull(stopped);

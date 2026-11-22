@@ -13,11 +13,22 @@ internal static class LoadWatch
     /// <summary><paramref name="load"/>, announced to the listener when it is still running.</summary>
     public static Task<T> Of<T>(Task<T> load)
     {
+        Announce(load);
+        return load;
+    }
+
+    /// <summary><paramref name="load"/>, announced to the listener when it is still running.</summary>
+    public static Task Of(Task load)
+    {
+        Announce(load);
+        return load;
+    }
+
+    private static void Announce(Task load)
+    {
         if (Listener is { } listener && !load.IsCompleted)
         {
             listener(load);
         }
-
-        return load;
     }
 }
