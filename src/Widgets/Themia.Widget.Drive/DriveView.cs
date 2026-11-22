@@ -155,22 +155,37 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         DriveBar.Show(_bar, drive);
     }
 
-    /// <summary>[S-12810] Ask the shell for the drive's icon once per drive; the root's own (system) icon, never the plain folder's.</summary>
+    /// <summary>
+    /// [S-12810] Ask the shell for the drive's icon once per drive; the root's own (system) icon, never the plain folder's.
+    /// [S-15165] A preview's drive that is not this PC's system drive (a mapped share, a stick) is drawn with its kind's stock
+    /// icon: the shell's answer for a letter this PC may not have changed from run to run (a plain fixed drive for a
+    /// disconnected share, or the share's icon with a stray row over it).
+    /// </summary>
     private async void ShowIcon(DriveEntry drive)
     {
-        if (drive.Root == _iconRoot)
+        var stocked = _previewDrive is not null && !string.Equals(drive.Root, SystemDrive.Root, StringComparison.OrdinalIgnoreCase);
+        var stock = stocked ? DriveRules.StockIcon(drive) : null;
+        var key = stocked ? $"{drive.Root}|{stock}" : drive.Root;
+        if (key == _iconRoot)
         {
             return;
         }
 
-        _iconRoot = drive.Root;
+        _iconRoot = key;
         _icon.Reset(null);
         _icon.Visibility = Visibility.Collapsed;
+        if (stocked && stock is null)
+        {
+            // A preview's drive of no known kind (one that is not there): no icon, as the shell gives none.
+            return;
+        }
         const int system = 0x4;
         var pixels = (int)Math.Ceiling(FamilyType.Big28.LineHeight * 4 * (XamlRoot?.RasterizationScale ?? 1));
 
         // async void: the slot's load logs and swallows a failure (an icon is decoration), so nothing escapes here.
-        if (await _icon.LoadAsync(() => _widgetHost.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels)).ConfigureAwait(true))
+        if (await _icon.LoadAsync(() => stock is { } held
+                ? _widgetHost.FileIcons.DriveIconAsync(held, pixels)
+                : _widgetHost.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels)).ConfigureAwait(true))
         {
             // No icon to draw takes no room: the share stands where its ink is.
             _icon.Visibility = _icon.Source is null ? Visibility.Collapsed : Visibility.Visible;

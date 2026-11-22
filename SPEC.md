@@ -8787,6 +8787,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (`IWidgetHost.FileIcons`, the root as a system folder so the shell gives its own icon, not a plain folder's). A
   mapped network drive is a drive of the same widget ([S-4650]: its share, its space; disconnected it says
   "Disconnected network drive"). A bare UNC path without a letter is not a drive here yet.
+- **[S-15165]** **A preview's drive is drawn with its kind's stock icon** (`DriveRules.StockIcon`, the shell's
+  `SHGetStockIconInfo` through `IFileIcons.DriveIconAsync`): a mapped share, Explorer's red X on one it cannot reach, a
+  stick, a fixed disk, a disc, a RAM disk; one of no known kind (not there) none, as the shell gives none. The shell's own icon of a letter this PC may not have changed from run to run (a
+  plain fixed drive for the disconnected share in one render, the share's icon with a stray row over it in another, which
+  the gap check read as ink 0.6 DIP over the icon's box). The sample's system drive keeps the shell's own icon of it.
 - **[S-12811]** **Every facts list is one component** (owner, 2026-11-19: "the drive facts and similar widgets should
   also show their entries like the items"; then "they dont need to have an icon neccsarily, but they should reuse the
   same base"; "generally i feel like the widgets have to much variance in themselves. they should reuse more of the
