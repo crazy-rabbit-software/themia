@@ -75,14 +75,17 @@ public sealed class RenderSettling
 
     /// <summary>
     /// The loud line of a settle that hit its ceiling: <paramref name="what"/> (the picture or check), the ceiling, and
-    /// what was still busy (<paramref name="pending"/>; none: the picture was still changing).
+    /// what was still busy (<paramref name="pending"/>; none: the picture was still changing, <paramref name="changing"/>
+    /// where and what, when known).
     /// </summary>
-    public static string CeilingLine(string what, TimeSpan ceiling, IEnumerable<string> pending)
+    public static string CeilingLine(string what, TimeSpan ceiling, IEnumerable<string> pending, string? changing = null)
     {
         ArgumentNullException.ThrowIfNull(pending);
         var busy = string.Join(", ", pending.Distinct(StringComparer.Ordinal));
         return $"settle: {what} NOT SETTLED after {ceiling.TotalSeconds:0.#} s: "
-            + (busy.Length == 0 ? "the picture was still changing" : $"still loading {busy}")
+            + (busy.Length > 0 ? $"still loading {busy}"
+                : changing is null ? "the picture was still changing"
+                : $"the picture was still changing at {changing}")
             + "; drawn as it stands";
     }
 
@@ -153,7 +156,49 @@ public sealed class RenderSettling
 
         return true;
     }
+
+    /// <summary>
+    /// [S-15900] Where two looks of one size differ: the box round every changed pixel, or null when none did (or the
+    /// sizes differ). Said with a settle that hit its ceiling still changing, so what kept moving can be named.
+    /// </summary>
+    public static PixelBox? ChangedBox(ReadOnlySpan<byte> last, ReadOnlySpan<byte> now, int width, int bytesPerPixel)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(bytesPerPixel, 1);
+        var stride = width * bytesPerPixel;
+        if (last.Length != now.Length || now.Length % stride != 0)
+        {
+            return null;
+        }
+
+        int left = int.MaxValue, top = int.MaxValue, right = -1, bottom = -1;
+        for (var y = 0; y < now.Length / stride; y++)
+        {
+            var row = y * stride;
+            if (last.Slice(row, stride).SequenceEqual(now.Slice(row, stride)))
+            {
+                continue;
+            }
+
+            for (var x = 0; x < width; x++)
+            {
+                if (!last.Slice(row + (x * bytesPerPixel), bytesPerPixel).SequenceEqual(now.Slice(row + (x * bytesPerPixel), bytesPerPixel)))
+                {
+                    left = Math.Min(left, x);
+                    right = Math.Max(right, x);
+                    top = Math.Min(top, y);
+                    bottom = Math.Max(bottom, y);
+                }
+            }
+        }
+
+        return right < 0 ? null : new PixelBox(left, top, right - left + 1, bottom - top + 1);
+    }
 }
 
 /// <summary>[S-15901] A box of pixels of a look at a page: left, top, width and height.</summary>
+/// <param name="X">Its left edge, in pixels.</param>
+/// <param name="Y">Its top edge, in pixels.</param>
+/// <param name="Width">Its width, in pixels.</param>
+/// <param name="Height">Its height, in pixels.</param>
 public readonly record struct PixelBox(int X, int Y, int Width, int Height);

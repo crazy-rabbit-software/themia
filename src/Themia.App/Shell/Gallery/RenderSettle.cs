@@ -29,6 +29,9 @@ internal static class RenderSettle
     /// <summary>The longest one frame is waited for: an off-screen window the compositor stopped drawing must not hang a render.</summary>
     private static readonly TimeSpan FrameCeiling = TimeSpan.FromSeconds(2);
 
+    /// <summary>The longest one look (a bitmap of the page) is waited for.</summary>
+    private static readonly TimeSpan LookCeiling = TimeSpan.FromSeconds(10);
+
     /// <summary>The render's own work still running (a recording's answers on their way), each a task.</summary>
     private static readonly HashSet<Task> Work = [];
 
@@ -93,6 +96,7 @@ internal static class RenderSettle
         var clock = Stopwatch.StartNew();
         var rule = new RenderSettling(ceiling ?? RenderSettling.DefaultCeiling);
         byte[]? last = null;
+        (byte[] Before, byte[] After, int Width, double Scale)? moved = null;
         try
         {
             while (true)
@@ -109,6 +113,11 @@ internal static class RenderSettle
                     same = now is not { } look ? true
                         : last is null ? null
                         : RenderSettling.SamePicture(last, look.Pixels, look.Width, 4, look.Masks);
+                    if (same == false && now is { } changed)
+                    {
+                        moved = (last!, changed.Pixels, changed.Width, changed.Scale);
+                    }
+
                     last = now?.Pixels;
                 }
                 else
@@ -121,7 +130,7 @@ internal static class RenderSettle
                     case SettleStep.Settled:
                         return true;
                     case SettleStep.CeilingHit:
-                        var line = RenderSettling.CeilingLine(what, rule.Ceiling, pending.Select(p => p.What));
+                        var line = RenderSettling.CeilingLine(what, rule.Ceiling, pending.Select(p => p.What), pending.Count == 0 ? Moving(root, moved) : null);
                         Log.Warn(Scope, line);
                         Console.WriteLine(line);
                         Interlocked.Increment(ref _late);
@@ -267,8 +276,41 @@ internal static class RenderSettle
     private static bool Nothing(UIElement root)
         => root is not FrameworkElement { ActualWidth: > 0, ActualHeight: > 0, XamlRoot: not null } || root.Visibility != Visibility.Visible;
 
-    /// <summary>One look at <paramref name="root"/>: its pixels (BGRA), their width and the boxes masked; null when it draws nothing.</summary>
-    private static async Task<(byte[] Pixels, int Width, IReadOnlyList<PixelBox> Masks)?> LookAsync(UIElement root)
+    /// <summary>Where the last two looks differed (DIPs) and the elements there, deepest first: what kept the page moving.</summary>
+    private static string? Moving(UIElement root, (byte[] Before, byte[] After, int Width, double Scale)? moved)
+    {
+        if (moved is not { } m || RenderSettling.ChangedBox(m.Before, m.After, m.Width, 4) is not { } box)
+        {
+            return null;
+        }
+
+        var dips = new Windows.Foundation.Rect(box.X / m.Scale, box.Y / m.Scale, box.Width / m.Scale, box.Height / m.Scale);
+        var names = new List<string>();
+        try
+        {
+            var origin = root.TransformToVisual(null).TransformPoint(new Windows.Foundation.Point(0, 0));
+            var hit = new Windows.Foundation.Rect(origin.X + dips.X, origin.Y + dips.Y, Math.Max(1, dips.Width), Math.Max(1, dips.Height));
+            // Enumerated by hand: the WinRT collection has no generic helper for LINQ's ICollection probe.
+            foreach (var element in VisualTreeHelper.FindElementsInHostCoordinates(hit, root, includeAllElements: true))
+            {
+                names.Add(element is FrameworkElement { Name.Length: > 0 } named ? $"{element.GetType().Name} '{named.Name}'" : element.GetType().Name);
+                if (names.Count == 6)
+                {
+                    break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Diagnostic only: the line still says where the page moved, without the elements there.
+            Log.Warn(Scope, "the elements where the page moved could not be named", ex);
+        }
+
+        return $"({dips.X:0},{dips.Y:0} {dips.Width:0}x{dips.Height:0} DIPs{(names.Count > 0 ? ": " + string.Join(" < ", names) : string.Empty)})";
+    }
+
+    /// <summary>One look at <paramref name="root"/>: its pixels (BGRA), their width, its scale and the boxes masked; null when it draws nothing.</summary>
+    private static async Task<(byte[] Pixels, int Width, double Scale, IReadOnlyList<PixelBox> Masks)?> LookAsync(UIElement root)
     {
         if (Nothing(root))
         {
@@ -277,8 +319,17 @@ internal static class RenderSettle
 
         try
         {
+            // A look is bounded too: a bitmap the compositor never hands back is said, and the page counts as not looked at.
             var bitmap = new RenderTargetBitmap();
-            await bitmap.RenderAsync(root);
+            var drawn = bitmap.RenderAsync(root).AsTask();
+            if (await Task.WhenAny(drawn, Task.Delay(LookCeiling)).ConfigureAwait(true) != drawn)
+            {
+                Log.Warn(Scope, $"a look at {root.GetType().Name} took over {LookCeiling.TotalSeconds:0} s");
+                Console.WriteLine($"settle: a look at the page took over {LookCeiling.TotalSeconds:0} s; not compared");
+                return null;
+            }
+
+            await drawn.ConfigureAwait(true);
             if (bitmap.PixelWidth == 0 || bitmap.PixelHeight == 0)
             {
                 return null;
@@ -286,7 +337,7 @@ internal static class RenderSettle
 
             var pixels = (await bitmap.GetPixelsAsync()).ToArray();
             var scale = bitmap.PixelWidth / ((FrameworkElement)root).ActualWidth;
-            return (pixels, bitmap.PixelWidth, Masks(root, scale));
+            return (pixels, bitmap.PixelWidth, scale, Masks(root, scale));
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.Runtime.InteropServices.COMException)
         {
@@ -296,33 +347,63 @@ internal static class RenderSettle
         }
     }
 
-    /// <summary>[S-15901] What under <paramref name="root"/> turns forever on purpose (an indeterminate ring or bar), in its pixels.</summary>
+    /// <summary>
+    /// [S-15901] What under <paramref name="root"/> turns forever on purpose, in its pixels: an indeterminate ring (its box
+    /// and a ring's size round it) or bar (its box), and the caret of a focused text box (a few DIPs round it: it fades in and out for as long as it has focus).
+    /// </summary>
     private static List<PixelBox> Masks(UIElement root, double scale)
     {
         var masks = new List<PixelBox>();
+        void Mask(FrameworkElement part, Windows.Foundation.Rect local)
+        {
+            var box = part.TransformToVisual(root).TransformBounds(local);
+            masks.Add(new PixelBox(
+                (int)Math.Floor(box.X * scale) - 1,
+                (int)Math.Floor(box.Y * scale) - 1,
+                (int)Math.Ceiling(box.Width * scale) + 3,
+                (int)Math.Ceiling(box.Height * scale) + 3));
+        }
+
         Walk(root, element =>
         {
-            var turning = element switch
+            switch (element)
             {
-                ProgressRing { IsActive: true, IsIndeterminate: true, Visibility: Visibility.Visible } => true,
-                ProgressBar { IsIndeterminate: true, Visibility: Visibility.Visible } => true,
-                _ => false,
-            };
-
-            if (turning && element is FrameworkElement { ActualWidth: > 0, ActualHeight: > 0 } part)
-            {
-                var box = part.TransformToVisual(root).TransformBounds(new Windows.Foundation.Rect(0, 0, part.ActualWidth, part.ActualHeight));
-                masks.Add(new PixelBox(
-                    (int)Math.Floor(box.X * scale) - 1,
-                    (int)Math.Floor(box.Y * scale) - 1,
-                    (int)Math.Ceiling(box.Width * scale) + 3,
-                    (int)Math.Ceiling(box.Height * scale) + 3));
+                case ProgressRing { IsActive: true, IsIndeterminate: true, Visibility: Visibility.Visible, ActualWidth: > 0, ActualHeight: > 0 } ring:
+                    // Its animation is drawn beyond its box (seen: a whole ring's width to the side): a ring's size round it.
+                    Mask(ring, new Windows.Foundation.Rect(-ring.ActualWidth, -ring.ActualHeight, 3 * ring.ActualWidth, 3 * ring.ActualHeight));
+                    return false;
+                case ProgressBar { IsIndeterminate: true, Visibility: Visibility.Visible, ActualWidth: > 0, ActualHeight: > 0 } bar:
+                    Mask(bar, new Windows.Foundation.Rect(0, 0, bar.ActualWidth, bar.ActualHeight));
+                    return false;
+                case TextBox { FocusState: not FocusState.Unfocused, ActualWidth: > 0, ActualHeight: > 0 } box:
+                    Mask(box, Caret(box));
+                    return true;
+                default:
+                    return true;
             }
-
-            return !turning;
         });
 
         return masks;
+    }
+
+    /// <summary>Where <paramref name="box"/>'s caret stands, a few DIPs wide; its whole box when the text has no place for it yet.</summary>
+    private static Windows.Foundation.Rect Caret(TextBox box)
+    {
+        try
+        {
+            var at = box.GetRectFromCharacterIndex(Math.Max(0, Math.Min(box.SelectionStart, box.Text.Length - 1)), trailingEdge: box.SelectionStart >= box.Text.Length && box.Text.Length > 0);
+            if (box.Text.Length > 0 && at.Height > 0)
+            {
+                return new Windows.Foundation.Rect(at.X - 3, at.Y - 2, 6, at.Height + 4);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            // No character to stand by (an empty box): the box's own width holds the caret.
+            Log.Debug(Scope, $"no caret rect: {ex.Message}");
+        }
+
+        return new Windows.Foundation.Rect(0, 0, box.ActualWidth, box.ActualHeight);
     }
 
     /// <summary>What under <paramref name="root"/> is still loading, each with the task that ends when it does (none: polled).</summary>

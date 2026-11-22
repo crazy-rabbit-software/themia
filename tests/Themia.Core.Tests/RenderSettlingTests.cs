@@ -152,6 +152,31 @@ public sealed class RenderSettlingTests
         Assert.True(RenderSettling.SamePicture(a, b, 6, 4, [new PixelBox(-2, 0, 3, 1), new PixelBox(2, 0, 9, 4), new PixelBox(1, 3, 3, 1)]));
     }
 
+    [Fact]
+    public void S15900_the_ceiling_line_says_where_the_picture_kept_changing()
+    {
+        var line = RenderSettling.CeilingLine("tasks.png", Ceiling, [], "(10,20 4x4 DIPs: ProgressRing)");
+        Assert.Contains("the picture was still changing at (10,20 4x4 DIPs: ProgressRing)", line, StringComparison.Ordinal);
+        Assert.Contains("still loading an image", RenderSettling.CeilingLine("x", Ceiling, ["an image"], "(ignored)"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void S15900_the_changed_box_holds_every_changed_pixel()
+    {
+        var a = Picture(6, 4);
+        var b = Picture(6, 4);
+        b[Offset(6, 1, 1) + 3] ^= 0xFF;
+        b[Offset(6, 4, 3)] ^= 0xFF;
+        Assert.Equal(new PixelBox(1, 1, 4, 3), RenderSettling.ChangedBox(a, b, 6, 4));
+    }
+
+    [Fact]
+    public void S15900_no_change_no_box()
+    {
+        Assert.Null(RenderSettling.ChangedBox(Picture(6, 4), Picture(6, 4), 6, 4));
+        Assert.Null(RenderSettling.ChangedBox(Picture(6, 4), Picture(6, 3), 6, 4));
+    }
+
     private static byte[] Picture(int width, int height)
     {
         var pixels = new byte[width * height * 4];
