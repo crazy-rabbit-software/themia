@@ -243,7 +243,7 @@ public static class TileRules
     /// <summary>[S-11882] The Switch look's new row: its glyph, a sentence's room for its name and state, and the switch.</summary>
     public const double SwitchNaturalWidth = 240;
 
-    /// <summary>[S-11882] The Switch look's widest and tallest row; [S-15767] the row stands on a taller box's top.</summary>
+    /// <summary>[S-11882] The Switch look's widest and tallest row; the row stays centred in a taller box.</summary>
     public static SizeDip SwitchMax => new(640, 3 * SwitchHeight);
 
     /// <summary>

@@ -119,11 +119,9 @@ public sealed partial class TileBlock : Grid
         };
 
         // The tile's own inset is the row's: no padding of its own.
-        // [S-15767] The switch look is a row (WR-14: "rows and list items keep their one fixed size"): it stands on the content's
-        // top (WR-1), the room a taller card has under it at its foot (WR-5), never shared over and under it.
         _switchRow = new Grid
         {
-            VerticalAlignment = VerticalAlignment.Top,
+            VerticalAlignment = VerticalAlignment.Center,
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = GridLength.Auto },
@@ -274,11 +272,18 @@ public sealed partial class TileBlock : Grid
         // the subtle fills laid over it under the pointer.
         if (_look == TileLook.Round)
         {
-            // [S-15765] The round look's item is the whole tile too (WR-3, WR-13): under the pointer and pressed the subtle
-            // fills light it edge to edge, not the circle alone.
-            ItemFill.Release(this);
-            Background = null;
-            _overlay.Background = lit;
+            // [S-15765] The round look's item is the whole tile too (WR-3, WR-13): under the pointer and pressed the item layer's
+            // fill lights it edge to edge (the tile's own background, past its padding), not the circle alone.
+            _overlay.Background = null;
+            if (item is ItemState.Hover or ItemState.Pressed)
+            {
+                ItemFill.Paint(this, ItemRole.Row, item);
+            }
+            else
+            {
+                ItemFill.Release(this);
+                Background = null;
+            }
         }
         else if (onAccent && roles.Fill is { } fill)
         {

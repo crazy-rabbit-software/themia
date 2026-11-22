@@ -333,7 +333,8 @@ public sealed partial class MeterView
             var part = make();
             part.HorizontalAlignment = HorizontalAlignment.Center;
             part.VerticalAlignment = part is ChartBar ? VerticalAlignment.Stretch : VerticalAlignment.Center;
-            var cell = new Border { Child = part, Padding = padding, Background = Family.Brush(ColourRole.Clear) };
+            // [S-15746] Hidden until the cells are laid: a cell the card does not reach never stands at the first column.
+            var cell = new Border { Child = part, Padding = padding, Background = Family.Brush(ColourRole.Clear), Visibility = Visibility.Collapsed };
             ItemMark.Mark(cell);
 
             // [S-15768] Each core is the item under the pointer (WR-13: "Hover lights exactly the item under the pointer").
@@ -728,6 +729,7 @@ public sealed partial class MeterView
                         cell.Band.Looks(ChartLooks.Effective(looks), ChartDetail.Simple, TimeSpan.FromSeconds(1), null);
                     }
 
+                    cell.Item.Visibility = Visibility.Collapsed;
                     Cells.Add(cell);
                     _body.Children.Add(cell.Item);
                 }

@@ -185,10 +185,6 @@ public static class QuickToggleRules
         => refused && look is ToggleLook.On or ToggleLook.Off ? Strings.Get(locale, Str.Toggles_Reason_Refused)
             : look == ToggleLook.Unknown ? Strings.Get(locale, Str.Common_Loading) : StateText(locale, look);
 
-    /// <summary>[S-15764] Every sentence the state line may say in <paramref name="locale"/>: the tile plans its words' box for the widest.</summary>
-    public static IReadOnlyList<string> StateLines(Locale locale)
-        => [.. new[] { ToggleLook.On, ToggleLook.Off, ToggleLook.Unavailable, ToggleLook.Unknown }.Select(l => StateLine(locale, l)), StateLine(locale, ToggleLook.Off, refused: true)];
-
     /// <summary>The longest state line in a language: the face is planned for it, so switching moves nothing.</summary>
     public static int LongestStateChars(Locale locale)
         => new[] { ToggleLook.On, ToggleLook.Off, ToggleLook.Unavailable }.Max(l => StateText(locale, l).Length);

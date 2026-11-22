@@ -57,29 +57,30 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
     private PowerButton? _button;
     private WidgetArea _area;
 
-    /// <summary>[S-15764] The why line's sentences the words' box is planned for.</summary>
-    private IReadOnlyList<string> _planned = [];
+    /// <summary>[S-15764] The why line the words' box is planned for now (empty: none).</summary>
+    private string _planned = string.Empty;
 
-    /// <summary>[S-15764] What the why line may say: the armed sentence (an action that arms), the unavailable reason (one a PC can lack), a failure shown now.</summary>
-    private IReadOnlyList<string> Sentences()
+    /// <summary>
+    /// [S-1913] [S-1914] [S-1915] [S-15764] What the why line under the name says now (what the next click does, why it failed,
+    /// why it cannot: empty at rest) and the tooltip.
+    /// </summary>
+    private (string Why, string Tooltip) Why(DateTimeOffset now)
     {
-        var sentences = new List<string>();
-        if (PowerActionRules.NeedsArming(_action))
+        var name = PowerActionRules.Label(_action);
+        if (_button is not { } button)
         {
-            sentences.Add(PowerActionRules.ArmedLabel(_action));
+            return (string.Empty, name);
         }
 
-        if (!PowerActionRules.Available(_action, canHibernate: false))
-        {
-            sentences.Add(PowerActionRules.UnavailableHint);
-        }
-
-        if (_button is { Failure: { } failure })
-        {
-            sentences.Add(failure);
-        }
-
-        return sentences;
+        var armed = button.IsArmed(now);
+        var failure = button.Available && !armed ? button.Failure : null;
+        return !button.Available
+            ? (PowerActionRules.UnavailableHint, $"{name}: {PowerActionRules.UnavailableHint}")
+            : armed
+                ? (PowerActionRules.ArmedLabel(_action), PowerActionRules.ArmedLabel(_action))
+                : failure is not null
+                    ? (failure, failure)
+                    : (string.Empty, name);
     }
     private bool _hover;
     private bool _pressed;
@@ -233,20 +234,22 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        var natural = TileRules.Sizing(_tile.Look).Natural;
+        var natural = TileRules.Sizing(_tile.Look, stateLine: false).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
 
-        // [S-15764] The face stays in every state (WR-10, WR-12): its glyph and name, and a why line under them planned for
-        // every sentence it may say (the armed sentence, a failure shown now, the unavailable reason), so arming or failing
-        // changes the words and the colours, never the block's size or place.
-        _planned = Sentences();
-        var plan = TileBlock.Plan(PowerActionRules.Label(_action), _planned, width - (2 * FamilySpace.Inset));
+        // [S-15764] The face stays in every state (WR-10): its glyph and name, and while it has something to say (armed,
+        // failed, unavailable) a why line under them, planned on the lines it takes; at rest no line, so the face stands
+        // centred on what it draws (the tile exemption's bands alike). Its ring is always laid out, so arming never
+        // shrinks the glyph for it.
+        _planned = Why(DateTimeOffset.UtcNow).Why;
+        var why = _planned.Length > 0;
+        var plan = TileBlock.Plan(PowerActionRules.Label(_action), why ? [_planned] : [], width - (2 * FamilySpace.Inset));
         var ringed = _tile.Look == TileLook.Tile;
-        var face = TileRules.Face(width, height, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: plan.StateLines, ringed: ringed);
+        var face = TileRules.Face(width, height, stateLine: why, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: plan.StateLines, ringed: ringed);
         // [S-12806] A box too small for the family's inset gives it up round the glyph.
         var row = _tile.Look == TileLook.Switch;
         _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
-        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: face.Texted, face.Name, face.State, row ? 0 : face.Mark, plan.Width, plan.StateLines);
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: face.Texted && why, face.Name, face.State, row ? 0 : face.Mark, plan.Width, plan.StateLines);
         Paint();
     }
 
@@ -264,18 +267,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         var name = PowerActionRules.Label(_action);
 
         // [S-1913] The tile says what the next click does; [S-1915] after a failure, why (the machine is still up), until the
-        // next press; [S-1914] greyed with the reason. [S-15764] Always on the why line under the name, the face kept (its
-        // glyph, the critical role saying armed or failed).
-        var (why, tooltip) = !button.Available
-            ? (PowerActionRules.UnavailableHint, $"{name}: {PowerActionRules.UnavailableHint}")
-            : armed
-                ? (PowerActionRules.ArmedLabel(_action), PowerActionRules.ArmedLabel(_action))
-                : failure is not null
-                    ? (failure, failure)
-                    : (string.Empty, name);
-
-        // A failure the plan did not hold (its sentence first seen now) lays the words' box again.
-        if (why.Length > 0 && !_planned.Contains(why))
+        // next press; [S-1914] greyed with the reason. [S-15764] On the why line under the name, the face kept (its glyph,
+        // the critical role saying armed or failed); a sentence the face was not laid for lays it again.
+        var (why, tooltip) = Why(now);
+        if (why != _planned)
         {
             Lay();
             return;

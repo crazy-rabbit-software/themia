@@ -11419,24 +11419,19 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   measured width ("Restart" in a 70 wide card), else the glyph stands alone. The drive's share is no longer held to
   "100%" (it stood right-aligned, off its line); its line's held box is marked as the reading's (`HoldMark`). Test
   `FamilyBlockRulesTests.S11882_`.
-- **[S-15764]** **A tile keeps its face in every state and plans its words once** (WR-10, WR-12): the words' box is as
-  wide as the widest of the name and every sentence its state line may say (`TileBlock.Plan`: a toggle's states and its
-  refused line; a power button's armed sentence, its unavailable reason, a failure shown), the state line on the lines
-  its longest sentence takes, cut with its ellipsis past two; a power button plans a why line under its name (its natural
-  116) and says there what the next click does, why it failed or why it cannot: the glyph and name stay (the warning glyph
-  and a sentence across the card had replaced them), the critical role saying armed or failed. A ringed tile's ring
-  stands round its glyph at rest too (its track), so arming draws the arc in a ring already laid out: nothing moves when
-  it is clicked. Test `FamilyBlockRulesTests.S15764_`.
+- **[S-15764]** **A tile keeps its face in every state** (WR-10, WR-12): its words are planned in one box as wide as the
+  name and the state line it says now (`TileBlock.Plan`), each on the lines it takes (a refused click's "Windows did not
+  switch it" on two at the natural 116 rather than cut). A power button keeps its glyph and name when armed, failed or
+  unavailable and says why on a line under the name (the warning glyph and a sentence across the card had replaced its
+  face); at rest it has no such line, so it stands centred on what it draws (the tile exemption's bands alike). A ringed
+  tile's ring stands round its glyph at rest too (its track), always laid out, so arming draws the arc in a ring that is
+  already there and never shrinks the glyph for it. Test `FamilyBlockRulesTests.S15764_`.
 - **[S-15765]** **The round look lights its whole tile** (WR-3, WR-13): under the pointer and pressed the subtle fills lie
   over the whole tile, not the circle alone.
 - **[S-15766]** **A toggle not known yet says why** (WR-10): its state line says "Loading", not "--" alone. Test
   `QuickToggleTests.S14202_`.
-- **[S-15767]** **The switch look's row stands on the content's top** (WR-1, WR-5; a row keeps its one fixed size, WR-14:
-  "rows and list items keep their one fixed size"): the room a taller card has lies under it at its foot.
 - **[S-15768]** **The core under the pointer lights** (WR-13: "Hover lights exactly the item under the pointer"): a meter
   of items lights each item's cell under the pointer (`ItemLight`), not the whole card; a click still opens Task Manager.
-- **[S-15769]** **A reading's meter says why it waits** (WR-10): before its first reading it shows "Loading" over its top
-  end, as the items' looks do ([S-15747]); its "--" stays the face.
 - **[S-15762]** **A metric's readout never runs past its room** (the status mark's room at its end; WR-14): the readout's
   fit states its face (`MetricRules.ReadoutFace`: the value on the 28 step its main reading, the caption and the unit
   giving way, smallest first), so where the block at its floor is wider than its room the caption (the kind's glyph and

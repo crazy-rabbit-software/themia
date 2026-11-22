@@ -284,11 +284,6 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
             ShowReading(_reading, reading.Primary, reading.Available, Lead(reading), role);
         }
 
-        // [S-15769] Before its first reading a reading's meter says why over its top end, as the items' looks do ([S-15747]).
-        if (_part.Atom == MeterAtom.Reading)
-        {
-            ShowWaiting(!reading.Available && reading.Equals(_part.Waiting));
-        }
 
         // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.
         // [S-6332] Touched only when it says something else.

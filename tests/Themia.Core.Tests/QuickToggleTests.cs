@@ -173,7 +173,6 @@ public class QuickToggleTests
     {
         var en = Locale.En;
         Assert.Equal(Strings.Get(en, Str.Common_Loading), QuickToggleRules.StateLine(en, ToggleLook.Unknown)); // [S-15766] why, not "--" alone
-        Assert.Contains("Windows did not switch it", QuickToggleRules.StateLines(en));
         Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.On), QuickToggleRules.StateLine(en, ToggleLook.On));
         Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Off), QuickToggleRules.StateLine(en, ToggleLook.Off));
         Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Unavailable), QuickToggleRules.StateLine(en, ToggleLook.Unavailable));
