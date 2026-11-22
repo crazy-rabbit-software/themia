@@ -117,7 +117,7 @@ public sealed class MonthLayoutTests
             for (var n = 0; n <= 25; n++)
             {
                 var (width, height) = (Math.Ceiling(sizing.Min.Width / 10) * 10 + (n * 10), Math.Ceiling(sizing.Min.Height / 10) * 10 + (n * 10));
-                var top = FamilySpace.Inset;
+                var top = FamilySpace.Inset + LineRules.Band(Grid);
                 var month = MonthLayouts.Plan(width, height, top, Grid, anchorRow: 2, mostItems: 2);
 
                 Assert.Equal(CalendarSizing.MonthWeeks, month.Rows);
@@ -166,10 +166,10 @@ public sealed class MonthLayoutTests
     public void S15798_the_months_least_holds_a_readable_number_in_every_cell()
     {
         var sizing = CalendarSizing.MonthSizing(new Themia.Core.Model.CalendarWidgetConfig { MonthEvents = Themia.Core.Model.MonthEvents.Dots });
-        Assert.Equal((160.0, 180.0), (sizing.Min.Width, sizing.Min.Height));
+        Assert.Equal((160.0, 210.0), (sizing.Min.Width, sizing.Min.Height));
 
-        // At its least every week's number is a Caption line, its two figures across the column.
-        var least = MonthLayouts.Plan(sizing.Min.Width, sizing.Min.Height, FamilySpace.Inset, Grid, anchorRow: 2, mostItems: 2);
+        // At its least every week's number is a Caption line, its two figures across the column, under the period's line.
+        var least = MonthLayouts.Plan(sizing.Min.Width, sizing.Min.Height, FamilySpace.Inset + LineRules.Band(Grid), Grid, anchorRow: 2, mostItems: 2);
         Assert.Equal(FamilyType.Caption.LineHeight, least.NumberLine);
         Assert.True(MonthLayouts.NumberFits(least.LeastColumn) >= FamilyType.Caption.LineHeight);
     }

@@ -342,19 +342,6 @@ public static class ReadyMadeGroups
         new("shutdown", new(300, 0, 100, 100)),
     ]));
 
-    /// <summary>
-    /// [S-14904] Calendar: the calendar header across the top (owner, 2026-11-21: "split up the calendar into the month with
-    /// the arrows and the body of the calendar too, share the scrolling via the global state that we have"), the month
-    /// under it and the agenda beside the month, as tall: the arrows, the wheel or either calendar page all three
-    /// ([S-3626]).
-    /// </summary>
-    public static ReadyMadeGroup Calendar { get; } = Headed(new("calendar", Str.Groups_Recipe_Calendar, Str.Groups_Recipe_CalendarAbout, Glyphs.Calendar, AddFolderId.CalendarMail,
-    [
-        new("calendarHeader", new(0, 0, 600, 40)),
-        new("calendar", new(0, 40, 300, 210)),
-        new("calendar", new(300, 40, 300, 210), Config: """{ "style": "agenda" }"""),
-    ]));
-
     /// <summary>[S-11409] The meeting block over the meetings after it: what the Next meeting card was.</summary>
     public static ReadyMadeGroup NextMeetings { get; } = Headed(new("nextMeetings", Str.Groups_Recipe_NextMeeting, Str.Groups_Recipe_NextMeetingAbout, Glyphs.Meeting, AddFolderId.CalendarMail,
     [
@@ -404,7 +391,7 @@ public static class ReadyMadeGroups
     }
 
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, WeatherFacts, Sun, Moon, AirQuality, WeatherGraphs, ExchangeRates, Stocks, Calendar, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, WeatherFacts, Sun, Moon, AirQuality, WeatherGraphs, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

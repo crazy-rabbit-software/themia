@@ -18,10 +18,7 @@ public enum LinkTopicId
     /// <summary>[S-3311] A day picked in a date widget (a calendar); sticky.</summary>
     SelectedDate = 2,
 
-    /// <summary>
-    /// [S-3311] [S-3626] The period the view's calendars show (a month, a week, a day, a year, an agenda page's days): a
-    /// calendar header or body that pages sets it and every calendar of the view follows; sticky.
-    /// </summary>
+    /// <summary>[S-3311] The days a date widget shows right now (a calendar's month or week); sticky.</summary>
     VisibleRange = 3,
 
     /// <summary>[S-3623] The calendar event under the pointer in a calendar widget.</summary>

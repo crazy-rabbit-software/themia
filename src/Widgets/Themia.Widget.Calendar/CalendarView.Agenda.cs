@@ -23,9 +23,6 @@ internal sealed partial class CalendarView
     /// </summary>
     private readonly KitList _agenda;
 
-    /// <summary>[S-3627] Each agenda row's day, in order: the days a page says it shows.</summary>
-    private readonly List<DateOnly> _agendaDays = [];
-
     /// <summary>The agenda's items on screen by id, for the rows' hooks and Enter.</summary>
     private readonly Dictionary<string, DayItem> _agendaItems = new(StringComparer.Ordinal);
 
@@ -69,8 +66,6 @@ internal sealed partial class CalendarView
         var rows = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 
         _agendaItems.Clear();
-        _agendaDays.Clear();
-        _agendaDays.AddRange(rows.Select(r => r.Day));
 
         if (rows.Count == 0)
         {
@@ -99,7 +94,7 @@ internal sealed partial class CalendarView
         _agenda.Page = _agendaPage;
         _agenda.Show(items, plan, area, now);
 
-        // [S-3622] [S-3628] A day selected on the view, or the period it shows, turns the agenda to the page that holds it.
+        // [S-3622] A day selected on the view turns the agenda to the page that holds it.
         if (_agendaJump is { } jump)
         {
             _agendaJump = null;

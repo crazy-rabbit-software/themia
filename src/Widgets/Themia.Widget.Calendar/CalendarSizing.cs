@@ -8,7 +8,7 @@ namespace Themia.Widget.Calendar;
 
 /// <summary>
 /// [S-11540]..[S-11546] The calendar's sizes, each style its own and from the config alone, on the
-/// family's tokens (inset 12, no period's line: that is the calendar header's, [S-14903], rows 28/40): what a style
+/// family's tokens (inset 12, the period's line 24 over every style but the agenda, [S-12481], rows 28/40): what a style
 /// shows is its settings'; how many of the same item (a week's days, a timeline's hours, the chosen day's rows, a day
 /// cell's chip lines) is what the card holds ([S-14410], [S-14502]). Every axis takes every grid cell ([S-14500]). Pure.
 /// </summary>
@@ -16,11 +16,25 @@ public static class CalendarSizing
 {
     public const int DefaultAgendaRows = 6;
 
+    /// <summary>[S-569] [S-12481] [S-12834] The period's line (a tool line) and the gap under it, over every style but the agenda: its whole-cell band.</summary>
+    public static double NavLine => LineRules.NaturalBand;
+
+    /// <summary>[S-12481] Where a style with the period's line starts its drawing: the card's inset and the line.</summary>
+    public static double ContentTop => FamilySpace.ContentTop + NavLine;
+
     /// <summary>
-    /// [S-14903] Where every style starts its drawing: the card's inset. The period's line is the calendar header's own
-    /// widget ([S-14900]), so no style counts a line over its content.
+    /// [S-569] [S-12834] The period's line's band from the card's top edge: the card's inset, the line and the gap under it,
+    /// whole grid cells. The year, the day and the day strip lay their items from its foot as from a card's top edge.
     /// </summary>
-    public static double ContentTop => FamilySpace.ContentTop;
+    public static double LineBand => ItemSize.Optimal(LineRules.BandOver, ItemGrid.Default());
+
+    /// <summary>[S-569] A style's own sizing with the period's line over it: every height its band taller.</summary>
+    public static WidgetSizing Lined(WidgetSizing face)
+    {
+        ArgumentNullException.ThrowIfNull(face);
+        static SizeDip Taller(SizeDip size) => new(size.Width, size.Height + LineBand);
+        return face with { Min = Taller(face.Min), Natural = Taller(face.Natural), Max = Taller(face.Max) };
+    }
 
     public const int DefaultWeekRows = 3;
 
@@ -195,10 +209,11 @@ public static class CalendarSizing
 
     /// <summary>
     /// [S-12832] [S-14101] [S-14500] What stands over a month's weeks, each part whole grid cells from the card's top edge
-    /// as the month lays it (<see cref="MonthLayouts.Plan"/>): the card's inset and the weekday line under it ([S-14903]: no
-    /// period's line).
+    /// as the month lays it (<see cref="MonthLayouts.Plan"/>): the period's line with the card's inset over it, the weekday
+    /// line.
     /// </summary>
-    public static double MonthOver => ItemSize.Optimal(ContentTop + FamilyType.Caption.LineHeight, ItemGrid.Default());
+    public static double MonthOver
+        => ItemSize.Optimal(LineRules.BandOver, ItemGrid.Default()) + ItemSize.Optimal(FamilyType.Caption.LineHeight, ItemGrid.Default());
 
     /// <summary>
     /// [S-11544] The month with dots: seven columns of 260 / 7 at least (a new one the least), its weekday letters and six
@@ -311,29 +326,11 @@ public static class CalendarSizing
         }
 
         var row = ItemSize.Optimal(FamilyShape.Row1, grid);
-        return WidgetSizing.Range(
+        return Lined(WidgetSizing.Range(
             new(Width(CalendarPeriod.WeekMinDays), WeekRowsOver + row),
             new(Width(CalendarPeriod.WeekDefaultDays), WeekRowsOver + (ClampWeekRows(config.WeekRows) * row)),
-            new(Width(CalendarPeriod.WeekMaxDays), WeekRowsOver + (MaxWeekRows * row)));
+            new(Width(CalendarPeriod.WeekMaxDays), WeekRowsOver + (MaxWeekRows * row))));
     }
-
-    // ---- [S-14901] the calendar header -------------------------------------------------------------
-
-    /// <summary>[S-14901] The least header: the longest period's title ("September 2026", "Sep 28 – Oct 4") beside its two arrows.</summary>
-    public const double HeaderNarrowest = 200;
-
-    /// <summary>[S-14901] A new header: as wide as a new month under it.</summary>
-    public const double HeaderNatural = 300;
-
-    /// <summary>
-    /// [S-14901] A header's one height: the card's inset over its tool line, the line and the gap under it, whole grid
-    /// cells (<see cref="LineRules.BandOver"/>, 40 on the default grid): one line at every width, nothing over or under it.
-    /// </summary>
-    public static double HeaderHeight => ItemSize.Optimal(LineRules.BandOver, ItemGrid.Default());
-
-    /// <summary>[S-14901] The header: any width from its title and arrows to a widest month with titles, one line tall.</summary>
-    public static WidgetSizing HeaderSizing()
-        => WidgetSizing.Range(new(HeaderNarrowest, HeaderHeight), new(HeaderNatural, HeaderHeight), new(7 * MonthWidestColumn, HeaderHeight));
 
     // ---- the kind ---------------------------------------------------------------------------------
 
@@ -344,8 +341,8 @@ public static class CalendarSizing
         return config.Style switch
         {
             CalendarStyle.Agenda => KitSizing.Sizing(AgendaShown(config), addFooter: false, AgendaWidths),
-            CalendarStyle.Year => YearSizing(config.YearNumbers),
-            CalendarStyle.Day => DaySizing(),
+            CalendarStyle.Year => Lined(YearSizing(config.YearNumbers)),
+            CalendarStyle.Day => Lined(DaySizing()),
             CalendarStyle.Week => WeekSizing(config),
             _ => MonthSizing(config),
         };

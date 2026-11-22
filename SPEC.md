@@ -6710,7 +6710,7 @@ for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `Offic
   range it loads (`CalendarRules.ViewRange`), its paging unit (`Step`), its title and its keys
   (`CalendarFit.Key`) follow it. A style change re-draws from the data in hand, loads the new range
   when it differs, starts the agenda on its first page, anchors a dated style on the selected day
-  ([S-3621]) and follows the period the view shows ([S-3628]) without saying it ([S-3626]); the selected day and
+  ([S-3621]) and publishes the new range (an agenda clears its own, [S-3625]); the selected day and
   the hovered event keep working across calendars of any styles on a view ([S-3620]..[S-3624]).
 - **[S-3641]** The config holds what every style shares and the union of the styles' own fields
   (`weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
@@ -6763,23 +6763,13 @@ Shared dates and events on a view ([S-3300], [S-3311]):
 - **[S-3624]** The keys' cursor day is the selected day: Up / Down move it a week (from the selection
   when it is on screen, else from the anchor, `CalendarShare.Step`) and publish it, so the other
   calendars follow as for a click; Enter opens its first event.
-- **[S-3626]** **The period shown is the view's** (owner, 2026-11-21: "split up the calendar into the month with the
-  arrows and the body of the calendar too, share the scrolling via the global state that we have."): the view's links
-  carry it (`VisibleRange`, a `RangeLink`, sticky, the board's like every link, [S-3300]). A calendar header
-  (`calendarHeader`) or a calendar (`calendar`) that pages (back, forward, today, the wheel, the keys) says its new
-  period there, and every other calendar header and calendar of the view follows it ([S-3628]); a follower never says
-  it again, so nothing echoes. A widget that joins the view reads the period held there at once (a view switched away
-  and back keeps it, a restart starts on today). A calendar alone on its view pages itself as before. Replaces [S-3625].
-- **[S-3627]** What a calendar says when it pages (`CalendarShare.Period`): a month its own days (never the neighbours'
-  that pad its six weeks), a week its columns, a day, a year; the agenda the days of the rows on its page
-  (`CalendarShare.AgendaPeriod`). A click or a key that selects a day in another period pages the calendar there and
-  says that period too, so a view switched back lands where it was left.
-- **[S-3628]** Where a follower lands (`CalendarShare.AnchorIn`): on the selected day while the period holds it, else on
-  today while it holds today, else on the period's first day; a month, a week, a day, a year or a header shows its own
-  period holding that day, the agenda turns to the page holding it ([S-3622]; a day after every row moves nothing).
-- **[S-3629]** The wheel over a calendar or a calendar header pages it, one period (an agenda page) a notch: turned away
-  from the user back, towards forward (`CalendarShare.Wheel`: a precision wheel's or a touchpad's parts of a notch are
-  carried, turning back drops them); Ctrl with the wheel stays the desktop's.
+- **[S-3626]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* The period shown as the view's, paged by a calendar header or any calendar and followed by every
+  other calendar of the view: the calendar has its own period's line again and pages itself; paging publishes the days
+  on screen and moves no other calendar ([S-3625]).
+- **[S-3627]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* What a calendar said when it paged (`CalendarShare.Period`, `AgendaPeriod`).
+- **[S-3628]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* Where a follower landed (`CalendarShare.AnchorIn`).
+- **[S-3629]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* The wheel paging a calendar or a calendar header (`CalendarShare.Wheel`); the period's line's back
+  and forward, the keys and the card menu page it ([S-569]).
 
 ## Mail: the whole tile
 
@@ -7643,8 +7633,8 @@ Topics:
 |---|---|---|---|
 | `HoveredApp` | Hover | `desktopItem`, `mixer`, `notifications`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` | `desktopItem`, `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
 | `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `desktopItem`, `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
-| `SelectedDate` | Sticky | `calendar` | `calendar`, `calendarHeader`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
-| `VisibleRange` | Sticky | `calendar`, `calendarHeader` | `calendar`, `calendarHeader` |
+| `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
+| `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |
 | `HoveredInstant` | Hover | `cpuCores`, `exchangeHistory`, `stockHistory` | `battery`, `cpu`, `cpuCores`, `disk`, `exchangeHistory`, `exchangeRate`, `gpu`, `memory`, `network`, `ping`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
@@ -7659,8 +7649,7 @@ Topics:
   (`ScreenTimeRules.OtherKey` for the "Other" remainder). What a widget emphasises is the hover when
   there is one, else the selection (`ScreenTimeRules.Focus`).
 - **[S-3311]** `SelectedDate` and `VisibleRange` are defined for the date widgets; what they publish
-  and how they show it is their section's: the calendars' is [S-3620]..[S-3629] (`VisibleRange` the period the
-  view's calendars show, [S-3626]).
+  and how they show it is their section's: the calendars' is [S-3620]..[S-3625].
 
 ## Keyboard in the shell (SHELL-KEYS)
 
@@ -10799,7 +10788,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   (`MergeFold.Under`: a calendar's header into the calendar): each card of the kind standing right under the part (its
   top on the part's foot, sharing a stretch of it) grows up over the part's height, its own width kept; a part with none
   under it becomes the kind in its own box. The card is then painted fitted to its kind's sizing ([S-2438]). One logged
-  line a fold. Tests `KindMergesTests.S16230_` (Core).
+  line a fold. Tests `KindMergesTests.S16230_` (Core), `ResetFoldTests.S16230_` (the owner's desktop, Modules).
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,

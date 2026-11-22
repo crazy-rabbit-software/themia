@@ -7,9 +7,9 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-3620]..[S-3629] [S-11923] The calendar's place on its view's links ([S-3300]): the selected day it
-/// shares with the other calendar widgets there, the period the view's calendars show ([S-3626]: a calendar header or a
-/// calendar paged there), the event under the pointer and the day under the pointer. Who follows what is Core (<see cref="CalendarShare"/>); this publishes,
+/// [S-3620]..[S-3625] [S-11923] The calendar's place on its view's links ([S-3300]): the selected day it
+/// shares with the other calendar widgets there, the range it was paged to, the event under the pointer
+/// and the day under the pointer. Who follows what is Core (<see cref="CalendarShare"/>); this publishes,
 /// listens and redraws. Without a board (a host with no view) the selection is the widget's own.
 /// </summary>
 internal sealed partial class CalendarView
@@ -46,7 +46,6 @@ internal sealed partial class CalendarView
         // [S-3305] A view shown again: what was selected there is followed at once.
         _links.Follow(LinkTopics.SelectedDate, OnSelectedElsewhere);
         _links.Follow(LinkTopics.HoveredEvent, OnHoveredElsewhere);
-        _links.Follow(LinkTopics.VisibleRange, OnPeriodElsewhere);
         return new LinkLights<DateLink>(_links, LinkTopics.HoveredDate);
     }
 
@@ -61,7 +60,7 @@ internal sealed partial class CalendarView
 
     /// <summary>
     /// [S-3620] Select a day (null: let the selection go), here and on the view: every calendar there
-    /// follows it ([S-3621]). [S-3627] A day in another period pages there, and that period is the view's too.
+    /// follows it ([S-3621]).
     /// </summary>
     private void Select(DateOnly? day)
     {
@@ -71,10 +70,6 @@ internal sealed partial class CalendarView
         if (day is { } shown)
         {
             Follow(shown);
-            if (Layout != CalendarStyle.Agenda)
-            {
-                PublishPeriod();
-            }
         }
         else
         {
@@ -131,61 +126,16 @@ internal sealed partial class CalendarView
         }
     }
 
-    /// <summary>
-    /// [S-3626] [S-3627] Paged: say the period on screen now (a month its own days, the agenda its page's), so every
-    /// calendar header and calendar of the view follows it. Only the widget that paged says it: a follower never does.
-    /// </summary>
-    private void PublishPeriod()
+    /// <summary>[S-3625] Paged: say which days are on screen now. No other calendar moves for it.</summary>
+    private void PublishRange()
     {
-        if (!_links.Joined)
+        if (!_links.Joined || Layout == CalendarStyle.Agenda)
         {
             return;
         }
 
-        var period = Layout == CalendarStyle.Agenda
-            ? CalendarShare.AgendaPeriod(_agendaDays, _agenda.PageStarts, _agendaPage)
-            : CalendarShare.Period(Layout, _anchor, Today, Shown);
-        if (period is not null)
-        {
-            _links.Set(LinkTopics.VisibleRange, period);
-        }
-    }
-
-    /// <summary>[S-3626] Another calendar header or calendar paged the view: show its period (on joining, the one held there).</summary>
-    private void OnPeriodElsewhere(RangeLink? period)
-    {
-        if (_detached || period is null)
-        {
-            return;
-        }
-
-        FollowPeriod(period);
-    }
-
-    /// <summary>
-    /// [S-3628] Show the period the view shows: a month, a week, a day or a year anchors on the selected day, today or the
-    /// period's first day (<see cref="CalendarShare.AnchorIn"/>) and shows its own period holding it; the agenda turns to the
-    /// page holding that day. Never said again ([S-3626]).
-    /// </summary>
-    private void FollowPeriod(RangeLink period)
-    {
-        var day = CalendarShare.AnchorIn(period, Today, _selected);
-        if (Layout == CalendarStyle.Agenda)
-        {
-            _agendaJump = day;
-            Render();
-            return;
-        }
-
-        var before = Range();
-        _anchor = day;
-        _followToday = InView(Today);
-        Render();
-
-        if (Range() != before)
-        {
-            _ = RefreshAsync(force: false);
-        }
+        var (first, last) = Range();
+        _links.Set(LinkTopics.VisibleRange, new RangeLink(first, last));
     }
 
     /// <summary>

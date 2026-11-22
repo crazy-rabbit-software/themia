@@ -39,8 +39,9 @@ public sealed class CalendarSizingTests
     {
         var sizing = Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = numbers });
 
-        // [S-15789] Its least is one month's cell.
-        Assert.Equal(CalendarSizing.YearCell(CalendarSizing.Year(numbers)), sizing.Min);
+        // [S-15789] Its least is one month's cell under the period's line ([S-16231]).
+        var least = CalendarSizing.YearCell(CalendarSizing.Year(numbers));
+        Assert.Equal(new SizeDip(least.Width, CalendarSizing.LineBand + least.Height), sizing.Min);
 
         // Relaxed, [S-12411]: the card's size is the user's ([S-2449] retired).
         Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), sizing.Max);
@@ -50,11 +51,11 @@ public sealed class CalendarSizingTests
         Assert.Equal((12, 4, 3, numbers, numbers), (fit.Months, fit.Columns, fit.Rows, fit.Numbers, fit.Weekdays));
         var cell = CalendarSizing.YearCell(fit);
         Assert.Equal(numbers ? new SizeDip(130, 150) : new SizeDip(80, 80), cell);
-        Assert.Equal(new SizeDip(4 * cell.Width, 3 * cell.Height), sizing.Natural);
+        Assert.Equal(new SizeDip(4 * cell.Width, CalendarSizing.LineBand + (3 * cell.Height)), sizing.Natural);
         Assert.True(Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = true }).Natural.Width > Of(new CalendarWidgetConfig { Style = CalendarStyle.Year }).Natural.Width);
 
         // A new card: 4 × 3 cells at their one size.
-        var natural = CalendarSizing.YearCells(fit, sizing.Natural.Width, sizing.Natural.Height, ItemGrid.Default());
+        var natural = CalendarSizing.YearCells(fit, sizing.Natural.Width, sizing.Natural.Height - CalendarSizing.LineBand, ItemGrid.Default());
         Assert.Equal((4, 3), (natural.Columns, natural.Lines));
         Assert.Equal((cell.Width, cell.Height), (natural.Across.Pitch, natural.Down.Pitch));
     }
@@ -80,8 +81,9 @@ public sealed class CalendarSizingTests
         // A new one's eight hours at their optimal (30) under its band row; [S-14810] [S-15671] the hours shown after are every
         // one its timeline reaches, the last cut by the card's foot, 4..24 (a day's).
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Day };
-        Assert.Equal(30 + (8 * 30), Of(config).Natural.Height); // [S-15789] the band's row an hour's size
-        Assert.Equal(30 + 30, Of(config).Min.Height); // [S-15789] one hour at its least
+        // [S-16231] Under the period's line (40).
+        Assert.Equal(40 + 30 + (8 * 30), Of(config).Natural.Height); // [S-15789] the band's row an hour's size
+        Assert.Equal(40 + 30 + 30, Of(config).Min.Height); // [S-15789] one hour at its least
         var grid = Themia.Core.Widgets.ItemGrid.Default();
         Assert.Equal((1, 8, 9, 24), (CalendarSizing.HoursIn(10, grid), CalendarSizing.HoursIn(240, grid), CalendarSizing.HoursIn(269, grid), CalendarSizing.HoursIn(2000, grid)));
         Assert.Equal(new DayBandFit(0, 0, false), CalendarSizing.DayBand(0));
@@ -127,10 +129,10 @@ public sealed class CalendarSizingTests
     [Fact]
     public void S11544_S14500_a_month_of_dots_is_six_weeks_of_28_at_least_and_every_cell_taller_and_wider()
     {
-        // [S-14903] The inset and the weekday line (30, no period's line), six weeks of three cells; every cell from there.
+        // The period's line with the inset (40), the weekday line (20), six weeks of three cells; every cell from there.
         var sizing = Of(new CalendarWidgetConfig());
-        Assert.Equal(30 + (6 * 30), sizing.Natural.Height);
-        Assert.Equal((160d, 180d, 300d), (sizing.Min.Width, sizing.Min.Height, sizing.Natural.Width)); // [S-15798]
+        Assert.Equal(40 + 20 + (6 * 30), sizing.Natural.Height);
+        Assert.Equal((160d, 210d, 300d), (sizing.Min.Width, sizing.Min.Height, sizing.Natural.Width)); // [S-15798]
         Assert.Equal(253, sizing.FitHeight(253));
         Assert.True(sizing.Max.Height > 1000 && sizing.Max.Width > 1000);
         Assert.Empty(sizing.Problems());
@@ -149,9 +151,9 @@ public sealed class CalendarSizingTests
         Assert.Equal((7 * 56d, 7 * 100d), (sizing.Min.Width, sizing.Natural.Width));
         Assert.True(sizing.Max.Width >= 7 * 180);
 
-        // The inset with the weekday line, six weeks of a number line over three chip lines, whole cells each.
+        // The period's line with the inset, the weekday line, six weeks of a number line over three chip lines, whole cells each.
         var cell = FamilySpace.S1 + FamilyType.Caption.LineHeight + (3 * CalendarFit.ChipLine);
-        Assert.Equal(30 + (6 * (20 + (3 * 20))), sizing.Natural.Height);
+        Assert.Equal(40 + 20 + (6 * (20 + (3 * 20))), sizing.Natural.Height);
         Assert.Equal(cell, CalendarSizing.MonthCell(MonthEvents.Chips, MonthPlan.DefaultLines));
         Assert.True(sizing.Max.Height > sizing.Natural.Height && sizing.Natural.Height > sizing.Min.Height);
 
@@ -167,7 +169,7 @@ public sealed class CalendarSizingTests
         // [S-14502] [S-15794] No stored count of lines: a week as tall as its largest number line over chips and five chip
         // lines lists five.
         var grid = Themia.Core.Widgets.ItemGrid.Default();
-        var top = FamilySpace.Inset;
+        var top = FamilySpace.Inset + LineRules.Band(grid);
         var week = FamilySpace.S1 + MonthLayouts.MostChipNumberLine + (5 * CalendarFit.ChipLine);
         var month = MonthLayouts.Plan(724, top + 20 + (6 * week), top, grid, anchorRow: 2, mostItems: 9, MonthChipRoom.Titles);
         Assert.Equal((MonthFace.Chips, 5), (month.Face, month.ChipLanes));
@@ -180,7 +182,7 @@ public sealed class CalendarSizingTests
         // [S-12815] The strip's day items stand on the card's top edge, their heads at the inset, the band whole cells (100),
         // the rows right under it and cut by the foot: no gap and no inset under them.
         Assert.Equal(100, CalendarSizing.WeekRowsOver);
-        Assert.Equal(CalendarSizing.WeekRowsOver + (3 * 30), Of(config).Natural.Height);
+        Assert.Equal(CalendarSizing.LineBand + CalendarSizing.WeekRowsOver + (3 * 30), Of(config).Natural.Height); // [S-16231]
 
         // [S-14410] [S-14502] [S-15780] The days are the card's width: a 40 column a day from its left edge, every one the
         // width reaches (the last cut by its right edge), 1..14, a new one's seven, never stored.
@@ -208,46 +210,20 @@ public sealed class CalendarSizingTests
     [InlineData(CalendarStyle.Day)]
     [InlineData(CalendarStyle.Year)]
     [InlineData(CalendarStyle.Agenda)]
-    public void S14903_no_style_counts_a_periods_line_over_its_content(CalendarStyle style)
+    public void S16231_every_style_but_the_agenda_counts_its_periods_line_over_its_content(CalendarStyle style)
     {
-        // Every style starts at the card's inset: the period's line is the calendar header's own widget.
-        Assert.Equal(FamilySpace.Inset, CalendarSizing.ContentTop);
+        // The period's line with the card's inset and its gap: whole cells from the card's top edge (40 on the default grid).
+        Assert.Equal(40, CalendarSizing.LineBand);
         var sizing = Of(new CalendarWidgetConfig { Style = style });
         var expected = style switch
         {
             CalendarStyle.Month => CalendarSizing.MonthOver + (6 * 30),
-            CalendarStyle.Week => CalendarSizing.StripBand(Themia.Core.Widgets.ItemGrid.Default()) + (3 * 30),
-            CalendarStyle.Day => 30 + (8 * 30), // [S-15789] the band's row an hour's size
-            CalendarStyle.Year => 3 * CalendarSizing.YearCell(CalendarSizing.Year(false)).Height,
+            CalendarStyle.Week => 40 + CalendarSizing.StripBand(Themia.Core.Widgets.ItemGrid.Default()) + (3 * 30),
+            CalendarStyle.Day => 40 + 30 + (8 * 30), // [S-15789] the band's row an hour's size
+            CalendarStyle.Year => 40 + (3 * CalendarSizing.YearCell(CalendarSizing.Year(false)).Height),
             _ => 6 * 30d,
         };
         Assert.Equal(expected, sizing.Natural.Height);
-    }
-
-    [Fact]
-    public void S14901_the_header_is_one_line_of_whole_cells_at_every_width()
-    {
-        var header = new CalendarHeaderModule().Descriptor;
-        Assert.Equal(new WidgetId("calendarHeader"), header.Id);
-        var sizing = header.Sizing(new CalendarHeaderConfig());
-
-        // The card's inset over the tool line and its gap, whole cells: 40 at the least and a new one; the title beside its
-        // two arrows at 200 at the least, a new one as wide as a new month. Relaxed, [S-12411]: larger is the user's.
-        Assert.Equal((40d, 40d), (sizing.Min.Height, sizing.Natural.Height));
-        Assert.Equal((200d, 300d), (sizing.Min.Width, sizing.Natural.Width));
-        Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), sizing.Max);
-        Assert.Equal(LineRules.BandOver, FamilySpace.Inset + FamilySpace.HeaderLine + FamilySpace.HeaderGap);
-    }
-
-    [Fact]
-    public void S14902_the_header_pages_by_its_style_and_a_copy_keeps_it()
-    {
-        Assert.Equal(CalendarStyle.Month, new CalendarHeaderConfig().Unit);
-        Assert.Equal(
-            [CalendarStyle.Month, CalendarStyle.Week, CalendarStyle.Day, CalendarStyle.Year],
-            Enum.GetValues<CalendarHeaderStyle>().Select(style => new CalendarHeaderConfig { Style = style }.Unit));
-        Assert.Equal(CalendarHeaderStyle.Year, ((CalendarHeaderConfig)new CalendarHeaderConfig { Style = CalendarHeaderStyle.Year }.Clone()).Style);
-        Assert.Equal(["month", "week", "day", "year"], WidgetStyles.For(new WidgetId("calendarHeader")).Select(s => s.Name));
     }
 
     [Fact]

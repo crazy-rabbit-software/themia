@@ -16,7 +16,7 @@ public sealed class KindIdsTests
         "airPollen", "airQuality", "airRagweed", "airUv", "airplaneModeToggle", "alarm", "audioVisualizer", "battery",
         "batteryCharge", "batteryChemistry", "batteryCycles", "batteryDesignCapacity", "batteryFullCapacity",
         "batteryHealth", "batteryManufacturer", "batteryRate", "batteryStatus", "batteryTemperature", "batteryTime",
-        "batteryVoltage", "bluetooth", "bluetoothToggle", "brightness", "calendar", "calendarHeader", "clipboard",
+        "batteryVoltage", "bluetooth", "bluetoothToggle", "brightness", "calendar", "clipboard",
         "clock", "colorFiltersToggle", "contacts", "countdown", "cpu", "cpuBaseSpeed", "cpuCoreCount", "cpuCores",
         "cpuHandles", "cpuLoad", "cpuLogical", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "cpuUptime",
         "date", "dawn", "daylight", "desktopItem", "deviceBatteries", "disk", "doNotDisturbToggle", "drive",

@@ -53,18 +53,23 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     private readonly Grid _content = new();
     private readonly KitStatePanel _state;
-    /// <summary>[S-12481] [S-14903] The state over the content's top end, in every style: the period's line is the calendar header's.</summary>
+    /// <summary>[S-12481] The agenda's state over its rows' top end; the other styles' is on their line.</summary>
     private readonly KitStatus _status;
 
-    /// <summary>Whether a state's row stands over the face (the face then starts right under it, not on the card's top edge).</summary>
+    /// <summary>
+    /// Whether the period's line or a state's row stands over the face (the face then starts right under it, not on the
+    /// card's top edge): every style but the agenda has its line ([S-569]).
+    /// </summary>
     private bool _stated;
 
+    /// <summary>[S-569] [S-12481] The period and back and forward, the content's first line (every style but the agenda).</summary>
+    private readonly ToolLine _line = new();
+    private readonly Border _back;
+    private readonly Border _forward;
+    private readonly FontIcon _lineProblem = ToolLine.Problem(string.Empty);
+    private readonly FrameworkElement _lineBusy = ToolLine.Busy();
     private readonly List<IDisposable> _hovers = [];
     private bool _navigable;
-
-    /// <summary>[S-3629] The wheel's part of a notch not yet paged.</summary>
-    private int _wheelCarry;
-    private readonly Microsoft.UI.Xaml.Input.PointerEventHandler _wheel;
 
     private IWidgetSurface? _surface;
     private ICalendarData? _data;
@@ -97,7 +102,26 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         _feed.Changed += OnFeed;
         _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed };
         _status = new KitStatus(host);
-        _wheel = OnWheel;
+
+        // [S-569] [S-12481] The period's line: its title, then the problem glyph, the ring, back and forward.
+        _line.Margin = Family.SideInset;
+        _line.Parts.Add(LinePartKind.Problem, _lineProblem);
+        _line.Parts.Add(LinePartKind.Busy, _lineBusy);
+        _back = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
+        _forward = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1)));
+        _lineProblem.Tapped += (_, args) =>
+        {
+            if (Ready && Screen.OffersAccounts)
+            {
+                args.Handled = true;
+                _widgetHost.ShowAccounts();
+            }
+        };
+
+        foreach (var part in new FrameworkElement[] { _lineProblem, _lineBusy, _back, _forward })
+        {
+            _line.Parts.Want(part, false);
+        }
 
         _days = FollowLinks();
         _agenda = NewAgenda(host);
@@ -107,9 +131,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         SetRow(_content, 1);
         SetRow(rows, 1);
 
-        // [S-12832] [S-12834] A state (no account, a problem) is one compact row on the card's top edge (whole cells, as
-        // every state's row), the face kept under it.
+        // [S-12832] [S-12834] A state (no account, a problem) is one compact row in the period line's place, on the card's
+        // top edge (whole cells, as every state's row), the face kept under it.
         SetRow(_state, 0);
+        Children.Add(_line);
         Children.Add(_content);
         Children.Add(rows);
         Children.Add(_state);
@@ -129,6 +154,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     private IReadOnlyList<CalendarTarget> Targets => _feed.Data?.Targets ?? [];
 
     private IReadOnlyDictionary<string, ProviderId> Providers => _feed.Data?.Providers ?? new Dictionary<string, ProviderId>();
+
+    /// <summary>[S-569] [S-12481] Whether the style shows the period's line: every style but the agenda.</summary>
+    private bool ShowsLine => Layout != CalendarStyle.Agenda;
 
     /// <summary>[S-2050] The clock the view reads: the real one, or a preview's sample moment.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
@@ -152,7 +180,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         Strings.Changed += OnLanguage;
         _agenda.Attach();
-        AddHandler(PointerWheelChangedEvent, _wheel, false);
 
         // [S-3620] The view's links: a day selected there already is shown at once.
         JoinLinks(_surface?.Links);
@@ -202,8 +229,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     /// <summary>
     /// [S-6005] Another style: the agenda starts on its first page, a dated style anchors on the
-    /// selected day (or keeps the anchor), and every style lands in the period the view shows ([S-3628]) without saying
-    /// it again ([S-3626]).
+    /// selected day (or keeps the anchor), and the view's links hear the new range ([S-3625]).
     /// </summary>
     private void ChangedStyle()
     {
@@ -217,16 +243,20 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         _followToday = Layout == CalendarStyle.Agenda || InView(Today);
 
-        if (_links.Get(LinkTopics.VisibleRange) is { } period)
+        if (Layout == CalendarStyle.Agenda)
         {
-            FollowPeriod(period);
+            _links.Set(LinkTopics.VisibleRange, null);
+        }
+        else
+        {
+            PublishRange();
         }
     }
 
     /// <summary>
-    /// [S-569] [S-14903] The card menu: Today while the view is away from it (the key is Home), back and forward (an
-    /// agenda's where there is a page that way): with no period's line of its own, a calendar alone pages here, by the
-    /// keys and by the wheel; then Refresh with the age of what is on screen.
+    /// [S-569] The card menu: Today while the view is away from it (the line has room for back and
+    /// forward only; the key is T), the agenda's pages back and forward ([S-12481]: it has no line), and
+    /// Refresh with the age of what is on screen.
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions
     {
@@ -238,15 +268,14 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
                 actions.Add(new(Glyphs.Calendar, CalendarStr.Calendar_Today.Text(), GoToday));
             }
 
-            if (_navigable)
+            if (_navigable && !ShowsLine)
             {
-                var agenda = Layout == CalendarStyle.Agenda;
-                if (!agenda || _agendaPage > 0)
+                if (_agendaPage > 0)
                 {
                     actions.Add(new(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
                 }
 
-                if (!agenda || _agendaPage < _agendaPages - 1)
+                if (_agendaPage < _agendaPages - 1)
                 {
                     actions.Add(new(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1)));
                 }
@@ -269,8 +298,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         _detached = true;
         _feed.Stop();
         Strings.Changed -= OnLanguage;
-        RemoveHandler(PointerWheelChangedEvent, _wheel);
-        _wheelCarry = 0;
         _poll?.Dispose();
         _poll = null;
         UseData(null);
@@ -339,15 +366,31 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     }
 
     /// <summary>
-    /// [S-3651] [S-7042] [S-12481] [S-14903] The state, over the content's top end in every style (the kit's status): the
-    /// problem glyph while events are on screen that some account's last sync could not improve on, one line per account
-    /// and problem (a click on it opens Accounts where only the user can mend it); the ring while a load is out.
+    /// [S-3651] [S-7042] [S-12481] The state, on the period's line (or over the agenda's top end): the problem glyph while events are on screen that some account's
+    /// last sync could not improve on, one line per account and problem (a click on it opens Accounts
+    /// where only the user can mend it); the ring while a load is out.
     /// </summary>
     private void UpdateState()
     {
         var screen = Screen;
         var ready = screen.Kind == Themia.Sdk.Kit.KitScreenKind.Items;
         var lines = ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _feed.Outcomes, _clock()) : [];
+        if (ShowsLine && _navigable)
+        {
+            _status.Clear();
+            _line.Parts.Want(_lineProblem, lines.Count > 0);
+            ToolTipService.SetToolTip(_lineProblem, lines.Count > 0 ? string.Join("\n", lines) : null);
+            _line.Parts.Want(_lineBusy, _feed.Busy);
+            _line.Parts.Want(_back, true);
+            _line.Parts.Want(_forward, true);
+            return;
+        }
+
+        foreach (var part in new FrameworkElement[] { _lineProblem, _lineBusy, _back, _forward })
+        {
+            _line.Parts.Want(part, false);
+        }
+
         _status.Show(lines, _feed.Busy, ready && screen.OffersAccounts);
     }
 
@@ -372,54 +415,23 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>Whether the today button would do anything: today is off screen, or the agenda is past its first page.</summary>
     private bool AwayFromToday => Layout == CalendarStyle.Agenda ? _agendaPage > 0 : !InView(Today);
 
-    /// <summary>
-    /// [S-569] / [S-2709] <paramref name="steps"/> units back (negative) or forward: the layout's period, or an agenda
-    /// page; [S-3626] the new period is the view's, so every calendar header and calendar there follows it.
-    /// </summary>
-    private void Navigate(int steps)
+    /// <summary>[S-569] / [S-2709] One unit back or forward: the layout's period, or an agenda page.</summary>
+    private void Navigate(int direction)
     {
-        if (steps == 0)
-        {
-            return;
-        }
-
         if (Layout == CalendarStyle.Agenda)
         {
-            _agendaPage = Math.Clamp(_agendaPage + steps, 0, Math.Max(0, _agendaPages - 1));
+            _agendaPage = Math.Clamp(_agendaPage + Math.Sign(direction), 0, Math.Max(0, _agendaPages - 1));
             Render();
-            PublishPeriod();
             return;
         }
 
-        for (var i = 0; i < Math.Abs(steps); i++)
-        {
-            _anchor = CalendarRules.Step(Layout, _anchor, Math.Sign(steps), Shown);
-        }
+        _anchor = CalendarRules.Step(Layout, _anchor, direction, Shown);
 
         // Paging back to the period holding today picks following it up again.
         _followToday = InView(Today);
-        PublishPeriod();
+        PublishRange();
         Render();
         _ = RefreshAsync(force: false);
-    }
-
-    /// <summary>[S-3629] The wheel pages the calendar, a period (an agenda page) a notch; Ctrl with it is the desktop's.</summary>
-    private void OnWheel(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs args)
-    {
-        if (_detached || !Ready || args.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control))
-        {
-            return;
-        }
-
-        var properties = args.GetCurrentPoint(this).Properties;
-        if (properties.IsHorizontalMouseWheel)
-        {
-            return;
-        }
-
-        (var steps, _wheelCarry) = CalendarShare.Wheel(_wheelCarry, properties.MouseWheelDelta);
-        Navigate(steps);
-        args.Handled = true;
     }
 
     /// <summary>
@@ -507,8 +519,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         _anchor = Today;
         _followToday = true;
         _agendaPage = 0;
+        PublishRange();
         Render();
-        PublishPeriod();
         _ = RefreshAsync(force: false);
     }
 
@@ -539,6 +551,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         {
             HideAgenda();
         }
+        // [S-568] [S-12481] The period is its line's label; the agenda has no line.
+        _line.Label = ShowsLine ? CalendarRules.Title(Layout, _anchor, Today, Shown, Strings.Current) : string.Empty;
         UpdateState();
 
         // [S-12832] (owner, 2026-11-19: "even if there is no rain in the next two hours or even if there is no cpu data
@@ -562,18 +576,30 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
                 break;
         }
 
+        _line.Visibility = stated || !ShowsLine ? Visibility.Collapsed : Visibility.Visible;
+
         var width = _area.Width;
 
-        // [S-14903] No period's line: the style is drawn from the card's inset. A state's row takes its room off the top
-        // of the box the style is drawn in ([S-12834]: whole cells, on the card's top edge); the month lays its rows on the
-        // card's grid from where it starts under the card's top edge.
+        // [S-569] [S-12481] The line (or the state's row in its place) takes its room off the top of the box the style
+        // is drawn in; the month lays its rows on the card's grid from where it starts under the card's top edge.
+        // [S-12834] Both are whole cells: the line's band ends on a grid line, the state's row on the card's top edge too.
+        // [S-14101] The state's row stands in the line's place and keeps its band, so the weeks fill the card the sizing
+        // made for that band (no cell left over at the foot).
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
-        var over = stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : 0;
+        var over = ShowsLine ? Math.Max(LineRules.Band(cells), stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : 0) : stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : 0;
         var height = _area.Height - over;
 
         // The status stands where the kit puts it; the month moves it into its weekday line.
         _status.StandAt(null);
-        _stated = stated;
+
+        // [S-16231] The month lays itself from the view's top (its grid stands its top under it, past the line's row); every
+        // other style is drawn in the row under the line.
+        var month = Layout is not (CalendarStyle.Week or CalendarStyle.Day or CalendarStyle.Year or CalendarStyle.Agenda);
+        SetRow(_content, month ? 0 : 1);
+        SetRowSpan(_content, month ? 2 : 1);
+
+        // [S-569] Something stands over the face: the period's line, or a state's row in its place.
+        _stated = stated || ShowsLine;
 
         switch (Layout)
         {
@@ -594,9 +620,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
                 break;
 
             default:
-                // [S-12832] WR-1: with no state over it the month starts on the card's top edge, its weekday line the
-                // first thing in the card; under a state's row, right under that row.
-                var monthTop = stated ? FamilySpace.ContentTop + over : 0;
+                // [S-569] [S-12832] The month's weekday line right under the period's line (or a state's row in its place).
+                var monthTop = FamilySpace.ContentTop + over;
                 DrawMonth(width, _area.Height + FamilySpace.ContentTop - monthTop, monthTop);
                 break;
         }
@@ -605,7 +630,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         ShowNavigation(ready);
     }
 
-    /// <summary>[S-569] [S-14903] Back and forward: the card menu's (and the keys' and the wheel's) once the calendar is ready.</summary>
+    /// <summary>
+    /// [S-569] [S-12481] Back and forward: on the period's line in every style but the agenda, whose pages
+    /// are the card menu's (and the keys') where there is a page to go to.
+    /// </summary>
     private void ShowNavigation(bool ready)
     {
         _navigable = ready;

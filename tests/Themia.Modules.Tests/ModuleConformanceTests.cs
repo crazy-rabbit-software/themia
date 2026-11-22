@@ -461,7 +461,7 @@ public sealed partial class ModuleConformanceTests
         var paints = code.Any(c => PaintsDirectly().IsMatch(c) || parts.Any(p => Regex.IsMatch(c, $@"\b{p}\b")));
 
         // A family's project is its kinds' code together ([S-6901]): it paints items exactly when one of its kinds says it has
-        // them (the calendar's body does, its header's line of two buttons does not). A kind on the text or metric base is
+        // them (the weather now's sky does not, its own text kinds are judged alone). A kind on the text or metric base is
         // judged alone, and the family's own kinds without them ([S-14934]: their views are those bases').
         var kinds = Module(id) is TextModule or MetricModule
             ? [Module(id)]
