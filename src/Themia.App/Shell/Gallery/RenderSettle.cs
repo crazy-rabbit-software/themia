@@ -38,6 +38,12 @@ internal static class RenderSettle
     /// <summary>The render's own work still running (a recording's answers on their way), each a task.</summary>
     private static readonly HashSet<Task> Work = [];
 
+    /// <summary>The waits for the next frame (UI thread), ended by <see cref="OnRendering"/>.</summary>
+    private static readonly List<TaskCompletionSource> Waiting = [];
+
+    /// <summary>Whether the run's one frame handler is in place.</summary>
+    private static bool _listening;
+
     /// <summary>The bitmap every look draws into (UI thread).</summary>
     private static RenderTargetBitmap? _look;
 
@@ -51,6 +57,12 @@ internal static class RenderSettle
     /// <summary>The run's settles said once, at its end: how many, how long they took, and how many hit their ceiling.</summary>
     public static void Report()
     {
+        if (_listening)
+        {
+            CompositionTarget.Rendering -= OnRendering;
+            _listening = false;
+        }
+
         var (settles, late, spent) = Totals;
         if (settles + late > 0)
         {
@@ -101,9 +113,8 @@ internal static class RenderSettle
         ArgumentNullException.ThrowIfNull(root);
         var clock = Stopwatch.StartNew();
         var rule = new RenderSettling(ceiling ?? RenderSettling.DefaultCeiling);
-        byte[]? last = null;
-        (byte[] Before, int BeforeWidth, byte[] After, int Width, double Scale)? moved = null;
-        var lastWidth = 0;
+        Look? last = null;
+        (PixelBox? Box, string? Size, double Scale)? moved = null;
         try
         {
             while (true)
@@ -120,18 +131,20 @@ internal static class RenderSettle
                 }
                 else if (pending.Count == 0)
                 {
-                    var now = await LookAsync(root).ConfigureAwait(true);
+                    var now = await LookAsync(root, last).ConfigureAwait(true);
                     // A page that draws nothing (no size, not in a window) cannot change in a picture: quiet.
                     same = now is not { } look ? true
-                        : last is null ? null
-                        : RenderSettling.SamePicture(last, look.Pixels, look.Width, 4, look.Masks);
-                    if (same == false && now is { } changed)
+                        : last is not { } before ? null
+                        : RenderSettling.SamePicture(before.Pixels, look.Pixels, look.Width, 4, look.Masks);
+                    if (same == false && last is { } was && now is { } changed)
                     {
-                        moved = (last!, lastWidth, changed.Pixels, changed.Width, changed.Scale);
+                        // Where it moved, kept for the ceiling's line (the two looks' buffers are drawn into again).
+                        moved = was.Width != changed.Width || was.Pixels.Length != changed.Pixels.Length
+                            ? (null, $"{was.Width}x{was.Pixels.Length / Math.Max(1, was.Width * 4)} px, then {changed.Width}x{changed.Pixels.Length / Math.Max(1, changed.Width * 4)} px", changed.Scale)
+                            : (RenderSettling.ChangedBox(was.Pixels, changed.Pixels, changed.Width, 4), null, changed.Scale);
                     }
 
-                    last = now?.Pixels;
-                    lastWidth = now?.Width ?? 0;
+                    last = now;
                 }
                 else
                 {
@@ -267,21 +280,37 @@ internal static class RenderSettle
     {
         for (var i = 0; i < count; i++)
         {
-            var drawn = new TaskCompletionSource();
-            void OnRendering(object? sender, object e) => drawn.TrySetResult();
-            CompositionTarget.Rendering += OnRendering;
-            try
+            var drawn = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            Waiting.Add(drawn);
+            if (!_listening)
             {
-                if (await Task.WhenAny(drawn.Task, Task.Delay(FrameCeiling)).ConfigureAwait(true) != drawn.Task)
-                {
-                    Log.Warn(Scope, $"no frame drawn in {FrameCeiling.TotalSeconds:0} s");
-                    Console.WriteLine($"settle: no frame drawn in {FrameCeiling.TotalSeconds:0} s");
-                }
+                // One handler for the run, not one added and taken away each frame.
+                CompositionTarget.Rendering += OnRendering;
+                _listening = true;
             }
-            finally
+
+            if (await Task.WhenAny(drawn.Task, Task.Delay(FrameCeiling)).ConfigureAwait(true) != drawn.Task)
             {
-                CompositionTarget.Rendering -= OnRendering;
+                Waiting.Remove(drawn);
+                Log.Warn(Scope, $"no frame drawn in {FrameCeiling.TotalSeconds:0} s");
+                Console.WriteLine($"settle: no frame drawn in {FrameCeiling.TotalSeconds:0} s");
             }
+        }
+    }
+
+    /// <summary>A frame is being drawn: every wait for one ends (UI thread).</summary>
+    private static void OnRendering(object? sender, object e)
+    {
+        if (Waiting.Count == 0)
+        {
+            return;
+        }
+
+        var ended = Waiting.ToArray();
+        Waiting.Clear();
+        foreach (var wait in ended)
+        {
+            wait.TrySetResult();
         }
     }
 
@@ -290,19 +319,19 @@ internal static class RenderSettle
         => root is not FrameworkElement { ActualWidth: > 0, ActualHeight: > 0, XamlRoot: not null } || root.Visibility != Visibility.Visible;
 
     /// <summary>Where the last two looks differed (DIPs) and the elements there, deepest first: what kept the page moving.</summary>
-    private static string? Moving(UIElement root, (byte[] Before, int BeforeWidth, byte[] After, int Width, double Scale)? moved)
+    private static string? Moving(UIElement root, (PixelBox? Box, string? Size, double Scale)? moved)
     {
         if (moved is not { } m)
         {
             return null;
         }
 
-        if (m.Before.Length != m.After.Length || m.BeforeWidth != m.Width)
+        if (m.Size is { } size)
         {
-            return $"(its size changing: {m.BeforeWidth}x{m.Before.Length / Math.Max(1, m.BeforeWidth * 4)} px, then {m.Width}x{m.After.Length / Math.Max(1, m.Width * 4)} px)";
+            return $"(its size changing: {size})";
         }
 
-        if (RenderSettling.ChangedBox(m.Before, m.After, m.Width, 4) is not { } box)
+        if (m.Box is not { } box)
         {
             return null;
         }
@@ -332,8 +361,11 @@ internal static class RenderSettle
         return $"({dips.X:0},{dips.Y:0} {dips.Width:0}x{dips.Height:0} DIPs{(names.Count > 0 ? ": " + string.Join(" < ", names) : string.Empty)})";
     }
 
-    /// <summary>One look at <paramref name="root"/>: its pixels (BGRA), their width, its scale and the boxes masked; null when it draws nothing.</summary>
-    private static async Task<(byte[] Pixels, int Width, double Scale, IReadOnlyList<PixelBox> Masks)?> LookAsync(UIElement root)
+    /// <summary>
+    /// One look at <paramref name="root"/>: its pixels (BGRA) drawn small into one of two buffers kept for the run (never the
+    /// one <paramref name="last"/> holds), their width, its scale and the boxes masked; null when it draws nothing.
+    /// </summary>
+    private static async Task<Look?> LookAsync(UIElement root, Look? last)
     {
         if (Nothing(root))
         {
@@ -346,6 +378,7 @@ internal static class RenderSettle
             // One bitmap for every look of the run, kept to its end: a new one each frame left thousands of WinRT bitmaps
             // (each holding its pixels) to the finalizer, and one of them released as the application closed crashed it.
             var bitmap = _look ??= new RenderTargetBitmap();
+
             // Drawn small (its long side at most LookSide pixels): a look tells whether the page still moves, the picture
             // itself is drawn full size afterwards, and a large page drawn whole each frame is what a settle would cost.
             var page = (FrameworkElement)root;
@@ -366,9 +399,19 @@ internal static class RenderSettle
                 return null;
             }
 
-            var pixels = (await bitmap.GetPixelsAsync()).ToArray();
-            var scale = bitmap.PixelWidth / ((FrameworkElement)root).ActualWidth;
-            return (pixels, bitmap.PixelWidth, scale, Masks(root, scale));
+            // Copied into a buffer kept for the run, not a new array each frame: a settle draws many looks, and an array of a
+            // few MB each frame kept the collector busy for nothing.
+            var pixels = await bitmap.GetPixelsAsync();
+            var length = (int)pixels.Length;
+            ref var buffer = ref ReferenceEquals(last?.Buffer, _bufferA) ? ref _bufferB : ref _bufferA;
+            if (buffer is null || buffer.Length < length)
+            {
+                buffer = new byte[length];
+            }
+
+            pixels.CopyTo(0, buffer, 0, length);
+            var scale = bitmap.PixelWidth / page.ActualWidth;
+            return new Look(buffer, length, bitmap.PixelWidth, scale, Masks(root, scale));
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.Runtime.InteropServices.COMException)
         {
@@ -377,6 +420,17 @@ internal static class RenderSettle
             return null;
         }
     }
+
+    /// <summary>One look: <see cref="Length"/> bytes of <see cref="Buffer"/>, rows of <see cref="Width"/> pixels.</summary>
+    private sealed record Look(byte[] Buffer, int Length, int Width, double Scale, IReadOnlyList<PixelBox> Masks)
+    {
+        public ReadOnlySpan<byte> Pixels => Buffer.AsSpan(0, Length);
+    }
+
+    /// <summary>The two buffers the looks are drawn into, in turn (UI thread).</summary>
+    private static byte[]? _bufferA;
+
+    private static byte[]? _bufferB;
 
     /// <summary>
     /// [S-15901] What under <paramref name="root"/> turns forever on purpose, in its pixels: an indeterminate ring (its box
