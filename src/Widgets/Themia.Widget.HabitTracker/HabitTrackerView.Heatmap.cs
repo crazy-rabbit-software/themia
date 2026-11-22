@@ -16,18 +16,19 @@ using Themia.Widget.HabitTracker;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-6409] [S-11532] The heatmap style: the last weeks as a calendar grid, per habit (its name over its
+/// [S-6409] [S-11532] [S-15770] The heatmap style: the last weeks as a calendar grid, per habit (its name over its
 /// own grid, the current period's cell ticking it as its box does; the config's rows of habits) or one
-/// grid for the whole list shaded by how many were done, as the config says (<see cref="HabitHeatmap.Plan"/>);
-/// a wider card holds more weeks, a taller one draws the list's one grid larger ([S-15676]).
+/// grid for the whole list shaded by how many were done, as the config says (<see cref="HabitHeatmap.Plan"/>).
+/// Every cell is a box of one fixed size from the card's top edge, touching, the newest week on its right edge; a wider
+/// card holds more weeks, a taller one more habits' grids, never larger cells.
 /// The cells are rebuilt only when the grid's shape changes; a tick or a rollover recolours them.
 /// </summary>
 internal sealed partial class HabitTrackerView
 {
-    private readonly Canvas _heat = new() { Visibility = Visibility.Collapsed };
+    private readonly Canvas _heat = new() { Visibility = Visibility.Collapsed, Margin = ListEdge.Margin };
     private readonly List<Border> _heatCells = [];
     private readonly List<TextBlock> _heatNames = [];
-    private (bool PerHabit, int Weeks, double Cell, int Habits) _heatShape;
+    private (bool PerHabit, int Weeks, double Box, int Habits) _heatShape;
 
     private bool IsHeatmap => _config.Style == HabitTrackerStyle.Heatmap;
 
@@ -55,58 +56,53 @@ internal sealed partial class HabitTrackerView
             return;
         }
 
-        // The grids stand in the card's inset, from the view's top to the card's bottom inset.
-        var inset = FamilySpace.Inset;
-        var nameStep = FamilyType.Body;
-        // [S-15676] One grid for the list fills the height from the view's top to the card's bottom inset.
-        var plan = HabitHeatmap.Plan(_area.Width - (2 * inset), _area.Height - FamilySpace.Inset, _config.PerHabit);
+        // [S-15770] The canvas stands on the card's top edge (ListEdge): its room is the card's whole box, clipped there.
+        var width = Math.Max(0, _area.Width);
+        var height = Math.Max(0, _area.Height + FamilySpace.Inset);
+        _heat.Width = width;
+        _heat.Height = height;
+        _heat.Clip = new RectangleGeometry { Rect = new Windows.Foundation.Rect(0, 0, width, height) };
+
+        var grid = ItemGrids.Of(this);
+        var plan = HabitHeatmap.Plan(width, _config.PerHabit, grid);
         var habits = Habits;
         var cadence = _config.Cadence;
         var firstDay = LocaleFormat.FirstDayOfWeek(Strings.Current);
         var periods = HabitHeatmap.Cells(_current, cadence, TimeZoneInfo.Local, plan.Weeks, firstDay);
         var logs = habits.Select(h => HabitRules.Log(h.Log)).ToList();
 
-        // [S-14500] A grid per habit: as many as the card holds (its habits' blocks), the config's rows a new one's height.
-        var blockHeight = plan.GridHeight + nameStep.LineHeight + HabitHeatmap.NameGap;
-        var fits = Math.Max(1, (int)Math.Floor((_area.Height - FamilySpace.Inset + HabitHeatmap.BlockGap + LayoutMath.Tolerance) / (blockHeight + HabitHeatmap.BlockGap)));
-        var grids = plan.PerHabit ? Math.Min(count, fits) : 1;
-        var shape = (plan.PerHabit, plan.Weeks, plan.Cell, grids);
+        // [S-15770] A grid per habit: every habit's block the card reaches, touching, the last cut by its foot.
+        var grids = plan.PerHabit ? HabitHeatmap.Blocks(height, count, plan) : 1;
+        var shape = (plan.PerHabit, plan.Weeks, plan.Box, grids);
         if (shape != _heatShape)
         {
-            BuildHeatCells(plan, grids, nameStep);
+            BuildHeatCells(plan, grids);
             _heatShape = shape;
         }
 
-        // [S-11532] The grids end on the right inset, the newest week there; the weeks reach the card's left edge, the oldest
-        // cut by it (WR-4: the cells keep their size, the last one the card reaches cut; WR-3: the width filled).
-        // [S-12410] A grid per habit keeps its cells' size (more weeks fill the width): a taller box than the grids need
-        // centres them in their room, the foot's inset counted with them, joined or alone ([S-12483]); [S-15676] one grid for
-        // the list fills it.
-        var room = Math.Max(0, _area.Width - (2 * inset));
-        var gridWidth = (plan.Weeks * plan.Pitch) - plan.Gap;
-        var left = inset + room - gridWidth;
-        var block = (grids * (plan.GridHeight + (plan.PerHabit ? nameStep.LineHeight + HabitHeatmap.NameGap : 0)))
-            + (Math.Max(0, grids - 1) * HabitHeatmap.BlockGap) + FamilySpace.Inset;
-        var y = Math.Floor(Math.Max(0, _area.Height - block) / 2);
-
+        // [S-11532] [S-15770] The newest week's boxes on the card's right edge, every older one left of it touching, the
+        // oldest cut by the card's left edge (WR-3, WR-4); the rows from the top edge down, each box on a whole pixel.
+        var scale = grid.Raster;
+        var y = 0.0;
         for (var g = 0; g < grids; g++)
         {
             if (plan.PerHabit)
             {
                 var name = _heatNames[g];
                 name.Text = habits[g].Name;
-                name.Width = Math.Min(gridWidth, room);
-                Canvas.SetLeft(name, inset);
-                Canvas.SetTop(name, y);
+                name.Width = Math.Max(0, width - (2 * FamilySpace.Inset));
+                Canvas.SetLeft(name, FamilySpace.Inset);
+                Canvas.SetTop(name, ItemSize.OnPixels(y + ((plan.Name - FamilyType.Body.LineHeight) / 2), scale));
                 ToolTipService.SetToolTip(name, habits[g].Name);
-                y += nameStep.LineHeight + HabitHeatmap.NameGap;
+                y += plan.Name;
             }
 
             for (var i = 0; i < periods.Count; i++)
             {
                 var cell = _heatCells[(g * periods.Count) + i];
-                Canvas.SetLeft(cell, left + ((i / HabitHeatmap.Rows) * plan.Pitch));
-                Canvas.SetTop(cell, y + ((i % HabitHeatmap.Rows) * plan.Pitch));
+                var fromRight = plan.Weeks - (i / HabitHeatmap.Rows);
+                Canvas.SetLeft(cell, ItemSize.OnPixels(width - (fromRight * plan.Box), scale));
+                Canvas.SetTop(cell, ItemSize.OnPixels(y + ((i % HabitHeatmap.Rows) * plan.Box), scale));
 
                 if (periods[i] is not { } period)
                 {
@@ -141,31 +137,31 @@ internal sealed partial class HabitTrackerView
                 }
             }
 
-            y += plan.GridHeight + HabitHeatmap.BlockGap;
+            y += plan.GridHeight;
         }
     }
 
     /// <summary>
-    /// [S-6409] A cell is a column of the Chart block ([S-6717]): the track, filled from its foot in
+    /// [S-6409] A cell's mark is a column of the Chart block ([S-6717]): the track, filled from its foot in
     /// the accent to <paramref name="fill"/> (a habit's own cell is empty or full; a shared one is the
-    /// share of the list done), never an opacity per share.
+    /// share of the list done), never an opacity per share. [S-15770] The mark stands in its box's padding.
     /// </summary>
     private static void Shade(Border cell, double fill)
     {
-        if (cell.Child is not Border level)
+        if (cell.Child is not Border { Child: Border level } mark)
         {
             return;
         }
 
-        // A full cell is the accent's whole: its top corners round as the cell's are. A low level is
+        // A full mark is the accent's whole: its top corners round as the mark's are. A low level is
         // round at its own height, never more ([S-6704]: 4 or round).
-        level.Height = cell.Height * fill;
-        var radius = Math.Min(cell.CornerRadius.BottomLeft, level.Height / 2);
+        level.Height = mark.Height * fill;
+        var radius = Math.Min(mark.CornerRadius.BottomLeft, level.Height / 2);
         level.CornerRadius = fill >= 1 ? new CornerRadius(radius) : new CornerRadius(0, 0, radius, radius);
         level.Visibility = fill > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void BuildHeatCells(HabitHeatmapPlan plan, int grids, TypeStep nameStep)
+    private void BuildHeatCells(HabitHeatmapPlan plan, int grids)
     {
         ClearHeatmap();
 
@@ -173,7 +169,7 @@ internal sealed partial class HabitTrackerView
         {
             if (plan.PerHabit)
             {
-                var name = Family.Text(nameStep, ColourRole.TextPrimary);
+                var name = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
                 name.TextTrimming = TextTrimming.CharacterEllipsis;
                 name.TextWrapping = TextWrapping.NoWrap;
                 _heatNames.Add(name);
@@ -183,22 +179,32 @@ internal sealed partial class HabitTrackerView
             for (var i = 0; i < plan.Weeks * HabitHeatmap.Rows; i++)
             {
                 var radius = HabitHeatmap.Radius(plan.Cell);
+
+                // [S-15770] The box is the item (the pointer's, touching the next); the mark stands in its padding.
                 var cell = new Border
                 {
-                    Width = plan.Cell,
-                    Height = plan.Cell,
-                    CornerRadius = new CornerRadius(radius),
-                    Background = Family.Brush(ColourRole.Track),
-
-                    // The level fills from the foot, its lower corners the cell's.
+                    Width = plan.Box,
+                    Height = plan.Box,
+                    Padding = new Thickness(plan.Pad),
+                    Background = Family.Brush(ColourRole.Clear),
                     Child = new Border
                     {
-                        VerticalAlignment = VerticalAlignment.Bottom,
-                        Background = Family.Brush(ColourRole.Accent),
-                        CornerRadius = new CornerRadius(0, 0, radius, radius),
+                        Width = plan.Cell,
+                        Height = plan.Cell,
+                        CornerRadius = new CornerRadius(radius),
+                        Background = Family.Brush(ColourRole.Track),
+
+                        // The level fills from the foot, its lower corners the mark's.
+                        Child = new Border
+                        {
+                            VerticalAlignment = VerticalAlignment.Bottom,
+                            Background = Family.Brush(ColourRole.Accent),
+                            CornerRadius = new CornerRadius(0, 0, radius, radius),
+                        },
                     },
                 };
 
+                ItemMark.Mark(cell);
                 cell.Tapped += OnHeatCellTapped;
                 _heatCells.Add(cell);
                 _heat.Children.Add(cell);

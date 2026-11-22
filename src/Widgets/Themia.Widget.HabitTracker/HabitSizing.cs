@@ -72,9 +72,6 @@ public static class HabitSizing
         return dots < HabitLayout.MinDots ? 0 : dots;
     }
 
-    /// <summary>[S-11532] One habit's block in a grid per habit: its name, 4, its grid of seven rows.</summary>
-    public static double HabitBlock => FamilyType.Body.LineHeight + HabitHeatmap.NameGap + HabitHeatmap.GridOf(HabitHeatmap.PerHabitCell);
-
     /// <summary>[S-11530]..[S-11532] The sizing of <paramref name="config"/>.</summary>
     public static WidgetSizing Sizing(HabitTrackerConfig config)
     {
@@ -83,13 +80,15 @@ public static class HabitSizing
 
         if (config.Style == HabitTrackerStyle.Heatmap)
         {
+            // [S-15770] From the card's top edge to its foot: the list's one grid (one height), or Rows of the habits' blocks.
+            var heat = ItemGrid.Default();
             if (!config.PerHabit)
             {
-                var height = FamilySpace.ContentTop + HabitHeatmap.GridOf(HabitHeatmap.SharedCell) + FamilySpace.Inset;
+                var height = HabitHeatmap.BlockOf(false, heat);
                 return WidgetSizing.Range(new(HeatmapNarrowest, height), new(NaturalWidth, height), new(Widest, height));
             }
 
-            double Blocks(int n) => FamilySpace.ContentTop + FamilySpace.Inset - HabitHeatmap.BlockGap + (n * (HabitBlock + HabitHeatmap.BlockGap));
+            double Blocks(int n) => n * HabitHeatmap.BlockOf(true, heat);
             return WidgetSizing.Range(new(HeatmapNarrowest, Blocks(MinRows)), new(NaturalWidth, Blocks(rows)), new(Widest, Blocks(MaxRows)));
         }
 

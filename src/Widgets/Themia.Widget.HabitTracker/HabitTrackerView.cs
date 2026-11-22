@@ -30,6 +30,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     private const string Scope = "habits";
 
     private readonly KitList _list;
+    private readonly KitCheckLook _look;
     private readonly KitStatePanel _state;
 
     private IWidgetSurface? _surface;
@@ -54,7 +55,8 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     public HabitTrackerView(IWidgetHost host)
     {
         _host = host;
-        _list = new KitList(host, HabitSpec.Spec, item => HabitSpec.Actions(item, _config.Cadence.Period, Writable), Run, new KitCheckLook { Trail = Dots })
+        _look = new KitCheckLook { Trail = Dots };
+        _list = new KitList(host, HabitSpec.Spec, item => HabitSpec.Actions(item, _config.Cadence.Period, Writable), Run, _look)
         {
             Renamed = (item, name) => Rename(item.Id, name),
             Added = Add,
@@ -200,6 +202,9 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         var plan = HabitLayout.Plan(new HabitLayoutInput(habits.Count, Writable, _config.ShowStreak, HistoryDots,
             Checklist: checklist, Rows: _config.Rows, Lines: _config.Lines, RunWords: _config.RunWords, Heatmap: heat));
         _plan = plan;
+
+        // [S-15771] The run's column kept in every row, so the dots of a row without a run stand where the others' do.
+        _look.ValueWidth = plan.ValueWidth;
 
         var kitPlan = KitPlanner.Plan(_area, HabitSpec.Spec, new KitChoices(KitShow.Subtitle | (plan.Streak ? KitShow.When : KitShow.None))
         {

@@ -43,38 +43,43 @@ public sealed class HabitTrackerStylesTests
     }
 
     [Fact]
-    public void S11532_one_grid_for_the_list_or_one_per_habit_and_a_wider_card_more_weeks()
+    public void S11532_S15770_one_grid_for_the_list_or_one_per_habit_and_a_wider_card_more_weeks()
     {
-        // A new card's height: the list's grid at its own 12 and 2.
-        var natural = HabitHeatmap.GridOf(HabitHeatmap.SharedCell);
-        var shared = HabitHeatmap.Plan(276, natural, perHabit: false);
-        Assert.Equal((false, HabitHeatmap.SharedCell, HabitHeatmap.Gap), (shared.PerHabit, shared.Cell, shared.Gap));
-        // Every week the width reaches, the oldest cut by the card's left edge (WR-4).
-        Assert.True((shared.Weeks * shared.Pitch) - shared.Gap >= 276);
-        Assert.True(((shared.Weeks - 1) * shared.Pitch) - shared.Gap < 276);
+        var grid = ItemGrid.Default();
+        var shared = HabitHeatmap.Plan(300, perHabit: false, grid);
 
-        var each = HabitHeatmap.Plan(276, 600, perHabit: true);
-        Assert.Equal((true, HabitHeatmap.PerHabitCell, HabitHeatmap.Gap), (each.PerHabit, each.Cell, each.Gap));
-        Assert.True(HabitHeatmap.Plan(496, natural, perHabit: false).Weeks > shared.Weeks);
-        Assert.Equal(HabitHeatmap.GridOf(shared.Cell), shared.GridHeight);
+        // A box is the mark and the gap in whole grid cells, the mark the box less the gap, half of it padding each side.
+        Assert.Equal((false, 20.0, 18.0, 1.0), (shared.PerHabit, shared.Box, shared.Cell, shared.Pad));
+        Assert.Equal(7 * 20.0, shared.GridHeight);
+
+        // Every week the width reaches, the oldest cut by the card's left edge (WR-4).
+        Assert.Equal(15, shared.Weeks);
+        Assert.Equal(16, HabitHeatmap.Plan(301, perHabit: false, grid).Weeks);
+        Assert.True(HabitHeatmap.Plan(520, perHabit: false, grid).Weeks > shared.Weeks);
+        Assert.Equal(1, HabitHeatmap.Plan(0, perHabit: false, grid).Weeks);
+
+        var each = HabitHeatmap.Plan(300, perHabit: true, grid);
+        Assert.Equal((true, 10.0, 8.0), (each.PerHabit, each.Box, each.Cell));
+        Assert.Equal(HabitHeatmap.NameOf(grid) + (7 * 10.0), each.Block);
     }
 
     [Fact]
-    public void S15676_the_lists_one_grid_grows_until_its_rows_fill_the_height_and_shows_every_week_the_width_reaches()
+    public void S15770_the_cells_keep_their_size_at_every_card_size_and_the_last_habit_is_cut_by_the_foot()
     {
-        // 900 × 300 less the inset: the grid's seven rows fill the 276 and its weeks the 876, the oldest cut, past a year.
-        var plan = HabitHeatmap.Plan(876, 276, perHabit: false);
-        Assert.Equal(276, plan.GridHeight, 6);
-        Assert.Equal(HabitHeatmap.SharedCell / HabitHeatmap.Gap, plan.Cell / plan.Gap, 6);
-        Assert.True((plan.Weeks * plan.Pitch) - plan.Gap >= 876);
-        Assert.True(((plan.Weeks - 1) * plan.Pitch) - plan.Gap < 876);
+        var grid = ItemGrid.Default();
 
-        // Never under its own size; a wide short card draws more than a year of weeks; a grid per habit keeps its 8.
-        Assert.Equal(HabitHeatmap.SharedCell, HabitHeatmap.Plan(876, 40, perHabit: false).Cell);
-        Assert.Equal(HabitHeatmap.SharedCell, HabitHeatmap.Plan(876, double.NaN, perHabit: false).Cell);
-        Assert.True(HabitHeatmap.Plan(4000, HabitHeatmap.GridOf(HabitHeatmap.SharedCell), perHabit: false).Weeks > 53);
-        Assert.Equal(HabitHeatmap.PerHabitCell, HabitHeatmap.Plan(876, 276, perHabit: true).Cell);
-        Assert.Equal(1, HabitHeatmap.Plan(0, 276, perHabit: false).Weeks);
+        // The plan takes no height: a taller card never draws larger cells (WR-4, WR-6).
+        Assert.Equal(HabitHeatmap.Plan(900, perHabit: false, grid).Box, HabitHeatmap.Plan(200, perHabit: false, grid).Box);
+
+        // On another display's pitch the box is still whole cells of it.
+        Assert.Equal(19.8, HabitHeatmap.Plan(300, perHabit: false, new ItemGrid(9.9)).Box, 6);
+
+        // A grid per habit: every block the room reaches, the last cut by its foot, never more than the habits.
+        var each = HabitHeatmap.Plan(300, perHabit: true, grid);
+        Assert.Equal(1, HabitHeatmap.Blocks(each.Block, 5, each));
+        Assert.Equal(2, HabitHeatmap.Blocks(each.Block + 1, 5, each));
+        Assert.Equal(3, HabitHeatmap.Blocks(10 * each.Block, 3, each));
+        Assert.Equal(1, HabitHeatmap.Blocks(0, 3, each));
     }
 
     [Theory]

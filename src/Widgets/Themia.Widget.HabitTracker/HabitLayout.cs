@@ -33,7 +33,14 @@ public sealed record HabitLayoutPlan(
     bool AddRow,
     bool Streak,
     bool StreakWords,
-    int Dots);
+    int Dots)
+{
+    /// <summary>
+    /// [S-15771] The run's column in every row while the run shows (its words' or its number's room), so a row without a
+    /// run keeps its dots in the same columns as one with (WR-11); 0 with no run.
+    /// </summary>
+    public double ValueWidth => Streak ? StreakWords ? HabitLayout.StreakWordsWidth : HabitLayout.StreakNumberWidth : 0;
+}
 
 /// <summary>
 /// [S-1427] [S-11530] [S-1428] The Habits widget's rows and keys. Pure, so each edge is pinned by a test.

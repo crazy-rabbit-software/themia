@@ -72,10 +72,10 @@ public sealed class HabitSizingTests
         var shared = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap });
         Assert.Equal(shared.Min.Height, shared.Natural.Height);
         Assert.Equal(SizeStretch.Ceiling, shared.Max.Height); // relaxed, [S-12411]
-        Assert.Equal(FamilySpace.ContentTop + HabitHeatmap.GridOf(HabitHeatmap.SharedCell) + FamilySpace.Inset, shared.Natural.Height);
+        Assert.Equal(7 * 20.0, shared.Natural.Height); // [S-15770] seven rows of boxes, from the card's top edge to its foot
 
         var each = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap, PerHabit = true, Rows = 3 });
-        Assert.Equal(FamilySpace.ContentTop + (3 * HabitSizing.HabitBlock) + (2 * HabitHeatmap.BlockGap) + FamilySpace.Inset, each.Natural.Height);
+        Assert.Equal(3 * HabitHeatmap.BlockOf(true, ItemGrid.Default()), each.Natural.Height); // [S-15770] blocks touching
     }
 
     [Fact]

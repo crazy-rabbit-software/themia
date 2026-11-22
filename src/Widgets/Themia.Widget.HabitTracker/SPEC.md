@@ -62,7 +62,7 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   order, over the same list, log and cadence. Show streaks and the history's dots are the Dots style's own
   (`HabitTrackerConfig.ShownSettings`, [S-6070]); the menu offers them for it alone and keeps their values.
 - **[S-6409]** Heatmap (`HabitHeatmap`): GitHub's calendar over the log, columns of seven periods,
-  the newest on the right, from the view's top inside the card's inset. Under a daily cadence the
+  the newest on the right edge, from the card's top edge ([S-15770]). Under a daily cadence the
   rows are the weekdays from the language's first day, so a column is a calendar week and the days
   still to come this week are blank; any other cadence fills its last column to the current period.
   One grid for the list (its config's, [S-11532]): each cell a column of the Chart block ([S-6717]),
@@ -70,8 +70,8 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   tooltip naming the period and "3 of 5"; never an opacity per share (the four shades went, G6). Or,
   with A grid per habit, each habit's name (Body, primary, 4 over its grid; grids 12 apart) over its
   own grid (a done period the accent, an open one the track, the current period's cell ticking it as
-  its check does). A cell's corners are the family's 4, round below 8 (`HabitHeatmap.Radius`); cells
-  2 apart (the list's one grid's grown with its cells, [S-15676]); a wider card holds more weeks. No add footer beside
+  its check does). A mark's corners are the family's 4, round below 8 (`HabitHeatmap.Radius`); each mark stands in its
+  cell's box, 2 apart by the boxes' padding ([S-15770]); a wider card holds more weeks. No add footer beside
   it (except under an empty list) and no row keys.
 - **[S-6410]** Checklist: the current period only, each habit's check and name (`HabitLayoutInput.Checklist`):
   rows of one line, no run, dots, rate or best run; the add footer and the keys are the Dots style's
@@ -91,18 +91,24 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   `ApplySize`). The card's least width holds the check, the name's room and the run (`HabitSizing.DotsChrome`, at
   least 220); the name ends in an ellipsis. A checklist row is one line at 220..520. Tests
   `HabitSizingTests.S11531_S14410_`.
-- **[S-11532]** **The heatmap's sizes**: one grid for the list (cells of 12) is one height, 36 + its
-  seven rows + 12 = 144, 200..520 wide; **A grid per habit** (off by default, under Style) draws the
-  habits each over its own grid of 8 cells (its name line, 4, its grid, 12 between), Rows of them a new card's height
-  and as many as the card holds after ([S-14500]); a block keeps its size, the room under the last left to the foot. A wider card is a longer calendar:
-  every week the width reaches, the newest on the right inset, the oldest cut by the card's left edge (WR-3, WR-4).
-- **[S-15676]** **The list's one grid fills its card** (docs/WIDGET-RULES.md WR-9, of the month: "The month is a grid of
-  the card, not a list"; WR-1, WR-3, WR-4): GitHub's calendar is a grid of the card, so a card taller than the grid's
-  seven rows draws its cells and their gaps larger as one (`HabitHeatmap.Scale`, never under 12 and 2) until the rows
-  fill the height from the view's top to the card's bottom inset, and every week the width reaches at that size is drawn,
-  more than a year where the card is wide (no 53 weeks' bound), the oldest cut by the card's left edge. It had stood
-  centred at its 12 in a taller card, a year's 53 weeks at most short of a wide card's left edge. A grid per habit keeps
-  its 8 (its blocks are a list, WR-6). Tests `HabitTrackerStylesTests.S15676_`.
+- **[S-11532]** **The heatmap's sizes**: one grid for the list is one height, its seven rows of boxes (140 on the default
+  grid), 200..520 wide; **A grid per habit** (off by default, under Style) draws the habits each under its name row over
+  its own grid, Rows of them a new card's height and as many as the card reaches after ([S-14500]). A wider card is a
+  longer calendar: every week the width reaches, the newest on the card's right edge, the oldest cut by its left edge.
+- **[S-15770]** **The heatmap's cells are items of one fixed size** (docs/WIDGET-RULES.md WR-1..WR-6; replaces [S-15676],
+  whose grid of the card grew its cells with the card's height: WR-9's "grid of the card" is the calendar's month alone):
+  a cell's box is its mark and the 2 gap in whole grid cells (`HabitHeatmap.BoxOf`: 12 + 2 → 20 for the list's grid, 8 + 2
+  → 10 for a habit's, on the default grid), at every size of the card; the boxes touch (the gap is the padding inside
+  them, the mark the box less 2), the first row on the card's top edge (the canvas stands on it, `ListEdge`), the newest
+  week's boxes on its right edge and every week the width reaches left of it, the oldest cut by its left edge. A taller
+  card draws nothing larger: under the list's grid the room stays empty; a grid per habit is a block (its name row, a Body
+  line in whole cells, over its seven rows) touching the next, every block the card reaches shown, the last cut by its
+  foot (`HabitHeatmap.Blocks`). Each box is an item (`ItemMark`). Tests `HabitTrackerStylesTests.S15770_`,
+  `S11532_S15770_`.
+- **[S-15771]** **A row without a run keeps the run's column** (WR-11: "Rows look like rows everywhere"): while the run
+  shows, every row's value column is the run's room (`HabitLayoutPlan.ValueWidth`: 28, or 72 in words; the kit's
+  `KitCheckLook.ValueWidth` over `RowBlock.ValueColumn`), so a habit with no run yet has its history dots in the same
+  columns as one with a run; with no run shown the value takes no room. Tests `HabitLayoutTests.S15771_`.
 - **[S-1430]** The menu ends with "Data folder" (issue #154), a submenu of a note (where the lists
   are kept) and **Open in Explorer**, which opens the folder
   holding `habits.json` (`IHabitLists.FilePath`, through `SettingsHost.Launcher.OpenContainingFolder`, so it is

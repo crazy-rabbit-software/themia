@@ -38,4 +38,13 @@ public class HabitLayoutTests
         Assert.Equal((false, false, 0), (bare.Streak, bare.StreakWords, bare.Dots));
         Assert.Equal(2, Plan(lines: 7).Lines);
     }
+
+    [Fact]
+    public void S15771_every_row_keeps_the_runs_column_so_the_dots_stand_in_one_column()
+    {
+        // A row without a run keeps the run's room: its dots stand where a row with one has them (WR-11).
+        Assert.Equal(HabitLayout.StreakNumberWidth, Plan().ValueWidth);
+        Assert.Equal(HabitLayout.StreakWordsWidth, Plan(words: true).ValueWidth);
+        Assert.Equal(0, Plan(streak: false).ValueWidth);
+    }
 }

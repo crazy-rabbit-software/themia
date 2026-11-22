@@ -25,6 +25,12 @@ public sealed class KitCheckLook : IKitLook
     /// <summary>A part at the row's end, in the meter's place, for an item, or null for none.</summary>
     public Func<KitItem, KitTrail?>? Trail { get; init; }
 
+    /// <summary>
+    /// [S-15771] The value's column in every row (WR-11): a list whose rows carry a trail and a value some rows lack keeps
+    /// the value's room in all of them, so the trail stands in one column. <see cref="double.NaN"/>: the value's own width.
+    /// </summary>
+    public double ValueWidth { get; set; } = double.NaN;
+
     public RowBlock Draw(KitItem item, KitDraw draw)
     {
         ArgumentNullException.ThrowIfNull(item);
@@ -43,6 +49,9 @@ public sealed class KitCheckLook : IKitLook
         {
             block.Meter(trail.Part, trail.Width);
         }
+
+        // [S-15771] The value's column one width in every row while the plan shows values, so the trail stands in one column.
+        block.ValueColumn(plan.When ? ValueWidth : double.NaN);
 
         // [S-186] Done is struck through, not merely dimmed: the one mark that says "done" without a legend and without
         // relying on colour. Late says so in words as well as in its tone, and only for open work.

@@ -200,6 +200,17 @@ public sealed partial class RowBlock : Grid, IInked
     }
 
     /// <summary>
+    /// [S-15771] The value's column kept <paramref name="width"/> wide (its gap before it added) whether the row has a value
+    /// or not, so a part between the name and the value (a habit's history dots) stands in the same column in every row of
+    /// its list (WR-11: rows look like rows everywhere); <see cref="double.NaN"/> or 0: the value takes its own width and
+    /// none when it is empty.
+    /// </summary>
+    public void ValueColumn(double width)
+        => ColumnDefinitions[3].Width = double.IsFinite(width) && width > 0
+            ? new GridLength(width + FamilySpace.ColumnGap)
+            : GridLength.Auto;
+
+    /// <summary>
     /// [S-7034] Columns in the place of the name and the meter (a table's: its cells, 12 apart, at the
     /// text edge), one line; null gives the row its name back.
     /// </summary>
