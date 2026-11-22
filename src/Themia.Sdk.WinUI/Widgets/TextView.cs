@@ -70,6 +70,9 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
     // [S-15713] Whether the face draws "--" for a reading it does not have.
     private bool _dashes;
 
+    // [S-15721] Whether the status mark gives the why beside the face its room.
+    private bool _markYields;
+
     /// <param name="host">The card's host: the status glyph's account link, the launcher a click opens through.</param>
     /// <param name="kind">The kind: its glyph, its lines, its tone, its words for none and what it opens.</param>
     protected TextView(IWidgetHost host, TextKind kind)
@@ -272,7 +275,7 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         _whyText = !available && _shown.Why is { Length: > 0 } why ? why : null;
         ToolTipService.SetToolTip(_item, !available ? _whyText : text);
         _why.Text = _whyText ?? string.Empty;
-        _status.Show(_shown.Problems, busy: false);
+        _status.Show(_markYields && !available ? [] : _shown.Problems, busy: false);
 
         _light.Set(Opens is not null);
         Lay();
@@ -295,7 +298,29 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         // it there says it beside the face, at the end, where the width holds it.
         var why = _whyText is not null && _area.IsMeasured && TextRules.SaysWhy(_area.Width, height, _kind.Lines);
         var band = why ? WhyLine.Band : 0;
-        var beside = _whyText is not null && _area.IsMeasured && !why ? Beside(height, end) : null;
+        double? beside = null;
+        var yields = false;
+        if (_whyText is not null && _area.IsMeasured && !why)
+        {
+            // [S-15721] Beside the face the why stands for the status mark: where it fits only with the mark's room, the mark
+            // gives it that room (the least card, 122 x 32, says why in words, not a badge).
+            var marked = _shown.Problems.Count > 0;
+            beside = Beside(height, FamilySpace.Inset + (marked ? KitStatus.Side + FamilySpace.S2 : 0));
+            if (beside is null && marked && Beside(height, FamilySpace.Inset) is { } freed)
+            {
+                beside = freed;
+                yields = true;
+            }
+
+            end = FamilySpace.Inset + (yields ? 0 : _statusRoom);
+        }
+
+        if (yields != _markYields)
+        {
+            _markYields = yields;
+            _status.Show(yields ? [] : _shown.Problems, busy: false);
+        }
+
         _why.Visibility = why || beside is not null ? Visibility.Visible : Visibility.Collapsed;
         _why.Margin = beside is not null ? new Thickness(0, 0, end, 0) : new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         _why.Width = beside ?? double.NaN;

@@ -41,6 +41,9 @@ internal sealed partial class AirMetricView : IWidgetSample
         config.LocationName = SamplePlace.LocationName;
         config.Trend = _config.Trend;
         _config = config;
+
+        // [S-15712] The sample stands at the sample place: a click opens the forecast there, so the item lights.
+        OpenFor(config);
         _clock = () => SampleDay.Now;
         _hours.Preview(new Fetched<AirHours>(FetchStatus.Ok, SampleHours.Air(), null, SampleDay.MinutesAgo(12)), FetchStatus.Ok);
         _feed.Preview(reading, status);

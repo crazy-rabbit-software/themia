@@ -58,9 +58,15 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private readonly StackPanel _beside = new() { Orientation = Orientation.Horizontal, Spacing = FamilySpace.ColumnGap, HorizontalAlignment = HorizontalAlignment.Center };
     private MetricArrangement? _arrangement;
 
+    /// <summary>[S-15724] Why there is no reading, under the readout: one Caption line at the reading share's foot.</summary>
+    private readonly TextBlock _readoutWhy = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+
     /// <summary>[S-15716] Why there is no reading, in the row between the name and "--" (the row's inline slot).</summary>
     private readonly TextBlock _rowWhy = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private bool _rowWhyShown;
+
+    // [S-15724] The row's why's width on Caption, measured when it is set.
+    private double _rowWhyNatural;
 
     private readonly MetricReadings _readings = new();
     private FontIcon? _rowArrow;
@@ -105,10 +111,12 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         _name.VerticalAlignment = VerticalAlignment.Center;
         _caption.Children.Add(_name);
         _reading.Use(FamilyType.Big28, HorizontalAlignment.Center);
-        _readoutArrow.Margin = new Thickness(FamilySpace.GlyphGap, 0, 0, 0);
+        // [S-15723] The arrow stands before the value in the readout as in the row (the row's inline slot is between the name
+        // and the value), never on the other side at another size (WR-11).
+        _readoutArrow.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
         _readoutArrow.VerticalAlignment = VerticalAlignment.Center;
-        _value.Children.Add(_reading);
         _value.Children.Add(_readoutArrow);
+        _value.Children.Add(_reading);
         _fit.Visibility = Visibility.Collapsed;
 
         // [S-15762] Where the block cannot stand in its room at its floor (the status mark's room taken at its end), its
@@ -116,6 +124,14 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         _fit.GivesWay(_caption, FamilyType.Caption.FontSize);
         _fit.Face = MetricRules.ReadoutFace();
         _face.Children.Add(_fit);
+        // [S-15724] The readout's why: one compact line at the foot of the reading's share, its own size, never the block's.
+        _readoutWhy.TextWrapping = TextWrapping.NoWrap;
+        _readoutWhy.TextTrimming = TextTrimming.CharacterEllipsis;
+        _readoutWhy.TextAlignment = TextAlignment.Center;
+        _readoutWhy.VerticalAlignment = VerticalAlignment.Bottom;
+        _readoutWhy.IsHitTestVisible = false;
+        _readoutWhy.Visibility = Visibility.Collapsed;
+        _face.Children.Add(_readoutWhy);
         _rowWhy.TextWrapping = TextWrapping.NoWrap;
         _rowWhy.TextTrimming = TextTrimming.CharacterEllipsis;
         _rowWhy.TextAlignment = TextAlignment.Right;
@@ -234,6 +250,11 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     /// </summary>
     private void RowWhy(double width)
     {
+        // [S-15724] Caption, down to the floor (9) to say more of it in a narrow slot; cut past that.
+        var caption = FamilyType.Caption;
+        var font = _rowWhyNatural > 0 ? Math.Clamp(caption.FontSize * width / _rowWhyNatural, ScaleFloor.Text, caption.FontSize) : caption.FontSize;
+        _rowWhy.FontSize = font;
+        _rowWhy.LineHeight = font * caption.LineHeight / caption.FontSize;
         var fits = _rowWhyShown && width + _statusRoom >= WhyLine.MinBeside;
         _rowWhy.Opacity = fits ? 1 : 0;
         _status.Show(fits ? [] : _drawn.Shown.Problems, busy: false);
@@ -309,8 +330,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         _captionGlyph.Foreground = Family.Brush(captionRole);
         // [S-15710] Without a reading the readout says why in its line under "--" (the readout's, [S-12813]).
         var split = ReadoutRules.Split(value.Text);
-        var why = !value.Available && shown.Why is { Length: > 0 } reason ? reason : null;
-        _reading.Show(split.Value, split.Unit, under: why, valueRole: value.Available ? ColourRole.TextPrimary : ColourRole.TextDisabled);
+        _reading.Show(split.Value, split.Unit, valueRole: value.Available ? ColourRole.TextPrimary : ColourRole.TextDisabled);
 
         // [S-14602] A reading kept through a failed refresh stays, and the status's problem glyph says so, its room at the
         // row's end; "--" says there is no reading, why its tooltip (Lay's, with the face). [S-15711] A failure that left it
@@ -438,7 +458,14 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
             // slot, the arrow's); a sparkline keeps that slot (the graph's defaults, WR-10).
             if (!look.Spark && !value.Available && shown.Why is { Length: > 0 } reason)
             {
-                _rowWhy.Text = reason;
+                if (_rowWhy.Text != reason || !(_rowWhyNatural > 0))
+                {
+                    _rowWhy.Text = reason;
+                    _rowWhy.FontSize = FamilyType.Caption.FontSize;
+                    _rowWhy.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    _rowWhyNatural = _rowWhy.DesiredSize.Width;
+                }
+
                 _row.Beside(0, _rowWhy, double.NaN);
                 _rowWhyShown = true;
             }
@@ -459,16 +486,36 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         // [S-14701] The readout in the reading's share: the family's inset off the card's edges, a gap over the graph;
         // [S-12813] the status glyph's room at its end while one shows, so the block never stands under it.
         var foot = look.Graph > 0 ? look.Graph + FamilySpace.S2 : FamilySpace.Inset;
-        var end = FamilySpace.Inset + _statusRoom;
-        _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, foot);
+        var share = Math.Max(0, look.Reading - FamilySpace.Inset - (look.Graph > 0 ? FamilySpace.S2 : FamilySpace.Inset));
+
+        // [S-15724] Without a reading the readout says why in one compact line at its share's foot, where the share holds a
+        // Caption line over the band; the block fills what is over it, as it stands with a reading (WR-10: the face kept).
+        var readoutWhy = !value.Available && shown.Why is { Length: > 0 } said && share - WhyLine.Band >= FamilyType.Caption.LineHeight ? said : null;
+        var band = readoutWhy is null ? 0 : WhyLine.Band;
+        _readoutWhy.Text = readoutWhy ?? string.Empty;
+        _readoutWhy.Visibility = readoutWhy is null ? Visibility.Collapsed : Visibility.Visible;
+        _readoutWhy.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, foot);
 
         // [S-15718] Over a graph the readout stands on the card's top inset, the height its width leaves under it (WR-1).
         _fit.Head = look.Graph > 0;
 
         // [S-15719] Beside or stacked by the card's room alone, never the status mark's: a stale reading keeps the arrangement
         // a fresh one has (WR-7), the block scaled to stand clear of the mark.
-        var room = new Size(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, look.Reading - FamilySpace.Inset - (look.Graph > 0 ? FamilySpace.S2 : FamilySpace.Inset)));
-        Arrange(MetricRules.Arrange(room.Width, room.Height, Natural(_caption), Natural(_value), FamilySpace.ColumnGap));
+        var room = new Size(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, share - band));
+        var caption = Natural(_caption);
+        var reading = Natural(_value);
+        var arrangement = MetricRules.Arrange(room.Width, room.Height, caption, reading, FamilySpace.ColumnGap);
+        Arrange(arrangement);
+
+        // [S-15725] The status mark's room is kept at the block's end only where the block would stand under the mark: a block
+        // the width stops stands centred in the height, clear of the mark's corner, and reaches both side insets (WR-3).
+        var end = FamilySpace.Inset;
+        if (_statusRoom > 0 && MetricRules.UnderMark(room.Width, room.Height, caption, reading, arrangement, FamilySpace.ColumnGap, look.Graph > 0, FamilySpace.S1 + KitStatus.Side))
+        {
+            end += _statusRoom;
+        }
+
+        _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, foot + band);
     }
 
     private static SizeDip Natural(FrameworkElement part)

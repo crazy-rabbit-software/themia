@@ -30,9 +30,9 @@ namespace Themia.App.Widgets;
 /// Space or Enter. In edit mode the press is the card's, never the icon's ([S-1911]). A kind that does neither lights
 /// nothing. A family subclasses it for its data and hands each read to <see cref="Present"/>.
 /// <para>
-/// [S-15710] [S-15711] WR-10: while it cannot be read the glyph stays, drawn unavailable, and a card with the room says why in
-/// the Tile block's state line under it (<see cref="IconRules.SaysWhy"/>); a failure is the status mark's too, at every size,
-/// as a stale reading's.
+/// [S-15710] [S-15711] [S-15722] WR-10: while it cannot be read the glyph stays, drawn unavailable, and a card with the room
+/// says why in one compact line beside or under it (<see cref="IconRules.Beside"/>, <see cref="IconRules.Under"/>); a failure
+/// is the status mark's too, at every size, as a stale reading's.
 /// </para>
 /// </summary>
 public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys,
@@ -291,19 +291,32 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         var inset = IconRules.Inset(width, height);
         var why = Why;
         var marked = _shown.Problems.Count > 0;
-        _why = why is not null && _area.IsMeasured && IconRules.SaysWhy(width, height);
 
-        // [S-15716] A card too short for the why under the glyph says it beside it, where the width holds it.
+        // [S-15722] The why in one compact line: beside the glyph where it stands whole there (a wide card), else under it,
+        // Caption down to the floor, else beside it cut; with no room for either the glyph alone (the mark, the tooltip).
         IconBeside? beside = null;
-        if (why is not null && _area.IsMeasured && !_why)
+        IconWhy? under = null;
+        if (why is not null && _area.IsMeasured)
         {
             // A collapsed text measures nothing: it is shown to be measured, and collapsed again where it has no room.
             _beside.Text = why;
             _beside.Width = double.NaN;
+            _beside.MaxWidth = double.PositiveInfinity;
             _beside.Margin = default;
+            _beside.FontSize = FamilyType.Caption.FontSize;
+            _beside.LineHeight = FamilyType.Caption.LineHeight;
             _beside.Visibility = Visibility.Visible;
             _beside.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            beside = IconRules.Beside(width, height, _beside.DesiredSize.Width, marked, Aspect(_shown.Glyph is { Length: > 0 } g ? g : _kind.Glyph));
+            var sentence = _beside.DesiredSize.Width;
+            beside = IconRules.Beside(width, height, sentence, marked, Aspect(_shown.Glyph is { Length: > 0 } g ? g : _kind.Glyph));
+            if (beside is not { } whole || whole.TextWidth < sentence)
+            {
+                under = IconRules.Under(width, height, sentence);
+                if (under is not null)
+                {
+                    beside = null;
+                }
+            }
         }
 
         // [S-15717] Where the inset has given way the glyph stands clear of the status mark.
@@ -313,16 +326,34 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         {
             _tile.Padding = new Thickness(at.GlyphLeft, inset, width - at.GlyphLeft - at.Glyph, inset);
             _tile.Use(IconRules.Step(at.GlyphHeight, at.GlyphHeight), at.Glyph, label: false, state: false);
+            _beside.HorizontalAlignment = HorizontalAlignment.Left;
+            _beside.VerticalAlignment = VerticalAlignment.Center;
             _beside.Margin = new Thickness(at.TextLeft, 0, 0, 0);
             _beside.Width = at.TextWidth;
             _beside.Visibility = Visibility.Visible;
             return;
         }
 
-        _beside.Visibility = Visibility.Collapsed;
         var edges = box.Glyph;
-        _tile.Padding = new Thickness(edges.Left, edges.Top, edges.Right, edges.Bottom);
-        _tile.Use(IconRules.Step(width, height, _why), width - edges.Left - edges.Right, label: false, state: _why, stateStep: FamilyType.Caption);
+        var band = under?.Band ?? 0;
+        if (under is { } line)
+        {
+            // [S-15722] Under the glyph: one line at its foot, its size its own (never scaled with the glyph).
+            _beside.FontSize = line.FontSize;
+            _beside.LineHeight = line.FontSize * FamilyType.Caption.LineHeight / FamilyType.Caption.FontSize;
+            _beside.HorizontalAlignment = HorizontalAlignment.Center;
+            _beside.VerticalAlignment = VerticalAlignment.Bottom;
+            _beside.Margin = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, edges.Bottom);
+            _beside.MaxWidth = width - (2 * FamilySpace.S1);
+            _beside.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            _beside.Visibility = Visibility.Collapsed;
+        }
+
+        _tile.Padding = new Thickness(edges.Left, edges.Top, edges.Right, edges.Bottom + band);
+        _tile.Use(IconRules.Step(width, height - band), width - edges.Left - edges.Right, label: false, state: false);
     }
 
     /// <summary>[S-15716] A glyph's ink, its width over its height, as the meter measures it (1 where it cannot).</summary>
@@ -345,14 +376,12 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     /// <summary>[S-15710] Why it cannot be read, where it says: null while it can be, or with no reason given.</summary>
     private string? Why => _shown.State == TileState.Unavailable && _shown.Why is { Length: > 0 } why ? why : null;
 
-    /// <summary>[S-15710] Whether the card says why under its glyph now (<see cref="IconRules.SaysWhy"/>).</summary>
-    private bool _why;
 
     /// <summary>The whole look from the read: the glyph, its state, hover and pressed, its tooltip and its name.</summary>
     private void Paint()
     {
         var name = _shown.Name ?? _kind.Label.Text();
-        _tile.Show(_shown.Glyph is { Length: > 0 } glyph ? glyph : _kind.Glyph, name, _why ? Why ?? string.Empty : string.Empty, _shown.State);
+        _tile.Show(_shown.Glyph is { Length: > 0 } glyph ? glyph : _kind.Glyph, name, string.Empty, _shown.State);
         _tile.Face(_shown.State == TileState.Unavailable || Inert ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
         ToolTipService.SetToolTip(_face, _shown.Tooltip);
         AutomationProperties.SetName(_face, name);

@@ -210,10 +210,10 @@ public static class TextRules
     /// <paramref name="height"/> (the card's less its inset), led by the glyph or not: the face is scaled as one until its ink
     /// fills the height or the width stops it, so the line takes the room's width at the scale the height gives it (a room
     /// shorter than the face's own ink widens it, never past the legibility floor's scale), never more at a scale over one: a
-    /// line that stands whole at its own size or larger is drawn whole, grown until one axis stops it. [S-15715] A one-line
-    /// text that is cut even at its own size (<paramref name="natural"/>: its width at the step) is cut anyway, so it keeps
-    /// the height a short one has: its room is the width at the height's scale, never its own size's (a long condition had
-    /// stood 14 DIP tall in a 480 × 104 card where "Overcast" is 80). A room not laid out yet is unbounded.
+    /// line that stands whole at its own size or larger is drawn whole, grown until one axis stops it. [S-15720] A one-line
+    /// text (<paramref name="natural"/>: its width at the step) is drawn whole at the scale the width gives it, shrunk as far
+    /// as the legibility floor (its 9 DIP) and cut only past that, at the floor: the reading stays read at every size (a long
+    /// condition cut at the height's scale had read "O." at 240 × 170, [S-15715] retired). A room not laid out yet is unbounded.
     /// </summary>
     public static double Room(double width, double height, int lines, bool lead, double natural = double.NaN)
     {
@@ -222,9 +222,11 @@ public static class TextRules
             return double.PositiveInfinity;
         }
 
-        var byHeight = Math.Max(height / Ink(lines), ScaleFloor.Least(Step.FontSize));
-        var cut = Lines(lines) == 1 && double.IsFinite(natural) && natural + LeadRoom(lead) > width;
-        var scale = cut ? byHeight : Math.Min(byHeight, 1);
+        var floor = ScaleFloor.Least(Step.FontSize);
+        var byHeight = Math.Max(height / Ink(lines), floor);
+        var scale = Lines(lines) == 1 && double.IsFinite(natural) && natural > 0
+            ? Math.Max(Math.Min(byHeight, width / (natural + LeadRoom(lead))), floor)
+            : Math.Min(byHeight, 1);
         return Math.Max(0, (width / scale) - LeadRoom(lead));
     }
 

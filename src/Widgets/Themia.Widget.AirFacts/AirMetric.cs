@@ -207,7 +207,7 @@ internal sealed partial class AirMetricView : MetricView
         if (_feed.Held is not { Value: { } air } held)
         {
             // [S-12813] The row stays, "--", the reason its tooltip (a status glyph would stand over the "--").
-            Present(new MetricShown(MetricValue.Unread) { Why = OnlineParts.Caption(_feed.Status) });
+            Present(new MetricShown(MetricValue.Unread) { Why = OnlineParts.Caption(_feed.Status), Problems = OnlineParts.Failure(_feed.Status) });
             return;
         }
 

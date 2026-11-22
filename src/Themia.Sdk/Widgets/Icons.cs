@@ -104,22 +104,7 @@ public static class IconRules
     }
 
     /// <summary>
-    /// [S-15710] Whether a card says why under its glyph while it cannot be read (<see cref="WhyLine"/>): its inset box holds
-    /// the 28 glyph over the why's band and a sentence's room across. A 76 square does not (the why its tooltip).
-    /// </summary>
-    public static bool SaysWhy(double width, double height)
-    {
-        if (!double.IsFinite(Side(width, height)))
-        {
-            return false;
-        }
-
-        var inset = Inset(width, height);
-        return WhyLine.Fits(width - (2 * inset), height - (2 * inset), FamilyType.Big28.FontSize);
-    }
-
-    /// <summary>
-    /// [S-15716] Where a card too short to say why under its glyph (<see cref="SaysWhy"/>) says it beside it: the glyph on the
+    /// [S-15716] Where a card says why beside its glyph (first where it stands whole there, [S-15722]): the glyph on the
     /// inset box's height, the why after it a column's gap on, at most what the width leaves (<paramref name="sentence"/>: its
     /// own width), the two one block centred across the card, clear of the status mark (<paramref name="marked"/>: its room
     /// kept at both ends, so the block stays centred); none
@@ -129,7 +114,7 @@ public static class IconRules
     /// </summary>
     public static IconBeside? Beside(double width, double height, double sentence, bool marked, double aspect = 1)
     {
-        if (!double.IsFinite(Side(width, height)) || SaysWhy(width, height) || height < WhyLine.BesideHeight)
+        if (!double.IsFinite(Side(width, height)) || height < WhyLine.BesideHeight)
         {
             return null;
         }
@@ -147,6 +132,30 @@ public static class IconRules
         var text = Math.Min(double.IsFinite(sentence) ? Math.Max(0, sentence) : room, room);
         var left = (width - glyph - FamilySpace.ColumnGap - text) / 2;
         return new IconBeside(left, glyph, tall, left + glyph + FamilySpace.ColumnGap, text);
+    }
+
+    /// <summary>
+    /// [S-15722] The why's compact line under the glyph: one line on Caption (12), shrunk as far as the floor (9) to stand whole
+    /// in the card's width less 4 a side (<paramref name="sentence"/>: its width on Caption), its size its own, never the
+    /// glyph's; none where it would stand whole only under the floor, or the inset box would hold under the 28 glyph over
+    /// its band (a gap and its line). "Nothing playing" fits a 76 square at about 10; "Can't reach the service" does not.
+    /// </summary>
+    public static IconWhy? Under(double width, double height, double sentence)
+    {
+        if (!double.IsFinite(Side(width, height)) || !(sentence > 0) || !double.IsFinite(sentence))
+        {
+            return null;
+        }
+
+        var caption = FamilyType.Caption;
+        var font = Math.Min(caption.FontSize, caption.FontSize * (width - (2 * FamilySpace.S1)) / sentence);
+        if (font < ScaleFloor.Text)
+        {
+            return null;
+        }
+
+        var band = FamilySpace.S2 + (font * caption.LineHeight / caption.FontSize);
+        return height - (2 * Inset(width, height)) - band >= FamilyType.Big28.FontSize ? new IconWhy(font, band) : null;
     }
 
     /// <summary>[S-15716] What the status mark takes at the card's end: its glyph and the gap before it.</summary>
@@ -187,13 +196,10 @@ public static class IconRules
     /// <summary>
     /// [S-15002] The step the glyph is planned on in a card: the largest of <see cref="Steps"/> whose size its room holds
     /// (28 when none does), so the face's fit scales it up by less than one step's ratio and it is drawn sharp at any size.
-    /// [S-15710] Over the why's line (<paramref name="why"/>) its room is the inset box less the line's band.
     /// </summary>
-    public static TypeStep Step(double width, double height, bool why = false)
+    public static TypeStep Step(double width, double height)
     {
-        var room = why && double.IsFinite(Side(width, height))
-            ? Math.Max(0, Math.Min(width, height - WhyLine.Band) - (2 * Inset(width, height)))
-            : Room(width, height);
+        var room = Room(width, height);
         var best = Steps[0];
         foreach (var step in Steps)
         {
@@ -219,6 +225,9 @@ public static class IconRules
 
 /// <summary>[S-15716] A why beside the glyph: the glyph's box from the card's start, its width and height, the why's start and width.</summary>
 public readonly record struct IconBeside(double GlyphLeft, double Glyph, double GlyphHeight, double TextLeft, double TextWidth);
+
+/// <summary>[S-15722] The why's line under the glyph: its font size and its band (the gap over it and its line).</summary>
+public readonly record struct IconWhy(double FontSize, double Band);
 
 /// <summary>[S-15717] The glyph's box in a card (its distance from each edge) and where the status mark stands in from the top end corner.</summary>
 public readonly record struct IconBox(IconEdges Glyph, double Mark);

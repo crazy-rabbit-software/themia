@@ -113,27 +113,24 @@ public sealed class IconRulesTests
         Assert.Equal(TileState.Unavailable, IconShown.None(Glyphs.Play).State);
     }
 
-    // ---- [S-15710] why, under the glyph --------------------------------------------------------------------
+    // ---- [S-15722] why, in one compact line under the glyph ------------------------------------------------
 
     [Theory]
-    [InlineData(76, 76, false)] // a new icon: no room across or under (the tooltip)
-    [InlineData(330, 140, true)]
-    [InlineData(300, 164, true)]
-    [InlineData(600, 200, true)]
-    [InlineData(152, 152, true)] // 128 across holds a sentence's 96, 128 down the 28 glyph over the band
-    [InlineData(330, 70, false)] // 46 down: the 28 glyph and its band (24) need 52
-    [InlineData(110, 400, false)] // 86 across: under a sentence's room
-    [InlineData(double.NaN, double.NaN, false)]
-    public void S15710_a_card_says_why_under_its_glyph_where_its_inset_holds_the_line(double width, double height, bool says)
-        => Assert.Equal(says, IconRules.SaysWhy(width, height));
+    [InlineData(76, 76, 84, true)] // "Nothing playing" at about 10 in 68: a 76 square holds it under the 28 glyph
+    [InlineData(80, 170, 84, true)]
+    [InlineData(76, 76, 125, false)] // "Can't reach the service" would stand whole only under 9
+    [InlineData(32, 32, 84, false)] // no room under the glyph
+    [InlineData(330, 70, 125, false)] // 46 down: the 28 glyph and its band do not fit
+    [InlineData(520, 600, 125, true)]
+    public void S15722_the_why_stands_under_the_glyph_where_its_line_fits_whole_at_9_or_more(double width, double height, double sentence, bool fits)
+        => Assert.Equal(fits, IconRules.Under(width, height, sentence) is not null);
 
     [Fact]
-    public void S15710_over_the_why_the_glyph_is_planned_on_the_room_left_above_the_band()
+    public void S15722_the_line_keeps_its_own_size_caption_at_most_whatever_the_card()
     {
-        // 330 by 140: 116 down, 92 over the band; the 68 step fits both ways, the 96 step no longer does.
-        Assert.Equal(96, IconRules.Step(330, 140).FontSize);
-        Assert.Equal(68, IconRules.Step(330, 140, why: true).FontSize);
-        Assert.Equal(24, WhyLine.Band);
+        Assert.Equal(12, IconRules.Under(520, 600, 125)!.Value.FontSize);
+        Assert.Equal(12, IconRules.Under(152, 152, 125)!.Value.FontSize);
+        Assert.Equal(12 * 68 / 84.0, IconRules.Under(76, 76, 84)!.Value.FontSize, 6);
     }
 
     // ---- [S-15716] why, beside the glyph -------------------------------------------------------------------
@@ -172,7 +169,6 @@ public sealed class IconRulesTests
     [Theory]
     [InlineData(76, 76)] // no room across: the mark and the tooltip (held for the owner)
     [InlineData(32, 32)]
-    [InlineData(330, 140)] // room under the glyph: the line under it
     [InlineData(200, 20)] // under a Caption line's height
     public void S15716_no_why_beside_where_it_does_not_fit_or_fits_under(double width, double height)
         => Assert.Null(IconRules.Beside(width, height, 130, marked: false));

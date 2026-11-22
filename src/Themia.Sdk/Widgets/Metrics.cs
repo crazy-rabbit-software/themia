@@ -329,6 +329,28 @@ public static class MetricRules
     }
 
     /// <summary>
+    /// [S-15725] Whether a readout block (its <paramref name="caption"/> and <paramref name="reading"/> as
+    /// <paramref name="arrangement"/> stands them, a <paramref name="gap"/> between) scaled into a room <paramref name="width"/> by
+    /// <paramref name="height"/> (on its <paramref name="head"/>: at the room's top; else centred in the height) reaches into the
+    /// status mark's band, <paramref name="mark"/> under the room's top: only then it keeps the mark's room at its end. Measured on
+    /// the parts' boxes, which hold their ink: a box clear of the band is ink clear of it.
+    /// </summary>
+    public static bool UnderMark(double width, double height, SizeDip caption, SizeDip reading, MetricArrangement arrangement, double gap, bool head, double mark)
+    {
+        var (w, h) = arrangement == MetricArrangement.Beside
+            ? (caption.Width + gap + reading.Width, Math.Max(caption.Height, reading.Height))
+            : (Math.Max(caption.Width, reading.Width), caption.Height + reading.Height);
+        if (!(w > 0) || !(h > 0) || !(width > 0) || !(height > 0))
+        {
+            return true;
+        }
+
+        var scale = Math.Min(width / w, height / h);
+        var top = head ? 0 : (height - (h * scale)) / 2;
+        return top < mark;
+    }
+
+    /// <summary>
     /// [S-14700] [S-14701] [S-14702] How a single metric fills a card <paramref name="height"/> tall (DIPs of the card's box,
     /// its top edge to its foot edge) on <paramref name="grid"/> (owner, 2026-11-20: "the widgets like the PM2.5 one should be
     /// resizable in height and change its style so that it fits"): the same parts at every size (the name, the value, its
@@ -359,7 +381,9 @@ public static class MetricRules
         var rows = cells / Math.Max(1, row);
         if (trend != MetricTrend.Line)
         {
-            return new MetricLook(rows >= 2 ? MetricFace.Readout : MetricFace.Row, height, 0);
+            // [S-15726] Any card taller than its one row draws the readout, scaled to fill: a row stood in a taller card
+            // floating, its bands over and under it (240 x 50, WR-1).
+            return new MetricLook(cells > row ? MetricFace.Readout : MetricFace.Row, height, 0);
         }
 
         if (cells < 2)

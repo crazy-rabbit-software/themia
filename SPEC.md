@@ -10532,6 +10532,20 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   (`MetricRules.Arrange` on the inset box), never the status mark's, so a stale reading keeps the arrangement a fresh
   one has at the same size, scaled to stand clear of the mark. The mark stands in a row's height: in a row shorter than
   the mark's band it is centred on the row (a 240 × 30 temperature's badge had run past the card's foot).
+- **[S-15723]** **The arrow stands before the value, in the row and the readout alike** (WR-11: "they should reuse the same
+  base"): the row's inline slot is between the name and the value, so the readout's arrow stands before its value too,
+  never after it at another size of the same kind.
+- **[S-15724]** **A metric's why is one compact line** (WR-10): without a reading the readout keeps its face (its caption
+  and "--", arranged as with a reading) and says why in one Caption line at the foot of the reading's share, its size its
+  own, never scaled with the block (a 38 DIP why at 900 × 300, a three-line stack at 330 × 130 where the sample is one
+  line); the row's why in its slot is Caption, shrunk as far as 9 to say more of it, cut past that.
+- **[S-15725]** **The mark's room only where the block stands under it** (WR-3; the third audit: a stale pollen's reading
+  24 short of the right inset at every size): the readout keeps the status mark's room at its end only where, scaled into
+  its room, it would reach into the mark's band (`MetricRules.UnderMark`); a block the width stops stands centred in the
+  height, clear of the mark, and reaches both side insets. Tests `MetricRulesTests.S15725_`.
+- **[S-15726]** **Taller than its row, the readout** (WR-1; was [S-14701]'s two whole rows): a card one cell taller than
+  its row draws the readout, scaled to fill; the row stood floating in a 240 × 50 card, bands of 17 over and under it.
+  Test `MetricRulesTests.S14701_`.
 - **[S-14602]** **Defaults, never hidden** (WR-10): without a reading the row stays, its value "--" drawn unavailable and
   why its tooltip (the readout's line under "--" too, [S-15710]; a failure the problem glyph's, [S-15711]); a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
   the glyph its room at its end so it never stands on the value ([S-12834]).
@@ -10605,7 +10619,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   arrow, its graph), arranged by one pure rule (`MetricRules.Look` on the card's height, the trend and the graph's detail,
   on the card's grid; `MetricRules.Arrange` for the readout), the view measuring its box (`ApplySize`) to arrange them,
   never to choose what they are ([S-2445]). Tests `MetricRulesTests.S14700_`..`S14703_`.
-- **[S-14701]** **Row or readout.** Under two whole rows the face is the facts' row (today's row, stretched to the card).
+- **[S-14701]** **Row or readout.** One row tall the face is the facts' row ([S-15726]; was: under two whole rows) (today's row, stretched to the card).
   Two rows or more (and no graph) it is the **readout**, the whole card: the value as the reading (a Readout at Big28, its
   unit smaller after it, `ReadoutRules.Split`; the arrow beside the value) and the glyph and the name as its caption
   (Caption, secondary), one block scaled up together until the height or the width stops it (WR-7, "All together, scaled";
@@ -10761,14 +10775,12 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   tooltip) and a shorter one grows until one axis stops it; a kind of two lines wraps by words first. Somebody else's
   string is one line (`TextRules.Line`). A family subclasses the face for its data and hands each read to it
   (`TextShown`); the face, its fit and what a click opens are the base's alone.
-- **[S-15715]** **A long text keeps the height a short one has, and is cut** (WR-1, WR-7: "All together, scaled"; the
-  atoms' words, WR-16: "the text should rather overflow ... than to shrink and not fill the height"): a one-line text cut
-  even at its own size is cut anyway, so its room is the width at the scale the height gives the line (`TextRules.Room`
-  with its own width), and it fills its height as "Overcast" does, cut with its ellipsis at the room's end, start kept. A
-  text that stands whole at its own size is drawn whole, grown until one axis stops it ("Overcast" in 240 × 130, never
-  "O…"); a kind of more lines wraps first, as before.
-  It had been held at its own size over one (a long condition 14 DIP tall in a 480 × 104 card where "Overcast" is 80).
-  Test `TextRulesTests.S15715_`; renders `--widget-png weatherCondition --state long --sizes range`.
+- **[S-15715]** *(Retired by [S-15720]: a long text cut at the height's scale read "O." at 240 × 170.)*
+- **[S-15720]** **A text stays read: whole down to the floor, cut only past it** (WR-7, WR-14: "sized down to where its
+  smallest text is still read (9 DIP)"; the third audit, 2026-11-22): a one-line text is drawn whole at the scale the
+  width gives it, never over the height's, shrunk as far as the legibility floor; only a text that would stand whole
+  under the floor is cut, at the floor, its start kept, the same at every card size (`TextRules.Room` with its own
+  width). "Overcast" fills a 240 × 130 card; a condition six times as long stands at 9 DIP, cut at the card's end.
 - **[S-14932]** **Defaults, never hidden** (WR-10): without a text the face stays, the kind's words for none ("No album",
   `TextKind.None`) or the family's why ("Nothing playing", "Set a place") drawn unavailable, why its tooltip
   (`TextRules.Drawn`); a text kept through a failed refresh stays and the status's problem glyph says so, the block
@@ -10875,6 +10887,17 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   very corner where 4 in would leave the glyph under its floor (12): at 32 × 32 a 12 glyph under a 16 mark
   (`IconRules.Box`). With the family's inset the mark stands on the inset round the glyph as before ([S-15160]). Test
   `IconRulesTests.S15717_`.
+- **[S-15721]** **Beside a text the why stands for the mark**: where the why fits beside the face only with the status
+  mark's room, the mark gives it that room and the why says it in words (the condition's least card, 122 × 32, said its
+  failure only in a badge); where it fits with the mark, both stand; where it fits neither way, the mark alone.
+- **[S-15722]** **An icon's why is one compact line** (WR-10: "says why in a compact line"; the third audit: a 40 DIP why
+  scaled with the glyph at 520 × 600, none at 76 × 76 where "Nothing playing" fits): beside the glyph where it stands
+  whole there (a wide card, `IconRules.Beside`), else under it (`IconRules.Under`): one line at the card's foot on
+  Caption, shrunk as far as the floor (9) to stand whole in the card's width less 4 a side, its size its own and never
+  the glyph's, the glyph filling the inset box over its band; else beside it cut; with no room for any, the glyph, the
+  mark and the tooltip. A 76 square says "Nothing playing" under the glyph at about 10 DIP; "Can't reach the service"
+  does not fit it at 9 and keeps the mark (held for the owner). It replaces the Tile block's state line ([S-15710]), which
+  scaled with the glyph. Tests `IconRulesTests.S15722_`.
 - **[S-15003]** **A family a project, a kind an icon.** A family's kinds are data (`IconKind`: id, glyph, the add page's
   name, description and search words, its config, what it opens); each kind is a sealed module (`IconModule`: the one
   sizing, a one-readout face with its item, at home in its family's add-page folder in the family's order, the removed

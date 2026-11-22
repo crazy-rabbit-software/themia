@@ -229,12 +229,13 @@ public sealed class MetricRulesTests
     }
 
     [Fact]
-    public void S14701_one_row_tall_the_row_two_rows_or_more_the_readout_the_whole_card()
+    public void S14701_one_row_tall_the_row_taller_the_readout_the_whole_card()
     {
         Assert.Equal(new MetricLook(MetricFace.Row, 30, 0), MetricRules.Look(30, MetricTrend.None, ChartDetail.Simple, Grid10));
 
-        // A part row over the one stays the row, stretched.
-        Assert.Equal(MetricFace.Row, MetricRules.Look(50, MetricTrend.Arrow, ChartDetail.Simple, Grid10).Face);
+        // [S-15726] A cell over the one row is the readout, scaled to fill: never a row floating in a taller card.
+        Assert.Equal(MetricFace.Readout, MetricRules.Look(40, MetricTrend.Arrow, ChartDetail.Simple, Grid10).Face);
+        Assert.Equal(MetricFace.Readout, MetricRules.Look(50, MetricTrend.Arrow, ChartDetail.Simple, Grid10).Face);
         foreach (var height in new[] { 60d, 70, 90, 180, 600 })
         {
             Assert.Equal(new MetricLook(MetricFace.Readout, height, 0), MetricRules.Look(height, MetricTrend.None, ChartDetail.Simple, Grid10));
@@ -245,7 +246,7 @@ public sealed class MetricRulesTests
         Assert.Equal(MetricFace.Readout, MetricRules.Look(59.844, MetricTrend.Arrow, ChartDetail.Simple, new ItemGrid(9.974)).Face);
         Assert.Equal(MetricFace.Readout, MetricRules.Look(60.282, MetricTrend.Arrow, ChartDetail.Simple, new ItemGrid(9.974)).Face);
         Assert.Equal(MetricFace.Row, MetricRules.Look(30.141, MetricTrend.Arrow, ChartDetail.Simple, new ItemGrid(9.974)).Face);
-        Assert.Equal(MetricFace.Row, MetricRules.Look(59.0, MetricTrend.Arrow, ChartDetail.Simple, Grid10).Face);
+        Assert.Equal(MetricFace.Readout, MetricRules.Look(59.0, MetricTrend.Arrow, ChartDetail.Simple, Grid10).Face);
 
         // Not laid out yet: the row.
         Assert.Equal(new MetricLook(MetricFace.Row, 0, 0), MetricRules.Look(0, MetricTrend.Line, ChartDetail.Simple, Grid10));
@@ -543,5 +544,21 @@ public sealed class MetricRulesTests
         // The first hour has none before it; no hours, nothing.
         Assert.Null(MetricRules.Hours(hours, h => h.At, h => h.Value, 0, start.AddMinutes(10)).Direction);
         Assert.Empty(MetricRules.Hours(new List<(DateTimeOffset At, double? Value)>(), h => h.At, h => h.Value, 0, start).Series);
+    }
+
+    // ---- [S-15725] the status mark's room, only where the block stands under it ---------------------------------
+
+    [Fact]
+    public void S15725_a_block_the_width_stops_stands_clear_of_the_mark_and_keeps_its_whole_width()
+    {
+        // 496 x 576: a caption over a wide reading, width-limited, centred far below the mark's band.
+        Assert.False(MetricRules.UnderMark(496, 576, new SizeDip(90, 20), new SizeDip(250, 36), MetricArrangement.Stacked, 12, head: false, mark: 20));
+    }
+
+    [Fact]
+    public void S15725_a_block_the_height_stops_or_on_its_head_reaches_the_mark_and_leaves_it_room()
+    {
+        Assert.True(MetricRules.UnderMark(306, 40, new SizeDip(90, 20), new SizeDip(60, 36), MetricArrangement.Beside, 12, head: false, mark: 20));
+        Assert.True(MetricRules.UnderMark(496, 576, new SizeDip(90, 20), new SizeDip(250, 36), MetricArrangement.Stacked, 12, head: true, mark: 20));
     }
 }

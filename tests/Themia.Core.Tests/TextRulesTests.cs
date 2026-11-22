@@ -63,22 +63,25 @@ public sealed class TextRulesTests
         Assert.Equal(216 - lead, TextRules.Room(216, 400, 1, lead: true));
         Assert.Equal(216, TextRules.Room(216, 400, 1, lead: false));
 
-        // A text that stands whole at its own size stays whole however tall the room ("Overcast" in 240 x 130).
-        Assert.Equal(216, TextRules.Room(216, 400, 1, lead: false, natural: 80));
+        // A text that stands whole stays whole however tall the room ("Overcast" in 240 x 130).
+        Assert.Equal(80, TextRules.Room(216, 400, 1, lead: false, natural: 80), 6);
     }
 
     [Fact]
-    public void S15715_a_one_line_text_cut_even_at_its_own_size_keeps_the_height_and_is_cut()
+    public void S15720_a_one_line_text_shrinks_to_stand_whole_down_to_the_floor_and_is_cut_only_past_it()
     {
-        // 80 of ink is the scale 80 / Ink: the line takes the width at that scale, so a long text fills the height, cut.
-        var scale = 80 / TextRules.Ink(1);
+        var floor = ScaleFloor.Least(TextRules.Step.FontSize);
 
-        Assert.True(scale > 1);
-        Assert.Equal(216 / scale, TextRules.Room(216, 80, 1, lead: false, natural: 500), 6);
-        Assert.Equal((216 / scale) - TextRules.LeadRoom(lead: true), TextRules.Room(216, 80, 1, lead: true, natural: 500), 6);
+        // 300 wide stands whole in 216 at 0.72, over the floor: its whole width, whatever the height.
+        Assert.Equal(300, TextRules.Room(216, 80, 1, lead: false, natural: 300), 6);
+        Assert.Equal(300, TextRules.Room(216, 600, 1, lead: false, natural: 300), 6);
 
-        // A kind of more lines wraps first: never cut at the height's scale.
-        Assert.Equal(216, TextRules.Room(216, 400, 2, lead: false, natural: 500));
+        // 1000 would stand whole only under the floor: cut at the floor, the same at every height over it.
+        Assert.Equal(216 / floor, TextRules.Room(216, 80, 1, lead: false, natural: 1000), 6);
+        Assert.Equal(216 / floor, TextRules.Room(216, 600, 1, lead: false, natural: 1000), 6);
+
+        // A kind of more lines wraps first, as before.
+        Assert.Equal(216, TextRules.Room(216, 400, 2, lead: false, natural: 1000));
     }
 
     [Fact]
