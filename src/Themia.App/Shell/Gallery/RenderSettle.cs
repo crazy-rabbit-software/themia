@@ -14,13 +14,15 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-15900] Debug only: the one settle of every render and check, reached through <see cref="RenderHarness.SettleAsync"/>
-/// and <see cref="StandInDesktop.ReadyAsync"/>. A page is looked at once a frame (the compositor's own clock): laid out,
-/// then while anything under it is still loading (every pending image load under it, the render's tracked work: a
-/// replayed recording's answers and the host's loads, <see cref="Track(Task)"/>; what the caller says is still busy) that is waited for, then its
-/// picture is drawn to a bitmap each frame until it is the same <see cref="RenderSettling.QuietFrames"/> frames in a row
-/// (an entrance, a glide, a fade has ended; [S-15901] what turns forever on purpose, an indeterminate ring, is masked out).
-/// Core's <see cref="RenderSettling"/> decides. All under one ceiling: past it, what was still busy is said on stdout and
-/// in the log (<c>NOT SETTLED</c>) and the picture is taken as it stands. Never a fixed sleep.
+/// and <see cref="StandInDesktop.ReadyAsync"/>. A page is looked at once a frame (the compositor's own clock, one handler
+/// for the run): laid out; while anything is still loading (a bitmap under it, the render's tracked work: a replayed
+/// recording's answers and the host's loads, <see cref="Track(Task)"/>; what the caller says is still busy) that is
+/// waited for; then its picture is drawn small into one bitmap each frame and copied into one of two buffers kept for the
+/// run, until it is the same <see cref="RenderSettling.QuietFrames"/> frames in a row (an entrance, a glide, a fade has
+/// ended; [S-15901] what turns forever on purpose, an indeterminate ring or a caret, is masked out). The tree is walked
+/// seldom (as it starts, after <see cref="RewalkAfter"/> changed looks, once more before it is called settled). Core's
+/// <see cref="RenderSettling"/> decides. All under one ceiling: past it, what was still busy is said on stdout and in the
+/// log (<c>NOT SETTLED</c>) and the picture is taken as it stands. Never a fixed sleep.
 /// </summary>
 internal static class RenderSettle
 {
