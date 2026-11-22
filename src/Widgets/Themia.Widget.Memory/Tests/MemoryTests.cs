@@ -22,7 +22,8 @@ public sealed class MemoryTests
         Assert.Equal((32d, 60d, Themia.Sdk.SizeStretch.Ceiling), (number.Min.Height, number.Natural.Height, number.Max.Height)); // relaxed, [S-12411]: no practical Max
 
         var bar = Kind.Sizing(new MemoryConfig { Style = MemoryStyle.Bar });
-        Assert.Equal((240, 12 + 36 + 8 + 28 + 12), (bar.Min.Width, bar.Natural.Height));
+        // [S-15748] As tall as it draws: the reading's line from its first ink, the bar row's whole cells right under it.
+        Assert.Equal((240, 12 + 36 - Themia.Sdk.Kit.LineInk.Of(Themia.Sdk.Kit.FamilyType.Big28).Over + 30), (bar.Min.Width, bar.Natural.Height));
         Assert.Equal(bar.Min.Height, bar.Natural.Height);
         Assert.Empty(Kind.Sizing(new MemoryConfig { Style = MemoryStyle.Gauge }).Problems());
     }

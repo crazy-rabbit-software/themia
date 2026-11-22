@@ -111,8 +111,10 @@ public static class MeterSizing
 
             case MeterLook.Rows:
             {
-                // [S-11001] The bar row keeps its meter between its two figures only from 240 wide.
-                var h = top + PartTop + (Math.Max(1, rows) * FamilyShape.Row1) + foot;
+                // [S-11001] The bar row keeps its meter between its two figures only from 240 wide. [S-15748] As tall as what
+                // it draws (WR-1, WR-5): the reading's first ink on the content's top and its rows right under its line,
+                // touching, to the last row's foot; no 8 between them and no inset under the rows, which carry their own.
+                var h = top + Line - LineInk.Of(FamilyType.Big28).Over + (Math.Max(1, rows) * ItemSize.Optimal(FamilyShape.Row1, ItemGrid.Default()));
                 return WidgetSizing.Range(new(240, h), new(280, h), new(480, h));
             }
 

@@ -6142,7 +6142,13 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   (its root in Explorer) light as one item, the item layer's hover fill over the card's whole box and its pressed fill
   pressed (`OpensLight`, through `LinkLook.Opens`), registered for the pointer renders; never in edit mode, never while
   the click opens nothing. A meter of one drive still publishes its drive and lights for it elsewhere ([S-11953]).
-- **[S-6301]** An item's role: the usage pressure's ([S-1123]: the accent, Caution from 70 %, Critical
+- **[S-15748]** **A meter is as tall as it draws, and its running number never moves** (WR-1, WR-5, WR-15): the bar rows'
+  look (`MeterLook.Rows`: the disk's bars, the memory's bar) is as tall as its reading's line from its first ink on the
+  content's top and its rows at their one size right under it, touching (`MeterSizing.Reading`): no 8 between them and no
+  inset under the rows, which carry their own (the disk's bars had stood 28.7 DIP of empty card under Write at 240 × 124).
+  The Number look's reading is held to its kind's widest (`ReadoutBlock.Hold` with `FigureTemplate`, [S-14319]), so the
+  block is sized and stood by it, never by the value it shows ("1.7 MB/s" and "4.3 MB/s" had drawn at different scales).
+ ([S-1123]: the accent, Caution from 70 %, Critical
   from 90 %); an item with no reading is the disabled role, never "idle". The heat-map shades
   (`LoadTint`) are gone with the tiles ([S-6305]).
 - **[S-6302]** **Gauge**: the Chart block's ring, its upper half (`ChartRing` half: from nine o'clock

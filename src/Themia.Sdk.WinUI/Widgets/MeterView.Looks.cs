@@ -455,10 +455,26 @@ public sealed partial class MeterView
             view._reading.Margin = default;
             Fit.Parts.Add(view._reading);
             view.Children.Add(Fit);
+            Hold();
+        }
+
+        /// <summary>The worst case may follow the config (a drive, an adapter): held again with every layout.</summary>
+        public void Lay(double width, double height) => Hold();
+
+        /// <summary>
+        /// [S-15748] WR-15 (owner, 2026-11-20: "the clock right now changes its layout depending on the time that it shows"): the
+        /// running reading is sized and stood by its kind's widest (<see cref="FigureTemplate"/>), so a new value never
+        /// re-lays or rescales the block ("1.7 MB/s" and "4.3 MB/s" had drawn at different scales and places).
+        /// </summary>
+        private void Hold()
+        {
+            var worst = view.Worst;
+            view._reading.Hold(FigureTemplate.Of(worst.Value), worst.Unit);
         }
 
         public void Release()
         {
+            view._reading.Hold(string.Empty);
             view.Children.Remove(Fit);
             Fit.Parts.Remove(view._reading);
         }

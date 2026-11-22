@@ -48,7 +48,8 @@ public sealed class SystemAtomsTests
         var least = Math.Max(120, Math.Ceiling((MeterSizing.ReadingWidth(Percent with { Lead = true }) + 24) / 4) * 4);
         Assert.Equal((Math.Min(least, Math.Ceiling(face.Width + 24)), 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
 
-        Assert.Equal(12 + 44 + 56 + 12, MeterSizing.Reading(MeterLook.Rows, Percent, rows: 2).Natural.Height);
+        // [S-15748] The rows right under the reading's line (its first ink on the content's top), at their one size, to their foot.
+        Assert.Equal(12 + 36 - LineInk.Of(FamilyType.Big28).Over + 60, MeterSizing.Reading(MeterLook.Rows, Percent, rows: 2).Natural.Height, 6);
     }
 
     [Theory]
