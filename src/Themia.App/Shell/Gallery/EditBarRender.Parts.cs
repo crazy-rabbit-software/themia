@@ -138,7 +138,7 @@ internal static partial class EditBarRender
         // The page laid out (its pictures asked for), its pictures drawn, and then the page settled with them in it. A render
         // is bounded: a picture that never finishes is said, and the shot shows its glyph.
         var name = System.IO.Path.GetFileName(path);
-        await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(screen, name, looks: false).ConfigureAwait(true);
         await RenderSettle.SignalAsync(page.View.PicturesDrawn, $"{name}: the add page's pictures", TimeSpan.FromMinutes(1)).ConfigureAwait(true);
         await RenderHarness.SettleAsync(screen, name).ConfigureAwait(true);
 

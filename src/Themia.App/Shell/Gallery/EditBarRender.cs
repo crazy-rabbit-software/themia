@@ -238,9 +238,10 @@ internal static partial class EditBarRender
 
         then?.Invoke(view);
 
-        // The page drawn (and a lookup typed into it answered) before the flyout is hung at its height.
+        // The page laid out (and a lookup typed into it answered) before the flyout is hung at its height; its picture is
+        // settled once it hangs there.
         var name = System.IO.Path.GetFileName(path);
-        await RenderHarness.SettleAsync(canvas, name, busy: () => view.DebugSearching).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(canvas, name, busy: () => view.DebugSearching, looks: false).ConfigureAwait(true);
         canvas.UpdateLayout();
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(page, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
         canvas.UpdateLayout();
@@ -732,7 +733,7 @@ internal static partial class EditBarRender
         Func<string?> searching = string.Equals(type, PlaceRender.Unanswered, StringComparison.Ordinal) || string.Equals(type, SymbolRender.Unanswered, StringComparison.Ordinal)
             ? () => page.DebugTyping
             : () => page.DebugSearching;
-        await RenderHarness.SettleAsync(canvas, name, busy: searching).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(canvas, name, busy: searching, looks: false).ConfigureAwait(true);
         canvas.UpdateLayout();
 
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, area, flyout.ContentHeight));

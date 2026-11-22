@@ -29,11 +29,17 @@ internal static class RenderSettle
     /// <summary>The longest one frame is waited for: an off-screen window the compositor stopped drawing must not hang a render.</summary>
     private static readonly TimeSpan FrameCeiling = TimeSpan.FromSeconds(2);
 
+    /// <summary>The long side of a look, in pixels: enough to see a page move, small enough to draw every frame.</summary>
+    private const double LookSide = 1024;
+
     /// <summary>The longest one look (a bitmap of the page) is waited for.</summary>
     private static readonly TimeSpan LookCeiling = TimeSpan.FromSeconds(10);
 
     /// <summary>The render's own work still running (a recording's answers on their way), each a task.</summary>
     private static readonly HashSet<Task> Work = [];
+
+    /// <summary>The bitmap every look draws into (UI thread).</summary>
+    private static RenderTargetBitmap? _look;
 
     private static int _settles;
     private static int _late;
@@ -337,8 +343,16 @@ internal static class RenderSettle
         try
         {
             // A look is bounded too: a bitmap the compositor never hands back is said, and the page counts as not looked at.
-            var bitmap = new RenderTargetBitmap();
-            var drawn = bitmap.RenderAsync(root).AsTask();
+            // One bitmap for every look of the run, kept to its end: a new one each frame left thousands of WinRT bitmaps
+            // (each holding its pixels) to the finalizer, and one of them released as the application closed crashed it.
+            var bitmap = _look ??= new RenderTargetBitmap();
+            // Drawn small (its long side at most LookSide pixels): a look tells whether the page still moves, the picture
+            // itself is drawn full size afterwards, and a large page drawn whole each frame is what a settle would cost.
+            var page = (FrameworkElement)root;
+            var fit = Math.Min(1.0, LookSide / (Math.Max(page.ActualWidth, page.ActualHeight) * (page.XamlRoot?.RasterizationScale ?? 1)));
+            var drawn = (fit < 1
+                ? bitmap.RenderAsync(root, (int)Math.Max(1, Math.Round(page.ActualWidth * (page.XamlRoot?.RasterizationScale ?? 1) * fit)), 0)
+                : bitmap.RenderAsync(root)).AsTask();
             if (await Task.WhenAny(drawn, Task.Delay(LookCeiling)).ConfigureAwait(true) != drawn)
             {
                 Log.Warn(Scope, $"a look at {root.GetType().Name} took over {LookCeiling.TotalSeconds:0} s");

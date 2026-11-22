@@ -164,7 +164,7 @@ internal static partial class EditBarRender
         }
 
         var name = System.IO.Path.GetFileName(path);
-        await RenderHarness.SettleAsync(canvas, name).ConfigureAwait(true);
+        await RenderHarness.SettleAsync(canvas, name, looks: false).ConfigureAwait(true);
         canvas.UpdateLayout();
         var spot = FlyoutPlacement.Wide(bar.EntryBox(SettingsPageId.DesktopItems, canvas) ?? barRect, barRect, area, flyout.ContentHeightAt(barRect.Width));
         flyout.Place(spot);
