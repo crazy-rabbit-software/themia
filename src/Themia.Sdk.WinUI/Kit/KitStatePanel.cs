@@ -216,8 +216,13 @@ public sealed partial class KitStatePanel : Grid
             return;
         }
 
+        // The line keeps its place in the layout (shown or not, the panel asks for the same height, so a panel its content
+        // sizes never swings between the two); the face's rows stand over it from the card's top edge.
         var squeezed = _height > 0 && KitStateFit.Squeezed(_height, _row.Height, FamilySpace.Inset);
-        _row.Visibility = squeezed ? Visibility.Collapsed : Visibility.Visible;
+        _row.Opacity = squeezed ? 0 : 1;
+        _row.IsHitTestVisible = !squeezed;
+        SetRow(_empty, squeezed ? 0 : 1);
+        SetRowSpan(_empty, squeezed ? 2 : 1);
         _empty.Margin = squeezed ? ListEdge.Margin : default;
         ToolTipService.SetToolTip(this, squeezed ? shown.Message : null);
     }
