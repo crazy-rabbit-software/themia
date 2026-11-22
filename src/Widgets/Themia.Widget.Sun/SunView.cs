@@ -29,17 +29,16 @@ namespace Themia.App.Widgets;
 /// the horizon a Track hairline. [S-168] All the astronomy lives in <see cref="Themia.Core.Astronomy"/>.
 /// </para>
 /// <para>
-/// [S-15806] The arc is a graph's plot, the card edge to edge (owner, 2026-11-19: "Plot edge to edge"): the horizon runs
-/// from the card's left edge to its right, the path from the left to the right and from the card's top to its foot, the
-/// marker's half kept inside it so it is never cut. [S-15807] The day bar is a one-readout block: its track runs the
-/// content's width at the inset and the bar grows as one with the card until the height or its natural width's share
-/// stops it, centred where the width stops it (WR-7; owner, 2026-11-20: "Centred is fine").
+/// [S-15812] Both styles are a graph's plot, the card edge to edge (owner, 2026-11-19: "Plot edge to edge"; WR-1, WR-3):
+/// the arc's horizon and path from the card's left edge to its right and its top to its foot; the day bar's track across
+/// the card's middle from edge to edge, the daylight a wash from the card's top to its foot over its stretch. The sun's
+/// marker is drawn where it stands, so at an edge of the card (noon on the top, a sunrise on the left) the card cuts it.
 /// </para>
 /// </summary>
 internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
 {
-    /// <summary>[S-15806] The arc's plot: the card's whole box (<see cref="PlotMark"/>), clipped there.</summary>
-    private readonly Canvas _arc = new()
+    /// <summary>[S-15812] The plot: the card's whole box (<see cref="PlotMark"/>), clipped there.</summary>
+    private readonly Canvas _plot = new()
     {
         HorizontalAlignment = HorizontalAlignment.Left,
         VerticalAlignment = VerticalAlignment.Top,
@@ -49,9 +48,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
         FlowDirection = FlowDirection.LeftToRight,
     };
 
-    /// <summary>[S-15806] The path's box in the plot: the plot less the marker's half on every side.</summary>
-    private readonly Canvas _path = new();
-
+    // The arc.
     private readonly Polygon _elapsedFill = new() { Opacity = FamilyShape.Wash };
     private readonly Polyline _dayTrack = new() { StrokeThickness = FamilyShape.Stroke, StrokeLineJoin = PenLineJoin.Round };
     private readonly Polyline _nightTrack = new() { StrokeThickness = FamilyShape.Hairline, StrokeLineJoin = PenLineJoin.Round };
@@ -59,27 +56,12 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
     private readonly Line _horizon = new() { StrokeThickness = FamilyShape.Hairline };
     private readonly Ellipse _sun = new() { Width = SunLayout.Dot, Height = SunLayout.Dot };
 
-    /// <summary>[S-6046] [S-15807] The day bar at its natural size, scaled as one to its room (<see cref="SunLayout.BarScale"/>).</summary>
-    private readonly Canvas _barBlock = new()
-    {
-        HorizontalAlignment = HorizontalAlignment.Left,
-        VerticalAlignment = VerticalAlignment.Top,
-        IsHitTestVisible = false,
-        FlowDirection = FlowDirection.LeftToRight,
-        Height = SunLayout.Dot,
-    };
-
-    private readonly ScaleTransform _barScale = new();
-
-    // [S-6046] The day bar: the day as the Chart's track, the daylight its fill.
-    private readonly ChartBar _bar = new();
+    // [S-6046] [S-15812] The day bar: the day as the Chart's track across the card's middle, the daylight its accent fill
+    // on it over a wash of it the card's height, now a dot on it.
+    private readonly Rectangle _daylightWash = new() { Opacity = FamilyShape.Wash };
+    private readonly Line _track = new() { StrokeThickness = FamilyShape.Track };
+    private readonly Line _daylight = new() { StrokeThickness = FamilyShape.Track };
     private readonly Ellipse _barDot = new() { Width = SunLayout.Dot, Height = SunLayout.Dot };
-
-    /// <summary>
-    /// [S-14319] The day bar's room: every place its dot stands in through the day, the track's whole length (the content's
-    /// whole width at the inset). A held reading's box, so what judges the face reads the bar's sides there.
-    /// </summary>
-    private readonly Border _barRoom = new() { IsHitTestVisible = false, Height = SunLayout.Dot };
 
     private SunConfig _config = new();
 
@@ -90,7 +72,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
 
     private WidgetArea _area;
 
-    /// <summary>The arc's plot (the card) or the bar's width at its natural size.</summary>
+    /// <summary>The plot's box: the card's.</summary>
     private (double Width, double Height) _box;
 
     public SunView()
@@ -102,34 +84,23 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
         _dayTrack.Stroke = track;
         _nightTrack.Stroke = track;
         _horizon.Stroke = track;
+        _daylightWash.Fill = accent;
+        _track.Stroke = track;
+        _daylight.Stroke = accent;
 
-        _path.Children.Add(_elapsedFill);
-        _path.Children.Add(_dayTrack);
-        _path.Children.Add(_nightTrack);
-        _path.Children.Add(_doneTrack);
-        _path.Children.Add(_sun);
-        Canvas.SetLeft(_path, SunPathPlot.MarkerHalf);
-        Canvas.SetTop(_path, SunPathPlot.MarkerHalf);
-        _arc.Children.Add(_horizon);
-        _arc.Children.Add(_path);
+        foreach (var shape in (UIElement[])[_elapsedFill, _dayTrack, _nightTrack, _doneTrack, _horizon, _sun, _daylightWash, _track, _daylight, _barDot])
+        {
+            _plot.Children.Add(shape);
+        }
 
-        // [S-15806] The plot stands on the card's top edge (the card gives the inset over the view) and runs to its sides
+        // [S-15812] The plot stands on the card's top edge (the card gives the inset over the view) and runs to its sides
         // and foot.
-        _arc.Margin = ListEdge.Margin;
-        PlotMark.Mark(_arc);
-
-        _barBlock.Children.Add(_barRoom);
-        _barBlock.Children.Add(_bar);
-        _barBlock.Children.Add(_barDot);
-        _barBlock.RenderTransform = _barScale;
-        HoldMark.Mark(_barRoom);
-
-        Children.Add(_arc);
-        Children.Add(_barBlock);
+        _plot.Margin = ListEdge.Margin;
+        PlotMark.Mark(_plot);
+        Children.Add(_plot);
 
         // Nothing shows until the first lay.
-        _arc.Visibility = Visibility.Collapsed;
-        _barBlock.Visibility = Visibility.Collapsed;
+        _plot.Visibility = Visibility.Collapsed;
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -179,7 +150,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
         _tick.Dispose();
     }
 
-    /// <summary>[S-11110] The graphic fills its box: the arc the card, the bar the content's width at its inset.</summary>
+    /// <summary>[S-15812] The plot fills the card in either style.</summary>
     private void Lay()
     {
         if (!_area.IsMeasured)
@@ -188,29 +159,24 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
         }
 
         var bar = _config.Style == SunStyle.DayBar;
-        _arc.Visibility = Show(!bar);
-        _barBlock.Visibility = Show(bar);
 
-        if (bar)
+        // [S-6005] One style's shapes, never the other's.
+        foreach (var shape in (UIElement[])[_elapsedFill, _dayTrack, _nightTrack, _doneTrack, _horizon, _sun])
         {
-            // [S-15807] The content's room: the inset at the sides and the foot (the card gives the top).
-            var room = (Width: Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Height: Math.Max(0, _area.Height - FamilySpace.Inset));
-            var scale = SunLayout.BarScale(room.Width, room.Height);
-            _barScale.ScaleX = scale;
-            _barScale.ScaleY = scale;
-            _box = (room.Width / scale, SunLayout.Dot);
-            _barBlock.Width = _box.Width;
-            _barBlock.Margin = new Thickness(FamilySpace.Inset, Math.Max(0, (room.Height - (SunLayout.Dot * scale)) / 2), 0, 0);
-        }
-        else
-        {
-            // [S-15806] The card's whole box: the view's room and the card's inset over it.
-            _box = (_area.Width, _area.Height + FamilySpace.Inset);
-            _arc.Width = _box.Width;
-            _arc.Height = _box.Height;
-            _arc.Clip = new RectangleGeometry { Rect = new Rect(0, 0, _box.Width, _box.Height) };
+            shape.Visibility = Show(!bar);
         }
 
+        foreach (var shape in (UIElement[])[_daylightWash, _track, _daylight, _barDot])
+        {
+            shape.Visibility = Show(bar);
+        }
+
+        // The card's whole box: the view's room and the card's inset over it.
+        _box = (_area.Width, _area.Height + FamilySpace.Inset);
+        _plot.Width = _box.Width;
+        _plot.Height = _box.Height;
+        _plot.Clip = new RectangleGeometry { Rect = new Rect(0, 0, _box.Width, _box.Height) };
+        _plot.Visibility = Visibility.Visible;
         Refresh();
     }
 
@@ -234,18 +200,16 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
 
         if (_config.Style == SunStyle.DayBar)
         {
-            RedrawBar(width, SunDayBar.Of(_now, SolarPosition.TimesFor(_now, latitude, longitude), TimeZoneInfo.Local));
+            RedrawBar(width, height, SunDayBar.Of(_now, SolarPosition.TimesFor(_now, latitude, longitude), TimeZoneInfo.Local));
             return;
         }
 
-        // [S-15806] The path in the plot less the marker's half on every side, so the marker at noon, at a sunrise on
-        // the left edge or at the night's foot is never cut; the horizon across the whole plot.
-        var half = SunPathPlot.MarkerHalf;
-        var (pathWidth, pathHeight) = (Math.Max(1, width - (2 * half)), Math.Max(1, height - (2 * half)));
+        // [S-15812] The path in the whole plot: the day from its left edge to its right, noon on its top, the night's
+        // lowest on its foot.
         var ground = SolarPosition.SubsolarPoint(_now);
         var declination = ground.Latitude;
         var position = SkyPath.PositionOf(ground, latitude, longitude);
-        var plot = SunPathPlot.For(pathWidth, pathHeight, latitude, declination);
+        var plot = SunPathPlot.For(width, height, latitude, declination);
 
         _dayTrack.Points = ToPoints(SunPathGeometry.Curve(SkyPath.Samples(declination, latitude, false), plot));
         _nightTrack.Points = ToPoints(SunPathGeometry.Curve(SkyPath.Samples(declination, latitude, true), plot));
@@ -262,8 +226,8 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
 
         _horizon.X1 = 0;
         _horizon.X2 = width;
-        _horizon.Y1 = half + plot.HorizonY;
-        _horizon.Y2 = half + plot.HorizonY;
+        _horizon.Y1 = plot.HorizonY;
+        _horizon.Y2 = plot.HorizonY;
 
         // The sun under the horizon is still drawn, a role lower, so the night reads as the same journey.
         Place(_sun, plot.PointAt(new SkySample(position.Progress, position.AltitudeDegrees)));
@@ -271,22 +235,32 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
     }
 
     /// <summary>
-    /// [S-6046] [S-15807] The day bar: midnight to midnight across the whole track as the Chart's track, the daylight its
-    /// accent fill, now a dot on it (primary in daylight, tertiary at night), its centre kept a half dot inside the track's
-    /// ends so the dot at midnight is not cut by the edge.
+    /// [S-6046] [S-15812] The day bar: midnight to midnight from the card's left edge to its right as the Chart's track
+    /// across its middle, the daylight its accent fill over a wash of it from the card's top to its foot, now a dot on it
+    /// (primary in daylight, tertiary at night), its centre kept a half dot inside the card's sides.
     /// </summary>
-    private void RedrawBar(double width, SunDayBarPlan plan)
+    private void RedrawBar(double width, double height, SunDayBarPlan plan)
     {
-        var half = SunLayout.Dot / 2;
-        _barRoom.Width = width;
-        _bar.Width = width;
-        Canvas.SetLeft(_bar, 0);
-        Canvas.SetTop(_bar, (SunLayout.Dot - FamilyShape.Track) / 2);
+        var middle = height / 2;
+        _track.X1 = 0;
+        _track.X2 = width;
+        _track.Y1 = middle;
+        _track.Y2 = middle;
 
         var (from, to) = plan.Daylight;
-        _bar.Show(to, from);
+        var lit = to > from;
+        _daylight.Visibility = Show(lit);
+        _daylightWash.Visibility = Show(lit);
+        _daylight.X1 = from * width;
+        _daylight.X2 = to * width;
+        _daylight.Y1 = middle;
+        _daylight.Y2 = middle;
+        _daylightWash.Width = Math.Max(0, (to - from) * width);
+        _daylightWash.Height = height;
+        Canvas.SetLeft(_daylightWash, from * width);
+        Canvas.SetTop(_daylightWash, 0);
 
-        Place(_barDot, new PlotPoint(SunLayout.DotAt(plan.Now, width), half));
+        Place(_barDot, new PlotPoint(SunLayout.DotAt(plan.Now, width), middle));
         _barDot.Fill = Family.Brush(plan.NowLit ? ColourRole.TextPrimary : ColourRole.TextTertiary);
     }
 

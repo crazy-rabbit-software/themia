@@ -78,21 +78,8 @@ public sealed class SunTests
         Assert.Equal((64.0, 280.0, 480.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
 
-    [Theory]
-    [InlineData(256, 12, 1)]          // a new card: its natural size
-    [InlineData(176, 12, 1)]          // narrower: never under it (its dot the glyph floor)
-    [InlineData(536, 48, 536 / 256d)] // 560x72: the width's share of its natural width stops it
-    [InlineData(276, 276, 276 / 256d)] // 300x300: the width stops it, centred in the height
-    [InlineData(900, 24, 2)]          // a long low card: its height stops it
-    public void S15807_the_day_bar_grows_as_one_with_its_card(double width, double height, double scale)
-    {
-        // WR-7: at 200x36, 560x72 and 300x300 the thumb and the track had stayed 12 DIP tall.
-        Assert.Equal(scale, SunLayout.BarScale(width, height), 6);
-        Assert.True(SunLayout.Dot * SunLayout.BarScale(width, height) <= Math.Max(height, SunLayout.Dot) + 1e-9);
-    }
-
     [Fact]
-    public void S15807_the_day_bar_s_dot_stands_at_its_share_of_the_track_never_cut_at_its_ends()
+    public void S15812_the_day_bar_s_dot_stands_at_its_share_of_the_card_never_cut_at_its_sides()
     {
         Assert.Equal(128, SunLayout.DotAt(0.5, 256), 9);
         Assert.Equal(SunLayout.Dot / 2, SunLayout.DotAt(0, 256), 9);

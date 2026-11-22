@@ -5,9 +5,9 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-11111] The sun's graphic and its sizes. A picture says what it is, so a card is the graphic: the arc the card's
-/// whole box (a graph's plot, [S-15806]), 280 × 152 a new one, as flat or tall as the card; the day bar one dot tall in
-/// the inset at a new card's height, growing as one with a larger card ([S-15807]). Both go down to 64 wide ([S-15808]).
+/// [S-11111] The sun's graphic and its sizes. A picture says what it is, so a card is the graphic, a plot the card's whole
+/// box in either style ([S-15812]): the arc 280 × 152 a new one, as flat or tall as the card; the day bar 280 × 36 a new
+/// one (its dot in the inset's height). Both go down to 64 wide ([S-15808]).
 /// Nothing else is drawn: the times are the sun times' atom.
 /// </summary>
 public static class SunLayout
@@ -46,25 +46,8 @@ public static class SunLayout
     }
 
     /// <summary>
-    /// [S-15807] The day bar's scale in a content room of <paramref name="width"/> × <paramref name="height"/> (WR-7: a
-    /// reading grows as one with its card): as a one-readout block, until its dot fills the room's height or the room's width
-    /// is its natural width's share (a new card's, <see cref="Start"/> in the inset) of it; never under its natural size,
-    /// whose dot is the glyph floor. Its track always runs the room's whole width.
-    /// </summary>
-    public static double BarScale(double width, double height)
-    {
-        if (!(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
-        {
-            return 1;
-        }
-
-        var natural = Start - (2 * FamilySpace.Inset);
-        return Math.Max(1, Math.Min(height / Dot, width / natural));
-    }
-
-    /// <summary>
-    /// [S-15807] Where the day bar's dot stands across a track <paramref name="width"/> long at <paramref name="share"/> of
-    /// the day: its share of the track, its centre kept a half dot inside either end so the dot is never cut.
+    /// [S-15812] Where the day bar's dot stands across a plot <paramref name="width"/> wide at <paramref name="share"/> of
+    /// the day: its share of the width, its centre kept a half dot inside either side so the dot is never cut.
     /// </summary>
     public static double DotAt(double share, double width)
     {

@@ -14,7 +14,7 @@ JSON context), `SunConfig.cs`, `SunLayout.cs` (its sizes), `SunDayBar.cs` (the d
 - **[S-170]**, **[S-3102]** *(Retired by [S-11110]: no rows and no ladder in the sun; its times are the
   sun times' atom, [S-11115].)*
 - **[S-11110]** **What it shows** is the graphic alone, in the style's look, filling its box
-  (the arc the card, [S-15806]; the bar the inset's width, [S-15807]) at every size in its range: nothing appears or disappears. A picture says what it is; a Header
+  (the card, a plot edge to edge, [S-15812]) at every size in its range: nothing appears or disappears. A picture says what it is; a Header
   widget over it names it ([S-12481]). In a group it runs to a foot a mate joins ([S-12483]).
 - **[S-11111]** **Sizes** (`SunLayout.Sizing`): 64..480 wide ([S-15808]), a new one 280. The arc's
   height a free range (40..252, a new one 152: half its content's width); the day bar one dot
@@ -31,21 +31,22 @@ JSON context), `SunConfig.cs`, `SunLayout.cs` (its sizes), `SunDayBar.cs` (the d
   accent fill between sunrise and sunset, now a 12 dot on it (primary in daylight, tertiary at night),
   the track inset by the dot's half either end so the dot at midnight is not cut. Each mark is its
   instant's share of the day in real time; a sunrise or sunset not on this day fills from or to the
-  bar's end; polar day fills the whole bar, polar night none of it. ([S-15807]: the track runs the content's whole
-  width, the dot's centre kept a half dot inside its ends.)
-- **[S-15806]** **The arc is a plot edge to edge** (owner, 2026-11-19, asked whether a graph's plot should reach the
-  card's edges: "Plot edge to edge"; WR-1, WR-3, WR-5): the arc's plot is the card's whole box (`PlotMark`): the horizon
-  runs from the card's left edge to its right, the path (`SunPathPlot.For`: the day from the box's left edge to its right,
-  no longer 13 %..87 % for a number strip that went with the times) from its left to its right and from its top to its
-  foot, in the plot less the marker's half (6) on every side so the marker is never cut. Before, the plot stood in the
-  inset: its noon 11.3 under the card's top, the horizon 12 short of either side, the day's arc narrower still. Tests
-  `SunPathGeometryTests.S15806_`.
-- **[S-15807]** **The day bar grows as one with its card** (WR-7, owner 2026-11-19: "All together, scaled"): its track runs
-  the content's whole width at the inset (the dot's centre a half dot inside its ends, `SunLayout.DotAt`) and the bar,
-  drawn at its natural size, scales as one (`SunLayout.BarScale`) until its dot fills the room's height or the room's
-  width is its natural width's share of it, never under its natural size; where the width stops it, it stands centred in
-  the height (it fills the width: owner, 2026-11-20, "Centred is fine"). Before, its thumb and track stayed 12 DIP at
-  every size and the track stood 18 in from either side. Tests `SunTests.S15807_`.
+  bar's end; polar day fills the whole bar, polar night none of it. ([S-15812]: the track runs the card's whole
+  width, the daylight's wash its whole height.)
+- **[S-15806]** *(Its marker's inset retired by [S-15812]: the path now reaches the plot's edges too.)* **The arc is a
+  plot edge to edge**: its plot is the card's whole box (`PlotMark`) and the path runs the box's whole width
+  (`SunPathPlot.For`: no longer 13 %..87 % for a number strip that went with the times). Tests `SunPathGeometryTests.S15806_`.
+- **[S-15807]** *(Retired by [S-15812]: the day bar is a plot, not a bar scaled as one in the inset.)*
+- **[S-15812]** **Both styles are a plot, the card edge to edge** (owner, 2026-11-19, asked whether a graph's plot should
+  reach the card's edges: "Plot edge to edge": the plot and its fill reach the card's edges; WR-1, WR-3; the centring
+  exemptions do not relax graphs: "Lists, graphs and items are not relaxed"). The arc's horizon and path run from the
+  card's left edge to its right and from its top (noon) to its foot (the night's lowest), the daylight's wash from the
+  sunrise on the left edge; the day bar is the day from the card's left edge to its right: the Chart's 4 track across the
+  card's middle, the daylight its accent fill on it over a wash of it from the card's top to its foot, now a 12 dot on
+  the track (`SunLayout.DotAt`: its centre a half dot inside the card's sides). The sun's marker on the arc is drawn where
+  it stands, so at the card's edge (noon on its top) the card cuts it. Before, the arc's path stood the marker's half (6)
+  in from every side and the day bar was a 12 track in the inset, centred: 58 DIP over and under it at 330 × 130.
+  Tests `SunTests.S15812_`.
 - **[S-15808]** **It goes down to 64 wide** (WR-14, owner 2026-11-19: "for the widgets that can scale there should basically
   be no lower limit except for one that makes sense so you can still see the widget"): a drawing with no text, its least
   is where its 12 marker (a glyph's floor) still reads on a 40 track or a 64 × 40 arc, over the grid's least 32
