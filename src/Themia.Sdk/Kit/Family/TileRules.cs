@@ -154,7 +154,7 @@ public static class TileRules
     /// most a third of the inset box's short side, never under 28, so a box that grows into its words
     /// never sees its glyph shrink. Centred both ways in the box by the block.
     /// </summary>
-    public static TileFace Face(double width, double height, bool stateLine = true, int nameLines = NameLines)
+    public static TileFace Face(double width, double height, bool stateLine = true, int nameLines = NameLines, double nameWidth = 0, int stateLines = 1, bool ringed = false)
     {
         // [S-15755] The name's lines as it stands at the inset's width (1 or 2): a short name in a wide card takes one.
         nameLines = Math.Clamp(nameLines, 1, NameLines);
@@ -172,30 +172,13 @@ public static class TileRules
             return new TileFace(FamilyType.Big28, false, name, state, mark, inset);
         }
 
+        // [S-15763] One plan at every size: the 28 glyph, its name on Body and its state line on Caption, one block the tile's
+        // ReadingFit scales as one (WR-7: "A reading and its caption stay together and scale up"). The glyph had climbed the
+        // Hero steps faster than its words (a caption a fifth of its glyph at 520 x 600, a third at 350 x 70). The words stay
+        // while they are read at 9 (WR-14); under that the glyph stands alone.
         var w = (double.IsFinite(width) ? width : 0) - (2 * FamilySpace.Inset);
         var h = (double.IsFinite(height) ? height : 0) - (2 * FamilySpace.Inset);
-        TileFace? texted = null;
-        var alone = new TileFace(FamilyType.Big28, false, FamilyType.Body, FamilyType.Caption);
-        foreach (var glyph in GlyphSteps)
-        {
-            var (name, state) = TextAt(glyph);
-            var below = FamilySpace.S2 + (nameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
-            if (glyph.FontSize <= w && glyph.FontSize + below <= h && NameRoom(name) <= w)
-            {
-                texted = new TileFace(glyph, true, name, state);
-            }
-
-            if (glyph.FontSize <= Math.Min(w, h) / AloneShare)
-            {
-                alone = new TileFace(glyph, false, name, state);
-            }
-        }
-
-        // [S-15741] No step holds its words at their own size: the 28 glyph and its words are still one block, scaled down
-        // as one into the inset box (the tile's ReadingFit) while its smallest text stays read (WR-7: "All together,
-        // scaled"; WR-14: down to 9), so a wide short tile (300 x 100) keeps its name and state line under the glyph; only
-        // under that floor the glyph stands alone.
-        return texted ?? (WordsKept(w, h, stateLine, nameLines) ? new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption) : alone);
+        return new TileFace(FamilyType.Big28, WordsKept(w, h, stateLine, nameLines, nameWidth, stateLines, ringed), FamilyType.Body, FamilyType.Caption);
     }
 
     /// <summary>
@@ -203,19 +186,22 @@ public static class TileRules
     /// line, scaled down as one block into an inset box <paramref name="w"/> × <paramref name="h"/>, draw their smallest
     /// text at <see cref="ScaleFloor.Text"/> or more.
     /// </summary>
-    public static bool WordsKept(double w, double h, bool stateLine, int nameLines = NameLines)
+    public static bool WordsKept(double w, double h, bool stateLine, int nameLines = NameLines, double nameWidth = 0, int stateLines = 1, bool ringed = false)
     {
+        stateLines = Math.Clamp(stateLines, 1, NameLines);
         nameLines = Math.Clamp(nameLines, 1, NameLines);
         var (name, state) = TextAt(FamilyType.Big28);
-        var blockWidth = Math.Max(FamilyType.Big28.FontSize, NameRoom(name));
-        var blockHeight = FamilyType.Big28.FontSize + FamilySpace.S2 + (nameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
+
+        // [S-15763] The words' own width where the view measured it (a short "Restart" in a 70 wide card), else a short name's.
+        // [S-15764] A ringed glyph's mark is its ring, always laid out; the state line planned on the lines its longest
+        // sentence takes.
+        var mark = ringed ? RingAround(FamilyType.Big28.FontSize) : FamilyType.Big28.FontSize;
+        var blockWidth = Math.Max(mark, nameWidth > 0 && double.IsFinite(nameWidth) ? nameWidth : NameRoom(name));
+        var blockHeight = mark + FamilySpace.S2 + (nameLines * name.LineHeight) + (stateLine ? stateLines * state.LineHeight : 0);
         var smallest = stateLine ? state.FontSize : name.FontSize;
         var scale = Math.Min(1, Math.Min(w / blockWidth, h / blockHeight));
         return w > 0 && h > 0 && scale * smallest >= ScaleFloor.Text - 1e-9;
     }
-
-    /// <summary>[S-11882] A glyph alone is at most this share of its inset box's short side: one third.</summary>
-    public const double AloneShare = 3;
 
     /// <summary>[S-11882] The box that holds the 28 glyph alone in the family's inset, 52: under it the inset gives way ([S-12806]).</summary>
     public static double GlyphAloneSide => (2 * FamilySpace.Inset) + FamilyType.Big28.FontSize;
@@ -257,7 +243,7 @@ public static class TileRules
     /// <summary>[S-11882] The Switch look's new row: its glyph, a sentence's room for its name and state, and the switch.</summary>
     public const double SwitchNaturalWidth = 240;
 
-    /// <summary>[S-11882] The Switch look's widest and tallest row; the row stays centred in a taller box.</summary>
+    /// <summary>[S-11882] The Switch look's widest and tallest row; [S-15767] the row stands on a taller box's top.</summary>
     public static SizeDip SwitchMax => new(640, 3 * SwitchHeight);
 
     /// <summary>

@@ -186,7 +186,10 @@ public sealed partial class MeterView
         var recount = items.Count != _itemList.Count;
         _itemList = items;
         _shown.ShowItems(items, point);
-        ShowWaiting(_part.Atom == MeterAtom.Items && items.Count > 0 && items.All(i => i.Fraction is null));
+        if (_part.Atom == MeterAtom.Items)
+        {
+            ShowWaiting(items.Count > 0 && items.All(i => i.Fraction is null));
+        }
         if (recount)
         {
             Lay();
@@ -332,6 +335,9 @@ public sealed partial class MeterView
             part.VerticalAlignment = part is ChartBar ? VerticalAlignment.Stretch : VerticalAlignment.Center;
             var cell = new Border { Child = part, Padding = padding, Background = Family.Brush(ColourRole.Clear) };
             ItemMark.Mark(cell);
+
+            // [S-15768] Each core is the item under the pointer (WR-13: "Hover lights exactly the item under the pointer").
+            new ItemLight(cell).Set(true);
             parts.Add(part);
             panel.Children.Add(cell);
         }
@@ -980,6 +986,9 @@ public sealed partial class MeterView
             // edge to edge"; its figure stands inside it, over the plot).
             Item = new Border { Child = Root, Background = Family.Brush(ColourRole.Clear) };
             ItemMark.Mark(Item);
+
+            // [S-15768] The core under the pointer lights, not the card.
+            new ItemLight(Item).Set(true);
         }
 
         public Grid Root { get; }

@@ -96,7 +96,8 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         JoinDrives();
 
         // [S-15745] A meter that opens something on a click (Task Manager) lights as one item under the pointer.
-        _opensLight = new OpensLight(this, () => !_detached && _surface?.EditMode != true && Opens is not null);
+        // [S-15768] A meter of items lights the item under the pointer instead (its cells' own lights).
+        _opensLight = new OpensLight(this, () => !_detached && _surface?.EditMode != true && Opens is not null && _part.Atom != MeterAtom.Items);
     }
 
     /// <summary>[S-15745] The whole card's hover and pressed light while a click opens something.</summary>
@@ -281,6 +282,12 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         if (_standsAt is null)
         {
             ShowReading(_reading, reading.Primary, reading.Available, Lead(reading), role);
+        }
+
+        // [S-15769] Before its first reading a reading's meter says why over its top end, as the items' looks do ([S-15747]).
+        if (_part.Atom == MeterAtom.Reading)
+        {
+            ShowWaiting(!reading.Available && reading.Equals(_part.Waiting));
         }
 
         // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.

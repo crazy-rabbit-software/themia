@@ -87,7 +87,7 @@ public abstract class PowerButtonModule : IWidgetModule
             Label = kind.Label,
             Description = kind.Description,
             Glyph = kind.Glyph,
-            Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: false),
+            Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look),
             Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
             Add = new(AddFolderId.PowerButtons, kind.Group, kind.Rank),
         };

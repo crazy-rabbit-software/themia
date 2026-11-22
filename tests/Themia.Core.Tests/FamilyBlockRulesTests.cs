@@ -398,6 +398,18 @@ public sealed class FamilyBlockRulesTests
         => Assert.False(TileRules.Face(width, height, stateLine).Texted);
 
     [Fact]
+    public void S15764_the_words_planned_width_and_lines_and_the_ring_decide_whether_they_are_kept()
+    {
+        // A 70 wide card holds "Restart" (45 wide on Body) at its own size; planned on a short name's 76 it dropped it.
+        Assert.True(TileRules.Face(70, 100, nameLines: 1, nameWidth: 45).Texted);
+        Assert.False(TileRules.Face(70, 100, nameLines: 1, nameWidth: 0, stateLines: 2).Texted);
+
+        // A ringed glyph's ring and a two-line why line make the block taller: a short card keeps its words for less.
+        Assert.True(TileRules.WordsKept(76, 76, stateLine: true, nameLines: 1, nameWidth: 60));
+        Assert.False(TileRules.WordsKept(76, 50, stateLine: true, nameLines: 1, nameWidth: 60, stateLines: 2, ringed: true));
+    }
+
+    [Fact]
     public void S15755_a_name_on_one_line_keeps_its_words_in_a_wide_short_tile()
     {
         // A power button at 350 x 70: "Restart" on one line fits the floor beside nothing; planned on two it dropped them.
@@ -415,10 +427,9 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption), TileRules.Face(116, 116));
         Assert.Equal(new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption), TileRules.Face(100, 100, stateLine: false));
 
-        // A bigger box takes a bigger step, and past 68 the words grow too.
-        Assert.Equal(FamilyType.Big40, TileRules.Face(128, 128).Glyph);
-        Assert.True(TileRules.Face(480, 480).Glyph.FontSize >= 96);
-        Assert.Equal(FamilyType.Regular(FamilyType.Title), TileRules.Face(480, 480).Name);
+        // [S-15763] One plan at every size, the block scaled as one by its fit: the glyph never climbs steps of its own.
+        Assert.Equal(new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption), TileRules.Face(128, 128));
+        Assert.Equal(new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption), TileRules.Face(480, 480));
 
         // Wide and short, or tall and narrow, under the words' floor: the glyph alone, as large as the short side holds.
         Assert.False(TileRules.Face(400, 60).Texted);
@@ -435,9 +446,8 @@ public sealed class FamilyBlockRulesTests
                 {
                     var face = TileRules.Face(w, h, stateLine);
                     var (iw, ih) = (w - 24, h - 24);
-                    var below = face.Texted ? FamilySpace.S2 + (TileRules.NameLines * face.Name.LineHeight) + (stateLine ? face.State.LineHeight : 0) : 0;
-                    var whole = face.Glyph.FontSize <= iw && face.Glyph.FontSize + below <= ih && (!face.Texted || TileRules.NameRoom(face.Name) <= iw);
-                    Assert.True(whole || (face.Texted && face.Glyph == FamilyType.Big28 && TileRules.WordsKept(iw, ih, stateLine)), $"{w} x {h}: {face}");
+                    Assert.Equal(FamilyType.Big28, face.Glyph);
+                    Assert.Equal(TileRules.WordsKept(iw, ih, stateLine), face.Texted);
                 }
             }
         }

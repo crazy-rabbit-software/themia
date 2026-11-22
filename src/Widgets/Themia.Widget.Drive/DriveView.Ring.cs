@@ -74,7 +74,6 @@ internal sealed partial class DriveView
         parts.Box.Width = DriveFace.PlannedRing;
         parts.Box.Height = DriveFace.PlannedRing;
         parts.Share.Use(FamilyType.Big28, centred: true);
-        parts.Share.Hold(FigureTemplate.Of(DriveFace.Worst.Value), DriveFace.Worst.Unit);
         parts.Share.Show(share.Value, share.Unit);
         parts.Ring.Show(drive.UsedFraction ?? 0);
         parts.Ring.Role(DriveRules.Role(drive));

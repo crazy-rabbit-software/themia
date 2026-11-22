@@ -172,7 +172,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// </summary>
     private void HoldFigures(Locale locale)
     {
-        _readout.Hold(FigureTemplate.Of(DriveFace.Worst.Value), DriveFace.Worst.Unit);
+        // [S-15763] The share stands on its own, left over its line (held to "100%" it stood right-aligned, off its line).
         if (locale == _heldLocale)
         {
             return;
@@ -189,6 +189,9 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         line.MinWidth = Math.Ceiling(widest);
+
+        // The line's box is its held template's: the place every space line stands in (WR-15's holds).
+        HoldMark.Mark(line);
     }
 
     private Locale? _heldLocale;

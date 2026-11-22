@@ -57,9 +57,30 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
     private PowerButton? _button;
     private WidgetArea _area;
 
-    /// <summary>[S-15755] The inset's width the name wraps at, and the lines what the tile says now takes there.</summary>
-    private double _inner;
-    private int _nameLines = TileRules.NameLines;
+    /// <summary>[S-15764] The why line's sentences the words' box is planned for.</summary>
+    private IReadOnlyList<string> _planned = [];
+
+    /// <summary>[S-15764] What the why line may say: the armed sentence (an action that arms), the unavailable reason (one a PC can lack), a failure shown now.</summary>
+    private IReadOnlyList<string> Sentences()
+    {
+        var sentences = new List<string>();
+        if (PowerActionRules.NeedsArming(_action))
+        {
+            sentences.Add(PowerActionRules.ArmedLabel(_action));
+        }
+
+        if (!PowerActionRules.Available(_action, canHibernate: false))
+        {
+            sentences.Add(PowerActionRules.UnavailableHint);
+        }
+
+        if (_button is { Failure: { } failure })
+        {
+            sentences.Add(failure);
+        }
+
+        return sentences;
+    }
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -212,16 +233,20 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        var natural = TileRules.Sizing(_tile.Look, stateLine: false).Natural;
+        var natural = TileRules.Sizing(_tile.Look).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
-        // [S-15755] The name's line planned on the lines what it says now takes at the inset's width (the name, the armed
-        // sentence, a failure); a sentence of another length lays the face again.
-        _inner = width - (2 * FamilySpace.Inset);
-        var face = TileRules.Face(width, height, stateLine: false, nameLines: _nameLines);
+
+        // [S-15764] The face stays in every state (WR-10, WR-12): its glyph and name, and a why line under them planned for
+        // every sentence it may say (the armed sentence, a failure shown now, the unavailable reason), so arming or failing
+        // changes the words and the colours, never the block's size or place.
+        _planned = Sentences();
+        var plan = TileBlock.Plan(PowerActionRules.Label(_action), _planned, width - (2 * FamilySpace.Inset));
+        var ringed = _tile.Look == TileLook.Tile;
+        var face = TileRules.Face(width, height, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: plan.StateLines, ringed: ringed);
         // [S-12806] A box too small for the family's inset gives it up round the glyph.
         var row = _tile.Look == TileLook.Switch;
         _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
-        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: false, face.Name, face.State, row ? 0 : face.Mark);
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: face.Texted, face.Name, face.State, row ? 0 : face.Mark, plan.Width, plan.StateLines);
         Paint();
     }
 
@@ -238,26 +263,25 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         var failure = button.Available && !armed ? button.Failure : null;
         var name = PowerActionRules.Label(_action);
 
-        // [S-1913] The tile says what the next click does; [S-1915] after a failure, why (the
-        // machine is still up), until the next press; [S-1914] greyed, the reason in the name's line.
-        // [S-15743] Unavailable, the face stays (its glyph) and the name's line says why, as a failure does (WR-10).
-        var (glyph, text, tooltip) = !button.Available
-            ? (Glyph(_action), PowerActionRules.UnavailableHint, $"{name}: {PowerActionRules.UnavailableHint}")
+        // [S-1913] The tile says what the next click does; [S-1915] after a failure, why (the machine is still up), until the
+        // next press; [S-1914] greyed with the reason. [S-15764] Always on the why line under the name, the face kept (its
+        // glyph, the critical role saying armed or failed).
+        var (why, tooltip) = !button.Available
+            ? (PowerActionRules.UnavailableHint, $"{name}: {PowerActionRules.UnavailableHint}")
             : armed
-                ? (Glyph(_action), PowerActionRules.ArmedLabel(_action), PowerActionRules.ArmedLabel(_action))
+                ? (PowerActionRules.ArmedLabel(_action), PowerActionRules.ArmedLabel(_action))
                 : failure is not null
-                    ? (Glyphs.Warning, failure, failure)
-                    : (Glyph(_action), name, name);
+                    ? (failure, failure)
+                    : (string.Empty, name);
 
-        var lines = TileBlock.NameLines(text, _inner);
-        if (lines != _nameLines)
+        // A failure the plan did not hold (its sentence first seen now) lays the words' box again.
+        if (why.Length > 0 && !_planned.Contains(why))
         {
-            _nameLines = lines;
             Lay();
             return;
         }
 
-        _tile.Show(glyph, text, string.Empty, PowerActionRules.Tile(button.Available, armed, failure is not null));
+        _tile.Show(Glyph(_action), name, why, PowerActionRules.Tile(button.Available, armed, failure is not null));
         _tile.Face(!button.Available ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
 
         // [S-1913] The ring starts draining when the widget arms and drains on its own (the
@@ -265,6 +289,14 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         if (!armed)
         {
             _tile.Ring.Stop();
+
+            // [S-15764] A tile's ring stands round its glyph at rest too, its track alone (the Round look's circle is its
+            // ring): arming draws the arc in a ring already laid out, so nothing moves (WR-12).
+            if (_tile.Look == TileLook.Tile)
+            {
+                _tile.Ring.Show(0);
+                _tile.Ring.Visibility = Visibility.Visible;
+            }
         }
         else if (!_tile.Ring.Draining)
         {

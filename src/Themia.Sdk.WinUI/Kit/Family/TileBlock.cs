@@ -46,6 +46,14 @@ public sealed partial class TileBlock : Grid
     /// <summary>[S-15740] The arm ring's box round the glyph, past the mark's on every side.</summary>
     private readonly RingRoom _ringRoom;
 
+    /// <summary>
+    /// [S-15764] The words' planned width (the widest of what the tile may say: its name and every sentence of its state line)
+    /// and the state line's planned lines: the block keeps that box in every state, so a change of state (armed, failed,
+    /// refused) never rescales or moves it (WR-12) and a longer sentence wraps or is cut within it. 0: the words' own.
+    /// </summary>
+    private double _planWidth;
+    private int _stateLines = 1;
+
     /// <summary>[S-12806] The glyph's box when the face gives one smaller than its step's, else 0.</summary>
     private double _mark0;
     private readonly TextBlock _label;
@@ -111,9 +119,11 @@ public sealed partial class TileBlock : Grid
         };
 
         // The tile's own inset is the row's: no padding of its own.
+        // [S-15767] The switch look is a row (WR-14: "rows and list items keep their one fixed size"): it stands on the content's
+        // top (WR-1), the room a taller card has under it at its foot (WR-5), never shared over and under it.
         _switchRow = new Grid
         {
-            VerticalAlignment = VerticalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Top,
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = GridLength.Auto },
@@ -140,18 +150,46 @@ public sealed partial class TileBlock : Grid
     /// [S-15755] The lines <paramref name="name"/> takes under a tile's glyph at <paramref name="width"/> (the inset's), on
     /// the Body step it is planned at: 1, or 2 where it wraps (<see cref="TileRules.NameLines"/> at most).
     /// </summary>
-    public static int NameLines(string name, double width)
+    public static int NameLines(string name, double width) => Lines(name, width, FamilyType.Body);
+
+    /// <summary>
+    /// [S-15764] The words' plan in an inset <paramref name="inner"/> wide: their box as wide as the widest of the name (Body)
+    /// and every sentence the state line may say (<paramref name="states"/>, Caption) on one line, at most the inset; the
+    /// name's lines and the state line's lines (the most any sentence takes) at that width.
+    /// </summary>
+    public static (double Width, int NameLines, int StateLines) Plan(string name, IEnumerable<string> states, double inner)
     {
-        if (string.IsNullOrEmpty(name) || !(width > 0) || !double.IsFinite(width))
+        var sentences = states.Where(s => !string.IsNullOrEmpty(s)).ToList();
+        var widest = Math.Max(LinesAndWidth(name, double.PositiveInfinity, FamilyType.Body).Width,
+            sentences.Select(s => LinesAndWidth(s, double.PositiveInfinity, FamilyType.Caption).Width).DefaultIfEmpty(0).Max());
+        var width = Math.Max(FamilyType.Big28.FontSize, double.IsFinite(inner) && inner > 0 ? Math.Min(inner, Math.Ceiling(widest)) : Math.Ceiling(widest));
+        var stateLines = sentences.Select(s => Lines(s, width, FamilyType.Caption)).DefaultIfEmpty(1).Max();
+        return (width, Lines(name, width, FamilyType.Body), stateLines);
+    }
+
+    /// <summary>[S-15764] The lines <paramref name="text"/> takes at <paramref name="width"/> on <paramref name="step"/> (1 or 2), and its one-line width.</summary>
+    public static int Lines(string text, double width, TypeStep step) => LinesAndWidth(text, width, step).Lines;
+
+    /// <summary>[S-15764] <see cref="Lines"/>, with the width the text takes on one line.</summary>
+    public static (int Lines, double Width) LinesAndWidth(string text, double width, TypeStep step)
+    {
+        if (string.IsNullOrEmpty(text))
         {
-            return TileRules.NameLines;
+            return (1, 0);
         }
 
-        var probe = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
-        probe.Text = name;
+        var probe = Family.Text(step, ColourRole.TextPrimary);
+        probe.Text = text;
+        probe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        var one = probe.DesiredSize.Width;
+        if (!(width > 0) || !double.IsFinite(width) || one <= width)
+        {
+            return (1, one);
+        }
+
         probe.TextWrapping = TextWrapping.WrapWholeWords;
         probe.Measure(new Windows.Foundation.Size(width, double.PositiveInfinity));
-        return Math.Clamp((int)Math.Round(probe.DesiredSize.Height / FamilyType.Body.LineHeight), 1, TileRules.NameLines);
+        return (Math.Clamp((int)Math.Round(probe.DesiredSize.Height / step.LineHeight), 1, TileRules.NameLines), one);
     }
 
     /// <summary>[S-6736] The arm ring over the glyph (a power button's), the Critical role, hidden until it drains.</summary>
@@ -195,8 +233,10 @@ public sealed partial class TileBlock : Grid
     /// on <paramref name="name"/>'s step and a <paramref name="state"/> line on <paramref name="stateStep"/>'s
     /// (Body and Caption when not given) whether or not they say anything now.
     /// </summary>
-    public void Use(TypeStep step, double width, bool label = true, bool state = true, TypeStep? name = null, TypeStep? stateStep = null, double mark = 0)
+    public void Use(TypeStep step, double width, bool label = true, bool state = true, TypeStep? name = null, TypeStep? stateStep = null, double mark = 0, double planWidth = 0, int stateLines = 1)
     {
+        _planWidth = planWidth;
+        _stateLines = Math.Clamp(stateLines, 1, TileRules.NameLines);
         _mark0 = mark;
         _width = width;
         _planLabel = label;
@@ -234,9 +274,11 @@ public sealed partial class TileBlock : Grid
         // the subtle fills laid over it under the pointer.
         if (_look == TileLook.Round)
         {
+            // [S-15765] The round look's item is the whole tile too (WR-3, WR-13): under the pointer and pressed the subtle
+            // fills light it edge to edge, not the circle alone.
             ItemFill.Release(this);
             Background = null;
-            _overlay.Background = null;
+            _overlay.Background = lit;
         }
         else if (onAccent && roles.Fill is { } fill)
         {
@@ -281,8 +323,14 @@ public sealed partial class TileBlock : Grid
         Family.Step(_label, switchLook ? FamilyType.Body : _nameStep);
         Family.Step(_state, switchLook ? FamilyType.Caption : _stateStep);
 
-        // A planned line keeps its height while it says nothing (a reading not answered yet).
-        _state.Height = (switchLook ? FamilyType.Caption : _stateStep).LineHeight;
+        // A planned line keeps its height while it says nothing (a reading not answered yet); [S-15764] on the lines its longest
+        // sentence takes, cut with its ellipsis past them.
+        var stateLines = switchLook ? 1 : _stateLines;
+        _state.Height = stateLines * (switchLook ? FamilyType.Caption : _stateStep).LineHeight;
+        _state.TextWrapping = stateLines > 1 ? TextWrapping.WrapWholeWords : TextWrapping.NoWrap;
+        _state.MaxLines = stateLines;
+        _state.TextTrimming = TextTrimming.CharacterEllipsis;
+        _state.TextAlignment = switchLook ? TextAlignment.Left : TextAlignment.Center;
         _label.Foreground = Family.Brush(roles.Label);
         _state.Foreground = Family.Brush(roles.State);
         _switchGlyph.Foreground = Family.Brush(roles.Glyph);
@@ -353,9 +401,12 @@ public sealed partial class TileBlock : Grid
 
         // [S-14201] Its words wrap at the inset's width, as they did in the tile's own box; [S-14306] the block is as wide as
         // its widest part (the glyph, a wrapped name, the state line), so the fit scales it until the width stops it.
-        var wrap = _planLabel || _planState ? Math.Max(size, _width) : double.PositiveInfinity;
+        // [S-15764] A planned width holds the words in one box in every state.
+        var planned = !switchLook && _planWidth > 0 && (_planLabel || _planState);
+        var wrap = planned ? _planWidth : _planLabel || _planState ? Math.Max(size, _width) : double.PositiveInfinity;
         _label.MaxWidth = wrap;
         _state.MaxWidth = wrap;
+        _stack.MinWidth = planned ? Math.Max(size, _planWidth) : 0;
 
         // [S-14201] Its ink may have moved in a box of the same size (a sentence with a descender, the ring shown, "--"
         // for "Off"), which XAML does not arrange again on its own: the fit places it again.

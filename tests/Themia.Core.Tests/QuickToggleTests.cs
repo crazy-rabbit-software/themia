@@ -165,14 +165,15 @@ public class QuickToggleTests
         Assert.Equal("Windows did not switch it", QuickToggleRules.StateLine(en, ToggleLook.Off, refused: true));
         Assert.Equal("Windows did not switch it", QuickToggleRules.StateLine(en, ToggleLook.On, refused: true));
         Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Unavailable), QuickToggleRules.StateLine(en, ToggleLook.Unavailable, refused: true));
-        Assert.Equal("--", QuickToggleRules.StateLine(en, ToggleLook.Unknown, refused: true));
+        Assert.Equal(Strings.Get(en, Str.Common_Loading), QuickToggleRules.StateLine(en, ToggleLook.Unknown, refused: true));
     }
 
     [Fact]
     public void S14202_a_reading_not_known_yet_says_the_default_on_its_state_line()
     {
         var en = Locale.En;
-        Assert.Equal("--", QuickToggleRules.StateLine(en, ToggleLook.Unknown));
+        Assert.Equal(Strings.Get(en, Str.Common_Loading), QuickToggleRules.StateLine(en, ToggleLook.Unknown)); // [S-15766] why, not "--" alone
+        Assert.Contains("Windows did not switch it", QuickToggleRules.StateLines(en));
         Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.On), QuickToggleRules.StateLine(en, ToggleLook.On));
         Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Off), QuickToggleRules.StateLine(en, ToggleLook.Off));
         Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Unavailable), QuickToggleRules.StateLine(en, ToggleLook.Unavailable));

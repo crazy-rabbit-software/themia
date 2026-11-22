@@ -187,13 +187,14 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         var row = _tile.Look == TileLook.Switch;
         var natural = TileRules.Sizing(_tile.Look).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
-        // [S-15755] The name planned on the lines it takes at the inset's width.
-        var lines = TileBlock.NameLines(QuickToggleRules.Name(Strings.Current, _toggle), width - (2 * FamilySpace.Inset));
-        var face = TileRules.Face(width, height, nameLines: lines);
+        // [S-15755] [S-15764] The name and every state line it may say planned in one box: its lines at the inset's width.
+        var locale = Strings.Current;
+        var plan = TileBlock.Plan(QuickToggleRules.Name(locale, _toggle), QuickToggleRules.StateLines(locale), width - (2 * FamilySpace.Inset));
+        var face = TileRules.Face(width, height, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: plan.StateLines);
         var texted = row || face.Texted;
         // [S-12806] A box too small for the family's inset gives it up round the glyph (its switch row keeps it).
         _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
-        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: texted, state: texted, face.Name, face.State, row ? 0 : face.Mark);
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: texted, state: texted, face.Name, face.State, row ? 0 : face.Mark, plan.Width, plan.StateLines);
         Paint();
     }
 
