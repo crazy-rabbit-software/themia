@@ -128,6 +128,13 @@ public partial class App : Application
             return;
         }
 
+        // [S-15872] [S-15873] A render or check takes no part in the desktop the user's own copy is on, and Show Desktop does not see its windows.
+        if (start.Request == StartRequest.Render)
+        {
+            DesktopZOrder.StandAside();
+            OffDesktop.Enter();
+        }
+
         // [S-11854] The add page's pictures drawn off-screen to a PNG, then exit: in every build.
         if (Shell.AddPicturesCheck.TryRunFromCommandLine(this, commandLine))
         {
