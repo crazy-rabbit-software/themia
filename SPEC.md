@@ -10893,10 +10893,11 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
 - **[S-15722]** **An icon's why is one compact line** (WR-10: "says why in a compact line"; the third audit: a 40 DIP why
   scaled with the glyph at 520 × 600, none at 76 × 76 where "Nothing playing" fits): beside the glyph where it stands
   whole there (a wide card, `IconRules.Beside`), else under it (`IconRules.Under`): one line at the card's foot on
-  Caption, shrunk as far as the floor (9) to stand whole in the card's width less 4 a side, its size its own and never
-  the glyph's, the glyph filling the inset box over its band; else beside it cut; with no room for any, the glyph, the
-  mark and the tooltip. A 76 square says "Nothing playing" under the glyph at about 10 DIP; "Can't reach the service"
-  does not fit it at 9 and keeps the mark (held for the owner). It replaces the Tile block's state line ([S-15710]), which
+  Caption, shrunk as far as the floor (9) to stand whole in the inset box's width, its size its own and never the
+  glyph's; the glyph's ink as tall as the box over the line holds it or its width stops it, the line right under it, the
+  two one block centred in the height; else beside it cut; with no room for any, the glyph, the mark and the tooltip. A
+  152 square says "Can't reach the service" under the cloud; a 76 or 80 wide card does not hold "Nothing playing" in its
+  inset even at 9 and keeps the glyph and the mark (held for the owner). It replaces the Tile block's state line ([S-15710]), which
   scaled with the glyph. Tests `IconRulesTests.S15722_`.
 - **[S-15003]** **A family a project, a kind an icon.** A family's kinds are data (`IconKind`: id, glyph, the add page's
   name, description and search words, its config, what it opens); each kind is a sealed module (`IconModule`: the one

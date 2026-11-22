@@ -136,26 +136,39 @@ public static class IconRules
 
     /// <summary>
     /// [S-15722] The why's compact line under the glyph: one line on Caption (12), shrunk as far as the floor (9) to stand whole
-    /// in the card's width less 4 a side (<paramref name="sentence"/>: its width on Caption), its size its own, never the
-    /// glyph's; none where it would stand whole only under the floor, or the inset box would hold under the 28 glyph over
-    /// its band (a gap and its line). "Nothing playing" fits a 76 square at about 10; "Can't reach the service" does not.
+    /// in the inset box's width (<paramref name="sentence"/>: its width on Caption), its size its own, never the glyph's; none
+    /// where it would stand whole only under the floor, or the inset box would hold under the 28 glyph over its band (a gap
+    /// and its line). The glyph and the line are one block: the glyph's ink as tall as the box over the band holds it, or as
+    /// its width (<paramref name="aspect"/>: its ink's width over its height) stops it, the line right under it, the two
+    /// centred in the card's height, the bands over and under them alike. A 152 square holds "Can't reach the service"; a 76
+    /// one does not hold "Nothing playing" even at 9 (the glyph and the mark, held for the owner).
     /// </summary>
-    public static IconWhy? Under(double width, double height, double sentence)
+    public static IconWhy? Under(double width, double height, double sentence, double aspect = 1)
     {
         if (!double.IsFinite(Side(width, height)) || !(sentence > 0) || !double.IsFinite(sentence))
         {
             return null;
         }
 
+        var inset = Inset(width, height);
+        var across = width - (2 * inset);
         var caption = FamilyType.Caption;
-        var font = Math.Min(caption.FontSize, caption.FontSize * (width - (2 * FamilySpace.S1)) / sentence);
+        var font = Math.Min(caption.FontSize, caption.FontSize * across / sentence);
         if (font < ScaleFloor.Text)
         {
             return null;
         }
 
         var band = FamilySpace.S2 + (font * caption.LineHeight / caption.FontSize);
-        return height - (2 * Inset(width, height)) - band >= FamilyType.Big28.FontSize ? new IconWhy(font, band) : null;
+        var room = height - (2 * inset) - band;
+        if (room < FamilyType.Big28.FontSize)
+        {
+            return null;
+        }
+
+        var glyph = Math.Min(room, across / (aspect > 0 && double.IsFinite(aspect) ? aspect : 1));
+        var top = (height - glyph - band) / 2;
+        return new IconWhy(font, band, top, height - top - glyph);
     }
 
     /// <summary>[S-15716] What the status mark takes at the card's end: its glyph and the gap before it.</summary>
@@ -226,8 +239,11 @@ public static class IconRules
 /// <summary>[S-15716] A why beside the glyph: the glyph's box from the card's start, its width and height, the why's start and width.</summary>
 public readonly record struct IconBeside(double GlyphLeft, double Glyph, double GlyphHeight, double TextLeft, double TextWidth);
 
-/// <summary>[S-15722] The why's line under the glyph: its font size and its band (the gap over it and its line).</summary>
-public readonly record struct IconWhy(double FontSize, double Band);
+/// <summary>
+/// [S-15722] The why's line under the glyph: its font size, its band (the gap over it and its line), the glyph's box from the
+/// card's top and from its foot; the line's foot stands <see cref="GlyphTop"/> over the card's, the block centred.
+/// </summary>
+public readonly record struct IconWhy(double FontSize, double Band, double GlyphTop, double GlyphBottom);
 
 /// <summary>[S-15717] The glyph's box in a card (its distance from each edge) and where the status mark stands in from the top end corner.</summary>
 public readonly record struct IconBox(IconEdges Glyph, double Mark);

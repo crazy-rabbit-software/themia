@@ -311,7 +311,7 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
             beside = IconRules.Beside(width, height, sentence, marked, Aspect(_shown.Glyph is { Length: > 0 } g ? g : _kind.Glyph));
             if (beside is not { } whole || whole.TextWidth < sentence)
             {
-                under = IconRules.Under(width, height, sentence);
+                under = IconRules.Under(width, height, sentence, Aspect(_shown.Glyph is { Length: > 0 } u ? u : _kind.Glyph));
                 if (under is not null)
                 {
                     beside = null;
@@ -343,8 +343,8 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
             _beside.LineHeight = line.FontSize * FamilyType.Caption.LineHeight / FamilyType.Caption.FontSize;
             _beside.HorizontalAlignment = HorizontalAlignment.Center;
             _beside.VerticalAlignment = VerticalAlignment.Bottom;
-            _beside.Margin = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, edges.Bottom);
-            _beside.MaxWidth = width - (2 * FamilySpace.S1);
+            _beside.Margin = new Thickness(inset, 0, inset, line.GlyphTop);
+            _beside.MaxWidth = double.PositiveInfinity;
             _beside.Visibility = Visibility.Visible;
         }
         else
@@ -352,7 +352,9 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
             _beside.Visibility = Visibility.Collapsed;
         }
 
-        _tile.Padding = new Thickness(edges.Left, edges.Top, edges.Right, edges.Bottom + band);
+        _tile.Padding = under is { } block
+            ? new Thickness(inset, block.GlyphTop, inset, block.GlyphBottom)
+            : new Thickness(edges.Left, edges.Top, edges.Right, edges.Bottom);
         _tile.Use(IconRules.Step(width, height - band), width - edges.Left - edges.Right, label: false, state: false);
     }
 

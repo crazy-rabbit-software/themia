@@ -116,21 +116,32 @@ public sealed class IconRulesTests
     // ---- [S-15722] why, in one compact line under the glyph ------------------------------------------------
 
     [Theory]
-    [InlineData(76, 76, 84, true)] // "Nothing playing" at about 10 in 68: a 76 square holds it under the 28 glyph
-    [InlineData(80, 170, 84, true)]
-    [InlineData(76, 76, 125, false)] // "Can't reach the service" would stand whole only under 9
-    [InlineData(32, 32, 84, false)] // no room under the glyph
-    [InlineData(330, 70, 125, false)] // 46 down: the 28 glyph and its band do not fit
+    [InlineData(152, 152, 125, true)] // "Can't reach the service" on Caption in 128
     [InlineData(520, 600, 125, true)]
-    public void S15722_the_why_stands_under_the_glyph_where_its_line_fits_whole_at_9_or_more(double width, double height, double sentence, bool fits)
+    [InlineData(76, 76, 84, false)] // "Nothing playing" would stand in the 52 of the inset only under 9
+    [InlineData(80, 170, 84, false)]
+    [InlineData(32, 32, 84, false)]
+    [InlineData(330, 70, 125, false)] // 46 down: the 28 glyph and its band do not fit
+    public void S15722_the_why_stands_under_the_glyph_where_its_line_fits_the_inset_whole_at_9_or_more(double width, double height, double sentence, bool fits)
         => Assert.Equal(fits, IconRules.Under(width, height, sentence) is not null);
 
     [Fact]
-    public void S15722_the_line_keeps_its_own_size_caption_at_most_whatever_the_card()
+    public void S15722_the_line_keeps_its_own_size_caption_at_most_shrunk_to_the_inset()
     {
         Assert.Equal(12, IconRules.Under(520, 600, 125)!.Value.FontSize);
         Assert.Equal(12, IconRules.Under(152, 152, 125)!.Value.FontSize);
-        Assert.Equal(12 * 68 / 84.0, IconRules.Under(76, 76, 84)!.Value.FontSize, 6);
+        Assert.Equal(12 * 106 / 125.0, IconRules.Under(130, 130, 125)!.Value.FontSize, 6);
+    }
+
+    [Fact]
+    public void S15722_the_glyph_and_its_line_are_one_block_centred_in_the_height()
+    {
+        // 520 x 600, a glyph whose ink is 1.5 times as wide as tall: 496 / 1.5 tall, the line under it, the bands alike.
+        var why = IconRules.Under(520, 600, 125, aspect: 1.5)!.Value;
+        var glyph = 496 / 1.5;
+
+        Assert.Equal(600 - why.GlyphTop - why.GlyphBottom, glyph, 6);
+        Assert.Equal(why.GlyphTop, why.GlyphBottom - why.Band, 6);
     }
 
     // ---- [S-15716] why, beside the glyph -------------------------------------------------------------------
