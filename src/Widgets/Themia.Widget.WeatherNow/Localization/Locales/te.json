@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "మీ ప్రదేశంలో వాతావరణం, మాటల్లో",
-  "weatherNow.condition.label": "వాతావరణ పరిస్థితి",
-  "weatherNow.sky.desc": "మీ ప్రదేశంలో ఆకాశం, ఒక చిహ్నంలో",
-  "weatherNow.sky.label": "వాతావరణ చిహ్నం",
+  "styles.weatherNow.largeIcon": "పెద్ద చిహ్నం",
+  "styles.weatherNow.minimal": "కనిష్ఠం",
+  "styles.weatherNow.standard": "ప్రామాణికం",
+  "widget.weatherCurrent.label": "వాతావరణ సారాంశం",
+  "widgetsA.catalog.weather.description": "మీరు ఉన్న చోట పరిస్థితులు",
   "widgetsC.weather.feelsShort": "అనిపించేది {temperature}"
 }

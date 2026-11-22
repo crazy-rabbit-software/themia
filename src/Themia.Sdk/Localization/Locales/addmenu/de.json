@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "Akkudaten",
   "addMenu.family.driveFacts": "Laufwerksdaten",
   "addMenu.family.sunTimes": "Sonnenzeiten",
-  "addMenu.family.moonTimes": "Mondzeiten",
-  "addMenu.family.weatherSummary": "Wetterübersicht"
+  "addMenu.family.moonTimes": "Mondzeiten"
 }

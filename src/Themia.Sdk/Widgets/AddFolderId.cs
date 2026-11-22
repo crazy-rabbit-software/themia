@@ -55,7 +55,4 @@ public enum AddFolderId
 
     /// <summary>[S-14940] The rain in the next two hours, a widget a part, under Weather.</summary>
     Rain,
-
-    /// <summary>[S-15020] The weather now, a widget a part (the sky, the condition), under Weather.</summary>
-    WeatherSummary,
 }

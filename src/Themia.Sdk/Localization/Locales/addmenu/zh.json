@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "电池信息",
   "addMenu.family.driveFacts": "驱动器信息",
   "addMenu.family.sunTimes": "太阳时间",
-  "addMenu.family.moonTimes": "月亮时间",
-  "addMenu.family.weatherSummary": "天气摘要"
+  "addMenu.family.moonTimes": "月亮时间"
 }

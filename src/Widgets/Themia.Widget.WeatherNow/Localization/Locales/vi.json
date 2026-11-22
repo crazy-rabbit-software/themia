@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Thời tiết nơi bạn ở, bằng lời",
-  "weatherNow.condition.label": "Tình trạng thời tiết",
-  "weatherNow.sky.desc": "Bầu trời nơi bạn ở, trong một biểu tượng",
-  "weatherNow.sky.label": "Biểu tượng thời tiết",
+  "styles.weatherNow.largeIcon": "Biểu tượng lớn",
+  "styles.weatherNow.minimal": "Tối giản",
+  "styles.weatherNow.standard": "Tiêu chuẩn",
+  "widget.weatherCurrent.label": "Tóm tắt thời tiết",
+  "widgetsA.catalog.weather.description": "Thời tiết nơi bạn ở",
   "widgetsC.weather.feelsShort": "Cảm giác {temperature}"
 }

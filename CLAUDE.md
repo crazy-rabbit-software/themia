@@ -218,7 +218,7 @@ system family's facts through `SystemMetricPart` on `SystemMetricView`; never a 
 title, the rain's sentence) is a **text kind** on one base the same way (SPEC TEXTS, [S-14930]..[S-14936]): `TextKind` data,
 a `TextModule` each, the one face `TextView` (one block scaled as one at the content alignment, its line cut at the card's
 edge, `TextRules`; the item that lights and opens its source, `TextKind.Opens`, `ItemLight`). Every widget whose face is one
-icon (the transport buttons, the sky, the Icon widget) is an **icon kind** on one base too (SPEC ICONS, [S-15000]..[S-15006]):
+icon (the transport buttons, the Icon widget) is an **icon kind** on one base too (SPEC ICONS, [S-15000]..[S-15006]):
 `IconKind` data, an `IconModule` each, the one face `IconView` (the Tile block's face without words, its glyph filling the inset,
 `IconRules`; it opens its kind's source, `IconKind.Opens`, or presses as a button). A small text, bar or picture that is one
 part of a composition is an **atom** on the universal spacing (SPEC ATOMS, [S-15100]..[S-15107]; WR-16; the now-playing

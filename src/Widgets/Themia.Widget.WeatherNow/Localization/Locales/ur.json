@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "آپ کی جگہ کا موسم، الفاظ میں",
-  "weatherNow.condition.label": "موسم کی حالت",
-  "weatherNow.sky.desc": "آپ کی جگہ کا آسمان، ایک آئیکن میں",
-  "weatherNow.sky.label": "موسم کا آئیکن",
+  "styles.weatherNow.largeIcon": "بڑا آئیکن",
+  "styles.weatherNow.minimal": "کم سے کم",
+  "styles.weatherNow.standard": "معیاری",
+  "widget.weatherCurrent.label": "موسم کا خلاصہ",
+  "widgetsA.catalog.weather.description": "آپ کے مقام کا موسم",
   "widgetsC.weather.feelsShort": "محسوس {temperature}"
 }

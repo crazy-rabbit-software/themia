@@ -22,8 +22,9 @@ public static class KindFolds
     internal static List<string> Fold(JsonNode? document, IReadOnlyList<WidgetDescriptor> widgets)
     {
         var notes = new List<string>();
+        // [S-16200] A kind that joins stays in the catalog; every other part's kind is gone.
         var folds = widgets.SelectMany(w => w.Merges.Where(m => m.Fold is not null).Select(m => (Into: w.Id.Value, From: m)))
-            .Where(m => !widgets.Any(w => string.Equals(w.Id.Value, m.From.Kind, StringComparison.Ordinal)))
+            .Where(m => m.From.Fold == MergeFold.Joins || !widgets.Any(w => string.Equals(w.Id.Value, m.From.Kind, StringComparison.Ordinal)))
             .GroupBy(m => m.From.Kind, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
         if (folds.Count == 0 || document is not JsonObject root || root["views"] is not JsonArray views)
@@ -86,12 +87,15 @@ public static class KindFolds
     private static void Touching(JsonArray placed, string into, Dictionary<string, (string Into, MergeFrom From)> folds, string viewName, List<string> notes)
     {
         var members = placed.OfType<JsonObject>()
-            .Where(w => Rect(w) is not null && (Kind(w) == into || IsFold(w, into, MergeFold.Touching, folds, out _)))
+            .Where(w => Rect(w) is not null && (Kind(w) == into || IsFold(w, into, MergeFold.Touching, folds, out _) || Joins(w)))
             .ToList();
+
+        // [S-16200] A kind that stays joins the parts it touches; it never starts a group or links two.
+        bool Joins(JsonObject w) => IsFold(w, into, MergeFold.Joins, folds, out _);
         var seen = new HashSet<JsonObject>(ReferenceEqualityComparer.Instance);
         foreach (var start in members)
         {
-            if (!seen.Add(start))
+            if (Joins(start) || !seen.Add(start))
             {
                 continue;
             }
@@ -100,6 +104,11 @@ public static class KindFolds
             var group = new List<JsonObject> { start };
             for (var i = 0; i < group.Count; i++)
             {
+                if (Joins(group[i]))
+                {
+                    continue;
+                }
+
                 var r = Rect(group[i])!.Value;
                 foreach (var other in members.Where(m => !seen.Contains(m) && Touches(r, Rect(m)!.Value)))
                 {
@@ -108,7 +117,7 @@ public static class KindFolds
                 }
             }
 
-            var parts = group.Where(m => Kind(m) != into).ToList();
+            var parts = group.Where(m => Kind(m) != into && !Joins(m)).ToList();
             if (parts.Count == 0)
             {
                 continue;
@@ -116,7 +125,7 @@ public static class KindFolds
 
             // The card that stays: the group's first card of the kind in the drawing order, else its first part.
             var ordered = group.OrderBy(m => placed.IndexOf(m)).ToList();
-            var keep = ordered.FirstOrDefault(m => Kind(m) == into) ?? ordered[0];
+            var keep = ordered.FirstOrDefault(m => Kind(m) == into) ?? ordered.First(parts.Contains);
             var rects = group.Select(m => Rect(m)!.Value).ToList();
             var left = rects.Min(r => r.X);
             var top = rects.Min(r => r.Y);

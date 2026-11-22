@@ -31,7 +31,7 @@ public enum ForecastStyle
 /// <summary>
 /// The next few days, from open-meteo's <c>daily</c> block.
 /// <para>
-/// A separate widget from the weather now (<c>weatherSky</c>, <c>weatherCondition</c>, <c>weatherTemperature</c>) rather than a mode of it, because the two
+/// A separate widget from the current conditions (<c>weatherNow</c>) rather than a mode of it, because the two
 /// answer different questions and want different shapes on the desktop: one is a readout, the other
 /// is a list.
 /// </para>

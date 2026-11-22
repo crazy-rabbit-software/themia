@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "Date baterie",
   "addMenu.family.driveFacts": "Date unitate",
   "addMenu.family.sunTimes": "Orele soarelui",
-  "addMenu.family.moonTimes": "Orele lunii",
-  "addMenu.family.weatherSummary": "Rezumat meteo"
+  "addMenu.family.moonTimes": "Orele lunii"
 }

@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "ನೀವಿರುವ ಸ್ಥಳದ ಹವಾಮಾನ, ಪದಗಳಲ್ಲಿ",
-  "weatherNow.condition.label": "ಹವಾಮಾನ ಸ್ಥಿತಿ",
-  "weatherNow.sky.desc": "ನೀವಿರುವ ಸ್ಥಳದ ಆಕಾಶ, ಒಂದು ಐಕಾನ್‌ನಲ್ಲಿ",
-  "weatherNow.sky.label": "ಹವಾಮಾನ ಐಕಾನ್",
+  "styles.weatherNow.largeIcon": "ದೊಡ್ಡ ಐಕಾನ್",
+  "styles.weatherNow.minimal": "ಕನಿಷ್ಠ",
+  "styles.weatherNow.standard": "ಪ್ರಮಾಣಿತ",
+  "widget.weatherCurrent.label": "ಹವಾಮಾನ ಸಾರಾಂಶ",
+  "widgetsA.catalog.weather.description": "ನೀನು ಇರುವಲ್ಲಿನ ಹವಾಮಾನ ಸ್ಥಿತಿ",
   "widgetsC.weather.feelsShort": "{temperature} ಅನಿಸುತ್ತದೆ"
 }

@@ -105,10 +105,9 @@ public sealed class GraphMergeTests
         Assert.True(ModuleCatalog.TryGet(new WidgetId("stockHistory"), out _));
         Assert.True(ModuleCatalog.TryGet(new WidgetId("exchangeHistory"), out _));
 
-        // Every merge names a removed kind (a graph, or [S-15022] the weather summary its parts share out), once.
-        var merges = ModuleCatalog.Widgets.SelectMany(w => w.Merges).ToList();
-        Assert.All(merges, m => Assert.Contains(m.Kind, (string[])[.. gone, "weatherNow"]));
+        // Every merge names a removed kind, once ([S-16230]: a fold of a widget's parts is not a graph's merge).
+        var merges = ModuleCatalog.Widgets.SelectMany(w => w.Merges.Where(m => m.Fold is null).Select(m => (m.Kind, m.When))).ToList();
+        Assert.All(merges, m => Assert.Contains(m.Kind, gone));
         Assert.Equal(merges.Count, merges.Distinct().Count());
-        Assert.All(merges, m => Assert.Equal(gone.Contains(m.Kind), m.Graph));
     }
 }

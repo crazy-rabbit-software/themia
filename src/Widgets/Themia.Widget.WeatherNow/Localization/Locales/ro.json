@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Vremea unde te afli, în cuvinte",
-  "weatherNow.condition.label": "Starea vremii",
-  "weatherNow.sky.desc": "Cerul unde te afli, într-o pictogramă",
-  "weatherNow.sky.label": "Pictogramă meteo",
+  "styles.weatherNow.largeIcon": "Pictogramă mare",
+  "styles.weatherNow.minimal": "Minimal",
+  "styles.weatherNow.standard": "Standard",
+  "widget.weatherCurrent.label": "Rezumat meteo",
+  "widgetsA.catalog.weather.description": "Condițiile de unde ești",
   "widgetsC.weather.feelsShort": "Se simte {temperature}"
 }

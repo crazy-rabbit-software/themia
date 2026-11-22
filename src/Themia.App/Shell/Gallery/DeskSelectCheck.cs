@@ -102,7 +102,7 @@ internal static partial class DeskSelectCheck
                 ("calendar", WidgetInstance.Create(new WidgetId("calendar"), new FracRect(0.04, 0.22, 0.24, 0.34))),
                 ("tasks", WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.30, 0.05, 0.22, 0.30))),
                 ("notes", WidgetInstance.Create(new WidgetId("notes"), new FracRect(0.30, 0.40, 0.22, 0.24))),
-                ("weather", WidgetInstance.Create(new WidgetId("weatherCondition"), new FracRect(0.55, 0.05, 0.18, 0.20))),
+                ("weather", WidgetInstance.Create(new WidgetId("weatherNow"), new FracRect(0.55, 0.05, 0.18, 0.20))),
                 ("fence", WidgetInstance.Create(new WidgetId("fence"), new FracRect(0.55, 0.32, 0.22, 0.30))),
                 ("iconA", WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.86, 0.08, 0.07, 0.11))),
                 ("iconB", WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.86, 0.30, 0.07, 0.11))),

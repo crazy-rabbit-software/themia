@@ -208,7 +208,7 @@ public sealed class WidgetPreferencesTests
         var clock = (ClockConfig)ConfigJson.Read("Clock", """{ "kind": "clock", "use24Hour": false, "showSeconds": true }""");
         Assert.True(clock.ShowSeconds);
 
-        var weather = (WeatherConditionConfig)ConfigJson.Read("WeatherCondition", """{ "kind": "weatherCondition", "latitude": 1, "longitude": 2, "unit": "Fahrenheit", "refreshMinutes": 5 }""");
+        var weather = (WeatherNowConfig)ConfigJson.Read("WeatherNow", """{ "kind": "weatherNow", "latitude": 1, "longitude": 2, "unit": "Fahrenheit", "refreshMinutes": 5 }""");
         Assert.True(weather.HasLocation);
         Assert.Equal(UpdateCadence.Interval(HostCadences.Weather), weather.TickInterval);
 

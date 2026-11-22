@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "الطقس حيث أنت، بالكلمات",
-  "weatherNow.condition.label": "حالة الطقس",
-  "weatherNow.sky.desc": "السماء حيث أنت، في أيقونة واحدة",
-  "weatherNow.sky.label": "أيقونة الطقس",
+  "styles.weatherNow.largeIcon": "أيقونة كبيرة",
+  "styles.weatherNow.minimal": "بسيط",
+  "styles.weatherNow.standard": "قياسي",
+  "widget.weatherCurrent.label": "ملخص الطقس",
+  "widgetsA.catalog.weather.description": "الأحوال الجوية حيث أنت",
   "widgetsC.weather.feelsShort": "الإحساس {temperature}"
 }

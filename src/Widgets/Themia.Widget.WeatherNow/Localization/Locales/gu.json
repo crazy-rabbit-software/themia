@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "તમારા સ્થળનું હવામાન, શબ્દોમાં",
-  "weatherNow.condition.label": "હવામાનની સ્થિતિ",
-  "weatherNow.sky.desc": "તમારા સ્થળનું આકાશ, એક આઇકનમાં",
-  "weatherNow.sky.label": "હવામાન આઇકન",
+  "styles.weatherNow.largeIcon": "મોટું આઇકન",
+  "styles.weatherNow.minimal": "ન્યૂનતમ",
+  "styles.weatherNow.standard": "માનક",
+  "widget.weatherCurrent.label": "હવામાન સારાંશ",
+  "widgetsA.catalog.weather.description": "તમે જ્યાં છો ત્યાંની સ્થિતિ",
   "widgetsC.weather.feelsShort": "અનુભવ {temperature}"
 }

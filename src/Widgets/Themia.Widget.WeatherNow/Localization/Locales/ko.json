@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "현재 위치의 날씨를 글로",
-  "weatherNow.condition.label": "날씨 상태",
-  "weatherNow.sky.desc": "현재 위치의 하늘을 아이콘 하나로",
-  "weatherNow.sky.label": "날씨 아이콘",
+  "styles.weatherNow.largeIcon": "큰 아이콘",
+  "styles.weatherNow.minimal": "최소",
+  "styles.weatherNow.standard": "표준",
+  "widget.weatherCurrent.label": "날씨 요약",
+  "widgetsA.catalog.weather.description": "현재 위치의 날씨",
   "widgetsC.weather.feelsShort": "체감 {temperature}"
 }

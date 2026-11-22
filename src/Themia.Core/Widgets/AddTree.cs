@@ -53,7 +53,6 @@ public static class AddTree
         new(AddFolderId.Time, Str.AddMenu_Subject_Time, AddFolderId.Browse, 0, 0),
         new(AddFolderId.CalendarMail, Str.AddMenu_Subject_Calendar, AddFolderId.Browse, 0, 1),
         new(AddFolderId.Weather, Str.AddMenu_Subject_Weather, AddFolderId.Browse, 0, 2),
-        new(AddFolderId.WeatherSummary, Str.AddMenu_Family_WeatherSummary, AddFolderId.Weather, 0, 0),
         new(AddFolderId.WeatherFacts, Str.AddMenu_Family_WeatherFacts, AddFolderId.Weather, 0, 1),
         new(AddFolderId.AirFacts, Str.AddMenu_Family_AirFacts, AddFolderId.Weather, 0, 5),
         new(AddFolderId.SunTimes, Str.AddMenu_Family_SunTimes, AddFolderId.Weather, 1, 1),

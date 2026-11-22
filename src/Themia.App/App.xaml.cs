@@ -187,9 +187,6 @@ public partial class App : Application
         }
 
         _host = new AppHost(dispatcher, store, load.State);
-
-        // [S-15026] A card the load shared out among several kinds is laid on its display once that display's metrics settle.
-        _host.LayShareOuts(load.SharedOut);
         _host.Start();
     }
 

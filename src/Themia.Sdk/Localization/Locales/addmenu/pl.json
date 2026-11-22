@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "Dane baterii",
   "addMenu.family.driveFacts": "Dane dysku",
   "addMenu.family.sunTimes": "Godziny słońca",
-  "addMenu.family.moonTimes": "Godziny księżyca",
-  "addMenu.family.weatherSummary": "Podsumowanie pogody"
+  "addMenu.family.moonTimes": "Godziny księżyca"
 }

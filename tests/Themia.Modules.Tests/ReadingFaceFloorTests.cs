@@ -32,6 +32,7 @@ public sealed class ReadingFaceFloorTests
     /// <summary>The parts a kind states for its face: the same its sizing and its view take.</summary>
     private static FaceParts? Face(string kind, WidgetConfig config) => kind switch
     {
+        "weatherNow" => WeatherNowStyles.Face((WeatherNowConfig)config),
         "airQuality" => AirLayout.Face((AirQualityConfig)config),
         "exchangeRate" => RatesLayout.Face(),
         "screenTime" => ScreenTimeReading.Face(),
@@ -43,7 +44,6 @@ public sealed class ReadingFaceFloorTests
         "focusSession" => FocusSessionLayout.Face((FocusSessionConfig)config),
         "countdown" => CountdownLayout.Face((CountdownConfig)config, Strings.Current),
         "rainOutlook" => TextRules.Face(2, lead: false),
-        "weatherCondition" => TextRules.Face(1, lead: false),
         "nextMeeting" => NextMeetingJoin.Face((NextMeetingConfig)config),
         _ => null,
     };
@@ -54,6 +54,9 @@ public sealed class ReadingFaceFloorTests
     /// </summary>
     public static TheoryData<string, string, double, double> Faces() => new()
     {
+        { "weatherNow", "standard", 32, 57 },
+        { "weatherNow", "largeIcon", 40, 57 },
+        { "weatherNow", "minimal", 32, 45 },
         { "airQuality", "number", 32, 57 },
         { "airQuality", "gauge", 60, 91 },
         { "exchangeRate", "default", 32, 57 },
@@ -69,7 +72,6 @@ public sealed class ReadingFaceFloorTests
         { "countdown", "ring", 104, 281 },
         { "countdown", "flip", 40, 74 },
         { "rainOutlook", "default", 48, 80 },
-        { "weatherCondition", "default", 48, 52 },
         { "nextMeeting", "default", 32, 93 },
         { "cpu", "number", 45, 45 },
         { "gpu", "number", 45, 45 },

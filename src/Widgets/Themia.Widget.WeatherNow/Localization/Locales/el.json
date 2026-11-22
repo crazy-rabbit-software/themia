@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Ο καιρός εκεί που βρίσκεστε, με λέξεις",
-  "weatherNow.condition.label": "Συνθήκες καιρού",
-  "weatherNow.sky.desc": "Ο ουρανός εκεί που βρίσκεστε, σε ένα εικονίδιο",
-  "weatherNow.sky.label": "Εικονίδιο καιρού",
+  "styles.weatherNow.largeIcon": "Μεγάλο εικονίδιο",
+  "styles.weatherNow.minimal": "Μινιμαλιστικό",
+  "styles.weatherNow.standard": "Τυπικό",
+  "widget.weatherCurrent.label": "Σύνοψη καιρού",
+  "widgetsA.catalog.weather.description": "Οι συνθήκες εκεί που βρίσκεσαι",
   "widgetsC.weather.feelsShort": "Αίσθηση {temperature}"
 }

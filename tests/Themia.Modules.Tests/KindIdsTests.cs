@@ -36,8 +36,8 @@ public sealed class KindIdsTests
         "scratchpad", "screenOff", "screenTime", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
         "signOut", "sleep", "solarNoon", "soundToggle", "spatialSoundToggle", "stock", "stockHistory", "stopwatch",
         "sun", "sunrise", "sunset", "tasks", "topProcesses", "upNext", "videoStream", "volume", "weatherCloudCover",
-        "weatherCondition", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity",
-        "weatherPrecipitation", "weatherPressure", "weatherSky", "weatherSunrise", "weatherSunset",
+        "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow",
+        "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset",
         "weatherTemperature", "weatherUv", "weatherWind", "weekPlanner", "wifiToggle",
     ];
 

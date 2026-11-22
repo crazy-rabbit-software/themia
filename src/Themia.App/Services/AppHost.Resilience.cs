@@ -237,5 +237,5 @@ internal sealed partial class AppHost
     /// and habits are their own files and are left alone. Returns null on success, otherwise why
     /// nothing changed: settings › Back up &amp; reset says which under its line ([S-3578]).
     /// </summary>
-    public string? ResetAll(out string backup) => ReplaceState(AppState.CreateDefault(), [], SettingsTransfer.ResetOccasion, out backup);
+    public string? ResetAll(out string backup) => ReplaceState(AppState.CreateDefault(), SettingsTransfer.ResetOccasion, out backup);
 }

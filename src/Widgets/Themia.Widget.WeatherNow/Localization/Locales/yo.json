@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Ojú ọjọ́ níbi tí o wà, ní ọ̀rọ̀",
-  "weatherNow.condition.label": "Ipò ojú ọjọ́",
-  "weatherNow.sky.desc": "Ojú ọ̀run níbi tí o wà, nínú àmì kan",
-  "weatherNow.sky.label": "Àmì ojú ọjọ́",
+  "styles.weatherNow.largeIcon": "Àmì ńlá",
+  "styles.weatherNow.minimal": "Ṣókí",
+  "styles.weatherNow.standard": "Déédé",
+  "widget.weatherCurrent.label": "Àkópọ̀ ojú ọjọ́",
+  "widgetsA.catalog.weather.description": "Ipò ojú ọjọ́ níbi tí o wà",
   "widgetsC.weather.feelsShort": "Ó rí bí {temperature}"
 }

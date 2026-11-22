@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Pogoda tam, gdzie jesteś, słowami",
-  "weatherNow.condition.label": "Warunki",
-  "weatherNow.sky.desc": "Niebo tam, gdzie jesteś, jako jedna ikona",
-  "weatherNow.sky.label": "Ikona pogody",
+  "styles.weatherNow.largeIcon": "Duża ikona",
+  "styles.weatherNow.minimal": "Minimalny",
+  "styles.weatherNow.standard": "Standardowy",
+  "widget.weatherCurrent.label": "Podsumowanie pogody",
+  "widgetsA.catalog.weather.description": "Pogoda tam, gdzie jesteś",
   "widgetsC.weather.feelsShort": "Odczuwalna {temperature}"
 }

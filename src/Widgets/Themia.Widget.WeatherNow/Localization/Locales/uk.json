@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Погода там, де ви, словами",
-  "weatherNow.condition.label": "Стан погоди",
-  "weatherNow.sky.desc": "Небо там, де ви, одним значком",
-  "weatherNow.sky.label": "Значок погоди",
+  "styles.weatherNow.largeIcon": "Великий значок",
+  "styles.weatherNow.minimal": "Мінімальний",
+  "styles.weatherNow.standard": "Стандартний",
+  "widget.weatherCurrent.label": "Зведення погоди",
+  "widgetsA.catalog.weather.description": "Погода там, де ти",
   "widgetsC.weather.feelsShort": "Відчувається {temperature}"
 }

@@ -1,0 +1,62 @@
+using System.Text.Json.Serialization;
+using Microsoft.UI.Xaml;
+using Themia.App.Shell;
+using Themia.App.Shell.Config;
+using Themia.App.Widgets;
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Core.Widgets;
+using Themia.Sdk;
+using Themia.Sdk.WinUI;
+using Themia.Widget.WeatherNow;
+using Themia.Sdk.Kit;
+
+[assembly: ThemiaWidget("weatherNow", typeof(WeatherNowModule))]
+
+namespace Themia.Widget.WeatherNow;
+
+/// <summary>[S-11100] The weather's reading where the user says they are: the sky, the temperature and the condition. SPEC.md beside this file.</summary>
+public sealed class WeatherNowModule : IWidgetModule
+{
+    /// <summary>[S-2035] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
+    internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);
+
+    /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
+    public WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("weatherNow"),
+        ConfigType = typeof(WeatherNowConfig),
+        CreateDefault = () => new WeatherNowConfig(),
+        Json = WeatherNowJsonContext.Default,
+        Keywords = ["temperature", "now", "conditions", "climate", "degrees", "sky"],
+        Label = WeatherNowStr.Widget_WeatherCurrent_Label.Local(),
+        Description = WeatherNowStr.WidgetsA_Catalog_Weather_Description.Local(),
+        Glyph = Glyphs.Weather,
+        Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c).ScalesDownTo(WeatherNowStyles.Face((WeatherNowConfig)c)),
+        Traits = WidgetTraits.None,
+        Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
+
+        // [S-16200] The parts it was split into 21-22 Nov fold back into it where they were placed: the sky and the condition
+        // (gone), and the temperature that stood with them (a single metric that stays).
+        Merges =
+        [
+            new MergeFrom("weatherSky") { Fold = MergeFold.Touching },
+            new MergeFrom("weatherCondition") { Fold = MergeFold.Touching },
+            new MergeFrom("weatherTemperature") { Fold = MergeFold.Joins },
+        ],
+    };
+
+    /// <summary>[S-3719] Every option is on the selection's page: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => WeatherNowMenu.Lines(menu, (WeatherNowConfig)config);
+
+    public FrameworkElement CreateView(IWidgetHost host) => new WeatherNowView(host);
+}
+
+/// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>
+[JsonSourceGenerationOptions(
+    WriteIndented = true,
+    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSerializable(typeof(WeatherNowConfig))]
+internal sealed partial class WeatherNowJsonContext : JsonSerializerContext;

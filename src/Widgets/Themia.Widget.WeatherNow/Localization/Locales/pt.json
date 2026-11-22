@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "O tempo onde você está, em palavras",
-  "weatherNow.condition.label": "Condição do tempo",
-  "weatherNow.sky.desc": "O céu onde você está, num ícone",
-  "weatherNow.sky.label": "Ícone do tempo",
+  "styles.weatherNow.largeIcon": "Ícone grande",
+  "styles.weatherNow.minimal": "Mínimo",
+  "styles.weatherNow.standard": "Padrão",
+  "widget.weatherCurrent.label": "Resumo do clima",
+  "widgetsA.catalog.weather.description": "O clima onde você está",
   "widgetsC.weather.feelsShort": "Sensação {temperature}"
 }

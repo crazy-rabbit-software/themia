@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "ባሉበት ያለው የአየር ሁኔታ፣ በቃላት",
-  "weatherNow.condition.label": "የአየር ሁኔታ",
-  "weatherNow.sky.desc": "ባሉበት ያለው ሰማይ፣ በአንድ አዶ",
-  "weatherNow.sky.label": "የአየር ሁኔታ አዶ",
+  "styles.weatherNow.largeIcon": "ትልቅ አዶ",
+  "styles.weatherNow.minimal": "ቀላል",
+  "styles.weatherNow.standard": "መደበኛ",
+  "widget.weatherCurrent.label": "የአየር ሁኔታ ማጠቃለያ",
+  "widgetsA.catalog.weather.description": "ባሉበት ያለው የአየር ሁኔታ",
   "widgetsC.weather.feelsShort": "የሚሰማው {temperature}"
 }

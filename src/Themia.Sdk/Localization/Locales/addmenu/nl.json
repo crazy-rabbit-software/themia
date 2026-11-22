@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "Batterijgegevens",
   "addMenu.family.driveFacts": "Stationgegevens",
   "addMenu.family.sunTimes": "Zontijden",
-  "addMenu.family.moonTimes": "Maantijden",
-  "addMenu.family.weatherSummary": "Weeroverzicht"
+  "addMenu.family.moonTimes": "Maantijden"
 }

@@ -31,11 +31,8 @@ internal static class FirstRunDesktop
     [
         new("clock", Grid(2250, 0, 310, 180), Bare: true),
 
-        // [S-15024] The weather summary's parts: the sky beside the temperature over the condition. No place: each asks for
-        // one ([S-2848]) rather than showing someone else's town.
-        new("weatherSky", Grid(0, 0, 110, 112), Bare: true),
-        new("weatherTemperature", Grid(110, 0, 200, 60), Bare: true),
-        new("weatherCondition", Grid(110, 60, 200, 52), Bare: true),
+        // No place: the widget asks for one ([S-2848]) rather than showing someone else's town.
+        new("weatherNow", Grid(0, 0, 310, 180), Bare: true, Config: """{ "style": "largeIcon" }"""),
 
         // The meters stack on a 120-DIP stride; each is 1/1080 of the screen shorter than it, so they never touch.
         new("cpu", Meter(0), Bare: true),

@@ -147,7 +147,7 @@ internal static partial class EditBarRender
         await Shot(screen, Bar(new EditBarState(mixed, 0, null, false, wide)), outDir, $"editbar-{theme}-mixed.png").ConfigureAwait(true);
         await Shot(screen, Bar(new EditBarState(clock, 2, null, false, wide)), outDir, $"editbar-{theme}-errors.png").ConfigureAwait(true);
         await Shot(screen, Bar(new EditBarState(null, 0, SettingsPageId.General, false, wide)), outDir, $"editbar-{theme}-open.png").ConfigureAwait(true);
-        var longName = new BarSelection("Weather in San Francisco and the Bay Area", ModuleCatalog.Of(new WidgetId("weatherCondition")).Glyph);
+        var longName = new BarSelection("Weather in San Francisco and the Bay Area", ModuleCatalog.Of(new WidgetId("weatherNow")).Glyph);
         await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 900 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
         await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 640 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrowest.png", room: 640).ConfigureAwait(true);
 
@@ -370,7 +370,7 @@ internal static partial class EditBarRender
         ];
         PropsCard[] two = [new(new WidgetId("clock"), 120, 160, 220, 160, true), new(new WidgetId("clock"), 120, 360, 220, 160, true)];
         PropsCard[] toggle = [new(new WidgetId("wifiToggle"), 200, 260, 120, 120, true)];
-        PropsCard[] weather = [new(new WidgetId("weatherCondition"), 140, 160, 300, 200, true)];
+        PropsCard[] weather = [new(new WidgetId("weatherNow"), 140, 160, 300, 200, true)];
         PropsCard[] icon = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, true)];
 
         // [S-5611] A desktop file, an own icon on a Windows location, and two files: each is a "Desktop icon".
@@ -392,7 +392,7 @@ internal static partial class EditBarRender
         // [S-2240] Two touching cards, selected together: they join as any touching cards do, no group.
         PropsCard[] station =
         [
-            new(new WidgetId("weatherCondition"), 140, 160, 300, 200, true),
+            new(new WidgetId("weatherNow"), 140, 160, 300, 200, true),
             new(new WidgetId("weatherForecast"), 140, 360, 300, 200, true),
         ];
 
@@ -400,7 +400,7 @@ internal static partial class EditBarRender
         PropsCard[] under =
         [
             new(new WidgetId("clock"), 20, 540, 240, 160, true),
-            new(new WidgetId("weatherCondition"), 140, 610, 200, 160, false),
+            new(new WidgetId("weatherNow"), 140, 610, 200, 160, false),
         ];
 
         // [S-3722] Every lookup of a widget's page, side by side: a stock's symbol, a rate's currency, a clock's zone.

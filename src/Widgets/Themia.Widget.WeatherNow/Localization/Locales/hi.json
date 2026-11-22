@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "आपके स्थान का मौसम, शब्दों में",
-  "weatherNow.condition.label": "मौसम की स्थिति",
-  "weatherNow.sky.desc": "आपके स्थान का आसमान, एक आइकन में",
-  "weatherNow.sky.label": "मौसम आइकन",
+  "styles.weatherNow.largeIcon": "बड़ा आइकन",
+  "styles.weatherNow.minimal": "न्यूनतम",
+  "styles.weatherNow.standard": "मानक",
+  "widget.weatherCurrent.label": "मौसम सारांश",
+  "widgetsA.catalog.weather.description": "आपके स्थान का मौसम",
   "widgetsC.weather.feelsShort": "महसूस {temperature}"
 }

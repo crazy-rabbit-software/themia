@@ -24,7 +24,8 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "weatherCondition",
+            "kind": "weatherNow",
+            "style": "largeIcon",
             "latitude": 47.3667,
             "longitude": 8.55,
             "locationName": "Zürich, Zurich, Switzerland",

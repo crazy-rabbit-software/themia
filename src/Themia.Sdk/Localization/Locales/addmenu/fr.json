@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "Données de la batterie",
   "addMenu.family.driveFacts": "Données du lecteur",
   "addMenu.family.sunTimes": "Heures du soleil",
-  "addMenu.family.moonTimes": "Heures de la lune",
-  "addMenu.family.weatherSummary": "Résumé météo"
+  "addMenu.family.moonTimes": "Heures de la lune"
 }

@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Le temps qu’il fait là où vous êtes, en mots",
-  "weatherNow.condition.label": "Conditions",
-  "weatherNow.sky.desc": "Le ciel là où vous êtes, en une icône",
-  "weatherNow.sky.label": "Icône météo",
+  "styles.weatherNow.largeIcon": "Grande icône",
+  "styles.weatherNow.minimal": "Minimal",
+  "styles.weatherNow.standard": "Standard",
+  "widget.weatherCurrent.label": "Résumé météo",
+  "widgetsA.catalog.weather.description": "La météo là où tu es",
   "widgetsC.weather.feelsShort": "Ressenti {temperature}"
 }

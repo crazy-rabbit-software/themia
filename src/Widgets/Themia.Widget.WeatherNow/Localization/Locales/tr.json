@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Bulunduğunuz yerin havası, kelimelerle",
-  "weatherNow.condition.label": "Hava koşulu",
-  "weatherNow.sky.desc": "Bulunduğunuz yerin gökyüzü, tek bir simgeyle",
-  "weatherNow.sky.label": "Hava durumu simgesi",
+  "styles.weatherNow.largeIcon": "Büyük simge",
+  "styles.weatherNow.minimal": "Minimal",
+  "styles.weatherNow.standard": "Standart",
+  "widget.weatherCurrent.label": "Hava durumu özeti",
+  "widgetsA.catalog.weather.description": "Bulunduğunuz yerdeki hava koşulları",
   "widgetsC.weather.feelsShort": "Hissedilen {temperature}"
 }

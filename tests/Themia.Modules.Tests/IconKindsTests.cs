@@ -18,8 +18,8 @@ public sealed class IconKindsTests
     private static IReadOnlyList<IconModule> Icons => [.. ModuleRegistry.Widgets.OfType<IconModule>()];
 
     [Fact]
-    public void S15003_the_icon_kinds_are_the_buttons_the_icon_and_the_sky()
-        => Assert.Equal(["icon", "musicNext", "musicPlayPause", "musicPrevious", "weatherSky"],
+    public void S15003_the_icon_kinds_are_the_buttons_and_the_icon()
+        => Assert.Equal(["icon", "musicNext", "musicPlayPause", "musicPrevious"],
             Icons.Select(m => m.Descriptor.Id.Value).Order(StringComparer.Ordinal));
 
     [Fact]

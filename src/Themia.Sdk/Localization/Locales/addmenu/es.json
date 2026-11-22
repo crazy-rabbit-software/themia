@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "Datos de la batería",
   "addMenu.family.driveFacts": "Datos de la unidad",
   "addMenu.family.sunTimes": "Horas del sol",
-  "addMenu.family.moonTimes": "Horas de la luna",
-  "addMenu.family.weatherSummary": "Resumen del tiempo"
+  "addMenu.family.moonTimes": "Horas de la luna"
 }

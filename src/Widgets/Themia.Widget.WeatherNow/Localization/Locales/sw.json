@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Hali ya hewa mahali ulipo, kwa maneno",
-  "weatherNow.condition.label": "Hali ya anga",
-  "weatherNow.sky.desc": "Anga mahali ulipo, kwa aikoni moja",
-  "weatherNow.sky.label": "Aikoni ya hali ya hewa",
+  "styles.weatherNow.largeIcon": "Aikoni kubwa",
+  "styles.weatherNow.minimal": "Rahisi",
+  "styles.weatherNow.standard": "Kawaida",
+  "widget.weatherCurrent.label": "Muhtasari wa hali ya hewa",
+  "widgetsA.catalog.weather.description": "Hali ya hewa ulipo",
   "widgetsC.weather.feelsShort": "Inahisi {temperature}"
 }

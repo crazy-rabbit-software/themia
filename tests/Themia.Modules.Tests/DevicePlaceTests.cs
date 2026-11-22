@@ -20,7 +20,7 @@ namespace Themia.Modules.Tests;
 /// </summary>
 public sealed class DevicePlaceTests
 {
-    public static TheoryData<string> Places() => ["weatherCondition", "weatherForecast", "airQuality", "rainNextHour", "sun", "moon"];
+    public static TheoryData<string> Places() => ["weatherNow", "weatherForecast", "airQuality", "rainNextHour", "sun", "moon"];
 
     private static readonly DeviceLocation Zurich = DeviceLocation.At(47.3769, 8.5417);
 
@@ -81,7 +81,7 @@ public sealed class DevicePlaceTests
     [InlineData(DeviceLocationState.Unavailable)]
     public void S2851_while_windows_gives_no_position_the_menu_says_why(DeviceLocationState state)
     {
-        var lines = Lines(Widget("weatherCondition", device: true), new DeviceLocation(state));
+        var lines = Lines(Widget("weatherNow", device: true), new DeviceLocation(state));
 
         Assert.Single(lines, l => l.Note && l.Text == Themia.App.Shell.Config.DevicePlaceRows.Sentence(state));
         Assert.DoesNotContain(lines, l => l.Text == Str.Shell_Place_DeviceSettings.Text());
@@ -104,7 +104,7 @@ public sealed class DevicePlaceTests
     [Fact]
     public void S2853_the_sync_asks_for_the_weather_at_the_device_only_while_it_has_a_position()
     {
-        var state = State(Widget("weatherCondition", device: true), Widget("rainNextHour", device: true));
+        var state = State(Widget("weatherNow", device: true), Widget("rainNextHour", device: true));
 
         Assert.Empty(SyncInterests.From(state, DeviceLocation.Locating).Weather);
         Assert.Empty(SyncInterests.From(state, DeviceLocation.Denied).Rain);
@@ -118,8 +118,8 @@ public sealed class DevicePlaceTests
     [Fact]
     public void S2851_windows_is_asked_only_while_a_widget_uses_its_location()
     {
-        Assert.False(DeviceLocationInterest.Wanted(State(Widget("weatherCondition", device: false), Widget("sun", device: false))));
-        Assert.True(DeviceLocationInterest.Wanted(State(Widget("weatherCondition", device: false), Widget("moon", device: true))));
+        Assert.False(DeviceLocationInterest.Wanted(State(Widget("weatherNow", device: false), Widget("sun", device: false))));
+        Assert.True(DeviceLocationInterest.Wanted(State(Widget("weatherNow", device: false), Widget("moon", device: true))));
     }
 
     [Theory]

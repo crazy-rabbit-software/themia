@@ -2288,7 +2288,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   bento cells, each 14 grid cells square ([S-06]: 140 DIPs on a 10-DIP grid), the tiles 2 grid cells apart, twelve
   cards of 1 × 1, 2 × 1 and 2 × 2 cells packed with no hole and no overlap: Clock and Calendar (the month) on top, a
   CPU meter and the Wi-Fi toggle tile under the clock, Tasks, the network history graph and Music (now playing) under
-  them, down the right the weather station joined (the temperature, [S-15024], its humidity ([S-13900]), the forecast: one join's tiles split the gap
+  them, down the right the weather station joined (Weather summary, its humidity ([S-13900]), the forecast: one join's tiles split the gap
   between them and meet, so they draw as one panel, [S-2240]), and under it the battery meter and the Lock tile. Each
   box holds its kind's least size; a kind whose size follows a count shows what its box holds ([S-2442]). The bento
   stands in the display's middle on its grid lines, placed as the desktop places cards so their frost is the
@@ -8951,7 +8951,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   user decides how large the card is ([S-12411]). Kept: toggles and power buttons ([S-5700], [S-12806]), pictures,
   graphs and charts ([S-12800]), Drive's ring style (its ring grows with the box), the Header, Next meeting's and
   Rain next hour's lines over their join or chart, Sun's picture. Tests `BlockFillTests.S12808_`; renders
-  `--render widget weatherSky|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
+  `--render widget weatherNow|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
 - **[S-12809]** **The calendar's month fills its card** (owner, 2026-11-19: "the calendar does not follow this design
   philosophy for example. fix that"; then "Bigger numbers too"). The weekday line and the six weeks fill the content
   edge to edge inside the margin, the cells touching: the rows grow with the card's height (each as tall as its
@@ -10451,7 +10451,7 @@ model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
   them agree. A shared write is content, not the arrangement: one mutation, no undo step ([S-886]).
 - **[S-11752]** **What is shared, and who holds it** (pinned by `SharedSettingsTests`): the place
   (`IPlaced`, which names its coordinates and its place name, the weather's `LocationName` and the sky's
-  `Place` under one shape: the weather summary's sky and condition ([S-15020]), the weather facts (each of the eleven, [S-13900]), Forecast, Rain next hour, Air quality, Air facts,
+  `Place` under one shape: Weather summary, the weather facts (each of the eleven, [S-13900]), Forecast, Rain next hour, Air quality, Air facts,
   Sun, Sun times, Moon, Moon times and the seven weather graphs ([S-12707]); the same place is the same coordinates or both on the device's);
   the calendars' accounts with their calendars and colours (`CalendarConfig`: Calendar, Next meeting, Up
   next, Week planner); the mail and the contacts accounts (`IChoosesAccounts`, by the feature they offer:
@@ -10576,7 +10576,7 @@ one base. Owning files: `Themia.Sdk/Widgets/Metrics.cs` (the pure rules: `Metric
 `Widgets/Details/SystemMetric.cs` (+ `.Preview.cs`, the system families' face over the hub), `Modules/MetricModule.cs`,
 `Shell/MetricMenuLines.cs` (the Trend line and, under it, the graph's chart look through `ChartMenuLines`),
 `Themia.Sdk/Widgets/MetricGraph.cs` (a kind's graph as data: `MetricGraph`, `GraphSeries`, `IMetricGraph`, `MetricGraphs`,
-[S-14710]), `Themia.Core/Storage/KindMerges.cs` (the one in-place replacement: the graph kinds, and the cards split into parts, [S-15022]); the families
+[S-14710]), `Themia.Core/Storage/KindMerges.cs` (the one in-place replacement: the graph kinds); the families
 are their projects: Weather facts, Air facts, CPU, GPU, Memory, Network, Ping, Battery and Drive facts, Sun times and Moon
 times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-6901], with its own `SPEC.md`). Tests:
 `MetricRulesTests` (Core), `MetricFitTests` (every kind: its graph, its chart look, its page, its source), each family's,
@@ -10690,7 +10690,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   PM10, ozone and the worst pollen); the old cards' groups are their reading over the old card's four metrics (**CPU
   details**, **Memory details**, **GPU details**, **Network details** with its adapters, **Ping details**, **Battery
   details**, **Drive**), **Sun** and **Moon** the graphic or reading over its three times, **Weather** and **Weather
-  station** the weather summary's three parts over its metrics ([S-15024]); each starts with its Header ([S-12485]), every metric one row tall, touching.
+  station** the reading over its metrics; each starts with its Header ([S-12485]), every metric one row tall, touching.
 - **[S-14700]** **A metric fits its box** (owner, 2026-11-20: "the widgets like the PM2.5 one should be resizable in height
   and change its style so that it fits."): every single metric's height is resizable from its least ([S-14600]) by one
   cell, with no most, and its face changes its look to fit the box: the same parts (the glyph, the name, the value, its
@@ -10788,37 +10788,9 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   metric stands in for which graph the kinds declare (`MetricKind.Merges`, `WidgetDescriptor.Merges`). The ready-made
   groups that held them hold the metrics drawing Line; the add page lists the metrics alone (a reading left alone in its
   family stands in its subject). The stock's and the exchange rate's histories are not single metrics yet and stay.
-- **[S-15022]** **A card several kinds share out becomes them in place** (owner, 2026-11-21: "weather summary should also
-  be split into three widgets"; a placed card "Replace in place", as the facts cards and the graphs were): the same pass
-  (`KindMerges`) takes every kind that stands in for a removed one (`WidgetDescriptor.Merges`): those its config's value
-  names (`MergeFrom.When`), else every one that takes the rest and is not left out by its value (`MergeFrom.Unless`: a look
-  of the old card that never drew that part). One takes the card's id, spot, look and settings; several each a copy of it,
-  its id the old one and the kind's (`w07-weatherSky`), in its share of the old rect (`MergeFrom.Share`, fitted to its own
-  sizing when painted), top to bottom and left to right, in the card's place in the drawing order; the key the card was
-  shared out by (its style) goes, what a part does not have is dropped by the load, loudly. Only a graph's merge
-  (`MergeFrom.Graph`) shows the graph (its trend Line, its window its `span`). One logged line a replaced card. Tests
-  `KindMergesTests.S15022_` (Core); the weather summary's, [S-15025].
-- **[S-15026]** **A card shared out is laid on its display, each part at least its minimum** (owner, 2026-11-21: the
-  split must respect each part's minimum, never growing past the old card where avoidable). The load lays the parts in
-  their fixed shares without knowing a display, so on a narrow card a part (the temperature, 200 DIPs at least) could be
-  under its minimum and, painted at it, run past the card over its neighbours. Each card the load shared out
-  (`ShareOut`, from `KindMerges`) waits in the host (`ShareOuts`) until the surface showing its view has settled metrics
-  ([S-854]), then is laid once, in that mutation, at each part's own scale and on the grid's minimums (`SizeFit.Limits`):
-  a lead beside a stack (the sky on the left, the temperature over the condition) keeps its shares where they hold; else
-  the line beside the lead and the stack's lines move as far as the minimums need; else the parts stack, the lead on top,
-  each the card's width; else as [S-15027] grows or moves them. Parts moved, resized or removed before then are the
-  user's and stay; a card whose view no display shows waits; an import's cards wait the same way, a reset's are
-  forgotten. Tests `ShareOutsTests.S15026_` (Core), `WeatherNowSplitTests.S15026_`.
-- **[S-15027]** **The parts are laid on whole grid cells, never over each other or a neighbour** (owner's Home, 2026-11-21:
-  a 300 × 110 summary over a forecast had its condition at 135.3, painted 60 tall over the temperature and 5 DIPs over
-  the forecast; a 320 × 80 one had its temperature and condition at 2287.3, painted 220 wide over the sky and past the
-  forecast's edge). Shares of a card fall between grid lines and a card is painted at whole cells
-  ([S-11807]), so the lay of [S-15026] counts in cells: the card's lines, each part's least in whole cells (it may go
-  under its natural, down to that), the cells shared by the shares and what rounding leaves given one each where most
-  was lost (`ShareOuts.Split`). When neither arrangement holds in the card, the block grows over it toward free cells
-  (no other card as painted there, inside the work area), the smaller arrangement first, the corner nearest the card's
-  first; when no growth is free, last, the smaller arrangement moves to the free cells nearest the card. Tests
-  `ShareOutsTests.S15027_` (Core), `WeatherNowSplitTests.S15027_` (the owner's two cards and their neighbours).
+- **[S-15022]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; Weather summary is one widget again and its placed parts fold back into it, [S-16200].)* A card several kinds shared out became them in place (`MergeFrom.Unless`, `.Share`).
+- **[S-15026]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; Weather summary is one widget again and its placed parts fold back into it, [S-16200].)* A card shared out was laid on its display, each part at least its minimum (`ShareOuts`).
+- **[S-15027]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; Weather summary is one widget again and its placed parts fold back into it, [S-16200].)* The shared-out parts were laid on whole grid cells, clear of their neighbours.
 - **[S-16230]** **The parts of a widget that is back fold into it in place** (owner, 2026-11-22: "basically reset them to
   what they were a few days ago"; "before 19th. but the single metric widgets stay"). A kind split into parts 19-22 Nov
   and restored states the part kinds it takes back (`MergeFrom.Fold`); the load's first pass (`KindFolds`, before
@@ -10910,8 +10882,8 @@ every line of text is a text kind (TEXTS) and every one reading a single metric 
 `Themia.Sdk/Widgets/Icons.cs` (the pure rules: `IconRules`, `IconShown`, `IconOpen`, `IconOpens`),
 `Themia.Sdk/Modules/IconKind.cs` (a kind as data), `Themia.Sdk.WinUI/Widgets/IconView.cs` (+ `.Preview.cs`, the one face,
 on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the Icon widget (`Themia.Widget.Icon`,
-[S-15010]), the now-playing buttons (`Themia.Widget.Music`, [S-14922]) and the sky now (`weatherSky`,
-`Themia.Widget.WeatherNow`, [S-15021]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
+[S-15010]) and the now-playing buttons (`Themia.Widget.Music`, [S-14922]); the sky now (`weatherSky`) was one until the
+weather summary was one widget again (2026-11-22, [S-16200]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
 
 - **[S-15000]** **Its size is a square round its glyph.** An icon kind's card lands at the 40 step's line (52) in the family's inset,
   76 square, a desktop cell's width (`IconRules.Sizing`, `NaturalSide`), resizes freely on both axes from the grid's least widget, 32 (WR-14: a
@@ -10947,7 +10919,7 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   ([S-15713]) and says it in a Caption line at the card's foot, at its content alignment, cut with its ellipsis, the block
   filling what is over it (`TextRules.SaysWhy`). A **single metric** says it in its readout's line under "--" (the
   readout's own, [S-12813]); its one row has no room (the tooltip, and [S-15711]). Tests `IconRulesTests.S15710_`,
-  `TextRulesTests.S15710_`; renders `--render widget weatherSky|weatherCondition|weatherTemperature --state failed`,
+  `TextRulesTests.S15710_`; renders `--render widget weatherTemperature --state failed`,
   `musicPlayPause|musicNext|musicPrevious --state idle`.
 - **[S-15711]** **A failure is never quieter than a stale reading**: the status's problem glyph ([S-7042], [S-12813]) shows
   a read's problems whatever its state, so an icon, a text or a single metric left without a reading by a failure (the
@@ -10958,8 +10930,8 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
 - **[S-15712]** **A sample lights where it opens**: a preview's sample stands where the card's config does not say (the
   sample place), so the face opens for the sample's config (`OpenFor` on the icon, text and metric bases; the card's own
   config keeps its trend and look) and lights under the pointer and pressed as a placed card does (WR-13; the audit's
-  hover renders of the weather now found no light). A changed config ends it. Renders `--render widget weatherSky|
-  weatherCondition|weatherTemperature --state sample --hover 0.5,0.3`.
+  hover renders of the weather now found no light). A changed config ends it. Renders `--render widget
+  weatherTemperature --state sample --hover 0.5,0.3`.
 - **[S-15716]** **A card too short for the why under its face says it beside it** (WR-10; the second audit, 2026-11-22:
   a 350 × 70 sky, a 240 × 30 temperature, a 240 × 52 condition said it only in a badge's tooltip). Where the card is at
   least a Caption line and 4 over and under it tall (`WhyLine.BesideHeight`, 24) and the width leaves the why ten
@@ -11094,7 +11066,7 @@ are single metrics (METRICS). Tests: each module's, `ReadyMadeGroupsTests`.
   changes. Atoms of one subject at one place read the same answer, so they agree to the digit; the sky
   atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
 - **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
-  (the first carries the header, the others none; [S-2472]): **Weather** (the summary's three parts over its facts, [S-15024]),
+  (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
   **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its readings),
   **Weather facts** (every weather fact, [S-14607]), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
   **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
@@ -12165,10 +12137,9 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   named Home and Work (translated, `shell.view.homeName`/`workName`); Home is active. Laid out on a
   2560×1440 grid and stored as fractions, so it holds on any display. Home, clock first: Clock (digital,
   no seconds, no date) top right (2250, 0, 310×180); no shortcuts (Windows' own desktop icons are the
-  desktop items, [S-5500]; the Shortcuts grid of six Windows places went with that widget, 2026-11-13); the weather summary's three parts top left, bare: the sky (0, 0, 110×112) beside the temperature
-  (110, 0, 200×60) over the condition (110, 60, 200×52), [S-15024]; CPU,
+  desktop items, [S-5500]; the Shortcuts grid of six Windows places went with that widget, 2026-11-13); Weather now (large icon) top left (0, 0, 310×180); CPU,
   Memory, GPU and Network as graphs down the right edge (x 2250, y 920/1040/1160/1280, 310 wide,
-  89/1080 of the screen tall); these nine are transparent and headerless. Along the top centre, six
+  89/1080 of the screen tall); these seven are transparent and headerless. Along the top centre, six
   60×60 quick-setting tiles from x 1090: Do not disturb, Color filters, Night light, Airplane mode,
   Bluetooth, Wi-Fi. Work: Clock (digital, with the date, transparent, headerless) top right (2330, 0,
   230×120); Calendar (month) (0, 0, 800×710), Tasks (list) (800, 0, 510×710) and Notes (1310, 0,

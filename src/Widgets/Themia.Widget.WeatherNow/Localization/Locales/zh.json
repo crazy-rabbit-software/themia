@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "你所在地的天气，用文字表示",
-  "weatherNow.condition.label": "天气状况",
-  "weatherNow.sky.desc": "你所在地的天空，一个图标",
-  "weatherNow.sky.label": "天气图标",
+  "styles.weatherNow.largeIcon": "大图标",
+  "styles.weatherNow.minimal": "极简",
+  "styles.weatherNow.standard": "标准",
+  "widget.weatherCurrent.label": "天气摘要",
+  "widgetsA.catalog.weather.description": "你所在地的天气",
   "widgetsC.weather.feelsShort": "体感 {temperature}"
 }

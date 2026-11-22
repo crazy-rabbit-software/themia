@@ -481,7 +481,6 @@ public sealed partial class ModuleConformanceTests
             "hibernate", "lock", "restart", "screenOff", "shutdown", "signOut", "sleep",
             // [S-14930] [S-15003] [S-15106] The text kinds' one face (the track's times too) and the icon kinds' (the transport buttons, the Icon widget).
             "music", "musicArtist", "musicAlbum", "musicElapsed", "musicDuration", "rainOutlook", "musicPrevious", "musicPlayPause", "musicNext", "icon",
-            "weatherSky", "weatherCondition",
         ];
 
         var declared = ModuleCatalog.Widgets.Where(w => Themia.Sdk.Kit.ReadoutRules.OneReadout(w.Traits)).Select(w => w.Id.Value).Order(StringComparer.Ordinal);

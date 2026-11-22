@@ -24,6 +24,5 @@
   "addMenu.family.batteryFacts": "Detail baterai",
   "addMenu.family.driveFacts": "Detail drive",
   "addMenu.family.sunTimes": "Waktu matahari",
-  "addMenu.family.moonTimes": "Waktu bulan",
-  "addMenu.family.weatherSummary": "Ringkasan cuaca"
+  "addMenu.family.moonTimes": "Waktu bulan"
 }

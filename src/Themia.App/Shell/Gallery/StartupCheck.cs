@@ -63,9 +63,8 @@ internal static class StartupCheck
 
         try
         {
-            var parsed = run.Option("--state") is { } source ? StateDocument.Parse(File.ReadAllText(source)) : (ParseResult?)null;
-            var state = parsed is { } read
-                ? read.State ?? throw new InvalidDataException($"{run.Option("--state")} is not a state document")
+            var state = run.Option("--state") is { } source
+                ? StateDocument.Parse(File.ReadAllText(source)).State ?? throw new InvalidDataException($"{source} is not a state document")
                 : AppState.CreateDefault();
             var view = run.Option("--show") is not { } show ? state.Views[0] : state.Views.First(v => string.Equals(v.Name, show, StringComparison.OrdinalIgnoreCase));
             state.ShowViewOn(DisplayId, view.Id);
@@ -75,10 +74,6 @@ internal static class StartupCheck
                 : null;
 
             desk = StandInDesktop.Create(Scope, state);
-
-            // [S-15026] As at a start: the cards the load shared out are laid once the surface's metrics settle (the host's
-            // own surface, adopted by Add, is where what waits for settled metrics runs).
-            desk.Host.LayShareOuts(parsed?.SharedOut ?? []);
             var bounds = StandInDesktop.OffScreen(3840, 2160);
             var surface = desk.Add(StandInDesktop.Display(DisplayId, bounds, taskbar: 72));
             if (run.Has("--twice"))

@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "Yanayi inda kake, a kalmomi",
-  "weatherNow.condition.label": "Yanayin sararin sama",
-  "weatherNow.sky.desc": "Sararin samaniya inda kake, a alama ɗaya",
-  "weatherNow.sky.label": "Alamar yanayi",
+  "styles.weatherNow.largeIcon": "Babban gunki",
+  "styles.weatherNow.minimal": "Mafi sauƙi",
+  "styles.weatherNow.standard": "Na yau da kullum",
+  "widget.weatherCurrent.label": "Taƙaitaccen yanayi",
+  "widgetsA.catalog.weather.description": "Yanayi a inda kake",
   "widgetsC.weather.feelsShort": "Yana ji {temperature}"
 }

@@ -39,8 +39,8 @@ public sealed class ConfigSnapshotTests
     [Fact]
     public void S13a_EditingTheLiveWeatherConfigDoesNotReachTheSnapshot()
     {
-        var live = new WeatherConditionConfig { Latitude = 47.42, Longitude = 9.37 };
-        var snapshot = (WeatherConditionConfig)live.Clone();
+        var live = new WeatherNowConfig { Latitude = 47.42, Longitude = 9.37 };
+        var snapshot = (WeatherNowConfig)live.Clone();
 
         live.Latitude = 51.5;
         live.Longitude = -0.12;

@@ -60,7 +60,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("date"), new WidgetId("weatherCondition"), new WidgetId("stock"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRate"), new WidgetId("header"),
+        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("date"), new WidgetId("weatherNow"), new WidgetId("stock"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRate"), new WidgetId("header"),
             new WidgetId("music"), new WidgetId("musicArtist"), new WidgetId("musicAlbum"), new WidgetId("musicElapsed"), new WidgetId("musicDuration"), new WidgetId("rainOutlook")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
@@ -77,10 +77,15 @@ public sealed partial class ContentAlignmentTests
         Assert.True(ContentAlignment.Applies(Widget(new WidgetId("moon"), (int)MoonStyle.Disc)));
         Assert.False(ContentAlignment.Applies(Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth)));
 
-        // Every face of the clock and the air quality has one block to place.
+        // Every face of the clock, the weather and the air quality has one block to place.
         foreach (var style in Enum.GetValues<ClockStyle>())
         {
             Assert.True(ContentAlignment.Applies(Widget(new WidgetId("clock"), (int)style)), $"{style}");
+        }
+
+        foreach (var style in Enum.GetValues<WeatherNowStyle>())
+        {
+            Assert.True(ContentAlignment.Applies(Widget(new WidgetId("weatherNow"), (int)style)), $"{style}");
         }
 
         Assert.True(ContentAlignment.Applies(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
@@ -92,7 +97,9 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("clock"))));
         // [S-15810] The moon's readout centres, as the clock's: it fills one axis and shares the other alike (WR-3).
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("weatherCondition"))));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Standard)));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.LargeIcon)));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Minimal)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Number)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("quote"))));
@@ -101,13 +108,13 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("exchangeRate"))));
 
         // A new widget stores no choice: its default follows its style.
-        Assert.Null(Widget(new WidgetId("weatherCondition")).Align);
+        Assert.Null(Widget(new WidgetId("weatherNow")).Align);
     }
 
     [Fact]
     public void S6583_the_card_draws_the_choice_only_where_the_style_takes_one()
     {
-        var weather = Widget(new WidgetId("weatherCondition"));
+        var weather = Widget(new WidgetId("weatherNow"));
         weather.Align = ContentAlign.Right;
         Assert.Equal(ContentAlign.Right, ContentAlignment.Shown(weather));
 

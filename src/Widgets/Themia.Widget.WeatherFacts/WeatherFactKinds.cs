@@ -86,13 +86,12 @@ internal static class WeatherFactKinds
     /// </summary>
     private static MergeFrom[] Merges(WeatherFactKind fact) => fact switch
     {
-        // [S-15025] The weather summary's temperature: a placed summary's top right, or the whole of its Minimal look.
-        WeatherFactKind.Temperature => [new("temperatureGraph") { Graph = true }, .. WeatherSummary.Temperature],
-        WeatherFactKind.Humidity => [new("humidityGraph") { Graph = true }],
-        WeatherFactKind.Wind => [new("windGraph") { Graph = true }],
-        WeatherFactKind.Precipitation => [new("rainGraph") { Graph = true }],
-        WeatherFactKind.Pressure => [new("pressureGraph") { Graph = true }],
-        WeatherFactKind.Uv => [new("uvGraph") { Graph = true }],
+        WeatherFactKind.Temperature => [new("temperatureGraph")],
+        WeatherFactKind.Humidity => [new("humidityGraph")],
+        WeatherFactKind.Wind => [new("windGraph")],
+        WeatherFactKind.Precipitation => [new("rainGraph")],
+        WeatherFactKind.Pressure => [new("pressureGraph")],
+        WeatherFactKind.Uv => [new("uvGraph")],
         _ => [],
     };
 

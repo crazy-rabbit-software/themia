@@ -19,12 +19,7 @@ public enum LoadOutcome
     Recovered,
 }
 
-public readonly record struct LoadResult(AppState State, LoadOutcome Outcome, string? Detail)
-{
-    /// <summary>[S-15026] The cards the load shared out among several kinds, for their displays to lay (<see cref="ShareOuts"/>).</summary>
-    public IReadOnlyList<ShareOut> SharedOut { get; init; } = [];
-}
-
+public readonly record struct LoadResult(AppState State, LoadOutcome Outcome, string? Detail);
 /// <summary>
 /// Single-writer, atomic persistence for <see cref="AppState"/>.
 /// <para>
@@ -132,7 +127,7 @@ public sealed class AppStateStore : IAsyncDisposable
             Log.Warn(Scope, $"state loaded with {parsed.Repairs.Count} repair(s): {string.Join("; ", parsed.Repairs)}");
         }
 
-        return new LoadResult(state, LoadOutcome.Loaded, parsed.Repairs.Count > 0 ? string.Join("; ", parsed.Repairs) : null) { SharedOut = parsed.SharedOut };
+        return new LoadResult(state, LoadOutcome.Loaded, parsed.Repairs.Count > 0 ? string.Join("; ", parsed.Repairs) : null);
     }
 
 

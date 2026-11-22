@@ -106,16 +106,16 @@ public static class ReadyMadeGroups
     ]) { Starter = 1 });
 
     /// <summary>
-    /// [S-2474] [S-11172] [S-13900] [S-14944] [S-15024] Weather station: the weather summary's three parts, today's high and
-    /// low, the wind, the days ahead and the rain in the next hour (its sentence over its graph), stacked as one panel.
+    /// [S-2474] [S-11172] [S-13900] [S-14944] Weather station: the reading, today's high and low, the wind, the days ahead and
+    /// the rain in the next hour (its sentence over its graph), stacked as one panel.
     /// </summary>
     public static ReadyMadeGroup WeatherStation { get; } = Headed(new("weatherStation", Str.Groups_Recipe_WeatherStation, Str.Groups_Recipe_WeatherStationAbout, Glyphs.Weather, AddFolderId.Weather,
     [
-        .. Summary(0, 300),
-        .. Metrics(SummaryHeight, 300, "weatherHighLow", "weatherWind"),
-        new("weatherForecast", new(0, SummaryHeight + (2 * Row), 300, 150)),
-        new("rainOutlook", new(0, SummaryHeight + 150 + (2 * Row), 300, 52)),
-        new("rainNextHour", new(0, SummaryHeight + 202 + (2 * Row), 300, 92)),
+        new("weatherNow", new(0, 0, 300, 76)),
+        .. Metrics(76, 300, "weatherHighLow", "weatherWind"),
+        new("weatherForecast", new(0, 76 + (2 * Row), 300, 150)),
+        new("rainOutlook", new(0, 226 + (2 * Row), 300, 52)),
+        new("rainNextHour", new(0, 278 + (2 * Row), 300, 92)),
     ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
 
     /// <summary>
@@ -236,20 +236,11 @@ public static class ReadyMadeGroups
         .. Metrics(88, 260, "driveUsed", "driveFree", "driveCapacity", "driveFileSystem"),
     ]));
 
-    /// <summary>
-    /// [S-15024] Weather summary: the summary's three parts as one panel, the sky on the left as tall as the temperature (its
-    /// readout, two rows) over the condition beside it.
-    /// </summary>
-    public static ReadyMadeGroup WeatherSummary { get; } = Headed(new("weatherSummary", Str.Groups_Recipe_WeatherSummary, Str.Groups_Recipe_WeatherSummaryAbout, Glyphs.Weather, AddFolderId.WeatherSummary,
-    [
-        .. Summary(0, 300),
-    ]));
-
-    /// <summary>[S-11172] [S-13900] [S-15024] Weather: the summary's three parts over the facts, the old weather card as atoms (a widget a fact).</summary>
+    /// <summary>[S-11172] [S-13900] Weather: the reading over its facts, the old weather card as atoms (a widget a fact).</summary>
     public static ReadyMadeGroup Weather { get; } = Headed(new("weather", Str.Groups_Recipe_Weather, Str.Groups_Recipe_WeatherAbout, Glyphs.Weather, AddFolderId.Weather,
     [
-        .. Summary(0, 300),
-        .. Metrics(SummaryHeight, 300, "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind"),
+        new("weatherNow", new(0, 0, 240, 76)),
+        .. Metrics(76, 240, "weatherHighLow", "weatherFeelsLike", "weatherHumidity", "weatherWind"),
     ]));
 
     /// <summary>
@@ -425,24 +416,6 @@ public static class ReadyMadeGroups
     private static IEnumerable<ReadyMadeWidget> Metrics(double top, double width, params string[] kinds)
         => kinds.Select((kind, i) => new ReadyMadeWidget(kind, new(0, top + (i * Row), width, Row)));
 
-    /// <summary>[S-15024] The temperature's and the condition's column in the weather summary: a single metric's width.</summary>
-    private const double SummaryColumn = 200;
-
-    /// <summary>[S-15024] The weather summary's height: the temperature's readout (two rows) over the condition's one line.</summary>
-    private static double SummaryHeight => (2 * Row) + TextRules.Sizing(1, lead: false).Natural.Height;
-
-    /// <summary>
-    /// [S-15024] The weather summary's three parts as one block <paramref name="width"/> wide from <paramref name="top"/>: the sky
-    /// on its left, its whole height; the temperature (its readout, two rows) over the condition in the column beside it.
-    /// </summary>
-    private static IEnumerable<ReadyMadeWidget> Summary(double top, double width)
-    {
-        var sky = width - SummaryColumn;
-        yield return new("weatherSky", new(0, top, sky, SummaryHeight));
-        yield return new("weatherTemperature", new(sky, top, SummaryColumn, 2 * Row));
-        yield return new("weatherCondition", new(sky, top + (2 * Row), SummaryColumn, SummaryHeight - (2 * Row)));
-    }
-
     /// <summary>[S-12485] The Header widget's height over a group: the inset, its one line and the header's gap (as a card's header took).</summary>
     public const double HeaderHeight = FamilySpace.Inset + FamilySpace.HeaderLine + FamilySpace.HeaderGap;
 
@@ -460,7 +433,7 @@ public static class ReadyMadeGroups
     }
 
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, WeatherSummary, Weather, WeatherFacts, Sun, Moon, AirQuality, WeatherGraphs, Rain, ExchangeRates, Stocks, Calendar, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, WeatherFacts, Sun, Moon, AirQuality, WeatherGraphs, Rain, ExchangeRates, Stocks, Calendar, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

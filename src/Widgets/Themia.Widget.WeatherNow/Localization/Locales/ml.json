@@ -1,7 +1,8 @@
 {
-  "weatherNow.condition.desc": "നിങ്ങളുള്ള സ്ഥലത്തെ കാലാവസ്ഥ, വാക്കുകളിൽ",
-  "weatherNow.condition.label": "കാലാവസ്ഥാ നില",
-  "weatherNow.sky.desc": "നിങ്ങളുള്ള സ്ഥലത്തെ ആകാശം, ഒരു ഐക്കണിൽ",
-  "weatherNow.sky.label": "കാലാവസ്ഥ ഐക്കൺ",
+  "styles.weatherNow.largeIcon": "വലിയ ഐക്കൺ",
+  "styles.weatherNow.minimal": "ലളിതം",
+  "styles.weatherNow.standard": "സാധാരണ",
+  "widget.weatherCurrent.label": "കാലാവസ്ഥാ സംഗ്രഹം",
+  "widgetsA.catalog.weather.description": "നിങ്ങൾ ഉള്ളിടത്തെ കാലാവസ്ഥ",
   "widgetsC.weather.feelsShort": "അനുഭവപ്പെടുന്നത് {temperature}"
 }
