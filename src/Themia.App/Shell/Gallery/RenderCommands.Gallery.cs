@@ -17,6 +17,7 @@ internal static partial class RenderCommands
 
         // the real-host checks and the benches
         DeskSelectCheck.Command,
+        ForecastEditCheck.Command,
         FirstDragCheck.Command,
         DragBench.Command,
         UiBench.Command,

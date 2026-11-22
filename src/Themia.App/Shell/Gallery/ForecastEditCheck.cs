@@ -1,19 +1,15 @@
 #if DEBUG
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
-using Themia.App.Interop;
-using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
-using Themia.Core.Storage;
+using Themia.Core.Shell;
 using Themia.Sdk;
 using Windows.Foundation;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-15526] [S-13917] Debug only: <c>Themia.exe --forecast-edit-check &lt;out.txt&gt;</c>. A weather forecast's three states
+/// [S-15526] [S-13917] Debug only: <c>Themia.exe --check forecast-edit &lt;out.txt&gt;</c>. A weather forecast's three states
 /// through the app's own wiring: a real <see cref="AppHost"/> over a detached store and a real <see cref="DesktopWindow"/> on
 /// a stand-in display whose view holds a new forecast and a clock. The surface's gestures are called as the cards' presses
 /// call them: on the locked desktop and in edit mode a press on a part picks the forecast; a second click starts its layout
@@ -25,51 +21,27 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static class ForecastEditCheck
 {
-    public const string Flag = "--forecast-edit-check";
     private const string Scope = "forecast-edit-check";
     private const string DisplayId = "forecast-edit-check-display";
 
-    public static bool TryRunFromCommandLine(Application app, string[] args)
+    public static RenderCommand Command { get; } = new(
+        RenderVerb.Check,
+        "forecast-edit",
+        "<out.txt>",
+        """
+        a weather forecast's three states through a real host and surface: locked and edit mode (one widget), its layout
+        editing (parts picked, the bento, a part dragged in and out, the day box), PASS or FAIL, pictures beside the text
+        (<out>.edit.png, .layout.png, .part.png, .added.png, .resized.png, .done.png) [S-15526]
+        """,
+        RunAsync);
+
+    private static async Task<int> RunAsync(RenderRun run)
     {
-        var at = Array.IndexOf(args, Flag);
-        if (at < 0)
-        {
-            return false;
-        }
+        var outPath = run.PathArg(0);
+        var report = new CheckReport(Scope, outPath);
+        StandInDesktop? desk = null;
 
-        if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is null)
-        {
-            Log.Error(Scope, $"usage: {Flag} <out.txt>");
-            app.Exit();
-            return true;
-        }
-
-        _ = RunAsync(app, Path.GetFullPath(args[at + 1]));
-        return true;
-    }
-
-    private static async Task RunAsync(Application app, string outPath)
-    {
-        var lines = new List<string>();
-        var failures = 0;
-        AppHost? host = null;
-        DesktopWindow? surface = null;
-
-        void Say(string line)
-        {
-            Console.WriteLine(line);
-            lines.Add(line);
-        }
-
-        void Check(string what, bool ok, string found)
-        {
-            if (!ok)
-            {
-                failures++;
-            }
-
-            Say($"{(ok ? "ok  " : "FAIL")} {what}: {found}");
-        }
+        void Check(string what, bool ok, string found) => report.Expect(ok, $"{what}: {found}");
 
         Log.AddSink(static record => Console.WriteLine(LogFormat.Record(record)));
         try
@@ -77,7 +49,6 @@ internal static class ForecastEditCheck
             var state = AppState.CreateDefault();
             var view = state.Views[0];
             view.Widgets.Clear();
-            var bounds = new Win32.Rect { Left = -32000, Top = -32000, Right = -32000 + 1920, Bottom = -32000 + 1080 };
             var screen = new ScreenMetrics(1920, 1080);
             var forecast = WidgetInstance.Create(new WidgetId("weatherDays"), new FracRect(0.1, 0.15, 0.2, 0.2));
             ((IPlaced)forecast.Config).UseDeviceLocation = false;
@@ -89,13 +60,12 @@ internal static class ForecastEditCheck
             view.Widgets.Add(clock);
             state.ShowViewOn(DisplayId, view.Id);
 
-            var monitor = new MonitorTarget(DisplayId, IdResolved: true, "forecast-edit-check", bounds, bounds with { Bottom = bounds.Bottom - 48 }, IsPrimary: false);
-            host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-forecast-edit-check", "state.json")), state);
-            surface = new DesktopWindow(host, monitor);
-            host.AdoptSurfaceForCheck(surface);
-            surface.CheckButton = static () => false;
+            desk = StandInDesktop.Create(Scope, state);
+            var host = desk.Host;
+            desk.UseCheckButton(static () => false);
+            var surface = desk.Add(StandInDesktop.Display(DisplayId, StandInDesktop.OffScreen(1920, 1080)));
             host.StartDeskForCheck(start: true);
-            surface.ShowSurface();
+            desk.Show(surface);
 
             // A diagnostic's wait, not a correctness path: the surface lays out and the intro ends.
             await Task.Delay(2500).ConfigureAwait(true);
@@ -128,7 +98,7 @@ internal static class ForecastEditCheck
             async Task Shot(string tag)
             {
                 await Task.Delay(400).ConfigureAwait(true);
-                await RenderPng.SaveAsync(shown.DebugRoot, Path.ChangeExtension(outPath, $".{tag}.png")).ConfigureAwait(true);
+                await RenderHarness.SaveAsync(shown.DebugRoot, Path.ChangeExtension(outPath, $".{tag}.png"), Scope).ConfigureAwait(true);
             }
 
             var parts = Live().Members.ToList();
@@ -236,20 +206,15 @@ internal static class ForecastEditCheck
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the forecast edit check failed", ex);
-            failures++;
-            Say($"forecast-edit-check: failed: {ex}");
+            report.Crash(ex);
         }
         finally
         {
-            host?.StartDeskForCheck(start: false);
-            surface?.CloseSurface();
-            host?.Dispose();
-            Say(failures == 0 ? "forecast-edit-check: PASS" : $"forecast-edit-check: FAIL ({failures})");
-            Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
-            app.Exit();
+            desk?.Host.StartDeskForCheck(start: false);
+            desk?.Dispose();
         }
+
+        return await report.FinishAsync().ConfigureAwait(true);
     }
 
     /// <summary>The widget a press on <paramref name="card"/> stands for on <paramref name="surface"/>.</summary>
