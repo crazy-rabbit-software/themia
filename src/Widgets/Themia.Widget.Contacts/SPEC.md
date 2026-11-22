@@ -24,8 +24,8 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
   else the number), each led by its 32 monogram; **Compact** rows of one line with the one field as
   their value; **Details** one line a person under the column titles, as wide as its columns need
   (24 + 88 a column, at least two) to 720, a new one 420; these three show `Rows` people (1..20,
-  default 5), 220..520 wide for List and Compact, their height the search box where on (with the titles one band of
-  whole cells under the card's inset) and the rows at their optimal; Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more scroll inside them.
+  default 5), 220..520 wide for List and Compact, their height the search field's band where on and the titles' band
+  (each whole cells from the card's top edge, [S-15775]) and the rows at their optimal; Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more scroll inside them.
   **Grid**: cells of 48 monograms over their names, as many a line as the card's width holds (a new one three) and
   `GridRows` lines (1..6, default 2) its natural height, as many lines as its height holds, more scroll inside it;
   its Rows line sets the lines, and the cells a line are the card's alone (owner, 2026-11-20: "Anything that's just
@@ -73,3 +73,15 @@ the menu's email, call and message hand-offs), and the search box under the keyb
   no gap between them: every column the width reaches, the last cut by its right edge (2 at least, no most, the shared rule `ItemSize.Cells`, [S-14816]), the
   lines past the card's foot a scroll away, the last in sight cut by it. A new grid is 330 wide, its lines 80 each. The
   `compact`, `details` and `grid` renders show each layout ([S-14814]). Tests `ContactsPitchTests.S14817_`.
+
+- **[S-15775]** **Nothing stands over the field and the titles** (docs/WIDGET-RULES.md WR-1, WR-4, WR-5): the search
+  field stands in a band on the card's top edge (`ContactsPlan.Bands`: the family's control of 28 in whole grid cells,
+  30 on the default grid; the field at the card's side inset in it), the details table's column titles in a band of
+  whole cells (their Caption line and 8, 30) on the top edge or right under the field's, each title centred in it (the
+  table's head row, an item band edge to edge as a kit table's); the rows start right under the last band and run to
+  the card's foot, the last cut by it. Before, the field stood 12 under the top edge and the details' rows started
+  under the titles' band by the inset's 12 too early, under the titles, and stopped 12 over the foot. Tests
+  `ContactsPlanTests.S11406_S15775_`.
+- **[S-15776]** **The empty, no-account and offline faces are rendered** (WR-10): `none` (an account with no people: the
+  kit's state row "No contacts" in the first row's place over the empty rows), `noAccount` (the card's Set up line over
+  the empty rows) and `offline` (the account's "No network" in the first row's place, the rows kept empty under it).

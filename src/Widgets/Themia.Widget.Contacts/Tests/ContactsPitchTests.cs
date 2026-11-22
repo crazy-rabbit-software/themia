@@ -68,9 +68,9 @@ public sealed class ContactsPitchTests
     [Fact]
     public void S12450_S14810_the_rows_edges_are_whole_pixels_and_the_last_is_cut_by_the_room()
     {
-        // A card 230 tall at 150 %: the room under the search box holds four rows of 40 and part of a fifth.
+        // A card 220 tall at 150 %: the room under the search field's band (30) holds four rows of 40 and part of a fifth.
         var config = new ContactsConfig { Layout = ContactsLayout.List, Lines = 2, Rows = 5, SearchBox = true };
-        var plan = ContactsPlan.Of(new WidgetArea(300, 218), config, 1.5);
+        var plan = ContactsPlan.Of(new WidgetArea(300, 208), config, 1.5);
 
         Assert.Equal(5, plan.Rows);
         Assert.All(Enumerable.Range(0, plan.Rows), i => Assert.Equal(Math.Round(plan.RowAt(i) * 1.5), plan.RowAt(i) * 1.5, 6));

@@ -59,6 +59,18 @@ public static class ContactsPlan
     /// <summary>[S-582] The details table's column titles: one Caption line and the gap under it.</summary>
     public static double HeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
+    /// <summary>
+    /// [S-15775] What stands over the rows from the card's top edge, each a band of whole cells of <paramref name="grid"/>
+    /// touching the next (WR-1: nothing over the first): the search field's band where it shows (<paramref name="field"/>),
+    /// then the details table's column titles.
+    /// </summary>
+    public static double Bands(ContactsConfig config, bool field, ItemGrid grid)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return (field ? ItemSize.Optimal(SearchHeight, grid) : 0)
+            + (config.EffectiveLayout == ContactsLayout.Details ? ItemSize.Optimal(HeaderHeight, grid) : 0);
+    }
+
     /// <summary>[S-11406] The grid's monogram: one size, the cells' line and the card's width follow it.</summary>
     public const double CellIcon = FamilyShape.IconHuge;
 
@@ -84,14 +96,14 @@ public static class ContactsPlan
         var width = Math.Max(0, area.Width);
         var rows = KitSizing.ClampRows(config.Rows);
         var lines = KitSizing.ClampLines(config.Lines, KitSizing.MaxLines);
-        var search = config.SearchBox ? SearchHeight : 0;
+        var over = Bands(config, config.SearchBox, area.Grid(scale));
 
         return config.EffectiveLayout switch
         {
             ContactsLayout.Grid => Cells(area, config),
-            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, FamilyShape.Row1, rows).With(Reach(area, search + HeaderHeight, 1, scale)),
-            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, FamilyShape.Row1, rows).With(Reach(area, search, 1, scale)),
-            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, lines, true, false, 0, FamilyShape.RowHeight(lines), rows).With(Reach(area, search, lines, scale)),
+            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, FamilyShape.Row1, rows).With(Reach(area, over, 1, scale)),
+            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, FamilyShape.Row1, rows).With(Reach(area, over, 1, scale)),
+            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, lines, true, false, 0, FamilyShape.RowHeight(lines), rows).With(Reach(area, over, lines, scale)),
         };
     }
 
@@ -110,19 +122,19 @@ public static class ContactsPlan
             return new ContactsLayoutPlan(ContactsLayout.Grid, ContactsConfig.DefaultGridColumns, ItemSize.Optimal(CellNaturalWidth, grid), 1, false, false, CellIcon, ItemSize.Optimal(CellNaturalHeight, grid), Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid));
         }
 
-        var down = area.Height + (config.SearchBox ? -SearchHeight : FamilySpace.Inset);
+        var down = area.Height + FamilySpace.Inset - Bands(config, config.SearchBox, grid);
         var cells = ItemSize.Cells(area.Width, down, CellNaturalWidth, CellNaturalHeight, grid, 2);
         return new ContactsLayoutPlan(ContactsLayout.Grid, cells.Columns, cells.Across.Pitch, 1, false, false, CellIcon, cells.Down.Pitch, cells.Lines);
     }
 
     /// <summary>
-    /// [S-12807] [S-14810] The rows under <paramref name="over"/> (the search box, the column titles): at their one fixed
-    /// size, touching, from the card's top edge or right under what stands over them (its whole cells, with the card's inset
-    /// over it), as many as the card reaches, the last cut by its foot; one before the box is measured.
+    /// [S-12807] [S-14810] [S-15775] The rows under <paramref name="over"/> (the bands from the card's top edge: the search
+    /// field's, the column titles', <see cref="Bands"/>): at their one fixed size, touching, from the card's top edge or right
+    /// under those bands, as many as the card reaches, the last cut by its foot; one before the box is measured.
     /// </summary>
     private static RowReach Reach(WidgetArea area, double over, int lines, double scale)
         => area.IsMeasured
-            ? ItemSize.Rows(area.Height, lines, area.Grid(scale), over > 0 ? FamilySpace.Inset + over : 0)
+            ? ItemSize.Rows(area.Height, lines, area.Grid(scale), over)
             : ItemSize.Natural(lines, area.Grid(scale));
 
     /// <summary>
@@ -135,13 +147,11 @@ public static class ContactsPlan
     public static WidgetSizing Sizing(ContactsConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var top = FamilySpace.ContentTop + (config.SearchBox ? SearchHeight : 0);
-
         if (config.EffectiveLayout == ContactsLayout.Grid)
         {
-            // [S-14817] The cells alone, touching, from the card's edges (under the search box where it shows).
+            // [S-14817] [S-15775] The cells alone, touching, from the card's edges (under the search field's band where it shows).
             var cells = ItemGrid.Default();
-            var above = config.SearchBox ? top : 0;
+            var above = Bands(config, config.SearchBox, cells);
             double Across(int n) => n * ItemSize.Optimal(CellNaturalWidth, cells);
             double Down(int n) => above + (n * ItemSize.Optimal(CellNaturalHeight, cells));
             var rows = Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid);
@@ -165,16 +175,15 @@ public static class ContactsPlan
     }
 
     /// <summary>
-    /// [S-14810] What stands over the rows (the search box, the column titles, with the card's inset over them: one part of
-    /// whole cells from the card's top edge, as <see cref="Reach"/> lays it) and a row's optimal, on the default grid.
+    /// [S-14810] [S-15775] What stands over the rows (the search field's band, the column titles' band, from the card's top
+    /// edge, as <see cref="Reach"/> lays them) and a row's optimal, on the default grid.
     /// </summary>
     private static (double Over, double Row) Parts(ContactsConfig config)
     {
         var layout = config.EffectiveLayout;
         var grid = ItemGrid.Default();
         var row = layout == ContactsLayout.List ? FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)) : FamilyShape.Row1;
-        var over = (config.SearchBox ? SearchHeight : 0) + (layout == ContactsLayout.Details ? HeaderHeight : 0);
-        return (over > 0 ? ItemSize.Optimal(FamilySpace.Inset + over, grid) : 0, ItemSize.Optimal(row, grid));
+        return (Bands(config, config.SearchBox, grid), ItemSize.Optimal(row, grid));
     }
 
     /// <summary>

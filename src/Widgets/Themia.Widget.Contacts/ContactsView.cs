@@ -58,6 +58,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
     /// <summary>[S-13950] The list's first line, which the line search takes while it is open: the first row's box, its side inset.</summary>
     private readonly Border _searchSlot = new() { Padding = Family.SideInset, VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
+
+    /// <summary>[S-15775] The field's band: on the card's top edge (WR-1), whole cells tall, the field in it at the card's side inset.</summary>
+    private readonly Border _fieldSlot = new() { Padding = Family.SideInset, VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed, Margin = ListEdge.Margin };
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
     private readonly KitStatePanel _state;
@@ -117,12 +120,11 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
         // [S-584] [S-13606] The one search box (Windows' own, with the system's caret, clear button, magnifier and
-        // menu): the card's inset either side, [S-12834] the family's control of 28 grown to end on a grid line, the list
-        // right under it (WR-1, WR-5). [S-13607] Its keys are every search's: Enter and Down select the first person
-        // shown, Escape empties it.
-        _search.Visibility = Visibility.Collapsed;
-        _search.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0);
-        SetRow(_search, 0);
+        // menu): the card's inset either side, [S-15775] in its band on the card's top edge, the family's control of 28 grown
+        // to whole cells, the list right under it (WR-1, WR-5). [S-13607] Its keys are every search's: Enter and Down select
+        // the first person shown, Escape empties it.
+        _fieldSlot.Child = _search;
+        SetRow(_fieldSlot, 0);
 
         // [S-13950] The same box at the line's size, in the list's first line; Escape on it empty folds it away.
         _lineSearch.LetGo = CloseLineSearch;
@@ -145,6 +147,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _columnHeader.Visibility = Visibility.Collapsed;
         SetRow(_columnHeader, 1);
 
+        // [S-12831] [S-15775] The titles' band is the table's head row, as a kit table's: from the card's left edge to its right.
+        ItemMark.Mark(_columnHeader);
+
         _scroll = new ScrollViewer
         {
             HorizontalScrollMode = ScrollMode.Disabled,
@@ -157,7 +162,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         SetRow(_state, 0);
         SetRowSpan(_state, 3);
 
-        Children.Add(_search);
+        Children.Add(_fieldSlot);
         Children.Add(_columnHeader);
         Children.Add(_scroll);
         Children.Add(_searchSlot);
@@ -489,7 +494,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         var ready = Ready;
         var showSearch = FieldShown(ready);
         var line = LineOpen(ready);
-        _search.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
+        _fieldSlot.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
         _searchSlot.Visibility = line ? Visibility.Visible : Visibility.Collapsed;
         SetRow(_state, 0);
         SetRowSpan(_state, 3);
@@ -514,7 +519,15 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         var plan = ContactsPlan.Of(_area, _config, XamlRoot?.RasterizationScale ?? 1);
-        _search.Fill(LineRules.Under(_area.Grid(XamlRoot?.RasterizationScale ?? 1), FamilySpace.Inset, FamilyShape.Button));
+        var grid = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var band = ItemSize.Optimal(ContactsPlan.SearchHeight, grid);
+        _fieldSlot.Height = band;
+        _search.Fill(band);
+
+        // [S-15775] The bands over the rows (the field's, the column titles') stand from the card's top edge; the first of
+        // what stands there takes the card's edge (ListEdge), what follows it stands right under it.
+        var over = ContactsPlan.Bands(_config, showSearch, grid);
+        _searchSlot.Margin = over > 0 ? default : ListEdge.Margin;
         if (line)
         {
             // [S-13950] The line takes the list's first line (a row, or a line of cells): the rows under it keep their places,
@@ -533,7 +546,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         // [S-14810] The rows the card reaches under what stands over them (the field, the line), the last cut by its foot.
         if (_area.IsMeasured && plan.Layout != ContactsLayout.Grid && plan.Pitch > 0)
         {
-            var top = showSearch ? FamilySpace.Inset + LineRules.Under(_area.Grid(XamlRoot?.RasterizationScale ?? 1), FamilySpace.Inset, FamilyShape.Button) : line ? plan.Pitch : 0;
+            var top = over + (line ? plan.Pitch : 0);
             var reaches = (int)Math.Ceiling((_area.Height + FamilySpace.Inset - top - LayoutMath.Tolerance) / plan.Pitch);
             plan = plan with { Rows = Math.Max(0, Math.Min(plan.Rows, reaches)) };
         }
@@ -571,7 +584,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         // [S-12815] Without a field over it the list stands on the card's top edge; [S-13950] under the line, one line
         // down: each row stands where it stood.
-        _scroll.Margin = showSearch ? default : ListEdge.Margin with { Top = ListEdge.Margin.Top + (line ? plan.Top : 0) };
+        _scroll.Margin = over > 0 ? new Thickness(0, line ? plan.Top : 0, 0, 0) : ListEdge.Margin with { Top = ListEdge.Margin.Top + (line ? plan.Top : 0) };
 
         if (_selectedId is { } id)
         {
@@ -667,17 +680,18 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         _columnHeader.Visibility = Visibility.Visible;
 
-        // [S-14500] The titles' band ends on a grid line under what stands over it (the card's inset, the search field),
-        // so the rows under it start on one and the card is exactly its bands and its whole rows.
+        // [S-14500] [S-15775] The titles' band is whole cells, on the card's top edge or right under the field's band, so
+        // the rows under it start on a grid line and the card is exactly its bands and its whole rows (WR-1); each title
+        // centred in it as a row's text in its row.
         var pitch = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
-        var over = FamilySpace.Inset + (_search.Visibility == Visibility.Visible ? LineRules.Under(pitch, FamilySpace.Inset, FamilyShape.Button) : 0);
-        _columnHeader.Height = LineRules.Under(pitch, over, ContactsPlan.HeaderHeight);
+        _columnHeader.Height = ItemSize.Optimal(ContactsPlan.HeaderHeight, pitch);
+        _columnHeader.Margin = _fieldSlot.Visibility == Visibility.Visible ? default : ListEdge.Margin;
         _columnHeader.Padding = Family.SideInset;
         AddColumns(_columnHeader, columns);
         for (var c = 0; c < columns.Count; c++)
         {
             var title = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, ContactRules.ColumnTitle(columns[c], Strings.Current));
-            title.VerticalAlignment = VerticalAlignment.Top;
+            title.VerticalAlignment = VerticalAlignment.Center;
             SetColumn(title, c);
             _columnHeader.Children.Add(title);
         }
