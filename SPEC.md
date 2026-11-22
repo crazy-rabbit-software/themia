@@ -444,15 +444,15 @@ Sections, grouped by area (file order below; search for the heading).
   window under a surface" wherever they came to lie in the z-order, and the running app re-anchored against
   them until its repairs ran out. Tests `ZOrderPolicyTests.S15871_`.
 - **[S-15872]** **A render or check takes no part in the desktop's z-order.** A start that is a render
-  ([S-68], `StartRequest.Render`: every render flag, the shipped `--add-pictures-check` too) tells the
+  ([S-68], `StartRequest.Render`: every render flag, the shipped `--check add-pictures` too) tells the
   controller to stand aside before anything is built (`DesktopZOrder.StandAside`, from `App.OnLaunched`):
   no WinEvent hook, no surface subclassed or anchored, no check. A check that builds the real host
-  (`--startup-check`, `--desk-select-check`, `--displays-check`, the benches) used to run the whole controller
+  (`--check startup`, `--check desk-select`, `--check displays`, the benches) used to run the whole controller
   beside the user's running copy: both anchored their surfaces directly above the desktop window, each read
   the other's as "a window under a surface", and they answered each other's writes until both ran out of
   repairs (the user's log, 2026-11-22: "16 z-order repairs since the last user action were all undone;
   another program may be fighting for the same place" at 16:26:36 and 16:27:14, with no key pressed, while
-  another session's `--startup-check` ran); during Show Desktop both lifted, for the same place.
+  another session's `--check startup` ran); during Show Desktop both lifted, for the same place.
 - **[S-15873]** **Show Desktop does not see a render's window** (the owner, 2026-11-22: "the hidden themia ui
   tests appear when doing win+d"). A render draws in an ordinary window parked at -32000,-32000 and shown
   without activation. Show Desktop minimised it with the applications, and bringing them back restored it
@@ -475,7 +475,7 @@ Sections, grouped by area (file order below; search for the heading).
   for 24 to 28 ms with three windows to restore; with five more windows open the log took [S-34d]'s warning
   72 ms after the second Win+D. After, over Win+D and back four times, Win+M and Win+Shift+M, and
   `Shell.Application.ToggleDesktop` twice (what Karpo's Show desktop control calls), once alone and once with
-  an edit bar render and a `--startup-check --twice` running: the surfaces under the desktop window 0 ms
+  an edit bar render and a `--check startup --twice` running: the surfaces under the desktop window 0 ms
   (they stay directly above it while the windows come back, the restored ones over them), a surface over a
   bar of Karpo's 0 ms, Karpo's bars under the desktop window 0 ms at the 10 ms reading (Karpo §714 puts them
   back within one), the render's and the check's windows never minimised and never on a display, the check
