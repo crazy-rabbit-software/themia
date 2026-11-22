@@ -115,6 +115,8 @@ internal static class RenderSettle
         var rule = new RenderSettling(ceiling ?? RenderSettling.DefaultCeiling);
         Look? last = null;
         (PixelBox? Box, string? Size, double Scale)? moved = null;
+        Survey? survey = null;
+        var changed = 0;
         try
         {
             while (true)
@@ -122,7 +124,13 @@ internal static class RenderSettle
                 root.UpdateLayout();
                 await FramesAsync(1).ConfigureAwait(true);
 
-                var pending = Pending(root, busy);
+                if (survey is null || changed >= RewalkAfter)
+                {
+                    survey = SurveyOf(root);
+                    changed = 0;
+                }
+
+                var pending = Pending(busy, survey);
                 bool? same = null;
                 if (pending.Count == 0 && !looks)
                 {
@@ -131,17 +139,18 @@ internal static class RenderSettle
                 }
                 else if (pending.Count == 0)
                 {
-                    var now = await LookAsync(root, last).ConfigureAwait(true);
+                    var now = await LookAsync(root, last, survey).ConfigureAwait(true);
                     // A page that draws nothing (no size, not in a window) cannot change in a picture: quiet.
                     same = now is not { } look ? true
                         : last is not { } before ? null
                         : RenderSettling.SamePicture(before.Pixels, look.Pixels, look.Width, 4, look.Masks);
-                    if (same == false && last is { } was && now is { } changed)
+                    if (same == false && last is { } was && now is { } other)
                     {
                         // Where it moved, kept for the ceiling's line (the two looks' buffers are drawn into again).
-                        moved = was.Width != changed.Width || was.Pixels.Length != changed.Pixels.Length
-                            ? (null, $"{was.Width}x{was.Pixels.Length / Math.Max(1, was.Width * 4)} px, then {changed.Width}x{changed.Pixels.Length / Math.Max(1, changed.Width * 4)} px", changed.Scale)
-                            : (RenderSettling.ChangedBox(was.Pixels, changed.Pixels, changed.Width, 4), null, changed.Scale);
+                        changed++;
+                        moved = was.Width != other.Width || was.Pixels.Length != other.Pixels.Length
+                            ? (null, $"{was.Width}x{was.Pixels.Length / Math.Max(1, was.Width * 4)} px, then {other.Width}x{other.Pixels.Length / Math.Max(1, other.Width * 4)} px", other.Scale)
+                            : (RenderSettling.ChangedBox(was.Pixels, other.Pixels, other.Width, 4), null, other.Scale);
                     }
 
                     last = now;
@@ -154,7 +163,14 @@ internal static class RenderSettle
                 switch (rule.Next(clock.Elapsed, pending.Count, same))
                 {
                     case SettleStep.Settled:
-                        return true;
+                        // Once more over the whole page: a bitmap that started loading since the last walk is waited for.
+                        survey = SurveyOf(root);
+                        if (survey.Images.TrueForAll(image => image.Done.IsCompleted))
+                        {
+                            return true;
+                        }
+
+                        break;
                     case SettleStep.CeilingHit:
                         var line = RenderSettling.CeilingLine(what, rule.Ceiling, pending.Select(p => p.What), pending.Count == 0 ? Moving(root, moved) : null);
                         Log.Warn(Scope, line);
@@ -365,7 +381,7 @@ internal static class RenderSettle
     /// One look at <paramref name="root"/>: its pixels (BGRA) drawn small into one of two buffers kept for the run (never the
     /// one <paramref name="last"/> holds), their width, its scale and the boxes masked; null when it draws nothing.
     /// </summary>
-    private static async Task<Look?> LookAsync(UIElement root, Look? last)
+    private static async Task<Look?> LookAsync(UIElement root, Look? last, Survey survey)
     {
         if (Nothing(root))
         {
@@ -411,7 +427,7 @@ internal static class RenderSettle
 
             pixels.CopyTo(0, buffer, 0, length);
             var scale = bitmap.PixelWidth / page.ActualWidth;
-            return new Look(buffer, length, bitmap.PixelWidth, scale, Masks(root, scale));
+            return new Look(buffer, length, bitmap.PixelWidth, scale, Masks(root, scale, survey));
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.Runtime.InteropServices.COMException)
         {
@@ -433,20 +449,49 @@ internal static class RenderSettle
     private static byte[]? _bufferB;
 
     /// <summary>
-    /// [S-15901] What under <paramref name="root"/> turns forever on purpose, in its pixels: an indeterminate ring (its box
-    /// and a ring's size round it) or bar (its box), and the caret of a focused text box (a few DIPs round it: it fades in and out for as long as it has focus).
+    /// [S-15901] What the survey found turning forever on purpose, in the look's pixels: an indeterminate ring (its box and
+    /// a ring's size round it) or bar (its box), and the caret of a focused text box (a few DIPs round it: it fades in and
+    /// out for as long as it has focus).
     /// </summary>
-    private static List<PixelBox> Masks(UIElement root, double scale)
+    private static List<PixelBox> Masks(UIElement root, double scale, Survey survey)
     {
-        var masks = new List<PixelBox>();
-        void Mask(FrameworkElement part, Windows.Foundation.Rect local)
+        var masks = new List<PixelBox>(survey.Turning.Count);
+        foreach (var (part, local) in survey.Turning)
         {
-            var box = part.TransformToVisual(root).TransformBounds(local);
+            if (part.XamlRoot is null)
+            {
+                continue;
+            }
+
+            var box = part.TransformToVisual(root).TransformBounds(local(part));
             masks.Add(new PixelBox(
                 (int)Math.Floor(box.X * scale) - 1,
                 (int)Math.Floor(box.Y * scale) - 1,
                 (int)Math.Ceiling(box.Width * scale) + 3,
                 (int)Math.Ceiling(box.Height * scale) + 3));
+        }
+
+        return masks;
+    }
+
+    /// <summary>The looks that changed after which the page is walked again (a ring or a caret that came since).</summary>
+    private const int RewalkAfter = 8;
+
+    /// <summary>
+    /// One walk of the page's visual tree: the bitmaps still loading under it and what turns forever on purpose. A walk
+    /// makes a managed wrapper of every element it passes, so a settle walks seldom: as it starts, after
+    /// <see cref="RewalkAfter"/> looks that changed, and once more before it calls the page settled.
+    /// </summary>
+    private static Survey SurveyOf(UIElement root)
+    {
+        var survey = new Survey([], []);
+        var seen = new HashSet<BitmapImage>(ReferenceEqualityComparer.Instance);
+        void Image(BitmapImage? image)
+        {
+            if (image is not null && seen.Add(image) && Loading(image) is { } loading)
+            {
+                survey.Images.Add(($"an image ({image.UriSource})", loading));
+            }
         }
 
         Walk(root, element =>
@@ -455,21 +500,39 @@ internal static class RenderSettle
             {
                 case ProgressRing { IsActive: true, IsIndeterminate: true, Visibility: Visibility.Visible, ActualWidth: > 0, ActualHeight: > 0 } ring:
                     // Its animation is drawn beyond its box (seen: a whole ring's width to the side): a ring's size round it.
-                    Mask(ring, new Windows.Foundation.Rect(-ring.ActualWidth, -ring.ActualHeight, 3 * ring.ActualWidth, 3 * ring.ActualHeight));
+                    survey.Turning.Add((ring, static r => new Windows.Foundation.Rect(-r.ActualWidth, -r.ActualHeight, 3 * r.ActualWidth, 3 * r.ActualHeight)));
                     return false;
                 case ProgressBar { IsIndeterminate: true, Visibility: Visibility.Visible, ActualWidth: > 0, ActualHeight: > 0 } bar:
-                    Mask(bar, new Windows.Foundation.Rect(0, 0, bar.ActualWidth, bar.ActualHeight));
+                    survey.Turning.Add((bar, static b => new Windows.Foundation.Rect(0, 0, b.ActualWidth, b.ActualHeight)));
                     return false;
                 case TextBox { FocusState: not FocusState.Unfocused, ActualWidth: > 0, ActualHeight: > 0 } box:
-                    Mask(box, Caret(box));
+                    survey.Turning.Add((box, static b => Caret((TextBox)b)));
+                    return true;
+                case Image { Source: BitmapImage source }:
+                    Image(source);
+                    return true;
+                case Border { Background: ImageBrush { ImageSource: BitmapImage brushed } }:
+                    Image(brushed);
+                    return true;
+                case Panel { Background: ImageBrush { ImageSource: BitmapImage brushed } }:
+                    Image(brushed);
+                    return true;
+                case Control { Background: ImageBrush { ImageSource: BitmapImage brushed } }:
+                    Image(brushed);
+                    return true;
+                case Shape { Fill: ImageBrush { ImageSource: BitmapImage brushed } }:
+                    Image(brushed);
                     return true;
                 default:
                     return true;
             }
         });
 
-        return masks;
+        return survey;
     }
+
+    /// <summary>One walk's findings: the bitmaps loading, and what turns forever with the box it turns in.</summary>
+    private sealed record Survey(List<(string What, Task Done)> Images, List<(FrameworkElement Part, Func<FrameworkElement, Windows.Foundation.Rect> Local)> Turning);
 
     /// <summary>Where <paramref name="box"/>'s caret stands, a few DIPs wide; its whole box when the text has no place for it yet.</summary>
     private static Windows.Foundation.Rect Caret(TextBox box)
@@ -491,13 +554,16 @@ internal static class RenderSettle
         return new Windows.Foundation.Rect(0, 0, box.ActualWidth, box.ActualHeight);
     }
 
-    /// <summary>What under <paramref name="root"/> is still loading, each with the task that ends when it does (none: polled).</summary>
-    private static List<(string What, Task? Done)> Pending(UIElement root, Func<string?>? busy)
+    /// <summary>What is still loading: the render's tracked work, what <paramref name="busy"/> names (polled: no task) and the survey's bitmaps.</summary>
+    private static List<(string What, Task? Done)> Pending(Func<string?>? busy, Survey survey)
     {
         var pending = new List<(string, Task?)>();
         lock (Work)
         {
-            pending.AddRange(Work.Select(w => ("the page's own load (an icon, a picture, a recording's answer)", (Task?)w)));
+            foreach (var work in Work)
+            {
+                pending.Add(("the page's own load (an icon, a picture, a recording's answer)", work));
+            }
         }
 
         if (busy?.Invoke() is { } reason)
@@ -505,19 +571,13 @@ internal static class RenderSettle
             pending.Add((reason, null));
         }
 
-        var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        Walk(root, element =>
+        foreach (var (what, done) in survey.Images)
         {
-            foreach (var image in Images(element))
+            if (!done.IsCompleted)
             {
-                if (seen.Add(image) && Loading(image) is { } loading)
-                {
-                    pending.Add(($"an image ({image.UriSource})", loading));
-                }
+                pending.Add((what, done));
             }
-
-            return true;
-        });
+        }
 
         return pending;
     }
@@ -534,29 +594,6 @@ internal static class RenderSettle
         for (var i = 0; i < count; i++)
         {
             Walk(VisualTreeHelper.GetChild(element, i), visit);
-        }
-    }
-
-    /// <summary>The bitmaps <paramref name="element"/> draws: an image's source, an image brush's.</summary>
-    private static IEnumerable<BitmapImage> Images(DependencyObject element)
-    {
-        if (element is Image { Source: BitmapImage source })
-        {
-            yield return source;
-        }
-
-        var brush = element switch
-        {
-            Panel panel => panel.Background,
-            Border border => border.Background,
-            Control control => control.Background,
-            Shape shape => shape.Fill,
-            _ => null,
-        };
-
-        if (brush is ImageBrush { ImageSource: BitmapImage brushed })
-        {
-            yield return brushed;
         }
     }
 
