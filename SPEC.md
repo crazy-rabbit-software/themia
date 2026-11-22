@@ -10819,6 +10819,19 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   (no other card as painted there, inside the work area), the smaller arrangement first, the corner nearest the card's
   first; when no growth is free, last, the smaller arrangement moves to the free cells nearest the card. Tests
   `ShareOutsTests.S15027_` (Core), `WeatherNowSplitTests.S15027_` (the owner's two cards and their neighbours).
+- **[S-16230]** **The parts of a widget that is back fold into it in place** (owner, 2026-11-22: "basically reset them to
+  what they were a few days ago"; "before 19th. but the single metric widgets stay"). A kind split into parts 19-22 Nov
+  and restored states the part kinds it takes back (`MergeFrom.Fold`); the load's first pass (`KindFolds`, before
+  [S-15022]'s replacement) folds a placed part of a removed kind into it. **Touching** (`MergeFold.Touching`: the
+  now-playing texts and buttons into the track `music`, the elapsed time and the length into `musicProgress`): every group
+  of touching parts and cards of the kind (an edge shared, a corner alone is no touch) that holds a part becomes one card
+  of the kind at the union of their boxes: the group's first card of the kind in the drawing order keeps its id, settings
+  and look, else its first part becomes the kind with its settings; the rest go. A card of the kind no part touches is
+  left alone, and a part touching a card of another kind (the bar under the buttons) is not that card's. **Under**
+  (`MergeFold.Under`: a calendar's header into the calendar): each card of the kind standing right under the part (its
+  top on the part's foot, sharing a stretch of it) grows up over the part's height, its own width kept; a part with none
+  under it becomes the kind in its own box. The card is then painted fitted to its kind's sizing ([S-2438]). One logged
+  line a fold. Tests `KindMergesTests.S16230_` (Core).
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,

@@ -123,4 +123,107 @@ public sealed class KindMergesTests
         Assert.Equal(("weatherWind", "Line", 48), ((string)config["kind"]!, (string)config["trend"]!, (int)config["span"]!));
         Assert.Null(config["hours"]);
     }
+
+    /// <summary>[S-16230] A track that is back and the parts it was split into: texts and buttons fold into it where they touch.</summary>
+    private static readonly WidgetDescriptor[] Back =
+    [
+        Kind("track", new MergeFrom("artist") { Fold = MergeFold.Touching }, new MergeFrom("button") { Fold = MergeFold.Touching }),
+        Kind("progress", new MergeFrom("elapsed") { Fold = MergeFold.Touching }),
+        Kind("month", new MergeFrom("monthHeader") { Fold = MergeFold.Under }),
+        Kind("cover"),
+    ];
+
+    private static JsonObject Placed(params (string Id, string Kind, double X, double Y, double W, double H)[] widgets)
+    {
+        var placed = new JsonArray();
+        foreach (var (id, kind, x, y, w, h) in widgets)
+        {
+            placed.Add(new JsonObject { ["id"] = id, ["x"] = x, ["y"] = y, ["w"] = w, ["h"] = h, ["config"] = new JsonObject { ["kind"] = kind, ["hideWhenIdle"] = "never" } });
+        }
+
+        return new JsonObject { ["views"] = new JsonArray(new JsonObject { ["name"] = "Main", ["widgets"] = placed }) };
+    }
+
+    private static (string, string, double, double, double, double) Row(JsonNode? w)
+        => ((string)w!["id"]!, (string)w["config"]!["kind"]!, Math.Round((double)w["x"]!, 6), Math.Round((double)w["y"]!, 6), Math.Round((double)w["w"]!, 6), Math.Round((double)w["h"]!, 6));
+
+    [Fact]
+    public void S16230_touching_parts_fold_into_the_card_they_touch_at_the_union_of_their_boxes()
+    {
+        // The owner's desktop of 2026-11-22: a cover, the title over the artist, three buttons right of them; the
+        // progress's bar and its length under all of them (touching the buttons, but a part of another widget).
+        var document = Placed(
+            ("c", "cover", 0.10, 0.20, 0.03, 0.05),
+            ("t", "track", 0.13, 0.20, 0.10, 0.02),
+            ("p", "progress", 0.10, 0.25, 0.15, 0.02),
+            ("a", "artist", 0.13, 0.22, 0.10, 0.03),
+            ("b1", "button", 0.23, 0.20, 0.01, 0.05),
+            ("b2", "button", 0.24, 0.20, 0.01, 0.05),
+            ("e", "elapsed", 0.25, 0.25, 0.02, 0.02),
+            ("x", "track", 0.80, 0.80, 0.10, 0.02));
+
+        var notes = KindMerges.Replace(document, Back);
+
+        Assert.Equal(
+        [
+            ("c", "cover", 0.10, 0.20, 0.03, 0.05),
+            ("t", "track", 0.13, 0.20, 0.12, 0.05),
+            ("p", "progress", 0.10, 0.25, 0.17, 0.02),
+            ("x", "track", 0.80, 0.80, 0.10, 0.02),
+        ], Widgets(document).Select(Row));
+        Assert.All(Widgets(document), w => Assert.Equal("never", (string)w!["config"]!["hideWhenIdle"]!));
+        Assert.Equal(
+        [
+            "folded artist 'a', button 'b1', button 'b2' in view 'Main' into the widget track 't' over their boxes",
+            "folded elapsed 'e' in view 'Main' into the widget progress 'p' over their boxes",
+        ], notes);
+    }
+
+    [Fact]
+    public void S16230_parts_with_no_card_of_their_kind_become_one_where_the_first_stood()
+    {
+        var document = Placed(("b1", "button", 0.5, 0.5, 0.01, 0.05), ("a", "artist", 0.4, 0.5, 0.1, 0.03), ("b2", "button", 0.7, 0.5, 0.01, 0.05));
+
+        KindMerges.Replace(document, Back);
+
+        // b1 and a touch: one track over both, at b1's place in the drawing order; b2 stands alone and becomes a track.
+        Assert.Equal([("b1", "track", 0.4, 0.5, 0.11, 0.05), ("b2", "track", 0.7, 0.5, 0.01, 0.05)], Widgets(document).Select(Row));
+    }
+
+    [Fact]
+    public void S16230_a_header_folds_into_every_card_right_under_it_and_alone_becomes_one()
+    {
+        var document = Placed(
+            ("h", "monthHeader", 0.30, 0.03, 0.24, 0.03),
+            ("m1", "month", 0.30, 0.06, 0.12, 0.15),
+            ("m2", "month", 0.42, 0.06, 0.12, 0.15),
+            ("m3", "month", 0.60, 0.06, 0.12, 0.15),
+            ("h2", "monthHeader", 0.80, 0.50, 0.10, 0.03));
+
+        var notes = KindMerges.Replace(document, Back);
+
+        Assert.Equal(
+        [
+            ("m1", "month", 0.30, 0.03, 0.12, 0.18),
+            ("m2", "month", 0.42, 0.03, 0.12, 0.18),
+            ("m3", "month", 0.60, 0.06, 0.12, 0.15),
+            ("h2", "month", 0.80, 0.50, 0.10, 0.03),
+        ], Widgets(document).Select(Row));
+        Assert.Equal(
+        [
+            "folded monthHeader 'h' in view 'Main' into the month under it: 'm1', 'm2'",
+            "folded monthHeader 'h2' in view 'Main' into the widget month in its own box",
+        ], notes);
+    }
+
+    [Fact]
+    public void S16230_a_part_whose_kind_is_still_in_the_catalog_never_folds()
+    {
+        var document = Placed(("t", "track", 0.1, 0.1, 0.1, 0.02), ("a", "artist", 0.1, 0.12, 0.1, 0.02));
+
+        var notes = KindMerges.Replace(document, [.. Back, Kind("artist")]);
+
+        Assert.Empty(notes);
+        Assert.Equal(2, Widgets(document).Count);
+    }
 }

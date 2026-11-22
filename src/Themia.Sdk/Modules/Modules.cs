@@ -57,6 +57,22 @@ public sealed record MergeFrom(string Kind)
 
     /// <summary>[S-15022] Where in the removed card's rect this kind stands when several stand in for it; null: the whole rect.</summary>
     public MergeShare? Share { get; init; }
+
+    /// <summary>
+    /// [S-16230] The removed kind was a part of this one, which is back: a placed one folds into it in place (the load's
+    /// <c>KindFolds</c>), never replaced one for one. Null: it is replaced.
+    /// </summary>
+    public MergeFold? Fold { get; init; }
+}
+
+/// <summary>[S-16230] How a placed part of a removed kind folds back into the widget it was split from.</summary>
+public enum MergeFold
+{
+    /// <summary>With the parts and cards of the kind it touches: one card at the union of their boxes, once per group.</summary>
+    Touching,
+
+    /// <summary>Into each card of the kind right under it, which grows up over it; with none, it becomes the kind in its box.</summary>
+    Under,
 }
 
 /// <summary>[S-15022] A share of a removed card's rect, as fractions of its width and height from its top-left corner.</summary>

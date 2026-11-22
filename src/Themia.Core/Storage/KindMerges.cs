@@ -38,8 +38,9 @@ public static class KindMerges
     /// </summary>
     internal static List<string> Replace(JsonNode? document, IReadOnlyList<WidgetDescriptor> widgets, List<ShareOut>? sharedOut = null)
     {
-        var notes = new List<string>();
-        var merges = widgets.SelectMany(w => w.Merges.Select(m => (Into: w.Id.Value, From: m)))
+        // [S-16230] The parts of a widget that is back fold into it first.
+        var notes = KindFolds.Fold(document, widgets);
+        var merges = widgets.SelectMany(w => w.Merges.Where(m => m.Fold is null).Select(m => (Into: w.Id.Value, From: m)))
             .Where(m => !widgets.Any(w => string.Equals(w.Id.Value, m.From.Kind, StringComparison.Ordinal)))
             .GroupBy(m => m.From.Kind, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
