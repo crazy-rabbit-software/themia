@@ -1,3 +1,4 @@
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -8,19 +9,18 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
-using Windows.Foundation;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1465] [S-15104] The now-playing progress bar, which is also the seek bar: click to jump, drag to scrub, let go to
-/// commit. It is a bar atom (owner, 2026-11-21: "a scaling progress bar that also fills up to the universal spacing
-/// given"): its rail fills its card's box less the universal spacing (<see cref="AtomSpace.Pad"/>) on every side, as
-/// long as that room and as thick, its ends round; its value fills the rail from the start. The whole card is its
-/// press area, edge to edge.
+/// [S-1465] The now-playing progress bar, which is also the seek bar: click to jump, drag to scrub,
+/// let go to commit — the original's [S-15]/[S-16].
 /// <para>
-/// The fill moves by its clip and the thumb by a render transform, so the once-a-second advance never costs a layout
-/// pass. The pointer is captured by the bar itself while scrubbing, which keeps the drag inside the widget.
+/// A thin track and fill rather than a stock <c>Slider</c>: the slider's 32px template and its value
+/// tooltip are a settings control, and this has to sit as a 4px line under a title at every size.
+/// The fill and the thumb move by render transforms, so the once-a-second advance never costs a
+/// layout pass. The pointer is captured by the bar itself while scrubbing, which keeps the drag
+/// inside the widget.
 /// </para>
 /// <para>
 /// [S-13060] A drag from the thumb scrubs; a press on the track elsewhere waits (<see cref="TrackPress"/>), as a slider's
@@ -28,21 +28,27 @@ namespace Themia.App.Widgets;
 /// move (and nothing was sought); still held after that (nothing took it), the bar scrubs from there.
 /// </para>
 /// <para>
-/// [S-12816] The pointer never moves the layout: the thumb (a thin bar's alone, <see cref="SeekBarFace.ThumbShown"/>) is
-/// faded in and out (opacity, never visibility), drawn over the spacing, and nothing else changes under the pointer.
+/// [S-12816] The pointer never moves the layout: the thumb is faded in and out (opacity, never visibility, so a hover
+/// costs no layout pass), and the bar states its ink (<see cref="IInked"/>), its track's whether or not the thumb
+/// shows. A block that scales by its parts' ink (<see cref="ReadingFit"/>) read the shown thumb as ink reaching the
+/// bar's edges and drew the times smaller while the pointer stayed on the bar.
 /// </para>
 /// </summary>
-public sealed partial class MusicSeekBar : Grid
+public sealed partial class MusicSeekBar : Grid, IInked
 {
-    /// <summary>The thumb shown while hovering or scrubbing a thin seekable track.</summary>
+    /// <summary>The visible line.</summary>
+    private const double TrackHeight = SeekBarFace.Track;
+
+    /// <summary>The thumb shown while hovering or scrubbing a seekable track.</summary>
     private const double ThumbSize = SeekBarFace.Thumb;
 
-    private readonly Grid _rail = new() { Margin = new Thickness(AtomSpace.Pad) };
+    /// <summary>The height the bar takes: the thumb's, so the thumb is never clipped and is easy to hit.</summary>
+    public const double BarHeight = SeekBarFace.Height;
+
     private readonly Border _track = new();
-    private readonly Grid _filled = new();
     private readonly Border _fill = new();
-    private readonly RectangleGeometry _clip = new();
     private readonly Ellipse _thumb = new();
+    private readonly ScaleTransform _fillScale = new() { ScaleX = 0 };
     private readonly TranslateTransform _thumbShift = new();
 
     private double _value;
@@ -55,17 +61,25 @@ public sealed partial class MusicSeekBar : Grid
 
     public MusicSeekBar()
     {
+        Height = BarHeight;
+
         // [S-1113] A media timeline: left to right in every language, as Windows' own players keep it.
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
-        Background = Family.Brush(ColourRole.Clear); // hit-testable across its whole card
+        Background = Family.Brush(ColourRole.Clear); // hit-testable across its whole height
+
+        _track.Height = TrackHeight;
+        _track.CornerRadius = Family.Round(TrackHeight, TrackHeight);
+        _track.VerticalAlignment = VerticalAlignment.Center;
 
         // [S-6716] A seek bar is a slider: its rail the Track role, its value the accent, as the Controls block's.
         _track.Background = Family.Brush(ColourRole.Track);
+
+        _fill.Height = TrackHeight;
+        _fill.CornerRadius = Family.Round(TrackHeight, TrackHeight);
+        _fill.VerticalAlignment = VerticalAlignment.Center;
         _fill.Background = Family.Brush(ColourRole.Accent);
-        _filled.Clip = _clip;
-        _filled.Children.Add(_fill);
-        _rail.Children.Add(_track);
-        _rail.Children.Add(_filled);
+        _fill.RenderTransform = _fillScale;
+        _fill.RenderTransformOrigin = new Windows.Foundation.Point(0, 0.5);
 
         _thumb.Width = ThumbSize;
         _thumb.Height = ThumbSize;
@@ -77,7 +91,8 @@ public sealed partial class MusicSeekBar : Grid
         _thumb.RenderTransform = _thumbShift;
         _thumb.Opacity = 0;
 
-        Children.Add(_rail);
+        Children.Add(_track);
+        Children.Add(_fill);
         Children.Add(_thumb);
 
         // [S-13060] The card's move arms on a press on the track; a drag from the thumb is the bar's.
@@ -90,10 +105,10 @@ public sealed partial class MusicSeekBar : Grid
         PointerCaptureLost += OnCaptureLost;
         PointerEntered += (_, _) => Point(true);
         PointerExited += (_, _) => Point(false);
-        SizeChanged += (_, _) => Shape();
+        SizeChanged += (_, _) => Draw(_value);
     }
 
-    /// <summary>A fraction (0..1) while scrubbing: an elapsed label may follow the pointer.</summary>
+    /// <summary>A fraction (0..1) while scrubbing: the elapsed label follows the pointer.</summary>
     public event Action<double>? Scrubbing;
 
     /// <summary>The fraction let go at: seek there.</summary>
@@ -134,46 +149,30 @@ public sealed partial class MusicSeekBar : Grid
 
     public bool IsScrubbing => _scrubbing;
 
-    /// <summary>The pointer over the bar, or gone from it (a render's hovered state stands in for it): the thumb shows over a thin seekable track.</summary>
+    /// <summary>[S-12816] Its track's ink, the thumb shown or not: what a block it stands in is scaled and placed by.</summary>
+    public LineInk Ink => SeekBarFace.Ink;
+
+    /// <summary>A bar keeps its height in a stack.</summary>
+    public bool IsRow => false;
+
+    /// <summary>The pointer over the bar, or gone from it (a render's hovered state stands in for it): the thumb shows over a seekable track.</summary>
     public void Point(bool over)
     {
         _hovering = over;
         ShowThumb();
     }
 
-    /// <summary>[S-15104] The bar's room in the box it has now.</summary>
-    private AtomRoom Room => AtomRules.Room(ActualWidth, ActualHeight);
-
-    /// <summary>[S-15104] The rail's round ends for the room it has now, then the value in it.</summary>
-    private void Shape()
-    {
-        var radius = new CornerRadius(AtomRules.BarRadius(Room));
-        _track.CornerRadius = radius;
-        _fill.CornerRadius = radius;
-        Draw(_scrubbing ? double.NaN : _value);
-        ShowThumb();
-    }
-
     private void Draw(double fraction)
     {
-        if (!double.IsFinite(fraction))
-        {
-            return;
-        }
-
-        var room = Room;
-        var filled = AtomRules.BarFill(fraction, room.Width);
-        _clip.Rect = new Rect(0, 0, filled, room.Height);
-        _thumbShift.X = Math.Clamp(AtomSpace.Pad + filled - (ThumbSize / 2), 0, Math.Max(0, ActualWidth - ThumbSize));
+        var width = ActualWidth;
+        _fillScale.ScaleX = fraction;
+        _thumbShift.X = Math.Clamp((fraction * width) - (ThumbSize / 2), 0, Math.Max(0, width - ThumbSize));
     }
 
     private void ShowThumb()
-        => _thumb.Opacity = SeekBarFace.ThumbShown(_canSeek, _hovering, _scrubbing, Room.Height) ? 1 : 0;
+        => _thumb.Opacity = SeekBarFace.ThumbShown(_canSeek, _hovering, _scrubbing) ? 1 : 0;
 
-    /// <summary>The fraction of the rail at <paramref name="x"/> of the bar's box.</summary>
-    private double FractionAt(double x) => MusicRules.ScrubFraction(x - AtomSpace.Pad, Room.Width);
-
-    private double FractionAt(PointerRoutedEventArgs e) => FractionAt(e.GetCurrentPoint(this).Position.X);
+    private double FractionAt(PointerRoutedEventArgs e) => MusicRules.ScrubFraction(e.GetCurrentPoint(this).Position.X, ActualWidth);
 
     private void OnPressed(object sender, PointerRoutedEventArgs e)
     {
@@ -246,7 +245,7 @@ public sealed partial class MusicSeekBar : Grid
             var (x, _) = _press.At;
             _ = _press.Release();
             ReleasePointerCapture(e.Pointer);
-            var at = FractionAt(x);
+            var at = MusicRules.ScrubFraction(x, ActualWidth);
             Draw(at);
             Committed?.Invoke(at);
             e.Handled = true;

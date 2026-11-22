@@ -68,8 +68,7 @@ public sealed class WidgetGalleryPlacementTests
         Assert.NotEmpty(parts);
         Assert.DoesNotContain(kinds, k => parts.Contains(k.Kind));
 
-        // A family's parts are seen whole instead: the now-playing texts and buttons in their groups.
-        Assert.DoesNotContain(kinds, k => k.Kind.Value is "musicPlayPause" or "musicElapsed" or "music");
+        // The ready-made groups are pieces of their own.
         Assert.Contains("nowPlaying", groups);
 
         // Start is no category: it only shows again what is at home elsewhere.

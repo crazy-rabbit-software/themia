@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "Απόκρυψη σε αδράνεια",
   "music.hideWhenIdle.never": "Ποτέ",
+  "widgetsA.catalog.music.description": "Ό,τι παίζουν τα Windows",
+  "widgetsA.catalog.music.label": "Παίζει τώρα",
   "widgetsB.music.next": "Επόμενο",
   "widgetsB.music.pause": "Παύση",
   "widgetsB.music.play": "Αναπαραγωγή",

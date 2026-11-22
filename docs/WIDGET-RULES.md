@@ -76,23 +76,12 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   that it shows because not all of the chars have the same width." (SPEC [S-14319]; the gap check judges a held reading
   by its template, `holds`.)
 
-- **WR-16 Atoms: one universal spacing, content fills it.** 2026-11-21, of the small widgets that make up a group
-  (asked for the now playing group first: "for now just for the now playing group"): "the spacing inside the atoms
-  should be universal and the same for all the widgets (also buttons and text), that way it should look good in the
-  composition."; "the texts should be aligneable, left right center, left should be the default."; "there should be
-  proper text overflow handling"; "the text should rather overflow to the left than to shrink and not fill the height up
-  to the spacing."; "the text should grow in height to fill up to the universal spacing."; "left and right borders
-  should also apply the universal spacing"; "track progress should be split into three widgets too, two text based
-  widgets and a scaling progress bar that also fills up to the universal spacing given"; "the art cover should also get
-  a spacing now, also the universal spacing." Asked the same day: which part of a too-long text stays, "Start stays, end
-  cut"; how the cut looks, "Ellipsis"; what fills a transport button, "Glyph only"; the lead glyphs of the title, the
-  artist and the album, "Drop them". Of the first build, which kept descenders inside the spacing lines: "the text feels
-  as if it has too much space at the bottom. its because of letters like y for example that take up space further
-  down. i dont know if there is anything that we can do about that?"; shown three fits, chose "C: capitals fill"
-  (capitals touch the top spacing line, the line sits on its baseline at the bottom one, descenders hang into the
-  spacing). Also: "the text should update when scrubbing, this can be done with the shared global state."; "all the
-  now playing widgets should have the option to be hidden when noting plays. in edit mode they should appear normally
-  though". (SPEC ATOMS, [S-15100]..[S-15107].)
+- **WR-16** *(Retired 2026-11-22.)* Atoms on one universal spacing, asked for the now playing group alone ("for now
+  just for the now playing group"). The owner reset it: "actually they should not all have a shared base. i think it
+  makes more sense for them to keep their individuality. basically reset them to what they were a few days ago";
+  asked which point, "before 19th. but the single metric widgets stay". The now playing widgets keep their own layout
+  again, judged by WR-1..WR-15. Still in force from that day: "all the now playing widgets should have the option to be
+  hidden when noting plays. in edit mode they should appear normally though".
 
 ## Content
 
@@ -118,9 +107,8 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
 
 ## Exemptions granted by the owner
 
-- **Pictures and video.** A kind whose face is a picture or a video filling the card edge to edge (gallery, video)
-  meets WR-1..WR-4 by that picture. The cover art is an atom since 2026-11-21 (WR-16: "the art cover should also get a
-  spacing now, also the universal spacing"): its picture stands in the universal spacing.
+- **Pictures and video.** A kind whose face is a picture or a video filling the card edge to edge (gallery, video,
+  cover art) meets WR-1..WR-4 by that picture.
 - **Tiles stand centred.** 2026-11-19, asked whether a quick toggle's or power button's icon and name may stay
   centred in the tile: "Centred is fine". The bands over and under a tile's face are alike; nothing else of WR-1..WR-4
   is relaxed.

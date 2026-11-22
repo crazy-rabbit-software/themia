@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "پنهان کردن در حالت بیکار",
   "music.hideWhenIdle.never": "هرگز",
+  "widgetsA.catalog.music.description": "هر چه Windows در حال پخش است",
+  "widgetsA.catalog.music.label": "در حال پخش",
   "widgetsB.music.next": "بعدی",
   "widgetsB.music.pause": "توقف",
   "widgetsB.music.play": "پخش",

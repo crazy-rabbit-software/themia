@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "निष्क्रिय असताना लपवा",
   "music.hideWhenIdle.never": "कधीही नाही",
+  "widgetsA.catalog.music.description": "Windows जे काही वाजवत आहे ते",
+  "widgetsA.catalog.music.label": "आता वाजत आहे",
   "widgetsB.music.next": "पुढील",
   "widgetsB.music.pause": "पॉज",
   "widgetsB.music.play": "प्ले",

@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "నిష్క్రియంగా ఉన్నప్పుడు దాచు",
   "music.hideWhenIdle.never": "ఎప్పుడూ కాదు",
+  "widgetsA.catalog.music.description": "Windows ప్లే చేస్తున్నది ఏదైనా",
+  "widgetsA.catalog.music.label": "ఇప్పుడు ప్లే అవుతోంది",
   "widgetsB.music.next": "తదుపరి",
   "widgetsB.music.pause": "పాజ్",
   "widgetsB.music.play": "ప్లే",

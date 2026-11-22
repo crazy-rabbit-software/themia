@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "ሥራ ሲፈታ ደብቅ",
   "music.hideWhenIdle.never": "በጭራሽ",
+  "widgetsA.catalog.music.description": "Windows የሚያጫውተው ማንኛውም ነገር",
+  "widgetsA.catalog.music.label": "አሁን በመጫወት ላይ",
   "widgetsB.music.next": "ቀጣይ",
   "widgetsB.music.pause": "ለአፍታ አቁም",
   "widgetsB.music.play": "አጫውት",

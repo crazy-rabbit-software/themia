@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "ನಿಷ್ಕ್ರಿಯವಾಗಿದ್ದಾಗ ಮರೆಮಾಡು",
   "music.hideWhenIdle.never": "ಎಂದಿಗೂ ಇಲ್ಲ",
+  "widgetsA.catalog.music.description": "Windows ಏನನ್ನು ಪ್ಲೇ ಮಾಡುತ್ತಿದೆಯೋ ಅದು",
+  "widgetsA.catalog.music.label": "ಈಗ ಪ್ಲೇ ಆಗುತ್ತಿದೆ",
   "widgetsB.music.next": "ಮುಂದಿನದು",
   "widgetsB.music.pause": "ವಿರಾಮ",
   "widgetsB.music.play": "ಪ್ಲೇ ಮಾಡು",

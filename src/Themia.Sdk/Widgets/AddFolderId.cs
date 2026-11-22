@@ -50,6 +50,4 @@ public enum AddFolderId
     SunTimes,
     MoonTimes,
 
-    /// <summary>[S-14920] What Windows is playing, a widget a part, under Music &amp; media.</summary>
-    NowPlaying,
 }

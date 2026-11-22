@@ -17,7 +17,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Fences on the desktop (FENCES); Repeaters (REPEATER, retired); Windows' desktop parity (PARITY); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP, retired); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Single metrics (METRICS); Text widgets (TEXTS); Icon widgets (ICONS); Atoms and the universal spacing (ATOMS); Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
+- **Look and layout.** Rows and the card edge; Single metrics (METRICS); Text widgets (TEXTS); Icon widgets (ICONS); Atoms and the universal spacing (ATOMS, retired); Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, the Desktop icon and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Own desktop icons: drops and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
@@ -7575,13 +7575,8 @@ The message under the pointer (`HoveredMessage`, `MessageLink`, a hover; keyed b
   takes the item layer's hover fill, in place, through the kit list's `Decorate` ([S-11942]). Two mails from one
   sender are two things: neither lights for the other. A store scene can point at one ([S-11909]).
 
-The track being scrubbed (`ScrubbedTrack`, `TrackLink`, a hover; keyed by the track's key, `MusicRules.TrackKey`):
-
-- **[S-11970]** A scrub of a now-playing bar is said on the view's links while it lasts (owner, 2026-11-21: "the text
-  should update when scrubbing, this can be done with the shared global state"): `musicProgress` publishes the track
-  and the position under the pointer on every move of the scrub, and lets go of it when the scrub is committed or
-  abandoned; `musicElapsed` of the same track shows that position instead of the session's. A hover, so it goes with
-  the bar that set it (a view switched away from, a bar removed mid-scrub). A scrub of another track moves nothing.
+- **[S-11970]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* A now-playing bar's scrub said on the view's links (`ScrubbedTrack`) for a separate elapsed
+  time; the progress's own elapsed time follows its scrub again ([S-11330]).
 
 The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKeys.File`, [S-11946]):
 
@@ -7658,7 +7653,6 @@ Topics:
 | `HoveredDrive` | Hover | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` |
 | `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
 | `HoveredMessage` | Hover | `email` | `email` |
-| `ScrubbedTrack` | Hover | `musicProgress` | `musicElapsed` |
 <!-- /view-links:table -->
 
 - **[S-3310]** The screen-time widgets ([S-3320]) share `HoveredApp` and `SelectedApp` by app key
@@ -10530,9 +10524,11 @@ placement they will just be a collection of regular widgets like any others").
   (`inboxAndTasks`: Mail beside Tasks, 300 + 300), and **My day** rebuilt as [S-2474] says. Tests
   `ReadyMadeGroupsTests` (the rules of [S-2472]).
 - **[S-11340]** **Now playing** and **Now playing, large** (owner decision 2026-11-12: the old card's
-  styles come back as groups of its atoms): Now playing is the cover at the side, the title, the artist and the buttons
-  beside it and the progress's line under both; Now playing, large is the cover on top and the texts, the progress and
-  the buttons under it, 240 wide. Their boxes are [S-15107]'s. No header on any of their parts.
+  styles come back as groups of its atoms): Now playing is a Small cover (96) at the side, the track
+  atom (244 × 96) beside it and the progress (340 × 40) under both, 340 × 136, the old 340 × 160 card
+  tighter; Now playing, large is a Large cover (240) on top, the track and the progress under it, 240
+  wide. No header on any of them (the old card started without one, [S-2590]). (Made of the parts 21-22 Nov, [S-14944],
+  [S-15107]; back to the three widgets since the owner's reset of 2026-11-22, [S-16230].)
 - **[S-11341]** **Sound**: the volume (300 × 136, its header on) over the mixer (300 wide, its four
   rows, its header hidden: the first atom carries the header).
 - **[S-11342]** **Quick settings**: Wi-Fi, Bluetooth, Do not disturb and Night light, four Medium tiles
@@ -10819,7 +10815,8 @@ whose face is a line of text is a **text kind** on one base, as every one-readin
 Owning files: `Themia.Sdk/Widgets/Texts.cs` (the pure rules: `TextRules`, `TextShown`, `TextTone`, `TextOpen`,
 `TextOpens`), `Themia.Sdk/Modules/TextKind.cs` (a kind as data), `Themia.Sdk.WinUI/Widgets/TextView.cs` (+ `.Preview.cs`,
 the one face), `Modules/TextModule.cs`, `Widgets/ItemLight.cs` (the one item's light, shared with the metric's face); the
-families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and Rain (`Themia.Widget.RainNextHour`,
+families are their projects: Now playing (`Themia.Widget.Music`, [S-14920], retired 2026-11-22: the track is one
+widget again, [S-11311]) and Rain (`Themia.Widget.RainNextHour`,
 [S-14940]), each a `ThemiaWidgetFamily` ([S-6901]) with its own `SPEC.md`. Tests: `TextRulesTests` (Core), each family's,
 `ReadingFaceFloorTests`, `ReadyMadeGroupsTests`.
 
@@ -10869,10 +10866,9 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   `TextOpens.Weather`, [S-2006]). A text that opens nothing lights nothing.
 - **[S-14936]** Debug renders: every family's own states (sample, idle, dry, stale, failed, ...) and `long`: the sample's
   text six times over, cut with its ellipsis at the card's edge.
-- **[S-14944]** **The groups**: **Now playing** (the cover beside the title over the artist over the three buttons, the
-  progress's line under them), **Now playing, large** (the cover over the title, the artist, the album, the progress and
-  the buttons; both [S-15107]). Each starts with its Header ([S-12485]), its parts touching. *(The Rain group and the Weather
-  station's rain sentence retired 2026-11-22: Rain next hour is one widget again, its [S-5126].)*
+- **[S-14944]** **The groups**: *(Now playing and Now playing, large: retired 2026-11-22, the owner reset the widget to
+  its pre-19-Nov form: "before 19th. but the single metric widgets stay"; they are [S-11340]'s three widgets again. The
+  Rain group and the Weather station's rain sentence retired the same day: Rain next hour is one widget again, its [S-5126].)*
 
 ## Icon widgets (ICONS)
 
@@ -10882,8 +10878,8 @@ every line of text is a text kind (TEXTS) and every one reading a single metric 
 `Themia.Sdk/Widgets/Icons.cs` (the pure rules: `IconRules`, `IconShown`, `IconOpen`, `IconOpens`),
 `Themia.Sdk/Modules/IconKind.cs` (a kind as data), `Themia.Sdk.WinUI/Widgets/IconView.cs` (+ `.Preview.cs`, the one face,
 on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the Icon widget (`Themia.Widget.Icon`,
-[S-15010]) and the now-playing buttons (`Themia.Widget.Music`, [S-14922]); the sky now (`weatherSky`) was one until the
-weather summary was one widget again (2026-11-22, [S-16200]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
+[S-15010]); the now-playing buttons and the sky now (`weatherSky`) were icon kinds until both widgets were one again
+(2026-11-22, [S-16200]). Tests: `IconRulesTests` (Core), each family's, `IconKindsTests` (Modules).
 
 - **[S-15000]** **Its size is a square round its glyph.** An icon kind's card lands at the 40 step's line (52) in the family's inset,
   76 square, a desktop cell's width (`IconRules.Sizing`, `NaturalSide`), resizes freely on both axes from the grid's least widget, 32 (WR-14: a
@@ -10914,13 +10910,12 @@ weather summary was one widget again (2026-11-22, [S-16200]). Tests: `IconRulesT
   Tile block's state line (8 and 16, `WhyLine.Band`), shown where the card's inset box holds the face's least over that band
   and a sentence's room across (`StatusRules.MinSentence`, 96); a smaller card keeps the face alone, why its tooltip. An
   **icon** says it in the Tile block's own state line under its glyph, the block scaled as one (`IconRules.SaysWhy`, the
-  glyph planned on the room over the band, `IconRules.Step`; a 76 square has no room, a 330 by 140 card has): "Nothing
-  playing" under an idle transport button, "Can't reach the service" under a failed sky. A **text** keeps its face
+  glyph planned on the room over the band, `IconRules.Step`; a 76 square has no room, a 330 by 140 card has): "Can't
+  reach the service" under a failed sky. A **text** keeps its face
   ([S-15713]) and says it in a Caption line at the card's foot, at its content alignment, cut with its ellipsis, the block
   filling what is over it (`TextRules.SaysWhy`). A **single metric** says it in its readout's line under "--" (the
   readout's own, [S-12813]); its one row has no room (the tooltip, and [S-15711]). Tests `IconRulesTests.S15710_`,
-  `TextRulesTests.S15710_`; renders `--render widget weatherTemperature --state failed`,
-  `musicPlayPause|musicNext|musicPrevious --state idle`.
+  `TextRulesTests.S15710_`; renders `--render widget weatherTemperature --state failed`.
 - **[S-15711]** **A failure is never quieter than a stale reading**: the status's problem glyph ([S-7042], [S-12813]) shows
   a read's problems whatever its state, so an icon, a text or a single metric left without a reading by a failure (the
   service out of reach, timed out, refused: `FetchState.Look` a problem, `OnlineParts.Failure`) shows the glyph in its
@@ -10980,68 +10975,17 @@ weather summary was one widget again (2026-11-22, [S-16200]). Tests: `IconRulesT
 
 ## Atoms and the universal spacing (ATOMS)
 
-Owner, 2026-11-21: "i want you to think about a proper design system. right now i have many small widgets that make up
-larger groups that do something, e. g. the now playing is a composition of many atoms. in general the compositions just
-look off, the spacing does not look right between the atoms and text overflow and stuff like that is not handled
-properly." / "the spacing inside the atoms should be universal and the same for all the widgets (also buttons and text),
-that way it should look good in the composition." An **atom** is a small widget that is one part of a composition: a
-line of text, a button, a bar, a picture. Every atom is drawn by the same rules, so any arrangement of them lines up.
-Scope (owner: "for now just for the now playing group"): the now-playing family is on it (`Themia.Widget.Music`,
-`MusicCover`, `MusicProgress`); the other text kinds (the rain's sentence) stay on TEXTS until they are moved, and
-`TextView` goes when the last one is. Owning files: `Themia.Sdk/Widgets/Atoms.cs` (the pure rules: `AtomSpace`,
-`AtomRoom`, `AtomRules`), `Themia.Sdk.WinUI/Widgets/AtomText.cs`, `AtomGlyph.cs`, `AtomTextView.cs` (+ `.Preview.cs`),
-`MusicSeekBar.cs` (the bar), `Themia.Sdk/Widgets/SeekBarFace.cs`. Tests: `AtomRulesTests`, `SeekBarFaceTests` (Core), the
-families' own.
+*(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* The now-playing family was its one user: the track, the cover and the progress are three widgets
+again, each with its own layout ([S-11311], [S-11320], [S-11330]), and the shared atom code (`AtomSpace`, `AtomRules`,
+`AtomText`, `AtomTextView`) is gone. WR-16 is retired with it.
 
-- **[S-15100]** **One spacing, every side, every atom** (`AtomSpace.Pad`: 8, on the family's scale). An atom's content
-  stands in its **room**: its card's box less the spacing on the left, the right, the top and the foot
-  (`AtomRules.Room`; owner: "left and right borders should also apply the universal spacing"), and fills it. Two atoms
-  side by side stand their contents 16 apart; every content edge of a composition is on a line 8 inside a card's edge.
-  An atom owns its card's top edge ([S-5700]): the spacing is its own on all four sides. Its item (what lights under
-  the pointer) is still the card edge to edge (WR-3: the spacing is padding inside the item).
-- **[S-15101]** **A text's capitals fill its room's height, and it is cut by its width** (`AtomText`,
-  `AtomRules.FontSize`; owner: "the text should grow in height to fill up to the universal spacing"; "the text should
-  rather overflow ... than to shrink and not fill the height up to the spacing"). One line, set on the size at which
-  the face's capitals and figures (`AtomRules.Capital`) are exactly the room's height, measured (`InkMeter`; the
-  model's proportions, capitals 0.7 and descent 0.24 of the size, without a meter): their top on the room's top, the
-  baseline on the room's foot, so a line is the same size and stands in the same place whatever it says, and a time's
-  figures are as tall as the bar beside them. Descenders hang into the spacing under the line (owner, 2026-11-21, of the
-  first fit, which kept them inside the room: "the text feels as if it has too much space at the bottom. its because
-  of letters like y for example that take up space further down"; shown three fits, chose "C: capitals fill"), never
-  past the card's edge: a text so large that they would is held to the size at which its capitals' top is the room's top
-  and its descenders' foot the card's edge (`AtomRules.Held`: past a room of about 23). The few letters taller than a
-  capital (an "l", an "h") reach a twentieth of the size over the room's top. The width never changes the size. A text
-  longer than the room keeps its start and is cut at the room's end with its ellipsis (owner, asked which part stays:
-  "Start stays, end cut"; asked how the cut looks: "Ellipsis"), its whole text its tooltip. Its first ink (not its
-  advance) stands on the room's start, its last on the room's end when it sits there. A running reading (a time) has
-  tabular figures and stands on its advance less a figure's own side room, so it never moves as it runs (WR-15). No
-  lead glyph (owner, asked: "Drop them"). Nothing changes under the pointer but the item's fill (WR-12).
-- **[S-15102]** **An atom's card is its content in the spacing** (`AtomRules.Side`, `TextSizing`, `GlyphSizing`,
-  `BarSizing`, `PictureSizing`): a new text 30 tall (a room of 14: capitals of 14, a text of about 20; a title, an
-  artist and a time alike, told apart by weight and tone), a new button 40 by 40, a new bar 20 (the family's 4 track),
-  a new picture a square. Every axis is free ([S-12411], [S-14500]): a taller card is a larger text, a thicker bar, a
-  larger glyph; the least is the legibility floor's text (9) in the spacing, a bar of 2, a glyph of 9, a picture the
-  grid's least widget. On the default grid (10) the heights 30, 40 and 50 give texts of about 20, 34 and 44, and 20 a
-  bar of 4.
-- **[S-15103]** **A glyph's ink fills its room** (`AtomGlyph`, `AtomRules.GlyphSize`; owner, asked what fills a button:
-  "Glyph only"): the glyph alone, scaled until its ink (as the meter measures it in its em box) fills the room's height
-  or its width stops it, in the middle of the room. The glyphs of the atoms drawn alike are one **set** (a
-  transport's previous, play, pause, next): all are drawn at the size at which the set's largest ink fills the room, so
-  a row of buttons is one size and a glyph that changes (play to pause) never changes size (WR-12).
-- **[S-15104]** **A bar fills its room** (`MusicSeekBar`; owner: "a scaling progress bar that also fills up to the
-  universal spacing given"): its rail is as long and as thick as the room, its ends round (`AtomRules.BarRadius`), its
-  value filling it from the start (`AtomRules.BarFill`), cut straight where the value ends. The whole card is its press
-  area. A rail thinner than the thumb (12) shows the thumb under the pointer or a scrub, drawn over the spacing and
-  never laid out ([S-12816]); a thicker rail's fill is its own handle (`SeekBarFace.ThumbShown`).
-- **[S-15105]** **A text aligns** (owner: "the texts should be aligneable, left right center, left should be the
-  default"): at the room's start, its middle or its end, by the card's content alignment ([S-6581], [S-6583],
-  `IContentAligned`); the start unless the kind's config says otherwise or the user chose. A glyph stands in the middle.
-- **[S-15107]** **The now-playing groups are compositions of atoms** (`ReadyMadeGroups`, [S-11340]): **Now playing**
-  340 by 130: the cover 100 by 100, beside it the title over the artist (240 by 30 each) over the three buttons (80 by
-  40 each), and under both the progress's line: the elapsed time (60 by 30), the bar (220 by 30, as thick as the times'
-  figures are tall) and the track's length (60 by 30). **Now playing, large** 240 by 430: the cover 240 by 240, the
-  title, the artist and the album (30 each), a thin bar (20), the elapsed time and the track's length under its ends
-  (120 by 30 each) and the buttons (80 by 50 each).
+- **[S-15100]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* One spacing on every side of every atom.
+- **[S-15101]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* A text's capitals filling its room.
+- **[S-15102]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* An atom's card its content in the spacing.
+- **[S-15103]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* A glyph's ink filling its room.
+- **[S-15104]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* A bar filling its room; the seek bar is the progress's thin rail again ([S-1465], [S-12816]).
+- **[S-15105]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* A text aligning in its room.
+- **[S-15107]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* The now-playing groups as compositions of atoms; they are [S-11340]'s again.
 
 ## Weather, sky and money as atoms (ATOMS-SKY)
 

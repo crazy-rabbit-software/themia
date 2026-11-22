@@ -2,6 +2,8 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "music.hideWhenIdle.label": "Sembunyikan semasa melahu",
   "music.hideWhenIdle.never": "Jangan sekali-kali",
+  "widgetsA.catalog.music.description": "Apa sahaja yang dimainkan oleh Windows",
+  "widgetsA.catalog.music.label": "Sedang dimainkan",
   "widgetsB.music.next": "Seterusnya",
   "widgetsB.music.pause": "Jeda",
   "widgetsB.music.play": "Main",

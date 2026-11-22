@@ -301,40 +301,20 @@ public static class ReadyMadeGroups
         new("stockHistory", new(0, 76, 280, 108)),
     ]));
 
-    /// <summary>
-    /// [S-11340] [S-14944] [S-15107] Now playing: the cover at the side, the title over the artist over the three buttons
-    /// beside it, the progress's line under both (the elapsed time, the bar, the track's length), every part an atom on
-    /// the universal spacing.
-    /// </summary>
-    public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.NowPlaying,
+    /// <summary>[S-11340] Now playing: the cover at the side, the track beside it, the progress under both (the old card, tighter).</summary>
+    public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.Media,
     [
-        new("musicCover", new(0, 0, 100, 100)),
-        new("music", new(100, 0, 240, 30)),
-        new("musicArtist", new(100, 30, 240, 30)),
-        new("musicPrevious", new(100, 60, 80, 40)),
-        new("musicPlayPause", new(180, 60, 80, 40)),
-        new("musicNext", new(260, 60, 80, 40)),
-        new("musicElapsed", new(0, 100, 60, 30)),
-        new("musicProgress", new(60, 100, 220, 30)),
-        new("musicDuration", new(280, 100, 60, 30)),
+        new("musicCover", new(0, 0, 96, 96)),
+        new("music", new(96, 0, 244, 96)),
+        new("musicProgress", new(0, 96, 340, 40)),
     ]) { Starter = 4 });
 
-    /// <summary>
-    /// [S-11340] [S-14944] [S-15107] Now playing, large: the cover on top, the title, the artist, the album, a thin bar
-    /// with the elapsed time and the track's length under its ends, and the buttons under them.
-    /// </summary>
-    public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.NowPlaying,
+    /// <summary>[S-11340] Now playing, large: the cover on top, the track and the progress under it.</summary>
+    public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.Media,
     [
         new("musicCover", new(0, 0, 240, 240)),
-        new("music", new(0, 240, 240, 30)),
-        new("musicArtist", new(0, 270, 240, 30)),
-        new("musicAlbum", new(0, 300, 240, 30)),
-        new("musicProgress", new(0, 330, 240, 20)),
-        new("musicElapsed", new(0, 350, 120, 30)),
-        new("musicDuration", new(120, 350, 120, 30)),
-        new("musicPrevious", new(0, 380, 80, 50)),
-        new("musicPlayPause", new(80, 380, 80, 50)),
-        new("musicNext", new(160, 380, 80, 50)),
+        new("music", new(0, 240, 240, 96)),
+        new("musicProgress", new(0, 336, 240, 40)),
     ]), Str.Groups_Recipe_NowPlaying);
 
     /// <summary>[S-11341] Sound: the volume over the mixer, one header (the volume's).</summary>

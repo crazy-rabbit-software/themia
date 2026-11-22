@@ -7,13 +7,13 @@ using Themia.Widget.Music;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-1479] The now-playing parts' options, all on their page ([S-3719]): Appearance ([S-3723]),
-/// then when it hides ([S-1464]); what each shows is its kind ([S-14920]). Nothing about players
+/// [S-1479] Now playing's options, all on its page ([S-3719]): Appearance ([S-3723]),
+/// then when it hides ([S-1464]); what it shows is fixed ([S-11311]). Nothing about players
 /// or accounts: it reads Windows' own media session. It has no settings page.
 /// </summary>
 internal static class MusicMenu
 {
-    public static void Lines(WidgetMenuLines menu, MusicPartConfig config)
+    public static void Lines(WidgetMenuLines menu, MusicConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);

@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "Boştayken gizle",
   "music.hideWhenIdle.never": "Hiçbir zaman",
+  "widgetsA.catalog.music.description": "Windows'un o an çaldığı her şey",
+  "widgetsA.catalog.music.label": "Şimdi çalıyor",
   "widgetsB.music.next": "Sonraki",
   "widgetsB.music.pause": "Duraklat",
   "widgetsB.music.play": "Oynat",

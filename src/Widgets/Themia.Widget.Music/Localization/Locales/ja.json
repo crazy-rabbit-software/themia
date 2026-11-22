@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "再生していないときは非表示",
   "music.hideWhenIdle.never": "常に表示",
+  "widgetsA.catalog.music.description": "Windows で再生中のメディア",
+  "widgetsA.catalog.music.label": "再生中",
   "widgetsB.music.next": "次へ",
   "widgetsB.music.pause": "一時停止",
   "widgetsB.music.play": "再生",

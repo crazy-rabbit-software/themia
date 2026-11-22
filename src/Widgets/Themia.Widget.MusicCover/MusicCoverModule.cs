@@ -33,7 +33,7 @@ public sealed class MusicCoverModule : IWidgetModule
         Glyph = Glyph,
         Sizing = c => MusicCoverFace.Sizing((MusicCoverConfig)c),
         Traits = WidgetTraits.None,
-        Add = new(AddFolderId.NowPlaying, 0, 6),
+        Add = new(AddFolderId.Media, 0, 4),
     };
 
     /// <summary>[S-11320] Its option: when it hides ([S-1464]); how big it is is the card's.</summary>

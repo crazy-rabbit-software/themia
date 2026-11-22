@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "Ocultar cuando esté inactivo",
   "music.hideWhenIdle.never": "Nunca",
+  "widgetsA.catalog.music.description": "Lo que Windows esté reproduciendo",
+  "widgetsA.catalog.music.label": "Reproduciendo",
   "widgetsB.music.next": "Siguiente",
   "widgetsB.music.pause": "Pausar",
   "widgetsB.music.play": "Reproducir",

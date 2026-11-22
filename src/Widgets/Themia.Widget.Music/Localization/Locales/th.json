@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "ซ่อนเมื่อไม่ได้ใช้งาน",
   "music.hideWhenIdle.never": "ไม่ซ่อน",
+  "widgetsA.catalog.music.description": "สิ่งที่ Windows กำลังเล่นอยู่",
+  "widgetsA.catalog.music.label": "กำลังเล่น",
   "widgetsB.music.next": "ถัดไป",
   "widgetsB.music.pause": "หยุดชั่วคราว",
   "widgetsB.music.play": "เล่น",

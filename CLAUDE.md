@@ -214,18 +214,13 @@ config ([S-6901]); its kinds share one add-page family (`AddFolderId`, `AddTree`
 each, the one face `MetricView` (one row at its least, every cell taller too, the face fitting its box by one rule:
 `MetricRules.Look`, the row or the readout over the graph, [S-14700]; the trend None/Arrow/Line, the graph in the chart look
 `IChartLooks` sets, [S-14703]; one item that lights and opens its kind's source, `MetricKind.Opens`, [S-14706]), a
-system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. Every widget whose face is a line of text (a song's
-title) is a **text kind** on one base the same way (SPEC TEXTS, [S-14930]..[S-14936]): `TextKind` data,
+system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. Every widget whose face is a line of text (the user's own
+words, the Elements' `text`) is a **text kind** on one base the same way (SPEC TEXTS, [S-14930]..[S-14936]): `TextKind` data,
 a `TextModule` each, the one face `TextView` (one block scaled as one at the content alignment, its line cut at the card's
 edge, `TextRules`; the item that lights and opens its source, `TextKind.Opens`, `ItemLight`). Every widget whose face is one
-icon (the transport buttons, the Icon widget) is an **icon kind** on one base too (SPEC ICONS, [S-15000]..[S-15006]):
+icon (the Icon widget) is an **icon kind** on one base too (SPEC ICONS, [S-15000]..[S-15006]):
 `IconKind` data, an `IconModule` each, the one face `IconView` (the Tile block's face without words, its glyph filling the inset,
-`IconRules`; it opens its kind's source, `IconKind.Opens`, or presses as a button). A small text, bar or picture that is one
-part of a composition is an **atom** on the universal spacing (SPEC ATOMS, [S-15100]..[S-15107]; WR-16; the now-playing
-family first, owner 2026-11-21): its content stands in its card's box less `AtomSpace.Pad` (8) on every side and fills
-that room (`AtomRules`): a text by its height alone, cut at the room's end with its ellipsis (`AtomText`, the face
-`AtomTextView` over a `TextKind`), a bar (`MusicSeekBar`), a picture; never a spacing, a font size or a fit of its own
-(a glyph that is a widget is an icon kind, never an atom: owner, 2026-11-22). A module builds
+`IconRules`; it opens its kind's source, `IconKind.Opens`, or presses as a button). A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,

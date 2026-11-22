@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "الإخفاء عند الخمول",
   "music.hideWhenIdle.never": "أبدًا",
+  "widgetsA.catalog.music.description": "كل ما يشغّله Windows",
+  "widgetsA.catalog.music.label": "قيد التشغيل",
   "widgetsB.music.next": "التالي",
   "widgetsB.music.pause": "إيقاف مؤقت",
   "widgetsB.music.play": "تشغيل",

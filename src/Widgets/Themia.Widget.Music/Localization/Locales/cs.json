@@ -2,6 +2,8 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "music.hideWhenIdle.label": "Skrýt při nečinnosti",
   "music.hideWhenIdle.never": "Nikdy",
+  "widgetsA.catalog.music.description": "Cokoli Windows právě přehrává",
+  "widgetsA.catalog.music.label": "Právě hraje",
   "widgetsB.music.next": "Další",
   "widgetsB.music.pause": "Pozastavit",
   "widgetsB.music.play": "Přehrát",

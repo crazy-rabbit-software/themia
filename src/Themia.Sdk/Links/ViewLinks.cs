@@ -47,9 +47,6 @@ public enum LinkTopicId
 
     /// <summary>[S-11966] A mail message under the pointer, by its account and the provider's id.</summary>
     HoveredMessage = 11,
-
-    /// <summary>[S-11970] Where a now-playing bar is being scrubbed to in its track, while the scrub lasts.</summary>
-    ScrubbedTrack = 12,
 }
 
 /// <summary>[S-3302] How long a shared value lives.</summary>
@@ -130,12 +127,6 @@ public sealed record DeviceLink(string Address);
 /// </summary>
 public sealed record MessageLink(string Account, string Message);
 
-/// <summary>
-/// [S-11970] A track being scrubbed and where to: the track by its key (<c>MusicRules.TrackKey</c>, so a scrub of one
-/// track never moves the reading of another) and the position under the pointer.
-/// </summary>
-public sealed record TrackLink(string Track, TimeSpan Position);
-
 /// <summary>[S-3311] A run of days, both ends included. Built in order whichever way round the ends are given.</summary>
 public sealed record RangeLink
 {
@@ -179,11 +170,9 @@ public static class LinkTopics
 
     public static readonly LinkTopic<MessageLink> HoveredMessage = new(LinkTopicId.HoveredMessage, LinkLifetime.Hover);
 
-    public static readonly LinkTopic<TrackLink> ScrubbedTrack = new(LinkTopicId.ScrubbedTrack, LinkLifetime.Hover);
-
     /// <summary>Every topic, in its id's order.</summary>
     public static IReadOnlyList<LinkTopic> All { get; } =
-        [HoveredApp, SelectedApp, SelectedDate, VisibleRange, HoveredEvent, HoveredInstant, HoveredDate, HoveredPerson, HoveredFile, HoveredDrive, HoveredDevice, HoveredMessage, ScrubbedTrack];
+        [HoveredApp, SelectedApp, SelectedDate, VisibleRange, HoveredEvent, HoveredInstant, HoveredDate, HoveredPerson, HoveredFile, HoveredDrive, HoveredDevice, HoveredMessage];
 }
 
 /// <summary>

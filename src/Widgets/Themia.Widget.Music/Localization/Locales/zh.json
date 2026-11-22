@@ -1,6 +1,8 @@
 {
   "music.hideWhenIdle.label": "空闲时隐藏",
   "music.hideWhenIdle.never": "从不",
+  "widgetsA.catalog.music.description": "Windows 正在播放的内容",
+  "widgetsA.catalog.music.label": "正在播放",
   "widgetsB.music.next": "下一个",
   "widgetsB.music.pause": "暂停",
   "widgetsB.music.play": "播放",

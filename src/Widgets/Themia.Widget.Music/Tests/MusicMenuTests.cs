@@ -1,6 +1,5 @@
 using Themia.App.Shell.Config;
 using Themia.Core.Model;
-using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
 
@@ -39,17 +38,5 @@ public sealed class MusicMenuTests
         choice[2].Action!();
         Assert.Equal(MusicHideWhenIdle.NotPlaying, config.HideWhenIdle);
         Assert.Equal(1, _saves);
-    }
-
-    [Fact]
-    public void S1479_every_part_of_the_family_offers_when_it_hides_and_nothing_else()
-    {
-        IWidgetModule[] modules = [new MusicArtistModule(), new MusicAlbumModule(), new MusicPreviousModule(), new MusicPlayPauseModule(), new MusicNextModule()];
-        foreach (var module in modules)
-        {
-            var lines = new WidgetMenuLines(() => _saves++);
-            module.MenuLines(lines, module.Descriptor.CreateDefault());
-            Assert.Equal([MusicStr.Music_HideWhenIdle_Label.Text()], lines.Lines.Select(l => l.Text));
-        }
     }
 }

@@ -7,8 +7,7 @@
     "addMenu.moreCount",
     "addMenu.showAll",
     "addMenu.showFewer",
-    "addMenu.overLimit",
-    "addMenu.family.nowPlaying"
+    "addMenu.overLimit"
   ],
   "addMenu.popular": "Popular",
   "addMenu.browse": "Browse",
@@ -35,7 +34,6 @@
   "addMenu.family.driveFacts": "Drive facts",
   "addMenu.family.sunTimes": "Sun times",
   "addMenu.family.moonTimes": "Moon times",
-  "addMenu.family.nowPlaying": "Now playing",
   "addMenu.start": "Start",
   "addMenu.widgets": "Widgets",
   "addMenu.noResults": "No results for “{query}”",

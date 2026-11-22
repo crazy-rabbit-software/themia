@@ -1,43 +1,26 @@
-using Themia.Core.Links;
-using Themia.Core.Widgets;
 using Themia.Core.Model;
 using Xunit;
 
 namespace Themia.Widget.MusicProgress.Tests;
 
-/// <summary>[S-11330] [S-15104] The progress atom: the bar alone, a bar atom; its times are text atoms of the Now playing family.</summary>
+/// <summary>[S-11330] The progress atom: one row in the inset, 200 to 520 wide, its time columns on their widest case.</summary>
 public sealed class MusicProgressTests
 {
     [Fact]
-    public void S11330_the_progress_is_a_bar_atom_a_thin_rail_in_the_spacing_free_on_both_axes()
+    public void S11330_one_caption_row_in_the_inset_one_height_200_to_520_wide()
     {
-        var sizing = new MusicProgressModule().Descriptor.Sizing(new MusicProgressConfig());
-        Assert.Equal(new Themia.Sdk.SizeDip(MusicProgressFace.NaturalWidth, AtomRules.Side(AtomRules.BarInk)), sizing.Natural);
-        Assert.False(sizing.FixedHeight || sizing.FixedWidth);
-        Assert.True(sizing.Min.Height < sizing.Natural.Height);
-        Assert.Equal(8, new MusicProgressModule().Descriptor.Add.Rank);
+        var sizing = MusicProgressFace.Sizing();
+        Assert.Equal(12 + 16 + 12, sizing.Natural.Height);
+        Assert.True(sizing.FixedHeight && !sizing.FixedWidth);
+        Assert.Equal((200d, 340d, 520d), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
 
     [Fact]
-    public void S11331_a_scrub_says_its_track_and_the_position_under_the_pointer_and_nothing_when_abandoned()
+    public void S11330_a_time_column_is_as_wide_as_its_widest_case()
     {
-        var length = TimeSpan.FromSeconds(200);
-        Assert.Equal(new TrackLink("k", TimeSpan.FromSeconds(50)), MusicProgressFace.Scrub("k", 0.25, length));
-        Assert.Equal(new TrackLink("k", length), MusicProgressFace.Scrub("k", 1, length));
-
-        // Abandoned (the bar's -1), or no track: nothing is said.
-        Assert.Null(MusicProgressFace.Scrub("k", -1, length));
-        Assert.Null(MusicProgressFace.Scrub("k", double.NaN, length));
-        Assert.Null(MusicProgressFace.Scrub(null, 0.5, length));
-        Assert.Null(MusicProgressFace.Scrub(string.Empty, 0.5, length));
-    }
-
-    [Fact]
-    public void S11331_the_bar_publishes_its_scrub_and_follows_nothing()
-    {
-        var links = new MusicProgressModule().Descriptor.Links;
-        Assert.Equal([LinkTopicId.ScrubbedTrack], links.Publishes);
-        Assert.Empty(links.Follows);
+        Assert.Equal(MusicProgressFace.TimeWidth("3:42"), MusicProgressFace.TimeWidth("1:11"));
+        Assert.True(MusicProgressFace.TimeWidth("1:03:42") > MusicProgressFace.TimeWidth("3:42"));
+        Assert.Equal(MusicProgressFace.TimeWidth("8:88"), MusicProgressFace.TimeWidth(string.Empty));
     }
 
     [Fact]

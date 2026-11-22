@@ -97,6 +97,7 @@ SIZES = ['330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300
 PICTURES = {
     'gallery': 'a picture fills the card edge to edge',
     'videoStream': 'a video fills the card edge to edge',
+    'musicCover': 'the cover art fills the card edge to edge',
 }
 
 # docs/WIDGET-RULES.md, "Exemptions granted by the owner" (2026-11-19): desktop icons keep Windows' icon cell.

@@ -4,7 +4,7 @@ namespace Themia.Widget.MusicProgress;
 
 /// <summary>
 /// Debug renders only: <c>sample</c> is the progress bar's sample (<see cref="ShowSampleAsync"/>); <c>hovered</c> the
-/// sample with the pointer over its seekable bar, a thin bar's thumb shown ([S-12816]: nothing else changes).
+/// sample with the pointer over its seekable bar, its thumb shown ([S-12816]: the block keeps its scale).
 /// </summary>
 internal sealed partial class MusicProgressView : IWidgetPreviewState
 {
@@ -22,6 +22,9 @@ internal sealed partial class MusicProgressView : IWidgetPreviewState
         {
             _seek.CanSeek = true;
             _seek.Point(true);
+
+            // Any layout pass while the pointer stays (a tick's text, a resize, the card's own) measures the block again.
+            _fit.InvalidateMeasure();
         }
     }
 }
