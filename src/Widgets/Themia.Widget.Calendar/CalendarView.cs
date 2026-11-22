@@ -106,6 +106,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         // [S-569] [S-12481] The period's line: its title, then the problem glyph, the ring, back and forward.
         _line.Margin = Family.SideInset;
         _line.Parts.ButtonsPaired = true; // [S-16232] back and forward give way together
+        _line.Parts.NameGivesWayFirst = true; // [S-16232] the period's name is cut before the arrows go
         _line.Parts.Add(LinePartKind.Problem, _lineProblem);
         _line.Parts.Add(LinePartKind.Busy, _lineBusy);
         _back = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));

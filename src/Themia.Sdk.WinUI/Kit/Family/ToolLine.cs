@@ -335,6 +335,12 @@ public sealed partial class LineParts : StackPanel
     /// <summary>[S-16232] The line's buttons are a pair that means nothing alone (back and forward): they give way together.</summary>
     public bool ButtonsPaired { get; set; }
 
+    /// <summary>
+    /// [S-16232] The line's name is cut with its ellipsis before a button gives way (the calendar's period: "Nov…" and both
+    /// arrows beat "November 2026" with none). The buttons still give way when they alone do not fit.
+    /// </summary>
+    public bool NameGivesWayFirst { get; set; }
+
     /// <summary>Whether any part has something to say now.</summary>
     public bool Any => _parts.Exists(p => !_unwanted.Contains(p.Element));
 
@@ -417,7 +423,7 @@ public sealed partial class LineParts : StackPanel
     {
         // Only the wanted parts are folded: one with nothing to say takes no room and no gap.
         var wanted = _parts.Select(p => !_unwanted.Contains(p.Element)).ToList();
-        var shown = LineRules.Shown(width, nameWidth, [.. _parts.Select((p, i) => new LinePart(p.Kind, wanted[i] ? Measured(p.Element) : 0, ButtonsPaired && p.Kind == LinePartKind.Button))], wanted);
+        var shown = LineRules.Shown(width, NameGivesWayFirst ? 0 : nameWidth, [.. _parts.Select((p, i) => new LinePart(p.Kind, wanted[i] ? Measured(p.Element) : 0, ButtonsPaired && p.Kind == LinePartKind.Button))], wanted);
         var any = false;
         for (var i = 0; i < _parts.Count; i++)
         {

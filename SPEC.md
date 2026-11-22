@@ -1188,7 +1188,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
 - **[S-16232]** **A pair of line buttons gives way together.** Back and forward on a line (the calendar's period line)
   are a pair (`LinePart.Paired`, `LineParts.ButtonsPaired`): on a card too narrow for both, both give way, never one arrow
   alone that pages one way only (found at the calendar's least width, 2026-11-22). Unpaired buttons still give way the last
-  first. Test `FamilyBlockRulesTests.S16232_`.
+  first. The calendar's line also cuts its name with the ellipsis before the pair goes (`LineParts.NameGivesWayFirst`):
+  "Nov…" with both arrows, the arrows giving way only where they alone do not fit. Test `FamilyBlockRulesTests.S16232_`.
 - **[S-2260]** *(Retired by [S-12480]: no header names the widget; the place is the group's Header widget's, [S-12801], [S-9604].)* **A header names the widget; the place or the device trails.** The name is what the
   widget is (its module's name: "Sun", "Moon", "Weather", "Forecast", "Rain next hour", "Air quality",
   "GPU", "GPU details", "CPU details", "Ping", "Ping statistics"); where or which it is about (the place,
