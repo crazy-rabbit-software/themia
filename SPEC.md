@@ -12490,7 +12490,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   the clipboard as Explorer does ([S-1329]; a cut item is faded while the cut is pending); Ctrl+V
   pastes the clipboard's files (or virtual files) into the user's desktop folder through the shell's
   copy or move, landing per [S-5591]. Alt+Enter opens the shell's Properties of the selected desktop
-  items (with an own icon focused, that icon's page instead, [S-5582]; with a widget card focused, its settings, [S-15102]), F5 reads the desktop
+  items (with an own icon focused, that icon's page instead, [S-5582]; with a widget card focused, its settings, [S-15832]), F5 reads the desktop
   again. **The Menu key opens the Windows 11 menu** for the selection ([S-5548], [S-5582]) at the focused item
   (else the background menu); **Shift+F10 opens the shell's classic menu directly**, as Explorer, and so does a
   right-click with Shift held (where the selection has no classic menu, an own icon on no path or a selection
@@ -13598,7 +13598,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   and order: Cut, Copy, Paste, a text's formats (Bold, Italic, Strikethrough, Code, Heading, the bulleted, numbered and
   check lists, Quote: the note's text menu, [S-14772], as Windows' text menus put Bold and Italic after Paste), Rename,
   Share (the folder widget's files, [S-6416]), Duplicate (items and views only, never a widget, [S-1743]),
-  Refresh (a widget's own, [S-15100]), Settings, Delete. Each icon (Explorer's picture, [S-1754]; letters where the icon font has none, the note's "H" and
+  Refresh (a widget's own, [S-15830]), Settings, Delete. Each icon (Explorer's picture, [S-1754]; letters where the icon font has none, the note's "H" and
   "1.", in the text's face) has its label as tooltip
   (with the shortcut, "Copy (Ctrl+C)", [S-1753]) and as its accessible name. A disabled command stays in its
   place, greyed, so the row never shifts. A second entry claiming the same command, a toggle and a
@@ -13612,14 +13612,14 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   doubled), including where moving commands to the row emptied a group.
 - **[S-1743]** A widget card's menu in edit mode: the row is Cut, Copy, Paste (disabled with nothing to paste)
   and Delete, acting on the selection ([S-1592]), with one widget selected whose view offers a Refresh its Refresh before
-  Delete ([S-15100]); no Settings, since a widget's options are its
+  Delete ([S-15830]); no Settings, since a widget's options are its
   properties menu's beside it ([S-6536]); the list is the view's own
   commands, Bring to front / Send to back, and Edit mode, checked ([S-65]). There is no Move:
   dragging and the arrow keys move a widget. There is no
   Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough. It opens where the right-click was
   (the Menu key and Shift+F10: at the selected card) through the surface's menu anchor, as every desktop menu ([S-14321]).
 - **[S-1758]** Outside edit mode the card menu is for using the widget, not arranging it: the widget's icon row
-  (Refresh, Widget settings, Delete, [S-15100]..[S-15103]), the view's other commands (Pause, which folder, [S-1746]),
+  (Refresh, Widget settings, Delete, [S-15830]..[S-15833]), the view's other commands (Pause, which folder, [S-1746]),
   then the desktop's whole background menu ([S-14321]). No Cut, Copy or Paste of widgets and no layering: with nowhere to
   paste a widget outside edit mode they did nothing the user could see (user report 2026-10-17: "I right click and cut a
   widget, nothing happens"). *(Until 2026-11-20 it was the view's own commands, Edit mode and Lock widgets alone, and no
@@ -13633,7 +13633,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   **Refresh widget** beside the desktop's Refresh (`ShellMenus.WidgetLine`; a kit's "Refresh · updated …" keeps its
   words); **Delete widget** / **Delete N widgets** (Explorer's **Delete** while a desktop file is in the selection), its
   key right-aligned, only while Lock widgets is off: what Delete does on the desktop's one selection ([S-14320],
-  `DesktopDelete.Words`), in the icon row since 2026-11-21 ([S-15101]); then the desktop's background menu exactly as
+  `DesktopDelete.Words`), in the icon row since 2026-11-21 ([S-15831]); then the desktop's background menu exactly as
   [S-5548] gives it (`DesktopBackground.Menu` through `AppHost.DesktopMenuLines`, the one builder: View ›, Sort by ›,
   Refresh, Paste and Paste shortcut when the desktop's would show them, Undo …, New ›, Display settings, Personalise,
   Open in Terminal, Edit mode, Lock widgets, Add widget, Show more options = the desktop background's classic menu,
@@ -13651,7 +13651,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   foreground one. Tests `ContextMenuTests.S14321_`, `DesktopDeleteTests.S14321_`; `--menu-png` (`card-desktop-actions`,
   `-3`, `-locked`, `-withfile`, `-glass`, beside `desk-background`). Live pass still needed: the real right-click on a
   widget on the desktop, its look against the background menu's, the keys in it.
-- **[S-15100]** **A widget's menu has Windows' icon row** (owner, 2026-11-21: "add a top row for the right click menus on
+- **[S-15830]** **A widget's menu has Windows' icon row** (owner, 2026-11-21: "add a top row for the right click menus on
   the widgets if it makes sense. for example for the delete button or the refresh button"). The widget-level commands
   that are short, frequent and have a clear picture stand in the row ([S-1740]), in its order **Refresh**, **Widget
   settings**, **Delete**, each with its name as tooltip and accessible name and its key where it has one ("Widget
@@ -13664,24 +13664,24 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   them); **Lock widgets** and **Edit mode** (toggles: an icon cannot show a check, [S-1740]; they are the desktop menu's
   lines); the view's other commands (Pause, Eject, Clear history, which folder: the widget's own words, no common
   picture); the desktop menu's lines, its **Paste** of files included (the row is the widget's: the card menu takes the
-  desktop's lines without their row command). Tests `ContextMenuTests.S15100_`; `--menu-png` `card-desktop-actions`,
+  desktop's lines without their row command). Tests `ContextMenuTests.S15830_`; `--menu-png` `card-desktop-actions`,
   `card-edit-actions`.
-- **[S-15101]** The row's **Delete** is the card menu's Delete outside edit mode ([S-14320], [S-14321]: "Delete widget",
+- **[S-15831]** The row's **Delete** is the card menu's Delete outside edit mode ([S-14320], [S-14321]: "Delete widget",
   "Delete N widgets", Explorer's "Delete" with a desktop file in the selection), what Del does: the same request, the same
   undo step, the shell's own prompt for files. With Lock widgets on there is none; then a row needs Refresh and Widget
   settings both, and **one command left is no row** ([S-1741]): Widget settings is a labelled line and the menu the list
-  alone, never an empty row. Tests `S15101_`; `--menu-png` `card-desktop-locked`, `card-desktop-locked-actions`.
-- **[S-15102]** **Widget settings** (the gear) opens the widget's options from the locked desktop, where before only Edit
+  alone, never an empty row. Tests `S15831_`; `--menu-png` `card-desktop-locked`, `card-desktop-locked-actions`.
+- **[S-15832]** **Widget settings** (the gear) opens the widget's options from the locked desktop, where before only Edit
   mode and a click reached them: edit mode on, the widget selected and the selection's page opened beside it
   ([S-2340], as the Set up button opens it, [S-1862]); with the widget one of several the desktop's selection holds on its
   display, all of those, on the page of several ([S-11754]) (`DesktopWindow.RequestSettingsFor`,
   `AppHost.ShowWidgetSettings`). Alt+Enter on a focused card does the same, as Windows' Properties (an own icon's Alt+Enter
   opens its page, [S-5582]). Not in edit mode's menu: a right-click there selects and the page opens by itself
   ([S-2343]).
-- **[S-15103]** **Several selected, the row holds what acts on all of them**: Widget settings (the page of several) and
+- **[S-15833]** **Several selected, the row holds what acts on all of them**: Widget settings (the page of several) and
   Delete N widgets; the clicked widget's Refresh is its own, so it stays a line among its commands. Outside edit mode
   "several" is the desktop's one selection (icons and cards, `DeskSelectionCount`), in edit mode edit mode's ([S-1592]).
-  Tests `S15103_`; `--menu-png` `card-desktop-3`. The keys in the row are the command bar flyout's own: the arrows move
+  Tests `S15833_`; `--menu-png` `card-desktop-3`. The keys in the row are the command bar flyout's own: the arrows move
   along the row and down into the list, Enter runs, Escape closes, as in every menu with a row ([S-1740]).
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu, a list with no icon row (Paste is its one row command, and one is
@@ -13702,7 +13702,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   ([S-3707]). The menus keep commands the user
   runs while looking at the widget: refresh, pause, open, which folder, the click mode, search.
 - **[S-1747]** Debug: `--menu-png <outDir> [--theme light|dark]` opens the card menu (edit mode, one
-  widget; desktop, three widgets; desktop, a widget with view commands, [S-1758]; the icon row's cases, [S-15100]..[S-15103]:
+  widget; desktop, three widgets; desktop, a widget with view commands, [S-1758]; the icon row's cases, [S-15830]..[S-15833]:
   `card-desktop-one`, `card-desktop-locked-actions`, `card-edit-actions`), the surface menu, two sample item menus, the folder widget's file, Open with,
   folder and background menus (a real view over read-only Windows folders) and the desktop's own menus ([S-5548], [S-5582], `desk-*`:
   a file, a link, a folder, several files, This PC, the Recycle Bin, an own icon on a path, on a web address and on an app layout,

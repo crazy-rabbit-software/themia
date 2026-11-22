@@ -228,7 +228,7 @@ internal sealed partial class AppHost
     }
 
     /// <summary>
-    /// [S-5545] [S-5582] Alt+Enter and the menu's Properties: with an own icon focused, that icon's page; [S-15102] with a
+    /// [S-5545] [S-5582] Alt+Enter and the menu's Properties: with an own icon focused, that icon's page; [S-15832] with a
     /// widget card focused, its settings (its page, or the page of several); else the shell's Properties of the selected
     /// desktop items.
     /// </summary>
@@ -240,7 +240,7 @@ internal sealed partial class AppHost
         }
         else if (DeskIconOf(_desk.Focus) is null && DeskPlace(_desk.Focus) is { } card)
         {
-            // [S-15102] A widget card focused: its settings, as its menu's Widget settings.
+            // [S-15832] A widget card focused: its settings, as its menu's Widget settings.
             card.Surface.RequestSettingsFor(card.Widget);
         }
         else if (DeskIcons(_desk.Selected).Where(icon => !icon.Own).Select(icon => icon.Value).ToList() is { Count: > 0 } items)
@@ -413,11 +413,11 @@ internal sealed partial class AppHost
         RepaintDesk();
     }
 
-    /// <summary>[S-15103] How many things (icons and cards) the desktop's one selection holds now: the card menu's row is for one widget or for all of them.</summary>
+    /// <summary>[S-15833] How many things (icons and cards) the desktop's one selection holds now: the card menu's row is for one widget or for all of them.</summary>
     public int DeskSelectedCount => _desk.Selected.Count;
 
     /// <summary>
-    /// [S-15102] A widget's settings from the locked desktop (the card menu's Widget settings, Alt+Enter on a focused card):
+    /// [S-15832] A widget's settings from the locked desktop (the card menu's Widget settings, Alt+Enter on a focused card):
     /// edit mode on, and the widget selected (its page opens as a new selection's does, [S-2343]); with the widget one of
     /// several the desktop's selection holds on <paramref name="surface"/>, all of those (the page of several, [S-11754]).
     /// </summary>

@@ -586,7 +586,7 @@ internal static partial class DeskSelectCheck
                 var held = names.Where(n => running.DeskSelects(Model(Index(n)))).ToList();
                 var keysNow = ReferenceEquals(host.DesktopKeysSurface, surface);
                 var hasDelete = cardLines.Contains(Str.Shell_Card_DeleteWidget.Text());
-                // [S-15102] Widget settings, locked or not.
+                // [S-15832] Widget settings, locked or not.
                 var hasSettings = cardLines.Contains(Str.Shell_Card_WidgetSettings.Text());
                 var endsWithDesk = deskLines.Count > 0 && cardLines.Count > deskLines.Count && cardLines.Skip(cardLines.Count - deskLines.Count).SequenceEqual(deskLines);
                 var menuOk = held.SequenceEqual(locked ? [] : ["notes"]) && keysNow == emptyKeys && hasDelete != locked && hasSettings && endsWithDesk;

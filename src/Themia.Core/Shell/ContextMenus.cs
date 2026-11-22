@@ -40,18 +40,18 @@ public enum ShellCommand
 
     /// <summary>
     /// [S-14320] [S-14321] Delete on the card menu outside edit mode: what Del does on the desktop's one selection
-    /// (<see cref="Desktop.DesktopDelete"/>); [S-15101] the icon row's Delete.
+    /// (<see cref="Desktop.DesktopDelete"/>); [S-15831] the icon row's Delete.
     /// </summary>
     DeleteOnDesktop,
 
     /// <summary>
-    /// [S-15100] The widget's own Refresh, pulled out of its view's commands (<see cref="WidgetActions"/>) into the icon row:
-    /// only for one widget, whose Refresh it is ([S-15103]); the host supplies its words and what it does.
+    /// [S-15830] The widget's own Refresh, pulled out of its view's commands (<see cref="WidgetActions"/>) into the icon row:
+    /// only for one widget, whose Refresh it is ([S-15833]); the host supplies its words and what it does.
     /// </summary>
     Refresh,
 
     /// <summary>
-    /// [S-15102] The widget's settings outside edit mode: its page (several selected: the page of several, [S-11754]), edit
+    /// [S-15832] The widget's settings outside edit mode: its page (several selected: the page of several, [S-11754]), edit
     /// mode entered for it, as Alt+Enter on a focused card; the icon row's Settings.
     /// </summary>
     WidgetSettings,
@@ -93,7 +93,7 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
 /// <param name="SelectionCount">How many widgets the commands act on ([S-1592]).</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
 /// <param name="WidgetsLocked">[S-12951] Lock widgets is on: its line is checked.</param>
-/// <param name="CanRefresh">[S-15100] The widget's view offers a Refresh now (a line with the refresh glyph among its commands).</param>
+/// <param name="CanRefresh">[S-15830] The widget's view offers a Refresh now (a line with the refresh glyph among its commands).</param>
 public readonly record struct CardMenuFacts(
     bool EditMode,
     bool CanBringToFront,
@@ -115,7 +115,7 @@ public static class ShellMenus
 {
     /// <summary>
     /// [S-1743] A widget card's menu in edit mode (outside it, [S-1758]). The icon row is Cut, Copy, Paste and Delete
-    /// ([S-1740]), and the widget's Refresh before Delete when one widget is selected and its view offers one ([S-15100]);
+    /// ([S-1740]), and the widget's Refresh before Delete when one widget is selected and its view offers one ([S-15830]);
     /// there is no Duplicate, Copy then Paste does that. The list holds the view's own
     /// commands, the layering pair, and entering or leaving edit mode. Nothing on it changes how the
     /// widget looks: that is its page's ([S-1746], [S-6536]), so there is no Settings.
@@ -162,7 +162,7 @@ public static class ShellMenus
     /// those arrange the desktop, and outside edit mode there is nowhere to paste a widget (user report 2026-10-17: "I
     /// right click and cut a widget, nothing happens").
     /// <para>
-    /// [S-15100]..[S-15103] (owner, 2026-11-21: "add a top row for the right click menus on the widgets if it makes sense. for
+    /// [S-15830]..[S-15833] (owner, 2026-11-21: "add a top row for the right click menus on the widgets if it makes sense. for
     /// example for the delete button or the refresh button") The widget's own commands that are short, frequent and have a
     /// clear picture stand in Windows' icon row: its Refresh (one widget only: it is that widget's), Widget settings and
     /// Delete, in the row's order (Refresh, Settings, Delete), each once; the rest of its commands and the desktop's menu are
@@ -190,7 +190,7 @@ public static class ShellMenus
     }
 
     /// <summary>
-    /// [S-15100] [S-15103] Whether the widget's Refresh goes to the row: its view offers one, and the menu is for that widget
+    /// [S-15830] [S-15833] Whether the widget's Refresh goes to the row: its view offers one, and the menu is for that widget
     /// alone. With several selected it stays a line among the widget's own commands, since it refreshes the one clicked, not
     /// all of them (the row holds what acts on the whole selection).
     /// </summary>

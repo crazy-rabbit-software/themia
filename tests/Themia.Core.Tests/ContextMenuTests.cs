@@ -211,7 +211,7 @@ public sealed class ContextMenuTests
         // Owner, 2026-11-20, asked what "extended" holds: "Widget + desktop menu".
         var items = ShellMenus.ForCard(Card(edit: false));
 
-        // [S-15102] Widget settings and [S-15101] Delete stand among the widget's own lines (the row takes them, below).
+        // [S-15832] Widget settings and [S-15831] Delete stand among the widget's own lines (the row takes them, below).
         Assert.Equal(
             [ShellCommand.WidgetActions, ShellCommand.WidgetSettings, ShellCommand.DeleteOnDesktop, ShellCommand.Separator, ShellCommand.DesktopMenu],
             Commands(items));
@@ -262,7 +262,7 @@ public sealed class ContextMenuTests
         Assert.Contains(items, i => i.Command == ShellCommand.BringToFront);
     }
 
-    // ---- [S-15100]..[S-15103] the widget's icon row -------------------------------------------------
+    // ---- [S-15830]..[S-15833] the widget's icon row -------------------------------------------------
 
     private static List<ShellCommand> Row(CardMenuFacts facts)
     {
@@ -277,7 +277,7 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S15100_a_widget_that_refreshes_has_refresh_settings_and_delete_in_its_row()
+    public void S15830_a_widget_that_refreshes_has_refresh_settings_and_delete_in_its_row()
     {
         // Owner, 2026-11-21: "add a top row for the right click menus on the widgets ... for example for the delete button or
         // the refresh button".
@@ -290,7 +290,7 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S15100_the_rows_commands_are_the_row_commands_windows_names_in_its_order()
+    public void S15830_the_rows_commands_are_the_row_commands_windows_names_in_its_order()
     {
         var items = ShellMenus.ForCard(Card(edit: false, refresh: true));
         Assert.Equal(QuickCommand.Refresh, items.Single(i => i.Command == ShellCommand.Refresh).Quick);
@@ -303,14 +303,14 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S15101_a_widget_without_refresh_has_settings_and_delete_in_its_row()
+    public void S15831_a_widget_without_refresh_has_settings_and_delete_in_its_row()
     {
         Assert.Equal([ShellCommand.WidgetSettings, ShellCommand.DeleteOnDesktop], Row(Card(edit: false)));
         Assert.DoesNotContain(ShellCommand.Refresh, Commands(ShellMenus.ForCard(Card(edit: false))));
     }
 
     [Fact]
-    public void S15101_with_lock_widgets_on_the_row_loses_delete_and_one_command_left_is_no_row()
+    public void S15831_with_lock_widgets_on_the_row_loses_delete_and_one_command_left_is_no_row()
     {
         // Refresh and Settings are still two: a row.
         Assert.Equal([ShellCommand.Refresh, ShellCommand.WidgetSettings], Row(Card(edit: false, refresh: true) with { WidgetsLocked = true }));
@@ -322,7 +322,7 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S15103_several_selected_the_row_holds_what_acts_on_all_and_refresh_stays_a_line()
+    public void S15833_several_selected_the_row_holds_what_acts_on_all_and_refresh_stays_a_line()
     {
         // Settings is the page of several, Delete deletes them all; the clicked widget's Refresh is its own, a line among its commands.
         var many = Card(edit: false, count: 3, refresh: true);
@@ -334,7 +334,7 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S15100_in_edit_mode_the_widgets_refresh_joins_cut_copy_paste_and_delete_for_one_widget()
+    public void S15830_in_edit_mode_the_widgets_refresh_joins_cut_copy_paste_and_delete_for_one_widget()
     {
         Assert.Equal(
             [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Refresh, ShellCommand.Delete],

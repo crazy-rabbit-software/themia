@@ -164,13 +164,13 @@ internal interface IWidgetCardHost
     int SelectionCount => 1;
 
     /// <summary>
-    /// [S-15103] Outside edit mode: how many things the card menu acts on, for its row: the desktop's one selection's count
+    /// [S-15833] Outside edit mode: how many things the card menu acts on, for its row: the desktop's one selection's count
     /// (icons and cards) when it holds the card, else 1 (a card Lock widgets holds is in none, [S-12953]).
     /// </summary>
     int DeskSelectionCount(WidgetCard card) => SelectionCount;
 
     /// <summary>
-    /// [S-15102] The card menu's Widget settings (outside edit mode): edit mode entered and the card's page opened, or with
+    /// [S-15832] The card menu's Widget settings (outside edit mode): edit mode entered and the card's page opened, or with
     /// the card one of several selected on the desktop the page of several.
     /// </summary>
     void RequestSettings(WidgetCard card)
@@ -1224,7 +1224,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             EditMode: _host.EditMode,
             CanBringToFront: cards?.CanBringToFront(Model.Id) == true,
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
-            // [S-15103] Outside edit mode what the menu acts on is the desktop's one selection, not edit mode's.
+            // [S-15833] Outside edit mode what the menu acts on is the desktop's one selection, not edit mode's.
             SelectionCount: _host.EditMode ? _host.SelectionCount : _host.DeskSelectionCount(this),
             CanPaste: _host.CanPaste,
             WidgetsLocked: _host.WidgetsLocked,
@@ -1241,7 +1241,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             switch (item.Command)
             {
                 case ShellCommand.Refresh:
-                    // [S-15100] The widget's Refresh in the icon row, its words the tooltip; no key does it (F5 is the desktop's).
+                    // [S-15830] The widget's Refresh in the icon row, its words the tooltip; no key does it (F5 is the desktop's).
                     entries.Add(new ItemMenuEntry(refresh.Glyph, Words(refresh), refresh.Invoke, Quick: item.Quick));
                     refreshInRow = true;
                     continue;
@@ -1253,7 +1253,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                     continue;
 
                 case ShellCommand.WidgetSettings:
-                    // [S-15102] Its page, edit mode entered for it; Alt+Enter on a focused card does the same (Windows' Properties).
+                    // [S-15832] Its page, edit mode entered for it; Alt+Enter on a focused card does the same (Windows' Properties).
                     entries.Add(new ItemMenuEntry(Glyphs.Settings, Str.Shell_Card_WidgetSettings.Text(), () => _host.RequestSettings(this),
                         Quick: item.Quick, Shortcut: KeyChord.Alt(ChordKey.Enter)));
                     continue;
@@ -1267,7 +1267,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                     continue;
 
                 case ShellCommand.DesktopMenu:
-                    // [S-14321] The desktop's background menu whole, as a right-click on empty desktop opens it. [S-15101] Its lines
+                    // [S-14321] The desktop's background menu whole, as a right-click on empty desktop opens it. [S-15831] Its lines
                     // stay the list: the row is the widget's, so the desktop's Paste (of files) is not pulled up beside its Delete.
                     entries.AddRange(_host.DesktopLines(this, at).Select(line => line with { Quick = null }));
                     continue;

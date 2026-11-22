@@ -4,7 +4,7 @@ namespace Themia.Core.Shell;
 /// [S-1740] The commands Windows 11 draws as a row of icons above a context menu's list, in the
 /// order the row shows them. File Explorer's row is Cut, Copy, (Paste), Rename, Share, Delete;
 /// Themia adds Duplicate (views and items, not widgets) and Settings, which its items use as often.
-/// Share is the folder widget's, for files ([S-6416]). [S-15100] Refresh is a widget's own (its view's Refresh, pulled up
+/// Share is the folder widget's, for files ([S-6416]). [S-15830] Refresh is a widget's own (its view's Refresh, pulled up
 /// from its commands on the card menu), before Settings and Delete, as a widget's row reads Refresh, Settings, Delete. [S-14772] A text's menu puts its formats after Paste, as
 /// Windows' text menus put Bold and Italic there: the note's marks and its paragraph's kinds (<see cref="ContextMenuLayout.IsFormat"/>).
 /// </summary>
