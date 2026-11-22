@@ -32,6 +32,10 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   says), so today's line reaches the sides where the width stops it, placed by the widget's alignment ([S-6581],
   centred by default); the family's inset at the sides and the foot, joined or alone
   ([S-12483]).
+- **[S-15700]** **The page's three lines each stand on their own ink** (WR-3, [S-14301]): the weekday, the number and the
+  month are the fit's parts, each placed across by its own ink where the alignment puts it, not the three in one box
+  centred by its widest. A number whose figures ink off their box's middle (the 22nd's "22", 3 DIP right at 900 x 300)
+  stood off centre while its box was centred. The weekday and month still give way together, each in its own box.
 - **[S-10804]** Its picture ([S-11850]) is the sample day ([S-2050]); the Debug state `longest` draws a long
   September Wednesday to see the face hold its widest.
 

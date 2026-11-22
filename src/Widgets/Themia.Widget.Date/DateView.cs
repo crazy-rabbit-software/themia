@@ -28,8 +28,14 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
     private readonly TextBlock _weekday = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly TextBlock _number = Family.Text(FamilyType.Hero68);
     private readonly TextBlock _month = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
-    private readonly StackPanel _face = new();
     private readonly ReadingFit _fit = new() { Margin = default };
+
+    /// <summary>
+    /// [S-15700] The page's weekday and month, each a part of the fit in a box of its own that gives way as a whole: each
+    /// line stands centred on its own ink (a "22" whose figures ink off its box's middle), not the three on the widest box.
+    /// </summary>
+    private readonly Border _weekdayBox;
+    private readonly Border _monthBox;
     private DateConfig _config = new();
     private ContentAlign _align = ContentAlign.Center;
     private WidgetArea _area;
@@ -46,7 +52,9 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
             text.TextWrapping = TextWrapping.NoWrap;
         }
 
-        _fit.Parts.Add(_face);
+        var under = FamilyType.Under(DateLayout.NumberStep).FontSize;
+        _weekdayBox = _fit.GivesWayBox(_weekday, under);
+        _monthBox = _fit.GivesWayBox(_month, under);
         Children.Add(_fit);
         Padding = Family.SideInset with { Bottom = FamilySpace.Inset };
     }
@@ -104,7 +112,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
         // [S-12833] The page's weekday and month give way where the card would draw them under the floor, decided by the fit
         // on the face as it is drawn (today's words, measured), as every block's.
         _fit.Face = BlockFace.Of(DateLayout.PartSizes(_config));
-        _face.Children.Clear();
+        _fit.Parts.Clear();
 
         _fit.Align = _align;
         var text = _align switch
@@ -120,19 +128,20 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
             Family.Step(_number, number);
             Family.Step(_weekday, FamilyType.Under(number));
             Family.Step(_month, FamilyType.Under(number));
-            _fit.GivesWay(_weekday, FamilyType.Under(number).FontSize);
-            _fit.GivesWay(_month, FamilyType.Under(number).FontSize);
             foreach (var part in new[] { _weekday, _number, _month })
             {
                 part.TextAlignment = text;
-                _face.Children.Add(part);
             }
+
+            _fit.Parts.Add(_weekdayBox);
+            _fit.Parts.Add(_number);
+            _fit.Parts.Add(_monthBox);
         }
         else
         {
             Family.Step(_line, DateLayout.LineStep);
             _line.TextAlignment = text;
-            _face.Children.Add(_line);
+            _fit.Parts.Add(_line);
         }
 
         Render();
