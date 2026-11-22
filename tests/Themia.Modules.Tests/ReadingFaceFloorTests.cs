@@ -63,7 +63,7 @@ public sealed class ReadingFaceFloorTests
         { "recycleBin", "default", 32, 84 },
         { "drive", "bar", 40, 66 },
         { "moon", "disc", 36, 57 },
-        { "moon", "phaseMonth", 121, 141 },   // [S-15805] its cells' discs at the glyph floor under its name
+        { "moon", "phaseMonth", 113, 141 },   // [S-15805] its cells' discs at the glyph floor under its name
         { "brightness", "default", 32, 72 },
         { "volume", "default", 32, 84 },
         { "alarm", "default", 36, 131 },

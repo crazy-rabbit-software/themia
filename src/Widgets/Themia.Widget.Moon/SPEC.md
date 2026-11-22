@@ -29,13 +29,13 @@ renders), `Localization/Locales/` (its own `MoonStr`). Tests: `Tests/MoonTests.c
 - **[S-15673]** *(Retired by [S-15805]: the month's discs no longer stand on a fixed pitch whose box was its ink; its
   cells are the card's grid.)*
 - **[S-15805]** **The month's day cells are the card's grid** (WR-9, owner 2026-11-19: "the calendar does not follow this
-  design philosophy for example. fix that"; WR-2, WR-3, WR-5): under the month's name (Caption, in the inset at the
-  card's top) seven columns run from the card's left edge to its right and a line a week from under the name to the
+  design philosophy for example. fix that"; WR-2, WR-3, WR-5): right under the month's name (Caption, in the inset at the
+  card's top; no gap between it and the first line, WR-1) seven columns run from the card's left edge to its right and a line a week from under the name to the
   card's foot, every cell the same and touching, each one of the month's items (`ItemMark`); a cell holds its day's disc
   in its middle at the share of its cell's shorter side a disc had of its 28 pitch (20), today's ring the whole of it
   (`MoonLayout.Cells`, the view's `ApplySize`). At a new card's size (212 × 180) a disc is about 20 as before; a larger
   card has larger cells and discs; a smaller one goes down to where a disc is the glyph floor, 12 (WR-14), its name kept
-  over the cells (119 × 121, `MoonLayout.Sizing`). Before, the discs stood on a fixed pitch centred in the card: 275 DIP of a 900 × 300
+  over the cells (119 × 113, `MoonLayout.Sizing`). Before, the discs stood on a fixed pitch centred in the card: 275 DIP of a 900 × 300
   card empty either side. Tests `MoonTests.S15805_`.
 - **[S-3108]** Every option is on the properties menu ([S-3719]); there is no settings page: Appearance
   ([S-3723]), then behind a divider **Location**, the sky's shared search ([S-3101], as the Sun's

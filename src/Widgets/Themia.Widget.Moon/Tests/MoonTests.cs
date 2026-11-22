@@ -31,8 +31,8 @@ public sealed class MoonTests
 
         // [S-15805] WR-14: down to where a cell's disc is the glyph floor, 12, its name kept over the cells.
         var room = Math.Ceiling(ScaleFloor.Glyph * MoonLayout.Pitch / MoonLayout.Disc);
-        Assert.Equal(new SizeDip(7 * room, 12 + 16 + 8 + (5 * room)), sizing.Min);
-        Assert.True(MoonLayout.Cells(sizing.Min.Width, sizing.Min.Height - 12 - 16 - 8, 31).Disc >= ScaleFloor.Glyph);
+        Assert.Equal(new SizeDip(7 * room, 12 + 16 + (5 * room)), sizing.Min);
+        Assert.True(MoonLayout.Cells(sizing.Min.Width, sizing.Min.Height - 12 - 16, 31).Disc >= ScaleFloor.Glyph);
         // [S-15673] The grid its discs' ink: six pitches and a disc across, four and a disc down.
         Assert.Equal(new SizeDip(24 + (6 * 28) + 20, 12 + 16 + 8 + (4 * 28) + 20 + 12), sizing.Natural);
         Assert.True(MoonLayout.Columns * MoonLayout.Rows >= 31);
@@ -60,9 +60,9 @@ public sealed class MoonTests
     [Fact]
     public void S15805_a_new_month_card_draws_its_discs_at_their_own_size()
     {
-        // The natural card (212x180) gives the cells 212 x 144 (its name and the gap over them): about the old 28 pitch.
+        // The natural card (212x180) gives the cells 212 x 152 (its name over them): about the old 28 pitch.
         var sizing = MoonLayout.Sizing(new MoonConfig { Style = MoonStyle.PhaseMonth });
-        var cells = MoonLayout.Cells(sizing.Natural.Width, sizing.Natural.Height - 12 - FamilyType.Caption.LineHeight - FamilySpace.S2, 31);
+        var cells = MoonLayout.Cells(sizing.Natural.Width, sizing.Natural.Height - 12 - FamilyType.Caption.LineHeight, 31);
         Assert.InRange(cells.Disc, MoonLayout.Disc - 1, MoonLayout.Disc + 2);
     }
     [Fact]

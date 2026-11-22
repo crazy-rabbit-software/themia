@@ -79,7 +79,7 @@ public static class MoonLayout
             // [S-15805] Down to where a cell's disc is the glyph floor (12, WR-14), the name over the cells kept.
             var natural = new SizeDip((2 * FamilySpace.Inset) + Month.Width, FamilySpace.ContentTop + Month.Height + FamilySpace.Inset);
             var room = Math.Ceiling(ScaleFloor.Glyph * Pitch / Disc);
-            var least = new SizeDip(Columns * room, FamilySpace.ContentTop + FamilyType.Caption.LineHeight + FamilySpace.S2 + (Rows * room));
+            var least = new SizeDip(Columns * room, FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (Rows * room));
             return WidgetSizing.Range(least, natural, natural);
         }
 

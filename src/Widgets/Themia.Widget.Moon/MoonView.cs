@@ -80,7 +80,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWid
         _month.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _month.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _monthName.TextTrimming = TextTrimming.CharacterEllipsis;
-        var name = new Border { Child = _monthName, Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2) };
+        var name = new Border { Child = _monthName, Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0) };
         SetRow(_monthGrid, 1);
         for (var column = 0; column < MoonLayout.Columns; column++)
         {
@@ -245,7 +245,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWid
             return;
         }
 
-        var height = _area.Height - FamilyType.Caption.LineHeight - FamilySpace.S2;
+        var height = _area.Height - FamilyType.Caption.LineHeight;
         var cells = MoonLayout.Cells(_area.Width, height, _monthDiscs.Count);
         foreach (var disc in _monthDiscs)
         {
