@@ -37,6 +37,19 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   the Chart block's ring (stroke 2, the bar's role, [S-6717]) with the share at 28 in its hole, as large
   as the box takes with the space line (Body, secondary) 8 under it ([S-11003]); 160..320 wide, a new one
   200 × 180. The options, the menu and the drive walk are the same for both.
+- **[S-15749]** **The share and its line are one block at every size, down to the line at 9** (docs/WIDGET-RULES.md WR-7:
+  "A reading and its caption stay together and scale up"; WR-10: a drive without figures says why; WR-14: "sized down to
+  where its smallest text is still read (9 DIP)"). Both styles scale as one block in the card's inset (`ReadingFit`), and
+  no part gives way: the least card is the content box at the line's 9 (Caption under the bar, Body under the ring) in
+  the inset, which does not scale (`DriveFace.Scaled`). The bar style had dropped its space line (and a disconnected
+  share's reason) under 88 tall, down to 54 × 40, its icon flush with the card's top. The ring style is planned at the
+  natural ring (104, `DriveFace.PlannedRing`) with its share at 28 and its line 8 under it, and scales as one, centred
+  where one axis stops it; the ring had grown alone while the share and its line kept their size (and its line was cut at
+  its least). Tests `DriveTests.S15749_`.
+- **[S-15750]** **A filling drive never moves its face** (WR-15; WR-10): the share is held to its widest ("100%",
+  `ReadoutBlock.Hold`) and the space line stands in the box of its widest forms in the language (`DriveFace.SpaceTemplates`:
+  every unit pair, figures as 8s), so the block keeps its size and place as the free space changes. A drive that is not
+  there keeps its face with the plain drive's stock icon (the shell gives none). Tests `DriveTests.S15750_`.
 - **[S-4674]** Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings
   page: Appearance, then behind a divider Drive — the system drive (by name), every drive the walk lists (shares
   included, never waited for), and a chosen drive that is gone as "not connected". The card menu has Open

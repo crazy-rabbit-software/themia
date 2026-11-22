@@ -143,6 +143,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
             }
 
             _figure.Visibility = Visibility.Visible;
+            HoldFigures(locale);
             _readout.Show("--", "%", status.Sentence, valueRole: ColourRole.TextDisabled);
             ShowIcon(drive);
             DriveBar.Show(_bar, drive);
@@ -156,11 +157,39 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _figure.Visibility = Visibility.Visible;
+        HoldFigures(locale);
         var used = ReadoutRules.Split(Formatting.Percent(locale, drive.UsedFraction!.Value));
         _readout.Show(used.Value, used.Unit, DriveRules.SpaceLine(locale, drive));
         ShowIcon(drive);
         DriveBar.Show(_bar, drive);
     }
+
+    /// <summary>
+    /// [S-15750] WR-15: the share held to its widest ("100%") and its line to the widest of its forms, so the block keeps its
+    /// size and place as the drive fills.
+    /// </summary>
+    private void HoldFigures(Locale locale)
+    {
+        _readout.Hold(FigureTemplate.Of(DriveFace.Worst.Value), DriveFace.Worst.Unit);
+        if (locale == _heldLocale)
+        {
+            return;
+        }
+
+        _heldLocale = locale;
+        var line = _readout.UnderText;
+        var widest = 0.0;
+        foreach (var template in DriveFace.SpaceTemplates(locale))
+        {
+            var probe = new TextBlock { Text = template, FontSize = line.FontSize, FontFamily = line.FontFamily, FontWeight = line.FontWeight, CharacterSpacing = line.CharacterSpacing };
+            probe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            widest = Math.Max(widest, probe.DesiredSize.Width);
+        }
+
+        line.MinWidth = Math.Ceiling(widest);
+    }
+
+    private Locale? _heldLocale;
 
     /// <summary>
     /// [S-12810] Ask the shell for the drive's icon once per drive; the root's own (system) icon, never the plain folder's.
@@ -170,8 +199,10 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// </summary>
     private async void ShowIcon(DriveEntry drive)
     {
-        var stocked = _previewDrive is not null && !string.Equals(drive.Root, SystemDrive.Root, StringComparison.OrdinalIgnoreCase);
-        var stock = stocked ? DriveRules.StockIcon(drive) : null;
+        // [S-15750] A drive that is not there keeps its face (WR-10): the plain drive's stock icon, as the shell gives none.
+        var missing = drive.State == DriveState.Missing;
+        var stocked = missing || (_previewDrive is not null && !string.Equals(drive.Root, SystemDrive.Root, StringComparison.OrdinalIgnoreCase));
+        var stock = stocked ? DriveRules.StockIcon(drive) ?? DriveStockIcon.Fixed : (DriveStockIcon?)null;
         var key = stocked ? $"{drive.Root}|{stock}" : drive.Root;
         if (key == _iconRoot)
         {

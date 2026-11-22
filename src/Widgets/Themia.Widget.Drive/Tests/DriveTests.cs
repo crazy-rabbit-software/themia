@@ -38,7 +38,31 @@ public sealed class DriveTests
 
         var ring = DriveFace.Sizing(DriveStyle.Ring);
         Assert.Empty(ring.Problems());
-        Assert.Equal(104, DriveFace.Ring(ring.Natural.Width - 24, ring.Natural.Height - 12 - 12));
-        Assert.True(ChartRules.Hole(DriveFace.Ring(ring.Min.Width - 24, ring.Min.Height - 24)).Width >= MeterSizing.ReadingWidth(DriveFace.Worst));
+        Assert.Equal(104, DriveFace.PlannedRing);
+        Assert.True(ChartRules.Hole(DriveFace.PlannedRing).Width >= MeterSizing.ReadingWidth(DriveFace.Worst));
+    }
+
+    [Theory]
+    [InlineData(DriveStyle.Bar, 12)]
+    [InlineData(DriveStyle.Ring, 14)]
+    public void S15749_the_drive_scales_down_as_one_block_to_its_line_at_9(DriveStyle style, double line)
+    {
+        // WR-7: the share and its line stay together; WR-14: down to where the smallest text is still read. The least card
+        // is the content box at the line's 9 in the inset, which does not scale; nothing gives way.
+        var sizing = DriveFace.Scaled(style);
+        var natural = DriveFace.Sizing(style).Natural;
+        var k = 9 / line;
+        Assert.Equal(Math.Ceiling(((natural.Width - 24) * k) + 24), sizing.Min.Width);
+        Assert.Equal(Math.Ceiling(((natural.Height - 24) * k) + 24), sizing.Min.Height);
+        Assert.Empty(sizing.Problems());
+    }
+
+    [Fact]
+    public void S15750_the_space_line_is_held_to_its_widest_forms()
+    {
+        var templates = DriveFace.SpaceTemplates(Locale.En);
+        Assert.Contains("888 GB free of 888 GB", templates);
+        Assert.Equal(6, templates.Count);
+        Assert.All(templates, t => Assert.DoesNotContain(t, c => char.IsDigit(c) && c != '8'));
     }
 }

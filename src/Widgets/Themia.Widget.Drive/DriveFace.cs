@@ -28,15 +28,39 @@ public static class DriveFace
     public static double RingLine => FamilySpace.S2 + FamilyType.Body.LineHeight;
 
     /// <summary>
-    /// [S-12833] The bar style's parts (<see cref="FaceParts"/>): the share its main reading, at 9 in its least card, with
-    /// the drive's icon before it and the bar under; its unit and space line give way on the way down. The ring is planned
-    /// in its box, its share at 28, and keeps the rule it had (its space line's floor): null.
+    /// [S-15749] The reading's sizing in its style, scaled down as one block to where its smallest text (the space line, or
+    /// the reason line in its place: Caption under the bar, Body under the ring) is still read (WR-14: "sized down to where
+    /// its smallest text is still read (9 DIP)"): its content box at that scale in the card's inset, which does not scale.
+    /// No part gives way (WR-7: "A reading and its caption stay together"; WR-10: the line saying why stays).
     /// </summary>
-    public static FaceParts? Face(DriveStyle style)
-        => style != DriveStyle.Bar ? null
-            : FaceParts.Readout(FamilyType.Big28, Worst with { LineUnder = true }, 200 - (2 * FamilySpace.Inset))
-                .Led(FacePiece.Box(FamilyType.Big28.LineHeight + FamilySpace.GlyphGap, FamilyType.Big28.LineHeight))
-                .Then(new FaceRow([FacePiece.Box(0, FamilyShape.Track)], GapOver: FamilySpace.S2));
+    public static WidgetSizing Scaled(DriveStyle style)
+    {
+        var sizing = Sizing(style);
+        var k = ScaleFloor.Least(style == DriveStyle.Bar ? FamilyType.Caption.FontSize : FamilyType.Body.FontSize);
+        var natural = sizing.Natural;
+        return sizing.ScalesDownTo(new SizeDip(
+            ((natural.Width - (2 * FamilySpace.Inset)) * k) + (2 * FamilySpace.Inset),
+            ((natural.Height - FamilySpace.ContentTop - FamilySpace.Inset) * k) + FamilySpace.ContentTop + FamilySpace.Inset));
+    }
+
+    /// <summary>
+    /// [S-15750] The space line's widest forms in <paramref name="locale"/> (WR-15: "A running reading never moves"): the
+    /// line as it reads for every unit pair a drive's free and total space may take, its figures as the template's 8s
+    /// (<see cref="FigureTemplate"/>). The line stands in the box of the widest, so the block never rescales or moves as the
+    /// free space changes ("419 GB free of 931 GB", "92 GB free of 1.8 TB" and "31 GB free of 58 GB" had each drawn the icon
+    /// and the share at another size and place).
+    /// </summary>
+    public static IReadOnlyList<string> SpaceTemplates(Locale locale)
+    {
+        const ulong Mb = 1024UL * 1024, Gb = Mb * 1024, Tb = Gb * 1024;
+        ulong[] sizes = [888 * Mb, 888 * Gb, (88 * Tb) + (Tb * 8 / 10)];
+        return [.. sizes.SelectMany(free => sizes.Where(total => total >= free).Select(total =>
+            FigureTemplate.Of(DriveRules.SpaceLine(locale, new DriveEntry("C:\\", VolumeKind.Fixed, DriveState.Ready, string.Empty, "NTFS", total, free)))))
+            .Distinct()];
+    }
+
+    /// <summary>[S-15749] The ring style's ring as it is planned, before the block is scaled to its card: the natural one.</summary>
+    public static double PlannedRing => MeterSizing.RingDiameters(Worst).Natural;
 
     /// <summary>[S-4672] [S-6274] [S-11026] The reading's sizing in its style.</summary>
     public static WidgetSizing Sizing(DriveStyle style)
@@ -55,8 +79,6 @@ public static class DriveFace
             new(320, Height(MeterSizing.DialMax)));
     }
 
-    /// <summary>[S-6274] The ring in a content box: its width, and its height less the line under it.</summary>
-    public static double Ring(double width, double height) => MeterSizing.RingIn(width, height - RingLine);
 
     /// <summary>
     /// [S-4671] Why a drive has no figures, as one Status row: a share Windows cannot reach is a

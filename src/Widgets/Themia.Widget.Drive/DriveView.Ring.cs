@@ -9,11 +9,13 @@ using Themia.Widget.Drive;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-6274] The drive reading's Ring style on the family's blocks: the used share as the Chart block's
-/// ring (stroke 2, the bar's role, [S-6717]) with the share at 28 in its hole, as large as the box allows with the space
-/// line 8 under it (<see cref="DriveFace.Ring"/>), [S-14324] the ring and its line centred across where the height stops
-/// the ring (owner, 2026-11-20, of a reading that fills one axis: "Centred is fine"). Built when the style is chosen, dropped when the bar is ([S-6005]);
-/// the drive and its walk are the card's as in the bar style.
+/// [S-6274] The drive reading's Ring style on the family's blocks: the used share as the Chart block's ring (stroke 2, the
+/// bar's role, [S-6717]) with the share at 28 in its hole and the space line 8 under the ring. [S-15749] The ring, its share
+/// and its line are one block (WR-7: "A reading and its caption stay together and scale up"), planned at the natural ring
+/// (<see cref="DriveFace.PlannedRing"/>) and scaled as one (<see cref="ReadingFit"/>) until it fills the card's height or
+/// its width stops it, then centred on the other axis (owner, 2026-11-20: "Centred is fine"); down to its line at 9 (WR-14).
+/// The ring had grown alone while its share and line kept their size. Built when the style is chosen, dropped when the bar
+/// is ([S-6005]); the drive and its walk are the card's as in the bar style.
 /// </summary>
 internal sealed partial class DriveView
 {
@@ -21,8 +23,8 @@ internal sealed partial class DriveView
 
     private sealed class RingParts
     {
-        public readonly StackPanel Root = new() { VerticalAlignment = VerticalAlignment.Center };
-        public readonly Grid Box = new() { HorizontalAlignment = HorizontalAlignment.Center };
+        public readonly ReadingFit Root = new();
+        public readonly Grid Box = new();
         public readonly ChartRing Ring = new();
         public readonly ReadoutBlock Share = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         public readonly TextBlock Line = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
@@ -30,13 +32,11 @@ internal sealed partial class DriveView
         public RingParts()
         {
             Line.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
-            Line.TextTrimming = TextTrimming.CharacterEllipsis;
-            Line.HorizontalAlignment = HorizontalAlignment.Center;
             Line.TextAlignment = TextAlignment.Center;
             Box.Children.Add(Ring);
             Box.Children.Add(Share);
-            Root.Children.Add(Box);
-            Root.Children.Add(Line);
+            Root.Parts.Add(Box);
+            Root.Parts.Add(Line);
         }
     }
 
@@ -45,9 +45,6 @@ internal sealed partial class DriveView
     {
         var ring = _config.Style == Core.Model.DriveStyle.Ring;
         _figure.Visibility = ring ? Visibility.Collapsed : Visibility.Visible;
-
-        // [S-12833] The bar's parts: in a smaller card its space line and unit give way, the share stays.
-        _fit.Face = DriveFace.Face(_config.Style);
 
         if (ring && _ringParts is null)
         {
@@ -61,30 +58,27 @@ internal sealed partial class DriveView
         }
     }
 
-    /// <summary>[S-6274] The ring as large as the content box takes with its line under it, the share at 28 in its hole.</summary>
+    /// <summary>[S-15749] The ring at its planned size with its share at 28 in its hole and its line under it: the block scales as one.</summary>
     private void LayRing(DriveEntry drive)
     {
-        if (_ringParts is not { } parts || !_area.IsMeasured)
+        if (_ringParts is not { } parts)
         {
             return;
         }
 
         var locale = Strings.Current;
-        var width = Math.Max(0, _area.Width - (2 * FamilySpace.Inset));
-        var ring = DriveFace.Ring(width, Math.Max(0, _area.Height - FamilySpace.Inset));
         _figure.Visibility = Visibility.Collapsed;
         parts.Root.Visibility = Visibility.Visible;
-        parts.Root.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };   // [S-12410] the ring grows with the box, centred, the foot's inset with it
 
         var share = ReadoutRules.Split(Formatting.Percent(locale, drive.UsedFraction ?? 0));
-        parts.Box.Width = ring;
-        parts.Box.Height = ring;
+        parts.Box.Width = DriveFace.PlannedRing;
+        parts.Box.Height = DriveFace.PlannedRing;
         parts.Share.Use(FamilyType.Big28, centred: true);
+        parts.Share.Hold(FigureTemplate.Of(DriveFace.Worst.Value), DriveFace.Worst.Unit);
         parts.Share.Show(share.Value, share.Unit);
         parts.Ring.Show(drive.UsedFraction ?? 0);
         parts.Ring.Role(DriveRules.Role(drive));
-
         parts.Line.Text = DriveRules.SpaceLine(locale, drive);
-        parts.Line.MaxWidth = width;
+        parts.Root.Refit();
     }
 }

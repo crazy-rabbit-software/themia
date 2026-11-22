@@ -9251,7 +9251,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   through `AddGivesWay`, `GivesWayBox` or `GivesWay`; with no text left drawn, a picture, it holds to the main reading's
   floor; the parts left fill the card, WR-1 and WR-4, the block growing back into the room a part left, `FaceFit.Fill`). Weather now (39 × 32; the large icon stays, 57 × 36), air quality (40 × 32; the gauge, now in the fit, 76 × 51),
   exchange rate (60 × 32), screen time (67 × 32 under its day line, which is whole cells and stays), recycle bin
-  (45 × 32; Empty gives way and stays on the card's menu), drive's bar (54 × 40), moon (52 × 36; the phase month's discs
+  (45 × 32; Empty gives way and stays on the card's menu), drive's bar (54 × 40; since [S-15749] its line stays, the least at its line's 9), moon (52 × 36; the phase month's discs
   are its reading, its month's name gives way), brightness and volume (40 × 32; the slider's row gives way), alarm and
   focus session (48 × 32), countdown (text 82 × 32, ring 103 × 103, flip 76 × 36; its date or units and its name give
   way, the bar stays), music (its lines are its reading, Body: 166 × 44; the transport gives way), music progress (its

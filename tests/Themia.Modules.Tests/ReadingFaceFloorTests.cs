@@ -3,7 +3,6 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
-using Themia.Widget.Drive;
 using Themia.Widget.MusicProgress;
 using Themia.Widget.NextMeeting;
 using Xunit;
@@ -37,7 +36,6 @@ public sealed class ReadingFaceFloorTests
         "exchangeRate" => RatesLayout.Face(),
         "screenTime" => ScreenTimeReading.Face(),
         "recycleBin" => RecycleBinLayout.Face(),
-        "drive" => DriveFace.Face(((DriveConfig)config).Style),
         "moon" => MoonLayout.Face((MoonConfig)config),
         "brightness" => LevelFace.Face(under: false),
         "volume" => LevelFace.Face(under: true),
@@ -61,7 +59,6 @@ public sealed class ReadingFaceFloorTests
         { "exchangeRate", "default", 32, 57 },
         { "screenTime", "default", 32, 57 },
         { "recycleBin", "default", 32, 84 },
-        { "drive", "bar", 40, 66 },
         { "moon", "disc", 36, 57 },
         { "moon", "phaseMonth", 113, 141 },   // [S-15805] its cells' discs at the glyph floor under its name
         { "brightness", "default", 32, 72 },
