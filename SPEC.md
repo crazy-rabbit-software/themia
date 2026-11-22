@@ -11304,6 +11304,11 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   rest (the tile exemption's bands alike) and is fitted again with its sentence. The ring's
   room had stood between them: a 16 glyph in a 28 mark, the name 34 DIP under a 27 DIP glyph at 300 × 100. Test
   `FamilyBlockRulesTests.S15740_`.
+- **[S-15751]** **At rest the arm ring's box is no part of the face** ([S-15740]; the tile exemption, owner 2026-11-19:
+  "Centred is fine"): the ring's box is collapsed with its ring and shown only while the ring drains, so at rest the face
+  is fitted and centred on the glyph's own ink. Visible and empty, it had read as ink across the mark's whole width, and a
+  glyph whose ink stands off its em box's middle (the speaker, the microphone, the moon, the power glyphs) stood off centre
+  across (the gap check's "reading off centre sides" on 20 tile kinds' sweeps).
 - **[S-15741]** **A short tile keeps its words, scaled down with its glyph** (WR-7: "All together, scaled"; WR-14): where
   no glyph step holds its words at their own size, the 28 glyph, its name and (a toggle's) state line are still planned
   and the block is scaled down as one into the inset box (the tile's `ReadingFit`) while its smallest text stays at 9 or

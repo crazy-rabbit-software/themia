@@ -322,7 +322,12 @@ public sealed partial class TileBlock : Grid
         _ringRoom.Margin = new Thickness(past);
 
         // While the ring shows, the mark makes room for it, so the face (ring, glyph, sentence) is fitted and centred on it.
-        _mark.Margin = Ring.Visibility == Visibility.Visible ? new Thickness(-past) : default;
+        // [S-15751] At rest the ring's box is no part of the face at all (collapsed with its ring): a visible empty box read
+        // as ink across the mark's whole width, and a glyph whose ink stands off its em box's middle (the speaker, the
+        // microphone, the moon) was centred by its box, its ink off centre (WR-7's "Tiles stand centred").
+        var shows = Ring.Visibility == Visibility.Visible;
+        _mark.Margin = shows ? new Thickness(-past) : default;
+        _ringRoom.Visibility = shows ? Visibility.Visible : Visibility.Collapsed;
 
         _glyph.Foreground = Family.Brush(roles.Glyph);
         _mark.Width = size;
