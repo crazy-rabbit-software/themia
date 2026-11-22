@@ -72,7 +72,7 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
   is the style, never a second setting): `ScreenTimeChartStyle` (Bars the default, then Calendar),
   `ScreenTimeChartConfig.Style` over `IStyled`, stored as `"style": "bars" | "calendar"`
   (`StyleJsonConverter`; an unknown name is repaired to Bars at load, [S-6004]), copied in `Clone`,
-  its labels `styles.screenTimeChart.*`. `--widget-png ScreenTimeChart … --style calendar` draws it.
+  its labels `styles.screenTimeChart.*`. `--render widget ScreenTimeChart … --style calendar` draws it.
 - **[S-3331]** Bars: one bar per day, oldest left, touching ([S-15788]), stacked by
   app in the ring's order (the busiest seven, `ScreenTimeRules.DrawingApps`, then Other) in the
   accent's ramp by rank, Other and the apps past the fourth tertiary at the wash ([S-2272]), scaled to the busiest day, the stack one

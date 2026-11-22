@@ -2596,7 +2596,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   itself never changes the panel it drew inside an event: every drawing puts what changed in the standing panel
   (`PageView`, a content control), a change of the state reaching it posted (above) and a drawing its own events ask
   for (a card opened, a tab, a back head, an answer given, [S-2361]) posted after the event. Nothing over the flyouts takes a press: Debug's
-  `--editbar-png` hit-tests a grid every 5 DIPs over each page's flyout and prints how many points the page took
+  `--render editbar` hit-tests a grid every 5 DIPs over each page's flyout and prints how many points the page took
   (`FlyoutHitProbe`: every point of every select-* and page-* picture, the shine-through windows over real cards
   included, is the page's), and plays a press, a change under it and its release through `FlyoutRedraws` on each
   (`press check`: not drawn under the press nor inside the release, drawn once after it, no error logged). Tests
@@ -3270,7 +3270,7 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   the foot; at the display's scale, or 100 %), off-screen, in edit mode: every category's bento from its top
   (or the one's, `gallery-<theme>-<w>x<h>-<nn>-<Category>.png`; one taller than the well again at its foot, `-end`), one
   widget picked with its panel and styles (`-select-one`), several picked (`-select-several`), a ready-made group picked
-  whole (`-select-group`) and a drag under way (`-drag`). `--gallery-check <out.txt>` (the same sizing options) says the
+  whole (`-select-group`) and a drag under way (`-drag`). `--check gallery <out.txt>` (the same sizing options) says the
   pieces per category and drives it as its pointer does: every category's cards on whole cells inside the view and
   apart, at its top and scrolled to its foot; no family's small part among them; the window inside the work area and
   smaller than it; a scroll step moving the cards by whole cells and keeping the category; a group picked whole by one
@@ -7326,7 +7326,7 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
 - **[S-6632]** **One desktop-icon cell** (`FileIconCell`): what is drawn as a desktop icon (the desktop item, a fence's
   own cells) is one composition in its item's box: the selection chrome behind it in its palette ([S-6627]), the icon
   slot ([S-6631]) at the desktop's icon size and its name laid by the icon layout (`DesktopCellLayout`, [S-13970]), its
-  hover through `SelectionChrome.Hover`. A desktop parity check (`--desktop-png`, `--drag-png`) draws the same pictures.
+  hover through `SelectionChrome.Hover`. A desktop parity check (`--render desktop`, `--render drag`) draws the same pictures.
 
 ## View links (VIEW-LINKS)
 
@@ -8937,7 +8937,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   and the contacts' grids keep their foot inside the inset for their cells' marks ([S-12800]). Replaces the rows'
   1.5 x cap, their spacing and the reach by ink (`ListReach`, `RowReach.Over`/`Gap`/`Under` are gone). Tests
   `ItemSizeTests.S12807_`, `KitTests.S12807_S14810_`, `KitRowsTests.S11541_`, the modules' `S12450_`, `S12451_`,
-  `S12452_`; renders `--widget-png weatherHumidity|rss|topProcesses|habitTracker --state sample --sizes
+  `S12452_`; renders `--render widget weatherHumidity|rss|topProcesses|habitTracker --state sample --sizes
   range`.
 - **[S-12808]** **A one-readout block fills its card as one** (owner, 2026-11-19, asked whether the one-reading
   widgets should also fill to the edges: "Yes, those too"; asked whether a reading and its caption should split to
@@ -8954,7 +8954,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   user decides how large the card is ([S-12411]). Kept: toggles and power buttons ([S-5700], [S-12806]), pictures,
   graphs and charts ([S-12800]), Drive's ring style (its ring grows with the box), the Header, Next meeting's and
   Rain next hour's lines over their join or chart, Sun's picture. Tests `BlockFillTests.S12808_`; renders
-  `--widget-png weatherSky|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
+  `--render widget weatherSky|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600,900x300`.
 - **[S-12809]** **The calendar's month fills its card** (owner, 2026-11-19: "the calendar does not follow this design
   philosophy for example. fix that"; then "Bigger numbers too"). The weekday line and the six weeks fill the content
   edge to edge inside the margin, the cells touching: the rows grow with the card's height (each as tall as its
@@ -9046,7 +9046,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (centred, at the start, or a reflow that fills it) was the owner's open question, answered 2026-11-20 ([S-14301]:
   "Centred is fine"): centred down, as above, and across where the card's alignment puts it, centred for a kind that
   does not align. The pomodoro's side-by-side column ([S-14281]) and the screen-time day line ([S-14282], [S-14284]) follow.
-  Tests `BlockFillTests.S14280_`; renders `--widget-png stock|exchangeRate|screenTime|music|focusSession|alarm|moon|
+  Tests `BlockFillTests.S14280_`; renders `--render widget stock|exchangeRate|screenTime|music|focusSession|alarm|moon|
   airQuality --sizes range` and `--sizes 330x140,300x164,600x200`.
 - **[S-14283]** **A Controls row's switch is drawn whole** (WR-7: the controls are the block's). The switch
   (`ControlsBlock.Switch`, the alarm's) stands at its template's own height, its track (20, `ControlsRules.SwitchTrack`)
@@ -10937,7 +10937,7 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   ([S-15713]) and says it in a Caption line at the card's foot, at its content alignment, cut with its ellipsis, the block
   filling what is over it (`TextRules.SaysWhy`). A **single metric** says it in its readout's line under "--" (the
   readout's own, [S-12813]); its one row has no room (the tooltip, and [S-15711]). Tests `IconRulesTests.S15710_`,
-  `TextRulesTests.S15710_`; renders `--widget-png weatherSky|weatherCondition|weatherTemperature --state failed`,
+  `TextRulesTests.S15710_`; renders `--render widget weatherSky|weatherCondition|weatherTemperature --state failed`,
   `musicPlayPause|musicNext|musicPrevious --state idle`.
 - **[S-15711]** **A failure is never quieter than a stale reading**: the status's problem glyph ([S-7042], [S-12813]) shows
   a read's problems whatever its state, so an icon, a text or a single metric left without a reading by a failure (the
@@ -10948,7 +10948,7 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
 - **[S-15712]** **A sample lights where it opens**: a preview's sample stands where the card's config does not say (the
   sample place), so the face opens for the sample's config (`OpenFor` on the icon, text and metric bases; the card's own
   config keeps its trend and look) and lights under the pointer and pressed as a placed card does (WR-13; the audit's
-  hover renders of the weather now found no light). A changed config ends it. Renders `--widget-png weatherSky|
+  hover renders of the weather now found no light). A changed config ends it. Renders `--render widget weatherSky|
   weatherCondition|weatherTemperature --state sample --hover 0.5,0.3`.
 - **[S-15716]** **A card too short for the why under its face says it beside it** (WR-10; the second audit, 2026-11-22:
   a 350 × 70 sky, a 240 × 30 temperature, a 240 × 52 condition said it only in a badge's tooltip). Where the card is at
@@ -13669,7 +13669,7 @@ The forecast as repeaters (owner: "Ready-made + curve"):
   weather graphs: a state file's forecast widget is that curve. The recipes' rules ([S-2472], [S-11606]) count a
   repeater's box as its rows: its members stand inside it and it draws no card to join.
 
-Pictures (the add page, `--scene-png`, `--recipe-png`) draw a repeater's copied rows as widgets of their own
+Pictures (the add page, `--render scene`, `--render recipe`) draw a repeater's copied rows as widgets of their own
 (`Repeaters.Bake`), each with its row's config, as the desktop draws them.
 
 Names (owner: "Repeater names"): the kind **Repeater**; its settings **Direction** (Down, Across, Wrap), **Repeat by**,
@@ -13887,13 +13887,13 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   them); **Lock widgets** and **Edit mode** (toggles: an icon cannot show a check, [S-1740]; they are the desktop menu's
   lines); the view's other commands (Pause, Eject, Clear history, which folder: the widget's own words, no common
   picture); the desktop menu's lines, its **Paste** of files included (the row is the widget's: the card menu takes the
-  desktop's lines without their row command). Tests `ContextMenuTests.S15830_`; `--menu-png` `card-desktop-actions`,
+  desktop's lines without their row command). Tests `ContextMenuTests.S15830_`; `--render menu` `card-desktop-actions`,
   `card-edit-actions`.
 - **[S-15831]** The row's **Delete** is the card menu's Delete outside edit mode ([S-14320], [S-14321]: "Delete widget",
   "Delete N widgets", Explorer's "Delete" with a desktop file in the selection), what Del does: the same request, the same
   undo step, the shell's own prompt for files. With Lock widgets on there is none; then a row needs Refresh and Widget
   settings both, and **one command left is no row** ([S-1741]): Widget settings is a labelled line and the menu the list
-  alone, never an empty row. Tests `S15831_`; `--menu-png` `card-desktop-locked`, `card-desktop-locked-actions`.
+  alone, never an empty row. Tests `S15831_`; `--render menu` `card-desktop-locked`, `card-desktop-locked-actions`.
 - **[S-15832]** **Widget settings** (the gear) opens the widget's options from the locked desktop, where before only Edit
   mode and a click reached them: edit mode on, the widget selected and the selection's page opened beside it
   ([S-2340], as the Set up button opens it, [S-1862]); with the widget one of several the desktop's selection holds on its
@@ -13904,7 +13904,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
 - **[S-15833]** **Several selected, the row holds what acts on all of them**: Widget settings (the page of several) and
   Delete N widgets; the clicked widget's Refresh is its own, so it stays a line among its commands. Outside edit mode
   "several" is the desktop's one selection (icons and cards, `DeskSelectionCount`), in edit mode edit mode's ([S-1592]).
-  Tests `S15833_`; `--menu-png` `card-desktop-3`. The keys in the row are the command bar flyout's own: the arrows move
+  Tests `S15833_`; `--render menu` `card-desktop-3`. The keys in the row are the command bar flyout's own: the arrows move
   along the row and down into the list, Enter runs, Escape closes, as in every menu with a row ([S-1740]).
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu, a list with no icon row (Paste is its one row command, and one is
@@ -13924,7 +13924,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`, `DesktopDeleteTests`.
   the widget's properties menu only ([S-3719]), with the card's own header, background and title
   ([S-3707]). The menus keep commands the user
   runs while looking at the widget: refresh, pause, open, which folder, the click mode, search.
-- **[S-1747]** Debug: `--menu-png <outDir> [--theme light|dark]` opens the card menu (edit mode, one
+- **[S-1747]** Debug: `--render menu <outDir> [--theme light|dark]` opens the card menu (edit mode, one
   widget; desktop, three widgets; desktop, a widget with view commands, [S-1758]; the icon row's cases, [S-15830]..[S-15833]:
   `card-desktop-one`, `card-desktop-locked-actions`, `card-edit-actions`), the surface menu, two sample item menus, the folder widget's file, Open with,
   folder and background menus (a real view over read-only Windows folders) and the desktop's own menus ([S-5548], [S-5582], `desk-*`:
