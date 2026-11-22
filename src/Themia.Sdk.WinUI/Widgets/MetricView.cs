@@ -58,6 +58,10 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
     private readonly StackPanel _beside = new() { Orientation = Orientation.Horizontal, Spacing = FamilySpace.ColumnGap, HorizontalAlignment = HorizontalAlignment.Center };
     private MetricArrangement? _arrangement;
 
+    /// <summary>[S-15716] Why there is no reading, in the row between the name and "--" (the row's inline slot).</summary>
+    private readonly TextBlock _rowWhy = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    private bool _rowWhyShown;
+
     private readonly MetricReadings _readings = new();
     private FontIcon? _rowArrow;
     private Chart? _graph;
@@ -107,6 +111,14 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         _value.Children.Add(_readoutArrow);
         _fit.Visibility = Visibility.Collapsed;
         _face.Children.Add(_fit);
+        _rowWhy.TextWrapping = TextWrapping.NoWrap;
+        _rowWhy.TextTrimming = TextTrimming.CharacterEllipsis;
+        _rowWhy.TextAlignment = TextAlignment.Right;
+        _rowWhy.VerticalAlignment = VerticalAlignment.Center;
+
+        // [S-15716] In a row the why stands for the mark: where its slot, with the mark's room, holds ten characters of Caption
+        // the why shows and the mark gives it that room; under that it says nothing ("C…") and the mark stays.
+        _rowWhy.SizeChanged += (_, e) => RowWhy(e.NewSize.Width);
 
         Children.Add(_item);
         _status.Place(this);
@@ -210,6 +222,38 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         Draw();
     }
 
+    /// <summary>
+    /// [S-15716] The row's why in a slot <paramref name="width"/> wide: shown, the mark giving it its room, where the two hold
+    /// ten characters of Caption (<see cref="WhyLine.MinBeside"/>); else the mark alone. Settles in one pass either way: the
+    /// mark's room comes back to a why that fits, and a why that does not fit leaves the mark where it stands.
+    /// </summary>
+    private void RowWhy(double width)
+    {
+        var fits = _rowWhyShown && width + _statusRoom >= WhyLine.MinBeside;
+        _rowWhy.Opacity = fits ? 1 : 0;
+        _status.Show(fits ? [] : _drawn.Shown.Problems, busy: false);
+    }
+
+    /// <summary>[S-15716] The row's why gone (a reading came, the face is no longer a row): its slot the trend's again, the mark back.</summary>
+    private void EndRowWhy(MetricShown shown, MetricTrend trend, bool spark, bool graphs)
+    {
+        if (!_rowWhyShown)
+        {
+            return;
+        }
+
+        _rowWhyShown = false;
+        _status.Show(shown.Problems, busy: false);
+        if (!spark)
+        {
+            DrawTrend(shown, trend);
+            if (graphs)
+            {
+                _row.Beside(0, null, 0);
+            }
+        }
+    }
+
     /// <summary>[S-14601] Put one read on the face: its value, its trend and its state.</summary>
     protected void Present(MetricShown shown)
     {
@@ -266,7 +310,7 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         // [S-14602] A reading kept through a failed refresh stays, and the status's problem glyph says so, its room at the
         // row's end; "--" says there is no reading, why its tooltip (Lay's, with the face). [S-15711] A failure that left it
         // without one is the problem glyph's too, as a stale reading's.
-        _status.Show(shown.Problems, busy: false);
+        _status.Show(_rowWhyShown && _rowWhy.Opacity > 0 && !value.Available ? [] : shown.Problems, busy: false);
 
         var trend = _trend;
         PreviewTrend(ref shown, ref trend);
@@ -364,6 +408,12 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         var readout = look.Face == MetricFace.Readout;
         _row.Visibility = readout || alone ? Visibility.Collapsed : Visibility.Visible;
         _fit.Visibility = readout ? Visibility.Visible : Visibility.Collapsed;
+        _status.StandAt(null);
+        if (alone || readout)
+        {
+            EndRowWhy(shown, trend, look.Spark, graphs);
+        }
+
         if (alone)
         {
             return;
@@ -378,6 +428,26 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
             _row.VerticalAlignment = under ? VerticalAlignment.Top : VerticalAlignment.Stretch;
             _row.Height = under ? face : double.NaN;
             _row.Face(_area.IsMeasured && face > 0 ? face : double.NaN);
+
+            // [S-15716] Without a reading the row says why between its name and "--", in the room they leave (the row's inline
+            // slot, the arrow's); a sparkline keeps that slot (the graph's defaults, WR-10).
+            if (!look.Spark && !value.Available && shown.Why is { Length: > 0 } reason)
+            {
+                _rowWhy.Text = reason;
+                _row.Beside(0, _rowWhy, double.NaN);
+                _rowWhyShown = true;
+            }
+            else
+            {
+                EndRowWhy(shown, trend, look.Spark, graphs);
+            }
+
+            // [S-15719] The status mark stands in the row's height, centred on it where the row is shorter than the mark's band.
+            if (_area.IsMeasured && face > 0)
+            {
+                _status.StandAt(Math.Clamp((face - KitStatus.Side) / 2, 0, FamilySpace.Inset + FamilySpace.S1));
+            }
+
             return;
         }
 
@@ -386,7 +456,13 @@ public abstract partial class MetricView : Grid, IWidgetView, IWidgetOpens, IWid
         var foot = look.Graph > 0 ? look.Graph + FamilySpace.S2 : FamilySpace.Inset;
         var end = FamilySpace.Inset + _statusRoom;
         _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, foot);
-        var room = new Size(Math.Max(0, _area.Width - FamilySpace.Inset - end), Math.Max(0, look.Reading - FamilySpace.Inset - (look.Graph > 0 ? FamilySpace.S2 : FamilySpace.Inset)));
+
+        // [S-15718] Over a graph the readout stands on the card's top inset, the height its width leaves under it (WR-1).
+        _fit.Head = look.Graph > 0;
+
+        // [S-15719] Beside or stacked by the card's room alone, never the status mark's: a stale reading keeps the arrangement
+        // a fresh one has (WR-7), the block scaled to stand clear of the mark.
+        var room = new Size(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, look.Reading - FamilySpace.Inset - (look.Graph > 0 ? FamilySpace.S2 : FamilySpace.Inset)));
         Arrange(MetricRules.Arrange(room.Width, room.Height, Natural(_caption), Natural(_value), FamilySpace.ColumnGap));
     }
 

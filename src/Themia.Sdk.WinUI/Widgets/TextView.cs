@@ -291,12 +291,18 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         var height = _area.IsMeasured ? _area.Height - ListEdge.Margin.Top : 0;
         var end = FamilySpace.Inset + _statusRoom;
 
-        // [S-15710] The why's line takes its band at the foot; the face fills what is over it.
+        // [S-15710] The why's line takes its band at the foot; the face fills what is over it. [S-15716] A card too short for
+        // it there says it beside the face, at the end, where the width holds it.
         var why = _whyText is not null && _area.IsMeasured && TextRules.SaysWhy(_area.Width, height, _kind.Lines);
         var band = why ? WhyLine.Band : 0;
-        _why.Visibility = why ? Visibility.Visible : Visibility.Collapsed;
-        _why.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        _why.TextAlignment = Aligned.Text(_align);
+        var beside = _whyText is not null && _area.IsMeasured && !why ? Beside(height, end) : null;
+        _why.Visibility = why || beside is not null ? Visibility.Visible : Visibility.Collapsed;
+        _why.Margin = beside is not null ? new Thickness(0, 0, end, 0) : new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _why.Width = beside ?? double.NaN;
+        _why.HorizontalAlignment = beside is not null ? HorizontalAlignment.Right : HorizontalAlignment.Stretch;
+        _why.VerticalAlignment = beside is not null ? VerticalAlignment.Center : VerticalAlignment.Bottom;
+        _why.TextAlignment = beside is not null ? TextAlignment.Left : Aligned.Text(_align);
+        end += beside is { } taken ? taken + FamilySpace.ColumnGap : 0;
         _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, FamilySpace.Inset + band);
         _fit.Align = _align;
         _text.TextAlignment = Aligned.Text(_align);
@@ -310,6 +316,25 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         {
             _text.MaxWidth = room;
         }
+    }
+
+    /// <summary>
+    /// [S-15716] The why's width beside the face in a card <paramref name="height"/> tall whose face ends <paramref name="end"/>
+    /// in from its end edge: what the width leaves after the face as drawn ("--" at its scale, <see cref="TextRules.DashScale"/>).
+    /// </summary>
+    private double? Beside(double height, double end)
+    {
+        var infinite = new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity);
+        _why.Width = double.NaN;
+        _why.Visibility = Visibility.Visible;
+        _why.Measure(infinite);
+        var sentence = _why.DesiredSize.Width;
+        var max = _text.MaxWidth;
+        _text.MaxWidth = double.PositiveInfinity;
+        _text.Measure(infinite);
+        var face = _text.DesiredSize.Width * (_dashes ? TextRules.DashScale(height - (2 * FamilySpace.Inset), _kind.Lines) : 1);
+        _text.MaxWidth = max;
+        return TextRules.WhyBeside(_area.Width - FamilySpace.Inset - end, height, face + TextRules.LeadRoom(_kind.Lead), sentence);
     }
 
     /// <summary>

@@ -135,4 +135,60 @@ public sealed class IconRulesTests
         Assert.Equal(68, IconRules.Step(330, 140, why: true).FontSize);
         Assert.Equal(24, WhyLine.Band);
     }
+
+    // ---- [S-15716] why, beside the glyph -------------------------------------------------------------------
+
+    [Fact]
+    public void S15716_a_wide_short_card_says_why_beside_its_glyph_the_two_centred_as_one()
+    {
+        // 350 by 70: the inset box 326 by 46, the glyph 46, a 130 sentence 12 after it.
+        var beside = IconRules.Beside(350, 70, 130, marked: false)!.Value;
+
+        Assert.Equal(46, beside.Glyph);
+        Assert.Equal(130, beside.TextWidth);
+        Assert.Equal(beside.GlyphLeft + 46 + FamilySpace.ColumnGap, beside.TextLeft);
+        Assert.Equal(350 - (beside.TextLeft + beside.TextWidth), beside.GlyphLeft, 6);
+    }
+
+    [Fact]
+    public void S15716_the_mark_takes_its_room_at_the_end_and_a_long_why_is_cut_at_what_is_left()
+    {
+        var beside = IconRules.Beside(350, 70, 1000, marked: true)!.Value;
+
+        Assert.Equal(326 - IconRules.MarkRoom - 46 - FamilySpace.ColumnGap, beside.TextWidth, 6);
+        Assert.Equal(12, beside.GlyphLeft, 6);
+    }
+
+    [Theory]
+    [InlineData(76, 76)] // no room across: the mark and the tooltip (held for the owner)
+    [InlineData(32, 32)]
+    [InlineData(330, 140)] // room under the glyph: the line under it
+    [InlineData(200, 20)] // under a Caption line's height
+    public void S15716_no_why_beside_where_it_does_not_fit_or_fits_under(double width, double height)
+        => Assert.Null(IconRules.Beside(width, height, 130, marked: false));
+
+    // ---- [S-15717] the glyph clear of the mark in a small card -------------------------------------------------
+
+    [Fact]
+    public void S15717_at_32_the_glyph_stands_clear_of_the_mark_at_its_floor_the_mark_in_the_corner()
+    {
+        var box = IconRules.Box(32, 32, marked: true);
+
+        Assert.Equal(0, box.Mark);
+        Assert.Equal(new IconEdges(4, 16, 4, 4), box.Glyph);
+        Assert.Equal(ScaleFloor.Glyph, 32 - box.Glyph.Top - box.Glyph.Bottom);
+    }
+
+    [Theory]
+    [InlineData(76, 76)] // the family's inset: the mark on the inset round the glyph ([S-15160])
+    [InlineData(330, 140)]
+    public void S15717_with_the_familys_inset_the_glyph_keeps_its_box_and_the_mark_stands_4_in(double width, double height)
+    {
+        var inset = IconRules.Inset(width, height);
+        Assert.Equal(new IconBox(new(inset, inset, inset, inset), FamilySpace.S1), IconRules.Box(width, height, marked: true));
+    }
+
+    [Fact]
+    public void S15717_without_a_mark_the_glyph_keeps_its_inset()
+        => Assert.Equal(new IconBox(new(4, 4, 4, 4), FamilySpace.S1), IconRules.Box(32, 32, marked: false));
 }

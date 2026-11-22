@@ -10488,6 +10488,15 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   ([S-14705]). A family subclasses it for its data and hands each read to it (`MetricShown`); the face, the trend, the
   readings an arrow compares and what a click opens are the base's alone. A click opens the kind's source ([S-14706]);
   Refresh, where the source has one, is on the card menu after the line that opens it ([S-14707]).
+- **[S-15718]** **Over a graph the readout stands on the card's top** (WR-1: "there should not be a space at the top";
+  graphs are not relaxed): the readout block in the reading's share over a Line graph is scaled until the width stops it
+  and then stands on the card's top inset, its first ink there and the height left under its last, over the plot
+  (`ReadingFit.Head`, `BlockLayout.Fill` on its head). It had stood centred in its share, 24 from a 520 × 600 card's top.
+  Test `BlockLayoutTests.S15718_`.
+- **[S-15719]** **One arrangement whatever the state** (WR-7): the readout is beside or stacked by the card's room alone
+  (`MetricRules.Arrange` on the inset box), never the status mark's, so a stale reading keeps the arrangement a fresh
+  one has at the same size, scaled to stand clear of the mark. The mark stands in a row's height: in a row shorter than
+  the mark's band it is centred on the row (a 240 × 30 temperature's badge had run past the card's foot).
 - **[S-14602]** **Defaults, never hidden** (WR-10): without a reading the row stays, its value "--" drawn unavailable and
   why its tooltip (the readout's line under "--" too, [S-15710]; a failure the problem glyph's, [S-15711]); a reading kept through a failed refresh stays and the status's problem glyph says so, the row leaving
   the glyph its room at its end so it never stands on the value ([S-12834]).
@@ -10717,6 +10726,12 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   tooltip) and a shorter one grows until one axis stops it; a kind of two lines wraps by words first. Somebody else's
   string is one line (`TextRules.Line`). A family subclasses the face for its data and hands each read to it
   (`TextShown`); the face, its fit and what a click opens are the base's alone.
+- **[S-15715]** **A long text keeps the height a short one has, and is cut** (WR-1, WR-7: "All together, scaled"; the
+  atoms' words, WR-16: "the text should rather overflow ... than to shrink and not fill the height"): the line's room is
+  the width at the scale the height gives the line at every height (`TextRules.Room`), a taller room a narrower one, so a
+  text longer than the card fills its height as "Overcast" does and is cut with its ellipsis at the room's end, start kept.
+  It had been held at its own size over one (a long condition 14 DIP tall in a 480 × 104 card where "Overcast" is 80).
+  Test `TextRulesTests.S15715_`; renders `--widget-png weatherCondition --state long --sizes range`.
 - **[S-14932]** **Defaults, never hidden** (WR-10): without a text the face stays, the kind's words for none ("No album",
   `TextKind.None`) or the family's why ("Nothing playing", "Set a place") drawn unavailable, why its tooltip
   (`TextRules.Drawn`); a text kept through a failed refresh stays and the status's problem glyph says so, the block
@@ -10805,6 +10820,24 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   config keeps its trend and look) and lights under the pointer and pressed as a placed card does (WR-13; the audit's
   hover renders of the weather now found no light). A changed config ends it. Renders `--widget-png weatherSky|
   weatherCondition|weatherTemperature --state sample --hover 0.5,0.3`.
+- **[S-15716]** **A card too short for the why under its face says it beside it** (WR-10; the second audit, 2026-11-22:
+  a 350 × 70 sky, a 240 × 30 temperature, a 240 × 52 condition said it only in a badge's tooltip). Where the card is at
+  least a Caption line and 4 over and under it tall (`WhyLine.BesideHeight`, 24) and the width leaves the why ten
+  characters of Caption (`WhyLine.MinBeside`, 64) after the face and a column's gap, the why stands beside the face, one
+  Caption line cut with its ellipsis, whole in its tooltip. An **icon**: the glyph on the inset box's height and the why
+  after it, the two one block centred across in the room left of the status mark (`IconRules.Beside`). A **text**: the
+  why at the card's end, "--" in the room before it (`TextRules.WhyBeside`). A **single metric's row**: the why in the
+  row's inline slot between the name and "--", right-aligned to "--" (a sparkline keeps that slot); there it stands for
+  the status mark, which gives it its room where the two hold ten characters, and stays where they do not (a "C…" says
+  nothing). The 32 and 76 squares
+  have no room for a line beside or under the face: the face and the mark (held for the owner). Tests
+  `IconRulesTests.S15716_`, `TextRulesTests.S15716_`.
+- **[S-15717]** **In a small card the glyph stands clear of the status mark**: where the inset has given way (a card under
+  52) the mark 4 in from the corner would stand over the glyph itself (a stale cloud's upper end under the badge at
+  32 × 32); there the glyph takes the largest square clear of it, under it or before it, the mark moving to the card's
+  very corner where 4 in would leave the glyph under its floor (12): at 32 × 32 a 12 glyph under a 16 mark
+  (`IconRules.Box`). With the family's inset the mark stands on the inset round the glyph as before ([S-15160]). Test
+  `IconRulesTests.S15717_`.
 - **[S-15003]** **A family a project, a kind an icon.** A family's kinds are data (`IconKind`: id, glyph, the add page's
   name, description and search words, its config, what it opens); each kind is a sealed module (`IconModule`: the one
   sizing, a one-readout face with its item, at home in its family's add-page folder in the family's order, the removed

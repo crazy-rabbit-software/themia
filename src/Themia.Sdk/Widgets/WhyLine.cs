@@ -1,3 +1,4 @@
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
@@ -13,6 +14,15 @@ public static class WhyLine
 {
     /// <summary>[S-15710] The line's band under the face: the gap and the Caption line, 24.</summary>
     public static double Band => TileRules.Below(label: false, state: true);
+
+    /// <summary>
+    /// [S-15716] The least room a why takes beside a face in a card too short for it under the face (a one-row card): about
+    /// ten characters of Caption, so it says at least the start of its sentence ("Can't reach t…"), whole in its tooltip.
+    /// </summary>
+    public const double MinBeside = 64;
+
+    /// <summary>[S-15716] The least card a why stands beside its face in: its Caption line and 4 over and under it.</summary>
+    public static double BesideHeight => FamilyType.Caption.LineHeight + (2 * FamilySpace.S1);
 
     /// <summary>
     /// [S-15710] Whether a content room <paramref name="width"/> by <paramref name="height"/> (the card's less its inset) holds

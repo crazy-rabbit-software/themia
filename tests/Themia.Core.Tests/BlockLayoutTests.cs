@@ -57,6 +57,15 @@ public sealed class BlockLayoutTests
         Assert.Equal(300, (solved.Places[1]!.Value.Y + 16 - 4) * scale, 6);
     }
 
+    [Fact]
+    public void S15718_on_its_head_the_first_ink_stands_on_the_rooms_top_the_height_left_under_the_last()
+    {
+        var solved = BlockLayout.Solve(240, 300, [Reading, Caption], Face, ContentAlign.Center, head: true);
+        var scale = solved.Fill.Scale;
+        Assert.Equal(0, (solved.Places[0]!.Value.Y + 9.2) * scale, 6);
+        Assert.True(300 - ((solved.Places[1]!.Value.Y + 16 - 4) * scale) > 1);
+    }
+
     [Theory]
     [InlineData(ContentAlign.Left)]
     [InlineData(ContentAlign.Center)]

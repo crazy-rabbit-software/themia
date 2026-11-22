@@ -169,6 +169,23 @@ public static class TextRules
         return (words.Length > 0 ? words : NoText, false);
     }
 
+    /// <summary>
+    /// [S-15716] The why's width beside the face in a card too short for it under the face (<see cref="SaysWhy"/>): what a
+    /// content room <paramref name="width"/> wide (the card's less its inset and the status mark's room) leaves after the
+    /// face (<paramref name="face"/> wide as drawn) and a column's gap, at most the sentence's own; none in a card under a
+    /// Caption line's height or where that is under <see cref="WhyLine.MinBeside"/>.
+    /// </summary>
+    public static double? WhyBeside(double width, double cardHeight, double face, double sentence)
+    {
+        if (!double.IsFinite(width) || !double.IsFinite(cardHeight) || cardHeight < WhyLine.BesideHeight)
+        {
+            return null;
+        }
+
+        var room = width - Math.Max(0, face) - FamilySpace.ColumnGap;
+        return room >= WhyLine.MinBeside ? Math.Min(room, double.IsFinite(sentence) ? Math.Max(0, sentence) : room) : null;
+    }
+
     /// <summary>[S-15713] The face's reading where there is none and the kind has no words for it: "--".</summary>
     public const string NoText = "--";
 
@@ -191,10 +208,10 @@ public static class TextRules
     /// <summary>
     /// [S-14931] [S-14934] The width the text takes at its own step in a content room <paramref name="width"/> by
     /// <paramref name="height"/> (the card's less its inset), led by the glyph or not: the face is scaled as one until its ink
-    /// fills the height or the width stops it, so the line may take the room's width at the scale the height gives it (a
-    /// room shorter than the face's own ink widens it, never past the legibility floor's scale), never more at a scale over
-    /// one. A text longer than that is cut with its ellipsis at the room's edge; a shorter one grows until one axis stops it.
-    /// A room not laid out yet is unbounded.
+    /// fills the height or the width stops it, so the line takes the room's width at the scale the height gives it (a room
+    /// shorter than the face's own ink widens it, never past the legibility floor's scale; [S-15715] a taller one narrows it,
+    /// so a long text keeps the height a short one has and is cut, never drawn small). A text longer than that is cut with
+    /// its ellipsis at the room's edge; a shorter one grows until one axis stops it. A room not laid out yet is unbounded.
     /// </summary>
     public static double Room(double width, double height, int lines, bool lead)
     {
@@ -203,7 +220,7 @@ public static class TextRules
             return double.PositiveInfinity;
         }
 
-        var scale = Math.Clamp(height / Ink(lines), ScaleFloor.Least(Step.FontSize), 1);
+        var scale = Math.Max(height / Ink(lines), ScaleFloor.Least(Step.FontSize));
         return Math.Max(0, (width / scale) - LeadRoom(lead));
     }
 

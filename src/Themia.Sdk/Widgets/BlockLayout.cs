@@ -103,20 +103,20 @@ public static class BlockLayout
     /// <see cref="PartBox"/> of 0 height and <see cref="PartBox.GivesWayAt"/> over the floor) in a room
     /// <paramref name="width"/> × <paramref name="height"/>.
     /// </summary>
-    public static BlockSolution Solve(double width, double height, Func<double, IReadOnlyList<PartBox>> partsAt, BlockFace? face, ContentAlign align, double spacing = 0, bool foot = false)
+    public static BlockSolution Solve(double width, double height, Func<double, IReadOnlyList<PartBox>> partsAt, BlockFace? face, ContentAlign align, double spacing = 0, bool foot = false, bool head = false)
     {
         ArgumentNullException.ThrowIfNull(partsAt);
         var floor = face is null ? 0 : Decide(width, height, face, partsAt, spacing);
         var parts = partsAt(floor);
-        var fill = Fill(width, height, Measure(parts, floor, face, spacing), foot);
+        var fill = Fill(width, height, Measure(parts, floor, face, spacing), foot, head: head);
         return new BlockSolution(floor, fill, Place(width, parts, floor, fill, align, spacing));
     }
 
-    /// <summary>[S-12833] <see cref="Solve(double, double, Func{double, IReadOnlyList{PartBox}}, BlockFace?, ContentAlign, double, bool)"/> for parts that give way as a whole only (<see cref="PartBox.GivesWayAt"/>).</summary>
-    public static BlockSolution Solve(double width, double height, IReadOnlyList<PartBox> parts, BlockFace? face, ContentAlign align, double spacing = 0, bool foot = false)
+    /// <summary>[S-12833] <see cref="Solve(double, double, Func{double, IReadOnlyList{PartBox}}, BlockFace?, ContentAlign, double, bool, bool)"/> for parts that give way as a whole only (<see cref="PartBox.GivesWayAt"/>).</summary>
+    public static BlockSolution Solve(double width, double height, IReadOnlyList<PartBox> parts, BlockFace? face, ContentAlign align, double spacing = 0, bool foot = false, bool head = false)
     {
         ArgumentNullException.ThrowIfNull(parts);
-        return Solve(width, height, _ => parts, face, align, spacing, foot);
+        return Solve(width, height, _ => parts, face, align, spacing, foot, head);
     }
 
     /// <summary>
@@ -165,15 +165,19 @@ public static class BlockLayout
 
     /// <summary>
     /// [S-12808] The fill of a measured block in a room <paramref name="width"/> × <paramref name="height"/>; [S-14319] on its
-    /// <paramref name="foot"/>; [S-14324] never over <paramref name="most"/> (a line that keeps its own size, centred on its ink).
+    /// <paramref name="foot"/>; [S-14324] never over <paramref name="most"/> (a line that keeps its own size, centred on its ink);
+    /// [S-15718] on its <paramref name="head"/>: where the width stops it, its first ink on the room's top, the height left under
+    /// its last (a reading over a graph's plot, WR-1: "there should not be a space at the top"; graphs are not relaxed).
     /// </summary>
-    public static BlockFill Fill(double width, double height, Measured block, bool foot = false, double most = double.PositiveInfinity)
+    public static BlockFill Fill(double width, double height, Measured block, bool foot = false, double most = double.PositiveInfinity, bool head = false)
     {
         most = Math.Min(most > 0 && !double.IsNaN(most) ? most : double.PositiveInfinity, block.Whole > block.Intrinsic ? Uncut(width, block.Whole) : double.PositiveInfinity);
         var fill = Fill(width, height, block.Intrinsic, block.Packed, block.Ink, block.Least, most);
 
         // [S-14319] Stood on its foot: where the width stops it, the height left stands over its first ink alone.
-        return foot ? fill with { Top = (2 * fill.Top) + (Math.Max(0, block.Ink.Over) * fill.Scale) } : fill;
+        return foot ? fill with { Top = (2 * fill.Top) + (Math.Max(0, block.Ink.Over) * fill.Scale) }
+            : head ? fill with { Top = Math.Min(fill.Top, -(Math.Max(0, block.Ink.Over) * fill.Scale)) }
+            : fill;
     }
 
     /// <summary>

@@ -45,6 +45,9 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly KitStatus _status;
     private readonly TileBlock _tile = new(TileLook.Tile);
 
+    /// <summary>[S-15716] Why it cannot be read, beside the glyph in a card too short for it under the glyph.</summary>
+    private readonly TextBlock _beside = Family.Text(FamilyType.Caption, TileRules.Roles(TileLook.Tile, TileState.Unavailable).State);
+
     /// <summary>[S-15005] The face: a button edge to edge where the family presses, else the item alone.</summary>
     private readonly Face _face;
 
@@ -75,6 +78,13 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         // The whole card is hit-testable, edge to edge: the tile is the item.
         _face.Background = Family.Brush(ColourRole.Clear);
         _face.Children.Add(_tile);
+        _beside.TextWrapping = TextWrapping.NoWrap;
+        _beside.TextTrimming = TextTrimming.CharacterEllipsis;
+        _beside.HorizontalAlignment = HorizontalAlignment.Left;
+        _beside.VerticalAlignment = VerticalAlignment.Center;
+        _beside.IsHitTestVisible = false;
+        _beside.Visibility = Visibility.Collapsed;
+        _face.Children.Add(_beside);
         Children.Add(_face);
         _status.Place(this);
 
@@ -279,9 +289,39 @@ public abstract partial class IconView : Grid, IWidgetView, IWidgetOpens, IWidge
         var natural = IconRules.NaturalSide;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural, natural);
         var inset = IconRules.Inset(width, height);
-        _why = Why is not null && _area.IsMeasured && IconRules.SaysWhy(width, height);
-        _tile.Padding = new Thickness(inset);
-        _tile.Use(IconRules.Step(width, height, _why), width - (2 * inset), label: false, state: _why, stateStep: FamilyType.Caption);
+        var why = Why;
+        var marked = _shown.Problems.Count > 0;
+        _why = why is not null && _area.IsMeasured && IconRules.SaysWhy(width, height);
+
+        // [S-15716] A card too short for the why under the glyph says it beside it, where the width holds it.
+        IconBeside? beside = null;
+        if (why is not null && _area.IsMeasured && !_why)
+        {
+            // A collapsed text measures nothing: it is shown to be measured, and collapsed again where it has no room.
+            _beside.Text = why;
+            _beside.Width = double.NaN;
+            _beside.Visibility = Visibility.Visible;
+            _beside.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            beside = IconRules.Beside(width, height, _beside.DesiredSize.Width, marked);
+        }
+
+        // [S-15717] Where the inset has given way the glyph stands clear of the status mark.
+        var box = IconRules.Box(width, height, marked);
+        _status.StandAt(box.Mark, box.Mark);
+        if (beside is { } at)
+        {
+            _tile.Padding = new Thickness(at.GlyphLeft, inset, width - at.GlyphLeft - at.Glyph, inset);
+            _tile.Use(IconRules.Step(at.Glyph, at.Glyph), at.Glyph, label: false, state: false);
+            _beside.Margin = new Thickness(at.TextLeft, 0, 0, 0);
+            _beside.Width = at.TextWidth;
+            _beside.Visibility = Visibility.Visible;
+            return;
+        }
+
+        _beside.Visibility = Visibility.Collapsed;
+        var edges = box.Glyph;
+        _tile.Padding = new Thickness(edges.Left, edges.Top, edges.Right, edges.Bottom);
+        _tile.Use(IconRules.Step(width, height, _why), width - edges.Left - edges.Right, label: false, state: _why, stateStep: FamilyType.Caption);
     }
 
     /// <summary>[S-15710] Why it cannot be read, where it says: null while it can be, or with no reason given.</summary>

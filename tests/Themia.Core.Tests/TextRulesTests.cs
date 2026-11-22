@@ -54,14 +54,23 @@ public sealed class TextRulesTests
     // ---- [S-14931] the line's room ------------------------------------------------------------------------
 
     [Fact]
-    public void S14931_at_its_own_size_or_larger_the_line_takes_the_room_less_its_lead()
+    public void S14931_at_its_own_size_the_line_takes_the_room_less_its_lead()
     {
         var lead = TextRules.LeadRoom(lead: true);
 
         Assert.Equal(20 + FamilySpace.GlyphGap, lead);
-        Assert.Equal(216 - lead, TextRules.Room(216, 28, 1, lead: true));
-        Assert.Equal(216 - lead, TextRules.Room(216, 400, 1, lead: true));
-        Assert.Equal(216, TextRules.Room(216, 400, 1, lead: false));
+        Assert.Equal(216 - lead, TextRules.Room(216, TextRules.Ink(1), 1, lead: true), 6);
+    }
+
+    [Fact]
+    public void S15715_a_taller_room_draws_the_line_larger_so_a_long_text_keeps_the_height_and_is_cut()
+    {
+        // 80 of ink is the scale 80 / Ink: the line takes the width at that scale, so a long text fills the height, cut.
+        var scale = 80 / TextRules.Ink(1);
+
+        Assert.True(scale > 1);
+        Assert.Equal(216 / scale, TextRules.Room(216, 80, 1, lead: false), 6);
+        Assert.Equal((216 / scale) - TextRules.LeadRoom(lead: true), TextRules.Room(216, 80, 1, lead: true), 6);
     }
 
     [Fact]
@@ -165,4 +174,14 @@ public sealed class TextRulesTests
         Assert.Equal(MetricOpens.Weather.Label, TextOpens.Weather.Label);
         Assert.Null(TextOpens.Weather.Target(new Text(), new TextShown("Rain in 15 min")));
     }
+
+    // ---- [S-15716] why, beside the face ----------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(98, 32, 12, 130, 74.0)] // 122 x 32: "--" 12 wide, the rest after a 12 gap, the sentence cut
+    [InlineData(216, 52, 12, 130, 130.0)] // 240 x 52: the sentence whole
+    [InlineData(98, 20, 12, 130, null)] // under a Caption line's height
+    [InlineData(80, 52, 12, 130, null)] // under ten characters of room
+    public void S15716_a_card_too_short_for_the_why_under_its_face_says_it_beside_it(double width, double height, double face, double sentence, double? beside)
+        => Assert.Equal(beside, TextRules.WhyBeside(width, height, face, sentence));
 }
