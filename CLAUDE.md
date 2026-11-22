@@ -215,7 +215,7 @@ each, the one face `MetricView` (one row at its least, every cell taller too, th
 `MetricRules.Look`, the row or the readout over the graph, [S-14700]; the trend None/Arrow/Line, the graph in the chart look
 `IChartLooks` sets, [S-14703]; one item that lights and opens its kind's source, `MetricKind.Opens`, [S-14706]), a
 system family's facts through `SystemMetricPart` on `SystemMetricView`; never a widget of picked facts again. Every widget whose face is a line of text (a song's
-title, the rain's sentence) is a **text kind** on one base the same way (SPEC TEXTS, [S-14930]..[S-14936]): `TextKind` data,
+title) is a **text kind** on one base the same way (SPEC TEXTS, [S-14930]..[S-14936]): `TextKind` data,
 a `TextModule` each, the one face `TextView` (one block scaled as one at the content alignment, its line cut at the card's
 edge, `TextRules`; the item that lights and opens its source, `TextKind.Opens`, `ItemLight`). Every widget whose face is one
 icon (the transport buttons, the Icon widget) is an **icon kind** on one base too (SPEC ICONS, [S-15000]..[S-15006]):

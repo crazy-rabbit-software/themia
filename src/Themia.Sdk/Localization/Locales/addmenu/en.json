@@ -8,8 +8,7 @@
     "addMenu.showAll",
     "addMenu.showFewer",
     "addMenu.overLimit",
-    "addMenu.family.nowPlaying",
-    "addMenu.family.rain"
+    "addMenu.family.nowPlaying"
   ],
   "addMenu.popular": "Popular",
   "addMenu.browse": "Browse",
@@ -37,7 +36,6 @@
   "addMenu.family.sunTimes": "Sun times",
   "addMenu.family.moonTimes": "Moon times",
   "addMenu.family.nowPlaying": "Now playing",
-  "addMenu.family.rain": "Rain",
   "addMenu.start": "Start",
   "addMenu.widgets": "Widgets",
   "addMenu.noResults": "No results for “{query}”",

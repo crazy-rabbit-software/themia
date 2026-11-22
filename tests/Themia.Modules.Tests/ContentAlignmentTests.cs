@@ -61,7 +61,7 @@ public sealed partial class ContentAlignmentTests
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
         WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("date"), new WidgetId("weatherNow"), new WidgetId("stock"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRate"), new WidgetId("header"),
-            new WidgetId("music"), new WidgetId("musicArtist"), new WidgetId("musicAlbum"), new WidgetId("musicElapsed"), new WidgetId("musicDuration"), new WidgetId("rainOutlook")];
+            new WidgetId("music"), new WidgetId("musicArtist"), new WidgetId("musicAlbum"), new WidgetId("musicElapsed"), new WidgetId("musicDuration")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[new WidgetId("tasks"), new WidgetId("email"), new WidgetId("calendar"), new WidgetId("cpu"), new WidgetId("mixer"), new WidgetId("wifiToggle"), new WidgetId("shutdown"), new WidgetId("folder")])

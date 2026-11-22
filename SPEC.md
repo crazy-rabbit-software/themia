@@ -10853,7 +10853,7 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   why in the face's place; the why is the card's line under it ([S-15710]) and its tooltip. The dashes are drawn at most
   at the scale a line of the kind has in the room (`TextRules.DashScale`, `ReadingFit.Most`), as large as the reading they
   stand for, never blown up until their thin ink fills the card. The weather's condition. Test `TextRulesTests.S15713_`.
-- **[S-14933]** **Its tone**: the reading's own text primary on the Title step (a song's title, the rain's sentence); a
+- **[S-14933]** **Its tone**: the reading's own text primary on the Title step (a song's title); a
   detail's (an artist, an album) regular and secondary (`TextTone`, `TextRules.StepOf`). The lead glyph is secondary.
 - **[S-14934]** **A family a project, a kind a text.** A family's kinds are data (`TextKind`: id, the text's key in its
   family, glyph, the add page's name, description and search words, its config, its lines, whether its glyph leads, its
@@ -10871,8 +10871,8 @@ families are their projects: Now playing (`Themia.Widget.Music`, [S-14920]) and 
   text six times over, cut with its ellipsis at the card's edge.
 - **[S-14944]** **The groups**: **Now playing** (the cover beside the title over the artist over the three buttons, the
   progress's line under them), **Now playing, large** (the cover over the title, the artist, the album, the progress and
-  the buttons; both [S-15107]) and **Rain** (the sentence over the graph over the total); **Weather station** ends with the rain's sentence
-  over its graph. Each starts with its Header ([S-12485]), its parts touching.
+  the buttons; both [S-15107]). Each starts with its Header ([S-12485]), its parts touching. *(The Rain group and the Weather
+  station's rain sentence retired 2026-11-22: Rain next hour is one widget again, its [S-5126].)*
 
 ## Icon widgets (ICONS)
 

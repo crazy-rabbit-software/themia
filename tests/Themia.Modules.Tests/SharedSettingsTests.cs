@@ -23,7 +23,7 @@ public sealed class SharedSettingsTests
     /// <summary>[S-11752] Which kinds carry each shared setting: the table the SPEC states, pinned.</summary>
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
-        ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "rainOutlook", "rainTotal", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
+        ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
         ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],

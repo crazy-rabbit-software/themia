@@ -57,7 +57,6 @@ public static class AddTree
         new(AddFolderId.AirFacts, Str.AddMenu_Family_AirFacts, AddFolderId.Weather, 0, 5),
         new(AddFolderId.SunTimes, Str.AddMenu_Family_SunTimes, AddFolderId.Weather, 1, 1),
         new(AddFolderId.MoonTimes, Str.AddMenu_Family_MoonTimes, AddFolderId.Weather, 1, 3),
-        new(AddFolderId.Rain, Str.AddMenu_Family_Rain, AddFolderId.Weather, 0, 3),
         new(AddFolderId.Markets, Str.AddMenu_Subject_Markets, AddFolderId.Browse, 0, 3),
         new(AddFolderId.Media, Str.AddMenu_Subject_Media, AddFolderId.Browse, 0, 4),
         new(AddFolderId.NowPlaying, Str.AddMenu_Family_NowPlaying, AddFolderId.Media, 0, 0),

@@ -139,7 +139,7 @@ public sealed class ItemKindsHostTests
     public void S14935_S14922_the_now_playing_texts_and_buttons_are_items()
     {
         // [S-14935] A text's face is one item that lights; [S-14922] a button is its tile.
-        foreach (var kind in new[] { "music", "musicArtist", "musicAlbum", "musicElapsed", "musicDuration", "musicPrevious", "musicPlayPause", "musicNext", "rainOutlook" })
+        foreach (var kind in new[] { "music", "musicArtist", "musicAlbum", "musicElapsed", "musicDuration", "musicPrevious", "musicPlayPause", "musicNext" })
         {
             var (state, view, selection) = Selected(new WidgetId(kind));
             Assert.True(QuickSet.For(state, selection, view.Id).HasItems, kind);

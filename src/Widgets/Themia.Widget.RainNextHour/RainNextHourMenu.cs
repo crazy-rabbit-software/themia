@@ -2,19 +2,19 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
+using Themia.Sdk.WinUI;
 using Themia.Core.Sync;
 using Themia.Sdk;
-using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-5127] [S-14940] The rain widgets' options, all on their page ([S-3719]): Appearance ([S-3723]),
+/// [S-5127] The rain widget's options, all on its page ([S-3719]): Appearance ([S-3723]),
 /// the weather family's location search ([S-2840], [S-3722]) and the source's credit. Rain has nothing else to choose. It has no settings page.
 /// </summary>
 internal static class RainNextHourMenu
 {
-    public static void Lines(WidgetMenuLines menu, RainConfig config)
+    public static void Lines(WidgetMenuLines menu, RainNextHourConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
