@@ -23,8 +23,15 @@ public readonly record struct ClockDialPlan(double Dial, bool Line);
 /// </summary>
 public static class ClockFace
 {
-    /// <summary>[S-6743] Under this a dial is a smear of hairlines; it never draws smaller.</summary>
-    public const double DialFloor = 40;
+    /// <summary>
+    /// [S-6743] [S-15815] The least dial: its rim, twelve hour marks, two hands and the hub still read at 20 (WR-14, owner
+    /// 2026-11-19: "for the widgets that can scale there should basically be no lower limit except for one that makes sense
+    /// so you can still see the widget"); at 40 a dial of half that size, still plainly a clock, was held back.
+    /// </summary>
+    public const double DialFloor = 20;
+
+    /// <summary>[S-15815] The least dial that draws all twelve hour marks; a smaller one its quarters alone.</summary>
+    public const double DialAllHours = 64;
 
     /// <summary>[S-6743] The least dial that keeps its line under it.</summary>
     public const double DialWithLine = 96;

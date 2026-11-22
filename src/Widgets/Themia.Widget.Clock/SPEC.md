@@ -41,7 +41,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   line under then takes its longer form). **It scales down to its figures at 9** (owner, 2026-11-19: "the clock has a
   min height that is way to big"; root [S-12833], `ClockFace.Sizing`, `.Fit`): its least card is its figures (the
   words) alone at 9 DIP in the inset, never under 32 (Digital and Minimal 48 × 32, Stacked 35 × 43, Flip about
-  53 × 37, Words 87 × 66; more with seconds), the dial its floor of 40 in the inset (64 × 64); on the way down the
+  53 × 37, Words 87 × 66; more with seconds), the dial its floor of 20 in the inset (44 × 44, [S-15815]); on the way down the
   line under and then the meridiem give way where the card would draw them under 9, and the face is never drawn
   larger for it. **The face fills its card** (owner,
   2026-11-17: "the clock widget does not stretch out to fill the space properly, there is way too much spacing
@@ -171,7 +171,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   primary role, round; the second hand a stroke (2) in the accent, the dial's one moving meter; the
   hub an 8 dot, primary. Its line (Body, secondary) stands 8 under the dial while the dial keeps 96,
   else the dial is alone; the line never stands beside it ([S-11800]: no strip layout). A dial is never
-  under 40.
+  under 20 ([S-15815]).
 - **[S-6744]** *(Retired by [S-12805]: the Date style is the Date widget, `src/Widgets/Themia.Widget.Date`.)*
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-5300]**..**[S-5304]** *(Retired by [S-12805]: the clock's Date style went to its own widget again,
@@ -200,6 +200,11 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   item edge to edge (`ItemMark`, `ListEdge`), lit at hover and pressed by the item layer's row fill (`ItemLight`, as a
   single metric's or a text widget's that opens its source) and taking the card's corners (`IWidgetCorners`); only
   its fill changes (WR-12). The face stands in the inset inside it, as before.
+- **[S-15815]** **The dial goes down to 20** (WR-14, owner 2026-11-19: "for the widgets that can scale there should
+  basically be no lower limit except for one that makes sense so you can still see the widget"): its rim, hour marks, hands
+  and hub still read as a clock at 20, so the analog card's least is 44 × 44 (`ClockFace.DialFloor`); it had stopped at a
+  40 dial, 64 × 64. Under a 64 dial it marks the quarters alone (12, 3, 6, 9: twelve marks crowd into a star there,
+  `ClockFace.DialAllHours`). Tests `ClockFaceTests.S15815_`.
 
 Needs a manual pass: every style at every tier on the live desktop (showcase views, [S-1810]); a
 flip turning over on the minute; the zone picker with a live search.

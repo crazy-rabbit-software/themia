@@ -102,6 +102,16 @@ public sealed class ClockFaceTests
     }
 
     [Fact]
+    public void S15815_the_analog_clock_goes_down_to_a_20_dial_in_a_44_card()
+    {
+        // WR-14: it had stopped at a 40 dial (64x64), twice what still reads as a clock.
+        var sizing = ClockFace.Sizing(new ClockConfig { Style = ClockStyle.Analog }, string.Empty);
+        Assert.Equal(new SizeDip(44, 44), sizing.Min);
+        Assert.Equal(20, ClockFace.Dial(20, 20, line: true).Dial);
+        Assert.False(ClockFace.Dial(20, 20, line: true).Line);
+    }
+
+    [Fact]
     public void S6741_S12833_every_part_is_drawn_at_the_natural_box_and_only_the_figures_at_the_least()
     {
         foreach (var (config, meridiem) in Clocks().Where(c => c.Config.Style != ClockStyle.Analog))

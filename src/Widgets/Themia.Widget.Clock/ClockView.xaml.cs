@@ -420,6 +420,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
 
         // Sixty marks is the real Windows dial, but under 160 they are closer together than they are long.
         var minutes = diameter >= 160;
+
+        // [S-15815] Under 64 twelve marks crowd into a star: a small dial keeps the quarters (12, 3, 6, 9) alone.
+        var hours = diameter >= ClockFace.DialAllHours;
         var outer = radius - (FamilyShape.Hairline * 3);
         var hourMark = Family.Brush(ColourRole.TextSecondary);
         var minuteMark = Family.Brush(ColourRole.TextTertiary);
@@ -427,7 +430,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         for (var mark = 0; mark < 60; mark++)
         {
             var onHour = mark % 5 == 0;
-            if (!onHour && !minutes)
+            if ((!onHour && !minutes) || (onHour && !hours && mark % 15 != 0))
             {
                 continue;
             }
@@ -457,9 +460,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         _secondHand = AddHand(Family.Brush(ColourRole.Accent), radius * 0.80, FamilyShape.Stroke, radius * 0.16, _secondRotation, radius);
         _secondHand.Visibility = _config.DrawsSeconds ? Visibility.Visible : Visibility.Collapsed;
 
-        var hub = new Ellipse { Width = FamilySpace.S2, Height = FamilySpace.S2, Fill = hand };
-        Canvas.SetLeft(hub, radius - (FamilySpace.S2 / 2));
-        Canvas.SetTop(hub, radius - (FamilySpace.S2 / 2));
+        // [S-15815] The hub a fifth of a small dial at most, so its hands still show round it.
+        var side = Math.Min(FamilySpace.S2, diameter / 5);
+        var hub = new Ellipse { Width = side, Height = side, Fill = hand };
+        Canvas.SetLeft(hub, radius - (side / 2));
+        Canvas.SetTop(hub, radius - (side / 2));
         _dial.Children.Add(hub);
     }
 
