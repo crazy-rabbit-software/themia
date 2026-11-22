@@ -30,11 +30,12 @@ public sealed record MonthLayout(IReadOnlyList<double> Columns, double HeaderHei
 public readonly record struct MonthChipRoom(int Lanes, double Column)
 {
     /// <summary>
-    /// [S-14101] A dots month (owner, 2026-11-20: "the calendar shows the individual events too early, the items should stay
-    /// small for a little longer"): its cells keep their dots until they hold two chip lines under the number in a column of
-    /// 80, where a chip's title reads (a meeting's dot, its start's room and a word or two) and "+k more" has its words.
+    /// [S-14101] [S-15782] A dots month (owner, 2026-11-20: "the calendar shows the individual events too early, the items
+    /// should stay small for a little longer"; WR-9: "A day cell keeps its small marks until it clearly holds a readable chip
+    /// line"): its cells keep their dots until they hold two chip lines under the number (one more than a month with titles
+    /// shows chips from: the "little longer") in a column where a chip's title reads, a month with titles' least (56).
     /// </summary>
-    public static MonthChipRoom Dots => new(2, MonthPlan.MoreWordsFrom);
+    public static MonthChipRoom Dots => new(2, CalendarSizing.MonthTitleColumn);
 
     /// <summary>[S-11547] A month with titles, chosen: a chip line in a column of its least, 56.</summary>
     public static MonthChipRoom Titles => new(1, CalendarSizing.MonthTitleColumn);
@@ -49,7 +50,7 @@ public readonly record struct MonthChipRoom(int Lanes, double Column)
 /// over at the foot at any size). A cell is filled by its content: its day's events as chips under its number where it
 /// has the room for them (<see cref="MonthChipRoom"/>; Outlook's month view),
 /// its dots where it does not, its number alone on a day of nothing; the number grows with the cell, as large as what
-/// the chips or dots leave of its height and half its width allow.
+/// the chips or dots leave of its height and its two figures across the column allow ([S-15782], <see cref="NumberFits"/>).
 /// </summary>
 public static class MonthLayouts
 {
@@ -58,6 +59,17 @@ public static class MonthLayouts
 
     /// <summary>The largest a day's number line grows.</summary>
     public const double MostNumberLine = 64;
+
+    /// <summary>[S-15782] A figure's advance in Segoe UI Variable, a fraction of its size (tabular figures).</summary>
+    public const double FigureAdvance = 0.56;
+
+    /// <summary>
+    /// [S-15782] The largest number line a day's two figures fit across in a column <paramref name="column"/> wide, inside the
+    /// cell's 4 on each side (WR-9, "Bigger numbers too": the number grows with its cell until its width stops it, no longer
+    /// at half the column's width).
+    /// </summary>
+    public static double NumberFits(double column)
+        => Math.Max(0, column - (2 * FamilySpace.S1)) / (2 * FigureAdvance) * (FamilyType.Caption.LineHeight / FamilyType.Caption.FontSize);
 
     /// <summary>
     /// The month in a card <paramref name="width"/> wide whose month starts <paramref name="top"/> under the card's top
@@ -93,7 +105,7 @@ public static class MonthLayouts
             MonthFace.Dots => rowHeight - (2 * pad) - dotRoom,
             _ => rowHeight - (2 * pad),
         };
-        var number = Math.Floor(Math.Clamp(Math.Min(tall, column / 2), FamilyType.Caption.LineHeight, MostNumberLine));
+        var number = Math.Floor(Math.Clamp(Math.Min(tall, NumberFits(column)), FamilyType.Caption.LineHeight, MostNumberLine));
         return new MonthLayout(columns, headerEnd - top, rows, first, rowHeight, face, lanes, number);
     }
 }

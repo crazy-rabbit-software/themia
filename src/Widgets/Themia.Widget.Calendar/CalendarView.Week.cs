@@ -138,10 +138,10 @@ internal sealed partial class CalendarView
             byDay[c] = CalendarRules.DayItems(Events, Birthdays, start.AddDays(c), zone);
         }
 
-        // [S-11545] [S-12815] The strip is a row of day items on the card's top edge (under a state's row, right under it):
-        // the days share the card's width from its left edge to its right (WR-3), touching (WR-2), each its weekday and
-        // number at the card's inset over its marks; the band ends on a grid line, the chosen day's rows right under it
-        // (WR-1: nothing between the strip and the first row).
+        // [S-11545] [S-12815] [S-15780] The strip is a row of day items on the card's top edge (under a state's row, right
+        // under it): each day its one column (whole cells, WR-4, WR-6) from the card's left edge, touching (WR-2), every day
+        // the width reaches, the last cut by its right edge, each its weekday and number at the card's inset over its marks;
+        // the band ends on a grid line, the chosen day's rows right under it (WR-1: nothing between the strip and the first row).
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
         var lift = _stated ? 0 : FamilySpace.ContentTop;
         var band = CalendarSizing.StripBand(cells);
@@ -152,15 +152,16 @@ internal sealed partial class CalendarView
         var rowsArea = _area.IsMeasured
             ? new WidgetArea(width, Math.Max(0, under - FamilySpace.Inset), _area.Cell, XamlRoot?.RasterizationScale ?? 1)
             : new WidgetArea(width, CalendarSizing.ClampWeekRows(_config.WeekRows) * FamilyShape.Row1);
-        var columns = ItemSize.Columns(width, days, cells);
-        var labels = CalendarFit.Weekdays(Math.Max(0, width) / Math.Max(1, days));
+        var strip = new RowReach(ItemSize.Optimal(CalendarSizing.StripColumn, cells), days, cells.Raster);
+        var columns = Enumerable.Range(0, days).Select(strip.Height).ToArray();
+        var labels = CalendarFit.Weekdays(strip.Pitch);
         var plan = KitPlanner.Plan(rowsArea, AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = new KitRowsChoice(CalendarSizing.ClampWeekRows(_config.WeekRows), 1) });
 
         // The strip, then the empty day's sentence: rows of the content, no margins.
         _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        var grid = new Grid { Margin = new Thickness(0, -lift, 0, 0), Height = band, VerticalAlignment = VerticalAlignment.Top };
+        var grid = new Grid { Margin = new Thickness(0, -lift, 0, 0), Height = band, VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Left };
         for (var c = 0; c < days; c++)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(columns[c]) });

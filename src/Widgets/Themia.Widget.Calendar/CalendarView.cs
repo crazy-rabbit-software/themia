@@ -360,7 +360,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// (<see cref="CalendarSizing.WeekDaysIn"/>), a new one's before it is measured; the config's period else.
     /// </summary>
     private CalendarPeriod Shown => Layout == CalendarStyle.Week
-        ? _config.Period with { WeekDays = _area.IsMeasured ? CalendarSizing.WeekDaysIn(_area.Width, _config.WeekTitles) : CalendarPeriod.WeekDefaultDays }
+        ? _config.Period with { WeekDays = _area.IsMeasured ? CalendarSizing.WeekDaysIn(_area.Width, _config.WeekTitles, _area.Grid(XamlRoot?.RasterizationScale ?? 1)) : CalendarPeriod.WeekDefaultDays }
         : _config.Period;
 
     /// <summary>[S-568] The days the layout covers, which is what is drawn.</summary>

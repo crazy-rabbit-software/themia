@@ -59,4 +59,14 @@ public sealed class KitPagesTests
         Assert.Equal(LocaleFormat.Date(Locale.En, Today.AddDays(5), DateStyle.WeekdayMonthDayShort), KitDays.Heading(Locale.En, Today.AddDays(5), Today, dated: true));
         Assert.Equal("Today", KitDays.Heading(Locale.En, Today, Today, dated: false));
     }
+
+    [Fact]
+    public void S15783_the_room_under_a_pages_whole_lines_holds_the_next_pages_first_cut_by_the_foot()
+    {
+        // Six rows of 30 in a column 200 tall leave 20: the next page's first row stands there, cut by the foot.
+        Assert.Equal(20, KitPages.Room(200, 6, _ => 30), 6);
+        Assert.Equal(0, KitPages.Room(180, 6, _ => 30), 6);
+        Assert.Equal(200, KitPages.Room(200, 0, _ => 30), 6);
+        Assert.Equal(0, KitPages.Room(double.NaN, 2, _ => 30), 6);
+    }
 }

@@ -36,16 +36,19 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   least) 4 × 3 months' cells, 320 × 240 and 520 × 450 (`CalendarSizing.Year`, `YearCell`, `YearSizing`). The card's size
   is the user's (owner, 2026-11-20: "the size should not be settable, it is set by the size of the widget"; the old Size
   line, [S-2449], is gone): a larger card draws the twelve months larger ([S-15672]). Tests `CalendarSizingTests.S11542_`.
-- **[S-15672]** **The year is a grid of the card** (docs/WIDGET-RULES.md WR-9, owner 2026-11-19: "the calendar does not
-  follow this design philosophy for example. fix that"; "Bigger numbers too"; WR-1..WR-3): a year has its twelve months,
-  never "how many of the same item", so its months are not a list cut at the foot but share the card as the month's day
-  cells do. From the card's top edge (under a state's row, right under it) the months' cells (items) share the card's
-  width and height evenly, touching, edge to edge, every edge on a whole device pixel (`ItemSize.Columns`), in the
-  columns and lines of twelve that draw the small months largest (`CalendarSizing.YearShares`: a new card 4 × 3, a wide
-  one 6 × 2 or 12 × 1, a tall one 3 × 4; a tie keeps 4 × 3); each small month is scaled up as one inside its cell's
-  padding of 8 (`YearPad`, the inset's place), centred in it, never under its own size. It had been one block scaled from
-  the content's top-left, leaving the card's right or foot empty where its shape was not the card's. Tests
-  `CalendarSizingTests.S15672_`.
+- **[S-15672]** *(Replaced by [S-15780]: the year's months shared the card and grew with it, which WR-4 and WR-6 do not
+  allow a repeated item; WR-9's "grid of the card" is the month's alone.)*
+- **[S-15780]** **The year's months and the week strip's days keep their one size** (docs/WIDGET-RULES.md WR-4: "they
+  should just keep their size and the last item will be cutoff to some extent then"; WR-6; WR-9: the month alone is a grid
+  of the card). A year's month is a cell of one size at every size of the card: its small month and the 8 round it
+  (`YearPad`) in whole grid cells (`CalendarSizing.YearCell`, 80 × 80 with squares, 130 × 150 with numbers), the small
+  month at its own size centred in it; from the card's top edge (under a state's row, right under it) the cells touch
+  from its left edge, as many a line as the width reaches (1..12, the last cut by its right edge, `YearCells` over
+  `ItemSize.Cells`), the months in reading order on as many lines as they take, the last line the card reaches cut by
+  its foot, the room past the twelfth empty. The week strip's days are columns of 40 in whole cells from the card's left
+  edge, every day the width reaches (1..14, `WeekDaysIn`), the last cut by its right edge; a new strip is seven days,
+  280. Before, the months shared the card (80 to 173 wide) and the strip's days shared its width (43 to 64). Tests
+  `CalendarSizingTests.S15780_`, `S11545_`.
 - **[S-11543]** **Day**: its **hours** (4..24, a new one 8; the card's height, no line, none stored: as many as the
   card reaches at an hour's optimal, `CalendarSizing.HoursIn`, [S-14502]), an hour a 28 row at its optimal, under one
   band line for the all-day items (its item's bar, or chips shared among several, "+N"; a day without
@@ -90,18 +93,25 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   height under `MonthOver` evenly on whole device pixels, so at every size the weeks fill the card from under the
   weekday line to its foot, alike, none left over;
   a state's row (Set up, an account gone) stands on the card's top edge and the weeks share what it leaves ([S-14903]).
-  A dots month's cell shows its day's events as chips only once it holds two chip lines under its number in a column of
-  80, where a chip's title reads and "+k more" has its words (`MonthChipRoom.Dots`; before, one chip line in a column of
+  A dots month's cell shows its day's events as chips only once it holds two chip lines under its number in a column
+  where a chip's title reads, 56 ([S-15782], `MonthChipRoom.Dots`; before, one chip line in a column of
   44 turned a 40-tall cell into chips of four letters); a month with titles, chosen, shows them from one chip line in its
   least column of 56 (`MonthChipRoom.Titles`).
   Tests `MonthLayoutTests.S14101_`.
+- **[S-15782]** **Bigger numbers, chips once a cell clearly holds them** (WR-9: "Bigger numbers too"; "A day cell keeps
+  its small marks until it clearly holds a readable chip line"): a day's number grows with its cell until what the chips
+  or dots leave of its height or its two figures across the column inside the cell's 4 stop it
+  (`MonthLayouts.NumberFits`: figures of 0.56 em; at most a line of 64), no longer at half the column's width (a 520 × 600
+  month's '1' stood 19 DIP tall in a 97 DIP week); a dots month shows chips from two chip lines in a column of 56, where a
+  month with titles reads them (one more line than a month with titles: the "little longer"), no longer from 80 (a 74 wide
+  cell with room for four chip lines showed dots). Tests `MonthLayoutTests.S15782_`, `S14101_S15782_`.
 - **[S-11545]** **Week, the day strip** (a new one's): a row of day items on the card's top edge (WR-1..WR-3,
-  [S-12815]): the days share the card's width from its left edge to its right, touching (`ItemSize.Columns`), each its
+  [S-12815]): the days stand from its left edge at their one column ([S-15780]), touching, each its
   head (its weekday, its number) at the card's inset over the room its marks take at most ([S-2282]: three, then "+n");
   the strip's band ends on a grid line (`CalendarSizing.StripBand`, 100 on the default grid) and the chosen day's
   **Rows** (1..12, a new one 3; Style line) stand right under it as the agenda's one-line rows ([S-2285]), the last cut
-  by the card's foot: one height for the config, a 40 column a day at its optimal (a new one's seven days 304), as many
-  days as the card's width holds, sharing it, and the rows its height reaches ([S-14410], [S-14502]: none stored by a
+  by the card's foot: one height for the config, a 40 column a day at its optimal (a new one's seven days 280), as many
+  days as the card's width reaches, the last cut by its right edge, and the rows its height reaches ([S-14410], [S-14502]: none stored by a
   resize). Under a state's row the strip starts right under it. Before, the strip stood in the inset with 8 under it,
   its first row 40 DIP under the last ink over it.
 - **[S-11546]** **Titles in the week** (a Style switch, off by default): the columns hold their events'

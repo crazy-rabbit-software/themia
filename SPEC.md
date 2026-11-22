@@ -1707,6 +1707,12 @@ The shared parts a list widget is built from, and the rules they keep (design an
   a column that starts mid-group; on a tile under 128px a first group that is today drops its
   heading ([S-1267]); at least one row per column, so paging always moves. The widget turns the page
   (`KitList.Page`); the cursor takes the page with it.
+- **[S-15783]** **A page's next row is cut by the foot** (docs/WIDGET-RULES.md WR-4: "the last item will be cutoff to some
+  extent then"; WR-5): where a page's last column leaves room under its whole lines and more items follow, the next
+  page's first line (its group's heading where one starts there, else its row) stands in that room, cut by the card's
+  foot (`KitPages.Room`), never the room left empty while more follow; it is the next page's: a click on it is that
+  item's and the cursor reaching it turns the page. Before, a page ended on its last whole row and up to a row's room
+  stood empty under it (the calendar's agenda, the week's chosen day). Tests `KitPagesTests.S15783_`.
 - **[S-2280]** An item in no group (`KitItem.Group` null) has no heading over it, on a page's first
   row or a column's: its rows are the column's whole height (the week's chosen day, under its
   strip, which names the day already).
@@ -7313,6 +7319,9 @@ The one look, everywhere ([S-6706]: the family's item layer and accent; no hue o
 
 Declared in data:
 
+- **[S-15781]** **A linked part lights in a render as under the pointer** (WR-13): every part `LinkLights` wires for the
+  pointer registers its look for the renders' `--hover`/`--pressed` (`PointerPreview`): the part alone lit, as the pointer
+  on it lights it (a month's day cell, a year's day, a week's head); before, those renders showed no light at all.
 - **[S-11905]** A kind declares in its descriptor what it publishes and what it follows
   (`WidgetDescriptor.Links`, a `LinkUse`: topic ids, each once, in order), as Karpo's list records
   declare their channels. There is no per-widget opt-out: following is not a choice (Karpo §241). A topic

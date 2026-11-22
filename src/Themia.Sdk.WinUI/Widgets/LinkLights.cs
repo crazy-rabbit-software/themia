@@ -154,6 +154,16 @@ public sealed class LinkLights<T>
             element.PointerExited += OnLeft;
             element.PointerCanceled += OnLeft;
             element.PointerCaptureLost += OnLeft;
+
+            // [S-15781] What the part shows under the pointer, for the renders' --hover and --pressed (WR-13): the part
+            // alone lit, as the pointer on it lights it.
+            PointerPreview.Register(element, _ =>
+            {
+                if (_state.Enter(element))
+                {
+                    Apply();
+                }
+            });
         }
 
         Paint(element, part, drawn: true);
@@ -193,6 +203,7 @@ public sealed class LinkLights<T>
     /// <summary>A part forgotten lets go of its pointer, so a list drawn anew holds none of its old rows.</summary>
     private void Unwire(UIElement element)
     {
+        PointerPreview.Forget(element);
         element.PointerEntered -= OnEntered;
         element.PointerExited -= OnLeft;
         element.PointerCanceled -= OnLeft;

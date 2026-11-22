@@ -13,6 +13,23 @@ namespace Themia.Sdk.Kit;
 /// </summary>
 public static class KitPages
 {
+    /// <summary>
+    /// [S-15783] The room a page's column <paramref name="box"/> tall leaves under its first <paramref name="lines"/> lines,
+    /// each <paramref name="lineAt"/> its height: where it is more than nothing, the next page's first line stands there,
+    /// cut by the card's foot.
+    /// </summary>
+    public static double Room(double box, int lines, Func<int, double> lineAt)
+    {
+        ArgumentNullException.ThrowIfNull(lineAt);
+        var used = 0.0;
+        for (var k = 0; k < lines; k++)
+        {
+            used += lineAt(k);
+        }
+
+        return double.IsFinite(box) ? box - used : 0;
+    }
+
     /// <summary>[S-2717] A title wraps onto at most this many lines; past them it ends in an ellipsis.</summary>
     public const int MaxTitleLines = 2;
 

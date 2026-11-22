@@ -51,32 +51,25 @@ public sealed class CalendarSizingTests
         Assert.Equal(new SizeDip(4 * cell.Width, 3 * cell.Height), sizing.Natural);
         Assert.True(Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = true }).Natural.Width > Of(new CalendarWidgetConfig { Style = CalendarStyle.Year }).Natural.Width);
 
-        // A new card: 4 × 3 at the months' own size (the cells' whole grid cells' room at most a few percent more); twice as
-        // wide and tall, twice as large.
-        var natural = CalendarSizing.YearShares(fit, sizing.Natural.Width, sizing.Natural.Height);
-        Assert.Equal((4, 3), (natural.Columns, natural.Rows));
-        Assert.InRange(natural.Factor, 1, 1.05);
-        var month = CalendarSizing.YearMonth(fit);
-        var twice = CalendarSizing.YearShares(fit, 4 * ((2 * month.Width) + 16), 3 * ((2 * month.Height) + 16));
-        Assert.Equal((4, 3), (twice.Columns, twice.Rows));
-        Assert.Equal(2, twice.Factor, 6);
+        // A new card: 4 × 3 cells at their one size.
+        var natural = CalendarSizing.YearCells(fit, sizing.Natural.Width, sizing.Natural.Height, ItemGrid.Default());
+        Assert.Equal((4, 3), (natural.Columns, natural.Lines));
+        Assert.Equal((cell.Width, cell.Height), (natural.Across.Pitch, natural.Down.Pitch));
     }
 
     [Fact]
-    public void S15672_the_months_share_the_card_in_the_columns_and_lines_that_draw_them_largest()
+    public void S15780_the_months_keep_their_size_and_a_wider_card_holds_more_a_line_the_last_cut()
     {
         var fit = CalendarSizing.Year(false);
+        var grid = ItemGrid.Default();
 
-        // A wide card: two lines of six; a tall one: four lines of three; a very wide one: one line; never under their size.
-        Assert.Equal((6, 2), Shape(CalendarSizing.YearShares(fit, 900, 300)));
-        Assert.Equal((3, 4), Shape(CalendarSizing.YearShares(fit, 520, 600)));
-        Assert.Equal((12, 1), Shape(CalendarSizing.YearShares(fit, 1800, 120)));
-        Assert.Equal((1, 12), Shape(CalendarSizing.YearShares(fit, 100, 1600)));
-        Assert.Equal(1, CalendarSizing.YearShares(fit, 10, 10).Factor);
-        Assert.Equal(1, CalendarSizing.YearShares(fit, double.NaN, 300).Factor);
-        Assert.True(CalendarSizing.YearShares(fit, 900, 300).Factor > CalendarSizing.YearShares(fit, 320, 240).Factor);
-
-        static (int, int) Shape(YearShare share) => (share.Columns, share.Rows);
+        // 80 × 80 cells at every size (WR-4, WR-6): 350 wide reaches five a line, the fifth cut by the right edge; 900 all
+        // twelve on one; a narrow card one; the lines the height reaches, the last cut by the foot.
+        var reach = CalendarSizing.YearCells(fit, 350, 240, grid);
+        Assert.Equal((5, 80.0, 80.0, 3), (reach.Columns, reach.Across.Pitch, reach.Down.Pitch, reach.Lines));
+        Assert.Equal(12, CalendarSizing.YearCells(fit, 1800, 120, grid).Columns);
+        Assert.Equal(1, CalendarSizing.YearCells(fit, 60, 1600, grid).Columns);
+        Assert.Equal(80, CalendarSizing.YearCells(fit, 520, 600, grid).Across.Pitch);
     }
 
     [Fact]
@@ -184,10 +177,12 @@ public sealed class CalendarSizingTests
         Assert.Equal(100, CalendarSizing.WeekRowsOver);
         Assert.Equal(CalendarSizing.WeekRowsOver + (3 * 30), Of(config).Natural.Height);
 
-        // [S-14410] [S-14502] The days are the card's width: a 40 column a day, 1..14, a new one's seven, never stored.
-        Assert.Equal((2 * FamilySpace.Inset) + (7 * CalendarSizing.StripColumn), Of(config).Natural.Width);
-        Assert.Equal((2 * FamilySpace.Inset) + CalendarSizing.StripColumn, Of(config).Min.Width);
-        Assert.Equal(5, CalendarSizing.WeekDaysIn((2 * FamilySpace.Inset) + (5 * CalendarSizing.StripColumn) + 30, titles: false));
+        // [S-14410] [S-14502] [S-15780] The days are the card's width: a 40 column a day from its left edge, every one the
+        // width reaches (the last cut by its right edge), 1..14, a new one's seven, never stored.
+        Assert.Equal(7 * CalendarSizing.StripColumn, Of(config).Natural.Width);
+        Assert.Equal(CalendarSizing.StripColumn, Of(config).Min.Width);
+        Assert.Equal(7, CalendarSizing.WeekDaysIn(7 * CalendarSizing.StripColumn, titles: false));
+        Assert.Equal(8, CalendarSizing.WeekDaysIn(300, titles: false));
         Assert.Equal(14, CalendarSizing.WeekDaysIn(5000, titles: false));
         Assert.Equal(1, CalendarSizing.WeekDaysIn(10, titles: false));
     }

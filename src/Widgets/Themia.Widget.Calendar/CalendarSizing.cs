@@ -52,7 +52,7 @@ public static class CalendarSizing
     public const double YearSquare = FamilySpace.S2;
 
     /// <summary>
-    /// [S-15672] The padding inside a month's cell round its small month: the cells stand edge to edge (WR-3), the inset's
+    /// [S-15780] The padding inside a month's cell round its small month: the cells stand edge to edge (WR-3), the inset's
     /// place is theirs.
     /// </summary>
     public const double YearPad = FamilySpace.S2;
@@ -70,7 +70,7 @@ public static class CalendarSizing
         return new SizeDip(7 * fit.DayCell, FamilyType.Caption.LineHeight + ((fit.Weekdays ? 7 : 6) * fit.DayCell));
     }
 
-    /// <summary>[S-15672] A month's cell at a new card's size: its small month and the padding round it, whole grid cells.</summary>
+    /// <summary>[S-15780] A month's cell, its one size: its small month and the padding round it, whole grid cells.</summary>
     public static SizeDip YearCell(YearFit fit)
     {
         var month = YearMonth(fit);
@@ -79,9 +79,9 @@ public static class CalendarSizing
     }
 
     /// <summary>
-    /// [S-11542] [S-15672] The year at a new card's size: its months' cells 4 × 3, edge to edge from the card's top edge, and
-    /// its least. The card's size is the user's (no Size setting, [S-2449] retired): a larger card shares itself among the
-    /// twelve months (<see cref="YearShares"/>).
+    /// [S-11542] [S-15780] The year at a new card's size: its months' cells 4 × 3, touching from the card's top edge. The
+    /// card's size is the user's (no Size setting, [S-2449] retired): a larger card shows more of the months a line
+    /// (<see cref="YearCells"/>), never larger months.
     /// </summary>
     public static WidgetSizing YearSizing(bool numbers)
     {
@@ -90,30 +90,19 @@ public static class CalendarSizing
         return WidgetSizing.Fixed(new SizeDip(fit.Columns * cell.Width, fit.Rows * cell.Height));
     }
 
-    /// <summary>The ways twelve months stand in columns and lines, a new card's first: the first that draws them largest wins.</summary>
-    private static readonly (int Columns, int Rows)[] YearShapes = [(4, 3), (3, 4), (6, 2), (2, 6), (12, 1), (1, 12)];
-
     /// <summary>
-    /// [S-15672] How the twelve months share a box <paramref name="width"/> × <paramref name="height"/> (the card's, from its
-    /// top edge): the year is a grid of the card, as the month is (WR-9, owner 2026-11-19: "the calendar does not follow this
-    /// design philosophy"; "Bigger numbers too"), its months' cells sharing it edge to edge, in the columns and lines that
-    /// draw the small months largest (a wide card 6 × 2, a tall one 3 × 4; a tie keeps a new card's 4 × 3), each small month
-    /// scaled up as one in its cell inside its padding, never under its own size.
+    /// [S-15780] The twelve months in a box <paramref name="width"/> × <paramref name="height"/> (the card's, from its top
+    /// edge) on <paramref name="grid"/> (docs/WIDGET-RULES.md WR-4, WR-6; replaces [S-15672], whose months shared the card and
+    /// grew with it: WR-9's grid of the card is the month's alone): each month's cell its one size (its small month and the
+    /// padding round it in whole grid cells) at every size of the card, the cells touching from the card's left and top edges,
+    /// as many a line as the width reaches (1..12, the last cut by the card's right edge), the months in reading order on as
+    /// many lines as they take, the last line the card reaches cut by its foot.
     /// </summary>
-    public static YearShare YearShares(YearFit fit, double width, double height)
+    public static CellReach YearCells(YearFit fit, double width, double height, ItemGrid grid)
     {
+        ArgumentNullException.ThrowIfNull(fit);
         var month = YearMonth(fit);
-        var best = new YearShare(fit.Columns, fit.Rows, double.NegativeInfinity);
-        foreach (var (columns, rows) in YearShapes)
-        {
-            var factor = Math.Min(((width / columns) - (2 * YearPad)) / month.Width, ((height / rows) - (2 * YearPad)) / month.Height);
-            if (double.IsFinite(factor) && factor > best.Factor + 1e-9)
-            {
-                best = new YearShare(columns, rows, factor);
-            }
-        }
-
-        return best with { Factor = double.IsFinite(best.Factor) ? Math.Max(1, best.Factor) : 1 };
+        return ItemSize.Cells(width, height, month.Width + (2 * YearPad), month.Height + (2 * YearPad), grid, 1, fit.Months);
     }
 
     // ---- [S-11543] day --------------------------------------------------------------------------------
@@ -262,19 +251,30 @@ public static class CalendarSizing
     /// <summary>[S-14410] A day's column in the day strip: its weekday's letters over its number and its marks.</summary>
     public const double StripColumn = 40;
 
-    /// <summary>[S-14410] [S-14502] The width a week of <paramref name="days"/> takes: the inset either side, the hour labels with titles, a column a day.</summary>
+    /// <summary>
+    /// [S-14410] [S-14502] [S-15780] The width a week of <paramref name="days"/> takes: with titles the inset either side, the
+    /// hour labels and a column a day; the strip its days' columns alone, each its one size, from the card's left edge.
+    /// </summary>
     public static double WeekWidth(int days, bool titles)
-        => (2 * FamilySpace.Inset) + (titles ? HourLabels + (days * WeekTitleColumn) : days * StripColumn);
+        => titles ? (2 * FamilySpace.Inset) + HourLabels + (days * WeekTitleColumn) : days * ItemSize.Optimal(StripColumn, ItemGrid.Default());
 
     /// <summary>
-    /// [S-14410] [S-14502] The days a week <paramref name="width"/> wide shows: as many columns (40 in the strip, 96 with
-    /// titles) as it holds, <see cref="CalendarPeriod.WeekMinDays"/>..<see cref="CalendarPeriod.WeekMaxDays"/>, sharing it.
+    /// [S-14410] [S-14502] [S-15780] The days a week <paramref name="width"/> wide shows,
+    /// <see cref="CalendarPeriod.WeekMinDays"/>..<see cref="CalendarPeriod.WeekMaxDays"/>: with titles as many 96 columns as
+    /// it holds, sharing it; the strip every day the width reaches at its one column (40 in whole cells of
+    /// <paramref name="grid"/>, WR-4, WR-6), the last cut by the card's right edge.
     /// </summary>
-    public static int WeekDaysIn(double width, bool titles)
+    public static int WeekDaysIn(double width, bool titles, ItemGrid? grid = null)
     {
-        var room = width - (2 * FamilySpace.Inset) - (titles ? HourLabels : 0);
-        var column = titles ? WeekTitleColumn : StripColumn;
-        var days = double.IsFinite(room) ? (int)Math.Floor((room + LayoutMath.Tolerance) / column) : CalendarPeriod.WeekDefaultDays;
+        if (!titles)
+        {
+            return double.IsFinite(width)
+                ? ItemSize.Count(width, StripColumn, grid ?? ItemGrid.Default(), CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays)
+                : CalendarPeriod.WeekDefaultDays;
+        }
+
+        var room = width - (2 * FamilySpace.Inset) - HourLabels;
+        var days = double.IsFinite(room) ? (int)Math.Floor((room + LayoutMath.Tolerance) / WeekTitleColumn) : CalendarPeriod.WeekDefaultDays;
         return Math.Clamp(days, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays);
     }
 
@@ -341,5 +341,3 @@ public static class CalendarSizing
     }
 }
 
-/// <summary>[S-15672] The twelve months' share of a card: their columns and lines, and how much larger each small month is drawn.</summary>
-public readonly record struct YearShare(int Columns, int Rows, double Factor);

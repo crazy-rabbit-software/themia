@@ -10,7 +10,8 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-7035] The paged list: the rows that fit whole, one page at a time, turned by the widget's own controls and keys;
 /// it never scrolls. The page flows down its columns, a group's heading (the look's, <see cref="IKitLook.Heading"/>)
-/// over its first row.
+/// over its first row. [S-15783] Under a page's last whole row the next page's first stands cut by the card's foot
+/// (WR-4: "the last item will be cutoff to some extent then"), never room left empty while more follow.
 /// </summary>
 public sealed partial class KitList
 {
@@ -127,7 +128,26 @@ public sealed partial class KitList
                 _rowElements[i] = row;
             }
 
-            // [S-14810] Each line of the page its one fixed size on whole device pixels; a page is whole lines, the room under its last empty.
+            // [S-15783] The last column's room under its whole lines holds the next page's first line, cut by the card's
+            // foot: its heading where its group starts there, else its row (the next page's item: a click on it is that item's,
+            // the cursor reaching it turns to its page).
+            var next = at + count;
+            if (c == _plan.Columns - 1 && next < _items.Count && KitPages.Room(box, stack.Children.Count, _plan.RowAt) > LayoutMath.Tolerance)
+            {
+                var item = _items[next];
+                draw.Index = next;
+                draw.Line = stack.Children.Count;
+                if (KitPages.HeadingBefore(keys, at, next, heading))
+                {
+                    stack.Children.Add(_look.Heading(item.Group ?? new KitGroup(string.Empty), draw));
+                }
+                else
+                {
+                    stack.Children.Add(Item(_look.Draw(item, draw), item, next));
+                }
+            }
+
+            // [S-14810] Each line of the page its one fixed size on whole device pixels; a page is whole lines, the next one cut by the foot.
             for (var k = 0; k < stack.Children.Count; k++)
             {
                 var height = _plan.RowAt(k);
