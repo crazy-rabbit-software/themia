@@ -73,8 +73,7 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
   `ScreenTimeChartConfig.Style` over `IStyled`, stored as `"style": "bars" | "calendar"`
   (`StyleJsonConverter`; an unknown name is repaired to Bars at load, [S-6004]), copied in `Clone`,
   its labels `styles.screenTimeChart.*`. `--widget-png ScreenTimeChart … --style calendar` draws it.
-- **[S-3331]** Bars: one bar per day, oldest left, 8 apart for a week and 4 for a month (the padding inside their touching
-  day columns, [S-15772]), stacked by
+- **[S-3331]** Bars: one bar per day, oldest left, touching ([S-15788]), stacked by
   app in the ring's order (the busiest seven, `ScreenTimeRules.DrawingApps`, then Other) in the
   accent's ramp by rank, Other and the apps past the fourth tertiary at the wash ([S-2272]), scaled to the busiest day, the stack one
   rectangle of the family's radius (its top part's top corners, its foot part's foot, [S-6704]); under
@@ -95,8 +94,8 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
   from the card's foot to its top (under the day line where a day has one), the end labels standing over the bars' feet
   at the inset; the caption keeps the inset over it.
   The total over it is the reading atom's ([S-11500]); the ready-made group "Screen time" stands that
-  reading over it ([S-11520]). A window with no use, or no recording at all, is the chart all the same: its days on a
-  foot hairline, why as a caption ([S-6753], [S-15774]).
+  reading over it ([S-11520]). A window with no use, or no recording at all, is the chart all the same: its days' bars
+  as empty tracks, why as a caption ([S-6753], [S-15774], [S-15788]).
 - **[S-15772]** **The days are items of one fixed size, touching from the card's edges** (docs/WIDGET-RULES.md WR-1..WR-6):
   the bars' day columns touch from the card's left edge to its right and from its top to its foot (a plot: they share
   the width), each bar standing in its column's padding (4 each side for a week, 2 for a month; the 8 or 4 between two
@@ -120,6 +119,10 @@ lines), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartSt
   "recorded while Themia runs" sentence as its caption, never the Status block's row alone; the caption stands over the
   bars' empty plot at the inset, or on the calendar's foot. Preview states `empty` (a recording with nothing in the window)
   and `off`.
+- **[S-15788]** **Bars touch; an empty window keeps its bars** (WR-2: "the items have no spacing between them"; WR-3; WR-10):
+  every day's bar is its column's whole width, the bars touching from the card's left edge to its right, no padding
+  between them (8 or 4 had stood between them, 4 at each side of the card); with nothing in the window every day keeps
+  its bar as an empty track the plot's full height, in the track's role, the caption over it saying why.
 - **[S-3333]** Linked focus ([S-3310]) in the links' one look ([S-11902]): the part pointed at or picked (one app on one
   day, [S-15773]) whole and every other part at its tone times 0.6 (pointed) or 0.3 (picked); the calendar's rings show the focused app's seconds per day against its
   busiest (the reading atom says that app's time, [S-11503]). A day pointed at (the pointer over its bar

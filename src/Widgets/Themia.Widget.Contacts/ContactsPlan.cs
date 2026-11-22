@@ -67,8 +67,20 @@ public static class ContactsPlan
     public static double Bands(ContactsConfig config, bool field, ItemGrid grid)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return (field ? ItemSize.Optimal(SearchHeight, grid) : 0)
+        return (field ? FieldBand(config, grid) : 0)
             + (config.EffectiveLayout == ContactsLayout.Details ? ItemSize.Optimal(HeaderHeight, grid) : 0);
+    }
+
+    /// <summary>
+    /// [S-15785] The search field's band: a line of the list's own at a row's one size (the list's rows of its lines, a
+    /// one-line row elsewhere; the search line opened in the list's first line is that size too), never under the family's
+    /// control of 28 in whole cells (WR-11: "Rows look like rows everywhere").
+    /// </summary>
+    public static double FieldBand(ContactsConfig config, ItemGrid grid)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var row = config.EffectiveLayout == ContactsLayout.List ? FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)) : FamilyShape.Row1;
+        return Math.Max(ItemSize.Optimal(row, grid), ItemSize.Optimal(SearchHeight, grid));
     }
 
     /// <summary>[S-11406] The grid's monogram: one size, the cells' line and the card's width follow it.</summary>

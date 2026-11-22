@@ -7,7 +7,7 @@ namespace Themia.Core.Habits;
 /// [S-6409] [S-15770] One pass's decisions for the heatmap style.
 /// </summary>
 /// <param name="PerHabit">Each habit gets its own grid under its name; otherwise one grid for the whole list.</param>
-/// <param name="Weeks">Columns of seven periods, the newest on the right: every one the width reaches, the oldest cut.</param>
+/// <param name="Weeks">[S-15787] Columns of seven periods from the card's left edge: every one the width reaches, the last cut by its right edge.</param>
 /// <param name="Box">[S-15770] A cell's box, its one fixed size (whole grid cells): the boxes touch, the mark stands in it.</param>
 /// <param name="Name">[S-15770] A habit's name row over its own grid (whole grid cells); 0 for the list's one grid.</param>
 public sealed record HabitHeatmapPlan(bool PerHabit, int Weeks, double Box, double Name = 0)
@@ -23,6 +23,12 @@ public sealed record HabitHeatmapPlan(bool PerHabit, int Weeks, double Box, doub
 
     /// <summary>[S-15770] One habit's block (its name row over its grid), or the list's one grid.</summary>
     public double Block => Name + GridHeight;
+
+    /// <summary>
+    /// [S-15787] The weeks of the history: the columns the width holds whole, the newest (the current period's) the last
+    /// of them; a column the right edge cuts after them is the next week's, its periods still to come.
+    /// </summary>
+    public int History { get; init; } = 1;
 }
 
 /// <summary>
@@ -63,15 +69,19 @@ public static class HabitHeatmap
     public static double BlockOf(bool perHabit, ItemGrid grid) => (Rows * BoxOf(perHabit, grid)) + (perHabit ? NameOf(grid) : 0);
 
     /// <summary>
-    /// [S-11532] [S-15770] The plan for a card <paramref name="width"/> wide on <paramref name="grid"/>: a grid per habit or
-    /// one for the list, as the config says; its boxes at their one size whatever the card's height, and every week the
-    /// width reaches drawn (the oldest cut by the card's left edge), at least one.
+    /// [S-11532] [S-15770] [S-15787] The plan for a card <paramref name="width"/> wide on <paramref name="grid"/>: a grid per
+    /// habit or one for the list, as the config says; its boxes at their one size whatever the card's height, from the
+    /// card's left edge, every week the width reaches (at least one): the history's whole weeks, the current period's the
+    /// last of them (<see cref="HabitHeatmapPlan.History"/>), and the next week's cut by the right edge (WR-4: "for items
+    /// side by side, its right edge").
     /// </summary>
     public static HabitHeatmapPlan Plan(double width, bool perHabit, ItemGrid grid)
     {
         var box = BoxOf(perHabit, grid);
-        var weeks = ItemSize.Count(double.IsFinite(width) ? Math.Max(0, width) : 0, box, grid, least: 1);
-        return new HabitHeatmapPlan(perHabit, weeks, box, perHabit ? NameOf(grid) : 0);
+        var room = double.IsFinite(width) ? Math.Max(0, width) : 0;
+        var weeks = ItemSize.Count(room, box, grid, least: 1);
+        var whole = Math.Clamp((int)Math.Floor((room + LayoutMath.Tolerance) / box), 1, weeks);
+        return new HabitHeatmapPlan(perHabit, weeks, box, perHabit ? NameOf(grid) : 0) { History = whole };
     }
 
     /// <summary>

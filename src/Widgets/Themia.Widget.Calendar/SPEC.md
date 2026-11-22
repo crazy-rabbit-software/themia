@@ -105,6 +105,19 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   month's '1' stood 19 DIP tall in a 97 DIP week); a dots month shows chips from two chip lines in a column of 56, where a
   month with titles reads them (one more line than a month with titles: the "little longer"), no longer from 80 (a 74 wide
   cell with room for four chip lines showed dots). Tests `MonthLayoutTests.S15782_`, `S14101_S15782_`.
+- **[S-15789]** **The day's band is an hour's size; a list's least is one item** (WR-6, WR-14): the day's all-day band row is
+  an hour row's one size (30 on the default grid, its line centred in it, `DayBandRow`), so the hours under it stand on
+  the grid (before: 44, every hour at 44 + 30k); the day's least is its band and one hour (the hours every one the card
+  reaches, at least one), the year's one month's cell (80 × 80).
+- **[S-15791]** **The event pointed at elsewhere is the one lit** (WR-13): every part of the calendar dims while an event it
+  draws is pointed at in another widget, the parts drawn before that event's too (they had been drawn whole while it was
+  not yet drawn: the 22nd's Standup, days 1..21), a birthday's chip with them (`LinkOther`); a dots month's dots are their
+  events' marks (`LinkEvent`), the event's dot whole and every other dot dimmed, so the small month lights it too.
+- **[S-15792]** **Chips only where they clearly read** (WR-9: "A day cell keeps its small marks until it clearly holds a
+  readable chip line"; replaces [S-15782]'s 56, which a second audit read as too early, titles of three to six
+  letters): a dots month shows chips from two chip lines in a column of 100 (`CalendarFit.ChipTimeFrom`: a chip's start
+  and a title of words), a month with titles from one line in that column; narrower, both keep their dots. Tests
+  `MonthLayoutTests.S14101_S15792_`.
 - **[S-11545]** **Week, the day strip** (a new one's): a row of day items on the card's top edge (WR-1..WR-3,
   [S-12815]): the days stand from its left edge at their one column ([S-15780]), touching, each its
   head (its weekday, its number) at the card's inset over the room its marks take at most ([S-2282]: three, then "+n");

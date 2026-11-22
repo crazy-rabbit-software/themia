@@ -136,8 +136,8 @@ public static class FolderLayout
     }
 
     /// <summary>
-    /// [S-11203] The least height: the inset, the tool line, what the config stands over the items, one row of them
-    /// (or one row of cells) and the bottom inset; never under <see cref="Least"/>.
+    /// [S-11203] [S-15790] The least height: the inset, the tool line and what the config stands over the items in whole
+    /// cells, and one row of them (or one row of cells) at its optimal to the foot (WR-14: "a list's least is one item").
     /// </summary>
     public static double LeastHeight(FolderConfig config)
     {
@@ -147,7 +147,8 @@ public static class FolderLayout
             : RowHeight;
         var over = ToolLineHeight + (config.SearchBox ? SearchHeight : 0) + (config.ShowPath ? BreadcrumbHeight : 0)
             + (config.Style == FolderStyle.Details && config.ColumnTitles ? ColumnHeaderHeight : 0);
-        return Math.Max(Least.Height, FamilySpace.ContentTop + over + one + FamilySpace.Inset);
+        var grid = ItemGrid.Default();
+        return grid.Whole(FamilySpace.ContentTop + over) + ItemSize.Optimal(one, grid);
     }
 
     /// <summary>

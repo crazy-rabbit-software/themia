@@ -1161,6 +1161,12 @@ module author's guide is docs/WIDGET-KIT.md 16.
   under it while nothing is typed, the rows under it keep their places, and what is typed fills those same rows
   ([S-1275]). Typing filters the rows in place (what they say changes, never where they stand), closing gives the
   line back; the check judges both open, typed in and closed again (filtered rows: each row drawn on a row's place).
+- **[S-15793]** **The box's words stand on their words' baseline** (WR-12: "An inline input stands in exactly the box of
+  what it replaces"): the platform's text box stands its baseline 1.09 of its size under its top (`InlineFit.BoxBaseline`,
+  measured on the renders), higher than the words' line puts theirs (`LineInk.FaceBaseline` of the line), so the box's
+  text moves down by the difference (`InlineFit.BaselineShift`, its top padding; 0.74 for Body on 20); with the words'
+  face ([S-15778]) a renamed folder item's "Northwind" inks every pixel row where it did at rest. Tests
+  `InlineFitTests.S15793_`.
 - **[S-6714]** **Status** (empty, problem, set up): one 28 row where the content's first row would
   be, under the header: [state glyph 16] 8 [one sentence, Body, secondary, ellipsis, its whole text
   in the tooltip] 12 [its one action] (`StatusBlock`). Empty: the widget's glyph, tertiary. Problem:
@@ -5339,6 +5345,10 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   list longer than its card has its last row in sight cut by the add row, which then stands on the card's foot; a
   shorter one has the room under its add row empty. A state's line standing in the add row's place is that row's size.
   Tests `ItemSizeTests.S14811_`, `FixedItemTests.S14811_`, `FixedItemKindsTests.S14811_`.
+- **[S-15786]** **An empty list with an add row keeps its rows** (WR-10): the state over a list that adds in place takes
+  the rows' room (the card's less the add row's, `RowReach.Room`), its line and the face's empty rows filling the card
+  over the add row on its foot, as a list longer than its card stands; before, the line and the add row stood alone over
+  an empty card (an empty habit list at 520 × 600: 540 DIP of nothing).
 - **[S-14812]** **Counts that follow the card are every item it reaches** ([S-14410], [S-14502], [S-14810]). How many
   days, hours, laps, lines or columns a card shows is every one its box reaches at the item's one size
   (`ItemSize.Count`), the last cut: the forecast curve's days (its columns of 60, its 56 in whole cells, from the card's
@@ -9416,6 +9426,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   line (`KitStatePanel.ShowFace`, `KitBinding`), as the contacts and the week planner do without an account. Tests
   `WidgetLivenessTests.S12835_`, `PlaceClearTests.S2848_`; renders `--widget-png rss|email|deviceBatteries --state
   empty|failed|loading --sizes range`.
+- **[S-15784]** **A card too short for the line and the face keeps the face** (WR-10: "it never swaps its face for a
+  status line alone"; coordinator's call 2026-11-22 pending the owner): where a kit list's slot holds the state's line
+  (on the card's top edge, its row's whole height) and nothing of a row under it (`KitStateFit.Squeezed`: an email card
+  of 40 under a line of 40), the line goes and the face's empty rows stand from the card's top edge, the sentence on the
+  panel's tooltip. Whether such a card should rather say why is an owner question. Tests `KitPagesTests.S15784_`.
 - **[S-14260]** **The state's line is a row of the list** (owner, 2026-11-19, docs/WIDGET-RULES.md WR-3: "the items dont
   reach from edge to edge"; WR-10 above). The compact line a list's state stands in (`KitStatePanel`'s, Bluetooth's off,
   removable drives' none: `StatusBlock.Line`) is in the list's first row's place, its box from the card's left edge to

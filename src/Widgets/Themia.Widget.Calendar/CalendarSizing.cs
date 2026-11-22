@@ -87,7 +87,9 @@ public static class CalendarSizing
     {
         var fit = Year(numbers);
         var cell = YearCell(fit);
-        return WidgetSizing.Fixed(new SizeDip(fit.Columns * cell.Width, fit.Rows * cell.Height));
+
+        // [S-15789] Its least is one month's cell (WR-14: "a list's least is one item").
+        return WidgetSizing.Range(cell, new SizeDip(fit.Columns * cell.Width, fit.Rows * cell.Height), new SizeDip(fit.Columns * cell.Width, fit.Rows * cell.Height));
     }
 
     /// <summary>
@@ -122,7 +124,7 @@ public static class CalendarSizing
     /// reaches at an hour's one fixed size (a row's optimal, whole cells), the last cut by the card's foot,
     /// <see cref="MinHours"/>..<see cref="HoursInDay"/> (the hours follow the card: a taller one shows more of the day).
     /// </summary>
-    public static int HoursIn(double available, ItemGrid grid) => ItemSize.Count(available, Hour, grid, MinHours, HoursInDay);
+    public static int HoursIn(double available, ItemGrid grid) => ItemSize.Count(available, Hour, grid, 1, HoursInDay);
 
     /// <summary>
     /// [S-15671] The day's hour rows in a room <paramref name="available"/> tall, from the first row's top to the card's foot:
@@ -136,24 +138,27 @@ public static class CalendarSizing
     }
 
     /// <summary>
-    /// [S-15671] The day's band row over its hours: <paramref name="lift"/> (the card's inset where the row stands on the
-    /// card's top edge, none under a state's row), its line and 4 under it, the line's inset its own padding; none without
-    /// an all-day item.
+    /// [S-15671] [S-15789] The day's band row over its hours: a row of the day's one size (an hour's, whole cells on
+    /// <paramref name="grid"/>, WR-6) on the card's top edge, its line centred in it, the inset its own padding; taller only
+    /// where its lines need it; none without an all-day item.
     /// </summary>
-    public static double DayBandRow(DayBandFit band, double lift)
+    public static double DayBandRow(DayBandFit band, ItemGrid grid)
     {
         ArgumentNullException.ThrowIfNull(band);
-        return band.Lines > 0 ? Math.Max(0, lift) + (band.Lines * band.LineHeight) + FamilySpace.S1 : 0;
+        return band.Lines > 0 ? ItemSize.Optimal(Math.Max(Hour, band.Lines * band.LineHeight), grid) : 0;
     }
 
     /// <summary>[S-11543] [S-15671] The day's height over its hours: its band row on the card's top edge (the hours run to the foot).</summary>
-    public static double DayOver => DayBandRow(DayBand(1), ContentTop);
+    public static double DayOver => DayBandRow(DayBand(1), ItemGrid.Default());
 
-    /// <summary>[S-11543] [S-14500] The day: 240..480 wide (a new one 300), its height <see cref="DefaultHours"/> hours, 4..16 at least and most.</summary>
+    /// <summary>
+    /// [S-11543] [S-14500] [S-15789] The day: 240..480 wide (a new one 300), its height <see cref="DefaultHours"/> hours, its
+    /// least one (WR-14: "a list's least is one item"), at most 16 a new card's largest.
+    /// </summary>
     public static WidgetSizing DaySizing()
     {
         var hour = ItemSize.Optimal(Hour, ItemGrid.Default());
-        return WidgetSizing.Range(new(240, DayOver + (MinHours * hour)), new(300, DayOver + (DefaultHours * hour)), new(480, DayOver + (MaxHours * hour)));
+        return WidgetSizing.Range(new(240, DayOver + hour), new(300, DayOver + (DefaultHours * hour)), new(480, DayOver + (MaxHours * hour)));
     }
 
     // ---- [S-11544] month ------------------------------------------------------------------------------

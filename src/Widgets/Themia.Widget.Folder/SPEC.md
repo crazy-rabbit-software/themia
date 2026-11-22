@@ -204,3 +204,6 @@ states, edit mode leaving it inert, multi-monitor and mixed DPI.
   unreadable, loading) is the kit's state row where the first item would be (`KitStatePanel`: the folder's glyph, or
   the warning for a problem), the list's rows kept empty under it at their one size; renders `empty` (an empty folder)
   and `missing` (a folder that is not there).
+- **[S-15790]** **A folder's least is one row** (WR-14: "a list's least is one item"): the least height is what stands over
+  the items in whole cells (the inset and the tool line, 40; a path, a search box, column titles) and one row of them, or
+  one line of cells (`FolderLayout.LeastHeight`: 70 for a new list), no longer 160. Tests `FolderBrowserTests.S11203_`.

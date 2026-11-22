@@ -38,7 +38,9 @@ public sealed class CalendarSizingTests
     public void S11542_S15672_a_year_is_twelve_months_cells_edge_to_edge_and_a_larger_card_draws_them_larger(bool numbers)
     {
         var sizing = Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearNumbers = numbers });
-        Assert.Equal(sizing.Min, sizing.Natural);
+
+        // [S-15789] Its least is one month's cell.
+        Assert.Equal(CalendarSizing.YearCell(CalendarSizing.Year(numbers)), sizing.Min);
 
         // Relaxed, [S-12411]: the card's size is the user's ([S-2449] retired).
         Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), sizing.Max);
@@ -78,9 +80,10 @@ public sealed class CalendarSizingTests
         // A new one's eight hours at their optimal (30) under its band row; [S-14810] [S-15671] the hours shown after are every
         // one its timeline reaches, the last cut by the card's foot, 4..24 (a day's).
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Day };
-        Assert.Equal(CalendarSizing.ContentTop + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30), Of(config).Natural.Height);
+        Assert.Equal(30 + (8 * 30), Of(config).Natural.Height); // [S-15789] the band's row an hour's size
+        Assert.Equal(30 + 30, Of(config).Min.Height); // [S-15789] one hour at its least
         var grid = Themia.Core.Widgets.ItemGrid.Default();
-        Assert.Equal((4, 8, 9, 24), (CalendarSizing.HoursIn(10, grid), CalendarSizing.HoursIn(240, grid), CalendarSizing.HoursIn(269, grid), CalendarSizing.HoursIn(2000, grid)));
+        Assert.Equal((1, 8, 9, 24), (CalendarSizing.HoursIn(10, grid), CalendarSizing.HoursIn(240, grid), CalendarSizing.HoursIn(269, grid), CalendarSizing.HoursIn(2000, grid)));
         Assert.Equal(new DayBandFit(0, 0, false), CalendarSizing.DayBand(0));
         Assert.Equal(new DayBandFit(1, CalendarFit.DayBar, true), CalendarSizing.DayBand(3));
     }
@@ -90,21 +93,23 @@ public sealed class CalendarSizingTests
     {
         var grid = Themia.Core.Widgets.ItemGrid.Default();
 
-        // The band's row on the card's top edge: the inset, the line and 4; under a state's row no inset; none without an item.
-        Assert.Equal(12 + CalendarFit.DayBar + 4, CalendarSizing.DayBandRow(CalendarSizing.DayBand(1), FamilySpace.ContentTop));
-        Assert.Equal(CalendarFit.DayBar + 4, CalendarSizing.DayBandRow(CalendarSizing.DayBand(2), 0));
-        Assert.Equal(0, CalendarSizing.DayBandRow(CalendarSizing.DayBand(0), FamilySpace.ContentTop));
+        // [S-15789] The band's row on the card's top edge: an hour's one size (30), its line centred in it; none without an item.
+        Assert.Equal(30, CalendarSizing.DayBandRow(CalendarSizing.DayBand(1), grid));
+        Assert.Equal(30, CalendarSizing.DayBandRow(CalendarSizing.DayBand(2), grid));
+        Assert.Equal(0, CalendarSizing.DayBandRow(CalendarSizing.DayBand(0), grid));
 
-        // 176 tall under its band row of 44: four rows of 30 and a fifth cut after 12 by the foot.
-        var hours = CalendarSizing.DayHours(176 - 44, grid);
+        // 162 tall under its band row of 30: four rows of 30 and a fifth cut after 12 by the foot.
+        var hours = CalendarSizing.DayHours(162 - 30, grid);
         Assert.Equal((30.0, 5, 120.0), (hours.Pitch, hours.Shown, hours.Start(4)));
         Assert.All(Enumerable.Range(0, 5), i => Assert.Equal(30, hours.Height(i)));
 
-        // Exactly whole: no row cut, none past the foot; shorter than four: four, cut; taller than a day: 24, the room under empty.
+        // Exactly whole: no row cut, none past the foot; [S-15789] shorter: every hour it reaches, at least one, the last cut;
+        // taller than a day: 24, the room under empty.
         Assert.Equal(4, CalendarSizing.DayHours(120, grid).Shown);
-        Assert.Equal(4, CalendarSizing.DayHours(50, grid).Shown);
+        Assert.Equal(2, CalendarSizing.DayHours(50, grid).Shown);
+        Assert.Equal(1, CalendarSizing.DayHours(0, grid).Shown);
         Assert.Equal(24, CalendarSizing.DayHours(900, grid).Shown);
-        Assert.Equal(4, CalendarSizing.DayHours(double.NaN, grid).Shown);
+        Assert.Equal(1, CalendarSizing.DayHours(double.NaN, grid).Shown);
     }
 
     [Fact]
@@ -212,7 +217,7 @@ public sealed class CalendarSizingTests
         {
             CalendarStyle.Month => CalendarSizing.MonthOver + (6 * 30),
             CalendarStyle.Week => CalendarSizing.StripBand(Themia.Core.Widgets.ItemGrid.Default()) + (3 * 30),
-            CalendarStyle.Day => FamilySpace.Inset + CalendarFit.DayBar + FamilySpace.S1 + (8 * 30),
+            CalendarStyle.Day => 30 + (8 * 30), // [S-15789] the band's row an hour's size
             CalendarStyle.Year => 3 * CalendarSizing.YearCell(CalendarSizing.Year(false)).Height,
             _ => 6 * 30d,
         };

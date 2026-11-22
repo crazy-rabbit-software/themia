@@ -30,15 +30,16 @@ public sealed record MonthLayout(IReadOnlyList<double> Columns, double HeaderHei
 public readonly record struct MonthChipRoom(int Lanes, double Column)
 {
     /// <summary>
-    /// [S-14101] [S-15782] A dots month (owner, 2026-11-20: "the calendar shows the individual events too early, the items
+    /// [S-14101] [S-15792] A dots month (owner, 2026-11-20: "the calendar shows the individual events too early, the items
     /// should stay small for a little longer"; WR-9: "A day cell keeps its small marks until it clearly holds a readable chip
-    /// line"): its cells keep their dots until they hold two chip lines under the number (one more than a month with titles
-    /// shows chips from: the "little longer") in a column where a chip's title reads, a month with titles' least (56).
+    /// line"): its cells keep their dots until they hold two chip lines under the number in a column where a chip clearly
+    /// reads, its start and a title of words (<see cref="CalendarFit.ChipTimeFrom"/>, 100; at 56 and 74 a title was three
+    /// to six letters).
     /// </summary>
-    public static MonthChipRoom Dots => new(2, CalendarSizing.MonthTitleColumn);
+    public static MonthChipRoom Dots => new(2, CalendarFit.ChipTimeFrom);
 
-    /// <summary>[S-11547] A month with titles, chosen: a chip line in a column of its least, 56.</summary>
-    public static MonthChipRoom Titles => new(1, CalendarSizing.MonthTitleColumn);
+    /// <summary>[S-11547] [S-15792] A month with titles, chosen: a chip line in a column where it clearly reads, 100; narrower, its dots.</summary>
+    public static MonthChipRoom Titles => new(1, CalendarFit.ChipTimeFrom);
 }
 
 /// <summary>

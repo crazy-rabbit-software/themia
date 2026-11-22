@@ -109,6 +109,12 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   shows, every row's value column is the run's room (`HabitLayoutPlan.ValueWidth`: 28, or 72 in words; the kit's
   `KitCheckLook.ValueWidth` over `RowBlock.ValueColumn`), so a habit with no run yet has its history dots in the same
   columns as one with a run; with no run shown the value takes no room. Tests `HabitLayoutTests.S15771_`.
+- **[S-15787]** **The weeks stand from the left edge, the next week cut by the right** (WR-4: "for items side by side, its
+  right edge"): the heatmap's weeks stand from the card's left edge, the history's whole weeks the width holds
+  (`HabitHeatmapPlan.History`) with the current period's the last of them, and where the width reaches a part of one more,
+  the next week's column, its periods still to come drawn as empty tracks, is cut by the right edge; the oldest week is
+  no longer cut at the left. A period still to come (this week's days after today too) is an empty track that says and
+  ticks nothing. Tests `HabitTrackerStylesTests.S15787_`.
 - **[S-1430]** The menu ends with "Data folder" (issue #154), a submenu of a note (where the lists
   are kept) and **Open in Explorer**, which opens the folder
   holding `habits.json` (`IHabitLists.FilePath`, through `SettingsHost.Launcher.OpenContainingFolder`, so it is

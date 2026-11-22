@@ -100,12 +100,14 @@ public sealed partial class KitStatePanel : Grid
         if (double.IsFinite(_lineHeight) && _lineHeight > 0)
         {
             _row.Height = _lineHeight;
+            Fit();
             return;
         }
 
         // [S-14810] The state's row is the first of the list's rows at their one size (unset: a one-line row's optimal).
         var pitch = _empty.Pitch;
         _row.Height = double.IsFinite(pitch) && pitch > 0 ? pitch : LineRules.EdgeRow(ItemGrids.Of(this));
+        Fit();
     }
 
     /// <summary>
@@ -197,6 +199,27 @@ public sealed partial class KitStatePanel : Grid
         {
             ToolTipService.SetToolTip(_row.Sentence, string.Join("\n", shown.Details));
         }
+
+        Fit();
+    }
+
+    /// <summary>
+    /// [S-15784] A card too short for the state's line and any of the face under it (its least: one row, the line's whole
+    /// height) keeps the face, never the line alone (WR-10: "it never swaps its face for a status line alone"): the rows
+    /// stand from the card's top edge with nothing in them, the sentence on the panel's tooltip. Whether a card that
+    /// cannot hold both should rather say why is the owner's to decide; until then the face stays.
+    /// </summary>
+    private void Fit()
+    {
+        if (_shown is not { } shown)
+        {
+            return;
+        }
+
+        var squeezed = _height > 0 && KitStateFit.Squeezed(_height, _row.Height, FamilySpace.Inset);
+        _row.Visibility = squeezed ? Visibility.Collapsed : Visibility.Visible;
+        _empty.Margin = squeezed ? ListEdge.Margin : default;
+        ToolTipService.SetToolTip(this, squeezed ? shown.Message : null);
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs args)
@@ -205,6 +228,7 @@ public sealed partial class KitStatePanel : Grid
         {
             _height = args.NewSize.Height;
             ApplyRowHeight();
+            Fit();
         }
 
         // A narrow tile gets the short form, rather than a button that leaves no room for the sentence.

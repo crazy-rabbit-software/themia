@@ -111,7 +111,7 @@ public class WidgetLivenessTests
 
             // [S-12832] The calendar draws its compact Set up row in its period line's place; an own desktop icon its
             // waiting look. Every other kind waiting for setup is the card's compact line over its face.
-            var own = kind == new WidgetId("desktopItem") || kind == new WidgetId("calendar");
+            var own = kind == new WidgetId("desktopItem") || kind == new WidgetId("calendar") || kind == new WidgetId("contacts"); // [S-15785]
             Assert.True(WidgetLiveness.SetUpInPlace(config) == own, kind.ToString());
         }
     }

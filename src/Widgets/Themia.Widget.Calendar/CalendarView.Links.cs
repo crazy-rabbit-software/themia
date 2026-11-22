@@ -235,7 +235,17 @@ internal sealed partial class CalendarView
     private void LinkEvent(FrameworkElement element, CalendarEvent item)
     {
         _eventElements.Add((element, item));
-        element.Opacity = EventStrength(_linkedHover, item);
+
+        // [S-15791] The event pointed at elsewhere drawn now: every part drawn before it dims too (they were drawn whole while
+        // it was not yet here), not only those drawn after it.
+        if (_linkedHover is { } hovered && !CalendarShare.Dimmed(hovered, item))
+        {
+            OnHoveredElsewhere(hovered);
+        }
+        else
+        {
+            element.Opacity = EventStrength(_linkedHover, item);
+        }
 
         var key = CalendarShare.Key(item);
         element.PointerEntered += (_, _) =>
@@ -257,7 +267,27 @@ internal sealed partial class CalendarView
         {
             element.Opacity = EventStrength(value, item);
         }
+
+        // [S-15791] A birthday's chip is no event: it is among the others while an event drawn here is the one.
+        var others = OthersStrength(value);
+        foreach (var mark in _otherMarks)
+        {
+            mark.Opacity = others;
+        }
     }
+
+    /// <summary>[S-15791] The parts that are no event (a birthday's chip or dot): in the set of marks, never the event pointed at.</summary>
+    private readonly List<FrameworkElement> _otherMarks = [];
+
+    /// <summary>[S-15791] A part that is no event, drawn now: whole, or the links' "less" while an event drawn here is pointed at elsewhere.</summary>
+    private void LinkOther(FrameworkElement element)
+    {
+        _otherMarks.Add(element);
+        element.Opacity = OthersStrength(_linkedHover);
+    }
+
+    private double OthersStrength(EventLink? hovered)
+        => hovered is not null && _eventElements.Any(drawn => !CalendarShare.Dimmed(hovered, drawn.Event)) ? LinkEmphasis.Others(pointed: true, picked: false) : 1;
 
     /// <summary>
     /// [S-3623] [S-11902] An event's chip against the event pointed at elsewhere: whole, or the links' "less"

@@ -46,11 +46,10 @@ public sealed class ScreenTimeChartTests
     }
 
     [Fact]
-    public void S3331_S15772_bars_stand_8_apart_for_a_week_and_4_for_a_month_inside_their_touching_columns()
+    public void S15772_the_bars_stand_from_the_top_edge_with_no_day_line_over_a_window()
     {
-        Assert.Equal(FamilySpace.S2, ScreenTimeChartLayout.BarGap(7));
-        Assert.Equal(FamilySpace.S1, ScreenTimeChartLayout.BarGap(30));
         Assert.Equal(0, ScreenTimeChartLayout.Top(ScreenTimePeriod.Week));
+        Assert.Equal(0, ScreenTimeChartLayout.Top(ScreenTimePeriod.Month));
     }
 
     [Fact]

@@ -84,3 +84,10 @@ the menu's email, call and message hand-offs), and the search box under the keyb
 - **[S-15776]** **The empty, no-account and offline faces are rendered** (WR-10): `none` (an account with no people: the
   kit's state row "No contacts" in the first row's place over the empty rows), `noAccount` (the card's Set up line over
   the empty rows) and `offline` (the account's "No network" in the first row's place, the rows kept empty under it).
+- **[S-15785]** **The face stays in every state, its rows one size** (WR-6, WR-10, WR-11): the search field's band stands
+  where the config has it in every state (loading, no account, a problem, nobody), at a row's one size (`ContactsPlan.FieldBand`:
+  the list's rows of its lines, 40 for two, a one-line row elsewhere; the search line opened in the first line is that
+  size too), the field the family's 30 centred in it; the state's row and its empty rows stand under it at the rows'
+  one size (`KitStatePanel.RowPitch`). With no account contacts sets up in place, as the calendar does
+  (`ISetupRule.SetsUpInPlace`): its own line "Add an account to show your contacts" (its setup sentence) with the way to
+  Accounts over the empty rows, never the rows alone. Tests `ContactsPlanTests.S11406_S15785_`, `WidgetLivenessTests`.

@@ -59,7 +59,8 @@ public sealed partial class InlineBox : TextBox
             Height = fit.Height;
         }
 
-        Padding = new Thickness(0);
+        // [S-15793] The box's text on its words' baseline: the platform's box stands it higher in a line of the same height.
+        Padding = new Thickness(0, InlineFit.BaselineShift(words.LineHeight > 0 ? words.LineHeight : FamilyType.LineOf(words.FontSize), words.FontSize), 0, 0);
         BorderThickness = new Thickness(0);
         Background = Family.Brush(ColourRole.Clear);
 

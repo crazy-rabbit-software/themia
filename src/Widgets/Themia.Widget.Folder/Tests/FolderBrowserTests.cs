@@ -219,7 +219,7 @@ public sealed class FolderBrowserTests
         // rows run to the card's foot: a new one the whole rows of 28 nearest 280 (on whole cells 280: eight rows of 30), its
         // range free from 160 to 640 ([S-11203]), every cell between.
         var list = FolderLayout.Sizing(new FolderConfig());
-        Assert.Equal((new SizeDip(220, 160), new SizeDip(300, 276), new SizeDip(800, 640)), (list.Min, list.Natural, list.Max));
+        Assert.Equal((new SizeDip(220, 70), new SizeDip(300, 276), new SizeDip(800, 640)), (list.Min, list.Natural, list.Max)); // [S-15790] its least one row
         Assert.Equal(40 + (8 * 30), Math.Ceiling(list.Natural.Height / 10) * 10);
         Assert.Equal(40 + (4 * 64) - 12 + 12, FolderLayout.Sizing(new FolderConfig { Style = FolderStyle.Grid }).Natural.Height);
         Assert.Empty(list.Problems());
@@ -235,10 +235,11 @@ public sealed class FolderBrowserTests
 
         // Everything over the items on: the least height holds them and one row.
         var tall = new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true };
-        // [S-12834] The search box is the family's control of 28, the items right under it; the least holds the tool line, the
-        // path, the box, the titles and one row of 28 in the insets, never under the folder's least (160).
-        Assert.Equal(160, FolderLayout.Sizing(tall).Min.Height);
-        Assert.True(FolderLayout.LeastHeight(tall) >= 12 + 28 + 28 + 28 + 28 + 12);
+        // [S-12834] [S-15790] The search box is the family's control of 28, the items right under it; the least holds the tool
+        // line, the path, the box and the titles in whole cells and one row (WR-14: "a list's least is one item").
+        Assert.Equal(FolderLayout.LeastHeight(tall), FolderLayout.Sizing(tall).Min.Height);
+        Assert.True(FolderLayout.LeastHeight(tall) >= 12 + 28 + 28 + 28 + 28);
+        Assert.Equal(70, FolderLayout.LeastHeight(new FolderConfig()));
     }
 
     /// <summary>

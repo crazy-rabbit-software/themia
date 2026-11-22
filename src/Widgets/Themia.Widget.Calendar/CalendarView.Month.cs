@@ -389,6 +389,7 @@ internal sealed partial class CalendarView
         if (item.Birthday is { } b)
         {
             text.Text = BirthdayRules.FirstName(b.Name);
+            LinkOther(chip);
             return chip;
         }
 
@@ -414,7 +415,18 @@ internal sealed partial class CalendarView
 
         foreach (var item in items.Take(limit))
         {
-            dots.Children.Add(Dot(MarkOf(item, showColors)));
+            // [S-15791] A dot is its event's mark: the event pointed at elsewhere keeps it whole, every other dot dims.
+            var dot = Dot(MarkOf(item, showColors));
+            if (item.Event is { } ev)
+            {
+                LinkEvent(dot, ev);
+            }
+            else
+            {
+                LinkOther(dot);
+            }
+
+            dots.Children.Add(dot);
         }
 
         if (items.Count > limit)

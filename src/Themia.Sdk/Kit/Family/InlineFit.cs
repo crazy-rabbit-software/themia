@@ -15,6 +15,24 @@ public readonly record struct InlineFit(double Height, double TextInset, bool Wr
     /// <summary>How far a box may stand from where the measure expects it: a device pixel's rounding at 150 %.</summary>
     public const double Tolerance = 0.75;
 
+    /// <summary>
+    /// [S-15793] Where the platform's text box stands its baseline under its top, a fraction of its size: measured on the
+    /// renders (a Body box of 14 inked "Northwind" 1.2 DIP over the same words on their line of 20, whose baseline stands at
+    /// <see cref="LineInk.FaceBaseline"/> of it; with this the box's words ink where the words do at 150 %, every pixel row).
+    /// </summary>
+    public const double BoxBaseline = 1.09;
+
+    /// <summary>
+    /// [S-15793] How far the box's text moves down to stand on its words' baseline (WR-12: "An inline input stands in exactly
+    /// the box of what it replaces"): their line's baseline less the box's own, for words of <paramref name="fontSize"/> on a
+    /// line <paramref name="lineHeight"/> tall; never up.
+    /// </summary>
+    public static double BaselineShift(double lineHeight, double fontSize)
+    {
+        var shift = (LineInk.FaceBaseline * lineHeight) - (BoxBaseline * fontSize);
+        return double.IsFinite(shift) ? Math.Max(0, shift) : 0;
+    }
+
     /// <summary>The box for words whose line is <paramref name="lineHeight"/>, taking <paramref name="lines"/> of them (at least one).</summary>
     public static InlineFit Of(double lineHeight, int lines = 1)
     {

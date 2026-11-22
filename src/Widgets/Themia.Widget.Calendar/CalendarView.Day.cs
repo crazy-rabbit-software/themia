@@ -41,10 +41,10 @@ internal sealed partial class CalendarView
         // hour's one fixed size, every one the card reaches, the last cut by its foot (WR-4, WR-6).
         var lift = _stated ? 0 : FamilySpace.ContentTop;
         var band = CalendarSizing.DayBand(allDay.Count);
-        var bandRow = CalendarSizing.DayBandRow(band, lift);
         var gutter = width >= HourLabelsLongFrom ? HourLabelWidth : HourLabelNarrowWidth;
         var timelineWidth = Math.Max(0, width - gutter - (2 * FamilySpace.Inset));
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var bandRow = CalendarSizing.DayBandRow(band, cells);
         var hours = CalendarSizing.DayHours(height + lift - bandRow, cells);
 
         var root = new Grid { Margin = new Thickness(0, -lift, 0, 0), Background = Family.Brush(ColourRole.Clear) };
@@ -62,7 +62,7 @@ internal sealed partial class CalendarView
             {
                 Child = DayBand(allDay, day, timelineWidth, band, showColors),
                 Height = bandRow,
-                Padding = new Thickness(FamilySpace.Inset + gutter, lift, FamilySpace.Inset, 0),
+                Padding = new Thickness(FamilySpace.Inset + gutter, Math.Max(0, (bandRow - (band.Lines * band.LineHeight)) / 2), FamilySpace.Inset, 0),
                 Background = Family.Brush(ColourRole.Clear),
             };
             ItemMark.Mark(row);

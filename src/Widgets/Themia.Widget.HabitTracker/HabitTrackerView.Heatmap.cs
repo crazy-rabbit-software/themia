@@ -68,7 +68,8 @@ internal sealed partial class HabitTrackerView
         var habits = Habits;
         var cadence = _config.Cadence;
         var firstDay = LocaleFormat.FirstDayOfWeek(Strings.Current);
-        var periods = HabitHeatmap.Cells(_current, cadence, TimeZoneInfo.Local, plan.Weeks, firstDay);
+        // [S-15787] The history's whole weeks, then the next week's periods still to come in a column the right edge cuts.
+        var periods = (IReadOnlyList<HabitBucket?>)[.. HabitHeatmap.Cells(_current, cadence, TimeZoneInfo.Local, plan.History, firstDay), .. Enumerable.Repeat<HabitBucket?>(null, (plan.Weeks - plan.History) * HabitHeatmap.Rows)];
         var logs = habits.Select(h => HabitRules.Log(h.Log)).ToList();
 
         // [S-15770] A grid per habit: every habit's block the card reaches, touching, the last cut by its foot.
@@ -80,8 +81,8 @@ internal sealed partial class HabitTrackerView
             _heatShape = shape;
         }
 
-        // [S-11532] [S-15770] The newest week's boxes on the card's right edge, every older one left of it touching, the
-        // oldest cut by the card's left edge (WR-3, WR-4); the rows from the top edge down, each box on a whole pixel.
+        // [S-11532] [S-15770] [S-15787] The weeks from the card's left edge, touching, the last cut by its right edge (WR-3,
+        // WR-4); the rows from the top edge down, each box on a whole pixel.
         var scale = grid.Raster;
         var y = 0.0;
         for (var g = 0; g < grids; g++)
@@ -100,18 +101,21 @@ internal sealed partial class HabitTrackerView
             for (var i = 0; i < periods.Count; i++)
             {
                 var cell = _heatCells[(g * periods.Count) + i];
-                var fromRight = plan.Weeks - (i / HabitHeatmap.Rows);
-                Canvas.SetLeft(cell, ItemSize.OnPixels(width - (fromRight * plan.Box), scale));
+                Canvas.SetLeft(cell, ItemSize.OnPixels((i / HabitHeatmap.Rows) * plan.Box, scale));
                 Canvas.SetTop(cell, ItemSize.OnPixels(y + ((i % HabitHeatmap.Rows) * plan.Box), scale));
 
+                cell.Visibility = Visibility.Visible;
                 if (periods[i] is not { } period)
                 {
-                    cell.Visibility = Visibility.Collapsed;
+                    // [S-15787] A period still to come: an empty track, saying nothing and ticking nothing.
+                    Shade(cell, 0);
+                    ToolTipService.SetToolTip(cell, null);
+                    AutomationProperties.SetName(cell, string.Empty);
+                    cell.Tag = null;
                     ForgetDay(cell);
                     continue;
                 }
 
-                cell.Visibility = Visibility.Visible;
                 MarkDay(cell, period, cadence.Period, plan.PerHabit); // [S-11924]
                 var when = HabitPeriods.Describe(period, cadence);
 

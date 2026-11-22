@@ -25,9 +25,6 @@ public static class ScreenTimeChartLayout
     /// <summary>[S-11505] [S-15772] A calendar ring's natural side; its cell is the ring and its padding in whole grid cells.</summary>
     public const double Cell = 20;
 
-    /// <summary>[S-3331] [S-15772] The room between two bars: 8 for a week, 4 for a month, the padding inside their day columns (half each side).</summary>
-    public static double BarGap(int days) => days <= 7 ? FamilySpace.S2 : FamilySpace.S1;
-
     /// <summary>[S-3331] The end labels' row: 4, then a Caption line.</summary>
     public static double LabelRow => FamilySpace.S1 + FamilyType.Caption.LineHeight;
 

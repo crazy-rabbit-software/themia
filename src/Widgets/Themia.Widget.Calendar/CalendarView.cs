@@ -623,6 +623,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         // [S-3623] [S-11923] A chip or a day redrawn under the pointer never hears it leave: its hover goes with it.
         _eventElements.Clear();
+        _otherMarks.Clear();
         _links.Set(LinkTopics.HoveredEvent, null);
         _days.Clear();
         _rowDays.Clear();

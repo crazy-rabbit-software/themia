@@ -191,4 +191,16 @@ public class InlineFitTests
     [Fact]
     public void S13950_a_search_closed_again_leaves_everything_where_it_was()
         => Assert.Empty(InlineFit.Judge(Card, Card, null, Folder, Folder));
+
+    [Fact]
+    public void S15793_the_boxs_text_moves_down_onto_its_words_baseline_never_up()
+    {
+        // A Body line (14 on 20): its baseline at 16, the platform's box's at 15.26: 0.74 down.
+        Assert.Equal((0.8 * 20) - (InlineFit.BoxBaseline * 14), InlineFit.BaselineShift(20, 14), 6);
+        Assert.True(InlineFit.BaselineShift(20, 14) is > 0.5 and < 1);
+
+        // Words whose box would stand lower than their line: no shift up; nonsense: none.
+        Assert.Equal(0, InlineFit.BaselineShift(10, 14));
+        Assert.Equal(0, InlineFit.BaselineShift(double.NaN, 14));
+    }
 }

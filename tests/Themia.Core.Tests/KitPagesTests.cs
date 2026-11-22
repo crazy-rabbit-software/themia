@@ -69,4 +69,14 @@ public sealed class KitPagesTests
         Assert.Equal(200, KitPages.Room(200, 0, _ => 30), 6);
         Assert.Equal(0, KitPages.Room(double.NaN, 2, _ => 30), 6);
     }
+
+    [Fact]
+    public void S15784_a_slot_with_no_room_for_the_face_under_the_states_line_keeps_the_face()
+    {
+        // The line stands the inset over the slot: a 28 slot holds a 40 line and nothing under it; a 40 slot, 12 of a row.
+        Assert.True(KitStateFit.Squeezed(28, 40, 12));
+        Assert.False(KitStateFit.Squeezed(40, 40, 12));
+        Assert.True(KitStateFit.Squeezed(18, 30, 12));
+        Assert.False(KitStateFit.Squeezed(double.NaN, 30, 12));
+    }
 }

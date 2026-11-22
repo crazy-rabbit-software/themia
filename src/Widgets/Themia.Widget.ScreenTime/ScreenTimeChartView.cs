@@ -281,17 +281,16 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     }
 
     /// <summary>
-    /// [S-3331] [S-6754] [S-15772] One bar per day, oldest left, today right, each split by app in the ring's order and
-    /// scaled to the window's busiest day. Each day is a column of the plot from the card's top to its foot, the columns
-    /// touching from its left edge to its right (WR-2, WR-3), the bar standing in its column's padding (4 each side for a
-    /// week, 2 for a month) on the card's foot; the first day's and today's names over the bars' foot at the inset
+    /// [S-3331] [S-6754] [S-15772] [S-15788] One bar per day, oldest left, today right, each split by app in the ring's order
+    /// and scaled to the window's busiest day. Each day is a column of the plot from the card's top to its foot, the columns
+    /// touching from its left edge to its right (WR-2, WR-3), its bar its column's whole width on the card's foot (no room
+    /// between two bars); the first day's and today's names over the bars' foot at the inset
     /// (Caption, tertiary, [S-6717]: the labels stand inside the plot, over it). Builds the columns and the labels;
     /// <see cref="FillBars"/> stands the parts in them.
     /// </summary>
     private Grid Bars(ScreenTimeData data, double height)
     {
         var count = data.Range.Count;
-        var pad = ScreenTimeChartLayout.BarGap(count) / 2;
         var chart = new Grid
         {
             Height = height,
@@ -310,7 +309,20 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
             // The column takes the pointer for its day; its parts stack up from the base, busiest app at the bottom.
             var column = new Grid { Background = Family.Brush(ColourRole.Clear) };
-            var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(pad, 0, pad, 0) };
+            var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Bottom };
+
+            // [S-15788] With nothing in the window every day keeps its bar as an empty track (WR-10: "it should show the default
+            // values in the graph and not just not show the graph"), the plot's full height.
+            if (data.Total <= 0)
+            {
+                column.Children.Add(new Border
+                {
+                    Background = Family.Brush(ColourRole.Track),
+                    CornerRadius = Corners(true, true),
+                    IsHitTestVisible = false,
+                });
+            }
+
             column.Children.Add(stack);
             _bars.Add(new Bar(column, stack));
 
@@ -319,15 +331,6 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             SetColumn(column, i);
             _columns.Add(column);
             chart.Children.Add(column);
-        }
-
-        // [S-6753] With nothing in the window, the bars' foot as a hairline: the chart still stands.
-        if (data.Total <= 0 && count > 0)
-        {
-            var foot = new Microsoft.UI.Xaml.Shapes.Rectangle { Height = FamilyShape.Hairline, Fill = Family.Brush(ColourRole.Track), VerticalAlignment = VerticalAlignment.Bottom, IsHitTestVisible = false };
-            SetRow(foot, 1);
-            SetColumnSpan(foot, count);
-            chart.Children.Add(foot);
         }
 
         if (count > 0)

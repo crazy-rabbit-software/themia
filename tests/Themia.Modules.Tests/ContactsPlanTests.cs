@@ -20,9 +20,9 @@ public sealed class ContactsPlanTests
         var plan = ContactsPlan.Of(new WidgetArea(300, sizing.Natural.Height - 12), config);
 
         Assert.Equal((ContactsLayout.List, 1, 2, true, 5), (plan.Layout, plan.Columns, plan.Lines, plan.Avatar, plan.Rows));
-        // [S-15775] The search field's band on the card's top edge, whole cells (30), and five rows of 40: a new one's;
-        // [S-14810] a taller card shows every row it reaches.
-        Assert.Equal(new Themia.Sdk.SizeDip(300, 30 + (5 * 40)), sizing.Natural);
+        // [S-15775] [S-15785] The search field's band on the card's top edge, a row's size (40), and five rows of 40: a new
+        // one's; [S-14810] a taller card shows every row it reaches.
+        Assert.Equal(new Themia.Sdk.SizeDip(300, 40 + (5 * 40)), sizing.Natural);
         Assert.Equal(10, Plan(config).Rows);
         Assert.Equal((220, 520), (sizing.Min.Width, sizing.Max.Width));
         Assert.Empty(sizing.Problems());
@@ -37,8 +37,8 @@ public sealed class ContactsPlanTests
     }
 
     [Fact]
-    public void S11406_S15775_without_the_box_the_list_is_shorter_by_its_band()
-        => Assert.Equal(30, ContactsPlan.Sizing(new ContactsConfig()).Natural.Height - ContactsPlan.Sizing(new ContactsConfig { SearchBox = false }).Natural.Height);
+    public void S11406_S15785_without_the_box_the_list_is_shorter_by_its_band_a_rows_size()
+        => Assert.Equal(40, ContactsPlan.Sizing(new ContactsConfig()).Natural.Height - ContactsPlan.Sizing(new ContactsConfig { SearchBox = false }).Natural.Height);
 
     [Fact]
     public void S11406_S15775_compact_is_one_line_with_its_field_and_details_has_its_titles_and_column_widths()

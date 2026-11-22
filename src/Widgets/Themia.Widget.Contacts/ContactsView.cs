@@ -495,13 +495,28 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         ClearRows();
 
         var ready = Ready;
-        var showSearch = FieldShown(ready);
+
+        // [S-15785] The field is part of the face: it stands where the config has it in every state, the state's row under it.
+        var showSearch = FieldShown(true);
         var line = LineOpen(ready);
         _fieldSlot.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
         _searchSlot.Visibility = line ? Visibility.Visible : Visibility.Collapsed;
-        SetRow(_state, 0);
-        SetRowSpan(_state, 3);
-        _state.Margin = default;
+        var plan = ContactsPlan.Of(_area, _config, XamlRoot?.RasterizationScale ?? 1);
+        var grid = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+
+        // [S-15785] The field's band is a line of the list's own, a row's one size (WR-11: rows look like rows everywhere, the
+        // search line's too), the family's control in it.
+        var band = ContactsPlan.FieldBand(_config, grid);
+        _fieldSlot.Height = band;
+        _search.Fill(ItemSize.Optimal(ContactsPlan.SearchHeight, grid));
+        _search.VerticalAlignment = VerticalAlignment.Center;
+
+        // [S-15776] [S-15785] The state's row stands on the card's top edge as a list's first row does (ListEdge): under the
+        // field's band it stands the inset lower, right under the band; its empty rows are the list's rows' one size (WR-6).
+        SetRow(_state, showSearch ? 2 : 0);
+        SetRowSpan(_state, showSearch ? 1 : 3);
+        _state.Margin = showSearch ? new Thickness(0, FamilySpace.Inset, 0, 0) : default;
+        _state.RowPitch = plan.Layout == ContactsLayout.Grid ? ItemSize.Optimal(FamilyShape.Row1, grid) : plan.Reach.Pitch > 0 ? plan.Reach.Pitch : plan.Pitch;
 
         // A search typed into a box that has since been hidden still filters; the box shows the
         // query again as soon as there is room for it.
@@ -512,20 +527,15 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         switch (screen.Kind)
         {
             case Themia.Sdk.Kit.KitScreenKind.NoAccounts:
-                // [S-1862] [S-12835] The card's compact Set up line says so over the face: the rows kept, empty.
-                _state.ShowFace();
+                // [S-1862] [S-12835] [S-15785] Set up in place, as the calendar: the state's compact line says what it waits
+                // for, with the way to Accounts, over the face's rows kept empty (WR-10).
+                _state.Show(((ISetupRule)_config).SetupSentence ?? ContactsStr.Contacts_Setup_Sentence.Text(), offerAccounts: true);
                 return;
 
             case not Themia.Sdk.Kit.KitScreenKind.Items:
                 _state.Show(screen);
                 return;
         }
-
-        var plan = ContactsPlan.Of(_area, _config, XamlRoot?.RasterizationScale ?? 1);
-        var grid = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
-        var band = ItemSize.Optimal(ContactsPlan.SearchHeight, grid);
-        _fieldSlot.Height = band;
-        _search.Fill(band);
 
         // [S-15775] The bands over the rows (the field's, the column titles') stand from the card's top edge; the first of
         // what stands there takes the card's edge (ListEdge), what follows it stands right under it.
@@ -556,14 +566,13 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         if (_visible.Count == 0)
         {
-            // The box stays, so a search that matched nothing can be changed; the row stands under it.
-            if (showSearch || line)
+            // The box stays, so a search that matched nothing can be changed; the row stands under it; under the line, one
+            // line down.
+            if (line && !showSearch)
             {
                 SetRow(_state, 2);
                 SetRowSpan(_state, 1);
-                // [S-15776] The state's row stands on the card's top edge as a list's first row does (ListEdge): under the
-                // field's band it stands the inset lower, right under the band; under the line, one line down.
-                _state.Margin = showSearch ? new Thickness(0, FamilySpace.Inset, 0, 0) : line ? new Thickness(0, plan.Top, 0, 0) : default;
+                _state.Margin = new Thickness(0, plan.Top, 0, 0);
             }
 
             _state.Show((Contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);

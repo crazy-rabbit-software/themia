@@ -103,15 +103,22 @@ public sealed partial class KitList
     private FrameworkElement? _overlay;
 
     /// <summary>
-    /// [S-12835] The state over the list takes the list's room down to the foot (its empty rows, WR-10) unless the add row
-    /// stands under it, right under the state's line.
+    /// [S-12835] [S-15786] The state over the list takes the list's room down to the foot (its empty rows, WR-10); with the
+    /// add row under it, the rows' room the card's less the add row's (<see cref="ItemSize.RowsAbove"/>), so its line and
+    /// the empty rows under it fill the card over the add row on its foot, as a list longer than its card stands (the face
+    /// kept, never the line and the add row alone over an empty card).
     /// </summary>
     private void SpanOverlay()
     {
-        if (_overlay is not null)
+        if (_overlay is null)
         {
-            SetRowSpan(_overlay, _addRow?.Element.Visibility == Visibility.Visible ? 1 : 3);
+            return;
         }
+
+        var under = _addRow?.Element.Visibility == Visibility.Visible;
+        SetRowSpan(_overlay, under ? 1 : 3);
+        var room = _plan.Reach.Foot > 0 ? _plan.Reach.Room - FamilySpace.Inset : double.NaN;
+        _overlay.Height = under && double.IsFinite(room) && room > 0 ? room : double.NaN;
     }
 
     /// <summary>

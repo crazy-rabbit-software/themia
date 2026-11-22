@@ -130,4 +130,18 @@ public sealed class HabitTrackerStylesTests
         Assert.Equal(1, plan.Lines);
         Assert.True(plan.AddRow);
     }
+
+    [Fact]
+    public void S15787_the_weeks_stand_from_the_left_edge_the_next_weeks_column_cut_by_the_right()
+    {
+        var grid = ItemGrid.Default();
+
+        // 330 wide: sixteen whole weeks of history, the current period's the last of them, and the next week cut to 10.
+        var plan = HabitHeatmap.Plan(330, perHabit: false, grid);
+        Assert.Equal((17, 16), (plan.Weeks, plan.History));
+
+        // Exactly whole: no week to come; narrower than one: the one week, cut.
+        Assert.Equal((15, 15), (HabitHeatmap.Plan(300, perHabit: false, grid).Weeks, HabitHeatmap.Plan(300, perHabit: false, grid).History));
+        Assert.Equal((1, 1), (HabitHeatmap.Plan(10, perHabit: false, grid).Weeks, HabitHeatmap.Plan(10, perHabit: false, grid).History));
+    }
 }

@@ -48,7 +48,7 @@ public sealed class MonthLayoutTests
     [Fact]
     public void S11544_a_cell_with_room_shows_its_days_events_as_chips_and_its_number_grows()
     {
-        var tall = MonthLayouts.Plan(560, 600, 36, Grid, anchorRow: 0, mostItems: 3);
+        var tall = MonthLayouts.Plan(700, 600, 36, Grid, anchorRow: 0, mostItems: 3);
         Assert.Equal(MonthFace.Chips, tall.Face);
         Assert.InRange(tall.ChipLanes, 1, 3);
         Assert.True(tall.NumberLine > FamilyType.Caption.LineHeight);
@@ -86,13 +86,14 @@ public sealed class MonthLayoutTests
     /// a month with titles, chosen, from one chip line in that column.
     /// </summary>
     [Theory]
-    [InlineData(560, 60 + (6 * 40), MonthFace.Dots)]    // a week of 40: the number and one chip line
-    [InlineData(560, 60 + (6 * 50), MonthFace.Dots)]    // 50: one and a half
-    [InlineData(560, 60 + (6 * 60), MonthFace.Chips)]   // 60: two chip lines under the number, columns of 80
-    [InlineData(350, 60 + (6 * 80), MonthFace.Dots)]    // columns of 50: under a title's 56
-    [InlineData(420, 60 + (6 * 80), MonthFace.Chips)]   // columns of 60
-    [InlineData(520, 60 + (6 * 80), MonthFace.Chips)]   // columns of 74 (WR-9's 520 × 600)
-    public void S14101_S15782_a_dots_month_keeps_its_dots_until_a_cell_holds_two_readable_chip_lines(double width, double height, MonthFace face)
+    [InlineData(700, 60 + (6 * 40), MonthFace.Dots)]    // a week of 40: the number and one chip line
+    [InlineData(700, 60 + (6 * 50), MonthFace.Dots)]    // 50: one and a half
+    [InlineData(700, 60 + (6 * 60), MonthFace.Chips)]   // 60: two chip lines under the number, columns of 100
+    [InlineData(420, 60 + (6 * 80), MonthFace.Dots)]    // columns of 60: a title of three letters
+    [InlineData(520, 60 + (6 * 80), MonthFace.Dots)]    // columns of 74: five or six (WR-9's 520 × 600)
+    [InlineData(600, 60 + (6 * 80), MonthFace.Dots)]    // columns of 86: "Brunch w…"
+    [InlineData(700, 60 + (6 * 80), MonthFace.Chips)]   // columns of 100: its start and its title
+    public void S14101_S15792_a_dots_month_keeps_its_dots_until_a_cell_holds_two_readable_chip_lines(double width, double height, MonthFace face)
     {
         var month = MonthLayouts.Plan(width, height, 40, Grid, anchorRow: 0, mostItems: 3);
         Assert.Equal(face, month.Face);
@@ -102,9 +103,9 @@ public sealed class MonthLayoutTests
     [Fact]
     public void S14101_a_month_with_titles_shows_chips_from_one_line_in_its_least_column()
     {
-        var titles = MonthLayouts.Plan(7 * 60, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles);
+        var titles = MonthLayouts.Plan(7 * 100, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles);
         Assert.Equal((MonthFace.Chips, 1), (titles.Face, titles.ChipLanes));
-        Assert.Equal(MonthFace.Dots, MonthLayouts.Plan(7 * 50, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles).Face);
+        Assert.Equal(MonthFace.Dots, MonthLayouts.Plan(7 * 60, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles).Face); // [S-15792]
     }
 
     [Fact]

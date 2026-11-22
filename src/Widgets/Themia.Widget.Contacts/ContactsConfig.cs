@@ -60,6 +60,9 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Contacts);
 
+    /// <summary>[S-15785] It says so in its own state's line over its rows kept empty, as the calendar does: no card line over it.</summary>
+    bool ISetupRule.SetsUpInPlace => true;
+
     /// <summary>The accounts to show; empty means every contacts account.</summary>
     [JsonConverter(typeof(LenientIdListConverter))]
     public List<string> AccountIds { get; set; } = [];
