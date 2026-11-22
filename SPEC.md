@@ -13447,12 +13447,6 @@ for example"). Its tags stay reserved:
 - **[S-15537]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* The parts' shelf stands on the desktop's grid.
 - **[S-15540]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the repeater engine and the forecast composed of parts are gone, the weather forecast is one widget again, [S-6163].)* The forecast's looks are repeaters.
 
-The design elements that came with the composed forecast (the Elements family, its own SPEC until then) went with it:
-
-- **[S-10100]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* A design element's config is an `IDesignElement`, in any composition.
-- **[S-10101]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* Text (`text`): one line of the person's own words on the text face.
-- **[S-10102]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* The Icon widget as a design element (`IconWidgetConfig` an `IDesignElement`); the Icon widget itself stays ([S-15010]).
-- **[S-10103]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay"; the Elements family (Text, Divider) came with the composed forecast and went with it.)* Divider (`divider`): a hairline through its box's middle along its long side.
 
 ## Windows' desktop parity (PARITY)
 
