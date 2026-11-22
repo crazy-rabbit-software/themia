@@ -48,8 +48,9 @@ internal static class ItemDump
             w.WriteNumber("cell", Math.Round(card.CellPitch, 4));
             w.WriteNumber("scale", card.XamlRoot?.RasterizationScale ?? 1);
 
-            // [S-12835] [S-6754] The card's compact Set up line over the view: a plot stands right under it.
-            w.WriteNumber("setup", Math.Round(card.SetupBand, 2));
+            // [S-12835] [S-6754] The card's compact Set up line over the view: a plot stands right under it ([S-15814]: or
+            // under none, where the line stands over a plot with nothing written at its top).
+            w.WriteNumber("setup", Math.Round(card.SetupUnder, 2));
 
             // [S-14301] Where the card's content stands across: the alignment it draws where its kind aligns in its style
             // ([S-6583]), else centred (the owner's "Centred is fine": the leftover shared alike on both sides).

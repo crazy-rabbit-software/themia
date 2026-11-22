@@ -473,8 +473,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     public void ApplyEdges()
     {
         // [S-12835] Under the card's compact Set up line the view keeps its face: it stands under the line's whole cells.
-        var under = SetupBand;
-        _view.Margin = _view.Margin with { Top = CardContent.TopInset((_view as IWidgetTopEdge)?.OwnsTopEdge == true) + under };
+        // [S-15814] A plot with nothing written at its top keeps the whole card: the line stands over it.
+        var edge = _view as IWidgetTopEdge;
+        var under = edge is { OwnsTopEdge: true, SetupOver: true } ? 0 : SetupBand;
+        SetupUnder = under;
+        _view.Margin = _view.Margin with { Top = CardContent.TopInset(edge?.OwnsTopEdge == true) + under };
 
         // [S-1862] The Set up and waiting rows never own the edge.
         if (_setup is not null)
@@ -487,6 +490,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             _waiting.Margin = OverlayTop;
         }
     }
+
+    /// <summary>[S-15814] The band the view stands under: the Set up line's, none where the line stands over a plot.</summary>
+    internal double SetupUnder { get; private set; }
 
     /// <summary>[S-12835] [S-6754] The band the card's compact Set up line takes over the view (its whole cells); none without it.</summary>
     internal double SetupBand => _setup is not null ? LineRules.EdgeRow(new ItemGrid(CellPitch, XamlRoot?.RasterizationScale ?? 1)) : 0;

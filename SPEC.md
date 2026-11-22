@@ -9269,8 +9269,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   box is the main reading alone at 9 in the card's inset, which does not scale (`FaceFloor.LeastBox` + 24,
   `WidgetSizing.ScalesDownTo`), never under 32: the clock 48 × 32 (Digital, Minimal; 60 with seconds), Stacked 35 × 43
   (55 with seconds), Flip 51..58 × 36..37 (its cards' room), Words 87 × 66, whatever its meridiem and line under; the dial goes down
-  to its floor (`ClockFace.DialFloor`, 40) in the inset, 64 × 64; the date's line its widest day at 9 by 32, its page
-  its number alone, 35 × 32. Seconds are figures and never give way; the clock is planned in its natural box at every
+  to its floor (`ClockFace.DialFloor`, 20 since the clock's [S-15815]) in the inset, 44 × 44; the date's line its widest day at 9 by 32, its page
+  whole with its weekday and month at 9 (the date's [S-15813]). Seconds are figures and never give way; the clock is planned in its natural box at every
   size, never folded (never stacked, never without its seconds). Tests `BlockFillTests.S12833_` (the floor, scaling
   down, monotonic), `FaceFloorTests.S12833_` (the main reading's floor, parts giving way smallest first, never drawn
   under 9, the scale only falling), `ClockFaceTests.S6011_S12833_`, `.S6741_S12833_` (each style's least height, the figures at 9, every part at

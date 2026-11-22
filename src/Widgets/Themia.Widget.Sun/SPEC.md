@@ -55,6 +55,12 @@ JSON context), `SunConfig.cs`, `SunLayout.cs` (its sizes), `SunDayBar.cs` (the d
   the card's compact Set up line, its face drawn for the default place. The Debug state `noPlace` draws it so: a render
   whose state draws a config the card would set up while the card's own would not stands it under that line
   (`WidgetCard.SetupForPreview`, `IWidgetPreviewState.DrawnConfig`).
+- **[S-15814]** **The Set up line stands over the plot** (owner, 2026-11-19, of graphs: "Plot edge to edge": "the labels
+  stand inside it, over the plot"; WR-1): the sun's view owns the card's top edge and has nothing written at its top
+  (`IWidgetTopEdge.OwnsTopEdge`, `.SetupOver`), so the card stands its compact Set up line over the plot inside the card's
+  inset and lays the view in its whole box, never under a band the line takes (`WidgetCard.ApplyEdges`; the layout dump's
+  `setup` is the band the view stands under, `WidgetCard.SetupUnder`). A view with words at its top keeps the band.
+  Before, `noPlace` drew its plot from y = 30 under the line at every size.
 - **[S-3107]** Every option is on the properties menu ([S-3719]); there is no settings page: Style and
   Appearance ([S-3723]), nothing under Style; then behind a divider **Location**, the sky's shared
   search ([S-3101]): the place's city (or its coordinates) at the line's end; under the answers Clear

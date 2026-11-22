@@ -14,4 +14,11 @@ namespace Themia.App.Widgets;
 public interface IWidgetTopEdge
 {
     bool OwnsTopEdge { get; }
+
+    /// <summary>
+    /// [S-15814] A plot that owns the edge with nothing written at its top (the sun's arc and day bar): the card's compact
+    /// Set up line stands over it, inside the plot, never a band that pushes it down (owner, 2026-11-19, of graphs: "Plot edge
+    /// to edge": "the labels stand inside it, over the plot"). A view with words at its top keeps the band (false).
+    /// </summary>
+    bool SetupOver => false;
 }

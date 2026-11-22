@@ -35,8 +35,14 @@ namespace Themia.App.Widgets;
 /// marker is drawn where it stands, so at an edge of the card (noon on the top, a sunrise on the left) the card cuts it.
 /// </para>
 /// </summary>
-internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
+internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware, IWidgetTopEdge
 {
+    /// <summary>[S-15812] The plot draws to the card's top edge: the card hands it its whole box.</summary>
+    public bool OwnsTopEdge => true;
+
+    /// <summary>[S-15814] Nothing is written at the plot's top: the card's Set up line stands over it, inside the plot.</summary>
+    public bool SetupOver => true;
+
     /// <summary>[S-15812] The plot: the card's whole box (<see cref="PlotMark"/>), clipped there.</summary>
     private readonly Canvas _plot = new()
     {
@@ -93,9 +99,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
             _plot.Children.Add(shape);
         }
 
-        // [S-15812] The plot stands on the card's top edge (the card gives the inset over the view) and runs to its sides
-        // and foot.
-        _plot.Margin = ListEdge.Margin;
+        // [S-15812] The plot is the card's whole box: the view owns the card's top edge (IWidgetTopEdge).
         PlotMark.Mark(_plot);
         Children.Add(_plot);
 
@@ -171,8 +175,8 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
             shape.Visibility = Show(bar);
         }
 
-        // The card's whole box: the view's room and the card's inset over it.
-        _box = (_area.Width, _area.Height + FamilySpace.Inset);
+        // The card's whole box, which the card hands the view (it owns the top edge).
+        _box = (_area.Width, _area.Height);
         _plot.Width = _box.Width;
         _plot.Height = _box.Height;
         _plot.Clip = new RectangleGeometry { Rect = new Rect(0, 0, _box.Width, _box.Height) };
