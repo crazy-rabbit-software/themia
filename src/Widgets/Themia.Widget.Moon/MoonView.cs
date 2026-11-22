@@ -50,6 +50,9 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWid
     private readonly List<Border> _monthCells = [];
     private readonly Ellipse _todayRing = new() { StrokeThickness = FamilyShape.Stroke, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false };
 
+    /// <summary>[S-15811] The room the month's name's line leaves over its capitals, drawn over the card's inset.</summary>
+    private double _nameOver;
+
     /// <summary>The cell's panel today's ring stands in.</summary>
     private Panel? _ringHolder;
 
@@ -206,6 +209,11 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWid
         _monthName.Text = LocaleFormat.MonthName(locale, today.Month);
         Ink.InkStart(_monthName);
 
+        // [S-15811] Its capitals on the card's top inset, as every first ink (WR-1): the line's leading over them reaches back.
+        var over = InkMeter.Line(FamilyType.Caption, _monthName.Text, _monthName.FontFamily?.Source ?? string.Empty, _monthName.FontWeight.Weight).Over;
+        _nameOver = Math.Max(0, over);
+        _monthName.Margin = _monthName.Margin with { Top = -_nameOver };
+
         var rows = MoonLayout.Cells(1, 1, days.Count).Rows;
         while (_monthGrid.RowDefinitions.Count < rows)
         {
@@ -245,7 +253,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWid
             return;
         }
 
-        var height = _area.Height - FamilyType.Caption.LineHeight;
+        var height = _area.Height - (FamilyType.Caption.LineHeight - _nameOver);
         var cells = MoonLayout.Cells(_area.Width, height, _monthDiscs.Count);
         foreach (var disc in _monthDiscs)
         {

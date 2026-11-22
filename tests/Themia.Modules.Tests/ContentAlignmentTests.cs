@@ -92,7 +92,8 @@ public sealed partial class ContentAlignmentTests
     public void S6582_without_a_choice_each_widget_sits_where_it_always_did()
     {
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("clock"))));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
+        // [S-15810] The moon's readout centres, as the clock's: it fills one axis and shares the other alike (WR-3).
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("weatherCondition"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Number)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
@@ -115,7 +116,7 @@ public sealed partial class ContentAlignmentTests
         // The moon's month keeps the choice, and draws its own default, until the disc is back.
         var moon = Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth);
         moon.Align = ContentAlign.Right;
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(moon));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(moon));
         Assert.True(WidgetStyles.Set(moon.Config, (int)MoonStyle.Disc));
         Assert.Equal(ContentAlign.Right, ContentAlignment.Shown(moon));
 

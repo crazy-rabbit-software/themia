@@ -29,8 +29,14 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
         StyleOption.Of(MoonStyle.PhaseMonth, MoonStr.Styles_Moon_PhaseMonth.Local(), 0xE787),
     ];
 
-    /// <summary>[S-6581] Its readout aligns (at the start when nothing was chosen, as every data widget's); the month's grid does not.</summary>
+    /// <summary>[S-6581] Its readout aligns; the month's grid does not.</summary>
     bool IContentAligned.AlignApplies => Style == MoonStyle.Disc;
+
+    /// <summary>
+    /// [S-15810] Centred when nothing was chosen (WR-3; owner, 2026-11-20, of a reading that fills one axis: "Centred is
+    /// fine", the leftover on the other shared alike): at the start, a wide card left its whole width's spare on the right.
+    /// </summary>
+    ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
 
     /// <summary>[S-6050] Tonight's disc, or the month's phases.</summary>
     public MoonStyle Style { get; set; } = MoonStyle.Disc;

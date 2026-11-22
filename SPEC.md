@@ -3960,7 +3960,7 @@ rules in Core `Model/QuickSet.cs` and `Shell/SelectionPage.cs`
 - **[S-6582]** Without a choice each widget sits where it always drew: centred — the Clock,
   Weather now's Large icon and Minimal styles, Air quality's Gauge; from the start —
   everything else (Weather now Standard, Air quality Number, the rate, the price, the Countdown, the
-  Quote, the Moon's readout, since G3 as every data widget's, [S-6702]). The Countdown no longer centres itself on a Compact tile: one rule at every size.
+  Quote, since G3 as every data widget's, [S-6702]); the Moon's readout centred since the moon's [S-15810]. The Countdown no longer centres itself on a Compact tile: one rule at every size.
 - **[S-6583]** The card hands its view the alignment it draws (`ContentAlignment.Shown`: the own
   choice, else the kind's default for its style, and the default for a value outside the set or a
   style that does not align) before the view attaches and before every config it hears. In the
@@ -9289,8 +9289,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-14242]** **The sun's arc reaches the content's top** (owner, 2026-11-19, WR-1). The noon point of the day's arc
   stands on the content's top and the night's lowest point on its foot ([S-11806]); the marker on the arc reaches its
   half (6) over either into the card's inset, clipped there and no further. Was: the noon point 6 under the top, a
-  band of 17 over every arc. Tests `SunPathGeometryTests.S11806_`, `.S14242_`. (Since the sun's [S-15806] the plot is the
-  card's whole box, the path in it less the marker's half, so the marker at noon touches the card's top.)
+  band of 17 over every arc. Tests `SunPathGeometryTests.S11806_`, `.S14242_`. (Since the sun's [S-15806] and [S-15812] the plot
+  is the card's whole box and the path reaches its edges: noon on the card's top, the marker cut there.)
 - **[S-14243]** **A face's pieces give way by the block as it is drawn** (owner, 2026-11-19, WR-7: "Keep them
   together"; content decides size, size never content). The pieces a face states ([S-12833]: a name, a date under the
   time, a unit, a lead glyph) give way, smallest first, only where the scale the drawn block fills the room at would

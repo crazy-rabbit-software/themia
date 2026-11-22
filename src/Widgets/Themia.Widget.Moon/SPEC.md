@@ -14,8 +14,8 @@ renders), `Localization/Locales/` (its own `MoonStr`). Tests: `Tests/MoonTests.c
 - **[S-3105]** *(Retired by [S-11120]: no rows and no ladder; the rows are the moon times' atom, [S-11125].)*
 - **[S-11120]** **What it shows**, the same at every size in its range: in the **Disc** style a Readout
   of how much of the moon is lit on the family's 28 ("23%", [S-2449]), the moon drawn at its phase as
-  its lead at the step's size (`SkyMoonDisc`, [S-169]), the phase's name the Caption under it, at the
-  start by default ([S-6582]); in **Phase month** the month's discs ([S-6050]). A Header widget over it
+  its lead at the step's size (`SkyMoonDisc`, [S-169]), the phase's name the Caption under it, centred
+  by default ([S-15810]); in **Phase month** the month's discs ([S-6050]). A Header widget over it
   names it ([S-12481]); in a group it stands against a side a mate joins ([S-12483]).
 - **[S-11121]** **Sizes** (`MoonLayout.Sizing`): the disc one height (76: the 28's
   line, the Caption, the insets), 140..320 wide, a new one 160; the month a new card's size of seven columns and
@@ -37,6 +37,13 @@ renders), `Localization/Locales/` (its own `MoonStr`). Tests: `Tests/MoonTests.c
   card has larger cells and discs; a smaller one goes down to where a disc is the glyph floor, 12 (WR-14), its name kept
   over the cells (119 × 113, `MoonLayout.Sizing`). Before, the discs stood on a fixed pitch centred in the card: 275 DIP of a 900 × 300
   card empty either side. Tests `MoonTests.S15805_`.
+- **[S-15810]** **The readout centres by default** (WR-3; owner, 2026-11-20, asked whether a reading that fills the card's
+  height but not its width may stand centred: "Centred is fine", the leftover shared alike on both sides): with no
+  alignment chosen the Disc's block stands centred (`MoonConfig.DefaultAlign`); at the start it left the whole spare
+  width on its right (267 DIP at 900 × 300). A chosen alignment still places it.
+- **[S-15811]** **The month's name inks on the card's top inset** (WR-1): its line's leading over its capitals reaches back
+  over the inset (measured, `InkMeter.Line`), so its first ink stands 12 under the card's top as every face's, not 16;
+  the cells start right under its line.
 - **[S-3108]** Every option is on the properties menu ([S-3719]); there is no settings page: Appearance
   ([S-3723]), then behind a divider **Location**, the sky's shared search ([S-3101], as the Sun's
   [S-3107]). The month of phases offers no Longitude line ([S-6074]); nothing stands under Style.
