@@ -19,7 +19,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Fences on the desktop (FENCES); Repeaters (REPEATER, retired); Windows' desktop parity (PARITY); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP, retired); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Single metrics (METRICS); Text widgets (TEXTS); Icon widgets (ICONS); Atoms and the universal spacing (ATOMS, retired); Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
+- **System widgets.** (The seven meters, the seven detail widgets, the device widgets (Drive, USB stick, Network drive, the drive lists, Bluetooth), Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, the Desktop icon and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Own desktop icons: drops and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2); Weather graphs (WEATHER-GRAPHS).
 
@@ -6642,7 +6642,7 @@ its own id, config and tag, [S-7400]..[S-8000], the kinds as data); Bluetooth is
 - **[S-11802]** **The sample machine's drives** (`SamplePc.Drives`): System (C:), 931 GB with 419 GB free;
   Data (D:), 1.8 TB with 1.1 TB free; one USB stick (E:, "STICK"), 58 GB with 31 GB free. On the sample
   machine every drive widget reads them through `AppServices.Drives` (`SampleMachine.Install` sets it, as
-  it sets the hub): Drive and Drive facts show System (C:), Removable drives the stick, and a scene or a
+  it sets the hub): Drive and Drive facts show System (C:), the USB sticks list the stick, and a scene or a
   recipe never shows this PC's drives or a drive that is not connected. The disk meter's volumes are the
   same two fixed drives, named alike. Tests `SamplePcTests.S11802_`.
 - **[S-1931]** Debug: `--render widget ... --machine sample` draws the system widgets (the meters, the
@@ -7843,8 +7843,8 @@ The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKe
 The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `LinkKeys.Drive`, [S-11951]):
 
 - **[S-11950]** A drive is one thing across the view: the `drive` card, a drive fact's card (`driveUsed`, ...,
-  `driveActivity`, [S-11953]), a `disk` reading and a `folder` at its root ([S-11954]) are that drive as a whole card, a
-  `removableDrives` row is its drive. The pointer on the card (or the row, or the list's keyboard cursor, [S-3307])
+  `driveActivity`, [S-11953]), a `disk` reading and a `folder` at its root ([S-11954]) are that drive as a whole card, as are
+  a `usbStick` and a `networkDrive` card; an item of a drive list (`drives`, `usbSticks`, `networkDrives`) is its drive. The pointer on the card (or the row, or the list's keyboard cursor, [S-3307])
   publishes the drive, and while a drive is pointed at anywhere on the view every card that is it takes the item
   layer's hover fill over its whole box (`LinkCard`, [S-11903], [S-11963]) and every row that is it the row's hover
   fill ([S-11901]). The card under the pointer shows that hover too ([S-11962]); cards of the same kind are no
@@ -7892,8 +7892,8 @@ Topics:
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | `contacts`, `nextMeeting` | `contacts` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |
-| `HoveredDrive` | Hover | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `folder`, `removableDrives` |
-| `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
+| `HoveredDrive` | Hover | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `drives`, `folder`, `networkDrive`, `networkDrives`, `usbStick`, `usbSticks` | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `drives`, `folder`, `networkDrive`, `networkDrives`, `usbStick`, `usbSticks` |
+| `HoveredDevice` | Hover | `bluetooth`, `bluetoothDevice`, `deviceBatteries` | `bluetooth`, `bluetoothDevice`, `deviceBatteries` |
 | `HoveredMessage` | Hover | `email` | `email` |
 <!-- /view-links:table -->
 
@@ -9795,7 +9795,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its right on the card's top edge, the side inset inside it, at the list's pitch, and it is one of the list's items
   (`ItemMark`), as its empty rows under it are. In a list's least card (one row) it is that one row, laid and judged as
   the row it stands for; its sentence never stretches. Renders `--render widget email|rss|notifications|recentFiles|
-  removableDrives|deviceBatteries --state empty --sizes range`, `clipboard --state confirm`, `bluetooth --state off`,
+  usbSticks|deviceBatteries --state empty --sizes range`, `clipboard --state confirm`, `bluetooth --state off`,
   judged by `scripts/item-check.py` and `scripts/gap-check.py`.
 - **[S-12816]** **The pointer never changes a widget's layout** (owner, 2026-11-19: "some widgets like the now playing
   scrubber changes text sizes when hovering over it with the mouse … this should not be"). Hover and press are paint:
@@ -15050,8 +15050,8 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   file system (`GetVolumeInformationW`) and the space free to this user (`GetDiskFreeSpaceExW`), with the
   critical-error box off so an empty reader never asks for a disk. A reader with nothing in it is
   NoMedia. A fixed disk on USB, FireWire or SD (`IOCTL_STORAGE_QUERY_PROPERTY` bus type, asked with no
-  access rights) is hot-plug: an external disk. Drive is one drive's card, Removable drives
-  the plug list. They share one reader and one walker: the drive service ([S-4655]) is the only caller of
+  access rights) is hot-plug: an external disk. Drive is one drive's card, the drive lists
+  every drive of a kind ([S-16650]). They share one reader and one walker: the drive service ([S-4655]) is the only caller of
   this walk; the disk meter's volumes and the disk-space figures are its last walk's.
 - **[S-4651]** A drive is named as This PC names it: its label, or "Local Disk", "USB Drive", "CD
   Drive", "Network Drive", "RAM Disk", then the letter; a mapped share without a label is
@@ -15072,7 +15072,7 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   widget: one walk on the pool, single-flight, when Windows says a volume came or went
   (`WM_DEVICECHANGE` arrival or removal, heard by the command window, also for a share mapped or
   dropped), when a share answers, and every 30 s while anything watches (free space). Drive and
-  Removable drives watch it while live ([S-1880]); the system hub's disk activity source
+  the drive lists watch it while live ([S-1880]); the system hub's disk activity source
   holds a watch while its feed lives, so the disk meter is read from app start like
   every hub source ([S-2513]). A settings
   page reads its last walk, or walks once when nothing watches.
@@ -15083,15 +15083,77 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   secondary) until it is in, always for a share (never asked for a picture: that is a question to the
   server), and in a render, whose drives are not this PC's (`DriveIcon`). A disconnected share says so
   in words ([S-4671]); its picture wears no badge.
-- **[S-4660]** Removable drives (add menu: Devices & power, [S-3511]): a row per USB stick or card (removable), disc
-  (optical) and external disk (hot-plug fixed), by letter; an empty reader is left out, as Explorer
-  hides empty drives. Nothing plugged in is the Status row at the top under the stick glyph ([S-6714]).
-  No options of its own.
-- [S-4661], [S-4662], [S-4664]: moved with the Removable drives widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.RemovableDrives/`).
+- **[S-4660]** Which drives are removable (`DriveRules.IsRemovable`, Eject's rule): a stick or a card (removable), a disc
+  (optical) and an external disk (hot-plug fixed) that is there; an empty reader is not. (Removable drives, the widget that
+  listed them, is the USB sticks' list since 2026-11-23, [S-16656].)
+- [S-4661], [S-4662], [S-4664]: moved with the Removable drives widget into its module's `SPEC.md`, now the drive lists'
+  (`src/Widgets/Themia.Widget.Drives/`).
 - **[S-4670]** Drive (add menu: Devices & power, [S-3511]): one drive (`drive`, a root; empty for the system drive; anything
   else is repaired to the system drive at load). A drive that is not there keeps its card, "Not
   connected".
 - [S-4671], [S-4675], [S-4672], [S-4673], [S-6274], [S-4674]: moved with the Drive widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Drive/`).
+
+### Device items (DEVICES)
+
+The owner, 2026-11-23: "in terms of design, the devices like the bluetooth devices or drives or network drives or usb
+sticks all have a very different design although they are actually very similar (usb drives, network drives, and drives
+can actually share almost 100% of their design). i want you to create a base design that all of those widgets can use. it
+should look very similar to how todays drive widget looks like. the usb sticks should actually not be a widget anymore, it
+should be called list of drives or similar and should show all of the drives. you should be able to filter them out or
+rearrange to your liking, it should use the same base design. optionally it should be possible to add a block gap into the
+widget so that they are dymanic but it looks like different widgets." And, refining it the same day: "actually there
+should be individual widgets for the drive, bluetooth device, usb stick, network drive and then for all of those there
+should also be the list version of it that basically shows the list of them. this is a little different from how i
+originally said it. they should still try to share the same structure in the backen." (A day earlier he had kept every
+widget's individuality, WR-16 retired; this shared design is the device family's alone, asked for in words.)
+
+- **[S-16630]** **One device design.** The device widgets are one family on one item: Drive, USB stick, Network drive and
+  Bluetooth device (one device each), the lists of drives, USB sticks, network drives and Bluetooth devices, and Device
+  batteries. The item is the SDK's (`Themia.Sdk/Devices`: `DeviceItem`, `DeviceLayout`, `DeviceOrder`; WinUI
+  `Themia.Sdk.WinUI/Devices`: `DeviceItemView`, `DeviceFace`, `DeviceList`, `DeviceIconSlot`, `DeviceMenuLines`); a widget
+  maps its own data onto it and keeps its own actions. Network adapters are no device here (an adapter, not a drive).
+- **[S-16631]** **The item** is the Drive widget's bar face with its name: in the card's inset the device's icon at the
+  reading's line (36: a drive's own picture, else its kind's glyph at 28 in its role), 8, its primary reading at 28 (a
+  drive's used share, a device's battery; held to "100%", WR-15), 12, its name (Body, primary, cut with its ellipsis); its
+  secondary line (Caption, secondary) under the reading ("419 GB free of 931 GB", "Headphones · Connected"); 8 under that
+  the Chart block's bar across the item. A device without its reading keeps the face (WR-10): "--" in the disabled role,
+  the empty track, the line saying why ("Disconnected network drive", "No media", "Not connected", "Bluetooth is off").
+- **[S-16632]** The shared mappings (`DeviceItems`): a drive (its root, its name as This PC names it, the used share, the
+  space line or why, the bar in the load's role, Caution from 70 %, Critical from 90 %, [S-4653]); a peripheral's glyph by
+  its kind; a battery's bar Critical at or below its low, never Caution for being full. Tests `DeviceItemTests.S16632_`.
+- **[S-16633]** **One size, the last cut** (WR-4, WR-6): an item is 88 (the inset, 36, 16, 8, the 4 track, the inset), 90 on
+  the default grid, at every size of its card. A list lays them down (each the card's whole width from its top edge,
+  touching, WR-1..WR-3, as many as the card reaches, the last cut by its foot), or across where the card holds one item's
+  height but two items' width (each 240 wide from the left edge, the last cut by the right edge) (`DeviceLayout.Lay`).
+  Items past the card are not drawn: the card shows what its box holds ([S-14410]). Tests `DeviceItemTests.S16633_`.
+- **[S-16634]** **The block gap** ("Gap between items", off by default): one grid cell between two items, so each stands
+  as a card of its own while the widget stays one and dynamic (items come and go with the devices). A list's sizing is its
+  Rows of items down (three by default), the gap between them, one item at its least, 220..520 wide, a new one 300
+  (`DeviceLayout.Sizing`). Tests `DeviceItemTests.S16634_`.
+- **[S-16635]** **The list shell** (`DeviceList`): an item lights under the pointer and pressed (the item layer's row fill,
+  edge to edge, WR-13; only its fill changes, WR-12); a click opens what the item opens (a drive in File Explorer,
+  Bluetooth & devices), never in edit mode or a render; a right click shows its menu; the keys walk the items (Up/Down,
+  Left/Right, Home/End), Enter opens, the Menu key shows its menu, Delete is the list's own step (a drive's Eject), Escape
+  lets go. A list with nothing to show keeps the face: one item, its kind's glyph, "--" and why (WR-10).
+- **[S-16636]** **One list config shape** (`IDeviceListConfig`): the devices hidden (by id: a drive's root, a device's
+  endpoint id), the user's order, the gap, the rows; the same lines on every list's page (`DeviceMenuLines.List`): **Shown**
+  (a switch a device of its kind: the checklist), **Order** (the shown ones, dragged up and down; a device not there keeps
+  its place), **Gap between items**, **Rows**. Hidden devices are left out, the ordered ones first, the rest in the kind's
+  own order (`DeviceOrder`). Tests `DeviceItemTests.S16636_`.
+- **[S-16637]** **One device's face** (`DeviceFace`): the item as the Drive widget drew it, its name the Header widget's
+  over it ([S-12800]): the icon and the reading centred over the bar that spans the card ("Centred is fine"), the line under
+  the reading, one block scaled up as one (WR-7) and down to its line at 9 (WR-14); one height, 160..320 wide, never
+  narrower than its widest line (`DeviceLayout.Face`). Drive, USB stick, Network drive and Bluetooth device show it.
+  Tests `DeviceItemTests.S16637_`.
+- **[S-16638]** A removed kind replaced in place takes the keys its merge sets (`MergeFrom.Sets`, a JSON object; a single
+  metric's `{"trend":"Line"}`, its graph shown, [S-14713]); none for one that sets none (Removable drives as the USB sticks'
+  list). Test `KindMergesTests.S16638_`.
+- **[S-16640]** **Grounds** (`IWidgetGrounds`): a view drawn as several cards on one (a device list with its gap) names its
+  items' boxes; the card's own ground (frost, fill, image, glass, grain, border) steps back and each box is painted as the
+  card was (its fill and opacity, the frost of what lies behind it, its border at its weight, the card's corners), nothing
+  between them; the card stays one widget to select, move and resize. Liquid glass's sheen and lens and a broken border's
+  dashes are not drawn on the grounds (their fill and border are). Needs a manual pass: the gap on the live desktop, frosted
+  and in Liquid glass.
 
 Needs a live pass: an alarm ringing (the sound, the notice and its buttons, packaged and unpackaged;
 the package declares the notification activator), across sleep and a time-zone change; a USB stick

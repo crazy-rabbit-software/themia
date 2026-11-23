@@ -47,6 +47,7 @@ public partial class App : Application
         Themia.Sdk.SymbolLookup.Install(Services.Web.MarketService.SearchAsync);
         Themia.Sdk.DriveList.Install(() => Services.Drives.DriveService.Shared.Now());
         Themia.Sdk.AudioDevices.Install(Services.CoreAudio.OutputDevicesAsync);
+        Themia.Sdk.Devices.BluetoothList.Install(() => Services.Devices.BluetoothDeviceService.Shared.Last);
         Themia.Sdk.GpuAdapters.Install(Services.GpuSampler.Adapters);
         // [S-14961] The machine the hub reads (the sample PC's under a render's --machine sample), this PC's without a hub.
         Themia.Sdk.AdapterList.Install(() => Services.AppServices.System?.Adapters() ?? Services.NetworkAdapterWalk.Now(), Services.NetworkAdapterWalk.Watch);

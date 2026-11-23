@@ -349,8 +349,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-2103] The widget's fill is one surface across the whole card.
         // [S-6590] The background image under everything, across the whole card.
         // [S-2140] The grain over the material, under the content.
+        // [S-16640] A view's own grounds in place of the card's, under the content.
         // [S-11963] The card lit as one item (view links), over the material and under the view.
-        foreach (var layer in new FrameworkElement[] { _image, _fill, _glass, _lens, _grain, _linkFill })
+        foreach (var layer in new FrameworkElement[] { _image, _fill, _glass, _lens, _grain, _grounds, _linkFill })
         {
             content.Children.Add(layer);
         }
@@ -569,6 +570,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-2133] [S-2140] The accent in a default card, the grain.
         ApplyLook(inside, fill);
 
+        // [S-16640] A view drawn as several cards: its grounds in place of the card's own.
+        ApplyGrounds(radiusPx);
+
         // [S-826] The design's font for everything in the card that does not pick its own; icons
         // name Segoe Fluent Icons themselves, so their glyphs are untouched.
         if (DesignApplier.ContentFont is { } font)
@@ -613,6 +617,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _image.Visibility = visibility;
         _fill.Visibility = visibility;
         _surface.Visibility = visibility;
+        _grounds.Visibility = _groundsOn ? visibility : Visibility.Collapsed;
     }
 
     /// <summary>
@@ -748,6 +753,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         DetachBackdrop();
         DetachSetup();
         StopView();
+        DropGrounds();
         DropPlates();
         DropOverhang();
     }

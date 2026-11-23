@@ -129,6 +129,10 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
 - **Quick toggles go under the least widget.** 2026-11-23, of the quick settings, whose least then stood at the 32 of WR-14:
   "the toggle buttons should be possible to be even smaller". A quick setting's (and a power button's) tile goes down to its
   glyph at 12 in a 4 inset (20); its words keep the 9 floor of WR-14 and give way before the glyph.
+- **A device list's block gap.** 2026-11-23, of the device widgets: "optionally it should be possible to add a block gap
+  into the widget so that they are dymanic but it looks like different widgets." With a device list's "Gap between items"
+  on (off by default), one grid cell stands between two items and the card paints a ground under each item alone, so each
+  looks like a widget of its own; that cell is not a WR-2 or WR-5 failure. Every item keeps WR-1, WR-3, WR-4 and WR-6.
 - **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
   Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
 

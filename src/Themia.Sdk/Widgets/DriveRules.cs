@@ -29,6 +29,20 @@ public enum DriveStockIcon
     RamDisk = 6,
 }
 
+/// <summary>[S-16650] The kinds of drive the device widgets are of: This PC's groups (a widget of each, and a list of each).</summary>
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<DriveGroup>))]
+public enum DriveGroup
+{
+    /// <summary>The PC's own disks: a fixed disk inside it, a RAM disk, a disc in its drive.</summary>
+    Local = 0,
+
+    /// <summary>What is plugged in: a USB stick or card, an external disk on a bus that comes and goes.</summary>
+    External = 1,
+
+    /// <summary>A mapped network drive.</summary>
+    Network = 2,
+}
+
 /// <summary>[S-4650] Whether a drive can be read right now.</summary>
 public enum DriveState
 {
@@ -246,6 +260,29 @@ public static class DriveRules
         ArgumentNullException.ThrowIfNull(space);
         return status == ConnectionUnavailable ? DriveState.Disconnected : space() ? DriveState.Ready : DriveState.Disconnected;
     }
+
+    /// <summary>
+    /// [S-16650] The kind a drive is a widget of: a removable drive or a hot-plug fixed disk is a USB stick (as Removable
+    /// drives had it, [S-4660]), a mapped share a network drive, every other (a fixed disk, a RAM disk, a disc) the PC's own.
+    /// </summary>
+    public static DriveGroup Group(DriveEntry drive)
+    {
+        ArgumentNullException.ThrowIfNull(drive);
+        return drive.Kind switch
+        {
+            VolumeKind.Removable => DriveGroup.External,
+            VolumeKind.Fixed when drive.Hotplug => DriveGroup.External,
+            VolumeKind.Network => DriveGroup.Network,
+            _ => DriveGroup.Local,
+        };
+    }
+
+    /// <summary>
+    /// [S-16650] The drives of <paramref name="group"/> in a walk, by letter: an empty reader left out, as Explorer hides
+    /// empty drives.
+    /// </summary>
+    public static IReadOnlyList<DriveEntry> OfGroup(IEnumerable<DriveEntry> drives, DriveGroup group)
+        => [.. (drives ?? []).Where(d => d.State != DriveState.NoMedia && Group(d) == group).OrderBy(d => d.Root, StringComparer.OrdinalIgnoreCase)];
 
     /// <summary>
     /// [S-4660] Whether a drive belongs on the removable devices list: a stick or a card (removable), a

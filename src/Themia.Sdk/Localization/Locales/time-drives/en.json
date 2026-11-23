@@ -1,5 +1,11 @@
 {
   "$comment": "The stopwatch, the alarm, the removable drives and the drive widget ([S-4600]..[S-4689]).",
+  "$englishOnly": [
+    "devices.gap",
+    "devices.shown",
+    "devices.order",
+    "devices.none"
+  ],
   "alarm.untitled": "Alarm",
   "alarm.off": "Off",
   "alarm.ringing": "Ringing",
@@ -19,5 +25,9 @@
   "drives.noMedia": "No media",
   "drives.pending": "Connecting…",
   "drives.disconnected": "Disconnected",
-  "drives.eject": "Eject"
+  "drives.eject": "Eject",
+  "devices.gap": "Gap between items",
+  "devices.shown": "Shown",
+  "devices.order": "Order",
+  "devices.none": "None to show"
 }

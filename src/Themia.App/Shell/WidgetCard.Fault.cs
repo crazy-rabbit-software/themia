@@ -100,6 +100,7 @@ internal sealed partial class WidgetCard
             }
 
             ApplyViewCorners();
+            WatchGrounds();
 
             if (_view is IWidgetView widgetView)
             {

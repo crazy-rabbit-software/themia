@@ -108,6 +108,8 @@ internal sealed partial class WidgetCard
     /// </summary>
     private void PlaceBackdrop()
     {
+        // [S-16640] A view's grounds carry the frost in the card's place.
+        PlaceGroundFrost();
         if (_frost.Visibility != Visibility.Visible || _surface is null)
         {
             return;
