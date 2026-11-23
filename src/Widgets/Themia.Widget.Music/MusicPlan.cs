@@ -462,37 +462,70 @@ public static class MusicPlan
             return new MusicLayout(1, parts, true);
         }
 
+        // [S-16516] The block stands on its ink: the room over its first ink (its topmost parts') and under its last (its
+        // lowest parts') folds into the inset, as a one-readout block's does (WR-1, WR-4). Which parts stand at its top and
+        // foot is the style's and the set's, the same at every size: read off the block laid without it.
         var time = TimeWidth(timeTemplate);
+        if (fit.Ink.Count == 0 || (s.Cover && s.Style is MusicStyle.Stacked or MusicStyle.FullArt))
+        {
+            return Block(s, width, height, time, fit, 0, 0);
+        }
+
+        var probe = Block(s, width, height, time, fit, 0, 0);
+        if (probe.Parts.Count == 0)
+        {
+            return probe;
+        }
+
+        var top = probe.Parts.Values.Min(b => b.Y);
+        var foot = probe.Parts.Values.Max(b => b.Bottom);
+        double Room(Func<MusicBox, bool> at, Func<LineInk, double> side)
+            => probe.Parts.Where(p => at(p.Value)).Select(p => fit.Ink.TryGetValue(p.Key, out var ink) ? Math.Max(0, side(ink)) : 0).DefaultIfEmpty(0).Min();
+        var over = Room(b => b.Y <= top + 0.5, ink => ink.Over);
+        var under = Room(b => b.Bottom >= foot - 0.5, ink => ink.Under);
+        return over <= 0 && under <= 0 ? probe : Block(s, width, height, time, fit, over, under);
+    }
+
+    /// <summary>
+    /// [S-16502] The block in a card <paramref name="width"/> × <paramref name="height"/>, its first ink <paramref name="over"/>
+    /// under its top and its last <paramref name="under"/> over its foot (in its own units: [S-16516], the room the inset takes).
+    /// </summary>
+    private static MusicLayout Block(Shown s, double width, double height, double time, MusicFit fit, double over, double under)
+    {
+        var parts = new Dictionary<MusicPart, MusicBox>();
         var (natural, least) = Blocks(s, time, fit);
         var room = new SizeDip(Math.Max(0, width - (2 * Inset)), Math.Max(0, height - (2 * Inset)));
         var hc = ColumnHeight(s);
+        var inked = over + under;
 
-        // One scale: the height's, held by the width at the block's own proportions (its natural width), so a card of the
-        // natural's shape draws the natural face larger, its lines as long; only at the floor does a narrower card take the
-        // texts' and the bar's room down to their least. The block then fills the width the scale leaves, as far as its
+        // One scale: the height's (its ink's), held by the width at the block's own proportions (its natural width), so a card
+        // of the natural's shape draws the natural face larger, its lines as long; only at the floor does a narrower card take
+        // the texts' and the bar's room down to their least. The block then fills the width the scale leaves, as far as its
         // content reaches, and stands centred where it does not reach.
-        var floor = Floor(style, shown);
+        var floor = ScaleFloor.Least(s.Progress ? FamilyType.Caption.FontSize : s.Text ? FamilyType.Body.FontSize : 0, s.Transport ? FamilyShape.Icon : 0);
         var byWidth = Math.Max(room.Width / natural.Width, Math.Min(room.Width / least.Width, floor));
-        var scale = Math.Min(room.Height / least.Height, byWidth);
+        var scale = Math.Min(room.Height / Math.Max(1, least.Height - inked), byWidth);
         if (!(scale > 0) || !double.IsFinite(scale))
         {
             return new MusicLayout(1, parts, false);
         }
 
+        // Down: centred on its ink in the room the scale leaves.
+        double Down(double block) => Inset + ((room.Height - ((block - inked) * scale)) / 2) - (over * scale);
         var wide = room.Width / scale;
         if (s.Style == MusicStyle.Strip)
         {
             var hr = RowHeight(s);
-            var used = Row(s, parts, 0, Inset + ((room.Height - (hr * scale)) / 2), wide, hr, scale, time, fit);
+            var used = Row(s, parts, 0, Down(hr), wide, hr, scale, time, fit);
             Shift(parts, Inset + ((room.Width - (used * scale)) / 2), 0);
-            return Inked(new MusicLayout(scale, parts, false), fit, room, hr * scale);
+            return new MusicLayout(scale, parts, false);
         }
 
         if (!s.Cover)
         {
             var column = Content(s, wide, fit, time);
-            Column(s, parts, Inset + ((room.Width - (column * scale)) / 2), Inset + ((room.Height - (hc * scale)) / 2), column, scale, time, centred: false);
-            return Inked(new MusicLayout(scale, parts, false), fit, room, hc * scale);
+            Column(s, parts, Inset + ((room.Width - (column * scale)) / 2), Down(hc), column, scale, time, centred: false);
+            return new MusicLayout(scale, parts, false);
         }
 
         switch (s.Style)
@@ -526,10 +559,10 @@ public static class MusicPlan
                 var column = Content(s, wide - hc - ColumnGap, fit, time);
                 var block = hc + ColumnGap + column;
                 var x = Inset + ((room.Width - (block * scale)) / 2);
-                var y = Inset + ((room.Height - (hc * scale)) / 2);
+                var y = Down(hc);
                 parts[MusicPart.Cover] = new(x, y, hc * scale, hc * scale);
                 Column(s, parts, x + ((hc + ColumnGap) * scale), y, column, scale, time, centred: false);
-                return Inked(new MusicLayout(scale, parts, false), fit, room, hc * scale);
+                return new MusicLayout(scale, parts, false);
             }
         }
     }
@@ -542,36 +575,6 @@ public static class MusicPlan
             var box = parts[part];
             parts[part] = box with { X = box.X + dx, Y = box.Y + dy };
         }
-    }
-
-    /// <summary>
-    /// [S-16516] A block centred down in <paramref name="room"/> (its <paramref name="drawn"/> height under the room's) stands
-    /// centred on its ink: the room over its first ink (its topmost parts') and under its last (its lowest parts') alike, as
-    /// far as the room it was centred in allows. A block that fills the height keeps its place.
-    /// </summary>
-    private static MusicLayout Inked(MusicLayout laid, MusicFit fit, SizeDip room, double drawn)
-    {
-        var leftover = room.Height - drawn;
-        if (leftover < 0.5 || fit.Ink.Count == 0 || laid.Parts.Count == 0)
-        {
-            return laid;
-        }
-
-        var top = laid.Parts.Values.Min(b => b.Y);
-        var foot = laid.Parts.Values.Max(b => b.Bottom);
-        double Room(Func<KeyValuePair<MusicPart, MusicBox>, bool> at, Func<LineInk, double> side)
-            => laid.Parts.Where(at).Select(p => fit.Ink.TryGetValue(p.Key, out var ink) ? side(ink) * laid.Scale : 0).DefaultIfEmpty(0).Min();
-        var over = Room(p => p.Value.Y <= top + 0.5, ink => ink.Over);
-        var under = Room(p => p.Value.Bottom >= foot - 0.5, ink => ink.Under);
-        var dy = Math.Clamp((under - over) / 2, -leftover / 2, leftover / 2);
-        if (Math.Abs(dy) < 0.01)
-        {
-            return laid;
-        }
-
-        var parts = new Dictionary<MusicPart, MusicBox>(laid.Parts);
-        Shift(parts, 0, dy);
-        return laid with { Parts = parts };
     }
 
     /// <summary>A part at (<paramref name="x"/>, <paramref name="y"/>) in the card, its own size times the scale.</summary>

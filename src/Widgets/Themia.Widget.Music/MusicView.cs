@@ -229,6 +229,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _lineRest.Text = head.Length > 0 && rest.Length > 0 ? $" · {rest}" : rest;
         ToolTipService.SetToolTip(_item, track ? $"{now.Title}\n{now.Subtitle}".Trim() : MusicRules.StatusMessage(now.State));
 
+        // [S-16516] Each text's first ink stands where its box starts (its first letter's side bearing reaches back over it).
+        Ink.InkStart(_title);
+        Ink.InkStart(_subtitle);
+        Ink.InkStart(_line);
         _face.Template(MusicPlan.TimeTemplate(now.Timeline.Duration));
         _face.Fit(MeasureFit());
         _bar.CanSeek = track && now.CanSeek && !_preview;
@@ -660,7 +664,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
                     element.Measure(own);
                 }
 
-                element.Arrange(new Rect(box.X, box.Y, own.Width, own.Height));
+                // [S-16516] A text's ink start (its margin reaching back over its first letter's bearing, Ink.InkStart) is in its
+                // own units, which the scale draws larger: the part stands that much further back, so its first ink is the box's start.
+                var back = scale is null ? 0 : element.Margin.Left * (laid.Scale - 1);
+                element.Arrange(new Rect(box.X + back, box.Y, own.Width, own.Height));
             }
 
             Dress(laid);

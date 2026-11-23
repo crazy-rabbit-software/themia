@@ -365,10 +365,11 @@ public sealed class MusicPlanTests
             var (top, foot) = (drawn.Min(b => b.Y), h - drawn.Max(b => b.Bottom));
             Assert.InRange(left - right, -0.5, 0.5);
 
-            // Centred down on its ink where it does not fill the height; on the inset where it does.
+            // Centred down on its ink where it does not fill the height; its ink on the inset where it does.
             var first = laid.Parts.Where(p => p.Value.Y <= top + 0.5).Select(p => ink.TryGetValue(p.Key, out var i) ? i.Over : 0).Min() * laid.Scale;
             var last = laid.Parts.Where(p => p.Value.Bottom >= h - foot - 0.5).Select(p => ink.TryGetValue(p.Key, out var i) ? i.Under : 0).Min() * laid.Scale;
-            var filled = Math.Abs(top - MusicPlan.Inset) < 0.5 && Math.Abs(foot - MusicPlan.Inset) < 0.5;
+            // Its first ink on the top inset and its last on the foot's where the height stops it (the leading folds into the inset).
+            var filled = Math.Abs(top + first - MusicPlan.Inset) < 0.5 && Math.Abs(foot + last - MusicPlan.Inset) < 0.5;
             Assert.True(filled || Math.Abs((top + first) - (foot + last)) < 0.5, $"{style} {string.Join(",", shown)} {w}x{h}: {top}+{first} / {foot}+{last}");
             Assert.True(filled || Math.Abs(left - MusicPlan.Inset) < 0.5, $"{style} {string.Join(",", shown)} {w}x{h}: fills neither axis");
             if (laid.Has(MusicPart.Title))

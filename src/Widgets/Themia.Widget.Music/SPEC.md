@@ -60,8 +60,10 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   to 490 DIP, WR-3; a centred block stood on its boxes, its ink 5 DIP off centre, WR-1/WR-4). The view measures its texts
   uncut and its parts' ink (`MusicFit`); where nothing in the column or the strip takes the width it is given (no seek
   bar), the column is as wide as its widest text, its progress line or its transport, the block scales until that width
-  or the height stops it, and it stands centred across; a block centred down stands on its ink (the room over its first
-  ink and under its last alike). With a bar, the bar takes the width as before; Full art's column stays on its art. Tests
+  or the height stops it, and it stands centred across. Down the block stands on its ink: the room over its first ink and
+  under its last folds into the inset where the height stops it (a title's leading had stood its capitals 17 to 30 under
+  the top), alike over and under where the width does; each text's first ink stands at its box's start (`Ink.InkStart`,
+  its bearing taken at the scale drawn). With a bar, the bar takes the width as before; Full art's column stays on its art. Tests
   `MusicPlanTests.S16516_`.
 - **[S-16503]** **Side cover**: the cover at the column's left as tall as the column (96 with every element shown, in the
   one radius), 12 from it the column. A new card 352 × 120; its least 213 × 97. Tests `MusicPlanTests.S16503_`.
