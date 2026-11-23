@@ -124,10 +124,11 @@ from the tests that pinned them under those numbers, which are the root's geomet
   narrow to read the parts beside the bar stacks them ([S-16603]). Tests `PomodoroFaceTests.S16604_`.
 - **[S-16605]** **Digits** keeps its two arrangements, stacked and side by side, with the smaller time ([S-16600]); it
   never stands upright and draws no bar. Tests `PomodoroFaceTests.S16605_`.
-- **[S-16606]** **Sizing** (`PomodoroFace.Sizing`, [S-2438]): a new card is the side-by-side block in its inset (the Ring
-  style: its ring), no smaller than the least card; the least card is the stacked block (the ring) at its floor in its
-  inset, so every card the person can make holds an arrangement at a scale it is read at; the descriptor relaxes the most
-  ([S-12411]). Tests `PomodoroFaceTests.S16606_`.
+- **[S-16606]** **Sizing** (`PomodoroFace.Sizing`, [S-2438]): the least card is the stacked block (the ring) at its floor
+  in its inset, so every card the person can make holds an arrangement at a scale it is read at; a new card is the
+  side-by-side block (the Ring style: its ring) in its inset, grown as one where the least card is taller, so it keeps the
+  block's shape and the block fills it (raised to the least height alone, the side-by-side block stood with a band of 9
+  over and under it at 362x106, 40 at twice that); the descriptor relaxes the most ([S-12411]). Tests `PomodoroFaceTests.S16606_`.
 - **[S-14281]** **The column beside the face is one block** (owner, 2026-11-20: "the pomodoro timer should be designed
   more fluently not all in just one column. especially the bar style."; docs/WIDGET-RULES.md WR-7: "Keep them
   together"). Side by side, the caption and the Controls row 8 under it stand right under one another, the column

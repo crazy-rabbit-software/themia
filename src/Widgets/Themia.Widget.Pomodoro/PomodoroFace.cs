@@ -374,10 +374,11 @@ public static class PomodoroFace
     }
 
     /// <summary>
-    /// [S-8117] [S-12833] The pomodoro's sizing ([S-2438]): a new card is the side-by-side block in its inset (the Ring
-    /// style: its ring), and no smaller than the least card; the least card is the stacked block (the ring) scaled down to its
-    /// floor (WR-14), so every card it may be made holds an arrangement at a scale it can be read at. The descriptor relaxes
-    /// the maximum ([S-12411]).
+    /// [S-8117] [S-12833] [S-16606] The pomodoro's sizing ([S-2438]): the least card is the stacked block (the ring) scaled
+    /// down to its floor (WR-14), so every card it may be made holds an arrangement at a scale it can be read at; a new card
+    /// is the side-by-side block (the ring) in its inset, grown as one where the least card is taller, so it keeps the
+    /// block's own shape and the block fills it (a side-by-side block raised to the least height alone stood with a band
+    /// over and under it). The descriptor relaxes the maximum ([S-12411]).
     /// </summary>
     public static WidgetSizing Sizing(PomodoroConfig config, Locale locale)
     {
@@ -389,7 +390,9 @@ public static class PomodoroFace
         // The block scales; the inset round it does not.
         var floor = Box(new SizeDip(least.Width * Least, least.Height * Least));
         var min = new SizeDip(Math.Max(WidgetSizing.LeastScaled, floor.Width), Math.Max(WidgetSizing.LeastScaled, floor.Height));
-        var box = Box(natural);
+        var inset = (2 * FamilySpace.Inset) + LayoutMath.Slack;
+        var grow = natural.Height > 0 ? Math.Max(1, (min.Height - inset) / natural.Height) : 1;
+        var box = Box(new SizeDip(natural.Width * grow, natural.Height * grow));
         var nat = new SizeDip(Math.Max(box.Width, min.Width), Math.Max(box.Height, min.Height));
         return WidgetSizing.Range(min, nat, nat);
     }

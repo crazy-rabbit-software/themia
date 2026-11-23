@@ -366,7 +366,7 @@ public sealed class PomodoroFaceTests
     [Theory]
     [InlineData(PomodoroStyle.Bar)]
     [InlineData(PomodoroStyle.Digits)]
-    public void S16606_a_new_card_is_side_by_side_the_least_the_stacked_block_at_its_floor(PomodoroStyle style)
+    public void S16606_a_new_card_is_the_side_by_side_block_grown_to_the_least_height_the_least_the_stacked_block_at_its_floor(PomodoroStyle style)
     {
         var look = Look(style);
         var sizing = PomodoroFace.Sizing(Of(style), Locale.En);
@@ -374,8 +374,14 @@ public sealed class PomodoroFaceTests
 
         Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(stacked.Width * PomodoroFace.Least) + Inset), sizing.Min.Width);
         Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(stacked.Height * PomodoroFace.Least) + Inset), sizing.Min.Height);
-        Assert.Equal(Math.Ceiling(side.Width) + Inset, sizing.Natural.Width);
         Assert.Empty(sizing.Problems());
+
+        // The side-by-side block grown as one to the least height: the new card keeps its shape, the block fills it.
+        var grow = Math.Max(1, (sizing.Min.Height - Inset) / side.Height);
+        Assert.Equal(Math.Ceiling(side.Width * grow) + Inset, sizing.Natural.Width);
+        Assert.Equal(Math.Max(sizing.Min.Height, Math.Ceiling(side.Height * grow) + Inset), sizing.Natural.Height);
+        var (rw, rh) = (sizing.Natural.Width - Inset, sizing.Natural.Height - Inset);
+        Assert.True(rh - (side.Height * PomodoroFace.Scale(PomodoroArrangement.Side, look, Parts, rw, rh)) < 1.5, "a band over and under the block");
         Assert.Equal(PomodoroArrangement.Side, PomodoroFace.Choose(look, Parts, sizing.Natural.Width - Inset, sizing.Natural.Height - Inset));
     }
 
