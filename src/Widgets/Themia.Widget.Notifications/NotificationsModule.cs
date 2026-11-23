@@ -11,6 +11,9 @@ using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.WinUI.Items;
+using Themia.Sdk.Items;
+using Themia.Core.Settings;
 using Themia.Widget.Notifications;
 
 [assembly: ThemiaWidget("notifications", typeof(NotificationsModule))]
@@ -35,19 +38,21 @@ public sealed class NotificationsModule : IWidgetModule
         Label = NotificationsStr.Panels_Notifications_Label.Local(),
         Description = NotificationsStr.Panels_Notifications_Desc.Local(),
         Glyph = Glyph,
-        Sizing = c => KitSizing.Sizing(((NotificationsConfig)c).RowsShown, addFooter: false),
+        Sizing = c => ItemLayout.Sizing((NotificationsConfig)c, NotificationsSpec.Parts),
         Traits = WidgetTraits.HasItems,
-        Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
+        Links = LinkUse.None,
         Add = new(AddFolderId.CalendarMail, 2, 0),
     };
 
-    /// <summary>[S-11404] Rows, lines per notification, and the app headings.</summary>
+    /// <summary>[S-16970] Grouped by app, then the item base's lines: its parts, the gap, the rows.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         var notifications = (NotificationsConfig)config;
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, notifications));
-        menu.Lines.Add(menu.Toggle(null, NotificationsStr.Notifications_AppHeadings.Text(), notifications.AppHeadings, on => notifications.AppHeadings = on));
+        var locale = Strings.Current;
+        menu.Lines.Add(menu.Toggle(Glyphs.Sort, NotificationsStr.Notifications_ByApp.Text(), notifications.ByApp, on => notifications.ByApp = on));
+        menu.Lines.Add(SettingsLine.Separator);
+        ItemMenuLines.List(menu, notifications, NotificationsSpec.Parts, name: part => NotificationsSpec.PartName(part, locale));
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new NotificationsView(host);

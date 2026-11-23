@@ -7,44 +7,34 @@ sender's name ([S-4405]), opening a sender ([S-4406]), dismissals ([S-4407]) and
 ([S-4408], the host's `NotificationFeed` behind `IWidgetHost.Notifications`); the rules are the SDK's
 `NotificationRules`.
 
-Owning files: everything in this folder: `NotificationsModule.cs` (descriptor, glyph, view factory,
-JSON context), `NotificationsConfig.cs` (its rows, lines and app headings, [S-11404]),
-`NotificationsSpec.cs` (its kit spec, the notifications as kit items with their groups and folds, their actions),
-`NotificationsView.cs` (a kit list, [S-7074]: the binding over its host's feed, the senders' icons through the
-installed `AppIconSource` as the rich look's leads and the headings'), `NotificationsLayout.cs` (the plan from the
-config), `Preview/` (Debug renders:
-`--state sample|many|open|empty|denied|unspecified|unsupported`), `Localization/Locales/` (its own
-`NotificationsStr`, 30 languages). Tests: `Tests/NotificationsTests.cs` (run by
+Owning files: everything in this folder: `NotificationsModule.cs` (descriptor, glyph, view factory, its page, JSON
+context), `NotificationsConfig.cs` (its rows, order and the item base's arrangement, gap and parts), `NotificationsSpec.cs`
+(its kit spec, a notification as the item base's item, its order, its actions), `NotificationsView.cs` (a kit view on the
+item base, `ItemKit`, [S-16958]: the binding over its host's feed, the senders' icons through the installed `AppIconSource`
+as the items' leads), `Preview/` (Debug renders: `--state sample|many|empty|denied|unspecified|unsupported`),
+`Localization/Locales/` (its own `NotificationsStr`, 30 languages). Tests: `Tests/NotificationsTests.cs` (run by
 `tests/Themia.Modules.Tests`); that it asks no setting up is the module host's `WindowsPanelsHostTests`.
 
-- **[S-4400]** Kind `Notifications` (121), add menu Calendar & mail ([S-3511]), glyph the bell; its
-  settings are [S-11404]'s; never needs setting up.
-- **[S-11404]** **It states its rows** ([S-2440]): `Rows` (1..20, default 4) notifications, `Lines`
-  per notification (1: the title with when it came; 2: its body under it, default) and **Under app
-  headings** (`AppHeadings`, off by default: one list newest first, each row its app's icon; on: the
-  apps' headings of [S-4402], a heading a row of 28 inside the rows). Every row has its icon and its
-  time at every width. 220..520 wide, a new one 300 × 208; Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more scroll inside them (the wheel as before). Nothing appears or disappears
-  with the size: [S-4404]'s ladder is gone. Tests `NotificationsTests`.
-- **[S-4404]** *(Retired by [S-11404]: lines and headings are the config's.)* The ladder (`NotificationsLayout.Plan`) on the family's rows ([S-6711], [S-6712]): the list
-  at every size (the header's neutral count says how many, so the small tile has no bell face of its
-  own; G2, 2026-10-29); a notification's title the name, when it came the value, its body on one line
-  under it (its own breaks read as spaces) from a regular tile; each row's app icon and the time from a
-  column of 180; grouped under app headings from an expanded height ([S-4402]); as many whole lines
-  as fit, never ending on a heading, the rest a scroll away under the fade. "No new notifications",
-  a missing access ([S-4403]) and an unsupported Windows are the state row's sentence at the top, with
-  the one button that fixes it (Open settings for Denied, a problem; Allow for Unspecified).
-- **[S-2271]** A row leads with its sender's own icon (`AppIconSource`), so the leads tell the rows
-  apart and stay ([S-6711]); the widget's bell stands in only while an icon loads and for a sender
-  Windows gives none. A render reads no notification list and so no sender's icon: every preview row
-  shows that fallback, the bell, which is what a live row shows for a sender without an icon.
-- **[S-4409]** Keys while the widget holds the lease, the kit's one key map ([S-7020]): Up/Down, Page Up/Down,
-  Home/End move the row cursor, Enter opens the app, Delete dismisses, the Menu key opens the row's menu (the kit's:
-  Open, Clear all from the app, then Dismiss), Escape lets go. In edit mode nothing is opened or cleared. Access
-  Windows has not given (Denied: a problem with Open settings; Unspecified: Allow) and an unsupported Windows are the
-  kit's state row ([S-7076]); before Windows answers, its loading row. Its time is the kit's compact age.
-- View links: an app's heading (grouped) is that app where its id names one (Windows' own toasts none); the pointer
-  on it publishes the app, and a heading lights for the app pointed at or picked on the view, never picking it. A
-  notification is not its app and takes no part ([S-11930], [S-11933], [S-11965]).
+- **[S-4400]** Kind `Notifications` (121), add menu Calendar & mail ([S-3511]), glyph the bell; never needs setting up.
+- **[S-16970]** **On the item base** (owner, 2026-11-23: "notifications and upcoming meetings should get the same base widget
+  as the bluetooth and drive devices"; the brief: "lead = app icon, title, body as subtitle, end = time"): a notification is
+  an item (`NotificationsSpec.Item`): its sender's icon the lead ([S-2271]), its title (else its app's name), its body on one
+  line under it (its own breaks read as spaces), when it came at its end (the kit's compact age), its app's name the note
+  (left out by default); every arrangement of the base (List, Row list, Column list, Grid, Table), its gap and Rows (a new
+  card four), its parts in order. Newest first, or **Grouped by app** ([S-4402]). Its page: Grouped by app, then the item
+  base's lines ([S-16950]..[S-16952]). It takes part in no view link (no app headings any more; [S-11930]). Tests
+  `NotificationsTests`.
+- **[S-11404]** *(Retired by [S-16970]: rows of one or two lines and the app headings with their "See more" folds are the
+  item base's arrangements and the Grouped by app order now; a stored `lines` or `appHeadings` is dropped at load.)*
+- **[S-4404]** *(Retired by [S-11404].)*
+- **[S-2271]** An item leads with its sender's own icon (`AppIconSource`), at the lead's size in each arrangement; the
+  widget's bell stands in only while an icon loads and for a sender Windows gives none. A render reads no notification
+  list and so no sender's icon: every preview item shows that fallback, the bell.
+- **[S-4409]** Keys while the widget holds the lease, the item base's ([S-16955]): the arrows, Page Up/Down and Home/End
+  walk the items, Enter opens the app, Delete dismisses, the Menu key opens the item's menu (Open, Clear all from the app,
+  Dismiss), Escape lets go. In edit mode nothing is opened or cleared. Access Windows has not given (Denied: a problem with
+  Open settings; Unspecified: Allow) and an unsupported Windows are the kit's state row ([S-7076]); before Windows answers,
+  its loading row.
 
 Needs a manual pass: the widget on a live desktop ([S-4409]: real toasts arriving, a sender opened, one,
 an app's and all dismissed, access asked for and denied, the keys through the lease) and in the packaged

@@ -1663,8 +1663,14 @@
           "config": {
             "kind": "notifications",
             "rows": 4,
-            "lines": 2,
-            "appHeadings": false
+            "byApp": false,
+            "style": "list",
+            "gap": 0,
+            "columnTitles": true,
+            "hiddenParts": [
+              "Note"
+            ],
+            "partOrder": []
           }
         },
         {

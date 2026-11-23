@@ -1,14 +1,16 @@
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.App.Shell;
+using Themia.Sdk.Items;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Notifications;
 
 /// <summary>
-/// [S-4400] [S-11404] Windows' notification list on the kit ([S-7074]): rows of the rich look, a notification's title the
-/// name, when it came the value (the kit's compact age), its body on the second line where the config gives two, its
-/// app's icon the lead; under app headings where the config says so (a group per app, its heading the app's icon and
-/// name, [S-4402]), each app's newest three and a "See more (n)" row, which a click opens and closes.
+/// [S-4400] [S-16970] Windows' notification list on the item base ([S-16940]; owner, 2026-11-23: "notifications and upcoming
+/// meetings should get the same base widget as the bluetooth and drive devices"): a notification as an item, its app's icon
+/// the lead, its title, its body the subtitle, when it came the end (the kit's compact age), its app's name the note; newest
+/// first, or together by app (the app with the newest first); its actions.
 /// </summary>
 public static class NotificationsSpec
 {
@@ -21,11 +23,11 @@ public static class NotificationsSpec
     /// <summary>Clear the app's: the view takes every notification of that app away.</summary>
     public const string ClearAppId = "clearApp";
 
-    /// <summary>[S-4402] A group's "See more" / "See fewer" row's id: this, then the app's id.</summary>
-    public const string FoldPrefix = "fold:";
+    /// <summary>[S-16970] The parts a notification has, in its own order.</summary>
+    public static IReadOnlyList<ItemPart> Parts { get; } = [ItemPart.Lead, ItemPart.Title, ItemPart.Subtitle, ItemPart.Note, ItemPart.End];
 
     public static KitSpec Spec { get; } = new(
-        KitRowLook.Rich,
+        KitRowLook.Line,
         KitShow.Lead | KitShow.Subtitle | KitShow.When,
         static () => string.Empty,
         static () => NotificationsStr.Panels_Notifications_None.Text(),
@@ -38,72 +40,52 @@ public static class NotificationsSpec
     public static string App(NotificationItem item) => item.AppName.Length > 0 ? item.AppName : NotificationRules.FallbackName(item.AppId);
 
     /// <summary>
-    /// [S-4401] [S-4402] The kit items for <paramref name="items"/>: newest first with each its app's icon as the lead; or
-    /// under <paramref name="grouped"/> app headings, each app's newest <see cref="NotificationRules.FoldAt"/> (all of
-    /// an app in <paramref name="open"/>) and its fold row.
+    /// [S-4401] [S-16970] The notifications in the list's order: newest first, or <paramref name="byApp"/> together by app, the
+    /// app with the newest first, each app's newest first.
     /// </summary>
-    public static IReadOnlyList<KitItem> Items(IReadOnlyList<NotificationItem> items, bool grouped, IReadOnlySet<string> open, Locale locale)
+    public static IReadOnlyList<NotificationItem> Ordered(IReadOnlyList<NotificationItem> items, bool byApp)
     {
         ArgumentNullException.ThrowIfNull(items);
-        ArgumentNullException.ThrowIfNull(open);
-
-        if (!grouped)
-        {
-            return [.. NotificationRules.Newest(items).Select(item => Item(item, null, lead: true, locale))];
-        }
-
-        var rows = new List<KitItem>();
-        foreach (var group in NotificationRules.Groups(items))
-        {
-            var heading = new KitGroup(group.AppId, group.AppName);
-            var opened = open.Contains(group.AppId);
-            var (shown, more) = NotificationRules.Fold(group, opened, NotificationRules.FoldAt);
-            rows.AddRange(shown.Select(item => Item(item, heading, lead: false, locale)));
-            if (more > 0 || (opened && group.Items.Count > NotificationRules.FoldAt))
-            {
-                rows.Add(new KitItem(
-                    FoldPrefix + group.AppId,
-                    more > 0 ? NotificationsStr.Panels_Notifications_SeeMore.Format(locale, ("count", LocaleFormat.Integer(locale, more))) : NotificationsStr.Panels_Notifications_SeeFewer.Text(locale),
-                    Group: heading));
-            }
-        }
-
-        return rows;
+        return byApp ? [.. NotificationRules.Groups(items).SelectMany(g => g.Items)] : NotificationRules.Newest(items);
     }
 
-    /// <summary>The app a fold row opens and closes, or null for a notification's row.</summary>
-    public static string? FoldOf(KitItem item)
-    {
-        ArgumentNullException.ThrowIfNull(item);
-        return item.Id.StartsWith(FoldPrefix, StringComparison.Ordinal) ? item.Id[FoldPrefix.Length..] : null;
-    }
-
-    private static KitItem Item(NotificationItem item, KitGroup? group, bool lead, Locale locale)
-    {
-        var title = item.Title.Length > 0 ? item.Title : NotificationRules.FallbackName(item.AppId);
-        return new KitItem(
-            Id(item),
-            title,
-            Subtitle: item.Body.Length > 0 ? ClipboardFormatting.Preview(item.Body, NotificationRules.MostBody) : null,
-            Lead: lead ? new KitLead(KitLeadKind.Icon, item.AppId) : KitLead.None,
-            When: KitWhen.Instant(item.Arrived),
-            Group: group,
-            Tooltip: NotificationsStr.Panels_Notifications_Open.Format(locale, ("app", App(item))));
-    }
+    /// <summary>[S-4401] The kit items for <paramref name="items"/>, in the list's order.</summary>
+    public static IReadOnlyList<KitItem> Items(IReadOnlyList<NotificationItem> items, bool byApp)
+        => [.. Ordered(items, byApp).Select(item => new KitItem(Id(item), item.Title, When: KitWhen.Instant(item.Arrived)))];
 
     /// <summary>
-    /// [S-4401] A notification's menu: Open its app (Enter, a double-click), Clear the app's, then Dismiss (Delete); a fold
-    /// row's: its words, which open or close the group.
+    /// [S-16970] A notification as an item at <paramref name="now"/>: its app's icon (the bell until it comes, [S-2271]), its title
+    /// (else its app's name), its body on one line (its own breaks read as spaces), when it came as the kit's compact age,
+    /// its app's name the note.
     /// </summary>
+    public static Item Item(NotificationItem item, DateTimeOffset now, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        var app = App(item);
+        return new Item(
+            Id(item),
+            item.Title.Length > 0 ? item.Title : NotificationRules.FallbackName(item.AppId),
+            new ItemLead(Glyphs.Bell, Key: item.AppId),
+            item.Body.Length > 0 ? ClipboardFormatting.Preview(item.Body, NotificationRules.MostBody) : string.Empty,
+            ItemEnd.Text(KitText.When(locale, KitWhen.Instant(item.Arrived), KitTime.Compact, now)),
+            Note: app,
+            Tooltip: NotificationsStr.Panels_Notifications_Open.Format(locale, ("app", app)));
+    }
+
+    /// <summary>[S-16970] A notification item's words for its parts: "Title", "Message", "App", "Time".</summary>
+    public static string PartName(ItemPart part, Locale locale) => part switch
+    {
+        ItemPart.Title => NotificationsStr.Notifications_Part_Title.Text(locale),
+        ItemPart.Subtitle => NotificationsStr.Notifications_Part_Subtitle.Text(locale),
+        ItemPart.Note => NotificationsStr.Notifications_Part_Note.Text(locale),
+        ItemPart.End => NotificationsStr.Notifications_Part_End.Text(locale),
+        _ => Strings.Get(locale, Str.Items_Part_Lead),
+    };
+
+    /// <summary>[S-4401] A notification's menu: Open its app (Enter, a click), Clear the app's, then Dismiss (Delete).</summary>
     public static IReadOnlyList<KitAction> Actions(KitItem item, NotificationItem? notification)
     {
         ArgumentNullException.ThrowIfNull(item);
-
-        if (FoldOf(item) is not null)
-        {
-            return [new KitAction(KitActionKind.Open, item.Title, KitIcon.Default, Id: FoldPrefix)];
-        }
-
         if (notification is null)
         {
             return [];

@@ -11,18 +11,20 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.WinUI.Items;
+using Themia.Sdk.Items;
 using Themia.Widget.Notifications;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4400] Windows' notification list as a kit list ([S-7074]) over the host's one feed
-/// (<see cref="IWidgetHost.Notifications"/>, which follows Windows' changes), shaped by <see cref="NotificationsSpec"/>:
-/// each app's icon as the rich look's lead, or grouped under app headings with the icon before the name ([S-4402]). A
-/// click focuses a row, a double-click opens the app; a "See more" row opens on the click. Access Windows has not given
-/// is the kit's state row with the one button that fixes it ([S-4403], [S-7076]); Clear all is the card menu's line.
+/// [S-4400] [S-16970] Windows' notification list on the item base (<see cref="ItemKit"/>, [S-16958]) over the host's one feed
+/// (<see cref="IWidgetHost.Notifications"/>, which follows Windows' changes), shaped by <see cref="NotificationsSpec"/>: each
+/// app's icon the lead, the title, the body under it, when it came at the end. A click opens the app; Delete dismisses.
+/// Access Windows has not given is the kit's state row with the one button that fixes it ([S-4403], [S-7076]); Clear all
+/// is the card menu's line.
 /// </summary>
-internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetGrounds
 {
     private const string Scope = "notifications";
 
@@ -37,9 +39,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     private readonly KitBinding _binding;
     private readonly NotificationSource _source;
 
-    /// <summary>The fold rows a click was hooked onto, forgotten with the rows.</summary>
-    private readonly HashSet<FrameworkElement> _folds = [];
-
     private NotificationsConfig _config = new();
     private IWidgetSurface? _surface;
     private bool _attached;
@@ -48,23 +47,32 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     {
         _widgetHost = host;
         _source = new NotificationSource(this);
+        var kit = new ItemKit(host, Map, NotificationsSpec.Parts, () => _config)
+        {
+            CanOpen = () => !Inert,
+        };
+        kit.List.Lead = (lead, side) => lead.Key is { Length: > 0 } app ? AppIcon(app, side) : null;
+        kit.List.PartTitle = part => NotificationsSpec.PartName(part, Strings.Current);
+        kit.List.GroundsChanged += () => GroundsChanged?.Invoke();
         _binding = new KitBinding(host, NotificationsSpec.Spec, NotificationsModule.Glyph, item => NotificationsSpec.Actions(item, _source.Of(item.Id)), Run)
         {
-            Look = new KitRichLook
-            {
-                Lead = item => item.Lead.Value is { } app ? AppIcon(app) : null,
-                HeadingLead = group => AppIcon(group.Key),
-                Touch = Quiet,
-            },
-            Decorate = HookFold,
-            DecorateHeading = LinkHeading,
-            Redrawing = ForgetRows,
+            Arranged = kit,
         };
 
-        Children.Add(_binding.List);
+        Children.Add(_binding.Face);
         Children.Add(_binding.State);
         _binding.Status.Place(this);
     }
+
+    /// <inheritdoc />
+    public event Action? GroundsChanged;
+
+    /// <summary>[S-16640] With the gap on, every notification's box.</summary>
+    public IReadOnlyList<Themia.Core.Geometry.DipRect>? Grounds => _binding.Arranged!.List.ViewGrounds;
+
+    /// <summary>[S-16970] A notification as its item, at the draw's moment.</summary>
+    private Item Map(KitItem item, DateTimeOffset now)
+        => _source.Of(item.Id) is { } notification ? NotificationsSpec.Item(notification, now, Strings.Current) : new Item(item.Id, item.Title);
 
     /// <summary>[S-4402] [S-12481] Clear all, on the card menu while Windows allows reading and there is something to clear.</summary>
     public IReadOnlyList<WidgetAction> ContextActions
@@ -92,12 +100,11 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
             PreviewAttached();
         }
 
-        _links.Join(_surface?.Links);
         PointerEntered += OnPointerEntered;
         _binding.Attach(ticker, _source, _config, Minute);
     }
 
-    /// <summary>[S-11404] The config's lines and headings.</summary>
+    /// <summary>[S-16970] The config's arrangement, parts and order.
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as NotificationsConfig ?? new NotificationsConfig();
@@ -112,7 +119,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     public bool HandleKey(WidgetKey key) => !Inert && _binding.HandleKey(key);
 
     /// <summary>[S-1564] Rows to move through, and not in edit mode.</summary>
-    public bool WantsKeys => !Inert && _binding.List.WantsKeys;
+    public bool WantsKeys => !Inert && _binding.WantsKeys;
 
     public void Detach()
     {
@@ -125,8 +132,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         PointerEntered -= OnPointerEntered;
         _binding.Dispose();
         _source.Stop();
-        _links.Leave();
-        _folds.Clear();
     }
 
     /// <summary>In edit mode nothing is opened or cleared ([S-4409]).</summary>
@@ -138,12 +143,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     {
         if (Inert)
         {
-            return;
-        }
-
-        if (NotificationsSpec.FoldOf(item) is { } app)
-        {
-            _source.Fold(app);
             return;
         }
 
@@ -174,38 +173,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         {
             _source.ClearAll();
         }
-    }
-
-    /// <summary>[S-4402] "See more" opens on the click, as Windows' own does: its row's click is the fold's.</summary>
-    private void HookFold(KitItem item, FrameworkElement row)
-    {
-        if (NotificationsSpec.FoldOf(item) is not { } app || !_folds.Add(row))
-        {
-            return;
-        }
-
-        row.Tapped += (_, _) =>
-        {
-            if (!Inert)
-            {
-                _source.Fold(app);
-            }
-        };
-    }
-
-    /// <summary>[S-4402] A fold row's words in the secondary role, at the rows' text edge.</summary>
-    private static void Quiet(KitItem item, RowBlock row)
-    {
-        if (NotificationsSpec.FoldOf(item) is not null)
-        {
-            row.NameText.Foreground = Family.Brush(ColourRole.TextSecondary);
-        }
-    }
-
-    private void ForgetRows()
-    {
-        _folds.Clear();
-        Apps.Clear();
     }
 
     private void OpenAccessPage()
@@ -247,33 +214,33 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         }
     }
 
-    /// <summary>[S-4405] The sender's icon, 16: the bell until one comes, and where none does.</summary>
-    private Grid AppIcon(string appId)
+    /// <summary>[S-4405] The sender's icon at the lead's side: the bell until one comes, and where none does.</summary>
+    private Grid AppIcon(string appId, double side)
     {
-        var host = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center };
-        var fallback = Family.Glyph(NotificationsModule.Glyph);
+        var host = new Grid { Width = side, Height = side, VerticalAlignment = VerticalAlignment.Center };
+        var fallback = Family.Glyph(NotificationsModule.Glyph, Math.Min(side, FamilyShape.IconLarge));
         host.Children.Add(fallback);
 
         if (_source.Live && NotificationRules.AppTarget(appId) is { } target)
         {
-            _ = LoadIconAsync(host, fallback, target);
+            _ = LoadIconAsync(host, fallback, target, side);
         }
 
         return host;
     }
 
-    private async Task LoadIconAsync(Grid host, FontIcon fallback, string target)
+    private async Task LoadIconAsync(Grid host, FontIcon fallback, string target, double side)
     {
         try
         {
-            var image = await AppIconSource.GetAsync(target, (int)Math.Ceiling(FamilyShape.Icon * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true);
+            var image = await AppIconSource.GetAsync(target, (int)Math.Ceiling(side * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true);
             if (image is null || !_attached)
             {
                 return;
             }
 
             host.Children.Remove(fallback);
-            host.Children.Add(new Image { Source = image, Width = FamilyShape.Icon, Height = FamilyShape.Icon, Stretch = Stretch.Uniform });
+            host.Children.Add(new Image { Source = image, Width = side, Height = side, Stretch = Stretch.Uniform });
         }
         catch (Exception ex)
         {
@@ -283,16 +250,13 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     }
 
     /// <summary>
-    /// [S-4400] The host's notification feed as a kit source: the list as the config shows it (flat, or under app
-    /// headings with their folds), access Windows has not given as the state row with its way out ([S-4403]).
+    /// [S-4400] The host's notification feed as a kit source: the list in the config's order, access Windows has not given
+    /// as the state row with its way out ([S-4403]).
     /// </summary>
     private sealed class NotificationSource(NotificationsView owner) : IKitSource
     {
         private INotifications? _feed;
         private IDisposable? _lease;
-
-        /// <summary>The apps whose group shows every notification ("See more" opened); the showing's, never saved.</summary>
-        private readonly HashSet<string> _open = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>A render's or a sample's notifications in place of the person's.</summary>
         private NotificationSnapshot _preview = NotificationSnapshot.Pending;
@@ -316,7 +280,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         {
             _lease?.Dispose();
             _lease = null;
-            _open.Clear();
         }
 
         public void Show(bool refresh)
@@ -335,7 +298,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
             {
                 // Not answered yet: the loading row, never a wrong "nothing" (§11).
                 NotificationAccess.Pending => new KitRead([], []),
-                NotificationAccess.Allowed => new KitRead(NotificationsSpec.Items(snapshot.Items, owner._config.AppHeadings, _open, locale), [new KitOutcome(null, FetchStatus.Ok)]),
+                NotificationAccess.Allowed => new KitRead(NotificationsSpec.Items(snapshot.Items, owner._config.ByApp), [new KitOutcome(null, FetchStatus.Ok)]),
                 NotificationAccess.Denied => new KitRead([], [], Stated: new KitStated(NotificationsStr.Panels_Notifications_Denied.Text(locale))
                 {
                     Fix = new KitFix(NotificationsStr.Panels_Notifications_OpenSettings.Text(locale), owner.OpenAccessPage),
@@ -349,17 +312,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         }
 
         public NotificationItem? Of(string id) => Snapshot.Items.FirstOrDefault(n => NotificationsSpec.Id(n) == id);
-
-        /// <summary>[S-4402] Open or close an app's group.</summary>
-        public void Fold(string app)
-        {
-            if (!_open.Remove(app))
-            {
-                _open.Add(app);
-            }
-
-            Changed?.Invoke();
-        }
 
         public void Dismiss(NotificationItem item)
         {
@@ -394,16 +346,10 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
             Hold(_preview with { Items = [] });
         }
 
-        /// <summary>[S-11850] A sample's or a render's notifications, <paramref name="open"/> the app opened.</summary>
-        public void Hold(NotificationSnapshot snapshot, string? open = null)
+        /// <summary>[S-11850] A sample's or a render's notifications.</summary>
+        public void Hold(NotificationSnapshot snapshot)
         {
             _preview = snapshot;
-            if (open is not null)
-            {
-                _open.Clear();
-                _open.Add(open);
-            }
-
             Changed?.Invoke();
         }
 

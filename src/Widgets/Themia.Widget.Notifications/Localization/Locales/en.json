@@ -1,8 +1,11 @@
 {
   "$englishOnly": [
-    "notifications.appHeadings"
+    "notifications.byApp",
+    "notifications.part.title",
+    "notifications.part.subtitle",
+    "notifications.part.note",
+    "notifications.part.end"
   ],
-  "notifications.appHeadings": "Under app headings",
   "panels.notifications.allow": "Allow",
   "panels.notifications.clearAll": "Clear all",
   "panels.notifications.clearApp": "Clear all from {app}",
@@ -16,5 +19,10 @@
   "panels.notifications.seeFewer": "See fewer",
   "panels.notifications.seeMore": "See more ({count})",
   "panels.notifications.unspecified": "Let Themia read your notifications",
-  "panels.notifications.unsupported": "This version of Windows has no notification list to read"
+  "panels.notifications.unsupported": "This version of Windows has no notification list to read",
+  "notifications.byApp": "Grouped by app",
+  "notifications.part.title": "Title",
+  "notifications.part.subtitle": "Message",
+  "notifications.part.note": "App",
+  "notifications.part.end": "Time"
 }

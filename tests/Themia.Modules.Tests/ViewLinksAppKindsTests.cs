@@ -10,7 +10,6 @@ public sealed class ViewLinksAppKindsTests
     [Theory]
     [InlineData("topProcesses")]
     [InlineData("mixer")]
-    [InlineData("notifications")]
     [InlineData("desktopItem")]
     public void S11930_a_list_of_apps_publishes_the_hover_and_shows_the_pick_without_setting_it(string id)
     {

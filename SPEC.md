@@ -7834,7 +7834,7 @@ The event under the pointer (`HoveredEvent`, [S-3623]) beyond the calendars and 
 
 The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyond the screen-time widgets:
 
-- **[S-11930]** `topProcesses` and `mixer` (grouped: a row per program), `notifications` (an app's heading) and `desktopItem` (an own icon on an app, [S-11934]) take part: the pointer (or the keyboard
+- **[S-11930]** `topProcesses` and `mixer` (grouped: a row per program) and `desktopItem` (an own icon on an app, [S-11934]) take part (`notifications` no longer: it has no app headings on the item base, [S-16970]): the pointer (or the keyboard
   cursor, [S-3307]) on a row or an item that is an app publishes it, and a row lights in the one look for the
   app pointed at anywhere on the view (the item layer's hover fill; a desktop icon as the pointer would draw it,
   the desktop's hover) and for the app picked (the selected fill and the accent pill), in place, never
@@ -7846,7 +7846,7 @@ The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyo
   each row's `DetailRow.App`, grouped rows only; the detail list's rows light through `DetailPart.AppLinks`, the
   topics its part names); a grouped mixer row by its executable (`MixerRules.AppKey`: its path, or the row's key,
   which is that path); the system sounds, a session whose process could not be read and every ungrouped row are none.
-- **[S-11933]** A notification group's heading is its sender's app where its AppUserModelID says which
+- **[S-11933]** A sender is its app (the app's icon a notification leads with, an own icon's app) where its AppUserModelID says which
   (`NotificationRules.AppKey`): an id that is the executable's path (a desktop app's, a known folder and the
   path under it), an id that names its executable (`Microsoft.Office.OUTLOOK.EXE.15` → `outlook`), a Squirrel
   installer's (`com.squirrel.slack.slack` → `slack`), and the senders whose id does not say it, by their id or
@@ -7948,8 +7948,8 @@ Topics:
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
 | Topic | Lifetime | Published by | Followed by |
 |---|---|---|---|
-| `HoveredApp` | Hover | `desktopItem`, `mixer`, `notifications`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` | `desktopItem`, `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
-| `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `desktopItem`, `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
+| `HoveredApp` | Hover | `desktopItem`, `mixer`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` | `desktopItem`, `mixer`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
+| `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `desktopItem`, `mixer`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
 | `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `meeting`, `meetings`, `weekPlanner` | `calendar`, `meeting`, `meetings`, `weekPlanner` |
@@ -11931,13 +11931,9 @@ strings in `Locales/panels/`; tests `WindowsPanelsTests`, the module host's `Win
   came; newest first, at most 100. Karpo reads Windows' database (`wpndatabase.db`) for the whole toast
   and dismisses through the listener; Themia, a Store app, reads only through the listener, so a toast's
   buttons and reply box are not offered — a double-click opens its app instead ([S-4406]).
-- **[S-4402]** Grouped by app as Windows 11's center, where the config says so ([S-11404]): a heading per
-  app (one of the kit's rows that tile the list, at their one size, [S-7074]: its icon and its name, BodyStrong
-  secondary), the apps in the order of their
-  newest, each app's newest first (two of one moment: the higher id first), its rows leading with an
-  empty slot so every title stands at one edge. A group of more than three shows its newest three and a
-  "See more (n)" row (secondary, one of the list's rows at their size, never a link; a click opens it, as do a
-  double-click and Enter); "See fewer" folds it again; what is opened is the showing's. **Clear all** is the card
+- **[S-4402]** Grouped by app, where the config says so (**Grouped by app**, [S-16970]): the apps in the order of their
+  newest, each app's newest first (two of one moment: the higher id first), every item leading with its app's icon (the
+  headings and the "See more" folds went with the item base, owner 2026-11-23). **Clear all** is the card
   menu's line ([S-12481]) and clears Windows' own list (`ClearNotifications`); an app's notifications are cleared
   and one is dismissed from the row's menu or with Delete, through `RemoveNotification` (the heading's
   and the row's × are gone: a row has no controls of its own, G2, 2026-10-29, as the kit's [S-7033]).
@@ -15234,6 +15230,12 @@ view (current bluetooth))". The device items below became the item base; their r
 - **[S-16957]** **One item's face** (`ItemFace`): a kind that shows one item (Drive, a Bluetooth device, the Meeting, the
   Contact) draws one List item from the card's top edge, its card one item tall (`ItemLayout.Face`), so an item looks the
   same alone as in its list ([S-16637]).
+
+- **[S-16958]** **A kit widget on the item base** (`ItemKit`, `KitBinding.Arranged`): a kit list (the Meetings, Notifications,
+  Email) keeps its source, its screens, its state row, its status and its actions ([S-7061]); its items are mapped onto the
+  base's and drawn by one `ItemList` in the config's arrangement in place of the kit's rows: a click or Enter runs an item's
+  primary action, a right click or the Menu key the kit's menu of it, Delete its delete action, the end's button the
+  widget's (Join).
 
 Device items (the device family, on the item base):
 

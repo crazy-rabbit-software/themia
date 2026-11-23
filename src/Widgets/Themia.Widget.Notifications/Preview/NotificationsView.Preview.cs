@@ -10,7 +10,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class NotificationsView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "many", "open", "empty", "denied", "unspecified", "unsupported"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "many", "empty", "denied", "unspecified", "unsupported"];
 
     partial void PreviewAttached()
     {
@@ -29,13 +29,13 @@ internal sealed partial class NotificationsView : IWidgetPreviewState
 
         ShowSnapshot(state switch
         {
-            "many" or "open" => new NotificationSnapshot(NotificationAccess.Allowed, Sample(12)),
+            "many" => new NotificationSnapshot(NotificationAccess.Allowed, Sample(12)),
             "empty" => new NotificationSnapshot(NotificationAccess.Allowed, []),
             "denied" => new NotificationSnapshot(NotificationAccess.Denied, []),
             "unspecified" => new NotificationSnapshot(NotificationAccess.Unspecified, []),
             "unsupported" => new NotificationSnapshot(NotificationAccess.Unsupported, []),
             _ => null,
-        }, state == "open" ? SampleChat : null);
+        });
         return Task.CompletedTask;
     }
 }

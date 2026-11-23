@@ -13,15 +13,15 @@ internal sealed partial class NotificationsView : IWidgetSample
 {
     public Task ShowSampleAsync()
     {
-        ShowSnapshot(new NotificationSnapshot(NotificationAccess.Allowed, Sample(10)), open: null);
+        ShowSnapshot(new NotificationSnapshot(NotificationAccess.Allowed, Sample(10)));
         return Task.CompletedTask;
     }
 
-    /// <summary>Show <paramref name="snapshot"/> (null keeps what is shown) at the sample moment, the app <paramref name="open"/> opened.</summary>
-    internal void ShowSnapshot(NotificationSnapshot? snapshot, string? open)
+    /// <summary>Show <paramref name="snapshot"/> (null keeps what is shown) at the sample moment.</summary>
+    internal void ShowSnapshot(NotificationSnapshot? snapshot)
     {
         _binding.Clock = static () => SampleDay.Now;
-        _source.Hold(snapshot ?? _source.Snapshot, open);
+        _source.Hold(snapshot ?? _source.Snapshot);
     }
 
     /// <summary>
