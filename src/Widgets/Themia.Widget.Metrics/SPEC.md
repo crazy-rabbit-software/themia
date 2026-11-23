@@ -116,7 +116,8 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   under it (`HoldMark`); the block is laid out by that box, so "31%", "100%" and "--" stand in one place at one scale.
 - **[S-16325]** **Its sizes**, each metric's own (`MetricFaceRules.Sizing` over its name and widest reading, measured by the
   family's width estimate, `MetricsModule.Sized`): the graph's least the grid's least widget tall and as wide as the name, whole,
-  and the widest reading at its least share read side by side at the head's least scale (text at 9 DIP, the glyph at 12, WR-14,
+  and the widest reading at its least share read side by side at the head's least scale beside the status mark's room (text at
+  9 DIP, the glyph at 12, WR-14,
   `GraphLeastWidth`), 240 × 120 natural at least; the value's least its block at its least scale (`ValueLeast`), its natural
   the block at its own size, 200 × 90 at least; never under the grid's least widget (32); relaxed by the host ([S-12411]).
   A style switched refits the card.

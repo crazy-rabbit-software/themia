@@ -62,14 +62,20 @@ public static class MetricFaceRules
     /// <summary>
     /// [S-16325] The graph face's least width for a name and a widest reading of these widths (at the head's own size, a
     /// Title reading): both whole side by side at the head's least scale (text at 9 DIP, the glyph at 12) with the reading at
-    /// its least share, the insets round them; never under the grid's least widget.
+    /// its least share, the status mark's room and the insets round them; never under the grid's least widget.
     /// </summary>
     public static double GraphLeastWidth(double name, double widestAtTitle)
     {
         var k = LeastScale;
         var head = GlyphSize(k) + FamilySpace.GlyphGap + name + FamilySpace.ColumnGap + (widestAtTitle * LeastShare);
-        return Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (head * k)));
+        return Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (head * k) + MarkRoom));
     }
+
+    /// <summary>
+    /// [S-16325] [S-16327] The room the status's mark (its glyph) takes at the head's end, unscaled: the least head keeps the name
+    /// whole beside it too, where a source fails.
+    /// </summary>
+    public const double MarkRoom = FamilyShape.Icon + FamilySpace.S2 + FamilySpace.GlyphGap;
 
     /// <summary>
     /// [S-16325] The value face's least size for a name and a widest reading of these widths (a Body caption, a Big28 reading):

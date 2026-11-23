@@ -453,7 +453,7 @@ public sealed class MetricsTests
         // The rule: at its least, the head holds the name whole and the reading at its least share (text at 9 DIP, glyph 12).
         var k = MetricFaceRules.LeastScale;
         var width = MetricFaceRules.GraphLeastWidth(Name("CPU"), 60);
-        var room = ((width - (2 * FamilySpace.Inset)) / k) - MetricFaceRules.GlyphSize(k) - FamilySpace.GlyphGap - FamilySpace.ColumnGap;
+        var room = ((width - (2 * FamilySpace.Inset) - MetricFaceRules.MarkRoom) / k) - MetricFaceRules.GlyphSize(k) - FamilySpace.GlyphGap - FamilySpace.ColumnGap;
         Assert.True(Name("CPU") + (60 * MetricFaceRules.LeastShare) <= room + 1e-6);
         Assert.Equal(ScaleFloor.Text, MetricFaceRules.Head.FontSize * k * MetricFaceRules.LeastShare, 6);
         Assert.True(MetricFaceRules.GraphLeastWidth(0, 0) >= WidgetSizing.LeastScaled);
