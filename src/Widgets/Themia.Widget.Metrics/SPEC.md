@@ -115,7 +115,7 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   reading (`MetricFormat.Widest`: its largest form, every figure an 8: "888%", "-88° / -88°", "888 / 888 MB/s") drawn unseen
   under it (`HoldMark`); the block is laid out by that box, so "31%", "100%" and "--" stand in one place at one scale.
 - **[S-16325]** **Its sizes**, each metric's own (`MetricFaceRules.Sizing` over its name and widest reading, measured by the
-  family's width estimate, `MetricsModule.Sized`): the graph's least the grid's least widget tall and as wide as the name, whole,
+  family's width estimate with its slack for capitals, `MetricFaceRules.WordWidth`, `MetricsModule.Sized`): the graph's least the grid's least widget tall and as wide as the name, whole,
   and the widest reading at its least share read side by side at the head's least scale beside the status mark's room (text at
   9 DIP, the glyph at 12, WR-14,
   `GraphLeastWidth`), 240 × 120 natural at least; the value's least its block at its least scale (`ValueLeast`), its natural
@@ -127,9 +127,13 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   its busy ring while the first answer is on its way); an answer kept through a failed refresh keeps its graph and its reading
   and says so with the mark. Without a reading the mark carries a compact line of why beside its glyph (`KitStatus.Say`), a
   word read whole (`MetricFormat.Why`: "Offline", "Unavailable", "No data") where it fits (a third of the card's width in the
-  graph style; in the value style the room its caption leaves beside the glyph), else the glyph alone; its tooltip always says
+  graph style), else the glyph alone; its tooltip always says
   every problem. The reading stays
   clear of the mark in the head. The same in the value style.
+- **[S-16328]** **The value face's mark is in its block**: where a source fails, the value face's caption line ends with the
+  problem's glyph (Caution, 12 DIP at least, its tooltip every problem) and, without a reading, the word that says why: in the
+  block, counted in its width, so it never stands over the block; the status's own mark is not shown in this style. The value
+  face's least holds that line (`MetricFaceRules.CaptionMark`, the longest word's room), whatever the metric.
 - **[S-16326]** **Hover**: the pointer over the graph puts the value of the slot under it (a gap's nearest reading) and its time
   in the head's reading's place, and marks it: a hairline down the plot and a dot on each of its values. Nothing changes size
   (WR-12); off the graph the reading again. `--render widget metrics … --hover fx,fy` draws it (the plot's look at a point,

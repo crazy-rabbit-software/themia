@@ -56,6 +56,10 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     private readonly Grid _valueCell = new() { HorizontalAlignment = HorizontalAlignment.Left };
     private readonly TextBlock _blockHeld = Family.Text(FamilyType.Big28);
     private readonly StackPanel _caption = new();
+
+    /// <summary>[S-16327] The value face's own problem mark and word, on its caption line: in the block, never over it.</summary>
+    private readonly FontIcon _blockProblem = Family.Glyph(Glyphs.Warning, FamilyShape.Icon, ColourRole.Caution);
+    private readonly TextBlock _blockWhy = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly ScaleTransform _blockScale = new();
 
     private MetricsConfig _config = new();
@@ -116,6 +120,11 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _blockName.TextWrapping = TextWrapping.NoWrap;
         caption.Children.Add(_blockGlyph);
         caption.Children.Add(_blockName);
+        _blockProblem.VerticalAlignment = VerticalAlignment.Center;
+        _blockWhy.VerticalAlignment = VerticalAlignment.Center;
+        _blockWhy.TextWrapping = TextWrapping.NoWrap;
+        caption.Children.Add(_blockProblem);
+        caption.Children.Add(_blockWhy);
         _blockValue.TextWrapping = TextWrapping.NoWrap;
         Family.Figures(_blockValue);
 
@@ -137,7 +146,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _block.RenderTransform = _blockScale;
 
         // Measured unrounded: a box rounded up to the next device pixel is a fraction of a DIP the block's scale makes many.
-        foreach (var part in new FrameworkElement[] { _block, _caption, _blockGlyph, _blockName, _blockValue, _valueCell, _blockHeld })
+        foreach (var part in new FrameworkElement[] { _block, _caption, _blockGlyph, _blockName, _blockValue, _valueCell, _blockHeld, _blockProblem, _blockWhy })
         {
             part.UseLayoutRounding = false;
         }
@@ -322,12 +331,20 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     /// </summary>
     private void DrawValue(MetricDef def, string reading, bool unavailable)
     {
-        var inset = FamilySpace.Inset;
         _blockGlyph.Glyph = def.Glyph;
         _blockName.Text = _config.Caption();
         _blockValue.Foreground = Family.Brush(unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary);
         _blockValue.Text = reading;
         _blockHeld.Text = MetricFormat.Widest(Strings.Current, def, _config.Feed.Shape, _currency);
+
+        // [S-16327] In the value face the status's mark stands on the caption line, in the block (counted in its width, never
+        // over it): the problem's glyph, its tooltip every problem, and without a reading the word that says why.
+        _status.Visibility = Visibility.Collapsed;
+        var problem = _problems.Count > 0;
+        _blockProblem.Visibility = problem ? Visibility.Visible : Visibility.Collapsed;
+        ToolTipService.SetToolTip(_blockProblem, problem ? string.Join("\n", _problems) : null);
+        _blockWhy.Text = unavailable && problem ? _why ?? string.Empty : string.Empty;
+        _blockWhy.Visibility = _blockWhy.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         // Its own size alone (a width or margin set by the pass before would stand in the measure), again with its glyph held
         // where the scale it comes to would draw it under its floor.
@@ -336,16 +353,21 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         var box = default(PartBox);
         for (var pass = 0; pass < 3; pass++)
         {
-            _blockGlyph.FontSize = glyph;
-            _blockGlyph.Width = glyph;
-            _blockGlyph.Height = glyph;
+            foreach (var icon in new[] { _blockGlyph, _blockProblem })
+            {
+                icon.FontSize = glyph;
+                icon.Width = glyph;
+                icon.Height = glyph;
+            }
+
             _block.Width = double.NaN;
             _block.Margin = default;
             _block.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
             box = Ink.Of(_block);
 
             // Across: from the block's start (the held box's) to the further of the held box's end and the caption's last ink.
-            var end = Math.Max(_valueCell.DesiredSize.Width, _caption.DesiredSize.Width - Ink.Of(_blockName).Right);
+            var last = _blockWhy.Visibility == Visibility.Visible ? _blockWhy : _blockProblem.Visibility == Visibility.Visible ? _blockProblem : (FrameworkElement)_blockName;
+            var end = Math.Max(_valueCell.DesiredSize.Width, _caption.DesiredSize.Width - Ink.Of(last).Right);
             face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, 0, Math.Max(0, box.Width - end));
             var held = MetricFaceRules.GlyphSize(face.Scale);
             if (Math.Abs(held - glyph) < 0.01)
@@ -361,10 +383,6 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _block.Width = box.Width;
         _block.Margin = new Thickness(face.Left, face.Top, 0, 0);
 
-        // [S-16327] Why, beside the status's glyph: only in the room the caption leaves it where they share the top line.
-        var shares = face.Top < inset + KitStatus.Side + FamilySpace.S2;
-        var beside = _width - inset - KitStatus.Side - FamilySpace.S2 - (face.Left + (_caption.DesiredSize.Width * face.Scale)) - FamilySpace.ColumnGap;
-        var most = shares ? beside : (_width - (2 * inset)) / 2;
-        _status.Say(unavailable ? _why : null, most);
+
     }
 }

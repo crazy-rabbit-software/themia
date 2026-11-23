@@ -78,18 +78,37 @@ public static class MetricFaceRules
     public const double MarkRoom = FamilyShape.Icon + FamilySpace.S2 + FamilySpace.GlyphGap;
 
     /// <summary>
-    /// [S-16325] The value face's least size for a name and a widest reading of these widths (a Body caption, a Big28 reading):
-    /// the block at its least scale (its glyph at 12) inside the insets; never under the grid's least widget.
+    /// [S-16325] The value face's least size for a name and a widest reading of these widths (a Body caption, a Big28 reading),
+    /// and the room its caption line gives a problem's mark and word (<paramref name="mark"/>, <see cref="CaptionMark"/>): the
+    /// block at its least scale (its glyphs at 12) inside the insets; never under the grid's least widget.
     /// </summary>
-    public static SizeDip ValueLeast(double name, double widestAtBig)
+    public static SizeDip ValueLeast(double name, double widestAtBig, double mark = 0)
     {
-        var caption = (FamilyShape.Icon * Math.Max(1, ScaleFloor.Glyph / FamilyShape.Icon / ValueLeastScale)) + FamilySpace.GlyphGap + name;
+        var caption = ValueGlyph + FamilySpace.GlyphGap + name + mark;
         var block = Math.Max(caption, widestAtBig);
         var ink = FamilyType.Body.LineHeight + FamilyType.Big28.LineHeight - LineInk.Of(FamilyType.Body).Over - LineInk.Of(FamilyType.Big28).Under;
         return new SizeDip(
             Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (block * ValueLeastScale))),
             Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (ink * ValueLeastScale))));
     }
+
+    /// <summary>[S-16323] A glyph of the value face's caption at its least scale, in the block's own DIPs (12 on the card).</summary>
+    public static double ValueGlyph => FamilyShape.Icon * Math.Max(1, ScaleFloor.Glyph / FamilyShape.Icon / ValueLeastScale);
+
+    /// <summary>
+    /// [S-16327] The room the value face's caption line gives a problem: its mark (a glyph) and the word that says why
+    /// (<paramref name="why"/> wide), each after a glyph's gap. The mark stands in the block, never over it.
+    /// </summary>
+    public static double CaptionMark(double why) => FamilySpace.GlyphGap + ValueGlyph + FamilySpace.GlyphGap + why;
+
+    /// <summary>
+    /// [S-16325] How much wider a text may draw than the family's width estimate says (its average advance, 0.58 em, against
+    /// capitals' up to about 0.72 em): the sizing's estimate of a name or a word times this, so it is whole at the least.
+    /// </summary>
+    public const double EstimateSlack = 1.25;
+
+    /// <summary>[S-16325] A name's or a word's width for the sizing: the family's estimate with its slack.</summary>
+    public static double WordWidth(TypeStep step, int characters) => FamilyType.EstimateWidth(step, characters) * EstimateSlack;
 
     /// <summary>
     /// [S-16321] The head's glyph at scale <paramref name="scale"/>: its 16 DIP, drawn no smaller than the 12 a glyph is read to
@@ -199,7 +218,7 @@ public static class MetricFaceRules
     /// the grid's least widget the floor), its natural the face at its own size (the graph's 240 × 120 at least). Relaxed past
     /// that by the host.
     /// </summary>
-    public static WidgetSizing Sizing(MetricsStyle style, double name, double widest)
+    public static WidgetSizing Sizing(MetricsStyle style, double name, double widest, double mark = 0)
     {
         if (style != MetricsStyle.Value)
         {
@@ -208,7 +227,7 @@ public static class MetricFaceRules
             return WidgetSizing.Range(new(least, WidgetSizing.LeastScaled), new(natural, NaturalHeight), new(natural * 2, NaturalHeight * 2));
         }
 
-        var min = ValueLeast(name, widest);
+        var min = ValueLeast(name, widest, mark);
         var own = new SizeDip(Math.Max(ValueNatural.Width, Math.Ceiling(min.Width / ValueLeastScale)), Math.Max(ValueNatural.Height, Math.Ceiling(min.Height / ValueLeastScale)));
         return WidgetSizing.Range(min, own, new(own.Width * 2, own.Height * 2));
     }

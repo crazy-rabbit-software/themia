@@ -473,6 +473,25 @@ public sealed class MetricsTests
     }
 
     [Fact]
+    public void S16325_the_sizing_measures_names_as_wide_as_capitals_draw_and_the_value_face_keeps_its_marks_room()
+    {
+        // A name of capitals ("CPU", "MSFT") draws up to about 0.72 em a letter: the sizing's width holds it.
+        Assert.True(MetricFaceRules.WordWidth(MetricFaceRules.Name, 3) >= 3 * 0.72 * MetricFaceRules.Name.FontSize);
+
+        // The value face's caption gives a problem's mark (a glyph at 12 on the card) and its word room, so the mark is in the
+        // block, never over it, and its least holds it.
+        var why = MetricFaceRules.WordWidth(FamilyType.Body, "Unavailable".Length);
+        Assert.True(MetricFaceRules.CaptionMark(why) >= why + MetricFaceRules.ValueGlyph);
+        Assert.Equal(ScaleFloor.Glyph, MetricFaceRules.ValueGlyph * MetricFaceRules.ValueLeastScale, 6);
+        var name = MetricFaceRules.WordWidth(MetricFaceRules.Name, 3);
+        var plain = MetricFaceRules.ValueLeast(name, FamilyType.EstimateWidth(FamilyType.Big28, 4));
+        var marked = MetricFaceRules.ValueLeast(name, FamilyType.EstimateWidth(FamilyType.Big28, 4), MetricFaceRules.CaptionMark(why));
+        Assert.True(marked.Width > plain.Width);
+        Assert.Equal(marked.Width, MetricsModule.Sized(new MetricsConfig { Style = MetricsStyle.Value }).Min.Width);
+        Assert.True(FamilyType.Body.FontSize * MetricFaceRules.ValueLeastScale >= ScaleFloor.Text); // the word at 9 DIP at the least
+    }
+
+    [Fact]
     public void S16321_the_readings_share_leaves_the_name_its_room_smoothly_down_to_the_names_size()
     {
         Assert.Equal(1, MetricFaceRules.ReadingShare(200, 80, 100));
