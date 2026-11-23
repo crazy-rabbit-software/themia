@@ -3221,7 +3221,7 @@ band drawn on the page with the real pointer (Ctrl and Shift too), placing by a 
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
-#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16565])
+#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566])
 
 The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
 build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
@@ -3437,7 +3437,7 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   and bottom"*): the head is a tab tall (40), 8 under the window's top and 4 over the well (16 and 8 before).
 - **[S-16560]** **A hint** (owner: *"there should be a hint on the topright somewhere that says drag widget to add or similar"*):
   "Drag a widget onto your desktop to add it" (`widgetGallery.hint`), Caption and secondary, before the search box at the
-  head's end; cut short with an ellipsis where the tabs leave it less room, never over the search.
+  head's end, in the room the tabs leave it ([S-16566]).
 - **[S-16561]** **Small monitors** (owner: *"make sure that for smaller monitor sizes the widget gallery still works
   properly"*): on 1366 by 768, 1280 by 720 and 1024 by 768 work areas (DIPs; 100 % and 150 %) the window stays inside the
   work area under the bar, the tabs scroll across in their room, the hint and the search fit at the line's end, and the view
@@ -3454,6 +3454,13 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   Quick settings tab, after the toggles, each alone at the size it has new and right after it at its least, as the toggles
   ([S-16562]); the ready-made Power group (its Header over four of them) is not in the gallery, and no other tab shows them.
   The add page is unchanged. A search finds them as the whole pieces they are.
+- **[S-16566]** **The tabs first, the hint in what is left** (`WidgetGallery.Head`, tested; of the first build of [S-16560],
+  whose hint cut "Devices & power" and Quick settings out of sight on a 1920 by 1080 display): the head's line is the search
+  box at its end, then all the tabs; the hint stands only in the room left between them: the whole sentence where it fits,
+  else "Drag to add" (`widgetGallery.hintShort`), else none, the whole sentence then the search box's tooltip. With no room
+  even for the tabs alone (1024 by 768) the hint is gone and the tabs scroll across, the chosen one scrolled into sight. On a 1920 by 1080 display every tab is in
+  sight; the hint never stands while a tab is out of sight, and never over a tab (`--check gallery`, every display). To keep
+  the short hint the search box may narrow, never under 200 (`WidgetGallery.Head`).
 - **[S-16563]** **The desktop's own background** (owner: *"the widget gallery should have the same background as the desktop
   has. (the image)"*): the well shows the display's wallpaper as the desktop shows it, its fit and position and Windows'
   colour round it, at the display's own pixels and not blurred or dimmed (`Backdrop.PlainAsync`, read off the UI thread over

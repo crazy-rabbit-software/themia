@@ -8,7 +8,8 @@
     "widgetGallery.needs",
     "widgetGallery.drag",
     "widgetGallery.group",
-    "widgetGallery.hint"
+    "widgetGallery.hint",
+    "widgetGallery.hintShort"
   ],
   "widgetGallery.entry": "Widget gallery",
   "widgetGallery.categories": "Categories",
@@ -20,6 +21,7 @@
   "widgetGallery.needs": "Needs an account: {services}",
   "widgetGallery.drag": "Drag onto your desktop to place. Its settings open once it lands.",
   "widgetGallery.hint": "Drag a widget onto your desktop to add it",
+  "widgetGallery.hintShort": "Drag to add",
   "widgetGallery.group": {
     "one": "{count} widget, placed together",
     "other": "{count} widgets, placed together"

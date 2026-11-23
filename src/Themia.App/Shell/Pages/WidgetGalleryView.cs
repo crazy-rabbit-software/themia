@@ -96,8 +96,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     private readonly StackPanel _tabs = new() { Orientation = Orientation.Horizontal, Spacing = P.TabGap };
     private readonly SearchBox _search = new(Str.Shell_Picker_Search.Text()) { Width = G.Search, VerticalAlignment = VerticalAlignment.Center };
 
+    /// <summary>[S-16566] The tabs' line, scrolled across only when the tabs alone do not fit.</summary>
+    private ScrollViewer? _tabScroll;
+
     /// <summary>[S-16560] The hint beside the search: drag a widget to add it.</summary>
     private readonly TextBlock _hint = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
+
+    /// <summary>[S-16566] The hint's look, apart: what the whole and the short hint measure.</summary>
+    private readonly TextBlock _hintMeasure = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
 
     /// <summary>[S-16402] The words the bento shows the finds of (empty: a category).</summary>
     private string _searched = string.Empty;
@@ -213,7 +219,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         AutomationProperties.SetName(_tabs, Str.WidgetGallery_Categories.Text());
-        var tabScroll = new ScrollViewer
+        var tabScroll = _tabScroll = new ScrollViewer
         {
             Content = _tabs,
             HorizontalScrollMode = ScrollMode.Auto,
@@ -238,15 +244,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         // [S-16560] The hint before it (owner: "there should be a hint on the topright somewhere that says drag widget to add").
         _hint.Text = Str.WidgetGallery_Hint.Text();
         _hint.VerticalAlignment = VerticalAlignment.Center;
-        _hint.TextTrimming = TextTrimming.CharacterEllipsis;
         _hint.TextWrapping = TextWrapping.NoWrap;
-        _hint.MaxWidth = G.Hint;
         _hint.Margin = new Thickness(G.Pad, 0, 0, 0);
         _head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         _head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         _head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         SetColumn(_hint, 1);
         SetColumn(_search, 2);
+        _tabs.SizeChanged += (_, _) => ShareHead();
         _head.Children.Add(tabScroll);
         _head.Children.Add(_hint);
         _head.Children.Add(_search);
@@ -338,7 +343,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <summary>[S-16557] Whether the keyboard is in the search box, for a check.</summary>
     internal bool SearchHasKeys => _search.HasKeys;
 
-    internal DipRect? HintShown => Shown(_hint);
+    internal DipRect? HintBox => Shown(_hint);
 
     internal DipRect? TabsShown => Shown((FrameworkElement)_head.Children[0]);
 
@@ -389,10 +394,10 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         Tip = frame.Window.X + tip;
         SetBox(_head, frame.Head);
 
-        // [S-16557] [S-16560] The search box a quarter of the line at the most on a narrow window, the hint what room the
-        // tabs leave it (cut short with an ellipsis, never over the search).
-        _search.Width = Math.Min(G.Search, frame.Head.Width / 4);
-        _hint.MaxWidth = Math.Min(G.Hint, frame.Head.Width / 4);
+        // [S-16557] [S-16566] The search box a quarter of the line at the most on a narrow window; the tabs take what they need
+        // of the rest, and the hint only what is left (its whole sentence, its short one, or none).
+        _line = frame.Head.Width;
+        ShareHead();
 
         // [S-16563] The well: the desktop's own wallpaper as the desktop shows it (owner, 2026-11-23: "the widget gallery
         // should have the same background as the desktop has"), the display's own grid on it ([S-06c]): a cell here is a
@@ -437,6 +442,68 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             Present(_base, Lay(_base), keep: null);
         }
     }
+
+    /// <summary>[S-16566] The head's line, DIPs across.</summary>
+    private double _line;
+
+    /// <summary>
+    /// [S-16566] The tabs first, the search and the hint in what they leave (<see cref="WidgetGallery.Head"/>): again whenever
+    /// the tabs are laid out at their width (their buttons' own width is only known then).
+    /// </summary>
+    private void ShareHead()
+    {
+        if (_line <= 0)
+        {
+            return;
+        }
+
+        // Measured apart (a text box of the hint's look, never in the tree), so nothing laid out is touched to measure: the
+        // tabs' size change that asks again is never set off by the asking.
+        var whole = Str.WidgetGallery_Hint.Text();
+        var brief = Str.WidgetGallery_HintShort.Text();
+        double Wide(string text)
+        {
+            _hintMeasure.Text = text;
+            _hintMeasure.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            return Math.Ceiling(_hintMeasure.DesiredSize.Width);
+        }
+
+        double tabs;
+        if (_tabs.ActualWidth > 0)
+        {
+            tabs = Math.Ceiling(_tabs.ActualWidth);
+        }
+        else
+        {
+            _tabs.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            tabs = Math.Ceiling(_tabs.DesiredSize.Width);
+        }
+
+        (HintShown, var search) = WidgetGallery.Head(_line, tabs, Math.Min(G.Search, _line / 4), G.SearchLeast, Wide(whole), Wide(brief), G.Pad);
+        var text = HintShown == GalleryHint.Long ? whole : brief;
+        var shown = HintShown == GalleryHint.None ? Visibility.Collapsed : Visibility.Visible;
+        if (Math.Abs(_search.Width - search) > 0.5)
+        {
+            _search.Width = search;
+        }
+
+        if (!string.Equals(_hint.Text, text, StringComparison.Ordinal))
+        {
+            _hint.Text = text;
+            ToolTipService.SetToolTip(_search, HintShown == GalleryHint.Long ? null : whole);
+        }
+
+        if (_hint.Visibility != shown)
+        {
+            _hint.Visibility = shown;
+        }
+    }
+
+    /// <summary>[S-16566] Which hint the head shows, for a check.</summary>
+    internal GalleryHint HintShown { get; private set; }
+
+    /// <summary>[S-16566] Whether every tab is in sight (the line does not scroll), for a check.</summary>
+    internal bool AllTabsShown => _tabScroll is { } scroll && scroll.ScrollableWidth <= 0.5;
 
     /// <summary>[S-16558] Where the window's beak points, surface DIPs across: the gallery's button's middle.</summary>
     internal double Tip { get; private set; }
@@ -755,7 +822,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         WidgetCard.Join(_cards, _metrics, _raster, editMode: false, _ => 0);
         for (var i = 0; i < _tabs.Children.Count; i++)
         {
-            ((PageTabButton)_tabs.Children[i]).Chosen = !Searching && i == _at;
+            var tab = (PageTabButton)_tabs.Children[i];
+            tab.Chosen = !Searching && i == _at;
+
+            // [S-16566] On a line that scrolls (a small display) the chosen tab is scrolled into sight.
+            if (tab.Chosen && !AllTabsShown)
+            {
+                tab.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
+            }
         }
 
         // [S-16404] In focus the piece is picked.

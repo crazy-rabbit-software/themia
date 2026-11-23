@@ -94,6 +94,14 @@ public sealed record GallerySheet(AddFolderId Category, LocalText Name, int Rows
 /// </summary>
 public sealed record GalleryFrame(DipRect Window, DipRect Head, DipRect Well, CellBox View);
 
+/// <summary>[S-16566] Which hint the head shows: the whole sentence, the short one, or none.</summary>
+public enum GalleryHint
+{
+    None,
+    Short,
+    Long,
+}
+
 /// <summary>[S-16407] A key that moves the pick across the bento.</summary>
 public enum GalleryMove
 {
@@ -1348,6 +1356,30 @@ public static class WidgetGallery
         }
 
         return best;
+    }
+
+    /// <summary>
+    /// [S-16566] The head's line shared, tabs first (the hint never at the tabs' cost): on a line <paramref name="line"/> DIPs
+    /// wide the tabs (<paramref name="tabs"/> wide, all of them) take what they need; then the search box, <paramref name="search"/>
+    /// wide, and the hint (its whole sentence <paramref name="hintLong"/> or its short one <paramref name="hintShort"/> wide), each
+    /// <paramref name="gap"/> after what stands before it, share what is left: the whole hint where the search keeps its width,
+    /// else the short one; else the short one with the search narrowed, never under <paramref name="searchLeast"/>; else no
+    /// hint and the search at its width (the tabs scroll when even with the search alone they do not fit).
+    /// </summary>
+    public static (GalleryHint Hint, double Search) Head(double line, double tabs, double search, double searchLeast, double hintLong, double hintShort, double gap)
+    {
+        double Room(double hint) => line - tabs - gap - hint - gap;
+        if (Room(hintLong) >= search)
+        {
+            return (GalleryHint.Long, search);
+        }
+
+        if (Room(hintShort) >= search)
+        {
+            return (GalleryHint.Short, search);
+        }
+
+        return Room(hintShort) >= searchLeast ? (GalleryHint.Short, Math.Floor(Room(hintShort))) : (GalleryHint.None, search);
     }
 
     /// <summary>[S-16408] After a placement off the gallery: landed, the settings of what landed; given up, the gallery back.</summary>

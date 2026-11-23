@@ -256,6 +256,22 @@ public sealed class WidgetGalleryTests
     }
 
     [Theory]
+    [InlineData(1504, 900, GalleryHint.Long, 280)]
+    [InlineData(1504, 1100, GalleryHint.Short, 280)]
+    [InlineData(1504, 1140, GalleryHint.Short, 262)]
+    [InlineData(1504, 1250, GalleryHint.None, 280)]
+    [InlineData(944, 1100, GalleryHint.None, 236)]
+    public void S16566_the_tabs_take_the_line_first_the_hint_only_what_is_left(double line, double tabs, GalleryHint shown, double search)
+    {
+        // The search 280 (a quarter of a narrow line at the most), 200 at the least; 16 between; the whole hint 230, the short one 70.
+        var (hint, width) = WidgetGallery.Head(line, tabs, search: Math.Min(280, line / 4), searchLeast: 200, hintLong: 230, hintShort: 70, gap: 16);
+
+        Assert.Equal((shown, search), (hint, width));
+        var used = tabs + 16 + width + (hint switch { GalleryHint.Long => 230 + 16, GalleryHint.Short => 70 + 16, _ => 0 });
+        Assert.True(hint == GalleryHint.None || used <= line, $"{used} of {line}");
+    }
+
+    [Theory]
     [InlineData(GalleryMove.Right, 1)]
     [InlineData(GalleryMove.Down, 2)]
     [InlineData(GalleryMove.Left, 0)]

@@ -245,8 +245,8 @@ public static class ShellMetrics
         /// <summary>[S-16402] [S-16557] The search box at the tabs' line's end, always open; on a narrow window at most a quarter of its line.</summary>
         public const double Search = 280;
 
-        /// <summary>[S-16560] The hint beside the search box ("Drag a widget onto your desktop to add it"), at the most.</summary>
-        public const double Hint = 260;
+        /// <summary>[S-16566] The least the search box is narrowed to for the short hint beside the tabs.</summary>
+        public const double SearchLeast = 200;
 
         /// <summary>[S-16404] A picked widget's words, a card of the bento: its natural box, DIPs.</summary>
         public const double AboutWidth = 320;

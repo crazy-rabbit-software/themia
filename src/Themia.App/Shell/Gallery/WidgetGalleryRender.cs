@@ -325,14 +325,21 @@ internal static class WidgetGalleryRender
 
             // [S-16559] [S-16560] [S-16557] [S-16561] The head: the tabs, the hint and the search box always open, all inside the window, none over another.
             var head = gallery.Frame!.Head;
-            var (search, hint, tabs) = (gallery.SearchBoxShown, gallery.HintShown, gallery.TabsShown);
+            var (search, hint, tabs) = (gallery.SearchBoxShown, gallery.HintBox, gallery.TabsShown);
             Say($"     head {head.Width:0}x{head.Height:0} at {head.Y - window.Y:0} under the window's top, the well {gallery.Frame!.Well.Y - (head.Y + head.Height):0} under it; tabs {tabs?.Width:0}, hint {hint?.Width:0}, search {search?.Width:0} wide");
             Expect(Math.Abs(head.Height - ShellMetrics.Page.Tabs) < 0.5 && Math.Abs(head.Y - window.Y - G.HeadInset) < 0.5,
                 $"{at}: [S-16559] the tabs' line is a tab tall, {G.HeadInset:0} under the window's top and {G.HeadGap:0} over the well");
             bool Inside(DipRect? box) => box is { } b && b.X >= window.X - 0.5 && b.X + b.Width <= window.X + window.Width + 0.5 && b.Y >= window.Y - 0.5 && b.Y + b.Height <= window.Y + window.Height + 0.5;
             Expect(Inside(search) && search!.Value.Width >= 120, $"{at}: [S-16557] the search box is open at the line's end, inside the window");
-            Expect(Inside(hint) && hint!.Value.X + hint.Value.Width <= search!.Value.X + 0.5, $"{at}: [S-16560] the hint stands before the search box, inside the window");
-            Expect(Inside(tabs) && tabs!.Value.X + tabs.Value.Width <= hint!.Value.X + 0.5, $"{at}: [S-16561] the tabs keep to their room (it scrolls), clear of the hint");
+            Say($"     the hint: {gallery.HintShown}; every tab in sight: {gallery.AllTabsShown}");
+            Expect(gallery.HintShown == GalleryHint.None ? hint is null : Inside(hint) && hint!.Value.X + hint.Value.Width <= search!.Value.X + 0.5,
+                $"{at}: [S-16560] the hint ({gallery.HintShown}) stands before the search box, inside the window, or is not shown");
+            Expect(Inside(tabs) && (hint is not { } shownHint || tabs!.Value.X + tabs.Value.Width <= shownHint.X + 0.5), $"{at}: [S-16561] the tabs keep to their room, clear of the hint");
+            Expect(gallery.AllTabsShown || gallery.HintShown == GalleryHint.None, $"{at}: [S-16566] the hint never takes the tabs' room: shown only while every tab is in sight");
+            if (metrics.Width >= 1920 - 0.5)
+            {
+                Expect(gallery.AllTabsShown, $"{at}: [S-16566] every tab in sight on a full-size display");
+            }
             if (run.Has("--wallpaper"))
             {
                 Expect(gallery.WallpaperShown, $"{at}: [S-16563] the well shows the desktop's own wallpaper");
