@@ -9139,7 +9139,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   offset); the **Date** widget (`src/Widgets/Themia.Widget.Date`, [S-10800]..[S-10804]) shows today, Long, Short,
   Numbers or a calendar Page. The ready-made group My day places a Date (Small, Long) joined under its clock.
   Tests the clock's `S6011_the_clock_has_no_date_style_and_no_date_line`, the Date module's.
-- **[S-12806]** **A quick toggle or power button has no real minimum** (owner, 2026-11-17: "the buttons like the
+- **[S-12806]** *(Amended 2026-11-23 by [S-16705]: the least is now the 12 glyph in the 4 inset, 20, not the 32.)*
+  **A quick toggle or power button has no real minimum** (owner, 2026-11-17: "the buttons like the
   night mode toggle should be able to be smaller than they are now, they should not really have a smallest size
   at all"; WR-14, 2026-11-19: "for the widgets that can scale there should basically be no lower limit except for one
   that makes sense so you can still see the widget"): its least box is the grid's least widget, as every face that
@@ -9149,6 +9150,15 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   box and the inset the rest (`TileFace.Mark`, `.Inset`), so every box from the floor draws its glyph whole, growing
   with the box; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`; render
   `--render widget quickToggle --config {"target":"nightLight"} --sizes 10x10,16x16,24x24,40x40`.
+- **[S-16705]** **A tile's least is its face at its floor** (owner, 2026-11-23: *"the toggle buttons should be possible to
+  be even smaller"*; the gallery's smaller quick settings stood at four cells, the 32 of [S-12806] rounded up): a quick
+  setting's and a power button's Tile and Round looks go down to the glyph at its floor, 12 (`ScaleFloor.Glyph`), in the
+  least inset, 4: 20 DIPs, two cells of the grid (`TileRules.MinSide`), under the grid's least widget of WR-14 (32) by the
+  owner's words of that day. From the 16's room (24) down to 20 the glyph is the rest of the 4 inset (16 … 12); its words
+  (the name and the state line) show only where they are read at 9 or more ([S-15741]) and give way, the name with them,
+  before the glyph, which never draws under 12 in a box the sizing allows. The gallery's Quick settings tab shows every
+  target and power button at its new size and at this least ([S-16562]). The Switch look's least is unchanged (its glyph and
+  switch in the inset, 88 × 60). Test `FamilyBlockRulesTests.S16705_`; render `--render widget quickToggle --sizes range`.
 - **[S-12807]** **A list's rows touch and fill the content** *(amended 2026-11-20 by [S-14810]: the rows touch at their
   one size from the card's top edge and the last is cut by its foot; they no longer grow to meet it)* (owner, 2026-11-19: "the forecast widget still has
   space on the top and bottom of its items this should not be, the items should reach the top and bottom"; "the

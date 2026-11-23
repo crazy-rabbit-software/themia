@@ -159,13 +159,15 @@ public static class TileRules
         // [S-15755] The name's lines as it stands at the inset's width (1 or 2): a short name in a wide card takes one.
         nameLines = Math.Clamp(nameLines, 1, NameLines);
         // [S-12806] A box too small for the 28 glyph in the inset: the glyph alone, as large as it can be (28, else the
-        // family's smallest, 16) with the inset given up down to 4 round it; under the 16's room (24) the glyph is two
-        // thirds of the box, the inset the rest, down to the floor's box.
+        // family's smallest, 16) with the inset given up down to 4 round it; [S-16705] under the 16's room (24) the glyph is
+        // the rest of the 4 inset down to its floor, 12, at the tile's least (20); under that (a render's box under the
+        // least) two thirds of the box, the inset the rest.
         var side = Math.Min(double.IsFinite(width) ? width : 0, double.IsFinite(height) ? height : 0);
         if (side < GlyphAloneSide)
         {
             var mark = side - (2 * TightInset) >= FamilyType.Big28.FontSize ? FamilyType.Big28.FontSize
                 : side - (2 * TightInset) >= FamilyShape.Icon ? FamilyShape.Icon
+                : side - (2 * TightInset) >= ScaleFloor.Glyph ? Math.Floor(side - (2 * TightInset))
                 : Math.Max(0, Math.Floor(side * 2 / 3));
             var inset = Math.Clamp(Math.Floor((side - mark) / 2), 0, FamilySpace.Inset);
             var (name, state) = TextAt(FamilyType.Big28);
@@ -210,14 +212,15 @@ public static class TileRules
     public const double TightInset = FamilySpace.S1;
 
     /// <summary>
-    /// [S-12806] The smallest a Tile or Round tile may be (owner, 2026-11-17: "the buttons like the night mode toggle
-    /// should be able to be smaller than they are now, they should not really have a smallest size at all"; and WR-14,
+    /// [S-12806] [S-16705] The smallest a Tile or Round tile may be (owner, 2026-11-17: "the buttons like the night mode toggle
+    /// should be able to be smaller than they are now, they should not really have a smallest size at all"; WR-14,
     /// 2026-11-19: "for the widgets that can scale there should basically be no lower limit except for one that makes
-    /// sense so you can still see the widget"): the grid's least widget, 32 (<see cref="WidgetSizing.LeastScaled"/>), as
-    /// every face that scales. <see cref="Face"/> draws the glyph in whatever box that leaves, the inset and then the glyph
-    /// giving way.
+    /// sense so you can still see the widget"; 2026-11-23: "the toggle buttons should be possible to be even smaller"): its
+    /// face at its floor, the glyph at <see cref="ScaleFloor.Glyph"/> (12) in the least inset (4), 20: two cells of the
+    /// grid where the grid's least widget (32, <see cref="WidgetSizing.LeastScaled"/>) took four. <see cref="Face"/> draws the
+    /// glyph in whatever box that leaves, the words going first (under their 9), then the inset, then the glyph to its 12.
     /// </summary>
-    public const double MinSide = WidgetSizing.LeastScaled;
+    public const double MinSide = ScaleFloor.Glyph + (2 * TightInset);
 
     /// <summary>
     /// [S-11882] [S-11804] Where a new Tile or Round tile lands: the 28 glyph, its name on two lines and (a

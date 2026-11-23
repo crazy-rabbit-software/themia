@@ -126,6 +126,9 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   less than one cell, is not a WR-3 or WR-5 failure; only the last line is cut, by the foot (WR-4).
 - **The Metric widget's head: name top left, value top right.** 2026-11-23: "the metric should have the name and an icon for
   the metric on the topleft and then the current value of the metric on the topright".
+- **Quick toggles go under the least widget.** 2026-11-23, of the quick settings, whose least then stood at the 32 of WR-14:
+  "the toggle buttons should be possible to be even smaller". A quick setting's (and a power button's) tile goes down to its
+  glyph at 12 in a 4 inset (20); its words keep the 9 floor of WR-14 and give way before the glyph.
 - **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
   Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
 

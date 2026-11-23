@@ -339,9 +339,8 @@ public sealed class FamilyBlockRulesTests
             Assert.Empty(tile.Problems());
             Assert.Equal(tile, TileRules.Sizing(TileLook.Round, stateLine));
 
-            // The least is the grid's least widget, as every face that scales ([S-12806], WR-14); the most is large on both
-            // axes, each free.
-            Assert.Equal(new SizeDip(WidgetSizing.LeastScaled, WidgetSizing.LeastScaled), tile.Min);
+            // The least is its face at its floor ([S-12806], [S-16705]); the most is large on both axes, each free.
+            Assert.Equal(new SizeDip(TileRules.MinSide, TileRules.MinSide), tile.Min);
             Assert.Equal(new SizeDip(TileRules.MaxSide, TileRules.MaxSide), tile.Max);
             Assert.True(TileRules.MaxSide >= 400);
         }
@@ -362,9 +361,8 @@ public sealed class FamilyBlockRulesTests
     public void S12806_under_the_glyphs_inset_the_inset_gives_way_and_the_glyph_shrinks_to_the_smallest()
     {
         // Owner, 2026-11-17: "they should not really have a smallest size at all"; WR-14, 2026-11-19: "no lower limit except
-        // for one that makes sense so you can still see the widget": the grid's least widget, 32, as every face that scales.
-        Assert.Equal(WidgetSizing.LeastScaled, TileRules.MinSide);
-        Assert.Equal(32, TileRules.MinSide);
+        // for one that makes sense so you can still see the widget"; [S-16705] its face at its floor.
+        Assert.Equal(20, TileRules.MinSide);
         Assert.Equal((28.0, 6.0), (TileRules.Face(40, 40).MarkSize, TileRules.Face(40, 40).Inset));
         Assert.Equal((16.0, 4.0), (TileRules.Face(24, 24).MarkSize, TileRules.Face(24, 24).Inset));
         Assert.Equal((16.0, 6.0), (TileRules.Face(28, 60).MarkSize, TileRules.Face(28, 60).Inset));
@@ -372,9 +370,12 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal((28.0, 10.0), (TileRules.Face(48, 48).MarkSize, TileRules.Face(48, 48).Inset));
         Assert.Equal((28.0, 12.0), (TileRules.Face(52, 52).MarkSize, TileRules.Face(52, 52).Inset));
 
-        // Under the 16's room the glyph is two thirds of the box, the inset the rest.
+        // [S-16705] Under the 16's room the glyph is the rest of the 4 inset down to its 12; under the least two thirds of the
+        // box, the inset the rest.
+        Assert.Equal((12.0, 4.0), (TileRules.Face(20, 20).MarkSize, TileRules.Face(20, 20).Inset));
+        Assert.Equal((14.0, 4.0), (TileRules.Face(22, 22).MarkSize, TileRules.Face(22, 22).Inset));
+        Assert.Equal((12.0, 3.0), (TileRules.Face(19, 19).MarkSize, TileRules.Face(19, 19).Inset));
         Assert.Equal((6.0, 2.0), (TileRules.Face(10, 10).MarkSize, TileRules.Face(10, 10).Inset));
-        Assert.Equal((13.0, 3.0), (TileRules.Face(20, 20).MarkSize, TileRules.Face(20, 20).Inset));
 
         // Every box from the app's floor (a face is still drawn under the tile's least): the glyph alone fits its inset (4
         // from the 16's room on), and grows with the box.
@@ -386,6 +387,42 @@ public sealed class FamilyBlockRulesTests
             Assert.True(face.Inset >= (side >= 24 ? TileRules.TightInset : 1) && face.MarkSize + (2 * face.Inset) <= side && face.MarkSize > 0, $"{side}: {face}");
             Assert.True(face.MarkSize >= last, $"{side}: shrank");
             last = face.MarkSize;
+        }
+    }
+
+    /// <summary>
+    /// [S-16705] Owner, 2026-11-23: "the toggle buttons should be possible to be even smaller". A tile's least is its face at
+    /// its floor: the 12 glyph in the 4 inset, 20, two cells where the 32 took four; from there up its words show only where
+    /// they are read at 9 or more, the name giving way (with the state line) before the glyph, which never draws under 12.
+    /// </summary>
+    [Fact]
+    public void S16705_a_tiles_least_is_its_face_at_its_floor_the_words_giving_way_before_the_glyph()
+    {
+        Assert.Equal(ScaleFloor.Glyph + (2 * TileRules.TightInset), TileRules.MinSide);
+        Assert.True(TileRules.MinSide < WidgetSizing.LeastScaled);
+        var least = TileRules.Face(TileRules.MinSide, TileRules.MinSide);
+        Assert.Equal((ScaleFloor.Glyph, TileRules.TightInset, false), (least.MarkSize, least.Inset, least.Texted));
+
+        // On a 10-DIP grid the least is two cells where it was four.
+        var screen = new Themia.Core.Geometry.ScreenMetrics(1920, 1080);
+        var limits = Themia.Core.Geometry.SizeFit.Limits(TileRules.Sizing(TileLook.Tile), screen, 1)!;
+        Assert.Equal(2, (int)Math.Round(limits.Width.Min * 192));
+        Assert.Equal(2, (int)Math.Round(limits.Height.Min * 108));
+
+        for (var h = TileRules.MinSide; h <= 160; h += 2)
+        {
+            for (var w = TileRules.MinSide; w <= 160; w += 2)
+            {
+                var face = TileRules.Face(w, h);
+                var room = Math.Min(w, h) - (2 * face.Inset);
+                Assert.True(face.MarkSize >= ScaleFloor.Glyph && face.MarkSize <= room + 1e-9, $"{w} x {h}: glyph {face.MarkSize}");
+
+                // Words only where they are read: the block scaled into the inset keeps its smallest text at 9 or more.
+                if (face.Texted)
+                {
+                    Assert.True(TileRules.WordsKept(w - (2 * FamilySpace.Inset), h - (2 * FamilySpace.Inset), stateLine: true), $"{w} x {h}");
+                }
+            }
         }
     }
 
