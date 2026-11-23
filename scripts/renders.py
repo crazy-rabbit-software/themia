@@ -67,6 +67,20 @@ def find_exe(root, exe=None):
 EVERY_STATE_STYLES = {'metrics'}
 
 
+# [S-16316] A state whose face is another config of its kind (the Metric widget's graph types, each a metric of its own): the
+# config it is drawn with, so the card is sized as that config sizes it, as on the desktop. The place and the symbol the
+# sample's are, so no Set up line stands over it.
+_PLACE = {"latitude": 47.37, "longitude": 8.54, "locationName": "Z\u00fcrich, Switzerland"}
+STATE_CONFIGS = {
+    ('metrics', 'line'): dict(_PLACE, metric='temperature', step='Hour', way='Future', span=24, graph='Line'),
+    ('metrics', 'bars'): dict(_PLACE, metric='uv', step='Hour', way='Future', span=24, graph='Bars'),
+    ('metrics', 'step'): dict(_PLACE, metric='pressure', step='Hour', way='Future', span=24, graph='Step'),
+    ('metrics', 'range'): dict(_PLACE, metric='temperature', step='Day', way='Future', span=7, graph='Range'),
+    ('metrics', 'candles'): dict(_PLACE, metric='stock', step='Day', way='Past', span=1, graph='Candles', symbol='MSFT'),
+    ('metrics', 'pair'): dict(_PLACE, metric='drive', step='Live', way='Past', span=300, graph='Line'),
+}
+
+
 class Lock:
     """One sweep drawing at a time on this PC (the PC hard-hung under ~16 renders at once): the second waits, saying
     whose sweep it waits for. An OS lock on a file in the user's home folder, so a killed sweep never leaves it held."""
@@ -134,8 +148,14 @@ class Job:
     flags: tuple = ('--transparent',)
     style: str = ''
 
+    def config(self):
+        """[S-16316] The config fragment its state is drawn with (none for most)."""
+        found = STATE_CONFIGS.get((self.kind, self.state))
+        return json.dumps(found, sort_keys=True) if found else ''
+
     def key(self, theme):
-        parts = [self.kind, self.state, self.sizes, theme, list(self.flags)] + ([self.style] if self.style else [])
+        parts = [self.kind, self.state, self.sizes, theme, list(self.flags)] + ([self.style] if self.style else []) \
+            + ([self.config()] if self.config() else [])
         return hashlib.sha1(json.dumps(parts).encode('utf-8')).hexdigest()[:20]
 
     def args(self, png):
@@ -145,6 +165,8 @@ class Job:
             args += ['--state', self.state]
         if self.style:
             args += ['--style', self.style]
+        if self.config():
+            args += ['--config', self.config()]
         return args
 
     @property
