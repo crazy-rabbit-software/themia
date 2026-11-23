@@ -604,7 +604,88 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             InvalidateMeasure();
         }
 
-        private MusicLayout Lay(Size size) => MusicPlan.Lay(_style, _shown, size.Width, size.Height, _template, _fit);
+        /// <summary>
+        /// [S-16516] The face in <paramref name="size"/>, its parts measured in their boxes. Laid twice: first by the parts' ink
+        /// uncut (as the view measured them), then by their ink as they are drawn in those boxes, so a line cut short of its
+        /// descenders (stacked's narrow column) stands on the ink it draws, never on letters its ellipsis took away. Two passes
+        /// for every box, never more: the same box plans the same face.
+        /// </summary>
+        private MusicLayout Plan(Size size)
+        {
+            var laid = MusicPlan.Lay(_style, _shown, size.Width, size.Height, _template, _fit);
+            MeasureParts(laid);
+            if (_fit.Ink.Count == 0)
+            {
+                return laid;
+            }
+
+            var drawn = new Dictionary<MusicPart, LineInk>();
+            foreach (var (part, (element, scale)) in _parts)
+            {
+                if (scale is not null && laid.Has(part))
+                {
+                    var whole = part switch { MusicPart.Title => _fit.Title, MusicPart.Subtitle => _fit.Subtitle, _ => 0 };
+                    var own = laid[part].Width / laid.Scale;
+                    drawn[part] = element is TextBlock text && whole > own + Near
+                        ? Shown(text, own - element.Margin.Left - element.Margin.Right)
+                        : Ink.Of(element).Ink;
+                }
+            }
+
+            if (drawn.All(d => _fit.Ink.TryGetValue(d.Key, out var was) && was == d.Value))
+            {
+                return laid;
+            }
+
+            laid = MusicPlan.Lay(_style, _shown, size.Width, size.Height, _template, _fit with { Ink = drawn });
+            MeasureParts(laid);
+            return laid;
+        }
+
+        /// <summary>A text standing in for a cut line as it is drawn: what is left of it and its ellipsis, in its type.</summary>
+        private readonly TextBlock _probe = new() { TextWrapping = TextWrapping.NoWrap };
+
+        /// <summary>
+        /// [S-16516] The ink of <paramref name="text"/> as it is drawn cut to <paramref name="width"/>: the most of its words
+        /// that stand with the ellipsis in that width, as XAML cuts it (a letter at a time), measured as any text.
+        /// </summary>
+        private LineInk Shown(TextBlock text, double width)
+        {
+            _probe.FontFamily = text.FontFamily;
+            _probe.FontSize = text.FontSize;
+            _probe.FontWeight = text.FontWeight;
+            _probe.FontStyle = text.FontStyle;
+            _probe.CharacterSpacing = text.CharacterSpacing;
+            _probe.LineHeight = text.LineHeight;
+            _probe.LineStackingStrategy = text.LineStackingStrategy;
+            var whole = text.Text ?? string.Empty;
+            var infinite = new Size(double.PositiveInfinity, double.PositiveInfinity);
+            double Wide(int n)
+            {
+                _probe.Text = whole[..n] + "…";
+                _probe.Measure(infinite);
+                return _probe.DesiredSize.Width;
+            }
+
+            var (fits, over) = (0, whole.Length);
+            while (over - fits > 1)
+            {
+                var mid = (fits + over) / 2;
+                (fits, over) = Wide(mid) <= width ? (mid, over) : (fits, mid);
+            }
+
+            Wide(fits);
+            return Ink.Of(_probe).Ink;
+        }
+
+        /// <summary>Every part measured in its own box of <paramref name="laid"/> (none: nothing).</summary>
+        private void MeasureParts(MusicLayout laid)
+        {
+            foreach (var (part, (element, scale)) in _parts)
+            {
+                element.Measure(laid.Parts.TryGetValue(part, out var at) ? Own(at, scale is null ? 1 : laid.Scale) : default);
+            }
+        }
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -616,14 +697,8 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             // parts again in every arrange, asked for another measure and never settled.
             var box = _arranged ?? size;
 
-            var laid = Lay(box);
-            _measured = (box, laid);
             _view._light.Measure(size);
-            foreach (var (part, (element, scale)) in _parts)
-            {
-                element.Measure(laid.Parts.TryGetValue(part, out var at) ? Own(at, scale is null ? 1 : laid.Scale) : default);
-            }
-
+            _measured = (box, Plan(box));
             return size;
         }
 
@@ -638,7 +713,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             var remeasure = Math.Abs(measured.Width - finalSize.Width) >= Near || Math.Abs(measured.Height - finalSize.Height) >= Near;
             if (remeasure)
             {
-                laid = Lay(finalSize);
+                laid = Plan(finalSize);
                 _measured = (finalSize, laid);
             }
 
@@ -660,11 +735,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
                 }
 
                 var own = Own(box, scale is null ? 1 : laid.Scale);
-                if (remeasure)
-                {
-                    element.Measure(own);
-                }
-
                 // [S-16516] A text's ink start (its margin reaching back over its first letter's bearing, Ink.InkStart) is in its
                 // own units, which the scale draws larger: the part stands that much further back, so its first ink is the box's start.
                 var back = scale is null ? 0 : element.Margin.Left * (laid.Scale - 1);

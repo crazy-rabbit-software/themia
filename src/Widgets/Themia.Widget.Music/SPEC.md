@@ -71,8 +71,11 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   or the height stops it, and it stands centred across. Down the block stands on its ink: the room over its first ink and
   under its last folds into the inset where the height stops it (a title's leading had stood its capitals 17 to 30 under
   the top), alike over and under where the width does; each text's first ink stands at its box's start (`Ink.InkStart`,
-  its bearing taken at the scale drawn). With a bar, the bar takes the width as before; Full art's column stays on its art. Tests
-  `MusicPlanTests.S16516_`.
+  its bearing taken at the scale drawn). With a bar, the bar takes the width as before; Full art's column stays on its art.
+  Stacked with its cover stands on its ink too (the gap check of 2026-11-23: centred on its boxes, the times' room under
+  their figures stood the foot 18 from the edge): the cover's top over the progress line's last ink. The face is laid twice
+  in every box: by its parts' ink uncut, then by their ink as drawn in the boxes laid (a line cut short of its descenders
+  stood 7 DIP high, stacked's narrow column), never more. Tests `MusicPlanTests.S16516_`.
 - **[S-16503]** **Side cover**: the cover at the column's left as tall as the column (64 with every element shown, in the
   one radius), 12 from it the column. A new card 400 × 88; its least 226 × 73. Tests `MusicPlanTests.S16503_`.
 - **[S-16504]** **Stacked**: the cover a square over the column, as wide as it (220), 12 over it; the transport at the

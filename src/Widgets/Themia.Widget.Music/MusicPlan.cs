@@ -475,7 +475,8 @@ public static class MusicPlan
         // lowest parts') folds into the inset, as a one-readout block's does (WR-1, WR-4). Which parts stand at its top and
         // foot is the style's and the set's, the same at every size: read off the block laid without it.
         var time = TimeWidth(timeTemplate);
-        if (fit.Ink.Count == 0 || (s.Cover && s.Style is MusicStyle.Stacked or MusicStyle.FullArt))
+        // Full art's column stands on the foot's inset over its art, the art the card's (the picture's exemption).
+        if (fit.Ink.Count == 0 || (s.Cover && s.Style == MusicStyle.FullArt))
         {
             return Block(s, width, height, time, fit, 0, 0);
         }
@@ -541,10 +542,11 @@ public static class MusicPlan
         {
             case MusicStyle.Stacked:
             {
-                // [S-16504] The block keeps its proportions: centred on the axis that does not stop it.
+                // [S-16504] The block keeps its proportions: centred on the axis that does not stop it, down on its ink (the
+                // cover's top over the progress line's last ink, [S-16516]).
                 var block = new SizeDip(StackSide * scale, (StackSide + ColumnGap + hc) * scale);
                 var x = Inset + ((room.Width - block.Width) / 2);
-                var y = Inset + ((room.Height - block.Height) / 2);
+                var y = Down(StackSide + ColumnGap + hc);
                 parts[MusicPart.Cover] = new(x, y, block.Width, StackSide * scale);
                 Column(s, parts, x, y + ((StackSide + ColumnGap) * scale), StackSide, scale, time);
                 return new MusicLayout(scale, parts, false);

@@ -370,7 +370,7 @@ public sealed class MusicPlanTests
             {
                 // [S-16517] The transport stands at the end, on the card's inset; the texts, where shown, at the start.
                 Assert.InRange(right, MusicPlan.Inset - 0.5, MusicPlan.Inset + 0.5);
-                Assert.True(shown.Length == 1 || Math.Abs(left - MusicPlan.Inset) < 0.5 || Math.Abs(top + 0) >= 0);
+                Assert.True(shown.Length == 1 || Math.Abs(left - MusicPlan.Inset) < 0.5, $"{style} {w}x{h}: texts start at {left}");
             }
             else
             {
@@ -389,6 +389,30 @@ public sealed class MusicPlanTests
                 Assert.True(laid[MusicPart.Title].Width / laid.Scale <= 100 + 1e-6 || shown.Length > 1);
             }
         }
+    }
+
+    [Theory]
+    [InlineData(488, 640)]
+    [InlineData(520, 600)]
+    [InlineData(244, 320)]
+    [InlineData(900, 300)]
+    public void S16516_stacked_with_its_cover_stands_on_its_ink_the_progress_lines_last_ink_on_the_foots_inset(double w, double h)
+    {
+        // The gap check of 2026-11-23: stacked was centred on its boxes, so the times' room under their figures stood over
+        // the foot's inset (18 at 488 x 640, 17.6 at 520 x 600) and the block a little high.
+        var ink = new Dictionary<MusicPart, LineInk>
+        {
+            [MusicPart.Title] = new(4, 2), [MusicPart.Subtitle] = new(3, 4), [MusicPart.Elapsed] = new(3, 4), [MusicPart.Length] = new(3, 4),
+        };
+        var fit = MusicFit.None with { Title = 100, Subtitle = 80, Ink = ink };
+        var laid = MusicPlan.Lay(MusicStyle.Stacked, MusicElements.All, w, h, Template, fit);
+        var cover = laid[MusicPart.Cover];
+        var top = cover.Y;
+        var foot = h - laid[MusicPart.Length].Bottom + (ink[MusicPart.Length].Under * laid.Scale);
+        var filled = Math.Abs(top - MusicPlan.Inset) < 0.5 && Math.Abs(foot - MusicPlan.Inset) < 0.5;
+        Assert.True(filled || Math.Abs(top - foot) < 0.5, $"{w}x{h}: top {top}, foot {foot}");
+        Assert.True(top >= MusicPlan.Inset - 0.5 && foot >= MusicPlan.Inset - 0.5, $"{w}x{h}: over the inset {top}/{foot}");
+        Assert.InRange(cover.X - (w - cover.Right), -0.5, 0.5);
     }
 
     [Theory]
