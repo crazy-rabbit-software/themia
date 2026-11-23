@@ -2,7 +2,7 @@
   "titles": false,
   "columns": [
     {
-      "share": 1,
+      "share": 0.26,
       "sections": [
         {
           "title": "Tile",
@@ -13,19 +13,9 @@
               "h": 12
             },
             {
-              "pick": "quickToggle/wifi",
-              "w": 2,
-              "h": 2
-            },
-            {
               "pick": "quickToggle/bluetooth",
               "w": 12,
               "h": 12
-            },
-            {
-              "pick": "quickToggle/bluetooth",
-              "w": 2,
-              "h": 2
             },
             {
               "pick": "quickToggle/airplaneMode",
@@ -33,19 +23,9 @@
               "h": 12
             },
             {
-              "pick": "quickToggle/airplaneMode",
-              "w": 2,
-              "h": 2
-            },
-            {
               "pick": "quickToggle/sound",
               "w": 12,
               "h": 12
-            },
-            {
-              "pick": "quickToggle/sound",
-              "w": 2,
-              "h": 2
             },
             {
               "pick": "quickToggle/microphone",
@@ -53,19 +33,9 @@
               "h": 12
             },
             {
-              "pick": "quickToggle/microphone",
-              "w": 2,
-              "h": 2
-            },
-            {
               "pick": "quickToggle/spatialSound",
               "w": 12,
               "h": 12
-            },
-            {
-              "pick": "quickToggle/spatialSound",
-              "w": 2,
-              "h": 2
             },
             {
               "pick": "quickToggle/monoAudio",
@@ -73,19 +43,9 @@
               "h": 12
             },
             {
-              "pick": "quickToggle/monoAudio",
-              "w": 2,
-              "h": 2
-            },
-            {
               "pick": "quickToggle/nightLight",
               "w": 12,
               "h": 12
-            },
-            {
-              "pick": "quickToggle/nightLight",
-              "w": 2,
-              "h": 2
             },
             {
               "pick": "quickToggle/colorFilters",
@@ -93,19 +53,9 @@
               "h": 12
             },
             {
-              "pick": "quickToggle/colorFilters",
-              "w": 2,
-              "h": 2
-            },
-            {
               "pick": "quickToggle/rotationLock",
               "w": 12,
               "h": 12
-            },
-            {
-              "pick": "quickToggle/rotationLock",
-              "w": 2,
-              "h": 2
             },
             {
               "pick": "quickToggle/energySaver",
@@ -113,32 +63,22 @@
               "h": 12
             },
             {
-              "pick": "quickToggle/energySaver",
-              "w": 2,
-              "h": 2
-            },
-            {
               "pick": "quickToggle/doNotDisturb",
               "w": 12,
               "h": 12
             },
             {
-              "pick": "quickToggle/doNotDisturb",
-              "w": 2,
-              "h": 2
-            },
-            {
               "pick": "quickToggle/gameMode",
               "w": 12,
               "h": 12
-            },
-            {
-              "pick": "quickToggle/gameMode",
-              "w": 2,
-              "h": 2
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "share": 0.26,
+      "sections": [
         {
           "title": "Round button",
           "widgets": [
@@ -221,7 +161,12 @@
               "h": 12
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "share": 0.24,
+      "sections": [
         {
           "title": "Switch",
           "widgets": [
@@ -304,6 +249,81 @@
               "h": 6
             }
           ]
+        }
+      ]
+    },
+    {
+      "share": 0.24,
+      "sections": [
+        {
+          "title": "Small tile",
+          "widgets": [
+            {
+              "pick": "quickToggle/wifi",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/bluetooth",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/airplaneMode",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/sound",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/microphone",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/spatialSound",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/monoAudio",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/nightLight",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/colorFilters",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/rotationLock",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/energySaver",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/doNotDisturb",
+              "w": 4,
+              "h": 4
+            },
+            {
+              "pick": "quickToggle/gameMode",
+              "w": 4,
+              "h": 4
+            }
+          ]
         },
         {
           "title": "Power buttons",
@@ -314,69 +334,74 @@
               "h": 10
             },
             {
+              "pick": "signOut",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "sleep",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "hibernate",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "restart",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "shutdown",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "screenOff",
+              "w": 10,
+              "h": 10
+            }
+          ]
+        },
+        {
+          "title": "Small power buttons",
+          "widgets": [
+            {
               "pick": "lock",
-              "w": 2,
-              "h": 2
+              "w": 4,
+              "h": 4
             },
             {
               "pick": "signOut",
-              "w": 10,
-              "h": 10
-            },
-            {
-              "pick": "signOut",
-              "w": 2,
-              "h": 2
+              "w": 4,
+              "h": 4
             },
             {
               "pick": "sleep",
-              "w": 10,
-              "h": 10
-            },
-            {
-              "pick": "sleep",
-              "w": 2,
-              "h": 2
+              "w": 4,
+              "h": 4
             },
             {
               "pick": "hibernate",
-              "w": 10,
-              "h": 10
-            },
-            {
-              "pick": "hibernate",
-              "w": 2,
-              "h": 2
+              "w": 4,
+              "h": 4
             },
             {
               "pick": "restart",
-              "w": 10,
-              "h": 10
-            },
-            {
-              "pick": "restart",
-              "w": 2,
-              "h": 2
+              "w": 4,
+              "h": 4
             },
             {
               "pick": "shutdown",
-              "w": 10,
-              "h": 10
-            },
-            {
-              "pick": "shutdown",
-              "w": 2,
-              "h": 2
+              "w": 4,
+              "h": 4
             },
             {
               "pick": "screenOff",
-              "w": 10,
-              "h": 10
-            },
-            {
-              "pick": "screenOff",
-              "w": 2,
-              "h": 2
+              "w": 4,
+              "h": 4
             }
           ]
         }
