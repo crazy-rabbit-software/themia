@@ -350,9 +350,16 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "nextMeeting",
+            "kind": "meeting",
+            "pick": "Next",
+            "chosen": "",
             "showPlace": true,
             "showOrganizer": true,
+            "hiddenParts": [
+              "Lead",
+              "Bar"
+            ],
+            "partOrder": [],
             "accountIds": [
               "work-graph-id"
             ],
@@ -384,9 +391,16 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "nextMeeting",
+            "kind": "meeting",
+            "pick": "Next",
+            "chosen": "",
             "showPlace": true,
             "showOrganizer": true,
+            "hiddenParts": [
+              "Lead",
+              "Bar"
+            ],
+            "partOrder": [],
             "accountIds": [],
             "calendars": {},
             "calendarColors": {},

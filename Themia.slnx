@@ -25,7 +25,6 @@
     <Project Path="src/Widgets/Themia.Widget.MoonTimes/Themia.Widget.MoonTimes.csproj" />
     <Project Path="src/Widgets/Themia.Widget.SunTimes/Themia.Widget.SunTimes.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WeatherFacts/Themia.Widget.WeatherFacts.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.UpNext/Themia.Widget.UpNext.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DeviceBatteries/Themia.Widget.DeviceBatteries.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DesktopItem/Themia.Widget.DesktopItem.csproj" />
     <Project Path="src/Widgets/Themia.Widget.AirQuality/Themia.Widget.AirQuality.csproj" />
@@ -59,7 +58,7 @@
     <Project Path="src/Widgets/Themia.Widget.Music/Themia.Widget.Music.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Network/Themia.Widget.Network.csproj" />
     <Project Path="src/Widgets/Themia.Widget.NetworkFacts/Themia.Widget.NetworkFacts.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.NextMeeting/Themia.Widget.NextMeeting.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Meetings/Themia.Widget.Meetings.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Notes/Themia.Widget.Notes.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Notifications/Themia.Widget.Notifications.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Ping/Themia.Widget.Ping.csproj" />

@@ -104,9 +104,9 @@ public static class ReadyMadeGroups
     [
         new("clock", new(0, 0, 320, 118)),
         new("date", new(0, 118, 320, 52)),
-        new("nextMeeting", new(0, 170, 320, 124)),
-        new("upNext", new(0, 294, 320, 90)),
-        new("tasks", new(0, 384, 320, 210)),
+        new("meeting", new(0, 170, 320, 60)),
+        new("meetings", new(0, 230, 320, 120), Config: AfterNext),
+        new("tasks", new(0, 350, 320, 210)),
     ]) { Starter = 1 });
 
     /// <summary>
@@ -345,8 +345,8 @@ public static class ReadyMadeGroups
     /// <summary>[S-11409] The meeting block over the meetings after it: what the Next meeting card was.</summary>
     public static ReadyMadeGroup NextMeetings { get; } = Headed(new("nextMeetings", Str.Groups_Recipe_NextMeeting, Str.Groups_Recipe_NextMeetingAbout, Glyphs.Meeting, AddFolderId.CalendarMail,
     [
-        new("nextMeeting", new(0, 0, 320, 124)),
-        new("upNext", new(0, 124, 320, 90)),
+        new("meeting", new(0, 0, 320, 60)),
+        new("meetings", new(0, 60, 320, 120), Config: AfterNext),
     ]));
 
     /// <summary>[S-11409] The inbox beside the task list.</summary>
@@ -370,6 +370,9 @@ public static class ReadyMadeGroups
     /// <summary>[S-14607] Single metrics stacked from <paramref name="top"/>, <paramref name="width"/> wide, one row each, touching.</summary>
     /// <summary>[S-14713] A metric's config with its graph shown: what stood in a group as a graph widget is the metric drawing Line.</summary>
     private const string Graph = """{ "trend": "Line" }""";
+
+    /// <summary>[S-16964] A Meetings list under a Meeting: the next meeting left out (it stands over it), compact rows.</summary>
+    private const string AfterNext = """{ "afterNext": true, "style": "columnList" }""";
 
     private static IEnumerable<ReadyMadeWidget> Metrics(double top, double width, params string[] kinds)
         => kinds.Select((kind, i) => new ReadyMadeWidget(kind, new(0, top + (i * Row), width, Row)));

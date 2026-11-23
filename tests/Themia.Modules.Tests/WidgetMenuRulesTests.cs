@@ -26,7 +26,6 @@ public sealed class WidgetMenuRulesTests
         "R14 fence › Roll up with a click on the title", // its title is cut (33 characters)
         "R14 fence › Open while the pointer is over it", // its title is cut (33 characters)
         "R13 gallery › Folder", // its icon is also Include subfolders's
-        "R13 nextMeeting › Organiser", // its icon is also Accounts's
     };
 
     /// <summary>The kinds whose lines read a list only the running host installs (as <c>SettingOwnershipTests</c>).</summary>

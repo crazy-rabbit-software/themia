@@ -1,8 +1,5 @@
 {
-  "meeting.desc": "Seu próximo evento, com Participar para reuniões online",
   "meeting.join": "Participar",
   "meeting.joinTip": "Participar da reunião online",
-  "meeting.label": "Próxima reunião",
-  "meeting.none": "Nada programado",
-  "nextMeeting.setup.sentence": "Adicione uma conta para ver sua próxima reunião"
+  "meeting.none": "Nada programado"
 }

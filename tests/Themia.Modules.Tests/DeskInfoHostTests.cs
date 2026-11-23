@@ -12,7 +12,8 @@ namespace Themia.Modules.Tests;
 public sealed class DeskInfoHostTests
 {
     [Theory]
-    [InlineData("nextMeeting", typeof(NextMeetingConfig))]
+    [InlineData("meeting", typeof(MeetingConfig))]
+    [InlineData("meetings", typeof(MeetingsConfig))]
     [InlineData("recentFiles", typeof(RecentFilesConfig))]
     public void S4800_each_kind_has_its_config_and_round_trips(string kindId, Type type)
     {
@@ -28,10 +29,11 @@ public sealed class DeskInfoHostTests
     }
 
     [Fact]
-    public void S4800_only_next_meeting_needs_setting_up_and_only_without_a_calendar()
+    public void S4800_only_the_meetings_need_setting_up_and_only_without_a_calendar()
     {
         Assert.False(WidgetSetup.Needed(new RecentFilesConfig(), FeatureSet.None));
-        Assert.True(WidgetSetup.Needed(new NextMeetingConfig(), FeatureSet.None));
-        Assert.False(WidgetSetup.Needed(new NextMeetingConfig(), HostFeatures.Calendar));
+        Assert.True(WidgetSetup.Needed(new MeetingConfig(), FeatureSet.None));
+        Assert.True(WidgetSetup.Needed(new MeetingsConfig(), FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new MeetingConfig(), HostFeatures.Calendar));
     }
 }

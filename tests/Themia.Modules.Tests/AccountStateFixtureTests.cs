@@ -40,7 +40,7 @@ public sealed class AccountStateFixtureTests
         var widgets = Assert.Single(StateDocument.Parse(Fixture()).State!.Views).Widgets;
         Assert.Equal(16, widgets.Count);
         Assert.Equal(
-            ["email", "email", "email", "calendar", "calendar", "calendar", "calendar", "contacts", "contacts", "nextMeeting", "nextMeeting", "weekPlanner", "weekPlanner", "tasks", "tasks", "tasks"],
+            ["email", "email", "email", "calendar", "calendar", "calendar", "calendar", "contacts", "contacts", "meeting", "meeting", "weekPlanner", "weekPlanner", "tasks", "tasks", "tasks"],
             widgets.Select(w => w.Config.Kind.Value));
     }
 }

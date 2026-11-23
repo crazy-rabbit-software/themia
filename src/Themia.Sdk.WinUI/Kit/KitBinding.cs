@@ -6,6 +6,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Items;
 
 namespace Themia.Sdk.WinUI.Kit;
 
@@ -59,6 +60,18 @@ public sealed class KitBinding : IDisposable
 
     /// <summary>The list part: the view puts it in its slot (and the new one after <see cref="UseSpec"/>).</summary>
     public KitList List => _list ??= NewList(_spec);
+
+    /// <summary>
+    /// [S-16958] The items drawn on the item base in place of the kit's rows (the source, the screens, the state, the status and
+    /// the actions stay the binding's); null: the kit's list.
+    /// </summary>
+    public ItemKit? Arranged { get; init; }
+
+    /// <summary>[S-16958] What the view puts in its slot: the item base's list where it draws on it, else the kit's.</summary>
+    public FrameworkElement Face => Arranged?.List ?? (FrameworkElement)List;
+
+    /// <summary>[S-16958] Whether there is anything to walk: a click takes the keyboard then.</summary>
+    public bool WantsKeys => Arranged?.List.WantsKeys ?? List.WantsKeys;
 
     private KitList? _list;
 
@@ -145,7 +158,15 @@ public sealed class KitBinding : IDisposable
 
         _ticker = ticker;
         _attached = true;
-        List.Attach();
+        if (Arranged is { } arranged)
+        {
+            arranged.Wire(_actions, Run, Decorate, Redrawing, CursorMoved);
+        }
+        else
+        {
+            List.Attach();
+        }
+
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
         Apply(source, config, tick, show: true);
@@ -230,10 +251,20 @@ public sealed class KitBinding : IDisposable
     }
 
     /// <summary>Drop the keyboard cursor (the widget now reads something else).</summary>
-    public void ReleaseCursor() => List.Release();
+    public void ReleaseCursor()
+    {
+        if (Arranged is { } arranged)
+        {
+            arranged.List.Release();
+        }
+        else
+        {
+            List.Release();
+        }
+    }
 
     /// <summary>[S-7020] A key from the lease.</summary>
-    public bool HandleKey(WidgetKey key) => List.HandleKey(key);
+    public bool HandleKey(WidgetKey key) => Arranged?.List.HandleKey(key) ?? List.HandleKey(key);
 
     private void OnLanguage(Locale locale) => Render();
 
@@ -278,9 +309,17 @@ public sealed class KitBinding : IDisposable
             if (Screen.Kind == KitScreenKind.Items)
             {
                 State.Hide();
-                List.Visibility = Visibility.Visible;
+                Face.Visibility = Visibility.Visible;
                 var now = _clock();
-                List.Show(items, KitPlanner.Plan(_area, _spec, _config.Choices), _area, now);
+                if (Arranged is { } arranged)
+                {
+                    arranged.List.Size(_area);
+                    arranged.Show(items, now);
+                }
+                else
+                {
+                    List.Show(items, KitPlanner.Plan(_area, _spec, _config.Choices), _area, now);
+                }
 
                 // [S-7042] The one stale rule: a copy on screen the last attempt of some source could
                 // not improve on is the status's problem glyph, one line per source and problem, after
@@ -291,8 +330,7 @@ public sealed class KitBinding : IDisposable
         }
 
         // [S-12835] WR-10: the state is the compact line over the list's face, its rows kept empty under it.
-        List.Clear();
-        List.Visibility = Visibility.Collapsed;
+        ClearFace();
         State.RowPitch = KitPlanner.Plan(_area, _spec, _config.Choices).RowHeight;
         State.Show(Screen);
         Status.Show(read.Notes, _source.Busy);
@@ -301,11 +339,25 @@ public sealed class KitBinding : IDisposable
     /// <summary>[S-12835] The list's face with nothing in it: its rows empty, no line of the panel's (the card's says why).</summary>
     private void ShowFace(KitRead read)
     {
-        List.Clear();
-        List.Visibility = Visibility.Collapsed;
+        ClearFace();
         State.RowPitch = KitPlanner.Plan(_area, _spec, _config!.Choices).RowHeight;
         State.ShowFace();
         Status.Show(read.Notes, _source?.Busy ?? false);
+    }
+
+    /// <summary>The face with nothing in it, taken down under the state's line.</summary>
+    private void ClearFace()
+    {
+        if (Arranged is { } arranged)
+        {
+            arranged.Clear();
+        }
+        else
+        {
+            List.Clear();
+        }
+
+        Face.Visibility = Visibility.Collapsed;
     }
 
     /// <summary>Carry out an action the user picked (a menu line, a double-click, a key).</summary>
@@ -367,7 +419,15 @@ public sealed class KitBinding : IDisposable
         _tick?.Dispose();
         _tick = null;
         _ticker = null;
-        List.Detach();
+        if (Arranged is { } arranged)
+        {
+            arranged.Detach();
+        }
+        else
+        {
+            List.Detach();
+        }
+
         State.Detach();
         Status.Detach();
     }

@@ -9,7 +9,7 @@ using Themia.Sdk.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-11407] The meetings ahead as the meeting atoms read them (Next meeting and After this): the office widgets' one
+/// [S-11407] [S-16962] The meetings as the meeting widgets read them (Meeting and Meetings): the office widgets' one
 /// feed ([S-7077], <see cref="OfficeFeed{T}"/>) over the calendars' seam (<see cref="ICalendarData"/>: the offline store
 /// and the shared sync) for the window <see cref="NextMeetingRules.Window"/> gives, its outcome as the kit's screen, and
 /// the meeting shown (<see cref="NextMeetingRules.Pick"/>) and those after it (<see cref="NextMeetingRules.After"/>) from
@@ -19,15 +19,18 @@ namespace Themia.App.Widgets;
 public sealed class MeetingFeed
 {
     private readonly Func<CalendarConfig> _config;
+    private readonly Func<DateOnly, (DateOnly First, DateOnly Last)> _window;
     private readonly OfficeFeed<CalendarSlice> _feed;
     private ICalendarData? _data;
     private IReadOnlyList<CalendarEvent>? _events;
 
     /// <param name="config">The widget's config as it is now (its accounts and calendars).</param>
-    public MeetingFeed(Func<CalendarConfig> config)
+    /// <param name="window">[S-16962] The local days to ask for from today; null: <see cref="NextMeetingRules.Window"/>.</param>
+    public MeetingFeed(Func<CalendarConfig> config, Func<DateOnly, (DateOnly First, DateOnly Last)>? window = null)
     {
         ArgumentNullException.ThrowIfNull(config);
         _config = config;
+        _window = window ?? NextMeetingRules.Window;
         _feed = new OfficeFeed<CalendarSlice>(LoadAsync, SyncSubject.Calendar, static locale => Strings.Get(locale, Str.WidgetsA_Calendar_ReadFailed));
         _feed.Changed += () => Changed?.Invoke();
     }
@@ -102,7 +105,7 @@ public sealed class MeetingFeed
             return OfficeLoad<CalendarSlice>.Of(OfficeLoadState.NoAccounts);
         }
 
-        var (first, last) = NextMeetingRules.Window(DateOnly.FromDateTime(Clock().LocalDateTime));
+        var (first, last) = _window(DateOnly.FromDateTime(Clock().LocalDateTime));
         var slice = await data.LoadAsync(_config(), first, last, force, token).ConfigureAwait(true);
         return slice.AsLoad();
     }

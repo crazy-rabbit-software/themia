@@ -1,8 +1,5 @@
 {
-  "meeting.desc": "您的下一個行程，線上會議可直接加入",
   "meeting.join": "加入",
   "meeting.joinTip": "加入線上會議",
-  "meeting.label": "下一個會議",
-  "meeting.none": "近期沒有行程",
-  "nextMeeting.setup.sentence": "新增帳戶以顯示你的下一個會議"
+  "meeting.none": "近期沒有行程"
 }

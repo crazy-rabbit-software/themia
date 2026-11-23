@@ -13,7 +13,7 @@ public sealed class ViewLinksPersonKindsTests
     private static LinkUse Links(string id) => ModuleRegistry.Widgets.Single(m => m.Descriptor.Id.Value == id).Descriptor.Links;
 
     [Fact]
-    public void S11940_a_contact_alone_lights_for_a_person_and_the_next_meetings_organiser_line_points_at_one()
+    public void S11940_a_contact_alone_lights_for_a_person_and_publishes_one()
     {
         var followers = ModuleRegistry.Widgets
             .Where(m => m.Descriptor.Links.Follows.Contains(LinkTopicId.HoveredPerson))
@@ -24,7 +24,7 @@ public sealed class ViewLinksPersonKindsTests
             .Order(StringComparer.Ordinal);
 
         Assert.Equal(["contacts"], followers);
-        Assert.Equal(["contacts", "nextMeeting"], publishers);
+        Assert.Equal(["contacts"], publishers);
     }
 
     [Fact]
@@ -34,8 +34,8 @@ public sealed class ViewLinksPersonKindsTests
     }
 
     [Theory]
-    [InlineData("upNext")]
-    [InlineData("nextMeeting")]
+    [InlineData("meetings")]
+    [InlineData("meeting")]
     [InlineData("calendar")]
     [InlineData("weekPlanner")]
     public void S11965_an_event_is_its_event_never_its_organiser(string id)
@@ -50,7 +50,7 @@ public sealed class ViewLinksPersonKindsTests
     [Fact]
     public void S11965_a_meeting_list_and_a_task_list_light_for_no_day()
     {
-        Assert.DoesNotContain(LinkTopicId.HoveredDate, Links("upNext").Topics);
+        Assert.DoesNotContain(LinkTopicId.HoveredDate, Links("meetings").Topics);
         Assert.Empty(Links("tasks").Topics);
     }
 }

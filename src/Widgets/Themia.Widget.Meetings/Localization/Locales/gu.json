@@ -1,8 +1,5 @@
 {
-  "meeting.desc": "તમારી આગલી ઇવેન્ટ, ઑનલાઇન મીટિંગ માટે જોડાઓ બટન સાથે",
   "meeting.join": "જોડાઓ",
   "meeting.joinTip": "ઑનલાઇન મીટિંગમાં જોડાઓ",
-  "meeting.label": "આગલી મીટિંગ",
-  "meeting.none": "આગળ કંઈ નથી",
-  "nextMeeting.setup.sentence": "તમારી આગામી મીટિંગ બતાવવા માટે એકાઉન્ટ ઉમેરો"
+  "meeting.none": "આગળ કંઈ નથી"
 }

@@ -1,8 +1,5 @@
 {
-  "meeting.desc": "حدثك التالي، مع زر الانضمام للاجتماعات عبر الإنترنت",
   "meeting.join": "انضمام",
   "meeting.joinTip": "الانضمام إلى الاجتماع عبر الإنترنت",
-  "meeting.label": "الاجتماع التالي",
-  "meeting.none": "لا شيء قادم",
-  "nextMeeting.setup.sentence": "أضف حسابًا لعرض اجتماعك التالي"
+  "meeting.none": "لا شيء قادم"
 }

@@ -7822,8 +7822,8 @@ A day (`HoveredDate`, `DateLink`, a hover), and the selected day's (`SelectedDat
 
 The event under the pointer (`HoveredEvent`, [S-3623]) beyond the calendars and the next meeting:
 
-- **[S-11935]** `upNext`: a row is its meeting (`CalendarShare.Key`): the pointer on it publishes the
-  meeting and lights that row alone, and the row takes the item layer's hover fill while that same meeting is
+- **[S-11935]** `meetings` (what After this's rows did, [S-16961]): an item is its meeting (`CalendarShare.Key`): the pointer on it publishes the
+  meeting and lights that item alone, and the row takes the item layer's hover fill while that same meeting is
   pointed at elsewhere on the view, never for its day or its organiser ([S-11965]); the rows are lit in place.
 - **[S-11936]** `weekPlanner`: an event's row publishes its event under the pointer and takes the hover fill
   while that event is pointed at elsewhere (a birthday is no event and takes no part); a row redrawn under
@@ -7870,9 +7870,8 @@ The person under the pointer (`HoveredPerson`, `PersonLink`, a hover; keyed by `
   `mailto:`; `CalendarEvent.OrganizerAddress`, kept on the offline shelf), so the organiser the next meeting's line
   points at is the same person as their contact; else by the name the event shows, folded. The sample day's organisers carry
   the sample cast's addresses.
-- **[S-11944]** `nextMeeting`: pointing at its organiser's line publishes the organiser (the card publishes its
-  meeting, [S-4825]), so their contact lights. The card is its meeting: it lights for that meeting alone
-  ([S-11903]), never while its organiser is pointed at elsewhere ([S-11965]).
+- **[S-11944]** *(Retired by [S-16960]: the Meeting's organiser is its note, no line of its own to point at; its card is its
+  meeting and lights for that meeting alone, [S-11903], never while its organiser is pointed at elsewhere, [S-11965].)*
 
 The message under the pointer (`HoveredMessage`, `MessageLink`, a hover; keyed by `LinkKeys.Message`, [S-11966]):
 
@@ -7953,10 +7952,10 @@ Topics:
 | `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `desktopItem`, `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
 | `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar` | none |
-| `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |
+| `HoveredEvent` | Hover | `calendar`, `meeting`, `meetings`, `weekPlanner` | `calendar`, `meeting`, `meetings`, `weekPlanner` |
 | `HoveredInstant` | Hover | `cpuCores`, `exchangeHistory`, `stockHistory` | `battery`, `cpu`, `cpuCores`, `disk`, `exchangeHistory`, `exchangeRate`, `gpu`, `memory`, `network`, `ping`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
-| `HoveredPerson` | Hover | `contacts`, `nextMeeting` | `contacts` |
+| `HoveredPerson` | Hover | `contacts` | `contacts` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |
 | `HoveredDrive` | Hover | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `drives`, `folder`, `networkDrive`, `networkDrives`, `usbStick`, `usbSticks` | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `drives`, `folder`, `networkDrive`, `networkDrives`, `usbStick`, `usbSticks` |
 | `HoveredDevice` | Hover | `bluetooth`, `bluetoothDevice`, `deviceBatteries` | `bluetooth`, `bluetoothDevice`, `deviceBatteries` |
@@ -14988,8 +14987,8 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
 
 ## Next meeting (NEXT-MEETING)
 
-The widget is the module `nextMeeting` (`src/Widgets/Themia.Widget.NextMeeting/`, its `SPEC.md`: the
-config, the view, the hover link, the page). What it shares stays here: the SDK's rules it is drawn
+The widgets are the module family `meeting` and `meetings` (`src/Widgets/Themia.Widget.Meetings/`, its `SPEC.md`: the
+configs, the views on the item base, the hover link, the page; Next meeting and After this were replaced by them, [S-16964]). What it shares stays here: the SDK's rules it is drawn
 by. Owning files: `Themia.Sdk/Widgets/NextMeetingRules.cs`, `Themia.Sdk/Office/MeetingLinks.cs`;
 tests `DeskInfoWidgetsTests` (Core).
 

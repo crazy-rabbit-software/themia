@@ -1,8 +1,5 @@
 {
-  "meeting.desc": "Sonraki etkinliğiniz, çevrimiçi toplantılar için Katıl düğmesiyle",
   "meeting.join": "Katıl",
   "meeting.joinTip": "Çevrimiçi toplantıya katıl",
-  "meeting.label": "Sonraki toplantı",
-  "meeting.none": "Yaklaşan bir şey yok",
-  "nextMeeting.setup.sentence": "Sonraki toplantınızı görmek için bir hesap ekleyin"
+  "meeting.none": "Yaklaşan bir şey yok"
 }

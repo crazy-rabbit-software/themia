@@ -28,7 +28,7 @@ public class WidgetSetupTests
         new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"),
         new WidgetId("weatherTemperature"), new WidgetId("airIndex"),
         new WidgetId("videoStream"), new WidgetId("gallery"), new WidgetId("desktopItem"),
-        new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"), new WidgetId("upNext"),
+        new WidgetId("email"), new WidgetId("calendar"), new WidgetId("meeting"), new WidgetId("meetings"),
         new WidgetId("weekPlanner"), new WidgetId("contacts"), new WidgetId("tasks"),
     ];
 
@@ -126,7 +126,7 @@ public class WidgetSetupTests
     [Theory]
     [InlineData("email")]
     [InlineData("calendar")]
-    [InlineData("nextMeeting")]
+    [InlineData("meeting")]
     [InlineData("weekPlanner")]
     [InlineData("contacts")]
     [InlineData("tasks")]

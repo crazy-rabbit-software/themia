@@ -31,9 +31,9 @@
               "h": 26
             },
             {
-              "pick": "nextMeeting",
+              "pick": "meeting",
               "w": 33,
-              "h": 13
+              "h": 6
             }
           ]
         }
@@ -50,9 +50,9 @@
               "h": 29
             },
             {
-              "pick": "upNext",
+              "pick": "meetings",
               "w": 33,
-              "h": 10
+              "h": 12
             }
           ]
         }

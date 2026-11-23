@@ -24,7 +24,7 @@ public sealed class SharedSettingsTests
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
         ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
-        ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
+        ["calendarAccounts"] = ["calendar", "meeting", "meetings", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],
         ["diskScope"] = ["disk"],

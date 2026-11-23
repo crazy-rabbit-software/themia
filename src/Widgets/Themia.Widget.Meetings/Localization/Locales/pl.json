@@ -1,8 +1,5 @@
 {
-  "meeting.desc": "Twoje następne wydarzenie, z przyciskiem Dołącz dla spotkań online",
   "meeting.join": "Dołącz",
   "meeting.joinTip": "Dołącz do spotkania online",
-  "meeting.label": "Następne spotkanie",
-  "meeting.none": "Brak nadchodzących wydarzeń",
-  "nextMeeting.setup.sentence": "Dodaj konto, aby zobaczyć najbliższe spotkanie"
+  "meeting.none": "Brak nadchodzących wydarzeń"
 }
