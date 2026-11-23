@@ -59,11 +59,11 @@ public sealed class WeatherNowTests
     {
         // A block the width stops (100 wide, 20 of ink, in a 300 × 100 room: drawn 3 ×, 60 tall) leaves 40: 20 over it and 20
         // under the why's line, none between them.
-        Assert.Equal(20, WeatherNowStyles.WhySpare(300, 100, 100, 20), 6);
+        Assert.Equal(20, WhyLine.Spare(300, 100, 100, 20), 6);
 
         // The height stops it: nothing left over.
-        Assert.Equal(0, WeatherNowStyles.WhySpare(300, 40, 50, 20), 6);
-        Assert.Equal(0, WeatherNowStyles.WhySpare(double.NaN, 40, 50, 20));
+        Assert.Equal(0, WhyLine.Spare(300, 40, 50, 20), 6);
+        Assert.Equal(0, WhyLine.Spare(double.NaN, 40, 50, 20));
     }
 
     [Fact]

@@ -230,7 +230,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         {
             _face.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
             var ink = Themia.App.Widgets.Ink.Of(_face);
-            spare = WeatherNowStyles.WhySpare(width, share - band, ink.Width, ink.Height - ink.Ink.Over - ink.Ink.Under);
+            spare = WhyLine.Spare(width, share - band, ink.Width, ink.Height - ink.Ink.Over - ink.Ink.Under);
         }
 
         _fit.Foot = why;

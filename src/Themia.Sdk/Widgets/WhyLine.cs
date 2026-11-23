@@ -30,4 +30,22 @@ public static class WhyLine
     /// </summary>
     public static bool Fits(double width, double height, double face)
         => double.IsFinite(width) && double.IsFinite(height) && width >= StatusRules.MinSentence && height >= face + Band;
+
+    /// <summary>
+    /// [S-16432] Half the height a block (<paramref name="width"/>: its own width, <paramref name="ink"/>: its ink's height)
+    /// leaves in a room <paramref name="roomWidth"/> by <paramref name="roomHeight"/> where the width stops it (the fit scales
+    /// it until its ink fills the height or its width the width): the room kept under the why's line and over the block, so
+    /// the block standing on the why's line and the line together stand centred in the card (WR-7: the reading and its
+    /// line stay together; "Centred is fine": the leftover shared alike over and under). 0 where the height stops it.
+    /// </summary>
+    public static double Spare(double roomWidth, double roomHeight, double width, double ink)
+    {
+        if (!(roomWidth > 0) || !(roomHeight > 0) || !(width > 0) || !(ink > 0))
+        {
+            return 0;
+        }
+
+        var scale = Math.Min(roomWidth / width, roomHeight / ink);
+        return Math.Max(0, roomHeight - (scale * ink)) / 2;
+    }
 }
