@@ -40,7 +40,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     private readonly Border _cover = new();
     private readonly FontIcon _placeholder;
-    private readonly ImageBrush _art = new() { Stretch = Stretch.UniformToFill };
+    private readonly Image _picture = new() { Stretch = Stretch.UniformToFill, Visibility = Visibility.Collapsed };
     private readonly Border _scrim = new() { IsHitTestVisible = false };
     private readonly LinearGradientBrush _scrimFill = new() { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
 
@@ -88,7 +88,8 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _placeholder = Family.Glyph(Glyphs.Music, FamilyShape.IconLarge, ColourRole.TextTertiary);
         _placeholder.HorizontalAlignment = HorizontalAlignment.Center;
         _placeholder.VerticalAlignment = VerticalAlignment.Center;
-        _cover.Child = _placeholder;
+        // The picture is an Image, not a brush: a brush drawn large was decoded again frame after frame and never stood still.
+        _cover.Child = new Grid { Children = { _placeholder, _picture } };
 
         // [S-16514] A picture filling its box: where it is the card's band (Full art, a cover alone) it is the face's edges.
         PictureMark.Mark(_cover);
@@ -370,8 +371,8 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <summary>The picture, or the placeholder (the music glyph on the control fill) without one.</summary>
     private void ShowArt(ImageSource? image, string key)
     {
-        _art.ImageSource = image;
-        _cover.Background = image is null ? Family.Brush(ColourRole.Control) : _art;
+        _picture.Source = image;
+        _picture.Visibility = image is null ? Visibility.Collapsed : Visibility.Visible;
         _placeholder.Visibility = image is null ? Visibility.Visible : Visibility.Collapsed;
         _artKey = key;
     }
@@ -510,7 +511,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _artwork?.Cancel();
         _artwork = null;
         _feed.Dispose();
-        _art.ImageSource = null;
+        _picture.Source = null;
         _artKey = string.Empty;
         PointerPreview.Forget(_item);
         _lit = false;
@@ -692,10 +693,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
                 // [S-16505] Full art's placeholder stands in the art's room over the scrim, never behind the texts.
                 var room = laid.Band && laid.Parts.TryGetValue(MusicPart.Scrim, out var under) ? Math.Max(0, under.Y) : cover.Height;
-                var padding = new Thickness(0, 0, 0, Math.Max(0, cover.Height - room));
-                if (view._cover.Padding != padding)
+                var margin = new Thickness(0, 0, 0, Math.Max(0, cover.Height - room));
+                if (view._placeholder.Margin != margin)
                 {
-                    view._cover.Padding = padding;
+                    view._placeholder.Margin = margin;
                 }
 
                 var side = Math.Min(cover.Width, room);
