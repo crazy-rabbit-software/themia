@@ -397,6 +397,11 @@ public sealed class MetricsTests
         Assert.Equal(FamilySpace.Inset, tall.Left, 6);
         Assert.Equal((200 - (2 * FamilySpace.Inset)) / 100.0, tall.Scale, 6);
 
+        // Its ink, not its box, fills and centres: the room beside the ink stands outside the insets.
+        var bearing = MetricFaceRules.Value(200, 400, 110, 60, ink, inkLeft: 4, inkRight: 6);
+        Assert.Equal(FamilySpace.Inset, bearing.Left + (4 * bearing.Scale), 6);
+        Assert.Equal((200 - (2 * FamilySpace.Inset)) / 100.0, bearing.Scale, 6);
+
         // Never under its least.
         Assert.Equal(MetricFaceRules.ValueLeast, MetricFaceRules.Value(40, 30, 100, 60, ink).Scale);
         Assert.True(FamilyType.Body.FontSize * MetricFaceRules.ValueLeast >= 9);

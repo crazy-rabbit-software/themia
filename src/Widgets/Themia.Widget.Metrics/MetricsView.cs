@@ -88,6 +88,9 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         caption.Children.Add(_blockName);
         _blockValue.TextWrapping = TextWrapping.NoWrap;
         Family.Figures(_blockValue);
+
+        // [S-16324] The reading stands in its template's box: the checks judge it by that box (WR-15).
+        HoldMark.Mark(_blockValue);
         _block.Children.Add(caption);
         _block.Children.Add(_blockValue);
         _block.RenderTransform = _blockScale;
@@ -254,19 +257,23 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _blockName.Text = NameOf(def);
         _blockValue.Foreground = Family.Brush(unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary);
 
-        // Measured with its template, so a running reading keeps its block's size (WR-15).
+        // Measured with its template, so a running reading keeps its block's size (WR-15): the reading's box is the
+        // template's (a held reading, judged by it), and the block's ink is read as drawn (the glyph's own room in its box,
+        // the side bearings), so it is the ink that fills the card. Its own size alone: a width or margin set by the pass
+        // before would stand in the measure.
         _blockValue.Text = MetricFaceRules.Template(reading);
+        _blockValue.Width = double.NaN;
         _block.Width = double.NaN;
+        _block.Margin = default;
         _block.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-        var size = _block.DesiredSize;
+        var box = Ink.Of(_block);
+        _blockValue.Width = _blockValue.DesiredSize.Width;
         _blockValue.Text = reading;
 
-        var caption = LineInk.Of(FamilyType.Body).With(FamilyShape.Icon, FamilyType.Body.LineHeight);
-        var ink = new LineInk(caption.Over, LineInk.Of(FamilyType.Big28).Under);
-        var face = MetricFaceRules.Value(_width, _height, size.Width, size.Height, ink);
+        var face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, box.Left, box.Right);
         _blockScale.ScaleX = face.Scale;
         _blockScale.ScaleY = face.Scale;
-        _block.Width = size.Width;
+        _block.Width = box.Width;
         _block.Margin = new Thickness(face.Left, face.Top, 0, 0);
     }
 }

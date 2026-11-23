@@ -101,17 +101,19 @@ public static class MetricFaceRules
 
     /// <summary>
     /// [S-16323] The value face: its block (the caption over the value, <paramref name="blockWidth"/> × <paramref name="blockHeight"/>
-    /// at scale 1, <paramref name="ink"/> the room over its first ink and under its last) scaled as one until the width or the
+    /// at scale 1, <paramref name="ink"/> the room over its first ink and under its last, <paramref name="inkLeft"/> and
+    /// <paramref name="inkRight"/> the room beside it) scaled as one until the width or the
     /// height stops it, never under <see cref="ValueLeast"/>; its ink on the insets of the axis that stops it, centred on the
     /// other (the owner's "Centred is fine").
     /// </summary>
-    public static ValueFace Value(double width, double height, double blockWidth, double blockHeight, LineInk ink)
+    public static ValueFace Value(double width, double height, double blockWidth, double blockHeight, LineInk ink, double inkLeft = 0, double inkRight = 0)
     {
         var inkHeight = Math.Max(1, blockHeight - ink.Over - ink.Under);
-        var across = Math.Max(1, width - (2 * FamilySpace.Inset)) / Math.Max(1, blockWidth);
+        var inkWidth = Math.Max(1, blockWidth - inkLeft - inkRight);
+        var across = Math.Max(1, width - (2 * FamilySpace.Inset)) / inkWidth;
         var down = Math.Max(1, height - (2 * FamilySpace.Inset)) / inkHeight;
         var k = Math.Max(ValueLeast, Math.Min(across, down));
-        var left = (width - (blockWidth * k)) / 2;
+        var left = ((width - (inkWidth * k)) / 2) - (inkLeft * k);
         var top = ((height - (inkHeight * k)) / 2) - (ink.Over * k);
         return new ValueFace(k, left, top);
     }
