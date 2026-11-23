@@ -44,43 +44,20 @@ internal sealed partial class CalendarView
         var lift = _stated ? 0 : FamilySpace.ContentTop;
         var box = height + lift;
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var reach = Themia.Widget.Calendar.CalendarSizing.YearCells(fit, width, box, cells);
+        var across = reach.Columns;
+        var lines = (fit.Months + across - 1) / across;
+        var down = reach.Down with { Shown = lines };
 
-        // [S-16446] Where the card holds all twelve at their own size, the year is a grid of the card (WR-9): the months'
-        // cells share it edge to edge in the columns and lines that draw them largest, each small month scaled up as one.
-        var share = Themia.Widget.Calendar.CalendarSizing.YearShares(fit, width, box);
-        var shared = share.Factor >= 1;
-        int across;
-        int lines;
         var grid = new Grid { Margin = new Thickness(0, -lift, 0, 0), VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Left };
-        if (shared)
+        for (var c = 0; c < across; c++)
         {
-            across = share.Columns;
-            lines = share.Rows;
-            foreach (var column in ItemSize.Columns(width, across, cells))
-            {
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(column) });
-            }
-
-            foreach (var line in ItemSize.Columns(box, lines, cells))
-            {
-                grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(line) });
-            }
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(reach.Across.Height(c)) });
         }
-        else
-        {
-            var reach = Themia.Widget.Calendar.CalendarSizing.YearCells(fit, width, box, cells);
-            across = reach.Columns;
-            lines = (fit.Months + across - 1) / across;
-            var down = reach.Down with { Shown = lines };
-            for (var c = 0; c < across; c++)
-            {
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(reach.Across.Height(c)) });
-            }
 
-            for (var r = 0; r < lines; r++)
-            {
-                grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(down.Height(r)) });
-            }
+        for (var r = 0; r < lines; r++)
+        {
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(down.Height(r)) });
         }
 
         // The month's name as long as the small month is wide: "September", "Sep", "S".
@@ -93,12 +70,9 @@ internal sealed partial class CalendarView
             var month = firstMonth + i;
             var mini = MiniMonth(year, month, start, fit, nameWidth, today, byDay, showColors);
             mini.VerticalAlignment = VerticalAlignment.Center;
-            FrameworkElement drawn = shared
-                ? new ScaleBox { Factor = share.Factor, Child = mini, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center }
-                : mini;
             var cell = new Border
             {
-                Child = drawn,
+                Child = mini,
                 Padding = new Thickness(Themia.Widget.Calendar.CalendarSizing.YearPad),
                 Background = Family.Brush(ColourRole.Clear),
             };

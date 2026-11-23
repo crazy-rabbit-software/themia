@@ -79,7 +79,7 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   one 3 × 2 (240 × 200), 1 × 1 to 5 × 3 (`ForecastGrid.DaysFor`, [S-14815]). Every
   style takes every grid cell; a resize stores no days ([S-14502]). Tests `ForecastDaysTests.S11146_S14410_`,
   `ForecastCurveTests.S11146_S14410_`, `WeatherForecastMenuTests.S6173_S14410_`. The grid's columns are the whole ones
-  the width holds, sharing it ([S-16438]).
+  the width holds at their one size, the room past them empty ([S-16438]).
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
   other styles offer nothing there.
 - **[S-12403]** **The days fill the content** ([S-12400]), in every style. Rows: the days fill the content
@@ -97,9 +97,10 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   width; columns and the curve's columns from the card's left edge and from its top edge to its foot, the inset over and
   under their parts padding inside the column (the hover and a link light the column whole); the grid's cells of one
   size (80 × 100 on the default grid: "Today" and "16° 8°" with the inset either side, the parts with 8 over and under,
-  in whole grid cells; across, the width's share where the days run on to a second line) from the card's left and top
-  edges, touching, the whole columns the width holds sharing it edge to edge (the days wrap line after line, [S-16438]: a
-  day in a line's middle cut by the right edge with the next days under it broke WR-4),
+  in whole grid cells, at every width of the card) from the card's left and top edges, touching, the whole columns the
+  width holds, the room past them (less than a cell) empty at the right edge (the days wrap line after line, [S-16438]: a
+  day in a line's middle cut by the right edge with the next days under it broke WR-4; owner, 2026-11-23: "Fixed size, gap
+  at right"),
   and every line the height reaches, the last cut by its foot ([S-14816]). No margin and
   no gap round or between the days in any style; every edge on a whole device pixel (`RowReach`). Tests
   `ForecastDaysTests.S14815_`; renders judged by `scripts/item-check.py` in every style ([S-14814]).
