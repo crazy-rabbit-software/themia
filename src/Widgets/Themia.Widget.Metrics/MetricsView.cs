@@ -74,6 +74,9 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
 
     private MetricsConfig _config = new();
     private MetricSeries? _series;
+
+    /// <summary>[S-16902] The graph's range as drawn last: kept while the readings fit it, so time passing never rescales the graph.</summary>
+    private GraphRange? _range;
     private string _currency = string.Empty;
     private double _width;
     private double _height;
@@ -258,6 +261,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _config = config as MetricsConfig ?? new MetricsConfig();
         _pointer = null;
         _shown = null;
+        _range = null;
         Follow();
         Render();
     }
@@ -288,8 +292,9 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
             return;
         }
 
+        // [S-16901] Read again: a new width folds into runs of another size, its oldest run taking other slots before the span.
         (_width, _height) = (width, height);
-        Draw();
+        Render();
     }
 
     private void OnPointerMoved(object sender, PointerRoutedEventArgs e) => Point(e.GetCurrentPoint(_plot).Position.X);
@@ -395,7 +400,8 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
 
         _plot.Width = _width;
         _plot.Height = _height;
-        _plot.Draw(new PlotLook(folded, type, def.FromZero, def.Unit == MetricUnit.Share, face.PlotTop, face.Behind, hovered), _width, _height);
+        _range = MetricGraphRules.Steady(_range, folded, def.FromZero, def.Unit == MetricUnit.Share);
+        _plot.Draw(new PlotLook(folded, type, _range.Value, def.Unit == MetricUnit.Share, face.PlotTop, face.Behind, hovered), _width, _height);
     }
 
     /// <summary>

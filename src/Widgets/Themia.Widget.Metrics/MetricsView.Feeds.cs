@@ -188,6 +188,10 @@ internal sealed partial class MetricsView
         var feed = _config.Feed;
         var span = _config.SpanInForce;
         var unit = RegionFormat.Current.Temperature;
+
+        // [S-16901] The slots before the span the oldest run drawn at this width takes its members from.
+        var lead = MetricGraphRules.Lead(span.Step == MetricStep.Live ? MetricAdapters.HubSlots(span, SystemCadence.PeriodSeconds(feed.Hub ?? SystemSource.Cpu)) : span.Count,
+            MetricGraphRules.MaxSlots(_config.GraphInForce, _width));
         _currency = string.Empty;
         IReadOnlyList<string> problems = [];
         MetricSeries? series = null;
@@ -196,20 +200,20 @@ internal sealed partial class MetricsView
         {
             case MetricSource.Hub:
                 var period = SystemCadence.PeriodSeconds(feed.Hub ?? SystemSource.Cpu);
-                var history = _watch is { } watch ? watch.History(MetricAdapters.HubSlots(span, period)) : [];
-                series = MetricAdapters.Hub(def, history, Reading(def, _watch?.Latest), span, period, now);
+                var history = _watch is { } watch ? watch.History(MetricAdapters.HubSlots(span, period) + lead) : [];
+                series = MetricAdapters.Hub(def, history, Reading(def, _watch?.Latest), span, period, now, _watch?.Added ?? history.Length);
                 problems = _watch?.Latest is { Available: false, Reason: { Length: > 0 } reason } ? [reason] : [];
                 break;
             case MetricSource.Hours when _hours.Held?.Value is { } hours:
-                series = MetricAdapters.Hours(def, feed, hours.Hours, h => h.At, feed.Hour!, feed.HourSecond, span, now, unit);
+                series = MetricAdapters.Hours(def, feed, hours.Hours, h => h.At, feed.Hour!, feed.HourSecond, span, now, unit, lead);
                 problems = OnlineParts.Problems(_hours.Held);
                 break;
             case MetricSource.Days when _days.Held?.Value is { Days.Count: > 0 } forecast:
-                series = MetricAdapters.Days(feed, forecast.Days, span, forecast.Days[0].Day, now.Offset);
+                series = MetricAdapters.Days(feed, forecast.Days, span, forecast.Days[0].Day, now.Offset, lead);
                 problems = OnlineParts.Problems(_days.Held);
                 break;
             case MetricSource.AirHours when _air.Held?.Value is { } air:
-                series = MetricAdapters.Hours(def, feed, air.Hours, h => h.At, feed.Air!, null, span, now, unit);
+                series = MetricAdapters.Hours(def, feed, air.Hours, h => h.At, feed.Air!, null, span, now, unit, lead);
                 problems = OnlineParts.Problems(_air.Held);
                 break;
             case MetricSource.Quote when _quote.Held?.Value is { } quote:

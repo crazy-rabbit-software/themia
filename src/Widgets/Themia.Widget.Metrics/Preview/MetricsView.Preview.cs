@@ -10,11 +10,12 @@ namespace Themia.Widget.Metrics;
 /// the graph's default across its foot, "--" and why. A system metric draws a made-up series of its own in these (the live hub
 /// has neither face). And one state a graph type and shape, so the checks draw each: <c>line</c> (the temperature hour by hour),
 /// <c>bars</c> (UV), <c>step</c> (pressure), <c>range</c> (the days' low and high), <c>candles</c> (MSFT), <c>pair</c> (a drive's
-/// reads and writes).
+/// reads and writes). [S-16901] <c>history</c> a system metric's made-up series and <c>later</c> the same series 37 points
+/// on: drawn side by side, every run both hold stands at the same height, the graph stepped left by whole runs.
 /// </summary>
 internal sealed partial class MetricsView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "stale", "empty", "line", "bars", "step", "range", "candles", "pair"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "stale", "empty", "line", "bars", "step", "range", "candles", "pair", "history", "later"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -25,6 +26,9 @@ internal sealed partial class MetricsView : IWidgetPreviewState
                 break;
             case "stale" or "empty":
                 ShowSample(stale: state == "stale", empty: state == "empty", Made(_config));
+                break;
+            case "history" or "later":
+                ShowSample(stale: false, empty: false, Made(_config, state == "later" ? Later : 0));
                 break;
             case "line" or "bars" or "step" or "range" or "candles" or "pair":
                 var config = Variant(state);
@@ -55,8 +59,14 @@ internal sealed partial class MetricsView : IWidgetPreviewState
         return config;
     }
 
-    /// <summary>A system metric's made-up series over its span: a seeded walk at the metric's scale (a pair's second a third of it).</summary>
-    private static MetricSeries? Made(MetricsConfig config)
+    /// <summary>[S-16901] How many points the <c>later</c> state's series is on from <c>history</c>'s: no whole number of runs.</summary>
+    private const int Later = 37;
+
+    /// <summary>
+    /// A system metric's made-up series over its span: a seeded walk at the metric's scale (a pair's second a third of it), a
+    /// span's worth of points before it (the oldest run's members), <paramref name="on"/> points further along the same walk.
+    /// </summary>
+    private static MetricSeries? Made(MetricsConfig config, int on = 0)
     {
         var def = config.Def;
         var feed = config.Feed;
@@ -74,10 +84,12 @@ internal sealed partial class MetricsView : IWidgetPreviewState
             MetricUnit.Milliseconds => (18.0, 0.15, double.PositiveInfinity),
             _ => (0.31, 0.12, 1.0),
         };
-        var first = SampleSeries.Walk("metrics-" + def.Id, count, last, move);
-        var second = SampleSeries.Walk("metrics-" + def.Id + "-second", count, last / 3, move);
-        var points = first.Select((v, i) => new SeriesPoint(Math.Clamp(v, 0, top), feed.Shape == MetricShape.Pair ? Math.Clamp(second[i], 0, top) : double.NaN)).ToList();
-        var series = MetricAdapters.Hub(def, points, null, span, period, SampleDay.Now);
+        var length = (2 * count) + Later;
+        var first = SampleSeries.Walk("metrics-" + def.Id, length, last, move);
+        var second = SampleSeries.Walk("metrics-" + def.Id + "-second", length, last / 3, move);
+        var held = (2 * count) + on;
+        var points = first.Take(held).Select((v, i) => new SeriesPoint(Math.Clamp(v, 0, top), feed.Shape == MetricShape.Pair ? Math.Clamp(second[i], 0, top) : double.NaN)).ToList();
+        var series = MetricAdapters.Hub(def, points, null, span, period, SampleDay.Now.AddSeconds(on * period), held);
         return series with { Now = series.Slots[^1] };
     }
 }

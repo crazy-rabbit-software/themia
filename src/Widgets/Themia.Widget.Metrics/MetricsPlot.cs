@@ -10,8 +10,8 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 
 namespace Themia.Widget.Metrics;
 
-/// <summary>[S-16314] What the plot draws: the series (folded to its width), its type, its range's rule, where it starts and whether it stands behind the head, the slot pointed at.</summary>
-internal readonly record struct PlotLook(MetricSeries Series, MetricGraphType Type, bool FromZero, bool Share, double Top, bool Behind, int? Hovered);
+/// <summary>[S-16314] What the plot draws: the series (folded to its width), its type, its range ([S-16902]: held as time passes), where it starts and whether it stands behind the head, the slot pointed at.</summary>
+internal readonly record struct PlotLook(MetricSeries Series, MetricGraphType Type, GraphRange Range, bool Share, double Top, bool Behind, int? Hovered);
 
 /// <summary>
 /// [S-16314] [S-16316] The Metric widget's own graph: a canvas the card's whole box, the series drawn from the plot's top to the
@@ -36,7 +36,7 @@ internal sealed partial class MetricsPlot : Canvas
         var series = look.Series;
         var count = series.Slots.Count;
         var stroke = FamilyShape.Stroke;
-        var range = MetricGraphRules.Range(series, look.FromZero, look.Share);
+        var range = look.Range;
 
         // A line keeps its stroke inside the plot; a fill and a bar stand on the card's foot.
         var lineTop = look.Top + stroke;

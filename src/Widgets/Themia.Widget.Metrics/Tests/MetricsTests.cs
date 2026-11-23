@@ -248,6 +248,154 @@ public sealed class MetricsTests
         Assert.Null(MetricGraphRules.Fold(Series(1, null, null, null), 2, MetricFold.Mean).Slots[1]);
     }
 
+    /// <summary>[S-16901] A folded series' runs by their absolute place (a run of its own times by its time) and their values.</summary>
+    private static Dictionary<long, MetricValue?> Runs(MetricSeries folded)
+        => folded.Times is { } times
+            ? Enumerable.Range(0, folded.Slots.Count).ToDictionary(i => times[i].UtcTicks, i => folded.Slots[i])
+            : Enumerable.Range(0, folded.Slots.Count).ToDictionary(i => folded.Origin + i, i => folded.Slots[i]);
+
+    /// <summary>
+    /// [S-16901] A series at successive moments, folded at <paramref name="width"/> in <paramref name="type"/>: it folds; every run
+    /// that two moments both draw (but the newest, still filling) has one value; the runs drawn stay as many and move on by
+    /// whole runs, most of them held from one moment to the next.
+    /// </summary>
+    private static void AssertSteady(IReadOnlyList<MetricSeries> moments, MetricGraphType type, double width, MetricFold fold, int slack = 0)
+    {
+        Dictionary<long, MetricValue?>? before = null;
+        var moved = 0;
+        int? runs = null;
+        foreach (var series in moments)
+        {
+            var folded = MetricGraphRules.Fold(series, MetricGraphRules.MostSlots(type, series, width), fold);
+            Assert.True(folded.Slots.Count < series.Slots.Count, $"{type}: folds");
+            runs ??= folded.Slots.Count;
+            Assert.InRange(folded.Slots.Count, runs.Value - slack, runs.Value + slack);
+            var now = Runs(folded);
+            if (before is not null)
+            {
+                var (newest, was) = (now.Keys.Max(), before.Keys.Max());
+                var held = now.Keys.Where(k => k != newest && k != was && before.ContainsKey(k)).ToList();
+                Assert.True(held.Count >= now.Count - 3 - slack, $"{type}: {held.Count} of {now.Count} runs held");
+                Assert.All(held, k => Assert.Equal(before[k], now[k]));
+                moved += newest != was ? 1 : 0;
+            }
+
+            before = now;
+        }
+
+        Assert.True(moved > 0, $"{type}: the graph moved on");
+    }
+
+    /// <summary>A reading a step, made up and never the same twice in a row.</summary>
+    private static double Reading(long k) => ((k * 37) % 101) / 100.0;
+
+    [Fact]
+    public void S16901_a_hub_graphs_runs_keep_their_heights_as_points_arrive_in_every_graph_type()
+    {
+        var span = new MetricSpan(MetricWay.Past, MetricStep.Live, 300);
+        var count = MetricAdapters.HubSlots(span, 1);
+        foreach (var (id, types) in new[] { ("cpu", MetricCatalog.Graphs(MetricShape.One)), ("drive", MetricCatalog.Graphs(MetricShape.Pair)) })
+        {
+            var metric = MetricCatalog.Of(id);
+            foreach (var type in types)
+            {
+                var lead = MetricGraphRules.Lead(count, MetricGraphRules.MaxSlots(type, 240));
+                var moments = Enumerable.Range(1000, 25).Select(added =>
+                {
+                    var history = Enumerable.Range(added - count - lead, count + lead).Select(k => new SeriesPoint(Reading(k), Reading(k + 7))).ToList();
+                    return MetricAdapters.Hub(metric, history, null, span, 1, Nine.AddSeconds(added), added);
+                }).ToList();
+
+                AssertSteady(moments, type, 240, metric.Feed(MetricStep.Live).Fold);
+            }
+        }
+    }
+
+    [Fact]
+    public void S16901_a_places_hours_and_days_keep_their_runs_as_the_hour_and_the_day_move_on()
+    {
+        var metric = MetricCatalog.Of("temperature");
+        var hourly = metric.Feed(MetricStep.Hour);
+        var hours = Hours(-24, 140, i => Reading(i + 50) * 30);
+        foreach (var way in new[] { MetricWay.Future, MetricWay.Past })
+        {
+            var span = new MetricSpan(way, MetricStep.Hour, way == MetricWay.Future ? 48 : 24);
+            foreach (var type in MetricCatalog.Graphs(MetricShape.One))
+            {
+                var width = MetricGraphRules.Marks(type) ? 60 : 20; // ten marks: runs of five or three
+                var lead = MetricGraphRules.Lead(span.Count, MetricGraphRules.MaxSlots(type, width));
+                var moments = Enumerable.Range(0, 9).Select(h => MetricAdapters.Hours(metric, hourly, hours, x => x.At, hourly.Hour!, null, span,
+                    Nine.AddHours(h).AddMinutes(20), TemperatureUnit.Celsius, lead)).ToList();
+                AssertSteady(moments, type, width, hourly.Fold);
+            }
+        }
+
+        var daily = metric.Feed(MetricStep.Day);
+        var today = new DateOnly(2026, 11, 16);
+        var days = Enumerable.Range(-5, 30).Select(i => new ForecastDay(today.AddDays(i), 3, Reading(i + 9) * 10, 10 + (Reading(i) * 10), 0)).ToList();
+        var fortnight = new MetricSpan(MetricWay.Future, MetricStep.Day, 14);
+        foreach (var type in MetricCatalog.Graphs(MetricShape.Pair))
+        {
+            var width = MetricGraphRules.Marks(type) ? 36 : 12;
+            var lead = MetricGraphRules.Lead(14, MetricGraphRules.MaxSlots(type, width));
+            var moments = Enumerable.Range(0, 6).Select(d => MetricAdapters.Days(daily, days, fortnight, today.AddDays(d), TimeSpan.FromHours(1), lead)).ToList();
+            AssertSteady(moments, type, width, daily.Fold);
+        }
+    }
+
+    [Fact]
+    public void S16901_a_quotes_and_a_rates_runs_are_fixed_by_their_own_times()
+    {
+        // The ECB's working days, a new one each day, a span of ninety back.
+        var newest = new DateOnly(2026, 11, 13);
+        var all = Enumerable.Range(0, 200).Select(i => newest.AddDays(-i)).Where(d => d.DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday))
+            .Select(d => new RateDay(d, new Dictionary<string, double> { ["USD"] = 1 + Reading(d.DayNumber) })).ToList();
+        var back = new MetricSpan(MetricWay.Past, MetricStep.Day, 90);
+        foreach (var type in MetricCatalog.Graphs(MetricShape.One))
+        {
+            var moments = Enumerable.Range(0, 12).Reverse().Select(skip => MetricAdapters.Rates(new RateTable([.. all.Skip(skip)]), "EUR", "USD", back, TimeSpan.Zero)!).ToList();
+            AssertSteady(moments, type, MetricGraphRules.Marks(type) ? 120 : 40, MetricFold.Mean, slack: 1);
+        }
+
+        // A quote's five-minute bars over five sessions, a new bar each moment and the oldest gone.
+        var open = DateTimeOffset.FromUnixTimeSeconds(1_763_040_600); // a Thursday 13:30 UTC
+        var bars = Enumerable.Range(0, 7).SelectMany(day => Enumerable.Range(0, 78).Select(b => open.AddDays(day).AddMinutes(5 * b)))
+            .Select((at, i) => new QuoteBar(at.ToUnixTimeSeconds(), 100 + (Reading(i) * 10))).ToList();
+        foreach (var type in MetricCatalog.Graphs(MetricShape.Candle))
+        {
+            var moments = Enumerable.Range(0, 12).Select(i =>
+                MetricAdapters.Quote(new TickerQuote("MSFT", "Microsoft", 101, null, "USD", 2, [.. bars.Skip(i).Take(390)], TradingSessions.None), TimeSpan.Zero)).ToList();
+            AssertSteady(moments, type, MetricGraphRules.Marks(type) ? 240 : 80, MetricFold.Mean, slack: 2);
+        }
+    }
+
+    [Fact]
+    public void S16902_the_range_holds_while_the_readings_fit_it_and_a_share_is_always_its_hundred()
+    {
+        var held = MetricGraphRules.Steady(null, Series(2, 4, 6), fromZero: true);
+        Assert.Equal(0, held.Low);
+        Assert.True(held.High >= 6 * (1 + MetricGraphRules.Headroom));
+
+        // The span moves on, its peak gone and a lower one in: the same range, so every height drawn stays.
+        Assert.Equal(held, MetricGraphRules.Steady(held, Series(4, 6, 3), fromZero: true));
+        Assert.Equal(held, MetricGraphRules.Steady(held, Series(3, 3, 4), fromZero: true));
+
+        // A reading past its top refits it, roomy; readings under a third of it too.
+        var grown = MetricGraphRules.Steady(held, Series(4, 6, 9), fromZero: true);
+        Assert.True(grown.High >= 9);
+        Assert.Equal(grown, MetricGraphRules.Steady(grown, Series(6, 9, 9.2), fromZero: true));
+        Assert.True(MetricGraphRules.Steady(grown, Series(0.5, 1, 0.8), fromZero: true).High < 3);
+
+        // A temperature's own low: held while inside it, a degree past its low refits.
+        var warm = MetricGraphRules.Steady(null, Series(10, 20), fromZero: false);
+        Assert.Equal(warm, MetricGraphRules.Steady(warm, Series(12, 19), fromZero: false));
+        Assert.NotEqual(warm, MetricGraphRules.Steady(warm, Series(warm.Low - 1, 19), fromZero: false));
+
+        Assert.Equal(new GraphRange(0, 1), MetricGraphRules.Steady(new GraphRange(0, 0.5), Series(0.1, 0.3), fromZero: true, share: true));
+        Assert.Equal(2.5, MetricGraphRules.NiceStep(2.2));
+        Assert.Equal(0.5, MetricGraphRules.NiceStep(0.41));
+    }
+
     [Fact]
     public void S16312_candles_fold_into_their_runs_open_high_low_and_close()
     {

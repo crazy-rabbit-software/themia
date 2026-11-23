@@ -159,12 +159,32 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
 ## The graph
 
 - **[S-16312]** **Folding**: a plot draws a line's point every 2 DIP at least and a mark (a bar, a range, a candle) every 6; a
-  series with more slots folds runs of neighbours into one, fixed from the newest (the newest run stands at the right), a run's
-  value its mean, its peak (a rate, a latency: a burst stays seen) or its sum (an amount), a candle the run's open, high, low and
-  close; a run of gaps a gap. A quote's bars that are closes alone (each candle a point, a dash) fold at least four to a candle
+  series with more slots folds runs of neighbours into one, fixed by absolute time ([S-16901]; the newest run stands at the
+  right), a run's value its mean, its peak (a rate, a latency: a burst stays seen) or its sum (an amount), a candle the run's
+  open, high, low and close; a run of gaps a gap. A quote's bars that are closes alone (each candle a point, a dash) fold at least four to a candle
   (`MetricGraphRules.MostSlots`), so the candles have bodies and wicks at every size (WR-11); real candles as many as fit.
 - **[S-16313]** **The range**: from zero for an amount or a share (a share's top 100 %), from its own low for a temperature, a
   pressure or a price, with a little headroom; a flat series stands in the middle of a range round it; none at all 0..1.
+- **[S-16901]** **Time passing never resamples the graph.** Owner, 2026-11-23: "the metric widget bars get resampled and when
+  shifted change their sampling point and change their height, this should not happen. same for steps, same for area, same for
+  line." A fold's runs are fixed by absolute time, never by where the span ends (`MetricGraphRules.Fold`): a series knows slot
+  0's absolute place (`MetricSeries.Origin`: the hub's points ever added, `ISeriesWatch.Added`; a whole local hour's number; a
+  day's number), a slot at place `k` is in run `floor(k / size)`, so a run's members and its value are the same in every series
+  that holds them. The fold draws the span's runs, always as many (its slots over the run's size, rounded up), the newest at the
+  right, still filling: the only one that changes as readings come; when a new run opens the whole graph steps left by exactly
+  one. The oldest run drawn takes its members before the span from the slots the adapter hands it there
+  (`MetricSeries.Before`, `MetricGraphRules.Lead`: a run's less one, read with the series), so it never thins as the span moves
+  on. A series of its own times (a quote's bars, the ECB's days) runs by those times: runs of `size` of its closest step from
+  the calendar's start, so a gap (a night, a weekend) splits a run and a few more runs may stand, never other members. One rule
+  for every type (bars, steps, area, line, ranges, candles); a resize, another span or another type may lay the runs anew, the
+  clock never. `--render widget metrics … --state history` and `--state later` draw a system metric's made-up series and the
+  same 37 points on: every run both draw at one height.
+- **[S-16902]** **The range holds as time passes** (else every height would change with each shift): a share's range is its
+  whole hundred, always; any other keeps the range it was drawn on while every reading fits in it and they take at least a third
+  of it (`MetricGraphRules.Steady`, `Refit`), and only otherwise is fitted again, roomy: its fit widened out to whole round
+  steps (1, 2, 2.5 or 5 times a power of ten, about a quarter of its span; `Roomy`, `NiceStep`), a foot at zero kept. So a new
+  peak rescales once, not on every reading, and a burst that has left the span lets the graph grow back. Another metric, span
+  or type starts it afresh.
 - **[S-16314]** **Edge to edge**: a line's first point on the plot's left edge and its last on the right; bars, ranges and
   candles from the left edge to the right with a gap of 2 between each two (a column at most 24 wide, a range or a candle 12, the
   rest evenly between), never room at the plot's sides; area and bars stand on the card's foot. The series in the accent, a

@@ -31,6 +31,19 @@ public sealed record MetricSeries(MetricShape Shape, IReadOnlyList<MetricValue?>
     /// <summary>[S-16310] The slots' own times where they are not a step apart; null where they are.</summary>
     public IReadOnlyList<DateTimeOffset>? Times { get; init; }
 
+    /// <summary>
+    /// [S-16901] Slot 0's absolute place in time, counted in <see cref="Step"/>s (the hub's points ever added, whole local hours,
+    /// day numbers): a fold's runs are fixed by it, so a run's members never change as the series moves on. Unused where
+    /// <see cref="Times"/> holds (a run there is fixed by its members' own times).
+    /// </summary>
+    public long Origin { get; init; }
+
+    /// <summary>
+    /// [S-16901] The slots just before the span, oldest first (the last one stands right before slot 0): never drawn, there only so
+    /// the oldest run a fold draws holds every member of its slot, and keeps its value as the span moves on.
+    /// </summary>
+    public IReadOnlyList<MetricValue?> Before { get; init; } = [];
+
     /// <summary>The time slot <paramref name="slot"/> stands for (its start).</summary>
     public DateTimeOffset At(int slot)
         => Times is { Count: > 0 } times ? times[Math.Clamp(slot, 0, times.Count - 1)] : Start + (Step * slot);
@@ -57,9 +70,12 @@ public static class MetricAdapters
     /// <summary>
     /// [S-16311] The hub's series: the newest points that fit the span, the newest at the right end (a history still filling
     /// grows in from the right); a share stays a fraction (0..1), anything else its value; a missed probe or a point without
-    /// a figure a gap. The reading now is the hub's own (null while it has none or it is unavailable).
+    /// a figure a gap. The reading now is the hub's own (null while it has none or it is unavailable). [S-16901] The points
+    /// the history holds before the span are its <see cref="MetricSeries.Before"/>, and slot 0 stands at the newest point's
+    /// absolute position (<paramref name="added"/>, the points ever added; the history's length by default) less the span.
     /// </summary>
-    public static MetricSeries Hub(MetricDef metric, IReadOnlyList<SeriesPoint> history, MetricValue? now, MetricSpan span, int periodSeconds, DateTimeOffset at)
+    public static MetricSeries Hub(MetricDef metric, IReadOnlyList<SeriesPoint> history, MetricValue? now, MetricSpan span, int periodSeconds, DateTimeOffset at,
+        long? added = null)
     {
         ArgumentNullException.ThrowIfNull(metric);
         ArgumentNullException.ThrowIfNull(history);
@@ -67,20 +83,27 @@ public static class MetricAdapters
         var count = HubSlots(span, periodSeconds);
         var slots = new MetricValue?[count];
         var taken = Math.Min(count, history.Count);
+        MetricValue? Value(SeriesPoint point) => point.Missed || !double.IsFinite(point.First)
+            ? null
+            : new MetricValue(point.First, feed.Shape == MetricShape.Pair && double.IsFinite(point.Second) ? point.Second : null);
         for (var i = 0; i < taken; i++)
         {
-            var point = history[history.Count - taken + i];
-            if (point.Missed || !double.IsFinite(point.First))
-            {
-                continue;
-            }
+            slots[count - taken + i] = Value(history[history.Count - taken + i]);
+        }
 
-            double? second = feed.Shape == MetricShape.Pair && double.IsFinite(point.Second) ? point.Second : null;
-            slots[count - taken + i] = new MetricValue(point.First, second);
+        var before = new MetricValue?[history.Count - taken];
+        for (var i = 0; i < before.Length; i++)
+        {
+            before[i] = Value(history[i]);
         }
 
         var period = TimeSpan.FromSeconds(Math.Max(1, periodSeconds));
-        return new MetricSeries(feed.Shape, slots, at - (period * (count - 1)), period) { Now = now };
+        return new MetricSeries(feed.Shape, slots, at - (period * (count - 1)), period)
+        {
+            Now = now,
+            Origin = (added ?? history.Count) - count,
+            Before = before,
+        };
     }
 
     /// <summary>[S-16311] The window of a span from the step under way: forward from it (a forecast), or back to it (history).</summary>
@@ -94,9 +117,11 @@ public static class MetricAdapters
     /// <summary>
     /// [S-16311] A place's hours (weather or air): a slot an hour of the span, each record on its hour's slot; the reading now
     /// the hour under way's. A temperature read from the hours (asked in °C, [S-12702]) is drawn in the shared scale.
+    /// [S-16901] Slot 0 stands at its whole local hour (<see cref="HourNumber"/>); the <paramref name="lead"/> hours before
+    /// the span are its <see cref="MetricSeries.Before"/>.
     /// </summary>
     public static MetricSeries Hours<THour>(MetricDef metric, MetricFeed feed, IReadOnlyList<THour> hours, Func<THour, DateTimeOffset> stamp,
-        Func<THour, double?> value, Func<THour, double?>? second, MetricSpan span, DateTimeOffset now, TemperatureUnit unit)
+        Func<THour, double?> value, Func<THour, double?>? second, MetricSpan span, DateTimeOffset now, TemperatureUnit unit, int lead = 0)
     {
         ArgumentNullException.ThrowIfNull(metric);
         ArgumentNullException.ThrowIfNull(feed);
@@ -106,6 +131,7 @@ public static class MetricAdapters
         var start = WindowStart(span, current, step);
         var count = Math.Max(2, span.Count);
         var slots = new MetricValue?[count];
+        var before = new MetricValue?[Math.Max(0, lead)];
         MetricValue? reading = null;
         double Scaled(double v) => metric.Unit == MetricUnit.Temperature && unit == TemperatureUnit.Fahrenheit ? (v * 9 / 5) + 32 : v;
 
@@ -129,21 +155,30 @@ public static class MetricAdapters
             {
                 slots[index] = item;
             }
+            else if (index < 0 && index >= -before.Length)
+            {
+                before[before.Length + index] = item;
+            }
         }
 
-        return new MetricSeries(feed.Shape, slots, start, step) { Now = reading };
+        return new MetricSeries(feed.Shape, slots, start, step) { Now = reading, Origin = HourNumber(start), Before = before };
     }
+
+    /// <summary>[S-16901] A whole local hour's absolute number: the hours since the calendar's start on its own clock.</summary>
+    public static long HourNumber(DateTimeOffset hour) => hour.DateTime.Ticks / TimeSpan.TicksPerHour;
 
     /// <summary>
     /// [S-16311] The forecast's days: a slot a day from today (the place's own calendar day the forecast starts on); today's
-    /// the reading now. A pair's two are the day's low and high (or what the feed names).
+    /// the reading now. A pair's two are the day's low and high (or what the feed names). [S-16901] Slot 0 stands at its day's
+    /// number; the <paramref name="lead"/> days before the span are its <see cref="MetricSeries.Before"/>.
     /// </summary>
-    public static MetricSeries Days(MetricFeed feed, IReadOnlyList<ForecastDay> days, MetricSpan span, DateOnly today, TimeSpan offset)
+    public static MetricSeries Days(MetricFeed feed, IReadOnlyList<ForecastDay> days, MetricSpan span, DateOnly today, TimeSpan offset, int lead = 0)
     {
         ArgumentNullException.ThrowIfNull(feed);
         ArgumentNullException.ThrowIfNull(days);
         var count = Math.Max(2, span.Count);
         var slots = new MetricValue?[count];
+        var before = new MetricValue?[Math.Max(0, lead)];
         MetricValue? reading = null;
         var first = span.Way == MetricWay.Future ? today : today.AddDays(1 - count);
         foreach (var day in days)
@@ -165,9 +200,18 @@ public static class MetricAdapters
             {
                 slots[index] = item;
             }
+            else if (index < 0 && index >= -before.Length)
+            {
+                before[before.Length + index] = item;
+            }
         }
 
-        return new MetricSeries(feed.Shape, slots, new DateTimeOffset(first.ToDateTime(TimeOnly.MinValue), offset), TimeSpan.FromDays(1)) { Now = reading };
+        return new MetricSeries(feed.Shape, slots, new DateTimeOffset(first.ToDateTime(TimeOnly.MinValue), offset), TimeSpan.FromDays(1))
+        {
+            Now = reading,
+            Origin = first.DayNumber,
+            Before = before,
+        };
     }
 
     /// <summary>[S-16311] A quote's period: a candle a bar (its own open, high, low and close, or the close alone), the last price now.</summary>
