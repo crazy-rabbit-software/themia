@@ -45,6 +45,34 @@ public sealed class WeatherNowTests
     }
 
     [Fact]
+    public void S16432_a_card_with_a_caption_line_over_the_why_band_says_why_at_its_foot()
+    {
+        // The natural Standard card (76 tall: a 64 slot under the top inset, its foot's inset off it) has the room.
+        Assert.True(WeatherNowStyles.SaysWhy(76 - 12 - 12));
+        Assert.True(WeatherNowStyles.SaysWhy(WhyLine.Band + FamilyType.Caption.LineHeight));
+        Assert.False(WeatherNowStyles.SaysWhy(WhyLine.Band + FamilyType.Caption.LineHeight - 1));
+        Assert.False(WeatherNowStyles.SaysWhy(double.NaN));
+    }
+
+    [Fact]
+    public void S16433_the_status_mark_stands_clear_beside_or_gives_way_but_never_over_the_reading()
+    {
+        var block = new SizeDip(110, 52);
+        var least = new SizeDip(20, 14);
+        const double mark = 4 + 16;
+
+        // Nothing shown, or a block the width stops standing under the mark's band: the mark has the corner to itself.
+        Assert.Equal(MarkPlace.Clear, WeatherNowStyles.Mark(156, 52, block, least, 0, mark));
+        Assert.Equal(MarkPlace.Clear, WeatherNowStyles.Mark(156, 200, block, least, 24, mark));
+
+        // A block that fills the height reaches into the band: it ends the mark's room sooner.
+        Assert.Equal(MarkPlace.Beside, WeatherNowStyles.Mark(156, 52, block, least, 24, mark));
+
+        // The least card (39 × 32): the room left beside the mark cannot hold the reading at its floor, so the mark gives way.
+        Assert.Equal(MarkPlace.Yields, WeatherNowStyles.Mark(15, 8, block, least, 24, mark));
+    }
+
+    [Fact]
     public void S11101_the_widest_reading_fits_its_narrowest_card_in_every_style()
     {
         var room = WeatherNowStyles.Narrowest - (2 * FamilySpace.Inset);

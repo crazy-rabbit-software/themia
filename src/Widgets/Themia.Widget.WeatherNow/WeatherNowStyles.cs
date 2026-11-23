@@ -71,4 +71,42 @@ public static class WeatherNowStyles
             _ => FaceParts.Readout(FamilyType.Big28, Worst, room),
         };
     }
+
+    /// <summary>
+    /// [S-16432] Whether a face <paramref name="share"/> tall (the card's slot less the foot's inset) says why there is no
+    /// reading in its compact line at the foot (<see cref="WhyLine.Band"/>): where a Caption line still stands over that band
+    /// (WR-10: "says why in a compact line"); in a smaller card why is the face's tooltip.
+    /// </summary>
+    public static bool SaysWhy(double share)
+        => double.IsFinite(share) && share - WhyLine.Band >= FamilyType.Caption.LineHeight;
+
+    /// <summary>
+    /// [S-16433] Where the status mark (its <paramref name="room"/> across, over a band <paramref name="band"/> under the face's
+    /// top) stands against the reading's block (<paramref name="block"/> at its own size, <paramref name="least"/> at its
+    /// floor) scaled into a room <paramref name="width"/> by <paramref name="height"/>: clear of a block that stands under the
+    /// band (or with nothing shown), beside a block that would stand under it (the block ends its room sooner), or giving
+    /// way (WR-14: never over the reading) where the room left beside it cannot hold the block at its floor.
+    /// </summary>
+    public static MarkPlace Mark(double width, double height, SizeDip block, SizeDip least, double room, double band)
+    {
+        if (!(room > 0) || !MetricRules.UnderMark(width, height, default, block, MetricArrangement.Stacked, 0, head: false, band))
+        {
+            return MarkPlace.Clear;
+        }
+
+        return width - room >= least.Width - LayoutMath.Tolerance ? MarkPlace.Beside : MarkPlace.Yields;
+    }
+}
+
+/// <summary>[S-16433] Where the status mark stands against a reading's block (<see cref="WeatherNowStyles.Mark"/>).</summary>
+public enum MarkPlace
+{
+    /// <summary>Over the top end corner with nothing of the block under it (or no mark).</summary>
+    Clear,
+
+    /// <summary>Beside the block: the block's room ends the mark's width sooner.</summary>
+    Beside,
+
+    /// <summary>Gone to the face's tooltip: the card is too small for the block and the mark.</summary>
+    Yields,
 }

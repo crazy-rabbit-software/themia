@@ -33,7 +33,7 @@ public sealed class WeatherNowModule : IWidgetModule
         Description = WeatherNowStr.WidgetsA_Catalog_Weather_Description.Local(),
         Glyph = Glyphs.Weather,
         Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c).ScalesDownTo(WeatherNowStyles.Face((WeatherNowConfig)c)),
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.HasItems, // [S-16434] lit whole under the pointer: one item (OpensLight)
         Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
 
         // [S-16200] The parts it was split into 21-22 Nov fold back into it where they were placed: the sky and the condition

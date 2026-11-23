@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
@@ -22,12 +23,14 @@ namespace Themia.App.Widgets;
 /// forecast's: never drawn here, at any size.
 /// <para>
 /// [S-7042] A reading kept through a failed refresh stays on screen and the status's problem glyph says
-/// so ([S-12481]); with no reading at all the Status block's one row at the top says why ([S-6734]). The
-/// place stands on the condition's line ("Overcast · Zürich", [S-12481]); [S-12483] the same joined or alone.
+/// so ([S-12481]), the block leaving it room at its end where it would stand under it, the glyph giving way to the face's
+/// tooltip where the card is too small for both ([S-16433]). With no reading the face stays, its sky unknown and its
+/// reading "--", and why is one compact Caption line at the card's foot, its own size ([S-16432]). [S-12483] The same
+/// joined or alone. The card is one item, lit under the pointer while a click opens MSN Weather ([S-16434]).
 /// </para>
 /// </summary>
 internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetContextActions, IWidgetAligned
+    IWidgetContextActions, IWidgetAligned, IWidgetSizeAware, IWidgetSurfaceAware
 {
     /// <inheritdoc />
     public CardOpen? Opens => WeatherNowModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
@@ -42,8 +45,19 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
 
-    /// <summary>[S-6734] Without a reading: why, in one row at the top.</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
+    /// <summary>[S-16432] Without a reading: why, one Caption line at the card's foot, its own size, never the block's.</summary>
+    private readonly TextBlock _why = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+
+    /// <summary>[S-16434] The card lit under the pointer while a click opens something (WR-13).</summary>
+    private readonly OpensLight _opensLight;
+    private IWidgetSurface? _surface;
+    private WidgetArea _area;
+
+    // [S-16432] Why there is no reading (null: a reading, or nothing to say: not set up is the card's Set up row).
+    private string? _whyText;
+
+    // [S-16433] The problem lines of a reading kept through a failed refresh (none: fresh, or no reading).
+    private IReadOnlyList<string> _problems = [];
 
     private readonly SkyFeed<WeatherInterest, CurrentWeather> _feed;
     private WeatherNowConfig _config = new();
@@ -74,8 +88,26 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         SetColumn(_reading, 1);
         _fit.Parts.Add(_face);
         Children.Add(_fit);
-        Children.Add(_empty);
+
+        // [S-16432] The why's line: at the foot of the inset, as wide as it, cut with its ellipsis; never a target of its own.
+        _why.TextWrapping = TextWrapping.NoWrap;
+        _why.TextTrimming = TextTrimming.CharacterEllipsis;
+        _why.VerticalAlignment = VerticalAlignment.Bottom;
+        _why.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _why.IsHitTestVisible = false;
+        _why.Visibility = Visibility.Collapsed;
+        Children.Add(_why);
         _status.Place(this);
+        _opensLight = new OpensLight(this, () => _surface?.EditMode != true && Opens is not null);
+    }
+
+    public void Bind(IWidgetSurface surface) => _surface = surface;
+
+    /// <summary>[S-16432] [S-16433] The card's box: the why's band and the status mark's room in it.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        _area = area;
+        Lay();
     }
 
     /// <summary>[S-730] "Refresh": the network now, past both the back-off and the cache.</summary>
@@ -86,6 +118,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     {
         _config = config as WeatherNowConfig ?? new WeatherNowConfig();
         _feed.Attach(ticker, _config.TickInterval);
+        _opensLight.Attach();
         ApplyConfig(config);
     }
 
@@ -102,24 +135,37 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     /// <summary>[S-6583] The reading at the start, the middle or the end of the card.</summary>
     public void ApplyAlign(ContentAlign align) => _fit.Align = align;
 
-    public void Detach() => _feed.Detach();
+    public void Detach()
+    {
+        _opensLight.Detach();
+        _feed.Detach();
+    }
 
     /// <summary>Draw the reading in hand in the style's look; with none, say which state it is ([S-6734]).</summary>
     private void Render()
     {
         if (_feed.Held is not { Value: { } reading } held)
         {
-            // [S-12813] The reading stays: "--", the reason its caption.
-            _empty.Hide();
-            _bigGlyph.Visibility = Visibility.Collapsed;
-            OnlineParts.ShowDefault(_reading, _feed.Status, "°");
+            // [S-12813] [S-16432] The face stays (WR-10): the sky unknown in the style's place, "--" held to the widest
+            // reading's box so it stands as large as a reading would (WR-7), why the compact line at the foot (Lay).
+            var why = OnlineParts.Caption(_feed.Status);
+            _whyText = why.Length > 0 ? why : null;
+            _problems = [];
             _face.Visibility = Visibility.Visible;
-            _status.Clear();
+            _bigGlyph.Visibility = _config.Style == WeatherNowStyle.LargeIcon ? Visibility.Visible : Visibility.Collapsed;
+            _bigGlyph.Glyph = Glyphs.Weather;
+            _bigGlyph.Foreground = Family.Brush(ColourRole.TextDisabled);
+            var widest = _config.Style == WeatherNowStyle.Minimal ? WeatherNowStyles.Bare : WeatherNowStyles.Worst;
+            _reading.Hold(widest.Value, widest.Unit);
+            _reading.Show("--", "°", lead: _config.Style == WeatherNowStyle.Standard ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
+            Lay();
             return;
         }
 
-        _empty.Hide();
-        _status.Show(OnlineParts.Problems(held), busy: false);
+        _whyText = null;
+        _problems = OnlineParts.Problems(held);
+        _reading.Hold(string.Empty);
+        _bigGlyph.Foreground = Family.Brush(ColourRole.TextSecondary);
         var unit = _feed.Want?.Unit ?? RegionFormat.Current.Temperature;
         var (number, degrees) = WeatherReport.TemperatureParts(reading.Temperature, unit);
         // [S-12801] The condition alone: the place is the group's Header widget's to say, once.
@@ -141,5 +187,41 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
                 _reading.Show(number, degrees, condition, lead: sky);
                 break;
         }
+
+        Lay();
+    }
+
+    /// <summary>
+    /// [S-16432] [S-16433] Lay the face in the card: the why's band at the foot while it has one and the card holds a Caption
+    /// line over it (else why is the face's tooltip); the status mark over the top end corner, the block leaving it room at
+    /// its end where it would stand under it, or giving way to the face's tooltip where the card is too small for both.
+    /// </summary>
+    private void Lay()
+    {
+        var width = _area.IsMeasured ? _area.Width - (2 * FamilySpace.Inset) : double.NaN;
+        var share = _area.IsMeasured ? _area.Height - FamilySpace.Inset : double.NaN;
+        var why = _whyText is not null && WeatherNowStyles.SaysWhy(share);
+        _why.Text = why ? _whyText! : string.Empty;
+        _why.Visibility = why ? Visibility.Visible : Visibility.Collapsed;
+        var band = why ? WhyLine.Band : 0;
+
+        // The status shows the problems first: its room is its width as shown.
+        _status.Show(_problems, busy: false);
+        var place = MarkPlace.Clear;
+        if (_problems.Count > 0 && _area.IsMeasured)
+        {
+            _face.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var block = new SizeDip(_face.DesiredSize.Width, _face.DesiredSize.Height);
+            place = WeatherNowStyles.Mark(width, share - band, block, WeatherNowStyles.Face(_config).LeastBox(), _status.Room, FamilySpace.S1 + KitStatus.Side);
+        }
+
+        if (place == MarkPlace.Yields)
+        {
+            _status.Clear();
+        }
+
+        var tip = _whyText is not null && !why ? _whyText : place == MarkPlace.Yields ? string.Join("\n", _problems) : null;
+        ToolTipService.SetToolTip(this, tip);
+        _fit.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset + (place == MarkPlace.Beside ? _status.Room : 0), FamilySpace.Inset + band);
     }
 }

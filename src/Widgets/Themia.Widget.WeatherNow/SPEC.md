@@ -25,9 +25,8 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
   the temperature as the Readout on the family's 28 ([S-2449], [S-6702]) with its unit, the condition
   the Caption under it, the sky's glyph per [S-6160]'s style. The readings are the weather facts'
   ([S-11105]), the days the forecast's: never drawn here. A reading kept through a failed refresh
-  stays and the status's problem glyph over its top end says so ([S-7042], [S-12481]); with none, the
-  reading stays "--", why its caption ([S-12813]) (the root's [S-15711], a failure's problem glyph, was the parts'; here
-  the caption says it: at the card's least, 39 x 32, the glyph would stand over the face). The condition stands alone on its line ("Overcast"): the place
+  stays and the status's problem glyph over its top end says so ([S-7042], [S-12481], [S-16433]); with none, the
+  face stays and why is its compact line ([S-16432]). The condition stands alone on its line ("Overcast"): the place
   is the group's Header widget's to name, once ([S-12801], [S-9604]). The reading keeps the inset at its
   sides and foot, so it is centred in what the sizing counted ([S-12800]); in a group it stands against a
   side a mate joins, its foot's inset gone there ([S-12483]).
@@ -51,6 +50,23 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
 - **[S-2035]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
   in the UI language's market and the unit shown ([S-2006], `WeatherNowModule.Opens`); nothing while
   it has no place (it shows Set up then).
+- **[S-16432]** **No reading keeps the face and says why in a compact line** (WR-10, owner 2026-11-19: "No data, no
+  account, not set up, offline: the widget keeps its face ... and says why in a compact line"; WR-7): the style's face
+  stays, the sky unknown (the weather glyph leading the reading in Standard, beside it at 48 in Large icon), the reading
+  "--" with its degree, disabled, held to the widest reading's box (`ReadoutBlock.Hold`, "-18°F") so it is drawn as large
+  as a reading would be, never blown up by its thin dashes nor drifting from its line; why ("Can't reach the service") is
+  one Caption line at the card's foot at its own size, the block filling what is over it (`WeatherNowStyles.SaysWhy`:
+  where a Caption line stands over the why's band, `WhyLine.Band`), else the face's tooltip. It was the readout's line
+  under, scaled with the block into a headline (66 DIP of ink at 900 × 300, 122 DIP under the "--"). Not set up says
+  nothing more (the card's Set up row). Test `WeatherNowTests.S16432_`.
+- **[S-16433]** **The problem glyph never stands over the reading** (WR-14: a face scaled down stays read): a reading kept
+  through a failed refresh shows the status's problem glyph over the card's top end corner; where the block would stand
+  under it the block's room ends the glyph's width sooner, and where the room left beside it cannot hold the block at its
+  floor (the least card, 39 × 32) the glyph gives way and its lines are the face's tooltip (`WeatherNowStyles.Mark`:
+  Clear, Beside, Yields; `MetricRules.UnderMark`). Test `WeatherNowTests.S16433_`.
+- **[S-16434]** **The card lights under the pointer** (WR-13, [S-15745]): it is one item that opens MSN Weather on a click
+  ([S-2035]), so the item layer's hover fill lights it whole under the pointer and its pressed fill pressed (`OpensLight`),
+  never in edit mode or while it has no place.
 - **[S-12401]** **The reading fills the content** ([S-12400]): it is the content's one item, so a box
   taller than its style's height (whole grid cells) puts the room above and under it alike, never a band
   under it; across, it stands where its alignment says ([S-6583]).
