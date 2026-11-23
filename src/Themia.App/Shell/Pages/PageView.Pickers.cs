@@ -317,11 +317,12 @@ internal sealed partial class PageView
         }
 
         var status = SearchBox.Status(LookupStatus.Line(typed, asking, results.Count, note));
-        // [S-16409] Only the user's words: a box drawn anew (and the one it replaced) raise their words set from code, which
-        // taken as typing flipped what was typed between the two for ever, asking again on every flip.
+        // [S-16409] Only the user's words, in the box shown now: a box drawn anew and the one it replaced raise their words
+        // later, which taken as typing flipped what was typed between the two for ever, asking again on every flip.
+        _boxes[row.Key] = box;
         box.Typed += text =>
         {
-            if (LookupTyping.Types(byUser: true, text, _typed.GetValueOrDefault(row.Key)))
+            if (LookupTyping.Types(ReferenceEquals(_boxes.GetValueOrDefault(row.Key), box), text, _typed.GetValueOrDefault(row.Key)))
             {
                 _typed[row.Key] = text;
                 Redraw();

@@ -116,28 +116,28 @@ public sealed class SearchRulesTests
     /// <summary>
     /// [S-16409] The loop the owner saw ("when searching for a place it can go into an infinite reload loop"), as the page
     /// lived it: an answer to "zu" draws the lookup's box anew (box B, "zu") while the box it replaces (A) still has the
-    /// user's "e" on its way. Each box raises its words later, A typed ("zue"), B set from code ("zu"); and every box the
-    /// page draws for a change raises its own starting words set from code after it. Taken as typing (the old rule: every
-    /// change of the words), the two texts flip what is typed for ever and every flip draws a box anew and asks again;
-    /// taken as <see cref="LookupTyping"/> takes them, the user's "zue" is typed once and the page settles.
+    /// user's "e" on its way. Each box raises its words later, A "zue", B "zu"; and every box the page draws for a change
+    /// raises its own starting words after it. Taken as typing (the old rule: every change of the words), the two texts flip
+    /// what is typed for ever and every flip draws a box anew and asks again; taken as <see cref="LookupTyping"/> takes them
+    /// (only the box shown now types), the page settles at once.
     /// </summary>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public void S16409_a_lookup_drawn_anew_never_types_its_own_words_so_answers_settle(bool fixedRule)
     {
-        bool Types(bool byUser, string text, string held) => fixedRule ? LookupTyping.Types(byUser, text, held) : text != held;
-
         var held = "zu";
+        var shown = "B";
         var drawings = 0;
-        var asked = new List<string> { "zu" };
+        var boxes = 0;
+        bool Types(string box, string text) => fixedRule ? LookupTyping.Types(box == shown, text, held) : text != held;
 
-        // Waiting: A's typed "zue", then B's starting "zu" set from code.
-        var events = new Queue<(bool ByUser, string Text)>([(true, "zue"), (false, "zu")]);
+        // Waiting: A's "zue" (drawn over), then B's starting "zu".
+        var events = new Queue<(string Box, string Text)>([("A", "zue"), ("B", "zu")]);
         while (events.Count > 0 && drawings < 50)
         {
-            var (byUser, text) = events.Dequeue();
-            if (!Types(byUser, text, held))
+            var (box, text) = events.Dequeue();
+            if (!Types(box, text))
             {
                 continue;
             }
@@ -145,15 +145,13 @@ public sealed class SearchRulesTests
             // Typed: the page draws the lookup anew (a new box with what is typed, its words raised later) and asks.
             held = text;
             drawings++;
-            asked.Add(text);
-            events.Enqueue((false, text));
+            shown = $"N{++boxes}";
+            events.Enqueue((shown, text));
         }
 
         if (fixedRule)
         {
-            Assert.Equal("zue", held);
-            Assert.Equal(1, drawings);
-            Assert.Equal(["zu", "zue"], asked);
+            Assert.Equal(("zu", 0), (held, drawings));
         }
         else
         {
@@ -162,13 +160,13 @@ public sealed class SearchRulesTests
     }
 
     [Fact]
-    public void S16409_words_set_from_code_or_unchanged_are_no_typing()
+    public void S16409_only_the_box_shown_types_and_only_new_words()
     {
-        Assert.True(LookupTyping.Types(byUser: true, "zur", "zu"));
-        Assert.False(LookupTyping.Types(byUser: false, "zur", "zu"));
-        Assert.False(LookupTyping.Types(byUser: true, "zu", "zu"));
-        Assert.True(LookupTyping.Types(byUser: true, string.Empty, "zu"));
-        Assert.False(LookupTyping.Types(byUser: true, string.Empty, null));
+        Assert.True(LookupTyping.Types(shows: true, "zur", "zu"));
+        Assert.False(LookupTyping.Types(shows: false, "zur", "zu"));
+        Assert.False(LookupTyping.Types(shows: true, "zu", "zu"));
+        Assert.True(LookupTyping.Types(shows: true, string.Empty, "zu"));
+        Assert.False(LookupTyping.Types(shows: true, string.Empty, null));
     }
 
     [Fact]

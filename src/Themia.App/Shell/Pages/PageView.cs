@@ -62,6 +62,9 @@ internal sealed partial class PageView : ContentControl
     /// <summary>[S-2308] A lookup's last answer, by its row's key, with what it was asked for.</summary>
     private readonly LookupAnswers<SettingsSearchAnswer> _found = new();
 
+    /// <summary>[S-16409] Each lookup's search box shown now, by its row's key: a box drawn over types nothing.</summary>
+    private readonly Dictionary<string, SearchBox> _boxes = new(StringComparer.Ordinal);
+
     /// <summary>[S-16409] Each lookup's question out, by its row's key.</summary>
     private readonly Dictionary<string, CancellationTokenSource> _finding = new(StringComparer.Ordinal);
 
@@ -389,6 +392,7 @@ internal sealed partial class PageView : ContentControl
         }
 
         _kept.Clear();
+        _boxes.Clear();
         _closed = true;
         _afterRedraw.Clear();
         Cancel();

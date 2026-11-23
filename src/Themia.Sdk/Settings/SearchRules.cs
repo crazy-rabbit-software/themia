@@ -83,15 +83,18 @@ public static class LookupStatus
 
 /// <summary>
 /// [S-16409] What a change of a lookup's box does (owner, 2026-11-23: "when searching for a place it can go into an infinite
-/// reload loop"): only words the user changed are what is typed, and only when they differ from what the page holds. A page
-/// draws its lookup's box anew on every answer, with the words it holds; the box drawn anew, and the one it replaced, raise
-/// their words set from code later, after the page's next drawing. Taken as typing, the old box's words and the new box's
-/// flipped what was typed between the two for ever: every flip drew the box anew and asked again, and no answer stayed.
+/// reload loop"): only the box the page shows now types, and only words that differ from what the page holds. A page draws
+/// its lookup's box anew on every answer, with the words it holds; the box it replaced, and the one drawn anew, raise their
+/// words later, after the page's next drawing. Taken as typing, the old box's words and the new box's flipped what was typed
+/// between the two for ever: every flip drew the box anew and asked again, and no answer stayed.
 /// </summary>
 public static class LookupTyping
 {
-    /// <summary>Whether the box's words <paramref name="text"/>, changed <paramref name="byUser"/> or set from code, are typing over what the page holds (<paramref name="held"/>).</summary>
-    public static bool Types(bool byUser, string text, string? held) => byUser && !string.Equals(text ?? string.Empty, held ?? string.Empty, StringComparison.Ordinal);
+    /// <summary>
+    /// Whether the words <paramref name="text"/> a box raised are typing over what the page holds (<paramref name="held"/>):
+    /// the box is the one it <paramref name="shows"/> now, and they differ. A box the page has drawn over says nothing.
+    /// </summary>
+    public static bool Types(bool shows, string text, string? held) => shows && !string.Equals(text ?? string.Empty, held ?? string.Empty, StringComparison.Ordinal);
 }
 
 /// <summary>

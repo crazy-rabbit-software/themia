@@ -2311,11 +2311,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   answer; WinUI raises a box's words set from code later, after the page's next drawing, so the box drawn anew and the one
   it replaced each said their own words: taken as typing they flipped what was typed between the two for ever, every flip
   drawing the box anew and asking again, no answer ever staying ("Searching…" reloading). What is typed changes only by
-  the user's typing (`SearchBox.Typed`: the box's own user input, its Escape, a letter or Backspace typed on a result;
-  `LookupTyping.Types`), never by words set from code. Each lookup has its own question out (a lookup's newer question
-  cancels only its own older one), and a question cut short (the page went, a newer one of its own) is forgotten
-  (`LookupAnswers.Drop`), so it is asked again when the lookup is drawn rather than saying "Searching…" for good. Tests
-  `SearchRulesTests.S16409_`.
+  the user's typing (`SearchBox.Typed`: the box's own user input, its Escape, a letter or Backspace typed on a result) in
+  the box the page shows now (a box drawn over says nothing), and only to other words (`LookupTyping.Types`). Each lookup
+  has its own question out (a lookup's newer question cancels only its own older one), and a question cut short (the page
+  went, a newer one of its own) is forgotten (`LookupAnswers.Drop`), so it is asked again when the lookup is drawn rather
+  than saying "Searching…" for good. Tests `SearchRulesTests.S16409_`.
 - **[S-2309]** A number typed into a number box is read in the units the box shows (`NumberEntry`: the
   digits, one decimal mark of either kind, a minus; "42 %" is 0.42 of a fraction, "1.5 s" 1500 ms), then
   held to the range and the grain (`MenuSlider.Snap`); nothing that reads as a number restores the box.
