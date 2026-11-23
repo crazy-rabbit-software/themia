@@ -16,8 +16,27 @@ public sealed class RainNextHourTests
         var sizing = RainLayout.Sizing();
 
         Assert.Equal(12 + 28 + 20 + 8 + (48 + 4 + 16) + 12, sizing.Natural.Height);
-        Assert.True(sizing.FixedHeight);
-        Assert.Equal((220.0, 300.0, 420.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(sizing.Natural.Height, sizing.Max.Height);
+        Assert.Equal((160.0, 300.0, 420.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+    }
+
+    [Fact]
+    public void S16451_the_words_scale_down_as_one_to_the_caption_floor_and_the_plot_keeps_its_least()
+    {
+        var sizing = RainLayout.Sizing();
+
+        // At its own height the words are their own size; shorter, smaller as one, never under the caption's 9.
+        Assert.Equal(1, RainLayout.TextScale(sizing.Natural.Height));
+        Assert.Equal(RainLayout.LeastScale, RainLayout.TextScale(40));
+        Assert.Equal(9, FamilyType.Body.FontSize * RainLayout.LeastScale, 6);
+        var mid = RainLayout.TextScale(95);
+        Assert.InRange(mid, RainLayout.LeastScale, 1);
+        Assert.Equal(95 - RainLayout.PlotLeast, RainLayout.OverAt(mid), 6);
+
+        // The least card holds the words at their least over the plot's least; its capitals stay on the inset.
+        Assert.Equal(Math.Ceiling(RainLayout.OverAt(RainLayout.LeastScale) + RainLayout.PlotLeast), sizing.Min.Height);
+        Assert.True(sizing.Min.Height < 100);
+        Assert.Equal(FamilySpace.Inset, RainLayout.SentenceTopAt(0.7) + (LineInk.Of(FamilyType.Title).Over * 0.7), 6);
     }
 
     [Fact]

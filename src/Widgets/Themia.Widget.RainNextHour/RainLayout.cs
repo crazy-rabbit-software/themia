@@ -20,13 +20,42 @@ public static class RainLayout
     public const double Widest = 420;
 
     /// <summary>[S-6754] What stands over the plot's top: the inset, the sentence's Title line, its caption's Body line and 8.</summary>
-    public static double Over => FamilySpace.Inset + FamilyType.Title.LineHeight + FamilyType.Body.LineHeight + FamilySpace.S2;
+    public static double Over => OverAt(1);
 
     /// <summary>
     /// [S-16437] Where the sentence's Title line starts under the card's top edge: the inset less the room over its capitals,
     /// so the sentence's ink stands on the card's inset (WR-1: "there should not be a space at the top").
     /// </summary>
-    public static double SentenceTop => FamilySpace.Inset - LineInk.Of(FamilyType.Title).Over;
+    public static double SentenceTop => SentenceTopAt(1);
+
+    /// <summary>[S-16451] The sentence's two lines: the Title line and its caption's Body line, at their own size.</summary>
+    private static double Words => FamilyType.Title.LineHeight + FamilyType.Body.LineHeight;
+
+    /// <summary>
+    /// [S-16451] The least the plot keeps under the sentence (WR-14: the face scales down, the plot keeps a least): the
+    /// window's ends' Caption line at the inset off the foot and 8 of the tracks over it.
+    /// </summary>
+    public static double PlotLeast => FamilyType.Caption.LineHeight + FamilySpace.Inset + FamilySpace.S2;
+
+    /// <summary>[S-16451] The least scale of the sentence and its caption: the caption's Body at the legibility floor, 9.</summary>
+    public static double LeastScale => ScaleFloor.Text / FamilyType.Body.FontSize;
+
+    /// <summary>
+    /// [S-16451] The scale of the sentence and its caption in a card <paramref name="height"/> tall (WR-14, owner 2026-11-19:
+    /// "for the widgets that can scale there should basically be no lower limit except for one that makes sense so you can
+    /// still see the widget"): their own size where the card holds them over the plot's least, smaller as one in a shorter
+    /// card, down to the caption's 9; a card not laid out yet draws them at their own size.
+    /// </summary>
+    public static double TextScale(double height)
+        => double.IsFinite(height) && height > 0
+            ? Math.Clamp((height - FamilySpace.Inset - FamilySpace.S2 - PlotLeast) / Words, LeastScale, 1)
+            : 1;
+
+    /// <summary>[S-16451] What stands over the plot's top with the words at <paramref name="scale"/>: the inset, the words, 8.</summary>
+    public static double OverAt(double scale) => FamilySpace.Inset + (Words * scale) + FamilySpace.S2;
+
+    /// <summary>[S-16451] Where the Title line starts at <paramref name="scale"/>: its capitals on the card's inset.</summary>
+    public static double SentenceTopAt(double scale) => FamilySpace.Inset - (LineInk.Of(FamilyType.Title).Over * scale);
 
     /// <summary>[S-16437] The sentence with no nowcast to read (WR-10: its reading as "--"), drawn unavailable.</summary>
     public const string NoAnswer = "--";
@@ -44,7 +73,7 @@ public static class RainLayout
     /// over the plot's top and the window's <paramref name="ends"/> at its foot. [S-16436] Every quarter stands in its
     /// track from the band's top to the card's foot, a dry one its track alone, the ends written over the tracks' feet.
     /// </summary>
-    public static ChartModel Chart(IReadOnlyList<double> shares, ChartEnds ends, double width)
+    public static ChartModel Chart(IReadOnlyList<double> shares, ChartEnds ends, double width, double over = double.NaN)
     {
         ArgumentNullException.ThrowIfNull(shares);
         return new ChartModel
@@ -52,18 +81,26 @@ public static class RainLayout
             Type = ChartType.Bars,
             Low = 0,
             High = 1,
-            Over = Over,
+            Over = double.IsFinite(over) ? over : Over,
             Ends = ends,
             Tracks = true,
             Series = [.. shares.Select((share, i) => new ChartSample(HourGraphRules.X(i, shares.Count, width), share))],
         };
     }
 
-    /// <summary>[S-11140] The rain's sizing: the sentence and its caption over the columns, the ends' line under them.</summary>
+    /// <summary>
+    /// [S-11140] The rain's sizing: the sentence and its caption over the columns, the ends' line under them. [S-16451] Its
+    /// least: the words at their least scale over the plot's least, as narrow as the words at that scale still say their
+    /// start.
+    /// </summary>
     public static WidgetSizing Sizing()
     {
         var (_, foot) = ChartPlot.Keeps(Chart([], new ChartEnds(string.Empty, string.Empty), 0));
         var height = Over + Bars + foot;
-        return WidgetSizing.Range(new(Narrowest, height), new(300, height), new(Widest, height));
+        var least = Math.Ceiling(OverAt(LeastScale) + PlotLeast);
+        return WidgetSizing.Range(new(Least, least), new(300, height), new(Widest, height));
     }
+
+    /// <summary>[S-16451] The narrowest card: the sentence's start at its least scale.</summary>
+    public const double Least = 160;
 }

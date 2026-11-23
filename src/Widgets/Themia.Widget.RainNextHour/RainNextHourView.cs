@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
@@ -25,7 +26,7 @@ namespace Themia.App.Widgets;
 /// The card is one item, lit under the pointer while a click opens the forecast ([S-16435]).
 /// </summary>
 internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetContextActions, IWidgetTopEdge, IWidgetSurfaceAware
+    IWidgetContextActions, IWidgetTopEdge, IWidgetSurfaceAware, IWidgetSizeAware
 {
     /// <summary>[S-5700] [S-6754] The plot is drawn to the card's top edge; the sentence keeps the inset over it.</summary>
     public bool OwnsTopEdge => true;
@@ -53,6 +54,10 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     private readonly OpensLight _opensLight;
     private IWidgetSurface? _surface;
 
+    /// <summary>[S-16451] The sentence and its caption drawn smaller as one in a short card.</summary>
+    private readonly ScaleTransform _words = new();
+    private WidgetArea _area;
+
     public RainNextHourView(IWidgetHost host)
     {
         _status = new KitStatus(host);
@@ -62,6 +67,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
             Render);
         // [S-16437] The sentence's capitals on the card's inset (WR-1), not its Title line's box (they stood 19.3 down).
         _top.Margin = new Thickness(FamilySpace.Inset, RainLayout.SentenceTop, FamilySpace.Inset, 0);
+        _top.HorizontalAlignment = HorizontalAlignment.Left;
+        _top.RenderTransform = _words;
         _top.VerticalAlignment = VerticalAlignment.Top;
         _headline.TextWrapping = TextWrapping.NoWrap;
         _headline.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -77,6 +84,20 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
+
+    /// <summary>
+    /// [S-16451] The card's box: in a short card the sentence and its caption are drawn smaller as one, down to the caption's
+    /// 9 (WR-14), their room across the card's at that scale, the plot under them.
+    /// </summary>
+    public void ApplySize(WidgetArea area)
+    {
+        _area = area;
+        var scale = RainLayout.TextScale(area.Height);
+        _words.ScaleX = scale;
+        _words.ScaleY = scale;
+        _top.Margin = new Thickness(FamilySpace.Inset, RainLayout.SentenceTopAt(scale), 0, 0);
+        _top.Width = area.IsMeasured ? Math.Max(0, (area.Width - (2 * FamilySpace.Inset)) / scale) : double.NaN;
+    }
 
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)] : [];
@@ -129,7 +150,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         var shares = Enumerable.Range(0, RainRules.WindowSteps)
             .Select(i => warns && i < outlook!.Steps.Count ? RainRules.BarShare(outlook.Steps[i].Millimetres) : 0)
             .ToList();
-        _chart.Show(size => RainLayout.Chart(shares, ends, size.Width));
+        _chart.Show(size => RainLayout.Chart(shares, ends, size.Width, RainLayout.OverAt(RainLayout.TextScale(size.Height))));
     }
 
     public void Detach()

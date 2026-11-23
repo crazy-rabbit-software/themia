@@ -42,6 +42,16 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   dry window's sentence ("No rain in the next 2 hours") is the Title line and the hour's chance its caption, as a wet
   one's; with no nowcast the sentence is "--", unavailable, and why ("Can't reach the service") the caption, the tracks
   under them. Test `RainNextHourTests.S16437_`.
+- **[S-16450]** **The columns spread edge to edge** (owner, 2026-11-19: "Plot edge to edge"; the re-audit of 2026-11-23: at
+  900 × 300 the first column stood 48 DIP in from the left, 96 DIP between them): the quarters' columns and their tracks
+  share the plot's width, the first on its left edge and the last on its right, alike and 4 apart (`ChartPlot.Spread`),
+  round at the top by the family's radius. Test `ChartPlotTests.S16450_`.
+- **[S-16451]** **A short card scales the words down** (WR-14, owner 2026-11-19: "for the widgets that can scale there
+  should basically be no lower limit except for one that makes sense so you can still see the widget"): the sentence and
+  its caption are drawn smaller as one where the card does not hold them over the plot's least (the ends' line and 8 of the
+  tracks, `RainLayout.PlotLeast`), down to the caption's 9 (`RainLayout.TextScale`, `OverAt`, their capitals on the inset);
+  the card's least is the words at that scale over the plot's least (87 tall, 160 wide; it was 220 × 148, every desk size
+  forced to 148). Test `RainNextHourTests.S16451_`.
 - **[S-11140]** **An atom** ([S-11170]): the sentence, its caption and the bars, the same at every size
   in its range (no ladder, no part that comes or goes with the box). **Sizes** (`RainLayout.Sizing`):
   one height (148), 220..420 wide, a new one 300: the bars get wider. It follows the
