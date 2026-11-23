@@ -32,7 +32,9 @@ namespace Themia.App.Shell.Gallery;
 /// the selection's frame's four corners alone round them, none of their own, a card alone its own, through a locked move too.
 /// [S-13046]..[S-13048] It moves icons one and several on the free desktop, into the fence and out of it, drawn mid-move: each
 /// moving icon a ghost where it lands and [S-16460] no picture under the pointer while the move stays on the desktop; the
-/// shell's drag a move becomes carries the held icon alone (one icon's square, no badge).
+/// shell's drag a move becomes carries the held icon alone (one icon's square, no badge). [S-16461] [S-16463] Two icons moved
+/// with one's box in the fence before the pointer: let go there none is the fence's (and none left under it), then the pointer
+/// in too: both are.
 /// <c>--twice</c> adds a second display left of it; <c>--glass</c> draws Liquid glass.
 /// </summary>
 internal static partial class DeskSelectCheck
@@ -55,7 +57,9 @@ internal static partial class DeskSelectCheck
         the several cards' frame [S-14310], Delete outside edit mode [S-14320], a card's menu [S-14321]; an icon moved into the
         fence and one on the free desktop, drawn mid-move to <out>.move-fence.png / .move-fence-icon.png / .move-free.png
         [S-13046] [S-13047], two icons moved on the free desktop, out of the fence and into it, nothing under the pointer
-        (<out>.move-several-free.png / .move-several-out.png / .move-several-fence.png) [S-13048] [S-16460], an icon placed from the Unplaced page
+        (<out>.move-several-free.png / .move-several-out.png / .move-several-fence.png) [S-13048] [S-16460], two into the fence
+        with one icon's box entering first (<out>.move-several-first.png / -first-via.png / -first-in.png) [S-16461] [S-16463],
+        an icon placed from the Unplaced page
         (<out>.place-icon.png) [S-13708], icons moved onto the open Unplaced icons page and dragged back off it
         (<out>.unplace-fence.png / .unplace-free.png) [S-13713] [S-13715]; <out>.png the surface at the end
         --locked     Lock widgets on: the selection holds icons only [S-12953]
@@ -499,8 +503,51 @@ internal static partial class DeskSelectCheck
                 await MoveSeveralAsync("twinU", ["twinP"], held => new Point(metrics.Width * 0.90, metrics.Height * 0.80), "out",
                     () => !Fenced("twinU") && !Fenced("twinP")).ConfigureAwait(true);
                 await MoveSeveralAsync("twinP", ["twinU"], held => fenceCard.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(fenceCard.ActualWidth * 0.3, fenceCard.ActualHeight * 0.5)), "fence",
-                    () => Fenced("twinP")).ConfigureAwait(true);
+                    () => Fenced("twinP") && Fenced("twinU")).ConfigureAwait(true);
 
+                // [S-16461] [S-16463] Two icons into the fence, one's box entering it before the pointer (owner, 2026-11-23: "when moving
+                // multiple desktop icons into a fence it does not always work, sometimes when one desktop icon enters first before the
+                // mouse entered it does not move one of the widgets inside"): iconA stands right above iconB, iconB held. Let go with
+                // iconA's box on the fence's body and the pointer below it: none is the fence's, and iconA is not left under the
+                // fence. Then by the same stop on into the fence's first row (iconA above it, outside): both are the fence's.
+                async Task PutAsync(string name, Point at)
+                {
+                    host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                    Click(name);
+                    var held = Card(name);
+                    var press = held.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(held.ActualWidth / 2, held.ActualHeight / 2));
+                    surface.BeginMove(held, press);
+                    surface.PreviewMove(held, (at.X - press.X) / metrics.Width, (at.Y - press.Y) / metrics.Height);
+                    surface.FlushMove();
+                    surface.CommitMove(held);
+                    await Task.Delay(300).ConfigureAwait(true);
+                }
+
+                async Task StackAsync()
+                {
+                    await PutAsync("iconB", new Point(metrics.Width * 0.45, metrics.Height * 0.86)).ConfigureAwait(true);
+                    var under = CellOf(Card("iconB"));
+                    await PutAsync("iconA", new Point(under.X + (under.Width / 2), under.Y - (under.Height * 0.8))).ConfigureAwait(true);
+                }
+
+                // The pointer presses iconB at 30 % of its height: where it is when iconB's centre is at (x, y).
+                Point PointerFor(double x, double y) => new(x, y - (CellOf(Card("iconB")).Height * 0.2));
+                static bool Overlaps(FracRect a, FracRect b) => a.X < b.Right && b.X < a.Right && a.Y < b.Bottom && b.Y < a.Bottom;
+                var body = CellOf(fenceCard);
+                var title = Themia.Core.Desktop.FenceCells.TitleHeight(metrics) * metrics.Height;
+                await StackAsync().ConfigureAwait(true);
+                var (cellA, cellB) = (CellOf(Card("iconA")), CellOf(Card("iconB")));
+                var gap = cellB.Y + (cellB.Height / 2) - (cellA.Y + (cellA.Height / 2));
+                var belowY = body.Y + body.Height + (cellB.Height * 0.55);
+                var outsideAt = PointerFor(body.X + (body.Width * 0.3), belowY);
+                var aInside = gap > 0 && belowY - gap > body.Y + title && belowY - gap < body.Y + body.Height;
+                report.Expect(aInside, $"iconA {gap:0} DIPs above iconB: with iconB's centre below the fence, iconA's on its body {aInside}");
+                await MoveSeveralAsync("iconB", ["iconA"], _ => outsideAt, "first",
+                    () => !Fenced("iconA") && !Fenced("iconB") && !Overlaps(Model(Index("iconA")).Rect, Model(Index("fence")).Rect)).ConfigureAwait(true);
+                await StackAsync().ConfigureAwait(true);
+                var firstRow = PointerFor(body.X + (body.Width * 0.3), body.Y + title + (cellB.Height * 0.5));
+                await MoveSeveralAsync("iconB", ["iconA"], _ => firstRow, "first-in",
+                    () => Fenced("iconA") && Fenced("iconB"), via: _ => outsideAt, viaTag: "first-via").ConfigureAwait(true);
 
                 // [S-14310] Edit mode, the same rule: two selected show no marks and no grips of their own and the frame in its
                 // edit look (hairline, markers, grips) round them; every card not selected keeps its own; one selected again

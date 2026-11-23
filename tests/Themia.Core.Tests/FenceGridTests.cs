@@ -113,7 +113,7 @@ public sealed class FenceGridTests
         // Let go: it is the fence's, and laid it stands exactly where it was dropped. No jump.
         icon.Rect = helped.At(outside, helped.Landing);
         var dropped = icon.Rect;
-        Assert.Equal(1, DesktopFences.Land(view, [icon.Id], Screen, Box));
+        Assert.Equal(1, DesktopFences.Land(view, [icon.Id], icon.Id, Screen, Box));
         Assert.Equal([Desk + "x"], config.Items);
         DesktopFences.Lay(view, Screen, Box);
         Assert.Equal(dropped.X, icon.Rect.X, 9);
@@ -121,7 +121,7 @@ public sealed class FenceGridTests
 
         // Back out over the edge: a free icon again, on the cell it left, still there after the fences are laid.
         icon.Rect = outside;
-        Assert.Equal(1, DesktopFences.Land(view, [icon.Id], Screen, Box));
+        Assert.Equal(1, DesktopFences.Land(view, [icon.Id], icon.Id, Screen, Box));
         Assert.Empty(config.Items);
         DesktopFences.Lay(view, Screen, Box);
         Assert.Equal(outside, icon.Rect);
@@ -148,7 +148,7 @@ public sealed class FenceGridTests
 
         // Dropped on b's cell it takes b's place; laid, b stands on the next cell.
         x.Rect = DesktopFences.DropCell(view, FenceCells.Cell(layout, 1), Screen, Box, moving);
-        DesktopFences.Land(view, [x.Id], Screen, Box);
+        DesktopFences.Land(view, [x.Id], x.Id, Screen, Box);
         Assert.Equal([Desk + "a", Desk + "x", Desk + "b"], config.Items);
         DesktopFences.Lay(view, Screen, Box);
         Assert.Equal(FenceCells.Cell(layout, 1), x.Rect);
@@ -159,11 +159,128 @@ public sealed class FenceGridTests
         var own = new HashSet<string>([a.Id], StringComparer.Ordinal);
         a.Rect = DesktopFences.DropCell(view, FenceCells.Cell(layout, 5), Screen, Box, own);
         Assert.Equal(FenceCells.Cell(layout, 2), a.Rect);
-        DesktopFences.Land(view, [a.Id], Screen, Box);
+        DesktopFences.Land(view, [a.Id], a.Id, Screen, Box);
         Assert.Equal([Desk + "x", Desk + "b", Desk + "a"], config.Items);
 
         // A fence that moves carries its icons: none of them lands anywhere else.
-        Assert.Equal(0, DesktopFences.Land(view, [fence.Id, a.Id, x.Id], Screen, Box));
+        Assert.Equal(0, DesktopFences.Land(view, [fence.Id, a.Id, x.Id], fence.Id, Screen, Box));
+    }
+
+    /// <summary>A free icon <paramref name="name"/> added to <paramref name="view"/> at <paramref name="rect"/>.</summary>
+    private static WidgetInstance Free(ViewState view, string name, FracRect rect)
+    {
+        var icon = Icon(name, rect);
+        view.Widgets.Add(icon);
+        return icon;
+    }
+
+    private static FracRect Beside(FracRect cell, int across, int down) => cell with { X = cell.X + (across * Box.W), Y = cell.Y + (down * Box.H) };
+
+    [Fact]
+    public void S16461_several_icons_land_in_the_fence_the_pointer_drops_on_even_one_whose_box_is_outside()
+    {
+        // Owner, 2026-11-23: "when moving multiple desktop icons into a fence it does not always work". The held icon x on the
+        // fence's first cell, y one box left of it (the block's shape): y's box is outside the fence, the pointer inside.
+        var (view, fence, config) = Fenced(40, 10, 3, 2, "a");
+        DesktopFences.Lay(view, Screen, Box);
+        var layout = FenceCells.Of(fence.Rect, config, Screen, Box);
+        var moving = new HashSet<string>(["icon-x", "icon-y"], StringComparer.Ordinal);
+        var x = Free(view, "x", DesktopFences.DropCell(view, FenceCells.Cell(layout, 0), Screen, Box, moving));
+        var y = Free(view, "y", Beside(x.Rect, -1, 0));
+        Assert.True(DesktopGrid.Free(y.Rect, [fence.Rect]));
+
+        Assert.Equal(2, DesktopFences.Land(view, [x.Id, y.Id], x.Id, Screen, Box));
+
+        // Both are the fence's, the block in reading order from where it was dropped; laid, each on a cell of its own.
+        Assert.Equal([Desk + "y", Desk + "x", Desk + "a"], config.Items);
+        DesktopFences.Lay(view, Screen, Box);
+        Assert.Equal(FenceCells.Cell(layout, 0), y.Rect);
+        Assert.Equal(FenceCells.Cell(layout, 1), x.Rect);
+        Assert.Equal(FenceCells.Cell(layout, 2), IconOf(view, "a").Rect);
+    }
+
+    [Fact]
+    public void S16461_an_icon_whose_box_entered_the_fence_first_lands_with_the_pointer_after_it()
+    {
+        // The case the owner described: y (right of the held x) entered the fence's body before the pointer did; then the
+        // pointer came in and x stands on the fence's last column, y past its right edge. Both land in the fence.
+        var (view, fence, config) = Fenced(40, 10, 3, 2, "a", "b");
+        DesktopFences.Lay(view, Screen, Box);
+        var layout = FenceCells.Of(fence.Rect, config, Screen, Box);
+        var moving = new HashSet<string>(["icon-x", "icon-y"], StringComparer.Ordinal);
+        var x = Free(view, "x", DesktopFences.DropCell(view, FenceCells.Cell(layout, 2), Screen, Box, moving));
+        var y = Free(view, "y", Beside(x.Rect, 1, 0));
+        Assert.True(DesktopGrid.Free(y.Rect, [fence.Rect]));
+
+        DesktopFences.Land(view, [y.Id, x.Id], x.Id, Screen, Box);
+
+        Assert.Equal([Desk + "a", Desk + "b", Desk + "x", Desk + "y"], config.Items);
+        DesktopFences.Lay(view, Screen, Box);
+        Assert.Equal(FenceCells.Cell(layout, 2), x.Rect);
+        Assert.Equal(FenceCells.Cell(layout, 3), y.Rect);
+    }
+
+    [Fact]
+    public void S16463_the_pointer_outside_no_icon_lands_in_the_fence_and_none_is_left_under_it()
+    {
+        // The other way round: the pointer (the held x) below the fence's body, y's box still inside it. None is the fence's;
+        // y does not stay hidden under the fence's body either: it steps to the nearest free cell of the free desktop.
+        var (view, fence, config) = Fenced(40, 10, 3, 2, "a");
+        DesktopFences.Lay(view, Screen, Box);
+        var layout = FenceCells.Of(fence.Rect, config, Screen, Box);
+        var x = Free(view, "x", Beside(FenceCells.Cell(layout, 3), 0, 1));
+        var y = Free(view, "y", FenceCells.Cell(layout, 3));
+        var dropped = x.Rect;
+
+        DesktopFences.Land(view, [x.Id, y.Id], x.Id, Screen, Box);
+
+        Assert.Equal([Desk + "a"], config.Items);
+        Assert.Equal(dropped, x.Rect);
+        Assert.True(DesktopGrid.Free(y.Rect, [fence.Rect]), $"{y.Rect} still on the fence {fence.Rect}");
+        Assert.True(DesktopGrid.Free(y.Rect, [x.Rect]), $"{y.Rect} on x {x.Rect}");
+        AssertGridCell(y.Rect);
+        Assert.Contains(Desk + "y", DesktopViews.Free(view));
+    }
+
+    [Fact]
+    public void S16462_a_fence_too_small_for_all_takes_them_all_and_scrolls_to_the_rest()
+    {
+        // A fence of two cells holding one item; three icons moved in by the pointer on its second cell: all three are the
+        // fence's (it scrolls by rows to the ones its body does not show), none lost, none left outside.
+        var (view, fence, config) = Fenced(40, 10, 2, 1, "a");
+        DesktopFences.Lay(view, Screen, Box);
+        var layout = FenceCells.Of(fence.Rect, config, Screen, Box);
+        var moving = new HashSet<string>(["icon-x", "icon-y", "icon-z"], StringComparer.Ordinal);
+        var x = Free(view, "x", DesktopFences.DropCell(view, FenceCells.Cell(layout, 1), Screen, Box, moving));
+        var y = Free(view, "y", Beside(x.Rect, 1, 0));
+        var z = Free(view, "z", Beside(x.Rect, 2, 0));
+
+        DesktopFences.Land(view, [x.Id, y.Id, z.Id], x.Id, Screen, Box);
+        DesktopFences.Lay(view, Screen, Box);
+
+        Assert.Equal([Desk + "a", Desk + "x", Desk + "y", Desk + "z"], config.Items);
+        Assert.Equal(FenceCells.Cell(layout, 1), x.Rect);
+        Assert.Equal(["icon-y", "icon-z"], DesktopFences.Hidden(view, Screen, Box).Order());
+        Assert.All(new[] { x, y, z }, icon => Assert.Same(icon, view.Find(icon.Id)));
+        config.Scroll = 1;
+        DesktopFences.Lay(view, Screen, Box);
+        Assert.Equal(FenceCells.Cell(layout, 0), y.Rect);
+        Assert.Equal(FenceCells.Cell(layout, 1), z.Rect);
+    }
+
+    [Fact]
+    public void S16461_without_a_held_icon_the_first_in_reading_order_decides()
+    {
+        // Icons nudged with the keys have no pointer: the block's first icon in reading order says where it lands.
+        var (view, fence, config) = Fenced(40, 10, 3, 2);
+        DesktopFences.Lay(view, Screen, Box);
+        var layout = FenceCells.Of(fence.Rect, config, Screen, Box);
+        var x = Free(view, "x", FenceCells.Cell(layout, 2));
+        var y = Free(view, "y", Beside(x.Rect, 1, 0));
+
+        DesktopFences.Land(view, [y.Id, x.Id], null, Screen, Box);
+
+        Assert.Equal([Desk + "x", Desk + "y"], config.Items);
     }
 
     [Fact]

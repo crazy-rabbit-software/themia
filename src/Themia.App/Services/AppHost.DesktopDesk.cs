@@ -1112,8 +1112,9 @@ internal sealed partial class AppHost : IDesktopDesk
                 }
             }
 
-            // [S-13041] Into a fence or out of one by where they stand; one that left its view leaves its fence there.
-            DesktopFences.Land(targetView, ids, to, DeskIconSize(to));
+            // [S-13041] [S-16461] Into a fence or out of one, all of them by where the held icon lands; one that left its view
+            // leaves its fence there.
+            DesktopFences.Land(targetView, ids, moving[held].Id, to, DeskIconSize(to));
         }, undo: UndoAction.Move);
     }
 

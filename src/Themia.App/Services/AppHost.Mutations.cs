@@ -86,13 +86,14 @@ internal sealed partial class AppHost
     /// <summary>
     /// [S-15662] The one way a gesture lands: the widgets of <paramref name="landings"/> take their rects and configs inside one
     /// change (<see cref="Mutate"/>, one undo step named <paramref name="undo"/>: a whole drag, a resize, a run of held arrows,
-    /// [S-1972]), and the desktop icons among them land in a fence or out of one by where they stand ([S-13041],
+    /// [S-1972]), and the desktop icons among them land in a fence or out of one by where the held one lands ([S-13041], [S-16461],
     /// <see cref="DesktopFences.Land"/>) on <paramref name="surface"/>'s view; the surfaces draw what changed ([S-15660]: the
     /// moved cards laid again, a config applied again only where it changed). A card shows its gesture in its live rect alone
     /// until here; nothing writes the state outside this. A null <paramref name="surface"/> (a widget's page): the widgets
-    /// wherever they are, no fence landing.
+    /// wherever they are, no fence landing. [S-16461] <paramref name="held"/> is the widget the pointer held: its landing
+    /// decides for every icon of the gesture whether they land in a fence (none: the first icon in reading order, the keys').
     /// </summary>
-    internal bool Land(DesktopWindow? surface, IReadOnlyList<Landing> landings, UndoAction undo)
+    internal bool Land(DesktopWindow? surface, IReadOnlyList<Landing> landings, UndoAction undo, string? held = null)
     {
         ArgumentNullException.ThrowIfNull(landings);
         var viewId = surface?.CurrentViewId;
@@ -121,7 +122,7 @@ internal sealed partial class AppHost
 
                 if (view is not null && metrics is { } screen && view.Widgets.Exists(w => w.Config is IHoldsDesktopItems))
                 {
-                    DesktopFences.Land(view, [.. landings.Select(l => l.Id)], screen, DeskIconSize(screen));
+                    DesktopFences.Land(view, [.. landings.Select(l => l.Id)], held, screen, DeskIconSize(screen));
                 }
             },
             undo: undo);

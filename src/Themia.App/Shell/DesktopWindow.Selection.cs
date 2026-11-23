@@ -527,8 +527,9 @@ internal sealed partial class DesktopWindow
         // [S-2244] Dropped: they join where they landed, one join pass.
         JoinCards();
 
-        // [S-884] [S-15662] The whole drag, every selected widget, is one undo step; [S-13041] its icons land in a fence or out of one in it.
-        _host.Land(this, landings, UndoAction.Move);
+        // [S-884] [S-15662] The whole drag, every selected widget, is one undo step; [S-13041] its icons land in a fence or out of one in it,
+        // [S-16461] all of them where the held icon lands.
+        _host.Land(this, landings, UndoAction.Move, move.Anchor.Model.Id);
     }
 
     /// <summary>

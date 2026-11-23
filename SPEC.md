@@ -13208,7 +13208,8 @@ module's `FenceTests`.
   matching fence takes it by the normal rules ([S-5526]). A drop, a paste or New › at a point of the free desktop lands
   there, never routed. A shell item matches nothing. Tests `DesktopFencesTests.S13004_`, `FenceRulesTests.S13004_`.
 - **[S-13005]** **Into a fence**: an icon (or several) moved onto a fence's body lands on the cell under it and is the
-  fence's at the place that cell stands for ([S-13041]: the desktop's one move and drop computation); `DesktopFences.MoveIn`
+  fence's at the place that cell stands for ([S-13041]: the desktop's one move and drop computation; several all of them,
+  by where the pointer drops, [S-16461]); `DesktopFences.MoveIn`
   puts items in by their keys for everything else (a fence made round a selection, a collecting fence, `AppHost.PlaceInFence`
   for a command or the unplaced items' page): each leaves the free desktop and every other fence of that view, its icon kept
   (one with none on the view gets one, [S-13042]); one already in the fence moves to the new place; own icons and cards stay
@@ -13343,8 +13344,8 @@ module's `FenceTests`.
   change, no glide). Where it lands is `DesktopFences.DropCell` for the free desktop and a fence alike: the grid's landing,
   and on a fence's body the cell under the icon's centre, never past the items that stay (a fence fills its cells in order)
   nor a row its body does not show; the move's block follows the held icon there (`BlockMove`'s cell). Let go,
-  `DesktopFences.Land` makes each icon the fence's whose body it landed on, at the place its cell stands for, or a free icon
-  where it stands; the same for a shell drag of the desktop's icons dropped back on the desktop or over a fence
+  `DesktopFences.Land` makes the icons the fence's whose body the held icon landed on, all of them, from the place its cell
+  stands for, or free icons where they stand ([S-16461]: decided once by the held icon, never by each icon's own box); the same for a shell drag of the desktop's icons dropped back on the desktop or over a fence
   (`AppHost.MoveDeskDrag`) and for icons nudged with the keys. The desktop's own drop has no glide, so neither has a fence's.
   Tests `FenceGridTests.S13041_`.
 - **[S-13042]** **A fence's items are desktop icons**: each held item has its one item widget on the fence's view (made at
@@ -13452,6 +13453,38 @@ module's `FenceTests`.
   several, into the fence, by its title bar, on the free desktop, out of the fence) and for the held icon's picture carried
   by the shell's drag. Needs a live pass: the real pointer moving a folder and several icons on the desktop and into a
   fence, then off the desktop onto an app (the shell's drag shows the held icon).
+- **[S-16461]** **Several icons into a fence land together** (the owner, 2026-11-23: "when moving multiple desktop icons into
+  a fence it does not always work, sometimes when one desktop icon enters first before the mouse entered it does not move
+  one of the widgets inside."): where a move of desktop icons lands is decided once, for the whole move, by the icon the
+  pointer holds (`DesktopFences.Land`'s `held`; icons nudged with the keys, which have no pointer: the first moving icon in
+  reading order). Dropped with the held icon on a fence's body ([S-13041], its cell by `DropCell`), every desktop item the
+  move carries is that fence's: the block in reading order from the place the held icon's cell stands for (the held icon on
+  that cell where the icons before it fit in front of it), each on a cell of its own when the fence is laid, leaving any
+  fence it was in, whether its own box was over the fence or still outside it; own icons and cards stay free ([S-13005]).
+  Dropped anywhere else none is a fence's ([S-16463]). Cause: `Land` asked each icon's own centre (`Under` per icon), while
+  the move's block followed the held icon's cell; an icon of the block left or above the held one (the held icon on the
+  fence's first column or row, or pulled back to the first free cell) or right of or below it (the held icon on the last
+  column or row) stood outside the body and stayed a free icon. The same rule for the move (`DesktopWindow.CommitMove`),
+  the shell's drag of the desktop's icons dropped back (`AppHost.MoveDeskDrag`) and the keys (`FlushNudge`), through
+  `AppHost.Land`'s `held`. Tests `FenceGridTests.S16461_`; `--check desk-select` moves iconB with iconA above it into the
+  fence's first row by way of a stop where iconA's box is on the body and the pointer below it
+  (`<out>.move-several-first-via.png`, `.move-several-first-in.png`): both are the fence's. The other icons' ghosts follow
+  the block during the move (`BlockMove`); on the drop they take the cells after the held icon's. Needs a live pass: the
+  real pointer moving several selected icons into a fence from each side.
+- **[S-16462]** **A fence too small for all of them takes them all** (decided 2026-11-23 with [S-16461]): more icons dropped
+  into a fence than its body has free cells are all the fence's, in their order; its body shows whole rows from its scroll
+  and the rest wait in rows it scrolls to ([S-13043]: the wheel over it, the thumb at its edge says there is more).
+  Never some in and some out, never an icon lost: each keeps its icon on the view (tucked in
+  the fence's corner while not shown, [S-13042]). The fence does not grow (a drop changes no fence's size, [S-13041]).
+  Tests `FenceGridTests.S16462_`.
+- **[S-16463]** **The pointer outside a fence: no icon lands in it, none is left under it** (with [S-16461]): a move let go
+  with the held icon off every fence's body (on the free desktop, on a fence's title bar) makes none of its icons a fence's,
+  even one whose box stands on a fence's body (it entered first). Each is a free icon where it stands; one whose centre
+  stands on a fence that does not move (title bar or body) steps to the nearest free cell of the desktop
+  (`DesktopGrid.NearestFree` round every other widget), so no free icon is drawn under a fence's body (a fence made after
+  its icons paints over them, [S-13042]); with no free cell left it stays where it stands. Tests `FenceGridTests.S16463_`;
+  `--check desk-select` lets go iconB below the fence with iconA's box on its body (`<out>.move-several-first.png`): neither
+  is the fence's and iconA stands clear of it.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

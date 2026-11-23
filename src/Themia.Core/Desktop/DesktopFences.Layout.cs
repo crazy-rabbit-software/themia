@@ -239,49 +239,80 @@ public static partial class DesktopFences
     }
 
     /// <summary>
-    /// [S-13041] A move of <paramref name="moved"/> (widget ids of <paramref name="view"/>, already at the rects they landed
-    /// on) let go: each desktop item's icon among them that landed on a fence's body is that fence's, at the place its cell
-    /// stands for (<see cref="DropCell"/>, several in reading order), leaving any fence it was in; one that landed anywhere
-    /// else is a free icon where it stands. An icon carried with its own fence stays in it; an own icon is never a fence's.
-    /// The caller lays the fences after (<see cref="Lay"/>). Returns how many icons changed fence or place in one.
+    /// [S-13041] [S-16461] A move of <paramref name="moved"/> (widget ids of <paramref name="view"/>, already at the rects they
+    /// landed on) let go. Where it lands is decided once, for the whole move, by the icon the pointer holds
+    /// (<paramref name="held"/>; none, as for icons nudged with the keys: the first moving icon in reading order): dropped on a
+    /// fence's body, every desktop item's icon it carries is that fence's, the block in reading order from the place the held
+    /// icon's cell stands for (<see cref="DropCell"/>), leaving any fence it was in, each on a cell of its own when the fence
+    /// is laid, however many: one whose box was still outside the fence included ([S-16462]: a fence too small for them all
+    /// takes them all and scrolls by rows to the rest). Dropped anywhere else, none is a fence's: each is a free icon where it
+    /// stands ([S-16463]), and one whose centre stands on a fence (its box entered it before the pointer) steps to the nearest
+    /// free cell, so no free icon is left under a fence. Never by an icon's own box (before 2026-11-23 each icon landed by
+    /// its own centre, so one of several stayed outside: owner, "sometimes when one desktop icon enters first before the mouse
+    /// entered it does not move one of the widgets inside"). An icon carried with its own fence stays in it; an own icon is
+    /// never a fence's. The caller lays the fences after (<see cref="Lay"/>). Returns how many icons changed fence, place in
+    /// one, or stepped off a fence.
     /// </summary>
-    public static int Land(ViewState view, IReadOnlyCollection<string> moved, ScreenMetrics screen, (double W, double H) box)
+    public static int Land(ViewState view, IReadOnlyCollection<string> moved, string? held, ScreenMetrics screen, (double W, double H) box)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(moved);
         var set = new HashSet<string>(moved, StringComparer.Ordinal);
         var fences = FenceIndex.Of(view);
-        var landings = new List<(string Key, FracRect Rect, (FenceOn Fence, FenceGrid.Layout Layout, int Slot)? At)>();
-        foreach (var widget in view.Widgets)
-        {
-            if (!set.Contains(widget.Id) || widget.Config is not IDesktopItemConfig { Item.Length: > 0 } config)
-            {
-                continue;
-            }
 
-            if (fences.Holding(config.Item) is { } holder && set.Contains(holder.Widget.Id))
-            {
-                continue;
-            }
-
-            landings.Add((config.Item, widget.Rect, Under(fences, widget.Rect, screen, box, set)));
-        }
-
-        if (landings.Count == 0)
+        // The moving icons that land (both sources): not one its own moving fence carries.
+        var icons = view.Widgets
+            .Where(w => set.Contains(w.Id) && w.Config is IDesktopItemConfig config
+                && !(config.Item.Length > 0 && fences.Holding(config.Item) is { } holder && set.Contains(holder.Widget.Id)))
+            .OrderBy(w => w.Rect.Y).ThenBy(w => w.Rect.X).ThenBy(w => w.Id, StringComparer.Ordinal)
+            .ToList();
+        if (icons.Count == 0)
         {
             return 0;
         }
 
-        var before = Places(view, landings.Select(l => l.Key));
-        TakeOut(view, landings.Select(l => l.Key));
-        foreach (var (key, _, at) in landings.Where(l => l.At is not null).OrderBy(l => l.At!.Value.Slot).ThenBy(l => l.Rect.Y).ThenBy(l => l.Rect.X))
+        // [S-16461] The one decision: the held icon's landing (a card or a fence held: no fence takes the icons).
+        var lead = held is null ? icons[0] : icons.Find(w => string.Equals(w.Id, held, StringComparison.Ordinal));
+        var target = lead is null ? null : Under(fences, lead.Rect, screen, box, set);
+
+        var keyed = icons.Where(w => ((IDesktopItemConfig)w.Config).Item.Length > 0).ToList();
+        string KeyOf(WidgetInstance w) => ((IDesktopItemConfig)w.Config).Item;
+        var before = Places(view, keyed.Select(KeyOf));
+        var rects = icons.ToDictionary(w => w.Id, w => w.Rect, StringComparer.Ordinal);
+        TakeOut(view, keyed.Select(KeyOf));
+        var inFence = new HashSet<string>(StringComparer.Ordinal);
+        if (target is { } at)
         {
-            var items = at!.Value.Fence.Fence.Items;
-            items.Insert(Math.Clamp(at.Value.Slot, 0, items.Count), key);
+            // The block in reading order, the held icon on its cell where the fence's order allows it.
+            var ahead = lead is null ? 0 : keyed.Count(w => icons.IndexOf(w) < icons.IndexOf(lead));
+            var first = at.Layout.Scroll * at.Layout.Columns;
+            var items = at.Fence.Fence.Items;
+            var start = Math.Clamp(Math.Max(first, at.Slot - ahead), 0, items.Count);
+            items.InsertRange(start, keyed.Select(KeyOf));
+            inFence.UnionWith(keyed.Select(w => w.Id));
         }
 
-        var after = Places(view, landings.Select(l => l.Key));
-        return landings.Count(l => before[l.Key] != after[l.Key]);
+        // [S-16463] A free icon never stays under a fence: one whose centre stands on a fence steps to the nearest free cell.
+        foreach (var icon in icons.Where(w => !inFence.Contains(w.Id) && OnFence(fences, w.Rect, set)))
+        {
+            var room = view.Widgets.Where(w => !ReferenceEquals(w, icon) && !inFence.Contains(w.Id)).Select(w => w.Rect).ToList();
+            if (DesktopGrid.NearestFree((icon.Rect.W, icon.Rect.H), icon.Rect.X, icon.Rect.Y, room, screen) is { } free)
+            {
+                icon.Rect = free;
+            }
+        }
+
+        var after = Places(view, keyed.Select(KeyOf));
+        return icons.Count(w => Changed(w) || !Lattice.Same(rects[w.Id], w.Rect));
+        bool Changed(WidgetInstance w) => KeyOf(w).Length > 0 && before[KeyOf(w)] != after[KeyOf(w)];
+    }
+
+    /// <summary>[S-16463] Whether <paramref name="rect"/>'s centre stands on a fence of <paramref name="fences"/> that does not move (its title bar or body).</summary>
+    private static bool OnFence(FenceIndex fences, FracRect rect, IReadOnlySet<string> moving)
+    {
+        var (cx, cy) = (rect.X + (rect.W / 2), rect.Y + (rect.H / 2));
+        return fences.Fences.Any(on => !moving.Contains(on.Widget.Id)
+            && cx > on.Widget.Rect.X && cx < on.Widget.Rect.Right && cy > on.Widget.Rect.Y && cy < on.Widget.Rect.Bottom);
     }
 
     /// <summary>Where each of <paramref name="keys"/> stands among <paramref name="view"/>'s fences: the fence's id and the place, or none.</summary>
