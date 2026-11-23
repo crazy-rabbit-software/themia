@@ -122,6 +122,36 @@ public static class CalendarSizing
         return ItemSize.Wrapped(width, height, month.Width + (2 * YearPad), month.Height + (2 * YearPad), grid, 1, fit.Months);
     }
 
+    /// <summary>The ways twelve months stand in columns and lines, a new card's first: the first that draws them largest wins.</summary>
+    private static readonly (int Columns, int Rows)[] YearShapes = [(4, 3), (3, 4), (6, 2), (2, 6), (12, 1), (1, 12)];
+
+    /// <summary>
+    /// [S-16446] How the twelve months share a box <paramref name="width"/> × <paramref name="height"/> (the card's, from its
+    /// top edge) where the card holds all twelve at their own size (WR-9: "the calendar does not follow this design
+    /// philosophy"; "Bigger numbers too"; the re-audit of 2026-11-23: the months stood 56 DIP at every size, 417 DIP empty
+    /// under them at 520 × 600): the year is a grid of the card, as the month is, its months' cells sharing it edge to edge in
+    /// the columns and lines that draw the small months largest (a wide card 6 × 2 or 12 × 1, a tall one 3 × 4; a tie keeps a
+    /// new card's 4 × 3), each small month scaled up as one in its cell inside its padding (<see cref="YearShare.Factor"/>).
+    /// A card that does not hold all twelve at their own size (a factor under one) keeps the wrapped cells of
+    /// <see cref="YearCells"/>, the last line cut by the foot.
+    /// </summary>
+    public static YearShare YearShares(YearFit fit, double width, double height)
+    {
+        ArgumentNullException.ThrowIfNull(fit);
+        var month = YearMonth(fit);
+        var best = new YearShare(fit.Columns, fit.Rows, double.NegativeInfinity);
+        foreach (var (columns, rows) in YearShapes)
+        {
+            var factor = Math.Min(((width / columns) - (2 * YearPad)) / month.Width, ((height / rows) - (2 * YearPad)) / month.Height);
+            if (double.IsFinite(factor) && factor > best.Factor + 1e-9)
+            {
+                best = new YearShare(columns, rows, factor);
+            }
+        }
+
+        return best with { Factor = double.IsFinite(best.Factor) ? best.Factor : 0 };
+    }
+
     // ---- [S-11543] day --------------------------------------------------------------------------------
 
     /// <summary>[S-11543] An hour of a timeline the config sizes: a row of the family's.</summary>
@@ -187,8 +217,8 @@ public static class CalendarSizing
     /// <summary>[S-11547] A column of the month with titles: at least this wide (a title's first letters).</summary>
     public const double MonthTitleColumn = 56;
 
-    /// <summary>[S-11547] A new month with titles' column: wide enough for a chip's start time (<see cref="CalendarFit.ChipTimeFrom"/>).</summary>
-    public const double MonthNaturalColumn = CalendarFit.ChipTimeFrom;
+    /// <summary>[S-11547] [S-16448] A new month with titles' column: wide enough for a chip that reads (<see cref="CalendarFit.ChipReadsFrom"/>).</summary>
+    public const double MonthNaturalColumn = CalendarFit.ChipReadsFrom;
 
     /// <summary>[S-11547] The widest a month with titles' column grows.</summary>
     public const double MonthWidestColumn = 180;

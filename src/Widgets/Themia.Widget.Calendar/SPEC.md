@@ -135,6 +135,20 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   as the room under the figures is short of a dot and its 2 (`MonthLayouts.DotSink`, `DotGap`), so a last week's dots no
   longer stand on the card's foot and its border (they stood in the padding's whole 4, at 596..600 of a 600 card). Test
   `MonthLayoutTests.S16442_`.
+- **[S-16446]** **The year fills its card** (WR-9: "the calendar does not follow this design philosophy"; "Bigger numbers
+  too"; the re-audit of 2026-11-23: the months stood 56 DIP at every size, 417 DIP empty under them at 520 × 600): where the
+  card holds all twelve months at their own size, their cells share it edge to edge in the columns and lines that draw them
+  largest (4 × 3, 3 × 4, 6 × 2, 2 × 6, 12 × 1, 1 × 12; a tie keeps a new card's 4 × 3), each small month scaled up as one
+  in its cell's padding (`CalendarSizing.YearShares`, `ScaleBox`); a smaller card keeps the wrapped cells of [S-16438], the
+  last line cut by the foot. Test `CalendarSizingTests.S16446_`.
+- **[S-16448]** **Chips only where they read** (WR-9, owner 2026-11-20: "the calendar shows the individual events too early,
+  the items should stay small for a little longer"): a month shows its events as chips only in columns of 130 or more
+  (`CalendarFit.ChipReadsFrom`: a start and about ten letters of a title in Caption; at 100 a chip read "09:00 Stand…"),
+  its dots narrower; a new month with titles is 130 a column. Test `MonthLayoutTests.S16448_`.
+- **[S-16449]** **A day's marks stand whole in its cell** (WR-9; the least month, 160 × 210, cut its dots in half at both
+  edges of a 22.7 column and today's disc flat with "23" past it): as many dots a line as stand whole in the cell's padding,
+  the "more" dot among them (`MonthLayouts.DotSlots`); today's pill may reach into the cell's side padding (a fill, never
+  text), at most the column wide, so it holds its figures whole. Test `MonthLayoutTests.S16449_`.
 - **[S-16443]** **The period's line carries the state from the first draw** (WR-9, WR-10): whether the line or the kit's
   status shows a stale sync's problem glyph is decided before the face is laid, so the month's weekday heads never leave
   room for a glyph that stands on the line (on the first draw they did: at 330 × 210 "Sa" stood 13.7 off its column and

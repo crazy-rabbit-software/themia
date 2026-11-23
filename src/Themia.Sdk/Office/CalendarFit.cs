@@ -82,6 +82,9 @@ public sealed record DayBandFit(int Lines, double LineHeight, bool SharedLast);
 /// </summary>
 public sealed record YearFit(int Months, int Columns, int Rows, double DayCell, bool Numbers, bool Weekdays);
 
+/// <summary>[S-16446] How the twelve months share a card: <paramref name="Columns"/> × <paramref name="Rows"/>, each small month drawn <paramref name="Factor"/> its own size.</summary>
+public readonly record struct YearShare(int Columns, int Rows, double Factor);
+
 /// <summary>
 /// [S-2700] The calendar's layout math: each configured layout fitted to the box it has. The widget
 /// draws only the configured layout; at a small size the layout sheds detail within itself (a month
@@ -104,6 +107,14 @@ public static class CalendarFit
 
     /// <summary>[S-1264] A month chip leads with its start time once a cell is this wide (the classic S-44).</summary>
     public const double ChipTimeFrom = 100;
+
+    /// <summary>
+    /// [S-16448] A month's cell shows its events as chips only from this column on (WR-9, owner 2026-11-20: "the calendar
+    /// shows the individual events too early, the items should stay small for a little longer"; "A day cell keeps its small
+    /// marks until it clearly holds a readable chip line"): its start and about ten letters of its title beside it in
+    /// Caption (at 100 a chip read "09:00 Stand…"); narrower, its dots.
+    /// </summary>
+    public const double ChipReadsFrom = 130;
 
     /// <summary>[S-1264] A chip's line: the chip (a Caption line) and the family's 4 under it.</summary>
     public static double ChipLine => FamilyType.Caption.LineHeight + FamilySpace.S1;

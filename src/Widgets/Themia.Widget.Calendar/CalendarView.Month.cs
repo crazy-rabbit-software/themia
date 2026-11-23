@@ -106,8 +106,8 @@ internal sealed partial class CalendarView
             grid.Children.Add(header);
         }
 
-        // Three dots and the muted one are 28: a narrower cell takes two and the muted one.
-        var dotLimit = layout.LeastColumn >= 32 ? 3 : 2;
+        // [S-16449] As many dots a line as stand whole in a cell's padding, the "more" one among them.
+        var dotLimit = MonthLayouts.DotSlots(layout.LeastColumn);
         var moreWords = MonthPlan.MoreWords(layout.LeastColumn);
         var times = chipped && layout.LeastColumn >= CalendarFit.ChipTimeFrom;
         for (var r = 0; r < layout.Rows; r++)
@@ -223,7 +223,13 @@ internal sealed partial class CalendarView
         {
             // [S-572] Today is the accent's round pill, as Windows' own calendar flyout marks it.
             number.HorizontalAlignment = HorizontalAlignment.Center;
-            numberHost = TodayPill(number, line);
+            numberHost = TodayPill(number, line, layout.LeastColumn);
+
+            // A chip's number row keeps its start on the cell's padding: only a centred pill reaches into it.
+            if (chipped)
+            {
+                numberHost.Margin = default;
+            }
         }
 
         numberHost.HorizontalAlignment = chipped ? HorizontalAlignment.Left : HorizontalAlignment.Center;
@@ -315,12 +321,18 @@ internal sealed partial class CalendarView
     }
 
     /// <summary>[S-572] Today's number on the accent: a pill one line tall, round, 4 either side of the number.</summary>
-    private static Border TodayPill(TextBlock number, double line) => new()
+    /// <summary>
+    /// [S-572] Today's pill round its number. [S-16449] It may stand in the cell's side padding (a fill, never text), so in a
+    /// narrow column (22.7 at 160 wide) it holds its two figures whole, never cut flat by the cell with "23" past it.
+    /// </summary>
+    private static Border TodayPill(TextBlock number, double line, double column = double.PositiveInfinity) => new()
     {
         Child = number,
         Background = Accent(),
         Height = line,
-        MinWidth = line,
+        MinWidth = Math.Min(line, column),
+        MaxWidth = column,
+        Margin = double.IsFinite(column) ? new Thickness(-FamilySpace.S1, 0, -FamilySpace.S1, 0) : default,
         Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
         CornerRadius = Family.Round(line, line),
     };
@@ -420,7 +432,9 @@ internal sealed partial class CalendarView
     {
         var dots = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S1, HorizontalAlignment = HorizontalAlignment.Center };
 
-        foreach (var item in items.Take(limit))
+        // [S-16449] Every item where they all stand in the slots; else one slot short, the "more" dot in the last.
+        var take = items.Count <= limit ? limit : Math.Max(1, limit - 1);
+        foreach (var item in items.Take(take))
         {
             // [S-15791] A dot is its event's mark: the event pointed at elsewhere keeps it whole, every other dot dims.
             var dot = Dot(MarkOf(item, showColors));
@@ -436,7 +450,7 @@ internal sealed partial class CalendarView
             dots.Children.Add(dot);
         }
 
-        if (items.Count > limit)
+        if (items.Count > take)
         {
             dots.Children.Add(Dot(Family.Brush(ColourRole.TextTertiary)));
         }

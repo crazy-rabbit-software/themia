@@ -151,8 +151,8 @@ public sealed class CalendarSizingTests
     {
         var config = new CalendarWidgetConfig { MonthEvents = MonthEvents.Chips };
         var sizing = Of(config);
-        // [S-14500] Seven columns from 56, a new one 100 each, edge to edge, every cell between.
-        Assert.Equal((7 * 56d, 7 * 100d), (sizing.Min.Width, sizing.Natural.Width));
+        // [S-14500] Seven columns from 56, a new one 130 each ([S-16448]: where a chip reads), edge to edge, every cell between.
+        Assert.Equal((7 * 56d, 7 * 130d), (sizing.Min.Width, sizing.Natural.Width));
         Assert.True(sizing.Max.Width >= 7 * 180);
 
         // The period's line with the inset, the weekday line, six weeks of a number line over three chip lines, whole cells each.
@@ -162,7 +162,7 @@ public sealed class CalendarSizingTests
         Assert.True(sizing.Max.Height > sizing.Natural.Height && sizing.Natural.Height > sizing.Min.Height);
 
         // A new one's column leads its chips with their start time.
-        var fit = CalendarSizing.Month(MonthEvents.Chips, 7 * 100, MonthPlan.DefaultLines);
+        var fit = CalendarSizing.Month(MonthEvents.Chips, 7 * 130, MonthPlan.DefaultLines);
         Assert.Equal((MonthDensity.Chips, 3, true), (fit.Density, fit.ChipLines, fit.Times));
         Assert.False(CalendarSizing.Month(MonthEvents.Chips, 7 * 56, 3).Times);
     }
@@ -175,7 +175,7 @@ public sealed class CalendarSizingTests
         var grid = Themia.Core.Widgets.ItemGrid.Default();
         var top = FamilySpace.Inset + LineRules.Band(grid);
         var week = FamilySpace.S1 + MonthLayouts.MostChipNumberLine + (5 * CalendarFit.ChipLine);
-        var month = MonthLayouts.Plan(724, top + 20 + (6 * week), top, grid, anchorRow: 2, mostItems: 9, MonthChipRoom.Titles);
+        var month = MonthLayouts.Plan(7 * 130, top + 20 + (6 * week), top, grid, anchorRow: 2, mostItems: 9, MonthChipRoom.Titles);
         Assert.Equal((MonthFace.Chips, 5), (month.Face, month.ChipLanes));
     }
 
@@ -239,5 +239,27 @@ public sealed class CalendarSizingTests
 
         var copy = (CalendarWidgetConfig)new CalendarWidgetConfig { WeekTitles = true, MonthEvents = MonthEvents.Chips, WeekRows = 5 }.Clone();
         Assert.Equal((true, MonthEvents.Chips, 5), (copy.WeekTitles, copy.MonthEvents, copy.WeekRows));
+    }
+
+    /// <summary>
+    /// [S-16446] Where the card holds all twelve months at their own size, they share it edge to edge in the shape that draws
+    /// them largest, each scaled up (a 520 × 600 year left 417 DIP empty under 56 DIP months); a smaller card keeps the
+    /// wrapped cells.
+    /// </summary>
+    [Fact]
+    public void S16446_the_year_fills_its_card_where_it_holds_all_twelve()
+    {
+        var fit = CalendarSizing.Year(false);
+
+        var tall = CalendarSizing.YearShares(fit, 520, 600);
+        Assert.Equal((3, 4), (tall.Columns, tall.Rows));
+        Assert.True(tall.Factor > 2);
+
+        var wide = CalendarSizing.YearShares(fit, 900, 260);
+        Assert.Equal((6, 2), (wide.Columns, wide.Rows));
+
+        // A new card is its 4 × 3 at its own size; one month's cell holds no twelve.
+        Assert.Equal(new YearShare(4, 3, 1), CalendarSizing.YearShares(fit, 320, 240));
+        Assert.True(CalendarSizing.YearShares(fit, 80, 80).Factor < 1);
     }
 }

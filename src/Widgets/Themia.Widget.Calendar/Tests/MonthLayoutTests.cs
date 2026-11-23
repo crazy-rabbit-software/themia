@@ -49,7 +49,7 @@ public sealed class MonthLayoutTests
     [Fact]
     public void S11544_a_cell_with_room_shows_its_days_events_as_chips_and_its_number_grows()
     {
-        var tall = MonthLayouts.Plan(700, 600, 36, Grid, anchorRow: 0, mostItems: 3);
+        var tall = MonthLayouts.Plan(910, 600, 36, Grid, anchorRow: 0, mostItems: 3);
         Assert.Equal(MonthFace.Chips, tall.Face);
         Assert.InRange(tall.ChipLanes, 1, 3);
         Assert.True(tall.NumberLine > FamilyType.Caption.LineHeight);
@@ -57,7 +57,7 @@ public sealed class MonthLayoutTests
         // [S-14101] A wide, short month whose cells hold one chip line keeps its dots; a month with titles lists them.
         var wide = MonthLayouts.Plan(900, 300, 36, Grid, anchorRow: 0, mostItems: 3);
         Assert.Equal(MonthFace.Dots, wide.Face);
-        Assert.Equal(MonthFace.Chips, MonthLayouts.Plan(900, 300, 36, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles).Face);
+        Assert.Equal(MonthFace.Chips, MonthLayouts.Plan(910, 300, 36, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles).Face);
 
         // Nothing on: the number alone, as large as the cell lets it.
         var bare = MonthLayouts.Plan(420, 600, 36, Grid, anchorRow: 0, mostItems: 0);
@@ -89,11 +89,12 @@ public sealed class MonthLayoutTests
     [Theory]
     [InlineData(700, 60 + (6 * 40), MonthFace.Dots)]    // a week of 40: the number and one chip line
     [InlineData(700, 60 + (6 * 50), MonthFace.Dots)]    // 50: one and a half
-    [InlineData(700, 60 + (6 * 60), MonthFace.Chips)]   // 60: two chip lines under the number, columns of 100
+    [InlineData(910, 60 + (6 * 60), MonthFace.Chips)]   // 60: two chip lines under the number, columns of 130
     [InlineData(420, 60 + (6 * 80), MonthFace.Dots)]    // columns of 60: a title of three letters
     [InlineData(520, 60 + (6 * 80), MonthFace.Dots)]    // columns of 74: five or six (WR-9's 520 × 600)
     [InlineData(600, 60 + (6 * 80), MonthFace.Dots)]    // columns of 86: "Brunch w…"
-    [InlineData(700, 60 + (6 * 80), MonthFace.Chips)]   // columns of 100: its start and its title
+    [InlineData(700, 60 + (6 * 80), MonthFace.Dots)]    // [S-16448] columns of 100: "09:00 Stand…"
+    [InlineData(910, 60 + (6 * 80), MonthFace.Chips)]   // columns of 130: its start and a title of words
     public void S14101_S15792_a_dots_month_keeps_its_dots_until_a_cell_holds_two_readable_chip_lines(double width, double height, MonthFace face)
     {
         var month = MonthLayouts.Plan(width, height, 40, Grid, anchorRow: 0, mostItems: 3);
@@ -104,7 +105,7 @@ public sealed class MonthLayoutTests
     [Fact]
     public void S14101_a_month_with_titles_shows_chips_from_one_line_in_its_least_column()
     {
-        var titles = MonthLayouts.Plan(7 * 100, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles);
+        var titles = MonthLayouts.Plan(7 * 130, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles);
         Assert.Equal((MonthFace.Chips, 1), (titles.Face, titles.ChipLanes));
         Assert.Equal(MonthFace.Dots, MonthLayouts.Plan(7 * 60, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles).Face); // [S-15792]
     }
@@ -197,5 +198,25 @@ public sealed class MonthLayoutTests
         var least = MonthLayouts.Plan(sizing.Min.Width, sizing.Min.Height, FamilySpace.Inset + LineRules.Band(Grid), Grid, anchorRow: 2, mostItems: 2);
         Assert.Equal(FamilyType.Caption.LineHeight, least.NumberLine);
         Assert.True(MonthLayouts.NumberFits(least.LeastColumn) >= FamilyType.Caption.LineHeight);
+    }
+
+    /// <summary>[S-16449] A day's dots stand whole in its cell's padding: as many a line as fit, the "more" one among them.</summary>
+    [Theory]
+    [InlineData(160.0 / 7, 2)]
+    [InlineData(32, 3)]
+    [InlineData(100, 4)]
+    [InlineData(10, 1)]
+    public void S16449_a_days_dots_stand_whole_in_its_cell(double column, int slots)
+    {
+        Assert.Equal(slots, MonthLayouts.DotSlots(column));
+        Assert.True(slots == 1 || (slots * CalendarFit.Dot) + ((slots - 1) * FamilySpace.S1) <= column - (2 * FamilySpace.S1) + LayoutMath.Tolerance);
+    }
+
+    /// <summary>[S-16448] Chips only where they read (time and a title of words), dots narrower: a 100 column keeps its dots.</summary>
+    [Fact]
+    public void S16448_a_month_shows_chips_only_where_they_read()
+    {
+        Assert.Equal(MonthFace.Dots, MonthLayouts.Plan(7 * 100, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles).Face);
+        Assert.Equal(MonthFace.Chips, MonthLayouts.Plan(7 * 130, 60 + (6 * 40), 40, Grid, anchorRow: 0, mostItems: 3, MonthChipRoom.Titles).Face);
     }
 }

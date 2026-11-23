@@ -36,10 +36,10 @@ public readonly record struct MonthChipRoom(int Lanes, double Column)
     /// reads, its start and a title of words (<see cref="CalendarFit.ChipTimeFrom"/>, 100; at 56 and 74 a title was three
     /// to six letters).
     /// </summary>
-    public static MonthChipRoom Dots => new(2, CalendarFit.ChipTimeFrom);
+    public static MonthChipRoom Dots => new(2, CalendarFit.ChipReadsFrom);
 
-    /// <summary>[S-11547] [S-15792] A month with titles, chosen: a chip line in a column where it clearly reads, 100; narrower, its dots.</summary>
-    public static MonthChipRoom Titles => new(1, CalendarFit.ChipTimeFrom);
+    /// <summary>[S-11547] [S-15792] [S-16448] A month with titles, chosen: a chip line in a column where it clearly reads, 130; narrower, its dots.</summary>
+    public static MonthChipRoom Titles => new(1, CalendarFit.ChipReadsFrom);
 }
 
 /// <summary>
@@ -87,6 +87,22 @@ public static class MonthLayouts
 
     /// <summary>[S-16442] The least room between a day's figures and its dots under them.</summary>
     public const double DotGap = FamilySpace.S1 / 2;
+
+    /// <summary>
+    /// [S-16449] How many dots a day's cell in a column <paramref name="column"/> wide draws in a line, the "more" one among
+    /// them: as many as stand whole inside its padding (4 either side, the dots 4 apart), at most three and the "more" one
+    /// (at 160 wide a column of 22.7 drew three, its first and last cut by the cell's edges), at least one.
+    /// </summary>
+    public static int DotSlots(double column)
+    {
+        if (!double.IsFinite(column))
+        {
+            return 1;
+        }
+
+        var inner = column - (2 * FamilySpace.S1);
+        return Math.Clamp((int)Math.Floor((inner + FamilySpace.S1 + LayoutMath.Tolerance) / (CalendarFit.Dot + FamilySpace.S1)), 1, 4);
+    }
 
 
     /// <summary>[S-15782] A figure's advance in Segoe UI Variable, a fraction of its size (tabular figures).</summary>
