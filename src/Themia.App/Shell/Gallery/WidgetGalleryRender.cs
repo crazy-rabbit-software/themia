@@ -211,6 +211,15 @@ internal static class WidgetGalleryRender
                     gallery.ScrollTo(gallery.MostScroll);
                     await Shot($"{i:00}-{shown.Id}-end").ConfigureAwait(true);
                 }
+
+                // [S-17161] A tab wider than the well, scrolled across to its last column.
+                if (gallery.MostScrollAcross > 0)
+                {
+                    gallery.ScrollTo(0);
+                    gallery.ScrollAcross(gallery.MostScrollAcross);
+                    await Shot($"{i:00}-{shown.Id}-across").ConfigureAwait(true);
+                    gallery.ScrollAcross(0);
+                }
             }
 
             // [S-16402] [S-16557] A search: its first finds as a bento, no tab chosen.
