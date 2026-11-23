@@ -103,6 +103,24 @@ public sealed record MusicLayout(double Scale, IReadOnlyDictionary<MusicPart, Mu
 }
 
 /// <summary>
+/// [S-16516] What the face measured of itself, for the plan to lay it by: its texts' widths as they would draw uncut (in their
+/// own units; infinite where nothing is measured: the text takes the room) and each part's ink, its room over its first ink
+/// and under its last. <see cref="None"/>: nothing measured (the sizing, the pure tests).
+/// </summary>
+public sealed record MusicFit
+{
+    public static MusicFit None { get; } = new();
+
+    public double Title { get; init; } = double.PositiveInfinity;
+
+    public double Subtitle { get; init; } = double.PositiveInfinity;
+
+    public double Line { get; init; } = double.PositiveInfinity;
+
+    public IReadOnlyDictionary<MusicPart, LineInk> Ink { get; init; } = new Dictionary<MusicPart, LineInk>();
+}
+
+/// <summary>
 /// [S-16502] Now playing's one plan: the shown set and the style decide the face and its sizing, pure. Every style is one
 /// block in the card's inset (12, which never scales), drawn at one scale: as large as the card's height allows, held by
 /// the width at the block's natural proportions (so a larger card of the natural's shape draws the same face larger, its
@@ -296,13 +314,13 @@ public static class MusicPlan
     private static double RowHeight(Shown s)
         => Math.Max(Math.Max(s.Text ? SubLine : 0, s.Progress ? TimeLine : 0), s.Transport ? Button : 0);
 
-    /// <summary>[S-16506] The strip's width, its line and its bar at their least or natural.</summary>
-    private static double RowWidth(Shown s, double time, bool natural)
+    /// <summary>[S-16506] The strip's width, its line (no longer than its words, [S-16516]) and its bar at their least or natural.</summary>
+    private static double RowWidth(Shown s, double time, bool natural, MusicFit fit)
     {
         var groups = new List<double>();
         if (s.Text)
         {
-            groups.Add(natural ? LineNatural : LineLeast);
+            groups.Add(LineOf(fit, natural ? LineNatural : LineLeast));
         }
 
         if (s.Progress)
@@ -348,8 +366,8 @@ public static class MusicPlan
 
         // The natural for a track of minutes; the least for the widest track there is (WR-14: an hour-long one's "1:02:30"
         // drawn at the floor too), a pixel to spare.
-        var (natural, _) = Blocks(s, TimeWidth(TimeTemplate(TimeSpan.Zero)));
-        var (_, least) = Blocks(s, TimeWidth(WidestTemplate));
+        var (natural, _) = Blocks(s, TimeWidth(TimeTemplate(TimeSpan.Zero)), MusicFit.None);
+        var (_, least) = Blocks(s, TimeWidth(WidestTemplate), MusicFit.None);
         var floor = Floor(style, shown);
         static double Box(double block) => block + (2 * Inset);
         static double Least(double block) => Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(Box(block) + LeastSlack));
@@ -359,16 +377,49 @@ public static class MusicPlan
         return WidgetSizing.Range(min, nat, nat);
     }
 
+    /// <summary>
+    /// [S-16516] The column's width for its content where nothing in it takes the width it is given (no bar): its widest text
+    /// as measured (<paramref name="fit"/>), its progress line and its transport, never over <paramref name="room"/>; a column
+    /// with a bar, or texts not measured, takes the room.
+    /// </summary>
+    private static double Content(Shown s, double room, MusicFit fit, double time)
+    {
+        if (s.Bar)
+        {
+            return room;
+        }
+
+        var widest = Math.Max(ProgressLeast(s, time, 0), TransportWidth(s.Buttons));
+        if (s.Title)
+        {
+            widest = Math.Max(widest, fit.Title);
+        }
+
+        if (s.Sub)
+        {
+            widest = Math.Max(widest, fit.Subtitle);
+        }
+
+        return Math.Min(room, widest);
+    }
+
+    /// <summary>[S-16516] The strip's line of text as long as its words are (measured), within <paramref name="room"/>.</summary>
+    private static double LineOf(MusicFit fit, double room) => Math.Min(room, fit.Line);
+
     /// <summary>[S-16502] The block's natural and least box at scale 1, by the style (no cover: the column alone).</summary>
-    private static (SizeDip Natural, SizeDip Least) Blocks(Shown s, double time)
+    private static (SizeDip Natural, SizeDip Least) Blocks(Shown s, double time, MusicFit fit)
     {
         var hc = ColumnHeight(s);
-        var cl = ColumnLeastOf(s, time);
-        var cn = ColumnNaturalOf(s, time);
+
+        // [S-16516] A column whose content is narrower than the style's natural or least is as wide as its content: the
+        // block fills its card by its words, never by room after them.
+        var least = ColumnLeastOf(s, time);
+        var cl = Math.Max(s.Bar ? least : Content(s, least, fit, time), TransportWidth(s.Buttons));
+        var cn = Math.Max(Content(s, ColumnNaturalOf(s, time), fit, time), cl);
         if (s.Style == MusicStyle.Strip)
         {
             var hr = RowHeight(s);
-            return (new(RowWidth(s, time, natural: true), hr), new(RowWidth(s, time, natural: false), hr));
+            return (new(RowWidth(s, time, natural: true, fit), hr), new(RowWidth(s, time, natural: false, fit), hr));
         }
 
         if (!s.Cover)
@@ -379,7 +430,7 @@ public static class MusicPlan
         return s.Style switch
         {
             MusicStyle.Stacked => (new(StackSide, StackSide + ColumnGap + hc), new(StackSide, StackSide + ColumnGap + hc)),
-            MusicStyle.FullArt => (new(Math.Max(ArtColumn, cl), ArtRoom + hc), new(cl, hc / FootShare)),
+            MusicStyle.FullArt => (new(Math.Max(ArtColumn, ColumnLeastOf(s, time)), ArtRoom + hc), new(ColumnLeastOf(s, time), hc / FootShare)),
             _ => (new(hc + ColumnGap + cn, hc), new(hc + ColumnGap + cl, hc)),
         };
     }
@@ -387,11 +438,13 @@ public static class MusicPlan
     /// <summary>
     /// [S-16502] The face of <paramref name="style"/> showing <paramref name="shown"/> in a card <paramref name="width"/> ×
     /// <paramref name="height"/> (the view's whole box, its top edge included), its times held to
-    /// <paramref name="timeTemplate"/>.
+    /// <paramref name="timeTemplate"/>; [S-16516] its texts as long as <paramref name="fit"/> measured them and its block
+    /// centred on its parts' ink (none given: the texts take the room, the block is centred on its boxes).
     /// </summary>
-    public static MusicLayout Lay(MusicStyle style, IReadOnlyCollection<MusicElement> shown, double width, double height, string timeTemplate)
+    public static MusicLayout Lay(MusicStyle style, IReadOnlyCollection<MusicElement> shown, double width, double height, string timeTemplate, MusicFit? fit = null)
     {
         ArgumentNullException.ThrowIfNull(shown);
+        fit ??= MusicFit.None;
         var s = Shown.Of(style, shown);
         var parts = new Dictionary<MusicPart, MusicBox>();
         if (!(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
@@ -410,13 +463,14 @@ public static class MusicPlan
         }
 
         var time = TimeWidth(timeTemplate);
-        var (natural, least) = Blocks(s, time);
+        var (natural, least) = Blocks(s, time, fit);
         var room = new SizeDip(Math.Max(0, width - (2 * Inset)), Math.Max(0, height - (2 * Inset)));
         var hc = ColumnHeight(s);
 
         // One scale: the height's, held by the width at the block's own proportions (its natural width), so a card of the
         // natural's shape draws the natural face larger, its lines as long; only at the floor does a narrower card take the
-        // texts' and the bar's room down to their least. The block then fills the width the scale leaves.
+        // texts' and the bar's room down to their least. The block then fills the width the scale leaves, as far as its
+        // content reaches, and stands centred where it does not reach.
         var floor = Floor(style, shown);
         var byWidth = Math.Max(room.Width / natural.Width, Math.Min(room.Width / least.Width, floor));
         var scale = Math.Min(room.Height / least.Height, byWidth);
@@ -429,14 +483,16 @@ public static class MusicPlan
         if (s.Style == MusicStyle.Strip)
         {
             var hr = RowHeight(s);
-            Row(s, parts, Inset, Inset + ((room.Height - (hr * scale)) / 2), wide, hr, scale, time);
-            return new MusicLayout(scale, parts, false);
+            var used = Row(s, parts, 0, Inset + ((room.Height - (hr * scale)) / 2), wide, hr, scale, time, fit);
+            Shift(parts, Inset + ((room.Width - (used * scale)) / 2), 0);
+            return Inked(new MusicLayout(scale, parts, false), fit, room, hr * scale);
         }
 
         if (!s.Cover)
         {
-            Column(s, parts, Inset, Inset + ((room.Height - (hc * scale)) / 2), wide, scale, time, centred: false);
-            return new MusicLayout(scale, parts, false);
+            var column = Content(s, wide, fit, time);
+            Column(s, parts, Inset + ((room.Width - (column * scale)) / 2), Inset + ((room.Height - (hc * scale)) / 2), column, scale, time, centred: false);
+            return Inked(new MusicLayout(scale, parts, false), fit, room, hc * scale);
         }
 
         switch (s.Style)
@@ -465,13 +521,57 @@ public static class MusicPlan
 
             default:
             {
-                // [S-16503] The cover as tall as the column, at its left; the column takes the width left.
+                // [S-16503] The cover as tall as the column, at its left; the column takes the width left as far as its content
+                // reaches, the block centred across where it does not reach.
+                var column = Content(s, wide - hc - ColumnGap, fit, time);
+                var block = hc + ColumnGap + column;
+                var x = Inset + ((room.Width - (block * scale)) / 2);
                 var y = Inset + ((room.Height - (hc * scale)) / 2);
-                parts[MusicPart.Cover] = new(Inset, y, hc * scale, hc * scale);
-                Column(s, parts, Inset + ((hc + ColumnGap) * scale), y, wide - hc - ColumnGap, scale, time, centred: false);
-                return new MusicLayout(scale, parts, false);
+                parts[MusicPart.Cover] = new(x, y, hc * scale, hc * scale);
+                Column(s, parts, x + ((hc + ColumnGap) * scale), y, column, scale, time, centred: false);
+                return Inked(new MusicLayout(scale, parts, false), fit, room, hc * scale);
             }
         }
+    }
+
+    /// <summary>Every part moved by (<paramref name="dx"/>, <paramref name="dy"/>).</summary>
+    private static void Shift(Dictionary<MusicPart, MusicBox> parts, double dx, double dy)
+    {
+        foreach (var part in parts.Keys.ToList())
+        {
+            var box = parts[part];
+            parts[part] = box with { X = box.X + dx, Y = box.Y + dy };
+        }
+    }
+
+    /// <summary>
+    /// [S-16516] A block centred down in <paramref name="room"/> (its <paramref name="drawn"/> height under the room's) stands
+    /// centred on its ink: the room over its first ink (its topmost parts') and under its last (its lowest parts') alike, as
+    /// far as the room it was centred in allows. A block that fills the height keeps its place.
+    /// </summary>
+    private static MusicLayout Inked(MusicLayout laid, MusicFit fit, SizeDip room, double drawn)
+    {
+        var leftover = room.Height - drawn;
+        if (leftover < 0.5 || fit.Ink.Count == 0 || laid.Parts.Count == 0)
+        {
+            return laid;
+        }
+
+        var top = laid.Parts.Values.Min(b => b.Y);
+        var foot = laid.Parts.Values.Max(b => b.Bottom);
+        double Room(Func<KeyValuePair<MusicPart, MusicBox>, bool> at, Func<LineInk, double> side)
+            => laid.Parts.Where(at).Select(p => fit.Ink.TryGetValue(p.Key, out var ink) ? side(ink) * laid.Scale : 0).DefaultIfEmpty(0).Min();
+        var over = Room(p => p.Value.Y <= top + 0.5, ink => ink.Over);
+        var under = Room(p => p.Value.Bottom >= foot - 0.5, ink => ink.Under);
+        var dy = Math.Clamp((under - over) / 2, -leftover / 2, leftover / 2);
+        if (Math.Abs(dy) < 0.01)
+        {
+            return laid;
+        }
+
+        var parts = new Dictionary<MusicPart, MusicBox>(laid.Parts);
+        Shift(parts, 0, dy);
+        return laid with { Parts = parts };
     }
 
     /// <summary>A part at (<paramref name="x"/>, <paramref name="y"/>) in the card, its own size times the scale.</summary>
@@ -573,17 +673,20 @@ public static class MusicPlan
     }
 
     /// <summary>
-    /// [S-16506] The strip, <paramref name="row"/> wide and <paramref name="height"/> tall in its own units: the line, the
-    /// progress, the transport, 12 apart, each centred down the row; the line takes the width left (no line: the bar).
+    /// [S-16506] The strip, at most <paramref name="row"/> wide and <paramref name="height"/> tall in its own units: the line,
+    /// the progress, the transport, 12 apart, each centred down the row; the line takes the width left as far as its words
+    /// reach (no line: the bar). Returns the width it took, in its own units.
     /// </summary>
-    private static void Row(Shown s, Dictionary<MusicPart, MusicBox> parts, double x, double y, double row, double height, double scale, double time)
+    private static double Row(Shown s, Dictionary<MusicPart, MusicBox> parts, double x, double y, double row, double height, double scale, double time, MusicFit fit)
     {
-        var least = RowWidth(s, time, natural: false);
+        var least = RowWidth(s, time, natural: false, fit);
         var spare = Math.Max(0, row - least);
         var at = 0.0;
         if (s.Text)
         {
-            var line = LineLeast + spare;
+            var leastLine = LineOf(fit, LineLeast);
+            var line = LineOf(fit, leastLine + spare);
+            spare -= line - leastLine;
             parts[MusicPart.Line] = At(x, y + ((height - SubLine) / 2 * scale), line, SubLine, scale);
             at += line + ColumnGap;
         }
@@ -591,7 +694,7 @@ public static class MusicPlan
         if (s.Progress)
         {
             var bar = s.Text ? StripBar : BarLeast + spare;
-            var line = ProgressLeast(s, time, bar);
+            var line = ProgressLeast(s, time, s.Bar ? bar : 0);
             Progress(s, parts, x + (at * scale), y + ((height - TimeLine) / 2 * scale), line, scale, time);
             at += line + ColumnGap;
         }
@@ -599,6 +702,9 @@ public static class MusicPlan
         if (s.Transport)
         {
             Transport(s, parts, x + (at * scale), y + ((height - Button) / 2 * scale), scale);
+            at += TransportWidth(s.Buttons) + ColumnGap;
         }
+
+        return Math.Max(0, at - ColumnGap);
     }
 }

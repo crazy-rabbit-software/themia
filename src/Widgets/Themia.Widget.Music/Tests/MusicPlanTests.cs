@@ -1,6 +1,7 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Music.Tests;
@@ -333,6 +334,48 @@ public sealed class MusicPlanTests
         }
 
         Assert.True(laid[MusicPart.Line].Right < laid[MusicPart.Elapsed].X && laid[MusicPart.Length].Right < laid[MusicPart.Previous].X);
+    }
+
+    [Theory]
+    [InlineData(MusicStyle.Side, 350, 97)]
+    [InlineData(MusicStyle.Side, 900, 300)]
+    [InlineData(MusicStyle.Stacked, 520, 600)]
+    [InlineData(MusicStyle.FullArt, 600, 200)]
+    [InlineData(MusicStyle.Strip, 350, 70)]
+    [InlineData(MusicStyle.Strip, 900, 300)]
+    public void S16516_a_face_with_nothing_to_take_the_width_is_as_wide_as_its_words_and_stands_centred_on_its_ink(MusicStyle style, double w, double h)
+    {
+        // The audit of 2026-11-23: a title alone, or the texts over the transport, left the room after a short title as a
+        // band of up to 490 DIP (WR-3) and stood its block on its boxes, not its ink (WR-1, WR-4).
+        var ink = new Dictionary<MusicPart, LineInk>
+        {
+            [MusicPart.Title] = new(4, 2), [MusicPart.Line] = new(4, 2), [MusicPart.Subtitle] = new(3, 4),
+        };
+        var fit = MusicFit.None with { Title = 100, Subtitle = 80, Line = 100, Ink = ink };
+        foreach (var shown in new MusicElement[][]
+        {
+            [MusicElement.Title],
+            [MusicElement.Title, MusicElement.Artist, MusicElement.PlayPause],
+            [MusicElement.PlayPause],
+        })
+        {
+            var laid = MusicPlan.Lay(style, shown, w, h, Template, fit);
+            var drawn = laid.Parts.Values.ToList();
+            var (left, right) = (drawn.Min(b => b.X), w - drawn.Max(b => b.Right));
+            var (top, foot) = (drawn.Min(b => b.Y), h - drawn.Max(b => b.Bottom));
+            Assert.InRange(left - right, -0.5, 0.5);
+
+            // Centred down on its ink where it does not fill the height; on the inset where it does.
+            var first = laid.Parts.Where(p => p.Value.Y <= top + 0.5).Select(p => ink.TryGetValue(p.Key, out var i) ? i.Over : 0).Min() * laid.Scale;
+            var last = laid.Parts.Where(p => p.Value.Bottom >= h - foot - 0.5).Select(p => ink.TryGetValue(p.Key, out var i) ? i.Under : 0).Min() * laid.Scale;
+            var filled = Math.Abs(top - MusicPlan.Inset) < 0.5 && Math.Abs(foot - MusicPlan.Inset) < 0.5;
+            Assert.True(filled || Math.Abs((top + first) - (foot + last)) < 0.5, $"{style} {string.Join(",", shown)} {w}x{h}: {top}+{first} / {foot}+{last}");
+            Assert.True(filled || Math.Abs(left - MusicPlan.Inset) < 0.5, $"{style} {string.Join(",", shown)} {w}x{h}: fills neither axis");
+            if (laid.Has(MusicPart.Title))
+            {
+                Assert.True(laid[MusicPart.Title].Width / laid.Scale <= 100 + 1e-6 || shown.Length > 1);
+            }
+        }
     }
 
     [Fact]

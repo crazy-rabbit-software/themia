@@ -55,6 +55,14 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   the box, the style, the set and the times' template only. Tests `MusicPlanTests.S16502_` (every style × all, each
   element hidden, and several sets, at the least, natural, large and off-proportion boxes: every shown element drawn,
   inside the inset, none over another, the block on the inset, the natural at 1 and the least at the floor).
+- **[S-16516]** **A face with nothing to take the width is as wide as its words** (the audit of 2026-11-23, its gap check
+  measuring the face's parts: a title alone or the texts over the transport left the room after a short title as a band, up
+  to 490 DIP, WR-3; a centred block stood on its boxes, its ink 5 DIP off centre, WR-1/WR-4). The view measures its texts
+  uncut and its parts' ink (`MusicFit`); where nothing in the column or the strip takes the width it is given (no seek
+  bar), the column is as wide as its widest text, its progress line or its transport, the block scales until that width
+  or the height stops it, and it stands centred across; a block centred down stands on its ink (the room over its first
+  ink and under its last alike). With a bar, the bar takes the width as before; Full art's column stays on its art. Tests
+  `MusicPlanTests.S16516_`.
 - **[S-16503]** **Side cover**: the cover at the column's left as tall as the column (96 with every element shown, in the
   one radius), 12 from it the column. A new card 352 × 120; its least 213 × 97. Tests `MusicPlanTests.S16503_`.
 - **[S-16504]** **Stacked**: the cover a square over the column, as wide as it (160), 12 over it; the transport centred

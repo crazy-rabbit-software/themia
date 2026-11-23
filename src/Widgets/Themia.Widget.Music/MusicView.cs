@@ -230,6 +230,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         ToolTipService.SetToolTip(_item, track ? $"{now.Title}\n{now.Subtitle}".Trim() : MusicRules.StatusMessage(now.State));
 
         _face.Template(MusicPlan.TimeTemplate(now.Timeline.Duration));
+        _face.Fit(MeasureFit());
         _bar.CanSeek = track && now.CanSeek && !_preview;
         UpdatePosition();
         Transport(now);
@@ -237,6 +238,32 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         Artwork(now);
         // A render's sample stands still (its clock frozen with its feed): the picture settles.
         Resubscribe(now.State == MusicState.Playing && !_hidden && !_feed.Frozen && (_config.Has(MusicElement.Elapsed) || _config.Has(MusicElement.Bar)));
+    }
+
+    /// <summary>
+    /// [S-16516] What the face's parts measure as they stand now, for the plan to lay them by: each text's width uncut, each
+    /// part's ink over and under, in its own units.
+    /// </summary>
+    private MusicFit MeasureFit()
+    {
+        var infinite = new Size(double.PositiveInfinity, double.PositiveInfinity);
+        double Uncut(TextBlock text)
+        {
+            text.Measure(infinite);
+            return text.DesiredSize.Width;
+        }
+
+        var ink = new Dictionary<MusicPart, LineInk>();
+        foreach (var (part, element) in _face.Scaled)
+        {
+            if (element.Visibility == Visibility.Visible)
+            {
+                element.Measure(infinite);
+                ink[part] = Ink.Of(element).Ink;
+            }
+        }
+
+        return new MusicFit { Title = Uncut(_title), Subtitle = Uncut(_subtitle), Line = Uncut(_line), Ink = ink };
     }
 
     /// <summary>
@@ -559,7 +586,20 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             }
         }
 
-        private MusicLayout Lay(Size size) => MusicPlan.Lay(_style, _shown, size.Width, size.Height, _template);
+        private MusicFit _fit = MusicFit.None;
+
+        /// <summary>The scaled parts: the texts, the times, the bar, the buttons.</summary>
+        public IEnumerable<(MusicPart Part, FrameworkElement Element)> Scaled
+            => _parts.Where(p => p.Value.Scale is not null).Select(p => (p.Key, p.Value.Element));
+
+        /// <summary>[S-16516] What the parts measured: the face is laid by it again.</summary>
+        public void Fit(MusicFit fit)
+        {
+            _fit = fit;
+            InvalidateMeasure();
+        }
+
+        private MusicLayout Lay(Size size) => MusicPlan.Lay(_style, _shown, size.Width, size.Height, _template, _fit);
 
         protected override Size MeasureOverride(Size availableSize)
         {
