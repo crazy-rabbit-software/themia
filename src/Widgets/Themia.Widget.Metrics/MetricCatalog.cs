@@ -152,8 +152,8 @@ public readonly record struct MetricSpan(MetricWay Way, MetricStep Step, int Cou
 }
 
 /// <summary>
-/// [S-16301] One way a metric is read: from its source at a step, in a shape, over the spans offered (the first the
-/// default), and what of each record of the source is its value. A metric has one feed per step it has (temperature: the
+/// [S-16301] One way a metric is read: from its source at a step, in a shape, over the spans offered (lowest first each way,
+/// [S-16900]; its <see cref="Default"/> one of them), and what of each record of the source is its value. A metric has one feed per step it has (temperature: the
 /// hours and the days, a pair of low and high by day).
 /// </summary>
 public sealed record MetricFeed(MetricSource Source, MetricStep Step, MetricShape Shape, IReadOnlyList<MetricSpan> Spans)
@@ -182,6 +182,18 @@ public sealed record MetricFeed(MetricSource Source, MetricStep Step, MetricShap
 
     /// <summary>Its graph by default (the first of the types its shape offers otherwise).</summary>
     public MetricGraphType? Graph { get; init; }
+
+    /// <summary>
+    /// [S-16302] [S-16900] The span it starts at: one of <see cref="Spans"/> (the first, the shortest, unless it names
+    /// another): the list is in order, lowest first, and the default stands wherever it falls in it.
+    /// </summary>
+    public MetricSpan Default
+    {
+        get => _default is { } held && Spans.Contains(held) ? held : Spans[0];
+        init => _default = value;
+    }
+
+    private readonly MetricSpan? _default;
 }
 
 /// <summary>[S-16312] How slots fold.</summary>
@@ -221,11 +233,18 @@ public static class MetricCatalog
     /// <summary>The metric a new widget shows, and the one an unknown stored id becomes.</summary>
     public const string DefaultId = "cpu";
 
-    /// <summary>The hub's spans: a minute to an hour back (its history holds an hour, <c>MeterTiming.MaxSpanSeconds</c>).</summary>
-    private static readonly MetricSpan[] LiveSpans = [Live(300), Live(60), Live(900), Live(1800), Live(3600)];
+    /// <summary>
+    /// The hub's spans: a minute to an hour back (its history holds an hour, <c>MeterTiming.MaxSpanSeconds</c>), lowest first
+    /// ([S-16900]); five minutes the default.
+    /// </summary>
+    private static readonly MetricSpan[] LiveSpans = [Live(60), Live(300), Live(900), Live(1800), Live(3600)];
 
-    /// <summary>A day ahead first, then two; half a day and a day back (the hours a reply carries).</summary>
-    private static readonly MetricSpan[] HourSpans = [Ahead(MetricStep.Hour, 24), Ahead(MetricStep.Hour, 12), Ahead(MetricStep.Hour, 48), Back(MetricStep.Hour, 12), Back(MetricStep.Hour, 24)];
+    private static readonly MetricSpan LiveDefault = Live(300);
+
+    /// <summary>Half a day, a day and two ahead; half a day and a day back (the hours a reply carries); a day ahead the default.</summary>
+    private static readonly MetricSpan[] HourSpans = [Ahead(MetricStep.Hour, 12), Ahead(MetricStep.Hour, 24), Ahead(MetricStep.Hour, 48), Back(MetricStep.Hour, 12), Back(MetricStep.Hour, 24)];
+
+    private static readonly MetricSpan HourDefault = Ahead(MetricStep.Hour, 24);
 
     /// <summary>A week and two ahead (the forecast's fourteen days).</summary>
     private static readonly MetricSpan[] DaySpans = [Ahead(MetricStep.Day, 7), Ahead(MetricStep.Day, 14)];
@@ -246,10 +265,10 @@ public static class MetricCatalog
     private static MetricSpan Back(MetricStep step, int count) => new(MetricWay.Past, step, count);
 
     private static MetricFeed Hub(SystemSource source, MetricShape shape = MetricShape.One, MetricFold fold = MetricFold.Mean, MetricGraphType? graph = null)
-        => new(MetricSource.Hub, MetricStep.Live, shape, LiveSpans) { Hub = source, Fold = fold, Graph = graph };
+        => new(MetricSource.Hub, MetricStep.Live, shape, LiveSpans) { Hub = source, Fold = fold, Graph = graph, Default = LiveDefault };
 
     private static MetricFeed Hourly(Func<WeatherHour, double?> value, MetricFold fold = MetricFold.Mean, MetricGraphType? graph = null)
-        => new(MetricSource.Hours, MetricStep.Hour, MetricShape.One, HourSpans) { Hour = value, Fold = fold, Graph = graph };
+        => new(MetricSource.Hours, MetricStep.Hour, MetricShape.One, HourSpans) { Hour = value, Fold = fold, Graph = graph, Default = HourDefault };
 
     private static MetricFeed Daily(Func<ForecastDay, double?> value, MetricGraphType? graph = MetricGraphType.Bars, MetricFold fold = MetricFold.Mean)
         => new(MetricSource.Days, MetricStep.Day, MetricShape.One, DaySpans) { Day = value, Fold = fold, Graph = graph };
@@ -291,7 +310,7 @@ public static class MetricCatalog
             [Hourly(h => h.PrecipitationChance, graph: MetricGraphType.Bars), Daily(d => d.PrecipitationChance)]),
         new("wind", MetricSubject.Weather, MetricsStr.Metrics_Metric_Wind.Local(), Glyphs.Wind, MetricUnit.Speed, MetricNeed.Place,
             [
-                new(MetricSource.Hours, MetricStep.Hour, MetricShape.Pair, HourSpans) { Hour = h => h.Wind, HourSecond = h => h.Gusts, Graph = MetricGraphType.Line },
+                new(MetricSource.Hours, MetricStep.Hour, MetricShape.Pair, HourSpans) { Hour = h => h.Wind, HourSecond = h => h.Gusts, Graph = MetricGraphType.Line, Default = HourDefault },
                 Daily(d => d.WindMax),
             ]),
         new("humidity", MetricSubject.Weather, MetricsStr.Metrics_Metric_Humidity.Local(), Glyphs.Droplet, MetricUnit.Percent, MetricNeed.Place, [Hourly(h => h.Humidity)]),
@@ -363,10 +382,17 @@ public static class MetricCatalog
         return [.. feed.Spans.Select(s => s.Way).Distinct().Order()];
     }
 
-    /// <summary>[S-16302] The spans a feed offers one way, in its order.</summary>
+    /// <summary>[S-16302] [S-16900] The spans a feed offers one way, lowest first (the page's order).</summary>
     public static IReadOnlyList<MetricSpan> Spans(MetricFeed feed, MetricWay way)
     {
         ArgumentNullException.ThrowIfNull(feed);
-        return [.. feed.Spans.Where(s => s.Way == way)];
+        return [.. feed.Spans.Where(s => s.Way == way).OrderBy(s => s.Length())];
+    }
+
+    /// <summary>[S-16302] The span a feed starts at one way: its default where that looks this way, else the way's shortest.</summary>
+    public static MetricSpan? Start(MetricFeed feed, MetricWay way)
+    {
+        ArgumentNullException.ThrowIfNull(feed);
+        return feed.Default.Way == way ? feed.Default : Spans(feed, way) is { Count: > 0 } spans ? spans[0] : null;
     }
 }

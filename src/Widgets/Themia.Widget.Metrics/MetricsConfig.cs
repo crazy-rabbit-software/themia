@@ -77,14 +77,14 @@ public sealed class MetricsConfig : WeatherConfig, IStyled, IInterests, IReadsSy
     [JsonIgnore]
     public MetricFeed Feed => Def.Feed(Step);
 
-    /// <summary>[S-16302] The span in force: the stored one where the feed offers it, else the feed's first.</summary>
+    /// <summary>[S-16302] The span in force: the stored one where the feed offers it, else the feed's default.</summary>
     [JsonIgnore]
     public MetricSpan SpanInForce
     {
         get
         {
             var feed = Feed;
-            return feed.Spans.FirstOrDefault(s => s.Way == Way && s.Count == Span) is { Count: > 0 } held ? held : feed.Spans[0];
+            return feed.Spans.FirstOrDefault(s => s.Way == Way && s.Count == Span) is { Count: > 0 } held ? held : feed.Default;
         }
     }
 
@@ -114,7 +114,7 @@ public sealed class MetricsConfig : WeatherConfig, IStyled, IInterests, IReadsSy
         _ => Def.Name.Text(),
     };
 
-    /// <summary>[S-16305] Show <paramref name="id"/>: its first step, its first span and its graph, so a new metric starts as it reads best.</summary>
+    /// <summary>[S-16305] Show <paramref name="id"/>: its first step, its default span and its graph, so a new metric starts as it reads best.</summary>
     public void Choose(string id)
     {
         if (MetricCatalog.Find(id) is not { } def || id == Metric)
@@ -126,21 +126,21 @@ public sealed class MetricsConfig : WeatherConfig, IStyled, IInterests, IReadsSy
         ChooseStep(def.Feeds[0].Step);
     }
 
-    /// <summary>[S-16302] Read the metric at <paramref name="step"/>: that feed's first span and its default graph.</summary>
+    /// <summary>[S-16302] Read the metric at <paramref name="step"/>: that feed's default span and its default graph.</summary>
     public void ChooseStep(MetricStep step)
     {
         Step = step;
         var feed = Feed;
-        (Way, Span) = (feed.Spans[0].Way, feed.Spans[0].Count);
+        (Way, Span) = (feed.Default.Way, feed.Default.Count);
         Graph = MetricCatalog.DefaultGraph(feed);
     }
 
-    /// <summary>[S-16302] Look the other way: that way's first span.</summary>
+    /// <summary>[S-16302] Look the other way: the feed's default where it looks that way, else that way's shortest span.</summary>
     public void ChooseWay(MetricWay way)
     {
-        if (MetricCatalog.Spans(Feed, way) is { Count: > 0 } spans)
+        if (MetricCatalog.Start(Feed, way) is { } start)
         {
-            (Way, Span) = (way, spans[0].Count);
+            (Way, Span) = (way, start.Count);
         }
     }
 
@@ -302,8 +302,8 @@ public sealed class MetricsConfig : WeatherConfig, IStyled, IInterests, IReadsSy
 
         if (!Feed.Spans.Any(s => s.Way == Way && s.Count == Span))
         {
-            notes.Add($"metrics: {Metric} offers no span {Way} {Span}; showing its first");
-            (Way, Span) = (Feed.Spans[0].Way, Feed.Spans[0].Count);
+            notes.Add($"metrics: {Metric} offers no span {Way} {Span}; showing its default");
+            (Way, Span) = (Feed.Default.Way, Feed.Default.Count);
         }
 
         if (!MetricCatalog.Graphs(Feed.Shape).Contains(Graph))

@@ -42,12 +42,16 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   quality index (European and US), PM2.5, PM10, ozone, nitrogen dioxide, pollen (the worst type, or each of the six); a stock
   (candles) and an exchange rate.
 - **[S-16302]** **Step, way and span.** A metric with two steps (temperature, precipitation, snowfall, chance, wind, UV: hourly
-  and daily) is read at the step chosen; a feed looks back, ahead, or either way, each with its spans, the first the default:
-  the hub five minutes back (one, fifteen, thirty minutes and an hour, all its history holds); a place's hours a day ahead (twelve
-  hours or two days; half a day or a day back); its days a week ahead (or two); its air a day ahead (two or four days; a day
-  back); a quote a day back (five days, a month, three, six, a year); a rate a month back (or ninety days). A stored step, way or
-  span the metric has not is its first, loudly (`MetricsConfig.Repair`). Choosing a metric, or its step, starts it at its first
-  span and its default graph.
+  and daily) is read at the step chosen; a feed looks back, ahead, or either way, each with its spans and a default
+  (`MetricFeed.Default`): the hub five minutes back (one, fifteen, thirty minutes and an hour, all its history holds); a place's
+  hours a day ahead (twelve hours or two days; half a day or a day back); its days a week ahead (or two); its air a day ahead (two
+  or four days; a day back); a quote a day back (five days, a month, three, six, a year); a rate a month back (or ninety days). A
+  stored step, way or span the metric has not is its default, loudly (`MetricsConfig.Repair`). Choosing a metric, or its step,
+  starts it at its default span and its default graph; choosing the other way at its default where it looks that way, else that
+  way's shortest.
+- **[S-16900]** **Spans lowest first.** Owner, 2026-11-23: "span should be properly ordered, lowest first." Every list of a
+  feed's spans (the catalog's, `MetricCatalog.Spans`, and so the page's Span line) is ordered shortest first; the default stands
+  where it falls in that order, never moved to the top.
 - **[S-16303]** **Its figures** through the host's formats (`MetricFormat`): a share as a percent, a rate in bytes a second, a
   latency, a temperature as whole degrees in the shared scale, an amount with its unit, a price with its currency, a rate at the
   digits its size needs; a pair both ("8° / 16°"); none "--". The time a slot stands for: the hub's second, an hour's clock time,

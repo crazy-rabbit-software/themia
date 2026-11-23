@@ -821,4 +821,30 @@ public sealed class MetricsTests
         Assert.Equal("stock", config.Metric);
         Assert.Equal(MetricStep.Day, config.Step);
     }
+
+    [Fact]
+    public void S16900_spans_are_listed_lowest_first_everywhere_and_the_default_stands_where_it_falls()
+    {
+        foreach (var feed in MetricCatalog.All.SelectMany(m => m.Feeds))
+        {
+            Assert.Contains(feed.Default, feed.Spans);
+            foreach (var way in MetricCatalog.Ways(feed))
+            {
+                var lengths = feed.Spans.Where(s => s.Way == way).Select(s => s.Length()).ToList();
+                Assert.Equal(lengths.Order(), lengths);
+                Assert.Equal(lengths.Order(), MetricCatalog.Spans(feed, way).Select(s => s.Length()));
+            }
+        }
+
+        // The page's Span line in the same order: a minute first, the five-minute default where it falls.
+        var cpu = new MetricsConfig();
+        Assert.Equal((MetricWay.Past, 300), (cpu.SpanInForce.Way, cpu.SpanInForce.Count));
+        var line = Assert.IsType<SettingsChoice>(Page(cpu).Lines.Single(l => l.Text == MetricsStr.Metrics_Menu_Span.Text()));
+        Assert.Equal(MetricCatalog.Spans(cpu.Feed, MetricWay.Past).Select(MetricsMenu.SpanLabel), line.Options.Select(o => o.Text));
+
+        var hourly = new MetricsConfig();
+        hourly.Choose("temperature");
+        Assert.Equal((MetricWay.Future, 24), (hourly.Way, hourly.Span));
+        Assert.Equal([12, 24, 48], MetricCatalog.Spans(hourly.Feed, MetricWay.Future).Select(s => s.Count));
+    }
 }
