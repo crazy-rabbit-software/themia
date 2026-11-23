@@ -24,57 +24,44 @@ public readonly record struct CellBox(int X, int Y, int W, int H)
     public (double X, double Y) Middle => (X + (W / 2.0), Y + (H / 2.0));
 }
 
-/// <summary>[S-16404] What a card of the gallery is: a piece of a category, or one of what stands round a piece picked.</summary>
+/// <summary>[S-16404] What a card of the gallery is: a piece of a category, or one of what stands round a piece in focus.</summary>
 public enum GalleryRole
 {
     /// <summary>A whole widget or ready-made group of a category (or of a search).</summary>
     Piece,
 
-    /// <summary>[S-16404] The piece picked, in the middle of its focus.</summary>
+    /// <summary>[S-16554] The piece in focus: it stays where it stood.</summary>
     Picked,
 
-    /// <summary>[S-16404] The picked piece's words: its name, what it is, what it needs. A card of its own, no widget.</summary>
+    /// <summary>[S-16404] The piece's words: its name, what it is, what it needs. A card of its own, no widget.</summary>
     About,
 
-    /// <summary>[S-16404] The picked widget in another of its styles.</summary>
+    /// <summary>[S-16555] The widget in focus in another of its styles.</summary>
     Style,
-
-    /// <summary>[S-16404] The picked widget at another size (its least, or large).</summary>
-    Size,
-
-    /// <summary>[S-16404] Another piece of the picked one's category.</summary>
-    Similar,
-}
-
-/// <summary>[S-16404] Which other size a <see cref="GalleryRole.Size"/> card shows.</summary>
-public enum GallerySize
-{
-    Least,
-    Large,
 }
 
 /// <summary>
 /// [S-14912] One whole thing of the gallery: a widget that stands alone (<see cref="Kind"/>) or a ready-made group
 /// (<see cref="Group"/>: several widgets laid as one panel). Never a small part of a family: those are the add page's.
-/// [S-16404] Round a piece picked, the same thing in another <see cref="Role"/>: its words, a style, a size, a neighbour.
+/// [S-16404] Round a piece in focus, the same thing in another <see cref="Role"/>: its words or a style.
 /// </summary>
 /// <param name="Key">The same in every language: the add page's tile key (<c>kind:clock</c>, <c>group:nowPlaying</c>).</param>
 public sealed record GalleryPiece(string Key, WidgetId? Kind, ReadyMadeGroup? Group)
 {
     public GalleryRole Role { get; init; }
 
-    /// <summary>[S-16404] A <see cref="GalleryRole.Style"/> card's style.</summary>
+    /// <summary>[S-16555] A <see cref="GalleryRole.Style"/> card's style.</summary>
     public int? Style { get; init; }
 
-    /// <summary>[S-16404] A <see cref="GalleryRole.Size"/> card's size.</summary>
-    public GallerySize? Size { get; init; }
+    /// <summary>[S-16562] A quick setting shown at its least (beside it at the size it has new): kept at that size.</summary>
+    public bool Least { get; init; }
 }
 
 /// <summary>[S-14912] A category of the gallery: an add page subject (or More), its whole pieces in the add page's order.</summary>
 public sealed record GalleryCategory(AddFolderId Id, LocalText Title, string Glyph, IReadOnlyList<GalleryPiece> Pieces);
 
 /// <summary>
-/// [S-14912] [S-16403] What a piece asks of the bento, in whole cells of the display's grid: its natural size, the least
+/// [S-14912] [S-16551] What a piece asks of the bento, in whole cells of the display's grid: its natural size, the least
 /// and the most it may be, and on which axes it may be made another size (a widget on the axes its sizing leaves free; a
 /// ready-made group across only, and only to the widths its common step lands on, <see cref="Widths"/>).
 /// </summary>
@@ -91,12 +78,19 @@ public readonly record struct PieceSize(int W, int H, int MinW, int MinH, bool W
 /// <summary>[S-14912] A piece on a sheet: the box it is drawn at, in cells from the sheet's top-left corner.</summary>
 public sealed record GalleryTile(GalleryPiece Piece, CellBox Box);
 
-/// <summary>[S-14912] A category laid as a bento: its tiles and how many rows of cells it is tall.</summary>
-public sealed record GallerySheet(AddFolderId Category, LocalText Name, int Rows, IReadOnlyList<GalleryTile> Tiles);
+/// <summary>
+/// [S-14912] A category laid as a bento: its tiles and how many rows of cells it is tall. [S-16550] Its
+/// <see cref="Columns"/>: each column's cells across, from its top to its foot (the row under its last card).
+/// </summary>
+public sealed record GallerySheet(AddFolderId Category, LocalText Name, int Rows, IReadOnlyList<GalleryTile> Tiles)
+{
+    public IReadOnlyList<CellBox> Columns { get; init; } = [];
+}
 
 /// <summary>
-/// [S-14911] [S-16400] [S-16401] The gallery's window on a display, in DIPs: the window, its head (the categories' tabs and
-/// the search box) and the well the cards stand in; and <see cref="View"/>, the well's room in whole cells of the display's grid.
+/// [S-14911] [S-16400] [S-16401] The gallery's window on a display, in DIPs: the window, its head (the categories' tabs,
+/// the hint and the search box) and the well the cards stand in; and <see cref="View"/>, the well's room in whole cells of
+/// the display's grid.
 /// </summary>
 public sealed record GalleryFrame(DipRect Window, DipRect Head, DipRect Well, CellBox View);
 
@@ -120,15 +114,17 @@ public enum GalleryAfter
 }
 
 /// <summary>
-/// [S-14910]..[S-14917] [S-16400]..[S-16410] The widget gallery's arrangement, pure (owner, 2026-11-21: "for now lets just
-/// show complete widgets / groups, not the small atoms ... they should be shown as a bento"; 2026-11-23: "make sure that in
-/// the widget gallery that all the widgets are properly placed on a bento grid and there are no major spaces between them.
-/// (except for the one block space between separate groups of widgets)"). A category is its whole pieces (<see cref="Of"/>),
-/// a search the pieces that match (<see cref="Find"/>), laid as one bento (<see cref="Lay"/>): every piece on whole cells, one
-/// cell (<see cref="Gap"/>) between two, packed at the first room it fits and grown into the room left beside it, so there is
-/// no hole bigger than what nothing can fill (<see cref="Holes"/>). A piece picked is shown in focus (<see cref="Focus"/>,
-/// <see cref="LayFocus"/>): itself in the middle, its words, its styles or sizes and its neighbours round it. Deterministic;
-/// no two pieces share or touch a cell.
+/// [S-14910]..[S-14917] [S-16400]..[S-16410] [S-16550]..[S-16564] The widget gallery's arrangement, pure (owner,
+/// 2026-11-21: "for now lets just show complete widgets / groups, not the small atoms ... they should be shown as a bento";
+/// 2026-11-23: "start with a column layout, the columns dont have to be all the same width, then place all the widgets in
+/// them, optionally you can also put widgets besides each other at the same height in the column. the widgets size should
+/// be defined by the columns"). A category is its whole pieces (<see cref="Of"/>), a search the first pieces that match
+/// (<see cref="Find"/>), laid as one column bento (<see cref="Lay"/>): columns first, of whole cells and different widths,
+/// filling the width; every piece in a column, as wide as it (or, side by side with others at one height, a share of it),
+/// as tall as its sizing makes it there; the cards of a column one cell apart from its top to its foot, so a column has no
+/// hole (<see cref="Holes"/>), and the columns' feet as even as the pieces' heights let them (<see cref="Ragged"/>). A piece
+/// in focus (<see cref="Focus"/>, <see cref="LayFocus"/>) stays where it stood; its words and its other styles stand round it.
+/// Deterministic; no two pieces share or touch a cell.
 /// </summary>
 public static class WidgetGallery
 {
@@ -138,21 +134,39 @@ public static class WidgetGallery
     /// <summary>[S-14913] How far one notch of the wheel scrolls a sheet, in rows of cells.</summary>
     public const int Step = 8;
 
-    /// <summary>[S-16404] How many neighbours stand round a piece picked, at the least and at the most.</summary>
-    public const int FewestSimilar = 2;
+    /// <summary>[S-16557] How many pieces a search shows at the most, best first: enough to browse, few enough to stay instant.</summary>
+    public const int MostFound = 8;
 
-    public const int MostAround = 8;
+    /// <summary>
+    /// [S-16565] The families whose widgets the gallery shows whole in Quick settings, each alone at its two sizes, and whose
+    /// ready-made group it leaves out (owner, 2026-11-23: "the power actions should be moved to the quick settings page").
+    /// </summary>
+    public static readonly IReadOnlySet<AddFolderId> InQuickSettings = new HashSet<AddFolderId> { AddFolderId.PowerButtons };
+
+    /// <summary>[S-16550] How many of the ways that cost least are settled (rows moved between columns) before one is kept.</summary>
+    private const int Settled = 3;
+
+    /// <summary>[S-16551] How many pieces stand side by side in a column at the most (small ones that keep their size, a row of them).</summary>
+    public const int MostSide = 16;
 
     /// <summary>
     /// [S-14912] The categories of <paramref name="page"/>: every subject on its rail (and More), each its ready-made
     /// groups and then its own widgets, as the add page has them ([S-13611]). A family's small parts (a fact, a button,
     /// a line of text) are left out: they are shown whole, in their groups. Start and desktop items stay the add page's.
-    /// A subject with no whole piece is left out.
+    /// A subject with no whole piece is left out. [S-16562] Quick settings shows each toggle twice: at the size it has new,
+    /// and right after it at its least. [S-16565] The power buttons (a family elsewhere, <see cref="InQuickSettings"/>) stand
+    /// there too, each alone and twice the same way, after the toggles; the ready-made group of them (its Header over them)
+    /// is not shown.
     /// </summary>
     public static IReadOnlyList<GalleryCategory> Of(AddPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
         var categories = new List<GalleryCategory>();
+        var moved = page.Rail.SelectMany(r => page.Sections(r.Id))
+            .Where(s => s.Kind == AddSectionKind.Family && s.Family is { } f && InQuickSettings.Contains(f.Id))
+            .SelectMany(s => s.Tiles.OfType<AddWidgetTile>())
+            .DistinctBy(t => t.Key)
+            .ToList();
         foreach (var item in page.Rail)
         {
             if (item.Id == AddFolderId.Start)
@@ -166,11 +180,28 @@ public static class WidgetGallery
                 switch (section.Kind)
                 {
                     case AddSectionKind.ReadyMade:
-                        pieces.AddRange(section.Tiles.OfType<AddGroupTile>().Select(t => new GalleryPiece(t.Key, null, t.Group)));
+                        pieces.AddRange(section.Tiles.OfType<AddGroupTile>().Where(t => !InQuickSettings.Contains(t.Group.Home)).Select(t => new GalleryPiece(t.Key, null, t.Group)));
                         break;
                     case AddSectionKind.Widgets:
-                        pieces.AddRange(section.Tiles.OfType<AddWidgetTile>().Select(t => new GalleryPiece(t.Key, t.Kind, null)));
+                        foreach (var tile in section.Tiles.OfType<AddWidgetTile>())
+                        {
+                            pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null));
+                            if (item.Id == AddFolderId.QuickSettings)
+                            {
+                                pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true });
+                            }
+                        }
+
                         break;
+                }
+            }
+
+            if (item.Id == AddFolderId.QuickSettings)
+            {
+                foreach (var tile in moved)
+                {
+                    pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null));
+                    pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true });
                 }
             }
 
@@ -184,11 +215,12 @@ public static class WidgetGallery
     }
 
     /// <summary>
-    /// [S-16402] What a search shows in place of a category: the add page's search over every widget and group
+    /// [S-16402] [S-16557] What a search shows in place of a category: the add page's search over every widget and group
     /// (<see cref="AddPage.Find"/>, best first, the groups before the widgets), kept to the gallery's whole pieces (a family's
-    /// small part it finds is left out), each once; null while <paramref name="query"/> searches nothing. Laid as a category is.
+    /// small part it finds is left out), each once, the first <paramref name="most"/> of them; null while
+    /// <paramref name="query"/> searches nothing. Laid as a category is.
     /// </summary>
-    public static GalleryCategory? Find(AddPage page, IReadOnlyList<GalleryCategory> categories, string? query)
+    public static GalleryCategory? Find(AddPage page, IReadOnlyList<GalleryCategory> categories, string? query, int most = MostFound)
     {
         ArgumentNullException.ThrowIfNull(page);
         ArgumentNullException.ThrowIfNull(categories);
@@ -198,7 +230,7 @@ public static class WidgetGallery
         }
 
         var whole = new Dictionary<string, GalleryPiece>(StringComparer.Ordinal);
-        foreach (var piece in categories.SelectMany(c => c.Pieces))
+        foreach (var piece in categories.SelectMany(c => c.Pieces).Where(p => !p.Least))
         {
             whole.TryAdd(piece.Key, piece);
         }
@@ -206,6 +238,11 @@ public static class WidgetGallery
         var found = new List<GalleryPiece>();
         foreach (var tile in page.Find(query).SelectMany(s => s.Tiles))
         {
+            if (found.Count >= most)
+            {
+                break;
+            }
+
             if (whole.TryGetValue(tile.Key, out var piece) && !found.Contains(piece))
             {
                 found.Add(piece);
@@ -216,562 +253,1056 @@ public static class WidgetGallery
     }
 
     /// <summary>
-    /// [S-14912] [S-16403] <paramref name="category"/> as a bento <paramref name="width"/> cells wide: each piece at its
-    /// natural size (held to the width), placed in order at the first room it fits with one cell round it, top-most then
-    /// left-most, so a smaller piece fills the room a larger one left; then every piece is grown a cell at a time, by turns,
-    /// on the axes it may be another size on, to the right, down (never past the sheet's foot), to the left and up, into
-    /// room nothing took, so the block is one bento with one cell between two pieces and no hole a piece could fill.
+    /// [S-16550]..[S-16553] <paramref name="category"/> as a column bento <paramref name="width"/> cells wide. Columns come
+    /// first: a few, of whole cells and different widths, filling the width (as far as the pieces can be that wide); each
+    /// way of cutting the width into columns is filled and the one that fits the pieces best is kept (<see cref="Plans"/>).
+    /// Filling: the shortest column (then the left-most) takes next the piece, or the pieces side by side at one height (at
+    /// most <see cref="MostSide"/>), that its width suits best, the larger first; a piece is as wide as its column (or its share
+    /// of it) and as tall as its sizing makes it at that width (its natural height scaled with its width, within its least and
+    /// most). The cards of a column stand one cell apart from its top down, so there is no hole in a column; then rows move
+    /// between columns (<see cref="Settle"/>), a column whose foot stays high goes on as two under its last card
+    /// (<see cref="Divide"/>), and the rows are made taller or shorter, within what their pieces take, so the columns' feet come
+    /// as even as they can (<see cref="Even"/>).
     /// </summary>
     public static GallerySheet Lay(GalleryCategory category, int width, Func<GalleryPiece, PieceSize> size)
     {
         ArgumentNullException.ThrowIfNull(category);
-        return Best(category, width, size, anchored: false);
+        ArgumentNullException.ThrowIfNull(size);
+        var cols = Math.Max(1, width);
+        var shapes = category.Pieces.Select(p => new Shape(size(p), cols)).ToList();
+        if (shapes.Count == 0)
+        {
+            return new GallerySheet(category.Id, category.Title, 0, []);
+        }
+
+        // Every way filled and its feet evened; the few that cost least settled (rows moved between columns) and evened again.
+        var solved = new Solver(shapes);
+        var ways = new List<(int[] Plan, Filled Filled)>();
+        foreach (var plan in Plans(shapes, cols))
+        {
+            var filled = Fill(solved, Columns(plan, 0, 0), ordered: false);
+            ways.Add((plan, filled with { Cost = Cost(Evened(filled, solved), shapes, cols) }));
+        }
+
+        Filled? best = null;
+        foreach (var (_, filled) in ways.OrderBy(w => w.Filled.Cost).Take(Settled))
+        {
+            Settle(filled.Columns, solved);
+            Divide(filled.Columns, solved);
+            var done = Evened(filled, solved);
+            done = done with { Cost = Cost(done, shapes, cols) };
+            if (best is null || done.Cost < best.Cost - 1e-9)
+            {
+                best = done;
+            }
+        }
+
+        return Sheet(category, best!, 0);
     }
 
     /// <summary>
-    /// [S-16404] What stands round <paramref name="picked"/>, a piece of <paramref name="category"/>, in focus: the piece
-    /// itself (<see cref="GalleryRole.Picked"/>), its words (<see cref="GalleryRole.About"/>), the picked widget in each of
-    /// its <paramref name="otherStyles"/>, where it has fewer than two the widget at its least and large (when it
-    /// <paramref name="resizes"/>), then the category's other pieces after it in its order (and before it, wrapping) as
-    /// neighbours, at least <see cref="FewestSimilar"/>, all of it at most <see cref="MostAround"/> round it.
+    /// [S-16554] [S-16555] What stands in focus with <paramref name="picked"/>, a piece of <paramref name="category"/>: the
+    /// piece itself (<see cref="GalleryRole.Picked"/>), its words (<see cref="GalleryRole.About"/>) and, for a widget, the
+    /// widget in each of its <paramref name="otherStyles"/> (owner, 2026-11-23: "when clicking on a widget it should now only
+    /// show the styles, not related widgets actually"): no neighbour, no other size. A kind of one style shows its words alone.
     /// </summary>
-    public static GalleryCategory Focus(GalleryCategory category, GalleryPiece picked, IReadOnlyList<int> otherStyles, bool resizes)
+    public static GalleryCategory Focus(GalleryCategory category, GalleryPiece picked, IReadOnlyList<int> otherStyles)
     {
         ArgumentNullException.ThrowIfNull(category);
         ArgumentNullException.ThrowIfNull(picked);
         ArgumentNullException.ThrowIfNull(otherStyles);
         var key = picked.Key;
-        List<GalleryPiece> around = [];
-        if (picked.Kind is { } kind && picked.Group is null)
-        {
-            around.AddRange(otherStyles.Take(MostAround - FewestSimilar).Select(style => new GalleryPiece($"style:{kind.Value}:{style}", kind, null) { Role = GalleryRole.Style, Style = style }));
-            if (otherStyles.Count < 2 && resizes)
-            {
-                around.Add(new GalleryPiece($"size:{kind.Value}:least", kind, null) { Role = GalleryRole.Size, Size = GallerySize.Least });
-                around.Add(new GalleryPiece($"size:{kind.Value}:large", kind, null) { Role = GalleryRole.Size, Size = GallerySize.Large });
-            }
-        }
-
-        var at = category.Pieces.ToList().FindIndex(p => string.Equals(p.Key, key, StringComparison.Ordinal));
-        var others = category.Pieces.Count == 0 ? [] : Enumerable.Range(1, category.Pieces.Count - 1)
-            .Select(i => category.Pieces[(Math.Max(0, at) + i) % category.Pieces.Count])
-            .Where(p => !string.Equals(p.Key, key, StringComparison.Ordinal))
-            .ToList();
-        var similar = Math.Max(FewestSimilar, MostAround - around.Count);
-        around.AddRange(others.Take(similar).Select(p => p with { Key = "similar:" + p.Key, Role = GalleryRole.Similar }));
-
         List<GalleryPiece> pieces =
         [
-            picked with { Role = GalleryRole.Picked, Style = null, Size = null },
+            picked with { Role = GalleryRole.Picked, Style = null },
             new GalleryPiece("about:" + key, picked.Kind, picked.Group) { Role = GalleryRole.About },
-            .. around,
         ];
+        if (picked.Kind is { } kind && picked.Group is null)
+        {
+            pieces.AddRange(otherStyles.Select(style => new GalleryPiece($"style:{kind.Value}:{style}", kind, null) { Role = GalleryRole.Style, Style = style }));
+        }
+
         return new GalleryCategory(category.Id, category.Title, category.Glyph, pieces);
     }
 
     /// <summary>
-    /// [S-16405] A focus (<see cref="Focus"/>) as a bento <paramref name="width"/> cells wide: the picked piece first, at the
-    /// sheet's top in the middle across, the rest packed round it as a category is (<see cref="Lay"/>: its left and right,
-    /// then under it), one cell between two and grown into the room left.
+    /// [S-16554] A focus (<see cref="Focus"/>) on a sheet <paramref name="width"/> cells wide whose picked piece stands at
+    /// <paramref name="stays"/>, where it stood: it does not move. The rest stand in the room the faded cards leave round it,
+    /// in their order (its words first): in columns beside it from its top down (to its left and its right) and under it as
+    /// wide as it, the shortest column first, one cell apart. At least <paramref name="rows"/> tall (the sheet it came from), so
+    /// the scroll it stood at still holds.
     /// </summary>
-    public static GallerySheet LayFocus(GalleryCategory focus, int width, Func<GalleryPiece, PieceSize> size)
+    public static GallerySheet LayFocus(GalleryCategory focus, CellBox stays, int width, int rows, Func<GalleryPiece, PieceSize> size)
     {
         ArgumentNullException.ThrowIfNull(focus);
-        return Best(focus, width, size, anchored: true);
-    }
-
-    /// <summary>
-    /// [S-16403] The ways the pieces go in: which first (the largest, the tallest, the widest, or in their order) and where
-    /// (where it keeps the sheet shortest and touches most, or the top-most, left-most room it fits).
-    /// </summary>
-    private static readonly (PackOrder Order, bool Touching)[] Ways =
-    [
-        (PackOrder.Largest, true), (PackOrder.Tallest, true), (PackOrder.Widest, true), (PackOrder.Given, true),
-        (PackOrder.Largest, false), (PackOrder.Tallest, false), (PackOrder.Widest, false), (PackOrder.Given, false),
-    ];
-
-    private enum PackOrder
-    {
-        Largest,
-        Tallest,
-        Widest,
-        Given,
-    }
-
-    /// <summary>
-    /// [S-16403] The pieces packed every way (<see cref="Ways"/>), and the sheet that leaves the fewest cells empty between
-    /// pieces kept (then the shortest, then the first way): what is left is what no way could fill.
-    /// </summary>
-    private static GallerySheet Best(GalleryCategory category, int width, Func<GalleryPiece, PieceSize> size, bool anchored)
-    {
-        ArgumentNullException.ThrowIfNull(size);
-        var asks = category.Pieces.Select(size).ToList();
-        PieceSize Asked(GalleryPiece piece) => asks[IndexOf(category.Pieces, piece)];
-        GallerySheet? best = null;
-        var (holes, rows) = (int.MaxValue, int.MaxValue);
-        foreach (var (order, touching) in Ways)
-        {
-            var sheet = Pack(category, width, Asked, anchored, order, touching);
-            var h = Holes(sheet, width);
-            if (h < holes || (h == holes && sheet.Rows < rows))
-            {
-                (best, holes, rows) = (sheet, h, sheet.Rows);
-            }
-        }
-
-        return best!;
-
-        static int IndexOf(IReadOnlyList<GalleryPiece> pieces, GalleryPiece piece)
-        {
-            for (var i = 0; i < pieces.Count; i++)
-            {
-                if (ReferenceEquals(pieces[i], piece))
-                {
-                    return i;
-                }
-            }
-
-            throw new ArgumentException("not a piece of the category", nameof(piece));
-        }
-    }
-
-    private static GallerySheet Pack(GalleryCategory category, int width, Func<GalleryPiece, PieceSize> size, bool anchored, PackOrder order, bool touching)
-    {
         ArgumentNullException.ThrowIfNull(size);
         var cols = Math.Max(1, width);
-        var span = cols + Gap;
-        var taken = new List<bool[]>();
-        var placed = new List<(GalleryPiece Piece, PieceSize Size, int X, int Y, int W, int H)>();
+        var rest = focus.Pieces.Skip(1).ToList();
+        var shapes = rest.Select(p => new Shape(size(p), cols)).ToList();
+        var least = shapes.Count == 0 ? 1 : shapes.Min(s => s.LeastW);
+        var typical = shapes.Count == 0 ? 1 : Math.Max(least, shapes.Select(s => s.W).Order().ElementAt(shapes.Count / 2));
+        var widest = shapes.Count == 0 ? 1 : shapes.Max(s => s.LeastW);
 
-        bool Free(int x, int y, int w, int h)
+        // The room round it: beside it (each side cut into columns about a typical piece wide), and under it.
+        var columns = new List<Col>();
+        void Side(int x, int w)
         {
-            if (x < 0 || y < 0 || x + w > span)
+            if (w < least)
             {
-                return false;
+                return;
             }
 
-            for (var row = y; row < y + h && row < taken.Count; row++)
-            {
-                for (var col = x; col < x + w; col++)
-                {
-                    if (taken[row][col])
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
+            // About a typical piece wide each, and never narrower than the widest least (its words' card) where the side holds it.
+            var k = Math.Max(1, (int)Math.Round((w + Gap) / (double)(typical + Gap)));
+            k = w >= widest ? Math.Min(k, Math.Max(1, (w + Gap) / (widest + Gap))) : k;
+            columns.AddRange(Columns(Split(w, k), x, stays.Y));
         }
 
-        void Take(int x, int y, int w, int h)
+        Side(0, stays.X - Gap);
+        Side(stays.Right + Gap, cols - stays.Right - Gap);
+        columns.Add(new Col(stays.X, stays.W, stays.Bottom + Gap));
+        var filled = Fill(new Solver(shapes), columns, ordered: true);
+        var tiles = new List<GalleryTile> { new(focus.Pieces[0], stays) };
+        tiles.AddRange(Tiles(rest, filled));
+        var foot = Math.Max(rows, Math.Max(stays.Bottom, filled.Columns.Count == 0 ? 0 : filled.Columns.Max(c => c.Foot)));
+        return new GallerySheet(focus.Id, focus.Title, foot, tiles) { Columns = [.. filled.Columns.Where(c => c.Rows.Count > 0).Select(c => c.Box)] };
+    }
+
+    // ---- [S-16550] the columns ------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// [S-16550] The ways of cutting <paramref name="width"/> cells into columns. A few columns: from three fifths to half as
+    /// many again as pieces of the middle width fill the width (never more than eight, nor than the pieces; few pieces may
+    /// stand in one): for each count the width cut evenly, cut after the pieces' own widths (the widest first, scaled to
+    /// fill), and the same held to the most a piece may be (few pieces cannot fill it); then one column as wide as a width a
+    /// piece keeps (or a row of such pieces, or the widest piece's least) and the rest cut evenly; and the fewest widths that
+    /// take every piece alone (<see cref="Stab"/>), with or without more columns in what is left. A way with no column the
+    /// widest piece's least fits in is left out. Each once, in this order.
+    /// </summary>
+    private static List<int[]> Plans(List<Shape> shapes, int width)
+    {
+        var plans = new List<int[]>();
+        void Add(int[] plan)
         {
-            while (taken.Count < y + h)
+            if (plan.Length > 0 && plan.All(w => w >= 1) && plan.Sum() + ((plan.Length - 1) * Gap) <= width
+                && plan.Max() >= shapes.Max(s => s.LeastW) && !plans.Exists(p => p.SequenceEqual(plan)))
             {
-                taken.Add(new bool[span]);
+                plans.Add(plan);
+            }
+        }
+
+        // A few columns: about as many as pieces of the middle width fill the width (three fifths to half as many again),
+        // never more than there are pieces, so a piece is near its own width in its column.
+        var natural = shapes.Select(s => s.W).OrderDescending().ToList();
+        var narrowest = shapes.Select(s => s.LeastW).Order().ElementAt(shapes.Count / 2);
+        var fits = (width + Gap) / (double)(natural[natural.Count / 2] + Gap);
+        var most = Math.Clamp((int)Math.Ceiling(fits * 1.5), 1, Math.Min(8, shapes.Count));
+        var fewest = Math.Clamp((int)Math.Ceiling(fits * 0.6), 1, Math.Max(1, Math.Min(most, shapes.Count / 2)));
+        var widest = shapes.Max(s => s.MostW);
+
+        // The widths pieces keep (and rows of several of one such size): a column of exactly that takes them without a hole;
+        // and the least the widest piece may be, so a column takes it.
+        var kept = new SortedSet<int> { shapes.Max(s => s.LeastW) };
+        foreach (var group in shapes.Where(s => s.Kept).GroupBy(s => (s.W, s.H)))
+        {
+            for (var n = 1; n <= Math.Min(group.Count(), 16); n++)
+            {
+                kept.Add((n * (group.Key.W + Gap)) - Gap);
+            }
+        }
+
+        for (var k = fewest; k <= most; k++)
+        {
+            Add(Split(width, k));
+
+            // After the pieces' own widths: k runs of the widths (widest first), each column the run's middle, scaled to fill.
+            var wanted = Enumerable.Range(0, k).Select(i => natural[Math.Min(natural.Count - 1, ((2 * i) + 1) * natural.Count / (2 * k))]).ToArray();
+            Add(Scaled(wanted, width));
+
+            // Few pieces: the columns no wider than a piece may be, or as the pieces are (the width not filled: they cannot be that wide).
+            Add([.. Split(width, k).Select(w => Math.Min(w, widest))]);
+            Add([.. Scaled(wanted, width).Select(w => Math.Min(w, widest))]);
+            Add(wanted);
+        }
+
+        // A column as wide as a kept width, the rest cut evenly into one to as many columns as the rest of the width holds.
+        foreach (var w in kept.Where(w => w <= width))
+        {
+            var left = width - w - Gap;
+            var room = left < 1 ? 0 : Math.Min(most - 1, (left + Gap) / (Math.Max(1, narrowest) + Gap));
+            if (room == 0)
+            {
+                Add([w]);
             }
 
-            for (var row = y; row < y + h; row++)
+            for (var k = Math.Max(1, Math.Min(room, fewest - 2)); k <= room; k++)
             {
-                for (var col = x; col < x + w; col++)
+                Add([w, .. Split(left, k)]);
+            }
+        }
+
+        // Every piece a column it may be as wide as: the fewest widths that take each piece alone (the narrowest first, each
+        // the most the next piece left may be), the rest of the width as one to three more columns, or not at all.
+        if (Stab(shapes, width) is { Count: > 1 } stab)
+        {
+            var left = width - stab.Sum() - (stab.Count * Gap);
+            Add([.. stab]);
+            for (var k = 1; k <= 3 && left >= k * Math.Max(1, narrowest); k++)
+            {
+                Add([.. stab, .. Split(left, k)]);
+            }
+        }
+
+        if (plans.Count == 0)
+        {
+            plans.Add([width]);
+        }
+
+        return plans;
+    }
+
+    /// <summary>
+    /// [S-16550] The fewest column widths that take every piece alone (each a width it may be; the narrowest piece first, its
+    /// most, then each as narrow as the pieces only it takes allow), widest first; null where they do not fit in
+    /// <paramref name="width"/> together.
+    /// </summary>
+    private static List<int>? Stab(List<Shape> shapes, int width)
+    {
+        var widths = new List<int>();
+        foreach (var shape in shapes.OrderBy(s => s.MostW).ThenBy(s => s.LeastW))
+        {
+            if (widths.Exists(shape.Takes))
+            {
+                continue;
+            }
+
+            widths.Add(shape.Below(shape.MostW));
+        }
+
+        // Each width made as narrow as the pieces only it takes allow: the least they all may be.
+        for (var i = 0; i < widths.Count; i++)
+        {
+            var at = i;
+            var only = shapes.Where(s => s.Takes(widths[at]) && !widths.Where((_, j) => j != at).Any(s.Takes)).ToList();
+            if (only.Count == 0)
+            {
+                continue;
+            }
+
+            for (var w = only.Max(s => s.LeastW); w < widths[at]; w++)
+            {
+                if (only.TrueForAll(s => s.Takes(w)))
                 {
-                    taken[row][col] = true;
+                    widths[at] = w;
+                    break;
                 }
             }
         }
 
-        // Each piece's footprint: its box and one cell to its right and under it, the gap no other piece takes. The pieces go
-        // largest first (a focus: the piece in focus in the middle of the top, then the ones that keep their size, so the rest
-        // can grow round them) each where it keeps the sheet
-        // shortest and touches the most of what stands (other footprints, the sheet's sides and top), so the small ones fill
-        // the room the large ones leave; then the top-most, the left-most.
-        var asks = category.Pieces.Select(size).ToList();
-        var boxes = new (int X, int Y, int W, int H)[asks.Count];
-        long Area(int i) => (long)Math.Max(1, asks[i].W) * Math.Max(1, asks[i].H);
-        long Key(int i) => order switch
+        widths.Sort((a, b) => b.CompareTo(a));
+        return widths.Sum() + ((widths.Count - 1) * Gap) <= width ? widths : null;
+    }
+
+    /// <summary><paramref name="width"/> cells cut into <paramref name="k"/> columns one cell apart, as even as whole cells go (the wider first).</summary>
+    private static int[] Split(int width, int k)
+    {
+        var room = width - ((k - 1) * Gap);
+        return [.. Enumerable.Range(0, k).Select(i => (room / k) + (i < room % k ? 1 : 0))];
+    }
+
+    /// <summary><paramref name="wanted"/> widths scaled to fill <paramref name="width"/> with their gaps, in whole cells.</summary>
+    private static int[] Scaled(int[] wanted, int width)
+    {
+        var room = width - ((wanted.Length - 1) * Gap);
+        var sum = Math.Max(1, wanted.Sum());
+        var plan = wanted.Select(w => Math.Max(1, (int)Math.Floor(w * room / (double)sum))).ToArray();
+        for (var i = 0; plan.Sum() < room; i = (i + 1) % plan.Length)
         {
-            PackOrder.Largest => Area(i),
-            PackOrder.Tallest => asks[i].H,
-            PackOrder.Widest => asks[i].W,
-            _ => 0,
-        };
-        IEnumerable<int> sequence = anchored
-            ? Enumerable.Range(0, Math.Min(1, asks.Count)).Concat(Enumerable.Range(1, Math.Max(0, asks.Count - 1))
-                .OrderBy(i => asks[i].Wider || asks[i].Taller ? 1 : 0).ThenByDescending(Key).ThenBy(i => i))
-            : Enumerable.Range(0, asks.Count).OrderByDescending(Key).ThenBy(i => i);
-        var corners = new List<(int X, int Y)> { (0, 0) };
-        var first = true;
-        foreach (var i in sequence)
+            plan[i]++;
+        }
+
+        return plan;
+    }
+
+    private static List<Col> Columns(int[] plan, int x, int top)
+    {
+        var columns = new List<Col>();
+        foreach (var w in plan)
         {
-            var asked = asks[i];
-            var w = Width(asked, Math.Min(cols, Math.Max(1, asked.W)), cols);
-            var h = Math.Max(1, asked.H);
-            (int X, int Y) at = (0, taken.Count);
-            if (anchored && first)
+            columns.Add(new Col(x, w, top));
+            x += w + Gap;
+        }
+
+        return columns;
+    }
+
+    // ---- [S-16551] filling them -----------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// [S-16551] The pieces into <paramref name="columns"/>. Not <paramref name="ordered"/> (a category): the shortest column
+    /// takes next the row (one piece, or several side by side at one height) its width suits best, the pieces that keep their
+    /// size first, then the larger.
+    /// <paramref name="ordered"/> (a focus): the pieces in their order, each into the column it suits where it stands highest.
+    /// A piece no column can take whole (its least wider than the room) is not left out: it stands at the most its column takes.
+    /// </summary>
+    private static Filled Fill(Solver solved, List<Col> columns, bool ordered)
+    {
+        var shapes = solved.Shapes;
+        // A category: the pieces that keep their size first (the hardest to fit), then the larger first.
+        var left = Enumerable.Range(0, shapes.Count)
+            .OrderByDescending(i => !ordered && shapes[i].Kept)
+            .ThenByDescending(i => ordered ? 0 : (long)shapes[i].W * shapes[i].H)
+            .ThenBy(i => i)
+            .ToList();
+        var forced = 0;
+        while (left.Count > 0)
+        {
+            Row? row = null;
+            Col? into = null;
+            if (ordered)
             {
-                at = ((cols - w) / 2, 0);
-            }
-            else
-            {
-                var best = (Bottom: int.MaxValue, Contact: -1, Y: int.MaxValue, X: int.MaxValue);
-                if (!touching)
+                var best = double.MaxValue;
+                foreach (var col in columns.Where(c => !c.Closed))
                 {
-                    // The top-most, left-most room it fits.
-                    for (var y = 0; y <= taken.Count && best.Bottom == int.MaxValue; y++)
+                    foreach (var option in Options(left[0], col, solved, left))
                     {
-                        for (var x = 0; x + w <= cols; x++)
+                        var score = col.Next + option.H + (Fit * option.Strain * shapes[left[0]].H);
+                        if (score < best - 1e-9)
                         {
-                            if (Free(x, y, w + Gap, h + Gap))
-                            {
-                                best = (0, 0, y, x);
-                                break;
-                            }
+                            (best, row, into) = (score, option, col);
                         }
                     }
                 }
-
-                foreach (var y in touching ? corners.Select(c => c.Y).Append(taken.Count).Distinct() : [])
+            }
+            else
+            {
+                foreach (var col in columns.OrderBy(c => c.Foot).ThenBy(c => c.X))
                 {
-                    foreach (var x in corners.Select(c => c.X).Distinct())
+                    var best = double.MaxValue;
+                    var seen = new HashSet<ShapeKey>();
+                    for (var rank = 0; rank < left.Count; rank++)
                     {
-                        if (x + w > cols || !Free(x, y, w + Gap, h + Gap))
+                        // Of pieces that ask the same, the first alone: the rest would make the same rows.
+                        if (!seen.Add(shapes[left[rank]].Key))
                         {
                             continue;
                         }
 
-                        var score = (Bottom: Math.Max(taken.Count, y + h + Gap), Contact: Contact(x, y, w + Gap, h + Gap), Y: y, X: x);
-                        if (score.Bottom < best.Bottom || (score.Bottom == best.Bottom && (score.Contact > best.Contact
-                            || (score.Contact == best.Contact && (score.Y < best.Y || (score.Y == best.Y && score.X < best.X))))))
+                        foreach (var option in Options(left[rank], col, solved, left))
                         {
-                            best = score;
+                            var score = option.Strain + (Order * rank / left.Count) + (Side * (option.Members.Count - 1));
+                            if (score < best - 1e-9)
+                            {
+                                (best, row, into) = (score, option, col);
+                            }
                         }
                     }
-                }
 
-                at = best.Bottom == int.MaxValue ? (0, taken.Count) : (best.X, best.Y);
-            }
-
-            first = false;
-            Take(at.X, at.Y, w + Gap, h + Gap);
-            corners.Add((at.X + w + Gap, at.Y));
-            corners.Add((at.X, at.Y + h + Gap));
-            boxes[i] = (at.X, at.Y, w, h);
-        }
-
-        for (var i = 0; i < asks.Count; i++)
-        {
-            placed.Add((category.Pieces[i], asks[i], boxes[i].X, boxes[i].Y, boxes[i].W, boxes[i].H));
-        }
-
-        // How much of a footprint's rim touches what stands: other footprints, the sheet's sides and its top.
-        int Contact(int x, int y, int fw, int fh)
-        {
-            bool At(int col, int row) => col < 0 || col >= span || row < 0 || (row < taken.Count && taken[row][col]);
-            var touch = 0;
-            for (var row = y; row < y + fh; row++)
-            {
-                touch += (At(x - 1, row) ? 1 : 0) + (At(x + fw, row) ? 1 : 0);
-            }
-
-            for (var col = x; col < x + fw; col++)
-            {
-                touch += (At(col, y - 1) ? 1 : 0) + (At(col, y + fh) ? 1 : 0);
-            }
-
-            return touch;
-        }
-
-        // Grown into the room left, a cell at a time by turns: right, down (never past the foot), left, up; then a piece at
-        // the sheet's side that cannot grow slides to the piece beyond the room it left, so what is left is at the block's
-        // edge, never between two pieces; and grown again.
-        var rows = placed.Count == 0 ? 0 : placed.Max(p => p.Y + p.H);
-        for (var round = 0; round < 8; round++)
-        {
-            Grow();
-            if (!Slide())
-            {
-                break;
-            }
-        }
-
-        void Untake(int x, int y, int w, int h)
-        {
-            for (var row = y; row < Math.Min(taken.Count, y + h); row++)
-            {
-                for (var col = x; col < x + w; col++)
-                {
-                    taken[row][col] = false;
-                }
-            }
-        }
-
-        bool Slide()
-        {
-            var slid = false;
-            for (var i = anchored ? 1 : 0; i < placed.Count; i++)
-            {
-                var p = placed[i];
-                var k = 0;
-                while (p.X + p.W + k + 1 <= cols && Free(p.X + p.W + Gap + k, p.Y, 1, p.H + Gap))
-                {
-                    k++;
-                }
-
-                // Only from the sheet's side toward a piece: the room it leaves is the block's edge then, never between two.
-                if (p.X == 0 && k > 0 && p.X + p.W + k < cols)
-                {
-                    Untake(p.X, p.Y, p.W + Gap, p.H + Gap);
-                    Take(p.X + k, p.Y, p.W + Gap, p.H + Gap);
-                    placed[i] = p with { X = p.X + k };
-                    slid = true;
-                }
-            }
-
-            return slid;
-        }
-
-        void Grow()
-        {
-            var grew = true;
-            while (grew)
-            {
-                grew = false;
-                for (var i = 0; i < placed.Count; i++)
-                {
-                    var p = placed[i];
-                    if (p.Size.Wider && Width(p.Size, p.W + 1, cols, up: true) is var wider && wider > p.W)
+                    if (row is not null)
                     {
-                        var more = wider - p.W;
-                        if (p.X + wider <= cols && Free(p.X + p.W + Gap, p.Y, more, p.H + Gap))
-                        {
-                            Take(p.X + p.W + Gap, p.Y, more, p.H + Gap);
-                            placed[i] = p = p with { W = wider };
-                            grew = true;
-                        }
-                        else if (p.X - more >= 0 && Free(p.X - more, p.Y, more, p.H + Gap))
-                        {
-                            Take(p.X - more, p.Y, more, p.H + Gap);
-                            placed[i] = p = p with { X = p.X - more, W = wider };
-                            grew = true;
-                        }
-                    }
-
-                    if (p.Size.Taller && p.H < Math.Min(p.Size.MaxH, int.MaxValue))
-                    {
-                        if (p.Y + p.H + 1 <= rows && Free(p.X, p.Y + p.H + Gap, p.W + Gap, 1))
-                        {
-                            Take(p.X, p.Y + p.H + Gap, p.W + Gap, 1);
-                            placed[i] = p with { H = p.H + 1 };
-                            grew = true;
-                        }
-                        else if (p.Y - 1 >= 0 && Free(p.X, p.Y - 1, p.W + Gap, 1))
-                        {
-                            Take(p.X, p.Y - 1, p.W + Gap, 1);
-                            placed[i] = p with { Y = p.Y - 1, H = p.H + 1 };
-                            grew = true;
-                        }
+                        break;
                     }
                 }
             }
+
+            if ((row is null || into is null) && ordered && columns.Count > 0)
+            {
+                // A focus: no room round the piece takes it: a column as wide as all of them under all of them, the rest
+                // closed (nothing more stands where it could reach into it).
+                var x0 = columns.Min(c => c.X);
+                var under = new Col(x0, columns.Max(c => c.X + c.W) - x0, columns.Max(c => c.Rows.Count == 0 ? c.Top : c.Foot + Gap));
+                foreach (var col in columns)
+                {
+                    col.Closed = true;
+                }
+
+                columns.Add(under);
+                if (solved.Solve([left[0]], under.W) is { } whole)
+                {
+                    (row, into) = (whole, under);
+                }
+            }
+
+            if ((row is null || into is null) && Join(left[0], columns, solved) is not null)
+            {
+                // No column takes it alone: it joins a row that takes it beside its pieces.
+                left.RemoveAt(0);
+                continue;
+            }
+
+            if (row is null || into is null)
+            {
+                // No column takes it at all: at the most the widest column takes, where it stands highest.
+                var piece = left[0];
+                into = columns.OrderByDescending(c => c.W).ThenBy(c => c.Foot).First();
+                var w = shapes[piece].Below(into.W);
+                var h = shapes[piece].HeightAt(w);
+                row = new Row([(piece, w)], h, h, h, 1);
+                forced += (into.W - w) * h;
+            }
+
+            into.Rows.Add(row);
+            foreach (var (piece, _) in row.Members)
+            {
+                left.Remove(piece);
+            }
         }
 
-        var tiles = placed.Select(p => new GalleryTile(p.Piece, new CellBox(p.X, p.Y, p.W, p.H))).ToList();
-        return new GallerySheet(category.Id, category.Title, rows, tiles);
+        return new Filled(columns, forced, 0);
     }
 
     /// <summary>
-    /// The width a piece is made at for <paramref name="want"/> cells, held to <paramref name="cols"/>: any from its least to
-    /// its most, or one of its <see cref="PieceSize.Widths"/>: the largest not over it (<paramref name="up"/>: the least not under it).
+    /// [S-16551] <paramref name="piece"/> beside the pieces of a row already laid, the row laid again across its column with
+    /// it (the one that strains least); null where no row takes it.
     /// </summary>
-    private static int Width(PieceSize size, int want, int cols, bool up = false)
+    private static Row? Join(int piece, List<Col> columns, Solver solved)
     {
-        var most = Math.Min(cols, size.MaxW);
-        if (size.Widths is not { Count: > 0 } widths)
+        (Col Col, int At, Row Row)? best = null;
+        foreach (var col in columns)
         {
-            return Math.Max(1, Math.Min(want, Math.Max(most, 1)));
+            for (var i = 0; i < col.Rows.Count; i++)
+            {
+                if (solved.Solve([.. col.Rows[i].Members.Select(m => m.Piece), piece], col.W) is { } row && (best is null || row.Strain < best.Value.Row.Strain - 1e-9))
+                {
+                    best = (col, i, row);
+                }
+            }
         }
 
-        var fits = widths.Where(w => w <= cols).ToList();
-        if (fits.Count == 0)
+        if (best is not { } chosen)
         {
-            return Math.Min(cols, widths[0]);
+            return null;
         }
 
-        return up
-            ? fits.Where(w => w >= want).DefaultIfEmpty(fits[^1]).Min()
-            : fits.Where(w => w <= want).DefaultIfEmpty(fits[0]).Max();
+        chosen.Col.Rows[chosen.At] = chosen.Row;
+        return chosen.Row;
+    }
+
+    /// <summary>[S-16552] What the room under the shorter columns' feet weighs against the pieces' strain: even feet first.</summary>
+    private const double Uneven = 3;
+
+    /// <summary>[S-16550] What the width left unfilled weighs, as a share of the pieces' own area: they fill it if they can.</summary>
+    private const double Unfilled = 6;
+
+    /// <summary>How much a piece's strain weighs against standing higher, for a focus.</summary>
+    private const double Fit = 2;
+
+    /// <summary>How much the larger first weighs against a better fit, for a category.</summary>
+    private const double Order = 0.6;
+
+    /// <summary>What standing beside another costs over standing alone: alone, where it suits as well.</summary>
+    private const double Side = 0.15;
+
+    /// <summary>A piece alone this near its own size (a third wider or narrower) is not looked at beside others.</summary>
+    private const double Suits = 0.3;
+
+    /// <summary>[S-16551] [S-16552] How much shorter and taller than its sizing makes it at a width a piece may stand, to even the feet.</summary>
+    private const double Shortest = 0.6;
+
+    private const double Tallest = 1.5;
+
+    /// <summary>
+    /// [S-16551] The rows <paramref name="piece"/> can stand in, in <paramref name="col"/>: alone as wide as it, and with the
+    /// pieces still to place (those of a height like its own first) side by side, as long as their own widths leave room.
+    /// </summary>
+    private static IEnumerable<Row> Options(int piece, Col col, Solver solved, List<int> left)
+    {
+        var shapes = solved.Shapes;
+        if (solved.Solve([piece], col.W) is { } alone)
+        {
+            yield return alone;
+
+            // Alone near its own size: no row of several is looked for.
+            if (alone.Strain <= Suits)
+            {
+                yield break;
+            }
+        }
+
+        var me = shapes[piece];
+        var partners = left.Where(q => q != piece).OrderBy(q => Math.Abs(shapes[q].H - me.H)).ThenBy(q => q).Take(MostSide).ToList();
+        List<int> members = [piece];
+        while (members.Count < MostSide && members.Sum(m => shapes[m].LeastW) + (members.Count * Gap) < col.W)
+        {
+            Row? best = null;
+            var next = -1;
+            foreach (var q in partners.Where(q => !members.Contains(q)))
+            {
+                if (solved.Solve([.. members, q], col.W) is { } row && (best is null || row.Strain < best.Strain - 1e-9))
+                {
+                    (best, next) = (row, q);
+                }
+            }
+
+            if (best is null)
+            {
+                // None fits yet: the closest in height comes along, and the next may make the row.
+                next = partners.FirstOrDefault(q => !members.Contains(q), -1);
+                if (next < 0)
+                {
+                    yield break;
+                }
+
+                members.Add(next);
+                continue;
+            }
+
+            members.Add(next);
+            yield return best;
+        }
     }
 
     /// <summary>
-    /// [S-16403] The first piece of <paramref name="sheet"/> (laid <paramref name="width"/> cells wide) that could still be made
-    /// a cell longer, as <paramref name="size"/> lets it, to its right, left, foot or top into room no other piece or gap takes
-    /// (inside the sheet), or null: every piece is grown as far as it goes, so whatever room is left no piece could take.
+    /// [S-16551] <paramref name="members"/> side by side across <paramref name="width"/> cells, one cell apart, at one height:
+    /// each as wide as its share of the room (its own width in proportion, held to what it may be), every cell taken; the
+    /// height one each of them may be there, near what their sizing makes them. Null where no such widths or height exist.
     /// </summary>
-    public static GalleryTile? Grows(GallerySheet sheet, int width, Func<GalleryPiece, PieceSize> size)
+    private static Row? Solve(List<int> members, int width, List<Shape> shapes)
+    {
+        var room = width - ((members.Count - 1) * Gap);
+        if (room < members.Count || members.Sum(m => shapes[m].LeastW) > room || members.Sum(m => shapes[m].MostW) < room)
+        {
+            return null;
+        }
+
+        var natural = Math.Max(1, members.Sum(m => shapes[m].W));
+        var ws = members.Select(m => shapes[m].Nearest((int)Math.Round(shapes[m].W * room / (double)natural))).ToArray();
+        for (var guard = 0; guard < 4 * room && ws.Sum() != room; guard++)
+        {
+            var more = ws.Sum() < room;
+            var pick = -1;
+            var ratio = more ? double.MaxValue : double.MinValue;
+            for (var i = 0; i < ws.Length; i++)
+            {
+                var shape = shapes[members[i]];
+                if ((more ? shape.Above(ws[i]) : shape.Under(ws[i])) is not { } to || Math.Abs(to - ws[i]) > Math.Abs(room - ws.Sum()))
+                {
+                    continue;
+                }
+
+                var r = ws[i] / (double)shape.W;
+                if (more ? r < ratio : r > ratio)
+                {
+                    (pick, ratio) = (i, r);
+                }
+            }
+
+            if (pick < 0)
+            {
+                return null;
+            }
+
+            var s = shapes[members[pick]];
+            ws[pick] = more ? s.Above(ws[pick])!.Value : s.Under(ws[pick])!.Value;
+        }
+
+        if (ws.Sum() != room)
+        {
+            return null;
+        }
+
+        var (lo, hi) = (int.MinValue, int.MaxValue);
+        var wanted = 0.0;
+        for (var i = 0; i < ws.Length; i++)
+        {
+            var (l, h) = shapes[members[i]].Heights(ws[i]);
+            (lo, hi) = (Math.Max(lo, l), Math.Min(hi, h));
+            wanted += shapes[members[i]].HeightAt(ws[i]);
+        }
+
+        if (lo > hi)
+        {
+            return null;
+        }
+
+        var height = Math.Clamp((int)Math.Round(wanted / ws.Length), lo, hi);
+        var strain = 0.0;
+        for (var i = 0; i < ws.Length; i++)
+        {
+            var shape = shapes[members[i]];
+            strain += Math.Abs(Math.Log(ws[i] / (double)shape.W)) + (0.5 * Math.Abs(Math.Log(height / (double)Math.Max(1, shape.HeightAt(ws[i])))));
+        }
+
+        return new Row([.. members.Select((m, i) => (m, ws[i]))], height, lo, hi, strain / ws.Length);
+    }
+
+    // ---- [S-16552] even feet --------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// [S-16552] Rows moved between columns while that brings their feet closer: a row of a taller column (laid again at the
+    /// other's width) into a shorter one, alone or beside a row there, or a lone piece of each swapped, whichever brings the feet nearest their mean; until
+    /// none does. What keeps its height (ready-made groups) is evened this way; what stretches, by <see cref="Even"/>.
+    /// </summary>
+    private static void Settle(List<Col> columns, Solver solved)
+    {
+        if (columns.Count < 2)
+        {
+            return;
+        }
+
+        double Spread() => WidgetGallery.Spread(columns);
+
+        for (var guard = 0; guard < 48; guard++)
+        {
+            var now = Spread();
+            (double Spread, Action Apply)? best = null;
+            void Try(Action change, Action undo)
+            {
+                change();
+                var after = Spread();
+                undo();
+                if (after < now - 1e-9 && (best is null || after < best.Value.Spread - 1e-9))
+                {
+                    best = (after, change);
+                }
+            }
+
+            foreach (var tall in columns.Where(c => !c.Closed))
+            {
+                foreach (var low in columns.Where(c => !c.Closed && c.Foot < tall.Foot))
+                {
+                    for (var i = 0; i < tall.Rows.Count; i++)
+                    {
+                        var row = tall.Rows[i];
+                        var members = row.Members.Select(m => m.Piece).ToList();
+
+                        // Beside a row of the shorter column, laid again across it with them.
+                        for (var j = 0; j < low.Rows.Count; j++)
+                        {
+                            var other = low.Rows[j];
+                            if (solved.Solve([.. other.Members.Select(m => m.Piece), .. members], low.W) is { } joined)
+                            {
+                                var (a, b) = (i, j);
+                                Try(() => { tall.Rows.RemoveAt(a); low.Rows[b] = joined; }, () => { low.Rows[b] = other; tall.Rows.Insert(a, row); });
+                            }
+                        }
+
+                        if (solved.Solve(members, low.W) is not { } there)
+                        {
+                            continue;
+                        }
+
+                        var at = i;
+                        Try(() => { tall.Rows.RemoveAt(at); low.Rows.Add(there); }, () => { low.Rows.Remove(there); tall.Rows.Insert(at, row); });
+                        if (members.Count > 1)
+                        {
+                            continue;
+                        }
+
+                        for (var j = 0; j < low.Rows.Count; j++)
+                        {
+                            var other = low.Rows[j];
+                            if (other.Members.Count == 1 && other.H < row.H && solved.Solve([other.Members[0].Piece], tall.W) is { } here)
+                            {
+                                var b = j;
+                                Try(() => { tall.Rows[at] = here; low.Rows[b] = there; }, () => { tall.Rows[at] = row; low.Rows[b] = other; });
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (best is not { } chosen)
+            {
+                return;
+            }
+
+            chosen.Apply();
+        }
+    }
+
+    /// <summary>How far the open columns' feet are from their mean: the sum of the squares.</summary>
+    private static double Spread(List<Col> columns)
+    {
+        var open = columns.Where(c => !c.Closed).ToList();
+        if (open.Count == 0)
+        {
+            return 0;
+        }
+
+        var mean = open.Average(c => c.Foot);
+        return open.Sum(c => (c.Foot - mean) * (c.Foot - mean));
+    }
+
+    /// <summary>
+    /// [S-16552] A column whose foot stands far above the others' (what is left fits it only in narrower widths) goes on as
+    /// two columns side by side under its last row, and rows are settled into them (<see cref="Settle"/>), as long as that
+    /// brings the feet nearer: a wide piece over two narrower columns, never a hole beside a column's last card.
+    /// </summary>
+    private static void Divide(List<Col> columns, Solver solved)
+    {
+        var narrowest = solved.Shapes.Min(s => s.LeastW);
+        for (var guard = 0; guard < 4; guard++)
+        {
+            var before = Spread(columns);
+            var low = columns.Where(c => !c.Closed && c.Rows.Count > 0 && c.W >= (2 * narrowest) + Gap).OrderBy(c => c.Foot).ThenBy(c => c.X).FirstOrDefault();
+            if (low is null || before <= 1)
+            {
+                return;
+            }
+
+            var kept = columns.Select(c => (Col: c, Rows: c.Rows.ToList())).ToList();
+            var halves = Columns(Split(low.W, 2), low.X, low.Next);
+            low.Closed = true;
+            columns.AddRange(halves);
+            Settle(columns, solved);
+            if (halves.Exists(h => h.Rows.Count > 0) && Spread(columns) < before - 1e-9)
+            {
+                continue;
+            }
+
+            // Nothing nearer: as it was.
+            foreach (var half in halves)
+            {
+                columns.Remove(half);
+            }
+
+            foreach (var (col, rows) in kept)
+            {
+                col.Rows.Clear();
+                col.Rows.AddRange(rows);
+            }
+
+            low.Closed = false;
+            return;
+        }
+    }
+
+    /// <summary>
+    /// [S-16552] The columns' feet brought as even as their rows let them: the foot most columns can reach (each row made
+    /// taller or shorter within what its pieces take there), and each column's rows grown or shrunk a cell at a time toward it,
+    /// the row furthest from its own height first. A column of rows that keep their height (ready-made groups) keeps its foot.
+    /// </summary>
+    private static Filled Evened(Filled filled, Solver solved)
+    {
+        Even(filled.Columns, solved.Shapes);
+        return filled;
+    }
+
+    private static void Even(List<Col> columns, List<Shape> shapes)
+    {
+        var used = columns.Where(c => !c.Closed && c.Rows.Count > 0).ToList();
+        if (used.Count < 2)
+        {
+            return;
+        }
+
+        var low = used.Select(c => c.Top + c.Rows.Sum(r => r.Lo) + ((c.Rows.Count - 1) * Gap)).ToList();
+        var high = used.Select(c => c.Top + c.Rows.Sum(r => r.Hi) + ((c.Rows.Count - 1) * Gap)).ToList();
+        var feet = used.Select(c => c.Foot).ToList();
+
+        // The foot: least room left over all columns, then the least change from where they stand.
+        var (target, miss, moved) = (0, long.MaxValue, long.MaxValue);
+        for (var t = low.Min(); t <= high.Max(); t++)
+        {
+            long m = 0, d = 0;
+            for (var i = 0; i < used.Count; i++)
+            {
+                var reach = Math.Clamp(t, low[i], high[i]);
+                m += (long)Math.Abs(t - reach) * used[i].W;
+                d += Math.Abs(reach - feet[i]);
+            }
+
+            if (m < miss || (m == miss && d < moved))
+            {
+                (target, miss, moved) = (t, m, d);
+            }
+        }
+
+        foreach (var col in used)
+        {
+            var want = Math.Clamp(target, col.Top + col.Rows.Sum(r => r.Lo) + ((col.Rows.Count - 1) * Gap), col.Top + col.Rows.Sum(r => r.Hi) + ((col.Rows.Count - 1) * Gap));
+            while (col.Foot != want)
+            {
+                var grow = col.Foot < want;
+                var row = col.Rows.Where(r => grow ? r.H < r.Hi : r.H > r.Lo)
+                    .OrderBy(r => grow ? r.H / (double)Math.Max(1, r.Wanted(shapes)) : -(r.H / (double)Math.Max(1, r.Wanted(shapes))))
+                    .First();
+                row.H += grow ? 1 : -1;
+            }
+        }
+    }
+
+    /// <summary>
+    /// [S-16550] What a filled way costs: the room left under the shorter columns' feet and beside the last column, the room
+    /// no piece took (a piece no column took whole: far the most), how far the pieces are from their own sizes, and a little for
+    /// pieces side by side (a column of one piece a row is the bento; side by side is the exception), each by the cells it weighs.
+    /// </summary>
+    private static double Cost(Filled filled, List<Shape> shapes, int width)
+    {
+        var all = filled.Columns.Where(c => c.Rows.Count > 0).ToList();
+        var used = all.Where(c => !c.Closed).ToList();
+        var foot = used.Count == 0 ? 0 : used.Max(c => c.Foot);
+        var top = all.Where(c => !all.Exists(o => o.Closed && o.W > c.W && o.X <= c.X && o.X + o.W >= c.X + c.W)).ToList();
+        var span = top.Sum(c => c.W) + (Math.Max(0, top.Count - 1) * Gap);
+        var area = shapes.Sum(s => (double)s.W * s.H);
+        var ragged = used.Sum(c => (double)(foot - c.Foot) * c.W) + (Unfilled * area * (width - span) / Math.Max(1, width));
+        var strain = 0.0;
+        var beside = 0.0;
+        foreach (var row in all.SelectMany(c => c.Rows))
+        {
+            foreach (var (piece, w) in row.Members)
+            {
+                var shape = shapes[piece];
+                strain += (Math.Abs(Math.Log(w / (double)shape.W)) + (0.5 * Math.Abs(Math.Log(row.H / (double)Math.Max(1, shape.HeightAt(w)))))) * shape.W * shape.H;
+                beside += row.Members.Count > 1 ? w * row.H : 0;
+            }
+        }
+
+        return (Uneven * ragged) + (1000.0 * filled.Forced) + (2.0 * strain) + (0.5 * beside);
+    }
+
+    private static GallerySheet Sheet(GalleryCategory category, Filled filled, int rows)
+    {
+        var tiles = Tiles(category.Pieces, filled);
+        var used = filled.Columns.Where(c => c.Rows.Count > 0).ToList();
+        var foot = Math.Max(rows, used.Count == 0 ? 0 : used.Max(c => c.Foot));
+        return new GallerySheet(category.Id, category.Title, foot, tiles) { Columns = [.. used.Select(c => c.Box)] };
+    }
+
+    /// <summary>The pieces' tiles from their rows, in the pieces' order.</summary>
+    private static List<GalleryTile> Tiles(IReadOnlyList<GalleryPiece> pieces, Filled filled)
+    {
+        var boxes = new CellBox[pieces.Count];
+        foreach (var col in filled.Columns)
+        {
+            var y = col.Top;
+            foreach (var row in col.Rows)
+            {
+                var x = col.X;
+                foreach (var (piece, w) in row.Members)
+                {
+                    boxes[piece] = new CellBox(x, y, w, row.H);
+                    x += w + Gap;
+                }
+
+                y += row.H + Gap;
+            }
+        }
+
+        return [.. pieces.Select((p, i) => new GalleryTile(p, boxes[i]))];
+    }
+
+    /// <summary>
+    /// [S-16552] The holes of <paramref name="sheet"/>: the cells of its columns, from each one's top to its foot, that no
+    /// piece and no gap between two of its pieces takes. Zero is a column bento: its cards one cell apart from top to foot.
+    /// </summary>
+    public static int Holes(GallerySheet sheet)
     {
         ArgumentNullException.ThrowIfNull(sheet);
-        ArgumentNullException.ThrowIfNull(size);
-        var (w, h) = (Math.Max(1, width) + Gap, sheet.Rows + Gap);
-        var owner = new int[w, h];
-        for (var i = 0; i < sheet.Tiles.Count; i++)
+        var holes = 0;
+        foreach (var col in sheet.Columns)
         {
-            var box = sheet.Tiles[i].Box;
-            for (var x = box.X; x < Math.Min(w, box.Right + Gap); x++)
+            var taken = new bool[col.W, col.H];
+            var boxes = sheet.Tiles.Select(t => t.Box).ToList();
+            foreach (var box in boxes)
             {
-                for (var y = box.Y; y < Math.Min(h, box.Bottom + Gap); y++)
+                // A piece, the gap under it and the gap to its right where a piece stands beside it, inside the column.
+                var beside = boxes.Exists(b => b.X == box.Right + Gap && b.Y < box.Bottom && box.Y < b.Bottom);
+                for (var x = Math.Max(col.X, box.X); x < Math.Min(col.Right, box.Right + (beside ? Gap : 0)); x++)
                 {
-                    owner[x, y] = i + 1;
-                }
-            }
-        }
-
-        bool Free(int x0, int y0, int ww, int hh, int me)
-        {
-            if (x0 < 0 || y0 < 0 || x0 + ww > w || y0 + hh > h)
-            {
-                return false;
-            }
-
-            for (var x = x0; x < x0 + ww; x++)
-            {
-                for (var y = y0; y < y0 + hh; y++)
-                {
-                    if (owner[x, y] != 0 && owner[x, y] != me)
+                    for (var y = Math.Max(col.Y, box.Y); y < Math.Min(col.Bottom, box.Bottom + Gap); y++)
                     {
-                        return false;
+                        taken[x - col.X, y - col.Y] = true;
                     }
                 }
             }
 
-            return true;
-        }
-
-        for (var i = 0; i < sheet.Tiles.Count; i++)
-        {
-            var (piece, box) = (sheet.Tiles[i].Piece, sheet.Tiles[i].Box);
-            var asked = size(piece);
-            if (asked.Wider && Width(asked, box.W + 1, Math.Max(1, width), up: true) is var wider && wider > box.W)
+            foreach (var cell in taken)
             {
-                var more = wider - box.W;
-                if ((box.X + wider <= width && Free(box.Right + Gap, box.Y, more, box.H + Gap, i + 1)) || Free(box.X - more, box.Y, more, box.H + Gap, i + 1))
-                {
-                    return sheet.Tiles[i];
-                }
+                holes += cell ? 0 : 1;
             }
-
-            if (asked.Taller && box.H < asked.MaxH
-                && ((box.Bottom + 1 <= sheet.Rows && Free(box.X, box.Bottom + Gap, box.W + Gap, 1, i + 1)) || Free(box.X, box.Y - 1, box.W + Gap, 1, i + 1)))
-            {
-                return sheet.Tiles[i];
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// [S-16403] The holes of <paramref name="sheet"/> laid <paramref name="width"/> cells wide: the cells no piece and no
-    /// piece's one-cell gap (to its right and under it) takes that lie between pieces (one to their left and one to their right
-    /// in their row, or one over and one under them in their column). Room at the block's edge is its edge, no hole. Zero is a
-    /// bento whose pieces stand one cell apart everywhere.
-    /// </summary>
-    public static int Holes(GallerySheet sheet, int width)
-    {
-        var mask = HoleMask(sheet, width);
-        var holes = 0;
-        foreach (var hole in mask)
-        {
-            holes += hole ? 1 : 0;
         }
 
         return holes;
     }
 
     /// <summary>
-    /// [S-16403] How thick the thickest hole of <paramref name="sheet"/> is, in cells: of each hole's cells, the shorter of
-    /// its run of holes across and its run down, the most of them. Under three (the least a piece is), no piece could stand
-    /// in it: what is left is the step of a piece that cannot be every length, not room left unused.
+    /// [S-16552] How uneven the columns' feet of <paramref name="sheet"/> are: the lowest foot less the highest, in rows of
+    /// cells (a column that goes on as narrower ones under it has its foot in theirs).
     /// </summary>
-    public static int Thickest(GallerySheet sheet, int width)
-    {
-        var mask = HoleMask(sheet, width);
-        var (w, h) = (mask.GetLength(0), mask.GetLength(1));
-        var most = 0;
-        for (var x = 0; x < w; x++)
-        {
-            for (var y = 0; y < h; y++)
-            {
-                if (!mask[x, y])
-                {
-                    continue;
-                }
-
-                var (left, right, up, down) = (x, x, y, y);
-                while (left > 0 && mask[left - 1, y])
-                {
-                    left--;
-                }
-
-                while (right < w - 1 && mask[right + 1, y])
-                {
-                    right++;
-                }
-
-                while (up > 0 && mask[x, up - 1])
-                {
-                    up--;
-                }
-
-                while (down < h - 1 && mask[x, down + 1])
-                {
-                    down++;
-                }
-
-                most = Math.Max(most, Math.Min(right - left + 1, down - up + 1));
-            }
-        }
-
-        return most;
-    }
-
-    private static bool[,] HoleMask(GallerySheet sheet, int width)
+    public static int Ragged(GallerySheet sheet)
     {
         ArgumentNullException.ThrowIfNull(sheet);
-        var (w, h) = (Math.Max(1, width) + Gap, sheet.Rows + Gap);
-        var covered = new bool[w, h];
-        var mask = new bool[w, h];
-        if (sheet.Tiles.Count == 0)
-        {
-            return mask;
-        }
+        var feet = sheet.Columns.Where(c => !sheet.Columns.Any(d => d.Y == c.Bottom + Gap && d.X >= c.X && d.Right <= c.Right)).Select(c => c.Bottom).ToList();
+        return feet.Count == 0 ? 0 : feet.Max() - feet.Min();
+    }
 
-        foreach (var box in sheet.Tiles.Select(t => t.Box))
+    /// <summary>A column being filled: its cells across, its top and its rows.</summary>
+    private sealed class Col(int x, int w, int top)
+    {
+        public int X { get; } = x;
+
+        public int W { get; } = w;
+
+        public int Top { get; } = top;
+
+        /// <summary>No more rows: a column laid under it would be reached into.</summary>
+        public bool Closed { get; set; }
+
+        public List<Row> Rows { get; } = [];
+
+        public int Foot => Top + Rows.Sum(r => r.H) + (Math.Max(0, Rows.Count - 1) * Gap);
+
+        /// <summary>Where the next row would start.</summary>
+        public int Next => Rows.Count == 0 ? Top : Foot + Gap;
+
+        public CellBox Box => new(X, Top, W, Foot - Top);
+    }
+
+    /// <summary>A row of a column: its pieces side by side (each its width), its height and the least and most it may be.</summary>
+    private sealed class Row(List<(int Piece, int W)> members, int h, int lo, int hi, double strain)
+    {
+        public List<(int Piece, int W)> Members { get; } = members;
+
+        public int H { get; set; } = h;
+
+        public int Lo { get; } = lo;
+
+        public int Hi { get; } = hi;
+
+        /// <summary>How far its pieces are from their own sizes, on average (logs of the ratios).</summary>
+        public double Strain { get; } = strain;
+
+        /// <summary>The height its pieces' sizing makes them at their widths, on average.</summary>
+        public int Wanted(List<Shape> shapes) => (int)Math.Round(Members.Average(m => shapes[m.Piece].HeightAt(m.W)));
+    }
+
+    private sealed record Filled(List<Col> Columns, int Forced, double Cost);
+
+    /// <summary>The pieces' shapes and the rows already solved for them, by their pieces and width: one lay asks the same often.</summary>
+    private sealed class Solver(List<Shape> shapes)
+    {
+        private readonly Dictionary<string, Row?> _known = new(StringComparer.Ordinal);
+
+        public List<Shape> Shapes { get; } = shapes;
+
+        /// <summary>The row <see cref="WidgetGallery.Solve"/> lays, a fresh one each time (its height is evened apart).</summary>
+        public Row? Solve(List<int> members, int width)
         {
-            for (var x = box.X; x < Math.Min(w, box.Right + Gap); x++)
+            var key = string.Join(',', members) + "|" + width.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            if (!_known.TryGetValue(key, out var row))
             {
-                for (var y = box.Y; y < Math.Min(h, box.Bottom + Gap); y++)
-                {
-                    covered[x, y] = true;
-                }
+                row = WidgetGallery.Solve(members, width, Shapes);
+                _known[key] = row;
+            }
+
+            return row is null ? null : new Row([.. row.Members], row.H, row.Lo, row.Hi, row.Strain);
+        }
+    }
+
+    private readonly record struct ShapeKey(int W, int H, int MinW, int MaxW, bool Taller, int MinH, int MaxH, int Widths, int Natural);
+
+    /// <summary>
+    /// [S-16551] A piece's sizing held to a sheet <paramref name="width"/> cells wide: the widths it may be (any from its
+    /// least to its most, a group's own widths, or its one width) and the height its sizing makes it at a width: its natural
+    /// height scaled with its width, within its least and most; at one width it may stand from three quarters of that to half
+    /// as tall again, within its least and most (a piece that keeps its height, its height alone).
+    /// </summary>
+    private readonly struct Shape
+    {
+        private readonly PieceSize _size;
+        private readonly int[]? _widths;
+        private readonly int _minW;
+        private readonly int _maxW;
+
+        public Shape(PieceSize size, int width)
+        {
+            _size = size;
+            W = Math.Clamp(size.W, 1, width);
+            H = Math.Max(1, size.H);
+            if (size.Widths is { Count: > 0 } widths)
+            {
+                var fit = widths.Where(w => w >= 1 && w <= width).Order().ToArray();
+                _widths = fit.Length > 0 ? fit : [Math.Min(width, widths.Min())];
+                (_minW, _maxW) = (_widths[0], _widths[^1]);
+            }
+            else if (size.Wider)
+            {
+                _minW = Math.Clamp(size.MinW, 1, width);
+                _maxW = Math.Clamp(size.MaxW, _minW, width);
+            }
+            else
+            {
+                (_minW, _maxW) = (W, W);
             }
         }
 
-        for (var x = 0; x < w; x++)
-        {
-            for (var y = 0; y < h; y++)
-            {
-                if (covered[x, y])
-                {
-                    continue;
-                }
+        /// <summary>Its natural width (held to the sheet) and height.</summary>
+        public int W { get; }
 
-                var across = Enumerable.Range(0, x).Any(i => covered[i, y]) && Enumerable.Range(x + 1, w - x - 1).Any(i => covered[i, y]);
-                var down = Enumerable.Range(0, y).Any(i => covered[x, i]) && Enumerable.Range(y + 1, h - y - 1).Any(i => covered[x, i]);
-                mask[x, y] = across || down;
+        public int H { get; }
+
+        /// <summary>The least and the most it may be across.</summary>
+        public int LeastW => _minW;
+
+        public int MostW => _maxW;
+
+        /// <summary>What it asks, whole: two pieces of one key lay alike.</summary>
+        public ShapeKey Key => new(W, H, _minW, _maxW, _size.Taller, _size.MinH, _size.MaxH, _widths?.Length ?? 0, _size.W);
+
+        /// <summary>Whether it keeps its size: one width and one height.</summary>
+        public bool Kept => _minW == _maxW && !_size.Taller;
+
+        /// <summary>The height its sizing makes it at <paramref name="w"/> cells across.</summary>
+        public int HeightAt(int w)
+            => _size.Taller ? Math.Clamp((int)Math.Round(H * w / (double)Math.Max(1, _size.W)), Math.Max(1, _size.MinH), Math.Max(_size.MinH, _size.MaxH)) : H;
+
+        /// <summary>The heights it may stand at <paramref name="w"/> cells across.</summary>
+        public (int Lo, int Hi) Heights(int w)
+        {
+            if (!_size.Taller)
+            {
+                return (H, H);
             }
+
+            var at = HeightAt(w);
+            var most = Math.Max(_size.MinH, _size.MaxH);
+            return (Math.Clamp((int)Math.Ceiling(at * Shortest), Math.Max(1, _size.MinH), at), Math.Clamp((int)Math.Floor(at * Tallest), at, most));
         }
 
-        return mask;
+        /// <summary>The width it may be nearest <paramref name="want"/> (the narrower of two as near).</summary>
+        public int Nearest(int want)
+        {
+            if (_widths is null)
+            {
+                return Math.Clamp(want, _minW, _maxW);
+            }
+
+            var best = _widths[0];
+            foreach (var w in _widths)
+            {
+                if (Math.Abs(w - want) < Math.Abs(best - want))
+                {
+                    best = w;
+                }
+            }
+
+            return best;
+        }
+
+        /// <summary>Whether it may be exactly <paramref name="w"/> across.</summary>
+        public bool Takes(int w) => _widths is null ? w >= _minW && w <= _maxW : Array.IndexOf(_widths, w) >= 0;
+
+        /// <summary>The widest it may be within <paramref name="room"/> (its least where even that is wider).</summary>
+        public int Below(int room)
+        {
+            if (_widths is null)
+            {
+                return Math.Clamp(room, _minW, _maxW);
+            }
+
+            var fits = _widths.Where(w => w <= room).ToList();
+            return fits.Count > 0 ? fits[^1] : _widths[0];
+        }
+
+        /// <summary>The next width it may be over <paramref name="w"/>, or null.</summary>
+        public int? Above(int w)
+            => _widths is null ? (w < _maxW ? w + 1 : null) : _widths.Where(x => x > w).Select(x => (int?)x).FirstOrDefault();
+
+        /// <summary>The next width it may be under <paramref name="w"/>, or null.</summary>
+        public int? Under(int w)
+            => _widths is null ? (w > _minW ? w - 1 : null) : _widths.Where(x => x < w).Select(x => (int?)x).LastOrDefault();
     }
 
     /// <summary>
@@ -843,7 +1374,8 @@ public static class WidgetGallery
     /// [S-14911] [S-16400] The gallery's window on a display: <see cref="G.Share"/> of the work area (<paramref name="work"/>,
     /// DIPs) each way, never wider than the work area less its margins nor taller than the room under the bar
     /// (<paramref name="barBottom"/>), flush under the bar as the add page hangs (the flyouts' gap), in the middle across.
-    /// Inside its padding: the head (the tabs and the search box) over the well. The cards' view is the well's room on whole
+    /// Inside its padding: the head (the tabs, the hint and the search box, [S-16559]: <see cref="G.HeadInset"/> under the
+    /// window's top and <see cref="G.HeadGap"/> over the well) over the well. The cards' view is the well's room on whole
     /// cells of the display's grid (<paramref name="pitchX"/> by <paramref name="pitchY"/> DIPs a cell), inside the part new
     /// geometry may use (<paramref name="allowed"/>).
     /// </summary>
@@ -855,9 +1387,9 @@ public static class WidgetGallery
         var height = Math.Min(room.Height, Math.Max(G.MinHeight, work.Height * G.Share));
         var window = new DipRect(room.X + ((room.Width - width) / 2), room.Y, width, height);
 
-        var inner = new DipRect(window.X + G.Pad, window.Y + G.Pad, Math.Max(0, window.Width - (2 * G.Pad)), Math.Max(0, window.Height - (2 * G.Pad)));
+        var inner = new DipRect(window.X + G.Pad, window.Y + G.HeadInset, Math.Max(0, window.Width - (2 * G.Pad)), Math.Max(0, window.Height - G.HeadInset - G.Pad));
         var head = new DipRect(inner.X, inner.Y, inner.Width, Math.Min(G.Head, inner.Height));
-        var well = new DipRect(inner.X, head.Y + head.Height + G.Pad / 2, inner.Width, Math.Max(0, inner.Height - head.Height - (G.Pad / 2)));
+        var well = new DipRect(inner.X, head.Y + head.Height + G.HeadGap, inner.Width, Math.Max(0, inner.Height - head.Height - G.HeadGap));
 
         // The view: whole cells inside the well's own padding and the part new geometry may use.
         var x0 = Math.Max(well.X + G.WellPad, allowed.X);

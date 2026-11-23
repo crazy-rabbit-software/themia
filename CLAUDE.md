@@ -102,9 +102,12 @@ Themia.exe --check inline <out.txt>   # every widget's inline box (add row, rena
 Themia.exe --check family <out.json> [--theme light|dark] [--kinds a,b]   # the family's render walk [S-6731]; run by
            # scripts/family-check.ps1 over both themes against its baseline
 Themia.exe --check switch|startup|drop|ui-bench|clock-style|desktop-items|desktop-menu …   # the rest: --render list says each
-Themia.exe --render gallery <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--raster 100]   # the widget gallery:
-           # every tab, searches, a widget with styles, one without and a group in focus, several picked, a drag under way [S-14917] [S-16410]
-Themia.exe --check gallery <out.txt> [--width w --height h] [--raster 100]   # under the bar, bentos (cells, holes), search, focus, keys, drag and drop (no jump, whole cells, settings open); PASS or FAIL
+Themia.exe --render gallery <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]
+           # the widget gallery: every tab, searches, a widget in focus (its styles), one without and a group, several picked, a drag
+           # under way; --displays small monitors after it (three tabs, a search, a focus) [S-14917] [S-16410] [S-16564]
+Themia.exe --check gallery <out.txt> [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]   # under the bar (its beak), the head,
+           # column bentos (no hole, feet), search (first 8, keystroke ms), focus (never moves, styles only, clicks pick), keys, quick
+           # settings' two sizes, drag and drop (no jump, whole cells, settings open), each display of --displays; PASS or FAIL
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
            [--icon-census]   # beside each PNG <png>.icons.json: every icon drawn and its box; then
            # python scripts/icon-clip-check.py <dir> names each icon cut by its box, measured on the PNG [S-2377]
@@ -487,15 +490,19 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   the previewed first. The model is Core's (`AddTree` the subjects and families, `AddRail`, `AddPage` the
   sections, stacks and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a widget
   places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the placement
-  session. **The widget gallery** ([S-14910]..[S-14917], [S-16400]..[S-16410]; owner, 2026-11-21 and 2026-11-23) is a second
-  page beside it (its own bar button): a window flush under the bar as the add page hangs, its categories as tabs at the top
-  with a search box (the add page's search, whole pieces only) over a well, no rail, no heading, no side panel; whole widgets and
-  ready-made groups only (never a family's small parts) as real sample cards on the display's own grid, a category one bento
-  (`WidgetGallery.Lay` with `GallerySizes`, Core, tested: one cell between pieces, largest first where they touch most, grown
-  into the room left until no piece can grow, `Grows`/`Holes`); a click puts a piece in focus (`Focus`/`LayFocus`: the others
-  fade, round it its words as a card, its other styles or sizes and its neighbours, every one draggable; a click away or
-  Escape back), the arrows move the pick, Enter places it; a drag is the one placement session (`PlacementPayload.ForGallery`,
-  held where the pointer held it: no jump) and a drop closes the gallery and opens the placed widgets' settings page.
+  session. **The widget gallery** ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16565]; owner, 2026-11-21 and
+  2026-11-23) is a second page beside it (its own bar button): a window flush under the bar hung from its button by a beak,
+  its categories as tabs at the top (a tab tall, little room round them), a hint and the always-open search box (its first 8
+  finds, whole pieces only) at the line's end, over a well that shows the desktop's own wallpaper (`Backdrop.PlainAsync`);
+  whole widgets and ready-made groups only (never a family's small parts; Quick settings each toggle and power button at its size and its
+  least, no Power group) as real sample cards on the display's own grid, a category one **column bento** (`WidgetGallery.Lay` with
+  `GallerySizes`, Core, tested: columns of different widths first, every piece as wide as its column or side by side at one
+  height filling it, as tall as its sizing makes it there, one cell between cards, no hole in a column (`Holes`), the feet
+  evened (`Ragged`)); a click puts a piece in focus where it stands, never moving it (`Focus`/`LayFocus`: the others fade,
+  round it its words as a card and its other styles only, every one draggable; in focus a click picks, it never navigates; a
+  click away or Escape back), the arrows move the pick, Enter places it; a drag is the one placement session
+  (`PlacementPayload.ForGallery`, held where the pointer held it: no jump) and a drop closes the gallery and opens the placed
+  widgets' settings page.
 - **Samples and previews** ([S-11850]..[S-11854]; docs/WIDGET-KIT.md 6.8): **a widget's sample ships, its
   render-only states do not, by folder.** The sample (the add page's picture, on the sample day's data in
   `Themia.Sdk/Samples`) is `IWidgetSample.ShowSampleAsync` in the module's `Samples/<Name>View.Sample.cs`,

@@ -9,9 +9,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-14911]..[S-14913] [S-16400]..[S-16408] The widget gallery's arrangement: a category as a bento of whole cells, one cell
-/// between two pieces and no hole a piece could fill; a piece in focus with what stands round it; its scrolling, its keys,
-/// its window under the bar.
+/// [S-14911]..[S-14913] [S-16400]..[S-16408] [S-16550]..[S-16555] The widget gallery's arrangement: a category as a column
+/// bento of whole cells, one cell between two pieces and no hole in a column; a piece in focus that stays where it stood with
+/// its words and styles round it; its scrolling, its keys, its window under the bar.
 /// </summary>
 public sealed class WidgetGalleryTests
 {
@@ -23,8 +23,8 @@ public sealed class WidgetGalleryTests
         => new(AddFolderId.Weather, LocalText.Fixed("Weather"), Glyphs.Apps, [.. names.Select(Piece)]);
 
     /// <summary>
-    /// Sizes by the piece's name: "w30x20" is 30 × 20 cells and stretches both ways (least 3 each way); "f30x20" keeps
-    /// that size; "g30x20" may be wider (to every third width) but neither smaller nor taller (a ready-made group); a letter
+    /// Sizes by the piece's name: "w30x20" is 30 × 20 cells and stretches both ways (least 3 each way); "m30x20" too, up to
+    /// twice that; "f30x20" keeps that size; "g30x20" may be wider (to every third width) but neither smaller nor taller (a ready-made group); a letter
     /// after the height tells two of a size apart. Its words' card is 12 × 8, any size over it.
     /// </summary>
     private static PieceSize Size(GalleryPiece piece)
@@ -38,15 +38,11 @@ public sealed class WidgetGalleryTests
         var x = name.IndexOf('x', StringComparison.Ordinal);
         var tall = new string([.. name[(x + 1)..].TakeWhile(char.IsAsciiDigit)]);
         var (w, h) = (int.Parse(name[1..x], System.Globalization.CultureInfo.InvariantCulture), int.Parse(tall, System.Globalization.CultureInfo.InvariantCulture));
-        if (piece.Role is GalleryRole.Picked or GalleryRole.Size)
-        {
-            return new PieceSize(w, h, w, h, false, false);
-        }
-
         return name[0] switch
         {
             'f' => new PieceSize(w, h, w, h, false, false),
             'g' => new PieceSize(w, h, w, h, true, false) { Widths = [.. Enumerable.Range(0, 40).Select(i => w + (3 * i))] },
+            'm' => new PieceSize(w, h, 3, 3, true, true) { MaxW = 2 * w, MaxH = 2 * h },
             _ => new PieceSize(w, h, 3, 3, true, true),
         };
     }
@@ -68,8 +64,28 @@ public sealed class WidgetGalleryTests
         }
     }
 
+    /// <summary>Every column's cards one cell apart from its top to its foot: rows of one piece as wide as the column, or of several side by side at one height filling it.</summary>
+    private static void AssertColumns(GallerySheet sheet, int width)
+    {
+        Assert.Equal(0, WidgetGallery.Holes(sheet));
+        foreach (var col in sheet.Columns)
+        {
+            var inside = sheet.Tiles.Where(t => col.Holds(t.Box)).ToList();
+            foreach (var row in inside.GroupBy(t => t.Box.Y))
+            {
+                Assert.Single(row.Select(t => t.Box.H).Distinct());
+                Assert.Equal(col.W, row.Sum(t => t.Box.W) + ((row.Count() - 1) * WidgetGallery.Gap));
+            }
+        }
+
+        // Every piece stands in a column.
+        Assert.All(sheet.Tiles, t => Assert.Contains(sheet.Columns, c => c.Holds(t.Box)));
+        var top = sheet.Columns.Where(c => c.Y == sheet.Columns.Min(t => t.Y)).ToList();
+        Assert.True(top.Sum(c => c.W) + ((top.Count - 1) * WidgetGallery.Gap) <= width);
+    }
+
     [Fact]
-    public void S16403_a_category_of_pieces_that_stretch_is_one_bento_with_one_cell_between_two_and_no_hole()
+    public void S16550_a_category_is_columns_first_every_piece_as_wide_as_its_column_and_no_hole()
     {
         var category = Category("w30x20", "w40x12", "w24x24", "w60x30", "w20x8", "w20x8b", "w10x10", "w30x10", "w34x26", "w16x16");
 
@@ -77,69 +93,93 @@ public sealed class WidgetGalleryTests
 
         Assert.Equal(category.Pieces, sheet.Tiles.Select(t => t.Piece));
         AssertTidy(sheet, Wide);
-        Assert.Equal(sheet.Tiles.Max(t => t.Box.Bottom), sheet.Rows);
+        AssertColumns(sheet, Wide);
+        Assert.Equal(sheet.Columns.Max(c => c.Bottom), sheet.Rows);
         Assert.Equal(AddFolderId.Weather, sheet.Category);
-        Assert.Null(WidgetGallery.Grows(sheet, Wide, Size));
-        Assert.True(WidgetGallery.Thickest(sheet, Wide) < 3, $"{WidgetGallery.Holes(sheet, Wide)} cells empty between pieces");
+
+        // The columns fill the width, and pieces that stretch bring their feet level.
+        var top = sheet.Columns.Where(c => c.Y == 0).ToList();
+        Assert.Equal(Wide, top.Sum(c => c.W) + ((top.Count - 1) * WidgetGallery.Gap));
+        Assert.True(sheet.Columns.Count >= 2, $"{sheet.Columns.Count} columns");
+        Assert.Equal(0, WidgetGallery.Ragged(sheet));
     }
 
     [Fact]
-    public void S16403_the_holes_are_the_cells_no_piece_and_no_gap_takes()
+    public void S16550_the_columns_need_not_be_one_width()
     {
-        // Between two pieces three cells apart: the first one's gap is its own, the two after it a hole, five rows deep (the
-        // gap's row under them too). The room after the last, at the sheet's side, is its edge: no hole.
+        // Two wide pieces and four narrow ones: a wide column and narrow ones, not one width for all.
+        var sheet = WidgetGallery.Lay(Category("f40x20", "f40x20b", "w14x12", "w14x12b", "w14x12c", "w14x12d"), 70, Size);
+
+        AssertColumns(sheet, 70);
+        Assert.True(sheet.Columns.Select(c => c.W).Distinct().Count() > 1, string.Join(", ", sheet.Columns));
+        Assert.Contains(sheet.Columns, c => c.W == 40);
+    }
+
+    [Fact]
+    public void S16551_a_piece_is_as_tall_as_its_sizing_makes_it_at_its_columns_width()
+    {
+        // Alone on a sheet of 30, a piece of 20 by 10 is as wide as its column and its height scales with it: 30 by 15.
+        var sheet = WidgetGallery.Lay(Category("w20x10"), 30, Size);
+        Assert.Equal(new CellBox(0, 0, 30, 15), sheet.Tiles[0].Box);
+
+        // Never past twice its natural: a sheet wider than that holds it at its most.
+        var held = WidgetGallery.Lay(Category("m20x10"), 60, Size);
+        Assert.Equal(new CellBox(0, 0, 40, 20), held.Tiles[0].Box);
+    }
+
+    [Fact]
+    public void S16551_pieces_that_keep_their_width_stand_side_by_side_at_one_height_filling_their_column()
+    {
+        // Three of 10 by 10 that keep their size on a sheet of 32: one row of them, one cell apart, filling it.
+        var sheet = WidgetGallery.Lay(Category("f10x10", "f10x10b", "f10x10c"), 32, Size);
+        Assert.Equal([new CellBox(0, 0, 10, 10), new CellBox(11, 0, 10, 10), new CellBox(22, 0, 10, 10)], sheet.Tiles.Select(t => t.Box));
+        AssertColumns(sheet, 32);
+
+        // Small pieces that stretch share a column wider than they may be alone, at one height.
+        var pair = WidgetGallery.Lay(Category("m12x12", "m12x12b"), 30, Size);
+        AssertColumns(pair, 30);
+        Assert.Equal(pair.Tiles[0].Box.Y, pair.Tiles[1].Box.Y);
+        Assert.Equal(pair.Tiles[0].Box.H, pair.Tiles[1].Box.H);
+    }
+
+    [Fact]
+    public void S16553_a_ready_made_group_takes_its_columns_width_where_its_step_lands_and_keeps_its_height()
+    {
+        // A group 20 by 7 that may be every third width more: in a column of 29 it is 29 wide, still 7 tall.
+        var sheet = WidgetGallery.Lay(Category("g20x7", "f29x15"), 29, Size);
+        Assert.Equal((0, 29, 7), (sheet.Tiles[0].Box.X, sheet.Tiles[0].Box.W, sheet.Tiles[0].Box.H));
+        AssertColumns(sheet, 29);
+    }
+
+    [Fact]
+    public void S16552_the_holes_are_the_cells_of_a_column_no_piece_and_no_gap_takes()
+    {
         GalleryTile Tile(int x, int y, int w, int h) => new(Piece("w1x1"), new CellBox(x, y, w, h));
-        var apart = new GallerySheet(AddFolderId.Weather, LocalText.Fixed("x"), 4, [Tile(0, 0, 10, 4), Tile(13, 0, 10, 4)]);
-        Assert.Equal(2 * 5, WidgetGallery.Holes(apart, 30));
 
-        // Two pieces that keep their size, 10 wide on a sheet of 30: side by side one cell apart, the room after them the edge's.
-        var sheet = WidgetGallery.Lay(Category("f10x4", "f10x4b"), 30, Size);
-        Assert.Equal(new CellBox(0, 0, 10, 4), sheet.Tiles[0].Box);
-        Assert.Equal(new CellBox(11, 0, 10, 4), sheet.Tiles[1].Box);
-        Assert.Equal(0, WidgetGallery.Holes(sheet, 30));
+        // A column of 10 from row 0 to 21: a card 10 by 10, its gap, a card 8 by 10 leaving 2 cells beside it 10 deep.
+        var sheet = new GallerySheet(AddFolderId.Weather, LocalText.Fixed("x"), 21, [Tile(0, 0, 10, 10), Tile(0, 11, 8, 10)]) { Columns = [new CellBox(0, 0, 10, 21)] };
+        Assert.Equal(2 * 10, WidgetGallery.Holes(sheet));
 
+        // Two columns whose feet differ by 5: ragged 5, no hole.
+        var two = new GallerySheet(AddFolderId.Weather, LocalText.Fixed("x"), 20, [Tile(0, 0, 10, 20), Tile(11, 0, 10, 15)])
+        {
+            Columns = [new CellBox(0, 0, 10, 20), new CellBox(11, 0, 10, 15)],
+        };
+        Assert.Equal(0, WidgetGallery.Holes(two));
+        Assert.Equal(5, WidgetGallery.Ragged(two));
 
-        // Stretched, they fill the row: none.
-        Assert.Equal(0, WidgetGallery.Holes(WidgetGallery.Lay(Category("w10x4", "w10x4b"), 30, Size), 30));
-        Assert.Equal(0, WidgetGallery.Holes(WidgetGallery.Lay(Category(), 30, Size), 30));
+        // A column that goes on as two narrower ones under its last card: its foot is theirs, not the row it ends at.
+        var divided = new GallerySheet(AddFolderId.Weather, LocalText.Fixed("x"), 31, [Tile(0, 0, 30, 10), Tile(0, 11, 14, 20), Tile(15, 11, 15, 15), Tile(31, 0, 20, 31)])
+        {
+            Columns = [new CellBox(0, 0, 30, 10), new CellBox(0, 11, 14, 20), new CellBox(15, 11, 15, 15), new CellBox(31, 0, 20, 31)],
+        };
+        Assert.Equal(0, WidgetGallery.Holes(divided));
+        Assert.Equal(5, WidgetGallery.Ragged(divided));
+        Assert.Equal(0, WidgetGallery.Holes(WidgetGallery.Lay(Category(), 30, Size)));
     }
 
     [Fact]
-    public void S16403_a_smaller_piece_fills_the_room_a_larger_one_left_one_cell_apart()
-    {
-        // A piece 40 by 20, then two of 19 by 9: beside it, one under the other, each one cell off what it stands by.
-        var sheet = WidgetGallery.Lay(Category("f40x20", "f19x9", "f19x9b"), Wide, Size);
-
-        Assert.Equal(new CellBox(0, 0, 40, 20), sheet.Tiles[0].Box);
-        Assert.Equal(new CellBox(41, 0, 19, 9), sheet.Tiles[1].Box);
-        Assert.Equal(new CellBox(41, 10, 19, 9), sheet.Tiles[2].Box);
-        Assert.Equal(20, sheet.Rows);
-    }
-
-    [Fact]
-    public void S16403_a_piece_grows_into_the_room_left_beside_it_and_under_it_never_past_the_foot()
-    {
-        // Two pieces 25 wide in a row of 60: the room left is taken, the row full to the sheet's end.
-        var row = WidgetGallery.Lay(Category("w25x15", "w25x15b"), Wide, Size);
-        Assert.Equal(Wide, row.Tiles[1].Box.Right);
-        Assert.Equal(row.Tiles[0].Box.Right + WidgetGallery.Gap, row.Tiles[1].Box.X);
-
-        // A piece that keeps its size does not grow; a group grows wider, to its own widths, never taller.
-        var kept = WidgetGallery.Lay(Category("f39x15"), Wide, Size);
-        Assert.Equal(39, kept.Tiles[0].Box.W);
-        var group = WidgetGallery.Lay(Category("f30x20", "g20x7"), Wide, Size);
-        Assert.Equal(7, group.Tiles[1].Box.H);
-        Assert.Equal(29, group.Tiles[1].Box.W);
-        Assert.Equal(0, (group.Tiles[1].Box.W - 20) % 3);
-
-        // Down too, into room nothing took, never past the sheet's foot: under a piece that keeps its height of 15.
-        var down = WidgetGallery.Lay(Category("f40x15", "w19x7"), Wide, Size);
-        Assert.Equal(15, down.Rows);
-        Assert.Equal(15, down.Tiles[1].Box.H);
-    }
-
-    [Fact]
-    public void S16403_a_piece_wider_than_the_sheet_is_held_to_it_and_the_same_input_lays_the_same_sheet()
+    public void S16550_a_piece_wider_than_the_sheet_is_held_to_it_and_the_same_input_lays_the_same_sheet()
     {
         var wide = WidgetGallery.Lay(Category("w200x10"), Wide, Size);
         Assert.Equal(Wide, wide.Tiles[0].Box.W);
@@ -157,62 +197,62 @@ public sealed class WidgetGalleryTests
     }
 
     [Fact]
-    public void S16404_a_piece_in_focus_has_its_words_its_other_styles_and_its_neighbours_round_it()
+    public void S16555_a_piece_in_focus_has_its_words_and_its_other_styles_round_it_nothing_else()
     {
         var category = Category("w20x10", "w30x12", "w14x8", "w18x9", "w16x8");
         var picked = category.Pieces[1];
 
-        var focus = WidgetGallery.Focus(category, picked, otherStyles: [1, 2, 3], resizes: true);
+        var focus = WidgetGallery.Focus(category, picked, otherStyles: [1, 2, 3]);
 
-        Assert.Equal(GalleryRole.Picked, focus.Pieces[0].Role);
+        Assert.Equal([GalleryRole.Picked, GalleryRole.About, GalleryRole.Style, GalleryRole.Style, GalleryRole.Style], focus.Pieces.Select(p => p.Role));
         Assert.Equal(picked.Kind, focus.Pieces[0].Kind);
-        Assert.Equal(GalleryRole.About, focus.Pieces[1].Role);
         Assert.Equal([1, 2, 3], focus.Pieces.Where(p => p.Role == GalleryRole.Style).Select(p => p.Style!.Value));
         Assert.All(focus.Pieces.Where(p => p.Role == GalleryRole.Style), p => Assert.Equal(picked.Kind, p.Kind));
-
-        // Three styles or more: no sizes. Its neighbours after it in the category's order, wrapping, never itself.
-        Assert.DoesNotContain(focus.Pieces, p => p.Role == GalleryRole.Size);
-        var similar = focus.Pieces.Where(p => p.Role == GalleryRole.Similar).ToList();
-        Assert.Equal(["similar:kind:w14x8", "similar:kind:w18x9", "similar:kind:w16x8", "similar:kind:w20x10"], similar.Select(p => p.Key));
-        Assert.True(focus.Pieces.Count - 2 <= WidgetGallery.MostAround);
         Assert.Equal(focus.Pieces.Count, focus.Pieces.Select(p => p.Key).Distinct().Count());
-    }
 
-    [Fact]
-    public void S16404_a_widget_of_few_styles_shows_its_sizes_a_group_its_neighbours_alone()
-    {
-        var category = Category("w20x10", "w30x12", "w14x8");
-        var plain = WidgetGallery.Focus(category, category.Pieces[0], otherStyles: [], resizes: true);
-        Assert.Equal([GallerySize.Least, GallerySize.Large], plain.Pieces.Where(p => p.Role == GalleryRole.Size).Select(p => p.Size!.Value));
-        Assert.Equal(2, plain.Pieces.Count(p => p.Role == GalleryRole.Similar));
-
-        // One that does not resize: no sizes.
-        Assert.DoesNotContain(WidgetGallery.Focus(category, category.Pieces[0], [], resizes: false).Pieces, p => p.Role == GalleryRole.Size);
-
+        // One style: its words alone. A group: its words alone, whatever styles are said.
+        Assert.Equal([GalleryRole.Picked, GalleryRole.About], WidgetGallery.Focus(category, category.Pieces[0], []).Pieces.Select(p => p.Role));
         var group = new GalleryPiece("group:g", null, null);
-        var withGroup = category with { Pieces = [group, .. category.Pieces] };
-        var focus = WidgetGallery.Focus(withGroup, group, [1, 2], resizes: true);
-        Assert.Equal([GalleryRole.Picked, GalleryRole.About, GalleryRole.Similar, GalleryRole.Similar, GalleryRole.Similar], focus.Pieces.Select(p => p.Role));
+        Assert.Equal([GalleryRole.Picked, GalleryRole.About], WidgetGallery.Focus(category with { Pieces = [group, .. category.Pieces] }, group, [1, 2]).Pieces.Select(p => p.Role));
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(20, 10)]
+    [InlineData(40, 30)]
+    [InlineData(0, 40)]
+    public void S16554_the_piece_in_focus_never_moves_its_words_and_styles_stand_round_it(int x, int y)
+    {
+        var category = Category("w20x10", "w24x12", "w14x8");
+        var focus = WidgetGallery.Focus(category, category.Pieces[1], otherStyles: [1, 2, 3, 4]);
+        var stays = new CellBox(x, y, 20, 12);
+
+        var sheet = WidgetGallery.LayFocus(focus, stays, Wide, rows: 50, Size);
+
+        Assert.Equal(new GalleryTile(focus.Pieces[0], stays), sheet.Tiles[0]);
+        Assert.Equal(focus.Pieces, sheet.Tiles.Select(t => t.Piece));
+        AssertTidy(sheet, Wide);
+        Assert.True(sheet.Rows >= 50);
+
+        // Its words stand next to it: beside it from its top, or under it.
+        var about = sheet.Tiles[1].Box;
+        Assert.True(about.Y == stays.Y || about.Y == stays.Bottom + WidgetGallery.Gap, $"its words at {about}, it at {stays}");
     }
 
     [Fact]
-    public void S16405_the_piece_in_focus_stands_at_the_top_in_the_middle_the_rest_packed_round_it()
+    public void S16554_a_card_too_wide_for_the_room_round_the_piece_stands_under_everything_never_over_another()
     {
-        var category = Category("w20x10", "w24x12", "w14x8", "w18x9", "w16x8", "w12x6");
-        var focus = WidgetGallery.Focus(category, category.Pieces[1], otherStyles: [1, 2], resizes: false);
+        // Regression: on a narrow sheet the words' card (least 12) fitted no column beside or under the piece and was laid
+        // wider than its column, over the cards beside it.
+        var category = Category("w8x8", "w8x8b");
+        var focus = WidgetGallery.Focus(category, category.Pieces[0], otherStyles: [1, 2]);
+        var stays = new CellBox(10, 5, 10, 8);
 
-        var sheet = WidgetGallery.LayFocus(focus, Wide, Size);
+        var sheet = WidgetGallery.LayFocus(focus, stays, 30, rows: 20, Size);
 
-        var middle = sheet.Tiles[0];
-        Assert.Equal(GalleryRole.Picked, middle.Piece.Role);
-        Assert.Equal(new CellBox((Wide - 24) / 2, 0, 24, 12), middle.Box);
-        AssertTidy(sheet, Wide);
-
-        // Round it: on its left and its right, then under it; one cell between two, every piece grown as far as it goes.
-        Assert.Contains(sheet.Tiles, t => t.Box.Right < middle.Box.X && t.Box.Y < middle.Box.Bottom);
-        Assert.Contains(sheet.Tiles, t => t.Box.X > middle.Box.Right && t.Box.Y < middle.Box.Bottom);
-        Assert.Null(WidgetGallery.Grows(sheet, Wide, Size));
-        Assert.True(WidgetGallery.Holes(sheet, Wide) * 50 <= (Wide + 1) * (sheet.Rows + 1));
+        Assert.Equal(stays, sheet.Tiles[0].Box);
+        AssertTidy(sheet, 30);
+        Assert.True(sheet.Tiles[1].Box.W >= 12, $"its words at {sheet.Tiles[1].Box}");
     }
 
     [Theory]
@@ -286,6 +326,11 @@ public sealed class WidgetGalleryTests
         Assert.Equal(ShellMetrics.WidgetGallery.Head, frame.Head.Height);
         Assert.Equal(g.Width - (2 * ShellMetrics.WidgetGallery.Pad), frame.Well.Width, 6);
         Assert.True(frame.Head.Y + frame.Head.Height <= frame.Well.Y);
+
+        // [S-16559] Little room over and under the tabs: a tab's height, 8 under the window's top, 4 over the well.
+        Assert.Equal(ShellMetrics.Page.Tabs, frame.Head.Height);
+        Assert.Equal(g.Y + ShellMetrics.WidgetGallery.HeadInset, frame.Head.Y, 6);
+        Assert.Equal(frame.Head.Y + frame.Head.Height + ShellMetrics.WidgetGallery.HeadGap, frame.Well.Y, 6);
 
         // The cards' view: whole cells inside the well.
         var view = frame.View;

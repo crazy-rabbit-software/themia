@@ -233,11 +233,20 @@ public static class ShellMetrics
         /// <summary>[S-14911] Inside the window, and between its tabs' line and its well.</summary>
         public const double Pad = 16;
 
-        /// <summary>[S-16401] The line of tabs and the search box over the well.</summary>
-        public const double Head = 48;
+        /// <summary>[S-16401] [S-16559] The line of tabs, the hint and the search box over the well: a tab's own height.</summary>
+        public const double Head = Page.Tabs;
 
-        /// <summary>[S-16402] The search box at the tabs' line's end.</summary>
+        /// <summary>[S-16559] From the window's top to the tabs (owner, 2026-11-23: "a little less spacing on the top and bottom").</summary>
+        public const double HeadInset = 8;
+
+        /// <summary>[S-16559] From the tabs to the well.</summary>
+        public const double HeadGap = 4;
+
+        /// <summary>[S-16402] [S-16557] The search box at the tabs' line's end, always open; on a narrow window at most a quarter of its line.</summary>
         public const double Search = 280;
+
+        /// <summary>[S-16560] The hint beside the search box ("Drag a widget onto your desktop to add it"), at the most.</summary>
+        public const double Hint = 260;
 
         /// <summary>[S-16404] A picked widget's words, a card of the bento: its natural box, DIPs.</summary>
         public const double AboutWidth = 320;
@@ -255,9 +264,6 @@ public static class ShellMetrics
 
         /// <summary>From the work area's sides and foot, at the least.</summary>
         public const double Margin = 24;
-
-        /// <summary>[S-14911] How much of Windows' sheet lies over the display's blurred wallpaper in the well: the desktop dimmed to a calm ground.</summary>
-        public const double Sheet = 0.6;
     }
 
     /// <summary>

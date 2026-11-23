@@ -342,6 +342,18 @@ internal sealed partial class EditBar : Grid
         return new Themia.Core.Geometry.DipRect(box.X, box.Y, box.Width, box.Height);
     }
 
+    /// <summary>[S-16558] Where the Widget gallery's button is, in <paramref name="layer"/>'s coordinates: null before it is laid out.</summary>
+    public Themia.Core.Geometry.DipRect? GalleryBox(UIElement layer)
+    {
+        if (_gallery is not { ActualWidth: > 0 } shown)
+        {
+            return null;
+        }
+
+        var box = shown.TransformToVisual(layer).TransformBounds(new Rect(0, 0, shown.ActualWidth, shown.ActualHeight));
+        return new Themia.Core.Geometry.DipRect(box.X, box.Y, box.Width, box.Height);
+    }
+
     /// <summary>[S-2327] The keyboard back on an entry (its flyout closed from the keyboard); null for the selection's.</summary>
     public void FocusEntry(SettingsPageId? page)
     {

@@ -344,9 +344,10 @@ internal sealed partial class PageFlyout : Grid
     /// <summary>
     /// [S-2326] The panel and its beak as one outline: the rounded rectangle <paramref name="width"/> ×
     /// <paramref name="height"/> under the beak's 8, the beak's tip <paramref name="tip"/> along its top,
-    /// its sides at 45°; drawn half a hairline in so the rim falls on whole pixels.
+    /// its sides at 45°; drawn half a hairline in so the rim falls on whole pixels. [S-16558] The widget gallery's window
+    /// hangs from its button by the same outline.
     /// </summary>
-    private static PathGeometry Outline(double width, double height, double tip)
+    internal static PathGeometry Outline(double width, double height, double tip)
     {
         var h = FamilyShape.Hairline / 2;
         var r = ShellMetrics.OverlayRadius;

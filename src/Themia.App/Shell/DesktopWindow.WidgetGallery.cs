@@ -13,7 +13,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-14910]..[S-14917] The widget gallery on this display: opened from its button beside Add widget (the add page stays
-/// as it is), a window in the middle of the work area under the bar, one of the bar's flyouts (one at a time); a drag off it is the one
+/// as it is), a window flush under the bar hung from its button by a beak ([S-16558]), one of the bar's flyouts (one at a time); a drag off it is the one
 /// placement session, landing where the pointer lets go, the gallery stepping aside while it is aimed and coming back after.
 /// </summary>
 internal sealed partial class DesktopWindow
@@ -69,7 +69,7 @@ internal sealed partial class DesktopWindow
 
         CloseFlyout(focusEntry: false);
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered());
-        var gallery = new WidgetGalleryView(new WidgetGalleryCommands(BeginGalleryDrag), Backdrop, _host.State.Design, page);
+        var gallery = new WidgetGalleryView(new WidgetGalleryCommands(BeginGalleryDrag, () => _ = _root.Focus(FocusState.Programmatic)), Backdrop, _host.State.Design, page);
         _widgetGallery = gallery;
         _galleryLayer.Children.Add(gallery);
         PlaceWidgetGallery();
@@ -102,7 +102,7 @@ internal sealed partial class DesktopWindow
 
         var area = WorkArea;
         var bar = EditBarRect(area);
-        gallery.Place(metrics, RasterScale, area, bar.Y + bar.Height, GridGeometry.AllowedDips(metrics), SizesNow.Scale);
+        gallery.Place(metrics, RasterScale, area, bar.Y + bar.Height, GridGeometry.AllowedDips(metrics), SizesNow.Scale, _editBar.GalleryBox(_galleryLayer));
     }
 
     /// <summary>
@@ -225,6 +225,9 @@ internal sealed partial class DesktopWindow
 #if DEBUG
     /// <summary>Debug only: this display's work area (DIPs), for the gallery's check.</summary>
     internal DipRect WorkAreaForCheck => WorkArea;
+
+    /// <summary>Debug only: the gallery's button on the bar (surface DIPs), for the gallery's check ([S-16558]).</summary>
+    internal DipRect? GalleryButtonForCheck => _editBar.GalleryBox(_galleryLayer);
 
     /// <summary>Debug only: the edit bar's foot on this display (DIPs), for the gallery's check ([S-16400]).</summary>
     internal double BarBottomForCheck => EditBarRect(WorkArea) is var bar ? bar.Y + bar.Height : 0;

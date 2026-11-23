@@ -3221,7 +3221,7 @@ band drawn on the page with the real pointer (Ctrl and Shift too), placing by a 
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
-#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410])
+#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16565])
 
 The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
 build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
@@ -3250,12 +3250,29 @@ categories should be moved to the top as tabs. there should not be a header like
 you can also just show the selected widget in different sizes as well, dont have to be different styles. or you can also
 show similar widgets. it should be like a little browsing experience"*. The rail, the title line, the panel and the
 lattice of 7 by 3 tiles are gone ([S-16401], [S-16403], [S-16404]).
-Owning files: Core `Widgets/WidgetGallery.cs` (the arrangement, the focus, the search, the keys), `Widgets/GallerySizes.cs`
-(what a piece asks of the bento on a display),
+Then, of that second build (2026-11-23): *"-the bento in the widget gallery still has gaps, lets do it like this: start with
+a column layout, the columns dont have to be all the same width, then place all the widgets in them, optionally you can also
+put widgets besides each other at the same height in the column. the widgets size should be defined by the columns not just
+a fixed size that you try to place anywhere in the bento. remember that the widgets are actually able to change their size and
+still look good to some extent. -when clicking on a widget in the gallery it should not move when the preview of the different
+styles appears. -the search on the topright should always be expanded. -the angle on the top is missing. -the design of the
+tabs should have a little less spacing on the top and bottom -there should be a hint on the topright somewhere that says drag
+widget to add or similar -make sure that for smaller monitor sizes the widget gallery still works properly -the search box
+lags, maybe only show the first X matches and place them on the bento. -the quick settings should show in two sizes, the small
+size that we have right now and then even a smaller size, -when clicking on a widget it should now only show the styles, not
+related widgets actually -when you click through further after you selected a widget it should not navigate anymore."*; and
+the same day: *"the widget gallery should have the same background as the desktop has. (the image)"*, *"the power widgets
+like restart shutdown etc, should be shown without the header bar and should be shown in two different sizes. the same sizes
+that the quick settings are shown"* and *"the power actions should be moved to the quick settings page"*. The packing bento, the
+neighbours and sizes round a piece in focus, the glide and the folded search are gone ([S-16403], [S-16405] retired,
+[S-16550], [S-16554], [S-16557]).
+Owning files: Core `Widgets/WidgetGallery.cs` (the column bento, the focus, the search, the keys), `Widgets/GallerySizes.cs`
+(what a piece asks of the bento on a display), `Desktop/Wallpaper.cs` (a picture at a display's own pixels, [S-16563]),
 `Model/PlacementPayload.cs` (`ForGallery`, `HeldAt`, `NewSize`), `Shell/EditBarLayout.cs` (`BarPartKind.Gallery`), the
 metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `Shell/DesktopWindow.WidgetGallery.cs`,
-`Shell/SampleCards.cs`, the gallery's button in `EditBar.cs`; render and check `Gallery/WidgetGalleryRender.cs`. Tests
-`WidgetGalleryTests`, `WidgetGalleryPlacementTests`, `EditBarLayoutTests.S2320_`, `SearchRulesTests.S16409_`.
+`Shell/SampleCards.cs`, the gallery's button in `EditBar.cs` (`GalleryBox`, where its beak points), `Shell/Backdrops.cs`
+(`Backdrop.PlainAsync`, the desktop's wallpaper unblurred); render and check `Gallery/WidgetGalleryRender.cs`. Tests
+`WidgetGalleryTests`, `WidgetGalleryPlacementTests`, `WallpaperTests.S16563_`, `EditBarLayoutTests.S2320_`, `SearchRulesTests.S16409_`.
 
 - **[S-14910]** **Its own page, beside the add page.** The edit bar has a **Widget gallery** button (an icon alone, Segoe's
   ViewDashboard, its words its tooltip) between the problems' room and Add widget ([S-2320]: 4 either side); the add page
@@ -3266,10 +3283,10 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
 - **[S-14911]** **A window, its cards on the display's grid.** The gallery is a window under the bar on the display it was
   opened on (`WidgetGallery.Frame`; where: [S-16400]): four fifths of the work area each way, never under 1200 by 640 where
   the work area holds that, 24 from the work area's sides and foot at the least; the desktop shows round it and takes its own
-  presses there. Its ground is the edit bar's, its rim and lift a flyout's. 16 inside it stand the **head** (the tabs and the
-  search box, [S-16401], [S-16402]) over the **well**: a ground of its own with a rim (the display's blurred wallpaper under
-  Windows' sheet at 0.6; the sheet alone where there is no wallpaper picture) and the display's own grid drawn on it as edit
-  mode draws it ([S-06c]). Every card stands in the well on that grid: its cells are the display's cells
+  presses there. Its ground is the edit bar's, its rim and lift a flyout's, and it hangs from its button by a flyout's beak
+  ([S-16558]). 16 in from its sides (8 under its top, [S-16559]) stand the **head** (the tabs, the hint and the search box,
+  [S-16401], [S-16560], [S-16557]) over the **well**: a ground of its own with a rim (the desktop's own wallpaper,
+  [S-16563]; Windows' sheet where there is no picture) and the display's own grid drawn on it as edit mode draws it ([S-06c]). Every card stands in the well on that grid: its cells are the display's cells
   (`GridGeometry.GridDims`, the same pitch and origin), so a card's cell in the gallery is a cell of the desktop; the cards'
   view is the well's room on whole cells, 8 inside it and clear of its scroll bar (`GalleryFrame.View`). A press on the
   window is its own: nothing reaches the widgets under it, and no edit key acts on them while it is open but undo, redo and
@@ -3279,10 +3296,11 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   order: whole things only. A family's small parts (a fact, a button, a line of text: the atoms) are left out; they are seen
   whole in their groups (Start and desktop items stay the add page's). Every piece is **real cards on sample data**
   ([S-11850], [S-11851]: a preview host with its own sample world, each view's sample): a widget one card, a ready-made group
-  its widgets with their own settings laid as the panel it places ([S-2471]). How a category is laid is [S-16403]. A widget
+  its widgets with their own settings laid as the panel it places ([S-2471]). How a category is laid is [S-16550]. A widget
   is drawn at its box, held to its sizing on this display (what is dragged out has the size shown); a ready-made group is
   made as **wide** as its box as one block (`BlockResize`, [S-2460]: every member in its own sizing, every edge on a cell)
-  and keeps its height (taller, its rows would grow unevenly and its lines of text with them).
+  and keeps its height (taller, its rows would grow unevenly and its lines of text with them). Quick settings shows each
+  toggle twice ([S-16562]), and the power buttons ([S-16565]).
 - **[S-14913]** **A tab is scrolled, never the tabs.** Only a click on a tab ([S-16401]) changes the category, which shows
   from its top with nothing picked and nothing in focus. A sheet taller than the well is **scrolled** in it
   (`WidgetGallery.Scroll`, `MaxScroll`): the **wheel** over the well by 8 rows a notch, **Page Up/Down** by a page (the
@@ -3294,7 +3312,8 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
 - **[S-14914]** **Picking** is edit mode's (`WidgetSelection`, `SelectionRules`, [S-1580]..[S-1593]): a press picks the piece
   alone or keeps a pick that holds it, Ctrl or Shift+press toggles one, a band from empty room picks what it touches (added
   to the pick with Ctrl or Shift), Ctrl+A the sheet's every piece, a press on empty room or Escape lets go; a click (a press
-  let go where it was) puts the piece in focus ([S-16404]). A ready-made group is picked **whole**: by any one of its
+  let go where it was) puts the piece in focus ([S-16404]; in focus a click picks and nothing more, [S-16556]). A ready-made
+  group is picked **whole**: by any one of its
   widgets, all of them, and let go the same way. Marked as the locked desktop marks a selection: one card its four corners,
   several the frame's corners round them and none of their own ([S-14310]).
 - **[S-14915]** *(Retired: the panel of what is picked on the gallery's right is gone; a piece's words and styles stand
@@ -3320,66 +3339,143 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
 - **[S-16401]** **The categories are tabs at the top.** The head's line holds a tab of the one tab component (`PageTabButton`,
   [S-2345]) for each category, in the add page's rail order (a line wider than the window scrolls across), the shown one
   marked; no rail down the side and no category heading ("Time") over the grid: the tab says it.
-- **[S-16402]** **A search** at the head's end: its magnifier (the tabs have the line); clicked, the add page's search box
-  (`SearchBox`, [S-13606]; "Search widgets") opens in its place, the tabs giving it room, and folds back as a tab is clicked
-  or Escape empties it. Typing
-  searches every widget and group as the add page's search does ([S-13615], `AddPage.Find`, best first) and shows what it
-  finds, kept to the gallery's whole pieces (a family's small part left out), as one bento laid as a category is
-  (`WidgetGallery.Find`); no tab is marked while it searches. A tab clicked empties it; Escape (nothing in focus, nothing
-  picked) empties it; emptied, the tab chosen is back.
-- **[S-16403]** **A bento with no holes** (`WidgetGallery.Lay`, `GallerySizes`, pure, tested over every category and search of
-  the build). Every piece stands on whole cells, **one cell apart** from every other (never touching, so none joins,
-  [S-2240]), at its natural size first (what placing it new makes, `PlacementPayload.NewSize`; held to the view's width; a
-  ready-made group's laid size): the largest first, each where it keeps the sheet shortest and touches the most of what
-  stands (the other pieces with their gap, the sheet's sides and top), so small pieces fill the room large ones leave (and
-  packed again every other way, the tallest, the widest or in order first, each where it touches most or top-most and
-  left-most: the sheet that leaves the fewest cells empty between pieces is kept). Then
-  every piece is **grown** a cell at a time, by turns, on the axes its sizing leaves free and within it, never past twice its
-  natural length (a group across only, to the widths its common step lands on), right, down (never past the sheet's foot), left and up, into room nothing took;
-  a piece at the sheet's side that cannot grow slides to the piece beyond the room it leaves, so that room is the block's
-  edge, never between two pieces; and the pieces grow again. When it is done no piece could be made a cell longer
-  (`WidgetGallery.Grows` is null): what room is left no piece could take (a group's step and its kept height, a widget that
-  keeps its size), at most one in twenty-five of a sheet's cells empty between pieces on a 1920 by 1080 or a 1280 by 720
-  display (`WidgetGallery.Holes`, `Thickest`); a category of ready-made groups (System, Devices) leaves slivers beside them.
-  Deterministic.
+- **[S-16402]** **A search** at the head's end: the add page's search box (`SearchBox`, [S-13606]; "Search widgets"), always
+  open ([S-16557]). Typing searches every widget and group as the add page's search does ([S-13615], `AddPage.Find`, best
+  first) and shows the first of what it finds ([S-16557]), kept to the gallery's whole pieces (a family's small part left
+  out), as one bento laid as a category is (`WidgetGallery.Find`); no tab is marked while it searches. A tab clicked empties
+  it; Escape (nothing in focus, nothing picked) empties it; emptied, the tab chosen is back.
+- **[S-16403]** *(Retired: the packing bento, its pieces packed largest first and grown into the room left, is gone; a
+  category is a column bento, [S-16550]..[S-16553].)*
 - **[S-16404]** **A click puts a piece in focus** (`WidgetGallery.Focus`): the sheet's other cards fade out, and round the
-  piece, every one a real card on its sample that drags out as any ([S-14916]), stand: its **words**, a card of the bento
-  of its own drawn as a widget stands (Windows' card fill and rim; the piece's glyph and name, what it is, how many styles it
-  has or how many widgets a group places, what it needs, "Needs an account: …", and how to place it); for a widget, the
-  widget in **each of its other styles** ([S-6000]); where it has fewer than two, the widget at its **least** and **large**
-  (twice its natural, held to its most) when it resizes; then its **neighbours**, the category's (or search's) pieces after it
-  in order, wrapping, at least two, eight round it at the most. A neighbour clicked is put in focus in its turn; another
-  card clicked is picked. A click on empty room (not on the words) or Escape leaves the focus: the sheet is back.
-- **[S-16405]** **The focus is a bento too** (`WidgetGallery.LayFocus`): the piece in focus at the top, in the middle across,
-  at its natural size; the rest laid round it as [S-16403] lays a category (its left and right, then under it), the ones that
-  keep their size first (a size shown), so the others grow round them, one cell apart, grown into the room left.
-- **[S-16406]** **Moving between them glides** (the shell's one glide, `PageReveal.Glide` over `PageReveal.Ms`, eased out; at
-  once while Windows' animations are off): the cards that go fade out, the new ones fade in, and the piece put in focus glides
-  from where it stood to its place (and back to its place in the sheet as the focus is left).
+  piece, where it stands ([S-16554]), stand its **words**, a card of the bento of its own drawn as a widget stands (Windows'
+  card fill and rim; the piece's glyph and name, what it is, how many styles it has or how many widgets a group places, what
+  it needs, "Needs an account: …", and how to place it), and for a widget the widget in **each of its other styles**
+  ([S-6000], [S-16555]); every one a real card on its sample that drags out as any ([S-14916]). A click on empty room (not
+  on the words) or Escape leaves the focus: the sheet is back as it stood.
+- **[S-16405]** *(Retired: the piece in focus no longer moves to the top in the middle; it stays where it stood, [S-16554].)*
+- **[S-16406]** **Changing what is shown fades** (the shell's one glide, `PageReveal.Glide` over `PageReveal.Ms`, eased out;
+  at once while Windows' animations are off): the cards that go fade out, the new ones fade in; the piece put in focus, or
+  left, does neither: it never moves ([S-16554]).
 - **[S-16407]** **Keys.** The arrows move the pick from piece to piece (`WidgetGallery.Next`: the nearest whose middle lies
-  that way), the sheet scrolled as little as it takes to show it (`WidgetGallery.Reveal`); **Enter** places the pick (or the
-  piece in focus) as a drag of it does, held at its middle; Escape leaves the focus, then lets the pick go, then empties the
-  search; with none of that it closes the gallery. While the search box has the keys they are its own, Escape aside.
+  that way; in focus between the piece and its styles, the focus staying), the sheet scrolled as little as it takes to show
+  it (`WidgetGallery.Reveal`); **Enter** places the pick (or the piece in focus) as a drag of it does, held at its middle;
+  Escape leaves the focus, then lets the pick go, then empties the search; with none of that it closes the gallery. While the
+  search box has the keys it keeps those it edits with (Left, Right, Home, End, Enter, Ctrl+A); Up, Down, Page Up, Page Down
+  and Escape are the gallery's; a press on the cards takes the keys out of the box.
 - **[S-16408]** **A drop opens the settings, not the gallery again** (`WidgetGallery.AfterPlacing`): when a placement the
   gallery began lands (on any display), the gallery closes and the placed widgets, selected, have their page opened on the
   display they landed on ([S-2343]: one widget's page, several's the page of several, [S-11754]). Given up, the gallery is
   back as it stood.
-- **[S-16410]** The render and the check ([S-14917]): `--render gallery` draws, besides every tab, two searches
-  (`-search-weather`, `-search-clock`), a widget with styles in focus (`-focus-styles`), one without (`-focus-plain`), a
-  ready-made group in focus (`-focus-group`), several picked (`-select-several`) and a drag under way (`-drag`). `--check
-  gallery` says the pieces per category and each bento's holes, and checks: the window flush under the bar and inside the
-  work area; every category's cards on whole cells inside the view and apart, at its top and scrolled to its foot, every
-  piece grown as far as it goes; no family's small part; a scroll step by whole cells keeping the category; a search showing
-  whole pieces and the category back when emptied; a group picked whole; a widget with styles in focus (in the middle at the
-  top, its words, its other styles, its neighbours), an arrow moving the pick, Escape bringing the category back; one
-  without styles in focus with its sizes; Enter starting the placement; one widget and then three dragged and dropped (the
-  ghost on their cells where the pointer held them, moved by whole cells with their offsets kept, landed where it was,
-  selected, the gallery closed and their settings page open); a drag given up (the gallery back); a style shown in focus
-  dragged out landing in that style; PASS or FAIL (`<out>.png`, `<out>.dropped.png`).
+- **[S-16410]** The render and the check ([S-14917]): `--render gallery` draws, besides every tab, searches
+  (`-search-weather`, `-search-clock`, `-search-e`), a widget before and in focus (`-focus-before`, `-focus-styles`), a style
+  of it picked (`-focus-style-picked`), one without styles (`-focus-plain`) and a ready-made group in focus (`-focus-group`),
+  several picked (`-select-several`) and a drag under way (`-drag`); the rest is [S-16564]. `--check gallery` says the pieces
+  and the columns per category, and checks: the window flush under the bar and inside the work area; every category's cards
+  on whole cells inside the view and apart, at its top and scrolled to its foot; no family's small part; a scroll step by
+  whole cells keeping the category; a search showing whole pieces and the category back when emptied; a group picked whole;
+  Enter starting the placement; one widget and then three dragged and dropped (the ghost on their cells where the pointer held
+  them, moved by whole cells with their offsets kept, landed where it was, selected, the gallery closed and their settings page
+  open); a drag given up (the gallery back); a style shown in focus picked and dragged out landing in that style; the rest is
+  [S-16564]; PASS or FAIL (`<out>.png`, `<out>.dropped.png`).
+- **[S-16550]** **A column bento** (`WidgetGallery.Lay`, pure, tested over every category and search of the build at 1920 by
+  1080, 1366 by 768, 1280 by 720 and 1024 by 768). **Columns come first**: a few (from three fifths to half as many again as
+  pieces of the middle width fill the view, never more than eight nor than the pieces), of whole cells and of different
+  widths, filling the view's width as far as the pieces can be that wide, one cell apart. Several ways of cutting the width
+  are tried (cut evenly; cut after the pieces' own widths, widest first; one column as wide as a width a piece keeps, or a row
+  of such pieces, or the widest piece's least; the fewest widths that take every piece alone), each is filled
+  ([S-16551]) and evened ([S-16552]), and the one that costs least is kept: the room under the shorter columns' feet (most),
+  a piece no column takes whole (far the most: never in practice), the width left unfilled, how far the pieces are from their
+  own sizes, and a little for pieces side by side. Deterministic.
+- **[S-16551]** **A piece's size is its column's.** The shortest column (then the left-most) takes next the row that suits its
+  width best, the larger pieces first: one piece **as wide as the column**, or, where one alone would be stretched or
+  squeezed by more than a third (or cannot be that wide), several **side by side at one height** (up to 16: small ones that
+  keep their size make a row of them), their widths shares of the column in proportion to their own, every cell taken. A
+  piece is as tall as its sizing makes it at that width: its natural height scaled with its width, within its least and most
+  (`GallerySizes`: never more than twice its natural each way nor under three quarters of it, its least where that is more);
+  the pieces that keep their size are placed first (the hardest to fit), then the larger; to even the feet a row may stand from three fifths of that to
+  half as tall again (within its least and most); a ready-made group keeps its height. A piece no column can take alone joins a row
+  that takes it beside its pieces.
+- **[S-16552]** **No hole in a column; the feet as even as they go.** The cards of a column stand one cell apart from its top
+  down: no cell of a column between its top and its foot is left empty (`WidgetGallery.Holes`, zero for every category and
+  search of the build). Then rows are moved between columns (laid again at the other's width) or lone pieces swapped while
+  that brings the feet nearer their mean (what keeps its height is evened this way); a column whose foot stays far above
+  the others' (what is left fits it only narrower: a search's wide group over narrower ones) goes on as **two columns side
+  by side under its last card**, and rows settle into them while that brings the feet nearer; then the rows that stretch
+  are made a cell taller or shorter at a time toward the foot most columns reach, so the columns' feet end as even as the
+  pieces let them (`WidgetGallery.Ragged`, a column that goes on as two having its foot in theirs: 0 to 5 rows on every tab
+  at 1920 by 1080, up to 14 on the small displays and 25 for Calendar & mail at 1024 by 768 (groups, whose heights are kept);
+  a search of a few tall groups up to 49; tested: within 8 rows or the tallest piece that keeps its height).
+- **[S-16553]** **Ready-made groups in columns.** A group takes its column's width where its block resize lands there
+  (`GallerySizes.GroupWidths`, [S-2460]) and keeps its height; where none of the widths tried is one it may be, a column of
+  its own width is among the ways tried ([S-16550]).
+- **[S-16554]** **The piece in focus never moves** (owner: *"when clicking on a widget in the gallery it should not move when
+  the preview of the different styles appears"*; `WidgetGallery.LayFocus`): clicked, its cards stay the same cards on the
+  same cells (no glide, no new layout of it, the sheet scrolled as it was), the others fade out, and in the room they leave
+  its words and its styles fade in round it, in that order: in columns beside it from its top down (to its left and its
+  right, each side cut into columns about a piece wide) and under it as wide as it, the shortest first, one cell apart. Left
+  (a click on empty room, Escape), the sheet is back as it stood, the piece on the same cells again.
+- **[S-16555]** **Only its styles** (owner: *"when clicking on a widget it should now only show the styles, not related
+  widgets actually"*): round a widget in focus its words and the widget in each of its other styles; no neighbour, no other
+  size. A kind of one style, and a ready-made group, have their words alone round them.
+- **[S-16556]** **No navigating after a pick** (owner: *"when you click through further after you selected a widget it should
+  not navigate anymore"*): in focus a click on a card (a style, or the piece itself) picks it, for Enter or a drag to place
+  it in that style, and nothing else: the focus, the cards and the sheet stay. Only a click on empty room or Escape leaves.
+- **[S-16557]** **The search always open, its first finds** (owner: *"the search on the topright should always be expanded"*;
+  *"the search box lags, maybe only show the first X matches"*): the box stands at the head's end at all times (a quarter of
+  the line at the most on a narrow window), no magnifier to open it. A search shows the first `WidgetGallery.MostFound` (8)
+  pieces it finds, best first, laid as a column bento; keys typed in a row are one search, run once the box has taken them
+  (the dispatcher's low priority, after input). Measured by `--check gallery` on the stand-in 1280 by 720 display at 150 %,
+  Debug ("weather" typed a letter at a time, twice, each search's own work on the UI thread: find, lay, build its cards; the
+  second pass): before (every find, 79 pieces for "w", 33 for "we", 13 after) 1060, 298, 153, 164, 170, 177, 127 ms, the
+  middle 170; after (8 pieces) 158, 194, 145, 95, 101, 95, 93 ms, the middle 101, laying 1 to 27 ms of it, building the cards
+  the rest. Twelve pieces measured 113 to 252 (middle 202): eight it is.
+- **[S-16558]** **The beak** (owner: *"the angle on the top is missing"*): the window and a flyout's beak (8 tall, 16 across)
+  are one outline with one rim and one shadow (`PageFlyout.Outline`), the beak's tip over the Widget gallery button's middle
+  (`EditBar.GalleryBox`; held to the straight of the top, `FlyoutPlacement.Tip`), in the flyouts' gap under the bar.
+- **[S-16559]** **Tabs with less room round them** (owner: *"the design of the tabs should have a little less spacing on the top
+  and bottom"*): the head is a tab tall (40), 8 under the window's top and 4 over the well (16 and 8 before).
+- **[S-16560]** **A hint** (owner: *"there should be a hint on the topright somewhere that says drag widget to add or similar"*):
+  "Drag a widget onto your desktop to add it" (`widgetGallery.hint`), Caption and secondary, before the search box at the
+  head's end; cut short with an ellipsis where the tabs leave it less room, never over the search.
+- **[S-16561]** **Small monitors** (owner: *"make sure that for smaller monitor sizes the widget gallery still works
+  properly"*): on 1366 by 768, 1280 by 720 and 1024 by 768 work areas (DIPs; 100 % and 150 %) the window stays inside the
+  work area under the bar, the tabs scroll across in their room, the hint and the search fit at the line's end, and the view
+  holds fewer columns (two or three at 1024, four or five at 1920), nothing cut and no hole.
+- **[S-16562]** **Quick settings in two sizes** (owner: *"the quick settings should show in two sizes, the small size that we
+  have right now and then even a smaller size"*): in the Quick settings tab every toggle stands at the size it has new and,
+  right after it, at its least (`GalleryPiece.Least`: its sizing's least, kept), both real cards that drag out at their size;
+  the least ones make rows of their own in a column as wide as the row ([S-16551]). No other tab, and no search, doubles a
+  widget.
+- **[S-16565]** **The power buttons in Quick settings** (owner: *"the power widgets like restart shutdown etc, should be
+  shown without the header bar and should be shown in two different sizes. the same sizes that the quick settings are
+  shown"*; *"the power actions should be moved to the quick settings page"*): the Power buttons family's widgets (Shut down,
+  Restart, Sleep, Hibernate, Lock, Sign out, Screen off; `WidgetGallery.InQuickSettings`) are whole pieces of the gallery's
+  Quick settings tab, after the toggles, each alone at the size it has new and right after it at its least, as the toggles
+  ([S-16562]); the ready-made Power group (its Header over four of them) is not in the gallery, and no other tab shows them.
+  The add page is unchanged. A search finds them as the whole pieces they are.
+- **[S-16563]** **The desktop's own background** (owner: *"the widget gallery should have the same background as the desktop
+  has. (the image)"*): the well shows the display's wallpaper as the desktop shows it, its fit and position and Windows'
+  colour round it, at the display's own pixels and not blurred or dimmed (`Backdrop.PlainAsync`, read off the UI thread over
+  the same source the cards' frost reads, `IWallpaperSource.PictureAsync(display, downscale: 1)`; again when Windows changes
+  it), so the cards stand on the gallery as they will on the desktop (their frost over the real picture). The window's ground
+  (the edit bar's) keeps the tabs, hint and search readable; with no picture the well is Windows' sheet.
+- **[S-16564]** The render and the check for the second round: `--render gallery` and `--check gallery` take
+  `--displays WxH,..` (more stand-in displays after the first: each draws its Time, System and Quick settings tabs, a search
+  and a focus, and is checked for its window, head, bentos, quick settings, a search and the focus) and `--wallpaper
+  <picture>` (the stand-in displays' wallpaper, [S-2119]). `--check gallery` says each category's columns (count, widths,
+  how ragged) and a keystroke's search time (in all and laying), and checks: the beak over the gallery's button; the head a tab
+  tall, 8 under the window's top and 4 over the well; the hint and the search box shown inside the window, the tabs clear of
+  them; the well showing the wallpaper (with `--wallpaper`); no hole in any category's columns; the quick settings' toggles at
+  their size and at their least; a search for "e" showing its first 8; a styled widget clicked staying the same card on the
+  same cells in focus, its words and its other styles alone round it, a style clicked (twice) picked with the focus, cards and
+  sheet staying, the piece clicked again still in focus, a click on empty room leaving with the card where it stood; one of one
+  style with its words alone; an arrow moving the pick in focus, the focus staying.
 
-Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays
-and the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the
-search box and the words' card, the fades and the glide at 60 Hz, and the gallery's cost with many live cards on a slow PC.
+Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays and
+the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the
+search box and the words' card, the fades at 60 Hz, the real wallpaper in the well (a slideshow, Span, mixed DPI), the hint
+and tabs on a real 1024 by 768 or 150 % screen, typing in the search on a slow PC, and the gallery's cost with many live
+cards on a slow PC.
 
 ### The edit bar's settings menu (SETTINGS-MENU)
 

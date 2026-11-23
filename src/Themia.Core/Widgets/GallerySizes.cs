@@ -6,7 +6,7 @@ using G = Themia.Sdk.Kit.ShellMetrics.WidgetGallery;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-14912] [S-16403] [S-16404] What a piece of the gallery asks of the bento on a display (<paramref name="screen"/>, at the
+/// [S-14912] [S-16551] [S-16562] What a piece of the gallery asks of the bento on a display (<paramref name="screen"/>, at the
 /// content scale new widgets get there, in a view <paramref name="viewWidth"/> cells wide), in whole cells of its grid: the
 /// gallery's view and the tests ask the one rule.
 /// </summary>
@@ -14,16 +14,20 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
 {
     private readonly Dictionary<string, IReadOnlyList<int>> _groupWidths = new(StringComparer.Ordinal);
 
-    /// <summary>[S-16403] How many times its natural length a piece is grown at the most, each way.</summary>
+    /// <summary>[S-16551] How many times its natural length a piece is made at the most, each way.</summary>
     public const int Grown = 2;
+
+    /// <summary>[S-16551] How small a share of its natural length a piece is made at the least, each way.</summary>
+    public const double Least = 0.75;
 
     private PlacementSizes Sizes => new(contentScale);
 
     /// <summary>
-    /// A widget its natural cells (in its style), the least and most its sizing takes and the axes it may be another length
-    /// on; the piece in focus keeps its own, a size shown is its least or twice its natural (held to its most); a ready-made
-    /// group the cells it is laid at, wider only to the widths its common step lands on (<see cref="GroupWidths"/>), never
-    /// taller; the words' card its natural box (<see cref="G.AboutWidth"/> by <see cref="G.AboutHeight"/>), any size over it.
+    /// [S-16551] A widget its natural cells (in its style), the least and most its sizing takes (never more than
+    /// <see cref="Grown"/> times its natural each way, nor less than <see cref="Least"/> of it) and the axes it may be another length on; [S-16562] a quick setting at
+    /// its least that size alone; a ready-made group the cells it is laid at, wider only to the widths its common step lands
+    /// on (<see cref="GroupWidths"/>), never taller; the words' card its natural box (<see cref="G.AboutWidth"/> by
+    /// <see cref="G.AboutHeight"/>), up to twice it.
     /// </summary>
     public PieceSize Of(GalleryPiece piece)
     {
@@ -41,8 +45,7 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
             var laid = ReadyMadeGroups.Laid(group, screen, Sizes);
             var w = Math.Max(1, (int)Math.Round(laid.Max(r => r.Right) * cols));
             var h = Math.Max(1, (int)Math.Round(laid.Max(r => r.Bottom) * rows));
-            var wider = piece.Role != GalleryRole.Picked;
-            return new PieceSize(w, h, w, h, wider, false) { Widths = wider ? GroupWidths(group) : null };
+            return new PieceSize(w, h, w, h, true, false) { Widths = GroupWidths(group) };
         }
 
         var kind = piece.Kind ?? throw new ArgumentException("a piece is a widget or a group", nameof(piece));
@@ -54,28 +57,15 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
 
         var (minW, minH) = ((int)Math.Ceiling((limits.Width.Min * cols) - 1e-6), (int)Math.Ceiling((limits.Height.Min * rows) - 1e-6));
         var (maxW, maxH) = (Math.Max(minW, (int)Math.Floor((limits.Width.Max * cols) + 1e-6)), Math.Max(minH, (int)Math.Floor((limits.Height.Max * rows) + 1e-6)));
-        switch (piece.Role)
+        if (piece.Least)
         {
-            case GalleryRole.Picked:
-                return new PieceSize(nw, nh, nw, nh, false, false);
-            case GalleryRole.Size when piece.Size == GallerySize.Least:
-                return new PieceSize(minW, minH, minW, minH, false, false);
-            case GalleryRole.Size:
-                var (lw, lh) = (Math.Min(maxW, nw * 2), Math.Min(maxH, nh * 2));
-                return new PieceSize(lw, lh, lw, lh, false, false);
-            default:
-                // Never more than twice its natural each way: a sheet of few pieces leaves its room at its edge, never a giant.
-                return new PieceSize(nw, nh, minW, minH, !limits.Width.Fixed, !limits.Height.Fixed) { MaxW = Math.Min(maxW, Grown * nw), MaxH = Math.Min(maxH, Grown * nh) };
+            return new PieceSize(minW, minH, minW, minH, false, false);
         }
-    }
 
-    /// <summary>[S-16404] Whether a kind is shown at other sizes in focus: its least and twice its natural both differ from its natural.</summary>
-    public bool Resizes(WidgetId kind)
-    {
-        var natural = Cells(kind, null);
-        var least = Of(new GalleryPiece(string.Empty, kind, null) { Role = GalleryRole.Size, Size = GallerySize.Least });
-        var large = Of(new GalleryPiece(string.Empty, kind, null) { Role = GalleryRole.Size, Size = GallerySize.Large });
-        return (least.W, least.H) != natural && (large.W, large.H) != natural;
+        // Never more than twice its natural each way, nor under three quarters of it (its least where that is more): a
+        // column's width is a piece's, never a giant's or a crumb's; a quick setting's least stays the smaller one shown.
+        var (fewW, fewH) = (Math.Min(nw, Math.Max(minW, (int)Math.Ceiling(nw * Least))), Math.Min(nh, Math.Max(minH, (int)Math.Ceiling(nh * Least))));
+        return new PieceSize(nw, nh, fewW, fewH, !limits.Width.Fixed, !limits.Height.Fixed) { MaxW = Math.Min(maxW, Grown * nw), MaxH = Math.Min(maxH, Grown * nh) };
     }
 
     /// <summary>[S-14912] A kind's natural cells in a style: what placing it new makes (<see cref="PlacementPayload.NewSize"/>).</summary>
