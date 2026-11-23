@@ -1,5 +1,3 @@
 {
-  "drives.nothing": "Nichts angeschlossen",
-  "drives.removable.desc": "USB-Sticks, Karten und externe Festplatten, mit Auswerfen",
-  "drives.removable.label": "Wechseldatenträger"
+  "drives.nothing": "Nichts angeschlossen"
 }

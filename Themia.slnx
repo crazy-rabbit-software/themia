@@ -71,7 +71,7 @@
     <Project Path="src/Widgets/Themia.Widget.RainNextHour/Themia.Widget.RainNextHour.csproj" />
     <Project Path="src/Widgets/Themia.Widget.RecentFiles/Themia.Widget.RecentFiles.csproj" />
     <Project Path="src/Widgets/Themia.Widget.RecycleBin/Themia.Widget.RecycleBin.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.RemovableDrives/Themia.Widget.RemovableDrives.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Drives/Themia.Widget.Drives.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Rss/Themia.Widget.Rss.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Scratchpad/Themia.Widget.Scratchpad.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stock/Themia.Widget.Stock.csproj" />

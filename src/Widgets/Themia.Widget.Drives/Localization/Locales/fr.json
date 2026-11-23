@@ -1,5 +1,3 @@
 {
-  "drives.nothing": "Rien de branché",
-  "drives.removable.desc": "Clés USB, cartes et disques externes, avec Éjecter",
-  "drives.removable.label": "Lecteurs amovibles"
+  "drives.nothing": "Rien de branché"
 }

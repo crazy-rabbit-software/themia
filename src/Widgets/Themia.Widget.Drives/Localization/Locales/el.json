@@ -1,5 +1,3 @@
 {
-  "drives.nothing": "Δεν έχει συνδεθεί τίποτα",
-  "drives.removable.desc": "Στικάκια USB, κάρτες και εξωτερικοί δίσκοι, με Εξαγωγή",
-  "drives.removable.label": "Αφαιρούμενες μονάδες δίσκου"
+  "drives.nothing": "Δεν έχει συνδεθεί τίποτα"
 }

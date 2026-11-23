@@ -1,59 +1,82 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
-using Themia.App.Shell;
-using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
-using Themia.Sdk.Kit;
+using Themia.Sdk.Devices;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Kit;
-using Themia.Widget.RemovableDrives;
+using Themia.Sdk.WinUI.Devices;
+using Themia.Widget.Drives;
 
-[assembly: ThemiaWidget("removableDrives", typeof(RemovableDrivesModule))]
+[assembly: ThemiaWidgetFamily]
+[assembly: ThemiaWidget("drives", typeof(DrivesModule))]
+[assembly: ThemiaWidget("usbSticks", typeof(UsbSticksModule))]
+[assembly: ThemiaWidget("networkDrives", typeof(NetworkDrivesModule))]
 
-namespace Themia.Widget.RemovableDrives;
+namespace Themia.Widget.Drives;
 
-/// <summary>[S-4660] A row per USB stick, card, disc or external disk plugged in, each with its Eject. SPEC.md beside this file.</summary>
-public sealed class RemovableDrivesModule : IWidgetModule
+/// <summary>
+/// [S-16650] A drive list, whatever its kind: every drive of its kind as a device item ([S-16630]), the drives shown and
+/// their order the user's, with the block gap between them where it is on. Each kind is its module over this one (owner,
+/// 2026-11-23: "they should still try to share the same structure in the backen"). SPEC.md beside this file.
+/// </summary>
+public abstract class DriveListModule : IWidgetModule
 {
-    /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
-    public WidgetDescriptor Descriptor { get; } = new()
+    protected DriveListModule(DriveListKind kind, Func<DriveListConfig> create)
     {
-        Id = new("removableDrives"),
-        ConfigType = typeof(RemovableDrivesConfig),
-        CreateDefault = () => new RemovableDrivesConfig(),
-        Json = RemovableDrivesJsonContext.Default,
-        Keywords = ["usb", "usb stick", "flash drive", "sd card", "memory card", "external disk", "eject", "safely remove"],
-        Label = RemovableDrivesStr.Drives_Removable_Label.Local(),
-        Description = RemovableDrivesStr.Drives_Removable_Desc.Local(),
-        Glyph = Glyphs.Usb,
-        Sizing = c => KitSizing.Sizing(Shown((RemovableDrivesConfig)c), addFooter: false),
-        Traits = WidgetTraits.HasItems,
-        Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
-        Add = new(AddFolderId.Devices, 2, 2),
-    };
-
-    /// <summary>[S-11027] Its rows as drawn: the config's count, two lines each.</summary>
-    internal static KitRowsChoice Shown(RemovableDrivesConfig config) => new(KitSizing.ClampRows(config.Rows), RemovableDrivesPlan.Lines);
-
-    /// <summary>[S-11027] Its one line: how many rows ([S-2440]); a row always has its two lines.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(menu);
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, (RemovableDrivesConfig)config));
+        Kind = kind;
+        Descriptor = new()
+        {
+            Id = new(kind.Id),
+            ConfigType = create().GetType(),
+            CreateDefault = create,
+            Json = DrivesJsonContext.Default,
+            Keywords = kind.Keywords,
+            Label = kind.Label,
+            Description = kind.Description,
+            Glyph = kind.Glyph,
+            Sizing = c => DeviceLayout.Sizing(((DriveListConfig)c).Rows, ((DriveListConfig)c).Gap),
+            Traits = WidgetTraits.HasItems,
+            Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
+            Add = new(AddFolderId.Devices, 2, kind.Rank),
+            Merges = kind.Merges,
+        };
     }
 
-    public FrameworkElement CreateView(IWidgetHost host) => new RemovableDrivesView(host);
+    /// <summary>The kind it is.</summary>
+    public DriveListKind Kind { get; }
+
+    /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
+    public WidgetDescriptor Descriptor { get; }
+
+    /// <summary>[S-16655] Its options, all on its page ([S-3719]): the device list's (shown, order, gap, rows).</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        var locale = Strings.Current;
+        DeviceMenuLines.List(menu, (DriveListConfig)config, [.. DrivesRules.OfKind(DriveList.Now(), Kind).Select(d => new DeviceChoice(d.Root, DriveRules.Title(locale, d), DriveRules.Glyph(d)))]);
+    }
+
+    public FrameworkElement CreateView(IWidgetHost host) => new DrivesView(host, Kind);
 }
+
+/// <summary>[S-16650] The PC's drives: its disks and discs.</summary>
+public sealed class DrivesModule() : DriveListModule(DriveListKinds.Drives, () => new DrivesConfig());
+
+/// <summary>[S-16650] [S-16656] The USB sticks and external disks plugged in; a placed Removable drives widget becomes it.</summary>
+public sealed class UsbSticksModule() : DriveListModule(DriveListKinds.UsbSticks, () => new UsbSticksConfig());
+
+/// <summary>[S-16650] The mapped network drives.</summary>
+public sealed class NetworkDrivesModule() : DriveListModule(DriveListKinds.NetworkDrives, () => new NetworkDrivesConfig());
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>
 [JsonSourceGenerationOptions(
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(RemovableDrivesConfig))]
-internal sealed partial class RemovableDrivesJsonContext : JsonSerializerContext;
+[JsonSerializable(typeof(DrivesConfig))]
+[JsonSerializable(typeof(UsbSticksConfig))]
+[JsonSerializable(typeof(NetworkDrivesConfig))]
+internal sealed partial class DrivesJsonContext : JsonSerializerContext;

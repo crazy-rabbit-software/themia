@@ -1,41 +1,94 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
-using Themia.Sdk.Kit;
+using Themia.Sdk.Devices;
 using Xunit;
 
-namespace Themia.Widget.RemovableDrives.Tests;
+namespace Themia.Widget.Drives.Tests;
 
-/// <summary>[S-4662] [S-11027] The devices' rows: two lines, a picture and a bar at every width; the list's rows its setting.</summary>
-public sealed class RemovableDrivesTests
+/// <summary>
+/// [S-16650]..[S-16656] The drive lists, one per kind (the PC's drives, the USB sticks, the network drives), each the device
+/// list's one shape: its drives filtered and in the user's order, the block gap in its sizing; a placed Removable drives
+/// widget becoming the USB sticks' list in place.
+/// </summary>
+public sealed class DrivesTests
 {
-    private static WidgetDescriptor Kind => ModuleCatalog.Of(new WidgetId("removableDrives"));
+    private const ulong Gb = 1024UL * 1024 * 1024;
+
+    private static readonly DriveEntry System = new("C:\\", VolumeKind.Fixed, DriveState.Ready, "System", "NTFS", 931 * Gb, 419 * Gb);
+    private static readonly DriveEntry Stick = new("E:\\", VolumeKind.Removable, DriveState.Ready, "STICK", "exFAT", 58 * Gb, 31 * Gb);
+    private static readonly DriveEntry External = new("G:\\", VolumeKind.Fixed, DriveState.Ready, "Backup", "NTFS", 1863 * Gb, 640 * Gb, Hotplug: true);
+    private static readonly DriveEntry Reader = new("F:\\", VolumeKind.Removable, DriveState.NoMedia);
+    private static readonly DriveEntry Disc = new("H:\\", VolumeKind.Optical, DriveState.Ready, "HOLIDAY", "UDF", 4 * Gb, 0);
+    private static readonly DriveEntry Share = new("Z:\\", VolumeKind.Network, DriveState.Disconnected, Share: @"\\nas\media");
+    private static readonly DriveEntry Projects = new("W:\\", VolumeKind.Network, DriveState.Ready, string.Empty, "NTFS", 100 * Gb, 50 * Gb, @"\\server\projects");
+
+    private static readonly DriveEntry[] Walk = [System, Stick, Reader, External, Disc, Share, Projects];
+
+    private static string Roots(IEnumerable<DriveEntry> drives) => string.Join(' ', drives.Select(d => d.Root[..1]));
 
     [Fact]
-    public void S11027_a_row_has_its_two_lines_its_picture_and_its_bar_at_every_width()
+    public void S16650_each_list_shows_its_kind_by_letter_an_empty_reader_left_out()
     {
-        Assert.Equal(new RemovableDrivesLook(2, 32, 62), RemovableDrivesPlan.Of(220));
-        Assert.Equal(new RemovableDrivesLook(2, 32, 88), RemovableDrivesPlan.Of(300));
-        Assert.Equal(new RemovableDrivesLook(2, 32, 140), RemovableDrivesPlan.Of(520));
+        Assert.Equal("C H", Roots(DrivesRules.Arrange(Walk, DriveListKinds.Drives, new DrivesConfig())));
+        Assert.Equal("E G", Roots(DrivesRules.Arrange(Walk, DriveListKinds.UsbSticks, new UsbSticksConfig())));
+        Assert.Equal("W Z", Roots(DrivesRules.Arrange(Walk, DriveListKinds.NetworkDrives, new NetworkDrivesConfig())));
     }
 
     [Fact]
-    public void S11027_S14500_its_rows_are_a_new_cards_height_every_cell_from_one_row_up()
+    public void S16651_S16652_drives_are_hidden_and_put_in_the_users_order()
     {
-        Assert.Equal(4 * 40, RemovableDrivesPlan.Reach((4 * 40) - 12, ItemGrid.Default()).Start(4));
-        var sizing = Kind.SizingOf();
-        Assert.Equal(4 * 40, sizing.Natural.Height);
-        Assert.Equal(40, sizing.Min.Height);
-        Assert.Equal(6, ((RemovableDrivesConfig)new RemovableDrivesConfig { Rows = 6 }.Clone()).Rows);
+        var config = new NetworkDrivesConfig { Order = ["Z:\\"] };
+        Assert.Equal("Z W", Roots(DrivesRules.Arrange(Walk, DriveListKinds.NetworkDrives, config)));
+
+        config.Hidden = ["z:\\"];
+        Assert.Equal("W", Roots(DrivesRules.Arrange(Walk, DriveListKinds.NetworkDrives, config)));
     }
 
     [Fact]
-    public void S12452_S14810_its_rows_keep_their_size_touching_from_the_cards_top_edge()
+    public void S16654_its_sizing_is_its_rows_of_device_items_and_the_gap_between()
     {
-        // [S-14810] The view at a box: rows of four cells from the card's top edge, as many as it reaches, the last cut.
-        static (double, int, double) Of(RowReach r) => (r.Pitch, r.Shown, r.Room);
-        Assert.Equal((40.0, 5, 184.0), Of(RemovableDrivesPlan.Reach((4 * 40) + 12, ItemGrid.Default())));
-        Assert.Equal((40.0, 23, 912.0), Of(RemovableDrivesPlan.Reach(900, ItemGrid.Default())));
-        Assert.Equal((40.0, 3, 112.0), Of(RemovableDrivesPlan.Reach(100, ItemGrid.Default())));
+        foreach (var id in new[] { "drives", "usbSticks", "networkDrives" })
+        {
+            var kind = ModuleCatalog.Of(new WidgetId(id));
+            Assert.Equal((300.0, 270.0), (kind.SizingOf().Natural.Width, kind.SizingOf().Natural.Height));
+            Assert.Equal(90, kind.SizingOf().Min.Height);
+        }
+
+        Assert.Equal(190, ModuleCatalog.Of(new WidgetId("usbSticks")).SizingOf(new UsbSticksConfig { Rows = 2, Gap = true }).Natural.Height);
+    }
+
+    [Fact]
+    public void S16655_its_config_is_repaired_and_copied_whole_as_its_own_kind()
+    {
+        var config = new UsbSticksConfig { Hidden = ["E:\\", "nonsense", "e:"], Order = ["Z:\\"], Rows = 40, Gap = true };
+        Assert.Equal(3, config.Repair().Count);
+        Assert.Equal(["E:\\"], config.Hidden);
+        Assert.Equal(20, config.Rows);
+
+        var copy = Assert.IsType<UsbSticksConfig>(config.Clone());
+        Assert.Equal(config.Hidden, copy.Hidden);
+        Assert.Equal(config.Order, copy.Order);
+        Assert.Equal((config.Gap, config.Rows), (copy.Gap, copy.Rows));
+        Assert.NotSame(config.Hidden, copy.Hidden);
+    }
+
+    [Fact]
+    public void S16656_a_placed_removable_drives_widget_becomes_the_usb_sticks_list_in_place()
+    {
+        var config = Assert.IsType<UsbSticksConfig>(ConfigJson.Read("RemovableDrives", """{ "kind": "removableDrives", "rows": 5 }"""));
+
+        Assert.Equal((5, false), (config.Rows, config.Gap));
+        Assert.Equal("E G", Roots(DrivesRules.Arrange(Walk, DriveListKinds.UsbSticks, config)));
+    }
+
+    [Fact]
+    public void S16650_a_shown_drive_is_a_device_item()
+    {
+        var items = DrivesRules.Arrange(Walk, DriveListKinds.NetworkDrives, new NetworkDrivesConfig()).Select(d => DeviceItems.Drive(Locale.En, d)).ToList();
+        Assert.Equal(["projects (\\\\server) (W:)", "media (\\\\nas) (Z:)"], items.Select(i => i.Name));
+        Assert.True(items[^1].Absent);
     }
 }

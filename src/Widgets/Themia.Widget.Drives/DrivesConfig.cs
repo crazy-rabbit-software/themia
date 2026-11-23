@@ -1,45 +1,103 @@
 using System.Text.Json.Serialization;
+using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
-using Themia.Widget.RemovableDrives;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-4660] [S-11027] The removable devices: how many rows the list shows, its one setting.</summary>
-public sealed class RemovableDrivesConfig : WidgetConfig, IKitLocalConfig, IKitRows
+/// <summary>
+/// [S-16650]..[S-16654] A drive list, whatever its kind: the device list's one config shape ([S-16636]: the drives hidden,
+/// the user's order, the block gap, the rows). Each kind is its own config type (a config's type is how it knows its id).
+/// Every property is stored; copy each in <see cref="Clone"/>.
+/// </summary>
+public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfig
 {
-    /// <summary>[S-11027] How many rows the list shows (1..20); more devices scroll inside them.</summary>
-    public int Rows { get; set; } = RemovableDrivesPlan.DefaultRows;
+    /// <inheritdoc />
+    public List<string> Hidden { get; set; } = [];
 
-    /// <summary>Every row has two lines: the name and the space line.</summary>
+    /// <inheritdoc />
+    public List<string> Order { get; set; } = [];
+
+    /// <inheritdoc />
+    public bool Gap { get; set; }
+
+    /// <inheritdoc cref="IDeviceListConfig.Rows" />
+    public int Rows { get; set; } = DeviceLayout.DefaultRows;
+
+    /// <summary>An item has one face: no lines to choose.</summary>
     [JsonIgnore]
     bool IKitRows.OffersLines => false;
 
     [JsonIgnore]
     public int Lines
     {
-        get => RemovableDrivesPlan.Lines;
+        get => 1;
         set
         {
-            // ignore: a device's row always has its two lines; the menu offers no choice.
+            // ignore: a device item has its one face; the menu offers no lines.
         }
     }
 
-    /// <summary>[S-4662] The picture, the space line and the used share are always the row's: no switch for them.</summary>
-    [JsonIgnore]
-    public KitShow Shows => KitShow.Lead | KitShow.Subtitle | KitShow.When;
-
-    public override WidgetConfig Clone() => new RemovableDrivesConfig { Rows = Rows };
-
+    /// <summary>Roots that are no drive or are there twice, rows out of range: repaired to the nearest, loudly.</summary>
     public override IReadOnlyList<string> Repair()
     {
+        var notes = new List<string>();
+        Hidden = Roots(Hidden, "hidden", notes);
+        Order = Roots(Order, "order", notes);
         var rows = KitSizing.ClampRows(Rows);
-        if (rows == Rows)
+        if (rows != Rows)
         {
-            return [];
+            notes.Add($"{Kind}: {Rows} rows is outside {KitSizing.MinRows}..{KitSizing.MaxRows}; using {rows}");
+            Rows = rows;
         }
 
-        var note = $"{Kind}: {Rows} rows is outside {KitSizing.MinRows}..{KitSizing.MaxRows}; using {rows}";
-        Rows = rows;
-        return [note];
+        return notes;
     }
+
+    /// <summary>The drive roots of <paramref name="roots"/>, once each; anything else dropped with a note.</summary>
+    private List<string> Roots(List<string> roots, string what, List<string> notes)
+    {
+        var kept = new List<string>(roots.Count);
+        foreach (var root in roots)
+        {
+            if (Themia.Core.Widgets.DiskRules.Root(root) is { } held && !kept.Contains(held, StringComparer.OrdinalIgnoreCase))
+            {
+                kept.Add(held);
+            }
+            else
+            {
+                notes.Add($"{Kind}: {what} '{root}' is not a drive or is there twice; dropped");
+            }
+        }
+
+        return kept;
+    }
+
+    /// <summary>A copy of the kind's own type with this one's settings.</summary>
+    protected T CopyTo<T>(T copy)
+        where T : DriveListConfig
+    {
+        copy.Hidden = [.. Hidden];
+        copy.Order = [.. Order];
+        copy.Gap = Gap;
+        copy.Rows = Rows;
+        return copy;
+    }
+}
+
+/// <summary>[S-16650] The PC's drives.</summary>
+public sealed class DrivesConfig : DriveListConfig
+{
+    public override WidgetConfig Clone() => CopyTo(new DrivesConfig());
+}
+
+/// <summary>[S-16650] The USB sticks and external disks plugged in.</summary>
+public sealed class UsbSticksConfig : DriveListConfig
+{
+    public override WidgetConfig Clone() => CopyTo(new UsbSticksConfig());
+}
+
+/// <summary>[S-16650] The mapped network drives.</summary>
+public sealed class NetworkDrivesConfig : DriveListConfig
+{
+    public override WidgetConfig Clone() => CopyTo(new NetworkDrivesConfig());
 }

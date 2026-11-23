@@ -1,6 +1,21 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "drives.list.label",
+    "drives.list.desc",
+    "drives.list.none",
+    "drives.sticks.label",
+    "drives.sticks.desc",
+    "drives.shares.label",
+    "drives.shares.desc",
+    "drives.shares.none"
+  ],
   "drives.nothing": "Nothing plugged in",
-  "drives.removable.desc": "USB sticks, cards and external disks, with Eject",
-  "drives.removable.label": "Removable drives"
+  "drives.list.label": "Drives",
+  "drives.list.desc": "The PC's disks and discs, each with its space",
+  "drives.list.none": "No drive to show",
+  "drives.sticks.label": "USB sticks",
+  "drives.sticks.desc": "Every USB stick, card and external disk plugged in, with Eject",
+  "drives.shares.label": "Network drives",
+  "drives.shares.desc": "Every mapped network drive, with its space or why it cannot be reached",
+  "drives.shares.none": "No network drive"
 }

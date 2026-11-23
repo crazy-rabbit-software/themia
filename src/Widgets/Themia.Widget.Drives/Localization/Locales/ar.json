@@ -1,5 +1,3 @@
 {
-  "drives.nothing": "لا شيء موصول",
-  "drives.removable.desc": "ذواكر USB والبطاقات والأقراص الخارجية، مع الإخراج",
-  "drives.removable.label": "محركات الأقراص القابلة للإزالة"
+  "drives.nothing": "لا شيء موصول"
 }
