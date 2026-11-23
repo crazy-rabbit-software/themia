@@ -1,5 +1,11 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "bluetooth.list.label",
+    "bluetooth.device.label",
+    "bluetooth.device.desc",
+    "bluetooth.device.which",
+    "bluetooth.device.first"
+  ],
   "widget.bluetooth.label": "Bluetooth",
   "widgetsA.bluetooth.connected": "Connected",
   "widgetsA.bluetooth.connectedCount": {
@@ -27,5 +33,10 @@
   "widgetsA.bluetooth.status.radioOff": "Bluetooth is turned off",
   "widgetsA.bluetooth.unknownDevice": "Unknown device",
   "widgetsA.catalog.bluetooth.description": "Paired devices and their battery",
-  "widget.battery.label": "Battery"
+  "widget.battery.label": "Battery",
+  "bluetooth.list.label": "Bluetooth devices",
+  "bluetooth.device.label": "Bluetooth device",
+  "bluetooth.device.desc": "One paired Bluetooth device: its battery and whether it is connected",
+  "bluetooth.device.which": "Device",
+  "bluetooth.device.first": "The first connected"
 }

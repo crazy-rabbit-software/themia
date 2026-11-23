@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Widget.Bluetooth;
 using Xunit;
 
 namespace Themia.Widget.Bluetooth.Tests;
@@ -11,26 +12,45 @@ namespace Themia.Widget.Bluetooth.Tests;
 public class BluetoothLadderTests
 {
     [Fact]
-    public void S11310_the_rows_and_lines_are_the_configs_four_one_line_rows_for_a_new_list()
+    public void S11310_S16660_its_rows_of_device_items_are_its_natural_height_and_every_cell_between()
     {
-        Assert.Equal(new BluetoothRowPlan(1, 4), BluetoothLayout.Plan(new BluetoothConfig()));
-        Assert.Equal(new BluetoothRowPlan(2, 20), BluetoothLayout.Plan(new BluetoothConfig { Rows = 40, Lines = 2 }));
+        var kind = Themia.Sdk.ModuleCatalog.Of(new Themia.Sdk.WidgetId("bluetooth"));
+        var sizing = kind.Sizing(new BluetoothConfig());
+
+        Assert.Equal(3 * 90, sizing.Natural.Height);
+        Assert.Equal(20, KitClamp(40));
+        Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+
+        // [S-14500] One item at least, every cell taller too; [S-16661] the gap between two.
+        Assert.Equal(90, sizing.Min.Height);
+        Assert.Equal((2 * 90) + 10, kind.Sizing(new BluetoothConfig { Rows = 2, Gap = true }).Natural.Height);
+    }
+
+    private static int KitClamp(int rows)
+    {
+        var config = new BluetoothConfig { Rows = rows };
+        config.Repair();
+        return config.Rows;
     }
 
     [Fact]
-    public void S11310_S14500_its_rows_are_its_natural_height_220_to_520_wide_and_every_cell_between()
+    public void S16660_a_device_is_an_item_its_battery_the_reading_and_the_bar()
     {
-        var kind = Themia.Sdk.ModuleCatalog.Of(new Themia.Sdk.WidgetId("bluetooth"));
         var config = new BluetoothConfig();
-        var sizing = kind.Sizing(config);
+        var pen = BluetoothItems.Item(new BluetoothDeviceEntry("Slim Pen", "pen", true, BluetoothDeviceKind.Pen, 18), config.Shows, Locale.En);
+        Assert.Equal(("Slim Pen", "18", "Pen · Connected", Themia.Sdk.Kit.ColourRole.Critical), (pen.Name, pen.Reading!.Value.Value, pen.Line, pen.FillRole));
+        Assert.Equal(0.18, pen.Fill, 6);
 
-        Assert.Equal(4 * 30, sizing.Natural.Height);
-        Assert.Equal(4 * 40, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
-        Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+        var phone = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", false, BluetoothDeviceKind.Phone, null), config.Shows, Locale.En);
+        Assert.True(phone.Absent);
+        Assert.Equal(("Phone · Paired", 0.0, Themia.Sdk.Kit.ColourRole.TextSecondary), (phone.Line, phone.Fill, phone.Icon.Role));
 
-        // [S-14500] A row at least, every cell taller too: the rows the card holds stretch to fill it.
-        Assert.Equal(30, sizing.Min.Height);
-        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height);
+        var noBattery = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", true, BluetoothDeviceKind.Phone, 50), new BluetoothConfig { ShowBattery = false }.Shows, Locale.En);
+        Assert.Null(noBattery.Reading);
+
+        var off = BluetoothItems.Empty(BluetoothStatus.RadioOff, Locale.En);
+        Assert.True(off.Absent);
+        Assert.Equal(BluetoothRules.StatusMessage(BluetoothStatus.RadioOff, Locale.En), off.Line);
     }
 
     [Theory]

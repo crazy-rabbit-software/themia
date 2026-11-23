@@ -93,6 +93,21 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
 - **[S-2024]** A click on the card ([S-2000]) opens Windows' Bluetooth & devices page
   (`ms-settings:bluetooth`); the module decides it (`BluetoothModule.Opens`).
 
+- **[S-16660]** **On the device design** ([S-16630], owner, 2026-11-23): the list is every paired device as a device
+  item (`BluetoothItems`): the kind's glyph (primary connected, secondary paired), the name, the battery the reading with
+  its bar (Critical at or below 20 %; "--" for a device that reports none; no reading drawn with Battery off), the kind,
+  connection and signal its line. Its rows are device items (three by default; [S-1254]'s rows, the Lines choice and the
+  Device icon switch went with them: the icon is the item's). Every empty list keeps the face, one item: "--" and which
+  empty list it is ([S-244], WR-10). Read-only: its menu is Refresh. Tests `BluetoothLadderTests.S16660_`.
+- **[S-16661]** Its page after what an item shows: the device list's lines ([S-16636]): Shown (the checklist), Order, Gap
+  between items, Rows; the paired devices it lists are the host's last pass (`BluetoothList`, installed at start).
+- **[S-16662]** **Bluetooth device** (`bluetoothDevice`; owner, 2026-11-23: "there should be individual widgets for the
+  drive, bluetooth device, usb stick, network drive"): one paired device on the device family's face ([S-16637]): its glyph
+  and its battery over the bar, its kind, connection and signal as the line; the device named, else the first (a connected
+  one first); one paired no more keeps the face, "Not connected"; no radio, off or no access is the face with why. Its
+  page: the device (the first connected, or one by name), Battery, Connection, Signal strength. A click opens Bluetooth &
+  devices; Refresh on its card menu. The same family as the list (one module project, its kinds' data and rules shared).
+
 Not ported: Bluetooth's 1–30 s refresh choices (kept 5–300 s: enumeration and GATT reads take
 seconds); per-metric `visibleMetrics` ordering (fixed ladder order).
 - View links: a row is its device by its endpoint's address; the pointer on it publishes the device pointed at,

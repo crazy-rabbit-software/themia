@@ -26,12 +26,13 @@ public sealed class BluetoothMenuTests
         Assert.Equal(
             [
                 BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text(),
-                BluetoothStr.WidgetsA_Bluetooth_Settings_Icon_Label.Text(),
                 BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text(),
                 BluetoothStr.Widget_Battery_Label.Text(),
                 BluetoothStr.WidgetsA_Bluetooth_Settings_Signal_Label.Text(),
+                Str.Devices_Shown.Text(),
+                Str.Devices_Order.Text(),
+                Str.Devices_Gap.Text(),
                 Str.Kit_Rows.Text(),
-                Str.Kit_Lines.Text(),
             ],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
     }
