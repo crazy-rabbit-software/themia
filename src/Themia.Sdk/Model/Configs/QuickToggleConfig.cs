@@ -8,9 +8,11 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-3900] The closed set of quick settings a toggle widget switches. Never persisted: each toggle is
-/// its own widget kind, and <see cref="QuickToggleRules.ForKind"/> maps the kind to its toggle.
+/// [S-3900] [S-16700] The closed set of quick settings the quick setting widget switches: its config's
+/// <see cref="QuickToggleConfig.Target"/>, written by its camelCase name (<c>wifi</c>, <c>airplaneMode</c>); a name this
+/// build does not know reads as none and load validation repairs it to the first.
 /// </summary>
+[JsonConverter(typeof(StyleJsonConverter<QuickToggle>))]
 public enum QuickToggle
 {
     Wifi = 0,
@@ -29,7 +31,7 @@ public enum QuickToggle
 }
 
 /// <summary>
-/// [S-3916] The looks every quick-setting toggle shares: one enum for all thirteen kinds. The first
+/// [S-3916] The looks every quick setting shares: one enum for all thirteen targets. The first
 /// is the default; an unknown stored name is repaired to it ([S-6004]).
 /// </summary>
 [JsonConverter(typeof(StyleJsonConverter<QuickToggleStyle>))]
@@ -46,11 +48,11 @@ public enum QuickToggleStyle
 }
 
 /// <summary>
-/// [S-3900] A quick-setting toggle widget: the whole tile is one switch. Nothing to configure beyond
-/// the card's own settings and its look, so the config carries which toggle its kind stands for and
-/// the style every toggle shares ([S-3916]).
+/// [S-3900] [S-16700] The quick setting widget (owner, 2026-11-23: "you should be able to select what they toggle, this
+/// means that they should actually be merged into one widget and not be multiple ones"): the whole tile is one switch, of
+/// the setting it targets (<see cref="Target"/>, its "Toggles" line), drawn in the style every target shares ([S-3916]).
 /// </summary>
-public abstract class QuickToggleConfig : WidgetConfig, IStyled
+public sealed class QuickToggleConfig : WidgetConfig, IStyled
 {
     /// <summary>[S-11307] The look as the Tile block draws it.</summary>
     [JsonIgnore]
@@ -61,15 +63,6 @@ public abstract class QuickToggleConfig : WidgetConfig, IStyled
         _ => TileLook.Tile,
     };
 
-    /// <summary>[S-11307] The shared settings onto a kind's new copy (its <c>Clone</c>).</summary>
-    protected T CopyTo<T>(T copy)
-        where T : QuickToggleConfig
-    {
-        ArgumentNullException.ThrowIfNull(copy);
-        copy.Style = Style;
-        return copy;
-    }
-
     private static readonly StyleOption[] ToggleStyles =
     [
         StyleOption.Of(QuickToggleStyle.Tile, Str.Styles_Toggles_Tile.Local(), 0xECA5),
@@ -77,11 +70,10 @@ public abstract class QuickToggleConfig : WidgetConfig, IStyled
         StyleOption.Of(QuickToggleStyle.Switch, Str.Styles_Toggles_Switch.Local(), 0xEC11),
     ];
 
-    /// <summary>The toggle this widget switches: each kind states its own.</summary>
-    [JsonIgnore]
-    public abstract QuickToggle Toggle { get; }
+    /// <summary>[S-16700] The setting this widget switches: its Toggles line; Wi-Fi at first.</summary>
+    public QuickToggle Target { get; set; } = QuickToggle.Wifi;
 
-    /// <summary>[S-3916] How the toggle is drawn; copied by every kind's <c>Clone</c>.</summary>
+    /// <summary>[S-3916] How the toggle is drawn; copied by <see cref="Clone"/>.</summary>
     public QuickToggleStyle Style { get; set; } = QuickToggleStyle.Tile;
 
     IReadOnlyList<StyleOption> IStyled.Styles => ToggleStyles;
@@ -90,5 +82,19 @@ public abstract class QuickToggleConfig : WidgetConfig, IStyled
     {
         get => (int)Style;
         set => Style = (QuickToggleStyle)value;
+    }
+
+    public override WidgetConfig Clone() => new QuickToggleConfig { Target = Target, Style = Style };
+
+    /// <summary>[S-16700] A target this build does not know (a hand edit) is the first, said.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        if (Enum.IsDefined(Target))
+        {
+            return [];
+        }
+
+        Target = QuickToggle.Wifi;
+        return ["its target was not a quick setting of this build; it is Wi-Fi"];
     }
 }

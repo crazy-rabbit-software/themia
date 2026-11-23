@@ -216,8 +216,8 @@ public sealed class NoticesBootTests : IDisposable
             [
                 new WidgetId("clock"), new WidgetId("weatherNow"),
                 new WidgetId("cpu"), new WidgetId("memory"), new WidgetId("gpu"), new WidgetId("network"),
-                new WidgetId("doNotDisturbToggle"), new WidgetId("colorFiltersToggle"), new WidgetId("nightLightToggle"),
-                new WidgetId("airplaneModeToggle"), new WidgetId("bluetoothToggle"), new WidgetId("wifiToggle"),
+                new WidgetId("quickToggle"), new WidgetId("quickToggle"), new WidgetId("quickToggle"),
+                new WidgetId("quickToggle"), new WidgetId("quickToggle"), new WidgetId("quickToggle"),
             ],
             widgets.Select(w => w.Kind));
 
@@ -356,7 +356,7 @@ public sealed class NoticesBootTests : IDisposable
     {
         // Ids and fragments only: the seed names no config type, so a widget can move out of Core.
         var seeds = FirstRunDesktop.Home.Concat(FirstRunDesktop.Work).ToList();
-        Assert.All(seeds, s => Assert.True(ModuleCatalog.TryGet(new WidgetId(s.Id), out _), s.Id));
+        Assert.All(seeds, s => Assert.True(WidgetPick.TryParse(s.Id, out _), s.Id));
 
         Assert.Null(FirstRunDesktop.Build(new FirstRunDesktop.Seed("notInThisBuild", new FracRect(0, 0, 0.1, 0.1))));
         var view = FirstRunDesktop.View("v", [new("notInThisBuild", new FracRect(0, 0, 0.1, 0.1)), new("clock", new FracRect(0, 0, 0.1, 0.1))]);

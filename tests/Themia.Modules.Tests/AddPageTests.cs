@@ -165,9 +165,11 @@ public sealed class AddPageTests
         var page = Page;
         var tiles = AllTiles(page, withStart: false).ToList();
 
-        var kinds = tiles.OfType<AddWidgetTile>().Select(t => t.Kind).ToList();
-        Assert.Equal(Every.Order(), kinds.Order());
-        Assert.Equal(Every.Order(), page.Homes.Select(h => h.Kind).Order());
+        // [S-16681] Each kind, or each of its presets, once.
+        string[] every = [.. ModuleCatalog.Picks.Select(p => p.Key).Order(StringComparer.Ordinal)];
+        var kinds = tiles.OfType<AddWidgetTile>().Select(t => t.Pick.Key).ToList();
+        Assert.Equal(every, kinds.Order(StringComparer.Ordinal));
+        Assert.Equal(every, page.Homes.Select(h => h.Pick.Key).Order(StringComparer.Ordinal));
 
         var groups = tiles.OfType<AddGroupTile>().Select(t => t.Group.Id).ToList();
         Assert.Equal(ReadyMadeGroups.Offered().Select(g => g.Id).Order(), groups.Order());
@@ -293,9 +295,10 @@ public sealed class AddPageTests
         var page = Page;
         foreach (var home in page.Homes)
         {
-            var name = ModuleCatalog.Of(home.Kind).Label.Text(Locale.En);
+            // [S-16686] A preset by its own name.
+            var name = home.Pick.Label.Text(Locale.En);
             var found = page.Find(name).SelectMany(s => s.Tiles).ToList();
-            Assert.True(found.Contains(new AddWidgetTile(home.Kind)), $"searching \"{name}\" does not find {home.Kind}");
+            Assert.True(found.Contains(new AddWidgetTile(home.Pick)), $"searching \"{name}\" does not find {home.Pick}");
         }
 
         foreach (var group in page.Groups)

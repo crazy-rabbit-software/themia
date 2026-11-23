@@ -1625,7 +1625,7 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
 Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([S-6912]).
 
 - **[S-6900]** A module id (widget, provider, feature, cadence) is camelCase: a lowercase ASCII
-  letter, then ASCII letters and digits, at most 64 characters (`weatherNow`, `airplaneModeToggle`).
+  letter, then ASCII letters and digits, at most 64 characters (`weatherNow`, `quickToggle`).
   A widget's id is its config's discriminator in `state.json`, so the files keep the shape they had
   before ids. An id is checked wherever one is made or read; a malformed one in a document is a
   corrupt value, never a new widget.
@@ -9148,7 +9148,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   the glyph, which is the 28 while it fits and else the 16; under the 16's room (24) the glyph is two thirds of the
   box and the inset the rest (`TileFace.Mark`, `.Inset`), so every box from the floor draws its glyph whole, growing
   with the box; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`; render
-  `--render widget nightLightToggle --sizes 10x10,16x16,24x24,40x40`.
+  `--render widget quickToggle --config {"target":"nightLight"} --sizes 10x10,16x16,24x24,40x40`.
 - **[S-12807]** **A list's rows touch and fill the content** *(amended 2026-11-20 by [S-14810]: the rows touch at their
   one size from the card's top edge and the last is cut by its foot; they no longer grow to meet it)* (owner, 2026-11-19: "the forecast widget still has
   space on the top and bottom of its items this should not be, the items should reach the top and bottom"; "the
@@ -9703,7 +9703,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   descender for one without, the arm ring shown, "--" for "Off") is placed again (`ReadingFit` re-arranges when its face's
   ink moved). Arming draws the ring round the glyph and the face takes it in, centred again. The clock's and the date's
   faces are centred on their measured ink the same way where their width stops them ([S-12804], [S-12808]). Tests
-  `InkCentringTests.S14201_`; renders `--render widget wifiToggle|lock|shutdown --state on|hover|armed --sizes range` and
+  `InkCentringTests.S14201_`; renders `--render widget quickToggle|lock|shutdown --state on|hover|armed --sizes range` and
   `--sizes 600x200,520x600,900x300`, `scripts/gap-check.py --kinds` the twenty tiles, clock and date.
 - **[S-14202]** **A toggle not known yet says "--"** (docs/WIDGET-RULES.md WR-10: the face keeps "its reading as
   '--'"): while Windows has not answered, the tile's state line shows the default (`QuickToggleRules.StateLine`,
@@ -11588,25 +11588,23 @@ account).
 ## Quick-setting toggles (QUICK-TOGGLES)
 
 The toggle widgets of Karpo's Quick settings (`karpo-app`, docs\widgets.md §117: the ones a click
-flips where they stand), each its own widget. SDK: `QuickToggleRules`, `ToggleGate`
+flips where they stand), each its own card. SDK: `QuickToggleRules` (each target's row, `QuickToggleTarget`), `ToggleGate`
 (`Themia.Sdk`), `QuickToggleView` (on the family's `TileBlock`) and `IQuickToggles` (`Themia.Sdk.WinUI`); Core:
 `ToggleFollowing` (`ReadingOrder`, `KeyFollow`), `NightLightValue`; App: `Services/Toggles/*` (one
 source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 
-- **[S-3900]** Thirteen kinds, one per toggle, in the add menu's subject **Quick settings** ([S-3511]), default size 120×120: Wi-Fi (`WifiToggle`), Bluetooth (`BluetoothToggle`), Airplane mode,
-  Energy saver, Night light, Rotation lock, Do not disturb, Sound (the default output's mute),
-  Microphone (the default microphone's mute), Spatial sound, Mono audio, Color filters, Game mode.
-  The kind maps to its `QuickToggle` in the SDK (`QuickToggleRules.ForKind`/`KindOf`, read off the
-  catalogue); one view serves all thirteen. They are one family project
-  (`src/Widgets/Themia.Widget.QuickToggles`, [S-6901]: a kind each, the kinds as data, tags [S-8200]..[S-9400] in its
-  `SPEC.md`), each kind with a config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
-  one setting is the style ([S-3916]), picked on the properties panel ([S-6536]), so its menu has no lines of its own; it
-  never needs setting up. The picker names it "<name> on/off" (the module's own label and
-  description; the name on the tile is the SDK's, which the shared view reads) so it never
-  reads as another widget ("Bluetooth on/off" beside the Bluetooth devices widget); the tile says the
-  name alone. Not ported from Karpo: its row of several toggles in one widget, mobile hotspot, VPN and
-  nearby sharing (Karpo keeps those out of its toggles: they open lists or flyouts), live captions,
-  accessibility and project (Windows tells no app whether they are on).
+- **[S-3900]** Thirteen quick settings, one card each, in the add menu's subject **Quick settings** ([S-3511]), default
+  size 116×116: Wi-Fi, Bluetooth, Airplane mode, Energy saver, Night light, Rotation lock, Do not disturb, Sound (the default
+  output's mute), Microphone (the default microphone's mute), Spatial sound, Mono audio, Color filters, Game mode. *(Amended
+  2026-11-23 by [S-16700]: they are one kind, `quickToggle`, whose config's `Target` is the setting, offered as thirteen
+  widgets, a preset each, [S-16703]; until then a kind each, `WifiToggle` …, mapped by `QuickToggleRules.ForKind`/`KindOf`.)*
+  One view serves every target. The module project is `src/Widgets/Themia.Widget.QuickToggle` (its tags [S-16700]..[S-16704]
+  in its `SPEC.md`); the config (`QuickToggleConfig`) holds the target and the style ([S-3916]), picked on the selection's
+  page ([S-6536]), and it never needs setting up. The picker names each target "<name> on/off" (the module's own label and
+  description; the name on the tile is the SDK's, which the shared view reads) so it never reads as another widget
+  ("Bluetooth on/off" beside the Bluetooth devices widget); the tile says the name alone. Not ported from Karpo: its row of
+  several toggles in one widget, mobile hotspot, VPN and nearby sharing (Karpo keeps those out of its toggles: they open
+  lists or flyouts), live captions, accessibility and project (Windows tells no app whether they are on).
 - **[S-3901]** A toggle never has a header ([S-700], [S-3711]): the whole tile is the switch, its name
   under the icon. Its properties strip has no Header choice, and a header in the file is taken off on
   load.
@@ -11800,8 +11798,8 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   for at its parent, the parent armed first and the key looked for after it, and on a parent's
   signal the parent asked again before the key is looked for (`KeyFollow`), so a key coming back in
   between is never lost behind a parent that will not signal again.
-- **[S-3916]** Styles ([S-6000]): one `QuickToggleStyle` on the base `QuickToggleConfig`, shared by
-  all thirteen kinds (never an enum per kind): **Tile** (the default, [S-3904]..[S-3906]), **Round
+- **[S-3916]** Styles ([S-6000]): one `QuickToggleStyle` on `QuickToggleConfig`, shared by
+  all thirteen targets (never an enum per target): **Tile** (the default, [S-3904]..[S-3906]), **Round
   button** (`round`, [S-3917]) and **Switch** ([S-3918]), the Tile block's three looks. Every style is
   drawn over the same whole-tile hit target, so the click gate ([S-3905]), Space/Enter under the
   lease, edit mode, the tooltip and "never a header" ([S-3901]) are the same in each; only the

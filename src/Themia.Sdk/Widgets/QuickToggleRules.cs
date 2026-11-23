@@ -1,3 +1,4 @@
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk;
@@ -72,64 +73,53 @@ public enum ToggleLook
 }
 
 /// <summary>
-/// The quick-setting toggles' rules: which kind is which toggle, their names, the decoders of what
-/// Windows answers (kept here so they are tested without a radio), and how a state and a reason read.
+/// [S-16701] One quick setting's own facts, the SDK's row of the per-target table (the module's row adds its add-page words
+/// and place): which setting, its name on the tile, its glyph (on, and off where Windows strikes it through, [S-3902]) and
+/// the reason it is most often unavailable for (what a preview shows, a true sentence).
+/// </summary>
+public sealed record QuickToggleTarget(QuickToggle Toggle, Str Name, string Glyph, string OffGlyph, ToggleBlock Unavailable);
+
+/// <summary>
+/// The quick-setting toggles' rules: each target's facts, the decoders of what Windows answers (kept here so they are
+/// tested without a radio), and how a state and a reason read.
 /// </summary>
 public static class QuickToggleRules
 {
-    /// <summary>[S-3900] Every toggle, in the order the picker lists their widgets (Karpo's Quick settings order).</summary>
-    public static IReadOnlyList<QuickToggle> All { get; } =
+    /// <summary>[S-16701] Every target's facts, one row each, in Karpo's Quick settings order.</summary>
+    public static IReadOnlyList<QuickToggleTarget> Targets { get; } =
     [
-        QuickToggle.Wifi,
-        QuickToggle.Bluetooth,
-        QuickToggle.AirplaneMode,
-        QuickToggle.EnergySaver,
-        QuickToggle.NightLight,
-        QuickToggle.RotationLock,
-        QuickToggle.DoNotDisturb,
-        QuickToggle.Sound,
-        QuickToggle.Microphone,
-        QuickToggle.SpatialSound,
-        QuickToggle.MonoAudio,
-        QuickToggle.ColorFilters,
-        QuickToggle.GameMode,
+        new(QuickToggle.Wifi, Str.Toggles_Wifi_Name, Glyphs.Wifi, Glyphs.Wifi, ToggleBlock.NoHardware),
+        new(QuickToggle.Bluetooth, Str.Toggles_Bluetooth_Name, Glyphs.Bluetooth, Glyphs.Bluetooth, ToggleBlock.NoHardware),
+        new(QuickToggle.AirplaneMode, Str.Toggles_AirplaneMode_Name, Glyphs.Airplane, Glyphs.Airplane, ToggleBlock.NoSwitch),
+        new(QuickToggle.EnergySaver, Str.Toggles_EnergySaver_Name, Glyphs.EnergySaver, Glyphs.EnergySaver, ToggleBlock.NotOnWindows),
+        new(QuickToggle.NightLight, Str.Toggles_NightLight_Name, Glyphs.NightLight, Glyphs.NightLight, ToggleBlock.NoSwitch),
+        new(QuickToggle.RotationLock, Str.Toggles_RotationLock_Name, Glyphs.RotationLock, Glyphs.RotationLock, ToggleBlock.NoHardware),
+        new(QuickToggle.DoNotDisturb, Str.Toggles_DoNotDisturb_Name, Glyphs.QuietHours, Glyphs.QuietHours, ToggleBlock.NoSwitch),
+        new(QuickToggle.Sound, Str.Toggles_Sound_Name, Glyphs.Volume3, Glyphs.Mute, ToggleBlock.NoDevice),
+        new(QuickToggle.Microphone, Str.Toggles_Microphone_Name, Glyphs.Microphone, Glyphs.MicrophoneOff, ToggleBlock.NoDevice),
+        new(QuickToggle.SpatialSound, Str.Toggles_SpatialSound_Name, Glyphs.SpatialSound, Glyphs.SpatialSound, ToggleBlock.NotSupported),
+        new(QuickToggle.MonoAudio, Str.Toggles_MonoAudio_Name, Glyphs.MonoAudio, Glyphs.MonoAudio, ToggleBlock.NoSwitch),
+        new(QuickToggle.ColorFilters, Str.Toggles_ColorFilters_Name, Glyphs.ColorFilters, Glyphs.ColorFilters, ToggleBlock.NoSwitch),
+        new(QuickToggle.GameMode, Str.Toggles_GameMode_Name, Glyphs.GameMode, Glyphs.GameMode, ToggleBlock.NoSwitch),
     ];
 
-    /// <summary>[S-3900] The toggle a kind stands for, or null for a kind that is not one: its config's own ([S-6906]).</summary>
-    public static QuickToggle? ForKind(WidgetId kind) => ByKind.Value.TryGetValue(kind, out var value) ? value : null;
+    /// <summary>[S-3900] Every toggle, in Karpo's Quick settings order (declared after <see cref="Targets"/>, which it reads).</summary>
+    public static IReadOnlyList<QuickToggle> All { get; } = [.. Targets.Select(t => t.Toggle)];
 
-    /// <summary>
-    /// Every installed widget whose config is a <see cref="QuickToggleConfig"/>, read once from the catalogue:
-    /// the kinds are the widgets', no table here names one.
-    /// </summary>
-    private static readonly Lazy<Dictionary<WidgetId, QuickToggle>> ByKind = new(() => ModuleCatalog.Widgets
-        .Select(w => (w.Id, Config: w.CreateDefault() as QuickToggleConfig))
-        .Where(p => p.Config is not null)
-        .ToDictionary(p => p.Id, p => p.Config!.Toggle));
+    /// <summary>[S-16701] The facts of <paramref name="toggle"/>; a value outside the set is Wi-Fi's (a config is repaired on load).</summary>
+    public static QuickToggleTarget Target(QuickToggle toggle) => Targets.FirstOrDefault(t => t.Toggle == toggle) ?? Targets[0];
 
-    private static readonly Lazy<Dictionary<QuickToggle, WidgetId>> ByValue = new(() => ByKind.Value.ToDictionary(p => p.Value, p => p.Key));
+    /// <summary>[S-16700] A target's key: its camelCase name, as its config writes it and its preset is keyed (<c>airplaneMode</c>).</summary>
+    public static string Key(QuickToggle toggle) => WidgetStyles.WireName(toggle);
 
-    /// <summary>[S-3900] The widget kind of a toggle: the inverse of <see cref="ForKind"/>.</summary>
-    public static WidgetId KindOf(QuickToggle value)
-        => ByValue.Value.TryGetValue(value, out var kind) ? kind : throw new ArgumentOutOfRangeException(nameof(value), value, "no installed widget stands for it");
+    /// <summary>[S-16700] The target of <paramref name="key"/>; null for one this build does not know.</summary>
+    public static QuickToggle? OfKey(string? key) => All.Cast<QuickToggle?>().FirstOrDefault(t => string.Equals(Key(t!.Value), key, StringComparison.Ordinal));
+
+    /// <summary>[S-3902] The icon of a toggle; sound and microphone are struck through while muted (<paramref name="on"/> false).</summary>
+    public static string Glyph(QuickToggle toggle, bool on = true) => on ? Target(toggle).Glyph : Target(toggle).OffGlyph;
 
     /// <summary>[S-3901] The name under the icon: the thing, never "on/off" ("Microphone").</summary>
-    public static Str NameId(QuickToggle toggle) => toggle switch
-    {
-        QuickToggle.Wifi => Str.Toggles_Wifi_Name,
-        QuickToggle.Bluetooth => Str.Toggles_Bluetooth_Name,
-        QuickToggle.AirplaneMode => Str.Toggles_AirplaneMode_Name,
-        QuickToggle.EnergySaver => Str.Toggles_EnergySaver_Name,
-        QuickToggle.NightLight => Str.Toggles_NightLight_Name,
-        QuickToggle.RotationLock => Str.Toggles_RotationLock_Name,
-        QuickToggle.DoNotDisturb => Str.Toggles_DoNotDisturb_Name,
-        QuickToggle.Sound => Str.Toggles_Sound_Name,
-        QuickToggle.Microphone => Str.Toggles_Microphone_Name,
-        QuickToggle.SpatialSound => Str.Toggles_SpatialSound_Name,
-        QuickToggle.MonoAudio => Str.Toggles_MonoAudio_Name,
-        QuickToggle.ColorFilters => Str.Toggles_ColorFilters_Name,
-        _ => Str.Toggles_GameMode_Name,
-    };
+    public static Str NameId(QuickToggle toggle) => Target(toggle).Name;
 
     public static string Name(QuickToggle toggle) => NameId(toggle).Text();
 

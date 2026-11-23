@@ -43,8 +43,9 @@ public sealed class ReadyMadeGroupsTests
     {
         foreach (var part in Of(id).Widgets)
         {
-            Assert.True(WidgetId.TryParse(part.Kind, out var kind), $"{id}: '{part.Kind}' is not a widget id");
-            Assert.True(ModuleCatalog.TryGet(kind, out var descriptor), $"{id}: '{part.Kind}' is not installed");
+            // [S-16682] A kind, or a preset of an installed kind.
+            Assert.True(WidgetPick.TryParse(part.Kind, out var kind), $"{id}: '{part.Kind}' is not an installed widget or preset");
+            var descriptor = kind.Descriptor;
 
             if (part.Fragment is { } fragment)
             {
@@ -55,7 +56,7 @@ public sealed class ReadyMadeGroupsTests
                     Assert.True(known.Contains(property.Name), $"{id}: {part.Kind} has no config property '{property.Name}'");
                 }
 
-                Assert.NotNull(StateJson.Merged(WidgetConfig.CreateDefault(kind), fragment));
+                Assert.NotNull(StateJson.Merged(kind.CreateConfig(), fragment));
             }
         }
     }
@@ -153,8 +154,7 @@ public sealed class ReadyMadeGroupsTests
     {
         foreach (var part in Of(id).Widgets)
         {
-            var kind = new WidgetId(part.Kind);
-            var config = WidgetConfig.CreateDefault(kind);
+            var config = part.Pick!.Value.CreateConfig();
             if (part.Fragment is { } fragment)
             {
                 config = StateJson.Merged(config, fragment)!;

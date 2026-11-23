@@ -12,33 +12,29 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class ToggleStylesTests
 {
-    private static IEnumerable<WidgetId> ToggleKinds => QuickToggleRules.All.Select(QuickToggleRules.KindOf);
-
     private static IEnumerable<WidgetId> PowerKinds => Enum.GetValues<PowerAction>().Select(PowerActionRules.KindOf);
 
     // ---- one style per family ------------------------------------------------------------------
 
     [Fact]
-    public void S3916_all_thirteen_toggles_share_one_list_of_styles_tile_first()
+    public void S3916_all_thirteen_targets_share_one_list_of_styles_tile_first()
     {
-        var first = WidgetStyles.For(new WidgetId("wifiToggle"));
+        var first = WidgetStyles.For(new WidgetId("quickToggle"));
         Assert.Equal(["tile", "round", "switch"], first.Select(s => s.Name));
 
-        foreach (var kind in ToggleKinds)
+        foreach (var target in QuickToggleRules.All)
         {
-            Assert.Same(first, WidgetStyles.For(kind));
-            var config = Assert.IsAssignableFrom<QuickToggleConfig>(WidgetConfig.CreateDefault(kind));
+            var config = new QuickToggleConfig { Target = target };
+            Assert.Same(first, ((IStyled)config).Styles);
             Assert.Equal(QuickToggleStyle.Tile, config.Style);
         }
-
-        Assert.Equal(13, ToggleKinds.Count());
     }
 
     [Fact]
     public void S1919_all_seven_power_widgets_share_tile_and_round_named_as_the_toggles_are()
     {
         var power = WidgetStyles.For(new WidgetId("shutdown"));
-        var toggles = WidgetStyles.For(new WidgetId("wifiToggle"));
+        var toggles = WidgetStyles.For(new WidgetId("quickToggle"));
         Assert.Equal(["tile", "round"], power.Select(s => s.Name));
 
         // The same look is the same name, label and icon in both families.
@@ -55,7 +51,7 @@ public sealed class ToggleStylesTests
     [Fact]
     public void S3916_a_stored_toggle_style_reads_back_and_a_power_widget_refuses_switch()
     {
-        var toggle = (WifiToggleConfig)ConfigJson.Read("WifiToggle", """{"kind":"wifiToggle","style":"switch"}""");
+        var toggle = (QuickToggleConfig)ConfigJson.Read("QuickToggle", """{"kind":"quickToggle","target":"bluetooth","style":"switch"}""");
         Assert.Equal(QuickToggleStyle.Switch, toggle.Style);
         Assert.Equal(QuickToggleStyle.Switch, ((QuickToggleConfig)toggle.Clone()).Style);
 

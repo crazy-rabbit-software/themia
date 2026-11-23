@@ -541,9 +541,9 @@ def self_test():
         ('a centred name cut on its second line', card(200, 200, 12, 12, 36.7, 36.0, cuts=[{'x': 30, 'y': 120, 'w': 140, 'h': 60}]), ['hibernate'], False),
         ('an editor short of the foot', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 400}]), [], True),
         # [S-14305] A tile and a one-line face: centred down, their sides judged as any card's.
-        ('a tile centred both ways', card(100, 100, 30, 30, 30, 30), ['wifiToggle'], True),
-        ('a tile whose face fills its width', card(160, 100, 30, 31, 12, 12), ['wifiToggle'], False),
-        ('a tile whose face fills its height, centred', card(116, 116, 12, 12, 34.7, 36.7), ['wifiToggle'], False),
+        ('a tile centred both ways', card(100, 100, 30, 30, 30, 30), ['quickToggle'], True),
+        ('a tile whose face fills its width', card(160, 100, 30, 31, 12, 12), ['quickToggle'], False),
+        ('a tile whose face fills its height, centred', card(116, 116, 12, 12, 34.7, 36.7), ['quickToggle'], False),
         ('a tile whose face fills its height, off centre', card(232, 232, 12, 12.7, 60.7, 50), ['sleep'], True),
         ('a clock line the width stops', card(600, 200, 50, 51, 12, 13), ['clock'], False),
         ('a clock line the height stops, centred', card(900, 160, 12, 12, 200, 201, align='center'), ['clock'], False),

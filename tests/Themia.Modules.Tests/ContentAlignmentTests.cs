@@ -64,7 +64,7 @@ public sealed partial class ContentAlignmentTests
             new WidgetId("text")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
-        foreach (var kind in (WidgetId[])[new WidgetId("tasks"), new WidgetId("email"), new WidgetId("calendar"), new WidgetId("cpu"), new WidgetId("mixer"), new WidgetId("wifiToggle"), new WidgetId("shutdown"), new WidgetId("folder")])
+        foreach (var kind in (WidgetId[])[new WidgetId("tasks"), new WidgetId("email"), new WidgetId("calendar"), new WidgetId("cpu"), new WidgetId("mixer"), new WidgetId("quickToggle"), new WidgetId("shutdown"), new WidgetId("folder")])
         {
             Assert.False(ContentAlignment.Offers(kind), $"{kind}");
             Assert.False(ContentAlignment.Applies(Widget(kind)), $"{kind}");

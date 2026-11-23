@@ -476,8 +476,7 @@ public sealed partial class ModuleConformanceTests
         string[] expected =
         [
             "clock", "date", "alarm", "countdown", "stopwatch", "pomodoro", "focusSession",
-            "airplaneModeToggle", "bluetoothToggle", "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "gameModeToggle",
-            "microphoneToggle", "monoAudioToggle", "nightLightToggle", "rotationLockToggle", "soundToggle", "spatialSoundToggle", "wifiToggle",
+            "quickToggle",
             "hibernate", "lock", "restart", "screenOff", "shutdown", "signOut", "sleep",
             // [S-14930] [S-15003] [S-10101] The text kind's one face (own text) and the icon kind's (the Icon widget).
             "icon", "text",

@@ -671,10 +671,10 @@
           "readyMade": "quickSettings",
           "id": "quickSettings",
           "states": {
-            "wifiToggle": "on",
-            "bluetoothToggle": "on",
-            "doNotDisturbToggle": "off",
-            "nightLightToggle": "off"
+            "quickToggle/wifi": "on",
+            "quickToggle/bluetooth": "on",
+            "quickToggle/doNotDisturb": "off",
+            "quickToggle/nightLight": "off"
           },
           "at": [
             348,
@@ -1141,14 +1141,17 @@
         },
         {
           "id": "dnd",
-          "kind": "doNotDisturbToggle",
+          "kind": "quickToggle",
           "at": [
             1384,
             288,
             128,
             128
           ],
-          "state": "on"
+          "state": "on",
+          "config": {
+            "target": "doNotDisturb"
+          }
         }
       ]
     },

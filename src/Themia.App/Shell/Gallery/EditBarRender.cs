@@ -373,7 +373,7 @@ internal static partial class EditBarRender
             new(new WidgetId("clock"), 120, 580, 200, 140, true),
         ];
         PropsCard[] two = [new(new WidgetId("clock"), 120, 160, 220, 160, true), new(new WidgetId("clock"), 120, 360, 220, 160, true)];
-        PropsCard[] toggle = [new(new WidgetId("wifiToggle"), 200, 260, 120, 120, true)];
+        PropsCard[] toggle = [new(new WidgetId("quickToggle"), 200, 260, 120, 120, true)];
         PropsCard[] weather = [new(new WidgetId("weatherNow"), 140, 160, 300, 200, true)];
         PropsCard[] icon = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, true)];
 
@@ -771,8 +771,8 @@ internal static partial class EditBarRender
         [
             new(new WidgetId("clock"), 120, 120, 280, 180, true),
             new(new WidgetId("countdown"), 460, 140, 240, 160, false),
-            new(new WidgetId("wifiToggle"), 760, 160, 64, 64, true),
-            new(new WidgetId("wifiToggle"), 860, 160, 64, 64, false),
+            new(new WidgetId("quickToggle"), 760, 160, 64, 64, true),
+            new(new WidgetId("quickToggle"), 860, 160, 64, 64, false),
         ];
         PropsCard[] multi =
         [
@@ -792,7 +792,7 @@ internal static partial class EditBarRender
             new(new WidgetId("countdown"), 360, 100, 240, 150, false),
             new(new WidgetId("countdown"), 120, 250, 240, 150, false),
             new(new WidgetId("clock"), 360, 250, 240, 150, false), // [S-14310] one selected: two would be framed, no accent marks of their own
-            new(new WidgetId("wifiToggle"), 600, 100, 120, 120, false),
+            new(new WidgetId("quickToggle"), 600, 100, 120, 120, false),
         ];
         await MarkerShot(screen, ticker, neighbours, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-neighbours.png")).ConfigureAwait(true);
         await BlockShots(screen, ticker, outDir, theme).ConfigureAwait(true);
@@ -821,7 +821,7 @@ internal static partial class EditBarRender
             new(kinds[1], X + natural[0].W, Y, wide - natural[0].W, top, true),
             new(kinds[2], X, Y + top, wide, natural[2].H, true),
         ];
-        var aside = new PropsCard(new WidgetId("wifiToggle"), X + wide + 260, Y, 120, 120, false);
+        var aside = new PropsCard(new WidgetId("quickToggle"), X + wide + 260, Y, 120, 120, false);
 
         var rects = block.Select(s => new FracRect(s.X / stand.Width, s.Y / stand.Height, s.W / stand.Width, s.H / stand.Height)).ToArray();
         var limits = kinds.Select(k => SizeFit.Limits(SizeFit.Of(k), stand, 1.0)).ToArray();

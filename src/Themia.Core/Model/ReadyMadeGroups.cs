@@ -331,10 +331,10 @@ public static class ReadyMadeGroups
     /// <summary>[S-11342] Quick settings: Wi-Fi, Bluetooth, Do not disturb and Night light in a row.</summary>
     public static ReadyMadeGroup QuickSettings { get; } = Headed(new("quickSettings", Str.Groups_Recipe_QuickSettings, Str.Groups_Recipe_QuickSettingsAbout, Glyphs.Settings, AddFolderId.QuickSettings,
     [
-        new("wifiToggle", new(0, 0, 116, 116)),
-        new("bluetoothToggle", new(116, 0, 116, 116)),
-        new("doNotDisturbToggle", new(232, 0, 116, 116)),
-        new("nightLightToggle", new(348, 0, 116, 116)),
+        new("quickToggle/wifi", new(0, 0, 116, 116)),
+        new("quickToggle/bluetooth", new(116, 0, 116, 116)),
+        new("quickToggle/doNotDisturb", new(232, 0, 116, 116)),
+        new("quickToggle/nightLight", new(348, 0, 116, 116)),
     ]));
 
     /// <summary>[S-11343] Power: Lock, Sleep, Restart and Shut down in a row.</summary>

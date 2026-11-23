@@ -187,7 +187,7 @@ internal static class DragRender
 
         var target = BlockGeometry.Bounds([.. moving.Select(c => c.LiveRect)]);
         var standing = new List<WidgetCard>();
-        foreach (var (kind, at) in new[] { ("countdown", new FracRect(0.17, 0.33, 0.25, 0.24)), ("wifiToggle", new FracRect(0.5, 0.66, 0.13, 0.22)), ("clock", new FracRect(0.76, 0.02, 0.22, 0.2)) })
+        foreach (var (kind, at) in new[] { ("countdown", new FracRect(0.17, 0.33, 0.25, 0.24)), ("quickToggle", new FracRect(0.5, 0.66, 0.13, 0.22)), ("clock", new FracRect(0.76, 0.02, 0.22, 0.2)) })
         {
             var rect = GridGeometry.Settle(at, metrics);
             var card = new WidgetCard(host, WidgetInstance.Create(new WidgetId(kind), rect));

@@ -286,7 +286,7 @@ internal static partial class UiBench
     private static AppState Document(int bytes)
     {
         var state = new AppState();
-        string[] kinds = ["clock", "date", "battery", "cpu", "memory", "gpu", "wifiToggle", "countdown", "stopwatch", "moon", "pomodoro", "header", "desktopItem"];
+        string[] kinds = ["clock", "date", "battery", "cpu", "memory", "gpu", "quickToggle", "countdown", "stopwatch", "moon", "pomodoro", "header", "desktopItem"];
         while (JsonSerializer.Serialize(state, StateJson.AppState).Length < bytes)
         {
             var view = ViewState.Create($"View {state.Views.Count + 1}");

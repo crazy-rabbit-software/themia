@@ -36,9 +36,10 @@ public sealed class AddMenuTests
     [Fact]
     public void S3511_every_kind_has_exactly_one_home_in_the_tree()
     {
-        var homes = AddTree.Top.SelectMany(Descend).OfType<AddLeaf>().Where(leaf => !leaf.Again).Select(leaf => leaf.Kind).ToList();
+        // [S-16681] What is at home: each kind, or each of its presets.
+        var homes = AddTree.Top.SelectMany(Descend).OfType<AddLeaf>().Where(leaf => !leaf.Again).Select(leaf => leaf.Pick).ToList();
 
-        var missing = Every.Except(homes).ToList();
+        var missing = ModuleCatalog.Picks.Except(homes).ToList();
         var twice = homes.GroupBy(kind => kind).Where(group => group.Count() > 1).Select(group => group.Key).ToList();
 
         Assert.True(missing.Count == 0, "kinds with no home in AddTree (give each one in its subject): " + string.Join(", ", missing));

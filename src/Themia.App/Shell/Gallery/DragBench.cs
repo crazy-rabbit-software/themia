@@ -184,14 +184,15 @@ internal static class DragBench
         {
             (new[] { "clock", "date", "battery" }, 0.08),
             (new[] { "cpu", "memory", "gpu" }, 0.38),
-            (new[] { "wifiToggle", "bluetoothToggle", "soundToggle", "nightLightToggle" }, 0.68),
+            (new[] { "quickToggle/wifi", "quickToggle/bluetooth", "quickToggle/sound", "quickToggle/nightLight" }, 0.68),
         })
         {
             var row = new List<string>();
             var x = 0.05;
             foreach (var kind in kinds)
             {
-                var widget = WidgetInstance.Create(new WidgetId(kind), new FracRect(x, y, 0.1, 0.1));
+                // [S-16682] A kind, or a preset of one ("quickToggle/wifi").
+                var widget = WidgetInstance.Create(WidgetPick.TryParse(kind, out var pick) ? pick : new WidgetId(kind), new FracRect(x, y, 0.1, 0.1));
                 view.Widgets.Add(widget);
                 row.Add(widget.Id);
                 x += 0.12;

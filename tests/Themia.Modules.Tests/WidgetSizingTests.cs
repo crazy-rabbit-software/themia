@@ -97,7 +97,7 @@ public sealed class WidgetSizingTests
         Assert.True(tasks.Rect.W <= area.W + 1e-9 && tasks.Rect.H <= area.H + 1e-9);
 
         // An area larger than a kind's maximum: the widget stops at its maximum, inside the area.
-        var toggle = WidgetInstance.Create(new WidgetId("wifiToggle"), new FracRect(0, 0, 0.1, 0.1));
+        var toggle = WidgetInstance.Create(new WidgetId("quickToggle"), new FracRect(0, 0, 0.1, 0.1));
         var max = SizeFit.Limits(toggle, Screen, 1)!;
         Themia.Core.Desktop.LassoArea.Fill(toggle, area, Screen, 1);
         Assert.True(toggle.Rect.W <= max.Width.Max + 1e-9 && toggle.Rect.W <= area.W + 1e-9);

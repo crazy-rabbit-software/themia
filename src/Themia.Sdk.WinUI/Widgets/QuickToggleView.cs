@@ -18,8 +18,8 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-3900] One quick setting as a whole widget, a Windows 11 quick-settings tile: Wi-Fi, Bluetooth,
 /// airplane mode, energy saver, night light, rotation lock, do not disturb, sound, microphone, spatial
-/// sound, mono audio, color filters, game mode. One view for all thirteen, parameterised by the toggle
-/// its kind maps to.
+/// sound, mono audio, color filters, game mode. One view for the one kind, parameterised by the toggle its config
+/// targets ([S-16700]: the Toggles line; a new target lets go of the old source and follows the new one).
 /// <para>
 /// <b>The tile is the switch</b> ([S-3904]): accent-filled while on, the Windows 11 subtle fills on hover
 /// and press while off, dimmed with the reason in the tooltip where it cannot be switched. As with the
@@ -41,10 +41,10 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
 
     private const string Scope = "toggles";
 
-    private readonly QuickToggle _toggle;
+    private QuickToggle _toggle = QuickToggle.Wifi;
     private readonly IWidgetHost _host;
     private readonly TileBlock _tile = new() { Padding = Family.Inset };
-    private readonly ToggleGate _switch = new();
+    private ToggleGate _switch = new();
 
     private IWidgetSurface? _surface;
     private IToggleSource? _lease;
@@ -54,39 +54,14 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
     private bool _pressed;
     private bool _detached = true;
 
-    public QuickToggleView(WidgetId kind, IWidgetHost host)
+    public QuickToggleView(IWidgetHost host)
     {
         _host = host;
-        _toggle = QuickToggleRules.ForKind(kind) ?? QuickToggle.Wifi;
-        if (QuickToggleRules.ForKind(kind) is null)
-        {
-            // Unreachable through the catalogue.
-            Log.Error(Scope, $"{kind} is not a quick-setting toggle; showing Wi-Fi");
-        }
-
         Children.Add(_tile);
 
         // The whole slot is hit-testable, edge to edge: the tile is the switch.
         Background = Family.Brush(ColourRole.Clear);
     }
-
-    /// <summary>[S-3902] The icon of each toggle, shared with the picker; sound and microphone are struck through while muted.</summary>
-    public static string Glyph(QuickToggle toggle, bool on = true) => toggle switch
-    {
-        QuickToggle.Wifi => Glyphs.Wifi,
-        QuickToggle.Bluetooth => Glyphs.Bluetooth,
-        QuickToggle.AirplaneMode => Glyphs.Airplane,
-        QuickToggle.EnergySaver => Glyphs.EnergySaver,
-        QuickToggle.NightLight => Glyphs.NightLight,
-        QuickToggle.RotationLock => Glyphs.RotationLock,
-        QuickToggle.DoNotDisturb => Glyphs.QuietHours,
-        QuickToggle.Sound => on ? Glyphs.Volume3 : Glyphs.Mute,
-        QuickToggle.Microphone => on ? Glyphs.Microphone : Glyphs.MicrophoneOff,
-        QuickToggle.SpatialSound => Glyphs.SpatialSound,
-        QuickToggle.MonoAudio => Glyphs.MonoAudio,
-        QuickToggle.ColorFilters => Glyphs.ColorFilters,
-        _ => Glyphs.GameMode,
-    };
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -94,12 +69,8 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-
-        // [S-1251] A debug render reads nothing and switches nothing.
-        if (_surface is not { IsPreview: true })
-        {
-            _lease = _host.Toggles.Acquire(_toggle, OnChanged);
-        }
+        _toggle = Targeted(config);
+        Follow();
 
         // [S-1881] Subscribed here, not in the constructor.
         PointerEntered += OnPointerEntered;
@@ -119,13 +90,39 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
             Paint();
         });
 
-        AutomationProperties.SetName(this, QuickToggleRules.Name(_toggle));
         ApplyConfig(config);
     }
 
-    /// <summary>[S-3916] The style is the only setting: the Tile block's look.</summary>
+    /// <summary>[S-16700] The setting a config targets; one this build does not know is Wi-Fi (load validation repairs it).</summary>
+    private static QuickToggle Targeted(WidgetConfig config)
+        => config is QuickToggleConfig { Target: var target } && Enum.IsDefined(target) ? target : QuickToggle.Wifi;
+
+    /// <summary>
+    /// [S-3907] Follow the target's shared source, letting go of the one before. [S-1251] A debug render reads nothing and
+    /// switches nothing.
+    /// </summary>
+    private void Follow()
+    {
+        _lease?.Dispose();
+        _lease = null;
+        _switch = new ToggleGate();
+        if (_surface is not { IsPreview: true })
+        {
+            _lease = _host.Toggles.Acquire(_toggle, OnChanged);
+        }
+
+        AutomationProperties.SetName(this, QuickToggleRules.Name(_toggle));
+    }
+
+    /// <summary>[S-16700] [S-3916] The target (its Toggles line) and the style: the Tile block's look.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
+        if (!_detached && Targeted(config) is var target && target != _toggle)
+        {
+            _toggle = target;
+            Follow();
+        }
+
         var style = config is QuickToggleConfig { Style: var chosen } && Enum.IsDefined(chosen) ? chosen : QuickToggleStyle.Tile;
         _tile.Look = style switch
         {
@@ -226,7 +223,7 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        _tile.Show(Glyph(_toggle, on: look != ToggleLook.Off), QuickToggleRules.Name(locale, _toggle), stateLine, QuickToggleRules.Tile(look));
+        _tile.Show(QuickToggleRules.Glyph(_toggle, on: look != ToggleLook.Off), QuickToggleRules.Name(locale, _toggle), stateLine, QuickToggleRules.Tile(look));
         _tile.Face(!live ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
 
         var tooltip = QuickToggleRules.Tooltip(locale, _toggle, reading, look, _switch.Refused);

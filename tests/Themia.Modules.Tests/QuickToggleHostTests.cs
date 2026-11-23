@@ -8,76 +8,53 @@ using Xunit;
 namespace Themia.Modules.Tests;
 
 /// <summary>
-/// [S-3900] [S-3901] Which kinds are quick-setting toggles, their configs and their names, over every
-/// widget of the build (the toggles, the power and Bluetooth widgets are module projects, which only
-/// this host has). The rest of the toggles' tests are Core's QuickToggleTests.
+/// [S-3900] [S-3901] The quick setting over every widget of the build (its module, the power and Bluetooth widgets are
+/// module projects, which only this host has): its config, its setup and its names. The rest of the toggles' tests are
+/// Core's QuickToggleTests and the module's own.
 /// </summary>
 public sealed class QuickToggleHostTests
 {
-    private static IEnumerable<WidgetId> ToggleKinds
-        => ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Where(k => QuickToggleRules.ForKind(k) is not null);
+    private static readonly WidgetId Kind = new("quickToggle");
+
+    private static IEnumerable<QuickToggleConfig> Targets
+        => QuickToggleRules.All.Select(t => new QuickToggleConfig { Target = t });
 
     [Fact]
-    public void S3900_every_toggle_has_its_own_kind_and_back()
+    public void S3900_every_target_round_trips_through_the_state_file()
     {
-        Assert.Equal(Enum.GetValues<QuickToggle>().Order(), QuickToggleRules.All.Order());
-        Assert.Equal(QuickToggleRules.All.Count, ToggleKinds.Count());
-
-        foreach (var toggle in QuickToggleRules.All)
+        foreach (var config in Targets)
         {
-            var kind = QuickToggleRules.KindOf(toggle);
-            Assert.Equal(toggle, QuickToggleRules.ForKind(kind));
-            Assert.Equal(toggle, ((QuickToggleConfig)WidgetConfig.CreateDefault(kind)).Toggle);
-        }
-    }
-
-    [Fact]
-    public void S3900_every_toggle_config_round_trips_through_the_state_file()
-    {
-        foreach (var kind in ToggleKinds)
-        {
-            var config = WidgetConfig.CreateDefault(kind);
-            var json = System.Text.Json.JsonSerializer.Serialize(config, StateJson.WidgetConfig);
+            var json = System.Text.Json.JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
             var back = System.Text.Json.JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
             Assert.NotNull(back);
-            Assert.Equal(kind, back!.Kind);
-            Assert.Equal(kind, back.Clone().Kind);
+            Assert.Equal(Kind, back!.Kind);
+            Assert.Equal(config.Target, ((QuickToggleConfig)back.Clone()).Target);
         }
     }
 
     [Fact]
     public void S3901_a_new_toggle_needs_no_setup()
     {
-        foreach (var kind in ToggleKinds)
+        foreach (var config in Targets)
         {
-            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Sdk.FeatureSet.None));
+            Assert.False(WidgetSetup.Needed(config, Themia.Sdk.FeatureSet.None));
         }
     }
 
     [Fact]
-    public void S3901_names_and_picker_labels_are_set_in_every_language_and_the_picker_label_is_never_another_widgets_name()
+    public void S3901_names_are_set_in_every_language()
     {
         foreach (var locale in Enum.GetValues<Locale>())
         {
-            var labels = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var toggle in QuickToggleRules.All)
-            {
-                var name = QuickToggleRules.Name(locale, toggle);
-                var descriptor = ModuleCatalog.Of(QuickToggleRules.KindOf(toggle));
-                var label = descriptor.Label.Text(locale);
-                Assert.False(string.IsNullOrWhiteSpace(name));
-                Assert.False(string.IsNullOrWhiteSpace(descriptor.Description.Text(locale)));
-                Assert.NotEqual(name, label);
-                Assert.True(labels.Add(label), $"{locale}: {label} twice");
-            }
+            Assert.All(QuickToggleRules.All, toggle => Assert.False(string.IsNullOrWhiteSpace(QuickToggleRules.Name(locale, toggle))));
         }
     }
 
     [Fact]
-    public void S3900_a_power_or_meter_kind_is_not_a_toggle()
+    public void S3900_a_power_or_meter_kind_is_not_a_quick_setting()
     {
-        Assert.Null(QuickToggleRules.ForKind(new WidgetId("shutdown")));
-        Assert.Null(QuickToggleRules.ForKind(new WidgetId("bluetooth")));
-        Assert.Null(QuickToggleRules.ForKind(new WidgetId("volume")));
+        Assert.Single(ModuleCatalog.Widgets, w => w.CreateDefault() is QuickToggleConfig);
+        Assert.IsNotType<QuickToggleConfig>(WidgetConfig.CreateDefault(new WidgetId("shutdown")));
+        Assert.IsNotType<QuickToggleConfig>(WidgetConfig.CreateDefault(new WidgetId("bluetooth")));
     }
 }

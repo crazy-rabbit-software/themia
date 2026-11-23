@@ -52,7 +52,8 @@ public sealed class ReadyMadePlacementTests
 
         // [S-2475] Loose widgets like any others, every one of them what the placement selects.
         var view = state.Views[0];
-        Assert.Equal(recipe.Widgets.Select(w => w.Kind), view.Widgets.Select(w => w.Kind.Value));
+        // [S-16682] Each its kind, or its preset of a kind.
+        Assert.Equal(recipe.Widgets.Select(w => w.Kind), view.Widgets.Select(w => Themia.Sdk.WidgetPick.Of(w.Config).Key));
         Assert.Equal(view.Widgets.Select(w => w.Id), plan.Roots);
         Assert.Empty(StateRepair.Repair(state));
         Assert.All(view.Widgets, w => Assert.True(w.Rect.IsFinite && w.Rect.W > 0 && w.Rect.H > 0, $"{id}: {w.Kind.Value} has no box"));

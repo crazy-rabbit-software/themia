@@ -44,12 +44,12 @@ internal static class FirstRunDesktop
         new("network", Meter(3), Bare: true),
 
         // Square tiles side by side along the top, about the screen's centre (1090..1450 of 2560).
-        new("doNotDisturbToggle", Tile(0)),
-        new("colorFiltersToggle", Tile(1)),
-        new("nightLightToggle", Tile(2)),
-        new("airplaneModeToggle", Tile(3)),
-        new("bluetoothToggle", Tile(4)),
-        new("wifiToggle", Tile(5)),
+        new("quickToggle/doNotDisturb", Tile(0)),
+        new("quickToggle/colorFilters", Tile(1)),
+        new("quickToggle/nightLight", Tile(2)),
+        new("quickToggle/airplaneMode", Tile(3)),
+        new("quickToggle/bluetooth", Tile(4)),
+        new("quickToggle/wifi", Tile(5)),
     ];
 
     /// <summary>

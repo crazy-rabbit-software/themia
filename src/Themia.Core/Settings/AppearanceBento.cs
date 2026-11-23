@@ -60,7 +60,7 @@ public static class AppearanceBento
         new("calendar", 2, 0, 2, 2),
         new("weatherNow", 4, 0, 2, 1, Station),
         new("cpu", 0, 1, 1, 1),
-        new("wifiToggle", 1, 1, 1, 1),
+        new("quickToggle", 1, 1, 1, 1),
         new("weatherHumidity", 4, 1, 2, 1, Station),
         new("tasks", 0, 2, 2, 2),
         new("networkDownload", 2, 2, 2, 1) { Graph = true },

@@ -1,4 +1,5 @@
 #if DEBUG
+using Microsoft.UI.Xaml.Automation;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 
@@ -7,10 +8,22 @@ namespace Themia.App.Widgets;
 /// <summary>Debug renders only: the states a render cannot reach on this PC ([S-1917], [S-3909]).</summary>
 public sealed partial class QuickToggleView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["on", "off", "unavailable", "unknown", "hover", "pressed", "refused"];
+    /// <summary>
+    /// The states, and [S-16702] one per target (its key, <c>bluetooth</c>, <c>doNotDisturb</c>: that setting on), so the
+    /// checks draw every target's glyph and name; any target in another state is <c>--config {"target":"…"}</c>.
+    /// </summary>
+    public IReadOnlyList<string> PreviewStates { get; } =
+        ["on", "off", "unavailable", "unknown", "hover", "pressed", "refused", .. QuickToggleRules.All.Skip(1).Select(QuickToggleRules.Key)];
 
     public Task ShowPreviewStateAsync(string state)
     {
+        if (QuickToggleRules.OfKey(state) is { } target)
+        {
+            _toggle = target;
+            AutomationProperties.SetName(this, QuickToggleRules.Name(_toggle));
+            return ShowSampleAsync();
+        }
+
         switch (state)
         {
             case "on":
@@ -21,7 +34,7 @@ public sealed partial class QuickToggleView : IWidgetPreviewState
                 break;
 
             case "unavailable":
-                _preview = ToggleReading.Blocked(PreviewBlock());
+                _preview = ToggleReading.Blocked(QuickToggleRules.Target(_toggle).Unavailable);
                 break;
 
             case "unknown":
@@ -52,15 +65,5 @@ public sealed partial class QuickToggleView : IWidgetPreviewState
         Lay();
         return Task.CompletedTask;
     }
-
-    /// <summary>The reason each toggle is most often unavailable for, so the render shows a true sentence.</summary>
-    private Themia.Core.Widgets.ToggleBlock PreviewBlock() => _toggle switch
-    {
-        Themia.Core.Model.QuickToggle.Wifi or Themia.Core.Model.QuickToggle.Bluetooth or Themia.Core.Model.QuickToggle.RotationLock => ToggleBlock.NoHardware,
-        Themia.Core.Model.QuickToggle.Sound or Themia.Core.Model.QuickToggle.Microphone => ToggleBlock.NoDevice,
-        Themia.Core.Model.QuickToggle.EnergySaver => ToggleBlock.NotOnWindows,
-        Themia.Core.Model.QuickToggle.SpatialSound => ToggleBlock.NotSupported,
-        _ => ToggleBlock.NoSwitch,
-    };
 }
 #endif

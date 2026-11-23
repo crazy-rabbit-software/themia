@@ -68,7 +68,7 @@
     <Project Path="src/Widgets/Themia.Widget.PingFacts/Themia.Widget.PingFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Pomodoro/Themia.Widget.Pomodoro.csproj" />
     <Project Path="src/Widgets/Themia.Widget.PowerButtons/Themia.Widget.PowerButtons.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.QuickToggles/Themia.Widget.QuickToggles.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.QuickToggle/Themia.Widget.QuickToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Quote/Themia.Widget.Quote.csproj" />
     <Project Path="src/Widgets/Themia.Widget.RainNextHour/Themia.Widget.RainNextHour.csproj" />
     <Project Path="src/Widgets/Themia.Widget.RecentFiles/Themia.Widget.RecentFiles.csproj" />

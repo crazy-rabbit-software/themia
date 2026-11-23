@@ -1,5 +1,8 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["toggles.kind.label", "toggles.kind.desc", "toggles.target.label"],
+  "toggles.kind.label": "Quick setting",
+  "toggles.kind.desc": "Switches one of Windows' quick settings where it stands",
+  "toggles.target.label": "Toggles",
   "toggles.wifi.label": "Wi-Fi on/off",
   "toggles.wifi.desc": "Turns the Wi-Fi radio on or off",
   "toggles.bluetooth.label": "Bluetooth on/off",
