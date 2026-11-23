@@ -53,7 +53,7 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   element hidden, and several sets, at the least, natural, large and off-proportion boxes: every shown element drawn,
   inside the inset, none over another, the block on the inset, the natural at 1 and the least at the floor).
 - **[S-16503]** **Side cover**: the cover at the column's left as tall as the column (96 with every element shown, in the
-  one radius), 12 from it the column. A new card 352 × 120; its least 195 × 96. Tests `MusicPlanTests.S16503_`.
+  one radius), 12 from it the column. A new card 352 × 120; its least 197 × 96. Tests `MusicPlanTests.S16503_`.
 - **[S-16504]** **Stacked**: the cover a square over the column, as wide as it (160), 12 over it; the transport centred
   under the cover. The block keeps its proportions: centred across where the height stops it, down where the width does.
   A new card 184 × 292. Tests `MusicPlanTests.S16504_`.
@@ -102,7 +102,8 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   is (`NowPlaying.Media`, counted by the host's `MediaSession` on every "media properties changed" notice and every change
   of the current session), and the cover reads the picture once per track and reading (`MusicWords.ArtKey`), where the
   style and the set draw a cover: the old picture stays until the new one is decoded, a reading with none shows the
-  placeholder. Position and play/pause notices read nothing again. Tests `MusicConfigTests.S11321_`.
+  placeholder. Position and play/pause notices read nothing again. A preview card (the add page's picture, a render) reads
+  no picture of the machine's, and a picture read before its sample took the face never lands over it. Tests `MusicConfigTests.S11321_`.
 - **[S-1479]** Its options are all on its page ([S-3719], user request 2026-10-19); it has no settings page. Appearance
   ([S-3723]) and the Style picker with what the face shows ([S-16501]), then **Hide when idle** (Never / When no player
   is open / When nothing is playing, [S-1464]; edit mode still shows it). Tests `MusicMenuTests`.

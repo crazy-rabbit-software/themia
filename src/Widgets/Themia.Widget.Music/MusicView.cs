@@ -145,7 +145,12 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         // A render's --hover on the bar shows its thumb, as the pointer does.
-        PointerPreview.Register(_bar, _ => _bar.Point(true));
+        // (A preview's bar seeks nothing of the machine's; under a render's pointer it shows its thumb as a live one would.)
+        PointerPreview.Register(_bar, _ =>
+        {
+            _bar.CanSeek = _feed.Now.HasTrack && _feed.Now.CanSeek;
+            _bar.Point(true);
+        });
         Children.Add(_item);
 
         _bar.Scrubbing += OnScrubbing;
@@ -494,6 +499,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         private IReadOnlyCollection<MusicElement> _shown = MusicElements.All;
         private string _template = MusicPlan.TimeTemplate(TimeSpan.Zero);
 
+        /// <summary>The box the last measure planned the face for, and that plan.</summary>
+        private (Size Box, MusicLayout Laid) _measured = (Size.Empty, new MusicLayout(1, new Dictionary<MusicPart, MusicBox>(), false));
+
         public Face(MusicView view) => _view = view;
 
         /// <summary>Whether the plan draws a cover in this style and set.</summary>
@@ -548,6 +556,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             var size = new Size(double.IsFinite(availableSize.Width) ? availableSize.Width : natural.Width,
                 double.IsFinite(availableSize.Height) ? availableSize.Height : natural.Height);
             var laid = Lay(size);
+            _measured = (size, laid);
             _view._light.Measure(size);
             foreach (var (part, (element, scale)) in _parts)
             {
@@ -559,7 +568,17 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            var laid = Lay(finalSize);
+            // The measure's face where the box is the measure's but for the card's pixel rounding: each part is laid in the
+            // very box it was measured in. A face planned again for a box a fraction of a DIP off scaled a hair differently,
+            // measured its parts again, asked for another measure and was planned for the first box again: a layout cycle
+            // (the strip at its least) or a picture that never settled (a cut line, stacked).
+            var (measured, laid) = _measured;
+            var remeasure = Math.Abs(measured.Width - finalSize.Width) >= 1 || Math.Abs(measured.Height - finalSize.Height) >= 1;
+            if (remeasure)
+            {
+                laid = Lay(finalSize);
+            }
+
             _view._light.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
             foreach (var (part, (element, scale)) in _parts)
             {
@@ -575,10 +594,12 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
                     scale.ScaleY = laid.Scale;
                 }
 
-                // Measured again in the box it is arranged in (a no-op where the measure's room was the same): a line cut at
-                // one width and laid at another would cut itself again and ask for another pass, frame after frame.
                 var own = Own(box, scale is null ? 1 : laid.Scale);
-                element.Measure(own);
+                if (remeasure)
+                {
+                    element.Measure(own);
+                }
+
                 element.Arrange(new Rect(box.X, box.Y, own.Width, own.Height));
             }
 
