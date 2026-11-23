@@ -66,6 +66,13 @@ public sealed record MergeFrom(string Kind)
     /// says what a card of it without that key showed. Null: the part adds nothing to a set.
     /// </summary>
     public (string Key, IReadOnlyList<string> Values)? Shows { get; init; }
+
+    /// <summary>
+    /// [S-16638] The config keys a placed one takes in this kind when it is replaced (a JSON object: a single metric's
+    /// <c>{"trend":"Line"}</c>, its graph shown; the drives list's <c>{"kinds":["External","Optical"]}</c>, the removable
+    /// drives it showed), over what it held; null: none. Read once at the load's kind pass, a bad one logged and skipped.
+    /// </summary>
+    public string? Writes { get; init; }
 }
 
 /// <summary>[S-16230] How a placed part of a removed kind folds back into the widget it was split from.</summary>

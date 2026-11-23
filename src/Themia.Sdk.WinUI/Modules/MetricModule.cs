@@ -14,6 +14,9 @@ namespace Themia.Sdk.WinUI;
 /// </summary>
 public abstract class MetricModule : IWidgetModule
 {
+    /// <summary>[S-14713] [S-16638] What a removed graph kind's placed card takes as the metric: its graph shown.</summary>
+    internal const string GraphShown = $$"""{"trend":"{{nameof(MetricTrend.Line)}}"}""";
+
     /// <param name="kind">The kind.</param>
     /// <param name="json">The family's source-generated JSON metadata.</param>
     /// <param name="folder">The family's add-page folder.</param>
@@ -36,7 +39,8 @@ public abstract class MetricModule : IWidgetModule
             Traits = WidgetTraits.HasItems,
             Links = links ?? LinkUse.None,
             Add = new(folder, 0, rank),
-            Merges = kind.Merges,
+            // [S-14713] [S-16638] A removed graph kind it stands in for shows its graph: its trend Line.
+            Merges = [.. kind.Merges.Select(m => m.Fold is null && m.Writes is null ? m with { Writes = GraphShown } : m)],
         };
     }
 

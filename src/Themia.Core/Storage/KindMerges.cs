@@ -25,8 +25,9 @@ public static class KindMerges
     /// stands in for it (owner, 2026-11-21: "i think it would be good if we merge all the different graph types into the
     /// general metric widget"; placed ones "Replace in place", as the facts cards were): the metric whose
     /// <see cref="MergeFrom.When"/> its config matches (an air graph's measure), else the one that takes the rest, in the same
-    /// spot with the same id, look and settings (the place, the drive, the adapter, the host, its chart look), its trend
-    /// Line so its graph shows, its window or span the metric's <c>span</c>. One logged line a replaced widget; a key the
+    /// spot with the same id, look and settings (the place, the drive, the adapter, the host, its chart look), the keys its
+    /// merge sets (<see cref="MergeFrom.Writes"/>: a metric's trend Line, so its graph shows), its window or span the metric's
+    /// <c>span</c>. One logged line a replaced widget; a key the
     /// metric does not have is then the load's to drop, loudly (<see cref="StateDocument"/>). Which kind stands in for which
     /// the kinds declare (<see cref="WidgetDescriptor.Merges"/>).
     /// </summary>
@@ -65,7 +66,11 @@ public static class KindMerges
 
                 var id = widget["id"] is JsonValue idValue && idValue.TryGetValue<string>(out var text) ? text : "?";
                 config["kind"] = target.Into;
-                config["trend"] = nameof(MetricTrend.Line);
+                if (!Set(config, target.From.Writes))
+                {
+                    notes.Add($"{kind} '{id}': the keys {target.Into} sets on a replaced one are not a JSON object; none set");
+                }
+
                 if (target.From.When is { } when)
                 {
                     config.Remove(when.Key);
@@ -85,6 +90,40 @@ public static class KindMerges
         }
 
         return notes;
+    }
+
+    /// <summary>
+    /// [S-16638] Set the keys <paramref name="sets"/> names (a JSON object) on <paramref name="config"/>, over what it held;
+    /// false for one that is not a JSON object (nothing set). Null sets nothing.
+    /// </summary>
+    private static bool Set(JsonObject config, string? sets)
+    {
+        if (sets is null)
+        {
+            return true;
+        }
+
+        JsonNode? parsed;
+        try
+        {
+            parsed = JsonNode.Parse(sets);
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return false;
+        }
+
+        if (parsed is not JsonObject keys)
+        {
+            return false;
+        }
+
+        foreach (var (key, value) in keys)
+        {
+            config[key] = value?.DeepClone();
+        }
+
+        return true;
     }
 
     /// <summary>[S-14713] The metric a placed graph becomes: the one its config's value names, else the one that takes the rest.</summary>

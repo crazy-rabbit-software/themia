@@ -49,11 +49,34 @@ public sealed class KindMergesTests
     {
         var document = Document("""{ "kind": "windGraph", "hours": 48 }""");
 
-        KindMerges.Replace(document, [Kind("weatherWind", new MergeFrom("windGraph"))]);
+        KindMerges.Replace(document, [Kind("weatherWind", new MergeFrom("windGraph") { Writes = """{ "trend": "Line" }""" })]);
 
         var config = Widgets(document)[0]!["config"]!;
         Assert.Equal(("weatherWind", "Line", 48), ((string)config["kind"]!, (string)config["trend"]!, (int)config["span"]!));
         Assert.Null(config["hours"]);
+    }
+
+    /// <summary>
+    /// [S-16638] A replaced kind takes the keys its merge sets over what it held (the drives list showing the removable drives
+    /// the old list showed), its own keys kept; a merge that sets nothing sets nothing; one whose keys are no JSON object
+    /// sets none and says so.
+    /// </summary>
+    [Fact]
+    public void S16638_a_replaced_kind_takes_the_keys_its_merge_sets()
+    {
+        var document = Document("""{ "kind": "removableDrives", "rows": 5, "kinds": ["Local"] }""");
+        KindMerges.Replace(document, [Kind("drives", new MergeFrom("removableDrives") { Writes = """{ "kinds": ["External", "Optical"] }""" })]);
+        var config = Widgets(document)[0]!["config"]!;
+        Assert.Equal(("drives", 5, "External,Optical"), ((string)config["kind"]!, (int)config["rows"]!, string.Join(',', config["kinds"]!.AsArray().Select(k => (string)k!))));
+
+        var plain = Document("""{ "kind": "windGraph" }""");
+        KindMerges.Replace(plain, [Kind("weatherWind", new MergeFrom("windGraph"))]);
+        Assert.Null(Widgets(plain)[0]!["config"]!["trend"]);
+
+        var bad = Document("""{ "kind": "windGraph" }""");
+        var notes = KindMerges.Replace(bad, [Kind("weatherWind", new MergeFrom("windGraph") { Writes = "[1]" })]);
+        Assert.Equal("weatherWind", (string)Widgets(bad)[0]!["config"]!["kind"]!);
+        Assert.Contains(notes, n => n.Contains("not a JSON object", StringComparison.Ordinal));
     }
 
     /// <summary>[S-16230] A track that is back and the parts it was split into: texts and buttons fold into it where they touch.</summary>
