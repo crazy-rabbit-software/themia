@@ -15,7 +15,7 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Volume;
 
-/// <summary>[S-2730] An output device's volume: the slider and nothing else, its mute on the speaker. SPEC.md beside this file.</summary>
+/// <summary>[S-2730] [S-17225] An output device's volume: one row of the speaker (its mute), the level and the slider, Brightness's row. SPEC.md beside this file.</summary>
 public sealed class VolumeModule : IWidgetModule
 {
     /// <summary>[S-2025] What a click on the card opens ([S-2000]).</summary>
@@ -32,7 +32,7 @@ public sealed class VolumeModule : IWidgetModule
         Label = VolumeStr.Widget_Volume_Label.Local(),
         Description = VolumeStr.WidgetsA_Catalog_Volume_Description.Local(),
         Glyph = Glyphs.Volume,
-        Sizing = _ => LevelFace.Sizing(under: true).ScalesDownTo(LevelFace.Face(under: true)),
+        Sizing = _ => LevelRow.Sizing(),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 2),
     };

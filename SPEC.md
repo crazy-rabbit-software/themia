@@ -10145,23 +10145,11 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   the machine.
 - **[S-1234]** Stepping lands on the whole-percent grid and clamps (`AudioRules.Step`).
 - [S-2730]: moved with the Volume widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Volume/`).
-- **[S-2731]** The slider lies along the tile's foot: it is the Controls block's row at the bottom
-  inset on every shape ([S-6716]: the speaker a 28 icon button at its start, the rail the Track
-  role, the value the accent), on the volume tile and the brightness tile alike. Growing a tile
-  lengthens the slider and grows the level's Readout over it ([S-2150]); a column no longer stands
-  it up (G5, 2026-10-29: the family has one Controls row, and `VolumeRules.Axis` is gone).
-- **[S-2150]** A level tile (the volume; the brightness is one row since [S-17184]) is a meter over its controls (owner decision
-  2026-11-12, "the widgets come together"; `LevelFace`, tests `LevelFaceTests`): the level is a
-  Readout at the view's top, start-aligned, sized on its widest case ("100%"), the Controls row (28,
-  and 8 over it) at the bottom inset.
-- **[S-11308]** **A level widget is one atom, both parts always** (the volume): the
-  Readout on the data widgets' 28 ([S-2220]), the widget's own line under always planned where it has
-  one (the volume's output device, cut with its ellipsis), and the Controls row (the slider, with the
-  speaker's mute button for the volume). The card is that under its header (on by default): the
-  content top, the reading and its line, 8, the row, the inset (`LevelFace.Sizing`: the volume 136
-  tall), one height, 160 to 360 wide, a new one 200, where a wider card only gives
-  the slider more travel. No tier ladder is left (the reading on 40 at L and XL and the row alone
-  on a card shorter than XS are gone). Tests `LevelFaceTests.S11308_`.
+- **[S-2731]** The slider lies across the level's one row ([S-17184], [S-17225]: the SDK's `LevelRow`, the brightness's and the
+  volume's alike: the glyph, the level, the slider across what is left; [S-6716]: the rail the Track role, the value the
+  accent). Growing a tile lengthens the slider; its height is kept (G5, 2026-10-29: `VolumeRules.Axis` is gone).
+- [S-2150], [S-11308] (a level tile as a 28 Readout over its Controls row, `LevelFace`) retired: the brightness is one row
+  since [S-17184], the volume since [S-17225] (owner, 2026-11-24), `LevelFace` and its tests gone with them.
 - **[S-2732]** The mouse wheel anywhere on the tile steps the level one arrow step (2 points) per
   notch (120); a touchpad's part-notches carry to the next event, turning back drops the carry
   (`AudioRules.Wheel`). Ignored when `AllowControl` is off; no keyboard lease needed.

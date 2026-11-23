@@ -16,7 +16,9 @@ using Themia.Widget.Volume;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The master level of an output device: its Readout over the slider, a meter you can set.
+/// [S-17225] The master level of an output device as one row, Brightness's (owner, 2026-11-24: "volume slider should go into
+/// the quick settings too"; <see cref="LevelRow"/>): the speaker (its mute), the level (Body, held to "100%") and the Controls
+/// slider across what is left ([S-6716]: its rail the Track role, its value the accent), the row centred in the card.
 /// <para>
 /// [S-1220] Kept current by Core Audio's own volume notification (through the shared
 /// <see cref="CoreAudio"/> worker) rather than by a poll, so the slider follows the volume keys,
@@ -25,10 +27,7 @@ namespace Themia.App.Widgets;
 /// on screen until Windows confirms it.
 /// </para>
 /// <para>
-/// [S-2151] [S-2731] The slider with its speaker (mute) button at the start is the Controls block's
-/// row at the card's bottom inset at every size ([S-6716]); over it the level is a Readout where a
-/// meter's stands, on 28, or 40 once expanded both ways, as CPU's does, with the device's name as its line under where
-/// that fits ([S-2150], <see cref="LevelFace"/>). Muted, the Readout is drawn in the disabled role.
+/// [S-2731] Muted, the level is drawn in the disabled role and the speaker crossed out; the slider stands at 0.
 /// </para>
 /// </summary>
 internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
@@ -37,14 +36,12 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
     public CardOpen? Opens => VolumeModule.Opens;
 
     private readonly AudioFeed _feed;
-    private readonly ControlsBlock _controls = new();
     private readonly Slider _slider;
 
-    /// <summary>[S-2151] The level, where a meter's reading stands: the view's top, in the side inset.</summary>
-    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
-    private readonly ReadingFit _fit = new();
+    /// <summary>[S-17225] The level beside the speaker, held to its widest case so the slider never moves.</summary>
+    private readonly TextBlock _level;
 
-    private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
+    /// <summary>[S-2730] The speaker at the row's start: its glyph by level, crossed out when muted; a click mutes.</summary>
     private readonly Button _mute;
 
     /// <summary>
@@ -87,14 +84,42 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
     {
         _feed = new AudioFeed(host.Audio, OnSnapshot);
 
-        // [S-2730] [S-6716] The speaker and the slider are the Controls block's row at the bottom inset.
+        // [S-17225] One row, centred between the card's top inset and the view's own at its foot, in the side insets, as the
+        // Brightness widget's (LevelRow): the speaker, 8, the level, 12, the slider across what is left.
+        FlowDirection = FlowDirection.LeftToRight;
+        Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-        _controls.FlowDirection = FlowDirection.LeftToRight;
-        _mute = _controls.Icon(Glyphs.Volume3, Str.Mixer_Mute.Text(), () => ToggleMute());
+        // The speaker is the sun's 16 glyph where the sun stands, a button no taller than the slider's thumb: the row keeps
+        // Brightness's one height.
+        _mute = ControlsBlock.IconButton(Glyphs.Volume3, Str.Mixer_Mute.Text(), () => ToggleMute());
         _mute.IsTabStop = false;
-        _slider = _controls.Slider(0, 100, 0, OnSliderChanged);
+        _mute.Width = ControlsRules.SliderThumb;
+        _mute.Height = ControlsRules.SliderThumb;
+        var spill = (ControlsRules.SliderThumb - FamilyShape.Icon) / 2;
+        _mute.Margin = new Thickness(-spill, 0, FamilySpace.GlyphGap - spill, 0);
+        Children.Add(_mute);
+
+        _level = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
+        Family.Figures(_level);
+        _level.MinWidth = LevelRow.LevelWidth;
+        _level.VerticalAlignment = VerticalAlignment.Center;
+        _level.Margin = new Thickness(0, 0, FamilySpace.S3, 0);
+        SetColumn(_level, 1);
+        Children.Add(_level);
+
+        // [S-6716] The Controls slider: its rail the Track role, its value the accent, no focus.
+        _slider = ControlsBlock.RailSlider(0, 100, 0);
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
+        _slider.ValueChanged += (_, args) => OnSliderChanged(args.NewValue);
+
+        // The template's own height (32) is no taller than its thumb's ink here: the row is the thumb's height, never cut.
+        _slider.Resources["SliderHorizontalHeight"] = ControlsRules.SliderThumb;
+        SetColumn(_slider, 2);
+        Children.Add(_slider);
 
         // Handled events too: Slider marks its own pointer events handled, so a plain subscription
         // never sees the press. Four events rather than one, for the same reason a row's hover
@@ -112,21 +137,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         _wheel = OnWheel;
         AddHandler(PointerWheelChangedEvent, _wheel, true);
         Background = Family.Brush(ColourRole.Clear);
-
-        _controls.Visibility = Visibility.Collapsed;
-        _reading.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        // [S-12808] The level, its device, the mute and the slider: one block, planned at the natural box and scaled
-        // up as one.
-        _fit.Parts.Add(_reading);
-
-        // [S-12833] In a smaller card the slider's row gives way before the level does.
-        _fit.AddGivesWay(_controls, ControlsRules.GivesWayAt);
-
-        // [S-14301] The slider runs across the content; the reading stands over it where the fit puts it.
-        _fit.Span(_controls);
-        _fit.Face = LevelFace.Face(under: true);
-        Children.Add(_fit);
+        ShowReading(null, muted: false, null);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -200,8 +211,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
             return;
         }
 
-        _controls.Visibility = Visibility.Visible;
-
         if (snapshot.Status != AudioStatus.Ready || snapshot.Output is null)
         {
             // [S-1940] No device to set (none, the chosen one not connected, Core Audio not answering):
@@ -216,10 +225,8 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
             UnavailableLook.Enable(false, _slider, _mute);
             Glyph(ColourRole.TextDisabled);
 
-            // [S-12813] The reading stays: "--" disabled, the reason its line under.
-            _reading.Visibility = Visibility.Visible;
-            _reading.Use(LevelFace.Step);
-            _reading.Show("--", ReadoutRules.Split(Formatting.Percent(0)).Unit, reason, valueRole: ColourRole.TextDisabled);
+            // [S-12813] The level stays: "--" disabled, the reason its tooltip.
+            ShowReading(null, muted: false, reason);
             ShowLevel(Unavailable.Share, muted: false);
             ToolTipService.SetToolTip(_mute, null);
             return;
@@ -243,19 +250,18 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         Glyph(_config.AllowControl ? ColourRole.TextPrimary : ColourRole.TextDisabled);
 
         ShowLevel(level.Level, level.Muted);
-        ShowReading(level.Level, level.Muted, snapshot.Output.Name);
+        ShowReading(level.Level, level.Muted, null);
     }
 
     /// <summary>
-    /// [S-2151] The level as a Readout on <see cref="LevelFace"/>'s step, the device's name its line
-    /// under where that fits; muted, an off reading: the level it goes back to, in the disabled role.
+    /// [S-17225] The level beside the speaker; muted, the level it goes back to in the disabled role. [S-12813] Where nothing can
+    /// be set (<paramref name="level"/> null) it stays, "--" disabled, the reason its tooltip.
     /// </summary>
-    private void ShowReading(double level, bool muted, string device)
+    private void ShowReading(double? level, bool muted, string? reason)
     {
-        _reading.Visibility = Visibility.Visible;
-        _reading.Use(LevelFace.Step);
-        var split = ReadoutRules.Split(Formatting.Percent(VolumeRules.Percent(level) / 100.0));
-        _reading.Show(split.Value, split.Unit, device, valueRole: muted ? ColourRole.TextDisabled : ColourRole.TextPrimary);
+        _level.Text = level is { } shown ? Formatting.Percent(VolumeRules.Percent(shown) / 100.0) : "--";
+        _level.Foreground = Family.Brush(level is null || muted ? ColourRole.TextDisabled : ColourRole.TextPrimary);
+        ToolTipService.SetToolTip(_level, reason);
     }
 
     /// <summary>The speaker's glyph role: primary, or disabled with the button (its glyph names its own brush).</summary>
@@ -346,7 +352,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
         SetLevel(VolumeRules.Scalar(value));
 
-        // [S-2151] The Readout follows the hand: the held level is what Current() gives now.
+        // [S-17225] The level follows the hand: the held level is what Current() gives now.
         Lay();
     }
 
