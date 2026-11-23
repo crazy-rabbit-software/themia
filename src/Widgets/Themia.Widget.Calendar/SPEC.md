@@ -135,12 +135,10 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   as the room under the figures is short of a dot and its 2 (`MonthLayouts.DotSink`, `DotGap`), so a last week's dots no
   longer stand on the card's foot and its border (they stood in the padding's whole 4, at 596..600 of a 600 card). Test
   `MonthLayoutTests.S16442_`.
-- **[S-16446]** **The year fills its card** (WR-9: "the calendar does not follow this design philosophy"; "Bigger numbers
-  too"; the re-audit of 2026-11-23: the months stood 56 DIP at every size, 417 DIP empty under them at 520 × 600): where the
-  card holds all twelve months at their own size, their cells share it edge to edge in the columns and lines that draw them
-  largest (4 × 3, 3 × 4, 6 × 2, 2 × 6, 12 × 1, 1 × 12; a tie keeps a new card's 4 × 3), each small month scaled up as one
-  in its cell's padding (`CalendarSizing.YearShares`, `ScaleBox`); a smaller card keeps the wrapped cells of [S-16438], the
-  last line cut by the foot. Test `CalendarSizingTests.S16446_`.
+- **[S-16446]** *(Retired 2026-11-23, the same day: the owner chose for the year's months, as for the forecast's grid,
+  "Fixed size, gap at right" (docs/WIDGET-RULES.md, exemptions). The months keep their own cell at every card size in the
+  wrapped cells of [S-15780] and [S-16438], the room past the last whole column and under the last line empty; they no
+  longer share the card nor scale up with it.)*
 - **[S-16448]** **Chips only where they read** (WR-9, owner 2026-11-20: "the calendar shows the individual events too early,
   the items should stay small for a little longer"): a month shows its events as chips only in columns of 130 or more
   (`CalendarFit.ChipReadsFrom`: a start and about ten letters of a title in Caption; at 100 a chip read "09:00 Stand…"),

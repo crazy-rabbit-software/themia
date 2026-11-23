@@ -82,9 +82,6 @@ public sealed record DayBandFit(int Lines, double LineHeight, bool SharedLast);
 /// </summary>
 public sealed record YearFit(int Months, int Columns, int Rows, double DayCell, bool Numbers, bool Weekdays);
 
-/// <summary>[S-16446] How the twelve months share a card: <paramref name="Columns"/> × <paramref name="Rows"/>, each small month drawn <paramref name="Factor"/> its own size.</summary>
-public readonly record struct YearShare(int Columns, int Rows, double Factor);
-
 /// <summary>
 /// [S-2700] The calendar's layout math: each configured layout fitted to the box it has. The widget
 /// draws only the configured layout; at a small size the layout sheds detail within itself (a month

@@ -68,14 +68,14 @@ public sealed class CalendarSizingTests
 
         // 80 × 80 cells at every size (WR-4, WR-6): 350 wide holds four whole a line (no month cut by the right edge with
         // later ones under it); 900 all twelve on one; a narrow card one; the lines the height reaches, the last cut by the foot.
-        // [S-16438] The whole columns share the width edge to edge where the months run on to a second line.
+        // [S-16438] Whole columns at their one size, the room past them less than a cell (owner: "Fixed size, gap at right").
         var reach = CalendarSizing.YearCells(fit, 350, 240, grid);
-        Assert.Equal((4, 87.5, 80.0, 3), (reach.Columns, reach.Across.Pitch, reach.Down.Pitch, reach.Lines));
+        Assert.Equal((4, 80.0, 80.0, 3), (reach.Columns, reach.Across.Pitch, reach.Down.Pitch, reach.Lines));
         Assert.Equal(4, CalendarSizing.YearCells(fit, 330, 140, grid).Columns);
         Assert.Equal(6, CalendarSizing.YearCells(fit, 520, 600, grid).Columns);
         Assert.Equal(12, CalendarSizing.YearCells(fit, 1800, 120, grid).Columns);
         Assert.Equal(1, CalendarSizing.YearCells(fit, 60, 1600, grid).Columns);
-        Assert.Equal(520.0 / 6, CalendarSizing.YearCells(fit, 520, 600, grid).Across.Pitch, 6);
+        Assert.Equal(80, CalendarSizing.YearCells(fit, 520, 600, grid).Across.Pitch);
         Assert.Equal(80, CalendarSizing.YearCells(fit, 1800, 120, grid).Across.Pitch);
     }
 
@@ -239,27 +239,5 @@ public sealed class CalendarSizingTests
 
         var copy = (CalendarWidgetConfig)new CalendarWidgetConfig { WeekTitles = true, MonthEvents = MonthEvents.Chips, WeekRows = 5 }.Clone();
         Assert.Equal((true, MonthEvents.Chips, 5), (copy.WeekTitles, copy.MonthEvents, copy.WeekRows));
-    }
-
-    /// <summary>
-    /// [S-16446] Where the card holds all twelve months at their own size, they share it edge to edge in the shape that draws
-    /// them largest, each scaled up (a 520 × 600 year left 417 DIP empty under 56 DIP months); a smaller card keeps the
-    /// wrapped cells.
-    /// </summary>
-    [Fact]
-    public void S16446_the_year_fills_its_card_where_it_holds_all_twelve()
-    {
-        var fit = CalendarSizing.Year(false);
-
-        var tall = CalendarSizing.YearShares(fit, 520, 600);
-        Assert.Equal((3, 4), (tall.Columns, tall.Rows));
-        Assert.True(tall.Factor > 2);
-
-        var wide = CalendarSizing.YearShares(fit, 900, 260);
-        Assert.Equal((6, 2), (wide.Columns, wide.Rows));
-
-        // A new card is its 4 × 3 at its own size; one month's cell holds no twelve.
-        Assert.Equal(new YearShare(4, 3, 1), CalendarSizing.YearShares(fit, 320, 240));
-        Assert.True(CalendarSizing.YearShares(fit, 80, 80).Factor < 1);
     }
 }
