@@ -309,7 +309,6 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     private void DrawValue(MetricDef def, string reading, bool unavailable)
     {
         var inset = FamilySpace.Inset;
-        _status.Say(unavailable ? _why : null, (_width - (2 * inset)) / 2);
         _blockGlyph.Glyph = def.Glyph;
         _blockName.Text = NameOf(def);
         _blockValue.Foreground = Family.Brush(unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary);
@@ -347,5 +346,11 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _blockScale.ScaleY = face.Scale;
         _block.Width = box.Width;
         _block.Margin = new Thickness(face.Left, face.Top, 0, 0);
+
+        // [S-16327] Why, beside the status's glyph: only in the room the caption leaves it where they share the top line.
+        var shares = face.Top < inset + KitStatus.Side + FamilySpace.S2;
+        var beside = _width - inset - KitStatus.Side - FamilySpace.S2 - (face.Left + (_caption.DesiredSize.Width * face.Scale)) - FamilySpace.ColumnGap;
+        var most = shares ? beside : (_width - (2 * inset)) / 2;
+        _status.Say(unavailable && most >= KitStatus.Side * 3 ? _why : null, most);
     }
 }

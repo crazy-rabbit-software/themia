@@ -123,7 +123,7 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   in the status's compact mark (the kit's problem glyph with the reason: offline, refused, the hub's own reason for no reading;
   its busy ring while the first answer is on its way); an answer kept through a failed refresh keeps its graph and its reading
   and says so with the mark. Without a reading the mark carries a compact line of why beside its glyph (`KitStatus.Say`: the
-  first problem, "Offline", cut at a third of the card's width in the graph style, half in the value style). The reading stays
+  first problem, "Offline", cut at a third of the card's width in the graph style; in the value style in the room its caption leaves beside the glyph, none where that is too narrow). The reading stays
   clear of the mark in the head. The same in the value style.
 - **[S-16326]** **Hover**: the pointer over the graph puts the value of the slot under it (a gap's nearest reading) and its time
   in the head's reading's place, and marks it: a hairline down the plot and a dot on each of its values. Nothing changes size
