@@ -18,17 +18,30 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
 - **[S-5121]** `RainInterest`; the weather cadence ([S-3780]). The sentence is re-read from the held
   nowcast every minute, so "in 30 min" counts down between fetches.
 - **[S-5125]** The bars are the one chart's columns ([S-6750], `RainLayout.Chart`), one per quarter hour in equal
-  cells across the card, edge to edge ([S-6754]), filled from the line's foot on a fixed scale (heavy rain fills the
-  chart), a wet quarter never under 8 %, a dry one none (with none, the foot's hairline); the window's two ends under
-  them in Caption tertiary ("Now" and the time two hours on, the chart's ends at the inset off the foot), left to right
-  in every language.
+  cells across the card, edge to edge ([S-6754]), each in its track to the card's foot ([S-16436]), filled from the foot on
+  a fixed scale (heavy rain fills the chart), a wet quarter never under 8 %, a dry one its track alone; the window's two
+  ends over the tracks' feet in Caption tertiary on their scrim ("Now" and the time two hours on, at the inset off the
+  foot), left to right in every language.
 - **[S-5126]** The layout (`RainLayout`): the plot is the card's whole box ([S-6754]: the view owns its top edge);
   over its top, at the inset, the sentence on one Title line (its ellipsis where the card is narrow); then the caption
-  (Body, secondary: the heaviest rain, the total, the chance; its ellipsis too); then 8 down the bars, 48 tall at the
-  atom's height (taller in a taller card: the plot takes the box), and their time line 4 under them, at the inset off
-  the foot. A dry window, one too short to speak for the hour, or no answer at all keeps the chart, its foot's hairline
-  and its time line, with its one plain sentence ("No rain in the next 2 hours", the answer's state) as the caption
-  over them in place of the sentence and its caption ([S-6753]: never no chart).
+  (Body, secondary: the heaviest rain, the total, the chance; its ellipsis too); then 8 down the columns' tracks, to the
+  card's foot, the time line over their feet ([S-16436]). A dry window or one too short to speak for the hour is the same
+  face ([S-16437]); no answer at all keeps it too ([S-6753]: never no chart).
+- **[S-16435]** **The card lights under the pointer** (WR-13, [S-15745]): it is one item that opens the forecast on a click
+  ([S-2037]), so the item layer's hover fill lights it whole under the pointer and its pressed fill pressed (`OpensLight`),
+  never in edit mode or while it has no place.
+- **[S-16436]** **The columns stand in their tracks to the card's foot** (owner, 2026-11-19: "Plot edge to edge", the
+  plot and its fill reach the card's edges, the labels stand inside it, over the plot; "even if there is no rain in the
+  next two hours ... it should show the default values in the graph"): the one chart's columns in tracks
+  (`ChartModel.Tracks`, `RainLayout.Chart`): each quarter's track runs from the band's top (under the sentence) to the
+  card's foot in the Track role, its rain rising from the foot in the accent, a dry quarter its track alone; "Now" and the
+  window's end are written over the tracks' feet on their scrim, inside the plot. Before, the columns stood 32.7 DIP over
+  the foot with the ends under them, a dry hour a 1-DIP hairline. Test `RainNextHourTests.S16436_`.
+- **[S-16437]** **One face in every state, the sentence on the inset** (WR-1, WR-10): the sentence's capitals stand on the
+  card's inset (`RainLayout.SentenceTop`: the inset less the room over the Title line's capitals; they stood 19.3 down); a
+  dry window's sentence ("No rain in the next 2 hours") is the Title line and the hour's chance its caption, as a wet
+  one's; with no nowcast the sentence is "--", unavailable, and why ("Can't reach the service") the caption, the tracks
+  under them. Test `RainNextHourTests.S16437_`.
 - **[S-11140]** **An atom** ([S-11170]): the sentence, its caption and the bars, the same at every size
   in its range (no ladder, no part that comes or goes with the box). **Sizes** (`RainLayout.Sizing`):
   one height (148), 220..420 wide, a new one 300: the bars get wider. It follows the

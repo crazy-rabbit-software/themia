@@ -18,13 +18,14 @@ namespace Themia.App.Widgets;
 /// [S-5120] [S-11140] [S-6754] Rain in the next two hours at a place, on the family's tokens and the one chart
 /// ([S-6750]): the plot the card's edge to edge, a column per quarter hour on a fixed scale; over its top one sentence
 /// ("Rain in 15 min") on a Title line at the inset and the intensity, total and chance the Body line under it; at its
-/// foot the window's two ends ([S-5126]); the same at every size in its range (<see cref="RainLayout"/>). A dry window,
-/// one too short to speak for the hour, or no nowcast yet keeps the chart (its foot's hairline) with its one plain
-/// sentence over it ([S-6753]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
-/// between fetches.
+/// foot the window's two ends over the columns ([S-5126], [S-16436]); the same at every size in its range
+/// (<see cref="RainLayout"/>). A dry window or one too short to speak for the hour is the same face, its sentence the
+/// answer and every quarter its empty track; no nowcast yet keeps it too, "--" its sentence and why the caption
+/// ([S-16437]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down between fetches.
+/// The card is one item, lit under the pointer while a click opens the forecast ([S-16435]).
 /// </summary>
 internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetContextActions, IWidgetTopEdge
+    IWidgetContextActions, IWidgetTopEdge, IWidgetSurfaceAware
 {
     /// <summary>[S-5700] [S-6754] The plot is drawn to the card's top edge; the sentence keeps the inset over it.</summary>
     public bool OwnsTopEdge => true;
@@ -48,6 +49,10 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     /// <summary>[S-11850] A sample's fixed moment; null on the desktop.</summary>
     private DateTimeOffset? _pinnedNow;
 
+    /// <summary>[S-16435] The card lit under the pointer while a click opens something (WR-13).</summary>
+    private readonly OpensLight _opensLight;
+    private IWidgetSurface? _surface;
+
     public RainNextHourView(IWidgetHost host)
     {
         _status = new KitStatus(host);
@@ -55,7 +60,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
             () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Rain, host.Weather.Show),
             () => _config.Interest(),
             Render);
-        _top.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, FamilySpace.Inset, 0);
+        // [S-16437] The sentence's capitals on the card's inset (WR-1), not its Title line's box (they stood 19.3 down).
+        _top.Margin = new Thickness(FamilySpace.Inset, RainLayout.SentenceTop, FamilySpace.Inset, 0);
         _top.VerticalAlignment = VerticalAlignment.Top;
         _headline.TextWrapping = TextWrapping.NoWrap;
         _headline.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -67,7 +73,10 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         Children.Add(_chart);
         Children.Add(_top);
         _status.Place(this);
+        _opensLight = new OpensLight(this, () => _surface?.EditMode != true && Opens is not null);
     }
+
+    public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)] : [];
@@ -78,6 +87,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
 
         // The sentence counts down with the clock; a minute is the finest it changes.
         _feed.Attach(ticker, TimeSpan.FromMinutes(1));
+        _opensLight.Attach();
         ApplyConfig(config);
     }
 
@@ -105,10 +115,12 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
             _status.Clear();
         }
 
+        // [S-16437] One face in every state (WR-10): the answer's sentence and its caption, a dry hour's too; with no nowcast
+        // the sentence "--" and why the caption (not set up says nothing more: the card's Set up row says it).
         var warns = outlook is not null && RainLayout.Warns(outlook.Headline);
-        _headline.Visibility = warns ? Visibility.Visible : Visibility.Collapsed;
-        _headline.Text = warns ? RainText.Headline(outlook!) : string.Empty;
-        _caption.Text = warns ? RainText.Caption(outlook!) : outlook is not null ? RainText.Headline(outlook) : OnlineParts.Caption(_feed.Status);
+        _headline.Text = outlook is not null ? RainText.Headline(outlook) : RainLayout.NoAnswer;
+        _headline.Foreground = Family.Brush(outlook is not null ? ColourRole.TextPrimary : ColourRole.TextDisabled);
+        _caption.Text = outlook is not null ? RainText.Caption(outlook) : OnlineParts.Caption(_feed.Status);
 
         var start = (outlook is { Steps.Count: > 0 } ? outlook.Steps[0].Start : now).ToLocalTime();
         var ends = new ChartEnds(RainNextHourStr.Online_Rain_Now.Text(), LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime)));
@@ -120,6 +132,10 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         _chart.Show(size => RainLayout.Chart(shares, ends, size.Width));
     }
 
-    public void Detach() => _feed.Detach();
+    public void Detach()
+    {
+        _opensLight.Detach();
+        _feed.Detach();
+    }
 
 }

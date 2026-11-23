@@ -23,6 +23,15 @@ public static class RainLayout
     public static double Over => FamilySpace.Inset + FamilyType.Title.LineHeight + FamilyType.Body.LineHeight + FamilySpace.S2;
 
     /// <summary>
+    /// [S-16437] Where the sentence's Title line starts under the card's top edge: the inset less the room over its capitals,
+    /// so the sentence's ink stands on the card's inset (WR-1: "there should not be a space at the top").
+    /// </summary>
+    public static double SentenceTop => FamilySpace.Inset - LineInk.Of(FamilyType.Title).Over;
+
+    /// <summary>[S-16437] The sentence with no nowcast to read (WR-10: its reading as "--"), drawn unavailable.</summary>
+    public const string NoAnswer = "--";
+
+    /// <summary>
     /// [S-5126] Whether the window has rain to tell of (it starts, stops or goes on): only then the
     /// sentence, its caption and the bars; a dry window or one too short to speak for the hour is the
     /// Status row's one plain sentence.
@@ -31,8 +40,9 @@ public static class RainLayout
 
     /// <summary>
     /// [S-5125] [S-6754] What the one chart draws across a plot <paramref name="width"/> wide: a column per quarter hour
-    /// in equal cells, each its share of the fixed scale (<see cref="RainRules.BarShare"/>; a dry one none, and with
-    /// none the foot's hairline), the sentence over the plot's top and the window's <paramref name="ends"/> at its foot.
+    /// in equal cells, each its share of the fixed scale (<see cref="RainRules.BarShare"/>; a dry one none), the sentence
+    /// over the plot's top and the window's <paramref name="ends"/> at its foot. [S-16436] Every quarter stands in its
+    /// track from the band's top to the card's foot, a dry one its track alone, the ends written over the tracks' feet.
     /// </summary>
     public static ChartModel Chart(IReadOnlyList<double> shares, ChartEnds ends, double width)
     {
@@ -44,6 +54,7 @@ public static class RainLayout
             High = 1,
             Over = Over,
             Ends = ends,
+            Tracks = true,
             Series = [.. shares.Select((share, i) => new ChartSample(HourGraphRules.X(i, shares.Count, width), share))],
         };
     }

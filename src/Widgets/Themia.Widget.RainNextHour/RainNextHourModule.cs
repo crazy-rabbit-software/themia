@@ -33,7 +33,7 @@ public sealed class RainNextHourModule : IWidgetModule
         Glyph = Glyphs.Rain,
         Sizing = _ => RainLayout.Sizing(),
         DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.HasItems, // [S-16435] lit whole under the pointer: one item (OpensLight)
         Add = new(AddFolderId.Weather, 0, 3),
 
         // [S-16201] The parts it was split into 21-22 Nov (its sentence and its total, both gone) fold back into it where placed.

@@ -31,6 +31,32 @@ public sealed class RainNextHourTests
     }
 
     [Fact]
+    public void S16436_every_quarter_stands_in_its_track_a_dry_hour_too()
+    {
+        var ends = new ChartEnds("Now", "12:30");
+        var dry = RainLayout.Chart([.. Enumerable.Repeat(0.0, RainRules.WindowSteps)], ends, 300);
+        var wet = RainLayout.Chart([0, 0, 0.2, 0.5, 0.8, 0.5, 0.2, 0.1], ends, 300);
+
+        // The default values in the graph (WR-10): a column a quarter at nothing, in its track, never a bare hairline.
+        Assert.True(dry.Tracks && wet.Tracks);
+        Assert.Equal(RainRules.WindowSteps, dry.Series.Count);
+        Assert.All(dry.Series, sample => Assert.Equal(0, sample.Value));
+
+        // The cells run across the plot edge to edge, a column on each one's middle.
+        Assert.Equal(300.0 / RainRules.WindowSteps / 2, dry.Series[0].X, 6);
+        Assert.Equal(300 - (300.0 / RainRules.WindowSteps / 2), dry.Series[^1].X, 6);
+        Assert.Equal(ends, wet.Ends);
+    }
+
+    [Fact]
+    public void S16437_the_sentence_stands_its_capitals_on_the_card_inset()
+    {
+        Assert.Equal(FamilySpace.Inset, RainLayout.SentenceTop + LineInk.Of(FamilyType.Title).Over, 6);
+        Assert.True(RainLayout.SentenceTop < FamilySpace.Inset);
+        Assert.Equal("--", RainLayout.NoAnswer);
+    }
+
+    [Fact]
     public void S16201_the_sentence_and_the_total_fold_into_the_graph_they_touch_over_their_boxes()
     {
         // The Rain group as the split placed it: the sentence over the graph over the total; a total elsewhere alone.
