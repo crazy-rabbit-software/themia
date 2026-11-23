@@ -127,6 +127,9 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   gap at right": "Every cell keeps its own size (80 DIP) at every card width; whole columns only, so up to one cell of
   empty room stays at the right edge. Matches 'one fixed size'." In such a grid the room past the last whole column,
   less than one cell, is not a WR-3 or WR-5 failure; only the last line is cut, by the foot (WR-4).
+  The same day, asked of the item base's Grid arrangement ("Item grids: keep fixed cells with room at the right, like the
+  forecast grid?"), the owner answered "Fixed, gap at right": every widget on the item base in its Grid (the device lists,
+  Bluetooth, device batteries, meetings, notifications, email, contacts) keeps fixed cells with that room at the right.
 - **The Metric widget's head: name top left, value top right.** 2026-11-23: "the metric should have the name and an icon for
   the metric on the topleft and then the current value of the metric on the topright".
 - **The Metric widget's value face: title left, value right.** 2026-11-23: "when only the metric value is shown it should

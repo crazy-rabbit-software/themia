@@ -357,8 +357,11 @@ def side_by_side(items, height):
 
 
 # [S-16438] The kinds the owner's "Fixed size, gap at right" covers (2026-11-23: the weather forecast's Grid style and the
-# calendar's year view); no other kind's row of cells may stop short of the right edge.
-WRAPPED = {'weatherForecast', 'calendar'}
+# calendar's year view; then "Fixed, gap at right" for the item base's Grid); no other kind's row of cells may stop short
+# of the right edge.
+WRAPPED = {'weatherForecast', 'calendar',
+           'drives', 'networkDrives', 'usbSticks', 'bluetooth', 'deviceBatteries',
+           'meetings', 'notifications', 'email', 'contacts'}
 
 
 def wrapped(items, width):
@@ -366,7 +369,7 @@ def wrapped(items, width):
     calendar's year view) whose room past the last whole column is under one cell: two cells or more of one width from the
     card's left edge (on one line where the card's height reaches only the first: the days after it wrap below its foot),
     the right edge of the widest line less than a cell short of the card's (owner, 2026-11-23: "Fixed size, gap at
-    right")."""
+    right"). A list shorter than one line keeps its cells too, the rest of the line empty."""
     if len(items) < 2:
         return False
     widths = [i.get('fw', i['w']) for i in items]
@@ -374,6 +377,10 @@ def wrapped(items, width):
     if cell - min(widths) > 1.5 or not any(i['x'] <= EDGE for i in items):
         return False
     reach = max(i['x'] + i.get('fw', i['w']) for i in items)
+    if len({round(i['y']) for i in items}) == 1:
+        # One line with a cell or more to spare: the list ends there (a line wraps only when it is full), so the room at
+        # its right is a short list's, as a short list's room under its last row stays empty ([S-14810]).
+        return width - reach >= -EDGE
     return -EDGE <= width - reach < cell
 
 
@@ -556,6 +563,8 @@ def self_test():
                                                                             items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), ['weatherForecast'], False),
         ('a wrapped grid the height shows one line of', card(350, 100, 12, 12, 20, 50,
                                                              items=[{'x': 80.0 * n, 'y': 0, 'w': 80, 'h': 100} for n in range(4)]), ['weatherForecast'], False),
+        ('a grid of two cells, a list shorter than a line', card(900, 300, 12, 12, 10, 630,
+                                                             items=[{'x': 130.0 * n, 'y': 0, 'w': 130, 'h': 80} for n in range(2)]), ['drives'], False),
         ('a wrapped grid a whole cell short of the right', card(600, 600, 12, 12, 20, 132,
                                                                 items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), ['weatherForecast'], True),
         ('a wrapped grid short of the left edge', card(520, 600, 12, 12, 40, 32,

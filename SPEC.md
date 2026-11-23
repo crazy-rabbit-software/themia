@@ -5776,7 +5776,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   every card width, touching from the card's left and top edges; across only the whole columns the width holds, so the
   last item the card reaches is the last line's, cut by the foot, and the room past the last whole column (less than a
   cell) stays empty at the right edge. The gap check takes exactly that right band as no WR-3 finding (`wrapped`, its
-  self-test). A grid of cells that is no list run into lines keeps [S-14816]. Tests `ItemSizeTests.S16438_`, `ItemBaseTests.S16944_`,
+  self-test), for the forecast, the calendar and every widget on the item base in its Grid (owner, 2026-11-23, of the item
+  grids: "Fixed, gap at right"). A grid of cells that is no list run into lines keeps [S-14816]. Tests `ItemSizeTests.S16438_`, `ItemBaseTests.S16944_`,
   `CalendarSizingTests.S15780_S16438_`.
 - **[S-14818]** **The cores' cells share the card from edge to edge** (owner, 2026-11-21: "the weather forecast widget
   grid view items do not go from edge to edge, they have space everywhere. same for the columns view and maybe also other
