@@ -115,4 +115,24 @@ public class WeatherLayoutTests
     [Fact]
     public void S6163_the_style_survives_a_clone()
         => Assert.Equal(ForecastStyle.Curve, ((WeatherForecastConfig)new WeatherForecastConfig { Style = ForecastStyle.Curve }.Clone()).Style);
+
+    [Fact]
+    public void S16590_every_rows_bar_starts_and_ends_at_the_same_x()
+    {
+        // The value column is the widest value's, whole DIPs, on every row: "-3° 12°" sets it, "8° 14°" stands in it.
+        Assert.Equal(52, WeatherForecastLayout.ValueColumn([44.2, 51.2, 38]));
+        Assert.Equal(0, WeatherForecastLayout.ValueColumn([]));
+        Assert.Equal(40, WeatherForecastLayout.ValueColumn([double.NaN, 39.5]));
+
+        // One span for the rows: the bar ends a gap before that column and starts its length before, whatever a row's own
+        // figures, day or lead (a problem glyph in the first row's lead keeps the lead's width).
+        var values = WeatherForecastLayout.ValueColumn([44.2, 51.2, 38]);
+        var meter = WeatherForecastLayout.MeterWidth(396, 24, 38.4, values, 126);
+        var (start, end) = WeatherForecastLayout.BarSpan(396, values, meter);
+        Assert.Equal(396 - 52 - 12, end);
+        Assert.Equal(end - meter, start);
+
+        // The day's widest name ends a gap before the bar: the names never push a row's bar on.
+        Assert.True(start >= 24 + Math.Ceiling(38.4) + 12 - 1e-9);
+    }
 }

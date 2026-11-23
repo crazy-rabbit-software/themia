@@ -37,7 +37,7 @@ internal sealed partial class WeatherForecastView
     /// <para>
     /// [S-12807] The rows reach the content's top and the foot's inset (<see cref="SpreadStack"/>, the foot's
     /// inset its margin): the first day's text on the card's inset, the last day's on the foot's; across, each bar takes what
-    /// the widest day and the widest value leave, the same length on every row.
+    /// the widest day and the widest value leave, the same length on every row, starting and ending at the same x ([S-16590]).
     /// </para>
     /// </summary>
     private SpreadStack BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
@@ -81,15 +81,24 @@ internal sealed partial class WeatherForecastView
 
         if (bars.Count > 0)
         {
+            // [S-16590] Every row's bar starts and ends at the same x: the values in tabular figures, their column the widest
+            // value's on every row (the day's column takes what is left, the lead its one width, a problem glyph's too).
             var rows = list.Children.OfType<RowBlock>().ToList();
+            foreach (var row in rows)
+            {
+                Family.Figures(row.ValueText);
+            }
+
+            var values = WeatherForecastLayout.ValueColumn(rows.Select(r => r.ValueText.Visibility == Visibility.Visible ? Natural(r.ValueText) : 0));
             var meter = WeatherForecastLayout.MeterWidth(
                 WeatherForecastLayout.ContentWidth(_laid),
                 plan.Compact ? 0 : FamilyShape.Icon + FamilySpace.GlyphGap,
                 rows.Max(r => Math.Max(Natural(r.NameText), r.Second.Visibility == Visibility.Visible ? Natural(r.Second) : 0)),
-                rows.Max(r => r.ValueText.Visibility == Visibility.Visible ? Natural(r.ValueText) : 0),
+                values,
                 plan.Meter);
             foreach (var (row, bar) in bars)
             {
+                row.ValueColumn(values);
                 row.Meter(bar, meter);
             }
         }

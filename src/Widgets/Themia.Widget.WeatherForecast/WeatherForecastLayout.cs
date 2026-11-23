@@ -104,6 +104,30 @@ public static class WeatherForecastLayout
         return Math.Max(Math.Max(0, floor), Math.Floor(left));
     }
 
+    /// <summary>
+    /// [S-16590] The rows' value column (owner, 2026-11-23: "for the weather forecast widget the temperature bars should be
+    /// aligned to each other"): as wide as the widest value shown (<paramref name="values"/>, each day's "low high" in
+    /// tabular figures), on every row, so no row's bar ends sooner than another's ("-3° 12°" against "8° 14°").
+    /// </summary>
+    public static double ValueColumn(IEnumerable<double> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var widest = values.Where(double.IsFinite).DefaultIfEmpty(0).Max();
+        return Math.Ceiling(Math.Max(0, widest));
+    }
+
+    /// <summary>
+    /// [S-16590] Where the range bar stands in every row of <paramref name="inner"/> across (the start and the end from the
+    /// row's start): the value column (<see cref="ValueColumn"/>) at the row's end with its gap, the bar of
+    /// <paramref name="meter"/> (<see cref="MeterWidth"/>) before it with its gap; the lead and the day take what is left.
+    /// One span for every row, whatever its day, its sky or its figures.
+    /// </summary>
+    public static (double Start, double End) BarSpan(double inner, double valueColumn, double meter)
+    {
+        var end = inner - valueColumn - FamilySpace.ColumnGap;
+        return (end - meter, end);
+    }
+
     /// <summary>[S-726] [S-14502] [S-14810] The columns for the box's width: every day it reaches at a column's one width (its 56 in whole cells), the last cut by the card's right edge, every part drawn.</summary>
     public static ForecastColumnsPlan Columns(WidgetArea area, WeatherForecastConfig config)
     {

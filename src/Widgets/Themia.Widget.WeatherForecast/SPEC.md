@@ -125,6 +125,13 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   up room for it (the first row's alone was cut to "T…"; a room every row gave up made the rows end 37 DIP from the edge
   stale against 13 fresh). The other styles keep the kit's status over the top end. `ForecastDefaults.Problems`; test
   `ForecastDaysTests.S16441_`.
+- **[S-16590]** **The temperature bars line up** (owner, 2026-11-23: "for the weather forecast widget the temperature bars
+  should be aligned to each other"): in the rows style every day's range bar starts and ends at the same x: the values in
+  tabular figures, their column the widest value's on every row (`WeatherForecastLayout.ValueColumn`, `RowBlock.ValueColumn`),
+  the bar of [S-12403]'s length before it (`BarSpan`), the lead one width whatever it holds (the sky or the problem glyph,
+  [S-16441]) and the day the rest; "-3° 12°" and "8° 14°", "Today" and "Tue" no longer move a row's bar. The columns
+  style's standing bars share their top and foot already (each part above and under them one line on every column).
+  Test `WeatherLayoutTests.S16590_`.
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
 - View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).
