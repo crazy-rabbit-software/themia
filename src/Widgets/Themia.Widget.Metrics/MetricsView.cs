@@ -128,6 +128,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     {
         _config = config as MetricsConfig ?? new MetricsConfig();
         _pointer = null;
+        _shown = null;
         Follow();
         Render();
     }
@@ -231,6 +232,12 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         var inset = FamilySpace.Inset;
         _headScale.ScaleX = face.Scale;
         _headScale.ScaleY = face.Scale;
+
+        // [S-16321] Its glyph read to 12 DIP however far the head scales down.
+        var glyph = MetricFaceRules.GlyphSize(face.Scale);
+        _glyph.FontSize = glyph;
+        _glyph.Width = glyph;
+        _glyph.Height = glyph;
         // [S-16326] The status's problem glyph stands at the head's end, on its line; the reading keeps clear of it.
         var room = _status.Room > 0 ? _status.Room + FamilySpace.GlyphGap : 0;
         _head.Width = Math.Max(0, (_width - (2 * inset) - room) / face.Scale);

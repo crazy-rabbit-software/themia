@@ -94,8 +94,9 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   its graph hidden ([S-16323]).
 - **[S-16321]** **The graph face's head**: the glyph and the name (Body, secondary, cut by its ellipsis) top left and the reading
   (Title) top right, on one baseline; one head scaled with the card (its scale the card's against 240 × 120, the smaller axis,
-  0.75 to 2.5: owner, "it should scale to the size properly but it should not change its layout drastically"), its first ink on
-  the card's inset (WR-1), its sides on the insets. Under it, a small gap down, the plot: the card's whole width, down to its foot
+  up to 2.5: owner, "it should scale to the size properly but it should not change its layout drastically"; down to where its
+  smallest text, the name, is the 9 DIP the family reads to, WR-14, `ScaleFloor.Least`, its glyph held at 12 under that,
+  `MetricFaceRules.GlyphSize`), its first ink on the card's inset (WR-1), its sides on the insets. Under it, a small gap down, the plot: the card's whole width, down to its foot
   ([S-6754]: "Plot edge to edge").
 - **[S-16322]** **Behind the head on a low card**: where the head leaves the plot less than 24 DIP (`MetricFaceRules.LeastPlot`),
   the plot is the card's whole box behind the head, drawn faint (a third, `BehindShare`; owner: "the graph should only be a
@@ -106,9 +107,14 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   other ("Centred is fine"). No graph, no hover.
 - **[S-16324]** **A running reading keeps its block** (WR-15): the value face measures its reading with every figure an 8
   (`MetricFaceRules.Template`), so its block's size holds while the figures change.
-- **[S-16325]** **Its sizes** (`MetricFaceRules.Sizing`, on the 10-DIP grid): the graph 160 × 40 at least (the head at its least
-  scale, the graph behind it), 240 × 120 natural; the value 140 × 60 at least, 200 × 90 natural; relaxed by the host ([S-12411]).
+- **[S-16325]** **Its sizes** (`MetricFaceRules.Sizing`): the graph 120 × 32 at least (the grid's least widget, WR-14: the head at
+  its least scale over the graph behind it, its text at 9 DIP; was 160 × 40, its head stopped at 0.75), 240 × 120 natural; the value 140 × 60 at least, 200 × 90 natural; relaxed by the host ([S-12411]).
   A style switched refits the card.
+- **[S-16327]** **No answer, or a stale one, keeps the face** (WR-10, owner: "it should show the default values in the graph and not
+  just not show the graph"): no answer is the graph's default across its foot ([S-16314]), the reading "--" (disabled) and why
+  in the status's compact mark (the kit's problem glyph with the reason: offline, refused, the hub's own reason for no reading;
+  its busy ring while the first answer is on its way); an answer kept through a failed refresh keeps its graph and its reading
+  and says so with the mark. The reading stays clear of the mark in the head. The same in the value style.
 - **[S-16326]** **Hover**: the pointer over the graph puts the value of the slot under it (a gap's nearest reading) and its time
   in the head's reading's place, and marks it: a hairline down the plot and a dot on each of its values. Nothing changes size
   (WR-12); off the graph the reading again. `--render widget metrics … --hover fx,fy` draws it (the plot's look at a point,
@@ -125,11 +131,14 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
 - **[S-16314]** **Edge to edge**: a line's first point on the plot's left edge and its last on the right; bars, ranges and
   candles from the left edge to the right with a gap of 2 between each two (a column at most 24 wide, a range or a candle 12, the
   rest evenly between), never room at the plot's sides; area and bars stand on the card's foot. The series in the accent, a
-  pair's second in the tertiary text's colour, a falling candle Critical, the wash the family's. Nothing to draw (no reading
-  yet) is a flat line across its foot in the disabled text's colour (WR-10).
+  pair's second in the tertiary text's colour, a falling candle Critical, the wash the family's. Wherever the span has a slot
+  without a reading (none yet, a history still filling, a gap) the graph draws its default under the readings: a flat line
+  across its foot in the disabled text's colour (WR-10, `MetricGraphRules.DrawsDefault`).
 - **[S-16315]** **Down and under the pointer**: a value's height on its range from the plot's top to its foot (clamped); the slot
   under the pointer a line's nearest point or a mark's nearest middle.
-- **[S-16316]** The plot is the card's whole box (`PlotMark`): the gap check holds it to the card's edges.
+- **[S-16316]** The plot is the card's whole box (`PlotMark`): the gap check holds it to the card's edges. The gap check judges
+  the widget as a graph in its graph style (`GRAPH_STYLES`: a graph style drawn with no plot is "WR-10 no plot") and as a
+  reading in its value style; the checks draw every state in both styles (`renders.EVERY_STATE_STYLES`).
 
 ## The page
 
@@ -152,7 +161,9 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   own DIPs.
 - **[S-16309]** **Its sample** (the add page's picture): the sample day's data for the metric's source (the place's hours and
   days, its air, MSFT's session, the ECB's table) at the sample moment, held by the view alone; a system metric reads the sample
-  PC its host hands it. Debug states: `sample`, `stale` (the status's problem glyph), `empty` (no answer: the graph's hairline and
-  "--").
+  PC its host hands it. Debug states: `sample`; `stale` (the last graph and reading with the status's problem glyph) and `empty`
+  (no answer: the graph's default, "--" and why), a system metric's from a made-up series of its own (the live hub has neither);
+  and a state a graph type and shape, so the checks draw each: `line` (the temperature hourly), `bars` (UV), `step`
+  (pressure), `range` (the days' low and high), `candles` (MSFT), `pair` (a drive's reads and writes).
 
 Needs a manual pass: its min, natural and max on the live desktop (showcase views, [S-1810]); live hover with a real pointer.

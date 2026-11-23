@@ -41,9 +41,15 @@ internal sealed partial class MetricsPlot : Canvas
         // A line keeps its stroke inside the plot; a fill and a bar stand on the card's foot.
         var lineTop = look.Top + stroke;
         var lineFoot = height - (stroke / 2);
-        if (!series.Any)
+        // [S-16314] The graph's default under whatever the series has not (WR-10: "it should show the default values in the
+        // graph and not just not show the graph"): a flat line across the foot, the readings over it.
+        if (MetricGraphRules.DrawsDefault(series))
         {
             Add(Rule(0, height - FamilyShape.Stroke, width, ColourRole.TextDisabled));
+        }
+
+        if (!series.Any)
+        {
             return;
         }
 

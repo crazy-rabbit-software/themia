@@ -269,6 +269,15 @@ public sealed class MetricsTests
     }
 
     [Fact]
+    public void S16314_a_graph_with_slots_it_has_no_reading_for_draws_its_default_across_its_foot()
+    {
+        Assert.True(MetricGraphRules.DrawsDefault(Series(null, null, null)));
+        Assert.True(MetricGraphRules.DrawsDefault(Series(null, null, 3))); // a history still filling: one point, the default under it
+        Assert.False(MetricGraphRules.DrawsDefault(Series(1, 2, 3)));
+        Assert.True(MetricGraphRules.DrawsDefault(MetricSeries.Empty(MetricShape.Pair, 60, Nine, TimeSpan.FromSeconds(1))));
+    }
+
+    [Fact]
     public void S16313_the_range_is_from_zero_for_an_amount_its_own_low_for_a_temperature_and_a_whole_hundred_for_a_share()
     {
         var amounts = MetricGraphRules.Range(Series(2, 4, 6), fromZero: true);
@@ -421,15 +430,34 @@ public sealed class MetricsTests
         foreach (var style in Enum.GetValues<MetricsStyle>())
         {
             var sizing = MetricFaceRules.Sizing(style);
-            foreach (var size in new[] { sizing.Min, sizing.Natural })
-            {
-                Assert.Equal(0, size.Width % 10);
-                Assert.Equal(0, size.Height % 10);
-            }
+            Assert.Equal(0, sizing.Natural.Width % 10);
+            Assert.Equal(0, sizing.Natural.Height % 10);
+            Assert.True(sizing.Min.Width >= WidgetSizing.LeastScaled && sizing.Min.Height >= WidgetSizing.LeastScaled);
         }
 
-        // The graph's least is the head at its least scale with its inset over it.
-        Assert.True(MetricFaceRules.Sizing(MetricsStyle.Graph).Min.Height >= FamilySpace.Inset + (MetricFaceRules.Head.LineHeight * MetricFaceRules.LeastScale));
+        // WR-14: the graph goes down to the grid's least widget, its head at the 9 DIP its text is read to, behind which the
+        // graph stands; the head's ink fits the least height with room over and under it.
+        var graph = MetricFaceRules.Sizing(MetricsStyle.Graph).Min;
+        Assert.Equal(WidgetSizing.LeastScaled, graph.Height);
+        Assert.True(graph.Width <= 120);
+        var least = MetricFaceRules.Graph(graph.Width, graph.Height);
+        Assert.True(least.Behind);
+        Assert.Equal(MetricFaceRules.LeastScale, least.Scale, 6);
+        var inkTop = least.HeadTop + (MetricFaceRules.HeadInk.Over * least.Scale);
+        var inkFoot = least.HeadTop + least.HeadHeight - (MetricFaceRules.HeadInk.Under * least.Scale);
+        Assert.True(inkTop > 0 && inkFoot < graph.Height);
+    }
+
+    [Fact]
+    public void S16321_the_head_scales_down_to_its_text_read_at_9_and_its_glyph_at_12()
+    {
+        Assert.Equal(ScaleFloor.Text, MetricFaceRules.Name.FontSize * MetricFaceRules.LeastScale, 6);
+        Assert.True(MetricFaceRules.LeastScale < 0.75);
+
+        // The glyph never under 12 on the card: drawn larger in the head where the head is under 0.75.
+        Assert.Equal(FamilyShape.Icon, MetricFaceRules.GlyphSize(1));
+        Assert.Equal(FamilyShape.Icon, MetricFaceRules.GlyphSize(0.75), 6);
+        Assert.Equal(ScaleFloor.Glyph, MetricFaceRules.GlyphSize(MetricFaceRules.LeastScale) * MetricFaceRules.LeastScale, 6);
     }
 
     // ---- formats ----------------------------------------------------------------------------------

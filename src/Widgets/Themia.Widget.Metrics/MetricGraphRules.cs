@@ -33,6 +33,16 @@ public static class MetricGraphRules
     /// <summary>[S-16313] The room left over the highest value and under the lowest (a graph not from zero), a share of the span.</summary>
     public const double Headroom = 0.08;
 
+    /// <summary>
+    /// [S-16314] Whether the graph draws its default, the flat line across its foot: wherever its span has a slot without a
+    /// reading (none yet, a history still filling, a gap), so it never stands empty (WR-10).
+    /// </summary>
+    public static bool DrawsDefault(MetricSeries series)
+    {
+        ArgumentNullException.ThrowIfNull(series);
+        return series.Slots.Any(s => s is null);
+    }
+
     /// <summary>[S-16312] Whether a type draws a mark a slot (bars, ranges, candles) rather than a line through them.</summary>
     public static bool Marks(MetricGraphType type) => type is MetricGraphType.Bars or MetricGraphType.Range or MetricGraphType.Candles;
 

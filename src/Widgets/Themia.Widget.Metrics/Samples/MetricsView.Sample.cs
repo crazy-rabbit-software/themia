@@ -1,5 +1,6 @@
 using Themia.App.Services.Web;
 using Themia.App.Widgets;
+using Themia.Core.Localization;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.Samples;
@@ -19,8 +20,12 @@ internal sealed partial class MetricsView : IWidgetSample
         return Task.CompletedTask;
     }
 
-    /// <summary>The sample at the sample moment: kept through a failed refresh where <paramref name="stale"/>, none at all where <paramref name="empty"/>.</summary>
-    internal void ShowSample(bool stale, bool empty)
+    /// <summary>
+    /// The sample at the sample moment: kept through a failed refresh where <paramref name="stale"/>, none at all where
+    /// <paramref name="empty"/> (the graph's default and "--", the mark saying why). A system metric reads its host's machine,
+    /// unless <paramref name="hub"/> hands it a series of its own (a preview's: the live hub has no stale or empty face).
+    /// </summary>
+    internal void ShowSample(bool stale, bool empty, MetricSeries? hub = null)
     {
         var config = (MetricsConfig)_config.Clone();
         if (!config.HasLocation)
@@ -47,7 +52,9 @@ internal sealed partial class MetricsView : IWidgetSample
             return stale ? held.Stale(FetchStatus.Offline, null) : held;
         }
 
-        var status = empty ? FetchStatus.Loading : FetchStatus.Ok;
+        // [S-16327] No answer: the sync could not ask (offline), which its mark says.
+        var status = empty ? FetchStatus.Offline : FetchStatus.Ok;
+        _shown = null;
         switch (config.Feed.Source)
         {
             case MetricSource.Hours:
@@ -66,6 +73,16 @@ internal sealed partial class MetricsView : IWidgetSample
                 _rates.Preview(empty ? null : SampleRates.Table() is { Value: { } table } ? Held(table) : null, status);
                 break;
             default:
+                var why = Str.WidgetsB_Meters_Unavailable.Text();
+                if (empty)
+                {
+                    _shown = (Empty(config.Feed, config.SpanInForce, SampleDay.Now) with { Now = null }, [why], string.Empty);
+                }
+                else if (hub is not null)
+                {
+                    _shown = (hub, stale ? [why] : [], string.Empty);
+                }
+
                 Render();
                 break;
         }

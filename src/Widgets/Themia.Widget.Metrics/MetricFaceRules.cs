@@ -38,10 +38,21 @@ public static class MetricFaceRules
 
     public const double NaturalHeight = 120;
 
-    /// <summary>[S-16321] The head's least scale (its name a Body line at 10.5, over the 9 the family reads to, WR-14) and its most.</summary>
-    public const double LeastScale = 0.75;
+    /// <summary>
+    /// [S-16321] The head's least scale: its smallest text (the name, a Body line) at the 9 DIP the family reads to (WR-14: "for
+    /// the widgets that can scale there should basically be no lower limit except for one that makes sense so you can still see
+    /// the widget"); its glyph is held at its own floor under that (<see cref="GlyphSize"/>). And its most.
+    /// </summary>
+    public static double LeastScale => ScaleFloor.Least(FamilyType.BodySize);
 
     public const double MostScale = 2.5;
+
+    /// <summary>
+    /// [S-16321] The head's glyph at scale <paramref name="scale"/>: its 16 DIP, drawn no smaller than the 12 a glyph is read to
+    /// (WR-14), so under 0.75 it is drawn larger in the head to stay 12 on the card.
+    /// </summary>
+    public static double GlyphSize(double scale)
+        => FamilyShape.Icon * Math.Max(1, ScaleFloor.Glyph / FamilyShape.Icon / Math.Max(1e-6, scale));
 
     /// <summary>[S-16323] The value block's least: its caption a Body line at 9.1, the family's least read (WR-14).</summary>
     public const double ValueLeast = 0.65;
@@ -135,13 +146,13 @@ public static class MetricFaceRules
     }
 
     /// <summary>
-    /// [S-16325] The sizes a style holds, on the 10-DIP grid: the graph's least where the name, the value and a sliver of graph
-    /// behind them still read (a head at its least scale), its natural the head at its own size over a plot three times its
+    /// [S-16325] The sizes a style holds: the graph's least where the name and the value still read over the graph behind them
+    /// (the head at its least scale, its text at 9 DIP), as low as the grid's least widget (WR-14); its natural the head at its own size over a plot three times its
     /// height; the value's least its block at its least scale, its natural the block at its own. Relaxed past that by the host.
     /// </summary>
     public static WidgetSizing Sizing(MetricsStyle style) => style switch
     {
         MetricsStyle.Value => WidgetSizing.Range(new(140, 60), new(200, 90), new(400, 180)),
-        _ => WidgetSizing.Range(new(160, 40), new(NaturalWidth, NaturalHeight), new(480, 240)),
+        _ => WidgetSizing.Range(new(120, WidgetSizing.LeastScaled), new(NaturalWidth, NaturalHeight), new(480, 240)),
     };
 }

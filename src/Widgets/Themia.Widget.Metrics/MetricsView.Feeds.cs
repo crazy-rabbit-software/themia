@@ -164,11 +164,26 @@ internal sealed partial class MetricsView
     };
 
     /// <summary>
-    /// [S-16311] The metric's series now, through its source's adapter: the data held (none yet: the span's empty slots, so the
-    /// graph still stands, WR-10), and the status's problem glyph where a refresh failed over an answer kept.
+    /// [S-11850] [S-16309] What a sample or a preview state hands the face in place of its source's answer (the hub's series
+    /// is the live machine's: a picture of the empty, stale or another metric's face needs its own), with the problems its
+    /// status says; null: the source's own.
+    /// </summary>
+    private (MetricSeries Series, IReadOnlyList<string> Problems, string Currency)? _shown;
+
+    /// <summary>
+    /// [S-16311] [S-16327] The metric's series now, through its source's adapter: the data held (none yet: the span's empty
+    /// slots, so the graph still stands, WR-10), and why in the status's compact mark: a refresh failed over an answer kept,
+    /// no answer and why (offline, refused; still loading: its busy ring), the hub's reason for no reading.
     /// </summary>
     private MetricSeries Read(DateTimeOffset now)
     {
+        if (_shown is { } shown)
+        {
+            _currency = shown.Currency;
+            Say(shown.Problems, busy: false);
+            return shown.Series;
+        }
+
         var def = _config.Def;
         var feed = _config.Feed;
         var span = _config.SpanInForce;
@@ -183,6 +198,7 @@ internal sealed partial class MetricsView
                 var period = SystemCadence.PeriodSeconds(feed.Hub ?? SystemSource.Cpu);
                 var history = _watch is { } watch ? watch.History(MetricAdapters.HubSlots(span, period)) : [];
                 series = MetricAdapters.Hub(def, history, Reading(def, _watch?.Latest), span, period, now);
+                problems = _watch?.Latest is { Available: false, Reason: { Length: > 0 } reason } ? [reason] : [];
                 break;
             case MetricSource.Hours when _hours.Held?.Value is { } hours:
                 series = MetricAdapters.Hours(def, feed, hours.Hours, h => h.At, feed.Hour!, feed.HourSecond, span, now, unit);
@@ -208,20 +224,45 @@ internal sealed partial class MetricsView
                 break;
         }
 
-        if (problems.Count > 0)
+        var busy = false;
+        if (series is null && Status(feed.Source) is { } status)
         {
-            _status.Show(problems, busy: false);
+            // No answer to draw: the face stays (its default graph, "--") and the mark says why.
+            busy = status == FetchStatus.Loading;
+            problems = busy || status == FetchStatus.NotConfigured ? [] : OnlineParts.Failure(status);
+        }
+
+        Say(problems, busy);
+
+        return series ?? Empty(feed, span, now);
+    }
+
+    /// <summary>The state of a sync's answer while it has none to draw; null for the hub's.</summary>
+    private FetchStatus? Status(MetricSource source) => source switch
+    {
+        MetricSource.Hours => _hours.Status,
+        MetricSource.Days => _days.Status,
+        MetricSource.AirHours => _air.Status,
+        MetricSource.Quote => _quote.Status,
+        MetricSource.Rates => _rates.Status,
+        _ => null,
+    };
+
+    /// <summary>[S-16327] The status's mark: the problems' glyph, the busy ring, or nothing.</summary>
+    private void Say(IReadOnlyList<string> problems, bool busy)
+    {
+        if (problems.Count > 0 || busy)
+        {
+            _status.Show(problems, busy);
         }
         else
         {
             _status.Clear();
         }
-
-        return series ?? Empty(feed, span, now);
     }
 
     /// <summary>[S-16311] The span's slots with nothing in them yet.</summary>
-    private static MetricSeries Empty(MetricFeed feed, MetricSpan span, DateTimeOffset now)
+    internal static MetricSeries Empty(MetricFeed feed, MetricSpan span, DateTimeOffset now)
     {
         var step = span.Step switch
         {
