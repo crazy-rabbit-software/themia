@@ -62,6 +62,10 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     private readonly TextBlock _blockWhy = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly ScaleTransform _blockScale = new();
 
+    /// <summary>[S-16323] Each line of the value face centred by its ink, not its box: a glyph's or a text's side bearings.</summary>
+    private readonly TranslateTransform _captionShift = new();
+    private readonly TranslateTransform _valueShift = new();
+
     private MetricsConfig _config = new();
     private MetricSeries? _series;
     private string _currency = string.Empty;
@@ -128,9 +132,14 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _blockValue.TextWrapping = TextWrapping.NoWrap;
         Family.Figures(_blockValue);
 
-        // Both on the block's start edge: the reading under the caption's glyph, never centred in the block's width.
-        caption.HorizontalAlignment = HorizontalAlignment.Left;
-        _blockValue.HorizontalAlignment = HorizontalAlignment.Left;
+        // [S-16323] Both centred in the block: the caption over the held box, the reading inside it, so whatever a reading
+        // leaves of its widest template's box stands alike on both sides (the box itself never moves, WR-15).
+        caption.HorizontalAlignment = HorizontalAlignment.Center;
+        _valueCell.HorizontalAlignment = HorizontalAlignment.Center;
+        _blockValue.HorizontalAlignment = HorizontalAlignment.Center;
+        _blockHeld.HorizontalAlignment = HorizontalAlignment.Center;
+        caption.RenderTransform = _captionShift;
+        _blockValue.RenderTransform = _valueShift;
 
         // [S-16324] The reading stands in its template's box, the metric's widest reading drawn unseen under it: the block is
         // laid out by that box, and the checks judge it by it (WR-15: a running value never moves or rescales the block).
@@ -365,10 +374,15 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
             _block.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
             box = Ink.Of(_block);
 
-            // Across: from the block's start (the held box's) to the further of the held box's end and the caption's last ink.
+            // Across: the held box and the caption's ink, each centred in the block; the face fills the stopping axis with them.
             var last = _blockWhy.Visibility == Visibility.Visible ? _blockWhy : _blockProblem.Visibility == Visibility.Visible ? _blockProblem : (FrameworkElement)_blockName;
-            var end = Math.Max(_valueCell.DesiredSize.Width, _caption.DesiredSize.Width - Ink.Of(last).Right);
-            face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, 0, Math.Max(0, box.Width - end));
+            var captionBefore = Ink.Of(_blockGlyph).Left;
+            var captionAfter = Ink.Of(last).Right;
+            var drawn = Ink.Of(_blockValue);
+            _captionShift.X = MetricFaceRules.InkCentre(captionBefore, captionAfter);
+            _valueShift.X = MetricFaceRules.InkCentre(drawn.Left, drawn.Right);
+            var (before, after) = MetricFaceRules.ValueAcross(box.Width, _valueCell.DesiredSize.Width, _caption.DesiredSize.Width - captionBefore - captionAfter);
+            face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, before, after);
             var held = MetricFaceRules.GlyphSize(face.Scale);
             if (Math.Abs(held - glyph) < 0.01)
             {

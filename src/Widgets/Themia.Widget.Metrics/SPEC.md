@@ -110,7 +110,10 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
 - **[S-16323]** **The value face**: the glyph and the name (Body, secondary) over the reading (Big28), one block scaled as one
   until the width or the height stops it (WR-7), never under 0.65 (its caption at 9.1, WR-14), its glyph held at 12 DIP however
   far it scales down; its ink on the insets of the axis that stops it, centred on the
-  other ("Centred is fine"). No graph, no hover.
+  other ("Centred is fine"). The caption and the reading's held box are centred in the block and the reading in its held box
+  (`MetricFaceRules.ValueAcross`): the held box counts whole, so what a shorter reading leaves of it stands alike either side;
+  the caption and the reading each centred by their ink, not their box (`InkCentre`: a thin glyph's or a text's side bearings).
+  No graph, no hover, no press.
 - **[S-16324]** **A running reading keeps its block** (WR-15, as the clock): the reading stands in a held box, the metric's widest
   reading (`MetricFormat.Widest`: its largest form, every figure an 8: "888%", "-88° / -88°", "888 / 888 MB/s") drawn unseen
   under it (`HoldMark`); the block is laid out by that box, so "31%", "100%" and "--" stand in one place at one scale.

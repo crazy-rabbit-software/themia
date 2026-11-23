@@ -393,6 +393,30 @@ public sealed class MetricsTests
     }
 
     [Fact]
+    public void S16323_the_value_face_centres_the_held_box_and_the_caption_so_a_short_reading_leaves_its_room_alike()
+    {
+        // The held box wider than the caption: it alone is the block's ink across, whole, however short the reading drawn in it.
+        Assert.Equal((0.0, 0.0), MetricFaceRules.ValueAcross(120, 120, 80));
+
+        // The caption's ink wider: centred, it sets the room either side alike.
+        var (before, after) = MetricFaceRules.ValueAcross(150, 100, 146);
+        Assert.Equal(2, before, 6);
+        Assert.Equal(2, after, 6);
+
+        // A line centred by its box moves by half its bearings' difference: a thin glyph's wide room before moves it back.
+        Assert.Equal(-3, MetricFaceRules.InkCentre(8, 2), 6);
+        Assert.Equal(0, MetricFaceRules.InkCentre(2, 2), 6);
+
+        // Centred on the card: the held box's leftover on the stopping axis stands alike either side of the card.
+        var block = 150.0;
+        var across = MetricFaceRules.ValueAcross(block, 100, 148);
+        var face = MetricFaceRules.Value(520, 600, block, 60, new LineInk(6, 7), across.Before, across.After);
+        var heldLeft = face.Left + ((block - 100) / 2 * face.Scale);
+        var heldRight = 520 - heldLeft - (100 * face.Scale);
+        Assert.Equal(heldLeft, heldRight, 6);
+    }
+
+    [Fact]
     public void S16323_the_value_block_fills_the_axis_that_stops_it_and_stands_centred_on_the_other()
     {
         var ink = new LineInk(6, 7);

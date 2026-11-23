@@ -196,6 +196,25 @@ public static class MetricFaceRules
     }
 
     /// <summary>
+    /// [S-16323] The room beside the value face's ink in its block (<paramref name="block"/> wide): the held box
+    /// (<paramref name="held"/> wide, the widest reading's whole box) and the caption's ink (<paramref name="captionInk"/> wide),
+    /// each centred in the block (<see cref="InkCentre"/>). The unseen template counts whole, so the reading drawn in it is
+    /// centred however wide it is (WR-15).
+    /// </summary>
+    public static (double Before, double After) ValueAcross(double block, double held, double captionInk)
+    {
+        var start = Math.Min((block - held) / 2, (block - captionInk) / 2);
+        var end = Math.Max((block + held) / 2, (block + captionInk) / 2);
+        return (Math.Max(0, start), Math.Max(0, block - end));
+    }
+
+    /// <summary>
+    /// [S-16323] How far a line centred by its box moves so its ink is centred instead: half its ink's room after
+    /// (<paramref name="after"/>) less its room before (<paramref name="before"/>), a glyph's or a text's side bearings.
+    /// </summary>
+    public static double InkCentre(double before, double after) => (after - before) / 2;
+
+    /// <summary>
     /// [S-16324] The text a value is measured by: every figure an 8 (the widest), so a running reading's block keeps its size
     /// while its figures change (WR-15).
     /// </summary>
