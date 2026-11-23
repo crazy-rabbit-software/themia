@@ -58,7 +58,10 @@
     "metrics.graph.bars",
     "metrics.graph.step",
     "metrics.graph.range",
-    "metrics.graph.candles"
+    "metrics.graph.candles",
+    "metrics.why.offline",
+    "metrics.why.noData",
+    "metrics.why.unavailable"
   ],
   "metrics.desc": "Any reading, now and as a graph over time",
   "metrics.graph.area": "Area",
@@ -117,6 +120,9 @@
   "metrics.subject.weather": "Weather",
   "metrics.way.future": "Forecast",
   "metrics.way.past": "History",
+  "metrics.why.noData": "No data",
+  "metrics.why.offline": "Offline",
+  "metrics.why.unavailable": "Unavailable",
   "styles.metrics.graph": "Graph",
   "styles.metrics.value": "Value"
 }

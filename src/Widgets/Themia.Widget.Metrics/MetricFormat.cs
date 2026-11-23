@@ -1,3 +1,5 @@
+using Themia.App.Services.Web;
+using Themia.Core.Sync;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -43,6 +45,17 @@ public static class MetricFormat
             _ => Digits(metric.Digits),
         };
     }
+
+    /// <summary>
+    /// [S-16327] Why a face has no reading, in a word its status's compact line reads whole: offline (no network), unavailable
+    /// (the service refused, failed or is not reached), else no data (the machine has none, nothing came yet).
+    /// </summary>
+    public static string Why(FetchStatus? status) => status switch
+    {
+        FetchStatus.Offline => MetricsStr.Metrics_Why_Offline.Text(),
+        null or FetchStatus.Ok or FetchStatus.Loading or FetchStatus.Empty or FetchStatus.NotConfigured => MetricsStr.Metrics_Why_NoData.Text(),
+        _ => MetricsStr.Metrics_Why_Unavailable.Text(),
+    };
 
     /// <summary>
     /// [S-16324] The metric's widest reading in <paramref name="shape"/>, every figure an 8 (<see cref="MetricFaceRules.Template"/>

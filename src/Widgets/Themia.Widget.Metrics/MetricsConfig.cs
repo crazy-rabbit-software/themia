@@ -106,6 +106,14 @@ public sealed class MetricsConfig : WeatherConfig, IStyled, IInterests, IReadsSy
         set => GpuAdapter = value;
     }
 
+    /// <summary>[S-16300] The metric's name as the face says it: a stock's symbol, a rate's pair ("EUR/USD"), else the catalog's.</summary>
+    public string Caption() => Def.Need switch
+    {
+        MetricNeed.Symbol when Quote().EffectiveSymbol is { Length: > 0 } symbol => symbol.ToUpperInvariant(),
+        MetricNeed.CurrencyPair => Pair() is { } pair ? pair.EffectiveBase + "/" + pair.EffectiveQuote : Def.Name.Text(),
+        _ => Def.Name.Text(),
+    };
+
     /// <summary>[S-16305] Show <paramref name="id"/>: its first step, its first span and its graph, so a new metric starts as it reads best.</summary>
     public void Choose(string id)
     {

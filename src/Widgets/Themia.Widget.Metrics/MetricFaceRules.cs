@@ -39,12 +39,6 @@ public static class MetricFaceRules
     public const double NaturalHeight = 120;
 
     /// <summary>
-    /// [S-16325] The graph style's least width: where, at the head's least scale, a short name ("CPU", "UV index") and the
-    /// widest of its readings read whole side by side, a long one cut meaningfully (WR-14).
-    /// </summary>
-    public const double LeastWidth = 180;
-
-    /// <summary>
     /// [S-16321] The head's least scale: its smallest text (the name, a Body line) at the 9 DIP the family reads to (WR-14: "for
     /// the widgets that can scale there should basically be no lower limit except for one that makes sense so you can still see
     /// the widget"); its glyph is held at its own floor under that (<see cref="GlyphSize"/>). And its most.
@@ -53,14 +47,43 @@ public static class MetricFaceRules
 
     public const double MostScale = 2.5;
 
+    /// <summary>[S-16321] The least share of its Title line the head's reading is drawn at: the name's size (Body over Title).</summary>
+    public static double LeastShare => FamilyType.BodySize / FamilyType.TitleSize;
+
     /// <summary>
-    /// [S-16321] The reading's line in the head: Title where the name (whole) and the metric's widest reading fit side by side in
-    /// <paramref name="room"/> (the head's width less its glyph and gaps), else the name's own size, bold, so the name keeps its
-    /// room first (WR-7: the caption and its reading together). Decided on the widest reading, never the one shown: a running
-    /// value never changes it (WR-15).
+    /// [S-16321] The share of its Title line the head's reading is drawn at: whole where the name (whole) and the metric's widest
+    /// reading fit side by side in <paramref name="room"/> (the head's width less its glyph and gaps), else as much as leaves the
+    /// name its room, down to the name's own size (<see cref="LeastShare"/>), so the name keeps its room first (WR-7). Decided on
+    /// the widest reading, never the one shown (WR-15), and changing with the room smoothly, never by a step.
     /// </summary>
-    public static TypeStep ReadingStep(double room, double name, double widestAtTitle)
-        => name + widestAtTitle <= room ? Head : FamilyType.BodyStrong;
+    public static double ReadingShare(double room, double name, double widestAtTitle)
+        => widestAtTitle > 0 ? Math.Clamp((room - name) / widestAtTitle, LeastShare, 1) : 1;
+
+    /// <summary>
+    /// [S-16325] The graph face's least width for a name and a widest reading of these widths (at the head's own size, a
+    /// Title reading): both whole side by side at the head's least scale (text at 9 DIP, the glyph at 12) with the reading at
+    /// its least share, the insets round them; never under the grid's least widget.
+    /// </summary>
+    public static double GraphLeastWidth(double name, double widestAtTitle)
+    {
+        var k = LeastScale;
+        var head = GlyphSize(k) + FamilySpace.GlyphGap + name + FamilySpace.ColumnGap + (widestAtTitle * LeastShare);
+        return Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (head * k)));
+    }
+
+    /// <summary>
+    /// [S-16325] The value face's least size for a name and a widest reading of these widths (a Body caption, a Big28 reading):
+    /// the block at its least scale (its glyph at 12) inside the insets; never under the grid's least widget.
+    /// </summary>
+    public static SizeDip ValueLeast(double name, double widestAtBig)
+    {
+        var caption = (FamilyShape.Icon * Math.Max(1, ScaleFloor.Glyph / FamilyShape.Icon / ValueLeastScale)) + FamilySpace.GlyphGap + name;
+        var block = Math.Max(caption, widestAtBig);
+        var ink = FamilyType.Body.LineHeight + FamilyType.Big28.LineHeight - LineInk.Of(FamilyType.Body).Over - LineInk.Of(FamilyType.Big28).Under;
+        return new SizeDip(
+            Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (block * ValueLeastScale))),
+            Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (ink * ValueLeastScale))));
+    }
 
     /// <summary>
     /// [S-16321] The head's glyph at scale <paramref name="scale"/>: its 16 DIP, drawn no smaller than the 12 a glyph is read to
@@ -70,7 +93,10 @@ public static class MetricFaceRules
         => FamilyShape.Icon * Math.Max(1, ScaleFloor.Glyph / FamilyShape.Icon / Math.Max(1e-6, scale));
 
     /// <summary>[S-16323] The value block's least: its caption a Body line at 9.1, the family's least read (WR-14).</summary>
-    public const double ValueLeast = 0.65;
+    public const double ValueLeastScale = 0.65;
+
+    /// <summary>[S-16325] Where a new value face lands at least: 200 × 90.</summary>
+    public static SizeDip ValueNatural { get; } = new(200, 90);
 
     /// <summary>[S-16322] The least the graph keeps under the head before it goes behind it: under this the card is too low for both.</summary>
     public const double LeastPlot = 24;
@@ -129,7 +155,7 @@ public static class MetricFaceRules
     /// [S-16323] The value face: its block (the caption over the value, <paramref name="blockWidth"/> × <paramref name="blockHeight"/>
     /// at scale 1, <paramref name="ink"/> the room over its first ink and under its last, <paramref name="inkLeft"/> and
     /// <paramref name="inkRight"/> the room beside it) scaled as one until the width or the
-    /// height stops it, never under <see cref="ValueLeast"/>; its ink on the insets of the axis that stops it, centred on the
+    /// height stops it, never under <see cref="ValueLeastScale"/>; its ink on the insets of the axis that stops it, centred on the
     /// other (the owner's "Centred is fine").
     /// </summary>
     public static ValueFace Value(double width, double height, double blockWidth, double blockHeight, LineInk ink, double inkLeft = 0, double inkRight = 0)
@@ -138,7 +164,7 @@ public static class MetricFaceRules
         var inkWidth = Math.Max(1, blockWidth - inkLeft - inkRight);
         var across = Math.Max(1, width - (2 * FamilySpace.Inset)) / inkWidth;
         var down = Math.Max(1, height - (2 * FamilySpace.Inset)) / inkHeight;
-        var k = Math.Max(ValueLeast, Math.Min(across, down));
+        var k = Math.Max(ValueLeastScale, Math.Min(across, down));
         var left = ((width - (inkWidth * k)) / 2) - (inkLeft * k);
         var top = ((height - (inkHeight * k)) / 2) - (ink.Over * k);
         return new ValueFace(k, left, top);
@@ -161,31 +187,23 @@ public static class MetricFaceRules
     }
 
     /// <summary>
-    /// [S-16325] The sizes a style holds: the graph's least where the name and the value still read over the graph behind them
-    /// (the head at its least scale, its text at 9 DIP), as low as the grid's least widget (WR-14); its natural the head at its own size over a plot three times its
-    /// height; the value's least its block at its least scale, as wide as the catalog's widest reading needs there (a pair's
-    /// two, "888 / 888 MB/s", <see cref="WidestReading"/>: one least for every metric, so a card switched to another metric reads
-    /// in the box it has), its natural the block at its own. On the 10-DIP grid across; relaxed past that by the host.
+    /// [S-16325] The sizes a style holds for a metric whose name and widest reading are <paramref name="name"/> and
+    /// <paramref name="widest"/> wide at the face's own sizes (a Title reading in the graph, a Big28 in the value): its least where
+    /// both read whole at the 9 DIP text floor and the 12 DIP glyph (WR-14: no lower limit but one where the widget is still read;
+    /// the grid's least widget the floor), its natural the face at its own size (the graph's 240 × 120 at least). Relaxed past
+    /// that by the host.
     /// </summary>
-    public static WidgetSizing Sizing(MetricsStyle style) => Sizing(style, WidestReading);
-
-    /// <summary>[S-16325] The longest of every metric's widest readings, in characters (English).</summary>
-    public static int WidestReading { get; } = MetricCatalog.All
-        .SelectMany(m => m.Feeds.Select(f => MetricFormat.Widest(Themia.Core.Localization.Locale.En, m, f.Shape).Length))
-        .Max();
-
-    /// <summary>[S-16325] <see cref="Sizing(MetricsStyle)"/> for a widest reading of <paramref name="widest"/> characters.</summary>
-    public static WidgetSizing Sizing(MetricsStyle style, int widest)
+    public static WidgetSizing Sizing(MetricsStyle style, double name, double widest)
     {
         if (style != MetricsStyle.Value)
         {
-            return WidgetSizing.Range(new(LeastWidth, WidgetSizing.LeastScaled), new(NaturalWidth, NaturalHeight), new(480, 240));
+            var least = GraphLeastWidth(name, widest);
+            var natural = Math.Max(NaturalWidth, Math.Ceiling(least / LeastScale));
+            return WidgetSizing.Range(new(least, WidgetSizing.LeastScaled), new(natural, NaturalHeight), new(natural * 2, NaturalHeight * 2));
         }
 
-        var block = FamilyType.EstimateWidth(FamilyType.Big28, Math.Max(1, widest));
-        double Whole(double length) => Math.Ceiling(length / ItemGrid.DefaultCell) * ItemGrid.DefaultCell;
-        var least = Math.Max(140, Whole((2 * FamilySpace.Inset) + (block * ValueLeast)));
-        var natural = Math.Max(200, Whole((2 * FamilySpace.Inset) + block));
-        return WidgetSizing.Range(new(least, 60), new(natural, 90), new(natural * 2, 180));
+        var min = ValueLeast(name, widest);
+        var own = new SizeDip(Math.Max(ValueNatural.Width, Math.Ceiling(min.Width / ValueLeastScale)), Math.Max(ValueNatural.Height, Math.Ceiling(min.Height / ValueLeastScale)));
+        return WidgetSizing.Range(min, own, new(own.Width * 2, own.Height * 2));
     }
 }

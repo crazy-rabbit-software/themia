@@ -109,9 +109,12 @@ internal sealed partial class MetricsPlot : Canvas
 
         if (!series.Any)
         {
-            var band = new Rectangle { Width = Math.Max(0, width), Height = Math.Max(0, height - look.Top), Fill = Family.Brush(ColourRole.Track) };
-            Place(band, 0, look.Top);
-            Add(band);
+            // Its default values, zero across the whole plot, drawn as the readings are: the line (and an area's fill) at zero.
+            var zero = new MetricValue(0, series.Shape == MetricShape.Pair ? 0 : null);
+            var zeros = series with { Slots = [.. series.Slots.Select(_ => (MetricValue?)zero)] };
+            var stroke = FamilyShape.Stroke;
+            Lines(zeros, look.Type, MetricGraphRules.Range(zeros, fromZero: true, look.Share), look.Top + stroke, height - (stroke / 2), height, width);
+            return;
         }
 
         Add(Rule(0, height - FamilyShape.Stroke, width, ColourRole.TextDisabled));

@@ -35,9 +35,16 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     private readonly TextBlock _value = Family.Text(MetricFaceRules.Head);
     private readonly ScaleTransform _headScale = new();
 
-    /// <summary>Measures, never drawn: the name and the metric's widest reading at the head's sizes.</summary>
+    /// <summary>Measures, never drawn: the name at the head's size.</summary>
     private readonly TextBlock _nameProbe = Family.Text(MetricFaceRules.Name);
-    private readonly TextBlock _readingProbe = Family.Text(MetricFaceRules.Head);
+
+    /// <summary>
+    /// [S-16324] The head's reading in its held box: the reading, right-aligned, over the metric's widest reading drawn unseen
+    /// (as wide as the box), the box scaled as one by its share of the Title line (<see cref="MetricFaceRules.ReadingShare"/>).
+    /// </summary>
+    private readonly Viewbox _readingBox = new() { Stretch = Stretch.Uniform, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top };
+    private readonly Grid _readingCell = new();
+    private readonly TextBlock _readingHeld = Family.Text(MetricFaceRules.Head);
 
     // ---- the value style's block: glyph and name over the value
     private readonly StackPanel _block = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false };
@@ -81,14 +88,25 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _name.TextWrapping = TextWrapping.NoWrap;
         _name.TextTrimming = TextTrimming.CharacterEllipsis;
         _value.VerticalAlignment = VerticalAlignment.Top;
+        _value.HorizontalAlignment = HorizontalAlignment.Right;
+        _value.TextAlignment = TextAlignment.Right;
         _value.TextWrapping = TextWrapping.NoWrap;
         _value.TextTrimming = TextTrimming.CharacterEllipsis;
         Family.Figures(_value);
+        _readingHeld.Opacity = 0;
+        _readingHeld.TextWrapping = TextWrapping.NoWrap;
+        _readingHeld.IsHitTestVisible = false;
+        Family.Figures(_readingHeld);
+        _readingCell.Children.Add(_readingHeld);
+        _readingCell.Children.Add(_value);
+        _readingCell.Height = MetricFaceRules.Head.LineHeight;
+        HoldMark.Mark(_readingCell);
+        _readingBox.Child = _readingCell;
         SetColumn(_name, 1);
-        SetColumn(_value, 2);
+        SetColumn(_readingBox, 2);
         _head.Children.Add(_glyph);
         _head.Children.Add(_name);
-        _head.Children.Add(_value);
+        _head.Children.Add(_readingBox);
 
         // The value style: the caption row over the reading.
         _caption.Orientation = Orientation.Horizontal;
@@ -244,7 +262,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
             ? MetricGraphRules.Nearest(folded.Slots, slot)
             : null;
 
-        // [S-16327] Why there is no reading, in the status's compact line beside its glyph.
+        // [S-16327] Why there is no reading, in the status's compact line beside its glyph (whole, or the glyph alone).
         var inset = FamilySpace.Inset;
         _status.Say(unavailable ? _why : null, (_width - (2 * inset)) / 3);
 
@@ -260,31 +278,35 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         var room = _status.Room > 0 ? _status.Room + FamilySpace.GlyphGap : 0;
         _head.Width = Math.Max(0, (_width - (2 * inset) - room) / face.Scale);
 
-        // [S-16321] The name keeps its room first: the reading at Title where the name and the widest reading fit beside it.
+        // [S-16321] [S-16324] The name keeps its room first: the reading's held box (the metric's widest reading) at the share of
+        // its Title line that leaves the name whole, the share following the head's width smoothly; under the pointer the name's
+        // place says the time and the box the value there (nothing changes size, WR-12).
         _glyph.Glyph = def.Glyph;
-        _name.Text = NameOf(def);
-        _nameProbe.Text = _name.Text;
-        _readingProbe.Text = MetricFormat.Widest(locale, def, _config.Feed.Shape, _currency);
+        var name = _config.Caption();
+        _nameProbe.Text = name;
         _nameProbe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-        _readingProbe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-        var step = MetricFaceRules.ReadingStep(_head.Width - glyph - FamilySpace.GlyphGap - FamilySpace.ColumnGap, _nameProbe.DesiredSize.Width, _readingProbe.DesiredSize.Width);
-        Family.Step(_value, step);
-        _value.Margin = new Thickness(0, step == MetricFaceRules.Head ? 0 : MetricFaceRules.NameDrop, 0, 0);
+        _readingHeld.Text = MetricFormat.Widest(locale, def, _config.Feed.Shape, _currency);
+        _readingCell.Width = double.NaN;
+        _readingCell.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        var held = _readingHeld.DesiredSize.Width;
+        var share = MetricFaceRules.ReadingShare(_head.Width - glyph - FamilySpace.GlyphGap - FamilySpace.ColumnGap, _nameProbe.DesiredSize.Width, held);
+        _readingCell.Width = held;
+        _readingBox.Width = held * share;
+        _readingBox.Height = MetricFaceRules.Head.LineHeight * share;
+        _readingBox.Margin = new Thickness(0, MetricFaceRules.Head.LineHeight * LineInk.FaceBaseline * (1 - share), 0, 0);
 
-        // The reading (or the value under the pointer and its time).
         _value.Inlines.Clear();
         if (hovered is { } at && folded.Slots[at] is { } shown)
         {
-            _value.Inlines.Add(Family.Run(MetricFaceRules.Name, ColourRole.TextSecondary, MetricFormat.When(locale, folded, at, _pinnedNow ?? DateTimeOffset.Now) + "  "));
-            _value.Inlines.Add(Family.Run(step, ColourRole.TextPrimary, MetricFormat.Reading(locale, def, shown, _currency)));
+            _name.Text = MetricFormat.When(locale, folded, at, _pinnedNow ?? DateTimeOffset.Now);
+            _value.Inlines.Add(Family.Run(MetricFaceRules.Head, ColourRole.TextPrimary, MetricFormat.Reading(locale, def, shown, _currency)));
         }
         else
         {
-            _value.Inlines.Add(Family.Run(step, unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary, reading));
+            _name.Text = name;
+            _value.Inlines.Add(Family.Run(MetricFaceRules.Head, unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary, reading));
         }
 
-        // The reading never runs past the head (into the status's mark): on a head too narrow for it, it is cut.
-        _value.MaxWidth = Math.Max(0, _head.Width - glyph - FamilySpace.GlyphGap);
         _head.Margin = new Thickness(inset, face.HeadTop, 0, 0);
         _status.StandAt(face.HeadTop + (((face.HeadHeight) - KitStatus.Side) / 2), null);
 
@@ -292,14 +314,6 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _plot.Height = _height;
         _plot.Draw(new PlotLook(folded, type, def.FromZero, def.Unit == MetricUnit.Share, face.PlotTop, face.Behind, hovered), _width, _height);
     }
-
-    /// <summary>[S-16300] The metric's name: a stock's symbol, a rate's pair ("EUR/USD"), else the catalog's.</summary>
-    private string NameOf(MetricDef def) => def.Need switch
-    {
-        MetricNeed.Symbol when _config.Quote().EffectiveSymbol is { Length: > 0 } symbol => symbol.ToUpperInvariant(),
-        MetricNeed.CurrencyPair => _config.Pair() is { } pair ? pair.EffectiveBase + "/" + pair.EffectiveQuote : def.Name.Text(),
-        _ => def.Name.Text(),
-    };
 
     /// <summary>
     /// [S-16323] [S-16324] The value style: the caption over the reading, scaled as one block to fill the card. The block is laid
@@ -310,7 +324,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     {
         var inset = FamilySpace.Inset;
         _blockGlyph.Glyph = def.Glyph;
-        _blockName.Text = NameOf(def);
+        _blockName.Text = _config.Caption();
         _blockValue.Foreground = Family.Brush(unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary);
         _blockValue.Text = reading;
         _blockHeld.Text = MetricFormat.Widest(Strings.Current, def, _config.Feed.Shape, _currency);
@@ -351,6 +365,6 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         var shares = face.Top < inset + KitStatus.Side + FamilySpace.S2;
         var beside = _width - inset - KitStatus.Side - FamilySpace.S2 - (face.Left + (_caption.DesiredSize.Width * face.Scale)) - FamilySpace.ColumnGap;
         var most = shares ? beside : (_width - (2 * inset)) / 2;
-        _status.Say(unavailable && most >= KitStatus.Side * 3 ? _why : null, most);
+        _status.Say(unavailable ? _why : null, most);
     }
 }

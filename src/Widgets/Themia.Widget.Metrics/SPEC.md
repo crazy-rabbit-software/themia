@@ -96,10 +96,12 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   (Title) top right, on one baseline; one head scaled with the card (its scale the card's against 240 × 120, the smaller axis,
   up to 2.5: owner, "it should scale to the size properly but it should not change its layout drastically"; down to where its
   smallest text, the name, is the 9 DIP the family reads to, WR-14, `ScaleFloor.Least`, its glyph held at 12 under that,
-  `MetricFaceRules.GlyphSize`), its first ink on the card's inset (WR-1), its sides on the insets. The name keeps its room
-  first (WR-7): the reading is a Title line where the name, whole, and the metric's widest reading ([S-16324]) fit side by side,
-  else a BodyStrong line on the name's baseline (`MetricFaceRules.ReadingStep`, decided on the widest reading so a running
-  value never changes it); what still does not fit is cut with its ellipsis, the name first. Under it, a small gap down, the plot: the card's whole width, down to its foot
+  `MetricFaceRules.GlyphSize`), its first ink on the card's inset (WR-1), its sides on the insets: the name top left, the value
+  top right (the owner's design, docs/WIDGET-RULES.md "The Metric widget's head"). The reading stands in a held box ([S-16324]:
+  the metric's widest reading drawn unseen, the reading right-aligned in it, `HoldMark`), drawn at the share of its Title line
+  that leaves the name whole (`MetricFaceRules.ReadingShare`: whole where both fit, down to the name's size), the share
+  following the card smoothly, never by a step, and decided on the widest reading so a running value never changes it (WR-15).
+  Under the pointer the name's place says the time and the held box the value there. Under it, a small gap down, the plot: the card's whole width, down to its foot
   ([S-6754]: "Plot edge to edge").
 - **[S-16322]** **Behind the head on a low card**: where the head leaves the plot less than 24 DIP (`MetricFaceRules.LeastPlot`),
   the plot is the card's whole box behind the head, drawn faint (a third, `BehindShare`; owner: "the graph should only be a
@@ -112,18 +114,20 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
 - **[S-16324]** **A running reading keeps its block** (WR-15, as the clock): the reading stands in a held box, the metric's widest
   reading (`MetricFormat.Widest`: its largest form, every figure an 8: "888%", "-88° / -88°", "888 / 888 MB/s") drawn unseen
   under it (`HoldMark`); the block is laid out by that box, so "31%", "100%" and "--" stand in one place at one scale.
-- **[S-16325]** **Its sizes** (`MetricFaceRules.Sizing`): the graph 180 × 32 at least (WR-14: as low as the grid's least widget,
-  the head at its least scale over the graph behind it, its text at 9 DIP; as narrow as a short name and its widest reading still
-  read whole side by side, a long name cut meaningfully; was 160 × 40, its head stopped at 0.75), 240 × 120 natural; the value
-  style as wide at least as the catalog's widest reading (a pair's, "888 / 888 MB/s") needs at its least scale, one least for
-  every metric (`MetricFaceRules.WidestReading`; 180 × 60), 260 × 90 natural; relaxed by the host ([S-12411]).
+- **[S-16325]** **Its sizes**, each metric's own (`MetricFaceRules.Sizing` over its name and widest reading, measured by the
+  family's width estimate, `MetricsModule.Sized`): the graph's least the grid's least widget tall and as wide as the name, whole,
+  and the widest reading at its least share read side by side at the head's least scale (text at 9 DIP, the glyph at 12, WR-14,
+  `GraphLeastWidth`), 240 × 120 natural at least; the value's least its block at its least scale (`ValueLeast`), its natural
+  the block at its own size, 200 × 90 at least; never under the grid's least widget (32); relaxed by the host ([S-12411]).
   A style switched refits the card.
 - **[S-16327]** **No answer, or a stale one, keeps the face** (WR-10, owner: "it should show the default values in the graph and not
   just not show the graph"): no answer is the graph's default across its foot ([S-16314]), the reading "--" (disabled) and why
   in the status's compact mark (the kit's problem glyph with the reason: offline, refused, the hub's own reason for no reading;
   its busy ring while the first answer is on its way); an answer kept through a failed refresh keeps its graph and its reading
-  and says so with the mark. Without a reading the mark carries a compact line of why beside its glyph (`KitStatus.Say`: the
-  first problem, "Offline", cut at a third of the card's width in the graph style; in the value style in the room its caption leaves beside the glyph, none where that is too narrow). The reading stays
+  and says so with the mark. Without a reading the mark carries a compact line of why beside its glyph (`KitStatus.Say`), a
+  word read whole (`MetricFormat.Why`: "Offline", "Unavailable", "No data") where it fits (a third of the card's width in the
+  graph style; in the value style the room its caption leaves beside the glyph), else the glyph alone; its tooltip always says
+  every problem. The reading stays
   clear of the mark in the head. The same in the value style.
 - **[S-16326]** **Hover**: the pointer over the graph puts the value of the slot under it (a gap's nearest reading) and its time
   in the head's reading's place, and marks it: a hairline down the plot and a dot on each of its values. Nothing changes size
@@ -145,8 +149,9 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   pair's second in the tertiary text's colour, a falling candle Critical, the wash the family's. Wherever the span has a slot
   without a reading (none yet, a history still filling, a gap) the graph draws its default values under the readings (WR-10,
   owner: "even if there is no cpu data available it should show the default values in the graph", `MetricGraphRules.DrawsDefault`):
-  bars, ranges and candles an empty track (the track's colour, plot top to foot) for each such slot; a line, area or step its
-  zero along the foot in the disabled text's colour, and with no reading at all its plot one empty track under it.
+  bars, ranges and candles an empty track (the track's colour, plot top to foot) for each such slot; a line, area or step with
+  no reading at all its default values, zero across the whole plot, drawn as its readings are (the line at zero, an area's fill
+  on it); with some readings its zero along the foot in the disabled text's colour under them.
 - **[S-16315]** **Down and under the pointer**: a value's height on its range from the plot's top to its foot (clamped); the slot
   under the pointer a line's nearest point or a mark's nearest middle.
 - **[S-16316]** The plot is the card's whole box (`PlotMark`): the gap check holds it to the card's edges. The gap check judges

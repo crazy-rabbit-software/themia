@@ -1,3 +1,4 @@
+using Themia.App.Services.Web;
 using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -412,8 +413,8 @@ public sealed class MetricsTests
         Assert.Equal((200 - (2 * FamilySpace.Inset)) / 100.0, bearing.Scale, 6);
 
         // Never under its least.
-        Assert.Equal(MetricFaceRules.ValueLeast, MetricFaceRules.Value(40, 30, 100, 60, ink).Scale);
-        Assert.True(FamilyType.Body.FontSize * MetricFaceRules.ValueLeast >= 9);
+        Assert.Equal(MetricFaceRules.ValueLeastScale, MetricFaceRules.Value(40, 30, 100, 60, ink).Scale);
+        Assert.True(FamilyType.Body.FontSize * MetricFaceRules.ValueLeastScale >= 9);
     }
 
     [Fact]
@@ -425,47 +426,72 @@ public sealed class MetricsTests
     }
 
     [Fact]
-    public void S16325_each_style_sizes_on_the_grid_from_a_legible_least()
+    public void S16325_each_metrics_least_is_where_its_name_and_widest_reading_read_at_the_floors()
     {
-        foreach (var style in Enum.GetValues<MetricsStyle>())
+        static double Name(string text) => FamilyType.EstimateWidth(MetricFaceRules.Name, text.Length);
+
+        foreach (var metric in MetricCatalog.All)
         {
-            var sizing = MetricFaceRules.Sizing(style);
-            Assert.Equal(0, sizing.Natural.Width % 10);
-            Assert.Equal(0, sizing.Natural.Height % 10);
-            Assert.True(sizing.Min.Width >= WidgetSizing.LeastScaled && sizing.Min.Height >= WidgetSizing.LeastScaled);
+            foreach (var style in Enum.GetValues<MetricsStyle>())
+            {
+                var config = new MetricsConfig { Style = style };
+                config.Choose(metric.Id);
+                var sizing = MetricsModule.Sized(config);
+                Assert.True(sizing.Min.Width >= WidgetSizing.LeastScaled && sizing.Min.Height >= WidgetSizing.LeastScaled, metric.Id);
+                Assert.True(sizing.Natural.Width >= sizing.Min.Width && sizing.Natural.Height >= sizing.Min.Height, metric.Id);
+            }
         }
 
-        // WR-14: the graph goes down to the grid's least widget, its head at the 9 DIP its text is read to, behind which the
-        // graph stands; the head's ink fits the least height with room over and under it.
-        var graph = MetricFaceRules.Sizing(MetricsStyle.Graph).Min;
-        Assert.Equal(WidgetSizing.LeastScaled, graph.Height);
-        Assert.Equal(MetricFaceRules.LeastWidth, graph.Width);
+        // WR-14: the graph's least is the grid's least widget tall and as wide as the name and widest reading need at the floors:
+        // a short metric narrower than a long one, neither a fixed width.
+        var cpu = MetricsModule.Sized(new MetricsConfig()).Min;
+        var drive = new MetricsConfig();
+        drive.Choose("drive");
+        Assert.Equal(WidgetSizing.LeastScaled, cpu.Height);
+        Assert.True(cpu.Width < MetricsModule.Sized(drive).Min.Width);
 
-        // The value style's least holds the catalog's widest reading (a pair's) at its least scale, for every metric alike.
-        var value = MetricFaceRules.Sizing(MetricsStyle.Value).Min;
-        Assert.Equal(MetricFormat.Widest(English, MetricCatalog.Of("drive"), MetricShape.Pair).Length, MetricFaceRules.WidestReading);
-        Assert.True(value.Width >= (2 * FamilySpace.Inset) + (FamilyType.EstimateWidth(FamilyType.Big28, MetricFaceRules.WidestReading) * MetricFaceRules.ValueLeast));
-        Assert.Equal(0, value.Width % 10);
-
-        // At the least, a short name and its widest reading read whole side by side, the reading at the name's size if need be.
+        // The rule: at its least, the head holds the name whole and the reading at its least share (text at 9 DIP, glyph 12).
         var k = MetricFaceRules.LeastScale;
-        var room = ((graph.Width - (2 * FamilySpace.Inset)) / k) - MetricFaceRules.GlyphSize(k) - FamilySpace.GlyphGap - FamilySpace.ColumnGap;
-        Assert.True(FamilyType.EstimateWidth(MetricFaceRules.Name, "UV index".Length) + FamilyType.EstimateWidth(FamilyType.BodyStrong, "888".Length) <= room);
-        Assert.True(FamilyType.EstimateWidth(MetricFaceRules.Name, "CPU".Length) + FamilyType.EstimateWidth(MetricFaceRules.Head, "888%".Length) <= room);
-        var least = MetricFaceRules.Graph(graph.Width, graph.Height);
+        var width = MetricFaceRules.GraphLeastWidth(Name("CPU"), 60);
+        var room = ((width - (2 * FamilySpace.Inset)) / k) - MetricFaceRules.GlyphSize(k) - FamilySpace.GlyphGap - FamilySpace.ColumnGap;
+        Assert.True(Name("CPU") + (60 * MetricFaceRules.LeastShare) <= room + 1e-6);
+        Assert.Equal(ScaleFloor.Text, MetricFaceRules.Head.FontSize * k * MetricFaceRules.LeastShare, 6);
+        Assert.True(MetricFaceRules.GraphLeastWidth(0, 0) >= WidgetSizing.LeastScaled);
+
+        // At the least height the head stands over the graph behind it, its ink inside the card.
+        var least = MetricFaceRules.Graph(cpu.Width, cpu.Height);
         Assert.True(least.Behind);
-        Assert.Equal(MetricFaceRules.LeastScale, least.Scale, 6);
         var inkTop = least.HeadTop + (MetricFaceRules.HeadInk.Over * least.Scale);
         var inkFoot = least.HeadTop + least.HeadHeight - (MetricFaceRules.HeadInk.Under * least.Scale);
-        Assert.True(inkTop > 0 && inkFoot < graph.Height);
+        Assert.True(inkTop > 0 && inkFoot < cpu.Height);
+
+        // The value style's least holds its block at its least scale: wider for a pair's reading than a share's.
+        var share = MetricFaceRules.ValueLeast(Name("CPU"), FamilyType.EstimateWidth(FamilyType.Big28, 4));
+        var pair = MetricFaceRules.ValueLeast(Name("Drive I/O"), FamilyType.EstimateWidth(FamilyType.Big28, 14));
+        Assert.True(share.Width < pair.Width);
+        Assert.Equal(Math.Ceiling((2 * FamilySpace.Inset) + (FamilyType.EstimateWidth(FamilyType.Big28, 14) * MetricFaceRules.ValueLeastScale)), pair.Width);
     }
 
     [Fact]
-    public void S16321_the_reading_takes_the_names_size_where_title_would_cut_the_name()
+    public void S16321_the_readings_share_leaves_the_name_its_room_smoothly_down_to_the_names_size()
     {
-        Assert.Equal(MetricFaceRules.Head, MetricFaceRules.ReadingStep(200, 80, 100));
-        Assert.Equal(FamilyType.BodyStrong, MetricFaceRules.ReadingStep(170, 80, 100));
-        Assert.Equal(MetricFaceRules.Head, MetricFaceRules.ReadingStep(180, 80, 100)); // exactly fitting is fitting
+        Assert.Equal(1, MetricFaceRules.ReadingShare(200, 80, 100));
+        Assert.Equal(0.9, MetricFaceRules.ReadingShare(170, 80, 100), 6);
+        Assert.Equal(MetricFaceRules.LeastShare, MetricFaceRules.ReadingShare(100, 80, 100));
+
+        // Smooth: a cell more or less moves the share by a little, never by a step.
+        for (var room = 120.0; room < 200; room += 10)
+        {
+            Assert.True(MetricFaceRules.ReadingShare(room + 10, 80, 100) - MetricFaceRules.ReadingShare(room, 80, 100) <= 0.1 + 1e-9);
+        }
+    }
+
+    [Fact]
+    public void S16327_why_is_a_word_the_status_line_reads_whole()
+    {
+        Assert.Equal("Offline", MetricFormat.Why(FetchStatus.Offline));
+        Assert.Equal("No data", MetricFormat.Why(null));
+        Assert.Equal("Unavailable", MetricFormat.Why(FetchStatus.Unreachable));
     }
 
     [Fact]

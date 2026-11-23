@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Metrics;
 
@@ -30,12 +31,25 @@ public sealed class MetricsModule : IWidgetModule
         Keywords = ["metric", "graph", "chart", "history", "forecast", "cpu", "gpu", "memory", "drive", "network", "ping", "battery", "temperature",
             "rain", "snow", "wind", "uv", "pollen", "air", "aqi", "stock", "exchange"],
         Glyph = Glyphs.ChartType,
-        Sizing = c => MetricFaceRules.Sizing(c is MetricsConfig m ? m.Style : MetricsStyle.Graph),
+        Sizing = c => Sized(c as MetricsConfig ?? new MetricsConfig()),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.System, 99, 0),
     };
 
     public FrameworkElement CreateView(IWidgetHost host) => new MetricsView(host);
+
+    /// <summary>
+    /// [S-16325] A metric's sizes: its name and its widest reading (a price with a currency's room) measured by the family's
+    /// width estimate at the face's sizes, through the face's own rule.
+    /// </summary>
+    internal static WidgetSizing Sized(MetricsConfig config)
+    {
+        var locale = Themia.Core.Localization.Strings.Current;
+        var widest = MetricFormat.Widest(locale, config.Def, config.Feed.Shape, config.Def.Unit == MetricUnit.Price ? "MMM" : string.Empty);
+        var name = FamilyType.EstimateWidth(MetricFaceRules.Name, config.Caption().Length);
+        return MetricFaceRules.Sizing(config.Style, name,
+            FamilyType.EstimateWidth(config.Style == MetricsStyle.Value ? FamilyType.Big28 : MetricFaceRules.Head, widest.Length));
+    }
 
     /// <summary>[S-16308] Every option is on the selection's page ([S-3719]).</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
