@@ -6261,7 +6261,10 @@ repaired to defaults and logged, never an upgrade. S-1050..S-1059.
   the file loads. The typed read would otherwise refuse the whole file over one word and start a default desktop.
   The pass walks the serializer's own metadata (`StateDocument`), so every enum in the state is covered, a widget's
   config's too, without a list; a property read by a converter of its own (a widget's style, a lenient list) is
-  left to it, and a number that is no member reads and is the repair's. Test `AppStateStoreTests.S1055_`.
+  left to it, and a number that is no member reads and is the repair's. The same holds for any other plain value its
+  type cannot read (a setting whose type changed in place: a device list's gap, once a switch, now a number of blocks):
+  `views[...].widgets[...].config.gap: true is no Int32; using 0` (2026-11-23, a regression: `"gap": true` refused the
+  whole file). Tests `AppStateStoreTests.S1055_`.
 
 ## Colours, fonts and uninstall (the settings window, retired)
 

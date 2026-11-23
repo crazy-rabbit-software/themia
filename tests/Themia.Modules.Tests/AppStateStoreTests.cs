@@ -419,6 +419,47 @@ public sealed class AppStateStoreTests : IDisposable
     }
 
     /// <summary>
+    /// A state file written before a setting changed its type in place: the device list's gap was a switch (true/false)
+    /// and is now a count of blocks; the clock's seconds a switch given a number by a hand edit.
+    /// </summary>
+    private const string WrongTypesDocument = """
+        {
+          "schemaVersion": 1,
+          "activeViewId": "v",
+          "views": [
+            {
+              "id": "v",
+              "name": "Desk",
+              "widgets": [
+                { "id": "b", "x": 0.1, "y": 0.1, "w": 0.2, "h": 0.2, "config": { "kind": "bluetooth", "gap": true } },
+                { "id": "c", "x": 0.4, "y": 0.1, "w": 0.2, "h": 0.2, "config": { "kind": "clock", "showSeconds": 3 } }
+              ]
+            }
+          ]
+        }
+        """;
+
+    [Fact]
+    public void S1055_a_value_its_type_cannot_read_is_its_default_loudly_and_the_rest_of_the_file_loads()
+    {
+        // Regression (2026-11-23): the device lists' gap became a number of blocks; a state that still held "gap": true
+        // was refused whole, and the user would have been handed a default desktop.
+        File.WriteAllText(_path, WrongTypesDocument);
+
+        var result = new AppStateStore(_path).Load();
+
+        Assert.Equal(LoadOutcome.Loaded, result.Outcome);
+        var state = result.State;
+        Assert.Equal(["b", "c"], state.Views.Single().Widgets.Select(w => w.Id));
+        Assert.Equal(0, Assert.IsType<BluetoothConfig>(state.Views[0].Widgets[0].Config).Gap);
+        Assert.False(Assert.IsType<ClockConfig>(state.Views[0].Widgets[1].Config).ShowSeconds);
+
+        var parsed = StateDocument.Parse(WrongTypesDocument);
+        Assert.Single(parsed.Repairs, r => r.Contains(".gap: true", StringComparison.Ordinal));
+        Assert.Single(parsed.Repairs, r => r.Contains(".showSeconds: 3", StringComparison.Ordinal));
+    }
+
+    /// <summary>
     /// A hand-written state file from before the calculator and the containers were removed: one
     /// widget whose kind this build does not have, a group, and a clock that was inside the group.
     /// </summary>

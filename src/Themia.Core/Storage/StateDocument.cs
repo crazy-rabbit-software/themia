@@ -233,8 +233,9 @@ public static class StateDocument
 
     /// <summary>
     /// [S-1055] Put back, before the typed read, every value of a closed set (an enum) that names none of its members
-    /// (a hand edit, a member renamed or removed) with what a fresh object of its type holds there, loudly, one line
-    /// each. The typed read would otherwise refuse the whole document over one word, and the user would be handed a
+    /// (a hand edit, a member renamed or removed), and every other plain value its type cannot read (a setting whose type
+    /// changed in place, such as a switch become a number), with what a fresh object of its type holds there, loudly, one
+    /// line each. The typed read would otherwise refuse the whole document over one word, and the user would be handed a
     /// default desktop. Walked by the serializer's own metadata, so every enum in the state (the design, the
     /// preferences, a view bar, a widget, a widget's config) is covered without a list; a property read by a converter
     /// of its own (a widget's style, a lenient list) is left to it. A number that is no member reads and is the repair's
@@ -274,7 +275,7 @@ public static class StateDocument
                     }
 
                     var at = path.Length == 0 ? property.Name : $"{path}.{property.Name}";
-                    if (!type.Type.IsEnum)
+                    if (!Leaf(type))
                     {
                         Names(value, type, at, replaced);
                         continue;
@@ -290,13 +291,13 @@ public static class StateDocument
                     if (fallback is null)
                     {
                         fields.Remove(property.Name);
-                        replaced.Add($"{at}: {value.ToJsonString()} names no value; left out");
+                        replaced.Add($"{at}: {value.ToJsonString()} {Misread(type)}; left out");
                     }
                     else
                     {
                         var written = JsonSerializer.SerializeToNode(fallback, type);
                         fields[property.Name] = written;
-                        replaced.Add($"{at}: {value.ToJsonString()} names no value; using {written?.ToJsonString()}");
+                        replaced.Add($"{at}: {value.ToJsonString()} {Misread(type)}; using {written?.ToJsonString()}");
                     }
                 }
 
@@ -311,14 +312,14 @@ public static class StateDocument
                     }
 
                     var at = $"{path}[{Name(item, i)}]";
-                    if (!element.Type.IsEnum)
+                    if (!Leaf(element))
                     {
                         Names(item, element, at, replaced);
                     }
                     else if (!Reads(item, element))
                     {
                         items.RemoveAt(i);
-                        replaced.Add($"{at}: {item.ToJsonString()} names no value; dropped");
+                        replaced.Add($"{at}: {item.ToJsonString()} {Misread(element)}; dropped");
                     }
                 }
 
@@ -333,19 +334,26 @@ public static class StateDocument
                     }
 
                     var at = $"{path}[{key}]";
-                    if (!element.Type.IsEnum)
+                    if (!Leaf(element))
                     {
                         Names(item, element, at, replaced);
                     }
                     else if (!Reads(item, element))
                     {
                         entries.Remove(key);
-                        replaced.Add($"{at}: {item.ToJsonString()} names no value; dropped");
+                        replaced.Add($"{at}: {item.ToJsonString()} {Misread(element)}; dropped");
                     }
                 }
 
                 return;
         }
+
+        // A value read whole by its type's converter (a number, a switch, a text, an enum): it reads or it does not. Anything
+        // else (an object, a list, a map) is walked into.
+        static bool Leaf(JsonTypeInfo type) => type.Kind == JsonTypeInfoKind.None;
+
+        // Why a leaf did not read, in the repair's line: an enum's word is no member; any other value is not of its type.
+        static string Misread(JsonTypeInfo type) => type.Type.IsEnum ? "names no value" : $"is no {type.Type.Name}";
 
         // The metadata of a type as the state's options hold it; a nullable enum is its enum. Null where the options have
         // none, which the typed read would refuse on its own terms.
@@ -382,6 +390,12 @@ public static class StateDocument
             {
                 // ignore: a value its type cannot read is the answer asked for, not an error
                 return false;
+            }
+            catch (NotSupportedException)
+            {
+                // ignore: a type the options read only through its owner (an object slot) is not judged here; the typed
+                // read decides it
+                return true;
             }
         }
     }
