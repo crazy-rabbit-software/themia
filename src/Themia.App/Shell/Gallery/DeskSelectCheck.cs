@@ -30,8 +30,9 @@ namespace Themia.App.Shell.Gallery;
 /// foreground. Each step says what the selection holds against what Lock widgets wants (off: cards and icons alike; on: icons
 /// only) and the last line is PASS or FAIL. [S-14310] Without <c>--live</c> it also checks the marks of several cards selected:
 /// the selection's frame's four corners alone round them, none of their own, a card alone its own, through a locked move too.
-/// [S-13046]..[S-13048] It moves icons one and several on the free desktop, into the fence and out of it, drawn mid-move: the
-/// held icon alone under the pointer (one icon's square, no badge), each moving icon a ghost where it lands.
+/// [S-13046]..[S-13048] It moves icons one and several on the free desktop, into the fence and out of it, drawn mid-move: each
+/// moving icon a ghost where it lands and [S-16460] no picture under the pointer while the move stays on the desktop; the
+/// shell's drag a move becomes carries the held icon alone (one icon's square, no badge).
 /// <c>--twice</c> adds a second display left of it; <c>--glass</c> draws Liquid glass.
 /// </summary>
 internal static partial class DeskSelectCheck
@@ -53,8 +54,8 @@ internal static partial class DeskSelectCheck
         (Ctrl+press on every card, a band, a click, Ctrl+click and Shift+click on two desktop items of one name [S-5510]),
         the several cards' frame [S-14310], Delete outside edit mode [S-14320], a card's menu [S-14321]; an icon moved into the
         fence and one on the free desktop, drawn mid-move to <out>.move-fence.png / .move-fence-icon.png / .move-free.png
-        [S-13046] [S-13047], two icons moved on the free desktop, out of the fence and into it, the held icon alone under the
-        pointer (<out>.move-several-free.png / .move-several-out.png / .move-several-fence.png) [S-13048], an icon placed from the Unplaced page
+        [S-13046] [S-13047], two icons moved on the free desktop, out of the fence and into it, nothing under the pointer
+        (<out>.move-several-free.png / .move-several-out.png / .move-several-fence.png) [S-13048] [S-16460], an icon placed from the Unplaced page
         (<out>.place-icon.png) [S-13708], icons moved onto the open Unplaced icons page and dragged back off it
         (<out>.unplace-fence.png / .unplace-free.png) [S-13713] [S-13715]; <out>.png the surface at the end
         --locked     Lock widgets on: the selection holds icons only [S-12953]
@@ -347,10 +348,11 @@ internal static partial class DeskSelectCheck
                 host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
                 ExpectFrame("a press on empty desktop", []);
 
-                // [S-13046] A desktop icon's move: Explorer's picture of it under the pointer, the whole icon where it lands as
-                // its ghost, over every card (a fence included); whole again where it landed. Drawn mid-move. [S-13047] Over a fence
-                // and the icons it holds it stays the move (never handed to the shell's drag, whose picture is another): the same
-                // picture under the pointer throughout.
+                // [S-13046] A desktop icon's move: the whole icon where it lands as its ghost, over every card (a fence included);
+                // whole again where it landed. Drawn mid-move. [S-16460] Nothing else under the pointer (owner, 2026-11-23: "when
+                // moving a folder on the desktop under the mouse there is an additional preview of the folder or item or items that
+                // are moved. this should not be."). [S-13047] Over a fence and the icons it holds it stays the move (never handed to
+                // the shell's drag, whose picture is another): no picture under the pointer all the way.
                 async Task MoveAsync(string name, Func<WidgetCard, Point> to, string tag, Func<bool> landed, Func<WidgetCard, Point>? via = null)
                 {
                     host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
@@ -362,14 +364,14 @@ internal static partial class DeskSelectCheck
                     bool Handed(Point at) => surface.DropTargetUnder(layer.TransformToVisual(surface.DebugRoot).TransformPoint(at), new HashSet<WidgetCard> { held });
                     surface.BeginMove(held, press);
 
-                    // A stop on the way (a fence's title bar): the picture there is the one shown where the move ends.
+                    // A stop on the way (a fence's title bar): no picture there either.
                     var handed = false;
-                    Themia.Core.Files.DragPicture? first = null;
+                    var onTheWay = false;
                     if (via?.Invoke(held) is { } stop)
                     {
                         surface.PreviewMove(held, (stop.X - press.X) / metrics.Width, (stop.Y - press.Y) / metrics.Height);
                         surface.FlushMove();
-                        first = surface.ShownDragPicture;
+                        onTheWay = surface.ShowsDragPicture;
                         handed = Handed(stop);
                     }
 
@@ -378,17 +380,16 @@ internal static partial class DeskSelectCheck
                     await stand.ReadyAsync($"{name} held over its target").ConfigureAwait(true);
                     var ghost = Math.Abs(held.Opacity - Themia.Core.Widgets.SelectionLook.Landing) < 0.001;
                     var lifted = others.TrueForAll(o => Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(held) > Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(o));
-                    var picture = surface.ShowsDragPicture;
-                    var same = via is null || (first is not null && ReferenceEquals(first, surface.ShownDragPicture));
+                    var picture = surface.ShowsDragPicture || onTheWay;
                     handed |= Handed(target);
                     await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
                     await stand.ReadyAsync($"{name} dropped").ConfigureAwait(true);
                     var after = surface.CardFor(items[Index(name)].Widget.Id);
                     var whole = after is { Opacity: 1 } && !surface.ShowsDragPicture;
-                    var ok = ghost && lifted && picture && same && !handed && whole && landed();
-                    report.Expect(ok, $"move {name} ({tag}): ghost where it lands {ghost}, over every card {lifted}, picture under the pointer {picture}"
-                        + (via is null ? string.Empty : $", the same picture all the way {same}")
+                    var ok = ghost && lifted && !picture && !handed && whole && landed();
+                    report.Expect(ok, $"move {name} ({tag}): ghost where it lands {ghost}, over every card {lifted}, a picture under the pointer {picture}"
+                        + (via is null ? string.Empty : " (all the way)")
                         + $", handed to the shell's drag {handed}, whole after {whole}, landed {landed()}");
                 }
 
@@ -415,9 +416,9 @@ internal static partial class DeskSelectCheck
                 await MoveAsync("iconA", held => new Point(metrics.Width * 0.79, metrics.Height * 0.16), "free", () => Model(Index("iconA")).Rect != before).ConfigureAwait(true);
 
                 // [S-13048] A move of several desktop icons (the owner, 2026-11-20: "when i move around multiple desktop icons there
-                // is an additional preview with the count showing over the mouse. this should not be. remove that."): under the
-                // pointer the held icon alone, whatever the number moving; where the block lands every moving icon whole as its
-                // ghost. On the free desktop, out of the fence and into it; drawn mid-move.
+                // is an additional preview with the count showing over the mouse. this should not be. remove that."): where the block
+                // lands every moving icon whole as its ghost, [S-16460] nothing under the pointer. On the free desktop, out of the
+                // fence and into it; drawn mid-move.
                 // Where the press grabbed the held icon, taken before the move starts: its icon's square and the press, the root's DIPs.
                 (Rect Square, Point At) Grab(WidgetCard held, Point press)
                 {
@@ -451,7 +452,7 @@ internal static partial class DeskSelectCheck
                         $"{picture.Width}x{picture.Height} px, one icon's square of {side:0} px {oneSquare}, held where grabbed {grabbed}, most opaque pixel {opaque} so no badge {noBadge}");
                 }
 
-                async Task MoveSeveralAsync(string name, string[] along, Func<WidgetCard, Point> to, string tag, Func<bool> landed)
+                async Task MoveSeveralAsync(string name, string[] along, Func<WidgetCard, Point> to, string tag, Func<bool> landed, Func<WidgetCard, Point>? via = null, string? viaTag = null)
                 {
                     host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
                     Click(name);
@@ -463,20 +464,31 @@ internal static partial class DeskSelectCheck
                     var held = Card(name);
                     var moving = along.Prepend(name).Select(Card).ToList();
                     var press = held.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(held.ActualWidth / 2, held.ActualHeight * 0.3));
-                    var grab = Grab(held, press);
                     var target = to(held);
                     surface.BeginMove(held, press);
+
+                    // [S-16461] A stop on the way (an icon's box in the fence before the pointer), drawn there too.
+                    var onTheWay = false;
+                    if (via?.Invoke(held) is { } stop)
+                    {
+                        surface.PreviewMove(held, (stop.X - press.X) / metrics.Width, (stop.Y - press.Y) / metrics.Height);
+                        surface.FlushMove();
+                        await Task.Delay(300).ConfigureAwait(true);
+                        onTheWay = surface.ShowsDragPicture;
+                        await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-several-{viaTag ?? tag + "-via"}.png"), Scope).ConfigureAwait(true);
+                    }
+
                     surface.PreviewMove(held, (target.X - press.X) / metrics.Width, (target.Y - press.Y) / metrics.Height);
                     surface.FlushMove();
                     await stand.ReadyAsync($"{name} and {along.Length} more held").ConfigureAwait(true);
                     var ghosts = moving.TrueForAll(c => Math.Abs(c.Opacity - SelectionLook.Landing) < 0.001);
-                    var (alone, said) = HeldAlone(surface.ShownDragPicture, grab);
+                    var picture = surface.ShowsDragPicture || onTheWay;
                     await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-several-{tag}.png"), Scope).ConfigureAwait(true);
                     surface.CommitMove(held);
                     await stand.ReadyAsync($"{name} and {along.Length} more dropped").ConfigureAwait(true);
                     var whole = moving.TrueForAll(c => surface.CardFor(c.Model.Id) is { Opacity: 1 }) && !surface.ShowsDragPicture;
-                    var ok = alone && ghosts && whole && landed();
-                    report.Expect(ok, $"move {name} with {string.Join(",", along)} ({tag}): under the pointer the held icon alone {alone} ({said})"
+                    var ok = !picture && ghosts && whole && landed();
+                    report.Expect(ok, $"move {name} with {string.Join(",", along)} ({tag}): a picture under the pointer {picture}"
                         + $", every moving icon a ghost where it lands {ghosts}, whole after {whole}, landed {landed()}");
                 }
 
@@ -488,6 +500,7 @@ internal static partial class DeskSelectCheck
                     () => !Fenced("twinU") && !Fenced("twinP")).ConfigureAwait(true);
                 await MoveSeveralAsync("twinP", ["twinU"], held => fenceCard.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(fenceCard.ActualWidth * 0.3, fenceCard.ActualHeight * 0.5)), "fence",
                     () => Fenced("twinP")).ConfigureAwait(true);
+
 
                 // [S-14310] Edit mode, the same rule: two selected show no marks and no grips of their own and the frame in its
                 // edit look (hairline, markers, grips) round them; every card not selected keeps its own; one selected again
@@ -574,8 +587,8 @@ internal static partial class DeskSelectCheck
                 host.ClearDeskSelection();
 
                 // [S-13047] A move that becomes the shell's drag (off the desktop, onto a free folder) hands it its picture and its
-                // press: the drag shows the very picture the move showed, held where the icon was grabbed, its cards back home.
-                // [S-13048] A move of two: the picture carried is the held icon alone.
+                // press: the drag shows the held icon's picture, held where the icon was grabbed, its cards back home. [S-16460] The
+                // move showed none under the pointer before. [S-13048] A move of two: the picture carried is the held icon alone.
                 {
                     host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
                     Click("iconA");
@@ -588,13 +601,13 @@ internal static partial class DeskSelectCheck
                     surface.BeginMove(heldIcon, press);
                     surface.PreviewMove(heldIcon, -0.1, 0.1);
                     surface.FlushMove();
-                    var showing = surface.ShownDragPicture;
+                    var shownBefore = surface.ShowsDragPicture;
                     surface.CancelMove(heldIcon);
-                    var carried = showing is not null && surface.HandedMove is { } handedOver && ReferenceEquals(handedOver.Picture, showing);
+                    var carried = surface.HandedMove is { Picture: not null };
                     var (alone, said) = HeldAlone(surface.HandedMove?.Picture, grab);
                     var back = (heldIcon.LiveRect, Card("iconB").LiveRect) == home;
-                    var handOk = carried && alone && back;
-                    report.Expect(handOk, $"a move of iconA with iconB handed to the shell's drag: its picture carried {carried}, the held icon alone {alone} ({said}), its cards back {back}");
+                    var handOk = !shownBefore && carried && alone && back;
+                    report.Expect(handOk, $"a move of iconA with iconB handed to the shell's drag: a picture under the pointer before {shownBefore}, its picture carried {carried}, the held icon alone {alone} ({said}), its cards back {back}");
                 }
 
                 // [S-13708] An icon dragged off the Unplaced icons page (the one placement session, edit mode): under the pointer

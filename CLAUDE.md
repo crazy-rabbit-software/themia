@@ -75,7 +75,7 @@ Themia.exe --check desk-select <out.txt> [--locked] [--live] [--twice] [--glass]
            # desktop's one selection through a real host and surface: --live drives it with real input (SendInput, over every
            # window), PASS or FAIL [S-12954]; host-level it also moves an icon into the fence and one on the free desktop, drawn
            # mid-move to <out>.move-fence.png / .move-free.png [S-13046], and two icons on the free desktop and into the fence,
-           # the held icon alone under the pointer (<out>.move-several-free.png / .move-several-fence.png, [S-13048])
+           # nothing under the pointer (<out>.move-several-free.png / .move-several-fence.png, [S-13048], [S-16460])
 Themia.exe --check first-drag <out.txt> [--locked] [--kinds a,b]   # every kind's first press on a row, a button, a track,
            # a thumb, a text box, a chart, an empty spot, dragged through the card's own steps off-screen, PASS or FAIL [S-13060]
 Themia.exe --check drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
@@ -511,9 +511,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   mode flips it) keeps every widget where it is outside edit mode, icons alone move (`WidgetLock`: a mixed selection
   moves its icons; edit mode moves everything); a move may land over any widget (no keep-apart rule, [S-11959]
   retired). Edit mode is entered and left by one checked menu line, **Edit mode** ([S-65]). Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
-  an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`); under the pointer it
-  shows the held icon alone however many move, never a stack or a count, and the shell's drag carries that picture
-  ([S-13046]..[S-13048], `DragGhost.OfMove`). One
+  an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`); on the desktop the
+  icons themselves move and nothing is under the pointer ([S-16460]); the shell's drag it becomes carries the held icon alone
+  however many move, never a stack or a count ([S-13046]..[S-13048], `DragGhost.OfMove`). One
   selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--render drag` draws them. A
   selected icon shows its highlight alone; its corners only in edit mode and a move ([S-11889]). Ctrl+Z / Ctrl+Y
   on the desktop step the one history; a desktop delete's step puts its items back from the Recycle Bin

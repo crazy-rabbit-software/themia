@@ -352,12 +352,13 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     }
 
     /// <summary>
-    /// [S-5549] [S-13046] [S-13048] The picture a move of the desktop's icons shows under the pointer: the held icon alone
+    /// [S-5549] [S-13047] [S-13048] The picture of a move of the desktop's icons: the held icon alone
     /// (<paramref name="held"/>, its card), whatever the number of icons moving (<paramref name="moving"/>): never the others
     /// stacked behind it, never their count (<see cref="DragGhost.OfMove"/>); no name, no highlight, nothing in its desktop
     /// place. The pointer (<paramref name="pointer"/>, the root's DIPs: the move's press) holds it where it grabbed it. Composed
     /// at once from the picture the icon's view keeps (<see cref="IDesktopIconView.DragIcon"/>), at this display's scale:
-    /// nothing is rendered here. [S-13047] The shell's drag the move becomes shows this same picture (<see cref="HandedMove"/>).
+    /// nothing is rendered here. [S-13047] The shell's drag the move becomes shows it (<see cref="HandedMove"/>), and the move shows
+    /// it over the open Unplaced icons page ([S-13713]); [S-16460] on the desktop the move shows the icons themselves alone.
     /// Null when the held icon has no picture yet; the drag then shows the pressed icon as it is drawn.
     /// </summary>
     internal DragPicture? DeskDragPicture(WidgetCard held, int moving, Point pointer)

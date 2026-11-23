@@ -137,15 +137,16 @@ public static class DragGhost
     }
 
     /// <summary>
-    /// [S-13048] The picture a move of the desktop's own icons shows under the pointer (the owner, 2026-11-20: "when i move
+    /// [S-13048] The picture of a move of the desktop's own icons (the owner, 2026-11-20: "when i move
     /// around multiple desktop icons there is an additional preview with the count showing over the mouse. this should not
     /// be. remove that."): the held icon alone (<paramref name="held"/>, the icon grabbed), whole in its square
     /// <paramref name="icon"/> DIPs a side, see-through at <see cref="Themia.Core.Widgets.SelectionLook.DragOpacity"/>, held
     /// where it was grabbed (<paramref name="grabX"/>, <paramref name="grabY"/>, as <see cref="Plan"/>), at
     /// <paramref name="scale"/> pixels a DIP, whatever the number of icons moving (<paramref name="moving"/>, the held one
     /// among them): never the others stacked behind it, never a count badge. How many move and where shows where the block
-    /// lands, each moving icon's whole ghost ([S-13046]); the shell's drag the move becomes carries this same picture
-    /// ([S-13047]). Explorer's stack with its count stays a drag's that starts as the shell's elsewhere (a folder's rows, a
+    /// lands, each moving icon's whole ghost ([S-13046]). [S-16460] While the move stays on the desktop it is not drawn (the
+    /// icons themselves move, nothing else under the pointer); the shell's drag the move becomes carries it ([S-13047]), and
+    /// the move shows it over the Unplaced icons page ([S-13713]). Explorer's stack with its count stays a drag's that starts as the shell's elsewhere (a folder's rows, a
     /// search fence's files). Null when nothing moves or nothing can be shown.
     /// </summary>
     public static DragPicture? OfMove(GhostIcon held, int moving, double icon, double grabX, double grabY, double scale)

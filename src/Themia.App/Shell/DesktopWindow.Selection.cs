@@ -51,10 +51,14 @@ internal sealed partial class DesktopWindow
         /// <summary>[S-13046] Whether a desktop icon holds the move: its icons stand where they land as their ghosts.</summary>
         public bool HeldByIcon { get; init; }
 
-        /// <summary>[S-13046] [S-13048] The held icon's picture alone, under the pointer while a desktop icon holds the move; else null.</summary>
+        /// <summary>
+        /// [S-13048] The held icon's picture alone while a desktop icon holds the move; else null. [S-16460] Never shown while the move
+        /// stays on the desktop: it is the picture the shell's drag carries when the move becomes one ([S-13047], <see cref="HandedMove"/>),
+        /// and the one under the pointer over the open Unplaced icons page ([S-13713]).
+        /// </summary>
         public Themia.Core.Files.DragPicture? Picture { get; init; }
 
-        /// <summary>[S-13046] Where the pointer pressed, in the root's DIPs: the picture follows it by the move's translation.</summary>
+        /// <summary>[S-13046] Where the pointer pressed, in the root's DIPs: the pointer is there plus the move's translation.</summary>
         public Point Press { get; init; }
 
         /// <summary>
@@ -70,10 +74,10 @@ internal sealed partial class DesktopWindow
     private MoveSession? _move;
 
     /// <summary>
-    /// [S-13047] The move that became the shell's drag ([S-11878]): where it was pressed (physical screen pixels) and the picture
-    /// it showed under the pointer. The drag shows that picture, held where the icon was grabbed, and lands the icons by that
-    /// grab, so nothing under the pointer changes as the move hands over (owner, 2026-11-20: "same preview under my mouse").
-    /// Null until a move hands over; a new move clears it.
+    /// [S-13047] The move that became the shell's drag ([S-11878]): where it was pressed (physical screen pixels) and the held
+    /// icon's picture it composed (<see cref="MoveSession.Picture"/>). The drag shows that picture, held where the icon was grabbed,
+    /// and lands the icons by that grab. [S-16460] It is the first picture under the pointer: the move on the desktop showed the
+    /// icons themselves alone. Null until a move hands over; a new move clears it.
     /// </summary>
     internal (Interop.Win32.Point Press, Themia.Core.Files.DragPicture? Picture)? HandedMove { get; private set; }
 
@@ -125,7 +129,8 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-1584] <see cref="BeginMove(WidgetCard)"/> with the pointer's press at <paramref name="press"/> (the widget layer's
-    /// DIPs): [S-13046] held by a desktop icon, the move shows the held icon's picture there, following the pointer ([S-13048]: it alone).
+    /// DIPs): [S-13046] held by a desktop icon, the move composes the held icon's picture held there ([S-13048]: it alone), for the
+    /// shell's drag it may become ([S-13047]); [S-16460] on the desktop nothing but the icons themselves is drawn.
     /// </summary>
     internal void BeginMove(WidgetCard card, Point press)
     {
@@ -167,8 +172,8 @@ internal sealed partial class DesktopWindow
         var models = cards.ConvertAll(c => c.Card.Model);
         var cell = _host.DropCellFor(this, models);
 
-        // [S-13046] Held by a desktop icon: the held icon under the pointer, held where it was grabbed; [S-13048] it alone,
-        // however many icons move.
+        // [S-13047] Held by a desktop icon: the held icon's picture, held where it was grabbed, for the shell's drag the move may
+        // become; [S-13048] it alone, however many icons move. [S-16460] Not drawn while the move stays on the desktop.
         HandedMove = null;
         var heldByIcon = card.View is IDesktopIconView;
         var pressAt = _widgetLayer.TransformToVisual(_root).TransformPoint(press);
@@ -310,17 +315,19 @@ internal sealed partial class DesktopWindow
             }
         }
 
-        // [S-13046] The icon under the pointer, every frame; not while the block goes to another display, which shows its ghost.
-        // [S-13713] Over the page too: the drag's picture is over every layer, the flyouts' included.
+        // [S-16460] On the desktop the icons themselves move: nothing else under the pointer (owner, 2026-11-23: "when moving a
+        // folder on the desktop under the mouse there is an additional preview of the folder or item or items that are moved.
+        // this should not be."). [S-13713] Over the open Unplaced icons page alone, where the icons would not land on the desktop
+        // (its cards fade there), the held icon's picture is under the pointer, over every layer, the flyouts' included.
         if (move.Picture is { } picture)
         {
-            if (leaving)
+            if (overPage)
             {
-                HideDragPicture();
+                ShowDragPicture(picture, pointer);
             }
             else
             {
-                ShowDragPicture(picture, pointer);
+                HideDragPicture();
             }
         }
 
@@ -349,7 +356,7 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-13046] The move is over (landed, handed off or undone): the picture goes, the icons are whole again and every card back in the view's paint order.</summary>
+    /// <summary>[S-13046] The move is over (landed, handed off or undone): the picture goes (shown over the Unplaced icons page), the icons are whole again and every card back in the view's paint order.</summary>
     private void EndMoveLook(MoveSession move)
     {
         if (move.Picture is not null)
@@ -409,7 +416,7 @@ internal sealed partial class DesktopWindow
     /// <summary>
     /// [S-11878] A widget under <paramref name="point"/> that takes a drop of files, the moving cards looked through. [S-13041]
     /// [S-13047] Never a fence nor an icon a fence holds (<see cref="Themia.Core.Desktop.DesktopDragOut.DropTarget"/>): the
-    /// desktop's own icons land on its cells by the move, the picture under the pointer the same.
+    /// desktop's own icons land on its cells by the move, nothing under the pointer ([S-16460]).
     /// </summary>
     internal bool DropTargetUnder(Point point, IReadOnlySet<WidgetCard> moving)
     {
