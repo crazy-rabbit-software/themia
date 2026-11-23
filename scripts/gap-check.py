@@ -295,7 +295,10 @@ def judge(kind, card, layout):
         found.append(f'WR-4 foot {foot:.1f}')
     # Item boxes from the card's left edge to its right: the item check's box rule judges them (WR-3), not their ink.
     width = (layout or {}).get('w', w)
-    if not (items and spans(items, width)) and not plot_sides and not field_sides:
+    # The owner's exemption of 2026-11-23 (docs/WIDGET-RULES.md, "Fixed size, gap at right"): a list wrapped into lines of
+    # fixed cells from the left edge keeps the room past its last whole column, less than one cell, empty at the right
+    # edge; its cells' boxes are judged as items reaching the sides are (the item check's box rule).
+    if not (items and (spans(items, width) or wrapped(items, width))) and not plot_sides and not field_sides:
         # [S-14810] Columns side by side from the card's left edge, each from its top edge to its foot: the room past the
         # last is theirs, as the room under a list's last row is (WR-4: "or, for items side by side, its right edge"; WR-5:
         # fewer items than room leave it empty), judged by the item check.
@@ -309,6 +312,21 @@ def judge(kind, card, layout):
 def side_by_side(items, height):
     """[S-14810] Whether the card's items are columns side by side from its left edge, each its whole height."""
     return any(i['x'] <= EDGE for i in items) and all(i['y'] <= EDGE and i['y'] + i['h'] >= height - EDGE for i in items)
+
+
+def wrapped(items, width):
+    """[S-16438] Whether the card's items are a list wrapped into lines of fixed cells (the forecast's Grid style, the
+    calendar's year view) whose room past the last whole column is under one cell: cells of one width from the card's left
+    edge on two lines or more, the right edge of the widest line less than a cell short of the card's (owner, 2026-11-23:
+    "Fixed size, gap at right")."""
+    if len({round(i['y']) for i in items}) < 2:
+        return False
+    widths = [i.get('fw', i['w']) for i in items]
+    cell = max(widths)
+    if cell - min(widths) > 1.5 or not any(i['x'] <= EDGE for i in items):
+        return False
+    reach = max(i['x'] + i.get('fw', i['w']) for i in items)
+    return -EDGE <= width - reach < cell
 
 
 def across(left, right, align, limit):
@@ -480,6 +498,13 @@ def self_test():
                                                 items=[{'x': 20 + (60.0 * n), 'y': 0, 'w': 60, 'h': 300} for n in range(14)]), [], True),
         ('cells of a grid line short of the right edge', card(900, 300, 12, 12, 20, 260,
                                                               items=[{'x': 110.0 * n, 'y': 0, 'w': 110, 'h': 80} for n in range(6)]), [], True),
+        # [S-16438] The owner's "Fixed size, gap at right" (2026-11-23): days of 80 wrapped on lines, 40 short of the right.
+        ('a wrapped grid of fixed cells, less than a cell at the right', card(520, 600, 12, 12, 20, 52,
+                                                                            items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], False),
+        ('a wrapped grid a whole cell short of the right', card(600, 600, 12, 12, 20, 132,
+                                                                items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], True),
+        ('a wrapped grid short of the left edge', card(520, 600, 12, 12, 40, 32,
+                                                       items=[{'x': 20 + 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], True),
         # [S-14712] A metric's graph alone in one grid cell, its flat line on the foot, all in the rim.
         ('a one-cell graph whose line stands in the rim', card(200, 10, None, None, None, None,
                                                                plots=[{'x': 0, 'y': 0, 'w': 200, 'h': 10}]), [], False),

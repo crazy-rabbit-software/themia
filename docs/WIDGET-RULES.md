@@ -119,6 +119,11 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   rearrange to fill (the caption beside the reading): "Centred is fine". The block grows until one axis stops it, and
   WR-1..WR-4 hold on that axis; the leftover on the other axis is shared alike on both sides. Lists, graphs and items
   are not relaxed.
+- **A wrapped grid keeps fixed cells, a gap at the right.** 2026-11-23, asked "When the weather forecast's Grid style or
+  the calendar's year view wraps onto a second line, how should the day/month cells behave?", the owner chose "Fixed size,
+  gap at right": "Every cell keeps its own size (80 DIP) at every card width; whole columns only, so up to one cell of
+  empty room stays at the right edge. Matches 'one fixed size'." In such a grid the room past the last whole column,
+  less than one cell, is not a WR-3 or WR-5 failure; only the last line is cut, by the foot (WR-4).
 - **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
   Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
 
