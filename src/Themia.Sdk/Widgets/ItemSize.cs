@@ -257,12 +257,15 @@ public static class ItemSize
 
     /// <summary>
     /// [S-16438] A list of items wrapped into lines of cells (a forecast's days, a year's months) in a box
-    /// <paramref name="width"/> × <paramref name="height"/>: each cell its optimal on both axes, touching from the box's left
-    /// and top edges, as <see cref="Cells"/>, but across only the whole columns the width holds
-    /// (<paramref name="least"/>..<paramref name="most"/>): the items run on line after line, so the last item the card
-    /// reaches is the last line's, cut by the foot (WR-4, owner 2026-11-20: "the last item will be cutoff to some extent
-    /// then"), never one in the middle of the list cut by the right edge while later ones stand under it. The width past
-    /// the last whole column is less than a cell. A box not measured across lays <paramref name="least"/> columns.
+    /// <paramref name="width"/> × <paramref name="height"/>: the cells touch from the box's left and top edges, each line
+    /// at its optimal height (<see cref="Cells"/>), every line the height reaches, the last cut by the foot (WR-4, owner
+    /// 2026-11-20: "the last item will be cutoff to some extent then"); across, the whole columns the width holds at their
+    /// optimal (<paramref name="least"/>..<paramref name="most"/>), never one in the middle of the list cut by the right
+    /// edge while later ones stand under it. Where the items run on to a second line, those columns share the width from
+    /// edge to edge as the month's do (owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge
+    /// to edge, they have space everywhere"; WR-3): a cell is at most a column's share wider than its optimal, never
+    /// narrower. Where every item stands on one line (<paramref name="most"/> columns fit) they keep their optimal and the
+    /// room past the last stays empty. A box not measured across lays <paramref name="least"/> columns.
     /// </summary>
     public static CellReach Wrapped(double width, double height, double naturalWidth, double naturalHeight, ItemGrid grid, int least = 1, int most = int.MaxValue)
     {
@@ -274,8 +277,10 @@ public static class ItemSize
 
         var pitch = reach.Across.Pitch;
         var floor = Math.Max(1, least);
-        var whole = Math.Clamp((int)Math.Floor((width + LayoutMath.Tolerance) / pitch), floor, Math.Max(floor, most));
-        return reach with { Across = new RowReach(pitch, whole, grid.Raster) { Room = width } };
+        var holds = (int)Math.Floor((width + LayoutMath.Tolerance) / pitch);
+        var whole = Math.Clamp(holds, floor, Math.Max(floor, most));
+        var shared = holds < Math.Max(floor, most) && holds >= floor ? width / whole : pitch;
+        return reach with { Across = new RowReach(shared, whole, grid.Raster) { Room = width } };
     }
 
     /// <summary>[S-14810] Rows of <paramref name="lines"/> lines before a list's box is measured: one at its optimal.</summary>

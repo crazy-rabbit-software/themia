@@ -195,14 +195,14 @@ public class ItemSizeTests
     }
 
     /// <summary>
-    /// [S-16438] A list wrapped into lines (WR-4: only the last item the card reaches is cut): its cells keep their one size,
-    /// across the whole columns the width holds, never one cut by the right edge with later items under it; down every line
-    /// the height reaches, the last cut by the foot.
+    /// [S-16438] A list wrapped into lines (WR-4: only the last item the card reaches is cut): its lines keep their one
+    /// height, every line the height reaches, the last cut by the foot; across, the whole columns the width holds, never one
+    /// cut by the right edge with later items under it, sharing the width edge to edge (WR-3), at least their optimal.
     /// </summary>
     [Theory]
     [InlineData(240, 200, 3, 2)]
     [InlineData(259, 200, 3, 2)]
-    [InlineData(319.6, 200, 4, 2)]
+    [InlineData(320, 200, 4, 2)]
     [InlineData(240, 201, 3, 3)]
     [InlineData(10, 10, 1, 1)]
     public void S16438_a_wrapped_list_takes_whole_columns_and_every_line_the_last_cut(double width, double height, int columns, int lines)
@@ -210,10 +210,14 @@ public class ItemSizeTests
         var cells = ItemSize.Wrapped(width, height, 76, 96, Grid);
 
         Assert.Equal((columns, lines), (cells.Columns, cells.Lines));
-        Assert.Equal((80.0, 100.0), (cells.Across.Pitch, cells.Down.Pitch));
-        Assert.True(cells.Columns * cells.Across.Pitch <= Math.Max(width, 80) + LayoutMath.Tolerance);
+        Assert.Equal(100.0, cells.Down.Pitch);
+        Assert.Equal(width >= 80 ? width / columns : 80, cells.Across.Pitch, 6);
+        Assert.InRange(cells.Across.Pitch, 80, 80 + (80.0 / columns));
         Assert.Equal(2, ItemSize.Wrapped(90, 100, 76, 96, Grid, least: 2).Columns);
-        Assert.Equal(4, ItemSize.Wrapped(900, 100, 76, 96, Grid, most: 4).Columns);
+
+        // Every item on one line: they keep their optimal, the room past the last empty.
+        var one = ItemSize.Wrapped(900, 100, 76, 96, Grid, most: 4);
+        Assert.Equal((4, 80.0), (one.Columns, one.Across.Pitch));
         Assert.Equal(1, ItemSize.Wrapped(double.NaN, 100, 76, 96, Grid).Columns);
     }
 

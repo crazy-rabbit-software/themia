@@ -8,7 +8,8 @@ namespace Themia.Core.Widgets;
 /// <param name="Days">How many of the first days are shown.</param>
 /// <param name="Columns">Cells across: the whole ones the card's width holds ([S-16438]).</param>
 /// <param name="Rows">Lines of cells down: as many as the days fill, the last one the card's foot reaches cut by it.</param>
-/// <param name="CellWidth">One cell's one width (<see cref="ForecastGrid.CellNaturalWidth"/> in whole grid cells).</param>
+/// <param name="CellWidth">A cell's width: its optimal (<see cref="ForecastGrid.CellNaturalWidth"/> in whole grid cells), the
+/// width's share where the days run on to a second line ([S-16438]).</param>
 /// <param name="CellHeight">One cell's one height (<see cref="ForecastGrid.CellNaturalHeight"/> in whole grid cells).</param>
 /// <param name="Icon">The sky's glyph: 32.</param>
 public sealed record ForecastGridPlan(int Days, int Columns, int Rows, double CellWidth, double CellHeight, double Icon);
@@ -93,9 +94,9 @@ public static class ForecastGrid
     {
         ArgumentNullException.ThrowIfNull(config);
         var days = WeatherForecastLayout.DaysIn(area, config);
-        var columns = area.IsMeasured ? Cells(area).Columns : 3;
         var grid = area.Grid();
-        return new ForecastGridPlan(days, columns, Lines(days, columns).Count, CellWidth(grid), CellHeight(grid), FamilyShape.IconLarge);
+        var (columns, width) = area.IsMeasured ? (Cells(area).Columns, Cells(area).Across.Pitch) : (3, CellWidth(grid));
+        return new ForecastGridPlan(days, columns, Lines(days, columns).Count, width, CellHeight(grid), FamilyShape.IconLarge);
     }
 }
 

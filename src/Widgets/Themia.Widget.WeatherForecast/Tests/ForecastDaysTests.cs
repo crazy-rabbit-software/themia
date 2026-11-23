@@ -70,18 +70,24 @@ public class ForecastDaysTests
         Assert.Equal((5 * w, 3 * h), (sizing.Max.Width, sizing.Max.Height));
     }
 
-    /// <summary>[S-14815] [S-14810] A cell keeps its one size at every card size: the card shows more of them, never larger ones.</summary>
+    /// <summary>
+    /// [S-14815] [S-14810] [S-16438] A cell keeps its one height at every card size and its optimal width at least: the card
+    /// shows more of them, never larger ones; across, the whole columns share the card's width edge to edge (less than a
+    /// column's share over the optimal).
+    /// </summary>
     [Theory]
-    [InlineData(80, 100)]
-    [InlineData(240, 200)]
-    [InlineData(257, 233)]
-    [InlineData(400, 300)]
-    [InlineData(613, 517)]
-    public void S14815_a_cell_keeps_its_one_size_at_every_card_size(double width, double height)
+    [InlineData(80, 100, 80)]
+    [InlineData(240, 200, 80)]
+    [InlineData(257, 233, 257.0 / 3)]
+    [InlineData(400, 300, 80)]
+    [InlineData(613, 517, 613.0 / 7)]
+    public void S14815_S16438_a_cell_keeps_its_height_and_the_columns_share_the_width(double width, double height, double cell)
     {
         var plan = ForecastGrid.Plan(new WidgetArea(width, height - FamilySpace.ContentTop), new WeatherForecastConfig { Style = ForecastStyle.Grid });
 
-        Assert.Equal((80.0, 100.0), (plan.CellWidth, plan.CellHeight));
+        Assert.Equal(cell, plan.CellWidth, 6);
+        Assert.Equal(100.0, plan.CellHeight);
+        Assert.InRange(plan.CellWidth, 80, 80 + (80.0 / plan.Columns));
         Assert.Equal(FamilyShape.IconLarge, plan.Icon);
     }
 

@@ -68,13 +68,15 @@ public sealed class CalendarSizingTests
 
         // 80 × 80 cells at every size (WR-4, WR-6): 350 wide holds four whole a line (no month cut by the right edge with
         // later ones under it); 900 all twelve on one; a narrow card one; the lines the height reaches, the last cut by the foot.
+        // [S-16438] The whole columns share the width edge to edge where the months run on to a second line.
         var reach = CalendarSizing.YearCells(fit, 350, 240, grid);
-        Assert.Equal((4, 80.0, 80.0, 3), (reach.Columns, reach.Across.Pitch, reach.Down.Pitch, reach.Lines));
+        Assert.Equal((4, 87.5, 80.0, 3), (reach.Columns, reach.Across.Pitch, reach.Down.Pitch, reach.Lines));
         Assert.Equal(4, CalendarSizing.YearCells(fit, 330, 140, grid).Columns);
         Assert.Equal(6, CalendarSizing.YearCells(fit, 520, 600, grid).Columns);
         Assert.Equal(12, CalendarSizing.YearCells(fit, 1800, 120, grid).Columns);
         Assert.Equal(1, CalendarSizing.YearCells(fit, 60, 1600, grid).Columns);
-        Assert.Equal(80, CalendarSizing.YearCells(fit, 520, 600, grid).Across.Pitch);
+        Assert.Equal(520.0 / 6, CalendarSizing.YearCells(fit, 520, 600, grid).Across.Pitch, 6);
+        Assert.Equal(80, CalendarSizing.YearCells(fit, 1800, 120, grid).Across.Pitch);
     }
 
     [Fact]
