@@ -79,7 +79,7 @@
   "metrics.metric.battery": "Battery",
   "metrics.metric.cloudCover": "Cloud cover",
   "metrics.metric.cpu": "CPU",
-  "metrics.metric.drive": "Drive activity",
+  "metrics.metric.drive": "Drive I/O",
   "metrics.metric.exchangeRate": "Exchange rate",
   "metrics.metric.feelsLike": "Feels like",
   "metrics.metric.gpu": "GPU",

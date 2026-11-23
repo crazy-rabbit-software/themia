@@ -439,13 +439,62 @@ public sealed class MetricsTests
         // graph stands; the head's ink fits the least height with room over and under it.
         var graph = MetricFaceRules.Sizing(MetricsStyle.Graph).Min;
         Assert.Equal(WidgetSizing.LeastScaled, graph.Height);
-        Assert.True(graph.Width <= 120);
+        Assert.Equal(MetricFaceRules.LeastWidth, graph.Width);
+
+        // At the least, a short name and its widest reading read whole side by side, the reading at the name's size if need be.
+        var k = MetricFaceRules.LeastScale;
+        var room = ((graph.Width - (2 * FamilySpace.Inset)) / k) - MetricFaceRules.GlyphSize(k) - FamilySpace.GlyphGap - FamilySpace.ColumnGap;
+        Assert.True(FamilyType.EstimateWidth(MetricFaceRules.Name, "UV index".Length) + FamilyType.EstimateWidth(FamilyType.BodyStrong, "888".Length) <= room);
+        Assert.True(FamilyType.EstimateWidth(MetricFaceRules.Name, "CPU".Length) + FamilyType.EstimateWidth(MetricFaceRules.Head, "888%".Length) <= room);
         var least = MetricFaceRules.Graph(graph.Width, graph.Height);
         Assert.True(least.Behind);
         Assert.Equal(MetricFaceRules.LeastScale, least.Scale, 6);
         var inkTop = least.HeadTop + (MetricFaceRules.HeadInk.Over * least.Scale);
         var inkFoot = least.HeadTop + least.HeadHeight - (MetricFaceRules.HeadInk.Under * least.Scale);
         Assert.True(inkTop > 0 && inkFoot < graph.Height);
+    }
+
+    [Fact]
+    public void S16321_the_reading_takes_the_names_size_where_title_would_cut_the_name()
+    {
+        Assert.Equal(MetricFaceRules.Head, MetricFaceRules.ReadingStep(200, 80, 100));
+        Assert.Equal(FamilyType.BodyStrong, MetricFaceRules.ReadingStep(170, 80, 100));
+        Assert.Equal(MetricFaceRules.Head, MetricFaceRules.ReadingStep(180, 80, 100)); // exactly fitting is fitting
+    }
+
+    [Fact]
+    public void S16324_a_metrics_widest_reading_is_its_largest_form_in_eights()
+    {
+        Assert.Equal("888%", MetricFormat.Widest(English, MetricCatalog.Of("cpu"), MetricShape.One));
+        Assert.Equal("-88° / -88°", MetricFormat.Widest(English, MetricCatalog.Of("temperature"), MetricShape.Pair));
+        Assert.Equal("888 / 888 MB/s", MetricFormat.Widest(English, MetricCatalog.Of("drive"), MetricShape.Pair));
+        foreach (var metric in MetricCatalog.All)
+        {
+            foreach (var feed in metric.Feeds)
+            {
+                // Never narrower than a reading it shows: as many places as the format's largest, every figure an 8.
+                var widest = MetricFormat.Widest(English, metric, feed.Shape);
+                Assert.DoesNotContain(widest, c => char.IsAsciiDigit(c) && c != '8');
+                Assert.NotEqual(MetricFormat.None, widest);
+            }
+        }
+    }
+
+    [Fact]
+    public void S16312_candles_of_closes_alone_are_runs_of_four_at_every_size()
+    {
+        var closes = new MetricSeries(MetricShape.Candle, [.. Enumerable.Range(0, 78).Select(i => (MetricValue?)new MetricValue(i, Candle: Candle.Point(i)))], Nine, TimeSpan.FromMinutes(5));
+        var real = closes with { Slots = [.. Enumerable.Range(0, 78).Select(i => (MetricValue?)new MetricValue(i, Candle: new Candle(i, i + 2, i - 1, i + 1)))] };
+
+        Assert.Equal(20, MetricGraphRules.MostSlots(MetricGraphType.Candles, closes, 900));
+        Assert.Equal(20, MetricGraphRules.MostSlots(MetricGraphType.Candles, closes, 480));
+        Assert.Equal(18, MetricGraphRules.MostSlots(MetricGraphType.Candles, closes, 180)); // a narrow plot folds further
+        Assert.Equal(90, MetricGraphRules.MostSlots(MetricGraphType.Candles, real, 900)); // real candles: as many as fit (all 78)
+        Assert.Equal(450, MetricGraphRules.MostSlots(MetricGraphType.Line, closes, 900));
+
+        // Folded, every candle has a body and a wick.
+        var folded = MetricGraphRules.Fold(closes, MetricGraphRules.MostSlots(MetricGraphType.Candles, closes, 900), MetricFold.Mean);
+        Assert.All(folded.Slots, s => Assert.True(s!.Value.Candle!.Value.High > s.Value.Candle.Value.Low));
     }
 
     [Fact]

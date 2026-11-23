@@ -50,6 +50,29 @@ public static class MetricGraphRules
     public static int MaxSlots(MetricGraphType type, double width)
         => !double.IsFinite(width) || width <= 0 ? 2 : Math.Max(2, (int)Math.Floor(width / Pitch(type)));
 
+    /// <summary>
+    /// [S-16312] How many of a quote's bars one candle stands for at least where the bars are its closes alone (a candle of
+    /// one close is a dash): so the chart is the same candles, bodies and wicks, at every size (WR-11).
+    /// </summary>
+    public const int ClosesACandle = 4;
+
+    /// <summary>
+    /// [S-16312] The most slots a plot <paramref name="width"/> wide draws <paramref name="series"/> in as <paramref name="type"/>:
+    /// <see cref="MaxSlots"/>, and for candles of closes alone (every candle a point) a candle a run of <see cref="ClosesACandle"/>.
+    /// </summary>
+    public static int MostSlots(MetricGraphType type, MetricSeries series, double width)
+    {
+        ArgumentNullException.ThrowIfNull(series);
+        var most = MaxSlots(type, width);
+        var candles = series.Slots.Where(s => s?.Candle is not null).Select(s => s!.Value.Candle!.Value).ToList();
+        if (type == MetricGraphType.Candles && candles.Count > 0 && candles.All(c => c.High - c.Low < 1e-12))
+        {
+            most = Math.Min(most, Math.Max(2, (int)Math.Ceiling(series.Slots.Count / (double)ClosesACandle)));
+        }
+
+        return most;
+    }
+
     /// <summary>[S-16312] The narrowest room a candle takes: its body and wick read, a quote's close-only bars folding into real candles.</summary>
     public const double CandlePitch = 10;
 

@@ -39,6 +39,12 @@ public static class MetricFaceRules
     public const double NaturalHeight = 120;
 
     /// <summary>
+    /// [S-16325] The graph style's least width: where, at the head's least scale, a short name ("CPU", "UV index") and the
+    /// widest of its readings read whole side by side, a long one cut meaningfully (WR-14).
+    /// </summary>
+    public const double LeastWidth = 180;
+
+    /// <summary>
     /// [S-16321] The head's least scale: its smallest text (the name, a Body line) at the 9 DIP the family reads to (WR-14: "for
     /// the widgets that can scale there should basically be no lower limit except for one that makes sense so you can still see
     /// the widget"); its glyph is held at its own floor under that (<see cref="GlyphSize"/>). And its most.
@@ -46,6 +52,15 @@ public static class MetricFaceRules
     public static double LeastScale => ScaleFloor.Least(FamilyType.BodySize);
 
     public const double MostScale = 2.5;
+
+    /// <summary>
+    /// [S-16321] The reading's line in the head: Title where the name (whole) and the metric's widest reading fit side by side in
+    /// <paramref name="room"/> (the head's width less its glyph and gaps), else the name's own size, bold, so the name keeps its
+    /// room first (WR-7: the caption and its reading together). Decided on the widest reading, never the one shown: a running
+    /// value never changes it (WR-15).
+    /// </summary>
+    public static TypeStep ReadingStep(double room, double name, double widestAtTitle)
+        => name + widestAtTitle <= room ? Head : FamilyType.BodyStrong;
 
     /// <summary>
     /// [S-16321] The head's glyph at scale <paramref name="scale"/>: its 16 DIP, drawn no smaller than the 12 a glyph is read to
@@ -153,6 +168,6 @@ public static class MetricFaceRules
     public static WidgetSizing Sizing(MetricsStyle style) => style switch
     {
         MetricsStyle.Value => WidgetSizing.Range(new(140, 60), new(200, 90), new(400, 180)),
-        _ => WidgetSizing.Range(new(120, WidgetSizing.LeastScaled), new(NaturalWidth, NaturalHeight), new(480, 240)),
+        _ => WidgetSizing.Range(new(LeastWidth, WidgetSizing.LeastScaled), new(NaturalWidth, NaturalHeight), new(480, 240)),
     };
 }

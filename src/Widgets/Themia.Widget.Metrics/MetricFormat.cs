@@ -44,6 +44,33 @@ public static class MetricFormat
         };
     }
 
+    /// <summary>
+    /// [S-16324] The metric's widest reading in <paramref name="shape"/>, every figure an 8 (<see cref="MetricFaceRules.Template"/>
+    /// of its largest form: a share's "100%", a pair's two, a price's thousands): what a face holds its reading's room by,
+    /// so a running value, and "--", stand in one box (WR-15).
+    /// </summary>
+    public static string Widest(Locale locale, MetricDef metric, MetricShape shape, string currency = "")
+    {
+        ArgumentNullException.ThrowIfNull(metric);
+        var value = metric.Unit switch
+        {
+            MetricUnit.Share => 1.0,
+            MetricUnit.Percent => 100,
+            MetricUnit.Rate => 888 * 1024.0 * 1024.0,
+            MetricUnit.Milliseconds => 888,
+            MetricUnit.Temperature => -88,
+            MetricUnit.Millimetres or MetricUnit.Centimetres or MetricUnit.Micrograms => 888.8,
+            MetricUnit.Speed or MetricUnit.Index => 888,
+            MetricUnit.Pressure => 1088,
+            MetricUnit.Grains => 8888,
+            MetricUnit.Minutes => 60,
+            MetricUnit.Price => 8888.88,
+            MetricUnit.Ratio => 888.88,
+            _ => 888,
+        };
+        return MetricFaceRules.Template(Reading(locale, metric, new MetricValue(value, shape == MetricShape.Pair ? value : null), currency));
+    }
+
     /// <summary>[S-16303] A reading as the head says it: one figure, a pair's two ("8° / 16°"), a candle's close; "--" for none.</summary>
     public static string Reading(Locale locale, MetricDef metric, MetricValue? value, string currency = "")
     {

@@ -41,11 +41,12 @@ internal sealed partial class MetricsPlot : Canvas
         // A line keeps its stroke inside the plot; a fill and a bar stand on the card's foot.
         var lineTop = look.Top + stroke;
         var lineFoot = height - (stroke / 2);
-        // [S-16314] The graph's default under whatever the series has not (WR-10: "it should show the default values in the
-        // graph and not just not show the graph"): a flat line across the foot, the readings over it.
+        // [S-16314] The graph's default where the series has no reading (WR-10: "even if there is no cpu data available it should
+        // show the default values in the graph and not just not show the graph"): a mark type's empty track a slot, a line's
+        // its plot as an empty track and its zero along the foot; the readings over it.
         if (MetricGraphRules.DrawsDefault(series))
         {
-            Add(Rule(0, height - FamilyShape.Stroke, width, ColourRole.TextDisabled));
+            Default(series, look, height, width);
         }
 
         if (!series.Any)
@@ -80,6 +81,40 @@ internal sealed partial class MetricsPlot : Canvas
                 Add(Dot(x, y(second), ColourRole.TextTertiary));
             }
         }
+    }
+
+    /// <summary>
+    /// [S-16314] The default graph: each slot without a reading an empty track from the plot's top to the foot (bars, ranges,
+    /// candles: as wide as its mark); a line type with no reading at all its plot one empty track, and its zero along the foot
+    /// in the disabled text's colour under any line.
+    /// </summary>
+    private void Default(MetricSeries series, PlotLook look, double height, double width)
+    {
+        var count = series.Slots.Count;
+        if (MetricGraphRules.Marks(look.Type))
+        {
+            for (var i = 0; i < count; i++)
+            {
+                if (series.Slots[i] is null)
+                {
+                    var bar = MetricGraphRules.Bar(i, count, width, MetricGraphRules.Cap(look.Type));
+                    var track = Column(bar, look.Top, height, ColourRole.Track);
+                    track.RadiusX = track.RadiusY = Math.Min(bar.Middle - bar.Left, FamilyShape.Radius);
+                    Add(track);
+                }
+            }
+
+            return;
+        }
+
+        if (!series.Any)
+        {
+            var band = new Rectangle { Width = Math.Max(0, width), Height = Math.Max(0, height - look.Top), Fill = Family.Brush(ColourRole.Track) };
+            Place(band, 0, look.Top);
+            Add(band);
+        }
+
+        Add(Rule(0, height - FamilyShape.Stroke, width, ColourRole.TextDisabled));
     }
 
     /// <summary>A line (its wash under it for Area, its steps for Step) over each run of slots with readings; a pair's second its own line.</summary>

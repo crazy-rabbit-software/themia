@@ -248,9 +248,13 @@ internal sealed partial class MetricsView
         _ => null,
     };
 
+    /// <summary>[S-16327] What the status's compact line says where the face has no reading: the first problem.</summary>
+    private string? _why;
+
     /// <summary>[S-16327] The status's mark: the problems' glyph, the busy ring, or nothing.</summary>
     private void Say(IReadOnlyList<string> problems, bool busy)
     {
+        _why = problems.Count > 0 ? problems[0] : null;
         if (problems.Count > 0 || busy)
         {
             _status.Show(problems, busy);
