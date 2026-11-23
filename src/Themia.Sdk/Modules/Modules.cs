@@ -58,6 +58,14 @@ public sealed record MergeFrom(string Kind)
     /// the config's key and the value it is given (a quick setting's <c>target</c> and <c>wifi</c>). Null: nothing.
     /// </summary>
     public (string Key, string Value)? Sets { get; init; }
+
+    /// <summary>
+    /// [S-16511] What the folded part showed, kept on the widget it folds into: the config's key of the set the widget shows
+    /// and the values the part adds to it (the cover, the times and the bar of the now-playing parts). The card a group of
+    /// touching parts becomes shows the union of its members' (<c>KindFolds</c>). An entry naming the declaring kind itself
+    /// says what a card of it without that key showed. Null: the part adds nothing to a set.
+    /// </summary>
+    public (string Key, IReadOnlyList<string> Values)? Shows { get; init; }
 }
 
 /// <summary>[S-16230] How a placed part of a removed kind folds back into the widget it was split from.</summary>

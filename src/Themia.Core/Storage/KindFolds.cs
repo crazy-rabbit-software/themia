@@ -32,6 +32,12 @@ public static class KindFolds
             return notes;
         }
 
+        // [S-16511] What a card of a kind without the set's key showed: the kind's own entry.
+        var selves = widgets.SelectMany(w => w.Merges.Where(m => m.Shows is not null && string.Equals(m.Kind, w.Id.Value, StringComparison.Ordinal))
+                .Select(m => (Into: w.Id.Value, m.Shows!.Value)))
+            .GroupBy(s => s.Into, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.First().Value, StringComparer.Ordinal);
+
         foreach (var view in views)
         {
             if (view is not JsonObject { } entry || entry["widgets"] is not JsonArray placed)
@@ -44,7 +50,7 @@ public static class KindFolds
             {
                 Alone(placed, into, folds, viewName, notes);
                 Under(placed, into, folds, viewName, notes);
-                Touching(placed, into, folds, viewName, notes);
+                Touching(placed, into, folds, selves.TryGetValue(into, out var self) ? self : null, viewName, notes);
             }
         }
 
@@ -107,7 +113,7 @@ public static class KindFolds
     }
 
     /// <summary>[S-16230] Each group of touching parts and cards of <paramref name="into"/> that holds a part: one card at their union.</summary>
-    private static void Touching(JsonArray placed, string into, Dictionary<string, (string Into, MergeFrom From)> folds, string viewName, List<string> notes)
+    private static void Touching(JsonArray placed, string into, Dictionary<string, (string Into, MergeFrom From)> folds, (string Key, IReadOnlyList<string> Values)? self, string viewName, List<string> notes)
     {
         var members = placed.OfType<JsonObject>()
             .Where(w => Rect(w) is not null && (Kind(w) == into || IsFold(w, into, MergeFold.Touching, folds, out _) || Joins(w)))
@@ -153,6 +159,7 @@ public static class KindFolds
             var left = rects.Min(r => r.X);
             var top = rects.Min(r => r.Y);
             Place(keep, (left, top, rects.Max(r => r.X + r.W) - left, rects.Max(r => r.Y + r.H) - top));
+            Shows(keep, ordered, into, folds, self);
             var folded = string.Join(", ", ordered.Where(m => m != keep).Select(m => $"{Kind(m)} '{Id(m)}'"));
             if (Kind(keep) != into)
             {
@@ -166,6 +173,53 @@ public static class KindFolds
             }
 
             notes.Add($"folded {folded} in view '{viewName}' into the widget {into} '{Id(keep)}' over their boxes");
+        }
+    }
+
+    /// <summary>
+    /// [S-16511] The card a group becomes shows what its members showed: the union, in the drawing order, of a card of the
+    /// kind's own set (its key, or what the kind says a card without it showed) and each part's (<see cref="MergeFrom.Shows"/>).
+    /// Nothing is written where no member says what it showed. The load's repair puts the set in its kind's order.
+    /// </summary>
+    private static void Shows(JsonObject keep, List<JsonObject> group, string into, Dictionary<string, (string Into, MergeFrom From)> folds, (string Key, IReadOnlyList<string> Values)? self)
+    {
+        (string Key, IReadOnlyList<string> Values)? PartShows(JsonObject member)
+            => Kind(member) is { } kind && kind != into && folds.TryGetValue(kind, out var fold) ? fold.From.Shows : null;
+
+        var key = self?.Key ?? group.Select(PartShows).FirstOrDefault(s => s is not null)?.Key;
+        if (key is null || keep["config"] is not JsonObject kept)
+        {
+            return;
+        }
+
+        var values = new List<string>();
+        var said = false;
+        foreach (var member in group)
+        {
+            IEnumerable<string>? shown = null;
+            if (Kind(member) == into && member["config"] is JsonObject config)
+            {
+                shown = config[key] is JsonArray stored
+                    ? stored.Select(v => v is JsonValue value && value.TryGetValue<string>(out var text) ? text : null).OfType<string>()
+                    : self?.Values;
+            }
+            else if (PartShows(member) is { } part && string.Equals(part.Key, key, StringComparison.Ordinal))
+            {
+                shown = part.Values;
+            }
+
+            if (shown is null)
+            {
+                continue;
+            }
+
+            said = true;
+            values.AddRange(shown.Where(v => !values.Contains(v, StringComparer.Ordinal)).ToList());
+        }
+
+        if (said)
+        {
+            kept[key] = new JsonArray([.. values.Select(v => (JsonNode)JsonValue.Create(v))]);
         }
     }
 

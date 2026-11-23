@@ -159,6 +159,55 @@ public sealed class KindMergesTests
         Assert.Equal(2, Widgets(document).Count);
     }
 
+    /// <summary>[S-16511] A player that shows a set of its elements, and the parts it takes back with what each showed.</summary>
+    private static readonly WidgetDescriptor[] Player =
+    [
+        Kind("player",
+            new MergeFrom("player") { Fold = MergeFold.Touching, Shows = ("shows", ["title", "next"]) },
+            new MergeFrom("art") { Fold = MergeFold.Touching, Shows = ("shows", ["cover"]) },
+            new MergeFrom("bar") { Fold = MergeFold.Touching, Shows = ("shows", ["elapsed", "bar", "length"]) }),
+    ];
+
+    private static List<string>? Shown(JsonNode? widget)
+        => widget!["config"]!["shows"] is JsonArray shows ? [.. shows.Select(v => (string)v!)] : null;
+
+    [Fact]
+    public void S16511_the_card_a_group_becomes_shows_what_its_members_showed()
+    {
+        // A player with no set of its own (what a card of it showed then), its art left of it and its bar under both.
+        var document = Placed(("a", "art", 0.10, 0.20, 0.03, 0.05), ("p", "player", 0.13, 0.20, 0.10, 0.05), ("b", "bar", 0.10, 0.25, 0.13, 0.02));
+
+        KindMerges.Replace(document, Player);
+
+        var card = Assert.Single(Widgets(document));
+        Assert.Equal(("p", "player", 0.10, 0.20, 0.13, 0.07), Row(card));
+        Assert.Equal(["cover", "title", "next", "elapsed", "bar", "length"], Shown(card));
+    }
+
+    [Fact]
+    public void S16511_a_lone_part_becomes_the_widget_showing_just_its_elements_and_a_stored_set_is_kept()
+    {
+        var document = Placed(("a", "art", 0.10, 0.20, 0.03, 0.05), ("b", "bar", 0.50, 0.50, 0.13, 0.02), ("p", "player", 0.80, 0.80, 0.10, 0.05),
+            ("b2", "bar", 0.80, 0.85, 0.10, 0.02));
+        Widgets(document)[2]!["config"]!["shows"] = new JsonArray("title");
+
+        KindMerges.Replace(document, Player);
+
+        Assert.Equal([["cover"], ["elapsed", "bar", "length"], ["title", "elapsed", "bar", "length"]], Widgets(document).Select(Shown));
+        Assert.All(Widgets(document), w => Assert.Equal("player", (string)w!["config"]!["kind"]!));
+    }
+
+    [Fact]
+    public void S16511_a_player_no_part_touches_keeps_its_config_as_it_is()
+    {
+        var document = Placed(("p", "player", 0.80, 0.80, 0.10, 0.05), ("a", "art", 0.10, 0.20, 0.03, 0.05));
+
+        KindMerges.Replace(document, Player);
+
+        Assert.Null(Shown(Widgets(document)[0]));
+        Assert.Equal(["cover"], Shown(Widgets(document)[1]));
+    }
+
     /// <summary>[S-16200] A summary that is back, its two removed parts and the single metric that stood with them.</summary>
     private static readonly WidgetDescriptor[] Summary =
     [
