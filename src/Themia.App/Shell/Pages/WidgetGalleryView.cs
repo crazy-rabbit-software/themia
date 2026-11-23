@@ -652,6 +652,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             tab.Chosen = ReferenceEquals(tab, _unplacedTab);
         }
 
+        // [S-16566] On a line that scrolls the chosen tab is scrolled into sight.
+        _unplacedTab?.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
+
         SyncUnplacedTab();
     }
 

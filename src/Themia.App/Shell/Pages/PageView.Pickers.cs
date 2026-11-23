@@ -287,7 +287,8 @@ internal sealed partial class PageView
                 results = PageRows.Of(answer.Lines, row.Key + "/found");
                 note = answer.Note;
 
-                // [S-16720] A pick dots its row at once: the answer held is the one the page is drawn again from.
+                // [S-16720] A pick dots its row at once: the answer held is the one the page is drawn again from, and the
+                // lookup's card is drawn again with it (a kept card [S-2361] would keep its rows as they were).
                 for (var i = 0; i < results.Count; i++)
                 {
                     if (answer.Lines[i] is SettingsRadio && results[i].Run is { } pick)
@@ -298,8 +299,13 @@ internal sealed partial class PageView
                         {
                             Run = () =>
                             {
-                                _found.Change(key, typed, held => SearchPicks.Picked(held, at));
+                                if (_found.Change(key, typed, held => SearchPicks.Picked(held, at)))
+                                {
+                                    _answered[key] = _answered.GetValueOrDefault(key) + 1;
+                                }
+
                                 pick();
+                                Redraw();
                             },
                         };
                     }
@@ -473,7 +479,7 @@ internal sealed partial class PageView
 
     /// <summary>
     /// [S-16720] Debug renders: the open lookup's result at <paramref name="index"/> picked as a click on it picks it (its row's
-    /// own action), then the page drawn again as a save draws it.
+    /// own action: the answer's dot moved and the page drawn again).
     /// </summary>
     internal bool DebugPickFound(int index)
     {
@@ -483,7 +489,6 @@ internal sealed partial class PageView
         }
 
         Do(pick);
-        Redraw();
         return true;
     }
 

@@ -349,9 +349,10 @@ internal static class WidgetGalleryRender
                     }
                 }
 
-                // At its top its first card stands on the view's first row.
+                // At its top its first card stands on the view's first row under its title ([S-16721]) or its section's heading.
                 gallery.ScrollTo(0);
-                reached &= gallery.Screen.Widgets.Count == 0 || Math.Abs((gallery.Screen.Widgets.Min(w => w.Rect.Y) * rows) - view.Y) < 1e-6;
+                var top = sheet.Tiles.Count == 0 ? 0 : sheet.Tiles.Min(t => sheet.CardOf(t).Y);
+                reached &= gallery.Screen.Widgets.Count == 0 || Math.Abs((gallery.Screen.Widgets.Min(w => w.Rect.Y) * rows) - (view.Y + top)) < 1e-6;
                 whole &= gallery.Categories[i].Pieces.All(p => p.Group is not null || (p.Kind is { } kind && !parts.Contains(kind)));
             }
 
@@ -593,6 +594,8 @@ internal static class WidgetGalleryRender
 
             // [S-16726] A toggle in another style (Quick settings' Round section), picked and dragged out, lands in that style.
             gallery.ShowCategory(AddFolderId.QuickSettings);
+            var styledTile = gallery.Sheet!.Tiles.First(t => t.Piece.Style is not null);
+            gallery.ScrollTo(WidgetGallery.Reveal(gallery.Scrolled, styledTile.Box, gallery.Frame!.View.H, gallery.MostScroll));
             await stand.ReadyAsync("gallery check: a toggle's style").ConfigureAwait(true);
             // One standing whole in the view (a card under the well's foot is cut by it; dragged, the ghost is held to the display).
             var styleCard = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id)?.Style is not null)

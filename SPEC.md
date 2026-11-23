@@ -2353,9 +2353,10 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   than saying "Searching…" for good. Tests `SearchRulesTests.S16409_`.
 - **[S-16720]** **A pick dots its row at once** (owner, 2026-11-23: *"when i click a city like Gais in the dropdown select
   once it does select it in the background but it does not show the blue selected dot. fix this."*). A lookup's answer says
-  which row is in force when it comes; the page is drawn again from the answer it holds after a pick, so before, the row
-  picked stayed undotted though the place was stored. Now a pick moves the dot in the answer held (`SearchPicks.Picked`
-  through `LookupAnswers.Change`): the row picked holds, no other. A place found is the one held by the name the pick stored
+  which row is in force when it comes; the page is drawn again from the answer it holds after a pick (the lookup's card drawn
+  anew as its line now names the place), so before, the row picked was drawn undotted though the place was stored. Now a pick
+  moves the dot in the answer held (`SearchPicks.Picked` through `LookupAnswers.Change`): the row picked holds, no other; and
+  the lookup's card is drawn again with it whatever else changed (a kept card, [S-2361], would keep its rows). A place found is the one held by the name the pick stored
   (cut where the config cuts it) or by its coordinates (`PlaceQuery.Holds`), so the same search asked again dots it too.
   Tests `SearchRulesTests.S16720_`.
 - **[S-2309]** A number typed into a number box is read in the units the box shows (`NumberEntry`: the
