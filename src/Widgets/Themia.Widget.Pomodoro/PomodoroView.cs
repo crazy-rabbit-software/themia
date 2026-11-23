@@ -341,7 +341,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         // The widest each part reads: the time on the longest phase's 8s, the longest caption, Start or Pause.
         var worst = PomodoroFace.Worst(_config);
         _time.MinWidth = Math.Max(Measured(worst.Value, _plan.Step), ReadoutRules.Width(_plan.Step, worst));
-        _time.Use(_plan.Step, HorizontalAlignment.Center);
 
         // [S-14319] Held to the widest time its phases show: a tick never moves the figures (WR-15).
         _time.Hold(worst.Value);
@@ -352,9 +351,17 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         Align(_block.Arrangement);
     }
 
-    /// <summary>[S-16603] The caption centred where the parts stand centred (stacked, in the ring), on the start beside the time or the upright bar.</summary>
+    /// <summary>
+    /// [S-16603] The time and the caption centred where the parts stand centred (stacked, in the ring), on their start side
+    /// by side and beside the upright bar: the time's figures then start where its box does, so its ink reaches the card's
+    /// side (WR-3) however far the face is scaled.
+    /// </summary>
     private void Align(PomodoroArrangement arrangement)
-        => _caption.TextAlignment = arrangement is PomodoroArrangement.Stacked or PomodoroArrangement.Ring ? TextAlignment.Center : TextAlignment.Left;
+    {
+        var centred = arrangement is PomodoroArrangement.Stacked or PomodoroArrangement.Ring;
+        _caption.TextAlignment = centred ? TextAlignment.Center : TextAlignment.Left;
+        _time.Use(_plan.Step, centred ? HorizontalAlignment.Center : HorizontalAlignment.Left);
+    }
 
     /// <summary>How wide <paramref name="text"/> is drawn on <paramref name="step"/>, in whole DIPs.</summary>
     private static double Measured(string text, TypeStep step)
