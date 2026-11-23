@@ -25,7 +25,7 @@ public sealed class DriveMenuTests
     private SettingsLine Drive(DriveConfig config)
     {
         var menu = new WidgetMenuLines(() => _saves++);
-        DriveMenu.Lines(menu, config, Drives);
+        DriveMenu.Lines(menu, OneDriveKinds.Drive, config, Drives);
         Assert.True(menu.Lines[0].IsSeparator);
         return Assert.Single(menu.Lines, l => !l.IsSeparator);
     }

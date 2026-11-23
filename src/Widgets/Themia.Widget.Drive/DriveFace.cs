@@ -2,6 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Drive;
@@ -21,8 +22,11 @@ public static class DriveFace
     /// <summary>The used share's widest case.</summary>
     public static readonly ReadoutText Worst = new("100", "%");
 
-    /// <summary>The Bar style's one height: the inset, the share and its line, 8, the bar, the inset.</summary>
-    public static double BarHeight => FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilyType.Caption.LineHeight + FamilySpace.S2 + FamilyShape.Track + FamilySpace.Inset;
+    /// <summary>
+    /// [S-16645] The Bar style's one height, the device item's (<see cref="DeviceLayout.Natural"/>): the inset, the share and
+    /// its line, 8, the bar, the inset.
+    /// </summary>
+    public static double BarHeight => DeviceLayout.Natural;
 
     /// <summary>Under the ring: 8, then the space line (Body).</summary>
     public static double RingLine => FamilySpace.S2 + FamilyType.Body.LineHeight;
@@ -35,28 +39,18 @@ public static class DriveFace
     /// </summary>
     public static WidgetSizing Scaled(DriveStyle style)
     {
-        var sizing = Sizing(style);
-        var k = ScaleFloor.Least(style == DriveStyle.Bar ? FamilyType.Caption.FontSize : FamilyType.Body.FontSize);
-        var natural = sizing.Natural;
-
-        // [S-15759] Never narrower than the widest line the bar's face says (its space line's forms, the reasons a drive has
-        // no figures) beside its icon at that scale: "Disconnected network drive" had been cut mid-word at 156 x 72.
-        var scaled = sizing.ScalesDownTo(new SizeDip(
-            ((natural.Width - (2 * FamilySpace.Inset)) * k) + (2 * FamilySpace.Inset),
-            ((natural.Height - FamilySpace.ContentTop - FamilySpace.Inset) * k) + FamilySpace.ContentTop + FamilySpace.Inset));
-        if (style != DriveStyle.Bar)
+        if (style == DriveStyle.Bar)
         {
-            return scaled;
+            // [S-16637] The device family's one face: its sizing, never narrower than its widest line.
+            return DeviceLayout.Face(WidestLine(Strings.Current) - FamilyType.Big28.LineHeight - FamilySpace.GlyphGap);
         }
 
-        var least = Math.Ceiling((WidestLine(Strings.Current) * k) + (2 * FamilySpace.Inset));
-        var min = new SizeDip(Math.Max(scaled.Min.Width, least), scaled.Min.Height);
-        return scaled with
-        {
-            Min = min,
-            Natural = new SizeDip(Math.Max(scaled.Natural.Width, min.Width), scaled.Natural.Height),
-            Max = new SizeDip(Math.Max(scaled.Max.Width, min.Width), scaled.Max.Height),
-        };
+        var sizing = Sizing(style);
+        var k = ScaleFloor.Least(FamilyType.Body.FontSize);
+        var natural = sizing.Natural;
+        return sizing.ScalesDownTo(new SizeDip(
+            ((natural.Width - (2 * FamilySpace.Inset)) * k) + (2 * FamilySpace.Inset),
+            ((natural.Height - FamilySpace.ContentTop - FamilySpace.Inset) * k) + FamilySpace.ContentTop + FamilySpace.Inset));
     }
 
     /// <summary>

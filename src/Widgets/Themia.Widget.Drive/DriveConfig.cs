@@ -18,8 +18,11 @@ public enum DriveStyle
     Ring = 1,
 }
 
-/// <summary>[S-4670] One drive's information: which drive.</summary>
-public sealed class DriveConfig : WidgetConfig, IStyled, IDriveChoice
+/// <summary>
+/// [S-4670] [S-16646] One drive's widget, whatever its kind (a Drive, a USB stick, a network drive): which drive and its
+/// look. Each kind is its own config type (a config's type is how it knows its id); everything else is this one's.
+/// </summary>
+public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice
 {
     private static readonly StyleOption[] DriveStyles =
     [
@@ -38,10 +41,10 @@ public sealed class DriveConfig : WidgetConfig, IStyled, IDriveChoice
         set => Style = (DriveStyle)value;
     }
 
-    /// <summary>The drive's root (<c>C:\</c>); empty for the system drive.</summary>
+    /// <summary>The drive's root (<c>C:\</c>); empty for the kind's default (the system drive, the first stick or share there).</summary>
     public string Drive { get; set; } = string.Empty;
 
-    /// <summary>Anything that is not a drive letter (a folder, a typo) is the system drive again, loudly.</summary>
+    /// <summary>Anything that is not a drive letter (a folder, a typo) is the kind's default again, loudly.</summary>
     public override IReadOnlyList<string> Repair()
     {
         if (string.IsNullOrEmpty(Drive))
@@ -53,12 +56,37 @@ public sealed class DriveConfig : WidgetConfig, IStyled, IDriveChoice
         {
             var bad = Drive;
             Drive = string.Empty;
-            return [$"Drive widget named '{bad}', which is not a drive; showing the system drive"];
+            return [$"{Kind} widget named '{bad}', which is not a drive; showing its default"];
         }
 
         Drive = root;
         return [];
     }
 
-    public override WidgetConfig Clone() => new DriveConfig { Drive = Drive, Style = Style };
+    /// <summary>A copy of the kind's own type with this one's settings.</summary>
+    protected T CopyTo<T>(T copy)
+        where T : OneDriveConfig
+    {
+        copy.Drive = Drive;
+        copy.Style = Style;
+        return copy;
+    }
+}
+
+/// <summary>[S-4670] One drive (any: the system drive by default).</summary>
+public sealed class DriveConfig : OneDriveConfig
+{
+    public override WidgetConfig Clone() => CopyTo(new DriveConfig());
+}
+
+/// <summary>[S-16646] One USB stick or external disk (the first plugged in by default).</summary>
+public sealed class UsbStickConfig : OneDriveConfig
+{
+    public override WidgetConfig Clone() => CopyTo(new UsbStickConfig());
+}
+
+/// <summary>[S-16646] One mapped network drive (the first there by default).</summary>
+public sealed class NetworkDriveConfig : OneDriveConfig
+{
+    public override WidgetConfig Clone() => CopyTo(new NetworkDriveConfig());
 }

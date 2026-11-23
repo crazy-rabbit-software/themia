@@ -59,6 +59,18 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   page: Appearance, then behind a divider Drive — the system drive (by name), every drive the walk lists (shares
   included, never waited for), and a chosen drive that is gone as "not connected". The card menu has Open
   in Explorer, Eject for a removable drive, and Refresh.
+- **[S-16645]** **On the device design** ([S-16630], owner, 2026-11-23: "create a base design that all of those widgets
+  can use. it should look very similar to how todays drive widget looks like"): the drive is the device family's item
+  (`DeviceItems.Drive`) on its one face (`DeviceFace`, [S-16637]: the bar style; the ring keeps its own parts over the same
+  item): the same icon, reading, line, bar and states as every device widget; its sizing the face's (`DeviceLayout.Face`).
+- **[S-16646]** **USB stick and Network drive** (`usbStick`, `networkDrive`; owner, 2026-11-23: "there should be individual
+  widgets for the drive, bluetooth device, usb stick, network drive"): this module is a family of three one-drive widgets,
+  one view, one config shape (`OneDriveConfig`: the drive, the style) and one module over its kinds as data
+  (`OneDriveKind`): the Drive any drive (the system drive by default), the USB stick a removable drive or external disk,
+  the Network drive a mapped share. A kind's widget shows the drive named while it is there (not there: its face, "Not
+  connected"), else the first of its kind there by letter, else its face and why ("Nothing plugged in", "No network
+  drive"; WR-10) (`DriveKindRules.Pick`). Its page: the drive (the first one there, or one of its kind by name). Its
+  sample is a stick or a share. Bar and Ring, Open, Eject and Refresh as the Drive's.
 - **[S-2032]** A click on the card ([S-2000]) opens the drive's root in File Explorer: its own
   drive, or the system drive when it shows that (`DriveModule.Opens`).
 - View links: the card is its drive; the pointer on it publishes the drive pointed at, and the whole card takes the

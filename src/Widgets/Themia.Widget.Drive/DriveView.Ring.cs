@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Themia.Core.Localization;
+using Themia.Sdk.Devices;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
@@ -44,7 +44,7 @@ internal sealed partial class DriveView
     private void UseStyle()
     {
         var ring = _config.Style == Core.Model.DriveStyle.Ring;
-        _figure.Visibility = ring ? Visibility.Collapsed : Visibility.Visible;
+        _face.Visibility = ring ? Visibility.Collapsed : Visibility.Visible;
 
         if (ring && _ringParts is null)
         {
@@ -58,26 +58,25 @@ internal sealed partial class DriveView
         }
     }
 
-    /// <summary>[S-15749] The ring at its planned size with its share at 28 in its hole and its line under it: the block scales as one.</summary>
-    private void LayRing(DriveEntry drive)
+    /// <summary>[S-15749] [S-16645] The ring at its planned size with the item's share at 28 in its hole and its line under it: the block scales as one.</summary>
+    private void LayRing(DeviceItem item)
     {
         if (_ringParts is not { } parts)
         {
             return;
         }
 
-        var locale = Strings.Current;
-        _figure.Visibility = Visibility.Collapsed;
+        _face.Visibility = Visibility.Collapsed;
         parts.Root.Visibility = Visibility.Visible;
 
-        var share = ReadoutRules.Split(Formatting.Percent(locale, drive.UsedFraction ?? 0));
+        var share = item.Reading ?? DeviceReading.None();
         parts.Box.Width = DriveFace.PlannedRing;
         parts.Box.Height = DriveFace.PlannedRing;
         parts.Share.Use(FamilyType.Big28, centred: true);
         parts.Share.Show(share.Value, share.Unit);
-        parts.Ring.Show(drive.UsedFraction ?? 0);
-        parts.Ring.Role(DriveRules.Role(drive));
-        parts.Line.Text = DriveRules.SpaceLine(locale, drive);
+        parts.Ring.Show(item.Fill);
+        parts.Ring.Role(item.FillRole);
+        parts.Line.Text = item.Line;
         parts.Root.Refit();
     }
 }

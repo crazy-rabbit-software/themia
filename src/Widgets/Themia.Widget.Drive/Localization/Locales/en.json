@@ -1,6 +1,21 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "drives.usbStick.label",
+    "drives.usbStick.desc",
+    "drives.networkDrive.label",
+    "drives.networkDrive.desc",
+    "drives.nothingPlugged",
+    "drives.noShare",
+    "drives.first"
+  ],
   "drives.drive.desc": "One drive's space and file system, mapped drives too",
   "drives.drive.label": "Drive",
-  "styles.io.bar": "Bar"
+  "styles.io.bar": "Bar",
+  "drives.usbStick.label": "USB stick",
+  "drives.usbStick.desc": "One USB stick, card or external disk: its space, with Eject",
+  "drives.networkDrive.label": "Network drive",
+  "drives.networkDrive.desc": "One mapped network drive: its space, or why it cannot be reached",
+  "drives.nothingPlugged": "Nothing plugged in",
+  "drives.noShare": "No network drive",
+  "drives.first": "The first one there"
 }

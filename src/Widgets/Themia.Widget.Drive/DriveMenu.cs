@@ -13,14 +13,32 @@ namespace Themia.App.Shell.Config;
 internal static class DriveMenu
 {
     /// <param name="drives">Every drive Windows has (the host's walk, <c>DriveList.Now()</c>).</param>
-    public static void Lines(WidgetMenuLines menu, DriveConfig config, IReadOnlyList<DriveEntry> drives)
+    public static void Lines(WidgetMenuLines menu, OneDriveKind kind, OneDriveConfig config, IReadOnlyList<DriveEntry> drives)
     {
         ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(kind);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(drives);
 
         // [S-4674] The look (Style, Appearance), a divider, then which drive.
         menu.Lines.Add(SettingsLine.Separator);
-        menu.Lines.Add(DriveMenuLines.Drive(menu, config.Drive, value => config.Drive = value, drives));
+        if (kind.Group is not { } group)
+        {
+            menu.Lines.Add(DriveMenuLines.Drive(menu, config.Drive, value => config.Drive = value, drives));
+            return;
+        }
+
+        // [S-16646] A kind's drive: the first of its kind there, or one of its kind by name (a chosen one not there stays offered).
+        var locale = Strings.Current;
+        var options = new List<(string Value, string Text)> { (string.Empty, DriveStr.Drives_First.Text()) };
+        options.AddRange(DriveRules.OfGroup(drives, group).Select(d => (d.Root, DriveRules.Title(locale, d))));
+        var current = DiskRules.Root(config.Drive) ?? string.Empty;
+        if (!options.Any(o => string.Equals(o.Value, current, StringComparison.OrdinalIgnoreCase)))
+        {
+            options.Add((current, Str.WidgetsB_Settings_Disk_NotConnectedDrive.Format(("drive", DiskRules.Instance(current)))));
+        }
+
+        var held = options.First(o => string.Equals(o.Value, current, StringComparison.OrdinalIgnoreCase)).Value;
+        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.Drive, menu.Choice(kind.Glyph, Str.Details_Disk_Drive.Text(), options, held, value => config.Drive = value)));
     }
 }
