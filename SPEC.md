@@ -2382,7 +2382,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   cards of 1 × 1, 2 × 1 and 2 × 2 cells packed with no hole and no overlap: Clock and Calendar (the month) on top, a
   CPU meter and the Wi-Fi toggle tile under the clock, Tasks, the network history graph and Music (now playing) under
   them, down the right the weather station joined (Weather summary, its humidity ([S-13900]), the forecast: one join's tiles split the gap
-  between them and meet, so they draw as one panel, [S-2240]), and under it the battery meter and the Lock tile. Each
+  between them and meet, so they draw as one panel, [S-2240]), and under it the Battery item across both columns ([S-17182]). Each
   box holds its kind's least size; a kind whose size follows a count shows what its box holds ([S-2442]). The bento
   stands in the display's middle on its grid lines, placed as the desktop places cards so their frost is the
   desktop's, and the cards join by the desktop's own path. The card draws them in the design as it stands: each
