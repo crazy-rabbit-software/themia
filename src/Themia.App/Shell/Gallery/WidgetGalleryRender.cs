@@ -590,7 +590,9 @@ internal static class WidgetGalleryRender
             // [S-16404] A style shown round a widget in focus, clicked (picked) and dragged out, lands in that style.
             gallery.FocusOn(gallery.Screen.Widgets.First(w => WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1).Id);
             await stand.ReadyAsync("gallery check: a style in focus").ConfigureAwait(true);
-            var styleCard = gallery.Screen.Widgets.First(w => gallery.PieceAt(w.Id)?.Role == GalleryRole.Style);
+            // One standing whole in the view (a card under the well's foot is cut by it; dragged, the ghost is held to the display).
+            var styleCard = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id)?.Role == GalleryRole.Style)
+                .OrderBy(w => w.Rect.Bottom * rows > gallery.Frame!.View.Bottom + 1e-6 || w.Rect.Bottom > work.Bottom + 1e-9 ? 1 : 0).First();
             var style = gallery.PieceAt(styleCard.Id)!.Style;
             gallery.ClickForCheck(styleCard.Id);
             var placed = await DragAndDrop($"{styleCard.Kind} in style {style}", [styleCard.Id], 5, -8).ConfigureAwait(true);

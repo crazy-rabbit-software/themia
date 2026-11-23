@@ -3427,8 +3427,9 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   (the dispatcher's low priority, after input). Measured by `--check gallery` on the stand-in 1280 by 720 display at 150 %,
   Debug ("weather" typed a letter at a time, twice, each search's own work on the UI thread: find, lay, build its cards; the
   second pass): before (every find, 79 pieces for "w", 33 for "we", 13 after) 1060, 298, 153, 164, 170, 177, 127 ms, the
-  middle 170; after (8 pieces) 158, 194, 145, 95, 101, 95, 93 ms, the middle 101, laying 1 to 27 ms of it, building the cards
-  the rest. Twelve pieces measured 113 to 252 (middle 202): eight it is.
+  middle 170; after (8 pieces) 158, 194, 145, 95, 101, 95, 93 ms, the middle 101 (later runs on the same, busier PC: middles
+  106 to 181, most 413), laying 1 to 27 ms of it, building the cards the rest; the worst keystroke ("w", 79 pieces, 1060 ms)
+  is gone. Twelve pieces measured 113 to 252 (middle 202): eight it is.
 - **[S-16558]** **The beak** (owner: *"the angle on the top is missing"*): the window and a flyout's beak (8 tall, 16 across)
   are one outline with one rim and one shadow (`PageFlyout.Outline`), the beak's tip over the Widget gallery button's middle
   (`EditBar.GalleryBox`; held to the straight of the top, `FlyoutPlacement.Tip`), in the flyouts' gap under the bar.
