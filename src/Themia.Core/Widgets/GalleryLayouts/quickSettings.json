@@ -2,7 +2,7 @@
   "titles": false,
   "columns": [
     {
-      "width": 36,
+      "width": 25,
       "sections": [
         {
           "title": "Tile",
@@ -77,7 +77,7 @@
       ]
     },
     {
-      "width": 36,
+      "width": 25,
       "sections": [
         {
           "title": "Round button",
@@ -165,7 +165,7 @@
       ]
     },
     {
-      "width": 34,
+      "width": 24,
       "sections": [
         {
           "title": "Switch",
@@ -263,7 +263,7 @@
       ]
     },
     {
-      "width": 35,
+      "width": 24,
       "sections": [
         {
           "title": "Small tile",
