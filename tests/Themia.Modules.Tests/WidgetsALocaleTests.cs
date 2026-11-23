@@ -89,7 +89,7 @@ public sealed class WidgetsALocaleTests
         Assert.Equal("28. Sept. – 4. Okt.", CalendarRules.Title(CalendarStyle.Week, sunday, sunday, WeekStartDay.Monday, Locale.De));
         Assert.Equal("Der Zugriff auf die Kontakte wurde nicht gewährt.", OfficeProblems.Message(FetchStatus.Forbidden, SyncSubject.Contacts, Locale.De));
         Assert.Equal(["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"], CalendarText.WeekdayHeaders(DayOfWeek.Monday, Locale.De));
-        Assert.Equal("Telefon", ContactRules.ColumnTitle(ContactColumn.Phone, Locale.De));
+        Assert.Equal("Telefon", Strings.Get(Locale.De, Str.Contacts_Col_Phone));
     }
 
     [Fact]

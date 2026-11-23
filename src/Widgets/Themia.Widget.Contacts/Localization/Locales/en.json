@@ -1,7 +1,12 @@
 {
   "$englishOnly": [
     "contacts.searchBox",
-    "widgetsA.contacts.menu.columns"
+    "widgetsA.contacts.menu.columns",
+    "contacts.part.role",
+    "contacts.pick",
+    "contacts.single.label",
+    "contacts.single.desc",
+    "contacts.person"
   ],
   "apps.viewCompact": "Compact",
   "apps.viewGrid": "Grid",
@@ -24,5 +29,10 @@
   "widgetsA.contacts.settings.every": "Every contacts account",
   "widgetsA.contacts.settings.layout.label": "Layout",
   "widgetsA.contacts.menu.columns": "Columns",
-  "contacts.setup.sentence": "Add an account to show your contacts"
+  "contacts.setup.sentence": "Add an account to show your contacts",
+  "contacts.part.role": "Role",
+  "contacts.pick": "No one picked",
+  "contacts.single.label": "Contact",
+  "contacts.single.desc": "One person you pick, to write or call",
+  "contacts.person": "Person"
 }

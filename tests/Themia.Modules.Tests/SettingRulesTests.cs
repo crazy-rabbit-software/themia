@@ -115,14 +115,6 @@ public class SettingRulesTests
         Assert.Equal([SoundSetting.Volume], new AlarmConfig { Sound = AlarmSound.Bell }.ShownSettings);
     }
 
-    [Theory]
-    [InlineData(ContactsLayout.List, false)]
-    [InlineData(ContactsLayout.Compact, false)]
-    [InlineData(ContactsLayout.Details, true)]
-    [InlineData(ContactsLayout.Grid, false)]
-    public void S6074_the_columns_are_the_contacts_tables(ContactsLayout layout, bool columns)
-        => Assert.Equal(columns, new ContactsConfig { Layout = layout }.Offers(ContactsSetting.Columns));
-
     [Fact]
     public void S6074_each_screen_time_widget_offers_the_limit_it_draws_and_the_list_its_average_over_a_window()
     {

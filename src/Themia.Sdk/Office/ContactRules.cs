@@ -77,40 +77,6 @@ public static class ContactRules
     public static string CompactDetail(Contact contact)
         => FirstOf(contact.Email, contact.Company, contact.Phone);
 
-    /// <summary>One cell of the details table.</summary>
-    public static string Cell(Contact contact, ContactColumn column) => column switch
-    {
-        ContactColumn.Name => contact.Name,
-        ContactColumn.Email => contact.Email ?? string.Empty,
-        ContactColumn.Phone => contact.Phone ?? string.Empty,
-        ContactColumn.Company => contact.Company ?? string.Empty,
-        ContactColumn.Title => contact.JobTitle ?? string.Empty,
-        _ => string.Empty,
-    };
-
-    /// <summary>A column's heading in <paramref name="locale"/>.</summary>
-    public static string ColumnTitle(ContactColumn column, Locale locale) => column switch
-    {
-        ContactColumn.Name => Strings.Get(locale, Str.Contacts_Col_Name),
-        ContactColumn.Email => Strings.Get(locale, Str.Contacts_Col_Email),
-        ContactColumn.Phone => Strings.Get(locale, Str.Contacts_Col_Phone),
-        ContactColumn.Company => Strings.Get(locale, Str.Contacts_Col_Company),
-        ContactColumn.Title => Strings.Get(locale, Str.Contacts_Col_Title),
-        _ => string.Empty,
-    };
-
-    /// <summary>
-    /// [S-582] The columns after toggling one: canonical order, and the last one cannot be turned
-    /// off (the table would have nothing in it).
-    /// </summary>
-    public static List<ContactColumn> ToggleColumn(IReadOnlyList<ContactColumn> current, ContactColumn column)
-    {
-        var next = current.Contains(column) ? current.Where(c => c != column).ToList() : [.. current, column];
-        return next.Count == 0
-            ? [.. current]
-            : ContactColumns.All.Where(next.Contains).ToList();
-    }
-
     private static string FirstOf(params string?[] values)
         => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v))?.Trim() ?? string.Empty;
 

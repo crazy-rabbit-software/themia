@@ -1,4 +1,3 @@
-using Themia.Sdk.Kit;
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
@@ -7,50 +6,18 @@ using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Items;
+using Themia.Sdk.Kit;
 using Themia.Widget.Contacts;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-6074] The contacts rows that only some layouts draw with.</summary>
-public enum ContactsSetting
-{
-    /// <summary>The details table's columns.</summary>
-    Columns,
-}
-
 /// <summary>
-/// [S-580] The contacts widget's settings: which accounts, the layout, the columns of the details
-/// table, how many to list and a search to start with. Data comes from Themia's own accounts.
+/// [S-580] [S-16972] What both contacts widgets share: which accounts they read (empty: every contacts account), their setup
+/// rule and the item base's parts ([S-16950]). Data comes from Themia's own accounts.
 /// </summary>
-public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests, IKitRows, IChoosesAccounts
+public abstract class ContactsBaseConfig : WidgetConfig, ISetupRule, IInterests, IChoosesAccounts, IItemParts
 {
-    /// <summary>[S-11406] A new contacts list's rows.</summary>
-    public const int DefaultRows = 5;
-
-    /// <summary>[S-11406] [S-14410] A new grid's cells a line; then every one the card's width reaches (2 at least), never stored.</summary>
-    public const int DefaultGridColumns = 3;
-
-    /// <summary>[S-11406] The grid's lines of cells.</summary>
-    public const int DefaultGridRows = 2;
-
-    /// <summary>[S-11406] The most lines a grid states (its Rows); a new card's widest grid line.</summary>
-    public const int MaxGrid = 6;
-
-    /// <summary>[S-11406] [S-14500] How many people a new List, Compact or Details card stands (its natural height); the card shows what it holds.</summary>
-    public int Rows { get; set; } = DefaultRows;
-
-    /// <summary>[S-11406] Lines per person in the List layout: the name; the role or a way to reach them; the address or the number.</summary>
-    public int Lines { get; set; } = 2;
-
-    /// <summary>[S-11406] Only the List layout's people have lines to choose.</summary>
-    bool IKitRows.OffersLines => EffectiveLayout == ContactsLayout.List;
-
-    /// <summary>[S-11406] The search box over the people (off: the header's search button opens it).</summary>
-    public bool SearchBox { get; set; } = true;
-
-    /// <summary>[S-11406] [S-14500] The Grid layout's lines of cells a new card stands (its natural height); the card shows what it holds.</summary>
-    public int GridRows { get; set; } = DefaultGridRows;
-
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
     string? ISetupRule.SetupSentence => ContactsStr.Contacts_Setup_Sentence.Text();
 
@@ -60,7 +27,7 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Contacts);
 
-    /// <summary>[S-15785] It says so in its own state's line over its rows kept empty, as the calendar does: no card line over it.</summary>
+    /// <summary>[S-15785] It says so in its own state's line over its items kept empty, as the calendar does: no card line over it.</summary>
     bool ISetupRule.SetsUpInPlace => true;
 
     /// <summary>The accounts to show; empty means every contacts account.</summary>
@@ -76,81 +43,136 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
         set => AccountIds = [.. value];
     }
 
-    public ContactsLayout Layout { get; set; } = ContactsLayout.List;
+    /// <summary>[S-16946] The parts left out: the number (it is on the menu) by default.</summary>
+    public List<ItemPart> HiddenParts { get; set; } = [ItemPart.End];
 
-    /// <summary>[S-582] The details table's columns; kept in canonical order with at least one.</summary>
-    [JsonConverter(typeof(LenientEnumListConverter<ContactColumn>))]
-    public List<ContactColumn> Columns { get; set; } = [.. ContactColumns.All];
+    /// <summary>[S-16950] The parts' order: a table's columns.</summary>
+    public List<ItemPart> PartOrder { get; set; } = [];
+
+    /// <summary>[S-563] The shared keys brought back inside their range; a note each.</summary>
+    protected List<string> RepairShared(string kind)
+    {
+        var repairs = new List<string>();
+        var ids = (AccountIds ?? []).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).ToList();
+        if (AccountIds is null || ids.Count != AccountIds.Count)
+        {
+            repairs.Add($"{kind} widget had blank or repeated account ids");
+        }
+
+        AccountIds = ids;
+        HiddenParts = ItemOrder.Repaired(HiddenParts, kind, repairs);
+        PartOrder = ItemOrder.Repaired(PartOrder, kind, repairs);
+        return repairs;
+    }
+
+    /// <summary>The shared keys copied onto <paramref name="copy"/>.</summary>
+    protected T CopySharedTo<T>(T copy)
+        where T : ContactsBaseConfig
+    {
+        copy.AccountIds = [.. AccountIds];
+        copy.HiddenParts = [.. HiddenParts];
+        copy.PartOrder = [.. PartOrder];
+        return copy;
+    }
+}
+
+/// <summary>
+/// [S-580] [S-16972] The Contacts list on the item base: which accounts, how many people, the search box over them (owner,
+/// 2026-11-23: "contacts has the search box that should be kept"), the item base's arrangement, gap, rows and parts.
+/// </summary>
+public sealed class ContactsConfig : ContactsBaseConfig, IItemList, IStyled
+{
+    /// <summary>[S-11406] A new contacts list's rows.</summary>
+    public const int DefaultRows = 5;
+
+    /// <summary>[S-11406] How many people a new card stands; more scroll inside them.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-11406] The search box over the people (off: the card menu's Search opens it).</summary>
+    public bool SearchBox { get; set; } = true;
 
     /// <summary>[S-583] How many people to list: at least five, in steps of five, no upper bound.</summary>
     public int Count { get; set; } = 20;
 
+    /// <summary>[S-16940] The item base's arrangement, the list first.</summary>
+    public ItemStyle Style { get; set; } = ItemStyle.List;
+
+    /// <summary>[S-16673] The grid blocks between two people.</summary>
+    public int Gap { get; set; }
+
+    /// <summary>[S-16952] A table's column titles.</summary>
+    public bool ColumnTitles { get; set; } = true;
+
     [JsonIgnore]
     public int EffectiveCount => Math.Max(5, Count);
 
-    /// <summary>[S-582] [S-6074] The columns are the details table's: the page offers them for that layout.</summary>
     [JsonIgnore]
-    public IReadOnlyList<ContactsSetting> ShownSettings => EffectiveLayout == ContactsLayout.Details ? [ContactsSetting.Columns] : [];
+    ItemStyle IItemList.Arrangement => Style;
 
-    [JsonIgnore]
-    public ContactsLayout EffectiveLayout => Enum.IsDefined(Layout) ? Layout : ContactsLayout.List;
+    IReadOnlyList<StyleOption> IStyled.Styles => ItemStyles.All;
 
-    /// <summary>[S-582] The columns as shown: canonical order, unknown values dropped, never none.</summary>
-    [JsonIgnore]
-    public IReadOnlyList<ContactColumn> EffectiveColumns
+    int IStyled.StyleValue
     {
-        get
+        get => (int)Style;
+        set => Style = (ItemStyle)value;
+    }
+
+    /// <summary>[S-16972] One face a person: no lines to choose.</summary>
+    [JsonIgnore]
+    bool IKitRows.OffersLines => false;
+
+    [JsonIgnore]
+    public int Lines
+    {
+        get => 1;
+        set
         {
-            var chosen = ContactColumns.All.Where(c => Columns?.Contains(c) == true).ToList();
-            return chosen.Count > 0 ? chosen : [ContactColumn.Name, ContactColumn.Email, ContactColumn.Phone];
+            // ignore: an item has its one face; the menu offers no lines.
         }
     }
 
     /// <summary>[S-563] Bring every value back inside its range.</summary>
     public override IReadOnlyList<string> Repair()
     {
-        var repairs = new List<string>();
-
-        var ids = (AccountIds ?? []).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).ToList();
-        if (AccountIds is null || ids.Count != AccountIds.Count)
-        {
-            repairs.Add("contacts widget had blank or repeated account ids");
-        }
-
-        AccountIds = ids;
-        Columns ??= [.. ContactColumns.All];
-
+        var repairs = RepairShared("contacts");
         if (Count != EffectiveCount)
         {
             repairs.Add($"contacts widget count {Count} was below five");
             Count = EffectiveCount;
         }
 
-        if (!Enum.IsDefined(Layout))
-        {
-            repairs.Add("contacts widget had an unknown layout");
-            Layout = ContactsLayout.List;
-        }
-
-        var (rows, lines, gridRows) = (KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, KitSizing.MaxLines), Math.Clamp(GridRows, 1, MaxGrid));
-        if ((rows, lines, gridRows) != (Rows, Lines, GridRows))
-        {
-            (Rows, Lines, GridRows) = (rows, lines, gridRows);
-            repairs.Add("contacts widget's rows, lines or grid were out of range");
-        }
-
+        repairs.AddRange(ItemOrder.Repair(this, "contacts"));
         return repairs;
     }
 
-    public override WidgetConfig Clone() => new ContactsConfig
+    public override WidgetConfig Clone()
     {
-        Rows = Rows,
-        Lines = Lines,
-        SearchBox = SearchBox,
-        GridRows = GridRows,
-        AccountIds = [.. AccountIds],
-        Layout = Layout,
-        Columns = [.. Columns],
-        Count = Count,
-    };
+        var copy = CopySharedTo(new ContactsConfig());
+        copy.Rows = Rows;
+        copy.SearchBox = SearchBox;
+        copy.Count = Count;
+        copy.Style = Style;
+        copy.Gap = Gap;
+        copy.ColumnTitles = ColumnTitles;
+        return copy;
+    }
+}
+
+/// <summary>
+/// [S-16973] The Contact widget: one person the user picked (owner, 2026-11-23: "contact should get a single too"), on the item
+/// base's face. Empty: none picked yet (the face says so).
+/// </summary>
+public sealed class ContactConfig : ContactsBaseConfig
+{
+    /// <summary>[S-16973] The person's id in their address book; empty for none.</summary>
+    public string Person { get; set; } = string.Empty;
+
+    public override IReadOnlyList<string> Repair() => RepairShared("contact");
+
+    public override WidgetConfig Clone()
+    {
+        var copy = CopySharedTo(new ContactConfig());
+        copy.Person = Person;
+        return copy;
+    }
 }

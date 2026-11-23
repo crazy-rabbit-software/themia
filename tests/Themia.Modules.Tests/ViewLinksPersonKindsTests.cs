@@ -23,8 +23,8 @@ public sealed class ViewLinksPersonKindsTests
             .Select(m => m.Descriptor.Id.Value)
             .Order(StringComparer.Ordinal);
 
-        Assert.Equal(["contacts"], followers);
-        Assert.Equal(["contacts"], publishers);
+        Assert.Equal(["contact", "contacts"], followers);
+        Assert.Equal(["contact", "contacts"], publishers);
     }
 
     [Fact]

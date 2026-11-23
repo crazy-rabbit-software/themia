@@ -50,12 +50,12 @@ public sealed class OfficeConfigTests
         Assert.Equal(CalendarStyle.Agenda, a.Style);
 
         var contacts = StateDocument.Parse(StateWith(new WidgetId("contacts"),
-            """{"kind":"contacts","layout":"tiles","columns":["email","bogus",3],"count":-4}""").ToJsonString());
+            """{"kind":"contacts","style":"tiles","hiddenParts":["Note","Note"],"count":-4}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, contacts.Refusal);
         var k = ConfigOf<ContactsConfig>(contacts, new WidgetId("contacts"));
-        Assert.Equal(ContactsLayout.List, k.Layout);
-        Assert.Equal([ContactColumn.Email], k.Columns);
+        Assert.Equal(Themia.Sdk.Items.ItemStyle.List, k.Style);
+        Assert.Equal([Themia.Sdk.Items.ItemPart.Note], k.HiddenParts);
         Assert.Equal(5, k.Count);
     }
 

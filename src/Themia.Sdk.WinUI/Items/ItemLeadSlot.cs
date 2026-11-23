@@ -62,7 +62,8 @@ public sealed partial class ItemLeadSlot : Grid
         _glyph.Glyph = lead.Glyph;
         _glyph.Foreground = Family.Brush(lead.Role);
 
-        if (lead.Monogram is { Length: > 0 } initials)
+        // [S-586] A monogram where it reads (a 16 slot holds no two initials: the glyph there).
+        if (lead.Monogram is { Length: > 0 } initials && _side >= FamilyShape.IconLarge)
         {
             ShowMonogram(initials);
             return;

@@ -7955,7 +7955,7 @@ Topics:
 | `HoveredEvent` | Hover | `calendar`, `meeting`, `meetings`, `weekPlanner` | `calendar`, `meeting`, `meetings`, `weekPlanner` |
 | `HoveredInstant` | Hover | `cpuCores`, `exchangeHistory`, `stockHistory` | `battery`, `cpu`, `cpuCores`, `disk`, `exchangeHistory`, `exchangeRate`, `gpu`, `memory`, `network`, `ping`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
-| `HoveredPerson` | Hover | `contacts` | `contacts` |
+| `HoveredPerson` | Hover | `contact`, `contacts` | `contact`, `contacts` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |
 | `HoveredDrive` | Hover | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `drives`, `folder`, `networkDrive`, `networkDrives`, `usbStick`, `usbSticks` | `disk`, `drive`, `driveActivity`, `driveCapacity`, `driveFileSystem`, `driveFree`, `driveType`, `driveUsed`, `drives`, `folder`, `networkDrive`, `networkDrives`, `usbStick`, `usbSticks` |
 | `HoveredDevice` | Hover | `bluetooth`, `bluetoothDevice`, `deviceBatteries` | `bluetooth`, `bluetoothDevice`, `deviceBatteries` |

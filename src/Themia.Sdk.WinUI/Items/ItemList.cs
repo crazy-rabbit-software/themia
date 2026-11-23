@@ -505,6 +505,16 @@ public sealed partial class ItemList : Panel
         }
     }
 
+    /// <summary>Put the keyboard cursor on the item at <paramref name="index"/> and bring it into the card (a search's first, type-ahead).</summary>
+    public void Point(int index)
+    {
+        if (index >= 0 && index < _items.Count)
+        {
+            MoveCursor(index);
+            Reveal(index);
+        }
+    }
+
     /// <summary>Let the keyboard cursor go (the widget reads something else now).</summary>
     public void Release() => MoveCursor(-1);
 

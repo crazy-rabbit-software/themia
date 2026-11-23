@@ -284,20 +284,19 @@
           "scale": 1,
           "config": {
             "kind": "contacts",
-            "rows": 5,
-            "lines": 2,
-            "searchBox": true,
-            "gridRows": 2,
             "accountIds": [
               "carddav:me@dav.example/addressbooks/me/contacts"
             ],
-            "layout": "details",
-            "columns": [
-              "name",
-              "phone",
-              "title"
+            "hiddenParts": [
+              "End"
             ],
-            "count": 45
+            "partOrder": [],
+            "rows": 5,
+            "searchBox": true,
+            "count": 45,
+            "style": "table",
+            "gap": 0,
+            "columnTitles": true
           }
         },
         {
@@ -320,20 +319,17 @@
           "scale": 1,
           "config": {
             "kind": "contacts",
-            "rows": 5,
-            "lines": 2,
-            "searchBox": true,
-            "gridRows": 2,
             "accountIds": [],
-            "layout": "grid",
-            "columns": [
-              "name",
-              "email",
-              "phone",
-              "company",
-              "title"
+            "hiddenParts": [
+              "End"
             ],
-            "count": 20
+            "partOrder": [],
+            "rows": 5,
+            "searchBox": true,
+            "count": 20,
+            "style": "grid",
+            "gap": 0,
+            "columnTitles": true
           }
         },
         {

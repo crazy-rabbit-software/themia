@@ -17,7 +17,7 @@ public sealed class KindIdsTests
         "batteryCharge", "batteryChemistry", "batteryCycles", "batteryDesignCapacity", "batteryFullCapacity",
         "batteryHealth", "batteryManufacturer", "batteryRate", "batteryStatus", "batteryTemperature", "batteryTime",
         "batteryVoltage", "bluetooth", "brightness", "calendar", "clipboard",
-        "clock", "contacts", "countdown", "cpu", "cpuBaseSpeed", "cpuCoreCount", "cpuCores",
+        "clock", "contact", "contacts", "countdown", "cpu", "cpuBaseSpeed", "cpuCoreCount", "cpuCores",
         "cpuHandles", "cpuLoad", "cpuLogical", "cpuProcesses", "cpuSpeed", "cpuTemperature", "cpuThreads", "cpuUptime",
         "date", "dawn", "daylight", "desktopItem", "deviceBatteries", "disk", "divider", "drive",
         "driveActivity", "driveCapacity", "drives", "networkDrive", "networkDrives", "usbStick", "usbSticks", "bluetoothDevice", "driveFileSystem", "driveFree", "driveType", "driveUsed", "dusk", "email",

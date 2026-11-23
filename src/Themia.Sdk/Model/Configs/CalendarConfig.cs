@@ -78,42 +78,6 @@ public enum WeekFirstDay
     Today = 1,
 }
 
-/// <summary>[S-581] The four ways the contacts widget lays out people.</summary>
-[JsonConverter(typeof(LenientEnumConverter<ContactsLayout>))]
-public enum ContactsLayout
-{
-    /// <summary>Avatar, name, job · company and the address or number.</summary>
-    List = 0,
-
-    /// <summary>A small avatar, the name and one secondary field.</summary>
-    Compact = 1,
-
-    /// <summary>A table of the chosen columns.</summary>
-    Details = 2,
-
-    /// <summary>Avatar cards.</summary>
-    Grid = 3,
-}
-
-/// <summary>[S-582] A column of the contacts widget's details table.</summary>
-[JsonConverter(typeof(LenientEnumConverter<ContactColumn>))]
-public enum ContactColumn
-{
-    Name = 0,
-    Email = 1,
-    Phone = 2,
-    Company = 3,
-    Title = 4,
-}
-
-/// <summary>[S-582] The details table's columns.</summary>
-public static class ContactColumns
-{
-    /// <summary>The columns of a fresh details table, in canonical order.</summary>
-    public static IReadOnlyList<ContactColumn> All { get; } =
-        [ContactColumn.Name, ContactColumn.Email, ContactColumn.Phone, ContactColumn.Company, ContactColumn.Title];
-}
-
 /// <summary>
 /// [S-561] [S-3601] What every calendar widget shares: which accounts and calendars, their colours,
 /// and whether birthdays are shown. Data comes from Themia's own accounts ([S-529]). Every value is

@@ -19,28 +19,26 @@ renders: `--state sample`, a fixed address book on the reserved `.example` domai
 config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the menu's are
 `Tests/ContactsMenuTests.cs`.
 
-- **[S-11406]** **Contacts states its sizes** ([S-2438]), each layout its own, all from the config:
-  **List** rows of `Lines` (1..3, default 2: the name; the role, else a way to reach; the address,
-  else the number), each led by its 32 monogram; **Compact** rows of one line with the one field as
-  their value; **Details** one line a person under the column titles, as wide as its columns need
-  (24 + 88 a column, at least two) to 720, a new one 420; these three show `Rows` people (1..20,
-  default 5), 220..520 wide for List and Compact, their height the search field's band where on and the titles' band
-  (each whole cells from the card's top edge, [S-15775]) and the rows at their optimal; Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more scroll inside them.
-  **Grid**: cells of 48 monograms over their names, as many a line as the card's width holds (a new one three) and
-  `GridRows` lines (1..6, default 2) its natural height, as many lines as its height holds, more scroll inside it;
-  its Rows line sets the lines, and the cells a line are the card's alone (owner, 2026-11-20: "Anything that's just
-  'how many of the same item' ... follows the card's size", [S-14410]: the Columns line is gone, and with it the
-  stored `GridColumns`, [S-14502]). **Search box**
-  (`SearchBox`, on by default): over the people; off, the card menu's Search opens it ([S-12481]). One
-  column at every width; no layout falls back to another. The ladder ([S-1270], [S-1271], [S-1273],
-  [S-1275], `ContactRules.Effective`) is gone. Tests `ContactsPlanTests.S11406_S14410_`, `ContactsMenuTests.S11406_`,
-  `ContactsFitTests.S11406_`.
+- **[S-16972]** **Contacts on the item base** (owner, 2026-11-23: "same should be done for email and contacts too, although
+  contacts has the search box that should be kept"): a person is an item (`ContactItems.Item`): their monogram the lead
+  ([S-586]; the people glyph in a 16 slot, where two initials do not read), their name, their role ("Engineer · Contoso")
+  under it, their address the note, their number at the end (left out by default); every arrangement of the base (List,
+  Row list, Column list, Grid, Table: its columns Name, Role, Email, Phone in the parts' order under their titles), its
+  gap and Rows (a new card five) under the search field's band where **Search box** is on (`ContactsModule.Sizing`: the
+  base's sizing and the band's 30). A click writes to them, else calls them ([S-1277]); the keys are the item base's
+  ([S-16955]) and type-ahead puts the cursor on a name ([S-1983]); their menu is [S-587]'s. With the box off the card
+  menu's Search opens the field over them until it is left empty. Its page: Accounts, then the item base's lines, Search
+  box and People. Its old Layout and Columns, Lines and Grid rows are gone with `ContactsLayout` and `ContactColumn`; a stored
+  one is dropped at load. Tests `ContactItemsTests`, `ContactsMenuTests`.
+- **[S-16973]** **Contact** (`contact`, owner: "contact should get a single too"): one person the user picks (**Person**: one of
+  the people the contacts widgets read last, `ContactsSeen`), on the item base's face ([S-16957]); no one picked, or the one
+  picked no longer there, keeps the face: "--" and why (WR-10). A click writes to them, a right-click their menu; the card
+  lights as the person ([S-11940]). Its page: Person, its parts, the accounts. Tests `ContactItemsTests.S16973_`,
+  `ContactsMenuTests.S16973_`.
+- **[S-11406]** *(Retired by [S-16972]: each layout's sizes are the item base's arrangements'.)*
 - **[S-584]** A search box asks for the keyboard while focused (Esc clears). It
   starts empty: the `defaultSearch` setting is gone ([S-3796]).
-- **[S-1272]** Details: one row of 28 per person, the chosen columns in the Row block's place for the
-  name (`RowBlock.Cells`), 12 apart, the name primary and the rest secondary, their titles (Caption,
-  secondary, one line and 8 under it) over them; no monogram (G2: it was 20 px, off the family's
-  sizes).
+- **[S-1272]** *(Retired by [S-16972]: the item base lays the people.)*
 - **[S-1276]** *(Was: the People count a number box on the settings page; now the menu's number,
   [S-7511].)*
 - **[S-7511]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
@@ -61,18 +59,8 @@ the menu's email, call and message hand-offs), and the search box under the keyb
 - View links: a row or cell is its person (address, else name); the pointer or the keys' selection on it
   publishes them, and their row takes the hover fill while they are pointed at elsewhere on the view (another contacts
   widget, the next meeting's organiser line); a mail or a meeting of theirs never lights it ([S-11940], [S-11965]).
-- **[S-12450]** **The rows reach the foot's inset** ([S-12807]): the list's, the compact list's and the
-  details table's rows lay their text from under the search box and the titles to the foot's inset, up to half
-  again their height (`ContactsPlan.Of`'s `Pitch`, `Over`, `Gap`, whole device pixels); the cards keep their size.
-  Tests `ContactsPitchTests.S12450_`.
-- **[S-14817]** **The grid's cells stand from the card's edges** (owner, 2026-11-21: "the weather forecast widget grid
-  view items do not go from edge to edge, they have space everywhere. ... fix this, also for other widgets if
-  applicable."; docs/WIDGET-RULES.md WR-2, WR-3, WR-4). A person's cell is one fixed size (the 96 monogram-and-name box
-  and 6 round it, 110 × 80 on the default grid, `ContactsPlan.CellNaturalWidth`/`CellNaturalHeight` in whole cells) from
-  the card's left edge and its top edge (under the search box where it shows), the cells touching, no inset round them and
-  no gap between them: every column the width reaches, the last cut by its right edge (2 at least, no most, the shared rule `ItemSize.Cells`, [S-14816]), the
-  lines past the card's foot a scroll away, the last in sight cut by it. A new grid is 330 wide, its lines 80 each. The
-  `compact`, `details` and `grid` renders show each layout ([S-14814]). Tests `ContactsPitchTests.S14817_`.
+- **[S-12450]** *(Retired by [S-16972]: the item base lays the people.)*
+- **[S-14817]** *(Retired by [S-16972]: the item base lays the people.)*
 - **[S-15775]** **Nothing stands over the field and the titles** (docs/WIDGET-RULES.md WR-1, WR-4, WR-5): the search
   field stands in a band on the card's top edge (`ContactsPlan.Bands`: the family's control of 28 in whole grid cells,
   30 on the default grid; the field at the card's side inset in it), the details table's column titles in a band of
@@ -91,6 +79,4 @@ the menu's email, call and message hand-offs), and the search box under the keyb
   one size (`KitStatePanel.RowPitch`). With no account contacts sets up in place, as the calendar does
   (`ISetupRule.SetsUpInPlace`): its own line "Add an account to show your contacts" (its setup sentence) with the way to
   Accounts over the empty rows, never the rows alone. Tests `ContactsPlanTests.S11406_S15785_`, `WidgetLivenessTests`.
-- **[S-15797]** **A compact row's field never takes its name** (WR-14): the one field takes at most half the row's text
-  room (`ContactsPlan.CompactFieldWidth`), its end cut with an ellipsis; the name keeps the other half at every width (at
-  the 220 least the name had been a 19 DIP stub under the field's text). Tests `ContactsPlanTests.S15797_`.
+- **[S-15797]** *(Retired by [S-16972]: the item base lays the people.)*

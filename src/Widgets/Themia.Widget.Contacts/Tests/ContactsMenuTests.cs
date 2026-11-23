@@ -29,66 +29,29 @@ public sealed class ContactsMenuTests
     private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     [Fact]
-    public void S7511_the_first_level_is_appearance_accounts_then_after_a_divider_layout_and_people()
+    public void S16972_the_page_is_accounts_then_the_item_lines_the_search_box_and_people()
     {
         var lines = Build(new ContactsConfig());
 
         Assert.Equal(
             [
-                Str.WidgetUi_AccountsLabel.Text(), string.Empty, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(),
-                Str.Kit_Rows.Text(), Str.Kit_Lines.Text(), ContactsStr.Contacts_SearchBox.Text(), ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text(),
+                Str.WidgetUi_AccountsLabel.Text(), string.Empty, Str.Items_Parts.Text(), string.Empty, Str.Items_Gap.Text(),
+                Str.Kit_Rows.Text(), ContactsStr.Contacts_SearchBox.Text(), ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text(),
             ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
+        Assert.Equal(["Icon", "Name", "Role", "Email", "Phone"], lines.Lines[2].Children!.Select(c => c.Text));
     }
 
     [Fact]
-    public void S11406_compact_offers_rows_alone_and_the_grid_its_rows_never_its_columns()
+    public void S16973_a_contacts_page_is_the_person_its_parts_and_the_accounts()
     {
-        var compact = Build(new ContactsConfig { Layout = ContactsLayout.Compact }).Lines.Select(l => l.Text).ToList();
-        Assert.Contains(Str.Kit_Rows.Text(), compact);
-        Assert.DoesNotContain(Str.Kit_Lines.Text(), compact);
+        var lines = new WidgetMenuLines(() => _saves++);
+        var config = new ContactConfig();
+        ContactsMenu.Lines(lines, config, Work);
 
-        // [S-14410] The grid's cells a line are the card's width.
-        var grid = Build(new ContactsConfig { Layout = ContactsLayout.Grid }).Lines.Select(l => l.Text).ToList();
-        Assert.DoesNotContain(Str.Kit_Columns.Text(), grid);
-        Assert.Contains(Str.Kit_Rows.Text(), grid);
-        Assert.DoesNotContain(Str.Kit_Lines.Text(), grid);
-    }
-
-    [Fact]
-    public void S7511_the_columns_are_offered_on_the_details_layout_only()
-    {
-        Assert.DoesNotContain(Build(new ContactsConfig()).Lines, l => l.Text == ContactsStr.WidgetsA_Contacts_Menu_Columns.Text());
-        Assert.Contains(Build(new ContactsConfig { Layout = ContactsLayout.Details }).Lines, l => l.Text == ContactsStr.WidgetsA_Contacts_Menu_Columns.Text());
-    }
-
-    [Fact]
-    public void S7511_picking_a_layout_sets_it_and_the_current_one_saves_nothing()
-    {
-        var config = new ContactsConfig();
-        var layout = Line(Build(config).Lines, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text());
-
-        Line(layout.Children!, ContactsStr.Apps_ViewList.Text()).Action!();
-        Assert.Equal(0, _saves);
-
-        Line(layout.Children!, ContactsStr.Apps_ViewGrid.Text()).Action!();
-        Assert.Equal(ContactsLayout.Grid, config.Layout);
-        Assert.Equal(1, _saves);
-    }
-
-    [Fact]
-    public void S7511_a_column_turns_off_in_canonical_order_and_the_last_one_is_greyed()
-    {
-        var config = new ContactsConfig { Layout = ContactsLayout.Details, Columns = [ContactColumn.Name, ContactColumn.Phone] };
-        var columns = Line(Build(config).Lines, ContactsStr.WidgetsA_Contacts_Menu_Columns.Text()).Children!;
-        var phone = ContactRules.ColumnTitle(ContactColumn.Phone, Strings.Current);
-
-        Assert.Equal(ContactColumns.All.Select(c => ContactRules.ColumnTitle(c, Strings.Current)), columns.Select(c => c.Text));
-        Line(columns, phone).Action!();
-        Assert.Equal([ContactColumn.Name], config.Columns);
-
-        var name = Line(Line(Build(config).Lines, ContactsStr.WidgetsA_Contacts_Menu_Columns.Text()).Children!, ContactRules.ColumnTitle(ContactColumn.Name, Strings.Current));
-        Assert.True(name.Disabled);
+        Assert.Equal(
+            [ContactsStr.Contacts_Person.Text(), Str.Items_Parts.Text(), string.Empty, Str.WidgetUi_AccountsLabel.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
     }
 
     [Theory]

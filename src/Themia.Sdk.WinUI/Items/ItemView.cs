@@ -166,12 +166,6 @@ public sealed partial class ItemView : Grid
         Padding = standing
             ? new Thickness(FamilySpace.S1, FamilySpace.ContentTop, FamilySpace.S1, FamilySpace.Inset)
             : new Thickness(FamilySpace.S2, FamilySpace.S2, FamilySpace.S2, FamilySpace.S2);
-        RowSpacing = FamilySpace.S1;
-        if (!standing)
-        {
-            VerticalAlignment = VerticalAlignment.Stretch;
-        }
-
         _title.TextAlignment = TextAlignment.Center;
         _subtitle.TextAlignment = TextAlignment.Center;
         _note.TextAlignment = TextAlignment.Center;
@@ -179,25 +173,29 @@ public sealed partial class ItemView : Grid
         _action.HorizontalAlignment = HorizontalAlignment.Center;
         _lead.HorizontalAlignment = HorizontalAlignment.Center;
         _bar.HorizontalAlignment = standing ? HorizontalAlignment.Center : HorizontalAlignment.Stretch;
-        _bar.Margin = standing ? default : new Thickness(FamilySpace.S2, 0, FamilySpace.S2, 0);
 
-        // Without a standing bar the parts keep together in the card's middle.
-        var parts = new FrameworkElement[] { _title, _lead, _ends, _action, _bar, _subtitle, _note };
-        for (var i = 0; i < parts.Length; i++)
+        // The parts in stacks (a stack's spacing skips a part not drawn, a grid's row spacing would not): over and under a
+        // row list's standing bar, which takes the room they leave; a card's parts together in its middle, the bar a track.
+        var top = new StackPanel { Spacing = FamilySpace.S1, Children = { _title, _lead, _ends, _action } };
+        var under = new StackPanel { Spacing = FamilySpace.S1, Children = { _subtitle, _note } };
+        RowDefinitions.Add(new RowDefinition { Height = standing ? GridLength.Auto : new GridLength(1, GridUnitType.Star) });
+        RowDefinitions.Add(new RowDefinition { Height = standing ? new GridLength(1, GridUnitType.Star) : GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = standing ? GridLength.Auto : new GridLength(1, GridUnitType.Star) });
+        if (standing)
         {
-            var stretch = standing && ReferenceEquals(parts[i], _bar);
-            RowDefinitions.Add(new RowDefinition { Height = stretch ? new GridLength(1, GridUnitType.Star) : GridLength.Auto });
-            Place(parts[i], i, 0);
+            _bar.Margin = new Thickness(0, FamilySpace.S1, 0, FamilySpace.S1);
+            Place(top, 0, 0);
+            Place(_bar, 1, 0);
+            Place(under, 2, 0);
         }
-
-        if (!standing)
+        else
         {
-            RowDefinitions.Insert(0, new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            foreach (var part in parts)
-            {
-                SetRow(part, GetRow(part) + 1);
-            }
+            _bar.Margin = new Thickness(FamilySpace.S2, 0, FamilySpace.S2, 0);
+            top.VerticalAlignment = VerticalAlignment.Bottom;
+            var middle = new StackPanel { Spacing = FamilySpace.S1, Children = { top, under } };
+            top.Children.Add(_bar);
+            Place(middle, 1, 0);
         }
     }
 

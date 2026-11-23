@@ -136,13 +136,6 @@ public sealed class ContactsAndBirthdaysTests
     [InlineData(5000, 1000)]
     public void S583_FetchSizeIsClamped(int count, int expected) => Assert.Equal(expected, ContactRules.FetchSize(count));
 
-    [Fact]
-    public void S582_ColumnsStayCanonicalAndNeverEmpty()
-    {
-        Assert.Equal([ContactColumn.Name, ContactColumn.Phone], ContactRules.ToggleColumn([ContactColumn.Phone], ContactColumn.Name));
-        Assert.Equal([ContactColumn.Phone], ContactRules.ToggleColumn([ContactColumn.Phone], ContactColumn.Phone));
-    }
-
     // ---- [S-587] links -----------------------------------------------------------------------------
 
     [Theory]

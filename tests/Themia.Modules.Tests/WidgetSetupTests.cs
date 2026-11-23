@@ -29,7 +29,7 @@ public class WidgetSetupTests
         new WidgetId("weatherTemperature"), new WidgetId("airIndex"),
         new WidgetId("videoStream"), new WidgetId("gallery"), new WidgetId("desktopItem"),
         new WidgetId("email"), new WidgetId("calendar"), new WidgetId("meeting"), new WidgetId("meetings"),
-        new WidgetId("weekPlanner"), new WidgetId("contacts"), new WidgetId("tasks"),
+        new WidgetId("weekPlanner"), new WidgetId("contacts"), new WidgetId("contact"), new WidgetId("tasks"),
     ];
 
     [Fact]

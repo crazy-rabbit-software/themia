@@ -23,7 +23,7 @@ public sealed class ContactsFitTests
     // ---- [S-11406] the search box -------------------------------------------------------------------
 
     [Fact]
-    public void S11406_the_search_box_is_the_config_s_else_the_header_button_opens_it()
+    public void S16972_the_search_box_is_the_config_s_else_the_card_menu_opens_it()
     {
         Assert.Equal(ContactSearch.Shown, ContactRules.Search(box: true));
         Assert.Equal(ContactSearch.OnDemand, ContactRules.Search(box: false));

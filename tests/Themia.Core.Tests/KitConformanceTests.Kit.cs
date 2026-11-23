@@ -120,7 +120,6 @@ public sealed partial class KitConformanceTests
     /// <summary>[S-7069] The views of a kit-rows widget that still build a list part of their own, and why. Shrink only.</summary>
     private static readonly Dictionary<string, string> ThinViewOffendersToday = new(StringComparer.Ordinal)
     {
-        ["ContactsView.cs"] = "its people list (rows, cells and the search line) is its own until it moves onto the kit",
         ["TasksView.Picker.cs"] = "the list picker's own menu (the lists to show), not a row's",
     };
 

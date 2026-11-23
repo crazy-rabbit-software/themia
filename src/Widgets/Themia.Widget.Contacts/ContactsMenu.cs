@@ -8,15 +8,15 @@ using Themia.Core.Office;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Items;
 using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.Widget.Contacts;
 
 /// <summary>
-/// [S-7511] The contacts widget's options, all on its page ([S-3719]): Appearance
-/// ([S-3723]), the accounts it reads (the SDK's account lines, [S-580]), the layout, the details
-/// table's columns ([S-582], on the details layout only, [S-6074]) and how many people ([S-583]).
-/// It has no settings page.
+/// [S-7511] [S-16972] [S-16973] The contacts widgets' options, all on their page ([S-3719]): the accounts they read (the SDK's
+/// account lines, [S-580]); the list's item base lines (its parts in order, the gap or a table's column titles, its rows),
+/// its search box and how many people ([S-583]); the Contact's person and its parts.
 /// </summary>
 internal static class ContactsMenu
 {
@@ -30,51 +30,41 @@ internal static class ContactsMenu
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(accounts);
 
-        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.ContactAccounts, OfficeMenuLines.Accounts(menu, accounts, Glyphs.Contact,
-            new KitAccountWords(ContactsStr.WidgetsA_Contacts_NoAccount.Text(), ContactsStr.WidgetsA_Contacts_Settings_Every.Text()),
-            config.AccountIds, ids => config.AccountIds = ids)));
+        AccountLine(menu, config, accounts);
 
-        // [S-7511] Where the people come from, then how they are listed.
+        // [S-16972] How they are listed: the item base's lines, then the search box and how many.
         menu.Lines.Add(SettingsLine.Separator);
-        menu.Lines.Add(menu.Choice(Glyphs.View, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(),
-            [(ContactsLayout.List, ContactsStr.Apps_ViewList.Text()), (ContactsLayout.Compact, ContactsStr.Apps_ViewCompact.Text()), (ContactsLayout.Details, Str.CtxMenu_Details.Text()), (ContactsLayout.Grid, ContactsStr.Apps_ViewGrid.Text())],
-            config.EffectiveLayout, value => config.Layout = value));
-
-        // [S-582] The table's columns: canonical order, and the last one cannot be turned off. [S-6074]
-        // Offered on the details layout only; picking another builds the menu again.
-        if (config.Offers(ContactsSetting.Columns))
-        {
-            menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Grid, ContactsStr.WidgetsA_Contacts_Menu_Columns.Text(), Columns(menu, config)));
-        }
-
-        // [S-11406] What each layout shows: the List's rows and lines, Compact's and Details' rows, the Grid's lines (its
-        // cells a line are the card's width, [S-14410]); then the search box.
-        if (config.EffectiveLayout == ContactsLayout.Grid)
-        {
-            menu.Lines.Add(KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid), 1, ContactsConfig.MaxGrid, 1, v => config.GridRows = v));
-        }
-        else
-        {
-            menu.Lines.AddRange(KitMenuLines.Rows(menu, config, mostLines: 3));
-        }
-
+        var locale = Strings.Current;
+        ItemMenuLines.List(menu, config, ContactItems.Parts, name: part => ContactItems.PartName(part, locale));
         menu.Lines.Add(menu.Toggle(Glyphs.Search, ContactsStr.Contacts_SearchBox.Text(), config.SearchBox, on => config.SearchBox = on));
 
         // [S-583] / [S-1276] At least five, in steps of five.
         menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Count, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text(), config.EffectiveCount, 5, MaxCount, 5, value => config.Count = value));
     }
 
-    private static List<SettingsLine> Columns(WidgetMenuLines menu, ContactsConfig config)
+    /// <summary>[S-16973] The Contact's: the person (one of the people the contacts widgets read last), the parts, the accounts.</summary>
+    public static void Lines(WidgetMenuLines menu, ContactConfig config, IReadOnlyList<AccountInfo> accounts)
     {
-        var shown = config.EffectiveColumns;
-        return
-        [
-            .. ContactColumns.All.Select(column =>
-            {
-                var on = shown.Contains(column);
-                return menu.Toggle(null, ContactRules.ColumnTitle(column, Strings.Current), on,
-                    _ => config.Columns = ContactRules.ToggleColumn(config.EffectiveColumns, column)) with { Disabled = on && shown.Count == 1 };
-            }),
-        ];
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(accounts);
+
+        var locale = Strings.Current;
+        var options = new List<(string Value, string Text)> { (string.Empty, ContactsStr.Contacts_Pick.Text()) };
+        options.AddRange(ContactsSeen.Last.Take(200).Select(c => (c.Id, c.Name)));
+        if (!options.Any(o => o.Value == config.Person))
+        {
+            options.Add((config.Person, ContactsStr.WidgetsA_Contacts_None.Text()));
+        }
+
+        menu.Lines.Add(menu.Choice(Glyphs.Emoji, ContactsStr.Contacts_Person.Text(), options, config.Person, value => config.Person = value));
+        menu.Lines.Add(ItemMenuLines.Parts(menu, config, ContactItems.Parts, name: part => ContactItems.PartName(part, locale)));
+        menu.Lines.Add(SettingsLine.Separator);
+        AccountLine(menu, config, accounts);
     }
+
+    private static void AccountLine(WidgetMenuLines menu, ContactsBaseConfig config, IReadOnlyList<AccountInfo> accounts)
+        => menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.ContactAccounts, OfficeMenuLines.Accounts(menu, accounts, Glyphs.Contact,
+            new KitAccountWords(ContactsStr.WidgetsA_Contacts_NoAccount.Text(), ContactsStr.WidgetsA_Contacts_Settings_Every.Text()),
+            config.AccountIds, ids => config.AccountIds = ids)));
 }

@@ -26,7 +26,7 @@ public sealed class SharedSettingsTests
         ["place"] = ["airAlder", "airBirch", "airGrass", "airIndex", "airMugwort", "airOlive", "airOzone", "airPm10", "airPm25", "airPollen", "airQuality", "airRagweed", "airUv", "dawn", "daylight", "dusk", "header", "moon", "moonrise", "moonset", "nextFullMoon", "nextNewMoon", "rainNextHour", "solarNoon", "sun", "sunrise", "sunset", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherTemperature", "weatherUv", "weatherWind"],
         ["calendarAccounts"] = ["calendar", "meeting", "meetings", "weekPlanner"],
         ["mailAccounts"] = ["email"],
-        ["contactAccounts"] = ["contacts"],
+        ["contactAccounts"] = ["contact", "contacts"],
         ["diskScope"] = ["disk"],
         ["drive"] = ["drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "networkDrive", "usbStick"],
         ["day"] = ["weatherHighLow", "weatherPrecipitation", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind"],
