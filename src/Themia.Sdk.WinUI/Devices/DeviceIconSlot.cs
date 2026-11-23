@@ -48,7 +48,8 @@ public sealed partial class DeviceIconSlot : Grid
         ArgumentNullException.ThrowIfNull(icon);
         _glyph.Glyph = icon.Glyph;
         _glyph.Foreground = Family.Brush(icon.Role);
-        if (icon.Drive is not { } drive)
+        // [S-16631] A drive that is not there and of no known kind has no picture (the shell gives none): its kind's glyph.
+        if (icon.Drive is not { } drive || (drive.State == DriveState.Missing && DriveRules.StockIcon(drive) is null))
         {
             if (_key is not null)
             {
@@ -64,7 +65,7 @@ public sealed partial class DeviceIconSlot : Grid
         // [S-15165] A render's drive that is not this PC's system drive wears its kind's stock icon (the shell's answer for a
         // letter this PC may not have changes from run to run); a drive that is not there too, as the shell gives none.
         var stocked = (stock && !string.Equals(drive.Root, SystemDrive.Root, StringComparison.OrdinalIgnoreCase)) || drive.State != DriveState.Ready;
-        var stockIcon = stocked ? DriveRules.StockIcon(drive) ?? DriveStockIcon.Fixed : (DriveStockIcon?)null;
+        var stockIcon = stocked ? DriveRules.StockIcon(drive) : null;
         var key = stocked ? $"{drive.Root}|{stockIcon}" : $"{drive.Root}|{drive.Label}|{drive.Total}";
         if (key == _key)
         {

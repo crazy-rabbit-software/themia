@@ -23,6 +23,7 @@ public sealed partial class DeviceFace : Grid
     private readonly DeviceIconSlot _icon;
     private readonly ChartBar _bar = new() { Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
     private IReadOnlyList<string> _held = [];
+    private string? _glyph;
 
     public DeviceFace(IWidgetHost host)
     {
@@ -43,11 +44,12 @@ public sealed partial class DeviceFace : Grid
         ArgumentNullException.ThrowIfNull(item);
         var reading = item.Reading ?? DeviceReading.None();
         _readout.Show(reading.Value, reading.Unit, item.Line, valueRole: item.Absent || item.Reading is null ? ColourRole.TextDisabled : ColourRole.TextPrimary);
-        var picture = _icon.ShowsPicture;
+        var was = (_icon.ShowsPicture, _glyph);
         _icon.Show(item.Icon, stock);
-        if (picture != _icon.ShowsPicture)
+        _glyph = item.Icon.Glyph;
+        if (was != (_icon.ShowsPicture, _glyph))
         {
-            // The icon's ink is read another way now (a picture's or a glyph's) at the same size: the block is fitted again.
+            // The icon's ink is another at the same size (a picture's or a glyph's, another glyph's): the block is fitted again.
             _fit.Refit();
         }
 

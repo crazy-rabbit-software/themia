@@ -54,7 +54,7 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
 - **[S-15750]** **A filling drive never moves its face** (WR-15; WR-10): the share is held to its widest ("100%",
   `ReadoutBlock.Hold`) and the space line stands in the box of its widest forms in the language (`DriveFace.SpaceTemplates`:
   every unit pair, figures as 8s), so the block keeps its size and place as the free space changes. A drive that is not
-  there keeps its face with the plain drive's stock icon (the shell gives none). Tests `DriveTests.S15750_`.
+  there keeps its face with its kind's glyph (the shell gives no picture of it; a share or a stick not there its kind's stock picture). Tests `DriveTests.S15750_`.
 - **[S-4674]** Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings
   page: Appearance, then behind a divider Drive — the system drive (by name), every drive the walk lists (shares
   included, never waited for), and a chosen drive that is gone as "not connected". The card menu has Open
