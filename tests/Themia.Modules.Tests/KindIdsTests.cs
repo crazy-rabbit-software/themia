@@ -25,7 +25,7 @@ public sealed class KindIdsTests
         "gameModeToggle", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock",
         "gpuSharedMemory", "gpuTemperature", "habitTracker", "header", "hibernate", "icon", "lock", "memory",
         "memoryAvailable", "memoryCached", "memoryCommitted", "memoryInUse", "memoryNonPagedPool", "memoryPageFile",
-        "memoryPagedPool", "microphoneToggle", "mixer", "monoAudioToggle", "moon", "moonrise", "moonset", "music",
+        "memoryPagedPool", "metrics", "microphoneToggle", "mixer", "monoAudioToggle", "moon", "moonrise", "moonset", "music",
         "musicCover", "musicProgress",
         "network", "networkAdapters", "networkDownload", "networkLinkSpeed", "networkLocalAddress",
         "networkPublicAddress", "networkReceived", "networkSent", "networkUpload", "nextFullMoon", "nextMeeting",

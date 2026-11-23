@@ -69,8 +69,9 @@ public class PlaceClearTests
             .Order()
             .ToArray();
 
-        // [S-9604] The Header widget holds the place of the widgets it heads, and never waits for one.
-        Assert.Equal(Placed.Append(new WidgetId("header")).Order().ToArray(), placed);
+        // [S-9604] The Header widget holds the place of the widgets it heads, and never waits for one; [S-16340] the Metric
+        // widget holds one for its weather and air metrics, waiting for it only while one of those is shown.
+        Assert.Equal(Placed.Append(new WidgetId("header")).Append(new WidgetId("metrics")).Order().ToArray(), placed);
     }
 
     [Fact]

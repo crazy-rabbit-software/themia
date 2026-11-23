@@ -424,7 +424,9 @@ public sealed class SystemDataHubTests
             var config = WidgetConfig.CreateDefault(kind);
             var wants = SystemInterests.For(config, Root);
             // [S-11026] A drive's facts read the host's drive walk, not the hub.
-            var system = config is DetailConfig or ReadingConfig or HistoryConfig or MetricConfig && config is IReadsSystem;
+            // [S-16307] The Metric widget reads the hub while it shows a system metric (its default, the CPU).
+            var system = (config is DetailConfig or ReadingConfig or HistoryConfig or MetricConfig && config is IReadsSystem)
+                || config is Themia.Widget.Metrics.MetricsConfig;
 
             Assert.Equal(system, wants.Feeds.Count > 0);
 
