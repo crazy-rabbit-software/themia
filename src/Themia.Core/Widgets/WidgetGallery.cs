@@ -51,7 +51,11 @@ public sealed record GalleryPiece(string Key, WidgetId? Kind, ReadyMadeGroup? Gr
 public sealed record GallerySection(LocalText Heading, IReadOnlyList<GalleryPiece> Pieces);
 
 /// <summary>[S-16725] A section's heading on a sheet: its words and its line, in cells from the sheet's corner.</summary>
-public sealed record GalleryHeading(LocalText Text, CellBox Box);
+public sealed record GalleryHeading(LocalText Text, CellBox Box)
+{
+    /// <summary>[S-16745] The curated section it heads (<see cref="CuratedBento"/>); null for Quick settings' automatic sections.</summary>
+    public CuratedSlot? Slot { get; init; }
+}
 
 /// <summary>[S-14912] A category of the gallery: an add page subject (or More), its whole pieces in the add page's order.</summary>
 public sealed record GalleryCategory(AddFolderId Id, LocalText Title, string Glyph, IReadOnlyList<GalleryPiece> Pieces)
@@ -76,7 +80,11 @@ public readonly record struct PieceSize(int W, int H, int MinW, int MinH, bool W
 }
 
 /// <summary>[S-14912] A piece on a sheet: the box it is drawn at, in cells from the sheet's top-left corner.</summary>
-public sealed record GalleryTile(GalleryPiece Piece, CellBox Box);
+public sealed record GalleryTile(GalleryPiece Piece, CellBox Box)
+{
+    /// <summary>[S-16745] The curated widget it shows (<see cref="CuratedBento"/>); null on an automatic bento.</summary>
+    public CuratedSlot? Slot { get; init; }
+}
 
 /// <summary>
 /// [S-14912] A category laid as a bento: its tiles and how many rows of cells it is tall. [S-16550] Its
@@ -89,8 +97,11 @@ public sealed record GallerySheet(AddFolderId Category, LocalText Name, int Rows
     /// <summary>[S-16721] Rows over each card its title takes, inside its tile's box (0: no titles, Quick settings).</summary>
     public int Title { get; init; }
 
-    /// <summary>[S-16725] Its sections' headings (Quick settings); none for a column bento.</summary>
+    /// <summary>[S-16725] Its sections' headings (Quick settings, a curated tab's titled sections); none for a column bento.</summary>
     public IReadOnlyList<GalleryHeading> Headings { get; init; } = [];
+
+    /// <summary>[S-16743] A curated tab's sections, each its box (heading and widgets, the column's width); none on an automatic bento.</summary>
+    public IReadOnlyList<GalleryArea> Areas { get; init; } = [];
 
     /// <summary>[S-16721] The box a tile's card stands in: its tile's box under its title.</summary>
     public CellBox CardOf(GalleryTile tile)
