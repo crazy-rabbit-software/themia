@@ -106,7 +106,7 @@ public static class DeviceItems
             new DeviceIcon(DriveRules.Glyph(drive), ColourRole.TextSecondary, drive),
             used is { } share ? DeviceReading.Percent(locale, share) : null,
             line,
-            used,
+            used ?? (drive.Kind == VolumeKind.Network ? 0 : null),
             DriveRules.Role(drive),
             $"{name} · {DriveRules.Description(locale, drive)} · {space}");
     }

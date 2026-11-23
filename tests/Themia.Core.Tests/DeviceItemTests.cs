@@ -33,13 +33,27 @@ public sealed class DeviceItemTests
     {
         // Owner, 2026-11-23: "if elements are not shown like the battery percentage for example, it should also not show
         // them in the design, not just grey them out."
+        var stick = DeviceItems.Drive(Locale.En, new DriveEntry("E:\\", VolumeKind.Removable, DriveState.NoMedia));
+        Assert.True(stick.Absent);
+        Assert.Equal(((DeviceReading?)null, (double?)null), (stick.Reading, stick.Fill));
+    }
+
+    [Fact]
+    public void S16631_a_network_drive_not_connected_keeps_its_empty_bar()
+    {
+        // Owner, 2026-11-23: "the network drives should show the progress bar even if they are not connected. otherwise
+        // they have empty looking space."
         var share = DeviceItems.Drive(Locale.En, new DriveEntry("Z:\\", VolumeKind.Network, DriveState.Disconnected, Share: "\\\\nas\\media"));
         Assert.True(share.Absent);
-        Assert.Equal(((DeviceReading?)null, "Disconnected network drive", (double?)null), (share.Reading, share.Line, share.Fill));
+        Assert.Equal(((DeviceReading?)null, "Disconnected network drive", (double?)0), (share.Reading, share.Line, share.Fill));
 
         var pending = DeviceItems.Drive(Locale.En, new DriveEntry("Y:\\", VolumeKind.Network, DriveState.Pending));
-        Assert.Equal(((DeviceReading?)null, "Connecting…"), (pending.Reading, pending.Line));
+        Assert.Equal(((DeviceReading?)null, "Connecting…", (double?)0), (pending.Reading, pending.Line, pending.Fill));
+    }
 
+    [Fact]
+    public void S16632_a_full_drive_is_critical()
+    {
         var full = DeviceItems.Drive(Locale.En, new DriveEntry("D:\\", VolumeKind.Fixed, DriveState.Ready, "Games", "NTFS", 100 * Gb, 5 * Gb));
         Assert.Equal(ColourRole.Critical, full.FillRole);
     }

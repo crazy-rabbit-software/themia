@@ -15184,6 +15184,9 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   right under it (Caption, secondary: "419 GB free of 931 GB", "Headphones · Connected"), 12, its percentage at 28 at the
   item's end; 12 under that row the Chart block's bar across the item, the inset under the bar (owner, 2026-11-23: "there
   is no proper spacing between the bottom border and the progress bar"). The one-device face ([S-16637]) is the same row.
+  A network drive not connected (or connecting) keeps its bar, empty, under its "why" line (owner, 2026-11-23: "the
+  network drives should show the progress bar even if they are not connected. otherwise they have empty looking space.");
+  it has no percentage. Tests `DeviceItemTests.S16631_`.
 - **[S-16632]** The shared mappings (`DeviceItems`): a drive (its root, its name as This PC names it, the used share, the
   space line or why, the bar in the load's role, Caution from 70 %, Critical from 90 %, [S-4653]); a peripheral's glyph by
   its kind; a battery's bar Critical at or below its low, never Caution for being full. Tests `DeviceItemTests.S16632_`.
