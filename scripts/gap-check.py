@@ -298,7 +298,7 @@ def judge(kind, card, layout):
     # The owner's exemption of 2026-11-23 (docs/WIDGET-RULES.md, "Fixed size, gap at right"): a list wrapped into lines of
     # fixed cells from the left edge keeps the room past its last whole column, less than one cell, empty at the right
     # edge; its cells' boxes are judged as items reaching the sides are (the item check's box rule).
-    if not (items and (spans(items, width) or wrapped(items, width))) and not plot_sides and not field_sides:
+    if not (items and (spans(items, width) or (kind in WRAPPED and wrapped(items, width)))) and not plot_sides and not field_sides:
         # [S-14810] Columns side by side from the card's left edge, each from its top edge to its foot: the room past the
         # last is theirs, as the room under a list's last row is (WR-4: "or, for items side by side, its right edge"; WR-5:
         # fewer items than room leave it empty), judged by the item check.
@@ -312,6 +312,11 @@ def judge(kind, card, layout):
 def side_by_side(items, height):
     """[S-14810] Whether the card's items are columns side by side from its left edge, each its whole height."""
     return any(i['x'] <= EDGE for i in items) and all(i['y'] <= EDGE and i['y'] + i['h'] >= height - EDGE for i in items)
+
+
+# [S-16438] The kinds the owner's "Fixed size, gap at right" covers (2026-11-23: the weather forecast's Grid style and the
+# calendar's year view); no other kind's row of cells may stop short of the right edge.
+WRAPPED = {'weatherForecast', 'calendar'}
 
 
 def wrapped(items, width):
@@ -501,13 +506,15 @@ def self_test():
                                                               items=[{'x': 110.0 * n, 'y': 0, 'w': 110, 'h': 80} for n in range(6)]), [], True),
         # [S-16438] The owner's "Fixed size, gap at right" (2026-11-23): days of 80 wrapped on lines, 40 short of the right.
         ('a wrapped grid of fixed cells, less than a cell at the right', card(520, 600, 12, 12, 20, 52,
-                                                                            items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], False),
+                                                                            items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), ['weatherForecast'], False),
         ('a wrapped grid the height shows one line of', card(350, 100, 12, 12, 20, 50,
-                                                             items=[{'x': 80.0 * n, 'y': 0, 'w': 80, 'h': 100} for n in range(4)]), [], False),
+                                                             items=[{'x': 80.0 * n, 'y': 0, 'w': 80, 'h': 100} for n in range(4)]), ['weatherForecast'], False),
         ('a wrapped grid a whole cell short of the right', card(600, 600, 12, 12, 20, 132,
-                                                                items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], True),
+                                                                items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), ['weatherForecast'], True),
         ('a wrapped grid short of the left edge', card(520, 600, 12, 12, 40, 32,
-                                                       items=[{'x': 20 + 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], True),
+                                                       items=[{'x': 20 + 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), ['weatherForecast'], True),
+        ('a wrapped-looking grid in a kind the owner did not grant it', card(520, 600, 12, 12, 20, 52,
+                                                                          items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), ['recycleBin'], True),
         # [S-14712] A metric's graph alone in one grid cell, its flat line on the foot, all in the rim.
         ('a one-cell graph whose line stands in the rim', card(200, 10, None, None, None, None,
                                                                plots=[{'x': 0, 'y': 0, 'w': 200, 'h': 10}]), [], False),
