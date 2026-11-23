@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Widgets;
@@ -38,6 +39,9 @@ public sealed partial class TileBlock : Grid
 
     /// <summary>[S-14201] [S-14306] The face centred on its ink in the tile's inset, scaled up as one to fill it.</summary>
     private readonly ReadingFit _fit = new() { Margin = default };
+
+    /// <summary>[S-17153] The planned words' box, handed to the fit whole (its ink the box), so tiles of one size scale alike.</summary>
+    private readonly PlannedFace _plannedFace = new();
     private readonly Grid _mark;
     private readonly Border _circle;
     private readonly Border _circleOverlay = new() { IsHitTestVisible = false };
@@ -141,7 +145,8 @@ public sealed partial class TileBlock : Grid
         _switchRow.Children.Add(_switchLines);
         _switchRow.Children.Add(_switch);
 
-        _fit.Parts.Add(_stack);
+        _plannedFace.Children.Add(_stack);
+        _fit.Parts.Add(_plannedFace);
         Children.Add(_overlay);
         Children.Add(_fit);
         Children.Add(_switchRow);
@@ -163,12 +168,38 @@ public sealed partial class TileBlock : Grid
     /// </summary>
     public static (double Width, int NameLines, int StateLines) Plan(string name, IEnumerable<string> states, double inner)
     {
-        var sentences = states.Where(s => !string.IsNullOrEmpty(s)).ToList();
-        var widest = Math.Max(LinesAndWidth(name, double.PositiveInfinity, FamilyType.Body).Width,
-            sentences.Select(s => LinesAndWidth(s, double.PositiveInfinity, FamilyType.Caption).Width).DefaultIfEmpty(0).Max());
-        var width = Math.Max(FamilyType.Big28.FontSize, double.IsFinite(inner) && inner > 0 ? Math.Min(inner, Math.Ceiling(widest)) : Math.Ceiling(widest));
-        var stateLines = sentences.Select(s => Lines(s, width, FamilyType.Caption)).DefaultIfEmpty(1).Max();
-        return (width, Lines(name, width, FamilyType.Body), stateLines);
+        // [S-17153] One box whatever the words say: the widest name a quick setting or a power button has in this language on
+        // one line, so every tile of one size draws its glyph and name alike and at one place, none wrapped.
+        var width = TileRules.WordsRoom(inner, WidestName());
+        var stateLines = states.Where(s => !string.IsNullOrEmpty(s)).Select(s => Lines(s, width, FamilyType.Caption)).DefaultIfEmpty(1).Max();
+        return (width, 1, stateLines);
+    }
+
+    /// <summary>[S-17153] The widest quick setting's or power button's name on one Body line in the current language (measured once a language).</summary>
+    private static double WidestName()
+    {
+        var locale = Strings.Current;
+        if (_widest is { } known && known.Locale == locale)
+        {
+            return known.Width;
+        }
+
+        var names = QuickToggleRules.All.Select(t => QuickToggleRules.Name(locale, t)).Concat(PowerActionRules.All.Select(a => PowerActionRules.Label(locale, a)));
+        var width = Math.Ceiling(names.Select(n => LinesAndWidth(n, double.PositiveInfinity, FamilyType.Body).Width).DefaultIfEmpty(0).Max());
+        _widest = (locale, width);
+        return width;
+    }
+
+    private static (Locale Locale, double Width)? _widest;
+
+    /// <summary>[S-17153] Whether the fit takes the words' planned box whole (its words planned) or the stack's own ink (the glyph alone).</summary>
+    private void Plan(bool planned)
+    {
+        if (_plannedFace.Whole != planned)
+        {
+            _plannedFace.Whole = planned;
+            _fit.Refit();
+        }
     }
 
     /// <summary>[S-15764] The lines <paramref name="text"/> takes at <paramref name="width"/> on <paramref name="step"/> (1 or 2), and its one-line width.</summary>
@@ -323,8 +354,11 @@ public sealed partial class TileBlock : Grid
 
         // [S-11804] Under the glyph a long name ("Do not disturb") wraps to a second line, which the tile's
         // square holds (TileRules.SideAt), before it is cut; the switch's row keeps it to one.
-        _label.TextWrapping = switchLook ? TextWrapping.NoWrap : TextWrapping.WrapWholeWords;
-        _label.MaxLines = switchLook ? 1 : TileRules.NameLines;
+        // [S-17153] Planned words keep one line (owner, 2026-11-23: "the text should not wrap"), cut with their ellipsis.
+        var oneLine = switchLook || (_planWidth > 0 && _planLabel);
+        _label.TextWrapping = oneLine ? TextWrapping.NoWrap : TextWrapping.WrapWholeWords;
+        _label.MaxLines = oneLine ? 1 : TileRules.NameLines;
+        _label.TextTrimming = TextTrimming.CharacterEllipsis;
         _label.TextAlignment = switchLook ? TextAlignment.Left : TextAlignment.Center;
         _state.HorizontalAlignment = _label.HorizontalAlignment;
         _label.Visibility = _planLabel ? Visibility.Visible : Visibility.Collapsed;
@@ -419,10 +453,29 @@ public sealed partial class TileBlock : Grid
         _state.MaxWidth = wrap;
         _stack.MinWidth = planned ? Math.Max(size, _planWidth) : 0;
 
+        Plan(planned && _planLabel);
+
         // [S-14201] Its ink may have moved in a box of the same size (a sentence with a descender, the ring shown, "--"
         // for "Off"), which XAML does not arrange again on its own: the fit places it again.
         _fit.Refit();
     }
+}
+
+/// <summary>
+/// [S-17153] A tile's planned words and glyph as one box whose ink is the box: a short name's room either side and a
+/// one-line name's room over and under count as drawn, so the fit scales every tile of one size alike.
+/// </summary>
+internal sealed partial class PlannedFace : Grid, IInkedBox
+{
+    /// <summary>Whether its box's width is its ink (the words planned); else what its stack draws across.</summary>
+    public bool Whole { get; set; }
+
+    /// <summary>Over and under: what its stack draws, so a face stands centred on its ink down the tile.</summary>
+    public LineInk Ink => Children.Count == 0 ? default : Themia.App.Widgets.Ink.Of(Children[0]).Ink;
+
+    public bool IsRow => false;
+
+    public bool OwnAcross => !Whole;
 }
 
 /// <summary>

@@ -154,6 +154,11 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
 - **Now playing's transport stands right-aligned.** 2026-11-23: "for the now playing widget move the action buttons on
   the right side of the text and right align them". The previous, play/pause and next buttons stand at the right inset,
   beside the texts or alone; the room at their left when they stand alone is not a WR-3 failure.
+- **Quick settings and power buttons: one size and place of words.** 2026-11-23: "at the same size the text and icon size
+  for the toggle widgets and power widgets should be the same regardless of the amount of text." and "they should also be
+  at the same location, the text should not wrap". A Tile's or Round's glyph and name are planned in one box as wide as the
+  family's widest name on one line, centred in the card; the room either side of a shorter name is not a WR-3 failure, and
+  its glyph's shape may set its ink a few DIPs off centre across. Down, the face stays centred on its ink.
 - **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
   Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
 

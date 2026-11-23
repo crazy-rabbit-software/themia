@@ -276,6 +276,12 @@ def judge(kind, card, layout, style=''):
         # tile's face scaled up as one, WR-7) and stands across where its alignment puts it, as a reading ([S-14301]).
         if abs(top - foot) > TOLERANCE:
             found.append(f'centred face off centre {top:.1f}/{foot:.1f}')
+        # [S-17153] A quick setting's and a power button's face is planned in one box whatever its name says (owner,
+        # 2026-11-23: "at the same size the text and icon size for the toggle widgets and power widgets should be the same
+        # regardless of the amount of text"; "they should also be at the same location, the text should not wrap"): the
+        # room either side of a short name is that box's, and its glyph's own shape sets its ink across. Judged down only.
+        if kind_class == 'tile':
+            return found
         if left <= limit and right <= limit:
             return found
         if top <= limit and foot <= limit:
@@ -589,10 +595,11 @@ def self_test():
         ('a centred name cut on its second line', card(200, 200, 12, 12, 36.7, 36.0, cuts=[{'x': 30, 'y': 120, 'w': 140, 'h': 60}]), ['hibernate'], False),
         ('an editor short of the foot', card(520, 600, 12, 416.7, 12, 14, fields=[{'x': 0, 'y': 34, 'w': 520, 'h': 400}]), [], True),
         # [S-14305] A tile and a one-line face: centred down, their sides judged as any card's.
-        ('a tile centred both ways', card(100, 100, 30, 30, 30, 30), ['quickToggle'], True),
+        ('a tile centred both ways', card(100, 100, 30, 30, 30, 30), ['quickToggle'], False),
+        ('a tile off centre down', card(100, 100, 20, 40, 30, 30), ['quickToggle'], True),
         ('a tile whose face fills its width', card(160, 100, 30, 31, 12, 12), ['quickToggle'], False),
         ('a tile whose face fills its height, centred', card(116, 116, 12, 12, 34.7, 36.7), ['quickToggle'], False),
-        ('a tile whose face fills its height, off centre', card(232, 232, 12, 12.7, 60.7, 50), ['sleep'], True),
+        ('a tile whose face stands off centre across, its name short', card(232, 232, 12, 12.7, 60.7, 50), ['sleep'], False),
         ('a clock line the width stops', card(600, 200, 50, 51, 12, 13), ['clock'], False),
         ('a clock line the height stops, centred', card(900, 160, 12, 12, 200, 201, align='center'), ['clock'], False),
         ('a clock line the height stops, aligned left but centred', card(900, 160, 12, 12, 200, 201, align='left'), ['clock'], True),

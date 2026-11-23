@@ -50,6 +50,13 @@ Toggles line; the JSON context), `Localization/Locales/` (its own `QuickToggleSt
 - **[S-17152]** **A power button is the same tile.** (Owner, 2026-11-23: *"the power buttons should have the same base
   component as the toggle buttons"*.) A power button's face is the quick setting's Tile block, no ring round its glyph; its
   only line is the why line while armed, failed or unavailable ([S-1913]..[S-1915]). Tests `PowerActionTests.S17152_`.
+- **[S-17153]** **One size and place of words at one size of tile.** (Owner, 2026-11-23: *"at the same size the text and
+  icon size for the toggle widgets and power widgets should be the same regardless of the amount of text."*; *"they should
+  also be at the same location, the text should not wrap"*.) A Tile's or Round's words are planned in one box whatever they
+  say: the widest quick setting's or power button's name in the language on one Body line (`TileRules.WordsRoom`,
+  `TileBlock.Plan`), the name on one line, never wrapped (cut with its ellipsis only where the inset is narrower than the
+  scaled box allows); the fit takes that box whole (`PlannedFace`), so two tiles of one size draw glyph and name on one scale
+  and at one place, a toggle as a power button. Tests `FamilyBlockRulesTests.S17153_`.
 
 The thirteen kinds it replaced, each its own module and config until 2026-11-23 (owner, that day: *"they should actually be
 merged into one widget and not be multiple ones … but in the backend it is the same one"*):

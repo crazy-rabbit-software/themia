@@ -366,6 +366,19 @@ public sealed class FamilyBlockRulesTests
     }
 
     [Fact]
+    public void S17153_a_tiles_words_are_planned_in_one_box_whatever_they_say()
+    {
+        // Owner, 2026-11-23: "at the same size the text and icon size for the toggle widgets and power widgets should be the
+        // same regardless of the amount of text."; "they should also be at the same location, the text should not wrap".
+        Assert.Equal(98, TileRules.WordsRoom(400, 98));
+        Assert.Equal(98, TileRules.WordsRoom(double.PositiveInfinity, 98));
+        Assert.Equal(60, TileRules.WordsRoom(60, 98));
+        Assert.Equal(FamilyType.Big28.FontSize, TileRules.WordsRoom(10, 98));
+        Assert.Equal(TileRules.NameRoom(FamilyType.Body), TileRules.WordsRoom(400, 0));
+        Assert.True(TileRules.Face(100, 100, stateLine: false, nameLines: 1, nameWidth: 98).Texted);
+    }
+
+    [Fact]
     public void S17150_the_switch_row_narrows_to_its_name_alone_its_state_line_hidden()
     {
         // Owner, 2026-11-23: "the switch style should be able to be even narrower, it should then hide the on / off text

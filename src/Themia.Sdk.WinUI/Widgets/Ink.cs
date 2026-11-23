@@ -138,6 +138,8 @@ public static class Ink
 
         var (left, right) = node switch
         {
+            // [S-17153] A tile's planned words: their box's width is drawn (one scale whatever they say); the glyph alone its own.
+            IInkedBox { OwnAcross: true } and Panel { Children.Count: > 0 } box => Kid(box.Children[0]).Across,
             IInked => (0.0, 0.0),
             TextBlock block => TextAcross(block),
             Border { Child: { } child } border => Pad(Kid(child).Across, border.Padding.Left + border.BorderThickness.Left, border.Padding.Right + border.BorderThickness.Right),

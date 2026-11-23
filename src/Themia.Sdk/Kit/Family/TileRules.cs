@@ -139,6 +139,18 @@ public static class TileRules
     public static double NameRoom(TypeStep name) => 76 * name.FontSize / FamilyType.BodySize;
 
     /// <summary>
+    /// [S-17153] The one box a Tile's words are planned in, whatever they say (owner, 2026-11-23: "at the same size the text and
+    /// icon size for the toggle widgets and power widgets should be the same regardless of the amount of text"; "they should
+    /// also be at the same location, the text should not wrap"): the widest name of the family (<paramref name="widest"/>, a
+    /// quick setting's or a power button's on one Body line), less in a narrower inset, never under the 28 glyph; one line.
+    /// </summary>
+    public static double WordsRoom(double inner, double widest)
+    {
+        var room = double.IsFinite(widest) && widest > 0 ? widest : NameRoom(FamilyType.Body);
+        return Math.Max(FamilyType.Big28.FontSize, double.IsFinite(inner) && inner > 0 ? Math.Min(inner, room) : room);
+    }
+
+    /// <summary>
     /// [S-11882] The name's and the state line's steps under a glyph of <paramref name="glyph"/>: Body
     /// and Caption under the Readout steps and 68, Title (regular) and Body under the larger Hero steps,
     /// so the words grow with the glyph.
