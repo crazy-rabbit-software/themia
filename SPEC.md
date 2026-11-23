@@ -5861,6 +5861,48 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
 - **[S-11603]** A preview state that swaps in items of its own whose size differs (as the retired Shortcuts
   list's states of seven items did) says so (`IWidgetPreviewState.DrawnConfig`), and the render draws that card at
   that config's min, natural or max, the page laid out again.
+- **[S-17100]** **A face that scales as one stops its height at its shape** (owner, 2026-11-23: "the now playing widget
+  right now can be resized in the height as well for example, generally speaking this is good but the height resize should
+  be limited to not exceed where the spacings at the bottom or top are not the same as they are in the other widgets too. to
+  some extent limit the aspect ratio that the widget can have. do this for all widgets."; docs/WIDGET-RULES.md WR-17;
+  [S-12411] amended). Growth along an axis goes only as far as the content uses it. A face that scales as one (a one-readout
+  block, a clock, a reading and its drawing, a tile's face, Now playing's block) fills one axis and the other stops it, so a
+  card taller than the face's shape at its width stood a top and foot band larger than the inset. Its sizing says so
+  (`WidgetSizing.ScalesAsOne`, `StretchRoom.Face`, its `FaceShape`: the parts' box at scale 1, by default the natural less
+  the inset on every side and a line over it that keeps its size, or the face's tallest arrangement where its natural is
+  another, as a single metric's readout stacked); every face that scales down as one (`ScalesDownTo`) states it. Its width
+  stays relaxed (a wider card stands the face centred across, the owner's "Centred is fine"); its height is at most
+  `MostHeight(width)` = what is round the parts + (width - what is round them across) x the parts' height per width, never
+  under its Min. One path on the host: `SizeLimits` carries the line on the display (`HeightFollow`, the content scale
+  applied) and `SizeLimits.At(width)` gives the limits a card of a width has, in the whole cells that hold it (so a card at
+  its natural keeps it): the painted box ([S-2446], `SizeFit.Shown`: the width first, then the height at it), a resize
+  (`GridGeometry.Settle`: the height stops at the shape of the width the moved edges left; a card made narrower has its
+  foot come up with it, its top kept), Shift+arrows, a refit, a ready-made group's block (`GridFit.Layout`: the heights at
+  the laid widths), a placement and a block resize (`BlockResize`: the heights at the members' new widths; across, a
+  member's least width the one its height still takes, `SizeLimits.ForHeight`), `WidgetSizing.Fit` and the large size
+  checked (`SizeStretch.Large`: twice the natural width, the shape's height there in whole DIPs). A placed card taller than
+  that is painted at it on load ([S-2446]); no migration. Faces: the clock, the date, the alarm, the countdown, the focus
+  session, the quote, the text kinds, air quality, the exchange rate, the moon's readings, the recycle bin, screen time's
+  reading and donut, volume and brightness, weather now, the drive's styles, the meters' readings (CPU, GPU, memory, disk,
+  ping, network, battery; every look but Rows), every single metric without a graph (its readout stacked, its caption over
+  its value, about half the row's room wide, `MetricRules.ReadoutShape`), the Metrics widget's value face, Now playing's
+  styles with a column ([S-17103]), the pomodoro (its stacked block), the sun's arc, the Header, the stock's price alone and
+  a quick toggle's or power button's Tile and Round. The ready-made "My day" stands its clock 84 tall at its column's 320
+  (it was 118, its digits' bands 15 DIP over the inset). Tests `WidgetSizingTests.S17100_` (Core: the rule; module host: the
+  scaled faces), `SizeFitTests.S17100_`, `WidgetSizingTests.S12411_S17100_` (every kind and style).
+- **[S-17101]** **Content of a fixed extent keeps it** (the owner's sentence of [S-17100]). An axis whose content does not
+  repeat or scale (one item that does not repeat, a row of controls, a set number of bar rows, a single line) has its Max at
+  its natural and is not relaxed (`WidgetSizing.KeepsHeight`, `KeepsWidth`; `SizeStretch.Relax` leaves it): one item's face
+  (a Bluetooth device, a contact, a meeting, a device battery, a drive), the item base's row of columns (`ItemStyle.RowList`),
+  a meter's Rows look, a toggle's Switch, the sun's day bar, the stock over its rows, a fence rolled up ([S-13012]). Tests
+  `WidgetSizingTests.S17101_`, `WidgetSizingTests.S12411_S17100_`.
+- **[S-17102]** **Content that grows with the card stays relaxed** ([S-12411]): a list's rows (more show as it gets taller,
+  [S-14810]), a graph's plot, a picture, a grid of the card, an editor: `StretchRoom.List`, `Picture` and `Standard` keep no
+  practical Max on either axis (`MostHeight` is the Max). The kit lists and the item base's lists and grids, the histories
+  and every single metric with a graph, the Metrics widget's graph styles, rain in the next hour, screen time's chart and
+  apps, the audio visualizer, the CPU cores, the gallery, the video stream, a cover alone, the icon, the calendar, the moon's
+  phase month, the week planner, the forecast, the folder, the habit tracker, the mixer, the GPU engines, the stopwatch with
+  its laps, notes, the scratchpad and the divider. Tests `WidgetSizingTests.S17102_`.
 
 ## Responsive layout (shared foundation)
 
@@ -5918,8 +5960,10 @@ its content. What is left of this section is how a view measures the fixed parts
   any work area at scale 1), never lowered where the kind stated more; the work area is the bound (`SizeFit.Limits`
   holds a free axis to the screen, the resize stops at it). Min and Natural stay the content's; a height the kind
   keeps (`WidgetSizing.KeepsHeight`: a fence rolled up to its title bar) and the room None (the desktop icon's cell)
-  keep their size.
-  The room's other values (Standard, List, Picture: `WidgetSizing.Room`, set where the sizing is made) say what the
+  keep their size. *(Amended 2026-11-23 by [S-17100]..[S-17102]: a face that scales as one has its height held to its
+  shape at its width, an axis of a fixed extent keeps its natural; only content that grows with the card keeps no
+  practical maximum on both axes.)*
+  The room's other values (Standard, List, Picture, Face: `WidgetSizing.Room`, set where the sizing is made) say what the
   parts are; a repeated item keeps its one size ([S-14810]), a chart's plot and a one-readout block fill, text never. Size still
   never decides what is shown. Tests `WidgetSizingTests.S12411_` (Core: the rule; module host: every kind and style
   has no practical Max on every free axis).

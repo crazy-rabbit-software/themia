@@ -46,8 +46,66 @@ public readonly record struct AxisLimits(double Min, double Max, int Lines = 0)
     }
 }
 
-/// <summary>[S-2444] A widget's sizing on one display, as fractions of that screen's cell.</summary>
-public sealed record SizeLimits(AxisLimits Width, AxisLimits Height);
+/// <summary>
+/// [S-17100] How a face's most height follows its width on one display, as fractions of that screen: at a width
+/// <c>w</c> the card is at most <see cref="Base"/> + <see cref="PerWidth"/> × <c>w</c> tall (its shape there, the
+/// content scale applied).
+/// </summary>
+public readonly record struct HeightFollow(double Base, double PerWidth)
+{
+    /// <summary>[S-17100] The most height at <paramref name="width"/>, in fractions of the screen.</summary>
+    public double At(double width) => Base + (PerWidth * width);
+}
+
+/// <summary>
+/// [S-2444] A widget's sizing on one display, as fractions of that screen's cell. [S-17100] A face that scales as one has
+/// its height follow its width (<see cref="Follow"/>): <see cref="At"/> gives the limits a card of a width has.
+/// </summary>
+public sealed record SizeLimits(AxisLimits Width, AxisLimits Height, HeightFollow? Follow = null)
+{
+    /// <summary>
+    /// [S-17100] The limits of a card <paramref name="width"/> wide (a fraction of the screen): a face's most height its shape
+    /// at that width, in the whole cells that hold it on the grid (so a card at its natural keeps it), never under its Min nor
+    /// over its Max; every other sizing's as they are.
+    /// </summary>
+    public SizeLimits At(double width)
+    {
+        if (Follow is not { } follow || !double.IsFinite(width))
+        {
+            return this;
+        }
+
+        var most = follow.At(width);
+        most = Height.OnGrid ? GridFit.Up(most, Height.Lines) : most;
+        var max = Math.Max(Height.Min, Math.Min(Height.Max, most));
+        return this with { Height = Height with { Max = max } };
+    }
+
+    /// <summary>
+    /// [S-17100] The limits of a card that keeps its <paramref name="height"/> (a fraction of the screen) while its width
+    /// changes (a block resized across: its members' heights are the block's): a face's least width the one whose shape still
+    /// takes that height, so no member is left taller than its width takes; every other sizing's as they are.
+    /// </summary>
+    public SizeLimits ForHeight(double height)
+    {
+        if (Follow is not { } follow || !double.IsFinite(height) || !(follow.PerWidth > 0))
+        {
+            return this;
+        }
+
+        // The least width whose most height (in whole cells) holds the height: on the grid a cell under it rounds up to it.
+        var below = Height.OnGrid ? height - (1.0 / Height.Lines) : height;
+        var least = Math.Max(0, (below - follow.Base) / follow.PerWidth);
+        least = Width.OnGrid ? GridFit.Up(least, Width.Lines) : least;
+        while (Width.OnGrid && At(least).Height.Max < height - 1e-9 && least < Width.Max)
+        {
+            least += 1.0 / Width.Lines;
+        }
+
+        var min = Math.Min(Math.Max(Width.Min, least), Math.Max(Width.Min, Width.Max));
+        return this with { Width = Width with { Min = min } };
+    }
+}
 
 /// <summary>
 /// [S-2444]..[S-2447] The host's side of the sizing contract ([S-2438]): a kind's sizing turned into the
@@ -84,7 +142,12 @@ public static class SizeFit
             return new AxisLimits(Cell(min), Math.Max(Cell(min), Math.Min(1, Cell(max))));
         }
 
-        return new SizeLimits(Axis(sizing.Min.Width, sizing.Max.Width, screen.Width), Axis(sizing.Min.Height, sizing.Max.Height, screen.Height));
+        // [S-17100] A face's most height follows its width: its shape's line in DIPs (the height round it less its rate across
+        // what stands round it, plus the rate times the width) on this screen at this scale.
+        HeightFollow? follow = sizing.Shape is { } shape
+            ? new HeightFollow(s * (shape.Around.Height - (shape.PerWidth * shape.Around.Width)) / screen.Height, shape.PerWidth * screen.Width / screen.Height)
+            : null;
+        return new SizeLimits(Axis(sizing.Min.Width, sizing.Max.Width, screen.Width), Axis(sizing.Min.Height, sizing.Max.Height, screen.Height), follow);
     }
 
     /// <summary>
@@ -107,7 +170,9 @@ public static class SizeFit
             return stored;
         }
 
-        var fitted = stored with { W = limits.Width.Range(stored.W), H = limits.Height.Range(stored.H) };
+        // [S-17100] The width first: a face's height is held to what that width takes.
+        var w = limits.Width.Range(stored.W);
+        var fitted = stored with { W = w, H = limits.At(w).Height.Range(stored.H) };
         return fitted == stored ? stored : GridGeometry.Clamp(fitted, screen);
     }
 
@@ -202,7 +267,7 @@ public static class SizeFit
         void Add(string name, double width, double height)
         {
             const double eps = Lattice.Epsilon;
-            if (width >= minW - eps && width <= maxW + eps && height >= minH - eps && height <= maxH + eps
+            if (width >= minW - eps && width <= maxW + eps && height >= minH - eps && height <= Math.Min(maxH, Up(sizing.MostHeight(width))) + eps
                 && !sizes.Exists(s => Lattice.Same(s.Width, width) && Lattice.Same(s.Height, height)))
             {
                 sizes.Add(new CheckedSize(name, width, height));

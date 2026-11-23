@@ -76,6 +76,13 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   that it shows because not all of the chars have the same width." (SPEC [S-14319]; the gap check judges a held reading
   by its template, `holds`.)
 
+- **WR-17 A widget grows only as far as its content uses the room.** 2026-11-23: "the now playing widget right now can be
+  resized in the height as well for example, generally speaking this is good but the height resize should be limited to not
+  exceed where the spacings at the bottom or top are not the same as they are in the other widgets too. to some extent limit
+  the aspect ratio that the widget can have. do this for all widgets." A face that scales as one is never made taller than
+  where it stands the inset from the card's top and foot at its width; an axis whose content is of a fixed extent (one item,
+  a row of controls) stops at that extent; lists, graphs, pictures, grids and editors keep growing (SPEC [S-17100]..[S-17102]).
+
 - **WR-16** *(Retired 2026-11-22.)* Atoms on one universal spacing, asked for the now playing group alone ("for now
   just for the now playing group"). The owner reset it: "actually they should not all have a shared base. i think it
   makes more sense for them to keep their individuality. basically reset them to what they were a few days ago";

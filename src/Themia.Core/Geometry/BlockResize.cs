@@ -52,12 +52,24 @@ public static class BlockResize
         var (freeW, freeH) = Free(limits, start.Count);
         var horizontal = freeW && (GridGeometry.MovesLeft(handle) || GridGeometry.MovesRight(handle));
         var vertical = freeH && (GridGeometry.MovesTop(handle) || GridGeometry.MovesBottom(handle));
-        var x = horizontal ? Axis.Of(start, limits, true, GridGeometry.MovesLeft(handle), screen) : null;
-        var y = vertical ? Axis.Of(start, limits, false, GridGeometry.MovesTop(handle), screen) : null;
+        // [S-17100] Across, a face keeps a width its height takes (the heights are the block's while it is resized across).
+        var x = horizontal ? Axis.Of(start, ForHeights(start, limits), true, GridGeometry.MovesLeft(handle), screen) : null;
         var wantX = x is null ? 0 : x.Length + ((GridGeometry.MovesLeft(handle) ? -dxFrac : dxFrac) * x.Lines);
+        var laidX = x?.Walk(wantX, untilChanged: false);
+
+        // [S-17100] The heights after the widths: a face's height is held to what its member's new width takes.
+        var y = vertical ? Axis.Of(start, AtWidths(start, limits, laidX), false, GridGeometry.MovesTop(handle), screen) : null;
         var wantY = y is null ? 0 : y.Length + ((GridGeometry.MovesTop(handle) ? -dyFrac : dyFrac) * y.Lines);
-        return Solve(start, x, wantX, y, wantY, untilChanged: false);
+        return Compose(start, laidX, y?.Walk(wantY, untilChanged: false));
     }
+
+    /// <summary>[S-17100] Each member's limits with the width its height takes as its least.</summary>
+    private static SizeLimits?[] ForHeights(IReadOnlyList<FracRect> start, IReadOnlyList<SizeLimits?> limits)
+        => [.. limits.Select((l, i) => i < start.Count ? l?.ForHeight(start[i].H) : l)];
+
+    /// <summary>[S-17100] Each member's limits at its width: the one <paramref name="laid"/> gives it, else the one it has.</summary>
+    private static SizeLimits?[] AtWidths(IReadOnlyList<FracRect> start, IReadOnlyList<SizeLimits?> limits, Laid? laid)
+        => [.. limits.Select((l, i) => l?.At(laid is not null && i < laid.Spans.Length ? laid.Spans[i].Size : i < start.Count ? start[i].W : double.NaN))];
 
     /// <summary>
     /// [S-2464] One Shift+arrow press on a selection of several: the block resized by its right or bottom edge (Right and
@@ -82,7 +94,7 @@ public static class BlockResize
             return [.. start];
         }
 
-        var axis = Axis.Of(start, limits, across, fromEnd: false, screen);
+        var axis = Axis.Of(start, across ? ForHeights(start, limits) : AtWidths(start, limits, null), across, fromEnd: false, screen);
         var cells = step == NudgeStep.Far ? KeyboardNudgeDefaults.FarCells : 1;
         var press = Math.Ceiling(cells / (double)axis.Step) * axis.Step;
         var want = axis.Length + ((grow ? 1 : -1) * press);

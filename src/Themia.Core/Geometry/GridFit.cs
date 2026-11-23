@@ -71,7 +71,7 @@ public static class GridFit
     {
         ArgumentNullException.ThrowIfNull(content);
         var (cols, rows) = GridGeometry.GridDims(screen);
-        return new SizeLimits(Axis(content.Width, cols), Axis(content.Height, rows));
+        return new SizeLimits(Axis(content.Width, cols), Axis(content.Height, rows), content.Follow);
     }
 
     /// <summary>
@@ -99,7 +99,8 @@ public static class GridFit
         (double W, double H) Asked(int i) => asked is not null && i < asked.Count ? asked[i] : (boxes[i].W, boxes[i].H);
         var (cols, rows) = GridGeometry.GridDims(screen);
         var xs = LayoutAxis([.. boxes.Select((b, i) => (b.X, b.Right, Asked(i).W))], [.. boxes.Select((_, i) => i < limits.Count ? limits[i]?.Width : null)], cols);
-        var ys = LayoutAxis([.. boxes.Select((b, i) => (b.Y, b.Bottom, Asked(i).H))], [.. boxes.Select((_, i) => i < limits.Count ? limits[i]?.Height : null)], rows);
+        // [S-17100] The heights after the widths: a face's height is held to what its laid width takes.
+        var ys = LayoutAxis([.. boxes.Select((b, i) => (b.Y, b.Bottom, Asked(i).H))], [.. boxes.Select((_, i) => i < limits.Count ? limits[i]?.At(xs[i].Size).Height : null)], rows);
         return [.. boxes.Select((_, i) => new FracRect(xs[i].Start, ys[i].Start, xs[i].Size, ys[i].Size))];
     }
 

@@ -102,11 +102,12 @@ public static class ReadyMadeGroups
     /// <summary>[S-2474] My day: the clock on top, the date joined under it ([S-12805]), the next meeting and the tasks under them.</summary>
     public static ReadyMadeGroup MyDay { get; } = Headed(new("myDay", Str.Groups_Recipe_MyDay, Str.Groups_Recipe_MyDayAbout, Glyphs.Calendar, AddFolderId.CalendarMail,
     [
-        new("clock", new(0, 0, 320, 118)),
-        new("date", new(0, 118, 320, 52)),
-        new("meeting", new(0, 170, 320, 60)),
-        new("meetings", new(0, 230, 320, 120), Config: AfterNext),
-        new("tasks", new(0, 350, 320, 210)),
+        // [S-17100] The clock as tall as its face at the column's width (a taller one stood room over and under it).
+        new("clock", new(0, 0, 320, 84)),
+        new("date", new(0, 84, 320, 52)),
+        new("meeting", new(0, 136, 320, 60)),
+        new("meetings", new(0, 196, 320, 120), Config: AfterNext),
+        new("tasks", new(0, 316, 320, 210)),
     ]) { Starter = 1 });
 
     /// <summary>

@@ -106,6 +106,70 @@ public sealed class WidgetSizingTests
         Assert.Equal(SizeStretch.Relax(Meter), SizeStretch.Relax(SizeStretch.Relax(Meter)));
     }
 
+    /// <summary>A one-readout face of 200 × 100: its parts 176 × 76 in the inset of 12 on every side.</summary>
+    private static WidgetSizing Face => SizeStretch.Relax(WidgetSizing.Range(new(48, 32), new(200, 100), new(400, 100)).ScalesAsOne());
+
+    [Fact]
+    public void S17100_a_face_that_scales_as_one_is_at_most_as_tall_as_its_natural_shape_at_its_width()
+    {
+        // Owner, 2026-11-23: "the height resize should be limited to not exceed where the spacings at the bottom or top are not
+        // the same as they are in the other widgets too. to some extent limit the aspect ratio that the widget can have."
+        Assert.Equal(StretchRoom.Face, Face.Room);
+        Assert.Equal(100, Face.MostHeight(200), 6);
+        Assert.Equal(24 + (352 * 76 / 176.0), Face.MostHeight(376), 6);
+        Assert.Equal(32, Face.MostHeight(30), 6); // never under its least
+        Assert.Equal(new SizeDip(376, 176), Face.Fit(new(376, 900)));
+        Assert.Equal(new SizeDip(376, 150), Face.Fit(new(376, 150)));
+        Assert.Empty(Face.Problems());
+    }
+
+    [Fact]
+    public void S17100_its_width_stays_the_users_and_a_wider_card_stands_the_face_centred()
+    {
+        // The width is relaxed: a wider card holds the face by its height, the room at its sides alike (the owner's
+        // "A reading that fills one side may stand centred on the other").
+        Assert.Equal(SizeStretch.Ceiling, Face.Max.Width);
+        Assert.Equal(new SizeDip(1000, 100), Face.Fit(new(1000, 100)));
+    }
+
+    [Fact]
+    public void S17100_a_face_of_its_own_shape_and_a_line_over_it_follow_that_shape()
+    {
+        // A face whose natural is another arrangement (a metric's row, its readout stacked when taller) states its shape; a
+        // line over it that keeps its size (a day line) is no part of the shape.
+        var stacked = SizeStretch.Relax(WidgetSizing.Range(new(200, 30), new(240, 30), new(420, 30)).ScalesAsOne(new SizeDip(100, 50)));
+        Assert.Equal(24 + (216 * 0.5), stacked.MostHeight(240), 6);
+
+        var dayLine = SizeStretch.Relax(WidgetSizing.Range(new(48, 32), new(224, 124), new(224, 124)).ScalesAsOne(over: 24));
+        Assert.Equal(124, dayLine.MostHeight(224), 6);
+        Assert.Equal(48 + (400 * 76 / 200.0), dayLine.MostHeight(424), 6);
+    }
+
+    [Fact]
+    public void S17101_a_fixed_extent_keeps_its_stated_most_on_that_axis()
+    {
+        // A row of controls, one item that does not repeat: growth stops at its natural, the width the user's.
+        var item = SizeStretch.Relax(WidgetSizing.Range(new(220, 50), new(300, 50), new(520, 50)) with { KeepsHeight = true });
+        Assert.Equal(50, item.Max.Height);
+        Assert.Equal(SizeStretch.Ceiling, item.Max.Width);
+
+        var column = SizeStretch.Relax(WidgetSizing.Range(new(60, 100), new(60, 200), new(60, 300)) with { KeepsWidth = true });
+        Assert.Equal(60, column.Max.Width);
+        Assert.Equal(SizeStretch.Ceiling, column.Max.Height);
+        Assert.Equal(SizeStretch.Ceiling, column.MostHeight(60));
+    }
+
+    [Fact]
+    public void S17102_content_that_grows_with_the_card_stays_relaxed()
+    {
+        foreach (var room in new[] { StretchRoom.Standard, StretchRoom.List, StretchRoom.Picture })
+        {
+            var grows = SizeStretch.Relax(Meter with { Room = room });
+            Assert.Equal(SizeStretch.Ceiling, grows.MostHeight(160));
+            Assert.Equal(new SizeDip(900, 900), grows.Fit(new(900, 900)));
+        }
+    }
+
     [Fact]
     public void S2448_the_large_size_checked_is_twice_the_natural_within_the_sizing()
     {
@@ -113,5 +177,8 @@ public sealed class WidgetSizingTests
 
         Assert.Equal(new SizeDip(440, 288), SizeStretch.Large(relaxed));
         Assert.Equal(new SizeDip(440, 200), SizeStretch.Large(Meter)); // held to a stated Max where one stands (a desktop icon's)
+
+        // [S-17100] A face's large size is twice its natural width, its shape's height there in whole DIPs.
+        Assert.Equal(new SizeDip(400, Math.Floor(24 + (376 * 76 / 176.0))), SizeStretch.Large(Face));
     }
 }

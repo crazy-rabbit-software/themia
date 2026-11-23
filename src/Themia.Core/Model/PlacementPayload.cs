@@ -245,7 +245,9 @@ public sealed class PlacementPayload
         if (ModuleCatalog.TryGet(kind.Kind, out _) && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
         {
             // [S-2446] Its sizing held on the display's whole cells, as it is painted.
-            (w, h) = (limits.Width.Range(w), limits.Height.Range(h));
+            // [S-17100] The width first: a face's height is held to what that width takes.
+            w = limits.Width.Range(w);
+            h = limits.At(w).Height.Range(h);
         }
 
         return rect with { W = w, H = h };

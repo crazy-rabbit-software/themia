@@ -75,8 +75,11 @@ public sealed class BlockResizeKindsTests
                 }
             }
 
-            // The drags resize real groups: most of them change the block.
-            Assert.True(changed >= Drags.Length - 2, $"{id} on {screen.Width:0}: only {changed} of {Drags.Length} drags changed the block");
+            // The drags resize real groups: most of them change the block. [S-17100] A block of faces standing at their shape
+            // grows taller only as it grows wider and narrows only as it gets lower: its drags of one edge (out to the left,
+            // up, down) may leave it.
+            var faces = limits.All(l => l?.Follow is not null);
+            Assert.True(changed >= Drags.Length - (faces ? 5 : 2), $"{id} on {screen.Width:0}: only {changed} of {Drags.Length} drags changed the block");
         }
     }
 

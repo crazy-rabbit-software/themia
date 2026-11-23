@@ -3127,6 +3127,13 @@ will be cutoff to some extent then." One rule, no per-widget code where a block 
   `MeterSizing.History/Columns/Tiles/Graphs`, `TileRules.Sizing`), `None` (the desktop icon's cell: not
   relaxed); a height the kind keeps (`KeepsHeight`: a fence rolled up) neither. Renders check a kind at its
   min, natural and a large size, twice the natural (`SizeStretch.Large`).
+- **Growth only as far as the content uses it** (SPEC [S-17100]..[S-17102], docs/WIDGET-RULES.md WR-17). Say how your
+  content fills an axis, once, where the sizing is made: a face that scales as one (a one-readout block, a clock, a tile's
+  face) is `ScalesAsOne()` (any `ScalesDownTo` already is; `ScalesAsOne(face)` where its tallest arrangement is not its
+  natural): its width stays relaxed, its height stops at its shape at that width (`MostHeight`); content of a fixed extent on
+  an axis (one item, a row of controls, a set number of rows) keeps its natural there (`with { KeepsHeight = true }`,
+  `KeepsWidth`); content that grows (a list, a graph, a picture, a grid of the card, an editor) states nothing more. The host
+  honours it everywhere it fits a size (`SizeLimits.At(width)`); a kind never writes numbers of its own for it.
 - **Repeated items keep one size, the last is cut** (`ItemSize` in `Themia.Sdk/Widgets`, whole device pixels):
   `Lay(available, items, grid)` for a stack, `Reach(available, natural, grid)` and `Rows` for like rows (each at its
   optimal, `Optimal`, as many as the room reaches, `Count`, the last cut by its end; `RowReach.Span` a list's viewport,

@@ -1021,10 +1021,12 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         var (cols, rows) = GridGeometry.GridDims(_metrics);
+        var w = limits.Width.Range(room.W / (double)cols);
         return room with
         {
-            W = Math.Max(1, (int)Math.Round(limits.Width.Range(room.W / (double)cols) * cols)),
-            H = Math.Max(1, (int)Math.Round(limits.Height.Range(room.H / (double)rows) * rows)),
+            W = Math.Max(1, (int)Math.Round(w * cols)),
+            // [S-17100] A face's height is held to what its width takes.
+            H = Math.Max(1, (int)Math.Round(limits.At(w).Height.Range(room.H / (double)rows) * rows)),
         };
     }
 

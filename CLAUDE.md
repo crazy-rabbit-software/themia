@@ -331,7 +331,13 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   is a one-readout block, which keeps its parts together and scales up as one until its ink fills the height or the
   width stops it (`ReadingFit`, the rule `BlockLayout`, `LineInk`/`Ink`, [S-12808], [S-12804], [S-14323]), a graph's plot, a
   single metric's one row (its whole face, [S-14705]) and the month, a grid of the card, not a list, whose cells fill and
-  whose type grows (`ScaleBox`, [S-12809], WR-9). Never a per-widget stretch of its own.
+  whose type grows (`ScaleBox`, [S-12809], WR-9). Never a per-widget stretch of its own. **Growth only as far as the content
+  uses it** ([S-17100]..[S-17102], WR-17, owner 2026-11-23: "the height resize should be limited to not exceed where the
+  spacings at the bottom or top are not the same as they are in the other widgets too. to some extent limit the aspect ratio
+  that the widget can have. do this for all widgets."): a face that scales as one states it (`ScalesAsOne`, `StretchRoom.Face`;
+  every `ScalesDownTo` does) and its height stops at its shape at its width (`WidgetSizing.MostHeight`, the host through
+  `SizeLimits.At`); an axis of a fixed extent (one item, a row of controls) keeps its natural (`KeepsHeight`, `KeepsWidth`);
+  lists, graphs, pictures, grids and editors stay relaxed.
 - **No card header** ([S-12480], [S-12481]; owner 2026-11-16): a card draws its view and nothing over it,
   no title row, at any size. A title is the **Header** widget (`src/Widgets/Themia.Widget.Header`, [S-9600]),
   placed like any widget; every ready-made group starts with one ([S-12485]). What a header

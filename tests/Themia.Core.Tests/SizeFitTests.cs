@@ -94,6 +94,58 @@ public sealed class SizeFitTests
         Assert.Equal((true, true), EditMarkers.Moves(ResizeHandle.TopLeft, freeWidth: true, freeHeight: true));
     }
 
+    /// <summary>[S-17100] A one-readout face of 200 × 100 (its parts 176 × 76 in the inset), relaxed as the descriptor hands it out.</summary>
+    private static SizeLimits FaceLimits
+        => SizeFit.Limits(SizeStretch.Relax(WidgetSizing.Range(new(48, 32), new(200, 100), new(400, 100)).ScalesAsOne()), Screen, 1)!;
+
+    /// <summary>The face's most height at a width, in DIPs, on the 10-DIP grid: the whole cells that hold it.</summary>
+    private static double FaceMost(double width) => Math.Ceiling((24 + ((width - 24) * 76 / 176.0)) / 10 - 1e-9) / 100;
+
+    [Fact]
+    public void S17100_a_face_is_painted_no_taller_than_its_shape_at_its_width()
+    {
+        // Owner, 2026-11-23: "the height resize should be limited to not exceed where the spacings at the bottom or top are not
+        // the same as they are in the other widgets too": a stored rect taller than that (placed before) is shown at it.
+        var shown = SizeFit.Shown(new FracRect(0.1, 0.2, 0.3, 0.4), FaceLimits, Screen);
+        Near(0.3, shown.W);
+        Near(FaceMost(300), shown.H);
+        Near(0.15, shown.H);
+
+        var inside = new FracRect(0.1, 0.2, 0.3, 0.12);
+        Assert.Equal(inside, SizeFit.Shown(inside, FaceLimits, Screen));
+    }
+
+    [Fact]
+    public void S17100_a_resize_stops_the_height_at_the_shape_and_a_narrower_card_follows_it_down()
+    {
+        var start = new FracRect(0.2, 0.2, 0.3, 0.1);
+        var taller = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, 0.5, Screen), Screen, ResizeHandle.Bottom, FaceLimits);
+        Near(0.15, taller.H);
+        Near(0.2, taller.Y);
+
+        // A corner grows both: the height stops where the new width puts it.
+        var corner = GridGeometry.Settle(GridGeometry.Resize(new FracRect(0.2, 0.2, 0.2, 0.1), ResizeHandle.BottomRight, 0.18, 0.5, Screen), Screen, ResizeHandle.BottomRight, FaceLimits);
+        Near(0.38, corner.W);
+        Near(FaceMost(380), corner.H);
+
+        // The width made narrower takes the height down with it, its top kept.
+        var narrower = GridGeometry.Settle(GridGeometry.Resize(taller, ResizeHandle.Right, -0.1, 0, Screen), Screen, ResizeHandle.Right, FaceLimits);
+        Near(0.2, narrower.W);
+        Near(0.1, narrower.H);
+        Near(0.2, narrower.Y);
+
+        // Shift+Down at the shape's height moves nothing.
+        Assert.Equal(taller, KeyboardNudge.Resize(taller, NudgeDirection.Down, NudgeStep.Cell, Screen, FaceLimits));
+    }
+
+    [Fact]
+    public void S17100_a_block_laid_out_holds_each_face_to_its_shape_at_its_width()
+    {
+        var laid = GridFit.Layout([new FracRect(0.1, 0.1, 0.3, 0.5)], [FaceLimits], Screen);
+        Near(0.3, laid[0].W);
+        Near(0.15, laid[0].H);
+    }
+
     [Fact]
     public void S14500_a_resized_edge_lands_on_every_whole_cell_between_min_and_max()
     {

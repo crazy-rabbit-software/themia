@@ -358,6 +358,9 @@ public static class GridGeometry
             right = Math.Max(right, left + minW);
         }
 
+        // [S-17100] The height's limits at the width the moved edges left: a face's height follows its width.
+        limits = limits?.At(right - left);
+
         if (MovesTop(handle))
         {
             top = SnapEdge(top, a.Y, a.Bottom, rows, screen.Height);
@@ -372,6 +375,12 @@ public static class GridGeometry
             bottom = limits is null ? bottom : top + limits.Height.Range(bottom - top);
             bottom = Math.Max(Math.Min(bottom, top + a.H), a.Y + keepY);
             bottom = Math.Max(bottom, top + minH);
+        }
+
+        // [S-17100] A face made narrower is no taller than its shape there: its foot comes up with it, its top kept.
+        if (limits?.Follow is not null && !MovesTop(handle) && !MovesBottom(handle) && bottom - top > limits.Height.Max + 1e-9)
+        {
+            bottom = top + limits.Height.Range(bottom - top);
         }
 
         // Whatever is still out of reach (an anchored edge the taskbar has since grown over far
