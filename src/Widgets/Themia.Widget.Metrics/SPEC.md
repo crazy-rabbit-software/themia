@@ -116,7 +116,7 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   the head at its least scale over the graph behind it, its text at 9 DIP; as narrow as a short name and its widest reading still
   read whole side by side, a long name cut meaningfully; was 160 × 40, its head stopped at 0.75), 240 × 120 natural; the value
   style as wide at least as the catalog's widest reading (a pair's, "888 / 888 MB/s") needs at its least scale, one least for
-  every metric (`MetricFaceRules.WidestReading`); the value 140 × 60 at least, 200 × 90 natural; relaxed by the host ([S-12411]).
+  every metric (`MetricFaceRules.WidestReading`; 180 × 60), 260 × 90 natural; relaxed by the host ([S-12411]).
   A style switched refits the card.
 - **[S-16327]** **No answer, or a stale one, keeps the face** (WR-10, owner: "it should show the default values in the graph and not
   just not show the graph"): no answer is the graph's default across its foot ([S-16314]), the reading "--" (disabled) and why
