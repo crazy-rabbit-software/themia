@@ -575,6 +575,14 @@ internal sealed partial class WidgetGalleryView
         var column = sheet.Columns[slot.Column];
         var pitch = Pitch;
         Canvas.SetZIndex(moving, _cards.Count + 1);
+
+        // Its small title goes with it: it is drawn again over the card where the card lands.
+        var titleBox = sheet.Tiles[at.Tile].Box with { H = sheet.Title };
+        foreach (var (label, _) in _labels.Where(l => sheet.Title > 0 && sheet.Tiles[at.Tile].Group is null && l.Box == titleBox))
+        {
+            label.Opacity = 0;
+        }
+
         CuratedLayout? landed = null;
         _gesture = new EditGesture(
             now =>
