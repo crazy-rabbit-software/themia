@@ -36,8 +36,9 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   Tests `MusicConfigTests.S16501_`, `MusicMenuTests.S16501_`.
 - **[S-16502]** **One plan, the shown set to the face and its sizing** (`MusicPlan`, pure). Every style is one block in
   the card's inset (12 on every side, never scaled), drawn at one scale: as large as the card's height allows, held by
-  its least width (the column of texts, the progress line and the transport never narrower than 120, or its widest
-  part), the texts and the bar taking the width that scale leaves, so the block reaches the inset at both ends of the
+  the width at the block's natural proportions (a larger card of the natural's shape draws the same face larger, its lines
+  as long), and only at the floor by its least width (the column of texts, the progress line and the transport never
+  narrower than 120, or its widest part); the texts and the bar take the width that scale leaves, so the block reaches the inset at both ends of the
   axis that stops it (WR-1..WR-3) and stands centred on the other ("Centred is fine"). The column, top to bottom: the
   title (BodyStrong, primary) and the artist and album in one line (Body, secondary, whichever of the two shows), each cut
   with its ellipsis; 8; the progress line (the elapsed time, 8, the seek bar, 8, the length; without the bar the two

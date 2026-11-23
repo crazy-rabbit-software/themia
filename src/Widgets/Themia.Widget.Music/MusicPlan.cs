@@ -105,9 +105,10 @@ public sealed record MusicLayout(double Scale, IReadOnlyDictionary<MusicPart, Mu
 /// <summary>
 /// [S-16502] Now playing's one plan: the shown set and the style decide the face and its sizing, pure. Every style is one
 /// block in the card's inset (12, which never scales), drawn at one scale: as large as the card's height allows, held by
-/// its least width (a column of texts, the progress line and the transport never narrower than <see cref="ColumnLeast"/>),
-/// the texts and the bar taking the width the scale leaves (so the block reaches the inset on both axes, WR-1..WR-3), and
-/// centred down where the width stops it ("Centred is fine"). Nothing gives way (WR-7): every shown element is drawn at
+/// the width at the block's natural proportions (so a larger card of the natural's shape draws the same face larger, its
+/// lines as long), and only at the floor by its least width (a column of texts, the progress line and the transport never
+/// narrower than <see cref="ColumnLeast"/>); the texts and the bar take the width the scale leaves (so the block reaches the
+/// inset on both axes, WR-1..WR-3), and it stands centred down where the width stops it ("Centred is fine"). Nothing gives way (WR-7): every shown element is drawn at
 /// every size, and the least card is the whole block at the legibility floor (<see cref="Floor"/>, WR-14). A hidden element
 /// takes no room: its line, its gap and its share of the least and natural boxes go with it.
 /// <list type="bullet">
@@ -390,12 +391,16 @@ public static class MusicPlan
         }
 
         var time = TimeWidth(timeTemplate);
-        var (_, least) = Blocks(s, time);
+        var (natural, least) = Blocks(s, time);
         var room = new SizeDip(Math.Max(0, width - (2 * Inset)), Math.Max(0, height - (2 * Inset)));
         var hc = ColumnHeight(s);
 
-        // One scale: the height's, held by the least width; the block then fills the width the scale leaves.
-        var scale = Math.Min(room.Height / least.Height, room.Width / least.Width);
+        // One scale: the height's, held by the width at the block's own proportions (its natural width), so a card of the
+        // natural's shape draws the natural face larger, its lines as long; only at the floor does a narrower card take the
+        // texts' and the bar's room down to their least. The block then fills the width the scale leaves.
+        var floor = Floor(style, shown);
+        var byWidth = Math.Max(room.Width / natural.Width, Math.Min(room.Width / least.Width, floor));
+        var scale = Math.Min(room.Height / least.Height, byWidth);
         if (!(scale > 0) || !double.IsFinite(scale))
         {
             return new MusicLayout(1, parts, false);

@@ -368,6 +368,17 @@ public sealed class MusicPlanTests
             var big = MusicPlan.Lay(style, MusicElements.All, large.Width, large.Height, Template);
             Assert.Equal(natural.Parts.Keys.Order(), big.Parts.Keys.Order());
             Assert.True(big.Scale > natural.Scale, $"{style}");
+
+            // The natural's shape drawn larger keeps its proportions: a line is as long at the large box as at the natural
+            // (the strip at twice its natural had cut its title to its least while the face grew taller).
+            var (line, length) = style switch
+            {
+                MusicStyle.Strip => (MusicPart.Line, MusicPlan.LineNatural),
+                MusicStyle.Stacked => (MusicPart.Title, MusicPlan.StackSide),
+                MusicStyle.FullArt => (MusicPart.Title, MusicPlan.ArtColumn),
+                _ => (MusicPart.Title, MusicPlan.ColumnNatural),
+            };
+            Assert.True(big[line].Width / big.Scale >= length - 0.5, $"{style}: {big[line].Width / big.Scale}");
         }
     }
 }
