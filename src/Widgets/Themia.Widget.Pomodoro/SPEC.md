@@ -10,8 +10,8 @@ It is no longer on the timers' sized face ([S-6739], [S-11300]): it has no Size 
 Owning files: everything in this folder: `PomodoroModule.cs` (descriptor, view factory, menu
 lines, JSON context, glyph), `PomodoroConfig.cs` (the style, the phases, Repeat, the sound),
 `PomodoroCycle.cs` (the cycle as arithmetic, the nudge, the key map `PomodoroKeys`),
-`PomodoroSections.cs` (the sectioned progress's geometry), `PomodoroFace.cs` (the face's plan, its two
-arrangements, the sizing), `PomodoroBlock.cs` (the block that stands the parts stacked or side by side),
+`PomodoroSections.cs` (the sectioned progress's geometry), `PomodoroFace.cs` (the face's plan, its
+arrangements, the layout in a room, the sizing), `PomodoroBlock.cs` (the panel that lays the parts where the plan puts them),
 `PomodoroProgress.cs` (the sectioned bar and ring), `PomodoroView.cs`, `PomodoroMenu.cs` (its
 properties-menu lines), `Preview/` (Debug renders), `Localization/Locales/` (its own `PomodoroStr`).
 Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
@@ -63,50 +63,79 @@ from the tests that pinned them under those numbers, which are the root's geomet
   filled, the current one filling from its start with its progress, the ones to come the track. A focus
   section fills in the accent, a break's in the calm role (the secondary text's, never the accent, never
   green): the colour says the kind, no word does ([S-6706] holds for the text). The **Bar** style lays
-  them along one 4 track (`PomodoroBar`: the first section on the bar's start, the last on its end);
+  them along one 4 track (`PomodoroBar`: the first section on the bar's start, the last on its end; upright, its top and
+  its foot, [S-16604]);
   the **Ring** style round the Chart's ring at its stroke from twelve, clockwise, twelve standing in a
   gap, the gap measured on the ring's line between the round caps (`PomodoroRing`); a cycle of one
   phase is the whole bar or ring. Tests `PomodoroSectionsTests`.
 - **[S-8116]** The **caption**: the current phase's name and its place in the cycle, "Focus · 3 of 8"
   (`PomodoroCycle.Caption`; a cycle of one phase says its name alone), Body in the secondary text, under
-  the time stacked and at the head of the column beside it side by side, so it stands by the progress
-  in both. "Next: Short break 5:00" is the face's tooltip.
+  the time stacked, in the ring and upright beside the bar, and at the head of the column beside the time side by side
+  ([S-16603]). "Next: Short break 5:00" is the face's tooltip.
 - **[S-6035]** The pomodoro's styles ([S-6000]), `PomodoroConfig.Style` (`PomodoroStyle`):
-  **Ring** (the default: the phases as the sectioned ring round the time, [S-8115]), **Bar** (the phases
-  as the sectioned bar) and **Digits** (the time, the caption and the controls alone). `DrawsRing` /
+  **Ring** (the default: the phases as the sectioned ring with the time, the caption and the controls inside it,
+  [S-8115], [S-16601]), **Bar** (the phases as the sectioned bar, across or upright by the card's shape, [S-16604]) and
+  **Digits** (the time, the caption and the controls alone). `DrawsRing` /
   `DrawsBar`. Debug: `--state sample` (the second focus, 9:24 left, paused).
-- **[S-8117]** **The face fills the card, stacked or side by side** (owner, 2026-11-20: "the pomodoro
-  timer should be designed more fluently not all in just one column. especially the bar style."; "the
-  size should not be settable, it is set by the size of the widget."): the time left as the Readout,
-  the caption ([S-8116]), the sectioned bar on the Bar style and the Controls row are one block
-  (`PomodoroBlock`) that its `ReadingFit` scales as one to the card ([S-12808]) and down to its floor
-  (WR-14, [S-12833]: its Body text at 9, its glyphs at 12). Two arrangements of the same parts
-  (`PomodoroFace.Plan`, `PomodoroArrangement`):
-  **stacked** — the face (the time on 68, or the ring with the time on 40 in it), the caption right
-  under the time (8 under a ring), the bar 8 under it as wide as the block, the Controls row on the
-  foot, all centred; **side by side** — the face on the left (the time on 96, where its capitals stand
-  as tall as the column; the ring), 24 from a column of the caption on its top, the bar 8 under it as
-  wide as the column and the Controls row on its foot; the face's ink (the time's capitals to its
-  baseline, the ring's box) and the column's (the caption's capitals to the controls' foot) are one band,
-  the shorter centred on it, so the face is level with the caption and the controls. Its parts always
-  touch ([S-14281]): the block is its parts' size and its fit scales it ([S-14280]).
-  **The card's aspect chooses** (`PomodoroFace.Choose`): side by side where the room is wider than
-  the geometric mean of the two arrangements' aspects, stacked where not; the other where the chosen
-  one would fall under the floor and the other less far. The parts keep their size whatever they read
-  (WR-12): the time is as wide as the longest phase's widest time ("88:88"), the caption as the cycle's
-  longest, Start as wide as Pause, so neither a tick, a flip nor a press moves the block's scale.
-  **Sizing** (`PomodoroFace.Sizing`, [S-2438]): a new card is the side-by-side block in its inset (no
-  shorter than the least card); the least card is the stacked block at its floor in its inset, so every
-  card the person can make holds one arrangement at a scale it is read at; the descriptor relaxes the
-  most ([S-12411]). No Size setting: there is no `IReadoutSized` here. Tests `PomodoroFaceTests`.
+- **[S-8117]** **The face fills the card** (owner, 2026-11-20: "the pomodoro timer should be designed more fluently not
+  all in just one column. especially the bar style."; "the size should not be settable, it is set by the size of the
+  widget."): the time left as the Readout, the caption ([S-8116]), the sectioned progress ([S-8115]) and the Controls row
+  are planned once at their own size and laid in the card by one pure rule (`PomodoroFace.Lay`, drawn by `PomodoroBlock`):
+  the card's shape picks the arrangement ([S-16603]), the parts scale as one until one axis stops them (WR-7, [S-12808])
+  and stand centred on the other ("Centred is fine"), down to the floor (WR-14, [S-12833]: its Body text at 9, its glyphs
+  at 12). The parts keep their size whatever they read (WR-12, WR-15): the time is held to the longest phase's widest time
+  ("88:88", [S-14319]), the caption to the cycle's longest, Start as wide as Pause, so neither a tick, a flip nor a press
+  moves the scale. No Size setting: there is no `IReadoutSized` here. Tests `PomodoroFaceTests`.
+- **[S-16600]** **The time is smaller** (owner, 2026-11-23: "the pomodoro timer should generally show the time
+  smaller"): in every style the time stands on the larger Readout step, 40 (`PomodoroFace.TimeStep`), never a Hero step
+  (it was 68 stacked and 96 side by side, where it dominated the card): at most three times the caption's and the
+  buttons' Body 14 (`TimeRatio`), its figures no taller than the caption over the controls, and in the ring under a sixth
+  of its diameter. Tests `PomodoroFaceTests.S16600_`.
+- **[S-16601]** **The Ring style holds everything inside its ring** (owner, 2026-11-23: "the version that has the circle
+  should show everything inside of the circle, not outside too"): the ring is as large as the card's smaller side and
+  centred on the other; the time, the caption right under it and the Controls row 8 under that stand inside its hole and
+  scale with it, at every size. Before, the caption and the controls stood beside the ring (330x140) or under it
+  (220x400). Tests `PomodoroFaceTests.S16601_`.
+- **[S-16602]** **The ring's rule** (`PomodoroFace.RingRows`, `Circle`, `RingOf`): the parts inside are lines of ink (the
+  time's figures as wide as its held box, the caption's capitals to its line's foot, the whole Controls row), each centred
+  across and, as a dial, centred down on the ring's middle (as much ring over the time as under the controls); the circle
+  through the farthest of their corners is found, and the ring is the least diameter in fours whose hole (its line inks
+  inwards from its edge by its stroke) holds that circle with 8 to spare (`RingPad`). The lines fill the circle better
+  than an inner square would (a ring 1.41 times the controls' width); laid in a card, the ring and its lines scale as one,
+  so they keep within its hole at every size.
+  Tests `PomodoroFaceTests.S16602_`, `S16601_`.
+- **[S-16603]** **The card's shape picks the arrangement** (owner, 2026-11-23: "the version that has the progress bar
+  should better scale to fill out the size of the container, right now all the components are placed underneath each
+  other but they can also be placed side by side. (the progress bar would then be vertical for example)";
+  `PomodoroFace.Choose`, `Arrangements`): the Ring style its ring ([S-16601]); the Bar style **upright** beside its bar
+  where the card is taller than wide ([S-16604]); else, Bar and Digits, **stacked** (the time, the caption right under it,
+  on the Bar style the bar 8 under that, the controls 8 under the last, all centred) or **side by side** (the time on the
+  left, 24 from a column of the caption and the controls 8 under it, the time's figures and the column's ink centred on
+  one band, [S-14281]; on the Bar style the bar 8 under them both), side by side where the card is wider than the
+  geometric mean of the two blocks' aspects. Where the one chosen would draw the parts under the floor and another would
+  not fall as far, that other. Within its range an arrangement only scales: every part keeps its place against the others
+  (owner, of another widget: "it should scale to the size properly but it should not change its layout drastically"); the
+  arrangement changes only at those thresholds of the card's shape. In every room the parts' ink fills one axis edge to
+  edge and stands centred on the other, and no two parts overlap. Tests `PomodoroFaceTests.S16603_`.
+- **[S-16604]** **The bar runs the card's whole length**: across the card's whole width stacked and side by side (its
+  thickness the track's at the parts' scale), and upright in a card taller than wide, on its left from the card's top to
+  its foot with the time, the caption and the controls stacked 16 beside it (`BarGap`), on their start, the sections from
+  its top down (`PomodoroBar.Upright`). Its length is the card's, so it never limits the parts' scale. A tall card too
+  narrow to read the parts beside the bar stacks them ([S-16603]). Tests `PomodoroFaceTests.S16604_`.
+- **[S-16605]** **Digits** keeps its two arrangements, stacked and side by side, with the smaller time ([S-16600]); it
+  never stands upright and draws no bar. Tests `PomodoroFaceTests.S16605_`.
+- **[S-16606]** **Sizing** (`PomodoroFace.Sizing`, [S-2438]): a new card is the side-by-side block in its inset (the Ring
+  style: its ring), no smaller than the least card; the least card is the stacked block (the ring) at its floor in its
+  inset, so every card the person can make holds an arrangement at a scale it is read at; the descriptor relaxes the most
+  ([S-12411]). Tests `PomodoroFaceTests.S16606_`.
 - **[S-14281]** **The column beside the face is one block** (owner, 2026-11-20: "the pomodoro timer should be designed
   more fluently not all in just one column. especially the bar style."; docs/WIDGET-RULES.md WR-7: "Keep them
-  together"). Side by side, the caption, the bar 8 under it and the Controls row 8 under that stand right under one
-  another, the column centred on the band beside the face (a ring taller than it, or the time's capitals), never its
-  caption on the band's top and its controls on its foot with a band between; stacked, each part right under the one
-  before (`PomodoroFace.Stand`, `PomodoroStand`). The whole block is scaled as one to the card ([S-14280]). Before, at
-  330x140 on the Ring style, "Focus · 3 of 8" stood on the card's top and the controls on its foot beside the ring.
-  Tests `PomodoroFaceTests.S14281_`.
+  together"). Side by side, the caption and the Controls row 8 under it stand right under one another, the column
+  centred on the band beside the time's figures, never its caption on the band's top and its controls on its foot with a
+  band between (the Bar style's bar 8 under them both, [S-16604]); stacked, in the ring and upright, each part right under
+  the one before (`PomodoroFace.Lay`, [S-16603]). The whole block is scaled as one to the card ([S-14280]). Before, at
+  330x140 on the Ring style, "Focus · 3 of 8" stood on the card's top and the controls on its foot beside the ring (the
+  ring now holds them, [S-16601]). Tests `PomodoroFaceTests.S14281_`.
 - **[S-1466]** The face's words and controls: the time left (`M:SS`, never coloured), the caption
   ([S-8116]), "Next: …" its tooltip; Start (Pause while it runs) as the one main action, worded, and −,
   +, Reset and Skip as 28 icon buttons after it, always all of them. Skip loads the next phase in full,

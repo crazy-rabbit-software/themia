@@ -24,20 +24,16 @@ namespace Themia.App.Widgets;
 /// the cue, so a two-monitor desktop cannot echo it.
 /// </para>
 /// <para>
-/// [S-8117] The face is one block (<see cref="PomodoroBlock"/>) scaled as one to the card ([S-12808]): the
-/// time left as the Readout (in the sectioned ring on the Ring style), the caption (the phase and its place
-/// in the cycle), the sectioned bar on the Bar style and the Controls row; stacked in a tall card, side by
-/// side in a wide one, by the card's aspect (<see cref="PomodoroFace.Choose"/>).
+/// [S-8117] [S-16603] The face is one block (<see cref="PomodoroBlock"/>) laid by one pure rule
+/// (<see cref="PomodoroFace.Lay"/>): the time left as the Readout, the caption (the phase and its place in the cycle)
+/// and the Controls row, inside the sectioned ring on the Ring style, with the sectioned bar on the Bar style; the
+/// card's shape picks how they stand and they scale as one to fill it.
 /// </para>
 /// </summary>
 internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys
 {
-    /// <summary>[S-12808] The block, planned at its natural size and scaled as one (in the view's padding).</summary>
-    private readonly ReadingFit _fit = new() { Margin = default };
-
     private readonly ReadoutBlock _time = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly PomodoroRing _ring = new();
-    private readonly Grid _dial = new();
     private readonly TextBlock _caption = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly PomodoroBar _bar = new();
     private readonly ControlsBlock _controls = new();
@@ -73,8 +69,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
     public PomodoroView()
     {
         _caption.TextWrapping = TextWrapping.NoWrap;
-        _dial.Children.Add(_ring);
-        _dial.Children.Add(_time);
 
         // [S-8111] Start first, then − and + beside it, then Reset and Skip.
         _runButton = _controls.Main(PomodoroStr.WidgetsC_Pomodoro_Start.Text(), () => SetRunning(!_running));
@@ -84,12 +78,12 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         _skipButton = _controls.Icon(Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text(), Skip);
         _controls.VerticalAlignment = VerticalAlignment.Top;
 
-        _block = new PomodoroBlock(_dial, _caption, _bar, _controls);
+        _block = new PomodoroBlock(_ring, _time, _caption, _bar, _controls);
+        _block.Arranged += Align;
 
         // The content in the card's inset: the card gives the top, the view the sides and the foot.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        _fit.Parts.Add(_block);
-        Children.Add(_fit);
+        Children.Add(_block);
 
         ApplyPhases();
         Load(PomodoroCycle.Fresh(_config));
@@ -306,7 +300,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         {
             // The caption and what comes next change at a flip, never on a tick.
             _caption.Text = caption;
-            ToolTipService.SetToolTip(_dial, PomodoroCycle.NextLine(_config, index));
+            ToolTipService.SetToolTip(_block, PomodoroCycle.NextLine(_config, index));
             AutomationProperties.SetName(this, caption);
         }
 
@@ -332,62 +326,35 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
     }
 
     /// <summary>
-    /// [S-8117] The face for the style: the time's step, the ring, the bar; and the widths that stay whatever the
-    /// time, the phase or the run state reads (WR-12: nothing changes size on a press), so the block's scale holds.
+    /// [S-8117] [S-16600] The face for the style: the time on its one step, held to its widest reading, and the widths
+    /// that stay whatever the time, the phase or the run state reads (WR-12: nothing changes size on a press), so the
+    /// face's scale holds.
     /// </summary>
     private void Lay()
     {
         _plan = PomodoroFace.Plan(_config, Strings.Current);
-        var ringed = _plan.Look == PomodoroLook.Ring;
-        _ring.Visibility = ringed ? Visibility.Visible : Visibility.Collapsed;
-        _dial.Width = ringed ? _plan.Ring : double.NaN;
-        _dial.Height = ringed ? _plan.Ring : double.NaN;
+        _ring.Visibility = _plan.Look == PomodoroLook.Ring ? Visibility.Visible : Visibility.Collapsed;
         _bar.Visibility = _plan.Look == PomodoroLook.Bar ? Visibility.Visible : Visibility.Collapsed;
-        _block.RingFace = ringed;
+        _block.Look = _plan.Look;
         _caption.Text = string.Empty;
 
-        // The widest each part reads: the time on the longest phase's 8s (in Stand), the longest caption, Start or Pause.
+        // The widest each part reads: the time on the longest phase's 8s, the longest caption, Start or Pause.
+        var worst = PomodoroFace.Worst(_config);
+        _time.MinWidth = Math.Max(Measured(worst.Value, _plan.Step), ReadoutRules.Width(_plan.Step, worst));
+        _time.Use(_plan.Step, HorizontalAlignment.Center);
+
+        // [S-14319] Held to the widest time its phases show: a tick never moves the figures (WR-15).
+        _time.Hold(worst.Value);
         _caption.MinWidth = Enumerable.Range(0, _phases.Count).Select(i => Measured(PomodoroCycle.Caption(_phases, i), FamilyType.Body)).DefaultIfEmpty(0).Max();
         _runButton.MinWidth = Math.Max(
             Measured(PomodoroStr.WidgetsC_Pomodoro_Start.Text(), FamilyType.Body),
             Measured(PomodoroStr.WidgetsC_Pomodoro_Pause.Text(), FamilyType.Body)) + (2 * FamilyShape.ButtonPadding);
-        Stand(_block.Arrangement);
+        Align(_block.Arrangement);
     }
 
-    /// <summary>[S-8117] Choose the arrangement from the room the block is given (the view less its padding), before the block is measured.</summary>
-    protected override Size MeasureOverride(Size availableSize)
-    {
-        var room = new Size(
-            Math.Max(0, availableSize.Width - Padding.Left - Padding.Right),
-            Math.Max(0, availableSize.Height - Padding.Top - Padding.Bottom));
-        var arrangement = PomodoroFace.Choose(room.Width, room.Height, _plan);
-        if (arrangement != _block.Arrangement)
-        {
-            Stand(arrangement);
-        }
-
-        return base.MeasureOverride(availableSize);
-    }
-
-    /// <summary>
-    /// [S-8117] The block in <paramref name="arrangement"/>: the time on that arrangement's step, as wide as its widest
-    /// reading; stacked, the time and the caption centred; side by side, both on the start.
-    /// </summary>
-    private void Stand(PomodoroArrangement arrangement)
-    {
-        _block.Arrangement = arrangement;
-        var ringed = _plan.Look == PomodoroLook.Ring;
-        var step = _plan.StepIn(arrangement);
-        var worst = PomodoroFace.Worst(_config);
-        _time.MinWidth = ringed ? 0 : Math.Max(Measured(worst.Value, step), ReadoutRules.Width(step, worst));
-        var centred = arrangement == PomodoroArrangement.Tall || ringed;
-        _time.Use(step, centred ? HorizontalAlignment.Center : HorizontalAlignment.Left);
-
-        // [S-14319] Held to the widest time its phases show: a tick never moves the figures.
-        _time.Hold(worst.Value);
-        _time.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Left;
-        _caption.TextAlignment = arrangement == PomodoroArrangement.Tall ? TextAlignment.Center : TextAlignment.Left;
-    }
+    /// <summary>[S-16603] The caption centred where the parts stand centred (stacked, in the ring), on the start beside the time or the upright bar.</summary>
+    private void Align(PomodoroArrangement arrangement)
+        => _caption.TextAlignment = arrangement is PomodoroArrangement.Stacked or PomodoroArrangement.Ring ? TextAlignment.Center : TextAlignment.Left;
 
     /// <summary>How wide <paramref name="text"/> is drawn on <paramref name="step"/>, in whole DIPs.</summary>
     private static double Measured(string text, TypeStep step)

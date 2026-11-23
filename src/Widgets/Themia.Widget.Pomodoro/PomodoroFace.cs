@@ -6,7 +6,7 @@ using Themia.Widget.Pomodoro;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>[S-1466] What a pomodoro draws round its time: the sectioned ring with the time in it, the sectioned bar, or the digits alone.</summary>
+/// <summary>[S-1466] What a pomodoro draws round its time: the sectioned ring with everything in it, the sectioned bar, or the digits alone.</summary>
 public enum PomodoroLook
 {
     Ring,
@@ -15,52 +15,89 @@ public enum PomodoroLook
 }
 
 /// <summary>
-/// [S-8117] How the face's parts stand in the card: stacked in a tall card (the face, its caption, the bar, the
-/// controls at the foot), side by side in a wide one (the face on the left, the caption, the bar and the controls in
-/// a column on its right).
+/// [S-8117] [S-16603] How the face's parts stand in the card, chosen by the card's shape (<see cref="PomodoroFace.Choose"/>).
 /// </summary>
 public enum PomodoroArrangement
 {
-    Tall,
-    Wide,
+    /// <summary>[S-16601] The Ring style's one: the ring as large as the card's smaller side, the time, the caption and the controls inside it.</summary>
+    Ring,
+
+    /// <summary>The time, the caption, the bar across (on the Bar style) and the controls, each right under the one before, centred.</summary>
+    Stacked,
+
+    /// <summary>The time on the left, the caption over the controls beside it; on the Bar style the bar across under them both.</summary>
+    Side,
+
+    /// <summary>[S-16604] The Bar style in a card taller than wide: the bar upright on the left, as tall as the card, the time, the caption and the controls stacked beside it.</summary>
+    Column,
+}
+
+/// <summary>A part's box in the room, in DIPs: where its natural box stands and how large it is drawn (its natural size times the scale).</summary>
+public readonly record struct PomodoroRect(double X, double Y, double Width, double Height)
+{
+    public static PomodoroRect None => default;
+
+    public double Right => X + Width;
+
+    public double Bottom => Y + Height;
+
+    public bool IsEmpty => !(Width > 0) || !(Height > 0);
 }
 
 /// <summary>
-/// [S-8117] The pomodoro's face as planned: its look, the time's step stacked and side by side, the ring's diameter (0 off
-/// the Ring style) and the block's natural size in each arrangement, from its first ink to its last (the card's inset not
-/// included).
+/// [S-16600] The face's parts at their own size (scale 1, as measured or as estimated for the sizing): the time's box (held to
+/// its widest reading) and the room in it over and under its figures, the caption's box (its longest) and its room over its
+/// capitals, and the Controls row's box.
 /// </summary>
-public readonly record struct PomodoroPlan(PomodoroLook Look, TypeStep Step, TypeStep WideStep, double Ring, SizeDip Tall, SizeDip Wide)
-{
-    /// <summary>The time's step in <paramref name="arrangement"/>.</summary>
-    public TypeStep StepIn(PomodoroArrangement arrangement) => arrangement == PomodoroArrangement.Wide ? WideStep : Step;
-}
+public readonly record struct PomodoroParts(SizeDip Time, LineInk TimeInk, SizeDip Caption, LineInk CaptionInk, SizeDip Controls);
 
-/// <summary>[S-14281] The block's parts as they stand: its height and each part's top in it, before the scale.</summary>
-public readonly record struct PomodoroStand(double Height, double Face, double Caption, double Bar, double Controls);
+/// <summary>[S-8117] The pomodoro's face as planned: its look, the time's step, its parts as estimated and the ring's diameter (0 off the Ring style).</summary>
+public readonly record struct PomodoroPlan(PomodoroLook Look, TypeStep Step, PomodoroParts Parts, double Ring);
+
+/// <summary>
+/// [S-16603] Where every part stands in a room: the arrangement, the scale the parts are drawn at, and each part's box (its
+/// natural box at <see cref="PomodoroRect.X"/>, <see cref="PomodoroRect.Y"/> drawn at the scale; none: not drawn). The bar
+/// is laid at its drawn size (its length the room's, its thickness the track's at the scale), the ring at its drawn diameter.
+/// </summary>
+public readonly record struct PomodoroLayout(
+    PomodoroArrangement Arrangement, double Scale, PomodoroRect Ring, PomodoroRect Time, PomodoroRect Caption, PomodoroRect Bar, PomodoroRect Controls)
+{
+    /// <summary>Whether the bar stands upright (<see cref="PomodoroArrangement.Column"/>).</summary>
+    public bool BarUpright => Arrangement == PomodoroArrangement.Column;
+}
 
 /// <summary>
 /// [S-1466] [S-8117] The pomodoro's face (owner, 2026-11-20: "the pomodoro timer should be designed more fluently not all
-/// in just one column. especially the bar style."; "the size should not be settable, it is set by the size of the
-/// widget."): the time left as the Readout (on 68 stacked, 96 side by side; in the ring on 40), the caption (the phase and its place in the
-/// cycle, [S-8116]), the sectioned bar on the Bar style ([S-8115]) and the Controls row (Start or Pause worded, −, +,
-/// Reset, Skip), planned once and scaled as one block to the card ([S-12808], [S-12833]); the card's aspect picks
-/// whether they stand stacked or side by side (<see cref="Choose"/>). No Size setting: the card is the size.
+/// in just one column. especially the bar style."; 2026-11-23: "the pomodoro timer should generally show the time smaller"):
+/// the time left as the Readout on <see cref="TimeStep"/>, the caption (the phase and its place in the cycle, [S-8116]), the
+/// sectioned progress ([S-8115]) and the Controls row (Start or Pause worded, −, +, Reset, Skip), planned once at their own
+/// size and laid in the card by one pure rule (<see cref="Lay"/>): the card's shape picks the arrangement
+/// (<see cref="Choose"/>), the parts scale as one to fill it, the ring stands as large as the card's smaller side with
+/// everything inside it, and the bar runs the card's whole length. No Size setting: the card is the size.
 /// </summary>
 public static class PomodoroFace
 {
-    /// <summary>[S-8117] From the face to the column beside it in a wide card.</summary>
+    /// <summary>[S-8117] From the time to the column beside it in a wide card.</summary>
     public const double ColumnGap = FamilySpace.S6;
 
-    /// <summary>[S-12833] The least scale the block is drawn at: its Body text at 9, its 16 glyphs at 12.</summary>
-    public static double Least => ScaleFloor.Least(FamilyType.Body.FontSize, FamilyShape.Icon);
+    /// <summary>[S-16604] From the upright bar to the parts beside it.</summary>
+    public const double BarGap = FamilySpace.S4;
+
+    /// <summary>[S-16602] The room between the ring's inner edge and the parts inside it.</summary>
+    public const double RingPad = FamilySpace.S2;
 
     /// <summary>
-    /// [S-8117] The time's step: 40 in the ring's hole; else 68 stacked, and 96 side by side, where its capitals stand as
-    /// tall as the column beside it (the caption's capitals to the controls' foot).
+    /// [S-16600] The time's step in every style (owner, 2026-11-23: "the pomodoro timer should generally show the time
+    /// smaller"): the larger Readout step, 40, never a Hero step (it was 68 stacked and 96 side by side), so it stands
+    /// at <see cref="TimeRatio"/> of the caption and the controls' Body text and never dominates the card.
     /// </summary>
-    public static TypeStep StepOf(PomodoroLook look, PomodoroArrangement arrangement)
-        => look == PomodoroLook.Ring ? FamilyType.Big40 : arrangement == PomodoroArrangement.Wide ? FamilyType.Hero96 : FamilyType.Hero68;
+    public static TypeStep TimeStep => FamilyType.Big40;
+
+    /// <summary>[S-16600] The most the time's size is of the caption's and the controls' Body text: 3 (40 over 14).</summary>
+    public const double TimeRatio = 3;
+
+    /// <summary>[S-12833] The least scale the face is drawn at: its Body text at 9, its 16 glyphs at 12.</summary>
+    public static double Least => ScaleFloor.Least(FamilyType.Body.FontSize, FamilyShape.Icon);
 
     /// <summary>The look a style draws.</summary>
     public static PomodoroLook LookOf(PomodoroConfig config)
@@ -84,16 +121,6 @@ public static class PomodoroFace
         return Enumerable.Range(0, phases.Count).Select(i => PomodoroCycle.Caption(locale, phases, i)).MaxBy(c => c.Length) ?? string.Empty;
     }
 
-    /// <summary>
-    /// [S-8117] The least ring (in fours) whose hole (<see cref="ChartRules.Hole"/>) holds <paramref name="worst"/> on
-    /// <paramref name="step"/>; never under the family's largest icon.
-    /// </summary>
-    public static double RingOf(TypeStep step, ReadoutText worst)
-    {
-        var need = Math.Max(ReadoutRules.Width(step, worst) / 0.75, 2 * ReadoutRules.Height(step, worst)) + (2 * FamilyShape.Stroke);
-        return Math.Max(FamilyShape.IconHuge, Math.Ceiling(need / 4) * 4);
-    }
-
     /// <summary>[S-8117] The Controls row's width: Start (or Pause, the longer) worded, then −, +, Reset and Skip as icon buttons, 8 apart.</summary>
     public static double ControlsWidth(Locale locale)
     {
@@ -101,112 +128,270 @@ public static class PomodoroFace
         return TimerFace.WordedWidth(main) + (4 * FamilyShape.IconButton) + (4 * ControlsRules.Gap);
     }
 
-    /// <summary>
-    /// [S-8117] The block's natural size in each arrangement, from its first ink to its last. Stacked: the face, its
-    /// caption under it (8 under a ring; right under the time, as a readout's line under), the bar 8 under that, the
-    /// controls 8 under. Side by side: the face, 24, and a column of the caption, the bar 8 under it and the controls 8
-    /// under that; the face's ink and the column's (the caption's capitals to the controls' foot) stand as one band, as
-    /// tall as the taller, the shorter centred on it.
-    /// </summary>
+    /// <summary>[S-16600] The parts as the family's model sizes them (the sizing's; a view measures its own).</summary>
+    public static PomodoroParts Estimate(PomodoroConfig config, Locale locale)
+    {
+        var worst = Worst(config);
+        return new PomodoroParts(
+            new SizeDip(ReadoutRules.Width(TimeStep, worst), TimeStep.LineHeight),
+            LineInk.Of(TimeStep),
+            new SizeDip(FamilyType.EstimateWidth(FamilyType.Body, WorstCaption(config, locale).Length), FamilyType.BodyLine),
+            LineInk.Of(FamilyType.Body),
+            new SizeDip(ControlsWidth(locale), FamilyShape.Button));
+    }
+
+    /// <summary>[S-8117] The face for a config: its look, the time's step, its parts as estimated and, on the Ring style, the ring that holds them.</summary>
     public static PomodoroPlan Plan(PomodoroConfig config, Locale locale)
     {
         var look = LookOf(config);
-        var worst = Worst(config);
-        var (step, wideStep) = (StepOf(look, PomodoroArrangement.Tall), StepOf(look, PomodoroArrangement.Wide));
-        var ring = look == PomodoroLook.Ring ? RingOf(step, worst) : 0;
-        var caption = FamilyType.EstimateWidth(FamilyType.Body, WorstCaption(config, locale).Length);
-        var bar = look == PomodoroLook.Bar ? FamilySpace.S2 + FamilyShape.Track : 0;
-        var controls = ControlsWidth(locale);
-        var under = FamilySpace.S2 + FamilyShape.Button;
+        var parts = Estimate(config, locale);
+        return new PomodoroPlan(look, TimeStep, parts, look == PomodoroLook.Ring ? RingOf(parts) : 0);
+    }
 
-        var time = LineInk.Of(step);
-        var (faceW, faceH, faceOver) = ring > 0 ? (ring, ring, 0.0) : (ReadoutRules.Width(step, worst), step.LineHeight, time.Over);
-        var tall = new SizeDip(
-            Math.Max(faceW, Math.Max(caption, controls)),
-            faceH - faceOver + (ring > 0 ? FamilySpace.S2 : 0) + FamilyType.BodyLine + bar + under);
+    // ---- the ring ([S-16601], [S-16602]) -------------------------------------------------------------------------
 
-        var wideTime = LineInk.Of(wideStep);
-        var (wideW, wideInk) = ring > 0 ? (ring, ring) : (ReadoutRules.Width(wideStep, worst), wideStep.LineHeight - wideTime.Over - wideTime.Under);
-        var column = FamilyType.BodyLine + bar + under - LineInk.Of(FamilyType.Body).Over;
-        var wide = new SizeDip(wideW + ColumnGap + Math.Max(caption, controls), Math.Max(wideInk, column));
-        return new PomodoroPlan(look, step, wideStep, ring, tall, wide);
+    /// <summary>One line of the parts inside the ring: its top and foot (from the time's capitals) and its width, centred.</summary>
+    public readonly record struct RingRow(double Top, double Bottom, double Width);
+
+    /// <summary>
+    /// [S-16602] The parts inside the ring as lines of ink, top to bottom, from the time's capitals: the time (its figures'
+    /// ink, as wide as its held box), the caption right under the time's line (its capitals to its line's foot), the
+    /// controls 8 under it (their whole row).
+    /// </summary>
+    public static IReadOnlyList<RingRow> RingRows(PomodoroParts parts)
+    {
+        var timeInk = Math.Max(0, parts.Time.Height - parts.TimeInk.Over - parts.TimeInk.Under);
+        var caption = timeInk + parts.TimeInk.Under;
+        var controls = caption + parts.Caption.Height + FamilySpace.S2;
+        return
+        [
+            new RingRow(0, timeInk, parts.Time.Width),
+            new RingRow(caption + parts.CaptionInk.Over, caption + parts.Caption.Height, parts.Caption.Width),
+            new RingRow(controls, controls + parts.Controls.Height, parts.Controls.Width),
+        ];
     }
 
     /// <summary>
-    /// [S-14281] Where the block's parts stand (WR-7, owner 2026-11-19: "Keep them together"; 2026-11-20: "the pomodoro
-    /// timer should be designed more fluently not all in just one column"), each part's top in the block and the block's
-    /// height, before the scale. Stacked: the face, the caption <paramref name="captionGap"/> under it, the bar 8 under
-    /// that (a <paramref name="bar"/> of 0: none), the controls 8 under the last, each right under the one before.
-    /// Side by side: the face's ink (<paramref name="faceInk"/> inside its box of <paramref name="face"/>) and the
-    /// column's (the caption's capitals, <paramref name="captionOver"/> under its line's top, to the controls' foot) are
-    /// one band as tall as the taller, the shorter centred on it; the column's parts right under one another, never
-    /// spread over the band. The block's box starts at the caption's line.
+    /// [S-16602] The circle round <paramref name="rows"/> stacked and each centred across, their ink centred on its middle
+    /// down too (a dial: as much ring over the time as under the controls): its radius, the farthest row corner's distance,
+    /// and where the rows' top stands from its centre (negative: above it). Every row's corners stand on or inside it.
     /// </summary>
-    public static PomodoroStand Stand(
-        PomodoroArrangement arrangement, double face, LineInk faceInk, double caption, double captionOver, double bar, double controls, double captionGap = 0)
+    public static (double Radius, double Top) Circle(IReadOnlyList<RingRow> rows)
     {
-        var barPart = bar > 0 ? FamilySpace.S2 + bar : 0;
-        if (arrangement == PomodoroArrangement.Tall)
+        ArgumentNullException.ThrowIfNull(rows);
+        if (rows.Count == 0)
         {
-            var under = face + captionGap;
-            var controlsTop = under + caption + barPart + FamilySpace.S2;
-            return new PomodoroStand(controlsTop + controls, 0, under, under + caption + FamilySpace.S2, controlsTop);
+            return (0, 0);
         }
 
-        var faceSpan = Math.Max(0, face - faceInk.Over - faceInk.Under);
-        var columnSpan = caption + barPart + FamilySpace.S2 + controls - captionOver;
-        var band = Math.Max(faceSpan, columnSpan);
-        var top = (band - columnSpan) / 2;
-        return new PomodoroStand(
-            captionOver + band,
-            captionOver + ((band - faceSpan) / 2) - faceInk.Over,
-            top,
-            top + caption + FamilySpace.S2,
-            top + caption + barPart + FamilySpace.S2);
+        var (first, last) = (rows.Min(r => r.Top), rows.Max(r => r.Bottom));
+        var shift = -(first + last) / 2;
+        var far = 0.0;
+        foreach (var row in rows)
+        {
+            var half = row.Width / 2;
+            var y = Math.Max(Math.Abs(row.Top + shift), Math.Abs(row.Bottom + shift));
+            far = Math.Max(far, (half * half) + (y * y));
+        }
+
+        return (Math.Sqrt(far), first + shift);
     }
 
     /// <summary>
-    /// [S-8117] Which arrangement a room <paramref name="width"/> × <paramref name="height"/> (the card less its inset)
-    /// takes (owner, 2026-11-20: "not all in just one column"): side by side where the room is wider than the geometric
-    /// mean of the two arrangements' aspects, stacked where it is not; but the other where the chosen one would fall
-    /// under the least scale and the other would not fall as far.
+    /// [S-16602] The ring's diameter (in fours) whose hole, less <see cref="RingPad"/>, holds the parts by
+    /// <see cref="Circle"/>: the ring's line inks from its edge inwards by its stroke.
     /// </summary>
-    public static PomodoroArrangement Choose(double width, double height, PomodoroPlan plan)
+    public static double RingOf(PomodoroParts parts)
     {
-        if (!(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height) || !Usable(plan.Tall) || !Usable(plan.Wide))
-        {
-            return PomodoroArrangement.Wide;
-        }
-
-        var threshold = Math.Sqrt(plan.Tall.Width / plan.Tall.Height * (plan.Wide.Width / plan.Wide.Height));
-        var preferred = width / height >= threshold ? PomodoroArrangement.Wide : PomodoroArrangement.Tall;
-        var other = preferred == PomodoroArrangement.Wide ? PomodoroArrangement.Tall : PomodoroArrangement.Wide;
-        var (mine, theirs) = (Scale(width, height, plan, preferred), Scale(width, height, plan, other));
-        return mine < Least - 1e-9 && theirs > mine ? other : preferred;
+        var (radius, _) = Circle(RingRows(parts));
+        return Math.Max(FamilyShape.IconHuge, Math.Ceiling(2 * (radius + RingPad + FamilyShape.Stroke) / 4) * 4);
     }
 
-    /// <summary>[S-8117] The scale the block fills a room at in <paramref name="arrangement"/>: the smaller of the two axes'.</summary>
-    public static double Scale(double width, double height, PomodoroPlan plan, PomodoroArrangement arrangement)
+    // ---- the arrangements ([S-16603]) ----------------------------------------------------------------------------
+
+    /// <summary>
+    /// The block of an arrangement at scale 1, from its first ink: its size and each part's natural box in it (the bar's
+    /// box across or up the block; in the room it runs the room's whole length).
+    /// </summary>
+    private readonly record struct Block(SizeDip Size, PomodoroRect Ring, PomodoroRect Time, PomodoroRect Caption, PomodoroRect Bar, PomodoroRect Controls);
+
+    /// <summary>
+    /// [S-16603] An arrangement's block at scale 1 (from its first ink to its last; the bar's length not counted, it runs the
+    /// room's): its width and height.
+    /// </summary>
+    public static SizeDip BlockOf(PomodoroArrangement arrangement, PomodoroLook look, PomodoroParts parts) => Stand(arrangement, look, parts).Size;
+
+    private static Block Stand(PomodoroArrangement arrangement, PomodoroLook look, PomodoroParts parts)
     {
-        var size = arrangement == PomodoroArrangement.Wide ? plan.Wide : plan.Tall;
+        var bar = look == PomodoroLook.Bar;
+        var (time, caption, controls) = (parts.Time, parts.Caption, parts.Controls);
+        var (tOver, tUnder) = (parts.TimeInk.Over, parts.TimeInk.Under);
+        var timeInk = Math.Max(0, time.Height - tOver - tUnder);
+        switch (arrangement)
+        {
+            case PomodoroArrangement.Ring:
+            {
+                var d = RingOf(parts);
+                var rows = RingRows(parts);
+                var (_, top) = Circle(rows);
+                var y = (d / 2) + top;
+                var captionTop = y + rows[1].Top - parts.CaptionInk.Over;
+                return new Block(
+                    new SizeDip(d, d),
+                    new PomodoroRect(0, 0, d, d),
+                    new PomodoroRect((d - time.Width) / 2, y - tOver, time.Width, time.Height),
+                    new PomodoroRect((d - caption.Width) / 2, captionTop, caption.Width, caption.Height),
+                    PomodoroRect.None,
+                    new PomodoroRect((d - controls.Width) / 2, y + rows[2].Top, controls.Width, controls.Height));
+            }
+
+            case PomodoroArrangement.Side:
+            {
+                // The time's figures and the column's ink (the caption's capitals to the controls' foot) are one band.
+                var column = Math.Max(caption.Width, controls.Width);
+                var columnInk = caption.Height - parts.CaptionInk.Over + FamilySpace.S2 + controls.Height;
+                var band = Math.Max(timeInk, columnInk);
+                var columnTop = ((band - columnInk) / 2) - parts.CaptionInk.Over;
+                var left = time.Width + ColumnGap;
+                var width = left + column;
+                return new Block(
+                    new SizeDip(width, band + (bar ? FamilySpace.S2 + FamilyShape.Track : 0)),
+                    PomodoroRect.None,
+                    new PomodoroRect(0, ((band - timeInk) / 2) - tOver, time.Width, time.Height),
+                    new PomodoroRect(left, columnTop, caption.Width, caption.Height),
+                    bar ? new PomodoroRect(0, band + FamilySpace.S2, width, FamilyShape.Track) : PomodoroRect.None,
+                    new PomodoroRect(left, columnTop + caption.Height + FamilySpace.S2, controls.Width, controls.Height));
+            }
+
+            case PomodoroArrangement.Column:
+            {
+                var left = FamilyShape.Track + BarGap;
+                var captionTop = timeInk + tUnder;
+                var controlsTop = captionTop + caption.Height + FamilySpace.S2;
+                var height = controlsTop + controls.Height;
+                return new Block(
+                    new SizeDip(left + Math.Max(time.Width, Math.Max(caption.Width, controls.Width)), height),
+                    PomodoroRect.None,
+                    new PomodoroRect(left, -tOver, time.Width, time.Height),
+                    new PomodoroRect(left, captionTop, caption.Width, caption.Height),
+                    new PomodoroRect(0, 0, FamilyShape.Track, height),
+                    new PomodoroRect(left, controlsTop, controls.Width, controls.Height));
+            }
+
+            default:
+            {
+                var width = Math.Max(time.Width, Math.Max(caption.Width, controls.Width));
+                var captionTop = timeInk + tUnder;
+                var barTop = captionTop + caption.Height + FamilySpace.S2;
+                var controlsTop = (bar ? barTop + FamilyShape.Track : captionTop + caption.Height) + FamilySpace.S2;
+                return new Block(
+                    new SizeDip(width, controlsTop + controls.Height),
+                    PomodoroRect.None,
+                    new PomodoroRect((width - time.Width) / 2, -tOver, time.Width, time.Height),
+                    new PomodoroRect((width - caption.Width) / 2, captionTop, caption.Width, caption.Height),
+                    bar ? new PomodoroRect(0, barTop, width, FamilyShape.Track) : PomodoroRect.None,
+                    new PomodoroRect((width - controls.Width) / 2, controlsTop, controls.Width, controls.Height));
+            }
+        }
+    }
+
+    /// <summary>[S-16603] The arrangements a look may take: the Ring style its ring; the Bar style stacked, side by side or upright beside its bar; Digits stacked or side by side.</summary>
+    public static IReadOnlyList<PomodoroArrangement> Arrangements(PomodoroLook look) => look switch
+    {
+        PomodoroLook.Ring => [PomodoroArrangement.Ring],
+        PomodoroLook.Bar => [PomodoroArrangement.Column, PomodoroArrangement.Stacked, PomodoroArrangement.Side],
+        _ => [PomodoroArrangement.Stacked, PomodoroArrangement.Side],
+    };
+
+    /// <summary>
+    /// [S-8117] [S-16603] Which arrangement a room <paramref name="width"/> × <paramref name="height"/> (the card less its
+    /// inset) takes (owner, 2026-11-23: "right now all the components are placed underneath each other but they can also be
+    /// placed side by side. (the progress bar would then be vertical for example)"): the Ring style its ring; the Bar style
+    /// upright beside its bar where the room is taller than wide; else stacked or side by side by the room's aspect, side by
+    /// side where it is wider than the geometric mean of the two blocks' aspects. Where the one chosen would fall under the
+    /// least scale and another would not fall as far, that other. An unmeasured room stands side by side, as a new card does.
+    /// </summary>
+    public static PomodoroArrangement Choose(PomodoroLook look, PomodoroParts parts, double width, double height)
+    {
+        if (look == PomodoroLook.Ring)
+        {
+            return PomodoroArrangement.Ring;
+        }
+
+        var (stacked, side) = (BlockOf(PomodoroArrangement.Stacked, look, parts), BlockOf(PomodoroArrangement.Side, look, parts));
+        if (!(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height) || !Usable(stacked) || !Usable(side))
+        {
+            return PomodoroArrangement.Side;
+        }
+
+        var threshold = Math.Sqrt(stacked.Width / stacked.Height * (side.Width / side.Height));
+        var preferred = look == PomodoroLook.Bar && height > width ? PomodoroArrangement.Column
+            : width / height >= threshold ? PomodoroArrangement.Side : PomodoroArrangement.Stacked;
+        var mine = Scale(preferred, look, parts, width, height);
+        if (mine >= Least - 1e-9)
+        {
+            return preferred;
+        }
+
+        var best = Arrangements(look).MaxBy(a => Scale(a, look, parts, width, height));
+        return Scale(best, look, parts, width, height) > mine ? best : preferred;
+    }
+
+    /// <summary>
+    /// [S-16603] The scale <paramref name="arrangement"/>'s block fills a room at: the smaller of the two axes' (the bar's
+    /// length is the room's, so it never limits it); the ring by the room's smaller side.
+    /// </summary>
+    public static double Scale(PomodoroArrangement arrangement, PomodoroLook look, PomodoroParts parts, double width, double height)
+    {
+        var size = BlockOf(arrangement, look, parts);
         return Usable(size) ? Math.Min(width / size.Width, height / size.Height) : 1;
     }
 
     /// <summary>
-    /// [S-8117] [S-12833] The pomodoro's sizing ([S-2438]): a new card is the side-by-side block in its inset, and no
-    /// shorter than the least card; the least card is the stacked block scaled down to its floor (WR-14), so every card
-    /// it may be made holds one arrangement at a scale it can be read at. The descriptor relaxes the maximum ([S-12411]).
+    /// [S-16601] [S-16603] [S-16604] Every part's box in a room <paramref name="width"/> × <paramref name="height"/>: the
+    /// arrangement <see cref="Choose"/> picks, its block scaled as one until one axis stops it (WR-7: the reading, its caption
+    /// and its controls scale as one) and centred on the other ("Centred is fine"), the ring as large as the room's smaller
+    /// side with every part inside its hole, the bar across the room's whole width (stacked, side by side) or up its whole
+    /// height (upright), its thickness the track's at the scale.
+    /// </summary>
+    public static PomodoroLayout Lay(PomodoroLook look, PomodoroParts parts, double width, double height)
+    {
+        var arrangement = Choose(look, parts, width, height);
+        var block = Stand(arrangement, look, parts);
+        if (!Usable(block.Size) || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
+        {
+            return new PomodoroLayout(arrangement, 1, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None);
+        }
+
+        var scale = Math.Min(width / block.Size.Width, height / block.Size.Height);
+        var (x, y) = ((width - (block.Size.Width * scale)) / 2, (height - (block.Size.Height * scale)) / 2);
+        PomodoroRect At(PomodoroRect r) => r.IsEmpty ? PomodoroRect.None : new PomodoroRect(x + (r.X * scale), y + (r.Y * scale), r.Width * scale, r.Height * scale);
+
+        var bar = block.Bar.IsEmpty ? PomodoroRect.None
+            : arrangement == PomodoroArrangement.Column ? new PomodoroRect(x, 0, FamilyShape.Track * scale, height)
+            : new PomodoroRect(0, y + (block.Bar.Y * scale), width, FamilyShape.Track * scale);
+        return new PomodoroLayout(arrangement, scale, At(block.Ring), At(block.Time), At(block.Caption), bar, At(block.Controls));
+    }
+
+    /// <summary>
+    /// [S-8117] [S-12833] The pomodoro's sizing ([S-2438]): a new card is the side-by-side block in its inset (the Ring
+    /// style: its ring), and no smaller than the least card; the least card is the stacked block (the ring) scaled down to its
+    /// floor (WR-14), so every card it may be made holds an arrangement at a scale it can be read at. The descriptor relaxes
+    /// the maximum ([S-12411]).
     /// </summary>
     public static WidgetSizing Sizing(PomodoroConfig config, Locale locale)
     {
         var plan = Plan(config, locale);
-        var wide = Box(plan.Wide);
+        var (natural, least) = plan.Look == PomodoroLook.Ring
+            ? (BlockOf(PomodoroArrangement.Ring, plan.Look, plan.Parts), BlockOf(PomodoroArrangement.Ring, plan.Look, plan.Parts))
+            : (BlockOf(PomodoroArrangement.Side, plan.Look, plan.Parts), BlockOf(PomodoroArrangement.Stacked, plan.Look, plan.Parts));
 
         // The block scales; the inset round it does not.
-        var least = Box(new SizeDip(plan.Tall.Width * Least, plan.Tall.Height * Least));
-        var min = new SizeDip(Math.Max(WidgetSizing.LeastScaled, least.Width), Math.Max(WidgetSizing.LeastScaled, least.Height));
-        var natural = new SizeDip(Math.Max(wide.Width, min.Width), Math.Max(wide.Height, min.Height));
-        return WidgetSizing.Range(min, natural, natural);
+        var floor = Box(new SizeDip(least.Width * Least, least.Height * Least));
+        var min = new SizeDip(Math.Max(WidgetSizing.LeastScaled, floor.Width), Math.Max(WidgetSizing.LeastScaled, floor.Height));
+        var box = Box(natural);
+        var nat = new SizeDip(Math.Max(box.Width, min.Width), Math.Max(box.Height, min.Height));
+        return WidgetSizing.Range(min, nat, nat);
     }
 
     /// <summary>A block's card: the block in the inset on every side, and the slack.</summary>

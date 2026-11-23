@@ -12,18 +12,22 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-8115] The cycle as one sectioned bar: the Chart's 4 track cut into a section per phase
-/// (<see cref="PomodoroSections.Bar"/>), each round, its fill in its kind's role from its start. It asks for no width
-/// of its own: it spans what it is given, so it never limits the block's scale ([S-12814]).
+/// (<see cref="PomodoroSections.Bar"/>), each round, its fill in its kind's role from its start. It asks for no length
+/// of its own: it runs the length it is laid at and is as thick as its box's other side (the track at the face's scale),
+/// so it never limits the face's scale ([S-12814]). [S-16604] Upright, its first section stands on its top and the
+/// sections run down, each filling from its top.
 /// </summary>
 internal sealed partial class PomodoroBar : Panel
 {
     private readonly List<(Border Track, Border Fill)> _parts = [];
     private PomodoroSection[] _sections = [];
+    private bool _upright;
 
     public PomodoroBar()
     {
         IsHitTestVisible = false;
-        VerticalAlignment = VerticalAlignment.Center;
+        // Laid at its drawn box by its block, across or upright: it stretches to it, whatever it asked.
+        VerticalAlignment = VerticalAlignment.Stretch;
     }
 
     /// <summary>[S-6330] The sections as they are now; the same again draws nothing.</summary>
@@ -65,6 +69,20 @@ internal sealed partial class PomodoroBar : Panel
         InvalidateArrange();
     }
 
+    /// <summary>[S-16604] Whether the bar stands upright, its sections from its top down.</summary>
+    public bool Upright
+    {
+        get => _upright;
+        set
+        {
+            if (value != _upright)
+            {
+                _upright = value;
+                InvalidateArrange();
+            }
+        }
+    }
+
     protected override Size MeasureOverride(Size availableSize)
     {
         foreach (var child in Children)
@@ -77,12 +95,13 @@ internal sealed partial class PomodoroBar : Panel
 
     protected override Size ArrangeOverride(Size finalSize)
     {
-        var rects = PomodoroSections.Bar(finalSize.Width, _sections);
-        var top = Math.Max(0, (finalSize.Height - FamilyShape.Track) / 2);
+        // Its length along its axis, its thickness the box's other side.
+        var (length, thick) = _upright ? (finalSize.Height, finalSize.Width) : (finalSize.Width, finalSize.Height);
+        var rects = PomodoroSections.Bar(length, _sections);
         for (var i = 0; i < _parts.Count; i++)
         {
             var (track, fill) = _parts[i];
-            if (i >= rects.Count)
+            if (i >= rects.Count || !(thick > 0))
             {
                 track.Arrange(default);
                 fill.Arrange(default);
@@ -90,14 +109,18 @@ internal sealed partial class PomodoroBar : Panel
             }
 
             var r = rects[i];
-            track.Arrange(new Rect(r.Left, top, r.Width, FamilyShape.Track));
-            track.CornerRadius = Family.Round(r.Width, FamilyShape.Track);
-            fill.Arrange(new Rect(r.Left, top, r.Filled, FamilyShape.Track));
-            fill.CornerRadius = Family.Round(r.Filled, FamilyShape.Track);
+            track.Arrange(Along(r.Left, r.Width, thick));
+            track.CornerRadius = Family.Round(Math.Min(r.Width, thick), thick);
+            fill.Arrange(Along(r.Left, r.Filled, thick));
+            fill.CornerRadius = Family.Round(Math.Min(r.Filled, thick), thick);
         }
 
         return finalSize;
     }
+
+    /// <summary>A stretch of the bar from <paramref name="start"/>, <paramref name="length"/> long, across its axis.</summary>
+    private Rect Along(double start, double length, double thick)
+        => _upright ? new Rect(0, start, thick, Math.Max(0, length)) : new Rect(start, 0, Math.Max(0, length), thick);
 }
 
 /// <summary>
