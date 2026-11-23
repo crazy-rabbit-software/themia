@@ -543,7 +543,11 @@ def main():
                           for k in kinds], indent=1))
         return
     # [S-14814] Every state in the default style and every other style in the first state, as the checks draw them.
-    looks = {k: [(a.state, '')] for k in kinds} if a.state else renders.looks(kinds)
+    # [S-16316] One state of a kind whose styles are faces of their own is drawn in each of them (the Metric widget's graph and
+    # value under the pointer alike).
+    styles = {k['id']: k.get('styles') or [] for k in renders.catalog()} if a.state else {}
+    looks = ({k: [(a.state, '')] + ([(a.state, st) for st in styles.get(k, [])[1:]] if k in EVERY_STATE_STYLES else [])
+              for k in kinds} if a.state else renders.looks(kinds))
     flags = tuple(['--transparent', *a.flags.split()]) if a.flags else ('--transparent',)
     sets = a.sizes.split(';')
     jobs = [(k, n, Job(k, s, sizes, flags, st)) for k in kinds for s, st in looks[k] for n, sizes in enumerate(sets)]

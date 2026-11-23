@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Widgets;
+using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -22,9 +23,14 @@ namespace Themia.Widget.Metrics;
 /// name over the value, one block scaled to fill (<see cref="MetricFaceRules.Value"/>). Its data comes from the host's
 /// answers through <see cref="MetricsView"/>'s feeds, only the one its metric reads.
 /// </summary>
-internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware, IWidgetTopEdge, IWidgetContextActions
+internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware, IWidgetTopEdge, IWidgetContextActions, IWidgetOpens,
+    IWidgetSurfaceAware, IWidgetKeys
 {
     private readonly IWidgetHost _host;
+
+    /// <summary>[S-16329] The card lit as the one item a click opens: the item layer's fill over its whole box (WR-13).</summary>
+    private readonly OpensLight _light;
+    private IWidgetSurface? _surface;
     private readonly KitStatus _status;
     private readonly MetricsPlot _plot = new();
 
@@ -81,6 +87,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     {
         _host = host;
         _status = new KitStatus(host);
+        _light = new OpensLight(this, LightsUp);
         Feeds(host);
 
         // The head: the glyph, the name (cut by its ellipsis), the reading at the end, all on the head's baseline.
@@ -169,21 +176,78 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _plot.PointerMoved += OnPointerMoved;
         _plot.PointerExited += OnPointerExited;
         _plot.PointerCanceled += OnPointerExited;
-        PointerPreview.Register(_plot, (point, _) => Point(point.X));
+        // [S-16341] [S-16329] Under the pointer the graph's value there and, where a click opens something, the card's light:
+        // the plot is over the card, so its look at a point is the one the renders show.
+        PointerPreview.Register(_plot, (point, pressed) =>
+        {
+            Point(point.X);
+            if (LightsUp())
+            {
+                LinkLook.Opens(this, pressed ? ItemState.Pressed : ItemState.Hover);
+            }
+        });
         SizeChanged += (_, e) => Resize(e.NewSize.Width, e.NewSize.Height);
     }
 
     /// <summary>[S-6754] The graph is drawn from the card's top edge (behind a low card's head); the head keeps its inset itself.</summary>
     public bool OwnsTopEdge => true;
 
-    /// <summary>[S-730] Refresh, where the metric's source has one.</summary>
+    /// <summary>[S-730] [S-16329] The line that opens the metric's source first, where it has one; then Refresh, where its source has one.</summary>
     public IReadOnlyList<WidgetAction> ContextActions
-        => Refresher() is { } refresh ? [new WidgetAction(Glyphs.Refresh, refresh.Label, refresh.Run)] : [];
+    {
+        get
+        {
+            var lines = new List<WidgetAction>();
+            if (_config.Opener is { } opener && Opens is not null)
+            {
+                lines.Add(new WidgetAction(Glyphs.Open, opener.Label.Text(), () => Open()));
+            }
+
+            if (Refresher() is { } refresh)
+            {
+                lines.Add(new WidgetAction(Glyphs.Refresh, refresh.Label, refresh.Run));
+            }
+
+            return lines;
+        }
+    }
+
+    /// <summary>[S-16329] What a click on the card opens now (<see cref="MetricsConfig.Opens"/>).</summary>
+    public CardOpen? Opens => _config.Opens();
+
+    /// <summary>[S-16329] A click takes the keyboard only where Enter opens something.</summary>
+    public bool WantsKeys => Opens is not null;
+
+    /// <summary>[S-16329] Enter opens the source while the card has the keyboard.</summary>
+    public bool HandleKey(WidgetKey key) => key == WidgetKey.Enter && Open();
+
+    public void Bind(IWidgetSurface surface) => _surface = surface;
+
+    /// <summary>[S-16329] Whether the card lights under the pointer: it opens something now, out of edit mode.</summary>
+    private bool LightsUp() => !_detached && _surface?.EditMode != true && Opens is not null;
+
+    /// <summary>[S-16329] Open the source through the host's launcher; said in the log where nothing opened.</summary>
+    private bool Open()
+    {
+        if (Opens is not { } target)
+        {
+            return false;
+        }
+
+        var outcome = _host.Launcher.OpenCard(target);
+        if (outcome != LaunchOutcome.Opened)
+        {
+            Log.Warn("metrics", $"{_config.Metric}: opening its source opened nothing ({outcome})");
+        }
+
+        return true;
+    }
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
         _ticker = ticker;
+        _light.Attach();
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
         ApplyConfig(config);
@@ -201,6 +265,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     public void Detach()
     {
         _detached = true;
+        _light.Detach();
         Strings.Changed -= OnLanguage;
         Unfollow();
         _status.Detach();

@@ -142,6 +142,16 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   (WR-12); off the graph the reading again. `--render widget metrics … --hover fx,fy` draws it (the plot's look at a point,
   [S-16341]).
 
+- **[S-16329]** **A click opens its source and the card lights** (as a single metric, [S-14705] [S-14706] [S-14707]): the
+  source its family's own widgets open (`MetricsConfig.Opener`, `MetricOpens`): the processor's, the memory's, the graphics'
+  and the drive's activity Task Manager; the network's and the ping's Settings' network status; the battery's Power &
+  battery; the weather's and the air's MSN Weather's forecast for the place (no place, nothing); a stock its symbol's page
+  as the Stock widget opens it (no symbol, nothing); a rate nothing. While it opens something, out of edit mode, the card
+  lights as that one item under the pointer and pressed (`OpensLight`, the item layer's fill over the card's whole box,
+  WR-13; WR-12: only the fill changes), in both styles; in the graph style the scrub's mark and the head's value too (the
+  plot's look at a point lights the card as well, so `--hover` draws both). Enter and the card menu's first line open it
+  too, through the host's launcher. A face that opens nothing lights nothing.
+
 ## The graph
 
 - **[S-16312]** **Folding**: a plot draws a line's point every 2 DIP at least and a mark (a bar, a range, a candle) every 6; a

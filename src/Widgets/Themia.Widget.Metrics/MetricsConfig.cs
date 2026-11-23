@@ -245,6 +245,31 @@ public sealed class MetricsConfig : WeatherConfig, IStyled, IInterests, IReadsSy
         (Symbol, Market, DisplayName) = (quote.Symbol, quote.Market, quote.DisplayName);
     }
 
+    /// <summary>
+    /// [S-16329] The source a click opens and the card menu's words for it, the one its family's own widgets open
+    /// (<see cref="MetricOpens"/>): the processor's, the memory's, the graphics' and the drive's activity Task Manager, the
+    /// network's and the ping's Settings' network status, the battery's Power &amp; battery, the weather's and the air's MSN
+    /// Weather's forecast for the place. A stock opens its page with no line of its own (<see cref="Opens"/>); a rate nothing.
+    /// </summary>
+    [JsonIgnore]
+    public MetricOpen? Opener => Def.Subject switch
+    {
+        MetricSubject.System => Def.Id switch
+        {
+            "network" or "ping" => MetricOpens.Network,
+            "battery" => MetricOpens.Battery,
+            _ => MetricOpens.TaskManager,
+        },
+        MetricSubject.Weather or MetricSubject.Air => MetricOpens.Weather,
+        _ => null,
+    };
+
+    /// <summary>
+    /// [S-16329] What a click on the card opens now: its <see cref="Opener"/>'s target, a stock its symbol's page (as the
+    /// Stock widget opens it); null where nothing opens (no place, no symbol, a rate).
+    /// </summary>
+    public CardOpen? Opens() => Feed.Source == MetricSource.Quote ? Quote().Page() : Opener?.Target(this);
+
     /// <summary>[S-16306] The pair as the exchange widgets hold it.</summary>
     public ExchangePairConfig Pair() => new MetricsPair { BaseCurrency = BaseCurrency, QuoteCurrency = QuoteCurrency };
 

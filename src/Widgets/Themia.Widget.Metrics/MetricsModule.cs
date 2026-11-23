@@ -34,7 +34,7 @@ public sealed class MetricsModule : IWidgetModule
             "rain", "snow", "wind", "uv", "pollen", "air", "aqi", "stock", "exchange"],
         Glyph = Glyphs.ChartType,
         Sizing = c => Sized(c as MetricsConfig ?? new MetricsConfig()),
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.HasItems, // [S-16329] the card lights as one item (OpensLight)
         Add = new(AddFolderId.System, 99, 0),
     };
 

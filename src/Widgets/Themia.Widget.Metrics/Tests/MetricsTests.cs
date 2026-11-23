@@ -393,6 +393,36 @@ public sealed class MetricsTests
     }
 
     [Fact]
+    public void S16329_a_click_opens_the_source_its_family_s_widgets_open()
+    {
+        var taskManager = System.IO.Path.Combine(Environment.SystemDirectory, "Taskmgr.exe");
+        Assert.Equal(taskManager, new MetricsConfig { Metric = "cpu" }.Opens()?.Value);
+        Assert.Equal(taskManager, new MetricsConfig { Metric = "memory" }.Opens()?.Value);
+        Assert.Equal(taskManager, new MetricsConfig { Metric = "drive" }.Opens()?.Value);
+        Assert.Equal("ms-settings:network-status", new MetricsConfig { Metric = "network" }.Opens()?.Value);
+        Assert.Equal("ms-settings:network-status", new MetricsConfig { Metric = "ping" }.Opens()?.Value);
+        Assert.Equal("ms-settings:batterysaver", new MetricsConfig { Metric = "battery" }.Opens()?.Value);
+
+        // A place's metric: nothing without a place, its forecast with one.
+        Assert.Null(new MetricsConfig { Metric = "temperature" }.Opens());
+        Assert.NotNull(new MetricsConfig { Metric = "pm25", Latitude = 47.37, Longitude = 8.54, LocationName = "Zurich" }.Opens());
+
+        // A stock its symbol's page, no line of its own on the menu; a rate nothing.
+        Assert.Null(new MetricsConfig { Metric = "stock" }.Opens());
+        var stock = new MetricsConfig { Metric = "stock", Symbol = "MSFT" };
+        Assert.StartsWith("https://finance.yahoo.com/quote/MSFT", stock.Opens()?.Value, StringComparison.Ordinal);
+        Assert.Null(stock.Opener);
+        Assert.Null(new MetricsConfig { Metric = "exchangeRate", BaseCurrency = "EUR", QuoteCurrency = "USD" }.Opens());
+
+        // Every metric of the catalog either opens through its family's line or is one of these.
+        foreach (var def in MetricCatalog.All)
+        {
+            var config = new MetricsConfig { Metric = def.Id };
+            Assert.Equal(def.Subject != MetricSubject.Money, config.Opener is not null);
+        }
+    }
+
+    [Fact]
     public void S16323_the_value_face_centres_the_held_box_and_the_caption_so_a_short_reading_leaves_its_room_alike()
     {
         // The held box wider than the caption: it alone is the block's ink across, whole, however short the reading drawn in it.
