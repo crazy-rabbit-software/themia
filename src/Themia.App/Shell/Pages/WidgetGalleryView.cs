@@ -499,6 +499,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         if (_unplaced is not null)
         {
             _unplaced.Width = Math.Max(0, frame.Well.Width);
+            _unplaced.FillHeight = frame.Well.Height;
         }
         else if (_base is null)
         {
@@ -679,6 +680,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             _marks.Frame.Hide();
             _unplaced = make();
             _unplaced.Width = Math.Max(0, frame.Well.Width);
+            _unplaced.FillHeight = frame.Well.Height;
             _unplacedRoom.Content = _unplaced;
         }
 

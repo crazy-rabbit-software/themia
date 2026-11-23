@@ -90,6 +90,9 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
     private readonly IconMarks _marks = new();
 
     private readonly Border _desk;
+
+    /// <summary>[S-17164] How tall the room the page stands in is, DIPs (the gallery's well); 0: as tall as its icons.</summary>
+    private double _fill;
     private readonly TextBlock _note = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
     private readonly Border _noteCard;
     private readonly Dictionary<string, Cell> _cells = new(DesktopItemKeys.Comparer);
@@ -305,7 +308,37 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
         _note.Text = !_model.Holds ? Str.Unplaced_Page_NoneHere.Text()
             : _model.Items.Count == 0 ? Str.Unplaced_Page_None.Text()
             : Str.AddMenu_NoResults.Format(("query", (query ?? string.Empty).Trim()));
+        Fill();
         Paint();
+    }
+
+    /// <summary>
+    /// [S-17164] The room the page stands in, DIPs tall (the gallery's well, owner 2026-11-23: "not on home should have the grid
+    /// expand all the way to the bottom as it does in other screens as well"): the icons' area, the grid on it, reaches its foot.
+    /// </summary>
+    internal double FillHeight
+    {
+        get => _fill;
+        set
+        {
+            _fill = Math.Max(0, value);
+            Fill();
+        }
+    }
+
+    /// <summary>[S-17164] The icons' area at least as tall as what the room leaves under the search box (when it shows): the grid down to the foot.</summary>
+    private void Fill()
+    {
+        var above = 0.0;
+        if (_search.Visibility == Visibility.Visible)
+        {
+            _search.Measure(new Windows.Foundation.Size(double.IsFinite(Width) ? Width : double.PositiveInfinity, double.PositiveInfinity));
+            above = _search.DesiredSize.Height + _stack.Spacing;
+        }
+
+        _icons.MinHeight = _fill > 0 && _desk.Visibility == Visibility.Visible
+            ? Math.Max(0, Math.Floor(_fill - above - _desk.Padding.Top - _desk.Padding.Bottom))
+            : 0;
     }
 
     /// <summary>
