@@ -3647,6 +3647,9 @@ also allow me to create "groups" by connecting the widgets in the editor togethe
   on a 1920 by 1080 display and its size as drawn there, so every tab looks as before. Run again over a file whose widgets
   have places it writes it unchanged; over one saved without places it converts it the same way. No load-time reader of the
   old shape exists: a file without places is repaired loudly where read ([S-17222]).
+- **[S-17226]** **Volume in Quick settings** (owner, 2026-11-24: *"volume slider should go into the quick settings too"*): the
+  Volume widget has its own section there, "Volume", under Brightness's, a wide one-row box (24 by 5 blocks), drawn as
+  Brightness's row so the two read as a pair ([S-17225]); no longer on Media. The Mixer stays on Media.
 
 Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays and
 the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the
