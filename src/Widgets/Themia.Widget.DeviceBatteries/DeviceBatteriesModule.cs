@@ -4,7 +4,7 @@ using Themia.App.Shell;
 using Themia.Core.Links;
 using Themia.Core.Widgets;
 using Themia.Sdk;
-using Themia.Sdk.Kit;
+using Themia.Sdk.Devices;
 using Themia.Sdk.WinUI;
 using Themia.Widget.DeviceBatteries;
 
@@ -26,10 +26,10 @@ public sealed class DeviceBatteriesModule : IWidgetModule
         Label = DeviceBatteriesStr.DeviceBatteries_Label.Local(),
         Description = DeviceBatteriesStr.DeviceBatteries_Desc.Local(),
         Glyph = Glyphs.Devices,
-        Sizing = c => KitSizing.Sizing(KitSizing.Choice((DeviceBatteriesConfig)c), addFooter: false),
+        Sizing = c => DeviceLayout.Sizing(((DeviceBatteriesConfig)c).Rows, ((DeviceBatteriesConfig)c).Gap),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
-        Add = new(AddFolderId.Devices, 1, 2),
+        Add = new(AddFolderId.Devices, 1, 3),
     };
 
     /// <summary>[S-10006] Its two options are on the selection's page: the widget has no settings page.</summary>

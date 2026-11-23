@@ -19,13 +19,13 @@ internal sealed partial class DeviceBatteriesView : IWidgetPreviewState
             case "sample":
                 return ShowSampleAsync();
             case "empty":
-                _source.HoldForPreview(new DeviceBatterySnapshot(DeviceBatteryStatus.Ok, []));
+                Hold(new DeviceBatterySnapshot(DeviceBatteryStatus.Ok, []));
                 break;
             case "failed":
-                _source.HoldForPreview(new DeviceBatterySnapshot(DeviceBatteryStatus.Failed, []));
+                Hold(new DeviceBatterySnapshot(DeviceBatteryStatus.Failed, []));
                 break;
             case "loading":
-                _source.HoldForPreview(DeviceBatterySnapshot.Loading);
+                Hold(DeviceBatterySnapshot.Loading);
                 break;
         }
 

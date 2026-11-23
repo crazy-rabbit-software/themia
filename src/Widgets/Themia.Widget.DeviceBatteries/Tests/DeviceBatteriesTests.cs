@@ -110,14 +110,14 @@ public sealed class DeviceBatteriesTests
     }
 
     [Fact]
-    public void S10003_at_or_below_the_threshold_the_level_is_critical()
+    public void S10003_S16665_at_or_below_the_threshold_the_bar_is_critical()
     {
-        var low = DeviceBatteriesSpec.Item(new DeviceBatteryRow("a", "Mouse", DeviceKind.Mouse, 20, null, DeviceBatterySource.DeviceContainer), 20, Locale.En);
-        var fine = DeviceBatteriesSpec.Item(new DeviceBatteryRow("b", "Mouse", DeviceKind.Mouse, 21, null, DeviceBatterySource.DeviceContainer), 20, Locale.En);
+        var low = DeviceBatteriesItems.Item(new DeviceBatteryRow("a", "Mouse", DeviceKind.Mouse, 20, null, DeviceBatterySource.DeviceContainer), 20, Locale.En);
+        var fine = DeviceBatteriesItems.Item(new DeviceBatteryRow("b", "Mouse", DeviceKind.Mouse, 21, null, DeviceBatterySource.DeviceContainer), 20, Locale.En);
 
-        Assert.Equal(KitTone.Critical, low.Tone);
-        Assert.Equal(KitTone.Neutral, fine.Tone);
-        Assert.Equal(LocaleFormat.Percent(Locale.En, 20), low.Value);
+        Assert.Equal(ColourRole.Critical, low.FillRole);
+        Assert.Equal(ColourRole.Accent, fine.FillRole);
+        Assert.Equal(("20", "%", 0.2), (low.Reading!.Value.Value, low.Reading.Value.Unit, low.Fill));
     }
 
     [Fact]
@@ -141,32 +141,37 @@ public sealed class DeviceBatteriesTests
     }
 
     [Fact]
-    public void S10001_a_row_is_its_name_level_kind_icon_and_charging_word()
+    public void S10001_S16665_an_item_is_its_name_level_kind_glyph_and_charging_word()
     {
-        var item = DeviceBatteriesSpec.Item(new DeviceBatteryRow("pad", "Xbox Wireless Controller", DeviceKind.Gamepad, 64, true, DeviceBatterySource.GameController), 20, Locale.En);
+        var item = DeviceBatteriesItems.Item(new DeviceBatteryRow("pad", "Xbox Wireless Controller", DeviceKind.Gamepad, 64, true, DeviceBatterySource.GameController), 20, Locale.En);
 
-        Assert.Equal("Xbox Wireless Controller", item.Title);
-        Assert.Equal(new KitLead(KitLeadKind.Icon, nameof(KitIcon.Gamepad)), item.Lead);
-        Assert.Contains(DeviceBatteriesStr.DeviceBatteries_Charging.Text(Locale.En), item.Subtitle);
-        Assert.Contains(DeviceBatteriesStr.DeviceBatteries_Kind_Gamepad.Text(Locale.En), item.Subtitle);
-        Assert.True(DeviceBatteriesSpec.Spec.Readings);
+        Assert.Equal("Xbox Wireless Controller", item.Name);
+        Assert.Equal(DeviceItems.Glyph(DeviceKind.Gamepad), item.Icon.Glyph);
+        Assert.Equal("Controller · Charging", item.Line);
+
+        var none = DeviceBatteriesItems.Empty(DeviceBatteryStatus.Ok, Locale.En);
+        Assert.True(none.Absent);
+        Assert.Equal(DeviceBatteriesStr.DeviceBatteries_Empty.Text(Locale.En), none.Line);
     }
 
     [Fact]
-    public void S10001_every_kind_has_its_own_icon()
+    public void S10001_every_kind_has_its_own_glyph()
     {
-        var icons = Enum.GetValues<DeviceKind>().Select(DeviceBatteriesSpec.Icon).ToList();
-        Assert.Equal(icons.Count, icons.Distinct().Count());
+        var glyphs = Enum.GetValues<DeviceKind>().Select(DeviceItems.Glyph).ToList();
+        Assert.Equal(glyphs.Count, glyphs.Distinct().Count());
     }
 
     [Fact]
-    public void S10005_a_rows_menu_opens_bluetooth_and_devices_and_refreshes()
+    public void S10005_an_items_menu_opens_bluetooth_and_devices_and_refreshes()
     {
-        var actions = DeviceBatteriesSpec.Actions(new KitItem("a", "Mouse"));
+        var opened = 0;
+        var refreshed = 0;
+        var entries = DeviceBatteriesItems.Menu(() => opened++, () => refreshed++).Where(e => !e.IsSeparator).ToList();
 
-        Assert.Equal([KitActionKind.Open, KitActionKind.Refresh], actions.Select(a => a.Kind));
-        Assert.Equal(DeviceBatteriesSpec.OpenSettings, actions[0].Id);
-        Assert.True(actions[0].Runnable);
+        Assert.Equal([DeviceBatteriesStr.DeviceBatteries_OpenSettings.Text(), Str.Common_Refresh.Text()], entries.Select(e => e.Text));
+        entries[0].Action!();
+        entries[1].Action!();
+        Assert.Equal((1, 1), (opened, refreshed));
     }
 
     [Fact]
@@ -178,7 +183,7 @@ public sealed class DeviceBatteriesTests
         DeviceBatteriesMenu.Lines(menu, config);
 
         Assert.Equal(
-            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), Str.Kit_Rows.Text()],
+            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), Str.Devices_Gap.Text(), Str.Kit_Rows.Text()],
             menu.Lines.Select(l => l.Text));
 
         menu.Lines[1].Action!();
@@ -187,12 +192,12 @@ public sealed class DeviceBatteriesTests
     }
 
     [Fact]
-    public void S11028_S14500_its_rows_of_two_lines_are_its_natural_height_and_every_cell_between()
+    public void S11028_S16665_its_rows_of_device_items_are_its_natural_height_and_every_cell_between()
     {
         var kind = ModuleCatalog.Of(new WidgetId("deviceBatteries"));
-        Assert.Equal(4 * 40, kind.SizingOf().Natural.Height);
-        Assert.Equal(40, kind.SizingOf().Min.Height);
-        Assert.Equal(2 * 40, kind.SizingOf(new DeviceBatteriesConfig { Rows = 2 }).Natural.Height);
+        Assert.Equal(3 * 90, kind.SizingOf().Natural.Height);
+        Assert.Equal(90, kind.SizingOf().Min.Height);
+        Assert.Equal((2 * 90) + 10, kind.SizingOf(new DeviceBatteriesConfig { Rows = 2, Gap = true }).Natural.Height);
         Assert.Equal(6, ((DeviceBatteriesConfig)new DeviceBatteriesConfig { Rows = 6 }.Clone()).Rows);
     }
 }

@@ -26,7 +26,8 @@ internal static class DeviceBatteriesMenu
 
         menu.Lines.Add(menu.Toggle(Glyphs.ChargingBolt, DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), config.ShowCharging, on => config.ShowCharging = on));
 
-        // [S-11028] How many rows, as every list states them ([S-2440]); a row always has its two lines.
+        // [S-16666] The gap between the devices, then [S-11028] how many a new card stands ([S-2440]).
+        menu.Lines.Add(menu.Toggle(Glyphs.Grid, Str.Devices_Gap.Text(), config.Gap, on => config.Gap = on));
         menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
     }
 }

@@ -54,6 +54,12 @@ receiver here reports no battery to Windows and is correctly not listed.
   `IKitRows`, `KitMenuLines.Rows` without a lines choice: every row has its second line), its height
   following them (36 + 40 a row + 12, `KitSizing`, 220..520 wide, a new one 300 × 208); more devices
   scroll inside them. Its menu: Low battery at, Show charging devices, Rows.
+- **[S-16665]** **On the device design** ([S-16630], owner, 2026-11-23): every device a device item
+  (`DeviceBatteriesItems`): the kind's glyph, the name, the battery the reading with its bar (Critical at or below the
+  threshold), what it is and "Charging" its line; a list with none keeps the face, "--" and why (WR-10). Its rows are
+  device items (three by default); a click opens Bluetooth & devices, its menu that and Refresh. Tests
+  `DeviceBatteriesTests.S16665_`.
+- **[S-16666]** **Gap between items** on its page before Rows ([S-16634]): each device stands as a card of its own.
 - View links: a row read through a Bluetooth endpoint is that device by its address (a container's or a
   controller's reading none); the pointer on it publishes the device, and a row takes the hover fill while its device
   is pointed at elsewhere on the view ([S-11955], [S-11958]).

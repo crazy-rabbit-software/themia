@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Shell;
@@ -8,69 +7,73 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Devices;
-using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.WinUI.Devices;
+using Themia.Core.Geometry;
 
 namespace Themia.Widget.DeviceBatteries;
 
 /// <summary>
-/// [S-10000] The peripherals' batteries as a kit list ([S-7060]) over the host's one battery source
-/// (<see cref="IWidgetHost.DeviceBatteries"/>, [S-4470]), shaped by <see cref="DeviceBatteriesSpec"/>.
+/// [S-10000] [S-16665] The peripherals' batteries as device items (<see cref="DeviceList"/>) over the host's one battery
+/// source (<see cref="IWidgetHost.DeviceBatteries"/>, [S-4470]), folded and ordered by <see cref="DeviceBatteriesRules"/>,
+/// each mapped by <see cref="DeviceBatteriesItems"/>. A click opens Windows' Bluetooth &amp; devices page.
 /// </summary>
 internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
+    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys, IWidgetGrounds
 {
     private const string Scope = "device-batteries";
 
-    /// <summary>[S-10005] Windows' Bluetooth &amp; devices page, where a device's battery is Windows' own.</summary>
-    private static readonly Uri SettingsPage = new("ms-settings:bluetooth");
-
-    /// <summary>Nothing on a row ages: the list is redrawn when the source says; this is only the binding's slowest tick.</summary>
-    private static readonly TimeSpan Redraw = TimeSpan.FromMinutes(15);
-
     private readonly IWidgetHost _host;
-    private readonly KitBinding _binding;
-    private readonly BatterySource _source;
-
+    private readonly DeviceList _list;
     private DeviceBatteriesConfig _config = new();
+    private IDisposable? _watch;
     private bool _attached;
+
+    /// <summary>[S-11850] A sample's or a render's snapshot held in place of the host's.</summary>
+    private DeviceBatterySnapshot? _held;
 
     public DeviceBatteriesView(IWidgetHost host)
     {
         _host = host;
-        _source = new BatterySource(host.DeviceBatteries, () => _config);
-        _binding = new KitBinding(host, DeviceBatteriesSpec.Spec, Glyphs.Devices, DeviceBatteriesSpec.Actions, Run)
+        _list = new DeviceList(host)
         {
-            Decorate = LinkRow,
-            Redrawing = ForgetRows,
+            Opened = _ => OpenSettings(),
+            CanOpen = () => _surface is not { EditMode: true } && !_host.IsPreview,
+            Menu = _ => DeviceBatteriesItems.Menu(OpenSettings, Refresh),
+            Decorate = LinkItem,
+            Redrawing = ForgetItems,
         };
-
-        Children.Add(_binding.List);
-        Children.Add(_binding.State);
-
-        // [S-12481] The ring while a read is out, over the content's top end.
-        _binding.Status.Place(this);
+        _list.GroundsChanged += () => GroundsChanged?.Invoke();
+        Children.Add(_list);
     }
 
+    /// <inheritdoc />
+    public event Action? GroundsChanged;
+
+    /// <summary>[S-16666] With the gap on, every device's box (the list stands the inset over the view's top).</summary>
+    public IReadOnlyList<DipRect>? Grounds => _list.Grounds?.Select(r => new DipRect(r.X, r.Y + _list.Margin.Top, r.Width, r.Height)).ToList();
+
     /// <summary>[S-10005] Refresh: read Windows again now.</summary>
-    public IReadOnlyList<WidgetAction> ContextActions => _binding.CardActions;
+    public IReadOnlyList<WidgetAction> ContextActions => [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), Refresh)];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _config = config as DeviceBatteriesConfig ?? new DeviceBatteriesConfig();
         _attached = true;
-        _source.Start(ticker);
+        Strings.Changed -= OnLanguage;
+        Strings.Changed += OnLanguage;
+        if (_held is null)
+        {
+            _watch ??= _host.DeviceBatteries.Watch(ticker, Show);
+        }
+
         _links.Join(_surface?.Links);
-        _binding.Attach(ticker, _source, _config, Redraw);
+        Show();
     }
 
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-    }
+    public void Bind(IWidgetSurface surface) => _surface = surface;
 
-    public void ApplySize(WidgetArea area) => _binding.Size(area);
+    public void ApplySize(WidgetArea area) => _list.Size(area);
 
     /// <summary>The threshold and the charging switch only redraw what is held: Windows is not asked again.</summary>
     public void ApplyConfig(WidgetConfig config)
@@ -78,87 +81,62 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSu
         _config = config as DeviceBatteriesConfig ?? new DeviceBatteriesConfig();
         if (_attached)
         {
-            _binding.Apply(_source, _config, Redraw, show: false);
+            Show();
         }
     }
 
-    public bool HandleKey(WidgetKey key) => _binding.HandleKey(key);
+    public bool HandleKey(WidgetKey key) => _list.HandleKey(key);
 
     public void Detach()
     {
         _attached = false;
-        _binding.Dispose();
-        _source.Stop();
+        Strings.Changed -= OnLanguage;
+        _watch?.Dispose();
+        _watch = null;
         _links.Leave();
     }
 
-    /// <summary>[S-10005] Open (double-click, Enter): Windows' Bluetooth &amp; devices page; a preview opens nothing.</summary>
-    private void Run(KitItem item, KitAction action)
+    private void OnLanguage(Locale locale) => Show();
+
+    /// <summary>[S-10001] The last read folded and ordered as device items; none: the face with why.</summary>
+    private void Show()
     {
-        if (action is { Kind: KitActionKind.Open, Id: DeviceBatteriesSpec.OpenSettings } && !_host.IsPreview)
+        var snapshot = _held ?? _host.DeviceBatteries.Last;
+        var locale = Strings.Current;
+        var rows = snapshot.Status == DeviceBatteryStatus.Ok
+            ? DeviceBatteriesRules.Arrange(snapshot.Readings, _config.ShowCharging, DeviceBatteriesConfig.MaxDevices)
+            : [];
+        IReadOnlyList<DeviceItem> items = rows.Count > 0
+            ? [.. rows.Select(row => DeviceBatteriesItems.Item(row, _config.EffectiveThreshold, locale))]
+            : [DeviceBatteriesItems.Empty(snapshot.Status, locale)];
+        _list.Gap = _config.Gap;
+        _list.Show(items, stock: true);
+    }
+
+    /// <summary>[S-10005] Windows' Bluetooth &amp; devices page; a preview opens nothing.</summary>
+    private void OpenSettings()
+    {
+        if (!_host.IsPreview)
         {
-            var outcome = _host.Launcher.OpenWindowsSettings(SettingsPage);
+            var outcome = _host.Launcher.OpenWindowsSettings(DeviceBatteriesItems.SettingsPage);
             Log.Debug(Scope, $"open Bluetooth & devices: {outcome}");
         }
     }
 
-    /// <summary>
-    /// [S-10001] The host's battery read as a kit source: its last snapshot folded and ordered by the
-    /// widget's rules, its read in the header's ring. The host is the one place Windows is asked.
-    /// </summary>
-    private sealed class BatterySource(IDeviceBatteries batteries, Func<DeviceBatteriesConfig> config) : IKitSource
+    private void Refresh()
     {
-        private IDisposable? _watch;
-
-        /// <summary>[S-11850] A sample's or a render's snapshot held in place of the host's.</summary>
-        private DeviceBatterySnapshot? _held;
-
-        private bool Holding => _held is not null;
-
-        private DeviceBatterySnapshot Snapshot => _held ?? batteries.Last;
-
-        public event Action? Changed;
-
-        public bool Busy => !Holding && batteries.Busy;
-
-        public void Start(Ticker ticker) => _watch ??= batteries.Watch(ticker, () => Changed?.Invoke());
-
-        public void Stop()
+        if (_held is null)
         {
-            _watch?.Dispose();
-            _watch = null;
+            _host.DeviceBatteries.Refresh();
         }
+    }
 
-        public void Show(bool refresh)
-        {
-            if (refresh && !Holding)
-            {
-                batteries.Refresh();
-            }
-        }
-
-        public KitRead Read()
-        {
-            var snapshot = Snapshot;
-            var settings = config();
-            var status = snapshot.Status switch
-            {
-                DeviceBatteryStatus.Loading => FetchStatus.Loading,
-                DeviceBatteryStatus.Failed => FetchStatus.BadResponse,
-                _ => FetchStatus.Ok,
-            };
-
-            var rows = DeviceBatteriesRules.Arrange(snapshot.Readings, settings.ShowCharging, DeviceBatteriesConfig.MaxDevices);
-            var locale = Strings.Current;
-            var detail = status == FetchStatus.BadResponse ? DeviceBatteriesStr.DeviceBatteries_Failed.Text(locale) : null;
-            return new KitRead([.. rows.Select(row => DeviceBatteriesSpec.Item(row, settings.EffectiveThreshold, locale))], [new KitOutcome(null, status, detail)]);
-        }
-
-        //// <summary>[S-11850] A sample or a render: hold this snapshot as if the host had read it.</summary>
-        public void HoldForPreview(DeviceBatterySnapshot snapshot)
-        {
-            _held = snapshot;
-            Changed?.Invoke();
-        }
+    /// <summary>[S-11850] A sample or a render: hold this snapshot as if the host had read it.</summary>
+    private void Hold(DeviceBatterySnapshot snapshot)
+    {
+        _watch?.Dispose();
+        _watch = null;
+        _held = snapshot;
+        Show();
     }
 }

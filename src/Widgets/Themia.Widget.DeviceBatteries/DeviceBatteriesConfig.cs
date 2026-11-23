@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Sdk;
 using Themia.Core.Model;
+using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.DeviceBatteries;
@@ -9,27 +10,27 @@ namespace Themia.Widget.DeviceBatteries;
 /// [S-10000] [S-10004] What one Device batteries widget remembers: where a battery counts as low, and
 /// whether a device on its charger is listed. Every property is stored; copy each in <see cref="Clone"/>.
 /// </summary>
-public sealed class DeviceBatteriesConfig : WidgetConfig, IKitConfig, IKitRows
+public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows
 {
-    /// <summary>[S-11028] A new list's rows.</summary>
-    public const int DefaultRows = 4;
+    /// <summary>[S-11028] [S-16665] How many devices a new card stands (its natural height), 1..20; a new list three.</summary>
+    public int Rows { get; set; } = DeviceLayout.DefaultRows;
 
-    /// <summary>[S-11028] How many rows the list shows (1..20); more devices scroll inside them.</summary>
-    public int Rows { get; set; } = DefaultRows;
-
-    /// <summary>[S-11028] Every row has its two lines (the device, its kind or charging under it); the menu offers no choice.</summary>
+    /// <summary>[S-16665] A device item has its one face: the menu offers no lines.</summary>
     [JsonIgnore]
     bool IKitRows.OffersLines => false;
 
     [JsonIgnore]
     public int Lines
     {
-        get => 2;
+        get => 1;
         set
         {
-            // ignore: a device's row always has its second line.
+            // ignore: a device item has its one face.
         }
     }
+
+    /// <summary>[S-16666] One grid cell between two devices, so each stands as a card of its own.</summary>
+    public bool Gap { get; set; }
 
     /// <summary>[S-10003] The thresholds offered: the tray's 20 % in the middle.</summary>
     public static readonly IReadOnlyList<int> Thresholds = [10, 15, 20, 25, 30];
@@ -49,21 +50,6 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitConfig, IKitRows
     /// <summary>[S-10003] The threshold in use: a hand-edited value off the offered steps is the default.</summary>
     [JsonIgnore]
     public int EffectiveThreshold => Thresholds.Contains(LowThreshold) ? LowThreshold : DefaultThreshold;
-
-    /// <summary>[S-7050] A local source: no account.</summary>
-    [JsonIgnore]
-    public FeatureId? Needs => null;
-
-    /// <summary>[S-7050] Nothing to set up: Windows says what there is.</summary>
-    [JsonIgnore]
-    public bool Configured => true;
-
-    [JsonIgnore]
-    public IReadOnlyList<string> AccountIds => [];
-
-    /// <summary>[S-10001] The icon, the value and the second line are always the row's: no switch for them.</summary>
-    [JsonIgnore]
-    public KitShow Shows => DeviceBatteriesSpec.Spec.Optional;
 
     /// <summary>[S-10003] A threshold off the offered steps is put back to the default, loudly.</summary>
     public override IReadOnlyList<string> Repair()
@@ -89,6 +75,7 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitConfig, IKitRows
     {
         LowThreshold = LowThreshold,
         ShowCharging = ShowCharging,
+        Gap = Gap,
         Rows = Rows,
     };
 }

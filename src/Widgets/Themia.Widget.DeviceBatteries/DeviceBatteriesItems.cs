@@ -1,3 +1,5 @@
+using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
@@ -5,40 +7,16 @@ using Themia.Sdk.Kit;
 namespace Themia.Widget.DeviceBatteries;
 
 /// <summary>
-/// [S-10001] The Device batteries widget on the kit: rows of the rich look held to two lines (the
-/// device, its battery as the value; what it is and whether it charges under it), the kind's icon as
-/// the lead, the battery kept at every width ([S-7073]), up to two columns.
+/// [S-10001] [S-16665] The peripherals' batteries on the device family's item ([S-16630]): the kind's glyph, the device's
+/// name, its battery as the reading with its bar (Critical at or below the threshold), what it is and whether it charges
+/// as its line ("Controller · Charging").
 /// </summary>
-public static class DeviceBatteriesSpec
+public static class DeviceBatteriesItems
 {
-    /// <summary>The Open action's id: the view opens Windows' Bluetooth &amp; devices page itself.</summary>
-    public const string OpenSettings = "settings";
+    /// <summary>[S-10005] Windows' Bluetooth &amp; devices page, where a device's battery is Windows' own.</summary>
+    public static readonly Uri SettingsPage = new("ms-settings:bluetooth");
 
-    public static KitSpec Spec { get; } = new(
-        KitRowLook.Rich,
-        KitShow.Lead | KitShow.Subtitle | KitShow.When,
-        () => DeviceBatteriesStr.DeviceBatteries_Unknown.Text(),
-        () => DeviceBatteriesStr.DeviceBatteries_Empty.Text(),
-        KitTime.None,
-        MaxColumns: 2)
-    {
-        Readings = true,
-    };
-
-    /// <summary>[S-10001] The kind's icon.</summary>
-    public static KitIcon Icon(DeviceKind kind) => kind switch
-    {
-        DeviceKind.Audio => KitIcon.Headphones,
-        DeviceKind.Mouse => KitIcon.Mouse,
-        DeviceKind.Keyboard => KitIcon.Keyboard,
-        DeviceKind.Phone => KitIcon.Phone,
-        DeviceKind.Gamepad => KitIcon.Gamepad,
-        DeviceKind.Pen => KitIcon.Pen,
-        DeviceKind.Watch => KitIcon.Watch,
-        _ => KitIcon.Device,
-    };
-
-    /// <summary>[S-10001] What the device is, in words: the second line's start.</summary>
+    /// <summary>[S-10001] What the device is, in words: the line's start.</summary>
     public static string KindLabel(DeviceKind kind, Locale locale) => (kind switch
     {
         DeviceKind.Audio => DeviceBatteriesStr.DeviceBatteries_Kind_Audio,
@@ -52,39 +30,50 @@ public static class DeviceBatteriesSpec
     }).Text(locale);
 
     /// <summary>
-    /// [S-10001] [S-10003] A device as a kit item: its name, its battery as the value (Critical at or
-    /// below the threshold), the kind and "Charging" (where it says so) on the second line, the kind's
-    /// icon as the lead, and all of it in the tooltip, for the widths that drop a part.
+    /// [S-10001] [S-10003] [S-16665] A device as a device item: its name, its battery the reading and the bar (Critical at
+    /// or below <paramref name="threshold"/>), the kind and "Charging" (where its source says so) its line, the kind's
+    /// glyph its icon, and all of it in the tooltip.
     /// </summary>
-    public static KitItem Item(DeviceBatteryRow row, int threshold, Locale locale)
+    public static DeviceItem Item(DeviceBatteryRow row, int threshold, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(row);
 
         var percent = LocaleFormat.Percent(locale, row.Percent);
         var kind = KindLabel(row.Kind, locale);
-        var second = row.Charging == true ? $"{kind} · {DeviceBatteriesStr.DeviceBatteries_Charging.Text(locale)}" : kind;
+        var line = row.Charging == true ? $"{kind} · {DeviceBatteriesStr.DeviceBatteries_Charging.Text(locale)}" : kind;
         var name = row.Name.Length > 0 ? row.Name : DeviceBatteriesStr.DeviceBatteries_Unknown.Text(locale);
-        var low = DeviceBatteriesRules.IsLow(row.Percent, threshold);
-
-        return new KitItem(
+        return new DeviceItem(
             row.Id,
-            row.Name,
-            Subtitle: second,
-            Lead: new KitLead(KitLeadKind.Icon, Icon(row.Kind).ToString()),
-            Tone: low ? KitTone.Critical : KitTone.Neutral,
-            Tooltip: $"{name} · {percent} · {second}",
-            Value: percent);
+            name,
+            new DeviceIcon(DeviceItems.Glyph(row.Kind), ColourRole.TextPrimary),
+            DeviceReading.Percent(locale, row.Percent / 100.0),
+            line,
+            row.Percent / 100.0,
+            DeviceItems.BatteryRole(row.Percent, threshold),
+            $"{name} · {percent} · {line}");
     }
 
-    /// <summary>[S-10005] A row's menu: Windows' Bluetooth &amp; devices page, and Refresh.</summary>
-    public static IReadOnlyList<KitAction> Actions(KitItem item)
+    /// <summary>
+    /// [S-10000] [S-16665] WR-10: no battery to show keeps the face, one item: the devices glyph, "--", the empty bar and why
+    /// ("No connected device reports its battery", "Couldn't read the batteries", reading).
+    /// </summary>
+    public static DeviceItem Empty(DeviceBatteryStatus status, Locale locale)
     {
-        ArgumentNullException.ThrowIfNull(item);
-
-        return
-        [
-            new KitAction(KitActionKind.Open, DeviceBatteriesStr.DeviceBatteries_OpenSettings.Text(), KitIcon.Open, Id: OpenSettings),
-            new KitAction(KitActionKind.Refresh, Themia.Core.Localization.Str.Common_Refresh.Text()),
-        ];
+        var why = status switch
+        {
+            DeviceBatteryStatus.Failed => DeviceBatteriesStr.DeviceBatteries_Failed.Text(locale),
+            DeviceBatteryStatus.Loading => Strings.Get(locale, Str.Common_Loading),
+            _ => DeviceBatteriesStr.DeviceBatteries_Empty.Text(locale),
+        };
+        var role = status == DeviceBatteryStatus.Failed ? ColourRole.Caution : ColourRole.TextSecondary;
+        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(Glyphs.Devices, role), DeviceReading.None(), why, 0, ColourRole.Accent, why);
     }
+
+    /// <summary>[S-10005] A device's menu: Windows' Bluetooth &amp; devices page, and Refresh.</summary>
+    public static IReadOnlyList<ItemMenuEntry> Menu(Action open, Action refresh) =>
+    [
+        new ItemMenuEntry(Glyphs.Open, DeviceBatteriesStr.DeviceBatteries_OpenSettings.Text(), open),
+        ItemMenuEntry.Separator,
+        new ItemMenuEntry(Glyphs.Refresh, Str.Common_Refresh.Text(), refresh),
+    ];
 }
