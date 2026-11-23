@@ -89,6 +89,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _placeholder.HorizontalAlignment = HorizontalAlignment.Center;
         _placeholder.VerticalAlignment = VerticalAlignment.Center;
         _cover.Child = _placeholder;
+
+        // [S-16514] A picture filling its box: where it is the card's band (Full art, a cover alone) it is the face's edges.
+        PictureMark.Mark(_cover);
         _cover.Background = Family.Brush(ColourRole.Control);
         _scrim.Background = _scrimFill;
 
@@ -128,8 +131,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _face.Add(MusicPart.PlayPause, _playPause);
         _face.Add(MusicPart.Next, _next);
 
-        // [S-16509] The face is the item, the card edge to edge; its light follows the pointer, its controls light alone.
-        ItemMark.Mark(_item);
+        // [S-16509] The face is the one thing a click on it opens, the card edge to edge; its light follows the pointer, its
+        // controls light alone. [S-16514] It is no item of a list (WidgetItems: a press on it is the widget's, not its
+        // background's): the layout dump lists its parts, so the checks measure the face itself.
+        WidgetItems.Mark(_item);
         _item.Background = Family.Brush(ColourRole.Clear);
         _item.Child = _face;
         _item.PointerEntered += (_, _) => Point(over: true);
@@ -183,6 +188,12 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <summary>[S-11883] The light and the art band reach the card's edges: they take its corners.</summary>
     public void ApplyCorners(CornerRadius corners)
     {
+        // The card tells it on every layout of its own: the same corners lay nothing out again (a pass that asked another).
+        if (corners == _corners)
+        {
+            return;
+        }
+
         _corners = corners;
         _item.CornerRadius = corners;
         _light.CornerRadius = corners;
@@ -224,7 +235,8 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         Transport(now);
         Light(Opens is not null);
         Artwork(now);
-        Resubscribe(now.State == MusicState.Playing && !_hidden && (_config.Has(MusicElement.Elapsed) || _config.Has(MusicElement.Bar)));
+        // A render's sample stands still (its clock frozen with its feed): the picture settles.
+        Resubscribe(now.State == MusicState.Playing && !_hidden && !_feed.Frozen && (_config.Has(MusicElement.Elapsed) || _config.Has(MusicElement.Bar)));
     }
 
     /// <summary>
@@ -492,6 +504,12 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         private IReadOnlyCollection<MusicElement> _shown = MusicElements.All;
         private string _template = MusicPlan.TimeTemplate(TimeSpan.Zero);
 
+        /// <summary>How near two boxes are to be one box: the card's pixel rounding.</summary>
+        private const double Near = 1;
+
+        /// <summary>The box the face was last arranged in; null before its first arrange.</summary>
+        private Size? _arranged;
+
         /// <summary>The box the last measure planned the face for, and that plan.</summary>
         private (Size Box, MusicLayout Laid) _measured = (Size.Empty, new MusicLayout(1, new Dictionary<MusicPart, MusicBox>(), false));
 
@@ -548,12 +566,17 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             var natural = MusicPlan.Sizing(_style, _shown).Natural;
             var size = new Size(double.IsFinite(availableSize.Width) ? availableSize.Width : natural.Width,
                 double.IsFinite(availableSize.Height) ? availableSize.Height : natural.Height);
-            var laid = Lay(size);
-            _measured = (size, laid);
+            // [S-16502] The parts are measured in the box the face was last arranged in, where it has been: a card may measure
+            // its view in one box and arrange it in another (its largest), and a face planned for each in turn measured its
+            // parts again in every arrange, asked for another measure and never settled.
+            var box = _arranged ?? size;
+
+            var laid = Lay(box);
+            _measured = (box, laid);
             _view._light.Measure(size);
             foreach (var (part, (element, scale)) in _parts)
             {
-                element.Measure(laid.Parts.TryGetValue(part, out var box) ? Own(box, scale is null ? 1 : laid.Scale) : default);
+                element.Measure(laid.Parts.TryGetValue(part, out var at) ? Own(at, scale is null ? 1 : laid.Scale) : default);
             }
 
             return size;
@@ -564,13 +587,17 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             // The measure's face where the box is the measure's but for the card's pixel rounding: each part is laid in the
             // very box it was measured in. A face planned again for a box a fraction of a DIP off scaled a hair differently,
             // measured its parts again, asked for another measure and was planned for the first box again: a layout cycle
-            // (the strip at its least) or a picture that never settled (a cut line, stacked).
+            // (the strip at its least) or a picture that never settled (a cut line, stacked). A box truly other than the
+            // measure's is laid and measured here, and remembered for the next measure.
             var (measured, laid) = _measured;
-            var remeasure = Math.Abs(measured.Width - finalSize.Width) >= 1 || Math.Abs(measured.Height - finalSize.Height) >= 1;
+            var remeasure = Math.Abs(measured.Width - finalSize.Width) >= Near || Math.Abs(measured.Height - finalSize.Height) >= Near;
             if (remeasure)
             {
                 laid = Lay(finalSize);
+                _measured = (finalSize, laid);
             }
+
+            _arranged = remeasure || _arranged is null ? finalSize : _arranged;
 
             _view._light.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
             foreach (var (part, (element, scale)) in _parts)

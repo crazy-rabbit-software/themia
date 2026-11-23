@@ -46,7 +46,9 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   the one main action in the accent, next: 28 icon buttons 8 apart, left to right in every language). **Nothing gives
   way** (WR-7, the audit of 2026-11-22: the transport had dropped out of a short card while the texts grew): every shown
   element is drawn at every size; the least card is the whole block at the legibility floor (a time's Caption at 9, the
-  texts' Body at 9, a button's glyph at 12: 0.75 with times or buttons, WR-14), the natural card the block at 1 with the
+  texts' Body at 9, a button's glyph at 12: 0.75 with times or buttons, WR-14), sized on the widest time there is (an
+  hour-long track's "1:02:30") with a pixel to spare (the audit of 2026-11-23: an hour-long track at the least card and the
+  strip at its least drew under the floors), the natural card the block at 1 with the
   style's column (220 beside a cover, 160 stacked, 216 in Full art). **A hidden element closes its room**: its line, its
   gap and its share of the least and natural boxes go with it (a cover hidden is the column alone in every style; the
   transport alone is 124 × 52). A hover or a press never changes a part's place or size (WR-12): the plan is asked by
@@ -54,17 +56,19 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   element hidden, and several sets, at the least, natural, large and off-proportion boxes: every shown element drawn,
   inside the inset, none over another, the block on the inset, the natural at 1 and the least at the floor).
 - **[S-16503]** **Side cover**: the cover at the column's left as tall as the column (96 with every element shown, in the
-  one radius), 12 from it the column. A new card 352 × 120; its least 197 × 96. Tests `MusicPlanTests.S16503_`.
+  one radius), 12 from it the column. A new card 352 × 120; its least 213 × 97. Tests `MusicPlanTests.S16503_`.
 - **[S-16504]** **Stacked**: the cover a square over the column, as wide as it (160), 12 over it; the transport centred
   under the cover. The block keeps its proportions: centred across where the height stops it, down where the width does.
   A new card 184 × 292. Tests `MusicPlanTests.S16504_`.
 - **[S-16505]** **Full art**: the cover is the card's band, edge to edge (cropped to fill; the card's corners); the column
   stands on the foot's inset across the card, over a scrim: the card's ground (the Solid role, its theme's colour) fading
-  in from clear 24 over the column to 0.85 under it, so the texts keep their roles and read in either theme. The art keeps
-  a room of 120 over the column at the scale drawn. A new card 240 × 240. Tests `MusicPlanTests.S16505_`.
+  in from clear 24 over the column to 0.85 under it, so the texts keep their roles and read in either theme. The column
+  grows as one block until the width or two thirds of the card's height stop it (the audit of 2026-11-23: it had kept to
+  a fixed 0.4 of the height, 115 of 300 DIP at 900 × 300, WR-7), the art in sight over it; without a picture the music
+  glyph stands in the art's room. A new card 240 × 240. Tests `MusicPlanTests.S16505_`.
 - **[S-16506]** **Strip**: one line, no cover: the title and, after a dot, the artist and album (one Body line, the title
   semibold), the progress line (its bar 96) and the transport, 12 apart, each centred down the line; the line of text
-  takes the width left (without one, the bar). A new card 506 × 52; its least 311 × 45. Tests `MusicPlanTests.S16506_`,
+  takes the width left (without one, the bar). A new card 506 × 52; its least 327 × 46. Tests `MusicPlanTests.S16506_`,
   `MusicMenuTests.S16506_`.
 - **[S-16507]** **A cover alone** (nothing else shown, in any style): the picture is the card, edge to edge (the owner's
   exemption for a picture filling the card), a new card a square of 160, down to the grid's least widget (32); what
@@ -79,7 +83,8 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   item, the card edge to edge (`ItemMark`), whose light (the item layer's row fill, over the art and under the texts)
   shows at rest, under the pointer and pressed while a click opens the player ([S-2030]); with nothing to open it is
   clear. A button or the seek bar under the pointer lights alone: the face's light goes back to rest there. The item
-  background reaches the light, the item text nothing (`IDrawsItems.DrawsItemText` false). Renders' `--hover` light the
+  background reaches the light, the item text nothing (`IDrawsItems.DrawsItemText` false). It is no item of a list to the
+  layout dump ([S-16514]): the checks measure the face's parts, and the cover is a picture (`PictureMark`). Renders' `--hover` light the
   face or a button's own hover state (a preview's bar seeks nothing and takes no pointer: the face lights over it). Tests `ItemKindsHostTests.S6570_S16509_`.
 - **[S-16510]** **The times never move and are never cut** (WR-15, owner 2026-11-20: "the clock right now changes its
   layout depending on the time that it shows"; the audit of 2026-11-22: the length had dropped out of the least card and
@@ -89,6 +94,12 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   check reads them by their template); the elapsed time ticks once a second while a track plays (from the session's
   anchor, and nothing at rest) and follows the pointer while scrubbing ([S-1465]); a new template (another track) lays
   the line again, a second never does. Tests `MusicPlanTests.S16510_`.
+- **[S-16515]** **Every state in every style, and the element sets as states** (the audit of 2026-11-23: the other
+  styles had been drawn in their sample alone, and only the whole set): the checks draw `music` in every state in every
+  style (`EVERY_STATE_STYLES` in `scripts/renders.py`), and its Debug states hold the sets the folds and the page make,
+  each the sample in that set and its card sized by it (`DrawnConfig`): `coverOnly`, `progressOnly`, `textsTransport`,
+  `transportOnly`, `playOnly`, `titleOnly`. A sample's clock stands still (no tick while the feed is frozen), so a render of
+  a playing track settles.
 - **[S-16513]** **The cover and the progress fold back into it** (owner, 2026-11-23: "now playing is still split into
   multiple widgets"; [S-16230], [S-16511]): on load a placed `musicCover` or `musicProgress` (and a part of 21-22 Nov:
   `musicArtist`, `musicAlbum`, `musicPrevious`, `musicPlayPause`, `musicNext`, `musicElapsed`, `musicDuration`) that touches
