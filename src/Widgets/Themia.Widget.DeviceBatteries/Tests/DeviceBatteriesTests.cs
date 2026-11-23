@@ -196,9 +196,9 @@ public sealed class DeviceBatteriesTests
     public void S11028_S16665_its_rows_of_device_items_are_its_natural_height_and_every_cell_between()
     {
         var kind = ModuleCatalog.Of(new WidgetId("deviceBatteries"));
-        Assert.Equal(3 * 80, kind.SizingOf().Natural.Height);
-        Assert.Equal(80, kind.SizingOf().Min.Height);
-        Assert.Equal((2 * 80) + 10, kind.SizingOf(new DeviceBatteriesConfig { Rows = 2, Gap = 1 }).Natural.Height);
+        Assert.Equal(3 * 60, kind.SizingOf().Natural.Height);
+        Assert.Equal(60, kind.SizingOf().Min.Height);
+        Assert.Equal((2 * 60) + 10, kind.SizingOf(new DeviceBatteriesConfig { Rows = 2, Gap = 1 }).Natural.Height);
         Assert.Equal(6, ((DeviceBatteriesConfig)new DeviceBatteriesConfig { Rows = 6 }.Clone()).Rows);
     }
 }

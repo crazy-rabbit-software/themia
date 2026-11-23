@@ -14,7 +14,8 @@ namespace Themia.Sdk.WinUI.Items;
 /// <param name="Stock">Drives wear their kinds' stock icons (a render's).</param>
 /// <param name="Columns">A table's columns, every row's the same; empty in the other arrangements.</param>
 /// <param name="Inner">A table row's width inside its side insets: its columns' room.</param>
-public sealed record ItemDraw(IReadOnlyCollection<ItemPart> Hidden, ItemShape Shape, bool Stock = false, IReadOnlyList<ItemColumn>? Columns = null, double Inner = 0)
+/// <param name="EndWidth">[S-17181] The one width of a List or Column list item's end where the list's columns are even; 0 its own.</param>
+public sealed record ItemDraw(IReadOnlyCollection<ItemPart> Hidden, ItemShape Shape, bool Stock = false, IReadOnlyList<ItemColumn>? Columns = null, double Inner = 0, double EndWidth = 0)
 {
     /// <summary>Whether <paramref name="item"/> draws <paramref name="part"/>: it has one and the user did not leave it out.</summary>
     public bool Draws(Item item, ItemPart part) => item.Has(part) && !Hidden.Contains(part);
@@ -27,7 +28,9 @@ public sealed record ItemDraw(IReadOnlyCollection<ItemPart> Hidden, ItemShape Sh
 /// (Caption, secondary), 12, its end (a reading at 28, a text, a button) at the item's end; 12 under that row the bar across
 /// it, the inset under the bar. <b>Column list</b>: the same in a compact row (a 16 lead, the end in Body), the bar under it.
 /// <b>Row list</b> and <b>Grid</b>: a column of its parts, centred: the title, the 32 lead, the end, the bar (standing up in a
-/// row list), the subtitle, the note. <b>Table</b>: each part in its column. A part the item has none of, or the user left
+/// row list), the subtitle, the note. <b>Table</b>: each part in its column. [S-17180] A bar at the item's side (the devices')
+/// stands at the item's far end instead, in the inset, the content's height, filling from its foot, 12 beside the end: in a
+/// List item, a Column list row and a grid's card. A part the item has none of, or the user left
 /// out ([S-16670]), takes no room and is not drawn: the others close up. The item is its box edge to edge (WR-3): the list
 /// lights it under the pointer.
 /// </summary>
@@ -45,11 +48,16 @@ public sealed partial class ItemView : Grid
     private readonly Button _action;
     private readonly ChartBar _bar;
     private readonly StackPanel? _texts;
+    private readonly bool _side;
 
-    public ItemView(IWidgetHost host, ItemStyle style)
+    /// <summary>An item in <paramref name="style"/>, its bar under it or (<paramref name="barAt"/> Side) standing at its end.</summary>
+    public ItemView(IWidgetHost host, ItemStyle style, ItemBarAt barAt = ItemBarAt.Under)
     {
         ArgumentNullException.ThrowIfNull(host);
         _style = style;
+
+        // [S-17180] A row list's bar stands in its column and a table's is its column, wherever the kind puts it.
+        _side = barAt == ItemBarAt.Side && style is ItemStyle.List or ItemStyle.ColumnList or ItemStyle.Grid;
         Background = Family.Brush(ColourRole.Clear);
 
         // [S-12831] An item of its widget: the layout dump and the item check see its box.
@@ -77,7 +85,7 @@ public sealed partial class ItemView : Grid
         _ends = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S2, VerticalAlignment = VerticalAlignment.Center, Children = { _end, _second } };
         _action = ControlsBlock.TextButton(string.Empty, main: true, () => Acted?.Invoke(this));
         _action.VerticalAlignment = VerticalAlignment.Center;
-        _bar = new ChartBar(vertical: style == ItemStyle.RowList);
+        _bar = new ChartBar(vertical: style == ItemStyle.RowList || _side);
 
         if (style == ItemStyle.List)
         {
@@ -122,6 +130,9 @@ public sealed partial class ItemView : Grid
         Padding = basis with { Right = basis.Right + (double.IsFinite(width) ? Math.Max(0, width) : 0) };
     }
 
+    /// <summary>[S-17180] Where its bar stands (made so: a list whose bar moves makes its items again).</summary>
+    public ItemBarAt BarAt => _side ? ItemBarAt.Side : ItemBarAt.Under;
+
     /// <summary>The item it shows; null before the first.</summary>
     public Item? Item { get; private set; }
 
@@ -141,23 +152,39 @@ public sealed partial class ItemView : Grid
         return text;
     }
 
-    /// <summary>[S-16631] [S-16943] The row faces: the lead, the texts, the end; the bar under them.</summary>
+    /// <summary>
+    /// [S-16631] [S-16943] The row faces: the lead, the texts, the end; the bar under them. [S-17180] Or the bar at the row's
+    /// end, standing the content's height (a List item's between its insets, a compact row's 4 short of its edges), 12 beside
+    /// the end.
+    /// </summary>
     private void BuildRow(bool compact)
     {
         Padding = compact
             ? new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0)
-            : new Thickness(FamilySpace.Inset, FamilySpace.ContentTop, FamilySpace.Inset, 0);
+            : new Thickness(FamilySpace.Inset, FamilySpace.ContentTop, FamilySpace.Inset, _side ? FamilySpace.Inset : 0);
         _lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
         _ends.Margin = new Thickness(FamilySpace.S3, 0, 0, 0);
+        _ends.HorizontalAlignment = HorizontalAlignment.Right;
         _action.Margin = new Thickness(FamilySpace.S3, 0, 0, 0);
-        _bar.Margin = new Thickness(0, compact ? 0 : FamilySpace.S3, 0, 0);
+        _action.HorizontalAlignment = HorizontalAlignment.Right;
+        _bar.Margin = _side
+            ? new Thickness(FamilySpace.S3, compact ? FamilySpace.S1 : 0, 0, compact ? FamilySpace.S1 : 0)
+            : new Thickness(0, compact ? 0 : FamilySpace.S3, 0, 0);
 
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        if (_side)
+        {
+            ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        }
+        else
+        {
+            RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        }
 
         Place(_lead, 0, 0);
         Place(_texts!, 0, 1);
@@ -169,7 +196,43 @@ public sealed partial class ItemView : Grid
 
         Place(_ends, 0, 2);
         Place(_action, 0, 2);
-        Place(_bar, 1, 0, 3);
+        if (_side)
+        {
+            _bar.VerticalAlignment = VerticalAlignment.Stretch;
+            Place(_bar, 0, 3);
+        }
+        else
+        {
+            Place(_bar, 1, 0, 3);
+        }
+    }
+
+    /// <summary>
+    /// [S-17181] The width its end takes now (the reading, the text or the button with the 12 before it; 0 for none): a list
+    /// of even columns holds every item's end to the widest.
+    /// </summary>
+    public double EndWidth()
+    {
+        FrameworkElement? end = _reading is { Visibility: Visibility.Visible } reading ? reading
+            : _ends.Visibility == Visibility.Visible ? _ends
+            : _action.Visibility == Visibility.Visible ? _action
+            : null;
+        if (end is null)
+        {
+            return 0;
+        }
+
+        end.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        return end.DesiredSize.Width;
+    }
+
+    /// <summary>[S-17181] Hold its end's column to <paramref name="width"/> (0: its own), the end on the column's end.</summary>
+    public void HoldEnd(double width)
+    {
+        if (_style is ItemStyle.List or ItemStyle.ColumnList && ColumnDefinitions.Count > 2)
+        {
+            ColumnDefinitions[2].MinWidth = double.IsFinite(width) ? Math.Max(0, width) : 0;
+        }
     }
 
     /// <summary>[S-16942] [S-16944] The column faces: the parts stacked and centred; a row list's bar standing up in what is left.</summary>
@@ -201,6 +264,19 @@ public sealed partial class ItemView : Grid
             Place(top, 0, 0);
             Place(_bar, 1, 0);
             Place(under, 2, 0);
+        }
+        else if (_side)
+        {
+            // [S-17180] The card's parts centred in what the bar leaves, the bar standing at its end the card's height.
+            ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            top.VerticalAlignment = VerticalAlignment.Bottom;
+            var middle = new StackPanel { Spacing = FamilySpace.S1, Children = { top, under } };
+            Place(middle, 1, 0);
+            _bar.Margin = new Thickness(FamilySpace.S2, 0, 0, 0);
+            _bar.VerticalAlignment = VerticalAlignment.Stretch;
+            Place(_bar, 0, 1);
+            SetRowSpan(_bar, 4);
         }
         else
         {
@@ -268,6 +344,8 @@ public sealed partial class ItemView : Grid
         {
             Columns(columns, draw.Inner);
         }
+
+        HoldEnd(draw.EndWidth);
 
         ToolTipService.SetToolTip(this, item.Tooltip.Length > 0 ? item.Tooltip : null);
     }

@@ -17,13 +17,13 @@ public class BluetoothLadderTests
         var kind = Themia.Sdk.ModuleCatalog.Of(new Themia.Sdk.WidgetId("bluetooth"));
         var sizing = kind.Sizing(new BluetoothConfig());
 
-        Assert.Equal(3 * 80, sizing.Natural.Height);
+        Assert.Equal(3 * 60, sizing.Natural.Height);
         Assert.Equal(20, KitClamp(40));
         Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
         // [S-14500] One item at least, every cell taller too; [S-16661] the gap between two.
-        Assert.Equal(80, sizing.Min.Height);
-        Assert.Equal((2 * 80) + 10, kind.Sizing(new BluetoothConfig { Rows = 2, Gap = 1 }).Natural.Height);
+        Assert.Equal(60, sizing.Min.Height);
+        Assert.Equal((2 * 60) + 10, kind.Sizing(new BluetoothConfig { Rows = 2, Gap = 1 }).Natural.Height);
     }
 
     private static int KitClamp(int rows)

@@ -32,9 +32,9 @@ public sealed class DriveTests
     [Fact]
     public void S4672_the_bar_is_one_height_and_the_ring_its_dial_with_its_line()
     {
-        // [S-16637] The bar style is the device item itself: one item tall (76, 80 on the grid), 220..520 wide at least.
+        // [S-16637] [S-17180] The bar style is the device item itself: one item tall (60, its bar standing at its end), 220..520 wide at least.
         var bar = DriveFace.Scaled(DriveStyle.Bar);
-        Assert.Equal(80, bar.Natural.Height);
+        Assert.Equal(60, bar.Natural.Height);
         Assert.True(bar.FixedHeight);
         Assert.True(bar.Min.Width >= 220 && bar.Natural.Width >= 300 && bar.Max.Width >= 520);
 

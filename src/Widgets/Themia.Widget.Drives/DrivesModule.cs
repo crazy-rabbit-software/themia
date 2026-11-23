@@ -39,7 +39,7 @@ public abstract class DriveListModule : IWidgetModule
             Label = kind.Label,
             Description = kind.Description,
             Glyph = kind.Glyph,
-            Sizing = c => ItemLayout.Sizing((DriveListConfig)c, DeviceItems.Parts, reading: true),
+            Sizing = c => DeviceItems.Sizing((DriveListConfig)c),
             Traits = WidgetTraits.HasItems,
             Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
             Add = new(AddFolderId.Devices, 2, kind.Rank),

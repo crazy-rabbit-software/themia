@@ -15277,7 +15277,25 @@ view (current bluetooth))". The device items below became the item base; their r
   optional second value (a day's low after its high), or an action's button (the accent's, "Join"): the button acts, never in
   edit mode or a render, and a click elsewhere on the item opens it.
 - **[S-16949]** **The bar** (`ItemBar`): the share from..to of its track in its role (a drive's load, a battery, a day's
-  range); an item with a bar and nothing read keeps its empty track (WR-10).
+  range); an item with a bar and nothing read keeps its empty track (WR-10). Where it stands is the kind's ([S-17180]).
+- **[S-17180]** **The bar at the item's side** (owner, 2026-11-23: "the devices should actually get their percentage bar
+  reoriented, it should be all the way on the right side as a vertical bar and not horizontal anymore"): the bar slot stands
+  under the row (`ItemBarAt.Under`) or at the item's far end (`ItemBarAt.Side`, `ItemShape.BarAt`), one place a kind
+  states. At the side the bar is a vertical track in the inset at the item's right edge, the item's content tall (a List
+  item's between its top and bottom insets, a Column list row's 4 short of its edges, a grid card's between its 8s), filling
+  from its foot, its end (the percentage) right-aligned 12 beside it; the item has no bar row under it, so it is shorter (a
+  List item the inset, its 36 line and the inset: 60; a Column list row its family row; a card its parts alone) and the face
+  ([S-16637]) leaves the bar its 16 across. A row list's bar already stands in its column and a table's is its column: both
+  keep theirs wherever the kind puts it. The device widgets stand it at the side (`DeviceItems.Shape`: Drive, the drive
+  lists, USB sticks, network drives, Bluetooth, Device batteries, Battery); the meetings' running meeting and the forecast's
+  ranges keep theirs under the row (they are no devices, and a range from..to reads along a row). Tests
+  `ItemBaseTests.S17180_`.
+- **[S-17181]** **A device list's columns are one width** (owner, 2026-11-23: "the columns in the device view should also
+  all get the same width"; `ItemShape.Even`, the devices'): in a Table every column but the lead's 16 takes one share of the
+  row (`ItemTable.Columns(even)`), the last running to the row's end; in a List and a Column list every item's end (its
+  percentage) is held to the widest end of the list (`ItemLayout.EvenEnd`), so every item's name and details take the same
+  room and the readings and the bars line up; a Row list's columns and a Grid's cards are already one width. Tests
+  `ItemBaseTests.S17181_`.
 - **[S-16950]** **Each item shows, its parts in order** (owner, 2026-11-23: "Table columns: You pick and order"): the parts
   section on every item widget's page is one checklist of the kind's parts in their order (`ItemMenuLines.Parts`; ticked
   shown, dragged or Ctrl+Up/Down to order them, `IItemParts.PartOrder`), then the kind's own lines; in the table each part
@@ -15338,17 +15356,17 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   the drive, the name should be left aligned. from left to right: icon, then title and subtitle, then right aligned
   percentage, under all of them the progress bar."): in the card's inset the device's icon (36: a drive's own picture, else
   its kind's glyph at 28 in its role), 8, its name (Body, primary, left-aligned, cut with its ellipsis) with its details
-  right under it (Caption, secondary: "419 GB free of 931 GB", "Headphones · Connected"), 12, its percentage at 28 at the
-  item's end; 12 under that row the Chart block's bar across the item, the inset under the bar (owner, 2026-11-23: "there
-  is no proper spacing between the bottom border and the progress bar"). The one-device face ([S-16637]) is the same row.
+  right under it (Caption, secondary: "419 GB free of 931 GB", "Headphones · Connected"), 12, its percentage at 28
+  right-aligned, 12, its bar standing at the item's far end the row's height ([S-17180]; the bar was under the row until
+  the owner, later that day: "it should be all the way on the right side as a vertical bar"), the inset under the row. The one-device face ([S-16637]) is the same row.
   A network drive not connected (or connecting) keeps its bar, empty, under its "why" line (owner, 2026-11-23: "the
   network drives should show the progress bar even if they are not connected. otherwise they have empty looking space.");
   it has no percentage. Tests `ItemBaseTests.S16631_`.
 - **[S-16632]** The shared mappings (`DeviceItems`): a drive (its root, its name as This PC names it, the used share, the
   space line or why, the bar in the load's role, Caution from 70 %, Critical from 90 %, [S-4653]); a peripheral's glyph by
   its kind; a battery's bar Critical at or below its low, never Caution for being full. Tests `ItemBaseTests.S16632_`.
-- **[S-16633]** **One size, the last cut** (WR-4, WR-6): an item is 76 (the inset, 36, 12, the 4 track, the inset), 80 on
-  the default grid, at every size of its card. A list lays them down (each the card's whole width from its top edge,
+- **[S-16633]** **One size, the last cut** (WR-4, WR-6): an item is 60 (the inset, 36, the inset; its bar standing at its
+  end, [S-17180]), at every size of its card. A list lays them down (each the card's whole width from its top edge,
   touching, WR-1..WR-3, as many as the card reaches, the last cut by its foot), or across where the card holds one item's
   height but two items' width (each 240 wide from the left edge, the last cut by the right edge) (`ItemLayout.Lay`).
   Items past the card are scrolled to ([S-16955]). Tests `ItemBaseTests.S16633_`.
@@ -15367,8 +15385,8 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   titles**), **Rows**. Hidden devices are left out, the ordered ones first, the rest in the kind's own order (`ItemOrder`).
   Tests `ItemBaseTests.S16636_`.
 - **[S-16637]** **One device's face** (`ItemFace`): Drive (its Bar style), USB stick, Network drive and Bluetooth device
-  show one device item ([S-16631]) of the list's one size from the card's top edge, the card one item tall (80 on the
-  default grid), 220..520 wide and never narrower than its icon, widest details and percentage (`ItemLayout.Face`), so a
+  show one device item ([S-16631]) of the list's one size from the card's top edge, the card one item tall (60), 220..520
+  wide and never narrower than its icon, widest details, percentage and standing bar (`ItemLayout.Face`), so a
   device looks the same alone as in its list (owner, 2026-11-23: "from left to right: icon, then title and subtitle, then
   right aligned percentage, under all of them the progress bar"). The card lights as the one item (its `OpensLight`).
   Tests `ItemBaseTests.S16637_`, `DriveTests.S4672_`.

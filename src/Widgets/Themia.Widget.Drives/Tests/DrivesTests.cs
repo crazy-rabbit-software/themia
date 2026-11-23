@@ -54,11 +54,11 @@ public sealed class DrivesTests
         foreach (var id in new[] { "drives", "usbSticks", "networkDrives" })
         {
             var kind = ModuleCatalog.Of(new WidgetId(id));
-            Assert.Equal((300.0, 240.0), (kind.SizingOf().Natural.Width, kind.SizingOf().Natural.Height));
-            Assert.Equal(80, kind.SizingOf().Min.Height);
+            Assert.Equal((300.0, 180.0), (kind.SizingOf().Natural.Width, kind.SizingOf().Natural.Height));
+            Assert.Equal(60, kind.SizingOf().Min.Height);
         }
 
-        Assert.Equal(180, ModuleCatalog.Of(new WidgetId("usbSticks")).SizingOf(new UsbSticksConfig { Rows = 2, Gap = 2 }).Natural.Height);
+        Assert.Equal(140, ModuleCatalog.Of(new WidgetId("usbSticks")).SizingOf(new UsbSticksConfig { Rows = 2, Gap = 2 }).Natural.Height);
     }
 
     [Fact]

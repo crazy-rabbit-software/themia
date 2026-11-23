@@ -19,10 +19,11 @@ public sealed class ItemBaseTests
 
     private static readonly ItemGrid Grid = ItemGrid.Default();
 
-    private static readonly ItemShape Device = ItemShape.Device;
+    /// <summary>A device item with its bar under the row: the base's measures of a bar under (the meetings', the forecast's).</summary>
+    private static readonly ItemShape BarUnder = ItemShape.Device with { BarAt = ItemBarAt.Under, Even = false };
 
     private static ItemLay Lay(ItemStyle style, int count, double width, double height, int gap = 0, ItemShape? shape = null, ItemCells? cells = null, int first = 0, bool titles = false)
-        => ItemLayout.Lay(style, count, width, height, gap, shape ?? Device, cells ?? ItemCells.Base, Grid, first, titles);
+        => ItemLayout.Lay(style, count, width, height, gap, shape ?? BarUnder, cells ?? ItemCells.Base, Grid, first, titles);
 
     [Fact]
     public void S16632_a_drive_is_an_item_with_its_name_share_line_and_bar()
@@ -79,8 +80,8 @@ public sealed class ItemBaseTests
     public void S16633_a_list_item_is_its_row_and_its_bar_with_the_inset_under_it_in_whole_cells()
     {
         // Owner, 2026-11-23: "there is no proper spacing between the bottom border and the progress bar".
-        Assert.Equal(12 + 36 + 12 + 4 + 12, ItemLayout.ListNatural(Device));
-        Assert.Equal((240.0, 80.0), ItemLayout.Size(ItemStyle.List, Device, ItemCells.Base, Grid));
+        Assert.Equal(12 + 36 + 12 + 4 + 12, ItemLayout.ListNatural(BarUnder));
+        Assert.Equal((240.0, 80.0), ItemLayout.Size(ItemStyle.List, BarUnder, ItemCells.Base, Grid));
     }
 
     [Fact]
@@ -100,7 +101,7 @@ public sealed class ItemBaseTests
         // A compact row is the family's row of one or two lines, the bar's 8 under it.
         Assert.Equal(30, ItemLayout.Size(ItemStyle.ColumnList, ItemShape.Of([ItemPart.Title], []), ItemCells.Base, Grid).Height);
         Assert.Equal(40, ItemLayout.Size(ItemStyle.ColumnList, ItemShape.Of([ItemPart.Title, ItemPart.Subtitle], []), ItemCells.Base, Grid).Height);
-        Assert.Equal(50, ItemLayout.Size(ItemStyle.ColumnList, Device, ItemCells.Base, Grid).Height);
+        Assert.Equal(50, ItemLayout.Size(ItemStyle.ColumnList, BarUnder, ItemCells.Base, Grid).Height);
     }
 
     [Fact]
@@ -252,16 +253,16 @@ public sealed class ItemBaseTests
     [Fact]
     public void S16634_S16954_a_lists_sizing_is_its_items_with_the_gap_between_in_its_arrangement()
     {
-        var plain = ItemLayout.Sizing(ItemStyle.List, 3, gap: 0, Device);
+        var plain = ItemLayout.Sizing(ItemStyle.List, 3, gap: 0, BarUnder);
         Assert.Equal((220.0, 80.0), (plain.Min.Width, plain.Min.Height));
         Assert.Equal((300.0, 240.0), (plain.Natural.Width, plain.Natural.Height));
-        Assert.Equal(280, ItemLayout.Sizing(ItemStyle.List, 3, gap: 2, Device).Natural.Height);
+        Assert.Equal(280, ItemLayout.Sizing(ItemStyle.List, 3, gap: 2, BarUnder).Natural.Height);
 
-        var row = ItemLayout.Sizing(ItemStyle.RowList, 3, gap: 0, Device);
+        var row = ItemLayout.Sizing(ItemStyle.RowList, 3, gap: 0, BarUnder);
         Assert.Equal(row.Min.Height, row.Max.Height);
         Assert.Equal(3 * 140, row.Natural.Width);
 
-        var grid = ItemLayout.Sizing(ItemStyle.Grid, 6, gap: 0, Device);
+        var grid = ItemLayout.Sizing(ItemStyle.Grid, 6, gap: 0, BarUnder);
         Assert.Equal(3 * 140, grid.Natural.Width);
 
         var table = ItemLayout.Sizing(ItemStyle.Table, 4, gap: 3, ItemShape.Of([ItemPart.Title], []), titles: true);
@@ -285,11 +286,79 @@ public sealed class ItemBaseTests
     [Fact]
     public void S16637_a_single_items_face_is_one_item_and_never_narrower_than_its_line()
     {
-        var face = ItemLayout.Face(Device, ItemLayout.WidestLine(["419 GB free of 931 GB"]), ItemLayout.ReadingWidth);
+        var face = ItemLayout.Face(BarUnder, ItemLayout.WidestLine(["419 GB free of 931 GB"]), ItemLayout.ReadingWidth);
         Assert.Equal((80.0, 80.0, 80.0), (face.Min.Height, face.Natural.Height, face.Max.Height));
         Assert.True(face.Min.Width is >= 220 and <= 260, $"{face.Min.Width}");
         Assert.Equal(300, face.Natural.Width);
-        Assert.Equal(face.Min.Width, ItemLayout.Face(Device, 400, ItemLayout.ReadingWidth).Min.Width);
+        Assert.Equal(face.Min.Width, ItemLayout.Face(BarUnder, 400, ItemLayout.ReadingWidth).Min.Width);
+    }
+
+    [Fact]
+    public void S17180_a_devices_bar_stands_at_its_end_and_the_item_is_its_row_alone()
+    {
+        // Owner, 2026-11-23: "the devices should actually get their percentage bar reoriented, it should be all the way on the
+        // right side as a vertical bar and not horizontal anymore".
+        var device = DeviceItems.Shape([]);
+        Assert.Equal(ItemShape.Device, device);
+        Assert.Equal((true, false, ItemBarAt.Side), (device.Side, device.Under, device.BarAt));
+
+        // No bar row under it: the inset, the 36 line, the inset (60); a compact row its family row; a card its parts alone.
+        Assert.Equal(12 + 36 + 12, ItemLayout.ListNatural(device));
+        Assert.Equal((240.0, 60.0), ItemLayout.Size(ItemStyle.List, device, ItemCells.Base, Grid));
+        Assert.Equal(40, ItemLayout.Size(ItemStyle.ColumnList, device, ItemCells.Base, Grid).Height);
+        Assert.Equal(ItemLayout.CellNatural(BarUnder) - 4 - 4, ItemLayout.CellNatural(device));
+
+        // A row list's bar stands in its column wherever the kind puts it.
+        Assert.Equal(ItemLayout.ColumnNatural(BarUnder), ItemLayout.ColumnNatural(device));
+
+        // The list and the face are rows of 60; the face leaves its bar its 16 across.
+        Assert.Equal(new[] { 0.0, 60.0, 120.0, 180.0 }, Lay(ItemStyle.List, 5, 300, 200, shape: device).Boxes.Select(b => b.Y));
+        var face = ItemLayout.Face(device, 400, ItemLayout.ReadingWidth);
+        Assert.Equal((60.0, 60.0), (face.Min.Height, face.Max.Height));
+        Assert.Equal(ItemLayout.Face(BarUnder, 400, ItemLayout.ReadingWidth).Min.Width + ItemLayout.SideBar, face.Min.Width);
+        Assert.Equal(60, DeviceItems.Sizing(new DeviceList()).Min.Height);
+
+        // A bar left out leaves the same row; the meetings and the forecast keep theirs under.
+        Assert.False(DeviceItems.Shape([ItemPart.Bar]).Side);
+        Assert.Equal(ItemBarAt.Under, ItemShape.Of([ItemPart.Title, ItemPart.End, ItemPart.Bar], [], action: true).BarAt);
+    }
+
+    [Fact]
+    public void S17181_a_device_lists_columns_are_one_width()
+    {
+        // Owner, 2026-11-23: "the columns in the device view should also all get the same width."
+        Assert.True(DeviceItems.Shape([]).Even);
+        var columns = ItemTable.Columns([(ItemPart.Lead, 0), (ItemPart.Title, 120), (ItemPart.Subtitle, 30), (ItemPart.End, 40), (ItemPart.Bar, 0)], 300, even: true);
+        Assert.Equal((0.0, 16.0), (columns[0].X, columns[0].Width));
+        Assert.Equal(24, columns[1].X);
+        Assert.All(columns.Skip(1).SkipLast(1), c => Assert.Equal(60, c.Width));
+        Assert.Equal(300, columns[^1].Right);
+        Assert.InRange(columns[^1].Width, 60, 63);
+
+        // Without the lead every column shares the row; one column takes it whole.
+        var plain = ItemTable.Columns([(ItemPart.Title, 10), (ItemPart.End, 200)], 212, even: true);
+        Assert.Equal((100.0, 112.0, 212.0), (plain[0].Width, plain[1].X, plain[1].Right));
+
+        // A List's end column: the widest end of its items, whole DIPs; none drawn, none held.
+        Assert.Equal(57, ItemLayout.EvenEnd([40, 56.2, 12]));
+        Assert.Equal(0, ItemLayout.EvenEnd([]));
+    }
+
+    private sealed class DeviceList : IItemList
+    {
+        public ItemStyle Arrangement => ItemStyle.List;
+
+        public int Gap { get; set; }
+
+        public bool ColumnTitles { get; set; }
+
+        public int Rows { get; set; } = 3;
+
+        public int Lines { get; set; } = 1;
+
+        public List<ItemPart> HiddenParts { get; set; } = [];
+
+        public List<ItemPart> PartOrder { get; set; } = [];
     }
 
     private sealed class Parts : IItemParts

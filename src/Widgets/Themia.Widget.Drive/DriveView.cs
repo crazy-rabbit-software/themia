@@ -133,7 +133,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _face.Visibility = Visibility.Visible;
-        _face.Show(item, new ItemDraw(_config.HiddenParts, ItemShape.Of(DeviceItems.Parts, _config.HiddenParts, reading: true), Stock: _previewDrive is not null));
+        _face.Show(item, new ItemDraw(_config.HiddenParts, DeviceItems.Shape(_config.HiddenParts), Stock: _previewDrive is not null));
     }
 
     public IReadOnlyList<WidgetAction> ContextActions

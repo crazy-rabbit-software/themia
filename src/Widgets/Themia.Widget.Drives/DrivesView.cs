@@ -107,7 +107,7 @@ internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, 
         var drives = DrivesRules.Arrange(_held ?? _host.Drives.Drives, _kind, _config);
         IReadOnlyList<Item> items = drives.Count > 0 ? [.. drives.Select(d => DeviceItems.Drive(locale, d))] : [Nothing(locale)];
         _list.PartTitle = ItemMenuLines.DevicePartName;
-        _list.Show(items, _config, DeviceItems.Parts, stock: _held is not null || _host.IsPreview, reading: true);
+        _list.Show(items, _config, DeviceItems.Parts, DeviceItems.Shape(_config.HiddenParts), stock: _held is not null || _host.IsPreview);
     }
 
     /// <summary>

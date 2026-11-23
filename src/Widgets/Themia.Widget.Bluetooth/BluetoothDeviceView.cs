@@ -132,7 +132,7 @@ internal sealed partial class BluetoothDeviceView : Grid, IWidgetView, IWidgetOp
 
         ToolTipService.SetToolTip(this, item.Tooltip);
         Card.Key = item.Id.Length > 0 ? LinkKeys.DeviceOfEndpoint(item.Id) : null;
-        _face.Show(item, new ItemDraw(_config.HiddenParts, ItemShape.Of(DeviceItems.Parts, _config.HiddenParts, reading: true), Stock: true));
+        _face.Show(item, new ItemDraw(_config.HiddenParts, DeviceItems.Shape(_config.HiddenParts), Stock: true));
     }
 
     /// <summary>Hold <paramref name="snapshot"/> in place of the radio's.</summary>

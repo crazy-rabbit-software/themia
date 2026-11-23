@@ -112,16 +112,22 @@ public sealed partial class ItemList : Panel, IStatusRoom
 
             _style = value;
             _first = 0;
-            foreach (var view in _views)
-            {
-                Unhook(view);
-                Children.Remove(view);
-            }
-
-            _views.Clear();
+            Unmake();
             InvalidateMeasure();
             GroundsChanged?.Invoke();
         }
+    }
+
+    /// <summary>Take every item view down: they are made again in the list's arrangement and bar place.</summary>
+    private void Unmake()
+    {
+        foreach (var view in _views)
+        {
+            Unhook(view);
+            Children.Remove(view);
+        }
+
+        _views.Clear();
     }
 
     /// <summary>[S-16953] The kind's own measures (a row list's column, a grid's card); the base's by default.</summary>
@@ -197,6 +203,12 @@ public sealed partial class ItemList : Panel, IStatusRoom
         _draw = draw;
         _parts = parts ?? [ItemPart.Lead, ItemPart.Title, ItemPart.Subtitle, ItemPart.Note, ItemPart.Bar, ItemPart.End];
 
+        // [S-17180] An item's bar place is how it is built: made again where it moves.
+        if (_views.Count > 0 && _views[0].BarAt != draw.Shape.BarAt)
+        {
+            Unmake();
+        }
+
         while (_views.Count > items.Count)
         {
             var gone = _views[^1];
@@ -207,7 +219,7 @@ public sealed partial class ItemList : Panel, IStatusRoom
 
         while (_views.Count < items.Count)
         {
-            var view = new ItemView(_host, _style);
+            var view = new ItemView(_host, _style, draw.Shape.BarAt);
             view.Lead.Own = Lead;
             Hook(view);
             _views.Add(view);
@@ -231,9 +243,19 @@ public sealed partial class ItemList : Panel, IStatusRoom
 
     /// <summary>
     /// [S-16951] Show <paramref name="items"/> as <paramref name="config"/> arranges them: its style, gap, column titles and
-    /// parts, for a kind whose items have <paramref name="offered"/>'s parts (a reading or an action at their end).
+    /// parts, for a kind whose items have <paramref name="offered"/>'s parts (an action at their end).
     /// </summary>
-    public void Show(IReadOnlyList<Item> items, IItemList config, IReadOnlyList<ItemPart> offered, bool stock = false, bool reading = false, bool action = false)
+    public void Show(IReadOnlyList<Item> items, IItemList config, IReadOnlyList<ItemPart> offered, bool stock = false, bool action = false)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        Show(items, config, offered, ItemShape.Of(offered, config.HiddenParts, action: action), stock);
+    }
+
+    /// <summary>
+    /// [S-16951] [S-17180] Show <paramref name="items"/> as <paramref name="config"/> arranges them, drawn as
+    /// <paramref name="shape"/> says (the devices': a reading at the end, the bar standing beside it, even columns).
+    /// </summary>
+    public void Show(IReadOnlyList<Item> items, IItemList config, IReadOnlyList<ItemPart> offered, ItemShape shape, bool stock = false)
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(offered);
@@ -241,22 +263,35 @@ public sealed partial class ItemList : Panel, IStatusRoom
         Gap = config.Gap;
         Titles = config.ColumnTitles;
         PartTitle ??= ItemMenuLines.PartName;
-        Show(items, new ItemDraw(config.HiddenParts, ItemShape.Of(offered, config.HiddenParts, reading, action), stock), ItemOrder.Shown(offered, config));
+        Show(items, new ItemDraw(config.HiddenParts, shape, stock), ItemOrder.Shown(offered, config));
     }
 
     /// <summary>[S-16640] <see cref="Grounds"/> in the view's DIPs: the list stands its margin over the view's top.</summary>
     public IReadOnlyList<DipRect>? ViewGrounds => Grounds?.Select(r => new DipRect(r.X + Margin.Left, r.Y + Margin.Top, r.Width, r.Height)).ToList();
 
-    /// <summary>Every item shown again: a table's columns from its texts as they are now.</summary>
+    /// <summary>
+    /// Every item shown again: a table's columns from its texts as they are now; [S-17181] where the columns are even, every
+    /// List or Column list item's end held to the widest of them.
+    /// </summary>
     private void Draw()
     {
-        var draw = _style == ItemStyle.Table ? _draw with { Columns = TableColumns(out var inner), Inner = inner } : _draw;
+        var draw = _style == ItemStyle.Table ? _draw with { Columns = TableColumns(out var inner), Inner = inner } : _draw with { EndWidth = 0 };
         _draw = draw;
         for (var i = 0; i < _items.Count; i++)
         {
             _views[i].Show(_items[i], draw);
             Paint(_views[i]);
             Decorate?.Invoke(_items[i], _views[i]);
+        }
+
+        if (draw.Shape.Even && _style is ItemStyle.List or ItemStyle.ColumnList && _items.Count > 1)
+        {
+            var end = ItemLayout.EvenEnd(_views.Take(_items.Count).Select(v => v.EndWidth()));
+            _draw = draw with { EndWidth = end };
+            foreach (var view in _views)
+            {
+                view.HoldEnd(end);
+            }
         }
 
         ShowTitles(draw);
@@ -312,7 +347,7 @@ public sealed partial class ItemList : Panel, IStatusRoom
 
         // The column titles are part of their column's widest.
         double Titled(ItemPart part) => Math.Max(Widest(part), Titles && PartTitle is { } title && part is not (ItemPart.Lead or ItemPart.Bar) ? Width(title(part), FamilyType.Caption) + FamilySpace.S1 : 0);
-        return ItemTable.Columns([.. shown.Select(p => (p, Titled(p)))], inner);
+        return ItemTable.Columns([.. shown.Select(p => (p, Titled(p)))], inner, even: _draw.Shape.Even);
     }
 
     /// <summary>[S-16952] A table's column titles: each its part's words over its column, Caption secondary, the band one row tall.</summary>

@@ -112,6 +112,22 @@ public sealed record ItemEnd(ItemEndKind Kind, string Value, string Unit = "", C
 }
 
 /// <summary>
+/// [S-17180] Where an item's bar stands (owner, 2026-11-23: "the devices should actually get their percentage bar reoriented, it
+/// should be all the way on the right side as a vertical bar and not horizontal anymore"): under the item across it (the
+/// meetings' running meeting, the forecast's ranges), or at the item's far end as a vertical bar the item's content tall,
+/// filling from its foot, its reading right-aligned beside it (the devices'). A row list's bar stands up in its column and a
+/// table's is its column, wherever the kind puts it.
+/// </summary>
+public enum ItemBarAt
+{
+    /// <summary>Under the item's row, across it.</summary>
+    Under = 0,
+
+    /// <summary>At the item's far end, standing: the devices'.</summary>
+    Side = 1,
+}
+
+/// <summary>
 /// [S-16949] The bar under an item: the share from <see cref="From"/> to <see cref="To"/> of its track (0..1) in its role; an item
 /// that has a bar but no reading now keeps its track (both 0).
 /// </summary>

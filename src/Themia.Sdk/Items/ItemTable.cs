@@ -27,12 +27,18 @@ public static class ItemTable
 
     /// <summary>
     /// [S-16956] Lay <paramref name="parts"/> (each with its widest content, the lead and the bar's ignored) across a row
-    /// <paramref name="inner"/> wide (inside its side insets).
+    /// <paramref name="inner"/> wide (inside its side insets). [S-17181] <paramref name="even"/>: every column but the lead's
+    /// the same width (owner, 2026-11-23: "the columns in the device view should also all get the same width").
     /// </summary>
-    public static IReadOnlyList<ItemColumn> Columns(IReadOnlyList<(ItemPart Part, double Widest)> parts, double inner, double? barFloor = null)
+    public static IReadOnlyList<ItemColumn> Columns(IReadOnlyList<(ItemPart Part, double Widest)> parts, double inner, double? barFloor = null, bool even = false)
     {
         ArgumentNullException.ThrowIfNull(parts);
         inner = double.IsFinite(inner) ? Math.Max(0, inner) : 0;
+        if (even)
+        {
+            return Even(parts, inner);
+        }
+
         var floor = barFloor ?? BarFloor(inner);
         var widths = new double[parts.Count];
         var gaps = 0.0;
@@ -88,6 +94,38 @@ public static class ItemTable
 
             columns.Add(new ItemColumn(parts[i].Part, x, widths[i]));
             x += widths[i];
+        }
+
+        return columns;
+    }
+
+    /// <summary>
+    /// [S-17181] Even columns: the lead its glyph's 16, every other column one share of what the row leaves after the lead and
+    /// the gaps (whole DIPs), the last running to the row's end so the end stands on it.
+    /// </summary>
+    private static IReadOnlyList<ItemColumn> Even(IReadOnlyList<(ItemPart Part, double Widest)> parts, double inner)
+    {
+        var gaps = 0.0;
+        for (var i = 1; i < parts.Count; i++)
+        {
+            gaps += parts[i - 1].Part == ItemPart.Lead ? FamilySpace.GlyphGap : FamilySpace.ColumnGap;
+        }
+
+        var leads = parts.Count(p => p.Part == ItemPart.Lead);
+        var shared = parts.Count - leads;
+        var each = shared > 0 ? Math.Floor(Math.Max(0, inner - gaps - (leads * FamilyShape.Icon)) / shared) : 0;
+        var columns = new List<ItemColumn>(parts.Count);
+        var x = 0.0;
+        for (var i = 0; i < parts.Count; i++)
+        {
+            if (i > 0)
+            {
+                x += parts[i - 1].Part == ItemPart.Lead ? FamilySpace.GlyphGap : FamilySpace.ColumnGap;
+            }
+
+            var width = parts[i].Part == ItemPart.Lead ? FamilyShape.Icon : i == parts.Count - 1 ? Math.Max(0, inner - x) : each;
+            columns.Add(new ItemColumn(parts[i].Part, x, width));
+            x += width;
         }
 
         return columns;

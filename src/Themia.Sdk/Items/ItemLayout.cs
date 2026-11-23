@@ -7,19 +7,30 @@ namespace Themia.Sdk.Items;
 /// [S-16946] Which parts a list draws, across all its items (a part the kind offers and the user did not leave out): the
 /// items' one size follows it, so a part left out takes no room.
 /// </summary>
-public readonly record struct ItemShape(bool Lead, bool Subtitle, bool End, bool Bar, bool Note, bool Reading = false, bool Action = false)
+/// <param name="BarAt">[S-17180] Where the bar stands: under the row, or at the item's end standing (the devices').</param>
+/// <param name="Even">[S-17181] Every column of the list the same width (the devices'): a table's columns, a row's end.</param>
+public readonly record struct ItemShape(bool Lead, bool Subtitle, bool End, bool Bar, bool Note, bool Reading = false, bool Action = false, ItemBarAt BarAt = ItemBarAt.Under, bool Even = false)
 {
-    /// <summary>The parts of <paramref name="offered"/> not in <paramref name="hidden"/>; a reading or an action at the end where the kind draws one.</summary>
-    public static ItemShape Of(IReadOnlyCollection<ItemPart> offered, IReadOnlyCollection<ItemPart> hidden, bool reading = false, bool action = false)
+    /// <summary>
+    /// The parts of <paramref name="offered"/> not in <paramref name="hidden"/>; a reading or an action at the end where the kind
+    /// draws one, its bar where <paramref name="barAt"/> stands it, its columns <paramref name="even"/>.
+    /// </summary>
+    public static ItemShape Of(IReadOnlyCollection<ItemPart> offered, IReadOnlyCollection<ItemPart> hidden, bool reading = false, bool action = false, ItemBarAt barAt = ItemBarAt.Under, bool even = false)
     {
         ArgumentNullException.ThrowIfNull(offered);
         ArgumentNullException.ThrowIfNull(hidden);
         bool On(ItemPart part) => offered.Contains(part) && !hidden.Contains(part);
-        return new ItemShape(On(ItemPart.Lead), On(ItemPart.Subtitle), On(ItemPart.End), On(ItemPart.Bar), On(ItemPart.Note), reading && On(ItemPart.End), action && On(ItemPart.End));
+        return new ItemShape(On(ItemPart.Lead), On(ItemPart.Subtitle), On(ItemPart.End), On(ItemPart.Bar), On(ItemPart.Note), reading && On(ItemPart.End), action && On(ItemPart.End), barAt, even);
     }
 
-    /// <summary>Every part, a reading at the end: the device item.</summary>
-    public static ItemShape Device { get; } = new(true, true, true, true, false, Reading: true);
+    /// <summary>[S-17180] Whether a bar is drawn and stands at the item's end.</summary>
+    public bool Side => Bar && BarAt == ItemBarAt.Side;
+
+    /// <summary>[S-17180] Whether a bar is drawn under the row (a List or Column list item, a grid's card).</summary>
+    public bool Under => Bar && BarAt == ItemBarAt.Under;
+
+    /// <summary>Every part, a reading at the end, the bar standing at its end, the columns even: the device item.</summary>
+    public static ItemShape Device { get; } = new(true, true, true, true, false, Reading: true, BarAt: ItemBarAt.Side, Even: true);
 }
 
 /// <summary>[S-16954] One item's box in its list, in DIPs from the card's top-left edge: its index in the list and where it stands.</summary>
@@ -108,16 +119,22 @@ public static class ItemLayout
     }
 
     /// <summary>
-    /// [S-16633] A List item's natural height: the inset, its line of parts, 12 and the bar's track where it has one, the inset
-    /// under it (owner, 2026-11-23: "there is no proper spacing between the bottom border and the progress bar"): 76 for a
-    /// device, 80 on the default grid.
+    /// [S-17180] The room a bar standing at the item's end takes across: 12 from the end's reading and its track.
+    /// </summary>
+    public const double SideBar = FamilySpace.S3 + FamilyShape.Track;
+
+    /// <summary>
+    /// [S-16633] [S-17180] A List item's natural height: the inset, its line of parts, 12 and the bar's track where it has one
+    /// under the row, the inset under it (owner, 2026-11-23: "there is no proper spacing between the bottom border and the
+    /// progress bar"): 76, 80 on the default grid; a bar standing at the item's end adds no height (owner, 2026-11-23: "it
+    /// should be all the way on the right side as a vertical bar"): a device's 60.
     /// </summary>
     public static double ListNatural(ItemShape shape)
-        => FamilySpace.ContentTop + ListLine(shape) + (shape.Bar ? FamilySpace.S3 + FamilyShape.Track : 0) + FamilySpace.Inset;
+        => FamilySpace.ContentTop + ListLine(shape) + (shape.Under ? FamilySpace.S3 + FamilyShape.Track : 0) + FamilySpace.Inset;
 
-    /// <summary>[S-16943] A Column list row's natural height: the family's row of one or two lines, the bar's 8 under it.</summary>
+    /// <summary>[S-16943] [S-17180] A Column list row's natural height: the family's row of one or two lines, the bar's 8 under it where it lies under.</summary>
     public static double CompactNatural(ItemShape shape)
-        => FamilyShape.RowHeight(shape.Subtitle || shape.Note ? 2 : 1) + (shape.Bar ? FamilySpace.S1 + FamilyShape.Track : 0);
+        => FamilyShape.RowHeight(shape.Subtitle || shape.Note ? 2 : 1) + (shape.Under ? FamilySpace.S1 + FamilyShape.Track : 0);
 
     /// <summary>[S-16942] A row list column's parts, top to bottom: the title, the lead, the end, the standing bar, the subtitle and the note, 4 apart.</summary>
     public static double StackNatural(ItemShape shape, bool standingBar)
@@ -126,7 +143,7 @@ public static class ItemLayout
         var parts = body
             + (shape.Lead ? FamilySpace.S1 + FamilyShape.IconLarge : 0)
             + (shape.End ? FamilySpace.S1 + (shape.Action ? FamilyShape.Button : body) : 0)
-            + (shape.Bar ? FamilySpace.S1 + (standingBar ? StandingBar : FamilyShape.Track) : 0)
+            + (standingBar ? (shape.Bar ? FamilySpace.S1 + StandingBar : 0) : shape.Under ? FamilySpace.S1 + FamilyShape.Track : 0)
             + (shape.Subtitle ? FamilySpace.S1 + body : 0)
             + (shape.Note ? FamilySpace.S1 + FamilyType.Caption.LineHeight : 0);
         return parts;
@@ -135,7 +152,7 @@ public static class ItemLayout
     /// <summary>[S-16942] A row list column's natural height: its parts and the inset over and under them, inside it.</summary>
     public static double ColumnNatural(ItemShape shape) => FamilySpace.ContentTop + StackNatural(shape, standingBar: true) + FamilySpace.Inset;
 
-    /// <summary>[S-16944] A grid card's natural height: its parts (the bar a track under them) and 8 over and under them.</summary>
+    /// <summary>[S-16944] [S-17180] A grid card's natural height: its parts (the bar a track under them, or none standing at its end) and 8 over and under them.</summary>
     public static double CellNatural(ItemShape shape) => StackNatural(shape, standingBar: false) + (2 * FamilySpace.S2);
 
     /// <summary>[S-16945] A table row's one height (28, 30 on the default grid), its column titles' too.</summary>
@@ -323,9 +340,18 @@ public static class ItemLayout
     {
         var h = ItemSize.Optimal(ListNatural(shape), ItemGrid.Default());
         var lead = shape.Lead ? FamilyType.Big28.LineHeight + FamilySpace.GlyphGap : 0;
-        var least = Math.Max(LeastWidth, Math.Ceiling(Math.Min(widestLine, FamilySpace.ColumnGap * 8) + lead + FamilySpace.S3 + end + (2 * FamilySpace.Inset)));
+        var side = shape.Side ? SideBar : 0;
+        var least = Math.Max(LeastWidth, Math.Ceiling(Math.Min(widestLine, FamilySpace.ColumnGap * 8) + lead + FamilySpace.S3 + end + side + (2 * FamilySpace.Inset)));
         return WidgetSizing.Range(new(least, h), new(Math.Max(NaturalWidth, least), h), new(Math.Max(MostWidth, least), h)) with { KeepsHeight = true };
     }
+
+    /// <summary>
+    /// [S-17181] The one width of a list's end column where its columns are even (owner, 2026-11-23: "the columns in the device
+    /// view should also all get the same width"): the widest end any of its items draws, so every item's name and details
+    /// take the same room and their readings line up.
+    /// </summary>
+    public static double EvenEnd(IEnumerable<double> ends)
+        => Math.Ceiling((ends ?? []).Where(double.IsFinite).DefaultIfEmpty(0).Max());
 
     /// <summary>[S-16631] A reading's widest form ("100%") at 28, estimated.</summary>
     public static double ReadingWidth => Math.Ceiling(HeroFit.Ems("100%") * FamilyType.Big28.FontSize);

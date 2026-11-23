@@ -236,8 +236,8 @@ public static class ReadyMadeGroups
     /// <summary>[S-11090] [S-14607] Drive: the used share over the drive's facts, a single metric each.</summary>
     public static ReadyMadeGroup Drive { get; } = Headed(new("drive", Str.Groups_Recipe_Drive, Str.Groups_Recipe_DriveAbout, Glyphs.Disk, AddFolderId.Devices,
     [
-        new("drive", new(0, 0, 260, 80)),
-        .. Metrics(80, 260, "driveUsed", "driveFree", "driveCapacity", "driveFileSystem"),
+        new("drive", new(0, 0, 280, 60)),
+        .. Metrics(60, 280, "driveUsed", "driveFree", "driveCapacity", "driveFileSystem"),
     ]));
 
     /// <summary>[S-11172] [S-13900] Weather: the reading over its facts, the old weather card as atoms (a widget a fact).</summary>
