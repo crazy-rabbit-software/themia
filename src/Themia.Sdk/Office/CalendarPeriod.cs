@@ -8,7 +8,7 @@ namespace Themia.Core.Office;
 /// the agenda's date range ([S-3636]). A week start alone is a whole week and the agenda's default.
 /// </summary>
 /// <param name="WeekStart">The shared regional week start ([S-3770]).</param>
-/// <param name="WeekDays">The week calendar's day columns (1 to 14).</param>
+/// <param name="WeekDays">The week calendar's day columns (1 to 14 with titles; the day strip up to <see cref="StripMostDays"/>).</param>
 /// <param name="WeekFrom">Whether the week calendar's first column is the week's first day or today.</param>
 /// <param name="AgendaDays">The days the agenda covers, today first (1 to 365).</param>
 public readonly record struct CalendarPeriod(
@@ -23,6 +23,12 @@ public readonly record struct CalendarPeriod(
     public const int WeekMinDays = 1;
 
     public const int WeekMaxDays = 14;
+
+    /// <summary>
+    /// [S-16452] The most days the week's day strip shows: more than any screen holds at its 40 a day (the days never run
+    /// out, [S-14410]: the card shows every day it reaches), so the bound never leaves room at a wide card's right.
+    /// </summary>
+    public const int StripMostDays = 128;
 
     /// <summary>[S-3637] A working week, which settings name beside the whole one.</summary>
     public const int WorkWeekDays = 5;
@@ -40,8 +46,8 @@ public readonly record struct CalendarPeriod(
     /// <summary>[S-3636] The ranges settings offer by name: today, today and tomorrow, 3, 7 and 30 days; any other is custom.</summary>
     public static IReadOnlyList<int> AgendaDayPresets { get; } = [1, 2, 3, 7, 30];
 
-    /// <summary>The week calendar's columns, inside their range whatever was passed.</summary>
-    public int Days => Math.Clamp(WeekDays, WeekMinDays, WeekMaxDays);
+    /// <summary>The week calendar's columns, inside their range whatever was passed ([S-16452]: the strip's most).</summary>
+    public int Days => Math.Clamp(WeekDays, WeekMinDays, StripMostDays);
 
     /// <summary>The agenda's days, inside their range whatever was passed.</summary>
     public int AgendaLength => Math.Clamp(AgendaDays, AgendaMinDays, AgendaMaxDays);

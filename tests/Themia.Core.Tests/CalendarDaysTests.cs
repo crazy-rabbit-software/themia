@@ -105,7 +105,8 @@ public sealed class CalendarDaysTests
     [Fact]
     public void S2719_a_period_holds_its_lengths_inside_their_ranges()
     {
-        Assert.Equal(14, new CalendarPeriod(WeekStartDay.Monday, 40).Days);
+        Assert.Equal(40, new CalendarPeriod(WeekStartDay.Monday, 40).Days); // [S-16452] the strip's days follow its card
+        Assert.Equal(CalendarPeriod.StripMostDays, new CalendarPeriod(WeekStartDay.Monday, 1000).Days);
         Assert.Equal(1, new CalendarPeriod(WeekStartDay.Monday, 0).Days);
         Assert.Equal(7, ((CalendarPeriod)WeekStartDay.Sunday).Days);
         Assert.Equal(CalendarPeriod.AgendaDefaultDays, ((CalendarPeriod)WeekStartDay.Sunday).AgendaLength);

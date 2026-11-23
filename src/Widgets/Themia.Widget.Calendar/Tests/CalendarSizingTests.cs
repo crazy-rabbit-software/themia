@@ -189,12 +189,15 @@ public sealed class CalendarSizingTests
         Assert.Equal(CalendarSizing.LineBand + CalendarSizing.WeekRowsOver + (3 * 30), Of(config).Natural.Height); // [S-16231]
 
         // [S-14410] [S-14502] [S-15780] The days are the card's width: a 40 column a day from its left edge, every one the
-        // width reaches (the last cut by its right edge), 1..14, a new one's seven, never stored.
+        // width reaches (the last cut by its right edge), however many, a new one's seven, never stored.
         Assert.Equal(7 * CalendarSizing.StripColumn, Of(config).Natural.Width);
         Assert.Equal(CalendarSizing.StripColumn, Of(config).Min.Width);
         Assert.Equal(7, CalendarSizing.WeekDaysIn(7 * CalendarSizing.StripColumn, titles: false));
         Assert.Equal(8, CalendarSizing.WeekDaysIn(300, titles: false));
-        Assert.Equal(14, CalendarSizing.WeekDaysIn(5000, titles: false));
+        // [S-16452] The days never run out: a 900 card shows 23 (its last cut), a 5000 one 125, never a band left at the right.
+        Assert.Equal(23, CalendarSizing.WeekDaysIn(900, titles: false));
+        Assert.Equal(125, CalendarSizing.WeekDaysIn(5000, titles: false));
+        Assert.Equal(CalendarPeriod.WeekMaxDays, CalendarSizing.WeekDaysIn(5000, titles: true));
         Assert.Equal(1, CalendarSizing.WeekDaysIn(10, titles: false));
     }
 

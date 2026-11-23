@@ -158,6 +158,12 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   still read"): a dots month goes down to a Caption number line of 16 in its cell's 4 over and under, six weeks under the
   weekday line (180 tall), in columns its two figures fit across (160 wide), no longer 260 × 210. Tests
   `MonthLayoutTests.S15798_`.
+- **[S-16452]** **The day strip's days never run out** (WR-4, WR-5, [S-14410]: "Anything that's just 'how many of the same
+  item' (days, hours, weeks, processes) follows the card's size"; the third audit of 2026-11-23: the strip stopped at 14
+  days and left 340 DIP empty at a 900 × 300 card's right): the strip shows every 40 column the card reaches, the last cut
+  by its right edge, up to `CalendarPeriod.StripMostDays` (128, more than any screen holds); the days loaded are the days
+  shown (the range the strip draws). The week with titles keeps its 1..14. Tests `CalendarSizingTests.S11545_S14410_`,
+  `CalendarDaysTests`.
 - **[S-11545]** **Week, the day strip** (a new one's): a row of day items on the card's top edge (WR-1..WR-3,
   [S-12815]): the days stand from its left edge at their one column ([S-15780]), touching, each its
   head (its weekday, its number) at the card's inset over the room its marks take at most ([S-2282]: three, then "+n");

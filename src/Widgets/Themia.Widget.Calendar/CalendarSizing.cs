@@ -286,17 +286,18 @@ public static class CalendarSizing
         => titles ? (2 * FamilySpace.Inset) + HourLabels + (days * WeekTitleColumn) : days * ItemSize.Optimal(StripColumn, ItemGrid.Default());
 
     /// <summary>
-    /// [S-14410] [S-14502] [S-15780] The days a week <paramref name="width"/> wide shows,
-    /// <see cref="CalendarPeriod.WeekMinDays"/>..<see cref="CalendarPeriod.WeekMaxDays"/>: with titles as many 96 columns as
-    /// it holds, sharing it; the strip every day the width reaches at its one column (40 in whole cells of
-    /// <paramref name="grid"/>, WR-4, WR-6), the last cut by the card's right edge.
+    /// [S-14410] [S-14502] [S-15780] The days a week <paramref name="width"/> wide shows: with titles as many 96 columns as
+    /// it holds, sharing it (<see cref="CalendarPeriod.WeekMinDays"/>..<see cref="CalendarPeriod.WeekMaxDays"/>); the strip
+    /// every day the width reaches at its one column (40 in whole cells of <paramref name="grid"/>, WR-4, WR-6), the last cut
+    /// by the card's right edge, [S-16452] however wide the card (up to <see cref="CalendarPeriod.StripMostDays"/>: the
+    /// strip stopped at 14 and left 340 DIP empty at a 900 card's right).
     /// </summary>
     public static int WeekDaysIn(double width, bool titles, ItemGrid? grid = null)
     {
         if (!titles)
         {
             return double.IsFinite(width)
-                ? ItemSize.Count(width, StripColumn, grid ?? ItemGrid.Default(), CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays)
+                ? ItemSize.Count(width, StripColumn, grid ?? ItemGrid.Default(), CalendarPeriod.WeekMinDays, CalendarPeriod.StripMostDays)
                 : CalendarPeriod.WeekDefaultDays;
         }
 
