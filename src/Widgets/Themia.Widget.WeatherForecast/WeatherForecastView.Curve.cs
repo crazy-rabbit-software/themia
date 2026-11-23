@@ -28,6 +28,10 @@ internal sealed partial class WeatherForecastView
     private Grid BuildCurve(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastCurvePlan plan)
     {
         var shown = days.Take(plan.Days).ToList();
+
+        // [S-16439] A card wider than its days (14 at most) runs the plot on past the last day's column to its right edge: a
+        // column of that room after the days', the chart across it too.
+        var right = Math.Max(0, _laid.Width - (shown.Count * plan.ColumnWidth));
         var columns = new Grid
         {
             Margin = ListEdge.Margin,
@@ -35,6 +39,7 @@ internal sealed partial class WeatherForecastView
             FlowDirection = FlowDirection.LeftToRight,
         };
         AddColumns(columns, plan.ColumnWidth, shown.Count);
+        Past(columns, right);
 
         // The parts over the columns, in the same columns: the pointer goes to the column under them.
         var grid = new Grid
@@ -44,7 +49,8 @@ internal sealed partial class WeatherForecastView
             IsHitTestVisible = false,
         };
         AddColumns(grid, plan.ColumnWidth, shown.Count);
-        Grid.SetColumnSpan(grid, Math.Max(1, shown.Count));
+        Past(grid, right);
+        Grid.SetColumnSpan(grid, grid.ColumnDefinitions.Count);
 
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         if (plan.Icon)
@@ -87,16 +93,23 @@ internal sealed partial class WeatherForecastView
 
         // [S-16439] The chart's box from its band's top to the card's foot (over the rain's line and the column's padding), the
         // first of the parts so the figures stand over its wash.
-        // A card wider than its days (14 at most) runs the plot on past the last day's column to its right edge.
-        var right = Math.Max(0, _laid.Width - (shown.Count * plan.ColumnWidth));
         var chart = Chart(shown, plan, shown.Count * plan.ColumnWidth + right);
         Grid.SetRow(chart, chartRow);
         Grid.SetRowSpan(chart, grid.RowDefinitions.Count - chartRow);
-        Grid.SetColumnSpan(chart, Math.Max(1, shown.Count));
-        chart.Margin = new Thickness(0, 0, -right, -ColumnPadding.Bottom);
+        Grid.SetColumnSpan(chart, grid.ColumnDefinitions.Count);
+        chart.Margin = new Thickness(0, 0, 0, -ColumnPadding.Bottom);
         grid.Children.Insert(0, chart);
         columns.Children.Add(grid);
         return columns;
+    }
+
+    /// <summary>[S-16439] The room past the days' columns as a column of its own (none where the days reach the edge).</summary>
+    private static void Past(Grid grid, double right)
+    {
+        if (right > 0)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(right) });
+        }
     }
 
     private static void Put(Grid grid, FrameworkElement element, int row, int column)
