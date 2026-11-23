@@ -14,7 +14,7 @@ namespace Themia.Widget.Elements;
 
 /// <summary>
 /// [S-10101] Own text on the one text face (<see cref="TextView"/>): the person's words, one line cut at the card's edge;
-/// with none yet, its name, unavailable, until some are typed.
+/// with none yet, its name, unavailable, and why in the face's compact line ([S-16431]) until some are typed.
 /// </summary>
 internal sealed partial class TextElementView : TextView
 {
@@ -25,10 +25,7 @@ internal sealed partial class TextElementView : TextView
 
     protected override void OnAttach(Ticker ticker, WidgetConfig config) => OnApply(config);
 
-    protected override void OnApply(WidgetConfig config)
-        => Present(config is TextElementConfig { Text.Length: > 0 } text
-            ? new TextShown(text.Text)
-            : new TextShown(ElementKinds.Text.Label.Text(), Available: false));
+    protected override void OnApply(WidgetConfig config) => Present(ElementKinds.Shown(config));
 
     protected override void OnDetach()
     {

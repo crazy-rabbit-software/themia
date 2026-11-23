@@ -28,11 +28,27 @@ internal static class ElementKinds
     {
         Lead = false,
     };
+
+    /// <summary>
+    /// [S-10101] [S-16431] What own text shows for <paramref name="config"/>: its words; with none yet its name, unavailable,
+    /// and why (WR-10, owner 2026-11-19: "not set up ... says why in a compact line"), the text face's line at its foot or
+    /// beside it.
+    /// </summary>
+    internal static TextShown Shown(WidgetConfig config)
+        => config is TextElementConfig { Text.Length: > 0 } text
+            ? new TextShown(text.Text)
+            : new TextShown(Text.Label.Text(), Available: false) { Why = ElementsStr.Elements_Text_Why.Text() };
 }
 
 /// <summary>[S-10101] What an own text remembers: its words.</summary>
 public sealed class TextElementConfig : WidgetConfig, IContentAligned
 {
+    /// <summary>
+    /// [S-16430] Without a chosen alignment its line stands centred (docs/WIDGET-RULES.md, owner 2026-11-20: "Centred is
+    /// fine"; the leftover across a line the height stops is shared alike on both sides); Left and Right stay the person's.
+    /// </summary>
+    ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
+
     /// <summary>The words it shows; empty shows its name, unavailable, until some are typed.</summary>
     public string Text { get; set; } = string.Empty;
 

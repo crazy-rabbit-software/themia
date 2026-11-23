@@ -33,6 +33,27 @@ public sealed class ElementsTests
     }
 
     [Fact]
+    public void S16430_own_text_stands_centred_until_an_alignment_is_chosen()
+    {
+        var kind = new WidgetId("text");
+
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Default(kind, null));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(new WidgetInstance { Id = "a", Config = new TextElementConfig { Text = "Zurich" } }));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(new WidgetInstance { Id = "b", Config = new TextElementConfig(), Align = ContentAlign.Left }));
+    }
+
+    [Fact]
+    public void S16431_own_text_without_words_says_why_beside_its_name()
+    {
+        var none = ElementKinds.Shown(new TextElementConfig());
+        var some = ElementKinds.Shown(new TextElementConfig { Text = "Zurich" });
+
+        Assert.Equal((ElementKinds.Text.Label.Text(), false), (none.Text, none.Available));
+        Assert.False(string.IsNullOrWhiteSpace(none.Why));
+        Assert.Equal(("Zurich", true, (string?)null), (some.Text, some.Available, some.Why));
+    }
+
+    [Fact]
     public void S10103_a_divider_is_one_cell_thin_and_as_long_as_it_is_drawn()
     {
         var sizing = SizeFit.Of(new DividerElementConfig());
