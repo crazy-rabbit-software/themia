@@ -63,9 +63,7 @@ internal static class StartupCheck
 
         try
         {
-            var state = run.Option("--state") is { } source
-                ? StateDocument.Parse(File.ReadAllText(source)).State ?? throw new InvalidDataException($"{source} is not a state document")
-                : AppState.CreateDefault();
+            var state = run.Option("--state") is { } source ? ReadState(source) : AppState.CreateDefault();
             var view = run.Option("--show") is not { } show ? state.Views[0] : state.Views.First(v => string.Equals(v.Name, show, StringComparison.OrdinalIgnoreCase));
             state.ShowViewOn(DisplayId, view.Id);
 
@@ -158,6 +156,13 @@ internal static class StartupCheck
         }
 
         return await report.FinishAsync().ConfigureAwait(true);
+    }
+
+    /// <summary>The state document at <paramref name="source"/>; refused with the reason the parse gave, never a bare "not a state document".</summary>
+    private static AppState ReadState(string source)
+    {
+        var read = StateDocument.Parse(File.ReadAllText(source));
+        return read.State ?? throw new InvalidDataException($"{source} is not a state document: {read.Problem}", read.Error);
     }
 
     /// <summary>The milliseconds after <paramref name="option"/> (at least <paramref name="least"/>), or null when it is not given.</summary>
