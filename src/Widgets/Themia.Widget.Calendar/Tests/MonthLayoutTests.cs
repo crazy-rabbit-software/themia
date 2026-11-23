@@ -1,3 +1,4 @@
+using Themia.Core.Office;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Xunit;
@@ -160,6 +161,30 @@ public sealed class MonthLayoutTests
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// [S-16442] A day's dots keep its cell's padding under them where the room under the figures holds them (WR-3: they stood
+    /// on the cell's foot, the last week's on the card's border), and sink into it only as far as the figures need, never
+    /// past it.
+    /// </summary>
+    [Theory]
+    [InlineData(88, 40)]
+    [InlineData(48, 32)]
+    [InlineData(25, 17)]
+    [InlineData(24, 16)]
+    [InlineData(20, 16)]
+    public void S16442_the_dots_keep_the_cells_padding_under_them_and_clear_the_figures(double row, double line)
+    {
+        var face = row - (2 * FamilySpace.S1);
+        var sink = MonthLayouts.DotSink(row, line);
+        var under = LineInk.Of(new TypeStep(line * FamilyType.Caption.FontSize / FamilyType.Caption.LineHeight, line, false)).Under + Math.Max(0, (face - line) / 2);
+
+        Assert.InRange(sink, 0, FamilySpace.S1);
+        // The dot and its gap fit under the figures, the sink only what the room is short of (no sink where it holds them).
+        Assert.True(under + sink >= CalendarFit.Dot + MonthLayouts.DotGap - 1e-9 || sink == FamilySpace.S1);
+        Assert.Equal(0, MonthLayouts.DotSink(88, 40));
+        Assert.True(MonthLayouts.DotSink(25, 17) < FamilySpace.S1);
     }
 
     [Fact]

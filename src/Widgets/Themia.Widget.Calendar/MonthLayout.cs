@@ -64,6 +64,30 @@ public static class MonthLayouts
     /// <summary>[S-15794] The largest a day's number line grows over its chip lines: past it a taller week lists more chips.</summary>
     public const double MostChipNumberLine = 32;
 
+    /// <summary>
+    /// [S-16442] How far a day's dots sink into its cell's foot padding (4) under a number line <paramref name="numberLine"/>
+    /// tall centred in a week's row <paramref name="row"/> tall (less the cell's padding over and under): only as far as the room under the
+    /// figures' ink is short of a dot and its gap (<see cref="DotGap"/>), so the dots never touch the figures and keep the
+    /// padding under them where they fit (WR-3: "the inset is padding inside the item"; they stood on the cell's foot, the
+    /// last week's on the card's border).
+    /// </summary>
+    public static double DotSink(double row, double numberLine)
+    {
+        if (!(numberLine > 0) || !double.IsFinite(numberLine) || !double.IsFinite(row))
+        {
+            return 0;
+        }
+
+        var face = row - (2 * FamilySpace.S1);
+
+        var step = new TypeStep(numberLine * FamilyType.Caption.FontSize / FamilyType.Caption.LineHeight, numberLine, false);
+        var under = LineInk.Of(step).Under + Math.Max(0, (face - numberLine) / 2);
+        return Math.Clamp(CalendarFit.Dot + DotGap - under, 0, FamilySpace.S1);
+    }
+
+    /// <summary>[S-16442] The least room between a day's figures and its dots under them.</summary>
+    public const double DotGap = FamilySpace.S1 / 2;
+
 
     /// <summary>[S-15782] A figure's advance in Segoe UI Variable, a fraction of its size (tabular figures).</summary>
     public const double FigureAdvance = 0.56;

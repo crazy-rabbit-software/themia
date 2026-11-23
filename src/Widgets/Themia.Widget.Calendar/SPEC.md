@@ -130,6 +130,18 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   holding the gutter at its left. With the status's glyph in the weekday line's last column (a stale sync), the weekday
   letters take the form a column holds beside it, so none is cut or pushed out of its column (at 260 wide "Sa" stood
   14 DIP off its column, its "S" cut).
+- **[S-16442]** **A day's dots keep its cell's padding under them** (WR-3: "the inset is padding inside the item, never a
+  margin round the items"): the dots stand under the number's figures, sinking into the cell's foot padding only as far
+  as the room under the figures is short of a dot and its 2 (`MonthLayouts.DotSink`, `DotGap`), so a last week's dots no
+  longer stand on the card's foot and its border (they stood in the padding's whole 4, at 596..600 of a 600 card). Test
+  `MonthLayoutTests.S16442_`.
+- **[S-16443]** **The period's line carries the state from the first draw** (WR-9, WR-10): whether the line or the kit's
+  status shows a stale sync's problem glyph is decided before the face is laid, so the month's weekday heads never leave
+  room for a glyph that stands on the line (on the first draw they did: at 330 × 210 "Sa" stood 13.7 off its column and
+  the heads shortened to "S M"; at 160 × 210 the Saturday head was dropped).
+- **[S-16444]** **The period's line inks from the card's inset** (WR-1: "there should not be a space at the top"): the
+  line is drawn raised by the room over its first ink (`ToolLine.InkOnTop`: the arrows' glyphs, or the period's capitals
+  where the arrows gave way), so a week strip 40 wide no longer stood its title's capitals 18 down.
 - **[S-15798]** **The month's least is where its numbers still read** (WR-14: "sized down to where its smallest text is
   still read"): a dots month goes down to a Caption number line of 16 in its cell's 4 over and under, six weeks under the
   weekday line (180 tall), in columns its two figures fit across (160 wide), no longer 260 × 210. Tests

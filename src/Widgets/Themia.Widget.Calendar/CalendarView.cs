@@ -105,6 +105,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         // [S-569] [S-12481] The period's line: its title, then the problem glyph, the ring, back and forward.
         _line.Margin = Family.SideInset;
+        _line.InkOnTop = true; // [S-16444] its first ink on the card's inset, arrows or none (WR-1)
         _line.Parts.ButtonsPaired = true; // [S-16232] back and forward give way together
         _line.Parts.NameGivesWayFirst = true; // [S-16232] the period's name is cut before the arrows go
         _line.Parts.Add(LinePartKind.Problem, _lineProblem);
@@ -555,6 +556,11 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         }
         // [S-568] [S-12481] The period is its line's label; the agenda has no line.
         _line.Label = ShowsLine ? CalendarRules.Title(Layout, _anchor, Today, Shown, Strings.Current) : string.Empty;
+
+        // [S-16443] Whether the line carries the state is this draw's, decided before the face is laid: on the first draw the
+        // kit's status showed the stale glyph and its room was taken off the month's weekday line, then the line took the
+        // glyph and the heads stayed pulled off their columns.
+        _navigable = ready;
         UpdateState();
 
         // [S-12832] (owner, 2026-11-19: "even if there is no rain in the next two hours or even if there is no cpu data

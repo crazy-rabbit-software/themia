@@ -262,12 +262,13 @@ internal sealed partial class CalendarView
         }
         else if (layout.Face == MonthFace.Dots && items.Count > 0)
         {
-            // [S-15794] The number in the middle of its line, its dots in the cell's foot padding under it: the dots take
-            // nothing off the number.
+            // [S-15794] The number in the middle of its line, its dots under it: the dots take nothing off the number.
+            // [S-16442] They sink into the cell's foot padding only as far as the figures leave them no room, so the
+            // padding stays under them (the last week's dots stood on the card's border).
             numberHost.VerticalAlignment = VerticalAlignment.Center;
             var dots = Dots(items, showColors, dotLimit);
             dots.VerticalAlignment = VerticalAlignment.Bottom;
-            dots.Margin = new Thickness(0, 0, 0, -FamilySpace.S1);
+            dots.Margin = new Thickness(0, 0, 0, -MonthLayouts.DotSink(layout.RowHeight, layout.NumberLine));
             face = new Grid { Children = { numberHost, dots } };
         }
         else
