@@ -53,8 +53,31 @@ public static class MetricFormat
             return None;
         }
 
-        var first = One(locale, metric, v.Value, currency);
-        return v.Second is { } second ? first + " / " + One(locale, metric, second, currency) : first;
+        if (v.Second is not { } second)
+        {
+            return One(locale, metric, v.Value, currency);
+        }
+
+        // [S-16303] A pair in one unit says it once ("14 / 29 km/h", "3.4 / 0.3 MB/s"): the head keeps room for the name.
+        if (metric.Unit == MetricUnit.Rate)
+        {
+            var top = Math.Max(Math.Abs(v.Value), Math.Abs(second));
+            var scale = Math.Pow(1024, Math.Clamp(Math.Floor(Math.Log(Math.Max(1, top), 1024)), 0, 4));
+            var (_, unit) = Split(Formatting.Rate(locale, scale));
+            string Scaled(double x) => LocaleFormat.Number(locale, x / scale, top / scale < 10 ? 1 : 0);
+            return unit.Length > 0 ? Scaled(v.Value) + " / " + Scaled(second) + " " + unit : One(locale, metric, v.Value) + " / " + One(locale, metric, second);
+        }
+
+        var (a, aUnit) = Split(One(locale, metric, v.Value, currency));
+        var (b, bUnit) = Split(One(locale, metric, second, currency));
+        return aUnit.Length > 0 && aUnit == bUnit ? a + " / " + b + " " + aUnit : a + (aUnit.Length > 0 ? " " + aUnit : string.Empty) + " / " + b + (bUnit.Length > 0 ? " " + bUnit : string.Empty);
+    }
+
+    /// <summary>A figure's number and its unit, at the first space (none: the figure alone, "13°").</summary>
+    private static (string Number, string Unit) Split(string text)
+    {
+        var space = text.IndexOfAny([' ', ' ', ' ']);
+        return space < 0 ? (text, string.Empty) : (text[..space], text[(space + 1)..]);
     }
 
     /// <summary>

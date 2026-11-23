@@ -38,7 +38,17 @@ public static class MetricGraphRules
 
     /// <summary>[S-16312] The most slots a plot <paramref name="width"/> wide draws in <paramref name="type"/>: two at least.</summary>
     public static int MaxSlots(MetricGraphType type, double width)
-        => !double.IsFinite(width) || width <= 0 ? 2 : Math.Max(2, (int)Math.Floor(width / (Marks(type) ? BarPitch : LinePitch)));
+        => !double.IsFinite(width) || width <= 0 ? 2 : Math.Max(2, (int)Math.Floor(width / Pitch(type)));
+
+    /// <summary>[S-16312] The narrowest room a candle takes: its body and wick read, a quote's close-only bars folding into real candles.</summary>
+    public const double CandlePitch = 10;
+
+    private static double Pitch(MetricGraphType type) => type switch
+    {
+        MetricGraphType.Candles => CandlePitch,
+        _ when Marks(type) => BarPitch,
+        _ => LinePitch,
+    };
 
     /// <summary>
     /// [S-16312] <paramref name="series"/> folded into at most <paramref name="most"/> slots: each run of neighbours one slot,

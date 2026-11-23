@@ -213,7 +213,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
 
         // The head: its glyph, its name, the reading (or the value under the pointer and its time).
         _glyph.Glyph = def.Glyph;
-        _name.Text = def.Name.Text();
+        _name.Text = NameOf(def);
         _value.Inlines.Clear();
         if (hovered is { } at && folded.Slots[at] is { } shown)
         {
@@ -228,23 +228,35 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         var inset = FamilySpace.Inset;
         _headScale.ScaleX = face.Scale;
         _headScale.ScaleY = face.Scale;
-        _head.Width = Math.Max(0, (_width - (2 * inset)) / face.Scale);
+        // [S-16326] The status's problem glyph stands at the head's end, on its line; the reading keeps clear of it.
+        var room = _status.Room > 0 ? _status.Room + FamilySpace.GlyphGap : 0;
+        _head.Width = Math.Max(0, (_width - (2 * inset) - room) / face.Scale);
         _head.Margin = new Thickness(inset, face.HeadTop, 0, 0);
+        _status.StandAt(face.HeadTop + (((face.HeadHeight) - KitStatus.Side) / 2), null);
 
         _plot.Width = _width;
         _plot.Height = _height;
         _plot.Draw(new PlotLook(folded, type, def.FromZero, def.Unit == MetricUnit.Share, face.PlotTop, face.Behind, hovered), _width, _height);
     }
 
+    /// <summary>[S-16300] The metric's name: a stock's symbol, a rate's pair ("EUR/USD"), else the catalog's.</summary>
+    private string NameOf(MetricDef def) => def.Need switch
+    {
+        MetricNeed.Symbol when _config.Quote().EffectiveSymbol is { Length: > 0 } symbol => symbol.ToUpperInvariant(),
+        MetricNeed.CurrencyPair => _config.Pair() is { } pair ? pair.EffectiveBase + "/" + pair.EffectiveQuote : def.Name.Text(),
+        _ => def.Name.Text(),
+    };
+
     /// <summary>[S-16323] The value style: the caption over the reading, scaled as one block to fill the card.</summary>
     private void DrawValue(MetricDef def, string reading, bool unavailable)
     {
         _blockGlyph.Glyph = def.Glyph;
-        _blockName.Text = def.Name.Text();
+        _blockName.Text = NameOf(def);
         _blockValue.Foreground = Family.Brush(unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary);
 
         // Measured with its template, so a running reading keeps its block's size (WR-15).
         _blockValue.Text = MetricFaceRules.Template(reading);
+        _block.Width = double.NaN;
         _block.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = _block.DesiredSize;
         _blockValue.Text = reading;

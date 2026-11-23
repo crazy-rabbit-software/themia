@@ -264,7 +264,7 @@ public sealed class MetricsTests
     {
         Assert.Equal(120, MetricGraphRules.MaxSlots(MetricGraphType.Line, 240));
         Assert.Equal(40, MetricGraphRules.MaxSlots(MetricGraphType.Bars, 240));
-        Assert.Equal(40, MetricGraphRules.MaxSlots(MetricGraphType.Candles, 240));
+        Assert.Equal(24, MetricGraphRules.MaxSlots(MetricGraphType.Candles, 240));
         Assert.Equal(2, MetricGraphRules.MaxSlots(MetricGraphType.Line, 0));
     }
 
@@ -432,6 +432,8 @@ public sealed class MetricsTests
     public void S16303_a_pair_reads_both_and_a_share_its_percent()
     {
         Assert.Equal("8° / 16°", MetricFormat.Reading(English, MetricCatalog.Of("temperature"), new MetricValue(8.2, 15.6)));
+        Assert.Equal("14 / 29 km/h", MetricFormat.Reading(English, MetricCatalog.Of("wind"), new MetricValue(14, 29)));
+        Assert.Equal("3.4 / 0.3 MB/s", MetricFormat.Reading(English, MetricCatalog.Of("network"), new MetricValue(3.4 * 1024 * 1024, 0.28 * 1024 * 1024)));
         Assert.Equal("42%", MetricFormat.Reading(English, MetricCatalog.Of("cpu"), new MetricValue(0.42)));
         Assert.Equal("1.3 mm", MetricFormat.Reading(English, MetricCatalog.Of("precipitation"), new MetricValue(1.26)));
         Assert.Equal(MetricFormat.None, MetricFormat.Reading(English, MetricCatalog.Of("cpu"), null));

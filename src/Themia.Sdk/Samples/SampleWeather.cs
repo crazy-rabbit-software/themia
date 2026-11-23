@@ -58,6 +58,7 @@ public static class SampleWeather
                 PrecipitationChance = d.Chance,
                 WindMax = d.Wind,
                 UvMax = d.Uv,
+                Snowfall = 0,
                 Sunrise = sunrise,
                 Sunset = sunset,
             });

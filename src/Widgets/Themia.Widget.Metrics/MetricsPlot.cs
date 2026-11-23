@@ -43,7 +43,7 @@ internal sealed partial class MetricsPlot : Canvas
         var lineFoot = height - (stroke / 2);
         if (!series.Any)
         {
-            Add(Rule(0, height - FamilyShape.Hairline, width, ColourRole.Track));
+            Add(Rule(0, height - FamilyShape.Stroke, width, ColourRole.Track));
             return;
         }
 
@@ -212,10 +212,10 @@ internal sealed partial class MetricsPlot : Canvas
         return column;
     }
 
-    /// <summary>A rule across: the foot's hairline of a graph with nothing to draw.</summary>
+    /// <summary>A rule across: the foot's line of a graph with nothing to draw, a stroke high so the card's edge never hides it.</summary>
     private static Rectangle Rule(double x, double y, double width, ColourRole role)
     {
-        var rule = new Rectangle { Width = Math.Max(0, width), Height = FamilyShape.Hairline, Fill = Family.Brush(role) };
+        var rule = new Rectangle { Width = Math.Max(0, width), Height = FamilyShape.Stroke, Fill = Family.Brush(role) };
         Place(rule, x, y);
         return rule;
     }
