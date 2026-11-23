@@ -30,7 +30,7 @@ public sealed class MetricsModule : IWidgetModule
         Keywords = ["metric", "graph", "chart", "history", "forecast", "cpu", "gpu", "memory", "drive", "network", "ping", "battery", "temperature",
             "rain", "snow", "wind", "uv", "pollen", "air", "aqi", "stock", "exchange"],
         Glyph = Glyphs.ChartType,
-        Sizing = c => MetricFaceRules.Sizing(((MetricsConfig)c).Style),
+        Sizing = c => MetricFaceRules.Sizing(c is MetricsConfig m ? m.Style : MetricsStyle.Graph),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.System, 99, 0),
     };

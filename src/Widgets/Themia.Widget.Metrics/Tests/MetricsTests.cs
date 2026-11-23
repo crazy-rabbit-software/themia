@@ -441,6 +441,12 @@ public sealed class MetricsTests
         Assert.Equal(WidgetSizing.LeastScaled, graph.Height);
         Assert.Equal(MetricFaceRules.LeastWidth, graph.Width);
 
+        // The value style's least holds the catalog's widest reading (a pair's) at its least scale, for every metric alike.
+        var value = MetricFaceRules.Sizing(MetricsStyle.Value).Min;
+        Assert.Equal(MetricFormat.Widest(English, MetricCatalog.Of("drive"), MetricShape.Pair).Length, MetricFaceRules.WidestReading);
+        Assert.True(value.Width >= (2 * FamilySpace.Inset) + (FamilyType.EstimateWidth(FamilyType.Big28, MetricFaceRules.WidestReading) * MetricFaceRules.ValueLeast));
+        Assert.Equal(0, value.Width % 10);
+
         // At the least, a short name and its widest reading read whole side by side, the reading at the name's size if need be.
         var k = MetricFaceRules.LeastScale;
         var room = ((graph.Width - (2 * FamilySpace.Inset)) / k) - MetricFaceRules.GlyphSize(k) - FamilySpace.GlyphGap - FamilySpace.ColumnGap;

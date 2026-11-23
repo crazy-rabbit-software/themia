@@ -163,11 +163,29 @@ public static class MetricFaceRules
     /// <summary>
     /// [S-16325] The sizes a style holds: the graph's least where the name and the value still read over the graph behind them
     /// (the head at its least scale, its text at 9 DIP), as low as the grid's least widget (WR-14); its natural the head at its own size over a plot three times its
-    /// height; the value's least its block at its least scale, its natural the block at its own. Relaxed past that by the host.
+    /// height; the value's least its block at its least scale, as wide as the catalog's widest reading needs there (a pair's
+    /// two, "888 / 888 MB/s", <see cref="WidestReading"/>: one least for every metric, so a card switched to another metric reads
+    /// in the box it has), its natural the block at its own. On the 10-DIP grid across; relaxed past that by the host.
     /// </summary>
-    public static WidgetSizing Sizing(MetricsStyle style) => style switch
+    public static WidgetSizing Sizing(MetricsStyle style) => Sizing(style, WidestReading);
+
+    /// <summary>[S-16325] The longest of every metric's widest readings, in characters (English).</summary>
+    public static int WidestReading { get; } = MetricCatalog.All
+        .SelectMany(m => m.Feeds.Select(f => MetricFormat.Widest(Themia.Core.Localization.Locale.En, m, f.Shape).Length))
+        .Max();
+
+    /// <summary>[S-16325] <see cref="Sizing(MetricsStyle)"/> for a widest reading of <paramref name="widest"/> characters.</summary>
+    public static WidgetSizing Sizing(MetricsStyle style, int widest)
     {
-        MetricsStyle.Value => WidgetSizing.Range(new(140, 60), new(200, 90), new(400, 180)),
-        _ => WidgetSizing.Range(new(LeastWidth, WidgetSizing.LeastScaled), new(NaturalWidth, NaturalHeight), new(480, 240)),
-    };
+        if (style != MetricsStyle.Value)
+        {
+            return WidgetSizing.Range(new(LeastWidth, WidgetSizing.LeastScaled), new(NaturalWidth, NaturalHeight), new(480, 240));
+        }
+
+        var block = FamilyType.EstimateWidth(FamilyType.Big28, Math.Max(1, widest));
+        double Whole(double length) => Math.Ceiling(length / ItemGrid.DefaultCell) * ItemGrid.DefaultCell;
+        var least = Math.Max(140, Whole((2 * FamilySpace.Inset) + (block * ValueLeast)));
+        var natural = Math.Max(200, Whole((2 * FamilySpace.Inset) + block));
+        return WidgetSizing.Range(new(least, 60), new(natural, 90), new(natural * 2, 180));
+    }
 }
