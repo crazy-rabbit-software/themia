@@ -114,13 +114,16 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   says why in a compact line"): the style's days from today stay, "--" and the unknown sky, every range bar its track (a
   row's and a column's), the curve a flat line across the plot in the disabled role (`ForecastCurve.Unread`); why is the
   Status block's one row on the card's top edge ([S-6734], `OnlineParts.ShowState`: the sentence and Retry where it offers
-  it), the face right under it in the box it leaves, where the card holds the row over a day's (one row tall, why is the
-  days' tooltip: never the status line alone); not set up is the card's Set up row alone. Before, the bars and
+  it), the face right under it in the box it leaves, where the card holds the row over a day's (one row tall, the problem
+  glyph in the first day's lead says it, [S-16441]: never the status line alone); not set up is the card's Set up row
+  alone. Before, the bars and
   their tracks vanished and only a tooltip said why. Test `ForecastCurveTests.S16440_`.
-- **[S-16441]** **A stale forecast's rows stay alike** (WR-11: "Rows look like rows everywhere (same heights, type,
-  padding ...)"): the status's problem glyph stands in a room every day's row leaves at its end, centred on the first row,
-  the bars taking what is left of that, never the first row's alone (its "Today" was cut to "T…", its bar and figures 24
-  DIP off the others', the glyph over the rows' seam).
+- **[S-16441]** **The rows are the same in every state** (WR-11: "Rows look like rows everywhere (same heights, type,
+  padding ...)"): in the rows style the problem glyph (a forecast kept through a failed refresh, or a failure in a card
+  too short for the state's row) stands in the first day's lead in place of its sky, its lines its tooltip; no row gives
+  up room for it (the first row's alone was cut to "T…"; a room every row gave up made the rows end 37 DIP from the edge
+  stale against 13 fresh). The other styles keep the kit's status over the top end. `ForecastDefaults.Problems`; test
+  `ForecastDaysTests.S16441_`.
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
 - View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).

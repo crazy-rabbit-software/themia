@@ -32,8 +32,9 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-16440] With no forecast the style's face stays (the days from today, "--", the unknown sky, every range bar its
 /// track, the curve a flat line) and why is the Status block's one compact row on the card's top edge, the face right
-/// under it. [S-16441] A forecast kept through a failed refresh keeps its rows alike: the problem glyph stands in a room
-/// every row leaves at its end, centred on the first row.
+/// under it; in a card one row tall the problem glyph in the first day's lead says it. [S-16441] A forecast kept through a
+/// failed refresh keeps its rows the same as a fresh one's: in the rows style the problem glyph stands in the first day's
+/// lead in place of its sky (no row gives up room for it); in the other styles it is the kit's status over the top end.
 /// </para>
 /// </summary>
 internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens,
@@ -54,6 +55,13 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     // [S-16440] Whether there is a state to say (the row shows where the card holds it over a day).
     private bool _stateWanted;
 
+    // [S-16441] The problem lines a stale forecast's glyph says, or a failure's where no state's row shows (none: fresh).
+    private IReadOnlyList<string> _problems = [];
+    private IReadOnlyList<string> _failure = [];
+
+    // [S-16441] Whether the face was last built under a state's row.
+    private bool _laidStated;
+
 
     private WeatherForecastConfig _config = new();
 
@@ -69,6 +77,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
 
     /// <summary>[S-16440] The box the face is laid in: the view's, less a state's row over it.</summary>
     private WidgetArea _laid;
+
+    /// <summary>[S-16441] The problem lines the face says now (the rows' first lead, or the kit's status).</summary>
+    private IReadOnlyList<string> _shownProblems = [];
 
     /// <summary>What is on screen: the style, its plan and the day the labels were computed for.</summary>
     private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation)? _built;
@@ -148,9 +159,10 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             // compact row over them, and their tooltip (not set up is the card's Set up row, [S-1862]: no row).
             _unread = ForecastDefaults.Unread(DateOnly.FromDateTime(DateTime.Now), WeatherForecastConfig.MostDays);
             _body.Visibility = Visibility.Visible;
-            _mark.Clear();
+            _problems = [];
             OnlineParts.ShowState(_state, _feed.Status, Glyphs.Weather, _feed.Refresh);
             _stateWanted = _state.Visibility == Visibility.Visible;
+            _failure = _stateWanted && OnlineParts.Caption(_feed.Status) is { Length: > 0 } said ? [said] : [];
             ToolTipService.SetToolTip(_body, OnlineParts.Caption(_feed.Status) is { Length: > 0 } why ? why : null);
             _built = null;
             Lay();
@@ -160,9 +172,10 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         _unread = null;
         _state.Hide();
         _stateWanted = false;
+        _failure = [];
         ToolTipService.SetToolTip(_body, null);
         _body.Visibility = Visibility.Visible;
-        _mark.Show(OnlineParts.Problems(held), busy: false);
+        _problems = OnlineParts.Problems(held);
 
         // New data always rebuilds; a tick with the same data rebuilds only when the day changed.
         _built = null;
@@ -196,11 +209,11 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             _ => WeatherForecastLayout.Rows(area, _config),
         };
 
-        // [S-16441] The problem glyph centred on the first row (in the room every row leaves at its end); elsewhere where
-        // the kit puts it.
-        _mark.StandAt(plan is ForecastRowsPlan rowsPlan && !stated
-            ? (ItemSize.Optimal(FamilyShape.RowHeight(rowsPlan.Lines), _area.Grid()) - KitStatus.Side) / 2 - FamilySpace.Inset
-            : null);
+        // [S-16441] What the problem glyph says: a stale forecast's lines, or a failure the state's row has no room for. In the
+        // rows style it is the first day's lead (Rows); elsewhere the kit's status over the top end.
+        var problems = ForecastDefaults.Problems(_problems, _failure, stated);
+        _shownProblems = problems;
+        _mark.Show(plan is ForecastRowsPlan ? [] : problems, busy: false);
 
         // One clock reading for the whole build, so a forecast drawn across midnight cannot label
         // two different days "Today".
@@ -209,12 +222,13 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
 
         // [S-16439] The same plan in another width still draws anew: the curve's plot runs to the card's right edge.
         if (_built is { } built && built.Style == key.style && Equals(built.Plan, key.plan)
-            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation && _laid.Width.Equals(area.Width))
+            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation && _laid.Width.Equals(area.Width) && _laidStated == stated)
         {
             return;
         }
 
         _laid = area;
+        _laidStated = stated;
 
         ClearBody();
         _built = key;

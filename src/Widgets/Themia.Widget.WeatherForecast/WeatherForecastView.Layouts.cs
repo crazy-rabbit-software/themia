@@ -42,14 +42,19 @@ internal sealed partial class WeatherForecastView
     /// </summary>
     private SpreadStack BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
     {
-        var list = new AlikeRows { Margin = ListEdge.Margin };
+        var list = new RowStack { Margin = ListEdge.Margin };
         var bars = new List<(RowBlock Row, ChartBar Bar)>();
 
         for (var i = 0; i < Math.Min(plan.Days, days.Count); i++)
         {
             var day = days[i];
             var row = new RowBlock(RowKind.List, plan.Compact ? 0 : FamilyShape.Icon) { Lines = plan.Lines, Strong = day.Day == today };
-            if (!plan.Compact)
+            if (!plan.Compact && i == 0 && _shownProblems.Count > 0)
+            {
+                // [S-16441] The problem glyph in the first day's lead, in place of its sky: no row gives up room for it.
+                row.Lead(ToolLine.Problem(string.Join("\n", _shownProblems)));
+            }
+            else if (!plan.Compact)
             {
                 row.LeadGlyph(LookGlyph(WeatherReport.Look(day.Code)));
             }
@@ -78,8 +83,7 @@ internal sealed partial class WeatherForecastView
         {
             var rows = list.Children.OfType<RowBlock>().ToList();
             var meter = WeatherForecastLayout.MeterWidth(
-                // [S-16441] Every row leaves the status glyph's room at its end: the bars take what is left of that.
-                WeatherForecastLayout.ContentWidth(_laid) - _mark.Room,
+                WeatherForecastLayout.ContentWidth(_laid),
                 plan.Compact ? 0 : FamilyShape.Icon + FamilySpace.GlyphGap,
                 rows.Max(r => Math.Max(Natural(r.NameText), r.Second.Visibility == Visibility.Visible ? Natural(r.Second) : 0)),
                 rows.Max(r => r.ValueText.Visibility == Visibility.Visible ? Natural(r.ValueText) : 0),
@@ -91,27 +95,6 @@ internal sealed partial class WeatherForecastView
         }
 
         return list;
-    }
-
-    /// <summary>
-    /// [S-16441] The days' rows, alike (WR-11: "Rows look like rows everywhere"): the status's problem glyph stands in a room
-    /// every row leaves at its end, never the first row's alone (its day was cut to "T…", its bar and figures 24 DIP off the
-    /// others').
-    /// </summary>
-    private sealed partial class AlikeRows : RowStack, IStatusRoom
-    {
-        void IStatusRoom.StatusRoom(double width)
-        {
-            var room = double.IsFinite(width) ? Math.Max(0, width) : 0;
-            foreach (var row in Children.OfType<RowBlock>())
-            {
-                var padding = row.Padding with { Right = FamilySpace.Inset + room };
-                if (row.Padding != padding)
-                {
-                    row.Padding = padding;
-                }
-            }
-        }
     }
 
     /// <summary>A text's own width on one line, as it is styled now.</summary>

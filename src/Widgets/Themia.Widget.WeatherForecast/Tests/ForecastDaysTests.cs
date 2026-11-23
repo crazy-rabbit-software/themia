@@ -112,4 +112,17 @@ public class ForecastDaysTests
 
         Assert.Equal((across, lines, days), (plan.Columns, plan.Rows, plan.Days));
     }
+
+    /// <summary>[S-16441] The problem glyph says a stale forecast's lines, or a failure where no state's row says it.</summary>
+    [Fact]
+    public void S16441_the_problem_glyph_says_a_stale_answer_or_a_failure_with_no_row()
+    {
+        string[] stale = ["No network"];
+        string[] failure = ["Can't reach the service"];
+
+        Assert.Equal(stale, ForecastDefaults.Problems(stale, [], stated: false));
+        Assert.Equal(failure, ForecastDefaults.Problems([], failure, stated: false));
+        Assert.Empty(ForecastDefaults.Problems([], failure, stated: true));
+        Assert.Empty(ForecastDefaults.Problems([], [], stated: false));
+    }
 }
