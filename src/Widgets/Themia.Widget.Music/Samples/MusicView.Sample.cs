@@ -21,11 +21,17 @@ internal sealed partial class MusicView : IWidgetSample
     private async Task ShowTrackAsync(NowPlaying track, bool art)
     {
         var shown = track with { AppId = SamplePlayer };
+
+        // The sample owns the face: a picture of the session's still on its way never lands over it.
+        _artwork?.Cancel();
         _feed.Show(shown);
-        if (art)
+        if (!art)
         {
-            var bytes = await SamplePictureFiles.CoverPngAsync(600).ConfigureAwait(true);
-            ShowArt(await NowPlayingFeed.DecodeAsync(bytes, CancellationToken.None).ConfigureAwait(true), MusicWords.ArtKey(shown));
+            ShowArt(null, MusicWords.ArtKey(shown));
+            return;
         }
+
+        var bytes = await SamplePictureFiles.CoverPngAsync(600).ConfigureAwait(true);
+        ShowArt(await NowPlayingFeed.DecodeAsync(bytes, CancellationToken.None).ConfigureAwait(true), MusicWords.ArtKey(shown));
     }
 }

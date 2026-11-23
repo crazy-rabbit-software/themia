@@ -287,8 +287,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             return;
         }
 
+        // A preview card (the add page's picture, a render) reads no picture of the machine's: its sample brings its own.
         var key = MusicWords.ArtKey(now);
-        if (key != _artKey && !_feed.Frozen)
+        if (key != _artKey && !_feed.Frozen && !_preview)
         {
             _ = LoadAsync(key);
         }
@@ -302,7 +303,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         try
         {
             var image = await _feed.ArtworkAsync(cts.Token).ConfigureAwait(true);
-            if (!cts.IsCancellationRequested)
+
+            // A sample shown meanwhile owns the face: the session's picture read before it never lands over it.
+            if (!cts.IsCancellationRequested && !_feed.Frozen)
             {
                 // Remembered even when there is none, so a track with no cover is not fetched again on every push.
                 ShowArt(image, key);
@@ -572,7 +575,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
                     scale.ScaleY = laid.Scale;
                 }
 
+                // Measured again in the box it is arranged in (a no-op where the measure's room was the same): a line cut at
+                // one width and laid at another would cut itself again and ask for another pass, frame after frame.
                 var own = Own(box, scale is null ? 1 : laid.Scale);
+                element.Measure(own);
                 element.Arrange(new Rect(box.X, box.Y, own.Width, own.Height));
             }
 
@@ -600,7 +606,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
                 var glyph = side >= 2 * FamilyShape.IconHuge ? FamilyShape.IconHuge : side >= 2 * FamilyShape.IconLarge ? FamilyShape.IconLarge : FamilyShape.Icon;
                 if (!view._placeholder.FontSize.Equals(glyph))
                 {
+                    // Its box with it: a glyph larger than its box is cut.
                     view._placeholder.FontSize = glyph;
+                    view._placeholder.Width = glyph;
+                    view._placeholder.Height = glyph;
                 }
             }
 
