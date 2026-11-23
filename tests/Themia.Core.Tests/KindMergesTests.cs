@@ -205,4 +205,54 @@ public sealed class KindMergesTests
         Assert.Contains(("s2", "summary", 0.25, 0.1, 0.05, 0.04), rows);
         Assert.Equal(4, rows.Count);
     }
+
+    /// <summary>[S-16690] Kinds merged into one kind of presets: each placed one becomes it alone, its preset set.</summary>
+    private static readonly WidgetDescriptor[] Merged =
+    [
+        Kind("setting",
+            new MergeFrom("lampToggle") { Fold = MergeFold.Alone, Sets = ("target", "lamp") },
+            new MergeFrom("fanToggle") { Fold = MergeFold.Alone, Sets = ("target", "fan") }),
+    ];
+
+    [Fact]
+    public void S16690_each_placed_one_becomes_the_kind_alone_in_its_box_with_its_id_settings_and_preset()
+    {
+        // Two lamps and a fan side by side, touching: they stay three cards ("Toggles should stay apart").
+        var document = Placed(
+            ("l1", "lampToggle", 0.10, 0.10, 0.05, 0.05),
+            ("f1", "fanToggle", 0.15, 0.10, 0.05, 0.05),
+            ("l2", "lampToggle", 0.20, 0.10, 0.05, 0.05),
+            ("o", "other", 0.5, 0.5, 0.1, 0.1));
+        Widgets(document)[0]!["config"]!["style"] = "round";
+
+        var notes = KindMerges.Replace(document, Merged);
+
+        Assert.Equal(
+        [
+            ("l1", "setting", 0.10, 0.10, 0.05, 0.05),
+            ("f1", "setting", 0.15, 0.10, 0.05, 0.05),
+            ("l2", "setting", 0.20, 0.10, 0.05, 0.05),
+            ("o", "other", 0.5, 0.5, 0.1, 0.1),
+        ], Widgets(document).Select(Row));
+        Assert.Equal(["lamp", "fan", "lamp"], Widgets(document).Take(3).Select(w => (string)w!["config"]!["target"]!));
+        Assert.Equal("round", (string)Widgets(document)[0]!["config"]!["style"]!);
+        Assert.All(Widgets(document), w => Assert.Equal("never", (string)w!["config"]!["hideWhenIdle"]!));
+        Assert.Equal(
+        [
+            "folded lampToggle 'l1' in view 'Main' into the widget setting with target lamp in its own box",
+            "folded fanToggle 'f1' in view 'Main' into the widget setting with target fan in its own box",
+            "folded lampToggle 'l2' in view 'Main' into the widget setting with target lamp in its own box",
+        ], notes);
+    }
+
+    [Fact]
+    public void S16690_a_kind_still_installed_is_never_folded()
+    {
+        var document = Placed(("l1", "lampToggle", 0.10, 0.10, 0.05, 0.05));
+
+        var notes = KindMerges.Replace(document, [.. Merged, Kind("lampToggle")]);
+
+        Assert.Equal("lampToggle", (string)Widgets(document)[0]!["config"]!["kind"]!);
+        Assert.Empty(notes);
+    }
 }

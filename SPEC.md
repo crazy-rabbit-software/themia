@@ -11046,6 +11046,13 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   top on the part's foot, sharing a stretch of it) grows up over the part's height, its own width kept; a part with none
   under it becomes the kind in its own box. The card is then painted fitted to its kind's sizing ([S-2438]). One logged
   line a fold. Tests `KindMergesTests.S16230_` (Core), `ResetFoldTests.S16230_` (the owner's desktop, Modules).
+- **[S-16690]** **A kind merged into a kind of presets becomes it alone, in place** (owner, 2026-11-23: "they should
+  actually be merged into one widget and not be multiple ones"; earlier "Toggles should stay apart"). A kind that is now
+  a preset of another states the removed kind it takes over and the preset it is (`MergeFrom` with `Fold =
+  MergeFold.Alone` and `Sets`, the config's key and value: the quick setting's `target`); the load's first pass
+  (`KindFolds`) turns each placed one into the kind in its own box with its id, style and settings, the key written, one
+  logged line each ("folded wifiToggle 'w1' in view 'Home' into the widget quickToggle with target wifi in its own box"),
+  never joined with a neighbour, and never while the old kind is still installed. Tests `KindMergesTests.S16690_`.
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,

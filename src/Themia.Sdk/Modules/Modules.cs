@@ -52,6 +52,12 @@ public sealed record MergeFrom(string Kind)
     /// <c>KindFolds</c>), never replaced one for one. Null: it is replaced.
     /// </summary>
     public MergeFold? Fold { get; init; }
+
+    /// <summary>
+    /// [S-16690] What a placed one of the removed kind sets on its config as it becomes this kind (<see cref="MergeFold.Alone"/>):
+    /// the config's key and the value it is given (a quick setting's <c>target</c> and <c>wifi</c>). Null: nothing.
+    /// </summary>
+    public (string Key, string Value)? Sets { get; init; }
 }
 
 /// <summary>[S-16230] How a placed part of a removed kind folds back into the widget it was split from.</summary>
@@ -68,6 +74,13 @@ public enum MergeFold
     /// them, but never a group's start or a link between parts; a card of it no part touches stays what it is.
     /// </summary>
     Joins,
+
+    /// <summary>
+    /// [S-16690] A kind merged into one kind of presets (a quick setting's toggle, owner 2026-11-23: "they should actually be
+    /// merged into one widget"; "Toggles should stay apart"): each placed one becomes the kind alone, in its own box, with
+    /// its id, settings and look, its <see cref="MergeFrom.Sets"/> written; never joined with another.
+    /// </summary>
+    Alone,
 }
 
 /// <summary>

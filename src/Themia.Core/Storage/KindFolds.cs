@@ -42,12 +42,35 @@ public static class KindFolds
             var viewName = entry["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var viewText) ? viewText : "?";
             foreach (var into in folds.Values.Select(f => f.Into).Distinct(StringComparer.Ordinal).ToList())
             {
+                Alone(placed, into, folds, viewName, notes);
                 Under(placed, into, folds, viewName, notes);
                 Touching(placed, into, folds, viewName, notes);
             }
         }
 
         return notes;
+    }
+
+    /// <summary>[S-16690] Each placed one of a kind merged into <paramref name="into"/> alone: it becomes the kind where it stands, its preset set.</summary>
+    private static void Alone(JsonArray placed, string into, Dictionary<string, (string Into, MergeFrom From)> folds, string viewName, List<string> notes)
+    {
+        foreach (var widget in placed.OfType<JsonObject>())
+        {
+            if (!IsFold(widget, into, MergeFold.Alone, folds, out var kind) || widget["config"] is not JsonObject config)
+            {
+                continue;
+            }
+
+            Become(widget, into);
+            var set = string.Empty;
+            if (folds[kind].From.Sets is var (key, value))
+            {
+                config[key] = value;
+                set = $" with {key} {value}";
+            }
+
+            notes.Add($"folded {kind} '{Id(widget)}' in view '{viewName}' into the widget {into}{set} in its own box");
+        }
     }
 
     /// <summary>[S-16230] The parts over a card of <paramref name="into"/>: each card right under one grows up over it.</summary>
