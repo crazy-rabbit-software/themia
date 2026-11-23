@@ -74,6 +74,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _name.TextTrimming = TextTrimming.CharacterEllipsis;
         _value.VerticalAlignment = VerticalAlignment.Top;
         _value.TextWrapping = TextWrapping.NoWrap;
+        _value.TextTrimming = TextTrimming.CharacterEllipsis;
         Family.Figures(_value);
         SetColumn(_name, 1);
         SetColumn(_value, 2);
@@ -254,6 +255,9 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         // [S-16326] The status's problem glyph stands at the head's end, on its line; the reading keeps clear of it.
         var room = _status.Room > 0 ? _status.Room + FamilySpace.GlyphGap : 0;
         _head.Width = Math.Max(0, (_width - (2 * inset) - room) / face.Scale);
+
+        // The reading never runs past the head (into the status's mark): on a head too narrow for it, it is cut.
+        _value.MaxWidth = Math.Max(0, _head.Width - glyph - FamilySpace.GlyphGap);
         _head.Margin = new Thickness(inset, face.HeadTop, 0, 0);
         _status.StandAt(face.HeadTop + (((face.HeadHeight) - KitStatus.Side) / 2), null);
 
