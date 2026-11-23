@@ -97,7 +97,8 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("clock"))));
         // [S-15810] The moon's readout centres, as the clock's: it fills one axis and shares the other alike (WR-3).
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Standard)));
+        // [S-16454] The weather summary centres in every style (its leftover shared alike), as its other two always did.
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Standard)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.LargeIcon)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Minimal)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Number)));

@@ -59,6 +59,30 @@ public sealed class WeatherNowTests
     }
 
     [Fact]
+    public void S16453_why_stands_in_the_empty_line_under_at_its_own_size_or_is_the_tooltip()
+    {
+        // The line under is kept, empty: a figure space draws no ink, so the block is a reading's two lines.
+        Assert.Equal(" ", WeatherNowStyles.UnderSlot);
+        Assert.True(string.IsNullOrWhiteSpace(WeatherNowStyles.UnderSlot));
+
+        // Why stands there where the line drawn holds a Caption line and the start of a sentence; else the tooltip.
+        Assert.True(WeatherNowStyles.WhyFits(FamilyType.Caption.LineHeight, WhyLine.MinBeside));
+        Assert.True(WeatherNowStyles.WhyFits(99, 800));
+        Assert.False(WeatherNowStyles.WhyFits(FamilyType.Caption.LineHeight - 2, 800));
+        Assert.False(WeatherNowStyles.WhyFits(40, WhyLine.MinBeside - 1));
+        Assert.False(WeatherNowStyles.WhyFits(double.NaN, 800));
+    }
+
+    [Fact]
+    public void S16454_the_summary_centres_until_an_alignment_is_chosen()
+    {
+        foreach (var style in Enum.GetValues<WeatherNowStyle>())
+        {
+            Assert.Equal(ContentAlign.Center, ((IContentAligned)new WeatherNowConfig { Style = style }).DefaultAlign);
+        }
+    }
+
+    [Fact]
     public void S16433_the_status_mark_stands_clear_beside_or_gives_way_but_never_over_the_reading()
     {
         var block = new SizeDip(110, 52);

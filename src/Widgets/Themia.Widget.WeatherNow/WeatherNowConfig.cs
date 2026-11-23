@@ -44,8 +44,12 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IContentAligned, 
     ];
 
 
-    /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
-    ContentAlign IContentAligned.DefaultAlign => Style == WeatherNowStyle.Standard ? ContentAlign.Left : ContentAlign.Center;
+    /// <summary>
+    /// [S-6581] Its one block aligns; where it sits when nothing was chosen: centred in every style ([S-16454]; docs/WIDGET-
+    /// RULES.md, owner 2026-11-20: "Centred is fine", the leftover shared alike on both sides; Standard stood from the start,
+    /// 253 DIP left over at its end at 350 × 70). Left and Right stay the person's choice.
+    /// </summary>
+    ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
 
     /// <summary>[S-6160] The widget's look.</summary>
     public WeatherNowStyle Style { get; set; } = WeatherNowStyle.Standard;

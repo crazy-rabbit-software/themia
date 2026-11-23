@@ -36,7 +36,7 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
   180 (Large icon 200, Minimal 140): the widest reading ("-18°F", led by its glyph or beside the 48) fits
   140; past 320 the card is only empty. A condition longer than the card ends in its ellipsis.
 - **[S-6160]** The reading's styles ([S-6000]), `WeatherNowConfig.Style` (`WeatherNowStyle`):
-  **Standard** (the sky's glyph leading the temperature at its step, start-aligned), **Large icon**
+  **Standard** (the sky's glyph leading the temperature at its step, centred unless aligned elsewhere, [S-16454]), **Large icon**
   ([S-6161]) and **Minimal** ([S-6162]), in that order. Nothing is offered under Style.
 - **[S-6161]** **Large icon**: the sky's glyph at 48 beside the temperature, the condition under the
   temperature, the pair in the content's middle ([S-12401]), centred unless the widget is aligned elsewhere ([S-6582]).
@@ -53,14 +53,24 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
 - **[S-16432]** *(Replaced by [S-16447]: why as a Caption line at the foot at its own size kept the block from filling its
   card, T36/B39 at 300 × 164, the line a 122 × 16 box under a 270 DIP cloud at 900 × 300.)* A released hold forgets its
   mark (`HoldMark.Forget`), so a readout held once is judged by what it draws again.
-- **[S-16447]** **No reading keeps the face, filled as a reading's, why its line under** (WR-10: "the widget keeps its face
-  ... and says why in a compact line"; WR-7: "Keep them together"; WR-1, WR-5: the block fills its card as the sample's
-  does): the style's face stays (`WeatherNowStyles.Unread`): the sky unknown (the weather glyph leading the reading in
-  Standard, beside it at 48 in Large icon), the reading "--" with its degree, disabled, held to the style's widest
-  reading (`ReadoutBlock.Hold`, "-18°F") so the block is planned and scaled as a reading's; why ("Can't reach the
-  service") is its line under, the reading and the line one block scaled as one until the height or the width stops it.
-  In the smallest cards the line gives way as a condition does; why is always the face's tooltip. Not set up says nothing
-  more (the card's Set up row). Test `WeatherNowTests.S16447_`.
+- **[S-16447]** **No reading keeps the face, filled as a reading's** (WR-10: "the widget keeps its face ... and says why
+  in a compact line"; WR-1, WR-5: the block fills its card as the sample's does): the style's face stays
+  (`WeatherNowStyles.Unread`): the sky unknown (the weather glyph leading the reading in Standard, beside it at 48 in Large
+  icon), the reading "--" with its degree, disabled, held to the style's widest reading (`ReadoutBlock.Hold`, "-18°F") so
+  the block is planned and scaled as a reading's. Not set up says nothing more (the card's Set up row). Test
+  `WeatherNowTests.S16447_`. (Its why as the scaled line under is replaced by [S-16453].)
+- **[S-16453]** **Why is a compact line in the line under's place** (WR-10: "says why in a compact line"; the third
+  audit of 2026-11-23: as the scaled line under, "Can't reach the service" grew to 809 × 99 DIP at 900 × 300 and shrank
+  the face, its glyph 64 against the sample's 94 at 300 × 164): the face keeps its line under empty
+  (`WeatherNowStyles.UnderSlot`, a figure space: no ink, so the block keeps a reading's two lines and is drawn as large as
+  the sample's), and why is one Caption line at its own size laid over that line's place, from its start to the card's
+  inset, never part of the block, so it neither widens nor scales it; where that place is under a Caption line or under a
+  sentence's start across (`WeatherNowStyles.WhyFits`), why is the face's tooltip alone (it always is the tooltip too).
+  Minimal, whose sample draws no line under, keeps one with no reading for why to stand in. Test `WeatherNowTests.S16453_`.
+- **[S-16454]** **The summary centres until an alignment is chosen** (docs/WIDGET-RULES.md, owner 2026-11-20: "Centred is
+  fine", the leftover on the other axis shared alike on both sides): every style's default alignment is Center (Standard
+  stood from the start, 253 DIP left over at its end at 350 × 70); Left and Right stay the person's choice ([S-6580]). Tests
+  `WeatherNowTests.S16454_`, `ContentAlignmentTests.S6582_`.
 - **[S-16433]** **The problem glyph never stands over the reading** (WR-14: a face scaled down stays read): a reading kept
   through a failed refresh shows the status's problem glyph over the card's top end corner; where the block would stand
   under it the block's room ends the glyph's width sooner, and where the room left beside it cannot hold the block at its

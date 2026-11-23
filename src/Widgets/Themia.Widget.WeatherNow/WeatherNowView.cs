@@ -24,9 +24,10 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-7042] A reading kept through a failed refresh stays on screen and the status's problem glyph says
 /// so ([S-12481]), the block leaving it room at its end where it would stand under it, the glyph giving way to the face's
-/// tooltip where the card is too small for both ([S-16433]). With no reading the face stays, its sky unknown and its
-/// reading "--", why its line under, the one block scaled as the sample's is ([S-16447]). [S-12483] The same joined or
-/// alone. The card is one item, lit under the pointer while a click opens MSN Weather ([S-16434]).
+/// tooltip where the card is too small for both ([S-16433]). With no reading the face stays as large as a reading's, its
+/// sky unknown and its reading "--" held to the widest reading, and why is a compact Caption line in its line under's
+/// place, its own size, never widening or scaling the block; where that place is too small, its tooltip ([S-16453]).
+/// [S-12483] The same joined or alone. The card is one item, lit under the pointer while a click opens MSN Weather ([S-16434]).
 /// </para>
 /// </summary>
 internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
@@ -52,6 +53,13 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
     // [S-16447] Why there is no reading (null: a reading, or nothing to say: not set up is the card's Set up row).
     private string? _whyText;
+
+    /// <summary>
+    /// [S-16453] Why, one Caption line at its own size, laid over the place of the face's line under (the block keeps that
+    /// line, empty, so it is as large as a reading's): never part of the block, so it neither widens nor scales it.
+    /// </summary>
+    private readonly TextBlock _why = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    private readonly Canvas _whyLayer = new() { IsHitTestVisible = false };
 
     // [S-16433] The problem lines of a reading kept through a failed refresh (none: fresh, or no reading).
     private IReadOnlyList<string> _problems = [];
@@ -86,6 +94,11 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         _fit.Parts.Add(_face);
         Children.Add(_fit);
 
+        _why.TextWrapping = TextWrapping.NoWrap;
+        _why.TextTrimming = TextTrimming.CharacterEllipsis;
+        _why.Opacity = 0;
+        _whyLayer.Children.Add(_why);
+        Children.Add(_whyLayer);
         _status.Place(this);
         _opensLight = new OpensLight(this, () => _surface?.EditMode != true && Opens is not null);
     }
@@ -135,9 +148,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     {
         if (_feed.Held is not { Value: { } reading } held)
         {
-            // [S-12813] [S-16447] The face stays (WR-10) and fills its card as the sample's does: the sky unknown in the
-            // style's place, "--" held to the widest reading's box so it stands as large as a reading would, why its line
-            // under, the reading and its line one block scaled as one (WR-7: "Keep them together").
+            // [S-12813] [S-16453] The face stays (WR-10) and fills its card as the sample's does: the sky unknown in the
+            // style's place, "--" held to the widest reading's box, its line under kept empty so the block is a reading's;
+            // why is the compact line laid in that line's place at its own size (ArrangeOverride).
             var why = OnlineParts.Caption(_feed.Status);
             _whyText = why.Length > 0 ? why : null;
             _problems = [];
@@ -147,12 +160,14 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
             _bigGlyph.Glyph = Glyphs.Weather;
             _bigGlyph.Foreground = Family.Brush(ColourRole.TextDisabled);
             _reading.Hold(face.Held.Value, face.Held.Unit);
-            _reading.Show("--", "°", _whyText, lead: face.Lead ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
+            _reading.Show("--", "°", WeatherNowStyles.UnderSlot, lead: face.Lead ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
+            _why.Text = _whyText ?? string.Empty;
             Lay();
             return;
         }
 
         _whyText = null;
+        _why.Text = string.Empty;
         _problems = OnlineParts.Problems(held);
         _reading.Hold(string.Empty);
         _bigGlyph.Foreground = Family.Brush(ColourRole.TextSecondary);
@@ -209,5 +224,54 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         var tip = _whyText ?? (place == MarkPlace.Yields ? string.Join("\n", _problems) : null);
         ToolTipService.SetToolTip(this, tip);
         _fit.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset + (place == MarkPlace.Beside ? _status.Room : 0), FamilySpace.Inset);
+    }
+
+    protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
+    {
+        var size = base.ArrangeOverride(finalSize);
+        PlaceWhy(finalSize);
+        return size;
+    }
+
+    /// <summary>
+    /// [S-16453] Lay why over the place of the face's line under, as the block is drawn: from its start to the card's inset at
+    /// the end, centred on its height, at Caption's own size; where that place is under a Caption line (the block drawn small)
+    /// the line is not drawn and why is the face's tooltip alone (<see cref="WeatherNowStyles.WhyFits"/>).
+    /// </summary>
+    private void PlaceWhy(Windows.Foundation.Size card)
+    {
+        var under = _reading.UnderText;
+        var shown = false;
+        if (_whyText is not null && under.Visibility == Visibility.Visible && under.ActualHeight > 0)
+        {
+            var box = under.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, under.ActualWidth, under.ActualHeight));
+            var line = FamilyType.Caption.LineHeight;
+            var room = Math.Max(0, card.Width - FamilySpace.Inset - box.X);
+            if (WeatherNowStyles.WhyFits(box.Height, room))
+            {
+                Set(Canvas.LeftProperty, box.X);
+                Set(Canvas.TopProperty, box.Y + ((box.Height - line) / 2));
+                if (!_why.Width.Equals(room))
+                {
+                    _why.Width = room;
+                }
+
+                shown = true;
+            }
+        }
+
+        var opacity = shown ? 1 : 0;
+        if (!_why.Opacity.Equals(opacity))
+        {
+            _why.Opacity = opacity;
+        }
+
+        void Set(DependencyProperty property, double value)
+        {
+            if (!((double)_why.GetValue(property)).Equals(value))
+            {
+                _why.SetValue(property, value);
+            }
+        }
     }
 }

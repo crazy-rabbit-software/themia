@@ -73,10 +73,10 @@ public static class WeatherNowStyles
     }
 
     /// <summary>
-    /// [S-16447] The face with no reading in <paramref name="style"/> (WR-10: the face kept, its reading "--"; WR-7: the
-    /// reading and its line one block): the unknown sky where the style draws one (leading the reading in Standard, beside it
-    /// at 48 in Large icon), "--" held to the style's widest reading so the block is planned and scaled as a reading's, the
-    /// why its line under.
+    /// [S-16447] [S-16453] The face with no reading in <paramref name="style"/> (WR-10: the face kept, its reading "--"): the
+    /// unknown sky where the style draws one (leading the reading in Standard, beside it at 48 in Large icon), "--" held to
+    /// the style's widest reading so the block is planned and scaled as a reading's, its line under kept empty
+    /// (<see cref="UnderSlot"/>) for why to stand in at its own size.
     /// </summary>
     public static UnreadFace Unread(WeatherNowStyle style) => style switch
     {
@@ -84,6 +84,21 @@ public static class WeatherNowStyles
         WeatherNowStyle.LargeIcon => new UnreadFace(false, true, Beside),
         _ => new UnreadFace(true, false, Worst),
     };
+
+    /// <summary>
+    /// [S-16453] The face's line under with no reading: a figure space, no ink, so the block keeps a reading's two lines and
+    /// is drawn as large as one (it was the why, scaled into a headline that made the reading small: 809 × 99 DIP at
+    /// 900 × 300); why stands in its place at its own size.
+    /// </summary>
+    public const string UnderSlot = "\u2007";
+
+    /// <summary>
+    /// [S-16453] Whether why, one Caption line at its own size (WR-10: "says why in a compact line"), stands in the face's
+    /// line under drawn <paramref name="slot"/> tall, with <paramref name="room"/> across: where the slot holds a Caption line
+    /// and the room the start of a sentence (<see cref="WhyLine.MinBeside"/>); else why is the face's tooltip alone.
+    /// </summary>
+    public static bool WhyFits(double slot, double room)
+        => double.IsFinite(slot) && double.IsFinite(room) && slot >= FamilyType.Caption.LineHeight - LayoutMath.Tolerance && room >= WhyLine.MinBeside;
 
     /// <summary>
     /// [S-16433] Where the status mark (its <paramref name="room"/> across, over a band <paramref name="band"/> under the face's

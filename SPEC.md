@@ -4283,8 +4283,8 @@ rules in Core `Model/QuickSet.cs` and `Shell/SelectionPage.cs`
   they fill the card or are the card. A style that fills the card (a rate's or a stock's chart, the
   moon's month) does not align either.
 - **[S-6582]** Without a choice each widget sits where it always drew: centred — the Clock,
-  Weather now's Large icon and Minimal styles, Air quality's Gauge; from the start —
-  everything else (Weather now Standard, Air quality Number, the rate, the price, the Countdown, the
+  Weather now in every style ([S-16454]), own text ([S-16430]), Air quality's Gauge; from the start —
+  everything else (Air quality Number, the rate, the price, the Countdown, the
   Quote, since G3 as every data widget's, [S-6702]); the Moon's readout centred since the moon's [S-15810]. The Countdown no longer centres itself on a Compact tile: one rule at every size.
 - **[S-6583]** The card hands its view the alignment it draws (`ContentAlignment.Shown`: the own
   choice, else the kind's default for its style, and the default for a value outside the set or a
