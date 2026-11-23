@@ -81,20 +81,26 @@ public sealed partial class ToolLine : Grid, IInked
         get
         {
             var model = LineInk.Of(FamilyType.Body);
-            var over = _label.Text.Length > 0
-                ? InkMeter.Line(FamilyType.Body, _label.Text, Themia.App.Widgets.Ink.FontOf(_label.FontFamily), _label.FontWeight.Weight).Over
-                : model.Over;
-            foreach (var button in Parts.Children.OfType<Border>().Where(b => b.Visibility == Visibility.Visible))
-            {
-                if (button.Child is FontIcon { Visibility: Visibility.Visible } glyph && double.IsFinite(button.Height)
-                    && InkMeter.Measure(new InkText(glyph.Glyph, Themia.App.Widgets.Ink.FontOf(glyph.FontFamily), glyph.FontSize, glyph.FontWeight.Weight, 0)) is { } ink)
-                {
-                    over = Math.Min(over, button.Margin.Top + ((button.Height - glyph.FontSize) / 2) + ink.Over);
-                }
-            }
-
-            return new LineInk(Math.Max(0, over), Math.Max(0, DesiredSize.Height - FamilySpace.HeaderLine) + model.Under);
+            return new LineInk(Math.Max(0, Over() - _lift), Math.Max(0, DesiredSize.Height - FamilySpace.HeaderLine) + model.Under);
         }
+    }
+
+    /// <summary>The room over its first ink as laid without a lift: the label's words' or a shown button's glyph's.</summary>
+    private double Over()
+    {
+        var over = _label.Text.Length > 0
+            ? InkMeter.Line(FamilyType.Body, _label.Text, Themia.App.Widgets.Ink.FontOf(_label.FontFamily), _label.FontWeight.Weight).Over
+            : LineInk.Of(FamilyType.Body).Over;
+        foreach (var button in Parts.Children.OfType<Border>().Where(b => b.Visibility == Visibility.Visible))
+        {
+            if (button.Child is FontIcon { Visibility: Visibility.Visible } glyph && double.IsFinite(button.Height)
+                && InkMeter.Measure(new InkText(glyph.Glyph, Themia.App.Widgets.Ink.FontOf(glyph.FontFamily), glyph.FontSize, glyph.FontWeight.Weight, 0)) is { } ink)
+            {
+                over = Math.Min(over, button.Margin.Top + ((button.Height - glyph.FontSize) / 2) + ink.Over);
+            }
+        }
+
+        return over;
     }
 
     public bool IsRow => false;
@@ -103,7 +109,8 @@ public sealed partial class ToolLine : Grid, IInked
     /// [S-16444] Its first ink on its box's top (WR-1, owner 2026-11-19: "there should not be a space at the top"): the line
     /// is drawn raised by the room over its first ink (<see cref="Ink"/>: the label's capitals, or a button's glyph where
     /// that stands higher), so a line laid at the card's inset inks from the inset, its buttons or alone its words (a
-    /// narrow calendar's period stood its capitals 18 down once its arrows gave way). Drawn only: its band keeps its room.
+    /// narrow calendar's period stood its capitals 18 down once its arrows gave way). The band keeps its room and the label's
+    /// box still reaches its foot, so what stands under the line stands right under its ink's box (WR-1, WR-5).
     /// </summary>
     public bool InkOnTop
     {
@@ -113,26 +120,15 @@ public sealed partial class ToolLine : Grid, IInked
             if (value != _inkOnTop)
             {
                 _inkOnTop = value;
-                RenderTransform = value ? _lift : null;
-                InvalidateArrange();
+                InvalidateMeasure();
             }
         }
     }
 
     private bool _inkOnTop;
-    private readonly Microsoft.UI.Xaml.Media.TranslateTransform _lift = new();
 
-    protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
-    {
-        var size = base.ArrangeOverride(finalSize);
-        var lift = _inkOnTop ? -Ink.Over : 0;
-        if (!_lift.Y.Equals(lift))
-        {
-            _lift.Y = lift;
-        }
-
-        return size;
-    }
+    // [S-16444] How far the label and the parts stand raised (0 unless InkOnTop).
+    private double _lift;
 
     /// <summary>The line stands while it has a label or a part to show; collapsed it takes no room.</summary>
     private void Decide() => Visibility = _label.Text.Length > 0 || Parts.Any ? Visibility.Visible : Visibility.Collapsed;
@@ -146,7 +142,21 @@ public sealed partial class ToolLine : Grid, IInked
         }
 
         var band = LineRules.Band(ItemGrids.Of(this));
-        SectionHeading.Fill(_label, band, top: true);
+
+        // [S-16444] Raised by the room over the first ink, the label's box grown by as much, so its foot stays the band's.
+        _lift = _inkOnTop ? Math.Max(0, Over()) : 0;
+        var raised = new Thickness(0, -_lift, 0, 0);
+        if (_label.Margin != raised)
+        {
+            _label.Margin = raised;
+        }
+
+        if (Parts.Margin != raised)
+        {
+            Parts.Margin = raised;
+        }
+
+        SectionHeading.Fill(_label, band + _lift, top: true);
         var desired = base.MeasureOverride(availableSize);
         return new Windows.Foundation.Size(desired.Width, band);
     }
