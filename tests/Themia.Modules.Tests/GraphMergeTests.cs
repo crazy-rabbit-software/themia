@@ -106,7 +106,9 @@ public sealed class GraphMergeTests
         Assert.True(ModuleCatalog.TryGet(new WidgetId("exchangeHistory"), out _));
 
         // Every merge names a removed kind, once ([S-16230]: a fold of a widget's parts is not a graph's merge).
-        var merges = ModuleCatalog.Widgets.SelectMany(w => w.Merges.Where(m => m.Fold is null).Select(m => (m.Kind, m.When))).ToList();
+        // [S-16656] Removable drives' stands-in (the USB sticks' list) is the one merge that is no graph's.
+        var merges = ModuleCatalog.Widgets.SelectMany(w => w.Merges.Where(m => m.Fold is null && m.Kind != "removableDrives").Select(m => (m.Kind, m.When))).ToList();
+        Assert.False(ModuleCatalog.TryGet(new WidgetId("removableDrives"), out _));
         Assert.All(merges, m => Assert.Contains(m.Kind, gone));
         Assert.Equal(merges.Count, merges.Distinct().Count());
     }

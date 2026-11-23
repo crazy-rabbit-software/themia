@@ -462,7 +462,10 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "removableDrives",
+            "kind": "usbSticks",
+            "hidden": [],
+            "order": [],
+            "gap": false,
             "rows": 3
           }
         },

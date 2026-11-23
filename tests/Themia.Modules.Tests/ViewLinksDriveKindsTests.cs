@@ -16,9 +16,13 @@ public sealed class ViewLinksDriveKindsTests
     [InlineData("driveType")]
     [InlineData("disk")]
     [InlineData("driveActivity")]
-    [InlineData("removableDrives")]
+    [InlineData("drives")]
+    [InlineData("usbStick")]
+    [InlineData("usbSticks")]
+    [InlineData("networkDrive")]
+    [InlineData("networkDrives")]
     [InlineData("folder")]
-    public void S11950_a_drive_card_a_disk_atom_a_removable_row_and_a_folder_point_at_a_drive_and_light_for_one(string id)
+    public void S11950_a_drive_card_a_disk_atom_a_drives_item_and_a_folder_point_at_a_drive_and_light_for_one(string id)
     {
         var links = Links(id);
 
@@ -35,6 +39,7 @@ public sealed class ViewLinksDriveKindsTests
 
     [Theory]
     [InlineData("bluetooth")]
+    [InlineData("bluetoothDevice")]
     [InlineData("deviceBatteries")]
     public void S11955_a_bluetooth_row_and_a_battery_row_point_at_a_device_and_light_for_one(string id)
     {

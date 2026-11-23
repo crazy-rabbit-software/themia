@@ -67,7 +67,8 @@ public sealed class SystemStateFixtureTests
 
         var drive = Assert.IsType<DriveConfig>(configs[18]);
         Assert.Equal((DriveStyle.Ring, "E:\\"), (drive.Style, drive.Drive));
-        Assert.IsType<RemovableDrivesConfig>(configs[19]);
+        // [S-16656] The removable drives list became the USB sticks' list in place, its rows kept.
+        Assert.Equal(3, Assert.IsType<UsbSticksConfig>(configs[19]).Rows);
         Assert.Equal(BrightnessScreens.ThisDisplay, Assert.IsType<BrightnessConfig>(configs[20]).Screens);
         var mixer = Assert.IsType<MixerConfig>(configs[21]);
         Assert.Equal(("{0.0.0.00000000}.{mixer}", "Headphones", false, true, true, false), (mixer.DeviceId, mixer.DeviceName, mixer.GroupByApp, mixer.ShowSystemSounds, mixer.OnlyActive, mixer.ShowIcons));

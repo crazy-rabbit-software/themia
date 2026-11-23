@@ -28,7 +28,7 @@ public sealed class SharedSettingsTests
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],
         ["diskScope"] = ["disk"],
-        ["drive"] = ["drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed"],
+        ["drive"] = ["drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "networkDrive", "usbStick"],
         ["day"] = ["weatherHighLow", "weatherPrecipitation", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind"],
         ["networkAdapter"] = ["network", "networkDownload", "networkLinkSpeed", "networkLocalAddress", "networkReceived", "networkSent", "networkUpload"],
         ["pingHost"] = ["ping", "pingAnswered", "pingAverage", "pingJitter", "pingLoss", "pingMaximum", "pingMinimum"],
@@ -178,7 +178,7 @@ public sealed class SharedSettingsTests
     public void S11753_every_kind_that_holds_a_shared_setting_marks_the_line_that_sets_it()
     {
         // The kinds whose lines read a list only the running host installs: their helpers are checked below.
-        string[] hosted = ["brightness", "desktopItem", "disk", "drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
+        string[] hosted = ["brightness", "desktopItem", "disk", "drive", "driveActivity", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "drives", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature", "networkDrive", "networkDrives", "usbStick", "usbSticks"];
 
         // A line offered only when it changes something (one output device), or only in a look (the calendar's
         // rows in its agenda, the cores' span in their graphs): the default look of these offers none.

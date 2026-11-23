@@ -479,13 +479,14 @@
           "scale": 1,
           "config": {
             "kind": "bluetooth",
-            "rows": 4,
-            "lines": 1,
+            "rows": 3,
             "showBattery": true,
-            "showIcon": true,
             "showConnection": true,
             "showSignal": false,
-            "connectedOnly": false
+            "connectedOnly": false,
+            "gap": false,
+            "hidden": [],
+            "order": []
           }
         },
         {
@@ -1581,7 +1582,7 @@
         },
         {
           "id": "w66",
-          "kind": "RemovableDrives",
+          "kind": "UsbSticks",
           "x": 0.06,
           "y": 0.06,
           "w": 0.2,
@@ -1599,8 +1600,11 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "removableDrives",
-            "rows": 4
+            "kind": "usbSticks",
+            "hidden": [],
+            "order": [],
+            "gap": false,
+            "rows": 3
           }
         },
         {
