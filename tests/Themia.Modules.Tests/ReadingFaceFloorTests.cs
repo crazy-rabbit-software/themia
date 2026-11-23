@@ -3,8 +3,6 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
-using Themia.Widget.Music;
-using Themia.Widget.MusicProgress;
 using Themia.Widget.NextMeeting;
 using Xunit;
 
@@ -44,8 +42,6 @@ public sealed class ReadingFaceFloorTests
         "alarm" => AlarmFace.Face((AlarmConfig)config, Strings.Current),
         "focusSession" => FocusSessionLayout.Face((FocusSessionConfig)config),
         "countdown" => CountdownLayout.Face((CountdownConfig)config, Strings.Current),
-        "music" => MusicFace.Face(),
-        "musicProgress" => MusicProgressFace.Face(),
         "nextMeeting" => NextMeetingJoin.Face((NextMeetingConfig)config),
         _ => null,
     };
@@ -73,8 +69,6 @@ public sealed class ReadingFaceFloorTests
         { "countdown", "text", 40, 104 },
         { "countdown", "ring", 104, 281 },
         { "countdown", "flip", 40, 74 },
-        { "music", "default", 48, 72 },
-        { "musicProgress", "default", 32, 32 },
         { "nextMeeting", "default", 32, 93 },
         { "cpu", "number", 45, 45 },
         { "gpu", "number", 45, 45 },

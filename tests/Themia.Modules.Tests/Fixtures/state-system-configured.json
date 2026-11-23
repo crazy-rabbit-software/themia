@@ -564,6 +564,19 @@
           "scale": 1,
           "config": {
             "kind": "music",
+            "style": "side",
+            "shows": [
+              "cover",
+              "title",
+              "artist",
+              "album",
+              "elapsed",
+              "bar",
+              "length",
+              "previous",
+              "playPause",
+              "next"
+            ],
             "hideWhenIdle": "notPlaying"
           }
         },

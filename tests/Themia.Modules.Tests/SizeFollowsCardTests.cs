@@ -164,7 +164,6 @@ public sealed class SizeFollowsCardTests
     [InlineData("stopwatch")]
     [InlineData("focusSession")]
     [InlineData("quote")]
-    [InlineData("musicCover")]
     [InlineData("screenTimeDonut")]
     public void S2449_S1050_a_stored_size_is_dropped_loudly_and_the_widget_loads(string kind)
     {

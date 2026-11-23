@@ -125,14 +125,15 @@ public sealed class ItemKindsHostTests
         => Assert.True(ItemKinds.Has(new WidgetId("stopwatch")));
 
     [Fact]
-    public void S6570_music_draws_no_items_its_seek_bar_is_a_rail()
+    public void S6570_S16509_now_playings_one_item_is_its_face_light_with_no_text_of_the_items()
     {
-        // [S-1475] The seek bar is the Controls slider's rail (the Track role), not an item of the item layer.
-        foreach (var kind in new[] { "music", "musicProgress", "musicCover" })
-        {
-            var (state, view, selection) = Selected(new WidgetId(kind));
-            Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
-        }
+        // [S-16509] The face is one item that lights where a click opens the player: the item background reaches it, the
+        // item text does not (its texts and its seek bar, the Track role's rail, are its own).
+        Assert.True(ItemKinds.Has(new WidgetId("music")));
+        var (state, view, selection) = Selected(new WidgetId("music"));
+        Assert.True(ItemKinds.Draws(view.Widgets[0]));
+        Assert.False(ItemKinds.DrawsText(view.Widgets[0]));
+        _ = (state, selection);
     }
 
     [Fact]

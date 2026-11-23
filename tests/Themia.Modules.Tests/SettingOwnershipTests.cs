@@ -291,9 +291,10 @@ public sealed class SettingOwnershipTests
     /// [S-3592] A widget's own setting under words a higher level uses too, each for its reason: it is
     /// the widget's own and only shares a word (a focus session's Length is the session's, never an
     /// animation's, settings › Appearance › Motion's; [S-9602] a Header widget's Title is the words it shows, never a page's
-    /// title). No widget has a Size of its own ([S-2449] retired: its size is its card's).
+    /// title; [S-16501] Now playing's Title and Length are the track's title and its length, elements of its face it shows or hides).
+    /// No widget has a Size of its own ([S-2449] retired: its size is its card's).
     /// </summary>
-    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("header", "Title")];
+    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("header", "Title"), ("music", "Title"), ("music", "Length")];
 
     /// <summary>
     /// The kinds whose menus read a list only the running host installs (the displays with a brightness,

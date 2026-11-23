@@ -26,7 +26,6 @@ public sealed class KindIdsTests
         "gpuSharedMemory", "gpuTemperature", "habitTracker", "header", "hibernate", "icon", "lock", "memory",
         "memoryAvailable", "memoryCached", "memoryCommitted", "memoryInUse", "memoryNonPagedPool", "memoryPageFile",
         "memoryPagedPool", "metrics", "mixer", "moon", "moonrise", "moonset", "music",
-        "musicCover", "musicProgress",
         "network", "networkAdapters", "networkDownload", "networkLinkSpeed", "networkLocalAddress",
         "networkPublicAddress", "networkReceived", "networkSent", "networkUpload", "nextFullMoon", "nextMeeting",
         "nextNewMoon", "notes", "notifications", "ping", "pingAnswered", "pingAverage",

@@ -9805,8 +9805,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   lit rows (`LinkLook`, `ItemFill`, the selection chrome: fills and colours), list rows' hover bands. Not a hover
   look but a reading: a meter's number standing at a moment pointed at on a linked chart ([S-11914]) says other text
   (the moment beside it, no lead), and its fit follows that text. Tests `SeekBarFaceTests.S12816_`; renders
-  `--render widget musicProgress --state sample|hovered --sizes 340x40,340x80,520x120,900x40,520x40` draw the same type
-  size, run after run.
+  `--render widget music --state sample --hover 0.6,0.62 --sizes 352x120,900x300` (the seek bar under the pointer) draws the
+  same type size as at rest, run after run ([S-16510]).
 - **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card
   draws a side, or the stretch of a side, where a card it joins lies across it. Touching cards read as one sheet:
@@ -10780,12 +10780,12 @@ placement they will just be a collection of regular widgets like any others").
   block, headerless, over After this with its header, 320 wide, 124 + 132), **Inbox and tasks**
   (`inboxAndTasks`: Mail beside Tasks, 300 + 300), and **My day** rebuilt as [S-2474] says. Tests
   `ReadyMadeGroupsTests` (the rules of [S-2472]).
-- **[S-11340]** **Now playing** and **Now playing, large** (owner decision 2026-11-12: the old card's
-  styles come back as groups of its atoms): Now playing is a Small cover (96) at the side, the track
-  atom (244 × 96) beside it and the progress (340 × 40) under both, 340 × 136, the old 340 × 160 card
-  tighter; Now playing, large is a Large cover (240) on top, the track and the progress under it, 240
-  wide. No header on any of them (the old card started without one, [S-2590]). (Made of the parts 21-22 Nov, [S-14944],
-  [S-15107]; back to the three widgets since the owner's reset of 2026-11-22, [S-16230].)
+- **[S-11340]** **Now playing** and **Now playing, large**: *(The groups of the cover, the track and the progress, 2026-11-12
+  to 2026-11-23, retired with the split, [S-16512]: Now playing is one widget again.)*
+- **[S-16512]** **Now playing** and **Now playing, large** are the one widget (owner, 2026-11-23: "now playing is still
+  split into multiple widgets"; `music`, [S-16500]) under its header: Now playing in its side cover, every element shown
+  (352 × 120), Now playing, large stacked (184 × 292, `"style": "stacked"`). Tests `ReadyMadeGroupsTests` (the rules of
+  [S-2472]).
 - **[S-11341]** **Sound**: the volume (300 × 136, its header on) over the mixer (300 wide, its four
   rows, its header hidden: the first atom carries the header).
 - **[S-11342]** **Quick settings**: Wi-Fi, Bluetooth, Do not disturb and Night light, four Medium tiles
@@ -11048,7 +11048,7 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   what they were a few days ago"; "before 19th. but the single metric widgets stay"). A kind split into parts 19-22 Nov
   and restored states the part kinds it takes back (`MergeFrom.Fold`); the load's first pass (`KindFolds`, before
   [S-15022]'s replacement) folds a placed part of a removed kind into it. **Touching** (`MergeFold.Touching`: the
-  now-playing texts and buttons into the track `music`, the elapsed time and the length into `musicProgress`): every group
+  now-playing texts and buttons, the cover, the progress and its times into `music`, [S-16513]): every group
   of touching parts and cards of the kind (an edge shared, a corner alone is no touch) that holds a part becomes one card
   of the kind at the union of their boxes: the group's first card of the kind in the drawing order keeps its id, settings
   and look, else its first part becomes the kind with its settings; the rest go. A card of the kind no part touches is
@@ -11064,6 +11064,14 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
   (`KindFolds`) turns each placed one into the kind in its own box with its id, style and settings, the key written, one
   logged line each ("folded wifiToggle 'w1' in view 'Home' into the widget quickToggle with target wifi in its own box"),
   never joined with a neighbour, and never while the old kind is still installed. Tests `KindMergesTests.S16690_`.
+- **[S-16511]** **A folded part keeps what it showed** (owner, 2026-11-23, of the now-playing parts folding into the one
+  widget: "with the elements they showed", as he asked it built). A kind whose config holds a set of what it shows states,
+  for each part it takes back, the set's key and the values the part adds (`MergeFrom.Shows`), and for its own card from
+  before the set what such a card showed (an entry naming the kind itself). The card a touching group becomes
+  ([S-16230]) shows the union of its members' sets in the drawing order: a card of the kind its stored set, or what its
+  kind says one without it showed; each part its own. A lone part becomes the kind showing just its own; a card of the
+  kind no part touches keeps its config as it is. Nothing is written where no member says what it showed; the load's
+  repair puts the set in its kind's order. Tests `KindMergesTests.S16511_` (Core).
 - **[S-14714]** **The metrics the graphs brought**: `weatherTemperature` (the temperature now, its hours), `airIndex` (the
   index and its band, "25 · Fair", on the place's scale, European in Europe, else the US index, [S-5103]; its hours),
   `cpuLoad` (the processor's load), `batteryCharge` (the battery's charge) and `driveActivity` (a drive's reads and writes,
@@ -11079,8 +11087,8 @@ whose face is a line of text is a **text kind** on one base, as every one-readin
 Owning files: `Themia.Sdk/Widgets/Texts.cs` (the pure rules: `TextRules`, `TextShown`, `TextTone`, `TextOpen`,
 `TextOpens`), `Themia.Sdk/Modules/TextKind.cs` (a kind as data), `Themia.Sdk.WinUI/Widgets/TextView.cs` (+ `.Preview.cs`,
 the one face), `Modules/TextModule.cs`, `Widgets/ItemLight.cs` (the one item's light, shared with the metric's face); the
-families are their projects: Now playing (`Themia.Widget.Music`, [S-14920], retired 2026-11-22: the track is one
-widget again, [S-11311]) and Rain (`Themia.Widget.RainNextHour`,
+families are their projects: Now playing (`Themia.Widget.Music`, [S-14920], retired 2026-11-22: Now playing is one
+widget again, [S-16500]) and Rain (`Themia.Widget.RainNextHour`,
 [S-14940]), each a `ThemiaWidgetFamily` ([S-6901]) with its own `SPEC.md`. Tests: `TextRulesTests` (Core), each family's,
 `ReadingFaceFloorTests`, `ReadyMadeGroupsTests`.
 
@@ -11131,7 +11139,7 @@ widget again, [S-11311]) and Rain (`Themia.Widget.RainNextHour`,
 - **[S-14936]** Debug renders: every family's own states (sample, idle, dry, stale, failed, ...) and `long`: the sample's
   text six times over, cut with its ellipsis at the card's edge.
 - **[S-14944]** **The groups**: *(Now playing and Now playing, large: retired 2026-11-22, the owner reset the widget to
-  its pre-19-Nov form: "before 19th. but the single metric widgets stay"; they are [S-11340]'s three widgets again. The
+  its pre-19-Nov form: "before 19th. but the single metric widgets stay"; they hold the one widget now, [S-16512]. The
   Rain group and the Weather station's rain sentence retired the same day: Rain next hour is one widget again, its [S-5126].)*
 
 ## Icon widgets (ICONS)
@@ -11246,7 +11254,7 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
 ## Atoms and the universal spacing (ATOMS)
 
 *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* The now-playing family was its one user: the track, the cover and the progress are three widgets
-again, each with its own layout ([S-11311], [S-11320], [S-11330]), and the shared atom code (`AtomSpace`, `AtomRules`,
+again, each with its own layout ([S-11311], [S-11320], [S-11330]; one widget since 2026-11-23, [S-16500]), and the shared atom code (`AtomSpace`, `AtomRules`,
 `AtomText`, `AtomTextView`) is gone. WR-16 is retired with it.
 
 - **[S-15100]** *(Retired 2026-11-22: the owner reset the widget to its pre-19-Nov form: "before 19th. but the single metric widgets stay")* One spacing on every side of every atom.

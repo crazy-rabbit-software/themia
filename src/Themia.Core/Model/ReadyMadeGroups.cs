@@ -305,20 +305,16 @@ public static class ReadyMadeGroups
         new("stockHistory", new(0, 76, 280, 108)),
     ]));
 
-    /// <summary>[S-11340] Now playing: the cover at the side, the track beside it, the progress under both (the old card, tighter).</summary>
+    /// <summary>[S-11340] [S-16512] Now playing: the one widget in its side cover, every element shown, under its header.</summary>
     public static ReadyMadeGroup NowPlaying { get; } = Headed(new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.Media,
     [
-        new("musicCover", new(0, 0, 96, 96)),
-        new("music", new(96, 0, 244, 96)),
-        new("musicProgress", new(0, 96, 340, 40)),
+        new("music", new(0, 0, 352, 120)),
     ]) { Starter = 4 });
 
-    /// <summary>[S-11340] Now playing, large: the cover on top, the track and the progress under it.</summary>
+    /// <summary>[S-11340] [S-16512] Now playing, large: the one widget stacked, its cover over the track and its progress.</summary>
     public static ReadyMadeGroup NowPlayingLarge { get; } = Headed(new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.Media,
     [
-        new("musicCover", new(0, 0, 240, 240)),
-        new("music", new(0, 240, 240, 96)),
-        new("musicProgress", new(0, 336, 240, 40)),
+        new("music", new(0, 0, 184, 292), Config: """{"style":"stacked"}"""),
     ]), Str.Groups_Recipe_NowPlaying);
 
     /// <summary>[S-11341] Sound: the volume over the mixer, one header (the volume's).</summary>
