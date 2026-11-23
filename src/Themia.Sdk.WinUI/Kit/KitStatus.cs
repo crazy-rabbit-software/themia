@@ -50,7 +50,6 @@ public sealed partial class KitStatus : StackPanel
         _ring = ToolLine.Busy();
         _ring.IsActive = false;
         _why.TextWrapping = TextWrapping.NoWrap;
-        _why.TextTrimming = TextTrimming.CharacterEllipsis;
         _why.VerticalAlignment = VerticalAlignment.Center;
         _why.Visibility = Visibility.Collapsed;
         Children.Add(_why);
@@ -184,14 +183,19 @@ public sealed partial class KitStatus : StackPanel
     }
 
     /// <summary>
-    /// [S-16327] Say why in a compact line before the glyph (a face that has nothing to show: "Offline"), at most
-    /// <paramref name="most"/> wide, cut past that; null or empty: no line. Its room is the status's, as the glyph's is.
+    /// [S-16327] Say why in a compact line before the glyph (a face that has nothing to show: "Offline"), whole where it fits
+    /// in <paramref name="most"/>, else not at all (the glyph alone, its tooltip saying every problem); null or empty: no
+    /// line. Its room is the status's, as the glyph's is.
     /// </summary>
     public void Say(string? why, double most)
     {
         _why.Text = why ?? string.Empty;
-        _why.MaxWidth = Math.Max(0, most);
-        _why.Visibility = string.IsNullOrEmpty(why) || !(most > 0) ? Visibility.Collapsed : Visibility.Visible;
+        _why.MaxWidth = double.PositiveInfinity;
+        _why.Visibility = Visibility.Visible;
+        _why.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+
+        // Whole or not at all: a cut word says less than the glyph's tooltip, which always holds every problem.
+        _why.Visibility = string.IsNullOrEmpty(why) || !(_why.DesiredSize.Width <= most) ? Visibility.Collapsed : Visibility.Visible;
         LeaveRoom();
     }
 
