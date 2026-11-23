@@ -120,8 +120,18 @@ from the tests that pinned them under those numbers, which are the root's geomet
 - **[S-16604]** **The bar runs the card's whole length**: across the card's whole width stacked and side by side (its
   thickness the track's at the parts' scale), and upright in a card taller than wide, on its left from the card's top to
   its foot with the time, the caption and the controls stacked 16 beside it (`BarGap`), on their start, the sections from
-  its top down (`PomodoroBar.Upright`). Its length is the card's, so it never limits the parts' scale. A tall card too
-  narrow to read the parts beside the bar stacks them ([S-16603]). Tests `PomodoroFaceTests.S16604_`.
+  its top down (`PomodoroBar.Upright`). Its length is the card's, so it never limits the parts' scale. Upright, the stack is
+  the narrowest block ([S-16608]), so a tall card reads it at least as large as stacked ([S-16603]). Tests `PomodoroFaceTests.S16604_`.
+- **[S-16608]** **The Controls as two blocks, one width each** (widget audit 2026-11-23, WR-12 and the Column's empty
+  bands): the main action and the four icon buttons are two `ControlsBlock`s, 8 apart in one row (stacked, side by side,
+  in the ring); upright beside the bar the icon buttons stand 8 under the main action, so the stack is as narrow as its
+  widest line and fills more of a tall card (at 240x440 it was held to the one row's width, wide bands over and under
+  it). The main action is held to the widest of its labels in the current language (`PomodoroFace.MainLabels`: Start,
+  Pause; unseen copies of each under its words): Start becoming Pause moves neither it nor a neighbour (before, a press
+  shifted every button beside it by 0.6 to 2 DIP). The time stands unpadded in its held box ([S-16607]), centred where
+  the block is centred (the ring, stacked) and on its start beside the caption and controls (side by side, upright), so
+  "9:24" lines up with the caption as "25:00" does (WR-7; before, it stood 8 to 46 DIP off it). Tests
+  `PomodoroFaceTests.S16608_`.
 - **[S-16605]** **Digits** keeps its two arrangements, stacked and side by side, with the smaller time ([S-16600]); it
   never stands upright and draws no bar. Tests `PomodoroFaceTests.S16605_`.
 - **[S-16606]** **Sizing** (`PomodoroFace.Sizing`, [S-2438]): the least card is the stacked block (the ring) at its floor

@@ -23,14 +23,19 @@ internal sealed partial class PomodoroBlock : Panel
     private readonly ReadoutBlock _time;
     private readonly TextBlock _caption;
     private readonly PomodoroBar _bar;
-    private readonly FrameworkElement _controls;
+    private readonly FrameworkElement _main;
+    private readonly FrameworkElement _tools;
     private PomodoroLook _look = PomodoroLook.Ring;
     private PomodoroLayout _layout;
 
-    public PomodoroBlock(PomodoroRing ring, ReadoutBlock time, TextBlock caption, PomodoroBar bar, FrameworkElement controls)
+    /// <summary>
+    /// The face's parts: the Controls as two blocks, the main action (<paramref name="main"/>) and the icon buttons
+    /// (<paramref name="tools"/>), 8 apart in a row, or the icons under the main action upright beside the bar ([S-16608]).
+    /// </summary>
+    public PomodoroBlock(PomodoroRing ring, ReadoutBlock time, TextBlock caption, PomodoroBar bar, FrameworkElement main, FrameworkElement tools)
     {
-        (_ring, _time, _caption, _bar, _controls) = (ring, time, caption, bar, controls);
-        foreach (var part in new FrameworkElement[] { ring, time, caption, bar, controls })
+        (_ring, _time, _caption, _bar, _main, _tools) = (ring, time, caption, bar, main, tools);
+        foreach (var part in new FrameworkElement[] { ring, time, caption, bar, main, tools })
         {
             // Drawn scaled: laid out unrounded, as a ReadingFit's parts are ([S-14301]).
             part.UseLayoutRounding = false;
@@ -62,13 +67,14 @@ internal sealed partial class PomodoroBlock : Panel
     /// <summary>[S-16600] The parts as measured, at their own size: the time and the caption with the room over and under their ink.</summary>
     private PomodoroParts Parts()
     {
-        var (time, caption, controls) = (_time.DesiredSize, _caption.DesiredSize, _controls.DesiredSize);
+        var (time, caption, main, tools) = (_time.DesiredSize, _caption.DesiredSize, _main.DesiredSize, _tools.DesiredSize);
         return new PomodoroParts(
             new SizeDip(time.Width, time.Height),
             _time.Ink,
             new SizeDip(caption.Width, caption.Height),
             Ink.Of(_caption).Ink,
-            new SizeDip(controls.Width, controls.Height));
+            new SizeDip(main.Width, main.Height),
+            new SizeDip(tools.Width, tools.Height));
     }
 
     protected override Size MeasureOverride(Size availableSize)
@@ -105,7 +111,8 @@ internal sealed partial class PomodoroBlock : Panel
         Place(_ring, _layout.Ring, scale, new Size(_layout.Ring.Width / scale, _layout.Ring.Height / scale));
         Place(_time, _layout.Time, scale);
         Place(_caption, _layout.Caption, scale);
-        Place(_controls, _layout.Controls, scale);
+        Place(_main, _layout.Main, scale);
+        Place(_tools, _layout.Tools, scale);
 
         // The bar at its drawn size: its length the room's, its thickness the track's at the scale.
         _bar.Upright = _layout.BarUpright;

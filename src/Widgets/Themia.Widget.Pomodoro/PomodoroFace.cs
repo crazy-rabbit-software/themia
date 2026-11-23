@@ -47,9 +47,14 @@ public readonly record struct PomodoroRect(double X, double Y, double Width, dou
 /// <summary>
 /// [S-16600] The face's parts at their own size (scale 1, as measured or as estimated for the sizing): the time's box (held to
 /// its widest reading) and the room in it over and under its figures, the caption's box (its longest) and its room over its
-/// capitals, and the Controls row's box.
+/// capitals, and the Controls row's two boxes: the main action (Start or Pause, held to the wider) and the four icon
+/// buttons (−, +, Reset, Skip), 8 apart in a row; upright beside the bar the icons stand 8 under the main action ([S-16608]).
 /// </summary>
-public readonly record struct PomodoroParts(SizeDip Time, LineInk TimeInk, SizeDip Caption, LineInk CaptionInk, SizeDip Controls);
+public readonly record struct PomodoroParts(SizeDip Time, LineInk TimeInk, SizeDip Caption, LineInk CaptionInk, SizeDip Main, SizeDip Tools)
+{
+    /// <summary>The Controls row: the main action, 8, the icon buttons.</summary>
+    public SizeDip Controls => new(Main.Width + ControlsRules.Gap + Tools.Width, Math.Max(Main.Height, Tools.Height));
+}
 
 /// <summary>[S-8117] The pomodoro's face as planned: its look, the time's step, its parts as estimated and the ring's diameter (0 off the Ring style).</summary>
 public readonly record struct PomodoroPlan(PomodoroLook Look, TypeStep Step, PomodoroParts Parts, double Ring);
@@ -60,8 +65,12 @@ public readonly record struct PomodoroPlan(PomodoroLook Look, TypeStep Step, Pom
 /// is laid at its drawn size (its length the room's, its thickness the track's at the scale), the ring at its drawn diameter.
 /// </summary>
 public readonly record struct PomodoroLayout(
-    PomodoroArrangement Arrangement, double Scale, PomodoroRect Ring, PomodoroRect Time, PomodoroRect Caption, PomodoroRect Bar, PomodoroRect Controls)
+    PomodoroArrangement Arrangement, double Scale, PomodoroRect Ring, PomodoroRect Time, PomodoroRect Caption, PomodoroRect Bar, PomodoroRect Main, PomodoroRect Tools)
 {
+    /// <summary>The Controls' box: the main action's and the icon buttons' together.</summary>
+    public PomodoroRect Controls => Main.IsEmpty ? Tools : Tools.IsEmpty ? Main
+        : new PomodoroRect(Math.Min(Main.X, Tools.X), Math.Min(Main.Y, Tools.Y), Math.Max(Main.Right, Tools.Right) - Math.Min(Main.X, Tools.X), Math.Max(Main.Bottom, Tools.Bottom) - Math.Min(Main.Y, Tools.Y));
+
     /// <summary>Whether the bar stands upright (<see cref="PomodoroArrangement.Column"/>).</summary>
     public bool BarUpright => Arrangement == PomodoroArrangement.Column;
 }
@@ -123,10 +132,13 @@ public static class PomodoroFace
 
     /// <summary>[S-8117] The Controls row's width: Start (or Pause, the longer) worded, then −, +, Reset and Skip as icon buttons, 8 apart.</summary>
     public static double ControlsWidth(Locale locale)
-    {
-        var main = new[] { PomodoroStr.WidgetsC_Pomodoro_Start.Text(locale), PomodoroStr.WidgetsC_Pomodoro_Pause.Text(locale) }.MaxBy(l => l.Length) ?? string.Empty;
-        return TimerFace.WordedWidth(main) + (4 * FamilyShape.IconButton) + (4 * ControlsRules.Gap);
-    }
+        => TimerFace.WordedWidth(MainLabel(locale)) + (4 * FamilyShape.IconButton) + (4 * ControlsRules.Gap);
+
+    /// <summary>[S-16608] The main action's labels in <paramref name="locale"/>: Start and Pause, the one button held to the wider.</summary>
+    public static IReadOnlyList<string> MainLabels(Locale locale)
+        => [PomodoroStr.WidgetsC_Pomodoro_Start.Text(locale), PomodoroStr.WidgetsC_Pomodoro_Pause.Text(locale)];
+
+    private static string MainLabel(Locale locale) => MainLabels(locale).MaxBy(l => l.Length) ?? string.Empty;
 
     /// <summary>[S-16600] The parts as the family's model sizes them (the sizing's; a view measures its own).</summary>
     public static PomodoroParts Estimate(PomodoroConfig config, Locale locale)
@@ -137,7 +149,8 @@ public static class PomodoroFace
             LineInk.Of(TimeStep),
             new SizeDip(FamilyType.EstimateWidth(FamilyType.Body, WorstCaption(config, locale).Length), FamilyType.BodyLine),
             LineInk.Of(FamilyType.Body),
-            new SizeDip(ControlsWidth(locale), FamilyShape.Button));
+            new SizeDip(TimerFace.WordedWidth(MainLabel(locale)), FamilyShape.Button),
+            new SizeDip((4 * FamilyShape.IconButton) + (3 * ControlsRules.Gap), FamilyShape.IconButton));
     }
 
     /// <summary>[S-8117] The face for a config: its look, the time's step, its parts as estimated and, on the Ring style, the ring that holds them.</summary>
@@ -213,7 +226,14 @@ public static class PomodoroFace
     /// The block of an arrangement at scale 1, from its first ink: its size and each part's natural box in it (the bar's
     /// box across or up the block; in the room it runs the room's whole length).
     /// </summary>
-    private readonly record struct Block(SizeDip Size, PomodoroRect Ring, PomodoroRect Time, PomodoroRect Caption, PomodoroRect Bar, PomodoroRect Controls);
+    private readonly record struct Block(SizeDip Size, PomodoroRect Ring, PomodoroRect Time, PomodoroRect Caption, PomodoroRect Bar, PomodoroRect Main, PomodoroRect Tools)
+    {
+        /// <summary>A block whose Controls stand in one row from (<paramref name="x"/>, <paramref name="y"/>).</summary>
+        public static Block Row(SizeDip size, PomodoroRect ring, PomodoroRect time, PomodoroRect caption, PomodoroRect bar, PomodoroParts parts, double x, double y)
+            => new(size, ring, time, caption, bar,
+                new PomodoroRect(x, y, parts.Main.Width, parts.Main.Height),
+                new PomodoroRect(x + parts.Main.Width + ControlsRules.Gap, y, parts.Tools.Width, parts.Tools.Height));
+    }
 
     /// <summary>
     /// [S-16603] An arrangement's block at scale 1 (from its first ink to its last; the bar's length not counted, it runs the
@@ -225,6 +245,7 @@ public static class PomodoroFace
     {
         var bar = look == PomodoroLook.Bar;
         var (time, caption, controls) = (parts.Time, parts.Caption, parts.Controls);
+        var (main, tools) = (parts.Main, parts.Tools);
         var (tOver, tUnder) = (parts.TimeInk.Over, parts.TimeInk.Under);
         var timeInk = Math.Max(0, time.Height - tOver - tUnder);
         switch (arrangement)
@@ -236,13 +257,15 @@ public static class PomodoroFace
                 var (_, top) = Circle(rows);
                 var y = (d / 2) + top;
                 var captionTop = y + rows[1].Top - parts.CaptionInk.Over;
-                return new Block(
+                return Block.Row(
                     new SizeDip(d, d),
                     new PomodoroRect(0, 0, d, d),
                     new PomodoroRect((d - time.Width) / 2, y - tOver, time.Width, time.Height),
                     new PomodoroRect((d - caption.Width) / 2, captionTop, caption.Width, caption.Height),
                     PomodoroRect.None,
-                    new PomodoroRect((d - controls.Width) / 2, y + rows[2].Top, controls.Width, controls.Height));
+                    parts,
+                    (d - controls.Width) / 2,
+                    y + rows[2].Top);
             }
 
             case PomodoroArrangement.Side:
@@ -254,28 +277,35 @@ public static class PomodoroFace
                 var columnTop = ((band - columnInk) / 2) - parts.CaptionInk.Over;
                 var left = time.Width + ColumnGap;
                 var width = left + column;
-                return new Block(
+                return Block.Row(
                     new SizeDip(width, band + (bar ? FamilySpace.S2 + FamilyShape.Track : 0)),
                     PomodoroRect.None,
                     new PomodoroRect(0, ((band - timeInk) / 2) - tOver, time.Width, time.Height),
                     new PomodoroRect(left, columnTop, caption.Width, caption.Height),
                     bar ? new PomodoroRect(0, band + FamilySpace.S2, width, FamilyShape.Track) : PomodoroRect.None,
-                    new PomodoroRect(left, columnTop + caption.Height + FamilySpace.S2, controls.Width, controls.Height));
+                    parts,
+                    left,
+                    columnTop + caption.Height + FamilySpace.S2);
             }
 
             case PomodoroArrangement.Column:
             {
+                // [S-16608] Upright, the icon buttons stand 8 under the main action: the stack is as narrow as its widest
+                // line, so it fills more of a tall card beside the bar.
                 var left = FamilyShape.Track + BarGap;
                 var captionTop = timeInk + tUnder;
-                var controlsTop = captionTop + caption.Height + FamilySpace.S2;
-                var height = controlsTop + controls.Height;
+                var mainTop = captionTop + caption.Height + FamilySpace.S2;
+                var toolsTop = mainTop + main.Height + FamilySpace.S2;
+                var height = toolsTop + tools.Height;
+                var widest = new[] { time.Width, caption.Width, main.Width, tools.Width }.Max();
                 return new Block(
-                    new SizeDip(left + Math.Max(time.Width, Math.Max(caption.Width, controls.Width)), height),
+                    new SizeDip(left + widest, height),
                     PomodoroRect.None,
                     new PomodoroRect(left, -tOver, time.Width, time.Height),
                     new PomodoroRect(left, captionTop, caption.Width, caption.Height),
                     new PomodoroRect(0, 0, FamilyShape.Track, height),
-                    new PomodoroRect(left, controlsTop, controls.Width, controls.Height));
+                    new PomodoroRect(left, mainTop, main.Width, main.Height),
+                    new PomodoroRect(left, toolsTop, tools.Width, tools.Height));
             }
 
             default:
@@ -284,13 +314,15 @@ public static class PomodoroFace
                 var captionTop = timeInk + tUnder;
                 var barTop = captionTop + caption.Height + FamilySpace.S2;
                 var controlsTop = (bar ? barTop + FamilyShape.Track : captionTop + caption.Height) + FamilySpace.S2;
-                return new Block(
+                return Block.Row(
                     new SizeDip(width, controlsTop + controls.Height),
                     PomodoroRect.None,
                     new PomodoroRect((width - time.Width) / 2, -tOver, time.Width, time.Height),
                     new PomodoroRect((width - caption.Width) / 2, captionTop, caption.Width, caption.Height),
                     bar ? new PomodoroRect(0, barTop, width, FamilyShape.Track) : PomodoroRect.None,
-                    new PomodoroRect((width - controls.Width) / 2, controlsTop, controls.Width, controls.Height));
+                    parts,
+                    (width - controls.Width) / 2,
+                    controlsTop);
             }
         }
     }
@@ -360,7 +392,7 @@ public static class PomodoroFace
         var block = Stand(arrangement, look, parts);
         if (!Usable(block.Size) || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
         {
-            return new PomodoroLayout(arrangement, 1, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None);
+            return new PomodoroLayout(arrangement, 1, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None, PomodoroRect.None);
         }
 
         var scale = Math.Min(width / block.Size.Width, height / block.Size.Height);
@@ -370,7 +402,7 @@ public static class PomodoroFace
         var bar = block.Bar.IsEmpty ? PomodoroRect.None
             : arrangement == PomodoroArrangement.Column ? new PomodoroRect(x, 0, FamilyShape.Track * scale, height)
             : new PomodoroRect(0, y + (block.Bar.Y * scale), width, FamilyShape.Track * scale);
-        return new PomodoroLayout(arrangement, scale, At(block.Ring), At(block.Time), At(block.Caption), bar, At(block.Controls));
+        return new PomodoroLayout(arrangement, scale, At(block.Ring), At(block.Time), At(block.Caption), bar, At(block.Main), At(block.Tools));
     }
 
     /// <summary>

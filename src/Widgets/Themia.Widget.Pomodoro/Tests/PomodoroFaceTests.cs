@@ -156,7 +156,8 @@ public sealed class PomodoroFaceTests
         {
             new PomodoroRect(at.Time.X, at.Time.Y + (parts.TimeInk.Over * s), at.Time.Width, at.Time.Height - ((parts.TimeInk.Over + parts.TimeInk.Under) * s)),
             new PomodoroRect(at.Caption.X, at.Caption.Y + (parts.CaptionInk.Over * s), at.Caption.Width, at.Caption.Height - (parts.CaptionInk.Over * s)),
-            at.Controls,
+            at.Main,
+            at.Tools,
         };
         foreach (var ink in inks)
         {
@@ -248,13 +249,18 @@ public sealed class PomodoroFaceTests
     }
 
     [Fact]
-    public void S16604_a_tall_room_too_narrow_to_read_beside_the_bar_stacks()
+    public void S16604_upright_the_stack_is_narrower_than_stacked_so_every_tall_card_reads_it_at_least_as_large()
     {
+        // [S-16608] Its icon buttons under the main action, the upright stack is the narrowest block: a tall card never
+        // falls back to stacking, and from the least card up it reads at the floor or more.
         var look = PomodoroLook.Bar;
-        var column = PomodoroFace.BlockOf(PomodoroArrangement.Column, look, Parts);
-        var (w, h) = (column.Width * (PomodoroFace.Least - 0.02), 900);
-        Assert.True(PomodoroFace.Scale(PomodoroArrangement.Column, look, Parts, w, h) < PomodoroFace.Least);
-        Assert.Equal(PomodoroArrangement.Stacked, PomodoroFace.Choose(look, Parts, w, h));
+        var (column, stacked) = (PomodoroFace.BlockOf(PomodoroArrangement.Column, look, Parts), PomodoroFace.BlockOf(PomodoroArrangement.Stacked, look, Parts));
+        Assert.True(column.Width < stacked.Width);
+        foreach (var w in new[] { 120.0, 160, 200, 260 })
+        {
+            Assert.Equal(PomodoroArrangement.Column, PomodoroFace.Choose(look, Parts, w, 900));
+            Assert.True(PomodoroFace.Scale(PomodoroArrangement.Column, look, Parts, w, 900) >= PomodoroFace.Scale(PomodoroArrangement.Stacked, look, Parts, w, 900));
+        }
     }
 
     [Theory]
@@ -281,6 +287,43 @@ public sealed class PomodoroFaceTests
         Assert.Equal(time, column, 6);
     }
 
+    [Theory]
+    [InlineData(PomodoroStyle.Ring)]
+    [InlineData(PomodoroStyle.Bar)]
+    [InlineData(PomodoroStyle.Digits)]
+    public void S16608_in_a_row_the_icon_buttons_stand_8_after_the_main_action(PomodoroStyle style)
+    {
+        foreach (var (w, h) in new (double, double)[] { (300, 300), (600, 140), (330, 200) })
+        {
+            var at = PomodoroFace.Lay(Look(style), Parts, w, h);
+            Assert.Equal(at.Main.Y, at.Tools.Y, 6);
+            Assert.Equal(at.Main.Right + (ControlsRules.Gap * at.Scale), at.Tools.X, 6);
+        }
+    }
+
+    [Fact]
+    public void S16608_upright_beside_the_bar_the_icon_buttons_stand_8_under_the_main_action_and_the_stack_fills_more()
+    {
+        // The coordinator's look at 240x440 (2026-11-23): the stack beside the bar stood small, wide bands over and under it.
+        var at = PomodoroFace.Lay(PomodoroLook.Bar, Parts, 216, 416);
+        Assert.Equal(PomodoroArrangement.Column, at.Arrangement);
+        Assert.Equal(at.Main.X, at.Tools.X, 6);
+        Assert.Equal(at.Main.Bottom + (FamilySpace.S2 * at.Scale), at.Tools.Y, 6);
+
+        // Narrower than the one row: the stack is drawn larger than the row would let it.
+        var row = FamilyShape.Track + PomodoroFace.BarGap + Math.Max(Parts.Caption.Width, Parts.Controls.Width);
+        Assert.True(at.Scale > 216 / row * 1.15, $"scale {at.Scale} against the row's {216 / row}");
+    }
+
+    [Fact]
+    public void S16608_the_main_action_is_held_to_its_widest_label()
+    {
+        var labels = PomodoroFace.MainLabels(Locale.En);
+        Assert.Contains("Start", labels);
+        Assert.Contains("Pause", labels);
+        Assert.Equal(labels.Max(l => TimerFace.WordedWidth(l)), Parts.Main.Width, 6);
+    }
+
     [Fact]
     public void S16605_digits_never_stands_upright_and_draws_no_bar()
     {
@@ -302,12 +345,13 @@ public sealed class PomodoroFaceTests
         // Every part's box in the room, its size its natural one at the one scale.
         Assert.Equal(Parts.Time.Width * at.Scale, at.Time.Width, 6);
         Assert.Equal(Parts.Caption.Width * at.Scale, at.Caption.Width, 6);
-        Assert.Equal(Parts.Controls.Width * at.Scale, at.Controls.Width, 6);
+        Assert.Equal(Parts.Main.Width * at.Scale, at.Main.Width, 6);
+        Assert.Equal(Parts.Tools.Width * at.Scale, at.Tools.Width, 6);
         // Every part's ink in the room (a text's box may reach over it by the room over its capitals): the block fills one
         // axis to both its edges and is centred on the other.
         var timeInk = new PomodoroRect(at.Time.X, at.Time.Y + (Parts.TimeInk.Over * at.Scale), at.Time.Width, at.Time.Height - ((Parts.TimeInk.Over + Parts.TimeInk.Under) * at.Scale));
         var captionInk = at.Caption with { Y = at.Caption.Y + (Parts.CaptionInk.Over * at.Scale), Height = at.Caption.Height - (Parts.CaptionInk.Over * at.Scale) };
-        var inks = new[] { at.Ring, timeInk, captionInk, at.Bar, at.Controls }.Where(r => !r.IsEmpty).ToList();
+        var inks = new[] { at.Ring, timeInk, captionInk, at.Bar, at.Main, at.Tools }.Where(r => !r.IsEmpty).ToList();
         foreach (var r in inks)
         {
             Assert.True(r.X >= -1e-6 && r.Right <= w + 1e-6 && r.Y >= -1e-6 && r.Bottom <= h + 1e-6, $"{style} {w}x{h}: {r}");
@@ -333,7 +377,7 @@ public sealed class PomodoroFaceTests
     public void S16603_no_two_parts_overlap(PomodoroStyle style, double w, double h)
     {
         var at = PomodoroFace.Lay(Look(style), Parts, w, h);
-        var boxes = new[] { at.Time, at.Caption, at.Bar, at.Controls }.Where(r => !r.IsEmpty).ToList();
+        var boxes = new[] { at.Time, at.Caption, at.Bar, at.Main, at.Tools }.Where(r => !r.IsEmpty).ToList();
         for (var i = 0; i < boxes.Count; i++)
         {
             for (var j = i + 1; j < boxes.Count; j++)

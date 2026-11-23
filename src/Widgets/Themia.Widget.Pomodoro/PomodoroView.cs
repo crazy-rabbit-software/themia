@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Shell;
@@ -36,7 +37,13 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
     private readonly PomodoroRing _ring = new();
     private readonly TextBlock _caption = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly PomodoroBar _bar = new();
-    private readonly ControlsBlock _controls = new();
+    /// <summary>[S-16608] The Controls as two blocks: the main action, and the icon buttons beside it or under it.</summary>
+    private readonly ControlsBlock _main = new();
+    private readonly ControlsBlock _tools = new();
+
+    /// <summary>[S-16608] The main action's words over unseen copies of each of its labels: the button is as wide as the widest.</summary>
+    private readonly Grid _runHeld = new();
+    private readonly TextBlock _runLabel;
     private readonly PomodoroBlock _block;
     private readonly Button _runButton;
     private readonly Button _resetButton;
@@ -71,14 +78,20 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         _caption.TextWrapping = TextWrapping.NoWrap;
 
         // [S-8111] Start first, then − and + beside it, then Reset and Skip.
-        _runButton = _controls.Main(PomodoroStr.WidgetsC_Pomodoro_Start.Text(), () => SetRunning(!_running));
-        _shorterButton = _controls.Icon(Glyphs.Minus, PomodoroStr.Pomodoro_Shorter.Text(), () => Nudge(-1));
-        _longerButton = _controls.Icon(Glyphs.Add, PomodoroStr.Pomodoro_Longer.Text(), () => Nudge(+1));
-        _resetButton = _controls.Icon(Glyphs.Reset, PomodoroStr.Pomodoro_Reset.Text(), Reset);
-        _skipButton = _controls.Icon(Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text(), Skip);
-        _controls.VerticalAlignment = VerticalAlignment.Top;
+        _runButton = _main.Main(PomodoroStr.WidgetsC_Pomodoro_Start.Text(), () => SetRunning(!_running));
+        _shorterButton = _tools.Icon(Glyphs.Minus, PomodoroStr.Pomodoro_Shorter.Text(), () => Nudge(-1));
+        _longerButton = _tools.Icon(Glyphs.Add, PomodoroStr.Pomodoro_Longer.Text(), () => Nudge(+1));
+        _resetButton = _tools.Icon(Glyphs.Reset, PomodoroStr.Pomodoro_Reset.Text(), Reset);
+        _skipButton = _tools.Icon(Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text(), Skip);
+        _main.VerticalAlignment = VerticalAlignment.Top;
+        _tools.VerticalAlignment = VerticalAlignment.Top;
 
-        _block = new PomodoroBlock(_ring, _time, _caption, _bar, _controls);
+        // [S-16608] WR-12: Start becomes Pause on a press; held to the wider, the button and its neighbours never move.
+        _runLabel = (TextBlock)_runButton.Content;
+        _runLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        _runButton.Content = _runHeld;
+
+        _block = new PomodoroBlock(_ring, _time, _caption, _bar, _main, _tools);
         _block.Arranged += Align;
 
         // The content in the card's inset: the card gives the top, the view the sides and the foot.
@@ -322,7 +335,12 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
 
         _shorterButton.IsEnabled = PomodoroNudge.Can(_state, _length, -1);
         _longerButton.IsEnabled = PomodoroNudge.Can(_state, _length, +1);
-        ControlsBlock.Relabel(_runButton, (_running ? PomodoroStr.WidgetsC_Pomodoro_Pause : PomodoroStr.WidgetsC_Pomodoro_Start).Text());
+        var run = (_running ? PomodoroStr.WidgetsC_Pomodoro_Pause : PomodoroStr.WidgetsC_Pomodoro_Start).Text();
+        if (_runLabel.Text != run)
+        {
+            _runLabel.Text = run;
+            AutomationProperties.SetName(_runButton, run);
+        }
     }
 
     /// <summary>
@@ -345,10 +363,23 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         // [S-14319] Held to the widest time its phases show: a tick never moves the figures (WR-15).
         _time.Hold(worst.Value);
         _caption.MinWidth = Enumerable.Range(0, _phases.Count).Select(i => Measured(PomodoroCycle.Caption(_phases, i), FamilyType.Body)).DefaultIfEmpty(0).Max();
-        _runButton.MinWidth = Math.Max(
-            Measured(PomodoroStr.WidgetsC_Pomodoro_Start.Text(), FamilyType.Body),
-            Measured(PomodoroStr.WidgetsC_Pomodoro_Pause.Text(), FamilyType.Body)) + (2 * FamilyShape.ButtonPadding);
+        HoldRunLabels();
         Align(_block.Arrangement);
+    }
+
+    /// <summary>[S-16608] The run button's unseen labels, one per word it may show in the current language, under its words.</summary>
+    private void HoldRunLabels()
+    {
+        _runHeld.Children.Clear();
+        foreach (var label in PomodoroFace.MainLabels(Strings.Current))
+        {
+            var held = new TextBlock { Text = label, TextWrapping = TextWrapping.NoWrap, Opacity = 0, IsHitTestVisible = false };
+            Family.Step(held, FamilyType.Body);
+            AutomationProperties.SetAccessibilityView(held, AccessibilityView.Raw);
+            _runHeld.Children.Add(held);
+        }
+
+        _runHeld.Children.Add(_runLabel);
     }
 
     /// <summary>
