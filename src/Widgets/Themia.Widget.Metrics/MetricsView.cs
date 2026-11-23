@@ -258,8 +258,8 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _blockValue.Foreground = Family.Brush(unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary);
 
         // Measured with its template, so a running reading keeps its block's size (WR-15): the reading's box is the
-        // template's (a held reading, judged by it), and the block's ink is read as drawn (the glyph's own room in its box,
-        // the side bearings), so it is the ink that fills the card. Its own size alone: a width or margin set by the pass
+        // template's (a held reading, judged by it), and the block's ink down is read as drawn (the glyph's own room in its
+        // box), so it is the ink that fills the card's height. Its own size alone: a width or margin set by the pass
         // before would stand in the measure.
         _blockValue.Text = MetricFaceRules.Template(reading);
         _blockValue.Width = double.NaN;
@@ -270,7 +270,8 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _blockValue.Width = _blockValue.DesiredSize.Width;
         _blockValue.Text = reading;
 
-        var face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, box.Left, box.Right);
+        // Across, the block stands by its box: the reading's box is its template's, where every value it shows stands.
+        var face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink);
         _blockScale.ScaleX = face.Scale;
         _blockScale.ScaleY = face.Scale;
         _block.Width = box.Width;
