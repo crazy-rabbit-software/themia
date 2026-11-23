@@ -124,6 +124,8 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   gap at right": "Every cell keeps its own size (80 DIP) at every card width; whole columns only, so up to one cell of
   empty room stays at the right edge. Matches 'one fixed size'." In such a grid the room past the last whole column,
   less than one cell, is not a WR-3 or WR-5 failure; only the last line is cut, by the foot (WR-4).
+- **The Metric widget's head: name top left, value top right.** 2026-11-23: "the metric should have the name and an icon for
+  the metric on the topleft and then the current value of the metric on the topright".
 - **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
   Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
 
