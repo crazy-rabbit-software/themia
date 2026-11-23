@@ -230,11 +230,22 @@ public static class ShellMetrics
 
         public const double MinHeight = 640;
 
-        /// <summary>[S-14911] Inside the window, and between its rail, its well and its panel.</summary>
+        /// <summary>[S-14911] Inside the window, and between its tabs' line and its well.</summary>
         public const double Pad = 16;
 
-        /// <summary>[S-14911] The title line over the well.</summary>
+        /// <summary>[S-16401] The line of tabs and the search box over the well.</summary>
         public const double Head = 48;
+
+        /// <summary>[S-16402] The search box at the tabs' line's end.</summary>
+        public const double Search = 280;
+
+        /// <summary>[S-16404] A picked widget's words, a card of the bento: its natural box, DIPs.</summary>
+        public const double AboutWidth = 320;
+
+        public const double AboutHeight = 192;
+
+        /// <summary>[S-16404] Inside the words' card.</summary>
+        public const double AboutPad = 16;
 
         /// <summary>[S-14911] Inside the well, from its edge to the cards' room.</summary>
         public const double WellPad = 8;
@@ -242,25 +253,8 @@ public static class ShellMetrics
         /// <summary>[S-14913] The scroll bar's room at the well's end.</summary>
         public const double ScrollBar = 12;
 
-        /// <summary>[S-14913] The categories' rail: every name and count in sight on a 1280-DIP screen (1920 at 150 %).</summary>
-        public const double Rail = 200;
-
         /// <summary>From the work area's sides and foot, at the least.</summary>
         public const double Margin = 24;
-
-        /// <summary>The panel of the selection on the right.</summary>
-        public const double Panel = 280;
-
-        /// <summary>Inside the panel.</summary>
-        public const double PanelPad = 16;
-
-        /// <summary>A style's live preview in the panel: at most this wide and tall, its card scaled down to fit.</summary>
-        public const double StyleWidth = 132;
-
-        public const double StyleHeight = 96;
-
-        /// <summary>Between two styles' previews.</summary>
-        public const double StyleGap = 8;
 
         /// <summary>[S-14911] How much of Windows' sheet lies over the display's blurred wallpaper in the well: the desktop dimmed to a calm ground.</summary>
         public const double Sheet = 0.6;

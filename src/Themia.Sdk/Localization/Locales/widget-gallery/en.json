@@ -1,23 +1,23 @@
 {
-  "$comment": "[S-14910]..[S-14917] The widget gallery: a window of whole widgets and ready-made groups as real cards, a bento a subject, dragged onto the desktop to place them.",
+  "$comment": "[S-14910]..[S-14917] [S-16400]..[S-16410] The widget gallery: a window of whole widgets and ready-made groups as real cards, a bento a subject (its tabs at the top, a search beside them), a widget picked shown with its words, styles and neighbours round it, dragged onto the desktop to place them.",
   "$englishOnly": [
     "widgetGallery.entry",
-    "widgetGallery.none",
-    "widgetGallery.noneAbout",
+    "widgetGallery.categories",
+    "widgetGallery.results",
     "widgetGallery.styles",
-    "widgetGallery.several",
+    "widgetGallery.needs",
     "widgetGallery.drag",
     "widgetGallery.group"
   ],
   "widgetGallery.entry": "Widget gallery",
-  "widgetGallery.none": "Pick a widget",
-  "widgetGallery.noneAbout": "Click a widget or a group to see what it is. Ctrl+click or drag a box round several to take them together.",
-  "widgetGallery.styles": "Styles",
-  "widgetGallery.several": {
-    "one": "{count} widget",
-    "other": "{count} widgets"
+  "widgetGallery.categories": "Categories",
+  "widgetGallery.results": "Results",
+  "widgetGallery.styles": {
+    "one": "{count} style",
+    "other": "{count} styles"
   },
-  "widgetGallery.drag": "Drag onto your desktop to place. The gallery keeps them.",
+  "widgetGallery.needs": "Needs an account: {services}",
+  "widgetGallery.drag": "Drag onto your desktop to place. Its settings open once it lands.",
   "widgetGallery.group": {
     "one": "{count} widget, placed together",
     "other": "{count} widgets, placed together"

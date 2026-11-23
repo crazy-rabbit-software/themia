@@ -27,6 +27,9 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-14916] A placement the gallery's drag began: it lands where the pointer lets go, and the gallery stays for it.</summary>
     private bool _galleryDragging;
 
+    /// <summary>[S-16408] What the gallery's last drag placed: when it lands (on any display) the gallery closes for its settings.</summary>
+    private PlacementPayload? _galleryPayload;
+
     private bool _galleryReleaseHooked;
 
 #if DEBUG
@@ -35,6 +38,9 @@ internal sealed partial class DesktopWindow
 
     /// <summary>Debug only: a flyout of the bar other than the gallery is open here (the selection's page over it would be).</summary>
     internal bool BarMenuOpenOtherThanGallery => _flyout is not null || _addPage is not null;
+
+    /// <summary>Debug only: the selection's page is open here (after a drop off the gallery, [S-16408]).</summary>
+    internal bool SelectionPageOpen => _open.IsSelection && _flyout is not null;
 #endif
 
     /// <summary>[S-14910] The bar's Widget gallery: the gallery opened, or closed again.</summary>
@@ -63,7 +69,7 @@ internal sealed partial class DesktopWindow
 
         CloseFlyout(focusEntry: false);
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered());
-        var gallery = new WidgetGalleryView(new WidgetGalleryCommands(BeginGalleryDrag), Backdrop, _host.State.Design, WidgetGallery.Of(page));
+        var gallery = new WidgetGalleryView(new WidgetGalleryCommands(BeginGalleryDrag), Backdrop, _host.State.Design, page);
         _widgetGallery = gallery;
         _galleryLayer.Children.Add(gallery);
         PlaceWidgetGallery();
@@ -85,7 +91,7 @@ internal sealed partial class DesktopWindow
         Become(OpenFlyout.None);
     }
 
-    /// <summary>[S-14911] In the middle of the work area's room under the bar, its cards on this display's grid.</summary>
+    /// <summary>[S-16400] Flush under the bar, as the add page hangs, its cards on this display's grid.</summary>
     private void PlaceWidgetGallery()
     {
         var metrics = Metrics;
@@ -123,13 +129,46 @@ internal sealed partial class DesktopWindow
         }
 
         _galleryDragging = true;
+        _galleryPayload = payload;
         gallery.BeginFollow(payload.RootIds);
         _host.BeginPlacement(payload);
         if (_host.Placing is null)
         {
             // [S-1065] Refused before the ghost appears: the gallery stays as it was.
             _galleryDragging = false;
+            _galleryPayload = null;
             gallery.EndFollow();
+        }
+    }
+
+    /// <summary>
+    /// [S-16408] A placement landed (owner, 2026-11-23: "when placing a widget from the bento preview it should open the
+    /// combined widgets settings not the bento again"): one the gallery's drag began closes the gallery, and on the display it
+    /// landed on the placed widgets, selected, have their page opened (for several, the page of several).
+    /// </summary>
+    private void OnPlaced(PlacementPayload payload, DesktopWindow surface)
+    {
+        if (_closed || !ReferenceEquals(payload, _galleryPayload))
+        {
+            return;
+        }
+
+        _galleryPayload = null;
+        _galleryDragging = false;
+        if (WidgetGallery.AfterPlacing(landed: true) != GalleryAfter.Settings)
+        {
+            return;
+        }
+
+        CloseWidgetGallery();
+        if (ReferenceEquals(surface, this))
+        {
+            SyncProperties();
+            OpenSelectionPage(focus: false);
+        }
+        else
+        {
+            surface.ReopenSelectionPage();
         }
     }
 
@@ -164,7 +203,10 @@ internal sealed partial class DesktopWindow
         return true;
     }
 
-    /// <summary>[S-14916] The placement the gallery's drag began is over (landed or given up): the gallery comes back as it stood.</summary>
+    /// <summary>
+    /// [S-14916] The placement the gallery's drag began is over: the gallery comes back as it stood (given up; [S-16408] a
+    /// landing closes it right after, <see cref="OnPlaced"/>).
+    /// </summary>
     private void GalleryAfterPlacing()
     {
         if (!_galleryDragging || _host.Placing is not null)
@@ -183,6 +225,9 @@ internal sealed partial class DesktopWindow
 #if DEBUG
     /// <summary>Debug only: this display's work area (DIPs), for the gallery's check.</summary>
     internal DipRect WorkAreaForCheck => WorkArea;
+
+    /// <summary>Debug only: the edit bar's foot on this display (DIPs), for the gallery's check ([S-16400]).</summary>
+    internal double BarBottomForCheck => EditBarRect(WorkArea) is var bar ? bar.Y + bar.Height : 0;
 
     /// <summary>Debug only: a drag off the gallery begun as its pointer begins one, for the gallery's check.</summary>
     internal void BeginGalleryDragForCheck(ViewState screen, IReadOnlyList<string> ids, Point at) => BeginGalleryDrag(screen, ids, at);

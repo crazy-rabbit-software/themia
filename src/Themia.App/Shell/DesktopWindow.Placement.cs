@@ -236,6 +236,7 @@ internal sealed partial class DesktopWindow
         _host.EditModeChanged -= OnEditModeChanged;
         _host.SelectionChanged -= OnSelectionChanged;
         _host.PlacementChanged -= OnPlacementChanged;
+        _host.Placed -= OnPlaced;
         _host.Clipboard.Changed -= OnClipboardChanged;
         _host.SettingsOutdated -= SyncBarMenu;
         _host.SuspendedChanged -= OnSuspendedForSettings;

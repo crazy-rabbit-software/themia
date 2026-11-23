@@ -20,6 +20,9 @@ internal sealed partial class AppHost
     /// <summary>Raised when placement starts, ends or is cancelled.</summary>
     public event Action? PlacementChanged;
 
+    /// <summary>[S-16408] A placement landed (what was placed, the surface it landed on), after its widgets are selected.</summary>
+    public event Action<PlacementPayload, DesktopWindow>? Placed;
+
     /// <summary>[S-1594] Escape while placing, wherever the keyboard is. Created on the first placement, disposed with the host.</summary>
     private PlacementKeyWatcher? _placementKeys;
 
@@ -102,6 +105,7 @@ internal sealed partial class AppHost
 
         Clipboard.OnPlaced(payload);
         Log.Info(Scope, $"placed: {payload.Mode} of {payload.Count} widget(s) on {surface.Monitor.GdiName}");
+        Placed?.Invoke(payload, surface);
         return true;
     }
 
