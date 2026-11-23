@@ -30,12 +30,12 @@ public sealed class WeatherNowTests
         foreach (var style in Enum.GetValues<WeatherNowStyle>())
         {
             var sizing = Of(style);
-            // [S-12833] One height at its natural size; it scales down as one to its temperature at 9, the rest giving way.
+            // [S-12833] One height at its natural size; it scales down as one, the condition giving way.
             Assert.True(sizing.Min.Height < sizing.Natural.Height && !sizing.FixedWidth, $"{style}");
 
             // Relaxed, [S-12411]: twice its natural on each axis, never under the content's 320; its least the lesser of
-            // 140 and its parts' least box in the inset ([S-12833]).
-            var least = WeatherNowStyles.Face(new WeatherNowConfig { Style = style }).LeastBox();
+            // 140 and its least box in the inset ([S-16456]: its unit kept, the mark's room beside it).
+            var least = WeatherNowStyles.Least(new WeatherNowConfig { Style = style });
             var scaled = Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(least.Width + 24));
             Assert.Equal((Math.Min(140.0, scaled), Math.Max(320.0, SizeStretch.Ceiling)), (sizing.Min.Width, sizing.Max.Width));
             Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(least.Height + 24)), sizing.Min.Height);
@@ -45,42 +45,71 @@ public sealed class WeatherNowTests
     }
 
     [Fact]
-    public void S16447_with_no_reading_each_style_keeps_its_face_held_to_its_widest_reading()
+    public void S16447_with_no_reading_each_style_keeps_its_face()
     {
-        Assert.Equal(new UnreadFace(true, false, WeatherNowStyles.Worst), WeatherNowStyles.Unread(WeatherNowStyle.Standard));
-        Assert.Equal(new UnreadFace(false, true, WeatherNowStyles.Beside), WeatherNowStyles.Unread(WeatherNowStyle.LargeIcon));
-        Assert.Equal(new UnreadFace(false, false, WeatherNowStyles.Bare), WeatherNowStyles.Unread(WeatherNowStyle.Minimal));
+        Assert.Equal(new UnreadFace(true, false), WeatherNowStyles.Unread(WeatherNowStyle.Standard));
+        Assert.Equal(new UnreadFace(false, true), WeatherNowStyles.Unread(WeatherNowStyle.LargeIcon));
+        Assert.Equal(new UnreadFace(false, false), WeatherNowStyles.Unread(WeatherNowStyle.Minimal));
+    }
 
-        // The held form is what each style's face is planned on (its sizing and its least box), so "--" fills as a reading.
+    [Fact]
+    public void S16455_no_reading_says_why_under_the_face_where_the_face_keeps_its_own_size()
+    {
+        // "--" held to two figures: a reading's height, about the dashes' width (so a centred face stays centred).
+        Assert.Equal(2, WeatherNowStyles.UnreadHold.Length);
+        Assert.All(WeatherNowStyles.UnreadHold, c => Assert.True(char.IsDigit(c)));
+
         foreach (var style in Enum.GetValues<WeatherNowStyle>())
         {
-            Assert.False(string.IsNullOrEmpty(WeatherNowStyles.Unread(style).Held.Value));
+            var config = new WeatherNowConfig { Style = style };
+            var natural = Of(style).Natural;
+
+            // The line stands under the face only where the face keeps its own size over it: never made small by its why.
+            var under = WeatherNowStyles.WhyUnder(config, natural.Width - 24, natural.Height - 24);
+            Assert.Equal(natural.Height - 24 >= WeatherNowStyles.UnreadInk(style) + WhyLine.Band, under);
+            Assert.True(WeatherNowStyles.WhyUnder(config, 876, 276), $"{style}");
+            Assert.False(WeatherNowStyles.WhyUnder(config, double.NaN, 276), $"{style}");
         }
+
+        // Standard's natural card holds the line (the face 28 at its own size); Minimal's and Large icon's say it by the mark.
+        Assert.True(WeatherNowStyles.WhyUnder(new WeatherNowConfig(), 156, 52));
+        Assert.False(WeatherNowStyles.WhyUnder(new WeatherNowConfig { Style = WeatherNowStyle.Minimal }, 116, 36));
+        Assert.False(WeatherNowStyles.WhyUnder(new WeatherNowConfig { Style = WeatherNowStyle.LargeIcon }, 176, 52));
     }
 
     [Fact]
-    public void S16453_why_stands_in_the_empty_line_under_at_its_own_size_or_is_the_tooltip()
+    public void S16455_the_face_and_its_why_stand_together_centred_in_the_card()
     {
-        // The line under is kept, empty: a figure space draws no ink, so the block is a reading's two lines.
-        Assert.Equal(" ", WeatherNowStyles.UnderSlot);
-        Assert.True(string.IsNullOrWhiteSpace(WeatherNowStyles.UnderSlot));
+        // A face the width stops leaves height: shared alike over the face and under the why's line (WhyLine.Spare), never
+        // between them (900 x 300 stood the why 139 under the face, at the foot).
+        var spare = WhyLine.Spare(876, 276 - WhyLine.Band, 100, 30, most: 5);
+        Assert.Equal((276 - WhyLine.Band - 150) / 2, spare, 6);
 
-        // Why stands there where the line drawn holds a Caption line and the start of a sentence; else the tooltip.
-        Assert.True(WeatherNowStyles.WhyFits(FamilyType.Caption.LineHeight, WhyLine.MinBeside));
-        Assert.True(WeatherNowStyles.WhyFits(99, 800));
-        Assert.False(WeatherNowStyles.WhyFits(FamilyType.Caption.LineHeight - 2, 800));
-        Assert.False(WeatherNowStyles.WhyFits(40, WhyLine.MinBeside - 1));
-        Assert.False(WeatherNowStyles.WhyFits(double.NaN, 800));
+        // A face the height stops leaves none: it stands on the line, the line on the inset.
+        Assert.Equal(0, WhyLine.Spare(876, 40, 100, 30), 6);
     }
 
     [Fact]
-    public void S16453_why_stands_under_the_face_where_its_alignment_puts_it()
+    public void S16456_the_least_card_keeps_the_mark_beside_the_face()
     {
-        // A why wider than the face stays centred with it, inside the insets.
-        Assert.Equal(25, WeatherNowStyles.WhyLeft(ContentAlign.Center, 50, 80, 130, 180), 6);
-        Assert.Equal(12, WeatherNowStyles.WhyLeft(ContentAlign.Center, 12, 80, 300, 180), 6);
-        Assert.Equal(50, WeatherNowStyles.WhyLeft(ContentAlign.Left, 50, 80, 60, 300), 6);
-        Assert.Equal(70, WeatherNowStyles.WhyLeft(ContentAlign.Right, 50, 80, 60, 300), 6);
+        foreach (var style in Enum.GetValues<WeatherNowStyle>())
+        {
+            var config = new WeatherNowConfig { Style = style };
+            var sizing = Of(style);
+            var face = WeatherNowStyles.Face(config);
+
+            // The least card holds the main reading at the floor ([S-12833]) and the mark's room beside it, at its start too.
+            Assert.True(sizing.Min.Width - 24 >= face.LeastBox().Width + (2 * WeatherNowStyles.MarkRoom) - 0.01, $"{style}");
+            Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(face.LeastBox().Height + 24)), sizing.Min.Height);
+
+            // There the mark never gives way: a stale reading or no reading says so beside the face (it was dropped at 39 x 32).
+            var block = new SizeDip(sizing.Natural.Width - 24, sizing.Natural.Height - 24);
+            var place = WeatherNowStyles.Mark(sizing.Min.Width - 24, sizing.Min.Height - 24, block, face.LeastBox(), WeatherNowStyles.MarkRoom, 4 + 16);
+            Assert.NotEqual(MarkPlace.Yields, place);
+
+            // And the why is that mark there, not a line: the least card cannot hold the line under the face.
+            Assert.False(WeatherNowStyles.WhyUnder(config, sizing.Min.Width - 24, sizing.Min.Height - 24), $"{style}");
+        }
     }
 
     [Fact]
@@ -106,7 +135,8 @@ public sealed class WeatherNowTests
         // A block that fills the height reaches into the band: it ends the mark's room sooner.
         Assert.Equal(MarkPlace.Beside, WeatherNowStyles.Mark(156, 52, block, least, 24, mark));
 
-        // The least card (39 × 32): the room left beside the mark cannot hold the reading at its floor, so the mark gives way.
+        // A room under the least card's (15 × 8): what is left beside the mark cannot hold the reading at its floor, so the
+        // mark gives way (the kind's least keeps it, [S-16456]).
         Assert.Equal(MarkPlace.Yields, WeatherNowStyles.Mark(15, 8, block, least, 24, mark));
     }
 

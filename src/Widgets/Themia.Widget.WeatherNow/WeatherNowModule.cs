@@ -32,7 +32,7 @@ public sealed class WeatherNowModule : IWidgetModule
         Label = WeatherNowStr.Widget_WeatherCurrent_Label.Local(),
         Description = WeatherNowStr.WidgetsA_Catalog_Weather_Description.Local(),
         Glyph = Glyphs.Weather,
-        Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c).ScalesDownTo(WeatherNowStyles.Face((WeatherNowConfig)c)),
+        Sizing = c => WeatherNowStyles.Scaled((WeatherNowConfig)c), // [S-16456] its least keeps the unit and the mark
         Traits = WidgetTraits.HasItems, // [S-16434] lit whole under the pointer: one item (OpensLight)
         Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
 

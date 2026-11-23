@@ -73,48 +73,67 @@ public static class WeatherNowStyles
     }
 
     /// <summary>
-    /// [S-16447] [S-16453] The face with no reading in <paramref name="style"/> (WR-10: the face kept, its reading "--"): the
-    /// unknown sky where the style draws one (leading the reading in Standard, beside it at 48 in Large icon), "--" held to
-    /// the style's widest reading so the block is planned and scaled as a reading's, its line under kept empty
-    /// (<see cref="UnderSlot"/>) for why to stand in at its own size.
+    /// [S-16447] The face with no reading in <paramref name="style"/> (WR-10: the face kept, its reading "--"): the unknown sky
+    /// where the style draws one (leading the reading in Standard, beside it at 48 in Large icon).
     /// </summary>
     public static UnreadFace Unread(WeatherNowStyle style) => style switch
     {
-        WeatherNowStyle.Minimal => new UnreadFace(false, false, Bare),
-        WeatherNowStyle.LargeIcon => new UnreadFace(false, true, Beside),
-        _ => new UnreadFace(true, false, Worst),
+        WeatherNowStyle.Minimal => new UnreadFace(false, false),
+        WeatherNowStyle.LargeIcon => new UnreadFace(false, true),
+        _ => new UnreadFace(true, false),
     };
 
     /// <summary>
-    /// [S-16453] The face's line under with no reading: a figure space, no ink, so the block keeps a reading's two lines and
-    /// is drawn as large as one (it was the why, scaled into a headline that made the reading small: 809 × 99 DIP at
-    /// 900 × 300); why stands in its place at its own size.
+    /// [S-16455] What Minimal's "--" is held to (<c>ReadoutBlock.Hold</c>; the other styles stand on their sky's ink): two
+    /// figures and the degree, about as wide as the dashes and as tall as a reading's, so the face fills its card as a
+    /// reading's does (WR-1, WR-4), never blown up by the dashes' thin ink.
     /// </summary>
-    public const string UnderSlot = "\u2007";
+    public const string UnreadHold = "00";
 
     /// <summary>
-    /// [S-16453] Whether why, one Caption line at its own size (WR-10: "says why in a compact line"), stands in the face's
-    /// line under drawn <paramref name="slot"/> tall, with <paramref name="room"/> across: where the slot holds a Caption line
-    /// and the room the start of a sentence (<see cref="WhyLine.MinBeside"/>); else why is the face's tooltip alone.
+    /// [S-16455] The ink height of the face with no reading at its own size (scale 1): the reading's row, its sky beside it
+    /// at 48 in Large icon. The why's line stands under the face only where the face keeps at least this.
     /// </summary>
-    public static bool WhyFits(double slot, double room)
-        => double.IsFinite(slot) && double.IsFinite(room) && slot >= FamilyType.Caption.LineHeight - LayoutMath.Tolerance && room >= WhyLine.MinBeside;
-
-    /// <summary>
-    /// [S-16453] Where why (<paramref name="why"/> wide) starts in a card <paramref name="card"/> wide under a face drawn from
-    /// <paramref name="faceLeft"/>, <paramref name="faceWidth"/> wide: where the face's alignment puts it under the face
-    /// (centred on it, at its start or at its end), kept inside the card's insets, so a why wider than the face stays centred
-    /// with it (it ran on to the right from the face's start at 180 × 76).
-    /// </summary>
-    public static double WhyLeft(ContentAlign align, double faceLeft, double faceWidth, double why, double card)
+    public static double UnreadInk(WeatherNowStyle style)
     {
-        var left = align switch
-        {
-            ContentAlign.Left => faceLeft,
-            ContentAlign.Right => faceLeft + faceWidth - why,
-            _ => faceLeft + ((faceWidth - why) / 2),
-        };
-        return Math.Clamp(left, FamilySpace.Inset, Math.Max(FamilySpace.Inset, card - FamilySpace.Inset - why));
+        var row = FaceParts.Readout(FamilyType.Big28, new ReadoutText("-18", "°F", Lead: style == WeatherNowStyle.Standard)).Plan(0).Ink;
+        return style == WeatherNowStyle.LargeIcon ? Math.Max(LargeGlyph, row) : row;
+    }
+
+    /// <summary>
+    /// [S-16455] Whether why stands as its compact line under the face (WR-10: "says why in a compact line"; WR-7: the face
+    /// and its line one block): where the content room <paramref name="width"/> by <paramref name="height"/> holds the face
+    /// at its own size (<see cref="UnreadInk"/>: the why never makes it smaller than that) over the line's band and a
+    /// sentence's room across (<see cref="WhyLine.Fits"/>). Else why is the status mark beside the face, its tooltip saying
+    /// it ([S-16456]).
+    /// </summary>
+    public static bool WhyUnder(WeatherNowConfig config, double width, double height)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return WhyLine.Fits(width, height, UnreadInk(config.Style));
+    }
+
+    /// <summary>[S-16456] The status mark's room across beside the face: its glyph and the gap before it.</summary>
+    public static double MarkRoom => FamilyShape.Icon + FamilySpace.S2;
+
+    /// <summary>
+    /// [S-16456] The least content box (no inset) of a style: its main reading alone at the legibility floor ([S-12833]: its
+    /// unit, glyph and condition give way first, none drawn under 9) and the status mark's room beside it, kept at its start
+    /// too so a centred reading stays centred ([S-16454]) (WR-10, WR-14: a stale reading or no reading says so by the mark
+    /// there, never by nothing).
+    /// </summary>
+    public static SizeDip Least(WeatherNowConfig config)
+    {
+        var least = Face(config).LeastBox();
+        return new SizeDip(least.Width + (2 * MarkRoom), least.Height);
+    }
+
+    /// <summary>[S-11101] [S-16456] The kind's sizing: its stated range scaling down to its least box in the card's inset.</summary>
+    public static WidgetSizing Scaled(WeatherNowConfig config)
+    {
+        var least = Least(config);
+        var inset = 2 * FamilySpace.Inset;
+        return Sizing(config).ScalesDownTo(new SizeDip(least.Width + inset, least.Height + inset));
     }
 
     /// <summary>
@@ -135,8 +154,8 @@ public static class WeatherNowStyles
     }
 }
 
-/// <summary>[S-16447] The face with no reading: the sky leading the reading, the 48 sky beside it, the reading's widest form.</summary>
-public readonly record struct UnreadFace(bool Lead, bool BigGlyph, ReadoutText Held);
+/// <summary>[S-16447] The face with no reading: the sky leading the reading, or the 48 sky beside it.</summary>
+public readonly record struct UnreadFace(bool Lead, bool BigGlyph);
 
 /// <summary>[S-16433] Where the status mark stands against a reading's block (<see cref="WeatherNowStyles.Mark"/>).</summary>
 public enum MarkPlace

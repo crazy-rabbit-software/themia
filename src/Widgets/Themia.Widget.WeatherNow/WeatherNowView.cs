@@ -25,8 +25,9 @@ namespace Themia.App.Widgets;
 /// [S-7042] A reading kept through a failed refresh stays on screen and the status's problem glyph says
 /// so ([S-12481]), the block leaving it room at its end where it would stand under it, the glyph giving way to the face's
 /// tooltip where the card is too small for both ([S-16433]). With no reading the face stays as large as a reading's, its
-/// sky unknown and its reading "--" held to the widest reading, and why is a compact Caption line in its line under's
-/// place, its own size, never widening or scaling the block; where that place is too small, its tooltip ([S-16453]).
+/// sky unknown and its reading "--" held to a reading's figures, and why is a compact Caption line at its own
+/// size standing right under it, the face and the line one block centred in the card ([S-16455]); where the card is too
+/// small for the line, the status mark beside the face says it, its tooltip the why ([S-16456]).
 /// [S-12483] The same joined or alone. The card is one item, lit under the pointer while a click opens MSN Weather ([S-16434]).
 /// </para>
 /// </summary>
@@ -55,11 +56,10 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     private string? _whyText;
 
     /// <summary>
-    /// [S-16453] Why, one Caption line at its own size, laid over the place of the face's line under (the block keeps that
-    /// line, empty, so it is as large as a reading's): never part of the block, so it neither widens nor scales it.
+    /// [S-16455] Why, one Caption line at its own size in its band under the face (WhyLine): never scaled with the face,
+    /// never widening it; the face stands on it and the two are centred in the card together.
     /// </summary>
     private readonly TextBlock _why = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly Canvas _whyLayer = new() { IsHitTestVisible = false };
 
     // [S-16433] The problem lines of a reading kept through a failed refresh (none: fresh, or no reading).
     private IReadOnlyList<string> _problems = [];
@@ -96,9 +96,10 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
         _why.TextWrapping = TextWrapping.NoWrap;
         _why.TextTrimming = TextTrimming.CharacterEllipsis;
-        _why.Opacity = 0;
-        _whyLayer.Children.Add(_why);
-        Children.Add(_whyLayer);
+        _why.VerticalAlignment = VerticalAlignment.Bottom;
+        _why.IsHitTestVisible = false;
+        _why.Visibility = Visibility.Collapsed;
+        Children.Add(_why);
         _status.Place(this);
         _opensLight = new OpensLight(this, () => _surface?.EditMode != true && Opens is not null);
     }
@@ -121,8 +122,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         _config = config as WeatherNowConfig ?? new WeatherNowConfig();
         _feed.Attach(ticker, _config.TickInterval);
         _opensLight.Attach();
-        LayoutUpdated -= OnLayoutUpdated;
-        LayoutUpdated += OnLayoutUpdated;
         ApplyConfig(config);
     }
 
@@ -137,11 +136,14 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     }
 
     /// <summary>[S-6583] The reading at the start, the middle or the end of the card.</summary>
-    public void ApplyAlign(ContentAlign align) => _fit.Align = align;
+    public void ApplyAlign(ContentAlign align)
+    {
+        _fit.Align = align;
+        Lay();
+    }
 
     public void Detach()
     {
-        LayoutUpdated -= OnLayoutUpdated;
         _opensLight.Detach();
         _feed.Detach();
     }
@@ -151,9 +153,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     {
         if (_feed.Held is not { Value: { } reading } held)
         {
-            // [S-12813] [S-16453] The face stays (WR-10) and fills its card as the sample's does: the sky unknown in the
-            // style's place, "--" held to the widest reading's box, its line under kept empty so the block is a reading's;
-            // why is the compact line laid in that line's place at its own size (ArrangeOverride).
+            // [S-12813] [S-16455] The face stays (WR-10), filling its card as a reading's: the sky unknown in the style's
+            // place, the face standing on its ink (Minimal, with no sky, "--" held to a reading's figures); why is the compact
+            // line under it, or the mark ([S-16456]).
             var why = OnlineParts.Caption(_feed.Status);
             _whyText = why.Length > 0 ? why : null;
             _problems = [];
@@ -162,12 +164,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
             _bigGlyph.Visibility = face.BigGlyph ? Visibility.Visible : Visibility.Collapsed;
             _bigGlyph.Glyph = Glyphs.Weather;
             _bigGlyph.Foreground = Family.Brush(ColourRole.TextDisabled);
-            // A face with its sky stands on the sky's ink and the line under's: "--" as drawn. Minimal has no sky, so its
-            // "--" is held to the widest reading, never blown up by its thin dashes.
-            _reading.Hold(face.Lead || face.BigGlyph ? string.Empty : face.Held.Value, face.Lead || face.BigGlyph ? string.Empty : face.Held.Unit);
-            _reading.Show("--", "°", WeatherNowStyles.UnderSlot, lead: face.Lead ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
+            _reading.Hold(face.Lead || face.BigGlyph ? string.Empty : WeatherNowStyles.UnreadHold, face.Lead || face.BigGlyph ? string.Empty : "°");
+            _reading.Show("--", "°", lead: face.Lead ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
             _why.Text = _whyText ?? string.Empty;
-            PlaceWhy(new Windows.Foundation.Size(ActualWidth, ActualHeight));
             Lay();
             return;
         }
@@ -204,18 +203,23 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
     /// <summary>
     /// [S-16433] Lay the face in the card: the status mark over the top end corner, the block leaving it room at its end where
-    /// it would stand under it, or giving way to the face's tooltip where the card is too small for both. [S-16447] Why there
-    /// is no reading is the face's tooltip too (its line under gives way in the smallest cards).
+    /// it would stand under it, or giving way to the face's tooltip where the card is too small for both. [S-16455] With no
+    /// reading, why is its compact line right under the face, the two one block centred in the card (the height left shared
+    /// alike over the face and under the line, WhyLine.Spare as the text kinds'); [S-16456] where the card cannot hold that
+    /// line, the mark says it beside the face. Why is the face's tooltip too.
     /// </summary>
     private void Lay()
     {
-        var width = _area.IsMeasured ? _area.Width - (2 * FamilySpace.Inset) : double.NaN;
-        var share = _area.IsMeasured ? _area.Height - FamilySpace.Inset : double.NaN;
+        var measured = _area.IsMeasured;
+        var width = measured ? _area.Width - (2 * FamilySpace.Inset) : double.NaN;
+        var share = measured ? _area.Height - FamilySpace.Inset : double.NaN;
+        var under = _whyText is not null && measured && WeatherNowStyles.WhyUnder(_config, width, share);
+        IReadOnlyList<string> marks = _whyText is { } why ? (under || !measured ? [] : [why]) : _problems;
 
         // The status shows the problems first: its room is its width as shown.
-        _status.Show(_problems, busy: false);
+        _status.Show(marks, busy: false);
         var place = MarkPlace.Clear;
-        if (_problems.Count > 0 && _area.IsMeasured)
+        if (marks.Count > 0 && measured)
         {
             _face.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
             var block = new SizeDip(_face.DesiredSize.Width, _face.DesiredSize.Height);
@@ -227,60 +231,34 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
             _status.Clear();
         }
 
-        var tip = _whyText ?? (place == MarkPlace.Yields ? string.Join("\n", _problems) : null);
+        // [S-16456] In a card whose content is shorter than the mark (the least, 32 tall) the mark stands centred on it, so
+        // it never reaches the card's foot; else at its place over the top end corner.
+        _status.StandAt(measured && share < KitStatus.Side + (2 * FamilySpace.S1) ? (share - KitStatus.Side) / 2 : null);
+
+        var tip = _whyText ?? (place == MarkPlace.Yields ? string.Join("\n", marks) : null);
         ToolTipService.SetToolTip(this, tip);
-        // [S-16454] Beside the mark a centred block keeps the same room at its start, so it stays in the card's middle.
+
+        // [S-16454] Beside the mark a centred block keeps the same room at its start, so it stays in the card's middle, as far
+        // as the room left holds the block at its least ([S-16456]: the least card has the mark's room once).
         var beside = place == MarkPlace.Beside ? _status.Room : 0;
-        _fit.Margin = new Thickness(FamilySpace.Inset + (_fit.Align == ContentAlign.Center ? beside : 0), 0, FamilySpace.Inset + beside, FamilySpace.Inset);
-    }
+        var least = WeatherNowStyles.Face(_config).LeastBox().Width;
+        var start = FamilySpace.Inset + (_fit.Align == ContentAlign.Center && measured ? Math.Clamp(width - beside - least, 0, beside) : 0);
+        var end = FamilySpace.Inset + beside;
 
-    /// <summary>[S-16453] After each layout the block's line under stands where it is drawn: why follows it there.</summary>
-    private void OnLayoutUpdated(object? sender, object args) => PlaceWhy(new Windows.Foundation.Size(ActualWidth, ActualHeight));
-
-    /// <summary>
-    /// [S-16453] Lay why over the place of the face's line under, as the block is drawn: on that line's baseline, standing
-    /// where the face's alignment puts it under the face (<see cref="WeatherNowStyles.WhyLeft"/>), at Caption's own size; where that place is under a Caption line (the block drawn small)
-    /// the line is not drawn and why is the face's tooltip alone (<see cref="WeatherNowStyles.WhyFits"/>).
-    /// </summary>
-    private void PlaceWhy(Windows.Foundation.Size card)
-    {
-        var under = _reading.UnderText;
-        var shown = false;
-        if (_whyText is not null && under.Visibility == Visibility.Visible && under.ActualHeight > 0)
+        // [S-16455] The face stands on its why's line where it has one.
+        var band = under ? WhyLine.Band : 0;
+        var spare = 0.0;
+        if (under)
         {
-            var box = under.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, under.ActualWidth, under.ActualHeight));
-            var face = _face.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, _face.ActualWidth, _face.ActualHeight));
-            var line = FamilyType.Caption.LineHeight;
-            var room = Math.Max(0, card.Width - (2 * FamilySpace.Inset));
-            _why.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            var width = Math.Min(_why.DesiredSize.Width, room);
-            if (WeatherNowStyles.WhyFits(box.Height, room))
-            {
-                Set(Canvas.LeftProperty, WeatherNowStyles.WhyLeft(_fit.Align, face.X, face.Width, width, card.Width));
-                // On the line under's baseline, as the line it stands in would be drawn: its ink on the block's foot.
-                var foot = LineInk.Of(FamilyType.Caption).Under;
-                Set(Canvas.TopProperty, box.Y + box.Height - (foot * box.Height / line) - line + foot);
-                if (!_why.Width.Equals(width))
-                {
-                    _why.Width = width;
-                }
-
-                shown = true;
-            }
+            _face.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var ink = Ink.Of(_face);
+            spare = WhyLine.Spare(_area.Width - start - end, share - band, ink.Width, ink.Height - ink.Ink.Over - ink.Ink.Under);
         }
 
-        var opacity = shown ? 1 : 0;
-        if (!_why.Opacity.Equals(opacity))
-        {
-            _why.Opacity = opacity;
-        }
-
-        void Set(DependencyProperty property, double value)
-        {
-            if (!((double)_why.GetValue(property)).Equals(value))
-            {
-                _why.SetValue(property, value);
-            }
-        }
+        _fit.Foot = under;
+        _fit.Margin = new Thickness(start, 0, end, FamilySpace.Inset + band + spare);
+        _why.Visibility = under ? Visibility.Visible : Visibility.Collapsed;
+        _why.TextAlignment = Aligned.Text(_fit.Align);
+        _why.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset + spare);
     }
 }

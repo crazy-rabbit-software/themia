@@ -26,7 +26,7 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
   the Caption under it, the sky's glyph per [S-6160]'s style. The readings are the weather facts'
   ([S-11105]), the days the forecast's: never drawn here. A reading kept through a failed refresh
   stays and the status's problem glyph over its top end says so ([S-7042], [S-12481], [S-16433]); with none, the
-  face stays and why is its compact line ([S-16432]). The condition stands alone on its line ("Overcast"): the place
+  face stays and why is its compact line ([S-16455]). The condition stands alone on its line ("Overcast"): the place
   is the group's Header widget's to name, once ([S-12801], [S-9604]). The reading keeps the inset at its
   sides and foot, so it is centred in what the sizing counted ([S-12800]); in a group it stands against a
   side a mate joins, its foot's inset gone there ([S-12483]).
@@ -54,23 +54,31 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
 - **[S-16432]** *(Replaced by [S-16447]: why as a Caption line at the foot at its own size kept the block from filling its
   card, T36/B39 at 300 × 164, the line a 122 × 16 box under a 270 DIP cloud at 900 × 300.)* A released hold forgets its
   mark (`HoldMark.Forget`), so a readout held once is judged by what it draws again.
-- **[S-16447]** **No reading keeps the face, filled as a reading's** (WR-10: "the widget keeps its face ... and says why
-  in a compact line"; WR-1, WR-5: the block fills its card as the sample's does): the style's face stays
-  (`WeatherNowStyles.Unread`): the sky unknown (the weather glyph leading the reading in Standard, beside it at 48 in Large
-  icon), the reading "--" with its degree, disabled; the block keeps a reading's two lines, so it is drawn as large as the
-  sample's, standing on the sky's ink and the line under's; Minimal, with no sky, holds its "--" to the widest reading
-  (`ReadoutBlock.Hold`, "-18°F"), never blown up by its thin dashes. Not set up says nothing more (the card's Set up row). Test
-  `WeatherNowTests.S16447_`. (Its why as the scaled line under is replaced by [S-16453].)
-- **[S-16453]** **Why is a compact line in the line under's place** (WR-10: "says why in a compact line"; the third
-  audit of 2026-11-23: as the scaled line under, "Can't reach the service" grew to 809 × 99 DIP at 900 × 300 and shrank
-  the face, its glyph 64 against the sample's 94 at 300 × 164): the face keeps its line under empty
-  (`WeatherNowStyles.UnderSlot`, a figure space: no ink, so the block keeps a reading's two lines and is drawn as large
-  as the sample's), and why is one Caption line at its own size laid over that line's place on its baseline, under the
-  face where its alignment puts it (`WeatherNowStyles.WhyLeft`: centred with a centred face, inside the card's insets),
-  never past the card's inset, never part of the block, so it neither widens nor scales it; where that place is under a
-  Caption line or under a sentence's start across (`WeatherNowStyles.WhyFits`), why is the face's tooltip alone (it
-  always is the tooltip too). Minimal, whose sample draws no line under, keeps one with no reading for why to stand in.
-  Test `WeatherNowTests.S16453_`.
+- **[S-16447]** **No reading keeps the face, drawn as a reading's** (WR-10: "the widget keeps its face ... and says why
+  in a compact line"; WR-1, WR-5: the face as large as the sample's): the style's face stays (`WeatherNowStyles.Unread`):
+  the sky unknown (the weather glyph leading the reading in Standard, beside it at 48 in Large icon), the reading "--" with
+  its degree, disabled. Not set up says nothing more (the card's Set up row). Test `WeatherNowTests.S16447_`. (How large
+  it is drawn and where its why stands: [S-16455], [S-16456].)
+- **[S-16453]** *(Replaced by [S-16455]: why laid in the place of the face's empty, scaled line under stood on that line's
+  baseline at the foot, 139 DIP under the reading at 900 × 300, 165 at 520 × 600.)*
+- **[S-16455]** **No reading: the face and its why one block, centred** (WR-7: "Keep them together"; WR-5, WR-10: "says why
+  in a compact line"; the fourth audit of 2026-11-23): why ("Can't reach the service") is one Caption line at its own size
+  (never scaled with the face, never widening it) in its band right under the face (`WhyLine.Band`, the gap and the line),
+  the face standing on it; the height the face leaves is shared alike over the face and under the line
+  (`WhyLine.Spare`, the text kinds' rule, [S-16445]), never between them. The face fills the card over the
+  line as a reading's does (WR-1, WR-4; at least as large as the sample's): it stands on its sky's ink, and Minimal's "--"
+  is held to a reading's figures (`WeatherNowStyles.UnreadHold`, "00" and the degree), never blown up by the dashes' thin
+  ink. The line stands where the card's content room holds the face at its own size over the band and a sentence across
+  (`WeatherNowStyles.WhyUnder`, `UnreadInk`, `WhyLine.Fits`: the why never makes the face smaller than a reading's at its
+  step); else [S-16456]. Why is always the face's tooltip too. Tests `WeatherNowTests.S16455_`.
+- **[S-16456]** **The least card keeps the mark beside the face** (WR-10: "says why"; WR-14; the fourth audit: at 39 × 32
+  no reading drew "--" and said nothing, a stale reading dropped its glyph): each style's least (`WeatherNowStyles.Least`,
+  its sizing `Scaled`) is its main reading at the legibility floor ([S-12833]) and the status mark's room beside it, kept at
+  its start too so the centred reading stays centred ([S-16454]; `WeatherNowStyles.MarkRoom`), so the mark never gives way in a card of the kind's range: a stale reading keeps it, and
+  where a card cannot hold the why's line (`WhyUnder`) no reading says why by the same mark beside "--", its tooltip the
+  why; in a content shorter than the mark it stands centred on it. The reading's unit still gives way at the floor (WR-7's
+  "9" alone at 39 × 32): drawn there it would be 4.5 DIP, under the legibility floor ([S-12833]: no
+  text drawn under 9). Test `WeatherNowTests.S16456_`.
 - **[S-16454]** **The summary centres until an alignment is chosen** (docs/WIDGET-RULES.md, owner 2026-11-20: "Centred
   is fine", the leftover on the other axis shared alike on both sides): every style's default alignment is Center
   (Standard stood from the start, 253 DIP left over at its end at 350 × 70); beside the status mark ([S-16433]) a
@@ -79,8 +87,9 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
 - **[S-16433]** **The problem glyph never stands over the reading** (WR-14: a face scaled down stays read): a reading kept
   through a failed refresh shows the status's problem glyph over the card's top end corner; where the block would stand
   under it the block's room ends the glyph's width sooner, and where the room left beside it cannot hold the block at its
-  floor (the least card, 39 × 32) the glyph gives way and its lines are the face's tooltip (`WeatherNowStyles.Mark`:
-  Clear, Beside, Yields; `MetricRules.UnderMark`). Test `WeatherNowTests.S16433_`.
+  floor the glyph gives way and its lines are the face's tooltip (`WeatherNowStyles.Mark`: Clear, Beside, Yields;
+  `MetricRules.UnderMark`); the kind's least holds the mark beside the face ([S-16456]), so it gives way only under it.
+  Test `WeatherNowTests.S16433_`.
 - **[S-16434]** **The card lights under the pointer** (WR-13, [S-15745]): it is one item that opens MSN Weather on a click
   ([S-2035]), so the item layer's hover fill lights it whole under the pointer and its pressed fill pressed (`OpensLight`),
   never in edit mode or while it has no place.
