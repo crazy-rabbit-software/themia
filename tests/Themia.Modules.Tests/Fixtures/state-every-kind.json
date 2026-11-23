@@ -126,7 +126,8 @@
           "scale": 1,
           "config": {
             "kind": "battery",
-            "style": "number"
+            "hiddenParts": [],
+            "partOrder": []
           }
         },
         {

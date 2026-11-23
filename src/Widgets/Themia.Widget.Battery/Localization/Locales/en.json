@@ -1,9 +1,10 @@
 {
   "$englishOnly": [
-    "styles.battery.number"
+    "battery.item.fullIn",
+    "battery.item.left"
   ],
   "shell.meters.batteryDescription": "Charge level",
-  "styles.io.battery": "Battery",
   "widget.battery.label": "Battery",
-  "styles.battery.number": "Number"
+  "battery.item.fullIn": "Full in {time}",
+  "battery.item.left": "{time} left"
 }

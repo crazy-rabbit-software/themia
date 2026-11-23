@@ -23,6 +23,19 @@ public sealed class SystemStateFixtureTests
         => File.ReadAllText(Path.Combine(Path.GetDirectoryName(here)!, "Fixtures", "state-system-configured.json"));
 
     [Fact]
+    public void S17183_a_placed_battery_of_the_old_styles_keeps_its_card_and_drops_its_style_loudly()
+    {
+        // The Battery widget became a device item ([S-17182]): a card that still holds its Number/Battery/Ring style loads
+        // as the battery item, the old key dropped with one repair line, nothing else of the file touched.
+        var old = Fixture().Replace("\"kind\": \"battery\",", "\"kind\": \"battery\",\n            \"style\": \"ring\",", StringComparison.Ordinal);
+        var parsed = StateDocument.Parse(old);
+
+        Assert.IsType<BatteryConfig>(Assert.Single(parsed.State!.Views).Widgets[2].Config);
+        var repair = Assert.Single(parsed.Repairs);
+        Assert.Contains("style", repair, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void S44_the_system_widgets_configured_state_loads_as_it_is_and_writes_back_unchanged()
     {
         var parsed = StateDocument.Parse(Fixture());
@@ -48,8 +61,8 @@ public sealed class SystemStateFixtureTests
         Assert.Equal(CpuStyle.Gauge, cpu.Style);
         var memory = Assert.IsType<MemoryConfig>(configs[1]);
         Assert.Equal(MemoryStyle.Bar, memory.Style);
-        var battery = Assert.IsType<BatteryConfig>(configs[2]);
-        Assert.Equal(BatteryStyle.Ring, battery.Style);
+        // [S-17182] The battery is a device item now: its parts, no style.
+        Assert.Empty(Assert.IsType<BatteryConfig>(configs[2]).HiddenParts);
         var disk = Assert.IsType<DiskConfig>(configs[3]);
         Assert.Equal((DiskStyle.Bars, DiskScope.OneDrive, "D:\\"), (disk.Style, disk.Scope, disk.Drive));
         Assert.IsType<NetworkConfig>(configs[4]);

@@ -71,7 +71,8 @@
           "scale": 1,
           "config": {
             "kind": "battery",
-            "style": "ring"
+            "hiddenParts": [],
+            "partOrder": []
           }
         },
         {

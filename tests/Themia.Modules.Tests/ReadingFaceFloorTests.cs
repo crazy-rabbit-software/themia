@@ -72,7 +72,6 @@ public sealed class ReadingFaceFloorTests
         { "memory", "number", 45, 45 },
         { "disk", "number", 45, 45 },
         { "ping", "number", 45, 45 },
-        { "battery", "number", 45, 45 },
     };
 
     [Theory]

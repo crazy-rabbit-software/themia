@@ -820,9 +820,10 @@ greyed out … do the same for the battery widget". Owning files: `Themia.Sdk/Wi
   waiting for setup ([S-1862]), an online widget's states (the kit's), a list whose items are data that
   is simply not there (Bluetooth devices, notifications, removable drives, a drive not connected:
   their own states stay), and the properties menu (its options stay hidden where they change nothing).
-  As built: Brightness [S-4445], Volume, Mixer [S-448], Battery [S-6272], Battery details and GPU
+  As built: Brightness [S-4445], Volume, Mixer [S-448], Battery details and GPU
   details ([S-1942]), GPU [S-433], Audio visualizer [S-3206], the quick-setting toggles ([S-3904]: their
-  own item in its disabled state) and the power buttons (already so).
+  own item in its disabled state) and the power buttons (already so). The Battery is a device item: no battery is its
+  line saying so, no reading ([S-17182]).
 - **[S-1941]** What the content stands at (`Unavailable`): a level part (a slider's thumb, a battery's
   fill, a ring's sweep, a gauge, a meter's history) at the middle, `Share` 0.5 (`Percent` 50 on a
   slider), claiming neither empty nor full; a number is never made up: the figure reads "--" ([S-82]).
@@ -8031,7 +8032,7 @@ Topics:
 | `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `meeting`, `meetings`, `weekPlanner` | `calendar`, `meeting`, `meetings`, `weekPlanner` |
-| `HoveredInstant` | Hover | `cpuCores`, `exchangeHistory`, `stockHistory` | `battery`, `cpu`, `cpuCores`, `disk`, `exchangeHistory`, `exchangeRate`, `gpu`, `memory`, `network`, `ping`, `stock`, `stockHistory` |
+| `HoveredInstant` | Hover | `cpuCores`, `exchangeHistory`, `stockHistory` | `cpu`, `cpuCores`, `disk`, `exchangeHistory`, `exchangeRate`, `gpu`, `memory`, `network`, `ping`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | `contact`, `contacts` | `contact`, `contacts` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |

@@ -349,8 +349,8 @@ public static class BatteryDetailRules
         Str.Details_Battery_Voltage,
     ];
 
-    /// <summary>"2h 10m".</summary>
-    private static string Hours(Locale locale, TimeSpan span)
+    /// <summary>"2h 10m": a time to full or left, the facts' and the Battery item's line ([S-17182]).</summary>
+    public static string Hours(Locale locale, TimeSpan span)
     {
         var total = (long)Math.Max(0, span.TotalSeconds);
         return Strings.Format(locale, Str.WidgetsB_Units_HoursMinutes, ("hours", total / 3600), ("minutes", total % 3600 / 60));

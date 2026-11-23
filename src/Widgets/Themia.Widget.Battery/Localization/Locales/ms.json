@@ -1,6 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.meters.batteryDescription": "Tahap cas",
-  "styles.io.battery": "Bateri",
   "widget.battery.label": "Bateri"
 }

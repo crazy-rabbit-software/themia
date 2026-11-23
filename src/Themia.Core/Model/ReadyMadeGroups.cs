@@ -222,15 +222,15 @@ public static class ReadyMadeGroups
     /// <summary>[S-11090] [S-14713] Battery: the charge over its graph (its metric with its graph shown).</summary>
     public static ReadyMadeGroup Battery { get; } = Headed(new("battery", Str.Groups_Recipe_Battery, Str.Groups_Recipe_BatteryAbout, Glyphs.Battery, AddFolderId.Devices,
     [
-        new("battery", new(0, 0, 200, 60)),
-        new("batteryCharge", new(0, 60, 200, 64), Config: Graph),
+        new("battery", new(0, 0, 280, 60)),
+        new("batteryCharge", new(0, 60, 280, 64), Config: Graph),
     ]));
 
     /// <summary>[S-11090] [S-14607] Battery details: the charge over the battery's facts, a single metric each.</summary>
     public static ReadyMadeGroup BatteryDetails { get; } = Headed(new("batteryDetails", Str.Groups_Recipe_BatteryDetails, Str.Groups_Recipe_BatteryDetailsAbout, Glyphs.Battery, AddFolderId.Devices,
     [
-        new("battery", new(0, 0, 260, 60)),
-        .. Metrics(60, 260, "batteryStatus", "batteryTime", "batteryHealth", "batteryFullCapacity"),
+        new("battery", new(0, 0, 280, 60)),
+        .. Metrics(60, 280, "batteryStatus", "batteryTime", "batteryHealth", "batteryFullCapacity"),
     ]), Str.Groups_Recipe_Battery);
 
     /// <summary>[S-11090] [S-14607] Drive: the used share over the drive's facts, a single metric each.</summary>
