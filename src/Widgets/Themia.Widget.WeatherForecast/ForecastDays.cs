@@ -6,7 +6,7 @@ namespace Themia.Core.Widgets;
 
 /// <summary>What the grid style draws at one size ([S-6171]).</summary>
 /// <param name="Days">How many of the first days are shown.</param>
-/// <param name="Columns">Cells across: every one the card's width reaches, the last cut by its right edge.</param>
+/// <param name="Columns">Cells across: the whole ones the card's width holds ([S-16438]).</param>
 /// <param name="Rows">Lines of cells down: as many as the days fill, the last one the card's foot reaches cut by it.</param>
 /// <param name="CellWidth">One cell's one width (<see cref="ForecastGrid.CellNaturalWidth"/> in whole grid cells).</param>
 /// <param name="CellHeight">One cell's one height (<see cref="ForecastGrid.CellNaturalHeight"/> in whole grid cells).</param>
@@ -17,9 +17,10 @@ public sealed record ForecastGridPlan(int Days, int Columns, int Rows, double Ce
 /// [S-6171] [S-11146] [S-14815] The forecast's grid: the days as cells (the day, the sky's 32 glyph, the high beside the
 /// low, centred), each of one fixed size (its natural in whole grid cells, [S-14810]), from the card's left and top
 /// edges, touching (owner, 2026-11-21: "the weather forecast widget grid view items do not go from edge to edge, they
-/// have space everywhere."): every column the card's width reaches, the last cut by its right
-/// edge ([S-14816]), lines down as the days fill, the last line the card's foot reaches cut by it ([S-14502]:
-/// the days are every cell the card shows, never stored).
+/// have space everywhere."): the whole columns the card's width holds, the days wrapping line after line, so only the
+/// last line the card's foot reaches is cut by it ([S-16438], WR-4: a day in a line's middle was cut by the right edge
+/// while the next days stood under it), lines down as the days fill ([S-14502]: the days are every cell the card shows,
+/// never stored).
 /// </summary>
 public static class ForecastGrid
 {
@@ -76,11 +77,12 @@ public static class ForecastGrid
     }
 
     /// <summary>
-    /// [S-14815] The cells in the box (the view's: its top the inset under the card's top edge): every column its width
-    /// reaches, the last cut by the right edge, every line its height reaches from the card's top edge, the last cut by the foot (<see cref="ItemSize.Cells"/>).
+    /// [S-14815] [S-16438] The cells in the box (the view's: its top the inset under the card's top edge): the whole columns
+    /// its width holds, every line its height reaches from the card's top edge, the last cut by the foot
+    /// (<see cref="ItemSize.Wrapped"/>).
     /// </summary>
     public static CellReach Cells(WidgetArea area)
-        => ItemSize.Cells(area.Width, area.Height + FamilySpace.Inset, CellNaturalWidth, CellNaturalHeight, area.Grid(), 1, WeatherForecastConfig.MostDays);
+        => ItemSize.Wrapped(area.Width, area.Height + FamilySpace.Inset, CellNaturalWidth, CellNaturalHeight, area.Grid(), 1, WeatherForecastConfig.MostDays);
 
     /// <summary>[S-14502] [S-14815] The days <paramref name="columns"/> cells across and <paramref name="rows"/> lines hold: every cell, at most 14.</summary>
     public static int DaysFor(int columns, int rows)

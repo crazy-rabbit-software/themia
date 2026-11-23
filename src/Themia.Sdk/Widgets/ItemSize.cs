@@ -255,6 +255,29 @@ public static class ItemSize
         return new CellReach(across, Reach(height, naturalHeight, grid));
     }
 
+    /// <summary>
+    /// [S-16438] A list of items wrapped into lines of cells (a forecast's days, a year's months) in a box
+    /// <paramref name="width"/> × <paramref name="height"/>: each cell its optimal on both axes, touching from the box's left
+    /// and top edges, as <see cref="Cells"/>, but across only the whole columns the width holds
+    /// (<paramref name="least"/>..<paramref name="most"/>): the items run on line after line, so the last item the card
+    /// reaches is the last line's, cut by the foot (WR-4, owner 2026-11-20: "the last item will be cutoff to some extent
+    /// then"), never one in the middle of the list cut by the right edge while later ones stand under it. The width past
+    /// the last whole column is less than a cell. A box not measured across lays <paramref name="least"/> columns.
+    /// </summary>
+    public static CellReach Wrapped(double width, double height, double naturalWidth, double naturalHeight, ItemGrid grid, int least = 1, int most = int.MaxValue)
+    {
+        var reach = Cells(width, height, naturalWidth, naturalHeight, grid, least, most);
+        if (!double.IsFinite(width) || !(width > 0))
+        {
+            return reach;
+        }
+
+        var pitch = reach.Across.Pitch;
+        var floor = Math.Max(1, least);
+        var whole = Math.Clamp((int)Math.Floor((width + LayoutMath.Tolerance) / pitch), floor, Math.Max(floor, most));
+        return reach with { Across = new RowReach(pitch, whole, grid.Raster) { Room = width } };
+    }
+
     /// <summary>[S-14810] Rows of <paramref name="lines"/> lines before a list's box is measured: one at its optimal.</summary>
     public static RowReach Natural(int lines, ItemGrid grid) => new(Optimal(FamilyShape.RowHeight(lines), grid), 1, grid.Raster);
 

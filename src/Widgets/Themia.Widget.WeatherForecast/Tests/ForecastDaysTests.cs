@@ -86,18 +86,20 @@ public class ForecastDaysTests
     }
 
     /// <summary>
-    /// [S-14815] [S-14816] Every cell the card reaches, both ways (WR-4: "the last item will be cutoff to some extent then"):
-    /// across the last column cut by the right edge, down the last line cut by the foot; the days every cell, at most 14.
+    /// [S-14815] [S-16438] The days wrapped line after line (WR-4: "the last item will be cutoff to some extent then"): across
+    /// the whole columns the width holds (no day in a line's middle cut by the right edge), down every line the height
+    /// reaches, the last cut by the foot; the days every cell, at most 14.
     /// </summary>
     [Theory]
     [InlineData(240, 200, 3, 2, 6)]
-    [InlineData(250, 200, 4, 2, 8)]
-    [InlineData(239, 200, 3, 2, 6)]
+    [InlineData(250, 200, 3, 2, 6)]
+    [InlineData(320, 200, 4, 2, 8)]
     [InlineData(240, 210, 3, 3, 9)]
     [InlineData(80, 100, 1, 1, 1)]
     [InlineData(400, 300, 5, 3, 14)]
-    [InlineData(330, 130, 5, 2, 10)]
-    public void S14815_the_cells_across_and_down_reach_the_cards_edges_the_last_cut(double width, double height, int across, int lines, int days)
+    [InlineData(330, 130, 4, 2, 8)]
+    [InlineData(520, 600, 6, 3, 14)]
+    public void S14815_S16438_whole_columns_across_and_every_line_down_the_last_cut(double width, double height, int across, int lines, int days)
     {
         var area = new WidgetArea(width, height - FamilySpace.ContentTop);
         var plan = ForecastGrid.Plan(area, new WeatherForecastConfig { Style = ForecastStyle.Grid });

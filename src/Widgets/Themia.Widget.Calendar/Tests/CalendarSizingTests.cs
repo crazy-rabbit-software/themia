@@ -61,15 +61,17 @@ public sealed class CalendarSizingTests
     }
 
     [Fact]
-    public void S15780_the_months_keep_their_size_and_a_wider_card_holds_more_a_line_the_last_cut()
+    public void S15780_S16438_the_months_keep_their_size_and_a_wider_card_holds_more_a_line_the_last_line_cut()
     {
         var fit = CalendarSizing.Year(false);
         var grid = ItemGrid.Default();
 
-        // 80 × 80 cells at every size (WR-4, WR-6): 350 wide reaches five a line, the fifth cut by the right edge; 900 all
-        // twelve on one; a narrow card one; the lines the height reaches, the last cut by the foot.
+        // 80 × 80 cells at every size (WR-4, WR-6): 350 wide holds four whole a line (no month cut by the right edge with
+        // later ones under it); 900 all twelve on one; a narrow card one; the lines the height reaches, the last cut by the foot.
         var reach = CalendarSizing.YearCells(fit, 350, 240, grid);
-        Assert.Equal((5, 80.0, 80.0, 3), (reach.Columns, reach.Across.Pitch, reach.Down.Pitch, reach.Lines));
+        Assert.Equal((4, 80.0, 80.0, 3), (reach.Columns, reach.Across.Pitch, reach.Down.Pitch, reach.Lines));
+        Assert.Equal(4, CalendarSizing.YearCells(fit, 330, 140, grid).Columns);
+        Assert.Equal(6, CalendarSizing.YearCells(fit, 520, 600, grid).Columns);
         Assert.Equal(12, CalendarSizing.YearCells(fit, 1800, 120, grid).Columns);
         Assert.Equal(1, CalendarSizing.YearCells(fit, 60, 1600, grid).Columns);
         Assert.Equal(80, CalendarSizing.YearCells(fit, 520, 600, grid).Across.Pitch);

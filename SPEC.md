@@ -5565,6 +5565,15 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   (`RowRules.Cells`, `CellGrid`: the folder's grid and icons, the box the lead and name with 8 round them, 80 × 70 for a
   named 32 cell, 50 × 50 unnamed, [S-6713]), the contacts' grid ([S-14817]) and the forecast's grid ([S-14815]). Tests
   `ItemSizeTests.S14816_`, `FamilyCellGridTests.S14816_`, `FamilyBlockRulesTests.S2220_S14816_`.
+- **[S-16438]** **A list wrapped into lines takes whole columns** (docs/WIDGET-RULES.md WR-4, owner 2026-11-20: "they
+  should just keep their size and the last item will be cutoff to some extent then"; the audit of 2026-11-23: the
+  forecast's grid cut a day in a line's middle at 520 × 600, its next days under it, the year a month to 10 of its 80
+  DIP at 330 × 140). Where the cells are a list of items that runs on line after line (the forecast's days, the year's
+  months), the grid is `ItemSize.Wrapped`: the cells of [S-14816] at their one size, touching from the card's left and
+  top edges, but across only the whole columns the width holds, so the last item the card reaches is the last line's,
+  cut by the foot; the width past the last whole column is less than a cell (as the cores' cells, [S-15758]). A grid of
+  cells that is no list run into lines keeps [S-14816]. Tests `ItemSizeTests.S16438_`, `ForecastDaysTests.S14815_S16438_`,
+  `CalendarSizingTests.S15780_S16438_`.
 - **[S-14818]** **The cores' cells share the card from edge to edge** (owner, 2026-11-21: "the weather forecast widget
   grid view items do not go from edge to edge, they have space everywhere. same for the columns view and maybe also other
   styles. fix this, also for other widgets if applicable."; docs/WIDGET-RULES.md WR-2, WR-3). A meter's items (the CPU

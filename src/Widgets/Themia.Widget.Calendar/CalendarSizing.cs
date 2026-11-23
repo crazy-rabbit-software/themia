@@ -111,14 +111,15 @@ public static class CalendarSizing
     /// edge) on <paramref name="grid"/> (docs/WIDGET-RULES.md WR-4, WR-6; replaces [S-15672], whose months shared the card and
     /// grew with it: WR-9's grid of the card is the month's alone): each month's cell its one size (its small month and the
     /// padding round it in whole grid cells) at every size of the card, the cells touching from the card's left and top edges,
-    /// as many a line as the width reaches (1..12, the last cut by the card's right edge), the months in reading order on as
-    /// many lines as they take, the last line the card reaches cut by its foot.
+    /// as many a line as the width holds whole (1..12, [S-16438]: no month in a line's middle cut by the right edge while
+    /// later months stand under it, WR-4), the months in reading order on as many lines as they take, the last line the
+    /// card reaches cut by its foot.
     /// </summary>
     public static CellReach YearCells(YearFit fit, double width, double height, ItemGrid grid)
     {
         ArgumentNullException.ThrowIfNull(fit);
         var month = YearMonth(fit);
-        return ItemSize.Cells(width, height, month.Width + (2 * YearPad), month.Height + (2 * YearPad), grid, 1, fit.Months);
+        return ItemSize.Wrapped(width, height, month.Width + (2 * YearPad), month.Height + (2 * YearPad), grid, 1, fit.Months);
     }
 
     // ---- [S-11543] day --------------------------------------------------------------------------------

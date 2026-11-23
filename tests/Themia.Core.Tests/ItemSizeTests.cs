@@ -194,6 +194,29 @@ public class ItemSizeTests
         Assert.Equal(100, cells.Down.Start(1));
     }
 
+    /// <summary>
+    /// [S-16438] A list wrapped into lines (WR-4: only the last item the card reaches is cut): its cells keep their one size,
+    /// across the whole columns the width holds, never one cut by the right edge with later items under it; down every line
+    /// the height reaches, the last cut by the foot.
+    /// </summary>
+    [Theory]
+    [InlineData(240, 200, 3, 2)]
+    [InlineData(259, 200, 3, 2)]
+    [InlineData(319.6, 200, 4, 2)]
+    [InlineData(240, 201, 3, 3)]
+    [InlineData(10, 10, 1, 1)]
+    public void S16438_a_wrapped_list_takes_whole_columns_and_every_line_the_last_cut(double width, double height, int columns, int lines)
+    {
+        var cells = ItemSize.Wrapped(width, height, 76, 96, Grid);
+
+        Assert.Equal((columns, lines), (cells.Columns, cells.Lines));
+        Assert.Equal((80.0, 100.0), (cells.Across.Pitch, cells.Down.Pitch));
+        Assert.True(cells.Columns * cells.Across.Pitch <= Math.Max(width, 80) + LayoutMath.Tolerance);
+        Assert.Equal(2, ItemSize.Wrapped(90, 100, 76, 96, Grid, least: 2).Columns);
+        Assert.Equal(4, ItemSize.Wrapped(900, 100, 76, 96, Grid, most: 4).Columns);
+        Assert.Equal(1, ItemSize.Wrapped(double.NaN, 100, 76, 96, Grid).Columns);
+    }
+
     [Fact]
     public void S14816_a_grid_of_cells_keeps_its_least_and_most_columns()
     {
