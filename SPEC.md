@@ -13466,8 +13466,8 @@ module's `FenceTests`.
   fence's first column or row, or pulled back to the first free cell) or right of or below it (the held icon on the last
   column or row) stood outside the body and stayed a free icon. The same rule for the move (`DesktopWindow.CommitMove`),
   the shell's drag of the desktop's icons dropped back (`AppHost.MoveDeskDrag`) and the keys (`FlushNudge`), through
-  `AppHost.Land`'s `held`. Tests `FenceGridTests.S16461_`; `--check desk-select` moves iconB with iconA above it into the
-  fence's first row by way of a stop where iconA's box is on the body and the pointer below it
+  `AppHost.Land`'s `held`. Tests `FenceGridTests.S16461_`; `--check desk-select` moves twinP with twinU above it into the
+  fence's first row by way of a stop where twinU's box is on the body and the pointer below it
   (`<out>.move-several-first-via.png`, `.move-several-first-in.png`): both are the fence's. The other icons' ghosts follow
   the block during the move (`BlockMove`); on the drop they take the cells after the held icon's. Needs a live pass: the
   real pointer moving several selected icons into a fence from each side.
@@ -13483,8 +13483,8 @@ module's `FenceTests`.
   stands on a fence that does not move (title bar or body) steps to the nearest free cell of the desktop
   (`DesktopGrid.NearestFree` round every other widget), so no free icon is drawn under a fence's body (a fence made after
   its icons paints over them, [S-13042]); with no free cell left it stays where it stands. Tests `FenceGridTests.S16463_`;
-  `--check desk-select` lets go iconB below the fence with iconA's box on its body (`<out>.move-several-first.png`): neither
-  is the fence's and iconA stands clear of it.
+  `--check desk-select` lets go twinP below the fence with twinU's box on its body (`<out>.move-several-first.png`): neither
+  is the fence's and twinU stands clear of it.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

@@ -32,7 +32,7 @@ namespace Themia.App.Shell.Gallery;
 /// the selection's frame's four corners alone round them, none of their own, a card alone its own, through a locked move too.
 /// [S-13046]..[S-13048] It moves icons one and several on the free desktop, into the fence and out of it, drawn mid-move: each
 /// moving icon a ghost where it lands and [S-16460] no picture under the pointer while the move stays on the desktop; the
-/// shell's drag a move becomes carries the held icon alone (one icon's square, no badge). [S-16461] [S-16463] Two icons moved
+/// shell's drag a move becomes carries the held icon alone (one icon's square, no badge). [S-16461] [S-16463] Two desktop items moved
 /// with one's box in the fence before the pointer: let go there none is the fence's (and none left under it), then the pointer
 /// in too: both are.
 /// <c>--twice</c> adds a second display left of it; <c>--glass</c> draws Liquid glass.
@@ -507,9 +507,10 @@ internal static partial class DeskSelectCheck
 
                 // [S-16461] [S-16463] Two icons into the fence, one's box entering it before the pointer (owner, 2026-11-23: "when moving
                 // multiple desktop icons into a fence it does not always work, sometimes when one desktop icon enters first before the
-                // mouse entered it does not move one of the widgets inside"): iconA stands right above iconB, iconB held. Let go with
-                // iconA's box on the fence's body and the pointer below it: none is the fence's, and iconA is not left under the
-                // fence. Then by the same stop on into the fence's first row (iconA above it, outside): both are the fence's.
+                // mouse entered it does not move one of the widgets inside"): two desktop items (own icons are never a fence's) put
+                // out of the fence, twinU right above twinP, twinP held. Let go with twinU's box on the fence's body and the pointer
+                // below it: none is the fence's, and twinU is not left under the fence. Then by the same stop on into the fence's
+                // first row (twinU above it, outside): both are the fence's.
                 async Task PutAsync(string name, Point at)
                 {
                     host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
@@ -525,29 +526,29 @@ internal static partial class DeskSelectCheck
 
                 async Task StackAsync()
                 {
-                    await PutAsync("iconB", new Point(metrics.Width * 0.45, metrics.Height * 0.86)).ConfigureAwait(true);
-                    var under = CellOf(Card("iconB"));
-                    await PutAsync("iconA", new Point(under.X + (under.Width / 2), under.Y - (under.Height * 0.8))).ConfigureAwait(true);
+                    await PutAsync("twinP", new Point(metrics.Width * 0.45, metrics.Height * 0.86)).ConfigureAwait(true);
+                    var under = CellOf(Card("twinP"));
+                    await PutAsync("twinU", new Point(under.X + (under.Width / 2), under.Y - (under.Height * 0.8))).ConfigureAwait(true);
                 }
 
-                // The pointer presses iconB at 30 % of its height: where it is when iconB's centre is at (x, y).
-                Point PointerFor(double x, double y) => new(x, y - (CellOf(Card("iconB")).Height * 0.2));
+                // The pointer presses twinP at 30 % of its height: where it is when twinP's centre is at (x, y).
+                Point PointerFor(double x, double y) => new(x, y - (CellOf(Card("twinP")).Height * 0.2));
                 static bool Overlaps(FracRect a, FracRect b) => a.X < b.Right && b.X < a.Right && a.Y < b.Bottom && b.Y < a.Bottom;
                 var body = CellOf(fenceCard);
                 var title = Themia.Core.Desktop.FenceCells.TitleHeight(metrics) * metrics.Height;
                 await StackAsync().ConfigureAwait(true);
-                var (cellA, cellB) = (CellOf(Card("iconA")), CellOf(Card("iconB")));
+                var (cellA, cellB) = (CellOf(Card("twinU")), CellOf(Card("twinP")));
                 var gap = cellB.Y + (cellB.Height / 2) - (cellA.Y + (cellA.Height / 2));
                 var belowY = body.Y + body.Height + (cellB.Height * 0.55);
                 var outsideAt = PointerFor(body.X + (body.Width * 0.3), belowY);
                 var aInside = gap > 0 && belowY - gap > body.Y + title && belowY - gap < body.Y + body.Height;
-                report.Expect(aInside, $"iconA {gap:0} DIPs above iconB: with iconB's centre below the fence, iconA's on its body {aInside}");
-                await MoveSeveralAsync("iconB", ["iconA"], _ => outsideAt, "first",
-                    () => !Fenced("iconA") && !Fenced("iconB") && !Overlaps(Model(Index("iconA")).Rect, Model(Index("fence")).Rect)).ConfigureAwait(true);
+                report.Expect(aInside, $"twinU {gap:0} DIPs above twinP: with twinP's centre below the fence, twinU's on its body {aInside}");
+                await MoveSeveralAsync("twinP", ["twinU"], _ => outsideAt, "first",
+                    () => !Fenced("twinU") && !Fenced("twinP") && !Overlaps(Model(Index("twinU")).Rect, Model(Index("fence")).Rect)).ConfigureAwait(true);
                 await StackAsync().ConfigureAwait(true);
                 var firstRow = PointerFor(body.X + (body.Width * 0.3), body.Y + title + (cellB.Height * 0.5));
-                await MoveSeveralAsync("iconB", ["iconA"], _ => firstRow, "first-in",
-                    () => Fenced("iconA") && Fenced("iconB"), via: _ => outsideAt, viaTag: "first-via").ConfigureAwait(true);
+                await MoveSeveralAsync("twinP", ["twinU"], _ => firstRow, "first-in",
+                    () => Fenced("twinU") && Fenced("twinP"), via: _ => outsideAt, viaTag: "first-via").ConfigureAwait(true);
 
                 // [S-14310] Edit mode, the same rule: two selected show no marks and no grips of their own and the frame in its
                 // edit look (hairline, markers, grips) round them; every card not selected keeps its own; one selected again
