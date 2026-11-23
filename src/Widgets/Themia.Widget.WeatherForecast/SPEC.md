@@ -132,6 +132,15 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   [S-16441]) and the day the rest; "-3° 12°" and "8° 14°", "Today" and "Tue" no longer move a row's bar. The columns
   style's standing bars share their top and foot already (each part above and under them one line on every column).
   Test `WeatherLayoutTests.S16590_`.
+- **[S-16591]** **The days past the card are scrolled to** (owner, 2026-11-23: "the weather forecast lists are not
+  scrollable although they should be"): in Rows, Columns and Grid every fetched day (all 14) is laid at its one fixed
+  size ([S-14810]) in a scroller with no bar, the card showing as many as it reaches, the last cut by its edge; the mouse
+  wheel and the touchpad turn it a whole day a notch (rows and the grid's lines down, columns across; a touchpad's small
+  turns add up to a notch), the keys (with the keyboard a click gives where there is more to see) a day, a page of the whole
+  days shown, the first or the last; the last turn stands the last day at the far edge (`ForecastScroll`: `Wheel`, `Step`,
+  `LastFirst`, `Offset`). The rows and the grid's lines fade at the foot while more are below, as the kit's lists do
+  (`ScrollFade`). The bars scale against every day laid, so a scroll never redraws them, and stay aligned ([S-16590]).
+  The curve is the week's one chart and does not scroll. Tests `ForecastScrollTests`.
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
 - View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).

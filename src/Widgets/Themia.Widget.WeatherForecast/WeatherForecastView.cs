@@ -233,22 +233,17 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         ClearBody();
         _built = key;
 
-        // The bars scale against the days shown, not the ones left out for room.
-        var shown = plan switch
-        {
-            ForecastRowsPlan r => r.Days,
-            ForecastColumnsPlan c => c.Days,
-            _ => days.Count,
-        };
-        var (coldest, warmest) = Extremes([.. days.Take(shown)]);
+        // [S-16591] The bars scale against every day laid (the ones scrolled to too), so a scroll never redraws them.
+        var (coldest, warmest) = Extremes(days);
         var range = new Range(coldest, warmest);
+        var grid = area.Grid();
 
         _body.Children.Add(plan switch
         {
-            ForecastColumnsPlan columns => BuildColumns(days, today, range, columns),
+            ForecastColumnsPlan columns => Scrolled(BuildColumns(days, today, range, columns), across: true, columns.ColumnWidth, days.Count, null),
             ForecastCurvePlan curve => BuildCurve(days, today, curve),
-            ForecastGridPlan cells => BuildGrid(days, today, cells),
-            ForecastRowsPlan rows => BuildRows(days, today, range, rows),
+            ForecastGridPlan cells when BuildGrid(days, today, cells) is var lines => Scrolled(lines, across: false, cells.CellHeight, ForecastGrid.Lines(days.Count, cells.Columns).Count, lines),
+            ForecastRowsPlan rows when BuildRows(days, today, range, rows) is var list => Scrolled(list, across: false, ItemSize.Optimal(FamilyShape.RowHeight(rows.Lines), grid), days.Count, list),
             _ => new Grid(),
         });
     }
@@ -285,6 +280,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     {
         _body.Children.Clear();
         _days.Clear();
+        DropScroller();
         _built = null;
     }
 

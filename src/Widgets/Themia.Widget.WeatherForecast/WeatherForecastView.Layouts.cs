@@ -45,7 +45,8 @@ internal sealed partial class WeatherForecastView
         var list = new RowStack { Margin = ListEdge.Margin };
         var bars = new List<(RowBlock Row, ChartBar Bar)>();
 
-        for (var i = 0; i < Math.Min(plan.Days, days.Count); i++)
+        // [S-16591] Every fetched day: the rows past the card's foot are scrolled to.
+        for (var i = 0; i < days.Count; i++)
         {
             var day = days[i];
             var row = new RowBlock(RowKind.List, plan.Compact ? 0 : FamilyShape.Icon) { Lines = plan.Lines, Strong = day.Day == today };
@@ -150,7 +151,8 @@ internal sealed partial class WeatherForecastView
     /// </summary>
     private Grid BuildColumns(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastColumnsPlan plan)
     {
-        var count = Math.Min(plan.Days, days.Count);
+        // [S-16591] Every fetched day: the columns past the card's right edge are scrolled to.
+        var count = days.Count;
         var grid = new Grid { Margin = ListEdge.Margin, FlowDirection = FlowDirection.LeftToRight, HorizontalAlignment = HorizontalAlignment.Left };
         AddColumns(grid, plan.ColumnWidth, count);
 

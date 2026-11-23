@@ -18,10 +18,11 @@ internal sealed partial class WeatherForecastView
     /// </summary>
     private Grid BuildGrid(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastGridPlan plan)
     {
-        var count = Math.Min(plan.Days, days.Count);
+        // [S-16591] Every fetched day: the lines past the card's foot are scrolled to.
+        var count = days.Count;
         var scale = _laid.Grid().Raster;
         var across = new RowReach(plan.CellWidth, plan.Columns, scale);
-        var down = new RowReach(plan.CellHeight, plan.Rows, scale);
+        var down = new RowReach(plan.CellHeight, ForecastGrid.Lines(count, plan.Columns).Count, scale);
         var grid = new Grid
         {
             Margin = ListEdge.Margin,
