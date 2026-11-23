@@ -81,6 +81,24 @@ public static class WeatherNowStyles
         => double.IsFinite(share) && share - WhyLine.Band >= FamilyType.Caption.LineHeight;
 
     /// <summary>
+    /// [S-16432] Half the height a block (<paramref name="width"/>: its own width, <paramref name="ink"/>: its ink's height)
+    /// leaves in a room <paramref name="roomWidth"/> by <paramref name="roomHeight"/> where the width stops it (the fit scales
+    /// it until its ink fills the height or its width the width): the room kept under the why's line and over the block, so
+    /// the block standing on the why's line and the line together stand centred in the card (WR-7: the reading and its
+    /// line stay together; "Centred is fine": the leftover shared alike over and under). 0 where the height stops it.
+    /// </summary>
+    public static double WhySpare(double roomWidth, double roomHeight, double width, double ink)
+    {
+        if (!(roomWidth > 0) || !(roomHeight > 0) || !(width > 0) || !(ink > 0))
+        {
+            return 0;
+        }
+
+        var scale = Math.Min(roomWidth / width, roomHeight / ink);
+        return Math.Max(0, roomHeight - (scale * ink)) / 2;
+    }
+
+    /// <summary>
     /// [S-16433] Where the status mark (its <paramref name="room"/> across, over a band <paramref name="band"/> under the face's
     /// top) stands against the reading's block (<paramref name="block"/> at its own size, <paramref name="least"/> at its
     /// floor) scaled into a room <paramref name="width"/> by <paramref name="height"/>: clear of a block that stands under the

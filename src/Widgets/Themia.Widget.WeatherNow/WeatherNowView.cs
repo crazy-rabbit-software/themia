@@ -222,6 +222,19 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
         var tip = _whyText is not null && !why ? _whyText : place == MarkPlace.Yields ? string.Join("\n", _problems) : null;
         ToolTipService.SetToolTip(this, tip);
-        _fit.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset + (place == MarkPlace.Beside ? _status.Room : 0), FamilySpace.Inset + band);
+
+        // [S-16432] With its why the block stands on the why's line, the two centred together in the card: the room the width
+        // leaves goes alike over the block and under the line, never between them.
+        var spare = 0.0;
+        if (why)
+        {
+            _face.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var ink = Themia.App.Widgets.Ink.Of(_face);
+            spare = WeatherNowStyles.WhySpare(width, share - band, ink.Width, ink.Height - ink.Ink.Over - ink.Ink.Under);
+        }
+
+        _fit.Foot = why;
+        _why.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset + spare);
+        _fit.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset + (place == MarkPlace.Beside ? _status.Room : 0), FamilySpace.Inset + band + spare);
     }
 }

@@ -55,6 +55,18 @@ public sealed class WeatherNowTests
     }
 
     [Fact]
+    public void S16432_the_block_and_its_why_stand_centred_together_never_apart()
+    {
+        // A block the width stops (100 wide, 20 of ink, in a 300 × 100 room: drawn 3 ×, 60 tall) leaves 40: 20 over it and 20
+        // under the why's line, none between them.
+        Assert.Equal(20, WeatherNowStyles.WhySpare(300, 100, 100, 20), 6);
+
+        // The height stops it: nothing left over.
+        Assert.Equal(0, WeatherNowStyles.WhySpare(300, 40, 50, 20), 6);
+        Assert.Equal(0, WeatherNowStyles.WhySpare(double.NaN, 40, 50, 20));
+    }
+
+    [Fact]
     public void S16433_the_status_mark_stands_clear_beside_or_gives_way_but_never_over_the_reading()
     {
         var block = new SizeDip(110, 52);
