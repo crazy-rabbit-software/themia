@@ -338,16 +338,25 @@ internal static class WidgetGalleryRender
             var columns = new List<string>();
             var holed = 0;
             var titled = true;
+            var curated = new List<string>();
+            var kept = true;
             for (var i = 0; i < gallery.Categories.Count; i++)
             {
                 gallery.Show(i);
                 var view = gallery.Frame!.View;
                 var sheet = gallery.Sheet!;
-                var h = gallery.Categories[i].Sections is null ? WidgetGallery.Holes(sheet) : 0;
+                // [S-16743] A curated tab is judged by its own rules (every widget in its column, from its layout); the
+                // automatic bento by the column bento's (no hole).
+                var h = gallery.ShowsCurated || gallery.Categories[i].Sections is not null ? 0 : WidgetGallery.Holes(sheet);
+                if (gallery.ShowsCurated)
+                {
+                    curated.Add(gallery.Categories[i].Id.ToString());
+                    kept &= sheet.Tiles.Count > 0 && sheet.Tiles.All(t => t.Slot is { } slot && sheet.Columns[slot.Column].Holds(t.Box));
+                }
 
-                // [S-16721] A title over every card (none in Quick settings, its headings instead), each over its own card's top.
-                titled &= gallery.Categories[i].Sections is null
-                    ? sheet.Title > 0 && gallery.Labels.Count == sheet.Tiles.Count
+                // [S-16721] A title over every card where the tab has them (Quick settings its headings instead), each over its own card's top.
+                titled &= sheet.Title > 0
+                    ? gallery.Labels.Count == sheet.Tiles.Count + sheet.Headings.Count
                     : sheet.Title == 0 && gallery.Labels.Count == sheet.Headings.Count && sheet.Headings.Count > 0;
                 columns.Add($"{gallery.Categories[i].Id} {sheet.Columns.Count} ({string.Join("+", sheet.Columns.Select(c => c.W))}) ragged {WidgetGallery.Ragged(sheet)}");
                 holed += h;
@@ -391,12 +400,23 @@ internal static class WidgetGalleryRender
             Expect(whole, $"{at}: whole widgets and ready-made groups only: no family's small part");
             Expect(holed == 0, $"{at}: [S-16552] every category a column bento: no cell of a column empty between its cards ({holed})");
             Expect(titled, $"{at}: [S-16721] [S-16725] a small title over every card; Quick settings its sections' headings alone");
+            Expect(curated.Count > 0 && kept, $"{at}: [S-16740] [S-16743] the curated tabs ({string.Join(", ", curated)}) draw their layouts: every widget a slot of its file, inside its column");
             Expect(gallery.Categories.SelectMany(c => c.Pieces).All(p => p.Group is null), $"{at}: [S-16723] no ready-made group in the gallery");
 
             // [S-16562] [S-16724]..[S-16726] Quick settings: the toggles by style, then the power buttons; the first style and the
             // power buttons each at its size and right after it at its least, smaller; the tiles square.
             var quick = gallery.Categories.ToList().FindIndex(c => c.Id == AddFolderId.QuickSettings);
             if (quick >= 0)
+            {
+                gallery.Show(quick);
+            }
+
+            if (quick >= 0 && gallery.ShowsCurated)
+            {
+                // [S-16740] Curated: the owner's sections, under their headings, no title over a card.
+                Expect(gallery.Sheet!.Headings.Count >= 2 && gallery.Sheet.Title == 0, $"{at}: [S-16725] [S-16742] Quick settings in {gallery.Sheet.Headings.Count} curated sections under headings, no title over a card");
+            }
+            else if (quick >= 0)
             {
                 gallery.Show(quick);
                 var sections = gallery.Categories[quick].Sections!;
@@ -451,7 +471,7 @@ internal static class WidgetGalleryRender
             Expect(gallery.Searching && found.Tiles.Count == WidgetGallery.MostFound && found.Tiles.All(t => wholeKeys.Contains(t.Piece.Key)) && Tidy([.. gallery.Screen.Widgets.Select(w => w.Rect)], gallery.Frame!.View) && WidgetGallery.Holes(found) == 0,
                 $"a search for \"e\" shows its first {found.Tiles.Count} of more finds, whole pieces, as a column bento");
             gallery.Search(string.Empty);
-            Expect(!gallery.Searching && gallery.Category.Id == AddFolderId.Time && gallery.Sheet!.Tiles.Count == gallery.Category.Pieces.Count, "the search emptied: the category back");
+            Expect(!gallery.Searching && gallery.Category.Id == AddFolderId.Time && gallery.Sheet!.Tiles.Count > 0 && gallery.ShowsCurated, "the search emptied: the category back");
 
             // [S-16557] What a keystroke costs: "weather" typed a letter at a time, each search's own work on the UI thread
             // (finding, laying, building its cards), the cards' samples drawn after it.
@@ -492,6 +512,17 @@ internal static class WidgetGalleryRender
                 "[S-16722] a click picks the card; nothing moves, fades or appears");
             gallery.ClickEmptyForCheck();
             Expect(gallery.Screen.Widgets.Select(w => (w.Id, Corner: Corner(gallery.CardOf(w.Id)!))).SequenceEqual(unclicked), "[S-16722] a click on empty room changes nothing either");
+
+            // [S-16747] A lasso over two cards picks both; its rectangle drawn over the cards, inside the well.
+            var (first, second) = (gallery.Screen.Widgets[0], gallery.Screen.Widgets[1]);
+            var lasso = gallery.LassoForCheck(Centre(first.Rect, surface.Metrics), Centre(second.Rect, surface.Metrics));
+            await stand.ReadyAsync("a lasso drawn").ConfigureAwait(true);
+            await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".lasso.png"), "gallery-check").ConfigureAwait(true);
+            var well = gallery.Frame!.Well;
+            Expect(lasso is { } band && band.Width > 0 && band.Height > 0 && band.X >= well.X && band.Y >= well.Y && band.X + band.Width <= well.X + well.Width + 1e-6
+                && band.Y + band.Height <= well.Y + well.Height + 1e-6 && gallery.Picked.Contains(first.Id) && gallery.Picked.Contains(second.Id),
+                $"[S-16747] a lasso over two cards picks both ({gallery.Picked.Count} picked), its rectangle drawn inside the well ({lasso})");
+            gallery.EndLassoForCheck();
 
             // The arrows move the pick from card to card.
             var pickedBefore = gallery.Picked.ToList();

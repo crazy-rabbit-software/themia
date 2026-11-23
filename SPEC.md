@@ -3198,7 +3198,7 @@ band drawn on the page with the real pointer (Ctrl and Shift too), placing by a 
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
-#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16729])
+#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16731], [S-16740]..[S-16747])
 
 The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
 build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
@@ -3372,7 +3372,8 @@ actions dont interweave with the toggle buttons."* The focus ([S-16404], [S-1655
   piece is as tall as its sizing makes it at that width: its natural height scaled with its width, within its least and most
   (`GallerySizes`: never more than twice its natural each way nor under three quarters of it, its least where that is more);
   the pieces that keep their size are placed first (the hardest to fit), then the larger; to even the feet a row may stand from three fifths of that to
-  half as tall again (within its least and most); a ready-made group keeps its height. A piece no column can take alone joins a row
+  its most (`GallerySizes`: twice its natural at the most; before [S-16743], half as tall again, which left a search's narrow
+  last column 11 rows short of the others at 1280 by 720); a ready-made group keeps its height. A piece no column can take alone joins a row
   that takes it beside its pieces.
 - **[S-16552]** **No hole in a column; the feet as even as they go.** The cards of a column stand one cell apart from its top
   down: no cell of a column between its top and its foot is left empty (`WidgetGallery.Holes`, zero for every category and
@@ -3517,6 +3518,64 @@ actions dont interweave with the toggle buttons."* The focus ([S-16404], [S-1655
   (its page in the well, the cards gone, a desktop icon let go there leaving the view; another tab bringing the cards back),
   and a toggle in another style dragged out landing in it. `--render editbar` draws Add widget lit (`-gallery`); its
   Unplaced icons pictures are gone with the bar's entry.
+
+The owner (2026-11-23): *"for the widget gallery i want to have an editor. the basic principle should be that there are columns
+of which i can change the size and then i can have sections in the columns that i can also name / give a title too. in a column
+the widgets are automatically aligned and i can change their height and width and then they are packed together as tightly as
+possible in direction of reading. ask if anything is unclear. this should only be for me to be able to edit the widget
+gallery."* Asked: where ("In the gallery": an Edit gallery mode in Debug builds only), saved to ("In the repo, shipped": a file a
+tab, built in, every user sees it), small screens ("Columns shrink, then stack") and the automatic layout ("Your layout for tabs,
+auto for search"). Owning files: Core `Widgets/CuratedLayout.cs` (the model), `CuratedBento.cs` (laying it), `CuratedLayouts.cs`
+(the files), `CuratedEdits.cs` (the editor's steps), the files `src/Themia.Core/Widgets/GalleryLayouts/<tab>.json`; App
+`Shell/Pages/WidgetGalleryView.Editor.cs` (Debug only). Tests `CuratedBentoTests`, `WidgetGalleryPlacementTests.S16743_`.
+
+- **[S-16740]** **Every tab is the owner's layout** (`CuratedLayout`): a tab shows exactly its curated layout, its widgets and
+  nothing else (a widget no layout places does not show); a search's finds stay the automatic column bento ([S-16550]); a tab
+  with no layout file yet is laid automatically until it is curated. Every tab of the build ships one (`CuratedLayouts.Shipped`),
+  first made from the automatic bento at 1920 by 1080 (`CuratedLayouts.From`) for the owner to edit.
+- **[S-16741]** **Columns of shares.** A layout is columns left to right, each a share of the width (any positive numbers,
+  relative); the shares become whole cells filling the view, one cell between two columns, the cells left over to the largest
+  remainders, the left-most first (`CuratedBento.Widths`).
+- **[S-16742]** **Sections and widgets.** A column is sections top down, each with a title or none (a titled one has its
+  heading over it, BodyStrong, `G.Heading` in rows; none, no heading), one cell apart; a section is widgets in reading order,
+  each a pick (`clock`, `quickToggle/wifi`: a kind or its preset, [S-16685]), a style by its name, a config fragment over its
+  default (all optional but the pick) and its card's size in whole cells (about 10 DIPs on every display). Its title over each
+  card ([S-16721]) where the layout says `titles` (Quick settings: no, its sections' headings say it).
+- **[S-16743]** **Packed as tightly as they go, in reading order** (`CuratedBento.Pack`): each widget in turn at the highest free
+  spot of its column that holds it, the left-most of those, one cell from every other; never wider than its column (made
+  narrower), held to its sizing on the display (`GallerySizes.Curated`); a later widget may take the room an earlier one left
+  beside a taller one. Laid, a tab is tiles that know their slot (column, section, place) and its sections' areas.
+- **[S-16744]** **Columns shrink, then stack**: on a narrower view every column narrows with its share down to its least
+  (`CuratedBento.LeastColumn`, 20 cells, or its widest widget's least); past that the rightmost columns leave the line one by one
+  (`Across`), the others share the width, and each that left stands whole, its sections intact, one cell under the column whose
+  foot is then highest (of those at least its least wide, else the widest).
+- **[S-16745]** **The editor** (Debug builds only, `WidgetGalleryView.Editor.cs` compiled under `DEBUG` alone: the Store's
+  Release app has no trace of it): the head's pencil, "Edit gallery", turns it on for the tab shown (a search is emptied and
+  greyed, Not on view left; a tab with no file begins as its automatic bento), "Done editing" off. On: each column its dashed
+  outline and a band of tools (Add section, Remove column), the edge between two columns on one line a strip dragged to share
+  their width (whole cells, each at least the least, `CuratedEdits.Edge`); each section its heading line, titled or not: the title
+  box (Enter or leaving it renames; empty, no heading), up, down, Add widget (a menu: Not placed yet, the widgets no tab places,
+  then every tab's own pieces, each kind, preset and style) and Remove section; an empty section stands `EmptyRows` tall to drop
+  into. A widget is picked as before; dragged it moves in the gallery (never placed on the desktop while editing) and lands in
+  the section under the pointer before the first of its widgets that comes after the drop in reading order
+  (`CuratedBento.Insertion`); the picked one has a corner grip, dragged to make its card whole cells wider and taller (no wider
+  than its column, within its sizing; its section packs again as it goes, the cards moved, never built again) and an x button;
+  Delete removes the picked widgets. Ctrl+Z and Ctrl+Y step the session's edits (every tab's), the head's Undo and Redo too; the
+  head says how many tabs are not saved; Save writes them. The session's layouts stand in for the build's files until the next
+  build.
+- **[S-16746]** **The files** (`CuratedLayouts`): one a tab, `src/Themia.Core/Widgets/GalleryLayouts/<tab>.json` (the tab's id in
+  camelCase), embedded in Core and read where a gallery opens; checked where read: a pick the build lacks, a preset or style its
+  kind lacks dropped loudly (logged), a size outside 1..400 cells held to it, a share that is no positive number made 1; a file
+  that is no layout logged and the tab laid automatically. Written as the editor saves (two spaces, LF, a line end last, shares to
+  four places, nothing null written; `Write` round-trips `Read`), atomically (a temp file, then moved over), into the repo the
+  Debug build was compiled from (its source path, `[CallerFilePath]`), for the owner to commit; with no source tree on the PC,
+  nothing is written and the head says so. Section titles are the owner's words as written (not translated).
+- **[S-16747]** **The lasso draws as the desktop's** (owner, 2026-11-23: *"the lasso does not show up properly currently in the
+  widget gallery"*): it was a rectangle clipped by the well's box given in the surface's coordinates but applied in its own, so
+  only the part of it past the well's offset from its own corner showed (mostly nothing). Now it is the SDK's one band look
+  (`SelectionChrome.PaintBand`) over the cards, its box cut to the well's (never over the head or the rim, scrolled or not), and
+  it picks the cards it touches there. `--check gallery` draws a lasso over two cards (`<out>.lasso.png`): both picked, its
+  rectangle inside the well.
 
 Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays and
 the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the

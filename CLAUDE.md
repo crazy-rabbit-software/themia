@@ -484,7 +484,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   and the always-open search box (its first 8 finds) at the line's end, over a well that shows the desktop's own wallpaper
   (`Backdrop.PlainAsync`); whole widgets only (no ready-made group while `WidgetGallery.ShowsGroups` is off, [S-16723]; never a
   family's small parts) as real sample cards on the display's own grid, each under a small title (Caption, secondary,
-  [S-16721]), a category one **column bento** (`WidgetGallery.Lay` with `GallerySizes`, Core, tested: columns of different widths
+  [S-16721]), every tab exactly the owner's **curated layout** (`CuratedLayout`: columns of shares, titled sections, widgets
+  packed tight in reading order, `CuratedBento`; one file a tab, `src/Themia.Core/Widgets/GalleryLayouts/<tab>.json`, edited in
+  the gallery's Debug-only editor, `WidgetGalleryView.Editor.cs`, which saves into the repo; [S-16740]..[S-16746]), a search one **column bento** (`WidgetGallery.Lay` with `GallerySizes`, Core, tested: columns of different widths
   first, every piece as wide as its column or side by side at one height filling it, as tall as its sizing makes it there plus
   its title's rows, one cell between cards, no hole in a column (`Holes`), the feet evened (`Ragged`)); Quick settings is
   sections under headings instead (`LaySections`: the toggles in each style, square, in this PC's real state, then the power

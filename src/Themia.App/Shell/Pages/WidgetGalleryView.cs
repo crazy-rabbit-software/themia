@@ -81,14 +81,11 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     private readonly EditMarkerLayer _marks = new();
     private readonly Canvas _markPlates = new() { IsHitTestVisible = false };
     private readonly Canvas _input = new() { Background = Fluent.Clear() };
-    private readonly Rectangle _band = new()
-    {
-        Stroke = Family.Brush(ColourRole.Accent),
-        StrokeThickness = FamilyShape.Hairline,
-        Fill = HexBrush.Wash(ColourRole.Accent),
-        IsHitTestVisible = false,
-        Visibility = Visibility.Collapsed,
-    };
+    /// <summary>
+    /// [S-16747] The lasso, in the SDK's one look as the desktop's (<see cref="SelectionChrome.PaintBand"/>), over the cards,
+    /// held to the well (its box cut to the well's, never clipped by a geometry in another element's space).
+    /// </summary>
+    private readonly Border _band = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
 
     /// <summary>
     /// [S-14911] [S-16558] The window: Windows' sheet, its rim and its lift, under everything of the gallery, hung from the
@@ -219,6 +216,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _wellRim.BorderBrush = ShellBrush.Of(ShellRole.CardStroke);
         _wellRim.BorderThickness = new Thickness(FamilyShape.Hairline);
 
+        SelectionChrome.PaintBand(_band);
         foreach (var plate in new[] { _marks.Halos, _marks.Inks, _marks.Lifts, _marks.Overhangs })
         {
             _markPlates.Children.Add(plate);
@@ -304,7 +302,13 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _input.PointerPressed += OnPressed;
         _input.PointerMoved += OnMoved;
         _input.PointerReleased += OnReleased;
-        _input.PointerCaptureLost += (_, _) => EndPress();
+        _input.PointerCaptureLost += (_, _) =>
+        {
+            EndPress();
+#if DEBUG
+            EditLost();
+#endif
+        };
         _input.PointerWheelChanged += OnWheel;
         if (_backdrop is not null)
         {
@@ -312,6 +316,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         AutomationProperties.SetName(this, Str.WidgetGallery_Entry.Text());
+#if DEBUG
+        BuildEditor();
+#endif
     }
 
     /// <summary>The categories, in the tabs' order.</summary>
@@ -513,9 +520,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             tabs = Math.Ceiling(_tabs.DesiredSize.Width);
         }
 
-        (HintShown, var search) = WidgetGallery.Head(_line, tabs, Math.Min(G.Search, _line / 4), G.SearchLeast, Wide(whole), Wide(brief), G.Pad);
+#if DEBUG
+        var line = _line - EditorRoom();
+#else
+        var line = _line;
+#endif
+        (HintShown, var search) = WidgetGallery.Head(line, tabs, Math.Min(G.Search, line / 4), G.SearchLeast, Wide(whole), Wide(brief), G.Pad);
         var text = HintShown == GalleryHint.Long ? whole : brief;
-        var shown = HintShown == GalleryHint.None ? Visibility.Collapsed : Visibility.Visible;
+        var shown = HintShown == GalleryHint.None || Editing ? Visibility.Collapsed : Visibility.Visible;
         if (Math.Abs(_search.Width - search) > 0.5)
         {
             _search.Width = search;
@@ -547,7 +559,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <summary>The well cuts what stands in it; while a drag is aimed the cards picked up follow the ghost anywhere.</summary>
     private void ClipToWell(bool on)
     {
-        foreach (var part in new UIElement[] { _grid, _cardLayer, _markPlates, _band })
+        foreach (var part in new UIElement[] { _grid, _cardLayer, _markPlates })
         {
             part.Clip = on || ReferenceEquals(part, _grid) ? new RectangleGeometry { Rect = _clip } : null;
         }
@@ -656,6 +668,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _unplacedTab?.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
 
         SyncUnplacedTab();
+#if DEBUG
+        PlaceEditor();
+#endif
     }
 
     /// <summary>[S-16727] Off the Not on view tab: its page goes, the cards' room is back.</summary>
@@ -752,14 +767,54 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         Present(_base, Lay(_base));
     }
 
-    /// <summary>[S-16550] A category (or search) laid as the column bento in the view's width.</summary>
+    /// <summary>
+    /// [S-16550] [S-16743] A category laid as the owner laid its tab (its curated layout, <see cref="CuratedBento"/>), or, with
+    /// none yet, and a search always, as the column bento in the view's width.
+    /// </summary>
     private GallerySheet Lay(GalleryCategory content)
     {
         var clock = Stopwatch.StartNew();
-        var sheet = WidgetGallery.Lay(content, _view.W, Size, Sizes.TitleRows, Sizes.HeadingRows);
+        var sheet = CuratedOf(content) is { } layout
+            ? CuratedBento.Lay(content.Id, content.Title, layout, _view.W, Sizes.Curated, Sizes.TitleRows, Sizes.HeadingRows, Editing)
+            : WidgetGallery.Lay(content, _view.W, Size, Sizes.TitleRows, Sizes.HeadingRows);
         LastLay = clock.Elapsed;
         return sheet;
     }
+
+    /// <summary>[S-16740] Each tab's curated layout as the build ships it (null: none yet), read once a gallery.</summary>
+    private readonly Dictionary<AddFolderId, CuratedLayout?> _shipped = [];
+
+    /// <summary>[S-16740] [S-16746] The curated layout <paramref name="content"/> shows: a tab's own (never a search's); null: laid automatically.</summary>
+    private CuratedLayout? CuratedOf(GalleryCategory content)
+    {
+        if (!_categories.Any(c => ReferenceEquals(c, content)))
+        {
+            return null;
+        }
+
+#if DEBUG
+        // [S-16745] What the owner's editor changed this session stands in for the build's file.
+        if (EditedLayouts.TryGetValue(content.Id, out var edited))
+        {
+            return edited;
+        }
+#endif
+
+        if (!_shipped.TryGetValue(content.Id, out var layout))
+        {
+            _shipped[content.Id] = layout = CuratedLayouts.Load(content.Id);
+        }
+
+        return layout;
+    }
+
+    /// <summary>[S-16740] Whether the tab shown is a curated one (its sheet the owner's layout).</summary>
+    internal bool ShowsCurated => _base is { } shown && !Searching && CuratedOf(shown) is not null;
+
+#if !DEBUG
+    /// <summary>[S-16745] The owner's editor is Debug's alone: never on in this build.</summary>
+    private static bool Editing => false;
+#endif
 
     /// <summary>[S-16557] How long the last bento took to lay (a search's share of a keystroke), for a check.</summary>
     internal TimeSpan LastLay { get; private set; }
@@ -825,24 +880,28 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             }
             else if (tile.Piece.Pick is { } kind)
             {
-                // [S-16685] A preset's card is its kind with the preset applied.
+                // [S-16685] A preset's card is its kind with the preset applied; [S-16742] a curated one's fragment over it.
                 var widget = WidgetInstance.Create(kind, RectOf(room));
+                if (tile.Piece.Config is { } fragment)
+                {
+                    try
+                    {
+                        widget.Config = Themia.Core.Storage.StateJson.Merged(widget.Config, fragment.ToJsonString());
+                    }
+                    catch (Exception ex) when (ex is InvalidOperationException or System.Text.Json.JsonException)
+                    {
+                        Log.Warn(Scope, $"the gallery's {kind} card's config fragment does not fit its kind; it shows its default", ex);
+                    }
+                }
+
                 if (tile.Piece.Style is { } style)
                 {
                     WidgetStyles.Set(widget.Config, style);
                 }
 
                 // Its box, held to what its sizing takes on this display: what placing it then keeps.
-                var held = room;
-                if (SizeFit.Limits(widget, _metrics, _contentScale) is { } limits)
-                {
-                    held = held with
-                    {
-                        W = Math.Max(1, (int)Math.Round(limits.Width.Range(room.W / (double)cols) * cols)),
-                        H = Math.Max(1, (int)Math.Round(limits.Height.Range(room.H / (double)rows) * rows)),
-                    };
-                    widget.Rect = RectOf(held);
-                }
+                var held = Held(widget, room);
+                widget.Rect = RectOf(held);
 
                 _placed[widget.Id] = (t, held);
                 view.Widgets.Add(widget);
@@ -850,7 +909,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             }
         }
 
-        foreach (var heading in sheet.Headings)
+        // [S-16745] While the owner edits, a section's heading is its title box (the editor's), never a label.
+        foreach (var heading in Editing ? [] : sheet.Headings)
         {
             _labels.Add((Label(heading.Text.Text(), FamilyType.BodyStrong, "TextFillColorPrimaryBrush"), heading.Box));
         }
@@ -901,11 +961,39 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         ShowScroll();
         Sync();
-        Animate(leaving, [.. fresh.Cast<FrameworkElement>().Concat(_labels.Select(l => l.Label))]);
+        if (Editing)
+        {
+            // [S-16745] An edit shows at once: nothing fades while the owner works.
+            Animate(leaving, [], fade: false);
+        }
+        else
+        {
+            Animate(leaving, [.. fresh.Cast<FrameworkElement>().Concat(_labels.Select(l => l.Label))]);
+        }
+
+#if DEBUG
+        PlaceEditor();
+#endif
 
         // [S-16724] A quick toggle shows this PC's own state, as a placed card does: no sample over it.
         var samples = fresh.Where(c => !Live(c)).ToList();
         _ = SampleCards.ShowAsync(samples, () => _disposed || !samples.TrueForAll(_cards.Contains), Scope);
+    }
+
+    /// <summary>A widget's box <paramref name="room"/> held to what its sizing takes on this display (whole cells).</summary>
+    private CellBox Held(WidgetInstance widget, CellBox room)
+    {
+        if (SizeFit.Limits(widget, _metrics, _contentScale) is not { } limits)
+        {
+            return room;
+        }
+
+        var (cols, rows) = GridGeometry.GridDims(_metrics);
+        return room with
+        {
+            W = Math.Max(1, (int)Math.Round(limits.Width.Range(room.W / (double)cols) * cols)),
+            H = Math.Max(1, (int)Math.Round(limits.Height.Range(room.H / (double)rows) * rows)),
+        };
     }
 
     /// <summary>[S-16724] Whether the card reads what it shows live (a quick toggle: Windows' own state), never a sample.</summary>
@@ -962,9 +1050,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// fades out and goes, <paramref name="coming"/> fades in; a card that stays (the piece put in focus, or left) does
     /// neither and never moves. At once while Windows' animations are off.
     /// </summary>
-    private void Animate(List<FrameworkElement> leaving, List<FrameworkElement> coming)
+    private void Animate(List<FrameworkElement> leaving, List<FrameworkElement> coming, bool fade = true)
     {
-        if (!SystemMotion.AnimationsEnabled)
+        if (!fade || !SystemMotion.AnimationsEnabled)
         {
             foreach (var gone in leaving)
             {
@@ -1083,6 +1171,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         EndPress();
         ShowScroll();
         Sync();
+#if DEBUG
+        PlaceEditor();
+#endif
     }
 
     /// <summary>[S-14913] The scroll bar: there while the sheet is taller than the well, its thumb the part in sight.</summary>
@@ -1122,6 +1213,13 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         {
             return false;
         }
+
+#if DEBUG
+        if (EditKey(key, ctrl) is { } edited)
+        {
+            return edited;
+        }
+#endif
 
         // [S-16557] The search box always open keeps the keys it edits with (Left, Right, Home, End, Enter, Ctrl+A); Up and
         // Down, the pages and Escape are the gallery's.
@@ -1448,6 +1546,13 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
     private void OnMoved(object sender, PointerRoutedEventArgs e)
     {
+#if DEBUG
+        if (EditMoved(e))
+        {
+            return;
+        }
+#endif
+
         if (_press is not { } press || !e.GetCurrentPoint(_stage).Properties.IsLeftButtonPressed)
         {
             return;
@@ -1484,23 +1589,53 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         // [S-1581] The lasso: what it touches, added to what Ctrl or Shift kept.
         _banding = true;
-        var left = Math.Min(press.At.X, now.X);
-        var top = Math.Min(press.At.Y, now.Y);
-        var width = Math.Abs(now.X - press.At.X);
-        var height = Math.Abs(now.Y - press.At.Y);
-        Canvas.SetLeft(_band, left);
-        Canvas.SetTop(_band, top);
-        _band.Width = width;
-        _band.Height = height;
-        _band.Visibility = Visibility.Visible;
-        var band = new FracRect(left / _metrics.Width, top / _metrics.Height, width / _metrics.Width, height / _metrics.Height);
-        _selection.Replace(ScreenViewId, press.Base.Concat(SelectionRules.Lasso(_screen, band)));
-        Sync();
+        Lasso(press.At, now, press.Base);
         e.Handled = true;
     }
 
+    /// <summary>
+    /// [S-1581] [S-16747] The lasso from <paramref name="from"/> to <paramref name="to"/> (surface DIPs): drawn over the cards as
+    /// the desktop draws its own, its box cut to the well's (it never runs over the head or the window's rim, scrolled or
+    /// not), and the cards it touches there picked, added to <paramref name="kept"/>.
+    /// </summary>
+    private void Lasso(Point from, Point to, IReadOnlyList<string> kept)
+    {
+        var well = _clip;
+        var left = Math.Clamp(Math.Min(from.X, to.X), well.Left, well.Right);
+        var top = Math.Clamp(Math.Min(from.Y, to.Y), well.Top, well.Bottom);
+        var right = Math.Clamp(Math.Max(from.X, to.X), well.Left, well.Right);
+        var bottom = Math.Clamp(Math.Max(from.Y, to.Y), well.Top, well.Bottom);
+        Canvas.SetLeft(_band, left);
+        Canvas.SetTop(_band, top);
+        _band.Width = right - left;
+        _band.Height = bottom - top;
+        _band.Visibility = Visibility.Visible;
+        var band = new FracRect(left / _metrics.Width, top / _metrics.Height, (right - left) / _metrics.Width, (bottom - top) / _metrics.Height);
+        _selection.Replace(ScreenViewId, kept.Concat(SelectionRules.Lasso(_screen, band)));
+        Sync();
+    }
+
+    /// <summary>[S-16747] A lasso drawn from <paramref name="from"/> to <paramref name="to"/> (surface DIPs) and left standing, for a check: its box shown (null: none).</summary>
+    internal DipRect? LassoForCheck(Point from, Point to)
+    {
+        Lasso(from, to, []);
+        return _band.Visibility == Visibility.Visible && _band.Width > 0 && _band.Height > 0
+            ? new DipRect(Canvas.GetLeft(_band), Canvas.GetTop(_band), _band.Width, _band.Height)
+            : null;
+    }
+
+    /// <summary>[S-16747] The lasso put away after a check drew it.</summary>
+    internal void EndLassoForCheck() => EndPress();
+
     private void OnReleased(object sender, PointerRoutedEventArgs e)
     {
+#if DEBUG
+        if (EditReleased(e))
+        {
+            return;
+        }
+#endif
+
         var press = _press;
         var banded = _banding;
         _input.ReleasePointerCapture(e.Pointer);
@@ -1633,6 +1768,10 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         {
             _marks.Frame.Hide();
         }
+
+#if DEBUG
+        PlacePickGrip();
+#endif
     }
 
     /// <summary>The gallery's cards' host: the display's screen and blurred wallpaper, the pick as the cards' selection, nothing persisted.</summary>

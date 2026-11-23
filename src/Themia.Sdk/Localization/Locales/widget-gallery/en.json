@@ -9,7 +9,27 @@
     "widgetGallery.drag",
     "widgetGallery.group",
     "widgetGallery.hint",
-    "widgetGallery.hintShort"
+    "widgetGallery.hintShort",
+    "widgetGallery.edit",
+    "widgetGallery.editDone",
+    "widgetGallery.editSave",
+    "widgetGallery.editUndo",
+    "widgetGallery.editRedo",
+    "widgetGallery.editAddColumn",
+    "widgetGallery.editRemoveColumn",
+    "widgetGallery.editColumnEdge",
+    "widgetGallery.editAddSection",
+    "widgetGallery.editRemoveSection",
+    "widgetGallery.editSectionUp",
+    "widgetGallery.editSectionDown",
+    "widgetGallery.editTitle",
+    "widgetGallery.editAddWidget",
+    "widgetGallery.editRemoveWidget",
+    "widgetGallery.editResize",
+    "widgetGallery.editNotPlaced",
+    "widgetGallery.editUnsaved",
+    "widgetGallery.editSaved",
+    "widgetGallery.editNoSource"
   ],
   "widgetGallery.entry": "Widget gallery",
   "widgetGallery.categories": "Categories",
@@ -25,5 +45,28 @@
   "widgetGallery.group": {
     "one": "{count} widget, placed together",
     "other": "{count} widgets, placed together"
-  }
+  },
+  "widgetGallery.edit": "Edit gallery",
+  "widgetGallery.editDone": "Done editing",
+  "widgetGallery.editSave": "Save",
+  "widgetGallery.editUndo": "Undo",
+  "widgetGallery.editRedo": "Redo",
+  "widgetGallery.editAddColumn": "Add column",
+  "widgetGallery.editRemoveColumn": "Remove column",
+  "widgetGallery.editColumnEdge": "Drag to share the width between the columns",
+  "widgetGallery.editAddSection": "Add section",
+  "widgetGallery.editRemoveSection": "Remove section",
+  "widgetGallery.editSectionUp": "Move section up",
+  "widgetGallery.editSectionDown": "Move section down",
+  "widgetGallery.editTitle": "Section title",
+  "widgetGallery.editAddWidget": "Add widget",
+  "widgetGallery.editRemoveWidget": "Remove widget",
+  "widgetGallery.editResize": "Drag to resize",
+  "widgetGallery.editNotPlaced": "Not placed yet",
+  "widgetGallery.editUnsaved": {
+    "one": "{count} tab not saved",
+    "other": "{count} tabs not saved"
+  },
+  "widgetGallery.editSaved": "Saved",
+  "widgetGallery.editNoSource": "The source tree is not on this PC"
 }
