@@ -45,6 +45,13 @@ internal sealed class MarkTable
         element.Loaded += (_, _) => GC.KeepAlive(element);
     }
 
+    /// <summary>[S-16432] Take <paramref name="element"/>'s mark off again (no mark: nothing).</summary>
+    public void Forget(FrameworkElement element)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        _marked.Remove(element);
+    }
+
     public bool Has(DependencyObject? node) => node is FrameworkElement element && _marked.TryGetValue(element, out _);
 }
 
@@ -92,6 +99,9 @@ public static class HoldMark
 
     /// <summary>Mark <paramref name="element"/> as a held reading's box.</summary>
     public static void Mark(FrameworkElement element) => Holds.Mark(element);
+
+    /// <summary>[S-16432] <paramref name="element"/> holds no reading any more (its hold let go): judged by what it draws.</summary>
+    public static void Forget(FrameworkElement element) => Holds.Forget(element);
 
     /// <summary>Whether <paramref name="node"/> is a held reading's box.</summary>
     public static bool IsHeld(DependencyObject? node) => Holds.Has(node);

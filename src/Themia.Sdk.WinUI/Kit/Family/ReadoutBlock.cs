@@ -150,11 +150,16 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
         _heldUnit.Text = _unit.Text.Length > 0 ? _templateUnit : string.Empty;
         _held.Visibility = _template.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
-        // [S-14319] Its figures tabular, every digit one width, whatever the design's type tokens say.
+        // [S-14319] Its figures tabular, every digit one width, whatever the design's type tokens say. [S-16432] Let go, the
+        // readout is judged by what it draws again (its box was read as the template's after a hold let go).
         if (Held)
         {
             Family.Figures(_line);
             HoldMark.Mark(_cell);
+        }
+        else
+        {
+            HoldMark.Forget(_cell);
         }
 
         InvalidateMeasure();
