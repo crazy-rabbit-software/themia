@@ -1,0 +1,85 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.3007,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "countdown",
+              "w": 43,
+              "h": 13
+            },
+            {
+              "pick": "date",
+              "w": 43,
+              "h": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2308,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "stopwatch",
+              "w": 33,
+              "h": 24
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1748,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "pomodoro",
+              "w": 25,
+              "h": 24
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1608,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "alarm",
+              "w": 23,
+              "h": 14
+            },
+            {
+              "pick": "clock",
+              "w": 23,
+              "h": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1329,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "focusSession",
+              "w": 19,
+              "h": 24
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

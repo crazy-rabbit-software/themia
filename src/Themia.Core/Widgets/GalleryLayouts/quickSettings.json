@@ -1,0 +1,386 @@
+{
+  "titles": false,
+  "columns": [
+    {
+      "share": 1,
+      "sections": [
+        {
+          "title": "Tile",
+          "widgets": [
+            {
+              "pick": "quickToggle/wifi",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/wifi",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/bluetooth",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/bluetooth",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/airplaneMode",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/airplaneMode",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/sound",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/sound",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/microphone",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/microphone",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/spatialSound",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/spatialSound",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/monoAudio",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/monoAudio",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/nightLight",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/nightLight",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/colorFilters",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/colorFilters",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/rotationLock",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/rotationLock",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/energySaver",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/energySaver",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/doNotDisturb",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/doNotDisturb",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "quickToggle/gameMode",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/gameMode",
+              "w": 2,
+              "h": 2
+            }
+          ]
+        },
+        {
+          "title": "Round button",
+          "widgets": [
+            {
+              "pick": "quickToggle/wifi",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/bluetooth",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/airplaneMode",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/sound",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/microphone",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/spatialSound",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/monoAudio",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/nightLight",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/colorFilters",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/rotationLock",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/energySaver",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/doNotDisturb",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            },
+            {
+              "pick": "quickToggle/gameMode",
+              "style": "round",
+              "w": 12,
+              "h": 12
+            }
+          ]
+        },
+        {
+          "title": "Switch",
+          "widgets": [
+            {
+              "pick": "quickToggle/wifi",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/bluetooth",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/airplaneMode",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/sound",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/microphone",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/spatialSound",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/monoAudio",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/nightLight",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/colorFilters",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/rotationLock",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/energySaver",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/doNotDisturb",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            },
+            {
+              "pick": "quickToggle/gameMode",
+              "style": "switch",
+              "w": 24,
+              "h": 6
+            }
+          ]
+        },
+        {
+          "title": "Power buttons",
+          "widgets": [
+            {
+              "pick": "lock",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "lock",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "signOut",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "signOut",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "sleep",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "sleep",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "hibernate",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "hibernate",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "restart",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "restart",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "shutdown",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "shutdown",
+              "w": 2,
+              "h": 2
+            },
+            {
+              "pick": "screenOff",
+              "w": 10,
+              "h": 10
+            },
+            {
+              "pick": "screenOff",
+              "w": 2,
+              "h": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

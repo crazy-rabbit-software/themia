@@ -1,0 +1,81 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.3125,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "weekPlanner",
+              "w": 45,
+              "h": 14
+            },
+            {
+              "pick": "email",
+              "w": 45,
+              "h": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2292,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "calendar",
+              "w": 33,
+              "h": 26
+            },
+            {
+              "pick": "nextMeeting",
+              "w": 33,
+              "h": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2292,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "contacts",
+              "w": 33,
+              "h": 29
+            },
+            {
+              "pick": "upNext",
+              "w": 33,
+              "h": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2292,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "tasks",
+              "w": 33,
+              "h": 22
+            },
+            {
+              "pick": "notifications",
+              "w": 33,
+              "h": 17
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

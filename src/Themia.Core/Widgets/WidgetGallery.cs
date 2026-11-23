@@ -45,6 +45,9 @@ public sealed record GalleryPiece(string Key, WidgetId? Kind, ReadyMadeGroup? Gr
 
     /// <summary>[S-16724] Drawn square (a quick setting's tile, a power button): as many DIPs down as across, kept at that size.</summary>
     public bool Square { get; init; }
+
+    /// <summary>[S-16742] A config fragment over the kind's default (a curated widget's); null: its default.</summary>
+    public System.Text.Json.Nodes.JsonObject? Config { get; init; }
 }
 
 /// <summary>[S-16725] A section of a category (Quick settings' toggles in each style, its power actions): its heading over its pieces.</summary>
@@ -771,10 +774,8 @@ public static class WidgetGallery
     /// <summary>A piece alone this near its own size (a third wider or narrower) is not looked at beside others.</summary>
     private const double Suits = 0.3;
 
-    /// <summary>[S-16551] [S-16552] How much shorter and taller than its sizing makes it at a width a piece may stand, to even the feet.</summary>
+    /// <summary>[S-16551] [S-16552] How much shorter than its sizing makes it at a width a piece may stand, to even the feet (taller: up to its most, <see cref="GallerySizes.Grown"/> times its natural).</summary>
     private const double Shortest = 0.6;
-
-    private const double Tallest = 1.5;
 
     /// <summary>
     /// [S-16551] The rows <paramref name="piece"/> can stand in, in <paramref name="col"/>: alone as wide as it, and with the
@@ -1340,7 +1341,7 @@ public static class WidgetGallery
 
             var at = Card(w);
             var most = Math.Max(_size.MinH, _size.MaxH);
-            return (Math.Clamp((int)Math.Ceiling(at * Shortest), Math.Max(1, _size.MinH), at) + _title, Math.Clamp((int)Math.Floor(at * Tallest), at, most) + _title);
+            return (Math.Clamp((int)Math.Ceiling(at * Shortest), Math.Max(1, _size.MinH), at) + _title, Math.Max(at, _size.MaxH == int.MaxValue ? at * GallerySizes.Grown : most) + _title);
         }
 
         /// <summary>The width it may be nearest <paramref name="want"/> (the narrower of two as near).</summary>

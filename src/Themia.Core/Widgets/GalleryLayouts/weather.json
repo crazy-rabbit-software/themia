@@ -1,0 +1,89 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.2113,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "weatherForecast",
+              "w": 30,
+              "h": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2113,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "rainNextHour",
+              "w": 30,
+              "h": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1972,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "sun",
+              "w": 28,
+              "h": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1408,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "airQuality",
+              "w": 20,
+              "h": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1268,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "weatherNow",
+              "w": 18,
+              "h": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1127,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "moon",
+              "w": 16,
+              "h": 12
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

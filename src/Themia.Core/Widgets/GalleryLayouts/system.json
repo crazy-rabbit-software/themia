@@ -1,0 +1,43 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.5052,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "metrics",
+              "w": 27,
+              "h": 9
+            },
+            {
+              "pick": "disk",
+              "w": 21,
+              "h": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.4948,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "memory",
+              "w": 23,
+              "h": 9
+            },
+            {
+              "pick": "ping",
+              "w": 24,
+              "h": 9
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

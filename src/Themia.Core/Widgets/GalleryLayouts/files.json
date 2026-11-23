@@ -1,0 +1,75 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.0559,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "desktopItem",
+              "w": 8,
+              "h": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2378,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "folder",
+              "w": 34,
+              "h": 21
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2378,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "recentFiles",
+              "w": 34,
+              "h": 21
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2378,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "fence",
+              "w": 34,
+              "h": 21
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2308,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "recycleBin",
+              "w": 33,
+              "h": 21
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.2727,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "scratchpad",
+              "w": 39,
+              "h": 26
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.1049,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "divider",
+              "w": 15,
+              "h": 1
+            },
+            {
+              "pick": "icon",
+              "w": 15,
+              "h": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2098,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "notes",
+              "w": 30,
+              "h": 18
+            },
+            {
+              "pick": "header",
+              "w": 30,
+              "h": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2098,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "clipboard",
+              "w": 30,
+              "h": 14
+            },
+            {
+              "pick": "text",
+              "w": 30,
+              "h": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2028,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "habitTracker",
+              "w": 29,
+              "h": 12
+            },
+            {
+              "pick": "quote",
+              "w": 29,
+              "h": 10
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

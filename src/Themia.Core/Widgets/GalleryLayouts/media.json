@@ -1,0 +1,71 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.25,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "gallery",
+              "w": 36,
+              "h": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.25,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "videoStream",
+              "w": 36,
+              "h": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.25,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "audioVisualizer",
+              "w": 36,
+              "h": 12
+            },
+            {
+              "pick": "volume",
+              "w": 36,
+              "h": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.25,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "music",
+              "w": 36,
+              "h": 12
+            },
+            {
+              "pick": "mixer",
+              "w": 36,
+              "h": 14
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

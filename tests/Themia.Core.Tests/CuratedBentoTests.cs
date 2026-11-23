@@ -196,8 +196,11 @@ public sealed class CuratedBentoTests
         Assert.Equal((12, 1), (resized.Columns[0].Sections[0].Widgets[1].W, resized.Columns[0].Sections[0].Widgets[1].H));
         Assert.Equal(["a", "c"], CuratedEdits.RemoveWidget(layout, new CuratedSlot(0, 0, 1)).Columns[0].Sections[0].Widgets.Select(w => w.Pick));
 
-        Assert.Equal([0.25, 0.75], CuratedEdits.Resize(layout, [30, 90]).Columns.Select(c => c.Share));
-        Assert.Same(layout, CuratedEdits.Resize(layout, [30]));
+        Assert.Equal([0.5, 1.5], CuratedEdits.Edge(layout, 0, 30, 90).Columns.Select(c => c.Share));
+        Assert.Same(layout, CuratedEdits.Edge(layout, 1, 30, 90));
+        var edged = CuratedEdits.Edge(CuratedEdits.AddColumn(layout), 1, 10, 30);
+        Assert.Equal([1, 0.5, 1.5], edged.Columns.Select(c => c.Share));
+        Assert.Equal([39, 20, 59], CuratedBento.Widths([.. edged.Columns.Select(c => c.Share)], 120));
         var three = CuratedEdits.AddColumn(layout);
         Assert.Equal(3, three.Columns.Count);
         Assert.Single(three.Columns[2].Sections);
@@ -213,6 +216,22 @@ public sealed class CuratedBentoTests
         var placed = CuratedLayouts.Placed([layout, Layout(Col(1, Sec(null, W("clock", 1, 1) with { Style = "analog" })))]);
         Assert.Contains("clock@analog", placed);
         Assert.Contains("d", placed);
+    }
+
+    /// <summary>[S-16745] A tab with no file yet begins as its automatic bento: the layout made of it lays the same boxes.</summary>
+    [Fact]
+    public void S16745_a_tab_begins_as_its_automatic_bento()
+    {
+        var kinds = new[] { ("clock", 20, 10), ("date", 20, 6), ("alarm", 16, 14), ("timer", 30, 12), ("notes", 24, 20), ("tasks", 22, 16) };
+        var category = new GalleryCategory(AddFolderId.Time, LocalText.Fixed("Time"), string.Empty, [.. kinds.Select(k => new GalleryPiece("kind:" + k.Item1, new WidgetId(k.Item1), null))]);
+        var asked = kinds.ToDictionary(k => "kind:" + k.Item1, k => new PieceSize(k.Item2, k.Item3, k.Item2 / 2, k.Item3 / 2, true, true) { MaxW = k.Item2 * 2, MaxH = k.Item3 * 2 });
+        var auto = WidgetGallery.Lay(category, 80, p => asked[p.Key], 2);
+
+        var layout = CuratedLayouts.From(auto);
+        Assert.True(layout.Titles);
+        Assert.Equal(auto.Columns.Count(c => c.Y == 0), layout.Columns.Count);
+        var curated = CuratedBento.Lay(AddFolderId.Time, LocalText.Fixed("Time"), layout, 80, CuratedFit.AsStored, 2, 3, piece: w => new GalleryPiece("kind:" + w.Pick, new WidgetId(w.Pick), null));
+        Assert.Equal(auto.Tiles.Select(t => (t.Piece.Key, t.Box)).OrderBy(t => t.Key), curated.Tiles.Select(t => (t.Piece.Key, t.Box)).OrderBy(t => t.Key));
     }
 
     /// <summary>[S-16745] A widget dropped into a section lands before the first of its widgets that comes after the drop in reading order.</summary>

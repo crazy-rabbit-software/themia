@@ -160,6 +160,61 @@ public static class CuratedLayouts
         return preset is null || widget.Presets.Any(p => string.Equals(p.Key, preset, StringComparison.Ordinal)) ? new WidgetPick(kind, preset) : null;
     }
 
+    /// <summary>
+    /// [S-16745] A tab's automatic bento as a curated layout, its first arrangement to edit (how the shipped files began): each
+    /// column on the sheet's top line a column of that share, one untitled section of its widgets in reading order at the
+    /// cells their cards stand on; a sheet in sections (Quick settings) one column of them, each under its heading's words.
+    /// </summary>
+    public static CuratedLayout From(GallerySheet sheet)
+    {
+        ArgumentNullException.ThrowIfNull(sheet);
+        var tiles = sheet.Tiles.Where(t => t.Piece.Pick is not null).OrderBy(t => t.Box.Y).ThenBy(t => t.Box.X).ToList();
+        CuratedWidget Of(GalleryTile tile)
+        {
+            var card = sheet.CardOf(tile);
+            var piece = tile.Piece;
+            var style = piece.Style is { } value ? WidgetStyles.For(piece.Kind!.Value).FirstOrDefault(o => o.Value == value).Name : null;
+            return new CuratedWidget { Pick = piece.Pick!.Value.Key, Style = style, Config = piece.Config, W = card.W, H = card.H };
+        }
+
+        if (sheet.Headings.Count > 0)
+        {
+            var heads = sheet.Headings.OrderBy(h => h.Box.Y).ToList();
+            return new CuratedLayout
+            {
+                Titles = sheet.Title > 0,
+                Columns =
+                [
+                    new CuratedColumn
+                    {
+                        Sections = [.. heads.Select((h, i) => new CuratedSection
+                        {
+                            Title = string.IsNullOrWhiteSpace(h.Text.Text()) ? null : h.Text.Text(),
+                            Widgets = [.. tiles.Where(t => t.Box.Y >= h.Box.Bottom && (i + 1 == heads.Count || t.Box.Y < heads[i + 1].Box.Y)).Select(Of)],
+                        })],
+                    },
+                ],
+            };
+        }
+
+        var top = sheet.Columns.Where(c => c.Y == 0).OrderBy(c => c.X).ToList();
+        if (top.Count == 0)
+        {
+            top = [new CellBox(0, 0, Math.Max(1, tiles.Select(t => t.Box.Right).DefaultIfEmpty(1).Max()), sheet.Rows)];
+        }
+
+        double across = top.Sum(c => c.W);
+        return new CuratedLayout
+        {
+            Titles = sheet.Title > 0,
+            Columns = [.. top.Select(c => new CuratedColumn
+            {
+                Share = Math.Round(c.W / across, 4),
+                Sections = [new CuratedSection { Widgets = [.. tiles.Where(t => t.Box.X >= c.X && t.Box.X < c.Right).Select(Of)] }],
+            })],
+        };
+    }
+
     /// <summary>[S-16745] Every widget the layouts place, by what it is (<see cref="CuratedWidget.Identity"/>).</summary>
     public static IReadOnlySet<string> Placed(IEnumerable<CuratedLayout> layouts)
         => layouts.SelectMany(l => l.Columns).SelectMany(c => c.Sections).SelectMany(s => s.Widgets).Select(w => w.Identity).ToHashSet(StringComparer.Ordinal);

@@ -23,18 +23,24 @@ public static class CuratedEdits
             : layout with { Columns = [.. layout.Columns.Where((_, i) => i != column)] };
     }
 
-    /// <summary>[S-16744] The columns made <paramref name="widths"/> cells wide (a column's edge dragged): their shares those widths.</summary>
-    public static CuratedLayout Resize(CuratedLayout layout, IReadOnlyList<int> widths)
+    /// <summary>
+    /// [S-16744] The edge between column <paramref name="column"/> and the next dragged: the two made <paramref name="left"/>
+    /// and <paramref name="right"/> cells wide, their shares together the same, split in proportion; the others kept.
+    /// </summary>
+    public static CuratedLayout Edge(CuratedLayout layout, int column, int left, int right)
     {
         ArgumentNullException.ThrowIfNull(layout);
-        ArgumentNullException.ThrowIfNull(widths);
-        if (widths.Count != layout.Columns.Count || widths.Any(w => w < 1))
+        if (column < 0 || column + 1 >= layout.Columns.Count || left < 1 || right < 1)
         {
             return layout;
         }
 
-        double sum = widths.Sum();
-        return layout with { Columns = [.. layout.Columns.Select((c, i) => c with { Share = Math.Round(widths[i] / sum, 4) })] };
+        var both = layout.Columns[column].Share + layout.Columns[column + 1].Share;
+        var share = Math.Round(both * left / (left + right), 4);
+        return layout with
+        {
+            Columns = [.. layout.Columns.Select((c, i) => i == column ? c with { Share = share } : i == column + 1 ? c with { Share = Math.Round(both - share, 4) } : c)],
+        };
     }
 
     /// <summary>A section added at a column's foot, titled <paramref name="title"/> (none: no heading).</summary>

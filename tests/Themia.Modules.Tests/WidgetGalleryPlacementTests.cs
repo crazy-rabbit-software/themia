@@ -61,7 +61,9 @@ public sealed class WidgetGalleryPlacementTests
     }
 
     /// <summary>
-    /// [S-16550]..[S-16553] The owner (2026-11-23): "start with a column layout, the columns dont have to be all the same
+    /// [S-16550]..[S-16553] [S-16740] The automatic bento: what searches find, and a tab with no curated layout yet (every tab
+    /// of the build has one: "Your layout for tabs, auto for search"; the curated tabs are judged by their own rules,
+    /// <see cref="S16743_every_tab_ships_a_curated_layout_that_lays_by_its_rules"/>). The owner (2026-11-23): "start with a column layout, the columns dont have to be all the same
     /// width, then place all the widgets in them ... the widgets size should be defined by the columns". Every category of the
     /// build, and what searches find, laid as the gallery lays them on a 1920 by 1080 display and the small ones (1366 by 768,
     /// 1280 by 720, 1024 by 768): on whole cells inside the view, one cell between every two pieces, none under its least, a
@@ -74,13 +76,13 @@ public sealed class WidgetGalleryPlacementTests
     [InlineData(1366, 768)]
     [InlineData(1280, 720)]
     [InlineData(1024, 768)]
-    public void S16550_every_category_and_search_of_the_build_is_a_column_bento_without_holes(int width, int height)
+    public void S16550_every_search_and_uncurated_category_of_the_build_is_a_column_bento_without_holes(int width, int height)
     {
         var (screen, view) = Display(width, height);
         var sizes = new GallerySizes(screen, 1, view);
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
         var categories = WidgetGallery.Of(page);
-        var shown = categories.Where(c => c.Sections is null).Concat(new[] { "weather", "clock", "music", "cpu", "calendar", "a" }.Select(q => WidgetGallery.Find(page, categories, q)!)).ToList();
+        var shown = categories.Where(c => c.Sections is null && CuratedLayouts.Load(c.Id) is null).Concat(new[] { "weather", "clock", "music", "cpu", "calendar", "a" }.Select(q => WidgetGallery.Find(page, categories, q)!)).ToList();
         var said = new List<string>();
         foreach (var category in shown)
         {
@@ -133,6 +135,63 @@ public sealed class WidgetGalleryPlacementTests
         }
 
         File.WriteAllLines(Path.Combine(Path.GetTempPath(), $"themia-gallery-columns-{width}x{height}.txt"), said);
+    }
+
+    /// <summary>
+    /// [S-16740]..[S-16746] Every tab of the build ships its curated layout, read clean (no widget the build lacks, nothing
+    /// repaired), and laid on a 1920 by 1080 display and the small ones by the curated rules: every widget of the file once, in
+    /// its column (no wider), on whole cells inside the view, one cell from every other, packed (none could stand a cell
+    /// higher in its section), its card under its title where the tab has titles; columns stacking on a narrow view, never cut.
+    /// </summary>
+    [Theory]
+    [InlineData(1920, 1080)]
+    [InlineData(1366, 768)]
+    [InlineData(1280, 720)]
+    [InlineData(1024, 768)]
+    public void S16743_every_tab_ships_a_curated_layout_that_lays_by_its_rules(int width, int height)
+    {
+        var (screen, view) = Display(width, height);
+        var sizes = new GallerySizes(screen, 1, view);
+        var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
+        var categories = WidgetGallery.Of(page);
+        Assert.Equal(categories.Select(c => c.Id).Order(), CuratedLayouts.Shipped().Order());
+        foreach (var category in categories)
+        {
+            var layout = CuratedLayouts.Load(category.Id)!;
+            Assert.NotNull(layout);
+            using (var stream = typeof(CuratedLayouts).Assembly.GetManifestResourceStream("gallery-layouts/" + CuratedLayouts.FileName(category.Id))!)
+            using (var reader = new StreamReader(stream))
+            {
+                Assert.Equal(reader.ReadToEnd().ReplaceLineEndings("\n"), CuratedLayouts.Write(layout));
+            }
+
+            var widgets = layout.Columns.Sum(c => c.Sections.Sum(s => s.Widgets.Count));
+            Assert.True(widgets > 0, $"{category.Id}: an empty tab");
+            var sheet = CuratedBento.Lay(category.Id, category.Title, layout, view, sizes.Curated, sizes.TitleRows, sizes.HeadingRows);
+            Assert.Equal(widgets, sheet.Tiles.Count);
+            Assert.Equal(widgets, sheet.Tiles.Select(t => t.Slot).Distinct().Count());
+            foreach (var tile in sheet.Tiles)
+            {
+                var slot = tile.Slot!.Value;
+                var column = sheet.Columns[slot.Column];
+                Assert.True(column.Holds(tile.Box) && tile.Box.X >= 0 && tile.Box.Right <= view, $"{category.Id}: {tile.Piece.Key} at {tile.Box} outside its column {column} or the view {view}");
+                Assert.True(tile.Box.Y >= sheet.Areas.Single(a => a.Slot == slot with { Widget = -1 }).Box.Y);
+                Assert.Equal(layout.Titles ? sizes.TitleRows : 0, sheet.CardOf(tile).Y - tile.Box.Y);
+                foreach (var other in sheet.Tiles.Where(o => !ReferenceEquals(o, tile)))
+                {
+                    var apart = new CellBox(tile.Box.X - WidgetGallery.Gap, tile.Box.Y - WidgetGallery.Gap, tile.Box.W + (2 * WidgetGallery.Gap), tile.Box.H + (2 * WidgetGallery.Gap));
+                    Assert.False(apart.Overlaps(other.Box), $"{category.Id}: {tile.Piece.Key} and {other.Piece.Key} touch{Environment.NewLine}{Map(sheet, view)}");
+                }
+
+                // Packed: a cell higher it would leave its section or touch another of its section.
+                var area = sheet.Areas.Single(a => a.Slot == slot with { Widget = -1 }).Box;
+                var top = sheet.Headings.Any(hd => hd.Slot == slot with { Widget = -1 }) ? area.Y + sizes.HeadingRows : area.Y;
+                var up = tile.Box with { Y = tile.Box.Y - 1 };
+                Assert.True(up.Y < top || sheet.Tiles.Any(o => !ReferenceEquals(o, tile) && o.Slot!.Value.Column == slot.Column && o.Slot.Value.Section == slot.Section
+                    && new CellBox(o.Box.X - WidgetGallery.Gap, o.Box.Y - WidgetGallery.Gap, o.Box.W + (2 * WidgetGallery.Gap), o.Box.H + (2 * WidgetGallery.Gap)).Overlaps(up)),
+                    $"{category.Id}: {tile.Piece.Key} at {tile.Box} could stand a cell higher{Environment.NewLine}{Map(sheet, view)}");
+            }
+        }
     }
 
     /// <summary>[S-16552] How far apart the columns' feet may end where every piece stretches: a few rows (a piece's height steps).</summary>

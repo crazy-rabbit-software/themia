@@ -1,0 +1,105 @@
+{
+  "titles": true,
+  "columns": [
+    {
+      "share": 0.1608,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "bluetooth",
+              "w": 23,
+              "h": 21
+            },
+            {
+              "pick": "bluetoothDevice",
+              "w": 23,
+              "h": 8
+            },
+            {
+              "pick": "battery",
+              "w": 23,
+              "h": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2098,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "deviceBatteries",
+              "w": 30,
+              "h": 26
+            },
+            {
+              "pick": "brightness",
+              "w": 30,
+              "h": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2098,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "drives",
+              "w": 30,
+              "h": 27
+            },
+            {
+              "pick": "drive",
+              "w": 30,
+              "h": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2098,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "usbSticks",
+              "w": 30,
+              "h": 27
+            },
+            {
+              "pick": "usbStick",
+              "w": 30,
+              "h": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "share": 0.2098,
+      "sections": [
+        {
+          "widgets": [
+            {
+              "pick": "networkDrives",
+              "w": 30,
+              "h": 27
+            },
+            {
+              "pick": "networkDrive",
+              "w": 30,
+              "h": 14
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

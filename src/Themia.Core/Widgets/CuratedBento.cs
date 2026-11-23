@@ -264,7 +264,7 @@ public static class CuratedBento
         }
 
         var key = style is { } s ? $"style:kind:{pick.Key}:{s}" : "kind:" + pick.Key;
-        return new GalleryPiece(key, pick.Kind, null) { Preset = pick.Preset, Style = style };
+        return new GalleryPiece(key, pick.Kind, null) { Preset = pick.Preset, Style = style, Config = widget.Config };
     }
 
     /// <summary>[S-16745] The place in its section a widget dropped at <paramref name="at"/> (a cell of the sheet) takes: before the first of the section's widgets that comes after that point in reading order.</summary>

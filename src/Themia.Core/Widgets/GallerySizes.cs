@@ -52,8 +52,7 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
             return new PieceSize(nw, nh, nw, nh, false, false);
         }
 
-        var (minW, minH) = ((int)Math.Ceiling((limits.Width.Min * cols) - 1e-6), (int)Math.Ceiling((limits.Height.Min * rows) - 1e-6));
-        var (maxW, maxH) = (Math.Max(minW, (int)Math.Floor((limits.Width.Max * cols) + 1e-6)), Math.Max(minH, (int)Math.Floor((limits.Height.Max * rows) + 1e-6)));
+        var (minW, minH, maxW, maxH) = Range(limits);
         if (piece.Square)
         {
             // A look whose natural box is a line (a Switch) keeps its own shape; the rest are made square.
@@ -90,6 +89,33 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
         var h = Math.Clamp((int)Math.Round(side / ph), Math.Max(1, least.H), Math.Max(least.H, most.H));
         return (w, h);
     }
+
+    /// <summary>A sizing's least and most in whole cells of this display (the least rounded up, the most down).</summary>
+    private (int MinW, int MinH, int MaxW, int MaxH) Range(SizeLimits limits)
+    {
+        var (cols, rows) = GridGeometry.GridDims(screen);
+        var (minW, minH) = ((int)Math.Ceiling((limits.Width.Min * cols) - 1e-6), (int)Math.Ceiling((limits.Height.Min * rows) - 1e-6));
+        return (minW, minH, Math.Max(minW, (int)Math.Floor((limits.Width.Max * cols) + 1e-6)), Math.Max(minH, (int)Math.Floor((limits.Height.Max * rows) + 1e-6)));
+    }
+
+    /// <summary>
+    /// [S-16743] What a curated tab's widget is on this display (<see cref="CuratedBento"/>): its stored cells, never wider than
+    /// its column, held to its sizing here (what its card is drawn at); its least width, what decides when columns stack.
+    /// </summary>
+    public CuratedFit Curated => _curated ??= new CuratedFit(
+        (widget, width) =>
+        {
+            var (w, h) = (Math.Min(widget.W, Math.Max(1, width)), widget.H);
+            return CuratedRange(widget) is { } r ? (Math.Clamp(w, r.MinW, r.MaxW), Math.Clamp(h, r.MinH, r.MaxH)) : (w, h);
+        },
+        widget => CuratedRange(widget)?.MinW ?? 1);
+
+    private CuratedFit? _curated;
+
+    private (int MinW, int MinH, int MaxW, int MaxH)? CuratedRange(CuratedWidget widget)
+        => CuratedBento.Piece(widget) is { Pick: { } pick } piece && SizeFit.Limits(SizeFit.Of(pick, piece.Style), screen, contentScale) is { } limits
+            ? Range(limits)
+            : null;
 
     /// <summary>[S-16721] The rows a widget's title takes over its card (<see cref="G.Title"/> in whole rows of this display's cells).</summary>
     public int TitleRows => Rows(G.Title);
