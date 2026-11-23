@@ -172,7 +172,7 @@ public static class Ink
         // the meter measures says where its own ink is (the Header's glyph stands over its title's capitals); one it cannot
         // measure is left to the text, as a picture.
         var shown = panel.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
-        var pictures = shown.Where(c => c is Image or Themia.Sdk.WinUI.IconSlot or Themia.Sdk.WinUI.Devices.DeviceIconSlot || (c is FontIcon icon && !Measured(icon))).ToList();
+        var pictures = shown.Where(c => c is Image or Themia.Sdk.WinUI.IconSlot or Themia.Sdk.WinUI.Devices.DeviceIconSlot { ShowsPicture: true } || (c is FontIcon icon && !Measured(icon))).ToList();
         if (pictures.Count < shown.Count)
         {
             shown = [.. shown.Except(pictures)];

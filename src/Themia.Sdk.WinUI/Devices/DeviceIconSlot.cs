@@ -25,10 +25,19 @@ public sealed partial class DeviceIconSlot : Grid
         _host = host ?? throw new ArgumentNullException(nameof(host));
         _glyph.HorizontalAlignment = HorizontalAlignment.Center;
         _glyph.VerticalAlignment = VerticalAlignment.Center;
-        _slot.Reset(_glyph);
+        Width = FamilyType.Big28.LineHeight;
+        Height = FamilyType.Big28.LineHeight;
+        Children.Add(_glyph);
         Children.Add(_slot);
+        _slot.Visibility = Visibility.Collapsed;
         VerticalAlignment = VerticalAlignment.Center;
     }
+
+    /// <summary>
+    /// [S-16637] Whether it draws a drive's picture (the ink of a face is its reading's then, as beside any picture); a
+    /// device's glyph alone is measured as a glyph.
+    /// </summary>
+    public bool ShowsPicture => _key is not null;
 
     /// <summary>
     /// Show <paramref name="icon"/>; what is the same as before is not asked again. <paramref name="stock"/>: a drive other
@@ -44,7 +53,9 @@ public sealed partial class DeviceIconSlot : Grid
             if (_key is not null)
             {
                 _key = null;
-                _slot.Reset(_glyph);
+                _slot.Reset(null);
+                _slot.Visibility = Visibility.Collapsed;
+                _glyph.Visibility = Visibility.Visible;
             }
 
             return;
@@ -61,13 +72,24 @@ public sealed partial class DeviceIconSlot : Grid
         }
 
         _key = key;
-        _slot.Reset(_glyph);
+        _slot.Reset(null);
+        _slot.Visibility = Visibility.Visible;
+        _glyph.Visibility = Visibility.Visible;
         const int system = 0x4;
         var pixels = (int)Math.Ceiling(FamilyType.Big28.LineHeight * 4 * (XamlRoot?.RasterizationScale ?? 1));
 
         // An icon is decoration: the slot's load logs a failure and leaves the glyph standing.
-        _ = _slot.LoadAsync(() => stockIcon is { } held
+        _ = LoadAsync(() => stockIcon is { } held
             ? _host.FileIcons.DriveIconAsync(held, pixels)
-            : _host.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels));
+            : _host.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels), key);
+    }
+
+    /// <summary>The picture laid in when it comes (the newest ask's): the glyph steps back for it.</summary>
+    private async Task LoadAsync(Func<Task<Microsoft.UI.Xaml.Media.ImageSource?>> load, string key)
+    {
+        if (await _slot.LoadAsync(load).ConfigureAwait(true) && key == _key && _slot.Source is not null)
+        {
+            _glyph.Visibility = Visibility.Collapsed;
+        }
     }
 }
