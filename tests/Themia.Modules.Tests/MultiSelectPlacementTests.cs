@@ -363,7 +363,7 @@ public sealed class MultiSelectPlacementTests
         Assert.Equal([widget.Id], plan.Roots);
         Assert.Empty(plan.RemoveIds);
         Assert.Equal(1, payload.Creates);
-        Assert.Equal(new WidgetId("clock"), payload.SingleKind);
+        Assert.Equal(new WidgetPick(new WidgetId("clock")), payload.SinglePick);
     }
 
     [Fact]

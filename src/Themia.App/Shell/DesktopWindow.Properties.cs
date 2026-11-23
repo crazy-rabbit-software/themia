@@ -114,7 +114,7 @@ internal sealed partial class DesktopWindow
         _pageLines.Clear();
         var model = _selectionModel ?? new SelectionModel(SelectionKind.One, QuickSetOffer.None, []);
         var selection = _host.Selection;
-        var kinds = ViewForThisMonitor(_host.State).Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
+        var kinds = ViewForThisMonitor(_host.State).Widgets.Where(w => selection.Contains(w.Id)).Select(w => Sdk.WidgetPick.Of(w.Config)).Distinct().ToList();
         return SelectionRows.Of(model, SelectionCommands([.. selection.Ids]), kinds);
     }
 

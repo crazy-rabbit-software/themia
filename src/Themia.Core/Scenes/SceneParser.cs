@@ -475,14 +475,18 @@ public static class SceneParser
             }
 
             var second = recipe.Widgets.Take(i).Any(o => string.Equals(o.Kind, part.Kind, StringComparison.Ordinal));
+            // [S-16682] A widget named as a preset ("quickToggle/wifi") is its kind with the preset.
+            var (kindText, preset) = WidgetPick.Split(part.Kind);
+            var named = part.Kind.Replace(WidgetPick.Separator, '-');
             widgets.Add(new SceneWidget(
-                $"{path}.{part.Kind}",
-                second ? $"{prefix}-{part.Kind}-{i}" : $"{prefix}-{part.Kind}",
-                new WidgetId(part.Kind),
+                $"{path}.{named}",
+                second ? $"{prefix}-{named}-{i}" : $"{prefix}-{named}",
+                new WidgetId(kindText),
                 rect,
                 State: states.TryGetValue(part.Kind, out var chosen) ? chosen : null,
                 Config: part.Fragment,
-                Selected: selected));
+                Selected: selected,
+                Preset: preset));
         }
 
         return widgets;

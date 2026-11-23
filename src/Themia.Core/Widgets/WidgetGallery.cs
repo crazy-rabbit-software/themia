@@ -55,6 +55,12 @@ public sealed record GalleryPiece(string Key, WidgetId? Kind, ReadyMadeGroup? Gr
 
     /// <summary>[S-16562] A quick setting shown at its least (beside it at the size it has new): kept at that size.</summary>
     public bool Least { get; init; }
+
+    /// <summary>[S-16685] The preset of <see cref="Kind"/> it shows, a piece of its own; null for the kind itself.</summary>
+    public string? Preset { get; init; }
+
+    /// <summary>[S-16685] What it shows and places: the kind or its preset; null for a group or the words' card.</summary>
+    public WidgetPick? Pick => Kind is { } kind ? new WidgetPick(kind, Preset) : null;
 }
 
 /// <summary>[S-14912] A category of the gallery: an add page subject (or More), its whole pieces in the add page's order.</summary>
@@ -193,10 +199,10 @@ public static class WidgetGallery
                     case AddSectionKind.Widgets:
                         foreach (var tile in section.Tiles.OfType<AddWidgetTile>())
                         {
-                            pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null));
+                            pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null) { Preset = tile.Preset });
                             if (item.Id == AddFolderId.QuickSettings)
                             {
-                                pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true });
+                                pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true, Preset = tile.Preset });
                             }
                         }
 
@@ -208,8 +214,8 @@ public static class WidgetGallery
             {
                 foreach (var tile in moved)
                 {
-                    pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null));
-                    pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true });
+                    pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null) { Preset = tile.Preset });
+                    pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true, Preset = tile.Preset });
                 }
             }
 
@@ -323,11 +329,12 @@ public static class WidgetGallery
         List<GalleryPiece> pieces =
         [
             picked with { Role = GalleryRole.Picked, Style = null },
-            new GalleryPiece("about:" + key, picked.Kind, picked.Group) { Role = GalleryRole.About },
+            new GalleryPiece("about:" + key, picked.Kind, picked.Group) { Role = GalleryRole.About, Preset = picked.Preset },
         ];
-        if (picked.Kind is { } kind && picked.Group is null)
+        if (picked.Pick is { } pick && picked.Group is null)
         {
-            pieces.AddRange(otherStyles.Select(style => new GalleryPiece($"style:{kind.Value}:{style}", kind, null) { Role = GalleryRole.Style, Style = style }));
+            // [S-16685] A preset's styles are that preset's: Wi-Fi round is still Wi-Fi.
+            pieces.AddRange(otherStyles.Select(style => new GalleryPiece($"style:{pick.Key}:{style}", pick.Kind, null) { Role = GalleryRole.Style, Style = style, Preset = pick.Preset }));
         }
 
         return new GalleryCategory(category.Id, category.Title, category.Glyph, pieces);

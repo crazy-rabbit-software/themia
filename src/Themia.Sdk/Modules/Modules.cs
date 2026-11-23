@@ -167,6 +167,16 @@ public sealed record WidgetDescriptor
     /// </summary>
     public IReadOnlyList<MergeFrom> Merges { get; init; } = [];
 
+    /// <summary>
+    /// [S-16680] The entries the kind is offered as, each as if a widget of its own (<see cref="WidgetPreset"/>): the add
+    /// page, its search, the gallery, the ready-made groups and the first-run seed list one per preset in place of the
+    /// kind's one. Empty, the rule: the kind is offered as itself.
+    /// </summary>
+    public IReadOnlyList<WidgetPreset> Presets { get; init; } = [];
+
+    /// <summary>[S-16680] What the add page and the gallery offer of it: one pick per preset, or the kind itself.</summary>
+    public IReadOnlyList<WidgetPick> Picks => Presets.Count == 0 ? [new WidgetPick(Id)] : [.. Presets.Select(p => new WidgetPick(Id, p.Key))];
+
     /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
     public string Name => Label.Text();
 

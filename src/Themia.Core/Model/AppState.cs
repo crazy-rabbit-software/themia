@@ -84,11 +84,12 @@ public sealed partial class WidgetInstance
         }
     }
 
-    public static WidgetInstance Create(WidgetId kind, FracRect rect) => new()
+    /// <summary>A new widget of <paramref name="pick"/> at <paramref name="rect"/>: [S-16683] a preset's is its kind with the preset applied.</summary>
+    public static WidgetInstance Create(WidgetPick pick, FracRect rect) => new()
     {
         Id = Guid.NewGuid().ToString("n"),
-        Background = DefaultBackground(kind),
-        Config = WidgetConfig.CreateDefault(kind),
+        Background = DefaultBackground(pick.Kind),
+        Config = pick.CreateConfig(),
         X = rect.X,
         Y = rect.Y,
         W = rect.W,

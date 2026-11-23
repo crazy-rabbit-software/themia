@@ -134,7 +134,8 @@ public static class SelectionPage
     public static string Glyph(SelectionModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        return (model.Offer.TitleKind ?? model.Offer.CommonKind) is { } kind ? ModuleCatalog.Of(kind).Glyph : Glyphs.Apps;
+        return model.Offer.CommonPick is { } pick ? pick.Glyph
+            : (model.Offer.TitleKind ?? model.Offer.CommonKind) is { } kind ? ModuleCatalog.Of(kind).Glyph : Glyphs.Apps;
     }
 
     /// <summary>[S-2341] The entry's words for <paramref name="offer"/>, the kinds named by <paramref name="name"/>; null while nothing is selected.</summary>
@@ -146,8 +147,9 @@ public static class SelectionPage
         return offer switch
         {
             { Shows: false } => null,
-            { Count: 1, TitleKind: { } kind } => name(kind),
-            { CommonKind: { } kind } => Str.EditBar_Selection_Same.Format(("count", LocaleFormat.Integer(offer.Count)), ("kind", name(kind))),
+            // [S-16684] A preset's widgets by the preset's name.
+            { Count: 1, TitleKind: { } kind } => offer.CommonPick is { Preset: not null } one ? one.Name : name(kind),
+            { CommonKind: { } kind } => Str.EditBar_Selection_Same.Format(("count", LocaleFormat.Integer(offer.Count)), ("kind", offer.CommonPick is { Preset: not null } same ? same.Name : name(kind))),
             _ => Str.Shell_Views_WidgetCount.Plural(offer.Count),
         };
     }

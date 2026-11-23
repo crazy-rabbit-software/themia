@@ -62,8 +62,11 @@ internal static class SelectionRows
     /// <summary>[S-2376] What a mixed selection's value reads: Mixed, as Karpo's (its §528) and the shared lines say it.</summary>
     private static string Mixed => Str.Groups_Page_Mixed.Text();
 
-    /// <summary>[S-2340] [S-2345] The page for <paramref name="model"/>, <paramref name="kinds"/> the kinds selected: its sections on their tabs.</summary>
-    public static PageModel Of(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetId> kinds)
+    /// <summary>
+    /// [S-2340] [S-2345] The page for <paramref name="model"/>, <paramref name="kinds"/> what the selected widgets are offered as
+    /// (their kinds, [S-16684] or presets): its sections on their tabs.
+    /// </summary>
+    public static PageModel Of(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetPick> kinds)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(commands);
@@ -96,7 +99,7 @@ internal static class SelectionRows
     private static string KeyOf(SelectionSection section) => section.ToString().ToLowerInvariant();
 
     /// <summary>[S-2340] [S-11754] The header card: the kind, the name, its tools (their words with their keys).</summary>
-    private static PageHeader HeaderCard(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetId> kinds)
+    private static PageHeader HeaderCard(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetPick> kinds)
     {
         var offer = model.Offer;
         string Verb(Str one, Str many) => offer.Count > 1 ? many.Plural(offer.Count) : one.Text();
@@ -120,13 +123,14 @@ internal static class SelectionRows
         }
 
         var kind = offer.TitleKind ?? offer.CommonKind;
-        var kindName = kind is { } named ? ModuleCatalog.Of(named).Name : null;
+        // [S-16684] A preset's widgets are named and described as the preset.
+        var kindName = offer.CommonPick is { Preset: not null } same ? same.Name : kind is { } named ? ModuleCatalog.Of(named).Name : null;
         var name = kindName ?? Str.Shell_Views_WidgetCount.Plural(offer.Count);
 
         // Under the kind's name what the kind is; under several of one kind how many, under several kinds which.
         var caption = offer.Count != 1
-            ? offer.CommonKind is not null ? SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) ?? string.Empty : string.Join(", ", kinds.Select(k => ModuleCatalog.Of(k).Name))
-            : kind is { } described ? ModuleCatalog.Of(described).Describe() : string.Empty;
+            ? offer.CommonKind is not null ? SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) ?? string.Empty : string.Join(", ", kinds.Select(k => k.Name))
+            : offer.CommonPick is { Preset: not null } one ? one.Describe() : kind is { } described ? ModuleCatalog.Of(described).Describe() : string.Empty;
         return new PageHeader(SelectionPage.Glyph(model), name, caption, tools);
     }
 

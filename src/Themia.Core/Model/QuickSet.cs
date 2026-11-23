@@ -23,7 +23,7 @@ namespace Themia.Core.Model;
 /// <param name="Align">[S-6584] Where the widgets that can align draw their content, or null when they differ.</param>
 /// <param name="HasItemText">[S-6574] Whether any selected widget draws items with text on them (not tracks only); the Item text line is not shown without.</param>
 /// <param name="BackgroundImage">[S-6593] Their background image's path (empty: none), or null when they differ.</param>
-/// <param name="CommonKind">[S-2341] The kind every selected widget is of (the selection's entry says "2 × Clock"); null when they differ.</param>
+/// <param name="CommonKind">[S-2341] The kind every selected widget is of (the selection's entry says "2 × Clock"); null when they differ, [S-16684] or are its different presets.</param>
 /// <param name="CanScale">[S-6532] Whether any selected widget takes a scale of its own: a desktop icon is drawn at 1 always, so the Scale line is not shown for icons alone.</param>
 /// <param name="RemovesFromView">[S-5524] Every selected widget is a desktop item's: Delete reads "Remove from this view".</param>
 public sealed record QuickSetOffer(
@@ -45,6 +45,9 @@ public sealed record QuickSetOffer(
     WidgetId? CommonKind = null,
     bool CanScale = true)
 {
+    /// <summary>[S-16684] What every selected widget is offered as (its kind, or the one preset of it they all are); null when they differ.</summary>
+    public WidgetPick? CommonPick { get; init; }
+
     public static readonly QuickSetOffer None = new(0, null, null, null);
 
     /// <summary>[S-6007] The Style choice shows.</summary>
@@ -121,13 +124,16 @@ public static class QuickSet
         var canAlign = aligned.Count > 0;
         var align = canAlign ? Common(aligned.Select(ContentAlignment.Shown)) : null;
 
+        // [S-16684] A preset's widgets are named as the preset: two Wi-Fi toggles "2 × Wi-Fi", a Wi-Fi and a Bluetooth "2 widgets".
+        var pick = WidgetPick.Of(widgets[0].Config);
+        var samePick = widgets.TrueForAll(w => WidgetPick.Of(w.Config) == pick) ? pick : (WidgetPick?)null;
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, background, only.Id, only.Kind, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, kind, canScale);
+            return new QuickSetOffer(1, background, only.Id, only.Kind, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, kind, canScale) { CommonPick = pick };
         }
 
-        return new QuickSetOffer(widgets.Count, background, null, null, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, widgets.TrueForAll(w => w.Kind == kind) ? kind : null, canScale);
+        return new QuickSetOffer(widgets.Count, background, null, null, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, samePick is not null ? kind : null, canScale) { CommonPick = samePick };
     }
 
     /// <summary>

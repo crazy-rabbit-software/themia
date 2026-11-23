@@ -179,17 +179,17 @@ internal readonly record struct AddTileWords(string Glyph, string Name, string C
 {
     public static AddTileWords Of(AddTile tile) => tile switch
     {
-        AddWidgetTile one => Widget(one.Kind),
+        AddWidgetTile one => Widget(one.Pick),
         AddGroupTile group => new(group.Group.Glyph, group.Group.Name.Text(), Str.Groups_Add_Count.Plural(group.Group.Widgets.Count), group.Group.About.Text()),
         AddItemTile item => new(ItemGlyph(item.Item.Kind), item.Item.Name, Str.Desktop_Add_Folder.Text(), string.Empty),
         _ => new(Glyphs.Apps, string.Empty, string.Empty, string.Empty),
     };
 
-    private static AddTileWords Widget(WidgetId kind)
+    /// <summary>[S-16681] A widget's tile, or a preset's: its own glyph, name and caption.</summary>
+    private static AddTileWords Widget(WidgetPick pick)
     {
-        var descriptor = ModuleCatalog.Of(kind);
-        var about = descriptor.Describe();
-        return new(descriptor.Glyph, descriptor.TileName, about, about);
+        var about = pick.Describe();
+        return new(pick.Glyph, pick.TileName, about, about);
     }
 
     /// <summary>[S-5523] A desktop item's glyph: what it is, as Explorer's own icons say it.</summary>

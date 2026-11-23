@@ -52,8 +52,8 @@ public sealed class AddPageTests
             Assert.Equal(page.Sections(item.Id).SelectMany(s => s.Tiles).OfType<AddWidgetTile>().Count(), item.Count);
         }
 
-        // Every kind counted once: the counts add up to the catalogue.
-        Assert.Equal(Every.Length, page.Rail.Sum(i => i.Count));
+        // Every kind counted once ([S-16681]: a kind with presets once per preset): the counts add up to the catalogue.
+        Assert.Equal(ModuleCatalog.Picks.Count(), page.Rail.Sum(i => i.Count));
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public sealed class AddPageTests
     {
         var system = Page.Rail.Single(i => i.Id == AddFolderId.System);
         var shelf = AddTree.Browse.Rows.OfType<AddShelf>().Single(s => s.Id == AddFolderId.System);
-        Assert.Equal(ModuleCatalog.Of(shelf.Icon).Glyph, system.Glyph);
+        Assert.Equal(shelf.Icon.Glyph, system.Glyph);
     }
 
     [Fact]

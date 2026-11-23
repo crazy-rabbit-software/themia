@@ -78,11 +78,11 @@ public sealed class PlacementPayload
     /// <summary>[S-2471] The ready-made group a <see cref="PlacementMode.Create"/> payload places, or null.</summary>
     private readonly ReadyMadeGroup? _readyMade;
 
-    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthDip, double heightDip, ReadyMadeGroup? readyMade = null)
+    private PlacementPayload(PlacementMode mode, WidgetPick? pick, List<WidgetInstance> widgets, List<string> roots, double widthDip, double heightDip, ReadyMadeGroup? readyMade = null)
     {
         _readyMade = readyMade;
         Mode = mode;
-        NewKind = kind;
+        NewPick = pick;
         _widgets = widgets;
         _roots = roots;
         _newWidthDip = widthDip;
@@ -92,7 +92,10 @@ public sealed class PlacementPayload
     public PlacementMode Mode { get; }
 
     /// <summary>The kind a <see cref="PlacementMode.Create"/> payload makes; null otherwise.</summary>
-    public WidgetId? NewKind { get; }
+    public WidgetId? NewKind => NewPick?.Kind;
+
+    /// <summary>[S-16683] What a <see cref="PlacementMode.Create"/> payload makes: the kind, or its preset; null otherwise.</summary>
+    public WidgetPick? NewPick { get; }
 
     /// <summary>[S-2471] The ready-made group a <see cref="PlacementMode.Create"/> payload places; null otherwise.</summary>
     public ReadyMadeGroup? ReadyMade => _readyMade;
@@ -135,8 +138,11 @@ public sealed class PlacementPayload
         _ => 0,
     };
 
-    /// <summary>The kind of the only root, for the hint ("Click to place Clock"); null for several.</summary>
-    public WidgetId? SingleKind => NewKind ?? (_roots.Count == 1 ? Find(_roots[0])?.Kind : null);
+    /// <summary>
+    /// What the only root is, for the hint ("Click to place Clock"); null for several. [S-16684] A preset's widget is named
+    /// as its preset ("Click to place Wi-Fi").
+    /// </summary>
+    public WidgetPick? SinglePick => NewPick ?? (_roots.Count == 1 && Find(_roots[0]) is { } only ? WidgetPick.Of(only.Config) : null);
 
     /// <summary>Whether a widget is one of the originals this payload was taken from.</summary>
     public bool Holds(string? id) => id is not null && _widgets.Exists(w => string.Equals(w.Id, id, StringComparison.Ordinal));
@@ -151,9 +157,9 @@ public sealed class PlacementPayload
         return new(PlacementMode.Create, null, [], [], 0, 0, readyMade: recipe);
     }
 
-    /// <summary>[S-421] A new widget of <paramref name="kind"/> at its default size in pixels.</summary>
-    public static PlacementPayload ForNew(WidgetId kind, double widthDip, double heightDip)
-        => new(PlacementMode.Create, kind, [], [], widthDip, heightDip);
+    /// <summary>[S-421] A new widget of <paramref name="pick"/> (a kind, or [S-16683] its preset) at its default size in pixels.</summary>
+    public static PlacementPayload ForNew(WidgetPick pick, double widthDip, double heightDip)
+        => new(PlacementMode.Create, pick, [], [], widthDip, heightDip);
 
     /// <summary>
     /// [S-1588] A snapshot of the picked widgets of one view, in view order, with their original ids.
@@ -225,7 +231,7 @@ public sealed class PlacementPayload
     /// display's content scale rounded up to whole cells and held to its sizing there; without, the DIPs as they are. What
     /// the ghost of a new widget draws, and what the widget gallery stands each card at.
     /// </summary>
-    public static FracRect NewSize(WidgetId kind, double widthDip, double heightDip, ScreenMetrics screen, PlacementSizes? sizes)
+    public static FracRect NewSize(WidgetPick kind, double widthDip, double heightDip, ScreenMetrics screen, PlacementSizes? sizes)
     {
         var rect = FracRect.FromDips(0, 0, widthDip, heightDip, screen);
         if (sizes is not { } grid || !screen.IsUsable)
@@ -236,7 +242,7 @@ public sealed class PlacementPayload
         var cell = FracRect.FromDips(0, 0, widthDip * grid.Scale, heightDip * grid.Scale, screen);
         var (cols, rows) = GridGeometry.GridDims(screen);
         var (w, h) = (GridFit.Up(cell.W, cols), GridFit.Up(cell.H, rows));
-        if (ModuleCatalog.TryGet(kind, out _) && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
+        if (ModuleCatalog.TryGet(kind.Kind, out _) && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
         {
             // [S-2446] Its sizing held on the display's whole cells, as it is painted.
             (w, h) = (limits.Width.Range(w), limits.Height.Range(h));
@@ -252,16 +258,19 @@ public sealed class PlacementPayload
     /// </summary>
     public IReadOnlyList<GhostOutline> Outlines(double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes = null)
     {
-        if (NewKind is { } kind)
+        if (NewPick is { } kind)
         {
+            // [S-16684] Its new config with it: the ghost names a preset as itself.
             var (rect, delta) = NewLayout(kind, xFrac, yFrac, screen, sizes);
-            return [new GhostOutline(BlockGeometry.Land(rect, delta, screen), kind)];
+            return [new GhostOutline(BlockGeometry.Land(rect, delta, screen), kind.Kind, kind.Preset is null ? null : kind.CreateConfig())];
         }
 
         if (_readyMade is { } recipe)
         {
             var (boxes, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, sizes);
-            return [.. recipe.Widgets.Select((w, i) => new GhostOutline(BlockGeometry.Land(boxes[i], delta, screen), new WidgetId(w.Kind)))];
+            return [.. recipe.Widgets.Select((w, i) => w.Pick is { } pick
+                ? new GhostOutline(BlockGeometry.Land(boxes[i], delta, screen), pick.Kind, pick.Preset is null ? null : pick.CreateConfig())
+                : throw new InvalidOperationException($"'{recipe.Id}' names a widget this build does not have ('{w.Kind}')"))];
         }
 
         var (drawn, at) = Layout(xFrac, yFrac, screen);
@@ -275,7 +284,7 @@ public sealed class PlacementPayload
     /// </summary>
     public PastePlan Plan(double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes = null)
     {
-        if (NewKind is { } kind)
+        if (NewPick is { } kind)
         {
             var (rect, delta) = NewLayout(kind, xFrac, yFrac, screen, sizes);
             var widget = WidgetInstance.Create(kind, BlockGeometry.Land(rect, delta, screen));
@@ -369,7 +378,7 @@ public sealed class PlacementPayload
     /// [S-11] A new widget: its default size on this display, centred on the point. [S-11807] With
     /// <paramref name="sizes"/> its Natural rounded up to whole cells and held to its sizing there.
     /// </summary>
-    private (FracRect Rect, BlockGeometry.Delta At) NewLayout(WidgetId kind, double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes)
+    private (FracRect Rect, BlockGeometry.Delta At) NewLayout(WidgetPick kind, double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes)
     {
         var rect = NewSize(kind, _newWidthDip, _newHeightDip, screen, sizes);
         return (rect, BlockGeometry.PlaceAt([rect], rect, xFrac, yFrac, screen));

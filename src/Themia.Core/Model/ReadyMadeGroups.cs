@@ -18,12 +18,16 @@ public readonly record struct ReadyMadeBox(double X, double Y, double Width, dou
 }
 
 /// <summary>
-/// [S-2470] One widget of a ready-made group: its kind (a widget id, as the first-run seed names them),
+/// [S-2470] One widget of a ready-made group: its kind (a widget id, or [S-16682] a kind's preset as <c>kind/preset</c>, as
+/// the first-run seed names them),
 /// its box, and what differs from its kind's defaults: a config fragment in the state file's own shape
 /// (merged over the default, property by property) and a name.
 /// </summary>
 public sealed record ReadyMadeWidget(string Kind, ReadyMadeBox Box, string? Config = null)
 {
+    /// <summary>[S-16682] What it places: its kind, or the kind's preset; null for a name this build does not have.</summary>
+    public WidgetPick? Pick => WidgetPick.TryParse(Kind, out var pick) ? pick : null;
+
     /// <summary>
     /// [S-12485] The group's Header widget ([S-9600]): its title, written in the language the group is
     /// placed in (the person's to change after), and its glyph. Null for every other widget.
@@ -401,7 +405,7 @@ public static class ReadyMadeGroups
     /// build lacks is left out of the menu whole, never placed in part.
     /// </summary>
     public static IReadOnlyList<ReadyMadeGroup> Offered()
-        => [.. All.Where(r => r.Widgets.All(w => WidgetId.TryParse(w.Kind, out var id) && ModuleCatalog.TryGet(id, out _)))];
+        => [.. All.Where(r => r.Widgets.All(w => WidgetPick.TryParse(w.Kind, out _)))];
 
     /// <summary>[S-2471] A recipe box on <paramref name="screen"/>, its group's corner at (<paramref name="xDip"/>, <paramref name="yDip"/>) DIPs.</summary>
     public static FracRect Rect(ReadyMadeBox box, ScreenMetrics screen, double xDip = 0, double yDip = 0)

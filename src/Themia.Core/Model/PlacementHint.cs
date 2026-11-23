@@ -27,9 +27,9 @@ public static class PlacementHint
             return icons.Count == 1 ? Str.Shell_Place_PlaceOne.Format(("name", icons[0])) : Str.Shell_Place_PlaceIcons.Plural(icons.Count);
         }
 
-        if (payload.SingleKind is { } kind)
+        if (payload.SinglePick is { } kind)
         {
-            var name = ModuleCatalog.Of(kind).Name;
+            var name = kind.Name;
             return payload.Mode switch
             {
                 PlacementMode.Move => Str.Shell_Place_MoveOne.Format(("name", name)),

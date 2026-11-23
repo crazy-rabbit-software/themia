@@ -179,7 +179,7 @@ internal static partial class EditBarRender
             SharedLines = row => SharedRowLines.Of(row.Setting, row.Mixed, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id)).Select(w => (w.Kind, w.Config))], Over, _ => { }),
         };
 
-        var kinds = view.Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
+        var kinds = view.Widgets.Where(w => selection.Contains(w.Id)).Select(w => WidgetPick.Of(w.Config)).Distinct().ToList();
         var page = new PageView(() => SelectionPage.Of(state, selection, view.Id) is { } model
             ? SelectionRows.Of(model, commands, kinds)
             : new PageModel("selection", []));

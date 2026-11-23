@@ -143,13 +143,14 @@ public sealed class WidgetRegistryHostTests
     [Fact]
     public void S6907_every_widget_has_a_place_of_its_own_in_the_add_menu()
     {
-        var widgets = ModuleCatalog.Widgets;
+        // [S-16681] What is offered: each kind, or each of its presets in its place.
+        var widgets = ModuleCatalog.Picks.ToList();
 
         Assert.All(widgets, w => Assert.DoesNotContain(w.Add.Shelf, new[] { AddFolderId.Start, AddFolderId.Popular, AddFolderId.Browse, AddFolderId.More }));
         Assert.Equal(widgets.Count, widgets.Select(w => (w.Add.Shelf, w.Add.Group, w.Add.Rank)).Distinct().Count());
         var popular = widgets.Where(w => w.Add.Popular is not null).Select(w => w.Add.Popular!.Value).ToList();
         Assert.Equal(Enumerable.Range(0, popular.Count), popular.Order());
-        Assert.Equal(widgets.Count, AddPage.Of([.. widgets.Select(w => w.Id)], []).Homes.Count);
+        Assert.Equal(widgets.Count, AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], []).Homes.Count);
     }
 
     /// <summary>

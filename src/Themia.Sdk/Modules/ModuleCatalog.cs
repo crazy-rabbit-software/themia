@@ -21,6 +21,9 @@ public static class ModuleCatalog
     /// <summary>Every widget, in the registry's order (by id).</summary>
     public static IReadOnlyList<WidgetDescriptor> Widgets => Current.Widgets;
 
+    /// <summary>[S-16680] Every entry the add page and the gallery offer: each kind's presets, or the kind itself.</summary>
+    public static IEnumerable<WidgetPick> Picks => Current.Widgets.SelectMany(w => w.Picks);
+
     /// <summary>
     /// Install the registry. Once per process: a second install is a host bug, refused loudly, as is
     /// a set that <see cref="Check"/> finds wrong.
@@ -76,6 +79,20 @@ public static class ModuleCatalog
             if (!configs.Add(widget.ConfigType))
             {
                 problems.Add($"config type {widget.ConfigType.Name} is declared by two widgets");
+            }
+
+            // [S-16687] A preset's key is its pick's second half: one word of the id's letters, once per kind.
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var preset in widget.Presets)
+            {
+                if (!ModuleIds.IsValid(preset.Key))
+                {
+                    problems.Add($"widget '{widget.Id}' has a preset with the bad key '{preset.Key}'");
+                }
+                else if (!keys.Add(preset.Key))
+                {
+                    problems.Add($"widget '{widget.Id}' declares the preset '{preset.Key}' twice");
+                }
             }
         }
 

@@ -85,7 +85,8 @@ public sealed record SceneWidget(
     ContentAlign? Align = null,
     bool Bare = false,
     string? Config = null,
-    bool Selected = false);
+    bool Selected = false,
+    string? Preset = null);
 
 /// <summary>
 /// [S-1077] Edit mode as a scene draws it: the edit bar (<see cref="Bar"/>), a submenu path opened

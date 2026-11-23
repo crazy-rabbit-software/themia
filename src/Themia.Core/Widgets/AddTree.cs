@@ -8,19 +8,31 @@ public abstract record AddNode;
 
 /// <summary>
 /// A widget. <paramref name="Again"/>: shown here once more, its home being elsewhere in the tree
-/// (Popular's, [S-3511]); search lists it at its home only.
+/// (Popular's, [S-3511]); search lists it at its home only. [S-16681] <paramref name="Preset"/>: one of the kind's
+/// presets, offered as a widget of its own.
 /// </summary>
-public sealed record AddLeaf(WidgetId Kind, bool Again = false) : AddNode;
+public sealed record AddLeaf(WidgetId Kind, bool Again = false, string? Preset = null) : AddNode
+{
+    /// <summary>[S-16681] What it offers: the kind, or its preset.</summary>
+    public WidgetPick Pick => new(Kind, Preset);
+}
 
 /// <summary>A line between two runs of a folder's rows: the order the runs come in.</summary>
 public sealed record AddLine : AddNode;
 
 /// <summary>A folder: a subject (an item of the add page's rail) or a family inside one (a stack of its widgets).</summary>
-/// <param name="Icon">The kind whose glyph stands for it: its first widget's.</param>
-public sealed record AddShelf(AddFolderId Id, LocalText Title, WidgetId Icon, IReadOnlyList<AddNode> Rows) : AddNode;
+/// <param name="Icon">The widget whose glyph stands for it: its first widget's.</param>
+public sealed record AddShelf(AddFolderId Id, LocalText Title, WidgetPick Icon, IReadOnlyList<AddNode> Rows) : AddNode;
 
-/// <summary>[S-3513] A widget's home: the folders it is in, outermost first (its subject, then its family when it has one).</summary>
-public sealed record AddHome(WidgetId Kind, IReadOnlyList<AddShelf> Path);
+/// <summary>
+/// [S-3513] A widget's home: the folders it is in, outermost first (its subject, then its family when it has one).
+/// [S-16681] <paramref name="Preset"/>: a preset of the kind, at home on its own.
+/// </summary>
+public sealed record AddHome(WidgetId Kind, IReadOnlyList<AddShelf> Path, string? Preset = null)
+{
+    /// <summary>[S-16681] What is at home here: the kind, or its preset.</summary>
+    public WidgetPick Pick => new(Kind, Preset);
+}
 
 /// <summary>
 /// [S-3510] [S-3511] The add page's tree, after Karpo's add list (<c>karpo-app</c>, docs/widgets.md
@@ -118,9 +130,13 @@ public static class AddTree
     /// <summary>Popular and Browse over <paramref name="widgets"/>: the catalogue's, or a part of it in a test.</summary>
     internal static (AddShelf Popular, AddShelf Browse) Build(IReadOnlyList<WidgetDescriptor> widgets)
     {
-        AddLeaf[] popular = [.. widgets.Where(w => w.Add.Popular is not null).OrderBy(w => w.Add.Popular).Select(w => new AddLeaf(w.Id, Again: true))];
-        return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular.Local(), popular[0].Kind, popular),
-            Shelf(AddFolderId.Browse, Str.AddMenu_Browse, widgets) ?? throw new InvalidOperationException("a build with no widget in it"));
+        // [S-16681] A kind with presets is offered as them, each with its own place.
+        List<(AddPlacement Add, AddLeaf Leaf)> picks = [.. widgets.SelectMany(w => w.Presets.Count == 0
+            ? Enumerable.Repeat((w.Add, new AddLeaf(w.Id)), 1)
+            : w.Presets.Select(p => (p.Add, new AddLeaf(w.Id, Preset: p.Key))))];
+        AddLeaf[] popular = [.. picks.Where(p => p.Add.Popular is not null).OrderBy(p => p.Add.Popular).Select(p => p.Leaf with { Again = true })];
+        return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular.Local(), popular[0].Pick, popular),
+            Shelf(AddFolderId.Browse, Str.AddMenu_Browse, picks) ?? throw new InvalidOperationException("a build with no widget in it"));
     }
 
     /// <summary>
@@ -128,10 +144,10 @@ public static class AddTree
     /// for a folder no widget of the build is at home in (every one of its modules absent): it is not
     /// in the tree ([S-6907]).
     /// </summary>
-    private static AddShelf? Shelf(AddFolderId id, Str? title, IReadOnlyList<WidgetDescriptor> widgets)
+    private static AddShelf? Shelf(AddFolderId id, Str? title, IReadOnlyList<(AddPlacement Add, AddLeaf Leaf)> picks)
     {
-        var entries = widgets.Where(w => w.Add.Shelf == id).Select(w => (w.Add.Group, w.Add.Rank, Node: (AddNode?)new AddLeaf(w.Id)))
-            .Concat(Folders.Where(f => f.Parent == id).Select(f => (f.Group, f.Rank, Node: (AddNode?)Shelf(f.Id, f.Title, widgets))))
+        var entries = picks.Where(p => p.Add.Shelf == id).Select(p => (p.Add.Group, p.Add.Rank, Node: (AddNode?)p.Leaf))
+            .Concat(Folders.Where(f => f.Parent == id).Select(f => (f.Group, f.Rank, Node: (AddNode?)Shelf(f.Id, f.Title, picks))))
             .Where(e => e.Node is not null)
             .OrderBy(e => e.Group).ThenBy(e => e.Rank);
 
@@ -154,13 +170,13 @@ public static class AddTree
         }
 
         var icon = IconOf(rows);
-        return new AddShelf(id, title?.Local() ?? ModuleCatalog.Of(icon).Label, icon, rows);
+        return new AddShelf(id, title?.Local() ?? icon.Label, icon, rows);
     }
 
     /// <summary>A folder wears its first widget's icon.</summary>
-    private static WidgetId IconOf(IReadOnlyList<AddNode> rows) => rows.FirstOrDefault(row => row is not AddLine) switch
+    private static WidgetPick IconOf(IReadOnlyList<AddNode> rows) => rows.FirstOrDefault(row => row is not AddLine) switch
     {
-        AddLeaf leaf => leaf.Kind,
+        AddLeaf leaf => leaf.Pick,
         AddShelf shelf => shelf.Icon,
         _ => throw new InvalidOperationException("an add page folder with no widget in it"),
     };

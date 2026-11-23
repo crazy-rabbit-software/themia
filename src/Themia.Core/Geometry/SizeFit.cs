@@ -157,11 +157,11 @@ public static class SizeFit
 
     /// <summary>
     /// [S-2448] The sizing a new widget of <paramref name="kind"/> has in <paramref name="style"/> (its
-    /// default config, that style): what the renders and the showcase draw a kind at.
+    /// default config, that style): what the renders and the showcase draw a kind at. [S-16683] A preset's: its new config's.
     /// </summary>
-    public static WidgetSizing Of(WidgetId kind, int? style = null)
+    public static WidgetSizing Of(WidgetPick kind, int? style = null)
     {
-        var config = WidgetConfig.CreateDefault(kind);
+        var config = kind.CreateConfig();
         if (style is { } chosen && config is IStyled styled)
         {
             styled.StyleValue = chosen;

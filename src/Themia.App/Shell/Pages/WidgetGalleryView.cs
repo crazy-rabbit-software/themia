@@ -762,8 +762,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
                     made.Add(members[i]);
                 }
             }
-            else if (tile.Piece.Kind is { } kind)
+            else if (tile.Piece.Pick is { } kind)
             {
+                // [S-16685] A preset's card is its kind with the preset applied.
                 var widget = WidgetInstance.Create(kind, RectOf(tile.Box));
                 if (tile.Piece.Style is { } style)
                 {
@@ -862,8 +863,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
         else
         {
-            var kind = piece.Kind!.Value;
-            words = AddTileWords.Of(new AddWidgetTile(kind));
+            var pick = piece.Pick!.Value;
+            var kind = pick.Kind;
+            words = AddTileWords.Of(new AddWidgetTile(pick));
             var styles = WidgetStyles.For(kind).Count;
             if (styles > 1)
             {

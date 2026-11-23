@@ -19,7 +19,10 @@ internal static class FirstRunDesktop
 {
     private const string Scope = "first-run";
 
-    /// <summary>One seeded widget. <paramref name="Config"/> is merged over the default config, property by property.</summary>
+    /// <summary>
+    /// One seeded widget. <paramref name="Id"/> is a pick ([S-16682]: a kind's id, or <c>kind/preset</c>);
+    /// <paramref name="Config"/> is merged over its new config, property by property.
+    /// </summary>
     internal sealed record Seed(string Id, FracRect Rect, bool Bare = false, string? Config = null);
 
     /// <summary>
@@ -84,7 +87,7 @@ internal static class FirstRunDesktop
     /// </summary>
     internal static WidgetInstance? Build(Seed seed)
     {
-        if (!WidgetId.TryParse(seed.Id, out var id) || !ModuleCatalog.TryGet(id, out _))
+        if (!WidgetPick.TryParse(seed.Id, out var id))
         {
             Log.Warn(Scope, $"the first-run desktop names a widget this build does not have ('{seed.Id}'); it is left out");
             return null;

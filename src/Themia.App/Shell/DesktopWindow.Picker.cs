@@ -147,7 +147,7 @@ internal sealed partial class DesktopWindow
         CloseAddPage(focusAdd: false);
 
         // [S-13018] Opened for a lassoed area: the widget goes into it.
-        if (area is { } into && tile is AddWidgetTile kindTile && _host.PlaceWidgetIn(this, kindTile.Kind, into))
+        if (area is { } into && tile is AddWidgetTile kindTile && _host.PlaceWidgetIn(this, kindTile.Pick, into))
         {
             return;
         }
@@ -155,7 +155,7 @@ internal sealed partial class DesktopWindow
         switch (tile)
         {
             case AddWidgetTile one:
-                _host.BeginPlacement(one.Kind);
+                _host.BeginPlacement(one.Pick);
                 break;
             case AddGroupTile group:
                 // [S-2471] One click places the recipe: loose widgets, selected together ([S-2475]).
@@ -273,7 +273,8 @@ internal sealed partial class DesktopWindow
             }
 
             var box = GridGeometry.PaintedCell(outlines[i].Rect, metrics, RasterScale);
-            var definition = ModuleCatalog.Of(outlines[i].Kind);
+            // [S-16684] A preset's ghost wears its preset's glyph and name.
+            var definition = outlines[i].Config is { } config ? WidgetPick.Of(config) : new WidgetPick(outlines[i].Kind);
 
             ghost.Icon.Glyph = definition.Glyph;
             ghost.Label.Text = definition.Name;

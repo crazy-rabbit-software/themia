@@ -1768,6 +1768,41 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   shell icon, the OLE drag) stay host code behind a seam the host installs at start, as do the
   place lookup and the Stocks settings' symbol search (`SymbolLookup`, [S-1307]).
 
+### One kind, several widgets: presets (PRESETS)
+
+The owner, 2026-11-23: *"you should be able to select what they toggle, this means that they should actually be merged into
+one widget and not be multiple ones. in the gallery and everywhere else they should still appear as if they were multiple
+widgets though. but in the backend it is the same one."* One mechanism, for any kind: `WidgetPreset` and `WidgetPick`
+(`Themia.Sdk/Modules/WidgetPreset.cs`). Tests `WidgetPresetTests` (made-up kinds), the quick setting's own (a real one).
+
+- **[S-16680]** **A kind may be offered as presets.** A descriptor's `Presets` (empty: the kind is offered as itself) are
+  entries that each stand as a widget of its own: a key (the same in every language), a name, a caption, a glyph, search
+  words, a place on the add page (`AddPlacement`, as a kind's), what it sets on a new config (`Apply`) and which configs it
+  is (`Holds`). What is offered is a **pick** (`WidgetPick`: a kind, or a kind and one of its presets; `Descriptor.Picks`,
+  `ModuleCatalog.Picks`), and every word, glyph, sizing and new config the offer shows or makes is read from the pick, so no
+  caller tells a kind and a preset apart.
+- **[S-16681]** **The add page lists one tile per preset.** The tree (`AddTree`) has a leaf per preset where the kind would
+  have one (`AddLeaf.Preset`), each in its own place, popular on its own; the page's homes, tiles and counts follow
+  (`AddHome.Preset`, `AddWidgetTile.Preset`, key `kind:<kind>/<preset>`); the kind itself has no tile.
+- **[S-16682]** **Data names a preset as `kind/preset`.** A ready-made group's widget, a first-run seed and a scene's recipe
+  part name a pick by its key (`quickToggle/wifi`; `WidgetPick.TryParse`, `.Split`); a name this build does not have (a kind,
+  or a preset its kind does not have) leaves the group out of the menu and the seed out, logged, as a missing kind does.
+- **[S-16683]** **Placing a preset makes its kind with the preset applied.** The placement session's new widget
+  (`PlacementPayload.ForNew(pick)`, `NewPick`), a lassoed area's, a picture's, the gallery's card, a group's and a seed's
+  widget are `WidgetInstance.Create(pick)`: the kind's default config with `Apply` over it; its sizing is that config's
+  (`SizeFit.Of(pick)`).
+- **[S-16684]** **A placed preset is named as itself.** A widget's pick is the first preset of its kind that holds its config
+  (`WidgetPick.Of`): the placing hint and the ghost say "Wi-Fi", the selection's entry "Wi-Fi" or "2 × Wi-Fi", and a
+  Wi-Fi and a Bluetooth selected together "2 widgets" (`QuickSetOffer.CommonPick`; `CommonKind` is null when the presets
+  differ); the selection's page heads it with the preset's glyph, name and caption.
+- **[S-16685]** **The gallery shows one piece per preset.** Its pieces carry the preset (`GalleryPiece.Preset`, `.Pick`): its
+  card, its sizes, its words' card and its styles in focus are the preset's.
+- **[S-16686]** **The search finds a preset as the widget it stands for**, on its own name, caption and search words (and its
+  subject's), never on the kind's: "wifi" finds Wi-Fi alone (`AddSearch.Doc(pick, path)`); a group is found on the names of
+  the presets it places.
+- **[S-16687]** **The registry refuses a bad preset key**: one that is not an id-shaped word, or given twice by one kind
+  (`ModuleCatalog.Check`).
+
 ## The widget kit (KIT)
 
 The shared parts a list widget is built from, and the rules they keep (design and recipe:

@@ -76,7 +76,7 @@ internal sealed partial class AppHost
     /// <paramref name="surface"/>'s view (<see cref="LassoArea.Fill"/>: the box its kind allows, on the grid), selected; one
     /// undo step. False when the licence refuses it or the display is not measured.
     /// </summary>
-    public bool PlaceWidgetIn(DesktopWindow surface, WidgetId kind, FracRect area)
+    public bool PlaceWidgetIn(DesktopWindow surface, WidgetPick kind, FracRect area)
     {
         if (!surface.Metrics.IsUsable || !AllowCreate(1))
         {

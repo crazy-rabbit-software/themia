@@ -31,12 +31,13 @@ public static class ReadyMadeScene
 
         var widgets = recipe.Widgets.Select((w, i) => new SceneWidget(
             $"$.readyMade.{recipe.Id}.widgets[{i}]",
-            recipe.Widgets.Take(i).Any(o => o.Kind == w.Kind) ? $"{w.Kind}-{i}" : w.Kind,
-            new WidgetId(w.Kind),
+            (recipe.Widgets.Take(i).Any(o => o.Kind == w.Kind) ? $"{w.Kind}-{i}" : w.Kind).Replace(WidgetPick.Separator, '-'),
+            new WidgetId(WidgetPick.Split(w.Kind).Kind),
             new SceneRect(Origin + w.Box.X, Origin + w.Box.Y, w.Box.Width, w.Box.Height),
             State: states.TryGetValue(w.Kind, out var state) ? state : null,
             Config: w.Fragment,
-            Selected: edit)).ToList();
+            Selected: edit,
+            Preset: WidgetPick.Split(w.Kind).Preset)).ToList();
 
         // A selection's page hangs from the bar's entry ([S-2343]): edit mode is the bar, the placed widgets selected ([S-2475]).
         var scene = new Scene(recipe.Id.ToLowerInvariant(), theme, string.Empty, Wallpaper, widgets, edit ? new SceneEdit(Bar: true) : null, Scale: 1, Taskbar: true);

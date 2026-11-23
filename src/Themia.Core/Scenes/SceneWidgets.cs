@@ -33,8 +33,14 @@ public static class SceneWidgets
             return null;
         }
 
+        if (widget.Preset is { } preset && !descriptor.Presets.Any(p => string.Equals(p.Key, preset, StringComparison.Ordinal)))
+        {
+            refusal = new SceneRefusal(widget.Path + ".kind", $"the widget \"{widget.Kind}\" has no preset \"{preset}\"");
+            return null;
+        }
+
         var at = widget.At;
-        var model = WidgetInstance.Create(widget.Kind, new FracRect(at.X / screen.Width, at.Y / screen.Height, at.Width / screen.Width, at.Height / screen.Height));
+        var model = WidgetInstance.Create(new WidgetPick(widget.Kind, widget.Preset), new FracRect(at.X / screen.Width, at.Y / screen.Height, at.Width / screen.Width, at.Height / screen.Height));
 
         if (widget.Config is { } fragment)
         {

@@ -48,7 +48,7 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
             return new PieceSize(w, h, w, h, true, false) { Widths = GroupWidths(group) };
         }
 
-        var kind = piece.Kind ?? throw new ArgumentException("a piece is a widget or a group", nameof(piece));
+        var kind = piece.Pick ?? throw new ArgumentException("a piece is a widget or a group", nameof(piece));
         var (nw, nh) = Cells(kind, piece.Style);
         if (SizeFit.Limits(SizeFit.Of(kind, piece.Style), screen, contentScale) is not { } limits)
         {
@@ -69,7 +69,7 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
     }
 
     /// <summary>[S-14912] A kind's natural cells in a style: what placing it new makes (<see cref="PlacementPayload.NewSize"/>).</summary>
-    public (int W, int H) Cells(WidgetId kind, int? style)
+    public (int W, int H) Cells(WidgetPick kind, int? style)
     {
         var natural = SizeFit.Of(kind, style).Natural;
         var box = PlacementPayload.NewSize(kind, natural.Width, natural.Height, screen, Sizes);

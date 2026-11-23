@@ -262,8 +262,8 @@ internal sealed class AddPictures : IDisposable
         switch (tile)
         {
             case AddWidgetTile one:
-                var natural = Sdk.ModuleCatalog.Of(one.Kind).Natural;
-                models = [WidgetInstance.Create(one.Kind, Core.Geometry.FracRect.FromDips(0, 0, natural.Width, natural.Height, metrics))];
+                var natural = one.Pick.Natural;
+                models = [WidgetInstance.Create(one.Pick, Core.Geometry.FracRect.FromDips(0, 0, natural.Width, natural.Height, metrics))];
                 break;
             case AddGroupTile group when ReadyMadeGroups.Build(group.Group, metrics) is { } built:
                 models = built;

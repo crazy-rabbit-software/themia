@@ -12,10 +12,22 @@ public abstract record AddTile
     public abstract string Key { get; }
 }
 
-/// <summary>[S-11702] A widget of one kind, placed at its natural size.</summary>
-public sealed record AddWidgetTile(WidgetId Kind) : AddTile
+/// <summary>
+/// [S-11702] A widget of one kind, placed at its natural size. [S-16681] <paramref name="Preset"/>: one of the kind's
+/// presets, a tile of its own (<c>kind:quickToggle/wifi</c>).
+/// </summary>
+public sealed record AddWidgetTile(WidgetId Kind, string? Preset = null) : AddTile
 {
-    public override string Key => "kind:" + Kind.Value;
+    /// <summary>A pick's tile: its kind and preset.</summary>
+    public AddWidgetTile(WidgetPick pick)
+        : this(pick.Kind, pick.Preset)
+    {
+    }
+
+    /// <summary>[S-16681] What a click on it places: the kind, or its preset.</summary>
+    public WidgetPick Pick => new(Kind, Preset);
+
+    public override string Key => "kind:" + Pick.Key;
 }
 
 /// <summary>[S-11702] [S-2473] A ready-made group: all its widgets placed as one new group.</summary>
@@ -154,7 +166,7 @@ public sealed class AddPage
             Add(start, AddFolderId.Start, AddSectionKind.ReadyMade, Str.Groups_Add_ReadyMade.Local(),
                 [.. groups.Where(g => g.Starter is not null).OrderBy(g => g.Starter).Select(g => (AddTile)new AddGroupTile(g))]);
             Add(start, AddFolderId.Start, AddSectionKind.Popular, Str.AddMenu_Popular.Local(),
-                [.. popular.Rows.OfType<AddLeaf>().Where(leaf => have.Contains(leaf.Kind)).Select(leaf => (AddTile)new AddWidgetTile(leaf.Kind))]);
+                [.. popular.Rows.OfType<AddLeaf>().Where(leaf => have.Contains(leaf.Kind)).Select(leaf => (AddTile)new AddWidgetTile(leaf.Pick))]);
             return start;
         };
 
@@ -162,29 +174,29 @@ public sealed class AddPage
         var placedGroups = new HashSet<string>(StringComparer.Ordinal);
         foreach (var subject in browse.Rows.OfType<AddShelf>())
         {
-            var own = new List<WidgetId>();
-            var families = new List<(AddShelf Shelf, List<WidgetId> Kinds)>();
+            var own = new List<WidgetPick>();
+            var families = new List<(AddShelf Shelf, List<WidgetPick> Kinds)>();
             foreach (var row in subject.Rows)
             {
                 switch (row)
                 {
                     case AddLeaf leaf when have.Contains(leaf.Kind):
-                        own.Add(leaf.Kind);
-                        homes.Add(new AddHome(leaf.Kind, [subject]));
+                        own.Add(leaf.Pick);
+                        homes.Add(new AddHome(leaf.Kind, [subject], leaf.Preset));
                         break;
                     case AddShelf family:
-                        var kinds = family.Rows.OfType<AddLeaf>().Where(leaf => have.Contains(leaf.Kind)).Select(leaf => leaf.Kind).ToList();
+                        var kinds = family.Rows.OfType<AddLeaf>().Where(leaf => have.Contains(leaf.Kind)).Select(leaf => leaf.Pick).ToList();
 
                         // A family of one is that widget, among the subject's own ([S-3511]).
                         if (kinds.Count == 1)
                         {
                             own.Add(kinds[0]);
-                            homes.Add(new AddHome(kinds[0], [subject]));
+                            homes.Add(new AddHome(kinds[0].Kind, [subject], kinds[0].Preset));
                         }
                         else if (kinds.Count > 1)
                         {
                             families.Add((family, kinds));
-                            homes.AddRange(kinds.Select(k => new AddHome(k, [subject, family])));
+                            homes.AddRange(kinds.Select(k => new AddHome(k.Kind, [subject, family], k.Preset)));
                         }
 
                         break;
@@ -244,7 +256,7 @@ public sealed class AddPage
     }
 
     /// <summary>A subject's glyph: its first widget's (a kind this build does not know: the apps' glyph).</summary>
-    private static string GlyphOf(WidgetId kind) => ModuleCatalog.TryGet(kind, out var descriptor) ? descriptor.Glyph : Glyphs.Apps;
+    private static string GlyphOf(WidgetPick pick) => ModuleCatalog.TryGet(pick.Kind, out _) ? pick.Glyph : Glyphs.Apps;
 
     /// <summary>Add a section of <paramref name="tiles"/> unless it would be empty.</summary>
     private static void Add(List<AddSection> sections, AddFolderId tab, AddSectionKind kind, LocalText heading, IReadOnlyList<AddTile> tiles)
@@ -290,7 +302,7 @@ public sealed class AddPage
             built = (locale,
             [
                 .. Groups.Select(g => (WidgetSearch.Index(AddSearch.Doc(g)), (AddTile)new AddGroupTile(g))),
-                .. Homes.Select(h => (WidgetSearch.Index(AddSearch.Doc(ModuleCatalog.Of(h.Kind), h.Path)), (AddTile)new AddWidgetTile(h.Kind))),
+                .. Homes.Select(h => (WidgetSearch.Index(AddSearch.Doc(h.Pick, h.Path)), (AddTile)new AddWidgetTile(h.Pick))),
             ]);
             _index = built;
         }
@@ -316,15 +328,25 @@ public static class AddSearch
     public static WidgetSearchDoc Doc(WidgetDescriptor definition, IReadOnlyList<AddShelf> path)
     {
         ArgumentNullException.ThrowIfNull(definition);
+        return Doc(new WidgetPick(definition.Id), path);
+    }
+
+    /// <summary>
+    /// [S-943] A widget at its home. [S-16686] A preset is found as the widget it stands for: on its own name, caption and
+    /// search words, never on the kind's ("wifi" finds Wi-Fi, not every quick setting).
+    /// </summary>
+    public static WidgetSearchDoc Doc(WidgetPick pick, IReadOnlyList<AddShelf> path)
+    {
         ArgumentNullException.ThrowIfNull(path);
 
         var locale = Strings.Current;
+        var definition = pick.Descriptor;
         return new WidgetSearchDoc(
-            definition.Id.Value,
+            pick.Entry is null ? definition.Id.Value : pick.Preset!,
             // [S-11709] The tile's own name first (the one shown), then the kind's: both find it.
-            definition.AddLabel is { } tile ? [.. Both(locale, tile), .. Both(locale, definition.Label)] : Both(locale, definition.Label),
-            definition.Keywords,
-            Both(definition.Describe(locale), definition.Describe(Locale.En)),
+            pick.Entry is null && definition.AddLabel is { } tile ? [.. Both(locale, tile), .. Both(locale, definition.Label)] : Both(locale, pick.Label),
+            pick.Keywords,
+            Both(pick.Describe(locale), pick.Describe(Locale.En)),
             [.. path.SelectMany(shelf => Both(locale, shelf.Title))],
             [.. definition.Providers.Select(p => p.Value)]);
     }
@@ -335,9 +357,10 @@ public static class AddSearch
         ArgumentNullException.ThrowIfNull(group);
 
         var locale = Strings.Current;
+        // [S-16682] A widget named as a preset is found by the preset's name.
         var kinds = group.Widgets
-            .Select(w => WidgetId.TryParse(w.Kind, out var id) && ModuleCatalog.TryGet(id, out var descriptor) ? descriptor : null)
-            .OfType<WidgetDescriptor>()
+            .Select(w => WidgetPick.TryParse(w.Kind, out var pick) ? pick : (WidgetPick?)null)
+            .OfType<WidgetPick>()
             .ToList();
 
         // [S-3513] Its subject's name too, as a widget's: "music" finds Now playing.

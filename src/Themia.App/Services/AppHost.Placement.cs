@@ -26,11 +26,11 @@ internal sealed partial class AppHost
     /// <summary>[S-1594] Escape while placing, wherever the keyboard is. Created on the first placement, disposed with the host.</summary>
     private PlacementKeyWatcher? _placementKeys;
 
-    /// <summary>[S-421] Start placing a new widget of <paramref name="kind"/> at its default size.</summary>
-    public void BeginPlacement(WidgetId kind)
+    /// <summary>[S-421] Start placing a new widget of <paramref name="kind"/> (a kind, or [S-16683] its preset) at its default size.</summary>
+    public void BeginPlacement(WidgetPick kind)
     {
-        var definition = ModuleCatalog.Of(kind);
-        BeginPlacement(PlacementPayload.ForNew(kind, definition.Natural.Width, definition.Natural.Height));
+        var natural = kind.Natural;
+        BeginPlacement(PlacementPayload.ForNew(kind, natural.Width, natural.Height));
     }
 
     /// <summary>

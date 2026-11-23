@@ -409,7 +409,7 @@ internal static class WidgetGalleryRender
                 gallery.Show(quick);
                 var least = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id)?.Least == true).ToList();
                 var full = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id) is { Least: false, Kind: not null, Group: null }).ToList();
-                Expect(least.Count > 0 && least.Count == full.Count && least.TrueForAll(w => full.Exists(f => f.Kind == w.Kind && f.Rect.W >= w.Rect.W - 1e-9 && f.Rect.H >= w.Rect.H - 1e-9 && f.Rect.W * f.Rect.H > (w.Rect.W * w.Rect.H) + 1e-9)),
+                Expect(least.Count > 0 && least.Count == full.Count && least.TrueForAll(w => full.Exists(f => gallery.PieceAt(f.Id)?.Pick == gallery.PieceAt(w.Id)?.Pick && f.Rect.W >= w.Rect.W - 1e-9 && f.Rect.H >= w.Rect.H - 1e-9 && f.Rect.W * f.Rect.H > (w.Rect.W * w.Rect.H) + 1e-9)),
                     $"{at}: [S-16562] [S-16565] the quick settings show {full.Count} toggles and power buttons at their size and {least.Count} at their least, smaller");
             }
 
