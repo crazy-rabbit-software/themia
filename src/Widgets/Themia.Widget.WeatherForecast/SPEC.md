@@ -78,7 +78,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   grid cells), as many across as the width holds whole and lines down as the height reaches, the last line cut, a new
   one 3 × 2 (240 × 200), 1 × 1 to 5 × 3 (`ForecastGrid.DaysFor`, [S-14815]). Every
   style takes every grid cell; a resize stores no days ([S-14502]). Tests `ForecastDaysTests.S11146_S14410_`,
-  `ForecastCurveTests.S11146_S14410_`, `WeatherForecastMenuTests.S6173_S14410_`.
+  `ForecastCurveTests.S11146_S14410_`, `WeatherForecastMenuTests.S6173_S14410_`. The grid's columns are the whole ones
+  the width holds ([S-16438]).
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
   other styles offer nothing there.
 - **[S-12403]** **The days fill the content** ([S-12400]), in every style. Rows: the days fill the content
@@ -96,10 +97,28 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   width; columns and the curve's columns from the card's left edge and from its top edge to its foot, the inset over and
   under their parts padding inside the column (the hover and a link light the column whole); the grid's cells of one
   size (80 × 100 on the default grid: "Today" and "16° 8°" with the inset either side, the parts with 8 over and under,
-  in whole grid cells) from the card's left and top edges, touching, every column the width reaches, the last cut by
-  the card's right edge, and every line the height reaches, the last cut by its foot ([S-14816]). No margin and
+  in whole grid cells) from the card's left and top edges, touching, the whole columns the width holds (the days wrap
+  line after line, [S-16438]: a day in a line's middle cut by the right edge with the next days under it broke WR-4),
+  and every line the height reaches, the last cut by its foot ([S-14816]). No margin and
   no gap round or between the days in any style; every edge on a whole device pixel (`RowReach`). Tests
   `ForecastDaysTests.S14815_`; renders judged by `scripts/item-check.py` in every style ([S-14814]).
+- **[S-16439]** **The curve's plot is edge to edge** (owner, 2026-11-19: "Plot edge to edge", the plot and its fill reach
+  the card's edges, the labels stand inside it, over the plot): the highs' and the lows' lines are held out from the first
+  day's point to the card's left edge and from the last day's to its right edge, the days' columns' end or the card's where
+  it is wider than its days (`ForecastCurve.Edged`; a gap in the days stays a gap; one day alone a line across), and the
+  chart's box runs from its band's top to the card's foot, its wash under the highs down to the foot, the rain's figures
+  standing over it. Before, the fill stood 30 DIP in from each side, its foot 32 over the card's with the rain under it,
+  and one day drew no plot. Test `ForecastCurveTests.S16439_`.
+- **[S-16440]** **No forecast keeps the face and says why** (WR-10: "the widget keeps its face (its graph, its rows ...) and
+  says why in a compact line"): the style's days from today stay, "--" and the unknown sky, every range bar its track (a
+  row's and a column's), the curve a flat line across the plot in the disabled role (`ForecastCurve.Unread`); why is the
+  Status block's one row on the card's top edge ([S-6734], `OnlineParts.ShowState`: the sentence and Retry where it offers
+  it), the face right under it in the box it leaves; not set up is the card's Set up row alone. Before, the bars and
+  their tracks vanished and only a tooltip said why. Test `ForecastCurveTests.S16440_`.
+- **[S-16441]** **A stale forecast's rows stay alike** (WR-11: "Rows look like rows everywhere (same heights, type,
+  padding ...)"): the status's problem glyph stands in a room every day's row leaves at its end, centred on the first row,
+  the bars taking what is left of that, never the first row's alone (its "Today" was cut to "T…", its bar and figures 24
+  DIP off the others', the glyph over the rows' seam).
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
 - View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).

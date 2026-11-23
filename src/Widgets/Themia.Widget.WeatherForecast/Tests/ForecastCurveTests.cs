@@ -123,4 +123,32 @@ public sealed class ForecastCurveTests
             Assert.InRange(line[k].Y, -1e-9, 100 + 1e-9);
         }
     }
+
+    [Fact]
+    public void S16439_a_run_on_the_first_or_last_day_is_held_out_to_that_edge_of_the_plot()
+    {
+        // Three days of 60, the card 200 wide: the line runs from the left edge to the card's right edge.
+        var points = ForecastCurve.Points([10, 20, 15], 10, 20, 60, 0, 100);
+        var run = Assert.Single(ForecastCurve.Smooth(points));
+        var edged = ForecastCurve.Edged(run, ForecastCurve.Sample(run, 2), 3, 200);
+
+        Assert.Equal((0.0, points[0]!.Value.Y), (edged[0].X, edged[0].Y));
+        Assert.Equal((200.0, points[2]!.Value.Y), (edged[^1].X, edged[^1].Y));
+
+        // A gap stays a gap: a run that ends before the last day is not held out to the right.
+        var broken = ForecastCurve.Smooth(ForecastCurve.Points([10, 20, null, 15], 10, 20, 60, 0, 100));
+        var first = ForecastCurve.Edged(broken[0], ForecastCurve.Sample(broken[0], 2), 4, 240);
+        Assert.Equal(0, first[0].X);
+        Assert.Equal(90, first[^1].X, 6);
+
+        // One day alone is a line across the plot, never no plot (it was nothing at 60 × 168).
+        var lone = Assert.Single(ForecastCurve.Smooth(ForecastCurve.Points([12], 12, 12, 60, 0, 100)));
+        Assert.Equal([new CurvePoint(0, 50), new CurvePoint(30, 50), new CurvePoint(60, 50)], ForecastCurve.Edged(lone, ForecastCurve.Sample(lone), 1, 60));
+    }
+
+    [Fact]
+    public void S16440_with_nothing_read_the_curve_is_a_flat_line_across_the_plot()
+    {
+        Assert.Equal([new CurvePoint(0, 60), new CurvePoint(300, 60)], ForecastCurve.Unread(300, 20, 100));
+    }
 }

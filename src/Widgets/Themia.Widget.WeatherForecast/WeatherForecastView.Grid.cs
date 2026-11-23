@@ -19,7 +19,7 @@ internal sealed partial class WeatherForecastView
     private Grid BuildGrid(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastGridPlan plan)
     {
         var count = Math.Min(plan.Days, days.Count);
-        var scale = _area.Grid().Raster;
+        var scale = _laid.Grid().Raster;
         var across = new RowReach(plan.CellWidth, plan.Columns, scale);
         var down = new RowReach(plan.CellHeight, plan.Rows, scale);
         var grid = new Grid

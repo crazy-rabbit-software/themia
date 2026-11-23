@@ -29,6 +29,12 @@ namespace Themia.App.Widgets;
 /// The bar on each day is scaled against the whole forecast rather than that day's own range: a
 /// week that runs 12° to 14° every day should draw seven short marks in the same place.
 /// </para>
+/// <para>
+/// [S-16440] With no forecast the style's face stays (the days from today, "--", the unknown sky, every range bar its
+/// track, the curve a flat line) and why is the Status block's one compact row on the card's top edge, the face right
+/// under it. [S-16441] A forecast kept through a failed refresh keeps its rows alike: the problem glyph stands in a room
+/// every row leaves at its end, centred on the first row.
+/// </para>
 /// </summary>
 internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens,
     IWidgetSizeAware, IWidgetContextActions
@@ -42,6 +48,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     private readonly KitStatus _mark;
     private readonly Grid _body = new();
 
+    /// <summary>[S-16440] Without a forecast: why, the Status block's one row on the card's top edge, the face under it.</summary>
+    private readonly StatusBlock _state = StatusBlock.Line();
+
 
     private WeatherForecastConfig _config = new();
 
@@ -54,6 +63,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// <summary>[S-12813] Without a forecast: its days with nothing read, drawn in the style ("--").</summary>
     private IReadOnlyList<ForecastDay>? _unread;
     private WidgetArea _area;
+
+    /// <summary>[S-16440] The box the face is laid in: the view's, less a state's row over it.</summary>
+    private WidgetArea _laid;
 
     /// <summary>What is on screen: the style, its plan and the day the labels were computed for.</summary>
     private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation)? _built;
@@ -73,6 +85,11 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             Render);
         _days = new LinkLights<DateLink>(_links, LinkTopics.HoveredDate, LinkTopics.SelectedDate);
 
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _state.Visibility = Visibility.Collapsed;
+        Children.Add(_state);
+        SetRow(_body, 1);
         Children.Add(_body);
         _mark.Place(this);
     }
@@ -124,11 +141,12 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
 
         if (days is null || days.Count == 0)
         {
-            // [S-12813] The days stay in the style, "--" and the unknown sky; why is their tooltip (not set up is the
-            // card's Set up row, [S-1862]); a status glyph would stand over the first day's "--".
+            // [S-12813] [S-16440] The days stay in the style, "--" and the unknown sky (WR-10); why is the Status block's
+            // compact row over them, and their tooltip (not set up is the card's Set up row, [S-1862]: no row).
             _unread = ForecastDefaults.Unread(DateOnly.FromDateTime(DateTime.Now), WeatherForecastConfig.MostDays);
             _body.Visibility = Visibility.Visible;
             _mark.Clear();
+            OnlineParts.ShowState(_state, _feed.Status, Glyphs.Weather, _feed.Refresh);
             ToolTipService.SetToolTip(_body, OnlineParts.Caption(_feed.Status) is { Length: > 0 } why ? why : null);
             _built = null;
             Lay();
@@ -136,6 +154,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         }
 
         _unread = null;
+        _state.Hide();
         ToolTipService.SetToolTip(_body, null);
         _body.Visibility = Visibility.Visible;
         _mark.Show(OnlineParts.Problems(held), busy: false);
@@ -153,14 +172,26 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             return;
         }
 
+        // [S-16440] A state's row on the card's top edge: the face stands right under it, in the box it leaves.
+        var stated = _state.Visibility == Visibility.Visible;
+        var over = stated ? LineRules.EdgeRow(_area.Grid()) - FamilySpace.Inset : 0;
+        var area = _area with { Height = Math.Max(1, _area.Height - over) };
+        _body.Margin = new Thickness(0, stated ? FamilySpace.Inset : 0, 0, 0);
+
         var style = _config.Style;
         object plan = style switch
         {
-            ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, _config),
-            ForecastStyle.Curve => ForecastCurve.Plan(_area, _config),
-            ForecastStyle.Grid => ForecastGrid.Plan(_area, _config),
-            _ => WeatherForecastLayout.Rows(_area, _config),
+            ForecastStyle.Columns => WeatherForecastLayout.Columns(area, _config),
+            ForecastStyle.Curve => ForecastCurve.Plan(area, _config),
+            ForecastStyle.Grid => ForecastGrid.Plan(area, _config),
+            _ => WeatherForecastLayout.Rows(area, _config),
         };
+
+        // [S-16441] The problem glyph centred on the first row (in the room every row leaves at its end); elsewhere where
+        // the kit puts it.
+        _mark.StandAt(plan is ForecastRowsPlan rowsPlan && !stated
+            ? (ItemSize.Optimal(FamilyShape.RowHeight(rowsPlan.Lines), _area.Grid()) - KitStatus.Side) / 2 - FamilySpace.Inset
+            : null);
 
         // One clock reading for the whole build, so a forecast drawn across midnight cannot label
         // two different days "Today".
@@ -172,6 +203,8 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         {
             return;
         }
+
+        _laid = area;
 
         ClearBody();
         _built = key;

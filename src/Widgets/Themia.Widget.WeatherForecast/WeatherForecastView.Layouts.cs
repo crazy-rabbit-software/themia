@@ -22,7 +22,7 @@ internal sealed partial class WeatherForecastView
     /// <summary>[S-14815] The columns' widths, each its one size on whole device pixels, from the card's left edge.</summary>
     private void AddColumns(Grid grid, double width, int count)
     {
-        var reach = new RowReach(width, count, _area.Grid().Raster);
+        var reach = new RowReach(width, count, _laid.Grid().Raster);
         for (var i = 0; i < count; i++)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(reach.Height(i)) });
@@ -42,7 +42,7 @@ internal sealed partial class WeatherForecastView
     /// </summary>
     private SpreadStack BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
     {
-        var list = new RowStack { Margin = ListEdge.Margin };
+        var list = new AlikeRows { Margin = ListEdge.Margin };
         var bars = new List<(RowBlock Row, ChartBar Bar)>();
 
         for (var i = 0; i < Math.Min(plan.Days, days.Count); i++)
@@ -56,11 +56,16 @@ internal sealed partial class WeatherForecastView
 
             row.Show(WeatherReport.DayLabel(day.Day, today), plan.Compact ? WeatherReport.Degrees(day.High) : Temperatures(day), Second(day));
 
-            if (plan.Meter > 0 && day.Low is { } low && day.High is { } high)
+            // [S-16440] A day without its figures keeps its bar's track (WR-10: the default values, never no bar).
+            if (plan.Meter > 0)
             {
-                var (start, end) = WeatherReport.RangeBar(low, high, range.Coldest, range.Warmest);
                 var bar = new ChartBar();
-                bar.Show(end, start);
+                if (day.Low is { } low && day.High is { } high)
+                {
+                    var (start, end) = WeatherReport.RangeBar(low, high, range.Coldest, range.Warmest);
+                    bar.Show(end, start);
+                }
+
                 bars.Add((row, bar));
             }
 
@@ -73,7 +78,8 @@ internal sealed partial class WeatherForecastView
         {
             var rows = list.Children.OfType<RowBlock>().ToList();
             var meter = WeatherForecastLayout.MeterWidth(
-                WeatherForecastLayout.ContentWidth(_area),
+                // [S-16441] Every row leaves the status glyph's room at its end: the bars take what is left of that.
+                WeatherForecastLayout.ContentWidth(_laid) - _mark.Room,
                 plan.Compact ? 0 : FamilyShape.Icon + FamilySpace.GlyphGap,
                 rows.Max(r => Math.Max(Natural(r.NameText), r.Second.Visibility == Visibility.Visible ? Natural(r.Second) : 0)),
                 rows.Max(r => r.ValueText.Visibility == Visibility.Visible ? Natural(r.ValueText) : 0),
@@ -85,6 +91,27 @@ internal sealed partial class WeatherForecastView
         }
 
         return list;
+    }
+
+    /// <summary>
+    /// [S-16441] The days' rows, alike (WR-11: "Rows look like rows everywhere"): the status's problem glyph stands in a room
+    /// every row leaves at its end, never the first row's alone (its day was cut to "T…", its bar and figures 24 DIP off the
+    /// others').
+    /// </summary>
+    private sealed partial class AlikeRows : RowStack, IStatusRoom
+    {
+        void IStatusRoom.StatusRoom(double width)
+        {
+            var room = double.IsFinite(width) ? Math.Max(0, width) : 0;
+            foreach (var row in Children.OfType<RowBlock>())
+            {
+                var padding = row.Padding with { Right = FamilySpace.Inset + room };
+                if (row.Padding != padding)
+                {
+                    row.Padding = padding;
+                }
+            }
+        }
     }
 
     /// <summary>A text's own width on one line, as it is styled now.</summary>

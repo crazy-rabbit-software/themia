@@ -113,6 +113,48 @@ public static class ForecastCurve
     }
 
     /// <summary>
+    /// [S-16439] A run's line (<paramref name="line"/>, its <see cref="Sample"/>) held out to the plot's edges (owner,
+    /// 2026-11-19: "Plot edge to edge", the plot and its fill reach the card's edges): a run that starts on the first day
+    /// starts at the left edge at that day's height, one that ends on the last of <paramref name="days"/> ends at the plot's
+    /// right edge (<paramref name="end"/>: the days' columns' end, or the card's where it is wider) at its height. A gap in
+    /// the days stays a gap. A run of one day held out to an edge is a line too (one day alone: across the whole plot).
+    /// </summary>
+    public static IReadOnlyList<CurvePoint> Edged(CurveRun run, IReadOnlyList<CurvePoint> line, int days, double end)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(line);
+        if (line.Count == 0)
+        {
+            return line;
+        }
+
+        var edged = new List<CurvePoint>(line.Count + 2);
+        if (run.FirstDay == 0 && line[0].X > 0)
+        {
+            edged.Add(line[0] with { X = 0 });
+        }
+
+        edged.AddRange(line);
+        if (run.FirstDay + run.Segments.Count == days - 1 && line[^1].X < end)
+        {
+            edged.Add(line[^1] with { X = end });
+        }
+
+        return edged;
+    }
+
+    /// <summary>
+    /// [S-16440] The curve with no forecast to draw (WR-10: "the default values in the graph"): a flat line across the
+    /// plot, from its left edge to <paramref name="end"/>, in the band's middle between <paramref name="top"/> and
+    /// <paramref name="bottom"/>, never no chart.
+    /// </summary>
+    public static IReadOnlyList<CurvePoint> Unread(double end, double top, double bottom)
+    {
+        var y = top + ((bottom - top) / 2);
+        return [new CurvePoint(0, y), new CurvePoint(Math.Max(1, end), y)];
+    }
+
+    /// <summary>
     /// The range the curves share: the highs' and the lows' together (or the highs' alone without a
     /// low curve), and the temperature now when it is marked ([S-6172]), so the now mark is always on
     /// the chart rather than pinned to its edge. Nothing usable is the range 0..1.

@@ -19,6 +19,11 @@ internal sealed partial class WeatherForecastView
     /// right edge, and from the card's top edge to its foot (the hover and the links light it whole); the parts and the
     /// chart stand inside the columns, the inset over and under them their padding (WR-3).
     /// </para>
+    /// <para>
+    /// [S-16439] The plot is edge to edge (owner, 2026-11-19: "Plot edge to edge", the plot and its fill reach the card's
+    /// edges, the labels stand inside it, over the plot): the lines are held out to the left and right edges, the wash runs
+    /// down to the card's foot, the rain's figures standing over it; [S-16440] with no forecast, a flat line.
+    /// </para>
     /// </summary>
     private Grid BuildCurve(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastCurvePlan plan)
     {
@@ -80,10 +85,16 @@ internal sealed partial class WeatherForecastView
             }
         }
 
-        var chart = Chart(shown, plan);
+        // [S-16439] The chart's box from its band's top to the card's foot (over the rain's line and the column's padding), the
+        // first of the parts so the figures stand over its wash.
+        // A card wider than its days (14 at most) runs the plot on past the last day's column to its right edge.
+        var right = Math.Max(0, _laid.Width - (shown.Count * plan.ColumnWidth));
+        var chart = Chart(shown, plan, shown.Count * plan.ColumnWidth + right);
         Grid.SetRow(chart, chartRow);
+        Grid.SetRowSpan(chart, grid.RowDefinitions.Count - chartRow);
         Grid.SetColumnSpan(chart, Math.Max(1, shown.Count));
-        grid.Children.Add(chart);
+        chart.Margin = new Thickness(0, 0, -right, -ColumnPadding.Bottom);
+        grid.Children.Insert(0, chart);
         columns.Children.Add(grid);
         return columns;
     }
@@ -97,23 +108,32 @@ internal sealed partial class WeatherForecastView
     }
 
     /// <summary>The lines and their figures, at the plan's size (known before layout, so no size handler).</summary>
-    private static Grid Chart(List<ForecastDay> days, ForecastCurvePlan plan)
+    private static Grid Chart(List<ForecastDay> days, ForecastCurvePlan plan, double end)
     {
-        var chart = new Grid { IsHitTestVisible = false, Height = plan.ChartHeight, VerticalAlignment = VerticalAlignment.Top };
+        var chart = new Grid { IsHitTestVisible = false };
         var figures = new Canvas();
 
         var highs = days.Select(d => d.High).ToList();
         var lows = days.Select(d => d.Low).ToList();
         var (coldest, warmest) = ForecastCurve.Scale(plan.Low ? highs.Concat(lows) : highs);
 
+        // [S-16440] Nothing read: the default line across the plot, unavailable (WR-10), never no chart.
+        if (!highs.Any(h => h is { } v && double.IsFinite(v)))
+        {
+            var flat = new Chart();
+            flat.Role(ColourRole.TextDisabled);
+            flat.Show(new ChartModel { Low = double.NaN, Series = [.. ForecastCurve.Unread(end, plan.Top, plan.Bottom).Select(p => new ChartSample(p.X, p.Y))] });
+            chart.Children.Add(flat);
+        }
+
         var highPoints = ForecastCurve.Points(highs, coldest, warmest, plan.ColumnWidth, plan.Top, plan.Bottom);
-        Lines(chart, highPoints, high: true);
+        Lines(chart, highPoints, high: true, days.Count, end);
         Figures(figures, highPoints, highs, plan.ColumnWidth, above: true);
 
         if (plan.Low)
         {
             var lowPoints = ForecastCurve.Points(lows, coldest, warmest, plan.ColumnWidth, plan.Top, plan.Bottom);
-            Lines(chart, lowPoints, high: false);
+            Lines(chart, lowPoints, high: false, days.Count, end);
             Figures(figures, lowPoints, lows, plan.ColumnWidth, above: false);
         }
 
@@ -123,19 +143,21 @@ internal sealed partial class WeatherForecastView
 
     /// <summary>
     /// One line per unbroken run of days ([S-6164]): the highs as the one chart's series (the accent,
-    /// its wash under it), the lows as its second series (tertiary).
+    /// its wash under it), the lows as its second series (tertiary). [S-16439] A run on the first or the last day is held out
+    /// to that edge of the plot.
     /// </summary>
-    private static void Lines(Grid chart, IReadOnlyList<CurvePoint?> points, bool high)
+    private static void Lines(Grid chart, IReadOnlyList<CurvePoint?> points, bool high, int days, double end)
     {
         foreach (var run in ForecastCurve.Smooth(points))
         {
-            if (run.Segments.Count == 0)
+            var edged = ForecastCurve.Edged(run, ForecastCurve.Sample(run), days, end);
+            if (edged.Count < 2)
             {
                 continue;
             }
 
             // A curve laid out here, its heights as given ([S-6750]: the one chart, laid).
-            var line = ForecastCurve.Sample(run).Select(p => new ChartSample(p.X, p.Y)).ToList();
+            var line = edged.Select(p => new ChartSample(p.X, p.Y)).ToList();
             var series = new Chart();
             series.Show(new ChartModel { Low = double.NaN, Series = high ? line : [], Second = high ? [] : line });
             chart.Children.Add(series);
