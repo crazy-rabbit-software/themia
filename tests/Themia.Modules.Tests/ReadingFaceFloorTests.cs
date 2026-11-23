@@ -36,7 +36,6 @@ public sealed class ReadingFaceFloorTests
         "screenTime" => ScreenTimeReading.Face(),
         "recycleBin" => RecycleBinLayout.Face(),
         "moon" => MoonLayout.Face((MoonConfig)config),
-        "brightness" => LevelFace.Face(under: false),
         "volume" => LevelFace.Face(under: true),
         "alarm" => AlarmFace.Face((AlarmConfig)config, Strings.Current),
         "focusSession" => FocusSessionLayout.Face((FocusSessionConfig)config),
@@ -60,7 +59,6 @@ public sealed class ReadingFaceFloorTests
         { "recycleBin", "default", 32, 84 },
         { "moon", "disc", 36, 57 },
         { "moon", "phaseMonth", 113, 141 },   // [S-15805] its cells' discs at the glyph floor under its name
-        { "brightness", "default", 32, 72 },
         { "volume", "default", 32, 84 },
         { "alarm", "default", 36, 131 },
         { "focusSession", "default", 36, 131 },

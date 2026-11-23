@@ -7,28 +7,31 @@ displays one slider sets [S-4442] and the keys [S-4444] (the SDK's `BrightnessRu
 winning [S-4443]; the slider's look is the volume tile's (`VolumeRules`, [S-2731]).
 
 Owning files: everything in this folder: `BrightnessModule.cs` (descriptor, view factory, menu
-lines, JSON context), `BrightnessConfig.cs` (the screens it dims), `BrightnessView.cs` (the slider and
-the sun, the levels through `IWidgetHost.Brightness`, its own display through it too), `BrightnessMenu.cs`
+lines, JSON context), `BrightnessConfig.cs` (the screens it dims), `BrightnessRow.cs` (the row's
+measures and sizing, pure), `BrightnessView.cs` (the row: the sun, the level and the slider, the levels through
+`IWidgetHost.Brightness`, its own display through it too), `BrightnessMenu.cs`
 (its properties-menu lines), `Preview/` (Debug renders: `--state sample|dim|unavailable|pending`), `Localization/Locales/` (its own
 `BrightnessStr`, 30 languages). Tests: its config under the root's rules is the module host's
-`WindowsPanelsHostTests`, its menu `Tests/BrightnessMenuTests.cs`.
+`WindowsPanelsHostTests`, its menu `Tests/BrightnessMenuTests.cs`, its row `Tests/BrightnessRowTests.cs`.
 
-- **[S-4440]** Kind `Brightness` (123), add menu Devices & power ([S-3511]), 200×150, glyph the sun. One
-  slider, no display names (Karpo §35, §103: no flyout): the Controls block's slider at the card's
-  bottom inset as the volume tile's (a larger box keeps the face and its controls one block, centred, [S-12410]) ([S-2731], [S-6716]); the sun is the header's glyph (the one at
-  the slider's start went with the family, G5), the level the slider's name and tooltip.
-- **[S-2152]** Over the slider the level is a Readout, as the meters beside it (owner decision
-  2026-11-12; the root's [S-2150], [S-11308], `LevelFace`): "70%" at the view's top on 28 at every size, following the slider while it is dragged; the reading and the slider are always both, the card 120 tall and 160 to 360 wide. It has no
-  line under: the displays' names are not in the host's answer (`BrightnessDisplay` carries the GDI
-  device name only), and a line would need a host contract change first. With several displays
-  (`--state sample`) it stays one widget with one Readout: the slider sets them together ([S-4442]),
-  so the Readout is the level the slider shows (its own display's, else the first's), not a Row per
-  display, which would be a value per display with no control of its own. No display to set
-  ([S-4445]) keeps the Readout, "--" disabled, the reason its line under ([S-12813]).
+- **[S-4440]** Kind `Brightness` (123), add menu Devices & power ([S-3511]), glyph the sun. One slider, no display names
+  (Karpo §35, §103: no flyout), drawn as one row ([S-17184]).
+- **[S-17184]** **One row** (owner, 2026-11-23: "brightness slider should be moved to the quick settings and should have a
+  row design and not columnar design"), as Windows' quick settings draw it (`BrightnessRow`): in the card's side insets the
+  sun (16, its glyph), 8, the level (Body, tabular figures, its column held to "100%" so the slider never moves), 12, the
+  Controls block's slider across what is left ([S-6716]: its rail the Track role, its value the accent); the row centred in
+  the card. Its sizing is the row's: one height, kept (the inset, the slider's thumb, the inset: 46, 50 on the grid; never
+  relaxed, [S-12411], as a rolled-up fence's), at least its sun, level and the slider's 80 of travel wide, a new one 300, as wide
+  as the user makes it: a resize makes the
+  slider longer and nothing else. The level follows the slider while it is dragged.
+  With several displays (`--state sample`) it stays one row with one level: the slider sets them together ([S-4442]), so the
+  level is the one the slider shows (its own display's, else the first's). Which tab of the gallery holds it is the
+  gallery's ([S-16740]). Tests `BrightnessRowTests.S17184_`.
+- [S-2152] (the level as a 28 Readout over the slider, the card 120 tall) retired by [S-17184].
 - **[S-4445]** No display has a brightness (or, with "Only the screen it's on", not that one): the
-  slider drawn disabled, at the middle ([S-1940], [S-1941], user request 2026-10-19),
-  "No display brightness to set" as the tile's tooltip and the slider's name; no key or wheel moves it.
-  Until the displays have been looked at it draws the same default, "--" over the disabled slider, without a
+  slider drawn disabled, at the middle ([S-1940], [S-1941], user request 2026-10-19), the level "--" disabled,
+  "No display brightness to set" as the row's tooltip and the slider's name; no key or wheel moves it.
+  Until the displays have been looked at it draws the same default, "--" beside the disabled slider, without a
   reason ([S-12813]: never an empty card; never a wrong level).
 - **[S-4446]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Screens it dims** (All screens / Only the

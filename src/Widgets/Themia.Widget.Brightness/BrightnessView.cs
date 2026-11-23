@@ -17,10 +17,10 @@ using Themia.Sdk;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4440] [S-2152] The display brightness as a meter you can set: the slider is the Controls block's at
-/// the card's bottom inset ([S-6716]: its rail the Track role, its value the accent), and over it the level
-/// is a Readout where a meter's stands, on 28, or 40 once expanded both ways, as CPU's does ([S-2150], <see cref="LevelFace"/>).
-/// No display names; the sun is the header's glyph.
+/// [S-4440] [S-17184] The display brightness as one row, as Windows' quick settings draw it (owner, 2026-11-23: "brightness
+/// slider should be moved to the quick settings and should have a row design and not columnar design"): the sun, the level
+/// (Body, held to "100%") and the Controls slider across what is left ([S-6716]: its rail the Track role, its value the
+/// accent), the row centred in the card (<see cref="BrightnessRow"/>). No display names.
 /// <para>
 /// [S-4442] It sets every display whose brightness can be set, together, or with "Only the screen it's
 /// on" the display its surface is on — one window per display, so the display is the window's. It shows
@@ -34,14 +34,10 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     /// <inheritdoc />
     public CardOpen? Opens => BrightnessModule.Opens;
 
-    private readonly ControlsBlock _controls = new();
     private readonly Slider _slider;
 
-    /// <summary>[S-2152] The level, where a meter's reading stands: the view's top, in the side inset.</summary>
-    private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
-
-    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
-    private readonly ReadingFit _fit = new();
+    /// <summary>[S-17184] The level beside the sun, held to its widest case so the slider never moves.</summary>
+    private readonly TextBlock _level;
 
     private readonly PointerEventHandler _grab;
     private readonly PointerEventHandler _release;
@@ -62,30 +58,38 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     {
         _brightness = host.Brightness;
 
-        // [S-4440] [S-6716] The slider is the Controls block's row at the bottom inset.
+        // [S-17184] One row in the side insets, centred: the sun, 8, the level, 12, the slider across what is left.
+        Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0);
+        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-        _slider = _controls.Slider(0, 100, 0, OnSliderChanged);
+        var sun = Family.Glyph(Glyphs.Brightness);
+        sun.VerticalAlignment = VerticalAlignment.Center;
+        sun.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
+        Children.Add(sun);
+
+        _level = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
+        Family.Figures(_level);
+        _level.MinWidth = BrightnessRow.LevelWidth;
+        _level.VerticalAlignment = VerticalAlignment.Center;
+        _level.Margin = new Thickness(0, 0, FamilySpace.S3, 0);
+        SetColumn(_level, 1);
+        Children.Add(_level);
+
+        // [S-6716] The Controls slider: its rail the Track role, its value the accent, no focus.
+        _slider = ControlsBlock.RailSlider(0, 100, 0);
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
+        _slider.ValueChanged += (_, args) => OnSliderChanged(args.NewValue);
+        SetColumn(_slider, 2);
+        Children.Add(_slider);
 
         _grab = OnGrab;
         _release = OnRelease;
         _wheel = OnWheel;
 
-        _controls.Visibility = Visibility.Collapsed;
-
-        // [S-12808] The level and the slider: one block, planned at the natural box and scaled up as one.
-        _fit.Parts.Add(_reading);
-
-        // [S-12833] In a smaller card the slider's row gives way before the level does.
-        _fit.AddGivesWay(_controls, ControlsRules.GivesWayAt);
-
-        // [S-14301] The slider runs across the content; the reading stands over it where the fit puts it.
-        _fit.Span(_controls);
-        _fit.Face = LevelFace.Face(under: false);
-        Children.Add(_fit);
-
-        // The wheel anywhere on the tile, as on the volume tile.
+        // The wheel anywhere on the row, as on the volume tile.
         Background = Family.Brush(ColourRole.Clear);
     }
 
@@ -179,7 +183,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         }
 
         var snapshot = Snapshot;
-        _controls.Visibility = Visibility.Visible;
         if (!snapshot.Ready)
         {
             // Not looked at yet: never a wrong level (§11), the default ([S-12813]): "--" and the slider disabled at
@@ -216,21 +219,14 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     }
 
     /// <summary>
-    /// [S-2152] The level as a Readout on <see cref="LevelFace"/>'s step. [S-12813] Where nothing can be set it stays,
-    /// "--" disabled over the disabled slider ([S-4445]), the reason its line under.
+    /// [S-17184] The level beside the sun. [S-12813] Where nothing can be set it stays, "--" disabled beside the disabled
+    /// slider ([S-4445]), the reason the row's tooltip.
     /// </summary>
     private void ShowReading(int? level, string? reason)
     {
-        _reading.Visibility = Visibility.Visible;
-        _reading.Use(LevelFace.Step);
-        var split = ReadoutRules.Split(Formatting.Percent((level ?? 0) / 100.0));
-        if (level is null)
-        {
-            _reading.Show("--", split.Unit, reason, valueRole: ColourRole.TextDisabled);
-            return;
-        }
-
-        _reading.Show(split.Value, split.Unit);
+        _level.Text = level is { } shown ? Formatting.Percent(shown / 100.0) : "--";
+        _level.Foreground = Family.Brush(level is null ? ColourRole.TextDisabled : ColourRole.TextPrimary);
+        ToolTipService.SetToolTip(_level, level is null ? reason : null);
     }
 
     private void SetLevel(int level)

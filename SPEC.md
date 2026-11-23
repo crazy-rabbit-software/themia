@@ -10112,16 +10112,16 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   role, the value the accent), on the volume tile and the brightness tile alike. Growing a tile
   lengthens the slider and grows the level's Readout over it ([S-2150]); a column no longer stands
   it up (G5, 2026-10-29: the family has one Controls row, and `VolumeRules.Axis` is gone).
-- **[S-2150]** A level tile (volume, brightness) is a meter over its controls (owner decision
+- **[S-2150]** A level tile (the volume; the brightness is one row since [S-17184]) is a meter over its controls (owner decision
   2026-11-12, "the widgets come together"; `LevelFace`, tests `LevelFaceTests`): the level is a
   Readout at the view's top, start-aligned, sized on its widest case ("100%"), the Controls row (28,
   and 8 over it) at the bottom inset.
-- **[S-11308]** **A level widget is one atom, both parts always** (the volume, the brightness): the
+- **[S-11308]** **A level widget is one atom, both parts always** (the volume): the
   Readout on the data widgets' 28 ([S-2220]), the widget's own line under always planned where it has
   one (the volume's output device, cut with its ellipsis), and the Controls row (the slider, with the
   speaker's mute button for the volume). The card is that under its header (on by default): the
-  content top, the reading and its line, 8, the row, the inset (`LevelFace.Sizing`: the volume 136,
-  the brightness 120 tall), one height, 160 to 360 wide, a new one 200, where a wider card only gives
+  content top, the reading and its line, 8, the row, the inset (`LevelFace.Sizing`: the volume 136
+  tall), one height, 160 to 360 wide, a new one 200, where a wider card only gives
   the slider more travel. No tier ladder is left (the reading on 40 at L and XL and the row alone
   on a card shorter than XS are gone). Tests `LevelFaceTests.S11308_`.
 - **[S-2732]** The mouse wheel anywhere on the tile steps the level one arrow step (2 points) per

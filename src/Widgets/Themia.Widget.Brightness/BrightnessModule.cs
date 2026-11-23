@@ -15,7 +15,7 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Brightness;
 
-/// <summary>[S-4440] The display brightness: one slider and the sun, every display together or the one it is on. SPEC.md beside this file.</summary>
+/// <summary>[S-4440] [S-17184] The display brightness: one row of the sun, the level and the slider, every display together or the one it is on. SPEC.md beside this file.</summary>
 public sealed class BrightnessModule : IWidgetModule
 {
     /// <summary>[S-2027] What a click on the card opens ([S-2000]).</summary>
@@ -32,7 +32,7 @@ public sealed class BrightnessModule : IWidgetModule
         Label = BrightnessStr.Panels_Brightness_Label.Local(),
         Description = BrightnessStr.Panels_Brightness_Desc.Local(),
         Glyph = Glyphs.Brightness,
-        Sizing = _ => LevelFace.Sizing(under: false).ScalesDownTo(LevelFace.Face(under: false)),
+        Sizing = _ => BrightnessRow.Sizing(),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Devices, 1, 0),
     };
