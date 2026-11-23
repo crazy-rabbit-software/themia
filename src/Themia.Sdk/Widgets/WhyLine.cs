@@ -37,15 +37,16 @@ public static class WhyLine
     /// it until its ink fills the height or its width the width): the room kept under the why's line and over the block, so
     /// the block standing on the why's line and the line together stand centred in the card (WR-7: the reading and its
     /// line stay together; "Centred is fine": the leftover shared alike over and under). 0 where the height stops it.
+    /// [S-16445] A block drawn at most at <paramref name="most"/> (a text face's "--", [S-15713]) leaves what that scale does.
     /// </summary>
-    public static double Spare(double roomWidth, double roomHeight, double width, double ink)
+    public static double Spare(double roomWidth, double roomHeight, double width, double ink, double most = double.PositiveInfinity)
     {
         if (!(roomWidth > 0) || !(roomHeight > 0) || !(width > 0) || !(ink > 0))
         {
             return 0;
         }
 
-        var scale = Math.Min(roomWidth / width, roomHeight / ink);
+        var scale = Math.Min(Math.Min(roomWidth / width, roomHeight / ink), most > 0 ? most : double.PositiveInfinity);
         return Math.Max(0, roomHeight - (scale * ink)) / 2;
     }
 }

@@ -322,13 +322,12 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         }
 
         _why.Visibility = why || beside is not null ? Visibility.Visible : Visibility.Collapsed;
-        _why.Margin = beside is not null ? new Thickness(0, 0, end, 0) : new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         _why.Width = beside ?? double.NaN;
         _why.HorizontalAlignment = beside is not null ? HorizontalAlignment.Right : HorizontalAlignment.Stretch;
         _why.VerticalAlignment = beside is not null ? VerticalAlignment.Center : VerticalAlignment.Bottom;
         _why.TextAlignment = beside is not null ? TextAlignment.Left : Aligned.Text(_align);
+        var whyEnd = end;
         end += beside is { } taken ? taken + FamilySpace.ColumnGap : 0;
-        _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, FamilySpace.Inset + band);
         _fit.Align = _align;
         _text.TextAlignment = Aligned.Text(_align);
         var room = _area.IsMeasured
@@ -341,6 +340,21 @@ public abstract partial class TextView : Grid, IWidgetView, IWidgetOpens, IWidge
         {
             _text.MaxWidth = room;
         }
+
+        // [S-16445] With its why at the foot the face stands on the why's line, the two one block centred in the card (WR-7:
+        // the reading and its line stay together; WR-1: the height left shared alike over and under, never between them: a
+        // 240 x 200 card stood its name 45 down and 47 over its why).
+        var spare = 0.0;
+        if (why)
+        {
+            _block.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var ink = Ink.Of(_block);
+            spare = WhyLine.Spare(_area.Width - FamilySpace.Inset - end, height - (2 * FamilySpace.Inset) - band, ink.Width, ink.Height - ink.Ink.Over - ink.Ink.Under, _fit.Most);
+        }
+
+        _fit.Foot = why;
+        _fit.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, end, FamilySpace.Inset + band + spare);
+        _why.Margin = beside is not null ? new Thickness(0, 0, whyEnd, 0) : new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset + spare);
     }
 
     /// <summary>[S-15715] The text's own width at its step, uncut.</summary>

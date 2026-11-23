@@ -19,7 +19,8 @@ Owning files: everything in this folder.
   ([S-6580]). Test `ElementsTests.S16430_`.
 - **[S-16431]** **Own text without words says why** (WR-10: "not set up ... says why in a compact line"): its name stays,
   unavailable, and the text face's compact line says "No words yet: type them under Words" at the card's foot, or beside
-  the name in a card one line tall, its tooltip where neither holds it (`ElementKinds.Shown`, [S-15710], [S-15716]). Test
+  the name in a card one line tall, its tooltip where neither holds it (`ElementKinds.Shown`, [S-15710], [S-15716]); the
+  name stands on that line, the two centred together ([S-16445]). Test
   `ElementsTests.S16431_`.
 - **[S-10102]** **The Icon widget** (`icon`, its own module, [S-15010]) is a design element too: there is one icon widget, on the icon base ([S-15003]), never a second here.
 - **[S-10103]** **Divider** (`divider`): a hairline in the track role through its box's middle along its long side, edge

@@ -195,4 +195,23 @@ public sealed class TextRulesTests
     [InlineData(80, 52, 12, 130, null)] // under ten characters of room
     public void S15716_a_card_too_short_for_the_why_under_its_face_says_it_beside_it(double width, double height, double face, double sentence, double? beside)
         => Assert.Equal(beside, TextRules.WhyBeside(width, height, face, sentence));
+
+    /// <summary>
+    /// [S-16445] A text face that says why at its foot stands on its why's line, the two one block: the height the width
+    /// leaves goes alike over the face and under the line, never between them; a "--" held to its scale leaves what that
+    /// scale leaves.
+    /// </summary>
+    [Fact]
+    public void S16445_the_face_and_its_why_stand_centred_together()
+    {
+        // 216 x 152 of room (a 240 x 200 card less its inset and the why's band): a name 60 wide with 14 of ink, the width
+        // stops it at 3.6 (50.4 of ink), so 101.6 is left: 50.8 over the name and under the why.
+        Assert.Equal(50.8, WhyLine.Spare(216, 152, 60, 14), 6);
+
+        // The height stops it: nothing left.
+        Assert.Equal(0, WhyLine.Spare(216, 40, 60, 14), 6);
+
+        // Held to a scale of 2 ("--"): 28 of ink in 152, 62 over and under.
+        Assert.Equal(62, WhyLine.Spare(216, 152, 30, 14, most: 2), 6);
+    }
 }
