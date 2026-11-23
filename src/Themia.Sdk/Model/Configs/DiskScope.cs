@@ -48,6 +48,22 @@ public static class DiskScopes
     public static SystemInterests Wants(IDiskScope disk, string systemRoot)
         => SystemInterests.Chart(SystemSource.DiskActivity, Instance(disk, systemRoot));
 
+    /// <summary>[S-16333] What starts a disk series' instance that charts the reads and the writes apart (the Metric widget's).</summary>
+    public const string ApartPrefix = "rw|";
+
+    /// <summary>
+    /// [S-16333] The series of <paramref name="instance"/> (a drive's root, or every drive) with its reads and writes apart:
+    /// the reads its value, the writes its second, where the plain series charts their total.
+    /// </summary>
+    public static string Apart(string instance) => ApartPrefix + instance;
+
+    /// <summary>[S-16333] A series instance read: whether it charts reads and writes apart, and the drive (or every drive) it charts.</summary>
+    public static (bool Apart, string Instance) Split(string instance)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        return instance.StartsWith(ApartPrefix, StringComparison.Ordinal) ? (true, instance[ApartPrefix.Length..]) : (false, instance);
+    }
+
     /// <summary>[S-1160] [S-1822] Keep the drive as a root; one that is not a drive letter, or an unknown scope, is repaired loudly.</summary>
     public static IReadOnlyList<string> Repair(IDiskScope disk, string kind)
     {

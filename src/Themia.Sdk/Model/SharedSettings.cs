@@ -46,7 +46,8 @@ public sealed class SharedSetting<T> : SharedSetting
         _where = where;
     }
 
-    public override bool Holds(WidgetConfig config) => config is T held && (_where?.Invoke(held) ?? true);
+    public override bool Holds(WidgetConfig config)
+        => config is T held && (_where?.Invoke(held) ?? true) && (config is not IOffersShared offers || offers.Offers(Key));
 
     public override bool Same(WidgetConfig a, WidgetConfig b)
         => Holds(a) && Holds(b) && _same((T)(object)a, (T)(object)b);
@@ -63,6 +64,17 @@ public sealed class SharedSetting<T> : SharedSetting
         _copy((T)(object)from, (T)(object)to);
         return true;
     }
+}
+
+/// <summary>
+/// [S-16340] A config that carries a shared setting's contract only for some of what it shows (the Metric widget: a place for a
+/// weather metric, a drive for a drive's activity): it holds the setting only while it offers it, so a group's page sets it
+/// once on the members it means something to and never on one it does not, and the page shows its line only then.
+/// </summary>
+public interface IOffersShared
+{
+    /// <summary>Whether the setting of <paramref name="key"/> (a <see cref="SharedSetting.Key"/>) is the config's now.</summary>
+    bool Offers(string key);
 }
 
 /// <summary>[S-11751] How a shared setting reads over several configs: how many hold it, and whether they disagree.</summary>

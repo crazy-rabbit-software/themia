@@ -228,7 +228,9 @@ internal static class WeatherService
     /// <summary>The daily fields both requests ask for.</summary>
     private const string DailyFields =
         "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum"
-        + ",precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset";
+        + ",precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset"
+        // [S-16330] The day's snow, for the metric of it.
+        + ",snowfall_sum";
 
     private static List<ForecastDay> ParseDays(OpenMeteoDaily daily, int wanted)
     {
@@ -255,6 +257,7 @@ internal static class WeatherService
                 PrecipitationChance = Sane(At(daily.PrecipitationChance, i), 0, 100),
                 WindMax = Sane(At(daily.WindMax, i), 0, 500),
                 UvMax = Sane(At(daily.UvMax, i), 0, 30),
+                Snowfall = Sane(At(daily.Snowfall, i), 0, 2000),
                 Sunrise = WallClock(daily.Sunrise, i),
                 Sunset = WallClock(daily.Sunset, i),
             });

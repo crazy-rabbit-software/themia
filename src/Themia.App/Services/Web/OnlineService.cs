@@ -82,7 +82,8 @@ internal static class OnlineService
     }
 
     /// <summary>
-    /// [S-12702] The hour under way and the next two days hour by hour (every graph's figures in one request), and
+    /// [S-12702] The hour under way and the next two days hour by hour (every graph's figures in one request), [S-16332] the
+    /// day before it, and
     /// three days' sunrise and sunset for the daylight the UV graph shades. Base units: °C, km/h, mm.
     /// </summary>
     public static Task<Fetched<WeatherHours>> HoursAsync(double latitude, double longitude, TimeSpan freshFor, bool force)
@@ -90,7 +91,7 @@ internal static class OnlineService
         var uri = new Uri(
             $"{ForecastEndpoint}?latitude={Coordinate(latitude)}&longitude={Coordinate(longitude)}"
             + "&hourly=" + WeatherHoursWire.HourlyFields
-            + $"&past_hours=1&forecast_hours={WeatherHoursWire.Hours.ToString(CultureInfo.InvariantCulture)}"
+            + $"&past_hours={WeatherHoursWire.PastHours.ToString(CultureInfo.InvariantCulture)}&forecast_hours={WeatherHoursWire.Hours.ToString(CultureInfo.InvariantCulture)}"
             + "&daily=sunrise,sunset&forecast_days=3"
             + "&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm"
             + "&timeformat=unixtime&timezone=auto");
@@ -98,13 +99,13 @@ internal static class OnlineService
         return GetAsync(HoursCache, HoursKey(latitude, longitude), uri, "application/json", WeatherHoursWire.Parse, freshFor, force);
     }
 
-    /// <summary>[S-12702] The hour under way and the next four days of air, hour by hour.</summary>
+    /// <summary>[S-12702] The hour under way and the next four days of air, hour by hour ([S-16332] and the day before it).</summary>
     public static Task<Fetched<AirHours>> AirHoursAsync(double latitude, double longitude, TimeSpan freshFor, bool force)
     {
         var uri = new Uri(
             $"{AirEndpoint}?latitude={Coordinate(latitude)}&longitude={Coordinate(longitude)}"
             + "&hourly=" + WeatherHoursWire.AirFields
-            + $"&past_hours=1&forecast_hours={WeatherHoursWire.AirHourCount.ToString(CultureInfo.InvariantCulture)}"
+            + $"&past_hours={WeatherHoursWire.PastHours.ToString(CultureInfo.InvariantCulture)}&forecast_hours={WeatherHoursWire.AirHourCount.ToString(CultureInfo.InvariantCulture)}"
             + "&timeformat=unixtime&timezone=auto");
 
         return GetAsync(AirHoursCache, AirHoursKey(latitude, longitude), uri, "application/json", WeatherHoursWire.ParseAir, freshFor, force);

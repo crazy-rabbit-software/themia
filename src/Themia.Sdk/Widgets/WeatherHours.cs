@@ -34,6 +34,15 @@ public sealed record WeatherHour(DateTimeOffset At)
 
     /// <summary>Sea-level pressure, hPa.</summary>
     public double? Pressure { get; init; }
+
+    /// <summary>[S-16330] Snow over the hour, in centimetres.</summary>
+    public double? Snowfall { get; init; }
+
+    /// <summary>[S-16330] 0 to 100.</summary>
+    public double? CloudCover { get; init; }
+
+    /// <summary>[S-16330] Minutes of sunshine in the hour, 0 to 60.</summary>
+    public double? Sunshine { get; init; }
 }
 
 /// <summary>[S-12700] One day's daylight at the place: sunrise to sunset as instants.</summary>
@@ -60,6 +69,9 @@ public sealed record AirHour(DateTimeOffset At)
     public double? Ozone { get; init; }
 
     public double? NitrogenDioxide { get; init; }
+
+    /// <summary>[S-16331] The pollen forecast for the hour, grains/m³ by type: only the types the reply carried (Europe only).</summary>
+    public IReadOnlyDictionary<PollenType, double> Pollen { get; init; } = new Dictionary<PollenType, double>();
 }
 
 /// <summary>[S-12701] The next days of air hour by hour at a place.</summary>
@@ -75,10 +87,29 @@ public static class WeatherHoursWire
     /// <summary>What the weather graphs ask the forecast API's <c>hourly</c> block for.</summary>
     public const string HourlyFields =
         "temperature_2m,apparent_temperature,precipitation,precipitation_probability,uv_index"
-        + ",wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,pressure_msl";
+        + ",wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,pressure_msl"
+        + ",snowfall,cloud_cover,sunshine_duration";
 
     /// <summary>What the air graph asks the air-quality API's <c>hourly</c> block for.</summary>
-    public const string AirFields = "european_aqi,us_aqi,pm2_5,pm10,ozone,nitrogen_dioxide";
+    public const string AirFields = "european_aqi,us_aqi,pm2_5,pm10,ozone,nitrogen_dioxide"
+        + ",alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen";
+
+    /// <summary>
+    /// [S-16332] How many hours before the one under way both hourly requests ask for: a day back, so a graph of the past day
+    /// (the Metric widget's) reads what the forecast's own reply carries. The graphs that look ahead start at the hour under way.
+    /// </summary>
+    public const int PastHours = 24;
+
+    /// <summary>[S-16331] The air reply's pollen fields, in the order of <see cref="PollenType"/>.</summary>
+    private static readonly (string Field, PollenType Type)[] PollenFields =
+    [
+        ("alder_pollen", PollenType.Alder),
+        ("birch_pollen", PollenType.Birch),
+        ("grass_pollen", PollenType.Grass),
+        ("mugwort_pollen", PollenType.Mugwort),
+        ("olive_pollen", PollenType.Olive),
+        ("ragweed_pollen", PollenType.Ragweed),
+    ];
 
     /// <summary>How many hours from the one under way the weather graphs ask for: two days and the hour on the end.</summary>
     public const int Hours = 49;
@@ -126,6 +157,9 @@ public static class WeatherHoursWire
                     WindDirection = At(block.Owner, "wind_direction_10m", i, 0, 360),
                     Humidity = At(block.Owner, "relative_humidity_2m", i, 0, 100),
                     Pressure = At(block.Owner, "pressure_msl", i, 850, 1100),
+                    Snowfall = At(block.Owner, "snowfall", i, 0, 500),
+                    CloudCover = At(block.Owner, "cloud_cover", i, 0, 100),
+                    Sunshine = At(block.Owner, "sunshine_duration", i, 0, 3600) is { } seconds ? seconds / 60 : null,
                 };
             }
 
@@ -172,10 +206,11 @@ public static class WeatherHoursWire
                     Pm10 = At(block.Owner, "pm10", i, 0, 10_000),
                     Ozone = At(block.Owner, "ozone", i, 0, 5000),
                     NitrogenDioxide = At(block.Owner, "nitrogen_dioxide", i, 0, 5000),
+                    Pollen = Pollen(block.Owner, i),
                 };
 
                 if (hour.EuropeanAqi is not null || hour.UsAqi is not null || hour.Pm25 is not null
-                    || hour.Pm10 is not null || hour.Ozone is not null || hour.NitrogenDioxide is not null)
+                    || hour.Pm10 is not null || hour.Ozone is not null || hour.NitrogenDioxide is not null || hour.Pollen.Count > 0)
                 {
                     hours[at] = hour;
                 }
@@ -188,6 +223,21 @@ public static class WeatherHoursWire
     }
 
     private readonly record struct HourlyBlock(JsonElement Owner, JsonElement Times);
+
+    /// <summary>[S-16331] The hour's pollen by type: a type the reply has no number for is left out (outside Europe: none), never 0.</summary>
+    private static Dictionary<PollenType, double> Pollen(JsonElement owner, int index)
+    {
+        var pollen = new Dictionary<PollenType, double>();
+        foreach (var (field, type) in PollenFields)
+        {
+            if (At(owner, field, index, 0, 100_000) is { } grains)
+            {
+                pollen[type] = grains;
+            }
+        }
+
+        return pollen;
+    }
 
     private static HourlyBlock? Block(JsonElement root)
         => root.TryGetProperty("hourly", out var hourly) && hourly.ValueKind == JsonValueKind.Object

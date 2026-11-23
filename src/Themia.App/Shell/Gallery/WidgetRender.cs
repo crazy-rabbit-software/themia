@@ -688,7 +688,8 @@ internal static class WidgetRender
 
         foreach (var element in VisualTreeHelper.FindElementsInHostCoordinates(host, card))
         {
-            if (PointerPreview.Show(element, pressed))
+            // [S-16341] A look that reads where the pointer is (a graph's value under it) is shown at that point.
+            if (PointerPreview.Show(element, host, pressed))
             {
                 return;
             }

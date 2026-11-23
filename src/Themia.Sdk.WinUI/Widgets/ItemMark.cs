@@ -117,6 +117,47 @@ public static class PointerPreview
 {
     private static readonly ConditionalWeakTable<UIElement, Action<bool>> Looks = [];
 
+    /// <summary>[S-16341] The looks that depend on where the pointer is in the element (a graph's value under it).</summary>
+    private static readonly ConditionalWeakTable<UIElement, Action<Windows.Foundation.Point, bool>> PointLooks = [];
+
+    /// <summary>
+    /// [S-16341] Register <paramref name="look"/> as what <paramref name="element"/> shows with the pointer at a point of it (in
+    /// its own DIPs), pressed or not: a graph's value at that point.
+    /// </summary>
+    public static void Register(UIElement element, Action<Windows.Foundation.Point, bool> look)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(look);
+        PointLooks.AddOrUpdate(element, look);
+    }
+
+    /// <summary>
+    /// [S-16341] Show <paramref name="element"/>'s look with the pointer at <paramref name="root"/> (the window's content
+    /// coordinates): a look that reads the point gets it in the element's own DIPs, any other its look as <see cref="Show(UIElement, bool)"/>.
+    /// </summary>
+    public static bool Show(UIElement element, Windows.Foundation.Point root, bool pressed)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        if (PointLooks.TryGetValue(element, out var at))
+        {
+            Windows.Foundation.Point local;
+            try
+            {
+                local = element.TransformToVisual(null).Inverse.TransformPoint(root);
+            }
+            catch (ArgumentException)
+            {
+                // ignore: not in the window's tree any more; it shows nothing under a pointer it cannot be under
+                return false;
+            }
+
+            at(local, pressed);
+            return true;
+        }
+
+        return Show(element, pressed);
+    }
+
     /// <summary>Register <paramref name="look"/> (pressed or not) as what <paramref name="element"/> shows under the pointer.</summary>
     public static void Register(UIElement element, Action<bool> look)
     {
@@ -130,6 +171,7 @@ public static class PointerPreview
     {
         ArgumentNullException.ThrowIfNull(element);
         Looks.Remove(element);
+        PointLooks.Remove(element);
     }
 
     /// <summary>Show <paramref name="element"/>'s look under the pointer, if it has one.</summary>

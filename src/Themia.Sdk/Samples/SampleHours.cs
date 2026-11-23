@@ -3,8 +3,8 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// [S-11850] [S-12709] The sample day hour by hour at <see cref="SamplePlace"/>, for the weather graphs: from the
-/// hour before the sample moment through the next two days, agreeing with <see cref="SampleWeather"/> (each day's low
+/// [S-11850] [S-12709] The sample day hour by hour at <see cref="SamplePlace"/>, for the weather graphs: from a day
+/// before the sample moment's hour ([S-16332]) through the next two days, agreeing with <see cref="SampleWeather"/> (each day's low
 /// and high, today's 2.6 mm shower from eleven, the 9 °C now, the wind from the south-west, the place's own sunrise
 /// and sunset), and four days of air agreeing with the air widget's index of 25. A summer day (Debug renders) shows the
 /// heat and the UV bands the autumn sample never reaches.
@@ -22,11 +22,13 @@ public static class SampleHours
     {
         var first = FirstHour;
         var hours = new List<AirHour>();
-        for (var i = 0; i <= WeatherHoursWire.AirHourCount; i++)
+        for (var i = 0; i <= WeatherHoursWire.PastHours + WeatherHoursWire.AirHourCount; i++)
         {
             var at = first.AddHours(i);
             var hour = Local(at).Hour;
-            var day = i / 24.0;
+
+            // The hours count from the one before the sample moment's, as they did before the day back was asked.
+            var day = (i - WeatherHoursWire.PastHours + 1) / 24.0;
 
             // Ozone follows the sun, the particles the evening traffic and a hazier third day.
             var sun = Math.Max(0, Math.Sin(Math.PI * (hour - 7) / 12));
@@ -44,19 +46,30 @@ public static class SampleHours
                 NitrogenDioxide = no2,
                 EuropeanAqi = Math.Round(Math.Max(pm25 * 25 / 10, Math.Max(ozone * 20 / 50, no2 * 20 / 40))),
                 UsAqi = Math.Round(Math.Max(pm25 * 50 / 9, ozone * 50 / 108)),
+
+                // [S-16331] A mild autumn's pollen: a little grass and alder in the warm middle of the day.
+                Pollen = new Dictionary<PollenType, double>
+                {
+                    [PollenType.Alder] = Math.Round(4 * sun * (1 + (0.5 * Math.Sin(day * 2.1))), 1),
+                    [PollenType.Birch] = 0,
+                    [PollenType.Grass] = Math.Round(9 * sun * (1.2 - (0.15 * day)), 1),
+                    [PollenType.Mugwort] = 0,
+                    [PollenType.Olive] = 0,
+                    [PollenType.Ragweed] = Math.Round(1.5 * sun, 1),
+                },
             });
         }
 
         return new AirHours(hours);
     }
 
-    /// <summary>The hour under way at the sample moment, less one: what the service sends with <c>past_hours=1</c>.</summary>
+    /// <summary>The hour under way at the sample moment, less a day: what the service sends with <c>past_hours=24</c> ([S-16332]).</summary>
     private static DateTimeOffset FirstHour
     {
         get
         {
             var now = SampleDay.Now;
-            return DateTimeOffset.FromUnixTimeSeconds((now.ToUnixTimeSeconds() / 3600 * 3600) - 3600).ToOffset(now.Offset);
+            return DateTimeOffset.FromUnixTimeSeconds((now.ToUnixTimeSeconds() / 3600 * 3600) - (3600L * WeatherHoursWire.PastHours)).ToOffset(now.Offset);
         }
     }
 
@@ -67,8 +80,10 @@ public static class SampleHours
         var days = SampleWeather.Days(4);
         var first = FirstHour;
         var hours = new List<WeatherHour>();
-        for (var i = 0; i <= WeatherHoursWire.Hours; i++)
+        for (var i = 0; i <= WeatherHoursWire.PastHours + WeatherHoursWire.Hours; i++)
         {
+            // k counts from the hour before the sample moment's (the wind, the pressure drawn on it as before the day back).
+            var k = i - WeatherHoursWire.PastHours + 1;
             var at = first.AddHours(i);
             var local = Local(at);
             var d = Math.Clamp(DateOnly.FromDateTime(local).DayNumber - SampleDay.Today.DayNumber, 0, days.Count - 2);
@@ -81,11 +96,16 @@ public static class SampleHours
                 Precipitation = rain,
                 PrecipitationChance = summer ? (rain > 0 ? 70 : 10) : Chance(local, d),
                 Uv = Math.Round(Uv(local.Hour, summer ? 9.1 : days[d].UvMax ?? 2), 1),
-                Wind = Math.Round(Wind(i, summer), 1),
-                Gusts = Math.Round(Wind(i, summer) * 2.05, 1),
-                WindDirection = (240 + (i * 3)) % 360,
+                Wind = Math.Round(Wind(k, summer), 1),
+                Gusts = Math.Round(Wind(k, summer) * 2.05, 1),
+                WindDirection = (((240 + (k * 3)) % 360) + 360) % 360,
                 Humidity = Math.Round(Math.Clamp(summer ? 45 + ((33 - temperature) * 2.2) : 84 + ((SampleWeather.Temperature - temperature) * 2.5) + (rain * 4), 20, 100)),
-                Pressure = Math.Round(summer ? 1016 - (i * 0.12) : 1012 - (4.5 * Math.Sin(i * Math.PI / 30)), 1),
+                Pressure = Math.Round(summer ? 1016 - (k * 0.12) : 1012 - (4.5 * Math.Sin(k * Math.PI / 30)), 1),
+
+                // [S-16330] No snow in the sample's autumn; the cloud the day's codes say, the sun through its gaps.
+                Snowfall = 0,
+                CloudCover = summer ? 10 : Math.Round(Math.Clamp(92 - (d * 22) + (rain * 4), 5, 100)),
+                Sunshine = summer ? (local.Hour is >= 6 and <= 20 ? 60 : 0) : Math.Round(Math.Max(0, (60 - (92 - (d * 22))) * Math.Max(0, Math.Sin(Math.PI * (local.Hour - 7) / 10)))),
             });
         }
 

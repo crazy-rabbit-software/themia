@@ -55,6 +55,9 @@ public sealed record ForecastDay(DateOnly Day, int? Code, double? Low, double? H
 
     public double? UvMax { get; init; }
 
+    /// <summary>[S-16330] The day's snowfall, in centimetres (open-meteo's <c>snowfall_sum</c>).</summary>
+    public double? Snowfall { get; init; }
+
     /// <summary>Local wall-clock sunrise at the place, or null in a polar day or night.</summary>
     public TimeOnly? Sunrise { get; init; }
 

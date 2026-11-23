@@ -160,6 +160,7 @@ public static class WeatherCacheStore
                 PrecipitationChance = Sane(dto.PrecipitationChance, 0, 100),
                 WindMax = Sane(dto.WindMax, 0, 500),
                 UvMax = Sane(dto.UvMax, 0, 30),
+                Snowfall = Sane(dto.Snowfall, 0, 2000),
                 Sunrise = Clock(dto.Sunrise),
                 Sunset = Clock(dto.Sunset),
             });
@@ -195,6 +196,7 @@ public static class WeatherCacheStore
             PrecipitationChance = day.PrecipitationChance,
             WindMax = day.WindMax,
             UvMax = day.UvMax,
+            Snowfall = day.Snowfall,
             Sunrise = day.Sunrise?.ToString("HH:mm", CultureInfo.InvariantCulture),
             Sunset = day.Sunset?.ToString("HH:mm", CultureInfo.InvariantCulture),
         })];
@@ -284,6 +286,8 @@ internal sealed class DayDto
     public double? WindMax { get; set; }
 
     public double? UvMax { get; set; }
+
+    public double? Snowfall { get; set; }
 
     public string? Sunrise { get; set; }
 

@@ -103,6 +103,10 @@ internal sealed class OpenMeteoDaily
     [JsonPropertyName("uv_index_max")]
     public List<double?>? UvMax { get; init; }
 
+    /// <summary>[S-16330] Centimetres.</summary>
+    [JsonPropertyName("snowfall_sum")]
+    public List<double?>? Snowfall { get; init; }
+
     /// <summary>Local wall-clock times, "2026-10-04T07:31".</summary>
     [JsonPropertyName("sunrise")]
     public List<string?>? Sunrise { get; init; }

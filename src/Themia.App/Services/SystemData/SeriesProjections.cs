@@ -25,6 +25,8 @@ internal static class SeriesProjections
     /// <summary>[S-1162] [S-1820] Reads and writes per drive; the instance is a root or <see cref="Sources.AllDrives"/>.</summary>
     public static MeterSample Disk(DiskSnapshot snapshot, string instance)
     {
+        // [S-16333] An instance with its reads and writes apart charts the reads as its value and the writes as its second.
+        (var apart, instance) = DiskScopes.Split(instance);
         var all = instance == Sources.AllDrives;
         var root = all ? SystemDrive.Root : instance;
         var sample = DiskRules.Read(all ? DiskScope.AllDrives : DiskScope.OneDrive, root, snapshot.Activity?.Rates);
@@ -36,7 +38,8 @@ internal static class SeriesProjections
                 ChartScale.Fraction(sample.Rates.Total, DiskRules.ChartFloor),
                 Formatting.Rate(sample.Rates.Total),
                 true,
-                Value: sample.Rates.Total),
+                Value: apart ? sample.Rates.Read : sample.Rates.Total,
+                Second: apart ? sample.Rates.Write : null),
 
             // The counters' first collection: no rate yet, so no number and no point on the chart.
             DiskReadingState.Waiting => new MeterReading(null, "--", false),
