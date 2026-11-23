@@ -143,6 +143,46 @@ public sealed class LookupAnswers<T>
     public T? For(string key, string typed)
         => _asked.TryGetValue(key, out var asked) && string.Equals(asked.Typed, typed, StringComparison.Ordinal) ? asked.Answer : null;
 
+    /// <summary>
+    /// [S-16720] The answer to <paramref name="typed"/> for <paramref name="key"/> changed in place (a pick dots its row):
+    /// false when it is not the answer held.
+    /// </summary>
+    public bool Change(string key, string typed, Func<T, T> change)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+        if (For(key, typed) is not { } answer)
+        {
+            return false;
+        }
+
+        _asked[key] = (typed, change(answer));
+        return true;
+    }
+
     /// <summary>Every answer goes (the page closes).</summary>
     public void Clear() => _asked.Clear();
+}
+
+/// <summary>
+/// [S-16720] A pick among a lookup's answers (owner, 2026-11-23: "when i click a city like Gais in the dropdown select once
+/// it does select it in the background but it does not show the blue selected dot"). An answer says which row is in force
+/// when it comes; a pick writes the setting and the page is drawn again from the answer it holds, so the answer itself
+/// moves its dot to the row picked: that one holds, no other.
+/// </summary>
+public static class SearchPicks
+{
+    /// <summary><paramref name="answer"/> with the choice at <paramref name="index"/> of its lines holding and every other choice not.</summary>
+    public static SettingsSearchAnswer Picked(SettingsSearchAnswer answer, int index)
+    {
+        ArgumentNullException.ThrowIfNull(answer);
+        if (index < 0 || index >= answer.Lines.Count || answer.Lines[index] is not SettingsRadio)
+        {
+            return answer;
+        }
+
+        return answer with
+        {
+            Lines = [.. answer.Lines.Select((line, at) => line is SettingsRadio radio && radio.Holds != (at == index) ? radio with { Holds = at == index } : line)],
+        };
+    }
 }

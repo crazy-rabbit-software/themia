@@ -58,7 +58,7 @@ public static class WeatherPlaceRows
         var line = WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
             config.HasLocation ? config.PlaceName.Split(',', 2)[0].Trim() : null,
             Str.Shell_Place_SearchPlaceholder.Text(),
-            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => config.HasLocation && config.PlaceName == place.Label, place =>
+            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => PlaceQuery.Holds(config.HasLocation, config.PlaceName, config.Latitude, config.Longitude, place), place =>
             {
                 config.Latitude = place.Latitude;
                 config.Longitude = place.Longitude;

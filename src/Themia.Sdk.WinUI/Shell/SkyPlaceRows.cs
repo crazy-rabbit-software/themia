@@ -61,7 +61,7 @@ public static class SkyPlaceRows
 
         return WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(), Chosen(config),
             Str.Shell_Place_SearchPlaceholder.Text(),
-            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => config.HasLocation && config.Place == Cut(place.Label), place =>
+            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => PlaceQuery.Holds(config.HasLocation, config.Place, config.Latitude, config.Longitude, place, SkyPlaceConfig.MaxPlaceLength), place =>
             {
                 config.Latitude = place.Latitude;
                 config.Longitude = place.Longitude;

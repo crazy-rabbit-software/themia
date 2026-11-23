@@ -286,6 +286,24 @@ internal sealed partial class PageView
             {
                 results = PageRows.Of(answer.Lines, row.Key + "/found");
                 note = answer.Note;
+
+                // [S-16720] A pick dots its row at once: the answer held is the one the page is drawn again from.
+                for (var i = 0; i < results.Count; i++)
+                {
+                    if (answer.Lines[i] is SettingsRadio && results[i].Run is { } pick)
+                    {
+                        var at = i;
+                        var key = row.Key;
+                        results[i] = results[i] with
+                        {
+                            Run = () =>
+                            {
+                                _found.Change(key, typed, held => SearchPicks.Picked(held, at));
+                                pick();
+                            },
+                        };
+                    }
+                }
             }
             else
             {

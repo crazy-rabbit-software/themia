@@ -193,4 +193,43 @@ public sealed class SearchRulesTests
     [Fact]
     public void S13609_an_answer_never_asked_for_is_dropped()
         => Assert.False(new LookupAnswers<string>().Answered("place", "zur", "Zürich"));
+
+    [Fact]
+    public void S16720_a_pick_dots_its_row_in_the_answer_held_and_no_other()
+    {
+        var answers = new LookupAnswers<SettingsSearchAnswer>();
+        answers.Asking("place", "gais");
+        SettingsSearchAnswer found = new(
+        [
+            new SettingsRadio("Gais · Appenzell Ausserrhoden, Switzerland", "Gais · Appenzell Ausserrhoden, Switzerland", false, () => { }),
+            new SettingsRadio("Gais · Trentino-Alto Adige, Italy", "Gais · Trentino-Alto Adige, Italy", true, () => { }),
+        ]);
+        Assert.True(answers.Answered("place", "gais", found));
+
+        Assert.True(answers.Change("place", "gais", held => SearchPicks.Picked(held, 0)));
+
+        var drawn = answers.For("place", "gais")!.Lines.Cast<SettingsRadio>().ToList();
+        Assert.True(drawn[0].Holds);
+        Assert.False(drawn[1].Holds);
+        Assert.False(answers.Change("place", "zurich", held => held));
+    }
+
+    [Fact]
+    public void S16720_a_pick_out_of_range_or_on_no_choice_changes_nothing()
+    {
+        SettingsSearchAnswer found = new([new SettingsRadio("Gais", "Gais", false, () => { })]);
+        Assert.Same(found, SearchPicks.Picked(found, 3));
+        Assert.Same(found, SearchPicks.Picked(found, -1));
+    }
+
+    [Fact]
+    public void S16720_the_place_held_is_found_by_its_stored_name_or_its_coordinates()
+    {
+        var gais = new PlaceMatch("Gais", "Appenzell Ausserrhoden, Switzerland", "Gais, Appenzell Ausserrhoden, Switzerland", 47.36, 9.45);
+        Assert.True(PlaceQuery.Holds(true, gais.Label, gais.Latitude, gais.Longitude, gais));
+        Assert.True(PlaceQuery.Holds(true, "Gais", gais.Latitude, gais.Longitude, gais));
+        Assert.True(PlaceQuery.Holds(true, gais.Label[..10], 1, 2, gais, maxName: 10));
+        Assert.False(PlaceQuery.Holds(false, gais.Label, gais.Latitude, gais.Longitude, gais));
+        Assert.False(PlaceQuery.Holds(true, "Zürich, Zurich, Switzerland", 47.37, 8.54, gais));
+    }
 }

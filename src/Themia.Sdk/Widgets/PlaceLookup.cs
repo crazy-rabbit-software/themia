@@ -73,6 +73,29 @@ public static class PlaceQuery
     /// <summary>What typing has to reach before it searches by itself. Enter searches from one.</summary>
     public const int MinTypedLength = 2;
 
+    /// <summary>
+    /// [S-16720] Whether the place found, <paramref name="place"/>, is the one a widget holds (its row dotted): a place is
+    /// held (<paramref name="hasLocation"/>) under the name the pick stored, <paramref name="stored"/> (the found label, cut to
+    /// <paramref name="maxName"/> where the config cuts it), or at the coordinates the pick stored (to about a metre).
+    /// </summary>
+    public static bool Holds(bool hasLocation, string? stored, double? latitude, double? longitude, PlaceMatch place, int maxName = int.MaxValue)
+    {
+        ArgumentNullException.ThrowIfNull(place);
+        if (!hasLocation)
+        {
+            return false;
+        }
+
+        var label = place.Label.Length > maxName ? place.Label[..maxName] : place.Label;
+        if (!string.IsNullOrEmpty(stored) && string.Equals(stored, label, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        const double Near = 1e-5;
+        return latitude is { } lat && longitude is { } lon && Math.Abs(lat - place.Latitude) < Near && Math.Abs(lon - place.Longitude) < Near;
+    }
+
     /// <summary>How many places the list offers: more than six is a list to read, not to pick from.</summary>
     public const int MaxResults = 6;
 
