@@ -41,6 +41,7 @@ internal static partial class RenderCommands
         NoticeRender.Command,
         WidgetGalleryRender.Command,
         WidgetGalleryRender.Check,
+        GalleryPositionsCommand.Command,
 
         // scenes
         MotionRender.Command,

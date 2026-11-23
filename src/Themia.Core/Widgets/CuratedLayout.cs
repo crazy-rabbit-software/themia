@@ -29,7 +29,10 @@ public sealed record CuratedColumn
     public IReadOnlyList<CuratedSection> Sections { get; init; } = [];
 }
 
-/// <summary>[S-16742] A section of a column: its title (none: no heading) and its widgets in reading order.</summary>
+/// <summary>
+/// [S-16742] [S-17220] A section of a column: its title (none: no heading) and its widgets, each where it stands in the
+/// section (kept in reading order of their places).
+/// </summary>
 public sealed record CuratedSection
 {
     public string? Title { get; init; }
@@ -40,8 +43,8 @@ public sealed record CuratedSection
 /// <summary>
 /// [S-16742] A widget of a section: what it places (<see cref="Pick"/>, a <see cref="Themia.Sdk.WidgetPick"/>'s key: the kind's
 /// id, or the id and a preset's key, <c>quickToggle/wifi</c>), in which style (the style's name; none: the one it has new),
-/// with which config fragment over its default (none: the default), and its card's size in whole cells of the display's
-/// grid (about 10 DIPs each on every display).
+/// with which config fragment over its default (none: the default), where its card stands in its section and its card's
+/// size, both in whole cells of the display's grid (about 10 DIPs each on every display).
 /// </summary>
 public sealed record CuratedWidget
 {
@@ -50,6 +53,19 @@ public sealed record CuratedWidget
     public string? Style { get; init; }
 
     public JsonObject? Config { get; init; }
+
+    /// <summary>
+    /// [S-17220] Its card's left cell, from its column's left edge (owner, 2026-11-24: "in the gallery edit mode i should be
+    /// able to rearrange the widgets like i am on the desktop, just in the column that it is placed though"); null, missing
+    /// from its file, is repaired where read (<see cref="CuratedLayouts.Checked"/>).
+    /// </summary>
+    public int? X { get; init; }
+
+    /// <summary>
+    /// [S-17220] Its card's top cell, from its section's room: the row under the section's heading and, where the layout has
+    /// titles, a title's rows under that (a card at 0 has its title over it inside the section). Null: see <see cref="X"/>.
+    /// </summary>
+    public int? Y { get; init; }
 
     public int W { get; init; } = 1;
 

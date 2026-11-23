@@ -3199,7 +3199,7 @@ band drawn on the page with the real pointer (Ctrl and Shift too), placing by a 
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
-#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16731], [S-16740]..[S-16747], [S-17160]..[S-17165])
+#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16731], [S-16740]..[S-16747], [S-17160]..[S-17165], [S-17220]..[S-17226])
 
 The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
 build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
@@ -3541,10 +3541,10 @@ auto for search"). Owning files: Core `Widgets/CuratedLayout.cs` (the model), `C
   each a pick (`clock`, `quickToggle/wifi`: a kind or its preset, [S-16685]), a style by its name, a config fragment over its
   default (all optional but the pick) and its card's size in whole cells (about 10 DIPs on every display). Its title over each
   card ([S-16721]) where the layout says `titles` (Quick settings: no, its sections' headings say it).
-- **[S-16743]** **Packed as tightly as they go, in reading order** (`CuratedBento.Pack`): each widget in turn at the highest free
-  spot of its column that holds it, the left-most of those, one cell from every other; never wider than its column (made
-  narrower), held to its sizing on the display (`GallerySizes.Curated`); a later widget may take the room an earlier one left
-  beside a taller one. Laid, a tab is tiles that know their slot (column, section, place) and its sections' areas.
+- **[S-16743]** **Each at its place** (since 2026-11-24, [S-17220]; packed in reading order before): never wider than its column
+  (made narrower), held to its sizing on the display (`GallerySizes.Curated`). A widget with no place goes where the packer put
+  every widget: the highest free spot of its column that holds it, the left-most of those, one cell from every other
+  (`CuratedBento.FirstFree`). Laid, a tab is tiles that know their slot (column, section, place) and its sections' areas.
 - **[S-16744]** **Columns scroll, never shrink or stack**: on a narrower view the columns stay on their line at their widths
   and the well scrolls across ([S-17161]); the owner's "Columns shrink, then stack" of the first build was replaced 2026-11-23.
 - **[S-16745]** **The editor** (Debug builds only, `WidgetGalleryView.Editor.cs` compiled under `DEBUG` alone: the Store's
@@ -3554,10 +3554,10 @@ auto for search"). Owning files: Core `Widgets/CuratedLayout.cs` (the model), `C
   set its width in whole blocks; each section its heading line, titled or not: the title
   box (Enter or leaving it renames; empty, no heading), up, down, Add widget (a menu: Not placed yet, the widgets no tab places,
   then every tab's own pieces, each kind, preset and style) and Remove section; an empty section stands `EmptyRows` tall to drop
-  into. A widget is picked as before; dragged it moves in the gallery (never placed on the desktop while editing) and lands in
-  the section under the pointer before the first of its widgets that comes after the drop in reading order
-  (`CuratedBento.Insertion`); the picked one has a corner grip, dragged to make its card whole cells wider and taller (no wider
-  than its column, within its sizing; its section packs again as it goes, the cards moved, never built again) and an x button;
+  into. A widget is picked as before; dragged it moves in the gallery (never placed on the desktop while editing) as on the
+  desktop, inside its column ([S-17221]); the picked one has a corner grip, dragged to make its card whole cells wider and
+  taller where it stands (no further right than its column, within its sizing, never onto another widget; the cards moved,
+  never built again) and an x button; Add widget puts the new one at its section's first free spot;
   Delete removes the picked widgets. Ctrl+Z and Ctrl+Y step the session's edits (every tab's), the head's Undo and Redo too; the
   head says how many tabs are not saved; Save writes them. The session's layouts stand in for the build's files until the next
   build.
@@ -3609,6 +3609,44 @@ able to set the width of a column in blocks exactly."*). Owning files as above; 
 - **[S-17165]** **Quick settings, 2026-11-23**: the switch rows are one line now, 5 blocks tall (were 6); Brightness has its
   own section there under the switches (owner: *"brightness slider should be moved to the quick settings and should have a
   row design"*), a wide, one-row box (24 by 5 blocks, held to its kind's sizing), no longer on Devices.
+
+Free placement and groups (owner, 2026-11-24: *"actually in the gallery edit mode i should be able to rearrange the widgets
+like i am on the desktop, just in the column that it is placed though. volume slider should go into the quick settings too.
+also allow me to create "groups" by connecting the widgets in the editor together without space"*). Owning files as above,
+`CuratedBento.Places`, `FirstFree`, `Groups`, `Clashes`, `Landing`; `CuratedEdits.MoveWidget`; the Debug command
+`Shell/Gallery/GalleryPositionsCommand.cs`; tests `CuratedBentoTests.S17220_`..`S17223_`, `S16746_`,
+`WidgetGalleryPlacementTests.S16743_`.
+
+- **[S-17220]** **Every widget has its place.** A curated widget is stored with its card's place, `"x"` and `"y"` in whole
+  cells before its `"w"` and `"h"`: `x` from its column's left edge, `y` from its section's room (the row under the section's
+  heading, and, where the tab has titles, a title's rows under that: a card at 0 has its title over it inside the section).
+  The gallery draws every card exactly there, in the owner's editor and for every user: nothing packs them. A place past the
+  column's right edge is held to it (the card moved left as far as it takes). A section is as tall as its widgets reach;
+  sections stand down their column one cell apart as before.
+- **[S-17221]** **Moved as on the desktop, in its column.** In the editor a widget pressed and dragged follows the pointer;
+  where it would land, snapped to whole cells, is lit by the desktop's local grid (`LocalGridOverlay`, [S-11874]); held inside
+  its column (any row, never another column) and never above its section's room; let go, it lands there, in whichever
+  section of the column holds the row its card's top is on (`CuratedBento.Landing`: else the last section above it), one undo
+  step (Ctrl+Z, Ctrl+Y). The sections stay the owner's titled blocks: the editor moves widgets, never section titles.
+- **[S-17222]** **Never onto another.** A drop or a resize that would put a card on another card, or a title (over a card
+  alone or over a group) on a card or another title, or a card above its section's room, is refused (`CuratedBento.Clashes`):
+  the target is drawn in the critical role while it is, and let go there the widget goes back (a resize keeps the last clear
+  size). Nothing is pushed: the desktop's own move pushes nothing either ([S-11959] retired). Where a file is read a place
+  that is missing or on another widget is repaired loudly, the widget moved to its section's first free spot (logged); one
+  past its column moved left into it.
+- **[S-17223]** **Touching widgets are a group** (`CuratedBento.Groups`): cards whose cells meet side to side (an edge on an
+  edge, across each other by a cell; a corner alone is no meeting) are one group with everything they touch; a cell between
+  keeps them apart. A group is drawn joined, as touching cards on the desktop ([S-2240], `CardJoins`: one outline, square inner
+  corners at the seams), stands under one small title across it, its first widget's (the top-most, then left-most card: the
+  owner names a group by which widget he puts first), and acts as one piece in the gallery: a press or click on any of it
+  picks all of it, and dragged out it is the one placement session with all its widgets (`PlacementPayload.ForGallery`),
+  laid as one block at the cells they stood on, selected when it lands ([S-2471], [S-2475]). While editing, each widget of it is
+  picked and moved alone (that is how a group is made and parted).
+- **[S-17224]** **The files converted once.** The shipped tabs were given their places on 2026-11-24 by the Debug command
+  `Themia.exe --render gallery-positions <tab.json> ..` (`CuratedLayouts.Positioned`): each widget the place the packer gave it
+  on a 1920 by 1080 display and its size as drawn there, so every tab looks as before. Run again over a file whose widgets
+  have places it writes it unchanged; over one saved without places it converts it the same way. No load-time reader of the
+  old shape exists: a file without places is repaired loudly where read ([S-17222]).
 
 Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays and
 the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the

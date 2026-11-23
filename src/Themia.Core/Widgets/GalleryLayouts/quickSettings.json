@@ -9,66 +9,92 @@
           "widgets": [
             {
               "pick": "quickToggle/wifi",
+              "x": 0,
+              "y": 0,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/bluetooth",
+              "x": 12,
+              "y": 0,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/airplaneMode",
+              "x": 0,
+              "y": 12,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/sound",
+              "x": 12,
+              "y": 12,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/microphone",
+              "x": 0,
+              "y": 24,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/spatialSound",
+              "x": 12,
+              "y": 24,
               "w": 11,
               "h": 12
             },
             {
               "pick": "quickToggle/monoAudio",
+              "x": 0,
+              "y": 36,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/nightLight",
+              "x": 12,
+              "y": 37,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/colorFilters",
+              "x": 0,
+              "y": 48,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/rotationLock",
+              "x": 12,
+              "y": 49,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/energySaver",
+              "x": 0,
+              "y": 60,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/doNotDisturb",
+              "x": 12,
+              "y": 61,
               "w": 11,
               "h": 11
             },
             {
               "pick": "quickToggle/gameMode",
+              "x": 0,
+              "y": 72,
               "w": 11,
               "h": 11
             }
@@ -85,78 +111,104 @@
             {
               "pick": "quickToggle/wifi",
               "style": "round",
+              "x": 0,
+              "y": 0,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/bluetooth",
               "style": "round",
+              "x": 13,
+              "y": 0,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/airplaneMode",
               "style": "round",
+              "x": 0,
+              "y": 13,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/sound",
               "style": "round",
+              "x": 13,
+              "y": 13,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/microphone",
               "style": "round",
+              "x": 0,
+              "y": 26,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/spatialSound",
               "style": "round",
+              "x": 13,
+              "y": 26,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/monoAudio",
               "style": "round",
+              "x": 0,
+              "y": 39,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/nightLight",
               "style": "round",
+              "x": 13,
+              "y": 39,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/colorFilters",
               "style": "round",
+              "x": 0,
+              "y": 52,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/rotationLock",
               "style": "round",
+              "x": 13,
+              "y": 52,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/energySaver",
               "style": "round",
+              "x": 0,
+              "y": 65,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/doNotDisturb",
               "style": "round",
+              "x": 13,
+              "y": 65,
               "w": 12,
               "h": 12
             },
             {
               "pick": "quickToggle/gameMode",
               "style": "round",
+              "x": 0,
+              "y": 78,
               "w": 12,
               "h": 12
             }
@@ -173,78 +225,104 @@
             {
               "pick": "quickToggle/wifi",
               "style": "switch",
+              "x": 0,
+              "y": 0,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/bluetooth",
               "style": "switch",
+              "x": 0,
+              "y": 6,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/airplaneMode",
               "style": "switch",
+              "x": 0,
+              "y": 12,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/sound",
               "style": "switch",
+              "x": 0,
+              "y": 18,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/microphone",
               "style": "switch",
+              "x": 0,
+              "y": 24,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/spatialSound",
               "style": "switch",
+              "x": 0,
+              "y": 30,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/monoAudio",
               "style": "switch",
+              "x": 0,
+              "y": 36,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/nightLight",
               "style": "switch",
+              "x": 0,
+              "y": 42,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/colorFilters",
               "style": "switch",
+              "x": 0,
+              "y": 48,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/rotationLock",
               "style": "switch",
+              "x": 0,
+              "y": 54,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/energySaver",
               "style": "switch",
+              "x": 0,
+              "y": 60,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/doNotDisturb",
               "style": "switch",
+              "x": 0,
+              "y": 66,
               "w": 24,
               "h": 5
             },
             {
               "pick": "quickToggle/gameMode",
               "style": "switch",
+              "x": 0,
+              "y": 72,
               "w": 24,
               "h": 5
             }
@@ -255,6 +333,8 @@
           "widgets": [
             {
               "pick": "brightness",
+              "x": 0,
+              "y": 0,
               "w": 24,
               "h": 5
             }
@@ -270,66 +350,92 @@
           "widgets": [
             {
               "pick": "quickToggle/wifi",
+              "x": 0,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/bluetooth",
+              "x": 5,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/airplaneMode",
+              "x": 10,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/sound",
+              "x": 15,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/microphone",
+              "x": 20,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/spatialSound",
+              "x": 0,
+              "y": 5,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/monoAudio",
+              "x": 5,
+              "y": 5,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/nightLight",
+              "x": 10,
+              "y": 5,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/colorFilters",
+              "x": 15,
+              "y": 5,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/rotationLock",
+              "x": 20,
+              "y": 5,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/energySaver",
+              "x": 0,
+              "y": 10,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/doNotDisturb",
+              "x": 5,
+              "y": 10,
               "w": 4,
               "h": 4
             },
             {
               "pick": "quickToggle/gameMode",
+              "x": 10,
+              "y": 10,
               "w": 4,
               "h": 4
             }
@@ -340,36 +446,50 @@
           "widgets": [
             {
               "pick": "lock",
+              "x": 0,
+              "y": 0,
               "w": 10,
               "h": 10
             },
             {
               "pick": "signOut",
+              "x": 11,
+              "y": 0,
               "w": 10,
               "h": 10
             },
             {
               "pick": "sleep",
+              "x": 0,
+              "y": 11,
               "w": 10,
               "h": 10
             },
             {
               "pick": "hibernate",
+              "x": 11,
+              "y": 11,
               "w": 10,
               "h": 10
             },
             {
               "pick": "restart",
+              "x": 0,
+              "y": 22,
               "w": 10,
               "h": 10
             },
             {
               "pick": "shutdown",
+              "x": 11,
+              "y": 22,
               "w": 10,
               "h": 10
             },
             {
               "pick": "screenOff",
+              "x": 0,
+              "y": 33,
               "w": 10,
               "h": 10
             }
@@ -380,36 +500,50 @@
           "widgets": [
             {
               "pick": "lock",
+              "x": 0,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "signOut",
+              "x": 5,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "sleep",
+              "x": 10,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "hibernate",
+              "x": 15,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "restart",
+              "x": 20,
+              "y": 0,
               "w": 4,
               "h": 4
             },
             {
               "pick": "shutdown",
+              "x": 0,
+              "y": 5,
               "w": 4,
               "h": 4
             },
             {
               "pick": "screenOff",
+              "x": 5,
+              "y": 5,
               "w": 4,
               "h": 4
             }

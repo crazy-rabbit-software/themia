@@ -82,7 +82,7 @@ public sealed class WidgetGalleryPlacementTests
         var sizes = new GallerySizes(screen, 1, view);
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
         var categories = WidgetGallery.Of(page);
-        var shown = categories.Where(c => c.Sections is null && CuratedLayouts.Load(c.Id) is null).Concat(new[] { "weather", "clock", "music", "cpu", "calendar", "a" }.Select(q => WidgetGallery.Find(page, categories, q)!)).ToList();
+        var shown = categories.Where(c => c.Sections is null && CuratedLayouts.Load(c.Id, 0) is null).Concat(new[] { "weather", "clock", "music", "cpu", "calendar", "a" }.Select(q => WidgetGallery.Find(page, categories, q)!)).ToList();
         var said = new List<string>();
         foreach (var category in shown)
         {
@@ -138,10 +138,11 @@ public sealed class WidgetGalleryPlacementTests
     }
 
     /// <summary>
-    /// [S-16740]..[S-16746] Every tab of the build ships its curated layout, read clean (no widget the build lacks, nothing
-    /// repaired), and laid on a 1920 by 1080 display and the small ones by the curated rules: every widget of the file once, in
-    /// its column (no wider), on whole cells inside the view, one cell from every other, packed (none could stand a cell
-    /// higher in its section), its card under its title where the tab has titles; every column its own blocks wide, two
+    /// [S-16740]..[S-16746] [S-17220]..[S-17224] Every tab of the build ships its curated layout, read clean (no widget the
+    /// build lacks, nothing repaired: every widget has its place), and laid on a 1920 by 1080 display and the small ones by the
+    /// curated rules: every widget of the file once, in its column (no wider), on whole cells inside the view, its card at its
+    /// place (from its column's left and its section's room) under its title where the tab has titles, no card on another and
+    /// no title over a card; at 1920 by 1080 every place and size the one the file holds; every column its own blocks wide, two
     /// blocks apart on one line, inside the view at 1920 by 1080; on a narrow view the same (the sheet wider, scrolled across).
     /// </summary>
     [Theory]
@@ -158,7 +159,7 @@ public sealed class WidgetGalleryPlacementTests
         Assert.Equal(categories.Select(c => c.Id).Order(), CuratedLayouts.Shipped().Order());
         foreach (var category in categories)
         {
-            var layout = CuratedLayouts.Load(category.Id)!;
+            var layout = CuratedLayouts.Load(category.Id, sizes.TitleRows)!;
             Assert.NotNull(layout);
             using (var stream = typeof(CuratedLayouts).Assembly.GetManifestResourceStream("gallery-layouts/" + CuratedLayouts.FileName(category.Id))!)
             using (var reader = new StreamReader(stream))
@@ -186,19 +187,19 @@ public sealed class WidgetGalleryPlacementTests
                 Assert.True(column.Holds(tile.Box) && tile.Box.X >= 0 && tile.Box.Right <= sheet.Cols, $"{category.Id}: {tile.Piece.Key} at {tile.Box} outside its column {column} or the sheet {sheet.Cols}");
                 Assert.True(tile.Box.Y >= sheet.Areas.Single(a => a.Slot == slot with { Widget = -1 }).Box.Y);
                 Assert.Equal(layout.Titles ? sizes.TitleRows : 0, sheet.CardOf(tile).Y - tile.Box.Y);
-                foreach (var other in sheet.Tiles.Where(o => !ReferenceEquals(o, tile)))
-                {
-                    var apart = new CellBox(tile.Box.X - WidgetGallery.Gap, tile.Box.Y - WidgetGallery.Gap, tile.Box.W + (2 * WidgetGallery.Gap), tile.Box.H + (2 * WidgetGallery.Gap));
-                    Assert.False(apart.Overlaps(other.Box), $"{category.Id}: {tile.Piece.Key} and {other.Piece.Key} touch{Environment.NewLine}{Map(sheet, Math.Max(view, sheet.Cols))}");
-                }
+                // [S-17220] Its card at its place in its section; at 1920 by 1080 its size the file's too.
+                var widget = layout.Columns[slot.Column].Sections[slot.Section].Widgets[slot.Widget];
+                var area = sheet.Areas.Single(a => a.Slot == slot with { Widget = -1 });
+                var card = sheet.CardOf(tile);
+                Assert.True(card.X == column.X + Math.Min(widget.X!.Value, column.W - card.W) && card.Y == area.Room + widget.Y, $"{category.Id}: {tile.Piece.Key} at {card}, its place {widget.X},{widget.Y} (room {area.Room})");
+                Assert.True(width != 1920 || (card.W, card.H) == (widget.W, widget.H), $"{category.Id}: {tile.Piece.Key} drawn {card.W}x{card.H}, its file {widget.W}x{widget.H}");
+            }
 
-                // Packed: a cell higher it would leave its section or touch another of its section.
-                var area = sheet.Areas.Single(a => a.Slot == slot with { Widget = -1 }).Box;
-                var top = sheet.Headings.Any(hd => hd.Slot == slot with { Widget = -1 }) ? area.Y + sizes.HeadingRows : area.Y;
-                var up = tile.Box with { Y = tile.Box.Y - 1 };
-                Assert.True(up.Y < top || sheet.Tiles.Any(o => !ReferenceEquals(o, tile) && o.Slot!.Value.Column == slot.Column && o.Slot.Value.Section == slot.Section
-                    && new CellBox(o.Box.X - WidgetGallery.Gap, o.Box.Y - WidgetGallery.Gap, o.Box.W + (2 * WidgetGallery.Gap), o.Box.H + (2 * WidgetGallery.Gap)).Overlaps(up)),
-                    $"{category.Id}: {tile.Piece.Key} at {tile.Box} could stand a cell higher{Environment.NewLine}{Map(sheet, Math.Max(view, sheet.Cols))}");
+            // [S-17222] No card on another, no title over a card, in any section.
+            foreach (var area in sheet.Areas)
+            {
+                var cards = sheet.Tiles.Where(t => t.Slot!.Value with { Widget = -1 } == area.Slot).Select(t => sheet.CardOf(t) with { Y = sheet.CardOf(t).Y - area.Room }).ToList();
+                Assert.False(CuratedBento.Clashes(cards, sheet.Title), $"{category.Id}: section {area.Slot} has a card on another or a title over one{Environment.NewLine}{Map(sheet, Math.Max(view, sheet.Cols))}");
             }
         }
     }

@@ -1,8 +1,8 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-16745] What the gallery's editor does to a <see cref="CuratedLayout"/>, pure: each step a new layout (the old one kept
-/// for undo). A slot out of range changes nothing.
+/// [S-16745] [S-17221] What the gallery's editor does to a <see cref="CuratedLayout"/>, pure: each step a new layout (the old
+/// one kept for undo). A slot out of range, or a move or resize onto another widget, changes nothing.
 /// </summary>
 public static class CuratedEdits
 {
@@ -57,15 +57,28 @@ public static class CuratedEdits
             return c with { Sections = list };
         });
 
-    /// <summary>A widget put into a section at <paramref name="index"/> (held to its ends).</summary>
-    public static CuratedLayout AddWidget(CuratedLayout layout, CuratedSlot section, CuratedWidget widget, int index = int.MaxValue)
+    /// <summary>
+    /// [S-17222] A widget put into a section at the first free spot of it (<see cref="CuratedBento.FirstFree"/>: a cell from
+    /// every other, joining none), its size as <paramref name="fit"/> makes it in the column, titles <paramref name="title"/> rows.
+    /// </summary>
+    public static CuratedLayout AddWidget(CuratedLayout layout, CuratedSlot section, CuratedWidget widget, CuratedFit fit, int title)
     {
         ArgumentNullException.ThrowIfNull(widget);
-        return Section(layout, section, s =>
+        ArgumentNullException.ThrowIfNull(fit);
+        return Column(layout, section.Column, c => section.Section < 0 || section.Section >= c.Sections.Count ? c : c with
         {
-            var list = s.Widgets.ToList();
-            list.Insert(Math.Clamp(index, 0, list.Count), widget);
-            return s with { Widgets = list };
+            Sections = [.. c.Sections.Select((s, i) =>
+            {
+                if (i != section.Section)
+                {
+                    return s;
+                }
+
+                var cards = Cards(s.Widgets, c.Width, fit);
+                var (w, h) = fit.Size(widget, c.Width);
+                var spot = CuratedBento.FirstFree(cards, w, h, c.Width, layout.Titles ? title : 0);
+                return s with { Widgets = [.. s.Widgets, widget with { X = spot.X, Y = spot.Y }] };
+            })],
         });
     }
 
@@ -73,32 +86,78 @@ public static class CuratedEdits
     public static CuratedLayout RemoveWidget(CuratedLayout layout, CuratedSlot widget)
         => Section(layout, widget, s => widget.Widget < 0 || widget.Widget >= s.Widgets.Count ? s : s with { Widgets = [.. s.Widgets.Where((_, i) => i != widget.Widget)] });
 
-    /// <summary>A widget's card made <paramref name="w"/> by <paramref name="h"/> cells (at least one each way).</summary>
-    public static CuratedLayout ResizeWidget(CuratedLayout layout, CuratedSlot widget, int w, int h)
-        => Section(layout, widget, s => widget.Widget < 0 || widget.Widget >= s.Widgets.Count
-            ? s
-            : s with { Widgets = [.. s.Widgets.Select((x, i) => i == widget.Widget ? x with { W = Math.Clamp(w, 1, CuratedLayouts.MostCells), H = Math.Clamp(h, 1, CuratedLayouts.MostCells) } : x)] });
-
     /// <summary>
-    /// A widget moved to <paramref name="to"/>'s section at its place <paramref name="to"/>.Widget, counted before the move
-    /// (in its own section, a place after it lands where it was pointed at).
+    /// [S-16745] [S-17222] A widget's card made <paramref name="w"/> by <paramref name="h"/> cells (at least one each way,
+    /// no further right than its column), where it stands; unchanged where it would then clash with another widget of its
+    /// section (<see cref="CuratedBento.Clashes"/>, sizes as <paramref name="fit"/> makes them, titles <paramref name="title"/> rows).
     /// </summary>
-    public static CuratedLayout MoveWidget(CuratedLayout layout, CuratedSlot from, CuratedSlot to)
+    public static CuratedLayout ResizeWidget(CuratedLayout layout, CuratedSlot widget, int w, int h, CuratedFit fit, int title)
     {
         ArgumentNullException.ThrowIfNull(layout);
-        if (Widget(layout, from) is not { } widget || SectionOf(layout, to) is null)
+        ArgumentNullException.ThrowIfNull(fit);
+        if (widget.Column < 0 || widget.Column >= layout.Columns.Count)
         {
             return layout;
         }
 
-        var index = to.Widget;
-        if (from.Column == to.Column && from.Section == to.Section && index > from.Widget)
+        var width = layout.Columns[widget.Column].Width;
+        return Placed(layout, widget, x => x with { W = Math.Clamp(w, 1, Math.Clamp(width - (x.X ?? 0), 1, CuratedLayouts.MostCells)), H = Math.Clamp(h, 1, CuratedLayouts.MostCells) }, widget, fit, title);
+    }
+
+    /// <summary>
+    /// [S-17221] [S-17222] A widget moved as on the desktop, inside its column alone (owner, 2026-11-24: "in the gallery edit
+    /// mode i should be able to rearrange the widgets like i am on the desktop, just in the column that it is placed though"):
+    /// its card to (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="to"/>'s section (its own or another of the
+    /// same column), held inside the column (its x moved left as far as it takes, never above the section's room); refused,
+    /// the layout unchanged, where it would land on another widget (<see cref="CuratedBento.Clashes"/>), in another column or
+    /// in no section.
+    /// </summary>
+    public static CuratedLayout MoveWidget(CuratedLayout layout, CuratedSlot from, CuratedSlot to, int x, int y, CuratedFit fit, int title)
+    {
+        ArgumentNullException.ThrowIfNull(layout);
+        ArgumentNullException.ThrowIfNull(fit);
+        if (Widget(layout, from) is not { } widget || SectionOf(layout, to with { Widget = -1 }) is null || to.Column != from.Column)
         {
-            index--;
+            return layout;
         }
 
-        return AddWidget(RemoveWidget(layout, from), to with { Widget = -1 }, widget, index);
+        var width = layout.Columns[from.Column].Width;
+        var (w, _) = fit.Size(widget, width);
+        var moved = widget with { X = Math.Clamp(x, 0, Math.Max(0, width - Math.Clamp(w, 1, width))), Y = Math.Max(0, y) };
+        if (to.Section == from.Section)
+        {
+            return Placed(layout, from, _ => moved, from, fit, title);
+        }
+
+        var landed = AddTo(RemoveWidget(layout, from), to.Section, from.Column, moved);
+        return Clear(landed, new CuratedSlot(from.Column, to.Section, SectionOf(landed, to with { Widget = -1 })!.Widgets.Count - 1), fit, title) ? landed : layout;
+
+        static CuratedLayout AddTo(CuratedLayout layout, int section, int column, CuratedWidget widget)
+            => Section(layout, new CuratedSlot(column, section), s => s with { Widgets = [.. s.Widgets, widget] });
     }
+
+    /// <summary>[S-17222] <paramref name="slot"/>'s widget changed by <paramref name="change"/>, kept only where its section is then clear.</summary>
+    private static CuratedLayout Placed(CuratedLayout layout, CuratedSlot slot, Func<CuratedWidget, CuratedWidget> change, CuratedSlot check, CuratedFit fit, int title)
+    {
+        if (Widget(layout, slot) is null)
+        {
+            return layout;
+        }
+
+        var after = Section(layout, slot, s => s with { Widgets = [.. s.Widgets.Select((x, i) => i == slot.Widget ? change(x) : x)] });
+        return Clear(after, check, fit, title) ? after : layout;
+    }
+
+    /// <summary>[S-17222] Whether the section of <paramref name="slot"/> stands clear: no card on another, no title over one.</summary>
+    private static bool Clear(CuratedLayout layout, CuratedSlot slot, CuratedFit fit, int title)
+    {
+        var column = layout.Columns[slot.Column];
+        return !CuratedBento.Clashes(Cards(column.Sections[slot.Section].Widgets, column.Width, fit), layout.Titles ? title : 0);
+    }
+
+    /// <summary>A section's cards from its room, each at its place held inside its column, as the gallery lays them.</summary>
+    private static List<CellBox> Cards(IReadOnlyList<CuratedWidget> widgets, int width, CuratedFit fit)
+        => [.. CuratedBento.Places(widgets, width, 0, fit, out _, repairClashes: false)];
 
     /// <summary>The widget at <paramref name="slot"/>, or null.</summary>
     public static CuratedWidget? Widget(CuratedLayout layout, CuratedSlot slot)

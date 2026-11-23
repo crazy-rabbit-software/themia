@@ -8,11 +8,15 @@
           "widgets": [
             {
               "pick": "countdown",
+              "x": 0,
+              "y": 0,
               "w": 42,
               "h": 13
             },
             {
               "pick": "date",
+              "x": 0,
+              "y": 17,
               "w": 42,
               "h": 7
             }
@@ -27,6 +31,8 @@
           "widgets": [
             {
               "pick": "stopwatch",
+              "x": 0,
+              "y": 0,
               "w": 32,
               "h": 24
             }
@@ -41,6 +47,8 @@
           "widgets": [
             {
               "pick": "pomodoro",
+              "x": 0,
+              "y": 0,
               "w": 24,
               "h": 24
             }
@@ -55,11 +63,15 @@
           "widgets": [
             {
               "pick": "alarm",
+              "x": 0,
+              "y": 0,
               "w": 22,
               "h": 14
             },
             {
               "pick": "clock",
+              "x": 0,
+              "y": 18,
               "w": 22,
               "h": 6
             }
@@ -74,6 +86,8 @@
           "widgets": [
             {
               "pick": "focusSession",
+              "x": 0,
+              "y": 0,
               "w": 19,
               "h": 24
             }

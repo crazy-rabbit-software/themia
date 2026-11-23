@@ -8,6 +8,8 @@
           "widgets": [
             {
               "pick": "desktopItem",
+              "x": 0,
+              "y": 0,
               "w": 8,
               "h": 10
             }
@@ -22,6 +24,8 @@
           "widgets": [
             {
               "pick": "folder",
+              "x": 0,
+              "y": 0,
               "w": 33,
               "h": 21
             }
@@ -36,6 +40,8 @@
           "widgets": [
             {
               "pick": "recentFiles",
+              "x": 0,
+              "y": 0,
               "w": 33,
               "h": 21
             }
@@ -50,6 +56,8 @@
           "widgets": [
             {
               "pick": "fence",
+              "x": 0,
+              "y": 0,
               "w": 33,
               "h": 21
             }
@@ -64,6 +72,8 @@
           "widgets": [
             {
               "pick": "recycleBin",
+              "x": 0,
+              "y": 0,
               "w": 32,
               "h": 21
             }

@@ -8,11 +8,15 @@
           "widgets": [
             {
               "pick": "weekPlanner",
+              "x": 0,
+              "y": 0,
               "w": 44,
               "h": 14
             },
             {
               "pick": "email",
+              "x": 0,
+              "y": 18,
               "w": 44,
               "h": 25
             }
@@ -27,11 +31,15 @@
           "widgets": [
             {
               "pick": "calendar",
+              "x": 0,
+              "y": 0,
               "w": 32,
               "h": 26
             },
             {
               "pick": "meeting",
+              "x": 0,
+              "y": 30,
               "w": 32,
               "h": 6
             }
@@ -46,11 +54,15 @@
           "widgets": [
             {
               "pick": "contacts",
+              "x": 0,
+              "y": 0,
               "w": 32,
               "h": 29
             },
             {
               "pick": "meetings",
+              "x": 0,
+              "y": 33,
               "w": 32,
               "h": 12
             }
@@ -65,11 +77,15 @@
           "widgets": [
             {
               "pick": "tasks",
+              "x": 0,
+              "y": 0,
               "w": 33,
               "h": 22
             },
             {
               "pick": "notifications",
+              "x": 0,
+              "y": 26,
               "w": 33,
               "h": 17
             }

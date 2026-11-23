@@ -8,6 +8,8 @@
           "widgets": [
             {
               "pick": "rss",
+              "x": 0,
+              "y": 0,
               "w": 24,
               "h": 15
             }
@@ -22,6 +24,8 @@
           "widgets": [
             {
               "pick": "stockHistory",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 15
             }
@@ -36,6 +40,8 @@
           "widgets": [
             {
               "pick": "exchangeHistory",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 15
             }
@@ -50,6 +56,8 @@
           "widgets": [
             {
               "pick": "stock",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 15
             }
@@ -64,6 +72,8 @@
           "widgets": [
             {
               "pick": "exchangeRate",
+              "x": 0,
+              "y": 0,
               "w": 28,
               "h": 15
             }

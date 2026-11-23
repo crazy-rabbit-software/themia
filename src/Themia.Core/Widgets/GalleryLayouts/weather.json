@@ -8,6 +8,8 @@
           "widgets": [
             {
               "pick": "weatherForecast",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 12
             }
@@ -22,6 +24,8 @@
           "widgets": [
             {
               "pick": "rainNextHour",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 12
             }
@@ -36,6 +40,8 @@
           "widgets": [
             {
               "pick": "sun",
+              "x": 0,
+              "y": 0,
               "w": 27,
               "h": 12
             }
@@ -50,6 +56,8 @@
           "widgets": [
             {
               "pick": "airQuality",
+              "x": 0,
+              "y": 0,
               "w": 19,
               "h": 12
             }
@@ -64,6 +72,8 @@
           "widgets": [
             {
               "pick": "weatherNow",
+              "x": 0,
+              "y": 0,
               "w": 17,
               "h": 12
             }
@@ -78,6 +88,8 @@
           "widgets": [
             {
               "pick": "moon",
+              "x": 0,
+              "y": 0,
               "w": 16,
               "h": 12
             }

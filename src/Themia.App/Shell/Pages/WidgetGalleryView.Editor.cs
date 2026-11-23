@@ -28,9 +28,10 @@ namespace Themia.App.Shell;
 /// this file is compiled only there, so the Store's app has no trace of it. "Edit gallery" in the head turns it on for the
 /// tab shown: every column its outline and its tools (its width in blocks set exactly, a section added, the column removed),
 /// its right edge dragged to make it whole blocks wider or narrower ([S-17163]), every section its title box and its tools (up, down, a widget added from every
-/// kind and preset or the widgets not placed yet, removed), a widget dragged into another section or column (it lands in
-/// reading order where it is let go), resized by its corner in whole cells (its section packs again as it goes), removed by
-/// Delete or its ×. Ctrl+Z and Ctrl+Y step back and forth through the session's edits; Save writes the edited tabs' files
+/// kind and preset or the widgets not placed yet, removed), a widget moved as on the desktop inside its column ([S-17221]:
+/// pressed and dragged, the local grid lit where it lands on whole cells, landing where it is let go, in whichever section of
+/// the column that is; refused onto another widget, [S-17222]), resized by its corner in whole cells, removed by Delete or its
+/// ×; cards set touching make a group ([S-17223]). Ctrl+Z and Ctrl+Y step back and forth through the session's edits; Save writes the edited tabs' files
 /// into the repo the build was made from (<see cref="CuratedLayouts.Folder"/>), for the owner to commit.
 /// </summary>
 internal sealed partial class WidgetGalleryView
@@ -52,6 +53,12 @@ internal sealed partial class WidgetGalleryView
     private readonly Canvas _editPick = new();
     private readonly Canvas _editOver = new() { IsHitTestVisible = false };
     private readonly Rectangle _editDrop = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed, StrokeThickness = FamilyShape.Stroke };
+
+    /// <summary>[S-17221] The desktop's local grid round where a moved widget lands (<see cref="LocalGridOverlay"/>).</summary>
+    private readonly LocalGridOverlay _editGrid = new();
+
+    /// <summary>Where the pointer last was in an editor's gesture (a check's drop lets go there).</summary>
+    private Point _editAt;
 
     /// <summary>[S-17163] The width in blocks shown by the pointer while a column's edge is dragged.</summary>
     private readonly Border _editWidth = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed, Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1) };
@@ -97,8 +104,10 @@ internal sealed partial class WidgetGalleryView
         _editHead.Children.Add(_editToggle);
         _head.Children.Add(_editHead);
 
-        _editDrop.Stroke = Family.Brush(ColourRole.Accent);
-        _editDrop.Fill = HexBrush.Wash(ColourRole.Accent);
+        // [S-17222] Where a moved widget would land on another: refused, drawn in the critical role.
+        _editDrop.Stroke = Family.Brush(ColourRole.Critical);
+        _editDrop.Fill = HexBrush.Wash(ColourRole.Critical);
+        _editOver.Children.Add(_editGrid);
         _editOver.Children.Add(_editDrop);
         _editWidth.Background = Family.Brush(ColourRole.Accent);
         _editWidth.CornerRadius = new CornerRadius(FamilyShape.Radius);
@@ -396,7 +405,7 @@ internal sealed partial class WidgetGalleryView
         MenuFlyoutItem Item(GalleryPiece piece)
         {
             var item = new MenuFlyoutItem { Text = Named(piece) };
-            item.Click += (_, _) => Apply(l => CuratedEdits.AddWidget(l, section, Curated(piece)));
+            item.Click += (_, _) => Apply(l => CuratedEdits.AddWidget(l, section, Curated(piece), Sizes.Curated, Sizes.TitleRows));
             return item;
         }
     }
@@ -459,7 +468,10 @@ internal sealed partial class WidgetGalleryView
         Canvas.SetTop(_editWidth, at.Y + Fluent.Space3);
     }
 
-    /// <summary>[S-16745] A widget's corner pressed: dragged, its card is made whole cells wide and tall (no wider than its column, within its sizing), its section packing as it goes.</summary>
+    /// <summary>
+    /// [S-16745] [S-17222] A widget's corner pressed: dragged, its card is made whole cells wide and tall where it stands (no
+    /// further right than its column, within its sizing; never onto another widget: the last size that was clear stays).
+    /// </summary>
     private void BeginResize(CuratedSlot slot, CellBox card, int column, PointerRoutedEventArgs e)
     {
         if (_base is not { } shown || CuratedOf(shown) is not { } before || CuratedEdits.Widget(before, slot) is not { } widget)
@@ -478,7 +490,7 @@ internal sealed partial class WidgetGalleryView
                 {
                     last = held;
                     _gesture!.Changed = true;
-                    Relay(shown.Id, CuratedEdits.ResizeWidget(before, slot, held.W, held.H));
+                    Relay(shown.Id, CuratedEdits.ResizeWidget(before, slot, held.W, held.H, Sizes.Curated, Sizes.TitleRows));
                 }
             },
             _ => Done(shown.Id, before)));
@@ -515,6 +527,7 @@ internal sealed partial class WidgetGalleryView
         var point = e.GetCurrentPoint(_stage);
         if (_gesture is { } gesture)
         {
+            _editAt = point.Position;
             gesture.Step(point.Position);
             e.Handled = true;
             return true;
@@ -530,49 +543,122 @@ internal sealed partial class WidgetGalleryView
             return true;
         }
 
-        if (_laid is not { } sheet || !_placed.TryGetValue(card, out var at) || sheet.Tiles[at.Tile].Slot is not { } slot || CardOf(card) is not { } moving
-            || _base is not { } shown || CuratedOf(shown) is not { } before)
+        _press = null;
+        if (BeginMove(card, press.At) is { } moving)
         {
-            return true;
+            _editAt = point.Position;
+            moving.Step(point.Position);
         }
 
-        _press = null;
+        e.Handled = true;
+        return true;
+    }
+
+    /// <summary>
+    /// [S-17221] [S-17222] The widget <paramref name="id"/> pressed at <paramref name="from"/> starts to move as on the desktop,
+    /// inside its column alone (owner, 2026-11-24: "in the gallery edit mode i should be able to rearrange the widgets like i am
+    /// on the desktop, just in the column that it is placed though"): the card follows the pointer, where it would land is
+    /// snapped to whole cells (held inside the column, never above the sheet) and lit by the desktop's local grid, or, on another
+    /// widget, drawn refused; let go, it lands there (in the section of the column under it, <see cref="CuratedBento.Landing"/>;
+    /// one undo step), or a refused one goes back. Null: no curated widget there.
+    /// </summary>
+    private EditGesture? BeginMove(string id, Point from)
+    {
+        if (_laid is not { } sheet || !_placed.TryGetValue(id, out var at) || sheet.Tiles[at.Tile].Slot is not { } slot || CardOf(id) is not { } moving
+            || _base is not { } shown || CuratedOf(shown) is not { } before)
+        {
+            return null;
+        }
+
         var (left, top) = (Canvas.GetLeft(moving), Canvas.GetTop(moving));
-        var from = press.At;
-        GalleryArea? target = null;
+        var card = sheet.CardOf(sheet.Tiles[at.Tile]);
+        var column = sheet.Columns[slot.Column];
+        var pitch = Pitch;
+        Canvas.SetZIndex(moving, _cards.Count + 1);
+        CuratedLayout? landed = null;
         _gesture = new EditGesture(
             now =>
             {
                 Canvas.SetLeft(moving, left + (now.X - from.X));
                 Canvas.SetTop(moving, top + (now.Y - from.Y));
-                target = AreaAt(sheet, CellAt(now));
-                _editDrop.Visibility = target is null ? Visibility.Collapsed : Visibility.Visible;
-                if (target is not null)
+                var x = Math.Clamp(card.X + (int)Math.Round((now.X - from.X) / pitch.X), column.X, Math.Max(column.X, column.Right - card.W));
+                var y = Math.Max(0, card.Y + (int)Math.Round((now.Y - from.Y) / pitch.Y));
+                if (CuratedBento.Landing(sheet, slot.Column, y) is not { } landing)
                 {
-                    var box = Dip(target.Box);
+                    return;
+                }
+
+                var target = new CellBox(x, sheet.Areas.First(a => a.Slot == landing.Section).Room + landing.Y, card.W, card.H);
+                var after = CuratedEdits.MoveWidget(before, slot, landing.Section, x - column.X, landing.Y, Sizes.Curated, Sizes.TitleRows);
+                landed = ReferenceEquals(after, before) ? null : after;
+                _gesture!.Changed = true;
+                if (landed is not null)
+                {
+                    _editDrop.Visibility = Visibility.Collapsed;
+                    _editGrid.Show(RectOf(target), _metrics, _raster);
+                }
+                else
+                {
+                    _editGrid.Show(null, _metrics, _raster);
+                    var box = Dip(target);
                     Canvas.SetLeft(_editDrop, box.X);
                     Canvas.SetTop(_editDrop, box.Y);
                     _editDrop.Width = box.Width;
                     _editDrop.Height = box.Height;
+                    _editDrop.Visibility = Visibility.Visible;
                 }
             },
-            now =>
+            _ =>
             {
                 _editDrop.Visibility = Visibility.Collapsed;
-                if (target is { } area)
+                _editGrid.Show(null, _metrics, _raster);
+                if (landed is { } after && !Same(before, after))
                 {
-                    var index = CuratedBento.Insertion(sheet, area.Slot, CellAt(now));
-                    Apply(l => CuratedEdits.MoveWidget(l, slot, area.Slot with { Widget = index }));
+                    Apply(_ => after);
                 }
                 else
                 {
                     Present(shown, Lay(shown));
                 }
             });
-        _gesture.Step(point.Position);
-        e.Handled = true;
+        return _gesture;
+    }
+
+    /// <summary>
+    /// [S-17221] A check's move of the editor's: the widget <paramref name="id"/> pressed at its middle and dragged
+    /// <paramref name="cellsX"/>, <paramref name="cellsY"/> cells, held there (not let go: <see cref="EditDropForCheck"/>).
+    /// False: it could not be moved.
+    /// </summary>
+    internal bool EditDragForCheck(string id, double cellsX, double cellsY)
+    {
+        if (!Editing || CardOf(id) is not { } card)
+        {
+            return false;
+        }
+
+        var from = new Point(Canvas.GetLeft(card) + (card.Width / 2), Canvas.GetTop(card) + (card.Height / 2));
+        if (BeginMove(id, from) is not { } moving)
+        {
+            return false;
+        }
+
+        _editAt = new Point(from.X + (cellsX * Pitch.X), from.Y + (cellsY * Pitch.Y));
+        moving.Step(_editAt);
         return true;
     }
+
+    /// <summary>[S-17221] A check's move let go where it was held.</summary>
+    internal void EditDropForCheck()
+    {
+        if (_gesture is { } gesture)
+        {
+            _gesture = null;
+            gesture.End(_editAt);
+        }
+    }
+
+    /// <summary>[S-17221] The tab's layout as the editor has it now, for a check.</summary>
+    internal CuratedLayout? LayoutForCheck => _base is { } shown ? CuratedOf(shown) : null;
 
     /// <summary>[S-16745] The pointer let go while editing: a gesture ends. False: the gallery's own.</summary>
     private bool EditReleased(PointerRoutedEventArgs e)
@@ -596,6 +682,7 @@ internal sealed partial class WidgetGalleryView
         {
             _gesture = null;
             _editDrop.Visibility = Visibility.Collapsed;
+            _editGrid.Show(null, _metrics, _raster);
             _editWidth.Visibility = Visibility.Collapsed;
             if (_base is { } shown)
             {
@@ -604,15 +691,6 @@ internal sealed partial class WidgetGalleryView
 
             _ = gesture;
         }
-    }
-
-    /// <summary>The section a widget dropped on cell <paramref name="cell"/> goes to: the one there, else the nearest above it in that column, else the column's first.</summary>
-    private static GalleryArea? AreaAt(GallerySheet sheet, (int X, int Y) cell)
-    {
-        var column = sheet.Areas.Where(a => cell.X >= a.Box.X && cell.X < a.Box.Right).ToList();
-        return column.FirstOrDefault(a => cell.Y >= a.Box.Y && cell.Y < a.Box.Bottom)
-            ?? column.Where(a => a.Box.Y <= cell.Y).OrderByDescending(a => a.Box.Y).FirstOrDefault()
-            ?? column.OrderBy(a => a.Box.Y).FirstOrDefault();
     }
 
     // ---- keys --------------------------------------------------------------------------------------------------------------
@@ -764,13 +842,7 @@ internal sealed partial class WidgetGalleryView
         }
 
         _labels.Clear();
-        if (sheet.Title > 0)
-        {
-            foreach (var tile in sheet.Tiles)
-            {
-                _labels.Add((Label(Title(tile.Piece), FamilyType.Caption, "TextFillColorSecondaryBrush"), tile.Box with { H = sheet.Title }));
-            }
-        }
+        _labels.AddRange(Titles(sheet));
 
         foreach (var (label, box) in _labels)
         {

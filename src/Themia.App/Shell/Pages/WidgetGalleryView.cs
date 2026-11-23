@@ -833,7 +833,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         if (!_shipped.TryGetValue(content.Id, out var layout))
         {
-            _shipped[content.Id] = layout = CuratedLayouts.Load(content.Id);
+            _shipped[content.Id] = layout = CuratedLayouts.Load(content.Id, Sizes.TitleRows);
         }
 
         return layout;
@@ -881,14 +881,11 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         var view = Empty();
         var made = new List<WidgetInstance>();
+        _labels.AddRange(Titles(sheet));
         for (var t = 0; t < sheet.Tiles.Count; t++)
         {
             var tile = sheet.Tiles[t];
             var room = sheet.CardOf(tile);
-            if (sheet.Title > 0)
-            {
-                _labels.Add((Label(Title(tile.Piece), FamilyType.Caption, "TextFillColorSecondaryBrush"), tile.Box with { H = sheet.Title }));
-            }
 
             if (tile.Piece.Group is { } group)
             {
@@ -977,7 +974,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             _cardLayer.Children.Add(label);
         }
 
-        // [S-2240] Cards that touch are one panel: a group's own; pieces stand a cell apart and never join.
+        // [S-2240] [S-17223] Cards that touch are one panel: a ready-made group's own, a curated group of touching widgets; pieces
+        // a cell apart never join.
         WidgetCard.Join(_cards, _metrics, _raster, editMode: false, _ => 0);
         for (var i = 0; i < _tabs.Children.Count; i++)
         {
@@ -1028,6 +1026,31 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             // [S-17100] A face's height is held to what its width takes.
             H = Math.Max(1, (int)Math.Round(limits.At(w).Height.Range(room.H / (double)rows) * rows)),
         };
+    }
+
+    /// <summary>
+    /// [S-16721] [S-17223] The small titles over the cards where the sheet has them: one over each card, and one over each group
+    /// of touching cards (its first card's: the top-most, then left-most), across the group.
+    /// </summary>
+    private static List<(FrameworkElement Label, CellBox Box)> Titles(GallerySheet sheet)
+    {
+        var titles = new List<(FrameworkElement, CellBox)>();
+        if (sheet.Title <= 0)
+        {
+            return titles;
+        }
+
+        foreach (var tile in sheet.Tiles.Where(t => t.Group is null))
+        {
+            titles.Add((Label(Title(tile.Piece), FamilyType.Caption, "TextFillColorSecondaryBrush"), tile.Box with { H = sheet.Title }));
+        }
+
+        foreach (var group in sheet.Groups)
+        {
+            titles.Add((Label(Title(sheet.Tiles[group.Tiles[0]].Piece), FamilyType.Caption, "TextFillColorSecondaryBrush"), group.Title));
+        }
+
+        return titles;
     }
 
     /// <summary>[S-16724] Whether the card reads what it shows live (a quick toggle: Windows' own state), never a sample.</summary>
@@ -1778,15 +1801,24 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
     }
 
-    /// <summary>[S-14912] The widgets picked with <paramref name="id"/>: itself, or every widget of the ready-made group it is of.</summary>
+    /// <summary>
+    /// [S-14912] [S-17223] The widgets picked with <paramref name="id"/>: itself, every widget of the ready-made group it is of,
+    /// or every widget of the curated group its card touches (owner, 2026-11-24: groups "by connecting the widgets in the editor
+    /// together without space"): picked, dragged and placed as one block. While the owner edits, each widget alone.
+    /// </summary>
     private IEnumerable<string> Mates(string id)
     {
-        if (!_placed.TryGetValue(id, out var at) || _laid is not { } sheet || sheet.Tiles[at.Tile].Piece.Group is null)
+        if (!_placed.TryGetValue(id, out var at) || _laid is not { } sheet)
         {
             return [id];
         }
 
-        return _placed.Where(p => p.Value.Tile == at.Tile).Select(p => p.Key);
+        if (sheet.Tiles[at.Tile].Group is { } group && !Editing)
+        {
+            return _placed.Where(p => sheet.Tiles[p.Value.Tile].Group == group).OrderBy(p => p.Value.Tile).Select(p => p.Key);
+        }
+
+        return sheet.Tiles[at.Tile].Piece.Group is null ? [id] : _placed.Where(p => p.Value.Tile == at.Tile).Select(p => p.Key);
     }
 
     /// <summary>[S-14914] A pick holds whole pieces: a group's every widget with any one of them, in the screen's order.</summary>

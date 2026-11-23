@@ -20,6 +20,18 @@ public readonly record struct CellBox(int X, int Y, int W, int H)
     /// <summary>Whether <paramref name="inner"/> lies wholly inside this box.</summary>
     public bool Holds(CellBox inner) => inner.X >= X && inner.Y >= Y && inner.Right <= Right && inner.Bottom <= Bottom;
 
+    /// <summary>
+    /// [S-17223] Whether the two meet side to side: an edge of one on an edge of the other, the two across each other by at least
+    /// a cell (a corner alone is no meeting; sharing a cell is overlapping, not meeting). The cells of cards that join
+    /// ([S-2240], <c>Lattice.Meeting</c> on whole cells).
+    /// </summary>
+    public bool Meets(CellBox other)
+    {
+        var acrossX = X < other.Right && other.X < Right;
+        var acrossY = Y < other.Bottom && other.Y < Bottom;
+        return (acrossX && (Bottom == other.Y || other.Bottom == Y)) || (acrossY && (Right == other.X || other.Right == X));
+    }
+
     /// <summary>The box's middle, in cells.</summary>
     public (double X, double Y) Middle => (X + (W / 2.0), Y + (H / 2.0));
 }
@@ -87,6 +99,12 @@ public sealed record GalleryTile(GalleryPiece Piece, CellBox Box)
 {
     /// <summary>[S-16745] The curated widget it shows (<see cref="CuratedBento"/>); null on an automatic bento.</summary>
     public CuratedSlot? Slot { get; init; }
+
+    /// <summary>
+    /// [S-17223] The group of touching widgets it is in (an index of <see cref="GallerySheet.Groups"/>): picked, titled and
+    /// placed with the rest of it as one piece; null where its card touches no other.
+    /// </summary>
+    public int? Group { get; init; }
 }
 
 /// <summary>
@@ -111,6 +129,9 @@ public sealed record GallerySheet(AddFolderId Category, LocalText Name, int Rows
 
     /// <summary>[S-16743] A curated tab's sections, each its box (heading and widgets, the column's width); none on an automatic bento.</summary>
     public IReadOnlyList<GalleryArea> Areas { get; init; } = [];
+
+    /// <summary>[S-17223] A curated tab's groups of touching widgets (two or more each); none on an automatic bento.</summary>
+    public IReadOnlyList<GalleryGroup> Groups { get; init; } = [];
 
     /// <summary>[S-16721] The box a tile's card stands in: its tile's box under its title.</summary>
     public CellBox CardOf(GalleryTile tile)

@@ -8,18 +8,24 @@
           "widgets": [
             {
               "pick": "bluetooth",
+              "x": 0,
+              "y": 0,
               "w": 23,
               "h": 21
             },
             {
               "pick": "bluetoothDevice",
+              "x": 0,
+              "y": 25,
               "w": 23,
-              "h": 8
+              "h": 6
             },
             {
               "pick": "battery",
+              "x": 0,
+              "y": 35,
               "w": 23,
-              "h": 8
+              "h": 6
             }
           ]
         }
@@ -32,6 +38,8 @@
           "widgets": [
             {
               "pick": "deviceBatteries",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 26
             }
@@ -46,13 +54,17 @@
           "widgets": [
             {
               "pick": "drives",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 27
             },
             {
               "pick": "drive",
+              "x": 0,
+              "y": 31,
               "w": 29,
-              "h": 14
+              "h": 6
             }
           ]
         }
@@ -65,13 +77,17 @@
           "widgets": [
             {
               "pick": "usbSticks",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 27
             },
             {
               "pick": "usbStick",
+              "x": 0,
+              "y": 31,
               "w": 29,
-              "h": 14
+              "h": 6
             }
           ]
         }
@@ -84,13 +100,17 @@
           "widgets": [
             {
               "pick": "networkDrives",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 27
             },
             {
               "pick": "networkDrive",
+              "x": 0,
+              "y": 31,
               "w": 29,
-              "h": 14
+              "h": 6
             }
           ]
         }

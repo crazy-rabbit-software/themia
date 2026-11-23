@@ -8,8 +8,9 @@ namespace Themia.Core.Widgets;
 /// [S-16746] The gallery's layout files: one per tab, <c>src/Themia.Core/Widgets/GalleryLayouts/&lt;tab&gt;.json</c> in the
 /// repo, built into Core (owner, 2026-11-23: "In the repo, shipped": every user sees the curated gallery, the owner's edits a
 /// change to commit). Read from the build (<see cref="Load"/>), checked where read (<see cref="Checked"/>: a widget the build
-/// does not have, a preset or style its kind does not have, dropped loudly; a size or a column's width out of range repaired,
-/// loudly), written as the editor saves them (<see cref="Write"/>: stable, two spaces, LF).
+/// does not have, a preset or style its kind does not have, dropped loudly; a size, a column's width or a widget's place out
+/// of range, missing or on another widget repaired, loudly), written as the editor saves them (<see cref="Write"/>: stable,
+/// two spaces, LF).
 /// </summary>
 public static class CuratedLayouts
 {
@@ -35,10 +36,11 @@ public static class CuratedLayouts
         => [.. Enum.GetValues<AddFolderId>().Where(t => typeof(CuratedLayouts).Assembly.GetManifestResourceInfo(Resource + FileName(t)) is not null)];
 
     /// <summary>
-    /// [S-16746] <paramref name="tab"/>'s layout as the build ships it, checked; null where it has none (the tab falls back to
-    /// the automatic bento until curated), or where its file cannot be read (logged: the same fallback).
+    /// [S-16746] <paramref name="tab"/>'s layout as the build ships it, checked (its widgets' titles <paramref name="title"/>
+    /// rows tall, [S-17222]); null where it has none (the tab falls back to the automatic bento until curated), or where its
+    /// file cannot be read (logged: the same fallback).
     /// </summary>
-    public static CuratedLayout? Load(AddFolderId tab)
+    public static CuratedLayout? Load(AddFolderId tab, int title)
     {
         using var stream = typeof(CuratedLayouts).Assembly.GetManifestResourceStream(Resource + FileName(tab));
         if (stream is null)
@@ -49,7 +51,7 @@ public static class CuratedLayouts
         try
         {
             using var reader = new StreamReader(stream);
-            return Checked(Read(reader.ReadToEnd()), FileName(tab));
+            return Checked(Read(reader.ReadToEnd()), FileName(tab), title);
         }
         catch (JsonException ex)
         {
@@ -73,12 +75,16 @@ public static class CuratedLayouts
     /// [S-16746] <paramref name="layout"/> checked (<paramref name="file"/> names it in the log): a widget whose
     /// <paramref name="problem"/> is not null (the build's registry by default, <see cref="Problem"/>) dropped, a size outside 1 to
     /// <see cref="MostCells"/> held to it, a column's width that is missing or not 1 to <see cref="MostCells"/> blocks made its
-    /// widest widget's (<see cref="CuratedBento.NewColumn"/> where it has none) ([S-17162]); each logged. Never half-built.
+    /// widest widget's (<see cref="CuratedBento.NewColumn"/> where it has none) ([S-17162]); [S-17222] a widget's place that is
+    /// missing or on another widget (its card or, with titles <paramref name="title"/> rows tall, its title;
+    /// <see cref="CuratedBento.Clashes"/>) made the first free spot of its section (<see cref="CuratedBento.FirstFree"/>, sizes
+    /// as stored), one past its column's right edge moved left into it; each logged. Never half-built.
     /// </summary>
-    public static CuratedLayout Checked(CuratedLayout layout, string file, Func<CuratedWidget, string?>? problem = null)
+    public static CuratedLayout Checked(CuratedLayout layout, string file, int title, Func<CuratedWidget, string?>? problem = null)
     {
         ArgumentNullException.ThrowIfNull(layout);
         problem ??= Problem;
+        title = layout.Titles ? Math.Max(0, title) : 0;
         var columns = new List<CuratedColumn>();
         foreach (var column in layout.Columns ?? [])
         {
@@ -119,10 +125,55 @@ public static class CuratedLayouts
                 Log.Warn(Scope, $"{file}: a column's width {column.Width} is not 1 to {MostCells} blocks; made {width}, its widest widget's");
             }
 
-            columns.Add(new CuratedColumn { Width = width, Sections = sections });
+            columns.Add(new CuratedColumn { Width = width, Sections = [.. sections.Select(s => Placed(s, width))] });
         }
 
         return layout with { Columns = columns };
+
+        // [S-17222] Every widget at a place of its own in the column: one missing, outside it or on another moved, loudly.
+        CuratedSection Placed(CuratedSection section, int width)
+        {
+            var cards = CuratedBento.Places(section.Widgets, width, title, CuratedFit.AsStored, out var repaired);
+            for (var i = 0; i < cards.Count; i++)
+            {
+                var widget = section.Widgets[i];
+                if (repaired.Contains(i))
+                {
+                    var where = widget.X is { } x && widget.Y is { } y ? $"at {x},{y} is on another widget" : "has no place";
+                    Log.Warn(Scope, $"{file}: '{widget.Identity}' {where}; moved to {cards[i].X},{cards[i].Y}, the first free spot of its section");
+                }
+                else if (widget.X != cards[i].X)
+                {
+                    Log.Warn(Scope, $"{file}: '{widget.Identity}' at {widget.X},{widget.Y} runs past its column's {width} blocks; moved left to {cards[i].X}");
+                }
+            }
+
+            return section with { Widgets = [.. section.Widgets.Select((w, i) => w.X == cards[i].X && w.Y == cards[i].Y ? w : w with { X = cards[i].X, Y = cards[i].Y })] };
+        }
+    }
+
+    /// <summary>
+    /// [S-17222] <paramref name="layout"/> with every widget's place and size as <paramref name="fit"/> lays it (titles
+    /// <paramref name="title"/> rows tall): a place it has kept (held inside its column), one it lacks the first free spot,
+    /// exactly where the gallery draws it. Converted so once, the shipped files of 2026-11-24 (packed in reading order until
+    /// then) took the places the packer gave them on a 1920 by 1080 display: the same picture, every place written down.
+    /// </summary>
+    public static CuratedLayout Positioned(CuratedLayout layout, CuratedFit fit, int title)
+    {
+        ArgumentNullException.ThrowIfNull(layout);
+        ArgumentNullException.ThrowIfNull(fit);
+        title = layout.Titles ? Math.Max(0, title) : 0;
+        return layout with
+        {
+            Columns = [.. layout.Columns.Select(c => c with
+            {
+                Sections = [.. c.Sections.Select(s =>
+                {
+                    var cards = CuratedBento.Places(s.Widgets, c.Width, title, fit, out _, repairClashes: false);
+                    return s with { Widgets = [.. s.Widgets.Select((w, i) => w with { X = cards[i].X, Y = cards[i].Y, W = cards[i].W, H = cards[i].H })] };
+                })],
+            })],
+        };
     }
 
     /// <summary>[S-16746] Why the build cannot show <paramref name="widget"/> (no such kind, preset or style); null when it can.</summary>
@@ -163,7 +214,8 @@ public static class CuratedLayouts
     /// <summary>
     /// [S-16745] A tab's automatic bento as a curated layout, its first arrangement to edit (how the shipped files began): each
     /// column on the sheet's top line a column of its width in blocks, one untitled section of its widgets in reading order at the
-    /// cells their cards stand on; a sheet in sections (Quick settings) one column of them, each under its heading's words.
+    /// cells their cards stand on, each at its place there ([S-17220]); a sheet in sections (Quick settings) one column of them,
+    /// each under its heading's words.
     /// </summary>
     public static CuratedLayout From(GallerySheet sheet)
     {
@@ -176,6 +228,9 @@ public static class CuratedLayouts
             var style = piece.Style is { } value ? WidgetStyles.For(piece.Kind!.Value).FirstOrDefault(o => o.Value == value).Name : null;
             return new CuratedWidget { Pick = piece.Pick!.Value.Key, Style = style, Config = piece.Config, W = card.W, H = card.H };
         }
+
+        // [S-17220] Its place: its tile's corner (its title over its card) from its section's room.
+        CuratedWidget At(GalleryTile tile, int left, int top) => Of(tile) with { X = tile.Box.X - left, Y = tile.Box.Y - top };
 
         if (sheet.Headings.Count > 0)
         {
@@ -191,7 +246,7 @@ public static class CuratedLayouts
                         Sections = [.. heads.Select((h, i) => new CuratedSection
                         {
                             Title = string.IsNullOrWhiteSpace(h.Text.Text()) ? null : h.Text.Text(),
-                            Widgets = [.. tiles.Where(t => t.Box.Y >= h.Box.Bottom && (i + 1 == heads.Count || t.Box.Y < heads[i + 1].Box.Y)).Select(Of)],
+                            Widgets = [.. tiles.Where(t => t.Box.Y >= h.Box.Bottom && (i + 1 == heads.Count || t.Box.Y < heads[i + 1].Box.Y)).Select(t => At(t, 0, h.Box.Bottom))],
                         })],
                     },
                 ],
@@ -210,7 +265,7 @@ public static class CuratedLayouts
             Columns = [.. top.Select(c => new CuratedColumn
             {
                 Width = c.W,
-                Sections = [new CuratedSection { Widgets = [.. tiles.Where(t => t.Box.X >= c.X && t.Box.X < c.Right).Select(Of)] }],
+                Sections = [new CuratedSection { Widgets = [.. tiles.Where(t => t.Box.X >= c.X && t.Box.X < c.Right).Select(t => At(t, c.X, c.Y))] }],
             })],
         };
     }

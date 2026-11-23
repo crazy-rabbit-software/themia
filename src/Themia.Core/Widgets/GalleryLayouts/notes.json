@@ -8,6 +8,8 @@
           "widgets": [
             {
               "pick": "scratchpad",
+              "x": 0,
+              "y": 0,
               "w": 38,
               "h": 26
             }
@@ -22,11 +24,15 @@
           "widgets": [
             {
               "pick": "divider",
+              "x": 0,
+              "y": 0,
               "w": 15,
               "h": 1
             },
             {
               "pick": "icon",
+              "x": 0,
+              "y": 5,
               "w": 15,
               "h": 16
             }
@@ -41,11 +47,15 @@
           "widgets": [
             {
               "pick": "notes",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 18
             },
             {
               "pick": "header",
+              "x": 0,
+              "y": 22,
               "w": 29,
               "h": 4
             }
@@ -60,11 +70,15 @@
           "widgets": [
             {
               "pick": "clipboard",
+              "x": 0,
+              "y": 0,
               "w": 29,
               "h": 14
             },
             {
               "pick": "text",
+              "x": 0,
+              "y": 18,
               "w": 29,
               "h": 8
             }
@@ -79,11 +93,15 @@
           "widgets": [
             {
               "pick": "habitTracker",
+              "x": 0,
+              "y": 0,
               "w": 28,
               "h": 12
             },
             {
               "pick": "quote",
+              "x": 0,
+              "y": 16,
               "w": 28,
               "h": 10
             }

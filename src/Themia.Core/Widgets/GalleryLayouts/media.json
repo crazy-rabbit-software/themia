@@ -8,6 +8,8 @@
           "widgets": [
             {
               "pick": "gallery",
+              "x": 0,
+              "y": 0,
               "w": 35,
               "h": 30
             }
@@ -22,6 +24,8 @@
           "widgets": [
             {
               "pick": "videoStream",
+              "x": 0,
+              "y": 0,
               "w": 35,
               "h": 30
             }
@@ -36,11 +40,15 @@
           "widgets": [
             {
               "pick": "audioVisualizer",
+              "x": 0,
+              "y": 0,
               "w": 35,
               "h": 12
             },
             {
               "pick": "volume",
+              "x": 0,
+              "y": 16,
               "w": 35,
               "h": 14
             }
@@ -55,11 +63,15 @@
           "widgets": [
             {
               "pick": "music",
+              "x": 0,
+              "y": 0,
               "w": 36,
               "h": 12
             },
             {
               "pick": "mixer",
+              "x": 0,
+              "y": 16,
               "w": 36,
               "h": 14
             }
