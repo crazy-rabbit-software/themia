@@ -10966,7 +10966,7 @@ placement they will just be a collection of regular widgets like any others").
   split into multiple widgets"; `music`, [S-16500]) under its header: Now playing in its side cover, every element shown
   (400 × 88), Now playing, large stacked (244 × 320, `"style": "stacked"`). Tests `ReadyMadeGroupsTests` (the rules of
   [S-2472]).
-- **[S-11341]** **Sound**: the volume (300 × 136, its header on) over the mixer (300 wide, its four
+- **[S-11341]** **Sound**: the volume (300 × 46, its one row since [S-17225]) over the mixer (300 wide, its four
   rows, its header hidden: the first atom carries the header).
 - **[S-11342]** **Quick settings**: Wi-Fi, Bluetooth, Do not disturb and Night light, four Medium tiles
   (120) in a row.

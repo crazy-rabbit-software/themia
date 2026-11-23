@@ -318,11 +318,11 @@ public static class ReadyMadeGroups
         new("music", new(0, 0, 244, 320), Config: """{"style":"stacked"}"""),
     ]), Str.Groups_Recipe_NowPlaying);
 
-    /// <summary>[S-11341] Sound: the volume over the mixer, one header (the volume's).</summary>
+    /// <summary>[S-11341] [S-17225] Sound: the volume's one row over the mixer, one header (the volume's).</summary>
     public static ReadyMadeGroup Sound { get; } = Headed(new("sound", Str.Groups_Recipe_Sound, Str.Groups_Recipe_SoundAbout, Glyphs.Volume3, AddFolderId.Media,
     [
-        new("volume", new(0, 0, 300, 112)),
-        new("mixer", new(0, 112, 300, 120)),
+        new("volume", new(0, 0, 300, 46)),
+        new("mixer", new(0, 46, 300, 120)),
     ]));
 
     /// <summary>[S-11342] Quick settings: Wi-Fi, Bluetooth, Do not disturb and Night light in a row.</summary>
