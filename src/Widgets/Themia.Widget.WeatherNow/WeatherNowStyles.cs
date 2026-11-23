@@ -101,6 +101,23 @@ public static class WeatherNowStyles
         => double.IsFinite(slot) && double.IsFinite(room) && slot >= FamilyType.Caption.LineHeight - LayoutMath.Tolerance && room >= WhyLine.MinBeside;
 
     /// <summary>
+    /// [S-16453] Where why (<paramref name="why"/> wide) starts in a card <paramref name="card"/> wide under a face drawn from
+    /// <paramref name="faceLeft"/>, <paramref name="faceWidth"/> wide: where the face's alignment puts it under the face
+    /// (centred on it, at its start or at its end), kept inside the card's insets, so a why wider than the face stays centred
+    /// with it (it ran on to the right from the face's start at 180 × 76).
+    /// </summary>
+    public static double WhyLeft(ContentAlign align, double faceLeft, double faceWidth, double why, double card)
+    {
+        var left = align switch
+        {
+            ContentAlign.Left => faceLeft,
+            ContentAlign.Right => faceLeft + faceWidth - why,
+            _ => faceLeft + ((faceWidth - why) / 2),
+        };
+        return Math.Clamp(left, FamilySpace.Inset, Math.Max(FamilySpace.Inset, card - FamilySpace.Inset - why));
+    }
+
+    /// <summary>
     /// [S-16433] Where the status mark (its <paramref name="room"/> across, over a band <paramref name="band"/> under the face's
     /// top) stands against the reading's block (<paramref name="block"/> at its own size, <paramref name="least"/> at its
     /// floor) scaled into a room <paramref name="width"/> by <paramref name="height"/>: clear of a block that stands under the

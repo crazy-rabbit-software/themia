@@ -74,6 +74,16 @@ public sealed class WeatherNowTests
     }
 
     [Fact]
+    public void S16453_why_stands_under_the_face_where_its_alignment_puts_it()
+    {
+        // A why wider than the face stays centred with it, inside the insets.
+        Assert.Equal(25, WeatherNowStyles.WhyLeft(ContentAlign.Center, 50, 80, 130, 180), 6);
+        Assert.Equal(12, WeatherNowStyles.WhyLeft(ContentAlign.Center, 12, 80, 300, 180), 6);
+        Assert.Equal(50, WeatherNowStyles.WhyLeft(ContentAlign.Left, 50, 80, 60, 300), 6);
+        Assert.Equal(70, WeatherNowStyles.WhyLeft(ContentAlign.Right, 50, 80, 60, 300), 6);
+    }
+
+    [Fact]
     public void S16454_the_summary_centres_until_an_alignment_is_chosen()
     {
         foreach (var style in Enum.GetValues<WeatherNowStyle>())

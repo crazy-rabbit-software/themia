@@ -121,6 +121,8 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         _config = config as WeatherNowConfig ?? new WeatherNowConfig();
         _feed.Attach(ticker, _config.TickInterval);
         _opensLight.Attach();
+        LayoutUpdated -= OnLayoutUpdated;
+        LayoutUpdated += OnLayoutUpdated;
         ApplyConfig(config);
     }
 
@@ -139,6 +141,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
     public void Detach()
     {
+        LayoutUpdated -= OnLayoutUpdated;
         _opensLight.Detach();
         _feed.Detach();
     }
@@ -159,9 +162,12 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
             _bigGlyph.Visibility = face.BigGlyph ? Visibility.Visible : Visibility.Collapsed;
             _bigGlyph.Glyph = Glyphs.Weather;
             _bigGlyph.Foreground = Family.Brush(ColourRole.TextDisabled);
-            _reading.Hold(face.Held.Value, face.Held.Unit);
+            // A face with its sky stands on the sky's ink and the line under's: "--" as drawn. Minimal has no sky, so its
+            // "--" is held to the widest reading, never blown up by its thin dashes.
+            _reading.Hold(face.Lead || face.BigGlyph ? string.Empty : face.Held.Value, face.Lead || face.BigGlyph ? string.Empty : face.Held.Unit);
             _reading.Show("--", "°", WeatherNowStyles.UnderSlot, lead: face.Lead ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
             _why.Text = _whyText ?? string.Empty;
+            PlaceWhy(new Windows.Foundation.Size(ActualWidth, ActualHeight));
             Lay();
             return;
         }
@@ -223,19 +229,17 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
         var tip = _whyText ?? (place == MarkPlace.Yields ? string.Join("\n", _problems) : null);
         ToolTipService.SetToolTip(this, tip);
-        _fit.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset + (place == MarkPlace.Beside ? _status.Room : 0), FamilySpace.Inset);
+        // [S-16454] Beside the mark a centred block keeps the same room at its start, so it stays in the card's middle.
+        var beside = place == MarkPlace.Beside ? _status.Room : 0;
+        _fit.Margin = new Thickness(FamilySpace.Inset + (_fit.Align == ContentAlign.Center ? beside : 0), 0, FamilySpace.Inset + beside, FamilySpace.Inset);
     }
 
-    protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
-    {
-        var size = base.ArrangeOverride(finalSize);
-        PlaceWhy(finalSize);
-        return size;
-    }
+    /// <summary>[S-16453] After each layout the block's line under stands where it is drawn: why follows it there.</summary>
+    private void OnLayoutUpdated(object? sender, object args) => PlaceWhy(new Windows.Foundation.Size(ActualWidth, ActualHeight));
 
     /// <summary>
-    /// [S-16453] Lay why over the place of the face's line under, as the block is drawn: from its start to the card's inset at
-    /// the end, centred on its height, at Caption's own size; where that place is under a Caption line (the block drawn small)
+    /// [S-16453] Lay why over the place of the face's line under, as the block is drawn: on that line's baseline, standing
+    /// where the face's alignment puts it under the face (<see cref="WeatherNowStyles.WhyLeft"/>), at Caption's own size; where that place is under a Caption line (the block drawn small)
     /// the line is not drawn and why is the face's tooltip alone (<see cref="WeatherNowStyles.WhyFits"/>).
     /// </summary>
     private void PlaceWhy(Windows.Foundation.Size card)
@@ -245,15 +249,20 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         if (_whyText is not null && under.Visibility == Visibility.Visible && under.ActualHeight > 0)
         {
             var box = under.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, under.ActualWidth, under.ActualHeight));
+            var face = _face.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, _face.ActualWidth, _face.ActualHeight));
             var line = FamilyType.Caption.LineHeight;
-            var room = Math.Max(0, card.Width - FamilySpace.Inset - box.X);
+            var room = Math.Max(0, card.Width - (2 * FamilySpace.Inset));
+            _why.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var width = Math.Min(_why.DesiredSize.Width, room);
             if (WeatherNowStyles.WhyFits(box.Height, room))
             {
-                Set(Canvas.LeftProperty, box.X);
-                Set(Canvas.TopProperty, box.Y + ((box.Height - line) / 2));
-                if (!_why.Width.Equals(room))
+                Set(Canvas.LeftProperty, WeatherNowStyles.WhyLeft(_fit.Align, face.X, face.Width, width, card.Width));
+                // On the line under's baseline, as the line it stands in would be drawn: its ink on the block's foot.
+                var foot = LineInk.Of(FamilyType.Caption).Under;
+                Set(Canvas.TopProperty, box.Y + box.Height - (foot * box.Height / line) - line + foot);
+                if (!_why.Width.Equals(width))
                 {
-                    _why.Width = room;
+                    _why.Width = width;
                 }
 
                 shown = true;
