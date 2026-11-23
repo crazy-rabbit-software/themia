@@ -150,8 +150,23 @@ public static class MusicPlan
     /// <summary>[S-16504] The stacked block's width: the cover's side and the column's.</summary>
     public const double StackSide = 160;
 
-    /// <summary>[S-16505] Full art's room for the art over the column, and its column on a new card.</summary>
+    /// <summary>[S-16505] Full art's room for the art over the column on a new card, and its column there.</summary>
     public const double ArtRoom = 120, ArtColumn = 216;
+
+    /// <summary>
+    /// [S-16505] The most of Full art's height its column takes: it grows as one block until the width or this share stops it,
+    /// the art keeping the third over it in sight.
+    /// </summary>
+    public const double FootShare = 2.0 / 3.0;
+
+    /// <summary>
+    /// [S-16502] WR-14: the least card is the block at the floor with a pixel to spare (a DIP at 150 % is a pixel and a half,
+    /// and a card is drawn on whole pixels), so no part is ever drawn under the floor.
+    /// </summary>
+    public const double LeastSlack = 1;
+
+    /// <summary>[S-16510] The widest time a track has: an hour or more ("8:88:88"); the least card holds it at the floor.</summary>
+    public static string WidestTemplate => TimeTemplate(TimeSpan.FromHours(1));
 
     /// <summary>[S-16505] How far over the column the scrim starts fading in.</summary>
     public const double ScrimLead = FamilySpace.S6;
@@ -331,12 +346,16 @@ public static class MusicPlan
             return WidgetSizing.Range(corner, side, side) with { Room = StretchRoom.Picture };
         }
 
-        var time = TimeWidth(TimeTemplate(TimeSpan.Zero));
-        var (natural, least) = Blocks(s, time);
+        // The natural for a track of minutes; the least for the widest track there is (WR-14: an hour-long one's "1:02:30"
+        // drawn at the floor too), a pixel to spare.
+        var (natural, _) = Blocks(s, TimeWidth(TimeTemplate(TimeSpan.Zero)));
+        var (_, least) = Blocks(s, TimeWidth(WidestTemplate));
         var floor = Floor(style, shown);
         static double Box(double block) => block + (2 * Inset);
-        var min = new SizeDip(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(Box(least.Width * floor))), Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(Box(least.Height * floor))));
-        var nat = new SizeDip(Math.Ceiling(Box(natural.Width)), Math.Ceiling(Box(natural.Height)));
+        static double Least(double block) => Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(Box(block) + LeastSlack));
+        var min = new SizeDip(Least(least.Width * floor), Least(least.Height * floor));
+        // A face of one time alone is as wide as the widest time at 1: the least never stands over the natural.
+        var nat = new SizeDip(Math.Ceiling(Box(Math.Max(natural.Width, least.Width))), Math.Ceiling(Box(Math.Max(natural.Height, least.Height))));
         return WidgetSizing.Range(min, nat, nat);
     }
 
@@ -360,7 +379,7 @@ public static class MusicPlan
         return s.Style switch
         {
             MusicStyle.Stacked => (new(StackSide, StackSide + ColumnGap + hc), new(StackSide, StackSide + ColumnGap + hc)),
-            MusicStyle.FullArt => (new(Math.Max(ArtColumn, cl), ArtRoom + hc), new(cl, ArtRoom + hc)),
+            MusicStyle.FullArt => (new(Math.Max(ArtColumn, cl), ArtRoom + hc), new(cl, hc / FootShare)),
             _ => (new(hc + ColumnGap + cn, hc), new(hc + ColumnGap + cl, hc)),
         };
     }

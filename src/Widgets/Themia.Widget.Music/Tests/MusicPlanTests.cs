@@ -180,10 +180,18 @@ public sealed class MusicPlanTests
 
         Assert.InRange(natural.Scale, 1 - 0.02, 1 + 0.02);
         var floor = MusicPlan.Floor(style, shown);
-        var least = MusicPlan.Lay(style, shown, sizing.Min.Width, sizing.Min.Height, Template);
+        // [WR-14] At its least card every shown part is drawn at the floor or over it, whatever the track's length (an
+        // hour-long one's "1:02:30" is the widest), and the least card is no more than the floor and its pixel to spare.
+        foreach (var template in new[] { Template, MusicPlan.TimeTemplate(TimeSpan.Zero), MusicPlan.WidestTemplate })
+        {
+            var least = MusicPlan.Lay(style, shown, sizing.Min.Width, sizing.Min.Height, template);
+            Assert.True(least.Scale >= floor - 1e-9, $"{style} {set} {template}: {least.Scale} under the floor {floor}");
+        }
+
+        var widest = MusicPlan.Lay(style, shown, sizing.Min.Width, sizing.Min.Height, MusicPlan.WidestTemplate);
         if (sizing.Min.Width > WidgetSizing.LeastScaled && sizing.Min.Height > WidgetSizing.LeastScaled)
         {
-            Assert.InRange(least.Scale, floor - 0.02, floor + 0.02);
+            Assert.InRange(widest.Scale, floor, floor + 0.06);
         }
 
         // [WR-14] The floor: a time's Caption at 9, else the Body text at 9; a button's glyph at 12.
@@ -298,8 +306,16 @@ public sealed class MusicPlanTests
             Assert.True(scrim.Y < laid[MusicPart.Title].Y);
             Assert.Equal(h - MusicPlan.Inset, laid[MusicPart.PlayPause].Bottom, 6);
 
-            // The art keeps its room over the column: at least the plan's at the scale drawn.
-            Assert.True(laid[MusicPart.Title].Y >= MusicPlan.Inset + (MusicPlan.ArtRoom * laid.Scale) - Tolerance);
+            // The art keeps a third of the room over the column in sight; the column grows as one block until the width or
+            // its two thirds stop it (the audit of 2026-11-23: at 900 x 300 it had kept to 115 of 300 DIP).
+            var room = h - (2 * MusicPlan.Inset);
+            Assert.True(laid[MusicPart.Title].Y >= MusicPlan.Inset + (room * (1 - MusicPlan.FootShare)) - Tolerance);
+            var column = laid[MusicPart.PlayPause].Bottom - laid[MusicPart.Title].Y;
+            if (w / h > 2)
+            {
+                // A wide card: its share of the height stops the column, never a fixed fraction under it.
+                Assert.InRange(column, (room * MusicPlan.FootShare) - 0.5, (room * MusicPlan.FootShare) + 0.5);
+            }
         }
     }
 
