@@ -168,11 +168,11 @@ public static class Ink
         var rows = panel is Grid grid ? Math.Max(1, grid.RowDefinitions.Count) : 1;
         double over = double.PositiveInfinity, under = double.PositiveInfinity;
 
-        // A picture beside a text (an image, an icon slot, [S-6631]) draws inside its box (its own margins): the text says where the ink is. [S-14307] A glyph
+        // A picture beside a text (an image, an icon slot, [S-6631], a device's icon, [S-16637]) draws inside its box (its own margins): the text says where the ink is. [S-14307] A glyph
         // the meter measures says where its own ink is (the Header's glyph stands over its title's capitals); one it cannot
         // measure is left to the text, as a picture.
         var shown = panel.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
-        var pictures = shown.Where(c => c is Image or Themia.Sdk.WinUI.IconSlot || (c is FontIcon icon && !Measured(icon))).ToList();
+        var pictures = shown.Where(c => c is Image or Themia.Sdk.WinUI.IconSlot or Themia.Sdk.WinUI.Devices.DeviceIconSlot || (c is FontIcon icon && !Measured(icon))).ToList();
         if (pictures.Count < shown.Count)
         {
             shown = [.. shown.Except(pictures)];

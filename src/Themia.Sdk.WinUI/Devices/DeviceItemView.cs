@@ -55,6 +55,9 @@ public sealed partial class DeviceItemView : Grid
         Padding = new Thickness(FamilySpace.Inset, FamilySpace.ContentTop, FamilySpace.Inset, 0);
         Background = Family.Brush(ColourRole.Clear);
 
+        // [S-12831] An item of its widget: the layout dump and the item check see its box.
+        ItemMark.Mark(this);
+
         _icon = new DeviceIconSlot(host);
         _icon.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
 
