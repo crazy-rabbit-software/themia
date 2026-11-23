@@ -387,6 +387,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <summary>The piece a widget of the sheet shown belongs to.</summary>
     internal GalleryPiece? PieceAt(string id) => _placed.TryGetValue(id, out var at) && _laid is { } sheet ? sheet.Tiles[at.Tile].Piece : null;
 
+    /// <summary>The tile of <see cref="Sheet"/> the card <paramref name="id"/> shows, for a check (-1: none).</summary>
+    internal int SheetTileOf(string id) => _placed.TryGetValue(id, out var at) ? at.Tile : -1;
+
     /// <summary>The widgets picked, in the order they were picked.</summary>
     internal IReadOnlyList<string> Picked => _selection.Ids;
 

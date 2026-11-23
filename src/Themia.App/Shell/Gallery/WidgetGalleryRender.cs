@@ -41,7 +41,9 @@ internal static class WidgetGalleryRender
         clicked, the Not on view tab, several picked, a drag under way (gallery-<theme>-<w>x<h>-*.png) [S-14917] [S-16410]
         [S-16722] [S-16727]; --width/--height the stand-in display's pixels (1920 × 1080), --displays more displays after it
         (their Time, System and Quick settings tabs, a search) [S-16561], --wallpaper its wallpaper [S-16563], --raster 100 at 100 %;
-        --edit: the owner's editor on --category's tab (Time), then a widget picked in it (-edit, -edit-picked) [S-16745]
+        --edit: the owner's editor on --category's tab (Time), then a widget picked in it (-edit, -edit-picked) [S-16745], its
+        second widget of the first column dragged up mid-move (-edit-drag) and let go touching the first, the tab then shown
+        with that group picked (-group) [S-17221] [S-17223]
         """,
         run => DrawAsync(run, run.PathArg(0), run.App.RequestedTheme != ApplicationTheme.Light, Category(run), Displays(run)));
 
@@ -178,6 +180,20 @@ internal static class WidgetGalleryRender
                 await Shot("edit").ConfigureAwait(true);
                 gallery.ClickForCheck(gallery.Screen.Widgets[0].Id);
                 await Shot("edit-picked").ConfigureAwait(true);
+
+                // [S-17221] The first column's second widget dragged up, mid-move: the local grid where it lands; let go there,
+                // touching the first, [S-17223] the two a group: one title, picked as one.
+                if (Touching(gallery) is { } pair)
+                {
+                    gallery.EditDragForCheck(pair.Lower, 0, pair.Rows);
+                    await Shot("edit-drag").ConfigureAwait(true);
+                    gallery.EditDropForCheck();
+                    gallery.ToggleEditing();
+                    var lower = gallery.Screen.Widgets.First(w => gallery.PieceOf(w.Id).Count > 1);
+                    gallery.ClickForCheck(lower.Id);
+                    await Shot("group").ConfigureAwait(true);
+                }
+
                 return;
             }
 
@@ -266,6 +282,24 @@ internal static class WidgetGalleryRender
         {
             desk?.Dispose();
         }
+    }
+
+    /// <summary>
+    /// [S-17221] The first column's first section's second widget (by its card's top) and the rows it moves up to touch the one
+    /// over it (its card's top on that one's foot), in the tab shown; null where the column has no two.
+    /// </summary>
+    private static (string Lower, int Rows)? Touching(WidgetGalleryView gallery)
+    {
+        var sheet = gallery.Sheet!;
+        var tiles = Enumerable.Range(0, sheet.Tiles.Count).Where(t => sheet.Tiles[t].Slot is { Column: 0, Section: 0 }).OrderBy(t => sheet.CardOf(sheet.Tiles[t]).Y).ToList();
+        if (tiles.Count < 2)
+        {
+            return null;
+        }
+
+        var (upper, lower) = (sheet.CardOf(sheet.Tiles[tiles[0]]), sheet.CardOf(sheet.Tiles[tiles[1]]));
+        var id = gallery.Screen.Widgets.FirstOrDefault(w => gallery.SheetTileOf(w.Id) == tiles[1])?.Id;
+        return id is null ? null : (id, upper.Bottom - lower.Y);
     }
 
     private static Point Centre(FracRect rect, ScreenMetrics metrics)
@@ -704,6 +738,45 @@ internal static class WidgetGalleryRender
             var placed = await DragAndDrop($"{styleCard.Kind} in style {style}", [styleCard.Id], 5, -8).ConfigureAwait(true);
             Expect(placed.Count == 1 && WidgetStyles.Current(placed[0].Config) == style, $"the style shown ({style}) is the placed widget's");
             await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png"), "gallery-check").ConfigureAwait(true);
+
+            // [S-17221] In the editor the Time tab's first column's second widget is dragged up until its card touches the one
+            // over it: it lands where it was let go, its place in the file that; [S-17223] the two are then a group (one title,
+            // picked whole by either) and dragged out land as one block, touching, both selected.
+            gallery = Open();
+            await stand.ReadyAsync("gallery check: open for a group").ConfigureAwait(true);
+            gallery.ShowCategory(AddFolderId.Time);
+            gallery.ToggleEditing();
+            await stand.ReadyAsync("gallery check: the editor on the Time tab").ConfigureAwait(true);
+            if (Touching(gallery) is not { } pair)
+            {
+                Report(false, "[S-17221] the Time tab's first column has two widgets to set touching");
+                return;
+            }
+
+            var slot = gallery.Sheet!.Tiles[gallery.SheetTileOf(pair.Lower)].Slot!.Value;
+            var was = gallery.LayoutForCheck!.Columns[slot.Column].Sections[slot.Section].Widgets[slot.Widget];
+            var draggedOk = gallery.EditDragForCheck(pair.Lower, 0.3, pair.Rows - 0.3);
+            gallery.EditDropForCheck();
+            await stand.ReadyAsync("gallery check: a widget moved in the editor").ConfigureAwait(true);
+            var now = gallery.LayoutForCheck!.Columns[slot.Column].Sections[slot.Section].Widgets.Single(w => w.Pick == was.Pick && w.Style == was.Style);
+            Expect(draggedOk && now.X == was.X && now.Y == was.Y + pair.Rows,
+                $"[S-17221] a widget dragged {pair.Rows} rows in the editor lands where it was let go, on whole cells: its place {was.X},{was.Y} -> {now.X},{now.Y}");
+            gallery.ToggleEditing();
+            await stand.ReadyAsync("gallery check: the editor off").ConfigureAwait(true);
+            var group = gallery.Sheet!.Groups.Count == 1 ? gallery.Sheet.Groups[0] : null;
+            var lower = gallery.Screen.Widgets.FirstOrDefault(w => gallery.PieceOf(w.Id).Count == 2);
+            Expect(group is not null && lower is not null && gallery.Labels.Count == gallery.Sheet.Tiles.Count - 1 + gallery.Sheet.Headings.Count,
+                $"[S-17223] the two touching widgets are a group under one title ({gallery.Sheet.Groups.Count} groups, {gallery.Labels.Count} titles for {gallery.Sheet.Tiles.Count} widgets)");
+            if (lower is not null)
+            {
+                gallery.ClickForCheck(lower.Id);
+                var both = gallery.Picked.ToList();
+                Expect(both.Count == 2, $"[S-17223] a click on one widget of a group picks the group ({both.Count} picked)");
+                var landedGroup = await DragAndDrop("a group of two", both, 6.4, 3.6).ConfigureAwait(true);
+                Expect(landedGroup.Count == 2 && Lattice.Touches(landedGroup[0].Rect, landedGroup[1].Rect),
+                    "[S-17223] the group lands as one block: its two widgets touching, as they stood");
+                await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".group.png"), "gallery-check").ConfigureAwait(true);
+            }
         }
         catch (Exception ex)
         {
