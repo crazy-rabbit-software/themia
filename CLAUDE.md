@@ -100,7 +100,7 @@ Themia.exe --check inline <out.txt>   # every widget's inline box (add row, rena
 Themia.exe --check family <out.json> [--theme light|dark] [--kinds a,b]   # the family's render walk [S-6731]; run by
            # scripts/family-check.ps1 over both themes against its baseline
 Themia.exe --check switch|startup|drop|ui-bench|clock-style|desktop-items|desktop-menu …   # the rest: --render list says each
-Themia.exe --render gallery <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]
+Themia.exe --render gallery <outDir> [--theme light|dark] [--category Id] [--edit] [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]
            # the widget gallery: every tab, searches, a widget clicked, the Not on view tab, several picked, a drag
            # under way; --displays small monitors after it (three tabs, a search, a focus) [S-14917] [S-16410] [S-16564]
 Themia.exe --check gallery <out.txt> [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]   # under the bar (its beak), the head,

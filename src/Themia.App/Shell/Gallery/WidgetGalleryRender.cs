@@ -35,12 +35,13 @@ internal static class WidgetGalleryRender
     public static RenderCommand Command { get; } = new(
         RenderVerb.Render,
         "gallery",
-        "<outDir> [--theme light|dark] [--category Id] [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]",
+        "<outDir> [--theme light|dark] [--category Id] [--edit] [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]",
         """
         the widget gallery through a real host and surface in edit mode: every tab (or --category's), searches, a widget
         clicked, the Not on view tab, several picked, a drag under way (gallery-<theme>-<w>x<h>-*.png) [S-14917] [S-16410]
         [S-16722] [S-16727]; --width/--height the stand-in display's pixels (1920 × 1080), --displays more displays after it
-        (their Time, System and Quick settings tabs, a search) [S-16561], --wallpaper its wallpaper [S-16563], --raster 100 at 100 %
+        (their Time, System and Quick settings tabs, a search) [S-16561], --wallpaper its wallpaper [S-16563], --raster 100 at 100 %;
+        --edit: the owner's editor on --category's tab (Time), then a widget picked in it (-edit, -edit-picked) [S-16745]
         """,
         run => DrawAsync(run, run.PathArg(0), run.App.RequestedTheme != ApplicationTheme.Light, Category(run), Displays(run)));
 
@@ -167,6 +168,17 @@ internal static class WidgetGalleryRender
                 var file = $"gallery-{theme}-{size}-{name}.png";
                 await stand.ReadyAsync(file).ConfigureAwait(true);
                 await RenderHarness.SaveAsync(surface.DebugRoot, Path.Combine(outDir, file), "gallery").ConfigureAwait(true);
+            }
+
+            // [S-16745] --edit: the editor on the tab, then a widget picked (its grip and x); nothing else.
+            if (run.Has("--edit"))
+            {
+                gallery.ShowCategory(category ?? AddFolderId.Time);
+                gallery.ToggleEditing();
+                await Shot("edit").ConfigureAwait(true);
+                gallery.ClickForCheck(gallery.Screen.Widgets[0].Id);
+                await Shot("edit-picked").ConfigureAwait(true);
+                return;
             }
 
             // Every category's bento from its top; one taller than the well again at its foot. A small display: three.
@@ -515,7 +527,10 @@ internal static class WidgetGalleryRender
 
             // [S-16747] A lasso over two cards picks both; its rectangle drawn over the cards, inside the well.
             var (first, second) = (gallery.Screen.Widgets[0], gallery.Screen.Widgets[1]);
-            var lasso = gallery.LassoForCheck(Centre(first.Rect, surface.Metrics), Centre(second.Rect, surface.Metrics));
+            var (mw, mh) = (surface.Metrics.Width, surface.Metrics.Height);
+            var lasso = gallery.LassoForCheck(
+                new Point((Math.Min(first.Rect.X, second.Rect.X) * mw) + 4, (Math.Min(first.Rect.Y, second.Rect.Y) * mh) + 4),
+                new Point((Math.Max(first.Rect.Right, second.Rect.Right) * mw) - 4, (Math.Max(first.Rect.Bottom, second.Rect.Bottom) * mh) - 4));
             await stand.ReadyAsync("a lasso drawn").ConfigureAwait(true);
             await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".lasso.png"), "gallery-check").ConfigureAwait(true);
             var well = gallery.Frame!.Well;
@@ -523,6 +538,16 @@ internal static class WidgetGalleryRender
                 && band.Y + band.Height <= well.Y + well.Height + 1e-6 && gallery.Picked.Contains(first.Id) && gallery.Picked.Contains(second.Id),
                 $"[S-16747] a lasso over two cards picks both ({gallery.Picked.Count} picked), its rectangle drawn inside the well ({lasso})");
             gallery.EndLassoForCheck();
+
+            // [S-16745] The owner's editor (this Debug build's): on, every section its title line and the same widgets; off, the
+            // tab as users see it.
+            gallery.ShowCategory(AddFolderId.Time);
+            var plain = gallery.Sheet!.Tiles.Count;
+            gallery.ToggleEditing();
+            await stand.ReadyAsync("the editor on").ConfigureAwait(true);
+            var editing = gallery.EditingForCheck && gallery.Sheet!.Headings.Count == gallery.Sheet.Areas.Count && gallery.Sheet.Tiles.Count == plain;
+            gallery.ToggleEditing();
+            Expect(editing && !gallery.EditingForCheck && gallery.Sheet!.Tiles.Count == plain, "[S-16745] Edit gallery: on, every section its title line and the same widgets; off again, the tab as users see it");
 
             // The arrows move the pick from card to card.
             var pickedBefore = gallery.Picked.ToList();

@@ -51,7 +51,7 @@ internal sealed partial class WidgetGalleryView
     private readonly Canvas _editChrome = new();
     private readonly Canvas _editPick = new();
     private readonly Canvas _editOver = new() { IsHitTestVisible = false };
-    private readonly Rectangle _editDrop = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed, StrokeThickness = 2 };
+    private readonly Rectangle _editDrop = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed, StrokeThickness = FamilyShape.Stroke };
 
     private readonly StackPanel _editHead = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _editTools = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, Visibility = Visibility.Collapsed };
@@ -80,7 +80,7 @@ internal sealed partial class WidgetGalleryView
     private void BuildEditor()
     {
         _head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _editHead.Margin = new Thickness(G.Pad / 2, 0, 0, 0);
+        _editHead.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
         SetColumn(_editHead, 3);
         _editTools.Children.Add(Tool(Glyphs.Undo, Str.WidgetGallery_EditUndo.Text(), Undo));
         _editTools.Children.Add(Tool(Glyphs.Redo, Str.WidgetGallery_EditRedo.Text(), Redo));
@@ -292,7 +292,7 @@ internal sealed partial class WidgetGalleryView
             Width = size,
             Height = size,
             Background = Family.Brush(ColourRole.Accent),
-            CornerRadius = new CornerRadius(size / 4),
+            CornerRadius = new CornerRadius(FamilyShape.Radius),
         };
         ToolTipService.SetToolTip(grip, Str.WidgetGallery_EditResize.Text());
         grip.PointerPressed += (_, e) => BeginResize(slot, sheet.CardOf(sheet.Tiles[at.Tile]), sheet.Columns[slot.Column].W, e);
