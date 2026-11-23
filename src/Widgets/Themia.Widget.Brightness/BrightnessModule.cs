@@ -32,7 +32,7 @@ public sealed class BrightnessModule : IWidgetModule
         Label = BrightnessStr.Panels_Brightness_Label.Local(),
         Description = BrightnessStr.Panels_Brightness_Desc.Local(),
         Glyph = Glyphs.Brightness,
-        Sizing = _ => BrightnessRow.Sizing(),
+        Sizing = _ => LevelRow.Sizing(),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Devices, 1, 0),
     };

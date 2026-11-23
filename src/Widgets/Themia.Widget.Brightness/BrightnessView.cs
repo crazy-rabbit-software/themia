@@ -20,7 +20,7 @@ namespace Themia.App.Widgets;
 /// [S-4440] [S-17184] The display brightness as one row, as Windows' quick settings draw it (owner, 2026-11-23: "brightness
 /// slider should be moved to the quick settings and should have a row design and not columnar design"): the sun, the level
 /// (Body, held to "100%") and the Controls slider across what is left ([S-6716]: its rail the Track role, its value the
-/// accent), the row centred in the card (<see cref="BrightnessRow"/>). No display names.
+/// accent), the row centred in the card (<see cref="LevelRow"/>). No display names.
 /// <para>
 /// [S-4442] It sets every display whose brightness can be set, together, or with "Only the screen it's
 /// on" the display its surface is on — one window per display, so the display is the window's. It shows
@@ -72,7 +72,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
         _level = Family.Text(FamilyType.Body, ColourRole.TextPrimary);
         Family.Figures(_level);
-        _level.MinWidth = BrightnessRow.LevelWidth;
+        _level.MinWidth = LevelRow.LevelWidth;
         _level.VerticalAlignment = VerticalAlignment.Center;
         _level.Margin = new Thickness(0, 0, FamilySpace.S3, 0);
         SetColumn(_level, 1);

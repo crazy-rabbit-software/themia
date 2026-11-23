@@ -1,4 +1,5 @@
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Brightness.Tests;
@@ -13,14 +14,14 @@ public sealed class BrightnessRowTests
         var sizing = ModuleCatalog.Of(new WidgetId("brightness")).Sizing(new Themia.Core.Model.BrightnessConfig());
 
         // One height: the inset, the slider's thumb, the inset; no room for a readout over it at any size.
-        Assert.Equal(12 + 22 + 12, BrightnessRow.Height);
-        Assert.Equal((BrightnessRow.Height, BrightnessRow.Height, BrightnessRow.Height), (sizing.Min.Height, sizing.Natural.Height, sizing.Max.Height));
+        Assert.Equal(12 + 22 + 12, LevelRow.Height);
+        Assert.Equal((LevelRow.Height, LevelRow.Height, LevelRow.Height), (sizing.Min.Height, sizing.Natural.Height, sizing.Max.Height));
 
         // Wide and short: the sun, the level held to "100%", the slider's least travel; a new one 300.
         Assert.Equal(300, sizing.Natural.Width);
         Assert.True(sizing.Natural.Width > 6 * sizing.Natural.Height);
-        Assert.InRange(BrightnessRow.LevelWidth, 24, 40);
-        Assert.Equal(Math.Ceiling(12 + 16 + 8 + BrightnessRow.LevelWidth + 12 + 80 + 12), sizing.Min.Width);
+        Assert.InRange(LevelRow.LevelWidth, 24, 40);
+        Assert.Equal(Math.Ceiling(12 + 16 + 8 + LevelRow.LevelWidth + 12 + 80 + 12), sizing.Min.Width);
         Assert.Empty(sizing.Problems());
     }
 }

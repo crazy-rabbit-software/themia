@@ -7,7 +7,7 @@ displays one slider sets [S-4442] and the keys [S-4444] (the SDK's `BrightnessRu
 winning [S-4443]; the slider's look is the volume tile's (`VolumeRules`, [S-2731]).
 
 Owning files: everything in this folder: `BrightnessModule.cs` (descriptor, view factory, menu
-lines, JSON context), `BrightnessConfig.cs` (the screens it dims), `BrightnessRow.cs` (the row's
+lines, JSON context), `BrightnessConfig.cs` (the screens it dims), the SDK's `LevelRow` (the row's
 measures and sizing, pure), `BrightnessView.cs` (the row: the sun, the level and the slider, the levels through
 `IWidgetHost.Brightness`, its own display through it too), `BrightnessMenu.cs`
 (its properties-menu lines), `Preview/` (Debug renders: `--state sample|dim|unavailable|pending`), `Localization/Locales/` (its own
@@ -17,7 +17,7 @@ measures and sizing, pure), `BrightnessView.cs` (the row: the sun, the level and
 - **[S-4440]** Kind `Brightness` (123), add menu Devices & power ([S-3511]), glyph the sun. One slider, no display names
   (Karpo §35, §103: no flyout), drawn as one row ([S-17184]).
 - **[S-17184]** **One row** (owner, 2026-11-23: "brightness slider should be moved to the quick settings and should have a
-  row design and not columnar design"), as Windows' quick settings draw it (`BrightnessRow`): in the card's side insets the
+  row design and not columnar design"), as Windows' quick settings draw it (the SDK's `LevelRow`, the Volume widget's row too): in the card's side insets the
   sun (16, its glyph), 8, the level (Body, tabular figures, its column held to "100%" so the slider never moves), 12, the
   Controls block's slider across what is left ([S-6716]: its rail the Track role, its value the accent); the row centred in
   the card. Its sizing is the row's: one height, kept (the inset, the slider's thumb, the inset: 46, 50 on the grid; never
