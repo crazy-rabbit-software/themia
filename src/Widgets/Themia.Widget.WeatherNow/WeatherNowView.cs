@@ -25,8 +25,8 @@ namespace Themia.App.Widgets;
 /// [S-7042] A reading kept through a failed refresh stays on screen and the status's problem glyph says
 /// so ([S-12481]), the block leaving it room at its end where it would stand under it, the glyph giving way to the face's
 /// tooltip where the card is too small for both ([S-16433]). With no reading the face stays, its sky unknown and its
-/// reading "--", and why is one compact Caption line at the card's foot, its own size ([S-16432]). [S-12483] The same
-/// joined or alone. The card is one item, lit under the pointer while a click opens MSN Weather ([S-16434]).
+/// reading "--", why its line under, the one block scaled as the sample's is ([S-16447]). [S-12483] The same joined or
+/// alone. The card is one item, lit under the pointer while a click opens MSN Weather ([S-16434]).
 /// </para>
 /// </summary>
 internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
@@ -45,15 +45,12 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
 
-    /// <summary>[S-16432] Without a reading: why, one Caption line at the card's foot, its own size, never the block's.</summary>
-    private readonly TextBlock _why = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-
     /// <summary>[S-16434] The card lit under the pointer while a click opens something (WR-13).</summary>
     private readonly OpensLight _opensLight;
     private IWidgetSurface? _surface;
     private WidgetArea _area;
 
-    // [S-16432] Why there is no reading (null: a reading, or nothing to say: not set up is the card's Set up row).
+    // [S-16447] Why there is no reading (null: a reading, or nothing to say: not set up is the card's Set up row).
     private string? _whyText;
 
     // [S-16433] The problem lines of a reading kept through a failed refresh (none: fresh, or no reading).
@@ -89,21 +86,13 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         _fit.Parts.Add(_face);
         Children.Add(_fit);
 
-        // [S-16432] The why's line: at the foot of the inset, as wide as it, cut with its ellipsis; never a target of its own.
-        _why.TextWrapping = TextWrapping.NoWrap;
-        _why.TextTrimming = TextTrimming.CharacterEllipsis;
-        _why.VerticalAlignment = VerticalAlignment.Bottom;
-        _why.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        _why.IsHitTestVisible = false;
-        _why.Visibility = Visibility.Collapsed;
-        Children.Add(_why);
         _status.Place(this);
         _opensLight = new OpensLight(this, () => _surface?.EditMode != true && Opens is not null);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
-    /// <summary>[S-16432] [S-16433] The card's box: the why's band and the status mark's room in it.</summary>
+    /// <summary>[S-16433] The card's box: the status mark's room in it.</summary>
     public void ApplySize(WidgetArea area)
     {
         _area = area;
@@ -146,18 +135,19 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     {
         if (_feed.Held is not { Value: { } reading } held)
         {
-            // [S-12813] [S-16432] The face stays (WR-10): the sky unknown in the style's place, "--" held to the widest
-            // reading's box so it stands as large as a reading would (WR-7), why the compact line at the foot (Lay).
+            // [S-12813] [S-16447] The face stays (WR-10) and fills its card as the sample's does: the sky unknown in the
+            // style's place, "--" held to the widest reading's box so it stands as large as a reading would, why its line
+            // under, the reading and its line one block scaled as one (WR-7: "Keep them together").
             var why = OnlineParts.Caption(_feed.Status);
             _whyText = why.Length > 0 ? why : null;
             _problems = [];
+            var face = WeatherNowStyles.Unread(_config.Style);
             _face.Visibility = Visibility.Visible;
-            _bigGlyph.Visibility = _config.Style == WeatherNowStyle.LargeIcon ? Visibility.Visible : Visibility.Collapsed;
+            _bigGlyph.Visibility = face.BigGlyph ? Visibility.Visible : Visibility.Collapsed;
             _bigGlyph.Glyph = Glyphs.Weather;
             _bigGlyph.Foreground = Family.Brush(ColourRole.TextDisabled);
-            var widest = _config.Style == WeatherNowStyle.Minimal ? WeatherNowStyles.Bare : WeatherNowStyles.Worst;
-            _reading.Hold(widest.Value, widest.Unit);
-            _reading.Show("--", "°", lead: _config.Style == WeatherNowStyle.Standard ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
+            _reading.Hold(face.Held.Value, face.Held.Unit);
+            _reading.Show("--", "°", _whyText, lead: face.Lead ? Glyphs.Weather : null, valueRole: ColourRole.TextDisabled);
             Lay();
             return;
         }
@@ -192,18 +182,14 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     }
 
     /// <summary>
-    /// [S-16432] [S-16433] Lay the face in the card: the why's band at the foot while it has one and the card holds a Caption
-    /// line over it (else why is the face's tooltip); the status mark over the top end corner, the block leaving it room at
-    /// its end where it would stand under it, or giving way to the face's tooltip where the card is too small for both.
+    /// [S-16433] Lay the face in the card: the status mark over the top end corner, the block leaving it room at its end where
+    /// it would stand under it, or giving way to the face's tooltip where the card is too small for both. [S-16447] Why there
+    /// is no reading is the face's tooltip too (its line under gives way in the smallest cards).
     /// </summary>
     private void Lay()
     {
         var width = _area.IsMeasured ? _area.Width - (2 * FamilySpace.Inset) : double.NaN;
         var share = _area.IsMeasured ? _area.Height - FamilySpace.Inset : double.NaN;
-        var why = _whyText is not null && WeatherNowStyles.SaysWhy(share);
-        _why.Text = why ? _whyText! : string.Empty;
-        _why.Visibility = why ? Visibility.Visible : Visibility.Collapsed;
-        var band = why ? WhyLine.Band : 0;
 
         // The status shows the problems first: its room is its width as shown.
         _status.Show(_problems, busy: false);
@@ -212,7 +198,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         {
             _face.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
             var block = new SizeDip(_face.DesiredSize.Width, _face.DesiredSize.Height);
-            place = WeatherNowStyles.Mark(width, share - band, block, WeatherNowStyles.Face(_config).LeastBox(), _status.Room, FamilySpace.S1 + KitStatus.Side);
+            place = WeatherNowStyles.Mark(width, share, block, WeatherNowStyles.Face(_config).LeastBox(), _status.Room, FamilySpace.S1 + KitStatus.Side);
         }
 
         if (place == MarkPlace.Yields)
@@ -220,21 +206,8 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
             _status.Clear();
         }
 
-        var tip = _whyText is not null && !why ? _whyText : place == MarkPlace.Yields ? string.Join("\n", _problems) : null;
+        var tip = _whyText ?? (place == MarkPlace.Yields ? string.Join("\n", _problems) : null);
         ToolTipService.SetToolTip(this, tip);
-
-        // [S-16432] With its why the block stands on the why's line, the two centred together in the card: the room the width
-        // leaves goes alike over the block and under the line, never between them.
-        var spare = 0.0;
-        if (why)
-        {
-            _face.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            var ink = Themia.App.Widgets.Ink.Of(_face);
-            spare = WhyLine.Spare(width, share - band, ink.Width, ink.Height - ink.Ink.Over - ink.Ink.Under);
-        }
-
-        _fit.Foot = why;
-        _why.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset + spare);
-        _fit.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset + (place == MarkPlace.Beside ? _status.Room : 0), FamilySpace.Inset + band + spare);
+        _fit.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset + (place == MarkPlace.Beside ? _status.Room : 0), FamilySpace.Inset);
     }
 }

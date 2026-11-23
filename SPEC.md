@@ -11020,11 +11020,10 @@ on the Tile block, `TileBlock`), `Modules/IconModule.cs`; the kinds on it: the I
   `TextRulesTests.S15710_`; renders `--render widget weatherTemperature --state failed`.
 - **[S-16445]** **A face and its why at the foot are one block, centred** (WR-7: "Keep them together"; WR-1: "there should
   not be a space at the top"; the re-audit of 2026-11-23: own text with no words at 240 × 200 stood its name 45 DIP down,
-  centred in its own box, and 46.7 over its why pinned to the foot, the gap growing with the card). Where a text face (and
-  the weather summary, [S-16432]) says why at its foot ([S-15710]), the face stands on the why's line (`ReadingFit.Foot`)
+  centred in its own box, and 46.7 over its why pinned to the foot, the gap growing with the card). Where a text face says why
+  at its foot ([S-15710]), the face stands on the why's line (`ReadingFit.Foot`)
   and the height its width leaves goes alike over the face and under the line (`WhyLine.Spare`: half of what the room
-  leaves at the face's scale, a "--" at its held scale, [S-15713]), never between them. Tests `TextRulesTests.S16445_`,
-  `WeatherNowTests.S16432_`.
+  leaves at the face's scale, a "--" at its held scale, [S-15713]), never between them. Test `TextRulesTests.S16445_`.
 - **[S-15711]** **A failure is never quieter than a stale reading**: the status's problem glyph ([S-7042], [S-12813]) shows
   a read's problems whatever its state, so an icon, a text or a single metric left without a reading by a failure (the
   service out of reach, timed out, refused: `FetchState.Look` a problem, `OnlineParts.Failure`) shows the glyph in its

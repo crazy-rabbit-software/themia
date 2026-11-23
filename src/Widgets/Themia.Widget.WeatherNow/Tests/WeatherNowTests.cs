@@ -45,25 +45,17 @@ public sealed class WeatherNowTests
     }
 
     [Fact]
-    public void S16432_a_card_with_a_caption_line_over_the_why_band_says_why_at_its_foot()
+    public void S16447_with_no_reading_each_style_keeps_its_face_held_to_its_widest_reading()
     {
-        // The natural Standard card (76 tall: a 64 slot under the top inset, its foot's inset off it) has the room.
-        Assert.True(WeatherNowStyles.SaysWhy(76 - 12 - 12));
-        Assert.True(WeatherNowStyles.SaysWhy(WhyLine.Band + FamilyType.Caption.LineHeight));
-        Assert.False(WeatherNowStyles.SaysWhy(WhyLine.Band + FamilyType.Caption.LineHeight - 1));
-        Assert.False(WeatherNowStyles.SaysWhy(double.NaN));
-    }
+        Assert.Equal(new UnreadFace(true, false, WeatherNowStyles.Worst), WeatherNowStyles.Unread(WeatherNowStyle.Standard));
+        Assert.Equal(new UnreadFace(false, true, WeatherNowStyles.Beside), WeatherNowStyles.Unread(WeatherNowStyle.LargeIcon));
+        Assert.Equal(new UnreadFace(false, false, WeatherNowStyles.Bare), WeatherNowStyles.Unread(WeatherNowStyle.Minimal));
 
-    [Fact]
-    public void S16432_the_block_and_its_why_stand_centred_together_never_apart()
-    {
-        // A block the width stops (100 wide, 20 of ink, in a 300 × 100 room: drawn 3 ×, 60 tall) leaves 40: 20 over it and 20
-        // under the why's line, none between them.
-        Assert.Equal(20, WhyLine.Spare(300, 100, 100, 20), 6);
-
-        // The height stops it: nothing left over.
-        Assert.Equal(0, WhyLine.Spare(300, 40, 50, 20), 6);
-        Assert.Equal(0, WhyLine.Spare(double.NaN, 40, 50, 20));
+        // The held form is what each style's face is planned on (its sizing and its least box), so "--" fills as a reading.
+        foreach (var style in Enum.GetValues<WeatherNowStyle>())
+        {
+            Assert.False(string.IsNullOrEmpty(WeatherNowStyles.Unread(style).Held.Value));
+        }
     }
 
     [Fact]

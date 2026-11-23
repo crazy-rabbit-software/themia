@@ -50,15 +50,17 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
 - **[S-2035]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
   in the UI language's market and the unit shown ([S-2006], `WeatherNowModule.Opens`); nothing while
   it has no place (it shows Set up then).
-- **[S-16432]** **No reading keeps the face and says why in a compact line** (WR-10, owner 2026-11-19: "No data, no
-  account, not set up, offline: the widget keeps its face ... and says why in a compact line"; WR-7): the style's face
-  stays, the sky unknown (the weather glyph leading the reading in Standard, beside it at 48 in Large icon), the reading
-  "--" with its degree, disabled, held to the widest reading's box (`ReadoutBlock.Hold`, "-18°F") so it is drawn as large
-  as a reading would be, never blown up by its thin dashes nor drifting from its line; why ("Can't reach the service") is
-  one Caption line at the card's foot at its own size, the block filling what is over it (`WeatherNowStyles.SaysWhy`:
-  where a Caption line stands over the why's band, `WhyLine.Band`), else the face's tooltip. It was the readout's line
-  under, scaled with the block into a headline (66 DIP of ink at 900 × 300, 122 DIP under the "--"). Not set up says
-  nothing more (the card's Set up row). Test `WeatherNowTests.S16432_`.
+- **[S-16432]** *(Replaced by [S-16447]: why as a Caption line at the foot at its own size kept the block from filling its
+  card, T36/B39 at 300 × 164, the line a 122 × 16 box under a 270 DIP cloud at 900 × 300.)* A released hold forgets its
+  mark (`HoldMark.Forget`), so a readout held once is judged by what it draws again.
+- **[S-16447]** **No reading keeps the face, filled as a reading's, why its line under** (WR-10: "the widget keeps its face
+  ... and says why in a compact line"; WR-7: "Keep them together"; WR-1, WR-5: the block fills its card as the sample's
+  does): the style's face stays (`WeatherNowStyles.Unread`): the sky unknown (the weather glyph leading the reading in
+  Standard, beside it at 48 in Large icon), the reading "--" with its degree, disabled, held to the style's widest
+  reading (`ReadoutBlock.Hold`, "-18°F") so the block is planned and scaled as a reading's; why ("Can't reach the
+  service") is its line under, the reading and the line one block scaled as one until the height or the width stops it.
+  In the smallest cards the line gives way as a condition does; why is always the face's tooltip. Not set up says nothing
+  more (the card's Set up row). Test `WeatherNowTests.S16447_`.
 - **[S-16433]** **The problem glyph never stands over the reading** (WR-14: a face scaled down stays read): a reading kept
   through a failed refresh shows the status's problem glyph over the card's top end corner; where the block would stand
   under it the block's room ends the glyph's width sooner, and where the room left beside it cannot hold the block at its

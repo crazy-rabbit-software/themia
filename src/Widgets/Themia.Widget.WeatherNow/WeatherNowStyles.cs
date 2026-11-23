@@ -73,12 +73,17 @@ public static class WeatherNowStyles
     }
 
     /// <summary>
-    /// [S-16432] Whether a face <paramref name="share"/> tall (the card's slot less the foot's inset) says why there is no
-    /// reading in its compact line at the foot (<see cref="WhyLine.Band"/>): where a Caption line still stands over that band
-    /// (WR-10: "says why in a compact line"); in a smaller card why is the face's tooltip.
+    /// [S-16447] The face with no reading in <paramref name="style"/> (WR-10: the face kept, its reading "--"; WR-7: the
+    /// reading and its line one block): the unknown sky where the style draws one (leading the reading in Standard, beside it
+    /// at 48 in Large icon), "--" held to the style's widest reading so the block is planned and scaled as a reading's, the
+    /// why its line under.
     /// </summary>
-    public static bool SaysWhy(double share)
-        => double.IsFinite(share) && share - WhyLine.Band >= FamilyType.Caption.LineHeight;
+    public static UnreadFace Unread(WeatherNowStyle style) => style switch
+    {
+        WeatherNowStyle.Minimal => new UnreadFace(false, false, Bare),
+        WeatherNowStyle.LargeIcon => new UnreadFace(false, true, Beside),
+        _ => new UnreadFace(true, false, Worst),
+    };
 
     /// <summary>
     /// [S-16433] Where the status mark (its <paramref name="room"/> across, over a band <paramref name="band"/> under the face's
@@ -97,6 +102,9 @@ public static class WeatherNowStyles
         return width - room >= least.Width - LayoutMath.Tolerance ? MarkPlace.Beside : MarkPlace.Yields;
     }
 }
+
+/// <summary>[S-16447] The face with no reading: the sky leading the reading, the 48 sky beside it, the reading's widest form.</summary>
+public readonly record struct UnreadFace(bool Lead, bool BigGlyph, ReadoutText Held);
 
 /// <summary>[S-16433] Where the status mark stands against a reading's block (<see cref="WeatherNowStyles.Mark"/>).</summary>
 public enum MarkPlace
