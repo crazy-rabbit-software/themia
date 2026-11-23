@@ -3146,7 +3146,8 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   no file (`PlacementPayload.ForIcons`, its `IconNames`; `PlacementHint.Verb`). Every other placement is worded as
   before.
 
-- **[S-13711]** **A title** (owner, 2026-11-21: "it should show a title though"): one line at the page's top, **"Not on
+- **[S-13711]** **A title** (owner, 2026-11-21: "it should show a title though"; since 2026-11-23 the gallery's tab's words,
+  [S-16727], the page drawing none of its own, [S-16730]): one line at the page's top, **"Not on
   <view>"**, the name of the view the page's display shows (`UnplacedItems.Title`; a blank name reads as the default view's
   name), in the pages' section heading's words (`BodyStrong`), a long name cut with an ellipsis, never wrapped; the icons' area
   is named by it for a screen reader. It shows over every state of the page (the icons, "Every desktop icon is on this view",
@@ -3500,6 +3501,15 @@ actions dont interweave with the toggle buttons."* The focus ([S-16404], [S-1655
   removed (its view, flyout, rail, preview, pictures and their cache, keys and layout, `--render picker`, `--render editbar`'s
   `-add*`, `--check add-pictures`); the gallery reads its model (`AddPage`, `AddTree`, the search). Tests
   `EditBarLayoutTests.S16728_`.
+- **[S-16730]** **The Not on view page has no title of its own** (owner, 2026-11-23, via the coordinator: the page showed its
+  name twice, the tab's and its own): the tab says "Not on <view>" ([S-16727]); the page in the well starts with its search box
+  or its icons. Its icons' area is still named so for a screen reader ([S-13711]).
+- **[S-16731]** **The one Quick setting kind and its presets in the tab** (of the toggles' merge, [S-16700], [S-16685]): each
+  toggle target is a piece of its own (`quickToggle/<target>`, `GalleryPiece.Preset`), in each style and at both sizes as
+  [S-16726] says; a pick places `quickToggle/<target>`, Enter into a lassoed area too. Only a look whose natural box is about
+  square (`GallerySizes.SquareLook`, 1.25) is made square: Tile and Round square, a Switch keeps its line (before, it was
+  squared too, its line in the middle of a tall card). `--render gallery` draws Quick settings again from each section's
+  heading (`-09-QuickSettings-section<n>`). Tests `WidgetGalleryPlacementTests.S16724_`.
 - **[S-16729]** The render and the check of the third round: `--render gallery` draws a widget clicked (`-click`) and the Not on
   view tab (`-unplaced`) in place of the focus pictures; `--check gallery` checks a title over every card (Quick settings its
   headings alone), no ready-made group, a click picking with every card on its cells and none faded (and a click on empty room

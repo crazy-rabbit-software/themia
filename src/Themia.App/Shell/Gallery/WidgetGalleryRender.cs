@@ -181,6 +181,19 @@ internal static class WidgetGalleryRender
 
                 gallery.Show(i);
                 await Shot($"{i:00}-{shown.Id}").ConfigureAwait(true);
+
+                // [S-16725] A category in sections: each later section from its heading.
+                if (shown.Sections is not null && !brief)
+                {
+                    var headings = gallery.Sheet!.Headings;
+                    for (var h = 1; h < headings.Count; h++)
+                    {
+                        gallery.ScrollTo(headings[h].Box.Y);
+                        await Shot($"{i:00}-{shown.Id}-section{h}").ConfigureAwait(true);
+                    }
+
+                    gallery.ScrollTo(0);
+                }
                 if (gallery.MostScroll > 0 && !brief)
                 {
                     gallery.ScrollTo(gallery.MostScroll);

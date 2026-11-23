@@ -71,11 +71,8 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
 
     private readonly UnplacedCommands _commands;
 
-    /// <summary>The page's parts, top to bottom: the title, the search box, the icons, the note.</summary>
+    /// <summary>The page's parts, top to bottom: the search box, the icons, the note ([S-16730]: no title, the gallery's tab says it).</summary>
     private readonly StackPanel _stack = new();
-
-    /// <summary>[S-13711] "Not on &lt;view&gt;", one line, as the pages' section headings.</summary>
-    private readonly TextBlock _title = Fluent.Text(FamilyType.BodyStrong);
 
     /// <summary>[S-13712] The desktop's grid under the icons, at its pitch, in the edit-mode grid's look.</summary>
     private readonly SnapGridOverlay _grid = new();
@@ -135,13 +132,6 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
         _dropMark.BorderThickness = new Thickness(SelectionLook.Rows.Border);
         SelectionChrome.Paint(_dropMark, new SelectionCue(Selected: false, Hovered: false, DropTarget: true));
         Children.Add(_dropMark);
-
-        // [S-13711] The title, one line, in the pages' section heading's words; a long view name cut with an ellipsis.
-        _title.TextWrapping = TextWrapping.NoWrap;
-        _title.TextTrimming = TextTrimming.CharacterEllipsis;
-        _title.MaxLines = 1;
-        _title.Margin = new Thickness(0, 0, 0, Math.Max(0, P.HeadingGap - P.CardGap));
-        _stack.Children.Add(_title);
 
         _search = new TextBox
         {
@@ -210,8 +200,6 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
         }
 
         _search.Visibility = UnplacedItems.Searches(_model.Items.Count) ? Visibility.Visible : Visibility.Collapsed;
-        _title.Text = _model.Title;
-        _title.Visibility = _model.Title.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         AutomationProperties.SetName(_desk, _model.Title.Length > 0 ? _model.Title : Str.Unplaced_Page_Name.Text());
         Draw();
     }

@@ -195,8 +195,15 @@ public sealed class QuickToggleTests
         var quick = WidgetGallery.Of(Page).Single(c => c.Id == AddFolderId.QuickSettings);
         var toggles = quick.Pieces.Where(p => p.Kind == Kind).ToList();
 
-        Assert.Equal(Keys, toggles.Where(p => !p.Least).Select(p => p.Preset));
-        Assert.Equal(Keys, toggles.Where(p => p.Least).Select(p => p.Preset));
+        // [S-16726] [S-16731] In its first style at both sizes; in each other style once, the same targets in the same order.
+        var first = toggles.Where(p => p.Style is null).ToList();
+        Assert.Equal(Keys, first.Where(p => !p.Least).Select(p => p.Preset));
+        Assert.Equal(Keys, first.Where(p => p.Least).Select(p => p.Preset));
+        foreach (var style in toggles.Where(p => p.Style is not null).GroupBy(p => p.Style))
+        {
+            Assert.Equal(Keys, style.Select(p => p.Preset));
+        }
+
         Assert.All(toggles, p => Assert.Equal(new WidgetPick(Kind, p.Preset), p.Pick));
     }
 

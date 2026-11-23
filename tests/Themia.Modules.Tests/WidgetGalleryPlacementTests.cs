@@ -231,8 +231,11 @@ public sealed class WidgetGalleryPlacementTests
         var categories = WidgetGallery.Of(page);
         var quick = categories.Single(c => c.Id == AddFolderId.QuickSettings);
         var sections = quick.Sections!;
-        var toggles = page.Sections(AddFolderId.QuickSettings).Where(s => s.Kind == AddSectionKind.Widgets).SelectMany(s => s.Tiles.OfType<AddWidgetTile>()).Select(t => t.Kind).ToList();
-        var styles = WidgetStyles.For(toggles[0]);
+        var toggles = page.Sections(AddFolderId.QuickSettings).Where(s => s.Kind == AddSectionKind.Widgets).SelectMany(s => s.Tiles.OfType<AddWidgetTile>()).Select(t => t.Pick).ToList();
+        var styles = WidgetStyles.For(toggles[0].Kind);
+
+        // [S-16685] Each toggle target is a piece of its own: the presets of the one Quick setting kind, every one listed.
+        Assert.True(toggles.Count >= 13 && toggles.Distinct().Count() == toggles.Count, $"{toggles.Count} toggles: {string.Join(", ", toggles)}");
         Assert.True(styles.Count >= 2);
         Assert.Equal(styles.Count + 1, sections.Count);
         Assert.Equal([.. styles.Select(o => o.Label.Text()), Str.AddMenu_Family_PowerButtons.Text()], sections.Select(s => s.Heading.Text()));
@@ -240,7 +243,7 @@ public sealed class WidgetGalleryPlacementTests
 
         // The first style: each toggle at its size and right after it at its least, smaller.
         var first = sections[0].Pieces;
-        Assert.Equal(toggles.SelectMany(k => new[] { k, k }), first.Select(p => p.Kind!.Value));
+        Assert.Equal(toggles.SelectMany(k => new[] { k, k }), first.Select(p => p.Pick!.Value));
         for (var i = 0; i < first.Count; i += 2)
         {
             Assert.True(!first[i].Least && first[i + 1].Least && first[i + 1].Key == "least:" + first[i].Key);
@@ -252,7 +255,7 @@ public sealed class WidgetGalleryPlacementTests
         // Each other style once, in it.
         for (var s = 1; s < styles.Count; s++)
         {
-            Assert.Equal(toggles, sections[s].Pieces.Select(p => p.Kind!.Value));
+            Assert.Equal(toggles, sections[s].Pieces.Select(p => p.Pick!.Value));
             Assert.All(sections[s].Pieces, p => Assert.Equal(styles[s].Value, p.Style));
         }
 
@@ -270,6 +273,13 @@ public sealed class WidgetGalleryPlacementTests
         {
             var asked = sizes.Of(piece);
             Assert.True(Math.Abs((asked.W * pw) - (asked.H * ph)) <= Math.Max(pw, ph) + 1e-9, $"{piece.Key}: {asked.W}x{asked.H} cells is {asked.W * pw}x{asked.H * ph} DIPs");
+        }
+
+        // A switch keeps its line, wider than tall (regression: squared, its line stood in the middle of a tall card).
+        foreach (var piece in quick.Pieces.Where(p => p.Style is { } style && styles.First(o => o.Value == style).Name == "switch"))
+        {
+            var asked = sizes.Of(piece);
+            Assert.True(asked.W * pw > 2 * asked.H * ph, $"{piece.Key}: {asked.W}x{asked.H} cells");
         }
 
         // Laid: no titles, the headings over their sections, no piece of one section among another's.

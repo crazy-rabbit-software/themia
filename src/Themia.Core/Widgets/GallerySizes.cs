@@ -14,6 +14,9 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
 {
     private readonly Dictionary<string, IReadOnlyList<int>> _groupWidths = new(StringComparer.Ordinal);
 
+    /// <summary>[S-16724] How much longer one side of a look's natural box may be than the other for it to be drawn square.</summary>
+    public const double SquareLook = 1.25;
+
     /// <summary>[S-16551] How many times its natural length a piece is made at the most, each way.</summary>
     public const int Grown = 2;
 
@@ -53,7 +56,12 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
         var (maxW, maxH) = (Math.Max(minW, (int)Math.Floor((limits.Width.Max * cols) + 1e-6)), Math.Max(minH, (int)Math.Floor((limits.Height.Max * rows) + 1e-6)));
         if (piece.Square)
         {
-            var (sw, sh) = Squared(piece.Least ? (minW, minH) : (nw, nh), (minW, minH), (maxW, maxH));
+            // A look whose natural box is a line (a Switch) keeps its own shape; the rest are made square.
+            var natural = SizeFit.Of(kind, piece.Style).Natural;
+            var cells = piece.Least ? (minW, minH) : (nw, nh);
+            var (sw, sh) = Math.Max(natural.Width, natural.Height) <= SquareLook * Math.Min(natural.Width, natural.Height)
+                ? Squared(cells, (minW, minH), (maxW, maxH))
+                : cells;
             return new PieceSize(sw, sh, sw, sh, false, false);
         }
 
