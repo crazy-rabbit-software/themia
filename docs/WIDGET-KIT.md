@@ -3129,7 +3129,7 @@ will be cutoff to some extent then." One rule, no per-widget code where a block 
   min, natural and a large size, twice the natural (`SizeStretch.Large`).
 - **Growth only as far as the content uses it** (SPEC [S-17100]..[S-17102], docs/WIDGET-RULES.md WR-17). Say how your
   content fills an axis, once, where the sizing is made: a face that scales as one (a one-readout block, a clock, a tile's
-  face) is `ScalesAsOne()` (any `ScalesDownTo` already is; `ScalesAsOne(face)` where its tallest arrangement is not its
+  face) is `ScalesAsOne()` (any `ScalesDownTo` already is; `ScalesAsOne(face)` where the arrangement it fills is not its
   natural): its width stays relaxed, its height stops at its shape at that width (`MostHeight`); content of a fixed extent on
   an axis (one item, a row of controls, a set number of rows) keeps its natural there (`with { KeepsHeight = true }`,
   `KeepsWidth`); content that grows (a list, a graph, a picture, a grid of the card, an editor) states nothing more. The host

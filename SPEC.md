@@ -5869,8 +5869,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   block, a clock, a reading and its drawing, a tile's face, Now playing's block) fills one axis and the other stops it, so a
   card taller than the face's shape at its width stood a top and foot band larger than the inset. Its sizing says so
   (`WidgetSizing.ScalesAsOne`, `StretchRoom.Face`, its `FaceShape`: the parts' box at scale 1, by default the natural less
-  the inset on every side and a line over it that keeps its size, or the face's tallest arrangement where its natural is
-  another, as a single metric's readout stacked); every face that scales down as one (`ScalesDownTo`) states it. Its width
+  the inset on every side and a line over it that keeps its size, or a shape of its own where its natural is another
+  arrangement, as a single metric's readout beside its name); every face that scales down as one (`ScalesDownTo`) states it. Its width
   stays relaxed (a wider card stands the face centred across, the owner's "Centred is fine"); its height is at most
   `MostHeight(width)` = what is round the parts + (width - what is round them across) x the parts' height per width, never
   under its Min. One path on the host: `SizeLimits` carries the line on the display (`HeightFollow`, the content scale
@@ -5884,9 +5884,9 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   that is painted at it on load ([S-2446]); no migration. Faces: the clock, the date, the alarm, the countdown, the focus
   session, the quote, the text kinds, air quality, the exchange rate, the moon's readings, the recycle bin, screen time's
   reading and donut, volume and brightness, weather now, the drive's styles, the meters' readings (CPU, GPU, memory, disk,
-  ping, network, battery; every look but Rows), every single metric without a graph (its readout stacked, its caption over
-  its value, about half the row's room wide, `MetricRules.ReadoutShape`), the Metrics widget's value face, Now playing's
-  styles with a column ([S-17103]), the pomodoro (its stacked block), the sun's arc, the Header, the stock's price alone and
+  ping, network, battery; every look but Rows), every single metric without a graph (its readout beside its name, one 28
+  line across the row's room, `MetricRules.ReadoutShape`: past it the block chosen beside stood width-stopped with bands), the Metrics widget's value face, Now playing's
+  styles with a column ([S-17103]), the pomodoro, the sun's arc, the Header, the stock's price alone and
   a quick toggle's or power button's Tile and Round. The ready-made "My day" stands its clock 84 tall at its column's 320
   (it was 118, its digits' bands 15 DIP over the inset). Tests `WidgetSizingTests.S17100_` (Core: the rule; module host: the
   scaled faces), `SizeFitTests.S17100_`, `WidgetSizingTests.S12411_S17100_` (every kind and style).

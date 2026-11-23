@@ -252,15 +252,17 @@ public static class MetricRules
         var sizing = WidgetSizing.Range(new(MinWidth + room, least), new(NaturalWidth + room, natural), new(MaxWidth + room, natural));
 
         // [S-17100] A graph grows with its card; with none, a card taller than its row draws the readout scaled as one, at most
-        // as tall as the readout stacked (its caption over its value, about half the row's room wide) fills its width.
+        // as tall as the readout beside its name fills its width.
         return graphs ? sizing : sizing.ScalesAsOne(ReadoutShape);
     }
 
     /// <summary>
-    /// [S-17100] The readout's tallest arrangement at scale 1, its caption over its value (<see cref="Arrange"/>): the two lines
-    /// over about half the row's room, what a name and a value beside each other take of it.
+    /// [S-17100] The readout's shape at scale 1 the card's height follows: its name beside its value (<see cref="Arrange"/>),
+    /// one 28 line across the row's room, which a name and a value never take more of. A taller card had the block chosen
+    /// beside and stopped by the width, its bands over and under it (the stacked block, which would fill such a height, scales
+    /// less there; at 480 x 244 "PM2.5 --" stood 70 DIP under the top inset).
     /// </summary>
-    public static SizeDip ReadoutShape => new((NaturalWidth - (2 * FamilySpace.Inset)) / 2, FamilyType.Caption.LineHeight + FamilyType.Big28.LineHeight);
+    public static SizeDip ReadoutShape => new(NaturalWidth - (2 * FamilySpace.Inset), FamilyType.Big28.LineHeight);
 
     /// <summary>
     /// [S-14603] The width a trend takes beside the value: the arrow its own and the gap before the value; a line none, it

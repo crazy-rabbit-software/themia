@@ -427,10 +427,9 @@ public static class PomodoroFace
         var box = Box(new SizeDip(natural.Width * grow, natural.Height * grow));
         var nat = new SizeDip(Math.Max(box.Width, min.Width), Math.Max(box.Height, min.Height));
 
-        // [S-17100] The block scales as one; a taller card stands it stacked (its least arrangement), the taller of the two
-        // shapes its card follows.
-        var sizing = WidgetSizing.Range(min, nat, nat);
-        return least.Height * natural.Width > natural.Height * least.Width && least.Width > 0 ? sizing.ScalesAsOne(least) : sizing.ScalesAsOne();
+        // [S-17100] The block scales as one: its card no taller than its natural arrangement fills at its width (a taller one
+        // stood that block, the larger, stopped by the width with bands over and under it).
+        return WidgetSizing.Range(min, nat, nat).ScalesAsOne();
     }
 
     /// <summary>A block's card: the block in the inset on every side, and the slack.</summary>
