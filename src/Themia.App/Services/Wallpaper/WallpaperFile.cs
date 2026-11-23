@@ -21,14 +21,15 @@ internal static class WallpaperFile
 
     /// <summary>
     /// The picture for <paramref name="display"/>: the file at <paramref name="path"/> placed by
-    /// <paramref name="fit"/> over <paramref name="background"/>, or the colour alone for no file. Null
+    /// <paramref name="fit"/> over <paramref name="background"/>, or the colour alone for no file, at one pixel in
+    /// <paramref name="downscale"/> per side. Null
     /// (and logged) for a file that cannot be read or decoded: absent and corrupt are told apart.
     /// </summary>
-    public static async Task<WallpaperPicture?> PlaceAsync(string path, WallpaperFit fit, RgbColor background, DeviceRect display, DeviceRect desktop, CancellationToken cancel)
+    public static async Task<WallpaperPicture?> PlaceAsync(string path, WallpaperFit fit, RgbColor background, DeviceRect display, DeviceRect desktop, int downscale, CancellationToken cancel)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            return WallpaperLayout.Solid(display, background);
+            return WallpaperLayout.Solid(display, background, downscale);
         }
 
         var name = Path.GetFileName(path);
@@ -60,7 +61,7 @@ internal static class WallpaperFile
             }
 
             var (placed, repeat) = WallpaperLayout.Place(fit, decoder.OrientedPixelWidth, decoder.OrientedPixelHeight, display, desktop);
-            var plan = WallpaperLayout.Plan(placed, repeat);
+            var plan = WallpaperLayout.Plan(placed, repeat, downscale);
 
             // The transform's scale is in the decoder's own orientation; a quarter-turned picture swaps the two.
             var turned = decoder.OrientedPixelWidth != decoder.PixelWidth;
@@ -77,7 +78,7 @@ internal static class WallpaperFile
                 ColorManagementMode.ColorManageToSRgb).AsTask(cancel).ConfigureAwait(false);
 
             var pixels = data.DetachPixelData();
-            var (width, height) = WallpaperLayout.PictureSize(display);
+            var (width, height) = WallpaperLayout.PictureSize(display, downscale);
             return WallpaperLayout.Compose(width, height, background, plan, pixels);
         }
         catch (OperationCanceledException)

@@ -88,7 +88,7 @@ internal sealed class Backdrop
             var picture = await Task.Run(
                 async () =>
                 {
-                    var placed = await _owner.Source.PictureAsync(Display, cancel).ConfigureAwait(false);
+                    var placed = await _owner.Source.PictureAsync(Display, WallpaperLayout.Downscale, cancel).ConfigureAwait(false);
                     if (placed is not null)
                     {
                         BoxBlur.Apply(placed.Pixels, placed.Width, placed.Height, frost.BoxRadius, BoxBlur.BackdropPasses);
@@ -122,6 +122,17 @@ internal sealed class Backdrop
             _light = null;
             ChangedCore?.Invoke();
         }
+    }
+
+    /// <summary>
+    /// [S-16563] The display's wallpaper as the desktop shows it (its fit and position, Windows' colour round it), at the
+    /// display's own pixels and never blurred: what the widget gallery's well shows, read when asked (off the UI thread) and
+    /// kept by the asker alone. Null for none.
+    /// </summary>
+    public async Task<ImageSource?> PlainAsync(CancellationToken cancel)
+    {
+        var placed = await Task.Run(() => _owner.Source.PictureAsync(Display, 1, cancel), cancel).ConfigureAwait(true);
+        return placed is null || cancel.IsCancellationRequested ? null : ToBitmap(placed);
     }
 
     private static WriteableBitmap ToBitmap(WallpaperPicture picture)

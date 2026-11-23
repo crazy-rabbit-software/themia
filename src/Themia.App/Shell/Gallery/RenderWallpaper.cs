@@ -80,8 +80,8 @@ internal static class RenderWallpaper
             remove { }
         }
 
-        public Task<WallpaperPicture?> PictureAsync(DeviceRect display, CancellationToken cancel)
-            => WallpaperFile.PlaceAsync(path, WallpaperFit.Fill, new RgbColor(0, 0, 0), display, display, cancel);
+        public Task<WallpaperPicture?> PictureAsync(DeviceRect display, int downscale, CancellationToken cancel)
+            => WallpaperFile.PlaceAsync(path, WallpaperFit.Fill, new RgbColor(0, 0, 0), display, display, downscale, cancel);
     }
 }
 #endif

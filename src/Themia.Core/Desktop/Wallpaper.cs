@@ -52,11 +52,12 @@ public interface IWallpaperSource
 {
     /// <summary>
     /// The picture Windows shows on the display at <paramref name="display"/> (its bounds in virtual
-    /// screen pixels), placed for it ([S-2113]) and scaled down, or null for none: a picture that could
-    /// not be read or decoded (logged), or no display Windows knows there. A solid colour is a picture
+    /// screen pixels), placed for it ([S-2113]) and scaled down to one pixel in <paramref name="downscale"/> per side
+    /// (<see cref="WallpaperLayout.Downscale"/> for a backdrop; 1, [S-16563], the desktop as it is shown), or null for none:
+    /// a picture that could not be read or decoded (logged), or no display Windows knows there. A solid colour is a picture
     /// of that colour.
     /// </summary>
-    Task<WallpaperPicture?> PictureAsync(DeviceRect display, CancellationToken cancel);
+    Task<WallpaperPicture?> PictureAsync(DeviceRect display, int downscale, CancellationToken cancel);
 
     /// <summary>Windows changed what it shows: a new wallpaper, a slideshow step, a colour, a display.</summary>
     event Action? Changed;
@@ -71,9 +72,9 @@ public static class WallpaperLayout
     /// <summary>[S-2112] A backdrop keeps one pixel in this many per side: blurred anyway, and cheap.</summary>
     public const int Downscale = 12;
 
-    /// <summary>[S-2112] The picture's size for a display of <paramref name="display"/>'s pixels.</summary>
-    public static (int Width, int Height) PictureSize(DeviceRect display)
-        => (Math.Max(1, (int)Math.Ceiling(display.Width / Downscale)), Math.Max(1, (int)Math.Ceiling(display.Height / Downscale)));
+    /// <summary>[S-2112] The picture's size for a display of <paramref name="display"/>'s pixels, one pixel in <paramref name="downscale"/> per side.</summary>
+    public static (int Width, int Height) PictureSize(DeviceRect display, int downscale = Downscale)
+        => (Math.Max(1, (int)Math.Ceiling(display.Width / Math.Max(1, downscale))), Math.Max(1, (int)Math.Ceiling(display.Height / Math.Max(1, downscale))));
 
     /// <summary>
     /// [S-2113] Where an image of <paramref name="imageWidth"/> × <paramref name="imageHeight"/> pixels lies
@@ -120,14 +121,17 @@ public static class WallpaperLayout
         }
     }
 
-    /// <summary>[S-2112] A placement in display pixels, brought into the picture: one image size for every copy.</summary>
-    public static WallpaperPlan Plan(DeviceRect placed, bool repeat)
-        => new(
-            (int)Math.Round(placed.X / Downscale),
-            (int)Math.Round(placed.Y / Downscale),
-            Math.Max(1, (int)Math.Round(placed.Width / Downscale)),
-            Math.Max(1, (int)Math.Round(placed.Height / Downscale)),
+    /// <summary>[S-2112] A placement in display pixels, brought into the picture (one pixel in <paramref name="downscale"/>): one image size for every copy.</summary>
+    public static WallpaperPlan Plan(DeviceRect placed, bool repeat, int downscale = Downscale)
+    {
+        var d = (double)Math.Max(1, downscale);
+        return new(
+            (int)Math.Round(placed.X / d),
+            (int)Math.Round(placed.Y / d),
+            Math.Max(1, (int)Math.Round(placed.Width / d)),
+            Math.Max(1, (int)Math.Round(placed.Height / d)),
             repeat);
+    }
 
     /// <summary>
     /// [S-2113] The picture: <paramref name="background"/> everywhere, the image (<paramref name="plan"/>'s
@@ -183,9 +187,9 @@ public static class WallpaperLayout
     }
 
     /// <summary>[S-2112] A display Windows draws in one colour (no picture, or one it shows none of): that colour.</summary>
-    public static WallpaperPicture Solid(DeviceRect display, RgbColor colour)
+    public static WallpaperPicture Solid(DeviceRect display, RgbColor colour, int downscale = Downscale)
     {
-        var (width, height) = PictureSize(display);
+        var (width, height) = PictureSize(display, downscale);
         return Compose(width, height, colour, new WallpaperPlan(0, 0, 1, 1, false), [colour.B, colour.G, colour.R, 255]);
     }
 

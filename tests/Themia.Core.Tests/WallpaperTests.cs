@@ -138,6 +138,15 @@ public sealed class WallpaperTests
         Assert.Equal(1, WallpaperLayout.Plan(new DeviceRect(0, 0, 4, 4), true).Width);
     }
 
+    [Fact]
+    public void S16563_the_wallpaper_as_the_desktop_shows_it_is_the_displays_own_pixels()
+    {
+        // The widget gallery's well: one pixel a pixel, the placement unscaled.
+        Assert.Equal((1920, 1080), WallpaperLayout.PictureSize(Display, downscale: 1));
+        Assert.Equal(new WallpaperPlan(0, -420, 1920, 1920, false), WallpaperLayout.Plan(new DeviceRect(0, -420, 1920, 1920), repeat: false, downscale: 1));
+        Assert.Equal(1920 * 1080 * 4, WallpaperLayout.Solid(Display, new RgbColor(1, 2, 3), downscale: 1).Pixels.Length);
+    }
+
     // ---- [S-2114] the part a card shows ------------------------------------------------------------
 
     [Fact]

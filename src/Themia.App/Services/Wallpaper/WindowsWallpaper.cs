@@ -26,13 +26,13 @@ internal sealed class WindowsWallpaper : IWallpaperSource, IDisposable
 
     public event Action? Changed;
 
-    public async Task<WallpaperPicture?> PictureAsync(DeviceRect display, CancellationToken cancel)
+    public async Task<WallpaperPicture?> PictureAsync(DeviceRect display, int downscale, CancellationToken cancel)
     {
         try
         {
             var setting = await Task.Run(() => DesktopWallpaper.Read(display), cancel).ConfigureAwait(false);
             return setting is { } s
-                ? await WallpaperFile.PlaceAsync(s.Path, s.Fit, s.Background, display, s.Desktop, cancel).ConfigureAwait(false)
+                ? await WallpaperFile.PlaceAsync(s.Path, s.Fit, s.Background, display, s.Desktop, downscale, cancel).ConfigureAwait(false)
                 : null;
         }
         catch (OperationCanceledException)
