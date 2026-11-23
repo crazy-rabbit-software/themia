@@ -73,7 +73,8 @@ with no item and no plot) whose ink reaches the edges of one axis may stand cent
 2026-11-20: "Centred is fine"): the two bands of that axis alike, not within the inset. Across, a reading that fills the
 height stands where its card's alignment puts it (the layout's `align`, [S-6583]: a kind that aligns in its style draws
 the alignment shown, any other is centred): centred, its two side bands alike; at the start, its left band within the
-inset and its right free; at the end, mirrored. Down it is always centred. Every render runs
+inset and its right free; at the end, mirrored. Down it is always centred. [S-16517] Now playing's transport alone (every
+ink inside its buttons) stands at the end whatever the alignment (owner, 2026-11-23: "right align them"). Every render runs
 under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix), <out>/gaps.json and
 <out>/findings.txt; exits 1 on any finding.
 """
@@ -109,6 +110,10 @@ WINDOWS_LOOK = {'desktopItem': "a desktop icon is drawn as Windows' own: icon an
 TILE = re.compile(r'Toggle$')
 POWER = {'sleep', 'signOut', 'shutdown', 'screenOff', 'restart', 'lock', 'hibernate'}
 ONE_LINE = {'clock', 'date', 'header'}
+
+# docs/WIDGET-RULES.md, "Exemptions granted by the owner" (2026-11-23): Now playing's transport stands right-aligned ("move
+# the action buttons on the right side of the text and right align them"), alone too. [S-16517]
+TRANSPORT_RIGHT = {'music'}
 
 # [S-6754] The graph kinds: drawn on the one chart, their plot edge to edge in every state.
 GRAPH = re.compile(r'(History|Graph)$')
@@ -311,7 +316,8 @@ def judge(kind, card, layout, style=''):
         tall = top <= limit and foot <= limit
         wide = left <= limit and right <= limit
         if tall and not wide:
-            return found + across(left, right, (layout or {}).get('align', 'center'), limit)
+            align = 'right' if transport_alone(kind, layout) else (layout or {}).get('align', 'center')
+            return found + across(left, right, align, limit)
         if wide and not tall:
             return found + ([] if abs(top - foot) <= TOLERANCE else [f'reading off centre top/foot {top:.1f}/{foot:.1f}'])
     if top > limit and not on_top and not plot_top and not field_top:
@@ -333,6 +339,16 @@ def judge(kind, card, layout, style=''):
         if left > limit or right > limit:
             found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
     return found
+
+
+def transport_alone(kind, layout):
+    """[S-16517] Whether the face is Now playing's transport alone (the owner's exemption: it stands at the right inset):
+    a kind the exemption names, every ink it draws inside one of its buttons (no text, time or bar beside them)."""
+    if kind not in TRANSPORT_RIGHT or layout is None:
+        return False
+    ink = layout.get('ink', [])
+    buttons = [i for i in ink if i['t'] == 'Button']
+    return bool(buttons) and all(any(inside(i, b) for b in buttons) for i in ink)
 
 
 def side_by_side(items, height):
@@ -590,6 +606,15 @@ def self_test():
         ('a hold with no ink down: the drawn ink',
          ((520, 600) + held(520, 600, 10.7, 15.3, 30, 30, [{'x': 30, 'y': 0, 'w': 460, 'h': 588}]),
           {'w': 520, 'h': 600, 'items': [], 'plots': []}), ['clock'], True),
+    ]
+    # [S-16517] Now playing's transport alone stands at the right inset (the owner, 2026-11-23); its buttons' marks only.
+    play = [{'t': 'Button', 'x': 412, 'y': 12, 'w': 176, 'h': 176}, {'t': 'FontIcon', 'x': 449.7, 'y': 49.7, 'w': 100.6, 'h': 100.6}]
+    words = [{'t': 'TextBlock', 'x': 100, 'y': 80, 'w': 200, 'h': 40}]
+    cases += [
+        ('the music transport alone at the right inset', card(600, 200, 12, 12, 412, 12, ink=play), ['music'], False),
+        ('the music transport alone short of the right inset', card(600, 200, 12, 12, 380, 44, ink=play), ['music'], True),
+        ('another kind\'s buttons alone at the right inset', card(600, 200, 12, 12, 412, 12, ink=play), ['recycleBin'], True),
+        ('the music transport with a text, off centre', card(600, 200, 12, 12, 100, 12, ink=play + words), ['music'], True),
     ]
     # [S-14312] The lower bound: a text's ink inside the inset; a box reaching the edge with its ink inset is fine.
     for name, inks, finds in [

@@ -133,6 +133,9 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   into the widget so that they are dymanic but it looks like different widgets." With a device list's "Gap between items"
   on (off by default), one grid cell stands between two items and the card paints a ground under each item alone, so each
   looks like a widget of its own; that cell is not a WR-2 or WR-5 failure. Every item keeps WR-1, WR-3, WR-4 and WR-6.
+- **Now playing's transport stands right-aligned.** 2026-11-23: "for the now playing widget move the action buttons on
+  the right side of the text and right align them". The previous, play/pause and next buttons stand at the right inset,
+  beside the texts or alone; the room at their left when they stand alone is not a WR-3 failure.
 - **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
   Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
 
