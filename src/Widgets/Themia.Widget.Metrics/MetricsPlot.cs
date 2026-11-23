@@ -43,7 +43,7 @@ internal sealed partial class MetricsPlot : Canvas
         var lineFoot = height - (stroke / 2);
         if (!series.Any)
         {
-            Add(Rule(0, height - FamilyShape.Stroke, width, ColourRole.Track));
+            Add(Rule(0, height - FamilyShape.Stroke, width, ColourRole.TextDisabled));
             return;
         }
 

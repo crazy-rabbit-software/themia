@@ -102,12 +102,12 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   little visible behind the text"), the head over it, in the middle of a card too low for its inset over and under it. The same
   head, the same graph: only where the plot stands. The rule is `MetricFaceRules.Graph`, tested on its threshold.
 - **[S-16323]** **The value face**: the glyph and the name (Body, secondary) over the reading (Big28), one block scaled as one
-  until the width or the height stops it (WR-7), never under 0.75; its ink on the insets of the axis that stops it, centred on the
+  until the width or the height stops it (WR-7), never under 0.65 (its caption at 9.1, WR-14); its ink on the insets of the axis that stops it, centred on the
   other ("Centred is fine"). No graph, no hover.
 - **[S-16324]** **A running reading keeps its block** (WR-15): the value face measures its reading with every figure an 8
   (`MetricFaceRules.Template`), so its block's size holds while the figures change.
 - **[S-16325]** **Its sizes** (`MetricFaceRules.Sizing`, on the 10-DIP grid): the graph 160 × 40 at least (the head at its least
-  scale, the graph behind it), 240 × 120 natural; the value 120 × 60 at least, 200 × 90 natural; relaxed by the host ([S-12411]).
+  scale, the graph behind it), 240 × 120 natural; the value 140 × 60 at least, 200 × 90 natural; relaxed by the host ([S-12411]).
   A style switched refits the card.
 - **[S-16326]** **Hover**: the pointer over the graph puts the value of the slot under it (a gap's nearest reading) and its time
   in the head's reading's place, and marks it: a hairline down the plot and a dot on each of its values. Nothing changes size
@@ -126,7 +126,7 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   candles from the left edge to the right with a gap of 2 between each two (a column at most 24 wide, a range or a candle 12, the
   rest evenly between), never room at the plot's sides; area and bars stand on the card's foot. The series in the accent, a
   pair's second in the tertiary text's colour, a falling candle Critical, the wash the family's. Nothing to draw (no reading
-  yet) is the foot's hairline across (WR-10).
+  yet) is a flat line across its foot in the disabled text's colour (WR-10).
 - **[S-16315]** **Down and under the pointer**: a value's height on its range from the plot's top to its foot (clamped); the slot
   under the pointer a line's nearest point or a mark's nearest middle.
 - **[S-16316]** The plot is the card's whole box (`PlotMark`): the gap check holds it to the card's edges.

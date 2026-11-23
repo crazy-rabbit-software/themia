@@ -43,6 +43,9 @@ public static class MetricFaceRules
 
     public const double MostScale = 2.5;
 
+    /// <summary>[S-16323] The value block's least: its caption a Body line at 9.1, the family's least read (WR-14).</summary>
+    public const double ValueLeast = 0.65;
+
     /// <summary>[S-16322] The least the graph keeps under the head before it goes behind it: under this the card is too low for both.</summary>
     public const double LeastPlot = 24;
 
@@ -99,7 +102,7 @@ public static class MetricFaceRules
     /// <summary>
     /// [S-16323] The value face: its block (the caption over the value, <paramref name="blockWidth"/> × <paramref name="blockHeight"/>
     /// at scale 1, <paramref name="ink"/> the room over its first ink and under its last) scaled as one until the width or the
-    /// height stops it, never under <see cref="LeastScale"/>; its ink on the insets of the axis that stops it, centred on the
+    /// height stops it, never under <see cref="ValueLeast"/>; its ink on the insets of the axis that stops it, centred on the
     /// other (the owner's "Centred is fine").
     /// </summary>
     public static ValueFace Value(double width, double height, double blockWidth, double blockHeight, LineInk ink)
@@ -107,7 +110,7 @@ public static class MetricFaceRules
         var inkHeight = Math.Max(1, blockHeight - ink.Over - ink.Under);
         var across = Math.Max(1, width - (2 * FamilySpace.Inset)) / Math.Max(1, blockWidth);
         var down = Math.Max(1, height - (2 * FamilySpace.Inset)) / inkHeight;
-        var k = Math.Max(LeastScale, Math.Min(across, down));
+        var k = Math.Max(ValueLeast, Math.Min(across, down));
         var left = (width - (blockWidth * k)) / 2;
         var top = ((height - (inkHeight * k)) / 2) - (ink.Over * k);
         return new ValueFace(k, left, top);
@@ -136,7 +139,7 @@ public static class MetricFaceRules
     /// </summary>
     public static WidgetSizing Sizing(MetricsStyle style) => style switch
     {
-        MetricsStyle.Value => WidgetSizing.Range(new(120, 60), new(200, 90), new(400, 180)),
+        MetricsStyle.Value => WidgetSizing.Range(new(140, 60), new(200, 90), new(400, 180)),
         _ => WidgetSizing.Range(new(160, 40), new(NaturalWidth, NaturalHeight), new(480, 240)),
     };
 }

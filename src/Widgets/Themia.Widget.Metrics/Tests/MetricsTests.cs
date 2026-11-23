@@ -398,7 +398,8 @@ public sealed class MetricsTests
         Assert.Equal((200 - (2 * FamilySpace.Inset)) / 100.0, tall.Scale, 6);
 
         // Never under its least.
-        Assert.Equal(MetricFaceRules.LeastScale, MetricFaceRules.Value(40, 30, 100, 60, ink).Scale);
+        Assert.Equal(MetricFaceRules.ValueLeast, MetricFaceRules.Value(40, 30, 100, 60, ink).Scale);
+        Assert.True(FamilyType.Body.FontSize * MetricFaceRules.ValueLeast >= 9);
     }
 
     [Fact]
