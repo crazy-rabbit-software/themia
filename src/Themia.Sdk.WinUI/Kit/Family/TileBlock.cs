@@ -62,6 +62,9 @@ public sealed partial class TileBlock : Grid
     private readonly FontIcon _switchGlyph;
     private readonly StackPanel _switchLines;
     private readonly ToggleSwitch _switch;
+
+    /// <summary>[S-17150] The room WinUI's ToggleSwitch template keeps over and under its 20 track (measured: 38 tall, the track 10 from its top).</summary>
+    private const double SwitchTemplateAbove = 10, SwitchTemplateBelow = 8;
     private readonly bool _ringed;
     private TileLook _look;
     private TileState _tone;
@@ -112,6 +115,9 @@ public sealed partial class TileBlock : Grid
             OffContent = string.Empty,
             MinWidth = 0,
             Width = TileRules.SwitchWidth,
+            // [S-17150] The row lays out the track alone (ShellMetrics.Page.SwitchHeight, 20): the control's template stands 10 over
+            // and 8 under it, which a one-line row's inset would otherwise have to hold.
+            Margin = new Thickness(0, -SwitchTemplateAbove, 0, -SwitchTemplateBelow),
             AllowFocusOnInteraction = false,
             IsTabStop = false,
             VerticalAlignment = VerticalAlignment.Center,

@@ -241,6 +241,16 @@ public static class TileRules
     /// <summary>[S-11307] The Switch look's height: the name over the state line in the inset.</summary>
     public const double SwitchHeight = (2 * FamilySpace.Inset) + FamilyType.BodyLine + FamilyType.CaptionLine;
 
+    /// <summary>[S-17150] The Switch look's thinnest row: its name alone in the inset, the state line hidden.</summary>
+    public const double SwitchSlimHeight = (2 * FamilySpace.Inset) + FamilyType.BodyLine;
+
+    /// <summary>
+    /// [S-17150] Whether a Switch row of <paramref name="height"/> shows its state line under the name (owner, 2026-11-23: "the
+    /// switch style should be able to be even narrower, it should then hide the on / off text under the title."): only
+    /// where the name and the state both fit in the inset; thinner, the name alone, the switch saying on or off.
+    /// </summary>
+    public static bool SwitchShowsState(double height) => height >= SwitchHeight - 0.5;
+
     /// <summary>[S-11882] The Switch look's narrowest row: its glyph and the switch alone in the inset (<see cref="Switch"/>).</summary>
     public const double SwitchMinWidth = (2 * FamilySpace.Inset) + FamilyShape.Icon + FamilySpace.GlyphGap + SwitchWidth;
 
@@ -259,7 +269,7 @@ public static class TileRules
     /// </summary>
     public static WidgetSizing Sizing(TileLook look, bool stateLine = true)
         => look == TileLook.Switch
-            ? WidgetSizing.Range(new(SwitchMinWidth, SwitchHeight), new(SwitchNaturalWidth, SwitchHeight), SwitchMax) with { Room = StretchRoom.Picture }
+            ? WidgetSizing.Range(new(SwitchMinWidth, SwitchSlimHeight), new(SwitchNaturalWidth, stateLine ? SwitchHeight : SwitchSlimHeight), SwitchMax) with { Room = StretchRoom.Picture }
             : WidgetSizing.Range(new(MinSide, MinSide), new(NaturalSide(stateLine), NaturalSide(stateLine)), new(MaxSide, MaxSide)) with { Room = StretchRoom.Picture };
 
     /// <summary>The largest of the family's glyph sizes at most <paramref name="room"/>, 16 at least.</summary>

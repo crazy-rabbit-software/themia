@@ -352,9 +352,24 @@ public sealed class FamilyBlockRulesTests
         var row = TileRules.Sizing(TileLook.Switch);
         Assert.Empty(row.Problems());
         Assert.False(row.FixedWidth || row.FixedHeight);
-        Assert.Equal(60, row.Min.Height);
+        Assert.Equal(60, row.Natural.Height);
         Assert.Equal(new SwitchParts(Glyph: true, Lines: false), TileRules.Switch(row.Min.Width - 24));
         Assert.Equal(new SwitchParts(Glyph: true, Lines: true), TileRules.Switch(row.Natural.Width - 24));
+    }
+
+    [Fact]
+    public void S17150_the_switch_row_narrows_to_its_name_alone_its_state_line_hidden()
+    {
+        // Owner, 2026-11-23: "the switch style should be able to be even narrower, it should then hide the on / off text
+        // under the title."
+        var row = TileRules.Sizing(TileLook.Switch);
+        Assert.Equal((2 * FamilySpace.Inset) + FamilyType.BodyLine, row.Min.Height);
+        Assert.True(row.Min.Height < TileRules.SwitchHeight);
+
+        Assert.True(TileRules.SwitchShowsState(TileRules.SwitchHeight));
+        Assert.True(TileRules.SwitchShowsState(200));
+        Assert.False(TileRules.SwitchShowsState(TileRules.SwitchHeight - 1));
+        Assert.False(TileRules.SwitchShowsState(row.Min.Height));
     }
 
     [Fact]

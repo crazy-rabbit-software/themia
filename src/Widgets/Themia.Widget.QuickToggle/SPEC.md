@@ -38,6 +38,18 @@ Toggles line; the JSON context), `Localization/Locales/` (its own `QuickToggleSt
 - **[S-16704]** **A placed old toggle becomes the quick setting of its target.** Each removed kind (`wifiToggle` …
   `gameModeToggle`, the target's key and "Toggle") is folded on load ([S-16690]): the card keeps its id, box, style and look
   and becomes `quickToggle` with that target, one logged line each.
+- **[S-17150]** **The Switch row narrows to its name.** (Owner, 2026-11-23: *"the switch style should be able to be even
+  narrower, it should then hide the on / off text under the title."*) The Switch look's least height is its name alone in the
+  inset (`TileRules.SwitchSlimHeight`, 44: 50 on the grid); thinner than its two lines (`TileRules.SwitchHeight`, 60) the
+  On/Off line under the name is hidden (`TileRules.SwitchShowsState`), the switch saying it. A power button's Switch row
+  hides its why line the same way. Tests `FamilyBlockRulesTests.S17150_`.
+- **[S-17151]** **No On/Off line.** (Owner, 2026-11-23: *"actually from the toggles and the buttons remove the on/off text
+  in general"*.) A quick setting draws its glyph and name alone in every look: the Tile's fill, the Round's circle and the
+  Switch's switch say on or off, the tooltip in words ("Wi-Fi: On"); a new one lands at 100 × 100 (a Tile, a Round) or a
+  Switch row one line tall (`TileRules.Sizing(look, stateLine: false)`), as a power button does.
+- **[S-17152]** **A power button is the same tile.** (Owner, 2026-11-23: *"the power buttons should have the same base
+  component as the toggle buttons"*.) A power button's face is the quick setting's Tile block, no ring round its glyph; its
+  only line is the why line while armed, failed or unavailable ([S-1913]..[S-1915]). Tests `PowerActionTests.S17152_`.
 
 The thirteen kinds it replaced, each its own module and config until 2026-11-23 (owner, that day: *"they should actually be
 merged into one widget and not be multiple ones … but in the backend it is the same one"*):

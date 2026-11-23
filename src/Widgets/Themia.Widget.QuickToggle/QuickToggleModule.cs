@@ -106,7 +106,7 @@ public sealed class QuickToggleModule : IWidgetModule
         Label = QuickToggleStr.Toggles_Kind_Label.Local(),
         Description = QuickToggleStr.Toggles_Kind_Desc.Local(),
         Glyph = Glyphs.Settings,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 0),
         Presets = QuickToggleTargets.Presets,

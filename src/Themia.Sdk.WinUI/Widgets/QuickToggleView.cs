@@ -184,23 +184,19 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         }
 
         var row = _tile.Look == TileLook.Switch;
-        var natural = TileRules.Sizing(_tile.Look).Natural;
+        var natural = TileRules.Sizing(_tile.Look, stateLine: false).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
-        // [S-15755] [S-15764] The name and the state line it says now planned in one box, each on the lines it takes at the
-        // inset's width (a refused click's sentence on two where it needs them), so the face stands centred on what it draws.
+        // [S-17151] The name alone, no On/Off line under it in any look (owner, 2026-11-23: "from the toggles and the buttons
+        // remove the on/off text in general"): the fill, the circle or the switch says the state, the tooltip in words.
         var locale = Strings.Current;
-        _plannedState = StateNow(locale);
-        var plan = TileBlock.Plan(QuickToggleRules.Name(locale, _toggle), [_plannedState], width - (2 * FamilySpace.Inset));
-        var face = TileRules.Face(width, height, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: plan.StateLines);
+        var plan = TileBlock.Plan(QuickToggleRules.Name(locale, _toggle), [], width - (2 * FamilySpace.Inset));
+        var face = TileRules.Face(width, height, stateLine: false, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: 0);
         var texted = row || face.Texted;
         // [S-12806] A box too small for the family's inset gives it up round the glyph (its switch row keeps it).
         _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
-        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: texted, state: texted, face.Name, face.State, row ? 0 : face.Mark, plan.Width, plan.StateLines);
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: texted, state: false, face.Name, face.State, row ? 0 : face.Mark, plan.Width, 0);
         Paint();
     }
-
-    /// <summary>[S-15764] The state line the face is laid for.</summary>
-    private string _plannedState = string.Empty;
 
     /// <summary>[S-15764] What the state line says now.</summary>
     private string StateNow(Locale locale) => QuickToggleRules.StateLine(locale, _switch.Look(Reading), _switch.Refused);
@@ -219,12 +215,6 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         var live = look is ToggleLook.On or ToggleLook.Off;
 
         var stateLine = StateNow(locale);
-        if (stateLine != _plannedState)
-        {
-            Lay();
-            return;
-        }
-
         _tile.Show(QuickToggleRules.Glyph(_toggle, on: look != ToggleLook.Off), QuickToggleRules.Name(locale, _toggle), stateLine, QuickToggleRules.Tile(look));
         _tile.Face(!live ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
 
