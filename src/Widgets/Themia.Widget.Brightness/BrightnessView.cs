@@ -79,13 +79,11 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         Children.Add(_level);
 
         // [S-6716] The Controls slider: its rail the Track role, its value the accent, no focus.
-        _slider = ControlsBlock.RailSlider(0, 100, 0);
+        _slider = ControlsBlock.RowSlider(0, 100, 0);
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
         _slider.ValueChanged += (_, args) => OnSliderChanged(args.NewValue);
 
-        // The template's own height (32) is no taller than its thumb's ink here: the row is the thumb's height, never cut.
-        _slider.Resources["SliderHorizontalHeight"] = ControlsRules.SliderThumb;
         SetColumn(_slider, 2);
         Children.Add(_slider);
 

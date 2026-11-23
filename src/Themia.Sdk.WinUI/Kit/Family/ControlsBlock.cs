@@ -183,6 +183,22 @@ public sealed partial class ControlsBlock : Grid
         return slider;
     }
 
+    /// <summary>
+    /// [S-17184] [S-17225] The Controls slider of a level's one row (<see cref="LevelRow"/>): <see cref="RailSlider"/> as tall
+    /// as its thumb, the rail on the row's middle and the thumb whole. The template stands its 4 rail between 14 over and 14
+    /// under (32 in all); held to the thumb's 22 by its height alone, the rail sat 5 under the row's middle and the thumb's foot
+    /// was cut. The room over and under the rail is what the thumb leaves, alike.
+    /// </summary>
+    public static Slider RowSlider(double minimum, double maximum, double value)
+    {
+        var slider = RailSlider(minimum, maximum, value);
+        var room = (ControlsRules.SliderThumb - ControlsRules.Rail) / 2;
+        slider.Resources["SliderHorizontalHeight"] = ControlsRules.SliderThumb;
+        slider.Resources["SliderPreContentMargin"] = room;
+        slider.Resources["SliderPostContentMargin"] = room;
+        return slider;
+    }
+
     private T Add<T>(ControlKind kind, T element)
         where T : FrameworkElement
     {

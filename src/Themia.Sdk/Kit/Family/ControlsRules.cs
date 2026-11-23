@@ -50,6 +50,9 @@ public static class ControlsRules
     /// </summary>
     public const double SliderThumb = 22;
 
+    /// <summary>[S-17184] A slider's rail: 4 thick, the template's (<c>SliderTrackThemeHeight</c>).</summary>
+    public const double Rail = 4;
+
     /// <summary>
     /// [S-12833] The text size a Controls row gives way at in a face drawn small (<c>FaceFloor</c>): its words' (Body);
     /// a 16 glyph on an icon button reads like 12, and a slider or a switch is no smaller to use than a word is to read.
