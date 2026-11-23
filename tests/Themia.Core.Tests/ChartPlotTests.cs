@@ -303,4 +303,25 @@ public sealed class ChartPlotTests
         Assert.True(double.IsNaN(flat.Fraction(double.NaN)));
         Assert.Equal(1, new ChartModel { Low = 0, High = 10 }.Fraction(15));
     }
+
+    /// <summary>[S-16450] Columns spread across the plot edge to edge: the first on its left edge, the last on its right, alike, 4 apart.</summary>
+    [Theory]
+    [InlineData(8, 900)]
+    [InlineData(8, 220)]
+    [InlineData(1, 300)]
+    public void S16450_columns_spread_edge_to_edge(int count, double width)
+    {
+        var first = ChartPlot.Spread(0, count, width);
+        var last = ChartPlot.Spread(count - 1, count, width);
+
+        Assert.Equal(0, first.Left);
+        Assert.Equal(width, last.Left + last.Width, 6);
+        Assert.Equal(first.Width, last.Width, 6);
+        if (count > 1)
+        {
+            Assert.Equal(FamilySpace.S1, ChartPlot.Spread(1, count, width).Left - first.Width, 6);
+        }
+
+        Assert.Equal((0.0, 0.0), ChartPlot.Spread(0, 0, width));
+    }
 }

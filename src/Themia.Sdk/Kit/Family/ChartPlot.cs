@@ -226,6 +226,22 @@ public static class ChartPlot
         _ => 0,
     };
 
+    /// <summary>
+    /// [S-16450] Column <paramref name="index"/> of <paramref name="count"/> spread across a plot <paramref name="width"/> wide
+    /// edge to edge (owner, 2026-11-19: "Plot edge to edge"): the first on the left edge, the last on the right, the columns
+    /// alike and 4 apart (a rain hour's columns stood 48 DIP in from the sides with 96 between them at 900 wide).
+    /// </summary>
+    public static (double Left, double Width) Spread(int index, int count, double width)
+    {
+        if (count <= 0 || !(width > 0))
+        {
+            return (0, 0);
+        }
+
+        var each = Math.Max(0, (width - ((count - 1) * FamilySpace.S1)) / count);
+        return (index * (each + FamilySpace.S1), each);
+    }
+
     /// <summary>[S-6750] A column's or a candle's width in its cell: its share of the cell, at least the stroke, at most a large icon's half.</summary>
     public static double BarWidth(double cell) => Math.Clamp(cell * 0.6, FamilyShape.Stroke, FamilyShape.IconLarge / 2);
 

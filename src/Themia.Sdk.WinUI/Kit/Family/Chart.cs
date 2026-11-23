@@ -410,7 +410,8 @@ public sealed partial class Chart : Grid
     /// <summary>
     /// [S-16436] Each slot's column in its track: the track the band's top to the plot's foot in the Track role, the fill
     /// rising from the foot by its share of that room in its role (a wet slot never under the track's width); a slot at
-    /// nothing its track alone. Both stand on the foot square, round at the top.
+    /// nothing its track alone. Both stand on the foot square, round at the top. [S-16450] The columns spread across the plot
+    /// edge to edge, the first on its left edge and the last on its right, 4 apart (<see cref="ChartPlot.Spread"/>).
     /// </summary>
     private void Tracked(IReadOnlyList<ChartSample> samples, Plot plot, double w, double h)
     {
@@ -419,13 +420,12 @@ public sealed partial class Chart : Grid
             return;
         }
 
-        var width = ChartPlot.BarWidth(w / samples.Count);
         var room = Math.Max(0, h - plot.Top);
-        foreach (var sample in samples)
+        for (var i = 0; i < samples.Count; i++)
         {
-            var left = sample.X - (width / 2);
+            var (left, width) = ChartPlot.Spread(i, samples.Count, w);
             Add(new Border { Width = width, Height = room, CornerRadius = Top(width, room), Background = Family.Brush(ColourRole.Track) }, left, plot.Top);
-            var share = _model.Fraction(sample.Value);
+            var share = _model.Fraction(samples[i].Value);
             if (!(share > 0))
             {
                 continue;
@@ -433,13 +433,13 @@ public sealed partial class Chart : Grid
 
             var height = Math.Max(Math.Min(width, FamilyShape.Track), share * room);
             var bar = new Border { Width = width, Height = height, CornerRadius = Top(width, height) };
-            Paint(bar, sample.Role);
+            Paint(bar, samples[i].Role);
             Add(bar, left, h - height);
         }
 
         static CornerRadius Top(double width, double height)
         {
-            var round = Family.Round(width, height).TopLeft;
+            var round = Math.Min(Family.Round(width, height).TopLeft, FamilyShape.Radius);
             return new CornerRadius(round, round, 0, 0);
         }
     }
