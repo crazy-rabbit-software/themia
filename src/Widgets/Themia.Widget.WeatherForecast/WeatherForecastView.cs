@@ -51,6 +51,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// <summary>[S-16440] Without a forecast: why, the Status block's one row on the card's top edge, the face under it.</summary>
     private readonly StatusBlock _state = StatusBlock.Line();
 
+    // [S-16440] Whether there is a state to say (the row shows where the card holds it over a day).
+    private bool _stateWanted;
+
 
     private WeatherForecastConfig _config = new();
 
@@ -147,6 +150,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             _body.Visibility = Visibility.Visible;
             _mark.Clear();
             OnlineParts.ShowState(_state, _feed.Status, Glyphs.Weather, _feed.Refresh);
+            _stateWanted = _state.Visibility == Visibility.Visible;
             ToolTipService.SetToolTip(_body, OnlineParts.Caption(_feed.Status) is { Length: > 0 } why ? why : null);
             _built = null;
             Lay();
@@ -155,6 +159,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
 
         _unread = null;
         _state.Hide();
+        _stateWanted = false;
         ToolTipService.SetToolTip(_body, null);
         _body.Visibility = Visibility.Visible;
         _mark.Show(OnlineParts.Problems(held), busy: false);
@@ -173,8 +178,12 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         }
 
         // [S-16440] A state's row on the card's top edge: the face stands right under it, in the box it leaves.
-        var stated = _state.Visibility == Visibility.Visible;
-        var over = stated ? LineRules.EdgeRow(_area.Grid()) - FamilySpace.Inset : 0;
+        // Only where the card holds it over a day's row: a card one row tall keeps its face, why its tooltip (WR-10: never
+        // the status line alone).
+        var edge = LineRules.EdgeRow(_area.Grid());
+        var stated = _stateWanted && _area.Height + FamilySpace.Inset >= edge + ItemSize.Optimal(FamilyShape.RowHeight(1), _area.Grid());
+        _state.Visibility = stated ? Visibility.Visible : Visibility.Collapsed;
+        var over = stated ? edge - FamilySpace.Inset : 0;
         var area = _area with { Height = Math.Max(1, _area.Height - over) };
         _body.Margin = new Thickness(0, stated ? FamilySpace.Inset : 0, 0, 0);
 
