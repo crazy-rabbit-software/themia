@@ -174,79 +174,89 @@
               "pick": "quickToggle/wifi",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/bluetooth",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/airplaneMode",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/sound",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/microphone",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/spatialSound",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/monoAudio",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/nightLight",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/colorFilters",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/rotationLock",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/energySaver",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/doNotDisturb",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
             },
             {
               "pick": "quickToggle/gameMode",
               "style": "switch",
               "w": 24,
-              "h": 6
+              "h": 5
+            }
+          ]
+        },
+        {
+          "title": "Brightness",
+          "widgets": [
+            {
+              "pick": "brightness",
+              "w": 24,
+              "h": 5
             }
           ]
         }

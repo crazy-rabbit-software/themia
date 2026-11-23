@@ -3198,7 +3198,7 @@ band drawn on the page with the real pointer (Ctrl and Shift too), placing by a 
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
-#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16731], [S-16740]..[S-16747], [S-17160]..[S-17164])
+#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16731], [S-16740]..[S-16747], [S-17160]..[S-17165])
 
 The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
 build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
@@ -3605,6 +3605,9 @@ able to set the width of a column in blocks exactly."*). Owning files as above; 
   way to the bottom as it does in other screens as well."*): with icons to show, the page's icons' area (and the desktop's
   grid drawn on it, [S-13712]) is at least as tall as the well leaves under its search box (`UnplacedPageView.FillHeight`,
   set by the gallery to the well's height), as the other tabs' grid fills their well.
+- **[S-17165]** **Quick settings, 2026-11-23**: the switch rows are one line now, 5 blocks tall (were 6); Brightness has its
+  own section there under the switches (owner: *"brightness slider should be moved to the quick settings and should have a
+  row design"*), a wide, one-row box (24 by 5 blocks, held to its kind's sizing), no longer on Devices.
 
 Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays and
 the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the
