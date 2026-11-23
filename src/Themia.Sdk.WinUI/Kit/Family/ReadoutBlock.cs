@@ -37,6 +37,12 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     private readonly Run _heldValue = new();
     private readonly Run _heldUnit = new();
     private string _template = string.Empty;
+
+    /// <summary>[S-16607] Whether a held value stands where the alignment puts it, never padded.</summary>
+    private bool _aligned;
+
+    /// <summary>The value as last shown, before any padding.</summary>
+    private string _shown = string.Empty;
     private string _templateUnit = string.Empty;
     private TypeStep _step = FamilyType.Big28;
     private ColourRole _valueRole = ColourRole.TextPrimary;
@@ -136,16 +142,21 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     /// [S-14319] Hold the value to <paramref name="template"/> (<see cref="FigureTemplate"/>: its format's widest form) and
     /// the unit to <paramref name="unit"/> (its widest, a meridiem's): the readout is sized and its ink stood by them, never
     /// by the value it shows, which is padded at its start to the template's places. Empty: sized by what it shows.
+    /// [S-16607] <paramref name="aligned"/>: the value is never padded but stands in the held box where the readout's
+    /// alignment puts it (<see cref="Use(TypeStep, HorizontalAlignment)"/>: centred, or on its start), for a face whose
+    /// other lines align so: its figures still tabular, the box still the template's, so it never moves as it runs.
     /// </summary>
-    public void Hold(string template, string unit = "")
+    public void Hold(string template, string unit = "", bool aligned = false)
     {
-        if (_template == (template ?? string.Empty) && _templateUnit == (unit ?? string.Empty))
+        if (_template == (template ?? string.Empty) && _templateUnit == (unit ?? string.Empty) && _aligned == aligned)
         {
             return;
         }
 
         _template = template ?? string.Empty;
         _templateUnit = unit ?? string.Empty;
+        _aligned = aligned;
+        Set(_value, Held && !_aligned ? FigureTemplate.Pad(_shown, _template) : _shown);
         _heldValue.Text = _template;
         _heldUnit.Text = _unit.Text.Length > 0 ? _templateUnit : string.Empty;
         _held.Visibility = _template.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -184,7 +195,8 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     /// </summary>
     public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary, ColourRole leadRole = ColourRole.TextSecondary, ColourRole underRole = ColourRole.TextSecondary)
     {
-        Set(_value, Held ? FigureTemplate.Pad(value ?? string.Empty, _template) : value ?? string.Empty);
+        _shown = value ?? string.Empty;
+        Set(_value, Held && !_aligned ? FigureTemplate.Pad(_shown, _template) : _shown);
         _unitText = unit ?? string.Empty;
 
         // An en space before the delta: a run has no margin of its own.

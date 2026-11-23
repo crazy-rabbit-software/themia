@@ -9495,6 +9495,12 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   never 0.6 over it. The layout dump writes a held reading's box (`holds`, `HoldMark`: its template's ink across) and the
   gap check judges its sides by it, the place every value it shows stands in (a "1:11" padded where "88:88" stands, a
   "10:42" whose "1" leaves more room before its ink than an 8). Tests `FigureTemplateTests.S14319_`.
+- **[S-16607]** **A held reading may stand aligned in its box** (WR-7, the pomodoro's audit 2026-11-23: its "9:24" padded
+  at its start stood 8 to 46 DIP off the centred caption under it). `ReadoutBlock.Hold(template, unit, aligned: true)`:
+  the box is still the template's and the figures tabular (WR-15: the box never moves or rescales, a tick moves no
+  figure), but the value is not padded: it stands where the readout's alignment puts it in that box, centred or on its
+  start, as the face's other lines do. Only a face that aligns its lines asks for it (the pomodoro, SPEC POMODORO
+  [S-16600]); every other held reading keeps its padding.
 - **[S-15675]** **A held reading is judged down by its template too** (WR-15, owner 2026-11-20: "the clock right now
   changes its layout depending on the time that it shows"). The figures a held reading shows sit inside its template's
   ink, not on its edges: the template's 8 is round over the cap line and under the baseline, a "4" or a "2" flat on the
