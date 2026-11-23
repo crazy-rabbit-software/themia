@@ -79,9 +79,10 @@ public static class TileRules
 
     /// <summary>
     /// [S-6715] A Round tile's glyph inside its circle of <paramref name="circle"/>: the largest of the
-    /// family's glyph sizes (16, 32, a Readout or Hero step) at most half the circle, 16 at least.
+    /// family's glyph sizes (16, 32, a Readout or Hero step) at most half the circle, 16 at least; [S-16705] never wider
+    /// than the circle itself (a circle under 16, at the tile's least, holds its glyph edge to edge, as the 16 circle did).
     /// </summary>
-    public static double RoundGlyph(double circle) => Largest(circle / 2);
+    public static double RoundGlyph(double circle) => double.IsFinite(circle) && circle > 0 ? Math.Min(circle, Largest(circle / 2)) : Largest(circle / 2);
 
     /// <summary>
     /// [S-15740] A ringed tile's arm ring (a power button's) round its glyph of <paramref name="glyph"/>: the glyph is

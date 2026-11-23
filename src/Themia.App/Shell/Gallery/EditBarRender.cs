@@ -438,6 +438,9 @@ internal static partial class EditBarRender
             (station, "touching", null, null, null),
             (station, "touching-appearance", "tab:appearance", null, null),
             (toggle, "toggle", null, null, null),
+
+            // [S-16700] The quick setting's Toggles line open: every target by its name (the module's English words).
+            (toggle, "toggle-target", "w/Toggles", null, null),
             (weather, "weather", null, null, null),
             (weather, "weather-location", "w/" + Str.Shell_Place_Location.Text(), "zur", null),
             (weather, "weather-location-open", "w/" + Str.Shell_Place_Location.Text(), null, null),

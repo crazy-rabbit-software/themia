@@ -417,6 +417,9 @@ public sealed class FamilyBlockRulesTests
                 var room = Math.Min(w, h) - (2 * face.Inset);
                 Assert.True(face.MarkSize >= ScaleFloor.Glyph && face.MarkSize <= room + 1e-9, $"{w} x {h}: glyph {face.MarkSize}");
 
+                // The round look's glyph stays inside its circle.
+                Assert.True(TileRules.RoundGlyph(face.MarkSize) <= face.MarkSize, $"{w} x {h}: round glyph");
+
                 // Words only where they are read: the block scaled into the inset keeps its smallest text at 9 or more.
                 if (face.Texted)
                 {
