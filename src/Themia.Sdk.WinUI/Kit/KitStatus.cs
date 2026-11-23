@@ -26,6 +26,9 @@ public sealed partial class KitStatus : StackPanel
     private readonly IWidgetHost _host;
     private readonly FontIcon _problem;
     private readonly ProgressRing _ring;
+
+    /// <summary>[S-16327] The compact line saying why, before the glyph, where a face has no data to show (none: collapsed).</summary>
+    private readonly TextBlock _why = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private bool _offersAccounts;
 
     public KitStatus(IWidgetHost host)
@@ -46,6 +49,11 @@ public sealed partial class KitStatus : StackPanel
         _problem.Tapped += OnProblemTapped;
         _ring = ToolLine.Busy();
         _ring.IsActive = false;
+        _why.TextWrapping = TextWrapping.NoWrap;
+        _why.TextTrimming = TextTrimming.CharacterEllipsis;
+        _why.VerticalAlignment = VerticalAlignment.Center;
+        _why.Visibility = Visibility.Collapsed;
+        Children.Add(_why);
         Children.Add(_problem);
         Children.Add(_ring);
         Show([], busy: false);
@@ -173,6 +181,18 @@ public sealed partial class KitStatus : StackPanel
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// [S-16327] Say why in a compact line before the glyph (a face that has nothing to show: "Offline"), at most
+    /// <paramref name="most"/> wide, cut past that; null or empty: no line. Its room is the status's, as the glyph's is.
+    /// </summary>
+    public void Say(string? why, double most)
+    {
+        _why.Text = why ?? string.Empty;
+        _why.MaxWidth = Math.Max(0, most);
+        _why.Visibility = string.IsNullOrEmpty(why) || !(most > 0) ? Visibility.Collapsed : Visibility.Visible;
+        LeaveRoom();
     }
 
     /// <summary>Nothing to say: the glyph hidden, the ring stopped.</summary>
